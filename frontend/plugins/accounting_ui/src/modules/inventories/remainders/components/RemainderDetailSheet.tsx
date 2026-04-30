@@ -49,6 +49,79 @@ const parseInventories = (inventories: any): InventoryEntry[] => {
 const fmt = (v: number) =>
   v === 0 ? '' : v.toLocaleString(undefined, { maximumFractionDigits: 4 });
 
+type LabelMap = Record<string, { code?: string; title?: string }>;
+
+const joinLabel = (code?: string, title?: string) =>
+  [code, title].filter(Boolean).join('') || '';
+
+const buildInventoryColumns = (
+  branchMap: LabelMap,
+  deptMap: LabelMap,
+): ColumnDef<InventoryEntry>[] => [
+  {
+    id: 'branch',
+    header: 'Branch',
+    cell: ({ row }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip
+          value={joinLabel(
+            branchMap[row.original.branchId]?.code,
+            branchMap[row.original.branchId]?.title,
+          )}
+        />
+      </RecordTableInlineCell>
+    ),
+    size: 220,
+  },
+  {
+    id: 'department',
+    header: 'Department',
+    cell: ({ row }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip
+          value={joinLabel(
+            deptMap[row.original.departmentId]?.code,
+            deptMap[row.original.departmentId]?.title,
+          )}
+        />
+      </RecordTableInlineCell>
+    ),
+    size: 220,
+  },
+  {
+    id: 'remainder',
+    header: 'Remainder',
+    cell: ({ row }) => (
+      <RecordTableInlineCell>{fmt(row.original.remainder)}</RecordTableInlineCell>
+    ),
+    size: 120,
+  },
+  {
+    id: 'cost',
+    header: 'Cost',
+    cell: ({ row }) => (
+      <RecordTableInlineCell>{fmt(row.original.cost)}</RecordTableInlineCell>
+    ),
+    size: 120,
+  },
+  {
+    id: 'soonIn',
+    header: 'Soon In',
+    cell: ({ row }) => (
+      <RecordTableInlineCell>{fmt(row.original.soonIn)}</RecordTableInlineCell>
+    ),
+    size: 120,
+  },
+  {
+    id: 'soonOut',
+    header: 'Soon Out',
+    cell: ({ row }) => (
+      <RecordTableInlineCell>{fmt(row.original.soonOut)}</RecordTableInlineCell>
+    ),
+    size: 120,
+  },
+];
+
 type InventoriesTableProps = {
   inventories: any;
 };
@@ -68,87 +141,13 @@ export const InventoriesTable = ({ inventories }: InventoriesTableProps) => {
     skip: departmentIds.length === 0,
   });
 
-  const branchMap = Object.fromEntries((branches ?? []).map((b) => [b._id, b]));
-  const deptMap = Object.fromEntries(
-    (departments ?? []).map((d) => [d._id, d]),
-  );
+  const branchMap: LabelMap = Object.fromEntries((branches ?? []).map((b) => [b._id, b]));
+  const deptMap: LabelMap = Object.fromEntries((departments ?? []).map((d) => [d._id, d]));
 
-  const label = (code?: string, title?: string) =>
-    [code, title].filter(Boolean).join('') || '';
-
-  const columns: ColumnDef<InventoryEntry>[] = [
-    {
-      id: 'branch',
-      header: 'Branch',
-      cell: ({ row }) => {
-        const b = branchMap[row.original.branchId];
-        return (
-          <RecordTableInlineCell>
-            <TextOverflowTooltip value={label(b?.code, b?.title)} />
-          </RecordTableInlineCell>
-        );
-      },
-      size: 220,
-    },
-    {
-      id: 'department',
-      header: 'Department',
-      cell: ({ row }) => {
-        const d = deptMap[row.original.departmentId];
-        return (
-          <RecordTableInlineCell>
-            <TextOverflowTooltip value={label(d?.code, d?.title)} />
-          </RecordTableInlineCell>
-        );
-      },
-      size: 220,
-    },
-    {
-      id: 'remainder',
-      header: 'Remainder',
-      cell: ({ row }) => (
-        <RecordTableInlineCell>
-          {fmt(row.original.remainder)}
-        </RecordTableInlineCell>
-      ),
-      size: 120,
-    },
-    {
-      id: 'cost',
-      header: 'Cost',
-      cell: ({ row }) => (
-        <RecordTableInlineCell>{fmt(row.original.cost)}</RecordTableInlineCell>
-      ),
-      size: 120,
-    },
-    {
-      id: 'soonIn',
-      header: 'Soon In',
-      cell: ({ row }) => (
-        <RecordTableInlineCell>
-          {fmt(row.original.soonIn)}
-        </RecordTableInlineCell>
-      ),
-      size: 120,
-    },
-    {
-      id: 'soonOut',
-      header: 'Soon Out',
-      cell: ({ row }) => (
-        <RecordTableInlineCell>
-          {fmt(row.original.soonOut)}
-        </RecordTableInlineCell>
-      ),
-      size: 120,
-    },
-  ];
+  const columns = buildInventoryColumns(branchMap, deptMap);
 
   return (
-    <RecordTable.Provider
-      columns={columns}
-      data={rows}
-      className="h-full px-4 pb-4"
-    >
+    <RecordTable.Provider columns={columns} data={rows} className="h-full px-4 pb-4">
       <RecordTable>
         <RecordTable.Header />
         <RecordTable.Body>
