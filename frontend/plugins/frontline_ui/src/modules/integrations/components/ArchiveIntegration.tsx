@@ -1,4 +1,4 @@
-import { toast, useConfirm } from 'erxes-ui';
+import { Spinner, toast, useConfirm } from 'erxes-ui';
 import { IconArchive } from '@tabler/icons-react';
 import { useMutation } from '@apollo/client';
 import { ARCHIVE_INTEGRATION } from '@/integrations/graphql/mutations/ArchiveIntegration';
@@ -43,7 +43,7 @@ export const ArchiveIntegration = ({
   return (
     <div onClick={handleArchive} className="flex items-center gap-2 w-full">
       {loading ? (
-        <div className="w-4 h-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
+        <Spinner className="size-4 text-primary" />
       ) : (
         <IconArchive size={16} />
       )}

@@ -9,10 +9,9 @@ export const PrintBankDocument = ({
 }) => {
   const detail = transaction?.details?.[0];
 
-  const amount =
-    detail?.currencyAmount ?? detail?.amount ?? 0;
+  const amount = detail?.currencyAmount ?? detail?.amount ?? 0;
 
-  const amountFormatted = fixNum(amount, 2).toLocaleString()
+  const amountFormatted = fixNum(amount, 2).toLocaleString();
 
   // const amountInWords =
   //   amount !== '' ? numberToWord(amount) : '';
