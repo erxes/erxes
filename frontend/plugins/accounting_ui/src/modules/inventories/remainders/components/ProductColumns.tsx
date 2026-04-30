@@ -145,9 +145,14 @@ const ClickableCell = ({
   const open = useOpenRemainderSheet(cell);
   return (
     <RecordTableInlineCell>
-      <div className="cursor-pointer w-full" onClick={open}>
+      <button
+        type="button"
+        className="cursor-pointer w-full text-left bg-transparent border-0 p-0"
+        onClick={open}
+        onKeyDown={(e) => e.key === 'Enter' && open()}
+      >
         <TextOverflowTooltip value={value} />
-      </div>
+      </button>
     </RecordTableInlineCell>
   );
 };

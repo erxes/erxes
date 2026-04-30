@@ -14,61 +14,6 @@ import { useBranchesMain, useDepartmentsMain } from 'ui-modules';
 import { useReCalcRemainders } from '../hooks/useReCalcRemainders';
 import { selectedRemainderProductAtom } from '../states/productDetailStates';
 
-export const RemainderDetailSheet = () => {
-  const [selected, setSelected] = useAtom(selectedRemainderProductAtom);
-  const { addSafeRemainder, loading } = useReCalcRemainders();
-
-  const handleReCalc = () => {
-    if (!selected) return;
-    addSafeRemainder({ variables: { productIds: [selected.productId] } });
-  };
-
-  return (
-    <Sheet
-      open={!!selected}
-      onOpenChange={(open) => !open && setSelected(null)}
-    >
-      <Sheet.View className="sm:max-w-5xl">
-        <Sheet.Header>
-          <div>
-            <Sheet.Title>
-              {selected?.productCode && (
-                <span className="text-muted-foreground mr-2 font-normal">
-                  {selected.productCode}
-                </span>
-              )}
-              {selected?.productName}
-            </Sheet.Title>
-          </div>
-          <Sheet.Close />
-        </Sheet.Header>
-        <Sheet.Content className="overflow-hidden">
-          <ScrollArea className="h-full">
-            {selected && (
-              <InventoriesTable inventories={selected.inventories} />
-            )}
-          </ScrollArea>
-        </Sheet.Content>
-        <Sheet.Footer className="flex justify-end px-6 py-4 border-t border-border">
-          <Button variant="outline" onClick={handleReCalc} disabled={loading}>
-            {loading ? (
-              <>
-                <Spinner />
-                Running...
-              </>
-            ) : (
-              <>
-                <IconRefresh size={16} />
-                ReCalc Remainder
-              </>
-            )}
-          </Button>
-        </Sheet.Footer>
-      </Sheet.View>
-    </Sheet>
-  );
-};
-
 type InventoryEntry = {
   branchId: string;
   departmentId: string;
@@ -104,7 +49,11 @@ const parseInventories = (inventories: any): InventoryEntry[] => {
 const fmt = (v: number) =>
   v === 0 ? '' : v.toLocaleString(undefined, { maximumFractionDigits: 4 });
 
-const InventoriesTable = ({ inventories }: { inventories: any }) => {
+type InventoriesTableProps = {
+  inventories: any;
+};
+
+export const InventoriesTable = ({ inventories }: InventoriesTableProps) => {
   const rows = parseInventories(inventories);
 
   const branchIds = [...new Set(rows.map((r) => r.branchId))];
@@ -207,5 +156,60 @@ const InventoriesTable = ({ inventories }: { inventories: any }) => {
         </RecordTable.Body>
       </RecordTable>
     </RecordTable.Provider>
+  );
+};
+
+export const RemainderDetailSheet = () => {
+  const [selected, setSelected] = useAtom(selectedRemainderProductAtom);
+  const { addSafeRemainder, loading } = useReCalcRemainders();
+
+  const handleReCalc = () => {
+    if (!selected) return;
+    addSafeRemainder({ variables: { productIds: [selected.productId] } });
+  };
+
+  return (
+    <Sheet
+      open={!!selected}
+      onOpenChange={(open) => !open && setSelected(null)}
+    >
+      <Sheet.View className="sm:max-w-5xl">
+        <Sheet.Header>
+          <div>
+            <Sheet.Title>
+              {selected?.productCode && (
+                <span className="text-muted-foreground mr-2 font-normal">
+                  {selected.productCode}
+                </span>
+              )}
+              {selected?.productName}
+            </Sheet.Title>
+          </div>
+          <Sheet.Close />
+        </Sheet.Header>
+        <Sheet.Content className="overflow-hidden">
+          <ScrollArea className="h-full">
+            {selected && (
+              <InventoriesTable inventories={selected.inventories} />
+            )}
+          </ScrollArea>
+        </Sheet.Content>
+        <Sheet.Footer className="flex justify-end px-6 py-4 border-t border-border">
+          <Button variant="outline" onClick={handleReCalc} disabled={loading}>
+            {loading ? (
+              <>
+                <Spinner />
+                Running...
+              </>
+            ) : (
+              <>
+                <IconRefresh size={16} />
+                ReCalc Remainder
+              </>
+            )}
+          </Button>
+        </Sheet.Footer>
+      </Sheet.View>
+    </Sheet>
   );
 };
