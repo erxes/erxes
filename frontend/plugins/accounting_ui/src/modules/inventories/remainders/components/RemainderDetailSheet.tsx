@@ -54,21 +54,19 @@ type LabelMap = Record<string, { code?: string; title?: string }>;
 const joinLabel = (object: any) => {
   const { code, title } = object || {};
   return [code, title].filter(Boolean).join('') || 'Maybe deleted';
-}
+};
 
 const buildInventoryColumns = (
   branchMap: LabelMap,
   departmentMap: LabelMap,
-): ColumnDef<InventoryEntry>[] => ([
+): ColumnDef<InventoryEntry>[] => [
   {
     id: 'branch',
-    header: 'Branch',
+    header: 'Салбар',
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip
-          value={joinLabel(
-            branchMap[row.original.branchId]
-          )}
+          value={joinLabel(branchMap[row.original.branchId])}
         />
       </RecordTableInlineCell>
     ),
@@ -76,13 +74,11 @@ const buildInventoryColumns = (
   },
   {
     id: 'department',
-    header: 'Department',
+    header: 'Хэлтэс',
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip
-          value={joinLabel(
-            departmentMap[row.original.departmentId]
-          )}
+          value={joinLabel(departmentMap[row.original.departmentId])}
         />
       </RecordTableInlineCell>
     ),
@@ -90,15 +86,17 @@ const buildInventoryColumns = (
   },
   {
     id: 'remainder',
-    header: 'Remainder',
+    header: 'Үлдэгдэл',
     cell: ({ row }) => (
-      <RecordTableInlineCell>{fmt(row.original.remainder)}</RecordTableInlineCell>
+      <RecordTableInlineCell>
+        {fmt(row.original.remainder)}
+      </RecordTableInlineCell>
     ),
     size: 120,
   },
   {
     id: 'cost',
-    header: 'Cost',
+    header: 'Өртөг',
     cell: ({ row }) => (
       <RecordTableInlineCell>{fmt(row.original.cost)}</RecordTableInlineCell>
     ),
@@ -106,7 +104,7 @@ const buildInventoryColumns = (
   },
   {
     id: 'soonIn',
-    header: 'Soon In',
+    header: 'Хүлээгдэж буй орлого',
     cell: ({ row }) => (
       <RecordTableInlineCell>{fmt(row.original.soonIn)}</RecordTableInlineCell>
     ),
@@ -114,13 +112,13 @@ const buildInventoryColumns = (
   },
   {
     id: 'soonOut',
-    header: 'Soon Out',
+    header: 'Хүлээгдэж буй зарлага',
     cell: ({ row }) => (
       <RecordTableInlineCell>{fmt(row.original.soonOut)}</RecordTableInlineCell>
     ),
     size: 120,
   },
-]);
+];
 
 type InventoriesTableProps = {
   inventories: any;
@@ -141,17 +139,25 @@ export const InventoriesTable = ({ inventories }: InventoriesTableProps) => {
     skip: departmentIds.length === 0,
   });
 
-  const branchMap: LabelMap = Object.fromEntries((branches ?? []).map((b) => [b._id, b]));
-  const departmentMap: LabelMap = Object.fromEntries((departments ?? []).map((d) => [d._id, d]));
+  const branchMap: LabelMap = Object.fromEntries(
+    (branches ?? []).map((b) => [b._id, b]),
+  );
+  const departmentMap: LabelMap = Object.fromEntries(
+    (departments ?? []).map((d) => [d._id, d]),
+  );
 
   const columns = buildInventoryColumns(branchMap, departmentMap);
 
   if (loadingBranches || loadingDepartment) {
-    return <Spinner />
+    return <Spinner />;
   }
 
   return (
-    <RecordTable.Provider columns={columns} data={rows} className="h-full px-4 pb-4">
+    <RecordTable.Provider
+      columns={columns}
+      data={rows}
+      className="h-full px-4 pb-4"
+    >
       <RecordTable>
         <RecordTable.Header />
         <RecordTable.Body>

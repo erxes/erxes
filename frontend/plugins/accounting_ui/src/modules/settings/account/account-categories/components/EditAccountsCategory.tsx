@@ -15,8 +15,8 @@ export const EditAccountCategory = () => {
   return (
     <Dialog open={open !== null} onOpenChange={() => setOpen(null)}>
       <AccountingDialog
-        title="Edit Account Category"
-        description="Edit an account category"
+        title="Дансны ангилал засах"
+        description="Дансны ангилал засах"
       >
         <EditAccountCategoryForm />
       </AccountingDialog>

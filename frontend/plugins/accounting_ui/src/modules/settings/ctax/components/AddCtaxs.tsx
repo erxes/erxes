@@ -15,12 +15,12 @@ export const AddCtaxs = () => {
       <Dialog.Trigger asChild>
         <Button>
           <IconPlus />
-          Add Ctax
+          НХАТ нэмэх
         </Button>
       </Dialog.Trigger>
       <Dialog.ContentCombined
-        title="Add Ctax"
-        description="Add a new ctax"
+        title="НХАТ нэмэх"
+        description="Шинэ НХАТ нэмэх"
         className="sm:max-w-2xl"
       >
         <AddCtaxForm setOpen={setOpen} />
@@ -29,7 +29,11 @@ export const AddCtaxs = () => {
   );
 };
 
-export const AddCtaxForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
+export const AddCtaxForm = ({
+  setOpen,
+}: {
+  setOpen: (open: boolean) => void;
+}) => {
   const form = useForm<TCtaxRowForm>({
     resolver: zodResolver(ctaxFormSchema),
     defaultValues: {

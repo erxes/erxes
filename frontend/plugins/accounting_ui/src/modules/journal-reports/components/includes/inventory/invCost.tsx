@@ -1,15 +1,22 @@
-import { displayNum, fixNum, ReportTable } from "erxes-ui";
-import { IGroupRule } from "~/modules/journal-reports/types/reportsMap";
-import { TR_SIDES } from "~/modules/transactions/types/constants";
-import { CalcReportResult } from "..";
+import { displayNum, fixNum, ReportTable } from 'erxes-ui';
+import { IGroupRule } from '~/modules/journal-reports/types/reportsMap';
+import { TR_SIDES } from '~/modules/transactions/types/constants';
+import { CalcReportResult } from '..';
 
-export const HandleInvCost = (dic: any, _groupRule: IGroupRule, _attr: string): CalcReportResult => {
+export const HandleInvCost = (
+  dic: any,
+  _groupRule: IGroupRule,
+  _attr: string,
+): CalcReportResult => {
   const { items } = dic;
-  let [fCount, fAmount, dtCount, dtAmount, ctCount, ctAmount, lCount, lAmount] = [0, 0, 0, 0, 0, 0, 0, 0];
+  let [fCount, fAmount, dtCount, dtAmount, ctCount, ctAmount, lCount, lAmount] =
+    [0, 0, 0, 0, 0, 0, 0, 0];
 
   for (const rec of items) {
-    const [dtAmountCur, ctAmountCur] = rec.side === TR_SIDES.DEBIT ? [rec.sumAmount, 0] : [0, rec.sumAmount];
-    const [dtCountCur, ctCountCur] = rec.side === TR_SIDES.DEBIT ? [rec.sumCount, 0] : [0, rec.sumCount];
+    const [dtAmountCur, ctAmountCur] =
+      rec.side === TR_SIDES.DEBIT ? [rec.sumAmount, 0] : [0, rec.sumAmount];
+    const [dtCountCur, ctCountCur] =
+      rec.side === TR_SIDES.DEBIT ? [rec.sumCount, 0] : [0, rec.sumCount];
     const diffAmount = dtAmountCur - ctAmountCur;
     const diffCount = dtCountCur - ctCountCur;
 
@@ -41,6 +48,6 @@ export const HandleInvCost = (dic: any, _groupRule: IGroupRule, _attr: string): 
         <ReportTable.Cell>{displayNum(lAmount)}</ReportTable.Cell>
         <ReportTable.Cell>{displayNum(unitCost)}</ReportTable.Cell>
       </>
-    )
-  }
-}
+    ),
+  };
+};

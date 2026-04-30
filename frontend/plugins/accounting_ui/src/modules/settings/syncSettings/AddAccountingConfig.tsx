@@ -17,12 +17,12 @@ export const AddAccountingConfig = ({
       <Dialog.Trigger asChild>
         <Button>
           <IconPlus />
-          Add Config
+          Тохиргоо нэмэх
         </Button>
       </Dialog.Trigger>
       <Dialog.ContentCombined
-        title="Add Config"
-        description="Add a new config"
+        title="Тохиргоо нэмэх"
+        description="Шинэ тохиргоо нэмэх"
         className="sm:max-w-2xl"
       >
         <AddAccountingConfigForm code={code} setOpen={setOpen} />
@@ -49,7 +49,7 @@ export const AddAccountingConfigForm = ({
   });
 
   if (!rule) {
-    return <div>Unknown config type </div>;
+    return <div>Тохиргооны төрөл тодорхойгүй байна</div>;
   }
 
   const { subIdFieldName, FormComponent } = SettingsRuleByCode[code] || {};

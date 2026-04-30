@@ -143,7 +143,7 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
           onClick={() => setShowEdit(true)}
         >
           <IconEditCircle />
-          {`Харгалзах данс засах`}
+          {`Харилцсан данс засах`}
         </Button>
         {dtStr && <Label className="ml-1">Дебет: {dtStr}</Label>}
         {ctStr && <Label className="ml-1">Кредит: {ctStr}</Label>}

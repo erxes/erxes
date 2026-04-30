@@ -1,5 +1,5 @@
 import { Combobox, Command, Popover } from 'erxes-ui';
-import { AccountStatus } from '../../types/Account';
+import { AccountStatus, ACCOUNT_STATUS_LABELS } from '../../types/Account';
 import React from 'react';
 import { Except } from 'type-fest';
 
@@ -18,7 +18,7 @@ export const SelectAccountStatusCommand = React.forwardRef<
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger ref={ref} {...props}>
-        {selected ?? 'All'}
+        {selected ? ACCOUNT_STATUS_LABELS[selected as AccountStatus] : 'Бүгд'}
       </Combobox.Trigger>
       <Combobox.Content>
         <AccountsStatusCommand
@@ -45,7 +45,7 @@ export const AccountsStatusCommand = ({
 }) => {
   return (
     <Command>
-      <Command.Input placeholder="Filter status" focusOnMount={focusOnMount} />
+      <Command.Input placeholder="Төлөвөөр шүүх" focusOnMount={focusOnMount} />
       <Command.List>
         {Object.values(AccountStatus).map((status) => (
           <Command.Item
@@ -53,7 +53,7 @@ export const AccountsStatusCommand = ({
             value={status}
             onSelect={() => onSelect?.(status)}
           >
-            {status}
+            {ACCOUNT_STATUS_LABELS[status]}
             <Combobox.Check checked={selected === status} />
           </Command.Item>
         ))}
