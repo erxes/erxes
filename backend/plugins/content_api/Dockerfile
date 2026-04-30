@@ -4,10 +4,11 @@ WORKDIR /app
 RUN apk add --no-cache git ca-certificates curl
 RUN npm install -g pnpm@9
 
-COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY pnpm-lock.yaml ./
 COPY backend/plugins/content_api/package.json backend/plugins/content_api/
 COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
-RUN pnpm --filter ./backend/plugins/content_api --filter erxes-api-shared --filter '!.' --filter '!erxes-next' install --prod --shamefully-hoist \
+RUN node -e "const fs=require('fs'); const shared=require('./backend/erxes-api-shared/package.json'); const service=require('./backend/plugins/content_api/package.json'); const dependencies={...(shared.dependencies||{}), ...(service.dependencies||{})}; delete dependencies['erxes-api-shared']; fs.writeFileSync('package.json', JSON.stringify({name:'runtime-deps', version:'1.0.0', private:true, dependencies}, null, 2));"
+RUN pnpm install --prod --shamefully-hoist --no-frozen-lockfile \
     && find node_modules -type f \( \
          -name "*.d.ts" -o -name "*.map" -o -name "*.md" \
          -o -name "LICENSE*" -o -name "LICENCE*" \

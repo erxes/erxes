@@ -32,12 +32,13 @@ FROM --platform=linux/amd64 node:22-bookworm AS prod-deps
 
 WORKDIR /app
 
-COPY ./package.json ./pnpm-lock.yaml ./pnpm-workspace.yaml /app/
+COPY ./pnpm-lock.yaml /app/
 COPY ./backend/gateway/package.json /app/backend/gateway/
 COPY ./backend/erxes-api-shared/package.json /app/backend/erxes-api-shared/
 
+RUN node -e "const fs=require('fs'); const shared=require('./backend/erxes-api-shared/package.json'); const service=require('./backend/gateway/package.json'); const dependencies={...(shared.dependencies||{}), ...(service.dependencies||{})}; delete dependencies['erxes-api-shared']; fs.writeFileSync('package.json', JSON.stringify({name:'gateway-runtime-deps', version:'1.0.0', private:true, dependencies}, null, 2));"
 RUN npm install -g pnpm
-RUN pnpm --filter ./backend/gateway --filter erxes-api-shared --filter '!.' --filter '!erxes-next' install --prod --shamefully-hoist --frozen-lockfile
+RUN pnpm install --prod --shamefully-hoist --no-frozen-lockfile
 
 # Final image
 FROM --platform=linux/amd64 node:22-bookworm AS gateway

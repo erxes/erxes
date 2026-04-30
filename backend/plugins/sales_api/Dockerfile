@@ -3,12 +3,13 @@ FROM node:22-alpine3.22 AS installer
 WORKDIR /app
 RUN npm install -g pnpm@9
 
-COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY pnpm-lock.yaml ./
 COPY backend/plugins/sales_api/package.json backend/plugins/sales_api/
 COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
+RUN node -e "const fs=require('fs'); const shared=require('./backend/erxes-api-shared/package.json'); const service=require('./backend/plugins/sales_api/package.json'); const dependencies={...(shared.dependencies||{}), ...(service.dependencies||{})}; delete dependencies['erxes-api-shared']; fs.writeFileSync('package.json', JSON.stringify({name:'runtime-deps', version:'1.0.0', private:true, dependencies}, null, 2));"
 # --shamefully-hoist: all deps (tslib, mongoose, etc.) land as real directories
 # in /app/node_modules/ — safe to COPY into the final image without broken symlinks
-RUN pnpm --filter ./backend/plugins/sales_api --filter erxes-api-shared --filter '!.' --filter '!erxes-next' install --prod --shamefully-hoist \
+RUN pnpm install --prod --shamefully-hoist --no-frozen-lockfile \
     && find node_modules -type f \( \
          -name "*.d.ts" -o -name "*.map" -o -name "*.md" \
          -o -name "LICENSE*" -o -name "LICENCE*" \

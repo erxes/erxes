@@ -5,14 +5,15 @@ RUN npm install -g pnpm
 
 # Dependencies (production only)
 FROM base AS deps
-# Copy root manifests
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json nx.json ./
+# Copy lockfile and package manifests
+COPY pnpm-lock.yaml ./
 # Copy only the package.json files for selective deps resolution
 COPY backend/services/logs/package.json backend/services/logs/
 COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
 
 # Install only production dependencies
-RUN pnpm --filter ./backend/services/logs --filter erxes-api-shared --filter '!.' --filter '!erxes-next' install --prod --frozen-lockfile
+RUN node -e "const fs=require('fs'); const shared=require('./backend/erxes-api-shared/package.json'); const service=require('./backend/services/logs/package.json'); const dependencies={...(shared.dependencies||{}), ...(service.dependencies||{})}; delete dependencies['erxes-api-shared']; fs.writeFileSync('package.json', JSON.stringify({name:'runtime-deps', version:'1.0.0', private:true, dependencies}, null, 2));"
+RUN pnpm install --prod --no-frozen-lockfile
 
 # Runtime image
 FROM base AS runtime
@@ -24,8 +25,12 @@ COPY backend/erxes-api-shared ./backend/erxes-api-shared
 
 # Copy production node_modules from deps stage
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/backend/services/logs/node_modules ./backend/services/logs/node_modules
-COPY --from=deps /app/backend/erxes-api-shared/node_modules ./backend/erxes-api-shared/node_modules
+RUN rm -rf ./node_modules/erxes-api-shared
+COPY backend/erxes-api-shared/dist ./node_modules/erxes-api-shared/dist
+COPY backend/erxes-api-shared/utils ./node_modules/erxes-api-shared/utils
+COPY backend/erxes-api-shared/core-types ./node_modules/erxes-api-shared/core-types
+COPY backend/erxes-api-shared/core-modules ./node_modules/erxes-api-shared/core-modules
+COPY backend/erxes-api-shared/package.json ./node_modules/erxes-api-shared/
 
 # Environment & security
 ENV NODE_ENV=production
