@@ -60,7 +60,6 @@ export default {
       branchIds = pipeline?.branchIds;
       departmentIds = pipeline?.departmentIds
     }
-    console.log(branchIds, departmentIds, 'ssssssss');
 
     const result = { remainder: 0, cost: 0, soonIn: 0, soonOut: 0 };
 
@@ -73,7 +72,7 @@ export default {
         if (departmentIds?.length && !departmentIds.includes(departmentID)) {
           continue
         }
-        console.log(branchID, departmentID)
+
         const { remainder = 0, cost = 0, soonIn = 0, soonOut = 0 } = product.inventories?.[branchID]?.[departmentID] || {};
         result.remainder += remainder;
         result.cost += cost;
