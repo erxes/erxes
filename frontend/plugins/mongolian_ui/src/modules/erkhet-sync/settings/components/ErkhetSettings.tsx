@@ -47,6 +47,18 @@ const RemainderConfigAddSheetConnected = lazy(() =>
   })),
 );
 
+const ReturnErkhetConfigAddSheetConnected = lazy(() =>
+  import('~/pages/StageInReturnErkhetConfigPage').then((module) => ({
+    default: module.ReturnErkhetConfigAddSheetConnected,
+  })),
+);
+
+const StageInErkhetConfigAddSheetConnected = lazy(() =>
+  import('~/pages/StageInErkhetConfigPage').then((module) => ({
+    default: module.StageInErkhetConfigAddSheetConnected,
+  })),
+);
+
 const StageInErkhetIncomeConfig = lazy(() =>
   import('~/pages/StageInErkhetIncomeConfigPage').then((module) => ({
     default: module.StageInErkhetIncomeConfig,
@@ -57,6 +69,8 @@ const ErkhetSettingsHeader = () => {
   const { pathname } = useLocation();
   const isMovement = pathname.endsWith('/movement');
   const isRemainder = pathname.endsWith('/remainder');
+  const isReturn = pathname.endsWith('/return');
+  const isStageIn = pathname.endsWith('/stage-in');
 
   return (
     <SettingsHeader breadcrumbs={<ErkhetSyncBreadcrumb />}>
@@ -69,6 +83,16 @@ const ErkhetSettingsHeader = () => {
       {isRemainder && (
         <Suspense fallback={null}>
           <RemainderConfigAddSheetConnected />
+        </Suspense>
+      )}
+      {isReturn && (
+        <Suspense fallback={null}>
+          <ReturnErkhetConfigAddSheetConnected />
+        </Suspense>
+      )}
+      {isStageIn && (
+        <Suspense fallback={null}>
+          <StageInErkhetConfigAddSheetConnected />
         </Suspense>
       )}
     </SettingsHeader>
