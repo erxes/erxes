@@ -112,7 +112,9 @@ const createCSVRowWriter = async ({
     });
   };
 
-  await writeChunk(headerLabels.map(escapeCsvField).join(',') + '\n');
+  await writeChunk(
+    '\uFEFF' + headerLabels.map(escapeCsvField).join(',') + '\n',
+  );
 
   return {
     async writeRows(rows) {
