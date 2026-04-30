@@ -1,7 +1,7 @@
 import { useMainConfigs } from '@/settings/hooks/useMainConfigs';
 import { SelectCtax } from '@/settings/ctax/components/SelectCtaxRow';
 import { Checkbox, CurrencyField, Form } from 'erxes-ui';
-import { useAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
 import { useWatch } from 'react-hook-form';
 import { TrJournalEnum, TR_SIDES } from '../../../types/constants';
@@ -79,12 +79,12 @@ export const CtaxForm = ({
   ]);
 
   const { configs } = useMainConfigs();
-  const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
+  const setFollowTrDocs = useSetAtom(followTrDocsState);
 
   useEffect(() => {
-    if (!trDoc.hasCtax) {
-      setFollowTrDocs(
-        (followTrDocs || []).filter(
+    if (!hasCtax) {
+      setFollowTrDocs((prev) =>
+        (prev || []).filter(
           (ftr) => !(ftr.originId === trDoc._id && ftr.originType === 'ctax'),
         ),
       );
@@ -92,8 +92,8 @@ export const CtaxForm = ({
     }
 
     if (side === TR_SIDES.DEBIT) {
-      setFollowTrDocs(
-        (followTrDocs || []).filter(
+      setFollowTrDocs((prev) =>
+        (prev || []).filter(
           (ftr) => !(ftr.originId === trDoc._id && ftr.originType === 'ctax'),
         ),
       );
@@ -105,38 +105,45 @@ export const CtaxForm = ({
         ? { sumDt: calcedAmount, sumCt: 0 }
         : { sumDt: 0, sumCt: calcedAmount };
 
-    const curr = followTrDocs.find(
-      (ftr) => ftr.originId === trDoc._id && ftr.originType === 'ctax',
-    );
+    setFollowTrDocs((prev) => {
+      const curr = (prev || []).find(
+        (ftr) => ftr.originId === trDoc._id && ftr.originType === 'ctax',
+      );
 
-    const ctaxFtr = {
-      ...curr,
-      _id: curr?._id || getTempId(),
-      journal: TrJournalEnum.TAX,
-      side,
-      originId: trDoc._id,
-      originType: 'ctax',
-      details: [
-        {
-          ...(curr?.details || [{}])[0],
-          accountId: configs?.CtaxPayableAccount,
-          amount: calcedAmount,
-        },
-      ],
+      const ctaxFtr = {
+        ...curr,
+        _id: curr?._id || getTempId(),
+        journal: TrJournalEnum.TAX,
+        side,
+        originId: trDoc._id,
+        originType: 'ctax',
+        details: [
+          {
+            ...(curr?.details || [{}])[0],
+            accountId: configs?.CtaxPayableAccount,
+            amount: calcedAmount,
+          },
+        ],
 
-      sumDt,
-      sumCt,
-    };
+        sumDt,
+        sumCt,
+      };
 
-    setFollowTrDocs([
-      ...(followTrDocs || []).filter(
-        (ftr) => !(ftr.originId === trDoc._id && ftr.originType === 'ctax'),
-      ),
-      ctaxFtr,
-    ]);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasCtax, side, calcedAmount]);
+      return [
+        ...(prev || []).filter(
+          (ftr) => !(ftr.originId === trDoc._id && ftr.originType === 'ctax'),
+        ),
+        ctaxFtr,
+      ];
+    });
+  }, [
+    hasCtax,
+    side,
+    calcedAmount,
+    trDoc._id,
+    configs?.CtaxPayableAccount,
+    setFollowTrDocs,
+  ]);
 
   const changeCtaxRow = (ctaxRow: ICtaxRow) => {
     const ctaxPercent = ctaxRow.percent ?? 0;
@@ -166,7 +173,7 @@ export const CtaxForm = ({
                 onCheckedChange={field.onChange}
               />
             </Form.Control>
-            <Form.Label variant="peer">Has CTAX</Form.Label>
+            <Form.Label variant="peer">НХАТ-тэй</Form.Label>
           </Form.Item>
         )}
       />
@@ -183,7 +190,7 @@ export const CtaxForm = ({
                     onCheckedChange={field.onChange}
                   />
                 </Form.Control>
-                <Form.Label variant="peer">Handle CTAX</Form.Label>
+                <Form.Label variant="peer">НХАТ гараар тооцох</Form.Label>
               </Form.Item>
             )}
           />
@@ -192,7 +199,7 @@ export const CtaxForm = ({
             name={`trDocs.${journalIndex}.ctaxRowId`}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>CTAX row</Form.Label>
+                <Form.Label>НХАТ-ын мөр</Form.Label>
                 <SelectCtax
                   value={field.value || ''}
                   onValueChange={field.onChange}
@@ -207,9 +214,9 @@ export const CtaxForm = ({
             name={`trDocs.${journalIndex}.ctaxAmount`}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>CTAX amount</Form.Label>
+                <Form.Label>НХАТ-ын дүн</Form.Label>
                 <CurrencyField.ValueInput
-                  value={handleCtax ? (field.value ?? 0) : calcedAmount}
+                  value={handleCtax ? field.value ?? 0 : calcedAmount}
                   onChange={field.onChange}
                   disabled={!handleCtax}
                 />

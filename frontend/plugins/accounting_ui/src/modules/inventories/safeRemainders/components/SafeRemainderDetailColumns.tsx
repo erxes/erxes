@@ -14,9 +14,6 @@ import {
 import { useSafeRemainderItemEdit } from '../hooks/useSafeRemainderItemEdit';
 import { ISafeRemainderItem } from '../types/SafeRemainder';
 
-const REMAINDER_COL_INDEX = 0;
-const DIFF_COL_INDEX = 1;
-
 const ProductCell = ({ row }: any) => {
   return (
     <RecordTableInlineCell>
@@ -150,12 +147,20 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
     ),
     size: 33,
     cell: ({ row }) => (
-      <StatusField
-        value={row.original.status}
-        field="status"
-        _id={row.original._id}
-        remItem={row.original}
-      />
+      <RecordTableHotKeyControl
+        rowId={row.original._id}
+        rowIndex={row.index}
+        colIndex={0}
+      >
+        <div>
+          <StatusField
+            value={row.original.status}
+            field="status"
+            _id={row.original._id}
+            remItem={row.original}
+          />
+        </div>
+      </RecordTableHotKeyControl>
     ),
   },
   {
@@ -168,7 +173,7 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
       <RecordTableHotKeyControl
         rowId={row.original._id}
         rowIndex={row.index}
-        colIndex={REMAINDER_COL_INDEX}
+        colIndex={1}
       >
         <div>
           <RemainderField
@@ -189,7 +194,7 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
       <RecordTableHotKeyControl
         rowId={row.original._id}
         rowIndex={row.index}
-        colIndex={DIFF_COL_INDEX}
+        colIndex={2}
       >
         <div>
           <DiffField

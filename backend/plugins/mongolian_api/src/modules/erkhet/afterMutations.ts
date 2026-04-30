@@ -175,7 +175,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
             method: 'query',
             module: 'pipeline',
             action: 'findOne',
-            input: { stageId: destinationStageId },
+            input: { stageId: destinationStageId, fields: { paymentTypes: 1 } },
             defaultValue: {},
           });
 
@@ -247,10 +247,9 @@ export const afterMutationHandlers = async (subdomain, params) => {
           const cpipeline = await sendTRPCMessage({
             subdomain,
             pluginName: 'sales',
-            method: 'query',
-            module: 'sales',
-            action: 'pipelines.findOne',
-            input: { stageId: destinationStageId },
+            module: 'pipeline',
+            action: 'findOne',
+            input: { stageId: destinationStageId, fields: { paymentTypes: 1 } },
             defaultValue: {},
           });
 
