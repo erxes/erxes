@@ -1,15 +1,15 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { nanoid } from 'nanoid';
-import { GET_CONFIGS_GET_VALUE } from '../graphql/queries/useStageInErkhetMovementConfigQuery';
-import { CREATE_STAGE_IN_MOVEMENT_ERKHET_CONFIG } from '../graphql/mutations/createStageInErkhetMovementConfigMutations';
-import { TMovementErkhetConfig } from '../types';
+import { GET_CONFIGS_GET_VALUE } from '../graphql/queries/usePipelineRemainderConfigQuery';
+import { CREATE_PIPELINE_REMAINDER_CONFIG } from '../graphql/mutations/createPipelineRemainderConfigMutations';
+import { AddPipelineRemainderConfig } from '../types';
 
-const CONFIG_CODE = 'stageInMoveConfigs';
+const CONFIG_CODE = 'remainderConfigs';
 
-type TConfigRow = TMovementErkhetConfig & { _id: string };
+export type TRemainderConfigRow = AddPipelineRemainderConfig & { _id: string };
 
-const parseConfigs = (value: any): TConfigRow[] => {
+const parseConfigs = (value: any): TRemainderConfigRow[] => {
   if (!value) return [];
   try {
     const parsed = typeof value === 'string' ? JSON.parse(value) : value;
@@ -19,7 +19,7 @@ const parseConfigs = (value: any): TConfigRow[] => {
   }
 };
 
-export const useMovementConfigs = () => {
+export const usePipelineRemainderConfigs = () => {
   const { toast } = useToast();
 
   const { data, loading, refetch } = useQuery(GET_CONFIGS_GET_VALUE, {
@@ -27,40 +27,30 @@ export const useMovementConfigs = () => {
     fetchPolicy: 'cache-and-network',
   });
 
-  const configs: TConfigRow[] = parseConfigs(data?.configsGetValue?.value);
+  const configs: TRemainderConfigRow[] = parseConfigs(data?.configsGetValue?.value);
 
   const [saveConfigs, { loading: saveLoading }] = useMutation(
-    CREATE_STAGE_IN_MOVEMENT_ERKHET_CONFIG,
+    CREATE_PIPELINE_REMAINDER_CONFIG,
     {
       onError: (e) => {
-        toast({
-          title: 'Error',
-          description: e.message,
-          variant: 'destructive',
-        });
+        toast({ title: 'Error', description: e.message, variant: 'destructive' });
       },
     },
   );
 
-  const persist = async (list: TConfigRow[]) => {
-    await saveConfigs({
-      variables: {
-        configsMap: { [CONFIG_CODE]: list },
-      },
-    });
+  const persist = async (list: TRemainderConfigRow[]) => {
+    await saveConfigs({ variables: { configsMap: { [CONFIG_CODE]: list } } });
     await refetch();
   };
 
-  const addConfig = async (data: TMovementErkhetConfig) => {
-    const newConfig: TConfigRow = { ...data, _id: nanoid() };
+  const addConfig = async (data: AddPipelineRemainderConfig) => {
+    const newConfig: TRemainderConfigRow = { ...data, _id: nanoid() };
     await persist([...configs, newConfig]);
     toast({ title: 'Success', description: 'Config created successfully' });
   };
 
-  const editConfig = async (id: string, data: TMovementErkhetConfig) => {
-    const updated = configs.map((c) =>
-      c._id === id ? { ...data, _id: id } : c,
-    );
+  const editConfig = async (id: string, data: AddPipelineRemainderConfig) => {
+    const updated = configs.map((c) => (c._id === id ? { ...data, _id: id } : c));
     await persist(updated);
     toast({ title: 'Success', description: 'Config updated successfully' });
   };
@@ -78,13 +68,5 @@ export const useMovementConfigs = () => {
     toast({ title: 'Success', description: `${ids.length} config(s) deleted` });
   };
 
-  return {
-    configs,
-    loading,
-    saveLoading,
-    addConfig,
-    editConfig,
-    deleteConfig,
-    deleteManyConfigs,
-  };
+  return { configs, loading, saveLoading, addConfig, editConfig, deleteConfig, deleteManyConfigs };
 };

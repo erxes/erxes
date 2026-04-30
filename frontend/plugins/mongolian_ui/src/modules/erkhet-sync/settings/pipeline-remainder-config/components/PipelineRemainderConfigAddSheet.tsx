@@ -1,42 +1,38 @@
 import { IconPlus } from '@tabler/icons-react';
-import { Button, Form, Input, Select, Sheet } from 'erxes-ui';
+import { Button, Form, Input, Sheet } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
-import { CHOOSE_RESPONSE_FIELD_DATA } from '../constants/chooseResponseFieldData';
-import { addStageInMovementErkhetConfigSchema } from '../constants/addStageInErkhetMovementConfigSchema';
-import { IMovementDetail, TMovementErkhetConfig } from '../types';
-import { MovementDetailRows } from './MovementDetailRows';
+import { addPipelineRemainderConfigSchema } from '../constants/addPipelineRemainderConfigSchema';
+import { AddPipelineRemainderConfig } from '../types';
 
-const defaultValues: TMovementErkhetConfig = {
+const defaultValues: AddPipelineRemainderConfig = {
   title: '',
   boardId: '',
   pipelineId: '',
   stageId: '',
-  userEmail: '',
-  chooseResponseField: '',
-  defaultCustomer: '',
-  details: [],
+  account: '',
+  location: '',
 };
 
 interface Props {
-  onSubmit: (data: TMovementErkhetConfig) => Promise<void>;
+  onSubmit: (data: AddPipelineRemainderConfig) => Promise<void>;
   loading: boolean;
 }
 
-export const MovementConfigAddSheet = ({ onSubmit, loading }: Props) => {
+export const PipelineRemainderConfigAddSheet = ({ onSubmit, loading }: Props) => {
   const [open, setOpen] = useState(false);
 
-  const form = useForm<TMovementErkhetConfig>({
-    resolver: zodResolver(addStageInMovementErkhetConfigSchema),
+  const form = useForm<AddPipelineRemainderConfig>({
+    resolver: zodResolver(addPipelineRemainderConfigSchema),
     defaultValues,
   });
 
   const selectedBoardId = form.watch('boardId');
   const selectedPipelineId = form.watch('pipelineId');
 
-  const handleSubmit = async (data: TMovementErkhetConfig) => {
+  const handleSubmit = async (data: AddPipelineRemainderConfig) => {
     await onSubmit(data);
     setOpen(false);
     form.reset();
@@ -50,9 +46,9 @@ export const MovementConfigAddSheet = ({ onSubmit, loading }: Props) => {
           New Config
         </Button>
       </Sheet.Trigger>
-      <Sheet.View className="sm:max-w-4xl">
+      <Sheet.View className="sm:max-w-2xl">
         <Sheet.Header>
-          <Sheet.Title>New Erkhet Move Config</Sheet.Title>
+          <Sheet.Title>New Pipeline Remainder Config</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex flex-col overflow-hidden p-0">
@@ -98,13 +94,13 @@ export const MovementConfigAddSheet = ({ onSubmit, loading }: Props) => {
                       )}
                     />
                     <Form.Field
-                      name="userEmail"
+                      name="account"
                       control={form.control}
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>User Email</Form.Label>
+                          <Form.Label>Account</Form.Label>
                           <Form.Control>
-                            <Input {...field} placeholder="User Email" />
+                            <Input {...field} placeholder="Account" />
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
@@ -141,9 +137,7 @@ export const MovementConfigAddSheet = ({ onSubmit, loading }: Props) => {
                           <SelectStage
                             mode="single"
                             value={field.value}
-                            onValueChange={(value) => {
-                              field.onChange(value as string);
-                            }}
+                            onValueChange={(value) => field.onChange(value as string)}
                             pipelineId={selectedPipelineId || undefined}
                             placeholder="Select stage"
                           />
@@ -151,15 +145,14 @@ export const MovementConfigAddSheet = ({ onSubmit, loading }: Props) => {
                         </Form.Item>
                       )}
                     />
-
                     <Form.Field
+                      name="location"
                       control={form.control}
-                      name="defaultCustomer"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Default Customer</Form.Label>
+                          <Form.Label>Location</Form.Label>
                           <Form.Control>
-                            <Input {...field} placeholder="Default Customer" />
+                            <Input {...field} placeholder="Location" />
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
@@ -167,44 +160,9 @@ export const MovementConfigAddSheet = ({ onSubmit, loading }: Props) => {
                     />
                   </div>
                 </div>
-
-                <Form.Field
-                  control={form.control}
-                  name="chooseResponseField"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Choose Response Field</Form.Label>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <Select.Trigger className="w-full">
-                          <Select.Value placeholder="Choose Response Field" />
-                        </Select.Trigger>
-                        <Select.Content>
-                          {CHOOSE_RESPONSE_FIELD_DATA.map((type) => (
-                            <Select.Item key={type.value} value={type.value}>
-                              {type.label}
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-
-                <MovementDetailRows
-                  details={(form.watch('details') as IMovementDetail[]) ?? []}
-                  onChange={(d) => form.setValue('details', d)}
-                />
               </div>
               <div className="flex justify-end gap-2 p-5 border-t">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setOpen(false)}
-                >
+                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading}>

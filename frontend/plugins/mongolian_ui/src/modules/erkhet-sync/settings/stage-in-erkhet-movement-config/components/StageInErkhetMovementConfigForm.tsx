@@ -4,7 +4,7 @@ import { MovementConfigAddSheet } from './MovementConfigAddSheet';
 import { MovementConfigRecordTable } from './MovementConfigRecordTable';
 
 export const StageInErkhetMovementConfigForm = () => {
-  const { configs, loading, saveLoading, addConfig, editConfig, deleteConfig } =
+  const { configs, loading, saveLoading, addConfig, editConfig, deleteConfig, deleteManyConfigs } =
     useMovementConfigs();
 
   if (loading) return <Spinner />;
@@ -19,6 +19,7 @@ export const StageInErkhetMovementConfigForm = () => {
         configs={configs}
         onEdit={editConfig}
         onDelete={deleteConfig}
+        onDeleteMany={deleteManyConfigs}
         editLoading={saveLoading}
       />
     </div>

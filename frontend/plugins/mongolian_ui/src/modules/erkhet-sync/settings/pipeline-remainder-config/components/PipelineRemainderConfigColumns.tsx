@@ -1,49 +1,30 @@
-import {
-  IconEdit,
-  IconAlignLeft,
-  IconAt,
-  IconLayoutKanban,
-  IconTrash,
-  IconUser,
-} from '@tabler/icons-react';
+import { IconEdit, IconAlignLeft, IconAt, IconLayoutKanban, IconTrash } from '@tabler/icons-react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
-import {
-  Button,
-  Combobox,
-  Command,
-  Popover,
-  RecordTable,
-  RecordTableInlineCell,
-  useConfirm,
-} from 'erxes-ui';
+import { Button, Combobox, Command, Popover, RecordTable, RecordTableInlineCell, useConfirm } from 'erxes-ui';
 import { checkboxColumn } from 'erxes-ui/modules/record-table/components/CheckboxColumn';
 import { useState } from 'react';
-import { TMovementErkhetConfig } from '../types';
-import { MovementConfigEditSheet } from './MovementConfigEditSheet';
-
-type TConfigRow = TMovementErkhetConfig & { _id: string };
+import { AddPipelineRemainderConfig } from '../types';
+import { TRemainderConfigRow } from '../hooks/usePipelineRemainderConfigs';
+import { PipelineRemainderConfigEditSheet } from './PipelineRemainderConfigEditSheet';
 
 const TitleCell = ({
   config,
   onEdit,
   editLoading,
 }: {
-  config: TConfigRow;
-  onEdit: (id: string, data: TMovementErkhetConfig) => Promise<void>;
+  config: TRemainderConfigRow;
+  onEdit: (id: string, data: AddPipelineRemainderConfig) => Promise<void>;
   editLoading: boolean;
 }) => {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <RecordTableInlineCell
-        className="cursor-pointer font-medium"
-        onClick={() => setOpen(true)}
-      >
+      <RecordTableInlineCell className="cursor-pointer font-medium" onClick={() => setOpen(true)}>
         {config.title || '—'}
       </RecordTableInlineCell>
       {open && (
-        <MovementConfigEditSheet
+        <PipelineRemainderConfigEditSheet
           config={config}
           open={open}
           onOpenChange={setOpen}
@@ -55,14 +36,14 @@ const TitleCell = ({
   );
 };
 
-const MovementMoreColumnCell = ({
+const MoreCell = ({
   cell,
   onEdit,
   onDelete,
   editLoading,
 }: {
-  cell: CellContext<TConfigRow, unknown>;
-  onEdit: (id: string, data: TMovementErkhetConfig) => Promise<void>;
+  cell: CellContext<TRemainderConfigRow, unknown>;
+  onEdit: (id: string, data: AddPipelineRemainderConfig) => Promise<void>;
   onDelete: (id: string) => void;
   editLoading: boolean;
 }) => {
@@ -84,7 +65,7 @@ const MovementMoreColumnCell = ({
         </Popover.Trigger>
         <Combobox.Content
           align="start"
-          className="w-[220px] min-w-0 [&>button]:cursor-pointer"
+          className="w-[180px] min-w-0 [&>button]:cursor-pointer"
           onClick={(e) => e.stopPropagation()}
         >
           <Command>
@@ -117,7 +98,7 @@ const MovementMoreColumnCell = ({
         </Combobox.Content>
       </Popover>
       {editOpen && (
-        <MovementConfigEditSheet
+        <PipelineRemainderConfigEditSheet
           config={config}
           open={editOpen}
           onOpenChange={setEditOpen}
@@ -129,72 +110,44 @@ const MovementMoreColumnCell = ({
   );
 };
 
-export const buildMovementConfigColumns = (
-  onEdit: (id: string, data: TMovementErkhetConfig) => Promise<void>,
+export const buildRemainderConfigColumns = (
+  onEdit: (id: string, data: AddPipelineRemainderConfig) => Promise<void>,
   onDelete: (id: string) => void,
   editLoading: boolean,
-): ColumnDef<TConfigRow>[] => [
+): ColumnDef<TRemainderConfigRow>[] => [
   {
     id: 'more',
     cell: (cell) => (
-      <MovementMoreColumnCell
-        cell={cell}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        editLoading={editLoading}
-      />
+      <MoreCell cell={cell} onEdit={onEdit} onDelete={onDelete} editLoading={editLoading} />
     ),
     size: 25,
   },
-  checkboxColumn as ColumnDef<TConfigRow>,
+  checkboxColumn as ColumnDef<TRemainderConfigRow>,
   {
     id: 'title',
     accessorKey: 'title',
     header: () => <RecordTable.InlineHead icon={IconAlignLeft} label="Title" />,
     cell: ({ row }) => (
-      <TitleCell
-        config={row.original}
-        onEdit={onEdit}
-        editLoading={editLoading}
-      />
+      <TitleCell config={row.original} onEdit={onEdit} editLoading={editLoading} />
     ),
     size: 200,
   },
   {
-    id: 'userEmail',
-    accessorKey: 'userEmail',
-    header: () => <RecordTable.InlineHead icon={IconAt} label="User Email" />,
+    id: 'account',
+    accessorKey: 'account',
+    header: () => <RecordTable.InlineHead icon={IconAt} label="Account" />,
     cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        {(cell.getValue() as string) || '—'}
-      </RecordTableInlineCell>
+      <RecordTableInlineCell>{(cell.getValue() as string) || '—'}</RecordTableInlineCell>
     ),
     size: 200,
   },
   {
-    id: 'defaultCustomer',
-    accessorKey: 'defaultCustomer',
-    header: () => (
-      <RecordTable.InlineHead icon={IconUser} label="Default Customer" />
-    ),
+    id: 'location',
+    accessorKey: 'location',
+    header: () => <RecordTable.InlineHead icon={IconLayoutKanban} label="Location" />,
     cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        {(cell.getValue() as string) || '—'}
-      </RecordTableInlineCell>
+      <RecordTableInlineCell>{(cell.getValue() as string) || '—'}</RecordTableInlineCell>
     ),
-    size: 160,
-  },
-  {
-    id: 'chooseResponseField',
-    accessorKey: 'chooseResponseField',
-    header: () => (
-      <RecordTable.InlineHead icon={IconLayoutKanban} label="Response Field" />
-    ),
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        {(cell.getValue() as string) || '—'}
-      </RecordTableInlineCell>
-    ),
-    size: 160,
+    size: 200,
   },
 ];

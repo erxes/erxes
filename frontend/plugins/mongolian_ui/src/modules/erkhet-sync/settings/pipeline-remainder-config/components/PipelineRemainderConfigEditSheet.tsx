@@ -1,58 +1,63 @@
-import { IconPlus } from '@tabler/icons-react';
-import { Button, Form, Input, Select, Sheet } from 'erxes-ui';
-import { useState } from 'react';
+import { Button, Form, Input, Sheet } from 'erxes-ui';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
-import { CHOOSE_RESPONSE_FIELD_DATA } from '../constants/chooseResponseFieldData';
-import { addStageInMovementErkhetConfigSchema } from '../constants/addStageInErkhetMovementConfigSchema';
-import { IMovementDetail, TMovementErkhetConfig } from '../types';
-import { MovementDetailRows } from './MovementDetailRows';
-
-const defaultValues: TMovementErkhetConfig = {
-  title: '',
-  boardId: '',
-  pipelineId: '',
-  stageId: '',
-  userEmail: '',
-  chooseResponseField: '',
-  defaultCustomer: '',
-  details: [],
-};
+import { addPipelineRemainderConfigSchema } from '../constants/addPipelineRemainderConfigSchema';
+import { AddPipelineRemainderConfig } from '../types';
+import { TRemainderConfigRow } from '../hooks/usePipelineRemainderConfigs';
 
 interface Props {
-  onSubmit: (data: TMovementErkhetConfig) => Promise<void>;
+  config: TRemainderConfigRow;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (id: string, data: AddPipelineRemainderConfig) => Promise<void>;
   loading: boolean;
 }
 
-export const MovementConfigAddSheet = ({ onSubmit, loading }: Props) => {
-  const [open, setOpen] = useState(false);
-
-  const form = useForm<TMovementErkhetConfig>({
-    resolver: zodResolver(addStageInMovementErkhetConfigSchema),
-    defaultValues,
+export const PipelineRemainderConfigEditSheet = ({
+  config,
+  open,
+  onOpenChange,
+  onSubmit,
+  loading,
+}: Props) => {
+  const form = useForm<AddPipelineRemainderConfig>({
+    resolver: zodResolver(addPipelineRemainderConfigSchema),
+    defaultValues: {
+      title: config.title,
+      boardId: config.boardId,
+      pipelineId: config.pipelineId,
+      stageId: config.stageId,
+      account: config.account,
+      location: config.location,
+    },
   });
+
+  useEffect(() => {
+    form.reset({
+      title: config.title,
+      boardId: config.boardId,
+      pipelineId: config.pipelineId,
+      stageId: config.stageId,
+      account: config.account,
+      location: config.location,
+    });
+  }, [config, form]);
 
   const selectedBoardId = form.watch('boardId');
   const selectedPipelineId = form.watch('pipelineId');
 
-  const handleSubmit = async (data: TMovementErkhetConfig) => {
-    await onSubmit(data);
-    setOpen(false);
-    form.reset();
+  const handleSubmit = async (data: AddPipelineRemainderConfig) => {
+    await onSubmit(config._id, data);
+    onOpenChange(false);
   };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen} modal>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          New Config
-        </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="sm:max-w-4xl">
+    <Sheet open={open} onOpenChange={onOpenChange} modal>
+      <Sheet.View className="sm:max-w-2xl">
         <Sheet.Header>
-          <Sheet.Title>New Erkhet Move Config</Sheet.Title>
+          <Sheet.Title>Edit Pipeline Remainder Config</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex flex-col overflow-hidden p-0">
@@ -98,13 +103,13 @@ export const MovementConfigAddSheet = ({ onSubmit, loading }: Props) => {
                       )}
                     />
                     <Form.Field
-                      name="userEmail"
+                      name="account"
                       control={form.control}
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>User Email</Form.Label>
+                          <Form.Label>Account</Form.Label>
                           <Form.Control>
-                            <Input {...field} placeholder="User Email" />
+                            <Input {...field} placeholder="Account" />
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
@@ -141,9 +146,7 @@ export const MovementConfigAddSheet = ({ onSubmit, loading }: Props) => {
                           <SelectStage
                             mode="single"
                             value={field.value}
-                            onValueChange={(value) => {
-                              field.onChange(value as string);
-                            }}
+                            onValueChange={(value) => field.onChange(value as string)}
                             pipelineId={selectedPipelineId || undefined}
                             placeholder="Select stage"
                           />
@@ -151,15 +154,14 @@ export const MovementConfigAddSheet = ({ onSubmit, loading }: Props) => {
                         </Form.Item>
                       )}
                     />
-
                     <Form.Field
+                      name="location"
                       control={form.control}
-                      name="defaultCustomer"
                       render={({ field }) => (
                         <Form.Item>
-                          <Form.Label>Default Customer</Form.Label>
+                          <Form.Label>Location</Form.Label>
                           <Form.Control>
-                            <Input {...field} placeholder="Default Customer" />
+                            <Input {...field} placeholder="Location" />
                           </Form.Control>
                           <Form.Message />
                         </Form.Item>
@@ -167,44 +169,9 @@ export const MovementConfigAddSheet = ({ onSubmit, loading }: Props) => {
                     />
                   </div>
                 </div>
-
-                <Form.Field
-                  control={form.control}
-                  name="chooseResponseField"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Choose Response Field</Form.Label>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <Select.Trigger className="w-full">
-                          <Select.Value placeholder="Choose Response Field" />
-                        </Select.Trigger>
-                        <Select.Content>
-                          {CHOOSE_RESPONSE_FIELD_DATA.map((type) => (
-                            <Select.Item key={type.value} value={type.value}>
-                              {type.label}
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-
-                <MovementDetailRows
-                  details={(form.watch('details') as IMovementDetail[]) ?? []}
-                  onChange={(d) => form.setValue('details', d)}
-                />
               </div>
               <div className="flex justify-end gap-2 p-5 border-t">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setOpen(false)}
-                >
+                <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading}>

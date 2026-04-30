@@ -1,27 +1,26 @@
 import { IconSettings2 } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
-import { TMovementErkhetConfig } from '../types';
-import { buildMovementConfigColumns } from './MovementConfigColumns';
-import { MovementConfigCommandBar } from './MovementConfigCommandBar';
-
-type TConfigRow = TMovementErkhetConfig & { _id: string };
+import { AddPipelineRemainderConfig } from '../types';
+import { TRemainderConfigRow } from '../hooks/usePipelineRemainderConfigs';
+import { buildRemainderConfigColumns } from './PipelineRemainderConfigColumns';
+import { PipelineRemainderConfigCommandBar } from './PipelineRemainderConfigCommandBar';
 
 interface Props {
-  configs: TConfigRow[];
-  onEdit: (id: string, data: TMovementErkhetConfig) => Promise<void>;
+  configs: TRemainderConfigRow[];
+  onEdit: (id: string, data: AddPipelineRemainderConfig) => Promise<void>;
   onDelete: (id: string) => void;
   onDeleteMany: (ids: string[]) => Promise<void>;
   editLoading: boolean;
 }
 
-export const MovementConfigRecordTable = ({
+export const PipelineRemainderConfigRecordTable = ({
   configs,
   onEdit,
   onDelete,
   onDeleteMany,
   editLoading,
 }: Props) => {
-  const columns = buildMovementConfigColumns(onEdit, onDelete, editLoading);
+  const columns = buildRemainderConfigColumns(onEdit, onDelete, editLoading);
 
   return (
     <RecordTable.Provider
@@ -40,16 +39,14 @@ export const MovementConfigRecordTable = ({
         <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-3 text-center">
             <IconSettings2 size={48} className="text-gray-400" />
-            <h3 className="text-lg font-semibold text-gray-900">
-              No configs yet
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900">No configs yet</h3>
             <p className="text-sm text-gray-500">
-              Create your first movement config using the button above.
+              Create your first remainder config using the button above.
             </p>
           </div>
         </div>
       )}
-      <MovementConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />
+      <PipelineRemainderConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />
     </RecordTable.Provider>
   );
 };
