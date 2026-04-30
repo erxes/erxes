@@ -107,7 +107,7 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="Code" />,
+    header: () => <RecordTable.InlineHead label="Код" />,
     cell: ({ cell }) => {
       return (
         <AccountTextField
@@ -122,7 +122,7 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
+    header: () => <RecordTable.InlineHead label="Нэр" />,
     cell: ({ cell }) => {
       return (
         <AccountTextField
@@ -138,21 +138,21 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
   {
     id: 'categoryId',
     accessorKey: 'categoryId',
-    header: () => <RecordTable.InlineHead label="Category" />,
+    header: () => <RecordTable.InlineHead label="Ангилал" />,
     cell: ({ cell }) => <AccountCategoryCell cell={cell} />,
     size: 240,
   },
   {
     id: 'currency',
     accessorKey: 'currency',
-    header: () => <RecordTable.InlineHead label="Currency" />,
+    header: () => <RecordTable.InlineHead label="Валют" />,
     cell: AccountCurrencyCell,
     size: 240,
   },
   {
     id: 'kind',
     accessorKey: 'kind',
-    header: () => <RecordTable.InlineHead label="Kind" />,
+    header: () => <RecordTable.InlineHead label="Төрөл" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -164,7 +164,7 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
   {
     id: 'journal',
     accessorKey: 'journal',
-    header: () => <RecordTable.InlineHead label="Journal" />,
+    header: () => <RecordTable.InlineHead label="Журнал" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -176,7 +176,7 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
   {
     id: 'isTemp',
     accessorKey: 'isTemp',
-    header: () => <RecordTable.InlineHead label="Temp" />,
+    header: () => <RecordTable.InlineHead label="Түр" />,
     size: 80,
     cell: ({ cell }) => {
       return (
@@ -189,7 +189,7 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
   {
     id: 'isOutBalance',
     accessorKey: 'isOutBalance',
-    header: () => <RecordTable.InlineHead label="Out balance" />,
+    header: () => <RecordTable.InlineHead label="Гарах үлдэгдэл" />,
     size: 80,
     cell: ({ cell }) => {
       return (

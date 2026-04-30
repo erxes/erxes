@@ -1,16 +1,48 @@
-import { IconCoins, IconLayoutGridAdd, IconNotebook, IconToggleRightFilled } from "@tabler/icons-react";
-import { CurrencyCode, CurrencyField, Filter, SelectTree, useFilterContext, useQueryState } from "erxes-ui";
-import { SelectAccountCatCommand, SelectAccountCategory } from "../../account-categories/components/SelectAccountCategory";
-import { AccountsIsOutBalanceCommand, SelectAccountIsOutBalanceCommand } from "./AccountsIsOutBalance";
-import { AccountsIsTempCommand, SelectAccountIsTempCommand } from "./AccountsIsTemp";
-import { AccountsJournalCommand, SelectAccountJournalCommand } from "./AccountsJournal";
-import { AccountsKindCommand, SelectAccountKindCommand } from "./AccountsKind";
-import { AccountsStatusCommand, SelectAccountStatusCommand } from "./AccountsStatus";
-import { AccountsTrJournalCommand, SelectAccountTrJournalCommand } from "./AccountsTrJournal";
+import {
+  IconCoins,
+  IconLayoutGridAdd,
+  IconNotebook,
+  IconToggleRightFilled,
+} from '@tabler/icons-react';
+import {
+  CurrencyCode,
+  CurrencyField,
+  Filter,
+  SelectTree,
+  useFilterContext,
+  useQueryState,
+} from 'erxes-ui';
+import {
+  SelectAccountCatCommand,
+  SelectAccountCategory,
+} from '../../account-categories/components/SelectAccountCategory';
+import {
+  AccountsIsOutBalanceCommand,
+  SelectAccountIsOutBalanceCommand,
+} from './AccountsIsOutBalance';
+import {
+  AccountsIsTempCommand,
+  SelectAccountIsTempCommand,
+} from './AccountsIsTemp';
+import {
+  AccountsJournalCommand,
+  SelectAccountJournalCommand,
+} from './AccountsJournal';
+import { AccountsKindCommand, SelectAccountKindCommand } from './AccountsKind';
+import {
+  AccountsStatusCommand,
+  SelectAccountStatusCommand,
+} from './AccountsStatus';
+import {
+  AccountsTrJournalCommand,
+  SelectAccountTrJournalCommand,
+} from './AccountsTrJournal';
 
 // category helper
 export const AccountsFilterCategory = () => {
-  const [categoryId, setCategoryId] = useQueryState<string | null>('categoryId');
+  const [categoryId, setCategoryId] = useQueryState<string | null>(
+    'categoryId',
+  );
   const { resetFilterState } = useFilterContext();
 
   return (
@@ -30,7 +62,9 @@ export const AccountsFilterCategory = () => {
 };
 
 export const FilterBarCategory = () => {
-  const [categoryId, setCategoryId] = useQueryState<string | null>('categoryId');
+  const [categoryId, setCategoryId] = useQueryState<string | null>(
+    'categoryId',
+  );
 
   return (
     <Filter.BarItem queryKey="categoryId">
@@ -177,7 +211,11 @@ export const AccountsFilterIsTemp = () => {
   };
 
   return (
-    <AccountsIsTempCommand focusOnMount selected={isTemp} onSelect={handleSelect} />
+    <AccountsIsTempCommand
+      focusOnMount
+      selected={isTemp}
+      onSelect={handleSelect}
+    />
   );
 };
 
@@ -204,7 +242,9 @@ export const FilterBarIsTemp = () => {
 
 // account isOutBalance filter helper
 export const AccountsFilterIsOutBalance = () => {
-  const [isOutBalance, setIsOutBalance] = useQueryState<string | null>('isOutBalance');
+  const [isOutBalance, setIsOutBalance] = useQueryState<string | null>(
+    'isOutBalance',
+  );
   const { resetFilterState } = useFilterContext();
 
   const handleSelect = (value: string | null) => {
@@ -213,12 +253,18 @@ export const AccountsFilterIsOutBalance = () => {
   };
 
   return (
-    <AccountsIsOutBalanceCommand focusOnMount selected={isOutBalance} onSelect={handleSelect} />
+    <AccountsIsOutBalanceCommand
+      focusOnMount
+      selected={isOutBalance}
+      onSelect={handleSelect}
+    />
   );
 };
 
 export const FilterBarIsOutBalance = () => {
-  const [isOutBalance, setIsOutBalance] = useQueryState<string | null>('isOutBalance');
+  const [isOutBalance, setIsOutBalance] = useQueryState<string | null>(
+    'isOutBalance',
+  );
 
   return (
     <Filter.BarItem queryKey="isOutBalance">
@@ -249,7 +295,11 @@ export const AccountsFilterStatus = () => {
   };
 
   return (
-    <AccountsStatusCommand focusOnMount selected={status} onSelect={handleSelect} />
+    <AccountsStatusCommand
+      focusOnMount
+      selected={status}
+      onSelect={handleSelect}
+    />
   );
 };
 
@@ -273,7 +323,6 @@ export const FilterBarStatus = () => {
     </Filter.BarItem>
   );
 };
-
 
 // account journal filter helper
 export const AccountsFilterTrJournal = () => {

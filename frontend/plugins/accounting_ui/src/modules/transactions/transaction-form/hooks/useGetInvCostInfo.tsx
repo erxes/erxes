@@ -6,7 +6,7 @@ export interface IInvCostInfo {
     unitCost: number;
     remainder: number;
     totalCost: number;
-  }
+  };
 }
 // getAccCurrentCost(date: Date, currency: String, mainCurrency: String): ExchangeRate
 export const useGetAccCurrentCost = (options?: OperationVariables) => {

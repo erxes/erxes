@@ -39,7 +39,7 @@ const SelectAccountProvider = ({
   onCallback,
 }: SelectAccountProviderProps) => {
   const [accounts, setAccounts] = useState<IAccount[]>([]);
-  const accountIds = Array.isArray(value) ? value : value && [value] || [];
+  const accountIds = Array.isArray(value) ? value : (value && [value]) || [];
 
   const onSelect = useCallback(
     (account?: IAccount) => {
@@ -128,9 +128,7 @@ const SelectAccountContent = () => {
         <Combobox.Empty loading={loading} error={error} />
         {!loading &&
           accountsData
-            ?.filter(
-              (account) => !accountIds.includes(account._id)
-            )
+            ?.filter((account) => !accountIds.includes(account._id))
             .map((account) => (
               <SelectAccountCommandItem key={account._id} account={account} />
             ))}
@@ -193,13 +191,23 @@ const SelectAccountInlineCell = ({
 const SelectAccountRoot = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectAccountProvider>, 'children'> &
-  React.ComponentProps<typeof Combobox.Trigger> & {
-    placeholder?: string;
-    scope?: string;
-  }
+    React.ComponentProps<typeof Combobox.Trigger> & {
+      placeholder?: string;
+      scope?: string;
+    }
 >(
   (
-    { onValueChange, className, mode, value, placeholder, scope, defaultFilter, onCallback, ...props },
+    {
+      onValueChange,
+      className,
+      mode,
+      value,
+      placeholder,
+      scope,
+      defaultFilter,
+      onCallback,
+      ...props
+    },
     ref,
   ) => {
     const [open, setOpen] = useState(false);
@@ -263,12 +271,11 @@ export const SelectAccountFilterItem = ({
   );
 };
 
-
 export const SelectAccountFilterView = ({
   onValueChange,
   queryKey,
   mode = 'single',
-  onCallback
+  onCallback,
 }: {
   onValueChange?: (value: string[] | string) => void;
   queryKey?: string;

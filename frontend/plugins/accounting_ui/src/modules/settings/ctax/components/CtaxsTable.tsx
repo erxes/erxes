@@ -1,5 +1,5 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
-import { RecordTable, useQueryState, } from 'erxes-ui';
+import { RecordTable, useQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useCtaxRows } from '../hooks/useCtaxRows';
 import { ctaxRowDetailAtom } from '../states/ctaxRowStates';
@@ -10,10 +10,7 @@ export const CtaxRowsTable = () => {
   const { ctaxRows, loading, handleFetchMore, totalCount } = useCtaxRows();
 
   return (
-    <RecordTable.Provider
-      columns={ctaxRowsColumns}
-      data={ctaxRows || []}
-    >
+    <RecordTable.Provider columns={ctaxRowsColumns} data={ctaxRows || []}>
       <RecordTable.Scroll>
         <RecordTable>
           <RecordTable.Header />
@@ -63,7 +60,7 @@ export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = [
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <RecordTable.InlineHead label="Number" />,
+    header: () => <RecordTable.InlineHead label="Дугаар" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },
@@ -72,7 +69,7 @@ export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
+    header: () => <RecordTable.InlineHead label="Нэр" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },
@@ -81,7 +78,7 @@ export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = [
   {
     id: 'kind',
     accessorKey: 'kind',
-    header: () => <RecordTable.InlineHead label="Kind" />,
+    header: () => <RecordTable.InlineHead label="Төрөл" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },
@@ -89,7 +86,7 @@ export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="Status" />,
+    header: () => <RecordTable.InlineHead label="Төлөв" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },
@@ -97,14 +94,18 @@ export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = [
   {
     id: 'percent',
     accessorKey: 'percent',
-    header: () => <RecordTable.InlineHead label="Percent" />,
+    header: () => <RecordTable.InlineHead label="Хувь" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },
   },
 ];
 
-export const CtaxMoreColumnCell = ({ cell }: { cell: Cell<ICtaxRow, unknown> }) => {
+export const CtaxMoreColumnCell = ({
+  cell,
+}: {
+  cell: Cell<ICtaxRow, unknown>;
+}) => {
   return <RecordTable.MoreButton />;
 };
 

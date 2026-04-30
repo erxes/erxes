@@ -33,55 +33,76 @@ const getConvertedValue = (key: string, value: string) => {
     return {
       [`start${camel}`]: parsed?.from,
       [`end${camel}`]: parsed?.to,
-    }
+    };
   }
 
   return { [key]: value + '' };
-}
+};
 
 export const useTransactionsQueryParams = () => {
-  const [queryParams] =
-    useMultiQueryState<{
-      ids: string,
-      excludeIds: string,
-      status: string,
-      searchValue: string,
-      number: string,
-      accountIds: string,
-      accountKind: string,
-      accountExcludeIds: string,
-      accountStatus: string,
-      accountCategoryId: string,
-      accountSearchValue: string,
-      accountBrand: string,
-      accountIsOutBalance: string,
-      accountBranchId: string,
-      accountDepartmentId: string,
-      accountCurrency: string,
-      accountJournal: string,
-      brandId: string,
-      isOutBalance: string,
-      branchId: string,
-      departmentId: string,
-      currency: string,
-      journal: string,
-      statuses: string,
-      createdUserId: string,
-      modifiedUserId: string,
-      date: string,
-      updatedDate: string,
-      createdDate: string,
-    }>([
-      'ids', 'excludeIds', 'status', 'searchValue', 'number',
-      'accountIds', 'accountKind', 'accountExcludeIds', 'accountStatus',
-      'accountCategoryId', 'accountSearchValue', 'accountBrand', 'accountIsOutBalance',
-      'accountBranchId', 'accountDepartmentId', 'accountCurrency', 'accountJournal',
-      'brandId', 'isOutBalance', 'branchId', 'departmentId', 'currency', 'journal',
-      'statuses', 'createdUserId', 'modifiedUserId',
-      'date', 'updatedDate', 'createdDate'
-    ]);
+  const [queryParams] = useMultiQueryState<{
+    ids: string;
+    excludeIds: string;
+    status: string;
+    searchValue: string;
+    number: string;
+    accountIds: string;
+    accountKind: string;
+    accountExcludeIds: string;
+    accountStatus: string;
+    accountCategoryId: string;
+    accountSearchValue: string;
+    accountBrand: string;
+    accountIsOutBalance: string;
+    accountBranchId: string;
+    accountDepartmentId: string;
+    accountCurrency: string;
+    accountJournal: string;
+    brandId: string;
+    isOutBalance: string;
+    branchId: string;
+    departmentId: string;
+    currency: string;
+    journal: string;
+    statuses: string;
+    createdUserId: string;
+    modifiedUserId: string;
+    date: string;
+    updatedDate: string;
+    createdDate: string;
+  }>([
+    'ids',
+    'excludeIds',
+    'status',
+    'searchValue',
+    'number',
+    'accountIds',
+    'accountKind',
+    'accountExcludeIds',
+    'accountStatus',
+    'accountCategoryId',
+    'accountSearchValue',
+    'accountBrand',
+    'accountIsOutBalance',
+    'accountBranchId',
+    'accountDepartmentId',
+    'accountCurrency',
+    'accountJournal',
+    'brandId',
+    'isOutBalance',
+    'branchId',
+    'departmentId',
+    'currency',
+    'journal',
+    'statuses',
+    'createdUserId',
+    'modifiedUserId',
+    'date',
+    'updatedDate',
+    'createdDate',
+  ]);
 
-  return queryParams
+  return queryParams;
 };
 
 export const useTransactionsVariables = (
@@ -93,20 +114,23 @@ export const useTransactionsVariables = (
     sessionKey: ACCTRANSACTIONS_CURSOR_SESSION_KEY,
   });
 
-  const curVariables = Object.entries(queryParams).reduce((acc, [key, value]) => {
-    if (!value) return acc;
+  const curVariables = Object.entries(queryParams).reduce(
+    (acc, [key, value]) => {
+      if (!value) return acc;
 
-    Object.assign(acc, getConvertedValue(key, value));
-    return acc;
-  }, {} as Record<string, string | boolean | Date | string[]>);
+      Object.assign(acc, getConvertedValue(key, value));
+      return acc;
+    },
+    {} as Record<string, string | boolean | Date | string[]>,
+  );
 
   return {
     limit: ACC_TRS__PER_PAGE,
     orderBy: {
-      date: 1
+      date: 1,
     },
     cursor: cursor || '',
     ...variables,
-    ...curVariables
+    ...curVariables,
   };
 };

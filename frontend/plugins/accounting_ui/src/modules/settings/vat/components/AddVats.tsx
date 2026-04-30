@@ -29,7 +29,11 @@ export const AddVats = () => {
   );
 };
 
-export const AddVatForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
+export const AddVatForm = ({
+  setOpen,
+}: {
+  setOpen: (open: boolean) => void;
+}) => {
   const form = useForm<TVatRowForm>({
     resolver: zodResolver(vatFormSchema),
     defaultValues: {

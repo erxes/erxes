@@ -5,13 +5,21 @@ import { toast } from 'erxes-ui';
 export const useAccountingConfigAdd = (options?: MutationFunctionOptions) => {
   const [configAdd, { loading, error }] = useMutation(ACCOUNTINGS_CONFIGS_ADD);
 
-  const addConfig = ({ code, subId, value }: { code: string, subId?: string, value: any }) => {
+  const addConfig = ({
+    code,
+    subId,
+    value,
+  }: {
+    code: string;
+    subId?: string;
+    value: any;
+  }) => {
     return configAdd({
       ...options,
       variables: {
         code,
         subId,
-        value
+        value,
       },
       onError: (error) => {
         toast({

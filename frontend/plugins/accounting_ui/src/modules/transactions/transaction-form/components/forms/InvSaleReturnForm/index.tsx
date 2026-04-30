@@ -35,10 +35,8 @@ import { VatForm } from '../../helpers/VatForm';
 import { InventoryForm } from './InventoryForm';
 import { SelectSaleSheet } from './SelectSaleSheet';
 
-const updateFollowDetailsAccount = (
-  details: ITrDetail[],
-  account: IAccount,
-) => details.map((detail) => ({ ...detail, account, accountId: account._id }));
+const updateFollowDetailsAccount = (details: ITrDetail[], account: IAccount) =>
+  details.map((detail) => ({ ...detail, account, accountId: account._id }));
 
 export const InvSaleReturnForm = ({
   form,

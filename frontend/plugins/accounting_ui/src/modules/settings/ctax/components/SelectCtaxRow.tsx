@@ -13,11 +13,17 @@ export const SelectCtax = React.forwardRef<
   }
 >(({ value, onValueChange, onCallback, ...props }, ref) => {
   const [open, setOpen] = useState(false);
-  const [selectedCtax, setSelectedCtax] = useState<ICtaxRow | undefined>(undefined);
+  const [selectedCtax, setSelectedCtax] = useState<ICtaxRow | undefined>(
+    undefined,
+  );
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger ref={ref} {...props}>
-        <SelectCtaxValue ctaxRowId={value} ctaxRow={selectedCtax} onCallback={onCallback} />
+        <SelectCtaxValue
+          ctaxRowId={value}
+          ctaxRow={selectedCtax}
+          onCallback={onCallback}
+        />
       </Combobox.Trigger>
       <Combobox.Content>
         <SelectCtaxList
@@ -40,11 +46,13 @@ export const SelectCtaxList = ({
   setSelectedCtax: (ctaxRow: ICtaxRow) => void;
 }) => {
   const [searchValue, setSearchValue] = useState('');
-  const { ctaxRows, totalCount, loading, error, handleFetchMore } = useCtaxRows({
-    variables: {
-      searchValue,
+  const { ctaxRows, totalCount, loading, error, handleFetchMore } = useCtaxRows(
+    {
+      variables: {
+        searchValue,
+      },
     },
-  });
+  );
 
   return (
     <Command shouldFilter={false}>
@@ -95,18 +103,13 @@ export const SelectCtaxValue = ({
 
   useEffect(() => {
     if (onCallback && lastCtaxRow) {
-      onCallback(lastCtaxRow)
+      onCallback(lastCtaxRow);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lastCtaxRow, loading])
+  }, [lastCtaxRow, loading]);
 
   if (!lastCtaxRow?._id) {
-    return (
-      <Combobox.Value
-        placeholder="Select Ctax"
-        loading={loading}
-      />
-    );
+    return <Combobox.Value placeholder="Select Ctax" loading={loading} />;
   }
 
   return (

@@ -2,7 +2,7 @@ import { Combobox, Command, Popover } from 'erxes-ui';
 import React from 'react';
 import { Except } from 'type-fest';
 
-const AccountIsOutBalance = ['True', 'False']
+const AccountIsOutBalance = ['True', 'False'];
 
 export const SelectAccountIsOutBalanceCommand = React.forwardRef<
   React.ComponentRef<typeof Combobox.Trigger>,
@@ -46,7 +46,10 @@ export const AccountsIsOutBalanceCommand = ({
 }) => {
   return (
     <Command>
-      <Command.Input placeholder="Filter isOutBalance" focusOnMount={focusOnMount} />
+      <Command.Input
+        placeholder="Filter isOutBalance"
+        focusOnMount={focusOnMount}
+      />
       <Command.List>
         {AccountIsOutBalance.map((isOutBalance) => (
           <Command.Item

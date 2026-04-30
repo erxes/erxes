@@ -1,7 +1,10 @@
 import { Combobox, Command, Popover } from 'erxes-ui';
 import React from 'react';
 import { Except } from 'type-fest';
-import { TR_JOURNAL_LABELS, TrJournalEnum } from '~/modules/transactions/types/constants';
+import {
+  TR_JOURNAL_LABELS,
+  TrJournalEnum,
+} from '~/modules/transactions/types/constants';
 
 export const SelectAccountTrJournalCommand = React.forwardRef<
   React.ComponentRef<typeof Combobox.Trigger>,

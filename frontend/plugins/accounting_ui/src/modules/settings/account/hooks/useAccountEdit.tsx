@@ -5,10 +5,7 @@ import { toast } from 'erxes-ui';
 export const useAccountEdit = () => {
   const [_editAccount, { loading }] = useMutation(ACCOUNTS_EDIT);
 
-  const editAccount = (
-    options: OperationVariables,
-    fields: string[],
-  ) => {
+  const editAccount = (options: OperationVariables, fields: string[]) => {
     const variables = options?.variables || {};
     const fieldsToUpdate: Record<string, () => any> = {};
     fields.forEach((field) => {

@@ -2,7 +2,7 @@ import { Combobox, Command, Popover } from 'erxes-ui';
 import React from 'react';
 import { Except } from 'type-fest';
 
-const AccountIsTemp = ['True', 'False']
+const AccountIsTemp = ['True', 'False'];
 
 export const SelectAccountIsTempCommand = React.forwardRef<
   React.ComponentRef<typeof Combobox.Trigger>,

@@ -49,7 +49,7 @@ export const columns: ColumnDef<IConfig>[] = [
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="Code" />,
+    header: () => <RecordTable.InlineHead label="Код" />,
     cell: ({ cell }) => {
       return <LinkCell row={cell.row} renderVal={cell.row.original?.code} />;
     },
@@ -58,7 +58,7 @@ export const columns: ColumnDef<IConfig>[] = [
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead label="Title" />,
+    header: () => <RecordTable.InlineHead label="Гарчиг" />,
     cell: ({ cell }) => {
       return (
         <LinkCell row={cell.row} renderVal={cell.row.original?.value?.title} />

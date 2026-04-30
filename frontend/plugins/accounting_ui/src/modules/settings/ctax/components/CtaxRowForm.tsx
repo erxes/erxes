@@ -1,13 +1,6 @@
 import { UseFormReturn } from 'react-hook-form';
 import { TCtaxRowForm, CtaxKind, CtaxStatus } from '../types/CtaxRow';
-import {
-  Button,
-  Dialog,
-  Form,
-  Input,
-  Select,
-  Spinner,
-} from 'erxes-ui';
+import { Button, Dialog, Form, Input, Select, Spinner } from 'erxes-ui';
 import { IconX } from '@tabler/icons-react';
 
 export const CtaxRowForm = ({

@@ -29,7 +29,11 @@ export const AddCtaxs = () => {
   );
 };
 
-export const AddCtaxForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
+export const AddCtaxForm = ({
+  setOpen,
+}: {
+  setOpen: (open: boolean) => void;
+}) => {
   const form = useForm<TCtaxRowForm>({
     resolver: zodResolver(ctaxFormSchema),
     defaultValues: {

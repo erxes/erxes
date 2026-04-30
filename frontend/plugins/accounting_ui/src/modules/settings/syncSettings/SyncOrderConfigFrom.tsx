@@ -1,11 +1,5 @@
 import { UseFormReturn } from 'react-hook-form';
-import {
-  Button,
-  Dialog,
-  Form,
-  Input,
-  Spinner,
-} from 'erxes-ui';
+import { Button, Dialog, Form, Input, Spinner } from 'erxes-ui';
 
 export const SyncOrderConfigForm = ({
   form,

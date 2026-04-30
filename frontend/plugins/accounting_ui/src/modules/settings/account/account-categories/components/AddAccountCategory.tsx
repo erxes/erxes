@@ -30,7 +30,11 @@ export const AddAccountCategory = () => {
   );
 };
 
-const AddAccountCategoryForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
+const AddAccountCategoryForm = ({
+  setOpen,
+}: {
+  setOpen: (open: boolean) => void;
+}) => {
   const form = useForm<TAccountCategoryForm>({
     resolver: zodResolver(accountCategorySchema),
     defaultValues: ACCOUNT_CATEGORY_DEFAULT_VALUES,
@@ -46,7 +50,6 @@ const AddAccountCategoryForm = ({ setOpen }: { setOpen: (open: boolean) => void 
         form.reset();
       },
     });
-
   };
 
   return (
