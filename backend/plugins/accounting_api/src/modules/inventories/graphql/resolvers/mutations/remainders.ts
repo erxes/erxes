@@ -25,7 +25,7 @@ const remainderMutations = {
       throw new Error('Please set at least one filter.')
     }
 
-    let branchIds: string[] = branchId ? [branchId]: [];
+    let branchIds: string[] = branchId ? [branchId] : [];
     let departmentIds: string[] = departmentId ? [departmentId] : [];
 
     if (!branchId) {
@@ -53,15 +53,32 @@ const remainderMutations = {
       departmentIds = departments.map(d => d._id)
     }
 
+    const BATCH_SIZE = 10;
+    const tasks: Promise<void>[] = [];
+
     for (const bId of branchIds) {
       for (const dId of departmentIds) {
-        await updateLiveRemainders({
-          subdomain, models,
-          branchId: bId, departmentId: dId,
-          productCategoryId, productIds,
-        });
+        tasks.push(
+          updateLiveRemainders({
+            subdomain, models,
+            branchId: bId, departmentId: dId,
+            productCategoryId, productIds,
+          })
+        );
+
+        // Process in batches to avoid overwhelming the database
+        if (tasks.length >= BATCH_SIZE) {
+          await Promise.all(tasks);
+          tasks.length = 0;
+        }
       }
     }
+
+    // Process remaining tasks
+    if (tasks.length > 0) {
+      await Promise.all(tasks);
+    }
+
     return 'success'
   },
 };
