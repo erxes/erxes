@@ -31,7 +31,7 @@ export const RemoveButton = ({
       onClick={handleRemove}
     >
       <IconX />
-      Remove Selected
+      Сонгосныг хасах
     </Button>
   );
 };

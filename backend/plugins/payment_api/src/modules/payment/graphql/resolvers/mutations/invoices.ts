@@ -67,9 +67,9 @@ const mutations: Record<string, Resolver> = {
         // Fire worker message – do not await
         sendWorkerMessage({
           subdomain,
-          pluginName: 'payment',
+          pluginName,
           queueName: 'payments',
-          jobName: 'paymentCallback',
+          jobName: 'callback',
           data: {
             ...invoice,
             status: 'paid',

@@ -40,7 +40,7 @@ export const AddDetailRowButton = ({
         onClick={() => append(detailDefaultValues)}
       >
         <IconPlus />
-        Add Empty Row
+        Хоосон мөр нэмэх
       </Button>
       <SelectProductsBulk
         productIds={
@@ -59,7 +59,7 @@ export const AddDetailRowButton = ({
       >
         <Button variant="secondary" className="bg-border">
           <IconPlus />
-          Add Many Products
+          Олон бараа нэмэх
         </Button>
       </SelectProductsBulk>
     </>

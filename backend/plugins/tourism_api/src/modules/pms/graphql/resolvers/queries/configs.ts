@@ -166,25 +166,13 @@ const configQueries: Record<string, Resolver> = {
           stageId: { $in: newArray },
           productsData: {
             $elemMatch: {
-              $or: [
-                {
-                  productId: { $in: ids },
-                  startDate: {
-                    $lte: new Date(startDate),
-                  },
-                  endDate: {
-                    $gte: new Date(startDate),
-                    $lte: new Date(endDate),
-                  },
-                },
-                {
-                  productId: { $in: ids },
-                  startDate: {
-                    $gte: new Date(startDate),
-                    $lte: new Date(endDate),
-                  },
-                },
-              ],
+              productId: { $in: ids },
+              startDate: {
+                $lte: new Date(endDate), // 🔥 important
+              },
+              endDate: {
+                $gte: new Date(startDate), // 🔥 important
+              },
             },
           },
         },
@@ -262,25 +250,13 @@ const configQueries: Record<string, Resolver> = {
           stageId: { $in: newArray },
           productsData: {
             $elemMatch: {
-              $or: [
-                {
-                  productId: { $in: ids },
-                  startDate: {
-                    $lte: new Date(startDate),
-                  },
-                  endDate: {
-                    $gte: new Date(startDate),
-                    $lte: new Date(endDate),
-                  },
-                },
-                {
-                  productId: { $in: ids },
-                  startDate: {
-                    $gte: new Date(startDate),
-                    $lte: new Date(endDate),
-                  },
-                },
-              ],
+              productId: { $in: ids },
+              startDate: {
+                $lte: new Date(endDate), // 🔥 important
+              },
+              endDate: {
+                $gte: new Date(startDate), // 🔥 important
+              },
             },
           },
         },
@@ -344,4 +320,3 @@ configQueries.cpPmsCheckRooms.wrapperConfig = {
 configQueries.cpPmsRooms.wrapperConfig = {
   forClientPortal: true,
 };
-

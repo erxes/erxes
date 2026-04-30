@@ -42,4 +42,5 @@ export interface ICommonFieldProps {
   form: ITransactionGroupForm;
   index: number;
   detIndex?: number;
+  labelTxt?: string;
 }

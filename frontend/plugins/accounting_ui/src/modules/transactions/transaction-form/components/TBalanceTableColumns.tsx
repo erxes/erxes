@@ -12,7 +12,7 @@ import {
   fixNum,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ProductsInline } from 'ui-modules';
 import { AccountsInline } from '~/modules/settings/account/components/AccountsInline';
 import { activeJournalState } from '../states/trStates';
@@ -134,12 +134,18 @@ const DateCell = ({ getValue }: any) => {
 
 const AccountCell = ({ row }: any) => {
   const { detail } = row.original;
+  const accountIds = useMemo(
+    () => (detail.accountId ? [detail.accountId] : []),
+    [detail.accountId],
+  );
+  const accounts = useMemo(
+    () => (detail.account ? [detail.account] : undefined),
+    [detail.account],
+  );
+
   return (
     <RecordTableInlineCell>
-      <AccountsInline
-        accountIds={[detail.accountId]}
-        accounts={detail.account && [detail.account]}
-      />
+      <AccountsInline accountIds={accountIds} accounts={accounts} />
     </RecordTableInlineCell>
   );
 };
