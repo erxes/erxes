@@ -68,14 +68,14 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy production dependencies and built app only
-COPY --chown=1000:1000 --from=prod-deps /app/node_modules ./node_modules
+COPY --chown=1000:1000 --chmod=0555 --from=prod-deps /app/node_modules ./node_modules
 RUN rm -rf ./node_modules/erxes-api-shared
-COPY --chown=1000:1000 --from=build /app/backend/erxes-api-shared/dist ./node_modules/erxes-api-shared/dist
-COPY --chown=1000:1000 --from=build /app/backend/erxes-api-shared/utils ./node_modules/erxes-api-shared/utils
-COPY --chown=1000:1000 --from=build /app/backend/erxes-api-shared/core-types ./node_modules/erxes-api-shared/core-types
-COPY --chown=1000:1000 --from=build /app/backend/erxes-api-shared/core-modules ./node_modules/erxes-api-shared/core-modules
-COPY --chown=1000:1000 --from=build /app/backend/erxes-api-shared/package.json ./node_modules/erxes-api-shared/
-COPY --chown=1000:1000 --from=build /app/backend/gateway/dist ./backend/gateway/dist
+COPY --chown=1000:1000 --chmod=0555 --from=build /app/backend/erxes-api-shared/dist ./node_modules/erxes-api-shared/dist
+COPY --chown=1000:1000 --chmod=0555 --from=build /app/backend/erxes-api-shared/utils ./node_modules/erxes-api-shared/utils
+COPY --chown=1000:1000 --chmod=0555 --from=build /app/backend/erxes-api-shared/core-types ./node_modules/erxes-api-shared/core-types
+COPY --chown=1000:1000 --chmod=0555 --from=build /app/backend/erxes-api-shared/core-modules ./node_modules/erxes-api-shared/core-modules
+COPY --chown=1000:1000 --chmod=0444 --from=build /app/backend/erxes-api-shared/package.json ./node_modules/erxes-api-shared/
+COPY --chown=1000:1000 --chmod=0555 --from=build /app/backend/gateway/dist ./backend/gateway/dist
 
 # Install pnpm
 RUN npm install -g pnpm
