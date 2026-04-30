@@ -1,9 +1,15 @@
 import { gql } from '@apollo/client';
 
 export const CONVERSATION_MEMBER_PROGRESS = gql`
-  query ConversationMemberProgress($customerId: String!) {
-    conversationMemberProgress(customerId: $customerId)
+query ConversationMemberProgress($customerId: String!) {
+  conversationMemberProgress(customerId: $customerId) {
+    assigneeId
+    new
+    open
+    closed
+    resolved
   }
+}
 `;
 
 export const CONVERSATION_SOURCE_PROGRESS = gql`
