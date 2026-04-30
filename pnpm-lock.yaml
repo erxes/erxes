@@ -838,8 +838,8 @@ importers:
         specifier: ^4.21.2
         version: 4.21.2
       express-rate-limit:
-        specifier: ^6.11.0
-        version: 6.11.2(express@4.21.2)
+        specifier: ^8.0.1
+        version: 8.0.1(express@4.21.2)
       file-type:
         specifier: ^20.5.0
         version: 20.5.0
@@ -1328,9 +1328,6 @@ importers:
       express:
         specifier: ^4.21.2
         version: 4.21.2
-      express-rate-limit:
-        specifier: ^8.0.1
-        version: 8.0.1(express@4.21.2)
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
@@ -10885,12 +10882,6 @@ packages:
   expect@29.7.0:
     resolution: {integrity: sha512-2Zks0hf1VLFYI1kbh0I5jP3KHHyCHpkfyHBzsSXRFgl/Bg9mWYfMW8oD+PdMPlEwy5HNsR9JutYy6pMeOh61nw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-
-  express-rate-limit@6.11.2:
-    resolution: {integrity: sha512-a7uwwfNTh1U60ssiIkuLFWHt4hAC5yxlLGU2VP0X4YNlyEDZAqF4tK3GD3NSitVBrCQmQ0++0uOyFOgC2y4DDw==}
-    engines: {node: '>= 14'}
-    peerDependencies:
-      express: ^4 || ^5
 
   express-rate-limit@8.0.1:
     resolution: {integrity: sha512-aZVCnybn7TVmxO4BtlmnvX+nuz8qHW124KKJ8dumsBsmv5ZLxE0pYu7S2nwyRBGHHCAzdmnGyrc5U/rksSPO7Q==}
@@ -30626,10 +30617,6 @@ snapshots:
       jest-matcher-utils: 29.7.0
       jest-message-util: 29.7.0
       jest-util: 29.7.0
-
-  express-rate-limit@6.11.2(express@4.21.2):
-    dependencies:
-      express: 4.21.2
 
   express-rate-limit@8.0.1(express@4.21.2):
     dependencies:
