@@ -1,3 +1,1 @@
-import { ErkhetConfigCommandBar } from '../../shared/components/ErkhetConfigCommandBar';
-
-export const PipelineRemainderConfigCommandBar = ErkhetConfigCommandBar;
+export { ErkhetConfigCommandBar as PipelineRemainderConfigCommandBar } from '../../shared/components/ErkhetConfigCommandBar';

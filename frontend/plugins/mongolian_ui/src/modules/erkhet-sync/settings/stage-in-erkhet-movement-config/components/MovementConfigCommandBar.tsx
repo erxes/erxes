@@ -1,3 +1,1 @@
-import { ErkhetConfigCommandBar } from '../../shared/components/ErkhetConfigCommandBar';
-
-export const MovementConfigCommandBar = ErkhetConfigCommandBar;
+export { ErkhetConfigCommandBar as MovementConfigCommandBar } from '../../shared/components/ErkhetConfigCommandBar';

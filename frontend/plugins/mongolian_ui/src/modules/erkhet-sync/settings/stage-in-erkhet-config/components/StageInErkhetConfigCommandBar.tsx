@@ -1,3 +1,1 @@
-import { ErkhetConfigCommandBar } from '../../shared/components/ErkhetConfigCommandBar';
-
-export const StageInErkhetConfigCommandBar = ErkhetConfigCommandBar;
+export { ErkhetConfigCommandBar as StageInErkhetConfigCommandBar } from '../../shared/components/ErkhetConfigCommandBar';
