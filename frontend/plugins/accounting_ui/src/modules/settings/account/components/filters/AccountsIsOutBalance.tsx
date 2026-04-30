@@ -3,6 +3,10 @@ import React from 'react';
 import { Except } from 'type-fest';
 
 const AccountIsOutBalance = ['True', 'False'];
+const ACCOUNT_BOOLEAN_LABELS: Record<string, string> = {
+  True: 'Тийм',
+  False: 'Үгүй',
+};
 
 export const SelectAccountIsOutBalanceCommand = React.forwardRef<
   React.ComponentRef<typeof Combobox.Trigger>,
@@ -19,7 +23,7 @@ export const SelectAccountIsOutBalanceCommand = React.forwardRef<
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger ref={ref} {...props}>
-        {selected ?? 'All'}
+        {selected ? ACCOUNT_BOOLEAN_LABELS[selected] : 'Бүгд'}
       </Combobox.Trigger>
       <Combobox.Content>
         <AccountsIsOutBalanceCommand
@@ -47,7 +51,7 @@ export const AccountsIsOutBalanceCommand = ({
   return (
     <Command>
       <Command.Input
-        placeholder="Filter isOutBalance"
+        placeholder="Баланс бусаар шүүх"
         focusOnMount={focusOnMount}
       />
       <Command.List>
@@ -57,7 +61,7 @@ export const AccountsIsOutBalanceCommand = ({
             value={isOutBalance}
             onSelect={() => onSelect?.(isOutBalance)}
           >
-            {isOutBalance}
+            {ACCOUNT_BOOLEAN_LABELS[isOutBalance]}
             <Combobox.Check checked={selected === isOutBalance} />
           </Command.Item>
         ))}

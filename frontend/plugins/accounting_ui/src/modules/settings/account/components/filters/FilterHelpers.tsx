@@ -270,7 +270,7 @@ export const FilterBarIsOutBalance = () => {
     <Filter.BarItem queryKey="isOutBalance">
       <Filter.BarName>
         <IconToggleRightFilled />
-        Is Out Balance
+        Баланс бус
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountIsOutBalanceCommand
@@ -310,7 +310,7 @@ export const FilterBarStatus = () => {
     <Filter.BarItem queryKey="status">
       <Filter.BarName>
         <IconToggleRightFilled />
-        Is Out Balance
+        Төлөв
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountStatusCommand

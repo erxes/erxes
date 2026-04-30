@@ -13,7 +13,10 @@ export const EditCtaxRow = () => {
   const [open, setOpen] = useQueryState<string>('ctax_row_id');
   return (
     <Dialog open={open !== null} onOpenChange={() => setOpen(null)}>
-      <AccountingDialog title="Edit Ctax Row" description="Edit an ctax row">
+      <AccountingDialog
+        title="НХАТ-ын мөр засах"
+        description="НХАТ-ын мөр засах"
+      >
         <EditCtaxRowForm />
       </AccountingDialog>
     </Dialog>

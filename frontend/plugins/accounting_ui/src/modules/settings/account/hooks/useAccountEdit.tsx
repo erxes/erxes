@@ -16,7 +16,7 @@ export const useAccountEdit = () => {
       variables,
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: 'Алдаа',
           description: error.message,
           variant: 'destructive',
         });
@@ -24,8 +24,8 @@ export const useAccountEdit = () => {
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Account updated successfully',
+          title: 'Амжилттай',
+          description: 'Дансыг шинэчиллээ',
           variant: 'success',
         });
         options?.onCompleted?.(data);

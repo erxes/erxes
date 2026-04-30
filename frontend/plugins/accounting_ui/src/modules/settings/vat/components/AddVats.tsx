@@ -15,12 +15,12 @@ export const AddVats = () => {
       <Dialog.Trigger asChild>
         <Button>
           <IconPlus />
-          Add Vat
+          НӨАТ нэмэх
         </Button>
       </Dialog.Trigger>
       <Dialog.ContentCombined
-        title="Add Vat"
-        description="Add a new vat"
+        title="НӨАТ нэмэх"
+        description="Шинэ НӨАТ нэмэх"
         className="sm:max-w-2xl"
       >
         <AddVatForm setOpen={setOpen} />

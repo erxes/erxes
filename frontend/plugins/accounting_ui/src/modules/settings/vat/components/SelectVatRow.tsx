@@ -55,7 +55,7 @@ export const SelectVatList = ({
   return (
     <Command shouldFilter={false}>
       <Command.Input
-        placeholder="Search vat"
+        placeholder="НӨАТ хайх"
         value={searchValue}
         onValueChange={(value) => setSearchValue(value)}
       />
@@ -107,7 +107,7 @@ export const SelectVatValue = ({
   }, [lastVatRow, loading]);
 
   if (!lastVatRow?._id) {
-    return <Combobox.Value placeholder="Select Vat" loading={loading} />;
+    return <Combobox.Value placeholder="НӨАТ сонгох" loading={loading} />;
   }
 
   return (

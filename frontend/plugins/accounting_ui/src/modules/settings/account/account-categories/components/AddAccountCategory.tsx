@@ -17,12 +17,12 @@ export const AddAccountCategory = () => {
       <Dialog.Trigger asChild>
         <Button>
           <IconPlus />
-          Add account category
+          Дансны ангилал нэмэх
         </Button>
       </Dialog.Trigger>
       <AccountingDialog
-        title="Add account category"
-        description="Add a new account category"
+        title="Дансны ангилал нэмэх"
+        description="Шинэ дансны ангилал нэмэх"
       >
         <AddAccountCategoryForm setOpen={setOpen} />
       </AccountingDialog>

@@ -154,7 +154,7 @@ const SelectAccountCommandItem = ({ account }: { account: IAccount }) => {
         onSelect(account);
       }}
     >
-      <AccountsInline accounts={[account]} placeholder="Unnamed account" />
+      <AccountsInline accounts={[account]} placeholder="Нэргүй данс" />
       <Combobox.Check checked={accountIds.includes(account._id)} />
     </Command.Item>
   );

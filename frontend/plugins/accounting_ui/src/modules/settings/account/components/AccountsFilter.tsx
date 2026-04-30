@@ -63,7 +63,7 @@ const AccountsFilterPopover = () => {
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Filter"
+                placeholder="Шүүх"
                 variant="secondary"
                 className="bg-background"
               />
@@ -102,7 +102,7 @@ const AccountsFilterPopover = () => {
                 </Filter.Item>
                 <Filter.Item value="isOutBalance">
                   <IconToggleRightFilled />
-                  Is Out Balance
+                  Баланс бус
                 </Filter.Item>
                 <Filter.Item value="status">
                   <IconToggleRightFilled />

@@ -3,6 +3,10 @@ import React from 'react';
 import { Except } from 'type-fest';
 
 const AccountIsTemp = ['True', 'False'];
+const ACCOUNT_BOOLEAN_LABELS: Record<string, string> = {
+  True: 'Тийм',
+  False: 'Үгүй',
+};
 
 export const SelectAccountIsTempCommand = React.forwardRef<
   React.ComponentRef<typeof Combobox.Trigger>,
@@ -19,7 +23,7 @@ export const SelectAccountIsTempCommand = React.forwardRef<
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger ref={ref} {...props}>
-        {selected ?? 'All'}
+        {selected ? ACCOUNT_BOOLEAN_LABELS[selected] : 'Бүгд'}
       </Combobox.Trigger>
       <Combobox.Content>
         <AccountsIsTempCommand
@@ -46,7 +50,10 @@ export const AccountsIsTempCommand = ({
 }) => {
   return (
     <Command>
-      <Command.Input placeholder="Filter isTemp" focusOnMount={focusOnMount} />
+      <Command.Input
+        placeholder="Түр дансаар шүүх"
+        focusOnMount={focusOnMount}
+      />
       <Command.List>
         {AccountIsTemp.map((isTemp) => (
           <Command.Item
@@ -54,7 +61,7 @@ export const AccountsIsTempCommand = ({
             value={isTemp}
             onSelect={() => onSelect?.(isTemp)}
           >
-            {isTemp}
+            {ACCOUNT_BOOLEAN_LABELS[isTemp]}
             <Combobox.Check checked={selected === isTemp} />
           </Command.Item>
         ))}

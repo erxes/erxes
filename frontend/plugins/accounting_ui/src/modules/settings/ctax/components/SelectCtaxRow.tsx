@@ -57,7 +57,7 @@ export const SelectCtaxList = ({
   return (
     <Command shouldFilter={false}>
       <Command.Input
-        placeholder="Search ctax"
+        placeholder="НХАТ хайх"
         value={searchValue}
         onValueChange={(value) => setSearchValue(value)}
       />
@@ -109,7 +109,7 @@ export const SelectCtaxValue = ({
   }, [lastCtaxRow, loading]);
 
   if (!lastCtaxRow?._id) {
-    return <Combobox.Value placeholder="Select Ctax" loading={loading} />;
+    return <Combobox.Value placeholder="НХАТ сонгох" loading={loading} />;
   }
 
   return (

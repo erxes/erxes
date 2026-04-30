@@ -13,7 +13,10 @@ export const EditVatRow = () => {
   const [open, setOpen] = useQueryState<string>('vat_row_id');
   return (
     <Dialog open={open !== null} onOpenChange={() => setOpen(null)}>
-      <AccountingDialog title="Edit Vat Row" description="Edit an vat row">
+      <AccountingDialog
+        title="НӨАТ-ын мөр засах"
+        description="НӨАТ-ын мөр засах"
+      >
         <EditVatRowForm />
       </AccountingDialog>
     </Dialog>

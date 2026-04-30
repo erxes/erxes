@@ -15,12 +15,12 @@ export const AddCtaxs = () => {
       <Dialog.Trigger asChild>
         <Button>
           <IconPlus />
-          Add Ctax
+          НХАТ нэмэх
         </Button>
       </Dialog.Trigger>
       <Dialog.ContentCombined
-        title="Add Ctax"
-        description="Add a new ctax"
+        title="НХАТ нэмэх"
+        description="Шинэ НХАТ нэмэх"
         className="sm:max-w-2xl"
       >
         <AddCtaxForm setOpen={setOpen} />

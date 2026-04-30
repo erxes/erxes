@@ -189,12 +189,12 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
   {
     id: 'isOutBalance',
     accessorKey: 'isOutBalance',
-    header: () => <RecordTable.InlineHead label="Гарах үлдэгдэл" />,
+    header: () => <RecordTable.InlineHead label="Баланс бус" />,
     size: 80,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          {cell.getValue() ? 'Out' : '-'}
+          {cell.getValue() ? 'Баланс бус' : '-'}
         </RecordTableInlineCell>
       );
     },

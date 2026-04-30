@@ -21,7 +21,7 @@ export const SyncOrderConfigForm = ({
           name="title"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Title</Form.Label>
+              <Form.Label>Гарчиг</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -34,7 +34,7 @@ export const SyncOrderConfigForm = ({
           name="percent"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Percent</Form.Label>
+              <Form.Label>Хувь</Form.Label>
               <Form.Control>
                 <Input
                   value={field.value}
@@ -49,11 +49,11 @@ export const SyncOrderConfigForm = ({
         <Dialog.Footer className="col-span-2 mt-3 gap-2">
           <Dialog.Close asChild>
             <Button variant="outline" size="lg">
-              Cancel
+              Болих
             </Button>
           </Dialog.Close>
           <Button type="submit" disabled={loading} size="lg">
-            {loading ? <Spinner /> : 'Submit'}
+            {loading ? <Spinner /> : 'Хадгалах'}
           </Button>
         </Dialog.Footer>
       </form>

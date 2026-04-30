@@ -89,7 +89,7 @@ const TransactionsFilterPopover = () => {
                 </Filter.Item>
                 <Filter.Item value="isOutBalance" disabled={true}>
                   <IconToggleRightFilled />
-                  Гарах үлдэгдэлтэй эсэх
+                  Баланс бус эсэх
                 </Filter.Item>
 
                 <Command.Separator className="my-1" />

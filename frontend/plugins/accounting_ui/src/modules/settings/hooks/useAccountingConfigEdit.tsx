@@ -36,7 +36,7 @@ export const useAccountingConfigEdit = (
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: 'Алдаа',
           description: error.message,
           variant: 'destructive',
         });
@@ -44,8 +44,8 @@ export const useAccountingConfigEdit = (
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Updated config',
+          title: 'Амжилттай',
+          description: 'Тохиргоо шинэчлэгдлээ',
         });
         options?.onCompleted?.(data);
       },

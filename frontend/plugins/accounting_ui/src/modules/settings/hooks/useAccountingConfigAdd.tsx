@@ -23,7 +23,7 @@ export const useAccountingConfigAdd = (options?: MutationFunctionOptions) => {
       },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: 'Алдаа',
           description: error.message,
           variant: 'destructive',
         });
@@ -31,8 +31,8 @@ export const useAccountingConfigAdd = (options?: MutationFunctionOptions) => {
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Added config',
+          title: 'Амжилттай',
+          description: 'Тохиргоо нэмэгдлээ',
         });
         options?.onCompleted?.(data);
       },

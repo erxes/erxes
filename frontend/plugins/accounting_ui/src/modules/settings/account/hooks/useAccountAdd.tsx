@@ -16,7 +16,7 @@ export const useAccountAdd = () => {
       ...options,
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: 'Алдаа',
           description: error.message,
           variant: 'destructive',
         });
