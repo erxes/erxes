@@ -25,8 +25,8 @@ const remainderMutations = {
       throw new Error('Please set at least one filter.')
     }
 
-    let branchIds: string[] = [branchId ?? ''];
-    let departmentIds: string[] = [departmentId ?? ''];
+    let branchIds: string[] = branchId ? [branchId]: [];
+    let departmentIds: string[] = departmentId ? [departmentId] : [];
 
     if (!branchId) {
       const branches = await sendTRPCMessage({
@@ -50,7 +50,7 @@ const remainderMutations = {
         input: { query: {}, fields: { _id: 1 } },
         defaultValue: [],
       });
-      departmentIds = departments.map(b => b._id)
+      departmentIds = departments.map(d => d._id)
     }
 
     for (const bId of branchIds) {
