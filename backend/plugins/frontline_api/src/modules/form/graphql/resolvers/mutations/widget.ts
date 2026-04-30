@@ -172,7 +172,7 @@ function updateCustomerDoc(
   return customerDoc;
 }
 
-export const widgetFormMutation: Record<string, Resolver> = {
+export const widgetFormMutation: Record<string, Resolver<any, any, IContext>> = {
   async widgetsLeadConnect(
     _root,
     args: { channelId: string; formCode: string; cachedCustomerId?: string },
@@ -363,7 +363,7 @@ export const widgetFormMutation: Record<string, Resolver> = {
         method: 'query',
         module: 'customers',
         action: 'findOne',
-        input: { customerQry },
+        input: { query: customerQry },
         defaultValue: null,
       });
     }
@@ -415,9 +415,7 @@ export const widgetFormMutation: Record<string, Resolver> = {
         action: 'updateCustomer',
         input: {
           _id: customer._id,
-          doc: {
-            doc,
-          },
+          doc,
         },
       });
     }
@@ -617,7 +615,7 @@ export const widgetFormMutation: Record<string, Resolver> = {
         method: 'query',
         module: 'customers',
         action: 'findOne',
-        input: { customerQry },
+        input: { query: customerQry },
         defaultValue: null,
       });
     }
@@ -669,9 +667,7 @@ export const widgetFormMutation: Record<string, Resolver> = {
         action: 'updateCustomer',
         input: {
           _id: customer._id,
-          doc: {
-            doc,
-          },
+          doc,
         },
       });
     }
