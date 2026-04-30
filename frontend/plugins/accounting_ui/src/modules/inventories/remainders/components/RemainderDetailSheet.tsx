@@ -28,10 +28,10 @@ const parseInventories = (inventories: any): InventoryEntry[] => {
 
   const rows: InventoryEntry[] = [];
   for (const branchId of Object.keys(inventories)) {
-    const deptMap = inventories[branchId];
-    if (!deptMap || typeof deptMap !== 'object') continue;
-    for (const departmentId of Object.keys(deptMap)) {
-      const data = deptMap[departmentId];
+    const departmentMap = inventories[branchId];
+    if (!departmentMap || typeof departmentMap !== 'object') continue;
+    for (const departmentId of Object.keys(departmentMap)) {
+      const data = departmentMap[departmentId];
       if (!data) continue;
       rows.push({
         branchId,
@@ -56,7 +56,7 @@ const joinLabel = (code?: string, title?: string) =>
 
 const buildInventoryColumns = (
   branchMap: LabelMap,
-  deptMap: LabelMap,
+  departmentMap: LabelMap,
 ): ColumnDef<InventoryEntry>[] => [
   {
     id: 'branch',
@@ -80,8 +80,8 @@ const buildInventoryColumns = (
       <RecordTableInlineCell>
         <TextOverflowTooltip
           value={joinLabel(
-            deptMap[row.original.departmentId]?.code,
-            deptMap[row.original.departmentId]?.title,
+            departmentMap[row.original.departmentId]?.code,
+            departmentMap[row.original.departmentId]?.title,
           )}
         />
       </RecordTableInlineCell>
@@ -142,9 +142,9 @@ export const InventoriesTable = ({ inventories }: InventoriesTableProps) => {
   });
 
   const branchMap: LabelMap = Object.fromEntries((branches ?? []).map((b) => [b._id, b]));
-  const deptMap: LabelMap = Object.fromEntries((departments ?? []).map((d) => [d._id, d]));
+  const departmentMap: LabelMap = Object.fromEntries((departments ?? []).map((d) => [d._id, d]));
 
-  const columns = buildInventoryColumns(branchMap, deptMap);
+  const columns = buildInventoryColumns(branchMap, departmentMap);
 
   return (
     <RecordTable.Provider columns={columns} data={rows} className="h-full px-4 pb-4">
