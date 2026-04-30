@@ -143,10 +143,10 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
           onClick={() => setShowEdit(true)}
         >
           <IconEditCircle />
-          {`Edit related accounts`}
+          {`Харгалзах данс засах`}
         </Button>
-        {dtStr && <Label className="ml-1">Debit: {dtStr}</Label>}
-        {ctStr && <Label className="ml-1">Credit: {ctStr}</Label>}
+        {dtStr && <Label className="ml-1">Дебет: {dtStr}</Label>}
+        {ctStr && <Label className="ml-1">Кредит: {ctStr}</Label>}
       </div>
     );
   }
@@ -155,7 +155,7 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
     <>
       <Separator />
       <div className="flex flex-auto mt-2">
-        <Label> Debit:</Label>
+        <Label> Дебет:</Label>
         {customDts?.map((code, ind) => (
           <Input
             className="ml-4 max-w-36"
@@ -166,7 +166,7 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
         ))}
       </div>
       <div className="flex flex-auto mt-2">
-        <Label>Credit:</Label>
+        <Label>Кредит:</Label>
         {customCts?.map((code, ind) => (
           <Input
             className="ml-4 max-w-36"
@@ -182,7 +182,7 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
         onClick={() => setShowEdit(false)}
       >
         <IconEyeCheck />
-        {`Save and Close Related Accounts`}
+        {`Хадгалаад хаах`}
       </Button>
       <Separator />
     </>
