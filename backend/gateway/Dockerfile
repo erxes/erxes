@@ -37,7 +37,7 @@ COPY ./backend/gateway/package.json /app/backend/gateway/
 COPY ./backend/erxes-api-shared/package.json /app/backend/erxes-api-shared/
 
 RUN npm install -g pnpm
-RUN pnpm --filter ./backend/gateway --filter erxes-api-shared install --prod --shamefully-hoist --frozen-lockfile
+RUN pnpm --filter ./backend/gateway --filter erxes-api-shared --filter '!.' --filter '!erxes-next' install --prod --shamefully-hoist --frozen-lockfile
 
 # Final image
 FROM --platform=linux/amd64 node:22-bookworm AS gateway

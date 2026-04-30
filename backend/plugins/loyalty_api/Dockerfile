@@ -6,7 +6,7 @@ RUN npm install -g pnpm@9
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY backend/plugins/loyalty_api/package.json backend/plugins/loyalty_api/
 COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
-RUN pnpm --filter ./backend/plugins/loyalty_api --filter erxes-api-shared install --prod --shamefully-hoist \
+RUN pnpm --filter ./backend/plugins/loyalty_api --filter erxes-api-shared --filter '!.' --filter '!erxes-next' install --prod --shamefully-hoist \
     && find node_modules -type f \( \
          -name "*.d.ts" -o -name "*.map" -o -name "*.md" \
          -o -name "LICENSE*" -o -name "LICENCE*" \

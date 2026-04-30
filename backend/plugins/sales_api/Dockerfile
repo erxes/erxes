@@ -8,7 +8,7 @@ COPY backend/plugins/sales_api/package.json backend/plugins/sales_api/
 COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
 # --shamefully-hoist: all deps (tslib, mongoose, etc.) land as real directories
 # in /app/node_modules/ — safe to COPY into the final image without broken symlinks
-RUN pnpm --filter ./backend/plugins/sales_api --filter erxes-api-shared install --prod --shamefully-hoist \
+RUN pnpm --filter ./backend/plugins/sales_api --filter erxes-api-shared --filter '!.' --filter '!erxes-next' install --prod --shamefully-hoist \
     && find node_modules -type f \( \
          -name "*.d.ts" -o -name "*.map" -o -name "*.md" \
          -o -name "LICENSE*" -o -name "LICENCE*" \
