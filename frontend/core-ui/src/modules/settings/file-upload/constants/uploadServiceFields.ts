@@ -27,7 +27,7 @@ export const SERVICE_FIELDS = {
       { label: 'Cloudflare API Token', name: 'CLOUDFLARE_API_TOKEN', type: 'password' },
       { label: 'Cloudflare Access Key id', name: 'CLOUDFLARE_ACCESS_KEY_ID', type: 'password' },
       { label: 'Cloudflare Secret Access Key', name: 'CLOUDFLARE_SECRET_ACCESS_KEY', type: 'password' },
-      { label: 'Cloudflare R2 Bucket Name', name: 'CLOUDFLARE_BUCKET_NAME', type: 'password' },
+      { label: 'Cloudflare R2 Bucket Name', name: 'CLOUDFLARE_BUCKET_NAME', type: 'text' },
       { label: 'Cloudflare Account Hash', name: 'CLOUDFLARE_ACCOUNT_HASH', type: 'password' },
       { label: 'Use Cloudflare Images and Stream', name: 'CLOUDFLARE_USE_CDN', type: 'checkbox' },
     ]
