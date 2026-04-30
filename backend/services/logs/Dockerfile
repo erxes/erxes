@@ -12,8 +12,25 @@ COPY backend/services/logs/package.json backend/services/logs/
 COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
 
 # Install only production dependencies
-RUN node -e "const fs=require('fs'); const shared=require('./backend/erxes-api-shared/package.json'); const service=require('./backend/services/logs/package.json'); const dependencies={...(shared.dependencies||{}), ...(service.dependencies||{})}; delete dependencies['erxes-api-shared']; fs.writeFileSync('package.json', JSON.stringify({name:'runtime-deps', version:'1.0.0', private:true, dependencies}, null, 2));"
-RUN pnpm install --prod --no-frozen-lockfile
+RUN node -e "\
+const fs = require('fs'); \
+const shared = require('./backend/erxes-api-shared/package.json'); \
+const service = require('./backend/services/logs/package.json'); \
+const dependencies = { \
+  ...(shared.dependencies || {}), \
+  ...(service.dependencies || {}), \
+}; \
+delete dependencies['erxes-api-shared']; \
+fs.writeFileSync( \
+  'package.json', \
+  JSON.stringify( \
+    { name: 'runtime-deps', version: '1.0.0', private: true, dependencies }, \
+    null, \
+    2, \
+  ), \
+); \
+" \
+    && pnpm install --prod --no-frozen-lockfile
 
 # Runtime image
 FROM base AS runtime

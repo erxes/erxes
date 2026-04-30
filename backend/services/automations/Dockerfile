@@ -6,8 +6,25 @@ RUN npm install -g pnpm@9
 COPY pnpm-lock.yaml ./
 COPY backend/services/automations/package.json backend/services/automations/
 COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
-RUN node -e "const fs=require('fs'); const shared=require('./backend/erxes-api-shared/package.json'); const service=require('./backend/services/automations/package.json'); const dependencies={...(shared.dependencies||{}), ...(service.dependencies||{})}; delete dependencies['erxes-api-shared']; fs.writeFileSync('package.json', JSON.stringify({name:'runtime-deps', version:'1.0.0', private:true, dependencies}, null, 2));"
-RUN pnpm install --prod --shamefully-hoist --no-frozen-lockfile \
+RUN node -e "\
+const fs = require('fs'); \
+const shared = require('./backend/erxes-api-shared/package.json'); \
+const service = require('./backend/services/automations/package.json'); \
+const dependencies = { \
+  ...(shared.dependencies || {}), \
+  ...(service.dependencies || {}), \
+}; \
+delete dependencies['erxes-api-shared']; \
+fs.writeFileSync( \
+  'package.json', \
+  JSON.stringify( \
+    { name: 'runtime-deps', version: '1.0.0', private: true, dependencies }, \
+    null, \
+    2, \
+  ), \
+); \
+" \
+    && pnpm install --prod --shamefully-hoist --no-frozen-lockfile \
     && find node_modules -type f \( \
          -name "*.d.ts" -o -name "*.map" -o -name "*.md" \
          -o -name "LICENSE*" -o -name "LICENCE*" \
@@ -20,7 +37,6 @@ RUN pnpm install --prod --shamefully-hoist --no-frozen-lockfile \
          -o -name "docs" -o -name "doc" -o -name "examples" -o -name "example" \
          -o -name ".github" -o -name "coverage" \
        \) -prune -exec rm -rf {} \; 2>/dev/null || true
-
 # Stage 2: minimal runtime
 FROM node:22-alpine3.22
 WORKDIR /app

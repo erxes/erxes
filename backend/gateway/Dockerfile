@@ -11,8 +11,8 @@ COPY ./backend/gateway/package.json /app/backend/gateway/
 COPY ./backend/erxes-api-shared/package.json /app/backend/erxes-api-shared/
 
 # Install pnpm and dependencies
-RUN npm install -g pnpm
-RUN pnpm install
+RUN npm install -g pnpm \
+    && pnpm install
 
 # Copy source files
 COPY ./backend/gateway /app/backend/gateway
@@ -24,8 +24,8 @@ WORKDIR /app/backend/gateway
 ENV NX_DAEMON=false
 
 # Build project
-RUN npx nx build:packageJson gateway
-RUN npx nx build gateway
+RUN npx nx build:packageJson gateway \
+    && npx nx build gateway
 
 # Production dependencies only
 FROM --platform=linux/amd64 node:22-bookworm AS prod-deps
@@ -36,9 +36,26 @@ COPY ./pnpm-lock.yaml /app/
 COPY ./backend/gateway/package.json /app/backend/gateway/
 COPY ./backend/erxes-api-shared/package.json /app/backend/erxes-api-shared/
 
-RUN node -e "const fs=require('fs'); const shared=require('./backend/erxes-api-shared/package.json'); const service=require('./backend/gateway/package.json'); const dependencies={...(shared.dependencies||{}), ...(service.dependencies||{})}; delete dependencies['erxes-api-shared']; fs.writeFileSync('package.json', JSON.stringify({name:'gateway-runtime-deps', version:'1.0.0', private:true, dependencies}, null, 2));"
-RUN npm install -g pnpm
-RUN pnpm install --prod --shamefully-hoist --no-frozen-lockfile
+RUN node -e "\
+const fs = require('fs'); \
+const shared = require('./backend/erxes-api-shared/package.json'); \
+const service = require('./backend/gateway/package.json'); \
+const dependencies = { \
+  ...(shared.dependencies || {}), \
+  ...(service.dependencies || {}), \
+}; \
+delete dependencies['erxes-api-shared']; \
+fs.writeFileSync( \
+  'package.json', \
+  JSON.stringify( \
+    { name: 'gateway-runtime-deps', version: '1.0.0', private: true, dependencies }, \
+    null, \
+    2, \
+  ), \
+); \
+" \
+    && npm install -g pnpm \
+    && pnpm install --prod --shamefully-hoist --no-frozen-lockfile
 
 # Final image
 FROM --platform=linux/amd64 node:22-bookworm AS gateway
@@ -70,13 +87,11 @@ ENV PATH="$PNPM_HOME:$PATH"
 # Install Rover CLI for composing supergraph
 RUN pnpm add -g @apollo/rover@0.22.0 \
     && pnpm cache clean \
-    && rover supergraph compose --config /app/backend/gateway/dist/src/apollo-router/dummy/supergraph.yaml --elv2-license=accept
-
-# Create Apollo Router folder
-RUN mkdir -p /app/backend/gateway/dist/src/apollo-router/temp 
-
-# Download Apollo Router binary safely
-RUN cd /app/backend/gateway/dist/src/apollo-router/temp \
+    && rover supergraph compose \
+      --config /app/backend/gateway/dist/src/apollo-router/dummy/supergraph.yaml \
+      --elv2-license=accept \
+    && mkdir -p /app/backend/gateway/dist/src/apollo-router/temp \
+    && cd /app/backend/gateway/dist/src/apollo-router/temp \
     && export VERSION=v1.59.2 \
     && curl -sSL https://router.apollo.dev/download/nix/v1.59.2 | sh
 
