@@ -27,16 +27,37 @@ ENV NX_DAEMON=false
 RUN npx nx build:packageJson gateway
 RUN npx nx build gateway
 
+# Production dependencies only
+FROM --platform=linux/amd64 node:22-bookworm AS prod-deps
+
+WORKDIR /app
+
+COPY ./package.json ./pnpm-lock.yaml ./pnpm-workspace.yaml /app/
+COPY ./backend/gateway/package.json /app/backend/gateway/
+COPY ./backend/erxes-api-shared/package.json /app/backend/erxes-api-shared/
+
+RUN npm install -g pnpm
+RUN pnpm --filter ./backend/gateway --filter erxes-api-shared install --prod --shamefully-hoist --frozen-lockfile
+
 # Final image
 FROM --platform=linux/amd64 node:22-bookworm AS gateway
 
 WORKDIR /app
 
 # Install required packages
-RUN apt-get update && apt-get install -y curl ca-certificates
+RUN apt-get update \
+    && apt-get install -y curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy built app from build stage
-COPY --chown=1000:1000 --from=build /app /app
+# Copy production dependencies and built app only
+COPY --chown=1000:1000 --from=prod-deps /app/node_modules ./node_modules
+RUN rm -rf ./node_modules/erxes-api-shared
+COPY --chown=1000:1000 --from=build /app/backend/erxes-api-shared/dist ./node_modules/erxes-api-shared/dist
+COPY --chown=1000:1000 --from=build /app/backend/erxes-api-shared/utils ./node_modules/erxes-api-shared/utils
+COPY --chown=1000:1000 --from=build /app/backend/erxes-api-shared/core-types ./node_modules/erxes-api-shared/core-types
+COPY --chown=1000:1000 --from=build /app/backend/erxes-api-shared/core-modules ./node_modules/erxes-api-shared/core-modules
+COPY --chown=1000:1000 --from=build /app/backend/erxes-api-shared/package.json ./node_modules/erxes-api-shared/
+COPY --chown=1000:1000 --from=build /app/backend/gateway/dist ./backend/gateway/dist
 
 # Install pnpm
 RUN npm install -g pnpm
@@ -46,12 +67,9 @@ ENV PNPM_HOME="/root/.local/share/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
 # Install Rover CLI for composing supergraph
-RUN apt-get update -y \
-    && apt-get install -y curl ca-certificates \
-    && rm -rf /var/lib/apt/lists/* \
-    && pnpm add -g @apollo/rover@0.22.0 \
+RUN pnpm add -g @apollo/rover@0.22.0 \
     && pnpm cache clean \
-    && rover supergraph compose --config /app/backend/gateway/src/apollo-router/dummy/supergraph.yaml --elv2-license=accept
+    && rover supergraph compose --config /app/backend/gateway/dist/src/apollo-router/dummy/supergraph.yaml --elv2-license=accept
 
 # Create Apollo Router folder
 RUN mkdir -p /app/backend/gateway/dist/src/apollo-router/temp 

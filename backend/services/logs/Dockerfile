@@ -12,7 +12,7 @@ COPY backend/services/logs/package.json backend/services/logs/
 COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
 
 # Install only production dependencies
-RUN pnpm install --prod --frozen-lockfile
+RUN pnpm --filter ./backend/services/logs --filter erxes-api-shared install --prod --frozen-lockfile
 
 # Runtime image
 FROM base AS runtime

@@ -7,7 +7,7 @@ RUN npm install -g pnpm@9
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY backend/plugins/content_api/package.json backend/plugins/content_api/
 COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
-RUN pnpm install --prod --shamefully-hoist \
+RUN pnpm --filter ./backend/plugins/content_api --filter erxes-api-shared install --prod --shamefully-hoist \
     && find node_modules -type f \( \
          -name "*.d.ts" -o -name "*.map" -o -name "*.md" \
          -o -name "LICENSE*" -o -name "LICENCE*" \
