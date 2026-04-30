@@ -4,6 +4,7 @@ import { AccountingLayout } from '~/modules/layout/components/Layout';
 import { ProductsFilter } from '~/modules/inventories/remainders/components/ProductsFilter';
 import { ProductsRecordTable } from '~/modules/inventories/remainders/components/ProductsRecordTable';
 import { ReCalcRemainderForm } from '~/modules/inventories/remainders/components/ReCalcRemainderForm';
+import { RemainderDetailSheet } from '~/modules/inventories/remainders/components/RemainderDetailSheet';
 
 export const RemaindersPage = () => {
   return (
@@ -19,7 +20,7 @@ export const RemaindersPage = () => {
         <ProductsFilter />
       </PageSubHeader>
       <ProductsRecordTable />
-      {/* <ProductDetailSheet /> */}
+      <RemainderDetailSheet />
     </AccountingLayout>
   );
 };
