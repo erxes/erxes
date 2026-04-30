@@ -77,6 +77,7 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
               className="flex flex-col flex-1 overflow-hidden"
             >
               <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4">
+                {/* Row 1: Title + User Email */}
                 <div className="grid grid-cols-2 gap-4">
                   <Form.Field
                     name="title"
@@ -106,6 +107,7 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                   />
                 </div>
 
+                {/* Row 2: Pipeline selectors (left) + VAT/CityTax (right) */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-4">
                     <Form.Field
@@ -157,9 +159,7 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                           <SelectStage
                             mode="single"
                             value={field.value}
-                            onValueChange={(value) =>
-                              field.onChange(value as string)
-                            }
+                            onValueChange={(value) => field.onChange(value as string)}
                             pipelineId={selectedPipelineId || undefined}
                             placeholder="Select stage"
                           />
@@ -173,19 +173,13 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                       render={({ field }) => (
                         <Form.Item>
                           <Form.Label>Choose Response Field</Form.Label>
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          >
+                          <Select value={field.value} onValueChange={field.onChange}>
                             <Select.Trigger className="w-full">
                               <Select.Value placeholder="Choose Response Field" />
                             </Select.Trigger>
                             <Select.Content>
                               {CHOOSE_RESPONSE_FIELD_DATA.map((type) => (
-                                <Select.Item
-                                  key={type.value}
-                                  value={type.value}
-                                >
+                                <Select.Item key={type.value} value={type.value}>
                                   {type.label}
                                 </Select.Item>
                               ))}
@@ -205,14 +199,9 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                         render={({ field }) => (
                           <Form.Item className="flex items-center gap-2 space-y-0">
                             <Form.Control>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
+                              <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                             </Form.Control>
-                            <Form.Label className="cursor-pointer font-medium">
-                              Has Vat
-                            </Form.Label>
+                            <Form.Label className="cursor-pointer font-medium">Has Vat</Form.Label>
                           </Form.Item>
                         )}
                       />
@@ -222,14 +211,9 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                           name="anotherRulesOfProductsOnVat"
                           render={({ field }) => (
                             <Form.Item>
-                              <Form.Label>
-                                Another rules of products on vat
-                              </Form.Label>
+                              <Form.Label>Another rules of products on vat</Form.Label>
                               <Form.Control>
-                                <Input
-                                  {...field}
-                                  placeholder="Another rules of products on vat"
-                                />
+                                <Input {...field} placeholder="Another rules of products on vat" />
                               </Form.Control>
                               <Form.Message />
                             </Form.Item>
@@ -244,14 +228,9 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                         render={({ field }) => (
                           <Form.Item className="flex items-center gap-2 space-y-0">
                             <Form.Control>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
+                              <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                             </Form.Control>
-                            <Form.Label className="cursor-pointer font-medium">
-                              Has City Tax
-                            </Form.Label>
+                            <Form.Label className="cursor-pointer font-medium">Has City Tax</Form.Label>
                           </Form.Item>
                         )}
                       />
@@ -261,9 +240,7 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
                           name="anotherRulesOfProductsOnCitytax"
                           render={({ field }) => (
                             <Form.Item>
-                              <Form.Label>
-                                Another rules of products on city tax
-                              </Form.Label>
+                              <Form.Label>Another rules of products on city tax</Form.Label>
                               <SelectAnotherRulesOfProductsOnCityTax
                                 value={field.value}
                                 onValueChange={field.onChange}
@@ -309,11 +286,7 @@ export const StageInErkhetConfigAddSheet = ({ onSubmit, loading }: Props) => {
               </div>
 
               <div className="flex justify-end gap-2 p-5 border-t">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setOpen(false)}
-                >
+                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading}>

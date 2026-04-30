@@ -74,8 +74,6 @@ export const StageInErkhetConfigEditSheet = ({
               className="flex flex-col flex-1 overflow-hidden"
             >
               <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4">
-
-                {/* Row 1: Title + User Email */}
                 <div className="grid grid-cols-2 gap-4">
                   <Form.Field
                     name="title"
@@ -105,7 +103,6 @@ export const StageInErkhetConfigEditSheet = ({
                   />
                 </div>
 
-                {/* Row 2: Pipeline fields (left) + Vat/CityTax (right) */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-4">
                     <Form.Field
@@ -252,7 +249,6 @@ export const StageInErkhetConfigEditSheet = ({
                   </div>
                 </div>
 
-                {/* Row 3: Default pay + dynamic pipeline payment fields */}
                 <div className="grid grid-cols-3 gap-4">
                   <PaymentFields control={form.control} />
                   {paymentTypes.map((pt) => (

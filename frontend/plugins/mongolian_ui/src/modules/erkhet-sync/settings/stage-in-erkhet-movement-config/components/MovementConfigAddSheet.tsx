@@ -63,121 +63,110 @@ export const MovementConfigAddSheet = ({ onSubmit, loading }: Props) => {
             >
               <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-4">
-                    <Form.Field
-                      name="title"
-                      control={form.control}
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>Title</Form.Label>
-                          <Form.Control>
-                            <Input {...field} placeholder="Title" />
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-                    <Form.Field
-                      control={form.control}
-                      name="pipelineId"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>Pipeline</Form.Label>
-                          <SelectPipeline
-                            mode="single"
-                            value={field.value}
-                            onValueChange={(value) => {
-                              field.onChange(value as string);
-                              form.setValue('stageId', '');
-                            }}
-                            boardId={selectedBoardId || undefined}
-                            placeholder="Select pipeline"
-                          />
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-                    <Form.Field
-                      name="userEmail"
-                      control={form.control}
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>User Email</Form.Label>
-                          <Form.Control>
-                            <Input {...field} placeholder="User Email" />
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-4">
-                    <Form.Field
-                      control={form.control}
-                      name="boardId"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>Board</Form.Label>
-                          <SelectBoard
-                            mode="single"
-                            value={field.value}
-                            onValueChange={(value) => {
-                              field.onChange(value as string);
-                              form.setValue('pipelineId', '');
-                              form.setValue('stageId', '');
-                            }}
-                            placeholder="Select board"
-                          />
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-                    <Form.Field
-                      control={form.control}
-                      name="stageId"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>Stage</Form.Label>
-                          <SelectStage
-                            mode="single"
-                            value={field.value}
-                            onValueChange={(value) => {
-                              field.onChange(value as string);
-                            }}
-                            pipelineId={selectedPipelineId || undefined}
-                            placeholder="Select stage"
-                          />
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-
-                    <Form.Field
-                      control={form.control}
-                      name="defaultCustomer"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>Default Customer</Form.Label>
-                          <Form.Control>
-                            <Input {...field} placeholder="Default Customer" />
-                          </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-                  </div>
+                  <Form.Field
+                    name="title"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>Title</Form.Label>
+                        <Form.Control>
+                          <Input {...field} placeholder="Title" />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    control={form.control}
+                    name="boardId"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>Board</Form.Label>
+                        <SelectBoard
+                          mode="single"
+                          value={field.value}
+                          onValueChange={(value) => {
+                            field.onChange(value as string);
+                            form.setValue('pipelineId', '');
+                            form.setValue('stageId', '');
+                          }}
+                          placeholder="Select board"
+                        />
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    name="userEmail"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>User Email</Form.Label>
+                        <Form.Control>
+                          <Input {...field} placeholder="User Email" />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    control={form.control}
+                    name="pipelineId"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>Pipeline</Form.Label>
+                        <SelectPipeline
+                          mode="single"
+                          value={field.value}
+                          onValueChange={(value) => {
+                            field.onChange(value as string);
+                            form.setValue('stageId', '');
+                          }}
+                          boardId={selectedBoardId || undefined}
+                          placeholder="Select pipeline"
+                        />
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    control={form.control}
+                    name="defaultCustomer"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>Default Customer</Form.Label>
+                        <Form.Control>
+                          <Input {...field} placeholder="Default Customer" />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    control={form.control}
+                    name="stageId"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>Stage</Form.Label>
+                        <SelectStage
+                          mode="single"
+                          value={field.value}
+                          onValueChange={(value) => field.onChange(value as string)}
+                          pipelineId={selectedPipelineId || undefined}
+                          placeholder="Select stage"
+                        />
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
                 </div>
-
                 <Form.Field
                   control={form.control}
                   name="chooseResponseField"
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>Choose Response Field</Form.Label>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
+                      <Select value={field.value} onValueChange={field.onChange}>
                         <Select.Trigger className="w-full">
                           <Select.Value placeholder="Choose Response Field" />
                         </Select.Trigger>
@@ -193,18 +182,13 @@ export const MovementConfigAddSheet = ({ onSubmit, loading }: Props) => {
                     </Form.Item>
                   )}
                 />
-
                 <MovementDetailRows
                   details={(form.watch('details') as IMovementDetail[]) ?? []}
                   onChange={(d) => form.setValue('details', d)}
                 />
               </div>
               <div className="flex justify-end gap-2 p-5 border-t">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setOpen(false)}
-                >
+                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading}>

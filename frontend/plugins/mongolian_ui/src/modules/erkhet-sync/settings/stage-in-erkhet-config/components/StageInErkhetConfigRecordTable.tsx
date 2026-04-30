@@ -1,9 +1,8 @@
-import { IconSettings2 } from '@tabler/icons-react';
-import { RecordTable } from 'erxes-ui';
 import { TErkhetConfig } from '../types';
 import { TStageInErkhetConfigRow } from '../hooks/useStageInErkhetConfigs';
 import { buildStageInErkhetConfigColumns } from './StageInErkhetConfigColumns';
 import { StageInErkhetConfigCommandBar } from './StageInErkhetConfigCommandBar';
+import { ErkhetConfigRecordTable } from '../../shared/components/ErkhetConfigRecordTable';
 
 interface Props {
   configs: TStageInErkhetConfigRow[];
@@ -19,34 +18,11 @@ export const StageInErkhetConfigRecordTable = ({
   onDelete,
   onDeleteMany,
   editLoading,
-}: Props) => {
-  const columns = buildStageInErkhetConfigColumns(onEdit, onDelete, editLoading);
-
-  return (
-    <RecordTable.Provider
-      columns={columns}
-      data={configs}
-      className="m-3"
-      tableOptions={{ enableRowSelection: true } as any}
-    >
-      <RecordTable>
-        <RecordTable.Header />
-        <RecordTable.Body>
-          <RecordTable.RowList />
-        </RecordTable.Body>
-      </RecordTable>
-      {configs.length === 0 && (
-        <div className="flex items-center justify-center py-20">
-          <div className="flex flex-col items-center gap-3 text-center">
-            <IconSettings2 size={48} className="text-gray-400" />
-            <h3 className="text-lg font-semibold text-gray-900">No configs yet</h3>
-            <p className="text-sm text-gray-500">
-              Create your first stage in erkhet config using the button above.
-            </p>
-          </div>
-        </div>
-      )}
-      <StageInErkhetConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />
-    </RecordTable.Provider>
-  );
-};
+}: Props) => (
+  <ErkhetConfigRecordTable
+    configs={configs}
+    columns={buildStageInErkhetConfigColumns(onEdit, onDelete, editLoading)}
+    emptyDescription="Create your first stage in erkhet config using the button above."
+    commandBar={<StageInErkhetConfigCommandBar onDeleteMany={onDeleteMany} loading={editLoading} />}
+  />
+);

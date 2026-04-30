@@ -2,11 +2,11 @@ import { Button, Form, Input, Select, Sheet } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { addStageInReturnErkhetConfigSchema } from '../constants/addStageInReturnErkhetConfigSchema';
 import { RETURN_TYPES } from '../constants/returnTypesData';
 import { TReturnErkhetConfig } from '../types';
 import { TReturnErkhetConfigRow } from '../hooks/useReturnErkhetConfigs';
+import { PipelineSelectorFields } from '../../shared/components/PipelineSelectorFields';
 
 interface Props {
   config: TReturnErkhetConfigRow;
@@ -46,9 +46,6 @@ export const ReturnErkhetConfigEditSheet = ({
     });
   }, [config, form]);
 
-  const selectedBoardId = form.watch('boardId');
-  const selectedPipelineId = form.watch('pipelineId');
-
   const handleSubmit = async (data: TReturnErkhetConfig) => {
     await onSubmit(config._id, data);
     onOpenChange(false);
@@ -84,26 +81,6 @@ export const ReturnErkhetConfigEditSheet = ({
                       )}
                     />
                     <Form.Field
-                      control={form.control}
-                      name="pipelineId"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>Pipeline</Form.Label>
-                          <SelectPipeline
-                            mode="single"
-                            value={field.value}
-                            onValueChange={(value) => {
-                              field.onChange(value as string);
-                              form.setValue('stageId', '');
-                            }}
-                            boardId={selectedBoardId || undefined}
-                            placeholder="Select pipeline"
-                          />
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-                    <Form.Field
                       name="userEmail"
                       control={form.control}
                       render={({ field }) => (
@@ -112,45 +89,6 @@ export const ReturnErkhetConfigEditSheet = ({
                           <Form.Control>
                             <Input {...field} placeholder="User Email" />
                           </Form.Control>
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-4">
-                    <Form.Field
-                      control={form.control}
-                      name="boardId"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>Board</Form.Label>
-                          <SelectBoard
-                            mode="single"
-                            value={field.value}
-                            onValueChange={(value) => {
-                              field.onChange(value as string);
-                              form.setValue('pipelineId', '');
-                              form.setValue('stageId', '');
-                            }}
-                            placeholder="Select board"
-                          />
-                          <Form.Message />
-                        </Form.Item>
-                      )}
-                    />
-                    <Form.Field
-                      control={form.control}
-                      name="stageId"
-                      render={({ field }) => (
-                        <Form.Item>
-                          <Form.Label>Stage</Form.Label>
-                          <SelectStage
-                            mode="single"
-                            value={field.value}
-                            onValueChange={(value) => field.onChange(value as string)}
-                            pipelineId={selectedPipelineId || undefined}
-                            placeholder="Select stage"
-                          />
                           <Form.Message />
                         </Form.Item>
                       )}
@@ -177,6 +115,9 @@ export const ReturnErkhetConfigEditSheet = ({
                         </Form.Item>
                       )}
                     />
+                  </div>
+                  <div className="flex flex-col gap-4">
+                    <PipelineSelectorFields form={form} />
                   </div>
                 </div>
               </div>
