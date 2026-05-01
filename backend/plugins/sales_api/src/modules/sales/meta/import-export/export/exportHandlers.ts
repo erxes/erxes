@@ -17,7 +17,7 @@ const dealExportMap = {
 
 export const dealExportHandlers: TExportHandlers = {
   getExportHeaders: (args: ExportHeadersArgs, ctx: IImportExportContext) => {
-    const collectionName = args?.data?.collectionName;
+    const collectionName = (args as any)?.collectionName ?? args?.data?.collectionName;
     const handler =
       dealExportMap[collectionName as keyof typeof dealExportMap]
         ?.getExportHeaders;
@@ -26,7 +26,7 @@ export const dealExportHandlers: TExportHandlers = {
     return handler(args, ctx);
   },
   getExportData: (args: GetExportDataArgs, ctx: IImportExportContext) => {
-    const collectionName = (args?.data as any)?.collectionName;
+    const collectionName = (args as any)?.collectionName ?? (args?.data as any)?.collectionName;
     const handler =
       dealExportMap[collectionName as keyof typeof dealExportMap]?.getExportData;
     if (!handler)
