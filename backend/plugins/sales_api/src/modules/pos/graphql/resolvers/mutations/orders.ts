@@ -6,8 +6,9 @@ const orderMutations = {
   async posOrderReturnBill(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission}: IContext,
   ) {
+    await checkPermission('posOrderReturnBill');  
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
       throw new Error('not found order');
@@ -65,8 +66,9 @@ const orderMutations = {
       mobileAmount: number;
       paidAmounts: { type: string; amount: number }[];
     },
-    { models, __ }: IContext,
+    { models, __, checkPermission }: IContext,
   ) {
+    await checkPermission('posOrderChangePayments');
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
       throw new Error('not found order');
