@@ -44,12 +44,12 @@ const queries = {
     { posId }: { posId: string },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('productGroupsBulkInsert'); // or maybe 'productGroupsRead'
+    await checkPermission('posRead'); // or maybe 'productGroupsRead'
     return await models.ProductGroups.groups(posId);
   },
 
   async posSlots(_root, { posId }: { posId: string }, { models, checkPermission }: IContext) {
-    await checkPermission('posSlotBulkUpdate'); // or maybe 'posSlotsRead'
+    await checkPermission('posRead');// or maybe 'posSlotsRead'
     return await models.PosSlots.find({ posId }).lean();
   },
 };
