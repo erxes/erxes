@@ -5,7 +5,7 @@ import { createCategoriesColumns } from './CategoriesColumn';
 import { CATEGORIES_CURSOR_SESSION_KEY } from '../constants/categoriesCursorSessionKey';
 import { useCategories } from '../hooks/useCategoriesEnhanced';
 import { CategoriesCommandBar } from './categories-command-bar/CategoriesCommandbar';
-import { ICategory } from '../types';
+import { ICategory } from '@/cms/categories/types';
 
 const naturalSort = (a: string, b: string) =>
   a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });

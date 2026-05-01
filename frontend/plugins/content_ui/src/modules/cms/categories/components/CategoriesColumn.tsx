@@ -18,9 +18,8 @@ import { ICategory } from '../types/CategoriesType';
 import { useEditCategory } from '../hooks/useEditCategory';
 
 function getDepthPrefix(depth: number): string {
-  if (depth === 0) return '';
-  if (depth === 1) return '- ';
-  return '-- ';
+  if (depth <= 0) return '';
+  return '-'.repeat(depth) + ' ';
 }
 
 export const createCategoriesColumns = (

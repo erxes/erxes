@@ -65,6 +65,7 @@ export function Menus() {
                     size="sm"
                     variant={kindFilter === opt.value ? 'default' : 'ghost'}
                     className="h-6 px-2 text-xs"
+                    aria-pressed={kindFilter === opt.value}
                     onClick={() => setKindFilter(opt.value)}
                   >
                     {opt.label}

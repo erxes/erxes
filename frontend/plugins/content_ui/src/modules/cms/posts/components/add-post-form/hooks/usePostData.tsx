@@ -27,13 +27,13 @@ const COMBINED_CMS_DATA = gql`
   }
 `;
 
-interface RawCategory {
+interface IRawCategory {
   _id: string;
   name: string;
   parentId?: string;
 }
 
-interface CategoryOption {
+interface ICategoryOption {
   label: string;
   value: string;
 }
@@ -41,11 +41,11 @@ interface CategoryOption {
 const naturalSort = (a: string, b: string) =>
   a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
 
-function buildTreeOptions(rawList: RawCategory[]): CategoryOption[] {
-  const result: CategoryOption[] = [];
+function buildTreeOptions(rawList: IRawCategory[]): ICategoryOption[] {
+  const result: ICategoryOption[] = [];
   const visited = new Set<string>();
 
-  const addWithChildren = (cat: RawCategory, depth: number) => {
+  const addWithChildren = (cat: IRawCategory, depth: number) => {
     if (visited.has(cat._id)) return;
     visited.add(cat._id);
     const prefix = depth > 0 ? '-'.repeat(depth) + ' ' : '';

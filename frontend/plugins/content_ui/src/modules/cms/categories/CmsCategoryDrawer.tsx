@@ -19,12 +19,12 @@ import {
   CategoryFormType,
 } from '../constants/categoryFormSchema';
 
-interface TreeOption {
+interface ITreeOption {
   _id: string;
   label: string;
 }
 
-interface FlatCategory {
+interface IFlatCategory {
   _id: string;
   name: string;
   parentId?: string;
@@ -33,11 +33,11 @@ interface FlatCategory {
 const naturalSort = (a: string, b: string) =>
   a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
 
-function buildTreeOptions(flat: FlatCategory[]): TreeOption[] {
-  const result: TreeOption[] = [];
+function buildTreeOptions(flat: IFlatCategory[]): ITreeOption[] {
+  const result: ITreeOption[] = [];
   const visited = new Set<string>();
 
-  const addWithChildren = (item: FlatCategory, depth: number) => {
+  const addWithChildren = (item: IFlatCategory, depth: number) => {
     if (visited.has(item._id)) return;
     visited.add(item._id);
     const prefix = depth > 0 ? '-'.repeat(depth) + ' ' : '';
@@ -203,9 +203,25 @@ export function CmsCategoryDrawer({
     fetchPolicy: 'cache-first',
     skip: !isOpen,
   });
-  const rawParentOptions: Category[] = (
-    catsData?.cmsCategories?.list || []
-  ).filter((c: Category) => c._id !== category?._id);
+  const allCategories: Category[] = catsData?.cmsCategories?.list || [];
+
+  const descendantIds = new Set<string>();
+  if (category?._id) {
+    const queue: string[] = [category._id];
+    while (queue.length) {
+      const currentId = queue.shift() as string;
+      for (const c of allCategories) {
+        if (c.parentId === currentId && !descendantIds.has(c._id)) {
+          descendantIds.add(c._id);
+          queue.push(c._id);
+        }
+      }
+    }
+  }
+
+  const rawParentOptions: Category[] = allCategories.filter(
+    (c: Category) => c._id !== category?._id && !descendantIds.has(c._id),
+  );
 
   const parentOptions = buildTreeOptions(rawParentOptions);
 
