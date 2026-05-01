@@ -15,7 +15,7 @@ export async function getDealExportData(
   args: GetExportDataArgs,
   { subdomain, models }: IImportExportContext<IModels>,
 ): Promise<Record<string, any>[]> {
-  const data: GetExportData = args.data;
+  const data: GetExportData = args.data ?? (args as any as GetExportData);
   const { cursor, filters, ids, selectedFields } = data;
   const limit = data.limit ?? 100;
 
