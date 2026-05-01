@@ -146,7 +146,7 @@ export const permissions: IPermissionConfig = {
         { plugin: 'sales', module: 'deal', actions: ['showDeals','dealsAdd','dealsEdit','dealsWatch'], scope: 'group' },
         { plugin: 'sales', module: 'checklist', actions: ['checklistsAdd','checklistsEdit'], scope: 'all' },
         { plugin: 'sales', module: 'pipeline', actions: ['pipelinesWatch'], scope: 'all' },
-        { plugin: 'sales', module: 'pos', actions: ['posRead', 'posOrderRead', 'posCoversRead', 'posOrderReturnBill', 'posOrderChangePayments', 'productGroupsBulkInsert', 'posSlotBulkUpdate'], scope: 'group' },
+        { plugin: 'sales', module: 'pos', actions: ['posRead', 'posOrderRead', 'posCoversRead'], scope: 'group' },
       ],
     },
     {

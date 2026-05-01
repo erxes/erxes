@@ -6,7 +6,7 @@ const orderMutations = {
   async posOrderReturnBill(
     _root,
     { _id }: { _id: string },
-    { models, subdomain, checkPermission}: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('posOrderReturnBill');  
     const order = await models.PosOrders.findOne({ _id }).lean();
