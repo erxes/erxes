@@ -145,9 +145,13 @@ export const receiveMessage = async (
     throw new Error(e.message);
   }
 
-  const existingMessage = await models.InstagramConversationMessages.findOne({
-    mid: { $eq: mid },
-  });
+  // Skip the dedupe lookup when mid is absent, otherwise every mid-less event
+  // would collide on a single { mid: undefined } idempotency key.
+  const existingMessage = mid
+    ? await models.InstagramConversationMessages.findOne({
+        mid: { $eq: mid },
+      })
+    : null;
 
   if (!existingMessage) {
     try {
