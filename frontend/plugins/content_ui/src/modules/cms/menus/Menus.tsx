@@ -55,49 +55,49 @@ export function Menus() {
       </MenusHeader>
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
-        <div className="flex overflow-hidden flex-col flex-auto w-full">
-          <div className="flex-auto">
-            <div className="flex flex-col">
-              <div className="flex pt-2 pl-3 justify-between items-center mb-0">
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 rounded-md border p-0.5 bg-muted">
-                    {KIND_OPTIONS.map((opt) => (
-                      <Button
-                        key={opt.label}
-                        size="sm"
-                        variant={kindFilter === opt.value ? 'default' : 'ghost'}
-                        className="h-6 px-2 text-xs"
-                        onClick={() => setKindFilter(opt.value)}
-                      >
-                        {opt.label}
-                      </Button>
-                    ))}
-                  </div>
-                  <span className="text-sm text-gray-600">
-                    Found {totalCount} menus
-                  </span>
-                </div>
+        <div className="flex flex-col w-full overflow-hidden flex-auto">
+          <div className="flex pt-2 pl-3 justify-between items-center mb-0">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 rounded-md border p-0.5 bg-muted">
+                {KIND_OPTIONS.map((opt) => (
+                  <Button
+                    key={opt.label}
+                    size="sm"
+                    variant={kindFilter === opt.value ? 'default' : 'ghost'}
+                    className="h-6 px-2 text-xs"
+                    onClick={() => setKindFilter(opt.value)}
+                  >
+                    {opt.label}
+                  </Button>
+                ))}
               </div>
+              <span className="text-sm text-gray-600">
+                Found {totalCount} menus
+              </span>
+            </div>
+          </div>
 
-              {!loading && (!menus || menus.length === 0) ? (
-                <div className="rounded-lg overflow-hidden">
-                  <EmptyState
-                    icon={IconMenu}
-                    title="No menus yet"
-                    description="Get started by creating your first menu."
-                    actionLabel="Add menu"
-                    onAction={handleAddMenu}
-                  />
-                </div>
-              ) : (
+          {!loading && (!menus || menus.length === 0) ? (
+            <div className="rounded-lg overflow-hidden">
+              <EmptyState
+                icon={IconMenu}
+                title="No menus yet"
+                description="Get started by creating your first menu."
+                actionLabel="Add menu"
+                onAction={handleAddMenu}
+              />
+            </div>
+          ) : (
+            <div className="overflow-hidden flex-auto p-3">
+              <div className="h-full">
                 <MenusRecordTable
                   clientPortalId={websiteId || ''}
                   kind={kindFilter}
                   onEdit={handleEditMenu}
                 />
-              )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 

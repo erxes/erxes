@@ -19,6 +19,46 @@ import {
   CategoryFormType,
 } from '../constants/categoryFormSchema';
 
+interface TreeOption {
+  _id: string;
+  label: string;
+}
+
+interface FlatCategory {
+  _id: string;
+  name: string;
+  parentId?: string;
+}
+
+const naturalSort = (a: string, b: string) =>
+  a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+
+function buildTreeOptions(flat: FlatCategory[]): TreeOption[] {
+  const result: TreeOption[] = [];
+  const visited = new Set<string>();
+
+  const addWithChildren = (item: FlatCategory, depth: number) => {
+    if (visited.has(item._id)) return;
+    visited.add(item._id);
+    const prefix = depth > 0 ? '-'.repeat(depth) + ' ' : '';
+    result.push({ _id: item._id, label: prefix + item.name });
+    flat
+      .filter((c) => c.parentId === item._id)
+      .sort((a, b) => naturalSort(a.name, b.name))
+      .forEach((child) => addWithChildren(child, depth + 1));
+  };
+
+  flat
+    .filter((c) => !c.parentId)
+    .sort((a, b) => naturalSort(a.name, b.name))
+    .forEach((root) => addWithChildren(root, 0));
+  flat.forEach((c) => {
+    if (!visited.has(c._id)) result.push({ _id: c._id, label: c.name });
+  });
+
+  return result;
+}
+
 interface Category {
   _id: string;
   name: string;
@@ -163,9 +203,11 @@ export function CmsCategoryDrawer({
     fetchPolicy: 'cache-first',
     skip: !isOpen,
   });
-  const parentOptions: Category[] = (
+  const rawParentOptions: Category[] = (
     catsData?.cmsCategories?.list || []
   ).filter((c: Category) => c._id !== category?._id);
+
+  const parentOptions = buildTreeOptions(rawParentOptions);
 
   // Custom fields functionality
   const updateCustomFieldValue = useCallback(
@@ -382,7 +424,7 @@ export function CmsCategoryDrawer({
                       <Select.Content>
                         {parentOptions.map((opt) => (
                           <Select.Item key={opt._id} value={opt._id}>
-                            {opt.name}
+                            {opt.label}
                           </Select.Item>
                         ))}
                       </Select.Content>
