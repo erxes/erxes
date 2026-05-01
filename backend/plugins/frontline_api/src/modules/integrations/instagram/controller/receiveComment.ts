@@ -7,29 +7,51 @@ import {
 import { ICommentParams } from '@/integrations/instagram/@types/utils';
 import { INTEGRATION_KINDS } from '@/integrations/instagram/constants';
 
+/**
+ * Sanitize a value expected to be a string to prevent NoSQL injection.
+ * Coerces non-string values (e.g. numbers, objects) to strings, which
+ * neutralizes injection objects like {"$gt": ""} by converting them to
+ * "[object Object]".
+ */
+const sanitizeString = (value: unknown): string => {
+  if (typeof value === 'string') {
+    return value;
+  }
+  return String(value ?? '');
+};
+
 export const receiveComment = async (
   models: IModels,
   subdomain: string,
   rawParams: ICommentParams & { media?: { id: string }; text?: string },
   pageId: string,
 ) => {
+  const safePageId = sanitizeString(pageId);
+
   // Normalize Instagram webhook comment format to ICommentParams
   const params: ICommentParams = {
     ...rawParams,
-    post_id: rawParams.post_id || rawParams.media?.id || '',
-    comment_id: rawParams.comment_id || (rawParams as any).id,
+    post_id: sanitizeString(
+      rawParams.post_id || rawParams.media?.id || '',
+    ),
+    comment_id: sanitizeString(
+      rawParams.comment_id || (rawParams as any).id,
+    ),
     message: rawParams.message || rawParams.text,
   };
 
-  const userId = params.from.id;
+  const userId = sanitizeString(params.from?.id);
   const postId = params.post_id;
 
-  if (userId === pageId) {
+  if (userId === safePageId) {
     return;
   }
 
   const integration = await models.InstagramIntegrations.findOne({
-    $and: [{ instagramPageId: pageId }, { kind: INTEGRATION_KINDS.POST }],
+    $and: [
+      { instagramPageId: { $eq: safePageId } },
+      { kind: { $eq: INTEGRATION_KINDS.POST } },
+    ],
   });
   if (!integration) {
     throw new Error('Integration not found');
@@ -38,7 +60,7 @@ export const receiveComment = async (
   const customer = await getOrCreateCustomer(
     models,
     subdomain,
-    pageId,
+    safePageId,
     userId,
     INTEGRATION_KINDS.POST,
   );
@@ -49,7 +71,7 @@ export const receiveComment = async (
 
   const postConversation = await getOrCreatePostConversation(
     models,
-    pageId,
+    safePageId,
     postId,
   );
 
@@ -61,7 +83,7 @@ export const receiveComment = async (
     models,
     subdomain,
     params,
-    pageId,
+    safePageId,
     userId,
     integration,
     customer,

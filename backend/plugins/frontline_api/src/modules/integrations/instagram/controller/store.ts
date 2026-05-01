@@ -16,6 +16,18 @@ import {
 } from '@/integrations/instagram/utils';
 import { IModels } from '~/connectionResolvers';
 
+/**
+ * Sanitize a value expected to be a string to prevent NoSQL injection.
+ * Coerces non-string values (e.g. numbers) to strings, which also neutralizes
+ * injection objects like {"$gt": ""} by converting them to "[object Object]".
+ */
+const sanitizeString = (value: unknown): string => {
+  if (typeof value === 'string') {
+    return value;
+  }
+  return String(value ?? '');
+};
+
 export const getOrCreateCustomer = async (
   models: IModels,
   subdomain: string,
@@ -23,14 +35,19 @@ export const getOrCreateCustomer = async (
   userId: string,
   kind: string,
 ) => {
+  const safePageId = sanitizeString(pageId);
+  const safeUserId = sanitizeString(userId);
+
   const integration = await models.InstagramIntegrations.findOne({
-    instagramPageId: pageId,
-    kind,
+    instagramPageId: { $eq: safePageId },
+    kind: { $eq: kind },
   });
   if (!integration) {
     throw new Error('Instagram Integration not found ');
   }
-  let customer = await models.InstagramCustomers.findOne({ userId });
+  let customer = await models.InstagramCustomers.findOne({
+    userId: { $eq: safeUserId },
+  });
   if (customer) {
     return customer;
   }
@@ -44,7 +61,7 @@ export const getOrCreateCustomer = async (
   let firstName;
   try {
     instagramUser = await getInstagramUser(
-      userId,
+      safeUserId,
       integration.facebookPageId || '',
       integration.facebookPageTokensMap,
     );
@@ -57,7 +74,7 @@ export const getOrCreateCustomer = async (
   if (firstName) {
     try {
       customer = await models.InstagramCustomers.create({
-        userId,
+        userId: safeUserId,
         firstName,
         integrationId: integration.erxesApiId,
         profilePic: instagramUser.profile_pic,
@@ -110,21 +127,27 @@ export const getOrCreateComment = async (
   integration: IInstagramIntegrationDocument,
   customer: IInstagramCustomer,
 ) => {
+  const safePageId = sanitizeString(pageId);
+  const safeUserId = sanitizeString(userId);
+  const safeCommentId = sanitizeString(commentParams.comment_id);
+  const safeParentId = sanitizeString(commentParams.parent_id);
+  const safePostId = sanitizeString(commentParams.post_id);
+
   const mainConversation = await models.InstagramCommentConversation.findOne({
-    comment_id: commentParams.comment_id,
+    comment_id: { $eq: safeCommentId },
   });
   const parentConversation = await models.InstagramCommentConversation.findOne({
-    comment_id: commentParams.parent_id,
+    comment_id: { $eq: safeParentId },
   });
   const replyConversation =
     await models.InstagramCommentConversationReply.findOne({
-      comment_id: commentParams.comment_id,
+      comment_id: { $eq: safeCommentId },
     });
   if (mainConversation || replyConversation) {
     return;
   }
   const post = await models.InstagramPostConversations.findOne({
-    postId: commentParams.post_id,
+    postId: { $eq: safePostId },
   });
   let attachment: any[] = [];
   if (commentParams.photo) {
@@ -141,14 +164,14 @@ export const getOrCreateComment = async (
   }
   const doc = {
     attachments: attachment,
-    recipientId: pageId,
-    senderId: userId,
+    recipientId: safePageId,
+    senderId: safeUserId,
     createdAt: commentParams.post?.updated_time || new Date(),
-    postId: commentParams.post_id,
-    comment_id: commentParams.comment_id,
+    postId: safePostId,
+    comment_id: safeCommentId,
     content: commentParams.message,
     customerId: customer.erxesApiId,
-    parentId: commentParams.parent_id,
+    parentId: safeParentId,
   };
   if (parentConversation) {
     await models.InstagramCommentConversationReply.create({
@@ -161,10 +184,10 @@ export const getOrCreateComment = async (
   }
   const conversation =
     (await models.InstagramCommentConversation.findOne({
-      comment_id: commentParams.comment_id,
+      comment_id: { $eq: safeCommentId },
     })) ||
     (await models.InstagramCommentConversation.findOne({
-      comment_id: commentParams.parent_id,
+      comment_id: { $eq: safeParentId },
     }));
 
   if (!conversation) {
@@ -246,35 +269,41 @@ export const getOrCreatePostConversation = async (
   postId: string,
 ) => {
   try {
-     let postConversation = await models.InstagramPostConversations.findOne({
-    postId
-  });
-  if (!postConversation) {
-    const integration = await models.InstagramIntegrations.findOne({
-      instagramPageId: { $in: pageId }
+    const safePageId = sanitizeString(pageId);
+    const safePostId = sanitizeString(postId);
+
+    let postConversation = await models.InstagramPostConversations.findOne({
+      postId: { $eq: safePostId },
     });
+    if (!postConversation) {
+      const integration = await models.InstagramIntegrations.findOne({
+        instagramPageId: { $eq: safePageId },
+      });
 
-    if (!integration) {
-      throw new Error("Integration not found");
-    }
-    const { accountId } = integration;
-    const account = await models.InstagramAccounts.findOne({ _id: accountId });
-    if (!account) {
-      throw new Error("account not found");
-    }
+      if (!integration) {
+        throw new Error('Integration not found');
+      }
+      const { accountId } = integration;
+      const account = await models.InstagramAccounts.findOne({
+        _id: { $eq: accountId },
+      });
+      if (!account) {
+        throw new Error('account not found');
+      }
 
-    const getPostDetail = await getPostLink(account.token, postId);
-    const instagramPost = {
-      postId: postId,
-      content: getPostDetail.caption,
-      recipientId: getPostDetail.ig_id,
-      senderId: getPostDetail.ig_id,
-      permalink_url: getPostDetail.permalink,
-      timestamp: getPostDetail.timestamp
-    };
-    postConversation = await models.InstagramPostConversations.create(instagramPost);
-  }
-  return postConversation;
+      const getPostDetail = await getPostLink(account.token, safePostId);
+      const instagramPost = {
+        postId: safePostId,
+        content: getPostDetail.caption,
+        recipientId: getPostDetail.ig_id,
+        senderId: getPostDetail.ig_id,
+        permalink_url: getPostDetail.permalink,
+        timestamp: getPostDetail.timestamp,
+      };
+      postConversation =
+        await models.InstagramPostConversations.create(instagramPost);
+    }
+    return postConversation;
 
   } catch (error) {
     throw new Error(
@@ -302,7 +331,7 @@ export const getOrCreatePost = async (
   }
 
   let post = await models.InstagramPostConversations.findOne({
-    postId: postParams.post_id,
+    postId: { $eq: sanitizeString(postParams.post_id) },
   });
 
   if (post) {
@@ -332,8 +361,14 @@ export async function fetchInstagramPostDetails(
   models: IModels,
   params: ICommentParams,
 ) {
+  const safePageId = sanitizeString(pageId);
+  const safePostId = sanitizeString(params.post_id || '');
+
   const integration = await models.InstagramIntegrations.findOne({
-    $and: [{ facebookPageId: pageId }, { kind: INTEGRATION_KINDS.POST }],
+    $and: [
+      { facebookPageId: { $eq: safePageId } },
+      { kind: { $eq: INTEGRATION_KINDS.POST } },
+    ],
   });
 
   if (!integration) {
@@ -343,20 +378,20 @@ export async function fetchInstagramPostDetails(
   const { facebookPageTokensMap = {} } = integration;
 
   const postDetail = await getPostDetails(
-    pageId,
+    safePageId,
     facebookPageTokensMap,
-    params.post_id || '',
+    safePostId,
   );
 
   if (!postDetail) {
-    throw new Error(`Failed to fetch post details for post ${params.post_id}`);
+    throw new Error(`Failed to fetch post details for post ${safePostId}`);
   }
 
   return {
-    postId: params.post_id,
+    postId: safePostId,
     content: postDetail.message || '',
-    recipientId: pageId,
-    senderId: pageId,
+    recipientId: safePageId,
+    senderId: safePageId,
     permalink_url: postDetail.permalink_url || '',
     timestamp: postDetail.created_time,
   };
