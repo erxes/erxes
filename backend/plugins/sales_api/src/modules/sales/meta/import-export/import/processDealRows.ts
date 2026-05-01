@@ -132,54 +132,50 @@ export async function processDealRows(
   const errorRows: any[] = [];
 
   for (const row of rows) {
-    try {
-      const { doc, dateErrors } = prepareDealDoc(row);
+    const { doc, dateErrors } = prepareDealDoc(row);
 
-      if (dateErrors.length) {
-        errorRows.push({ ...row, error: dateErrors.join('; ') });
-        continue;
-      }
+    if (dateErrors.length) {
+      errorRows.push({ ...row, error: dateErrors.join('; ') });
+      continue;
+    }
 
-      if (!doc.name) {
-        errorRows.push({ ...row, error: 'Name is required' });
-        continue;
-      }
+    if (!doc.name) {
+      errorRows.push({ ...row, error: 'Name is required' });
+      continue;
+    }
 
-      if (!doc.stageId) {
-        errorRows.push({ ...row, error: 'Stage ID is required' });
-        continue;
-      }
+    if (!doc.stageId) {
+      errorRows.push({ ...row, error: 'Stage ID is required' });
+      continue;
+    }
 
-      const stage = await models.Stages.findOne({ _id: doc.stageId }).lean();
-      if (!stage) {
-        errorRows.push({ ...row, error: `Stage "${doc.stageId}" not found` });
-        continue;
-      }
+    const stage = await models.Stages.findOne({ _id: doc.stageId }).lean();
+    if (!stage) {
+      errorRows.push({ ...row, error: `Stage "${doc.stageId}" not found` });
+      continue;
+    }
 
-      if (doc.number) {
-        const existing = await models.Deals.findOne({ number: doc.number })
-          .select('_id')
-          .lean();
-        if (existing) {
-          errorRows.push({
-            ...row,
-            error: `Duplicate deal number "${doc.number}"`,
-          });
-          continue;
-        }
-      }
-
-      try {
-        const deal = await models.Deals.createDeal(doc);
-        successRows.push({ ...row, _id: deal._id });
-      } catch (e: any) {
+    if (doc.number) {
+      const existing = await models.Deals.findOne({ number: doc.number })
+        .select('_id')
+        .lean();
+      if (existing) {
         errorRows.push({
           ...row,
-          error: e?.message || 'Failed to create deal',
+          error: `Duplicate deal number "${doc.number}"`,
         });
+        continue;
       }
+    }
+
+    try {
+      const deal = await models.Deals.createDeal(doc);
+      successRows.push({ ...row, _id: deal._id });
     } catch (e: any) {
-      errorRows.push({ ...row, error: e?.message || 'Failed to import deal' });
+      errorRows.push({
+        ...row,
+        error: e?.message || 'Failed to create deal',
+      });
     }
   }
 
