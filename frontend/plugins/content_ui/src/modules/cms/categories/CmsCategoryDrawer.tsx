@@ -115,10 +115,10 @@ const generateSlug = (name: string): string =>
   name
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replaceAll(/[^a-z0-9\s-]/g, '')
+    .replaceAll(/\s+/g, '-')
+    .replaceAll(/-+/g, '-')
+    .replaceAll(/^-+|-+$/g, '');
 
 const collectDescendantIds = (
   allCategories: Category[],
@@ -201,14 +201,15 @@ export function CmsCategoryDrawer({
   // Watch for name changes and update slug accordingly
   const nameValue = form.watch('name');
   const slugValue = form.watch('slug');
+  const isNameDirty = !!form.formState.dirtyFields.name;
 
   useEffect(() => {
-    if (!isOpen || !nameValue || isSlugManuallyEdited) return;
+    if (!isOpen || !nameValue || isSlugManuallyEdited || !isNameDirty) return;
     const generatedSlug = generateSlug(nameValue);
     if (generatedSlug !== slugValue) {
       form.setValue('slug', generatedSlug);
     }
-  }, [nameValue, isSlugManuallyEdited, form, slugValue, isOpen]);
+  }, [nameValue, isSlugManuallyEdited, isNameDirty, form, slugValue, isOpen]);
 
   // Fetch categories for Parent Category select
   const { data: catsData } = useQuery(CMS_CATEGORIES, {
