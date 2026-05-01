@@ -11,7 +11,7 @@ export const ChannelResponsePage = () => {
   if (!channelId) return null;
 
   return (
-    <div className="h-screen flex flex-col">
+    <>
       {/* Header section */}
       <div className="px-4 h-16 flex items-center justify-between">
         {' '}
@@ -22,7 +22,9 @@ export const ChannelResponsePage = () => {
                 <Button
                   variant="ghost"
                   className="text-foreground font-semibold"
-                  onClick={() => navigate(-1)}
+                  onClick={() =>
+                    navigate(`/settings/frontline/channels/${channelId}`)
+                  }
                 >
                   <IconArrowLeft size={16} className="stroke-foreground" />
                   Channel Settings
@@ -34,16 +36,11 @@ export const ChannelResponsePage = () => {
         <CreateResponse />
       </div>
 
-      <div className="px-8 py-4">
-        <div className="mb-6">
-          {' '}
-          <h1 className="text-xl font-semibold">Response Templates</h1>
-        </div>
-
-        <ScrollArea className="flex-1">
-          <ResponseList channelId={channelId} />
-        </ScrollArea>
+      <div className="px-8 flex justify-between py-6">
+        <h1 className="text-xl font-semibold">Response Templates</h1>
       </div>
-    </div>
+
+      <ResponseList channelId={channelId} />
+    </>
   );
 };

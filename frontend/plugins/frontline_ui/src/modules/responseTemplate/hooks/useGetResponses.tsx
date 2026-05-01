@@ -1,40 +1,61 @@
-import { useQuery, QueryHookOptions } from '@apollo/client';
-import {
-  IResponseTemplate,
-  IResponseTemplateFilter,
-} from '@/responseTemplate/types';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_RESPONSES } from '@/responseTemplate/graphql/queries/getResponses';
+import {
+  EnumCursorDirection,
+  mergeCursorData,
+  validateFetchMore,
+} from 'erxes-ui';
 
-interface IGetResponsesResponse {
-  responseTemplates: {
-    list: IResponseTemplate[];
-    pageInfo: {
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor: string;
-      endCursor: string;
-    };
-    totalCount: number;
-  };
-}
+const RESPONSES_PER_PAGE = 24;
 
-export const useGetResponses = (
-  options?: QueryHookOptions<IGetResponsesResponse, IResponseTemplateFilter>,
-) => {
-  const { data, loading, error } = useQuery<
-    IGetResponsesResponse,
-    IResponseTemplateFilter
-  >(GET_RESPONSES, {
-    ...options,
+export const useGetResponses = (options?: QueryHookOptions) => {
+  const { data, loading, fetchMore } = useQuery(GET_RESPONSES, {
     variables: {
-      ...options?.variables,
       filter: {
-        orderBy: {
-          createdAt: -1,
-        },
-        ...(options?.variables?.filter || {}),
+        limit: RESPONSES_PER_PAGE,
+        orderBy: { createdAt: -1 },
+        ...options?.variables?.filter,
       },
     },
+    fetchPolicy: 'cache-and-network',
+    ...options,
   });
-  return { responses: data?.responseTemplates?.list, loading, error };
+
+  const { list: responses, totalCount, pageInfo } =
+    data?.responseTemplates || {};
+
+  const handleFetchMore = ({
+    direction,
+  }: {
+    direction: EnumCursorDirection;
+  }) => {
+    if (!validateFetchMore({ direction, pageInfo })) return;
+    fetchMore({
+      variables: {
+        filter: {
+          cursor: pageInfo?.endCursor,
+          limit: RESPONSES_PER_PAGE,
+          direction,
+        },
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) return prev;
+        return Object.assign({}, prev, {
+          responseTemplates: mergeCursorData({
+            direction,
+            fetchMoreResult: fetchMoreResult.responseTemplates,
+            prevResult: prev.responseTemplates,
+          }),
+        });
+      },
+    });
+  };
+
+  return {
+    responses,
+    loading,
+    handleFetchMore,
+    totalCount,
+    pageInfo,
+  };
 };
