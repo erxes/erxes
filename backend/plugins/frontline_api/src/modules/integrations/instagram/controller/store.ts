@@ -13,20 +13,9 @@ import {
   getPageAccessTokenFromMap,
   getPostDetails,
   getPostLink,
+  sanitizeString,
 } from '@/integrations/instagram/utils';
 import { IModels } from '~/connectionResolvers';
-
-/**
- * Sanitize a value expected to be a string to prevent NoSQL injection.
- * Coerces non-string values (e.g. numbers) to strings, which also neutralizes
- * injection objects like {"$gt": ""} by converting them to "[object Object]".
- */
-const sanitizeString = (value: unknown): string => {
-  if (typeof value === 'string') {
-    return value;
-  }
-  return String(value ?? '');
-};
 
 export const getOrCreateCustomer = async (
   models: IModels,

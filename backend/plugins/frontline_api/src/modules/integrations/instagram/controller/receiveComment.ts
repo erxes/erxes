@@ -6,19 +6,7 @@ import {
 } from '@/integrations/instagram/controller/store';
 import { ICommentParams } from '@/integrations/instagram/@types/utils';
 import { INTEGRATION_KINDS } from '@/integrations/instagram/constants';
-
-/**
- * Sanitize a value expected to be a string to prevent NoSQL injection.
- * Coerces non-string values (e.g. numbers, objects) to strings, which
- * neutralizes injection objects like {"$gt": ""} by converting them to
- * "[object Object]".
- */
-const sanitizeString = (value: unknown): string => {
-  if (typeof value === 'string') {
-    return value;
-  }
-  return String(value ?? '');
-};
+import { sanitizeString } from '@/integrations/instagram/utils';
 
 export const receiveComment = async (
   models: IModels,

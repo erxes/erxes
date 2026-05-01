@@ -11,21 +11,9 @@ import {
   checkIsBot,
   triggerInstagramAutomation,
 } from '@/integrations/instagram/meta/automation/utils/messageUtils';
+import { sanitizeString } from '@/integrations/instagram/utils';
 
 const HAS_ATTACHMENT = 'This message has an attachment';
-
-/**
- * Sanitize a value expected to be a string to prevent NoSQL injection.
- * Coerces non-string values (e.g. numbers, objects) to strings, which
- * neutralizes injection objects like {"$gt": ""} by converting them to
- * "[object Object]".
- */
-const sanitizeString = (value: unknown): string => {
-  if (typeof value === 'string') {
-    return value;
-  }
-  return String(value ?? '');
-};
 
 export const receiveMessage = async (
   models: IModels,

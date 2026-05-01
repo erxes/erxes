@@ -418,3 +418,16 @@ export const generateAttachmentMessages = (
 
   return messages;
 };
+
+/**
+ * Sanitize a value expected to be a string to prevent NoSQL injection.
+ * Coerces non-string values (e.g. numbers, objects) to strings, which
+ * neutralizes injection objects like {"$gt": ""} by converting them to
+ * "[object Object]".
+ */
+export const sanitizeString = (value: unknown): string => {
+  if (typeof value === 'string') {
+    return value;
+  }
+  return String(value ?? '');
+};
