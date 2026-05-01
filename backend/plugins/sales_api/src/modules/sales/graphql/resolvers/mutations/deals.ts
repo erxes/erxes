@@ -32,14 +32,6 @@ export const dealMutations: Record<string, Resolver> = {
     return await addDeal({ models, subdomain, user, doc });
   },
 
-  async cpDealsAdd(
-    _root,
-    doc: IDeal & { processId: string; aboveItemId: string },
-    { user, models, subdomain }: IContext,
-  ) {
-    return await addDeal({ models, subdomain, user, doc });
-  },
-
   /**
    * Edits a deal
    */
@@ -49,14 +41,6 @@ export const dealMutations: Record<string, Resolver> = {
     { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
-    return await editDeal({ models, subdomain, _id, processId, doc, user });
-  },
-
-  async cpDealsEdit(
-    _root,
-    { _id, processId, ...doc }: IDealDocument & { processId: string },
-    { user, models, subdomain }: IContext,
-  ) {
     return await editDeal({ models, subdomain, _id, processId, doc, user });
   },
 
@@ -291,7 +275,7 @@ export const dealMutations: Record<string, Resolver> = {
     },
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('dealsEdit'); 
+    await checkPermission('dealsEdit');
     const deal = await models.Deals.getDeal(dealId);
     const stage = await models.Stages.getStage(deal.stageId);
 
@@ -325,7 +309,7 @@ export const dealMutations: Record<string, Resolver> = {
     // undefenid or null then true
     const tickUsed = !(stage.defaultTick === false);
     const addDocs = (docs || []).map(
-      (doc) => ({ ...doc, tickUsed }) as IProductData,
+      (doc) => ({ ...doc, tickUsed } as IProductData),
     );
     const productsData: IProductData[] = (deal.productsData || []).concat(
       addDocs,
@@ -399,8 +383,8 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = (deal.productsData || []).map(
-      (data) => (data._id === dataId ? { ...doc } : data),
+    const productsData: IProductData[] = (deal.productsData || []).map((data) =>
+      data._id === dataId ? { ...doc } : data,
     );
 
     const possibleAssignedUsersIds: string[] = (deal.productsData || [])
@@ -519,12 +503,4 @@ export const dealMutations: Record<string, Resolver> = {
       productsData,
     };
   },
-};
-
-dealMutations.cpDealsEdit.wrapperConfig = {
-  forClientPortal: true,
-};
-
-dealMutations.cpDealsAdd.wrapperConfig = {
-  forClientPortal: true,
 };
