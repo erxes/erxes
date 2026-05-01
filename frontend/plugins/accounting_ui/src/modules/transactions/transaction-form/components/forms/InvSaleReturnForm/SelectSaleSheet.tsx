@@ -38,6 +38,12 @@ interface SelectProductsProps {
   saleTrId?: string;
 }
 
+const CUSTOMER_TYPE_LABELS = {
+  [CustomerType.CUSTOMER]: 'Харилцагч',
+  [CustomerType.COMPANY]: 'Байгууллага',
+  [CustomerType.USER]: 'Ажилтан',
+};
+
 export const SelectSaleSheet = ({
   onSelect,
   children,
@@ -63,7 +69,7 @@ export const SelectSaleSheet = ({
       <Sheet.View className="sm:max-w-5xl">
         <Sheet.Header>
           <div>
-            <Sheet.Title>Select Transaction</Sheet.Title>
+            <Sheet.Title>Гүйлгээ сонгох</Sheet.Title>
           </div>
           <Sheet.Close />
         </Sheet.Header>
@@ -81,10 +87,10 @@ export const SelectSaleSheet = ({
           <div className="flex gap-2 items-center">
             <Sheet.Close asChild>
               <Button variant="secondary" className="bg-border">
-                Cancel
+                Болих
               </Button>
             </Sheet.Close>
-            <Button onClick={sumbitSelect}>Select Transaction</Button>
+            <Button onClick={sumbitSelect}>Гүйлгээ сонгох</Button>
           </div>
         </Sheet.Footer>
       </Sheet.View>
@@ -132,12 +138,12 @@ const TransactionList = ({
               onValueChange={(value) => setCustomerType(value)}
             >
               <Select.Trigger>
-                <Select.Value placeholder="Select Customer Type" />
+                <Select.Value placeholder="Харилцагчийн төрөл сонгох" />
               </Select.Trigger>
               <Select.Content>
                 {Object.values(CustomerType).map((type) => (
                   <Select.Item key={type} value={type}>
-                    {type}
+                    {CUSTOMER_TYPE_LABELS[type]}
                   </Select.Item>
                 ))}
               </Select.Content>
@@ -174,7 +180,7 @@ const TransactionList = ({
         <div className="flex gap-4 justify-between items-center pt-2">
           <div className="flex flex-1 gap-6 items-center">
             <Input
-              placeholder="Search products"
+              placeholder="Бараа хайх"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -197,7 +203,7 @@ const TransactionList = ({
           </div>
         </div>
         <div className="mt-4 text-xs text-accent-foreground">
-          {totalCount} results
+          {totalCount} үр дүн
         </div>
       </div>
       <Separator />
@@ -236,7 +242,7 @@ const TransactionList = ({
               <div className="flex gap-2 items-center px-2 h-8" ref={bottomRef}>
                 <Spinner containerClassName="flex-none" />
                 <span className="animate-pulse text-accent-foreground">
-                  Loading more transactions...
+                  Нэмэлт гүйлгээ ачаалж байна...
                 </span>
               </div>
             )}
@@ -268,7 +274,7 @@ const SelectedTrDetail = ({
   }, [transaction, loading]);
 
   if (!selectedTrId) {
-    return <>Empty select transaction</>;
+    return <>Гүйлгээ сонгоогүй байна</>;
   }
 
   if (!trDetail || loading) {
@@ -282,26 +288,30 @@ const SelectedTrDetail = ({
         className="bg-border"
         onClick={() => setSelectedTr(undefined)}
       >
-        Clear Selected
+        Сонголт цэвэрлэх
       </Button>
 
       <div className="flex flex-col gap-1 p-4">
         <div className="px-3 mb-1 text-xs text-accent-foreground">
-          Selected:
+          Сонгосон:
         </div>
         <div className="px-3 mb-1 text-xs text-accent-foreground">
-          Date: <span>{`${trDetail.date}`}</span>
+          Огноо: <span>{`${trDetail.date}`}</span>
         </div>
         <div className="px-3 mb-1 text-xs text-accent-foreground">
-          Number: <span>{`${trDetail.number}`}</span>
+          Дугаар: <span>{`${trDetail.number}`}</span>
         </div>
         <div className="px-3 mb-1 text-xs text-accent-foreground">
-          CustomerType: <span>{`${trDetail.customerType}`}</span>
+          Харилцагчийн төрөл:{' '}
+          <span>
+            {CUSTOMER_TYPE_LABELS[trDetail.customerType as CustomerType] ||
+              trDetail.customerType}
+          </span>
         </div>
 
         {trDetail.customerType === 'company' && (
           <div className="px-3 mb-1 text-xs text-accent-foreground">
-            Company:{' '}
+            Байгууллага:{' '}
             <span>
               <CompaniesInline companyIds={[trDetail.customerId || '']} />
             </span>
@@ -309,7 +319,7 @@ const SelectedTrDetail = ({
         )}
         {trDetail.customerType === 'customer' && (
           <div className="px-3 mb-1 text-xs text-accent-foreground">
-            Company:{' '}
+            Харилцагч:{' '}
             <span>
               <CustomersInline customerIds={[trDetail.customerId || '']} />
             </span>
@@ -317,7 +327,7 @@ const SelectedTrDetail = ({
         )}
         {trDetail.customerType === 'user' && (
           <div className="px-3 mb-1 text-xs text-accent-foreground">
-            Member:{' '}
+            Ажилтан:{' '}
             <span>
               <MembersInline memberIds={[trDetail.customerId || '']} />
             </span>
@@ -325,13 +335,13 @@ const SelectedTrDetail = ({
         )}
 
         <div className="px-3 mb-1 text-xs text-accent-foreground">
-          Branch:{' '}
+          Салбар:{' '}
           <span>
             <SelectBranchesInlineCell branchIds={[trDetail.branchId || '']} />
           </span>
         </div>
         <div className="px-3 mb-1 text-xs text-accent-foreground">
-          Department:{' '}
+          Хэлтэс:{' '}
           <span>
             <SelectDepartmentsInlineCell
               departmentIds={[trDetail.departmentId || '']}
@@ -341,12 +351,12 @@ const SelectedTrDetail = ({
 
         {trDetail.hasVat && (
           <div className="px-3 mb-1 text-xs text-accent-foreground">
-            Vat: <span>{`${trDetail.hasVat}`}</span>
+            НӨАТ: <span>{`${trDetail.hasVat}`}</span>
           </div>
         )}
         {trDetail.hasCtax && (
           <div className="px-3 mb-1 text-xs text-accent-foreground">
-            Ctax: <span>{`${trDetail.hasCtax}`}</span>
+            НХАТ: <span>{`${trDetail.hasCtax}`}</span>
           </div>
         )}
 

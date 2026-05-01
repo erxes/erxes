@@ -31,8 +31,9 @@ export const checklistMutations = {
   async salesChecklistsAdd(
     _root: undefined,
     args: IChecklist,
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
+    await checkPermission('checklistsAdd');
     const checklist = await models.Checklists.createChecklist(args, user);
 
     checklistsChanged(checklist);
@@ -46,8 +47,9 @@ export const checklistMutations = {
   async salesChecklistsEdit(
     _root: undefined,
     { _id, ...doc }: IChecklistDocument,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('checklistsEdit');
     checklistDetailChanged(_id);
 
     return await models.Checklists.updateChecklist(_id, doc);
@@ -59,8 +61,9 @@ export const checklistMutations = {
   async salesChecklistsRemove(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission}: IContext,
   ) {
+    await checkPermission('checklistsRemove');
     const checklist = await models.Checklists.getChecklist(_id);
 
     checklistsChanged(checklist);
@@ -74,8 +77,9 @@ export const checklistMutations = {
   async salesChecklistItemsAdd(
     _root: undefined,
     args: IChecklistItem,
-    { user, models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
+    await checkPermission('checklistsEdit');
     const checklistItem = await models.ChecklistItems.createChecklistItem(
       args,
       user,
@@ -92,8 +96,9 @@ export const checklistMutations = {
   async salesChecklistItemsEdit(
     _root: undefined,
     { _id, ...doc }: IChecklistItemDocument,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('checklistsEdit');
     const updated = await models.ChecklistItems.updateChecklistItem(_id, doc);
 
     checklistDetailChanged(updated.checklistId);
@@ -107,8 +112,9 @@ export const checklistMutations = {
   async salesChecklistItemsRemove(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('checklistsEdit');
     const checklistItem = await models.ChecklistItems.getChecklistItem(_id);
 
     checklistDetailChanged(checklistItem.checklistId);
@@ -119,8 +125,9 @@ export const checklistMutations = {
   async salesChecklistItemsOrder(
     _root: undefined,
     { _id, destinationIndex }: { _id: string; destinationIndex: number },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('checklistsEdit');
     return models.ChecklistItems.updateItemOrder(_id, destinationIndex);
   },
 };

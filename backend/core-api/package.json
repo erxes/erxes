@@ -12,8 +12,26 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@blocknote/core": "^0.35.0",
+    "@faker-js/faker": "^9.9.0",
+    "@sendgrid/mail": "^8.1.5",
+    "@workos-inc/node": "^7.65.0",
+    "bcryptjs": "^3.0.2",
     "erxes-api-shared": "workspace:^",
+    "firebase-admin": "^13.6.0",
+    "formidable": "^3.5.4",
+    "graphql-tag": "^2.12.6",
+    "handlebars": "^4.7.8",
+    "jimp": "^1.6.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.18.0",
     "multer": "^1.4.2",
-    "tmp": "^0.2.3"
+    "nodemailer": "^6.9.10",
+    "sha256": "^0.2.0",
+    "telnyx": "^1.7.2",
+    "tmp": "^0.2.3",
+    "underscore": "^1.13.7",
+    "validator": "^13.15.0",
+    "xss": "^1.0.15"
   }
 }

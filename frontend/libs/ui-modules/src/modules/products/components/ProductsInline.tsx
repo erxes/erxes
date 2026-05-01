@@ -84,18 +84,27 @@ const ProductsInlineEffectComponent = ({
 export const ProductsInlineTitle = ({ className }: { className?: string }) => {
   const { products, loading, placeholder } = useProductsInlineContext();
 
-  const getDisplayValue = () => {
+  const getDisplayValue = (): string | JSX.Element | undefined => {
     if (!products || products.length === 0) {
       return undefined;
     }
 
     const product = products[0];
+    const name =
+      products.length === 1
+        ? product.name
+        : `${product.name} +${products.length - 1} more`;
 
-    if (products.length === 1) {
-      return `${product.code} - ${product.name}`;
-    }
+    if (!product.code) return name;
 
-    return ` ${product.code}...${products.length - 1} products`;
+    return (
+      <span className="flex gap-1.5 items-center min-w-0">
+        <span className="font-mono text-xs bg-muted border rounded px-1 text-muted-foreground shrink-0">
+          {product.code}
+        </span>
+        <span className="truncate">{name}</span>
+      </span>
+    );
   };
 
   return (

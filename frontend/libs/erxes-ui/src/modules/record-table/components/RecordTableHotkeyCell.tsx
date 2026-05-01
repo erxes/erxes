@@ -3,8 +3,11 @@ import { useRecordTableHotkey } from '../contexts/RecordTableHotkeyContext';
 import { Slot } from 'radix-ui';
 import { mergeRefs } from 'react-merge-refs';
 import { cn } from 'erxes-ui/lib';
-import { useHotkeys } from 'react-hotkeys-hook';
 import { Key } from 'erxes-ui/types';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { useAtomValue } from 'jotai';
+import { internalHotkeysEnabledScopesState } from 'erxes-ui/modules/hotkey/states/internal/internalHotkeysEnabledScopeState';
+import { useSetHotkeyScope } from 'erxes-ui/modules/hotkey';
 
 export const RecordTableHotKeyControl = React.forwardRef<
   React.ElementRef<typeof Slot.Root>,
@@ -12,6 +15,7 @@ export const RecordTableHotKeyControl = React.forwardRef<
     rowId: string;
     rowIndex: number;
     colIndex?: number;
+    enableOnFormTags?: boolean;
   }
 >(
   (
@@ -19,6 +23,7 @@ export const RecordTableHotKeyControl = React.forwardRef<
       rowId,
       rowIndex,
       colIndex: colIndexProp,
+      enableOnFormTags = false,
       className,
       onClickCapture,
       ...props
@@ -27,7 +32,10 @@ export const RecordTableHotKeyControl = React.forwardRef<
   ) => {
     const controlRef = useRef<HTMLTableCellElement>(null);
     const [isFocused, setIsFocused] = useState(false);
-    const { activeCell, setActiveRow, setActiveCell } = useRecordTableHotkey();
+    const { activeCell, setActiveRow, setActiveCell, scope } =
+      useRecordTableHotkey();
+    const enabledScopes = useAtomValue(internalHotkeysEnabledScopesState);
+    const setHotkeyScope = useSetHotkeyScope();
 
     const colIndex = colIndexProp ?? controlRef.current?.cellIndex;
 
@@ -39,9 +47,11 @@ export const RecordTableHotKeyControl = React.forwardRef<
         controlRef.current?.querySelector('button')?.click();
       },
       {
-        enabled: isFocused,
+        enabled: isFocused && enabledScopes.includes(scope),
         preventDefault: true,
+        enableOnFormTags,
       },
+      [enableOnFormTags, enabledScopes, isFocused, scope],
     );
 
     const handleFocus = (focused: boolean) => {
@@ -54,6 +64,7 @@ export const RecordTableHotKeyControl = React.forwardRef<
     useEffect(() => {
       const isActive = activeCell[0] === rowIndex && activeCell[1] === colIndex;
       if (isActive) {
+        setHotkeyScope(scope);
         handleFocus(true);
         setActiveRow(rowId);
       } else if (isFocused) {
@@ -66,7 +77,9 @@ export const RecordTableHotKeyControl = React.forwardRef<
       <Slot.Root
         ref={mergeRefs([ref, controlRef])}
         {...props}
-        onClickCapture={() => {
+        onClickCapture={(event) => {
+          onClickCapture?.(event);
+          setHotkeyScope(scope);
           setIsFocused(true);
           setActiveRow(rowId);
           setActiveCell([rowIndex, colIndex ?? 0]);

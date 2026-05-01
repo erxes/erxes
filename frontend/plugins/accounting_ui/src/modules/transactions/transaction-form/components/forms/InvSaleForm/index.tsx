@@ -5,13 +5,14 @@ import {
   JournalEnum,
 } from '@/settings/account/types/Account';
 import { Form } from 'erxes-ui';
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useWatch } from 'react-hook-form';
 import { followTrDocsState } from '../../../states/trStates';
 import {
   ITransactionGroupForm,
   TInvSaleJournal,
 } from '../../../types/JournalForms';
+import { ITrDetail } from '~/modules/transactions/types/Transaction';
 import {
   AccountField,
   AssignToField,
@@ -25,6 +26,9 @@ import { RelAccountsForm } from '../../helpers/RelAccountsForm';
 import { VatForm } from '../../helpers/VatForm';
 import { InventoryForm } from './InventoryForm';
 
+const updateFollowDetailsAccount = (details: ITrDetail[], account: IAccount) =>
+  details.map((detail) => ({ ...detail, account, accountId: account._id }));
+
 export const InvSaleForm = ({
   form,
   index,
@@ -37,21 +41,17 @@ export const InvSaleForm = ({
     name: `trDocs.${index}`,
   }) as TInvSaleJournal;
 
-  const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
+  const setFollowTrDocs = useSetAtom(followTrDocsState);
 
   const onChangeOutAccount = (account: IAccount) => {
     form.setValue(`trDocs.${index}.followExtras.saleOutAccount`, account);
 
-    setFollowTrDocs(
-      (followTrDocs || []).map((ftr) =>
+    setFollowTrDocs((prev) =>
+      (prev || []).map((ftr) =>
         ftr.originId === trDoc._id && ftr.originType === 'invSaleOut'
           ? {
               ...ftr,
-              details: ftr.details.map((ftrd) => ({
-                ...ftrd,
-                account,
-                accountId: account._id,
-              })),
+              details: updateFollowDetailsAccount(ftr.details, account),
             }
           : ftr,
       ),
@@ -61,19 +61,14 @@ export const InvSaleForm = ({
   const onChangeCostAccount = (account: IAccount) => {
     form.setValue(`trDocs.${index}.followExtras.saleCostAccount`, account);
 
-    setFollowTrDocs(
-      (followTrDocs || []).map(
-        (ftr) =>
-          (ftr.originId === trDoc._id &&
-            ftr.originType === 'invSaleCost' && {
+    setFollowTrDocs((prev) =>
+      (prev || []).map((ftr) =>
+        ftr.originId === trDoc._id && ftr.originType === 'invSaleCost'
+          ? {
               ...ftr,
-              details: ftr.details.map((ftrd) => ({
-                ...ftrd,
-                account,
-                accountId: account._id,
-              })),
-            }) ||
-          ftr,
+              details: updateFollowDetailsAccount(ftr.details, account),
+            }
+          : ftr,
       ),
     );
   };
@@ -89,7 +84,7 @@ export const InvSaleForm = ({
             kind: AccountKind.PASSIVE,
           }}
           allDetails={true}
-          labelTxt="Sale Account"
+          labelTxt="Борлуулалтын данс"
         />
         <CustomerFields form={form} index={index} />
         <BranchField form={form} index={index} />
@@ -101,7 +96,7 @@ export const InvSaleForm = ({
           name={`trDocs.${index}.followInfos.saleOutAccountId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Inventory Account</Form.Label>
+              <Form.Label>Бараа материалын данс</Form.Label>
               <Form.Control>
                 <SelectAccount
                   value={field.value || ''}
@@ -119,7 +114,7 @@ export const InvSaleForm = ({
           name={`trDocs.${index}.followInfos.saleCostAccountId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Cost Account</Form.Label>
+              <Form.Label>Өртгийн данс</Form.Label>
               <Form.Control>
                 <SelectAccount
                   value={field.value || ''}

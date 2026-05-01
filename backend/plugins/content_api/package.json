@@ -13,9 +13,10 @@
   "license": "ISC",
   "dependencies": {
     "erxes-api-shared": "workspace:^",
-    "slugify": "^1.6.6",
+    "graphql-tag": "^2.12.6",
     "html-to-text": "^8.2.1",
     "simple-git": "^3.26.0",
+    "slugify": "^1.6.6",
     "tmp": "^0.2.3"
   },
   "devDependencies": {}

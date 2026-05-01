@@ -118,7 +118,6 @@ export default {
 
     const customer = await sendTRPCMessage({
       subdomain,
-
       method: 'query',
       pluginName: 'core',
       module: 'customers',

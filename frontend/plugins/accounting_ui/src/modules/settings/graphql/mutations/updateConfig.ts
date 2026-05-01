@@ -7,7 +7,11 @@ export const ACCOUNTINGS_MAIN_CONFIGS_UPDATE = gql`
 `;
 
 export const ACCOUNTINGS_CONFIGS_ADD = gql`
-  mutation accountingsConfigsCreate($code: String!, $subId: String, $value: JSON) {
+  mutation accountingsConfigsCreate(
+    $code: String!
+    $subId: String
+    $value: JSON
+  ) {
     accountingsConfigsCreate(code: $code, subId: $subId, value: $value) {
       _id
       code
@@ -18,7 +22,11 @@ export const ACCOUNTINGS_CONFIGS_ADD = gql`
 `;
 
 export const ACCOUNTINGS_CONFIGS_EDIT = gql`
-  mutation accountingsConfigsUpdate($_id: String!, $subId: String, $value: JSON) {
+  mutation accountingsConfigsUpdate(
+    $_id: String!
+    $subId: String
+    $value: JSON
+  ) {
     accountingsConfigsUpdate(_id: $_id, subId: $subId, value: $value) {
       _id
       code

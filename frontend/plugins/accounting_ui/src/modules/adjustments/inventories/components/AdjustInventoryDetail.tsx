@@ -7,14 +7,14 @@ import {
   IconHelpSquareRounded,
   IconRotateClockwise2,
   IconStopwatch,
-  IconTrashX
+  IconTrashX,
 } from '@tabler/icons-react';
 import {
   eachDayOfInterval,
   format,
   isAfter,
   isBefore,
-  isSameDay
+  isSameDay,
 } from 'date-fns';
 import {
   Button,
@@ -22,7 +22,7 @@ import {
   RecordTable,
   Spinner,
   Tooltip,
-  useQueryState
+  useQueryState,
 } from 'erxes-ui';
 import { useAdjustInventoryRemove } from '~/modules/adjustments/inventories/hooks/useAdjustInventoryRemove';
 import { useAdjustInventoryCancel } from '../hooks/useAdjustInventoryCancel';
@@ -42,15 +42,26 @@ export const AdjustInventoryDetail = () => {
     skip: !id,
   });
 
-  const { adjustInventoryDetails, adjustInventoryDetailsCount, loading: detailsLoading, handleFetchMore } = useAdjustInventoryDetails({
+  const {
+    adjustInventoryDetails,
+    adjustInventoryDetailsCount,
+    loading: detailsLoading,
+    handleFetchMore,
+  } = useAdjustInventoryDetails({
     variables: { _id: id },
     skip: !id,
   });
 
   const { runAdjust, loading: runLoading } = useAdjustInventoryRun(id ?? '');
-  const { publishAdjust, loading: publishLoading } = useAdjustInventoryPublish(id ?? '');
-  const { cancelAdjust, loading: cancelLoading } = useAdjustInventoryCancel(id ?? '');
-  const { removeAdjust, loading: removeLoading } = useAdjustInventoryRemove(id ?? '');
+  const { publishAdjust, loading: publishLoading } = useAdjustInventoryPublish(
+    id ?? '',
+  );
+  const { cancelAdjust, loading: cancelLoading } = useAdjustInventoryCancel(
+    id ?? '',
+  );
+  const { removeAdjust, loading: removeLoading } = useAdjustInventoryRemove(
+    id ?? '',
+  );
 
   if (loading || detailsLoading) {
     return <Spinner />;
@@ -62,19 +73,19 @@ export const AdjustInventoryDetail = () => {
 
   const handleRun = () => {
     runAdjust();
-  }
+  };
 
   const handlePublish = () => {
     publishAdjust();
-  }
+  };
 
   const handleCancel = () => {
     cancelAdjust();
-  }
+  };
 
   const handleDelete = () => {
-    removeAdjust()
-  }
+    removeAdjust();
+  };
 
   const renderEvents = () => {
     const status = adjustInventory?.status || ADJ_INV_STATUSES.DRAFT;
@@ -83,9 +94,7 @@ export const AdjustInventoryDetail = () => {
       case ADJ_INV_STATUSES.PROCESS:
         return (
           <>
-            <Button
-              onClick={handleRun}
-            >
+            <Button onClick={handleRun}>
               <IconCrane />
               RUN
             </Button>
@@ -98,7 +107,7 @@ export const AdjustInventoryDetail = () => {
               Delete
             </Button>
           </>
-        )
+        );
       case ADJ_INV_STATUSES.PUBLISH:
         return (
           <Button
@@ -109,16 +118,14 @@ export const AdjustInventoryDetail = () => {
             <IconTrashX />
             Draft
           </Button>
-        )
+        );
       case ADJ_INV_STATUSES.COMPLETE:
         return (
-          <Button
-            onClick={handlePublish}
-          >
+          <Button onClick={handlePublish}>
             <IconGavel />
             PUBLISH
           </Button>
-        )
+        );
       case ADJ_INV_STATUSES.RUNNING:
         return (
           <Button
@@ -128,20 +135,17 @@ export const AdjustInventoryDetail = () => {
             <IconStopwatch />
             Stop
           </Button>
-
-        )
+        );
 
       default:
         return null;
     }
-  }
+  };
 
   return (
     <>
       <div className="m-3 flex-auto">
-        <h3 className="text-lg font-bold">
-          Inventory Adjustment Detail
-        </h3>
+        <h3 className="text-lg font-bold">Inventory Adjustment Detail</h3>
         <div>
           {adjustInventory && <StatusBar adjustInventory={adjustInventory} />}
         </div>
@@ -152,7 +156,12 @@ export const AdjustInventoryDetail = () => {
               {adjustInventory?.status}
             </span>
           </div>
-          {adjustInventory?.error && <span className='text-sm'>{`${format(adjustInventory?.checkedAt ?? '', 'yyyy-MM-dd hh:mm:ss')}: ${adjustInventory.error}`}</span>}
+          {adjustInventory?.error && (
+            <span className="text-sm">{`${format(
+              adjustInventory?.checkedAt ?? '',
+              'yyyy-MM-dd hh:mm:ss',
+            )}: ${adjustInventory.error}`}</span>
+          )}
           {renderEvents()}
         </div>
       </div>
@@ -160,16 +169,21 @@ export const AdjustInventoryDetail = () => {
         columns={adjustDetailTableColumns}
         data={adjustInventoryDetails || []}
         stickyColumns={[]}
-        className='m-3'
+        className="m-3"
       >
         <RecordTable.Scroll>
           <RecordTable>
             <RecordTable.Header />
             <RecordTable.Body>
               <RecordTable.RowList />
-              {!detailsLoading && adjustInventoryDetailsCount > adjustInventoryDetails?.length && (
-                <RecordTable.RowSkeleton rows={4} handleInView={handleFetchMore} />
-              )}
+              {!detailsLoading &&
+                adjustInventoryDetailsCount >
+                  adjustInventoryDetails?.length && (
+                  <RecordTable.RowSkeleton
+                    rows={4}
+                    handleInView={handleFetchMore}
+                  />
+                )}
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.Scroll>
@@ -178,23 +192,26 @@ export const AdjustInventoryDetail = () => {
   );
 };
 
-const StatusBar = ({ adjustInventory }: { adjustInventory: IAdjustInventory }) => {
+const StatusBar = ({
+  adjustInventory,
+}: {
+  adjustInventory: IAdjustInventory;
+}) => {
   const { beginDate, date, successDate, status } = adjustInventory;
   const start = beginDate ?? date;
   const end = date;
   const current = successDate ?? start;
-  const days = eachDayOfInterval({ start, end, });
+  const days = eachDayOfInterval({ start, end });
 
   const renderIcon = (day: Date) => {
     if (isSameDay(day, current)) {
-
       if (status === ADJ_INV_STATUSES.RUNNING) {
-        return <IconRotateClockwise2 className="w-5 h-5 text-yellow-500" />
+        return <IconRotateClockwise2 className="w-5 h-5 text-yellow-500" />;
       }
       if (status === ADJ_INV_STATUSES.PROCESS) {
-        return <IconClockEdit className="w-5 h-5 text-orange-500" />
+        return <IconClockEdit className="w-5 h-5 text-orange-500" />;
       }
-      return <IconBinoculars className="w-5 h-5 text-green-500" />
+      return <IconBinoculars className="w-5 h-5 text-green-500" />;
     }
     if (isBefore(day, current)) {
       return <IconCircleCheck className="w-5 h-5 text-green-500" />;
@@ -203,8 +220,7 @@ const StatusBar = ({ adjustInventory }: { adjustInventory: IAdjustInventory }) =
       return <IconHelpSquareRounded className="w-5 h-5 text-blue-400" />;
     }
     return undefined;
-  }
-
+  };
 
   return (
     <div className="flex flex-wrap items-center justify-start gap-2 max-w-full">
@@ -222,14 +238,12 @@ const StatusBar = ({ adjustInventory }: { adjustInventory: IAdjustInventory }) =
       {days.map((day) => {
         return (
           <Tooltip key={day.toString()} delayDuration={0}>
-            <Tooltip.Trigger asChild>
-              {renderIcon(day)}
-            </Tooltip.Trigger>
+            <Tooltip.Trigger asChild>{renderIcon(day)}</Tooltip.Trigger>
             <Tooltip.Content sideOffset={12}>
               <span>{format(day, 'yyyy-MM-dd (EEE)')}</span>
             </Tooltip.Content>
           </Tooltip>
-        )
+        );
       })}
       <div className="flex items-center gap-2 text-sm">
         <span className="text-accent-foreground">{'->'}</span>
@@ -244,4 +258,4 @@ const StatusBar = ({ adjustInventory }: { adjustInventory: IAdjustInventory }) =
       </div>
     </div>
   );
-}
+};

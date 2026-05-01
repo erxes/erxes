@@ -14,9 +14,6 @@ import {
 import { useSafeRemainderItemEdit } from '../hooks/useSafeRemainderItemEdit';
 import { ISafeRemainderItem } from '../types/SafeRemainder';
 
-const REMAINDER_COL_INDEX = 0;
-const DIFF_COL_INDEX = 1;
-
 const ProductCell = ({ row }: any) => {
   return (
     <RecordTableInlineCell>
@@ -119,9 +116,7 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
   RecordTable.checkboxColumn as ColumnDef<ISafeRemainderItem>,
   {
     id: 'product',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Product" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Бараа" />,
     accessorKey: 'product',
     cell: ({ row }) => <ProductCell row={row} />,
     size: 300,
@@ -129,14 +124,16 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'preCount',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Live Remainder" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Бодит үлдэгдэл" />
     ),
     accessorKey: 'preCount',
     cell: ({ getValue }) => <NumberCell getValue={getValue} />,
   },
   {
     id: 'uom',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="UOM" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Хэмжих нэгж" />
+    ),
     accessorKey: 'uom',
     cell: ({ row }) => (
       <RecordTableInlineCell>{row.original.uom ?? ''}</RecordTableInlineCell>
@@ -146,29 +143,37 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
     id: 'status',
     accessorKey: 'status',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Checked" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Тоолсон" />
     ),
     size: 33,
     cell: ({ row }) => (
-      <StatusField
-        value={row.original.status}
-        field="status"
-        _id={row.original._id}
-        remItem={row.original}
-      />
+      <RecordTableHotKeyControl
+        rowId={row.original._id}
+        rowIndex={row.index}
+        colIndex={0}
+      >
+        <div>
+          <StatusField
+            value={row.original.status}
+            field="status"
+            _id={row.original._id}
+            remItem={row.original}
+          />
+        </div>
+      </RecordTableHotKeyControl>
     ),
   },
   {
     id: 'remainder',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Remainder" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Үлдэгдэл" />
     ),
     accessorKey: 'remainder',
     cell: ({ row }) => (
       <RecordTableHotKeyControl
         rowId={row.original._id}
         rowIndex={row.index}
-        colIndex={REMAINDER_COL_INDEX}
+        colIndex={1}
       >
         <div>
           <RemainderField
@@ -183,13 +188,13 @@ export const safeRemDetailTableColumns: ColumnDef<ISafeRemainderItem>[] = [
   },
   {
     id: 'diff',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Diff" />,
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Зөрүү" />,
     accessorKey: 'diff',
     cell: ({ row }) => (
       <RecordTableHotKeyControl
         rowId={row.original._id}
         rowIndex={row.index}
-        colIndex={DIFF_COL_INDEX}
+        colIndex={2}
       >
         <div>
           <DiffField

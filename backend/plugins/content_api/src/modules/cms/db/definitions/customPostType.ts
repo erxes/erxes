@@ -44,6 +44,7 @@ export const fieldGroupSchema = new Schema<ICustomFieldGroupDocument>(
 
     enabledPageIds: { type: [String] },
     enabledCategoryIds: { type: [String] },
+    enabledPostIds: { type: [String] },
     type: { type: String, required: true, default: 'user' },
     fields: { type: [fieldSchema], default: [] },
   },

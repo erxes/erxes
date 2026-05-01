@@ -13,7 +13,7 @@ export const useJournalReportData = (options?: OperationVariables) => {
     ...options,
     variables: {
       ...options?.variables,
-      ...variables
+      ...variables,
     },
   });
 
