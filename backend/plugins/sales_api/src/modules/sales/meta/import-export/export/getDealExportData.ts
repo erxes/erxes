@@ -112,6 +112,7 @@ export async function getDealExportData(
           module: 'users',
           action: 'find',
           input: { query: { _id: { $in: [...userIds] } } },
+          defaultValue: [],
         })
       : [],
     tagIds.size
@@ -122,6 +123,7 @@ export async function getDealExportData(
           module: 'tags',
           action: 'find',
           input: { query: { _id: { $in: [...tagIds] } } },
+          defaultValue: [],
         })
       : [],
   ]);
