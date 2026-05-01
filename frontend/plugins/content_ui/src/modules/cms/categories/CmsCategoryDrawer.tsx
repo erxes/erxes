@@ -102,6 +102,59 @@ interface CategoryFormData {
   [key: `customFields.${string}`]: CustomFieldValue | undefined; // Allow dynamic custom field properties
 }
 
+const EMPTY_FORM_VALUES: CategoryFormType = {
+  name: '',
+  slug: '',
+  description: '',
+  parentId: undefined,
+  status: 'active',
+  customFieldsData: [],
+};
+
+const generateSlug = (name: string): string =>
+  name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+const collectDescendantIds = (
+  allCategories: Category[],
+  rootId?: string,
+): Set<string> => {
+  const descendants = new Set<string>();
+  if (!rootId) return descendants;
+
+  const queue: string[] = [rootId];
+  while (queue.length) {
+    const currentId = queue.shift() as string;
+    const children = allCategories.filter((c) => c.parentId === currentId);
+    for (const child of children) {
+      if (!descendants.has(child._id)) {
+        descendants.add(child._id);
+        queue.push(child._id);
+      }
+    }
+  }
+  return descendants;
+};
+
+const categoryToFormValues = (
+  category?: Partial<Category>,
+): CategoryFormType => {
+  if (!category) return EMPTY_FORM_VALUES;
+  return {
+    name: category.name || '',
+    slug: category.slug || '',
+    description: category.description || '',
+    parentId: category.parentId || undefined,
+    status: category.status || 'active',
+    customFieldsData: category.customFieldsData || [],
+  };
+};
+
 export function CmsCategoryDrawer({
   category,
   isOpen,
@@ -112,17 +165,6 @@ export function CmsCategoryDrawer({
   const isEditing = !!category?._id;
   const client = useApolloClient();
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
-
-  // Function to convert name to slug format
-  const generateSlug = (name: string): string => {
-    return name
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
-      .replace(/\s+/g, '-') // Replace spaces with hyphens
-      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-      .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
-  };
 
   // Fetch custom field groups first to create schema
   const { data: customFieldsData } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
@@ -147,38 +189,13 @@ export function CmsCategoryDrawer({
 
   const form = useForm<CategoryFormType>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      name: '',
-      slug: '',
-      description: '',
-      parentId: undefined,
-      status: 'active',
-      customFieldsData: [],
-    },
+    defaultValues: EMPTY_FORM_VALUES,
   });
 
   useEffect(() => {
-    if (category && isOpen) {
-      form.reset({
-        name: category.name || '',
-        slug: category.slug || '',
-        description: category.description || '',
-        parentId: category.parentId || undefined,
-        status: category.status || 'active',
-        customFieldsData: category.customFieldsData || [],
-      });
-      setIsSlugManuallyEdited(false);
-    } else if (isOpen) {
-      form.reset({
-        name: '',
-        slug: '',
-        description: '',
-        parentId: undefined,
-        status: 'active',
-        customFieldsData: [],
-      });
-      setIsSlugManuallyEdited(false);
-    }
+    if (!isOpen) return;
+    form.reset(categoryToFormValues(category));
+    setIsSlugManuallyEdited(false);
   }, [category, isOpen, form]);
 
   // Watch for name changes and update slug accordingly
@@ -186,11 +203,10 @@ export function CmsCategoryDrawer({
   const slugValue = form.watch('slug');
 
   useEffect(() => {
-    if (nameValue && !isSlugManuallyEdited && isOpen) {
-      const generatedSlug = generateSlug(nameValue);
-      if (generatedSlug !== slugValue) {
-        form.setValue('slug', generatedSlug);
-      }
+    if (!isOpen || !nameValue || isSlugManuallyEdited) return;
+    const generatedSlug = generateSlug(nameValue);
+    if (generatedSlug !== slugValue) {
+      form.setValue('slug', generatedSlug);
     }
   }, [nameValue, isSlugManuallyEdited, form, slugValue, isOpen]);
 
@@ -204,20 +220,7 @@ export function CmsCategoryDrawer({
     skip: !isOpen,
   });
   const allCategories: Category[] = catsData?.cmsCategories?.list || [];
-
-  const descendantIds = new Set<string>();
-  if (category?._id) {
-    const queue: string[] = [category._id];
-    while (queue.length) {
-      const currentId = queue.shift() as string;
-      for (const c of allCategories) {
-        if (c.parentId === currentId && !descendantIds.has(c._id)) {
-          descendantIds.add(c._id);
-          queue.push(c._id);
-        }
-      }
-    }
-  }
+  const descendantIds = collectDescendantIds(allCategories, category?._id);
 
   const rawParentOptions: Category[] = allCategories.filter(
     (c: Category) => c._id !== category?._id && !descendantIds.has(c._id),

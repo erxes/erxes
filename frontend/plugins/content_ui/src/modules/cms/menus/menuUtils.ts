@@ -28,7 +28,6 @@ export function buildFlatTree<T extends RawMenuItem>(
 }
 
 export function getDepthPrefix(depth: number): string {
-  if (depth === 0) return '';
-  if (depth === 1) return '- ';
-  return '-- ';
+  if (depth <= 0) return '';
+  return '-'.repeat(depth) + ' ';
 }
