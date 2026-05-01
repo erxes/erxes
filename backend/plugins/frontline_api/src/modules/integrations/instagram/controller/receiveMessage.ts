@@ -33,13 +33,20 @@ export const receiveMessage = async (
   integration: IInstagramIntegrationDocument,
   activity: IMessageData,
 ) => {
-  const userId = sanitizeString(activity.sender?.id);
   const { recipient, timestamp } = activity;
+
+  if (activity.sender?.id == null || recipient?.id == null) {
+    throw new Error(
+      'Instagram webhook is missing sender.id or recipient.id',
+    );
+  }
+
+  const userId = sanitizeString(activity.sender.id);
 
   let message = activity.message as any;
   const postback = activity.postback as any;
 
-  const pageId = sanitizeString(recipient?.id);
+  const pageId = sanitizeString(recipient.id);
   const kind = INTEGRATION_KINDS.MESSENGER;
   const rawMid = message?.mid || postback?.mid;
   const mid = rawMid != null ? sanitizeString(rawMid) : undefined;
@@ -78,7 +85,7 @@ export const receiveMessage = async (
     recipientId: { $eq: pageId },
   });
 
-  const bot = await checkIsBot(models, message, recipient.id);
+  const bot = await checkIsBot(models, message, pageId);
   const botId = bot?._id;
   let isNewConversation = false;
 

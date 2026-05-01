@@ -26,21 +26,36 @@ export const receiveComment = async (
   rawParams: ICommentParams & { media?: { id: string }; text?: string },
   pageId: string,
 ) => {
+  const rawPostId = rawParams.post_id || rawParams.media?.id;
+  const rawCommentId = rawParams.comment_id || (rawParams as any).id;
+  const rawFromId = rawParams.from?.id;
+
+  if (
+    pageId == null ||
+    pageId === '' ||
+    rawPostId == null ||
+    rawPostId === '' ||
+    rawCommentId == null ||
+    rawCommentId === '' ||
+    rawFromId == null ||
+    rawFromId === ''
+  ) {
+    throw new Error(
+      'Instagram comment webhook is missing pageId, post_id, comment_id, or from.id',
+    );
+  }
+
   const safePageId = sanitizeString(pageId);
 
   // Normalize Instagram webhook comment format to ICommentParams
   const params: ICommentParams = {
     ...rawParams,
-    post_id: sanitizeString(
-      rawParams.post_id || rawParams.media?.id || '',
-    ),
-    comment_id: sanitizeString(
-      rawParams.comment_id || (rawParams as any).id,
-    ),
+    post_id: sanitizeString(rawPostId),
+    comment_id: sanitizeString(rawCommentId),
     message: rawParams.message || rawParams.text,
   };
 
-  const userId = sanitizeString(params.from?.id);
+  const userId = sanitizeString(rawFromId);
   const postId = params.post_id;
 
   if (userId === safePageId) {
