@@ -2,9 +2,9 @@ import { Document, Model, Schema } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import * as nodemailer from 'nodemailer';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { htmlToPlainText } from './utils';
 
 /* ── shared sub-types ───────────────────────────────────────────────── */
-
 interface IMapMail {
   name: string;
   address: string;
@@ -253,8 +253,8 @@ export const loadImapMessageClass = (models: IModels) => {
         ...(replyToMessageId ? [replyToMessageId] : []),
       ].filter(Boolean);
 
-      // Strip HTML tags for plain-text fallback; required by strict SMTP servers
-      const textBody = body ? body.replace(/<[^>]+>/g, '') : undefined;
+      // Plain-text fallback
+      const textBody = body ? htmlToPlainText(body) : undefined;
 
       const mailOptions: nodemailer.SendMailOptions = {
         from,

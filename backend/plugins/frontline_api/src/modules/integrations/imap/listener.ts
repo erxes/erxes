@@ -5,7 +5,7 @@ import { saveMessages } from './messageSaver';
 import { throttle } from 'lodash';
 import { redlock } from './redlock';
 import { ListenResult } from '../../../shared/types';
-import { Lock } from 'redlock';
+import { Lock, ResourceLockedError } from 'redlock';
 
 export const listenIntegration = async (
   subdomain: string,
@@ -26,7 +26,14 @@ export const listenIntegration = async (
             [`${subdomain}:imap:integration:${integration._id}`],
             60000,
           );
-        } catch {
+        } catch (e) {
+          if (!(e instanceof ResourceLockedError)) {
+            console.error(
+              `[IMAP] Unexpected error acquiring lock for integration ${integration._id}:`,
+              e,
+            );
+          }
+          
           return resolve({ reconnect: false });
         }
 
