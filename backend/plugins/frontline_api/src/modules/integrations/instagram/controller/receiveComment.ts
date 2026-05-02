@@ -6,6 +6,7 @@ import {
 } from '@/integrations/instagram/controller/store';
 import { ICommentParams } from '@/integrations/instagram/@types/utils';
 import { INTEGRATION_KINDS } from '@/integrations/instagram/constants';
+import { sanitizeString } from '@/integrations/instagram/utils';
 
 export const receiveComment = async (
   models: IModels,
@@ -13,23 +14,47 @@ export const receiveComment = async (
   rawParams: ICommentParams & { media?: { id: string }; text?: string },
   pageId: string,
 ) => {
+  const rawPostId = rawParams.post_id || rawParams.media?.id;
+  const rawCommentId = rawParams.comment_id || (rawParams as any).id;
+  const rawFromId = rawParams.from?.id;
+
+  if (
+    pageId == null ||
+    pageId === '' ||
+    rawPostId == null ||
+    rawPostId === '' ||
+    rawCommentId == null ||
+    rawCommentId === '' ||
+    rawFromId == null ||
+    rawFromId === ''
+  ) {
+    throw new Error(
+      'Instagram comment webhook is missing pageId, post_id, comment_id, or from.id',
+    );
+  }
+
+  const safePageId = sanitizeString(pageId);
+
   // Normalize Instagram webhook comment format to ICommentParams
   const params: ICommentParams = {
     ...rawParams,
-    post_id: rawParams.post_id || rawParams.media?.id || '',
-    comment_id: rawParams.comment_id || (rawParams as any).id,
+    post_id: sanitizeString(rawPostId),
+    comment_id: sanitizeString(rawCommentId),
     message: rawParams.message || rawParams.text,
   };
 
-  const userId = params.from.id;
+  const userId = sanitizeString(rawFromId);
   const postId = params.post_id;
 
-  if (userId === pageId) {
+  if (userId === safePageId) {
     return;
   }
 
   const integration = await models.InstagramIntegrations.findOne({
-    $and: [{ instagramPageId: pageId }, { kind: INTEGRATION_KINDS.POST }],
+    $and: [
+      { instagramPageId: { $eq: safePageId } },
+      { kind: { $eq: INTEGRATION_KINDS.POST } },
+    ],
   });
   if (!integration) {
     throw new Error('Integration not found');
@@ -38,7 +63,7 @@ export const receiveComment = async (
   const customer = await getOrCreateCustomer(
     models,
     subdomain,
-    pageId,
+    safePageId,
     userId,
     INTEGRATION_KINDS.POST,
   );
@@ -49,7 +74,7 @@ export const receiveComment = async (
 
   const postConversation = await getOrCreatePostConversation(
     models,
-    pageId,
+    safePageId,
     postId,
   );
 
@@ -61,7 +86,7 @@ export const receiveComment = async (
     models,
     subdomain,
     params,
-    pageId,
+    safePageId,
     userId,
     integration,
     customer,
