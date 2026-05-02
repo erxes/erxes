@@ -17,7 +17,7 @@ const posExportMap = {
 
 export const posExportHandlers: TExportHandlers = {
   getExportHeaders: (args: ExportHeadersArgs, ctx: IImportExportContext) => {
-    const collectionName = args?.data?.collectionName;
+    const collectionName = (args as any)?.collectionName ?? args?.data?.collectionName;
     const handler =
       posExportMap[collectionName as keyof typeof posExportMap]
         ?.getExportHeaders;
@@ -26,7 +26,7 @@ export const posExportHandlers: TExportHandlers = {
     return handler(args, ctx);
   },
   getExportData: (args: GetExportDataArgs, ctx: IImportExportContext) => {
-    const collectionName = (args?.data as { collectionName?: string })?.collectionName;
+    const collectionName = (args as any)?.collectionName ?? (args?.data as { collectionName?: string })?.collectionName;
     const handler =
       posExportMap[collectionName as keyof typeof posExportMap]?.getExportData;
     if (!handler)
