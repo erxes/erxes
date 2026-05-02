@@ -26,8 +26,8 @@ export const listenIntegration = async (
             [`${subdomain}:imap:integration:${integration._id}`],
             60000,
           );
-        } catch (e) {
-          lock = null;
+        } catch {
+          return resolve({ reconnect: false });
         }
 
         if (lock) {
@@ -187,7 +187,7 @@ export const listenIntegration = async (
           if (lock) {
             try {
               await lock.release();
-            } catch (e) {
+            } catch {
               // best-effort
             }
             lock = null;

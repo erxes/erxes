@@ -108,6 +108,9 @@ const saveMessage = async (
     });
   }
 
+  const body: string =
+    (msg.html !== false && msg.html) || msg.textAsHtml || msg.text || '';
+
   const conversationMessage = await models.ImapMessages.create({
     inboxIntegrationId: integration.inboxId,
     inboxConversationId: conversationId,
@@ -116,7 +119,7 @@ const saveMessage = async (
     inReplyTo: msg.inReplyTo,
     references: msg.references,
     subject: msg.subject,
-    body: msg.html ?? '',
+    body,
     to: msg.to?.value ?? [],
     cc: msg.cc?.value ?? [],
     bcc: msg.bcc?.value ?? [],
@@ -133,7 +136,7 @@ const saveMessage = async (
 
   await pConversationClientMessageInserted(subdomain, {
     _id: String(conversationMessage._id),
-    content: msg.html ?? '',
+    content: body,
     conversationId,
   });
 };

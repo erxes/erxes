@@ -227,6 +227,12 @@ export const loadImapMessageClass = (models: IModels) => {
       }
 
       /* ── send via SMTP ────────────────────────────────────────── */
+      if (!integration.smtpHost) {
+        throw new Error(
+          'SMTP host is not configured for this integration. Please set the SMTP host in integration settings.',
+        );
+      }
+
       const smtpPort = Number(integration.smtpPort) || 465;
       const secure = smtpPort === 465;
 
@@ -234,6 +240,7 @@ export const loadImapMessageClass = (models: IModels) => {
         host: integration.smtpHost,
         port: smtpPort,
         secure,
+        requireTLS: !secure,
         auth: {
           user: integration.mainUser || integration.user,
           pass: integration.password,
@@ -246,6 +253,9 @@ export const loadImapMessageClass = (models: IModels) => {
         ...(replyToMessageId ? [replyToMessageId] : []),
       ].filter(Boolean);
 
+      // Strip HTML tags for plain-text fallback; required by strict SMTP servers
+      const textBody = body ? body.replace(/<[^>]+>/g, '') : undefined;
+
       const mailOptions: nodemailer.SendMailOptions = {
         from,
         to,
@@ -253,6 +263,7 @@ export const loadImapMessageClass = (models: IModels) => {
         bcc: bcc?.length ? bcc : undefined,
         subject,
         html: body,
+        text: textBody,
         inReplyTo: replyToMessageId,
         references: refsChain.length ? refsChain : undefined,
         attachments: (attachments ?? []).map((a) => ({
