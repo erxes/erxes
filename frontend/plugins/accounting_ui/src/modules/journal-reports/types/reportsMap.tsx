@@ -21,7 +21,7 @@ export interface IReportConfig {
   icon?: string;
   colCount?: number;
   choices?: Array<{ code: string; title: string }>;
-  initParams?: any,
+  initParams?: any;
   groups?: {
     [key: string]: IGroupRule;
   };
@@ -38,7 +38,7 @@ export const ReportRules: Record<string, IReportConfig> = {
       { code: 'departmentBranch', title: 'Хэлтэс салбараар' },
     ],
     initParams: {
-      isMore: true
+      isMore: true,
     },
     groups: {
       default: {
@@ -82,7 +82,7 @@ export const ReportRules: Record<string, IReportConfig> = {
             style: 'font-semibold bg-[#fefef1]',
             groupRule: null,
           },
-        }
+        },
       },
       departmentBranch: {
         group: 'departmentId',
@@ -102,9 +102,9 @@ export const ReportRules: Record<string, IReportConfig> = {
             style: 'font-semibold bg-[#fefef1]',
             groupRule: null,
           },
-        }
-      }
-    }
+        },
+      },
+    },
   },
   tb: {
     title: 'Гүйлгээ баланс',
@@ -132,8 +132,8 @@ export const ReportRules: Record<string, IReportConfig> = {
           group: 'accountId',
           code: 'accountCode',
           name: 'accountName',
-          groupRule: null
-        }
+          groupRule: null,
+        },
       },
       branchDepartment: {
         group: 'branchId',
@@ -153,7 +153,7 @@ export const ReportRules: Record<string, IReportConfig> = {
             style: '',
             groupRule: null,
           },
-        }
+        },
       },
       departmentBranch: {
         group: 'departmentId',
@@ -173,9 +173,9 @@ export const ReportRules: Record<string, IReportConfig> = {
             style: '',
             groupRule: null,
           },
-        }
-      }
-    }
+        },
+      },
+    },
   },
   mb: {
     title: 'Ерөнхий дэвтэр',
@@ -203,8 +203,8 @@ export const ReportRules: Record<string, IReportConfig> = {
           group: 'productId',
           code: 'productCode',
           name: 'productName',
-          from: ['details']
-        }
+          from: ['details'],
+        },
       },
       accBranchDep: {
         group: 'accountId',
@@ -226,10 +226,10 @@ export const ReportRules: Record<string, IReportConfig> = {
               group: 'productId',
               code: 'productCode',
               name: 'productName',
-              from: ['details']
-            }
-          }
-        }
+              from: ['details'],
+            },
+          },
+        },
       },
       accDepBranch: {
         group: 'accountId',
@@ -251,13 +251,11 @@ export const ReportRules: Record<string, IReportConfig> = {
               group: 'productId',
               code: 'productCode',
               name: 'productName',
-              from: ['details']
-            }
-          }
-        }
+              from: ['details'],
+            },
+          },
+        },
       },
-    }
-  }
-
-
-}
+    },
+  },
+};

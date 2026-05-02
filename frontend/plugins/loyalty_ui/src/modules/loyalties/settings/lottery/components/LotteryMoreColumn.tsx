@@ -9,8 +9,9 @@ import {
   useToast,
   useQueryState,
 } from 'erxes-ui';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconTrash, IconTicket } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
+import { useNavigate } from 'react-router';
 import { useDeleteLottery } from '../hooks/useDeleteLottery';
 import { ILottery } from '../types/lotteryTypes';
 
@@ -24,9 +25,14 @@ export const LotteryMoreColumnCell = ({
   const { removeLottery, loading } = useDeleteLottery();
   const { confirm } = useConfirm();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleEdit = (lotteryId: string) => {
     setEditLotteryId(lotteryId);
+  };
+
+  const handleSeeLotteries = () => {
+    navigate(`/loyalty/lotteries?voucherCampaignId=${_id}`);
   };
   const handleDelete = () => {
     if (!_id) return;
@@ -67,6 +73,9 @@ export const LotteryMoreColumnCell = ({
           <Command.List>
             <Command.Item value="edit" onSelect={() => handleEdit(_id)}>
               <IconEdit /> Edit
+            </Command.Item>
+            <Command.Item value="see-lotteries" onSelect={handleSeeLotteries}>
+              <IconTicket /> See lotteries
             </Command.Item>
             <Command.Item asChild>
               <Button

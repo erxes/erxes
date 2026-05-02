@@ -33,7 +33,7 @@ export const InvMoveForm = ({
           index={index}
           filter={{ journals: [JournalEnum.INVENTORY] }}
           allDetails={true}
-          labelTxt="Move Out Account"
+          labelTxt="Гарах барааны данс"
         />
         <CustomerFields form={form} index={index} />
         <BranchField form={form} index={index} />
@@ -45,7 +45,7 @@ export const InvMoveForm = ({
           name={`trDocs.${index}.followInfos.moveInAccountId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Move incoming Account</Form.Label>
+              <Form.Label>Орох барааны данс</Form.Label>
               <Form.Control>
                 <SelectAccount
                   value={field.value || ''}
@@ -63,7 +63,7 @@ export const InvMoveForm = ({
           name={`trDocs.${index}.followInfos.moveInBranchId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Move incoming Branch</Form.Label>
+              <Form.Label>Орох салбар</Form.Label>
               <Form.Control>
                 <SelectBranches.FormItem
                   mode="single"
@@ -80,7 +80,7 @@ export const InvMoveForm = ({
           name={`trDocs.${index}.followInfos.moveInDepartmentId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Move incoming Department</Form.Label>
+              <Form.Label>Орох хэлтэс</Form.Label>
               <Form.Control>
                 <SelectDepartments.FormItem
                   mode="single"

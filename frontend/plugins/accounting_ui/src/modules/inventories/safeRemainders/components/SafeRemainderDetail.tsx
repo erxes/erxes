@@ -179,7 +179,7 @@ export const SafeRemainderDetail = () => {
 
         <Tabs.Content value={CENSUS_TABS.CENSUS.value} className="mt-6">
           <RecordTableHotkeyProvider
-            columnLength={2}
+            columnLength={3}
             rowLength={safeRemainderItems?.length || 0}
             scope={AccountingHotkeyScope.SafeRemainderPage}
           >
@@ -217,33 +217,39 @@ export const SafeRemainderDetail = () => {
           value={CENSUS_TABS.INCOME.value}
           className="mt-6"
         >
-          <RecordTable.Provider
-            columns={safeRemDetailColumnsIncome}
-            data={
-              safeRemainderItems?.filter(
-                (item) => item.preCount < item.count,
-              ) || []
-            }
-            stickyColumns={[]}
-            className="m-3"
+          <RecordTableHotkeyProvider
+            columnLength={4}
+            rowLength={safeRemainderItems?.length || 0}
+            scope={AccountingHotkeyScope.SafeRemainderPage}
           >
-            <RecordTable.Scroll>
-              <RecordTable>
-                <RecordTable.Header />
-                <RecordTable.Body>
-                  <RecordTable.RowList />
-                  {!detailsLoading &&
-                    safeRemainderItemsCount > safeRemainderItems?.length && (
-                      <RecordTable.RowSkeleton
-                        rows={4}
-                        handleInView={handleFetchMore}
-                      />
-                    )}
-                </RecordTable.Body>
-              </RecordTable>
-              <SafeRemDetailCommandbar />
-            </RecordTable.Scroll>
-          </RecordTable.Provider>
+            <RecordTable.Provider
+              columns={safeRemDetailColumnsIncome}
+              data={
+                safeRemainderItems?.filter(
+                  (item) => item.preCount < item.count,
+                ) || []
+              }
+              stickyColumns={[]}
+              className="m-3"
+            >
+              <RecordTable.Scroll>
+                <RecordTable>
+                  <RecordTable.Header />
+                  <RecordTable.Body>
+                    <RecordTable.RowList />
+                    {!detailsLoading &&
+                      safeRemainderItemsCount > safeRemainderItems?.length && (
+                        <RecordTable.RowSkeleton
+                          rows={4}
+                          handleInView={handleFetchMore}
+                        />
+                      )}
+                  </RecordTable.Body>
+                </RecordTable>
+                <SafeRemDetailCommandbar />
+              </RecordTable.Scroll>
+            </RecordTable.Provider>
+          </RecordTableHotkeyProvider>
         </Tabs.Content>
 
         <Tabs.Content
@@ -251,33 +257,39 @@ export const SafeRemainderDetail = () => {
           value={CENSUS_TABS.OUT.value}
           className="mt-6"
         >
-          <RecordTable.Provider
-            columns={safeRemDetailColumnsOut}
-            data={
-              safeRemainderItems.filter(
-                (item) => item.preCount > item.count && !item.trInfo?.isSale,
-              ) || []
-            }
-            stickyColumns={[]}
-            className="m-3"
+          <RecordTableHotkeyProvider
+            columnLength={3}
+            rowLength={safeRemainderItems?.length || 0}
+            scope={AccountingHotkeyScope.SafeRemainderPage}
           >
-            <RecordTable.Scroll>
-              <RecordTable>
-                <RecordTable.Header />
-                <RecordTable.Body>
-                  <RecordTable.RowList />
-                  {!detailsLoading &&
-                    safeRemainderItemsCount > safeRemainderItems?.length && (
-                      <RecordTable.RowSkeleton
-                        rows={4}
-                        handleInView={handleFetchMore}
-                      />
-                    )}
-                </RecordTable.Body>
-              </RecordTable>
-              <SafeRemDetailCommandbar />
-            </RecordTable.Scroll>
-          </RecordTable.Provider>
+            <RecordTable.Provider
+              columns={safeRemDetailColumnsOut}
+              data={
+                safeRemainderItems.filter(
+                  (item) => item.preCount > item.count && !item.trInfo?.isSale,
+                ) || []
+              }
+              stickyColumns={[]}
+              className="m-3"
+            >
+              <RecordTable.Scroll>
+                <RecordTable>
+                  <RecordTable.Header />
+                  <RecordTable.Body>
+                    <RecordTable.RowList />
+                    {!detailsLoading &&
+                      safeRemainderItemsCount > safeRemainderItems?.length && (
+                        <RecordTable.RowSkeleton
+                          rows={4}
+                          handleInView={handleFetchMore}
+                        />
+                      )}
+                  </RecordTable.Body>
+                </RecordTable>
+                <SafeRemDetailCommandbar />
+              </RecordTable.Scroll>
+            </RecordTable.Provider>
+          </RecordTableHotkeyProvider>
         </Tabs.Content>
 
         <Tabs.Content
@@ -285,35 +297,40 @@ export const SafeRemainderDetail = () => {
           value={CENSUS_TABS.SALE.value}
           className="mt-6"
         >
-          <RecordTable.Provider
-            columns={safeRemDetailColumnsSale}
-            data={
-              safeRemainderItems.filter(
-                (item) => item.preCount > item.count && item.trInfo?.isSale,
-              ) || []
-            }
-            stickyColumns={[]}
-            className="m-3"
+          <RecordTableHotkeyProvider
+            columnLength={3}
+            rowLength={safeRemainderItems?.length || 0}
+            scope={AccountingHotkeyScope.SafeRemainderPage}
           >
-            <RecordTable.Scroll>
-              <RecordTable>
-                <RecordTable.Header />
-                <RecordTable.Body>
-                  <RecordTable.RowList />
-                  {!detailsLoading &&
-                    safeRemainderItemsCount > safeRemainderItems?.length && (
-                      <RecordTable.RowSkeleton
-                        rows={4}
-                        handleInView={handleFetchMore}
-                      />
-                    )}
-                </RecordTable.Body>
-              </RecordTable>
-              <SafeRemDetailCommandbar />
-            </RecordTable.Scroll>
-          </RecordTable.Provider>
+            <RecordTable.Provider
+              columns={safeRemDetailColumnsSale}
+              data={
+                safeRemainderItems.filter(
+                  (item) => item.preCount > item.count && item.trInfo?.isSale,
+                ) || []
+              }
+              stickyColumns={[]}
+              className="m-3"
+            >
+              <RecordTable.Scroll>
+                <RecordTable>
+                  <RecordTable.Header />
+                  <RecordTable.Body>
+                    <RecordTable.RowList />
+                    {!detailsLoading &&
+                      safeRemainderItemsCount > safeRemainderItems?.length && (
+                        <RecordTable.RowSkeleton
+                          rows={4}
+                          handleInView={handleFetchMore}
+                        />
+                      )}
+                  </RecordTable.Body>
+                </RecordTable>
+                <SafeRemDetailCommandbar />
+              </RecordTable.Scroll>
+            </RecordTable.Provider>
+          </RecordTableHotkeyProvider>
         </Tabs.Content>
-
         <Tabs.Content
           key={CENSUS_TABS.CONFIG.value}
           value={CENSUS_TABS.CONFIG.value}

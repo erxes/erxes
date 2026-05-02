@@ -9,8 +9,9 @@ import {
   useToast,
   useQueryState,
 } from 'erxes-ui';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconTrash, IconTicket } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
+import { useNavigate } from 'react-router';
 import { useDeleteDonation } from '../hooks/useDeleteDonation';
 import { IDonation } from '../types/donationTypes';
 
@@ -24,9 +25,14 @@ export const DonationMoreColumnCell = ({
   const { removeDonation, loading } = useDeleteDonation();
   const { confirm } = useConfirm();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleEdit = (donationId: string) => {
     setEditDonationId(donationId);
+  };
+
+  const handleSeeDonates = () => {
+    navigate(`/loyalty/donates?voucherCampaignId=${_id}`);
   };
   const handleDelete = () => {
     if (!_id) return;
@@ -67,6 +73,9 @@ export const DonationMoreColumnCell = ({
           <Command.List>
             <Command.Item value="edit" onSelect={() => handleEdit(_id)}>
               <IconEdit /> Edit
+            </Command.Item>
+            <Command.Item value="see-donates" onSelect={handleSeeDonates}>
+              <IconTicket /> See donates
             </Command.Item>
             <Command.Item asChild>
               <Button

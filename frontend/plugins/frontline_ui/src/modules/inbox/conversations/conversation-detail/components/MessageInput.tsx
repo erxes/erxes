@@ -26,8 +26,10 @@ import {
   isInternalState,
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+
+import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 
 import { AssignMemberInEditor } from 'ui-modules';
 import { Block } from '@blocknote/core';
@@ -47,8 +49,16 @@ export const MessageInput = ({
 }) => {
   const [isInternalNote, setIsInternalNote] = useAtom(isInternalState);
   const onlyInternal = useAtomValue(onlyInternalState);
+  const setOnlyInternal = useSetAtom(onlyInternalState);
   const hideInput = useAtomValue(hideMessageInputState);
+  const { integration } = useConversationContext();
   const messageExtraInfo = useAtomValue(messageExtraInfoState);
+  useEffect(() => {
+    const isLead = integration?.kind === 'lead';
+    setOnlyInternal(isLead);
+    if (isLead) setIsInternalNote(true);
+  }, [integration?.kind, setOnlyInternal, setIsInternalNote]);
+
   const { channels: availableChannels } = useGetChannels();
   const { responses } = useGetResponses({});
   const [content, setContent] = useState<Block[]>();
@@ -291,7 +301,7 @@ export const MessageInput = ({
         onDragOver={(e) => e.preventDefault()}
         className={cn(
           'flex flex-col h-full py-4 gap-1 max-w-2xl mx-auto bg-sidebar shadow-xs rounded-lg transition-colors duration-150',
-          isInternalNote && 'bg-yellow-50 dark:bg-yellow-950',
+          isInternalNote && 'bg-warning/20',
         )}
       >
         {showSuggestions && (
@@ -299,7 +309,7 @@ export const MessageInput = ({
             suggestions={suggestions}
             selectedIndex={selectedIndex}
             availableChannels={availableChannels}
-            onSelect={(content: string, templateId: string) => {
+            onSelect={(content: string, templateId?: string) => {
               handleTemplateSelect(content, templateId);
               setShowSuggestions(false);
             }}
@@ -338,18 +348,18 @@ export const MessageInput = ({
         )}
 
         {attachments.length > 0 && (
-          <div className="px-6 mt-2 text-sm text-gray-500 space-y-1">
+          <div className="px-6 mt-2 text-sm text-muted-foreground space-y-1">
             {attachments.map((file, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-md"
+                className="flex items-center justify-between bg-muted px-3 py-1 rounded-md"
               >
                 <span role="img" aria-label="file">
                   📁 {file.name} ({Math.round(file.size / 1024)} KB)
                 </span>
                 <button
                   onClick={() => handleDeleteAttachment(file.name)}
-                  className="text-red-500 hover:text-red-700"
+                  className="text-destructive hover:text-red-700"
                 >
                   <IconX size={14} />
                 </button>

@@ -1,15 +1,22 @@
-import { PricingDateSelect } from '@/pricing/components/PricingDateSelect';
 import { SelectCategory } from '@/pricing/components/SelectCategory';
-import {
-  DISCOUNT_TYPES,
-  DiscountType,
-  PRICE_ADJUST_TYPES,
-  PriceAdjustType,
-} from '@/pricing/edit-pricing/components';
 import { useEditPricing } from '@/pricing/hooks/useEditPricing';
 import { IPricingPlanDetail } from '@/pricing/types';
-import { Button, Checkbox, Form, InfoCard, Input, Select, useToast } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import {
+  formatDateValue,
+  isDateRangeValid,
+  parseDateValue,
+} from '@/pricing/utils/date';
+import {
+  Button,
+  Checkbox,
+  DatePicker,
+  Form,
+  InfoCard,
+  Input,
+  Select,
+  useToast,
+} from 'erxes-ui';
+import { useEffect, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   SelectCompany,
@@ -17,10 +24,12 @@ import {
   SelectSegment,
   SelectTags,
 } from 'ui-modules';
+import { type Control } from 'react-hook-form';
 
 interface GeneralInfoProps {
   pricingId?: string;
   pricingDetail?: IPricingPlanDetail;
+  onSaveActionChange?: (action: ReactNode | null) => void;
 }
 
 interface GeneralFormValues {
@@ -28,13 +37,8 @@ interface GeneralFormValues {
   status: 'active' | 'archived' | 'draft' | 'completed';
   applyType: 'category' | 'product' | 'order';
   isPriority: boolean;
-  discountType: DiscountType;
   startDate: string | null;
   endDate: string | null;
-  discountValue: number;
-  priceAdjustType: PriceAdjustType;
-  priceAdjustFactor: number;
-  bonusProductId: string | null;
   appliesTo: 'category' | 'product' | 'segment' | 'vendor' | 'tag' | 'bundle';
   productCategoryIds: string[];
   excludeCategoryIds: string[];
@@ -47,20 +51,67 @@ interface GeneralFormValues {
   bundleProductIds: string[];
 }
 
-export const GeneralInfo = ({ pricingId, pricingDetail }: GeneralInfoProps) => {
+const GENERAL_FORM_ID = 'pricing-general-form';
+
+const appliesToApplyTypeMap: Record<GeneralFormValues['appliesTo'], string> = {
+  category: 'category',
+  product: 'product',
+  segment: 'segment',
+  vendor: 'vendor',
+  tag: 'tag',
+  bundle: 'bundle',
+};
+
+const normalizeMultipleValue = (value: string | string[]) =>
+  Array.isArray(value) ? value : [value];
+
+const GeneralDateField = ({
+  control,
+  name,
+  label,
+  placeholder,
+}: {
+  control: Control<GeneralFormValues>;
+  name: 'startDate' | 'endDate';
+  label: string;
+  placeholder: string;
+}) => (
+  <Form.Field
+    control={control}
+    name={name}
+    render={({ field }) => (
+      <Form.Item className="min-w-0">
+        <Form.Label>{label}</Form.Label>
+        <Form.Control>
+          <DatePicker
+            value={parseDateValue(field.value)}
+            placeholder={placeholder}
+            onChange={(value) => {
+              field.onChange(
+                value instanceof Date ? formatDateValue(value) : null,
+              );
+            }}
+          />
+        </Form.Control>
+        <Form.Message />
+      </Form.Item>
+    )}
+  />
+);
+
+export const GeneralInfo = ({
+  pricingId,
+  pricingDetail,
+  onSaveActionChange,
+}: GeneralInfoProps) => {
   const form = useForm<GeneralFormValues>({
     defaultValues: {
       name: '',
       status: 'active',
       applyType: 'product',
       isPriority: false,
-      discountType: 'fixed',
       startDate: null,
       endDate: null,
-      discountValue: 0,
-      priceAdjustType: 'none',
-      priceAdjustFactor: 0,
-      bonusProductId: null,
       appliesTo: 'category',
       productCategoryIds: [],
       excludeCategoryIds: [],
@@ -74,20 +125,12 @@ export const GeneralInfo = ({ pricingId, pricingDetail }: GeneralInfoProps) => {
     },
   });
 
-  const discountType = form.watch('discountType');
   const appliesTo = form.watch('appliesTo');
 
   const { editPricing, loading } = useEditPricing();
   const { toast } = useToast();
 
-  const [hasChanges, setHasChanges] = useState(false);
-
-  useEffect(() => {
-    const subscription = form.watch(() => {
-      setHasChanges(true);
-    });
-    return () => subscription.unsubscribe();
-  }, [form]);
+  const { isDirty } = form.formState;
 
   useEffect(() => {
     if (!pricingDetail) return;
@@ -113,12 +156,6 @@ export const GeneralInfo = ({ pricingId, pricingDetail }: GeneralInfoProps) => {
         (pricingDetail.applyType as GeneralFormValues['applyType']) ||
         'product',
       isPriority: pricingDetail.isPriority ?? false,
-      discountType: (pricingDetail.type as DiscountType) || 'fixed',
-      discountValue: pricingDetail.value ?? 0,
-      priceAdjustType:
-        (pricingDetail.priceAdjustType as PriceAdjustType) || 'none',
-      priceAdjustFactor: pricingDetail.priceAdjustFactor ?? 0,
-      bonusProductId: pricingDetail.bonusProduct || null,
       startDate:
         pricingDetail.isStartDateEnabled && pricingDetail.startDate
           ? pricingDetail.startDate.slice(0, 10)
@@ -138,38 +175,33 @@ export const GeneralInfo = ({ pricingId, pricingDetail }: GeneralInfoProps) => {
       excludeTagIds: pricingDetail.tagsExcluded || [],
       bundleProductIds: pricingDetail.productsBundle?.[0] || [],
     });
-
-    setHasChanges(false);
   }, [pricingDetail, form]);
 
   const handleSubmit = async (values: GeneralFormValues) => {
     if (!pricingId) return;
 
-    // Map appliesTo to applyType
-    const appliesToApplyTypeMap: Record<string, string> = {
-      category: 'category',
-      product: 'product',
-      segment: 'segment',
-      vendor: 'vendor',
-      tag: 'tag',
-      bundle: 'bundle',
-    };
+    if (!isDateRangeValid(values.startDate, values.endDate)) {
+      form.setError('endDate', {
+        type: 'validate',
+        message: 'End date must be after start date.',
+      });
+      toast({
+        title: 'Invalid date range',
+        description: 'End date must be after start date.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
-    const baseDoc: any = {
+    form.clearErrors(['startDate', 'endDate']);
+
+    const baseDoc: Parameters<typeof editPricing>[0] = {
       _id: pricingId,
       name: values.name.trim(),
       status: values.status,
       applyType: appliesToApplyTypeMap[values.appliesTo] || values.applyType,
       isPriority: values.isPriority,
-      type: values.discountType,
-      value: values.discountValue,
-      priceAdjustType: values.priceAdjustType,
-      priceAdjustFactor: values.priceAdjustFactor,
     };
-
-    if (values.discountType === 'bonus' && values.bonusProductId) {
-      baseDoc.bonusProduct = values.bonusProductId;
-    }
 
     if (values.startDate) {
       baseDoc.isStartDateEnabled = true;
@@ -215,6 +247,7 @@ export const GeneralInfo = ({ pricingId, pricingDetail }: GeneralInfoProps) => {
 
     try {
       await editPricing(baseDoc);
+      form.reset(values);
       toast({
         title: 'Pricing updated',
         description: 'Changes have been saved successfully.',
@@ -228,96 +261,91 @@ export const GeneralInfo = ({ pricingId, pricingDetail }: GeneralInfoProps) => {
     }
   };
 
+  useEffect(() => {
+    if (!onSaveActionChange) {
+      return;
+    }
+
+    onSaveActionChange(
+      isDirty ? (
+        <Button
+          type="submit"
+          form={GENERAL_FORM_ID}
+          size="sm"
+          disabled={loading || !pricingId}
+        >
+          {loading ? 'Saving...' : 'Save Changes'}
+        </Button>
+      ) : null,
+    );
+
+    return () => onSaveActionChange(null);
+  }, [isDirty, loading, onSaveActionChange, pricingId]);
+
   return (
     <div className="p-6">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} noValidate>
+        <form
+          id={GENERAL_FORM_ID}
+          onSubmit={form.handleSubmit(handleSubmit)}
+          noValidate
+        >
           <InfoCard title="General">
-            <InfoCard.Content>
-              {/* Name & Status */}
-              <div className="grid grid-cols-2 gap-4">
-                <Form.Field
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Name</Form.Label>
-                      <Form.Control>
-                        <Input placeholder="Enter pricing name" {...field} />
-                      </Form.Control>
-                    </Form.Item>
-                  )}
-                />
+            <InfoCard.Content className="grid w-full grid-cols-2 gap-6">
+              <div className="flex flex-col w-full space-y-4">
+                <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
+                  <Form.Field
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <Form.Item className="min-w-0">
+                        <Form.Label>Name</Form.Label>
+                        <Form.Control>
+                          <Input placeholder="Enter pricing name" {...field} />
+                        </Form.Control>
+                      </Form.Item>
+                    )}
+                  />
 
-                <Form.Field
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Status</Form.Label>
-                      <Form.Control>
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <Select.Trigger>
-                            <Select.Value placeholder="Select status" />
-                          </Select.Trigger>
-                          <Select.Content>
-                            <Select.Item value="active">Active</Select.Item>
-                            <Select.Item value="archived">Archived</Select.Item>
-                            <Select.Item value="draft">Draft</Select.Item>
-                            <Select.Item value="completed">
-                              Completed
-                            </Select.Item>
-                          </Select.Content>
-                        </Select>
-                      </Form.Control>
-                    </Form.Item>
-                  )}
-                />
-              </div>
-
-              {/* Discount Type & Priority */}
-              <div className="grid grid-cols-2 gap-4">
-                <Form.Field
-                  control={form.control}
-                  name="discountType"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Discount type</Form.Label>
-                      <Form.Control>
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <Select.Trigger>
-                            <Select.Value placeholder="Select discount type" />
-                          </Select.Trigger>
-                          <Select.Content>
-                            {DISCOUNT_TYPES.map((option) => (
-                              <Select.Item
-                                key={option.value}
-                                value={option.value}
-                              >
-                                {option.label}
+                  <Form.Field
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <Form.Item className="min-w-0">
+                        <Form.Label>Status</Form.Label>
+                        <Form.Control>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <Select.Trigger>
+                              <Select.Value placeholder="Select status" />
+                            </Select.Trigger>
+                            <Select.Content>
+                              <Select.Item value="active">Active</Select.Item>
+                              <Select.Item value="archived">
+                                Archived
                               </Select.Item>
-                            ))}
-                          </Select.Content>
-                        </Select>
-                      </Form.Control>
-                    </Form.Item>
-                  )}
-                />
+                              <Select.Item value="draft">Draft</Select.Item>
+                              <Select.Item value="completed">
+                                Completed
+                              </Select.Item>
+                            </Select.Content>
+                          </Select>
+                        </Form.Control>
+                      </Form.Item>
+                    )}
+                  />
+                </div>
 
                 <Form.Field
                   control={form.control}
                   name="isPriority"
                   render={({ field }) => (
-                    <Form.Item>
+                    <Form.Item className="min-w-0">
                       <Form.Label>Priority</Form.Label>
                       <Form.Control>
-                        <div className="h-9">
+                        <div className="flex items-center h-9">
                           <Checkbox
                             checked={field.value}
                             onCheckedChange={(checked) =>
@@ -329,460 +357,280 @@ export const GeneralInfo = ({ pricingId, pricingDetail }: GeneralInfoProps) => {
                     </Form.Item>
                   )}
                 />
-              </div>
 
-              {/* Discount Value & Price Adjust (when not bonus) */}
-              {discountType !== 'bonus' && (
-                <div className="pr-2 space-y-4 w-1/2">
-                  <Form.Field
+                <div className="grid w-full grid-cols-2 gap-4">
+                  <GeneralDateField
                     control={form.control}
-                    name="discountValue"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>
-                          Discount value{' '}
-                          <span className="text-destructive">*</span>
-                        </Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            value={field.value}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value) || 0)
-                            }
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
+                    name="startDate"
+                    label="Start date"
+                    placeholder="Select start date"
                   />
 
+                  <GeneralDateField
+                    control={form.control}
+                    name="endDate"
+                    label="End date"
+                    placeholder="Select end date"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col w-full space-y-4">
+                <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
                   <Form.Field
                     control={form.control}
-                    name="priceAdjustType"
+                    name="appliesTo"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Price adjust type</Form.Label>
+                        <Form.Label>APPLIES TO</Form.Label>
                         <Form.Control>
                           <Select
                             value={field.value}
                             onValueChange={field.onChange}
                           >
                             <Select.Trigger>
-                              <Select.Value placeholder="None" />
+                              <Select.Value placeholder="Select target" />
                             </Select.Trigger>
                             <Select.Content>
-                              {PRICE_ADJUST_TYPES.map((option) => (
-                                <Select.Item
-                                  key={option.value}
-                                  value={option.value}
-                                >
-                                  {option.label}
-                                </Select.Item>
-                              ))}
+                              <Select.Item value="category">
+                                Specific Category
+                              </Select.Item>
+                              <Select.Item value="product">
+                                Specific Product
+                              </Select.Item>
+                              <Select.Item value="segment">
+                                Specific Segment
+                              </Select.Item>
+                              <Select.Item value="vendor">
+                                Specific Vendor
+                              </Select.Item>
+                              <Select.Item value="tag">
+                                Specific Tag
+                              </Select.Item>
+                              <Select.Item value="bundle">
+                                Specific Bundle
+                              </Select.Item>
                             </Select.Content>
                           </Select>
                         </Form.Control>
                       </Form.Item>
                     )}
                   />
-
-                  <Form.Field
-                    control={form.control}
-                    name="priceAdjustFactor"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Price adjust factor</Form.Label>
-                        <Form.Control>
-                          <Input
-                            type="number"
-                            value={field.value}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value) || 0)
-                            }
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
                 </div>
-              )}
 
-              {/* Bonus Product (when bonus) */}
-              {discountType === 'bonus' && (
-                <div className="pr-2 w-1/2">
-                  <Form.Field
-                    control={form.control}
-                    name="bonusProductId"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>Bonus product</Form.Label>
-                        <Form.Control>
-                          <SelectProduct
-                            value={field.value || ''}
-                            onValueChange={(value) =>
-                              field.onChange(
-                                Array.isArray(value) ? value[0] : value,
-                              )
-                            }
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-                </div>
-              )}
+                {appliesTo === 'category' && (
+                  <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
+                    <Form.Field
+                      control={form.control}
+                      name="productCategoryIds"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>PRODUCT CATEGORIES</Form.Label>
+                          <Form.Control>
+                            <SelectCategory
+                              mode="multiple"
+                              value={field.value}
+                              onValueChange={(value) =>
+                                field.onChange(normalizeMultipleValue(value))
+                              }
+                            />
+                          </Form.Control>
+                        </Form.Item>
+                      )}
+                    />
 
-              {/* Start & End Date */}
-              <div className="grid grid-cols-2 gap-4">
-                <Form.Field
-                  control={form.control}
-                  name="startDate"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Start date</Form.Label>
-                      <Form.Control>
-                        <PricingDateSelect
-                          value={
-                            field.value ? new Date(field.value) : undefined
-                          }
-                          placeholder="Select start date"
-                          onValueChange={(value) => {
-                            if (value) {
-                              const year = value.getFullYear();
-                              const month = String(
-                                value.getMonth() + 1,
-                              ).padStart(2, '0');
-                              const day = String(value.getDate()).padStart(
-                                2,
-                                '0',
-                              );
-                              field.onChange(`${year}-${month}-${day}`);
-                            } else {
-                              field.onChange(null);
-                            }
-                          }}
-                        />
-                      </Form.Control>
-                    </Form.Item>
-                  )}
-                />
+                    <Form.Field
+                      control={form.control}
+                      name="excludeCategoryIds"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>EXCLUDE CATEGORIES</Form.Label>
+                          <Form.Control>
+                            <SelectCategory
+                              mode="multiple"
+                              value={field.value}
+                              onValueChange={(value) =>
+                                field.onChange(normalizeMultipleValue(value))
+                              }
+                            />
+                          </Form.Control>
+                        </Form.Item>
+                      )}
+                    />
 
-                <Form.Field
-                  control={form.control}
-                  name="endDate"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>End date</Form.Label>
-                      <Form.Control>
-                        <PricingDateSelect
-                          value={
-                            field.value ? new Date(field.value) : undefined
-                          }
-                          placeholder="Select end date"
-                          onValueChange={(value) => {
-                            if (value) {
-                              const year = value.getFullYear();
-                              const month = String(
-                                value.getMonth() + 1,
-                              ).padStart(2, '0');
-                              const day = String(value.getDate()).padStart(
-                                2,
-                                '0',
-                              );
-                              field.onChange(`${year}-${month}-${day}`);
-                            } else {
-                              field.onChange(null);
-                            }
-                          }}
-                        />
-                      </Form.Control>
-                    </Form.Item>
-                  )}
-                />
+                    <Form.Field
+                      control={form.control}
+                      name="excludeProductIds"
+                      render={({ field }) => (
+                        <Form.Item className="lg:col-span-2">
+                          <Form.Label>EXCLUDE PRODUCTS</Form.Label>
+                          <Form.Control>
+                            <SelectProduct
+                              mode="multiple"
+                              value={field.value}
+                              onValueChange={(value) =>
+                                field.onChange(normalizeMultipleValue(value))
+                              }
+                            />
+                          </Form.Control>
+                        </Form.Item>
+                      )}
+                    />
+                  </div>
+                )}
+
+                {appliesTo === 'product' && (
+                  <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
+                    <Form.Field
+                      control={form.control}
+                      name="appliesProductIds"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>PRODUCTS</Form.Label>
+                          <Form.Control>
+                            <SelectProduct
+                              mode="multiple"
+                              value={field.value}
+                              onValueChange={(value) =>
+                                field.onChange(normalizeMultipleValue(value))
+                              }
+                            />
+                          </Form.Control>
+                        </Form.Item>
+                      )}
+                    />
+                  </div>
+                )}
+
+                {appliesTo === 'segment' && (
+                  <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
+                    <Form.Field
+                      control={form.control}
+                      name="segmentId"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>SEGMENT</Form.Label>
+                          <Form.Control>
+                            <SelectSegment
+                              selected={field.value || undefined}
+                              onSelect={(id) => field.onChange(id)}
+                            />
+                          </Form.Control>
+                        </Form.Item>
+                      )}
+                    />
+                  </div>
+                )}
+
+                {appliesTo === 'vendor' && (
+                  <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
+                    <Form.Field
+                      control={form.control}
+                      name="vendorCompanyIds"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>VENDORS</Form.Label>
+                          <Form.Control>
+                            <SelectCompany
+                              mode="multiple"
+                              value={field.value}
+                              onValueChange={(value) =>
+                                field.onChange(normalizeMultipleValue(value))
+                              }
+                            />
+                          </Form.Control>
+                        </Form.Item>
+                      )}
+                    />
+                  </div>
+                )}
+
+                {appliesTo === 'tag' && (
+                  <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
+                    <Form.Field
+                      control={form.control}
+                      name="productTagIds"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>PRODUCT TAGS</Form.Label>
+                          <Form.Control>
+                            <SelectTags
+                              tagType="sales:product"
+                              mode="multiple"
+                              value={field.value}
+                              onValueChange={(value) =>
+                                field.onChange(value as string[])
+                              }
+                            />
+                          </Form.Control>
+                        </Form.Item>
+                      )}
+                    />
+
+                    <Form.Field
+                      control={form.control}
+                      name="excludeTagIds"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>EXCLUDE TAGS</Form.Label>
+                          <Form.Control>
+                            <SelectTags
+                              tagType="sales:product"
+                              mode="multiple"
+                              value={field.value}
+                              onValueChange={(value) =>
+                                field.onChange(value as string[])
+                              }
+                            />
+                          </Form.Control>
+                        </Form.Item>
+                      )}
+                    />
+
+                    <Form.Field
+                      control={form.control}
+                      name="excludeProductIds"
+                      render={({ field }) => (
+                        <Form.Item className="lg:col-span-2">
+                          <Form.Label>EXCLUDE PRODUCTS</Form.Label>
+                          <Form.Control>
+                            <SelectProduct
+                              mode="multiple"
+                              value={field.value}
+                              onValueChange={(value) =>
+                                field.onChange(normalizeMultipleValue(value))
+                              }
+                            />
+                          </Form.Control>
+                        </Form.Item>
+                      )}
+                    />
+                  </div>
+                )}
+
+                {appliesTo === 'bundle' && (
+                  <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-2">
+                    <Form.Field
+                      control={form.control}
+                      name="bundleProductIds"
+                      render={({ field }) => (
+                        <Form.Item>
+                          <Form.Label>PRODUCTS TO BUNDLE</Form.Label>
+                          <Form.Control>
+                            <SelectProduct
+                              mode="multiple"
+                              value={field.value}
+                              onValueChange={(value) =>
+                                field.onChange(normalizeMultipleValue(value))
+                              }
+                            />
+                          </Form.Control>
+                        </Form.Item>
+                      )}
+                    />
+                  </div>
+                )}
               </div>
-
-              {/* Applies To */}
-              <div className="pr-2 w-1/2">
-                <Form.Field
-                  control={form.control}
-                  name="appliesTo"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>APPLIES TO</Form.Label>
-                      <Form.Control>
-                        <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        >
-                          <Select.Trigger>
-                            <Select.Value placeholder="Select target" />
-                          </Select.Trigger>
-                          <Select.Content>
-                            <Select.Item value="category">
-                              Specific Category
-                            </Select.Item>
-                            <Select.Item value="product">
-                              Specific Product
-                            </Select.Item>
-                            <Select.Item value="segment">
-                              Specific Segment
-                            </Select.Item>
-                            <Select.Item value="vendor">
-                              Specific Vendor
-                            </Select.Item>
-                            <Select.Item value="tag">Specific Tag</Select.Item>
-                            <Select.Item value="bundle">
-                              Specific Bundle
-                            </Select.Item>
-                          </Select.Content>
-                        </Select>
-                      </Form.Control>
-                    </Form.Item>
-                  )}
-                />
-              </div>
-
-              {/* Category Fields */}
-              {appliesTo === 'category' && (
-                <div className="pr-2 space-y-4 w-1/2">
-                  <Form.Field
-                    control={form.control}
-                    name="productCategoryIds"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>PRODUCT CATEGORIES</Form.Label>
-                        <Form.Control>
-                          <SelectCategory
-                            mode="multiple"
-                            value={field.value}
-                            onValueChange={(value) =>
-                              field.onChange(
-                                Array.isArray(value) ? value : [value],
-                              )
-                            }
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-
-                  <Form.Field
-                    control={form.control}
-                    name="excludeCategoryIds"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>EXCLUDE CATEGORIES</Form.Label>
-                        <Form.Control>
-                          <SelectCategory
-                            mode="multiple"
-                            value={field.value}
-                            onValueChange={(value) =>
-                              field.onChange(
-                                Array.isArray(value) ? value : [value],
-                              )
-                            }
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-
-                  <Form.Field
-                    control={form.control}
-                    name="excludeProductIds"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>EXCLUDE PRODUCTS</Form.Label>
-                        <Form.Control>
-                          <SelectProduct
-                            mode="multiple"
-                            value={field.value}
-                            onValueChange={(value) =>
-                              field.onChange(
-                                Array.isArray(value) ? value : [value],
-                              )
-                            }
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-                </div>
-              )}
-
-              {/* Product Fields */}
-              {appliesTo === 'product' && (
-                <div className="pr-2 w-1/2">
-                  <Form.Field
-                    control={form.control}
-                    name="appliesProductIds"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>PRODUCTS</Form.Label>
-                        <Form.Control>
-                          <SelectProduct
-                            mode="multiple"
-                            value={field.value}
-                            onValueChange={(value) =>
-                              field.onChange(
-                                Array.isArray(value) ? value : [value],
-                              )
-                            }
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-                </div>
-              )}
-
-              {/* Segment Fields */}
-              {appliesTo === 'segment' && (
-                <div className="pr-2 w-1/2">
-                  <Form.Field
-                    control={form.control}
-                    name="segmentId"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>SEGMENT</Form.Label>
-                        <Form.Control>
-                          <SelectSegment
-                            selected={field.value || undefined}
-                            onSelect={(id) => field.onChange(id)}
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-                </div>
-              )}
-
-              {/* Vendor Fields */}
-              {appliesTo === 'vendor' && (
-                <div className="pr-2 w-1/2">
-                  <Form.Field
-                    control={form.control}
-                    name="vendorCompanyIds"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>VENDORS</Form.Label>
-                        <Form.Control>
-                          <SelectCompany
-                            mode="multiple"
-                            value={field.value}
-                            onValueChange={(value) =>
-                              field.onChange(
-                                Array.isArray(value) ? value : [value],
-                              )
-                            }
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-                </div>
-              )}
-
-              {/* Tag Fields */}
-              {appliesTo === 'tag' && (
-                <div className="pr-2 space-y-4 w-1/2">
-                  <Form.Field
-                    control={form.control}
-                    name="productTagIds"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>PRODUCT TAGS</Form.Label>
-                        <Form.Control>
-                          <SelectTags
-                            tagType="sales:product"
-                            mode="multiple"
-                            value={field.value}
-                            onValueChange={(value) =>
-                              field.onChange(value as string[])
-                            }
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-
-                  <Form.Field
-                    control={form.control}
-                    name="excludeTagIds"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>EXCLUDE TAGS</Form.Label>
-                        <Form.Control>
-                          <SelectTags
-                            tagType="sales:product"
-                            mode="multiple"
-                            value={field.value}
-                            onValueChange={(value) =>
-                              field.onChange(value as string[])
-                            }
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-
-                  <Form.Field
-                    control={form.control}
-                    name="excludeProductIds"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>EXCLUDE PRODUCTS</Form.Label>
-                        <Form.Control>
-                          <SelectProduct
-                            mode="multiple"
-                            value={field.value}
-                            onValueChange={(value) =>
-                              field.onChange(
-                                Array.isArray(value) ? value : [value],
-                              )
-                            }
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-                </div>
-              )}
-
-              {/* Bundle Fields */}
-              {appliesTo === 'bundle' && (
-                <div className="pr-2 space-y-4 w-1/2">
-                  <Form.Field
-                    control={form.control}
-                    name="bundleProductIds"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>PRODUCTS TO BUNDLE</Form.Label>
-                        <Form.Control>
-                          <SelectProduct
-                            mode="multiple"
-                            value={field.value}
-                            onValueChange={(value) =>
-                              field.onChange(
-                                Array.isArray(value) ? value : [value],
-                              )
-                            }
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-                </div>
-              )}
-
-              {/* Submit Button */}
-              {hasChanges && (
-                <div className="flex justify-end pt-4 border-t">
-                  <Button type="submit" disabled={loading}>
-                    Save Changes
-                  </Button>
-                </div>
-              )}
             </InfoCard.Content>
           </InfoCard>
         </form>

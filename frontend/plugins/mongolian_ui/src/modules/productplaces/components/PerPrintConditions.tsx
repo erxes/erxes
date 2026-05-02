@@ -17,31 +17,33 @@ const PerPrintConditions = ({ condition, onChange, onRemove }: Props) => {
 
   return (
     <div className="flex items-end gap-3">
-      {/* Branch */}
-      <div className="space-y-1">
-        <SelectBranches
-          value={condition.branchId || ''}
-          onChange={(branchId) => onChangeConfig('branchId', branchId)}
-        />
+      <div className="flex-1 grid grid-cols-2 gap-3">
+        <div>
+          <SelectBranches
+            value={condition.branchId || ''}
+            onChange={(branchId) => onChangeConfig('branchId', branchId)}
+          />
+        </div>
+        <div>
+          <SelectDepartments
+            value={condition.departmentId || ''}
+            onChange={(departmentId) =>
+              onChangeConfig('departmentId', departmentId)
+            }
+          />
+        </div>
       </div>
-
-      {/* Department */}
-      <div className="space-y-1">
-        <SelectDepartments
-          value={condition.departmentId || ''}
-          onChange={(departmentId) => onChangeConfig('departmentId', departmentId)}
-        />
+      <div className="flex gap-2 h-8">
+        <Button
+          type="button"
+          className="h-8"
+          variant="outline"
+          size="sm"
+          onClick={() => onRemove(condition.id)}
+        >
+          ✕ Delete Condition
+        </Button>
       </div>
-
-      {/* Remove */}
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onClick={() => onRemove(condition.id)}
-      >
-        ✕
-      </Button>
     </div>
   );
 };

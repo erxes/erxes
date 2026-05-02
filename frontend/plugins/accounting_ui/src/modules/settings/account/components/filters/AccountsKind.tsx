@@ -1,5 +1,5 @@
 import { Combobox, Command, Popover } from 'erxes-ui';
-import { AccountKind } from '../../types/Account';
+import { AccountKind, ACCOUNT_KIND_LABELS } from '../../types/Account';
 import React from 'react';
 import { Except } from 'type-fest';
 
@@ -18,7 +18,7 @@ export const SelectAccountKindCommand = React.forwardRef<
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger ref={ref} {...props}>
-        {selected ?? 'All'}
+        {selected ? ACCOUNT_KIND_LABELS[selected as AccountKind] : 'Бүгд'}
       </Combobox.Trigger>
       <Combobox.Content>
         <AccountsKindCommand
@@ -45,7 +45,7 @@ export const AccountsKindCommand = ({
 }) => {
   return (
     <Command>
-      <Command.Input placeholder="Filter kind" focusOnMount={focusOnMount} />
+      <Command.Input placeholder="Төрлөөр шүүх" focusOnMount={focusOnMount} />
       <Command.List>
         {Object.values(AccountKind).map((kind) => (
           <Command.Item
@@ -53,7 +53,7 @@ export const AccountsKindCommand = ({
             value={kind}
             onSelect={() => onSelect?.(kind)}
           >
-            {kind}
+            {ACCOUNT_KIND_LABELS[kind]}
             <Combobox.Check checked={selected === kind} />
           </Command.Item>
         ))}

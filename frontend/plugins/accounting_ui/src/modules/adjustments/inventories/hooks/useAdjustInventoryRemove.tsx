@@ -5,7 +5,10 @@ import { ACC_TRS__PER_PAGE } from '@/transactions/types/constants';
 import { ADJUST_INVENTORY_REMOVE } from '../graphql/adjustInventoryRemove';
 import { useNavigate } from 'react-router-dom';
 
-export const useAdjustInventoryRemove = (adjustId: string, options?: OperationVariables) => {
+export const useAdjustInventoryRemove = (
+  adjustId: string,
+  options?: OperationVariables,
+) => {
   const navigate = useNavigate();
   const [_removeMutation, { loading }] = useMutation(
     ADJUST_INVENTORY_REMOVE,
@@ -13,12 +16,11 @@ export const useAdjustInventoryRemove = (adjustId: string, options?: OperationVa
   );
 
   const removeAdjust = (options?: OperationVariables) => {
-
     return _removeMutation({
       ...options,
       variables: {
         adjustId,
-        ...options?.variables
+        ...options?.variables,
       },
       onError: (error: Error) => {
         toast({
@@ -33,8 +35,7 @@ export const useAdjustInventoryRemove = (adjustId: string, options?: OperationVa
           title: 'Success',
           description: 'Inventory adjust running successfully',
         });
-        options?.onCompleted?.(data)
-
+        options?.onCompleted?.(data);
       },
       refetchQueries: [
         {
@@ -48,7 +49,7 @@ export const useAdjustInventoryRemove = (adjustId: string, options?: OperationVa
       ],
       awaitRefetchQueries: true,
       update: (cache) => {
-        const pathname = "/accounting/adjustment/inventory";
+        const pathname = '/accounting/adjustment/inventory';
         navigate(pathname);
       },
     });

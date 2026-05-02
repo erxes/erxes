@@ -1,6 +1,7 @@
 import { IModels } from '~/connectionResolvers';
 import {
   JOURNALS,
+  TR_SIDES,
 } from '~/modules/accounting/@types/constants';
 import { ITransaction } from '~/modules/accounting/@types/transaction';
 import { nanoid } from 'nanoid';
@@ -92,6 +93,13 @@ const getFollowInfos = async (models: IModels, row: any, relatedData) => {
   }
 }
 
+const getSide = (value: string) => {
+  if (['ct', 'credit', 'cr', 'кредит', 'кт', 'кр'].includes(value.toLowerCase())) {
+    return TR_SIDES.CREDIT
+  }
+  return TR_SIDES.DEBIT
+}
+
 const getTrDoc = async (models: IModels, row: any, ptrInfo, relatedData) => {
   const {
     users,
@@ -124,7 +132,7 @@ const getTrDoc = async (models: IModels, row: any, ptrInfo, relatedData) => {
     number,
     journal,
     description: row.description,
-    side: row.side,
+    side: getSide(row.side),
     followInfos: await getFollowInfos(models, row, relatedData),
 
     customerType: row.customerType,
