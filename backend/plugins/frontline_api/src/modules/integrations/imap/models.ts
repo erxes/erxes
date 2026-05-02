@@ -227,7 +227,9 @@ export const loadImapMessageClass = (models: IModels) => {
       }
 
       /* ── send via SMTP ────────────────────────────────────────── */
-      if (!integration.smtpHost) {
+      const smtpHost = integration.smtpHost?.trim();
+      
+      if (!smtpHost) {
         throw new Error(
           'SMTP host is not configured for this integration. Please set the SMTP host in integration settings.',
         );
@@ -237,7 +239,7 @@ export const loadImapMessageClass = (models: IModels) => {
       const secure = smtpPort === 465;
 
       const transporter = nodemailer.createTransport({
-        host: integration.smtpHost,
+        host: smtpHost,
         port: smtpPort,
         secure,
         requireTLS: !secure,

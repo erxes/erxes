@@ -27,14 +27,16 @@ export const listenIntegration = async (
             60000,
           );
         } catch (e) {
-          if (!(e instanceof ResourceLockedError)) {
-            console.error(
-              `[IMAP] Unexpected error acquiring lock for integration ${integration._id}:`,
-              e,
-            );
+          if (e instanceof ResourceLockedError) {
+            return resolve({ reconnect: false, error: e as Error });
           }
           
-          return resolve({ reconnect: false });
+          console.error(
+            `[IMAP] Transient error acquiring lock for integration ${integration._id}:`,
+            e,
+          );
+          
+          return resolve({ reconnect: true, error: e as Error });
         }
 
         if (lock) {
