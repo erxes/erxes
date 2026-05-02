@@ -108,6 +108,7 @@ export const htmlToPlainText = (html: string): string => {
     .replace(/<\/(li|tr|dt|dd)\s*>/gi, '\n')
     // Line breaks → newline
     .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
     // Common HTML entities
     .replace(/&amp;/gi, '&')
     .replace(/&lt;/gi, '<')
@@ -115,8 +116,6 @@ export const htmlToPlainText = (html: string): string => {
     .replace(/&quot;/gi, '"')
     .replace(/&#39;|&apos;/gi, "'")
     .replace(/&nbsp;/gi, ' ')
-    // Strip all remaining tags
-    .replace(/<[^>]+>/g, '')
     // Collapse runs of 3+ newlines to two
     .replace(/\n{3,}/g, '\n\n')
     // Trim leading/trailing whitespace on each line
