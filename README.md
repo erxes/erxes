@@ -261,7 +261,7 @@ cp .env.sample .env
 docker compose up -d
 
 # 3. Open the UI
-open http://localhost:3001
+visit http://localhost:3001 in your browser
 ```
 
 **Enable optional plugins** by adding the relevant profile(s):

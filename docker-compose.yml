@@ -1,25 +1,4 @@
 # erxes – full-stack Docker Compose
-#
-# Quickstart:
-#   cp .env.example .env          # edit at minimum DOMAIN and JWT_TOKEN_SECRET
-#   docker compose up -d
-#
-# The default profile starts the minimum set needed to use erxes:
-#   MongoDB · Redis · gateway · core-api · core-ui
-#
-# Enable optional plugin groups with the ENABLED_PLUGINS env var *and*
-# the matching Compose profile:
-#
-#   ENABLED_PLUGINS=sales,operation docker compose --profile plugins-base up -d
-#
-# Profiles:
-#   (none / default) – infrastructure + core services + UI
-#   plugins-base     – sales, operation, frontline, content
-#   plugins-fin      – accounting, payment, loyalty
-#   plugins-extra    – tourism, posclient, mongolian, insurance
-#   services         – automations + logs background workers
-#
-# All environment variables are documented in .env.example.
 
 services:
   # ── Infrastructure ──────────────────────────────────────────────────────────
@@ -31,8 +10,6 @@ services:
       - erxes
     volumes:
       - mongo-data:/data/db
-    # Uncomment to expose MongoDB to the host (useful for GUI tools like Compass).
-    # Do NOT expose in production.
     # ports:
     #   - "27017:27017"
     healthcheck:
@@ -47,14 +24,10 @@ services:
     restart: unless-stopped
     networks:
       - erxes
-    command: >
-      redis-server
-      --save 60 1
-      --loglevel warning
+    command: >-
+      sh -c "redis-server --save 60 1 --loglevel warning ${REDIS_PASSWORD:+--requirepass ${REDIS_PASSWORD}}"
     volumes:
       - redis-data:/data
-    # Uncomment to expose Redis to the host (useful for RedisInsight, etc.).
-    # Do NOT expose in production.
     # ports:
     #   - "6379:6379"
     healthcheck:
@@ -82,9 +55,7 @@ services:
       WIDGETS_DOMAIN: ${WIDGETS_DOMAIN:-http://localhost:3200}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
       JWT_TOKEN_SECRET: ${JWT_TOKEN_SECRET:?JWT_TOKEN_SECRET must be set in .env}
-      # Only set ENABLED_PLUGINS when you actually have plugin containers running.
-      # An empty string causes the gateway to wait for a plugin named "" indefinitely.
-      # When running with plugin profiles add:  ENABLED_PLUGINS: ${ENABLED_PLUGINS}
+      # Uncomment when running plugin profiles: ENABLED_PLUGINS: ${ENABLED_PLUGINS}
     depends_on:
       mongo:
         condition: service_healthy
@@ -131,7 +102,6 @@ services:
     ports:
       - "${UI_PORT:-3001}:80"
     environment:
-      # Injected into window.env at container start via docker-entrypoint.sh
       REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:4000}
       REACT_APP_API_SUBSCRIPTION_URL: ${REACT_APP_API_SUBSCRIPTION_URL:-ws://localhost:4000/graphql}
       REACT_APP_CDN_HOST: ${REACT_APP_CDN_HOST:-http://localhost:3001}
@@ -188,8 +158,6 @@ services:
         condition: service_healthy
 
   # ── Plugin APIs – plugins-base ────────────────────────────────────────────────
-  # Start with: ENABLED_PLUGINS=sales,operation,frontline,content
-  #             docker compose --profile plugins-base up -d
 
   sales-api:
     image: erxes/erxes-next-sales_api:latest
@@ -280,8 +248,6 @@ services:
         condition: service_healthy
 
   # ── Plugin APIs – plugins-fin ─────────────────────────────────────────────────
-  # Start with: ENABLED_PLUGINS=accounting,payment,loyalty
-  #             docker compose --profile plugins-fin up -d
 
   accounting-api:
     image: erxes/erxes-next-accounting_api:latest
@@ -350,8 +316,6 @@ services:
         condition: service_healthy
 
   # ── Plugin APIs – plugins-extra ───────────────────────────────────────────────
-  # Start with: ENABLED_PLUGINS=tourism,posclient,mongolian,insurance
-  #             docker compose --profile plugins-extra up -d
 
   tourism-api:
     image: erxes/erxes-next-tourism_api:latest
