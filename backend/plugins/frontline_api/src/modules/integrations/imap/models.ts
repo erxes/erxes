@@ -237,12 +237,13 @@ export const loadImapMessageClass = (models: IModels) => {
 
       const smtpPort = Number(integration.smtpPort) || 465;
       const secure = smtpPort === 465;
+      const requireTLS = smtpPort === 587;
 
       const transporter = nodemailer.createTransport({
         host: smtpHost,
         port: smtpPort,
         secure,
-        requireTLS: !secure,
+        requireTLS,
         auth: {
           user: integration.mainUser || integration.user,
           pass: integration.password,
