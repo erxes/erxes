@@ -62,7 +62,7 @@ const configMutations: Record<string, Resolver> = {
       });
       await importUsers(models, cashiers, token);
       await importUsers(models, adminUsers, token, true);
-      await importSlots(models, slots, token);
+      await importSlots(models, token, slots);
       await importProducts(subdomain, models, token, productGroups);
     } catch (e) {
       await models.Configs.deleteOne({ token });
@@ -179,7 +179,7 @@ const configMutations: Record<string, Resolver> = {
         await importProducts(subdomain, models, token, productGroups);
         break;
       case 'slots':
-        await importSlots(models, slots, token);
+        await importSlots(models, token, slots);
         break;
       case 'productsConfigs':
         await models.ProductsConfigs.createOrUpdateConfig({
