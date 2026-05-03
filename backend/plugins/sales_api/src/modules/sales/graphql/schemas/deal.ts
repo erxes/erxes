@@ -235,6 +235,4 @@ export const mutations = `
   dealsDeleteProductData(processId: String, dealId: String, dataIds: [String]): JSON
 
   cpDealsAdd(name: String, companyIds: [String], customerIds: [String], labelIds: [String], ${mutationParams}): Deal
-  cpDealsEdit(_id: String!, name: String, ${mutationParams}): Deal
-
 `;
