@@ -5,7 +5,7 @@ import { saveMessages } from './messageSaver';
 import { throttle } from 'lodash';
 import { redlock } from './redlock';
 import { ListenResult } from '../../../shared/types';
-import { Lock, ResourceLockedError } from 'redlock';
+import { Lock, ExecutionError } from 'redlock';
 
 export const listenIntegration = async (
   subdomain: string,
@@ -27,16 +27,22 @@ export const listenIntegration = async (
             60000,
           );
         } catch (e) {
-          if (e instanceof ResourceLockedError) {
+          if (e instanceof ExecutionError) {
             return resolve({ reconnect: false, error: e as Error });
           }
-          
-          console.error(
-            `[IMAP] Transient error acquiring lock for integration ${integration._id}:`,
-            e,
-          );
-          
-          return resolve({ reconnect: true, error: e as Error });
+
+          if ((e as Error).message === 'Redis not configured') {
+            console.warn(
+              `[IMAP] Redis not configured — proceeding without distributed lock for integration ${integration._id}`,
+            );
+            lock = null;
+          } else {
+            console.error(
+              `[IMAP] Transient error acquiring lock for integration ${integration._id}:`,
+              e,
+            );
+            return resolve({ reconnect: true, error: e as Error });
+          }
         }
 
         if (lock) {
