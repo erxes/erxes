@@ -5,7 +5,7 @@ import { saveMessages } from './messageSaver';
 import { throttle } from 'lodash';
 import { redlock } from './redlock';
 import { ListenResult } from '../../../shared/types';
-import { Lock } from 'redlock';
+import { Lock, ResourceLockedError } from 'redlock';
 
 export const listenIntegration = async (
   subdomain: string,
@@ -27,7 +27,16 @@ export const listenIntegration = async (
             60000,
           );
         } catch (e) {
-          lock = null;
+          if (e instanceof ResourceLockedError) {
+            return resolve({ reconnect: false, error: e as Error });
+          }
+          
+          console.error(
+            `[IMAP] Transient error acquiring lock for integration ${integration._id}:`,
+            e,
+          );
+          
+          return resolve({ reconnect: true, error: e as Error });
         }
 
         if (lock) {
@@ -187,7 +196,7 @@ export const listenIntegration = async (
           if (lock) {
             try {
               await lock.release();
-            } catch (e) {
+            } catch {
               // best-effort
             }
             lock = null;
