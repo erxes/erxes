@@ -101,14 +101,19 @@ export const listenIntegrationById = async (
 };
 
 export const htmlToPlainText = (html: string): string => {
-  return html
+  const MAX_INPUT = 200_000;
+  const safe = html.length > MAX_INPUT ? html.slice(0, MAX_INPUT) : html;
+
+  return safe
     // Block elements → paragraph break
-    .replace(/<\/(p|div|h[1-6]|blockquote|pre|ul|ol|dl)\s*>/gi, '\n\n')
+    // Non-capturing group + bounded \s{0,64} eliminates O(n²) backtracking.
+    .replace(/<\/(?:p|div|h[1-6]|blockquote|pre|ul|ol|dl)\s{0,64}>/gi, '\n\n')
     // List items / table rows → single newline
-    .replace(/<\/(li|tr|dt|dd)\s*>/gi, '\n')
+    .replace(/<\/(?:li|tr|dt|dd)\s{0,64}>/gi, '\n')
     // Line breaks → newline
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<[^>]+>/g, '')
+    .replace(/<br\s{0,64}\/?>/gi, '\n')
+    // Strip remaining tags — bounded {0,10000} makes worst-case O(n) not O(n²).
+    .replace(/<[^>]{0,10000}>/g, '')
     // Common HTML entities
     .replace(/&amp;/gi, '&')
     .replace(/&lt;/gi, '<')
