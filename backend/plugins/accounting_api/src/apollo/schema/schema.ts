@@ -39,6 +39,11 @@ import {
   types as adjustInventoryTypes,
 } from '~/modules/accounting/graphql/schemas/adjustInvDetail';
 import {
+  mutations as adjustClosingMutations,
+  queries as adjustClosingQueries,
+  types as adjustClosingTypes,
+} from '~/modules/accounting/graphql/schemas/adjustClosing';
+import {
   mutations as remainderMutations,
   queries as remainderQueries,
   types as remainderTypes,
@@ -83,6 +88,7 @@ export const types = `
   ${accInventoryTypes}
   ${adjustInventoryTypes}
   ${journalReportTypes}
+  ${adjustClosingTypes}
   ${remainderTypes}
   ${reserveRemsTypes}
   ${safeRemainderTypes}
@@ -98,6 +104,7 @@ export const queries = `
   ${accInventoryQueries}
   ${adjustInventoryQueries}
   ${journalReportQueries}
+  ${adjustClosingQueries}
   ${remainderQueries}
   ${reserveRemsQueries}
   ${safeRemainderQueries}
@@ -112,6 +119,7 @@ export const mutations = `
   ${transactionMutations}
   ${accInventoryMutations}
   ${adjustInventoryMutations}
+  ${adjustClosingMutations}
   ${remainderMutations}
   ${reserveRemsMutations}
   ${safeRemainderMutations}

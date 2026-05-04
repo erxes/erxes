@@ -24,6 +24,7 @@ import {
   Inventories as QueriesInventories,
   AdjustInventories as QueriesAdjustInventories,
   JournalReport as QueriesJournalReport,
+  AdjustClosing as QueriesAdjustClosing,
 } from '@/accounting/graphql/resolvers/queries';
 import ReserveRem from '@/inventories/graphql/resolvers/customResolvers/reserveRem';
 import SafeRemainderItem from '@/inventories/graphql/resolvers/customResolvers/safeRemainderItem';
@@ -39,6 +40,7 @@ import {
   SafeRemainderItems as MutationsSafeRemainderItem,
   SafeRemainders as MutationsSafeRemainder,
 } from '@/inventories/graphql/resolvers/mutations';
+import adjustClosingEntryMutations from '~/modules/accounting/graphql/resolvers/mutations/adjustClosing';
 
 const resolvers: any = {
   ...apolloCustomScalars,
@@ -66,6 +68,7 @@ const resolvers: any = {
     ...MutationsReserveRem,
     ...MutationsSafeRemainderItem,
     ...MutationsSafeRemainder,
+    ...adjustClosingEntryMutations,
   },
   Query: {
     ...QueriesAccount,
@@ -77,6 +80,7 @@ const resolvers: any = {
     ...QueriesInventories,
     ...QueriesAdjustInventories,
     ...QueriesJournalReport,
+    ...QueriesAdjustClosing,
 
     ...QueriesReserveRem,
     ...QueriesSafeRemainderItem,

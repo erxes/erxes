@@ -44,6 +44,11 @@ import {
   loadTransactionClass,
 } from './modules/accounting/db/models/Transactions';
 import {
+  IAdjustClosingEntryModel,
+  loadAdjustClosingClass,
+} from './modules/accounting/db/models/AdjustClosing';
+import { IAdjustClosingDocument } from './modules/accounting/@types/adjustClosingEntry';
+import {
   IVatRowModel,
   loadVatRowClass,
 } from './modules/accounting/db/models/VatRows';
@@ -73,10 +78,12 @@ export interface IModels {
   Permissions: IPermissionModel;
   AdjustInventories: IAdjustInventoriesModel;
   AdjustInvDetails: IAdjustInvDetailsModel;
+  AdjustClosingEntries: IAdjustClosingEntryModel;
 
   ReserveRems: IReserveRemModel;
   SafeRemainderItems: ISafeRemainderItemModel;
   SafeRemainders: ISafeRemainderModel;
+  AdjustClosings: IAdjustClosingEntryModel;
 }
 
 export interface IContext extends IMainContext {
@@ -151,6 +158,11 @@ export const loadClasses = (
     'ctax_rows',
     loadCtaxRowClass(models, subdomain),
   );
+
+  models.AdjustClosings = db.model<
+    IAdjustClosingDocument,
+    IAdjustClosingEntryModel
+  >('adjust_closings', loadAdjustClosingClass(models, subdomain));
 
   models.ReserveRems = db.model<IReserveRemDocument, IReserveRemModel>(
     'inventories_reserverems',
