@@ -31,7 +31,7 @@ export const useAdjustClosing = (options?: OperationVariables) => {
           return {
             ...prev,
             ...fetchMoreResult,
-            adjustClosing: [
+            adjustClosings: [
               ...prev.adjustClosing,
               ...fetchMoreResult.adjustClosing,
             ],

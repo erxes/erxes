@@ -57,7 +57,9 @@ export const AddAdjustClosingForm = ({
         setOpen(false);
         form.reset();
       },
-      onError: (e: ApolloError) => console.log(e),
+      onError: (e: ApolloError) => {
+        console.error(e);
+      },
     });
   };
 
