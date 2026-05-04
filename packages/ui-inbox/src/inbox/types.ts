@@ -75,6 +75,7 @@ export interface IConversation {
   updatedAt: Date;
   idleTime: number;
   callProAudio?: string;
+  callProPotentialCustomerIds?: string[];
   videoCallData?: IVideoCallData;
   callHistory?: ICallHistory;
   cloudflareCallsHistory?: ICloudflareCallHistory;
