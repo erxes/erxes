@@ -10,9 +10,29 @@ import {
 import { ColumnDef } from '@tanstack/table-core';
 import { IProductData } from 'ui-modules';
 import { ProductCommandBar } from '../product-command-bar/ProductCommandBar';
-import { RecordTable } from 'erxes-ui';
+import { RecordTable, cn } from 'erxes-ui';
 import { productColumns } from './ProductColumns';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
+
+const DuplicateAwareRow = React.forwardRef<
+  HTMLTableRowElement,
+  React.ComponentProps<typeof RecordTable.Row> & { duplicateIds: Set<string> }
+>(({ duplicateIds, original, className, ...props }, ref) => {
+  const isDuplicate = original?.productId && duplicateIds.has(original.productId);
+  return (
+    <RecordTable.Row
+      ref={ref}
+      original={original}
+      className={cn(
+        className,
+        isDuplicate &&
+          'bg-red-50 dark:bg-red-950/30 hover:bg-red-100! dark:hover:bg-red-950/50!',
+      )}
+      {...props}
+    />
+  );
+});
+DuplicateAwareRow.displayName = 'DuplicateAwareRow';
 
 export const ProductsRecordTable = ({
   products,
@@ -49,6 +69,29 @@ export const ProductsRecordTable = ({
     return newColumns;
   }, [showAdvancedView]);
 
+  const duplicateIds = useMemo(() => {
+    const seen = new Set<string>();
+    const dupes = new Set<string>();
+    for (const p of products) {
+      if (p.productId) {
+        if (seen.has(p.productId)) dupes.add(p.productId);
+        else seen.add(p.productId);
+      }
+    }
+    return dupes;
+  }, [products]);
+
+  const RowWithDuplicates = useMemo(
+    () =>
+      React.forwardRef<
+        HTMLTableRowElement,
+        React.ComponentProps<typeof RecordTable.Row>
+      >((props, ref) => (
+        <DuplicateAwareRow ref={ref} duplicateIds={duplicateIds} {...props} />
+      )),
+    [duplicateIds],
+  );
+
   return (
     <RecordTable.Provider
       key={showAdvancedView ? 'advanced' : 'basic'}
@@ -61,7 +104,7 @@ export const ProductsRecordTable = ({
         <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
-            <RecordTable.RowList />
+            <RecordTable.RowList Row={RowWithDuplicates} />
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>

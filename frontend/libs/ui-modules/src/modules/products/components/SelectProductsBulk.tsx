@@ -83,10 +83,7 @@ const SelectProductsBulkContent = ({
   };
 
   const handleSelect = () => {
-    onSelect(
-      selectedProducts.map((p) => p._id),
-      selectedProducts,
-    );
+    onSelect(selectedProductIds, selectedProducts);
     setOpen(false);
   };
 

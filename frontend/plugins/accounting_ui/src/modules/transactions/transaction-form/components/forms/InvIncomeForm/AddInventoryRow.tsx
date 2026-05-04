@@ -51,12 +51,18 @@ export const AddDetailRowButton = ({
             .filter((prodId) => !!prodId) || []
         }
         onSelect={(productIds) => {
-          append(
-            productIds.map((productId) => ({
-              ...detailDefaultValues,
-              productId,
-            })),
+          const existingIds = new Set(
+            preDetails.map((det) => det.productId ?? '').filter(Boolean),
           );
+          const newIds = productIds.filter((id) => !existingIds.has(id));
+          if (newIds.length) {
+            append(
+              newIds.map((productId) => ({
+                ...detailDefaultValues,
+                productId,
+              })),
+            );
+          }
         }}
       >
         <Button variant="secondary" className="bg-border">
