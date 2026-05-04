@@ -4,7 +4,7 @@ import { BOARD_STATUSES, BOARD_TYPES } from "./definitions/constants";
 
 import { configReplacer } from "../utils";
 import { putActivityLog } from "../logUtils";
-import { itemsAdd } from "../graphql/resolvers/mutations/utils";
+import { createConformity } from "../graphql/utils";
 import { generateModels, IModels } from "../connectionResolver";
 import {
   sendCommonMessage,
@@ -507,6 +507,7 @@ export const conversationConvertToCard = async (
     conversation,
     user,
     isCheckUser,
+    preGeneratedId,
   } = args;
 
   const { collection, create, update } = getCollection(models, type);
@@ -582,23 +583,38 @@ export const conversationConvertToCard = async (
 
     return item._id;
   } else {
-    const existingItem = await collection.findOne({
-      sourceConversationIds: { $in: [_id] },
-    });
-
-    if (existingItem) {
-      return existingItem._id;
-    }
-
     const doc: any = { ...args };
 
-    doc.name = itemName;
+    doc.name = itemName || "Untitled";
     doc.stageId = stageId;
     doc.sourceConversationIds = [_id];
     doc.customerIds = [conversation.customerId];
     doc.isCheckUserTicket = isCheckUser;
+    doc.initialStageId = stageId;
+    doc.watchedUserIds = user ? [user._id] : [];
+    doc.modifiedBy = user?._id;
+    doc.userId = user?._id;
+    if (preGeneratedId) {
+      doc._id = preGeneratedId;
+    }
 
-    const item = await itemsAdd(models, subdomain, doc, type, create, user);
+    doc.order = await getNewOrder({ collection, stageId, aboveItemId: undefined });
+
+    const item = await create(doc);
+
+    (async () => {
+      try {
+        await createConformity(subdomain, {
+          mainType: type,
+          mainTypeId: item._id,
+          customerIds: [conversation.customerId],
+          companyIds: [],
+        });
+        await updateName(subdomain, type, item._id, [conversation.customerId], user);
+      } catch (e) {
+        console.error(e);
+      }
+    })();
 
     return item._id;
   }
@@ -606,7 +622,9 @@ export const conversationConvertToCard = async (
 export const updateName = async (
   subdomain: string,
   type: string,
-  itemId: string
+  itemId: string,
+  knownCustomerIds?: string[],
+  knownUser?: any
 ) => {
   const validTypes = ["deal", "ticket", "purchase", "task"];
 
@@ -638,7 +656,7 @@ export const updateName = async (
       }
       const uniqueServices = [...new Set(array)];
 
-      const idsCustomers = await getCustomerIds(subdomain, type, item._id);
+      const idsCustomers = knownCustomerIds ?? await getCustomerIds(subdomain, type, item._id);
       const idsCompanies = await getCompanyIds(subdomain, type, item._id);
 
       const customers = await sendCoreMessage({
@@ -668,6 +686,19 @@ export const updateName = async (
 
         for (const match of matches) {
           const pattern = match.replace("{", "").replace("}", "").split(".");
+
+          if (serviceName === "date") {
+            replacedName = replacedName?.replace(match, new Date().toISOString().slice(0, 10));
+            continue;
+          }
+
+          if (serviceName === "time") {
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, "0");
+            const mm = String(now.getMinutes()).padStart(2, "0");
+            replacedName = replacedName?.replace(match, `${hh}:${mm}`);
+            continue;
+          }
 
           if (
             pattern.length > 1 ||
@@ -732,7 +763,27 @@ export const updateName = async (
                 );
               }
             }
-            if (enabledServices.includes(serviceName)) {
+            if (serviceName === "user" && knownUser) {
+              const details = knownUser.details || {};
+              switch (pattern[1]) {
+                case "firstName":
+                  replacedName = replacedName?.replace(match, details.firstName || "");
+                  break;
+                case "lastName":
+                  replacedName = replacedName?.replace(match, details.lastName || "");
+                  break;
+                case "fullName":
+                  replacedName = replacedName?.replace(match, details.fullName || "");
+                  break;
+                case "email":
+                  replacedName = replacedName?.replace(match, knownUser.email || "");
+                  break;
+                default:
+                  replacedName = replacedName?.replace(match, "");
+                  break;
+              }
+            }
+            if (serviceName !== "user" && enabledServices.includes(serviceName)) {
               try {
                 const result = await sendCommonMessage({
                   subdomain,
