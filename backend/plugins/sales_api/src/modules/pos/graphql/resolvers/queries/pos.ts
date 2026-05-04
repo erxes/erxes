@@ -2,11 +2,16 @@ import { getBranchesUtil } from '@/pos/utils';
 import { paginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
-const generateFilterQuery = async ({ isOnline }) => {
+const generateFilterQuery = async ({ isOnline, search }) => {
   const query: any = { status: { $ne: 'deleted' } };
   if (isOnline) {
     query.isOnline = isOnline === 'online';
   }
+
+  if (search) {
+    query.name = { $regex: search }
+  }
+
   return query;
 };
 

@@ -116,7 +116,7 @@ export const types = () => `
 `;
 
 export const queries = `
-  posList(page: Int, perPage: Int, isOnline: String, sortField: String, sortDirection: Int): [Pos]
+  posList(page: Int, perPage: Int, isOnline: String, search: String, sortField: String, sortDirection: Int): [Pos]
   posDetail(_id: String!): Pos
   posEnv: JSON
   productGroups(posId: String!): [ProductGroups]
