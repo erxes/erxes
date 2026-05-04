@@ -65,10 +65,15 @@ export const instagramSubscription = async (req, res, next) => {
     );
     if (req.query['hub.mode'] === 'subscribe') {
       if (req.query['hub.verify_token'] === INSTAGRAM_VERIFY_TOKEN) {
-        res.send(req.query['hub.challenge']);
-      } else {
-        res.send('OK');
+        const challenge = String(req.query['hub.challenge'] ?? '');
+        // Meta sends an alphanumeric challenge; reject anything else and
+        // respond as text/plain so the value is never interpreted as HTML.
+        if (!/^[A-Za-z0-9]+$/.test(challenge)) {
+          return res.status(400).type('text/plain').send('Invalid challenge');
+        }
+        return res.type('text/plain').send(challenge);
       }
+      return res.type('text/plain').send('OK');
     }
   } catch (e) {
     next(e);
