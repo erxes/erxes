@@ -11,7 +11,6 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   if (pos.adminIds) {
     data.adminUsers = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'core',
       module: 'users',
       action: 'find',
@@ -29,7 +28,6 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   if (pos.cashierIds) {
     data.cashiers = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'core',
       module: 'users',
       action: 'find',
@@ -43,22 +41,24 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
     });
   }
 
-  if (pos.erkhetConfig?.isSyncErkhet) {
-    const configs = await getConfig(subdomain, 'ERKHET', {});
+  // collect ebarimtConfig from mongolian/ebarimt
+  const ebarimtConfigs = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'mongolina',
+    module: 'mnConfigs',
+    action: 'find',
+    input: { query: { $or: [{ code: 'EBARIMT' }, { code: 'posInEbarimt', subId: pos._id }] } },
+    defaultValue: [],
+  });
 
-    // Added null check for configs
-    if (configs) {
-      data.pos.erkhetConfig = {
-        ...pos.erkhetConfig,
-        getRemainderApiUrl: configs.getRemainderApiUrl || '',
-        apiKey: configs.apiKey || '',
-        apiSecret: configs.apiSecret || '',
-        apiToken: configs.apiToken || '',
-      };
-    } else {
-      // If no configs found, keep the existing erkhetConfig
-      data.pos.erkhetConfig = pos.erkhetConfig;
-    }
+  const ebarimtMain = ebarimtConfigs.find(conf => conf.code === 'EBARIMT');
+  const ebarimtPos = ebarimtConfigs.find(conf => conf.code === 'posInEbarimt' && conf.subId === pos._id);
+
+  data.ebarimtConfig = {
+    ...ebarimtMain?.value,
+    ...ebarimtPos?.value,
+    ebarimtUrl: ebarimtPos?.value?.ebarimtUrl || ebarimtMain?.value?.ebarimtUrl,
+    companyName: ebarimtPos?.value?.companyName || ebarimtMain?.value?.companyName,
   }
 
   return data;

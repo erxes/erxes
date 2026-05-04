@@ -4,21 +4,19 @@ import { SelectStage } from '@/ebarimt/settings/stage-in-ebarimt-config/componen
 import { useEbarimtConfigState } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useEbarimtConfigState';
 import { useRemoveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useRemoveStageInEbarimtConfig';
 import { useSaveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useSaveStageInEbarimtConfig';
-import { TStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
+import { TStageInEbarimtConfig, addEBarimtStageInConfigSchema } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import { Accordion, AlertDialog, Button, Card, Form } from 'erxes-ui';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { addEBarimtStageInConfigSchema } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/constants/addEBarimtReturnConfigSchema';
 import {
-  CitytaxSection,
   FormCheckbox,
   FormDistrictCode,
   FormInput,
   FormSelectEbarimtProductRules,
-  VatSection,
 } from './FormFields';
+import { FormArea } from './FormFields/FormInput';
 import { SelectBranchDistrict } from './selects/SelectBranchDistrict';
 import { SelectSubBranchDistrict } from './selects/SelectSubBranchDistrict';
 
@@ -38,7 +36,7 @@ const StageInEbarimtConfigCard = ({
     resolver: zodResolver(addEBarimtStageInConfigSchema),
     defaultValues: {
       title: config.title || '',
-      destinationStageBoard: config.destinationStageBoard || '',
+      boardId: config.boardId || '',
       pipelineId: config.pipelineId || '',
       stageId: config.stageId || '',
       posNo: config.posNo || '',
@@ -49,27 +47,25 @@ const StageInEbarimtConfigCard = ({
       districtCode: config.districtCode || '',
       companyName: config.companyName || '',
       defaultUnitedCode: config.defaultUnitedCode || '',
-      headerText: config.headerText || '',
       branchNo: config.branchNo || '',
       hasVat: config.hasVat || false,
       citytaxPercent: config.citytaxPercent || '',
       vatPercent: config.vatPercent || '',
-      anotherRulesOfProductsOnVat: config.anotherRulesOfProductsOnVat || '',
-      vatPayableAccount: config.vatPayableAccount || '',
-      hasAllCitytax: config.hasAllCitytax || false,
-      allCitytaxPayableAccount: config.allCitytaxPayableAccount || '',
+      reverseVatRules: config.reverseVatRules || '',
+      hasCitytax: config.hasCitytax || false,
+      headerText: config.headerText || '',
       footerText: config.footerText || '',
-      anotherRulesOfProductsOnCitytax:
-        config.anotherRulesOfProductsOnCitytax || '',
+      reverseCtaxRules:
+        config.reverseCtaxRules || '',
       withDescription: config.withDescription || false,
       skipEbarimt: config.skipEbarimt || false,
     },
   });
 
-  const selectedBoardId = form.watch('destinationStageBoard');
+  const selectedBoardId = form.watch('boardId');
   const selectedPipelineId = form.watch('pipelineId');
   const hasVat = form.watch('hasVat');
-  const hasAllCitytax = form.watch('hasAllCitytax');
+  const hasCitytax = form.watch('hasCitytax');
   const selectedBranchCode = form.watch('branchOfProvince');
   const selectedSubBranchCode = form.watch('subProvince');
 
@@ -79,7 +75,7 @@ const StageInEbarimtConfigCard = ({
 
   const handleBoardChange = useCallback(
     (value: string) => {
-      form.setValue('destinationStageBoard', value);
+      form.setValue('boardId', value);
       form.setValue('pipelineId', '');
       form.setValue('stageId', '');
     },
@@ -136,7 +132,7 @@ const StageInEbarimtConfigCard = ({
             />
             <Form.Field
               control={form.control}
-              name="destinationStageBoard"
+              name="boardId"
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Destination Stage Board</Form.Label>
@@ -268,41 +264,88 @@ const StageInEbarimtConfigCard = ({
               placeholder="Branch No"
               control={form.control}
             />
-
-            <FormInput
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {hasVat ? (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormCheckbox
+                    name="hasVat"
+                    label="Has Vat"
+                    control={form.control}
+                    labelPosition="before"
+                  />
+                  <FormInput
+                    name={'vatPercent'}
+                    label="Vat percent"
+                    placeholder="Enter vat percent"
+                    control={form.control}
+                    type="number"
+                  />
+                </div>
+                <FormSelectEbarimtProductRules
+                  name="reverseVatRules"
+                  label="Another Rules of Products on VAT"
+                  kind="vat"
+                  control={form.control}
+                />
+              </>
+            ) : (
+              <FormCheckbox
+                name="hasVat"
+                label="Has Vat"
+                control={form.control}
+                labelPosition="before"
+              />
+            )}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {hasCitytax ? (
+              <div className="grid grid-cols-2 gap-4">
+                <FormCheckbox
+                  name="hasCitytax"
+                  label="Has all Citytax"
+                  control={form.control}
+                  labelPosition="before"
+                />
+                <FormInput
+                  name={'citytaxPercent'}
+                  label="Citytax Percent"
+                  placeholder="Enter citytax percent"
+                  control={form.control}
+                  type="number"
+                />
+              </div>
+            ) : (
+              <>
+                <FormCheckbox
+                  name="hasCitytax"
+                  label="Has all Citytax"
+                  control={form.control}
+                  labelPosition="before"
+                />
+                <FormSelectEbarimtProductRules
+                  name={'reverseCtaxRules'}
+                  label="Another rules of products on citytax"
+                  kind="ctax"
+                  control={form.control}
+                />
+              </>
+            )}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <FormArea
               name="headerText"
               label="Header text"
               placeholder="Header text"
               control={form.control}
             />
 
-            <FormSelectEbarimtProductRules
-              name="anotherRulesOfProductsOnVat"
-              label="Another Rules of Products on VAT"
-              placeholder="Select VAT rule"
-              kind="vat"
+            <FormArea
+              name="footerText"
+              label="Footer text"
+              placeholder="Footer text"
               control={form.control}
-            />
-
-            <FormCheckbox
-              name="hasVat"
-              label="Has Vat"
-              control={form.control}
-              labelPosition="before"
-            />
-
-            <VatSection control={form.control} hasVat={hasVat} />
-
-            <FormCheckbox
-              name="hasAllCitytax"
-              label="Has all Citytax"
-              control={form.control}
-              labelPosition="before"
-            />
-
-            <CitytaxSection
-              control={form.control}
-              hasAllCitytax={hasAllCitytax}
             />
 
             <FormCheckbox

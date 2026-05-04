@@ -1,14 +1,13 @@
 import {
   Input,
   Form,
-  Select,
   Checkbox,
   MultipleSelector,
   Textarea,
 } from 'erxes-ui';
 import { SelectBranches, SelectBrand, SelectDepartments } from 'ui-modules';
 import { Control } from 'react-hook-form';
-import { ALLOW_TYPES, POS_TYPES } from '@/pos/constants';
+import { ALLOW_TYPES } from '@/pos/constants';
 
 export interface FormData {
   name: string;
@@ -40,32 +39,6 @@ export const NameField = ({ control }: FieldProps) => (
         <Form.Label>Name</Form.Label>
         <Form.Control>
           <Input type="text" placeholder="POS Name" {...field} />
-        </Form.Control>
-      </Form.Item>
-    )}
-  />
-);
-
-export const TypeField = ({ control }: FieldProps) => (
-  <Form.Field
-    control={control}
-    name="type"
-    render={({ field }) => (
-      <Form.Item>
-        <Form.Label>Type</Form.Label>
-        <Form.Control>
-          <Select value={field.value} onValueChange={field.onChange}>
-            <Select.Trigger>
-              <Select.Value placeholder="Select type" />
-            </Select.Trigger>
-            <Select.Content>
-              {POS_TYPES.map((type) => (
-                <Select.Item key={type.value} value={type.value}>
-                  {type.label}
-                </Select.Item>
-              ))}
-            </Select.Content>
-          </Select>
         </Form.Control>
       </Form.Item>
     )}

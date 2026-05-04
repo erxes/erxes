@@ -18,7 +18,7 @@ export const useProductGroupRows = (options?: OperationVariables) => {
       ...PRODUCT_GROUP_ROW_DEFAULT_VARIABLES,
       ...options?.variables,
     },
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'network-only',
     nextFetchPolicy: 'cache-first',
   });
 
@@ -31,13 +31,13 @@ export const useProductGroupRows = (options?: OperationVariables) => {
   const handleFetchMore = useCallback(() => {
     if (!productGroupRows || loading) return;
 
+    const pageInfo = data?.ebarimtProductGroups?.pageInfo;
+    if (!pageInfo?.hasNextPage) return;
+
     fetchMore({
       variables: {
-        page:
-          Math.ceil(
-            productGroupRows.length /
-              PRODUCT_GROUP_ROW_DEFAULT_VARIABLES.perPage,
-          ) + 1,
+        cursor: pageInfo.endCursor,
+        cursorMode: 'AFTER',
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult?.ebarimtProductGroups) return prev;
@@ -52,7 +52,7 @@ export const useProductGroupRows = (options?: OperationVariables) => {
         };
       },
     });
-  }, [productGroupRows, loading, fetchMore]);
+  }, [productGroupRows, loading, fetchMore, data]);
 
   return {
     productGroupRows,

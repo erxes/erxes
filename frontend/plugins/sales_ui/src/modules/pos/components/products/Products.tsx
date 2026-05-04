@@ -9,7 +9,6 @@ import { ProductAndCategoryMapping } from '@/pos/components/products/ProductAndC
 import { RemainderConfigs } from '@/pos/components/products/RemainderConfigs';
 import { ServiceCharge } from '@/pos/components/products/ServiceCharge';
 import { MoreOptionsButton } from '@/pos/components/MoreOptionsButton';
-import { isFieldVisible } from '@/pos/constants';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { type CatProd } from '@/pos/pos-detail/types/IPos';
@@ -89,24 +88,6 @@ const Products: React.FC<ProductsProps> = ({
   const { isDirty } = formState;
 
   const isRestaurant = posType === 'restaurant';
-  const canEditProductGroups = isFieldVisible('productGroups', posType);
-  const canEditInitialCategories = isFieldVisible(
-    'initialProductCategories',
-    posType,
-  );
-  const canEditKioskExcludes = isFieldVisible('kioskExcludeProducts', posType);
-  const canEditCategoryMapping = isFieldVisible(
-    'productCategoryMapping',
-    posType,
-  );
-  const canEditRemainderConfigs = isFieldVisible('remainderConfigs', posType);
-  const canEditServiceCharge = isFieldVisible('serviceCharge', posType);
-  const hasMoreOptions =
-    isRestaurant &&
-    (canEditKioskExcludes ||
-      canEditCategoryMapping ||
-      canEditRemainderConfigs ||
-      canEditServiceCharge);
 
   const catProdMappings = watch('catProdMappings');
   const toggleMore = useCallback(() => setShowMore((prev) => !prev), []);
@@ -128,7 +109,7 @@ const Products: React.FC<ProductsProps> = ({
       banFractions: posDetail.banFractions || false,
       serviceCharge:
         posDetail.serviceCharge === undefined ||
-        posDetail.serviceCharge === null
+          posDetail.serviceCharge === null
           ? ''
           : String(posDetail.serviceCharge),
       serviceChargeApplicableProductId:
@@ -171,47 +152,27 @@ const Products: React.FC<ProductsProps> = ({
         return;
       }
 
-      if (canEditInitialCategories && !data.initialCategoryIds.length) {
-        toast({
-          title: 'Error',
-          description: 'Please select categories',
-          variant: 'destructive',
-        });
-        return;
-      }
-
       try {
         await posEdit({
           variables: {
             _id: posId,
-            ...(canEditInitialCategories
-              ? { initialCategoryIds: data.initialCategoryIds }
-              : {}),
-            ...(canEditKioskExcludes
-              ? {
-                  kioskExcludeCategoryIds: data.kioskExcludeCategoryIds,
-                  kioskExcludeProductIds: data.kioskExcludeProductIds,
-                }
-              : {}),
-            ...(canEditCategoryMapping
-              ? { catProdMappings: sanitizeMappings(data.catProdMappings) }
-              : {}),
-            ...(canEditRemainderConfigs
-              ? {
-                  isCheckRemainder: data.isCheckRemainder,
-                  checkExcludeCategoryIds: data.checkExcludeCategoryIds,
-                  banFractions: data.banFractions,
-                }
-              : {}),
-            ...(canEditServiceCharge
-              ? {
-                  serviceCharge: parseServiceCharge(data.serviceCharge),
-                  serviceChargeApplicableProductId:
-                    data.serviceChargeApplicableProductId || null,
-                }
-              : {}),
+            initialCategoryIds: data.initialCategoryIds,
+
+            kioskExcludeCategoryIds: data.kioskExcludeCategoryIds,
+            kioskExcludeProductIds: data.kioskExcludeProductIds,
+
+            catProdMappings: sanitizeMappings(data.catProdMappings),
+
+            isCheckRemainder: data.isCheckRemainder,
+            checkExcludeCategoryIds: data.checkExcludeCategoryIds,
+            banFractions: data.banFractions,
+
+
+            serviceCharge: parseServiceCharge(data.serviceCharge),
+            serviceChargeApplicableProductId:
+              data.serviceChargeApplicableProductId || null,
           },
-          refetchQueries: canEditServiceCharge ? ['posDetail'] : undefined,
+          refetchQueries: ['posDetail'],
         });
 
         toast({
@@ -228,11 +189,6 @@ const Products: React.FC<ProductsProps> = ({
       }
     },
     [
-      canEditCategoryMapping,
-      canEditInitialCategories,
-      canEditKioskExcludes,
-      canEditRemainderConfigs,
-      canEditServiceCharge,
       posEdit,
       posId,
       reset,
@@ -301,53 +257,41 @@ const Products: React.FC<ProductsProps> = ({
           onSubmit={handleSubmit(handleSaveChanges)}
           className="space-y-8"
         >
-          {canEditInitialCategories && (
-            <section className="space-y-4">
-              <Label>Initial product categories</Label>
-              <InitialProductCategories control={control} />
-            </section>
-          )}
+          <section className="space-y-4">
+            <Label>Initial product categories</Label>
+            <InitialProductCategories control={control} />
+          </section>
 
           <div className="flex justify-center">
-            {hasMoreOptions && (
-              <MoreOptionsButton showMore={showMore} onToggle={toggleMore} />
-            )}
+            <MoreOptionsButton showMore={showMore} onToggle={toggleMore} />
           </div>
 
           {(!isRestaurant || showMore) && (
             <>
-              {canEditKioskExcludes && (
-                <section className="pt-6 space-y-4 border-t">
-                  <Label>Kiosk exclude products</Label>
-                  <KioskExcludeProducts control={control} />
-                </section>
-              )}
+              <section className="pt-6 space-y-4 border-t">
+                <Label>Kiosk exclude products</Label>
+                <KioskExcludeProducts control={control} />
+              </section>
 
-              {canEditCategoryMapping && (
-                <section className="pt-6 space-y-4 border-t">
-                  <Label>Product & category mapping</Label>
-                  <ProductAndCategoryMapping
-                    mappings={catProdMappings}
-                    onMappingAdded={handleMappingAdded}
-                    onMappingUpdated={handleMappingUpdated}
-                    onMappingDeleted={handleMappingDeleted}
-                  />
-                </section>
-              )}
+              <section className="pt-6 space-y-4 border-t">
+                <Label>Product & category mapping</Label>
+                <ProductAndCategoryMapping
+                  mappings={catProdMappings}
+                  onMappingAdded={handleMappingAdded}
+                  onMappingUpdated={handleMappingUpdated}
+                  onMappingDeleted={handleMappingDeleted}
+                />
+              </section>
 
-              {canEditRemainderConfigs && (
-                <section className="pt-6 space-y-4 border-t">
-                  <Label>Remainder configs</Label>
-                  <RemainderConfigs control={control} />
-                </section>
-              )}
+              <section className="pt-6 space-y-4 border-t">
+                <Label>Remainder configs</Label>
+                <RemainderConfigs control={control} />
+              </section>
 
-              {canEditServiceCharge && (
-                <section className="pt-6 space-y-4 border-t">
-                  <Label>Service charge</Label>
-                  <ServiceCharge control={control} />
-                </section>
-              )}
+              <section className="pt-6 space-y-4 border-t">
+                <Label>Service charge</Label>
+                <ServiceCharge control={control} />
+              </section>
             </>
           )}
         </form>
@@ -360,16 +304,13 @@ const Products: React.FC<ProductsProps> = ({
       <InfoCard title="Product configuration">
         <InfoCard.Content>
           <div className="space-y-8">
-            {canEditProductGroups && (
-              <section className="space-y-4">
-                <Label>Product Groups</Label>
-                <ProductGroupsList
-                  posId={posId}
-                  onSaveStateChange={setProductGroupSaveState}
-                />
-              </section>
-            )}
-
+            <section className="space-y-4">
+              <Label>Product Groups</Label>
+              <ProductGroupsList
+                posId={posId}
+                onSaveStateChange={setProductGroupSaveState}
+              />
+            </section>
             {renderProductSettings()}
           </div>
         </InfoCard.Content>

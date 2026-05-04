@@ -4,17 +4,12 @@ import {
   Button,
   Input,
   Textarea,
-  Select,
   Label,
   Form,
 } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
 import { usePosAdd } from '@/pos/hooks/usePosAdd';
 import { useForm } from 'react-hook-form';
-import { POS_TYPES, PosType } from '@/pos/constants';
-import { EcommerceFields } from './EcommerceFields';
-import { PosFields } from './PosFields';
-import { RestaurantFields } from './RestaurantFields';
 import { ProductGroup } from '@/pos/pos-detail/types/IPos';
 import { usePosEditProductGroup } from '@/pos/hooks/usePosEditProductGroup';
 import { useRef, useState } from 'react';
@@ -30,7 +25,6 @@ interface PosCreateDialogProps {
 export interface PosFormData {
   name: string;
   description: string;
-  type: PosType | '';
   branchId?: string;
   paymentIds?: string[];
   adminIds?: string[];
@@ -56,7 +50,6 @@ export const PosCreate = ({
     defaultValues: {
       name: '',
       description: '',
-      type: '',
       branchId: '',
       paymentIds: [],
       adminIds: [],
@@ -70,15 +63,13 @@ export const PosCreate = ({
     register,
     handleSubmit,
     reset,
-    setValue,
     watch,
     formState: { errors },
   } = methods;
 
-  const selectedType = watch('type');
   const selectedName = watch('name');
 
-  const isFormValid = selectedName?.trim().length >= 2 && selectedType;
+  const isFormValid = selectedName?.trim().length >= 2;
 
   const onSubmit = async (data: PosFormData) => {
     setIsSubmitting(true);
@@ -87,7 +78,6 @@ export const PosCreate = ({
         variables: {
           name: data.name,
           description: data.description,
-          type: data.type,
           branchId: data.branchId || undefined,
           paymentIds:
             data.paymentIds && data.paymentIds.length > 0
@@ -266,53 +256,6 @@ export const PosCreate = ({
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="type" className="text-sm font-medium">
-                  Type <span className="text-destructive">*</span>
-                </Label>
-                <Select
-                  value={selectedType}
-                  onValueChange={(value) =>
-                    setValue('type', value as PosType, { shouldValidate: true })
-                  }
-                >
-                  <Select.Trigger className="bg-background">
-                    <Select.Value placeholder="Select POS type" />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {POS_TYPES.map((type) => (
-                      <Select.Item key={type.value} value={type.value}>
-                        {type.label}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-
-                {errors.type && (
-                  <p className="text-sm text-destructive">
-                    {errors.type.message}
-                  </p>
-                )}
-              </div>
-
-              {selectedType === 'ecommerce' && (
-                <EcommerceFields
-                  form={methods}
-                  productGroupsRef={productGroupsRef}
-                />
-              )}
-
-              {selectedType === 'pos' && (
-                <PosFields form={methods} productGroupsRef={productGroupsRef} />
-              )}
-
-              {selectedType === 'restaurant' && (
-                <RestaurantFields
-                  form={methods}
-                  productGroupsRef={productGroupsRef}
-                  slotsRef={slotsRef}
-                />
-              )}
             </div>
 
             <Sheet.Footer className="px-5 py-4 border-t bg-background">

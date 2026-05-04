@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import { KitchenScreen } from '@/pos/components/screenConfig/KitchenScreen';
 import { WaitingScreen } from '@/pos/components/screenConfig/WaitingScreen';
 import { PrintConfig } from '@/pos/components/screenConfig/PrintConfig';
-import { isFieldVisible } from '@/pos/constants';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 
@@ -177,29 +176,23 @@ const ScreenConfig: React.FC<ScreenConfigProps> = ({
           onSubmit={handleSubmit(handleSaveChanges)}
           className="space-y-8"
         >
-          {isFieldVisible('kitchenScreen', posType) && (
-            <section className="space-y-4">
-              <Label>Kitchen screen</Label>
+          <section className="space-y-4">
+            <Label>Kitchen screen</Label>
 
-              <KitchenScreen control={control} />
-            </section>
-          )}
+            <KitchenScreen control={control} />
+          </section>
 
-          {isFieldVisible('waitingScreen', posType) && (
-            <section className="pt-6 space-y-4 border-t">
-              <Label>Waiting screen</Label>
+          <section className="pt-6 space-y-4 border-t">
+            <Label>Waiting screen</Label>
 
-              <WaitingScreen control={control} />
-            </section>
-          )}
+            <WaitingScreen control={control} />
+          </section>
 
-          {isFieldVisible('printScreen', posType) && (
-            <section className="pt-6 space-y-4 border-t">
-              <Label>Print</Label>
+          <section className="pt-6 space-y-4 border-t">
+            <Label>Print</Label>
 
-              <PrintConfig control={control} />
-            </section>
-          )}
+            <PrintConfig control={control} />
+          </section>
         </form>
       </Form>
     );

@@ -17,10 +17,14 @@ export const ProductRulesOnTaxForm = ({
   form,
   onSubmit,
   loading,
+  isSheet = false,
+  formId,
 }: {
   form: UseFormReturn<TProductRulesOnTaxForm>;
   onSubmit: (data: TProductRulesOnTaxForm) => void;
   loading: boolean;
+  isSheet?: boolean;
+  formId?: string;
 }) => {
   const taxType = useWatch({ control: form.control, name: 'taxType' });
   const kind = useWatch({ control: form.control, name: 'kind' });
@@ -81,6 +85,7 @@ export const ProductRulesOnTaxForm = ({
   return (
     <Form {...form}>
       <form
+        id={formId}
         onSubmit={form.handleSubmit(onSubmit)}
         className="gap-5 grid grid-cols-2 py-3"
       >
@@ -189,18 +194,18 @@ export const ProductRulesOnTaxForm = ({
                 <Select.Content>
                   {taxType && Object.keys(TAX_CODE_OPTIONS).includes(taxType)
                     ? TAX_CODE_OPTIONS[
-                      taxType as keyof typeof TAX_CODE_OPTIONS
-                    ].map((code) => (
-                      <Select.Item
-                        key={code}
-                        value={code}
-                        className="capitalize"
-                      >
-                        <div className="w-full min-w-0">
-                          <span className="truncate">{code}</span>
-                        </div>
-                      </Select.Item>
-                    ))
+                        taxType as keyof typeof TAX_CODE_OPTIONS
+                      ].map((code) => (
+                        <Select.Item
+                          key={code}
+                          value={code}
+                          className="capitalize"
+                        >
+                          <div className="w-full min-w-0">
+                            <span className="truncate">{code}</span>
+                          </div>
+                        </Select.Item>
+                      ))
                     : null}
                 </Select.Content>
               </Select>
@@ -308,16 +313,18 @@ export const ProductRulesOnTaxForm = ({
             </Form.Item>
           )}
         />
-        <Dialog.Footer className="col-span-2 mt-3 gap-2">
-          <Dialog.Close asChild>
-            <Button variant="outline" size="lg">
-              Cancel
+        {!isSheet && (
+          <Dialog.Footer className="col-span-2 mt-3 gap-2">
+            <Dialog.Close asChild>
+              <Button variant="outline" size="lg">
+                Cancel
+              </Button>
+            </Dialog.Close>
+            <Button type="submit" disabled={loading} size="lg">
+              {loading ? <Spinner /> : 'Save'}
             </Button>
-          </Dialog.Close>
-          <Button type="submit" disabled={loading} size="lg">
-            {loading ? <Spinner /> : 'Save'}
-          </Button>
-        </Dialog.Footer>
+          </Dialog.Footer>
+        )}
       </form>
     </Form>
   );
@@ -333,7 +340,7 @@ export const EBarimtDialog = ({
   children: React.ReactNode;
 }) => {
   return (
-    <Dialog.Content className="max-w-2xl">
+    <Dialog.Content className="max-w-4xl">
       <Dialog.Header>
         <Dialog.Title>{title}</Dialog.Title>
         <Dialog.Description className="sr-only">

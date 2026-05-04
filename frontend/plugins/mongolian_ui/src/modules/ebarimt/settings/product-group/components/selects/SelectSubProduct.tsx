@@ -14,7 +14,8 @@ export const SelectSubProduct = ({
   const { subProducts, loading } = useGetSubProduct({
     skip: false,
     variables: {
-      parentId: value,
+      perPage: 200,
+      page: 1,
     },
   });
 

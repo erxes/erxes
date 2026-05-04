@@ -1,3 +1,4 @@
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { IPosSlotDocument, IProductGroupDocument } from '../../@types/orders';
@@ -12,7 +13,7 @@ export interface IPosModel extends Model<IPosDocument> {
   posRemove(_id: string): Promise<IPosDocument>;
 }
 
-export const loadPosClass = (models: IModels, _subdomain) => {
+export const loadPosClass = (models: IModels, _subdomain: string, { sendDbEventLog }: EventDispatcherReturn) => {
   class Pos {
     public static async getPosList(query: any) {
       return models.Pos.find(query).sort({ createdAt: 1 });
@@ -44,12 +45,18 @@ export const loadPosClass = (models: IModels, _subdomain) => {
 
     public static async posAdd(user, doc: IPos) {
       try {
-        return models.Pos.create({
+        const pos = await models.Pos.create({
           ...doc,
           userId: user._id,
           createdAt: new Date(),
           token: this.generateToken()
         });
+        sendDbEventLog({
+          action: 'create',
+          docId: pos._id,
+          currentDocument: pos.toObject()
+        });
+        return pos
       } catch (e) {
         throw new Error(
           `Can not create POS integration. Error message: ${e.message}`
@@ -58,7 +65,7 @@ export const loadPosClass = (models: IModels, _subdomain) => {
     }
 
     public static async posEdit(_id: string, doc: IPos) {
-      await models.Pos.getPos({ _id });
+      const oldPos = await models.Pos.getPos({ _id });
 
       await models.Pos.updateOne(
         { _id },
@@ -66,7 +73,16 @@ export const loadPosClass = (models: IModels, _subdomain) => {
         { runValidators: true }
       );
 
-      return models.Pos.findOne({ _id }).lean();
+      const updatedPos = await models.Pos.findOne({ _id }).lean();
+
+      sendDbEventLog({
+        action: 'update',
+        docId: _id,
+        currentDocument: { ...updatedPos },
+        prevDocument: oldPos,
+      });
+
+      return updatedPos;
     }
 
     public static async posRemove(_id: string) {
@@ -78,11 +94,24 @@ export const loadPosClass = (models: IModels, _subdomain) => {
 
       await models.ProductGroups.deleteMany({ posId: pos._id });
       await models.PosSlots.deleteMany({ posId: pos._id });
+      let result;
 
-      await models.Pos.updateOne({ _id }, { $set: { status: 'deleted' } });
-
-      // return models.Pos.deleteOne({ _id });
-      return await models.Pos.getPos({ _id });
+      if (!pos.onServer) {
+        result = await models.Pos.updateOne({ _id }, { $set: { status: 'deleted' } });
+        sendDbEventLog({
+          action: 'update',
+          docId: _id,
+          currentDocument: { status: 'deleted' },
+          prevDocument: pos,
+        });
+      } else {
+        result = await models.Pos.deleteOne({ _id });
+        sendDbEventLog({
+          action: 'delete',
+          docId: _id,
+        });
+      }
+      return result;
     }
   }
 

@@ -3,19 +3,28 @@ import {
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
+  useConfirm,
   useQueryState,
+  Popover,
+  Combobox,
+  Command,
 } from 'erxes-ui';
 import {
   IconCode,
+  IconEdit,
   IconTag,
   IconReceipt,
   IconPercentage,
+  IconClipboardList,
+  IconTrash,
 } from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
 import { IProductRulesOnTax } from '@/ebarimt/settings/product-rules-on-tax/constants/productRulesOnTaxDefaultValues';
 import { ProductRulesOnTaxRowsCommandbar } from './ProductRulesOnTaxRowsCommandbar';
 import { productRulesOnTaxDetailAtom } from '@/ebarimt/settings/product-rules-on-tax/states/productRulesOnTaxRowStates';
 import { useProductRulesOnTaxRows } from '@/ebarimt/settings/product-rules-on-tax/hooks/useProductRulesOnTaxRows';
+import { useProductRulesOnTaxRemove } from '@/ebarimt/settings/product-rules-on-tax/hooks/useProductRulesOnTaxRowsRemove';
+import { AddProductRulesOnTax } from './ProductRulesOnTax';
 
 export const ProductRulesOnTaxTable = () => {
   const { productRulesOnTaxRows, loading, handleFetchMore, totalCount } =
@@ -40,9 +49,43 @@ export const ProductRulesOnTaxTable = () => {
               )}
           </RecordTable.Body>
         </RecordTable>
+        {!loading && productRulesOnTaxRows?.length === 0 && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="flex flex-col items-center text-center">
+              <IconClipboardList size={48} className="text-gray-400 mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900">
+                No Product Rules on Tax config yet
+              </h3>
+              <p className="mt-1 text-sm text-gray-500 mb-4">
+                Get started by creating your first Product Rules on Tax config.
+              </p>
+              <AddProductRulesOnTax />
+            </div>
+          </div>
+        )}
       </RecordTable.Scroll>
       <ProductRulesOnTaxRowsCommandbar />
     </RecordTable.Provider>
+  );
+};
+
+export const ProductRulesOnTaxTitleCell = ({
+  cell,
+}: {
+  cell: Cell<IProductRulesOnTax, unknown>;
+}) => {
+  const [, setOpen] = useQueryState('product_rules_on_tax_id');
+  const setDetail = useSetAtom(productRulesOnTaxDetailAtom);
+  return (
+    <RecordTableInlineCell
+      className="cursor-pointer"
+      onClick={() => {
+        setDetail(cell.row.original);
+        setOpen(cell.row.original._id);
+      }}
+    >
+      <TextOverflowTooltip value={cell.getValue() as string} />
+    </RecordTableInlineCell>
   );
 };
 
@@ -53,14 +96,39 @@ export const ProductRulesOnTaxRowMoreColumnCell = ({
 }) => {
   const [, setOpen] = useQueryState('product_rules_on_tax_id');
   const setProductRulesOnTaxDetail = useSetAtom(productRulesOnTaxDetailAtom);
+  const { removeProductRulesOnTax } = useProductRulesOnTaxRemove();
+  const { confirm } = useConfirm();
+
+  const handleEdit = () => {
+    setProductRulesOnTaxDetail(cell.row.original);
+    setOpen(cell.row.original._id);
+  };
+
+  const handleDelete = () => {
+    confirm({
+      message: 'Are you sure you want to delete this rule?',
+      options: { okLabel: 'Delete', cancelLabel: 'Cancel' },
+    }).then(() => removeProductRulesOnTax({ variables: { ids: [cell.row.original._id] } }));
+  };
+
   return (
-    <RecordTable.MoreButton
-      className="w-full h-full"
-      onClick={() => {
-        setProductRulesOnTaxDetail(cell.row.original);
-        setOpen(cell.row.original._id);
-      }}
-    />
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item value="edit" onSelect={handleEdit}>
+              <IconEdit /> Edit
+            </Command.Item>
+            <Command.Item value="delete" onSelect={handleDelete}>
+              <IconTrash /> Delete
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 
@@ -77,13 +145,7 @@ export const productRulesOnTaxColumns: ColumnDef<IProductRulesOnTax>[] = [
     id: 'title',
     accessorKey: 'title',
     header: () => <RecordTable.InlineHead label="Title" icon={IconCode} />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => <ProductRulesOnTaxTitleCell cell={cell} />,
     size: 150,
   },
   {

@@ -2,7 +2,6 @@ import { IconSandbox } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui/types';
 import { lazy, Suspense } from 'react';
 
-const __MONGOLIAN_CONFIG_UNIQUE__ = 'msdynamic';
 const MainNavigation = lazy(() =>
   import('./modules/MainNavigation').then((module) => ({
     default: module.MainNavigation,

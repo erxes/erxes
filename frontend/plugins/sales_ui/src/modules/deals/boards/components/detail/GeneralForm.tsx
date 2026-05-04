@@ -111,53 +111,53 @@ const GeneralForm = ({ form }: { form: any }) => {
             </Form.Item>
           )}
         />
+
+        <Form.Field
+          control={control}
+          name="branchIds"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Branches</Form.Label>
+              <SelectBranches.FormItem
+                onValueChange={field.onChange}
+                value={field.value}
+                mode="multiple"
+                className="focus-visible:relative focus-visible:z-10"
+              />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={control}
+          name="departmentIds"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Departments</Form.Label>
+              <SelectDepartments.FormItem
+                mode="multiple"
+                value={field.value}
+                onValueChange={field.onChange}
+                className="focus-visible:relative focus-visible:z-10"
+              />
+            </Form.Item>
+          )}
+        />
+
         {visibility === 'private' && (
-          <>
-            <Form.Field
-              control={control}
-              name="departmentIds"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Departments</Form.Label>
-                  <SelectDepartments.FormItem
-                    mode="multiple"
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    className="focus-visible:relative focus-visible:z-10"
-                  />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={control}
-              name="branchIds"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Branches</Form.Label>
-                  <SelectBranches.FormItem
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    mode="multiple"
-                    className="focus-visible:relative focus-visible:z-10"
-                  />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="memberIds"
-              control={control}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Team members</Form.Label>
-                  <SelectMember.FormItem
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    mode="multiple"
-                  />
-                </Form.Item>
-              )}
-            />
-          </>
+          <Form.Field
+            name="memberIds"
+            control={control}
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Team members</Form.Label>
+                <SelectMember.FormItem
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  mode="multiple"
+                />
+              </Form.Item>
+            )}
+          />
         )}
       </div>
       <PipelineConfig form={form} />

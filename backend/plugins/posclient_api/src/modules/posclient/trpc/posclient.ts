@@ -8,6 +8,7 @@ import {
   importProducts,
   importSlots,
   preImportProducts,
+  preRemovePos,
   receivePosConfig,
   receiveProduct,
   receiveProductCategory,
@@ -18,15 +19,18 @@ const t = initTRPC.context<PosTRPCContext>().create();
 
 export const posclientTrpcRouter = t.router({
   posclient: t.router({
-    configs: t.router({
-      manage: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-        const data = input;
-        const { models, subdomain } = ctx;
-        return {
-          status: 'success',
-          data: await receivePosConfig(subdomain, models, data),
-        };
-      }),
+    manageConfig: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const data = input;
+      const { models, subdomain } = ctx;
+      return await receivePosConfig(subdomain, models, data);
+    }),
+    removeConfig: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const { posId, posToken } = input;
+      const { models } = ctx;
+
+      await preRemovePos(models, posId, posToken);
+      await models.Configs.removeConfig(posId);
+      return 'success';
     }),
     covers: t.router({
       remove: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
@@ -70,7 +74,7 @@ export const posclientTrpcRouter = t.router({
     }),
     crudData: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { models, subdomain } = ctx;
-      const { token, type } = input;
+      const { token, type, ...data } = input;
 
       if (type) {
         switch (type) {
@@ -84,14 +88,14 @@ export const posclientTrpcRouter = t.router({
             await receiveUser(models, input);
             break;
           case 'productGroups': {
-            const { productGroups = [] } = input;
+            const { productGroups = [] } = data;
             await preImportProducts(models, token, productGroups);
             await importProducts(subdomain, models, token, productGroups);
             break;
           }
           case 'slots': {
-            const { slots = [] } = input;
-            await importSlots(models, slots, token);
+            const { slots = [] } = data;
+            await importSlots(models, token, slots);
             break;
           }
           default:
