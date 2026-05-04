@@ -48,6 +48,25 @@ export default composePlugins(
       type: 'css',
     });
 
+    config.devServer = {
+      ...(config.devServer),
+      client: {
+        ...(config.devServer?.client),
+        logging: 'error',
+      },
+      devMiddleware: {
+        ...(config.devServer?.devMiddleware),
+        stats: 'errors-warnings',
+      },
+    };
+
+    config.infrastructureLogging = {
+      ...(config.infrastructureLogging),
+      level: 'error',
+    };
+
+    config.stats = 'errors-warnings';
+
     return config;
   },
 );

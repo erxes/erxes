@@ -1,5 +1,5 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
-import { RecordTable, useQueryState, } from 'erxes-ui';
+import { RecordTable, useQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useVatRows } from '../hooks/useVatRows';
 import { vatRowDetailAtom } from '../states/vatRowStates';
@@ -10,10 +10,7 @@ export const VatRowsTable = () => {
   const { vatRows, loading, handleFetchMore, totalCount } = useVatRows();
 
   return (
-    <RecordTable.Provider
-      columns={vatRowsColumns}
-      data={vatRows || []}
-    >
+    <RecordTable.Provider columns={vatRowsColumns} data={vatRows || []}>
       <RecordTable.Scroll>
         <RecordTable>
           <RecordTable.Header />
@@ -63,7 +60,7 @@ export const vatRowsColumns: ColumnDef<IVatRow>[] = [
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <RecordTable.InlineHead label="Number" />,
+    header: () => <RecordTable.InlineHead label="Дугаар" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },
@@ -72,7 +69,7 @@ export const vatRowsColumns: ColumnDef<IVatRow>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
+    header: () => <RecordTable.InlineHead label="Нэр" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },
@@ -81,7 +78,7 @@ export const vatRowsColumns: ColumnDef<IVatRow>[] = [
   {
     id: 'kind',
     accessorKey: 'kind',
-    header: () => <RecordTable.InlineHead label="Kind" />,
+    header: () => <RecordTable.InlineHead label="Төрөл" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },
@@ -89,7 +86,7 @@ export const vatRowsColumns: ColumnDef<IVatRow>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="Status" />,
+    header: () => <RecordTable.InlineHead label="Төлөв" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },
@@ -97,14 +94,18 @@ export const vatRowsColumns: ColumnDef<IVatRow>[] = [
   {
     id: 'percent',
     accessorKey: 'percent',
-    header: () => <RecordTable.InlineHead label="Percent" />,
+    header: () => <RecordTable.InlineHead label="Хувь" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },
   },
 ];
 
-export const VatMoreColumnCell = ({ cell }: { cell: Cell<IVatRow, unknown> }) => {
+export const VatMoreColumnCell = ({
+  cell,
+}: {
+  cell: Cell<IVatRow, unknown>;
+}) => {
   return <RecordTable.MoreButton />;
 };
 

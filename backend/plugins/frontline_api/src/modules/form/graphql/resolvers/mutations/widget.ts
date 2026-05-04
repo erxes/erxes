@@ -172,7 +172,7 @@ function updateCustomerDoc(
   return customerDoc;
 }
 
-export const widgetFormMutation: Record<string, Resolver> = {
+export const widgetFormMutation: Record<string, Resolver<any, any, IContext>> = {
   async widgetsLeadConnect(
     _root,
     args: { channelId: string; formCode: string; cachedCustomerId?: string },
@@ -314,42 +314,30 @@ export const widgetFormMutation: Record<string, Resolver> = {
       }
     }
 
-    let customerQry: any = {
-      _id: args.cachedCustomerId,
-    };
+    let customerQry: any = args.cachedCustomerId
+      ? { _id: args.cachedCustomerId }
+      : null;
 
     const { saveAsCustomer } = form.leadData || {};
 
     if (saveAsCustomer) {
-      customerQry = {
-        $or: [{ _id: args.cachedCustomerId }],
-      };
-
-      if (customerDoc.email) {
-        customerQry.$or.push({ primaryEmail: customerDoc.email });
-      }
-      if (customerDoc.phone) {
-        customerQry.$or.push({ primaryPhone: customerDoc.phone });
-      }
-
-      if (!customerDoc.email && !customerDoc.phone && !args.cachedCustomerId) {
+      if (args.cachedCustomerId) {
+        customerQry = { _id: args.cachedCustomerId };
+      } else if (customerDoc.email) {
+        customerQry = { customerPrimaryEmail: customerDoc.email };
+      } else if (customerDoc.phone) {
+        customerQry = { customerPrimaryPhone: customerDoc.phone };
+      } else {
         customerQry = null;
       }
     }
 
     if (form.leadData?.clearCacheAfterSave) {
-      customerQry = {
-        $or: [],
-      };
-
       if (customerDoc.email) {
-        customerQry.$or.push({ primaryEmail: customerDoc.email });
-      }
-      if (customerDoc.phone) {
-        customerQry.$or.push({ primaryPhone: customerDoc.phone });
-      }
-
-      if (customerQry.$or.length === 0) {
+        customerQry = { customerPrimaryEmail: customerDoc.email };
+      } else if (customerDoc.phone) {
+        customerQry = { customerPrimaryPhone: customerDoc.phone };
+      } else {
         customerQry = null;
       }
     }
@@ -363,7 +351,7 @@ export const widgetFormMutation: Record<string, Resolver> = {
         method: 'query',
         module: 'customers',
         action: 'findOne',
-        input: { customerQry },
+        input: { query: customerQry },
         defaultValue: null,
       });
     }
@@ -377,19 +365,24 @@ export const widgetFormMutation: Record<string, Resolver> = {
         input: {
           doc: {
             ...customerDoc,
-            emails: [customerDoc.email],
-            phones: [customerDoc.phone],
+            emails: customerDoc.email ? [customerDoc.email] : [],
+            phones: customerDoc.phone ? [customerDoc.phone] : [],
             primaryEmail: saveAsCustomer ? customerDoc.email : null,
             primaryPhone: saveAsCustomer ? customerDoc.phone : null,
             state: saveAsCustomer ? 'customer' : 'lead',
             links: customerLinks,
             customFieldsData,
             integrationId: integration?._id,
-            relatedIntegrationIds: [integration?._id],
-            scopeBrandIds: [form.channelId],
+            relatedIntegrationIds: integration?._id ? [integration._id] : [],
+            scopeBrandIds: form.channelId ? [form.channelId] : [],
           },
         },
+        defaultValue: null,
       });
+
+      if (!customer) {
+        throw new Error('Failed to create customer');
+      }
 
       await models.Forms.increaseContactsGathered(form._id);
     } else {
@@ -407,7 +400,7 @@ export const widgetFormMutation: Record<string, Resolver> = {
         doc.primaryEmail = customerDoc.email;
         doc.primaryPhone = customerDoc.phone;
       }
-      customer = await sendTRPCMessage({
+      const updatedCustomer = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         method: 'mutation',
@@ -415,11 +408,11 @@ export const widgetFormMutation: Record<string, Resolver> = {
         action: 'updateCustomer',
         input: {
           _id: customer._id,
-          doc: {
-            doc,
-          },
+          doc,
         },
+        defaultValue: null,
       });
+      customer = updatedCustomer || customer;
     }
 
     const { conversation } = await createConversationAndMessage(models, {
@@ -568,42 +561,30 @@ export const widgetFormMutation: Record<string, Resolver> = {
       }
     }
 
-    let customerQry: any = {
-      _id: args.cachedCustomerId,
-    };
+    let customerQry: any = args.cachedCustomerId
+      ? { _id: args.cachedCustomerId }
+      : null;
 
     const { saveAsCustomer } = form.leadData || {};
 
     if (saveAsCustomer) {
-      customerQry = {
-        $or: [{ _id: args.cachedCustomerId }],
-      };
-
-      if (customerDoc.email) {
-        customerQry.$or.push({ primaryEmail: customerDoc.email });
-      }
-      if (customerDoc.phone) {
-        customerQry.$or.push({ primaryPhone: customerDoc.phone });
-      }
-
-      if (!customerDoc.email && !customerDoc.phone && !args.cachedCustomerId) {
+      if (args.cachedCustomerId) {
+        customerQry = { _id: args.cachedCustomerId };
+      } else if (customerDoc.email) {
+        customerQry = { customerPrimaryEmail: customerDoc.email };
+      } else if (customerDoc.phone) {
+        customerQry = { customerPrimaryPhone: customerDoc.phone };
+      } else {
         customerQry = null;
       }
     }
 
     if (form.leadData?.clearCacheAfterSave) {
-      customerQry = {
-        $or: [],
-      };
-
       if (customerDoc.email) {
-        customerQry.$or.push({ primaryEmail: customerDoc.email });
-      }
-      if (customerDoc.phone) {
-        customerQry.$or.push({ primaryPhone: customerDoc.phone });
-      }
-
-      if (customerQry.$or.length === 0) {
+        customerQry = { customerPrimaryEmail: customerDoc.email };
+      } else if (customerDoc.phone) {
+        customerQry = { customerPrimaryPhone: customerDoc.phone };
+      } else {
         customerQry = null;
       }
     }
@@ -617,7 +598,7 @@ export const widgetFormMutation: Record<string, Resolver> = {
         method: 'query',
         module: 'customers',
         action: 'findOne',
-        input: { customerQry },
+        input: { query: customerQry },
         defaultValue: null,
       });
     }
@@ -631,19 +612,24 @@ export const widgetFormMutation: Record<string, Resolver> = {
         input: {
           doc: {
             ...customerDoc,
-            emails: [customerDoc.email],
-            phones: [customerDoc.phone],
+            emails: customerDoc.email ? [customerDoc.email] : [],
+            phones: customerDoc.phone ? [customerDoc.phone] : [],
             primaryEmail: saveAsCustomer ? customerDoc.email : null,
             primaryPhone: saveAsCustomer ? customerDoc.phone : null,
             state: saveAsCustomer ? 'customer' : 'lead',
             links: customerLinks,
             customFieldsData,
             integrationId: integration?._id,
-            relatedIntegrationIds: [integration?._id],
-            scopeBrandIds: [form.channelId],
+            relatedIntegrationIds: integration?._id ? [integration._id] : [],
+            scopeBrandIds: form.channelId ? [form.channelId] : [],
           },
         },
+        defaultValue: null,
       });
+
+      if (!customer) {
+        throw new Error('Failed to create customer');
+      }
 
       await models.Forms.increaseContactsGathered(form._id);
     } else {
@@ -661,7 +647,7 @@ export const widgetFormMutation: Record<string, Resolver> = {
         doc.primaryEmail = customerDoc.email;
         doc.primaryPhone = customerDoc.phone;
       }
-      customer = await sendTRPCMessage({
+      const updatedCustomer = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         method: 'mutation',
@@ -669,11 +655,11 @@ export const widgetFormMutation: Record<string, Resolver> = {
         action: 'updateCustomer',
         input: {
           _id: customer._id,
-          doc: {
-            doc,
-          },
+          doc,
         },
+        defaultValue: null,
       });
+      customer = updatedCustomer || customer;
     }
 
     const { conversation } = await createConversationAndMessage(models, {

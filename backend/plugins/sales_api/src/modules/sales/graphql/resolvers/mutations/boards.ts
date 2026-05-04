@@ -6,7 +6,8 @@ export const boardMutations = {
   /**
    * Create new board
    */
-  async salesBoardsAdd(_root, doc: IBoard, { user, models }: IContext) {
+  async salesBoardsAdd(_root, doc: IBoard, { user, models, checkPermission }: IContext) {
+    await checkPermission('boardsAdd');
     return await models.Boards.createBoard({ userId: user._id, ...doc });
   },
 
@@ -16,8 +17,9 @@ export const boardMutations = {
   async salesBoardsEdit(
     _root,
     { _id, ...doc }: IBoardDocument,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('boardsEdit');
     return await models.Boards.updateBoard(_id, doc);
   },
 
@@ -27,8 +29,9 @@ export const boardMutations = {
   async salesBoardsRemove(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('boardsRemove');
     const board = await models.Boards.getBoard(_id);
 
     const relatedFieldsGroups = await sendTRPCMessage({
@@ -77,8 +80,9 @@ export const boardMutations = {
       timeSpent: number;
       startDate: string;
     },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('updateTimeTracking');
     return models.Boards.updateTimeTracking(_id, status, timeSpent, startDate);
   },
 

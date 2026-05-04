@@ -82,7 +82,7 @@ export const afterMutationHandlers = async (
     method: 'query',
     module: 'pipeline',
     action: 'findOne',
-    input: { stageId: destinationStageId },
+    input: { stageId: destinationStageId, fields: { paymentTypes: 1 } },
     defaultValue: {},
   });
 
@@ -138,8 +138,8 @@ export const afterMutationHandlers = async (
         userId,
       );
 
-      putData && ebarimtResponses.push(putData);
-      innerData && ebarimtResponses.push(innerData);
+      if (putData) ebarimtResponses.push(putData);
+      if (innerData) ebarimtResponses.push(innerData);
     } catch (e) {
       ebarimtResponses.push({
         _id: nanoid(),

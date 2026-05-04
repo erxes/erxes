@@ -30,10 +30,20 @@ export enum AccountKind {
   PASSIVE = 'passive',
 }
 
+export const ACCOUNT_KIND_LABELS = {
+  [AccountKind.ACTIVE]: 'Актив',
+  [AccountKind.PASSIVE]: 'Пассив',
+};
+
 export enum AccountStatus {
   ACTIVE = 'active',
   DELETED = 'deleted',
 }
+
+export const ACCOUNT_STATUS_LABELS = {
+  [AccountStatus.ACTIVE]: 'Идэвхтэй',
+  [AccountStatus.DELETED]: 'Устгасан',
+};
 
 export enum JournalEnum {
   MAIN = 'main',

@@ -75,7 +75,7 @@ export const TBalance = ({ form }: { form: ITransactionGroupForm }) => {
   });
 
   const columns = useMemo(() => {
-    if (!(trDocs || []).some((tr) => tr.journal.includes('inv'))) {
+    if ((trDocs || []).some((tr) => tr.journal.includes('inv'))) {
       return tbalanceColumns.filter((c) => !c.id?.includes('inv'));
     }
     return tbalanceColumns;

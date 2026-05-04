@@ -21,25 +21,21 @@ const configQueries: Record<string, Resolver> = {
   async pmsRooms(
     _root,
     {
-      endDate1,
-      endDate2,
-      startDate1,
-      startDate2,
+      endDate,
+      startDate,
       pipelineId,
       perPage = 50,
       page = 1,
       skipStageIds = [],
     }: {
-      startDate1: Date;
-      startDate2: Date;
-      endDate1: Date;
-      endDate2: Date;
+      startDate: Date;
+      endDate: Date;
       pipelineId: string;
       perPage: number;
       page: number;
       skipStageIds: string[];
     },
-    { models, subdomain }: IContext,
+    { subdomain }: IContext,
   ) {
     const stages = await sendTRPCMessage({
       subdomain,
@@ -64,14 +60,8 @@ const configQueries: Record<string, Resolver> = {
           stageId: { $in: newArray },
           productsData: {
             $elemMatch: {
-              startDate: {
-                $gte: new Date(startDate1),
-                $lte: new Date(startDate2),
-              },
-              endDate: {
-                $gte: new Date(endDate1),
-                $lte: new Date(endDate2),
-              },
+              startDate: { $lte: new Date(endDate) }, // Document starts before your range ends
+              endDate: { $gte: new Date(startDate) }, // Document ends after your range starts
             },
           },
         },
@@ -85,19 +75,15 @@ const configQueries: Record<string, Resolver> = {
   async cpPmsRooms(
     _root,
     {
-      endDate1,
-      endDate2,
-      startDate1,
-      startDate2,
+      endDate,
+      startDate,
       pipelineId,
       perPage = 50,
       page = 1,
       skipStageIds = [],
     }: {
-      startDate1: Date;
-      startDate2: Date;
-      endDate1: Date;
-      endDate2: Date;
+      startDate: Date;
+      endDate: Date;
       pipelineId: string;
       perPage: number;
       page: number;
@@ -128,14 +114,8 @@ const configQueries: Record<string, Resolver> = {
           stageId: { $in: newArray },
           productsData: {
             $elemMatch: {
-              startDate: {
-                $gte: new Date(startDate1),
-                $lte: new Date(startDate2),
-              },
-              endDate: {
-                $gte: new Date(endDate1),
-                $lte: new Date(endDate2),
-              },
+              startDate: { $lte: new Date(endDate) }, // Document starts before your range ends
+              endDate: { $gte: new Date(startDate) }, // Document ends after your range starts
             },
           },
         },
@@ -186,25 +166,13 @@ const configQueries: Record<string, Resolver> = {
           stageId: { $in: newArray },
           productsData: {
             $elemMatch: {
-              $or: [
-                {
-                  productId: { $in: ids },
-                  startDate: {
-                    $lte: new Date(startDate),
-                  },
-                  endDate: {
-                    $gte: new Date(startDate),
-                    $lte: new Date(endDate),
-                  },
-                },
-                {
-                  productId: { $in: ids },
-                  startDate: {
-                    $gte: new Date(startDate),
-                    $lte: new Date(endDate),
-                  },
-                },
-              ],
+              productId: { $in: ids },
+              startDate: {
+                $lte: new Date(endDate), // 🔥 important
+              },
+              endDate: {
+                $gte: new Date(startDate), // 🔥 important
+              },
             },
           },
         },
@@ -282,25 +250,13 @@ const configQueries: Record<string, Resolver> = {
           stageId: { $in: newArray },
           productsData: {
             $elemMatch: {
-              $or: [
-                {
-                  productId: { $in: ids },
-                  startDate: {
-                    $lte: new Date(startDate),
-                  },
-                  endDate: {
-                    $gte: new Date(startDate),
-                    $lte: new Date(endDate),
-                  },
-                },
-                {
-                  productId: { $in: ids },
-                  startDate: {
-                    $gte: new Date(startDate),
-                    $lte: new Date(endDate),
-                  },
-                },
-              ],
+              productId: { $in: ids },
+              startDate: {
+                $lte: new Date(endDate), // 🔥 important
+              },
+              endDate: {
+                $gte: new Date(startDate), // 🔥 important
+              },
             },
           },
         },

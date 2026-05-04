@@ -7,6 +7,7 @@ import {
 import { IModels } from '~/connectionResolvers';
 import { processAccountCategoryRows } from './processAccountCategoryRows';
 import { processAccountRows } from './processAccountRows';
+import { processTransactionRows } from './processAccountTransactions';
 
 const accountImportMap = {
   accountCategories: {
@@ -40,10 +41,50 @@ const accountImportMap = {
       processAccountRows(subdomain, models, rows),
   },
   transactions: {
-    processRows: (subdomain: string, models: IModels, rows: any[]) =>
-      processAccountRows(subdomain, models, rows),
-    batchSkipRow: (_subdomain: string, _models: IModels, rowData: any) =>
-      !rowData?.date,
+    headers: [
+      { label: '**Огноо', key: 'date' },
+      { label: '**Баримт№', key: 'number' },
+      { label: '*Журнал', key: 'journal' },
+      { label: '*Гүйлгээний утга', key: 'description' },
+      { label: '*Төлөв', key: 'status' },
+      { label: '*Харилцагч төрөл (company, user, ?)', key: 'customerType' },
+      { label: '*Харилцагч мэдээлэл/phone, email, code/', key: 'customerInfo' },
+      { label: '*Холбогдох ажилтны мэйл', key: 'assignedUserEmails' },
+      { label: '*ДТ|КТ', key: 'side' },
+      { label: '*Нөхцөлт талбар 1', key: 'follow1' },
+      { label: '*Нөхцөлт талбар 2', key: 'follow2' },
+      { label: '*Нөхцөлт талбар 3', key: 'follow3' },
+
+      { label: '*НӨАТ эсэх', key: 'hasVat' },
+      { label: '*НӨАТ үзүүлэлт', key: 'vatRowId' },
+      { label: '*Дараа НӨАТ эсэх', key: 'afterVat' },
+      { label: '*ДАРАА НӨАТ данс', key: 'afterVatAccountId' },
+      { label: '*НӨАТ дүн гараас', key: 'isHandleVat' },
+      { label: '*НӨАТ дүн', key: 'vatAmount' },
+      { label: '*НХАТ эсэх', key: 'hasCtax' },
+      { label: '*НХАТ үзүүлэлт', key: 'ctaxRowId' },
+      { label: '*НХАТ гараас', key: 'isHandleCtax' },
+      { label: '*НХАТ дүн', key: 'ctaxAmount' },
+
+      { label: 'Дансны дугаар', key: 'accountCode' },
+      { label: 'Салбар код', key: 'branchId' },
+      { label: 'Хэлтэс код', key: 'departmentId' },
+      { label: 'Дүн', key: 'amount' },
+      { label: 'Валют', key: 'currency' },
+      { label: 'Валют дүн', key: 'currencyAmount' },
+      { label: 'Тохиролцоо ханш', key: 'customRate' },
+      { label: 'Холбогдох ажилтан', key: 'assignUserEmail' },
+      { label: 'Бараа код', key: 'productCode' },
+      { label: 'Тоо', key: 'count' },
+      { label: 'Нэгж үнэ', key: 'unitPrice' },
+      { label: 'НӨАТ орхих', key: 'excludeVat' },
+      { label: 'НХАТ орхих', key: 'excludeCtax' },
+    ],
+    processRows: (subdomain: string, models: IModels, rows: any[], userId: string) =>
+      processTransactionRows(subdomain, models, rows, userId),
+    batchSkipRow: (_subdomain: string, _models: IModels, rowData: any) => {
+      return !rowData?.date;
+    },
   },
 };
 export const accountImportHandlers = {
@@ -58,20 +99,20 @@ export const accountImportHandlers = {
     return handler.headers;
   },
   insertImportRows: async (
-    { collectionName, rows }: TInsertImportRowsInput,
+    { collectionName, rows, userId }: TInsertImportRowsInput,
     { models, subdomain }: TCoreModuleProducerContext<IModels>,
   ) => {
     const handler = accountImportMap[collectionName];
     if (!handler)
       throw new Error(`Import handler not found for ${collectionName}`);
-    return handler.processRows(subdomain, models, rows);
+    return handler.processRows(subdomain, models, rows, userId);
   },
   batchSkipRow: async (
     { collectionName, rowData }: TBatchSkipRowInput,
     { models, subdomain }: TCoreModuleProducerContext<IModels>,
   ) => {
     const handler = accountImportMap[collectionName];
-    if (!handler)
+    if (!handler?.batchSkipRow)
       return false;
     return handler.batchSkipRow(subdomain, models, rowData);
   },

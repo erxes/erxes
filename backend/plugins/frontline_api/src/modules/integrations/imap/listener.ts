@@ -27,18 +27,14 @@ export const listenIntegration = async (
             60000,
           );
         } catch (e) {
-          console.log(
-            'Could not acquire Redis lock for listener, proceeding without lock:',
-            e.message,
-          );
           lock = null;
         }
 
         if (lock) {
           try {
             await lock.extend(60000);
-          } catch (e) {
-            console.log('Could not extend Redis lock:', e.message);
+          } catch {
+            // ignore — lock extension failure is non-fatal
           }
         }
 
@@ -50,8 +46,8 @@ export const listenIntegration = async (
           if (lock) {
             try {
               await lock.release();
-            } catch (e) {
-              console.log('Error releasing lock:', e.message);
+            } catch {
+              // best-effort
             }
           }
           return resolve({
@@ -73,10 +69,6 @@ export const listenIntegration = async (
           if (closing || !mailboxOpen) return;
 
           try {
-            console.log(
-              `[IMAP] Starting email sync for integration ${integration._id}`,
-            );
-
             const criteria: any = [
               'UNSEEN',
               ['SINCE', lastSyncTime.toISOString()],
@@ -92,13 +84,7 @@ export const listenIntegration = async (
             );
 
             lastSyncTime = nextLastFetchDate;
-            console.log(
-              `[IMAP] Sync completed for integration ${
-                integration._id
-              }, next sync from: ${lastSyncTime.toISOString()}`,
-            );
 
-            // Update integration's last fetch date
             await models.ImapIntegrations.updateOne(
               { _id: updatedIntegration._id },
               { $set: { lastFetchDate: nextLastFetchDate } },
@@ -114,9 +100,6 @@ export const listenIntegration = async (
           }
         };
 
-        // Initial sync will be called after mailbox is opened in 'ready' event
-        // await syncEmail(); // Remove this - it's called after mailbox opens
-
         imap.once('ready', () => {
           imap.openBox('INBOX', true, async (e) => {
             if (e) {
@@ -126,63 +109,26 @@ export const listenIntegration = async (
               return imap.end();
             }
             mailboxOpen = true;
-            console.log(
-              `[IMAP] Mailbox opened for integration ${integration._id}`,
-            );
-            // Now that mailbox is open, do initial sync
             await syncEmail();
-
-            // Enable IDLE for real-time updates (if supported)
-            setTimeout(() => {
-              if (imap.serverSupports('IDLE') && mailboxOpen) {
-                console.log(
-                  `[IMAP] Enabling IDLE for integration ${integration._id}`,
-                );
-                // IDLE is automatically enabled when using node-imap
-                // The 'idle' event will fire when new emails arrive
-                console.log(
-                  `[IMAP] IDLE mode active for integration ${integration._id}`,
-                );
-              }
-            }, 1000);
           });
         });
 
-        // Multiple event listeners for better reliability
         imap.on('mail', throttle(syncEmail, 30_000, { leading: true }));
         imap.on('new', throttle(syncEmail, 30_000, { leading: true }));
         imap.on('expunge', throttle(syncEmail, 30_000, { leading: true }));
+        imap.on('idle', throttle(syncEmail, 30_000, { leading: true }));
 
-        // Enhanced connection monitoring
-        imap.on('timeout', () => {
-          console.log(
-            `[IMAP] Connection timeout for integration ${integration._id}`,
-          );
-        });
-
-        imap.on('alert', (msg) => {
-          console.log(`[IMAP] Alert for integration ${integration._id}:`, msg);
-        });
-
-        // Handle IDLE events for real-time updates
-        imap.on('idle', () => {
-          console.log(
-            `[IMAP] IDLE event for integration ${integration._id}, checking for new emails`,
-          );
-          syncEmail();
+        imap.on('alert', () => {
+          // no-op — alerts are informational only
         });
 
         // Periodic polling as fallback (every 2 minutes)
         const pollingInterval = setInterval(async () => {
           if (!closing && imap.state === 'authenticated') {
-            console.log(
-              `[IMAP] Periodic poll for integration ${integration._id}`,
-            );
             await syncEmail();
           }
         }, 2 * 60 * 1000);
 
-        // Connection monitoring
         imap.on('error', async (e) => {
           if (closing) return;
 
@@ -209,27 +155,17 @@ export const listenIntegration = async (
           imap.end();
         });
 
-        // Handle connection close
         imap.on('close', async () => {
-          console.log(
-            `[IMAP] Connection closed for integration ${integration._id}`,
-          );
           mailboxOpen = false;
           if (!closing) {
-            console.log(`[IMAP] Unexpected close, will reconnect`);
             closing = true;
             clearInterval(pollingInterval);
           }
         });
 
-        // Handle connection end
         imap.on('end', async () => {
-          console.log(
-            `[IMAP] Connection ended for integration ${integration._id}`,
-          );
           mailboxOpen = false;
           if (!closing) {
-            console.log(`[IMAP] Unexpected end, will reconnect`);
             closing = true;
             clearInterval(pollingInterval);
           }
@@ -239,9 +175,7 @@ export const listenIntegration = async (
           if (lock) {
             try {
               await lock.extend(60000);
-            } catch (e) {
-              // Lock expired — just drop it and keep the IMAP connection alive
-              console.log('Lock extension failed, continuing without lock:', e.message);
+            } catch {
               lock = null;
             }
           }
@@ -254,7 +188,7 @@ export const listenIntegration = async (
             try {
               await lock.release();
             } catch (e) {
-              // Best-effort release — ignore errors
+              // best-effort
             }
             lock = null;
           }

@@ -26,12 +26,10 @@ import {
   JournalReport as QueriesJournalReport,
   AdjustClosing as QueriesAdjustClosing,
 } from '@/accounting/graphql/resolvers/queries';
-import Remainder from '@/inventories/graphql/resolvers/customResolvers/remainder';
 import ReserveRem from '@/inventories/graphql/resolvers/customResolvers/reserveRem';
 import SafeRemainderItem from '@/inventories/graphql/resolvers/customResolvers/safeRemainderItem';
 import SafeRemainder from '@/inventories/graphql/resolvers/customResolvers/safeRemainder';
 import {
-  Remainders as QueriesRemainder,
   ReserveRems as QueriesReserveRem,
   SafeRemainderItems as QueriesSafeRemainderItem,
   SafeRemainders as QueriesSafeRemainder,
@@ -53,7 +51,6 @@ const resolvers: any = {
   AccTrDetail,
   AdjustInvDetail,
 
-  Remainder,
   ReserveRem,
   SafeRemainderItem,
   SafeRemainder,
@@ -85,7 +82,6 @@ const resolvers: any = {
     ...QueriesJournalReport,
     ...QueriesAdjustClosing,
 
-    ...QueriesRemainder,
     ...QueriesReserveRem,
     ...QueriesSafeRemainderItem,
     ...QueriesSafeRemainder,

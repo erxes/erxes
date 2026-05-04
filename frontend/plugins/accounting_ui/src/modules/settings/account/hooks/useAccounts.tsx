@@ -1,10 +1,10 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import {
-  EnumCursorDirection,
-  ICursorListResponse,
-} from 'erxes-ui';
+import { EnumCursorDirection, ICursorListResponse } from 'erxes-ui';
 import { ACCOUNTS_PER_PAGE } from '../constants/accountDefaultValues';
-import { GET_ACCOUNTS, GET_ASSIGNED_ACCOUNTS } from '../graphql/queries/getAccounts';
+import {
+  GET_ACCOUNTS,
+  GET_ASSIGNED_ACCOUNTS,
+} from '../graphql/queries/getAccounts';
 import { IAccount } from '../types/Account';
 
 export const useAccounts = (

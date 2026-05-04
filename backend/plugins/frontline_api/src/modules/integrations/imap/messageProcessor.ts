@@ -3,7 +3,8 @@ import { simpleParser, ParsedMail } from 'mailparser';
 import { IModels } from '~/connectionResolvers';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
-/* ── Email fetching ─────────────────────────────────────────────────── */
+
+const MAX_FETCH_PER_SYNC = 50;
 
 export const searchMessages = (
   imap: Imap,
@@ -14,46 +15,49 @@ export const searchMessages = (
       if (err) return reject(err);
       if (!results?.length) return resolve([]);
 
+      const limited = results.slice(-MAX_FETCH_PER_SYNC);
+
       let fetcher: Imap.ImapFetch;
       try {
-        fetcher = imap.fetch(results, { bodies: '', struct: true });
+        fetcher = imap.fetch(limited, { bodies: '', struct: true });
       } catch (e: any) {
         if (e.message?.includes('Nothing to fetch')) return resolve([]);
         return reject(e);
       }
 
+   
       const rawMessages: Buffer[] = [];
 
       fetcher.on('error', reject);
 
       fetcher.on('message', (msg) => {
+        const chunks: Buffer[] = [];
         msg.on('body', (stream) => {
-          const chunks: Buffer[] = [];
           stream.on('data', (chunk: Buffer) => chunks.push(chunk));
-          stream.once('end', () => rawMessages.push(Buffer.concat(chunks as Uint8Array[])));
+          stream.once('end', () =>
+            rawMessages.push(Buffer.concat(chunks as Uint8Array[])),
+          );
         });
       });
 
       fetcher.once('end', async () => {
-        try {
-          const parsed = await Promise.all(
-            rawMessages.map((raw) => simpleParser(raw)),
-          );
-          resolve(parsed);
-        } catch (e) {
-          reject(e);
+        const parsed: ParsedMail[] = [];
+        for (const raw of rawMessages) {
+          try {
+            parsed.push(await simpleParser(raw));
+          } catch (e) {
+            console.error('[IMAP] Failed to parse message:', e);
+          }
+          raw.fill(0);
         }
+        rawMessages.length = 0;
+        resolve(parsed);
       });
     });
   });
 };
 
-/* ── Customer resolution ────────────────────────────────────────────── */
 
-/**
- * Finds or creates a CRM customer for the given email address.
- * Accepts `models` directly to avoid an extra `generateModels` round-trip.
- */
 export const findOrCreateCustomer = async (
   subdomain: string,
   email: string,
@@ -116,12 +120,7 @@ export const findOrCreateCustomer = async (
 };
 
 
-/* ── Conversation threading ─────────────────────────────────────────── */
 
-/**
- * Returns an existing conversation ID if this message belongs to a known
- * thread (matched via In-Reply-To / References headers), or `null` otherwise.
- */
 export const findRelatedConversation = async (
   models: IModels,
   messageId: string,

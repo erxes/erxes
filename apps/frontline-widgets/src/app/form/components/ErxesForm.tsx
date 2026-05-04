@@ -1,5 +1,6 @@
 import {
   Button,
+  Checkbox,
   cn,
   DatePicker,
   Form,
@@ -8,6 +9,7 @@ import {
   Label,
   RadioGroup,
   Select,
+  Spinner,
   Switch,
   Textarea,
 } from 'erxes-ui';
@@ -18,11 +20,13 @@ import { ErxesSteps } from './steps';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   activeStepAtom,
+  browserInfoAtom,
   formValuesAtom,
   showConfirmationAtom,
 } from '../states/erxesFormStates';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useFormWidgetLead } from '../hooks/useFormWidgetLead';
 
 const checkLogic = (
   logic: IFormFieldLogic,
@@ -73,7 +77,6 @@ const isFieldVisible = (
   if (!logics || logics.length === 0) return true;
 
   const allFulfilled = logics.every((logic) => checkLogic(logic, formValues));
-
   return logicAction === 'hide' ? !allFulfilled : allFulfilled;
 };
 
@@ -93,8 +96,9 @@ export const ErxesForm = ({
   const formData = useErxesForm();
   const [activeStep, setActiveStep] = useAtom(activeStepAtom);
   const setShowConfirmation = useSetAtom(showConfirmationAtom);
-  const setFormValues = useSetAtom(formValuesAtom);
-  const globalFormValues = useAtomValue(formValuesAtom);
+  const [globalFormValues, setFormValues] = useAtom(formValuesAtom);
+  const browserInfo = useAtomValue(browserInfoAtom) || {};
+  const { saveLead, loading: saveLeadLoading } = useFormWidgetLead();
   const fields = formData.fields.filter(
     (field) => field.pageNumber === step.order,
   );
@@ -116,11 +120,40 @@ export const ErxesForm = ({
   };
 
   const handleSubmit = (values: any) => {
-    setFormValues((prev) => ({ ...(prev || {}), [step.order]: values }));
+    const updatedFormValues = {
+      ...(globalFormValues || {}),
+      [step.order]: values,
+    };
+    setFormValues(updatedFormValues);
 
-    isLastStep
-      ? setShowConfirmation(true)
-      : setActiveStep((prevStep) => prevStep + 1);
+    if (!isLastStep) {
+      setActiveStep((prevStep) => prevStep + 1);
+      return;
+    }
+
+    const submissions = Object.values(updatedFormValues).reduce<
+      Record<string, any>
+    >((acc, curr) => ({ ...acc, ...(curr as Record<string, any>) }), {});
+
+    saveLead({
+      variables: {
+        formId: formData._id,
+        submissions: Object.entries(submissions).map(([key, value]) => {
+          const field = formData.fields.find((f) => f._id === key);
+          return {
+            _id: key,
+            type: field?.type || 'input',
+            text: field?.text || key,
+            value,
+          };
+        }),
+        browserInfo,
+      },
+      onCompleted: () => {
+        setFormValues({});
+        setShowConfirmation(true);
+      },
+    });
   };
 
   return (
@@ -129,7 +162,7 @@ export const ErxesForm = ({
         <InfoCard
           title={formData?.title || ''}
           description={formData?.description || ''}
-          className="p-2"
+          className="p-2 bg-background/40 [&_h3]:text-accent-foreground"
         >
           {stepsLength > 1 && (
             <ErxesSteps
@@ -279,6 +312,50 @@ export const ErxesForm = ({
                         );
                       }
 
+                      if (erxesField.type === 'check') {
+                        return (
+                          <ErxesFormItem span={erxesField.column}>
+                            <Form.Label>{erxesField.text}</Form.Label>
+                            <div className="flex flex-col gap-2">
+                              {erxesField.options.map((option) => {
+                                if (!option) return null;
+                                const checked = (
+                                  (field.value as string[]) || []
+                                ).includes(option);
+                                return (
+                                  <label
+                                    key={option}
+                                    className="flex items-center gap-2 cursor-pointer"
+                                  >
+                                    <Checkbox
+                                      checked={checked}
+                                      onCheckedChange={(isChecked) => {
+                                        const current =
+                                          (field.value as string[]) || [];
+                                        field.onChange(
+                                          isChecked
+                                            ? [...current, option]
+                                            : current.filter(
+                                                (v) => v !== option,
+                                              ),
+                                        );
+                                      }}
+                                    />
+                                    <span className="text-sm">{option}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                            {erxesField.description && (
+                              <Form.Description>
+                                {erxesField.description}
+                              </Form.Description>
+                            )}
+                            <Form.Message />
+                          </ErxesFormItem>
+                        );
+                      }
+
                       if (erxesField.type === 'date') {
                         return (
                           <ErxesFormItem span={erxesField.column}>
@@ -325,10 +402,15 @@ export const ErxesForm = ({
                 Previous
               </Button>
             )}
-            {stepsLength > activeStep ? (
-              <Button type="submit">Next</Button>
+            {isLastStep ? (
+              <Button type="submit" disabled={saveLeadLoading}>
+                {saveLeadLoading && (
+                  <Spinner containerClassName="size-4 flex-none" />
+                )}
+                {formData.buttonText || 'Submit'}
+              </Button>
             ) : (
-              <Button type="submit">Submit</Button>
+              <Button type="submit">Next</Button>
             )}
           </div>
         </InfoCard>

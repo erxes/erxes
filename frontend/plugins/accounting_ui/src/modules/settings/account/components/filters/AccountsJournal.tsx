@@ -19,7 +19,7 @@ export const SelectAccountJournalCommand = React.forwardRef<
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger ref={ref} {...props}>
-        {selected ?? 'All'}
+        {selected ? JOURNAL_LABELS[selected as JournalEnum] : 'Бүгд'}
       </Combobox.Trigger>
       <Combobox.Content>
         <AccountsJournalCommand
@@ -46,7 +46,7 @@ export const AccountsJournalCommand = ({
 }) => {
   return (
     <Command>
-      <Command.Input placeholder="Filter journal" focusOnMount={focusOnMount} />
+      <Command.Input placeholder="Журналаар шүүх" focusOnMount={focusOnMount} />
       <Command.List>
         {Object.values(JournalEnum).map((journal) => (
           <Command.Item

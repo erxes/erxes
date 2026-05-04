@@ -3,7 +3,7 @@ import { ACCTRANSACTIONS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKey
 import { useTransactions } from '../hooks/useTransactions';
 import { AccountingTableRow } from './AccountingTableRow';
 import { transactionColumns } from './TransactionsTableColumns';
-
+import { TransactionCommandBar } from './TransactionCommandBar';
 
 export const TransactionTable = () => {
   const { transactions, loading, handleFetchMore, pageInfo } =
@@ -15,7 +15,7 @@ export const TransactionTable = () => {
       columns={transactionColumns}
       data={transactions || []}
       stickyColumns={['more', 'checkbox', 'account']}
-      className='m-3'
+      className="m-3"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -37,6 +37,7 @@ export const TransactionTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
+      <TransactionCommandBar />
     </RecordTable.Provider>
   );
 };

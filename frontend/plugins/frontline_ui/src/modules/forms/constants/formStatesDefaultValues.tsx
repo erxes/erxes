@@ -10,6 +10,7 @@ export const FORM_STATES_DEFAULT_VALUES = {
     channelId: '',
     primaryColor: '#4f46e5',
     appearance: 'iframe',
+    loadType: 'embedded',
     title: 'title',
     description: '',
     buttonText: '',

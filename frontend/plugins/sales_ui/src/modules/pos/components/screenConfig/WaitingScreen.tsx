@@ -1,17 +1,9 @@
-import { useState, useEffect } from 'react';
+import { Control, Controller } from 'react-hook-form';
 import { Label, Switch, Select, Input } from 'erxes-ui';
-
-interface WaitingScreenData {
-  isActive?: boolean;
-  isPrint?: boolean;
-  type?: string;
-  contentUrl?: string;
-  value?: string;
-}
+import type { ScreenConfigFormData } from './ScreenConfig';
 
 interface WaitingScreenProps {
-  data?: WaitingScreenData;
-  onChange: (data: WaitingScreenData) => void;
+  control: Control<ScreenConfigFormData>;
 }
 
 const changeTypeOptions = [
@@ -19,102 +11,99 @@ const changeTypeOptions = [
   { value: 'count', label: 'Count' },
 ];
 
-export const WaitingScreen: React.FC<WaitingScreenProps> = ({
-  data,
-  onChange,
-}) => {
-  const [isActive, setIsActive] = useState(data?.isActive ?? false);
-  const [type, setType] = useState(data?.type || 'time');
-  const [value, setValue] = useState(data?.value || '');
-  const [contentUrl, setContentUrl] = useState(data?.contentUrl || '');
-
-  useEffect(() => {
-    if (data) {
-      setIsActive(data.isActive ?? false);
-      setType(data.type || 'time');
-      setValue(data.value || '');
-      setContentUrl(data.contentUrl || '');
-    }
-  }, [data]);
-
-  const handleChange = (updates: Partial<WaitingScreenData>) => {
-    onChange({
-      isActive,
-      type,
-      value,
-      contentUrl,
-      ...updates,
-    });
-  };
-
+export const WaitingScreen: React.FC<WaitingScreenProps> = ({ control }) => {
   return (
     <div className="space-y-4">
-      <div className="flex gap-2 items-center">
-        <Switch
-          checked={isActive}
-          onCheckedChange={(checked) => {
-            setIsActive(checked);
-            handleChange({ isActive: checked });
-          }}
-        />
-        <Label>WAITING SCREEN</Label>
-      </div>
-
-      {isActive && (
-        <div className="pt-2 space-y-4">
-          <div className="space-y-2">
-            <Label>CHANGE TYPE</Label>
-            <Select
-              value={type}
-              onValueChange={(val) => {
-                setType(val);
-                handleChange({ type: val });
-              }}
-            >
-              <Select.Trigger>
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Content>
-                {changeTypeOptions.map((opt) => (
-                  <Select.Item key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select>
+      <Controller
+        name="waitingIsActive"
+        control={control}
+        render={({ field }) => (
+          <div className="flex gap-2 items-center">
+            <Switch checked={field.value} onCheckedChange={field.onChange} />
+            <Label>WAITING SCREEN</Label>
           </div>
+        )}
+      />
 
-          <div className="space-y-2">
-            <Label>
-              {type === 'time' ? 'CHANGE TIME (MIN)' : 'CHANGE COUNT'}
-            </Label>
-            <Input
-              value={value}
-              type="number"
-              onChange={(e) => {
-                setValue(e.target.value);
-                handleChange({ value: e.target.value });
-              }}
-              placeholder={
-                type === 'time' ? 'Enter time in minutes' : 'Enter count'
-              }
-            />
-          </div>
+      <Controller
+        name="waitingIsActive"
+        control={control}
+        render={({ field }) =>
+          field.value ? (
+            <div className="pt-2 space-y-4">
+              <Controller
+                name="waitingType"
+                control={control}
+                render={({ field }) => (
+                  <div className="space-y-2">
+                    <Label>CHANGE TYPE</Label>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Select.Trigger>
+                        <Select.Value />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {changeTypeOptions.map((opt) => (
+                          <Select.Item key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </div>
+                )}
+              />
 
-          <div className="space-y-2">
-            <Label>CONTENT URL</Label>
-            <Input
-              value={contentUrl}
-              type="text"
-              onChange={(e) => {
-                setContentUrl(e.target.value);
-                handleChange({ contentUrl: e.target.value });
-              }}
-              placeholder="Enter content URL"
-            />
-          </div>
-        </div>
-      )}
+              <Controller
+                name="waitingType"
+                control={control}
+                render={({ field: typeField }) => (
+                  <Controller
+                    name="waitingValue"
+                    control={control}
+                    render={({ field }) => (
+                      <div className="space-y-2">
+                        <Label>
+                          {typeField.value === 'time'
+                            ? 'CHANGE TIME (MIN)'
+                            : 'CHANGE COUNT'}
+                        </Label>
+                        <Input
+                          type="number"
+                          {...field}
+                          value={field.value || ''}
+                          placeholder={
+                            typeField.value === 'time'
+                              ? 'Enter time in minutes'
+                              : 'Enter count'
+                          }
+                        />
+                      </div>
+                    )}
+                  />
+                )}
+              />
+
+              <Controller
+                name="waitingContentUrl"
+                control={control}
+                render={({ field }) => (
+                  <div className="space-y-2">
+                    <Label>CONTENT URL</Label>
+                    <Input
+                      type="text"
+                      {...field}
+                      value={field.value || ''}
+                      placeholder="Enter content URL"
+                    />
+                  </div>
+                )}
+              />
+            </div>
+          ) : (
+            <></>
+          )
+        }
+      />
     </div>
   );
 };
