@@ -2,18 +2,17 @@ import { IAccount } from '@/settings/account/types/Account';
 import { CustomerType, IBranch, IDepartment, IProduct } from 'ui-modules';
 import { IVatRow } from '@/settings/vat/types/VatRow';
 import { ICtaxRow } from '@/settings/ctax/types/CtaxRow';
+import { TrJournalEnum } from './constants';
 
 export interface ITrDetail {
   _id?: string;
   accountId?: string;
+  branchId?: string;
+  departmentId?: string;
   originId?: string;
+  originType?: string;
   followInfos?: any;
-  follows?: {
-    type: string;
-    id: string;
-  }[];
 
-  side?: string;
   amount?: number;
   currencyAmount?: number;
   customRate?: number;
@@ -40,15 +39,12 @@ interface ICommontTr {
   ptrId?: string;
   parentId?: string;
   number?: string;
-  journal: string;
+  journal: TrJournalEnum;
   ptrStatus?: string;
   originId?: string;
-  followType?: string;
+  originType?: string;
   originSubId?: string;
-  follows?: {
-    type: string;
-    id: string;
-  }[];
+
   followExtras?: any;
   preTrId?: string;
 
@@ -83,6 +79,13 @@ interface ICommontTr {
 
   sumDt?: number;
   sumCt?: number;
+  side: string;
+  relAccounts?: {
+    dt?: string[];
+    ct?: string[];
+    customDt?: string[];
+    customCt?: string[];
+  };
   permission?: string;
 
   branch?: IBranch;
@@ -92,6 +95,14 @@ interface ICommontTr {
 export interface ITransaction extends ICommontTr {
   details: ITrDetail[];
   shortDetail?: ITrDetail;
+  customer?: {
+    _id: string;
+    code?: string;
+    primaryPhone?: string;
+    firstName?: string;
+    primaryEmail?: string;
+    lastName?: string;
+  };
 }
 
 export interface ITrRecord extends ICommontTr {
@@ -100,3 +111,41 @@ export interface ITrRecord extends ICommontTr {
   detailInd: number;
   trId: string;
 }
+
+export const trsQueryParamTypes: { [key: string]: string } = {
+  ids: 'string[]',
+  excludeIds: 'boolean',
+  status: 'string',
+  searchValue: 'string',
+  number: 'string',
+  accountIds: 'string[]',
+  accountKind: 'string',
+  accountExcludeIds: 'boolean',
+  accountStatus: 'string',
+  accountCategoryId: 'string',
+  accountSearchValue: 'string',
+  accountBrand: 'string',
+  accountIsOutBalance: 'boolean',
+  accountBranchId: 'string',
+  accountDepartmentId: 'string',
+  accountCurrency: 'string',
+  accountJournal: 'string',
+  brandId: 'string',
+  isOutBalance: 'boolean',
+  branchId: 'string',
+  departmentId: 'string',
+  currency: 'string',
+  journal: 'string',
+  statuses: 'string[]',
+  createdUserId: 'string',
+  modifiedUserId: 'string',
+  date: 'startDate,endDate',
+  updatedDate: 'startDate,endDate',
+  createdDate: 'startDate,endDate',
+  startDate: 'Date',
+  endDate: 'Date',
+  startUpdatedDate: 'Date',
+  endUpdatedDate: 'Date',
+  startCreatedDate: 'Date',
+  endCreatedDate: 'Date',
+};

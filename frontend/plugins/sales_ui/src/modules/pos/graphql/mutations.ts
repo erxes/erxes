@@ -4,10 +4,13 @@ import { posCommonFields } from './queries';
 const commonFields = `
   $name: String
   $description: String
+  $type: String
   $orderPassword: String
   $scopeBrandIds: [String]
   $pdomain: String
   $erxesAppToken: String
+  $serviceCharge: Float
+  $serviceChargeApplicableProductId: String
   $productDetails: [String]
   $adminIds: [String]
   $cashierIds: [String]
@@ -43,10 +46,13 @@ const commonFields = `
 const commonVariables = `
   name: $name,
   description: $description,
+  type: $type,
   orderPassword: $orderPassword,
   scopeBrandIds: $scopeBrandIds,
   pdomain: $pdomain,
   erxesAppToken: $erxesAppToken,
+  serviceCharge: $serviceCharge,
+  serviceChargeApplicableProductId: $serviceChargeApplicableProductId,
   productDetails: $productDetails,
   adminIds: $adminIds,
   cashierIds: $cashierIds,
@@ -80,9 +86,27 @@ const commonVariables = `
 `;
 
 const posAdd = gql`
-  mutation posAdd(${commonFields}) {
-    posAdd(${commonVariables}){
-      ${posCommonFields}
+  mutation PosAdd(
+    $name: String
+    $description: String
+    $type: String
+    $branchId: String
+    $paymentIds: [String]
+    $adminIds: [String]
+    $cashierIds: [String]
+    $initialCategoryIds: [String]
+  ) {
+    posAdd(
+      name: $name
+      description: $description
+      type: $type
+      branchId: $branchId
+      paymentIds: $paymentIds
+      adminIds: $adminIds
+      cashierIds: $cashierIds
+      initialCategoryIds: $initialCategoryIds
+    ) {
+      _id
     }
   }
 `;
@@ -102,14 +126,18 @@ const posRemove = gql`
 `;
 
 const updateConfigs = gql`
-  mutation posConfigsUpdate($posId:String!, $configsMap: JSON!) {
+  mutation posConfigsUpdate($posId: String!, $configsMap: JSON!) {
     posConfigsUpdate(posId: $posId, configsMap: $configsMap)
   }
 `;
 
 const brandAdd = gql`
   mutation brandsAdd($name: String!, $description: String, $emailConfig: JSON) {
-    brandsAdd(name: $name, description: $description, emailConfig: $emailConfig,) {
+    brandsAdd(
+      name: $name
+      description: $description
+      emailConfig: $emailConfig
+    ) {
       _id
     }
   }
@@ -127,6 +155,10 @@ const saveSlots = gql`
   mutation posSlotBulkUpdate($posId: String!, $slots: [SlotInput]) {
     posSlotBulkUpdate(posId: $posId, slots: $slots) {
       _id
+      posId
+      code
+      name
+      option
     }
   }
 `;

@@ -3,31 +3,42 @@ import { IContext } from '~/connectionResolvers';
 import { facebookStatus } from '@/integrations/facebook/messageBroker';
 import { graphRequest } from '@/integrations/facebook/utils';
 import { IFacebookPageResponse } from '@/integrations/facebook/@types/integrations';
+import { imapIntegrationDetails } from '@/integrations/imap/messageBroker';
+import { graphRequest as instagramGraphRequest } from '@/integrations/instagram/utils';
+import { instagramStatus } from '@/integrations/instagram/messageBroker';
+import { debugError } from '~/modules/inbox/utils';
+
+const getServiceName = (kind: string): string => {
+  if (kind.includes('facebook')) return 'facebook';
+  if (kind.includes('instagram')) return 'instagram';
+  return kind.split('-')[0];
+};
+
 export const integrationStatus = async (
   serviceName: string,
   subdomain: string,
   data: { integrationId: string },
 ) => {
-  try {
-    switch (serviceName) {
-      case 'facebook':
-        return await facebookStatus({ subdomain, data });
+  switch (serviceName) {
+    case 'facebook':
+      return facebookStatus({ subdomain, data });
+    case 'instagram':
+      return instagramStatus({ subdomain, data });
+    default:
+      return null;
+  }
+};
 
-      case 'instagram':
-        // TODO: Implement Instagram status check
-        break;
-
-      case 'mobinetSms':
-        //  TODO: Implement mobinetSms status check
-        break;
-
-      default:
-        throw new Error(`Unsupported service: ${serviceName}`);
-    }
-  } catch (e) {
-    throw new Error(
-      `Failed to check integration status for ${serviceName}. Error: ${e.message}. Please check the integrations list and resolve any issues.`,
-    );
+export const integrationDetail = async (
+  serviceName: string,
+  subdomain: string,
+  data: { integrationId: string },
+) => {
+  switch (serviceName) {
+    case 'imap':
+      return imapIntegrationDetails({ subdomain, data });
+    default:
+      return null;
   }
 };
 
@@ -45,13 +56,10 @@ export default {
     _args,
     { models }: IContext,
   ) {
-    console.log(integration, 'channel integration');
     if (integration?.channelId) {
-      return models.Channels.findOne({
-        _id: integration.channelId,
-      });
+      return models.Channels.findOne({ _id: integration.channelId });
     }
-    return;
+    return null;
   },
 
   async tags(integration: IIntegrationDocument) {
@@ -78,33 +86,39 @@ export default {
     _args,
     { subdomain }: IContext,
   ) {
-    const kind = integration.kind.includes('facebook')
-      ? 'facebook'
-      : integration.kind.split('-')[0];
+    const serviceName = getServiceName(integration.kind);
 
-    if (kind === 'messenger') {
+    if (serviceName === 'messenger') {
       return { status: 'healthy' };
     }
+
     try {
-      const response = await integrationStatus(kind, subdomain, {
+      const response = await integrationStatus(serviceName, subdomain, {
         integrationId: integration._id,
       });
-
-      return response?.data;
+      return response?.data ?? { status: 'healthy' };
     } catch (e) {
       return { status: 'healthy' };
     }
   },
 
-  async details(integration: IIntegrationDocument, _args) {
-    const serviceName = integration.kind.includes('facebook')
-      ? 'facebook'
-      : integration.kind;
+  async details(
+    integration: IIntegrationDocument,
+    _args,
+    { subdomain }: IContext,
+  ) {
+    if (integration.kind === 'messenger') return null;
 
-    if (integration.kind === 'messenger') {
+    const serviceName = getServiceName(integration.kind);
+
+    try {
+      return await integrationDetail(serviceName, subdomain, {
+        integrationId: integration._id,
+      });
+    } catch (e) {
+      debugError(`integrationDetail error: ${e.message}`);
       return null;
     }
-    return serviceName;
   },
 
   async facebookPage(
@@ -112,11 +126,7 @@ export default {
     _args,
     { models }: IContext,
   ) {
-    const serviceName = integration.kind.includes('facebook')
-      ? 'facebook'
-      : integration.kind;
-
-    if (serviceName !== 'facebook') return null;
+    if (!integration.kind.includes('facebook')) return null;
 
     try {
       const facebookIntegration = await models.FacebookIntegrations.findOne({
@@ -127,17 +137,13 @@ export default {
         !facebookIntegration ||
         !Array.isArray(facebookIntegration.facebookPageIds)
       ) {
-        console.warn('No facebookIntegration or no facebookPageIds found');
         return null;
       }
 
       const results = await Promise.all(
         facebookIntegration.facebookPageIds.map(async (pageId) => {
           const token = facebookIntegration.facebookPageTokensMap?.[pageId];
-          if (!token) {
-            console.warn(`Token not found for pageId: ${pageId}`);
-            return null;
-          }
+          if (!token) return null;
 
           try {
             const response = (await graphRequest.get(
@@ -146,7 +152,7 @@ export default {
             )) as IFacebookPageResponse;
             return response ? { pageId, ...response } : null;
           } catch (err) {
-            console.error(`Failed to fetch page ${pageId}:`, err);
+            debugError(`Failed to fetch page ${pageId}: ${err.message}`);
             return null;
           }
         }),
@@ -157,8 +163,43 @@ export default {
       } & IFacebookPageResponse)[];
       return filtered.length > 0 ? filtered : null;
     } catch (error) {
-      console.error('Failed to fetch Facebook pages:', error);
-      throw error;
+      debugError(`Failed to fetch Facebook pages: ${error.message}`);
+      return null;
+    }
+  },
+
+  async instagramPage(
+    integration: IIntegrationDocument,
+    _args,
+    { models }: IContext,
+  ) {
+    if (!integration.kind.includes('instagram')) return null;
+
+    try {
+      const igIntegration = await models.InstagramIntegrations.findOne({
+        erxesApiId: integration._id,
+      });
+
+      if (!igIntegration) return null;
+
+      const instagramPageId = igIntegration.instagramPageIds?.[0];
+      if (!instagramPageId) return null;
+
+      const account = await models.InstagramAccounts.findOne({
+        _id: igIntegration.accountId,
+      });
+
+      if (!account?.token) return null;
+
+      const info: any = await instagramGraphRequest.get(
+        `${instagramPageId}?fields=id,username`,
+        account.token,
+      );
+
+      return info ? [{ id: info.id, name: info.username }] : null;
+    } catch (error) {
+      debugError(`Failed to fetch Instagram page: ${error.message}`);
+      return null;
     }
   },
 };

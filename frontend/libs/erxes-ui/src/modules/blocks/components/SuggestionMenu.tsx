@@ -12,11 +12,13 @@ export const SuggestionMenu = React.forwardRef<
     ref={ref}
     {...props}
     className={cn(
-      'w-72 rounded-md bg-background shadow-md border border/50 p-2 outline-none overflow-hidden',
+      'w-72 rounded-md bg-background shadow-md border border/50 p-2 outline-hidden overflow-hidden',
       className,
     )}
   >
-    <div className="overflow-auto flex flex-col gap-1 h-full">{children}</div>
+    <div className="overflow-auto flex flex-col gap-1 h-full hide-scroll styled-scroll">
+      {children}
+    </div>
   </div>
 ));
 
@@ -42,6 +44,10 @@ export const SuggestionMenuItem = React.forwardRef<
     <div
       ref={mergeRefs([itemRef, inViewRef, ref])}
       {...props}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        props.onMouseDown?.(e);
+      }}
       className={cn(
         buttonVariants({ variant: 'ghost', size: 'lg' }),
         'justify-between p-2 font-medium [&>svg]:size-4 hover:bg-transparent',

@@ -64,7 +64,6 @@ export const useUpload = () => {
 
     setIsLoading(true);
 
-    // tslint:disable-next-line
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       let type = file.type;
@@ -88,7 +87,7 @@ export const useUpload = () => {
 
       // const fileUploadMaxSize = REACT_APP_FILE_UPLOAD_MAX_SIZE || 20 * 1024 * 1024;
       const fileUploadMaxSize: number =
-        parseInt(
+        Number.parseInt(
           localStorage.getItem('erxes_env_REACT_APP_FILE_UPLOAD_MAX_SIZE') ||
             '',
           10,
@@ -107,7 +106,7 @@ export const useUpload = () => {
         continue;
       }
 
-      // after read proccess done
+      // after read process done
       uploadReader.onloadend = () => {
         // before upload
         if (beforeUpload) {

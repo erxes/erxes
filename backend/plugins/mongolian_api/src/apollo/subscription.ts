@@ -2,21 +2,32 @@ import { withFilter } from 'graphql-subscriptions';
 
 export default {
   name: 'mongolian',
+
   typeDefs: `
-    automationResponded(userId: String, sessionCode: String): AutomationResponse
+    ebarimtResponded(userId: String, processId: String): EbarimtResponse
+    productPlacesResponded(userId: String, sessionCode: String): ProductPlacesResponse
   `,
+
   generateResolvers: (graphqlPubsub) => {
     return {
-      automationResponded: {
+      ebarimtResponded: {
         subscribe: withFilter(
           (_, { userId }) =>
-            graphqlPubsub.asyncIterator(`automationResponded:${userId}`),
-          (payload, variables) => {
-            return (
-              payload.automationResponded.sessionCode === variables.sessionCode
-            );
-          },
+            graphqlPubsub.asyncIterator(`ebarimtResponded:${userId}`),
+          (payload, variables) =>
+            variables?.userId &&
+            payload?.ebarimtResponded?.userId === variables?.userId,
         ),
+      },
+      productPlacesResponded: {
+        subscribe: withFilter(
+          (_, { userId }) =>
+            graphqlPubsub.asyncIterator(`productPlacesResponded:${userId}`),
+          (payload, variables) =>
+            variables?.userId &&
+            payload?.productPlacesResponded?.userId === variables?.userId,
+        ),
+        // no stringify
       },
     };
   },

@@ -51,14 +51,14 @@ export const SelectDepartmentsProvider = ({
     const newSelectedDepartmentIds = isSingleMode
       ? [department._id]
       : isSelected
-      ? multipleValue.filter((d) => d !== department._id)
-      : [...multipleValue, department._id];
+        ? multipleValue.filter((d) => d !== department._id)
+        : [...multipleValue, department._id];
 
     const newSelectedDepartments = isSingleMode
       ? [department]
       : isSelected
-      ? selectedDepartments.filter((d) => d._id !== department._id)
-      : [...selectedDepartments, department];
+        ? selectedDepartments.filter((d) => d._id !== department._id)
+        : [...selectedDepartments, department];
 
     setSelectedDepartments(newSelectedDepartments);
     onValueChange?.(isSingleMode ? department._id : newSelectedDepartmentIds);
@@ -187,7 +187,7 @@ export const SelectDepartmentsItem = ({
   department: IDepartment & { hasChildren: boolean };
 }) => {
   const { onSelect, departmentIds } = useSelectDepartmentsContext();
-  const isSelected = departmentIds?.some((d) => d === department._id);
+  const isSelected = departmentIds?.includes(department._id);
   return (
     <SelectTree.Item
       key={department._id}
@@ -219,7 +219,7 @@ export const DepartmentsList = ({
 
   const selectedDepartmentIds = Array.isArray(value) ? value : [value];
 
-  if (!value || !value.length) {
+  if (!value?.length) {
     return <Combobox.Value placeholder={placeholder || ''} />;
   }
 
@@ -255,7 +255,7 @@ export const DepartmentsList = ({
 export const SelectDepartmentsValue = () => {
   const { selectedDepartments, mode } = useSelectDepartmentsContext();
 
-  if (selectedDepartments?.length > 1)
+  if (selectedDepartments?.length > 1 && mode === 'multiple')
     return (
       <span className="text-muted-foreground">
         {selectedDepartments.length} departments selected
@@ -425,6 +425,35 @@ export const SelectDepartmentsCommandbarItem = ({
   );
 };
 
+export const SelectDepartmentsComboboxItem = ({
+  onValueChange,
+  className,
+  ...props
+}: Omit<React.ComponentProps<typeof SelectDepartmentsProvider>, 'children'> & {
+  className?: string;
+}) => {
+  const [open, setOpen] = useState<boolean>(false);
+  return (
+    <SelectDepartmentsProvider
+      onValueChange={(value) => {
+        onValueChange?.(value);
+        setOpen(false);
+      }}
+      {...props}
+    >
+      <Popover open={open} onOpenChange={setOpen}>
+        <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
+          <SelectDepartmentsValue />
+        </Combobox.Trigger>
+
+        <Combobox.Content>
+          <SelectDepartmentsContent />
+        </Combobox.Content>
+      </Popover>
+    </SelectDepartmentsProvider>
+  );
+};
+
 export const SelectDepartmentsFormItem = ({
   onValueChange,
   className,
@@ -556,6 +585,7 @@ export const SelectDepartments = Object.assign(SelectDepartmentsProvider, {
   Value: SelectDepartmentsValue,
   List: DepartmentsList,
   InlineCell: SelectDepartmentsInlineCell,
+  ComboboxItem: SelectDepartmentsComboboxItem,
   FormItem: SelectDepartmentsFormItem,
   FilterItem: SelectDepartmentsFilterItem,
   FilterView: SelectDepartmentsFilterView,

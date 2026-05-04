@@ -1,35 +1,57 @@
-# Base image
-FROM node:22-alpine AS base
+# Stage 1: install production deps as flat real directories (no pnpm virtual store)
+FROM node:22-alpine3.22 AS installer
 WORKDIR /app
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9
 
-# Dependencies (production only)
-FROM base AS deps
-# Copy root manifests
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json nx.json ./
-# Copy only the package.json files for selective deps resolution
+COPY pnpm-lock.yaml ./
 COPY backend/plugins/mongolian_api/package.json backend/plugins/mongolian_api/
 COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
-
-# Install only production dependencies
-RUN pnpm install --prod --frozen-lockfile
-
-# Runtime image
-FROM base AS runtime
+RUN node -e "\
+const fs = require('fs'); \
+const shared = require('./backend/erxes-api-shared/package.json'); \
+const service = require('./backend/plugins/mongolian_api/package.json'); \
+const dependencies = { \
+  ...(shared.dependencies || {}), \
+  ...(service.dependencies || {}), \
+}; \
+delete dependencies['erxes-api-shared']; \
+fs.writeFileSync( \
+  'package.json', \
+  JSON.stringify( \
+    { name: 'runtime-deps', version: '1.0.0', private: true, dependencies }, \
+    null, \
+    2, \
+  ), \
+); \
+" \
+    && pnpm install --prod --shamefully-hoist --no-frozen-lockfile \
+    && find node_modules -type f \( \
+         -name "*.d.ts" -o -name "*.map" -o -name "*.md" \
+         -o -name "LICENSE*" -o -name "LICENCE*" \
+         -o -name "CHANGELOG*" -o -name "README*" \
+         -o -name "CONTRIBUTING*" -o -name "AUTHORS*" \
+         -o -name ".npmignore" -o -name ".eslintrc*" -o -name "Makefile" \
+       \) -delete \
+    && find node_modules -mindepth 2 -maxdepth 3 -type d \( \
+         -name "test" -o -name "tests" -o -name "__tests__" -o -name "spec" \
+         -o -name "docs" -o -name "doc" -o -name "examples" -o -name "example" \
+         -o -name ".github" -o -name "coverage" \
+       \) -prune -exec rm -rf {} \; 2>/dev/null || true
+# Stage 2: minimal runtime
+FROM node:22-alpine3.22
 WORKDIR /app
 
-# Copy built dist from CI (nx build already ran in workflow)
-COPY backend/plugins/mongolian_api ./backend/plugins/mongolian_api
-COPY backend/erxes-api-shared ./backend/erxes-api-shared
+COPY --from=installer /app/node_modules ./node_modules
 
-# Copy production node_modules from deps stage
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/backend/plugins/mongolian_api/node_modules ./backend/plugins/mongolian_api/node_modules
-COPY --from=deps /app/backend/erxes-api-shared/node_modules ./backend/erxes-api-shared/node_modules
+RUN rm -rf ./node_modules/erxes-api-shared
+COPY backend/erxes-api-shared/dist ./node_modules/erxes-api-shared/dist
+COPY backend/erxes-api-shared/utils ./node_modules/erxes-api-shared/utils
+COPY backend/erxes-api-shared/core-types ./node_modules/erxes-api-shared/core-types
+COPY backend/erxes-api-shared/core-modules ./node_modules/erxes-api-shared/core-modules
+COPY backend/erxes-api-shared/package.json ./node_modules/erxes-api-shared/
 
-# Environment & security
+COPY backend/plugins/mongolian_api/dist ./dist
+
 ENV NODE_ENV=production
 USER 1000
-
-# Run app
-CMD ["node", "backend/plugins/mongolian_api/dist/src/main.js"]
+CMD ["node", "dist/src/main.js"]

@@ -16,7 +16,6 @@ export interface IAdjustInventory {
   beginDate?: Date;
   successDate?: Date;
   checkedAt?: Date;
-
 }
 
 export interface IAdjustInvDetail {

@@ -15,8 +15,8 @@ export const EditAccountCategory = () => {
   return (
     <Dialog open={open !== null} onOpenChange={() => setOpen(null)}>
       <AccountingDialog
-        title="Edit Account Category"
-        description="Edit an account category"
+        title="Дансны ангилал засах"
+        description="Дансны ангилал засах"
       >
         <EditAccountCategoryForm />
       </AccountingDialog>
@@ -72,7 +72,7 @@ export const EditAccountCategoryForm = () => {
         loading={editLoading}
       />
       {loading && (
-        <div className="absolute inset-0 bg-background/10 backdrop-blur-sm flex items-center justify-center rounded-md">
+        <div className="absolute inset-0 bg-background/10 backdrop-blur-xs flex items-center justify-center rounded-md">
           <Spinner />
         </div>
       )}

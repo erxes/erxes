@@ -86,7 +86,7 @@ const genStock = (detail, product, config) => {
     name: product.shortName || `${product.code} - ${product.name}`,
     barCode,
     barCodeType,
-    classificationCode: config.defaultGSCode,
+    classificationCode: config.defaultUnitedCode,
     taxProductCode: product.taxCode,
     measureUnit: product.uom ?? 'ш',
     qty: detail.quantity,
@@ -349,17 +349,6 @@ export const getEbarimtData = async (params: IPutDataArgs) => {
   return { status: 'ok', data: mainData, innerData };
 };
 
-export const getConfig = async (subdomain, code, defaultValue?) => {
-  return await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'configs',
-    action: 'getConfig',
-    input: { code, defaultValue },
-  });
-};
-
 export const validCompanyCode = async (config, companyCode) => {
   const resp = await getCompanyInfo({
     checkTaxpayerUrl: config.checkTaxpayerUrl,
@@ -371,18 +360,14 @@ export const validCompanyCode = async (config, companyCode) => {
   return resp.result?.data?.name;
 };
 
-export const companyCheckCode = async (params, subdomain) => {
+export const companyCheckCode = async (params, models: IModels) => {
   if (!params.code) {
     return params;
   }
 
-  const config = await getConfig(subdomain, 'EBARIMT', {});
+  const config = await models.Configs.getConfigValue('EBARIMT');
 
-  if (
-    !config ||
-    !config.checkTaxpayerUrl ||
-    !config.checkTaxpayerUrl.includes('http')
-  ) {
+  if (!(config?.checkTaxpayerUrl || '').includes('http')) {
     return params;
   }
 
@@ -485,10 +470,13 @@ const billTypeConfomityCompany = async (subdomain, config, deal) => {
   const companyIds = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    method: 'query',
-    module: 'conformities',
-    action: 'savedConformity',
-    input: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['company'] },
+    module: 'relation',
+    action: 'getRelationIds',
+    input: {
+      contentType: 'sales:deal',
+      contentId: deal._id,
+      relatedContentType: 'core:company',
+    },
     defaultValue: [],
   });
 
@@ -496,11 +484,10 @@ const billTypeConfomityCompany = async (subdomain, config, deal) => {
     const companies = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      method: 'query',
       module: 'companies',
       action: 'findActiveCompanies',
       input: {
-        selector: { _id: { $in: companyIds } },
+        query: { _id: { $in: companyIds } },
         fields: { _id: 1, code: 1, primaryName: 1 },
       },
       defaultValue: [],
@@ -557,10 +544,13 @@ const checkBillType = async (subdomain, config, deal) => {
     const customerIds = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      method: 'query',
-      module: 'conformities',
-      action: 'savedConformity',
-      input: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['customer'] },
+      module: 'relation',
+      action: 'getRelationIds',
+      input: {
+        contentType: 'sales:deal',
+        contentId: deal._id,
+        relatedContentType: 'core:customer',
+      },
       defaultValue: [],
     });
 
@@ -572,7 +562,7 @@ const checkBillType = async (subdomain, config, deal) => {
         module: 'customers',
         action: 'findActiveCustomers',
         input: {
-          selector: { _id: { $in: customerIds } },
+          query: { _id: { $in: customerIds } },
           fields: {
             _id: 1,
             code: 1,
@@ -585,7 +575,7 @@ const checkBillType = async (subdomain, config, deal) => {
         defaultValue: [],
       });
 
-      let customer = customers.find((c) => c.code && c.code.match(/^\d{8}$/g));
+      let customer = customers.find((c) => c.code?.match(/^\d{8}$/g));
 
       if (customer) {
         customerCode = customer.code || '';
@@ -606,8 +596,7 @@ const getChildCategories = async (subdomain: string, categoryIds) => {
   const childs = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    method: 'query',
-    module: 'categories',
+    module: 'productCategories',
     action: 'withChilds',
     input: { ids: categoryIds },
     defaultValue: [],
@@ -621,9 +610,8 @@ const getChildTags = async (subdomain: string, tagIds) => {
   const childs = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    method: 'query',
     module: 'tags',
-    action: 'tagWithChilds',
+    action: 'findWithChild',
     input: { query: { _id: { $in: tagIds } }, fields: { _id: 1 } },
     defaultValue: [],
   });
@@ -1011,7 +999,7 @@ export const returnResponse = async (url, data) => {
         return { status: 200 };
       }
       try {
-        return r.json();
+        return await r.json();
       } catch (e) {
         return {
           status: 'ERROR',

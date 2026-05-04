@@ -1,4 +1,4 @@
-import { getEnv, sendWorkerQueue } from 'erxes-api-shared/utils';
+import { getEnv } from 'erxes-api-shared/utils';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { IFacebookConversationMessageDocument } from '@/integrations/facebook/@types/conversationMessages';
 import { IFacebookConversation } from '@/integrations/facebook/@types/conversations';
@@ -6,8 +6,9 @@ import {
   TBotConfigMessageButton,
   TBotData,
 } from '@/integrations/facebook/meta/automation/types/automationTypes';
+import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 
-export const triggerFacebookAutomation = async (
+export const triggerFacebookMessageAutomation = (
   subdomain: string,
   {
     conversationMessage,
@@ -20,25 +21,40 @@ export const triggerFacebookAutomation = async (
   },
 ) => {
   const target: any = { ...conversationMessage };
-  let executionId;
-  let type = 'frontline:facebook.messages';
+  let repeatOptions;
 
   if (payload) {
     target.payload = JSON.parse(payload || '{}');
-    if (target?.payload?.executionId) {
-      executionId = target.payload.executionId;
+    const { executionId, actionId, btnId } = target?.payload || {};
+
+    if (executionId && actionId) {
+      repeatOptions = { executionId, actionId, optionalConnectId: btnId };
     }
   }
 
   if (adData) {
+    target.entryType = 'open_thread';
     target.adData = adData;
-    type = 'facebook:ads';
+    target.openThread = {
+      source: adData?.source || 'ADS',
+      type: adData?.type || 'OPEN_THREAD',
+      adId: adData?.adId,
+      postId: adData?.postId,
+      pageId: adData?.pageId,
+    };
+  } else {
+    target.entryType = 'direct';
   }
 
-  sendWorkerQueue('automations', 'trigger').add('trigger', {
+  sendAutomationTrigger(
     subdomain,
-    data: { type, targets: [target], executionId },
-  });
+    {
+      type: 'frontline:facebook.messages',
+      targets: [target],
+      repeatOptions,
+    },
+    { transport: 'trpc' },
+  );
 };
 
 export const checkIsBot = async (models: IModels, message, recipientId) => {
@@ -50,7 +66,6 @@ export const checkIsBot = async (models: IModels, message, recipientId) => {
       selector = { _id: payload.botId };
     }
   }
-
   const bot = await models.FacebookBots.findOne(selector);
 
   return bot;
@@ -61,12 +76,14 @@ export const generatePayloadString = (
   btn: any,
   customerId: string,
   executionId: string,
+  actionId: string,
 ) => {
   return JSON.stringify({
     btnId: btn._id,
     conversationId: conversation._id,
     customerId,
     executionId,
+    actionId,
   });
 };
 
@@ -130,8 +147,8 @@ export const generateBotData = (
 
   if (type === 'quickReplies') {
     botData.push({
-      type: 'custom',
-      component: 'QuickReplies',
+      type: 'quick_replies',
+      text: `<p>${text}</p>`,
       quick_replies: quickReplies.map(({ text }) => ({
         title: text,
       })),
@@ -145,14 +162,13 @@ export const generateBotData = (
     });
   }
 
-  if (type === 'text' && buttons?.length > 0) {
+  if (['text', 'input'].includes(type) && buttons?.length > 0) {
     botData.push({
-      type: 'carousel',
-      elements: [{ title: text, buttons: generateButtons(buttons) }],
+      type: 'button_template',
+      text: `<p>${text}</p>`,
+      buttons: generateButtons(buttons),
     });
-  }
-
-  if (type === 'text') {
+  } else if (['text', 'input'].includes(type)) {
     botData.push({
       type: 'text',
       text: `<p>${text}</p>`,

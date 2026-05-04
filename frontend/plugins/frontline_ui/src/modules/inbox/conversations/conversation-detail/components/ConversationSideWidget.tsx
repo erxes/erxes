@@ -1,22 +1,33 @@
-import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
-import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
-import { IconUser } from '@tabler/icons-react';
-import { SideMenu } from 'erxes-ui';
-import { CustomerWidget, useRelationWidget } from 'ui-modules';
+import { SideMenu, useSideMenuContext } from 'erxes-ui';
+import { useRelationWidget } from 'ui-modules';
+import { useSetAtom } from 'jotai';
+import { useEffect } from 'react';
+import { sideWidgetOpenState } from '@/inbox/states/sideWidgetOpenState';
 
-export const ConversationSideWidget = () => {
-  const { customerId, _id } = useConversationContext();
+const SideWidgetStateSync = () => {
+  const { activeTab } = useSideMenuContext();
+  const setSideWidgetOpen = useSetAtom(sideWidgetOpenState);
+
+  useEffect(() => {
+    setSideWidgetOpen(!!activeTab);
+    return () => setSideWidgetOpen(false);
+  }, [activeTab, setSideWidgetOpen]);
+
+  return null;
+};
+
+export const ConversationSideWidget = ({
+  customerId,
+  _id,
+}: {
+  customerId: string;
+  _id: string;
+}) => {
   const { relationWidgetsModules, RelationWidget } = useRelationWidget();
 
   return (
     <SideMenu>
-      {customerId && (
-        <CustomerWidget
-          customerIds={[customerId]}
-          scope={InboxHotkeyScope.MainPage}
-        />
-      )}
-
+      <SideWidgetStateSync />
       {relationWidgetsModules.map((module) => {
         return (
           <SideMenu.Content value={module.name} key={module.name}>
@@ -25,7 +36,7 @@ export const ConversationSideWidget = () => {
               module={module.name}
               pluginName={module.pluginName}
               contentId={_id}
-              contentType="inbox:conversation"
+              contentType="frontline:conversation"
               customerId={customerId}
             />
           </SideMenu.Content>
@@ -33,7 +44,6 @@ export const ConversationSideWidget = () => {
       })}
 
       <SideMenu.Sidebar>
-        <SideMenu.Trigger value="customer" label="Customer" Icon={IconUser} />
         {relationWidgetsModules.map((module) => {
           return (
             <SideMenu.Trigger

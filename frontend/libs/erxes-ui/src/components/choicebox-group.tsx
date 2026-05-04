@@ -64,7 +64,7 @@ const ChoiceboxItem = forwardRef<HTMLLabelElement, ChoiceboxItemProps>(
         key={`${id}-${value}`}
         ref={ref}
         className={cn(
-          ' relative cursor-pointer justify-center  h-min rounded-sm  transition-[color,box-shadow] w-full outline-none bg-accent hover:bg-border hover:cursor-pointer ',
+          ' relative cursor-pointer justify-center  h-min rounded-sm  transition-[color,box-shadow] w-full outline-hidden bg-accent hover:bg-border hover:cursor-pointer ',
         )}
       >
         <RadioGroup.Item

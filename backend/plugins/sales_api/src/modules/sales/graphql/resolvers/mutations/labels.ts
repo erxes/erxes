@@ -1,15 +1,30 @@
 import { IContext } from '~/connectionResolvers';
 import { IPipelineLabel, IPipelineLabelDocument } from '~/modules/sales/@types';
+import { subscriptionWrapper } from '../utils';
+import { Resolver } from 'erxes-api-shared/core-types';
 
-export const pipelineLabelMutations = {
+export const pipelineLabelMutations: Record<string, Resolver> = {
   /**
    * Creates a new pipeline label
    */
   async salesPipelineLabelsAdd(
     _root: undefined,
     { ...doc }: IPipelineLabel,
+    { user, models, checkPermission }: IContext,
+  ) {
+    await checkPermission('pipelineLabelsAdd');
+    return await models.PipelineLabels.createPipelineLabel({
+      userId: user._id,
+      ...doc,
+    });
+  },
+
+  async cpSalesPipelineLabelsAdd(
+    _root: undefined,
+    { ...doc }: IPipelineLabel,
     { user, models }: IContext,
   ) {
+    // Client portal – no permission check
     return await models.PipelineLabels.createPipelineLabel({
       userId: user._id,
       ...doc,
@@ -22,8 +37,9 @@ export const pipelineLabelMutations = {
   async salesPipelineLabelsEdit(
     _root: undefined,
     { _id, ...doc }: IPipelineLabelDocument,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('pipelineLabelsEdit');
     return await models.PipelineLabels.updatePipelineLabel(_id, doc);
   },
 
@@ -33,8 +49,9 @@ export const pipelineLabelMutations = {
   async salesPipelineLabelsRemove(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('pipelineLabelsRemove');
     return await models.PipelineLabels.removePipelineLabel(_id);
   },
 
@@ -46,6 +63,21 @@ export const pipelineLabelMutations = {
     { targetId, labelIds }: { targetId: string; labelIds: string[] },
     { models }: IContext,
   ) {
-    return models.PipelineLabels.labelsLabel(targetId, labelIds);
+    const { oldDeal, deal } = await models.PipelineLabels.labelObject({
+      dealId: targetId,
+      labelIds,
+    });
+    const stage = await models.Stages.getStage(deal.stageId);
+
+    await subscriptionWrapper(models, {
+      action: 'update',
+      deal,
+      oldDeal,
+      pipelineId: stage.pipelineId,
+    });
   },
+};
+
+pipelineLabelMutations.cpSalesPipelineLabelsAdd.wrapperConfig = {
+  forClientPortal: true,
 };

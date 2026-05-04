@@ -59,10 +59,7 @@ const LabelOverlay = ({ labels }: { labels: IPipelineLabel[] }) => {
           >
             Back
           </button>
-          <h3 className="text-sm font-semibold text-gray-600">
-            {editLabelId ? 'Edit Label' : 'Add Label'}
-          </h3>
-          <span />
+
         </div>
         <LabelForm
           onSuccess={() => {

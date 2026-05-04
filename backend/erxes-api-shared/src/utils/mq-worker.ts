@@ -1,6 +1,11 @@
+import type {
+  DefaultJobOptions,
+  Job,
+  Worker as WorkerType,
+  WorkerOptions,
+} from 'bullmq';
 import { Queue, QueueEvents, Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
-import type { DefaultJobOptions, Job, Worker as WorkerType } from 'bullmq';
 import { redis } from './redis';
 
 const queueMap = new Map<string, Queue>();
@@ -12,9 +17,11 @@ export const createMQWorkerWithListeners = (
   processor: (job: Job) => Promise<any>,
   redis: Redis,
   onReady: () => void,
+  workerOptions: Omit<WorkerOptions, 'connection'> = {},
 ): WorkerType => {
   const worker = new Worker(`${service}-${queueName}`, processor, {
     connection: redis,
+    ...workerOptions,
   });
 
   // Default event listeners
@@ -44,10 +51,17 @@ export const createMQWorkerWithListeners = (
   return worker;
 };
 
-export const sendWorkerQueue = (serviceName: string, queueName: string) =>
-  new Queue(`${serviceName}-${queueName}`, {
-    connection: redis,
-  });
+export const sendWorkerQueue = (serviceName: string, queueName: string) => {
+  const queueKey = `${serviceName}-${queueName}`;
+  let queue = queueMap.get(queueKey);
+
+  if (!queue) {
+    queue = new Queue(queueKey, { connection: redis });
+    queueMap.set(queueKey, queue);
+  }
+
+  return queue;
+};
 
 export const sendWorkerMessage = async ({
   pluginName,
@@ -85,11 +99,7 @@ export const sendWorkerMessage = async ({
     queueEventsMap.set(queueKey, queueEvents);
   }
 
-  const job = await queue.add(
-    jobName,
-    { subdomain, data },
-    { ...(options || {}) },
-  );
+  const job = await queue.add(jobName, { subdomain, data }, { ...options });
   const result = await Promise.race([
     job.waitUntilFinished(queueEvents),
     new Promise((_, reject) =>

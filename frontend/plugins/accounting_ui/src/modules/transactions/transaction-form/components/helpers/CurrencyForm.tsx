@@ -1,7 +1,7 @@
 import { useMainConfigs } from '@/settings/hooks/useMainConfigs';
 import { useGetExchangeRate } from '../../hooks/useGetExchangeRate';
 import { CurrencyField, Form } from 'erxes-ui';
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useEffect, useMemo, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { TrJournalEnum, TR_SIDES } from '../../../types/constants';
@@ -45,7 +45,7 @@ const CurrencyFormBody = ({
 
   const mainSide = useWatch({
     control: form.control,
-    name: `trDocs.${journalIndex}.details.0.side`,
+    name: `trDocs.${journalIndex}.side`,
   });
 
   const diffAmount: number = useMemo(() => {
@@ -64,7 +64,7 @@ const CurrencyFormBody = ({
     return mainSide;
   }, [mainSide, diffAmount]);
 
-  const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
+  const setFollowTrDocs = useSetAtom(followTrDocsState);
 
   const handleCurrencyAmount = (
     value: number,
@@ -78,7 +78,10 @@ const CurrencyFormBody = ({
   };
 
   useEffect(() => {
-    form.setValue(`trDocs.${journalIndex}.details.0.amount`, spotRate * (detail.currencyAmount ?? 0));
+    form.setValue(
+      `trDocs.${journalIndex}.details.0.amount`,
+      spotRate * (detail.currencyAmount ?? 0),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spotRate]);
 
@@ -95,44 +98,60 @@ const CurrencyFormBody = ({
 
   useEffect(() => {
     if (!diffAmount) {
-      setFollowTrDocs(
-        (followTrDocs || []).filter(
+      setFollowTrDocs((prev) =>
+        (prev || []).filter(
           (ftr) =>
-            !(ftr.originId === trDoc._id && ftr.followType === 'currencyDiff'),
+            !(ftr.originId === trDoc._id && ftr.originType === 'exchangeDiff'),
         ),
       );
       return;
     }
 
-    const { sumDt, sumCt } = side === TR_SIDES.DEBIT ? { sumDt: diffAmount, sumCt: 0 } : { sumDt: 0, sumCt: diffAmount };
+    const { sumDt, sumCt } =
+      side === TR_SIDES.DEBIT
+        ? { sumDt: diffAmount, sumCt: 0 }
+        : { sumDt: 0, sumCt: diffAmount };
 
-    const curr = followTrDocs.find(ftr => ftr.originId === trDoc._id && ftr.followType === 'currencyDiff');
+    setFollowTrDocs((prev) => {
+      const curr = (prev || []).find(
+        (ftr) =>
+          ftr.originId === trDoc._id && ftr.originType === 'exchangeDiff',
+      );
 
-    const currencyDiffFtr = {
-      ...curr,
-      _id: curr?._id || getTempId(),
-      journal: TrJournalEnum.TAX,
-      originId: trDoc._id,
-      followType: 'currencyDiff',
-      details: [{
-        ...(curr?.details || [{}])[0],
-        accountId: (detail?.followInfos as any)?.currencyDiffAccountId ?? '',
+      const currencyDiffFtr = {
+        ...curr,
+        _id: curr?._id || getTempId(),
+        journal: TrJournalEnum.EXCHANGE_DIFF,
         side,
-        amount: diffAmount
-      }],
+        originId: trDoc._id,
+        originType: 'exchangeDiff',
+        details: [
+          {
+            ...(curr?.details || [{}])[0],
+            accountId:
+              (detail?.followInfos as any)?.currencyDiffAccountId ?? '',
+            amount: diffAmount,
+          },
+        ],
 
-      sumDt,
-      sumCt,
-    };
+        sumDt,
+        sumCt,
+      };
 
-    setFollowTrDocs([...(followTrDocs || []).filter(ftr => !(ftr.originId === trDoc._id && ftr.followType === 'currencyDiff')), currencyDiffFtr]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail, diffAmount, side]);
+      return [
+        ...(prev || []).filter(
+          (ftr) =>
+            !(ftr.originId === trDoc._id && ftr.originType === 'exchangeDiff'),
+        ),
+        currencyDiffFtr,
+      ];
+    });
+  }, [detail, diffAmount, side, trDoc._id, setFollowTrDocs]);
 
   return (
     <>
       <Form.Item>
-        <Form.Label>Spot Rate</Form.Label>
+        <Form.Label>Спот ханш</Form.Label>
         <CurrencyField.ValueInput value={spotRate} disabled />
         <Form.Message />
       </Form.Item>
@@ -142,7 +161,7 @@ const CurrencyFormBody = ({
         name={`trDocs.${journalIndex}.details.0.currencyAmount`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Currency amount</Form.Label>
+            <Form.Label>Валютын дүн</Form.Label>
             <CurrencyField.ValueInput
               value={field.value ?? 0}
               onChange={(value) =>
@@ -158,7 +177,7 @@ const CurrencyFormBody = ({
         name={`trDocs.${journalIndex}.details.0.customRate`}
         render={({ field }) => (
           <Form.Item>
-            <Form.Label>Custom Rate</Form.Label>
+            <Form.Label>Гараар оруулсан ханш</Form.Label>
             <CurrencyField.ValueInput
               value={field.value ?? 0}
               onChange={field.onChange}
@@ -168,7 +187,9 @@ const CurrencyFormBody = ({
         )}
       />
       <Form.Item>
-        <Form.Label>{`${diffAmount > 0 ? 'Loss' : 'Gain'} amount`}</Form.Label>
+        <Form.Label>{`Ханшийн ${
+          diffAmount > 0 ? 'алдагдлын' : 'ашгийн'
+        } дүн`}</Form.Label>
         <CurrencyField.ValueInput value={diffAmount} disabled={true} />
         <Form.Message />
       </Form.Item>
@@ -179,13 +200,14 @@ const CurrencyFormBody = ({
           name={`trDocs.${journalIndex}.details.0.followInfos.currencyDiffAccountId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{`${diffAmount > 0 ? 'Loss' : 'Gain'
-                } account`}</Form.Label>
+              <Form.Label>{`Ханшийн ${
+                diffAmount > 0 ? 'алдагдлын' : 'ашгийн'
+              } данс`}</Form.Label>
               <Form.Control>
                 <SelectAccount
                   value={field.value || ''}
                   onValueChange={field.onChange}
-                  defaultFilter={{ journals: ['main'] }}
+                  defaultFilter={{ journals: ['exchangeDiff'] }}
                 />
               </Form.Control>
               <Form.Message />
@@ -195,7 +217,7 @@ const CurrencyFormBody = ({
       )}
     </>
   );
-}
+};
 
 export const CurrencyForm = ({
   form,
@@ -211,16 +233,9 @@ export const CurrencyForm = ({
 
   const mainCurrency = 'MNT';
 
-  if (
-    !account?.currency ||
-    account?.currency === mainCurrency
-  ) {
+  if (!account?.currency || account?.currency === mainCurrency) {
     return null;
   }
 
-  return <CurrencyFormBody
-    form={form}
-    journalIndex={journalIndex}
-  />
-
+  return <CurrencyFormBody form={form} journalIndex={journalIndex} />;
 };

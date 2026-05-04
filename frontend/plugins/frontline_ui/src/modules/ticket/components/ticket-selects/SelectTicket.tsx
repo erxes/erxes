@@ -20,20 +20,22 @@ export enum SelectTriggerVariant {
 export const SelectTriggerTicket = ({
   children,
   variant,
+  disabled,
 }: {
   children: React.ReactNode;
   variant: `${SelectTriggerVariant}`;
+  disabled?: boolean;
 }) => {
   if (variant === SelectTriggerVariant.TABLE) {
     return (
-      <RecordTableInlineCell.Trigger className="gap-1">
+      <RecordTableInlineCell.Trigger className="gap-1" disabled={disabled}>
         {children}
       </RecordTableInlineCell.Trigger>
     );
   }
   if (variant === SelectTriggerVariant.CARD) {
     return (
-      <Popover.Trigger asChild>
+      <Popover.Trigger asChild disabled={disabled}>
         <Badge
           variant="secondary"
           onClick={(e) => {
@@ -47,7 +49,7 @@ export const SelectTriggerTicket = ({
   }
   if (variant === SelectTriggerVariant.FILTER) {
     return (
-      <Popover.Trigger asChild>
+      <Popover.Trigger asChild disabled={disabled}>
         <Filter.BarButton>{children}</Filter.BarButton>
       </Popover.Trigger>
     );
@@ -80,7 +82,7 @@ export const SelectTriggerTicket = ({
   }
 
   return (
-    <Combobox.TriggerBase className="w-fit h-7">
+    <Combobox.TriggerBase className="w-fit h-7" disabled={disabled}>
       {children}
     </Combobox.TriggerBase>
   );

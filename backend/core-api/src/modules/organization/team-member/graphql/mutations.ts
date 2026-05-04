@@ -1,4 +1,3 @@
-import { IContext } from '~/connectionResolvers';
 import {
   IDetail,
   IEmailSignature,
@@ -6,13 +5,22 @@ import {
   IUser,
   Resolver,
 } from 'erxes-api-shared/core-types';
+import {
+  authCookieOptions,
+  getEnv,
+  getSaasOrganizationDetail,
+} from 'erxes-api-shared/utils';
+import { IContext } from '~/connectionResolvers';
+import { saveValidatedToken } from '~/modules/auth/utils';
+import { sendInvitationEmail } from '../utils';
+import { sendOnboardNotification } from '~/modules/notifications/utils';
 
 export interface IUsersEdit extends IUser {
   channelIds?: string[];
   _id: string;
 }
 
-export const userMutations: Record<string, Resolver> = {
+export const userMutations: Record<string, Resolver<any, any, IContext>> = {
   async usersCreateOwner(
     _parent: undefined,
     {
@@ -73,8 +81,10 @@ export const userMutations: Record<string, Resolver> = {
   async usersResetMemberPassword(
     _parent: undefined,
     args: { _id: string; newPassword: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('teamMembersResetPassword');
+
     return models.Users.resetMemberPassword(args);
   },
 
@@ -92,15 +102,15 @@ export const userMutations: Record<string, Resolver> = {
   /*
    * Update user
    */
-  async usersEdit(_parent: undefined, args: IUsersEdit, { models }: IContext) {
+  async usersEdit(
+    _parent: undefined,
+    args: IUsersEdit,
+    { user, models, checkPermission }: IContext,
+  ) {
     const { _id, ...doc } = args;
 
-    // clean custom field values
-    if (doc.customFieldsData) {
-      doc.customFieldsData = doc.customFieldsData.map((cd) => ({
-        ...cd,
-        stringValue: cd.value ? cd.value.toString() : '',
-      }));
+    if (user._id !== _id) {
+      await checkPermission('teamMembersUpdate', _id);
     }
 
     let updatedDoc = doc;
@@ -173,8 +183,10 @@ export const userMutations: Record<string, Resolver> = {
   async usersSetActiveStatus(
     _parent: undefined,
     { _id }: { _id: string },
-    { user, models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
+    await checkPermission('teamMembersRemove');
+
     if (user._id === _id) {
       throw new Error('You can not delete yourself');
     }
@@ -182,6 +194,30 @@ export const userMutations: Record<string, Resolver> = {
     const updatedUser = await models.Users.setUserActiveOrInactive(_id);
 
     return updatedUser;
+  },
+
+  async usersSetActiveStatusBatch(
+    _parent: undefined,
+    { _ids }: { _ids: string[] },
+    { user, models, checkPermission }: IContext,
+  ) {
+    await checkPermission('teamMembersRemove');
+
+    for (const _id of _ids) {
+      if (user._id === _id) {
+        throw new Error('You can not delete yourself');
+      }
+    }
+
+    for (const _id of _ids) {
+      const targetUser = await models.Users.findOne({ _id });
+
+      if (targetUser && targetUser.isActive !== false) {
+        await models.Users.setUserActiveOrInactive(_id);
+      }
+    }
+
+    return true;
   },
 
   /*
@@ -195,15 +231,12 @@ export const userMutations: Record<string, Resolver> = {
       entries: Array<{
         email: string;
         password: string;
-        groupId: string;
-        channelIds?: string[];
-        unitId?: string;
-        branchId?: string;
-        departmentId?: string;
       }>;
     },
-    { models }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('teamMembersInvite');
+
     for (const entry of entries) {
       await models.Users.checkDuplication({ email: entry.email });
 
@@ -214,25 +247,14 @@ export const userMutations: Record<string, Resolver> = {
       if (docModified?.scopeBrandIds?.length) {
         doc.brandIds = docModified.scopeBrandIds;
       }
-      const createdUser = await models.Users.findOne({ email: entry.email });
 
-      if (entry.branchId) {
-        await models.Users.updateOne(
-          { _id: createdUser?._id },
-          {
-            $addToSet: { branchIds: entry.branchId },
-          },
-        );
-      }
+      const token = await models.Users.invite(doc);
 
-      if (entry.departmentId) {
-        await models.Users.updateOne(
-          { _id: createdUser?._id },
-          {
-            $addToSet: { departmentIds: entry.departmentId },
-          },
-        );
-      }
+      sendInvitationEmail(models, subdomain, {
+        email: entry.email,
+        token,
+        userId: user._id,
+      });
     }
   },
 
@@ -252,29 +274,74 @@ export const userMutations: Record<string, Resolver> = {
   async usersConfirmInvitation(
     _parent: undefined,
     {
-      token,
-      password,
-      passwordConfirmation,
-      fullName,
-      username,
+      token: registrationToken,
     }: {
       token: string;
-      password: string;
-      passwordConfirmation: string;
-      fullName?: string;
-      username?: string;
     },
-    { models }: IContext,
+    { res, models, requestInfo, subdomain }: IContext,
   ) {
-    const user = await models.Users.confirmInvitation({
-      token,
-      password,
-      passwordConfirmation,
-      fullName,
-      username,
+    const user = await models.Users.findOne({
+      registrationToken,
+      registrationTokenExpires: {
+        $gt: Date.now(),
+      },
     });
 
-    return user;
+    if (!user || !registrationToken) {
+      throw new Error('Token is invalid or has expired');
+    }
+
+    const [token] = await models.Users.createTokens(
+      user,
+      models.Users.getSecret(),
+    );
+
+    await saveValidatedToken(token, user);
+
+    await models.Users.updateOne(
+      { _id: user._id },
+      {
+        $push: { validatedTokens: token },
+        $set: { isActive: true },
+        $unset: {
+          registrationToken: '',
+          registrationTokenExpires: '',
+        },
+      },
+    );
+
+    const sameSite = getEnv({ name: 'SAME_SITE' });
+    const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+    const VERSION = getEnv({ name: 'VERSION' });
+
+    if (VERSION === 'saas') {
+      const organization = await getSaasOrganizationDetail({ subdomain });
+
+      const cookieOptions: any = authCookieOptions();
+
+      if (organization.domain && organization.dnsStatus === 'active') {
+        cookieOptions.secure = true;
+        cookieOptions.sameSite = 'none';
+      }
+
+      res.cookie('auth-token', token, cookieOptions);
+    } else {
+      const cookieOptions: any = { secure: requestInfo.secure };
+
+      if (
+        sameSite &&
+        sameSite === 'none' &&
+        res.req.headers.origin !== DOMAIN
+      ) {
+        cookieOptions.sameSite = sameSite;
+      }
+
+      res.cookie('auth-token', token, authCookieOptions(cookieOptions));
+    }
+
+    await sendOnboardNotification(subdomain, models, user._id);
+
+    return 'accepted';
   },
   async usersConfigEmailSignatures(
     _parent: undefined,
@@ -297,27 +364,9 @@ export const userMutations: Record<string, Resolver> = {
     { _id, status }: { _id: string; status: string },
     { models }: IContext,
   ) {
-    const getUser = await models.Users.getUser(_id);
-
-    if (!getUser) {
-      throw new Error('User not found');
-    }
-
-    return await models.Users.updateUser(_id, { chatStatus: status });
+    return await models.Users.setChatStatus(_id, status);
   },
 
-  async usersSetOnboardingDone(
-    _parent: undefined,
-    _params: undefined,
-    { user, models: { Users } }: IContext,
-  ) {
-    return await Users.updateOne(
-      { _id: user._id },
-      {
-        $set: { onboardingDone: true },
-      },
-    );
-  },
   /*
    * Upgrade organization plan status
    */
@@ -366,4 +415,9 @@ export const userMutations: Record<string, Resolver> = {
   },
 };
 
-userMutations.usersCreateOwner.skipPermission = true;
+userMutations.usersCreateOwner.wrapperConfig = {
+  skipPermission: true,
+};
+userMutations.usersConfirmInvitation.wrapperConfig = {
+  skipPermission: true,
+};

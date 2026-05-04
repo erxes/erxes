@@ -6,12 +6,19 @@ const t = initTRPC.context<CoreTRPCContext>().create();
 
 export const userTrpcRouter = t.router({
   users: t.router({
-    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { query } = input;
-      const { models } = ctx;
+    find: t.procedure
+      .input(
+        z.object({
+          query: z.record(z.any()),
+          fields: z.record(z.any()).optional(),
+        }),
+      )
+      .query(async ({ ctx, input }) => {
+        const { query, fields } = input;
+        const { models } = ctx;
 
-      return models.Users.find(query);
-    }),
+        return models.Users.find(query, fields);
+      }),
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { query } = input;
       const { models } = ctx;
@@ -63,6 +70,19 @@ export const userTrpcRouter = t.router({
         const { models } = ctx;
 
         return models.Users.comparePassword(password, userPassword);
+      }),
+    checkLoginAuth: t.procedure
+      .input(
+        z.object({
+          email: z.string().email().max(255),
+          password: z.string().min(1).max(255),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { email, password } = input;
+        const { models } = ctx;
+
+        return await models.Users.checkLoginAuth({ email, password });
       }),
   }),
 });

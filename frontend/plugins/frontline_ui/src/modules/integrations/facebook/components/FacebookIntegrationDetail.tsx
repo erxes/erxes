@@ -1,4 +1,4 @@
-import { Cell } from '@tanstack/table-core';
+import { CellContext } from '@tanstack/react-table';
 import { FacebookIntegrationFormSheet } from './FacebookIntegrationForm';
 import { IIntegrationDetail } from '@/integrations/types/Integration';
 import {
@@ -12,6 +12,7 @@ import {
   toast,
   Label,
 } from 'erxes-ui';
+import { SelectBrands } from 'ui-modules';
 import { IconEdit } from '@tabler/icons-react';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { z } from 'zod';
@@ -41,13 +42,11 @@ export const FacebookIntegrationDetail = ({ isPost }: { isPost?: boolean }) => {
     if (fbAuthorized === 'true') {
       setFacebookFormSheet(true);
 
-      // If accountId is provided, automatically select it and move to step 2
       if (accountId) {
         setSelectedAccount(accountId);
         setActiveStep(2);
       }
 
-      // Clean up the URL parameters
       searchParams.delete('fbAuthorized');
       searchParams.delete('accountId');
       setSearchParams(searchParams, { replace: true });
@@ -70,7 +69,7 @@ export const FacebookIntegrationDetail = ({ isPost }: { isPost?: boolean }) => {
 export const FacebookIntegrationActions = ({
   cell,
 }: {
-  cell: Cell<IIntegrationDetail, unknown>;
+  cell: CellContext<IIntegrationDetail, unknown>;
 }) => {
   return <FacebookIntegrationEditSheet id={cell.row.original._id} />;
 };
@@ -80,9 +79,10 @@ export const FacebookIntegrationEditSheet = ({ id }: { id: string }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button variant="outline" size="icon">
-          <IconEdit />
-        </Button>
+        <div className="flex items-center gap-2 w-full">
+          <IconEdit size={16} />
+          Edit
+        </div>
       </Dialog.Trigger>
       <Dialog.Content className="p-0 gap-0 border-0 shadow-lg">
         <FacebookIntegrationEditForm id={id} setOpen={setOpen} />
@@ -111,6 +111,7 @@ export const FacebookIntegrationEditForm = ({
     if (integrationDetail) {
       form.reset({
         name: integrationDetail.name,
+        brandId: integrationDetail.brandId ?? '',
       });
     }
   }, [integrationDetail, form]);
@@ -121,6 +122,7 @@ export const FacebookIntegrationEditForm = ({
         _id: id,
         name: data.name,
         channelId: integrationDetail?.channelId || '',
+        brandId: data.brandId,
       },
       onCompleted: () => {
         setOpen(false);
@@ -143,11 +145,7 @@ export const FacebookIntegrationEditForm = ({
       <Separator />
 
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit, (error) => {
-            console.log(error);
-          })}
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="p-6 pb-8 space-y-6">
             <div>
               <Label htmlFor="pageName">Page Name</Label>
@@ -166,6 +164,20 @@ export const FacebookIntegrationEditForm = ({
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              name="brandId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Brand</Form.Label>
+                  <SelectBrands.FormItem
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  />
+                  <Form.Message />
                 </Form.Item>
               )}
             />

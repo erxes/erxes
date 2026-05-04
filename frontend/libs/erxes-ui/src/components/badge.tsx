@@ -7,12 +7,13 @@ import { Button } from './button';
 import { IconX } from '@tabler/icons-react';
 
 export const badgeVariants = cva(
-  'inline-flex items-center rounded-sm px-2 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1',
+  'inline-flex items-center rounded-sm px-2 transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 whitespace-nowrap font-medium w-fit h-6 text-xs border gap-1',
   {
     variants: {
       variant: {
         default: 'bg-primary/10 text-primary border-primary/10',
         secondary: 'bg-accent',
+        ghost: 'hover:bg-accent border-none hover:shadow-xs',
         success: 'bg-success/10 text-success border-success/10',
         warning: 'bg-warning/10 text-warning border-warning/10',
         destructive: 'bg-destructive/10 text-destructive border-destructive/10',

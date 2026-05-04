@@ -1,5 +1,5 @@
 import { IContext } from '~/connectionResolvers';
-import { getConfig, returnResponse } from '~/modules/ebarimt/utils';
+import { returnResponse } from '~/modules/ebarimt/utils';
 
 export const ebarimtMutations = {
   async putResponseReturnBill(
@@ -16,7 +16,7 @@ export const ebarimtMutations = {
     if (!putResponse) {
       throw new Error('not found putResponse');
     }
-    const config: any = await getConfig(subdomain, 'EBARIMT', {});
+    const config = await models.Configs.getConfigValue('EBARIMT', '', {});
     const url = config.ebarimtUrl || '';
 
     const { id, date } = putResponse;
@@ -82,7 +82,7 @@ export const ebarimtMutations = {
       throw new Error('this response is not return bill');
     }
 
-    const config = await getConfig(subdomain, 'EBARIMT', {});
+    const config = await models.Configs.getConfigValue('EBARIMT', '', {});
 
     const url = config.ebarimtUrl || '';
     if (!url) {

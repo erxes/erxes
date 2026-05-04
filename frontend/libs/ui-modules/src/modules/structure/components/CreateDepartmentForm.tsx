@@ -128,9 +128,9 @@ export const CreateDepartmentForm = () => {
 
 export function SelectDepartmentsCreateContainer({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   const { setNewDepartmentName } = useSelectDepartmentsContext();
   return (
     <div className="overflow-auto">

@@ -12,7 +12,7 @@ export interface INotificationDocument extends Document {
   fromUserId?: string;
 
   // Source information for plugin widgets
-  contentType: string; // 'frontline:conversation', 'sales:deal', etc.
+  contentType: string;
   contentTypeId?: string; // target object ID
 
   // Status
@@ -50,7 +50,7 @@ export const notificationSchema = new Schema(
       type: String,
       enum: ['info', 'success', 'warning', 'error'],
       required: true,
-      default: 'info'
+      default: 'info',
     },
 
     userId: {

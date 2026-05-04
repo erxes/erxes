@@ -5,14 +5,16 @@ export const IntegrationSteps = ({
   title,
   stepsLength,
   description,
+  className,
 }: {
   step: number;
   title: string;
   stepsLength: number;
   description: string;
+  className?: string;
 }) => {
   return (
-    <div className="p-5 flex flex-col gap-3 flex-none">
+    <div className={cn('p-5 flex flex-col gap-3 flex-none', className)}>
       <div className="flex items-center gap-2">
         <Badge className="rounded-xl text-xs font-mono">STEP {step}</Badge>
         <h2 className="text-primary font-semibold text-base">{title}</h2>
@@ -22,7 +24,7 @@ export const IntegrationSteps = ({
           <div
             key={index}
             className={cn(
-              'h-1 flex-1 rounded-full bg-muted',
+              'h-1 flex-1 rounded-full bg-border',
               step === index + 1 && 'bg-primary',
             )}
           />

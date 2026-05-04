@@ -1,0 +1,16 @@
+.env*
+.git*
+*.md
+*.yml
+*.yaml
+.prettierrc
+.snyk
+*.tar.gz
+Dockerfile
+.dockerignore
+npm-debug.log
+README.md
+.env*
+.git*
+*.md
+.next

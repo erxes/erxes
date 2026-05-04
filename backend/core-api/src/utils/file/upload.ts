@@ -28,10 +28,10 @@ import {
  * Save file to Cloudflare
  */
 
-export const uploadToCFImages = async (
+const uploadToCFImages = async (
   file: any,
-  forcePrivate?: boolean,
   models?: IModels,
+  forcePrivate?: boolean,
 ) => {
   const sanitizedFilename = sanitizeFilename(file.originalFilename);
 
@@ -75,6 +75,8 @@ export const uploadToCFImages = async (
     headers,
     body: formData,
   });
+
+  console.log({ response });
 
   const data = await response.json();
 
@@ -135,13 +137,14 @@ const uploadToCFStream = async (file: any, models?: IModels) => {
 /*
  * Save file to azure blob storage
  */
-export const uploadFileAzure = async (
+const uploadFileAzure = async (
   file: {
     originalFilename: string;
     filepath: string;
     mimetype: string;
   },
   models: IModels,
+  forcePrivate = false,
 ): Promise<string> => {
   const sanitizedFilename = sanitizeFilename(file.originalFilename);
 
@@ -149,7 +152,9 @@ export const uploadFileAzure = async (
     throw new Error('Unsafe file path');
   }
 
-  const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
+  const IS_PUBLIC = forcePrivate
+    ? 'false'
+    : await getConfig('FILE_SYSTEM_PUBLIC', 'true', models);
 
   // initialize Azure Blob Storage
   const containerClient = await createAzureBlobStorage(models);
@@ -176,14 +181,14 @@ export const uploadFileAzure = async (
 /*
  * Save binary data to amazon s3
  */
-export const uploadFileAWS = async (
+const uploadFileAWS = async (
   file: {
     originalFilename: string;
     filepath: string;
     mimetype: string;
   },
-  forcePrivate = false,
   models?: IModels,
+  forcePrivate = false,
 ): Promise<string> => {
   const sanitizedFilename = sanitizeFilename(file.originalFilename);
 
@@ -233,13 +238,14 @@ export const uploadFileAWS = async (
 /*
  * Save file to google cloud storage
  */
-export const uploadFileGCS = async (
+const uploadFileGCS = async (
   file: {
     originalFilename: string;
     filepath: string;
     mimetype: string;
   },
   models: IModels,
+  forcePrivate = false,
 ): Promise<string> => {
   const sanitizedFilename = sanitizeFilename(file.originalFilename);
 
@@ -248,7 +254,9 @@ export const uploadFileGCS = async (
   }
 
   const BUCKET = await getConfig('GOOGLE_CLOUD_STORAGE_BUCKET', '', models);
-  const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', '', models);
+  const IS_PUBLIC = forcePrivate
+    ? 'false'
+    : await getConfig('FILE_SYSTEM_PUBLIC', '', models);
 
   // initialize GCS
   const storage = await createGCS(models);
@@ -289,20 +297,21 @@ export const uploadFileGCS = async (
  * Save file to Cloudflare
  */
 
-export const uploadFileCloudflare = async (
+const uploadFileCloudflare = async (
   file: {
     originalFilename: string;
     filepath: string;
     mimetype: string;
   },
-  forcePrivate = false,
   models?: IModels,
+  forcePrivate = false,
 ): Promise<string> => {
   const IS_PUBLIC = forcePrivate
     ? false
     : await getConfig('FILE_SYSTEM_PUBLIC', 'false');
 
   const sanitizedFilename = sanitizeFilename(file.originalFilename);
+
   if (!isValidPath(file.filepath)) {
     throw new Error('Unsafe file path');
   }
@@ -327,8 +336,7 @@ export const uploadFileCloudflare = async (
       'image/vnd.microsoft.icon',
     ].includes(detectedType.mime)
   ) {
-    console.debug('uploading to cf images');
-    return uploadToCFImages(file, forcePrivate, models);
+    return uploadToCFImages(file, models, forcePrivate);
   }
 
   if (
@@ -363,7 +371,6 @@ export const uploadFileCloudflare = async (
         if (err) {
           return reject(err);
         }
-
         return resolve(res);
       },
     );
@@ -374,7 +381,7 @@ export const uploadFileCloudflare = async (
 /*
  * Save file to local disk
  */
-export const uploadFileLocal = async (file: {
+const uploadFileLocal = async (file: {
   originalFilename: string;
   filepath: string;
   mimetype: string;
@@ -412,8 +419,9 @@ export const uploadFileLocal = async (file: {
 export const uploadFile = async (
   apiUrl: string,
   file,
-  fromEditor = false,
   models: IModels,
+  fromEditor = false,
+  forcePrivate = false,
 ): Promise<any> => {
   const IS_PUBLIC = await getConfig('FILE_SYSTEM_PUBLIC', '', models);
   const VERSION = getEnv({ name: 'VERSION' });
@@ -422,22 +430,22 @@ export const uploadFile = async (
   let nameOrLink = '';
 
   if (UPLOAD_SERVICE_TYPE === 'AZURE') {
-    nameOrLink = await uploadFileAzure(file, models);
+    nameOrLink = await uploadFileAzure(file, models, forcePrivate);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'AWS') {
-    nameOrLink = await uploadFileAWS(file, false, models);
+    nameOrLink = await uploadFileAWS(file, models, forcePrivate);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'GCS') {
-    nameOrLink = await uploadFileGCS(file, models);
+    nameOrLink = await uploadFileGCS(file, models, forcePrivate);
   }
 
   if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE') {
     nameOrLink = await uploadFileCloudflare(
       file,
-      !!(VERSION === 'saas'),
       models,
+      forcePrivate || !!(VERSION === 'saas'),
     );
   }
 

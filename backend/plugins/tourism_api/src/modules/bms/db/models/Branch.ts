@@ -3,6 +3,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { branchSchema } from '@/bms/db/definitions/branch';
 import { random } from 'erxes-api-shared/utils';
+
 export interface IBranchModel extends Model<IBranchDocument> {
   getList(query: any): Promise<IBranchDocument[]>;
   get(query: any): Promise<IBranchDocument>;
@@ -27,6 +28,9 @@ export const loadBranchClass = (models: IModels) => {
     }
 
     public static async add(user, doc: IBranch) {
+      if (!user) {
+        throw new Error('User not found');
+      }
       try {
         return models.Branches.create({
           ...doc,
@@ -44,11 +48,36 @@ export const loadBranchClass = (models: IModels) => {
     public static async edit(_id: string, doc: IBranch) {
       await models.Branches.get({ _id });
 
-      await models.Branches.updateOne(
-        { _id },
-        { $set: { ...doc } },
-        { runValidators: true },
+      const hasExplicitPrepaid = Object.prototype.hasOwnProperty.call(
+        doc,
+        'prepaid',
       );
+      const hasExplicitPrepaidPercent = Object.prototype.hasOwnProperty.call(
+        doc,
+        'prepaidPercent',
+      );
+
+      const updateDoc: {
+        $set: Partial<IBranch>;
+        $unset?: Record<string, 1>;
+      } = {
+        $set: { ...doc },
+      };
+
+      if (
+        (hasExplicitPrepaid && doc.prepaid === false) ||
+        (hasExplicitPrepaidPercent && doc.prepaidPercent == null)
+      ) {
+        delete updateDoc.$set.prepaidPercent;
+        updateDoc.$unset = {
+          ...updateDoc.$unset,
+          prepaidPercent: 1,
+        };
+      }
+
+      await models.Branches.updateOne({ _id }, updateDoc, {
+        runValidators: true,
+      });
 
       return models.Branches.findOne({ _id }).lean();
     }

@@ -1,10 +1,11 @@
+import dayjs from 'dayjs';
+import { ACCOUNT_STATUSES } from '../../@types/constants';
+import { accountSchema } from '../definitions/account';
+import { checkCodeMask } from '../maskUtils';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
+import { IAccount, IAccountDocument } from '../../@types/account';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import dayjs from 'dayjs';
-import { IAccount, IAccountDocument } from '../../@types/account';
-import { accountSchema } from '../definitions/account';
-import { ACCOUNT_STATUSES } from '../../@types/constants';
-import { checkCodeMask } from '../maskUtils';
 
 export interface IAccountModel extends Model<IAccountDocument> {
   getAccount(selector: any): Promise<IAccountDocument>;
@@ -17,7 +18,7 @@ export interface IAccountModel extends Model<IAccountDocument> {
   ): Promise<IAccountDocument>;
 }
 
-export const loadAccountClass = (models: IModels, subdomain: string) => {
+export const loadAccountClass = (models: IModels, _subdomain: string, { sendDbEventLog }: EventDispatcherReturn) => {
   class Account {
     /**
      *
@@ -76,8 +77,15 @@ export const loadAccountClass = (models: IModels, subdomain: string) => {
       if (!(await checkCodeMask(category, doc.code))) {
         throw new Error('Code is not validate of category mask');
       }
+      const account = await models.Accounts.create({ ...doc, createdAt: new Date() });
 
-      return models.Accounts.create({ ...doc, createdAt: new Date() });
+      sendDbEventLog({
+        action: 'create',
+        docId: account._id,
+        currentDocument: account.toObject()
+      });
+
+      return account;
     }
 
     /**
@@ -85,7 +93,6 @@ export const loadAccountClass = (models: IModels, subdomain: string) => {
      */
     public static async updateAccount(_id: string, doc: IAccount) {
       const account = await models.Accounts.getAccount({ _id });
-
 
       doc.code = doc.code
         .replace(/\*/g, '')
@@ -105,6 +112,13 @@ export const loadAccountClass = (models: IModels, subdomain: string) => {
       }
 
       await models.Accounts.updateOne({ _id }, { $set: doc });
+
+      sendDbEventLog({
+        action: 'update',
+        docId: account._id,
+        currentDocument: { ...account, ...doc },
+        prevDocument: account,
+      });
 
       return await models.Accounts.findOne({ _id }).lean();
     }
@@ -135,10 +149,20 @@ export const loadAccountClass = (models: IModels, subdomain: string) => {
             $set: { status: ACCOUNT_STATUSES.DELETED },
           },
         );
+        sendDbEventLog({
+          action: 'updateMany',
+          docIds: usedIds,
+          updateDescription: { status: ACCOUNT_STATUSES.DELETED },
+        });
         response = 'updated';
       }
 
       await models.Accounts.deleteMany({ _id: { $in: unUsedIds } });
+
+      sendDbEventLog({
+        action: 'deleteMany',
+        docIds: unUsedIds,
+      });
 
       return response;
     }

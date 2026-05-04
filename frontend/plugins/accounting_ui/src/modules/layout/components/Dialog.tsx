@@ -1,22 +1,20 @@
-import {
-  Button,
-  Dialog,
-} from 'erxes-ui';
+import { Button, cn, Dialog } from 'erxes-ui';
 
 import { IconX } from '@tabler/icons-react';
-
 
 export const AccountingDialog = ({
   title,
   description,
   children,
+  className,
 }: {
   title: string;
   description: string;
   children: React.ReactNode;
+  className?: string;
 }) => {
   return (
-    <Dialog.Content className="max-w-2xl">
+    <Dialog.Content className={cn('max-w-2xl', className)}>
       <Dialog.Header>
         <Dialog.Title>{title}</Dialog.Title>
         <Dialog.Description className="sr-only">

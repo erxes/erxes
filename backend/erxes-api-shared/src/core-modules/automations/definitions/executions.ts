@@ -1,7 +1,11 @@
 import { Document, Schema } from 'mongoose';
 
 export interface IAutomationExecAction {
-  createdAt?: Date;
+  createdAt?: string;
+  startedAt?: string;
+  finishedAt?: string;
+  durationMs?: number;
+  status?: 'success' | 'error' | 'waiting';
   actionId: string;
   actionType: string;
   actionConfig?: any;
@@ -10,8 +14,8 @@ export interface IAutomationExecAction {
 }
 
 export interface IAutomationExecution {
-  createdAt?: Date;
-  modifiedAt?: Date;
+  createdAt?: string;
+  modifiedAt?: string;
   automationId: string;
   triggerId: string;
   triggerType: string;
@@ -29,8 +33,7 @@ export interface IAutomationExecution {
 }
 
 export interface IAutomationExecutionDocument
-  extends IAutomationExecution,
-    Document {
+  extends IAutomationExecution, Document {
   _id: string;
 }
 
@@ -44,7 +47,11 @@ export const AUTOMATION_EXECUTION_STATUS = {
 };
 
 const execActionSchema = new Schema({
-  createdAt: { type: Date, default: Date.now(), required: true },
+  createdAt: { type: Date, default: Date.now, required: true },
+  startedAt: { type: Date },
+  finishedAt: { type: Date },
+  durationMs: { type: Number },
+  status: { type: String, enum: ['success', 'error', 'waiting'] },
   actionId: { type: String },
   actionType: { type: String },
   actionConfig: { type: Object },
@@ -53,8 +60,8 @@ const execActionSchema = new Schema({
 });
 
 export const automationExecutionSchema = new Schema({
-  createdAt: { type: Date, default: Date.now(), required: true },
-  modifiedAt: { type: Date, default: Date.now(), required: true },
+  createdAt: { type: Date, default: Date.now, required: true },
+  modifiedAt: { type: Date, default: Date.now, required: true },
   automationId: { type: String, required: true, index: true },
   triggerId: { type: String, required: true, index: true },
   triggerType: { type: String },

@@ -9,6 +9,9 @@ export interface ITagFilterQueryParams
   type: string;
   tagIds?: string[];
   parentId?: string;
+  isGroup?: boolean;
   ids: string[];
+  instanceId?: string;
   excludeIds: boolean;
+  includeWorkspaceTags?: boolean;
 }

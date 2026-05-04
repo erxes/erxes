@@ -14,8 +14,8 @@ export const EditVatRow = () => {
   return (
     <Dialog open={open !== null} onOpenChange={() => setOpen(null)}>
       <AccountingDialog
-        title="Edit Vat Row"
-        description="Edit an vat row"
+        title="НӨАТ-ын мөр засах"
+        description="НӨАТ-ын мөр засах"
       >
         <EditVatRowForm />
       </AccountingDialog>
@@ -24,10 +24,8 @@ export const EditVatRow = () => {
 };
 
 export const EditVatRowForm = () => {
-  const { vatRowDetail, closeDetail, loading } =
-    useVatRowDetail();
-  const { editVatRow, loading: editLoading } =
-    useVatRowEdit();
+  const { vatRowDetail, closeDetail, loading } = useVatRowDetail();
+  const { editVatRow, loading: editLoading } = useVatRowEdit();
   const form = useForm<TVatRowForm>({
     resolver: zodResolver(vatFormSchema),
   });
@@ -63,13 +61,9 @@ export const EditVatRowForm = () => {
 
   return (
     <>
-      <VatRowForm
-        form={form}
-        onSubmit={handleSubmit}
-        loading={editLoading}
-      />
+      <VatRowForm form={form} onSubmit={handleSubmit} loading={editLoading} />
       {loading && (
-        <div className="absolute inset-0 bg-background/10 backdrop-blur-sm flex items-center justify-center rounded-md">
+        <div className="absolute inset-0 bg-background/10 backdrop-blur-xs flex items-center justify-center rounded-md">
           <Spinner />
         </div>
       )}

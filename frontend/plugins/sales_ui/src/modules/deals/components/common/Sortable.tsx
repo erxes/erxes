@@ -138,7 +138,12 @@ export function Sortable({
 
   useEffect(() => {
     if (initialItems) {
-      setItems(initialItems);
+      setItems((prevItems) => {
+        const isChanged =
+          initialItems.length !== prevItems.length ||
+          initialItems.some((id, i) => id !== prevItems[i]);
+        return isChanged ? initialItems : prevItems;
+      });
     }
   }, [initialItems]);
 
@@ -226,15 +231,17 @@ export function Sortable({
 
         setActiveId(active.id);
       }}
-      onDragEnd={({ over }) => {
-        setActiveId(null);
-
+      onDragEnd={({ active, over }) => {
         if (over) {
-          const overIndex = getIndex(over.id);
-          if (activeIndex !== overIndex) {
-            setItems((items) => reorderItems(items, activeIndex, overIndex));
+          const oldIndex = getIndex(active.id);
+          const newIndex = getIndex(over.id);
+
+          if (oldIndex !== newIndex) {
+            setItems((items) => reorderItems(items, oldIndex, newIndex));
           }
         }
+
+        setActiveId(null);
       }}
       onDragCancel={() => setActiveId(null)}
       measuring={measuring}

@@ -1,17 +1,12 @@
-import * as _ from 'underscore';
-
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
+import { fixDate, sendTRPCMessage } from 'erxes-api-shared/utils';
+import * as _ from 'underscore';
 import { IModels } from '~/connectionResolvers';
-import { fixDate } from 'erxes-api-shared/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 interface IIn {
   $in: string[];
 }
 
-interface IOR {
-  $or: IDateFilter[];
-}
 
 interface IExists {
   $exists: boolean;
@@ -56,14 +51,6 @@ interface IUnassignedFilter {
   assignedUserId: IExists;
 }
 
-interface IDateFilter {
-  [key: string]: IDate;
-}
-
-interface IDate {
-  $gte: Date;
-  $lte: Date;
-}
 
 export default class Builder {
   public models: IModels;
@@ -93,7 +80,7 @@ export default class Builder {
 
       pluginName: 'core',
       method: 'query',
-      module: 'segments',
+      module: 'segment',
       action: 'fetchSegment',
       input: {
         segmentId,
@@ -145,12 +132,7 @@ export default class Builder {
     ...queries: any[]
   ): Promise<{ integrationId: IIn }> {
     // filter only queries with $in field
-    const withIn = queries.filter(
-      (q) =>
-        q.integrationId &&
-        q.integrationId.$in &&
-        q.integrationId.$in.length > 0,
-    );
+    const withIn = queries.filter((q) => q.integrationId?.$in?.length);
 
     // [{$in: ['id1', 'id2']}, {$in: ['id3', 'id1', 'id4']}]
     const $ins = _.pluck(withIn, 'integrationId');
@@ -341,20 +323,24 @@ export default class Builder {
     };
   }
 
-  public dateFilter(startDate: string, endDate: string): IOR {
+  public dateFilter(startDate: string, endDate: string) {
     return {
-      $or: [
+      $and: [
         {
-          createdAt: {
-            $gte: fixDate(startDate),
-            $lte: fixDate(endDate),
-          },
-        },
-        {
-          updatedAt: {
-            $gte: fixDate(startDate),
-            $lte: fixDate(endDate),
-          },
+          $or: [
+            {
+              createdAt: {
+                $gte: fixDate(startDate),
+                $lte: fixDate(endDate),
+              },
+            },
+            {
+              updatedAt: {
+                $gte: fixDate(startDate),
+                $lte: fixDate(endDate),
+              },
+            },
+          ],
         },
       ],
     };

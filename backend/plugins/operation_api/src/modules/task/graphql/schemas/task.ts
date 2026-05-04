@@ -30,6 +30,15 @@ export const types = `
     totalCount: Int,
   }
 
+  enum CycleFilterType {
+    noCycle
+    anyPastCycle
+    previousCycle
+    currentCycle
+    upcomingCycle
+    anyFutureCycle
+  }
+
   input ITaskFilter {
     _id: String
     status: String
@@ -39,8 +48,6 @@ export const types = `
     cycleId: String
     labelIds: [String]
     tagIds: [String]
-    startDate: Date
-    targetDate: Date
     projectId: String 
     teamId: String
     estimatePoint: Int
@@ -49,6 +56,16 @@ export const types = `
     statusType: Int
     estimate: String
     milestoneId: String
+    cycleFilter: CycleFilterType
+    projectStatus: Int
+    projectPriority: Int
+    projectLeadId: String
+    projectMilestoneName: String
+    startDate: Date
+    targetDate: Date
+    createdDate: Date
+    updatedDate: Date
+    completedDate: Date
 
     ${GQL_CURSOR_PARAM_DEFS}
   }
@@ -92,7 +109,6 @@ const updateTaskParams = `
   projectId: String
   estimatePoint: Int
   milestoneId: String
-
 `;
 
 export const queries = `

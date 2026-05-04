@@ -1,11 +1,13 @@
 import dayjs from 'dayjs';
-import { Request, Response } from 'express';
+import { Application, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import fetch from 'node-fetch'; // or global fetch in Node 18+
 import { IOrderInput } from '../core-types';
 import { randomAlphanumeric } from './random';
 import { redis } from './redis';
-import { random } from './string';
+import { nanoid } from 'nanoid';
+import * as _loadash from 'lodash';
+import { isValidURL, random } from './string';
 
 export const getEnv = ({
   name,
@@ -18,7 +20,7 @@ export const getEnv = ({
 }): string => {
   let value = process.env[name] || '';
 
-  if (!value && typeof defaultValue !== 'undefined') {
+  if (!value && defaultValue !== undefined) {
     return defaultValue;
   }
 
@@ -27,6 +29,36 @@ export const getEnv = ({
   }
 
   return value || '';
+};
+
+const DEFAULT_TRUST_PROXY = 'loopback, linklocal, uniquelocal';
+
+export const getTrustProxySetting = (): boolean | number | string => {
+  const trustProxy = getEnv({ name: 'TRUST_PROXY' }).trim();
+
+  if (!trustProxy) {
+    return DEFAULT_TRUST_PROXY;
+  }
+
+  if (/^\d+$/.test(trustProxy)) {
+    return Number(trustProxy);
+  }
+
+  const normalized = trustProxy.toLowerCase();
+
+  if (['true', 'yes', 'on'].includes(normalized)) {
+    return true;
+  }
+
+  if (['false', 'no', 'off'].includes(normalized)) {
+    return false;
+  }
+
+  return trustProxy;
+};
+
+export const applyTrustProxy = (app: Application) => {
+  app.set('trust proxy', getTrustProxySetting());
 };
 
 export const getSubdomain = (req: any): string => {
@@ -93,7 +125,7 @@ export const validSearchText = (values: string[]) => {
 };
 
 const stringToRegex = (value: string) => {
-  const specialChars = '{}[]\\^$.|?*+()'.split('');
+  const specialChars = String.raw`{}[].\^$.|?*+()`.split('');
   const val = value.split('');
 
   const result = val.map((char) =>
@@ -109,7 +141,7 @@ export const regexSearchText = (
 ) => {
   const result: any[] = [];
 
-  searchValue = searchValue.replace(/\s\s+/g, ' ');
+  searchValue = searchValue.replaceAll(/\s\s+/g, ' ');
 
   const words = searchValue.split(' ');
 
@@ -131,7 +163,7 @@ export const getCoreDomain = () => {
 };
 
 export const escapeRegExp = (str: string) => {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return str.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 };
 export const updateOrder = async (collection: any, orders: IOrderInput[]) => {
   if (orders.length === 0) {
@@ -189,7 +221,7 @@ export const fixDate = (
 ): Date => {
   const date = new Date(value);
 
-  if (!isNaN(date.getTime())) {
+  if (!Number.isNaN(date.getTime())) {
     return date;
   }
 
@@ -285,9 +317,9 @@ export const getNextMonth = (date: Date): { start: number; end: number } => {
 };
 
 export const fixNum = (value: any, p = 4) => {
-  const cleanNumber = Number((value ?? '').toString().replace(/,/g, ''));
+  const cleanNumber = Number((value ?? '').toString().replaceAll(',', ''));
 
-  if (isNaN(cleanNumber)) {
+  if (Number.isNaN(cleanNumber)) {
     return 0;
   }
 
@@ -313,7 +345,7 @@ const BEGIN_DIFF = 1577836800000; // new Date('2020-01-01').getTime();
 
 export const dateToShortStr = (
   date?: Date | string | number,
-  scale?: 10 | 16 | 62 | 92 | number,
+  scale?: number,
   kind?: 'd' | 'h' | 'm' | 's' | 'ms',
 ) => {
   date = new Date(date || new Date());
@@ -344,7 +376,7 @@ export const dateToShortStr = (
 
 export const shortStrToDate = (
   shortStr: string,
-  scale?: 10 | 16 | 62 | 92 | number,
+  scale?: number,
   kind?: 'd' | 'h' | 'm' | 's' | 'ms',
   resultType?: 'd' | 'n',
 ) => {
@@ -414,6 +446,207 @@ export const checkServiceRunning = async (
     const data = await res.json();
     return data.status === 'ok';
   } catch (err) {
+    console.log(err);
     return false;
   }
+};
+
+export const generateRequestProcess = () => {
+  const processId = nanoid(12);
+
+  return { processId };
+};
+
+export function getDiffObjects<TDocument = any>(
+  obj1: mongoose.Document<TDocument> | undefined,
+  obj2: mongoose.Document<TDocument>,
+) {
+  const plainObj1 = obj1?.toObject ? obj1.toObject() : obj1;
+  const plainObj2 = obj2?.toObject ? obj2.toObject() : obj2;
+
+  const added: Record<string, any> = {};
+  const removed: Record<string, any> = {};
+  const updated: Record<string, { prev: any; current: any }> = {};
+
+  function deepDiff(
+    oldObj: any,
+    newObj: any,
+    path: string = '',
+    addedAcc: Record<string, any>,
+    removedAcc: Record<string, any>,
+    updatedAcc: Record<string, { prev: any; current: any }>,
+  ) {
+    // Handle null/undefined cases
+    if (oldObj === null || oldObj === undefined) {
+      if (newObj !== null && newObj !== undefined) {
+        if (path) {
+          _loadash.set(addedAcc, path, newObj);
+        } else {
+          Object.assign(addedAcc, newObj);
+        }
+      }
+      return;
+    }
+
+    if (newObj === null || newObj === undefined) {
+      if (oldObj !== null && oldObj !== undefined) {
+        if (path) {
+          _loadash.set(removedAcc, path, oldObj);
+        } else {
+          Object.assign(removedAcc, oldObj);
+        }
+      }
+      return;
+    }
+
+    // Handle arrays
+    if (Array.isArray(newObj) || Array.isArray(oldObj)) {
+      if (!_loadash.isEqual(oldObj, newObj)) {
+        if (path) {
+          _loadash.set(updatedAcc, path, { prev: oldObj, current: newObj });
+        } else {
+          Object.assign(updatedAcc, {
+            array: { prev: oldObj, current: newObj },
+          });
+        }
+      }
+      return;
+    }
+
+    // Handle primitive values
+    if (
+      typeof oldObj !== 'object' ||
+      typeof newObj !== 'object' ||
+      oldObj instanceof Date ||
+      newObj instanceof Date
+    ) {
+      if (!_loadash.isEqual(oldObj, newObj)) {
+        if (path) {
+          _loadash.set(updatedAcc, path, { prev: oldObj, current: newObj });
+        } else {
+          // For top-level primitives, this shouldn't happen in normal flow
+          if (oldObj !== newObj) {
+            Object.assign(updatedAcc, {
+              value: { prev: oldObj, current: newObj },
+            });
+          }
+        }
+      }
+      return;
+    }
+
+    // Get all keys from both objects
+    const allKeys = new Set([
+      ...Object.keys(oldObj || {}),
+      ...Object.keys(newObj || {}),
+    ]);
+
+    for (const key of allKeys) {
+      const currentPath = path ? `${path}.${key}` : key;
+      const oldValue = oldObj?.[key];
+      const newValue = newObj?.[key];
+
+      // Key exists in new but not in old
+      if (!(key in (oldObj || {})) && key in (newObj || {})) {
+        _loadash.set(addedAcc, currentPath, newValue);
+      }
+      // Key exists in old but not in new
+      else if (key in (oldObj || {}) && !(key in (newObj || {}))) {
+        _loadash.set(removedAcc, currentPath, oldValue);
+      }
+      // Key exists in both - need to compare
+      else {
+        const isOldObject =
+          oldValue !== null &&
+          typeof oldValue === 'object' &&
+          !Array.isArray(oldValue) &&
+          !(oldValue instanceof Date);
+        const isNewObject =
+          newValue !== null &&
+          typeof newValue === 'object' &&
+          !Array.isArray(newValue) &&
+          !(newValue instanceof Date);
+
+        // Both are objects - recurse
+        if (isOldObject && isNewObject) {
+          deepDiff(
+            oldValue,
+            newValue,
+            currentPath,
+            addedAcc,
+            removedAcc,
+            updatedAcc,
+          );
+        }
+        // One is object, one is not - it's an update
+        else if (isOldObject !== isNewObject) {
+          _loadash.set(updatedAcc, currentPath, {
+            prev: oldValue,
+            current: newValue,
+          });
+        }
+        // Both are primitives/arrays/dates - compare directly
+        else if (!_loadash.isEqual(oldValue, newValue)) {
+          _loadash.set(updatedAcc, currentPath, {
+            prev: oldValue,
+            current: newValue,
+          });
+        }
+      }
+    }
+  }
+
+  deepDiff(plainObj1, plainObj2, '', added, removed, updated);
+
+  return {
+    added: Object.keys(added).length > 0 ? added : undefined,
+    removed: Object.keys(removed).length > 0 ? removed : undefined,
+    updated: Object.keys(updated).length > 0 ? updated : undefined,
+  };
+}
+
+export function flattenObject(
+  value: unknown,
+  parentKey = '',
+  result: Record<string, unknown> = {},
+): Record<string, unknown> {
+  if (value === null || value === undefined) {
+    if (parentKey) result[parentKey] = value;
+    return result;
+  }
+
+  // Handle arrays
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => {
+      const path = parentKey ? `${parentKey}.${index}` : String(index);
+
+      flattenObject(item, path, result);
+    });
+    return result;
+  }
+
+  // Handle objects
+  if (typeof value === 'object') {
+    for (const [key, val] of Object.entries(value)) {
+      const path = parentKey ? `${parentKey}.${key}` : key;
+      flattenObject(val, path, result);
+    }
+    return result;
+  }
+
+  // Primitive
+  result[parentKey] = value;
+  return result;
+}
+
+export const readFileUrl = (value: string) => {
+  if (!value || isValidURL(value) || value.includes('/')) {
+    return value;
+  }
+
+  const DOMAIN = getEnv({
+    name: 'DOMAIN',
+  });
+
+  return `${DOMAIN}/gateway/read-file?key=${value}`;
 };

@@ -64,7 +64,7 @@ export const KanbanBoard = ({ id, children, className }: KanbanBoardProps) => {
   return (
     <div
       className={cn(
-        'flex size-full min-h-40 min-w-80 flex-col overflow-hidden transition-all bg-gradient-to-b from-[#e0e7ff] to-[#e0e7ff50] dark:from-primary/40 dark:to-primary/20 rounded-md',
+        'flex size-full min-h-40 min-w-80 flex-col overflow-hidden transition-all bg-linear-to-b from-[#e0e7ff] to-[#e0e7ff50] dark:from-primary/40 dark:to-primary/20 rounded-md',
         isOver && 'shadow-focus',
         className,
       )}
@@ -149,7 +149,7 @@ export const KanbanCards = <T extends KanbanItemProps = KanbanItemProps>({
       <SortableContext items={items}>
         <div
           className={cn(
-            'flex flex-grow flex-col gap-2 p-2 pt-px relative',
+            'flex grow flex-col gap-2 p-2 pt-px relative',
             className,
           )}
           {...props}

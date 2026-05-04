@@ -92,21 +92,13 @@ const coverMutations = {
       throw new Error('cannot confirm');
     }
 
-    // const response = await sendPosMessage({
-    //   subdomain,
-    //   action: 'covers.confirm',
-    //   data: { posToken: config.token || '', cover },
-    //   isRPC: true,
-    //   defaultValue: {},
-    // });
     const response = await sendTRPCMessage({
       subdomain,
-
-      method: 'query',
+      method: 'mutation',
       pluginName: 'sales',
       module: 'pos',
-      action: 'covers.confirm',
-      input: { query: { posToken: config.token || '', cover } },
+      action: 'confirmCover',
+      input: { posToken: config.token || '', cover },
       defaultValue: {},
     });
 

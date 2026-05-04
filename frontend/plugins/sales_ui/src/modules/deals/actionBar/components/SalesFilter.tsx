@@ -3,13 +3,14 @@ import {
   IconCalendarBolt,
   IconCalendarPlus,
   IconCalendarX,
-  IconSearch,
 } from '@tabler/icons-react';
 import {
   SelectBranches,
   SelectCompany,
+  SelectCustomer,
   SelectDepartments,
   SelectMember,
+  SelectProduct,
 } from 'ui-modules';
 
 import { DealsTotalCount } from '@/deals/components/DealsTotalCount';
@@ -20,8 +21,8 @@ import { SelectPriority } from '@/deals/components/common/filters/SelectPriority
 
 export const SalesFilter = () => {
   const [queries] = useMultiQueryState<SalesFilterState>([
-    'search',
     'companyIds',
+    'productId',
     'userIds',
     'branchIds',
     'departmentIds',
@@ -54,9 +55,6 @@ export const SalesFilter = () => {
             </Combobox.Content>
           </Filter.Popover>
           <Filter.Dialog>
-            <Filter.View filterKey="search" inDialog>
-              <Filter.DialogStringView filterKey="search" />
-            </Filter.View>
             <Filter.View filterKey="createdStartDate" inDialog>
               <Filter.DialogDateView filterKey="createdStartDate" />
             </Filter.View>
@@ -97,28 +95,19 @@ export const filterDeals = (deals: IDeal[], filters: SalesFilterState) => {
 
 const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
   const {
-    search,
     assignedUserIds,
     branchIds,
     departmentIds,
     companyIds,
+    customerIds,
     userIds,
     priority,
     labelIds,
+    productId,
   } = queries || {};
 
   return (
     <>
-      <Filter.BarItem queryKey="search">
-        <Filter.BarName>
-          <IconSearch />
-          Search
-        </Filter.BarName>
-        <Filter.BarButton filterKey="search" inDialog>
-          {search}
-        </Filter.BarButton>
-      </Filter.BarItem>
-
       <Filter.BarItem queryKey="createdStartDate">
         <Filter.BarName>
           <IconCalendarPlus />
@@ -145,6 +134,13 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
           mode="multiple"
           filterKey="companyIds"
           label="By Company"
+        />
+      )}
+      {customerIds && (
+        <SelectCustomer.FilterBar
+          mode="multiple"
+          filterKey="customerIds"
+          label="By Customer"
         />
       )}
       {assignedUserIds && (
@@ -183,6 +179,13 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
           label="By Label"
         />
       )}
+      {productId && (
+        <SelectProduct.FilterBar
+          filterKey="productId"
+          mode="multiple"
+          label="By Product"
+        />
+      )}
     </>
   );
 };
@@ -193,23 +196,24 @@ const SalesFilterView = () => {
       <Filter.View>
         <Command>
           <Command.List className="p-1">
-            <Filter.Item value="search" inDialog>
-              <IconSearch />
-              Search
-            </Filter.Item>
             <SelectCompany.FilterItem value="companyIds" label="By Company" />
+            <SelectCustomer.FilterItem
+              value="customerIds"
+              label="By Customer"
+            />
             <Command.Separator className="my-1" />
             <SelectMember.FilterItem
               value="assignedUserIds"
               label="By Assigned user"
             />
             <SelectMember.FilterItem value="userIds" label="Created By" />
-            <SelectBranches.FilterItem value="branchIds" label="By Branch" />
             <Command.Separator className="my-1" />
+            <SelectBranches.FilterItem value="branchIds" label="By Branch" />
             <SelectDepartments.FilterItem
               value="departmentIds"
               label="By Department"
             />
+            <SelectProduct.FilterItem value="productId" label="By Product" />
             <SelectPriority.FilterItem value="priority" label="By Priority" />
             <SelectLabels.FilterItem value="labelIds" label="By Label" />
             <Command.Separator className="my-1" />
@@ -231,8 +235,10 @@ const SalesFilterView = () => {
       <SelectMember.FilterView mode="multiple" queryKey="assignedUserIds" />
       <SelectMember.FilterView mode="multiple" queryKey="userIds" />
       <SelectCompany.FilterView mode="multiple" filterKey="companyIds" />
+      <SelectCustomer.FilterView mode="multiple" filterKey="customerIds" />
       <SelectBranches.FilterView mode="multiple" filterKey="branchIds" />
       <SelectDepartments.FilterView mode="multiple" filterKey="departmentIds" />
+      <SelectProduct.FilterView filterKey="productId" mode="multiple" />
       <SelectPriority.FilterView />
       <SelectLabels.FilterView filterKey="labelIds" mode="multiple" />
       <Filter.View filterKey="createdStartDate">

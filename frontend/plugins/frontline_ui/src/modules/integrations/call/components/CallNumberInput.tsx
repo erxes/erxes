@@ -1,7 +1,8 @@
-import { Button, cn, formatPhoneNumber, Input } from 'erxes-ui';
-import { callNumberState } from '@/integrations/call/states/callWidgetStates';
-import { IconBackspace } from '@tabler/icons-react';
+import { Button, Input, cn, formatPhoneNumber } from 'erxes-ui';
 import { useAtom, useSetAtom } from 'jotai';
+
+import { IconBackspace } from '@tabler/icons-react';
+import { callNumberState } from '@/integrations/call/states/callWidgetStates';
 import { useSip } from '@/integrations/call/components/SipProvider';
 
 export const CallNumberInput = () => {
@@ -10,7 +11,6 @@ export const CallNumberInput = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(number);
     if (number.length === 0) return;
     startCall(number);
   };

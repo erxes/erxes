@@ -1,11 +1,8 @@
-import { PageHeader } from 'ui-modules';
+import { Can, PageHeader } from 'ui-modules';
 import { CustomerAddSheet } from './CustomerAddSheet';
 import { ContactsBreadcrumb } from '@/contacts/components/ContactsBreadcrumb';
-import { useIsCustomerLeadSessionKey } from '../hooks/useCustomerLeadSessionKey';
 
 export const CustomersHeader = () => {
-  const { isLead } = useIsCustomerLeadSessionKey();
-
   return (
     <PageHeader>
       <PageHeader.Start>
@@ -13,7 +10,11 @@ export const CustomersHeader = () => {
         <PageHeader.FavoriteToggleButton />
       </PageHeader.Start>
 
-      <PageHeader.End>{!isLead && <CustomerAddSheet />}</PageHeader.End>
+      <PageHeader.End>
+        <Can action="contactsCreate">
+          <CustomerAddSheet />
+        </Can>
+      </PageHeader.End>
     </PageHeader>
   );
 };

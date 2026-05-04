@@ -19,6 +19,18 @@ export const posSchema = schemaWrapper(
     cashierIds: { type: [String], label: 'Cashier ids' },
     isOnline: { type: Boolean, label: 'Is online pos' },
     paymentIds: { type: [String], label: 'Online Payments' },
+    serviceCharge: {
+      type: Number,
+      label: 'Service Charge',
+      min: 0,
+      max: 100,
+      optional: true,
+    },
+    serviceChargeApplicableProductId: {
+      type: String,
+      optional: true,
+      label: 'Service Charge Applicable Product',
+    },
     paymentTypes: { type: [Object], label: 'Other Payments' },
     onServer: {
       type: Boolean,
@@ -76,6 +88,12 @@ export const posSchema = schemaWrapper(
       optional: true,
       label: 'Permission',
     },
+    type: {
+      type: String,
+      enum: ['ecommerce', 'restaurant', 'pos'],
+      optional: true,
+      label: 'Type',
+    },
     allowTypes: { type: [String], label: 'Allow Types' },
     isCheckRemainder: { type: Boolean, label: 'is Check Remainder' },
     checkExcludeCategoryIds: {
@@ -85,6 +103,7 @@ export const posSchema = schemaWrapper(
     saveRemainder: { type: Boolean, label: 'Save Remainder' },
     banFractions: { type: Boolean, label: 'has Float count' },
     status: { type: String, label: 'Status', optional: true },
+    scopeBrandIds: { type: [String], label: 'Scope Brand Ids', optional: true },
   }),
 );
 

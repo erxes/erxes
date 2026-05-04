@@ -9,8 +9,20 @@ import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mu
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import {
   checkIsBot,
-  triggerFacebookAutomation,
+  triggerFacebookMessageAutomation,
 } from '@/integrations/facebook/meta/automation/utils/messageUtils';
+
+/**
+ * Sanitize a value expected to be a string to prevent NoSQL injection.
+ * Coerces non-string values (e.g. numbers) to strings, which also neutralizes
+ * injection objects like {"$gt": ""} by converting them to "[object Object]".
+ */
+const sanitizeString = (value: unknown): string => {
+  if (typeof value === 'string') {
+    return value;
+  }
+  return String(value ?? '');
+};
 
 export const receiveMessage = async (
   models: IModels,
@@ -19,18 +31,16 @@ export const receiveMessage = async (
   activity: Activity,
 ) => {
   try {
-    console.log(activity, 'activity');
-    console.log(integration, 'integration');
-
     debugFacebook(
       `Received message: ${activity.text} from ${activity.from.id}`,
     );
     const { recipient, from, timestamp, channelData } = activity;
     let { message, postback } = channelData;
-    const pageId = recipient.id;
-    const userId = from.id;
+    const pageId = sanitizeString(recipient.id);
+    const userId = sanitizeString(from.id);
     const kind = INTEGRATION_KINDS.MESSENGER;
-    const mid = channelData.message?.mid || postback?.mid;
+    const rawMid = channelData.message?.mid || postback?.mid;
+    const mid = rawMid != null ? sanitizeString(rawMid) : undefined;
     const attachments = channelData.message?.attachments;
 
     let text = activity.text || message?.text;
@@ -52,6 +62,19 @@ export const receiveMessage = async (
       message.payload = message.quick_reply.payload;
     }
 
+    const referral = message?.referral || postback?.referral;
+    const isOpenThreadEvent = referral?.type === 'OPEN_THREAD';
+
+    if (isOpenThreadEvent) {
+      adData = {
+        source: referral.source,
+        type: referral.type,
+        adId: referral.ad_id,
+        postId: referral.ads_context_data?.post_id,
+        pageId,
+      };
+    }
+
     const customer = await getOrCreateCustomer(
       models,
       subdomain,
@@ -59,14 +82,13 @@ export const receiveMessage = async (
       userId,
       kind,
     );
-    console.log(customer, 'customer');
     if (!customer) {
       throw new Error('Customer not found');
     }
 
     let conversation = await models.FacebookConversations.findOne({
-      senderId: userId,
-      recipientId: pageId,
+      senderId: { $eq: userId },
+      recipientId: { $eq: pageId },
     });
 
     const bot = await checkIsBot(models, message, recipient.id);
@@ -127,8 +149,6 @@ export const receiveMessage = async (
         data,
       );
 
-      console.log(apiConversationResponse, 'apiConversationResponse');
-
       if (apiConversationResponse.status === 'success') {
         conversation.erxesApiId = apiConversationResponse.data._id;
 
@@ -147,14 +167,15 @@ export const receiveMessage = async (
     // get conversation message
     let conversationMessage = await models.FacebookConversationMessages.findOne(
       {
-        mid: mid,
+        mid: { $eq: mid },
       },
     );
+
     if (!conversationMessage) {
       try {
         const created = await models.FacebookConversationMessages.create({
           conversationId: conversation._id,
-          mid: mid,
+          mid,
           createdAt: timestamp,
           content: text,
           customerId: customer.erxesApiId,
@@ -186,7 +207,7 @@ export const receiveMessage = async (
 
         conversationMessage = created;
 
-        await triggerFacebookAutomation(subdomain, {
+        triggerFacebookMessageAutomation(subdomain, {
           conversationMessage: conversationMessage.toObject(),
           payload: message?.payload,
           adData,

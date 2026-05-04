@@ -29,6 +29,7 @@ export const AccountCategoriesTable = () => {
       ) || {}
     );
   }, [accountCategories]);
+  console.log({ accountCategories });
 
   return (
     <RecordTable.Provider
@@ -89,6 +90,7 @@ const AccountTextField = ({
           variables: { ...accountCategory, [field]: value },
         });
       }}
+      className={'shadow-none rounded-none px-2'}
     >
       {children}
     </TextField>
@@ -112,83 +114,6 @@ const AccountCategoryMoreColumnCell = ({
     />
   );
 };
-
-export const accountCategoryMoreColumn = {
-  id: 'more',
-  cell: AccountCategoryMoreColumnCell,
-  size: 33,
-};
-
-export const accountCategoriesColumns: ColumnDef<
-  IAccountCategory & { hasChildren: boolean }
->[] = [
-  accountCategoryMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<
-    IAccountCategory & { hasChildren: boolean }
-  >,
-  {
-    id: 'code',
-    accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="Code" />,
-    cell: ({ cell }) => {
-      const accountCategory = cell.row.original;
-      return (
-        <AccountTextField
-          value={cell.getValue() as string}
-          field="code"
-          _id={cell.row.original._id}
-          accountCategory={accountCategory}
-        >
-          <RecordTableTree.Trigger
-            order={accountCategory.order || ''}
-            name={accountCategory.name || ''}
-            hasChildren={accountCategory.hasChildren}
-          />
-        </AccountTextField>
-      );
-    },
-    size: 200,
-  },
-  {
-    id: 'name',
-    accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
-    cell: ({ cell }) => {
-      return (
-        <AccountTextField
-          value={cell.getValue() as string}
-          field="name"
-          _id={cell.row.original._id}
-          accountCategory={cell.row.original}
-        />
-      );
-    },
-    size: 250,
-  },
-  {
-    id: 'parentId',
-    accessorKey: 'parentId',
-    header: () => <RecordTable.InlineHead label="Parent" />,
-    cell: ({ cell }) => <AccountCategoryParentCell cell={cell} />,
-    size: 250,
-  },
-  {
-    id: 'description',
-    accessorKey: 'description',
-    header: () => <RecordTable.InlineHead label="Description" />,
-    cell: ({ cell }) => {
-      return (
-        <AccountTextField
-          value={cell.getValue() as string}
-          field="description"
-          _id={cell.row.original._id}
-          accountCategory={cell.row.original}
-        />
-      );
-    },
-    size: 300,
-  },
-];
 
 const AccountCategoryParentCell = ({
   cell,
@@ -216,3 +141,80 @@ const AccountCategoryParentCell = ({
     />
   );
 };
+
+const accountCategoryMoreColumn = {
+  id: 'more',
+  cell: AccountCategoryMoreColumnCell,
+  size: 33,
+};
+
+export const accountCategoriesColumns: ColumnDef<
+  IAccountCategory & { hasChildren: boolean }
+>[] = [
+  accountCategoryMoreColumn,
+  RecordTable.checkboxColumn as ColumnDef<
+    IAccountCategory & { hasChildren: boolean }
+  >,
+  {
+    id: 'code',
+    accessorKey: 'code',
+    header: () => <RecordTable.InlineHead label="Код" />,
+    cell: ({ cell }) => {
+      const accountCategory = cell.row.original;
+      return (
+        <AccountTextField
+          value={cell.getValue() as string}
+          field="code"
+          _id={cell.row.original._id}
+          accountCategory={accountCategory}
+        >
+          <RecordTableTree.Trigger
+            order={accountCategory.order || ''}
+            name={accountCategory.name || ''}
+            hasChildren={accountCategory.hasChildren}
+          />
+        </AccountTextField>
+      );
+    },
+    size: 200,
+  },
+  {
+    id: 'name',
+    accessorKey: 'name',
+    header: () => <RecordTable.InlineHead label="Нэр" />,
+    cell: ({ cell }) => {
+      return (
+        <AccountTextField
+          value={cell.getValue() as string}
+          field="name"
+          _id={cell.row.original._id}
+          accountCategory={cell.row.original}
+        />
+      );
+    },
+    size: 250,
+  },
+  {
+    id: 'parentId',
+    accessorKey: 'parentId',
+    header: () => <RecordTable.InlineHead label="Эцэг" />,
+    cell: ({ cell }) => <AccountCategoryParentCell cell={cell} />,
+    size: 250,
+  },
+  {
+    id: 'description',
+    accessorKey: 'description',
+    header: () => <RecordTable.InlineHead label="Тайлбар" />,
+    cell: ({ cell }) => {
+      return (
+        <AccountTextField
+          value={cell.getValue() as string}
+          field="description"
+          _id={cell.row.original._id}
+          accountCategory={cell.row.original}
+        />
+      );
+    },
+    size: 300,
+  },
+];

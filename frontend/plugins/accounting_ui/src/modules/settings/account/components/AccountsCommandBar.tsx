@@ -4,7 +4,6 @@ import {
   CommandBar,
   RecordTable,
   Separator,
-  toast,
   useConfirm,
 } from 'erxes-ui';
 import { useAccountsRemove } from '../hooks/useAccountsRemove';
@@ -15,7 +14,7 @@ export const AccountsCommandbar = () => {
     <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value onClose={() => table.setRowSelection({})}>
-          {table.getFilteredSelectedRowModel().rows.length} selected
+          {table.getFilteredSelectedRowModel().rows.length} сонгосон
         </CommandBar.Value>
         <Separator.Inline />
         <AccountsDelete />
@@ -31,10 +30,10 @@ export const AccountsDelete = () => {
 
   const handleDelete = () =>
     confirm({
-      message: 'Are you sure you want to delete these accounts?',
+      message: 'Эдгээр дансыг устгахдаа итгэлтэй байна уу?',
       options: {
-        okLabel: 'Delete',
-        cancelLabel: 'Cancel',
+        okLabel: 'Устгах',
+        cancelLabel: 'Болих',
       },
     }).then(() => {
       removeAccounts({
@@ -43,19 +42,8 @@ export const AccountsDelete = () => {
             .getFilteredSelectedRowModel()
             .rows.map((row) => row.original._id),
         },
-        onError: (error: Error) => {
-          toast({
-            title: 'Error',
-            description: error.message,
-            variant: 'destructive',
-          });
-        },
         onCompleted: () => {
           table.setRowSelection({});
-          toast({
-            title: 'Success',
-            description: 'Accounts deleted successfully',
-          });
         },
       });
     });
@@ -63,7 +51,7 @@ export const AccountsDelete = () => {
   return (
     <Button variant="secondary" disabled={loading} onClick={handleDelete}>
       <IconTrash />
-      Delete
+      Устгах
     </Button>
   );
 };

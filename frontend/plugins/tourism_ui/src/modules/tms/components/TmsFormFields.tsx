@@ -1,7 +1,40 @@
-import { Control, useFieldArray } from 'react-hook-form';
-import { Button, Form, Input, Select, Upload } from 'erxes-ui';
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
+import {
+  Control,
+  UseFormReturn,
+  useFieldArray,
+  useWatch,
+  useController,
+} from 'react-hook-form';
+import {
+  Button,
+  Form,
+  Input,
+  Upload,
+  ColorPicker,
+  Spinner,
+  readImage,
+  Combobox,
+  Command,
+  Popover,
+  Switch,
+} from 'erxes-ui';
 import { TmsFormType } from '@/tms/constants/formSchema';
+import { LANGUAGES } from '@/tms/constants/languages';
 import { IconUpload, IconPlus, IconTrash } from '@tabler/icons-react';
+import { SelectMember } from 'ui-modules';
+import { SelectPayment } from '@/pms/components/payment/SelectPayment';
+
+export interface PaymentType {
+  _id: string;
+  name: string;
+  kind: string;
+  status: string;
+  config: any;
+  createdAt: string;
+}
 
 export const TourName = ({ control }: { control: Control<TmsFormType> }) => {
   return (
@@ -11,7 +44,7 @@ export const TourName = ({ control }: { control: Control<TmsFormType> }) => {
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Tour Name <span className="text-red-500">*</span>
+            Name <span className="text-destructive">*</span>
           </Form.Label>
           <Form.Control>
             <Input className="h-8 rounded-md" {...field} />
@@ -23,6 +56,106 @@ export const TourName = ({ control }: { control: Control<TmsFormType> }) => {
   );
 };
 
+export const MainLanguageSelect = ({
+  control,
+}: {
+  control: Control<TmsFormType>;
+}) => {
+  const { field: mainLanguageField } = useController({
+    control,
+    name: 'mainLanguage',
+  });
+  const languages = useWatch({ control, name: 'language' });
+  const mainLanguage = useWatch({ control, name: 'mainLanguage' });
+  const options = useMemo(
+    () =>
+      Array.isArray(languages)
+        ? languages.filter((item): item is string => typeof item === 'string')
+        : [],
+    [languages],
+  );
+
+  useEffect(() => {
+    if (!options.length) {
+      if (mainLanguage) {
+        mainLanguageField.onChange('');
+      }
+      return;
+    }
+
+    if (!mainLanguage || !options.includes(mainLanguage)) {
+      mainLanguageField.onChange(options[0]);
+    }
+  }, [mainLanguage, options, mainLanguageField]);
+
+  return (
+    <Form.Field
+      control={control}
+      name="mainLanguage"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>Main language</Form.Label>
+          <Form.Control>
+            <MainLanguageSelectFormItem
+              value={field.value}
+              options={options}
+              onValueChange={field.onChange}
+            />
+          </Form.Control>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+const MainLanguageSelectFormItem = ({
+  value,
+  onValueChange,
+  options,
+}: {
+  value?: string;
+  onValueChange: (value: string) => void;
+  options: string[];
+}) => {
+  const [open, setOpen] = useState(false);
+  const selected = LANGUAGES.find((language) => language.value === value);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Combobox.Trigger className="w-full shadow-xs">
+        <Combobox.Value
+          placeholder="Select main language"
+          value={selected?.label}
+        />
+      </Combobox.Trigger>
+      <Combobox.Content>
+        <Command>
+          <Command.Input placeholder="Search languages..." />
+          <Command.List className="max-h-[300px] overflow-y-auto">
+            <Command.Empty>No language found</Command.Empty>
+            {LANGUAGES.filter((language) =>
+              options.includes(language.value),
+            ).map((language) => (
+              <Command.Item
+                key={language.value}
+                value={`${language.value}|${language.label}`}
+                onSelect={() => {
+                  onValueChange(language.value);
+                  setOpen(false);
+                }}
+              >
+                {language.label}
+                <Combobox.Check checked={value === language.value} />
+              </Command.Item>
+            ))}
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
+  );
+};
+
 export const SelectColor = ({ control }: { control: Control<TmsFormType> }) => {
   return (
     <Form.Field
@@ -31,18 +164,189 @@ export const SelectColor = ({ control }: { control: Control<TmsFormType> }) => {
       render={({ field }) => (
         <Form.Item>
           <Form.Label>
-            Main color <span className="text-red-500">*</span>
+            Main color <span className="text-destructive">*</span>
           </Form.Label>
 
           <Form.Control>
-            <div
-              className="relative w-8 h-8 overflow-hidden rounded-full"
-              style={{ backgroundColor: field.value || '#4F46E5' }}
+            <ColorPicker
+              value={field.value}
+              onValueChange={(value: any) => {
+                field.onChange(value);
+              }}
+              className="w-24"
+            />
+          </Form.Control>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+const ImageUploadField = ({
+  control,
+  name,
+  label,
+  description,
+}: {
+  control: Control<TmsFormType>;
+  name: 'logo' | 'favIcon';
+  label: string;
+  description: string;
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
+
+  return (
+    <Form.Field
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>{label}</Form.Label>
+          <Form.Description>{description}</Form.Description>
+          <Form.Control>
+            <Upload.Root
+              {...field}
+              value={field.value || ''}
+              onChange={(fileInfo) => {
+                if (
+                  typeof fileInfo === 'object' &&
+                  fileInfo !== null &&
+                  'url' in fileInfo
+                ) {
+                  field.onChange(fileInfo.url);
+                } else {
+                  field.onChange('');
+                }
+              }}
+              className="relative group"
             >
-              <Input
-                type="color"
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                {...field}
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center w-full border border-dashed rounded-md h-28 bg-accent">
+                  <Spinner className="text-muted-foreground" size="md" />
+                </div>
+              ) : (
+                <>
+                  <Upload.Button
+                    size="sm"
+                    variant="secondary"
+                    type="button"
+                    className={`flex overflow-hidden relative flex-col justify-center items-center w-full h-28 rounded-md border border-border text-muted-foreground group bg-background ${
+                      field.value ? '' : 'border-dashed'
+                    }`}
+                    style={
+                      field.value
+                        ? {
+                            backgroundImage: `url(${readImage(field.value)})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                          }
+                        : {}
+                    }
+                  >
+                    {!field.value && (
+                      <div className="relative z-10 flex flex-col items-center justify-center gap-3">
+                        <IconUpload size={20} />
+                        <span className="text-xs text-muted-foreground">
+                          Max size: 15MB, File type: PNG
+                        </span>
+                      </div>
+                    )}
+                    {field.value && (
+                      <div className="absolute inset-0 flex items-center justify-center transition-all duration-200 bg-black/0 group-hover:bg-black/20">
+                        <div className="transition-opacity duration-200 opacity-0 group-hover:opacity-100">
+                          <div className="px-2 py-1 text-xs font-medium text-black rounded-lg backdrop-blur-sm bg-white/90">
+                            Change
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </Upload.Button>
+
+                  {field.value && (
+                    <Upload.RemoveButton
+                      size="sm"
+                      variant="destructive"
+                      disabled={isRemoving}
+                      className="absolute z-30 transition-opacity duration-200 shadow-lg opacity-0 top-2 right-2 group-hover:opacity-100"
+                      onClick={() => {
+                        setIsRemoving(true);
+                        field.onChange('');
+                        setIsRemoving(false);
+                      }}
+                    >
+                      {isRemoving ? (
+                        <Spinner size="sm" className="text-white" />
+                      ) : (
+                        <IconTrash size={14} />
+                      )}
+                    </Upload.RemoveButton>
+                  )}
+
+                  <div className="hidden">
+                    <Upload.Preview
+                      onUploadStart={() => setIsLoading(true)}
+                      onAllUploadsComplete={() => setIsLoading(false)}
+                    />
+                  </div>
+                </>
+              )}
+            </Upload.Root>
+          </Form.Control>
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+export const LogoField = ({ control }: { control: Control<TmsFormType> }) => (
+  <ImageUploadField
+    control={control}
+    name="logo"
+    label="LOGO"
+    description="Image can be shown on the top of the post also"
+  />
+);
+
+export const FavIconField = ({
+  control,
+}: {
+  control: Control<TmsFormType>;
+}) => (
+  <ImageUploadField
+    control={control}
+    name="favIcon"
+    label="FAV ICON"
+    description="Fav icon can be shown on the top of the post also in"
+  />
+);
+
+export const GeneralManager = ({
+  control,
+}: {
+  control: Control<TmsFormType>;
+}) => {
+  return (
+    <Form.Field
+      control={control}
+      name="generalManager"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>
+            General Managers <span className="text-destructive">*</span>
+          </Form.Label>
+          <Form.Description>
+            General manager can be shown on the top of the post also in the list
+            view
+          </Form.Description>
+          <Form.Control>
+            <div className="w-full">
+              <SelectMember.FormItem
+                mode="multiple"
+                value={field.value}
+                onValueChange={field.onChange}
               />
             </div>
           </Form.Control>
@@ -53,177 +357,26 @@ export const SelectColor = ({ control }: { control: Control<TmsFormType> }) => {
   );
 };
 
-export const LogoField = ({ control }: { control: Control<TmsFormType> }) => {
+export const Manager = ({ control }: { control: Control<TmsFormType> }) => {
   return (
     <Form.Field
-      name="logo"
       control={control}
+      name="managers"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>LOGO</Form.Label>
+          <Form.Label>Managers</Form.Label>
           <Form.Description>
-            Image can be shown on the top of the post also
+            Manager can be shown on the top of the post also in the list view
           </Form.Description>
           <Form.Control>
-            <Upload.Root
-              {...field}
-              value={field.value || ''}
-              onChange={(fileInfo) => {
-                if ('url' in fileInfo) {
-                  field.onChange(fileInfo.url);
-                }
-              }}
-            >
-              <div className="w-full">
-                <Upload.Button
-                  size="sm"
-                  variant="secondary"
-                  type="button"
-                  className="flex flex-col items-center justify-center w-full border border-dashed h-28 text-muted-foreground"
-                >
-                  <IconUpload className="mb-2" />
-
-                  <Button variant="outline" className="text-sm font-medium">
-                    Upload logo
-                  </Button>
-
-                  <p className="mt-2 text-sm text-gray-400">
-                    Max size: 15MB, File type: PNG
-                  </p>
-                </Upload.Button>
-
-                {field.value && (
-                  <Upload.Preview className="w-full h-full mt-2" />
-                )}
-              </div>
-            </Upload.Root>
+            <div className="w-full">
+              <SelectMember.FormItem
+                mode="multiple"
+                value={field.value}
+                onValueChange={field.onChange}
+              />
+            </div>
           </Form.Control>
-        </Form.Item>
-      )}
-    />
-  );
-};
-
-export const FavIconField = ({
-  control,
-}: {
-  control: Control<TmsFormType>;
-}) => {
-  return (
-    <Form.Field
-      name="favIcon"
-      control={control}
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>FAV ICON</Form.Label>
-
-          <Form.Description>
-            Fav icon can be shown on the top of the post also in
-          </Form.Description>
-          <Form.Control>
-            <Upload.Root
-              {...field}
-              value={field.value || ''}
-              onChange={(fileInfo) => {
-                if ('url' in fileInfo) {
-                  field.onChange(fileInfo.url);
-                }
-              }}
-            >
-              <Upload.Preview className="hidden" />
-              <div className="w-full">
-                <Upload.Button
-                  size="sm"
-                  variant="secondary"
-                  type="button"
-                  className="flex flex-col items-center justify-center w-full border border-dashed h-28 text-muted-foreground"
-                >
-                  <IconUpload className="mb-2" />
-
-                  <Button variant="outline" className="text-sm font-medium">
-                    Upload favicon
-                  </Button>
-
-                  <p className="mt-2 text-sm text-gray-400">
-                    Max size: 15MB, File type: PNG
-                  </p>
-                </Upload.Button>
-
-                {field.value && (
-                  <Upload.Preview className="w-full h-full mt-2" />
-                )}
-              </div>
-            </Upload.Root>
-          </Form.Control>
-        </Form.Item>
-      )}
-    />
-  );
-};
-
-const TestGeneralManager = [
-  { label: 'Bold Bold', value: '1' },
-  { label: 'Bat Bat', value: '2' },
-  { label: 'Toroo Toroo', value: '3' },
-  { label: 'Temuulen Temuulen', value: '4' },
-];
-
-export const GeneralManeger = ({
-  control,
-}: {
-  control: Control<TmsFormType>;
-}) => {
-  return (
-    <Form.Field
-      control={control}
-      name="generalManeger"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>General maneger</Form.Label>
-          <Form.Description>
-            General maneger can be shown on the top of the post also in the list
-            view
-          </Form.Description>
-          <Select
-            onValueChange={(value) => field.onChange([value])}
-            value={field.value?.[0] || ''}
-          >
-            <Form.Control>
-              <Select.Trigger className="justify-between h-8 truncate rounded-md appearance-none w-44 text-foreground [&>span]:flex-1 [&>svg]:w-0 [&>svg]:mr-0">
-                <Select.Value
-                  placeholder={
-                    <span className="text-sm font-medium text-center truncate text-muted-foreground">
-                      {'Choose team member'}
-                    </span>
-                  }
-                >
-                  <span className="text-sm font-medium text-foreground">
-                    {
-                      TestGeneralManager.find(
-                        (status) => status.value === field.value?.[0],
-                      )?.label
-                    }
-                  </span>
-                </Select.Value>
-              </Select.Trigger>
-            </Form.Control>
-            <Select.Content
-              className="border p-0 [&_*[role=option]>span>svg]:shrink-0 [&_*[role=option]>span>svg]:text-muted-foreground/80 [&_*[role=option]>span]:end-2 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:flex [&_*[role=option]>span]:items-center [&_*[role=option]>span]:gap-2 [&_*[role=option]]:pe-8 [&_*[role=option]]:ps-2"
-              align="start"
-            >
-              <Select.Group>
-                {TestGeneralManager.map((status) => (
-                  <Select.Item
-                    key={status.value}
-                    className="text-xs h-7"
-                    value={status.value}
-                  >
-                    {status.label}
-                  </Select.Item>
-                ))}
-              </Select.Group>
-            </Select.Content>
-          </Select>
           <Form.Message className="text-destructive" />
         </Form.Item>
       )}
@@ -231,76 +384,86 @@ export const GeneralManeger = ({
   );
 };
 
-const TestManegers = [
-  { label: 'Bold Bold', value: '1' },
-  { label: 'Bat Bat', value: '2' },
-  { label: 'Toroo Toroo', value: '3' },
-  { label: 'Temuulen Temuulen', value: '4' },
-];
+const LanguageSelectFormItem = ({
+  value = [],
+  onValueChange,
+}: {
+  value?: string[];
+  onValueChange: (value: string[]) => void;
+}) => {
+  const [open, setOpen] = useState(false);
+  const selectedLabels = value
+    .map((code) => LANGUAGES.find((language) => language.value === code)?.label)
+    .filter(Boolean);
 
-export const Maneger = ({ control }: { control: Control<TmsFormType> }) => {
+  const toggleLanguage = (code: string) => {
+    const nextValue = value.includes(code)
+      ? value.filter((item) => item !== code)
+      : [...value, code];
+
+    onValueChange(nextValue);
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Combobox.Trigger className="w-full shadow-xs">
+        <Combobox.Value
+          placeholder="Select languages"
+          value={selectedLabels.length ? selectedLabels.join(', ') : undefined}
+        />
+      </Combobox.Trigger>
+      <Combobox.Content>
+        <Command>
+          <Command.Input placeholder="Search languages..." />
+          <Command.List className="max-h-[300px] overflow-y-auto">
+            <Command.Empty>No language found</Command.Empty>
+            {LANGUAGES.map((language) => (
+              <Command.Item
+                key={language.value}
+                value={`${language.value}|${language.label}`}
+                onSelect={() => toggleLanguage(language.value)}
+              >
+                {language.label}
+                <Combobox.Check checked={value.includes(language.value)} />
+              </Command.Item>
+            ))}
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
+  );
+};
+
+export const LanguageSelect = ({
+  control,
+}: {
+  control: Control<TmsFormType>;
+}) => {
   return (
     <Form.Field
       control={control}
-      name="manegers"
+      name="language"
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>Manegers</Form.Label>
-          <Form.Description>
-            Maneger can be shown on the top of the post also in the list view
-          </Form.Description>
-          <Select
-            onValueChange={(value) => field.onChange([value])}
-            value={field.value?.[0] || ''}
-          >
-            <Form.Control>
-              <Select.Trigger className="justify-between h-8 truncate rounded-md appearance-none [&>svg]:hidden w-44 text-foreground [&>span]:flex-1 [&>svg]:w-0 [&>svg]:mr-0">
-                <Select.Value
-                  placeholder={
-                    <span className="text-sm font-medium text-center truncate text-muted-foreground">
-                      {'Choose team member'}
-                    </span>
-                  }
-                >
-                  <span className="text-sm font-medium text-foreground">
-                    {
-                      TestManegers.find(
-                        (status) => status.value === field.value?.[0],
-                      )?.label
-                    }
-                  </span>
-                </Select.Value>
-              </Select.Trigger>
-            </Form.Control>
-            <Select.Content
-              className="border p-0 [&_*[role=option]>span>svg]:shrink-0 [&_*[role=option]>span>svg]:text-muted-foreground/80 [&_*[role=option]>span]:end-2 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:flex [&_*[role=option]>span]:items-center [&_*[role=option]>span]:gap-2 [&_*[role=option]]:pe-8 [&_*[role=option]]:ps-2"
-              align="start"
-            >
-              <Select.Group>
-                {TestManegers.map((status) => (
-                  <Select.Item
-                    key={status.value}
-                    className="text-xs h-7"
-                    value={status.value}
-                  >
-                    {status.label}
-                  </Select.Item>
-                ))}
-              </Select.Group>
-            </Select.Content>
-          </Select>
+          <Form.Label>Language</Form.Label>
+          <Form.Control>
+            <LanguageSelectFormItem
+              value={
+                Array.isArray(field.value)
+                  ? field.value.filter(
+                      (item): item is string => typeof item === 'string',
+                    )
+                  : []
+              }
+              onValueChange={field.onChange}
+            />
+          </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
       )}
     />
   );
 };
-
-const TestPayments = [
-  { value: '1', label: 'Visa' },
-  { value: '2', label: 'Qpay' },
-  { value: '3', label: 'Mastercard' },
-];
 
 export const Payments = ({ control }: { control: Control<TmsFormType> }) => {
   return (
@@ -313,58 +476,102 @@ export const Payments = ({ control }: { control: Control<TmsFormType> }) => {
           <Form.Description>
             Select payments that you want to use
           </Form.Description>
-
-          <div className="flex items-center justify-between mt-2 space-x-4">
-            <Select
-              onValueChange={(value) => field.onChange([value])}
-              value={field.value?.[0] || ''}
-            >
-              <Form.Control>
-                <Select.Trigger className="justify-between w-40 h-8 truncate rounded-md text-foreground appearance-none [&>span]:flex-1 [&>svg]:w-0 [&>svg]:mr-0">
-                  <Select.Value
-                    placeholder={
-                      <span className="text-sm font-medium truncate text-muted-foreground">
-                        {'Select payments'}
-                      </span>
-                    }
-                  >
-                    <span className="text-sm font-medium text-foreground">
-                      {
-                        TestPayments.find(
-                          (status) => status.value === field.value?.[0],
-                        )?.label
-                      }
-                    </span>
-                  </Select.Value>
-                </Select.Trigger>
-              </Form.Control>
-              <Select.Content
-                className="border p-0 [&_*[role=option]>span>svg]:shrink-0 [&_*[role=option]>span>svg]:text-muted-foreground/80 [&_*[role=option]>span]:end-2 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:flex [&_*[role=option]>span]:items-center [&_*[role=option]>span]:gap-2 [&_*[role=option]]:pe-8 [&_*[role=option]]:ps-2"
-                align="start"
-              >
-                <Select.Group>
-                  {TestPayments.map((status) => (
-                    <Select.Item
-                      key={status.value}
-                      className="text-xs h-7"
-                      value={status.value}
-                    >
-                      {status.label}
-                    </Select.Item>
-                  ))}
-                </Select.Group>
-              </Select.Content>
-            </Select>
-
-            <Button variant="default" className="flex items-center h-8 gap-2">
-              <IconPlus size={18} />
-              Add Payment
-            </Button>
+          <div className="flex items-end justify-between gap-4">
+            <Form.Control className="flex-1">
+              <SelectPayment.FormItem
+                mode="multiple"
+                value={field.value || []}
+                onValueChange={(value) => {
+                  field.onChange(Array.isArray(value) ? value : []);
+                }}
+                placeholder="Select payments"
+              />
+            </Form.Control>
           </div>
           <Form.Message className="text-destructive" />
         </Form.Item>
       )}
     />
+  );
+};
+
+export const Prepaid = ({ form }: { form: UseFormReturn<TmsFormType> }) => {
+  const prepaidEnabled = useWatch({
+    control: form.control,
+    name: 'prepaid',
+  });
+
+  return (
+    <div className="py-3 border-y">
+      <Form.Field
+        control={form.control}
+        name="prepaid"
+        render={({ field }) => (
+          <Form.Item className="flex items-center justify-between gap-4">
+            <div className="space-y-2">
+              <Form.Label className="cursor-pointer">Prepaid</Form.Label>
+              <Form.Description>Enable prepaid percentage</Form.Description>
+            </div>
+            <Form.Control>
+              <Switch
+                checked={Boolean(field.value)}
+                onCheckedChange={(checked) => {
+                  field.onChange(checked);
+
+                  if (!checked) {
+                    form.setValue('prepaidPercent', undefined, {
+                      shouldDirty: true,
+                      shouldValidate: false,
+                    });
+                    form.clearErrors('prepaidPercent');
+                  }
+                }}
+              />
+            </Form.Control>
+          </Form.Item>
+        )}
+      />
+
+      {prepaidEnabled && (
+        <Form.Field
+          control={form.control}
+          name="prepaidPercent"
+          render={({ field }) => (
+            <Form.Item className="mt-4">
+              <Form.Label>Prepaid Percent</Form.Label>
+              <Form.Control>
+                <Input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  placeholder="Enter prepaid percent"
+                  value={field.value ?? ''}
+                  onChange={(event) => {
+                    const nextValue = event.target.value;
+
+                    if (nextValue === '') {
+                      field.onChange(undefined);
+                      return;
+                    }
+
+                    const parsedValue = Number(nextValue);
+
+                    if (Number.isNaN(parsedValue)) {
+                      field.onChange(undefined);
+                      return;
+                    }
+
+                    field.onChange(Math.min(100, Math.max(0, parsedValue)));
+                  }}
+                />
+              </Form.Control>
+              <Form.Message className="text-destructive" />
+            </Form.Item>
+          )}
+        />
+      )}
+    </div>
   );
 };
 
@@ -374,11 +581,11 @@ export const Token = ({ control }: { control: Control<TmsFormType> }) => {
       control={control}
       name="token"
       render={({ field }) => (
-        <Form.Item className="border-y border-y-[#E4E4E7] py-4">
+        <Form.Item className="py-3 border-y">
           <Form.Label>Erxes app token</Form.Label>
           <Form.Description>What is erxes app token ?</Form.Description>
           <Form.Control>
-            <Input className="w-40 h-8 rounded-md" {...field} />
+            <Input className="h-8 rounded-md" {...field} />
           </Form.Control>
           <Form.Message className="text-destructive" />
         </Form.Item>
@@ -392,31 +599,23 @@ export const OtherPayments = ({
 }: {
   control: Control<TmsFormType>;
 }) => {
-  // Define Icon options
-  const Icon = [
-    { value: 'visa', label: 'Visa' },
-    { value: 'mastercard', label: 'Mastercard' },
-    { value: 'qpay', label: 'QPay' },
-    { value: 'socialpay', label: 'SocialPay' },
-  ];
-
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'otherPayments',
   });
 
   const handleAddPayment = () => {
-    append({ type: '', title: '', icon: '', config: '' });
+    append({ type: '', title: '', config: '' });
   };
 
   return (
-    <div>
+    <div className="py-3">
       <div className="flex flex-col items-start self-stretch gap-2">
-        <h2 className="self-stretch text-[#4F46E5] text-sm font-medium leading-tight">
+        <h2 className="self-stretch text-sm font-medium leading-tight text-primary">
           Other Payments
         </h2>
 
-        <p className="text-[#71717A] font-['Inter'] text-xs font-medium leading-[140%]">
+        <p className="text-muted-foreground font-['Inter'] text-xs font-medium leading-[140%]">
           Type is must latin, some default types: golomtCard, khaanCard, TDBCard
           Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол: "skipEbarimt: true",
           Харилцагч сонгосон үед л харагдах бол: "mustCustomer: true", Хэрэв
@@ -437,116 +636,63 @@ export const OtherPayments = ({
         </Button>
       </div>
 
-      {fields.map((field, index) => (
-        <div
-          key={field.id}
-          className="flex items-end self-stretch justify-between w-full px-4 mb-4"
-        >
-          <div className="flex w-[100px] flex-col justify-end items-start">
-            <Form.Field
-              control={control}
-              name={`otherPayments.${index}.type`}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="text-xs text-gray-600">
-                    TYPE
-                  </Form.Label>
-                  <Form.Control>
-                    <Input
-                      className="w-full px-0 border-0 border-b border-gray-200 rounded-none shadow-none"
-                      {...field}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          </div>
-
-          <div className="flex w-[100px] flex-col justify-end items-start">
-            <Form.Field
-              control={control}
-              name={`otherPayments.${index}.title`}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="text-xs text-gray-600">
-                    TITLE
-                  </Form.Label>
-                  <Form.Control>
-                    <Input
-                      className="w-full px-0 border-0 border-b border-gray-200 rounded-none shadow-none"
-                      {...field}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          </div>
-
-          <div className="flex w-[100px] flex-col items-start">
-            <Form.Field
-              control={control}
-              name={`otherPayments.${index}.icon`}
-              render={({ field }) => (
-                <Form.Item className="flex flex-col w-full">
-                  <Form.Label className="text-xs text-gray-600">
-                    ICON
-                  </Form.Label>
-                  <Select
-                    value={field.value || ''}
-                    onValueChange={field.onChange}
-                  >
+      <div className="space-y-3">
+        {fields.map((field, index) => (
+          <div key={field.id} className="flex items-end gap-6">
+            <div className="grid w-full grid-cols-3 gap-6">
+              <Form.Field
+                control={control}
+                name={`otherPayments.${index}.type`}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Type</Form.Label>
                     <Form.Control>
-                      <Select.Trigger className="w-full px-0 border-0 border-b border-gray-200 rounded-none shadow-none [&>span]:flex-1 [&>svg]:w-0 [&>svg]:mr-0">
-                        <Select.Value placeholder="Select" />
-                      </Select.Trigger>
+                      <Input {...field} />
                     </Form.Control>
-                    <Select.Content>
-                      {Icon.map((icon) => (
-                        <Select.Item
-                          key={icon.value}
-                          className="text-xs"
-                          value={icon.value}
-                        >
-                          {icon.label}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
-                </Form.Item>
-              )}
-            />
-          </div>
+                  </Form.Item>
+                )}
+              />
 
-          <div className="flex w-[100px] flex-col justify-end items-start">
-            <Form.Field
-              control={control}
-              name={`otherPayments.${index}.config`}
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="text-xs text-gray-600">
-                    CONFIG
-                  </Form.Label>
-                  <Form.Control>
-                    <Input
-                      className="w-full px-0 border-0 border-b border-gray-200 rounded-none shadow-none"
-                      {...field}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          </div>
+              <Form.Field
+                control={control}
+                name={`otherPayments.${index}.title`}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Title</Form.Label>
+                    <Form.Control>
+                      <Input {...field} />
+                    </Form.Control>
+                  </Form.Item>
+                )}
+              />
 
-          <Button
-            variant="ghost"
-            className="h-8 px-2 text-destructive"
-            type="button"
-            onClick={() => remove(index)}
-          >
-            <IconTrash size={16} />
-          </Button>
-        </div>
-      ))}
+              <Form.Field
+                control={control}
+                name={`otherPayments.${index}.config`}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Config</Form.Label>
+                    <Form.Control>
+                      <Input {...field} />
+                    </Form.Control>
+                  </Form.Item>
+                )}
+              />
+            </div>
+
+            <Button
+              variant="destructive"
+              size="icon"
+              type="button"
+              aria-label="Remove payment method"
+              className="w-8 h-8"
+              onClick={() => remove(index)}
+            >
+              <IconTrash size={16} />
+            </Button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

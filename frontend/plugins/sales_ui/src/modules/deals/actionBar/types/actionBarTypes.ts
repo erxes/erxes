@@ -1,4 +1,4 @@
-import { Icon } from "@tabler/icons-react";
+import { Icon } from '@tabler/icons-react';
 
 export interface FilterItem {
   key: string;
@@ -7,20 +7,30 @@ export interface FilterItem {
 }
 
 export type SalesFilterState = {
-  search?: string | null;             
-  companyIds?: string[] | null;       
+  search?: string | null;
+  companyIds?: string[] | null;
   customerIds?: string[] | null;
-  userIds?: string[] | null;   
-  branchIds?: string[] | null;   
-  departmentIds?: string[] | null;   
-  assignedUserIds?: string[] | null;  
-  createdStartDate?: string | null;   
-  createdEndDate?: string | null;     
-  startDateStartDate?: string | null; 
-  startDateEndDate?: string | null;   
-  priority?: string[] | null;         
-  labelIds?: string[] | null;         
-  tagIds?: string[] | null;           
-  awaiting?: boolean | null;          
-  advanced?: Record<string, any> | null; 
+  userIds?: string[] | null;
+  branchIds?: string[] | null;
+  departmentIds?: string[] | null;
+  assignedUserIds?: string[] | null;
+  createdStartDate?: string | null;
+  createdEndDate?: string | null;
+  startDateStartDate?: string | null;
+  startDateEndDate?: string | null;
+  priority?: string[] | null;
+  labelIds?: string[] | null;
+  tagIds?: string[] | null;
+  awaiting?: boolean | null;
+  advanced?: Record<string, any> | null;
+  productId?: string | string[] | null;
+};
+
+export type ProductFilterState = {
+  productSearch?: string | null;
+  productCategoryIds?: string[] | null;
+  productVendorIds?: string[] | null;
+  productTagIds?: string[] | null;
+  branchIds?: string[] | null;
+  departmentIds?: string[] | null;
 };

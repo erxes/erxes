@@ -11,22 +11,21 @@ import {
 } from 'erxes-ui';
 import { SelectAccountCategory } from '../account-categories/components/SelectAccountCategory';
 import { useAccountEdit } from '../hooks/useAccountEdit';
-import { useSetAtom } from 'jotai';
-import { accountDetailAtom } from '../states/accountStates';
 import { JOURNAL_LABELS } from '../constants/journalLabel';
 
 const AccountCategoryCell = ({ cell }: { cell: Cell<IAccount, unknown> }) => {
+  const { original } = cell.row;
   const { editAccount } = useAccountEdit();
   return (
     <SelectAccountCategory
-      recordId={cell.row.original._id}
-      selected={cell.row.original.categoryId}
+      recordId={original._id}
+      selected={original.categoryId}
       className="w-full font-normal"
       onSelect={(categoryId) => {
         editAccount(
           {
             variables: {
-              ...cell.row.original,
+              ...original,
               categoryId,
             },
           },
@@ -58,6 +57,7 @@ const AccountTextField = ({
           [field],
         );
       }}
+      className={'shadow-none rounded-none px-2'}
     />
   );
 };
@@ -85,12 +85,10 @@ export const AccountMoreColumnCell = ({
   cell: Cell<IAccount, unknown>;
 }) => {
   const [, setOpen] = useQueryState('accountId');
-  const setAccountDetail = useSetAtom(accountDetailAtom);
   return (
     <RecordTable.MoreButton
       className="w-full h-full"
       onClick={() => {
-        setAccountDetail(cell.row.original);
         setOpen(cell.row.original._id);
       }}
     />
@@ -109,25 +107,22 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="Code" />,
+    header: () => <RecordTable.InlineHead label="Код" />,
     cell: ({ cell }) => {
       return (
-        <>
-          <span></span>
-          <AccountTextField
-            value={cell.getValue() as string}
-            field="code"
-            _id={cell.row.original._id}
-            account={cell.row.original}
-          />
-        </>
+        <AccountTextField
+          value={cell.getValue() as string}
+          field="code"
+          _id={cell.row.original._id}
+          account={cell.row.original}
+        />
       );
     },
   },
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
+    header: () => <RecordTable.InlineHead label="Нэр" />,
     cell: ({ cell }) => {
       return (
         <AccountTextField
@@ -141,23 +136,23 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
     size: 300,
   },
   {
-    id: 'category',
+    id: 'categoryId',
     accessorKey: 'categoryId',
-    header: () => <RecordTable.InlineHead label="Category" />,
-    cell: AccountCategoryCell,
+    header: () => <RecordTable.InlineHead label="Ангилал" />,
+    cell: ({ cell }) => <AccountCategoryCell cell={cell} />,
     size: 240,
   },
   {
     id: 'currency',
     accessorKey: 'currency',
-    header: () => <RecordTable.InlineHead label="Currency" />,
+    header: () => <RecordTable.InlineHead label="Валют" />,
     cell: AccountCurrencyCell,
     size: 240,
   },
   {
     id: 'kind',
     accessorKey: 'kind',
-    header: () => <RecordTable.InlineHead label="Kind" />,
+    header: () => <RecordTable.InlineHead label="Төрөл" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -169,7 +164,7 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
   {
     id: 'journal',
     accessorKey: 'journal',
-    header: () => <RecordTable.InlineHead label="Journal" />,
+    header: () => <RecordTable.InlineHead label="Журнал" />,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -181,7 +176,7 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
   {
     id: 'isTemp',
     accessorKey: 'isTemp',
-    header: () => <RecordTable.InlineHead label="Temp" />,
+    header: () => <RecordTable.InlineHead label="Түр" />,
     size: 80,
     cell: ({ cell }) => {
       return (
@@ -194,12 +189,12 @@ export const accountsColumns: ColumnDef<IAccount>[] = [
   {
     id: 'isOutBalance',
     accessorKey: 'isOutBalance',
-    header: () => <RecordTable.InlineHead label="Out balance" />,
+    header: () => <RecordTable.InlineHead label="Баланс бус" />,
     size: 80,
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          {cell.getValue() ? 'Out' : '-'}
+          {cell.getValue() ? 'Баланс бус' : '-'}
         </RecordTableInlineCell>
       );
     },

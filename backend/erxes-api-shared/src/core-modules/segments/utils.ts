@@ -1,39 +1,23 @@
 import { getPlugin, getPlugins } from '../../utils';
-import { IDependentService, ISegmentContentType } from './types';
-
-export const getEsIndexByContentType = async (contentType: string) => {
-  const [pluginName, type] = contentType.split(':');
-
-  const plugin = await getPlugin(pluginName);
-
-  const segmentMeta = (plugin.config.meta || {}).segments;
-
-  if (segmentMeta) {
-    const { contentTypes } = segmentMeta;
-
-    for (const ct of contentTypes) {
-      if (ct.type === type && ct.esIndex) {
-        return ct.esIndex;
-      }
-    }
-  }
-
-  return '';
-};
+import {
+  ISegmentDependentModule,
+  ISegmentContentType,
+  SegmentConfigs,
+} from './types';
 
 export const gatherDependentServicesType = async (
   pluginName: string,
   gatherTypes: (
     contentType: ISegmentContentType,
     pName: string,
-    depService: IDependentService,
+    depService: ISegmentDependentModule,
   ) => void,
 ) => {
   const pluginNames = await getPlugins();
 
   for (const pName of pluginNames) {
     const plugin = await getPlugin(pName);
-    const segmentMeta = (plugin.config.meta || {}).segments;
+    const segmentMeta = plugin.config?.meta?.segments;
 
     if (!segmentMeta) {
       continue;
@@ -63,7 +47,7 @@ export const gatherDependentServicesType = async (
 export const gatherAssociatedTypes = async (contentType: string) => {
   const [pluginName, currentType] = contentType.split(':');
   const plugin = await getPlugin(pluginName);
-  const segmentMeta = (plugin.config.meta || {}).segments;
+  const segmentMeta = plugin.config.meta?.segments as SegmentConfigs;
 
   const associatedTypes: string[] = [];
 
@@ -73,21 +57,21 @@ export const gatherAssociatedTypes = async (contentType: string) => {
     // gather current services associatedTypes
     for (const ct of contentTypes) {
       if (ct.type !== currentType && !ct.notAssociated) {
-        associatedTypes.push(`${pluginName}:${ct.type}`);
+        associatedTypes.push(`${pluginName}:${ct.moduleName}.${ct.type}`);
       }
     }
 
     // gather current services dependentServices associatedTypes
-    if (segmentMeta.dependentServices) {
-      const dependentServices = segmentMeta.dependentServices || [];
+    if (segmentMeta.dependentModules) {
+      const dependentModules = segmentMeta.dependentModules || [];
 
-      for (const dependentService of dependentServices) {
-        if (!dependentService.associated) {
+      for (const dependentModule of dependentModules) {
+        if (!dependentModule.associated) {
           continue;
         }
 
         await gatherServicesAssociatedTypes(
-          dependentService.name,
+          dependentModule.name,
           associatedTypes,
         );
       }
@@ -97,12 +81,16 @@ export const gatherAssociatedTypes = async (contentType: string) => {
   // gather current services dependentServices associatedTypes
   await gatherDependentServicesType(
     pluginName,
-    (ct: ISegmentContentType, pName: string, depService: IDependentService) => {
+    (
+      ct: ISegmentContentType,
+      pName: string,
+      depService: ISegmentDependentModule,
+    ) => {
       if (!depService.associated || ct.notAssociated) {
         return;
       }
 
-      associatedTypes.push(`${pName}:${ct.type}`);
+      associatedTypes.push(`${pName}:${ct.moduleName}.${ct.type}`);
     },
   );
 
@@ -114,7 +102,7 @@ const gatherServicesAssociatedTypes = async (
   associatedTypes: string[],
 ) => {
   const plugin = await getPlugin(pluginName);
-  const segmentMeta = (plugin.config.meta || {}).segments;
+  const segmentMeta = plugin.config?.meta?.segments;
 
   if (!segmentMeta) {
     return;
@@ -127,6 +115,8 @@ const gatherServicesAssociatedTypes = async (
       continue;
     }
 
-    associatedTypes.push(`${pluginName}:${contentType.type}`);
+    associatedTypes.push(
+      `${pluginName}:${contentType.moduleName}.${contentType.type}`,
+    );
   }
 };

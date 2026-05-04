@@ -20,6 +20,7 @@ const config: ModuleFederationConfig = {
     './pmsSettings': './src/modules/pms/Settings.tsx',
     './tms': './src/modules/tms/Main.tsx',
     './tmsSettings': './src/modules/tms/Settings.tsx',
+    './tourism': './src/modules/main/Main.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {

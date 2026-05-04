@@ -17,7 +17,7 @@ export const AuthenticationLayout = ({
           />
         </div>
         <Logo className="h-10 mx-auto text-primary relative hidden sm:block" />
-        <div className="relative sm:min-h-[36rem]">
+        <div className="relative sm:min-h-144">
           <div className="rounded-xl shadow-xl overflow-hidden bg-sidebar">
             <div className="overflow-hidden">
               <div className="w-auto h-full bg-background p-6 pt-8 border border-t-0 rounded-b-xl -mx-px space-y-6">
@@ -47,7 +47,6 @@ export const AuthenticationLayout = ({
           </div>
         </div>
       </div>
-      <p className="mt-auto text-center text-accent-foreground">© 2024 erxes</p>
     </div>
   );
 };

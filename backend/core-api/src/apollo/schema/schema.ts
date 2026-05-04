@@ -13,6 +13,7 @@ import {
 import {
   mutations as AuthMutations,
   queries as AuthQueries,
+  types as AuthTypes,
 } from '@/auth/graphql/schemas/auth';
 
 import {
@@ -82,12 +83,6 @@ import {
 } from '@/products/graphql/schemas';
 
 import {
-  mutations as ExchangeRateMutations,
-  queries as ExchangeRateQueries,
-  types as ExchangeRateTypes,
-} from '~/modules/exchangeRates/graphql/schemas';
-
-import {
   mutations as SegmentMutations,
   queries as SegmentQueries,
   types as SegmentTypes,
@@ -116,13 +111,7 @@ import {
   mutations as PermissionMutations,
   queries as PermissionQueries,
   types as PermissionTypes,
-} from '@/permissions/graphql/schemas/permission';
-
-import {
-  mutations as UsersGroupMutations,
-  queries as UsersGroupQueries,
-  types as UsersGroupTypes,
-} from '@/permissions/graphql/schemas/userGroup';
+} from '~/modules/permissions/graphql/schemas/permission';
 
 import {
   mutations as DocumentMutations,
@@ -151,11 +140,68 @@ import {
   queries as NotificationsQueries,
   types as NotificationsTypes,
 } from '@/notifications/graphql/schema';
+
 import {
-  mutations as RoleMutations,
-  queries as RoleQueries,
-  types as RoleTypes,
-} from '@/permissions/graphql/schemas/role';
+  mutations as PropertiesMutations,
+  queries as PropertiesQueries,
+  types as PropertiesTypes,
+} from '@/properties/graphql/schemas';
+
+import {
+  mutations as ClientPortalMutations,
+  queries as ClientPortalQueries,
+  types as ClientPortalTypes,
+} from '@/clientportal/graphql/schemas/clientPortal';
+
+import {
+  queries as ImportExportCommonQueries,
+  types as ImportExportCommonTypes,
+} from '~/modules/import-export/graphql/schema/common';
+import {
+  mutations as ImportMutations,
+  queries as ImportQueries,
+  types as ImportTypes,
+} from '~/modules/import-export/graphql/schema/import';
+import {
+  mutations as ExportMutations,
+  queries as ExportQueries,
+  types as ExportTypes,
+} from '~/modules/import-export/graphql/schema/export';
+import {
+  mutations as CPUserMutations,
+  queries as CPUserQueries,
+  types as CPUserTypes,
+} from '@/clientportal/graphql/schemas/cpUser';
+
+import {
+  mutations as CommentMutations,
+  queries as CommentQueries,
+  types as CommentTypes,
+} from '@/clientportal/graphql/schemas/comment';
+
+import {
+  mutations as CPNotificationMutations,
+  queries as CPNotificationQueries,
+  types as CPNotificationTypes,
+} from '@/clientportal/graphql/schemas/cpNotification';
+
+import {
+  mutations as BroadcastMutations,
+  queries as BroadcastQueries,
+  types as BroadcastTypes,
+} from '@/broadcast/graphql/schemas';
+
+import {
+  types as bundleTypes,
+  queries as bundleQueries,
+  mutations as bundleMutations,
+} from '@/bundle/graphql/schemas';
+
+import {
+  types as templateTypes,
+  queries as templateQueries,
+  mutations as templateMutations,
+} from '@/template/graphql/schemas';
 
 export const types = `
     enum CacheControlScope {
@@ -174,6 +220,7 @@ export const types = `
     }
     ${CustomerTypes}
     ${CompanyTypes}
+    ${AuthTypes}
     ${UserTypes}
     ${ConfigTypes}
     ${TagTypes}
@@ -189,15 +236,23 @@ export const types = `
     ${ConformityTypes}
     ${RelationTypes}
     ${FavoritesTypes}
-    ${ExchangeRateTypes}
     ${PermissionTypes}
-    ${UsersGroupTypes}
     ${DocumentTypes}
     ${AutomationsTypes}
     ${LogsTypes}
     ${NotificationsTypes}
     ${InternalNoteTypes}
-    ${RoleTypes}
+    ${PropertiesTypes}
+    ${ClientPortalTypes}
+    ${ImportExportCommonTypes}
+    ${ImportTypes}
+    ${ExportTypes}
+    ${CPUserTypes}
+    ${CommentTypes}
+    ${CPNotificationTypes}
+    ${BroadcastTypes}
+    ${bundleTypes}
+    ${templateTypes}
   `;
 
 export const queries = `
@@ -219,15 +274,23 @@ export const queries = `
     ${SegmentQueries}
     ${RelationQueries}
     ${FavoritesQueries}
-    ${ExchangeRateQueries}
     ${PermissionQueries}
-    ${UsersGroupQueries}
     ${DocumentQueries}
     ${AutomationsQueries}
     ${LogsQueries}
-     ${NotificationsQueries}
-    ${InternalNoteQueries}
-    ${RoleQueries}
+    ${NotificationsQueries}
+    ${InternalNoteQueries}  
+    ${PropertiesQueries}
+    ${ClientPortalQueries}
+    ${ImportExportCommonQueries}
+    ${ImportQueries}
+    ${ExportQueries}
+    ${CPUserQueries}
+    ${CommentQueries}
+    ${CPNotificationQueries}
+    ${BroadcastQueries}
+    ${bundleQueries}
+    ${templateQueries}
   `;
 
 export const mutations = `
@@ -249,14 +312,21 @@ export const mutations = `
     ${ConformityMutations}
     ${RelationMutations}
     ${FavoritesMutations}
-    ${ExchangeRateMutations}
     ${PermissionMutations}
-    ${UsersGroupMutations}
     ${DocumentMutations}
     ${AutomationsMutations}
     ${NotificationsMutations}
     ${InternalNoteMutations}
-    ${RoleMutations}
+    ${PropertiesMutations}
+    ${ClientPortalMutations}
+    ${ImportMutations}
+    ${ExportMutations}
+    ${CPUserMutations}
+    ${CommentMutations}
+    ${CPNotificationMutations}
+    ${BroadcastMutations}
+    ${bundleMutations}
+    ${templateMutations}
   `;
 
 export default { types, queries, mutations };

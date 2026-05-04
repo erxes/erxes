@@ -1,13 +1,14 @@
 import {
   createReactInlineContentSpec,
+  DefaultReactSuggestionItem,
+  getDefaultReactSlashMenuItems,
   SuggestionMenuController,
 } from '@blocknote/react';
+import { filterSuggestionItems } from '@blocknote/core';
 import { BlockNoteView } from '@blocknote/shadcn';
-import '@blocknote/shadcn/style.css';
 
 import { Button, Tooltip } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
-import 'erxes-ui/modules/blocks/styles/styles.css';
 import { themeState } from 'erxes-ui/state';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
@@ -32,47 +33,82 @@ export const BlockEditor = ({
   const theme = useAtomValue(themeState);
   const [focus, setFocus] = useState(false);
 
+  const getSlashMenuItems = (query: string) => {
+    const items = getDefaultReactSlashMenuItems(editor);
+    const hasImageItem = items.some((item) => item.title === 'Image');
+    const hasCustomImageBlock = 'image' in editor.schema.blockSchema;
+
+    if (!hasImageItem && hasCustomImageBlock) {
+      items.splice(9, 0, {
+        title: editor.dictionary.slash_menu.image.title,
+        subtext: editor.dictionary.slash_menu.image.subtext,
+        aliases: editor.dictionary.slash_menu.image.aliases,
+        badge: undefined,
+        group: editor.dictionary.slash_menu.image.group,
+        onItemClick: () => {
+          const currentBlock = editor.getTextCursorPosition().block;
+          const insertedBlock = editor.insertBlocks(
+            [{ type: 'image' }],
+            currentBlock,
+            'after',
+          )[0];
+
+          editor.transact((tr) =>
+            tr.setMeta(editor.filePanel!.plugins[0], {
+              block: insertedBlock,
+            }),
+          );
+        },
+      } satisfies DefaultReactSuggestionItem);
+    }
+
+    return Promise.resolve(filterSuggestionItems(items, query));
+  };
+
   return (
-    <BlockNoteView
-      theme={theme as 'light' | 'dark'}
-      editor={editor}
-      slashMenu={false}
-      sideMenu={sideMenu}
-      onFocus={() => {
-        setFocus(true);
-        onFocus?.();
-      }}
-      onBlur={() => {
-        setFocus(false);
-        onBlur?.();
-      }}
-      editable={!readonly && !disabled}
-      onChange={onChange}
-      data-state={focus ? 'focus' : 'blur'}
+    <div
       className={cn(
-        variant === 'outline' &&
-          'shadow-xs transition-[color,box-shadow] data-[state=focus]:shadow-focus',
+        'transition-shadow',
+        variant === 'outline' && (focus ? 'shadow-focus' : 'shadow-xs'),
         className,
       )}
-      formattingToolbar={false}
-      shadCNComponents={{
-        Button: { Button },
-        Tooltip: {
-          Tooltip,
-          TooltipContent: Tooltip.Content,
-          TooltipProvider: Tooltip.Provider,
-          TooltipTrigger: Tooltip.Trigger,
-        },
-      }}
-      style={style}
     >
-      <SuggestionMenuController
-        triggerCharacter="/"
-        suggestionMenuComponent={SlashMenu}
-      />
-      <Toolbar />
-      {children}
-    </BlockNoteView>
+      <BlockNoteView
+        theme={theme as 'light' | 'dark'}
+        editor={editor}
+        slashMenu={false}
+        sideMenu={sideMenu}
+        onFocus={() => {
+          setFocus(true);
+          onFocus?.();
+        }}
+        onBlur={() => {
+          setFocus(false);
+          onBlur?.();
+        }}
+        editable={!readonly && !disabled}
+        onChange={onChange}
+        formattingToolbar={false}
+        shadCNComponents={{
+          Button: { Button },
+          Tooltip: {
+            Tooltip,
+            TooltipContent: Tooltip.Content,
+            TooltipProvider: Tooltip.Provider,
+            TooltipTrigger: Tooltip.Trigger,
+          },
+        }}
+        style={style}
+      >
+        <SuggestionMenuController
+          triggerCharacter="/"
+          getItems={getSlashMenuItems}
+          suggestionMenuComponent={SlashMenu}
+        />
+        <Toolbar />
+        {children}
+      </BlockNoteView>
+    </div>
   );
 };
 

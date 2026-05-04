@@ -2,40 +2,55 @@ import { IconPlus } from '@tabler/icons-react';
 import { TicketHotKeyScope } from '@/ticket/types/ticketHotkeyScope';
 import {
   Button,
+  ButtonProps,
   Kbd,
   Sheet,
   usePreviousHotkeyScope,
   useScopedHotkeys,
-  useSetHotkeyScope,
 } from 'erxes-ui';
-import { AddTicketForm } from '@/ticket/components/add-ticket/AddTicketForm'; 
+import { AddTicketForm } from '@/ticket/components/add-ticket/AddTicketForm';
 import { useAtom } from 'jotai';
 import { ticketCreateSheetState } from '@/ticket/states/ticketCreateSheetState';
 
-export const AddTicketSheet = () => {
-  const setHotkeyScope = useSetHotkeyScope();
+export const AddTicketSheet = ({
+  onComplete,
+  isRelation = false,
+  ...props
+}: {
+  onComplete?: (ticketId: string) => void;
+  isRelation?: boolean;
+} & ButtonProps) => {
   const [open, setOpen] = useAtom(ticketCreateSheetState);
-  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
+  const {
+    setHotkeyScopeAndMemorizePreviousScope,
+    goBackToPreviousHotkeyScope,
+  } = usePreviousHotkeyScope();
   const onOpen = () => {
     setOpen(true);
     setHotkeyScopeAndMemorizePreviousScope(TicketHotKeyScope.TicketAddSheet);
   };
 
   const onClose = () => {
-    setHotkeyScope(TicketHotKeyScope.TicketAddSheet);
+    goBackToPreviousHotkeyScope();
     setOpen(false);
   };
 
-  useScopedHotkeys(`c`, () => onOpen(), TicketHotKeyScope.TicketPage);
+  useScopedHotkeys(
+    `c`,
+    () => {
+      onOpen();
+    },
+    TicketHotKeyScope.TicketPage,
+  );
   useScopedHotkeys(`esc`, () => onClose(), TicketHotKeyScope.TicketAddSheet);
 
   return (
     <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
       <Sheet.Trigger asChild>
-        <Button>
+        <Button {...props}>
           <IconPlus />
           Add ticket
-          <Kbd>C</Kbd>
+          {!isRelation && <Kbd>C</Kbd>}
         </Button>
       </Sheet.Trigger>
       <Sheet.View
@@ -44,7 +59,7 @@ export const AddTicketSheet = () => {
           e.preventDefault();
         }}
       >
-        <AddTicketForm onClose={onClose} />
+        <AddTicketForm onClose={onClose} onComplete={onComplete} />
       </Sheet.View>
     </Sheet>
   );

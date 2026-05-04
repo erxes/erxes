@@ -1,0 +1,177 @@
+import { z } from 'zod';
+
+export interface IImportExportContext<TModels = any> {
+  subdomain: string;
+  processId: string;
+  models?: TModels;
+  [key: string]: any;
+}
+
+export interface ImportHeaderDefinition {
+  label: string;
+  key: string;
+  isDefault?: boolean;
+  type?: 'system' | 'customProperty';
+}
+
+export interface ImportExportTypeDefinition {
+  label: string;
+  contentType: string;
+  permissions?: string[];
+}
+
+export interface InsertImportRowsInputData {
+  moduleName: string;
+  collectionName: string;
+  rows: any[];
+  userId: string;
+}
+export interface BatchSkipRowInputData {
+  moduleName: string;
+  collectionName: string;
+  rowData: any;
+}
+export interface BatchSkipRowArgs {
+  subdomain: string;
+  data: BatchSkipRowInputData;
+}
+
+export interface InsertImportRowsArgs {
+  subdomain: string;
+  data: InsertImportRowsInputData;
+}
+
+export interface InsertImportRowsResult {
+  successRows: any[];
+  errorRows: Array<
+    Record<string, any> & {
+      error?: string;
+    }
+  >;
+}
+
+export interface TImportHandlers {
+  insertImportRows: (
+    args: InsertImportRowsArgs,
+    ctx: IImportExportContext,
+  ) => Promise<InsertImportRowsResult>;
+  getImportHeaders: (
+    args: {
+      subdomain: string;
+      data: { moduleName: string; collectionName: string };
+    },
+    ctx: IImportExportContext,
+  ) => Promise<ImportHeaderDefinition[]>;
+
+  whenReady?: () => void;
+  batchSkipRow?: (
+    args: BatchSkipRowArgs,
+    ctx: IImportExportContext,
+  ) => Promise<boolean>;
+}
+
+export interface ImportConfig extends TImportHandlers {
+  types?: ImportExportTypeDefinition[];
+}
+
+export type GetExportData = {
+  moduleName: string;
+  collectionName: string;
+  cursor?: string;
+  limit: number;
+  filters?: Record<string, any>;
+  ids?: string[];
+  selectedFields?: string[];
+};
+export interface GetExportDataArgs {
+  subdomain: string;
+  data: GetExportData;
+}
+
+export interface TExportHandlers {
+  getExportHeaders: (
+    args: {
+      subdomain: string;
+      data: { moduleName: string; collectionName: string };
+    },
+    ctx: IImportExportContext,
+  ) => Promise<ImportHeaderDefinition[]>;
+  getExportData: (
+    args: GetExportDataArgs,
+    ctx: IImportExportContext,
+  ) => Promise<Record<string, any>[]>;
+  whenReady?: () => void;
+}
+
+export interface ExportConfig extends TExportHandlers {
+  types?: ImportExportTypeDefinition[];
+}
+
+export interface ImportExportImportMeta {
+  configured: boolean;
+  hasGetImportHeaders?: boolean;
+  hasInsertImportRows?: boolean;
+  types?: ImportExportTypeDefinition[];
+}
+
+export interface ImportExportExportMeta {
+  configured: boolean;
+  hasGetExportHeaders?: boolean;
+  hasGetExportData?: boolean;
+  hasUploadFile?: boolean;
+  types?: ImportExportTypeDefinition[];
+}
+
+export interface ImportExportMeta {
+  import?: ImportExportImportMeta;
+  export?: ImportExportExportMeta;
+}
+
+export interface ImportExportConfigs {
+  createContext?: (
+    subdomain: string,
+    context: IImportExportContext,
+  ) => Promise<IImportExportContext>;
+  import?: ImportConfig;
+  export?: ExportConfig;
+}
+
+export interface ImportJobData {
+  subdomain: string;
+  data: {
+    importId: string;
+    entityType: string;
+    fileKey: string;
+    userId: string;
+  };
+}
+
+export interface ExportJobData {
+  subdomain: string;
+  data: {
+    exportId: string;
+    entityType: string;
+    fileFormat: 'csv' | 'xlsx';
+  };
+}
+
+export type TGetImportHeadersOutput = ImportHeaderDefinition[];
+export type TInsertImportRowsInput = InsertImportRowsInputData;
+export type TBatchSkipRowInput = BatchSkipRowInputData;
+
+export const InsertImportRowsInputSchema = z.object({
+  subdomain: z.string(),
+  data: z.object({
+    moduleName: z.string(),
+    collectionName: z.string(),
+    rows: z.array(z.record(z.any())),
+  }),
+});
+
+export enum TImportExportProducers {
+  INSERT_IMPORT_ROWS = 'insertImportRows',
+  GET_IMPORT_HEADERS = 'getImportHeaders',
+  BATCH_SKIP_ROW = 'batchSkipRow',
+  GET_EXPORT_HEADERS = 'getExportHeaders',
+  GET_EXPORT_DATA = 'getExportData',
+}

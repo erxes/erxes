@@ -1,12 +1,18 @@
 import { Document } from 'mongoose';
-import { ICustomField, ILink } from '../../common';
-import { IPermissionDocument } from '../permissions/permission';
+import { ICustomField, ILink, IPropertyField } from '../../common';
 
 export interface IEmailSignature {
   brandId?: string;
   signature?: string;
 }
 export interface IEmailSignatureDocument extends IEmailSignature, Document {}
+
+export interface ICustomPermission {
+  plugin?: string;
+  module: string;
+  actions: string[];
+  scope: 'own' | 'group' | 'all';
+}
 
 export interface IDetail {
   avatar?: string;
@@ -50,13 +56,17 @@ export interface IUser {
   isShowNotification?: boolean;
   score?: number;
   customFieldsData?: ICustomField[];
+  propertiesData?: IPropertyField;
   departmentIds?: string[];
   branchIds?: string[];
   positionIds?: string[];
   employeeId?: string;
   chatStatus?: IUserChatStatus;
   lastSeenAt?: Date;
-  onboardingDone?: boolean;
+  onboardedPlugins?: string[];
+  isOnboarded?: boolean;
+  permissionGroupIds?: string[];
+  customPermissions?: ICustomPermission[];
 }
 
 enum IUserChatStatus {
@@ -68,7 +78,6 @@ export interface IUserDocument extends Omit<IUser, 'links'>, Document {
   _id: string;
   emailSignatures?: IEmailSignatureDocument[];
   details?: IDetail;
-  customPermissions?: IPermissionDocument[];
   role?: string;
   appId?: string;
 }

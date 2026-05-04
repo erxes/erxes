@@ -1,6 +1,10 @@
-import { Skeleton, TextOverflowTooltip, Tooltip, useQueryState } from 'erxes-ui';
-import { useEffect, useState } from 'react';
-import { createContext, useContext } from 'react';
+import {
+  Skeleton,
+  TextOverflowTooltip,
+  Tooltip,
+  useQueryState,
+} from 'erxes-ui';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { usePermissionsActions } from 'ui-modules/modules/permissions/hooks/usePermissions';
 import { IPermissionAction } from 'ui-modules/modules/permissions/types/permission';
 
@@ -69,7 +73,7 @@ export const ActionsInlineProvider = ({
   module?: string;
 }) => {
   const [_actions, _setActions] = useState<IPermissionAction[]>(actions || []);
-    const [, setAction] = useQueryState<string>('action');
+  const [, setAction] = useQueryState<string>('action');
   useEffect(() => {
     setAction(null);
     updateActions?.([]);
@@ -102,8 +106,7 @@ export const ActionInlineEffectComponent = ({
   const { actions, actionsNames, updateActions } = useActionsInlineContext();
 
   const { actions: list, loading } = usePermissionsActions();
-  const actionsDetail =
-    list && list.find((action) => action.name === actionName);
+  const actionsDetail = list?.find((action) => action.name === actionName);
 
   useEffect(() => {
     if (!actionsDetail) return;

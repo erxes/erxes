@@ -1,22 +1,27 @@
 import { OperationVariables, useMutation } from '@apollo/client';
 import { ADJUST_INVENTORY_PUBLISH } from '../graphql/adjustInventoryChange';
 import { toast } from 'erxes-ui';
-import { ADJUST_INVENTORY_DETAIL_QUERY, ADJUST_INVENTORY_DETAILS_QUERY } from '../graphql/adjustInventoryQueries';
+import {
+  ADJUST_INVENTORY_DETAIL_QUERY,
+  ADJUST_INVENTORY_DETAILS_QUERY,
+} from '../graphql/adjustInventoryQueries';
 import { ACC_TRS__PER_PAGE } from '@/transactions/types/constants';
 
-export const useAdjustInventoryPublish = (adjustId: string, options?: OperationVariables) => {
+export const useAdjustInventoryPublish = (
+  adjustId: string,
+  options?: OperationVariables,
+) => {
   const [_publishMutation, { loading }] = useMutation(
     ADJUST_INVENTORY_PUBLISH,
     options,
   );
 
   const publishAdjust = (options?: OperationVariables) => {
-
     return _publishMutation({
       ...options,
       variables: {
         adjustId,
-        ...options?.variables
+        ...options?.variables,
       },
       onError: (error: Error) => {
         toast({
@@ -31,14 +36,14 @@ export const useAdjustInventoryPublish = (adjustId: string, options?: OperationV
           title: 'Success',
           description: 'Inventory adjust running successfully',
         });
-        options?.onCompleted?.(data)
+        options?.onCompleted?.(data);
       },
       refetchQueries: [
         {
           query: ADJUST_INVENTORY_DETAIL_QUERY,
           variables: {
-            _id: adjustId
-          }
+            _id: adjustId,
+          },
         },
         {
           query: ADJUST_INVENTORY_DETAILS_QUERY,
@@ -47,7 +52,7 @@ export const useAdjustInventoryPublish = (adjustId: string, options?: OperationV
             page: 1,
             perPage: ACC_TRS__PER_PAGE,
           },
-        }
+        },
       ],
       awaitRefetchQueries: true,
     });

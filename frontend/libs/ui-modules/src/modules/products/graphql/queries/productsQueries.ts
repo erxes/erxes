@@ -1,23 +1,48 @@
-import { gql } from '@apollo/client';
 import {
+  GQL_CURSOR_PARAMS,
   GQL_CURSOR_PARAM_DEFS,
   GQL_PAGE_INFO,
-  GQL_CURSOR_PARAMS,
 } from 'erxes-ui';
+
+import { gql } from '@apollo/client';
 
 export const GET_PRODUCTS = gql`
   query SelectProduct(
     $searchValue: String
+    $categoryIds: [String]
+    $vendorId: String
+    $pipelineId: String
     ${GQL_CURSOR_PARAM_DEFS}
   ) {
     productsMain(
       searchValue: $searchValue
+      categoryIds: $categoryIds
+      vendorId: $vendorId
+      pipelineId: $pipelineId
       ${GQL_CURSOR_PARAMS}
     ) {
       list {
         _id
+        category {
+          _id
+          name
+        }
+        categoryId
         code
+        currency
         name
+        unitPrice
+        uom
+        vendorId
+        vendor {
+          _id
+          names
+          primaryName
+        }
+        type
+        barcodes
+        subUoms
+        remainder
       }
       totalCount
       ${GQL_PAGE_INFO}

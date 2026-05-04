@@ -148,7 +148,7 @@ export const loadCallHistoryClass = (models: IModels) => {
       updateData: ICallHistoryUpdate,
     ): Promise<ICallHistoryDocument | null> {
       try {
-        if (!id || id.length !== 24) {
+        if (id?.length !== 24) {
           throw new Error('Invalid call history ID provided');
         }
 
@@ -206,11 +206,11 @@ export const loadCallHistoryClass = (models: IModels) => {
       user: IUserDocument,
     ): Promise<boolean> {
       try {
-        if (!id || id.length !== 24) {
+        if (id?.length !== 24) {
           throw new Error('Invalid call history ID provided');
         }
 
-        if (!user || !user._id) {
+        if (!user?._id) {
           throw new Error('Valid user is required for deletion 1222');
         }
 

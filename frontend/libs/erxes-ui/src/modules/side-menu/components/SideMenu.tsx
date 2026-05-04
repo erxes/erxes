@@ -1,12 +1,12 @@
-import { Icon } from '@tabler/icons-react';
 import { Separator, Tabs, Tooltip } from 'erxes-ui/components';
-import { cn } from 'erxes-ui/lib/utils';
 import {
   SideMenuContext,
   useSideMenuContext,
 } from '../context/SideMenuContext';
-
 import { forwardRef, useState } from 'react';
+
+import { Icon } from '@tabler/icons-react';
+import { cn } from 'erxes-ui/lib/utils';
 
 export const SideMenuRoot = forwardRef<
   React.ElementRef<typeof Tabs>,
@@ -58,8 +58,9 @@ export const SideMenuContentHeader = forwardRef<
   React.ComponentProps<'div'> & {
     Icon?: Icon;
     label?: string;
+    hideSeparator?: boolean;
   }
->(({ className, Icon, label, children, ...props }, ref) => {
+>(({ className, Icon, label, children, hideSeparator, ...props }, ref) => {
   return (
     <>
       <div
@@ -76,7 +77,7 @@ export const SideMenuContentHeader = forwardRef<
         <div className="mr-auto font-medium text-primary">{label}</div>
         {children}
       </div>
-      <Separator />
+      {!hideSeparator && <Separator />}
     </>
   );
 });

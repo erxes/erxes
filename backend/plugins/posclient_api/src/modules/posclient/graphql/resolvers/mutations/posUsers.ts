@@ -1,4 +1,4 @@
-import { authCookieOptions } from 'erxes-api-shared/utils';
+import { authCookieOptions, markResolvers } from 'erxes-api-shared/utils';
 import { IPosUser } from '~/modules/posclient/@types/posUsers';
 import { IContext } from '~/modules/posclient/@types/types';
 
@@ -37,7 +37,6 @@ const posUserMutations = {
     };
 
     const user = await models.PosUsers.createUser(doc);
-    console.log('user', user);
 
     return 'success';
   },
@@ -64,5 +63,9 @@ const posUserMutations = {
     return 'loggedout';
   },
 };
-
+markResolvers(posUserMutations, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
 export default posUserMutations;

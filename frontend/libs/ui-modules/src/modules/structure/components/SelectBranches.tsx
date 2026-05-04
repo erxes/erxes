@@ -1,9 +1,4 @@
-import { useState } from 'react';
-import { IBranch, ISelectBranchesProviderProps } from '../types/Branch';
-import { SelectBranchesContext } from '../contexts/SelectBranchesContext';
-import { useDebounce } from 'use-debounce';
-import { useSelectBranchesContext } from '../hooks/useSelectBranchesContext';
-import { useBranches } from '../hooks/useBranches';
+import { IconGitBranch, IconPlus } from '@tabler/icons-react';
 import {
   Button,
   cn,
@@ -19,13 +14,17 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import { IconGitBranch, IconPlus } from '@tabler/icons-react';
+import React, { useState } from 'react';
+import { useDebounce } from 'use-debounce';
+import { SelectBranchesContext } from '../contexts/SelectBranchesContext';
+import { useBranches } from '../hooks/useBranches';
+import { useSelectBranchesContext } from '../hooks/useSelectBranchesContext';
+import { IBranch, ISelectBranchesProviderProps } from '../types/Branch';
 import { BranchBadge } from './BranchBadge';
 import {
   CreateBranchForm,
   SelectBranchCreateContainer,
 } from './CreateBranchForm';
-import React from 'react';
 
 export const SelectBranchesProvider = ({
   children,
@@ -47,14 +46,14 @@ export const SelectBranchesProvider = ({
     const newSelectedBranchIds = isSingleMode
       ? [branch._id]
       : isSelected
-      ? multipleValue.filter((p) => p !== branch._id)
-      : [...multipleValue, branch._id];
+        ? multipleValue.filter((p) => p !== branch._id)
+        : [...multipleValue, branch._id];
 
     const newSelectedBranches = isSingleMode
       ? [branch]
       : isSelected
-      ? selectedBranches.filter((p) => p._id !== branch._id)
-      : [...selectedBranches, branch];
+        ? selectedBranches.filter((p) => p._id !== branch._id)
+        : [...selectedBranches, branch];
 
     setSelectedBranches(newSelectedBranches);
     onValueChange?.(isSingleMode ? branch._id : newSelectedBranchIds);
@@ -180,7 +179,7 @@ export const SelectBranchesItem = ({
   branch: IBranch & { hasChildren: boolean };
 }) => {
   const { onSelect, branchIds } = useSelectBranchesContext();
-  const isSelected = branchIds?.some((b) => b === branch._id);
+  const isSelected = branchIds?.includes(branch._id);
   return (
     <SelectTree.Item
       key={branch._id}
@@ -212,7 +211,7 @@ export const BranchesList = ({
 
   const selectedBranchIds = Array.isArray(value) ? value : [value];
 
-  if (!value || !value.length) {
+  if (!value?.length) {
     return <Combobox.Value placeholder={placeholder || ''} />;
   }
 
@@ -246,7 +245,7 @@ export const BranchesList = ({
 export const SelectBranchesValue = () => {
   const { selectedBranches, mode } = useSelectBranchesContext();
 
-  if (selectedBranches?.length > 1)
+  if (selectedBranches?.length > 1 && mode === 'multiple')
     return (
       <span className="text-muted-foreground">
         {selectedBranches.length} branches selected
@@ -409,6 +408,35 @@ export const SelectBranchesCommandbarItem = ({
   );
 };
 
+export const SelectBranchesComboboxItem = ({
+  onValueChange,
+  className,
+  ...props
+}: Omit<React.ComponentProps<typeof SelectBranchesProvider>, 'children'> & {
+  className?: string;
+}) => {
+  const [open, setOpen] = useState<boolean>(false);
+  return (
+    <SelectBranchesProvider
+      onValueChange={(value) => {
+        onValueChange?.(value);
+        setOpen(false);
+      }}
+      {...props}
+    >
+      <Popover open={open} onOpenChange={setOpen}>
+        <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
+          <SelectBranchesValue />
+        </Combobox.Trigger>
+
+        <Combobox.Content>
+          <SelectBranchesContent />
+        </Combobox.Content>
+      </Popover>
+    </SelectBranchesProvider>
+  );
+};
+
 export const SelectBranchesFormItem = ({
   onValueChange,
   className,
@@ -540,6 +568,7 @@ export const SelectBranches = Object.assign(SelectBranchesProvider, {
   Value: SelectBranchesValue,
   List: BranchesList,
   InlineCell: SelectBranchesInlineCell,
+  ComboboxItem: SelectBranchesComboboxItem,
   FormItem: SelectBranchesFormItem,
   FilterItem: SelectBranchesFilterItem,
   FilterView: SelectBranchesFilterView,

@@ -25,14 +25,22 @@ interface ITicketChanged {
 export const useTicketsVariables = (
   variables?: QueryHookOptions<ICursorListResponse<ITicket>>['variables'],
 ) => {
-  const { searchValue, assignee, priority } = useNonNullMultiQueryState<{
-    searchValue: string;
-    assignee: string;
-    team: string;
-    priority: string;
-    status: string;
-    milestone: string;
-  }>(['searchValue', 'assignee', 'team', 'priority', 'status', 'milestone']);
+  const { searchValue, assignee, priority, statusId, state, pipelineId } =
+    useNonNullMultiQueryState<{
+      searchValue: string;
+      assignee: string;
+      priority: string;
+      statusId: string;
+      state: string;
+      pipelineId: string;
+    }>([
+      'searchValue',
+      'assignee',
+      'priority',
+      'statusId',
+      'state',
+      'pipelineId',
+    ]);
 
   return {
     cursor: '',
@@ -41,9 +49,13 @@ export const useTicketsVariables = (
       updatedAt: -1,
     },
     direction: 'forward',
+
     name: searchValue,
     assigneeId: assignee,
     priority: priority,
+    statusId: statusId,
+    pipelineId: pipelineId,
+    state: state,
     ...variables,
   };
 };
@@ -78,8 +90,7 @@ export const useTickets = (
       updateQuery: (prev, { subscriptionData }) => {
         if (!prev || !subscriptionData.data) return prev;
 
-        const { type, ticket } =
-          subscriptionData.data.ticketListChanged;
+        const { type, ticket } = subscriptionData.data.ticketListChanged;
         const currentList = prev.getTickets.list;
 
         let updatedList = currentList;
@@ -115,8 +126,8 @@ export const useTickets = (
               type === 'create'
                 ? prev.getTickets.totalCount + 1
                 : type === 'remove'
-                ? prev.getTickets.totalCount - 1
-                : prev.getTickets.totalCount,
+                  ? prev.getTickets.totalCount - 1
+                  : prev.getTickets.totalCount,
           },
         };
       },

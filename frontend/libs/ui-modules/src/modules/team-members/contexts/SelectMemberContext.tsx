@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, Dispatch, SetStateAction } from 'react';
 
 import { IUser } from '../types/TeamMembers';
 
@@ -6,7 +6,7 @@ export type ISelectMemberContext = {
   memberIds: string[];
   onSelect: (member: IUser | null) => void;
   members: IUser[];
-  setMembers: (members: IUser[]) => void;
+  setMembers: Dispatch<SetStateAction<IUser[]>>;
   loading: boolean;
   allowUnassigned: boolean;
 };

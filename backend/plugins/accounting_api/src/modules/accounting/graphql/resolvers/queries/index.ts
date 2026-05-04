@@ -6,6 +6,7 @@ import CtaxRows from './ctaxRows';
 import Transactions from './transactionsCommon';
 import Inventories from './inventories';
 import AdjustInventories from './adjustInventories';
+import JournalReport from './journalReport';
 
 export {
   Accounts,
@@ -15,5 +16,6 @@ export {
   CtaxRows,
   Transactions,
   Inventories,
-  AdjustInventories
+  AdjustInventories,
+  JournalReport
 };
