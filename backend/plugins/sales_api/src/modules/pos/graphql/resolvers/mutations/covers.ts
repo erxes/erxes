@@ -4,8 +4,9 @@ const coverMutations = {
   async posCoversEdit(
     _root,
     doc: { _id: string; note: string },
-    { models, __ }: IContext,
+    { models, __, checkPermission }: IContext,
   ) {
+    await checkPermission('posCoversEdit');
     const cover = await models.Covers.getCover(doc._id);
 
     return await models.Covers.updateCover(
@@ -20,8 +21,9 @@ const coverMutations = {
   async posCoversRemove(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('posCoversRemove');
     const cover = await models.Covers.getCover(_id);
     const toPos = await models.Pos.getPos({ token: cover.posToken });
 

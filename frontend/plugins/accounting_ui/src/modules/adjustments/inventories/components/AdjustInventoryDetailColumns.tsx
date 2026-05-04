@@ -110,40 +110,34 @@ export const adjustDetailTableColumns: ColumnDef<IAdjustInventory>[] = [
   transactionMoreColumn,
   // {
   //   id: 'date',
-  //   header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
+  //   header: () => <RecordTable.InlineHead icon={IconCalendar} label="Огноо" />,
   //   accessorKey: 'date',
   //   cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
   // },
   {
     id: 'product',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Product" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Бараа" />,
     accessorKey: 'product',
     cell: ({ row }) => <ProductCell row={row} />,
     size: 300,
   },
   {
     id: 'account',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Account" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Данс" />,
     accessorKey: 'account',
     cell: ({ row }) => <AccountCell row={row} />,
     size: 300,
   },
   {
     id: 'branch',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Branch" />,
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Салбар" />,
     accessorKey: 'branch',
     cell: ({ row }) => <BranchCell row={row} />,
     size: 200,
   },
   {
     id: 'department',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Department" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Хэлтэс" />,
     accessorKey: 'department',
     cell: ({ row }) => <DepartmentCell row={row} />,
     size: 200,
@@ -151,7 +145,7 @@ export const adjustDetailTableColumns: ColumnDef<IAdjustInventory>[] = [
   {
     id: 'remainder',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Remainder" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Үлдэгдэл" />
     ),
     accessorKey: 'remainder',
     cell: ({ getValue, row }) => <NumberCell getValue={getValue} />,
@@ -159,7 +153,7 @@ export const adjustDetailTableColumns: ColumnDef<IAdjustInventory>[] = [
   {
     id: 'unitCost',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Unit Cost" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Нэгж өртөг" />
     ),
     accessorKey: 'unitCost',
     cell: ({ getValue, row }) => <NumberCell getValue={getValue} />,
@@ -167,16 +161,14 @@ export const adjustDetailTableColumns: ColumnDef<IAdjustInventory>[] = [
   {
     id: 'cost',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Sum Cost" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Нийт өртөг" />
     ),
     accessorKey: 'cost',
     cell: ({ getValue, row }) => <NumberCell getValue={getValue} />,
   },
   {
     id: 'description',
-    header: () => (
-      <RecordTable.InlineHead icon={IconFile} label="Description" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Тайлбар" />,
     accessorKey: 'description',
     cell: ({ getValue, row }) => (
       <DescriptionCell getValue={getValue} row={row} />

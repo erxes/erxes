@@ -1,9 +1,9 @@
-import { getFullDate } from 'erxes-api-shared/utils';
+import { getFullDate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import {
-  IExchangeRateDocument,
   IExchangeRate,
+  IExchangeRateDocument,
 } from '../../@types/exchangeRate';
 import { exchangeRateSchema } from '../definitions/exchangeRate';
 
@@ -26,7 +26,7 @@ export interface IExchangeRateModel extends Model<IExchangeRateDocument> {
   removeExchangeRates(_ids: string[]): Promise<{ n: number; ok: number }>;
 }
 
-export const loadExchangeRateClass = (models: IModels, _subdomain: string) => {
+export const loadExchangeRateClass = (models: IModels, subdomain: string) => {
   class ExchangeRate {
     /**
      *
@@ -53,7 +53,13 @@ export const loadExchangeRateClass = (models: IModels, _subdomain: string) => {
       mainCurrency?: string;
     }) {
       if (!mainCurrency) {
-        mainCurrency = await models.Configs.getConfigValue('mainCurrency', '');
+        mainCurrency = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          module: 'configs',
+          action: 'getConfig',
+          input: { code: 'mainCurrency' },
+        });
       }
 
       return await models.ExchangeRates.findOne({

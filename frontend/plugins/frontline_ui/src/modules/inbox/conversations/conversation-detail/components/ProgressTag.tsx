@@ -3,48 +3,34 @@ import { Button, HoverCard } from 'erxes-ui';
 import { SelectTags } from 'ui-modules';
 import { PolarAngleAxis, RadialBar, RadialBarChart } from 'recharts';
 
-type Status = 'new' | 'open' | 'closed';
+const ALL_STATUSES = ['new', 'open', 'closed', 'resolved'] as const;
+type Status = (typeof ALL_STATUSES)[number];
 
 interface TagStats {
   statuses: Record<Status, number>;
 }
 
-interface ProgressItem {
-  tagId: string;
-  count: number;
-}
-
-type ConversationTagProgress = {
-  [K in Status]: ProgressItem[];
-};
-
 export const ProgressTags = ({ customerId }: { customerId: string }) => {
-  const { conversationTagProgress = [] } = useGetConversationTagProgress({
+  const { conversationTagProgress } = useGetConversationTagProgress({
     variables: { customerId },
     skip: !customerId,
   });
 
-  const tagsStats = (
-    conversationTagProgress as ConversationTagProgress[]
-  ).reduce<Record<string, TagStats>>((acc, progress) => {
-    (Object.entries(progress) as [Status, ProgressItem[]][]).forEach(
-      ([status, items]) => {
-        items?.forEach(({ tagId, count }) => {
-          if (!acc[tagId]) {
-            acc[tagId] = {
-              statuses: {
-                new: 0,
-                open: 0,
-                closed: 0,
-              },
-            };
-          }
-          acc[tagId].statuses[status] += count;
-        });
-      },
-    );
-    return acc;
-  }, {});
+  const tagsStats = ALL_STATUSES.reduce<Record<string, TagStats>>(
+    (acc, status) => {
+      const items = conversationTagProgress?.[status] ?? [];
+      items.forEach(({ tagId, count }) => {
+        if (!acc[tagId]) {
+          acc[tagId] = {
+            statuses: { new: 0, open: 0, closed: 0, resolved: 0 },
+          };
+        }
+        acc[tagId].statuses[status] += count;
+      });
+      return acc;
+    },
+    {},
+  );
 
   const getTotals = (statuses: TagStats['statuses']) => {
     const total = Object.values(statuses).reduce(

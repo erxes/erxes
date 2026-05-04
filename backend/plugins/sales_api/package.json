@@ -12,7 +12,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "erxes-api-shared": "workspace:^"
+    "erxes-api-shared": "workspace:^",
+    "graphql-tag": "^2.12.6",
+    "sift": "^17.1.3",
+    "underscore": "^1.13.7"
   },
   "devDependencies": {}
 }
