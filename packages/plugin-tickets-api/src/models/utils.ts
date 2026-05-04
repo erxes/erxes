@@ -582,6 +582,14 @@ export const conversationConvertToCard = async (
 
     return item._id;
   } else {
+    const existingItem = await collection.findOne({
+      sourceConversationIds: { $in: [_id] },
+    });
+
+    if (existingItem) {
+      return existingItem._id;
+    }
+
     const doc: any = { ...args };
 
     doc.name = itemName;

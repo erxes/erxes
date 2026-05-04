@@ -424,6 +424,26 @@ const conversationQueries: any = {
       .sort({ createdAt: -1 })
       .lean();
   },
+
+  async callProCustomersByPhone(
+    _root,
+    { phone }: { phone: string },
+    { subdomain }: IContext
+  ) {
+    const customers = await sendCoreMessage({
+      subdomain,
+      action: "customers.find",
+      data: {
+        $or: [
+          { primaryPhone: phone },
+          { "phones.phone": { $in: [phone] } },
+        ],
+      },
+      isRPC: true,
+      defaultValue: [],
+    });
+    return customers;
+  },
 };
 
 moduleRequireLogin(conversationQueries);

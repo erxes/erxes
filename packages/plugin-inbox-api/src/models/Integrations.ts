@@ -176,13 +176,16 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static findIntegrations(query, options) {
       return models.Integrations.find(
-        { ...query, isActive: { $ne: false } },
+        { ...query, isActive: { $ne: false }, erxesApiId: { $exists: false } },
         options,
       );
     }
 
     public static findAllIntegrations(query: any, options: any) {
-      return models.Integrations.find({ ...query }, options);
+      return models.Integrations.find(
+        { ...query, erxesApiId: { $exists: false } },
+        options,
+      );
     }
 
     /**
