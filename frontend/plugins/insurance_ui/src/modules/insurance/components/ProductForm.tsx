@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import { Dialog, Button, Label, Input, Select } from 'erxes-ui';
 import { IconEye, IconPlus, IconX } from '@tabler/icons-react';
 import {
@@ -547,7 +548,11 @@ export const ProductForm = ({
                     onClick={() => {
                       const previewWindow = window.open('', '_blank');
                       if (previewWindow) {
-                        previewWindow.document.write(formData.pdfContent);
+                        previewWindow.document.write(
+                          DOMPurify.sanitize(formData.pdfContent, {
+                            WHOLE_DOCUMENT: true,
+                          }),
+                        );
                         previewWindow.document.close();
                       }
                     }}

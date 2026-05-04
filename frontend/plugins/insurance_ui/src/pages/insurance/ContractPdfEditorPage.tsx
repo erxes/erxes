@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import { useParams } from 'react-router-dom';
 import {
   IconFileText,
@@ -64,7 +65,9 @@ export const ContractPdfEditorPage = () => {
       alert('Popup blocked. Please allow popups.');
       return;
     }
-    previewWindow.document.write(htmlContent);
+    previewWindow.document.write(
+      DOMPurify.sanitize(htmlContent, { WHOLE_DOCUMENT: true }),
+    );
     previewWindow.document.close();
   };
 
@@ -74,7 +77,9 @@ export const ContractPdfEditorPage = () => {
       alert('Popup blocked. Please allow popups.');
       return;
     }
-    printWindow.document.write(htmlContent);
+    printWindow.document.write(
+      DOMPurify.sanitize(htmlContent, { WHOLE_DOCUMENT: true }),
+    );
     printWindow.document.close();
     printWindow.onload = () => {
       printWindow.focus();

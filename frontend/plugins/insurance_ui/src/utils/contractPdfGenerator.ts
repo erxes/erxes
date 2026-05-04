@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify';
+
 interface Contract {
   contractNumber: string;
   paymentStatus: string;
@@ -327,7 +329,11 @@ export function generateContractPDF(contract: Contract): void {
   }
 
   // Write HTML to the new window
-  printWindow.document.write(generateContractHTML(contract));
+  printWindow.document.write(
+    DOMPurify.sanitize(generateContractHTML(contract), {
+      WHOLE_DOCUMENT: true,
+    }),
+  );
   printWindow.document.close();
 
   // Wait for content to load, then trigger print
