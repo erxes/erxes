@@ -155,6 +155,9 @@ const configQueries: Record<string, Resolver> = {
     const stageIds = stages?.data.map((x) => x._id) || [];
     const newArray = stageIds.filter((item) => !skipStageIds?.includes(item));
 
+    const searchStart = new Date(startDate);
+    const searchEnd = new Date(endDate);
+
     const deals = await sendTRPCMessage({
       subdomain,
       pluginName: 'sales',
@@ -164,50 +167,40 @@ const configQueries: Record<string, Resolver> = {
       input: {
         query: {
           stageId: { $in: newArray },
+          // 1. Broad filter: Find any deal that touches our range and has our rooms
           productsData: {
-            $elemMatch: {
-              productId: { $in: ids },
-              startDate: {
-                $lte: new Date(endDate), // 🔥 important
-              },
-              endDate: {
-                $gte: new Date(startDate), // 🔥 important
-              },
-            },
+            $elemMatch: { productId: { $in: ids } },
           },
+          startDate: { $lt: searchEnd },
+          closeDate: { $gt: searchStart },
         },
       },
     });
-    const array: any[] = [];
-    for (const x of deals?.data || []) {
-      array.push(...(x?.productsData || []));
-    }
-    const productsFiltered = array.filter((productData) => {
-      if (!ids.includes(productData.productId)) {
-        return false;
-      }
-      if (productData.startDate && productData.endDate) {
-        if (
-          new Date(productData.startDate) <= new Date(startDate) &&
-          new Date(startDate) <= new Date(productData.endDate) &&
-          new Date(endDate) >= new Date(productData.endDate)
-        ) {
-          return true;
-        }
-        if (
-          new Date(startDate) <= new Date(productData.startDate) &&
-          new Date(endDate) >= new Date(productData.startDate)
-        ) {
-          return true;
-        }
-        return false;
-      } else return false;
-    });
 
-    const productIds = productsFiltered.map((x) => x.productId);
-    return (
-      ids.filter((x) => !productIds.includes(x)).map((x) => ({ _id: x })) || []
-    );
+    const busyProductIds = new Set<string>();
+
+    for (const deal of deals?.data || []) {
+      for (const productData of deal.productsData || []) {
+        // Ensure we only care about the products the user actually searched for
+        if (!ids.includes(productData.productId)) continue;
+
+        // Use the same universal overlap formula for the specific product dates
+        // If productData doesn't have dates, fall back to the Deal's root dates
+        const pStart = new Date(productData.startDate || deal.startDate);
+        const pEnd = new Date(productData.endDate || deal.closeDate);
+
+        const isOverlapping = pStart < searchEnd && pEnd > searchStart;
+
+        if (isOverlapping) {
+          busyProductIds.add(productData.productId);
+        }
+      }
+    }
+
+    // Return the IDs that are NOT in the busy list
+    return ids
+      .filter((id) => !busyProductIds.has(id))
+      .map((id) => ({ _id: id }));
   },
 
   async cpPmsCheckRooms(
