@@ -81,10 +81,12 @@ export const InventoryRow = ({
   detailIndex,
   journalIndex,
   form,
+  isDuplicate,
 }: {
   detailIndex: number;
   journalIndex: number;
   form: ITransactionGroupForm;
+  isDuplicate?: boolean;
 }) => {
   const showAdvancedView = useAtomValue(showAdvancedViewState);
   const trDoc = useWatch({
@@ -326,6 +328,7 @@ export const InventoryRow = ({
       className={cn(
         'overflow-hidden h-cell hover:bg-background!',
         detailIndex === 0 && '[&>td]:border-t',
+        isDuplicate && 'bg-red-50 dark:bg-red-950/30 hover:bg-red-100! dark:hover:bg-red-950/50!',
       )}
     >
       <RecordTableHotKeyControl

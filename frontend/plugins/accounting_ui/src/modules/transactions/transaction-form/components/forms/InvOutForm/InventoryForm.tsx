@@ -62,14 +62,28 @@ export const InventoryForm = ({
           >
             <InventoryTableHeader form={form} journalIndex={journalIndex} />
             <Table.Body className="overflow-hidden">
-              {fields.map((product, detailIndex) => (
-                <InventoryRow
-                  key={product.id}
-                  detailIndex={detailIndex}
-                  journalIndex={journalIndex}
-                  form={form}
-                />
-              ))}
+              {fields.map((product, detailIndex) => {
+                const currentProductId = form.getValues(
+                  `trDocs.${journalIndex}.details.${detailIndex}.productId`,
+                );
+                const isDuplicate =
+                  !!currentProductId &&
+                  fields.filter(
+                    (_, i) =>
+                      form.getValues(
+                        `trDocs.${journalIndex}.details.${i}.productId`,
+                      ) === currentProductId,
+                  ).length > 1;
+                return (
+                  <InventoryRow
+                    key={product.id}
+                    detailIndex={detailIndex}
+                    journalIndex={journalIndex}
+                    form={form}
+                    isDuplicate={isDuplicate}
+                  />
+                );
+              })}
             </Table.Body>
           </Table>
           <ScrollArea.Bar orientation="horizontal" className="z-10" />

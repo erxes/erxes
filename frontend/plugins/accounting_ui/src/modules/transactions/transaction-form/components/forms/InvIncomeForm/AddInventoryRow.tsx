@@ -45,19 +45,11 @@ export const AddDetailRowButton = ({
         Шинэ мөр
       </Button>
       <SelectProductsBulk
-        productIds={
-          preDetails
-            .map((det) => det.productId ?? '')
-            .filter((prodId) => !!prodId) || []
-        }
+        productIds={[]}
         onSelect={(productIds) => {
-          const existingIds = new Set(
-            preDetails.map((det) => det.productId ?? '').filter(Boolean),
-          );
-          const newIds = productIds.filter((id) => !existingIds.has(id));
-          if (newIds.length) {
+          if (productIds.length) {
             append(
-              newIds.map((productId) => ({
+              productIds.map((productId) => ({
                 ...detailDefaultValues,
                 productId,
               })),
