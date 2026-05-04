@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import {
   IconFileText,
   IconEye,
@@ -235,7 +236,9 @@ export const ContractTemplateEditorPage = () => {
       .replaceAll('{{endDate}}', '2027 оны 1-р сарын 20')
       .replaceAll('{{chargedAmount}}', '1,500,000');
 
-    previewWindow.document.write(previewHtml);
+    previewWindow.document.write(
+      DOMPurify.sanitize(previewHtml, { WHOLE_DOCUMENT: true }),
+    );
     previewWindow.document.close();
   };
 
@@ -257,7 +260,9 @@ export const ContractTemplateEditorPage = () => {
       .replaceAll('{{endDate}}', '2027 оны 1-р сарын 20')
       .replaceAll('{{chargedAmount}}', '1,500,000');
 
-    printWindow.document.write(previewHtml);
+    printWindow.document.write(
+      DOMPurify.sanitize(previewHtml, { WHOLE_DOCUMENT: true }),
+    );
     printWindow.document.close();
     printWindow.onload = () => {
       printWindow.focus();
