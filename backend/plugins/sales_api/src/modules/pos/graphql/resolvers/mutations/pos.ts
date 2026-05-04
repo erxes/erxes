@@ -12,8 +12,9 @@ const posMutations = {
   posAdd: async (
     _root,
     params: IPos,
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,  // ← add checkPermission
   ) => {
+    await checkPermission('posAdd');                          // ← permission check
     const { ALLOW_OFFLINE_POS } = process.env;
     if (![true, 'true', 'True', 1, '1'].includes(ALLOW_OFFLINE_POS || '')) {
       params.onServer = true;
@@ -30,8 +31,10 @@ const posMutations = {
   posEdit: async (
     _root,
     { _id, ...doc }: IPos & { _id: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,  // ← add checkPermission
   ) => {
+    await checkPermission('posEdit');                    // ← permission check
+
     await models.Pos.getPos({ _id });
 
     const { ALLOW_OFFLINE_POS } = process.env;
@@ -49,8 +52,10 @@ const posMutations = {
   posRemove: async (
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,  // ← add checkPermission
   ) => {
+    await checkPermission('posRemove');                  // ← permission check
+
     const pos = await models.Pos.getPos({ _id });
     await syncRemovePosToClient(subdomain, pos);
     return await models.Pos.posRemove(_id);
@@ -59,8 +64,10 @@ const posMutations = {
   productGroupsBulkInsert: async (
     _root,
     { posId, groups }: { posId: string; groups: any[] },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,  // ← add checkPermission
   ) => {
+    await checkPermission('productGroupsBulkInsert');    // ← permission check
+
     const pos = await models.Pos.getPos({ _id: posId });
 
     const dbGroups = await models.ProductGroups.groups(posId);
@@ -96,8 +103,10 @@ const posMutations = {
   posSlotBulkUpdate: async (
     _root,
     { posId, slots }: { posId: string; slots: IPosSlot[] },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,  // ← add checkPermission
   ) => {
+    await checkPermission('posSlotBulkUpdate');          // ← permission check
+
     const pos = await models.Pos.getPos({ _id: posId });
 
     const oldPosSlots = await models.PosSlots.find({ posId });

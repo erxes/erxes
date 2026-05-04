@@ -23,35 +23,38 @@ const queries = {
     };
   },
 
-  async posList(_root, params, { models }: IContext) {
+  async posList(_root, params, { models, checkPermission }: IContext) {
+    await checkPermission('posRead');
     const query = await generateFilterQuery(params);
-
     const posList = paginate(models.Pos.find(query), params);
-
     return posList;
   },
 
-  async posDetail(_root, { _id }, { models }: IContext) {
+  async posDetail(_root, { _id }, { models, checkPermission }: IContext) {
+    await checkPermission('posRead');
     return await models.Pos.getPos({ $or: [{ _id }, { token: _id }] });
   },
 
   async ecommerceGetBranches(
     _root,
     { posToken },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('posRead');
     return await getBranchesUtil(subdomain, models, posToken);
   },
 
   async productGroups(
     _root,
     { posId }: { posId: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('posRead'); 
     return await models.ProductGroups.groups(posId);
   },
 
-  async posSlots(_root, { posId }: { posId: string }, { models }: IContext) {
+  async posSlots(_root, { posId }: { posId: string }, { models, checkPermission }: IContext) {
+    await checkPermission('posRead');
     return await models.PosSlots.find({ posId }).lean();
   },
 };
