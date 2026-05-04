@@ -1,5 +1,6 @@
 import {
   Button,
+  Checkbox,
   cn,
   DatePicker,
   Form,
@@ -301,6 +302,50 @@ export const ErxesForm = ({
                                 ))}
                               </RadioGroup>
                             </Form.Control>
+                            {erxesField.description && (
+                              <Form.Description>
+                                {erxesField.description}
+                              </Form.Description>
+                            )}
+                            <Form.Message />
+                          </ErxesFormItem>
+                        );
+                      }
+
+                      if (erxesField.type === 'check') {
+                        return (
+                          <ErxesFormItem span={erxesField.column}>
+                            <Form.Label>{erxesField.text}</Form.Label>
+                            <div className="flex flex-col gap-2">
+                              {erxesField.options.map((option) => {
+                                if (!option) return null;
+                                const checked = (
+                                  (field.value as string[]) || []
+                                ).includes(option);
+                                return (
+                                  <label
+                                    key={option}
+                                    className="flex items-center gap-2 cursor-pointer"
+                                  >
+                                    <Checkbox
+                                      checked={checked}
+                                      onCheckedChange={(isChecked) => {
+                                        const current =
+                                          (field.value as string[]) || [];
+                                        field.onChange(
+                                          isChecked
+                                            ? [...current, option]
+                                            : current.filter(
+                                                (v) => v !== option,
+                                              ),
+                                        );
+                                      }}
+                                    />
+                                    <span className="text-sm">{option}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
                             {erxesField.description && (
                               <Form.Description>
                                 {erxesField.description}

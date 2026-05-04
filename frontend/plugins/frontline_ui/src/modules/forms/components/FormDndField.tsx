@@ -15,8 +15,8 @@ import {
   IconDots,
   IconEdit,
   IconTrash,
-  IconSquareCheck,
   IconListCheck,
+  IconListDetails,
 } from '@tabler/icons-react';
 import { FORM_FIELD_TYPES } from '../constants/formFieldTypes';
 import React, { useState } from 'react';
@@ -91,6 +91,8 @@ export const FormDndFieldIcon = ({ type }: { type: string }) => {
       return <IconTextScan2 />;
     case 'radio':
       return <IconListCheck />;
+    case 'check':
+      return <IconListDetails />;
     default:
       return <IconTextSize />;
   }
