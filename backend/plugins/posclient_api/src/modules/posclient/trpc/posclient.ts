@@ -103,7 +103,7 @@ export const posclientTrpcRouter = t.router({
         }
       }
     }),
-    updateSynced: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+    updateSynced: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { models, subdomain } = ctx;
 
       const { responseIds, orderId, convertDealId } = input;
@@ -117,9 +117,9 @@ export const posclientTrpcRouter = t.router({
         { $set: { synced: true } },
       );
     }),
-    erxes_posclient_to_pos_api: t.procedure
+    syncOrderFromPos: t.procedure
       .input(z.any())
-      .query(async ({ ctx, input }) => {
+      .mutation(async ({ ctx, input }) => {
         const { models, subdomain } = ctx;
 
         const { order } = input;
@@ -160,9 +160,9 @@ export const posclientTrpcRouter = t.router({
           },
         });
       }),
-    erxes_posclient_to_pos_api_remove: t.procedure
+    syncOrderFromPosRemove: t.procedure
       .input(z.any())
-      .query(async ({ ctx, input }) => {
+      .mutation(async ({ ctx, input }) => {
         const { models, subdomain } = ctx;
 
         const { order } = input;
