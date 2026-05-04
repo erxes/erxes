@@ -251,10 +251,26 @@ For general help using erxes, please refer to the erxes documentation. For addit
 ## License
 See the <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" >**LICENSE**</a> file for licensing information.
 
-## ⚡ Quick Start (5 minutes)
+## ⚡ Quick Start with Docker (5 minutes)
 
+```bash
+# 1. Copy and configure environment variables
+cp .env.sample .env
+
+# 2. Start core services (MongoDB · Redis · gateway · core-api · UI)
 docker compose up -d
-open http://localhost:3000
 
+# 3. Open the UI
+visit http://localhost:3001 in your browser
+```
 
+**Enable optional plugins** by adding the relevant profile(s):
 
+```bash
+# Example: add the sales + operation plugins
+ENABLED_PLUGINS=sales,operation docker compose --profile plugins-base up -d
+```
+
+Available profiles: `plugins-base` (sales, operation, frontline, content) · `plugins-fin` (accounting, payment, loyalty) · `plugins-extra` (tourism, posclient, mongolian, insurance) · `services` (automations, logs workers).
+
+See [.env.sample](.env.sample) for all configuration options.
