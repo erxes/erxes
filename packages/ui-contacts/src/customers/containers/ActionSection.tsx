@@ -22,6 +22,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 type Props = {
   customer: ICustomer;
   isSmall?: boolean;
+  additionalDropdownItems?: React.ReactNode;
 };
 
 type FinalProps = Props &
@@ -35,6 +36,7 @@ const ActionSectionContainer = (props: FinalProps) => {
   const {
     isSmall,
     customer,
+    additionalDropdownItems,
     customersRemove,
     customersMerge,
     customersChangeState,
@@ -115,6 +117,7 @@ const ActionSectionContainer = (props: FinalProps) => {
     merge,
     changeState,
     search: searchCustomer,
+    additionalDropdownItems,
   };
 
   return <ActionSection {...updatedProps} />;

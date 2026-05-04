@@ -103,6 +103,7 @@ export const types = ({ contacts, dailyco, calls, cloudflareCalls }) => `
 
     messages: [ConversationMessage]
     callProAudio: String
+    callProPotentialCustomerIds: [String]
 
     tags: [Tag]
     customer: Customer
@@ -292,6 +293,7 @@ export const queries = () => `
   inboxFields: InboxField
   userConversations(_id: String, perPage: Int): UserConversationListResponse
   userConversationsByCustomerId(customerId: String!): [Conversation]
+  callProCustomersByPhone(phone: String!): JSON
 `;
 
 export const mutations = `
@@ -321,4 +323,5 @@ export const mutations = `
   conversationResolveAll(${mutationFilterParams}): Int
   conversationConvertToCard(${convertParams}): String
   conversationEditCustomFields(_id: String!, customFieldsData: JSON): Conversation
+  callProCustomerSelect(conversationId: String!, customerId: String!): Conversation
 `;

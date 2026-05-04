@@ -127,6 +127,16 @@ const createVideoChatRoom = `
   }
 `;
 
+const callProCustomerSelect = `
+  mutation callProCustomerSelect($conversationId: String!, $customerId: String!) {
+    callProCustomerSelect(conversationId: $conversationId, customerId: $customerId) {
+      _id
+      customerId
+      callProPotentialCustomerIds
+    }
+  }
+`;
+
 export default {
   conversationMessageAdd,
   conversationMessageEdit,
@@ -138,4 +148,5 @@ export default {
   resolveAll,
   editCustomFields,
   createVideoChatRoom,
+  callProCustomerSelect,
 };

@@ -11,6 +11,8 @@ import { IFieldsVisibility } from "@erxes/ui-contacts/src/customers/types";
 import { IUser } from "@erxes/ui/src/auth/types";
 import React from "react";
 import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
+import ModalTrigger from "@erxes/ui/src/components/ModalTrigger";
+import CallProSwitcherModal from "./CallProSwitcherModal";
 import WebsiteActivity from "@erxes/ui-contacts/src/customers/components/common/WebsiteActivity";
 import { __ } from "coreui/utils";
 import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
@@ -305,7 +307,7 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
 
   renderTabContent() {
     const { currentTab, currentSubTab } = this.state;
-    const { customer, toggleSection } = this.props;
+    const { conversation, customer, toggleSection } = this.props;
 
     if (currentTab === "customer") {
       const detailsOnClick = () => this.onSubtabClick("details");
@@ -317,7 +319,25 @@ class RightSidebar extends React.Component<IndexProps, IndexState> {
           <BasicInfo>
             <InfoSection customer={customer} hideForm={true} />
           </BasicInfo>
-          <ActionSection customer={customer} />
+          <ActionSection
+            customer={customer}
+            additionalDropdownItems={
+              conversation.integration?.kind === "callpro" &&
+              conversation.customerId ? (
+                <ModalTrigger
+                  title={__("Confirm or Switch Customer")}
+                  trigger={<a>{__("Confirm / Switch Customer")}</a>}
+                  content={(props) => (
+                    <CallProSwitcherModal
+                      conversation={conversation}
+                      customer={customer}
+                      {...props}
+                    />
+                  )}
+                />
+              ) : null
+            }
+          />
           <Tabs full={true}>
             <TabTitle
               className={currentSubTab === "details" ? "active" : ""}

@@ -45,16 +45,6 @@ export const loadTicketClass = (models: IModels, subdomain: string) => {
      * Create a Ticket
      */
     public static async createTicket(doc: ITicket) {
-      if (doc.sourceConversationIds) {
-        const convertedTicket = await models.Tickets.findOne({
-          sourceConversationIds: { $in: doc.sourceConversationIds }
-        });
-
-        if (convertedTicket) {
-          throw new Error("Already converted a ticket");
-        }
-      }
-
       return createBoardItem(models, subdomain, doc, "ticket");
     }
     public static async createTicketComment(

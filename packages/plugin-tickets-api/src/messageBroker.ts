@@ -226,6 +226,16 @@ export const setupMessageConsumers = async () => {
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
 
+      if (!data.itemId) {
+        const { Types } = require("mongoose");
+        const newId = new Types.ObjectId().toHexString();
+        conversationConvertToCard(models, subdomain, {
+          ...data,
+          preGeneratedId: newId,
+        }).catch(console.error);
+        return { status: "success", data: newId };
+      }
+
       return {
         status: "success",
         data: await conversationConvertToCard(models, subdomain, data)

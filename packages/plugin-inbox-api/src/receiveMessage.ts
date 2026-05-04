@@ -98,6 +98,25 @@ export const receiveRpcMessage = async (subdomain, data): Promise<RPResult> => {
     return sendSuccess({ _id: customer._id });
   }
 
+  if (action === "get-customers-by-phone") {
+    const { primaryPhone } = doc;
+
+    const customers = await sendCoreMessage({
+      subdomain,
+      action: "customers.find",
+      data: {
+        $or: [
+          { primaryPhone },
+          { "phones.phone": { $in: [primaryPhone] } },
+        ],
+      },
+      isRPC: true,
+      defaultValue: [],
+    });
+
+    return sendSuccess({ customers });
+  }
+
   if (action === "create-or-update-conversation") {
     const {
       conversationId,

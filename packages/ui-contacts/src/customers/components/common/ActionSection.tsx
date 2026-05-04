@@ -30,6 +30,7 @@ type Props = {
   search: (value: string, callback: (objects: any[]) => void) => void;
   changeState?: (value: string) => void;
   isSmall?: boolean;
+  additionalDropdownItems?: React.ReactNode;
 };
 
 class ActionSection extends React.Component<
@@ -167,7 +168,7 @@ class ActionSection extends React.Component<
   }
 
   renderDropdown() {
-    const { remove, merge, cocType, search, coc } = this.props;
+    const { remove, merge, cocType, search, coc, additionalDropdownItems } = this.props;
 
     const onClick = () =>
       confirm()
@@ -253,6 +254,9 @@ class ActionSection extends React.Component<
           </a>
         </Menu.Item>
         <Menu.Item>{this.renderChangeStateForm()}</Menu.Item>
+        {additionalDropdownItems && (
+          <Menu.Item>{additionalDropdownItems}</Menu.Item>
+        )}
       </Dropdown>
     );
   }
