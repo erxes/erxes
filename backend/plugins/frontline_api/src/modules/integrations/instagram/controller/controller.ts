@@ -5,6 +5,11 @@ import { debugError, debugInstagram } from '@/integrations/instagram/debuggers';
 import { getSubdomain, isDev } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 
+// Printable ASCII only (no control chars, no CR/LF) so anything we echo
+// to Meta during the webhook handshake stays inside a single text/plain line.
+const INSTAGRAM_CHALLENGE_PATTERN = /^[\x21-\x7E]+$/;
+const MAX_CHALLENGE_LENGTH = 200;
+
 export const instagramGetPost = async (req, res, next) => {
   try {
     debugInstagram(
@@ -65,10 +70,20 @@ export const instagramSubscription = async (req, res, next) => {
     );
     if (req.query['hub.mode'] === 'subscribe') {
       if (req.query['hub.verify_token'] === INSTAGRAM_VERIFY_TOKEN) {
-        res.send(req.query['hub.challenge']);
-      } else {
-        res.send('OK');
+        const challenge = String(req.query['hub.challenge'] ?? '');
+        // text/plain on the response is the actual XSS mitigation; this
+        // bound + character whitelist is defense-in-depth so we never echo
+        // an absurd or control-character payload back to Meta.
+        if (
+          challenge.length === 0 ||
+          challenge.length > MAX_CHALLENGE_LENGTH ||
+          !INSTAGRAM_CHALLENGE_PATTERN.test(challenge)
+        ) {
+          return res.status(400).type('text/plain').send('Invalid challenge');
+        }
+        return res.type('text/plain').send(challenge);
       }
+      return res.type('text/plain').send('OK');
     }
   } catch (e) {
     next(e);
