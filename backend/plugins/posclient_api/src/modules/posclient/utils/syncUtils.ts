@@ -1,4 +1,3 @@
-import { models } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { IConfig, IConfigDocument } from '~/modules/posclient/@types/configs';
 import { IPosUserDocument } from '~/modules/posclient/@types/posUsers';

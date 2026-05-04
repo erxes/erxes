@@ -96,19 +96,19 @@ export const loadPosClass = (models: IModels, _subdomain: string, { sendDbEventL
       await models.PosSlots.deleteMany({ posId: pos._id });
       let result;
 
-      if (!pos.onServer) {
+      if (pos.onServer) {
+        result = await models.Pos.deleteOne({ _id });
+        sendDbEventLog({
+          action: 'delete',
+          docId: _id,
+        });
+      } else {
         result = await models.Pos.updateOne({ _id }, { $set: { status: 'deleted' } });
         sendDbEventLog({
           action: 'update',
           docId: _id,
           currentDocument: { status: 'deleted' },
           prevDocument: pos,
-        });
-      } else {
-        result = await models.Pos.deleteOne({ _id });
-        sendDbEventLog({
-          action: 'delete',
-          docId: _id,
         });
       }
       return result;
