@@ -7,15 +7,17 @@ const adjustInventoryMutations = {
   async adjustInventoryAdd(
     _root,
     doc: IAdjustInventory,
-    { user, models }: IContext
+    { user, models, checkPermission }: IContext
   ) {
+    await checkPermission('manageAdjustInventories');
     const { beginDate } = await checkValidDate(models, doc);
 
     const adjusting = await models.AdjustInventories.createAdjustInventory({ ...doc, beginDate, createdBy: user._id });
     return adjusting;
   },
 
-  async adjustInventoryPublish(_root, { adjustId }: { adjustId: string }, { models, user }: IContext) {
+  async adjustInventoryPublish(_root, { adjustId }: { adjustId: string }, { models, user, checkPermission }: IContext) {
+    await checkPermission('publishAdjustInventories');
     const adjusting = await models.AdjustInventories.getAdjustInventory(adjustId);
     if (adjusting.status === ADJ_INV_STATUSES.PUBLISH) {
       throw new Error('this adjusting is published');
@@ -43,7 +45,8 @@ const adjustInventoryMutations = {
     return await models.AdjustInventories.getAdjustInventory(adjustId);
   },
 
-  async adjustInventoryCancel(_root, { adjustId }: { adjustId: string }, { models, user }: IContext) {
+  async adjustInventoryCancel(_root, { adjustId }: { adjustId: string }, { models, user, checkPermission }: IContext) {
+    await checkPermission('cancelAdjustInventories');
     const adjusting = await models.AdjustInventories.getAdjustInventory(adjustId);
     if (adjusting.status !== ADJ_INV_STATUSES.PUBLISH) {
       throw new Error('this adjusting cannot be cancel yet, it has not been published.');
@@ -53,11 +56,13 @@ const adjustInventoryMutations = {
     return await models.AdjustInventories.getAdjustInventory(adjustId);
   },
 
-  async adjustInventoryRemove(_root, { adjustId }: { adjustId: string }, { models }: IContext) {
+  async adjustInventoryRemove(_root, { adjustId }: { adjustId: string }, { models, checkPermission }: IContext) {
+    await checkPermission('removeAdjustInventories');
     return await models.AdjustInventories.removeAdjustInventory(adjustId);
   },
 
-  async adjustInventoryClear(_root, { adjustId, date }: { adjustId: string, date?: Date }, { models, user }: IContext) {
+  async adjustInventoryClear(_root, { adjustId, date }: { adjustId: string, date?: Date }, { models, user, checkPermission }: IContext) {
+    await checkPermission('clearAdjustInventories');
     const adjusting = await models.AdjustInventories.getAdjustInventory(adjustId);
     if (![ADJ_INV_STATUSES.DRAFT, ADJ_INV_STATUSES.PROCESS, ADJ_INV_STATUSES.COMPLETE].includes(adjusting.status)) {
       throw new Error('this adjusting cannot be clear yet, it has not been published or running.');
@@ -65,7 +70,8 @@ const adjustInventoryMutations = {
     return await detailsClear(models, user, adjusting, date);
   },
 
-  async adjustInventoryRun(_root, { adjustId }: { adjustId: string }, { models, user, subdomain }: IContext) {
+  async adjustInventoryRun(_root, { adjustId }: { adjustId: string }, { models, user, subdomain, checkPermission }: IContext) {
+    await checkPermission('manageAdjustInventories');
     const adjustInventory = await models.AdjustInventories.getAdjustInventory(adjustId);
 
     if ([ADJ_INV_STATUSES.RUNNING, ADJ_INV_STATUSES.PUBLISH].includes(adjustInventory.status)) {
