@@ -5,7 +5,12 @@ import {
   MultipleSelector,
   Switch,
   DatePicker,
+  Button,
+  useErxesUpload,
+  readImage,
 } from 'erxes-ui';
+import { useEffect } from 'react';
+import { IconUpload, IconX, IconPaperclip } from '@tabler/icons-react';
 import { SpreadsheetInput } from './SpreadsheetInput';
 
 export interface FieldDefinition {
@@ -23,6 +28,163 @@ interface CustomFieldInputProps {
   field: FieldDefinition;
   value: CustomFieldValue;
   onChange: (value: string | boolean | string[]) => void;
+}
+
+function ImageFieldInput({
+  value,
+  onChange,
+  buttonLabel = 'Upload file',
+  buttonClassName,
+}: {
+  value: CustomFieldValue;
+  onChange: (value: string) => void;
+  buttonLabel?: string;
+  buttonClassName?: string;
+}) {
+  const url = typeof value === 'string' ? value : '';
+
+  const uploadProps = useErxesUpload({
+    allowedMimeTypes: ['image/*'],
+    maxFiles: 1,
+    maxFileSize: 20 * 1024 * 1024,
+    onFilesAdded: (added) => {
+      if (added[0]?.url) onChange(added[0].url);
+    },
+  });
+
+  useEffect(() => {
+    if (uploadProps.files.length > 0 && !uploadProps.loading) {
+      uploadProps.onUpload();
+    }
+  }, [uploadProps.files.length]);
+
+  return (
+    <div className="space-y-2">
+      {url && (
+        <div className="relative group w-full rounded-md border overflow-hidden aspect-[3/1] bg-muted">
+          <img
+            src={readImage(url)}
+            alt="uploaded"
+            className="w-full h-full object-contain"
+          />
+          <button
+            type="button"
+            onClick={() => onChange('')}
+            className="absolute top-2 right-2 p-1 rounded-md bg-destructive text-white opacity-0 group-hover:opacity-100 transition"
+          >
+            <IconX size={14} />
+          </button>
+        </div>
+      )}
+      <div>
+        <input {...uploadProps.getInputProps()} />
+        <Button
+          variant="outline"
+          className={buttonClassName}
+          type="button"
+          onClick={uploadProps.open}
+          disabled={uploadProps.loading}
+        >
+          <IconUpload size={16} className="mr-2" />
+          {uploadProps.loading ? 'Uploading...' : url ? `Change ${buttonLabel.toLowerCase()}` : buttonLabel}
+        </Button>
+        <p className="text-xs text-muted-foreground mt-1">
+          Max 20MB · JPG, PNG, GIF, WebP, SVG
+        </p>
+      </div>
+      {!!uploadProps.errors.length && (
+        <p className="text-xs text-destructive">
+          {uploadProps.errors[0]?.message || 'Upload failed'}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function FileFieldInput({
+  value,
+  onChange,
+  buttonLabel = 'Upload file',
+  buttonClassName,
+}: {
+  value: CustomFieldValue;
+  onChange: (value: string[]) => void;
+  buttonLabel?: string;
+  buttonClassName?: string;
+}) {
+  const urls = Array.isArray(value) ? value : [];
+
+  const uploadProps = useErxesUpload({
+    allowedMimeTypes: [],
+    maxFiles: 1,
+    maxFileSize: 20 * 1024 * 1024,
+    onFilesAdded: (added) => {
+      const url = added[0]?.url;
+      if (url) onChange([url]);
+    },
+  });
+
+  useEffect(() => {
+    if (uploadProps.files.length > 0 && !uploadProps.loading) {
+      uploadProps.onUpload();
+    }
+  }, [uploadProps.files.length]);
+
+  const handleRemove = (url: string) => {
+    onChange(urls.filter((u) => u !== url));
+  };
+
+  return (
+    <div className="space-y-2">
+      {urls.length > 0 && (
+        <div className="relative space-y-1">
+          {urls.map((url) => (
+            <div
+              key={url}
+              className="flex items-center gap-2 border rounded p-2 bg-muted"
+            >
+              <IconPaperclip size={16} className="text-muted-foreground shrink-0" />
+              <span className="text-sm flex-1 truncate">{url}</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                type="button"
+                onClick={() => handleRemove(url)}
+              >
+                <IconX size={16} />
+              </Button>
+            </div>
+          ))}
+          {uploadProps.loading && (
+            <div className="absolute inset-0 bg-white/50 flex items-center justify-center rounded">
+              <span className="text-sm text-gray-500">Uploading...</span>
+            </div>
+          )}
+        </div>
+      )}
+      <div>
+        <input {...uploadProps.getInputProps()} />
+        <Button
+          variant="outline"
+          className={buttonClassName}
+          type="button"
+          onClick={uploadProps.open}
+          disabled={uploadProps.loading}
+        >
+          <IconUpload size={16} className="mr-2" />
+          {uploadProps.loading ? 'Uploading...' : buttonLabel}
+        </Button>
+        <p className="text-xs text-muted-foreground mt-1">
+          Max 20MB
+        </p>
+      </div>
+      {!!uploadProps.errors.length && (
+        <p className="text-xs text-destructive">
+          {uploadProps.errors[0]?.message || 'Upload failed'}
+        </p>
+      )}
+    </div>
+  );
 }
 
 export const CustomFieldInput = ({
@@ -170,6 +332,22 @@ export const CustomFieldInput = ({
           />
         );
       }
+
+      case 'image':
+        return (
+          <ImageFieldInput
+            value={value}
+            onChange={(url) => onChange(url)}
+          />
+        );
+
+      case 'file':
+        return (
+          <FileFieldInput
+            value={value}
+            onChange={(urls) => onChange(urls)}
+          />
+        );
 
       default:
         return (
