@@ -21,67 +21,67 @@ export const getMainConditions: any = ({
 }) => {
   const now = dayjs(date || new Date());
   const nowISO = now.toISOString();
+  const dateFilter = {
+    $or: [
+      {
+        isStartDateEnabled: false,
+        isEndDateEnabled: false
+      },
+      {
+        isStartDateEnabled: true,
+        isEndDateEnabled: false,
+        startDate: {
+          $lt: nowISO
+        }
+      },
+      {
+        isStartDateEnabled: false,
+        isEndDateEnabled: true,
+        endDate: {
+          $gt: nowISO
+        }
+      },
+      {
+        isStartDateEnabled: true,
+        isEndDateEnabled: true,
+        startDate: {
+          $lt: nowISO
+        },
+        endDate: {
+          $gt: nowISO
+        }
+      }
+    ]
+  };
+
+  const publicFilter = {
+    branchIds: { $size: 0 },
+    departmentIds: { $size: 0 },
+    $or: [{ pipelineId: { $exists: false } },
+    { pipelineId: '' }]
+  }
+
+  const targetFilter: any[] = [];
+  
+  if (pipelineId) {
+    targetFilter.push({ pipelineId });
+  }
+
+  if (branchId || departmentId) {
+    targetFilter.push({
+      branchIds: branchId ? { $in: [branchId] } : { $size: 0 },
+      departmentIds: departmentId ? { $in: [departmentId] } : { $size: 0 }
+    });
+  }
 
   return {
     status: 'active',
     $and: [
+      dateFilter,
       {
         $or: [
-          {
-            branchIds: { $in: [branchId && branchId] },
-            departmentIds: { $size: 0 }
-          },
-          {
-            departmentIds: { $in: [departmentId && departmentId] },
-            branchIds: { $size: 0 }
-          },
-          {
-            branchIds: { $size: 0 },
-            departmentIds: { $size: 0 }
-          },
-          {
-            departmentIds: { $in: [departmentId && departmentId] },
-            branchIds: { $in: [branchId && branchId] }
-          },
-        ]
-      },
-      pipelineId && {
-        $or: [
-          { pipelineId },
-          { pipelineId: { $exists: false } },
-          { pipelineId: '' }
-        ]
-      } || {},
-      {
-        $or: [
-          {
-            isStartDateEnabled: false,
-            isEndDateEnabled: false
-          },
-          {
-            isStartDateEnabled: true,
-            isEndDateEnabled: false,
-            startDate: {
-              $lt: nowISO
-            }
-          },
-          {
-            isStartDateEnabled: false,
-            isEndDateEnabled: true,
-            endDate: {
-              $gt: nowISO
-            }
-          },
-          {
-            isStartDateEnabled: true,
-            isEndDateEnabled: true,
-            startDate: {
-              $lt: nowISO
-            },
-            endDate: {
-              $gt: nowISO
-            }
-          }
+          { $and: targetFilter },
+          publicFilter
         ]
       }
     ]
