@@ -175,12 +175,22 @@ export function CmsCategoryDrawer({
     skip: !isOpen,
   });
 
+  const currentCategoryId = category?._id;
+
   const fieldGroups: FieldGroup[] = (
     customFieldsData?.cmsCustomFieldGroupList?.list || []
-  ).filter(
-    (group: CustomFieldGroup) =>
-      !group.customPostTypeIds || group.customPostTypeIds.length === 0,
-  );
+  ).filter((group: any) => {
+    const ids: string[] = group.customPostTypeIds || [];
+    // show if no restriction, or explicitly includes 'category'
+    const showOnCategory = ids.length === 0 || ids.includes('category');
+    if (!showOnCategory) return false;
+    // if specific categories are set, only show for this category
+    const enabledCategoryIds: string[] = group.enabledCategoryIds || [];
+    if (enabledCategoryIds.length > 0 && currentCategoryId) {
+      return enabledCategoryIds.includes(currentCategoryId);
+    }
+    return true;
+  });
 
   // Create dynamic schema with custom field validations
   const schema = createCategoryFormSchema(
@@ -368,6 +378,7 @@ export function CmsCategoryDrawer({
         </Sheet.Header>
 
         <Form {...form}>
+          <Sheet.Content className="overflow-y-auto">
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="p-4 space-y-4"
@@ -501,6 +512,7 @@ export function CmsCategoryDrawer({
               </Button>
             </div>
           </form>
+          </Sheet.Content>
         </Form>
       </Sheet.View>
     </Sheet>
