@@ -226,19 +226,50 @@ const init = async (app) => {
         return res.send("success");
       }
 
+      // Check whether multiple core customers share this phone number
+      let callProPotentialCustomerIds: string[] = [];
+      try {
+        const { customers: coreCustomers = [] } = await sendInboxMessage({
+          subdomain,
+          action: "integrations.receive",
+          data: {
+            action: "get-customers-by-phone",
+            payload: JSON.stringify({ primaryPhone: numberFrom }),
+          },
+          isRPC: true,
+          defaultValue: { customers: [] },
+        });
+
+        if (coreCustomers.length > 1) {
+          callProPotentialCustomerIds = coreCustomers.map((c) => c._id);
+        }
+      } catch (e) {
+        debugError("Callpro: error checking customers by phone: ", e.message);
+      }
+
+      const hasMultipleCustomers = callProPotentialCustomerIds.length > 1;
+
       // save on api
       try {
+        const conversationPayload: Record<string, any> = {
+          content: disp,
+          integrationId: inboxIntegration._id,
+          owner,
+        };
+
+        if (hasMultipleCustomers) {
+          conversationPayload.callProPotentialCustomerIds =
+            callProPotentialCustomerIds;
+        } else {
+          conversationPayload.customerId = customer.erxesApiId;
+        }
+
         const apiConversationResponse = await sendInboxMessage({
           subdomain,
           action: "integrations.receive",
           data: {
             action: "create-or-update-conversation",
-            payload: JSON.stringify({
-              customerId: customer.erxesApiId,
-              content: disp,
-              integrationId: inboxIntegration._id,
-              owner,
-            }),
+            payload: JSON.stringify(conversationPayload),
           },
           isRPC: true,
         });
@@ -271,7 +302,9 @@ const init = async (app) => {
               _id: Math.random().toString(),
               content: "new callpro message",
               createdAt: new Date(),
-              customerId: customer.erxesApiId,
+              customerId: hasMultipleCustomers
+                ? undefined
+                : customer.erxesApiId,
               conversationId: conversation.erxesApiId,
             },
             conversation,

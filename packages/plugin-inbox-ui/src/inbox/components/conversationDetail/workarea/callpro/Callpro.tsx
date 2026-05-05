@@ -1,22 +1,86 @@
 import React from "react";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useQuery, useMutation } from "@apollo/client";
+import styled from "styled-components";
 import { IConversation } from "@erxes/ui-inbox/src/inbox/types";
-import { queries } from "@erxes/ui-inbox/src/inbox/graphql";
-import { EmptyState, Icon, Spinner } from "@erxes/ui/src";
+import { mutations, queries } from "@erxes/ui-inbox/src/inbox/graphql";
+import { Button, EmptyState, Icon, Info, NameCard, Spinner } from "@erxes/ui/src";
+import { colors } from "@erxes/ui/src/styles";
+import { __ } from "coreui/utils";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
+
+const CustomerPickerWrapper = styled.div`
+  padding: 16px;
+`;
+
+const CustomerList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+`;
+
+const CustomerRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border: 1px solid ${colors.colorShadowGray};
+  border-radius: 6px;
+  background: ${colors.colorWhite};
+
+  &:hover {
+    border-color: ${colors.colorPrimary};
+    background: #faf9ff;
+  }
+`;
+
+type CallProCandidate = {
+  _id: string;
+  firstName?: string;
+  lastName?: string;
+  primaryPhone?: string;
+  avatar?: string;
+};
 
 type Props = {
   conversation: IConversation;
 };
 
 const CallPro: React.FC<Props> = ({ conversation }) => {
-  const { callProAudio, customerId } = conversation;
+  const {
+    callProAudio,
+    customerId,
+    callProPotentialCustomerIds = [],
+  } = conversation;
 
-  if (!callProAudio) {
-    return <p>You dont have permission to listen</p>;
-  }
+  const [selectCustomer, { loading: selecting }] = useMutation(
+    gql(mutations.callProCustomerSelect),
+    { refetchQueries: ["conversationDetail"] },
+  );
+
+  const hasPotentialCustomers =
+    !customerId && callProPotentialCustomerIds.length > 1;
+
+  const { data: potentialData, loading: potentialLoading } = useQuery(
+    gql(`
+      query customers($ids: [String]) {
+        customers(ids: $ids) {
+          _id
+          firstName
+          lastName
+          primaryPhone
+          avatar
+        }
+      }
+    `),
+    {
+      variables: { ids: callProPotentialCustomerIds },
+      skip: !hasPotentialCustomers,
+      fetchPolicy: "network-only",
+    },
+  );
 
   const { loading, error, data } = useQuery(
     gql(queries.userConversationsByCustomerId),
@@ -36,19 +100,59 @@ const CallPro: React.FC<Props> = ({ conversation }) => {
     left: number;
   } | null>(null);
 
-  if (loading) {
-    return <Spinner />;
-  }
+  const candidateName = (c: CallProCandidate) =>
+    [c.firstName, c.lastName].filter(Boolean).join(" ") ||
+    c.primaryPhone ||
+    c._id;
 
-  if (error) {
-    return <EmptyState text={error.message} />;
-  }
+  const renderCandidatePicker = (candidates: CallProCandidate[]) => (
+    <CustomerList>
+      {candidates.map((c) => (
+        <CustomerRow key={c._id}>
+          <NameCard.Avatar customer={c} size={32} />
+          <Button
+            btnStyle="simple"
+            size="small"
+            disabled={selecting}
+            onClick={() =>
+              selectCustomer({
+                variables: {
+                  conversationId: conversation._id,
+                  customerId: c._id,
+                },
+              })
+            }
+          >
+            {candidateName(c)}
+          </Button>
+        </CustomerRow>
+      ))}
+    </CustomerList>
+  );
 
-  const groupConversationsByTags = (conversation: any[]) => {
+  const renderPotentialCustomerPicker = () => {
+    if (!hasPotentialCustomers) return null;
+    if (potentialLoading) return <Spinner />;
+    const candidates: CallProCandidate[] = potentialData?.customers || [];
+    const phone = conversation.content;
+
+    return (
+      <CustomerPickerWrapper>
+        <Info>
+          {phone
+            ? `${__("Confirm or Switch Customer")} — ${phone}`
+            : __("Confirm or Switch Customer")}
+        </Info>
+        {renderCandidatePicker(candidates)}
+      </CustomerPickerWrapper>
+    );
+  };
+
+  const groupConversationsByTags = (convs: any[]) => {
     const grouped: any = {};
 
-    conversation.forEach((conversation) => {
-      const tags = conversation.tags || [];
+    convs.forEach((conv) => {
+      const tags = conv.tags || [];
 
       if (tags.length === 0) {
         if (!grouped["No tags"]) {
@@ -58,17 +162,17 @@ const CallPro: React.FC<Props> = ({ conversation }) => {
             latestDate: null,
           };
         }
-        grouped["No tags"].conversations.push(conversation);
-        if (conversation.assignedUser) {
-          grouped["No tags"].assignedUsers.add(conversation.assignedUser._id);
+        grouped["No tags"].conversations.push(conv);
+        if (conv.assignedUser) {
+          grouped["No tags"].assignedUsers.add(conv.assignedUser._id);
         }
-        if (conversation.updatedAt) {
+        if (conv.updatedAt) {
           const currentLatest = grouped["No tags"].latestDate;
           if (
             !currentLatest ||
-            new Date(conversation.updatedAt) > new Date(currentLatest)
+            new Date(conv.updatedAt) > new Date(currentLatest)
           ) {
-            grouped["No tags"].latestDate = conversation.updatedAt;
+            grouped["No tags"].latestDate = conv.updatedAt;
           }
         }
       } else {
@@ -82,18 +186,18 @@ const CallPro: React.FC<Props> = ({ conversation }) => {
             };
           }
 
-          grouped[tagName].conversations.push(conversation);
-          if (conversation.assignedUser) {
-            grouped[tagName].assignedUsers.add(conversation.assignedUser._id);
+          grouped[tagName].conversations.push(conv);
+          if (conv.assignedUser) {
+            grouped[tagName].assignedUsers.add(conv.assignedUser._id);
           }
 
-          if (conversation.updatedAt) {
+          if (conv.updatedAt) {
             const currentLatest = grouped[tagName].latestDate;
             if (
               !currentLatest ||
-              new Date(conversation.updatedAt) > new Date(currentLatest)
+              new Date(conv.updatedAt) > new Date(currentLatest)
             ) {
-              grouped[tagName].latestDate = conversation.updatedAt;
+              grouped[tagName].latestDate = conv.updatedAt;
             }
           }
         });
@@ -350,7 +454,7 @@ const CallPro: React.FC<Props> = ({ conversation }) => {
                       .add(8, "hour")
                       .format("YYYY-MM-DD HH:mm")}{" "}
                   </div>
-                )}
+                )} 
               </div>
             );
           })}
@@ -432,12 +536,16 @@ const CallPro: React.FC<Props> = ({ conversation }) => {
     );
   };
 
+  if (loading) return <Spinner />;
+  if (error) return <EmptyState text={error.message} />;
+
   return (
     <>
       <audio controls>
         <source src={callProAudio} type="audio/ogg" />
       </audio>
-      {renderConversationGroups()}
+      {renderPotentialCustomerPicker()}
+      {!hasPotentialCustomers && renderConversationGroups()}
     </>
   );
 };

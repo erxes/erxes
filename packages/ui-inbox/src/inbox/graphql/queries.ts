@@ -470,4 +470,9 @@ export default {
   postInfo,
   instagramPostInfo,
   userConversationsByCustomerId,
+  callProCustomersByPhone: `
+    query callProCustomersByPhone($phone: String!) {
+      callProCustomersByPhone(phone: $phone)
+    }
+  `,
 };

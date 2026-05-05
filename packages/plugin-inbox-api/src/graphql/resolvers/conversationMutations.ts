@@ -734,6 +734,17 @@ const conversationMutations = {
     await models.Conversations.updateConversation(_id, { customFieldsData });
     return models.Conversations.getConversation(_id);
   },
+
+  async callProCustomerSelect(
+    _root,
+    { conversationId, customerId }: { conversationId: string; customerId: string },
+    { models }: IContext
+  ) {
+    await models.Conversations.updateConversation(conversationId, {
+      customerId,
+    });
+    return models.Conversations.getConversation(conversationId);
+  },
 };
 
 requireLogin(conversationMutations, "conversationMarkAsRead");

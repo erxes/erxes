@@ -42,6 +42,7 @@ export interface IConversation {
   customFieldsData?: ICustomField[];
   isBot?: boolean;
   botId?: string;
+  callProPotentialCustomerIds?: string[];
 }
 
 // Conversation schema
@@ -113,7 +114,12 @@ export const conversationSchemaOptions = {
   botId: field({
     type: "String",
     label: "botId"
-  })
+  }),
+  callProPotentialCustomerIds: field({
+    type: ["String"],
+    optional: true,
+    label: "CallPro potential customer ids",
+  }),
 };
 
 export const conversationSchema = new Schema({
