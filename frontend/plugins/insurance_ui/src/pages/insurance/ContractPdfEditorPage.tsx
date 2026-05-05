@@ -14,6 +14,7 @@ import { useContract } from '~/modules/insurance/hooks';
 import {
   generateContractHTML,
   openSanitizedContractWindow,
+  sanitizeContractHtml,
 } from '~/utils/contractPdfGenerator';
 import { useMutation, gql } from '@apollo/client';
 
@@ -70,18 +71,14 @@ export const ContractPdfEditorPage = () => {
   };
 
   const handlePrint = () => {
-    const printWindow = openSanitizedContractWindow(htmlContent);
+    const printWindow = openSanitizedContractWindow(htmlContent, (win) => {
+      win.focus();
+      win.print();
+      setTimeout(() => win.close(), 100);
+    });
     if (!printWindow) {
       alert('Popup blocked. Please allow popups.');
-      return;
     }
-    printWindow.onload = () => {
-      printWindow.focus();
-      printWindow.print();
-      setTimeout(() => {
-        printWindow.close();
-      }, 100);
-    };
   };
 
   const handleDownload = () => {
@@ -220,7 +217,8 @@ export const ContractPdfEditorPage = () => {
                     </label>
                     <div className="border rounded-md p-4 bg-gray-50 overflow-auto max-h-[600px]">
                       <iframe
-                        srcDoc={htmlContent}
+                        srcDoc={sanitizeContractHtml(htmlContent)}
+                        sandbox=""
                         className="w-full h-[800px] bg-white border-0"
                         title="PDF Preview"
                       />

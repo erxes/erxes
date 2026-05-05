@@ -9,7 +9,10 @@ import {
 } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator, Card, Alert } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { openSanitizedContractWindow } from '~/utils/contractPdfGenerator';
+import {
+  openSanitizedContractWindow,
+  sanitizeContractHtml,
+} from '~/utils/contractPdfGenerator';
 
 // Default template that will be used for all contracts
 const DEFAULT_TEMPLATE = `<!DOCTYPE html>
@@ -238,18 +241,17 @@ export const ContractTemplateEditorPage = () => {
   };
 
   const handlePrint = () => {
-    const printWindow = openSanitizedContractWindow(buildPreviewHtml());
+    const printWindow = openSanitizedContractWindow(
+      buildPreviewHtml(),
+      (win) => {
+        win.focus();
+        win.print();
+        setTimeout(() => win.close(), 100);
+      },
+    );
     if (!printWindow) {
       alert('Popup блоклогдсон байна. Popup зөвшөөрнө үү.');
-      return;
     }
-    printWindow.onload = () => {
-      printWindow.focus();
-      printWindow.print();
-      setTimeout(() => {
-        printWindow.close();
-      }, 100);
-    };
   };
 
   const handleDownload = () => {
@@ -362,16 +364,25 @@ export const ContractTemplateEditorPage = () => {
                     </label>
                     <div className="border rounded-md p-4 bg-gray-50 overflow-auto max-h-[600px]">
                       <iframe
-                        srcDoc={template
-                          .replaceAll('{{contractNumber}}', 'INS2026010001')
-                          .replaceAll('{{vendorName}}', 'Sample Insurance LLC')
-                          .replaceAll('{{customerName}}', 'John Smith')
-                          .replaceAll('{{registrationNumber}}', 'AB12345678')
-                          .replaceAll('{{insuranceType}}', 'Car Insurance')
-                          .replaceAll('{{productName}}', 'Standard Insurance')
-                          .replaceAll('{{startDate}}', 'January 20, 2026')
-                          .replaceAll('{{endDate}}', 'January 20, 2027')
-                          .replaceAll('{{chargedAmount}}', '1,500,000')}
+                        srcDoc={sanitizeContractHtml(
+                          template
+                            .replaceAll('{{contractNumber}}', 'INS2026010001')
+                            .replaceAll(
+                              '{{vendorName}}',
+                              'Sample Insurance LLC',
+                            )
+                            .replaceAll('{{customerName}}', 'John Smith')
+                            .replaceAll('{{registrationNumber}}', 'AB12345678')
+                            .replaceAll('{{insuranceType}}', 'Car Insurance')
+                            .replaceAll(
+                              '{{productName}}',
+                              'Standard Insurance',
+                            )
+                            .replaceAll('{{startDate}}', 'January 20, 2026')
+                            .replaceAll('{{endDate}}', 'January 20, 2027')
+                            .replaceAll('{{chargedAmount}}', '1,500,000'),
+                        )}
+                        sandbox=""
                         className="w-full h-[800px] bg-white border-0"
                         title="Template Preview"
                       />

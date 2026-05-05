@@ -2,35 +2,42 @@ import DOMPurify from 'dompurify';
 
 const SANITIZE_OPTS = { ADD_TAGS: ['style'] } as const;
 
+// HTML5 spec says <title> is a raw-text element — its content cannot contain
+// other tags — so a regex is sufficient and avoids reading from a parsed DOM
+// (which would trip CodeQL's js/xss-through-dom rule when the result is later
+// reinterpreted as HTML).
+const TITLE_BLOCK = /<title\b[^>]*>[\s\S]*?<\/title>/gi;
+
 /**
  * Sanitizes a user-edited contract template and returns a complete document
  * safe to render in a new window or iframe. Uses DOMPurify in fragment mode
  * (WHOLE_DOCUMENT defaults to false) to address SonarCloud rule
- * typescript:S8479. The input is parsed into head/body up-front so style
- * blocks declared in <head> survive sanitization while metadata like <title>
- * (whose text would otherwise leak into the body via KEEP_CONTENT) is dropped.
+ * typescript:S8479. The <title> block is stripped beforehand because
+ * DOMPurify's KEEP_CONTENT default would otherwise leak the title text into
+ * the rendered body once the wrapping <head> is dropped.
  */
 export function sanitizeContractHtml(html: string): string {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  const headStyles = Array.from(doc.head.querySelectorAll('style'))
-    .map((node) => node.outerHTML)
-    .join('');
-  const sanitizedHead = DOMPurify.sanitize(headStyles, SANITIZE_OPTS);
-  const sanitizedBody = DOMPurify.sanitize(doc.body.innerHTML, SANITIZE_OPTS);
-  return `<!DOCTYPE html><html lang="mn"><head><meta charset="UTF-8">${sanitizedHead}</head><body>${sanitizedBody}</body></html>`;
+  const sanitized = DOMPurify.sanitize(
+    html.replace(TITLE_BLOCK, ''),
+    SANITIZE_OPTS,
+  );
+  return `<!DOCTYPE html><html lang="mn"><head><meta charset="UTF-8"></head><body>${sanitized}</body></html>`;
 }
 
 /**
  * Opens sanitized contract HTML in a new window via a Blob URL. Replaces the
  * deprecated `document.write(...)` API (SonarCloud rule typescript:S1874).
  *
- * The Blob URL is revoked once the popup fires its `load` event, so the
- * popup keeps the URL valid for the entire navigation/parse phase regardless
- * of network or document size. `addEventListener` is used (rather than the
- * `.onload` setter) so callers can still attach their own `printWindow.onload`
- * print handler. A fallback timeout guarantees cleanup if `load` never fires.
+ * Callers that need to act on the popup once it has loaded (e.g. to trigger
+ * print) pass an `onLoad` callback. Registering it inside the helper avoids
+ * a race with the async `load` event vs. the caller's `.onload` setter, and
+ * lets the helper share a single `load` listener for both URL revocation
+ * and the caller's logic.
  */
-export function openSanitizedContractWindow(html: string): Window | null {
+export function openSanitizedContractWindow(
+  html: string,
+  onLoad?: (win: Window) => void,
+): Window | null {
   const blob = new Blob([sanitizeContractHtml(html)], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
   const win = window.open(url, '_blank');
@@ -38,7 +45,15 @@ export function openSanitizedContractWindow(html: string): Window | null {
     URL.revokeObjectURL(url);
     return null;
   }
-  win.addEventListener('load', () => URL.revokeObjectURL(url), { once: true });
+  win.addEventListener(
+    'load',
+    () => {
+      URL.revokeObjectURL(url);
+      onLoad?.(win);
+    },
+    { once: true },
+  );
+  // Fallback in case the popup never fires `load` (e.g. user closes early).
   setTimeout(() => URL.revokeObjectURL(url), 300_000);
   return win;
 }
@@ -363,22 +378,19 @@ function generateContractHTML(contract: Contract): string {
 }
 
 export function generateContractPDF(contract: Contract): void {
-  const printWindow = openSanitizedContractWindow(generateContractHTML(contract));
+  const printWindow = openSanitizedContractWindow(
+    generateContractHTML(contract),
+    (win) => {
+      win.focus();
+      win.print();
+      // Close window after printing (user can cancel)
+      setTimeout(() => win.close(), 100);
+    },
+  );
 
   if (!printWindow) {
     alert('Popup блоклогдсон байна. Popup зөвшөөрнө үү.');
-    return;
   }
-
-  // Wait for content to load, then trigger print
-  printWindow.onload = () => {
-    printWindow.focus();
-    printWindow.print();
-    // Close window after printing (user can cancel)
-    setTimeout(() => {
-      printWindow.close();
-    }, 100);
-  };
 }
 
 export function downloadContractHTML(contract: Contract): void {
