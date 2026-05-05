@@ -12,7 +12,21 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "erxes-api-shared": "workspace:^"
+    "@apollo/client": "^3.11.8",
+    "@bull-board/api": "^6.7.7",
+    "@bull-board/express": "^6.7.7",
+    "@envelop/core": "^5.2.3",
+    "@escape.tech/graphql-armor-character-limit": "^2.3.0",
+    "@escape.tech/graphql-armor-max-aliases": "^2.6.0",
+    "@escape.tech/graphql-armor-max-depth": "^2.4.0",
+    "@graphql-tools/schema": "^10.0.23",
+    "erxes-api-shared": "workspace:^",
+    "graphql-parse-resolve-info": "^4.14.1",
+    "graphql-ws": "^5.16.0",
+    "http-proxy-middleware": "^3.0.3",
+    "jsonwebtoken": "^9.0.2",
+    "ws": "^8.18.2",
+    "yaml": "^2.7.0"
   },
   "devDependencies": {}
 }

@@ -13,15 +13,15 @@ export const AddVats = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add Vat
+          НӨАТ нэмэх
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none">
         <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-          <Sheet.Title>Add Vat</Sheet.Title>
+          <Sheet.Title>НӨАТ нэмэх</Sheet.Title>
           <Sheet.Close />
           <Sheet.Description className="sr-only">
-            Add a new vat
+            НӨАТ нэмэх
           </Sheet.Description>
         </Sheet.Header>
         <Sheet.Content className="overflow-hidden flex-auto">

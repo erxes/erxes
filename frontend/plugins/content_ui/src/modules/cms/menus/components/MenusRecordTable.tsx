@@ -32,16 +32,18 @@ export const MenusRecordTable = ({
     <RecordTable.Provider
       columns={columns}
       data={menus}
-      className="m-3 pb-1"
+      className="h-full m-3 pb-1"
       stickyColumns={['more', 'checkbox', 'label']}
     >
-      <RecordTable>
-        <RecordTable.Header />
-        <RecordTable.Body>
-          {loading && <RecordTable.RowSkeleton rows={10} />}
-          <RecordTable.RowList />
-        </RecordTable.Body>
-      </RecordTable>
+      <RecordTable.Scroll>
+        <RecordTable>
+          <RecordTable.Header />
+          <RecordTable.Body>
+            {loading && <RecordTable.RowSkeleton rows={10} />}
+            <RecordTable.RowList />
+          </RecordTable.Body>
+        </RecordTable>
+      </RecordTable.Scroll>
       <MenusCommandBar onBulkDelete={handleBulkDelete} />
     </RecordTable.Provider>
   );

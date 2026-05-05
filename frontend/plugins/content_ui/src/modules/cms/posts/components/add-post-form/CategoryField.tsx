@@ -13,9 +13,7 @@ export const CategoryField = ({
   categories,
   websiteId,
 }: CategoryFieldProps) => {
-  const sortedCategories = [...(categories || [])].sort((a, b) =>
-    (a?.label || '').localeCompare(b?.label || ''),
-  );
+  const options = categories || [];
   const {
     newCategoryName,
     setNewCategoryName,
@@ -36,10 +34,10 @@ export const CategoryField = ({
           <Form.Control>
             <div className="flex gap-2">
               <MultipleSelector
-                value={sortedCategories.filter((o) =>
+                value={options.filter((o) =>
                   (field.value || []).includes(o.value),
                 )}
-                options={sortedCategories}
+                options={options}
                 placeholder="Select"
                 hidePlaceholderWhenSelected={true}
                 emptyIndicator="Empty"

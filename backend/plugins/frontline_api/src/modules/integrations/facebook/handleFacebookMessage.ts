@@ -18,7 +18,17 @@ export const handleFacebookMessage = async (
   const { action, payload } = msg;
   const doc = JSON.parse(payload || '{}');
   if (doc.internal) {
-    return models.ConversationMessages.addMessage(doc, doc.userId);
+    const conversation = await models.FacebookConversations.getConversation({
+      erxesApiId: doc.conversationId
+    });
+
+    return models.FacebookConversationMessages.addMessage(
+      {
+        ...doc,
+        conversationId: conversation._id
+      },
+      doc.userId
+    );
   }
   if (action === 'reply-post') {
     const { conversationId, content = '', attachments = [], userId } = doc;

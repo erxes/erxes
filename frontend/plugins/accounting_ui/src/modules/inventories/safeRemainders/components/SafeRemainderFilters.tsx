@@ -34,10 +34,10 @@ const SafeRemainderFilterPopover = () => {
                   <IconCalendar />
                   Date
                 </Filter.Item>
-                <SelectBranches.FilterItem value="branchId" label="Branch" />
+                <SelectBranches.FilterItem value="branchId" label="Салбар" />
                 <SelectDepartments.FilterItem
                   value="departmentId"
-                  label="Department"
+                  label="Хэлтэс"
                 />
                 <Filter.Item value="statuses" disabled={true}>
                   <IconToggleRightFilled />
@@ -47,11 +47,11 @@ const SafeRemainderFilterPopover = () => {
                 <Command.Separator className="my-1" />
                 <SelectMember.FilterItem
                   value="createdUserId"
-                  label="Created by"
+                  label="Үүсгэсэн"
                 />
                 <SelectMember.FilterItem
                   value="modifiedUserId"
-                  label="Modified by"
+                  label="Өөрчилсөн"
                 />
                 <Filter.Item value="updatedDate" inDialog>
                   <IconCalendar />
@@ -134,24 +134,24 @@ export const SafeRemainderFilter = ({
           <Filter.Date filterKey="date" />
         </Filter.BarItem>
         <SelectBranches.FilterBar
-          label="Branch"
+          label="Салбар"
           filterKey="branchId"
           mode="single"
         />
         <SelectDepartments.FilterBar
-          label="Department"
+          label="Хэлтэс"
           filterKey="departmentId"
           mode="single"
         />
 
         <SelectMember.FilterBar
           queryKey="createdUserId"
-          label="Created By"
+          label="Үүсгэсэн"
           mode="single"
         />
         <SelectMember.FilterBar
           queryKey="modifiedUserId"
-          label="Modified By"
+          label="Өөрчилсөн"
           mode="single"
         />
         <Filter.BarItem queryKey="createdDate">

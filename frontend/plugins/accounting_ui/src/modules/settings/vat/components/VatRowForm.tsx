@@ -1,5 +1,11 @@
 import { UseFormReturn } from 'react-hook-form';
-import { TVatRowForm, VatKind, VatStatus } from '../types/VatRow';
+import {
+  TVatRowForm,
+  VatKind,
+  VAT_KIND_LABELS,
+  VatStatus,
+  VAT_STATUS_LABELS,
+} from '../types/VatRow';
 import {
   Button,
   Checkbox,
@@ -33,7 +39,7 @@ export const VatRowForm = ({
           name="number"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Number</Form.Label>
+              <Form.Label>Дугаар</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -46,7 +52,7 @@ export const VatRowForm = ({
           name="name"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Name</Form.Label>
+              <Form.Label>Нэр</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -59,17 +65,17 @@ export const VatRowForm = ({
           name="kind"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Kind</Form.Label>
+              <Form.Label>Төрөл</Form.Label>
               <Select value={field.value} onValueChange={field.onChange}>
                 <Form.Control>
                   <Select.Trigger>
-                    <Select.Value placeholder="Select a kind" />
+                    <Select.Value placeholder="Төрөл сонгох" />
                   </Select.Trigger>
                 </Form.Control>
                 <Select.Content>
                   {Object.values(VatKind).map((kind) => (
                     <Select.Item key={kind} value={kind} className="capitalize">
-                      {kind}
+                      {VAT_KIND_LABELS[kind]}
                     </Select.Item>
                   ))}
                 </Select.Content>
@@ -82,7 +88,7 @@ export const VatRowForm = ({
           name="percent"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Percent</Form.Label>
+              <Form.Label>Хувь</Form.Label>
               <Form.Control>
                 <Input
                   value={field.value}
@@ -99,12 +105,12 @@ export const VatRowForm = ({
           name="status"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Status</Form.Label>
+              <Form.Label>Төлөв</Form.Label>
 
               <Select value={field.value} onValueChange={field.onChange}>
                 <Form.Control>
                   <Select.Trigger>
-                    <Select.Value placeholder="Select a status" />
+                    <Select.Value placeholder="Төлөв сонгох" />
                   </Select.Trigger>
                 </Form.Control>
                 <Select.Content>
@@ -114,7 +120,7 @@ export const VatRowForm = ({
                       value={status}
                       className="capitalize"
                     >
-                      {status}
+                      {VAT_STATUS_LABELS[status]}
                     </Select.Item>
                   ))}
                 </Select.Content>
@@ -127,7 +133,7 @@ export const VatRowForm = ({
           name="tabCount"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Tab Count</Form.Label>
+              <Form.Label>Доголын тоо</Form.Label>
               <Form.Control>
                 <Input
                   type="number"
@@ -150,18 +156,18 @@ export const VatRowForm = ({
                   onCheckedChange={field.onChange}
                 />
               </Form.Control>
-              <Form.Label variant="peer">Is Bold</Form.Label>
+              <Form.Label variant="peer">Тод бичих</Form.Label>
             </Form.Item>
           )}
         />
         <Sheet.Footer className="col-span-2 mt-3 gap-2">
           <Sheet.Close asChild>
             <Button variant="outline" size="lg">
-              Cancel
+              Болих
             </Button>
           </Sheet.Close>
           <Button type="submit" disabled={loading} size="lg">
-            {loading ? <Spinner /> : 'Submit'}
+            {loading ? <Spinner /> : 'Хадгалах'}
           </Button>
         </Sheet.Footer>
       </form>

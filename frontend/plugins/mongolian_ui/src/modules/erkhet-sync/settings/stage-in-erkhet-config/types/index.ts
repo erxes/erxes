@@ -16,6 +16,7 @@ export interface ErkhetConfig {
   хаанБанкданс: string;
   голомтБанкданс: string;
   barter: string;
+  paymentTypes?: Record<string, string>;
 }
 
 export type TErkhetConfig = z.infer<typeof addStageInErkhetConfigSchema>;

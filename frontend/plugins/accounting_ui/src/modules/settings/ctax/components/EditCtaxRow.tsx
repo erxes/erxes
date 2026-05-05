@@ -25,10 +25,10 @@ export const EditCtaxRow = () => {
     >
       <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none">
         <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-          <Sheet.Title>Edit Ctax Row</Sheet.Title>
+          <Sheet.Title>НХАТ-ын мөр засах</Sheet.Title>
           <Sheet.Close />
           <Sheet.Description className="sr-only">
-            Edit an ctax row
+            НХАТ-ын мөр засах
           </Sheet.Description>
         </Sheet.Header>
         <Sheet.Content className="overflow-hidden flex-auto">

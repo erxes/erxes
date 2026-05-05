@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Form, Upload, Spinner, readImage } from 'erxes-ui';
 import { IconTrash, IconUpload } from '@tabler/icons-react';
 import { Control } from 'react-hook-form';
-import { isFieldVisible } from '@/pos/constants';
 import type { AppearanceFormData } from './Appearance';
 
 interface LogosAndFaviconProps {
@@ -158,15 +157,11 @@ const ImageUploadField = ({
 
 export const LogosAndFavicon: React.FC<LogosAndFaviconProps> = ({
   control,
-  posType,
 }) => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-4 gap-4">
         {imageFields
-          .filter((configField) =>
-            isFieldVisible(configField.configKey, posType),
-          )
           .map((configField) => (
             <ImageUploadField
               key={configField.key}

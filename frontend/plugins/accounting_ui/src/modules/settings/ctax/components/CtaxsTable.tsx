@@ -93,7 +93,7 @@ export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = [
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <RecordTable.InlineHead label="Number" />,
+    header: () => <RecordTable.InlineHead label="Дугаар" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },
@@ -102,7 +102,7 @@ export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
+    header: () => <RecordTable.InlineHead label="Нэр" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },
@@ -111,7 +111,7 @@ export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = [
   {
     id: 'kind',
     accessorKey: 'kind',
-    header: () => <RecordTable.InlineHead label="Kind" />,
+    header: () => <RecordTable.InlineHead label="Төрөл" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },
@@ -119,7 +119,7 @@ export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="Status" />,
+    header: () => <RecordTable.InlineHead label="Төлөв" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },
@@ -127,7 +127,7 @@ export const ctaxRowsColumns: ColumnDef<ICtaxRow>[] = [
   {
     id: 'percent',
     accessorKey: 'percent',
-    header: () => <RecordTable.InlineHead label="Percent" />,
+    header: () => <RecordTable.InlineHead label="Хувь" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },

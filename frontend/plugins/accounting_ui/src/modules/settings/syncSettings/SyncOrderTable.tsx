@@ -1,21 +1,17 @@
 import { ColumnDef } from '@tanstack/table-core';
-import {
-  ITextFieldContainerProps,
-  RecordTable,
-  TextField,
-} from 'erxes-ui';
+import { ITextFieldContainerProps, RecordTable, TextField } from 'erxes-ui';
 import { useAccountingConfigs } from '../hooks/useAccountingConfigs';
 import { IConfig } from '../types/Config';
 import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
 
 export const SettingSyncOrderTable = () => {
-  const { configs } = useAccountingConfigs({ variables: { code: ACCOUNTING_SETTINGS_CODES.SYNC_ORDER } });
+  const { configs } = useAccountingConfigs({
+    variables: { code: ACCOUNTING_SETTINGS_CODES.SYNC_ORDER },
+  });
   return (
     <RecordTable.Provider
       columns={columns}
-      data={
-        configs || []
-      }
+      data={configs || []}
       stickyColumns={['more', 'checkbox', 'code']}
     >
       <RecordTable>
@@ -49,13 +45,11 @@ const AccountTextField = ({
 
 export const columns: ColumnDef<IConfig & { hasChildren: boolean }>[] = [
   // accountCategoryMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<
-    IConfig & { hasChildren: boolean }
-  >,
+  RecordTable.checkboxColumn as ColumnDef<IConfig & { hasChildren: boolean }>,
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="Code" />,
+    header: () => <RecordTable.InlineHead label="Код" />,
     cell: ({ cell }) => {
       return (
         <AccountTextField
@@ -70,7 +64,7 @@ export const columns: ColumnDef<IConfig & { hasChildren: boolean }>[] = [
   {
     id: 'title',
     accessorKey: 'title',
-    header: () => <RecordTable.InlineHead label="Title" />,
+    header: () => <RecordTable.InlineHead label="Гарчиг" />,
     cell: ({ cell }) => {
       return (
         <AccountTextField
@@ -85,7 +79,7 @@ export const columns: ColumnDef<IConfig & { hasChildren: boolean }>[] = [
   {
     id: 'description',
     accessorKey: 'description',
-    header: () => <RecordTable.InlineHead label="Description" />,
+    header: () => <RecordTable.InlineHead label="Тайлбар" />,
     cell: ({ cell }) => {
       return (
         <AccountTextField
@@ -98,4 +92,3 @@ export const columns: ColumnDef<IConfig & { hasChildren: boolean }>[] = [
     size: 300,
   },
 ];
-

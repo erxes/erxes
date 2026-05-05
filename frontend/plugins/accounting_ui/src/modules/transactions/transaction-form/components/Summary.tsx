@@ -53,10 +53,10 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
 
   const handleDelete = () =>
     confirm({
-      message: 'Are you sure you want to delete these transactions?',
+      message: 'Эдгээр гүйлгээг устгах уу?',
       options: {
-        okLabel: 'Delete',
-        cancelLabel: 'Cancel',
+        okLabel: 'Устгах',
+        cancelLabel: 'Болих',
       },
     }).then(() => {
       if (!parentId) {
@@ -69,7 +69,7 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
   return (
     <div className="flex justify-end items-center col-span-2 xl:col-span-3 gap-6">
       <div className="flex items-center gap-2 text-sm">
-        <span className="text-accent-foreground">Sum Debit:</span>
+        <span className="text-accent-foreground">Дебет дүн:</span>
         <span className="text-primary font-bold">
           <CurrencyFormatedDisplay
             currencyValue={{
@@ -80,7 +80,7 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
         </span>
       </div>
       <div className="flex items-center gap-2 text-sm">
-        <span className="text-accent-foreground">Sum Credit:</span>
+        <span className="text-accent-foreground">Кредит дүн:</span>
         <span className="text-primary font-bold">
           <CurrencyFormatedDisplay
             currencyValue={{
@@ -103,7 +103,7 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
       </div>
       <Button type="submit">
         <IconGavel />
-        Save
+        Хадгалах
       </Button>
       <Button
         variant="secondary"
@@ -111,7 +111,7 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
         onClick={handleDelete}
       >
         <IconTrashX />
-        {`Delete`}
+        {`Устгах`}
       </Button>
     </div>
   );

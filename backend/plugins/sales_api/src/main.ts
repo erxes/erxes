@@ -16,6 +16,7 @@ import {
   TGetExportHeadersInput,
 } from 'erxes-api-shared/core-modules';
 import { posExportHandlers } from './modules/pos/meta/export/exportHandlers';
+import { permissions } from '~/meta/permissions';
 
 startPlugin({
   name: 'sales',
@@ -67,6 +68,65 @@ startPlugin({
       ],
     },
     notifications,
+    payments: {
+      transactionCallback: async (subdomain, data) => {
+        // TODO: implement transaction callback if necessary
+      },
+      callback: async ({ subdomain }, data) => {
+        const {
+          status,
+          contentType,
+          contentTypeId,
+          amount = 0,
+          _id,
+          currency,
+        } = data;
+
+        if (contentType !== 'sales:deal') {
+          return;
+        }
+        if (status !== 'paid') {
+          return;
+        }
+
+        const models = await generateModels(subdomain);
+        const deal = await models.Deals.getDeal(contentTypeId);
+        const oldPaymentsData = deal.paymentsData || {};
+        const bankData = oldPaymentsData.bank || { info: {} };
+
+        bankData.info = bankData.info || {};
+
+        const oldInfo = (bankData.info.invoices || []).find(
+          (invoice) => invoice._id === _id,
+        );
+        const newAmount =
+          (bankData.amount || 0) - (oldInfo?.amount || 0) + amount;
+
+        bankData.amount = newAmount <= 0 ? 0 : newAmount;
+        bankData.currency = currency || 'MNT';
+        bankData.info.invoices = [
+          ...(bankData.info.invoices || []).filter(
+            (invoice) => invoice._id !== _id,
+          ),
+          {
+            _id,
+            amount,
+          },
+        ];
+
+        await models.Deals.updateOne(
+          { _id: contentTypeId },
+          {
+            $set: {
+              paymentsData: {
+                ...oldPaymentsData,
+                bank: bankData,
+              },
+            },
+          },
+        );
+      },
+    },
     afterProcess,
     importExport: {
       export: {
@@ -81,6 +141,7 @@ startPlugin({
         ],
       },
     },
+    permissions,
   } as any,
   importExport: {
     export: {

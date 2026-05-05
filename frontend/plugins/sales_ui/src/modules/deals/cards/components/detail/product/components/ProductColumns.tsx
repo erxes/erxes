@@ -35,9 +35,17 @@ export const productColumns: ColumnDef<IProductData>[] = [
       <RecordTable.InlineHead icon={IconLabel} label="Product/Service" />
     ),
     cell: ({ cell }) => {
+      const product = cell.row.original.product;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <div className="flex gap-1.5 items-center min-w-0">
+            {product?.code && (
+              <span className="font-mono text-xs bg-muted border rounded px-1 text-muted-foreground shrink-0">
+                {product.code}
+              </span>
+            )}
+            <TextOverflowTooltip value={product?.name ?? ''} />
+          </div>
         </RecordTableInlineCell>
       );
     },

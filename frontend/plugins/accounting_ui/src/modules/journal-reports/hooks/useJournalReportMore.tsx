@@ -1,7 +1,12 @@
 import { OperationVariables, useQuery } from '@apollo/client';
 import { JOURNAL_REPORT_MORE_QUERY } from '../graphql/reportQueries';
 import { useJouranlReportVariables } from './useJournalReportVars';
-import { EnumCursorDirection, IRecordTableCursorPageInfo, mergeCursorData, validateFetchMore } from 'erxes-ui';
+import {
+  EnumCursorDirection,
+  IRecordTableCursorPageInfo,
+  mergeCursorData,
+  validateFetchMore,
+} from 'erxes-ui';
 import { ACC_TRS__PER_PAGE } from '~/modules/transactions/types/constants';
 
 export const useJournalReportMore = (options?: OperationVariables) => {
@@ -19,18 +24,14 @@ export const useJournalReportMore = (options?: OperationVariables) => {
     ...options,
     variables: {
       ...options?.variables,
-      ...variables
+      ...variables,
     },
     skip: !isMore,
   });
 
   const { trDetails, pageInfo } = data?.journalReportMore || {};
 
-  const loopFetchMore = ({
-    direction,
-  }: {
-    direction: EnumCursorDirection;
-  }) => {
+  const loopFetchMore = ({ direction }: { direction: EnumCursorDirection }) => {
     if (
       !validateFetchMore({
         direction,

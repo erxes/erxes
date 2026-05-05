@@ -24,7 +24,7 @@ export const useSafeRemainderAdd = (options?: OperationVariables) => {
       onCompleted: () => {
         toast({
           title: 'Success',
-          description: 'Adjust Inventory created successfully',
+          description: 'Safe Remainder created successfully',
         });
         options?.onCompleted();
       },

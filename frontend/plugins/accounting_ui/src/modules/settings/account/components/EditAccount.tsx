@@ -26,10 +26,10 @@ export const EditAccount = () => {
     >
       <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none">
         <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-          <Sheet.Title>Edit Account</Sheet.Title>
+          <Sheet.Title>Данс засах</Sheet.Title>
           <Sheet.Close />
           <Sheet.Description className="sr-only">
-            Edit Account Details
+            Данс засах
           </Sheet.Description>
         </Sheet.Header>
         <Sheet.Content className="overflow-hidden flex-auto">

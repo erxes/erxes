@@ -12,6 +12,7 @@ interface IConversationProgressChart {
       new: number;
       open: number;
       closed: number;
+      resolved: number;
     }[];
   };
 }

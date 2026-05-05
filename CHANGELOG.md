@@ -1,5 +1,38 @@
 
 
+## [3.0.20](https://github.com/erxes/erxes/compare/3.0.19...3.0.20) (2026-04-30)
+
+
+### Bug Fixes
+
+* **accounting:** products remainder recalc remainder params ([#7574](https://github.com/erxes/erxes/issues/7574)) ([4d98874](https://github.com/erxes/erxes/commit/4d98874cb701061cb7016c368f00273b0d9a200f))
+* **accounting:** translate to only mongolia ([#7580](https://github.com/erxes/erxes/issues/7580)) ([7d5c53a](https://github.com/erxes/erxes/commit/7d5c53a8d24e68c3ec7031489a40be75ab9358ff))
+* **frontline:** type and fix conversationProgress API and UI  ([60929bc](https://github.com/erxes/erxes/commit/60929bc6fcccb5041f1d4669d4c6e47ab01f5221))
+
+
+### Features
+
+* **accounting:** remainder detail ([#7576](https://github.com/erxes/erxes/issues/7576)) ([b5b316a](https://github.com/erxes/erxes/commit/b5b316a54f2cb04c0cc3f925bbbb5ab2f4461e25))
+
+## [3.0.19](https://github.com/erxes/erxes/compare/3.0.18...3.0.19) (2026-04-30)
+
+
+### Bug Fixes
+
+* **accounting:** follow transaction state up and sub table hotkeys fix ([#7573](https://github.com/erxes/erxes/issues/7573)) ([1421729](https://github.com/erxes/erxes/commit/1421729b70421ab8984c0631c0636ac4791f6537))
+* **accounting:** table hotkey ([df97a0a](https://github.com/erxes/erxes/commit/df97a0a8ca01734ffec00bb4e5d3d72c92c2f727))
+* forms-widget css ([#7568](https://github.com/erxes/erxes/issues/7568)) ([f76c0cf](https://github.com/erxes/erxes/commit/f76c0cf53d0082275367764bfb661b6799b5b63d))
+* **frontline:** fix createdBy null on widget ticket and internal message conversation mismatch  ([e56e0c9](https://github.com/erxes/erxes/commit/e56e0c9bb03267f456c2c766043eed2155a3f776))
+* **frontline:** fix customer state incorrectly set to lead when creating messenger tickets  ([36d5812](https://github.com/erxes/erxes/commit/36d581273e93fc7c829c6ae009410b262f020f18))
+* **frontline:** skip channel query when channelId is undefined and add fields to ConversationMemberProgress  ([73e9d76](https://github.com/erxes/erxes/commit/73e9d766ae354cd1a13e140aa5f141053649bc59))
+* logic of customfieldsMap for content ([#7563](https://github.com/erxes/erxes/issues/7563)) ([4ba02bc](https://github.com/erxes/erxes/commit/4ba02bc4e7bf60d43b34773f669c45f4cbfa07ce))
+* **loyalty:** clean up pricing rule and options ui ([#7561](https://github.com/erxes/erxes/issues/7561)) ([559d8e6](https://github.com/erxes/erxes/commit/559d8e6968cee4e30f0640514ee2b42de99e3e03))
+
+
+### Features
+
+* enhance products form on deal, and some improve([#7558](https://github.com/erxes/erxes/issues/7558)) ([fa22b22](https://github.com/erxes/erxes/commit/fa22b2226e80bf14fe53744ab25301e2c78b2bce))
+
 ## [3.0.18](https://github.com/erxes/erxes/compare/3.0.17...3.0.18) (2026-04-28)
 
 

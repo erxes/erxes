@@ -12,6 +12,7 @@ export const stageMutations = {
     { orders }: { orders: IOrderInput[] },
     { models }: IContext,
   ) {
+    // No permission check required
     return models.Stages.updateOrder(orders);
   },
 
@@ -21,8 +22,9 @@ export const stageMutations = {
   async salesStagesEdit(
     _root,
     { _id, ...doc }: IStageDocument,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('stagesEdit');
     return await models.Stages.updateStage(_id, doc);
   },
 
@@ -32,8 +34,9 @@ export const stageMutations = {
   async salesStagesRemove(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('stagesRemove');
     return await models.Stages.removeStage(_id);
   },
 
@@ -48,8 +51,10 @@ export const stageMutations = {
       processId: string;
       sortType: string;
     },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('itemsSort');
+
     const sortTypes = {
       'created-asc': { createdAt: 1 },
       'created-desc': { createdAt: -1 },

@@ -179,7 +179,7 @@ export function TopicDrawer({
   return (
     <Sheet open={isOpen} onOpenChange={(open: boolean) => !open && onClose()}>
       <Sheet.View className="sm:max-w-lg p-0 flex flex-col h-full">
-        <Sheet.Header className="border-b gap-3 flex-shrink-0">
+        <Sheet.Header className="border-b gap-3 shrink-0">
           <Sheet.Title>{isEditing ? 'Edit Topic' : 'New Topic'}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
@@ -187,7 +187,7 @@ export function TopicDrawer({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex-1 overflow-y-auto p-4 space-y-4 bg-white"
+            className="flex-1 overflow-y-auto p-4 space-y-4 bg-background"
           >
             <Form.Field
               control={form.control}
@@ -367,7 +367,7 @@ export function TopicDrawer({
           </form>
         </Form>
 
-        <div className="border-t gap-3 p-4 bg-white flex-shrink-0 flex justify-end">
+        <div className="border-t gap-3 p-4 bg-background shrink-0 flex justify-end">
           <Button
             type="button"
             onClick={onClose}
@@ -386,8 +386,8 @@ export function TopicDrawer({
                 ? 'Saving...'
                 : 'Creating...'
               : isEditing
-                ? 'Save Changes'
-                : 'Create Topic'}
+              ? 'Save Changes'
+              : 'Create Topic'}
           </Button>
         </div>
       </Sheet.View>

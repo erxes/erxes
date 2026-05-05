@@ -49,7 +49,7 @@ export const TR_JOURNAL_LABELS = {
   [TrJournalEnum.INV_SALE_RETURN_OUT]: 'Б.Буцаалт-зарлага',
   [TrJournalEnum.INV_SALE_RETURN_COST]: 'Б.Буцаалт-ББӨ',
 
-  [TrJournalEnum.FIXED_ASSET]: 'Fixed Asset',
+  [TrJournalEnum.FIXED_ASSET]: 'Үндсэн хөрөнгө',
 };
 
 export const TR_PERFECT_JOURNALS = [TrJournalEnum.INV_MOVE];
@@ -65,7 +65,7 @@ export const ORIGIN_TR_JOURNALS = [
   TrJournalEnum.INV_MOVE,
   TrJournalEnum.INV_SALE,
   TrJournalEnum.INV_SALE_RETURN,
-]
+];
 
 export const TR_SIDES = {
   DEBIT: 'dt' as const,
@@ -73,24 +73,24 @@ export const TR_SIDES = {
   ALL: ['dt', 'ct'],
   ENUM: { DT: 'dt', CT: 'ct' } as const,
   OPTIONS: [
-    { value: 'dt', label: 'debit' },
-    { value: 'ct', label: 'credit' },
+    { value: 'dt', label: 'Дебет' },
+    { value: 'ct', label: 'Кредит' },
   ],
   FUND_OPTIONS: [
-    { value: 'dt', label: 'incoming' },
-    { value: 'ct', label: 'outgoing' },
+    { value: 'dt', label: 'Орлого' },
+    { value: 'ct', label: 'Зарлага' },
   ],
   RECEIVABLE_OPTIONS: [
-    { value: 'dt', label: 'open' },
-    { value: 'ct', label: 'close' },
+    { value: 'dt', label: 'Үүсгэх' },
+    { value: 'ct', label: 'Хаах' },
   ],
   PAYABLE_OPTIONS: [
-    { value: 'dt', label: 'close' },
-    { value: 'ct', label: 'open' },
+    { value: 'dt', label: 'Хаах' },
+    { value: 'ct', label: 'Үүсгэх' },
   ],
 };
 
 export const INV_INCOME_EXPENSE_TYPES = [
-  { value: 'amount', label: 'Amount' },
-  { value: 'count', label: 'Count' },
+  { value: 'amount', label: 'Дүн' },
+  { value: 'count', label: 'Тоо' },
 ];

@@ -1,6 +1,7 @@
 import { ChartContainer } from 'erxes-ui';
 import { CartesianGrid, XAxis, YAxis, AreaChart, Area } from 'recharts';
 import { useConversationProgressChart } from '@/inbox/conversations/conversation-detail/hooks/useConversationProgressChart';
+import { CONVERSATION_STATUS_COLORS } from '@/inbox/conversations/conversation-detail/constants/conversationStatusColors';
 import { format, parseISO, endOfDay, subDays, isAfter } from 'date-fns';
 
 interface IProgressChartProps {
@@ -15,11 +16,7 @@ export const ProgressChart = ({ customerId }: IProgressChartProps) => {
   const rawData = conversationProgressChart?.chartData || [];
   const totalScopeValue = conversationProgressChart?.total || 0;
 
-  const statusColors = {
-    new: 'var(--gray)',
-    open: 'var(--warning)',
-    closed: 'var(--primary)',
-  };
+  const statusColors = CONVERSATION_STATUS_COLORS;
 
   const chartConfig = {
     new: { label: 'New', color: statusColors.new },
@@ -49,6 +46,7 @@ export const ProgressChart = ({ customerId }: IProgressChartProps) => {
     new: 0,
     open: 0,
     closed: 0,
+    resolved: 0,
   });
 
   return (

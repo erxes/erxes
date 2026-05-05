@@ -7,7 +7,7 @@ import { Button, Form, Input } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router';
-import { SelectBrand } from 'ui-modules';
+import { SelectBrands } from 'ui-modules';
 import { z } from 'zod';
 import {
   activeFacebookFormStepAtom,
@@ -108,11 +108,9 @@ export const FacebookIntegrationSetup = () => {
                 <Form.Item>
                   <Form.Label>Brand</Form.Label>
                   <Form.Control>
-                    <SelectBrand
+                    <SelectBrands.FormItem
                       value={field.value}
                       onValueChange={field.onChange}
-                      placeholder="Select a brand"
-                      className="w-full h-10 rounded-lg border bg-background"
                     />
                   </Form.Control>
                   <Form.Description>

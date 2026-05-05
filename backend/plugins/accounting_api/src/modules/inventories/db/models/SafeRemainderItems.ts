@@ -2,10 +2,10 @@ import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '~/connectionResolvers';
 import { SAFE_REMAINDER_STATUSES } from '../../@types/constants';
-import { IRemainderParams } from '../../@types/remainders';
 import {
   ISafeRemainderItemDocument,
   ISafeRemainderItem,
+  IRemainderParams,
 } from '../../@types/safeRemainderItems';
 import { safeRemainderItemSchema } from '../definitions/safeRemainderItems';
 

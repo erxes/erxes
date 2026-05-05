@@ -11,9 +11,12 @@ export interface IProduct {
   categoryId: string;
   category?: IProductCategory;
   tagIds: string[];
+  branchId?: string;
+  departmentId?: string;
   uom: string;
   type: 'product' | 'service' | 'unique' | 'subscription';
   currency: CurrencyCode;
+  remainder: any;
 }
 export interface IBundleRuleItem {
   code: string;

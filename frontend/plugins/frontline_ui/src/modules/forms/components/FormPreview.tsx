@@ -314,6 +314,11 @@ export const FormPreviewContent = ({
                         return (
                           <ErxesFormItem span={erxesField.span}>
                             <Form.Label>{erxesField.label}</Form.Label>
+                            {erxesField.description && (
+                              <Form.Description>
+                                {erxesField.description}
+                              </Form.Description>
+                            )}
                             <Form.Control>
                               <RadioGroup
                                 value={field.value}
@@ -334,11 +339,6 @@ export const FormPreviewContent = ({
                                 })}
                               </RadioGroup>
                             </Form.Control>
-                            {erxesField.description && (
-                              <Form.Description>
-                                {erxesField.description}
-                              </Form.Description>
-                            )}
                             <Form.Message />
                           </ErxesFormItem>
                         );
@@ -348,12 +348,17 @@ export const FormPreviewContent = ({
                         return (
                           <ErxesFormItem span={erxesField.span}>
                             <Form.Label>{erxesField.label}</Form.Label>
+                            {erxesField.description && (
+                              <Form.Description>
+                                {erxesField.description}
+                              </Form.Description>
+                            )}
                             <div className="flex flex-col gap-2">
                               {erxesField.options.map((option) => {
                                 if (!option) return null;
                                 const checked = (
                                   field.value as string[]
-                                ).includes(option);
+                                )?.includes(option);
                                 return (
                                   <label
                                     key={option}
@@ -362,7 +367,8 @@ export const FormPreviewContent = ({
                                     <Checkbox
                                       checked={checked}
                                       onCheckedChange={(isChecked) => {
-                                        const current = field.value as string[];
+                                        const current =
+                                          (field.value as string[]) || [];
                                         field.onChange(
                                           isChecked
                                             ? [...current, option]
@@ -377,11 +383,6 @@ export const FormPreviewContent = ({
                                 );
                               })}
                             </div>
-                            {erxesField.description && (
-                              <Form.Description>
-                                {erxesField.description}
-                              </Form.Description>
-                            )}
                             <Form.Message />
                           </ErxesFormItem>
                         );

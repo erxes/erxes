@@ -1,12 +1,12 @@
 export const SETTINGS_ROUTES = {
-  '/settings/accounting': 'Main settings',
-  '/settings/accounting/accounts': 'Accounts',
-  '/settings/accounting/account-categories': 'Account categories',
-  '/settings/accounting/vat-rows': 'VAT Rows',
-  '/settings/accounting/ctax-rows': 'CTAX Rows',
-  '/settings/accounting/sync-deal': 'Sync Deal',
-  '/settings/accounting/sync-deal-return': 'Sync Deal Return',
-  '/settings/accounting/sync-order': 'Sync Order',
+  '/settings/accounting': 'Үндсэн тохиргоо',
+  '/settings/accounting/accounts': 'Данс',
+  '/settings/accounting/account-categories': 'Дансны ангилал',
+  '/settings/accounting/vat-rows': 'НӨАТ-ын мөр',
+  '/settings/accounting/ctax-rows': 'НХАТ-ын мөр',
+  '/settings/accounting/sync-deal': 'Deal синк',
+  '/settings/accounting/sync-deal-return': 'Deal буцаалтын синк',
+  '/settings/accounting/sync-order': 'Захиалгын синк',
 };
 
 export enum ACCOUNTING_SETTINGS_CODES {

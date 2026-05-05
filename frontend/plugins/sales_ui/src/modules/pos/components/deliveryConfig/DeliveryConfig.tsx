@@ -4,7 +4,6 @@ import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { Stage } from '@/pos/components/deliveryConfig/Stage';
 import { DealUsers } from '@/pos/components/deliveryConfig/DealUsers';
-import { isFieldVisible } from '@/pos/constants';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import { cleanData } from '@/pos/utils/cleanData';
@@ -134,9 +133,6 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
     return () => onSaveActionChange(null);
   }, [isDirty, onSaveActionChange, saving]);
 
-  const canShowStage = isFieldVisible('deliveryAutomation', posType);
-  const canShowDealUsers = isFieldVisible('deliveryProduct', posType);
-
   const renderContent = () => {
     if (detailLoading) {
       return (
@@ -184,27 +180,19 @@ const DeliveryConfig: React.FC<DeliveryConfigProps> = ({
           onSubmit={handleSubmit(handleSaveChanges)}
           className="space-y-8"
         >
-          {canShowStage && (
-            <section className="space-y-4">
-              <Label>Stage</Label>
-              <Stage control={control} />
-            </section>
-          )}
+          <section className="space-y-4">
+            <Label>Stage</Label>
+            <Stage control={control} />
+          </section>
 
-          {canShowDealUsers && (
-            <section className="pt-6 space-y-4 border-t">
-              <Label>Deal Users</Label>
-              <DealUsers control={control} />
-            </section>
-          )}
+          <section className="pt-6 space-y-4 border-t">
+            <Label>Deal Users</Label>
+            <DealUsers control={control} />
+          </section>
         </form>
       </Form>
     );
   };
-
-  if (!canShowStage && !canShowDealUsers) {
-    return null;
-  }
 
   return (
     <div className="p-6">

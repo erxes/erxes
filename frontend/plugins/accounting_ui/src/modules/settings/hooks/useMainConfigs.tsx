@@ -5,23 +5,20 @@ import { TMainConfig } from '../types/Config';
 export const useMainConfigs = () => {
   const { data, loading, error } = useQuery<{
     accountingsConfigsByCode: TMainConfig;
-  }>(
-    CONFIGS_BY_CODE,
-    {
-      variables: {
-        codes: [
-          'MainCurrency',
-          'HasVat',
-          'VatPayableAccount',
-          'VatReceivableAccount',
-          'VatAfterPayableAccount',
-          'VatAfterReceivableAccount',
-          'HasCtax',
-          'CtaxPayableAccount',
-        ]
-      },
-    }
-  );
+  }>(CONFIGS_BY_CODE, {
+    variables: {
+      codes: [
+        'MainCurrency',
+        'HasVat',
+        'VatPayableAccount',
+        'VatReceivableAccount',
+        'VatAfterPayableAccount',
+        'VatAfterReceivableAccount',
+        'HasCtax',
+        'CtaxPayableAccount',
+      ],
+    },
+  });
 
   const { accountingsConfigsByCode } = data || {};
 

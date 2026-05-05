@@ -82,7 +82,7 @@ export const afterMutationHandlers = async (
     method: 'query',
     module: 'pipeline',
     action: 'findOne',
-    input: { stageId: destinationStageId },
+    input: { stageId: destinationStageId, fields: { paymentTypes: 1 } },
     defaultValue: {},
   });
 

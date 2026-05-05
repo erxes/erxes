@@ -12,6 +12,12 @@ export function buildFlatTree<T extends RawMenuItem>(
   const addChildren = (parentId: string | null, depth: number) => {
     items
       .filter((item) => (item.parentId || null) === parentId)
+      .sort((a, b) =>
+        a.label.localeCompare(b.label, undefined, {
+          numeric: true,
+          sensitivity: 'base',
+        }),
+      )
       .forEach((item) => {
         result.push({ ...item, depth });
         addChildren(item._id, depth + 1);
@@ -22,7 +28,6 @@ export function buildFlatTree<T extends RawMenuItem>(
 }
 
 export function getDepthPrefix(depth: number): string {
-  if (depth === 0) return '';
-  if (depth === 1) return '- ';
-  return '-- ';
+  if (depth <= 0) return '';
+  return '-'.repeat(depth) + ' ';
 }

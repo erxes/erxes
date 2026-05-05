@@ -1,6 +1,6 @@
 import { IIntegrationDetail } from '@/integrations/types/Integration';
 import { IconTool } from '@tabler/icons-react';
-import { toast } from 'erxes-ui';
+import { Spinner, toast } from 'erxes-ui';
 import { CellContext } from '@tanstack/react-table';
 import { useIgIntegrationsRepair } from '../hooks/useIgIntegrationsRepair';
 
@@ -23,11 +23,7 @@ export const InstagramIntegrationRepair = ({ cell }: Props) => {
 
   return (
     <div onClick={handleRepair} className="flex items-center gap-2 w-full">
-      {loading ? (
-        <div className="w-4 h-4 animate-spin rounded-full border-2 border-gray-300 border-t-pink-600" />
-      ) : (
-        <IconTool size={16} />
-      )}
+      {loading ? <Spinner className="size-4" /> : <IconTool size={16} />}
       Repair
     </div>
   );

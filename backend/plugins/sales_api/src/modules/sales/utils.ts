@@ -1200,3 +1200,44 @@ export const itemsAdd = async (
 
   return item;
 };
+export const PERMISSION_MAP = {
+  deal: {
+    dealsAdd: 'dealsAdd',
+    dealsEdit: 'dealsEdit',
+    dealsRemove: 'dealsRemove',
+    dealsWatch: 'dealsWatch',
+    dealsArchive: 'dealsArchive',
+    dealsCopy: 'dealsAdd', 
+    dealsCreateProductsData: 'dealsEdit',
+    dealsEditProductData: 'dealsEdit',
+    dealsDeleteProductData: 'dealsEdit',
+  },
+  board: {
+    boardsAdd: 'boardsAdd',
+    boardsEdit: 'boardsEdit',
+    boardsRemove: 'boardsRemove',
+    pipelinesAdd: 'pipelinesAdd',
+    pipelinesEdit: 'pipelinesEdit',
+    pipelinesWatch: 'pipelinesWatch',
+    stagesEdit: 'stagesEdit',
+    stagesRemove: 'stagesRemove',
+    itemsSort: 'itemsSort',
+    updateTimeTracking: 'updateTimeTracking',
+  },
+  checklist: {
+    checklistsAdd: 'checklistsAdd',
+    checklistsEdit: 'checklistsEdit',
+    checklistsRemove: 'checklistsRemove',
+  },
+  pipelineLabel: {
+    pipelineLabelsAdd: 'pipelineLabelsAdd',
+    pipelineLabelsEdit: 'pipelineLabelsEdit',
+    pipelineLabelsRemove: 'pipelineLabelsRemove',
+  },
+  pipelineTemplate: {
+    templatesAdd: 'templatesAdd',
+    templatesEdit: 'templatesEdit',
+    templatesRemove: 'templatesRemove',
+    showTemplates: 'showTemplates',
+  },
+};

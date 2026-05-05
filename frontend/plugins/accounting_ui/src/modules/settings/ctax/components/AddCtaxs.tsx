@@ -13,15 +13,15 @@ export const AddCtaxs = () => {
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
-          Add Ctax
+          НХАТ нэмэх
         </Button>
       </Sheet.Trigger>
       <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none">
         <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-          <Sheet.Title>Add Ctax</Sheet.Title>
+          <Sheet.Title>НХАТ нэмэх</Sheet.Title>
           <Sheet.Close />
           <Sheet.Description className="sr-only">
-            Add a new ctax
+            НХАТ нэмэх
           </Sheet.Description>
         </Sheet.Header>
         <Sheet.Content className="overflow-hidden flex-auto">

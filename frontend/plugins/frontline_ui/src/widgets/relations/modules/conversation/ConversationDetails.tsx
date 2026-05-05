@@ -41,6 +41,7 @@ export const ConversationRelationDetails = ({
     variables: {
       id: channelId,
     },
+    skip: !channelId,
   });
 
   const handleOpen = (open: boolean) => {

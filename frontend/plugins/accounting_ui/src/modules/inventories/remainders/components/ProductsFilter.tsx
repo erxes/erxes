@@ -274,16 +274,16 @@ export const ProductsFilter = () => {
           </Filter.View>
         </Filter.Dialog>
         <Filter.SearchValueBarItem />
-        <SelectCategoriesFilterBar filterKey="categoryIds" label="Category" />
+        <SelectCategoriesFilterBar filterKey="categoryIds" label="Ангилал" />
         <SelectBranches.FilterBar
           mode="single"
           filterKey="branchId"
-          label="Branch"
+          label="Салбар"
         />
         <SelectDepartments.FilterBar
           mode="single"
           filterKey="departmentId"
-          label="Department"
+          label="Хэлтэс"
         />
         <ProductsTotalCount />
       </Filter.Bar>
@@ -301,14 +301,11 @@ export const ProductsFilterPopover = () => {
             <Filter.CommandInput placeholder="Filter" variant="secondary" />
             <Command.List className="p-1">
               <Filter.SearchValueTrigger />
-              <SelectCategoriesFilterItem
-                value="categoryIds"
-                label="Category"
-              />
-              <SelectBranches.FilterItem value="branchId" label="Branch" />
+              <SelectCategoriesFilterItem value="categoryIds" label="Ангилал" />
+              <SelectBranches.FilterItem value="branchId" label="Салбар" />
               <SelectDepartments.FilterItem
                 value="departmentId"
-                label="Department"
+                label="Хэлтэс"
               />
             </Command.List>
           </Command>
