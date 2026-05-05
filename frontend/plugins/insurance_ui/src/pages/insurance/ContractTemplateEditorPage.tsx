@@ -364,24 +364,7 @@ export const ContractTemplateEditorPage = () => {
                     </label>
                     <div className="border rounded-md p-4 bg-gray-50 overflow-auto max-h-[600px]">
                       <iframe
-                        srcDoc={sanitizeContractHtml(
-                          template
-                            .replaceAll('{{contractNumber}}', 'INS2026010001')
-                            .replaceAll(
-                              '{{vendorName}}',
-                              'Sample Insurance LLC',
-                            )
-                            .replaceAll('{{customerName}}', 'John Smith')
-                            .replaceAll('{{registrationNumber}}', 'AB12345678')
-                            .replaceAll('{{insuranceType}}', 'Car Insurance')
-                            .replaceAll(
-                              '{{productName}}',
-                              'Standard Insurance',
-                            )
-                            .replaceAll('{{startDate}}', 'January 20, 2026')
-                            .replaceAll('{{endDate}}', 'January 20, 2027')
-                            .replaceAll('{{chargedAmount}}', '1,500,000'),
-                        )}
+                        srcDoc={sanitizeContractHtml(buildPreviewHtml())}
                         sandbox=""
                         className="w-full h-[800px] bg-white border-0"
                         title="Template Preview"

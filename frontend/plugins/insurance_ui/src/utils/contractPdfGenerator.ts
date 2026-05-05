@@ -2,7 +2,8 @@ import DOMPurify from 'dompurify';
 
 const SANITIZE_OPTS = { ADD_TAGS: ['style'] } as const;
 // FORCE_BODY makes DOMPurify keep <style> in a body fragment instead of
-// hoisting it to a head it then discards.
+// hoisting it to a head it then discards. Available since DOMPurify 1.x;
+// the workspace pins ^3.2.4 in package.json, so the option is stable.
 const STYLE_SANITIZE_OPTS = { ADD_TAGS: ['style'], FORCE_BODY: true } as const;
 
 // HTML5 spec says <title> and <style> are raw-text elements — their content
