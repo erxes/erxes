@@ -1,5 +1,29 @@
 import DOMPurify from 'dompurify';
 
+/**
+ * Sanitizes user-edited contract template HTML and returns a complete document
+ * safe to render in a new window or iframe. Uses DOMPurify in fragment mode
+ * (WHOLE_DOCUMENT defaults to false) to address SonarCloud rule
+ * typescript:S8479; <style> tags are explicitly allowed so contract layouts
+ * survive sanitization.
+ */
+export function sanitizeContractHtml(html: string): string {
+  const fragment = DOMPurify.sanitize(html, { ADD_TAGS: ['style'] });
+  return `<!DOCTYPE html><html lang="mn"><head><meta charset="UTF-8"></head><body>${fragment}</body></html>`;
+}
+
+/**
+ * Opens sanitized contract HTML in a new window via a Blob URL. Replaces the
+ * deprecated `document.write(...)` API (SonarCloud rule typescript:S1874).
+ */
+export function openSanitizedContractWindow(html: string): Window | null {
+  const blob = new Blob([sanitizeContractHtml(html)], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, '_blank');
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  return win;
+}
+
 interface Contract {
   contractNumber: string;
   paymentStatus: string;
@@ -320,21 +344,12 @@ function generateContractHTML(contract: Contract): string {
 }
 
 export function generateContractPDF(contract: Contract): void {
-  // Create a new window for printing
-  const printWindow = window.open('', '_blank');
+  const printWindow = openSanitizedContractWindow(generateContractHTML(contract));
 
   if (!printWindow) {
     alert('Popup блоклогдсон байна. Popup зөвшөөрнө үү.');
     return;
   }
-
-  // Write HTML to the new window
-  printWindow.document.write(
-    DOMPurify.sanitize(generateContractHTML(contract), {
-      WHOLE_DOCUMENT: true,
-    }),
-  );
-  printWindow.document.close();
 
   // Wait for content to load, then trigger print
   printWindow.onload = () => {

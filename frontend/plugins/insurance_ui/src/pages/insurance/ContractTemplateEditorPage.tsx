@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import DOMPurify from 'dompurify';
 import {
   IconFileText,
   IconEye,
@@ -10,6 +9,7 @@ import {
 } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator, Card, Alert } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
+import { openSanitizedContractWindow } from '~/utils/contractPdfGenerator';
 
 // Default template that will be used for all contracts
 const DEFAULT_TEMPLATE = `<!DOCTYPE html>
@@ -217,15 +217,8 @@ export const ContractTemplateEditorPage = () => {
     }
   };
 
-  const handlePreview = () => {
-    const previewWindow = window.open('', '_blank');
-    if (!previewWindow) {
-      alert('Popup блоклогдсон байна. Popup зөвшөөрнө үү.');
-      return;
-    }
-
-    // Replace placeholders with sample data for preview
-    const previewHtml = template
+  const buildPreviewHtml = () =>
+    template
       .replaceAll('{{contractNumber}}', 'INS2026010001')
       .replaceAll('{{vendorName}}', 'Монгол Даатгал ХХК')
       .replaceAll('{{customerName}}', 'Бат Болд')
@@ -236,34 +229,19 @@ export const ContractTemplateEditorPage = () => {
       .replaceAll('{{endDate}}', '2027 оны 1-р сарын 20')
       .replaceAll('{{chargedAmount}}', '1,500,000');
 
-    previewWindow.document.write(
-      DOMPurify.sanitize(previewHtml, { WHOLE_DOCUMENT: true }),
-    );
-    previewWindow.document.close();
+  const handlePreview = () => {
+    const previewWindow = openSanitizedContractWindow(buildPreviewHtml());
+    if (!previewWindow) {
+      alert('Popup блоклогдсон байна. Popup зөвшөөрнө үү.');
+    }
   };
 
   const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
+    const printWindow = openSanitizedContractWindow(buildPreviewHtml());
     if (!printWindow) {
       alert('Popup блоклогдсон байна. Popup зөвшөөрнө үү.');
       return;
     }
-
-    const previewHtml = template
-      .replaceAll('{{contractNumber}}', 'INS2026010001')
-      .replaceAll('{{vendorName}}', 'Монгол Даатгал ХХК')
-      .replaceAll('{{customerName}}', 'Бат Болд')
-      .replaceAll('{{registrationNumber}}', 'УБ12345678')
-      .replaceAll('{{insuranceType}}', 'Автомашины даатгал')
-      .replaceAll('{{productName}}', 'Стандарт даатгал')
-      .replaceAll('{{startDate}}', '2026 оны 1-р сарын 20')
-      .replaceAll('{{endDate}}', '2027 оны 1-р сарын 20')
-      .replaceAll('{{chargedAmount}}', '1,500,000');
-
-    printWindow.document.write(
-      DOMPurify.sanitize(previewHtml, { WHOLE_DOCUMENT: true }),
-    );
-    printWindow.document.close();
     printWindow.onload = () => {
       printWindow.focus();
       printWindow.print();

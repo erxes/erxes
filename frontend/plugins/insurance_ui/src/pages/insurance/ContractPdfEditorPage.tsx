@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import DOMPurify from 'dompurify';
 import { useParams } from 'react-router-dom';
 import {
   IconFileText,
@@ -12,7 +11,10 @@ import {
 import { Breadcrumb, Button, Separator, Card, Skeleton } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { useContract } from '~/modules/insurance/hooks';
-import { generateContractHTML } from '~/utils/contractPdfGenerator';
+import {
+  generateContractHTML,
+  openSanitizedContractWindow,
+} from '~/utils/contractPdfGenerator';
 import { useMutation, gql } from '@apollo/client';
 
 const SAVE_CONTRACT_PDF = gql`
@@ -60,27 +62,18 @@ export const ContractPdfEditorPage = () => {
   };
 
   const handlePreview = () => {
-    const previewWindow = window.open('', '_blank');
+    const previewWindow = openSanitizedContractWindow(htmlContent);
     if (!previewWindow) {
       alert('Popup blocked. Please allow popups.');
-      return;
     }
-    previewWindow.document.write(
-      DOMPurify.sanitize(htmlContent, { WHOLE_DOCUMENT: true }),
-    );
-    previewWindow.document.close();
   };
 
   const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
+    const printWindow = openSanitizedContractWindow(htmlContent);
     if (!printWindow) {
       alert('Popup blocked. Please allow popups.');
       return;
     }
-    printWindow.document.write(
-      DOMPurify.sanitize(htmlContent, { WHOLE_DOCUMENT: true }),
-    );
-    printWindow.document.close();
     printWindow.onload = () => {
       printWindow.focus();
       printWindow.print();

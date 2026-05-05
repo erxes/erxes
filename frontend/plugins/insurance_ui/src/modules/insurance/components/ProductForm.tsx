@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import DOMPurify from 'dompurify';
 import { Dialog, Button, Label, Input, Select } from 'erxes-ui';
 import { IconEye, IconPlus, IconX } from '@tabler/icons-react';
 import {
@@ -10,7 +9,10 @@ import {
   useRegions,
 } from '../hooks';
 import { InsuranceProduct } from '../types';
-import { getDefaultPdfTemplate } from '~/utils/contractPdfGenerator';
+import {
+  getDefaultPdfTemplate,
+  openSanitizedContractWindow,
+} from '~/utils/contractPdfGenerator';
 
 interface ProductFormProps {
   open: boolean;
@@ -545,17 +547,9 @@ export const ProductForm = ({
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      const previewWindow = window.open('', '_blank');
-                      if (previewWindow) {
-                        previewWindow.document.write(
-                          DOMPurify.sanitize(formData.pdfContent, {
-                            WHOLE_DOCUMENT: true,
-                          }),
-                        );
-                        previewWindow.document.close();
-                      }
-                    }}
+                    onClick={() =>
+                      openSanitizedContractWindow(formData.pdfContent)
+                    }
                   >
                     <IconEye size={16} />
                     Preview
