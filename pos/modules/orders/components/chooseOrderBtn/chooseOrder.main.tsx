@@ -41,6 +41,11 @@ const ChooseOrder = ({
             {(number || "").split("_")[1]}
             {slotCode && ` (${slotCode})`}
             {origin === "kiosk" && "*"}
+            {origin === "qr" && (
+              <span className="ml-1 rounded bg-white/30 px-1 py-0.5 text-[9px] font-extrabold leading-none">
+                QR
+              </span>
+            )}
             {activeOrder === _id && (
               <span className="absolute -right-2 -top-2  rounded-full border-2 border-white bg-inherit p-1 text-white">
                 <CheckIcon className="h-3 w-3" strokeWidth={4} />
@@ -51,6 +56,7 @@ const ChooseOrder = ({
         <TooltipContent>
           <p>
             {(number || "").split("_")[0]} {status}
+            {origin === "qr" && " · QR Self Order"}
           </p>
         </TooltipContent>
       </Tooltip>

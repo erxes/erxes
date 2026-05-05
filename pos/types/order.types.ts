@@ -46,7 +46,7 @@ export type IOrderType =
 
 export type IBillType = "1" | "3" | "9" | null
 
-export type IOrigin = "" | "kiosk"
+export type IOrigin = "" | "kiosk" | "qr"
 
 export interface IOrderCommon {
   totalAmount: number
