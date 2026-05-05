@@ -707,8 +707,9 @@ export const syncOrderFromClient = async ({
 }) => {
   const oldOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
   const oldBranchId = oldOrder ? oldOrder.branchId : '';
+  const enabledMN = await isEnabled('mongolian')
 
-  if (await isEnabled('mongolian')) {
+  if (enabledMN) {
     const putResponses = responses?.filter(resp => resp._id).map(resp => ({ ...resp, posToken }));
 
     if (putResponses?.length) {
@@ -847,18 +848,18 @@ export const syncOrderFromClient = async ({
     // }
   }
 
-  const syncedResponseIds = (
+  const syncedResponseIds = enabledMN ? (
     (await sendTRPCMessage({
       subdomain,
       pluginName: 'mongolian',
-      module: 'putresponses',
+      module: 'putResponses',
       action: 'find',
       input: {
         query: { _id: { $in: (responses || []).map((resp) => resp._id) } },
       },
       defaultValue: [],
     })) || []
-  ).map((r) => r._id);
+  ).map((r) => r._id) : [];
 
   // return info saved
   await sendPosclientMessage({
