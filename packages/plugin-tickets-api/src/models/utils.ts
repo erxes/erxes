@@ -688,14 +688,15 @@ export const updateName = async (
           const pattern = match.replace("{", "").replace("}", "").split(".");
 
           if (serviceName === "date") {
-            replacedName = replacedName?.replace(match, new Date().toISOString().slice(0, 10));
+            const local = new Date(Date.now() + 8 * 60 * 60 * 1000);
+            replacedName = replacedName?.replace(match, local.toISOString().slice(0, 10));
             continue;
           }
 
           if (serviceName === "time") {
-            const now = new Date();
-            const hh = String(now.getHours()).padStart(2, "0");
-            const mm = String(now.getMinutes()).padStart(2, "0");
+            const local = new Date(Date.now() + 8 * 60 * 60 * 1000);
+            const hh = String(local.getUTCHours()).padStart(2, "0");
+            const mm = String(local.getUTCMinutes()).padStart(2, "0");
             replacedName = replacedName?.replace(match, `${hh}:${mm}`);
             continue;
           }

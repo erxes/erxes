@@ -260,6 +260,7 @@ const init = async (app) => {
         if (hasMultipleCustomers) {
           conversationPayload.callProPotentialCustomerIds =
             callProPotentialCustomerIds;
+          conversationPayload.callProPhone = numberFrom;
         } else {
           conversationPayload.customerId = customer.erxesApiId;
         }

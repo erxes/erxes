@@ -53,6 +53,7 @@ const CallPro: React.FC<Props> = ({ conversation }) => {
     callProAudio,
     customerId,
     callProPotentialCustomerIds = [],
+    callProPhone,
   } = conversation;
 
   const [selectCustomer, { loading: selecting }] = useMutation(
@@ -134,7 +135,7 @@ const CallPro: React.FC<Props> = ({ conversation }) => {
     if (!hasPotentialCustomers) return null;
     if (potentialLoading) return <Spinner />;
     const candidates: CallProCandidate[] = potentialData?.customers || [];
-    const phone = conversation.content;
+    const phone = callProPhone || candidates[0]?.primaryPhone;
 
     return (
       <CustomerPickerWrapper>
