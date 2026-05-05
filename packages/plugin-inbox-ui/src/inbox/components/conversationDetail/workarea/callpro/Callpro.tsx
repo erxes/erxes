@@ -130,19 +130,23 @@ const CallPro: React.FC<Props> = ({ conversation }) => {
     </CustomerList>
   );
 
-  if (hasPotentialCustomers) {
+  const renderPotentialCustomerPicker = () => {
+    if (!hasPotentialCustomers) return null;
     if (potentialLoading) return <Spinner />;
     const candidates: CallProCandidate[] = potentialData?.customers || [];
+    const phone = conversation.content;
 
     return (
       <CustomerPickerWrapper>
         <Info>
-          {__("Multiple customers found for this phone number. Select the caller:")}
+          {phone
+            ? `${__("Confirm or Switch Customer")} — ${phone}`
+            : __("Confirm or Switch Customer")}
         </Info>
         {renderCandidatePicker(candidates)}
       </CustomerPickerWrapper>
     );
-  }
+  };
 
   const groupConversationsByTags = (convs: any[]) => {
     const grouped: any = {};
@@ -540,7 +544,8 @@ const CallPro: React.FC<Props> = ({ conversation }) => {
       <audio controls>
         <source src={callProAudio} type="audio/ogg" />
       </audio>
-      {renderConversationGroups()}
+      {renderPotentialCustomerPicker()}
+      {!hasPotentialCustomers && renderConversationGroups()}
     </>
   );
 };
