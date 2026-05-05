@@ -47,7 +47,12 @@ export function sanitizeContractHtml(html: string): string {
     STYLE_BLOCK,
   );
   const sanitizedBody = DOMPurify.sanitize(stripped, SANITIZE_OPTS);
-  return `<!DOCTYPE html><html lang="mn"><head><meta charset="UTF-8">${styleBlocks}</head><body>${sanitizedBody}</body></html>`;
+  // Inherit lang from the host document so non-Mongolian deployments still
+  // get accessible text (screen readers, font selection). Falls back to 'mn'
+  // because that's the canonical erxes deployment locale.
+  const lang =
+    (typeof document !== 'undefined' && document.documentElement.lang) || 'mn';
+  return `<!DOCTYPE html><html lang="${lang}"><head><meta charset="UTF-8">${styleBlocks}</head><body>${sanitizedBody}</body></html>`;
 }
 
 /**
@@ -80,7 +85,8 @@ export function openSanitizedContractWindow(
     { once: true },
   );
   // Fallback in case the popup never fires `load` (e.g. user closes early).
-  setTimeout(() => URL.revokeObjectURL(url), 300_000);
+  // Kept short so a flurry of preview clicks can't accumulate live blobs.
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
   return win;
 }
 

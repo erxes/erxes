@@ -547,9 +547,14 @@ export const ProductForm = ({
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() =>
-                      openSanitizedContractWindow(formData.pdfContent)
-                    }
+                    onClick={() => {
+                      const win = openSanitizedContractWindow(
+                        formData.pdfContent,
+                      );
+                      if (!win) {
+                        alert('Popup blocked. Please allow popups.');
+                      }
+                    }}
                   >
                     <IconEye size={16} />
                     Preview
