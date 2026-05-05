@@ -13,6 +13,22 @@ const TITLE_BLOCK = /<title\b[^>]*>[\s\S]*?<\/title>/gi;
 const STYLE_BLOCK = /<style\b[^>]*>[\s\S]*?<\/style>/gi;
 
 /**
+ * Strips every match of `pattern` from `html`, repeating until the result is
+ * stable. A single replace pass can leave a fresh match exposed when blocks
+ * are nested or interleaved (`<sty<style>x</style>le>`), which trips CodeQL's
+ * js/incomplete-multi-character-sanitization rule.
+ */
+function stripUntilStable(html: string, pattern: RegExp): string {
+  let prev = html;
+  let next = html.replace(pattern, '');
+  while (next !== prev) {
+    prev = next;
+    next = next.replace(pattern, '');
+  }
+  return next;
+}
+
+/**
  * Sanitizes a user-edited contract template and returns a complete document
  * safe to render in a new window or iframe. Uses DOMPurify in fragment mode
  * (WHOLE_DOCUMENT defaults to false) to address SonarCloud rule
@@ -26,7 +42,10 @@ export function sanitizeContractHtml(html: string): string {
   const styleBlocks = (html.match(STYLE_BLOCK) || [])
     .map((style) => DOMPurify.sanitize(style, STYLE_SANITIZE_OPTS))
     .join('');
-  const stripped = html.replace(TITLE_BLOCK, '').replace(STYLE_BLOCK, '');
+  const stripped = stripUntilStable(
+    stripUntilStable(html, TITLE_BLOCK),
+    STYLE_BLOCK,
+  );
   const sanitizedBody = DOMPurify.sanitize(stripped, SANITIZE_OPTS);
   return `<!DOCTYPE html><html lang="mn"><head><meta charset="UTF-8">${styleBlocks}</head><body>${sanitizedBody}</body></html>`;
 }
