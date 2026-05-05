@@ -109,9 +109,11 @@ export const PricingOptionSchema = z.object({
 /* ================= GUIDE ================= */
 
 const GuideSchema = z.object({
-  guideId: z.string(),
-  name: z.string().optional(),
+  guideId: z.string().min(1, 'Team member is required'),
+  type: z.string().min(1, 'Role is required'),
 });
+
+export type GuideFormValue = z.infer<typeof GuideSchema>;
 
 /* ================= MAIN SCHEMA ================= */
 
