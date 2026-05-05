@@ -1,27 +1,34 @@
 import DOMPurify from 'dompurify';
 
 const SANITIZE_OPTS = { ADD_TAGS: ['style'] } as const;
+// FORCE_BODY makes DOMPurify keep <style> in a body fragment instead of
+// hoisting it to a head it then discards.
+const STYLE_SANITIZE_OPTS = { ADD_TAGS: ['style'], FORCE_BODY: true } as const;
 
-// HTML5 spec says <title> is a raw-text element — its content cannot contain
-// other tags — so a regex is sufficient and avoids reading from a parsed DOM
-// (which would trip CodeQL's js/xss-through-dom rule when the result is later
-// reinterpreted as HTML).
+// HTML5 spec says <title> and <style> are raw-text elements — their content
+// cannot contain other tags — so a regex is sufficient and avoids reading
+// from a parsed DOM (which would trip CodeQL's js/xss-through-dom rule when
+// the result is later reinterpreted as HTML).
 const TITLE_BLOCK = /<title\b[^>]*>[\s\S]*?<\/title>/gi;
+const STYLE_BLOCK = /<style\b[^>]*>[\s\S]*?<\/style>/gi;
 
 /**
  * Sanitizes a user-edited contract template and returns a complete document
  * safe to render in a new window or iframe. Uses DOMPurify in fragment mode
  * (WHOLE_DOCUMENT defaults to false) to address SonarCloud rule
- * typescript:S8479. The <title> block is stripped beforehand because
- * DOMPurify's KEEP_CONTENT default would otherwise leak the title text into
- * the rendered body once the wrapping <head> is dropped.
+ * typescript:S8479. <style> blocks are extracted up-front and sanitized with
+ * FORCE_BODY so they survive in the rebuilt <head> — fragment mode otherwise
+ * drops everything outside <body>, leaving the preview unstyled. The <title>
+ * block is stripped beforehand because DOMPurify's KEEP_CONTENT default
+ * would otherwise leak the title text into the rendered body.
  */
 export function sanitizeContractHtml(html: string): string {
-  const sanitized = DOMPurify.sanitize(
-    html.replace(TITLE_BLOCK, ''),
-    SANITIZE_OPTS,
-  );
-  return `<!DOCTYPE html><html lang="mn"><head><meta charset="UTF-8"></head><body>${sanitized}</body></html>`;
+  const styleBlocks = (html.match(STYLE_BLOCK) || [])
+    .map((style) => DOMPurify.sanitize(style, STYLE_SANITIZE_OPTS))
+    .join('');
+  const stripped = html.replace(TITLE_BLOCK, '').replace(STYLE_BLOCK, '');
+  const sanitizedBody = DOMPurify.sanitize(stripped, SANITIZE_OPTS);
+  return `<!DOCTYPE html><html lang="mn"><head><meta charset="UTF-8">${styleBlocks}</head><body>${sanitizedBody}</body></html>`;
 }
 
 /**
