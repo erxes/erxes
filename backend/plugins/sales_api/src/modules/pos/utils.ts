@@ -266,9 +266,8 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
       (marker.latitude || marker.lat)
     ) {
       pushInfo.addresses = {
-        id: `${marker.longitude || marker.lng}_${
-          marker.latitude || marker.lat
-        }`,
+        id: `${marker.longitude || marker.lng}_${marker.latitude || marker.lat
+          }`,
         location: {
           type: 'Point',
           coordinates: [
@@ -317,9 +316,8 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     name: `Delivery: ${doneOrder.number}`,
     startDate: doneOrder.createdAt,
     closeDate: doneOrder.dueDate,
-    description: `<p>${doneOrder.description || ''}</p> <p>${
-      description || ''
-    }</p>`,
+    description: `<p>${doneOrder.description || ''}</p> <p>${description || ''
+      }</p>`,
     stageId: deliveryConfig.stageId,
     assignedUserIds: deliveryConfig.assignedUserIds,
     watchedUserIds: deliveryConfig.watchedUserIds,
@@ -497,8 +495,9 @@ export const statusToDone = async ({
     if (toPos) {
       await sendPosclientMessage({
         subdomain,
-        action: 'erxes-posclient-to-pos-api',
-        data: {
+        method: 'mutation',
+        action: 'syncOrderFromPos',
+        input: {
           order: {
             ...doneOrder,
             posToken: doneOrder.posToken,
@@ -795,8 +794,9 @@ export const syncOrderFromClient = async ({
     if (toPos) {
       await sendPosclientMessage({
         subdomain,
-        action: 'erxes-posclient-to-pos-api',
-        data: {
+        method: 'mutation',
+        action: 'syncOrderFromPos',
+        input: {
           order: {
             ...newOrder,
             convertDealId,
@@ -821,8 +821,8 @@ export const syncOrderFromClient = async ({
       if (toCancelPos) {
         await sendPosclientMessage({
           subdomain,
-          action: 'erxes-posclient-to-pos-api-remove',
-          data: {
+          action: 'syncOrderFromPosRemove',
+          input: {
             order: { ...newOrder, posToken, subToken: toCancelPos.token },
           },
           pos: toCancelPos,
@@ -862,8 +862,9 @@ export const syncOrderFromClient = async ({
   // return info saved
   await sendPosclientMessage({
     subdomain,
+    method: 'mutation',
     action: `updateSynced`,
-    data: {
+    input: {
       status: 'ok',
       posToken,
       responseIds: syncedResponseIds,

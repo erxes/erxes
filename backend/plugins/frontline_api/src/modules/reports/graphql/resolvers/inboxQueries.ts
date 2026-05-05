@@ -112,14 +112,13 @@ export const reportInboxQueries = {
       {
         $match: {
           customerId,
-          memberIds: { $exists: true, $ne: [] },
+          assignedUserId: { $exists: true, $ne: null },
           status: { $in: statuses },
         },
       },
-      { $unwind: '$memberIds' },
       {
         $group: {
-          _id: { assigneeId: '$memberIds', status: '$status' },
+          _id: { assigneeId: '$assignedUserId', status: '$status' },
           count: { $sum: 1 },
         },
       },
@@ -167,7 +166,7 @@ export const reportInboxQueries = {
 
     const facet: Record<string, any[]> = {};
 
-    statuses.forEach((status) => {
+  statuses.forEach((status) => {
       facet[status.toLowerCase()] = [
         { $match: { status } },
 
@@ -205,17 +204,17 @@ export const reportInboxQueries = {
         { $sort: { count: -1 } },
       ];
     });
-
-    return models.Conversations.aggregate([
+    const result = await models.Conversations.aggregate([
       {
         $match: {
           customerId,
-          memberIds: { $ne: null },
           status: { $in: statuses },
         },
       },
       { $facet: facet },
     ]);
+
+    return result[0] ?? { new: [], open: [], closed: [], resolved: [] };
   },
 
   async conversationTagProgress(
@@ -262,17 +261,18 @@ export const reportInboxQueries = {
       ];
     });
 
-    return models.Conversations.aggregate([
+    const result = await models.Conversations.aggregate([
       {
         $match: {
           customerId,
-          memberIds: { $ne: null },
           status: { $in: statuses },
           tagIds: { $exists: true, $not: { $size: 0 } },
         },
       },
       { $facet: facet },
     ]);
+
+    return result[0] ?? { new: [], open: [], closed: [], resolved: [] };
   },
 
   async reportConversationOpenDate(

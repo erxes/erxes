@@ -28,11 +28,15 @@ export function Channels() {
       <div className="overflow-hidden h-full px-8 flex flex-col">
         <div className="bg-sidebar size-full border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
           <div className="size-full flex flex-col items-center justify-center">
-            <IconBrandTrello size={64} stroke={1.5} className="text-gray-300" />
-            <h2 className="text-lg font-semibold text-gray-600">
+            <IconBrandTrello
+              size={64}
+              stroke={1.5}
+              className="text-muted-foreground"
+            />
+            <h2 className="text-lg font-semibold text-accent-foreground">
               No channels found
             </h2>
-            <p className="text-md text-gray-500 mb-4">
+            <p className="text-md text-muted-foreground mb-4">
               Create a channel to start organizing your team.
             </p>
           </div>

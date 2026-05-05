@@ -86,7 +86,7 @@ const genStock = (detail, product, config) => {
     name: product.shortName || `${product.code} - ${product.name}`,
     barCode,
     barCodeType,
-    classificationCode: config.defaultGSCode,
+    classificationCode: config.defaultUnitedCode,
     taxProductCode: product.taxCode,
     measureUnit: product.uom ?? 'ш',
     qty: detail.quantity,

@@ -21,8 +21,8 @@ export const EditAccountingConfig = ({
       onOpenChange={() => setOpen(null)}
     >
       <AccountingDialog
-        title="Edit Sync Config"
-        description="Edit an config"
+        title="Синк тохиргоо засах"
+        description="Синк тохиргоо засах"
         className="max-w-4xl"
       >
         <EditAccountingConfigForm code={code} />
@@ -62,7 +62,7 @@ export const EditAccountingConfigForm = ({
   }, [configValueDetail, reset]);
 
   if (!rule) {
-    return <div>Unknown config type </div>;
+    return <div>Тохиргооны төрөл тодорхойгүй байна</div>;
   }
 
   const { subIdFieldName, FormComponent } = SettingsRuleByCode[code] || {};

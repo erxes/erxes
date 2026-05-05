@@ -48,6 +48,7 @@ export interface LeadData {
   contactsGathered: number;
   appearance: string;
   primaryColor: string;
+  loadType?: string;
   steps: Record<string, { name: string; description: string; order: number }>;
   rules: IRule[];
 }

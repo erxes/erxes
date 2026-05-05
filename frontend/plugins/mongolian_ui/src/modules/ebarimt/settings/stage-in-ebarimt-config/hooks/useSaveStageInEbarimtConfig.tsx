@@ -2,12 +2,15 @@ import { useMutation } from '@apollo/client';
 import {
   CREATE_MN_CONFIG,
   UPDATE_MN_CONFIG,
+  GET_MN_CONFIGS,
 } from '@/ebarimt/settings/stage-in-ebarimt-config/graphql/queries/mnConfigs';
 import { useToast } from 'erxes-ui';
 
+const refetchOptions = [{ query: GET_MN_CONFIGS, variables: { code: 'stageInEbarimt' } }];
+
 export const useSaveStageInEbarimtConfig = () => {
-  const [createConfig] = useMutation(CREATE_MN_CONFIG);
-  const [updateConfig] = useMutation(UPDATE_MN_CONFIG);
+  const [createConfig] = useMutation(CREATE_MN_CONFIG, { refetchQueries: refetchOptions });
+  const [updateConfig] = useMutation(UPDATE_MN_CONFIG, { refetchQueries: refetchOptions });
   const toast = useToast();
 
   const saveStageInEbarimtConfig = async (

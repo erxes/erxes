@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Combobox,
   Command,
@@ -23,19 +23,20 @@ export const SelectCategory = React.forwardRef<
 >(({ onSelect, selected, id, open, setOpen, ...props }, ref) => {
   const [_open, _setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<IProductCategory>();
-  const { productCategories, error, loading } = useProductCategories({
-    onCompleted: ({
-      productCategories,
-    }: {
-      productCategories: IProductCategory[];
-    }) => {
+  const { productCategories, error, loading } = useProductCategories();
+
+  useEffect(() => {
+    if (!selected) {
+      setSelectedCategory(undefined);
+      return;
+    }
+    if (productCategories) {
       setSelectedCategory(
-        productCategories?.find(
-          (category: IProductCategory) => category._id === selected,
-        ),
+        productCategories.find((c: IProductCategory) => c._id === selected),
       );
-    },
-  });
+    }
+  }, [selected, productCategories]);
+
   const handleSelect = (categoryId: string) => {
     const category = productCategories?.find(
       (category: IProductCategory) => category._id === categoryId,

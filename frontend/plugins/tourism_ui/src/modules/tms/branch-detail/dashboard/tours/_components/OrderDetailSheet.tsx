@@ -158,14 +158,14 @@ export const OrderDetailSheet = ({
     : [];
 
   const [statusValue, setStatusValue] = useState('pending');
-  const [noteValue, setNoteValue] = useState('');
+  const [internalNoteValue, setInternalNoteValue] = useState('');
   const [validationError, setValidationError] = useState<string | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const initialEditStatus = TERMINAL_ORDER_STATUSES.has(order?.status || '')
     ? (order?.status ?? '')
     : '';
-  const initialEditNote = order?.note || '';
+  const initialEditInternalNote = order?.internalNote || '';
   const hasLoadedOrder = Boolean(order?._id);
   const isBusy = updating || saving;
   const missingOrderMessage = error
@@ -174,9 +174,9 @@ export const OrderDetailSheet = ({
 
   useEffect(() => {
     setStatusValue(initialEditStatus);
-    setNoteValue(initialEditNote);
+    setInternalNoteValue(initialEditInternalNote);
     setValidationError(null);
-  }, [initialEditNote, initialEditStatus, order?._id, open]);
+  }, [initialEditInternalNote, initialEditStatus, order?._id, open]);
 
   useEffect(() => {
     if (!open || !order?._id) {
@@ -186,7 +186,8 @@ export const OrderDetailSheet = ({
   }, [open, order?._id]);
 
   const isDirty =
-    statusValue !== initialEditStatus || noteValue !== initialEditNote;
+    statusValue !== initialEditStatus ||
+    internalNoteValue !== initialEditInternalNote;
   const hasSelectedStatus = Boolean(statusValue);
   const handleSheetOpenChange = (nextOpen: boolean) => {
     if (!nextOpen && isBusy) {
@@ -209,7 +210,7 @@ export const OrderDetailSheet = ({
 
     if (open) {
       setStatusValue(initialEditStatus);
-      setNoteValue(initialEditNote);
+      setInternalNoteValue(initialEditInternalNote);
     }
 
     setValidationError(null);
@@ -218,7 +219,7 @@ export const OrderDetailSheet = ({
   const handleSave = async () => {
     if (!orderId || !order?._id || !isDirty) return;
 
-    const trimmedNote = noteValue.trim();
+    const trimmedInternalNote = internalNoteValue.trim();
     if (!statusValue) {
       setValidationError('Please select a terminal status before saving');
       return;
@@ -226,7 +227,7 @@ export const OrderDetailSheet = ({
 
     const requiresExplanation = TERMINAL_ORDER_STATUSES.has(statusValue);
 
-    if (requiresExplanation && !trimmedNote) {
+    if (requiresExplanation && !trimmedInternalNote) {
       setValidationError(
         'Please add an explanation for cancelled or refunded bookings',
       );
@@ -253,7 +254,7 @@ export const OrderDetailSheet = ({
             tourId: order?.tourId,
             amount: order?.amount,
             status: statusValue,
-            note: trimmedNote,
+            internalNote: trimmedInternalNote,
             numberOfPeople: order?.numberOfPeople,
             type: order?.type,
             additionalCustomers: order?.additionalCustomers,
@@ -443,6 +444,20 @@ export const OrderDetailSheet = ({
                     </div>
                   </Card>
                 )}
+
+                {order?.internalNote && (
+                  <Card className="overflow-hidden border-border/60 bg-background">
+                    <div className="p-4 space-y-2">
+                      <div className="inline-flex items-center gap-2 text-xs font-medium tracking-wide uppercase text-muted-foreground">
+                        <IconFileDescription className="w-4 h-4" />
+                        Internal note
+                      </div>
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                        {order.internalNote}
+                      </p>
+                    </div>
+                  </Card>
+                )}
               </div>
             </Sheet.Content>
 
@@ -506,12 +521,12 @@ export const OrderDetailSheet = ({
 
             <div className="space-y-2">
               <div className="text-xs font-medium tracking-wide uppercase text-muted-foreground">
-                Note
+                Internal note
               </div>
               <Textarea
-                value={noteValue}
+                value={internalNoteValue}
                 onChange={(event) => {
-                  setNoteValue(event.target.value);
+                  setInternalNoteValue(event.target.value);
                   if (validationError) {
                     setValidationError(null);
                   }

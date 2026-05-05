@@ -120,16 +120,25 @@ class PostQueryResolver extends BaseQueryResolver {
   private async buildPostLookupQuery(
     args: {
       _id?: string;
+      count?: number;
       slug?: string;
       identifier?: string;
       clientPortalId?: string;
     },
     models: IContext['models'],
   ) {
-    const { _id, slug, identifier, clientPortalId } = args;
+    const { _id, count, slug, identifier, clientPortalId } = args;
 
     if (_id) {
       return clientPortalId ? { _id, clientPortalId } : { _id };
+    }
+
+    if (count !== undefined && count !== null) {
+      if (!clientPortalId) {
+        throw new Error('clientPortalId is required when querying by count');
+      }
+
+      return { count, clientPortalId };
     }
 
     if (slug) {
@@ -191,10 +200,10 @@ class PostQueryResolver extends BaseQueryResolver {
 
   async cmsPost(_parent: any, args: any, context: IContext): Promise<any> {
     const { models } = context;
-    const { _id, slug, identifier, language, clientPortalId } = args;
+    const { _id, count, slug, identifier, language, clientPortalId } = args;
 
     const query = await this.buildPostLookupQuery(
-      { _id, slug, identifier, clientPortalId },
+      { _id, count, slug, identifier, clientPortalId },
       models,
     );
 
@@ -340,10 +349,10 @@ class PostQueryResolver extends BaseQueryResolver {
 
   async cpPost(_parent: any, args: any, context: IContext): Promise<any> {
     const { clientPortal, models } = context;
-    const { _id, slug, identifier, language } = args;
+    const { _id, count, slug, identifier, language } = args;
 
     const query = await this.buildPostLookupQuery(
-      { _id, slug, identifier, clientPortalId: clientPortal._id },
+      { _id, count, slug, identifier, clientPortalId: clientPortal._id },
       models,
     );
 

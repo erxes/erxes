@@ -81,6 +81,7 @@ const mergePricingOptionTranslation = (
     ? { accommodationType: translation.accommodationType }
     : {}),
   ...(translation?.note ? { note: translation.note } : {}),
+  ...(translation?.prices?.length ? { prices: translation.prices } : {}),
   ...(typeof translation?.pricePerPerson === 'number'
     ? { pricePerPerson: translation.pricePerPerson }
     : {}),

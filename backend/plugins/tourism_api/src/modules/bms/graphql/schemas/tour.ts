@@ -42,12 +42,24 @@ export const types = `
     fixed
     flexible
   }
+  enum PASSENGER_TYPE {
+    adult
+    child
+    infant
+  }
+
+  type PricingOptionPrice {
+    type: PASSENGER_TYPE!
+    price: Float!
+  }
+
   type PricingOption {
     _id: ID!
     title: String!
     minPersons: Int!
     maxPersons: Int
-    pricePerPerson: Float!
+    prices: [PricingOptionPrice!]!
+    pricePerPerson: Float
     accommodationType: String
     domesticFlightPerPerson: Float
     singleSupplement: Float
@@ -59,6 +71,7 @@ export const types = `
     title: String
     note: String
     accommodationType: String
+    prices: [PricingOptionPrice]
     pricePerPerson: Float
     domesticFlightPerPerson: Float
     singleSupplement: Float
@@ -81,11 +94,17 @@ export const types = `
     updatedAt: Date
   }
 
+  input PricingOptionPriceInput {
+    type: PASSENGER_TYPE!
+    price: Float!
+  }
+
   input PricingOptionTranslationInput {
     optionId: String!
     title: String
     note: String
     accommodationType: String
+    prices: [PricingOptionPriceInput]
     pricePerPerson: Float
     domesticFlightPerPerson: Float
     singleSupplement: Float
@@ -166,6 +185,7 @@ export const types = `
     amount: Float
     status: String
     note: String
+    internalNote: String
     numberOfPeople: Int
     type: String
     additionalCustomers: [String]
@@ -181,6 +201,7 @@ export const types = `
     amount: Float
     status: String
     note: String
+    internalNote: String
     numberOfPeople: Int
     type: String
     additionalCustomers: [String]
@@ -196,7 +217,8 @@ export const types = `
     title: String!
     minPersons: Int!
     maxPersons: Int
-    pricePerPerson: Float!
+    prices: [PricingOptionPriceInput!]!
+    pricePerPerson: Float
     accommodationType: String
     domesticFlightPerPerson: Float
     singleSupplement: Float
@@ -220,6 +242,12 @@ export const types = `
   type GroupTour {
     list: [GroupTourItem]
     total: Int
+  }
+
+  type TourDateStatusSyncResult {
+    matchedCount: Int
+    modifiedCount: Int
+    skippedCount: Int
   }
 `;
 
@@ -271,7 +299,7 @@ const params = `
   joinPercent: Float,
   advanceCheck: Boolean,
   status: String,
-  date_status: DATE_STATUS!
+  date_status: DATE_STATUS
   cost: Float,
   location: [BMSLocationInput],
   guides: [GuideItemInput],
@@ -298,6 +326,7 @@ export const mutations = `
   bmsTourRemove(ids: [String]): JSON
   bmsTourViewCount(_id: String): JSON
   bmsTourEdit(_id: String!, ${params}): Tour
+  bmsTourDateStatusSync(timezone: String): TourDateStatusSyncResult
 
   bmsTourCategoryAdd(${categoryParams}): TourCategory
   bmsTourCategoryRemove(_id: String, ids: [String]): JSON

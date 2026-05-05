@@ -1,6 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { CREATE_TOUR } from '../graphql/mutation';
 import { ITourTranslationInput } from '../utils/translationHelpers';
+import type { PricingOptionInput } from '../utils/pricingOptions';
 
 interface CreateTourResponse {
   bmsTourAdd: {
@@ -49,17 +50,7 @@ export interface ICreateTourVariables {
   joinPercent?: number;
   personCost?: Record<string, any>;
   categoryIds?: string[];
-  pricingOptions?: Array<{
-    _id: string;
-    title: string;
-    minPersons: number;
-    maxPersons?: number;
-    pricePerPerson: number;
-    accommodationType?: string;
-    domesticFlightPerPerson?: number;
-    singleSupplement?: number;
-    note?: string;
-  }>;
+  pricingOptions?: PricingOptionInput[];
   translations?: ITourTranslationInput[];
 }
 

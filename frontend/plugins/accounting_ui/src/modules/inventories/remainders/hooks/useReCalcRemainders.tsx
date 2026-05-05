@@ -22,7 +22,7 @@ export const useReCalcRemainders = (options?: OperationVariables) => {
       onCompleted: () => {
         toast({
           title: 'Success',
-          description: 'Adjust Inventory created successfully',
+          description: 'Re Calced successfully',
         });
         options?.onCompleted();
       },

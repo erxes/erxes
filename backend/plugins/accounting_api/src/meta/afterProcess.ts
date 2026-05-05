@@ -25,6 +25,7 @@ export const afterProcess: AfterProcessConfigs = {
   afterDocumentUpdated: (ctx, input) => {
     (async () => {
       const { data } = input;
+
       const { subdomain } = ctx;
       const models = await generateModels(subdomain);
       const {

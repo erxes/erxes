@@ -410,21 +410,19 @@ export const dealTrpcRouter = t.router({
   pipeline: {
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
-      const { subdomain, stageId, ...rest } = input;
+      const { stageId, ...rest } = input;
+      const { query, fields } = rest || {};
 
-      let pipeline = await models.Pipelines.findOne(rest);
+      let pipeline = query && await models.Pipelines.findOne(query, fields);
 
       if (!pipeline && stageId) {
         const stage = await models.Stages.findOne({ _id: stageId }).lean();
         if (stage) {
-          pipeline = await models.Pipelines.findOne({ _id: stage.pipelineId });
+          pipeline = await models.Pipelines.findOne({ _id: stage.pipelineId }, fields);
         }
       }
 
-      return {
-        status: 'success',
-        data: pipeline,
-      };
+      return pipeline;
     }),
   },
 });

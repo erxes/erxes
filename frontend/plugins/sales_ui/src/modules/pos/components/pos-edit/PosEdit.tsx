@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router-dom';
 import { PosEditSidebar } from '@/pos/components/pos-edit/Sidebar';
 import { MainContent } from '@/pos/components/pos-edit/MainContent';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
@@ -25,7 +25,7 @@ export const PosEdit = ({ id }: PosEditProps) => {
   }, [searchParams, setSearchParams]);
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full min-h-0">
       <PosEditSidebar posType={posDetail?.type} activeTab={activeTab} />
       <MainContent
         activeStep={activeTab}

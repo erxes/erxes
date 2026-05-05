@@ -24,7 +24,11 @@ const AutomationAiAgentKindCard = ({
     >
       <div className="flex items-center gap-3">
         <div className="flex size-10 items-center justify-center rounded-lg border bg-background">
-          <Icon className="size-5 text-primary" />
+          <img
+            src={`/assets/${kind.image}`}
+            alt={kind.label}
+            className="size-5"
+          />
         </div>
         <div className="space-y-1">
           <h6 className="text-sm font-medium">{kind.label}</h6>

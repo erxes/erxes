@@ -1,10 +1,11 @@
+import { PricingDelete } from '@/pricing/components/PricingDelete';
 import { PricingEdit } from '@/pricing/edit-pricing/PricingEdit';
 import { usePricing } from '@/pricing/hooks/usePricing';
 import { IPricing } from '@/pricing/types';
 import { IconCoins } from '@tabler/icons-react';
 import { Breadcrumb, Button, Select } from 'erxes-ui';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
 
 export const PricingEditPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,10 +18,14 @@ export const PricingEditPage = () => {
     navigate(`/settings/loyalty/pricing/${pricingId}`);
   };
 
+  const handleDeleteSuccess = () => {
+    navigate('/settings/loyalty/pricing');
+  };
+
   return (
     <div className="flex flex-col h-full">
       <PageHeader>
-        <PageHeader.Start>
+        <PageHeaderStart>
           <Breadcrumb>
             <Breadcrumb.List className="gap-2">
               <Breadcrumb.Item>
@@ -54,7 +59,16 @@ export const PricingEditPage = () => {
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
-        </PageHeader.Start>
+        </PageHeaderStart>
+
+        <PageHeaderEnd>
+          {id && (
+            <PricingDelete
+              pricingIds={id}
+              onDeleteSuccess={handleDeleteSuccess}
+            />
+          )}
+        </PageHeaderEnd>
       </PageHeader>
 
       <PricingEdit id={id} />

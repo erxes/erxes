@@ -14,8 +14,8 @@ export const EditCtaxRow = () => {
   return (
     <Dialog open={open !== null} onOpenChange={() => setOpen(null)}>
       <AccountingDialog
-        title="Edit Ctax Row"
-        description="Edit an ctax row"
+        title="НХАТ-ын мөр засах"
+        description="НХАТ-ын мөр засах"
       >
         <EditCtaxRowForm />
       </AccountingDialog>
@@ -24,10 +24,8 @@ export const EditCtaxRow = () => {
 };
 
 export const EditCtaxRowForm = () => {
-  const { ctaxRowDetail, closeDetail, loading } =
-    useCtaxRowDetail();
-  const { editCtaxRow, loading: editLoading } =
-    useCtaxRowEdit();
+  const { ctaxRowDetail, closeDetail, loading } = useCtaxRowDetail();
+  const { editCtaxRow, loading: editLoading } = useCtaxRowEdit();
   const form = useForm<TCtaxRowForm>({
     resolver: zodResolver(ctaxFormSchema),
   });
@@ -63,11 +61,7 @@ export const EditCtaxRowForm = () => {
 
   return (
     <>
-      <CtaxRowForm
-        form={form}
-        onSubmit={handleSubmit}
-        loading={editLoading}
-      />
+      <CtaxRowForm form={form} onSubmit={handleSubmit} loading={editLoading} />
       {loading && (
         <div className="absolute inset-0 bg-background/10 backdrop-blur-xs flex items-center justify-center rounded-md">
           <Spinner />

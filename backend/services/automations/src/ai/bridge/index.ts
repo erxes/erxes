@@ -3,7 +3,7 @@ import { openAiCompatibleBridge } from './openaiCompatible';
 import { IAiProviderBridge, TAiBridgeMessage } from './types';
 
 const providerBridgeRegistry: Record<string, IAiProviderBridge> = {
-  'openai-compatible': openAiCompatibleBridge,
+  openai: openAiCompatibleBridge,
 };
 
 export const getAiProviderBridge = (provider: string): IAiProviderBridge => {

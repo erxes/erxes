@@ -23,11 +23,15 @@ export const useTransactions = (options?: OperationVariables) => {
     ...options,
     variables: {
       ...options?.variables,
-      ...variables
+      ...variables,
     },
   });
 
-  const { list: transactions, totalCount, pageInfo } = data?.accTransactionsMain || {};
+  const {
+    list: transactions,
+    totalCount,
+    pageInfo,
+  } = data?.accTransactionsMain || {};
 
   const handleFetchMore = ({
     direction,
@@ -73,5 +77,4 @@ export const useTransactions = (options?: OperationVariables) => {
     handleFetchMore,
     pageInfo,
   };
-
 };

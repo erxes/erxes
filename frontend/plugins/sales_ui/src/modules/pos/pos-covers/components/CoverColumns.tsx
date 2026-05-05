@@ -77,12 +77,12 @@ export const coverColumns: ColumnDef<ICovers>[] = [
 
   {
     id: 'user.email',
-    accessorKey: 'createdBy',
+    accessorKey: 'user.email',
     header: () => <RecordTable.InlineHead icon={IconBuilding} label="User" />,
-    cell: ({ cell }) => {
+    cell: ({ row }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={row.original.user?.email || ''} />
         </RecordTableInlineCell>
       );
     },

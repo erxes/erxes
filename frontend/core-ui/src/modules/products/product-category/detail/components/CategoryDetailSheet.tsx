@@ -12,10 +12,11 @@ import {
   useToast,
   useSetHotkeyScope,
   useQueryState,
-  useErxesUpload,
-  useRemoveFile,
-  IAttachment,
 } from 'erxes-ui';
+import {
+  type ProductAttachmentItem,
+  toProductAttachmentItem,
+} from 'ui-modules';
 import { renderingCategoryDetailAtom } from '../../states/ProductCategory';
 import { CategoryHotKeyScope } from '../../types/CategoryHotKeyScope';
 import { CategoriesUpdateCoreFields } from './CategoryUpdateCoreFields';
@@ -27,74 +28,19 @@ import {
 import { CategoryUpdateMoreFields } from './CategoryUpdateMoreFields';
 import { useProductCategoryDetail } from '../hooks/useCategoryDetail';
 
-type UploadAddedFile = {
-  name?: string;
-  url: string;
-  type?: string;
-  size?: number;
-};
-
-const mergeAddedFiles = (
-  previousFiles: IAttachment[],
-  addedFiles: UploadAddedFile[],
-): IAttachment[] => {
-  const normalizedAdded = addedFiles.map((file) => ({
-    name: file.name ?? file.url,
-    url: file.url,
-    type: file.type ?? '',
-    size: file.size ?? 0,
-  }));
-
-  const addedNames = new Set(
-    normalizedAdded.map((file) => file.name ?? file.url),
-  );
-  const remainingFiles = previousFiles.filter(
-    (file) => !addedNames.has(file.name ?? file.url),
-  );
-
-  return [...remainingFiles, ...normalizedAdded];
-};
-
 export const CategoryDetailSheet = () => {
   const [activeTab] = useAtom(renderingCategoryDetailAtom);
   const setHotkeyScope = useSetHotkeyScope();
   const [categoryId, setCategoryId] = useQueryState<string>('category_id');
-  const [files, setFiles] = useState<IAttachment[]>([]);
+  const [attachment, setAttachment] = useState<ProductAttachmentItem | null>(
+    null,
+  );
 
   const { toast } = useToast();
   const { productCategoriesEdit, loading: editLoading } =
     useProductCategoriesEdit();
 
   const { categoryDetail, loading, error } = useProductCategoryDetail();
-  const { removeFile } = useRemoveFile();
-
-  const uploadProps = useErxesUpload({
-    allowedMimeTypes: ['image/*'],
-    maxFiles: 1,
-    maxFileSize: 20 * 1024 * 1024,
-    onFilesAdded: (added) => {
-      setFiles((prev) => {
-        const maxFiles = 1;
-        if (maxFiles === 1) {
-          return added.map((file) => ({
-            name: file.name ?? file.url,
-            url: file.url,
-            type: file.type ?? '',
-            size: file.size ?? 0,
-          }));
-        }
-        return mergeAddedFiles(prev, added);
-      });
-    },
-  });
-
-  const handleRemoveFile = (file: IAttachment) => {
-    removeFile(file.name, (status: string) => {
-      if (status === 'ok') {
-        setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name));
-      }
-    });
-  };
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
@@ -120,31 +66,7 @@ export const CategoryDetailSheet = () => {
   }, [categoryId, setHotkeyScope]);
 
   useEffect(() => {
-    setFiles((prevFiles) => {
-      const attachmentUrl = categoryDetail?.attachment?.url;
-      const currentFileUrl = prevFiles[0]?.url;
-
-      if (attachmentUrl && attachmentUrl !== currentFileUrl) {
-        return [
-          {
-            name: categoryDetail.attachment.name,
-            url: categoryDetail.attachment.url,
-            type: categoryDetail.attachment.type,
-            size: categoryDetail.attachment.size,
-          },
-        ];
-      }
-
-      if (!attachmentUrl && prevFiles.length === 0) {
-        return prevFiles;
-      }
-
-      if (!attachmentUrl && prevFiles.length > 0) {
-        return [];
-      }
-
-      return prevFiles;
-    });
+    setAttachment(toProductAttachmentItem(categoryDetail?.attachment));
   }, [categoryDetail?._id, categoryDetail?.attachment?.url]);
 
   const setOpen = (newCategoryId: string | null) => {
@@ -160,6 +82,7 @@ export const CategoryDetailSheet = () => {
     Object.entries(data).forEach(([key, value]) => {
       if (value) cleanData[key] = value;
     });
+    cleanData.attachment = attachment || undefined;
     const fieldsToUpdate = Object.keys(cleanData);
     productCategoriesEdit(
       {
@@ -276,10 +199,8 @@ export const CategoryDetailSheet = () => {
                   <CategoryUpdateMoreFields
                     form={form}
                     categoryDetail={categoryDetail}
-                    files={files}
-                    isLoading={uploadProps.loading}
-                    uploadProps={uploadProps}
-                    onRemoveFile={handleRemoveFile}
+                    attachment={attachment}
+                    onAttachmentChange={setAttachment}
                   />
                 </div>
               </ScrollArea>

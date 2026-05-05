@@ -21,6 +21,7 @@ export const types = `
         customFieldsData: JSON
 
         customFieldsMap: JSON
+        translations: [Translation]
     }
 
     type PostCategoryListResponse {
@@ -50,6 +51,7 @@ export const queries = `
     cmsCategory(_id: String, slug: String, language: String, clientPortalId: String): PostCategory
 
     cpCategories(clientPortalId: String, language: String): PostCategoryListResponse
+    cpCmsCategoryDetail(_id: String, slug: String, language: String): PostCategory
 `;
 
 export const mutations = `
@@ -57,4 +59,5 @@ export const mutations = `
     cmsCategoriesEdit(_id: String!, input: PostCategoryInput!): PostCategory
     cmsCategoriesRemove(_id: String!): JSON
     cmsCategoriesToggleStatus(_id: String!): PostCategory
+    cpCmsCategoriesAdd(input: PostCategoryInput!): PostCategory
 `;

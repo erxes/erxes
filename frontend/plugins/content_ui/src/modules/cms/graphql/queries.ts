@@ -794,6 +794,9 @@ export const CMS_CUSTOM_FIELD_GROUPS = gql`
           label
           pluralLabel
         }
+        enabledPageIds
+        enabledCategoryIds
+        enabledPostIds
         fields
       }
     }
@@ -814,6 +817,8 @@ export const CMS_CUSTOM_FIELD_GROUP_ADD = gql`
         label
         pluralLabel
       }
+      enabledPageIds
+      enabledCategoryIds
       fields
     }
   }
@@ -836,6 +841,8 @@ export const CMS_CUSTOM_FIELD_GROUP_EDIT = gql`
         label
         pluralLabel
       }
+      enabledPageIds
+      enabledCategoryIds
       fields
     }
   }

@@ -2,7 +2,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useMemo } from 'react';
 import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
-import { nanoid } from 'nanoid';
 import { Button, Form, Input, Sheet, Spinner, useToast } from 'erxes-ui';
 import { useCreateTour } from '../hooks/useCreateTour';
 import { ITourDetail, useTourDetail } from '../hooks/useTourDetail';
@@ -16,6 +15,7 @@ import {
   buildTranslationsFromTour,
   sanitizeTourTranslations,
 } from '../utils/translationHelpers';
+import { normalizeTourDetailPricingOptionsForApi } from '../utils/pricingOptions';
 import { RHFDatePicker } from './RHFDatePicker';
 
 const GroupTourAddSchema = z.object({
@@ -165,10 +165,7 @@ export const TourGroupAddSheet = ({
 
   const normalizedPricingOptions = useMemo(
     () =>
-      (tourDetail?.pricingOptions ?? []).map((option) => ({
-        ...stripTypename(option),
-        _id: option._id || nanoid(8),
-      })),
+      normalizeTourDetailPricingOptionsForApi(tourDetail?.pricingOptions ?? []),
     [tourDetail?.pricingOptions],
   );
 

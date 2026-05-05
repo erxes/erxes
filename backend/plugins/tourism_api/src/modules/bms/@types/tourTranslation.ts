@@ -1,10 +1,12 @@
 import { Document } from 'mongoose';
+import { PassengerType } from '@/bms/@types/tour';
 
 export interface IPricingOptionTranslation {
   optionId: string; // matches pricingOption._id in the tour
   title?: string;
   note?: string;
   accommodationType?: string;
+  prices?: Array<{ type: PassengerType; price: number }>;
   pricePerPerson?: number;
   domesticFlightPerPerson?: number;
   singleSupplement?: number;

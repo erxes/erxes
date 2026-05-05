@@ -628,8 +628,9 @@ export const dealQueries: Record<string, Resolver> = {
   async deals(
     _root,
     args: IDealQueryParams,
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('showDeals');
     const filter = await generateFilter(models, subdomain, user._id, args);
 
     const getExtraFields = async (item: any) => ({

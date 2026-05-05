@@ -8,7 +8,7 @@ interface PosEditSidebarProps {
 }
 
 export const PosEditSidebar = ({ posType, activeTab }: PosEditSidebarProps) => {
-  const steps = getSteps(posType || null);
+  const steps = getSteps();
 
   return (
     <Sidebar collapsible="none" className="flex-none border-r">

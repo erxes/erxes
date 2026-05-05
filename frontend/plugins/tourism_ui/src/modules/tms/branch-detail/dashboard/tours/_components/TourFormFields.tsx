@@ -417,15 +417,13 @@ export const TourItineraryIdField = ({
           <Form.Label>
             Itinerary <span className="text-destructive">*</span>
           </Form.Label>
-          <Form.Control>
-            <SelectItinerary
-              value={field.value}
-              onValueChange={field.onChange}
-              branchId={branchId}
-              language={language}
-              placeholder="Select itinerary"
-            />
-          </Form.Control>
+          <SelectItinerary.FormItem
+            value={field.value}
+            onValueChange={field.onChange}
+            branchId={branchId}
+            language={language}
+            placeholder="Select itinerary"
+          />
           <Form.Message className="text-destructive" />
         </Form.Item>
       )}
@@ -699,7 +697,9 @@ const TourPricingOptionsFieldContent = ({
       title: '',
       minPersons: '',
       maxPersons: '',
-      pricePerPerson: '',
+      adultPrice: '',
+      childPrice: '',
+      infantPrice: '',
       accommodationType: '',
       domesticFlightPerPerson: '',
       singleSupplement: '',
@@ -828,40 +828,41 @@ const TourPricingOptionsFieldContent = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <Form.Field
-                control={control}
-                name={getFieldName(index, 'accommodationType')}
-                render={({ field, fieldState }) => (
-                  <div className="space-y-2">
-                    <Form.Label
-                      className={fieldState.error ? 'text-destructive' : ''}
-                    >
-                      Accommodation Type
-                      <span className="text-primary">{labelSuffix}</span>
-                    </Form.Label>
-                    <Input
-                      {...field}
-                      value={field.value ?? ''}
-                      onChange={(e) =>
-                        field.onChange(toOptionalString(e.target.value))
-                      }
-                      placeholder="e.g., Hotel, Resort, etc."
-                    />
-                    <Form.Message>{fieldState.error?.message}</Form.Message>
-                  </div>
-                )}
-              />
+            <Form.Field
+              control={control}
+              name={getFieldName(index, 'accommodationType')}
+              render={({ field, fieldState }) => (
+                <div className="space-y-2">
+                  <Form.Label
+                    className={fieldState.error ? 'text-destructive' : ''}
+                  >
+                    Accommodation Type
+                    <span className="text-primary">{labelSuffix}</span>
+                  </Form.Label>
+                  <Input
+                    {...field}
+                    value={field.value ?? ''}
+                    onChange={(e) =>
+                      field.onChange(toOptionalString(e.target.value))
+                    }
+                    placeholder="e.g., Hotel, Resort, etc."
+                  />
+                  <Form.Message>{fieldState.error?.message}</Form.Message>
+                </div>
+              )}
+            />
 
+            <div className="grid grid-cols-3 gap-3">
               <Form.Field
                 control={control}
-                name={getFieldName(index, 'pricePerPerson')}
+                name={getFieldName(index, 'adultPrice')}
                 render={({ field, fieldState }) => (
                   <div className="space-y-2">
                     <Form.Label
                       className={fieldState.error ? 'text-destructive' : ''}
                     >
-                      Price per Person{' '}
+                      Adult Price
+                      <span className="text-primary">{labelSuffix}</span>{' '}
                       <span className="text-destructive">*</span>
                     </Form.Label>
                     <div className="relative">
@@ -878,6 +879,72 @@ const TourPricingOptionsFieldContent = ({
                           field.onChange(toOptionalNumber(e.target.value))
                         }
                         placeholder="0.00"
+                        className="pl-7"
+                      />
+                    </div>
+                    <Form.Message>{fieldState.error?.message}</Form.Message>
+                  </div>
+                )}
+              />
+
+              <Form.Field
+                control={control}
+                name={getFieldName(index, 'childPrice')}
+                render={({ field, fieldState }) => (
+                  <div className="space-y-2">
+                    <Form.Label
+                      className={fieldState.error ? 'text-destructive' : ''}
+                    >
+                      Child Price
+                      <span className="text-primary">{labelSuffix}</span>
+                    </Form.Label>
+                    <div className="relative">
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                        {symbol}
+                      </span>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        {...field}
+                        value={field.value ?? ''}
+                        onChange={(e) =>
+                          field.onChange(toOptionalNumber(e.target.value))
+                        }
+                        placeholder="Optional"
+                        className="pl-7"
+                      />
+                    </div>
+                    <Form.Message>{fieldState.error?.message}</Form.Message>
+                  </div>
+                )}
+              />
+
+              <Form.Field
+                control={control}
+                name={getFieldName(index, 'infantPrice')}
+                render={({ field, fieldState }) => (
+                  <div className="space-y-2">
+                    <Form.Label
+                      className={fieldState.error ? 'text-destructive' : ''}
+                    >
+                      Infant Price
+                      <span className="text-primary">{labelSuffix}</span>
+                    </Form.Label>
+                    <div className="relative">
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                        {symbol}
+                      </span>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        {...field}
+                        value={field.value ?? ''}
+                        onChange={(e) =>
+                          field.onChange(toOptionalNumber(e.target.value))
+                        }
+                        placeholder="Optional"
                         className="pl-7"
                       />
                     </div>

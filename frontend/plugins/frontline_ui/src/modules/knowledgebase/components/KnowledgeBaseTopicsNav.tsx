@@ -63,7 +63,7 @@ function TopicItem({
         <DropdownMenu.Separator />
         <DropdownMenu.Item
           onClick={() => onRemoveTopic(topic._id)}
-          className="text-red-600"
+          className="text-destructive"
         >
           Delete Topic
         </DropdownMenu.Item>

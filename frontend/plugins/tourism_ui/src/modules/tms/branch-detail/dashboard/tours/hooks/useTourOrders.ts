@@ -21,6 +21,7 @@ export interface ITourOrder {
   amount?: number;
   status?: string;
   note?: string;
+  internalNote?: string;
   numberOfPeople?: number;
   type?: string;
   additionalCustomers?: any[];

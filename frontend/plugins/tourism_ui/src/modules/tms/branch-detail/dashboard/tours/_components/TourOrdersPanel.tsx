@@ -7,7 +7,7 @@ import {
   IconUsers,
 } from '@tabler/icons-react';
 import { useTourOrders, ITourOrder } from '../hooks/useTourOrders';
-import { Button, Card, Select, Separator, Spinner } from 'erxes-ui';
+import { Card, Select, Separator, Spinner } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { CustomersInline } from 'ui-modules';
 import { OrderDetailSheet } from './OrderDetailSheet';
@@ -85,7 +85,7 @@ function OrderRow({
       placeholder="Unnamed customer"
     >
       <Card
-        className="overflow-hidden transition-all cursor-pointer border-border/60 bg-background hover:border-primary/40 hover:bg-muted/30 hover:shadow-sm"
+        className="overflow-hidden transition-all border cursor-pointer bg-background hover:bg-muted/30"
         onClick={onClick}
       >
         <div className="p-3 space-y-3">
@@ -226,7 +226,7 @@ export const TourOrdersPanel = ({ tourId }: Props) => {
                 setStatusFilter(value as OrderFilterValue)
               }
             >
-              <Select.Trigger className="h-9 max-w-[100px] rounded-md border border-border/60 bg-muted/30 px-3 text-sm text-foreground shadow-none">
+              <Select.Trigger className="h-9 max-w-[120px] rounded-md border border-border/60 bg-muted/30 px-3 text-sm text-foreground shadow-none">
                 <div className="flex items-center min-w-0 gap-2">
                   <IconFilter className="w-4 h-4 text-muted-foreground" />
                   <Select.Value placeholder="All statuses" />
@@ -241,21 +241,10 @@ export const TourOrdersPanel = ({ tourId }: Props) => {
               </Select.Content>
             </Select>
 
-            <span className="inline-flex items-center px-3 text-xs font-medium rounded-md h-9 bg-muted/30 text-muted-foreground">
+            <span className="inline-flex items-center px-3 text-xs font-medium h-9 text-muted-foreground">
               {filteredOrders.length}{' '}
               {filteredOrders.length === 1 ? 'record found' : 'records found'}
             </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="px-3 text-xs border rounded-md h-9 border-border/60 text-muted-foreground hover:text-foreground"
-              onClick={() => refetch()}
-            >
-              Refresh
-            </Button>
           </div>
         </div>
 

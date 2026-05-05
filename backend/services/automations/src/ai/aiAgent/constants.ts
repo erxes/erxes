@@ -1,4 +1,4 @@
-export const AI_AGENT_SUPPORTED_PROVIDERS = ['openai-compatible'] as const;
+export const AI_AGENT_SUPPORTED_PROVIDERS = ['openai'] as const;
 
 export const AI_AGENT_SUPPORTED_CONTEXT_FILE_EXTENSIONS = [
   '.md',

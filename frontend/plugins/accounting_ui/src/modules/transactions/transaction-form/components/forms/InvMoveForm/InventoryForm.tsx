@@ -110,11 +110,11 @@ const InventoryTableHeader = ({
             />
           </div>
         </Table.Head>
-        <Table.Head>Account</Table.Head>
-        <Table.Head>Product</Table.Head>
-        <Table.Head>Quantity</Table.Head>
-        <Table.Head>Unit Price</Table.Head>
-        <Table.Head>Amount</Table.Head>
+        <Table.Head>Данс</Table.Head>
+        <Table.Head>Бараа</Table.Head>
+        <Table.Head>Тоо хэмжээ</Table.Head>
+        <Table.Head>Нэгж үнэ</Table.Head>
+        <Table.Head>Дүн</Table.Head>
       </Table.Row>
     </Table.Header>
   );

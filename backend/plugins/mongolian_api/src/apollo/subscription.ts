@@ -4,8 +4,8 @@ export default {
   name: 'mongolian',
 
   typeDefs: `
-    ebarimtResponded(userId: String, processId: String): String
-    productPlacesResponded(userId: String, sessionCode: String): String
+    ebarimtResponded(userId: String, processId: String): EbarimtResponse
+    productPlacesResponded(userId: String, sessionCode: String): ProductPlacesResponse
   `,
 
   generateResolvers: (graphqlPubsub) => {
@@ -14,29 +14,20 @@ export default {
         subscribe: withFilter(
           (_, { userId }) =>
             graphqlPubsub.asyncIterator(`ebarimtResponded:${userId}`),
-          (payload, variables) => {
-            return (
-              variables?.userId &&
-              payload?.ebarimtResponded?.userId === variables?.userId
-            );
-          },
+          (payload, variables) =>
+            variables?.userId &&
+            payload?.ebarimtResponded?.userId === variables?.userId,
         ),
       },
       productPlacesResponded: {
         subscribe: withFilter(
-          (_, { userId }) => {
-            return graphqlPubsub.asyncIterator(
-              `productPlacesResponded:${userId}`,
-            );
-          },
-          (payload, variables) => {
-            const match =
-              variables?.userId &&
-              payload?.productPlacesResponded?.userId === variables?.userId;
-            return match;
-          },
+          (_, { userId }) =>
+            graphqlPubsub.asyncIterator(`productPlacesResponded:${userId}`),
+          (payload, variables) =>
+            variables?.userId &&
+            payload?.productPlacesResponded?.userId === variables?.userId,
         ),
-        resolve: (payload) => JSON.stringify(payload.productPlacesResponded),
+        // no stringify
       },
     };
   },

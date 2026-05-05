@@ -3,7 +3,7 @@ import { ACC_TR_RECORDS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys
 import { useTrRecords } from '../hooks/useTrRecords';
 import { trRecordColumns } from './TrRecordsTableColumns';
 import { useEffect, useState } from 'react';
-
+import { TransactionsCommandbar } from './TransactionsCommandBar';
 export const TrRecordTable = () => {
   const { trRecords, loading, handleFetchMore, pageInfo } = useTrRecords();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
@@ -13,13 +13,12 @@ export const TrRecordTable = () => {
 
   useEffect(() => {
     if (!journal?.includes('inv')) {
-      setColumns(trRecordColumns.filter(c => !c.id?.includes('inv')));
+      setColumns(trRecordColumns.filter((c) => !c.id?.includes('inv')));
       return;
     }
 
     return setColumns(trRecordColumns);
-  }, [journal])
-
+  }, [journal]);
 
   return (
     <RecordTable.Provider
@@ -47,7 +46,7 @@ export const TrRecordTable = () => {
             />
           </RecordTable.Body>
         </RecordTable>
-        {/* <AccountsCommandbar /> */}
+        <TransactionsCommandbar />
       </RecordTable.CursorProvider>
     </RecordTable.Provider>
   );

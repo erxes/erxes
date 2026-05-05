@@ -17,7 +17,7 @@ interface GetCommentsParams extends ICursorPaginateParams {
   };
 }
 
-export const commentQueries: Record<string, Resolver> = {
+export const commentQueries: Record<string, Resolver<any, any, IContext>> = {
   async clientPortalComment(
     _root: unknown,
     { _id }: GetCommentParams,

@@ -134,7 +134,11 @@ export const InventoryRow = ({
         detailIndex === 0 && '[&>td]:border-t',
       )}
     >
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell
           className={cn({
             'border-t': detailIndex === 0,
@@ -162,7 +166,11 @@ export const InventoryRow = ({
         </Table.Cell>
       </RecordTableHotKeyControl>
 
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -182,7 +190,11 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -200,7 +212,11 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -228,7 +244,11 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -256,7 +276,11 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -283,59 +307,68 @@ export const InventoryRow = ({
             )}
           />
         </Table.Cell>
-        {showAdvancedView && (
-          <>
-            <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
-              <Table.Cell>
-                <RecordTableInlineCell className="justify-center">
-                  <Form.Field
-                    control={form.control}
-                    name={`trDocs.${journalIndex}.details.${detailIndex}.branchId`}
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Control>
-                          <SelectBranches.InlineCell
-                            mode="single"
-                            value={field.value ?? ''}
-                            onValueChange={(branch) => field.onChange(branch)}
-                            scope={AccountingHotkeyScope.TransactionFormPage}
-                          />
-                        </Form.Control>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                </RecordTableInlineCell>
-              </Table.Cell>
-            </RecordTableHotKeyControl>
-            <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
-              <Table.Cell>
-                <RecordTableInlineCell className="justify-center">
-                  <Form.Field
-                    control={form.control}
-                    name={`trDocs.${journalIndex}.details.${detailIndex}.departmentId`}
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Control>
-                          <SelectDepartments.InlineCell
-                            mode="single"
-                            value={field.value ?? ''}
-                            onValueChange={(department) =>
-                              field.onChange(department)
-                            }
-                            scope={AccountingHotkeyScope.TransactionFormPage}
-                          />
-                        </Form.Control>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                </RecordTableInlineCell>
-              </Table.Cell>
-            </RecordTableHotKeyControl>
-          </>
-        )}
       </RecordTableHotKeyControl>
+
+      {showAdvancedView && (
+        <>
+          <RecordTableHotKeyControl
+            rowId={_id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
+            <Table.Cell>
+              <RecordTableInlineCell className="justify-center">
+                <Form.Field
+                  control={form.control}
+                  name={`trDocs.${journalIndex}.details.${detailIndex}.branchId`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Control>
+                        <SelectBranches.InlineCell
+                          mode="single"
+                          value={field.value ?? ''}
+                          onValueChange={(branch) => field.onChange(branch)}
+                          scope={AccountingHotkeyScope.TransactionFormPage}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </RecordTableInlineCell>
+            </Table.Cell>
+          </RecordTableHotKeyControl>
+          <RecordTableHotKeyControl
+            rowId={_id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
+            <Table.Cell>
+              <RecordTableInlineCell className="justify-center">
+                <Form.Field
+                  control={form.control}
+                  name={`trDocs.${journalIndex}.details.${detailIndex}.departmentId`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Control>
+                        <SelectDepartments.InlineCell
+                          mode="single"
+                          value={field.value ?? ''}
+                          onValueChange={(department) =>
+                            field.onChange(department)
+                          }
+                          scope={AccountingHotkeyScope.TransactionFormPage}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </RecordTableInlineCell>
+            </Table.Cell>
+          </RecordTableHotKeyControl>
+        </>
+      )}
     </Table.Row>
   );
 };

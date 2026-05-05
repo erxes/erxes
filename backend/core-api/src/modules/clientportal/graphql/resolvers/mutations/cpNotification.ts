@@ -10,7 +10,10 @@ interface CPNotificationSendInput {
   kind?: 'SYSTEM' | 'USER';
 }
 
-export const cpNotificationMutations: Record<string, Resolver> = {
+export const cpNotificationMutations: Record<
+  string,
+  Resolver<any, any, IContext>
+> = {
   async clientPortalSendNotification(
     _root: unknown,
     {

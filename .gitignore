@@ -57,3 +57,6 @@ backend/plugins/payment_api/src/public/widget/
 
 # Redis dump file
 dump.rdb
+
+# Local runtime upload artifacts
+backend/core-api/src/utils/private/uploads/

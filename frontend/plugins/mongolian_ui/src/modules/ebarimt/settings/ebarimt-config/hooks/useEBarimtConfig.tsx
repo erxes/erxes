@@ -8,7 +8,7 @@ import {
 } from '@/ebarimt/settings/ebarimt-config/types/ebarimtConfigTypes';
 import { useToast } from 'erxes-ui';
 
-import { UPDATE_MN_CONFIG } from '@/ebarimt/settings/ebarimt-config/graphql/mutations/ebarimtConfigMutations';
+import { UPDATE_MN_CONFIG, CREATE_MN_CONFIG } from '@/ebarimt/settings/ebarimt-config/graphql/mutations/ebarimtConfigMutations';
 import { GET_MN_CONFIGS } from '../graphql/queries/mnConfigs';
 
 export const DEFAULT_VALUES: EBarimtFormData = {
@@ -40,6 +40,7 @@ export const useEBarimtConfig = () => {
   });
 
   const [updateConfig] = useMutation(UPDATE_MN_CONFIG);
+  const [createConfig] = useMutation(CREATE_MN_CONFIG);
 
   const handleFieldGroupChange = (value: string) => {
     setSelectedFieldGroup(value);
@@ -68,27 +69,50 @@ export const useEBarimtConfig = () => {
       },
     };
 
-    try {
-      await updateConfig({
-        variables: {
-          id: data?.mnConfigs?.[0]?._id,
-          subId: data?.mnConfigs?.[0]?.subId ?? null,
-          value: payload,
-        },
-      });
+    if (data?.mnConfigs[0]?._id) {
+      try {
+        await updateConfig({
+          variables: {
+            id: data?.mnConfigs?.[0]?._id,
+            value: payload,
+          },
+        });
 
-      toast({
-        title: 'Success',
-        description: 'Ebarimt config saved successfully',
-      });
-    } catch (err: any) {
-      toast({
-        title: 'Error',
-        description: err.message,
-        variant: 'destructive',
-      });
-    } finally {
-      setIsUpdating(false);
+        toast({
+          title: 'Success',
+          description: 'Ebarimt config saved successfully',
+        });
+      } catch (err: any) {
+        toast({
+          title: 'Error',
+          description: err.message,
+          variant: 'destructive',
+        });
+      } finally {
+        setIsUpdating(false);
+      }
+    } else {
+      try {
+        await createConfig({
+          variables: {
+            code: 'EBARIMT',
+            value: payload,
+          },
+        });
+
+        toast({
+          title: 'Success',
+          description: 'Ebarimt config saved successfully',
+        });
+      } catch (err: any) {
+        toast({
+          title: 'Error',
+          description: err.message,
+          variant: 'destructive',
+        });
+      } finally {
+        setIsUpdating(false);
+      }
     }
   };
 

@@ -106,7 +106,7 @@ importers:
         version: 1.0.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@react-email/editor':
         specifier: ^1.1.0
-        version: 1.1.0(@floating-ui/dom@1.7.6)(@tiptap/extension-list@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))(@types/react-dom@18.3.0)(@types/react@18.3.1)(happy-dom@20.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.3.5(@floating-ui/dom@1.7.6)(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))(@types/react-dom@18.3.0)(@types/react@18.3.1)(happy-dom@20.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@react-email/render':
         specifier: 2.0.7
         version: 2.0.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -747,15 +747,264 @@ importers:
 
   backend/core-api:
     dependencies:
+      '@blocknote/core':
+        specifier: ^0.35.0
+        version: 0.35.0(@types/hast@3.0.4)
+      '@faker-js/faker':
+        specifier: ^9.9.0
+        version: 9.9.0
+      '@sendgrid/mail':
+        specifier: ^8.1.5
+        version: 8.1.5
+      '@workos-inc/node':
+        specifier: ^7.65.0
+        version: 7.65.0(express@4.21.2)(koa@2.15.3)(next@16.1.7(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.86.3))
+      bcryptjs:
+        specifier: ^3.0.2
+        version: 3.0.2
       erxes-api-shared:
         specifier: workspace:^
         version: link:../erxes-api-shared
+      firebase-admin:
+        specifier: ^13.6.0
+        version: 13.6.0(encoding@0.1.13)
+      formidable:
+        specifier: ^3.5.4
+        version: 3.5.4
+      graphql-tag:
+        specifier: ^2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      handlebars:
+        specifier: ^4.7.8
+        version: 4.7.8
+      jimp:
+        specifier: ^1.6.0
+        version: 1.6.0
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.2
+      mongodb:
+        specifier: ^6.18.0
+        version: 6.18.0(socks@2.8.7)
       multer:
         specifier: ^1.4.2
         version: 1.4.4
+      nodemailer:
+        specifier: ^6.9.10
+        version: 6.9.10
+      sha256:
+        specifier: ^0.2.0
+        version: 0.2.0
+      telnyx:
+        specifier: ^1.7.2
+        version: 1.27.0
       tmp:
         specifier: ^0.2.3
         version: 0.2.3
+      underscore:
+        specifier: ^1.13.7
+        version: 1.13.7
+      validator:
+        specifier: ^13.15.0
+        version: 13.15.0
+      xss:
+        specifier: ^1.0.15
+        version: 1.0.15
+
+  backend/core-api/dist:
+    dependencies:
+      '@apollo/server':
+        specifier: 4.11.3
+        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
+      '@apollo/subgraph':
+        specifier: 2.10.0
+        version: 2.10.0(graphql@16.10.0)
+      '@azure/storage-blob':
+        specifier: 12.29.1
+        version: 12.29.1
+      '@babel/preset-env':
+        specifier: 7.26.9
+        version: 7.26.9(@babel/core@7.26.10)
+      '@blocknote/core':
+        specifier: 0.35.0
+        version: 0.35.0(@types/hast@3.0.4)
+      '@elastic/elasticsearch':
+        specifier: 7.17.14
+        version: 7.17.14
+      '@faker-js/faker':
+        specifier: 9.9.0
+        version: 9.9.0
+      '@google-cloud/storage':
+        specifier: 7.17.3
+        version: 7.17.3(encoding@0.1.13)
+      '@preconstruct/cli':
+        specifier: 2.8.12
+        version: 2.8.12
+      '@prettier/sync':
+        specifier: 0.5.5
+        version: 0.5.5(prettier@3.6.2)
+      '@sendgrid/mail':
+        specifier: 8.1.5
+        version: 8.1.5
+      '@sniptt/guards':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@trpc/client':
+        specifier: 11.0.4
+        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/server':
+        specifier: 11.0.4
+        version: 11.0.4(typescript@5.8.3)
+      '@types/babel__preset-env':
+        specifier: 7.10.0
+        version: 7.10.0
+      '@types/graphql':
+        specifier: 14.5.0
+        version: 14.5.0
+      '@types/ioredis':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@types/lodash':
+        specifier: 4.17.21
+        version: 4.17.21
+      '@workos-inc/node':
+        specifier: 7.65.0
+        version: 7.65.0(express@4.21.2)(koa@2.15.3)(next@16.1.7(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.86.3))
+      aws-sdk:
+        specifier: 2.1692.0
+        version: 2.1692.0
+      babel-plugin-module-resolver:
+        specifier: 5.0.2
+        version: 5.0.2
+      bcryptjs:
+        specifier: 3.0.2
+        version: 3.0.2
+      bullmq:
+        specifier: 5.40.4
+        version: 5.40.4
+      cookie-parser:
+        specifier: 1.4.7
+        version: 1.4.7
+      cors:
+        specifier: 2.8.5
+        version: 2.8.5
+      csv-parse:
+        specifier: 6.2.1
+        version: 6.2.1
+      dataloader:
+        specifier: 2.2.3
+        version: 2.2.3
+      dayjs:
+        specifier: 1.11.13
+        version: 1.11.13
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../erxes-api-shared
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
+      express:
+        specifier: 4.21.2
+        version: 4.21.2
+      express-rate-limit:
+        specifier: 8.0.1
+        version: 8.0.1(express@4.21.2)
+      file-type:
+        specifier: 20.5.0
+        version: 20.5.0
+      firebase-admin:
+        specifier: 13.6.0
+        version: 13.6.0(encoding@0.1.13)
+      form-data:
+        specifier: 4.0.2
+        version: 4.0.2
+      formidable:
+        specifier: 3.5.4
+        version: 3.5.4
+      glob:
+        specifier: 11.0.1
+        version: 11.0.1
+      graphql:
+        specifier: 16.10.0
+        version: 16.10.0
+      graphql-redis-subscriptions:
+        specifier: 2.7.0
+        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
+      graphql-subscriptions:
+        specifier: 3.0.0
+        version: 3.0.0(graphql@16.10.0)
+      graphql-tag:
+        specifier: 2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      handlebars:
+        specifier: 4.7.8
+        version: 4.7.8
+      helmet:
+        specifier: 8.1.0
+        version: 8.1.0
+      ioredis:
+        specifier: 5.6.1
+        version: 5.6.1
+      jimp:
+        specifier: 1.6.0
+        version: 1.6.0
+      jsonwebtoken:
+        specifier: 9.0.2
+        version: 9.0.2
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
+      mongodb:
+        specifier: 6.18.0
+        version: 6.18.0(socks@2.8.7)
+      mongoose:
+        specifier: 8.13.2
+        version: 8.13.2(socks@2.8.7)
+      multer:
+        specifier: ^1.4.2
+        version: 1.4.4
+      nanoid:
+        specifier: 3.3.11
+        version: 3.3.11
+      node-fetch:
+        specifier: 2.7.0
+        version: 2.7.0(encoding@0.1.13)
+      nodemailer:
+        specifier: 6.9.10
+        version: 6.9.10
+      sha256:
+        specifier: 0.2.0
+        version: 0.2.0
+      strip-ansi:
+        specifier: 6.0.1
+        version: 6.0.1
+      telnyx:
+        specifier: 1.27.0
+        version: 1.27.0
+      tmp:
+        specifier: ^0.2.3
+        version: 0.2.3
+      tslib:
+        specifier: 2.8.1
+        version: 2.8.1
+      underscore:
+        specifier: 1.13.7
+        version: 1.13.7
+      validator:
+        specifier: 13.15.0
+        version: 13.15.0
+      xss:
+        specifier: 1.0.15
+        version: 1.0.15
+      zod:
+        specifier: 3.24.2
+        version: 3.24.2
 
   backend/erxes-api-shared:
     dependencies:
@@ -814,8 +1063,8 @@ importers:
         specifier: ^4.21.2
         version: 4.21.2
       express-rate-limit:
-        specifier: ^6.11.0
-        version: 6.11.2(express@4.21.2)
+        specifier: ^8.0.1
+        version: 8.0.1(express@4.21.2)
       file-type:
         specifier: ^20.5.0
         version: 20.5.0
@@ -898,21 +1147,396 @@ importers:
 
   backend/gateway:
     dependencies:
+      '@apollo/client':
+        specifier: ^3.11.8
+        version: 3.13.6(@types/react@19.1.12)(graphql-ws@5.16.2(graphql@16.10.0))(graphql@16.10.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@bull-board/api':
+        specifier: ^6.7.7
+        version: 6.9.0(@bull-board/ui@6.9.0)
+      '@bull-board/express':
+        specifier: ^6.7.7
+        version: 6.9.0
+      '@envelop/core':
+        specifier: ^5.2.3
+        version: 5.2.3
+      '@escape.tech/graphql-armor-character-limit':
+        specifier: ^2.3.0
+        version: 2.3.0
+      '@escape.tech/graphql-armor-max-aliases':
+        specifier: ^2.6.0
+        version: 2.6.0
+      '@escape.tech/graphql-armor-max-depth':
+        specifier: ^2.4.0
+        version: 2.4.0
+      '@graphql-tools/schema':
+        specifier: ^10.0.23
+        version: 10.0.23(graphql@16.10.0)
       erxes-api-shared:
         specifier: workspace:^
         version: link:../erxes-api-shared
+      graphql-parse-resolve-info:
+        specifier: ^4.14.1
+        version: 4.14.1(graphql@16.10.0)
+      graphql-ws:
+        specifier: ^5.16.0
+        version: 5.16.2(graphql@16.10.0)
+      http-proxy-middleware:
+        specifier: ^3.0.3
+        version: 3.0.5
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.2
+      ws:
+        specifier: ^8.18.2
+        version: 8.19.0
+      yaml:
+        specifier: ^2.7.0
+        version: 2.7.1
+
+  backend/gateway/dist:
+    dependencies:
+      '@apollo/client':
+        specifier: 3.13.6
+        version: 3.13.6(@types/react@19.1.12)(graphql-ws@5.16.2(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@apollo/server':
+        specifier: 4.11.3
+        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
+      '@apollo/subgraph':
+        specifier: 2.10.0
+        version: 2.10.0(graphql@16.10.0)
+      '@azure/storage-blob':
+        specifier: 12.29.1
+        version: 12.29.1
+      '@babel/preset-env':
+        specifier: 7.26.9
+        version: 7.26.9(@babel/core@7.26.10)
+      '@bull-board/api':
+        specifier: 6.9.0
+        version: 6.9.0(@bull-board/ui@6.9.0)
+      '@bull-board/express':
+        specifier: 6.9.0
+        version: 6.9.0
+      '@elastic/elasticsearch':
+        specifier: 7.17.14
+        version: 7.17.14
+      '@envelop/core':
+        specifier: 5.2.3
+        version: 5.2.3
+      '@escape.tech/graphql-armor-character-limit':
+        specifier: 2.3.0
+        version: 2.3.0
+      '@escape.tech/graphql-armor-max-aliases':
+        specifier: 2.6.0
+        version: 2.6.0
+      '@escape.tech/graphql-armor-max-depth':
+        specifier: 2.4.0
+        version: 2.4.0
+      '@google-cloud/storage':
+        specifier: 7.17.3
+        version: 7.17.3(encoding@0.1.13)
+      '@graphql-tools/schema':
+        specifier: 10.0.23
+        version: 10.0.23(graphql@16.10.0)
+      '@preconstruct/cli':
+        specifier: 2.8.12
+        version: 2.8.12
+      '@prettier/sync':
+        specifier: 0.5.5
+        version: 0.5.5(prettier@3.6.2)
+      '@sniptt/guards':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@trpc/client':
+        specifier: 11.0.4
+        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/server':
+        specifier: 11.0.4
+        version: 11.0.4(typescript@5.8.3)
+      '@types/babel__preset-env':
+        specifier: 7.10.0
+        version: 7.10.0
+      '@types/graphql':
+        specifier: 14.5.0
+        version: 14.5.0
+      '@types/ioredis':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@types/lodash':
+        specifier: 4.17.21
+        version: 4.17.21
+      aws-sdk:
+        specifier: 2.1692.0
+        version: 2.1692.0
+      babel-plugin-module-resolver:
+        specifier: 5.0.2
+        version: 5.0.2
+      bullmq:
+        specifier: 5.40.4
+        version: 5.40.4
+      cookie-parser:
+        specifier: 1.4.7
+        version: 1.4.7
+      cors:
+        specifier: 2.8.5
+        version: 2.8.5
+      csv-parse:
+        specifier: 6.2.1
+        version: 6.2.1
+      dataloader:
+        specifier: 2.2.3
+        version: 2.2.3
+      dayjs:
+        specifier: 1.11.13
+        version: 1.11.13
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../erxes-api-shared
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
+      express:
+        specifier: 4.21.2
+        version: 4.21.2
+      express-rate-limit:
+        specifier: 6.11.2
+        version: 6.11.2(express@4.21.2)
+      file-type:
+        specifier: 20.5.0
+        version: 20.5.0
+      form-data:
+        specifier: 4.0.2
+        version: 4.0.2
+      glob:
+        specifier: 11.0.1
+        version: 11.0.1
+      graphql:
+        specifier: 16.10.0
+        version: 16.10.0
+      graphql-parse-resolve-info:
+        specifier: 4.14.1
+        version: 4.14.1(graphql@16.10.0)
+      graphql-redis-subscriptions:
+        specifier: 2.7.0
+        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
+      graphql-subscriptions:
+        specifier: 3.0.0
+        version: 3.0.0(graphql@16.10.0)
+      graphql-ws:
+        specifier: 5.16.2
+        version: 5.16.2(graphql@16.10.0)
+      helmet:
+        specifier: 8.1.0
+        version: 8.1.0
+      http-proxy-middleware:
+        specifier: 3.0.5
+        version: 3.0.5
+      ioredis:
+        specifier: 5.6.1
+        version: 5.6.1
+      jsonwebtoken:
+        specifier: 9.0.2
+        version: 9.0.2
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
+      mongoose:
+        specifier: 8.13.2
+        version: 8.13.2(socks@2.8.7)
+      nanoid:
+        specifier: 3.3.11
+        version: 3.3.11
+      node-fetch:
+        specifier: 2.7.0
+        version: 2.7.0(encoding@0.1.13)
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      strip-ansi:
+        specifier: 6.0.1
+        version: 6.0.1
+      tslib:
+        specifier: 2.8.1
+        version: 2.8.1
+      ws:
+        specifier: 8.18.2
+        version: 8.18.2
+      yaml:
+        specifier: 2.7.1
+        version: 2.7.1
+      zod:
+        specifier: 3.23.8
+        version: 3.23.8
 
   backend/plugins/accounting_api:
     dependencies:
       erxes-api-shared:
         specifier: workspace:^
         version: link:../../erxes-api-shared
+      graphql-tag:
+        specifier: ^2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      underscore:
+        specifier: ^1.13.7
+        version: 1.13.7
+
+  backend/plugins/accounting_api/dist:
+    dependencies:
+      '@apollo/server':
+        specifier: 4.11.3
+        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
+      '@apollo/subgraph':
+        specifier: 2.10.0
+        version: 2.10.0(graphql@16.10.0)
+      '@azure/storage-blob':
+        specifier: 12.29.1
+        version: 12.29.1
+      '@babel/preset-env':
+        specifier: 7.26.9
+        version: 7.26.9(@babel/core@7.26.10)
+      '@elastic/elasticsearch':
+        specifier: 7.17.14
+        version: 7.17.14
+      '@google-cloud/storage':
+        specifier: 7.17.3
+        version: 7.17.3(encoding@0.1.13)
+      '@preconstruct/cli':
+        specifier: 2.8.12
+        version: 2.8.12
+      '@prettier/sync':
+        specifier: 0.5.5
+        version: 0.5.5(prettier@3.6.2)
+      '@sniptt/guards':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@trpc/client':
+        specifier: 11.0.4
+        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/server':
+        specifier: 11.0.4
+        version: 11.0.4(typescript@5.8.3)
+      '@types/babel__preset-env':
+        specifier: 7.10.0
+        version: 7.10.0
+      '@types/graphql':
+        specifier: 14.5.0
+        version: 14.5.0
+      '@types/ioredis':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@types/lodash':
+        specifier: 4.17.21
+        version: 4.17.21
+      aws-sdk:
+        specifier: 2.1692.0
+        version: 2.1692.0
+      babel-plugin-module-resolver:
+        specifier: 5.0.2
+        version: 5.0.2
+      bullmq:
+        specifier: 5.40.4
+        version: 5.40.4
+      cookie-parser:
+        specifier: 1.4.7
+        version: 1.4.7
+      cors:
+        specifier: 2.8.5
+        version: 2.8.5
+      csv-parse:
+        specifier: 6.2.1
+        version: 6.2.1
+      dataloader:
+        specifier: 2.2.3
+        version: 2.2.3
+      dayjs:
+        specifier: 1.11.13
+        version: 1.11.13
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../../erxes-api-shared
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
+      express:
+        specifier: 4.21.2
+        version: 4.21.2
+      express-rate-limit:
+        specifier: 6.11.2
+        version: 6.11.2(express@4.21.2)
+      file-type:
+        specifier: 20.5.0
+        version: 20.5.0
+      form-data:
+        specifier: 4.0.2
+        version: 4.0.2
+      glob:
+        specifier: 11.0.1
+        version: 11.0.1
+      graphql:
+        specifier: 16.10.0
+        version: 16.10.0
+      graphql-redis-subscriptions:
+        specifier: 2.7.0
+        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
+      graphql-subscriptions:
+        specifier: 3.0.0
+        version: 3.0.0(graphql@16.10.0)
+      graphql-tag:
+        specifier: 2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      helmet:
+        specifier: 8.1.0
+        version: 8.1.0
+      ioredis:
+        specifier: 5.6.1
+        version: 5.6.1
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
+      mongoose:
+        specifier: 8.13.2
+        version: 8.13.2(socks@2.8.7)
+      nanoid:
+        specifier: 3.3.11
+        version: 3.3.11
+      node-fetch:
+        specifier: 2.7.0
+        version: 2.7.0(encoding@0.1.13)
+      strip-ansi:
+        specifier: 6.0.1
+        version: 6.0.1
+      tslib:
+        specifier: 2.8.1
+        version: 2.8.1
+      underscore:
+        specifier: 1.13.7
+        version: 1.13.7
+      zod:
+        specifier: 3.24.2
+        version: 3.24.2
 
   backend/plugins/content_api:
     dependencies:
       erxes-api-shared:
         specifier: workspace:^
         version: link:../../erxes-api-shared
+      graphql-tag:
+        specifier: ^2.12.6
+        version: 2.12.6(graphql@16.10.0)
       html-to-text:
         specifier: ^8.2.1
         version: 8.2.1
@@ -926,6 +1550,156 @@ importers:
         specifier: ^0.2.3
         version: 0.2.3
 
+  backend/plugins/content_api/dist:
+    dependencies:
+      '@apollo/server':
+        specifier: 4.11.3
+        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
+      '@apollo/subgraph':
+        specifier: 2.10.0
+        version: 2.10.0(graphql@16.10.0)
+      '@azure/storage-blob':
+        specifier: 12.29.1
+        version: 12.29.1
+      '@babel/preset-env':
+        specifier: 7.26.9
+        version: 7.26.9(@babel/core@7.26.10)
+      '@elastic/elasticsearch':
+        specifier: 7.17.14
+        version: 7.17.14
+      '@google-cloud/storage':
+        specifier: 7.17.3
+        version: 7.17.3(encoding@0.1.13)
+      '@preconstruct/cli':
+        specifier: 2.8.12
+        version: 2.8.12
+      '@prettier/sync':
+        specifier: 0.5.5
+        version: 0.5.5(prettier@3.6.2)
+      '@sniptt/guards':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@trpc/client':
+        specifier: 11.0.4
+        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/server':
+        specifier: 11.0.4
+        version: 11.0.4(typescript@5.8.3)
+      '@types/babel__preset-env':
+        specifier: 7.10.0
+        version: 7.10.0
+      '@types/graphql':
+        specifier: 14.5.0
+        version: 14.5.0
+      '@types/ioredis':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@types/lodash':
+        specifier: 4.17.21
+        version: 4.17.21
+      aws-sdk:
+        specifier: 2.1692.0
+        version: 2.1692.0
+      babel-plugin-module-resolver:
+        specifier: 5.0.2
+        version: 5.0.2
+      bullmq:
+        specifier: 5.40.4
+        version: 5.40.4
+      cookie-parser:
+        specifier: 1.4.7
+        version: 1.4.7
+      cors:
+        specifier: 2.8.5
+        version: 2.8.5
+      csv-parse:
+        specifier: 6.2.1
+        version: 6.2.1
+      dataloader:
+        specifier: 2.2.3
+        version: 2.2.3
+      dayjs:
+        specifier: 1.11.13
+        version: 1.11.13
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../../erxes-api-shared
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
+      express:
+        specifier: 4.21.2
+        version: 4.21.2
+      express-rate-limit:
+        specifier: 6.11.2
+        version: 6.11.2(express@4.21.2)
+      file-type:
+        specifier: 20.5.0
+        version: 20.5.0
+      form-data:
+        specifier: 4.0.2
+        version: 4.0.2
+      glob:
+        specifier: 11.0.1
+        version: 11.0.1
+      graphql:
+        specifier: 16.10.0
+        version: 16.10.0
+      graphql-redis-subscriptions:
+        specifier: 2.7.0
+        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
+      graphql-subscriptions:
+        specifier: 3.0.0
+        version: 3.0.0(graphql@16.10.0)
+      graphql-tag:
+        specifier: 2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      helmet:
+        specifier: 8.1.0
+        version: 8.1.0
+      html-to-text:
+        specifier: ^8.2.1
+        version: 8.2.1
+      ioredis:
+        specifier: 5.6.1
+        version: 5.6.1
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
+      mongoose:
+        specifier: 8.13.2
+        version: 8.13.2(socks@2.8.7)
+      nanoid:
+        specifier: 3.3.11
+        version: 3.3.11
+      node-fetch:
+        specifier: 2.7.0
+        version: 2.7.0(encoding@0.1.13)
+      simple-git:
+        specifier: ^3.26.0
+        version: 3.28.0
+      slugify:
+        specifier: ^1.6.6
+        version: 1.6.6
+      strip-ansi:
+        specifier: 6.0.1
+        version: 6.0.1
+      tmp:
+        specifier: ^0.2.3
+        version: 0.2.3
+      tslib:
+        specifier: 2.8.1
+        version: 2.8.1
+      zod:
+        specifier: 3.23.8
+        version: 3.23.8
+
   backend/plugins/frontline_api:
     dependencies:
       aws-sdk:
@@ -934,6 +1708,9 @@ importers:
       base64-stream:
         specifier: ^1.0.0
         version: 1.0.0
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
       debug:
         specifier: ^4.4.0
         version: 4.4.0(supports-color@5.5.0)
@@ -946,78 +1723,1062 @@ importers:
       fbgraph:
         specifier: ^1.4.4
         version: 1.4.4
+      graphql-tag:
+        specifier: ^2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.2
       mailparser:
         specifier: ^3.9.1
         version: 3.9.1
       moment-timezone:
         specifier: ^0.5.48
         version: 0.5.48
+      mongodb:
+        specifier: ^6.18.0
+        version: 6.18.0(socks@2.8.7)
       node-imap:
         specifier: ^0.9.6
         version: 0.9.6
+      nodemailer:
+        specifier: ^6.9.10
+        version: 6.9.10
       redlock:
         specifier: 5.0.0-beta.2
         version: 5.0.0-beta.2
       string-strip-html:
         specifier: ^13.4.12
         version: 13.4.12
+      strip:
+        specifier: ^3.0.0
+        version: 3.0.0
       strip-html:
         specifier: ^1.0.2
         version: 1.0.2
+      underscore:
+        specifier: ^1.13.7
+        version: 1.13.7
       uuid-by-string:
         specifier: ^4.0.0
         version: 4.0.0
+      validator:
+        specifier: ^13.15.0
+        version: 13.15.0
+      ws:
+        specifier: ^8.18.2
+        version: 8.19.0
+
+  backend/plugins/frontline_api/dist:
+    dependencies:
+      '@apollo/server':
+        specifier: 4.11.3
+        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
+      '@apollo/subgraph':
+        specifier: 2.10.0
+        version: 2.10.0(graphql@16.10.0)
+      '@azure/storage-blob':
+        specifier: 12.29.1
+        version: 12.29.1
+      '@babel/preset-env':
+        specifier: 7.26.9
+        version: 7.26.9(@babel/core@7.26.10)
+      '@elastic/elasticsearch':
+        specifier: 7.17.14
+        version: 7.17.14
+      '@google-cloud/storage':
+        specifier: 7.17.3
+        version: 7.17.3(encoding@0.1.13)
+      '@preconstruct/cli':
+        specifier: 2.8.12
+        version: 2.8.12
+      '@prettier/sync':
+        specifier: 0.5.5
+        version: 0.5.5(prettier@3.6.2)
+      '@sniptt/guards':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@trpc/client':
+        specifier: 11.0.4
+        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/server':
+        specifier: 11.0.4
+        version: 11.0.4(typescript@5.8.3)
+      '@types/babel__preset-env':
+        specifier: 7.10.0
+        version: 7.10.0
+      '@types/graphql':
+        specifier: 14.5.0
+        version: 14.5.0
+      '@types/ioredis':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@types/lodash':
+        specifier: 4.17.21
+        version: 4.17.21
+      aws-sdk:
+        specifier: ^2.1692.0
+        version: 2.1692.0
+      babel-plugin-module-resolver:
+        specifier: 5.0.2
+        version: 5.0.2
+      base64-stream:
+        specifier: ^1.0.0
+        version: 1.0.0
+      bullmq:
+        specifier: 5.40.4
+        version: 5.40.4
+      cookie-parser:
+        specifier: 1.4.7
+        version: 1.4.7
+      cors:
+        specifier: 2.8.5
+        version: 2.8.5
+      csv-parse:
+        specifier: 6.2.1
+        version: 6.2.1
+      dataloader:
+        specifier: 2.2.3
+        version: 2.2.3
+      date-fns:
+        specifier: 4.1.0
+        version: 4.1.0
+      dayjs:
+        specifier: 1.11.13
+        version: 1.11.13
+      debug:
+        specifier: ^4.4.0
+        version: 4.4.3(supports-color@8.1.1)
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../../erxes-api-shared
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
+      express:
+        specifier: 4.21.2
+        version: 4.21.2
+      express-rate-limit:
+        specifier: 6.11.2
+        version: 6.11.2(express@4.21.2)
+      fast-xml-parser:
+        specifier: 5.2.5
+        version: 5.2.5
+      fbgraph:
+        specifier: ^1.4.4
+        version: 1.4.4
+      file-type:
+        specifier: 20.5.0
+        version: 20.5.0
+      form-data:
+        specifier: 4.0.2
+        version: 4.0.2
+      glob:
+        specifier: 11.0.1
+        version: 11.0.1
+      graphql:
+        specifier: 16.10.0
+        version: 16.10.0
+      graphql-redis-subscriptions:
+        specifier: 2.7.0
+        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
+      graphql-subscriptions:
+        specifier: 3.0.0
+        version: 3.0.0(graphql@16.10.0)
+      graphql-tag:
+        specifier: 2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      helmet:
+        specifier: 8.1.0
+        version: 8.1.0
+      ioredis:
+        specifier: 5.6.1
+        version: 5.6.1
+      jsonwebtoken:
+        specifier: 9.0.2
+        version: 9.0.2
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
+      mailparser:
+        specifier: ^3.9.1
+        version: 3.9.1
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
+      moment-timezone:
+        specifier: ^0.5.48
+        version: 0.5.48
+      mongodb:
+        specifier: 6.18.0
+        version: 6.18.0(socks@2.8.7)
+      mongoose:
+        specifier: 8.13.2
+        version: 8.13.2(socks@2.8.7)
+      nanoid:
+        specifier: 3.3.11
+        version: 3.3.11
+      node-fetch:
+        specifier: 2.7.0
+        version: 2.7.0(encoding@0.1.13)
+      node-imap:
+        specifier: ^0.9.6
+        version: 0.9.6
+      nodemailer:
+        specifier: 6.9.10
+        version: 6.9.10
+      redlock:
+        specifier: 5.0.0-beta.2
+        version: 5.0.0-beta.2
+      string-strip-html:
+        specifier: ^13.4.12
+        version: 13.4.12
+      strip:
+        specifier: 3.0.0
+        version: 3.0.0
+      strip-ansi:
+        specifier: 6.0.1
+        version: 6.0.1
+      strip-html:
+        specifier: ^1.0.2
+        version: 1.0.2
+      tslib:
+        specifier: 2.8.1
+        version: 2.8.1
+      underscore:
+        specifier: 1.13.7
+        version: 1.13.7
+      uuid-by-string:
+        specifier: ^4.0.0
+        version: 4.0.0
+      validator:
+        specifier: 13.15.0
+        version: 13.15.0
+      ws:
+        specifier: 8.18.2
+        version: 8.18.2
+      zod:
+        specifier: 3.24.2
+        version: 3.24.2
 
   backend/plugins/insurance_api:
     dependencies:
+      bcryptjs:
+        specifier: ^3.0.2
+        version: 3.0.2
       erxes-api-shared:
         specifier: workspace:^
         version: link:../../erxes-api-shared
+      graphql-tag:
+        specifier: ^2.12.6
+        version: 2.12.6(graphql@16.10.0)
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.2
       puppeteer:
         specifier: ^24.23.0
         version: 24.36.1(typescript@5.8.3)
+
+  backend/plugins/insurance_api/dist:
+    dependencies:
+      '@apollo/server':
+        specifier: 4.11.3
+        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
+      '@apollo/subgraph':
+        specifier: 2.10.0
+        version: 2.10.0(graphql@16.10.0)
+      '@azure/storage-blob':
+        specifier: 12.29.1
+        version: 12.29.1
+      '@babel/preset-env':
+        specifier: 7.26.9
+        version: 7.26.9(@babel/core@7.26.10)
+      '@elastic/elasticsearch':
+        specifier: 7.17.14
+        version: 7.17.14
+      '@google-cloud/storage':
+        specifier: 7.17.3
+        version: 7.17.3(encoding@0.1.13)
+      '@preconstruct/cli':
+        specifier: 2.8.12
+        version: 2.8.12
+      '@prettier/sync':
+        specifier: 0.5.5
+        version: 0.5.5(prettier@3.6.2)
+      '@sniptt/guards':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@trpc/client':
+        specifier: 11.0.4
+        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/server':
+        specifier: 11.0.4
+        version: 11.0.4(typescript@5.8.3)
+      '@types/babel__preset-env':
+        specifier: 7.10.0
+        version: 7.10.0
+      '@types/graphql':
+        specifier: 14.5.0
+        version: 14.5.0
+      '@types/ioredis':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@types/lodash':
+        specifier: 4.17.21
+        version: 4.17.21
+      aws-sdk:
+        specifier: 2.1692.0
+        version: 2.1692.0
+      babel-plugin-module-resolver:
+        specifier: 5.0.2
+        version: 5.0.2
+      bcryptjs:
+        specifier: 3.0.2
+        version: 3.0.2
+      bullmq:
+        specifier: 5.40.4
+        version: 5.40.4
+      cookie-parser:
+        specifier: 1.4.7
+        version: 1.4.7
+      cors:
+        specifier: 2.8.5
+        version: 2.8.5
+      csv-parse:
+        specifier: 6.2.1
+        version: 6.2.1
+      dataloader:
+        specifier: 2.2.3
+        version: 2.2.3
+      dayjs:
+        specifier: 1.11.13
+        version: 1.11.13
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../../erxes-api-shared
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
+      express:
+        specifier: 4.21.2
+        version: 4.21.2
+      express-rate-limit:
+        specifier: 6.11.2
+        version: 6.11.2(express@4.21.2)
+      file-type:
+        specifier: 20.5.0
+        version: 20.5.0
+      form-data:
+        specifier: 4.0.2
+        version: 4.0.2
+      glob:
+        specifier: 11.0.1
+        version: 11.0.1
+      graphql:
+        specifier: 16.10.0
+        version: 16.10.0
+      graphql-redis-subscriptions:
+        specifier: 2.7.0
+        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
+      graphql-subscriptions:
+        specifier: 3.0.0
+        version: 3.0.0(graphql@16.10.0)
+      graphql-tag:
+        specifier: 2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      handlebars:
+        specifier: ^4.7.8
+        version: 4.7.8
+      helmet:
+        specifier: 8.1.0
+        version: 8.1.0
+      ioredis:
+        specifier: 5.6.1
+        version: 5.6.1
+      jsonwebtoken:
+        specifier: 9.0.2
+        version: 9.0.2
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
+      mongoose:
+        specifier: 8.13.2
+        version: 8.13.2(socks@2.8.7)
+      nanoid:
+        specifier: 3.3.11
+        version: 3.3.11
+      node-fetch:
+        specifier: 2.7.0
+        version: 2.7.0(encoding@0.1.13)
+      puppeteer:
+        specifier: ^24.23.0
+        version: 24.36.1(typescript@5.8.3)
+      strip-ansi:
+        specifier: 6.0.1
+        version: 6.0.1
+      tslib:
+        specifier: 2.8.1
+        version: 2.8.1
+      zod:
+        specifier: 3.23.8
+        version: 3.23.8
 
   backend/plugins/loyalty_api:
     dependencies:
       erxes-api-shared:
         specifier: workspace:^
         version: link:../../erxes-api-shared
+      graphql-tag:
+        specifier: ^2.12.6
+        version: 2.12.6(graphql@16.10.0)
       mathjs:
         specifier: ^15.1.1
         version: 15.1.1
+
+  backend/plugins/loyalty_api/dist:
+    dependencies:
+      '@apollo/server':
+        specifier: 4.11.3
+        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
+      '@apollo/subgraph':
+        specifier: 2.10.0
+        version: 2.10.0(graphql@16.10.0)
+      '@azure/storage-blob':
+        specifier: 12.29.1
+        version: 12.29.1
+      '@babel/preset-env':
+        specifier: 7.26.9
+        version: 7.26.9(@babel/core@7.26.10)
+      '@elastic/elasticsearch':
+        specifier: 7.17.14
+        version: 7.17.14
+      '@google-cloud/storage':
+        specifier: 7.17.3
+        version: 7.17.3(encoding@0.1.13)
+      '@preconstruct/cli':
+        specifier: 2.8.12
+        version: 2.8.12
+      '@prettier/sync':
+        specifier: 0.5.5
+        version: 0.5.5(prettier@3.6.2)
+      '@sniptt/guards':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@trpc/client':
+        specifier: 11.0.4
+        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/server':
+        specifier: 11.0.4
+        version: 11.0.4(typescript@5.8.3)
+      '@types/babel__preset-env':
+        specifier: 7.10.0
+        version: 7.10.0
+      '@types/graphql':
+        specifier: 14.5.0
+        version: 14.5.0
+      '@types/ioredis':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@types/lodash':
+        specifier: 4.17.21
+        version: 4.17.21
+      aws-sdk:
+        specifier: 2.1692.0
+        version: 2.1692.0
+      babel-plugin-module-resolver:
+        specifier: 5.0.2
+        version: 5.0.2
+      bullmq:
+        specifier: 5.40.4
+        version: 5.40.4
+      cookie-parser:
+        specifier: 1.4.7
+        version: 1.4.7
+      cors:
+        specifier: 2.8.5
+        version: 2.8.5
+      csv-parse:
+        specifier: 6.2.1
+        version: 6.2.1
+      dataloader:
+        specifier: 2.2.3
+        version: 2.2.3
+      dayjs:
+        specifier: 1.11.13
+        version: 1.11.13
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../../erxes-api-shared
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
+      express:
+        specifier: 4.21.2
+        version: 4.21.2
+      express-rate-limit:
+        specifier: 6.11.2
+        version: 6.11.2(express@4.21.2)
+      file-type:
+        specifier: 20.5.0
+        version: 20.5.0
+      form-data:
+        specifier: 4.0.2
+        version: 4.0.2
+      glob:
+        specifier: 11.0.1
+        version: 11.0.1
+      graphql:
+        specifier: 16.10.0
+        version: 16.10.0
+      graphql-redis-subscriptions:
+        specifier: 2.7.0
+        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
+      graphql-subscriptions:
+        specifier: 3.0.0
+        version: 3.0.0(graphql@16.10.0)
+      graphql-tag:
+        specifier: 2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      helmet:
+        specifier: 8.1.0
+        version: 8.1.0
+      ioredis:
+        specifier: 5.6.1
+        version: 5.6.1
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
+      mathjs:
+        specifier: ^15.1.1
+        version: 15.1.1
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
+      mongoose:
+        specifier: 8.13.2
+        version: 8.13.2(socks@2.8.7)
+      nanoid:
+        specifier: 3.3.11
+        version: 3.3.11
+      node-fetch:
+        specifier: 2.7.0
+        version: 2.7.0(encoding@0.1.13)
+      strip-ansi:
+        specifier: 6.0.1
+        version: 6.0.1
+      tslib:
+        specifier: 2.8.1
+        version: 2.8.1
+      zod:
+        specifier: 3.24.2
+        version: 3.24.2
 
   backend/plugins/mongolian_api:
     dependencies:
       erxes-api-shared:
         specifier: workspace:^
         version: link:../../erxes-api-shared
+      graphql-tag:
+        specifier: ^2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      mongodb:
+        specifier: ^6.18.0
+        version: 6.18.0(socks@2.8.7)
+
+  backend/plugins/mongolian_api/dist:
+    dependencies:
+      '@apollo/server':
+        specifier: 4.11.3
+        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
+      '@apollo/subgraph':
+        specifier: 2.10.0
+        version: 2.10.0(graphql@16.10.0)
+      '@azure/storage-blob':
+        specifier: 12.29.1
+        version: 12.29.1
+      '@babel/preset-env':
+        specifier: 7.26.9
+        version: 7.26.9(@babel/core@7.26.10)
+      '@elastic/elasticsearch':
+        specifier: 7.17.14
+        version: 7.17.14
+      '@google-cloud/storage':
+        specifier: 7.17.3
+        version: 7.17.3(encoding@0.1.13)
+      '@preconstruct/cli':
+        specifier: 2.8.12
+        version: 2.8.12
+      '@prettier/sync':
+        specifier: 0.5.5
+        version: 0.5.5(prettier@3.6.2)
+      '@sniptt/guards':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@trpc/client':
+        specifier: 11.0.4
+        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/server':
+        specifier: 11.0.4
+        version: 11.0.4(typescript@5.8.3)
+      '@types/babel__preset-env':
+        specifier: 7.10.0
+        version: 7.10.0
+      '@types/graphql':
+        specifier: 14.5.0
+        version: 14.5.0
+      '@types/ioredis':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@types/lodash':
+        specifier: 4.17.21
+        version: 4.17.21
+      aws-sdk:
+        specifier: 2.1692.0
+        version: 2.1692.0
+      babel-plugin-module-resolver:
+        specifier: 5.0.2
+        version: 5.0.2
+      bullmq:
+        specifier: 5.40.4
+        version: 5.40.4
+      cookie-parser:
+        specifier: 1.4.7
+        version: 1.4.7
+      cors:
+        specifier: 2.8.5
+        version: 2.8.5
+      csv-parse:
+        specifier: 6.2.1
+        version: 6.2.1
+      dataloader:
+        specifier: 2.2.3
+        version: 2.2.3
+      dayjs:
+        specifier: 1.11.13
+        version: 1.11.13
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../../erxes-api-shared
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
+      express:
+        specifier: 4.21.2
+        version: 4.21.2
+      express-rate-limit:
+        specifier: 6.11.2
+        version: 6.11.2(express@4.21.2)
+      file-type:
+        specifier: 20.5.0
+        version: 20.5.0
+      form-data:
+        specifier: 4.0.2
+        version: 4.0.2
+      glob:
+        specifier: 11.0.1
+        version: 11.0.1
+      graphql:
+        specifier: 16.10.0
+        version: 16.10.0
+      graphql-redis-subscriptions:
+        specifier: 2.7.0
+        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
+      graphql-subscriptions:
+        specifier: 3.0.0
+        version: 3.0.0(graphql@16.10.0)
+      graphql-tag:
+        specifier: 2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      helmet:
+        specifier: 8.1.0
+        version: 8.1.0
+      ioredis:
+        specifier: 5.6.1
+        version: 5.6.1
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
+      mongodb:
+        specifier: 6.18.0
+        version: 6.18.0(socks@2.8.7)
+      mongoose:
+        specifier: 8.13.2
+        version: 8.13.2(socks@2.8.7)
+      nanoid:
+        specifier: 3.3.11
+        version: 3.3.11
+      node-fetch:
+        specifier: 2.7.0
+        version: 2.7.0(encoding@0.1.13)
+      strip-ansi:
+        specifier: 6.0.1
+        version: 6.0.1
+      tslib:
+        specifier: 2.8.1
+        version: 2.8.1
+      zod:
+        specifier: 3.24.2
+        version: 3.24.2
 
   backend/plugins/operation_api:
     dependencies:
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
       erxes-api-shared:
         specifier: workspace:^
         version: link:../../erxes-api-shared
+      graphql-tag:
+        specifier: ^2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      moment-timezone:
+        specifier: ^0.5.48
+        version: 0.5.48
+      mongodb:
+        specifier: ^6.18.0
+        version: 6.18.0(socks@2.8.7)
+
+  backend/plugins/operation_api/dist:
+    dependencies:
+      '@apollo/server':
+        specifier: 4.11.3
+        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
+      '@apollo/subgraph':
+        specifier: 2.10.0
+        version: 2.10.0(graphql@16.10.0)
+      '@azure/storage-blob':
+        specifier: 12.29.1
+        version: 12.29.1
+      '@babel/preset-env':
+        specifier: 7.26.9
+        version: 7.26.9(@babel/core@7.26.10)
+      '@elastic/elasticsearch':
+        specifier: 7.17.14
+        version: 7.17.14
+      '@google-cloud/storage':
+        specifier: 7.17.3
+        version: 7.17.3(encoding@0.1.13)
+      '@preconstruct/cli':
+        specifier: 2.8.12
+        version: 2.8.12
+      '@prettier/sync':
+        specifier: 0.5.5
+        version: 0.5.5(prettier@3.6.2)
+      '@sniptt/guards':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@trpc/client':
+        specifier: 11.0.4
+        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/server':
+        specifier: 11.0.4
+        version: 11.0.4(typescript@5.8.3)
+      '@types/babel__preset-env':
+        specifier: 7.10.0
+        version: 7.10.0
+      '@types/graphql':
+        specifier: 14.5.0
+        version: 14.5.0
+      '@types/ioredis':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@types/lodash':
+        specifier: 4.17.21
+        version: 4.17.21
+      aws-sdk:
+        specifier: 2.1692.0
+        version: 2.1692.0
+      babel-plugin-module-resolver:
+        specifier: 5.0.2
+        version: 5.0.2
+      bullmq:
+        specifier: 5.40.4
+        version: 5.40.4
+      cookie-parser:
+        specifier: 1.4.7
+        version: 1.4.7
+      cors:
+        specifier: 2.8.5
+        version: 2.8.5
+      csv-parse:
+        specifier: 6.2.1
+        version: 6.2.1
+      dataloader:
+        specifier: 2.2.3
+        version: 2.2.3
+      date-fns:
+        specifier: 4.1.0
+        version: 4.1.0
+      dayjs:
+        specifier: 1.11.13
+        version: 1.11.13
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../../erxes-api-shared
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
+      express:
+        specifier: 4.21.2
+        version: 4.21.2
+      express-rate-limit:
+        specifier: 6.11.2
+        version: 6.11.2(express@4.21.2)
+      file-type:
+        specifier: 20.5.0
+        version: 20.5.0
+      form-data:
+        specifier: 4.0.2
+        version: 4.0.2
+      glob:
+        specifier: 11.0.1
+        version: 11.0.1
+      graphql:
+        specifier: 16.10.0
+        version: 16.10.0
+      graphql-redis-subscriptions:
+        specifier: 2.7.0
+        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
+      graphql-subscriptions:
+        specifier: 3.0.0
+        version: 3.0.0(graphql@16.10.0)
+      graphql-tag:
+        specifier: 2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      helmet:
+        specifier: 8.1.0
+        version: 8.1.0
+      ioredis:
+        specifier: 5.6.1
+        version: 5.6.1
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
+      moment-timezone:
+        specifier: 0.5.48
+        version: 0.5.48
+      mongodb:
+        specifier: 6.18.0
+        version: 6.18.0(socks@2.8.7)
+      mongoose:
+        specifier: 8.13.2
+        version: 8.13.2(socks@2.8.7)
+      nanoid:
+        specifier: 3.3.11
+        version: 3.3.11
+      node-fetch:
+        specifier: 2.7.0
+        version: 2.7.0(encoding@0.1.13)
+      strip-ansi:
+        specifier: 6.0.1
+        version: 6.0.1
+      tslib:
+        specifier: 2.8.1
+        version: 2.8.1
+      zod:
+        specifier: 3.24.2
+        version: 3.24.2
 
   backend/plugins/payment_api:
     dependencies:
-      '@stripe/react-stripe-js':
-        specifier: ^2.8.1
-        version: 2.9.0(@stripe/stripe-js@4.10.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
-      '@stripe/stripe-js':
-        specifier: ^4.9.0
-        version: 4.10.0
       erxes-api-shared:
         specifier: workspace:^
         version: link:../../erxes-api-shared
+      graphql-tag:
+        specifier: ^2.12.6
+        version: 2.12.6(graphql@16.10.0)
       qrcode:
         specifier: ^1.5.0
         version: 1.5.4
       stripe:
         specifier: ^17.2.1
         version: 17.7.0
+
+  backend/plugins/payment_api/dist:
+    dependencies:
+      '@apollo/server':
+        specifier: 4.11.3
+        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
+      '@apollo/subgraph':
+        specifier: 2.10.0
+        version: 2.10.0(graphql@16.10.0)
+      '@azure/storage-blob':
+        specifier: 12.29.1
+        version: 12.29.1
+      '@babel/preset-env':
+        specifier: 7.26.9
+        version: 7.26.9(@babel/core@7.26.10)
+      '@elastic/elasticsearch':
+        specifier: 7.17.14
+        version: 7.17.14
+      '@google-cloud/storage':
+        specifier: 7.17.3
+        version: 7.17.3(encoding@0.1.13)
+      '@preconstruct/cli':
+        specifier: 2.8.12
+        version: 2.8.12
+      '@prettier/sync':
+        specifier: 0.5.5
+        version: 0.5.5(prettier@3.6.2)
+      '@sniptt/guards':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@stripe/react-stripe-js':
+        specifier: ^2.8.1
+        version: 2.9.0(@stripe/stripe-js@4.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@stripe/stripe-js':
+        specifier: ^4.9.0
+        version: 4.10.0
+      '@trpc/client':
+        specifier: 11.0.4
+        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/server':
+        specifier: 11.0.4
+        version: 11.0.4(typescript@5.8.3)
+      '@types/babel__preset-env':
+        specifier: 7.10.0
+        version: 7.10.0
+      '@types/graphql':
+        specifier: 14.5.0
+        version: 14.5.0
+      '@types/ioredis':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@types/lodash':
+        specifier: 4.17.21
+        version: 4.17.21
+      aws-sdk:
+        specifier: 2.1692.0
+        version: 2.1692.0
+      babel-plugin-module-resolver:
+        specifier: 5.0.2
+        version: 5.0.2
+      bullmq:
+        specifier: 5.40.4
+        version: 5.40.4
+      cookie-parser:
+        specifier: 1.4.7
+        version: 1.4.7
+      cors:
+        specifier: 2.8.5
+        version: 2.8.5
+      csv-parse:
+        specifier: 6.2.1
+        version: 6.2.1
+      dataloader:
+        specifier: 2.2.3
+        version: 2.2.3
+      dayjs:
+        specifier: 1.11.13
+        version: 1.11.13
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../../erxes-api-shared
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
+      express:
+        specifier: 4.21.2
+        version: 4.21.2
+      express-rate-limit:
+        specifier: 6.11.2
+        version: 6.11.2(express@4.21.2)
+      file-type:
+        specifier: 20.5.0
+        version: 20.5.0
+      form-data:
+        specifier: 4.0.2
+        version: 4.0.2
+      glob:
+        specifier: 11.0.1
+        version: 11.0.1
+      graphql:
+        specifier: 16.10.0
+        version: 16.10.0
+      graphql-redis-subscriptions:
+        specifier: 2.7.0
+        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
+      graphql-subscriptions:
+        specifier: 3.0.0
+        version: 3.0.0(graphql@16.10.0)
+      graphql-tag:
+        specifier: 2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      helmet:
+        specifier: 8.1.0
+        version: 8.1.0
+      ioredis:
+        specifier: 5.6.1
+        version: 5.6.1
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
+      mongoose:
+        specifier: 8.13.2
+        version: 8.13.2(socks@2.8.7)
+      nanoid:
+        specifier: 3.3.11
+        version: 3.3.11
+      node-fetch:
+        specifier: 2.7.0
+        version: 2.7.0(encoding@0.1.13)
+      qrcode:
+        specifier: ^1.5.0
+        version: 1.5.4
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      strip-ansi:
+        specifier: 6.0.1
+        version: 6.0.1
+      stripe:
+        specifier: ^17.2.1
+        version: 17.7.0
+      tailwindcss-animate:
+        specifier: 1.0.7
+        version: 1.0.7(tailwindcss@4.1.17)
+      tslib:
+        specifier: 2.8.1
+        version: 2.8.1
+      zod:
+        specifier: 3.24.2
+        version: 3.24.2
 
   backend/plugins/payment_api/src/widget:
     dependencies:
@@ -1033,6 +2794,12 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.1.0
         version: 1.2.3(@types/react@19.1.12)(react@19.1.1)
+      '@stripe/react-stripe-js':
+        specifier: ^2.8.1
+        version: 2.9.0(@stripe/stripe-js@4.10.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@stripe/stripe-js':
+        specifier: ^4.9.0
+        version: 4.10.0
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.1
@@ -1109,9 +2876,15 @@ importers:
 
   backend/plugins/posclient_api:
     dependencies:
+      '@graphql-tools/schema':
+        specifier: ^10.0.23
+        version: 10.0.23(graphql@16.10.0)
       aws-sdk:
         specifier: ^2.1692.0
         version: 2.1692.0
+      bcryptjs:
+        specifier: ^3.0.2
+        version: 3.0.2
       debug:
         specifier: ^4.4.0
         version: 4.4.0(supports-color@5.5.0)
@@ -1121,24 +2894,504 @@ importers:
       fbgraph:
         specifier: ^1.4.4
         version: 1.4.4
+      graphql-tag:
+        specifier: ^2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      graphql-ws:
+        specifier: ^5.16.0
+        version: 5.16.2(graphql@16.10.0)
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.2
       moment-timezone:
         specifier: ^0.5.48
         version: 0.5.48
+      sha256:
+        specifier: ^0.2.0
+        version: 0.2.0
+      ws:
+        specifier: ^8.18.2
+        version: 8.19.0
+
+  backend/plugins/posclient_api/dist:
+    dependencies:
+      '@apollo/server':
+        specifier: 4.11.3
+        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
+      '@apollo/subgraph':
+        specifier: 2.10.0
+        version: 2.10.0(graphql@16.10.0)
+      '@azure/storage-blob':
+        specifier: 12.29.1
+        version: 12.29.1
+      '@babel/preset-env':
+        specifier: 7.26.9
+        version: 7.26.9(@babel/core@7.26.10)
+      '@elastic/elasticsearch':
+        specifier: 7.17.14
+        version: 7.17.14
+      '@google-cloud/storage':
+        specifier: 7.17.3
+        version: 7.17.3(encoding@0.1.13)
+      '@graphql-tools/schema':
+        specifier: 10.0.23
+        version: 10.0.23(graphql@16.10.0)
+      '@preconstruct/cli':
+        specifier: 2.8.12
+        version: 2.8.12
+      '@prettier/sync':
+        specifier: 0.5.5
+        version: 0.5.5(prettier@3.6.2)
+      '@sniptt/guards':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@trpc/client':
+        specifier: 11.0.4
+        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/server':
+        specifier: 11.0.4
+        version: 11.0.4(typescript@5.8.3)
+      '@types/babel__preset-env':
+        specifier: 7.10.0
+        version: 7.10.0
+      '@types/graphql':
+        specifier: 14.5.0
+        version: 14.5.0
+      '@types/ioredis':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@types/lodash':
+        specifier: 4.17.21
+        version: 4.17.21
+      aws-sdk:
+        specifier: ^2.1692.0
+        version: 2.1692.0
+      babel-plugin-module-resolver:
+        specifier: 5.0.2
+        version: 5.0.2
+      bcryptjs:
+        specifier: 3.0.2
+        version: 3.0.2
+      bullmq:
+        specifier: 5.40.4
+        version: 5.40.4
+      cookie-parser:
+        specifier: 1.4.7
+        version: 1.4.7
+      cors:
+        specifier: 2.8.5
+        version: 2.8.5
+      csv-parse:
+        specifier: 6.2.1
+        version: 6.2.1
+      dataloader:
+        specifier: 2.2.3
+        version: 2.2.3
+      dayjs:
+        specifier: 1.11.13
+        version: 1.11.13
+      debug:
+        specifier: ^4.4.0
+        version: 4.4.3(supports-color@8.1.1)
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../../erxes-api-shared
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
+      express:
+        specifier: 4.21.2
+        version: 4.21.2
+      express-rate-limit:
+        specifier: 6.11.2
+        version: 6.11.2(express@4.21.2)
+      fbgraph:
+        specifier: ^1.4.4
+        version: 1.4.4
+      file-type:
+        specifier: 20.5.0
+        version: 20.5.0
+      form-data:
+        specifier: 4.0.2
+        version: 4.0.2
+      glob:
+        specifier: 11.0.1
+        version: 11.0.1
+      graphql:
+        specifier: 16.10.0
+        version: 16.10.0
+      graphql-redis-subscriptions:
+        specifier: 2.7.0
+        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
+      graphql-subscriptions:
+        specifier: 3.0.0
+        version: 3.0.0(graphql@16.10.0)
+      graphql-tag:
+        specifier: 2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      graphql-ws:
+        specifier: 5.16.2
+        version: 5.16.2(graphql@16.10.0)
+      helmet:
+        specifier: 8.1.0
+        version: 8.1.0
+      ioredis:
+        specifier: 5.6.1
+        version: 5.6.1
+      jsonwebtoken:
+        specifier: 9.0.2
+        version: 9.0.2
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
+      moment-timezone:
+        specifier: ^0.5.48
+        version: 0.5.48
+      mongoose:
+        specifier: 8.13.2
+        version: 8.13.2(socks@2.8.7)
+      nanoid:
+        specifier: 3.3.11
+        version: 3.3.11
+      node-fetch:
+        specifier: 2.7.0
+        version: 2.7.0(encoding@0.1.13)
+      sha256:
+        specifier: 0.2.0
+        version: 0.2.0
+      strip-ansi:
+        specifier: 6.0.1
+        version: 6.0.1
+      tslib:
+        specifier: 2.8.1
+        version: 2.8.1
+      ws:
+        specifier: 8.18.2
+        version: 8.18.2
+      zod:
+        specifier: 3.24.2
+        version: 3.24.2
 
   backend/plugins/sales_api:
     dependencies:
       erxes-api-shared:
         specifier: workspace:^
         version: link:../../erxes-api-shared
+      graphql-tag:
+        specifier: ^2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      sift:
+        specifier: ^17.1.3
+        version: 17.1.3
+      underscore:
+        specifier: ^1.13.7
+        version: 1.13.7
+
+  backend/plugins/sales_api/dist:
+    dependencies:
+      '@apollo/server':
+        specifier: 4.11.3
+        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
+      '@apollo/subgraph':
+        specifier: 2.10.0
+        version: 2.10.0(graphql@16.10.0)
+      '@azure/storage-blob':
+        specifier: 12.29.1
+        version: 12.29.1
+      '@babel/preset-env':
+        specifier: 7.26.9
+        version: 7.26.9(@babel/core@7.26.10)
+      '@elastic/elasticsearch':
+        specifier: 7.17.14
+        version: 7.17.14
+      '@google-cloud/storage':
+        specifier: 7.17.3
+        version: 7.17.3(encoding@0.1.13)
+      '@preconstruct/cli':
+        specifier: 2.8.12
+        version: 2.8.12
+      '@prettier/sync':
+        specifier: 0.5.5
+        version: 0.5.5(prettier@3.6.2)
+      '@sniptt/guards':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@trpc/client':
+        specifier: 11.0.4
+        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/server':
+        specifier: 11.0.4
+        version: 11.0.4(typescript@5.8.3)
+      '@types/babel__preset-env':
+        specifier: 7.10.0
+        version: 7.10.0
+      '@types/graphql':
+        specifier: 14.5.0
+        version: 14.5.0
+      '@types/ioredis':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@types/lodash':
+        specifier: 4.17.21
+        version: 4.17.21
+      aws-sdk:
+        specifier: 2.1692.0
+        version: 2.1692.0
+      babel-plugin-module-resolver:
+        specifier: 5.0.2
+        version: 5.0.2
+      bullmq:
+        specifier: 5.40.4
+        version: 5.40.4
+      cookie-parser:
+        specifier: 1.4.7
+        version: 1.4.7
+      cors:
+        specifier: 2.8.5
+        version: 2.8.5
+      csv-parse:
+        specifier: 6.2.1
+        version: 6.2.1
+      dataloader:
+        specifier: 2.2.3
+        version: 2.2.3
+      dayjs:
+        specifier: 1.11.13
+        version: 1.11.13
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../../erxes-api-shared
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
+      express:
+        specifier: 4.21.2
+        version: 4.21.2
+      express-rate-limit:
+        specifier: 6.11.2
+        version: 6.11.2(express@4.21.2)
+      file-type:
+        specifier: 20.5.0
+        version: 20.5.0
+      form-data:
+        specifier: 4.0.2
+        version: 4.0.2
+      glob:
+        specifier: 11.0.1
+        version: 11.0.1
+      graphql:
+        specifier: 16.10.0
+        version: 16.10.0
+      graphql-redis-subscriptions:
+        specifier: 2.7.0
+        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
+      graphql-subscriptions:
+        specifier: 3.0.0
+        version: 3.0.0(graphql@16.10.0)
+      graphql-tag:
+        specifier: 2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      helmet:
+        specifier: 8.1.0
+        version: 8.1.0
+      ioredis:
+        specifier: 5.6.1
+        version: 5.6.1
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
+      mongoose:
+        specifier: 8.13.2
+        version: 8.13.2(socks@2.8.7)
+      nanoid:
+        specifier: 3.3.11
+        version: 3.3.11
+      node-fetch:
+        specifier: 2.7.0
+        version: 2.7.0(encoding@0.1.13)
+      sift:
+        specifier: 17.1.3
+        version: 17.1.3
+      strip-ansi:
+        specifier: 6.0.1
+        version: 6.0.1
+      tslib:
+        specifier: 2.8.1
+        version: 2.8.1
+      underscore:
+        specifier: 1.13.7
+        version: 1.13.7
+      zod:
+        specifier: 3.24.2
+        version: 3.24.2
 
   backend/plugins/tourism_api:
     dependencies:
       erxes-api-shared:
         specifier: workspace:^
         version: link:../../erxes-api-shared
+      graphql-tag:
+        specifier: ^2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      moment-timezone:
+        specifier: ^0.5.48
+        version: 0.5.48
+
+  backend/plugins/tourism_api/dist:
+    dependencies:
+      '@apollo/server':
+        specifier: 4.11.3
+        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
+      '@apollo/subgraph':
+        specifier: 2.10.0
+        version: 2.10.0(graphql@16.10.0)
+      '@azure/storage-blob':
+        specifier: 12.29.1
+        version: 12.29.1
+      '@babel/preset-env':
+        specifier: 7.26.9
+        version: 7.26.9(@babel/core@7.26.10)
+      '@elastic/elasticsearch':
+        specifier: 7.17.14
+        version: 7.17.14
+      '@google-cloud/storage':
+        specifier: 7.17.3
+        version: 7.17.3(encoding@0.1.13)
+      '@preconstruct/cli':
+        specifier: 2.8.12
+        version: 2.8.12
+      '@prettier/sync':
+        specifier: 0.5.5
+        version: 0.5.5(prettier@3.6.2)
+      '@sniptt/guards':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@trpc/client':
+        specifier: 11.0.4
+        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/server':
+        specifier: 11.0.4
+        version: 11.0.4(typescript@5.8.3)
+      '@types/babel__preset-env':
+        specifier: 7.10.0
+        version: 7.10.0
+      '@types/graphql':
+        specifier: 14.5.0
+        version: 14.5.0
+      '@types/ioredis':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@types/lodash':
+        specifier: 4.17.21
+        version: 4.17.21
+      aws-sdk:
+        specifier: 2.1692.0
+        version: 2.1692.0
+      babel-plugin-module-resolver:
+        specifier: 5.0.2
+        version: 5.0.2
+      bullmq:
+        specifier: 5.40.4
+        version: 5.40.4
+      cookie-parser:
+        specifier: 1.4.7
+        version: 1.4.7
+      cors:
+        specifier: 2.8.5
+        version: 2.8.5
+      csv-parse:
+        specifier: 6.2.1
+        version: 6.2.1
+      dataloader:
+        specifier: 2.2.3
+        version: 2.2.3
+      dayjs:
+        specifier: 1.11.13
+        version: 1.11.13
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../../erxes-api-shared
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
+      express:
+        specifier: 4.21.2
+        version: 4.21.2
+      express-rate-limit:
+        specifier: 6.11.2
+        version: 6.11.2(express@4.21.2)
+      file-type:
+        specifier: 20.5.0
+        version: 20.5.0
+      form-data:
+        specifier: 4.0.2
+        version: 4.0.2
+      glob:
+        specifier: 11.0.1
+        version: 11.0.1
+      graphql:
+        specifier: 16.10.0
+        version: 16.10.0
+      graphql-redis-subscriptions:
+        specifier: 2.7.0
+        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
+      graphql-subscriptions:
+        specifier: 3.0.0
+        version: 3.0.0(graphql@16.10.0)
+      graphql-tag:
+        specifier: 2.12.6
+        version: 2.12.6(graphql@16.10.0)
+      helmet:
+        specifier: 8.1.0
+        version: 8.1.0
+      ioredis:
+        specifier: 5.6.1
+        version: 5.6.1
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
+      mongoose:
+        specifier: 8.13.2
+        version: 8.13.2(socks@2.8.7)
+      nanoid:
+        specifier: 3.3.11
+        version: 3.3.11
+      node-fetch:
+        specifier: 2.7.0
+        version: 2.7.0(encoding@0.1.13)
+      strip-ansi:
+        specifier: 6.0.1
+        version: 6.0.1
+      tslib:
+        specifier: 2.8.1
+        version: 2.8.1
+      zod:
+        specifier: 3.24.2
+        version: 3.24.2
 
   backend/services/automations:
     dependencies:
+      '@aws-sdk/client-s3':
+        specifier: ^3.913.0
+        version: 3.913.0
       aws-sdk:
         specifier: ^2.1692.0
         version: 2.1692.0
@@ -1154,9 +3407,6 @@ importers:
       express:
         specifier: ^4.21.2
         version: 4.21.2
-      express-rate-limit:
-        specifier: ^8.0.1
-        version: 8.0.1(express@4.21.2)
       helmet:
         specifier: ^8.1.0
         version: 8.1.0
@@ -1182,6 +3432,156 @@ importers:
         specifier: ^3.23.8
         version: 3.23.8
 
+  backend/services/automations/dist:
+    dependencies:
+      '@apollo/server':
+        specifier: 4.11.3
+        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
+      '@apollo/subgraph':
+        specifier: 2.10.0
+        version: 2.10.0(graphql@16.10.0)
+      '@azure/storage-blob':
+        specifier: 12.29.1
+        version: 12.29.1
+      '@babel/preset-env':
+        specifier: 7.26.9
+        version: 7.26.9(@babel/core@7.26.10)
+      '@elastic/elasticsearch':
+        specifier: 7.17.14
+        version: 7.17.14
+      '@google-cloud/storage':
+        specifier: 7.17.3
+        version: 7.17.3(encoding@0.1.13)
+      '@preconstruct/cli':
+        specifier: 2.8.12
+        version: 2.8.12
+      '@prettier/sync':
+        specifier: 0.5.5
+        version: 0.5.5(prettier@3.6.2)
+      '@sniptt/guards':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@trpc/client':
+        specifier: 11.0.4
+        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/server':
+        specifier: 11.0.4
+        version: 11.0.4(typescript@5.8.3)
+      '@types/babel__preset-env':
+        specifier: 7.10.0
+        version: 7.10.0
+      '@types/graphql':
+        specifier: 14.5.0
+        version: 14.5.0
+      '@types/ioredis':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@types/lodash':
+        specifier: 4.17.21
+        version: 4.17.21
+      aws-sdk:
+        specifier: ^2.1692.0
+        version: 2.1692.0
+      babel-plugin-module-resolver:
+        specifier: 5.0.2
+        version: 5.0.2
+      bullmq:
+        specifier: ^5.40.0
+        version: 5.40.4
+      cookie-parser:
+        specifier: 1.4.7
+        version: 1.4.7
+      cors:
+        specifier: 2.8.5
+        version: 2.8.5
+      csv-parse:
+        specifier: 6.2.1
+        version: 6.2.1
+      dataloader:
+        specifier: 2.2.3
+        version: 2.2.3
+      dayjs:
+        specifier: 1.11.13
+        version: 1.11.13
+      debug:
+        specifier: ^4.4.0
+        version: 4.4.3(supports-color@8.1.1)
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../../erxes-api-shared
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
+      express:
+        specifier: ^4.21.2
+        version: 4.21.2
+      express-rate-limit:
+        specifier: ^8.0.1
+        version: 8.0.1(express@4.21.2)
+      file-type:
+        specifier: 20.5.0
+        version: 20.5.0
+      form-data:
+        specifier: 4.0.2
+        version: 4.0.2
+      glob:
+        specifier: 11.0.1
+        version: 11.0.1
+      graphql:
+        specifier: 16.10.0
+        version: 16.10.0
+      graphql-redis-subscriptions:
+        specifier: 2.7.0
+        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
+      graphql-subscriptions:
+        specifier: 3.0.0
+        version: 3.0.0(graphql@16.10.0)
+      helmet:
+        specifier: ^8.1.0
+        version: 8.1.0
+      https-proxy-agent:
+        specifier: ^7.0.6
+        version: 7.0.6
+      ioredis:
+        specifier: 5.6.1
+        version: 5.6.1
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.2
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
+      moment:
+        specifier: ^2.30.1
+        version: 2.30.1
+      mongoose:
+        specifier: 8.13.2
+        version: 8.13.2(socks@2.8.7)
+      nanoid:
+        specifier: 3.3.11
+        version: 3.3.11
+      node-fetch:
+        specifier: 2.7.0
+        version: 2.7.0(encoding@0.1.13)
+      nodemailer:
+        specifier: ^6.9.10
+        version: 6.9.10
+      strip-ansi:
+        specifier: 6.0.1
+        version: 6.0.1
+      tsconfig-paths:
+        specifier: ^4.2.0
+        version: 4.2.0
+      tslib:
+        specifier: ^2.6.3
+        version: 2.8.1
+      zod:
+        specifier: ^3.23.8
+        version: 3.24.2
+
   backend/services/logs:
     dependencies:
       erxes-api-shared:
@@ -1190,6 +3590,141 @@ importers:
       tslib:
         specifier: ^2.6.3
         version: 2.8.1
+
+  backend/services/logs/dist:
+    dependencies:
+      '@apollo/server':
+        specifier: 4.11.3
+        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
+      '@apollo/subgraph':
+        specifier: 2.10.0
+        version: 2.10.0(graphql@16.10.0)
+      '@azure/storage-blob':
+        specifier: 12.29.1
+        version: 12.29.1
+      '@babel/preset-env':
+        specifier: 7.26.9
+        version: 7.26.9(@babel/core@7.26.10)
+      '@elastic/elasticsearch':
+        specifier: 7.17.14
+        version: 7.17.14
+      '@google-cloud/storage':
+        specifier: 7.17.3
+        version: 7.17.3(encoding@0.1.13)
+      '@preconstruct/cli':
+        specifier: 2.8.12
+        version: 2.8.12
+      '@prettier/sync':
+        specifier: 0.5.5
+        version: 0.5.5(prettier@3.6.2)
+      '@sniptt/guards':
+        specifier: 0.2.0
+        version: 0.2.0
+      '@trpc/client':
+        specifier: 11.0.4
+        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/server':
+        specifier: 11.0.4
+        version: 11.0.4(typescript@5.8.3)
+      '@types/babel__preset-env':
+        specifier: 7.10.0
+        version: 7.10.0
+      '@types/graphql':
+        specifier: 14.5.0
+        version: 14.5.0
+      '@types/ioredis':
+        specifier: 5.0.0
+        version: 5.0.0
+      '@types/lodash':
+        specifier: 4.17.21
+        version: 4.17.21
+      aws-sdk:
+        specifier: 2.1692.0
+        version: 2.1692.0
+      babel-plugin-module-resolver:
+        specifier: 5.0.2
+        version: 5.0.2
+      bullmq:
+        specifier: 5.40.4
+        version: 5.40.4
+      cookie-parser:
+        specifier: 1.4.7
+        version: 1.4.7
+      cors:
+        specifier: 2.8.5
+        version: 2.8.5
+      csv-parse:
+        specifier: 6.2.1
+        version: 6.2.1
+      dataloader:
+        specifier: 2.2.3
+        version: 2.2.3
+      dayjs:
+        specifier: 1.11.13
+        version: 1.11.13
+      dotenv:
+        specifier: 16.4.7
+        version: 16.4.7
+      erxes-api-shared:
+        specifier: workspace:^
+        version: link:../../../erxes-api-shared
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
+      express:
+        specifier: 4.21.2
+        version: 4.21.2
+      express-rate-limit:
+        specifier: 6.11.2
+        version: 6.11.2(express@4.21.2)
+      file-type:
+        specifier: 20.5.0
+        version: 20.5.0
+      form-data:
+        specifier: 4.0.2
+        version: 4.0.2
+      glob:
+        specifier: 11.0.1
+        version: 11.0.1
+      graphql:
+        specifier: 16.10.0
+        version: 16.10.0
+      graphql-redis-subscriptions:
+        specifier: 2.7.0
+        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
+      graphql-subscriptions:
+        specifier: 3.0.0
+        version: 3.0.0(graphql@16.10.0)
+      helmet:
+        specifier: 8.1.0
+        version: 8.1.0
+      ioredis:
+        specifier: 5.6.1
+        version: 5.6.1
+      lodash:
+        specifier: 4.17.21
+        version: 4.17.21
+      moment:
+        specifier: 2.30.1
+        version: 2.30.1
+      mongoose:
+        specifier: 8.13.2
+        version: 8.13.2(socks@2.8.7)
+      nanoid:
+        specifier: 3.3.11
+        version: 3.3.11
+      node-fetch:
+        specifier: 2.7.0
+        version: 2.7.0(encoding@0.1.13)
+      strip-ansi:
+        specifier: 6.0.1
+        version: 6.0.1
+      tslib:
+        specifier: ^2.6.3
+        version: 2.8.1
+      zod:
+        specifier: 3.23.8
+        version: 3.23.8
 
   frontend/libs/erxes-ui: {}
 
@@ -1258,7 +3793,7 @@ packages:
   '@apollo/server@4.11.3':
     resolution: {integrity: sha512-mW8idE2q0/BN14mimfJU5DAnoPHZRrAWgwsVLBEdACds+mxapIYxIbI6AH4AsOpxfrpvHts3PCYDbopy1XPW1g==}
     engines: {node: '>=14.16.0'}
-    deprecated: Apollo Server v4 is deprecated and will transition to end-of-life on January 26, 2026. As long as you are already using a non-EOL version of Node.js, upgrading to v5 should take only a few minutes. See https://www.apollographql.com/docs/apollo-server/previous-versions for details.
+    deprecated: Apollo Server v4 is end-of-life since January 26, 2026. As long as you are already using a non-EOL version of Node.js, upgrading to v5 should take only a few minutes. See https://www.apollographql.com/docs/apollo-server/previous-versions for details.
     peerDependencies:
       graphql: ^16.6.0
 
@@ -2356,6 +4891,12 @@ packages:
     cpu: [ppc64]
     os: [aix]
 
+  '@esbuild/aix-ppc64@0.28.0':
+    resolution: {integrity: sha512-lhRUCeuOyJQURhTxl4WkpFTjIsbDayJHih5kZC1giwE+MhIzAb7mEsQMqMf18rHLsrb5qI1tafG20mLxEWcWlA==}
+    engines: {node: '>=18'}
+    cpu: [ppc64]
+    os: [aix]
+
   '@esbuild/android-arm64@0.16.3':
     resolution: {integrity: sha512-RolFVeinkeraDvN/OoRf1F/lP0KUfGNb5jxy/vkIMeRRChkrX/HTYN6TYZosRJs3a1+8wqpxAo5PI5hFmxyPRg==}
     engines: {node: '>=12'}
@@ -2388,6 +4929,12 @@ packages:
 
   '@esbuild/android-arm64@0.27.5':
     resolution: {integrity: sha512-Oeghq+XFgh1pUGd1YKs4DDoxzxkoUkvko+T/IVKwlghKLvvjbGFB3ek8VEDBmNvqhwuL0CQS3cExdzpmUyIrgA==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [android]
+
+  '@esbuild/android-arm64@0.28.0':
+    resolution: {integrity: sha512-+WzIXQOSaGs33tLEgYPYe/yQHf0WTU0X42Jca3y8NWMbUVhp7rUnw+vAsRC/QiDrdD31IszMrZy+qwPOPjd+rw==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [android]
@@ -2428,6 +4975,12 @@ packages:
     cpu: [arm]
     os: [android]
 
+  '@esbuild/android-arm@0.28.0':
+    resolution: {integrity: sha512-wqh0ByljabXLKHeWXYLqoJ5jKC4XBaw6Hk08OfMrCRd2nP2ZQ5eleDZC41XHyCNgktBGYMbqnrJKq/K/lzPMSQ==}
+    engines: {node: '>=18'}
+    cpu: [arm]
+    os: [android]
+
   '@esbuild/android-x64@0.16.3':
     resolution: {integrity: sha512-SFpTUcIT1bIJuCCBMCQWq1bL2gPTjWoLZdjmIhjdcQHaUfV41OQfho6Ici5uvvkMmZRXIUGpM3GxysP/EU7ifQ==}
     engines: {node: '>=12'}
@@ -2460,6 +5013,12 @@ packages:
 
   '@esbuild/android-x64@0.27.5':
     resolution: {integrity: sha512-nQD7lspbzerlmtNOxYMFAGmhxgzn8Z7m9jgFkh6kpkjsAhZee1w8tJW3ZlW+N9iRePz0oPUDrYrXidCPSImD0Q==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [android]
+
+  '@esbuild/android-x64@0.28.0':
+    resolution: {integrity: sha512-+VJggoaKhk2VNNqVL7f6S189UzShHC/mR9EE8rDdSkdpN0KflSwWY/gWjDrNxxisg8Fp1ZCD9jLMo4m0OUfeUA==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [android]
@@ -2500,6 +5059,12 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
+  '@esbuild/darwin-arm64@0.28.0':
+    resolution: {integrity: sha512-0T+A9WZm+bZ84nZBtk1ckYsOvyA3x7e2Acj1KdVfV4/2tdG4fzUp91YHx+GArWLtwqp77pBXVCPn2We7Letr0Q==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [darwin]
+
   '@esbuild/darwin-x64@0.16.3':
     resolution: {integrity: sha512-uEqZQ2omc6BvWqdCiyZ5+XmxuHEi1SPzpVxXCSSV2+Sh7sbXbpeNhHIeFrIpRjAs0lI1FmA1iIOxFozKBhKgRQ==}
     engines: {node: '>=12'}
@@ -2532,6 +5097,12 @@ packages:
 
   '@esbuild/darwin-x64@0.27.5':
     resolution: {integrity: sha512-MCjQUtC8wWJn/pIPM7vQaO69BFgwPD1jriEdqwTCKzWjGgkMbcg+M5HzrOhPhuYe1AJjXlHmD142KQf+jnYj8A==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@esbuild/darwin-x64@0.28.0':
+    resolution: {integrity: sha512-fyzLm/DLDl/84OCfp2f/XQ4flmORsjU7VKt8HLjvIXChJoFFOIL6pLJPH4Yhd1n1gGFF9mPwtlN5Wf82DZs+LQ==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [darwin]
@@ -2572,6 +5143,12 @@ packages:
     cpu: [arm64]
     os: [freebsd]
 
+  '@esbuild/freebsd-arm64@0.28.0':
+    resolution: {integrity: sha512-l9GeW5UZBT9k9brBYI+0WDffcRxgHQD8ShN2Ur4xWq/NFzUKm3k5lsH4PdaRgb2w7mI9u61nr2gI2mLI27Nh3Q==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [freebsd]
+
   '@esbuild/freebsd-x64@0.16.3':
     resolution: {integrity: sha512-TfoDzLw+QHfc4a8aKtGSQ96Wa+6eimljjkq9HKR0rHlU83vw8aldMOUSJTUDxbcUdcgnJzPaX8/vGWm7vyV7ug==}
     engines: {node: '>=12'}
@@ -2604,6 +5181,12 @@ packages:
 
   '@esbuild/freebsd-x64@0.27.5':
     resolution: {integrity: sha512-233X1FGo3a8x1ekLB6XT69LfZ83vqz+9z3TSEQCTYfMNY880A97nr81KbPcAMl9rmOFp11wO0dP+eB18KU/Ucg==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [freebsd]
+
+  '@esbuild/freebsd-x64@0.28.0':
+    resolution: {integrity: sha512-BXoQai/A0wPO6Es3yFJ7APCiKGc1tdAEOgeTNy3SsB491S3aHn4S4r3e976eUnPdU+NbdtmBuLncYir2tMU9Nw==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [freebsd]
@@ -2644,6 +5227,12 @@ packages:
     cpu: [arm64]
     os: [linux]
 
+  '@esbuild/linux-arm64@0.28.0':
+    resolution: {integrity: sha512-RVyzfb3FWsGA55n6WY0MEIEPURL1FcbhFE6BffZEMEekfCzCIMtB5yyDcFnVbTnwk+CLAgTujmV/Lgvih56W+A==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [linux]
+
   '@esbuild/linux-arm@0.16.3':
     resolution: {integrity: sha512-VwswmSYwVAAq6LysV59Fyqk3UIjbhuc6wb3vEcJ7HEJUtFuLK9uXWuFoH1lulEbE4+5GjtHi3MHX+w1gNHdOWQ==}
     engines: {node: '>=12'}
@@ -2676,6 +5265,12 @@ packages:
 
   '@esbuild/linux-arm@0.27.5':
     resolution: {integrity: sha512-0wkVrYHG4sdCCN/bcwQ7yYMXACkaHc3UFeaEOwSVW6e5RycMageYAFv+JS2bKLwHyeKVUvtoVH+5/RHq0fgeFw==}
+    engines: {node: '>=18'}
+    cpu: [arm]
+    os: [linux]
+
+  '@esbuild/linux-arm@0.28.0':
+    resolution: {integrity: sha512-CjaaREJagqJp7iTaNQjjidaNbCKYcd4IDkzbwwxtSvjI7NZm79qiHc8HqciMddQ6CKvJT6aBd8lO9kN/ZudLlw==}
     engines: {node: '>=18'}
     cpu: [arm]
     os: [linux]
@@ -2716,6 +5311,12 @@ packages:
     cpu: [ia32]
     os: [linux]
 
+  '@esbuild/linux-ia32@0.28.0':
+    resolution: {integrity: sha512-KBnSTt1kxl9x70q+ydterVdl+Cn0H18ngRMRCEQfrbqdUuntQQ0LoMZv47uB97NljZFzY6HcfqEZ2SAyIUTQBQ==}
+    engines: {node: '>=18'}
+    cpu: [ia32]
+    os: [linux]
+
   '@esbuild/linux-loong64@0.16.3':
     resolution: {integrity: sha512-hIbeejCOyO0X9ujfIIOKjBjNAs9XD/YdJ9JXAy1lHA+8UXuOqbFe4ErMCqMr8dhlMGBuvcQYGF7+kO7waj2KHw==}
     engines: {node: '>=12'}
@@ -2748,6 +5349,12 @@ packages:
 
   '@esbuild/linux-loong64@0.27.5':
     resolution: {integrity: sha512-mKqqRuOPALI8nDzhOBmIS0INvZOOFGGg5n1osGIXAx8oersceEbKd4t1ACNTHM3sJBXGFAlEgqM+svzjPot+ZQ==}
+    engines: {node: '>=18'}
+    cpu: [loong64]
+    os: [linux]
+
+  '@esbuild/linux-loong64@0.28.0':
+    resolution: {integrity: sha512-zpSlUce1mnxzgBADvxKXX5sl8aYQHo2ezvMNI8I0lbblJtp8V4odlm3Yzlj7gPyt3T8ReksE6bK+pT3WD+aJRg==}
     engines: {node: '>=18'}
     cpu: [loong64]
     os: [linux]
@@ -2788,6 +5395,12 @@ packages:
     cpu: [mips64el]
     os: [linux]
 
+  '@esbuild/linux-mips64el@0.28.0':
+    resolution: {integrity: sha512-2jIfP6mmjkdmeTlsX/9vmdmhBmKADrWqN7zcdtHIeNSCH1SqIoNI63cYsjQR8J+wGa4Y5izRcSHSm8K3QWmk3w==}
+    engines: {node: '>=18'}
+    cpu: [mips64el]
+    os: [linux]
+
   '@esbuild/linux-ppc64@0.16.3':
     resolution: {integrity: sha512-EV7LuEybxhXrVTDpbqWF2yehYRNz5e5p+u3oQUS2+ZFpknyi1NXxr8URk4ykR8Efm7iu04//4sBg249yNOwy5Q==}
     engines: {node: '>=12'}
@@ -2820,6 +5433,12 @@ packages:
 
   '@esbuild/linux-ppc64@0.27.5':
     resolution: {integrity: sha512-0V2iF1RGxBf1b7/BjurA5jfkl7PtySjom1r6xOK2q9KWw/XCpAdtB6KNMO+9xx69yYfSCRR9FE0TyKfHA2eQMw==}
+    engines: {node: '>=18'}
+    cpu: [ppc64]
+    os: [linux]
+
+  '@esbuild/linux-ppc64@0.28.0':
+    resolution: {integrity: sha512-bc0FE9wWeC0WBm49IQMPSPILRocGTQt3j5KPCA8os6VprfuJ7KD+5PzESSrJ6GmPIPJK965ZJHTUlSA6GNYEhg==}
     engines: {node: '>=18'}
     cpu: [ppc64]
     os: [linux]
@@ -2860,6 +5479,12 @@ packages:
     cpu: [riscv64]
     os: [linux]
 
+  '@esbuild/linux-riscv64@0.28.0':
+    resolution: {integrity: sha512-SQPZOwoTTT/HXFXQJG/vBX8sOFagGqvZyXcgLA3NhIqcBv1BJU1d46c0rGcrij2B56Z2rNiSLaZOYW5cUk7yLQ==}
+    engines: {node: '>=18'}
+    cpu: [riscv64]
+    os: [linux]
+
   '@esbuild/linux-s390x@0.16.3':
     resolution: {integrity: sha512-NbeREhzSxYwFhnCAQOQZmajsPYtX71Ufej3IQ8W2Gxskfz9DK58ENEju4SbpIj48VenktRASC52N5Fhyf/aliQ==}
     engines: {node: '>=12'}
@@ -2892,6 +5517,12 @@ packages:
 
   '@esbuild/linux-s390x@0.27.5':
     resolution: {integrity: sha512-uEP2q/4qgd8goEUc4QIdU/1P2NmEtZ/zX5u3OpLlCGhJIuBIv0s0wr7TB2nBrd3/A5XIdEkkS5ZLF0ULuvaaYQ==}
+    engines: {node: '>=18'}
+    cpu: [s390x]
+    os: [linux]
+
+  '@esbuild/linux-s390x@0.28.0':
+    resolution: {integrity: sha512-SCfR0HN8CEEjnYnySJTd2cw0k9OHB/YFzt5zgJEwa+wL/T/raGWYMBqwDNAC6dqFKmJYZoQBRfHjgwLHGSrn3Q==}
     engines: {node: '>=18'}
     cpu: [s390x]
     os: [linux]
@@ -2932,6 +5563,12 @@ packages:
     cpu: [x64]
     os: [linux]
 
+  '@esbuild/linux-x64@0.28.0':
+    resolution: {integrity: sha512-us0dSb9iFxIi8srnpl931Nvs65it/Jd2a2K3qs7fz2WfGPHqzfzZTfec7oxZJRNPXPnNYZtanmRc4AL/JwVzHQ==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [linux]
+
   '@esbuild/netbsd-arm64@0.25.2':
     resolution: {integrity: sha512-talAIBoY5M8vHc6EeI2WW9d/CkiO9MQJ0IOWX8hrLhxGbro/vBXJvaQXefW2cP0z0nQVTdQ/eNyGFV1GSKrxfw==}
     engines: {node: '>=18'}
@@ -2946,6 +5583,12 @@ packages:
 
   '@esbuild/netbsd-arm64@0.27.5':
     resolution: {integrity: sha512-3F/5EG8VHfN/I+W5cO1/SV2H9Q/5r7vcHabMnBqhHK2lTWOh3F8vixNzo8lqxrlmBtZVFpW8pmITHnq54+Tq4g==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [netbsd]
+
+  '@esbuild/netbsd-arm64@0.28.0':
+    resolution: {integrity: sha512-CR/RYotgtCKwtftMwJlUU7xCVNg3lMYZ0RzTmAHSfLCXw3NtZtNpswLEj/Kkf6kEL3Gw+BpOekRX0BYCtklhUw==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [netbsd]
@@ -2986,6 +5629,12 @@ packages:
     cpu: [x64]
     os: [netbsd]
 
+  '@esbuild/netbsd-x64@0.28.0':
+    resolution: {integrity: sha512-nU1yhmYutL+fQ71Kxnhg8uEOdC0pwEW9entHykTgEbna2pw2dkbFSMeqjjyHZoCmt8SBkOSvV+yNmm94aUrrqw==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [netbsd]
+
   '@esbuild/openbsd-arm64@0.25.2':
     resolution: {integrity: sha512-dcXYOC6NXOqcykeDlwId9kB6OkPUxOEqU+rkrYVqJbK2hagWOMrsTGsMr8+rW02M+d5Op5NNlgMmjzecaRf7Tg==}
     engines: {node: '>=18'}
@@ -3000,6 +5649,12 @@ packages:
 
   '@esbuild/openbsd-arm64@0.27.5':
     resolution: {integrity: sha512-Doz/hKtiuVAi9hMsBMpwBANhIZc8l238U2Onko3t2xUp8xtM0ZKdDYHMnm/qPFVthY8KtxkXaocwmMh6VolzMA==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [openbsd]
+
+  '@esbuild/openbsd-arm64@0.28.0':
+    resolution: {integrity: sha512-cXb5vApOsRsxsEl4mcZ1XY3D4DzcoMxR/nnc4IyqYs0rTI8ZKmW6kyyg+11Z8yvgMfAEldKzP7AdP64HnSC/6g==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [openbsd]
@@ -3040,6 +5695,12 @@ packages:
     cpu: [x64]
     os: [openbsd]
 
+  '@esbuild/openbsd-x64@0.28.0':
+    resolution: {integrity: sha512-8wZM2qqtv9UP3mzy7HiGYNH/zjTA355mpeuA+859TyR+e+Tc08IHYpLJuMsfpDJwoLo1ikIJI8jC3GFjnRClzA==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [openbsd]
+
   '@esbuild/openharmony-arm64@0.27.3':
     resolution: {integrity: sha512-NinAEgr/etERPTsZJ7aEZQvvg/A6IsZG/LgZy+81wON2huV7SrK3e63dU0XhyZP4RKGyTm7aOgmQk0bGp0fy2g==}
     engines: {node: '>=18'}
@@ -3048,6 +5709,12 @@ packages:
 
   '@esbuild/openharmony-arm64@0.27.5':
     resolution: {integrity: sha512-Xh+VRuh6OMh3uJ0JkCjI57l+DVe7VRGBYymen8rFPnTVgATBwA6nmToxM2OwTlSvrnWpPKkrQUj93+K9huYC6A==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [openharmony]
+
+  '@esbuild/openharmony-arm64@0.28.0':
+    resolution: {integrity: sha512-FLGfyizszcef5C3YtoyQDACyg95+dndv79i2EekILBofh5wpCa1KuBqOWKrEHZg3zrL3t5ouE5jgr94vA+Wb2w==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [openharmony]
@@ -3088,6 +5755,12 @@ packages:
     cpu: [x64]
     os: [sunos]
 
+  '@esbuild/sunos-x64@0.28.0':
+    resolution: {integrity: sha512-1ZgjUoEdHZZl/YlV76TSCz9Hqj9h9YmMGAgAPYd+q4SicWNX3G5GCyx9uhQWSLcbvPW8Ni7lj4gDa1T40akdlw==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [sunos]
+
   '@esbuild/win32-arm64@0.16.3':
     resolution: {integrity: sha512-u5aBonZIyGopAZyOnoPAA6fGsDeHByZ9CnEzyML9NqntK6D/xl5jteZUKm/p6nD09+v3pTM6TuUIqSPcChk5gg==}
     engines: {node: '>=12'}
@@ -3120,6 +5793,12 @@ packages:
 
   '@esbuild/win32-arm64@0.27.5':
     resolution: {integrity: sha512-0UNx2aavV0fk6UpZcwXFLztA2r/k9jTUa7OW7SAea1VYUhkug99MW1uZeXEnPn5+cHOd0n8myQay6TlFnBR07w==}
+    engines: {node: '>=18'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@esbuild/win32-arm64@0.28.0':
+    resolution: {integrity: sha512-Q9StnDmQ/enxnpxCCLSg0oo4+34B9TdXpuyPeTedN/6+iXBJ4J+zwfQI28u/Jl40nOYAxGoNi7mFP40RUtkmUA==}
     engines: {node: '>=18'}
     cpu: [arm64]
     os: [win32]
@@ -3160,6 +5839,12 @@ packages:
     cpu: [ia32]
     os: [win32]
 
+  '@esbuild/win32-ia32@0.28.0':
+    resolution: {integrity: sha512-zF3ag/gfiCe6U2iczcRzSYJKH1DCI+ByzSENHlM2FcDbEeo5Zd2C86Aq0tKUYAJJ1obRP84ymxIAksZUcdztHA==}
+    engines: {node: '>=18'}
+    cpu: [ia32]
+    os: [win32]
+
   '@esbuild/win32-x64@0.16.3':
     resolution: {integrity: sha512-5/JuTd8OWW8UzEtyf19fbrtMJENza+C9JoPIkvItgTBQ1FO2ZLvjbPO6Xs54vk0s5JB5QsfieUEshRQfu7ZHow==}
     engines: {node: '>=12'}
@@ -3192,6 +5877,12 @@ packages:
 
   '@esbuild/win32-x64@0.27.5':
     resolution: {integrity: sha512-PWypQR+d4FLfkhBIV+/kHsUELAnMpx1bRvvsn3p+/sAERbnCzFrtDRG2Xw5n+2zPxBK2+iaP+vetsRl4Ti7WgA==}
+    engines: {node: '>=18'}
+    cpu: [x64]
+    os: [win32]
+
+  '@esbuild/win32-x64@0.28.0':
+    resolution: {integrity: sha512-pEl1bO9mfAmIC+tW5btTmrKaujg3zGtUmWNdCw/xs70FBjwAL3o9OEKNHvNmnyylD6ubxUERiEhdsL0xBQ9efw==}
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
@@ -6467,8 +9158,8 @@ packages:
     peerDependencies:
       react: ^18.0 || ^19.0 || ^19.0.0-rc
 
-  '@react-email/editor@1.1.0':
-    resolution: {integrity: sha512-pSz6peCsE2856fWEVhXy77uRxVLKBwx9Eag0eJYXVN0UTdPljlBO6vltNR9E/kHmo05hrjcVFuv1dfFeJGS9LA==}
+  '@react-email/editor@1.3.5':
+    resolution: {integrity: sha512-9Bbzd3vAiAMK8oXR3puwuW7hH5Q4uAl/SMfZINh4rL8xg0Od/zbQg7UNT75cguKanjt2BTnFg4J0JM6e9NUgZQ==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: ^18.0 || ^19.0 || ^19.0.0-rc
@@ -6550,6 +9241,13 @@ packages:
 
   '@react-email/render@2.0.7':
     resolution: {integrity: sha512-XCsqujKURb4egU8+z7RX1/yxRx1Qo89uGhy6UXyB5Oxq1SK+48t0AD/3qeuDGgDvyS+Ti+0oDT3nn5/dcG4Ttg==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      react: ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^18.0 || ^19.0 || ^19.0.0-rc
+
+  '@react-email/render@2.0.8':
+    resolution: {integrity: sha512-5udvVr3U/WuGJZfLdLBOhkzrqRWd2Q5ZYmF7ppcy7FzWcwgshdqLMNqJOXcVzAXJXg/2bm7D+WGJzTtZOZMQnQ==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: ^18.0 || ^19.0 || ^19.0.0-rc
@@ -8193,25 +10891,25 @@ packages:
     peerDependencies:
       '@tiptap/pm': ^2.7.0
 
-  '@tiptap/core@3.22.4':
-    resolution: {integrity: sha512-vGIGm/HpqLg8EAAQXQ+koV+/S828OEpzocfWcPOwo1u2QUVf9dQG47Yy6JJ8zFFaJwfv4dBcOXli+7BrJwsxDQ==}
+  '@tiptap/core@3.22.5':
+    resolution: {integrity: sha512-L1lhWz6ujGny8LduTJ7MBWYhzigwOvfUJUrJ7IzOJSuy3+OAzisdGDD1GV7LEO/hU0Hr2Mkm1wajRIHExvS9HQ==}
     peerDependencies:
-      '@tiptap/pm': 3.22.4
+      '@tiptap/pm': 3.22.5
 
-  '@tiptap/extension-blockquote@3.22.4':
-    resolution: {integrity: sha512-7/61kNPbGFhMgM//zMknD0pSb69rGdRIkpulXOWS1JBrFHkH6hjZDfrOETNzgKkO+NlmzVl9rXSTv0xauS3lzA==}
+  '@tiptap/extension-blockquote@3.22.5':
+    resolution: {integrity: sha512-ajyP5W8fG5Hrru47T/eF3xMKOpNvWofgNJqBTeNuGl02sYxsy9a4EunyFxudsaZP9WW3VOD4SaIWr5+MqpbnOQ==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
+      '@tiptap/core': 3.22.5
 
   '@tiptap/extension-bold@2.11.7':
     resolution: {integrity: sha512-VTR3JlldBixXbjpLTFme/Bxf1xeUgZZY3LTlt5JDlCW3CxO7k05CIa+kEZ8LXpog5annytZDUVtWqxrNjmsuHQ==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
-  '@tiptap/extension-bold@3.22.4':
-    resolution: {integrity: sha512-jIaPKfNOQu2lhpbLDvtwlQqM+mjF+Kk+auHpzYjBnsuwUli1Cl5ZOau7RH+rru/SQvZe1DtpQlANujDywugZAA==}
+  '@tiptap/extension-bold@3.22.5':
+    resolution: {integrity: sha512-l/uDtpJISiFFyfctvnODNWBN/XPZI1jVZRacTRDDnSn8+x6KQ7G2qgFYueU7KvVJGDFVT39Iio56mcFRG/Pozg==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
+      '@tiptap/core': 3.22.5
 
   '@tiptap/extension-bubble-menu@2.24.2':
     resolution: {integrity: sha512-iU/FvuPjhB06UMzziYVhU+dasCOuCY3P5uVMPuE9i4PxHACx9z20IPISeGCNoeo9LxoIfMS/9sUVLArB5WzGMA==}
@@ -8219,42 +10917,42 @@ packages:
       '@tiptap/core': ^2.7.0
       '@tiptap/pm': ^2.7.0
 
-  '@tiptap/extension-bubble-menu@3.22.4':
-    resolution: {integrity: sha512-v4pux5Ql3THAEjaLMY4ldtdy/Xy2qU7PJLBkq8ugLp8qicaKC+tpqxp6sGif4vLIjz7Ap5hurRbTNbXzszyyHA==}
+  '@tiptap/extension-bubble-menu@3.22.5':
+    resolution: {integrity: sha512-yrNlFQQJY5MmhBpmD8tnmaSmyUQrEvgyPKa3bzVeWEhDSG1CW4A0ZSMx3hrA9yFO0HWfw3IJmvSCycEZQBalpQ==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5
+      '@tiptap/pm': 3.22.5
 
-  '@tiptap/extension-bullet-list@3.22.4':
-    resolution: {integrity: sha512-TB+d3fGcTixYjO7coKqTr1mGTJuqr8hjDCPUFgzuvKyJnBhqWITmBzQ/8CLq4rr6mihgGURbD3N+xkQuPAKFiw==}
+  '@tiptap/extension-bullet-list@3.22.5':
+    resolution: {integrity: sha512-cf54fG9AybU8NgPMv1TOcoqAkELeRc/VpnSCt/rIJZphWQx9nsFmrtkrlCatrIcCaGtNZYwlHlMnC5LVVMu0uA==}
     peerDependencies:
-      '@tiptap/extension-list': 3.22.4
+      '@tiptap/extension-list': 3.22.5
 
-  '@tiptap/extension-code-block@3.22.4':
-    resolution: {integrity: sha512-MEurzNXfMET3rhjpoPJYUgMfxTdTqbzT9+ToFrqNGAHocdXVm6m1hhO2frVC7fEtHPnxXKsn0Z3NUbCRkRTLuA==}
+  '@tiptap/extension-code-block@3.22.5':
+    resolution: {integrity: sha512-d123kCfLdJTi4fue1m0+TNFztDkmIRSZGZmGu6H9KqwG5Q7IzjT9o8lzRsz+pXxYqHvqgYmXoEpM6srbzXx/Ag==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5
+      '@tiptap/pm': 3.22.5
 
   '@tiptap/extension-code@2.11.7':
     resolution: {integrity: sha512-VpPO1Uy/eF4hYOpohS/yMOcE1C07xmMj0/D989D9aS1x95jWwUVrSkwC+PlWMUBx9PbY2NRsg1ZDwVvlNKZ6yQ==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
-  '@tiptap/extension-code@3.22.4':
-    resolution: {integrity: sha512-cnbxmVhAcc7X3G81QUYEmKP0ve2hRmvAiFXBuuv9RUtQlBiRnzmhHoJOMgkX0CsMR7+8kMRpTfeDUYq2xp5s5w==}
+  '@tiptap/extension-code@3.22.5':
+    resolution: {integrity: sha512-mwDNOJC9rYbDu/JcqrN4dbUQRklJU8Fuk2raxD/IvFw9qUIcPCmxQ2XT9UTKmZz/Ju7Kdy72fss6XpgWv6gLAQ==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
+      '@tiptap/core': 3.22.5
 
-  '@tiptap/extension-document@3.22.4':
-    resolution: {integrity: sha512-XQKla1+703FqQJC48tPDVgt9ucGiFbIEmQdOg5L5o07z9a6/NzuaZAc+1zJ7NxcUZzy+z6wBn1PrVMTiqiSXlw==}
+  '@tiptap/extension-document@3.22.5':
+    resolution: {integrity: sha512-8NJERd+pCtvSuEP4C4WMGYmRRCV12ePZL7bC+QUdFlbdXg+kNZS0zZ7hh879tYA0Kidbi8rWWD1Tx+H2ezkmMw==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
+      '@tiptap/core': 3.22.5
 
-  '@tiptap/extension-dropcursor@3.22.4':
-    resolution: {integrity: sha512-N9/yMDC35jJp0V/naL0+6gi4gUDUIcPpWEzFdCDWUSYBA8mt41c1kI1ZU7UTKYIBzTClenhYHRc2XKZxxx0+LQ==}
+  '@tiptap/extension-dropcursor@3.22.5':
+    resolution: {integrity: sha512-Mp40DaFrY3sEUVtFqmxrR0BmU4G3k8GCYYNGqNa9OqWv7BrcFDC03V2n3okESDKt4MKkzhQQmypq+ouLy8dLfA==}
     peerDependencies:
-      '@tiptap/extensions': 3.22.4
+      '@tiptap/extensions': 3.22.5
 
   '@tiptap/extension-floating-menu@2.24.2':
     resolution: {integrity: sha512-BSYGFW/wr5PvOu20nd7mPY8bdjlDwXmUU2xsA6NkDAVBPqVvAprr9ZDnz5Hnc74qjsIa6gWZb85ZwRxZ1MxRjw==}
@@ -8262,12 +10960,12 @@ packages:
       '@tiptap/core': ^2.7.0
       '@tiptap/pm': ^2.7.0
 
-  '@tiptap/extension-floating-menu@3.22.4':
-    resolution: {integrity: sha512-DFuyYxgaZPgxum5z1yvJPbfYCvDdO8geXsdyqt0qYYdiat3aGE4ncJhiLRIFDhSHBhaZg5eCgu/YPYAN6jZnrA==}
+  '@tiptap/extension-floating-menu@3.22.5':
+    resolution: {integrity: sha512-dhem4sTPhyQgQ+pFp2Oud4k4FSQz9PVMgeQAC9288SmGwxBkJNveDAw6sKTMrumqDvwkJrtslXIupq9TZYQnzg==}
     peerDependencies:
       '@floating-ui/dom': ^1.0.0
-      '@tiptap/core': 3.22.4
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5
+      '@tiptap/pm': 3.22.5
 
   '@tiptap/extension-gapcursor@2.11.7':
     resolution: {integrity: sha512-EceesmPG7FyjXZ8EgeJPUov9G1mAf2AwdypxBNH275g6xd5dmU/KvjoFZjmQ0X1ve7mS+wNupVlGxAEUYoveew==}
@@ -8275,20 +10973,20 @@ packages:
       '@tiptap/core': ^2.7.0
       '@tiptap/pm': ^2.7.0
 
-  '@tiptap/extension-gapcursor@3.22.4':
-    resolution: {integrity: sha512-UYBEUj3SFpKINIE7AdzcyeS3xICK+ee+YLBbuqNXyHStYChjJOohzJehqiqhjR16A88KQQ+ZjgyDcItKGygSog==}
+  '@tiptap/extension-gapcursor@3.22.5':
+    resolution: {integrity: sha512-4WkMu7qqjbsm8hCQS+8X+la1wjriN0SKoRdvpfKH33qM50MB34tYJuGLAO+y7TTh4MMMco3AZCKPBL5JVMqNIg==}
     peerDependencies:
-      '@tiptap/extensions': 3.22.4
+      '@tiptap/extensions': 3.22.5
 
-  '@tiptap/extension-hard-break@3.22.4':
-    resolution: {integrity: sha512-xq+a4dE7T6VwApCkh/yU3p30gn3F8g8Arb9CyEZm58/WIJUIGvHSTjDdHmvU16+kiWSBg+wOOsaFHhYjJjxcKA==}
+  '@tiptap/extension-hard-break@3.22.5':
+    resolution: {integrity: sha512-n0R2mUVYZU2AVbJhg/WcY9+zx690wVwvsItHJf0DrYbf1tCYHx+PRHUt/AoXk6u8BSmnkb8/FDziS8m3mjfpSg==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
+      '@tiptap/core': 3.22.5
 
-  '@tiptap/extension-heading@3.22.4':
-    resolution: {integrity: sha512-TUaj5f0Ir5qy9HKKt2ocnwfXKpZDYeHgbbP9gshKFzdq5PLe1RbIgkjfy6bnoI865cYjmPYWRjcT7XsKyIcb9Q==}
+  '@tiptap/extension-heading@3.22.5':
+    resolution: {integrity: sha512-hjyEG4947PAhMBfP1G6B0QAh6+y9mp2C5BQmNjprA05/lQzDAT7KFZzNh8ZVp3ol6aICKq/N1gFOW9Dc/9FUOw==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
+      '@tiptap/core': 3.22.5
 
   '@tiptap/extension-history@2.11.7':
     resolution: {integrity: sha512-Cu5x3aS13I040QSRoLdd+w09G4OCVfU+azpUqxufZxeNs9BIJC+0jowPLeOxKDh6D5GGT2A8sQtxc6a/ssbs8g==}
@@ -8302,21 +11000,21 @@ packages:
       '@tiptap/core': ^2.7.0
       '@tiptap/pm': ^2.7.0
 
-  '@tiptap/extension-horizontal-rule@3.22.4':
-    resolution: {integrity: sha512-cCI1HekGQwhY/MbgaKQ0R/7HcH5ZM1oFAyI/J72QGLC0XnF403S/OXoHMuBWr1mCu8hNiQWCzeNRJUty0iytNw==}
+  '@tiptap/extension-horizontal-rule@3.22.5':
+    resolution: {integrity: sha512-vUV0/ugIbXOc8SJib0h8UMhgcqZXWu/dkEhlswZN4VVven1o5enkfxEiDw+OyIJHi5rUkrdhsQ/KTxG/Xb7X8A==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5
+      '@tiptap/pm': 3.22.5
 
   '@tiptap/extension-italic@2.11.7':
     resolution: {integrity: sha512-r985bkQfG0HMpmCU0X0p/Xe7U1qgRm2mxvcp6iPCuts2FqxaCoyfNZ8YnMsgVK1mRhM7+CQ5SEg2NOmQNtHvPw==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
-  '@tiptap/extension-italic@3.22.4':
-    resolution: {integrity: sha512-fVSDx5AYXgDI3v2zZIqb7V8EewthwM2NJ/ZCX+XaxRsqNEpnjVhgHs7UlvDqK1wj2OJ6zmUNjPtVlAFRxwT+HQ==}
+  '@tiptap/extension-italic@3.22.5':
+    resolution: {integrity: sha512-4T8baSiLkeIymTgEwirxDFt5YgYofkP3m1+MGYdGy2HKcOK+1vpvlPhEO1X5qtZngtJW5S4+njKjinRg52A4PA==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
+      '@tiptap/core': 3.22.5
 
   '@tiptap/extension-link@2.11.7':
     resolution: {integrity: sha512-qKIowE73aAUrnQCIifYP34xXOHOsZw46cT/LBDlb0T60knVfQoKVE4ku08fJzAV+s6zqgsaaZ4HVOXkQYLoW7g==}
@@ -8324,70 +11022,70 @@ packages:
       '@tiptap/core': ^2.7.0
       '@tiptap/pm': ^2.7.0
 
-  '@tiptap/extension-link@3.22.4':
-    resolution: {integrity: sha512-uoP3yus02uwGPVzW2QaEPJWVIrUb/r5nKm6c8DiJv9fNSX1+gykZZMg42c6GwRFLZ/vyfWjVCbAE03VMUqafgA==}
+  '@tiptap/extension-link@3.22.5':
+    resolution: {integrity: sha512-d671MvF3GPKoS2OVxjIlQ7hIE7MS3hREdR+d4cvnnoiLLD+ZJ6KgDnxmWqF0a1s4qxLWK2KxKRSOIfYGE31QWQ==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5
+      '@tiptap/pm': 3.22.5
 
-  '@tiptap/extension-list-item@3.22.4':
-    resolution: {integrity: sha512-H659KXTvggSypIDWSOJBZ37jh9pKjQriDDvYPYvOZCdfij0D0hsDXN/wXoypArneUkoBdgruHfTtMkFOaQlgkw==}
+  '@tiptap/extension-list-item@3.22.5':
+    resolution: {integrity: sha512-W7uTmyKLhlsvuTPLv+8WwnsY+mlikBFIoLSvVcBaFt4MwpsZ+DeB6KQg02Y7tbtaAnG7rXu9Fvw2QORh2P728A==}
     peerDependencies:
-      '@tiptap/extension-list': 3.22.4
+      '@tiptap/extension-list': 3.22.5
 
-  '@tiptap/extension-list-keymap@3.22.4':
-    resolution: {integrity: sha512-t/zhker4oIS78AIGYDdFFfZC6zSBlszfD7z/zqFLGCg5PHNNgkZK5hKj6Vyix6D2SapRn/ajnx+8mhbKIUH5eA==}
+  '@tiptap/extension-list-keymap@3.22.5':
+    resolution: {integrity: sha512-cGUnxJ0y515e1bVHNjUmbx7oWHoEon59w6BA5N2KwV9iW2mZZchlTX4yxJSOX+ixeVRChsa7YwC3Z1jUZ6AMEg==}
     peerDependencies:
-      '@tiptap/extension-list': 3.22.4
+      '@tiptap/extension-list': 3.22.5
 
-  '@tiptap/extension-list@3.22.4':
-    resolution: {integrity: sha512-Xe8UFvvHmyp/c/TJsFwlwU9CWACYbBirNsluJ3U1+H8BTu1wqdrT/AXR5uIXeyCl5kiWKgX5q71eHWbYFOrqrg==}
+  '@tiptap/extension-list@3.22.5':
+    resolution: {integrity: sha512-cVO3ZHCgxAWZ4zrFSs81FO2nyCk1wb2EHkpLpW98FzbJLkN9rDkazhW99P3HRWy/CvUldOT+8ecI1YrQtBojMg==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5
+      '@tiptap/pm': 3.22.5
 
-  '@tiptap/extension-mention@3.22.4':
-    resolution: {integrity: sha512-ZUJ1gCZlH+JGTAT7lVpZjcMAzvIi9hXIyBjOmjL+737NlF+Cfgo+fjHqFQgOSsiO9LEyc3ZMSclmbzII1Jy6IQ==}
+  '@tiptap/extension-mention@3.22.5':
+    resolution: {integrity: sha512-rGTbTjyxLc5C/6QjfbQF53nMbxjVgJU1VK6Si1i1J2c5DU09COgEFlYvi4YHjb3xz39SprPfG+GTtgD96eg7Ww==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
-      '@tiptap/pm': 3.22.4
-      '@tiptap/suggestion': 3.22.4
+      '@tiptap/core': 3.22.5
+      '@tiptap/pm': 3.22.5
+      '@tiptap/suggestion': 3.22.5
 
-  '@tiptap/extension-ordered-list@3.22.4':
-    resolution: {integrity: sha512-w77hPVf7pcHt97vfrybg/l0t5CimCd4y75OJKuHuo3CfgM5xbUP/gaPNMDyLLe7MYole/UHi/XvG3XjgzqTzAw==}
+  '@tiptap/extension-ordered-list@3.22.5':
+    resolution: {integrity: sha512-OXdh4k4CNrukwiSdWdEQ49uvgnqvR0Z9aNSP4HI5/kZQ/Te1NtRtYCpUrzWyO/7CtjcCisXHti0o9C/TV8YMbQ==}
     peerDependencies:
-      '@tiptap/extension-list': 3.22.4
+      '@tiptap/extension-list': 3.22.5
 
   '@tiptap/extension-paragraph@2.11.7':
     resolution: {integrity: sha512-Pl3B4q6DJqTvvAdraqZaNP9Hh0UWEHL5nNdxhaRNuhKaUo7lq8wbDSIxIW3lvV0lyCs0NfyunkUvSm1CXb6d4Q==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
-  '@tiptap/extension-paragraph@3.22.4':
-    resolution: {integrity: sha512-de6dFkIhigiENESY6rNJ3yTVS/337ybfP30dNPudTwGe9oAu9ZCS+04j6QCvXSjhlI3ULiv7wiSHqrP26Gd+Hw==}
+  '@tiptap/extension-paragraph@3.22.5':
+    resolution: {integrity: sha512-52KCto4+XKpnBWpIufspWLyq4UWxAWC72ANPdGuIhbi72NRTabiTbTVN40uwGSPkyakeESG0/vKdWJCVvB4f0g==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
+      '@tiptap/core': 3.22.5
 
-  '@tiptap/extension-placeholder@3.22.4':
-    resolution: {integrity: sha512-Z3wtWL+KufwkC7CkJge5enAxx4q8C3oOYixme02snY9zfjX3V/1pjAmEfP4wxScgM5GIuTEJ83B9Yz3wRzPA6Q==}
+  '@tiptap/extension-placeholder@3.22.5':
+    resolution: {integrity: sha512-MZAohQ3FCS763BkhGXgaWRya6WruZjwRwEAkXP8vkxbERzl2OJRjniS4uXCWzAlRb3ttE103SnY7LMdM8FvsXw==}
     peerDependencies:
-      '@tiptap/extensions': 3.22.4
+      '@tiptap/extensions': 3.22.5
 
   '@tiptap/extension-strike@2.11.7':
     resolution: {integrity: sha512-D6GYiW9F24bvAY7XMOARNZbC8YGPzdzWdXd8VOOJABhf4ynMi/oW4NNiko+kZ67jn3EGaKoz32VMJzNQgYi1HA==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
-  '@tiptap/extension-strike@3.22.4':
-    resolution: {integrity: sha512-aRHWQj42HiailXSC9LkKYM3jWMcSeGwOjbqM4PiuxQZmHVDRFmeHkfJItOdn2cSHaO0vuEVK+TvrWUWsBFi3pg==}
+  '@tiptap/extension-strike@3.22.5':
+    resolution: {integrity: sha512-42WrrFK5gOom/0znH85x12Mw5IQ/6O6DWdyUWoRIrNA/qJpuHtU8oVU+bIgU2tuomMGHruRjIzgBQv5sBjEtww==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
+      '@tiptap/core': 3.22.5
 
-  '@tiptap/extension-superscript@3.22.4':
-    resolution: {integrity: sha512-VGNR67uTmdTfRC5+1HqtAfA+kK6Lbh9tXitcIs8Scwxlq89PBOUEs11RnzcXfwv5hYq94WjgQJF3A99Jc9Cg2w==}
+  '@tiptap/extension-superscript@3.22.5':
+    resolution: {integrity: sha512-Ta9epX6CY9vOQjZAnY/HY7Lo/ixSrRwdDU8yOhkoO9pkYNA/e8l5xhf1T04qnBQ1+QaOZzpLTYlfQJrHzqcJmQ==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5
+      '@tiptap/pm': 3.22.5
 
   '@tiptap/extension-table-cell@2.11.7':
     resolution: {integrity: sha512-JMOkSYRckc5SJP86yGGiHzCxCR8ecrRENvTWAKib6qer2tutxs5u42W+Z8uTcHC2dRz7Fv54snOkDoqPwkf6cw==}
@@ -8404,39 +11102,39 @@ packages:
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
-  '@tiptap/extension-text@3.22.4':
-    resolution: {integrity: sha512-mM69uUW5cSxIhyEpWXi/YcfyupcJMDLCPEfYi62awH0iOP/LRoCv/nHjJq4Hyj/KxRJbe8HKwIUnqaCUf7m5Pg==}
+  '@tiptap/extension-text@3.22.5':
+    resolution: {integrity: sha512-bzpDOdAEo1JeoVZDIyV0oY0jGXkEG+AzF70SzHoRSjOvFDtKWunyXf9eO1OnOr2/fmMcckT2qwUBNBMQplWBzw==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
+      '@tiptap/core': 3.22.5
 
   '@tiptap/extension-underline@2.11.7':
     resolution: {integrity: sha512-NtoQw6PGijOAtXC6G+0Aq0/Z5wwEjPhNHs8nsjXogfWIgaj/aI4/zfBnA06eI3WT+emMYQTl0fTc4CUPnLVU8g==}
     peerDependencies:
       '@tiptap/core': ^2.7.0
 
-  '@tiptap/extension-underline@3.22.4':
-    resolution: {integrity: sha512-08kGdbhIrA6h10GWXqOkqIveaBj5tmxclK208/nUIAlonI9hPd739vu7fmVtpnmqCnSSNpoRtU4u6Gj5at0ZpA==}
+  '@tiptap/extension-underline@3.22.5':
+    resolution: {integrity: sha512-9ut09rJD0iEbS6sk7yd2j6IwuFDLTNmDEGTDLodvqAfi+bq7ddsTDv0YviXoZaA9sdHAdTEVr2ITy2m6WK5jpA==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
+      '@tiptap/core': 3.22.5
 
-  '@tiptap/extensions@3.22.4':
-    resolution: {integrity: sha512-fOe8VptJvLPs32bNdUYo8SRyljwqKNQVXWW056VoXIc5en/59OdJlJQVeHI0jRRciH3MtrqODi/gfJR0VHNZ8A==}
+  '@tiptap/extensions@3.22.5':
+    resolution: {integrity: sha512-Ifg4MzKCj3uRqe3ieTwYnomu2y4p7EXr2avVSKZYfh12i2dyWe2Gkn1KuZDREANVE+gHqFlQjJRYzhJFwzSCrg==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5
+      '@tiptap/pm': 3.22.5
 
-  '@tiptap/html@3.22.4':
-    resolution: {integrity: sha512-Y0ydX5ghuypurDRzU5YEVAXKJH2SWar7J7bDNslWHuXSmMnu2CBxFViGf7RKWw0BDMPv33wkuMxzkw1n0gOpgg==}
+  '@tiptap/html@3.22.5':
+    resolution: {integrity: sha512-jGX/hm8sM3AaUgdRyIPCX5gjls4lj8Tv5ALYXcu4/06m+i/ZNuQwjTB9W3MIx6CENNFes9PDOSEKbQM5khGBaQ==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5
+      '@tiptap/pm': 3.22.5
       happy-dom: ^20.8.9
 
   '@tiptap/pm@2.24.2':
     resolution: {integrity: sha512-g9UGZRVtJJsGNtaQUlIwQQVX5akPJRZSMGvxyp02tj32mFTS8Q+ldD/4J7jCwevCJWZmb/fIbVrANzIFEiHsLw==}
 
-  '@tiptap/pm@3.22.4':
-    resolution: {integrity: sha512-hj8Qka6WcHRllHUdeSjDnq2XaisUo4KsoGJc1WcFpoa1Yd+OeD861zUMnV7DFVGdZRy45Obht0CUYJpXQ4yA4w==}
+  '@tiptap/pm@3.22.5':
+    resolution: {integrity: sha512-Cr9Mv4igxvI2tKMiahw48sZxva3PfDzypErH8IB82N+9qa9n9ygVMt0BOaDg53hLKxEEVeYr2S/wCcJIVFgBTw==}
 
   '@tiptap/react@2.24.2':
     resolution: {integrity: sha512-RecUJfZKs2DoRk0/94CbfJ6RFx2a6RDt65hcTtNZygRdoKe4p2VCUfhqvgZp7BSKslYBTILIPnyySv6B8r/Tyw==}
@@ -8446,24 +11144,24 @@ packages:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@tiptap/react@3.22.4':
-    resolution: {integrity: sha512-XIQZPwLakR1t8+Q1UeCpr+kUHDWxpJzGy9r2xUi3mpPd6Wh8dtNltScBkUlCcr0sqc6J1GF6Is02JJVQGmCZMA==}
+  '@tiptap/react@3.22.5':
+    resolution: {integrity: sha512-36WHEs+vPmB//V1ff7Ujcnpz7Ey5g8lhpI/0+hoanSbdiPMTQ7qZVWwMovIkMKDlqWVp2fxBgeYM1861jyFzTw==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5
+      '@tiptap/pm': 3.22.5
       '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
       '@types/react-dom': ^17.0.0 || ^18.0.0 || ^19.0.0
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@tiptap/starter-kit@3.22.4':
-    resolution: {integrity: sha512-qWjw+vfdin1rzMRpRU4cC5tLTwMJtUpXeQukv+6mOqqvhptuwuZBjUHImVEJaSPoHXS7+1ut+nTnrLyWyEuE5Q==}
+  '@tiptap/starter-kit@3.22.5':
+    resolution: {integrity: sha512-LZ/LYbwH6rnDi5DnRyagkuNsYAVyhM+yJvvz+ZuYA0JkPiTXJV86J5PWSKew8M0gVfMHcNVtKjfQCvViFCeIgw==}
 
-  '@tiptap/suggestion@3.22.4':
-    resolution: {integrity: sha512-1buvLZemITTeKmPf2wGFWvvhRFKjdQ+JgMqc67xBraOKeDd8wQi1e2XlhCYAtlVMm5f6j+qlLC/MvwuHI2jHeQ==}
+  '@tiptap/suggestion@3.22.5':
+    resolution: {integrity: sha512-Uv79Ht/o4mx1GWIT65jeQTE67LMrA+K7d8p51XOe9PJw0H0fS3iCdeMJ8tAo3h6QrMJFejdsB7z8jJL9UbAnhA==}
     peerDependencies:
-      '@tiptap/core': 3.22.4
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5
+      '@tiptap/pm': 3.22.5
 
   '@tokenizer/inflate@0.2.7':
     resolution: {integrity: sha512-MADQgmZT1eKjp06jpI2yozxaU9uVs4GzzgSL+uEq7bVcJ9V1ZXQkeGNql1fsSI0gMy1vhvNTNbUqrx+pZfJVmg==}
@@ -9576,7 +12274,6 @@ packages:
   aws-sdk@2.1692.0:
     resolution: {integrity: sha512-x511uiJ/57FIsbgUe5csJ13k3uzu25uWQE+XqfBis/sB0SFoiElJWXRkgEAUh0U6n40eT3ay5Ue4oPkRMu1LYw==}
     engines: {node: '>= 10.0.0'}
-    deprecated: The AWS SDK for JavaScript (v2) has reached end-of-support, and no longer receives updates. Please migrate your code to use AWS SDK for JavaScript (v3). More info https://a.co/cUPnyil
 
   aws-sign2@0.7.0:
     resolution: {integrity: sha512-08kcGqnYf/YmjoRhfxyu+CLxBjUtHLXLXX/vUfx9l2LYzG3c1m61nrpyFUZI6zeS+Li/wWMMidD9KgrqtGq3mA==}
@@ -9751,8 +12448,8 @@ packages:
     resolution: {integrity: sha512-lGe34o6EHj9y3Kts9R4ZYs/Gr+6N7MCaMlIFA3F1R2O5/m7K06AxfSeO5530PEERE6/WyEg3lsuyw4GHlPZHog==}
     engines: {node: ^4.5.0 || >= 5.9}
 
-  baseline-browser-mapping@2.10.20:
-    resolution: {integrity: sha512-1AaXxEPfXT+GvTBJFuy4yXVHWJBXa4OdbIebGN/wX5DlsIkU0+wzGnd2lOzokSk51d5LUmqjgBLRLlypLUqInQ==}
+  baseline-browser-mapping@2.10.27:
+    resolution: {integrity: sha512-zEs/ufmZoUd7WftKpKyXaT6RFxpQ5Qm9xytKRHvJfxFV9DFJkZph9RvJ1LcOUi0Z1ZVijMte65JbILeV+8QQEA==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -9763,7 +12460,7 @@ packages:
   basic-ftp@5.1.0:
     resolution: {integrity: sha512-RkaJzeJKDbaDWTIPiJwubyljaEPwpVWkm9Rt5h9Nd6h7tEXTJ3VB4qxdZBioV7JO5yLUaOKwz7vDOzlncUsegw==}
     engines: {node: '>=10.0.0'}
-    deprecated: Security vulnerability fixed in 5.2.0, please upgrade
+    deprecated: Security vulnerability fixed in 5.2.1, please upgrade
 
   batch@0.6.1:
     resolution: {integrity: sha512-x+VAiMRL6UPkx+kudNvxTl6hB2XNNCG2r+7wixVfIYwu/2HKRXimwQyaumLjMveWvT2Hkd/cAJw+QBMfJ/EKVw==}
@@ -11285,8 +13982,8 @@ packages:
     resolution: {integrity: sha512-HqD3yTBfnBxIrbnM1DoD6Pcq8NECnh8d4As1Qgh0z5Gg3jRRIqijury0CL3ghu/edArpUYiYqQiDUQBIs4np3Q==}
     engines: {node: '>=10.0.0'}
 
-  engine.io@6.6.6:
-    resolution: {integrity: sha512-U2SN0w3OpjFRVlrc17E6TMDmH58Xl9rai1MblNjAdwWp07Kk+llmzX0hjDpQdrDGzwmvOtgM5yI+meYX6iZ2xA==}
+  engine.io@6.6.7:
+    resolution: {integrity: sha512-DgOngfDKM2EviOH3Mr9m7ks1q8roetLy/IMmYthAYzbpInMbYc/GS+fWFA3rl1gvwKVsQrVV61fo5emD1y3OJQ==}
     engines: {node: '>=10.2.0'}
 
   enhanced-resolve@5.18.1:
@@ -11422,6 +14119,11 @@ packages:
 
   esbuild@0.27.5:
     resolution: {integrity: sha512-zdQoHBjuDqKsvV5OPaWansOwfSQ0Js+Uj9J85TBvj3bFW1JjWTSULMRwdQAc8qMeIScbClxeMK0jlrtB9linhA==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  esbuild@0.28.0:
+    resolution: {integrity: sha512-sNR9MHpXSUV/XB4zmsFKN+QgVG82Cc7+/aaxJ8Adi8hyOac+EXptIp45QBPaVyX3N70664wRbTcLTOemCAnyqw==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -14995,6 +17697,11 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
+  nypm@0.6.6:
+    resolution: {integrity: sha512-vRyr0r4cbBapw07Xw8xrj9Teq3o7MUD35rSaTcanDbW+aK2XHDgJFiU6ZTj2GBw7Q12ysdsyFss+Vdz4hQ0Y6Q==}
+    engines: {node: '>=18'}
+    hasBin: true
+
   oauth-sign@0.9.0:
     resolution: {integrity: sha512-fexhUFFPTGV8ybAtSIGbV6gOkSv8UtRbDBnAyLQw4QPKkgNlsH2ByPGtMUqdWkos6YCRmAqViwgZrJc/mRDzZQ==}
 
@@ -15390,6 +18097,10 @@ packages:
   picomatch@4.0.3:
     resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
     engines: {node: '>=12'}
+
+  picospinner@3.0.0:
+    resolution: {integrity: sha512-lGA1TNsmy2bxvRsTI2cV01kfTwKzZjnZSDmF9llYNyMHMrU4sP87lQ5taiIKm88L3cbswjl008nwyGc3WpNvzg==}
+    engines: {node: '>=18.0.0'}
 
   pify@2.3.0:
     resolution: {integrity: sha512-udgsAY+fTnvv7kI7aaxbqwWNb0AHiB0qBO89PZKPkoTmGOgdbrHDKD+0B2X4uTfJ/FT1R09r9gTsjUjNJotuog==}
@@ -16167,6 +18878,14 @@ packages:
     resolution: {integrity: sha512-DZkFbOiSPjXz76GOuNj/9odFxO3zPd5eyNes+MTbya/8rpzmWFYjoF02d9wxbUV/y+TE96/Nc9IBPWYsht9KGQ==}
     engines: {node: '>=20.0.0'}
     hasBin: true
+
+  react-email@6.0.8:
+    resolution: {integrity: sha512-/kArasUY1ahkrs8z8OG0wz+d7hedV/wUSZ8qaXI2TtB6omUMmMtm//FBHSSdnsEvkUnAZ5LzCyge1h6oQNhpTA==}
+    engines: {node: '>=20.0.0'}
+    hasBin: true
+    peerDependencies:
+      react: ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^18.0 || ^19.0 || ^19.0.0-rc
 
   react-error-boundary@5.0.0:
     resolution: {integrity: sha512-tnjAxG+IkpLephNcePNA7v6F/QpWLH8He65+DmedchDwg162JZqx4NmbXj0mlAYVVEd81OW7aFhmbsScYfiAFQ==}
@@ -17481,8 +20200,8 @@ packages:
   tailwindcss@4.1.17:
     resolution: {integrity: sha512-j9Ee2YjuQqYT9bbRTfTZht9W/ytp5H+jJpZKiYdP/bpnXARAuELt9ofP0lPnmHjbga7SNQIxdTAXCmtKVYjN+Q==}
 
-  tailwindcss@4.2.2:
-    resolution: {integrity: sha512-KWBIxs1Xb6NoLdMVqhbhgwZf2PGBpPEiwOqgI4pFIYbNTfBXiKYyWoTsXgBQ9WFg/OlhnvHaY+AEpW7wSmFo2Q==}
+  tailwindcss@4.2.4:
+    resolution: {integrity: sha512-HhKppgO81FQof5m6TEnuBWCZGgfRAWbaeOaGT00KOy/Pf/j6oUihdvBpA7ltCeAvZpFhW3j0PTclkxsd4IXYDA==}
 
   tapable@2.2.1:
     resolution: {integrity: sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==}
@@ -17614,8 +20333,8 @@ packages:
   tinycolor2@1.6.0:
     resolution: {integrity: sha512-XPaBkWQJdsf3pLKJV9p4qN/S+fm2Oj8AIPo1BTUhg5oxkvm9+SVEGFdhyOz7tTdUTfvxMiAs4sp6/eZO2Ew+pw==}
 
-  tinyexec@1.1.1:
-    resolution: {integrity: sha512-VKS/ZaQhhkKFMANmAOhhXVoIfBXblQxGX1myCQ2faQrfmobMftXeJPcZGp0gS07ocvGJWDLZGyOZDadDBqYIJg==}
+  tinyexec@1.1.2:
+    resolution: {integrity: sha512-dAqSqE/RabpBKI8+h26GfLq6Vb3JVXs30XYQjdMjaj/c2tS8IYYMbIzP599KtRj7c57/wYApb3QjgRgXmrCukA==}
     engines: {node: '>=18'}
 
   tinyglobby@0.2.12:
@@ -18209,19 +20928,22 @@ packages:
 
   uuid@3.4.0:
     resolution: {integrity: sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==}
-    deprecated: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@8.0.0:
     resolution: {integrity: sha512-jOXGuXZAWdsTH7eZLtyXMqUb9EcWMGZNbL9YcGBJl4MH4nrxHmZJhEHvyLFrkxo+28uLb/NYRcStH48fnD0Vzw==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   v8-compile-cache-lib@3.0.1:
@@ -18872,6 +21594,29 @@ snapshots:
       optimism: 0.18.1
       prop-types: 15.8.1
       rehackt: 0.1.0(@types/react@18.3.1)(react@18.3.1)
+      symbol-observable: 4.0.0
+      ts-invariant: 0.10.3
+      tslib: 2.8.1
+      zen-observable-ts: 1.2.5
+    optionalDependencies:
+      graphql-ws: 5.16.2(graphql@16.10.0)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    transitivePeerDependencies:
+      - '@types/react'
+
+  '@apollo/client@3.13.6(@types/react@19.1.12)(graphql-ws@5.16.2(graphql@16.10.0))(graphql@16.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@graphql-typed-document-node/core': 3.2.0(graphql@16.10.0)
+      '@wry/caches': 1.0.1
+      '@wry/equality': 0.5.7
+      '@wry/trie': 0.5.0
+      graphql: 16.10.0
+      graphql-tag: 2.12.6(graphql@16.10.0)
+      hoist-non-react-statics: 3.3.2
+      optimism: 0.18.1
+      prop-types: 15.8.1
+      rehackt: 0.1.0(@types/react@19.1.12)(react@18.3.1)
       symbol-observable: 4.0.0
       ts-invariant: 0.10.3
       tslib: 2.8.1
@@ -20761,6 +23506,9 @@ snapshots:
   '@esbuild/aix-ppc64@0.27.5':
     optional: true
 
+  '@esbuild/aix-ppc64@0.28.0':
+    optional: true
+
   '@esbuild/android-arm64@0.16.3':
     optional: true
 
@@ -20777,6 +23525,9 @@ snapshots:
     optional: true
 
   '@esbuild/android-arm64@0.27.5':
+    optional: true
+
+  '@esbuild/android-arm64@0.28.0':
     optional: true
 
   '@esbuild/android-arm@0.16.3':
@@ -20797,6 +23548,9 @@ snapshots:
   '@esbuild/android-arm@0.27.5':
     optional: true
 
+  '@esbuild/android-arm@0.28.0':
+    optional: true
+
   '@esbuild/android-x64@0.16.3':
     optional: true
 
@@ -20813,6 +23567,9 @@ snapshots:
     optional: true
 
   '@esbuild/android-x64@0.27.5':
+    optional: true
+
+  '@esbuild/android-x64@0.28.0':
     optional: true
 
   '@esbuild/darwin-arm64@0.16.3':
@@ -20833,6 +23590,9 @@ snapshots:
   '@esbuild/darwin-arm64@0.27.5':
     optional: true
 
+  '@esbuild/darwin-arm64@0.28.0':
+    optional: true
+
   '@esbuild/darwin-x64@0.16.3':
     optional: true
 
@@ -20849,6 +23609,9 @@ snapshots:
     optional: true
 
   '@esbuild/darwin-x64@0.27.5':
+    optional: true
+
+  '@esbuild/darwin-x64@0.28.0':
     optional: true
 
   '@esbuild/freebsd-arm64@0.16.3':
@@ -20869,6 +23632,9 @@ snapshots:
   '@esbuild/freebsd-arm64@0.27.5':
     optional: true
 
+  '@esbuild/freebsd-arm64@0.28.0':
+    optional: true
+
   '@esbuild/freebsd-x64@0.16.3':
     optional: true
 
@@ -20885,6 +23651,9 @@ snapshots:
     optional: true
 
   '@esbuild/freebsd-x64@0.27.5':
+    optional: true
+
+  '@esbuild/freebsd-x64@0.28.0':
     optional: true
 
   '@esbuild/linux-arm64@0.16.3':
@@ -20905,6 +23674,9 @@ snapshots:
   '@esbuild/linux-arm64@0.27.5':
     optional: true
 
+  '@esbuild/linux-arm64@0.28.0':
+    optional: true
+
   '@esbuild/linux-arm@0.16.3':
     optional: true
 
@@ -20921,6 +23693,9 @@ snapshots:
     optional: true
 
   '@esbuild/linux-arm@0.27.5':
+    optional: true
+
+  '@esbuild/linux-arm@0.28.0':
     optional: true
 
   '@esbuild/linux-ia32@0.16.3':
@@ -20941,6 +23716,9 @@ snapshots:
   '@esbuild/linux-ia32@0.27.5':
     optional: true
 
+  '@esbuild/linux-ia32@0.28.0':
+    optional: true
+
   '@esbuild/linux-loong64@0.16.3':
     optional: true
 
@@ -20957,6 +23735,9 @@ snapshots:
     optional: true
 
   '@esbuild/linux-loong64@0.27.5':
+    optional: true
+
+  '@esbuild/linux-loong64@0.28.0':
     optional: true
 
   '@esbuild/linux-mips64el@0.16.3':
@@ -20977,6 +23758,9 @@ snapshots:
   '@esbuild/linux-mips64el@0.27.5':
     optional: true
 
+  '@esbuild/linux-mips64el@0.28.0':
+    optional: true
+
   '@esbuild/linux-ppc64@0.16.3':
     optional: true
 
@@ -20993,6 +23777,9 @@ snapshots:
     optional: true
 
   '@esbuild/linux-ppc64@0.27.5':
+    optional: true
+
+  '@esbuild/linux-ppc64@0.28.0':
     optional: true
 
   '@esbuild/linux-riscv64@0.16.3':
@@ -21013,6 +23800,9 @@ snapshots:
   '@esbuild/linux-riscv64@0.27.5':
     optional: true
 
+  '@esbuild/linux-riscv64@0.28.0':
+    optional: true
+
   '@esbuild/linux-s390x@0.16.3':
     optional: true
 
@@ -21029,6 +23819,9 @@ snapshots:
     optional: true
 
   '@esbuild/linux-s390x@0.27.5':
+    optional: true
+
+  '@esbuild/linux-s390x@0.28.0':
     optional: true
 
   '@esbuild/linux-x64@0.16.3':
@@ -21049,6 +23842,9 @@ snapshots:
   '@esbuild/linux-x64@0.27.5':
     optional: true
 
+  '@esbuild/linux-x64@0.28.0':
+    optional: true
+
   '@esbuild/netbsd-arm64@0.25.2':
     optional: true
 
@@ -21056,6 +23852,9 @@ snapshots:
     optional: true
 
   '@esbuild/netbsd-arm64@0.27.5':
+    optional: true
+
+  '@esbuild/netbsd-arm64@0.28.0':
     optional: true
 
   '@esbuild/netbsd-x64@0.16.3':
@@ -21076,6 +23875,9 @@ snapshots:
   '@esbuild/netbsd-x64@0.27.5':
     optional: true
 
+  '@esbuild/netbsd-x64@0.28.0':
+    optional: true
+
   '@esbuild/openbsd-arm64@0.25.2':
     optional: true
 
@@ -21083,6 +23885,9 @@ snapshots:
     optional: true
 
   '@esbuild/openbsd-arm64@0.27.5':
+    optional: true
+
+  '@esbuild/openbsd-arm64@0.28.0':
     optional: true
 
   '@esbuild/openbsd-x64@0.16.3':
@@ -21103,10 +23908,16 @@ snapshots:
   '@esbuild/openbsd-x64@0.27.5':
     optional: true
 
+  '@esbuild/openbsd-x64@0.28.0':
+    optional: true
+
   '@esbuild/openharmony-arm64@0.27.3':
     optional: true
 
   '@esbuild/openharmony-arm64@0.27.5':
+    optional: true
+
+  '@esbuild/openharmony-arm64@0.28.0':
     optional: true
 
   '@esbuild/sunos-x64@0.16.3':
@@ -21127,6 +23938,9 @@ snapshots:
   '@esbuild/sunos-x64@0.27.5':
     optional: true
 
+  '@esbuild/sunos-x64@0.28.0':
+    optional: true
+
   '@esbuild/win32-arm64@0.16.3':
     optional: true
 
@@ -21143,6 +23957,9 @@ snapshots:
     optional: true
 
   '@esbuild/win32-arm64@0.27.5':
+    optional: true
+
+  '@esbuild/win32-arm64@0.28.0':
     optional: true
 
   '@esbuild/win32-ia32@0.16.3':
@@ -21163,6 +23980,9 @@ snapshots:
   '@esbuild/win32-ia32@0.27.5':
     optional: true
 
+  '@esbuild/win32-ia32@0.28.0':
+    optional: true
+
   '@esbuild/win32-x64@0.16.3':
     optional: true
 
@@ -21179,6 +23999,9 @@ snapshots:
     optional: true
 
   '@esbuild/win32-x64@0.27.5':
+    optional: true
+
+  '@esbuild/win32-x64@0.28.0':
     optional: true
 
   '@escape.tech/graphql-armor-block-field-suggestions@3.0.0':
@@ -22135,7 +24958,7 @@ snapshots:
     dependencies:
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-blur@1.6.0':
     dependencies:
@@ -22145,7 +24968,7 @@ snapshots:
   '@jimp/plugin-circle@1.6.0':
     dependencies:
       '@jimp/types': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-color@1.6.0':
     dependencies:
@@ -22153,7 +24976,7 @@ snapshots:
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
       tinycolor2: 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-contain@1.6.0':
     dependencies:
@@ -22162,7 +24985,7 @@ snapshots:
       '@jimp/plugin-resize': 1.6.0
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-cover@1.6.0':
     dependencies:
@@ -22170,20 +24993,20 @@ snapshots:
       '@jimp/plugin-crop': 1.6.0
       '@jimp/plugin-resize': 1.6.0
       '@jimp/types': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-crop@1.6.0':
     dependencies:
       '@jimp/core': 1.6.0
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-displace@1.6.0':
     dependencies:
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-dither@1.6.0':
     dependencies:
@@ -22193,12 +25016,12 @@ snapshots:
     dependencies:
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-flip@1.6.0':
     dependencies:
       '@jimp/types': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-hash@1.6.0':
     dependencies:
@@ -22216,7 +25039,7 @@ snapshots:
   '@jimp/plugin-mask@1.6.0':
     dependencies:
       '@jimp/types': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-print@1.6.0':
     dependencies:
@@ -22229,18 +25052,18 @@ snapshots:
       parse-bmfont-binary: 1.0.6
       parse-bmfont-xml: 1.1.6
       simple-xml-to-json: 1.2.3
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-quantize@1.6.0':
     dependencies:
       image-q: 4.0.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-resize@1.6.0':
     dependencies:
       '@jimp/core': 1.6.0
       '@jimp/types': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-rotate@1.6.0':
     dependencies:
@@ -22249,7 +25072,7 @@ snapshots:
       '@jimp/plugin-resize': 1.6.0
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/plugin-threshold@1.6.0':
     dependencies:
@@ -22258,11 +25081,11 @@ snapshots:
       '@jimp/plugin-hash': 1.6.0
       '@jimp/types': 1.6.0
       '@jimp/utils': 1.6.0
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/types@1.6.0':
     dependencies:
-      zod: 3.23.8
+      zod: 3.24.2
 
   '@jimp/utils@1.6.0':
     dependencies:
@@ -23719,7 +26542,7 @@ snapshots:
       semver: 7.7.3
       terser: 5.39.0
       v8-compile-cache: 2.4.0
-      zod: 3.23.8
+      zod: 3.24.2
     transitivePeerDependencies:
       - supports-color
 
@@ -25940,42 +28763,42 @@ snapshots:
     dependencies:
       react: 18.3.1
 
-  '@react-email/editor@1.1.0(@floating-ui/dom@1.7.6)(@tiptap/extension-list@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))(@types/react-dom@18.3.0)(@types/react@18.3.1)(happy-dom@20.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@react-email/editor@1.3.5(@floating-ui/dom@1.7.6)(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))(@types/react-dom@18.3.0)(@types/react@18.3.1)(happy-dom@20.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@floating-ui/react-dom': 2.1.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@radix-ui/react-popover': 1.1.15(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@radix-ui/react-slot': 1.2.3(@types/react@18.3.1)(react@18.3.1)
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
-      '@tiptap/extension-blockquote': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-bold': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-bullet-list': 3.22.4(@tiptap/extension-list@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))
-      '@tiptap/extension-code': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-code-block': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
-      '@tiptap/extension-hard-break': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-heading': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-horizontal-rule': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
-      '@tiptap/extension-italic': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-link': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
-      '@tiptap/extension-list-item': 3.22.4(@tiptap/extension-list@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))
-      '@tiptap/extension-mention': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@tiptap/suggestion@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))
-      '@tiptap/extension-ordered-list': 3.22.4(@tiptap/extension-list@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))
-      '@tiptap/extension-paragraph': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-placeholder': 3.22.4(@tiptap/extensions@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))
-      '@tiptap/extension-strike': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-superscript': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
-      '@tiptap/extension-text': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-underline': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extensions': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
-      '@tiptap/html': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(happy-dom@20.9.0)
-      '@tiptap/pm': 3.22.4
-      '@tiptap/react': 3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@tiptap/starter-kit': 3.22.4
-      '@tiptap/suggestion': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
+      '@tiptap/extension-blockquote': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extension-bold': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extension-bullet-list': 3.22.5(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))
+      '@tiptap/extension-code': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extension-code-block': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
+      '@tiptap/extension-hard-break': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extension-heading': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extension-horizontal-rule': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
+      '@tiptap/extension-italic': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extension-link': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
+      '@tiptap/extension-list-item': 3.22.5(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))
+      '@tiptap/extension-mention': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)(@tiptap/suggestion@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))
+      '@tiptap/extension-ordered-list': 3.22.5(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))
+      '@tiptap/extension-paragraph': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extension-placeholder': 3.22.5(@tiptap/extensions@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))
+      '@tiptap/extension-strike': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extension-superscript': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
+      '@tiptap/extension-text': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extension-underline': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extensions': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
+      '@tiptap/html': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)(happy-dom@20.9.0)
+      '@tiptap/pm': 3.22.5
+      '@tiptap/react': 3.22.5(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@tiptap/starter-kit': 3.22.5
+      '@tiptap/suggestion': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
       hast-util-from-html: 2.0.3
       prismjs: 1.30.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      react-email: 6.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-email: 6.0.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
       - '@floating-ui/dom'
       - '@tiptap/extension-list'
@@ -26051,6 +28874,13 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
+  '@react-email/render@2.0.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      html-to-text: 9.0.5
+      prettier: 3.6.2
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
   '@react-email/row@0.0.13(react@18.3.1)':
     dependencies:
       react: 18.3.1
@@ -26063,7 +28893,7 @@ snapshots:
     dependencies:
       '@react-email/text': 0.1.6(react@18.3.1)
       react: 18.3.1
-      tailwindcss: 4.2.2
+      tailwindcss: 4.2.4
     optionalDependencies:
       '@react-email/body': 0.3.0(react@18.3.1)
       '@react-email/button': 0.2.1(react@18.3.1)
@@ -27741,6 +30571,13 @@ snapshots:
       '@types/express': 4.17.21
       file-system-cache: 2.3.0
 
+  '@stripe/react-stripe-js@2.9.0(@stripe/stripe-js@4.10.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@stripe/stripe-js': 4.10.0
+      prop-types: 15.8.1
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
   '@stripe/react-stripe-js@2.9.0(@stripe/stripe-js@4.10.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
       '@stripe/stripe-js': 4.10.0
@@ -28157,21 +30994,21 @@ snapshots:
     dependencies:
       '@tiptap/pm': 2.24.2
 
-  '@tiptap/core@3.22.4(@tiptap/pm@3.22.4)':
+  '@tiptap/core@3.22.5(@tiptap/pm@3.22.5)':
     dependencies:
-      '@tiptap/pm': 3.22.4
+      '@tiptap/pm': 3.22.5
 
-  '@tiptap/extension-blockquote@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))':
+  '@tiptap/extension-blockquote@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
 
   '@tiptap/extension-bold@2.11.7(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))':
     dependencies:
       '@tiptap/core': 2.24.2(@tiptap/pm@2.24.2)
 
-  '@tiptap/extension-bold@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))':
+  '@tiptap/extension-bold@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
 
   '@tiptap/extension-bubble-menu@2.24.2(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2)':
     dependencies:
@@ -28179,37 +31016,37 @@ snapshots:
       '@tiptap/pm': 2.24.2
       tippy.js: 6.3.7
 
-  '@tiptap/extension-bubble-menu@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)':
+  '@tiptap/extension-bubble-menu@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)':
     dependencies:
       '@floating-ui/dom': 1.6.13
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
+      '@tiptap/pm': 3.22.5
     optional: true
 
-  '@tiptap/extension-bullet-list@3.22.4(@tiptap/extension-list@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))':
+  '@tiptap/extension-bullet-list@3.22.5(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))':
     dependencies:
-      '@tiptap/extension-list': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
+      '@tiptap/extension-list': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
 
-  '@tiptap/extension-code-block@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)':
+  '@tiptap/extension-code-block@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
+      '@tiptap/pm': 3.22.5
 
   '@tiptap/extension-code@2.11.7(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))':
     dependencies:
       '@tiptap/core': 2.24.2(@tiptap/pm@2.24.2)
 
-  '@tiptap/extension-code@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))':
+  '@tiptap/extension-code@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
 
-  '@tiptap/extension-document@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))':
+  '@tiptap/extension-document@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
 
-  '@tiptap/extension-dropcursor@3.22.4(@tiptap/extensions@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))':
+  '@tiptap/extension-dropcursor@3.22.5(@tiptap/extensions@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))':
     dependencies:
-      '@tiptap/extensions': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
+      '@tiptap/extensions': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
 
   '@tiptap/extension-floating-menu@2.24.2(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2)':
     dependencies:
@@ -28217,11 +31054,11 @@ snapshots:
       '@tiptap/pm': 2.24.2
       tippy.js: 6.3.7
 
-  '@tiptap/extension-floating-menu@3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)':
+  '@tiptap/extension-floating-menu@3.22.5(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)':
     dependencies:
       '@floating-ui/dom': 1.7.6
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
+      '@tiptap/pm': 3.22.5
     optional: true
 
   '@tiptap/extension-gapcursor@2.11.7(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2)':
@@ -28229,17 +31066,17 @@ snapshots:
       '@tiptap/core': 2.24.2(@tiptap/pm@2.24.2)
       '@tiptap/pm': 2.24.2
 
-  '@tiptap/extension-gapcursor@3.22.4(@tiptap/extensions@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))':
+  '@tiptap/extension-gapcursor@3.22.5(@tiptap/extensions@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))':
     dependencies:
-      '@tiptap/extensions': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
+      '@tiptap/extensions': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
 
-  '@tiptap/extension-hard-break@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))':
+  '@tiptap/extension-hard-break@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
 
-  '@tiptap/extension-heading@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))':
+  '@tiptap/extension-heading@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
 
   '@tiptap/extension-history@2.11.7(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2)':
     dependencies:
@@ -28251,18 +31088,18 @@ snapshots:
       '@tiptap/core': 2.24.2(@tiptap/pm@2.24.2)
       '@tiptap/pm': 2.24.2
 
-  '@tiptap/extension-horizontal-rule@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)':
+  '@tiptap/extension-horizontal-rule@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
+      '@tiptap/pm': 3.22.5
 
   '@tiptap/extension-italic@2.11.7(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))':
     dependencies:
       '@tiptap/core': 2.24.2(@tiptap/pm@2.24.2)
 
-  '@tiptap/extension-italic@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))':
+  '@tiptap/extension-italic@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
 
   '@tiptap/extension-link@2.11.7(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2)':
     dependencies:
@@ -28270,59 +31107,59 @@ snapshots:
       '@tiptap/pm': 2.24.2
       linkifyjs: 4.2.0
 
-  '@tiptap/extension-link@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)':
+  '@tiptap/extension-link@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
+      '@tiptap/pm': 3.22.5
       linkifyjs: 4.3.2
 
-  '@tiptap/extension-list-item@3.22.4(@tiptap/extension-list@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))':
+  '@tiptap/extension-list-item@3.22.5(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))':
     dependencies:
-      '@tiptap/extension-list': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
+      '@tiptap/extension-list': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
 
-  '@tiptap/extension-list-keymap@3.22.4(@tiptap/extension-list@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))':
+  '@tiptap/extension-list-keymap@3.22.5(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))':
     dependencies:
-      '@tiptap/extension-list': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
+      '@tiptap/extension-list': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
 
-  '@tiptap/extension-list@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)':
+  '@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
+      '@tiptap/pm': 3.22.5
 
-  '@tiptap/extension-mention@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@tiptap/suggestion@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))':
+  '@tiptap/extension-mention@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)(@tiptap/suggestion@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
-      '@tiptap/pm': 3.22.4
-      '@tiptap/suggestion': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
+      '@tiptap/pm': 3.22.5
+      '@tiptap/suggestion': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
 
-  '@tiptap/extension-ordered-list@3.22.4(@tiptap/extension-list@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))':
+  '@tiptap/extension-ordered-list@3.22.5(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))':
     dependencies:
-      '@tiptap/extension-list': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
+      '@tiptap/extension-list': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
 
   '@tiptap/extension-paragraph@2.11.7(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))':
     dependencies:
       '@tiptap/core': 2.24.2(@tiptap/pm@2.24.2)
 
-  '@tiptap/extension-paragraph@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))':
+  '@tiptap/extension-paragraph@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
 
-  '@tiptap/extension-placeholder@3.22.4(@tiptap/extensions@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))':
+  '@tiptap/extension-placeholder@3.22.5(@tiptap/extensions@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))':
     dependencies:
-      '@tiptap/extensions': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
+      '@tiptap/extensions': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
 
   '@tiptap/extension-strike@2.11.7(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))':
     dependencies:
       '@tiptap/core': 2.24.2(@tiptap/pm@2.24.2)
 
-  '@tiptap/extension-strike@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))':
+  '@tiptap/extension-strike@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
 
-  '@tiptap/extension-superscript@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)':
+  '@tiptap/extension-superscript@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
+      '@tiptap/pm': 3.22.5
 
   '@tiptap/extension-table-cell@2.11.7(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))':
     dependencies:
@@ -28336,27 +31173,27 @@ snapshots:
     dependencies:
       '@tiptap/core': 2.24.2(@tiptap/pm@2.24.2)
 
-  '@tiptap/extension-text@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))':
+  '@tiptap/extension-text@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
 
   '@tiptap/extension-underline@2.11.7(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))':
     dependencies:
       '@tiptap/core': 2.24.2(@tiptap/pm@2.24.2)
 
-  '@tiptap/extension-underline@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))':
+  '@tiptap/extension-underline@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
 
-  '@tiptap/extensions@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)':
+  '@tiptap/extensions@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
+      '@tiptap/pm': 3.22.5
 
-  '@tiptap/html@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(happy-dom@20.9.0)':
+  '@tiptap/html@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)(happy-dom@20.9.0)':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
+      '@tiptap/pm': 3.22.5
       happy-dom: 20.9.0
 
   '@tiptap/pm@2.24.2':
@@ -28380,7 +31217,7 @@ snapshots:
       prosemirror-transform: 1.10.4
       prosemirror-view: 1.39.1
 
-  '@tiptap/pm@3.22.4':
+  '@tiptap/pm@3.22.5':
     dependencies:
       prosemirror-changeset: 2.3.1
       prosemirror-commands: 1.7.0
@@ -28407,10 +31244,10 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       use-sync-external-store: 1.5.0(react@18.3.1)
 
-  '@tiptap/react@3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@tiptap/react@3.22.5(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
+      '@tiptap/pm': 3.22.5
       '@types/react': 18.3.1
       '@types/react-dom': 18.3.0
       '@types/use-sync-external-store': 0.0.6
@@ -28419,42 +31256,42 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       use-sync-external-store: 1.5.0(react@18.3.1)
     optionalDependencies:
-      '@tiptap/extension-bubble-menu': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
-      '@tiptap/extension-floating-menu': 3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
+      '@tiptap/extension-bubble-menu': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
+      '@tiptap/extension-floating-menu': 3.22.5(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
     transitivePeerDependencies:
       - '@floating-ui/dom'
 
-  '@tiptap/starter-kit@3.22.4':
+  '@tiptap/starter-kit@3.22.5':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
-      '@tiptap/extension-blockquote': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-bold': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-bullet-list': 3.22.4(@tiptap/extension-list@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))
-      '@tiptap/extension-code': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-code-block': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
-      '@tiptap/extension-document': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-dropcursor': 3.22.4(@tiptap/extensions@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))
-      '@tiptap/extension-gapcursor': 3.22.4(@tiptap/extensions@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))
-      '@tiptap/extension-hard-break': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-heading': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-horizontal-rule': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
-      '@tiptap/extension-italic': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-link': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
-      '@tiptap/extension-list': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
-      '@tiptap/extension-list-item': 3.22.4(@tiptap/extension-list@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))
-      '@tiptap/extension-list-keymap': 3.22.4(@tiptap/extension-list@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))
-      '@tiptap/extension-ordered-list': 3.22.4(@tiptap/extension-list@3.22.4(@tiptap/core@2.24.2(@tiptap/pm@2.24.2))(@tiptap/pm@2.24.2))
-      '@tiptap/extension-paragraph': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-strike': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-text': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extension-underline': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
-      '@tiptap/extensions': 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
+      '@tiptap/extension-blockquote': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extension-bold': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extension-bullet-list': 3.22.5(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))
+      '@tiptap/extension-code': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extension-code-block': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
+      '@tiptap/extension-document': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extension-dropcursor': 3.22.5(@tiptap/extensions@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))
+      '@tiptap/extension-gapcursor': 3.22.5(@tiptap/extensions@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))
+      '@tiptap/extension-hard-break': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extension-heading': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extension-horizontal-rule': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
+      '@tiptap/extension-italic': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extension-link': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
+      '@tiptap/extension-list': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
+      '@tiptap/extension-list-item': 3.22.5(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))
+      '@tiptap/extension-list-keymap': 3.22.5(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))
+      '@tiptap/extension-ordered-list': 3.22.5(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))
+      '@tiptap/extension-paragraph': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extension-strike': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extension-text': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extension-underline': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))
+      '@tiptap/extensions': 3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)
+      '@tiptap/pm': 3.22.5
 
-  '@tiptap/suggestion@3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)':
+  '@tiptap/suggestion@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5)':
     dependencies:
-      '@tiptap/core': 3.22.4(@tiptap/pm@3.22.4)
-      '@tiptap/pm': 3.22.4
+      '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
+      '@tiptap/pm': 3.22.5
 
   '@tokenizer/inflate@0.2.7':
     dependencies:
@@ -29292,6 +32129,18 @@ snapshots:
       - koa
       - next
 
+  '@workos-inc/node@7.65.0(express@4.21.2)(koa@2.15.3)(next@16.1.7(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.86.3))':
+    dependencies:
+      iron-session: 6.3.1(express@4.21.2)(koa@2.15.3)(next@16.1.7(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.86.3))
+      jose: 5.6.3
+      leb: 1.0.0
+      pluralize: 8.0.0
+      qs: 6.14.0
+    transitivePeerDependencies:
+      - express
+      - koa
+      - next
+
   '@wry/caches@1.0.1':
     dependencies:
       tslib: 2.8.1
@@ -30016,7 +32865,7 @@ snapshots:
 
   base64id@2.0.0: {}
 
-  baseline-browser-mapping@2.10.20: {}
+  baseline-browser-mapping@2.10.27: {}
 
   basic-auth@2.0.1:
     dependencies:
@@ -31661,7 +34510,7 @@ snapshots:
 
   engine.io-parser@5.2.3: {}
 
-  engine.io@6.6.6:
+  engine.io@6.6.7:
     dependencies:
       '@types/cors': 2.8.17
       '@types/node': 18.16.9
@@ -32030,6 +34879,35 @@ snapshots:
       '@esbuild/win32-arm64': 0.27.5
       '@esbuild/win32-ia32': 0.27.5
       '@esbuild/win32-x64': 0.27.5
+
+  esbuild@0.28.0:
+    optionalDependencies:
+      '@esbuild/aix-ppc64': 0.28.0
+      '@esbuild/android-arm': 0.28.0
+      '@esbuild/android-arm64': 0.28.0
+      '@esbuild/android-x64': 0.28.0
+      '@esbuild/darwin-arm64': 0.28.0
+      '@esbuild/darwin-x64': 0.28.0
+      '@esbuild/freebsd-arm64': 0.28.0
+      '@esbuild/freebsd-x64': 0.28.0
+      '@esbuild/linux-arm': 0.28.0
+      '@esbuild/linux-arm64': 0.28.0
+      '@esbuild/linux-ia32': 0.28.0
+      '@esbuild/linux-loong64': 0.28.0
+      '@esbuild/linux-mips64el': 0.28.0
+      '@esbuild/linux-ppc64': 0.28.0
+      '@esbuild/linux-riscv64': 0.28.0
+      '@esbuild/linux-s390x': 0.28.0
+      '@esbuild/linux-x64': 0.28.0
+      '@esbuild/netbsd-arm64': 0.28.0
+      '@esbuild/netbsd-x64': 0.28.0
+      '@esbuild/openbsd-arm64': 0.28.0
+      '@esbuild/openbsd-x64': 0.28.0
+      '@esbuild/openharmony-arm64': 0.28.0
+      '@esbuild/sunos-x64': 0.28.0
+      '@esbuild/win32-arm64': 0.28.0
+      '@esbuild/win32-ia32': 0.28.0
+      '@esbuild/win32-x64': 0.28.0
 
   escalade@3.2.0: {}
 
@@ -33983,6 +36861,20 @@ snapshots:
       express: 4.21.2
       koa: 2.15.3
       next: 16.1.7(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.86.3)
+
+  iron-session@6.3.1(express@4.21.2)(koa@2.15.3)(next@16.1.7(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.86.3)):
+    dependencies:
+      '@peculiar/webcrypto': 1.5.0
+      '@types/cookie': 0.5.4
+      '@types/express': 4.17.21
+      '@types/koa': 2.15.0
+      '@types/node': 17.0.45
+      cookie: 0.5.0
+      iron-webcrypto: 0.2.8
+    optionalDependencies:
+      express: 4.21.2
+      koa: 2.15.3
+      next: 16.1.7(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.86.3)
 
   iron-webcrypto@0.2.8:
     dependencies:
@@ -36415,7 +39307,7 @@ snapshots:
     dependencies:
       '@next/env': 16.1.7
       '@swc/helpers': 0.5.15
-      baseline-browser-mapping: 2.10.20
+      baseline-browser-mapping: 2.10.27
       caniuse-lite: 1.0.30001713
       postcss: 8.4.31
       react: 18.3.1
@@ -36436,6 +39328,33 @@ snapshots:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
+
+  next@16.1.7(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(babel-plugin-macros@3.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(sass@1.86.3):
+    dependencies:
+      '@next/env': 16.1.7
+      '@swc/helpers': 0.5.15
+      baseline-browser-mapping: 2.10.27
+      caniuse-lite: 1.0.30001713
+      postcss: 8.4.31
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
+      styled-jsx: 5.1.6(@babel/core@7.26.10)(babel-plugin-macros@3.1.0)(react@19.1.1)
+    optionalDependencies:
+      '@next/swc-darwin-arm64': 16.1.7
+      '@next/swc-darwin-x64': 16.1.7
+      '@next/swc-linux-arm64-gnu': 16.1.7
+      '@next/swc-linux-arm64-musl': 16.1.7
+      '@next/swc-linux-x64-gnu': 16.1.7
+      '@next/swc-linux-x64-musl': 16.1.7
+      '@next/swc-win32-arm64-msvc': 16.1.7
+      '@next/swc-win32-x64-msvc': 16.1.7
+      '@opentelemetry/api': 1.9.0
+      sass: 1.86.3
+      sharp: 0.34.5
+    transitivePeerDependencies:
+      - '@babel/core'
+      - babel-plugin-macros
+    optional: true
 
   no-case@3.0.4:
     dependencies:
@@ -36705,7 +39624,13 @@ snapshots:
     dependencies:
       citty: 0.2.2
       pathe: 2.0.3
-      tinyexec: 1.1.1
+      tinyexec: 1.1.2
+
+  nypm@0.6.6:
+    dependencies:
+      citty: 0.2.2
+      pathe: 2.0.3
+      tinyexec: 1.1.2
 
   oauth-sign@0.9.0: {}
 
@@ -37128,6 +40053,8 @@ snapshots:
   picomatch@4.0.2: {}
 
   picomatch@4.0.3: {}
+
+  picospinner@3.0.0: {}
 
   pify@2.3.0: {}
 
@@ -38086,12 +41013,43 @@ snapshots:
       prismjs: 1.30.0
       prompts: 2.4.2
       socket.io: 4.8.3
-      tailwindcss: 4.2.2
+      tailwindcss: 4.2.4
       tsconfig-paths: 4.2.0
     transitivePeerDependencies:
       - bufferutil
       - react
       - react-dom
+      - supports-color
+      - utf-8-validate
+
+  react-email@6.0.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      '@babel/parser': 7.27.0
+      '@babel/traverse': 7.27.0
+      '@react-email/render': 2.0.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      chokidar: 4.0.3
+      commander: 13.1.0
+      conf: 15.1.0
+      css-tree: 3.2.1
+      debounce: 2.2.0
+      esbuild: 0.28.0
+      glob: 13.0.6
+      jiti: 2.4.2
+      log-symbols: 7.0.1
+      marked: 15.0.12
+      mime-types: 3.0.1
+      normalize-path: 3.0.0
+      nypm: 0.6.6
+      picospinner: 3.0.0
+      prismjs: 1.30.0
+      prompts: 2.4.2
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      socket.io: 4.8.3
+      tailwindcss: 4.2.4
+      tsconfig-paths: 4.2.0
+    transitivePeerDependencies:
+      - bufferutil
       - supports-color
       - utf-8-validate
 
@@ -38532,6 +41490,11 @@ snapshots:
   rehackt@0.1.0(@types/react@18.3.1)(react@18.3.1):
     optionalDependencies:
       '@types/react': 18.3.1
+      react: 18.3.1
+
+  rehackt@0.1.0(@types/react@19.1.12)(react@18.3.1):
+    optionalDependencies:
+      '@types/react': 19.1.12
       react: 18.3.1
 
   rehackt@0.1.0(@types/react@19.1.12)(react@19.1.1):
@@ -39137,7 +42100,7 @@ snapshots:
     dependencies:
       '@kwsites/file-exists': 1.1.1
       '@kwsites/promise-deferred': 1.1.1
-      debug: 4.4.0(supports-color@5.5.0)
+      debug: 4.4.3(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -39210,7 +42173,7 @@ snapshots:
       base64id: 2.0.0
       cors: 2.8.5
       debug: 4.4.3(supports-color@8.1.1)
-      engine.io: 6.6.6
+      engine.io: 6.6.7
       socket.io-adapter: 2.5.6
       socket.io-parser: 4.2.6
     transitivePeerDependencies:
@@ -39628,6 +42591,15 @@ snapshots:
       '@babel/core': 7.26.10
       babel-plugin-macros: 3.1.0
 
+  styled-jsx@5.1.6(@babel/core@7.26.10)(babel-plugin-macros@3.1.0)(react@19.1.1):
+    dependencies:
+      client-only: 0.0.1
+      react: 19.1.1
+    optionalDependencies:
+      '@babel/core': 7.26.10
+      babel-plugin-macros: 3.1.0
+    optional: true
+
   stylehacks@6.1.1(postcss@8.4.38):
     dependencies:
       browserslist: 4.24.4
@@ -39745,7 +42717,7 @@ snapshots:
 
   tailwindcss@4.1.17: {}
 
-  tailwindcss@4.2.2: {}
+  tailwindcss@4.2.4: {}
 
   tapable@2.2.1: {}
 
@@ -39904,7 +42876,7 @@ snapshots:
 
   tinycolor2@1.6.0: {}
 
-  tinyexec@1.1.1: {}
+  tinyexec@1.1.2: {}
 
   tinyglobby@0.2.12:
     dependencies:

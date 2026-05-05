@@ -2,12 +2,29 @@ import { Schema } from 'mongoose';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import { ITourTranslationDocument } from '@/bms/@types/tourTranslation';
 
+const pricingOptionPriceSchema = new Schema(
+  {
+    type: {
+      type: String,
+      enum: ['adult', 'child', 'infant'],
+      required: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+      min: 0.01,
+    },
+  },
+  { _id: false },
+);
+
 const pricingOptionTranslationSchema = new Schema(
   {
     optionId: { type: String, required: true },
     title: { type: String, default: '' },
     note: { type: String, default: '' },
     accommodationType: { type: String, default: '' },
+    prices: { type: [pricingOptionPriceSchema], default: [] },
     pricePerPerson: { type: Number },
     domesticFlightPerPerson: { type: Number },
     singleSupplement: { type: Number },

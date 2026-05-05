@@ -72,7 +72,7 @@ export interface IPosItem extends IFields {
   putResponses?: Array<{
     createdAt: string;
   }>;
-  items?: Array<{
+  items?: {
     product?: {
       code?: string;
       barcodes?: string[];
@@ -91,7 +91,7 @@ export interface IPosItem extends IFields {
     discountAmount?: number;
     discountPercent?: number;
     barcodes?: string[];
-  }>;
+  };
   paidAmounts?: Array<{
     type?: string;
     amount?: number;

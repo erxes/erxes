@@ -7,25 +7,23 @@ import { gql, useQuery } from '@apollo/client';
 
 export const IntegrationList = () => {
   return (
-    <Command className="h-auto">
-      <Command.List>
-        <Command.Group
-          heading="Integrations"
-          className="**:[[cmdk-group-heading]]:font-mono **:[[cmdk-group-heading]]:uppercase **:[[cmdk-group-heading]]:mb-1.5 pb-8"
-        >
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-            {Object.entries(INTEGRATIONS).map(
-              ([integrationType, integration]) => (
-                <IntegrationCard
-                  key={integrationType}
-                  integration={integration}
-                  integrationType={integrationType as IntegrationType}
-                />
-              ),
-            )}
-          </div>
-        </Command.Group>
-      </Command.List>
+    <Command>
+      <Command.Group
+        heading="Integrations"
+        className="**:[[cmdk-group-heading]]:font-mono **:[[cmdk-group-heading]]:uppercase **:[[cmdk-group-heading]]:mb-1.5 pb-8"
+      >
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          {Object.entries(INTEGRATIONS).map(
+            ([integrationType, integration]) => (
+              <IntegrationCard
+                key={integrationType}
+                integration={integration}
+                integrationType={integrationType as IntegrationType}
+              />
+            ),
+          )}
+        </div>
+      </Command.Group>
     </Command>
   );
 };

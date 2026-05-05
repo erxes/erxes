@@ -325,12 +325,22 @@ export function PageDrawer({
     skip: !clientPortalId,
   });
 
+  const currentPageId = page?._id;
+
   const fieldGroups: FieldGroup[] = (
     customFieldsData?.cmsCustomFieldGroupList?.list || []
-  ).filter(
-    (group: FieldGroup) =>
-      !group.customPostTypeIds || group.customPostTypeIds.length === 0,
-  );
+  ).filter((group: any) => {
+    const ids: string[] = group.customPostTypeIds || [];
+    // show if no restriction, or explicitly includes 'page'
+    const showOnPage = ids.length === 0 || ids.includes('page');
+    if (!showOnPage) return false;
+    // if specific pages are set, only show for this page
+    const enabledPageIds: string[] = group.enabledPageIds || [];
+    if (enabledPageIds.length > 0 && currentPageId) {
+      return enabledPageIds.includes(currentPageId);
+    }
+    return true;
+  });
 
   const form = useForm<IPageFormData>({
     defaultValues: {

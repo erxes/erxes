@@ -22,7 +22,7 @@ import type {
   ConfirmChangePhoneParams,
 } from '@/clientportal/types/cpUserParams';
 
-export const userMutations: Record<string, Resolver> = {
+export const userMutations: Record<string, Resolver<any, any, IContext>> = {
   async clientPortalUserEdit(
     _root: unknown,
     params: EditUserParams,

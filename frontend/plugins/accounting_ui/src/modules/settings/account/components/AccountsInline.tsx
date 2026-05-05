@@ -1,8 +1,4 @@
-import {
-  Combobox,
-  Tooltip,
-  isUndefinedOrNull,
-} from 'erxes-ui';
+import { Combobox, Tooltip, isUndefinedOrNull } from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
 import {
   AccountsInlineContext,
@@ -27,12 +23,18 @@ export const AccountsInlineProvider = ({
   allowUnassigned?: boolean;
 }) => {
   const [accountsList, setAccountsList] = useState<IAccount[]>(accounts || []);
+  const accountIdsKey = accountIds?.join(',') || '';
+  const currentAccounts = accounts?.length ? accounts : accountsList;
+  const currentAccountIds = useMemo(
+    () => (accountIdsKey ? accountIdsKey.split(',') : []),
+    [accountIdsKey],
+  );
 
   const contextValue = useMemo(
     () => ({
-      accounts: accounts || accountsList,
+      accounts: currentAccounts,
       loading: false,
-      accountIds: accountIds || [],
+      accountIds: currentAccountIds,
       placeholder: isUndefinedOrNull(placeholder)
         ? 'Select Accounts'
         : placeholder,
@@ -40,17 +42,21 @@ export const AccountsInlineProvider = ({
       allowUnassigned,
     }),
     [
-      accounts,
-      accountsList,
-      accountIds,
+      currentAccounts,
+      currentAccountIds,
       placeholder,
       updateAccounts,
       allowUnassigned,
     ],
   );
 
-  const missingAccountIds =
-    accountIds?.filter((id) => !accounts?.some((a) => a._id === id)) || [];
+  const missingAccountIds = useMemo(
+    () =>
+      currentAccountIds.filter(
+        (id) => !currentAccounts.some((account) => account._id === id),
+      ),
+    [currentAccountIds, currentAccounts],
+  );
 
   return (
     <AccountsInlineContext.Provider value={contextValue}>
@@ -78,9 +84,7 @@ const AccountsInlineEffectComponent = ({
   useEffect(() => {
     if (!missingAccounts?.length) return;
 
-    const existingAccountsMap = new Map(
-      accounts.map((acc) => [acc._id, acc])
-    );
+    const existingAccountsMap = new Map(accounts.map((acc) => [acc._id, acc]));
     const newAccounts = missingAccounts.filter(
       (acc) => !existingAccountsMap.has(acc._id),
     );

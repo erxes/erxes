@@ -29,7 +29,7 @@ const generateFilter = async (
   return filter;
 };
 
-export const fieldQueries: Record<string, Resolver> = {
+export const fieldQueries: Record<string, Resolver<any, any, IContext>> = {
   fields: async (
     _: undefined,
     { params }: { params: IFieldCursorParams },

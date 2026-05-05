@@ -11,7 +11,6 @@ import {
   KnowledgeBaseParentCategory,
 } from '@/knowledgebase/graphql/resolvers/customResolvers/category';
 import KnowledgeBaseTopic from '@/knowledgebase/graphql/resolvers/customResolvers/topic';
-
 export const customResolvers = {
   ...inboxResolvers,
   ...integrationFacebookResolvers,

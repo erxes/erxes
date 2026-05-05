@@ -69,8 +69,9 @@ export const categoryColumns: (
               mainLanguage={mainLanguage}
             >
               <Badge
-                variant="secondary"
-                className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"
+           
+                        variant="secondary"
+        className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"
               >
                 <TextOverflowTooltip
                   value={(cell.getValue() as string) || '-'}

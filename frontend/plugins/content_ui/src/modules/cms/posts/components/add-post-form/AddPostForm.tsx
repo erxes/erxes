@@ -59,7 +59,7 @@ export const AddPostForm = ({
     availableLanguages,
     defaultLanguage,
     fieldGroups,
-  } = usePostData(websiteId, selectedType);
+  } = usePostData(websiteId, selectedType, currentEditingPost?._id);
 
   const languageOptions = useMemo(
     () =>

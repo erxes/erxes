@@ -27,31 +27,30 @@ interface PaymentRow {
   original: IOrder;
 }
 
-const getPaidAmountsMap = (paidAmounts: any): Record<string, number> => {
-  if (!paidAmounts) {
-    return {};
-  }
+// posOrdersSummary keys are payment titles (e.g. 'Invoice', 'QPay')
+// paidAmounts items: { type, amount, title } — title may be missing on old data
+// Build two maps: by title AND by type, merge both for lookup
+interface IPaidAmount {
+  type?: string;
+  amount?: number;
+  title?: string;
+}
 
-  if (Array.isArray(paidAmounts)) {
-    return paidAmounts.reduce<Record<string, number>>((acc, item) => {
-      const key = (item?.title || item?.type) as string | undefined;
-      const amount = Number(item?.amount || 0);
+const getPaidAmountsMap = (
+  paidAmounts: IPaidAmount[] | null | undefined,
+): Record<string, number> => {
+  if (!paidAmounts || !Array.isArray(paidAmounts)) return {};
 
-      if (!key) {
-        return acc;
-      }
-
-      acc[key] = (acc[key] || 0) + amount;
-
-      return acc;
-    }, {});
-  }
-
-  return paidAmounts as Record<string, number>;
+  return paidAmounts.reduce<Record<string, number>>((acc, item) => {
+    const amount = Number(item?.amount || 0);
+    if (item?.title) acc[item.title] = (acc[item.title] || 0) + amount;
+    if (item?.type) acc[item.type] = (acc[item.type] || 0) + amount;
+    return acc;
+  }, {});
 };
 
 export const generateOtherPaymentColumns = (summary?: PaymentSummary) => {
-  const otherPayTitles = (summary ? Object.keys(summary) || [] : [])
+  const otherPayTitles = (summary ? Object.keys(summary) : [])
     .filter(
       (a) =>
         !['_id', 'count', 'cashAmount', 'mobileAmount', 'totalAmount'].includes(
@@ -70,7 +69,7 @@ export const generateOtherPaymentColumns = (summary?: PaymentSummary) => {
 
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={value?.toLocaleString()} />
+          <TextOverflowTooltip value={value ? value.toLocaleString() : ''} />
         </RecordTableInlineCell>
       );
     },

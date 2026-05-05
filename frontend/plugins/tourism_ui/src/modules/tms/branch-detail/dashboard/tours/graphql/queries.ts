@@ -70,6 +70,7 @@ export const GET_TOUR_ORDER_DETAIL = gql`
       amount
       status
       note
+      internalNote
       numberOfPeople
       type
       additionalCustomers
@@ -165,6 +166,10 @@ export const GET_TOUR_DETAIL = gql`
         title
         minPersons
         maxPersons
+        prices {
+          type
+          price
+        }
         pricePerPerson
         accommodationType
         domesticFlightPerPerson
@@ -188,6 +193,10 @@ export const GET_TOUR_DETAIL = gql`
           title
           accommodationType
           note
+          prices {
+            type
+            price
+          }
           pricePerPerson
           domesticFlightPerPerson
           singleSupplement
@@ -235,6 +244,7 @@ export const GET_TOUR_ORDERS = gql`
         amount
         status
         note
+        internalNote
         numberOfPeople
         type
         additionalCustomers

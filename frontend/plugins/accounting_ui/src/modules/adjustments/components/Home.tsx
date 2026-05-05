@@ -3,18 +3,15 @@ import { AdjustmentHeader, adjustTypes } from './Header';
 import { Link } from 'react-router';
 
 export const AdjustmentHome = () => {
-	return (
-		<AccountingLayout>
-			<AdjustmentHeader />
+  return (
+    <AccountingLayout>
+      <AdjustmentHeader />
 
-			{adjustTypes.map(at => (
-				<Link to={`/accounting/adjustment/${at.value}`}>
-					<div>
-						{at.label}
-
-					</div>
-				</Link>
-			))}
-		</AccountingLayout>
-	);
+      {adjustTypes.map((at) => (
+        <Link to={`/accounting/adjustment/${at.value}`}>
+          <div>{at.label}</div>
+        </Link>
+      ))}
+    </AccountingLayout>
+  );
 };

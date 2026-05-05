@@ -22,6 +22,23 @@ interface PricingFact {
   value: string;
 }
 
+const PASSENGER_PRICE_ORDER = ['adult', 'child', 'infant'] as const;
+
+const getPassengerPriceLabel = (
+  type: (typeof PASSENGER_PRICE_ORDER)[number],
+  labels: TourPdfRenderConfig['labels'],
+) => {
+  if (type === 'adult') {
+    return labels.pricingAdultLabel || labels.pricingPerPersonLabel;
+  }
+
+  if (type === 'child') {
+    return labels.pricingChildLabel || 'Child Price';
+  }
+
+  return labels.pricingInfantLabel || 'Infant Price';
+};
+
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
   year: 'numeric',
   month: 'short',
@@ -40,6 +57,11 @@ const formatPrice = (value?: number) => {
   return new Intl.NumberFormat('en-US', {
     maximumFractionDigits: 2,
   }).format(value);
+};
+
+const formatCurrency = (symbol: string, value?: number) => {
+  const formattedValue = formatPrice(value);
+  return formattedValue ? `${symbol} ${formattedValue}` : '';
 };
 
 const formatPaxRange = (
@@ -219,15 +241,23 @@ export const TourDetailsPage: React.FC<TourDetailsPageProps> = React.memo(
               </Text>
             </View>
             {pricingOptions.map((option, index) => {
+              const priceFacts = PASSENGER_PRICE_ORDER.map((type) => {
+                const price =
+                  option.prices?.find((item) => item.type === type)?.price ??
+                  (type === 'adult' ? option.pricePerPerson : undefined);
+
+                if (typeof price !== 'number') {
+                  return null;
+                }
+
+                return {
+                  label: getPassengerPriceLabel(type, config.labels),
+                  value: formatCurrency(currencySymbol, price),
+                };
+              }).filter((fact): fact is PricingFact => Boolean(fact));
+
               const pricingFacts: PricingFact[] = [
-                typeof option.pricePerPerson === 'number'
-                  ? {
-                      label: config.labels.pricingPerPersonLabel,
-                      value: `${currencySymbol}${formatPrice(
-                        option.pricePerPerson,
-                      )}`,
-                    }
-                  : null,
+                ...priceFacts,
                 option.accommodationType
                   ? {
                       label: config.labels.pricingAccommodationLabel,
@@ -237,17 +267,19 @@ export const TourDetailsPage: React.FC<TourDetailsPageProps> = React.memo(
                 typeof option.domesticFlightPerPerson === 'number'
                   ? {
                       label: config.labels.pricingDomesticFlightLabel,
-                      value: `${currencySymbol}${formatPrice(
+                      value: formatCurrency(
+                        currencySymbol,
                         option.domesticFlightPerPerson,
-                      )}`,
+                      ),
                     }
                   : null,
                 typeof option.singleSupplement === 'number'
                   ? {
                       label: config.labels.pricingSingleSupplementLabel,
-                      value: `${currencySymbol}${formatPrice(
+                      value: formatCurrency(
+                        currencySymbol,
                         option.singleSupplement,
-                      )}`,
+                      ),
                     }
                   : null,
               ].filter((fact): fact is PricingFact => Boolean(fact));

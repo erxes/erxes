@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useSearchParams } from 'react-router';
+import { useSearchParams } from 'react-router-dom';
 import { PricingEditSidebar } from '@/pricing/edit-pricing/Sidebar';
 import { PricingMainContent } from '@/pricing/edit-pricing/MainContent';
 import { usePricingDetail } from '@/pricing/hooks/usePricingDetail';

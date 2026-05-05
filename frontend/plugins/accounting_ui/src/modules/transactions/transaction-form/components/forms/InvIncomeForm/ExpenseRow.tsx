@@ -18,7 +18,7 @@ import {
   Table,
   PopoverScoped,
 } from 'erxes-ui';
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { followTrDocsState } from '../../../states/trStates';
@@ -53,12 +53,12 @@ export const ExpenseRow = ({
   });
 
   const [account, setAccount] = useState<IAccount>();
-  const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
+  const setFollowTrDocs = useSetAtom(followTrDocsState);
 
   useEffect(() => {
     if (!expense.accountId) {
-      setFollowTrDocs(
-        (followTrDocs || []).filter(
+      setFollowTrDocs((prev) =>
+        (prev || []).filter(
           (ftr) =>
             !(
               ftr.originId === trDoc._id &&
@@ -70,17 +70,17 @@ export const ExpenseRow = ({
       return;
     }
 
-    const { sumDt, sumCt } = { sumDt: expense.amount, sumCt: 0 };
+    setFollowTrDocs((prev) => {
+      const { sumDt, sumCt } = { sumDt: expense.amount, sumCt: 0 };
 
-    const curr = followTrDocs.find(
-      (ftr) =>
-        ftr.originId === trDoc._id &&
-        ftr.originType === 'invIncomeExpense' &&
-        ftr.originSubId === expense._id,
-    );
+      const curr = (prev || []).find(
+        (ftr) =>
+          ftr.originId === trDoc._id &&
+          ftr.originType === 'invIncomeExpense' &&
+          ftr.originSubId === expense._id,
+      );
 
-    const expenseTr = [
-      {
+      const expenseTr = {
         ...curr,
         _id: curr?._id || getTempId(),
         journal: getSingleJournalByAccount(account?.journal, account?.kind),
@@ -101,22 +101,30 @@ export const ExpenseRow = ({
 
         sumDt,
         sumCt,
-      },
-    ];
-    setFollowTrDocs([
-      ...(followTrDocs || []).filter(
-        (ftr) =>
-          !(
-            ftr.originId === trDoc._id &&
-            ftr.originType === 'invIncomeExpense' &&
-            ftr.originSubId === expense._id
-          ),
-      ),
-      ...expenseTr,
-    ]);
+      };
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expense.amount, expense.accountId]);
+      return [
+        ...(prev || []).filter(
+          (ftr) =>
+            !(
+              ftr.originId === trDoc._id &&
+              ftr.originType === 'invIncomeExpense' &&
+              ftr.originSubId === expense._id
+            ),
+        ),
+        expenseTr,
+      ];
+    });
+  }, [
+    expense.amount,
+    expense.accountId,
+    expense._id,
+    trDoc._id,
+    trDoc.ptrId,
+    trDoc.parentId,
+    account,
+    setFollowTrDocs,
+  ]);
 
   const { _id } = expense;
 
@@ -140,7 +148,7 @@ export const ExpenseRow = ({
             onClick={() =>
               form.setValue(
                 `trDocs.${journalIndex}.extraData.invIncomeExpenses`,
-                expenses.filter((e) => e._id !== _id),
+                expenses.filter((e: { _id: string }) => e._id !== _id),
               )
             }
           >
@@ -148,14 +156,18 @@ export const ExpenseRow = ({
           </Button>
         </div>
       </Table.Cell>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={expenseIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={expenseIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
             name={`trDocs.${journalIndex}.extraData.invIncomeExpenses.${expenseIndex}.title`}
             render={({ field }) => (
               <PopoverScoped
-                scope={`trDocs.${journalIndex}.extraData.invIncomeExpenses.${expenseIndex}.title`}
+                scope={AccountingHotkeyScope.TransactionFormSubPage}
                 closeOnEnter
               >
                 <Form.Control>
@@ -175,14 +187,18 @@ export const ExpenseRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={expenseIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={expenseIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
             name={`trDocs.${journalIndex}.extraData.invIncomeExpenses.${expenseIndex}.rule`}
             render={({ field }) => (
               <PopoverScoped
-                scope={`trDocs.${journalIndex}.extraData.invIncomeExpenses.${expenseIndex}.rule`}
+                scope={AccountingHotkeyScope.TransactionFormSubPage}
                 closeOnEnter
               >
                 <Select value={field.value} onValueChange={field.onChange}>
@@ -205,14 +221,18 @@ export const ExpenseRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={expenseIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={expenseIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
             name={`trDocs.${journalIndex}.extraData.invIncomeExpenses.${expenseIndex}.amount`}
             render={({ field }) => (
               <PopoverScoped
-                scope={`trDocs.${journalIndex}.extraData.invIncomeExpenses.${expenseIndex}.amount`}
+                scope={AccountingHotkeyScope.TransactionFormSubPage}
                 closeOnEnter
               >
                 <Form.Control>
@@ -231,14 +251,18 @@ export const ExpenseRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={expenseIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={expenseIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
             name={`trDocs.${journalIndex}.extraData.invIncomeExpenses.${expenseIndex}.accountId`}
             render={({ field }) => (
               <PopoverScoped
-                scope={`trDocs.${journalIndex}.extraData.invIncomeExpenses.${expenseIndex}.amount`}
+                scope={AccountingHotkeyScope.TransactionFormSubPage}
                 closeOnEnter
               >
                 <SelectAccount

@@ -33,6 +33,7 @@ export const queries = `
 
 export const mutations = `
   contentCreateCMS(input: ContentCMSInput): ContentCMS
+  cpContentCreateCMS(input: ContentCMSInput): ContentCMS
   contentUpdateCMS(id: String!, input: ContentCMSInput): ContentCMS
   contentDeleteCMS(id: String!): JSON
 `;

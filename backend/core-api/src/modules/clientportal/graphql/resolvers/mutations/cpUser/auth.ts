@@ -35,7 +35,7 @@ import {
   createCPUserActivityLog,
 } from '@/clientportal/meta/activity-log';
 
-export const authMutations: Record<string, Resolver> = {
+export const authMutations: Record<string, Resolver<any, any, IContext>> = {
   async clientPortalUserRegister(
     _root: unknown,
     params: RegisterParams,

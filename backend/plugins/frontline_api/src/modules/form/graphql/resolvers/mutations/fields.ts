@@ -83,9 +83,10 @@ export const fieldMutations = {
       const logics = f.logics || [];
 
       for (const logic of logics) {
-        if (f.logics && !logic.fieldId && logic.tempFieldId) {
-          f.logics[logics.indexOf(logic)].fieldId =
-            tempFieldIdsMap[logic.tempFieldId];
+        if (logic.fieldId && tempFieldIdsMap[logic.fieldId]) {
+          logic.fieldId = tempFieldIdsMap[logic.fieldId];
+        } else if (!logic.fieldId && logic.tempFieldId) {
+          logic.fieldId = tempFieldIdsMap[logic.tempFieldId];
         }
       }
 
@@ -106,9 +107,10 @@ export const fieldMutations = {
     for (const { _id, ...doc } of updatedFields || []) {
       if (doc.logics) {
         for (const logic of doc.logics) {
-          if (!logic.fieldId && logic.tempFieldId) {
-            doc.logics[doc.logics.indexOf(logic)].fieldId =
-              tempFieldIdsMap[logic.tempFieldId];
+          if (logic.fieldId && tempFieldIdsMap[logic.fieldId]) {
+            logic.fieldId = tempFieldIdsMap[logic.fieldId];
+          } else if (!logic.fieldId && logic.tempFieldId) {
+            logic.fieldId = tempFieldIdsMap[logic.tempFieldId];
           }
         }
       }

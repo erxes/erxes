@@ -5,7 +5,8 @@ import { AccountsCommandbar } from './AccountsCommandBar';
 import { ACCOUNTS_CURSOR_SESSION_KEY } from '../../../accountsSessionKeys';
 
 export const AccountsTable = () => {
-  const { accountsMain, loading, handleFetchMore, pageInfo } = useAccountsMain();
+  const { accountsMain, loading, handleFetchMore, pageInfo } =
+    useAccountsMain();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   return (

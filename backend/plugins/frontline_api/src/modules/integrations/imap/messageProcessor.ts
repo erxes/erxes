@@ -1,81 +1,69 @@
 import Imap from 'node-imap';
 import { simpleParser, ParsedMail } from 'mailparser';
-import { IModels, generateModels } from '~/connectionResolvers';
+import { IModels } from '~/connectionResolvers';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
-export const searchMessages = async (
+
+const MAX_FETCH_PER_SYNC = 50;
+
+export const searchMessages = (
   imap: Imap,
   criteria: any,
 ): Promise<ParsedMail[]> => {
   return new Promise((resolve, reject) => {
-    const messages: Uint8Array[] = [];
-
     imap.search(criteria, (err, results) => {
-      if (err) {
-        return reject(err);
-      }
+      if (err) return reject(err);
+      if (!results?.length) return resolve([]);
 
-      if (!results || results.length === 0) {
-        return resolve([]);
-      }
+      const limited = results.slice(-MAX_FETCH_PER_SYNC);
 
       let fetcher: Imap.ImapFetch;
-
       try {
-        fetcher = imap.fetch(results, {
-          bodies: '',
-          struct: true,
-        });
+        fetcher = imap.fetch(limited, { bodies: '', struct: true });
       } catch (e: any) {
-        if (e.message?.includes('Nothing to fetch')) {
-          return resolve([]);
-        }
+        if (e.message?.includes('Nothing to fetch')) return resolve([]);
         return reject(e);
       }
 
-      fetcher.on('error', (error) => {
-        reject(error);
-      });
+   
+      const rawMessages: Buffer[] = [];
+
+      fetcher.on('error', reject);
 
       fetcher.on('message', (msg) => {
+        const chunks: Buffer[] = [];
         msg.on('body', (stream) => {
-          const buffers: Uint8Array[] = [];
-
-          stream.on('data', (chunk: Buffer) => {
-            buffers.push(chunk as Uint8Array);
-          });
-
-          stream.once('end', () => {
-            messages.push(Buffer.concat(buffers) as unknown as Uint8Array);
-          });
+          stream.on('data', (chunk: Buffer) => chunks.push(chunk));
+          stream.once('end', () =>
+            rawMessages.push(Buffer.concat(chunks as Uint8Array[])),
+          );
         });
       });
 
       fetcher.once('end', async () => {
-        try {
-          const parsedMessages: ParsedMail[] = [];
-
-          for (const message of messages) {
-            const parsed = await simpleParser(message);
-            parsedMessages.push(parsed);
+        const parsed: ParsedMail[] = [];
+        for (const raw of rawMessages) {
+          try {
+            parsed.push(await simpleParser(raw));
+          } catch (e) {
+            console.error('[IMAP] Failed to parse message:', e);
           }
-
-          resolve(parsedMessages);
-        } catch (e) {
-          reject(e);
+          raw.fill(0);
         }
+        rawMessages.length = 0;
+        resolve(parsed);
       });
     });
   });
 };
 
+
 export const findOrCreateCustomer = async (
   subdomain: string,
   email: string,
   integrationId: string,
+  models: IModels,
 ): Promise<string> => {
-  const models = await generateModels(subdomain);
-
   const prev = await models.ImapCustomers.findOne({ email });
   if (prev) {
     return prev.contactsId;
@@ -87,7 +75,9 @@ export const findOrCreateCustomer = async (
     module: 'customers',
     action: 'findOne',
     input: {
-      customerPrimaryEmail: email,
+      query: {
+        customerPrimaryEmail: email,
+      },
     },
     defaultValue: null,
   });
@@ -108,8 +98,10 @@ export const findOrCreateCustomer = async (
     module: 'customers',
     action: 'createCustomer',
     input: {
-      integrationId,
-      primaryEmail: email,
+      doc: {
+        integrationId,
+        primaryEmail: email,
+      },
     },
     defaultValue: {},
   });
@@ -127,6 +119,8 @@ export const findOrCreateCustomer = async (
   return apiCustomerResponse._id;
 };
 
+
+
 export const findRelatedConversation = async (
   models: IModels,
   messageId: string,
@@ -135,7 +129,7 @@ export const findRelatedConversation = async (
 ): Promise<string | null> => {
   const $or: any[] = [
     { references: { $in: [messageId] } },
-    { messageId: { $in: references || [] } },
+    { messageId: { $in: references ?? [] } },
   ];
 
   if (inReplyTo) {
@@ -143,6 +137,6 @@ export const findRelatedConversation = async (
     $or.push({ references: { $in: [inReplyTo] } });
   }
 
-  const relatedMessage = await models.ImapMessages.findOne({ $or });
-  return relatedMessage?.inboxConversationId || null;
+  const related = await models.ImapMessages.findOne({ $or });
+  return related?.inboxConversationId ?? null;
 };

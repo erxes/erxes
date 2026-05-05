@@ -28,20 +28,40 @@ export const buildCustomFieldsMap = async (
   customFieldsData: any,
 ) => {
   const jsonMap: any = {};
+  const safeCustomFieldsData = Array.isArray(customFieldsData)
+    ? customFieldsData
+    : [];
 
   if (fieldGroups.length > 0) {
     for (const fieldGroup of fieldGroups) {
-      const fields = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'fields',
-        action: 'find',
-        input: { query: { groupId: fieldGroup._id } },
-      });
+      let fields: any[] = [];
+
+      if (Array.isArray(fieldGroup?.fields)) {
+        fields = fieldGroup.fields;
+      } else if (typeof fieldGroup?.fields === 'string') {
+        try {
+          const parsed = JSON.parse(fieldGroup.fields);
+          fields = Array.isArray(parsed) ? parsed : [];
+        } catch {
+          fields = [];
+        }
+      }
+
+      if (!fields.length) {
+        fields = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'fields',
+          action: 'find',
+          input: { query: { groupId: fieldGroup._id } },
+        });
+      }
 
       jsonMap[fieldGroup.code] = fields.reduce((acc, field: any) => {
-        const value = customFieldsData.find((c: any) => c.field === field._id);
+        const value = safeCustomFieldsData.find(
+          (c: any) => c.field === field._id,
+        );
         acc[field.code] = value ? value.value : null;
         return acc;
       }, {});

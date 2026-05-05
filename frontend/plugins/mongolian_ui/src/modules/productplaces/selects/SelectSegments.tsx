@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import React, { createContext, useContext, useMemo, useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { Select } from 'erxes-ui';
+import { Combobox, Command, PopoverScoped } from 'erxes-ui';
 
 const SEGMENTS_QUERY = gql`
   query segments($contentTypes: [String]!, $config: JSON) {
@@ -12,63 +12,189 @@ const SEGMENTS_QUERY = gql`
   }
 `;
 
-type Segment = {
-  _id: string;
-  name: string;
-  contentType: string;
-};
+type Segment = { _id: string; name: string; contentType: string };
 
-type Props = {
-  value?: string;
-  onChange: (segmentId: string) => void;
-
+interface SelectSegmentsContextType {
+  value: string;
+  onValueChange: (segmentId: string) => void;
   contentTypes: string[];
-  config?: any;
+  loading?: boolean;
+  error?: any;
+  segments?: Segment[];
+}
 
-  disabled?: boolean;
+const SelectSegmentsContext = createContext<SelectSegmentsContextType | null>(
+  null,
+);
+
+const useSelectSegmentsContext = () => {
+  const context = useContext(SelectSegmentsContext);
+  if (!context) {
+    throw new Error(
+      'useSelectSegmentsContext must be used within SelectSegmentsProvider',
+    );
+  }
+  return context;
 };
 
-const CLEAR_VALUE = '__clear__';
-
-export default function SelectSegments({
+export const SelectSegmentsProvider = ({
   value,
-  onChange,
+  onValueChange,
   contentTypes,
   config,
-  disabled,
-}: Props) {
-  const { data, loading } = useQuery(SEGMENTS_QUERY, {
+  children,
+}: {
+  value: string;
+  onValueChange: (segmentId: string) => void;
+  contentTypes: string[];
+  config?: any;
+  children: React.ReactNode;
+}) => {
+  const { data, loading, error } = useQuery(SEGMENTS_QUERY, {
     variables: { contentTypes, config },
     skip: !contentTypes?.length,
   });
 
   const segments: Segment[] = useMemo(() => data?.segments || [], [data]);
 
-  return (
-    <Select
-      value={value || ''}
-      onValueChange={(v) => onChange(v === CLEAR_VALUE ? '' : v)}
-      disabled={disabled || loading || !contentTypes?.length}
-    >
-      <Select.Trigger className="w-full">
-        <Select.Value
-          placeholder={
-            loading
-              ? 'Loading...'
-              : (contentTypes?.length && 'Choose segment') || 'No contentTypes'
-          }
-        />
-      </Select.Trigger>
-
-      <Select.Content>
-        <Select.Item value={CLEAR_VALUE}>Clear</Select.Item>
-
-        {segments.map((s) => (
-          <Select.Item key={s._id} value={s._id}>
-            {s.name}
-          </Select.Item>
-        ))}
-      </Select.Content>
-    </Select>
+  const contextValue = useMemo(
+    () => ({
+      value: value || '',
+      onValueChange,
+      contentTypes,
+      segments,
+      loading,
+      error,
+    }),
+    [value, onValueChange, contentTypes, segments, loading, error],
   );
-}
+
+  return (
+    <SelectSegmentsContext.Provider value={contextValue}>
+      {children}
+    </SelectSegmentsContext.Provider>
+  );
+};
+
+const SelectSegmentsValue = ({ placeholder }: { placeholder?: string }) => {
+  const { value, segments } = useSelectSegmentsContext();
+  const selectedSegment = segments?.find((s) => s._id === value);
+
+  if (!selectedSegment) {
+    return (
+      <span className="text-accent-foreground/80">
+        {placeholder || 'Choose segment'}
+      </span>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <p className="font-medium text-sm">{selectedSegment.name}</p>
+    </div>
+  );
+};
+
+const SelectSegmentsItem = ({ segment }: { segment: Segment }) => {
+  const { onValueChange, value } = useSelectSegmentsContext();
+
+  return (
+    <Command.Item
+      value={segment._id}
+      onSelect={() => {
+        onValueChange(segment._id === value ? '' : segment._id);
+      }}
+    >
+      <span className="font-medium">{segment.name}</span>
+      <Combobox.Check checked={value === segment._id} />
+    </Command.Item>
+  );
+};
+
+const SelectSegmentsContent = () => {
+  const { segments, loading, error, contentTypes } = useSelectSegmentsContext();
+
+  const renderContent = () => {
+    if (!contentTypes?.length) {
+      return (
+        <div className="flex items-center justify-center h-24">
+          <span className="text-muted-foreground">No content types</span>
+        </div>
+      );
+    }
+
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center h-24">
+          <span className="text-muted-foreground">Loading...</span>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="flex items-center justify-center h-24 text-destructive">
+          Error: {error.message}
+        </div>
+      );
+    }
+
+    return segments?.map((s) => (
+      <SelectSegmentsItem key={s._id} segment={s} />
+    ));
+  };
+
+  return (
+    <Command>
+      <Command.Input placeholder="Search segment" />
+      <Command.Empty>
+        <span className="text-muted-foreground">No segments found</span>
+      </Command.Empty>
+      <Command.List>{renderContent()}</Command.List>
+    </Command>
+  );
+};
+
+const SelectSegmentsRoot = ({
+  value,
+  onValueChange,
+  contentTypes,
+  config,
+  disabled,
+}: {
+  value: string;
+  onValueChange: (segmentId: string) => void;
+  contentTypes: string[];
+  config?: any;
+  disabled?: boolean;
+}) => {
+  const [open, setOpen] = React.useState(false);
+
+  const handleValueChange = useCallback(
+    (id: string) => {
+      onValueChange(id);
+      setOpen(false);
+    },
+    [onValueChange],
+  );
+
+  return (
+    <SelectSegmentsProvider
+      value={value}
+      onValueChange={handleValueChange}
+      contentTypes={contentTypes}
+      config={config}
+    >
+      <PopoverScoped open={open} onOpenChange={setOpen}>
+        <Combobox.Trigger disabled={disabled || !contentTypes?.length}>
+          <SelectSegmentsValue />
+        </Combobox.Trigger>
+        <Combobox.Content>
+          <SelectSegmentsContent />
+        </Combobox.Content>
+      </PopoverScoped>
+    </SelectSegmentsProvider>
+  );
+};
+
+export default SelectSegmentsRoot;

@@ -1,24 +1,13 @@
 import { useEffect } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 
-import { IconX } from '@tabler/icons-react';
-
-import {
-  Form,
-  Input,
-  Editor,
-  Select,
-  Button,
-  Checkbox,
-  Dropzone,
-  DropzoneContent,
-  DropzoneEmptyState,
-  readImage,
-  IAttachment,
-  Label,
-} from 'erxes-ui';
+import { Form, Input, Editor, Select, Checkbox, Label } from 'erxes-ui';
 import { nanoid } from 'nanoid';
-import { SelectBrand } from 'ui-modules';
+import {
+  ProductPrimaryImageUpload,
+  SelectBrand,
+  type ProductAttachmentItem,
+} from 'ui-modules';
 import { ProductFormValues } from './formSchema';
 import { CategoryHotKeyScope } from '../../types/CategoryHotKeyScope';
 
@@ -37,18 +26,14 @@ export const PRODUCT_CATEGORIES_STATUS = [
 
 export const ProductCategoryAddMoreFields = ({
   form,
-  files = [],
-  isLoading = false,
-  uploadProps,
-  onRemoveFile,
+  attachment,
+  onAttachmentChange,
   fieldGroups = [],
   fields = [],
 }: {
   form: UseFormReturn<ProductFormValues>;
-  files?: IAttachment[];
-  isLoading?: boolean;
-  uploadProps?: any;
-  onRemoveFile?: (file: IAttachment) => void;
+  attachment?: ProductAttachmentItem | null;
+  onAttachmentChange?: (attachment: ProductAttachmentItem | null) => void;
   fieldGroups?: { _id: string; name: string }[];
   fields?: { _id: string; name: string; groupId?: string }[];
 }) => {
@@ -250,38 +235,10 @@ export const ProductCategoryAddMoreFields = ({
           <Form.Item className="mb-5">
             <Form.Label>UPLOAD</Form.Label>
             <Form.Control>
-              <div className="space-y-4">
-                <div className="flex flex-wrap gap-4">
-                  {files.map((f) => (
-                    <div
-                      key={f.url}
-                      className="overflow-hidden relative w-32 rounded-md aspect-square shadow-xs"
-                    >
-                      <img
-                        src={readImage(f.url)}
-                        alt={f.name}
-                        className="object-contain w-full h-full"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute top-0 right-0"
-                        disabled={isLoading}
-                        onClick={() => onRemoveFile?.(f)}
-                      >
-                        <IconX size={12} />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-                {uploadProps && (
-                  <Dropzone {...uploadProps}>
-                    <DropzoneEmptyState />
-                    <DropzoneContent />
-                  </Dropzone>
-                )}
-              </div>
+              <ProductPrimaryImageUpload
+                value={attachment}
+                onChange={(value) => onAttachmentChange?.(value)}
+              />
             </Form.Control>
             <Form.Message className="text-destructive" />
           </Form.Item>

@@ -1,7 +1,7 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 
-const orderMutations: Record<string, Resolver> = {
+const orderMutations: Record<string, Resolver<any, any, IContext>> = {
   bmsOrderAdd: async (_root, doc, { user, models }: IContext) => {
     const order = await models.Orders.createOrder(doc?.order, user);
     return order;

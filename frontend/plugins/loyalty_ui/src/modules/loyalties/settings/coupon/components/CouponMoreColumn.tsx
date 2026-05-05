@@ -9,8 +9,9 @@ import {
   useToast,
   useQueryState,
 } from 'erxes-ui';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconTrash, IconTicket } from '@tabler/icons-react';
 import { ApolloError } from '@apollo/client';
+import { useNavigate } from 'react-router';
 import { useDeleteCoupon } from '../hooks/useDeleteCoupon';
 import { ICoupon } from '../types/couponTypes';
 
@@ -24,9 +25,14 @@ export const CouponMoreColumnCell = ({
   const { removeCoupon, loading } = useDeleteCoupon();
   const { confirm } = useConfirm();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleEdit = (couponId: string) => {
     setEditCouponId(couponId);
+  };
+
+  const handleSeeCoupons = () => {
+    navigate(`/loyalty/coupons?couponCampaignId=${_id}`);
   };
   const handleDelete = () => {
     if (!_id) return;
@@ -67,6 +73,9 @@ export const CouponMoreColumnCell = ({
           <Command.List>
             <Command.Item value="edit" onSelect={() => handleEdit(_id)}>
               <IconEdit /> Edit
+            </Command.Item>
+            <Command.Item value="see-coupons" onSelect={handleSeeCoupons}>
+              <IconTicket /> See coupons
             </Command.Item>
             <Command.Item asChild>
               <Button

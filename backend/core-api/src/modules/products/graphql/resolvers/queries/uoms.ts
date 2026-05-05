@@ -1,7 +1,7 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 
-export const uomQueries: Record<string, Resolver> = {
+export const uomQueries: Record<string, Resolver<any, any, IContext>> = {
   /**
    * Uoms list
    */

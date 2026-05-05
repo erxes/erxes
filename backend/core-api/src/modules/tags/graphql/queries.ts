@@ -95,7 +95,7 @@ const generateFilter = async ({
   return filter;
 };
 
-export const tagQueries: Record<string, Resolver> = {
+export const tagQueries: Record<string, Resolver<any, any, IContext>> = {
   /**
    * Get tags types
    */

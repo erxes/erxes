@@ -1,6 +1,17 @@
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
-import { Popover, Input, Select, Skeleton } from 'erxes-ui';
+import {
+  Popover,
+  Input,
+  Select,
+  Skeleton,
+  Button,
+  DropdownMenu,
+  Combobox,
+  Command,
+  cn,
+} from 'erxes-ui';
 import { useState, useMemo, ReactNode } from 'react';
+import { useDebounce } from 'use-debounce';
 import {
   IconSearch,
   IconLayoutGrid,
@@ -10,6 +21,11 @@ import {
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { IChannel } from '@/channels/types';
 import { getPreviewText } from '@/inbox/types/inbox';
+import type { TViewMode as ViewMode } from '../types';
+import { useAtom, useAtomValue } from 'jotai';
+import { responseListViewAtom } from '../states/responseTemplate';
+import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import { ChannelsInline } from '@/inbox/channel/components/ChannelsInline';
 
 interface ResponseTemplate {
   _id: string;
@@ -25,19 +41,19 @@ interface ChannelOption {
   name: string;
 }
 
-type ViewMode = 'list' | 'grid';
-
 interface ResponseTemplateSelectorProps {
   onSelect: (content: string) => void;
   children: ReactNode;
 }
 
-const getViewModeIcon = (viewMode: ViewMode): JSX.Element => {
-  return viewMode === 'grid' ? (
-    <IconList size={16} />
-  ) : (
-    <IconLayoutGrid size={16} />
-  );
+const ViewModeIcon = (): JSX.Element => {
+  const viewMode = useAtomValue(responseListViewAtom);
+  switch (viewMode) {
+    case 'grid':
+      return <IconLayoutGrid size={16} />;
+    default:
+      return <IconList size={16} />;
+  }
 };
 
 const getViewModeTitle = (viewMode: ViewMode): string => {
@@ -48,8 +64,9 @@ export const ResponseTemplateSelector: React.FC<
   ResponseTemplateSelectorProps
 > = ({ onSelect, children }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [search, setSearch] = useState<string>('');
+  const [debouncedSearch] = useDebounce(search, 500);
+  const [viewMode, setViewMode] = useAtom<ViewMode>(responseListViewAtom);
   const [selectedChannel, setSelectedChannel] = useState<string>('all');
 
   const { channels, loading: channelsLoading } = useGetChannels();
@@ -72,21 +89,21 @@ export const ResponseTemplateSelector: React.FC<
   const filteredTemplates = useMemo<ResponseTemplate[]>(() => {
     if (!responses) return [];
 
-    const searchTermLower = searchTerm.toLowerCase();
+    const searchLower = debouncedSearch.toLowerCase();
 
     return responses.filter((template: ResponseTemplate) => {
       const templateContent = getPreviewText(template.content).toLowerCase();
       const matchesSearch =
-        searchTerm === '' ||
-        template.name.toLowerCase().includes(searchTermLower) ||
-        templateContent.includes(searchTermLower);
+        debouncedSearch === '' ||
+        template.name.toLowerCase().includes(searchLower) ||
+        templateContent.includes(searchLower);
 
       const matchesChannel =
         selectedChannel === 'all' || template.channelId === selectedChannel;
 
       return matchesSearch && matchesChannel;
     });
-  }, [responses, searchTerm, selectedChannel]);
+  }, [responses, debouncedSearch, selectedChannel]);
 
   const handleSelectTemplate = (content: string): void => {
     onSelect(content);
@@ -110,88 +127,97 @@ export const ResponseTemplateSelector: React.FC<
           <div className="flex items-center justify-between">
             <h3 className="font-medium">Response Templates</h3>
             <div className="flex items-center space-x-2">
-              <button
+              <Button
                 onClick={toggleViewMode}
+                variant={'ghost'}
+                size="icon"
                 className="p-1 rounded hover:bg-muted"
                 title={getViewModeTitle(viewMode)}
               >
-                {getViewModeIcon(viewMode)}
-              </button>
+                <ViewModeIcon />
+              </Button>
             </div>
           </div>
 
           <div className="space-y-2">
-            <div className="relative">
-              <IconSearch
-                size={16}
-                className="absolute left-2.5 top-2.5 text-muted-foreground"
-              />
-              <Input
-                placeholder="Search templates..."
-                className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-
             <div className="flex items-center space-x-2">
               <IconFilter size={16} className="text-muted-foreground" />
-              <Select
+              <SelectChannel.CommandBar
+                mode="single"
                 value={selectedChannel}
-                onValueChange={setSelectedChannel}
-              >
-                <Select.Trigger>
-                  <Select.Value placeholder="All channels" />
-                </Select.Trigger>
-                <Select.Content>
-                  <Select.Item value="all">All Channels</Select.Item>
-                  {availableChannels.map((channel) => (
-                    <Select.Item key={channel.id} value={channel.id}>
-                      {channel.name}
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select>
+                onValueChange={(value) => setSelectedChannel(value as string)}
+              />
             </div>
           </div>
 
-          <div
-            className={`mt-2 max-h-80 overflow-y-auto ${
-              viewMode === 'grid' ? 'grid grid-cols-2 gap-2' : 'space-y-2'
-            }`}
-          >
-            {filteredTemplates.length === 0 ? (
-              <div className="col-span-2 p-4 text-center text-muted-foreground">
-                {searchTerm
-                  ? 'No matching templates found'
-                  : 'No templates available'}
-              </div>
-            ) : (
-              filteredTemplates.map((template) => (
-                <button
-                  key={template._id}
-                  onClick={() => handleSelectTemplate(template.content)}
-                  className={`text-left p-2 rounded hover:bg-muted ${
-                    viewMode === 'grid' ? 'h-24' : ''
-                  }`}
-                >
-                  <div className="font-medium">{template.name}</div>
-                  <div className="text-sm text-muted-foreground line-clamp-2">
-                    {getPreviewText(template.content)}
+          <Command>
+            <Command.Input
+              variant="secondary"
+              focusOnMount
+              placeholder="Search templates..."
+              value={search}
+              onValueChange={setSearch}
+            />
+            <Command.List
+              className={cn(
+                viewMode === 'grid'
+                  ? '[&_div[cmdk-list-sizer]]:gap-2'
+                  : 'space-y-2',
+                '[&_div[cmdk-list-sizer]]:grid [&_div[cmdk-list-sizer]]:grid-cols-2 mt-2 max-h-80 overflow-y-auto',
+              )}
+            >
+              {filteredTemplates.length === 0 ? (
+                <div className="col-span-2 p-4 text-center text-muted-foreground">
+                  {search
+                    ? 'No matching templates found'
+                    : 'No templates available'}
+                </div>
+              ) : (
+                filteredTemplates.map((template) => (
+                  <div
+                    key={template._id}
+                    className={cn(
+                      viewMode === 'grid'
+                        ? 'h-24 col-span-1'
+                        : 'col-span-2 h-auto',
+                    )}
+                  >
+                    <Command.Item
+                      value={template._id}
+                      onSelect={() => handleSelectTemplate(template.content)}
+                      className={cn(
+                        {
+                          'flex-row items-center': viewMode === 'list',
+                          'flex-col items-start': viewMode === 'grid',
+                        },
+                        'flex p-2 rounded h-full gap-0.5',
+                      )}
+                    >
+                      <div className="font-medium shrink basis-1/4">
+                        {template.name}
+                      </div>
+                      <div className="text-sm text-muted-foreground flex-1 line-clamp-2">
+                        {getPreviewText(template.content)}
+                      </div>
+                      {template.channelId && (
+                        <div
+                          className={cn(
+                            { '-order-1': viewMode === 'grid' },
+                            'text-xs text-primary mt-1 shrink',
+                          )}
+                        >
+                          <ChannelsInline
+                            showIcon={true}
+                            channelIds={[template.channelId]}
+                          />
+                        </div>
+                      )}
+                    </Command.Item>
                   </div>
-                  {template.channelId && (
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {
-                        availableChannels.find(
-                          (c) => c.id === template.channelId,
-                        )?.name
-                      }
-                    </div>
-                  )}
-                </button>
-              ))
-            )}
-          </div>
+                ))
+              )}
+            </Command.List>
+          </Command>
         </div>
       </Popover.Content>
     </Popover>

@@ -17,10 +17,10 @@ export const AddAccount = () => {
       <Dialog.Trigger asChild>
         <Button>
           <IconPlus />
-          Add Account
+          Данс нэмэх
         </Button>
       </Dialog.Trigger>
-      <AccountingDialog title="Add Account" description="Add a new account">
+      <AccountingDialog title="Данс нэмэх" description="Шинэ данс нэмэх">
         <AddAccountForm setOpen={setOpen} />
       </AccountingDialog>
     </Dialog>

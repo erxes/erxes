@@ -3,10 +3,13 @@ import { ProductDetailBarcode } from './ProductDetailBarcode';
 import { ProductDetailUom } from './ProductDetailUom';
 import { ProductDetailAttachment } from './ProductDetailAttachment';
 import { ProductDetailInfo } from './ProductDetailInfo';
-import { useProductDetailWithQuery } from '../hooks/useProductDetailWithQuery';
+import { ProductDetail } from '../types/detailTypes';
 
-export const ProductDetailFields = () => {
-  const { productDetail } = useProductDetailWithQuery();
+export const ProductDetailFields = ({
+  productDetail,
+}: {
+  productDetail: ProductDetail | null;
+}) => {
   if (!productDetail) return null;
 
   return (
@@ -16,7 +19,7 @@ export const ProductDetailFields = () => {
           <ProductDetailGeneral />
         </div>
         <div className="grid gap-4 lg:col-span-2 lg:grid-cols-1">
-          <ProductDetailBarcode />
+          <ProductDetailBarcode productDetail={productDetail} />
           <ProductDetailUom />
         </div>
       </div>

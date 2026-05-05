@@ -162,3 +162,4 @@ export const transactionSchema = schemaWrapper(
 
 transactionSchema.index({ originId: 1, originType: 1, originSubId: 1 });
 transactionSchema.index({ contentType: 1, contentId: 1 });
+transactionSchema.index({ date: 1, number: 1 });

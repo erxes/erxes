@@ -84,18 +84,18 @@ export function ArticleList({
         const isDraft = status.includes('draft');
         const isArchived = status.includes('archived');
 
-        let statusColor = 'text-gray-600';
-        let bgColor = 'bg-gray-100';
+        let statusColor = 'text-muted-foreground';
+        let bgColor = 'bg-muted';
 
         if (isPublished) {
-          statusColor = 'text-green-600';
-          bgColor = 'bg-green-100';
+          statusColor = 'text-success';
+          bgColor = 'bg-success/10';
         } else if (isDraft) {
-          statusColor = 'text-blue-600';
-          bgColor = 'bg-blue-100';
+          statusColor = 'text-info';
+          bgColor = 'bg-info/10';
         } else if (isArchived) {
-          statusColor = 'text-red-600';
-          bgColor = 'bg-red-100';
+          statusColor = 'text-destructive';
+          bgColor = 'bg-destructive/10';
         }
 
         return (
@@ -162,12 +162,12 @@ export function ArticleList({
         status === 'all'
           ? true
           : status === 'draft'
-            ? st.includes('draft')
-            : status === 'published'
-              ? st.includes('publish')
-              : status === 'archived'
-                ? st.includes('archived')
-                : true;
+          ? st.includes('draft')
+          : status === 'published'
+          ? st.includes('publish')
+          : status === 'archived'
+          ? st.includes('archived')
+          : true;
 
       return textOk && statusOk;
     });
@@ -190,7 +190,11 @@ export function ArticleList({
     const handleDelete = async () => {
       if (articleIds.length === 0) return;
 
-      const message = `Are you sure you want to delete ${articleIds.length} article${articleIds.length > 1 ? 's' : ''}? This action cannot be undone.`;
+      const message = `Are you sure you want to delete ${
+        articleIds.length
+      } article${
+        articleIds.length > 1 ? 's' : ''
+      }? This action cannot be undone.`;
 
       const confirmOptions = {
         confirmationValue: 'delete',
@@ -259,28 +263,36 @@ export function ArticleList({
         <div className="flex items-center gap-2">
           <button
             type="button"
-            className={`h-10 rounded-lg border px-4 text-sm ${status === 'all' ? 'font-semibold' : 'opacity-70'}`}
+            className={`h-10 rounded-lg border px-4 text-sm ${
+              status === 'all' ? 'font-semibold' : 'opacity-70'
+            }`}
             onClick={() => setStatus('all')}
           >
             All
           </button>
           <button
             type="button"
-            className={`h-10 rounded-lg border px-4 text-sm ${status === 'draft' ? 'font-semibold' : 'opacity-70'}`}
+            className={`h-10 rounded-lg border px-4 text-sm ${
+              status === 'draft' ? 'font-semibold' : 'opacity-70'
+            }`}
             onClick={() => setStatus('draft')}
           >
             Draft
           </button>
           <button
             type="button"
-            className={`h-10 rounded-lg border px-4 text-sm ${status === 'published' ? 'font-semibold' : 'opacity-70'}`}
+            className={`h-10 rounded-lg border px-4 text-sm ${
+              status === 'published' ? 'font-semibold' : 'opacity-70'
+            }`}
             onClick={() => setStatus('published')}
           >
             Published
           </button>
           <button
             type="button"
-            className={`h-10 rounded-lg border px-4 text-sm ${status === 'archived' ? 'font-semibold' : 'opacity-70'}`}
+            className={`h-10 rounded-lg border px-4 text-sm ${
+              status === 'archived' ? 'font-semibold' : 'opacity-70'
+            }`}
             onClick={() => setStatus('archived')}
           >
             Archived
@@ -294,8 +306,8 @@ export function ArticleList({
 
       {filtered.length === 0 ? (
         <div className="px-3 py-14 text-center">
-          <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-            <IconFileText className="w-8 h-8 text-gray-400" />
+          <div className="mx-auto w-16 h-16 bg-accent rounded-full flex items-center justify-center mb-4">
+            <IconFileText className="w-8 h-8 text-accent-foreground" />
           </div>
           <div className="text-base font-semibold mb-2">
             {q.trim()
