@@ -1,6 +1,9 @@
 import DOMPurify, { type Config } from 'dompurify';
 
 const SANITIZE_OPTS: Config = { ADD_TAGS: ['style'] };
+// SECURITY: Contract templates need custom CSS for printable layouts, so this
+// sanitizer intentionally allows <style>. Keep sanitized previews in sandboxed
+// iframes or Blob popups so template CSS cannot observe or style parent DOM.
 // FORCE_BODY makes DOMPurify keep <style> in a body fragment instead of
 // hoisting it to a head it then discards. Available since DOMPurify 1.x;
 // the workspace pins ^3.2.4 in package.json, so the option is stable.
@@ -72,23 +75,34 @@ export function openSanitizedContractWindow(
 ): Window | null {
   const blob = new Blob([sanitizeContractHtml(html)], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
+  let revoked = false;
+  const revokeUrl = () => {
+    if (!revoked) {
+      URL.revokeObjectURL(url);
+      revoked = true;
+    }
+  };
   const win = window.open('', '_blank');
   if (!win) {
-    URL.revokeObjectURL(url);
+    revokeUrl();
     return null;
   }
   win.addEventListener(
     'load',
     () => {
-      URL.revokeObjectURL(url);
+      revokeUrl();
       onLoad?.(win);
     },
     { once: true },
   );
   win.location.href = url;
-  // Fallback in case the popup never fires `load` (e.g. user closes early).
-  // Kept short so a flurry of preview clicks can't accumulate live blobs.
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  // Fallback for popups closed before `load`; avoid revoking while an open
+  // window may still be navigating to the Blob URL on a slow browser.
+  setTimeout(() => {
+    if (win.closed) {
+      revokeUrl();
+    }
+  }, 300_000);
   return win;
 }
 

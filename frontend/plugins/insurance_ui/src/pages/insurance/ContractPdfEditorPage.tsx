@@ -220,7 +220,7 @@ export const ContractPdfEditorPage = () => {
                     <div className="border rounded-md p-4 bg-gray-50 overflow-auto max-h-[600px]">
                       <iframe
                         srcDoc={sanitizeContractHtml(htmlContent)}
-                        sandbox=""
+                        sandbox="allow-popups"
                         className="w-full h-[800px] bg-white border-0"
                         title="PDF Preview"
                       />
