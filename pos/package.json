@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "WATCHPACK_POLLING=true CHOKIDAR_USEPOLLING=true next dev -p 7002",
+    "dev": "next dev -p 7002",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
