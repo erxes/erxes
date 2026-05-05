@@ -437,7 +437,7 @@ export function generateContractPDF(contract: Contract): void {
   );
 
   if (!printWindow) {
-    alert('Popup блоклогдсон байна. Popup зөвшөөрнө үү.');
+    alert('Popup blocked. Please allow popups.');
   }
 }
 

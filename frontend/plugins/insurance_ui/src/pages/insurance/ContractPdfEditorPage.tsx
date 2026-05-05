@@ -80,6 +80,7 @@ export const ContractPdfEditorPage = () => {
     });
     if (!printWindow) {
       alert('Popup blocked. Please allow popups.');
+      return;
     }
   };
 
