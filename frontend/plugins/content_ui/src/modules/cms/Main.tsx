@@ -74,6 +74,12 @@ const Menus = lazy(() =>
   })),
 );
 
+const AnalyticsPage = lazy(() =>
+  import('~/modules/cms/analytics/Analytics').then((module) => ({
+    default: module.Analytics,
+  })),
+);
+
 const PostsWrapper = () => {
   const { websiteId } = useParams();
   return <Posts clientPortalId={websiteId || ''} />;
@@ -112,6 +118,7 @@ const CmsMain = () => {
           <Route path="menus" element={<Menus />} />
           <Route path="custom-types" element={<CustomTypes />} />
           <Route path="custom-fields" element={<CustomFields />} />
+          <Route path="analytics" element={<AnalyticsPage />} />
         </Route>
         <Route path="web-builder/*" element={<WebBuilderPage />} />
       </Routes>

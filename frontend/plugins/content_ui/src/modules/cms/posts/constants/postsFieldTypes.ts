@@ -1,5 +1,6 @@
 import {
   IconAlignJustified,
+  IconChartBar,
   IconFile,
   IconFileText,
   IconFolder,
@@ -32,6 +33,11 @@ export function usePostsFieldTypes(): IPostsFieldType[] {
       value: PostsPath.CustomPostTypes,
       label: 'Custom Post Types',
       icon: IconLayout,
+    },
+    {
+      value: PostsPath.Analytics,
+      label: 'Analytics',
+      icon: IconChartBar,
     },
   ];
 }
