@@ -1,15 +1,23 @@
 import DOMPurify from 'dompurify';
 
+const SANITIZE_OPTS = { ADD_TAGS: ['style'] } as const;
+
 /**
- * Sanitizes user-edited contract template HTML and returns a complete document
+ * Sanitizes a user-edited contract template and returns a complete document
  * safe to render in a new window or iframe. Uses DOMPurify in fragment mode
  * (WHOLE_DOCUMENT defaults to false) to address SonarCloud rule
- * typescript:S8479; <style> tags are explicitly allowed so contract layouts
- * survive sanitization.
+ * typescript:S8479. The input is parsed into head/body up-front so style
+ * blocks declared in <head> survive sanitization while metadata like <title>
+ * (whose text would otherwise leak into the body via KEEP_CONTENT) is dropped.
  */
 export function sanitizeContractHtml(html: string): string {
-  const fragment = DOMPurify.sanitize(html, { ADD_TAGS: ['style'] });
-  return `<!DOCTYPE html><html lang="mn"><head><meta charset="UTF-8"></head><body>${fragment}</body></html>`;
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const headStyles = Array.from(doc.head.querySelectorAll('style'))
+    .map((node) => node.outerHTML)
+    .join('');
+  const sanitizedHead = DOMPurify.sanitize(headStyles, SANITIZE_OPTS);
+  const sanitizedBody = DOMPurify.sanitize(doc.body.innerHTML, SANITIZE_OPTS);
+  return `<!DOCTYPE html><html lang="mn"><head><meta charset="UTF-8">${sanitizedHead}</head><body>${sanitizedBody}</body></html>`;
 }
 
 /**
@@ -20,6 +28,10 @@ export function openSanitizedContractWindow(html: string): Window | null {
   const blob = new Blob([sanitizeContractHtml(html)], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
   const win = window.open(url, '_blank');
+  if (!win) {
+    URL.revokeObjectURL(url);
+    return null;
+  }
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
   return win;
 }
