@@ -8,6 +8,9 @@ import {
   categoriesToPrintAtom,
   printOnlyNewItemsAtom,
   printSeparatelyAtom,
+  qzCategoryPrintersAtom,
+  qzMainPrinterAtom,
+  qzTrayEnabledAtom,
 } from "@/store"
 import { configAtom } from "@/store/config.store"
 import { useLazyQuery, useQuery } from "@apollo/client"
@@ -16,9 +19,16 @@ import { useAtomValue } from "jotai"
 
 import type { OrderItem } from "@/types/order.types"
 import { ICategory } from "@/types/product.types"
+import { captureDocumentHtml } from "@/lib/captureHtml"
 import { ORDER_ITEM_STATUSES } from "@/lib/constants"
+import {
+  QZ_TRAY_NOT_RUNNING_MESSAGE,
+  ensureQzConnected,
+  printHtmlToPrinter,
+} from "@/lib/qzTray"
 import { formatNum } from "@/lib/utils"
 import { Separator } from "@/components/ui/separator"
+import { onError } from "@/components/ui/use-toast"
 
 type CategoryOrdersByProductQueryResult = {
   poscProducts?: Array<{
@@ -42,6 +52,9 @@ const Progress = () => {
   const onlyNewItems = useAtomValue(printOnlyNewItemsAtom)
   const categoryOrders = useAtomValue(categoriesToPrintAtom)
   const printSeparately = useAtomValue(printSeparatelyAtom)
+  const qzEnabled = useAtomValue(qzTrayEnabledAtom)
+  const qzMainPrinter = useAtomValue(qzMainPrinterAtom)
+  const qzCategoryPrinters = useAtomValue(qzCategoryPrintersAtom)
   const { name } = useAtomValue(configAtom) || {}
 
   const [itemsToPrint, setItemsToPrint] = useState<OrderItem[][]>([])
@@ -182,6 +195,14 @@ const Progress = () => {
     [handleAfterPrint]
   )
 
+  const printViaQz = useCallback(
+    async (printerName: string) => {
+      const html = await captureDocumentHtml()
+      await printHtmlToPrinter(printerName, html)
+    },
+    []
+  )
+
   useEffect(() => {
     if (loading) return
 
@@ -197,6 +218,31 @@ const Progress = () => {
       if (hasPrintedRef.current) return
       hasPrintedRef.current = true
 
+      if (qzEnabled) {
+        if (!qzMainPrinter) {
+          onError("Үндсэн принтер сонгогдоогүй байна")
+          handleAfterPrint()
+          return
+        }
+        ;(async () => {
+          const ok = await ensureQzConnected()
+          if (!ok) {
+            onError(QZ_TRAY_NOT_RUNNING_MESSAGE)
+            handleAfterPrint()
+            return
+          }
+          try {
+            await new Promise((r) => setTimeout(r, 50))
+            await printViaQz(qzMainPrinter)
+          } catch {
+            onError(QZ_TRAY_NOT_RUNNING_MESSAGE)
+          } finally {
+            handleAfterPrint()
+          }
+        })()
+        return
+      }
+
       triggerPrint({ closeAfterPrint: true })
       return
     }
@@ -211,6 +257,43 @@ const Progress = () => {
 
     if (hasPrintedRef.current) return
     hasPrintedRef.current = true
+
+    if (qzEnabled) {
+      const nonEmptyIndexes = itemsToPrint
+        .map((group, i) => (group.length > 0 ? i : -1))
+        .filter((i) => i >= 0)
+
+      const missingPrinter = nonEmptyIndexes.find(
+        (i) => !(qzCategoryPrinters[i] || "").trim()
+      )
+      if (missingPrinter !== undefined) {
+        onError("Принтер сонгогдоогүй байна")
+        handleAfterPrint()
+        return
+      }
+
+      ;(async () => {
+        const ok = await ensureQzConnected()
+        if (!ok) {
+          onError(QZ_TRAY_NOT_RUNNING_MESSAGE)
+          handleAfterPrint()
+          return
+        }
+
+        try {
+          for (const i of nonEmptyIndexes) {
+            setCurrentGroupIndex(i)
+            await new Promise((r) => setTimeout(r, 200))
+            await printViaQz(qzCategoryPrinters[i])
+          }
+        } catch {
+          onError(QZ_TRAY_NOT_RUNNING_MESSAGE)
+        } finally {
+          handleAfterPrint()
+        }
+      })()
+      return
+    }
 
     if (printSeparately && itemsToPrint.length > 1) {
       let index = 0
@@ -250,13 +333,17 @@ const Progress = () => {
     categoryOrders,
     handleAfterPrint,
     triggerPrint,
+    qzEnabled,
+    qzMainPrinter,
+    qzCategoryPrinters,
+    printViaQz,
   ])
 
   if (loading) return <div />
 
   const renderGroups = forCustomer
     ? [{ items: items || [], title: "" }]
-    : printSeparately && currentGroupIndex !== null
+    : (printSeparately || qzEnabled) && currentGroupIndex !== null
     ? [
         {
           items: itemsToPrint[currentGroupIndex] || [],

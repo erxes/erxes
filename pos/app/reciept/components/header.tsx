@@ -55,15 +55,15 @@ const EbarimtHeader = () => {
         </p>
       </header>
       <div className="space-y-1 receipt-print__section receipt-print__section--flush">
-        <div className="flex items-center justify-between receipt-print__row">
-          <div className="flex items-center gap-1">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 receipt-print__row">
+          <div className="flex min-w-0 items-start gap-1">
             <p className="font-semibold">Огноо:</p>
-            <p>
+            <p className="min-w-0">
               {!!paidDate && format(new Date(paidDate), "yyyy.MM.dd HH:mm")}
             </p>
           </div>
 
-          <div className="font-semibold tabular-nums">
+          <div className="whitespace-nowrap font-semibold tabular-nums">
             &#8470;{":"} {number.split("_")[1]}
           </div>
         </div>
