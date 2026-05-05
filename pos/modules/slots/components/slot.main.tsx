@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import SlotActions from "./slotActions"
 
 export const slotVariants = cva(
-  "h-11 w-11 text-center text-sm font-bold px-0 relative ",
+  "relative h-auto min-h-11 w-auto min-w-11 max-w-[5.5rem] whitespace-normal break-words px-2 py-1 text-center text-[11px] font-bold leading-tight overflow-hidden",
   {
     variants: {
       status: {
@@ -39,15 +39,21 @@ const Slot = (
   return (
     <SlotActions {...props}>
       <DropdownMenuTrigger asChild>
-        <Button className={slotVariants({ status })} Component={"div"}>
-          {name}
+        <Button
+          className={slotVariants({ status })}
+          Component={"div"}
+          title={name || code}
+        >
+          <span className="block max-w-full leading-tight break-words">
+            {name || code}
+          </span>
           <RadioGroupItem
             value={active ? "" : code}
             id={code}
             className="sr-only peer"
           />
           <MotionLabel
-            className="absolute inset-0 rounded-md border-2 border-primary"
+            className="absolute inset-0 border-2 rounded-md border-primary"
             animate={{
               opacity: active ? 1 : 0,
             }}
