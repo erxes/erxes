@@ -65,7 +65,7 @@ export const EditCtaxRowForm = ({ onClose }: { onClose?: () => void }) => {
 
     if (isDeeplyEqual(newData, initialData)) {
       reset();
-      return onClose?.() || closeDetail();
+      return onClose ? onClose() : closeDetail();
     }
     editCtaxRow({
       variables: {
@@ -73,7 +73,7 @@ export const EditCtaxRowForm = ({ onClose }: { onClose?: () => void }) => {
         ...data,
       },
       onCompleted: () => {
-        onClose?.() || closeDetail();
+        onClose ? onClose() : closeDetail();
         reset();
       },
     });

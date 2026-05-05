@@ -190,7 +190,7 @@ const TransactionMoreColumnCell = ({
   const navigate = useNavigate();
   const { confirm } = useConfirm();
   const { removeTransactions } = useTransactionsRemove();
-  const handleEdit = () => {
+  const handleEditAcc = () => {
     navigate(
       `/accounting/transaction/edit?parentId=${parentId}&trId=${
         originId || _id
@@ -216,7 +216,7 @@ const TransactionMoreColumnCell = ({
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item value="edit" onSelect={handleEdit}>
+            <Command.Item value="edit" onSelect={handleEditAcc}>
               <IconEdit /> Edit
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
