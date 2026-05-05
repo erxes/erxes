@@ -233,6 +233,7 @@ export const ContractTemplateEditorPage = () => {
     const previewWindow = openSanitizedContractWindow(buildPreviewHtml());
     if (!previewWindow) {
       alert('Popup блоклогдсон байна. Popup зөвшөөрнө үү.');
+      return;
     }
   };
 

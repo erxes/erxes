@@ -65,6 +65,7 @@ export const ContractPdfEditorPage = () => {
     const previewWindow = openSanitizedContractWindow(htmlContent);
     if (!previewWindow) {
       alert('Popup blocked. Please allow popups.');
+      return;
     }
   };
 

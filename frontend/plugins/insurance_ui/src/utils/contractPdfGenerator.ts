@@ -23,6 +23,12 @@ export function sanitizeContractHtml(html: string): string {
 /**
  * Opens sanitized contract HTML in a new window via a Blob URL. Replaces the
  * deprecated `document.write(...)` API (SonarCloud rule typescript:S1874).
+ *
+ * The Blob URL is revoked once the popup fires its `load` event, so the
+ * popup keeps the URL valid for the entire navigation/parse phase regardless
+ * of network or document size. `addEventListener` is used (rather than the
+ * `.onload` setter) so callers can still attach their own `printWindow.onload`
+ * print handler. A fallback timeout guarantees cleanup if `load` never fires.
  */
 export function openSanitizedContractWindow(html: string): Window | null {
   const blob = new Blob([sanitizeContractHtml(html)], { type: 'text/html' });
@@ -32,7 +38,8 @@ export function openSanitizedContractWindow(html: string): Window | null {
     URL.revokeObjectURL(url);
     return null;
   }
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  win.addEventListener('load', () => URL.revokeObjectURL(url), { once: true });
+  setTimeout(() => URL.revokeObjectURL(url), 300_000);
   return win;
 }
 
