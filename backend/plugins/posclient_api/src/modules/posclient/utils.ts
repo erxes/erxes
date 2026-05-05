@@ -436,15 +436,6 @@ export const prepareSettlePayment = async (
       let uoms: any[] = [];
 
       if (products.find((product) => product?.type === 'subscription')) {
-        // uoms = await sendCoreMessage({
-        //   subdomain,
-        //   action: 'uoms.find',
-        //   data: {
-        //     code: { $in: products.map((product) => product?.uom) },
-        //   },
-        //   isRPC: true,
-        //   defaultValue: [],
-        // });
         uoms = await sendTRPCMessage({
           subdomain,
 
@@ -529,7 +520,7 @@ export const prepareSettlePayment = async (
     }
 
     try {
-      await sendTRPCMessage({
+      sendTRPCMessage({
         subdomain,
         method: 'mutation',
         pluginName: 'sales',

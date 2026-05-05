@@ -708,19 +708,21 @@ export const syncOrderFromClient = async ({
   const oldOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
   const oldBranchId = oldOrder ? oldOrder.branchId : '';
 
-  if (await isEnabled('ebarimt')) {
-    for (const response of responses || []) {
-      if (response?._id) {
-        await sendTRPCMessage({
-          subdomain,
-          method: 'mutation',
-          pluginName: 'mongolian',
-          module: 'putresponses',
-          action: 'createOrUpdate',
-          input: { _id: response._id, doc: { ...response, posToken } },
-          defaultValue: [],
-        });
-      }
+  if (await isEnabled('mongolian')) {
+    const putResponses = responses?.filter(resp => resp._id).map(resp => ({ ...resp, posToken }));
+
+    if (putResponses?.length) {
+      await sendTRPCMessage({
+        subdomain,
+        method: 'mutation',
+        pluginName: 'mongolian',
+        module: 'putResponses',
+        action: 'syncPutResponses',
+        input: {
+          putResponses
+        },
+        defaultValue: [],
+      });
     }
   }
 
@@ -848,7 +850,6 @@ export const syncOrderFromClient = async ({
   const syncedResponseIds = (
     (await sendTRPCMessage({
       subdomain,
-
       pluginName: 'mongolian',
       module: 'putresponses',
       action: 'find',
