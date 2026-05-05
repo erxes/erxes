@@ -12,6 +12,7 @@ import { InsuranceProduct } from '../types';
 import {
   getDefaultPdfTemplate,
   openSanitizedContractWindow,
+  sanitizeContractHtml,
 } from '~/utils/contractPdfGenerator';
 
 interface ProductFormProps {
@@ -252,7 +253,9 @@ export const ProductForm = ({
       setFormData({
         name: product.name,
         insuranceTypeId: product.insuranceType.id,
-        pdfContent: product.pdfContent || '',
+        pdfContent: product.pdfContent
+          ? sanitizeContractHtml(product.pdfContent)
+          : '',
         coveredRisks: product.coveredRisks.map((cr) => ({
           riskId: cr.risk.id,
           coveragePercentage: cr.coveragePercentage,
@@ -359,6 +362,10 @@ export const ProductForm = ({
     e.preventDefault();
 
     try {
+      const sanitizedPdfContent = formData.pdfContent
+        ? sanitizeContractHtml(formData.pdfContent)
+        : null;
+
       if (product) {
         await updateInsuranceProduct({
           variables: {
@@ -366,7 +373,7 @@ export const ProductForm = ({
             name: formData.name,
             coveredRisks: formData.coveredRisks,
             pricingConfig: formData.pricingConfig,
-            pdfContent: formData.pdfContent || null,
+            pdfContent: sanitizedPdfContent,
             regionIds: formData.regionIds,
             additionalCoverages:
               formData.additionalCoverages.length > 0
@@ -389,7 +396,7 @@ export const ProductForm = ({
             insuranceTypeId: formData.insuranceTypeId,
             coveredRisks: formData.coveredRisks,
             pricingConfig: formData.pricingConfig,
-            pdfContent: formData.pdfContent || null,
+            pdfContent: sanitizedPdfContent,
             regionIds: formData.regionIds,
             additionalCoverages:
               formData.additionalCoverages.length > 0

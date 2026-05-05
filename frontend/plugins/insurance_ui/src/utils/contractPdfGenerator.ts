@@ -72,7 +72,7 @@ export function openSanitizedContractWindow(
 ): Window | null {
   const blob = new Blob([sanitizeContractHtml(html)], { type: 'text/html' });
   const url = URL.createObjectURL(blob);
-  const win = window.open(url, '_blank');
+  const win = window.open('', '_blank');
   if (!win) {
     URL.revokeObjectURL(url);
     return null;
@@ -85,6 +85,7 @@ export function openSanitizedContractWindow(
     },
     { once: true },
   );
+  win.location.href = url;
   // Fallback in case the popup never fires `load` (e.g. user closes early).
   // Kept short so a flurry of preview clicks can't accumulate live blobs.
   setTimeout(() => URL.revokeObjectURL(url), 60_000);

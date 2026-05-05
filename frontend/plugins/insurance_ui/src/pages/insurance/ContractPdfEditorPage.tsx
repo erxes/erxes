@@ -39,7 +39,7 @@ export const ContractPdfEditorPage = () => {
     if (contract) {
       // Use saved PDF content if exists, otherwise generate from template
       if ((contract as any).pdfContent) {
-        setHtmlContent((contract as any).pdfContent);
+        setHtmlContent(sanitizeContractHtml((contract as any).pdfContent));
       } else {
         setHtmlContent(generateContractHTML(contract));
       }
@@ -48,13 +48,15 @@ export const ContractPdfEditorPage = () => {
 
   const handleSaveContractPDF = async () => {
     if (!id || !htmlContent) return;
+    const sanitizedPdfContent = sanitizeContractHtml(htmlContent);
     try {
       await saveContractPDF({
         variables: {
           contractId: id,
-          pdfContent: htmlContent,
+          pdfContent: sanitizedPdfContent,
         },
       });
+      setHtmlContent(sanitizedPdfContent);
       alert('Contract PDF saved successfully!');
     } catch (error) {
       console.error('Error saving contract PDF:', error);
