@@ -104,7 +104,7 @@ export const posclientTrpcRouter = t.router({
       }
     }),
     updateSynced: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
-      const { models, subdomain } = ctx;
+      const { models } = ctx;
 
       const { responseIds, orderId, convertDealId } = input;
 

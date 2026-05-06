@@ -74,12 +74,12 @@ export const Location = ({ pricingId, pricingDetail }: LocationProps) => {
         <div className="space-y-4">
           <Form.Field
             control={form.control}
-            name="departmentIds"
+            name="branchIds"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>DEPARTMENTS</Form.Label>
+                <Form.Label>Branches</Form.Label>
                 <Form.Control>
-                  <SelectDepartments.FormItem
+                  <SelectBranches.FormItem
                     mode="multiple"
                     value={field.value}
                     onValueChange={field.onChange}
@@ -88,15 +88,14 @@ export const Location = ({ pricingId, pricingDetail }: LocationProps) => {
               </Form.Item>
             )}
           />
-
           <Form.Field
             control={form.control}
-            name="branchIds"
+            name="departmentIds"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>BRANCHES</Form.Label>
+                <Form.Label>Departments</Form.Label>
                 <Form.Control>
-                  <SelectBranches.FormItem
+                  <SelectDepartments.FormItem
                     mode="multiple"
                     value={field.value}
                     onValueChange={field.onChange}

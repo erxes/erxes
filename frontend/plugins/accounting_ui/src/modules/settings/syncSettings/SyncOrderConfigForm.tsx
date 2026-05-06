@@ -12,23 +12,18 @@ import {
   Select,
   Spinner,
 } from 'erxes-ui';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import {
-  BoardSelect,
-  PipelineSelect,
   SelectBranches,
   SelectDepartments,
-  StageSelect,
 } from 'ui-modules';
 import { z } from 'zod';
-import { PIPELINE_DETAIL } from '../graphql/queries/relatedQueries';
+import { POS_DETAIL, POS_LIST } from '../graphql/queries/relatedQueries';
 
 const configFormSchema = z.object({
   title: z.string(),
-  boardId: z.string().optional(),
-  pipelineId: z.string().optional(),
-  stageId: z.string(),
+  posId: z.string(),
   dateRule: z.enum(['alwaysNow', 'syncedDateOrNow']),
   saleAccountId: z.string(),
   saleOutAccountId: z.string(),
@@ -54,7 +49,7 @@ const configFormSchema = z.object({
 
 type ConfigFormValues = z.infer<typeof configFormSchema>;
 
-export const SyncDealConfigForm = ({
+export const SyncOrderConfigForm = ({
   form,
   onSubmit,
   loading,
@@ -63,42 +58,37 @@ export const SyncDealConfigForm = ({
   onSubmit: (data: any) => void;
   loading: boolean;
 }) => {
-  const boardId = useWatch({
+  const posId = useWatch({
     control: form.control,
-    name: `boardId`,
+    name: `posId`,
   });
 
-  const pipelineId = useWatch({
-    control: form.control,
-    name: `pipelineId`,
-  });
+  const { data: posList, loading: posListLoading } = useQuery(POS_LIST, {});
+  const posOptions: { value: string, label: string }[] = useMemo(() => {
+    if (posListLoading) {
+      return [];
+    }
+    return posList?.posList?.map((p: { name: any; _id: any; }) => ({ label: p.name, value: p._id }));
+  }, [posList, posListLoading]);
 
-  const { data: pipelineDetail, refetch: pipelineRefetch } = useQuery(
-    PIPELINE_DETAIL,
+  const { data: posDetailData, refetch: posRefetch } = useQuery(
+    POS_DETAIL,
     {
-      variables: { _id: pipelineId },
-      skip: !pipelineId, // pipelineId байхгүй үед асуухгүй
+      variables: { _id: posId },
+      skip: !posId, // posId байхгүй үед асуухгүй
       fetchPolicy: 'network-only', // заавал backend-ээс авна
     },
   );
 
   useEffect(() => {
-    form.setValue('pipelineId', '');
-  }, [boardId, form]);
-
-  useEffect(() => {
-    form.setValue('stageId', '');
-  }, [pipelineId, form]);
-
-  useEffect(() => {
-    if (pipelineId) {
-      pipelineRefetch({ _id: pipelineId });
+    if (posId) {
+      posRefetch({ _id: posId });
     }
-  }, [pipelineId, pipelineRefetch]);
+  }, [posId, posRefetch]);
 
   // note: const paymentIds: string[] = pipelineDetail?.salesPipelineDetail?.paymentIds || [];
   const paymentTypes: any[] =
-    pipelineDetail?.salesPipelineDetail?.paymentTypes || [];
+    posDetailData?.posDetail?.paymentTypes || [];
 
   return (
     <Form {...form}>
@@ -142,43 +132,28 @@ export const SyncDealConfigForm = ({
         />
         <Form.Field
           control={form.control}
-          name="boardId"
-          render={({ field }) => (
-            <Form.Item className="col-start-1">
-              <Form.Label>Board</Form.Label>
-              <Form.Control>
-                <BoardSelect boardId={field.value} onChange={field.onChange} />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="pipelineId"
+          name="posId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Pipeline</Form.Label>
+              <Form.Label>POS</Form.Label>
               <Form.Control>
-                <PipelineSelect
-                  pipelineId={field.value}
-                  onChange={field.onChange}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="stageId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Stage</Form.Label>
-              <Form.Control>
-                <StageSelect
-                  pipelineId={pipelineId}
-                  stageId={field.value}
-                  onChange={field.onChange}
-                />
+                <Select
+                  defaultValue={field.value}
+                  onValueChange={(value) => field.onChange(value)}
+                >
+                  <Form.Control>
+                    <Select.Trigger>
+                      <Select.Value placeholder='Select pos' />
+                    </Select.Trigger>
+                  </Form.Control>
+                  <Select.Content>
+                    {posOptions.map((opt) => (
+                      <Select.Item key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
               </Form.Control>
             </Form.Item>
           )}
@@ -315,7 +290,7 @@ export const SyncDealConfigForm = ({
           ...paymentTypes,
         ].map((ptype) => (
           <Form.Field
-            key={`${pipelineId}-${ptype.type}`}
+            key={`${posId}-${ptype.type}`}
             control={form.control}
             name={`payments.${ptype.type}.accountId`}
             render={({ field }) => (
@@ -353,11 +328,10 @@ export const SyncDealConfigForm = ({
             </Form.Item>
           )}
         />
-        {
-          useWatch({
-            control: form.control,
-            name: `hasVat`,
-          }) && (
+        {useWatch({
+          control: form.control,
+          name: `hasVat`,
+        }) && (
             <Form.Field
               control={form.control}
               name="vatRowId"
@@ -373,8 +347,7 @@ export const SyncDealConfigForm = ({
                 </Form.Item>
               )}
             />
-          )
-        }
+          )}
         <Form.Field
           control={form.control}
           name="hasCtax"
@@ -390,11 +363,10 @@ export const SyncDealConfigForm = ({
             </Form.Item>
           )}
         />
-        {
-          useWatch({
-            control: form.control,
-            name: `hasCtax`,
-          }) && (
+        {useWatch({
+          control: form.control,
+          name: `hasCtax`,
+        }) && (
             <Form.Field
               control={form.control}
               name="ctaxRowId"
@@ -410,8 +382,7 @@ export const SyncDealConfigForm = ({
                 </Form.Item>
               )}
             />
-          )
-        }
+          )}
 
         <Dialog.Footer className="col-span-3 mt-3 gap-2">
           <Dialog.Close asChild>

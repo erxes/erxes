@@ -44,7 +44,7 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   // collect ebarimtConfig from mongolian/ebarimt
   const ebarimtConfigs = await sendTRPCMessage({
     subdomain,
-    pluginName: 'mongolina',
+    pluginName: 'mongolian',
     module: 'mnConfigs',
     action: 'find',
     input: { query: { $or: [{ code: 'EBARIMT' }, { code: 'posInEbarimt', subId: pos._id }] } },
@@ -54,7 +54,7 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   const ebarimtMain = ebarimtConfigs.find(conf => conf.code === 'EBARIMT');
   const ebarimtPos = ebarimtConfigs.find(conf => conf.code === 'posInEbarimt' && conf.subId === pos._id);
 
-  data.ebarimtConfig = {
+  data.pos.ebarimtConfig = {
     ...ebarimtMain?.value,
     ...ebarimtPos?.value,
     ebarimtUrl: ebarimtPos?.value?.ebarimtUrl || ebarimtMain?.value?.ebarimtUrl,

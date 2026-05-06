@@ -707,20 +707,23 @@ export const syncOrderFromClient = async ({
 }) => {
   const oldOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
   const oldBranchId = oldOrder ? oldOrder.branchId : '';
+  const enabledMN = await isEnabled('mongolian')
 
-  if (await isEnabled('ebarimt')) {
-    for (const response of responses || []) {
-      if (response?._id) {
-        await sendTRPCMessage({
-          subdomain,
-          method: 'mutation',
-          pluginName: 'mongolian',
-          module: 'putresponses',
-          action: 'createOrUpdate',
-          input: { _id: response._id, doc: { ...response, posToken } },
-          defaultValue: [],
-        });
-      }
+  if (enabledMN) {
+    const putResponses = responses?.filter(resp => resp._id).map(resp => ({ ...resp, posToken }));
+
+    if (putResponses?.length) {
+      await sendTRPCMessage({
+        subdomain,
+        method: 'mutation',
+        pluginName: 'mongolian',
+        module: 'putResponses',
+        action: 'syncPutResponses',
+        input: {
+          putResponses
+        },
+        defaultValue: [],
+      });
     }
   }
 
@@ -845,19 +848,18 @@ export const syncOrderFromClient = async ({
     // }
   }
 
-  const syncedResponseIds = (
+  const syncedResponseIds = enabledMN ? (
     (await sendTRPCMessage({
       subdomain,
-
       pluginName: 'mongolian',
-      module: 'putresponses',
+      module: 'putResponses',
       action: 'find',
       input: {
         query: { _id: { $in: (responses || []).map((resp) => resp._id) } },
       },
       defaultValue: [],
     })) || []
-  ).map((r) => r._id);
+  ).map((r) => r._id) : [];
 
   // return info saved
   await sendPosclientMessage({
