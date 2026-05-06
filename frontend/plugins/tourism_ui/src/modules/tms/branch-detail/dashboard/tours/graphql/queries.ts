@@ -161,6 +161,10 @@ export const GET_TOUR_DETAIL = gql`
       startDate
       status
       categoryIds
+      guides {
+        guideId
+        type
+      }
       pricingOptions {
         _id
         title
