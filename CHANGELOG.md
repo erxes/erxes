@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.17.48](https://github.com/erxes/erxes/compare/2.17.47...2.17.48) (2026-05-06)
+
+### Bug Fixes
+
+* **AddForm:** add edit conformity logic for new conversation conversion ([b61270b](https://github.com/erxes/erxes/commit/b61270bb8958d36bab3b52a4c19e98d9e2a9abb0))
+
 ## [2.17.47](https://github.com/erxes/erxes/compare/2.17.46...2.17.47) (2026-05-06)
 
 ### Bug Fixes
