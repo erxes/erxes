@@ -568,9 +568,9 @@ export const conversationConvertToCard = async (
     });
 
     if (conversation.customerId) {
-      await sendCoreMessage({
+      const existingConformities = await sendCoreMessage({
         subdomain,
-        action: "conformities.addConformity",
+        action: "conformities.findConformities",
         data: {
           mainType: type,
           mainTypeId: item._id,
@@ -578,7 +578,22 @@ export const conversationConvertToCard = async (
           relTypeId: conversation.customerId,
         },
         isRPC: true,
+        defaultValue: [],
       });
+
+      if (!existingConformities.length) {
+        await sendCoreMessage({
+          subdomain,
+          action: "conformities.addConformity",
+          data: {
+            mainType: type,
+            mainTypeId: item._id,
+            relType: "customer",
+            relTypeId: conversation.customerId,
+          },
+          isRPC: true,
+        });
+      }
     }
 
     return item._id;
