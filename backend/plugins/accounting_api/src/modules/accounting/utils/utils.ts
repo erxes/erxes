@@ -69,11 +69,16 @@ export const syncProductsInventory = async (
   multiplier = 1,
 ) => {
   const countByProductId: { [productId: string]: number } = {};
+  const costByProductId: { [productId: string]: number } = {};
 
   // 1 transaction ni adilhan product buhii detailtai baij boloh
   transaction?.details.forEach((det) => {
     countByProductId[det.productId ?? ''] = fixNum(
       (countByProductId[det.productId ?? ''] ?? 0) + (det.count ?? 0),
+      4,
+    );
+    costByProductId[det.productId ?? ''] = fixNum(
+      (costByProductId[det.productId ?? ''] ?? 0) + (det.amount ?? 0),
       4,
     );
   });
@@ -89,6 +94,10 @@ export const syncProductsInventory = async (
         (countByProductId[det.productId ?? ''] ?? 0) - (det.count ?? 0),
         4,
       );
+      costByProductId[det.productId ?? ''] = fixNum(
+        (costByProductId[det.productId ?? ''] ?? 0) - (det.amount ?? 0),
+        4,
+      );
     });
 
     sendTRPCMessage({
@@ -101,10 +110,14 @@ export const syncProductsInventory = async (
         branchId: transaction.branchId,
         departmentId: transaction.departmentId,
         productsInfo: Object.keys(countByProductId)
-          .filter((productId) => countByProductId[productId])
+          .filter(
+            (productId) =>
+              countByProductId[productId] || costByProductId[productId],
+          )
           .map((productId) => ({
             productId,
             diffCount: multiplier * countByProductId[productId],
+            diffCost: multiplier * costByProductId[productId],
           })),
       },
     });
@@ -113,11 +126,16 @@ export const syncProductsInventory = async (
 
   // huuchin detailseer uldegdel hasna
   const countByProductIdOld: { [productId: string]: number } = {};
+  const costByProductIdOld: { [productId: string]: number } = {};
 
   // 1 transaction ni adilhan product buhii detailtai baij boloh
   oldTr?.details.forEach((det) => {
     countByProductIdOld[det.productId ?? ''] = fixNum(
       (countByProductIdOld[det.productId ?? ''] ?? 0) + (det.count ?? 0),
+      4,
+    );
+    costByProductIdOld[det.productId ?? ''] = fixNum(
+      (costByProductIdOld[det.productId ?? ''] ?? 0) + (det.amount ?? 0),
       4,
     );
   });
@@ -132,10 +150,14 @@ export const syncProductsInventory = async (
       branchId: oldTr?.branchId,
       departmentId: oldTr?.departmentId,
       productsInfo: Object.keys(countByProductIdOld)
-        .filter((productId) => countByProductIdOld[productId])
+        .filter(
+          (productId) =>
+            countByProductIdOld[productId] || costByProductIdOld[productId],
+        )
         .map((productId) => ({
           productId,
           diffCount: -1 * multiplier * countByProductIdOld[productId],
+          diffCost: -1 * multiplier * costByProductIdOld[productId],
         })),
     },
   });
@@ -151,10 +173,14 @@ export const syncProductsInventory = async (
       branchId: transaction.branchId,
       departmentId: transaction.departmentId,
       productsInfo: Object.keys(countByProductId)
-        .filter((productId) => countByProductId[productId])
+        .filter(
+          (productId) =>
+            countByProductId[productId] || costByProductId[productId],
+        )
         .map((productId) => ({
           productId,
           diffCount: multiplier * countByProductId[productId],
+          diffCost: multiplier * costByProductId[productId],
         })),
     },
   });
@@ -182,6 +208,7 @@ export const removeSyncProductsInventory = async (
       productsInfo: transaction.details?.map((det) => ({
         productId: det.productId,
         diffCount: -1 * multiplier * (det.count ?? 0),
+        diffCost: -1 * multiplier * (det.amount ?? 0),
       })),
     },
   });
