@@ -3,6 +3,7 @@ import {
   IPdfAttachment,
   ICustomField,
 } from 'erxes-api-shared/core-types';
+import { Document } from 'mongoose';
 
 export const CMS_POST_URL_FIELDS = ['_id', 'count', 'slug'] as const;
 export type CMSPostUrlField = (typeof CMS_POST_URL_FIELDS)[number];
@@ -21,6 +22,19 @@ export interface IContentCMS {
   description: string;
   clientPortalId: string;
   content: string;
+  domain?: string;
+  publicUrl?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string[];
+  metaImage?: IAttachment;
+  googleTrackingId?: string;
+  googleTagManagerId?: string;
+  customScripts?: string[];
+  defaultPostStatus?: string;
+  allowComments?: boolean;
+  siteLogo?: IAttachment;
+  favicon?: IAttachment;
   language?: string;
   languages?: string[];
   postUrlField?: CMSPostUrlField;
@@ -37,6 +51,19 @@ export interface IContentCMSInput {
   description: string;
   clientPortalId: string;
   content: string;
+  domain?: string;
+  publicUrl?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string[];
+  metaImage?: IAttachment;
+  googleTrackingId?: string;
+  googleTagManagerId?: string;
+  customScripts?: string[];
+  defaultPostStatus?: string;
+  allowComments?: boolean;
+  siteLogo?: IAttachment;
+  favicon?: IAttachment;
   language?: string;
   languages?: string[];
   postUrlField?: CMSPostUrlField;
