@@ -30,15 +30,20 @@ export function CustomFieldGroupItem({
       defaultOpen={selectedGroupId === group._id}
       onOpenChange={(open) => open && onSelectGroup(group)}
     >
-      <div className="relative">
+      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_3rem] items-center">
         <Collapsible.Trigger asChild>
-          <Button variant="secondary" className="w-full justify-start">
-            <Collapsible.TriggerIcon />
-            <span className="flex-1 text-left">{group.label}</span>
+          <Button
+            variant="secondary"
+            className="col-span-2 grid w-full grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-center gap-0 rounded-r-none px-2"
+          >
+            <span className="flex min-w-0 items-center gap-2">
+              <Collapsible.TriggerIcon className="size-4 shrink-0" />
+              <span className="truncate text-left">{group.label}</span>
+            </span>
             {group.code && (
-              <span className="text-xs text-muted-foreground mr-2">
+              <code className="min-w-0 truncate justify-self-start text-xs text-muted-foreground font-mono">
                 {group.code}
-              </span>
+              </code>
             )}
           </Button>
         </Collapsible.Trigger>
@@ -47,7 +52,7 @@ export function CustomFieldGroupItem({
             <Button
               variant="secondary"
               size="icon"
-              className="absolute right-0.5 top-0.5 size-7"
+              className="h-7 w-full rounded-l-none"
             >
               <IconDots className="w-4 h-4" />
             </Button>
@@ -96,16 +101,6 @@ export function CustomFieldGroupItem({
                             </span>
                           )}
                         </div>
-                        {field.code && (
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-medium text-muted-foreground">
-                              Code:
-                            </span>
-                            <code className="text-xs px-1.5 py-0.5 bg-muted rounded font-mono">
-                              {field.code}
-                            </code>
-                          </div>
-                        )}
                         {field.description && (
                           <p className="text-sm text-muted-foreground leading-relaxed">
                             {field.description}
@@ -115,13 +110,13 @@ export function CustomFieldGroupItem({
                     </div>
                   </Table.Cell>
                   <Table.Cell className="py-3">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 text-primary rounded-md">
-                      <span className="text-sm font-medium capitalize">
-                        {field.type}
-                      </span>
-                    </div>
+                    {field.code && (
+                      <code className="text-xs px-1.5 py-0.5 bg-muted rounded font-mono">
+                        {field.code}
+                      </code>
+                    )}
                   </Table.Cell>
-                  <Table.Cell className="w-8 p-0.5">
+                  <Table.Cell className="w-12 p-0.5 text-center">
                     <DropdownMenu>
                       <DropdownMenu.Trigger asChild>
                         <Button

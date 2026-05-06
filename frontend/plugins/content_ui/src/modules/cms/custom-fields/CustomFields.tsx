@@ -216,7 +216,7 @@ export function CustomFields() {
                   <Table.Header>
                     <Table.Row>
                       <Table.Head>Name</Table.Head>
-                      <Table.Head>Type</Table.Head>
+                      <Table.Head>Code</Table.Head>
                       <Table.Head className="w-12"></Table.Head>
                     </Table.Row>
                   </Table.Header>
