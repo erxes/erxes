@@ -519,24 +519,20 @@ export const prepareSettlePayment = async (
       }
     }
 
-    try {
-      sendTRPCMessage({
-        subdomain,
-        method: 'mutation',
-        pluginName: 'sales',
-        module: 'pos',
-        action: 'createOrUpdateOrders',
-        input: {
-          posToken: config.token,
-          action: 'makePayment',
-          responses: ebarimtResponses,
-          order,
-          items,
-        },
-      });
-    } catch (e) {
-      debugError(`Error occurred while sending data to erxes: ${e.message}`);
-    }
+    sendTRPCMessage({
+      subdomain,
+      method: 'mutation',
+      pluginName: 'sales',
+      module: 'pos',
+      action: 'createOrUpdateOrders',
+      input: {
+        posToken: config.token,
+        action: 'makePayment',
+        responses: ebarimtResponses,
+        order,
+        items,
+      },
+    });
 
     return ebarimtResponses;
   } catch (e) {

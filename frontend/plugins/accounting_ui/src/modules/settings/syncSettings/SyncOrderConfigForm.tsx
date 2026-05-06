@@ -147,8 +147,8 @@ export const SyncOrderConfigForm = ({
                     </Select.Trigger>
                   </Form.Control>
                   <Select.Content>
-                    {posOptions.map((opt, idx) => (
-                      <Select.Item key={idx} value={opt.value}>
+                    {posOptions.map((opt) => (
+                      <Select.Item key={opt.value} value={opt.value}>
                         {opt.label}
                       </Select.Item>
                     ))}
