@@ -35,6 +35,17 @@ export const loadCmsClass = (models: IModels) => {
       return CMS_DEFAULT_POST_URL_FIELD;
     }
 
+    private static buildCmsDoc(doc: IContentCMSInput) {
+      if (doc.postUrlField === undefined) {
+        return doc;
+      }
+
+      return {
+        ...doc,
+        postUrlField: this.normalizePostUrlField(doc.postUrlField),
+      };
+    }
+
     public static async getContentCMS(_id: string) {
       return models.CMS.findOne({ _id });
     }
@@ -43,20 +54,12 @@ export const loadCmsClass = (models: IModels) => {
       return data;
     }
     public static async createContentCMS(doc: IContentCMSInput) {
-      return models.CMS.create({
-        ...doc,
-        postUrlField: this.normalizePostUrlField(doc.postUrlField),
-      });
+      return models.CMS.create(this.buildCmsDoc(doc));
     }
     public static async updateContentCMS(_id: string, doc: IContentCMSInput) {
-      return models.CMS.findOneAndUpdate(
-        { _id },
-        {
-          ...doc,
-          postUrlField: this.normalizePostUrlField(doc.postUrlField),
-        },
-        { new: true },
-      );
+      return models.CMS.findOneAndUpdate({ _id }, this.buildCmsDoc(doc), {
+        new: true,
+      });
     }
     public static async deleteContentCMS(_id: string) {
       return models.CMS.findOneAndDelete({ _id });
