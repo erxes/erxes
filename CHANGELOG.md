@@ -1,5 +1,7 @@
 # Changelog
 
+## [2.17.50](https://github.com/erxes/erxes/compare/2.17.49...2.17.50) (2026-05-06)
+
 ## [2.17.49](https://github.com/erxes/erxes/compare/2.17.48...2.17.49) (2026-05-06)
 
 ### Bug Fixes
