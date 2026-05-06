@@ -623,6 +623,7 @@ export const syncOrderFromClient = async ({
   const { oldOrder, newOrder } = await models.PosOrders.createOrUpdate({
     ...order,
     posToken,
+    posId: pos._id,
     items,
     scopeBrandIds: pos.scopeBrandIds,
     branchId: order.branchId || pos.branchId,

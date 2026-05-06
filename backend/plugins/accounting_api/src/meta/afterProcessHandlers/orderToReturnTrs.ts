@@ -12,15 +12,15 @@ import {
 } from '~/modules/accounting/@types/transaction';
 import { getJournal } from './utils';
 
-export const dealToReturnTrs = async ({
+export const orderToReturnTrs = async ({
   models,
   userId,
-  deal,
+  order,
   config,
 }: {
   models: IModels;
   userId: string;
-  deal: any;
+  order: any;
   config: {
     dateRule: 'alwaysNow' | 'syncedDateOrNow';
     defaultPayment: { accountId: string };
@@ -33,7 +33,7 @@ export const dealToReturnTrs = async ({
   let parentId = mainId;
   let oldOtherTrs: ITransactionDocument[] = [];
 
-  const [contentType, contentId] = ['sales:deal', deal._id];
+  const [contentType, contentId] = ['sales:order', order._id];
 
   const oldTrs = await models.Transactions.find({
     contentType,
@@ -96,7 +96,6 @@ export const dealToReturnTrs = async ({
     },
     branchId: firstSaleTr.branchId,
     departmentId: firstSaleTr.departmentId,
-    assignedUserIds: deal.assignedUserIds,
     customerType: firstSaleTr.customerType,
     customerId: firstSaleTr.customerId,
 

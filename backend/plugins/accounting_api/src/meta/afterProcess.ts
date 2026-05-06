@@ -2,6 +2,8 @@ import { AfterProcessConfigs, IAfterProcessRule } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { dealToTrs } from './afterProcessHandlers/dealToTrs';
 import { dealToReturnTrs } from './afterProcessHandlers/dealToReturnTrs';
+import { orderToTrs } from './afterProcessHandlers/orderToTrs';
+import { orderToReturnTrs } from './afterProcessHandlers/orderToReturnTrs';
 
 const allRules: IAfterProcessRule[] = [
   {
@@ -64,6 +66,7 @@ export const afterProcess: AfterProcessConfigs = {
         if (changeDataStageId) {
           const { prev: prevStageId, current: currentStageId } =
             changeDataStageId;
+
           const configSale = await models.Configs.getConfigValue(
             'syncDeal',
             currentStageId,
@@ -88,7 +91,6 @@ export const afterProcess: AfterProcessConfigs = {
           }
           if (configReturn?.stageId === currentStageId) {
             await dealToReturnTrs({
-              subdomain,
               models,
               userId,
               deal: currentDocument,
@@ -96,6 +98,36 @@ export const afterProcess: AfterProcessConfigs = {
             });
           }
         }
+        return;
+      }
+
+      if (contentType === 'sales:pos.orders') {
+        const currentPosId = currentDocument.posId;
+        if (currentPosId) {
+          const configOrder = await models.Configs.getConfigValue(
+            'syncOrder',
+            currentPosId,
+          );
+
+          if (configOrder?.posId === currentPosId) {
+            if (currentDocument.status === 'return') {
+              await orderToReturnTrs({
+                models,
+                userId,
+                order: currentDocument,
+                config: configOrder,
+              });
+            } else {
+              await orderToTrs({
+                models,
+                userId,
+                order: currentDocument,
+                config: configOrder,
+              });
+            }
+          }
+        }
+        return;
       }
     })();
   },
@@ -103,7 +135,6 @@ export const afterProcess: AfterProcessConfigs = {
   afterDocumentCreated: (ctx, input) => {
     (async () => {
       const { data } = input;
-      console.log(data)
 
       const { subdomain } = ctx;
       const models = await generateModels(subdomain);
@@ -116,10 +147,48 @@ export const afterProcess: AfterProcessConfigs = {
         currentDocument,
       } = data;
 
-      if (contentType === 'sales:sales.deals') {
+      if (
+        contentType === 'sales:sales.deals' &&
+        collectionName === 'deals' &&
+        docId
+      ) {
+        const currentStageId = currentDocument.stageId;
+
+        if (currentStageId) {
+          const configSale = await models.Configs.getConfigValue(
+            'syncDeal',
+            currentStageId,
+          );
+
+          if (configSale?.stageId === currentStageId) {
+            await dealToTrs({
+              subdomain,
+              models,
+              userId,
+              deal: currentDocument,
+              config: configSale,
+            });
+          }
+        }
         return;
       }
       if (contentType === 'sales:pos.orders') {
+        const currentPosId = currentDocument.posId;
+        if (currentPosId) {
+          const configOrder = await models.Configs.getConfigValue(
+            'syncOrder',
+            currentPosId,
+          );
+
+          if (configOrder?.posId === currentPosId) {
+            await orderToTrs({
+              models,
+              userId,
+              order: currentDocument,
+              config: configOrder,
+            });
+          }
+        }
         return;
       }
     })();

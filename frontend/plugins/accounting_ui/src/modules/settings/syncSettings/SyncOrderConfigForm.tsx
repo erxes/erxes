@@ -254,6 +254,7 @@ export const SyncOrderConfigForm = ({
                       JournalEnum.CASH,
                       JournalEnum.DEBT,
                     ],
+                    currency: 'MNT'
                   }}
                 />
               </Form.Control>
@@ -276,6 +277,7 @@ export const SyncOrderConfigForm = ({
                       JournalEnum.CASH,
                       JournalEnum.DEBT,
                     ],
+                    currency: 'MNT'
                   }}
                 />
               </Form.Control>
@@ -286,6 +288,10 @@ export const SyncOrderConfigForm = ({
           {
             type: 'cash',
             title: 'cash',
+          },
+          {
+            type: 'mobile',
+            title: 'mobile',
           },
           ...paymentTypes,
         ].map((ptype) => (
@@ -306,6 +312,7 @@ export const SyncOrderConfigForm = ({
                         JournalEnum.CASH,
                         JournalEnum.DEBT,
                       ],
+                      currency: 'MNT'
                     }}
                   />
                 </Form.Control>
