@@ -1,5 +1,4 @@
-import { Button, Dialog } from 'erxes-ui';
-import { useState } from 'react';
+import { Button, Sheet, ScrollArea } from 'erxes-ui';
 import { TVatRowForm, VatKind, VatStatus } from '../types/VatRow';
 import { vatFormSchema } from '../constants/vatFormSchema';
 import { useForm } from 'react-hook-form';
@@ -9,31 +8,35 @@ import { IconPlus } from '@tabler/icons-react';
 import { useAddVatRow } from '../hooks/useVatRowAdd';
 
 export const AddVats = () => {
-  const [open, setOpen] = useState(false);
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
+    <Sheet>
+      <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
           НӨАТ нэмэх
         </Button>
-      </Dialog.Trigger>
-      <Dialog.ContentCombined
-        title="НӨАТ нэмэх"
-        description="Шинэ НӨАТ нэмэх"
-        className="sm:max-w-2xl"
-      >
-        <AddVatForm setOpen={setOpen} />
-      </Dialog.ContentCombined>
-    </Dialog>
+      </Sheet.Trigger>
+      <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none">
+        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
+          <Sheet.Title>НӨАТ нэмэх</Sheet.Title>
+          <Sheet.Close />
+          <Sheet.Description className="sr-only">
+            НӨАТ нэмэх
+          </Sheet.Description>
+        </Sheet.Header>
+        <Sheet.Content className="overflow-hidden flex-auto">
+          <ScrollArea className="h-full">
+            <div className="p-5">
+              <AddVatForm />
+            </div>
+          </ScrollArea>
+        </Sheet.Content>
+      </Sheet.View>
+    </Sheet>
   );
 };
 
-export const AddVatForm = ({
-  setOpen,
-}: {
-  setOpen: (open: boolean) => void;
-}) => {
+export const AddVatForm = () => {
   const form = useForm<TVatRowForm>({
     resolver: zodResolver(vatFormSchema),
     defaultValues: {
@@ -48,7 +51,6 @@ export const AddVatForm = ({
     addVat({
       variables: { ...data },
       onCompleted: () => {
-        setOpen(false);
         form.reset();
       },
     });

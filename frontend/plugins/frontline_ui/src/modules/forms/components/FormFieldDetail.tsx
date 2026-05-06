@@ -174,7 +174,9 @@ export const FormFieldDetail = ({
                 }
               />
             </div>
-            {(fieldData?.type === 'select' || fieldData?.type === 'radio') && (
+            {(fieldData?.type === 'select' ||
+              fieldData?.type === 'radio' ||
+              fieldData?.type === 'check') && (
               <div className="space-y-2 col-span-2">
                 <Label>Options</Label>
                 <StringArrayInput

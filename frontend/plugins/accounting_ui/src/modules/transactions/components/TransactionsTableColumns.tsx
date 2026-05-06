@@ -141,7 +141,8 @@ const DateCell = ({ getValue }: any) => {
 };
 
 const AccountCell = ({ row }: any) => {
-  const { details } = row.original;
+  const { details, parentId, _id, originId } = row.original;
+  const navigate = useNavigate();
 
   const name0 = details[0].account?.name;
 
@@ -156,8 +157,16 @@ const AccountCell = ({ row }: any) => {
 
   const codes = Object.keys(infoByCode);
 
+  const handleEditAccount = () => {
+    navigate(
+      `/accounting/transaction/edit?parentId=${parentId}&trId=${
+        originId || _id
+      }`,
+    );
+  };
+
   return (
-    <RecordTableInlineCell>
+    <RecordTableInlineCell onClick={handleEditAccount} className="cursor-pointer">
       {codes.map((code, i) => {
         const count = infoByCode[code];
         const tot = count > 1 ? `(${count})` : '';
@@ -181,7 +190,7 @@ const TransactionMoreColumnCell = ({
   const navigate = useNavigate();
   const { confirm } = useConfirm();
   const { removeTransactions } = useTransactionsRemove();
-  const handleEdit = () => {
+  const handleEditAcc = () => {
     navigate(
       `/accounting/transaction/edit?parentId=${parentId}&trId=${
         originId || _id
@@ -207,7 +216,7 @@ const TransactionMoreColumnCell = ({
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item value="edit" onSelect={handleEdit}>
+            <Command.Item value="edit" onSelect={handleEditAcc}>
               <IconEdit /> Edit
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>

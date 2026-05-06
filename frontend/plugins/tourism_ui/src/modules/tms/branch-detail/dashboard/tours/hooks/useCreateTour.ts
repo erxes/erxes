@@ -36,7 +36,7 @@ export interface ICreateTourVariables {
   groupSize?: number;
   duration?: number;
   cost?: number;
-  guides?: Array<{ guideId: string; name?: string }>;
+  guides?: Array<{ guideId: string; type: string }>;
   info1?: string;
   info2?: string;
   info3?: string;

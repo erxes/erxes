@@ -19,7 +19,7 @@ export const types = `
     hasCitytax: Boolean
     districtCode: String
     companyRD: String
-    defaultGSCode: String
+    defaultUnitedCode: String
     vatPercent: Int
     cityTaxPercent: Int
     footerText: String

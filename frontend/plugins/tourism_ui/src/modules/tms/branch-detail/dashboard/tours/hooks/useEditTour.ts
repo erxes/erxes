@@ -34,7 +34,7 @@ export interface IEditTourVariables {
   cost?: number;
   guides?: Array<{
     guideId: string;
-    name?: string;
+    type: string;
   }>;
   refNumber?: string;
   info1?: string;

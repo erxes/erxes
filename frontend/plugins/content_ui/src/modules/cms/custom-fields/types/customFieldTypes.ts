@@ -35,6 +35,9 @@ export interface ICustomFieldGroup {
     pluralLabel: string;
   }>;
   fields: ICustomField[];
+  enabledPageIds?: string[];
+  enabledCategoryIds?: string[];
+  enabledPostIds?: string[];
 }
 
 export const FIELD_TYPES: { value: FieldType; label: string }[] = [

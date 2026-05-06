@@ -19,6 +19,46 @@ import {
   CategoryFormType,
 } from '../constants/categoryFormSchema';
 
+interface ITreeOption {
+  _id: string;
+  label: string;
+}
+
+interface IFlatCategory {
+  _id: string;
+  name: string;
+  parentId?: string;
+}
+
+const naturalSort = (a: string, b: string) =>
+  a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+
+function buildTreeOptions(flat: IFlatCategory[]): ITreeOption[] {
+  const result: ITreeOption[] = [];
+  const visited = new Set<string>();
+
+  const addWithChildren = (item: IFlatCategory, depth: number) => {
+    if (visited.has(item._id)) return;
+    visited.add(item._id);
+    const prefix = depth > 0 ? '-'.repeat(depth) + ' ' : '';
+    result.push({ _id: item._id, label: prefix + item.name });
+    flat
+      .filter((c) => c.parentId === item._id)
+      .sort((a, b) => naturalSort(a.name, b.name))
+      .forEach((child) => addWithChildren(child, depth + 1));
+  };
+
+  flat
+    .filter((c) => !c.parentId)
+    .sort((a, b) => naturalSort(a.name, b.name))
+    .forEach((root) => addWithChildren(root, 0));
+  flat.forEach((c) => {
+    if (!visited.has(c._id)) result.push({ _id: c._id, label: c.name });
+  });
+
+  return result;
+}
+
 interface Category {
   _id: string;
   name: string;
@@ -62,6 +102,59 @@ interface CategoryFormData {
   [key: `customFields.${string}`]: CustomFieldValue | undefined; // Allow dynamic custom field properties
 }
 
+const EMPTY_FORM_VALUES: CategoryFormType = {
+  name: '',
+  slug: '',
+  description: '',
+  parentId: undefined,
+  status: 'active',
+  customFieldsData: [],
+};
+
+const generateSlug = (name: string): string =>
+  name
+    .toLowerCase()
+    .trim()
+    .replaceAll(/[^a-z0-9\s-]/g, '')
+    .replaceAll(/\s+/g, '-')
+    .replaceAll(/-+/g, '-')
+    .replaceAll(/^-+|-+$/g, '');
+
+const collectDescendantIds = (
+  allCategories: Category[],
+  rootId?: string,
+): Set<string> => {
+  const descendants = new Set<string>();
+  if (!rootId) return descendants;
+
+  const queue: string[] = [rootId];
+  while (queue.length) {
+    const currentId = queue.shift() as string;
+    const children = allCategories.filter((c) => c.parentId === currentId);
+    for (const child of children) {
+      if (!descendants.has(child._id)) {
+        descendants.add(child._id);
+        queue.push(child._id);
+      }
+    }
+  }
+  return descendants;
+};
+
+const categoryToFormValues = (
+  category?: Partial<Category>,
+): CategoryFormType => {
+  if (!category) return EMPTY_FORM_VALUES;
+  return {
+    name: category.name || '',
+    slug: category.slug || '',
+    description: category.description || '',
+    parentId: category.parentId || undefined,
+    status: category.status || 'active',
+    customFieldsData: category.customFieldsData || [],
+  };
+};
+
 export function CmsCategoryDrawer({
   category,
   isOpen,
@@ -73,17 +166,6 @@ export function CmsCategoryDrawer({
   const client = useApolloClient();
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
 
-  // Function to convert name to slug format
-  const generateSlug = (name: string): string => {
-    return name
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
-      .replace(/\s+/g, '-') // Replace spaces with hyphens
-      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-      .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
-  };
-
   // Fetch custom field groups first to create schema
   const { data: customFieldsData } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
     variables: {
@@ -93,12 +175,22 @@ export function CmsCategoryDrawer({
     skip: !isOpen,
   });
 
+  const currentCategoryId = category?._id;
+
   const fieldGroups: FieldGroup[] = (
     customFieldsData?.cmsCustomFieldGroupList?.list || []
-  ).filter(
-    (group: CustomFieldGroup) =>
-      !group.customPostTypeIds || group.customPostTypeIds.length === 0,
-  );
+  ).filter((group: any) => {
+    const ids: string[] = group.customPostTypeIds || [];
+    // show if no restriction, or explicitly includes 'category'
+    const showOnCategory = ids.length === 0 || ids.includes('category');
+    if (!showOnCategory) return false;
+    // if specific categories are set, only show for this category
+    const enabledCategoryIds: string[] = group.enabledCategoryIds || [];
+    if (enabledCategoryIds.length > 0 && currentCategoryId) {
+      return enabledCategoryIds.includes(currentCategoryId);
+    }
+    return true;
+  });
 
   // Create dynamic schema with custom field validations
   const schema = createCategoryFormSchema(
@@ -107,52 +199,27 @@ export function CmsCategoryDrawer({
 
   const form = useForm<CategoryFormType>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      name: '',
-      slug: '',
-      description: '',
-      parentId: undefined,
-      status: 'active',
-      customFieldsData: [],
-    },
+    defaultValues: EMPTY_FORM_VALUES,
   });
 
   useEffect(() => {
-    if (category && isOpen) {
-      form.reset({
-        name: category.name || '',
-        slug: category.slug || '',
-        description: category.description || '',
-        parentId: category.parentId || undefined,
-        status: category.status || 'active',
-        customFieldsData: category.customFieldsData || [],
-      });
-      setIsSlugManuallyEdited(false);
-    } else if (isOpen) {
-      form.reset({
-        name: '',
-        slug: '',
-        description: '',
-        parentId: undefined,
-        status: 'active',
-        customFieldsData: [],
-      });
-      setIsSlugManuallyEdited(false);
-    }
+    if (!isOpen) return;
+    form.reset(categoryToFormValues(category));
+    setIsSlugManuallyEdited(false);
   }, [category, isOpen, form]);
 
   // Watch for name changes and update slug accordingly
   const nameValue = form.watch('name');
   const slugValue = form.watch('slug');
+  const isNameDirty = !!form.formState.dirtyFields.name;
 
   useEffect(() => {
-    if (nameValue && !isSlugManuallyEdited && isOpen) {
-      const generatedSlug = generateSlug(nameValue);
-      if (generatedSlug !== slugValue) {
-        form.setValue('slug', generatedSlug);
-      }
+    if (!isOpen || !nameValue || isSlugManuallyEdited || !isNameDirty) return;
+    const generatedSlug = generateSlug(nameValue);
+    if (generatedSlug !== slugValue) {
+      form.setValue('slug', generatedSlug);
     }
-  }, [nameValue, isSlugManuallyEdited, form, slugValue, isOpen]);
+  }, [nameValue, isSlugManuallyEdited, isNameDirty, form, slugValue, isOpen]);
 
   // Fetch categories for Parent Category select
   const { data: catsData } = useQuery(CMS_CATEGORIES, {
@@ -163,9 +230,14 @@ export function CmsCategoryDrawer({
     fetchPolicy: 'cache-first',
     skip: !isOpen,
   });
-  const parentOptions: Category[] = (
-    catsData?.cmsCategories?.list || []
-  ).filter((c: Category) => c._id !== category?._id);
+  const allCategories: Category[] = catsData?.cmsCategories?.list || [];
+  const descendantIds = collectDescendantIds(allCategories, category?._id);
+
+  const rawParentOptions: Category[] = allCategories.filter(
+    (c: Category) => c._id !== category?._id && !descendantIds.has(c._id),
+  );
+
+  const parentOptions = buildTreeOptions(rawParentOptions);
 
   // Custom fields functionality
   const updateCustomFieldValue = useCallback(
@@ -306,6 +378,7 @@ export function CmsCategoryDrawer({
         </Sheet.Header>
 
         <Form {...form}>
+          <Sheet.Content className="overflow-y-auto">
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="p-4 space-y-4"
@@ -382,7 +455,7 @@ export function CmsCategoryDrawer({
                       <Select.Content>
                         {parentOptions.map((opt) => (
                           <Select.Item key={opt._id} value={opt._id}>
-                            {opt.name}
+                            {opt.label}
                           </Select.Item>
                         ))}
                       </Select.Content>
@@ -439,6 +512,7 @@ export function CmsCategoryDrawer({
               </Button>
             </div>
           </form>
+          </Sheet.Content>
         </Form>
       </Sheet.View>
     </Sheet>

@@ -26,6 +26,13 @@ const stripTypename = <T extends Record<string, any>>(
   return rest;
 };
 
+const cloneTourGuides = (
+  guides: ITourDetail['guides'],
+): Array<{ guideId: string; type: string }> =>
+  (guides ?? [])
+    .filter((g): g is { guideId: string; type: string } => Boolean(g?.guideId))
+    .map((g) => ({ guideId: g.guideId, type: g.type ?? 'guide' }));
+
 const duplicateNameSuffix = ' (copy)';
 const duplicateRefNumberSuffix = '-copy';
 
@@ -302,6 +309,7 @@ const FixedDuplicateSheet = ({
         info4: primaryTranslation?.info4 ?? tour.info4,
         info5: primaryTranslation?.info5 ?? tour.info5,
         personCost: tour.personCost,
+        guides: cloneTourGuides(tour.guides),
         pricingOptions: normalizedPricingOptions,
         translations: sanitizeTourTranslations(values.translations),
       },
@@ -548,6 +556,7 @@ const FlexibleDuplicateSheet = ({
         info4: primaryTranslation?.info4 ?? tour.info4,
         info5: primaryTranslation?.info5 ?? tour.info5,
         personCost: tour.personCost,
+        guides: cloneTourGuides(tour.guides),
         pricingOptions: normalizedPricingOptions,
         translations: sanitizeTourTranslations(values.translations),
       },
