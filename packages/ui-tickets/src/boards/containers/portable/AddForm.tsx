@@ -103,17 +103,6 @@ class AddFormContainer extends React.Component<FinalProps> {
         .then(({ data }) => {
           const message = `You've successfully converted a conversation to ${options.type}`;
 
-          if (!doc._id && relType && relTypeIds) {
-            editConformity({
-              variables: {
-                mainType: options.type,
-                mainTypeId: data.conversationConvertToCard,
-                relType,
-                relTypeIds,
-              },
-            });
-          }
-
           this.afterSave(message, callback, {
             _id: data.conversationConvertToCard,
             stageId: doc.stageId,

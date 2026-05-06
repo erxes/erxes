@@ -104,6 +104,7 @@ export const types = ({ contacts, dailyco, calls, cloudflareCalls }) => `
     messages: [ConversationMessage]
     callProAudio: String
     callProPotentialCustomerIds: [String]
+    callProPhone: String
 
     tags: [Tag]
     customer: Customer

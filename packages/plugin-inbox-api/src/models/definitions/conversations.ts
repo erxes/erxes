@@ -43,6 +43,7 @@ export interface IConversation {
   isBot?: boolean;
   botId?: string;
   callProPotentialCustomerIds?: string[];
+  callProPhone?: string;
 }
 
 // Conversation schema
@@ -119,6 +120,11 @@ export const conversationSchemaOptions = {
     type: ["String"],
     optional: true,
     label: "CallPro potential customer ids",
+  }),
+  callProPhone: field({
+    type: "String",
+    optional: true,
+    label: "CallPro caller phone number",
   }),
 };
 

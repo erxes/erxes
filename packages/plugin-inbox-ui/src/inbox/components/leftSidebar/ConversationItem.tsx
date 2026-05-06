@@ -124,6 +124,7 @@ const ConversationItem: React.FC<Props> = (props) => {
     assignedUser,
     messageCount = 0,
     readUserIds,
+    callProPhone,
   } = conversation;
 
   const isRead = readUserIds && readUserIds.indexOf(currentUser._id) > -1;
@@ -148,7 +149,9 @@ const ConversationItem: React.FC<Props> = (props) => {
             <FlexContent>
               <CustomerName>
                 <EllipsisContent>
-                  {isExistingCustomer && renderFullName(customer)}
+                  {isExistingCustomer
+                    ? renderFullName(customer)
+                    : callProPhone || ""}
                 </EllipsisContent>
                 <time>
                   {(dayjs(updatedAt || createdAt) || ({} as any)).fromNow(true)}

@@ -53,6 +53,10 @@ const CustomFieldsSection = (props: FinalProps) => {
   const filteredGroups: typeof fieldsGroupsList = [];
 
   for (const group of fieldsGroupsList) {
+    if (group.isDefinedByErxes && !group.code) {
+      continue;
+    }
+
     const { fields = [], ...restGroup } = group;
 
     const filteredFields: IField[] = [];

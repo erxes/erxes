@@ -123,5 +123,6 @@ ${
   }
   callProAudio
   callProPotentialCustomerIds
+  callProPhone
   customFieldsData
 `;
