@@ -87,6 +87,17 @@ export const checkTargetMatchBySegment = async ({
     return null;
   }
 
+  console.log(
+    "selector",
+    JSON.stringify({
+      moduleName: "automations",
+      contentType: segment.contentType,
+      collectionType,
+      targetId,
+      selector: compiled.selector
+    })
+  );
+
   try {
     const response = await sendCommonMessage({
       subdomain,

@@ -54,12 +54,15 @@ export const isInSegment = async (
       targetId,
       triggerType,
     });
+    console.log(`info target matched fast segment:`, targetMatch);
 
     if (typeof targetMatch === "boolean") {
       return targetMatch;
     }
   }
 
+  console.log(`info target not matched fast segment:`);
+  console.time("checkSegmentTrigger");
   await delay(15000);
 
   const response = await sendSegmentsMessage({
@@ -68,7 +71,8 @@ export const isInSegment = async (
     data: { segmentId, idToCheck: targetId },
     isRPC: true,
   });
-
+  console.timeEnd("checkSegmentTrigger");
+  console.log("res", response);
   return response;
 };
 
@@ -467,7 +471,7 @@ export const receiveTrigger = async ({
           trigger,
           target,
         });
-
+        console.log(execution);
         if (execution) {
           await executeActions(
             subdomain,

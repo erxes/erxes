@@ -9,6 +9,7 @@ export const executeEmailAction = async ({
   triggerType,
   config,
 }) => {
+  console.time("executeSendEmail");
   try {
     const params = await generateEmailPayload({
       subdomain,
@@ -26,7 +27,6 @@ export const executeEmailAction = async ({
       subdomain,
       params,
     });
-
     await setActivityLog({
       subdomain,
       triggerType,
@@ -34,6 +34,7 @@ export const executeEmailAction = async ({
       response,
     });
 
+    console.time("executeSendEmail");
     return { ...params, response };
   } catch (err) {
     return { error: err.message };
