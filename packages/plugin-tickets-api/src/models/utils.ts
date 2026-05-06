@@ -585,10 +585,29 @@ export const conversationConvertToCard = async (
   } else {
     const doc: any = { ...args };
 
+    let customerIds: string[] = conversation.customerId
+      ? [conversation.customerId]
+      : [];
+
+    if (customerIds.length === 0) {
+      const conformities = await sendCoreMessage({
+        subdomain,
+        action: "conformities.findConformities",
+        data: {
+          mainType: "conversation",
+          mainTypeId: conversation._id,
+          relType: "customer",
+        },
+        isRPC: true,
+        defaultValue: [],
+      });
+      customerIds = conformities.map((c) => c.relTypeId).filter(Boolean);
+    }
+
     doc.name = itemName || "Untitled";
     doc.stageId = stageId;
     doc.sourceConversationIds = [_id];
-    doc.customerIds = [conversation.customerId];
+    doc.customerIds = customerIds;
     doc.isCheckUserTicket = isCheckUser;
     doc.initialStageId = stageId;
     doc.watchedUserIds = user ? [user._id] : [];
@@ -602,19 +621,17 @@ export const conversationConvertToCard = async (
 
     const item = await create(doc);
 
-    (async () => {
-      try {
-        await createConformity(subdomain, {
-          mainType: type,
-          mainTypeId: item._id,
-          customerIds: [conversation.customerId],
-          companyIds: [],
-        });
-        await updateName(subdomain, type, item._id, [conversation.customerId], user);
-      } catch (e) {
-        console.error(e);
-      }
-    })();
+    try {
+      await createConformity(subdomain, {
+        mainType: type,
+        mainTypeId: item._id,
+        customerIds,
+        companyIds: [],
+      });
+      await updateName(subdomain, type, item._id, customerIds, user);
+    } catch (e) {
+      console.error(e);
+    }
 
     return item._id;
   }
@@ -656,7 +673,10 @@ export const updateName = async (
       }
       const uniqueServices = [...new Set(array)];
 
-      const idsCustomers = knownCustomerIds ?? await getCustomerIds(subdomain, type, item._id);
+      const validKnownIds = (knownCustomerIds || []).filter(Boolean);
+      const idsCustomers = validKnownIds.length > 0
+        ? validKnownIds
+        : await getCustomerIds(subdomain, type, item._id);
       const idsCompanies = await getCompanyIds(subdomain, type, item._id);
 
       const customers = await sendCoreMessage({
