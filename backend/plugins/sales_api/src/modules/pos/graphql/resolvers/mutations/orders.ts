@@ -8,7 +8,7 @@ const orderMutations = {
     { _id }: { _id: string },
     { models, subdomain, checkPermission }: IContext,
   ) {
-    await checkPermission('posOrderReturnBill');  
+    await checkPermission('posOrderReturnBill');
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
       throw new Error('not found order');
@@ -81,18 +81,18 @@ const orderMutations = {
     if (
       order.totalAmount !==
       cashAmount +
-        mobileAmount +
-        (paidAmounts || []).reduce(
-          (sum, i) => Number(sum) + Number(i.amount),
-          0,
-        )
+      mobileAmount +
+      (paidAmounts || []).reduce(
+        (sum, i) => Number(sum) + Number(i.amount),
+        0,
+      )
     ) {
       throw new Error('not balanced');
     }
 
-    await models.PosOrders.updateOne(
+    await models.PosOrders.updateOrder(
       { _id },
-      { $set: __({ cashAmount, mobileAmount, paidAmounts }) },
+      { ...order, cashAmount, mobileAmount, paidAmounts },
     );
     return models.PosOrders.findOne({ _id }).lean();
   },
