@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.17.47](https://github.com/erxes/erxes/compare/2.17.46...2.17.47) (2026-05-06)
+
+### Bug Fixes
+
+* **utils:** add environment variable check for version in query logic ([cd1bac2](https://github.com/erxes/erxes/commit/cd1bac2c5caaa7bbbef45ee59afd0a169638ffd6))
+
 ## [2.17.46](https://github.com/erxes/erxes/compare/2.17.45...2.17.46) (2026-05-06)
 
 ### Features
