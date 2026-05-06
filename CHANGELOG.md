@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.17.49](https://github.com/erxes/erxes/compare/2.17.48...2.17.49) (2026-05-06)
+
+### Bug Fixes
+
+* **logUtils:** improve target handling and formatting in activity log functions ([98778f1](https://github.com/erxes/erxes/commit/98778f1c62dd3c1b94b67fd20116262339e912dd))
+
 ## [2.17.48](https://github.com/erxes/erxes/compare/2.17.47...2.17.48) (2026-05-06)
 
 ### Bug Fixes
