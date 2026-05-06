@@ -53,6 +53,13 @@ query Invoices($kind: String, $status: String, $searchValue: String, $contentTyp
         paymentKind
       }
     }
+    totalCount
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
   }
 }
 `;
