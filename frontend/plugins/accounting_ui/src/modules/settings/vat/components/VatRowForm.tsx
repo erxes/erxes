@@ -13,6 +13,7 @@ import {
   Form,
   Input,
   Select,
+  Sheet,
   Spinner,
 } from 'erxes-ui';
 import { IconX } from '@tabler/icons-react';
@@ -25,6 +26,7 @@ export const VatRowForm = ({
   form: UseFormReturn<TVatRowForm>;
   onSubmit: (data: TVatRowForm) => void;
   loading: boolean;
+  onClose?: () => void;
 }) => {
   return (
     <Form {...form}>
@@ -158,16 +160,16 @@ export const VatRowForm = ({
             </Form.Item>
           )}
         />
-        <Dialog.Footer className="col-span-2 mt-3 gap-2">
-          <Dialog.Close asChild>
+        <Sheet.Footer className="col-span-2 mt-3 gap-2">
+          <Sheet.Close asChild>
             <Button variant="outline" size="lg">
               Болих
             </Button>
-          </Dialog.Close>
+          </Sheet.Close>
           <Button type="submit" disabled={loading} size="lg">
             {loading ? <Spinner /> : 'Хадгалах'}
           </Button>
-        </Dialog.Footer>
+        </Sheet.Footer>
       </form>
     </Form>
   );

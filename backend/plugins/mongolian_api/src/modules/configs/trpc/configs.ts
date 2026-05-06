@@ -8,22 +8,27 @@ export type ConfigsTRPCContext = ITRPCContext<{ models: IModels }>;
 const t = initTRPC.context<ConfigsTRPCContext>().create();
 
 export const configsTrpcRouter = t.router({
-  mnConfig: t.procedure
-    .input(z.object({ code: z.string(), subId: z.string().optional() }))
-    .query(async ({ input, ctx }) => {
+  mnConfigs: t.router({
+    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const {
+        query
+      } = input;
       const { models } = ctx;
-      const { code, subId } = input;
-
-      // Count documents with the query
-      const count = await models.Configs.countDocuments({ code, subId });
-
-      // If count > 0, try to find one
-      if (count > 0) {
-        const config = await models.Configs.findOne({ code, subId }).lean();
-        if (config) console.log('config:', config);
-        return config;
-      } else {
-        return null;
-      }
+      return await models.Configs.find(query);
     }),
+    getConfig: t.procedure
+      .input(z.object({ code: z.string(), subId: z.string().optional() }))
+      .query(async ({ input, ctx }) => {
+        const { models } = ctx;
+        const { code, subId } = input;
+
+        const configs = await models.Configs.find({ code, subId });
+
+        if (!configs?.length) {
+          return null;
+        }
+
+        return configs[0];
+      }),
+  }),
 });

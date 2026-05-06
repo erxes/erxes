@@ -40,7 +40,7 @@ export const useEbarimtConfigState = () => {
     const configKey = `config_${Date.now()}`;
     const newConfig: TStageInEbarimtConfig = {
       title: 'New Stage In Ebarimt Config',
-      destinationStageBoard: '',
+      boardId: '',
       pipelineId: '',
       stageId: '',
       posNo: '',
@@ -56,12 +56,10 @@ export const useEbarimtConfigState = () => {
       hasVat: false,
       citytaxPercent: '',
       vatPercent: '',
-      anotherRulesOfProductsOnVat: '',
-      vatPayableAccount: '',
-      hasAllCitytax: false,
-      allCitytaxPayableAccount: '',
+      reverseVatRules: '',
+      hasCitytax: false,
       footerText: '',
-      anotherRulesOfProductsOnCitytax: '',
+      reverseCtaxRules: '',
       withDescription: false,
       skipEbarimt: false,
     };

@@ -49,7 +49,7 @@ const queries: Record<string, Resolver> = {
 
     const { list, pageInfo, totalCount } = await cursorPaginate({
       model: models.Invoices,
-      params,
+      params: { ...params, orderBy: { createdAt: -1 } },
       query,
     });
 
@@ -61,7 +61,7 @@ const queries: Record<string, Resolver> = {
 
     const { list, pageInfo, totalCount } = await cursorPaginate({
       model: models.Invoices,
-      params,
+      params: { ...params, orderBy: { createdAt: -1 } },
       query,
     });
 

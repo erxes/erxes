@@ -26,7 +26,7 @@ const ebarimtConfigSchema = new Schema(
     branchNo: field({ type: String, optional: true, label: 'Branch NO' }),
     hasVat: field({ type: Boolean, optional: true }),
     hasCitytax: field({ type: Boolean, optional: true }),
-    defaultGSCode: field({
+    defaultUnitedCode: field({
       type: String,
       optional: true,
       label: 'Default inventory code',
@@ -47,6 +47,7 @@ const ebarimtConfigSchema = new Schema(
       optional: true,
       label: 'reverseCtaxRules',
     }),
+    headerText: field({ type: String, optional: true, label: 'Footer text' }),
     footerText: field({ type: String, optional: true, label: 'Footer text' }),
     hasCopy: field({ type: Boolean, optional: true }),
     isCleanTaxPrice: field({ type: Boolean, optional: true }),

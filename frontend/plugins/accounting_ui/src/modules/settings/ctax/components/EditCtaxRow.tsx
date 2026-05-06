@@ -1,4 +1,10 @@
-import { Dialog, isDeeplyEqual, Spinner, useQueryState } from 'erxes-ui';
+import {
+  Sheet,
+  ScrollArea,
+  isDeeplyEqual,
+  Spinner,
+  useQueryState,
+} from 'erxes-ui';
 import { useCtaxRowDetail } from '../hooks/useCtaxRowDetail';
 import { TCtaxRowForm } from '../types/CtaxRow';
 import { useForm } from 'react-hook-form';
@@ -7,23 +13,37 @@ import { ctaxFormSchema } from '../constants/ctaxFormSchema';
 import { useEffect } from 'react';
 import { useCtaxRowEdit } from '../hooks/useCtaxRowEdit';
 import { CtaxRowForm } from './CtaxRowForm';
-import { AccountingDialog } from '@/layout/components/Dialog';
 
 export const EditCtaxRow = () => {
   const [open, setOpen] = useQueryState<string>('ctax_row_id');
   return (
-    <Dialog open={open !== null} onOpenChange={() => setOpen(null)}>
-      <AccountingDialog
-        title="НХАТ-ын мөр засах"
-        description="НХАТ-ын мөр засах"
-      >
-        <EditCtaxRowForm />
-      </AccountingDialog>
-    </Dialog>
+    <Sheet
+      open={open !== null}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) setOpen(null);
+      }}
+    >
+      <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none">
+        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
+          <Sheet.Title>НХАТ-ын мөр засах</Sheet.Title>
+          <Sheet.Close />
+          <Sheet.Description className="sr-only">
+            НХАТ-ын мөр засах
+          </Sheet.Description>
+        </Sheet.Header>
+        <Sheet.Content className="overflow-hidden flex-auto">
+          <ScrollArea className="h-full">
+            <div className="p-5">
+              <EditCtaxRowForm onClose={() => setOpen(null)} />
+            </div>
+          </ScrollArea>
+        </Sheet.Content>
+      </Sheet.View>
+    </Sheet>
   );
 };
 
-export const EditCtaxRowForm = () => {
+export const EditCtaxRowForm = ({ onClose }: { onClose?: () => void }) => {
   const { ctaxRowDetail, closeDetail, loading } = useCtaxRowDetail();
   const { editCtaxRow, loading: editLoading } = useCtaxRowEdit();
   const form = useForm<TCtaxRowForm>({
@@ -45,7 +65,7 @@ export const EditCtaxRowForm = () => {
 
     if (isDeeplyEqual(newData, initialData)) {
       reset();
-      return closeDetail();
+      return onClose ? onClose() : closeDetail();
     }
     editCtaxRow({
       variables: {
@@ -53,7 +73,7 @@ export const EditCtaxRowForm = () => {
         ...data,
       },
       onCompleted: () => {
-        closeDetail();
+        onClose ? onClose() : closeDetail();
         reset();
       },
     });

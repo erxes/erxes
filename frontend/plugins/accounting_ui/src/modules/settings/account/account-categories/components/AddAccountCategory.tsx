@@ -1,7 +1,5 @@
-import { Button, Dialog } from 'erxes-ui';
+import { Button, Sheet, ScrollArea } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
-import { useState } from 'react';
-import { AccountingDialog } from '@/layout/components/Dialog';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TAccountCategoryForm } from '../types/AccountCategory';
 import { useForm } from 'react-hook-form';
@@ -11,30 +9,35 @@ import { AccountCategoryForm } from './AccountCategoryForm';
 import { useAccountCategoryAdd } from '../hooks/useAccountCategoryAdd';
 
 export const AddAccountCategory = () => {
-  const [open, setOpen] = useState(false);
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
+    <Sheet>
+      <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
           Дансны ангилал нэмэх
         </Button>
-      </Dialog.Trigger>
-      <AccountingDialog
-        title="Дансны ангилал нэмэх"
-        description="Шинэ дансны ангилал нэмэх"
-      >
-        <AddAccountCategoryForm setOpen={setOpen} />
-      </AccountingDialog>
-    </Dialog>
+      </Sheet.Trigger>
+      <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none">
+        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
+          <Sheet.Title>Дансны ангилал нэмэх</Sheet.Title>
+          <Sheet.Close />
+          <Sheet.Description className="sr-only">
+            Дансны ангилал нэмэх
+          </Sheet.Description>
+        </Sheet.Header>
+        <Sheet.Content className="overflow-hidden flex-auto">
+          <ScrollArea className="h-full">
+            <div className="p-5">
+              <AddAccountCategoryForm />
+            </div>
+          </ScrollArea>
+        </Sheet.Content>
+      </Sheet.View>
+    </Sheet>
   );
 };
 
-const AddAccountCategoryForm = ({
-  setOpen,
-}: {
-  setOpen: (open: boolean) => void;
-}) => {
+const AddAccountCategoryForm = () => {
   const form = useForm<TAccountCategoryForm>({
     resolver: zodResolver(accountCategorySchema),
     defaultValues: ACCOUNT_CATEGORY_DEFAULT_VALUES,
@@ -46,7 +49,6 @@ const AddAccountCategoryForm = ({
     addAccountCategory({
       variables: { ...data },
       onCompleted: () => {
-        setOpen(false);
         form.reset();
       },
     });

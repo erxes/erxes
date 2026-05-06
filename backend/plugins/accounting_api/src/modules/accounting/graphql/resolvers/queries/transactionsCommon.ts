@@ -287,8 +287,9 @@ const transactionCommon = {
   async accTransactionsDetail(
     _root,
     params: { _id: string },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
+    await checkPermission('readTransactions');
     const { _id } = params;
     let firstTr = await models.Transactions.getTransaction({
       $or: [{ _id }, { parentId: _id }],
@@ -326,8 +327,9 @@ const transactionCommon = {
   async accTransactionsMain(
     _root,
     params: IQueryParams & ICursorPaginateParams,
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('readTransactions');
     const filter = await generateFilter(subdomain, models, params, user);
 
     // Set default orderBy
@@ -347,8 +349,9 @@ const transactionCommon = {
   async accTransactions(
     _root,
     params: IQueryParams & { page: number; perPage: number },
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('readTransactions');
     const filter = await generateFilter(subdomain, models, params, user);
 
     const { sortField, sortDirection, page, perPage, ids, excludeIds } = params;
@@ -379,8 +382,9 @@ const transactionCommon = {
   async accTransactionsCount(
     _root,
     params: IQueryParams,
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('readTransactions');
     const filter = await generateFilter(subdomain, models, params, user);
 
     return models.Transactions.find(filter).countDocuments();
@@ -389,8 +393,9 @@ const transactionCommon = {
   async accTrRecordsMain(
     _root,
     params: IRecordsParams & ICursorPaginateParams,
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('readTransactions');
     const filter = await generateFilter(subdomain, models, params, user);
     const { ids, excludeIds } = params;
 
@@ -431,8 +436,9 @@ const transactionCommon = {
   async accTrRecords(
     _root,
     params: IRecordsParams & { page: number; perPage: number },
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('readTransactions');
     const filter = await generateFilter(subdomain, models, params, user);
     const { sortField, sortDirection, page, perPage, ids, excludeIds } = params;
 
@@ -474,8 +480,9 @@ const transactionCommon = {
   async accTrRecordsCount(
     _root,
     params: IRecordsParams,
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('readTransactions');
     const filter = await generateFilter(subdomain, models, params, user);
 
     const count = await models.Transactions.aggregate([

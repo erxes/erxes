@@ -9,12 +9,12 @@ export const syncPosToClient = async (subdomain: string, pos: IPosDocument) => {
 
   return await sendPosclientMessage({
     subdomain,
-    action: 'configs.manage',
-    data: {
-      type: 'pos',
+    action: 'manageConfig',
+    method: 'mutation',
+    input: {
       ...configData,
     },
-    isRPC: true,
+    isAwait: true,
     pos,
   });
 };
@@ -25,13 +25,13 @@ export const syncRemovePosToClient = async (
 ) => {
   return await sendPosclientMessage({
     subdomain,
-    action: 'configs.remove',
-    data: {
-      type: 'pos',
+    action: 'removeConfig',
+    method: 'mutation',
+    input: {
       posId: pos._id,
       posToken: pos.token,
     },
-    isRPC: true,
+    isAwait: true,
     pos,
   });
 };
@@ -46,7 +46,8 @@ export const syncProductGroupsToClient = async (
   await sendPosclientMessage({
     subdomain,
     action: 'crudData',
-    data: {
+    method: 'mutation',
+    input: {
       type: 'productGroups',
       token: pos.token,
       productGroups,
@@ -63,10 +64,11 @@ export const syncSlotsToClient = async (
   await sendPosclientMessage({
     subdomain,
     action: 'crudData',
-    data: {
+    method: 'mutation',
+    input: {
       type: 'slots',
-      slots,
       token: pos.token,
+      slots,
     },
     pos,
   });

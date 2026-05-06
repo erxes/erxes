@@ -13,7 +13,7 @@ export interface IEbarimtConfig {
 
   hasVat: boolean;
   hasCitytax: boolean;
-  defaultGSCode: string;
+  defaultUnitedCode: string;
   vatPercent: number;
   cityTaxPercent: number;
   reverseVatRules?: string[];

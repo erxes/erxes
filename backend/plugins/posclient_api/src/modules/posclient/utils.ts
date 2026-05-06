@@ -436,15 +436,6 @@ export const prepareSettlePayment = async (
       let uoms: any[] = [];
 
       if (products.find((product) => product?.type === 'subscription')) {
-        // uoms = await sendCoreMessage({
-        //   subdomain,
-        //   action: 'uoms.find',
-        //   data: {
-        //     code: { $in: products.map((product) => product?.uom) },
-        //   },
-        //   isRPC: true,
-        //   defaultValue: [],
-        // });
         uoms = await sendTRPCMessage({
           subdomain,
 
@@ -528,24 +519,20 @@ export const prepareSettlePayment = async (
       }
     }
 
-    try {
-      await sendTRPCMessage({
-        subdomain,
-        method: 'mutation',
-        pluginName: 'sales',
-        module: 'pos',
-        action: 'createOrUpdateOrders',
-        input: {
-          posToken: config.token,
-          action: 'makePayment',
-          responses: ebarimtResponses,
-          order,
-          items,
-        },
-      });
-    } catch (e) {
-      debugError(`Error occurred while sending data to erxes: ${e.message}`);
-    }
+    sendTRPCMessage({
+      subdomain,
+      method: 'mutation',
+      pluginName: 'sales',
+      module: 'pos',
+      action: 'createOrUpdateOrders',
+      input: {
+        posToken: config.token,
+        action: 'makePayment',
+        responses: ebarimtResponses,
+        order,
+        items,
+      },
+    });
 
     return ebarimtResponses;
   } catch (e) {
