@@ -1,5 +1,4 @@
-import { Button, Dialog } from 'erxes-ui';
-import { useState } from 'react';
+import { Button, Sheet, ScrollArea } from 'erxes-ui';
 import { TCtaxRowForm, CtaxKind, CtaxStatus } from '../types/CtaxRow';
 import { ctaxFormSchema } from '../constants/ctaxFormSchema';
 import { useForm } from 'react-hook-form';
@@ -9,31 +8,35 @@ import { IconPlus } from '@tabler/icons-react';
 import { useAddCtaxRow } from '../hooks/useCtaxRowAdd';
 
 export const AddCtaxs = () => {
-  const [open, setOpen] = useState(false);
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
+    <Sheet>
+      <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
           НХАТ нэмэх
         </Button>
-      </Dialog.Trigger>
-      <Dialog.ContentCombined
-        title="НХАТ нэмэх"
-        description="Шинэ НХАТ нэмэх"
-        className="sm:max-w-2xl"
-      >
-        <AddCtaxForm setOpen={setOpen} />
-      </Dialog.ContentCombined>
-    </Dialog>
+      </Sheet.Trigger>
+      <Sheet.View className="p-0 flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none">
+        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
+          <Sheet.Title>НХАТ нэмэх</Sheet.Title>
+          <Sheet.Close />
+          <Sheet.Description className="sr-only">
+            НХАТ нэмэх
+          </Sheet.Description>
+        </Sheet.Header>
+        <Sheet.Content className="overflow-hidden flex-auto">
+          <ScrollArea className="h-full">
+            <div className="p-5">
+              <AddCtaxForm />
+            </div>
+          </ScrollArea>
+        </Sheet.Content>
+      </Sheet.View>
+    </Sheet>
   );
 };
 
-export const AddCtaxForm = ({
-  setOpen,
-}: {
-  setOpen: (open: boolean) => void;
-}) => {
+export const AddCtaxForm = () => {
   const form = useForm<TCtaxRowForm>({
     resolver: zodResolver(ctaxFormSchema),
     defaultValues: {
@@ -47,7 +50,6 @@ export const AddCtaxForm = ({
     addCtax({
       variables: { ...data },
       onCompleted: () => {
-        setOpen(false);
         form.reset();
       },
     });
