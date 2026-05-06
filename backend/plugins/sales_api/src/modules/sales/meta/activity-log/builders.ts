@@ -34,7 +34,7 @@ export const buildDealDescriptionChangedActivity = (params: {
     target: buildDealTarget(deal),
     action: {
       type: 'updated',
-      description: !prev ? 'set description' : 'changed description',
+      description: prev ? 'changed description' : 'set description',
     },
     changes: { prev, current },
     metadata: { field: 'description' },
