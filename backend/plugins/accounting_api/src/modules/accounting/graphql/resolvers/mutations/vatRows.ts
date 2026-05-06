@@ -1,15 +1,27 @@
 import { IContext } from '~/connectionResolvers';
 import { IVatRow } from '@/accounting/@types/vatRow';
+import { checkAccountingPermission } from '../../../services/permissionChecker';
+import { makeGetUserLevel } from '../../../utils/getUserLevel';
 
 const vatRowsMutations = {
   /**
    * Creates a new account category
    * @param {Object} doc Account category document
    */
-  async vatRowsAdd(_root, doc: IVatRow, { models, checkPermission }: IContext) {
-    await checkPermission('manageVatRows');
-    const vatRow = await models.VatRows.createVatRow(doc);
+  async vatRowsAdd(_root, doc: IVatRow & { accountId: string }, { user, models, subdomain }: IContext) {
+    const { accountId } = doc;
+    if (!accountId) throw new Error('Account ID required');
 
+    // Check create permission (any write scope that includes 'add')
+    const perm = await models.Permissions.findOne({ userId: user._id, accountId });
+    const canCreate = perm && ['add', 'own', 'ltLvl', 'lteLvl', 'gtLvl'].includes(perm.write);
+    if (!canCreate) throw new Error('No permission to create VatRow');
+
+    const vatRow = await models.VatRows.createVatRow({
+      ...doc,
+      createdBy: user._id,
+      modifiedBy: user._id,
+    });
     return vatRow;
   },
 
@@ -21,14 +33,32 @@ const vatRowsMutations = {
   async vatRowsEdit(
     _root,
     { _id, ...doc }: { _id: string } & IVatRow,
-    { models, checkPermission }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
-    await checkPermission('manageVatRows');
-    await models.VatRows.getVatRow({
-      _id,
-    });
-    const updated = await models.VatRows.updateVatRow(_id, doc);
+    // Fetch existing row
+    const existing = await models.VatRows.findOne({ _id }).lean();
+    if (!existing) throw new Error('VatRow not found');
 
+    const accountId = existing.accountId;
+    if (!accountId) throw new Error('VatRow has no associated account');
+
+    const getUserLevel = makeGetUserLevel(subdomain);
+    const { canWrite } = await checkAccountingPermission(
+      user._id,
+      accountId,
+      {
+        createdBy: existing.createdBy,
+        modifiedBy: existing.modifiedBy,
+      },
+      { Permissions: models.Permissions, Configs: models.Configs as any },
+      getUserLevel,
+    );
+    if (!canWrite) throw new Error('Write denied');
+
+    const updated = await models.VatRows.updateVatRow(_id, {
+      ...doc,
+      modifiedBy: user._id,
+    });
     return updated;
   },
 
@@ -39,14 +69,30 @@ const vatRowsMutations = {
   async vatRowsRemove(
     _root,
     { vatRowIds }: { vatRowIds: string[] },
-    { models, checkPermission }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
-    await checkPermission('removeVatRows');
-    await models.VatRows.find({
-      _id: { $in: vatRowIds },
-    }).lean();
-    const removed = await models.VatRows.removeVatRows(vatRowIds);
+    const rows = await models.VatRows.find({ _id: { $in: vatRowIds } }).lean();
+    if (!rows.length) throw new Error('No VatRows found');
 
+    const getUserLevel = makeGetUserLevel(subdomain);
+    for (const row of rows) {
+      const accountId = row.accountId;
+      if (!accountId) throw new Error(`VatRow ${row._id} has no account`);
+
+      const { canWrite } = await checkAccountingPermission(
+        user._id,
+        accountId,
+        {
+          createdBy: row.createdBy,
+          modifiedBy: row.modifiedBy,
+        },
+        { Permissions: models.Permissions, Configs: models.Configs as any },
+        getUserLevel,
+      );
+      if (!canWrite) throw new Error(`Delete denied for VatRow ${row._id}`);
+    }
+
+    const removed = await models.VatRows.removeVatRows(vatRowIds);
     return removed;
   },
 };

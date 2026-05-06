@@ -22,6 +22,9 @@ export interface ICtaxRow {
   formula_text: string;
   status: string;
   percent: number;
+  accountId: string;           
+  createdBy?: string;         
+  modifiedBy?: string; 
 }
 
 export interface ICtaxRowDocument extends ICtaxRow, Document {

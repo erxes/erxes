@@ -1,31 +1,34 @@
 import { Document } from 'mongoose';
 
-export const ACCOUNT_PERM_LEVELS = {
-  READ: 'read',
-  CREATE: 'create',
-  SELF_UPDATE: 'selfUp',
-  SELF_DELETE: 'selfDel',
-  UPDATE: 'update',
-  DELETE: 'delete',
-  ALL: [
-    'read',
-    'create',
-    'selfUpdate',
-    'selfDelete',
-    'update',
-    'delete'
-  ]
-}
+// Copy the enums from definitions/permission.ts, or import them if you prefer
+export const ACCOUNT_PERMISSION_SCOPES = {
+  NONE: 'none',
+  OWN: 'own',
+  LT_LVL: 'ltLvl',
+  LTE_LVL: 'lteLvl',
+  GT_LVL: 'gtLvl',
+  VALUES: ['own', 'ltLvl', 'lteLvl', 'gtLvl'],
+} as const;
+
+export const ACCOUNT_PERMISSION_WRITE_SCOPES = {
+  NONE: 'none',
+  ADD: 'add',
+  OWN: 'own',
+  LT_LVL: 'ltLvl',
+  LTE_LVL: 'lteLvl',
+  GT_LVL: 'gtLvl',
+  VALUES: ['add', 'own', 'ltLvl', 'lteLvl', 'gtLvl'],
+} as const;
 
 export interface IPermission {
   userId: string;
   accountId: string;
-  permission: string;
+  level: number;
+  read: string;   // one of ACCOUNT_PERMISSION_SCOPES.VALUES
+  write: string;  // one of ACCOUNT_PERMISSION_WRITE_SCOPES.VALUES
 }
 
-export interface IPermissionDocument
-  extends IPermission,
-  Document {
+export interface IPermissionDocument extends IPermission, Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;
