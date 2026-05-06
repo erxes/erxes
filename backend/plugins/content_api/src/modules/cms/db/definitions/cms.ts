@@ -2,6 +2,7 @@ import {
   ICMSMenuDocument,
   ICMSPageDocument,
   IContentCMSDocument,
+  MENU_LINK_TYPES,
 } from '@/cms/@types/cms';
 import {
   attachmentSchema,
@@ -31,11 +32,13 @@ export const cmsMenuSchema = new mongoose.Schema<ICMSMenuDocument>(
     label: { type: String, required: true },
     contentType: { type: String },
     contentTypeId: { type: String },
+    linkType: { type: String, enum: MENU_LINK_TYPES },
     kind: { type: String, required: true },
     icon: { type: String },
     url: { type: String },
     parentId: { type: String },
     order: { type: Number, required: true },
+    openInNewTab: { type: Boolean, default: false },
     target: { type: String, default: '_self' },
   },
   { timestamps: true },
