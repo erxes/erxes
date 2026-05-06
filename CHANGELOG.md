@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.17.46](https://github.com/erxes/erxes/compare/2.17.45...2.17.46) (2026-05-06)
+
+### Features
+
+* **inbox:** add CallProSwitcher component ([945c229](https://github.com/erxes/erxes/commit/945c22960dc35c8f1aedf2ae308aa90e2ee661df))
+* **inbox:** add CallProSwitcher component  ([c9dba0d](https://github.com/erxes/erxes/commit/c9dba0d30356fdd17c014324d4aa482f3d2856f9))
+* **pos:** integrate QZ Tray for auto printing ([#7601](https://github.com/erxes/erxes/issues/7601)) ([e70fca2](https://github.com/erxes/erxes/commit/e70fca26cec1350dac06a11c6ea8b1da54996be6))
+
+### Bug Fixes
+
+* **callpro:** show phone number and audio player when multiple customers match ([85ce74f](https://github.com/erxes/erxes/commit/85ce74f29d4733ca3c033a755346880de84efd19))
+* **pos:** revert api uri to environment variable ([#7602](https://github.com/erxes/erxes/issues/7602)) ([58de7ec](https://github.com/erxes/erxes/commit/58de7ec079ac60cb510b86149dda95115e94a627))
+* **pricing:** find matched plans improve ([8ee3122](https://github.com/erxes/erxes/commit/8ee31227c6c73d92ceb8b08e822ce2d40201e70e))
+
 ## [2.17.45](https://github.com/erxes/erxes/compare/2.17.44...2.17.45) (2026-04-27)
 
 ### Features
