@@ -137,6 +137,7 @@ const CallPro: React.FC<Props> = ({ conversation }) => {
     const candidates: CallProCandidate[] = potentialData?.customers || [];
     const phone = callProPhone || candidates[0]?.primaryPhone;
 
+
     return (
       <CustomerPickerWrapper>
         <Info>

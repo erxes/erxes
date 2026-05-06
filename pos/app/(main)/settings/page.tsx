@@ -8,6 +8,7 @@ import GolomtConfig from "@/modules/settings/components/GolomtConfig"
 import Grid from "@/modules/settings/components/Grid"
 import PrintItemStatus from "@/modules/settings/components/printItemStatus"
 import ProductSimilarityConfig from "@/modules/settings/components/ProductSimilarityConfig"
+import QzTraySettings from "@/modules/settings/components/qzTraySettings"
 import ScrollerWidth from "@/modules/settings/components/ScrollerWidth"
 import StatusExplain from "@/modules/settings/components/StatusExplain"
 import { configAtom, currentUserAtom } from "@/store/config.store"
@@ -42,6 +43,7 @@ const Settings = () => {
       <PrintItemStatus />
       <ActivateOrderQr />
       <ActiveteOrderPrint />
+      <QzTraySettings />
       <CategoriesToPrint />
       <StatusExplain />
     </>

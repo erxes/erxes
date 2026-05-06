@@ -66,7 +66,7 @@ const Ebarimt = ({
   }
 
   return (
-    <div className="flex items-center gap-2 px-2 receipt-print__section">
+    <div className="flex items-center gap-2 receipt-print__section">
       {!printType && !!qrData && <QRCodeSVG value={qrData || ""} />}
       <div className="font-base text-[11px]">{renderLotteryCode()}</div>
     </div>
