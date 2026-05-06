@@ -285,12 +285,14 @@ export const putActivityLog = async (
   const { data } = params;
 
   try {
-    if (data.target) {
+    const target = data?.target || data?.item;
+
+    if (target) {
       await sendAutomationTrigger(
         subdomain,
         {
           type: `${data.contentType}`,
-          targets: [data.target],
+          targets: [target],
           ...(data.automations || {})
         },
         options
@@ -301,7 +303,7 @@ export const putActivityLog = async (
       data: params,
       subdomain,
     });
-  } catch (e) {
+  } catch (e: any) {
     return e.message;
   }
 };
@@ -359,5 +361,4 @@ export const getSchemaLabels = (type: string, schemaMappings: ISchemaMap[]) => {
 
   return fieldNames;
 };
-
 

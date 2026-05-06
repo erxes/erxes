@@ -490,8 +490,7 @@ export const putUpdateLog = async (
   subdomain: string,
   logDoc,
   user,
-    options?:{sendTriggerAutomationTRPC?:boolean}
-
+  options?: { sendTriggerAutomationTRPC?: boolean }
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
@@ -515,7 +514,7 @@ export const putCreateLog = async (
   subdomain: string,
   logDoc,
   user,
-  options?:{sendTriggerAutomationTRPC?:boolean}
+  options?: { sendTriggerAutomationTRPC?: boolean }
 ) => {
   const { description, extraDesc } = await gatherDescriptions(
     models,
@@ -556,9 +555,15 @@ export const putActivityLog = async (
     });
   }
 
-  return commonPutActivityLog(subdomain, {
-    ...updatedParams
-  });
+  return commonPutActivityLog(
+    subdomain,
+    {
+      ...updatedParams
+    },
+    {
+      sendTriggerAutomationTRPC: true
+    }
+  );
 };
 
 export const putChecklistActivityLog = async (subdomain: string, params) => {
