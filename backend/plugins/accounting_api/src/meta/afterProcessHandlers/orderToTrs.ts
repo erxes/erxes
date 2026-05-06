@@ -138,7 +138,7 @@ export const orderToTrs = async ({
   if (order.mobileAmount) {
     paidAmounts.push({ type: 'cash', amount: order.mobileAmount })
   }
-  for (const paid of order.paidAmounts) {
+  for (const paid of paidAmounts) {
     const { amount, type } = paid;
     const payConfig = config.payments[type];
     if (!payConfig) {

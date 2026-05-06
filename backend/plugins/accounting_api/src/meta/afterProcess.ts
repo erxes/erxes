@@ -127,7 +127,6 @@ export const afterProcess: AfterProcessConfigs = {
             }
           }
         }
-        return;
       }
     })();
   },
@@ -189,7 +188,6 @@ export const afterProcess: AfterProcessConfigs = {
             });
           }
         }
-        return;
       }
     })();
   },
