@@ -12,6 +12,7 @@ import { debugError } from '@erxes/api-utils/src/debuggers';
 import { companySchema } from '../../../db/models/definitions/companies';
 import { customerSchema } from '../../../db/models/definitions/customers';
 import { fetchSegment } from '../segments/queryBuilder';
+import { getEnv } from '@erxes/api-utils/src';
 
 export interface ICountBy {
   [index: string]: number;
@@ -523,6 +524,8 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       _limit = 10000;
     }
 
+    const VERSION = getEnv({ name: 'VERSION' });
+
     const simpleParamKeys = new Set(['page', 'perPage', 'type', 'searchValue']);
     const isSimpleQuery =
       !unlimited &&
@@ -530,7 +533,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       perPage === 20 &&
       Object.keys(this.params).every(k => simpleParamKeys.has(k));
 
-    if (isSimpleQuery) {
+    if (isSimpleQuery && VERSION === 'saas') {
       return this.findAllMongo(_limit);
     }
 
