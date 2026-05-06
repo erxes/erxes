@@ -18,6 +18,20 @@ const allRules: IAfterProcessRule[] = [
       fieldsWith: ['stageId'],
     },
   },
+  {
+    type: 'updatedDocument',
+    contentTypes: ['sales:pos.orders'],
+    when: {
+      fieldsUpdated: ['status'],
+    },
+  },
+  {
+    type: 'createdDocument',
+    contentTypes: ['sales:pos.orders'],
+    when: {
+      fieldsWith: ['status'],
+    },
+  },
 ];
 
 export const afterProcess: AfterProcessConfigs = {
@@ -25,7 +39,6 @@ export const afterProcess: AfterProcessConfigs = {
   afterDocumentUpdated: (ctx, input) => {
     (async () => {
       const { data } = input;
-
       const { subdomain } = ctx;
       const models = await generateModels(subdomain);
       const {
@@ -86,5 +99,29 @@ export const afterProcess: AfterProcessConfigs = {
       }
     })();
   },
-  // afterDocumentCreated: (ctx, input) => { },
+
+  afterDocumentCreated: (ctx, input) => {
+    (async () => {
+      const { data } = input;
+      console.log(data)
+
+      const { subdomain } = ctx;
+      const models = await generateModels(subdomain);
+
+      const {
+        collectionName,
+        userId,
+        contentType,
+        docId,
+        currentDocument,
+      } = data;
+
+      if (contentType === 'sales:sales.deals') {
+        return;
+      }
+      if (contentType === 'sales:pos.orders') {
+        return;
+      }
+    })();
+  },
 };

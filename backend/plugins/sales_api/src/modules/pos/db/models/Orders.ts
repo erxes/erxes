@@ -54,9 +54,10 @@ export const loadPosOrderClass = (models: IModels, _subdomain: string, { sendDbE
         sendDbEventLog({
           action: 'create',
           docId: _id,
-          currentDocument: newOrder.toObject()
+          currentDocument: { ...newOrder }
         });
       }
+
       return { oldOrder, newOrder }
     }
 

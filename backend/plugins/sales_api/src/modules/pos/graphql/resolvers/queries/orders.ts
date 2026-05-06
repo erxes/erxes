@@ -420,7 +420,7 @@ const queries = {
     await checkPermission('posOrderRead');
     const query = await generateFilterPosQuery(models, params, user._id);
 
-    let sort: any = { number: 1 };
+    let sort: any = { number: -1 };
     if (params.sortField && params.sortDirection) {
       sort = {
         [params.sortField]: params.sortDirection,

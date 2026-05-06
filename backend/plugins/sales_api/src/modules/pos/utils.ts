@@ -618,7 +618,7 @@ export const syncOrderFromClient = async ({
   posToken: string;
   responses;
 }) => {
-  const enabledMN = await isEnabled('mongolian')
+  const enabledMN = await isEnabled('mongolian');
 
   const { oldOrder, newOrder } = await models.PosOrders.createOrUpdate({
     ...order,
@@ -642,7 +642,6 @@ export const syncOrderFromClient = async ({
         input: {
           putResponses
         },
-        defaultValue: [],
       });
     }
   }

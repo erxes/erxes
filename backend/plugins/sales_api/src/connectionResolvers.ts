@@ -179,7 +179,7 @@ export const loadClasses = (
 
   models.PosOrders = db.model<IPosOrderDocument, IPosOrderModel>(
     'pos_orders',
-    loadPosOrderClass(models, subdomain),
+    loadPosOrderClass(models, subdomain, salesEventHandlers('pos', 'orders')),
   );
   models.PosSlots = db.model<IPosSlotDocument, IPosSlotModel>(
     'pos_slots',
