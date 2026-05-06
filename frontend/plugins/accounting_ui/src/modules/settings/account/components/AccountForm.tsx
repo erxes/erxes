@@ -2,7 +2,6 @@ import {
   Button,
   Checkbox,
   CurrencyField,
-  Dialog,
   Form,
   Input,
   Select,
@@ -19,7 +18,6 @@ import {
   AccountStatus,
   ACCOUNT_STATUS_LABELS,
   JournalEnum,
-  BankEnum,
 } from '../types/Account';
 import { TAccountForm } from '../types/accountForm';
 
@@ -27,10 +25,12 @@ export const AccountForm = ({
   form,
   handleSubmit,
   loading,
+  onClose,
 }: {
   form: UseFormReturn<TAccountForm>;
   handleSubmit: (data: TAccountForm) => void;
   loading: boolean;
+  onClose?: () => void;
 }) => {
   const status = useWatch({
     control: form.control,
@@ -308,17 +308,15 @@ export const AccountForm = ({
           />
         )}
 
-        <Dialog.Footer className="col-span-2 mt-4">
-          <Dialog.Close asChild>
-            <Button variant="outline" type="button" size="lg">
-              Болих
-            </Button>
-          </Dialog.Close>
+        <div className="col-span-2 mt-4 flex justify-end gap-2">
+          <Button variant="outline" type="button" size="lg" onClick={onClose}>
+            Болих
+          </Button>
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
             Данс хадгалах
           </Button>
-        </Dialog.Footer>
+        </div>
       </form>
     </Form>
   );

@@ -65,7 +65,7 @@ export interface EbarimtConfig {
   defaultPay?: string;
   districtCode?: string;
   companyRD?: string;
-  defaultGSCode?: string;
+  defaultUnitedCode?: string;
   vatPercent?: number;
   cityTaxPercent?: number;
   headerText?: string;

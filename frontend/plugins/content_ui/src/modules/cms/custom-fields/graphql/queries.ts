@@ -15,6 +15,9 @@ export const CMS_CUSTOM_FIELD_GROUPS = gql`
           label
           pluralLabel
         }
+        enabledPageIds
+        enabledCategoryIds
+        enabledPostIds
         fields
       }
     }

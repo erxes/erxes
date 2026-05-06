@@ -3,7 +3,6 @@ import { useMutation } from '@apollo/client';
 import { Button, Form, InfoCard, Label, toast } from 'erxes-ui';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { SyncList } from '@/pos/components/syncCard/SyncList';
-import { isFieldVisible } from '@/pos/constants';
 import mutations from '@/pos/graphql/mutations';
 import { usePosDetail } from '@/pos/hooks/usePosDetail';
 import type { CardConfig } from './AddConfigSheet';
@@ -139,8 +138,6 @@ const SyncCard: React.FC<SyncCardProps> = ({
     return () => onSaveActionChange(null);
   }, [isDirty, onSaveActionChange, saving]);
 
-  const canShowSync = isFieldVisible('branchPipelineMapping', posType);
-
   const handleConfigAdded = (config: CardConfig) => {
     append(config);
   };
@@ -204,10 +201,6 @@ const SyncCard: React.FC<SyncCardProps> = ({
       </Form>
     );
   };
-
-  if (!canShowSync) {
-    return null;
-  }
 
   return (
     <div className="p-6">

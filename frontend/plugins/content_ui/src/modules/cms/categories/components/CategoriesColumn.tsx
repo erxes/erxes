@@ -17,6 +17,11 @@ import {
 import { ICategory } from '../types/CategoriesType';
 import { useEditCategory } from '../hooks/useEditCategory';
 
+function getDepthPrefix(depth: number): string {
+  if (depth <= 0) return '';
+  return '-'.repeat(depth) + ' ';
+}
+
 export const createCategoriesColumns = (
   clientPortalId: string,
   onEdit?: (category: any) => void,
@@ -32,7 +37,7 @@ export const createCategoriesColumns = (
       header: () => <RecordTable.InlineHead icon={IconUser} label="Name" />,
       accessorKey: 'name',
       cell: ({ cell }) => {
-        const original = cell.row.original as ICategory;
+        const original = cell.row.original as ICategory & { _depth?: number };
         const [editingCell, setEditingCell] = useState<{
           rowId: string;
           value: string;
@@ -52,6 +57,8 @@ export const createCategoriesColumns = (
           setEditingCell(null);
         };
 
+        const prefix = getDepthPrefix(original._depth ?? 0);
+
         return (
           <Popover
             open={isOpen}
@@ -67,7 +74,10 @@ export const createCategoriesColumns = (
             }}
           >
             <RecordTableInlineCell.Trigger>
-              <span>{cell.getValue() as string}</span>
+              <span>
+                {prefix}
+                {cell.getValue() as string}
+              </span>
             </RecordTableInlineCell.Trigger>
             <RecordTableInlineCell.Content>
               <Input

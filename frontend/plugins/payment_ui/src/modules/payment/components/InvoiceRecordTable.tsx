@@ -1,25 +1,37 @@
 import { RecordTable } from 'erxes-ui';
 import { invoicesColumns } from './InvoiceColumns';
-
 import { useInvoices } from '../hooks/use-invoices';
 
 export function InvoiceRecordTable() {
-  const { invoices, loading } = useInvoices();
+  const { invoices, loading, pageInfo, handleFetchMore } = useInvoices();
+  const { hasPreviousPage, hasNextPage } = pageInfo || {};
+
   return (
     <RecordTable.Provider
       data={invoices || []}
       columns={invoicesColumns}
       className="m-3"
+      stickyColumns={['checkbox', 'invoiceNumber']}
     >
-      <RecordTable.Scroll>
+      <RecordTable.CursorProvider
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        dataLength={invoices?.length}
+      >
         <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
+            <RecordTable.CursorBackwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+            {loading && <RecordTable.RowSkeleton rows={20} />}
             <RecordTable.RowList />
-            {loading && <RecordTable.RowSkeleton rows={30} />}
+            <RecordTable.CursorForwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
           </RecordTable.Body>
         </RecordTable>
-      </RecordTable.Scroll>
+      </RecordTable.CursorProvider>
     </RecordTable.Provider>
   );
 }

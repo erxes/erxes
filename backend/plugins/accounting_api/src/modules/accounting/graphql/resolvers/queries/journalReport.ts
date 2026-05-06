@@ -47,8 +47,9 @@ const journalReportQueries = {
   async journalReportData(
     _root,
     params: IReportParams & ICursorPaginateParams,
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('accountsRead');
     const { groupRule, report, ...filters } = params;
     const firstGroupRules = getFirstGroupRule([], groupRule);
     const records = await getRecords(subdomain, models, report, firstGroupRules, filters, user);
@@ -58,8 +59,9 @@ const journalReportQueries = {
   async journalReportMore(
     _root,
     params: IReportParams & ICursorPaginateParams,
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('accountsRead');
     const { report, ...filters } = params;
     const trDetails = await getRecMore(subdomain, models, report, filters, user)
     return { trDetails }

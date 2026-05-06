@@ -185,8 +185,9 @@ const accountQueries = {
   async accountsMain(
     _root,
     params: IQueryParams & ICursorPaginateParams,
-    { models, user, commonQuerySelector }: IContext,
+    { models, user, commonQuerySelector, checkPermission }: IContext,
   ) {
+    await checkPermission('accountsRead');
     const filter = await generateFilter(models, params, user);
 
     params.orderBy ??= { code: 1 };
@@ -198,7 +199,8 @@ const accountQueries = {
     });
   },
 
-  async accounts(_root, params: IQueryParams, { models, user }: IContext) {
+  async accounts(_root, params: IQueryParams, { models, user, checkPermission }: IContext) {
+    await checkPermission('accountsRead');
     const filter = await generateFilter(models, params, user);
 
     const { sortField, sortDirection, page, perPage, ids, excludeIds } = params;
@@ -224,13 +226,15 @@ const accountQueries = {
     );
   },
 
-  async accountsCount(_root, params: IQueryParams, { models, user }: IContext) {
+  async accountsCount(_root, params: IQueryParams, { models, user, checkPermission }: IContext) {
+    await checkPermission('accountsRead');
     const filter = await generateFilter(models, params, user);
 
     return models.Accounts.find(filter).countDocuments();
   },
 
-  async accountDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async accountDetail(_root, { _id }: { _id: string }, { models, checkPermission }: IContext) {
+    await checkPermission('accountsRead');
     return models.Accounts.findOne({ _id }).lean();
   },
 };
