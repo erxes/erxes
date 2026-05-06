@@ -42,6 +42,7 @@ import {
   TourAttachmentsField,
   TourDateSchedulingField,
   TourPricingOptionsField,
+  TourGuidesField,
 } from './TourFormFields';
 
 interface Props {
@@ -241,7 +242,14 @@ export const TourEditForm = ({
         images: tour.images ?? [],
         imageThumbnail: tour.imageThumbnail ?? '',
         attachment: tour.attachment ?? null,
-        guides: [],
+        guides: (tour.guides ?? [])
+          .filter((g): g is { guideId: string; type: string } =>
+            Boolean(g?.guideId),
+          )
+          .map((g) => ({
+            guideId: g.guideId,
+            type: g.type ?? 'guide',
+          })),
         pricingOptions: (tour.pricingOptions ?? []).map((option) => {
           const { prices, pricePerPerson, ...rest } = option;
 
@@ -450,6 +458,14 @@ export const TourEditForm = ({
                     setValue={form.setValue}
                   />
                 </div>
+
+                <div className="flex items-center">
+                  <div className="flex-1 border-t" />
+                  <Form.Label className="mx-2">Crew</Form.Label>
+                  <div className="flex-1 border-t" />
+                </div>
+
+                <TourGuidesField control={form.control} />
 
                 <div className="flex items-center">
                   <div className="flex-1 border-t" />

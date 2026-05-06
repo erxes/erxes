@@ -40,6 +40,7 @@ import {
   TourAttachmentsField,
   TourDateSchedulingField,
   TourPricingOptionsField,
+  TourGuidesField,
 } from './TourFormFields';
 
 interface Props {
@@ -480,6 +481,14 @@ export const TourCreateForm = ({
                 setValue={form.setValue}
               />
             </div>
+
+            <div className="flex items-center">
+              <div className="flex-1 border-t" />
+              <Form.Label className="mx-2">Crew</Form.Label>
+              <div className="flex-1 border-t" />
+            </div>
+
+            <TourGuidesField control={form.control} />
 
             <div className="flex items-center">
               <div className="flex-1 border-t" />

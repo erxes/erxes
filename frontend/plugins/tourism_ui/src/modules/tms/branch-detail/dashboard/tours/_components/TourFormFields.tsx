@@ -17,12 +17,15 @@ import {
   Label,
   Badge,
 } from 'erxes-ui';
+import { SelectMember } from 'ui-modules';
 import { TourFormValues } from '../constants/formSchema';
+import { GUIDE_TYPES } from '../constants/guideTypes';
 import {
   IconPlus,
   IconTrash,
   IconUpload,
   IconFileText,
+  IconUsers,
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useAtomValue } from 'jotai';
@@ -665,6 +668,134 @@ export const TourAttachmentsField = ({
         </Form.Item>
       )}
     />
+  );
+};
+
+export const TourGuidesField = ({
+  control,
+}: {
+  control: Control<TourFormValues>;
+}) => {
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'guides',
+  });
+
+  const handleAdd = () => {
+    append({ guideId: '', type: 'guide' });
+  };
+
+  return (
+    <Form.Item className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className='space-y-2'>
+          <Form.Label className="flex items-center gap-2">
+            <IconUsers size={16} />
+            Tour Crew
+          </Form.Label>
+          <Form.Description>
+            Assign team members as tour leader, driver, guide, etc.
+          </Form.Description>
+        </div>
+
+        <Button type="button" variant="outline" size="sm" onClick={handleAdd}>
+          <IconPlus size={16} />
+          Add Crew Member
+        </Button>
+      </div>
+
+      {fields.length === 0 ? (
+        <div className="px-4 py-6 text-sm text-center border border-dashed rounded-lg text-muted-foreground">
+          No crew assigned yet. Click "Add Crew Member" to assign roles.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {fields.map((field, index) => (
+            <div
+              key={field.id}
+              className="grid grid-cols-[1fr_1fr_auto] gap-3 items-start p-3 border rounded-lg bg-card"
+            >
+              <Form.Field
+                control={control}
+                name={`guides.${index}.type`}
+                render={({ field: roleField, fieldState }) => (
+                  <div className="space-y-2">
+                    <Form.Label
+                      className={fieldState.error ? 'text-destructive' : ''}
+                    >
+                      Role <span className="text-destructive">*</span>
+                    </Form.Label>
+                    <Select
+                      onValueChange={roleField.onChange}
+                      value={roleField.value}
+                    >
+                      <Select.Trigger
+                        className={
+                          !roleField.value ? 'text-muted-foreground' : ''
+                        }
+                      >
+                        {roleField.value
+                          ? GUIDE_TYPES.find(
+                              (opt) => opt.value === roleField.value,
+                            )?.label ?? roleField.value
+                          : 'Select role'}
+                      </Select.Trigger>
+                      <Select.Content>
+                        {GUIDE_TYPES.map((option) => (
+                          <Select.Item
+                            key={option.value}
+                            value={option.value}
+                          >
+                            {option.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                    <Form.Message>{fieldState.error?.message}</Form.Message>
+                  </div>
+                )}
+              />
+
+              <Form.Field
+                control={control}
+                name={`guides.${index}.guideId`}
+                render={({ field: memberField, fieldState }) => (
+                  <div className="space-y-2">
+                    <Form.Label
+                      className={fieldState.error ? 'text-destructive' : ''}
+                    >
+                      Team Member <span className="text-destructive">*</span>
+                    </Form.Label>
+                    <SelectMember.FormItem
+                      mode="single"
+                      value={memberField.value}
+                      onValueChange={(value) =>
+                        memberField.onChange(
+                          typeof value === 'string' ? value : '',
+                        )
+                      }
+                      placeholder="Select team member"
+                    />
+                    <Form.Message>{fieldState.error?.message}</Form.Message>
+                  </div>
+                )}
+              />
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => remove(index)}
+                aria-label={`Remove crew member ${index + 1}`}
+                className="mt-7"
+              >
+                <IconTrash size={16} />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+    </Form.Item>
   );
 };
 
