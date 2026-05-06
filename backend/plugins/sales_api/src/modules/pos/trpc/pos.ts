@@ -182,7 +182,7 @@ export const posTrpcRouter = t.router({
       const { selector, modifier } = input;
       const { models } = ctx;
 
-      return await models.PosOrders.updateOne(selector, modifier);
+      return await models.PosOrders.updateOrder(selector, modifier);
     }),
   }),
 });

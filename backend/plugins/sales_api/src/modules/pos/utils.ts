@@ -1,7 +1,6 @@
 import {
   checkServiceRunning,
   isEnabled,
-  redis,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
@@ -204,38 +203,6 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
     });
   } catch (e) {
     throw new Error(e.message);
-  }
-};
-
-const otherPlugins = async (subdomain, newOrder, oldOrder?, userId?) => {
-  const value = await redis.get('afterMutations');
-  const afterMutations = JSON.parse(value || '{}');
-
-  if (afterMutations['pos:order']?.['synced']?.length) {
-    const user = await sendTRPCMessage({
-      subdomain,
-
-      pluginName: 'core',
-      module: 'users',
-      action: 'users.findOne',
-      input: { _id: userId },
-      defaultValue: {},
-    });
-
-    for (const service of afterMutations['pos:order']['synced']) {
-      // TODO: change message
-      // await sendMessage(`${service}:afterMutation`, {
-      //   subdomain,
-      //   data: {
-      //     type: 'pos:order',
-      //     action: 'synced',
-      //     object: oldOrder || newOrder,
-      //     updatedDocument: newOrder,
-      //     newData: newOrder,
-      //     user
-      //   }
-      // });
-    }
   }
 };
 
@@ -634,60 +601,6 @@ const createDealPerOrder = async ({
   return;
 };
 
-const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
-  if (!pos.erkhetConfig?.isSyncErkhet) {
-    return;
-  }
-  let resp;
-
-  if (newOrder.isPre && !newOrder.paidDate) {
-    // TODO: CallPrepaymentFromSubServices erkhet rmq beldeh, holboh
-    return;
-  }
-
-  if (newOrder.status === 'return') {
-    resp = await sendTRPCMessage({
-      subdomain,
-
-      method: 'mutation',
-      pluginName: 'mongolian',
-      module: 'erkhet',
-      action: 'returnOrder',
-      input: {
-        pos,
-        order: newOrder,
-      },
-      // timeout: 50000
-    });
-  } else {
-    resp = await sendTRPCMessage({
-      subdomain,
-
-      method: 'mutation',
-      pluginName: 'mongolian',
-      module: 'erkhet',
-      action: 'toOrder',
-      input: {
-        pos,
-        order: newOrder,
-      },
-      // timeout: 50000
-    });
-  }
-
-  if (resp && (resp.message || resp.error)) {
-    const txt = JSON.stringify({
-      message: resp.message,
-      error: resp.error,
-    });
-
-    await models.PosOrders.updateOne(
-      { _id: newOrder._id },
-      { $set: { syncErkhetInfo: txt } },
-    );
-  }
-};
-
 export const syncOrderFromClient = async ({
   subdomain,
   models,
@@ -705,9 +618,17 @@ export const syncOrderFromClient = async ({
   posToken: string;
   responses;
 }) => {
-  const oldOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
-  const oldBranchId = oldOrder ? oldOrder.branchId : '';
-  const enabledMN = await isEnabled('mongolian')
+  const enabledMN = await isEnabled('mongolian');
+
+  const { oldOrder, newOrder } = await models.PosOrders.createOrUpdate({
+    ...order,
+    posToken,
+    posId: pos._id,
+    items,
+    scopeBrandIds: pos.scopeBrandIds,
+    branchId: order.branchId || pos.branchId,
+    departmentId: order.departmentId || pos.departmentId,
+  });
 
   if (enabledMN) {
     const putResponses = responses?.filter(resp => resp._id).map(resp => ({ ...resp, posToken }));
@@ -722,30 +643,8 @@ export const syncOrderFromClient = async ({
         input: {
           putResponses
         },
-        defaultValue: [],
       });
     }
-  }
-
-  await models.PosOrders.updateOne(
-    { _id: order._id },
-    {
-      $set: {
-        ...order,
-        posToken,
-        items,
-        scopeBrandIds: pos.scopeBrandIds,
-        branchId: order.branchId || pos.branchId,
-        departmentId: order.departmentId || pos.departmentId,
-      },
-    },
-    { upsert: true },
-  );
-
-  const newOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
-
-  if (!newOrder) {
-    return;
   }
 
   let convertDealId;
@@ -763,12 +662,6 @@ export const syncOrderFromClient = async ({
 
     try {
       await confirmLoyalties(subdomain, newOrder);
-    } catch (e) {
-      console.log(subdomain, e.message);
-    }
-
-    try {
-      await otherPlugins(subdomain, newOrder, oldOrder, newOrder.userId);
     } catch (e) {
       console.log(subdomain, e.message);
     }
@@ -832,20 +725,6 @@ export const syncOrderFromClient = async ({
         });
       }
     }
-  }
-
-  if (newOrder.paidDate) {
-    try {
-      await syncErkhetRemainder({ subdomain, models, pos, newOrder });
-    } catch (e) {
-      console.log(subdomain, e.message);
-    }
-
-    // try {
-    //   await syncInventoriesRem({ subdomain, newOrder, oldBranchId, pos });
-    // } catch (e) {
-    //   console.log(subdomain, e.message);
-    // }
   }
 
   const syncedResponseIds = enabledMN ? (
