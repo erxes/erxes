@@ -352,6 +352,18 @@ export const TourEditForm = ({
         ? normalizedStartDates.slice(1)
         : [];
 
+      const targetBranchId = branchId ?? tourDetail?.branchId;
+
+      if (additionalDates.length > 0 && !targetBranchId) {
+        toast({
+          title: 'Error',
+          description:
+            'Branch ID is required to create additional tours for the selected dates',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       await editTour({
         id: tourId,
         language: resolvedPrimaryLanguage || undefined,
@@ -371,8 +383,6 @@ export const TourEditForm = ({
           ? 'unscheduled'
           : getDateStatus(primaryStartDate),
       });
-
-      const targetBranchId = branchId ?? tourDetail?.branchId;
 
       if (additionalDates.length > 0 && targetBranchId) {
         const groupCode = tourDetail?.groupCode || nanoid(8);
