@@ -9,6 +9,7 @@ import {
   IconLayout,
   IconMenu,
   IconAlignJustified,
+  IconSettings,
 } from '@tabler/icons-react';
 import { Link, useParams, useLocation } from 'react-router-dom';
 import { ReactNode, useEffect } from 'react';
@@ -116,6 +117,12 @@ export function CmsLayout({
       href: websiteId
         ? `/content/cms/${websiteId}/custom-types`
         : '/content/cms',
+    },
+    {
+      id: 'settings',
+      label: 'Settings',
+      icon: <IconSettings className="w-4 h-4" />,
+      href: websiteId ? `/content/cms/${websiteId}/settings` : '/content/cms',
     },
   ];
 

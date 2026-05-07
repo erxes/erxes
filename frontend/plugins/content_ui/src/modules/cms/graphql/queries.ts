@@ -13,6 +13,16 @@ export const CONTENT_CMS_LIST = gql`
       language
       postUrlField
       description
+      domain
+      publicUrl
+      metaTitle
+      metaDescription
+      metaKeywords
+      googleTrackingId
+      googleTagManagerId
+      customScripts
+      defaultPostStatus
+      allowComments
     }
   }
 `;

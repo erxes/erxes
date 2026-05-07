@@ -1,4 +1,9 @@
-import { IconCategory, IconCube, IconRulerMeasure } from '@tabler/icons-react';
+import {
+  IconCategory,
+  IconCube,
+  IconRulerMeasure,
+  IconSettings,
+} from '@tabler/icons-react';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
@@ -62,6 +67,13 @@ export const PostsNavigation = () => {
         path: `${basePath}/custom-types`,
         label: 'Custom Post Types',
         icon: IconRulerMeasure,
+      };
+    }
+    if (pathname.includes('/settings')) {
+      return {
+        path: `${basePath}/settings`,
+        label: 'Settings',
+        icon: IconSettings,
       };
     }
     if (pathname.includes('/posts')) {
