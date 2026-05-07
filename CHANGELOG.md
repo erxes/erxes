@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.17.51](https://github.com/erxes/erxes/compare/2.17.50...2.17.51) (2026-05-07)
+
+### Features
+
+* inbox  customerSyncRegistrationNumber mutation add ([1f617d8](https://github.com/erxes/erxes/commit/1f617d8912ccdc8769abfd9e15862d0a93ae1e6c))
+
+### Bug Fixes
+
+* **inbox:**  customFields  ([b8c5a95](https://github.com/erxes/erxes/commit/b8c5a9594dad8e52dba4b7e13b0d04ca11b3826b))
+* **tickets:** hide name field in "Convert to ticket" form when isHideName is true ([bfbb94b](https://github.com/erxes/erxes/commit/bfbb94b32cf5b3f0f0a6cf434a5cf25bb75cc957))
+
 ## [2.17.50](https://github.com/erxes/erxes/compare/2.17.49...2.17.50) (2026-05-06)
 
 ## [2.17.49](https://github.com/erxes/erxes/compare/2.17.48...2.17.49) (2026-05-06)
