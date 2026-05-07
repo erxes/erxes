@@ -14,6 +14,8 @@ export interface IProductGroup {
   _id?: string;
   mainProductId: string;
   subProductId: string;
+  mainProduct?: { _id: string; name: string; code?: string };
+  subProduct?: { _id: string; name: string; code?: string };
   sortNum: number;
   ratio: number;
   isActive: boolean;

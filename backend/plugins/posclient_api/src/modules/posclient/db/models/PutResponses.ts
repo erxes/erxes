@@ -153,7 +153,6 @@ export const loadPutResponseClass = (models: IModels) => {
 
         await models.PutResponses.updatePutResponse(resObj._id, {
           ...response,
-          // customerName: params.customerName,
         });
 
         result.putData =

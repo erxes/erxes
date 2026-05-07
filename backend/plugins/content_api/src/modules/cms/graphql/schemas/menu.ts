@@ -1,6 +1,21 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
+  enum MenuLinkType {
+    URL
+    PAGE
+    POST
+    CATEGORY
+    TAG
+  }
+
+  type MenuLinkedContent {
+    _id: String!
+    title: String
+    slug: String
+    linkType: MenuLinkType!
+  }
+
   type MenuItem {
     _id: String!
     parentId: String
@@ -10,11 +25,14 @@ export const types = `
     label: String
     contentType: String
     contentTypeId: String
+    linkType: MenuLinkType
     kind: String
     icon: String
     url: String
     order: Int
+    openInNewTab: Boolean
     target: String
+    linkedContent: MenuLinkedContent
     translations: [Translation]
   }
 
@@ -33,10 +51,12 @@ export const inputs = `
     label: String
     contentType: String
     contentTypeId: String
+    linkType: MenuLinkType
     kind: String
     icon: String
     url: String
     order: Int
+    openInNewTab: Boolean
     target: String
     language: String
     translations: [TranslationInput]

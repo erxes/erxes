@@ -70,7 +70,7 @@ function buildTreeOptions(rawList: IRawCategory[]): ICategoryOption[] {
   return result;
 }
 
-export const usePostData = (websiteId: string, selectedType?: string) => {
+export const usePostData = (websiteId: string, selectedType?: string, postId?: string) => {
   const { data: combinedData, loading: combinedLoading } = useQuery(
     COMBINED_CMS_DATA,
     {
@@ -111,12 +111,18 @@ export const usePostData = (websiteId: string, selectedType?: string) => {
 
   const fieldGroups = (
     fieldGroupsData?.cmsCustomFieldGroupList?.list || []
-  ).filter(
-    (group: any) =>
-      !group.customPostTypeIds ||
-      group.customPostTypeIds.length === 0 ||
-      group.customPostTypeIds.includes(selectedType),
-  );
+  ).filter((group: any) => {
+    const ids: string[] = group.customPostTypeIds || [];
+    if (ids.length > 0 && !ids.includes(selectedType) && !ids.includes('post')) {
+      return false;
+    }
+    // if specific posts are set, only show for this post
+    const enabledPostIds: string[] = group.enabledPostIds || [];
+    if (enabledPostIds.length > 0 && postId) {
+      return enabledPostIds.includes(postId);
+    }
+    return true;
+  });
 
   return {
     categories,

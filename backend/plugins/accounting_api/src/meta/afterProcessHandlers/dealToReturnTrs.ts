@@ -13,14 +13,11 @@ import {
 import { getJournal } from './utils';
 
 export const dealToReturnTrs = async ({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  subdomain,
   models,
   userId,
   deal,
   config,
 }: {
-  subdomain: string;
   models: IModels;
   userId: string;
   deal: any;

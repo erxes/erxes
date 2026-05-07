@@ -52,8 +52,10 @@ const accountCategoryQueries = {
   async accountCategories(
     _root,
     { parentId, withChild, searchValue, status, brand, meta },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('readAccountCategories');
+
     const filter = await generateFilterCat({
       models,
       status,
@@ -71,8 +73,10 @@ const accountCategoryQueries = {
   async accountCategoriesTotalCount(
     _root,
     { parentId, searchValue, status, withChild, brand, meta },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('readAccountCategories');
+
     const filter = await generateFilterCat({
       models,
       parentId,
@@ -87,8 +91,10 @@ const accountCategoryQueries = {
   async accountCategoryDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('readAccountCategories');
+
     return models.AccountCategories.findOne({ _id }).lean();
   },
 };

@@ -41,6 +41,11 @@ export interface ITourTranslation {
   pricingOptions?: IPricingOptionTranslation[];
 }
 
+export interface ITourGuide {
+  guideId: string;
+  type: string;
+}
+
 export interface ITourDetail {
   _id: string;
   branchId?: string;
@@ -49,6 +54,7 @@ export interface ITourDetail {
   advancePercent?: number;
   content?: string;
   cost?: number;
+  guides?: ITourGuide[];
   date_status?:
     | 'scheduled'
     | 'unscheduled'

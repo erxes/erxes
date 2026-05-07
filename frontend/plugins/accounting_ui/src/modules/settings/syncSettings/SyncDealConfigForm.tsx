@@ -2,7 +2,7 @@ import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { JournalEnum } from '@/settings/account/types/Account';
 import { SelectCtax } from '@/settings/ctax/components/SelectCtaxRow';
 import { SelectVat } from '@/settings/vat/components/SelectVatRow';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import {
   Button,
   Checkbox,
@@ -22,6 +22,7 @@ import {
   StageSelect,
 } from 'ui-modules';
 import { z } from 'zod';
+import { PIPELINE_DETAIL } from '../graphql/queries/relatedQueries';
 
 const configFormSchema = z.object({
   title: z.string(),
@@ -73,16 +74,7 @@ export const SyncDealConfigForm = ({
   });
 
   const { data: pipelineDetail, refetch: pipelineRefetch } = useQuery(
-    gql`
-      query SalesPipelineDetail($_id: String!) {
-        salesPipelineDetail(_id: $_id) {
-          _id
-          name
-          paymentIds
-          paymentTypes
-        }
-      }
-    `,
+    PIPELINE_DETAIL,
     {
       variables: { _id: pipelineId },
       skip: !pipelineId, // pipelineId байхгүй үед асуухгүй
@@ -361,26 +353,28 @@ export const SyncDealConfigForm = ({
             </Form.Item>
           )}
         />
-        {useWatch({
-          control: form.control,
-          name: `hasVat`,
-        }) && (
-          <Form.Field
-            control={form.control}
-            name="vatRowId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>НӨАТ-ын мөр</Form.Label>
-                <Form.Control>
-                  <SelectVat
-                    value={field.value || ''}
-                    onValueChange={field.onChange}
-                  />
-                </Form.Control>
-              </Form.Item>
-            )}
-          />
-        )}
+        {
+          useWatch({
+            control: form.control,
+            name: `hasVat`,
+          }) && (
+            <Form.Field
+              control={form.control}
+              name="vatRowId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>НӨАТ-ын мөр</Form.Label>
+                  <Form.Control>
+                    <SelectVat
+                      value={field.value || ''}
+                      onValueChange={field.onChange}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+          )
+        }
         <Form.Field
           control={form.control}
           name="hasCtax"
@@ -396,26 +390,28 @@ export const SyncDealConfigForm = ({
             </Form.Item>
           )}
         />
-        {useWatch({
-          control: form.control,
-          name: `hasCtax`,
-        }) && (
-          <Form.Field
-            control={form.control}
-            name="ctaxRowId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>НХАТ-ын мөр</Form.Label>
-                <Form.Control>
-                  <SelectCtax
-                    value={field.value || ''}
-                    onValueChange={field.onChange}
-                  />
-                </Form.Control>
-              </Form.Item>
-            )}
-          />
-        )}
+        {
+          useWatch({
+            control: form.control,
+            name: `hasCtax`,
+          }) && (
+            <Form.Field
+              control={form.control}
+              name="ctaxRowId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>НХАТ-ын мөр</Form.Label>
+                  <Form.Control>
+                    <SelectCtax
+                      value={field.value || ''}
+                      onValueChange={field.onChange}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+          )
+        }
 
         <Dialog.Footer className="col-span-3 mt-3 gap-2">
           <Dialog.Close asChild>

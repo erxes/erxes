@@ -15,12 +15,10 @@ const posMutations = {
     { models, user, subdomain, checkPermission }: IContext,  // ← add checkPermission
   ) => {
     await checkPermission('posAdd');                          // ← permission check
-
-    const { ALL_AUTO_INIT } = process.env;
-    if ([true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '')) {
+    const { ALLOW_OFFLINE_POS } = process.env;
+    if (![true, 'true', 'True', 1, '1'].includes(ALLOW_OFFLINE_POS || '')) {
       params.onServer = true;
     }
-    params.onServer = true; // default pos config
     const pos = await models.Pos.posAdd(user, params);
 
     if (pos.onServer) {
@@ -39,11 +37,10 @@ const posMutations = {
 
     await models.Pos.getPos({ _id });
 
-    const { ALL_AUTO_INIT } = process.env;
-    if ([true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '')) {
+    const { ALLOW_OFFLINE_POS } = process.env;
+    if (![true, 'true', 'True', 1, '1'].includes(ALLOW_OFFLINE_POS || '')) {
       doc.onServer = true;
     }
-    doc.onServer = true; // default pos config
 
     const updatedDocument = await models.Pos.posEdit(_id, { ...doc });
 

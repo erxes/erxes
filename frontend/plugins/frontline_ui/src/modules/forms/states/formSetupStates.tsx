@@ -97,6 +97,8 @@ export const formSetupValuesAtom = atom((get) => {
               }),
             ),
             logicAction: field.logicAction,
+            allowSearch: field.allowSearch,
+            validator: field.validator,
           };
         });
       })
@@ -114,7 +116,7 @@ export const resetFormSetupAtom = atom(null, (_, set) => {
 
 export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
   const general = {
-    channelId: payload.channelId,
+    channelId: payload.channelId ?? '',
     title: payload.title,
     name: payload.title,
     description: payload.description,
@@ -147,6 +149,8 @@ export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
               validation: field.validation,
               logics: field.logics,
               logicAction: field.logicAction || '',
+              allowSearch: field.allowSearch || false,
+              validator: field.validator,
               stepId: key,
             })),
         },
