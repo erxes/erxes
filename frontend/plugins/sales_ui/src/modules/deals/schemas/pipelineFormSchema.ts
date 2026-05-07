@@ -51,6 +51,8 @@ export const PIPELINE_CREATE_SCHEMA = z.object({
        type: z.string().optional(),
        canMoveMemberIds: z.array(z.string()).optional(),
        canEditMemberIds: z.array(z.string()).optional(),
+       memberIds: z.array(z.string()).optional(),
+       departmentIds: z.array(z.string()).optional(),
        name: z.string(),
        probability: z.string(),
        status: z.string().optional(),

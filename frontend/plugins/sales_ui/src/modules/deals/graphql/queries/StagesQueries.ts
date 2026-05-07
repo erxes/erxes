@@ -76,6 +76,8 @@ const stageCommon = `
   status
   canMoveMemberIds
   canEditMemberIds
+  memberIds
+  departmentIds
 `;
 
 export const GET_ARCHIVED_STAGES_COUNT = gql`
