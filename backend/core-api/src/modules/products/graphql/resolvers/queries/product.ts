@@ -387,13 +387,18 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
        * Literal '.' matches strings starting with a dot.
        * All other strings become unanchored escaped-substring matchers.
        */
+      // Cached at function scope and reused across .filter() iterations.
+      // The `g` flag must be omitted: with `g`, RegExp instances carry a
+      // mutable `lastIndex` that surprises any future caller switching from
+      // `String#match` to `RegExp#test`/`exec`. Without `g`, semantics for
+      // `String#match` are unchanged here (truthy match vs null).
       const WILDCARD_REGEX: Record<string, RegExp> = {
-        '*': /^..*/igu,
-        '.': /^\..*/igu,
-        '_': /^..*/igu,
+        '*': /^..*/iu,
+        '.': /^\..*/iu,
+        '_': /^..*/iu,
       };
       const getRegex = (str: string): RegExp => {
-        return WILDCARD_REGEX[str] ?? new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
+        return WILDCARD_REGEX[str] ?? new RegExp(`.*${escapeRegExp(str)}.*`, 'iu');
       };
 
       const similarityGroups =
