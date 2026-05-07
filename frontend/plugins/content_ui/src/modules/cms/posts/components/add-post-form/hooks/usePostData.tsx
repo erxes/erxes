@@ -8,6 +8,7 @@ const COMBINED_CMS_DATA = gql`
       list {
         _id
         name
+        parentId
       }
     }
     cmsTags(clientPortalId: $clientPortalId, limit: $limit) {
@@ -25,6 +26,49 @@ const COMBINED_CMS_DATA = gql`
     }
   }
 `;
+
+interface IRawCategory {
+  _id: string;
+  name: string;
+  parentId?: string;
+}
+
+interface ICategoryOption {
+  label: string;
+  value: string;
+}
+
+const naturalSort = (a: string, b: string) =>
+  a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+
+function buildTreeOptions(rawList: IRawCategory[]): ICategoryOption[] {
+  const result: ICategoryOption[] = [];
+  const visited = new Set<string>();
+
+  const addWithChildren = (cat: IRawCategory, depth: number) => {
+    if (visited.has(cat._id)) return;
+    visited.add(cat._id);
+    const prefix = depth > 0 ? '-'.repeat(depth) + ' ' : '';
+    result.push({ label: prefix + cat.name, value: cat._id });
+    rawList
+      .filter((c) => c.parentId === cat._id)
+      .sort((a, b) => naturalSort(a.name, b.name))
+      .forEach((child) => addWithChildren(child, depth + 1));
+  };
+
+  rawList
+    .filter((c) => !c.parentId)
+    .sort((a, b) => naturalSort(a.name, b.name))
+    .forEach((root) => addWithChildren(root, 0));
+
+  rawList.forEach((c) => {
+    if (!visited.has(c._id)) {
+      result.push({ label: c.name, value: c._id });
+    }
+  });
+
+  return result;
+}
 
 export const usePostData = (websiteId: string, selectedType?: string) => {
   const { data: combinedData, loading: combinedLoading } = useQuery(
@@ -47,11 +91,8 @@ export const usePostData = (websiteId: string, selectedType?: string) => {
     fetchPolicy: 'cache-first',
   });
 
-  const categories = (combinedData?.cmsCategories?.list || []).map(
-    (c: any) => ({
-      label: c.name,
-      value: c._id,
-    }),
+  const categories = buildTreeOptions(
+    combinedData?.cmsCategories?.list || [],
   );
 
   const tags = (combinedData?.cmsTags?.tags || []).map((t: any) => ({

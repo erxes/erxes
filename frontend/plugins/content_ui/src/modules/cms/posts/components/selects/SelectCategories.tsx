@@ -81,7 +81,7 @@ export const SelectCategoriesProvider = ({
   const categories = useMemo(
     () =>
       [...(data?.cmsCategories?.list || [])].sort((a, b) =>
-        (a?.name || '').localeCompare(b?.name || ''),
+        (a?.name || '').localeCompare(b?.name || '', undefined, { numeric: true }),
       ),
     [data?.cmsCategories?.list],
   );
