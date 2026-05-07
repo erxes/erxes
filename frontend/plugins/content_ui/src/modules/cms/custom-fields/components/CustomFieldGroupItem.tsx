@@ -101,6 +101,16 @@ export function CustomFieldGroupItem({
                             </span>
                           )}
                         </div>
+                        {field.code && (
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-medium text-muted-foreground">
+                              Code:
+                            </span>
+                            <code className="text-xs px-1.5 py-0.5 bg-muted rounded font-mono">
+                              {field.code}
+                            </code>
+                          </div>
+                        )}
                         {field.description && (
                           <p className="text-sm text-muted-foreground leading-relaxed">
                             {field.description}
@@ -110,13 +120,13 @@ export function CustomFieldGroupItem({
                     </div>
                   </Table.Cell>
                   <Table.Cell className="py-3">
-                    {field.code && (
-                      <code className="text-xs px-1.5 py-0.5 bg-muted rounded font-mono">
-                        {field.code}
-                      </code>
-                    )}
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 text-primary rounded-md">
+                      <span className="text-sm font-medium capitalize">
+                        {field.type}
+                      </span>
+                    </div>
                   </Table.Cell>
-                  <Table.Cell className="w-12 p-0.5 text-center">
+                  <Table.Cell className="w-8 p-0.5">
                     <DropdownMenu>
                       <DropdownMenu.Trigger asChild>
                         <Button
