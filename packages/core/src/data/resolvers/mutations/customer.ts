@@ -154,6 +154,14 @@ const customerMutations = {
   ) {
     return Customers.changeState(args._id, args.value);
   },
+  async customerSyncRegistrationNumber(
+    _root,
+    { _id }: { _id: string },
+    { models: { Customers } }: IContext
+  ) {
+    return Customers.syncRegistrationNumber(_id);
+  },
+
 
   /**
    * Merge customers

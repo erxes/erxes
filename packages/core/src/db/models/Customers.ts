@@ -108,6 +108,7 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   markCustomerAsNotActive(_id: string): Promise<ICustomerDocument>;
   removeCustomers(customerIds: string[]): Promise<{ n: number; ok: number }>;
   changeState(_id: string, value: string): Promise<ICustomerDocument>;
+  syncRegistrationNumber(_id: string): Promise<ICustomerDocument>;
   mergeCustomers(
     customerIds: string[],
     customerFields: ICustomer,
@@ -960,6 +961,70 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         },
       );
 
+      return models.Customers.findOne({ _id });
+    }
+
+
+    public static async syncRegistrationNumber(_id: string) {
+      const customer = await models.Customers.getCustomer(_id);
+
+      const regField = await models.Fields.findOne({
+          contentType: 'core:customer',
+          text: {
+            $regex: 'Регистр',
+            $options: 'i',
+          },
+        });
+      const registrationNumber = customer.registrationNumber || '';
+      const customFieldsData: ICustomField[] = [...(customer.customFieldsData || [])];
+
+      let customFieldValue = '';
+      let customFieldIdx = -1;
+
+      if (regField) { 
+        customFieldIdx = customFieldsData.findIndex(
+          (c) => c.field === String(regField._id),
+        );
+        customFieldValue =
+          customFieldIdx >= 0 ? String(customFieldsData[customFieldIdx].value || '') : '';
+      }
+
+      const syncValue = registrationNumber || customFieldValue;
+
+      if (!syncValue) {
+        return customer;
+      }
+
+      const updateDoc: Partial<ICustomer> & { customFieldsData?: ICustomField[]; modifiedAt?: Date } = {};
+
+      if (syncValue !== registrationNumber) {
+        updateDoc.registrationNumber = syncValue;
+      }
+
+      if (regField && syncValue !== customFieldValue) {
+        if (customFieldIdx >= 0) {
+          customFieldsData[customFieldIdx] = {
+            ...customFieldsData[customFieldIdx],
+            value: syncValue,
+            stringValue: syncValue,
+          };
+        } else {
+          customFieldsData.push({
+            field: String(regField._id),
+            value: syncValue,
+            stringValue: syncValue,
+          });
+        }
+        updateDoc.customFieldsData = customFieldsData;
+      }
+
+      if (Object.keys(updateDoc).length === 0) {
+        return customer;
+      }
+
+      updateDoc.modifiedAt = new Date();
+
+      await models.Customers.findByIdAndUpdate({ _id }, { $set: updateDoc });
       return models.Customers.findOne({ _id });
     }
 

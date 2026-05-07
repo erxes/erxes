@@ -110,6 +110,16 @@ const customersChangeStateBulk = `
   }
 `;
 
+const customerSyncRegistrationNumber = `
+  mutation customerSyncRegistrationNumber($_id: String!) {
+    customerSyncRegistrationNumber(_id: $_id) {
+      _id
+      registrationNumber
+      customFieldsData
+    }
+  }
+`;
+
 export default {
   customersAdd,
   customersEdit,
@@ -119,4 +129,5 @@ export default {
   customersVerify,
   customersChangeVerificationStatus,
   customersChangeStateBulk,
+  customerSyncRegistrationNumber,
 };

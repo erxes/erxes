@@ -9,6 +9,7 @@ import {
   MergeMutationVariables,
   RemoveMutationResponse,
   RemoveMutationVariables,
+  SyncRegistrationNumberMutationResponse,
 } from "../types";
 import { mutations, queries } from "../graphql";
 
@@ -28,7 +29,8 @@ type Props = {
 type FinalProps = Props &
   RemoveMutationResponse &
   MergeMutationResponse &
-  ChangeStateMutationResponse;
+  ChangeStateMutationResponse &
+  SyncRegistrationNumberMutationResponse;
 
 const ActionSectionContainer = (props: FinalProps) => {
   const navigate = useNavigate();
@@ -40,6 +42,7 @@ const ActionSectionContainer = (props: FinalProps) => {
     customersRemove,
     customersMerge,
     customersChangeState,
+    customerSyncRegistrationNumber,
   } = props;
 
   const { _id } = customer;
@@ -109,6 +112,23 @@ const ActionSectionContainer = (props: FinalProps) => {
       });
   };
 
+  const syncRegistrationNumber = () => {
+    customerSyncRegistrationNumber({
+      variables: { _id },
+    })
+      .then(() => {
+        Alert.success("Registration number synced successfully");
+        client.query({
+          query: gql(queries.customerDetail),
+          variables: { _id },
+          fetchPolicy: "network-only",
+        });
+      })
+      .catch((e) => {
+        Alert.error(e.message);
+      });
+  };
+
   const updatedProps = {
     isSmall,
     coc: customer,
@@ -116,6 +136,7 @@ const ActionSectionContainer = (props: FinalProps) => {
     remove,
     merge,
     changeState,
+    syncRegistrationNumber,
     search: searchCustomer,
     additionalDropdownItems,
   };
@@ -148,6 +169,13 @@ export default withProps<Props>(
       gql(mutations.customersChangeState),
       {
         name: "customersChangeState",
+        options: generateOptions(),
+      }
+    ),
+    graphql<Props, SyncRegistrationNumberMutationResponse>(
+      gql(mutations.customerSyncRegistrationNumber),
+      {
+        name: "customerSyncRegistrationNumber",
         options: generateOptions(),
       }
     )

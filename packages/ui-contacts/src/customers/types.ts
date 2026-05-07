@@ -128,6 +128,12 @@ export type ChangeStateMutationResponse = {
   }) => Promise<any>;
 };
 
+export type SyncRegistrationNumberMutationResponse = {
+  customerSyncRegistrationNumber: (doc: {
+    variables: { _id: string };
+  }) => Promise<any>;
+};
+
 export type ChangeStatusMutationVariables = {
   customerIds: string[];
   type: string;

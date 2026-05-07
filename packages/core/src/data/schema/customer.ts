@@ -144,6 +144,7 @@ export const mutations = `
   customersMerge(customerIds: [String], customerFields: JSON): Customer
   customersRemove(customerIds: [String]): [String]
   customersChangeState(_id: String!, value: String!): Customer
+  customerSyncRegistrationNumber(_id: String!): Customer
   customersVerify(verificationType:String!): String
   customersChangeVerificationStatus(customerIds: [String], type: String!, status: String!): [Customer]
   customersChangeStateBulk(_ids: [String]!, value: String!): JSON

@@ -29,6 +29,7 @@ type Props = {
   merge: (doc: { ids: string[]; data: ICustomer | ICompany }) => void;
   search: (value: string, callback: (objects: any[]) => void) => void;
   changeState?: (value: string) => void;
+  syncRegistrationNumber?: () => void;
   isSmall?: boolean;
   additionalDropdownItems?: React.ReactNode;
 };
@@ -168,7 +169,7 @@ class ActionSection extends React.Component<
   }
 
   renderDropdown() {
-    const { remove, merge, cocType, search, coc, additionalDropdownItems } = this.props;
+    const { remove, merge, cocType, search, coc, additionalDropdownItems, syncRegistrationNumber } = this.props;
 
     const onClick = () =>
       confirm()
@@ -254,6 +255,13 @@ class ActionSection extends React.Component<
           </a>
         </Menu.Item>
         <Menu.Item>{this.renderChangeStateForm()}</Menu.Item>
+        {syncRegistrationNumber && (
+          <Menu.Item>
+            <a onClick={syncRegistrationNumber}>
+              {__('Sync Registration Number')}
+            </a>
+          </Menu.Item>
+        )}
         {additionalDropdownItems && (
           <Menu.Item>{additionalDropdownItems}</Menu.Item>
         )}
