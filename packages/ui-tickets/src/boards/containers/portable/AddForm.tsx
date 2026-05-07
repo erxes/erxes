@@ -103,7 +103,7 @@ class AddFormContainer extends React.Component<FinalProps> {
         .then(({ data }) => {
           const message = `You've successfully converted a conversation to ${options.type}`;
 
-          if (!doc._id && relType && relTypeIds) {
+          if (!doc._id && relType && relType !== "customer" && relTypeIds) {
             editConformity({
               variables: {
                 mainType: options.type,
