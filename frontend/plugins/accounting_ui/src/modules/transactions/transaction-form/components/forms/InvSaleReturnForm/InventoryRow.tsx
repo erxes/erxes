@@ -212,10 +212,27 @@ export const InventoryRow = ({
     detail.excludeCtax,
   ]);
 
-  const [taxAmounts, setTaxAmounts] = useState({
-    unitPriceWithTax: ((detail.unitPrice ?? 0) / 100) * (100 + rowPercent),
-    amountWithTax: ((detail.amount ?? 0) / 100) * (100 + rowPercent),
-  });
+  const calcTaxAmounts = (pCount?: number, pUnitPrice?: number) => {
+    const unitPriceWithTax = ((pUnitPrice ?? 0) / 100) * (100 + rowPercent);
+
+    return {
+      unitPriceWithTax,
+      amountWithTax: unitPriceWithTax * (pCount ?? 0),
+    };
+  };
+
+  const [taxAmounts, setTaxAmounts] = useState(
+    calcTaxAmounts(count, unitPrice),
+  );
+
+  useEffect(() => {
+    if (!(trDoc.hasVat || trDoc.hasCtax)) {
+      return;
+    }
+
+    setTaxAmounts(calcTaxAmounts(count, unitPrice));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail._id, rowPercent, trDoc.hasVat, trDoc.hasCtax, count, unitPrice]);
 
   const { currentCostInfo, loading } = useGetAccCurrentCost({
     variables: {
@@ -258,11 +275,25 @@ export const InventoryRow = ({
     onChange(value);
     const newUnitPrice = count ? value / count : 0;
     form.setValue(getFieldName('unitPrice'), newUnitPrice);
+
+    if (trDoc.hasVat || trDoc.hasCtax) {
+      setTaxAmounts({
+        unitPriceWithTax: (newUnitPrice / 100) * (100 + rowPercent),
+        amountWithTax: (value / 100) * (100 + rowPercent),
+      });
+    }
   };
 
   const calcAmount = (pCount?: number, pUnitPrice?: number) => {
     const newAmount = (pCount ?? 0) * (pUnitPrice ?? 0);
     form.setValue(getFieldName('amount'), newAmount);
+
+    if (trDoc.hasVat || trDoc.hasCtax) {
+      setTaxAmounts({
+        unitPriceWithTax: ((pUnitPrice ?? 0) / 100) * (100 + rowPercent),
+        amountWithTax: (newAmount / 100) * (100 + rowPercent),
+      });
+    }
   };
 
   const handleCountChange = (

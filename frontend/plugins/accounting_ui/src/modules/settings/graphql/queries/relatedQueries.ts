@@ -26,6 +26,7 @@ export const POS_DETAIL = gql`
       name
       description
       token
+      paymentTypes
     }
   }
 `;
