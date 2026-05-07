@@ -201,8 +201,8 @@ const PipelineStageItem = (props: Props) => {
               </Form.Item>
             </div>
             {showExtraFields && (
-              <div className="flex flex-wrap justify-between gap-3 mt-2">
-                <Form.Item className="flex-1 min-w-[150px]">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
+                <Form.Item>
                   <Form.Label>Code</Form.Label>
                   <Form.Control>
                     <Controller
@@ -221,7 +221,7 @@ const PipelineStageItem = (props: Props) => {
                   <Form.Message />
                 </Form.Item>
 
-                <Form.Item className="flex-1 min-w-[150px]">
+                <Form.Item>
                   <Form.Label>Age</Form.Label>
                   <Form.Control>
                     <Controller
@@ -248,7 +248,7 @@ const PipelineStageItem = (props: Props) => {
                   <Form.Message />
                 </Form.Item>
 
-                <Form.Item className="flex-1 min-w-[150px]">
+                <Form.Item>
                   <Form.Label>Can move members</Form.Label>
                   <Form.Control>
                     <Controller
@@ -267,7 +267,7 @@ const PipelineStageItem = (props: Props) => {
                   <Form.Message />
                 </Form.Item>
 
-                <Form.Item className="flex-1 min-w-[150px]">
+                <Form.Item>
                   <Form.Label>Can edit members</Form.Label>
                   <Form.Control>
                     <Controller
@@ -285,7 +285,43 @@ const PipelineStageItem = (props: Props) => {
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
-                <Form.Item className="flex-1 min-w-[150px] flex items-center justify-start gap-2 my-auto">
+
+                <Form.Item className="col-span-2">
+                  <Label>Members</Label>
+                  <Form.Control>
+                    <Controller
+                      name={`stages.${index}.memberIds`}
+                      control={control}
+                      defaultValue={stage?.memberIds || []}
+                      render={({ field }) => (
+                        <SelectMember.FormItem
+                          mode="multiple"
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        />
+                      )}
+                    />
+                  </Form.Control>
+                </Form.Item>
+
+                <Form.Item className="col-span-2">
+                  <Label>Departments</Label>
+                  <Form.Control>
+                    <Controller
+                      name={`stages.${index}.departmentIds`}
+                      control={control}
+                      defaultValue={stage?.departmentIds || []}
+                      render={({ field }) => (
+                        <SelectDepartments.FormItem
+                          mode="multiple"
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        />
+                      )}
+                    />
+                  </Form.Control>
+                </Form.Item>
+                <Form.Item className="col-span-2 sm:col-span-4 flex justify-end items-center gap-2">
                   <Form.Control>
                     <Controller
                       name={`stages.${index}.defaultTick`}
@@ -304,40 +340,6 @@ const PipelineStageItem = (props: Props) => {
                   <Label htmlFor={`defaultTick-${index}`}>
                     Select products by default
                   </Label>
-                </Form.Item>
-                <Form.Item className="flex-1 min-w-[150px]">
-                  <Label>Members</Label>
-                  <Form.Control>
-                    <Controller
-                      name={`stages.${index}.memberIds`}
-                      control={control}
-                      defaultValue={stage?.memberIds || []}
-                      render={({ field }) => (
-                        <SelectMember.FormItem
-                          mode="multiple"
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        />
-                      )}
-                    />
-                  </Form.Control>
-                </Form.Item>
-                <Form.Item className="flex-1 min-w-[150px]">
-                  <Label>Departments</Label>
-                  <Form.Control> 
-                    <Controller
-                      name={`stages.${index}.departmentIds`}
-                      control={control}
-                      defaultValue={stage?.departmentIds || []}
-                      render={({ field }) => (
-                        <SelectDepartments.FormItem
-                          mode="multiple"
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        />
-                      )}
-                    />
-                  </Form.Control>
                 </Form.Item>
               </div>
             )}
