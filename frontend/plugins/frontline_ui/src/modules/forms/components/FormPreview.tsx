@@ -4,10 +4,13 @@ import {
   Button,
   Checkbox,
   cn,
+  Combobox,
+  Command,
   DatePicker,
   Form,
   InfoCard,
   Input,
+  Popover,
   RadioGroup,
   readImage,
   Select,
@@ -16,7 +19,7 @@ import {
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { ControllerRenderProps, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { FORM_CONTENT_SCHEMA } from '../constants/formSchema';
 import {
@@ -274,6 +277,14 @@ export const FormPreviewContent = ({
                       }
 
                       if (erxesField.type === 'select') {
+                        if (erxesField.allowSearch) {
+                          return (
+                            <ErxesFormComboboxField
+                              field={field}
+                              erxesField={erxesField}
+                            />
+                          );
+                        }
                         return (
                           <ErxesFormItem span={erxesField.span}>
                             <Form.Label>{erxesField.label}</Form.Label>
@@ -460,3 +471,49 @@ export const ErxesFormItem = ({
     className={cn(props.className, span && `col-span-${span}`)}
   />
 );
+
+export const ErxesFormComboboxField = ({
+  erxesField,
+  field,
+}: {
+  erxesField: z.infer<
+    typeof FORM_CONTENT_SCHEMA
+  >['steps'][number]['fields'][number];
+  field: ControllerRenderProps<any, string>;
+}) => {
+  const [open, setOpen] = useState<boolean>(false);
+
+  return (
+    <ErxesFormItem span={erxesField.span}>
+      <Form.Label>{erxesField.label}</Form.Label>
+      <Popover open={open} onOpenChange={setOpen}>
+        <Combobox.Trigger>
+          <span>{field.value || erxesField?.placeholder}</span>
+        </Combobox.Trigger>
+        <Combobox.Content>
+          <Command>
+            <Command.List>
+              <Command.Input placeholder={`Search ${erxesField?.label}`} />
+              {erxesField?.options?.map((option) => (
+                <Command.Item
+                  key={option}
+                  value={option}
+                  onSelect={(value) => {
+                    field.onChange(value);
+                    setOpen(false);
+                  }}
+                >
+                  {option}
+                </Command.Item>
+              ))}
+            </Command.List>
+          </Command>
+        </Combobox.Content>
+      </Popover>
+      {erxesField.description && (
+        <Form.Description>{erxesField.description}</Form.Description>
+      )}
+      <Form.Message />
+    </ErxesFormItem>
+  );
+};

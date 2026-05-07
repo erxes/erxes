@@ -4,7 +4,7 @@ import { FORM_CONTENT_SCHEMA } from '../constants/formSchema';
 import { z } from 'zod';
 import { FormFieldType } from '../constants/formFieldTypes';
 import { nanoid } from 'nanoid';
-import { IFormFieldLogics } from '../types/formTypes';
+import { IFieldValidator, IFormFieldLogics } from '../types/formTypes';
 
 export interface IFieldData {
   id: string;
@@ -13,12 +13,14 @@ export interface IFieldData {
   description: string;
   placeholder: string;
   required: boolean;
+  allowSearch?: boolean;
   options: string[];
   span: number;
   order: number;
   stepId: string;
   logics?: IFormFieldLogics[];
   logicAction: string;
+  validator?: IFieldValidator;
 }
 
 export const FormDndContext = createContext<{
