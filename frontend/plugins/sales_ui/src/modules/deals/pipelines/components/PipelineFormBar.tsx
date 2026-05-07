@@ -64,6 +64,8 @@ export function PipelineFormBar() {
         canMoveMemberIds: stage.canMoveMemberIds ?? [],
         canEditMemberIds: stage.canEditMemberIds ?? [],
         probability: stage.probability || '',
+        memberIds: stage.memberIds ?? [],
+        departmentIds: stage.departmentIds ?? [],
       }));
 
       methods.setValue('stages', mappedStages, {
