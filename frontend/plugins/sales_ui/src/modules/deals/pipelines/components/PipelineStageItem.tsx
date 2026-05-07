@@ -287,7 +287,7 @@ const PipelineStageItem = (props: Props) => {
                 </Form.Item>
 
                 <Form.Item className="col-span-2">
-                  <Label>Members</Label>
+                  <Form.Label>Members</Form.Label>
                   <Form.Control>
                     <Controller
                       name={`stages.${index}.memberIds`}
@@ -305,7 +305,7 @@ const PipelineStageItem = (props: Props) => {
                 </Form.Item>
 
                 <Form.Item className="col-span-2">
-                  <Label>Departments</Label>
+                  <Form.Label>Departments</Form.Label>
                   <Form.Control>
                     <Controller
                       name={`stages.${index}.departmentIds`}
