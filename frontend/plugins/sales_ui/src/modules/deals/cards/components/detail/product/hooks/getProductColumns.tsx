@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import {
   Checkbox,
   CurrencyCode,
@@ -18,7 +19,6 @@ import { IconBuildingSkyscraper, IconGitBranch } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
 import clsx from 'clsx';
-import { useState } from 'react';
 import { useUpdateProductRecord } from '../hooks/useProductRecord';
 import { calculateProductValues } from '../hooks/useProductCalculations';
 
@@ -27,7 +27,13 @@ export const ProductNumberField = ({
   field,
   _id,
   product,
-}: INumberFieldContainerProps & { product: IProductData }) => {
+  formatValue,
+  children,
+}: INumberFieldContainerProps & {
+  product: IProductData;
+  formatValue?: (value: number) => string;
+  children?: React.ReactNode;
+}) => {
   const { updateRecord } = useUpdateProductRecord();
 
   return (
@@ -35,10 +41,13 @@ export const ProductNumberField = ({
       key={`${_id}-${field}-${value}`}
       value={value}
       scope={`product-${_id}-${field}`}
+      formatValue={formatValue}
       onSave={(value) => {
         updateRecord(product, { [field]: value });
       }}
-    />
+    >
+      {children}
+    </NumberField>
   );
 };
 
