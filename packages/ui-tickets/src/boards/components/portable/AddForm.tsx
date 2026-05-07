@@ -42,6 +42,7 @@ type Props = {
   startDate?: Date;
   closeDate?: Date;
   showStageSelect?: boolean;
+  isHideName?: boolean;
 };
 
 type State = {
@@ -65,6 +66,7 @@ type State = {
   departmentIds?: string[];
   relationData?: any;
   isCheckUserTicket?: boolean;
+  isHideName?: boolean;
 };
 
 class AddForm extends React.Component<Props, State> {
@@ -87,6 +89,7 @@ class AddForm extends React.Component<Props, State> {
       startDate: props.startDate || null,
       closeDate: props.closeDate || null,
       isCheckUserTicket: false,
+      isHideName: props.isHideName || false,
     };
   }
 
@@ -279,7 +282,12 @@ class AddForm extends React.Component<Props, State> {
     const { stageId, pipelineId, boardId } = this.state;
 
     const stgIdOnChange = (stgId) => this.onChangeField("stageId", stgId);
-    const plIdOnChange = (plId) => this.onChangeField("pipelineId", plId);
+    const plIdOnChange = (plId, _stages?, isHideName?) => {
+      this.onChangeField("pipelineId", plId);
+      if (isHideName !== undefined) {
+        this.onChangeField("isHideName", isHideName);
+      }
+    };
     const brIdOnChange = (brId) => this.onChangeField("boardId", brId);
 
     return (
@@ -349,28 +357,30 @@ class AddForm extends React.Component<Props, State> {
     return (
       <form>
         {this.renderSelect()}
-        <HeaderRow>
-          <HeaderContent>
-            <ControlLabel required={true}>Name</ControlLabel>
+        {!this.state.isHideName && (
+          <HeaderRow>
+            <HeaderContent>
+              <ControlLabel required={true}>Name</ControlLabel>
 
-            {this.props.showSelect ? (
-              <CardSelect
-                placeholder={`Add a new ${type} or select one`}
-                options={this.state.cards}
-                onChange={this.onChangeCardSelect}
-                type={type}
-                additionalValue={this.state.name}
-              />
-            ) : (
-              <FormControl
-                value={this.state.name}
-                autoFocus={true}
-                placeholder="Create a new card"
-                onChange={this.onChangeName}
-              />
-            )}
-          </HeaderContent>
-        </HeaderRow>
+              {this.props.showSelect ? (
+                <CardSelect
+                  placeholder={`Add a new ${type} or select one`}
+                  options={this.state.cards}
+                  onChange={this.onChangeCardSelect}
+                  type={type}
+                  additionalValue={this.state.name}
+                />
+              ) : (
+                <FormControl
+                  value={this.state.name}
+                  autoFocus={true}
+                  placeholder="Create a new card"
+                  onChange={this.onChangeName}
+                />
+              )}
+            </HeaderContent>
+          </HeaderRow>
+        )}
 
         {showStageSelect && (
           <HeaderRow>
