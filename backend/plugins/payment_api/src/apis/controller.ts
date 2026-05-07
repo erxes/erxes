@@ -85,6 +85,17 @@ export const callbackHandler = async (req, res) => {
         return res.status(400).send('Invoice not found');
       }
 
+      // ===== ШИНЭ: ЛОГ ХЭВЛЭХ =====
+      console.log('======= PAYMENT CALLBACK (controller) =======');
+      console.log('Invoice ID:', invoice._id);
+      console.log('Transaction Amount:', transaction.amount);
+      console.log('Payment Kind:', transaction.paymentKind);
+      console.log('Invoice ContentType:', invoice.contentType);
+      console.log('Invoice ContentTypeId:', invoice.contentTypeId);
+      console.log('Invoice Data:', JSON.stringify(invoice.data));
+      console.log('PosToken:', invoice.data?.posToken);
+      console.log('==============================================');
+
       const result = await models.Invoices.checkInvoice(
         transaction.invoiceId,
         subdomain,
@@ -115,6 +126,39 @@ export const callbackHandler = async (req, res) => {
       const [pluginName, moduleName, collectionType] = splitType(
         invoice.contentType,
       );
+
+      // ===== ШИНЭ: POS РУУ WORKER ИЛГЭЭХ =====
+      if (invoice.data?.posToken) {
+        try {
+          await sendWorkerMessage({
+            subdomain,
+            pluginName: 'pos',
+            queueName: 'payments',
+            jobName: 'paymentCallback',
+            data: {
+              ...invoice,
+              status: 'paid',
+              posToken: invoice.data.posToken,
+              moduleName,
+              collectionType,
+              apiResponse: 'success',
+            },
+            defaultValue: null,
+            timeout: 30000,
+            options: {
+              attempts: 3,
+              backoff: { type: 'exponential', delay: 2000 },
+            },
+          });
+          console.log(
+            `[controller] POS worker message sent for invoice ${invoice._id}, posToken: ${invoice.data.posToken}`,
+          );
+        } catch (e) {
+          console.error(
+            `[controller] Failed to send POS worker message: ${e.message}`,
+          );
+        }
+      }
 
       if (await isEnabled(pluginName)) {
         try {

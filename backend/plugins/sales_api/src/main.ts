@@ -17,6 +17,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { posExportHandlers } from './modules/pos/meta/export/exportHandlers';
 import { permissions } from '~/meta/permissions';
+import { initPaymentsWorker } from './workers/payment';
 
 startPlugin({
   name: 'sales',
@@ -54,6 +55,7 @@ startPlugin({
   },
   onServerInit: async () => {
     // await initMQWorkers(redis);
+    initPaymentsWorker();
   },
   meta: {
     automations,
