@@ -39,7 +39,13 @@ export async function checkAccountingPermission(
   if (!perm) return { canRead: false, canWrite: false };
 
   const targetUserId = targetRecord.modifiedBy || targetRecord.createdBy;
-  if (!targetUserId) return { canRead: false, canWrite: false };
+
+  // Account‑level check (list query)
+  if (!targetUserId) {
+    const canRead = perm.read !== 'none';
+    const canWrite = perm.write !== 'none';
+    return { canRead, canWrite };
+  }
 
   const targetLevel = await getUserLevel(targetUserId);
   const actorLevel = perm.level;

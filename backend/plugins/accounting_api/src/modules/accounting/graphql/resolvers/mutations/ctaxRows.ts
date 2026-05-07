@@ -17,10 +17,15 @@ const ctaxRowsMutations = {
     const { accountId } = doc;
     if (!accountId) throw new Error('Account ID required');
 
-    // Check create permission (any write scope that includes 'add')
-    const perm = await models.Permissions.findOne({ userId: user._id, accountId });
-    const canCreate = perm && ['add', 'own', 'ltLvl', 'lteLvl', 'gtLvl'].includes(perm.write);
-    if (!canCreate) throw new Error('No permission to create CtaxRow');
+    const getUserLevel = makeGetUserLevel(subdomain);
+    const { canWrite } = await checkAccountingPermission(
+      user._id,
+      accountId,
+      {}, // empty targetRecord – account‑level write check
+      { Permissions: models.Permissions, Configs: models.Configs as any },
+      getUserLevel,
+    );
+    if (!canWrite) throw new Error('No permission to create CtaxRow');
 
     // Create with audit fields
     const ctaxRow = await models.CtaxRows.createCtaxRow({

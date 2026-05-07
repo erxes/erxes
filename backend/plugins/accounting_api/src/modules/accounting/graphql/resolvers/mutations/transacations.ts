@@ -25,14 +25,16 @@ const transactionsMutations = {
     const accountId = trDocs[0]?.details?.[0]?.accountId;
     if (!accountId) throw new Error('Account ID required');
 
-    // Check permission to create
-    const perm = await models.Permissions.findOne({
-      userId: user._id,
-      accountId,
-    });
-    const canCreate =
-      perm && ['add', 'own', 'ltLvl', 'lteLvl', 'gtLvl'].includes(perm.write);
-    if (!canCreate) throw new Error('No permission to create transaction');
+   const getUserLevel = makeGetUserLevel(subdomain);
+
+    const { canWrite } = await checkAccountingPermission(
+    user._id,
+    accountId,
+    {},   // no target record for create
+    { Permissions: models.Permissions, Configs: models.Configs as any },
+    getUserLevel,
+  );
+  if (!canWrite) throw new Error('No permission to create transaction');
 
     // Proceed with creation (the model method will set createdBy/modifiedBy = user._id)
     const transactions = await models.Transactions.createPTransaction(

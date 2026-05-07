@@ -16,6 +16,7 @@ import { ITransactionDocument } from '@/accounting/@types/transaction';
 import { generateFilter as accountGenerateFilter } from './accounts';
 import { checkPermissionTrs } from '../../../utils/trPermissions';
 import { checkAccountingPermission } from '../../../services/permissionChecker';
+import { makeGetUserLevel } from '../../../utils/getUserLevel';
 
 interface IQueryParams {
   ids?: string[];
@@ -26,7 +27,6 @@ interface IQueryParams {
   ptrStatus: string;
   customerType?: string;
   customerId?: string;
-
   accountIds?: string[];
   accountKind?: string;
   accountExcludeIds?: boolean;
@@ -118,14 +118,17 @@ const getAccountIds = async (
   return accounts.map((a) => a._id);
 };
 
-// Helper: get the first accountId that will be used in the query
 async function getFirstAccountIdFromParams(
   models: IModels,
   params: IQueryParams,
   user: IUserDocument,
 ): Promise<string | null> {
   const accountIds = await getAccountIds(models, params, user);
-  return accountIds.length ? accountIds[0] : null;
+  if (accountIds.length === 0) return null;
+  if (accountIds.length > 1) {
+    throw new Error('Exactly one account ID must be specified when filtering by account');
+  }
+  return accountIds[0];
 }
 
 const generateFilter = async (
@@ -175,7 +178,7 @@ const generateFilter = async (
   }
   if (endDate) {
     dateQry.$lte = getPureDate(endDate);
-  }
+  } 
   if (Object.keys(dateQry).length) {
     filter.date = dateQry;
   }
@@ -295,30 +298,46 @@ const generateFilter = async (
 };
 
 const transactionCommon = {
-  async accTransactionsDetail(
-    _root,
-    params: { _id: string },
-    { models, user, checkPermission }: IContext,
-  ) {
-    await checkPermission('readTransactions');
-    const { _id } = params;
-    let firstTr = await models.Transactions.getTransaction({
-      $or: [{ _id }, { parentId: _id }],
-    });
+  async accTransactions(
+  _root,
+  params: IQueryParams & { page: number; perPage: number },
+  { models, user, subdomain }: IContext,
+) {
+  const accountId = await getFirstAccountIdFromParams(models, params, user);
+  if (!accountId) throw new Error('Account ID required');
 
-    if (firstTr.originId) {
-      firstTr = await models.Transactions.getTransaction({
-        _id: firstTr.originId,
-      });
-    }
+  const getUserLevel = makeGetUserLevel(subdomain); 
 
-    const relatedTrs: ITransactionDocument[] = await models.Transactions.find({
-      $or: [{ ptrId: firstTr.ptrId }, { parentId: firstTr.parentId }],
-    }).lean();
+  const { canRead } = await checkAccountingPermission(
+    user._id,
+    accountId,
+    {},
+    { Permissions: models.Permissions, Configs: models.Configs as any },
+    getUserLevel,
+  );
+  if (!canRead) return { list: [], totalCount: 0 };
 
-    // Assuming checkPermissionTrs already uses your custom checker – if not, update it.
-    return await checkPermissionTrs(models, relatedTrs, user);
-  },
+  const filter = await generateFilter(subdomain, models, params, user);
+  const { sortField, sortDirection, page, perPage, ids, excludeIds } = params;
+
+  const pagintationArgs = { page, perPage };
+  if (ids?.length && !excludeIds && ids.length > (pagintationArgs.perPage || 20)) {
+    pagintationArgs.page = 1;
+    pagintationArgs.perPage = ids.length;
+  }
+
+  let sort: any = { date: 1 };
+  if (sortField) {
+    sort = { [sortField]: sortDirection ?? 1 };
+  }
+
+  return await defaultPaginate(
+    models.Transactions.find(filter)
+      .sort({ ...sort, parentId: 1, ptrId: 1 })
+      .lean(),
+    pagintationArgs,
+  );
+},
 
   async accTransactionDetail(
     _root,
@@ -332,18 +351,7 @@ const transactionCommon = {
     const accountId = (transaction as any).accountId || transaction.details?.[0]?.accountId;
     if (!accountId) throw new Error('Transaction has no associated account');
 
-    const getUserLevel = async (uid: string) => {
-      const u = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'users',
-        action: 'findOne',
-        input: { _id: uid, fields: { level: 1 } },
-        defaultValue: null,
-      });
-      return u?.level ?? 0;
-    };
+    const getUserLevel = makeGetUserLevel(subdomain);
 
     const { canRead } = await checkAccountingPermission(
       user._id,
@@ -363,23 +371,12 @@ const transactionCommon = {
   async accTransactionsMain(
     _root,
     params: IQueryParams & ICursorPaginateParams,
-    { models, user, subdomain, checkPermission }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
     const accountId = await getFirstAccountIdFromParams(models, params, user);
     if (!accountId) throw new Error('Account ID is required for permission check');
 
-    const getUserLevel = async (uid: string) => {
-      const u = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'users',
-        action: 'findOne',
-        input: { _id: uid, fields: { level: 1 } },
-        defaultValue: null,
-      });
-      return u?.level ?? 0;
-    };
+    const getUserLevel = makeGetUserLevel(subdomain);
 
     const { canRead } = await checkAccountingPermission(
       user._id,
@@ -406,82 +403,17 @@ const transactionCommon = {
     });
   },
 
-  async accTransactions(
-    _root,
-    params: IQueryParams & { page: number; perPage: number },
-    { models, user, subdomain, checkPermission }: IContext,
-  ) {
-    const accountId = await getFirstAccountIdFromParams(models, params, user);
-    if (!accountId) throw new Error('Account ID required');
 
-    const getUserLevel = async (uid: string) => {
-      const u = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'users',
-        action: 'findOne',
-        input: { _id: uid, fields: { level: 1 } },
-        defaultValue: null,
-      });
-      return u?.level ?? 0;
-    };
-
-    const { canRead } = await checkAccountingPermission(
-      user._id,
-      accountId,
-      {},
-      { Permissions: models.Permissions, Configs: models.Configs as any }, 
-      getUserLevel,
-    );
-    if (!canRead) return { list: [], totalCount: 0 };
-
-    const filter = await generateFilter(subdomain, models, params, user);
-    const { sortField, sortDirection, page, perPage, ids, excludeIds } = params;
-
-    const pagintationArgs = { page, perPage };
-    if (
-      ids?.length &&
-      !excludeIds &&
-      ids.length > (pagintationArgs.perPage || 20)
-    ) {
-      pagintationArgs.page = 1;
-      pagintationArgs.perPage = ids.length;
-    }
-
-    let sort: any = { date: 1 };
-    if (sortField) {
-      sort = { [sortField]: sortDirection ?? 1 };
-    }
-
-    return await defaultPaginate(
-      models.Transactions.find(filter)
-        .sort({ ...sort, parentId: 1, ptrId: 1 })
-        .lean(),
-      pagintationArgs,
-    );
-  },
 
   async accTransactionsCount(
     _root,
     params: IQueryParams,
-    { models, user, subdomain, checkPermission }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
     const accountId = await getFirstAccountIdFromParams(models, params, user);
     if (!accountId) return 0;
 
-    const getUserLevel = async (uid: string) => {
-      const u = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'users',
-        action: 'findOne',
-        input: { _id: uid, fields: { level: 1 } },
-        defaultValue: null,
-      });
-      return u?.level ?? 0;
-    };
+    const getUserLevel = makeGetUserLevel(subdomain);
 
     const { canRead } = await checkAccountingPermission(
       user._id,
@@ -499,23 +431,12 @@ const transactionCommon = {
   async accTrRecordsMain(
     _root,
     params: IRecordsParams & ICursorPaginateParams,
-    { models, user, subdomain, checkPermission }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
     const accountId = await getFirstAccountIdFromParams(models, params, user);
     if (!accountId) throw new Error('Account ID required');
 
-    const getUserLevel = async (uid: string) => {
-      const u = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'users',
-        action: 'findOne',
-        input: { _id: uid, fields: { level: 1 } },
-        defaultValue: null,
-      });
-      return u?.level ?? 0;
-    };
+    const getUserLevel = makeGetUserLevel(subdomain);
 
     const { canRead } = await checkAccountingPermission(
       user._id,
@@ -566,23 +487,12 @@ const transactionCommon = {
   async accTrRecords(
     _root,
     params: IRecordsParams & { page: number; perPage: number },
-    { models, user, subdomain, checkPermission }: IContext,
+    { models, user, subdomain }: IContext,
   ) {
     const accountId = await getFirstAccountIdFromParams(models, params, user);
     if (!accountId) throw new Error('Account ID required');
 
-    const getUserLevel = async (uid: string) => {
-      const u = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'users',
-        action: 'findOne',
-        input: { _id: uid, fields: { level: 1 } },
-        defaultValue: null,
-      });
-      return u?.level ?? 0;
-    };
+    const getUserLevel = makeGetUserLevel(subdomain);
 
     const { canRead } = await checkAccountingPermission(
       user._id,
@@ -632,23 +542,12 @@ const transactionCommon = {
   async accTrRecordsCount(
     _root,
     params: IRecordsParams,
-    { models, subdomain, user, checkPermission }: IContext,
+    { models, subdomain, user }: IContext,
   ) {
     const accountId = await getFirstAccountIdFromParams(models, params, user);
     if (!accountId) return 0;
 
-    const getUserLevel = async (uid: string) => {
-      const u = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'users',
-        action: 'findOne',
-        input: { _id: uid, fields: { level: 1 } },
-        defaultValue: null,
-      });
-      return u?.level ?? 0;
-    };
+    const getUserLevel = makeGetUserLevel(subdomain);
 
     const { canRead } = await checkAccountingPermission(
       user._id,

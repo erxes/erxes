@@ -43,6 +43,19 @@ export const types = () => `
     pageInfo: PageInfo
     totalCount: Int,
   }
+
+  input SetAccountPermissionsInput {
+    accountIds: [String!]!
+    userId: String!
+    level: Int
+    read: String
+    write: String
+  }
+
+  type AccountPermissionResult {
+    accountId: String!
+    status: String!
+  }
 `;
 
 const accountParams = `
@@ -92,6 +105,12 @@ const accountsQueryParams = `
   code: String
   name: String
   extra:JSON
+  # NEW permission filters:
+  userId: String
+  minLvl: Int
+  maxLvl: Int
+  readPerm: String
+  writePerm: String
 `;
 
 export const queries = `
@@ -121,4 +140,5 @@ export const mutations = `
   accountCategoriesAdd(${accountCategoryParams}): AccountCategory
   accountCategoriesEdit(_id: String!, ${accountCategoryParams}): AccountCategory
   accountCategoriesRemove(_id: String!): JSON
+  setAccountPermissions(input: SetAccountPermissionsInput!): [AccountPermissionResult]!
 `;
