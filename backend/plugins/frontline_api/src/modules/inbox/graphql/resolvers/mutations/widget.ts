@@ -1091,7 +1091,7 @@ export const widgetMutations: Record<string, Resolver> = {
       pluginName: 'core',
       module: 'customers',
       action: 'find',
-      input: { _id: { $in: customerIds } },
+      input: { query: { _id: { $in: customerIds } } },
       defaultValue: [],
     });
     const validCustomerIds = customers.map((c: any) => c._id);

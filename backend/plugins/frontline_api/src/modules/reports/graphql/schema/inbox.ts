@@ -68,13 +68,50 @@ export const types = `
     resolved: Int!
   }
 
+  type ConversationChartDataPoint {
+    date: String!
+    new: Int!
+    open: Int!
+    closed: Int!
+    resolved: Int!
+  }
+
+  type ConversationProgressChart {
+    total: Int!
+    chartData: [ConversationChartDataPoint!]!
+  }
+
+  type ConversationSourceProgressItem {
+    source: String!
+    count: Int!
+  }
+
+  type ConversationSourceProgress {
+    new: [ConversationSourceProgressItem!]!
+    open: [ConversationSourceProgressItem!]!
+    closed: [ConversationSourceProgressItem!]!
+    resolved: [ConversationSourceProgressItem!]!
+  }
+
+  type ConversationTagProgressItem {
+    tagId: String!
+    count: Int!
+  }
+
+  type ConversationTagProgress {
+    new: [ConversationTagProgressItem!]!
+    open: [ConversationTagProgressItem!]!
+    closed: [ConversationTagProgressItem!]!
+    resolved: [ConversationTagProgressItem!]!
+  }
+
 `;
 
 export const queries = `
-  conversationProgressChart(customerId:String!):JSON
+  conversationProgressChart(customerId:String!): ConversationProgressChart
   conversationMemberProgress(customerId:String!):[ConversationMemberProgress]
-  conversationSourceProgress(customerId:String!):JSON
-  conversationTagProgress(customerId:String!):JSON
+  conversationSourceProgress(customerId:String!): ConversationSourceProgress
+  conversationTagProgress(customerId:String!): ConversationTagProgress
   reportConversationOpenDate(filters: ConversationReportFilter): [ConversationDateStat]
   reportConversationResolvedDate(filters: ConversationReportFilter): [ConversationDateStat]
   reportConversationList(filters: ConversationReportFilter): ConversationListResult

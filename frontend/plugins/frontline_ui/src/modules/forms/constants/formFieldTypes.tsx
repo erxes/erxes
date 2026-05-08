@@ -3,6 +3,7 @@ import {
   IconCheck,
   IconChevronDown,
   IconCircleCheck,
+  IconListDetails,
   IconNumbers,
   IconTextScan2,
   IconTextSize,
@@ -16,6 +17,7 @@ export const FORM_FIELD_TYPES = [
   { value: 'select', label: 'Select', icon: <IconChevronDown /> },
   { value: 'textarea', label: 'Textarea', icon: <IconTextScan2 /> },
   { value: 'radio', label: 'Radio Group', icon: <IconCircleCheck /> },
+  { value: 'check', label: 'Checkbox Group', icon: <IconListDetails /> },
 ];
 
 export type FormFieldType = (typeof FORM_FIELD_TYPES)[number];

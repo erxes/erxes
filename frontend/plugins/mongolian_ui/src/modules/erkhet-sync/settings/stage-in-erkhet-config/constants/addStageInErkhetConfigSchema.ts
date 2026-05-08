@@ -9,15 +9,12 @@ export const addStageInErkhetConfigSchema = z.object({
   chooseResponseField: z.string().min(1, 'Choose response field is required'),
   hasVat: z.boolean(),
   hasCityTax: z.boolean(),
-  anotherRulesOfProductsOnCitytax: z
-    .string()
-    .min(1, 'Another rules of products on citytax is required'),
-  anotherRulesOfProductsOnVat: z
-    .string()
-    .min(1, 'Another rules of products on VAT is required'),
+  anotherRulesOfProductsOnCitytax: z.string(),
+  anotherRulesOfProductsOnVat: z.string(),
   defaultPay: z.string().min(1, 'Default pay is required'),
-  нэхэмжлэх: z.string().min(1, 'Нэхэмжлэх is required'),
-  хаанБанкданс: z.string().min(1, 'Хаан банкданс is required'),
-  голомтБанкданс: z.string().min(1, 'Голомт банкданс is required'),
-  barter: z.string().min(1, 'Barter is required'),
+  нэхэмжлэх: z.string().optional().default(''),
+  хаанБанкданс: z.string().optional().default(''),
+  голомтБанкданс: z.string().optional().default(''),
+  barter: z.string().optional().default(''),
+  paymentTypes: z.record(z.string(), z.string()).optional(),
 });

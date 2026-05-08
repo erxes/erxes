@@ -83,7 +83,8 @@ const formQueries: Record<string, Resolver> = {
   /**
    * Forms list
    */
-  async forms(_root, args: FormsArgs, { models, user }: IContext) {
+  async forms(_root, args: FormsArgs, context) {
+    const { models, user } = context as IContext;
     const qry = {
       ...(await generateFilterQuery(args, models, user)),
     };
@@ -98,7 +99,8 @@ const formQueries: Record<string, Resolver> = {
     });
   },
 
-  async cpForms(_root, args: FormsArgs, { models, user }: IContext) {
+  async cpForms(_root, args: FormsArgs, context) {
+    const { models, user } = context as IContext;
     const qry = {
       ...(await generateFilterQuery(args, models, user)),
     };
@@ -113,11 +115,8 @@ const formQueries: Record<string, Resolver> = {
     });
   },
 
-  async formsMain(
-    _root: undefined,
-    args: FormsArgs,
-    { models, user }: IContext,
-  ) {
+  async formsMain(_root: undefined, args: FormsArgs, context) {
+    const { models, user } = context as IContext;
     const qry = {
       ...(await generateFilterQuery(args, models, user)),
     };
@@ -133,7 +132,8 @@ const formQueries: Record<string, Resolver> = {
     });
   },
 
-  async formsTotalCount(_root, args, { models, user }: IContext) {
+  async formsTotalCount(_root, args, context) {
+    const { models, user } = context as IContext;
     const counts = {
       total: 0,
       byTag: {},
@@ -180,20 +180,14 @@ const formQueries: Record<string, Resolver> = {
   // /**
   //  * Get one form
   //  */
-  async formDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async formDetail(_root, { _id }: { _id: string }, context) {
+    const { models } = context as IContext;
     return models.Forms.findOne({ _id });
   },
 
-  async cpFormDetail(
-    _root,
-    { _id }: { _id: string },
-    { models, user }: IContext,
-  ) {
-    if (!user) {
-      throw new Error('Unauthorized');
-    }
-    const accessQuery = await generateFilterQuery({}, models, user);
-    return models.Forms.findOne({ _id, ...accessQuery });
+  async cpFormDetail(_root, { _id }: { _id: string }, context) {
+    const { models } = context as IContext;
+    return models.Forms.findOne({ _id });
   },
 
   // async formSubmissions(

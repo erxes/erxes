@@ -1,4 +1,10 @@
-import { IconCalendar, IconEdit, IconFile, IconMoneybag, IconTrash } from '@tabler/icons-react';
+import {
+  IconCalendar,
+  IconEdit,
+  IconFile,
+  IconMoneybag,
+  IconTrash,
+} from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import {
@@ -135,7 +141,8 @@ const DateCell = ({ getValue }: any) => {
 };
 
 const AccountCell = ({ row }: any) => {
-  const { details } = row.original;
+  const { details, parentId, _id, originId } = row.original;
+  const navigate = useNavigate();
 
   const name0 = details[0].account?.name;
 
@@ -150,8 +157,16 @@ const AccountCell = ({ row }: any) => {
 
   const codes = Object.keys(infoByCode);
 
+  const handleEditAccount = () => {
+    navigate(
+      `/accounting/transaction/edit?parentId=${parentId}&trId=${
+        originId || _id
+      }`,
+    );
+  };
+
   return (
-    <RecordTableInlineCell>
+    <RecordTableInlineCell onClick={handleEditAccount} className="cursor-pointer">
       {codes.map((code, i) => {
         const count = infoByCode[code];
         const tot = count > 1 ? `(${count})` : '';
@@ -175,7 +190,7 @@ const TransactionMoreColumnCell = ({
   const navigate = useNavigate();
   const { confirm } = useConfirm();
   const { removeTransactions } = useTransactionsRemove();
-  const handleEdit = () => {
+  const handleEditAcc = () => {
     navigate(
       `/accounting/transaction/edit?parentId=${parentId}&trId=${
         originId || _id
@@ -201,7 +216,7 @@ const TransactionMoreColumnCell = ({
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item value="edit" onSelect={handleEdit}>
+            <Command.Item value="edit" onSelect={handleEditAcc}>
               <IconEdit /> Edit
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>
@@ -225,31 +240,27 @@ export const transactionColumns: ColumnDef<ITransaction>[] = [
   RecordTable.checkboxColumn as ColumnDef<ITransaction>,
   {
     id: 'account',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Account" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Данс" />,
     accessorKey: 'details',
     cell: ({ row }) => <AccountCell row={row} />,
     size: 400,
   },
   {
     id: 'number',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Number" />,
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Дугаар" />,
     accessorKey: 'number',
     cell: ({ getValue, row }) => <NumberCell getValue={getValue} row={row} />,
   },
   {
     id: 'date',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
+    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Огноо" />,
     accessorKey: 'date',
     cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
     size: 100,
   },
   {
     id: 'description',
-    header: () => (
-      <RecordTable.InlineHead icon={IconFile} label="Description" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Тайлбар" />,
     accessorKey: 'description',
     cell: ({ getValue, row }) => (
       <DescriptionCell getValue={getValue} row={row} />
@@ -259,7 +270,7 @@ export const transactionColumns: ColumnDef<ITransaction>[] = [
   {
     id: 'sumDt',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Sum Debit" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Дебет дүн" />
     ),
     accessorKey: 'sumDt',
     cell: ({ getValue, row }) => <SumDebitCell getValue={getValue} row={row} />,
@@ -267,7 +278,7 @@ export const transactionColumns: ColumnDef<ITransaction>[] = [
   {
     id: 'sumCt',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Sum Credit" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Кредит дүн" />
     ),
     accessorKey: 'sumCt',
     cell: ({ getValue, row }) => (
@@ -276,19 +287,19 @@ export const transactionColumns: ColumnDef<ITransaction>[] = [
   },
   {
     id: 'journal',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Journal" />,
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Журнал" />,
     accessorKey: 'journal',
     cell: ({ row }) => <JournalCell row={row} />,
   },
   {
     id: 'branch',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Branch" />,
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Салбар" />,
     accessorKey: 'branch',
     cell: ({ getValue, row }) => <BranchCell getValue={getValue} row={row} />,
   },
   {
     id: 'department',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Department" />,
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Хэлтэс" />,
     accessorKey: 'department',
     cell: ({ getValue, row }) => (
       <DepartmentCell getValue={getValue} row={row} />

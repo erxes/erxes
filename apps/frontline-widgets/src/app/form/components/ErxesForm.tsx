@@ -1,5 +1,6 @@
 import {
   Button,
+  Checkbox,
   cn,
   DatePicker,
   Form,
@@ -7,7 +8,6 @@ import {
   Input,
   Label,
   RadioGroup,
-  Select,
   Spinner,
   Switch,
   Textarea,
@@ -26,6 +26,8 @@ import {
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFormWidgetLead } from '../hooks/useFormWidgetLead';
+import { ComboboxField } from './ComboboxField';
+import { SelectField } from './SelectField';
 
 const checkLogic = (
   logic: IFormFieldLogic,
@@ -243,34 +245,20 @@ export const ErxesForm = ({
                         );
                       }
 
-                      if (erxesField.type === 'select') {
+                      if (
+                        erxesField.type === 'select' ||
+                        erxesField.allowSearch === true
+                      ) {
+                        if (erxesField.allowSearch) {
+                          return (
+                            <ComboboxField
+                              field={field}
+                              erxesField={erxesField}
+                            />
+                          );
+                        }
                         return (
-                          <ErxesFormItem span={erxesField.column}>
-                            <Form.Label>{erxesField.text}</Form.Label>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <Form.Control>
-                                <Select.Trigger>
-                                  <Select.Value placeholder={erxesField.text} />
-                                </Select.Trigger>
-                              </Form.Control>
-                              <Select.Content>
-                                {erxesField.options.map((option) => (
-                                  <Select.Item key={option} value={option}>
-                                    {option}
-                                  </Select.Item>
-                                ))}
-                              </Select.Content>
-                            </Select>
-                            {erxesField.description && (
-                              <Form.Description>
-                                {erxesField.description}
-                              </Form.Description>
-                            )}
-                            <Form.Message />
-                          </ErxesFormItem>
+                          <SelectField field={field} erxesField={erxesField} />
                         );
                       }
 
@@ -301,6 +289,50 @@ export const ErxesForm = ({
                                 ))}
                               </RadioGroup>
                             </Form.Control>
+                            {erxesField.description && (
+                              <Form.Description>
+                                {erxesField.description}
+                              </Form.Description>
+                            )}
+                            <Form.Message />
+                          </ErxesFormItem>
+                        );
+                      }
+
+                      if (erxesField.type === 'check') {
+                        return (
+                          <ErxesFormItem span={erxesField.column}>
+                            <Form.Label>{erxesField.text}</Form.Label>
+                            <div className="flex flex-col gap-2">
+                              {erxesField.options.map((option) => {
+                                if (!option) return null;
+                                const checked = (
+                                  (field.value as string[]) || []
+                                ).includes(option);
+                                return (
+                                  <label
+                                    key={option}
+                                    className="flex items-center gap-2 cursor-pointer"
+                                  >
+                                    <Checkbox
+                                      checked={checked}
+                                      onCheckedChange={(isChecked) => {
+                                        const current =
+                                          (field.value as string[]) || [];
+                                        field.onChange(
+                                          isChecked
+                                            ? [...current, option]
+                                            : current.filter(
+                                                (v) => v !== option,
+                                              ),
+                                        );
+                                      }}
+                                    />
+                                    <span className="text-sm">{option}</span>
+                                  </label>
+                                );
+                              })}
+                            </div>
                             {erxesField.description && (
                               <Form.Description>
                                 {erxesField.description}
@@ -382,7 +414,7 @@ export const ErxesFormItem = ({
     {...props}
     className={cn(props.className, {
       'col-span-2': span === 2,
-      'col-span-1': span === 1,
+      'md:col-span-1 col-span-2': span === 1,
     })}
   />
 );

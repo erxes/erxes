@@ -141,16 +141,21 @@ const generateFilter = async (
       method: 'query',
       module: 'pipeline',
       action: 'findOne',
-      input: { _id: pipelineId },
+      input: {
+        query: { _id: pipelineId },
+        fields: {
+          initialCategoryIds: 1, excludeCategoryIds: 1, excludeProductIds: 1
+        }
+      },
       defaultValue: {},
     });
 
-    if (pipeline.initialCategoryIds?.length) {
+    if (pipeline?.initialCategoryIds?.length) {
       let incCategories = await models.ProductCategories.getChildCategories(
         pipeline.initialCategoryIds,
       );
 
-      if (pipeline.excludeCategoryIds?.length) {
+      if (pipeline?.excludeCategoryIds?.length) {
         const excCategories = await models.ProductCategories.getChildCategories(
           pipeline.excludeCategoryIds,
         );
@@ -160,7 +165,7 @@ const generateFilter = async (
 
       andFilters.push({ categoryId: { $in: incCategories.map((c) => c._id) } });
 
-      if (pipeline.excludeProductIds?.length) {
+      if (pipeline?.excludeProductIds?.length) {
         andFilters.push({ _id: { $nin: pipeline.excludeProductIds } });
       }
     }

@@ -4,13 +4,14 @@ import {
   CheckInputField,
   ProductAssigneeField,
   ProductCalculatedNumberField,
+  ProductNumberField,
 } from '../hooks/getProductColumns';
 import {
-  CurrencyCode,
-  CurrencyFormatedDisplay,
+  CURRENCY_CODES,
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
+  formatAmount,
 } from 'erxes-ui';
 import {
   IconCurrencyDollar,
@@ -35,9 +36,17 @@ export const productColumns: ColumnDef<IProductData>[] = [
       <RecordTable.InlineHead icon={IconLabel} label="Product/Service" />
     ),
     cell: ({ cell }) => {
+      const product = cell.row.original.product;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <div className="flex gap-1.5 items-center min-w-0">
+            {product?.code && (
+              <span className="font-mono text-xs bg-muted border rounded px-1 text-muted-foreground shrink-0">
+                {product.code}
+              </span>
+            )}
+            <TextOverflowTooltip value={product?.name ?? ''} />
+          </div>
         </RecordTableInlineCell>
       );
     },
@@ -45,19 +54,27 @@ export const productColumns: ColumnDef<IProductData>[] = [
   {
     id: 'unitPrice',
     accessorKey: 'unitPrice',
-    accessorFn: (row) => row.product?.unitPrice,
     header: () => (
       <RecordTable.InlineHead icon={IconCurrencyDollar} label="Unit Price" />
     ),
     cell: ({ cell }) => {
+      const currencyCode = cell.row.original.currency;
+      const CurrencyIcon = currencyCode
+        ? CURRENCY_CODES[currencyCode]?.Icon
+        : null;
       return (
         <RecordTableInlineCell>
-          <CurrencyFormatedDisplay
-            currencyValue={{
-              amountMicros: cell.getValue() as number,
-              currencyCode: CurrencyCode.MNT,
-            }}
-          />
+          <ProductNumberField
+            value={Number(cell.getValue()) || 0}
+            field="unitPrice"
+            _id={cell.row.original._id}
+            product={cell.row.original}
+            formatValue={(v: number) => formatAmount(v)}
+          >
+            {CurrencyIcon && (
+              <CurrencyIcon className="size-4 text-muted-foreground shrink-0" />
+            )}
+          </ProductNumberField>
         </RecordTableInlineCell>
       );
     },

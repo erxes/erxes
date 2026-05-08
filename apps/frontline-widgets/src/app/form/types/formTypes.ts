@@ -1,3 +1,17 @@
+export type FieldValidatorType = 'PRESET' | 'CUSTOM' | 'NONE';
+export type FieldValidatorPresetKey =
+  | 'EMAIL'
+  | 'PHONE_INTL'
+  | 'POSTAL_CODE'
+  | 'ALPHANUMERIC';
+
+export interface IFieldValidator {
+  type: FieldValidatorType;
+  presetKey?: FieldValidatorPresetKey;
+  customRegex?: string;
+  errorMessage?: string;
+}
+
 export interface IFormStep {
   name: string;
   description: string;
@@ -25,6 +39,8 @@ export interface IFormField {
   type: string;
   logics?: IFormFieldLogic[];
   logicAction?: string;
+  allowSearch?: boolean;
+  validator?: IFieldValidator;
 }
 
 export interface IFormFieldLogic {

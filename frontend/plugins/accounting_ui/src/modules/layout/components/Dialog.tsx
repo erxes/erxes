@@ -1,17 +1,12 @@
-import {
-  Button,
-  cn,
-  Dialog,
-} from 'erxes-ui';
+import { Button, cn, Dialog } from 'erxes-ui';
 
 import { IconX } from '@tabler/icons-react';
-
 
 export const AccountingDialog = ({
   title,
   description,
   children,
-  className
+  className,
 }: {
   title: string;
   description: string;

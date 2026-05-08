@@ -180,6 +180,10 @@ export const deploy = async (
     throw new Error('No menus found');
   }
 
+  const hydratedMainMenus = await models.MenuItems.hydrateMenuItems(mainMenus);
+  const hydratedFooterMenus =
+    await models.MenuItems.hydrateMenuItems(footerMenus);
+
   const GITHUB_TOKEN = getEnv({ name: 'GITHUB_TOKEN' });
   const VERCEL_TOKEN = getEnv({ name: 'VERCEL_TOKEN' });
   const DOMAIN = getEnv({ name: 'DOMAIN' })
@@ -296,7 +300,12 @@ export const deploy = async (
     fs.writeFileSync(
       dataPath,
       JSON.stringify(
-        buildConfigs(subdomain, web, mainMenus as any, footerMenus as any),
+        buildConfigs(
+          subdomain,
+          web,
+          hydratedMainMenus as any,
+          hydratedFooterMenus as any,
+        ),
       ),
     );
     console.log('wrote configs.json');

@@ -1,6 +1,6 @@
 import { UseFormReturn } from 'react-hook-form';
 import { TAccountCategoryForm } from '../types/AccountCategory';
-import { Button, Dialog, Form, Input, Spinner, Textarea } from 'erxes-ui';
+import { Button, Form, Input, Sheet, Spinner, Textarea } from 'erxes-ui';
 import { SelectAccountCategory } from './SelectAccountCategory';
 
 export const AccountCategoryForm = ({
@@ -11,6 +11,7 @@ export const AccountCategoryForm = ({
   form: UseFormReturn<TAccountCategoryForm>;
   handleSubmit: (data: TAccountCategoryForm) => void;
   loading: boolean;
+  onClose?: () => void;
 }) => {
   return (
     <Form {...form}>
@@ -23,7 +24,7 @@ export const AccountCategoryForm = ({
           name="name"
           render={({ field }) => (
             <Form.Item className="col-span-2">
-              <Form.Label>Name</Form.Label>
+              <Form.Label>Нэр</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -35,7 +36,7 @@ export const AccountCategoryForm = ({
           name="code"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Code</Form.Label>
+              <Form.Label>Код</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -47,7 +48,7 @@ export const AccountCategoryForm = ({
           name="parentId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Parent</Form.Label>
+              <Form.Label>Эцэг</Form.Label>
               <Form.Control>
                 <SelectAccountCategory
                   recordId={field.value ?? ''}
@@ -63,24 +64,24 @@ export const AccountCategoryForm = ({
           name="description"
           render={({ field }) => (
             <Form.Item className="col-span-2">
-              <Form.Label>Description</Form.Label>
+              <Form.Label>Тайлбар</Form.Label>
               <Form.Control>
                 <Textarea {...field} />
               </Form.Control>
             </Form.Item>
           )}
         />
-        <Dialog.Footer className="col-span-2 mt-4">
-          <Dialog.Close asChild>
+        <Sheet.Footer className="col-span-2 mt-4">
+          <Sheet.Close asChild>
             <Button variant="outline" type="button" size="lg">
-              Cancel
+              Болих
             </Button>
-          </Dialog.Close>
+          </Sheet.Close>
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
-            Save Account Category
+            Дансны ангилал хадгалах
           </Button>
-        </Dialog.Footer>
+        </Sheet.Footer>
       </form>
     </Form>
   );

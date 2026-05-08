@@ -37,8 +37,8 @@ const MEMBER_PERMISSIONS: MemberPermissionConfig[] = [
     type: 'canMoveMemberIds',
     label: 'Can Move Members',
     placeholder: 'Select members who can move',
-    color: 'bg-green-500',
-    bgColor: 'bg-green-50 text-green-600',
+    color: 'bg-success/20',
+    bgColor: 'bg-success/5 text-success',
   },
   {
     type: 'canEditMemberIds',
@@ -212,8 +212,8 @@ export const StatusPermissionControl = ({
             config.type === 'memberIds'
               ? `member${count !== 1 ? 's' : ''}`
               : config.type === 'canMoveMemberIds'
-                ? 'can move'
-                : 'can edit';
+              ? 'can move'
+              : 'can edit';
 
           return (
             <span

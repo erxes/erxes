@@ -10,6 +10,7 @@ const fieldCommonFields = `
   order: Int
   associatedFieldId: String
   logicAction: String
+  allowSearch: Boolean
 
   column: Int
   pageNumber: Int
@@ -23,6 +24,33 @@ const fieldCommonFields = `
 `;
 
 export const fieldsTypes = `
+  enum FieldValidatorType {
+    PRESET
+    CUSTOM
+    NONE
+  }
+
+  enum FieldValidatorPresetKey {
+    EMAIL
+    PHONE_INTL
+    POSTAL_CODE
+    ALPHANUMERIC
+  }
+
+  type FieldValidator {
+    type: FieldValidatorType!
+    presetKey: FieldValidatorPresetKey
+    customRegex: String
+    errorMessage: String
+  }
+
+  input FieldValidatorInput {
+    type: FieldValidatorType!
+    presetKey: FieldValidatorPresetKey
+    customRegex: String
+    errorMessage: String
+  }
+
   type FrontlineLogic {
     fieldId: String!
     logicOperator: String
@@ -73,6 +101,7 @@ export const fieldsTypes = `
     logics: [FrontlineLogic]
 
     ${fieldCommonFields}
+    validator: FieldValidator
     relationType: String
     isDisabled: Boolean
   }
@@ -97,6 +126,7 @@ export const fieldsTypes = `
     objectListConfigs: [FrontlineObjectListConfigInput]
     optionsValues: String
     subFieldIds: [String]
+    validator: FieldValidatorInput
     ${fieldCommonFields}
   }
 
@@ -144,6 +174,7 @@ const fieldsCommonFields = `
   showInCard: Boolean
   objectListConfigs: [FrontlineObjectListConfigInput]
   isVisibleToCreate: Boolean
+  validator: FieldValidatorInput
 `;
 
 export const fieldsMutations = `

@@ -80,7 +80,7 @@ router.get('/import-export/download-template', async (req, res) => {
       });
     }
 
-    const csv = `${headers
+    const csv = `\uFEFF${headers
       .map((header: any) => csvEscape(header?.label || header?.key || ''))
       .join(',')}\n`;
 

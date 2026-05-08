@@ -5,8 +5,9 @@ const transactionsMutations = {
   async accTransactionsLink(
     _root,
     doc: { ids: string[]; ptrId: string },
-    { user, models },
+    { user, models, checkPermission }: IContext,
   ) {
+    await checkPermission('linkTransactions'); 
     const { ids, ptrId } = doc;
     return await models.Transactions.linkTransaction(ids, ptrId);
   },
@@ -16,8 +17,9 @@ const transactionsMutations = {
   async accTransactionsCreate(
     _root,
     { trDocs }: { trDocs: ITransaction[] },
-    { user, models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
+    await checkPermission('manageTransactions')
     const transactions = await models.Transactions.createPTransaction(
       trDocs,
       user._id,
@@ -35,8 +37,9 @@ const transactionsMutations = {
       parentId,
       trDocs,
     }: { parentId: string; trDocs: (ITransaction & { _id?: string })[] },
-    { user, models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
+    await checkPermission('manageTransactions');
     const transactions = await models.Transactions.updatePTransaction(
       parentId,
       trDocs,
@@ -52,8 +55,9 @@ const transactionsMutations = {
   async accTransactionsRemove(
     _root,
     { parentId, ptrId }: { parentId: string; ptrId: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('removeTransactions');
     const removed = await models.Transactions.removePTransaction({
       parentId,
       ptrId,

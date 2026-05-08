@@ -43,11 +43,17 @@ export const cpTicketQueries = {
 
     return models.Ticket.countDocuments(query);
   },
+  cpGetTicketStatus: async (
+    _parent: undefined,
+    { _id },
+    { models }: IContext,
+  ) => {
+    return models.Status.getStatus(_id);
+  },
 };
 
 markResolvers<IContext>(cpTicketQueries, {
   wrapperConfig: {
     forClientPortal: true,
-    cpUserRequired: true,
   },
 });

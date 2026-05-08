@@ -47,10 +47,17 @@ export const FORM_WIDGET_CONNECT = gql`
           text
           type
           logicAction
+          allowSearch
           logics {
             fieldId
             logicOperator
             logicValue
+          }
+          validator {
+            type
+            presetKey
+            customRegex
+            errorMessage
           }
         }
         visibility

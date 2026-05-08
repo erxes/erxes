@@ -5,7 +5,9 @@ import { ACCOUNTS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
 import { ACCOUNTS_ADD } from '../graphql/mutations/accounts';
 
 export const useAccountAdd = () => {
-  const setCursor = useSetAtom(recordTableCursorAtomFamily(ACCOUNTS_CURSOR_SESSION_KEY));
+  const setCursor = useSetAtom(
+    recordTableCursorAtomFamily(ACCOUNTS_CURSOR_SESSION_KEY),
+  );
 
   const [_addAccount, { loading }] = useMutation(ACCOUNTS_ADD);
 
@@ -14,7 +16,7 @@ export const useAccountAdd = () => {
       ...options,
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: 'Алдаа',
           description: error.message,
           variant: 'destructive',
         });

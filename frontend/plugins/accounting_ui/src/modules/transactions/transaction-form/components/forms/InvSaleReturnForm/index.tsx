@@ -6,7 +6,7 @@ import {
 } from '@/settings/account/types/Account';
 import { IconBookDownload } from '@tabler/icons-react';
 import { Button, Form } from 'erxes-ui';
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import { CustomerType } from 'ui-modules';
@@ -35,6 +35,9 @@ import { VatForm } from '../../helpers/VatForm';
 import { InventoryForm } from './InventoryForm';
 import { SelectSaleSheet } from './SelectSaleSheet';
 
+const updateFollowDetailsAccount = (details: ITrDetail[], account: IAccount) =>
+  details.map((detail) => ({ ...detail, account, accountId: account._id }));
+
 export const InvSaleReturnForm = ({
   form,
   index,
@@ -47,26 +50,21 @@ export const InvSaleReturnForm = ({
     name: `trDocs.${index}`,
   }) as TInvSaleReturnJournal;
 
-  const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
+  const setFollowTrDocs = useSetAtom(followTrDocsState);
   const [replaceDetails, setReplaceDetails] = useState<ITrDetail[]>(
     trDoc.details as any[],
   );
   const onChangeOutAccount = (account: IAccount) => {
     form.setValue(`trDocs.${index}.followExtras.saleOutAccount`, account);
 
-    setFollowTrDocs(
-      (followTrDocs || []).map(
-        (ftr) =>
-          (ftr.originId === trDoc._id &&
-            ftr.originType === 'invSaleReturnOut' && {
+    setFollowTrDocs((prev) =>
+      (prev || []).map((ftr) =>
+        ftr.originId === trDoc._id && ftr.originType === 'invSaleReturnOut'
+          ? {
               ...ftr,
-              details: ftr.details.map((ftrd) => ({
-                ...ftrd,
-                account,
-                accountId: account._id,
-              })),
-            }) ||
-          ftr,
+              details: updateFollowDetailsAccount(ftr.details, account),
+            }
+          : ftr,
       ),
     );
   };
@@ -74,19 +72,14 @@ export const InvSaleReturnForm = ({
   const onChangeCostAccount = (account: IAccount) => {
     form.setValue(`trDocs.${index}.followExtras.saleCostAccount`, account);
 
-    setFollowTrDocs(
-      (followTrDocs || []).map(
-        (ftr) =>
-          (ftr.originId === trDoc._id &&
-            ftr.originType === 'invSaleReturnCost' && {
+    setFollowTrDocs((prev) =>
+      (prev || []).map((ftr) =>
+        ftr.originId === trDoc._id && ftr.originType === 'invSaleReturnCost'
+          ? {
               ...ftr,
-              details: ftr.details.map((ftrd) => ({
-                ...ftrd,
-                account,
-                accountId: account._id,
-              })),
-            }) ||
-          ftr,
+              details: updateFollowDetailsAccount(ftr.details, account),
+            }
+          : ftr,
       ),
     );
   };
@@ -136,12 +129,12 @@ export const InvSaleReturnForm = ({
           onSelect={onChangeSaleTr}
         >
           <Form.Item>
-            <Form.Label>Sale Transaction</Form.Label>
+            <Form.Label>Борлуулалтын гүйлгээ</Form.Label>
             <Form.Control>
               <Button variant="ghost" className="">
                 <IconBookDownload />
                 {trDoc.followInfos?.saleTransactionId ||
-                  'Select Sale Transaction'}
+                  'Борлуулалтын гүйлгээ сонгох'}
               </Button>
             </Form.Control>
             <Form.Message />
@@ -155,7 +148,7 @@ export const InvSaleReturnForm = ({
             kind: AccountKind.PASSIVE,
           }}
           allDetails={true}
-          labelTxt="Sale Account"
+          labelTxt="Борлуулалтын данс"
         />
         <BranchField form={form} index={index} />
         <DepartmentField form={form} index={index} />
@@ -164,7 +157,7 @@ export const InvSaleReturnForm = ({
           name={`trDocs.${index}.followInfos.saleOutAccountId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Inventory Account</Form.Label>
+              <Form.Label>Бараа материалын данс</Form.Label>
               <Form.Control>
                 <SelectAccount
                   value={field.value || ''}
@@ -182,7 +175,7 @@ export const InvSaleReturnForm = ({
           name={`trDocs.${index}.followInfos.saleCostAccountId`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Cost Account</Form.Label>
+              <Form.Label>Өртгийн данс</Form.Label>
               <Form.Control>
                 <SelectAccount
                   value={field.value || ''}

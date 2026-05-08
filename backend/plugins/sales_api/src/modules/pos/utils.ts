@@ -1,7 +1,6 @@
 import {
   checkServiceRunning,
   isEnabled,
-  redis,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
@@ -207,38 +206,6 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
   }
 };
 
-const otherPlugins = async (subdomain, newOrder, oldOrder?, userId?) => {
-  const value = await redis.get('afterMutations');
-  const afterMutations = JSON.parse(value || '{}');
-
-  if (afterMutations['pos:order']?.['synced']?.length) {
-    const user = await sendTRPCMessage({
-      subdomain,
-
-      pluginName: 'core',
-      module: 'users',
-      action: 'users.findOne',
-      input: { _id: userId },
-      defaultValue: {},
-    });
-
-    for (const service of afterMutations['pos:order']['synced']) {
-      // TODO: change message
-      // await sendMessage(`${service}:afterMutation`, {
-      //   subdomain,
-      //   data: {
-      //     type: 'pos:order',
-      //     action: 'synced',
-      //     object: oldOrder || newOrder,
-      //     updatedDocument: newOrder,
-      //     newData: newOrder,
-      //     user
-      //   }
-      // });
-    }
-  }
-};
-
 const updateCustomer = async ({ subdomain, doneOrder }) => {
   const deliveryInfo = doneOrder.deliveryInfo || {};
   const {
@@ -266,9 +233,8 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
       (marker.latitude || marker.lat)
     ) {
       pushInfo.addresses = {
-        id: `${marker.longitude || marker.lng}_${
-          marker.latitude || marker.lat
-        }`,
+        id: `${marker.longitude || marker.lng}_${marker.latitude || marker.lat
+          }`,
         location: {
           type: 'Point',
           coordinates: [
@@ -317,9 +283,8 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     name: `Delivery: ${doneOrder.number}`,
     startDate: doneOrder.createdAt,
     closeDate: doneOrder.dueDate,
-    description: `<p>${doneOrder.description || ''}</p> <p>${
-      description || ''
-    }</p>`,
+    description: `<p>${doneOrder.description || ''}</p> <p>${description || ''
+      }</p>`,
     stageId: deliveryConfig.stageId,
     assignedUserIds: deliveryConfig.assignedUserIds,
     watchedUserIds: deliveryConfig.watchedUserIds,
@@ -497,8 +462,9 @@ export const statusToDone = async ({
     if (toPos) {
       await sendPosclientMessage({
         subdomain,
-        action: 'erxes-posclient-to-pos-api',
-        data: {
+        method: 'mutation',
+        action: 'syncOrderFromPos',
+        input: {
           order: {
             ...doneOrder,
             posToken: doneOrder.posToken,
@@ -635,60 +601,6 @@ const createDealPerOrder = async ({
   return;
 };
 
-const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
-  if (!pos.erkhetConfig?.isSyncErkhet) {
-    return;
-  }
-  let resp;
-
-  if (newOrder.isPre && !newOrder.paidDate) {
-    // TODO: CallPrepaymentFromSubServices erkhet rmq beldeh, holboh
-    return;
-  }
-
-  if (newOrder.status === 'return') {
-    resp = await sendTRPCMessage({
-      subdomain,
-
-      method: 'mutation',
-      pluginName: 'mongolian',
-      module: 'erkhet',
-      action: 'returnOrder',
-      input: {
-        pos,
-        order: newOrder,
-      },
-      // timeout: 50000
-    });
-  } else {
-    resp = await sendTRPCMessage({
-      subdomain,
-
-      method: 'mutation',
-      pluginName: 'mongolian',
-      module: 'erkhet',
-      action: 'toOrder',
-      input: {
-        pos,
-        order: newOrder,
-      },
-      // timeout: 50000
-    });
-  }
-
-  if (resp && (resp.message || resp.error)) {
-    const txt = JSON.stringify({
-      message: resp.message,
-      error: resp.error,
-    });
-
-    await models.PosOrders.updateOne(
-      { _id: newOrder._id },
-      { $set: { syncErkhetInfo: txt } },
-    );
-  }
-};
-
 export const syncOrderFromClient = async ({
   subdomain,
   models,
@@ -706,44 +618,33 @@ export const syncOrderFromClient = async ({
   posToken: string;
   responses;
 }) => {
-  const oldOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
-  const oldBranchId = oldOrder ? oldOrder.branchId : '';
+  const enabledMN = await isEnabled('mongolian');
 
-  if (await isEnabled('ebarimt')) {
-    for (const response of responses || []) {
-      if (response?._id) {
-        await sendTRPCMessage({
-          subdomain,
-          method: 'mutation',
-          pluginName: 'mongolian',
-          module: 'putresponses',
-          action: 'createOrUpdate',
-          input: { _id: response._id, doc: { ...response, posToken } },
-          defaultValue: [],
-        });
-      }
+  const { oldOrder, newOrder } = await models.PosOrders.createOrUpdate({
+    ...order,
+    posToken,
+    posId: pos._id,
+    items,
+    scopeBrandIds: pos.scopeBrandIds,
+    branchId: order.branchId || pos.branchId,
+    departmentId: order.departmentId || pos.departmentId,
+  });
+
+  if (enabledMN) {
+    const putResponses = responses?.filter(resp => resp._id).map(resp => ({ ...resp, posToken }));
+
+    if (putResponses?.length) {
+      await sendTRPCMessage({
+        subdomain,
+        method: 'mutation',
+        pluginName: 'mongolian',
+        module: 'putResponses',
+        action: 'syncPutResponses',
+        input: {
+          putResponses
+        },
+      });
     }
-  }
-
-  await models.PosOrders.updateOne(
-    { _id: order._id },
-    {
-      $set: {
-        ...order,
-        posToken,
-        items,
-        scopeBrandIds: pos.scopeBrandIds,
-        branchId: order.branchId || pos.branchId,
-        departmentId: order.departmentId || pos.departmentId,
-      },
-    },
-    { upsert: true },
-  );
-
-  const newOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
-
-  if (!newOrder) {
-    return;
   }
 
   let convertDealId;
@@ -761,12 +662,6 @@ export const syncOrderFromClient = async ({
 
     try {
       await confirmLoyalties(subdomain, newOrder);
-    } catch (e) {
-      console.log(subdomain, e.message);
-    }
-
-    try {
-      await otherPlugins(subdomain, newOrder, oldOrder, newOrder.userId);
     } catch (e) {
       console.log(subdomain, e.message);
     }
@@ -795,8 +690,9 @@ export const syncOrderFromClient = async ({
     if (toPos) {
       await sendPosclientMessage({
         subdomain,
-        action: 'erxes-posclient-to-pos-api',
-        data: {
+        method: 'mutation',
+        action: 'syncOrderFromPos',
+        input: {
           order: {
             ...newOrder,
             convertDealId,
@@ -821,8 +717,8 @@ export const syncOrderFromClient = async ({
       if (toCancelPos) {
         await sendPosclientMessage({
           subdomain,
-          action: 'erxes-posclient-to-pos-api-remove',
-          data: {
+          action: 'syncOrderFromPosRemove',
+          input: {
             order: { ...newOrder, posToken, subToken: toCancelPos.token },
           },
           pos: toCancelPos,
@@ -831,39 +727,25 @@ export const syncOrderFromClient = async ({
     }
   }
 
-  if (newOrder.paidDate) {
-    try {
-      await syncErkhetRemainder({ subdomain, models, pos, newOrder });
-    } catch (e) {
-      console.log(subdomain, e.message);
-    }
-
-    // try {
-    //   await syncInventoriesRem({ subdomain, newOrder, oldBranchId, pos });
-    // } catch (e) {
-    //   console.log(subdomain, e.message);
-    // }
-  }
-
-  const syncedResponseIds = (
+  const syncedResponseIds = enabledMN ? (
     (await sendTRPCMessage({
       subdomain,
-
       pluginName: 'mongolian',
-      module: 'putresponses',
+      module: 'putResponses',
       action: 'find',
       input: {
         query: { _id: { $in: (responses || []).map((resp) => resp._id) } },
       },
       defaultValue: [],
     })) || []
-  ).map((r) => r._id);
+  ).map((r) => r._id) : [];
 
   // return info saved
   await sendPosclientMessage({
     subdomain,
+    method: 'mutation',
     action: `updateSynced`,
-    data: {
+    input: {
       status: 'ok',
       posToken,
       responseIds: syncedResponseIds,

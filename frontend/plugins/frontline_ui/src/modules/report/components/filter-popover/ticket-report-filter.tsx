@@ -84,14 +84,14 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
 
   const hasFilters = Boolean(
     (channelFilter && channelFilter.length > 0) ||
-    (memberFilter && memberFilter.length > 0) ||
-    (dateValue && dateValue.length > 0) ||
-    (pipelineFilter && pipelineFilter.length > 0) ||
-    (ticketTagFilter && ticketTagFilter.length > 0) ||
-    stateFilter ||
-    (priorityFilter && priorityFilter.length > 0) ||
-    (customerFilter && customerFilter.length > 0) ||
-    (companyFilter && companyFilter.length > 0),
+      (memberFilter && memberFilter.length > 0) ||
+      (dateValue && dateValue.length > 0) ||
+      (pipelineFilter && pipelineFilter.length > 0) ||
+      (ticketTagFilter && ticketTagFilter.length > 0) ||
+      stateFilter ||
+      (priorityFilter && priorityFilter.length > 0) ||
+      (customerFilter && customerFilter.length > 0) ||
+      (companyFilter && companyFilter.length > 0),
   );
 
   const handleClear = () => {
@@ -133,7 +133,7 @@ export const TicketReportFilter = ({ cardId }: TicketReportFilterProps) => {
                     <Command.Item
                       value="clear"
                       onSelect={handleClear}
-                      className="text-red-500"
+                      className="text-destructive"
                     >
                       Clear all
                     </Command.Item>

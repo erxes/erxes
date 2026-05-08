@@ -2,14 +2,32 @@
 # Note: Chromium required for puppeteer PDF generation
 FROM node:22-alpine3.22 AS installer
 WORKDIR /app
-RUN apk add --no-cache chromium nss freetype harfbuzz ca-certificates ttf-freefont
-RUN npm install -g pnpm@9
+RUN apk add --no-cache chromium nss freetype harfbuzz ca-certificates ttf-freefont \
+    && npm install -g pnpm@9
 
-COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY pnpm-lock.yaml ./
 COPY backend/plugins/insurance_api/package.json backend/plugins/insurance_api/
 COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-RUN pnpm install --prod --shamefully-hoist \
+RUN node -e "\
+const fs = require('fs'); \
+const shared = require('./backend/erxes-api-shared/package.json'); \
+const service = require('./backend/plugins/insurance_api/package.json'); \
+const dependencies = { \
+  ...(shared.dependencies || {}), \
+  ...(service.dependencies || {}), \
+}; \
+delete dependencies['erxes-api-shared']; \
+fs.writeFileSync( \
+  'package.json', \
+  JSON.stringify( \
+    { name: 'runtime-deps', version: '1.0.0', private: true, dependencies }, \
+    null, \
+    2, \
+  ), \
+); \
+" \
+    && pnpm install --prod --shamefully-hoist --no-frozen-lockfile \
     && find node_modules -type f \( \
          -name "*.d.ts" -o -name "*.map" -o -name "*.md" \
          -o -name "LICENSE*" -o -name "LICENCE*" \

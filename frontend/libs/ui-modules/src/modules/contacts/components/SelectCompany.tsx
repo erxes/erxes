@@ -42,15 +42,17 @@ const SelectCompanyProvider = ({
   hideAvatar,
 }: SelectCompanyProviderProps) => {
   const [companies, setCompanies] = useState<ICompany[]>([]);
-  const companyIds = useMemo(() => {
+  const companyIds = companies.map((c) => c._id);
+
+  const valueIds = useMemo(() => {
     return !value ? [] : Array.isArray(value) ? value : [value];
   }, [value]);
 
   const { companies: fetchedCompanies } = useCompanies({
     variables: {
-      ids: companyIds,
+      ids: valueIds,
     },
-    skip: companyIds.length === 0,
+    skip: valueIds.length === 0,
   });
 
   useEffect(() => {
@@ -61,29 +63,26 @@ const SelectCompanyProvider = ({
     ) {
       setCompanies(fetchedCompanies);
     }
-  }, [fetchedCompanies, companyIds, companies.length]);
+  }, [fetchedCompanies, companies.length]);
 
   const onSelect = (company: ICompany) => {
     if (!company) return;
-
+    if (companies.some((c) => c._id === company._id)) {
+      const newCompanies = companies.filter((c) => c._id !== company._id);
+      setCompanies(newCompanies);
+      onValueChange?.(mode === 'single' ? '' : newCompanies.map((c) => c._id));
+      return;
+    }
     const isSingleMode = mode === 'single';
-    const multipleValue = (value as string[]) || [];
-    const isSelected = !isSingleMode && multipleValue.includes(company._id);
-
-    const newSelectedCompanyIds = isSingleMode
-      ? [company._id]
-      : isSelected
-      ? multipleValue.filter((t) => t !== company._id)
-      : [...multipleValue, company._id];
-
     const newSelectedCompanies = isSingleMode
       ? [company]
-      : isSelected
-      ? companies.filter((t) => t._id !== company._id)
       : [...companies, company];
+    const newSelectedCompanyIds = isSingleMode
+      ? company._id
+      : newSelectedCompanies.map((c) => c._id);
 
     setCompanies(newSelectedCompanies);
-    onValueChange?.(isSingleMode ? company._id : newSelectedCompanyIds);
+    onValueChange?.(newSelectedCompanyIds);
   };
 
   return (

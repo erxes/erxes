@@ -12,8 +12,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "erxes-api-shared": "workspace:^",
+    "graphql-tag": "^2.12.6",
     "handlebars": "^4.7.8",
+    "jsonwebtoken": "^9.0.2",
     "puppeteer": "^24.23.0"
   },
   "devDependencies": {}

@@ -11,7 +11,6 @@ import { TrsTotalCount } from '~/modules/transactions/components/TrsTotalCount';
 import { ORIGIN_TR_JOURNALS } from '~/modules/transactions/types/constants';
 import { TR_JOURNAL_LABELS } from '../modules/transactions/types/constants';
 
-
 export const TransactionListPage = () => {
   const { t } = useTranslation();
 
@@ -30,14 +29,18 @@ export const TransactionListPage = () => {
             <div className="rounded-md border bg-background p-3">
               <p className="text-xs font-mono font-semibold text-primary">*</p>
               <p className="text-sm mt-1">
-                {t('Олон бичилттэй баримтын хувьд нэг л мөр нь бөглөгдөнө. Хоосон бол өмнөх мөрийн үргэлжлэл баримт гэж ойлгогдоно.')}
+                {t(
+                  'Олон бичилттэй баримтын хувьд нэг л мөр нь бөглөгдөнө. Хоосон бол өмнөх мөрийн үргэлжлэл баримт гэж ойлгогдоно.',
+                )}
               </p>
             </div>
           </div>
         </div>
 
         <div className="space-y-3">
-          <h4 className="text-sm font-semibold">{t('Журнал баганад боломжтой утгууд')}</h4>
+          <h4 className="text-sm font-semibold">
+            {t('Журнал баганад боломжтой утгууд')}
+          </h4>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {ORIGIN_TR_JOURNALS.map((j) => (
               <div
@@ -61,7 +64,9 @@ export const TransactionListPage = () => {
           </h4>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-lg border p-3 space-y-2">
-              <p className="text-sm font-medium">{t('Гадаад валютын гүйлгээ')}</p>
+              <p className="text-sm font-medium">
+                {t('Гадаад валютын гүйлгээ')}
+              </p>
               <ul className="text-sm text-muted-foreground space-y-1">
                 <li>
                   <span className="font-mono text-xs rounded bg-muted px-1.5 py-0.5 mr-2">

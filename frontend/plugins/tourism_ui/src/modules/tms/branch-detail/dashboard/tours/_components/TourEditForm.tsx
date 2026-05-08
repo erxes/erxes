@@ -3,10 +3,12 @@ import { useForm, useWatch, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
 import { useEffect, useMemo, useState } from 'react';
+import { nanoid } from 'nanoid';
 import { TourSideTab, TourOrdersSidePanel } from './TourOrdersSidePanel';
 
 import { GET_ITINERARIES } from '../../itinerary/graphql/queries';
 import { useEditTour } from '../hooks/useEditTour';
+import { useCreateTour } from '../hooks/useCreateTour';
 import { useTourDetail } from '../hooks/useTourDetail';
 import { useTourLanguage } from '../hooks/useTourLanguage';
 import { TourFieldLanguageSwitch } from '../../_components/TourFieldLanguageSwitch';
@@ -42,6 +44,7 @@ import {
   TourAttachmentsField,
   TourDateSchedulingField,
   TourPricingOptionsField,
+  TourGuidesField,
 } from './TourFormFields';
 
 interface Props {
@@ -65,6 +68,9 @@ const isSameDay = (left: Date, right: Date) =>
   left.getFullYear() === right.getFullYear() &&
   left.getMonth() === right.getMonth() &&
   left.getDate() === right.getDate();
+
+const sortDates = (dates: Date[]) =>
+  [...dates].sort((a, b) => a.getTime() - b.getTime());
 
 const getDateStatus = (
   startDate?: Date,
@@ -94,6 +100,7 @@ export const TourEditForm = ({
 }: Props) => {
   const { toast } = useToast();
   const { editTour, loading: editLoading } = useEditTour();
+  const { createTour, loading: createLoading } = useCreateTour();
   const [editorResetKey, setEditorResetKey] = useState(0);
   const [sideTabLocal, setSideTabLocal] = useState<TourSideTab | null>(null);
 
@@ -241,7 +248,14 @@ export const TourEditForm = ({
         images: tour.images ?? [],
         imageThumbnail: tour.imageThumbnail ?? '',
         attachment: tour.attachment ?? null,
-        guides: [],
+        guides: (tour.guides ?? [])
+          .filter((g): g is { guideId: string; type: string } =>
+            Boolean(g?.guideId),
+          )
+          .map((g) => ({
+            guideId: g.guideId,
+            type: g.type ?? 'guide',
+          })),
         pricingOptions: (tour.pricingOptions ?? []).map((option) => {
           const { prices, pricePerPerson, ...rest } = option;
 
@@ -326,9 +340,29 @@ export const TourEditForm = ({
 
       const isFlexible = values.isFlexibleDate;
 
-      const normalizedStartDate = Array.isArray(values.startDate)
-        ? values.startDate?.[0]
-        : values.startDate;
+      const normalizedStartDates =
+        !isFlexible && values.startDate
+          ? Array.isArray(values.startDate)
+            ? sortDates(values.startDate)
+            : [values.startDate]
+          : [];
+
+      const primaryStartDate = normalizedStartDates[0];
+      const additionalDates = values.isGroupTour
+        ? normalizedStartDates.slice(1)
+        : [];
+
+      const targetBranchId = branchId ?? tourDetail?.branchId;
+
+      if (additionalDates.length > 0 && !targetBranchId) {
+        toast({
+          title: 'Error',
+          description:
+            'Branch ID is required to create additional tours for the selected dates',
+          variant: 'destructive',
+        });
+        return;
+      }
 
       await editTour({
         id: tourId,
@@ -337,22 +371,60 @@ export const TourEditForm = ({
         pricingOptions: normalizedPricingOptions,
         translations: sanitizedTranslations,
         dateType: isFlexible ? 'flexible' : 'fixed',
-        startDate: isFlexible ? undefined : normalizedStartDate,
+        startDate: isFlexible ? undefined : primaryStartDate,
         endDate: isFlexible
           ? undefined
-          : normalizedStartDate && values.duration
-          ? calculateEndDate(normalizedStartDate, values.duration)
+          : primaryStartDate && values.duration
+          ? calculateEndDate(primaryStartDate, values.duration)
           : undefined,
         availableFrom: isFlexible ? values.availableFrom : undefined,
         availableTo: isFlexible ? values.availableTo : undefined,
         dateStatus: isFlexible
           ? 'unscheduled'
-          : getDateStatus(normalizedStartDate),
+          : getDateStatus(primaryStartDate),
       });
+
+      if (additionalDates.length > 0 && targetBranchId) {
+        const groupCode = tourDetail?.groupCode || nanoid(8);
+
+        await Promise.all(
+          additionalDates.map((selectedDate, idx) => {
+            const computedEndDate = calculateEndDate(
+              selectedDate,
+              values.duration,
+            );
+
+            const refNumber = `${restValues.refNumber}-${String(
+              idx + 2,
+            ).padStart(2, '0')}`;
+
+            return createTour({
+              variables: {
+                branchId: targetBranchId,
+                language: resolvedPrimaryLanguage || undefined,
+                ...restValues,
+                refNumber,
+                pricingOptions: normalizedPricingOptions,
+                dateType: 'fixed',
+                startDate: selectedDate,
+                endDate: computedEndDate,
+                availableFrom: undefined,
+                availableTo: undefined,
+                date_status: getDateStatus(selectedDate),
+                groupCode,
+                translations: sanitizedTranslations,
+              },
+            });
+          }),
+        );
+      }
 
       toast({
         title: 'Success',
-        description: 'Tour updated successfully',
+        description:
+          additionalDates.length > 0
+            ? `Tour updated and ${additionalDates.length} new tour(s) created`
+            : 'Tour updated successfully',
       });
 
       onSuccess?.();
@@ -365,7 +437,7 @@ export const TourEditForm = ({
       });
     }
   };
-  const loading = editLoading || tourLoading;
+  const loading = editLoading || createLoading || tourLoading;
 
   return (
     <Form {...form}>
@@ -450,6 +522,14 @@ export const TourEditForm = ({
                     setValue={form.setValue}
                   />
                 </div>
+
+                <div className="flex items-center">
+                  <div className="flex-1 border-t" />
+                  <Form.Label className="mx-2">Crew</Form.Label>
+                  <div className="flex-1 border-t" />
+                </div>
+
+                <TourGuidesField control={form.control} />
 
                 <div className="flex items-center">
                   <div className="flex-1 border-t" />

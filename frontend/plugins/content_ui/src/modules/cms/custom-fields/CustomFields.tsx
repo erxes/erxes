@@ -50,6 +50,9 @@ export function CustomFields() {
       code: data.code,
       clientPortalId: websiteId,
       customPostTypeIds: data.customPostTypeIds || [],
+      enabledPageIds: data.enabledPageIds || [],
+      enabledCategoryIds: data.enabledCategoryIds || [],
+      enabledPostIds: data.enabledPostIds || [],
       fields: editingGroup?.fields || [],
     };
 
@@ -276,6 +279,7 @@ export function CustomFields() {
         onSubmit={handleGroupSubmit}
         editingGroup={editingGroup}
         customTypes={customTypes}
+        websiteId={websiteId || ''}
       />
 
       <FieldDrawer

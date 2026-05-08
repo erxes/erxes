@@ -15,7 +15,7 @@ export const FbMessengerBotButtonTemplateBlock = ({
     <div
       className={cn(
         'overflow-hidden rounded-xl bg-background ring-1 ring-border/60',
-        internal && 'bg-yellow-50 ring-yellow-200 dark:bg-yellow-950/40',
+        internal && 'bg-warning/20 ring-warning/50',
       )}
     >
       <div className="px-3 py-2.5">

@@ -1,8 +1,11 @@
+import { useMemo } from 'react';
 import { Button, Combobox, Command, Filter, Popover } from 'erxes-ui';
 import {
   IProduct,
+  SelectBranches,
   SelectCategory,
   SelectCompany,
+  SelectDepartments,
   SelectTags,
 } from 'ui-modules';
 import { IconCategory, IconTag, IconX } from '@tabler/icons-react';
@@ -79,6 +82,34 @@ export const filterProducts = (
     );
   }
 
+  if (filters.productVendorIds?.length) {
+    result = result.filter((p) => {
+      const vendor = (p as any).vendor as { _id: string } | undefined;
+      return vendor !== undefined && filters.productVendorIds?.includes(vendor._id) === true;
+    });
+  }
+
+  if (filters.branchIds?.length) {
+    const hasBranchIds = result.some((p) => typeof p.branchId === 'string');
+    if (hasBranchIds) {
+      result = result.filter(
+        (p) => !!p.branchId && filters.branchIds?.includes(p.branchId) === true,
+      );
+    }
+  }
+
+  if (filters.departmentIds?.length) {
+    const hasDepartmentIds = result.some(
+      (p) => typeof p.departmentId === 'string',
+    );
+    if (hasDepartmentIds) {
+      result = result.filter(
+        (p) =>
+          !!p.departmentId && filters.departmentIds?.includes(p.departmentId) === true,
+      );
+    }
+  }
+
   return result;
 };
 
@@ -91,7 +122,13 @@ export const ProductFilterBar = ({
 }) => {
   const { productCategories: categories = [] } = useProductCategories();
   const { tags = [] } = useTags({ variables: { ids: [] } });
-  const { productCategoryIds, productTagIds } = filters;
+  const {
+    productCategoryIds,
+    productTagIds,
+    productVendorIds,
+    branchIds,
+    departmentIds,
+  } = filters;
 
   const getCategoryName = (id: string) => {
     const category = categories.find((cat) => cat._id === id);
@@ -140,6 +177,72 @@ export const ProductFilterBar = ({
           </Filter.BarButton>
         </CustomFilterItem>
       )}
+
+      {productVendorIds && (
+        <SelectCompany.Provider
+          mode="multiple"
+          value={productVendorIds}
+          onValueChange={(value) =>
+            updateFilter(
+              'productVendorIds',
+              value && (value as string[]).length ? value : undefined,
+            )
+          }
+        >
+          <CustomFilterItem
+            onClear={() => updateFilter('productVendorIds', undefined)}
+          >
+            <Filter.BarName>Vendor</Filter.BarName>
+            <Filter.BarButton>
+              <SelectCompany.Value />
+            </Filter.BarButton>
+          </CustomFilterItem>
+        </SelectCompany.Provider>
+      )}
+
+      {branchIds && branchIds.length > 0 && (
+        <SelectBranches
+          mode="multiple"
+          value={branchIds}
+          onValueChange={(value) =>
+            updateFilter(
+              'branchIds',
+              value && (value as string[]).length ? value : undefined,
+            )
+          }
+        >
+          <CustomFilterItem
+            onClear={() => updateFilter('branchIds', undefined)}
+          >
+            <Filter.BarName>Branch</Filter.BarName>
+            <Filter.BarButton>
+              <SelectBranches.Value />
+            </Filter.BarButton>
+          </CustomFilterItem>
+        </SelectBranches>
+      )}
+
+      {departmentIds && departmentIds.length > 0 && (
+        <SelectDepartments
+          mode="multiple"
+          value={departmentIds}
+          onValueChange={(value) =>
+            updateFilter(
+              'departmentIds',
+              value && (value as string[]).length ? value : undefined,
+            )
+          }
+        >
+          <CustomFilterItem
+            onClear={() => updateFilter('departmentIds', undefined)}
+          >
+            <Filter.BarName>Department</Filter.BarName>
+            <Filter.BarButton>
+              <SelectDepartments.Value />
+            </Filter.BarButton>
+          </CustomFilterItem>
+        </SelectDepartments>
+      )}
     </>
   );
 };
@@ -154,6 +257,11 @@ const ProductFilterView = ({
   const updateFilter = (key: keyof ProductFilterState, value: any) => {
     onChange({ ...filters, [key]: value });
   };
+
+  const vendorIds = useMemo(
+    () => filters.productVendorIds ?? [],
+    [filters.productVendorIds],
+  );
 
   return (
     <>
@@ -172,20 +280,38 @@ const ProductFilterView = ({
               <IconTag />
               By Tag
             </Filter.Item>
+            <SelectBranches.FilterItem value="branchIds" label="By Branch" />
+            <SelectDepartments.FilterItem
+              value="departmentIds"
+              label="By Department"
+            />
           </Command.List>
         </Command>
       </Filter.View>
 
       <Filter.View filterKey="productCategoryIds">
         <SelectCategory
-          value={filters.productCategoryIds?.[0]}
+          selected={filters.productCategoryIds?.[0]}
           onSelect={(value) =>
             updateFilter('productCategoryIds', value ? [value] : undefined)
           }
         />
       </Filter.View>
 
-      <SelectCompany.FilterView mode="multiple" filterKey="productVendorIds" />
+      <Filter.View filterKey="productVendorIds">
+        <SelectCompany.Provider
+          mode="multiple"
+          value={vendorIds}
+          onValueChange={(value) => {
+            updateFilter(
+              'productVendorIds',
+              value && (value as string[]).length ? value : undefined,
+            );
+          }}
+        >
+          <SelectCompany.Content />
+        </SelectCompany.Provider>
+      </Filter.View>
 
       <Filter.View filterKey="productTagIds">
         <SelectTags
@@ -195,6 +321,36 @@ const ProductFilterView = ({
             updateFilter('productTagIds', value ? [value] : undefined)
           }
         />
+      </Filter.View>
+
+      <Filter.View filterKey="branchIds">
+        <SelectBranches
+          mode="multiple"
+          value={filters.branchIds || []}
+          onValueChange={(value) => {
+            updateFilter(
+              'branchIds',
+              value && (value as string[]).length ? value : undefined,
+            );
+          }}
+        >
+          <SelectBranches.Content />
+        </SelectBranches>
+      </Filter.View>
+
+      <Filter.View filterKey="departmentIds">
+        <SelectDepartments
+          mode="multiple"
+          value={filters.departmentIds || []}
+          onValueChange={(value) => {
+            updateFilter(
+              'departmentIds',
+              value && (value as string[]).length ? value : undefined,
+            );
+          }}
+        >
+          <SelectDepartments.Content />
+        </SelectDepartments>
       </Filter.View>
     </>
   );
