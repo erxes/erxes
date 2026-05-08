@@ -67,15 +67,23 @@ export const getAvailableOAuthScopesForUser = async ({
 };
 
 /**
- * Fast indexable hash for HIGH-ENTROPY server-issued opaque tokens
- * (refresh tokens, device codes, user codes generated via `crypto.randomBytes`
- * / `createUserCode`).
+ * Fast indexable hash for server-issued opaque tokens
+ * (refresh tokens, device codes — generated via `createRandomToken(48)`, i.e.
+ * 48 bytes from `crypto.randomBytes` ≈ 384 bits of entropy).
  *
  * DO NOT use this on user-supplied passwords or `client_secret` values — those
  * must go through `hashClientSecret`/`verifyClientSecret` (slow KDF with salt).
- * SHA-256 is appropriate here because the inputs are 48-byte
- * cryptographically-random strings (≥256 bits of entropy), making brute force
- * on a leaked hash computationally infeasible.
+ *
+ * `userCodeHash` (8 chars from a 32-symbol alphabet ≈ 40 bits of entropy from
+ * `createUserCode`) also lands in this hash, but its safety against offline
+ * brute force does NOT come from input entropy — it comes from operational
+ * controls: short TTL on `OAuthDeviceCodes.expiresAt`, the `failedAttempts`
+ * lockout on the `/oauth/device/verify` route, and the row being deleted/
+ * `denied` once the device flow completes. Treat the indexable SHA-256 here as
+ * a lookup token, not a password hash. If `OAuthDeviceCodes` is ever exposed
+ * to bulk read access, switch user-code hashing to the slow KDF used by
+ * `hashClientSecret` (or raise `createUserCode` entropy to ≥128 bits) before
+ * relying on hash strength alone.
  */
 export const hashToken = (token: string) => {
   return crypto.createHash('sha256').update(token).digest('hex');
@@ -187,12 +195,28 @@ export const verifyClientSecret = async (
   const parts = storedHash.split('$');
   if (parts.length !== 4 || parts[0] !== 'scrypt') return false;
 
+  // Reject pathologically large base64 payloads BEFORE decoding so a corrupted
+  // `secretHash` row can't push us into a giant `Buffer.from` allocation. The
+  // canonical sizes are 16 raw bytes (≤24 base64 chars) for salt and 64 raw
+  // bytes (≤88 base64 chars) for the derived key — anything significantly
+  // larger is malformed.
+  if (parts[2].length > 32 || parts[3].length > 128) return false;
+
   const params = parseScryptParams(parts[1]);
   if (!params) return false;
 
   const salt = Buffer.from(parts[2], 'base64');
   const expected = Buffer.from(parts[3], 'base64');
-  if (salt.length === 0 || expected.length === 0) return false;
+  // Enforce the canonical sizes that `hashClientSecret` always emits. A
+  // mismatched `expected.length` would otherwise be passed straight through to
+  // scrypt as `keylen`, letting a malformed stored hash drive an oversized KDF
+  // call on the auth path.
+  if (
+    salt.length !== SCRYPT_SALT_LEN ||
+    expected.length !== SCRYPT_KEY_LEN
+  ) {
+    return false;
+  }
 
   // Treat any scrypt failure (memory pressure, ERR_CRYPTO_INVALID_SCRYPT_PARAMS
   // from a stored hash that slipped past parseScryptParams, etc.) as a
