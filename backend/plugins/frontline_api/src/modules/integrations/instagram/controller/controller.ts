@@ -83,7 +83,10 @@ export const instagramSubscription = async (req, res, next) => {
         }
         return res.type('text/plain').send(challenge);
       }
-      return res.type('text/plain').send('OK');
+      // Per Meta's webhook spec, a token mismatch is a failed handshake and
+      // should respond with 403, not 200. Returning 200 here would mislead
+      // Meta into treating the subscription as healthy.
+      return res.status(403).type('text/plain').send('Forbidden');
     }
   } catch (e) {
     next(e);
