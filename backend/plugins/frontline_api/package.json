@@ -26,6 +26,7 @@
     "mongodb": "^6.18.0",
     "node-imap": "^0.9.6",
     "nodemailer": "^6.9.10",
+    "rate-limit-redis": "^4.3.1",
     "redlock": "5.0.0-beta.2",
     "string-strip-html": "^13.4.12",
     "strip": "^3.0.0",
