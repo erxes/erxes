@@ -1,4 +1,5 @@
 import express, { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import { loginMiddleware } from '@/integrations/facebook/middlewares/loginMiddleware';
 import {
   facebookGetPost,
@@ -8,8 +9,19 @@ import {
 } from '@/integrations/facebook/controller/controller';
 export const router: Router = express.Router();
 
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    errorCode: 'RATE_LIMIT_EXCEEDED',
+    message: 'Too many login requests, please try again later.',
+  },
+});
+
 // Facebook routes
-router.get('/fblogin', loginMiddleware);
+router.get('/fblogin', loginLimiter, loginMiddleware);
 
 router.get('/get-post', async (req, res, next) => {
   try {
