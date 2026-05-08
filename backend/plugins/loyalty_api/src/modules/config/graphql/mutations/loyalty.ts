@@ -14,8 +14,9 @@ export const loyaltyMutations = {
       destinationEmail: string;
       destinationCode: string;
     },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyShareScore');
     const {
       ownerType,
       ownerId,
@@ -119,8 +120,9 @@ export const loyaltyMutations = {
         };
       };
     },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyConfirmVoucher');
     const { checkInfo } = param;
 
     return confirmVoucherSale(models, subdomain, checkInfo);

@@ -27,8 +27,9 @@ export const spinCampaignQueries = {
   async spinCampaigns(
     _root: undefined,
     params: ISpinCampaignParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('spinCampaignView');
     const filter: FilterQuery<ISpinCampaignDocument> = generateFilter(params);
 
     return cursorPaginate({
@@ -41,16 +42,18 @@ export const spinCampaignQueries = {
   async spinCampaignDetail(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('spinCampaignView');
     return models.SpinCampaigns.getSpinCampaign(_id);
   },
 
   async cpSpinCampaigns(
     _root: undefined,
     _args: undefined,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('spinCampaignView');
     const now = new Date();
 
     return models.SpinCampaigns.find({

@@ -52,8 +52,9 @@ export const scoreCampaignQueries = {
   scoreCampaigns: async (
     _root: undefined,
     params: IScoreCampaignParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('scoreCampaignView');
     const filter = generateFilter(params);
 
     return cursorPaginate({
@@ -66,19 +67,20 @@ export const scoreCampaignQueries = {
   scoreCampaign: async (
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('scoreCampaignView');
     return models.ScoreCampaigns.getScoreCampaign(_id);
   },
 
   scoreCampaignAttributes: async (
     _root: undefined,
     { serviceName }: { serviceName: string },
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('scoreCampaignView');
     let attributes: IScoreCampaignAttribute[] = [];
 
-    // note: for (const serviceName of services) {
     const service = await getPlugin(serviceName);
     const meta = service.config?.meta || {};
 
@@ -101,7 +103,12 @@ export const scoreCampaignQueries = {
     return attributes;
   },
 
-  async scoreCampaignServices() {
+  async scoreCampaignServices(
+    _root: undefined,
+    _args: undefined,
+    { checkPermission }: IContext,
+  ) {
+    await checkPermission('scoreCampaignView');
     const services = await getPlugins();
     const result: IScoreCampaignService[] = [];
 
@@ -131,8 +138,9 @@ export const scoreCampaignQueries = {
       ownerType,
       campaignId,
     }: { ownerId: string; ownerType: string; campaignId: string },
-    { subdomain, models }: IContext,
+    { subdomain, models, checkPermission }: IContext,
   ) {
+    await checkPermission('scoreCampaignView');
     const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
 
     if (!owner) {

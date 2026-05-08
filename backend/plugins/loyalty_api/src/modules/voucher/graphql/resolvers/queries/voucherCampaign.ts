@@ -63,8 +63,9 @@ export const voucherCampaignQueries = {
   async voucherCampaigns(
     _root: undefined,
     params: IVoucherCampaignParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('voucherCampaignView');
     const filter = await generateFilter(models, params);
 
     return cursorPaginate<IVoucherCampaignDocument>({
@@ -77,16 +78,18 @@ export const voucherCampaignQueries = {
   async voucherCampaignDetail(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('voucherCampaignView');
     return models.VoucherCampaigns.getVoucherCampaign(_id);
   },
 
   async cpVoucherCampaigns(
     _root: undefined,
     _args: unknown,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('voucherCampaignView');
     const now = new Date();
 
     return models.VoucherCampaigns.find({

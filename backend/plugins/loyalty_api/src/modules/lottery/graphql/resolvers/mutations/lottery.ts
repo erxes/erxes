@@ -1,29 +1,77 @@
-import { ILottery } from '@/lottery/@types/lottery';
+import { ILotteryDocument, ILotteryParams } from '@/lottery/@types/lottery';
+import { cursorPaginate } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
-import { IBuyParams } from '~/utils';
+import { ICommonParams } from '~/utils';
 
-export const lotteryMutations = {
-  async lotteriesAdd(_root: undefined, doc: ILottery, { models }: IContext) {
-    return models.Lotteries.createLottery(doc);
-  },
+export interface ILotteryMainParams extends ICommonParams {
+  voucherCampaignId?: string;
+}
 
-  async lotteriesEdit(
+const generateFilter = (params: ILotteryParams | ILotteryMainParams) => {
+  const filter: FilterQuery<ILotteryDocument> = {};
+
+  if (params.campaignId) {
+    filter.campaignId = params.campaignId;
+  }
+
+  if (params.status) {
+    filter.status = params.status;
+  }
+
+  if (params.ownerType) {
+    filter.ownerType = params.ownerType;
+  }
+
+  if (params.ownerId) {
+    filter.ownerId = params.ownerId;
+  }
+
+  if ((params as ILotteryParams).voucherCampaignId) {
+    filter.voucherCampaignId = (params as ILotteryParams).voucherCampaignId;
+  }
+
+  return filter;
+};
+
+export const lotteryQueries = {
+  async lotteries(
     _root: undefined,
-    { _id, ...doc }: ILottery & { _id: string },
-    { models, user }: IContext,
+    params: ILotteryParams,
+    { models, checkPermission }: IContext,
   ) {
-    return models.Lotteries.updateLottery(_id, { ...doc, userId: user._id });
+    await checkPermission('lotteryView');
+    const filter: FilterQuery<ILotteryDocument> = generateFilter(params);
+
+    return cursorPaginate({
+      model: models.Lotteries,
+      params,
+      query: filter,
+    });
   },
 
-  async lotteriesRemove(
+  async lotteriesMain(
     _root: undefined,
-    { _ids }: { _ids: string[] },
-    { models }: IContext,
+    params: ILotteryMainParams,
+    { models, checkPermission }: IContext,
   ) {
-    return models.Lotteries.removeLotteries(_ids);
-  },
+    await checkPermission('lotteryView');
+    const {
+      page = 1,
+      perPage = 20,
+      sortField = 'createdAt',
+      sortDirection = -1,
+    } = params;
 
-  async buyLottery(_root: undefined, param: IBuyParams, { models }: IContext) {
-    return models.Lotteries.buyLottery(param);
+    const filter = generateFilter(params);
+
+    const totalCount = await models.Lotteries.countDocuments(filter);
+    const list = await models.Lotteries.find(filter)
+      .sort({ [sortField]: sortDirection })
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .lean();
+
+    return { list, totalCount };
   },
 };

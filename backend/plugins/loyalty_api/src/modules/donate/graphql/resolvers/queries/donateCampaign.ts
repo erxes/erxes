@@ -27,8 +27,9 @@ export const donateCampaignQueries = {
   async donateCampaigns(
     _root: undefined,
     params: IDonateCampaignParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('donateCampaignView');
     const filter: FilterQuery<IDonateCampaignDocument> = generateFilter(params);
 
     return cursorPaginate({
@@ -41,8 +42,9 @@ export const donateCampaignQueries = {
   async cpDonateCampaigns(
     _root: undefined,
     _args: undefined,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('donateCampaignView');
     const now = new Date();
 
     return models.DonateCampaigns.find({
@@ -55,8 +57,9 @@ export const donateCampaignQueries = {
   async donateCampaignDetail(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('donateCampaignView');
     return models.DonateCampaigns.getDonateCampaign(_id);
   },
 };

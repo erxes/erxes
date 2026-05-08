@@ -7,8 +7,9 @@ export const scoreLogQueries = {
   async scoreLogs(
     _root: undefined,
     params: IScoreLogParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('scoreLogView');
     const { ownerType, ownerId, searchValue, campaignId, action } = params;
     const filter: FilterQuery<IScoreLogDocument> = {};
 
@@ -42,16 +43,18 @@ export const scoreLogQueries = {
   async scoreLogList(
     _root: undefined,
     params: IScoreLogParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('scoreLogView');
     return models.ScoreLogs.getScoreLogs(params);
   },
 
   async scoreLogStatistics(
     _root: undefined,
     params: IScoreLogParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('scoreLogView');
     return models.ScoreLogs.getStatistic(params);
   },
 };

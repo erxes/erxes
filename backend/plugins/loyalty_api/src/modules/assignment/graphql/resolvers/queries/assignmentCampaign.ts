@@ -27,8 +27,9 @@ export const assignmentCampaignQueries = {
   async assignmentCampaigns(
     _root: undefined,
     params: IAssignmentCampaignParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('assignmentCampaignView');
     const filter: FilterQuery<IAssignmentCampaignDocument> =
       generateFilter(params);
 
@@ -42,8 +43,9 @@ export const assignmentCampaignQueries = {
   async cpAssignmentCampaigns(
     _root: undefined,
     _args: undefined,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('assignmentCampaignView');
     const now = new Date();
 
     return models.AssignmentCampaigns.find({
@@ -56,8 +58,9 @@ export const assignmentCampaignQueries = {
   async assignmentCampaignDetail(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('assignmentCampaignView');
     return models.AssignmentCampaigns.getAssignmentCampaign(_id);
   },
 };

@@ -1,52 +1,102 @@
-import { ILotteryCampaign } from '@/lottery/@types/lotteryCampaign';
+import {
+  ILotteryCampaignDocument,
+  ILotteryCampaignParams,
+} from '@/lottery/@types/lotteryCampaign';
+import { cursorPaginate } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
+import { CAMPAIGN_STATUS } from '~/constants';
 
-export const lotteryCampaignMutations = {
-  async lotteryCampaignsAdd(
+const generateFilter = (params: ILotteryCampaignParams) => {
+  const filter: FilterQuery<ILotteryCampaignDocument> = {};
+
+  if (params.searchValue) {
+    filter.name = new RegExp(params.searchValue, 'i');
+  }
+
+  if (params.status) {
+    filter.status = params.status;
+  } else {
+    filter.status = { $ne: CAMPAIGN_STATUS.TRASH };
+  }
+
+  return filter;
+};
+
+export const lotteryCampaignQueries = {
+  async lotteryCampaigns(
     _root: undefined,
-    doc: ILotteryCampaign,
-    { models }: IContext,
+    params: ILotteryCampaignParams,
+    { models, checkPermission }: IContext,
   ) {
-    return models.LotteryCampaigns.createLotteryCampaign(doc);
+    await checkPermission('lotteryCampaignView');
+    const filter = await generateFilter(params);
+
+    return cursorPaginate({
+      model: models.LotteryCampaigns,
+      params,
+      query: filter,
+    });
   },
 
-  async lotteryCampaignsEdit(
+  async cpLotteryCampaigns(
     _root: undefined,
-    { _id, ...doc }: ILotteryCampaign & { _id: string },
-    { models }: IContext,
+    _args: undefined,
+    { models, checkPermission }: IContext,
   ) {
-    return models.LotteryCampaigns.updateLotteryCampaign(_id, doc);
+    await checkPermission('lotteryCampaignView');
+    const now = new Date();
+
+    return models.LotteryCampaigns.find({
+      status: CAMPAIGN_STATUS.ACTIVE,
+      startDate: { $lte: now },
+      endDate: { $gte: now },
+    }).sort({ modifiedAt: -1 });
   },
 
-  async lotteryCampaignsRemove(
+  async lotteryCampaignDetail(
     _root: undefined,
-    { _ids }: { _ids: string[] },
-    { models }: IContext,
+    { _id }: { _id: string },
+    { models, checkPermission }: IContext,
   ) {
-    return models.LotteryCampaigns.removeLotteryCampaigns(_ids);
+    await checkPermission('lotteryCampaignView');
+    return models.LotteryCampaigns.getLotteryCampaign(_id);
   },
 
-  async doLottery(
+  async lotteryCampaignWinnerList(
     _root: undefined,
-    params: { campaignId: string; awardId: string },
-    { models }: IContext,
+    params: ILotteryCampaignParams,
+    { models, checkPermission }: IContext,
   ) {
-    return models.LotteryCampaigns.doLottery(params);
+    await checkPermission('lotteryCampaignView');
+    const { awardId, campaignId } = params;
+
+    return cursorPaginate({
+      model: models.Lotteries,
+      params,
+      query: {
+        campaignId: campaignId,
+        awardId: awardId,
+        status: 'won',
+      },
+    });
   },
 
-  async doLotteryMultiple(
+  async lotteriesCampaignCustomerList(
     _root: undefined,
-    params: { campaignId: string; awardId: string; multiple: number },
-    { models }: IContext,
+    params: ILotteryCampaignParams,
+    { models, checkPermission }: IContext,
   ) {
-    return models.LotteryCampaigns.multipleDoLottery(params);
-  },
+    await checkPermission('lotteryCampaignView');
+    const { campaignId } = params;
 
-  async getNextChar(
-    _root: undefined,
-    params: { campaignId: string; awardId: string; prevChars: string },
-    { models }: IContext,
-  ) {
-    return models.LotteryCampaigns.getNextChar(params);
+    return cursorPaginate({
+      model: models.Lotteries,
+      params,
+      query: {
+        campaignId: campaignId,
+        status: 'new',
+      },
+    });
   },
 };

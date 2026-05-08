@@ -5,24 +5,27 @@ export const voucherCampaignMutations = {
   async voucherCampaignsAdd(
     _root: undefined,
     doc: IVoucherCampaign,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('voucherCampaignCreate');
     return models.VoucherCampaigns.createVoucherCampaign(doc);
   },
 
   async voucherCampaignsEdit(
     _root: undefined,
     { _id, ...doc }: { _id: string } & IVoucherCampaign,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('voucherCampaignEdit');
     return models.VoucherCampaigns.updateVoucherCampaign(_id, doc);
   },
 
   async voucherCampaignsRemove(
     _root: undefined,
     { _ids }: { _ids: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('voucherCampaignRemove');
     return models.VoucherCampaigns.removeVoucherCampaigns(_ids);
   },
 };
