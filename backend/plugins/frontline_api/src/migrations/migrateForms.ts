@@ -64,8 +64,12 @@ function decodeEntities(text: string): string {
  * @returns The same HTML with tag names lowercased.
  */
 function normalizeHtmlTagCase(html: string): string {
+  // Char class covers the full HTML5 tag-name grammar (letters, digits,
+  // hyphen, underscore, period); the captured `tag` is lowercased
+  // wholesale so no uppercase remnant can survive regardless of case
+  // mix in the source (e.g. `<CUSTOM-TAG>` → `<custom-tag>`).
   return html.replace(
-    /<(\/?)([a-zA-Z][a-zA-Z0-9-]*)/g,
+    /<(\/?)([a-zA-Z][\w.-]*)/g,
     (_m, slash: string, tag: string) => `<${slash}${tag.toLowerCase()}`,
   );
 }
