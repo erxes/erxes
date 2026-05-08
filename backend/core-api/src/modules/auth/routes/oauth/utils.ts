@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { promisify } from 'util';
 import { canGroup } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import {
@@ -66,8 +67,70 @@ export const getAvailableOAuthScopesForUser = async ({
   return [...scopeMap.values()];
 };
 
+/**
+ * Fast indexable hash for HIGH-ENTROPY server-issued opaque tokens
+ * (refresh tokens, device codes, user codes generated via `crypto.randomBytes`
+ * / `createUserCode`).
+ *
+ * DO NOT use this on user-supplied passwords or `client_secret` values — those
+ * must go through `hashClientSecret`/`verifyClientSecret` (slow KDF with salt).
+ * SHA-256 is appropriate here because the inputs are 48-byte
+ * cryptographically-random strings (≥256 bits of entropy), making brute force
+ * on a leaked hash computationally infeasible.
+ */
 export const hashToken = (token: string) => {
   return crypto.createHash('sha256').update(token).digest('hex');
+};
+
+// ---------------------------------------------------------------------------
+// Password hashing for OAuth `client_secret` (CWE-916 / js/insufficient-password-hash).
+//
+// `client_secret` is a password-equivalent credential under RFC 6749 §2.3.1 and
+// must be hashed with a slow, salted KDF so a leaked `secretHash` cannot be
+// brute-forced offline. We use Node's built-in `crypto.scrypt` (no extra
+// dependency) with PHC-style encoding so future parameter tuning is forward-
+// compatible.
+// ---------------------------------------------------------------------------
+
+const scryptAsync = promisify<crypto.BinaryLike, crypto.BinaryLike, number, Buffer>(
+  crypto.scrypt,
+);
+
+const SCRYPT_N = 16384;
+const SCRYPT_R = 8;
+const SCRYPT_P = 1;
+const SCRYPT_KEY_LEN = 64;
+const SCRYPT_SALT_LEN = 16;
+
+export const hashClientSecret = async (secret: string): Promise<string> => {
+  const salt = crypto.randomBytes(SCRYPT_SALT_LEN);
+  const derived = (await scryptAsync(secret, salt, SCRYPT_KEY_LEN)) as Buffer;
+  return [
+    'scrypt',
+    `N=${SCRYPT_N},r=${SCRYPT_R},p=${SCRYPT_P}`,
+    salt.toString('base64'),
+    derived.toString('base64'),
+  ].join('$');
+};
+
+export const verifyClientSecret = async (
+  secret: string,
+  storedHash: string,
+): Promise<boolean> => {
+  const parts = storedHash.split('$');
+  if (parts.length !== 4 || parts[0] !== 'scrypt') {
+    return false;
+  }
+
+  const salt = Buffer.from(parts[2], 'base64');
+  const expected = Buffer.from(parts[3], 'base64');
+
+  if (salt.length === 0 || expected.length === 0) {
+    return false;
+  }
+
+  const derived = (await scryptAsync(secret, salt, expected.length)) as Buffer;
+  return crypto.timingSafeEqual(derived, expected);
 };
 
 export const createRandomToken = (bytes = 32) => {
@@ -111,10 +174,10 @@ export const getOAuthClientApp = async (models: IModels, clientId: string) => {
   return oauthClientApp;
 };
 
-export const validateClientSecret = (
+export const validateClientSecret = async (
   oauthClientApp: { type: string; secretHash?: string },
   clientSecret?: string,
-): void => {
+): Promise<void> => {
   if (oauthClientApp.type !== 'confidential') {
     return;
   }
@@ -129,13 +192,8 @@ export const validateClientSecret = (
     throw new ClientAuthError('Client secret is not configured');
   }
 
-  const computed = Buffer.from(hashToken(clientSecret), 'hex');
-  const stored = Buffer.from(oauthClientApp.secretHash, 'hex');
-
-  if (
-    computed.length !== stored.length ||
-    !crypto.timingSafeEqual(computed, stored)
-  ) {
+  const ok = await verifyClientSecret(clientSecret, oauthClientApp.secretHash);
+  if (!ok) {
     throw new ClientAuthError('Invalid client_secret');
   }
 };

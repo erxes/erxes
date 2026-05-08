@@ -47,7 +47,7 @@ router.post('/oauth/device/code', async (req: Request, res: Response) => {
       String(req.headers['oauth_secret'] || '').trim() || undefined;
 
     const oauthClientApp = await getOAuthClientApp(models, clientId);
-    validateClientSecret(oauthClientApp, clientSecret);
+    await validateClientSecret(oauthClientApp, clientSecret);
 
     let userCode = createUserCode();
     let userCodeHash = hashToken(userCode);
@@ -311,7 +311,7 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
       const deviceCode = String(req.body?.device_code || '').trim();
 
       const oauthClientApp = await getOAuthClientApp(models, clientId);
-      validateClientSecret(oauthClientApp, clientSecret);
+      await validateClientSecret(oauthClientApp, clientSecret);
 
       if (!deviceCode) {
         return sendOAuthError(
@@ -398,7 +398,7 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
       const refreshToken = String(req.body?.refresh_token || '').trim();
 
       const oauthClientApp = await getOAuthClientApp(models, clientId);
-      validateClientSecret(oauthClientApp, clientSecret);
+      await validateClientSecret(oauthClientApp, clientSecret);
 
       if (!refreshToken) {
         return sendOAuthError(
