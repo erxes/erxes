@@ -297,19 +297,15 @@ export const checkRateLimit = async (
   }
 };
 
-export const getClientIp = (req: {
-  headers: Record<string, any>;
-  socket?: any;
-}): string => {
-  const forwarded = req.headers['x-forwarded-for'];
-
-  if (forwarded) {
-    const first = Array.isArray(forwarded) ? forwarded[0] : forwarded;
-    return first.split(',')[0].trim();
-  }
-
-  return req.socket?.remoteAddress || 'unknown';
-};
+// Use Express's `req.ip` so the trust-proxy setting (`DEFAULT_TRUST_PROXY =
+// 'loopback, linklocal, uniquelocal'` from erxes-api-shared `applyTrustProxy`)
+// is honored — i.e., we only trust `x-forwarded-for` when it came through a
+// hop the operator has explicitly configured as a proxy. Parsing the header
+// ourselves would let an unauthenticated client spoof the rate-limit key by
+// rotating crafted `x-forwarded-for` values and either evade limits or
+// throttle other users.
+export const getClientIp = (req: Request): string =>
+  req.ip || req.socket?.remoteAddress || 'unknown';
 
 // ---------------------------------------------------------------------------
 

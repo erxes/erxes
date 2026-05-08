@@ -493,6 +493,9 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
         user: await models.Users.getTokenFields(user),
       });
     } catch (e) {
+      if (isRateLimitError(e)) {
+        return sendOAuthError(res, 429, 'rate_limit_exceeded', e.message);
+      }
       if (isClientAuthError(e)) {
         return sendOAuthError(res, 401, 'invalid_client', e.message);
       }
