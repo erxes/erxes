@@ -24,7 +24,7 @@ const buildAttachment = (value: unknown): CmsAttachment | null => {
     name:
       uploadValue.name ||
       fileInfo.name ||
-      url.split('/').filter(Boolean).pop() ||
+      url.split('/').reverse().find(Boolean) ||
       'image',
     type: uploadValue.type || fileInfo.type,
     size: uploadValue.size || fileInfo.size,

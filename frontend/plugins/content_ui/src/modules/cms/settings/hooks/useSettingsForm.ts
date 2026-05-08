@@ -155,7 +155,7 @@ export const useSettingsForm = () => {
     return includeContent
       ? {
           ...input,
-          content: cms?.content || 'hello',
+          content: cms?.content || '',
         }
       : input;
   };

@@ -12,5 +12,9 @@ export const buildPublicUrl = (domain?: string) => {
     return '';
   }
 
-  return /^https?:\/\//.test(domain) ? domain : `https://${domain}`;
+  const trimmedDomain = domain.trim();
+
+  return /^https?:\/\//i.test(trimmedDomain)
+    ? trimmedDomain
+    : `https://${trimmedDomain}`;
 };

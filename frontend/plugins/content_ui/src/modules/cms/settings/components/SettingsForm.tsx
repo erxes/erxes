@@ -20,6 +20,7 @@ import {
   SettingsFormState,
   UpdateSetting,
 } from '../types/settingsTypes';
+import { useTranslation } from 'react-i18next';
 import { RobotsOption } from './RobotsOption';
 import {
   SettingsField as Field,
@@ -39,6 +40,8 @@ export const SettingsForm = ({
   updateSetting: UpdateSetting;
   onTodoAction: () => void;
 }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'cms-settings' });
+
   const getLanguageLabel = (language: string) =>
     LANGUAGES.find((option) => option.value === language)?.label || language;
 
@@ -71,11 +74,11 @@ export const SettingsForm = ({
     <div className="min-w-0 space-y-4 p-4">
       <SettingsSection
         id="general"
-        title="General"
-        badge={<Badge variant="secondary">Base info</Badge>}
+        title={t('sections.general')}
+        badge={<Badge variant="secondary">{t('badges.base-info')}</Badge>}
       >
         <div className="grid gap-4 md:grid-cols-2">
-          <Field id="websiteName" label="Website Name" required>
+          <Field id="websiteName" label={t('fields.website-name')} required>
             <Input
               id="websiteName"
               value={settings.websiteName}
@@ -86,7 +89,10 @@ export const SettingsForm = ({
             />
           </Field>
 
-          <Field id="clientPortalKind" label="Client Portal (kind)">
+          <Field
+            id="clientPortalKind"
+            label={t('fields.client-portal-kind')}
+          >
             <Select
               value={settings.clientPortalKind}
               onValueChange={(value) =>
@@ -94,7 +100,7 @@ export const SettingsForm = ({
               }
             >
               <Select.Trigger id="clientPortalKind" className="bg-muted">
-                <Select.Value placeholder="Select portal" />
+                <Select.Value placeholder={t('placeholders.select-portal')} />
               </Select.Trigger>
               <Select.Content>
                 {clientPortals.length ? (
@@ -115,8 +121,8 @@ export const SettingsForm = ({
 
         <Field
           id="shortDescription"
-          label="Short Description"
-          hint="Used as fallback meta description if none set in SEO Defaults."
+          label={t('fields.short-description')}
+          hint={t('hints.short-description')}
           required
         >
           <Textarea
@@ -130,7 +136,7 @@ export const SettingsForm = ({
         </Field>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <Field id="domain" label="Domain">
+          <Field id="domain" label={t('fields.domain')}>
             <Input
               id="domain"
               value={settings.domain}
@@ -139,7 +145,7 @@ export const SettingsForm = ({
             />
           </Field>
 
-          <Field id="publicUrl" label="Public URL">
+          <Field id="publicUrl" label={t('fields.public-url')}>
             <Input
               id="publicUrl"
               value={settings.publicUrl}
@@ -154,20 +160,20 @@ export const SettingsForm = ({
 
       <SettingsSection
         id="seo"
-        title="SEO"
-        badge={<Badge variant="success">New</Badge>}
+        title={t('sections.seo')}
+        badge={<Badge variant="success">{t('badges.new')}</Badge>}
       >
-        <SectionLabel>Defaults</SectionLabel>
+        <SectionLabel>{t('section-labels.defaults')}</SectionLabel>
 
         <Field
           id="metaTitle"
-          label="Default Meta Title"
-          hint="Fallback for pages without an explicit title."
+          label={t('fields.default-meta-title')}
+          hint={t('hints.default-meta-title')}
         >
           <Input
             id="metaTitle"
             value={settings.metaTitle}
-            placeholder="e.g. My Site - {page title}"
+            placeholder={t('placeholders.default-meta-title')}
             onChange={(event) => updateSetting('metaTitle', event.target.value)}
             variant="secondary"
           />
@@ -175,8 +181,8 @@ export const SettingsForm = ({
 
         <Field
           id="metaDescription"
-          label="Default Meta Description"
-          hint="Max 160 characters recommended."
+          label={t('fields.default-meta-description')}
+          hint={t('hints.default-meta-description')}
         >
           <Textarea
             id="metaDescription"
@@ -191,21 +197,21 @@ export const SettingsForm = ({
           </div>
         </Field>
 
-        <Field id="defaultOgImage" label="Default OG Image">
+        <Field id="defaultOgImage" label={t('fields.default-og-image')}>
           <Uploader
             icon={IconPhoto}
-            label="Open Graph Image"
-            hint="Recommended: 1200x630px, PNG or JPG"
+            label={t('uploads.open-graph-image')}
+            hint={t('uploads.open-graph-image-hint')}
             value={settings.metaImage}
             onChange={(value) => updateSetting('metaImage', value)}
           />
         </Field>
 
-        <SectionLabel>Keywords</SectionLabel>
+        <SectionLabel>{t('section-labels.keywords')}</SectionLabel>
 
         <Field
-          label="Meta Keywords"
-          hint="Injected into the meta keywords tag. Less critical for modern SEO but still used by some crawlers."
+          label={t('fields.meta-keywords')}
+          hint={t('hints.meta-keywords')}
         >
           <div className="flex flex-wrap gap-2">
             {settings.metaKeywords.map((keyword) => (
@@ -228,28 +234,28 @@ export const SettingsForm = ({
               className="border-dashed"
               onClick={onTodoAction}
             >
-              Add keyword
+              {t('actions.add-keyword')}
             </Button>
           </div>
         </Field>
 
-        <SectionLabel>Robots & Indexing</SectionLabel>
+        <SectionLabel>{t('section-labels.robots-indexing')}</SectionLabel>
 
         <Field
-          label="Search Engine Indexing"
-          hint="Sets the global robots meta tag. Individual pages can override this."
+          label={t('fields.search-engine-indexing')}
+          hint={t('hints.search-engine-indexing')}
         >
           <div className="grid gap-2 md:grid-cols-2">
             <RobotsOption
               checked={settings.indexing === 'index'}
-              title="Index site"
-              description="Allow crawlers to index pages"
+              title={t('robots.index-site')}
+              description={t('robots.index-site-description')}
               onClick={() => updateSetting('indexing', 'index')}
             />
             <RobotsOption
               checked={settings.indexing === 'noindex'}
-              title="No index"
-              description="Block all search engine crawling"
+              title={t('robots.no-index')}
+              description={t('robots.no-index-description')}
               onClick={() => updateSetting('indexing', 'noindex')}
             />
           </div>
@@ -258,15 +264,15 @@ export const SettingsForm = ({
 
       <SettingsSection
         id="analytics"
-        title="Analytics"
-        badge={<Badge variant="success">New</Badge>}
+        title={t('sections.analytics')}
+        badge={<Badge variant="success">{t('badges.new')}</Badge>}
       >
-        <SectionLabel>Google Analytics</SectionLabel>
+        <SectionLabel>{t('section-labels.google-analytics')}</SectionLabel>
 
         <Field
           id="gaTrackingId"
-          label="GA Tracking ID (gaTrackingId)"
-          hint="Supports both GA4 (G-XXXXXXX) and Universal Analytics (UA-XXXXX-X) formats."
+          label={t('fields.ga-tracking-id')}
+          hint={t('hints.ga-tracking-id')}
         >
           <div className="relative">
             <IconChartBar className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -289,26 +295,28 @@ export const SettingsForm = ({
             </div>
             <div className="min-w-0">
               <div className="text-sm font-semibold text-success">
-                Google Analytics configured
+                {t('analytics.google-analytics-configured')}
               </div>
               <div className="truncate font-mono text-xs text-muted-foreground">
-                Tracking ID: {settings.gaTrackingId}
+                {t('analytics.tracking-id', {
+                  trackingId: settings.gaTrackingId,
+                })}
               </div>
             </div>
           </div>
         ) : null}
 
-        <SectionLabel>Other Integrations</SectionLabel>
+        <SectionLabel>{t('section-labels.other-integrations')}</SectionLabel>
 
         <Field
           id="googleTagManagerId"
-          label="Google Tag Manager ID"
-          hint="Optional. If set, GTM will be used instead of direct GA injection."
+          label={t('fields.google-tag-manager-id')}
+          hint={t('hints.google-tag-manager-id')}
         >
           <Input
             id="googleTagManagerId"
             value={settings.googleTagManagerId}
-            placeholder="GTM-XXXXXXX"
+            placeholder={t('placeholders.google-tag-manager-id')}
             onChange={(event) =>
               updateSetting('googleTagManagerId', event.target.value)
             }
@@ -318,8 +326,8 @@ export const SettingsForm = ({
 
         <Field
           id="customHeadScripts"
-          label="Custom Head Scripts"
-          hint="Injected into head on every page. Use with care."
+          label={t('fields.custom-head-scripts')}
+          hint={t('hints.custom-head-scripts')}
         >
           <Textarea
             id="customHeadScripts"
@@ -336,11 +344,11 @@ export const SettingsForm = ({
         </Field>
       </SettingsSection>
 
-      <SettingsSection id="content" title="Content">
+      <SettingsSection id="content" title={t('sections.content')}>
         <div className="grid gap-4 md:grid-cols-2">
           <Field
-            label="Post URL Format (postUrlField)"
-            hint="How post URLs are generated."
+            label={t('fields.post-url-format')}
+            hint={t('hints.post-url-format')}
           >
             <ToggleGroup
               type="single"
@@ -357,7 +365,9 @@ export const SettingsForm = ({
                   value={value}
                   className="h-7 px-3 text-xs"
                 >
-                  {value}
+                  {t(
+                    `post-url-fields.${value === '_id' ? 'id' : value}`,
+                  )}
                 </ToggleGroup.Item>
               ))}
             </ToggleGroup>
@@ -365,8 +375,8 @@ export const SettingsForm = ({
 
           <Field
             id="postsPerPage"
-            label="Posts Per Page"
-            hint="Pagination chunk size."
+            label={t('fields.posts-per-page')}
+            hint={t('hints.posts-per-page')}
           >
             <Select
               value={settings.postsPerPage}
@@ -387,7 +397,7 @@ export const SettingsForm = ({
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <Field label="Default Post Status">
+          <Field label={t('fields.default-post-status')}>
             <ToggleGroup
               type="single"
               variant="outline"
@@ -398,20 +408,22 @@ export const SettingsForm = ({
               className="justify-start"
             >
               <ToggleGroup.Item value="draft" className="h-7 px-3 text-xs">
-                Draft
+                {t('post-statuses.draft')}
               </ToggleGroup.Item>
               <ToggleGroup.Item value="published" className="h-7 px-3 text-xs">
-                Published
+                {t('post-statuses.published')}
               </ToggleGroup.Item>
             </ToggleGroup>
           </Field>
 
-          <Field label="Comments">
+          <Field label={t('fields.comments')}>
             <div className="flex items-center justify-between rounded-lg border bg-muted/30 p-3">
               <div>
-                <div className="text-sm font-medium">Allow comments</div>
+                <div className="text-sm font-medium">
+                  {t('comments.allow-comments')}
+                </div>
                 <div className="text-xs text-muted-foreground">
-                  Enable comment threads on posts
+                  {t('comments.enable-comment-threads')}
                 </div>
               </div>
               <Switch
@@ -425,8 +437,8 @@ export const SettingsForm = ({
         </div>
       </SettingsSection>
 
-      <SettingsSection id="languages" title="Languages">
-        <Field label="Supported Languages">
+      <SettingsSection id="languages" title={t('sections.languages')}>
+        <Field label={t('fields.supported-languages')}>
           <MultipleSelector
             defaultOptions={LANGUAGES}
             onSearchSync={(term) =>
@@ -439,15 +451,15 @@ export const SettingsForm = ({
             triggerSearchOnFocus
             value={selectedLanguageOptions}
             onChange={handleLanguagesChange}
-            placeholder="Select languages"
+            placeholder={t('placeholders.select-languages')}
             commandProps={{ shouldFilter: false }}
           />
         </Field>
 
         <Field
           id="defaultLanguage"
-          label="Default Language"
-          hint="Used when no locale is specified in the URL."
+          label={t('fields.default-language')}
+          hint={t('hints.default-language')}
         >
           <Select
             value={settings.defaultLanguage}
@@ -455,7 +467,9 @@ export const SettingsForm = ({
             disabled={availableDefaultLanguages.length === 0}
           >
             <Select.Trigger id="defaultLanguage" className="bg-muted">
-              <Select.Value placeholder="Select default language" />
+              <Select.Value
+                placeholder={t('placeholders.select-default-language')}
+              />
             </Select.Trigger>
             <Select.Content>
               {availableDefaultLanguages.map((language) => (
@@ -470,24 +484,24 @@ export const SettingsForm = ({
 
       <SettingsSection
         id="appearance"
-        title="Appearance"
-        badge={<Badge variant="secondary">Optional</Badge>}
+        title={t('sections.appearance')}
+        badge={<Badge variant="secondary">{t('badges.optional')}</Badge>}
       >
-        <Field label="Site Logo">
+        <Field label={t('fields.site-logo')}>
           <Uploader
             icon={IconPhoto}
-            label="Logo Image"
-            hint="SVG or PNG, transparent background preferred"
+            label={t('uploads.logo-image')}
+            hint={t('uploads.logo-image-hint')}
             value={settings.siteLogo}
             onChange={(value) => updateSetting('siteLogo', value)}
           />
         </Field>
 
-        <Field label="Favicon">
+        <Field label={t('fields.favicon')}>
           <Uploader
             icon={IconWorld}
-            label="Favicon"
-            hint=".ico or 32x32 PNG"
+            label={t('uploads.favicon')}
+            hint={t('uploads.favicon-hint')}
             value={settings.favicon}
             onChange={(value) => updateSetting('favicon', value)}
           />
