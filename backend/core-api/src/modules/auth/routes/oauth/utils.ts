@@ -105,6 +105,11 @@ const scryptAsync = (
     ),
   );
 
+// Tuning these is fine, but values must stay inside the bounds enforced by
+// `parseScryptParams` below: N must be a power of 2 ≥ 2, r ∈ [1,32], p ∈ [1,16],
+// and 128·N·r·p must fit under SCRYPT_MAXMEM_CAP (1 GiB). Anything outside that
+// envelope makes previously-stored hashes unverifiable (verify will return
+// false because the encoded params won't pass parseScryptParams).
 const SCRYPT_N = 16384;
 const SCRYPT_R = 8;
 const SCRYPT_P = 1;
