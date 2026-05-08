@@ -148,12 +148,22 @@ export const hashClientSecret = async (secret: string): Promise<string> => {
   const r = SCRYPT_R;
   const p = SCRYPT_P;
   const salt = crypto.randomBytes(SCRYPT_SALT_LEN);
-  const derived = await scryptAsync(secret, salt, SCRYPT_KEY_LEN, {
-    N,
-    r,
-    p,
-    maxmem: scryptMaxmem(N, r, p),
-  });
+  // Inputs here are all server-controlled (params from constants, salt from
+  // randomBytes), so a scrypt failure means the deployment is misconfigured —
+  // re-throw with a clearer message so callers (route handlers) don't surface
+  // raw ERR_CRYPTO_INVALID_SCRYPT_PARAMS to the client.
+  let derived: Buffer;
+  try {
+    derived = await scryptAsync(secret, salt, SCRYPT_KEY_LEN, {
+      N,
+      r,
+      p,
+      maxmem: scryptMaxmem(N, r, p),
+    });
+  } catch (e) {
+    const reason = e instanceof Error ? e.message : 'unknown';
+    throw new Error(`Failed to hash client_secret with scrypt: ${reason}`);
+  }
   return [
     'scrypt',
     `N=${N},r=${r},p=${p}`,
@@ -179,12 +189,23 @@ export const verifyClientSecret = async (
   const expected = Buffer.from(parts[3], 'base64');
   if (salt.length === 0 || expected.length === 0) return false;
 
-  const derived = await scryptAsync(secret, salt, expected.length, {
-    N: params.N,
-    r: params.r,
-    p: params.p,
-    maxmem: scryptMaxmem(params.N, params.r, params.p),
-  });
+  // Treat any scrypt failure (memory pressure, ERR_CRYPTO_INVALID_SCRYPT_PARAMS
+  // from a stored hash that slipped past parseScryptParams, etc.) as a
+  // verification failure rather than letting the rejection propagate up to the
+  // route handler — callers expect a boolean answer, and an unverifiable hash
+  // is the auth-fail outcome regardless of why scrypt couldn't run.
+  let derived: Buffer;
+  try {
+    derived = await scryptAsync(secret, salt, expected.length, {
+      N: params.N,
+      r: params.r,
+      p: params.p,
+      maxmem: scryptMaxmem(params.N, params.r, params.p),
+    });
+  } catch {
+    return false;
+  }
+
   return crypto.timingSafeEqual(derived, expected);
 };
 
