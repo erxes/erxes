@@ -25,6 +25,8 @@ const instagramLoginLimiter = rateLimit({
   max: 150,
   standardHeaders: true,
   legacyHeaders: false,
+  // Fail open if Redis is unreachable so an outage doesn't take OAuth login down.
+  skip: () => redis.status !== 'ready',
   handler: (_req, res) => {
     res.status(429).json({
       errorCode: 'RATE_LIMIT_EXCEEDED',
