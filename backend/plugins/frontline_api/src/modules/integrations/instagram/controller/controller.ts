@@ -93,6 +93,7 @@ export const instagramSubscription = async (req, res, next) => {
     return res.status(400).type('text/plain').send('Invalid mode');
   } catch (e) {
     next(e);
+    return;
   }
 };
 export const instagramWebhook = async (req, res) => {
