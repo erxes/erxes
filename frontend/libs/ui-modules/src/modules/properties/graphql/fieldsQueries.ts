@@ -59,6 +59,7 @@ export const FIELD_DETAILS_QUERY = gql`
       }
       validations
       logics
+      logicAction
       icon
       createdAt
       updatedAt

@@ -67,7 +67,7 @@ const mutationParams = `
     groupId: String
     contentType: String
     contentTypeId: String
-    
+
     type: String
     options: [FieldOptionInput]
     validations: JSON

@@ -15,6 +15,7 @@ import { propertySchema } from '../propertySchema';
 import { PropertyFormValidation } from './PropertyFormValidations';
 import { PropertyFormSelectFields } from './PropertyFormSelectFields';
 import { PropertySelectRelationType } from './PropertySelectRelationType';
+import { PropertyFormLogicFields } from './PropertyFormLogicFields';
 import { FIELD_TYPES, FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
 import { IconPencil, IconPlus } from '@tabler/icons-react';
 import { useParams } from 'react-router-dom';
@@ -148,6 +149,7 @@ export const PropertyForm = ({
         <PropertyFormValidation form={form} />
         <PropertyFormSelectFields form={form} />
         <PropertySelectRelationType form={form} />
+        <PropertyFormLogicFields form={form} />
         <Can action="fieldsManage">
           <Button type="submit" disabled={loading}>
             {loading ? (
