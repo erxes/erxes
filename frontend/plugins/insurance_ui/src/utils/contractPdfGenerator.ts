@@ -87,22 +87,24 @@ export function openSanitizedContractWindow(
     revokeUrl();
     return null;
   }
+  // Fallback timeout for popups that never fire `load` (e.g. closed before
+  // navigation completes). Cleared on load so the closure doesn't linger for
+  // 5 minutes after a successful open.
+  const cleanupTimeout = setTimeout(() => {
+    if (win.closed) {
+      revokeUrl();
+    }
+  }, 300_000);
   win.addEventListener(
     'load',
     () => {
+      clearTimeout(cleanupTimeout);
       revokeUrl();
       onLoad?.(win);
     },
     { once: true },
   );
   win.location.href = url;
-  // Fallback for popups closed before `load`; avoid revoking while an open
-  // window may still be navigating to the Blob URL on a slow browser.
-  setTimeout(() => {
-    if (win.closed) {
-      revokeUrl();
-    }
-  }, 300_000);
   return win;
 }
 
