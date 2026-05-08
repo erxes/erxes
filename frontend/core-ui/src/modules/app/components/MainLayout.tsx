@@ -9,9 +9,7 @@ import { FloatingWidgets } from '@/widgets/components/FloatingWidgets';
 
 export const DefaultLayout = () => {
   const location = useLocation();
-  const isSettings =
-    location.pathname === '/settings' ||
-    location.pathname.startsWith('/settings/');
+  const isSettings = location.pathname.includes('/settings');
   const [mainSidebarOpen, setMainSidebarOpen] = useAtom(mainSidebarOpenState);
   const [inPreview] = useQueryState<boolean>('inPreview');
 

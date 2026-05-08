@@ -3,6 +3,7 @@ import {
   IconCheck,
   IconPhoto,
   IconWorld,
+  IconX,
 } from '@tabler/icons-react';
 import {
   Badge,
@@ -33,12 +34,10 @@ export const SettingsForm = ({
   settings,
   clientPortals,
   updateSetting,
-  onTodoAction,
 }: {
   settings: SettingsFormState;
   clientPortals: ClientPortalOption[];
   updateSetting: UpdateSetting;
-  onTodoAction: () => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'cms-settings' });
 
@@ -68,6 +67,26 @@ export const SettingsForm = ({
     if (!languages.includes(settings.defaultLanguage)) {
       updateSetting('defaultLanguage', languages[0]);
     }
+  };
+
+  const handleAddKeyword = () => {
+    updateSetting('metaKeywords', [...settings.metaKeywords, '']);
+  };
+
+  const handleKeywordChange = (index: number, value: string) => {
+    updateSetting(
+      'metaKeywords',
+      settings.metaKeywords.map((keyword, keywordIndex) =>
+        keywordIndex === index ? value : keyword,
+      ),
+    );
+  };
+
+  const handleRemoveKeyword = (index: number) => {
+    updateSetting(
+      'metaKeywords',
+      settings.metaKeywords.filter((_, keywordIndex) => keywordIndex !== index),
+    );
   };
 
   return (
@@ -213,26 +232,34 @@ export const SettingsForm = ({
           label={t('fields.meta-keywords')}
           hint={t('hints.meta-keywords')}
         >
-          <div className="flex flex-wrap gap-2">
-            {settings.metaKeywords.map((keyword) => (
-              <Badge
-                key={keyword}
-                variant="success"
-                onClose={() =>
-                  updateSetting(
-                    'metaKeywords',
-                    settings.metaKeywords.filter((item) => item !== keyword),
-                  )
-                }
-              >
-                {keyword}
-              </Badge>
+          <div className="space-y-2">
+            {settings.metaKeywords.map((keyword, index) => (
+              <div key={index} className="flex max-w-sm items-center gap-2">
+                <Input
+                  aria-label={t('fields.meta-keywords')}
+                  value={keyword}
+                  onChange={(event) =>
+                    handleKeywordChange(index, event.target.value)
+                  }
+                  variant="secondary"
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t('actions.remove-keyword', {
+                    defaultValue: 'Remove keyword',
+                  })}
+                  onClick={() => handleRemoveKeyword(index)}
+                >
+                  <IconX />
+                </Button>
+              </div>
             ))}
             <Button
               variant="outline"
               size="sm"
               className="border-dashed"
-              onClick={onTodoAction}
+              onClick={handleAddKeyword}
             >
               {t('actions.add-keyword')}
             </Button>

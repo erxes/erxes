@@ -18,7 +18,7 @@ import { buildPublicUrl } from '../utils/settingsHelpers';
 
 export const useSettingsForm = () => {
   const { websiteId } = useParams();
-  const [hydratedWebsiteId, setHydratedWebsiteId] = useState<string>();
+  const [hydratedSettingsKey, setHydratedSettingsKey] = useState<string>();
   const [settings, setSettings] = useState<SettingsFormState>(DEFAULT_SETTINGS);
   const mutationOptions = {
     refetchQueries: [{ query: CONTENT_CMS_LIST }],
@@ -64,11 +64,18 @@ export const useSettingsForm = () => {
     [clientPortals, websiteId],
   );
 
+  const hydrationKey = cms?._id
+    ? `${websiteId}:cms:${cms._id}`
+    : clientPortal?._id
+      ? `${websiteId}:clientPortal:${clientPortal._id}`
+      : undefined;
+
   useEffect(() => {
     if (
       !websiteId ||
       !settingsQueriesFetched ||
-      hydratedWebsiteId === websiteId ||
+      !hydrationKey ||
+      hydratedSettingsKey === hydrationKey ||
       (!cms && !clientPortal)
     ) {
       return;
@@ -113,8 +120,15 @@ export const useSettingsForm = () => {
       siteLogo: cms?.siteLogo || DEFAULT_SETTINGS.siteLogo,
       favicon: cms?.favicon || DEFAULT_SETTINGS.favicon,
     });
-    setHydratedWebsiteId(websiteId);
-  }, [clientPortal, cms, hydratedWebsiteId, settingsQueriesFetched, websiteId]);
+    setHydratedSettingsKey(hydrationKey);
+  }, [
+    clientPortal,
+    cms,
+    hydratedSettingsKey,
+    hydrationKey,
+    settingsQueriesFetched,
+    websiteId,
+  ]);
 
   const updateSetting: UpdateSetting = (key, value) => {
     setSettings((current) => ({ ...current, [key]: value }));
@@ -226,13 +240,6 @@ export const useSettingsForm = () => {
     }
   };
 
-  const handleTodoAction = () => {
-    toast({
-      title: 'Pending implementation',
-      description: 'This control still needs an input UI before it can be saved.',
-    });
-  };
-
   return {
     canSave:
       Boolean(websiteId) &&
@@ -244,6 +251,5 @@ export const useSettingsForm = () => {
     settings,
     updateSetting,
     handleSave,
-    handleTodoAction,
   };
 };

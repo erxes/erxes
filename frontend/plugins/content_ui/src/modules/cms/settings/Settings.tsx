@@ -12,7 +12,6 @@ export const Settings = () => {
     settings,
     updateSetting,
     handleSave,
-    handleTodoAction,
   } = useSettingsForm();
 
   return (
@@ -31,7 +30,6 @@ export const Settings = () => {
             settings={settings}
             clientPortals={clientPortals}
             updateSetting={updateSetting}
-            onTodoAction={handleTodoAction}
           />
         </div>
       </div>
