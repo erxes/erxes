@@ -1,5 +1,4 @@
 import crypto from 'crypto';
-import { promisify } from 'util';
 import { canGroup } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import {
@@ -88,13 +87,23 @@ export const hashToken = (token: string) => {
 // `client_secret` is a password-equivalent credential under RFC 6749 §2.3.1 and
 // must be hashed with a slow, salted KDF so a leaked `secretHash` cannot be
 // brute-forced offline. We use Node's built-in `crypto.scrypt` (no extra
-// dependency) with PHC-style encoding so future parameter tuning is forward-
-// compatible.
+// dependency) with PHC-style encoding `scrypt$N=...,r=...,p=...$<salt>$<hash>`.
+// `verifyClientSecret` parses the embedded N/r/p so any future tightening of
+// `SCRYPT_N` etc. remains backward-compatible with hashes already stored under
+// the prior parameters.
 // ---------------------------------------------------------------------------
 
-const scryptAsync = promisify<crypto.BinaryLike, crypto.BinaryLike, number, Buffer>(
-  crypto.scrypt,
-);
+const scryptAsync = (
+  password: crypto.BinaryLike,
+  salt: crypto.BinaryLike,
+  keylen: number,
+  options: crypto.ScryptOptions,
+): Promise<Buffer> =>
+  new Promise((resolve, reject) =>
+    crypto.scrypt(password, salt, keylen, options, (err, derived) =>
+      err ? reject(err) : resolve(derived as Buffer),
+    ),
+  );
 
 const SCRYPT_N = 16384;
 const SCRYPT_R = 8;
@@ -102,12 +111,52 @@ const SCRYPT_P = 1;
 const SCRYPT_KEY_LEN = 64;
 const SCRYPT_SALT_LEN = 16;
 
+// Node's default scrypt maxmem is 32 MiB and the runtime rejects calls when
+// roughly `128 * N * r * p > maxmem`. We size maxmem from the actual params so
+// future tuning of N or r doesn't trip ERR_CRYPTO_INVALID_SCRYPT_PARAMS, but we
+// also cap maxmem to prevent a malformed stored hash from requesting absurd
+// memory. 1 GiB is well above any sane production parameter set.
+const SCRYPT_MAXMEM_CAP = 1024 * 1024 * 1024;
+
+const scryptMaxmem = (N: number, r: number, p: number): number =>
+  Math.min(SCRYPT_MAXMEM_CAP, Math.max(32 * 1024 * 1024, 256 * N * r * p));
+
+const PHC_PARAMS_RE = /^N=(\d+),r=(\d+),p=(\d+)$/;
+
+const parseScryptParams = (
+  paramStr: string,
+): { N: number; r: number; p: number } | null => {
+  const m = PHC_PARAMS_RE.exec(paramStr);
+  if (!m) return null;
+  const N = Number(m[1]);
+  const r = Number(m[2]);
+  const p = Number(m[3]);
+  // N must be a power of 2 ≥ 2 (scrypt cost factor); r and p kept in sane
+  // bounds so a malformed stored hash can't request gigabytes of memory.
+  if (!Number.isInteger(N) || N < 2 || (N & (N - 1)) !== 0) return null;
+  if (!Number.isInteger(r) || r < 1 || r > 32) return null;
+  if (!Number.isInteger(p) || p < 1 || p > 16) return null;
+  if (128 * N * r * p > SCRYPT_MAXMEM_CAP) return null;
+  return { N, r, p };
+};
+
 export const hashClientSecret = async (secret: string): Promise<string> => {
+  if (typeof secret !== 'string' || secret.length === 0) {
+    throw new Error('client_secret must be a non-empty string');
+  }
+  const N = SCRYPT_N;
+  const r = SCRYPT_R;
+  const p = SCRYPT_P;
   const salt = crypto.randomBytes(SCRYPT_SALT_LEN);
-  const derived = (await scryptAsync(secret, salt, SCRYPT_KEY_LEN)) as Buffer;
+  const derived = await scryptAsync(secret, salt, SCRYPT_KEY_LEN, {
+    N,
+    r,
+    p,
+    maxmem: scryptMaxmem(N, r, p),
+  });
   return [
     'scrypt',
-    `N=${SCRYPT_N},r=${SCRYPT_R},p=${SCRYPT_P}`,
+    `N=${N},r=${r},p=${p}`,
     salt.toString('base64'),
     derived.toString('base64'),
   ].join('$');
@@ -117,19 +166,25 @@ export const verifyClientSecret = async (
   secret: string,
   storedHash: string,
 ): Promise<boolean> => {
+  if (typeof secret !== 'string' || secret.length === 0) return false;
+  if (typeof storedHash !== 'string') return false;
+
   const parts = storedHash.split('$');
-  if (parts.length !== 4 || parts[0] !== 'scrypt') {
-    return false;
-  }
+  if (parts.length !== 4 || parts[0] !== 'scrypt') return false;
+
+  const params = parseScryptParams(parts[1]);
+  if (!params) return false;
 
   const salt = Buffer.from(parts[2], 'base64');
   const expected = Buffer.from(parts[3], 'base64');
+  if (salt.length === 0 || expected.length === 0) return false;
 
-  if (salt.length === 0 || expected.length === 0) {
-    return false;
-  }
-
-  const derived = (await scryptAsync(secret, salt, expected.length)) as Buffer;
+  const derived = await scryptAsync(secret, salt, expected.length, {
+    N: params.N,
+    r: params.r,
+    p: params.p,
+    maxmem: scryptMaxmem(params.N, params.r, params.p),
+  });
   return crypto.timingSafeEqual(derived, expected);
 };
 
