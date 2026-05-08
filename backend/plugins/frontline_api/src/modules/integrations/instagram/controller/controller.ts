@@ -88,6 +88,9 @@ export const instagramSubscription = async (req, res, next) => {
       // Meta into treating the subscription as healthy.
       return res.status(403).type('text/plain').send('Forbidden');
     }
+    // Any other hub.mode (or a missing one) is invalid; respond explicitly
+    // so the request never falls through and hangs until the client times out.
+    return res.status(400).type('text/plain').send('Invalid mode');
   } catch (e) {
     next(e);
   }
