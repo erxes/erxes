@@ -10,6 +10,8 @@ import {
 
 export const router: Router = express.Router();
 
+// In-memory store: per-process counter; gateway-level gatewayRateLimiter
+// (5000/15min/IP) provides the cluster-wide floor in multi-instance deployments.
 const instagramLoginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 150,
