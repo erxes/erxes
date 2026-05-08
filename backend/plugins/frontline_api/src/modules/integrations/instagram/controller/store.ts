@@ -124,7 +124,7 @@ export const getOrCreateComment = async (
     return;
   }
   const post = await models.InstagramPostConversations.findOne({
-    postId: commentParams.post_id,
+    postId: { $eq: commentParams.post_id },
   });
   let attachment: any[] = [];
   if (commentParams.photo) {
