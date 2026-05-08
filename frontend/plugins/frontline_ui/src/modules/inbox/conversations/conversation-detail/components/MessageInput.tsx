@@ -26,8 +26,8 @@ import {
   isInternalState,
   onlyInternalState,
 } from '@/inbox/conversations/conversation-detail/states/isInternalState';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'; // Make sure 'jotai' is installed
+import { useCallback, useEffect, useMemo, useState } from 'react'; // Make sure 'react' is installed
 
 import { useConversationContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationContext';
 
@@ -63,8 +63,9 @@ export const MessageInput = ({
   const { responses } = useGetResponses({});
   const [content, setContent] = useState<Block[]>();
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
-  const [attachments, setAttachments] = useState<any[]>([]);
-  const [attachmentPreview, setAttachmentPreview] = useState<any>(null);
+  type AttachmentType = { name: string; size: number; type: string; url?: string };
+  const [attachments, setAttachments] = useState<AttachmentType[]>([]);
+  const [attachmentPreview, setAttachmentPreview] = useState<AttachmentType & { data?: string } | null>(null);
 
   const editor = useBlockEditor();
   const { addConversationMessage, loading } = useConversationMessageAdd();
@@ -74,7 +75,8 @@ export const MessageInput = ({
     goBackToPreviousHotkeyScope,
   } = usePreviousHotkeyScope();
 
-  const [suggestions, setSuggestions] = useState<any[]>([]);
+  type ResponseType = { name?: string; content?: string; preview?: string; _id?: string };
+  const [suggestions, setSuggestions] = useState<ResponseType[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [responseTemplateId, setResponseTemplateId] = useState<string | null>(
@@ -83,13 +85,16 @@ export const MessageInput = ({
 
   const preparedResponses = useMemo(
     () =>
-      (responses || []).map((r) => ({
-        ...r,
-        preview: getPreviewText(r.content || ''),
-      })),
+      (responses || [])
+        .filter((r: { _id?: string; content?: string }) => r._id && r.content)
+        .map((r: { _id?: string; content?: string }) => ({
+          ...r,
+          _id: r._id as string,
+          content: r.content as string,
+          preview: getPreviewText(r.content || ''),
+        })),
     [responses],
   );
-
   const handleFileUpload = useCallback(
     (files: FileList) => {
       if (!files?.length) return;
@@ -101,7 +106,7 @@ export const MessageInput = ({
         afterRead: ({ result, fileInfo }) =>
           setAttachmentPreview({ ...fileInfo, data: result }),
         afterUpload: ({ response, fileInfo }) => {
-          setAttachments((prev) => [...prev, { ...fileInfo, url: response }]);
+          setAttachments((prev: AttachmentType[]) => [...prev, { ...fileInfo, url: response }]);
           setAttachmentPreview(null);
           toast({ title: 'File uploaded successfully!', variant: 'default' });
         },
@@ -123,7 +128,7 @@ export const MessageInput = ({
   };
 
   const handleDeleteAttachment = (name: string) => {
-    setAttachments((prev) => prev.filter((f) => f.name !== name));
+    setAttachments((prev: AttachmentType[]) => prev.filter((f: AttachmentType) => f.name !== name));
     toast({ title: 'Attachment removed', variant: 'default' });
   };
 
@@ -184,19 +189,19 @@ export const MessageInput = ({
       switch (e.key) {
         case 'ArrowDown':
           e.preventDefault();
-          setSelectedIndex((prev) =>
+          setSelectedIndex((prev: number) =>
             prev < suggestions.length - 1 ? prev + 1 : prev,
           );
           break;
         case 'ArrowUp':
           e.preventDefault();
-          setSelectedIndex((prev) => (prev > 0 ? prev - 1 : 0));
+          setSelectedIndex((prev: number) => (prev > 0 ? prev - 1 : 0));
           break;
         case 'Enter':
           e.preventDefault();
           if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
             handleTemplateSelect(
-              suggestions[selectedIndex].content,
+              suggestions[selectedIndex].content!,
               suggestions[selectedIndex]._id,
             );
             setShowSuggestions(false);
@@ -225,7 +230,7 @@ export const MessageInput = ({
 
     if (plain.length >= 1) {
       const searchTerm = plain.toLowerCase();
-      const found = preparedResponses.filter((t) => {
+      const found = preparedResponses.filter((t: ResponseType) => {
         const titleMatch = t.name?.toLowerCase().includes(searchTerm);
         const contentMatch = t.preview?.toLowerCase().includes(searchTerm);
         return titleMatch || contentMatch;
@@ -304,9 +309,9 @@ export const MessageInput = ({
           isInternalNote && 'bg-warning/20',
         )}
       >
-        {showSuggestions && (
+        {showSuggestions && !isInternalNote && (
           <ResponseTemplateDropdown
-            suggestions={suggestions}
+            suggestions={suggestions as any}
             selectedIndex={selectedIndex}
             availableChannels={availableChannels}
             onSelect={(content: string, templateId?: string) => {
@@ -349,7 +354,7 @@ export const MessageInput = ({
 
         {attachments.length > 0 && (
           <div className="px-6 mt-2 text-sm text-muted-foreground space-y-1">
-            {attachments.map((file, i) => (
+            {attachments.map((file: AttachmentType, i: number) => (
               <div
                 key={i}
                 className="flex items-center justify-between bg-muted px-3 py-1 rounded-md"
@@ -380,15 +385,17 @@ export const MessageInput = ({
             Internal Note
           </Toggle>
 
-          <ResponseTemplateSelector onSelect={handleTemplateSelect}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              <IconMessage2 className="h-4 w-4" />
-            </Button>
-          </ResponseTemplateSelector>
+          {!isInternalNote && (
+            <ResponseTemplateSelector onSelect={handleTemplateSelect}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <IconMessage2 className="h-4 w-4" />
+              </Button>
+            </ResponseTemplateSelector>
+          )}
 
           <Button
             variant="ghost"
@@ -416,7 +423,7 @@ export const MessageInput = ({
             }
             onClick={handleSubmit}
           >
-            {loading || isLoading ? <Spinner size="sm" /> : <IconArrowUp />}
+            {loading || isLoading ? <Spinner /> : <IconArrowUp />}
             Send
             <Kbd className="ml-1">
               <IconCommand size={12} />
