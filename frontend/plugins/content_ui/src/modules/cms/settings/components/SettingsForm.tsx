@@ -8,38 +8,65 @@ import {
   Badge,
   Button,
   Input,
+  MultipleSelector,
   Select,
   Switch,
   Textarea,
   ToggleGroup,
 } from 'erxes-ui';
+import { LANGUAGES } from '../../../../constants';
 import {
   ClientPortalOption,
   SettingsFormState,
   UpdateSetting,
 } from '../types/settingsTypes';
-import { languageLabel } from '../utils/settingsHelpers';
 import { RobotsOption } from './RobotsOption';
 import {
   SettingsField as Field,
   SettingsSectionLabel as SectionLabel,
 } from './SettingsField';
 import { SettingsSection } from './SettingsSection';
-import { UploadPlaceholder } from './UploadPlaceholder';
+import { Uploader } from './Uploader';
 
 export const SettingsForm = ({
   settings,
   clientPortals,
   updateSetting,
-  onRemoveLanguage,
   onTodoAction,
 }: {
   settings: SettingsFormState;
   clientPortals: ClientPortalOption[];
   updateSetting: UpdateSetting;
-  onRemoveLanguage: (language: string) => void;
   onTodoAction: () => void;
 }) => {
+  const getLanguageLabel = (language: string) =>
+    LANGUAGES.find((option) => option.value === language)?.label || language;
+
+  const selectedLanguageOptions = settings.languages.map((language) => ({
+    value: language,
+    label: getLanguageLabel(language),
+  }));
+  const availableDefaultLanguages = LANGUAGES.filter((language) =>
+    settings.languages.includes(language.value),
+  );
+
+  const handleLanguagesChange = (
+    selected: Array<{ value: string; label: string }>,
+  ) => {
+    const languages = selected.map((language) => language.value);
+
+    updateSetting('languages', languages);
+
+    if (!languages.length) {
+      updateSetting('defaultLanguage', '');
+      return;
+    }
+
+    if (!languages.includes(settings.defaultLanguage)) {
+      updateSetting('defaultLanguage', languages[0]);
+    }
+  };
+
   return (
     <div className="min-w-0 space-y-4 p-4">
       <SettingsSection
@@ -76,11 +103,11 @@ export const SettingsForm = ({
                       {portal.name || portal._id}
                     </Select.Item>
                   ))
-                ) : (
+                ) : settings.clientPortalKind ? (
                   <Select.Item value={settings.clientPortalKind}>
-                    Portal A
+                    {settings.clientPortalKind}
                   </Select.Item>
-                )}
+                ) : null}
               </Select.Content>
             </Select>
           </Field>
@@ -90,6 +117,7 @@ export const SettingsForm = ({
           id="shortDescription"
           label="Short Description"
           hint="Used as fallback meta description if none set in SEO Defaults."
+          required
         >
           <Textarea
             id="shortDescription"
@@ -164,11 +192,12 @@ export const SettingsForm = ({
         </Field>
 
         <Field id="defaultOgImage" label="Default OG Image">
-          <UploadPlaceholder
+          <Uploader
             icon={IconPhoto}
             label="Open Graph Image"
             hint="Recommended: 1200x630px, PNG or JPG"
-            onClick={onTodoAction}
+            value={settings.metaImage}
+            onChange={(value) => updateSetting('metaImage', value)}
           />
         </Field>
 
@@ -253,19 +282,21 @@ export const SettingsForm = ({
           </div>
         </Field>
 
-        <div className="flex items-center gap-3 rounded-lg border border-success/20 bg-success/10 p-3">
-          <div className="flex size-9 items-center justify-center rounded-md bg-success text-success-foreground">
-            <IconCheck className="size-5" />
-          </div>
-          <div className="min-w-0">
-            <div className="text-sm font-semibold text-success">
-              Connected - Google Analytics 4
+        {settings.gaTrackingId ? (
+          <div className="flex items-center gap-3 rounded-lg border border-success/20 bg-success/10 p-3">
+            <div className="flex size-9 items-center justify-center rounded-md bg-success text-success-foreground">
+              <IconCheck className="size-5" />
             </div>
-            <div className="truncate font-mono text-xs text-muted-foreground">
-              Tracking ID: {settings.gaTrackingId} - Data stream active
+            <div className="min-w-0">
+              <div className="text-sm font-semibold text-success">
+                Google Analytics configured
+              </div>
+              <div className="truncate font-mono text-xs text-muted-foreground">
+                Tracking ID: {settings.gaTrackingId}
+              </div>
             </div>
           </div>
-        </div>
+        ) : null}
 
         <SectionLabel>Other Integrations</SectionLabel>
 
@@ -296,6 +327,10 @@ export const SettingsForm = ({
             onChange={(event) =>
               updateSetting('customHeadScripts', event.target.value)
             }
+            spellCheck={false}
+            autoCapitalize="none"
+            autoCorrect="off"
+            autoComplete="off"
             className="min-h-20 bg-muted font-mono text-xs"
           />
         </Field>
@@ -392,29 +427,21 @@ export const SettingsForm = ({
 
       <SettingsSection id="languages" title="Languages">
         <Field label="Supported Languages">
-          <div className="flex flex-wrap gap-2">
-            {settings.languages.map((language) => (
-              <Badge
-                key={language}
-                variant="secondary"
-                onClose={
-                  settings.languages.length > 1
-                    ? () => onRemoveLanguage(language)
-                    : undefined
-                }
-              >
-                {languageLabel(language)}
-              </Badge>
-            ))}
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-dashed"
-              onClick={onTodoAction}
-            >
-              Add language
-            </Button>
-          </div>
+          <MultipleSelector
+            defaultOptions={LANGUAGES}
+            onSearchSync={(term) =>
+              LANGUAGES.filter(
+                (language) =>
+                  language.label.toLowerCase().includes(term.toLowerCase()) ||
+                  language.value.toLowerCase().includes(term.toLowerCase()),
+              )
+            }
+            triggerSearchOnFocus
+            value={selectedLanguageOptions}
+            onChange={handleLanguagesChange}
+            placeholder="Select languages"
+            commandProps={{ shouldFilter: false }}
+          />
         </Field>
 
         <Field
@@ -425,14 +452,15 @@ export const SettingsForm = ({
           <Select
             value={settings.defaultLanguage}
             onValueChange={(value) => updateSetting('defaultLanguage', value)}
+            disabled={availableDefaultLanguages.length === 0}
           >
             <Select.Trigger id="defaultLanguage" className="bg-muted">
-              <Select.Value />
+              <Select.Value placeholder="Select default language" />
             </Select.Trigger>
             <Select.Content>
-              {settings.languages.map((language) => (
-                <Select.Item key={language} value={language}>
-                  {languageLabel(language)}
+              {availableDefaultLanguages.map((language) => (
+                <Select.Item key={language.value} value={language.value}>
+                  {language.label}
                 </Select.Item>
               ))}
             </Select.Content>
@@ -446,20 +474,22 @@ export const SettingsForm = ({
         badge={<Badge variant="secondary">Optional</Badge>}
       >
         <Field label="Site Logo">
-          <UploadPlaceholder
+          <Uploader
             icon={IconPhoto}
             label="Logo Image"
             hint="SVG or PNG, transparent background preferred"
-            onClick={onTodoAction}
+            value={settings.siteLogo}
+            onChange={(value) => updateSetting('siteLogo', value)}
           />
         </Field>
 
         <Field label="Favicon">
-          <UploadPlaceholder
+          <Uploader
             icon={IconWorld}
             label="Favicon"
             hint=".ico or 32x32 PNG"
-            onClick={onTodoAction}
+            value={settings.favicon}
+            onChange={(value) => updateSetting('favicon', value)}
           />
         </Field>
       </SettingsSection>

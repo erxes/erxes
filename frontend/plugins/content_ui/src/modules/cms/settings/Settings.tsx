@@ -6,17 +6,22 @@ import { useSettingsForm } from './hooks/useSettingsForm';
 
 export const Settings = () => {
   const {
+    canSave,
     clientPortals,
+    isSaving,
     settings,
     updateSetting,
-    handleRemoveLanguage,
     handleSave,
     handleTodoAction,
   } = useSettingsForm();
 
   return (
     <PageContainer>
-      <SettingsHeader onSave={handleSave} />
+      <SettingsHeader
+        disabled={!canSave}
+        saving={isSaving}
+        onSave={handleSave}
+      />
 
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
@@ -26,7 +31,6 @@ export const Settings = () => {
             settings={settings}
             clientPortals={clientPortals}
             updateSetting={updateSetting}
-            onRemoveLanguage={handleRemoveLanguage}
             onTodoAction={handleTodoAction}
           />
         </div>

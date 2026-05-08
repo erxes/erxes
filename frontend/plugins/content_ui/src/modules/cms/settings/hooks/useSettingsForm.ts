@@ -1,7 +1,11 @@
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import {
+  CONTENT_CREATE_CMS,
+  CONTENT_UPDATE_CMS,
+} from '../../graphql/mutations';
 import { CONTENT_CMS_LIST, GET_WEBSITES } from '../../graphql/queries';
 import { DEFAULT_SETTINGS } from '../constants/defaultSettings';
 import {
@@ -16,14 +20,33 @@ export const useSettingsForm = () => {
   const { websiteId } = useParams();
   const [hydratedWebsiteId, setHydratedWebsiteId] = useState<string>();
   const [settings, setSettings] = useState<SettingsFormState>(DEFAULT_SETTINGS);
+  const mutationOptions = {
+    refetchQueries: [{ query: CONTENT_CMS_LIST }],
+    awaitRefetchQueries: true,
+  };
 
-  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+  const { data: cmsData, loading: cmsLoading } = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
   });
 
-  const { data: websitesData } = useQuery(GET_WEBSITES, {
-    fetchPolicy: 'cache-first',
-  });
+  const { data: websitesData, loading: websitesLoading } = useQuery(
+    GET_WEBSITES,
+    {
+      fetchPolicy: 'cache-first',
+    },
+  );
+
+  const settingsQueriesFetched =
+    !cmsLoading && Boolean(cmsData) && !websitesLoading && Boolean(websitesData);
+
+  const [createCMS, { loading: creatingCMS }] = useMutation(
+    CONTENT_CREATE_CMS,
+    mutationOptions,
+  );
+  const [updateCMS, { loading: updatingCMS }] = useMutation(
+    CONTENT_UPDATE_CMS,
+    mutationOptions,
+  );
 
   const cms: CmsSettingsData | undefined = useMemo(
     () =>
@@ -44,6 +67,7 @@ export const useSettingsForm = () => {
   useEffect(() => {
     if (
       !websiteId ||
+      !settingsQueriesFetched ||
       hydratedWebsiteId === websiteId ||
       (!cms && !clientPortal)
     ) {
@@ -72,6 +96,7 @@ export const useSettingsForm = () => {
       metaKeywords: cms?.metaKeywords?.length
         ? cms.metaKeywords
         : DEFAULT_SETTINGS.metaKeywords,
+      metaImage: cms?.metaImage || DEFAULT_SETTINGS.metaImage,
       gaTrackingId: cms?.googleTrackingId || DEFAULT_SETTINGS.gaTrackingId,
       googleTagManagerId:
         cms?.googleTagManagerId || DEFAULT_SETTINGS.googleTagManagerId,
@@ -85,49 +110,139 @@ export const useSettingsForm = () => {
       languages,
       defaultLanguage:
         cms?.language || languages[0] || DEFAULT_SETTINGS.defaultLanguage,
+      siteLogo: cms?.siteLogo || DEFAULT_SETTINGS.siteLogo,
+      favicon: cms?.favicon || DEFAULT_SETTINGS.favicon,
     });
     setHydratedWebsiteId(websiteId);
-  }, [clientPortal, cms, hydratedWebsiteId, websiteId]);
+  }, [clientPortal, cms, hydratedWebsiteId, settingsQueriesFetched, websiteId]);
 
   const updateSetting: UpdateSetting = (key, value) => {
     setSettings((current) => ({ ...current, [key]: value }));
   };
 
-  const handleRemoveLanguage = (language: string) => {
-    setSettings((current) => {
-      const languages = current.languages.filter((item) => item !== language);
+  const buildSettingsInput = (includeContent: boolean) => {
+    const languages = settings.languages.filter(Boolean);
+    const language = languages.includes(settings.defaultLanguage)
+      ? settings.defaultLanguage
+      : languages[0];
+    const input = {
+      name: settings.websiteName.trim(),
+      description: settings.shortDescription.trim(),
+      clientPortalId: settings.clientPortalKind || websiteId,
+      domain: settings.domain.trim(),
+      publicUrl: settings.publicUrl.trim(),
+      metaTitle: settings.metaTitle.trim(),
+      metaDescription: settings.metaDescription.trim(),
+      metaKeywords: settings.metaKeywords
+        .map((keyword) => keyword.trim())
+        .filter(Boolean),
+      metaImage: settings.metaImage,
+      googleTrackingId: settings.gaTrackingId.trim(),
+      googleTagManagerId: settings.googleTagManagerId.trim(),
+      customScripts: settings.customHeadScripts
+        .split('\n')
+        .map((script) => script.trim())
+        .filter(Boolean),
+      defaultPostStatus: settings.defaultPostStatus,
+      allowComments: settings.allowComments,
+      language,
+      languages,
+      postUrlField: settings.postUrlField,
+      siteLogo: settings.siteLogo,
+      favicon: settings.favicon,
+    };
 
-      return {
-        ...current,
-        languages,
-        defaultLanguage: languages.includes(current.defaultLanguage)
-          ? current.defaultLanguage
-          : languages[0] || current.defaultLanguage,
-      };
-    });
+    return includeContent
+      ? {
+          ...input,
+          content: cms?.content || 'hello',
+        }
+      : input;
   };
 
-  const handleSave = () => {
-    // TODO: Wire this local settings form to contentUpdateCMS once the API contract is finalized.
-    toast({
-      title: 'Settings not saved',
-      description: 'The CMS settings save mutation is still TODO.',
-    });
+  const handleSave = async () => {
+    if (!websiteId) {
+      toast({
+        title: 'Settings not saved',
+        description: 'Select a CMS website before saving settings.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!settingsQueriesFetched) {
+      toast({
+        title: 'Settings not saved',
+        description: 'Settings are still loading. Try again in a moment.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!settings.websiteName.trim() || !settings.shortDescription.trim()) {
+      toast({
+        title: 'Settings not saved',
+        description: 'Website name and short description are required.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      if (cms?._id) {
+        await updateCMS({
+          variables: {
+            id: cms._id,
+            input: buildSettingsInput(false),
+          },
+        });
+
+        toast({
+          title: 'Success',
+          description: 'CMS settings updated successfully.',
+        });
+        return;
+      }
+
+      await createCMS({
+        variables: {
+          input: buildSettingsInput(true),
+        },
+      });
+
+      toast({
+        title: 'Success',
+        description: 'CMS settings created successfully.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'Failed to save CMS settings. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleTodoAction = () => {
     toast({
       title: 'Pending implementation',
-      description:
-        'This control is UI-only until the CMS settings backend is wired.',
+      description: 'This control still needs an input UI before it can be saved.',
     });
   };
 
   return {
+    canSave:
+      Boolean(websiteId) &&
+      settingsQueriesFetched &&
+      !creatingCMS &&
+      !updatingCMS,
     clientPortals,
+    isSaving: creatingCMS || updatingCMS,
     settings,
     updateSetting,
-    handleRemoveLanguage,
     handleSave,
     handleTodoAction,
   };

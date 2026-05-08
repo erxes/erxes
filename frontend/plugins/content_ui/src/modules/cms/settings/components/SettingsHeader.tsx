@@ -3,14 +3,22 @@ import { Button } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { PostsNavigation } from '../../posts/components/PostsNavigation';
 
-export const SettingsHeader = ({ onSave }: { onSave: () => void }) => {
+export const SettingsHeader = ({
+  disabled,
+  saving,
+  onSave,
+}: {
+  disabled?: boolean;
+  saving?: boolean;
+  onSave: () => void;
+}) => {
   return (
     <PageHeader>
       <PostsNavigation />
       <PageHeader.End>
-        <Button onClick={onSave}>
+        <Button disabled={disabled} onClick={onSave}>
           <IconDeviceFloppy />
-          Save Changes
+          {saving ? 'Saving...' : 'Save Changes'}
         </Button>
       </PageHeader.End>
     </PageHeader>

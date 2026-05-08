@@ -1,3 +1,11 @@
+export type CmsAttachment = {
+  url: string;
+  name: string;
+  type?: string;
+  size?: number;
+  duration?: number;
+};
+
 export type SettingsFormState = {
   websiteName: string;
   clientPortalKind: string;
@@ -7,6 +15,7 @@ export type SettingsFormState = {
   metaTitle: string;
   metaDescription: string;
   metaKeywords: string[];
+  metaImage: CmsAttachment | null;
   indexing: 'index' | 'noindex';
   gaTrackingId: string;
   googleTagManagerId: string;
@@ -17,6 +26,8 @@ export type SettingsFormState = {
   allowComments: boolean;
   languages: string[];
   defaultLanguage: string;
+  siteLogo: CmsAttachment | null;
+  favicon: CmsAttachment | null;
 };
 
 export type ClientPortalOption = {
@@ -27,14 +38,17 @@ export type ClientPortalOption = {
 };
 
 export type CmsSettingsData = {
+  _id?: string;
   name?: string;
   description?: string;
   clientPortalId?: string;
+  content?: string;
   domain?: string;
   publicUrl?: string;
   metaTitle?: string;
   metaDescription?: string;
   metaKeywords?: string[];
+  metaImage?: CmsAttachment | null;
   googleTrackingId?: string;
   googleTagManagerId?: string;
   customScripts?: string[];
@@ -43,6 +57,8 @@ export type CmsSettingsData = {
   language?: string;
   languages?: string[];
   postUrlField?: string;
+  siteLogo?: CmsAttachment | null;
+  favicon?: CmsAttachment | null;
 };
 
 export type UpdateSetting = <TKey extends keyof SettingsFormState>(
