@@ -17,6 +17,7 @@
     "date-fns": "^4.1.0",
     "debug": "^4.4.0",
     "erxes-api-shared": "workspace:^",
+    "express-rate-limit": "^8.0.1",
     "fast-xml-parser": "5.2.5",
     "fbgraph": "^1.4.4",
     "graphql-tag": "^2.12.6",

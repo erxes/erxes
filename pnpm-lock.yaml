@@ -1018,6 +1018,9 @@ importers:
       erxes-api-shared:
         specifier: workspace:^
         version: link:../../erxes-api-shared
+      express-rate-limit:
+        specifier: ^8.0.1
+        version: 8.0.1(express@4.21.2)
       fast-xml-parser:
         specifier: 5.2.5
         version: 5.2.5
