@@ -70,10 +70,17 @@ export const queries = `
   cpWebPage(_id: String, slug: String, language: String, webId: String): WebPage
   cpWebPages(webId: String!, searchValue: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): [WebPage]
   cpWebPageList(webId: String!, searchValue: String, language: String, ${GQL_CURSOR_PARAM_DEFS}): WebPageList
+
+  getWebPages(webId: String!, searchValue: String): [WebPage]
+  getWebPage(_id: String!): WebPage
 `;
 
 export const mutations = `
   cpWebPagesAdd(input: WebPageInput!): WebPage
   cpWebPagesEdit(_id: String!, input: WebPageInput!): WebPage
   cpWebPagesRemove(_id: String!): JSON
+
+  webPagesAdd(input: WebPageInput!): WebPage
+  webPagesEdit(_id: String!, input: WebPageInput!): WebPage
+  webPagesRemove(_id: String!): JSON
 `;

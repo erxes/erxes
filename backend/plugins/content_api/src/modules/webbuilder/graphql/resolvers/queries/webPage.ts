@@ -88,6 +88,30 @@ export const webPageQueries: Record<string, Resolver> = {
 
   cpWebPage: (_parent: any, args: any, context: IContext) =>
     new WebPageQueryResolver(context).cpWebPage(_parent, args, context),
+
+  async getWebPages(
+    _parent: unknown,
+    { webId, searchValue }: { webId: string; searchValue?: string },
+    { models }: IContext,
+  ) {
+    const web = await models.Web.findOne({ _id: webId }).lean();
+    if (!web) throw new Error('Web not found');
+
+    const query: any = { webId, clientPortalId: web.clientPortalId };
+    if (searchValue) query.name = { $regex: searchValue, $options: 'i' };
+
+    return models.WebPages.find(query).sort({ name: 1 }).lean();
+  },
+
+  async getWebPage(
+    _parent: unknown,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    const page = await models.WebPages.findOne({ _id }).lean();
+    if (!page) throw new Error('Web page not found');
+    return page;
+  },
 };
 
 webPageQueries.cpWebPages.wrapperConfig = { forClientPortal: true };

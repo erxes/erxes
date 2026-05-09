@@ -7,10 +7,10 @@ import {
 import { Button } from 'erxes-ui';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
 import { useSetAtom } from 'jotai';
+import { useNavigate } from 'react-router-dom';
 import { webDrawerState } from '../states/webBuilderState';
 import { useRemoveWeb } from '../hooks/useRemoveWeb';
 import { IWeb } from '../types';
-import { REACT_APP_WEBBUILDER_URL } from '@/utils';
 import { TEMPLATES } from '../constants';
 
 interface WebCardProps {
@@ -22,18 +22,12 @@ export const WebCard = ({ web, index }: WebCardProps) => {
   const setDrawer = useSetAtom(webDrawerState);
   const { removeWeb } = useRemoveWeb();
   const { confirm } = useConfirm();
+  const navigate = useNavigate();
 
   const templateThumbnail = web.templateId
     ? TEMPLATES.find((t) => t.id === web.templateId)?.thumbnail
     : undefined;
   const thumbnailUrl = web.thumbnail?.url || templateThumbnail;
-
-  const sessionCode = sessionStorage.getItem('sessioncode') || '';
-  const buildUrl = `${REACT_APP_WEBBUILDER_URL}/dashboard/projects/${
-    web._id
-  }?template=${web.templateId || ''}&cpId=${
-    web.clientPortalId
-  }&pageName=home&sessioncode=${sessionCode}`;
 
   const handleEdit = () => setDrawer({ open: true, editingWeb: web });
 
@@ -87,9 +81,7 @@ export const WebCard = ({ web, index }: WebCardProps) => {
           <div className="flex items-center gap-1">
             <Button
               size="sm"
-              onClick={() =>
-                window.open(buildUrl, '_blank', 'noopener,noreferrer')
-              }
+              onClick={() => navigate(`/content/web-builder/${web._id}`)}
               title="Build"
             >
               <IconHammer className="w-3.5 h-3.5 mr-1" />

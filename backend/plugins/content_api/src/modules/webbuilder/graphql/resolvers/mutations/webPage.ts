@@ -165,6 +165,52 @@ export const webPageMutations: Record<string, Resolver> = {
 
     return models.WebPages.deletePage(_id);
   },
+
+  async webPagesAdd(
+    _parent: unknown,
+    { input }: { input: any },
+    { models }: IContext,
+  ): Promise<any> {
+    const { translations, language, clientPortalId: _ignored, ...rest } = input;
+
+    if (!rest.webId) throw new Error('webId is required');
+
+    const web = await models.Web.findOne({ _id: rest.webId }).lean();
+    if (!web) throw new Error('Web not found');
+
+    return models.WebPages.createPage({
+      ...rest,
+      clientPortalId: web.clientPortalId,
+    });
+  },
+
+  async webPagesEdit(
+    _parent: unknown,
+    { _id, input }: { _id: string; input: any },
+    { models }: IContext,
+  ): Promise<any> {
+    const { translations, language, clientPortalId: _ignored, ...rest } = input;
+
+    const existing = await models.WebPages.findOne({ _id }).lean();
+    if (!existing) throw new Error('Web page not found');
+
+    // updatePage's duplicate-slug guard breaks if slug is undefined; preserve it.
+    return models.WebPages.updatePage(_id, {
+      ...rest,
+      slug: rest.slug ?? existing.slug,
+      name: rest.name ?? existing.name,
+      clientPortalId: existing.clientPortalId,
+    });
+  },
+
+  async webPagesRemove(
+    _parent: unknown,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ): Promise<any> {
+    await models.Translations.deleteMany({ objectId: _id, type: 'webPage' });
+    return models.WebPages.deletePage(_id);
+  },
 };
 
 webPageMutations.cpWebPagesAdd.wrapperConfig = { forClientPortal: true };

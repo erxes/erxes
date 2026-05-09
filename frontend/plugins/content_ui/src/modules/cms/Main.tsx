@@ -68,6 +68,18 @@ const WebBuilderPage = lazy(() =>
   })),
 );
 
+const WebDetailPage = lazy(() =>
+  import('~/modules/web-builder/WebDetailPage').then((module) => ({
+    default: module.WebDetailPage,
+  })),
+);
+
+const BuilderPage = lazy(() =>
+  import('~/modules/web-builder/builder/BuilderPage').then((module) => ({
+    default: module.BuilderPage,
+  })),
+);
+
 const Menus = lazy(() =>
   import('~/modules/cms/menus/Menus').then((module) => ({
     default: module.Menus,
@@ -113,7 +125,14 @@ const CmsMain = () => {
           <Route path="custom-types" element={<CustomTypes />} />
           <Route path="custom-fields" element={<CustomFields />} />
         </Route>
-        <Route path="web-builder/*" element={<WebBuilderPage />} />
+        <Route path="web-builder">
+          <Route index element={<WebBuilderPage />} />
+          <Route path=":webId" element={<WebDetailPage />} />
+          <Route
+            path=":webId/pages/:pageId/build"
+            element={<BuilderPage />}
+          />
+        </Route>
       </Routes>
     </Suspense>
   );

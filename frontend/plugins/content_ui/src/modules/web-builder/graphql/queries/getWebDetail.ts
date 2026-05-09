@@ -7,8 +7,10 @@ export const GET_WEB_DETAIL = gql`
       name
       description
       domain
+      clientPortalId
+      templateId
+      templateType
       createdAt
-      url
     }
   }
 `;
