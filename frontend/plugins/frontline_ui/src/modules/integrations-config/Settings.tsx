@@ -18,16 +18,19 @@ const IntegrationsConfigSettings = () => {
       <Routes>
         <Route
           element={
-            <div className="flex flex-auto w-full overflow-hidden">
-              <PageContainer className="flex-1 overflow-hidden">
-                <PageHeader>
-                  <PageHeaderStart>
-                    <Button variant={'ghost'} className="font-semibold">
-                      <IconMailCog className="w-4 h-4 text-accent-foreground" />
-                      Integrations config
-                    </Button>
-                  </PageHeaderStart>
-                </PageHeader>
+            // 1. Хамгийн гадна тал нь дэлгэцийг дүүргэсэн, scroll-гүй байна
+            <div className="flex flex-col h-full w-full overflow-hidden">
+              <PageHeader>
+                <PageHeaderStart>
+                  <Button variant={'ghost'} className="font-semibold">
+                    <IconMailCog className="w-4 h-4 text-accent-foreground" />
+                    Integrations config
+                  </Button>
+                </PageHeaderStart>
+              </PageHeader>
+
+              {/* 2. Зөвхөн энэ хэсэг scroll-доно.*/}
+              <PageContainer className="flex-1 overflow-y-auto p-4">
                 <Outlet />
               </PageContainer>
             </div>
