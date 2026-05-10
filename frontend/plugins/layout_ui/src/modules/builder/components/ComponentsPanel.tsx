@@ -1,23 +1,39 @@
-import { useDraggable } from '@dnd-kit/core';
+import { useSetAtom } from 'jotai';
 import { useMemo, useState } from 'react';
 import { Input, ScrollArea, cn } from 'erxes-ui';
+
 import { ElementDef } from '../elements/types';
 import { paletteByKind } from '../elements/registry';
+import { paletteDragTypeAtom } from '../states/builderStates';
 
 const PaletteItem = ({ def }: { def: ElementDef }) => {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: `palette:${def.type}`,
-    data: { source: 'palette', type: def.type },
-  });
+  const setDragType = useSetAtom(paletteDragTypeAtom);
+  const [dragging, setDragging] = useState(false);
   const Icon = def.icon;
+
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    setDragging(true);
+    setDragType(def.type);
+    // react-grid-layout watches for *any* native drag entering the grid.
+    // dataTransfer needs at least one entry for Firefox to allow the drag.
+    e.dataTransfer.effectAllowed = 'copy';
+    e.dataTransfer.setData('text/plain', def.type);
+  };
+
+  const handleDragEnd = () => {
+    setDragging(false);
+    setDragType(null);
+  };
+
   return (
     <div
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
+      draggable
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      // react-grid-layout uses this className to recognise items dragged from outside.
       className={cn(
-        'flex cursor-grab select-none items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm shadow-sm transition hover:border-primary hover:bg-muted/40',
-        isDragging && 'opacity-40',
+        'droppable-element flex cursor-grab select-none items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm shadow-sm transition hover:border-primary hover:bg-muted/40',
+        dragging && 'opacity-40',
       )}
       title={def.description}
     >

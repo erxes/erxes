@@ -14,6 +14,8 @@ export const dirtyAtom = atom<boolean>(false);
 
 export const dragSourceAtom = atom<DragSource | null>(null);
 
+export const paletteDragTypeAtom = atom<string | null>(null);
+
 export type HistoryState = {
   past: BuilderNode[];
   future: BuilderNode[];

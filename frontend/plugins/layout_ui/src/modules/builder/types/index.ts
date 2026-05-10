@@ -1,11 +1,19 @@
 export type ElementKind = 'atom' | 'molecule' | 'organism';
 
+export type GridLayoutCell = {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+};
+
 export type BuilderNode = {
   id: string;
   type: string;
   kind: ElementKind;
   props: Record<string, unknown>;
   children?: BuilderNode[];
+  layout?: GridLayoutCell;
 };
 
 export type PageTemplate = 'blank' | 'with-header' | 'with-sidebar' | 'landing';

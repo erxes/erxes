@@ -4,7 +4,9 @@ import {
   IconExternalLink,
   IconFileText,
   IconLayoutBoard,
-  IconPlus,
+  IconLayoutGrid,
+  IconLayoutSidebar,
+  IconRocket,
   IconTrash,
 } from '@tabler/icons-react';
 import {
@@ -18,21 +20,52 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 import { PageHeader } from 'ui-modules';
 
 import { usePages } from '~/modules/builder/hooks/usePages';
-import { LayoutPage } from '~/modules/builder/types';
-import { NewPageDialog } from '~/modules/builder/components/NewPageDialog';
+import { LayoutPage, PageTemplate } from '~/modules/builder/types';
 
 const formatDate = (iso: string) => {
   try {
-    const d = new Date(iso);
-    return d.toLocaleString();
+    return new Date(iso).toLocaleString();
   } catch {
     return iso;
   }
 };
+
+type TemplateTile = {
+  template: PageTemplate;
+  label: string;
+  description: string;
+  icon: React.ElementType;
+};
+
+const TEMPLATE_TILES: TemplateTile[] = [
+  {
+    template: 'blank',
+    label: 'Blank',
+    description: 'Empty canvas. Drop anything.',
+    icon: IconFileText,
+  },
+  {
+    template: 'with-header',
+    label: 'With header',
+    description: 'Heading + paragraph to start writing.',
+    icon: IconLayoutBoard,
+  },
+  {
+    template: 'with-sidebar',
+    label: 'With sidebar',
+    description: 'Stat cards in a 2-column grid.',
+    icon: IconLayoutSidebar,
+  },
+  {
+    template: 'landing',
+    label: 'Landing',
+    description: 'Hero, features grid and footer.',
+    icon: IconRocket,
+  },
+];
 
 const PageRow = ({ page }: { page: LayoutPage }) => {
   const navigate = useNavigate();
@@ -119,11 +152,7 @@ const PageRow = ({ page }: { page: LayoutPage }) => {
           variant="ghost"
           size="sm"
           onClick={() =>
-            window.open(
-              `/layout/preview/${page.id}`,
-              '_blank',
-              'noopener',
-            )
+            window.open(`/layout/preview/${page.id}`, '_blank', 'noopener')
           }
         >
           <IconExternalLink size={16} />
@@ -140,9 +169,45 @@ const PageRow = ({ page }: { page: LayoutPage }) => {
   );
 };
 
+const TemplateButton = ({ tile }: { tile: TemplateTile }) => {
+  const navigate = useNavigate();
+  const { create } = usePages();
+  const Icon = tile.icon;
+
+  const handleClick = () => {
+    const r = create({ title: 'Untitled', template: tile.template });
+    if (!r.ok || !r.page) {
+      toast({
+        title: 'Could not create page',
+        description: r.error ?? 'Unknown error',
+        variant: 'destructive',
+      });
+      return;
+    }
+    navigate(`/layout/edit/${r.page.id}`);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      className="group flex flex-col items-start gap-3 rounded-lg border bg-card p-4 text-left transition hover:border-primary hover:shadow-sm"
+    >
+      <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground">
+        <Icon size={20} />
+      </div>
+      <div>
+        <div className="text-sm font-semibold">{tile.label}</div>
+        <div className="mt-0.5 text-xs text-muted-foreground">
+          {tile.description}
+        </div>
+      </div>
+    </button>
+  );
+};
+
 export const PagesIndexPage = () => {
   const { pages } = usePages();
-  const [dialogOpen, setDialogOpen] = useState(false);
 
   const sorted = [...pages].sort((a, b) =>
     b.updatedAt.localeCompare(a.updatedAt),
@@ -169,34 +234,43 @@ export const PagesIndexPage = () => {
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>
-        <Button onClick={() => setDialogOpen(true)}>
-          <IconPlus size={16} />
-          New page
-        </Button>
       </PageHeader>
 
       <PageContainer>
         <ScrollArea className="h-full flex-1">
-          <div className="mx-auto w-full max-w-4xl space-y-3 p-6">
-            {sorted.length === 0 ? (
-              <div className="rounded-lg border-2 border-dashed p-12 text-center">
-                <h3 className="text-lg font-semibold">No pages yet</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Create your first page to start building.
-                </p>
-                <Button className="mt-4" onClick={() => setDialogOpen(true)}>
-                  <IconPlus size={16} />
-                  New page
-                </Button>
+          <div className="mx-auto w-full max-w-4xl space-y-8 p-6">
+            <section>
+              <div className="mb-3 flex items-center gap-2">
+                <IconLayoutGrid size={18} className="text-muted-foreground" />
+                <h2 className="text-sm font-semibold">Start a new page</h2>
               </div>
-            ) : (
-              sorted.map((p) => <PageRow key={p.id} page={p} />)
-            )}
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                {TEMPLATE_TILES.map((tile) => (
+                  <TemplateButton key={tile.template} tile={tile} />
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <div className="mb-3 flex items-center gap-2">
+                <IconFileText size={18} className="text-muted-foreground" />
+                <h2 className="text-sm font-semibold">Your pages</h2>
+              </div>
+              {sorted.length === 0 ? (
+                <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
+                  No pages yet. Pick a template above to start building.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {sorted.map((p) => (
+                    <PageRow key={p.id} page={p} />
+                  ))}
+                </div>
+              )}
+            </section>
           </div>
         </ScrollArea>
       </PageContainer>
-
-      <NewPageDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </div>
   );
 };

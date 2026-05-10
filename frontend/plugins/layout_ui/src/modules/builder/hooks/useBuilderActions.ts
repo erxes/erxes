@@ -12,10 +12,12 @@ import {
   findNode,
   findParent,
   insertAt,
+  mapTree,
   moveNode as moveNodeUtil,
   removeAt,
   replaceProps,
 } from '../utils/tree';
+import { GridLayoutCell } from '../types';
 import { createNodeByType } from '../elements/registry';
 import { id } from '../utils/id';
 import { usePages } from './usePages';
@@ -60,6 +62,50 @@ export const useBuilderActions = () => {
       insertNode(parentId, index, node);
     },
     [insertNode],
+  );
+
+  const insertByTypeAt = useCallback(
+    (
+      parentId: string,
+      index: number,
+      type: string,
+      layout?: GridLayoutCell,
+    ) => {
+      if (!draft) return;
+      const node = createNodeByType(type);
+      if (!node) return;
+      const placed = layout ? { ...node, layout } : node;
+      commit(insertAt(draft.root, parentId, index, placed));
+      setSelected(placed.id);
+    },
+    [draft, commit, setSelected],
+  );
+
+  const setLayouts = useCallback(
+    (updates: Array<GridLayoutCell & { id: string }>) => {
+      if (!draft || updates.length === 0) return;
+      const map = new Map(updates.map((u) => [u.id, u]));
+      let changed = false;
+      const next = mapTree(draft.root, (n) => {
+        const u = map.get(n.id);
+        if (!u) return n;
+        const cur = n.layout;
+        if (
+          cur &&
+          cur.x === u.x &&
+          cur.y === u.y &&
+          cur.w === u.w &&
+          cur.h === u.h
+        ) {
+          return n;
+        }
+        changed = true;
+        return { ...n, layout: { x: u.x, y: u.y, w: u.w, h: u.h } };
+      });
+      if (!changed) return;
+      commit(next);
+    },
+    [draft, commit],
   );
 
   const removeNode = useCallback(
@@ -195,6 +241,8 @@ export const useBuilderActions = () => {
     selectNode,
     insertNode,
     insertByType,
+    insertByTypeAt,
+    setLayouts,
     removeNode,
     duplicateNode,
     moveNode,

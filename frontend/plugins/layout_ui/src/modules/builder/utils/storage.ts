@@ -1,7 +1,9 @@
 import { LayoutPage } from '../types';
-import { buildSeedPages } from './seed';
 
 const KEY = 'erxes:layout:pages';
+const VERSION_KEY = 'erxes:layout:version';
+const CURRENT_VERSION = '2';
+const DEMO_SLUGS = new Set(['landing-demo', 'about']);
 
 const safeParse = (raw: string | null): LayoutPage[] | null => {
   if (!raw) return null;
@@ -16,15 +18,19 @@ const safeParse = (raw: string | null): LayoutPage[] | null => {
 
 export const readPages = (): LayoutPage[] => {
   if (typeof window === 'undefined') return [];
-  const parsed = safeParse(window.localStorage.getItem(KEY));
-  if (parsed) return parsed;
-  const seeded = buildSeedPages();
-  try {
-    window.localStorage.setItem(KEY, JSON.stringify(seeded));
-  } catch {
-    // ignore — read still returns the seed for this session
+  const version = window.localStorage.getItem(VERSION_KEY);
+  let pages = safeParse(window.localStorage.getItem(KEY)) ?? [];
+
+  if (version !== CURRENT_VERSION) {
+    pages = pages.filter((p) => !DEMO_SLUGS.has(p.slug));
+    try {
+      window.localStorage.setItem(KEY, JSON.stringify(pages));
+      window.localStorage.setItem(VERSION_KEY, CURRENT_VERSION);
+    } catch {
+      // ignore — return cleaned data anyway for this session
+    }
   }
-  return seeded;
+  return pages;
 };
 
 export class StorageQuotaError extends Error {
