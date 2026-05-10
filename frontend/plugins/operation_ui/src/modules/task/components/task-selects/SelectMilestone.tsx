@@ -262,7 +262,7 @@ const SelectMilestoneFilterBar = ({ projectId }: { projectId?: string }) => {
   return (
     <SelectMilestoneProvider
       value={milestone || ''}
-      onValueChange={(value) => setMilestone(value as string)}
+      onValueChange={(value) => setMilestone(value)}
       projectId={projectId}
     >
       <Popover open={open} onOpenChange={setOpen}>
@@ -285,7 +285,7 @@ const SelectMilestoneFilterView = ({ projectId }: { projectId?: string }) => {
       <SelectMilestoneProvider
         value={milestone || ''}
         onValueChange={(value) => {
-          setMilestone(value as string);
+          setMilestone(value);
           resetFilterState();
         }}
         projectId={projectId}
