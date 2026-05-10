@@ -74,7 +74,7 @@ const SegmentFormWrapper = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <FormProvider {...form}>
-      <form id="segment-form" className="h-full min-h-0 flex flex-col p-2">
+      <form id="segment-form" className="h-full min-h-0 flex flex-col">
         {children}
       </form>
     </FormProvider>

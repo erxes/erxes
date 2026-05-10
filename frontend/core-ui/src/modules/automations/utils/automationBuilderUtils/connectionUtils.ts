@@ -185,3 +185,68 @@ export const checkValidOptionalConnect = (
       sourceId === source.id && actionId === target.id,
   );
 };
+
+export const removeNodeReferences = ({
+  removedNodeId,
+  actions = [],
+  triggers = [],
+  actionFolks = {},
+}: {
+  removedNodeId: string;
+  actions?: TAutomationBuilderForm['actions'];
+  triggers?: TAutomationBuilderForm['triggers'];
+  actionFolks?: Record<string, { key: string }[]>;
+}) => {
+  const updatedTriggers = (triggers || [])
+    .map((trigger) => ({
+      ...trigger,
+      actionId:
+        trigger.actionId === removedNodeId ? undefined : trigger.actionId,
+    }))
+    .filter((trigger) => trigger.id !== removedNodeId);
+
+  const updatedActions = (actions || [])
+    .map((action) => {
+      const config = { ...(action.config || {}) };
+      const folks = actionFolks?.[action.type] || [];
+
+      for (const folk of folks) {
+        if (config[folk.key] === removedNodeId) {
+          config[folk.key] = undefined;
+        }
+      }
+
+      return {
+        ...action,
+        nextActionId:
+          action.nextActionId === removedNodeId
+            ? undefined
+            : action.nextActionId,
+        workflowId:
+          action.workflowId === removedNodeId ? undefined : action.workflowId,
+        config: {
+          ...config,
+          yes: config.yes === removedNodeId ? undefined : config.yes,
+          no: config.no === removedNodeId ? undefined : config.no,
+          optionalConnects: (config.optionalConnects || []).filter(
+            (connection: any) => connection.actionId !== removedNodeId,
+          ),
+        },
+      };
+    })
+    .filter((action) => action.id !== removedNodeId);
+
+  const actionMap = new Map(
+    updatedActions.map((action) => [action.id, action]),
+  );
+  const triggerMap = new Map(
+    updatedTriggers.map((trigger) => [trigger.id, trigger]),
+  );
+
+  return {
+    updatedActions,
+    updatedTriggers,
+    actionMap,
+    triggerMap,
+  };
+};

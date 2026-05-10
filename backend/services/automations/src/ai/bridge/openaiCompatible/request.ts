@@ -64,7 +64,6 @@ export const requestOpenAiCompatible = async <TJson = any>({
     () => controller.abort(),
     runtime.timeoutMs || AI_AGENT_DEFAULTS.timeoutMs,
   );
-  console.log({ body });
   try {
     const response = await fetch(
       `${normalizeOpenAiCompatibleBaseUrl(connection)}${path}`,

@@ -1,21 +1,29 @@
 import { AlertDialog } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { useBlocker, useLocation } from 'react-router';
+import { useBlocker } from 'react-router';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { useTranslation } from 'react-i18next';
 
 export const AutomationBuilderUnsavedChangesAlert = () => {
-  const location = useLocation();
   const {
     formState: { isDirty },
   } = useFormContext<TAutomationBuilderForm>();
   const { t } = useTranslation('automations');
 
-  const blocker = useBlocker(
-    ({ nextLocation }) =>
-      isDirty && nextLocation.pathname !== location.pathname,
-  );
+  const blocker = useBlocker(({ currentLocation, nextLocation }) => {
+    const currentLocationPathName = currentLocation.pathname;
+    const nextLocationPathName = nextLocation.pathname;
+
+    if (
+      currentLocationPathName === '/automations/create' &&
+      nextLocationPathName.startsWith('/automations/edit/')
+    ) {
+      return false;
+    }
+
+    return isDirty && nextLocationPathName !== currentLocationPathName;
+  });
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {

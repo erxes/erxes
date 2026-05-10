@@ -1,29 +1,76 @@
-import { IAutomation } from '@/automations/types';
+import { AutomationsHotKeyScope, IAutomation } from '@/automations/types';
+import { ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/react-table';
-import { CommandBar, RecordTable, Separator } from 'erxes-ui';
+import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
 import { AutomationRemoveButtonCommandBar } from '@/automations/components/list/AutomationRemoveButtonCommandBar';
-import { Can } from 'ui-modules';
+import { Can, TagsSelect } from 'ui-modules';
+
+const intersection = (arrays: string[][]): string[] => {
+  if (arrays.length === 0) return [];
+
+  return arrays.reduce((common, current) =>
+    common.filter((item) => current.includes(item)),
+  );
+};
 
 export const AutomationRecordTableCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
+  const selectedRows = table.getFilteredSelectedRowModel().rows;
 
-  const automationIds = table
-    .getFilteredSelectedRowModel()
-    .rows.map((row: Row<IAutomation>) => row.original._id);
+  const automationIds = selectedRows.map(
+    (row: Row<IAutomation>) => row.original._id,
+  );
+  const tagIds = intersection(
+    selectedRows.map((row: Row<IAutomation>) => row.original.tagIds || []),
+  );
 
-  const isSelected = table.getFilteredSelectedRowModel().rows.length > 0;
+  const isSelected = selectedRows.length > 0;
   return (
     <CommandBar open={isSelected}>
       <CommandBar.Bar>
-        <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
-        </CommandBar.Value>
+        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <Can action="tagsTag">
+          <>
+            <Separator.Inline />
+            <TagsSelect
+              scope={AutomationsHotKeyScope.AutomationsTableInlinePopover}
+              type="core:automation"
+              mode="multiple"
+              variant="secondary"
+              className="shadow-none"
+              value={tagIds}
+              targetIds={automationIds}
+              options={(newSelectedTagIds) => ({
+                update: (cache) => {
+                  automationIds.forEach((automationId) => {
+                    cache.modify({
+                      id: cache.identify({
+                        __typename: 'Automation',
+                        _id: automationId,
+                      }),
+                      fields: {
+                        tagIds: () => newSelectedTagIds,
+                      },
+                    });
+                  });
+                },
+                onError: (e: ApolloError) => {
+                  toast({
+                    title: 'Error',
+                    description: e.message,
+                    variant: 'destructive',
+                  });
+                },
+              })}
+            />
+          </>
+        </Can>
         <Can action="automationsDelete">
           <>
             <Separator.Inline />
             <AutomationRemoveButtonCommandBar
               automationIds={automationIds}
-              rows={table.getFilteredSelectedRowModel().rows}
+              rows={selectedRows}
             />
           </>
         </Can>

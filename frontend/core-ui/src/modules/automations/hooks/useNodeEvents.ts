@@ -18,6 +18,11 @@ export const useNodeEvents = () => {
     });
   };
 
+  const openNodeConfigurationForm = (nodeId: string) => {
+    toggleSideBarOpen();
+    setQueryParams({ activeNodeId: nodeId });
+  };
+
   const onNodeDoubleClick = (event: any, node: Node<NodeData>) => {
     const target = event.target as HTMLElement;
 
@@ -30,9 +35,7 @@ export const useNodeEvents = () => {
     ) {
       return;
     }
-
-    toggleSideBarOpen();
-    setQueryParams({ activeNodeId: node.id });
+    openNodeConfigurationForm(node.id);
   };
 
   const onPaneClick = () => {
@@ -43,5 +46,6 @@ export const useNodeEvents = () => {
     onNodeClick,
     onNodeDoubleClick,
     onPaneClick,
+    openNodeConfigurationForm,
   };
 };

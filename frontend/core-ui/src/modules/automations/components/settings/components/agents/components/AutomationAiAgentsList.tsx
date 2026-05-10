@@ -1,6 +1,7 @@
 import { AutomationAiAgentKindsGrid } from '@/automations/components/settings/components/agents/components/AutomationAiAgentKindsGrid';
 import { AutomationAiAgentRecordTable } from '@/automations/components/settings/components/agents/components/AutomationAiAgentRecordTable';
 import { AI_AGENT_KINDS } from '@/automations/components/settings/components/agents/constants/automationAiAgents';
+import { AutomationSettingsPageShell } from '@/automations/components/settings/components/AutomationSettingsPageShell';
 import { Card, useQueryState } from 'erxes-ui';
 
 export const AutomationAiAgentsList = () => {
@@ -12,16 +13,10 @@ export const AutomationAiAgentsList = () => {
   };
 
   return (
-    <div className="flex h-full w-full flex-col gap-6 rounded-lg bg-muted/20 p-6">
-      <div className="space-y-2">
-        <h1 className="text-lg font-semibold">AI Agents</h1>
-        <p className="max-w-3xl text-sm text-muted-foreground">
-          Configure credential-backed AI agents, attach context files, and
-          validate provider readiness before wiring them into automation
-          actions.
-        </p>
-      </div>
-
+    <AutomationSettingsPageShell
+      title="AI Agents"
+      description="Configure credential-backed AI agents, attach context files, and validate provider readiness before wiring them into automation actions."
+    >
       <div className="max-w-2xl">
         <AutomationAiAgentKindsGrid
           kinds={AI_AGENT_KINDS}
@@ -30,9 +25,9 @@ export const AutomationAiAgentsList = () => {
         />
       </div>
 
-      <Card className="flex-1 p-6">
+      <div className="flex-1 p-6 border-t">
         <AutomationAiAgentRecordTable kind={activeKind} />
-      </Card>
-    </div>
+      </div>
+    </AutomationSettingsPageShell>
   );
 };

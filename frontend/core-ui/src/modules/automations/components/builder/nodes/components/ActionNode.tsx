@@ -26,7 +26,6 @@ const ActionNodeSourceHandler = ({
   workflowId?: string;
 }) => {
   const { hasFolks, folks } = useActionNodeSourceHandler(type);
-
   if (hasFolks) {
     return (
       <FolksActionSourceHandler nodeId={id} config={config} folks={folks} />
