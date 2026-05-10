@@ -188,7 +188,7 @@ export const handleFacebookMessage = async (
           {
             recipient: { id: senderId },
             message: { text: strippedContent },
-            tag
+            ...(tag ? { messaging_type: 'MESSAGE_TAG', tag } : {})
           },
           conversation.recipientId,
           integrationId
@@ -217,7 +217,7 @@ export const handleFacebookMessage = async (
           {
             recipient: { id: senderId },
             message,
-            tag
+            ...(tag ? { messaging_type: 'MESSAGE_TAG', tag } : {})
           },
           conversation.recipientId,
           integrationId
