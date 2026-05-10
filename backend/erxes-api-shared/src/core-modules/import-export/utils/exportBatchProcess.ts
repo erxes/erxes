@@ -11,7 +11,6 @@ import { nanoid } from 'nanoid';
 import * as fs from 'fs';
 import * as path from 'path';
 import ExcelJS from 'exceljs';
-import { uploadFileToStorage } from '../../../utils/file/upload';
 import { ImportExportError, withImportExportStage } from './importExportError';
 import {
   logImportExportEvent,
@@ -228,19 +227,18 @@ const uploadExportFile = async (
   filePath: string,
   fileName: string,
   fileFormat: 'csv' | 'xlsx',
+  coreClient: CoreImportClient,
 ): Promise<string> => {
-  const mimetype =
+  const mimeType =
     fileFormat === 'csv'
       ? 'text/csv'
       : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
-  // Force private to get file key instead of URL (same pattern as core-api)
-  return await uploadFileToStorage({
-    subdomain,
-    filePath,
+  const fileContent = (await fs.promises.readFile(filePath)).toString('base64');
+  return await coreClient.uploadExportFile(subdomain, {
+    fileContent,
     fileName,
-    mimetype,
-    forcePrivate: true,
+    mimeType,
   });
 };
 
@@ -515,6 +513,7 @@ export const createExportBatchProcessor = (
                 tempFilePath,
                 tempFileName,
                 fileFormat,
+                coreClient,
               ),
           });
 

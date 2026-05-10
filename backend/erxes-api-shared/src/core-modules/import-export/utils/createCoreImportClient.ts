@@ -61,6 +61,14 @@ export type CoreImportClient = {
       fileIndex?: number;
     },
   ) => Promise<void>;
+  uploadExportFile: (
+    subdomain: string,
+    params: {
+      fileContent: string;
+      fileName: string;
+      mimeType: string;
+    },
+  ) => Promise<string>;
 };
 
 const callCoreImport = async <T>(
@@ -127,5 +135,7 @@ export const createCoreImportClient = (): CoreImportClient => {
     saveExportFile: async (subdomain, params) => {
       await callCoreExport(subdomain, 'saveExportFile', 'mutation', params);
     },
+    uploadExportFile: async (subdomain, params) =>
+      await callCoreExport<string>(subdomain, 'uploadExportFile', 'mutation', params),
   };
 };
