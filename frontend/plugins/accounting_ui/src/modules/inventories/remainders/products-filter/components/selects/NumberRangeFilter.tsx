@@ -5,12 +5,12 @@ import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 
 interface NumberRangeDialogViewProps {
-  minKey: string;
-  maxKey: string;
-  label: string;
+  readonly minKey: string;
+  readonly maxKey: string;
+  readonly label: string;
 }
 
-export function NumberRangeDialogView({ minKey, maxKey, label }: NumberRangeDialogViewProps) {
+export function NumberRangeDialogView({ minKey, maxKey, label }: Readonly<NumberRangeDialogViewProps>) {
   const { setDialogView, setOpenDialog, sessionKey } = useFilterContext();
   const [minQuery, setMinQuery] = useFilterQueryState<string>(minKey, sessionKey ?? '');
   const [maxQuery, setMaxQuery] = useFilterQueryState<string>(maxKey, sessionKey ?? '');
@@ -62,13 +62,13 @@ export function NumberRangeDialogView({ minKey, maxKey, label }: NumberRangeDial
 }
 
 interface NumberRangeBarItemProps {
-  minKey: string;
-  maxKey: string;
-  label: string;
-  icon: ReactNode;
+  readonly minKey: string;
+  readonly maxKey: string;
+  readonly label: string;
+  readonly icon: ReactNode;
 }
 
-export function NumberRangeBarItem({ minKey, maxKey, label, icon }: NumberRangeBarItemProps) {
+export function NumberRangeBarItem({ minKey, maxKey, label, icon }: Readonly<NumberRangeBarItemProps>) {
   const [minQuery] = useFilterQueryState<string>(minKey);
   const [maxQuery] = useFilterQueryState<string>(maxKey);
   const { setDialogView, setOpenDialog } = useFilterContext();
@@ -76,12 +76,14 @@ export function NumberRangeBarItem({ minKey, maxKey, label, icon }: NumberRangeB
 
   if (!minQuery && !maxQuery) return null;
 
-  const displayValue =
-    minQuery && maxQuery
-      ? `${minQuery} – ${maxQuery}`
-      : minQuery
-        ? `≥ ${minQuery}`
-        : `≤ ${maxQuery}`;
+  let displayValue: string;
+  if (minQuery && maxQuery) {
+    displayValue = `${minQuery} – ${maxQuery}`;
+  } else if (minQuery) {
+    displayValue = `≥ ${minQuery}`;
+  } else {
+    displayValue = `≤ ${maxQuery}`;
+  }
 
   const handleClose = () => {
     removeQuery(minKey);

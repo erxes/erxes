@@ -12,7 +12,7 @@ import { IconCheck, IconFolders } from '@tabler/icons-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useProductCategories } from '../../../hooks/useProductCategories';
 
-function CategoryBadge({ category }: { category?: IProductCategory }) {
+function CategoryBadge({ category }: Readonly<{ category?: IProductCategory }>) {
   if (!category) return null;
   return (
     <div className="flex overflow-hidden flex-auto gap-2 justify-start items-center">
@@ -26,11 +26,11 @@ function CategoryCommandItem({
   category,
   selectedCategory,
   onSelect,
-}: {
+}: Readonly<{
   category: IProductCategory;
   selectedCategory?: IProductCategory;
   onSelect: (id: string) => void;
-}) {
+}>) {
   const handleSelect = useCallback(() => onSelect(category._id), [category._id, onSelect]);
   return (
     <Command.Item key={category._id} value={category._id} onSelect={handleSelect}>
@@ -49,10 +49,10 @@ function CategoryCommandItem({
 export function SelectProductCategoryFilterItem({
   value,
   label,
-}: {
+}: Readonly<{
   value: string;
   label: string;
-}) {
+}>) {
   return (
     <Filter.Item value={value}>
       <IconFolders />
@@ -61,7 +61,7 @@ export function SelectProductCategoryFilterItem({
   );
 }
 
-export function SelectProductCategoryFilterView({ filterKey }: { filterKey: string }) {
+export function SelectProductCategoryFilterView({ filterKey }: Readonly<{ filterKey: string }>) {
   const [query, setQuery] = useQueryState<string[] | undefined>(filterKey);
   const { resetFilterState } = useFilterContext();
   const [selectedCategory, setSelectedCategory] = useState<IProductCategory>();
@@ -75,10 +75,10 @@ export function SelectProductCategoryFilterView({ filterKey }: { filterKey: stri
 
   useEffect(() => {
     if (!productCategories) return;
-    if (!query?.length) {
-      setSelectedCategory(undefined);
-    } else {
+    if (query?.length) {
       setSelectedCategory(productCategories.find((c) => c._id === query[0]));
+    } else {
+      setSelectedCategory(undefined);
     }
   }, [query, productCategories]);
 
@@ -88,20 +88,26 @@ export function SelectProductCategoryFilterView({ filterKey }: { filterKey: stri
     resetFilterState();
   };
 
+  const hasCategories = (productCategories?.length ?? 0) > 0;
+
+  const renderEmptyState = () => {
+    if (loading) return <Combobox.Empty loading />;
+    if (hasCategories) return null;
+    return (
+      <Command.Empty>
+        <div className="flex flex-col gap-2 justify-center items-center text-sm text-center text-muted-foreground">
+          No categories found
+        </div>
+      </Command.Empty>
+    );
+  };
+
   return (
     <Filter.View filterKey={filterKey}>
       <Command className="outline-hidden">
         <Command.Input placeholder="Search categories" />
         <Command.List>
-          {loading ? (
-            <Combobox.Empty loading />
-          ) : !productCategories?.length ? (
-            <Command.Empty>
-              <div className="flex flex-col gap-2 justify-center items-center text-sm text-center text-muted-foreground">
-                No categories found
-              </div>
-            </Command.Empty>
-          ) : null}
+          {renderEmptyState()}
           {productCategories?.map((category) => (
             <CategoryCommandItem
               key={category._id}
@@ -119,10 +125,10 @@ export function SelectProductCategoryFilterView({ filterKey }: { filterKey: stri
 export function SelectProductCategoryFilterBar({
   filterKey,
   label,
-}: {
+}: Readonly<{
   filterKey: string;
   label: string;
-}) {
+}>) {
   const [query, setQuery] = useQueryState<string[]>(filterKey);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<IProductCategory>();

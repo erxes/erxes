@@ -27,7 +27,7 @@ function useProductSegments() {
   return { segments: data?.segments ?? [], loading };
 }
 
-function SegmentDot({ color }: { color?: string }) {
+function SegmentDot({ color }: Readonly<{ color?: string }>) {
   if (!color) return null;
   return <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: color }} />;
 }
@@ -37,12 +37,12 @@ function SegmentCommandList({
   loading,
   selectedId,
   onSelect,
-}: {
+}: Readonly<{
   segments: ISegment[];
   loading: boolean;
   selectedId?: string;
   onSelect: (id: string) => void;
-}) {
+}>) {
   if (loading) return <Combobox.Empty loading />;
   if (!segments.length) return <Command.Empty>No segments found</Command.Empty>;
   return (
