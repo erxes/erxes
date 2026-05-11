@@ -47,7 +47,11 @@ const importTemplateLimiter = rateLimit({
     } catch {
       // fall through to IP-based key
     }
-    return `ip:${ipKeyGenerator(req.ip ?? '')}`;
+    // Fall back to an IPv6-safe IP key. If `req.ip` is not available (e.g.,
+    // `trust proxy` misconfigured), prefer the raw socket address before
+    // collapsing all unknown sources into a single shared bucket.
+    const ip = req.ip || req.socket?.remoteAddress || 'unknown';
+    return `ip:${ipKeyGenerator(ip)}`;
   },
   handler: (_req, res) => {
     res.status(429).json({
