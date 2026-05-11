@@ -131,6 +131,8 @@
     "react-error-boundary": "^5.0.0",
     "react-grid-layout": "^1.4.4",
     "react-hook-form": "^7.53.2",
+    "react-moveable": "^0.56.0",
+    "react-selecto": "^1.26.3",
     "react-resizable": "^3.0.5",
     "react-hotkeys-hook": "^4.6.1",
     "react-i18next": "^15.1.1",

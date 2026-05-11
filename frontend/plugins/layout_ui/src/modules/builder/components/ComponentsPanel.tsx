@@ -4,9 +4,20 @@ import { Input, ScrollArea, cn } from 'erxes-ui';
 
 import { ElementDef } from '../elements/types';
 import { paletteByKind } from '../elements/registry';
-import { paletteDragTypeAtom } from '../states/builderStates';
+import {
+  pageDraftAtom,
+  paletteDragTypeAtom,
+} from '../states/builderStates';
+import { useAtomValue } from 'jotai';
+import { useBuilderActions } from '../hooks/useBuilderActions';
 
-const PaletteItem = ({ def }: { def: ElementDef }) => {
+const PaletteItem = ({
+  def,
+  onPick,
+}: {
+  def: ElementDef;
+  onPick?: (type: string) => void;
+}) => {
   const setDragType = useSetAtom(paletteDragTypeAtom);
   const [dragging, setDragging] = useState(false);
   const Icon = def.icon;
@@ -14,8 +25,6 @@ const PaletteItem = ({ def }: { def: ElementDef }) => {
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     setDragging(true);
     setDragType(def.type);
-    // react-grid-layout watches for *any* native drag entering the grid.
-    // dataTransfer needs at least one entry for Firefox to allow the drag.
     e.dataTransfer.effectAllowed = 'copy';
     e.dataTransfer.setData('text/plain', def.type);
   };
@@ -30,17 +39,17 @@ const PaletteItem = ({ def }: { def: ElementDef }) => {
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      // react-grid-layout uses this className to recognise items dragged from outside.
+      onClick={() => onPick?.(def.type)}
       className={cn(
-        'droppable-element flex cursor-grab select-none items-center gap-2 rounded-md border bg-background px-3 py-2 text-sm shadow-sm transition hover:border-primary hover:bg-muted/40',
+        'flex cursor-pointer select-none items-center gap-2 rounded-md border border-transparent bg-background/60 px-2.5 py-1.5 text-sm shadow-sm transition hover:border-primary/40 hover:bg-muted/40',
         dragging && 'opacity-40',
       )}
       title={def.description}
     >
-      <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
-        <Icon size={16} />
+      <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10 text-primary">
+        <Icon size={14} />
       </span>
-      <span className="flex-1 truncate font-medium">{def.label}</span>
+      <span className="flex-1 truncate text-xs font-medium">{def.label}</span>
     </div>
   );
 };
@@ -48,31 +57,47 @@ const PaletteItem = ({ def }: { def: ElementDef }) => {
 const Section = ({
   title,
   defs,
+  onPick,
 }: {
   title: string;
   defs: ElementDef[];
+  onPick?: (type: string) => void;
 }) => {
   if (!defs.length) return null;
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       <div className="flex items-center justify-between px-1">
-        <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <h4 className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           {title}
         </h4>
-        <span className="text-xs text-muted-foreground">{defs.length}</span>
+        <span className="text-[10px] text-muted-foreground/70">
+          {defs.length}
+        </span>
       </div>
-      <div className="grid grid-cols-1 gap-2">
+      <div className="grid grid-cols-1 gap-1">
         {defs.map((d) => (
-          <PaletteItem key={d.type} def={d} />
+          <PaletteItem key={d.type} def={d} onPick={onPick} />
         ))}
       </div>
     </div>
   );
 };
 
-export const ComponentsPanel = () => {
+/**
+ * Component picker UI. Embed inside a popover, drawer, or panel.
+ * Items are draggable to the canvas; clicking inserts at a sensible default
+ * position via `onPick`.
+ */
+export const ComponentsPicker = ({
+  onPicked,
+}: {
+  /** Fires after a click-to-insert so the host can close the popover. */
+  onPicked?: () => void;
+}) => {
   const [query, setQuery] = useState('');
   const palette = useMemo(() => paletteByKind(), []);
+  const draft = useAtomValue(pageDraftAtom);
+  const { insertByTypeAtFrame } = useBuilderActions();
 
   const filter = (defs: ElementDef[]) => {
     const q = query.trim().toLowerCase();
@@ -85,21 +110,45 @@ export const ComponentsPanel = () => {
     );
   };
 
+  const handlePick = (type: string) => {
+    if (!draft) return;
+    const count = draft.root.children?.length ?? 0;
+    // stagger so consecutive inserts don't perfectly overlap
+    insertByTypeAtFrame(draft.root.id, type, {
+      x: 60 + (count % 8) * 16,
+      y: 60 + (count % 8) * 16,
+    });
+    onPicked?.();
+  };
+
   return (
-    <div className="flex h-full flex-col border-r bg-sidebar">
-      <div className="border-b p-3">
-        <h3 className="mb-2 text-sm font-semibold">Components</h3>
+    <div className="flex h-full max-h-[480px] w-[280px] flex-col">
+      <div className="p-2">
         <Input
+          autoFocus
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search components"
+          className="h-8 text-sm"
         />
       </div>
       <ScrollArea className="flex-1">
-        <div className="space-y-6 p-3">
-          <Section title="Atoms" defs={filter(palette.atom)} />
-          <Section title="Molecules" defs={filter(palette.molecule)} />
-          <Section title="Organisms" defs={filter(palette.organism)} />
+        <div className="space-y-3 px-2 pb-2">
+          <Section
+            title="Atoms"
+            defs={filter(palette.atom)}
+            onPick={handlePick}
+          />
+          <Section
+            title="Molecules"
+            defs={filter(palette.molecule)}
+            onPick={handlePick}
+          />
+          <Section
+            title="Organisms"
+            defs={filter(palette.organism)}
+            onPick={handlePick}
+          />
         </div>
       </ScrollArea>
     </div>

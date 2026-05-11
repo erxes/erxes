@@ -29,7 +29,10 @@ const PreviewLayout = ({
   draft: boolean;
 }) => {
   return (
-    <div className="min-h-screen bg-background">
+    <div
+      className="min-h-screen bg-background"
+      style={page.background ? { background: page.background } : undefined}
+    >
       {draft && (
         <div className="bg-amber-100 px-4 py-2 text-center text-sm font-medium text-amber-800">
           Draft preview · this page is not yet published

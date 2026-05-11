@@ -1,23 +1,5 @@
-import 'react-grid-layout/css/styles.css';
-
-import GridLayout, { Layout, WidthProvider } from 'react-grid-layout';
-
 import { BuilderNode } from '../types';
 import { getDef } from '../elements/registry';
-
-const StaticGrid = WidthProvider(GridLayout);
-
-const COLS = 12;
-const ROW_HEIGHT = 30;
-const MARGIN: [number, number] = [12, 12];
-
-const defaultSize = (type: string) => {
-  const def = getDef(type);
-  if (type === 'Spacer' || type === 'Divider') return { w: 12, h: 2 };
-  if (def?.kind === 'atom') return { w: 6, h: 4 };
-  if (def?.kind === 'molecule') return { w: 6, h: 6 };
-  return { w: 12, h: 8 };
-};
 
 const RenderNode = ({ node }: { node: BuilderNode }) => {
   const def = getDef(node.type);
@@ -38,8 +20,6 @@ const RenderNode = ({ node }: { node: BuilderNode }) => {
 };
 
 export const RenderTree = ({ node }: { node: BuilderNode }) => {
-  // Top-level (Container) is rendered as a 12-col static grid.
-  // Nested children are rendered with their default flow.
   const def = getDef(node.type);
   if (!def) {
     return (
@@ -54,30 +34,49 @@ export const RenderTree = ({ node }: { node: BuilderNode }) => {
   }
 
   const children = node.children ?? [];
-  const layout: Layout[] = children.map((c, idx) => {
-    const fb = defaultSize(c.type);
-    const l = c.layout ?? { x: 0, y: idx * fb.h, w: fb.w, h: fb.h };
-    return { i: c.id, x: l.x, y: l.y, w: l.w, h: l.h, static: true };
-  });
+  const ordered = [...children].sort(
+    (a, b) => (a.zIndex ?? 0) - (b.zIndex ?? 0),
+  );
+  const minHeight = Math.max(
+    640,
+    ...ordered
+      .filter((c) => c.frame)
+      .map((c) => c.frame!.y + (c.frame!.h ?? 200) + 80),
+  );
 
   return (
-    <StaticGrid
-      className="layout"
-      cols={COLS}
-      rowHeight={ROW_HEIGHT}
-      margin={MARGIN}
-      layout={layout}
-      isDraggable={false}
-      isResizable={false}
-      compactType="vertical"
-      preventCollision={false}
-      useCSSTransforms
-    >
-      {children.map((c) => (
-        <div key={c.id}>
-          <RenderNode node={c} />
-        </div>
-      ))}
-    </StaticGrid>
+    <div className="relative w-full" style={{ minHeight }}>
+      {ordered.map((c) => {
+        if (c.hidden) return null;
+        const f = c.frame;
+        const s = c.style ?? {};
+        if (!f) {
+          return (
+            <div key={c.id} className="mb-3">
+              <RenderNode node={c} />
+            </div>
+          );
+        }
+        return (
+          <div
+            key={c.id}
+            className="absolute"
+            style={{
+              left: f.x,
+              top: f.y,
+              width: f.w,
+              height: f.h,
+              zIndex: c.zIndex ?? 0,
+              paddingTop: s.paddingTop,
+              paddingRight: s.paddingRight,
+              paddingBottom: s.paddingBottom,
+              paddingLeft: s.paddingLeft,
+            }}
+          >
+            <RenderNode node={c} />
+          </div>
+        );
+      })}
+    </div>
   );
 };

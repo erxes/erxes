@@ -1,9 +1,31 @@
-import { LayoutPage } from '../types';
+import { BuilderNode, LayoutPage, legacyCellToFrame } from '../types';
 
 const KEY = 'erxes:layout:pages';
 const VERSION_KEY = 'erxes:layout:version';
-const CURRENT_VERSION = '2';
+const CURRENT_VERSION = '3';
 const DEMO_SLUGS = new Set(['landing-demo', 'about']);
+
+const migrateNode = (node: BuilderNode, idx: number): BuilderNode => {
+  let next = node;
+  if (!next.frame && next.layout) {
+    next = { ...next, frame: legacyCellToFrame(next.layout) };
+  }
+  if (next.zIndex === undefined) {
+    next = { ...next, zIndex: idx + 1 };
+  }
+  if (next.children?.length) {
+    next = { ...next, children: next.children.map(migrateNode) };
+  }
+  return next;
+};
+
+const migratePage = (page: LayoutPage): LayoutPage => ({
+  ...page,
+  root: {
+    ...page.root,
+    children: page.root.children?.map(migrateNode),
+  },
+});
 
 const safeParse = (raw: string | null): LayoutPage[] | null => {
   if (!raw) return null;
@@ -22,7 +44,9 @@ export const readPages = (): LayoutPage[] => {
   let pages = safeParse(window.localStorage.getItem(KEY)) ?? [];
 
   if (version !== CURRENT_VERSION) {
-    pages = pages.filter((p) => !DEMO_SLUGS.has(p.slug));
+    pages = pages
+      .filter((p) => !DEMO_SLUGS.has(p.slug))
+      .map(migratePage);
     try {
       window.localStorage.setItem(KEY, JSON.stringify(pages));
       window.localStorage.setItem(VERSION_KEY, CURRENT_VERSION);

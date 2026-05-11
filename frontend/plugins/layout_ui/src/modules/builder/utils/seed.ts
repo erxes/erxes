@@ -1,4 +1,4 @@
-import { BuilderNode, GridLayoutCell } from '../types';
+import { BuilderNode, Frame } from '../types';
 import { id } from './id';
 
 const containerRoot = (children: BuilderNode[]): BuilderNode => ({
@@ -13,14 +13,16 @@ const node = (
   type: string,
   kind: BuilderNode['kind'],
   props: Record<string, unknown>,
-  layout: GridLayoutCell,
+  frame: Frame,
+  zIndex: number,
   children?: BuilderNode[],
 ): BuilderNode => ({
   id: id(),
   type,
   kind,
   props,
-  layout,
+  frame,
+  zIndex,
   children,
 });
 
@@ -32,17 +34,19 @@ export const buildHeadingRoot = (): BuilderNode =>
       'Heading',
       'atom',
       { text: 'New page', level: 'h1', align: 'left', color: '' },
-      { x: 0, y: 0, w: 12, h: 3 },
+      { x: 80, y: 80, w: 800, h: 80 },
+      1,
     ),
     node(
       'Paragraph',
       'atom',
       {
-        text: 'Start writing or drop more components from the palette on the left.',
+        text: 'Drag from the palette, then move and resize freely. Hold Shift to multi-select.',
         align: 'left',
         color: '',
       },
-      { x: 0, y: 3, w: 12, h: 4 },
+      { x: 80, y: 180, w: 800, h: 80 },
+      2,
     ),
   ]);
 
@@ -52,7 +56,8 @@ export const buildStatsRoot = (): BuilderNode =>
       'Heading',
       'atom',
       { text: 'At a glance', level: 'h2', align: 'left', color: '' },
-      { x: 0, y: 0, w: 12, h: 3 },
+      { x: 80, y: 80, w: 800, h: 60 },
+      1,
     ),
     node(
       'StatCard',
@@ -63,7 +68,8 @@ export const buildStatsRoot = (): BuilderNode =>
         delta: '+12%',
         tone: 'positive',
       },
-      { x: 0, y: 3, w: 6, h: 5 },
+      { x: 80, y: 160, w: 380, h: 160 },
+      2,
     ),
     node(
       'StatCard',
@@ -74,7 +80,8 @@ export const buildStatsRoot = (): BuilderNode =>
         delta: '+5.4%',
         tone: 'positive',
       },
-      { x: 6, y: 3, w: 6, h: 5 },
+      { x: 500, y: 160, w: 380, h: 160 },
+      3,
     ),
   ]);
 
@@ -93,7 +100,8 @@ export const buildLandingRoot = (): BuilderNode =>
           'https://images.unsplash.com/photo-1551434678-e076c223a692?w=900',
         align: 'left',
       },
-      { x: 0, y: 0, w: 12, h: 10 },
+      { x: 60, y: 60, w: 1320, h: 420 },
+      1,
     ),
     node(
       'FeatureItem',
@@ -103,7 +111,8 @@ export const buildLandingRoot = (): BuilderNode =>
         heading: 'Fast',
         description: 'Rspack + module federation keeps reloads instant.',
       },
-      { x: 0, y: 10, w: 4, h: 6 },
+      { x: 60, y: 520, w: 420, h: 220 },
+      2,
     ),
     node(
       'FeatureItem',
@@ -113,7 +122,8 @@ export const buildLandingRoot = (): BuilderNode =>
         heading: 'Composable',
         description: '15 atoms, 7 molecules, 3 organisms — extend anytime.',
       },
-      { x: 4, y: 10, w: 4, h: 6 },
+      { x: 510, y: 520, w: 420, h: 220 },
+      3,
     ),
     node(
       'FeatureItem',
@@ -124,12 +134,14 @@ export const buildLandingRoot = (): BuilderNode =>
         description:
           'Preview desktop, tablet and mobile right inside the editor.',
       },
-      { x: 8, y: 10, w: 4, h: 6 },
+      { x: 960, y: 520, w: 420, h: 220 },
+      4,
     ),
     node(
       'Footer',
       'organism',
       { copyright: '© 2026 Acme, Inc.' },
-      { x: 0, y: 16, w: 12, h: 5 },
+      { x: 60, y: 780, w: 1320, h: 120 },
+      5,
     ),
   ]);
