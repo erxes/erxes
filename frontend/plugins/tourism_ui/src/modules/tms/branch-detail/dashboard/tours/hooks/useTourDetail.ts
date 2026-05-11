@@ -50,6 +50,7 @@ export interface ITourDetail {
   _id: string;
   branchId?: string;
   language?: string;
+  groupCode?: string;
   advanceCheck?: boolean;
   advancePercent?: number;
   content?: string;

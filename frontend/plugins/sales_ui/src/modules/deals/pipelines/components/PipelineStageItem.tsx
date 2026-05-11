@@ -13,7 +13,7 @@ import {
 
 import { Controller } from 'react-hook-form';
 import { IStage } from '@/deals/types/stages';
-import { SelectMember } from 'ui-modules';
+import { SelectMember, SelectDepartments } from 'ui-modules';
 import { SortableItemProps } from '@/deals/components/common/Item';
 import { useState } from 'react';
 
@@ -111,7 +111,7 @@ const PipelineStageItem = (props: Props) => {
           <IconDragDrop2 />
         </div>
 
-        <div className="flex flex-1 items-center justify-between gap-3">
+        <div className="flex flex-1 items-start justify-between gap-3">
           <div className="flex-1">
             <div className="flex flex-wrap gap-3 justify-between">
               <Form.Item className="flex-1">
@@ -201,8 +201,8 @@ const PipelineStageItem = (props: Props) => {
               </Form.Item>
             </div>
             {showExtraFields && (
-              <div className="flex flex-wrap justify-between gap-3 mt-2">
-                <Form.Item className="flex-1 min-w-[150px]">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
+                <Form.Item>
                   <Form.Label>Code</Form.Label>
                   <Form.Control>
                     <Controller
@@ -221,7 +221,7 @@ const PipelineStageItem = (props: Props) => {
                   <Form.Message />
                 </Form.Item>
 
-                <Form.Item className="flex-1 min-w-[150px]">
+                <Form.Item>
                   <Form.Label>Age</Form.Label>
                   <Form.Control>
                     <Controller
@@ -248,7 +248,7 @@ const PipelineStageItem = (props: Props) => {
                   <Form.Message />
                 </Form.Item>
 
-                <Form.Item className="flex-1 min-w-[150px]">
+                <Form.Item>
                   <Form.Label>Can move members</Form.Label>
                   <Form.Control>
                     <Controller
@@ -267,7 +267,7 @@ const PipelineStageItem = (props: Props) => {
                   <Form.Message />
                 </Form.Item>
 
-                <Form.Item className="flex-1 min-w-[150px]">
+                <Form.Item>
                   <Form.Label>Can edit members</Form.Label>
                   <Form.Control>
                     <Controller
@@ -285,7 +285,43 @@ const PipelineStageItem = (props: Props) => {
                   </Form.Control>
                   <Form.Message />
                 </Form.Item>
-                <Form.Item className="flex-1 min-w-[150px] flex items-center justify-start gap-2 my-auto">
+
+                <Form.Item className="col-span-2">
+                  <Form.Label>Members</Form.Label>
+                  <Form.Control>
+                    <Controller
+                      name={`stages.${index}.memberIds`}
+                      control={control}
+                      defaultValue={stage?.memberIds || []}
+                      render={({ field }) => (
+                        <SelectMember.FormItem
+                          mode="multiple"
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        />
+                      )}
+                    />
+                  </Form.Control>
+                </Form.Item>
+
+                <Form.Item className="col-span-2">
+                  <Form.Label>Departments</Form.Label>
+                  <Form.Control>
+                    <Controller
+                      name={`stages.${index}.departmentIds`}
+                      control={control}
+                      defaultValue={stage?.departmentIds || []}
+                      render={({ field }) => (
+                        <SelectDepartments.FormItem
+                          mode="multiple"
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        />
+                      )}
+                    />
+                  </Form.Control>
+                </Form.Item>
+                <Form.Item className="col-span-2 sm:col-span-4 flex justify-end items-center gap-2">
                   <Form.Control>
                     <Controller
                       name={`stages.${index}.defaultTick`}
@@ -308,7 +344,7 @@ const PipelineStageItem = (props: Props) => {
               </div>
             )}
           </div>
-          <div className="flex items-center gap-3 mt-6">
+          <div className="flex self-start mt-6 gap-1">
             <div
               className={`
               flex items-center gap-1 text-xs text-purple-500 cursor-pointer

@@ -9,11 +9,17 @@ import {
   Select,
   Checkbox,
   ScrollArea,
+  Tooltip,
 } from 'erxes-ui';
 import { IFieldData, useFormDnd } from './FormDndProvider';
 import { UniqueIdentifier } from '@dnd-kit/core';
-import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { IFormFieldLogics } from '../types/formTypes';
+import { IconInfoCircle, IconPlus, IconTrash } from '@tabler/icons-react';
+import {
+  FieldValidatorPresetKey,
+  FieldValidatorType,
+  IFieldValidator,
+  IFormFieldLogics,
+} from '../types/formTypes';
 import {
   LOGIC_STRING_OPERATOR_LABELS,
   LOGIC_NUMBER_OPERATOR_LABELS,
@@ -22,6 +28,13 @@ import {
 
 const NUMBER_TYPES = ['number'];
 const DATE_TYPES = ['date'];
+
+const VALIDATOR_PRESET_OPTIONS: { value: FieldValidatorPresetKey; label: string }[] = [
+  { value: 'EMAIL', label: 'Email address' },
+  { value: 'PHONE_INTL', label: 'International phone' },
+  { value: 'POSTAL_CODE', label: 'Postal / ZIP code' },
+  { value: 'ALPHANUMERIC', label: 'Alphanumeric only' },
+];
 
 const getOperatorOptions = (fieldType?: string) => {
   if (fieldType && NUMBER_TYPES.includes(fieldType)) {
@@ -108,6 +121,13 @@ export const FormFieldDetail = ({
     handleChangeField(stepId, fieldId, { ...fieldData, logics: updatedLogics });
   };
 
+  const handleChangeValidator = (patch: Partial<IFieldValidator>) => {
+    handleChangeField(stepId, fieldId, {
+      ...fieldData,
+      validator: { type: 'NONE', ...fieldData.validator, ...patch },
+    });
+  };
+
   const handleDelete = () => {
     handleDeleteField(stepId, fieldId);
     handleClose();
@@ -174,6 +194,102 @@ export const FormFieldDetail = ({
                 }
               />
             </div>
+            {/* Validator Configuration */}
+            <div className="space-y-3 col-span-2">
+              <Label>Validation</Label>
+              <ToggleGroup
+                type="single"
+                variant="outline"
+                value={fieldData.validator?.type ?? 'NONE'}
+                onValueChange={(value) => {
+                  if (!value) return;
+                  handleChangeValidator({ type: value as FieldValidatorType });
+                }}
+              >
+                <ToggleGroup.Item value="NONE" className="flex-1">
+                  None
+                </ToggleGroup.Item>
+                <ToggleGroup.Item value="PRESET" className="flex-1">
+                  Preset
+                </ToggleGroup.Item>
+                <ToggleGroup.Item value="CUSTOM" className="flex-1">
+                  Custom
+                </ToggleGroup.Item>
+              </ToggleGroup>
+
+              {fieldData.validator?.type === 'PRESET' && (
+                <Select
+                  value={fieldData.validator.presetKey ?? ''}
+                  onValueChange={(value) =>
+                    handleChangeValidator({
+                      presetKey: value as FieldValidatorPresetKey,
+                    })
+                  }
+                >
+                  <Select.Trigger>
+                    <Select.Value placeholder="Select a preset rule" />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {VALIDATOR_PRESET_OPTIONS.map((opt) => (
+                      <Select.Item key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
+              )}
+
+              {fieldData.validator?.type === 'CUSTOM' && (
+                <Input
+                  value={fieldData.validator.customRegex ?? ''}
+                  onChange={(e) =>
+                    handleChangeValidator({ customRegex: e.target.value })
+                  }
+                  placeholder="Regex pattern (e.g. ^[A-Z]{3}\d{4}$)"
+                  spellCheck={false}
+                />
+              )}
+
+              {fieldData.validator?.type &&
+                fieldData.validator.type !== 'NONE' && (
+                  <Input
+                    value={fieldData.validator.errorMessage ?? ''}
+                    onChange={(e) =>
+                      handleChangeValidator({ errorMessage: e.target.value })
+                    }
+                    placeholder="Error message shown to the user"
+                  />
+                )}
+            </div>
+
+            {fieldData?.type === 'select' && (
+              <div className="space-y-2 col-span-2 flex gap-2 items-center">
+                <Label htmlFor="allowSearch" className="flex items-center m-0!">
+                  Allow search
+                </Label>
+                <Checkbox
+                  id="allowSearch"
+                  className="flex-none shrink m-0!"
+                  checked={fieldData?.allowSearch}
+                  onCheckedChange={(checked) =>
+                    handleValueChange('allowSearch', checked === true)
+                  }
+                />
+                <Tooltip.Provider>
+                  <Tooltip>
+                    <Tooltip.Trigger>
+                      <IconInfoCircle
+                        size={16}
+                        className="text-accent-foreground"
+                      />
+                    </Tooltip.Trigger>
+                    <Tooltip.Content>
+                      Enables searching within options
+                    </Tooltip.Content>
+                  </Tooltip>
+                </Tooltip.Provider>
+              </div>
+            )}
             {(fieldData?.type === 'select' ||
               fieldData?.type === 'radio' ||
               fieldData?.type === 'check') && (

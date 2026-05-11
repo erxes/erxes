@@ -1,6 +1,17 @@
 import { IAttachment } from 'erxes-ui';
 import { z } from 'zod';
 
+const FIELD_VALIDATOR_SCHEMA = z
+  .object({
+    type: z.enum(['PRESET', 'CUSTOM', 'NONE']),
+    presetKey: z
+      .enum(['EMAIL', 'PHONE_INTL', 'POSTAL_CODE', 'ALPHANUMERIC'])
+      .optional(),
+    customRegex: z.string().optional(),
+    errorMessage: z.string().optional(),
+  })
+  .nullish();
+
 export const FORM_GENERAL_SCHEMA = z.object({
   primaryColor: z.string(),
   appearance: z.string(),
@@ -47,6 +58,8 @@ export const FORM_CONTENT_SCHEMA = z.object({
             )
             .optional(),
           logicAction: z.string().optional().default(''),
+          allowSearch: z.boolean().optional().default(false),
+          validator: FIELD_VALIDATOR_SCHEMA.optional(),
         }),
       ),
     }),

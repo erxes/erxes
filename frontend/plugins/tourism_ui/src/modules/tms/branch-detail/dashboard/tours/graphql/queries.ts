@@ -128,6 +128,7 @@ export const GET_TOUR_DETAIL = gql`
       _id
       branchId
       language
+      groupCode
       advanceCheck
       advancePercent
       categoryIds
