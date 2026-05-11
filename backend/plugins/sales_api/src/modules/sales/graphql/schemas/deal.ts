@@ -131,6 +131,7 @@ export const types = `
     products: [Product]
     productsData: JSON
     paymentsData: JSON
+    extraData: JSON
 
     cursor: String
   }
