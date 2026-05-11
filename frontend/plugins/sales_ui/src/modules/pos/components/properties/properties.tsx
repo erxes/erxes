@@ -125,7 +125,6 @@ const Properties: FC<PropertiesProps> = ({
             _id: posId,
             name: data.name,
             description: data.description,
-            type: data.type,
             maxSkipNumber: parseMaxSkipNumber(data.maxSkipNumber),
             orderPassword: data.orderPassword,
             branchId: data.branchId,

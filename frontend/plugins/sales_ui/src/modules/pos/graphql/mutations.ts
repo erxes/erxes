@@ -4,7 +4,6 @@ import { posCommonFields } from './queries';
 const commonFields = `
   $name: String
   $description: String
-  $type: String
   $orderPassword: String
   $scopeBrandIds: [String]
   $pdomain: String
@@ -46,7 +45,6 @@ const commonFields = `
 const commonVariables = `
   name: $name,
   description: $description,
-  type: $type,
   orderPassword: $orderPassword,
   scopeBrandIds: $scopeBrandIds,
   pdomain: $pdomain,

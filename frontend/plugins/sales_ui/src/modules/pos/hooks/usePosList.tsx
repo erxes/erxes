@@ -23,7 +23,9 @@ export const usePosList = (options = {}) => {
       createdAt: pos.createdAt,
       createdBy: pos?.user?.details?.fullName || 'Admin',
       logo: pos?.uiOptions?.logo || '',
-      type: pos.type || '',
+      adminIds: pos?.adminIds,
+      cashierIds: pos?.cashierIds,
+      description: pos?.description,
     })) || [];
 
   const handleFetchMore = () => {
