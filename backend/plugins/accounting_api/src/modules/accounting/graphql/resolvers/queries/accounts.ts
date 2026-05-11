@@ -164,8 +164,7 @@ export const generateFilter = async (
     return filter;
   }
 
-  // The original commented code for permissions is replaced by the new filtering logic
-  // in the accounts resolver itself (we filter after fetch)
+
   return filter;
 };
 

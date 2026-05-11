@@ -1,6 +1,5 @@
 import { Document } from 'mongoose';
 
-// Copy the enums from definitions/permission.ts, or import them if you prefer
 export const ACCOUNT_PERMISSION_SCOPES = {
   NONE: 'none',
   OWN: 'own',
@@ -24,8 +23,8 @@ export interface IPermission {
   userId: string;
   accountId: string;
   level: number;
-  read: string;   // one of ACCOUNT_PERMISSION_SCOPES.VALUES
-  write: string;  // one of ACCOUNT_PERMISSION_WRITE_SCOPES.VALUES
+  read: string;  
+  write: string;  
 }
 
 export interface IPermissionDocument extends IPermission, Document {

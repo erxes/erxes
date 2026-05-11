@@ -7,37 +7,25 @@ export const ACCOUNT_PERMISSION_SCOPES = {
   LT_LVL: 'ltLvl',
   LTE_LVL: 'lteLvl',
   GT_LVL: 'gtLvl',
-  VALUES: [
-    'own',
-    'ltLvl',
-    'lteLvl',
-    'gtLvl',
-  ],
+  VALUES: ['none', 'own', 'ltLvl', 'lteLvl', 'gtLvl'],   
 };
 
 export const ACCOUNT_PERMISSION_WRITE_SCOPES = {
-
   NONE: 'none',
   ADD: 'add',
   OWN: 'own',
   LT_LVL: 'ltLvl',
   LTE_LVL: 'lteLvl',
   GT_LVL: 'gtLvl',
-  VALUES: [
-    'add',
-    'own',
-    'ltLvl',
-    'lteLvl',
-    'gtLvl',
-  ],
+  VALUES: ['none', 'add', 'own', 'ltLvl', 'lteLvl', 'gtLvl'], 
 };
 
 export const accountPermissionSchema = schemaWrapper(
   new Schema({
     _id: mongooseStringRandomId,
-    accountId: { type: String, label: 'Account' },
-    userId: { type: String, label: 'Team Member' },
-    level: { type: Number, label: 'Level' }, // baga baihdaa iluu huchtee
+    accountId: { type: String, required: true, label: 'Account' },
+    userId: { type: String, required: true, label: 'Team Member' },
+    level: { type: Number, label: 'Level', default: 0 },
     read: {
       type: String,
       enum: ACCOUNT_PERMISSION_SCOPES.VALUES,

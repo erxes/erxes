@@ -1,14 +1,31 @@
 import { IContext } from '~/connectionResolvers';
 import { IPermissionDocument } from '@/accounting/@types/permission';
+import { checkAccountingPermission } from '../../../services/permissionChecker';
+import { makeGetUserLevel } from '../../../utils/getUserLevel';
 
 const permissionMutations = {
   async setAccountPermissions(
     _root,
     { input }: { input: { accountIds: string[]; userId: string; level?: number; read?: string; write?: string } },
-    { models }: IContext,
+    { models, user, subdomain }: IContext,   // added user & subdomain
   ) {
     const { accountIds, userId, level, read, write } = input;
     const results: Array<{ accountId: string; status: string }> = [];
+
+    // Authorization: the caller must have write permission on each accountId 
+    const getUserLevel = makeGetUserLevel(subdomain);
+    for (const accountId of accountIds) {
+      const { canWrite } = await checkAccountingPermission(
+        user._id,
+        accountId,
+        {}, // account‑level write check
+        { Permissions: models.Permissions, Configs: models.Configs as any },
+        getUserLevel,
+      );
+      if (!canWrite) {
+        throw new Error(`You do not have permission to set permissions on account ${accountId}`);
+      }
+    }
 
     for (const accountId of accountIds) {
       const effectiveRead = read ?? 'none';
