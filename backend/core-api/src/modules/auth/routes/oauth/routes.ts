@@ -308,24 +308,32 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
   // (12 req/min at the 5s DEVICE_POLL_INTERVAL) and refresh-token rotation rate.
   // The limiter is Redis-backed (see checkRateLimit -> redis.incr/expire) so it
   // works correctly across multiple core-api replicas behind a load balancer.
+  let subdomain: string;
+  let models: Awaited<ReturnType<typeof generateModels>>;
+  let grantType: string;
   try {
     const ip = getClientIp(req);
     await checkRateLimit(`oauth:token:${ip}`, 30, 60);
+
+    subdomain = getSubdomain(req);
+    models = await generateModels(subdomain);
+    grantType = String(req.body?.grant_type || '').trim();
   } catch (e) {
     if (isRateLimitError(e)) {
       return sendOAuthError(res, 429, 'slow_down', e.message);
     }
+    // Limiter/Redis or subdomain/model-resolution failures are server-side
+    // infrastructure issues, not malformed client input. Map to 503
+    // `temporarily_unavailable` so clients back off instead of retry-storming,
+    // and avoid leaking internal error messages to the caller.
+    console.error('oauth/token pre-handler failure:', e);
     return sendOAuthError(
       res,
-      400,
-      'invalid_request',
-      e instanceof Error ? e.message : 'Invalid request',
+      503,
+      'temporarily_unavailable',
+      'Service temporarily unavailable. Please try again later.',
     );
   }
-
-  const subdomain = getSubdomain(req);
-  const models = await generateModels(subdomain);
-  const grantType = String(req.body?.grant_type || '').trim();
 
   if (grantType === DEVICE_CODE_GRANT) {
     try {
