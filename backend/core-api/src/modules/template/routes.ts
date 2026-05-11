@@ -1,11 +1,44 @@
 import crypto from 'crypto';
-import { extractUserFromHeader, getSubdomain } from 'erxes-api-shared/utils';
+import {
+  extractUserFromHeader,
+  getSubdomain,
+  redis,
+} from 'erxes-api-shared/utils';
 import { Request, Response, Router } from 'express';
+import rateLimit from 'express-rate-limit';
+import { RedisStore } from 'rate-limit-redis';
 import { generateModels } from '~/connectionResolvers';
 
 const router: Router = Router();
 
 const ALGORITHM = 'aes-256-gcm';
+
+// Redis-backed rate limiter for POST /import/template.
+// Counter is shared across all core-api replicas via the erxes-api-shared
+// ioredis singleton, so the 30-req/15-min cap applies cluster-wide and cannot
+// be bypassed by load-balancing across instances. Fail-open if Redis is
+// unreachable so an outage does not take template import down — the route
+// also requires authentication, so this is defense-in-depth, not the only gate.
+const importTemplateLimiter = rateLimit({
+  store: new RedisStore({
+    prefix: 'rl:import-template:',
+    sendCommand: (...args: string[]) =>
+      redis.call(...(args as [string, ...string[]])) as Promise<any>,
+  }),
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30, // 30 imports per IP per window — generous for humans, tight for bots
+  standardHeaders: true,
+  legacyHeaders: false,
+  // Fail open if Redis is unreachable so an outage doesn't take import down.
+  skip: () => redis.status !== 'ready',
+  handler: (_req, res) => {
+    res.status(429).json({
+      errorCode: 'RATE_LIMIT_EXCEEDED',
+      message:
+        'Too many template import requests from this IP, please try again later.',
+    });
+  },
+});
 
 /** Reads and validates the TEMPLATE_EXPORT_KEY environment variable. */
 const getEncryptionKey = (): string => {
@@ -141,7 +174,7 @@ router.get(
   },
 );
 
-router.post('/import/template', async (req: Request, res: Response) => {
+router.post('/import/template', importTemplateLimiter, async (req: Request, res: Response) => {
   const user = authenticateRequest(req, res);
   if (!user) return null;
 
