@@ -87,7 +87,6 @@ const Properties: FC<PropertiesProps> = ({
       reset({
         name: posDetail.name || '',
         description: posDetail.description || '',
-        type: posDetail.type || '',
         maxSkipNumber: posDetail.maxSkipNumber?.toString() || '',
         orderPassword: posDetail.orderPassword || '',
         branchId: posDetail.branchId || '',
