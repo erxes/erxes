@@ -25,7 +25,6 @@ export interface IVatRow {
   isBold: boolean;
   status: string;
   percent: number;
-  accountId: string;
   createdBy?: string;
   modifiedBy?: string;
 }

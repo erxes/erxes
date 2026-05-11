@@ -14,7 +14,6 @@ import { IModels, IContext } from '~/connectionResolvers';
 import { TR_STATUSES } from '@/accounting/@types/constants';
 import { ITransactionDocument } from '@/accounting/@types/transaction';
 import { generateFilter as accountGenerateFilter } from './accounts';
-import { checkPermissionTrs } from '../../../utils/trPermissions';
 import { checkAccountingPermission } from '../../../services/permissionChecker';
 import { makeGetUserLevel } from '../../../utils/getUserLevel';
 

@@ -21,8 +21,7 @@ export interface ICtaxRow {
   formula: string;
   formula_text: string;
   status: string;
-  percent: number;
-  accountId: string;           
+  percent: number;          
   createdBy?: string;         
   modifiedBy?: string; 
 }
