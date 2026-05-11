@@ -92,8 +92,7 @@ export const instagramSubscription = async (req, res, next) => {
     // so the request never falls through and hangs until the client times out.
     return res.status(400).type('text/plain').send('Invalid mode');
   } catch (e) {
-    next(e);
-    return;
+    return next(e);
   }
 };
 export const instagramWebhook = async (req, res) => {
