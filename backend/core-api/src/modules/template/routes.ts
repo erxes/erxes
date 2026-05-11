@@ -5,7 +5,7 @@ import {
   redis,
 } from 'erxes-api-shared/utils';
 import { Request, Response, Router } from 'express';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { RedisStore } from 'rate-limit-redis';
 import { generateModels } from '~/connectionResolvers';
 
@@ -19,6 +19,12 @@ const ALGORITHM = 'aes-256-gcm';
 // be bypassed by load-balancing across instances. Fail-open if Redis is
 // unreachable so an outage does not take template import down — the route
 // also requires authentication, so this is defense-in-depth, not the only gate.
+//
+// Keying strategy: prefer authenticated user + tenant subdomain so that users
+// sharing an IP (VPN, corporate NAT) are not throttled as a group. Fall back
+// to an IPv6-safe IP key (via `ipKeyGenerator`) for unauthenticated requests,
+// which the route's auth gate will reject anyway. This addresses the case
+// where IP-only limiting can punish legitimate multi-tenant traffic.
 const importTemplateLimiter = rateLimit({
   store: new RedisStore({
     prefix: 'rl:import-template:',
@@ -26,16 +32,28 @@ const importTemplateLimiter = rateLimit({
       redis.call(...(args as [string, ...string[]])) as Promise<any>,
   }),
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 30, // 30 imports per IP per window — generous for humans, tight for bots
+  max: 30, // 30 imports per user/tenant per window — generous for humans, tight for bots
   standardHeaders: true,
   legacyHeaders: false,
   // Fail open if Redis is unreachable so an outage doesn't take import down.
   skip: () => redis.status !== 'ready',
+  keyGenerator: (req) => {
+    try {
+      const user = extractUserFromHeader(req.headers) as { _id?: string } | null;
+      if (user && user._id) {
+        const subdomain = getSubdomain(req);
+        return `u:${subdomain}:${user._id}`;
+      }
+    } catch {
+      // fall through to IP-based key
+    }
+    return `ip:${ipKeyGenerator(req.ip ?? '')}`;
+  },
   handler: (_req, res) => {
     res.status(429).json({
       errorCode: 'RATE_LIMIT_EXCEEDED',
       message:
-        'Too many template import requests from this IP, please try again later.',
+        'Too many template import requests, please try again later.',
     });
   },
 });

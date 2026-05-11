@@ -18,7 +18,7 @@
     "@workos-inc/node": "^7.65.0",
     "bcryptjs": "^3.0.2",
     "erxes-api-shared": "workspace:^",
-    "express-rate-limit": "^8.0.1",
+    "express-rate-limit": "^8.5.1",
     "firebase-admin": "^13.6.0",
     "formidable": "^3.5.4",
     "graphql-tag": "^2.12.6",
