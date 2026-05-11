@@ -18,15 +18,14 @@ export const AiAgentConnectionForm = ({
     <div className="grid gap-4">
       <AiAgentProviderSelect />
 
-      {provider === 'openai' ? (
-        <OpenAiConnectionForm existingApiKeyMask={existingApiKeyMask} />
-      ) : (
+      {provider === 'cloudflare-ai-gateway' ? (
         <CloudflareAiGatewayConnectionForm
           existingApiKeyMask={existingApiKeyMask}
           existingGatewayTokenMask={existingGatewayTokenMask}
         />
+      ) : (
+        <OpenAiConnectionForm existingApiKeyMask={existingApiKeyMask} />
       )}
     </div>
   );
 };
-

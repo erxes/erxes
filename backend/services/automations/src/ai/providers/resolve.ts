@@ -1,6 +1,8 @@
 import { AI_AGENT_DEFAULT_PROVIDER } from '../aiAgent/constants';
 import type { TAiAgentConnection } from '../aiAgent/connection';
 import { resolveCloudflareAiGatewayConnection } from './cloudflareAiGateway';
+import { resolveGrokConnection } from './grok';
+import { resolveKimiConnection } from './kimi';
 import { resolveOpenAiConnection } from './openai';
 import { TAiProviderResolutionInput } from './types';
 
@@ -20,7 +22,16 @@ export const resolveAiProviderConnection = ({
       subdomain,
       connection: effectiveConnection,
     });
-    console.log(resolved);
+  } else if (effectiveConnection.provider === 'grok') {
+    resolved = resolveGrokConnection({
+      subdomain,
+      connection: effectiveConnection,
+    });
+  } else if (effectiveConnection.provider === 'kimi') {
+    resolved = resolveKimiConnection({
+      subdomain,
+      connection: effectiveConnection,
+    });
   } else if (effectiveConnection.provider === 'openai') {
     resolved = resolveOpenAiConnection({
       subdomain,
@@ -30,7 +41,12 @@ export const resolveAiProviderConnection = ({
     throw new Error('Unsupported AI provider');
   }
 
-  if (resolved.provider === 'openai' && !resolved.config.apiKey?.trim()) {
+  if (
+    (resolved.provider === 'openai' ||
+      resolved.provider === 'kimi' ||
+      resolved.provider === 'grok') &&
+    !resolved.config.apiKey?.trim()
+  ) {
     throw new Error(
       `AI provider "${resolved.provider}" API key is not configured.`,
     );

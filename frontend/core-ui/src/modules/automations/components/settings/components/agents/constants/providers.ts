@@ -1,5 +1,7 @@
 export const AI_AGENT_PROVIDER_TYPES = [
   'cloudflare-ai-gateway',
+  'grok',
+  'kimi',
   'openai',
 ] as const;
 
@@ -7,6 +9,8 @@ export type TAiAgentProvider = (typeof AI_AGENT_PROVIDER_TYPES)[number];
 
 export const AI_AGENT_PROVIDER_LABELS: Record<TAiAgentProvider, string> = {
   'cloudflare-ai-gateway': 'Cloudflare AI Gateway',
+  grok: 'Grok',
+  kimi: 'Kimi',
   openai: 'OpenAI Direct',
 };
 
@@ -14,6 +18,8 @@ export const AI_AGENT_PROVIDER_DESCRIPTIONS: Record<TAiAgentProvider, string> =
   {
     'cloudflare-ai-gateway':
       'Use the platform gateway by default, or override it with your own Cloudflare Gateway settings.',
+    grok: 'Connect directly to xAI Grok with organization-owned credentials.',
+    kimi: 'Connect directly to Moonshot Kimi with organization-owned credentials.',
     openai: 'Connect directly to OpenAI with organization-owned credentials.',
   };
 
@@ -22,6 +28,8 @@ export const AI_AGENT_PROVIDER_DEFAULT_MODELS: Record<
   string
 > = {
   'cloudflare-ai-gateway': 'openai/gpt-5-mini',
+  grok: 'grok-4.3',
+  kimi: 'kimi-k2.5',
   openai: 'gpt-5-mini',
 };
 
@@ -39,6 +47,21 @@ export const AI_AGENT_PROVIDER_MODEL_OPTIONS: Record<
     'workers-ai/@cf/moonshotai/kimi-k2.5',
     'workers-ai/@cf/moonshotai/kimi-k2.6',
   ],
+  grok: [
+    'grok-4.3',
+    'grok-4.1',
+    'grok-4',
+    'grok-3',
+    'grok-3-mini',
+    'grok-code-fast-1',
+  ],
+  kimi: [
+    'kimi-k2.5',
+    'kimi-k2-turbo-preview',
+    'kimi-k2-thinking',
+    'kimi-k2-thinking-turbo',
+    'kimi-k2-0905-preview',
+  ],
   openai: [
     'gpt-5',
     'gpt-5-mini',
@@ -54,5 +77,17 @@ export const AI_AGENT_PROVIDER_DEFAULT_BASE_URLS: Record<
   string
 > = {
   'cloudflare-ai-gateway': '',
+  grok: 'https://api.x.ai/v1',
+  kimi: 'https://api.moonshot.ai/v1',
   openai: 'https://api.openai.com/v1',
+};
+
+export const AI_AGENT_PROVIDER_API_KEY_PLACEHOLDERS: Record<
+  TAiAgentProvider,
+  string
+> = {
+  'cloudflare-ai-gateway': 'Use platform provider key',
+  grok: 'Enter xAI API key',
+  kimi: 'Enter Moonshot API key',
+  openai: 'Enter OpenAI API key',
 };

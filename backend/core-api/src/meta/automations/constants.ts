@@ -87,6 +87,13 @@ export const coreAutomationConstants: AutomationConstants = {
         { key: 'no', label: 'No', type: TAutomationActionFolks.ERROR },
       ],
     },
+    {
+      type: AUTOMATION_CORE_ACTIONS.SPLIT,
+      icon: 'IconArrowSplit',
+      label: 'Split',
+      description:
+        'Create conditional branches to route workflows based on criteria',
+    },
     // Data Operations
     {
       type: AUTOMATION_CORE_ACTIONS.FIND_OBJECT,

@@ -6,6 +6,10 @@ import { AutomationAiAgentHealthSection } from '@/automations/components/setting
 import { AiAgentInput } from '@/automations/components/settings/components/agents/hooks/useAiAgentDetail';
 import { AutomationSettingsDetailHeader } from '@/automations/components/settings/components/AutomationSettingsDetailHeader';
 import {
+  AI_AGENT_PROVIDER_TYPES,
+  TAiAgentProvider,
+} from '@/automations/components/settings/components/agents/constants/providers';
+import {
   buildAiAgentFormSchema,
   normalizeAiAgentFormValues,
   TAiAgentFormDetail,
@@ -15,6 +19,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { IconDeviceFloppy } from '@tabler/icons-react';
 import { Button, Card, Tabs, toast } from 'erxes-ui';
 import { FormProvider, useForm } from 'react-hook-form';
+import { useSearchParams } from 'react-router';
 
 export const AutomationAiAgentDetail = ({
   detail,
@@ -24,12 +29,19 @@ export const AutomationAiAgentDetail = ({
   handleSave: (input: AiAgentInput) => Promise<unknown>;
 }) => {
   const isEditing = !!detail;
+  const [searchParams] = useSearchParams();
+  const queryKind = searchParams.get('kind');
+  const defaultProvider =
+    !isEditing &&
+    AI_AGENT_PROVIDER_TYPES.includes(queryKind as TAiAgentProvider)
+      ? (queryKind as TAiAgentProvider)
+      : undefined;
 
   const form = useForm<TAiAgentForm>({
     resolver: zodResolver(
       buildAiAgentFormSchema({ requireApiKey: !detail?._id }),
     ),
-    values: normalizeAiAgentFormValues(detail),
+    values: normalizeAiAgentFormValues(detail, defaultProvider),
   });
 
   const handleSubmit = form.handleSubmit(handleSave, () => {

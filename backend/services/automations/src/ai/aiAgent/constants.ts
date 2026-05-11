@@ -1,5 +1,7 @@
 export const AI_AGENT_SUPPORTED_PROVIDERS = [
   'cloudflare-ai-gateway',
+  'grok',
+  'kimi',
   'openai',
 ] as const;
 
@@ -7,6 +9,8 @@ export const AI_AGENT_DEFAULT_PROVIDER = 'cloudflare-ai-gateway';
 
 export const AI_AGENT_PROVIDER_DEFAULT_MODELS = {
   'cloudflare-ai-gateway': 'openai/gpt-5-mini',
+  grok: 'grok-4.3',
+  kimi: 'kimi-k2.5',
   openai: 'gpt-5-mini',
 } as const;
 
@@ -25,6 +29,8 @@ export const AI_AGENT_SUPPORTED_CONTEXT_FILE_TYPES = [
 
 export const AI_AGENT_DEFAULTS = {
   baseUrl: 'https://gateway.ai.cloudflare.com/v1',
+  grokBaseUrl: 'https://api.x.ai/v1',
+  kimiBaseUrl: 'https://api.moonshot.ai/v1',
   openAiBaseUrl: 'https://api.openai.com/v1',
   cloudflareAiGatewayBaseUrl: 'https://gateway.ai.cloudflare.com/v1',
   cloudflareAiGatewayMode: 'compat',

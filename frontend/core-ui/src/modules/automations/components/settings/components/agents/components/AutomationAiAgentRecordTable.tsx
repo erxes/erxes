@@ -12,6 +12,10 @@ export const AutomationAiAgentRecordTable = ({
 }) => {
   const { automationsAiAgents, loading } = useAiAgents(kind);
 
+  const toCreateUrl = `/settings/automations/agents/create${
+    kind ? `?kind=${kind}` : ''
+  }`;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
@@ -24,7 +28,7 @@ export const AutomationAiAgentRecordTable = ({
         </div>
 
         <Button asChild>
-          <Link to="/settings/automations/agents/create">
+          <Link to={toCreateUrl}>
             <IconPlus className="size-4" />
             Create Agent
           </Link>
@@ -46,7 +50,9 @@ export const AutomationAiAgentRecordTable = ({
                 <tr className="h-[320px]">
                   <td colSpan={6} className="py-10 text-center">
                     <div className="mt-4">
-                      <AutomationAiAgentTableEmptyState />
+                      <AutomationAiAgentTableEmptyState
+                        toCreateUrl={toCreateUrl}
+                      />
                     </div>
                   </td>
                 </tr>

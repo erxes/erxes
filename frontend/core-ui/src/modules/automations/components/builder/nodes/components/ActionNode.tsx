@@ -25,6 +25,9 @@ const ActionNodeSourceHandler = ({
   config?: any;
   workflowId?: string;
 }) => {
+  if (type === 'split') {
+    return null;
+  }
   const { hasFolks, folks } = useActionNodeSourceHandler(type);
   if (hasFolks) {
     return (

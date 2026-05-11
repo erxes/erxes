@@ -12,8 +12,6 @@ const AutomationAiAgentKindCard = ({
   isSelected,
   onClick,
 }: AutomationAiAgentKindCardProps) => {
-  const Icon = kind.icon;
-
   return (
     <Card
       className={cn('cursor-pointer p-3 transition-colors', {
@@ -25,7 +23,9 @@ const AutomationAiAgentKindCard = ({
       <div className="flex items-center gap-3">
         <div className="flex size-10 items-center justify-center rounded-lg border bg-background">
           <img
-            src={`/assets/${kind.image}`}
+            src={
+              kind.image ? `/assets/${kind.image}` : '/assets/erxes-bot.webp'
+            }
             alt={kind.label}
             className="size-5"
           />
@@ -51,7 +51,7 @@ export const AutomationAiAgentKindsGrid = ({
   onKindSelect,
 }: AutomationAiAgentKindsGridProps) => {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
       {kinds.map((kind) => (
         <AutomationAiAgentKindCard
           key={kind.type}

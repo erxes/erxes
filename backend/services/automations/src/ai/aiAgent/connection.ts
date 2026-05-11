@@ -74,9 +74,65 @@ export const openAiConnectionSchema = z.object({
     .default({}),
 });
 
+export const kimiConnectionSchema = z.object({
+  provider: z.literal('kimi'),
+  model: z
+    .string()
+    .trim()
+    .min(1, 'Connection model is required')
+    .max(AI_AGENT_LIMITS.maxModelChars)
+    .default(AI_AGENT_PROVIDER_DEFAULT_MODELS.kimi),
+  config: z
+    .object({
+      apiKey: z
+        .string()
+        .trim()
+        .max(AI_AGENT_LIMITS.maxSecretChars)
+        .optional()
+        .default(''),
+      baseUrl: z
+        .string()
+        .trim()
+        .url()
+        .optional()
+        .default(AI_AGENT_DEFAULTS.kimiBaseUrl),
+      headers: headersSchema,
+    })
+    .default({}),
+});
+
+export const grokConnectionSchema = z.object({
+  provider: z.literal('grok'),
+  model: z
+    .string()
+    .trim()
+    .min(1, 'Connection model is required')
+    .max(AI_AGENT_LIMITS.maxModelChars)
+    .default(AI_AGENT_PROVIDER_DEFAULT_MODELS.grok),
+  config: z
+    .object({
+      apiKey: z
+        .string()
+        .trim()
+        .max(AI_AGENT_LIMITS.maxSecretChars)
+        .optional()
+        .default(''),
+      baseUrl: z
+        .string()
+        .trim()
+        .url()
+        .optional()
+        .default(AI_AGENT_DEFAULTS.grokBaseUrl),
+      headers: headersSchema,
+    })
+    .default({}),
+});
+
 export const aiAgentConnectionSchema = z
   .discriminatedUnion('provider', [
     cloudflareAiGatewayConnectionSchema,
+    grokConnectionSchema,
+    kimiConnectionSchema,
     openAiConnectionSchema,
   ])
   .default({
@@ -93,4 +149,12 @@ export type TCloudflareAiGatewayAgentConnection = Extract<
 export type TOpenAiAgentConnection = Extract<
   TAiAgentConnection,
   { provider: 'openai' }
+>;
+export type TKimiAgentConnection = Extract<
+  TAiAgentConnection,
+  { provider: 'kimi' }
+>;
+export type TGrokAgentConnection = Extract<
+  TAiAgentConnection,
+  { provider: 'grok' }
 >;

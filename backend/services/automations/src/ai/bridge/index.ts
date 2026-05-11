@@ -5,6 +5,8 @@ import { resolveAiProviderConnection } from '../providers';
 
 const providerBridgeRegistry: Record<string, IAiProviderBridge> = {
   'cloudflare-ai-gateway': openAiCompatibleBridge,
+  grok: openAiCompatibleBridge,
+  kimi: openAiCompatibleBridge,
   openai: openAiCompatibleBridge,
 };
 

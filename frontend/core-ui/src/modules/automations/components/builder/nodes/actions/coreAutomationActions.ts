@@ -15,6 +15,7 @@ import {
   AutomationComponentMap,
   AutomationNodeType,
 } from '@/automations/types';
+import SplitCondtionsComponents from '@/automations/components/builder/nodes/actions/split/components/SplitConditions';
 
 const coreActions: AutomationComponentMap<AutomationNodeType.Action> = {
   ...DelayComponents,
@@ -25,6 +26,7 @@ const coreActions: AutomationComponentMap<AutomationNodeType.Action> = {
   ...AiAgentComponents,
   ...WebhooksComponents,
   ...FindObjectComponents,
+  ...SplitCondtionsComponents,
 };
 
 type ActionName = keyof typeof coreActions & string;

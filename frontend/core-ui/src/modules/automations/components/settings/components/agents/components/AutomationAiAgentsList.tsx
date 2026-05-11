@@ -2,7 +2,7 @@ import { AutomationAiAgentKindsGrid } from '@/automations/components/settings/co
 import { AutomationAiAgentRecordTable } from '@/automations/components/settings/components/agents/components/AutomationAiAgentRecordTable';
 import { AI_AGENT_KINDS } from '@/automations/components/settings/components/agents/constants/automationAiAgents';
 import { AutomationSettingsPageShell } from '@/automations/components/settings/components/AutomationSettingsPageShell';
-import { Card, useQueryState } from 'erxes-ui';
+import { useQueryState } from 'erxes-ui';
 
 export const AutomationAiAgentsList = () => {
   const [kind, setKind] = useQueryState<string>('kind');
@@ -17,7 +17,7 @@ export const AutomationAiAgentsList = () => {
       title="AI Agents"
       description="Configure credential-backed AI agents, attach context files, and validate provider readiness before wiring them into automation actions."
     >
-      <div className="max-w-2xl">
+      <div className="w-full">
         <AutomationAiAgentKindsGrid
           kinds={AI_AGENT_KINDS}
           selectedKind={activeKind}

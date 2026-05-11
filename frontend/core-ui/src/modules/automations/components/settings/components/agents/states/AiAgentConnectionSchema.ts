@@ -41,8 +41,38 @@ export const openAiConnectionSchema = z.object({
   }),
 });
 
+export const kimiConnectionSchema = z.object({
+  provider: z.literal('kimi'),
+  model: z.string().trim().min(1, 'Model is required'),
+  config: z.object({
+    apiKey: z.string().optional().default(''),
+    baseUrl: z
+      .string()
+      .trim()
+      .url('Enter a valid base URL')
+      .default(AI_AGENT_PROVIDER_DEFAULT_BASE_URLS.kimi),
+    headers: headersSchema,
+  }),
+});
+
+export const grokConnectionSchema = z.object({
+  provider: z.literal('grok'),
+  model: z.string().trim().min(1, 'Model is required'),
+  config: z.object({
+    apiKey: z.string().optional().default(''),
+    baseUrl: z
+      .string()
+      .trim()
+      .url('Enter a valid base URL')
+      .default(AI_AGENT_PROVIDER_DEFAULT_BASE_URLS.grok),
+    headers: headersSchema,
+  }),
+});
+
 export const aiAgentConnectionSchema = z.discriminatedUnion('provider', [
   cloudflareAiGatewayConnectionSchema,
+  grokConnectionSchema,
+  kimiConnectionSchema,
   openAiConnectionSchema,
 ]);
 
@@ -55,23 +85,29 @@ export type TOpenAiConnection = Extract<
   TAiAgentConnection,
   { provider: 'openai' }
 >;
+export type TKimiConnection = Extract<TAiAgentConnection, { provider: 'kimi' }>;
+export type TGrokConnection = Extract<TAiAgentConnection, { provider: 'grok' }>;
 type TCloudflareAiGatewayConnectionConfig =
   TCloudflareAiGatewayConnection['config'];
-type TOpenAiConnectionConfig = TOpenAiConnection['config'];
+type TOpenAiCompatibleConnection =
+  | TOpenAiConnection
+  | TKimiConnection
+  | TGrokConnection;
+type TOpenAiCompatibleConnectionConfig = TOpenAiCompatibleConnection['config'];
 
 export const buildDefaultAiAgentConnection = (
   provider: TAiAgentProvider = 'cloudflare-ai-gateway',
 ): TAiAgentConnection => {
-  if (provider === 'openai') {
+  if (provider === 'openai' || provider === 'kimi' || provider === 'grok') {
     return {
       provider,
-      model: AI_AGENT_PROVIDER_DEFAULT_MODELS.openai,
+      model: AI_AGENT_PROVIDER_DEFAULT_MODELS[provider],
       config: {
         apiKey: '',
-        baseUrl: AI_AGENT_PROVIDER_DEFAULT_BASE_URLS.openai,
+        baseUrl: AI_AGENT_PROVIDER_DEFAULT_BASE_URLS[provider],
         headers: {},
       },
-    };
+    } as TOpenAiCompatibleConnection;
   }
 
   return {
@@ -92,24 +128,27 @@ export const buildDefaultAiAgentConnection = (
 export const normalizeAiAgentConnection = (
   detailConnection?: Partial<TAiAgentConnection> | null,
 ): TAiAgentConnection => {
-  const provider =
-    detailConnection?.provider === 'openai' ? 'openai' : 'cloudflare-ai-gateway';
+  const provider = AI_AGENT_PROVIDER_DEFAULT_MODELS[
+    detailConnection?.provider as TAiAgentProvider
+  ]
+    ? (detailConnection?.provider as TAiAgentProvider)
+    : 'cloudflare-ai-gateway';
   const defaults = buildDefaultAiAgentConnection(provider);
   const detailConfig = detailConnection?.config || {};
 
-  if (provider === 'openai') {
-    const openAiDefaults = defaults as TOpenAiConnection;
-    const config = detailConfig as Partial<TOpenAiConnectionConfig>;
+  if (provider === 'openai' || provider === 'kimi' || provider === 'grok') {
+    const openAiCompatibleDefaults = defaults as TOpenAiCompatibleConnection;
+    const config = detailConfig as Partial<TOpenAiCompatibleConnectionConfig>;
 
     return {
       provider,
-      model: detailConnection?.model || openAiDefaults.model,
+      model: detailConnection?.model || openAiCompatibleDefaults.model,
       config: {
-        ...openAiDefaults.config,
+        ...openAiCompatibleDefaults.config,
         ...config,
         apiKey: '',
       },
-    };
+    } as TOpenAiCompatibleConnection;
   }
 
   const cloudflareDefaults = defaults as TCloudflareAiGatewayConnection;

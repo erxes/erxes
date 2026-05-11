@@ -4,6 +4,7 @@ import {
   normalizeAiAgentConnection,
   TAiAgentConnection,
 } from '@/automations/components/settings/components/agents/states/AiAgentConnectionSchema';
+import { TAiAgentProvider } from '@/automations/components/settings/components/agents/constants/providers';
 
 const aiAgentFileVersionSchema = z.object({
   key: z.string(),
@@ -70,7 +71,7 @@ export const buildAiAgentFormSchema = ({
   baseAiAgentFormSchema.superRefine((value, ctx) => {
     if (
       requireApiKey &&
-      value.connection.provider === 'openai' &&
+      ['grok', 'kimi', 'openai'].includes(value.connection.provider) &&
       !value.connection.config.apiKey?.trim()
     ) {
       ctx.addIssue({
@@ -188,12 +189,13 @@ const normalizeAiAgentFiles = (files: unknown[] = []) =>
 
 export const normalizeAiAgentFormValues = (
   detail?: TAiAgentFormDetail,
+  defaultProvider?: TAiAgentProvider,
 ): TAiAgentForm => ({
   name: detail?.name || '',
   description: detail?.description || '',
   connection: {
     ...normalizeAiAgentConnection({
-      provider: detail?.connection?.provider,
+      provider: detail?.connection?.provider || defaultProvider,
       model: detail?.connection?.model,
       config: {
         ...(detail?.connection?.config || {}),
