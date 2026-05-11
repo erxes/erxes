@@ -32,6 +32,15 @@ let NEW_SUBMISSIONS: Collection;
  * Unknown entities are left intact. Used as a light cleanup pass on the
  * text produced by {@link htmlToText}.
  *
+ * The match pattern intentionally restricts to well-formed entity shapes:
+ *   - named: `&` + one-or-more ASCII letters + `;` (e.g. `&amp;`)
+ *   - decimal: `&#` + one-or-more digits + `;` (e.g. `&#39;`)
+ *   - hexadecimal: `&#x` + one-or-more hex digits + `;` (e.g. `&#x27;`)
+ * Malformed sequences like `&#;`, `&#x;`, or `&123;` do not match and are
+ * left untouched. Lookup is case-insensitive: matched text is lowercased
+ * before consulting the entity map so variants like `&AMP;` or `&Quot;`
+ * resolve to the same character as their canonical lowercase form.
+ *
  * @param text - Input string possibly containing HTML entities.
  * @returns The same string with the known entities decoded.
  */
@@ -45,7 +54,10 @@ function decodeEntities(text: string): string {
     '&nbsp;': ' ',
   };
 
-  return text.replace(/&[a-z#0-9]+;/gi, (m) => entities[m] ?? m);
+  return text.replace(
+    /&(?:[a-z]+|#\d+|#x[0-9a-f]+);/gi,
+    (m) => entities[m.toLowerCase()] ?? m,
+  );
 }
 
 /**
