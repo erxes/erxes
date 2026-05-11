@@ -1,295 +1,42 @@
+import { Combobox, Command, Filter } from 'erxes-ui';
 import {
-  Combobox,
-  Command,
-  Filter,
-  Popover,
-  useFilterContext,
-  useQueryState,
-  TextOverflowTooltip,
-} from 'erxes-ui';
-import {
-  IProductCategory,
   SelectBranches,
+  SelectBrands,
+  SelectCompany,
   SelectDepartments,
+  TagsFilter,
 } from 'ui-modules';
-import { IconFolders, IconCheck } from '@tabler/icons-react';
-import { useState, useEffect, useCallback } from 'react';
+import {
+  IconCurrencyDollar,
+  IconDiscount,
+  IconPackage,
+  IconPercentage,
+} from '@tabler/icons-react';
+
 import { PRODUCTS_CURSOR_SESSION_KEY } from '../constants/productsCursorSessionKey';
-import { useProductCategories } from '../hooks/useProductCategories';
 import { ProductHotKeyScope } from '../types/ProductsHotKeyScope';
 import { ProductsTotalCount } from './ProductsTotalCount';
+import {
+  SelectProductCategoryFilterBar,
+  SelectProductCategoryFilterItem,
+  SelectProductCategoryFilterView,
+} from '../products-filter/components/selects/SelectProductCategory';
+import {
+  SelectProductSegmentFilterBar,
+  SelectProductSegmentFilterItem,
+  SelectProductSegmentFilterView,
+} from '../products-filter/components/selects/SelectProductSegment';
+import {
+  SelectProductTypeFilterBar,
+  SelectProductTypeFilterItem,
+  SelectProductTypeFilterView,
+} from '../products-filter/components/selects/SelectProductType';
+import {
+  NumberRangeBarItem,
+  NumberRangeDialogView,
+} from '../products-filter/components/selects/NumberRangeFilter';
 
-interface SelectCategoriesBadgeProps {
-  category?: IProductCategory;
-}
-
-function SelectCategoriesBadge(props: Readonly<SelectCategoriesBadgeProps>) {
-  const { category } = props;
-  if (!category) return null;
-  const { code, name } = category;
-  return (
-    <div className="flex overflow-hidden flex-auto gap-2 justify-start items-center">
-      <div className="text-muted-foreground">{code}</div>
-      <TextOverflowTooltip value={name} className="flex-auto" />
-    </div>
-  );
-}
-
-interface SelectCategoriesFilterItemProps {
-  value: string;
-  label: string;
-}
-
-function SelectCategoriesFilterItem(
-  props: Readonly<SelectCategoriesFilterItemProps>,
-) {
-  const { value, label } = props;
-  return (
-    <Filter.Item value={value}>
-      <IconFolders />
-      {label}
-    </Filter.Item>
-  );
-}
-
-interface SelectCategoryProps {
-  category: IProductCategory;
-  selectedCategory?: IProductCategory;
-  onSelect: (categoryId: string) => void;
-}
-
-const CategoryOptionItem = ({
-  category,
-  selectedCategory,
-  onSelect,
-}: SelectCategoryProps) => {
-  const handleSelectItem = useCallback(() => {
-    onSelect(category._id);
-  }, [category._id, onSelect]);
-
-  return (
-    <Command.Item
-      key={category._id}
-      value={category._id}
-      onSelect={handleSelectItem}
-    >
-      <div className="flex flex-auto gap-2 items-center">
-        <span className="text-muted-foreground">{category.code}</span>
-        <TextOverflowTooltip
-          value={category.name}
-          className="flex-auto w-auto font-medium"
-        />
-      </div>
-      {selectedCategory?._id === category._id && <IconCheck />}
-    </Command.Item>
-  );
-};
-
-function SelectCategoriesFilterViewItem(props: Readonly<SelectCategoryProps>) {
-  return <CategoryOptionItem {...props} />;
-}
-
-const CategoryItemContent = SelectCategoriesFilterViewItem;
-
-interface SelectCategoriesFilterBarContentProps {
-  productCategories?: IProductCategory[];
-  selectedCategory?: IProductCategory;
-  onSelect: (categoryId: string) => void;
-}
-
-function SelectCategoriesFilterBarContent(
-  props: Readonly<SelectCategoriesFilterBarContentProps>,
-): JSX.Element {
-  const { productCategories, selectedCategory, onSelect } = props;
-  return (
-    <Combobox.Content>
-      <Command className="outline-hidden">
-        <Command.Input placeholder="Search categories" />
-        <Command.List>
-          {productCategories?.map((category: IProductCategory) => (
-            <CategoryItemContent
-              key={category._id}
-              category={category}
-              selectedCategory={selectedCategory}
-              onSelect={onSelect}
-            />
-          ))}
-        </Command.List>
-      </Command>
-    </Combobox.Content>
-  );
-}
-
-interface SelectCategoriesFilterBarProps {
-  filterKey: string;
-  label: string;
-}
-
-function SelectCategoriesFilterBar(
-  props: Readonly<SelectCategoriesFilterBarProps>,
-): JSX.Element | null {
-  const { filterKey, label } = props;
-  const [query, setQuery] = useQueryState<string[]>(filterKey);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [selectedCategory, setSelectedCategory] = useState<IProductCategory>();
-  const { productCategories } = useProductCategories();
-
-  useEffect(() => {
-    if (query && query.length > 0 && productCategories) {
-      setSelectedCategory(
-        productCategories.find(
-          (category: IProductCategory) => category._id === query[0],
-        ),
-      );
-    }
-  }, [query, productCategories]);
-
-  if (!query?.length) {
-    return null;
-  }
-
-  const handleSelect = (categoryId: string) => {
-    const category = productCategories?.find(
-      (category: IProductCategory) => category._id === categoryId,
-    );
-    setSelectedCategory(category);
-    if (categoryId) {
-      setQuery([categoryId]);
-    } else {
-      setQuery(null);
-    }
-    setIsOpen(false);
-  };
-
-  return (
-    <Filter.BarItem queryKey={filterKey}>
-      <Filter.BarName>
-        <IconFolders />
-        {label}
-      </Filter.BarName>
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
-        <Popover.Trigger asChild>
-          <Filter.BarButton filterKey={filterKey}>
-            <SelectCategoriesBadge category={selectedCategory} />
-            {!selectedCategory && (
-              <Combobox.Value placeholder="Select category" />
-            )}
-          </Filter.BarButton>
-        </Popover.Trigger>
-        <SelectCategoriesFilterBarContent
-          productCategories={productCategories}
-          selectedCategory={selectedCategory}
-          onSelect={handleSelect}
-        />
-      </Popover>
-    </Filter.BarItem>
-  );
-}
-
-interface SelectCategoriesFilterViewProps {
-  filterKey: string;
-}
-
-function SelectCategoriesFilterView(
-  props: Readonly<SelectCategoriesFilterViewProps>,
-): JSX.Element {
-  const { filterKey } = props;
-  const [query, setQuery] = useQueryState<string[] | undefined>(filterKey);
-  const { resetFilterState } = useFilterContext();
-  const [selectedCategory, setSelectedCategory] = useState<IProductCategory>();
-  const { productCategories, loading: isLoading } = useProductCategories({
-    onCompleted: ({
-      productCategories,
-    }: {
-      productCategories: IProductCategory[];
-    }) => {
-      if (query && query.length > 0) {
-        setSelectedCategory(
-          productCategories?.find(
-            (category: IProductCategory) => category._id === query[0],
-          ),
-        );
-      }
-    },
-  });
-
-  useEffect(() => {
-    if (!productCategories) return;
-
-    if (!query || query.length === 0) {
-      setSelectedCategory(undefined);
-    } else {
-      const matchingCategory = productCategories.find(
-        (category: IProductCategory) => category._id === query[0],
-      );
-      setSelectedCategory(matchingCategory);
-    }
-  }, [query, productCategories]);
-
-  const handleSelect = (categoryId: string) => {
-    const category = productCategories?.find(
-      (category: IProductCategory) => category._id === categoryId,
-    );
-    setSelectedCategory(category);
-    setQuery([categoryId]);
-    resetFilterState();
-  };
-
-  return (
-    <Filter.View filterKey={filterKey}>
-      <Command className="outline-hidden">
-        <Command.Input placeholder="Search categories" />
-        <Command.List>
-          {isLoading ? (
-            <Combobox.Empty loading={isLoading} />
-          ) : !productCategories?.length ? (
-            <Command.Empty>
-              <div className="flex flex-col gap-2 justify-center items-center text-sm text-center text-muted-foreground">
-                No categories found
-              </div>
-            </Command.Empty>
-          ) : null}
-          {productCategories?.map((category: IProductCategory) => (
-            <CategoryItemContent
-              key={category._id}
-              category={category}
-              selectedCategory={selectedCategory}
-              onSelect={handleSelect}
-            />
-          ))}
-        </Command.List>
-      </Command>
-    </Filter.View>
-  );
-}
-
-export const ProductsFilter = () => {
-  return (
-    <Filter id="products-filter" sessionKey={PRODUCTS_CURSOR_SESSION_KEY}>
-      <Filter.Bar>
-        <ProductsFilterPopover />
-        <Filter.Dialog>
-          <Filter.View filterKey="searchValue" inDialog>
-            <Filter.DialogStringView filterKey="searchValue" />
-          </Filter.View>
-        </Filter.Dialog>
-        <Filter.SearchValueBarItem />
-        <SelectCategoriesFilterBar filterKey="categoryIds" label="Ангилал" />
-        <SelectBranches.FilterBar
-          mode="single"
-          filterKey="branchId"
-          label="Салбар"
-        />
-        <SelectDepartments.FilterBar
-          mode="single"
-          filterKey="departmentId"
-          label="Хэлтэс"
-        />
-        <ProductsTotalCount />
-      </Filter.Bar>
-    </Filter>
-  );
-};
+const PRODUCT_TAG_TYPE = 'core:product';
 
 export const ProductsFilterPopover = () => {
   return (
@@ -301,19 +48,147 @@ export const ProductsFilterPopover = () => {
             <Filter.CommandInput placeholder="Filter" variant="secondary" />
             <Command.List className="p-1">
               <Filter.SearchValueTrigger />
-              <SelectCategoriesFilterItem value="categoryIds" label="Ангилал" />
-              <SelectBranches.FilterItem value="branchId" label="Салбар" />
+              <SelectProductCategoryFilterItem
+                value="categoryIds"
+                label="Category"
+              />
+              <SelectProductTypeFilterItem />
+              <SelectBranches.FilterItem value="branchId" label="Branch" />
               <SelectDepartments.FilterItem
                 value="departmentId"
-                label="Хэлтэс"
+                label="Department"
               />
+              <SelectBrands.FilterItem value="brandIds" label="Brand" />
+              <SelectCompany.FilterItem value="vendorId" label="Vendor" />
+              <TagsFilter />
+              <SelectProductSegmentFilterItem />
+              <Filter.Item value="minRemainder" inDialog>
+                <IconPackage size={14} />
+                Remainder
+              </Filter.Item>
+              <Filter.Item value="minPrice" inDialog>
+                <IconCurrencyDollar size={14} />
+                Price
+              </Filter.Item>
+              <Filter.Item value="minDiscountValue" inDialog>
+                <IconDiscount size={14} />
+                Discount amount
+              </Filter.Item>
+              <Filter.Item value="minDiscountPercent" inDialog>
+                <IconPercentage size={14} />
+                Discount percent
+              </Filter.Item>
             </Command.List>
           </Command>
         </Filter.View>
-        <SelectCategoriesFilterView filterKey="categoryIds" />
+        <SelectProductCategoryFilterView filterKey="categoryIds" />
+        <SelectProductTypeFilterView />
         <SelectBranches.FilterView mode="single" filterKey="branchId" />
         <SelectDepartments.FilterView mode="single" filterKey="departmentId" />
+        <SelectBrands.FilterView mode="multiple" filterKey="brandIds" />
+        <SelectCompany.FilterView mode="single" filterKey="vendorId" />
+        <TagsFilter.View tagType={PRODUCT_TAG_TYPE} />
+        <SelectProductSegmentFilterView />
       </Combobox.Content>
     </Filter.Popover>
+  );
+};
+
+export const ProductsFilter = () => {
+  return (
+    <Filter id="products-filter" sessionKey={PRODUCTS_CURSOR_SESSION_KEY}>
+      <Filter.Bar>
+        <ProductsFilterPopover />
+        <Filter.Dialog>
+          <Filter.View filterKey="searchValue" inDialog>
+            <Filter.DialogStringView filterKey="searchValue" />
+          </Filter.View>
+          <Filter.View filterKey="minRemainder" inDialog>
+            <NumberRangeDialogView
+              minKey="minRemainder"
+              maxKey="maxRemainder"
+              label="Remainder"
+            />
+          </Filter.View>
+          <Filter.View filterKey="minPrice" inDialog>
+            <NumberRangeDialogView
+              minKey="minPrice"
+              maxKey="maxPrice"
+              label="Price"
+            />
+          </Filter.View>
+          <Filter.View filterKey="minDiscountValue" inDialog>
+            <NumberRangeDialogView
+              minKey="minDiscountValue"
+              maxKey="maxDiscountValue"
+              label="Discount amount"
+            />
+          </Filter.View>
+          <Filter.View filterKey="minDiscountPercent" inDialog>
+            <NumberRangeDialogView
+              minKey="minDiscountPercent"
+              maxKey="maxDiscountPercent"
+              label="Discount percent"
+            />
+          </Filter.View>
+        </Filter.Dialog>
+
+        <Filter.SearchValueBarItem />
+        <SelectProductCategoryFilterBar
+          filterKey="categoryIds"
+          label="Category"
+        />
+        <SelectProductTypeFilterBar />
+        <SelectBranches.FilterBar
+          mode="single"
+          filterKey="branchId"
+          label="Branch"
+        />
+        <SelectDepartments.FilterBar
+          mode="single"
+          filterKey="departmentId"
+          label="Department"
+        />
+        <SelectBrands.FilterBar
+          mode="multiple"
+          filterKey="brandIds"
+          label="Brand"
+        />
+        <SelectCompany.FilterBar
+          mode="single"
+          filterKey="vendorId"
+          label="Vendor"
+          cursorKey={PRODUCTS_CURSOR_SESSION_KEY}
+        />
+        <TagsFilter.Bar tagType={PRODUCT_TAG_TYPE} />
+        <SelectProductSegmentFilterBar />
+        <NumberRangeBarItem
+          minKey="minRemainder"
+          maxKey="maxRemainder"
+          label="Remainder"
+          icon={<IconPackage size={14} />}
+        />
+        <NumberRangeBarItem
+          minKey="minPrice"
+          maxKey="maxPrice"
+          label="Price"
+          icon={<IconCurrencyDollar size={14} />}
+        />
+        <NumberRangeBarItem
+          minKey="minDiscountValue"
+          maxKey="maxDiscountValue"
+          label="Discount amount"
+          icon={<IconDiscount size={14} />}
+        />
+        <NumberRangeBarItem
+          minKey="minDiscountPercent"
+          maxKey="maxDiscountPercent"
+          label="Discount percent"
+          icon={<IconPercentage size={14} />}
+        />
+
+        <ProductsTotalCount />
+      </Filter.Bar>
+    </Filter>
   );
 };
