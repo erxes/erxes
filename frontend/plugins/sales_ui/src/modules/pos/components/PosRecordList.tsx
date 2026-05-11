@@ -42,7 +42,12 @@ const PosCard: React.FC<PosCardProps> = ({ pos }) => {
             </Badge>
           </div>
 
-          <Badge variant="default">{pos.type || 'N/A'}</Badge>
+          {pos.description && (
+            <div className="flex gap-2 items-center text-accent-foreground">
+              <p className="text-sm">{pos.description}</p>
+            </div>
+          )}
+          <Badge variant="default">{pos.adminIds?.length} / {pos.cashierIds?.length}</Badge>
 
           {pos.branchTitle && (
             <div className="flex gap-2 items-center text-accent-foreground">
