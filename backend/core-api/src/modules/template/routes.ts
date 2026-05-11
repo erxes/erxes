@@ -5,6 +5,10 @@ import {
   redis,
 } from 'erxes-api-shared/utils';
 import { Request, Response, Router } from 'express';
+// `ipKeyGenerator` is the documented v7/v8 helper for producing IPv6-subnet-safe
+// rate-limit keys. The library itself warns when a custom keyGenerator uses
+// `req.ip` without it, so any change away from this helper would reintroduce
+// the IPv6-mapped bypass class fixed by GHSA-46wh-pxpv-q5gq.
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { RedisStore } from 'rate-limit-redis';
 import { generateModels } from '~/connectionResolvers';
