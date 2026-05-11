@@ -6,6 +6,7 @@ import {
 } from '@/integrations/instagram/controller/store';
 import { ICommentParams } from '@/integrations/instagram/@types/utils';
 import { INTEGRATION_KINDS } from '@/integrations/instagram/constants';
+import { debugError } from '@/integrations/instagram/debuggers';
 import { sanitizeString } from '@/integrations/instagram/utils';
 
 export const receiveComment = async (
@@ -28,9 +29,10 @@ export const receiveComment = async (
     rawFromId == null ||
     rawFromId === ''
   ) {
-    throw new Error(
-      'Instagram comment webhook is missing pageId, post_id, comment_id, or from.id',
+    debugError(
+      `[instagram.receiveComment] missing required webhook fields: pageId=${pageId ? 'present' : 'missing'} post_id=${rawPostId ? 'present' : 'missing'} comment_id=${rawCommentId ? 'present' : 'missing'} from.id=${rawFromId ? 'present' : 'missing'}`,
     );
+    throw new Error('Invalid Instagram comment webhook payload');
   }
 
   const safePageId = sanitizeString(pageId);

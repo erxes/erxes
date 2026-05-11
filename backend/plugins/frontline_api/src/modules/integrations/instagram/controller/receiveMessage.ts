@@ -24,9 +24,10 @@ export const receiveMessage = async (
   const { recipient, timestamp } = activity;
 
   if (activity.sender?.id == null || recipient?.id == null) {
-    throw new Error(
-      'Instagram webhook is missing sender.id or recipient.id',
+    debugError(
+      `[instagram.receiveMessage] missing required webhook fields: sender.id=${activity.sender?.id ? 'present' : 'missing'} recipient.id=${recipient?.id ? 'present' : 'missing'}`,
     );
+    throw new Error('Invalid Instagram message webhook payload');
   }
 
   const userId = sanitizeString(activity.sender.id);
