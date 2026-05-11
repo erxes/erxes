@@ -107,7 +107,6 @@ export interface IPos {
   name: string;
   description?: string;
   isOnline: boolean;
-  type: string;
   onServer: boolean;
   branchTitle: string;
   branchId?: string;

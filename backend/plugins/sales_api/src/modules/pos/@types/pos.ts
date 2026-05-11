@@ -1,7 +1,5 @@
 import { Document } from 'mongoose';
 
-export type PosType = 'ecommerce' | 'restaurant' | 'pos';
-
 export interface IPos {
   name: string;
   description?: string;
@@ -42,7 +40,6 @@ export interface IPos {
   checkRemainder?: boolean;
   permissionConfig?: any;
   allowTypes: string[];
-  type?: PosType;
   isCheckRemainder: boolean;
   checkExcludeCategoryIds: string[];
   saveRemainder: boolean;
