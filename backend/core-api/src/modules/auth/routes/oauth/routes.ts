@@ -299,6 +299,30 @@ router.post('/oauth/device/deny', async (req: Request, res: Response) => {
 });
 
 router.post('/oauth/token', async (req: Request, res: Response) => {
+  // Rate-limit the token endpoint by client IP BEFORE doing any DB work
+  // (subdomain lookup, model generation, client_secret bcrypt compare, etc.).
+  // This guards all grant-type branches — device_code, refresh_token, and the
+  // fallback — against brute-force and DoS, in addition to the per-device-code
+  // poll-interval limit enforced inside the device_code branch (RFC 8628 §3.5).
+  // 30 req/IP/min: comfortably above the legitimate device-poll cadence
+  // (12 req/min at the 5s DEVICE_POLL_INTERVAL) and refresh-token rotation rate.
+  // The limiter is Redis-backed (see checkRateLimit -> redis.incr/expire) so it
+  // works correctly across multiple core-api replicas behind a load balancer.
+  try {
+    const ip = getClientIp(req);
+    await checkRateLimit(`oauth:token:${ip}`, 30, 60);
+  } catch (e) {
+    if (isRateLimitError(e)) {
+      return sendOAuthError(res, 429, 'slow_down', e.message);
+    }
+    return sendOAuthError(
+      res,
+      400,
+      'invalid_request',
+      e instanceof Error ? e.message : 'Invalid request',
+    );
+  }
+
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
   const grantType = String(req.body?.grant_type || '').trim();
