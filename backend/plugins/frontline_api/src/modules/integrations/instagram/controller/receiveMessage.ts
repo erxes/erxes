@@ -36,9 +36,9 @@ export const receiveMessage = async (
   integration: IInstagramIntegrationDocument,
   activity: IMessageData,
 ) => {
-  const userId = sanitizeString(activity.sender.id);
-  const { recipient, timestamp } = activity;
-  const pageId = sanitizeString(recipient.id);
+  const userId = sanitizeString(activity?.sender?.id);
+  const { recipient, timestamp } = activity ?? {};
+  const pageId = sanitizeString(recipient?.id);
 
   // Fail fast on malformed webhook payloads. After sanitisation, an empty
   // id means the inbound event lacked a real sender or recipient — letting
