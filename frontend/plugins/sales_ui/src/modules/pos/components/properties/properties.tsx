@@ -87,7 +87,6 @@ const Properties: FC<PropertiesProps> = ({
       reset({
         name: posDetail.name || '',
         description: posDetail.description || '',
-        type: posDetail.type || '',
         maxSkipNumber: posDetail.maxSkipNumber?.toString() || '',
         orderPassword: posDetail.orderPassword || '',
         branchId: posDetail.branchId || '',
@@ -125,7 +124,6 @@ const Properties: FC<PropertiesProps> = ({
             _id: posId,
             name: data.name,
             description: data.description,
-            type: data.type,
             maxSkipNumber: parseMaxSkipNumber(data.maxSkipNumber),
             orderPassword: data.orderPassword,
             branchId: data.branchId,
