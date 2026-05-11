@@ -14,19 +14,29 @@ import {
 
 const HAS_ATTACHMENT = 'This message has an attachment';
 
+// Coerce a value expected to be a string into a literal string. Non-string
+// inputs (objects, numbers, null) become safe primitives, neutralising NoSQL
+// injection payloads like {"$ne": null} that arrive verbatim from req.body.
+const sanitizeString = (value: unknown): string => {
+  if (typeof value === 'string') {
+    return value;
+  }
+  return String(value ?? '');
+};
+
 export const receiveMessage = async (
   models: IModels,
   subdomain: string,
   integration: IInstagramIntegrationDocument,
   activity: IMessageData,
 ) => {
-  const userId = activity.sender.id;
+  const userId = sanitizeString(activity.sender.id);
   const { recipient, timestamp } = activity;
 
   let message = activity.message as any;
   const postback = activity.postback as any;
 
-  const pageId = recipient.id;
+  const pageId = sanitizeString(recipient.id);
   const kind = INTEGRATION_KINDS.MESSENGER;
   const mid = message?.mid || postback?.mid;
   const attachments = message?.attachments;
@@ -60,8 +70,8 @@ export const receiveMessage = async (
   }
 
   let conversation = await models.InstagramConversations.findOne({
-    senderId: userId,
-    recipientId: pageId,
+    senderId: { $eq: userId },
+    recipientId: { $eq: pageId },
   });
 
   const bot = await checkIsBot(models, message, recipient.id);
