@@ -13,7 +13,7 @@ import {
   CtaxRows as MutationsCtaxRow,
   Transactions as MutationsTransactions,
   AdjustInventories as MutationsAdjustInventories,
-  PermissionMutations,
+  PermissionMutations as PermissionMutations,
 } from '@/accounting/graphql/resolvers/mutations';
 import {
   AccountingConfigs as QueriesAccountingConfig,

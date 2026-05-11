@@ -365,7 +365,7 @@ const transactionCommon = {
     if (needsPostFilter) {
       const getUserLevel = makeGetUserLevel(subdomain);
       const perm = await models.Permissions.findOne({ userId: user._id, accountId }).lean();
-      const allowedResults = [];
+      const allowedResults: any[] = [];
       for (const tr of results) {
         const targetUserId = tr.modifiedBy || tr.createdBy;
         if (!targetUserId) continue;
@@ -378,7 +378,7 @@ const transactionCommon = {
           case 'gtLvl': ok = targetLevel > actorLevel; break;
           default: ok = false;
         }
-        const allowedResults: any[] = [];
+        if (ok) allowedResults.push(tr);
       }
       results = allowedResults;
     }
@@ -390,13 +390,12 @@ const transactionCommon = {
       paginationArgs.page = 1;
       paginationArgs.perPage = ids.length;
     }
-    let sort: any = { date: 1 };
-    if (sortField) sort = { [sortField]: sortDirection ?? 1 };
+    // Sorting in memory (no separate `sort` variable needed)
     results.sort((a, b) => (a[sortField || 'date'] > b[sortField || 'date'] ? 1 : -1));
     const start = (paginationArgs.page - 1) * paginationArgs.perPage;
     const end = start + paginationArgs.perPage;
     const paginated = results.slice(start, end);
-    return paginated;
+    return { list: paginated, totalCount: results.length };
   },
 
   async accTransactionDetail(
@@ -459,7 +458,7 @@ const transactionCommon = {
       let results = await models.Transactions.find(combinedFilter).lean();
       const getUserLevel = makeGetUserLevel(subdomain);
       const perm = await models.Permissions.findOne({ userId: user._id, accountId }).lean();
-      const allowed = [];
+      const allowed: any[] = [];
       for (const tr of results) {
         const targetUserId = tr.modifiedBy || tr.createdBy;
         if (!targetUserId) continue;
@@ -472,7 +471,7 @@ const transactionCommon = {
           case 'gtLvl': ok = targetLevel > actorLevel; break;
           default: ok = false;
         }
-        const allowed: any[] = [];
+        if (ok) allowed.push(tr);
       }
       // Manual "cursor" pagination: use limit/cursor (cursor is a number)
       const cursor = params.cursor ? parseInt(params.cursor) : 0;
@@ -598,7 +597,7 @@ const transactionCommon = {
       let results = await models.Transactions.aggregate(pipeline);
       const getUserLevel = makeGetUserLevel(subdomain);
       const perm = await models.Permissions.findOne({ userId: user._id, accountId }).lean();
-      const allowed = [];
+      const allowed: any[] = [];
       for (const record of results) {
         const targetUserId = record.modifiedBy || record.createdBy;
         if (!targetUserId) continue;
@@ -611,7 +610,7 @@ const transactionCommon = {
           case 'gtLvl': ok = targetLevel > actorLevel; break;
           default: ok = false;
         }
-        const allowed: any[] = [];
+        if (ok) allowed.push(record);
       }
       const cursor = params.cursor ? parseInt(params.cursor) : 0;
       const limit = params.limit || 20;
@@ -678,7 +677,7 @@ const transactionCommon = {
       let results = await models.Transactions.aggregate(pipeline);
       const getUserLevel = makeGetUserLevel(subdomain);
       const perm = await models.Permissions.findOne({ userId: user._id, accountId }).lean();
-      const allowed = [];
+      const allowed: any[] = [];
       for (const record of results) {
         const targetUserId = record.modifiedBy || record.createdBy;
         if (!targetUserId) continue;
@@ -691,7 +690,7 @@ const transactionCommon = {
           case 'gtLvl': ok = targetLevel > actorLevel; break;
           default: ok = false;
         }
-        const allowed: any[] = [];
+        if (ok) allowed.push(record);
       }
       const { sortField, sortDirection, page, perPage } = params;
       const pageArgs = { page: page || 1, perPage: perPage || 20 };

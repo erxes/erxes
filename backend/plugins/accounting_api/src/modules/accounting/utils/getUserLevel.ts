@@ -16,8 +16,7 @@ export const makeGetUserLevel = (subdomain: string) => async (userId: string): P
     }
     return user.level ?? 0;
   } catch (error) {
-    // Log the error and fail closed
-    console.error(`Failed to fetch level for user ${userId}:`, error);
-    throw new Error(`Unable to verify user permissions: ${error.message}`);
+    // Fail closed – do not reveal internal error details
+    throw new Error('Unable to verify user permissions');
   }
 };

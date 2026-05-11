@@ -5,7 +5,7 @@ import CtaxRows from './ctaxRows';
 import AccountingConfigs from './configs';
 import Transactions from './transacations';
 import AdjustInventories from './adjustInventories';
-import PermissionMutations from './permissions';
+import { PermissionMutations } from './permissions';
 
 export {
   Accounts,

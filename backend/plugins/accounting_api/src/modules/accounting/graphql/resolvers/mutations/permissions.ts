@@ -67,4 +67,4 @@ const permissionMutations = {
   },
 };
 
-export default permissionMutations;
+export const PermissionMutations = permissionMutations;
