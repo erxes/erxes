@@ -72,8 +72,8 @@ const mutationParams = `
 export const mutations = `
   tagsAdd(name: String!, ${mutationParams}): Tag
   tagsEdit(_id: String!, name: String, ${mutationParams}): Tag
-  tagsTag(type: String!, targetIds: [String!]!, tagIds: [String!]!): JSON
-  cpTagsTag(type: String!, targetIds: [String!]!, tagIds: [String!]!): JSON
+  tagsTag(type: String!, targetIds: [String!]!, tagIds: [String!]!, action: String): JSON
+  cpTagsTag(type: String!, targetIds: [String!]!, tagIds: [String!]!, action: String): JSON
   tagsRemove(_id: String!): JSON
 
   cpTagsAdd(name: String!, ${mutationParams}): Tag
