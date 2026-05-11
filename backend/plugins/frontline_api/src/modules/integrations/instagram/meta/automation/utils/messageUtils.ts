@@ -58,8 +58,13 @@ export const checkIsBot = async (models: IModels, message, recipientId) => {
 
   if (message?.payload) {
     const payload = JSON.parse(message?.payload || '{}');
-    if (payload.botId) {
-      selector = { _id: payload.botId };
+    // Coerce/validate botId to a string before using it in the query.
+    // payload comes from a webhook body via JSON.parse, so payload.botId
+    // could be a Mongo operator object (e.g. {$ne: null}) and would turn
+    // the lookup into NoSQL injection. Keep pageId scope to prevent
+    // cross-page bot lookups even when a string bot id is supplied.
+    if (typeof payload.botId === 'string' && payload.botId) {
+      selector = { _id: payload.botId, pageId: recipientId };
     }
   }
   const bot = await models.InstagramBots.findOne(selector);
