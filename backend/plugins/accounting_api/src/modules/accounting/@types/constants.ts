@@ -53,24 +53,18 @@ export const TR_SIDES = {
 };
 
 export const TR_STATUSES = {
-  PLAN: 'plan',
-  PENDING: 'pending',
-  SYNCED: 'synced',
-  NEW: 'new',
-  REAL: 'real',
+  DRAFT: 'draft', // noorog buyu uurtuu l uzej bui
+  MENTION: 'mention', // butsahgui, mention avsan hun comlete esvel draft bolgoh
+  PENDING: 'pending', // butsah, confirm or rejected
   CONFIRMED: 'confirmed',
+  REJECTED: 'rejected',
+
+  PLAN: 'plan',
   COMPLETE: 'complete',
-  DELETED: 'deleted',
-  ACTIVE: ['synced', 'real', 'confirmed', 'complete'],
   ALL: [
-    'plan',
-    'pending',
-    'synced',
-    'real',
-    'confirmed',
-    'complete',
-    'deleted',
+    'draft', 'mention', 'pending', 'confirmed', 'rejected', 'plan', 'complete',
   ],
+  ACTIVE: ['complete'],
 };
 
 export const PTR_STATUSES = {
@@ -159,7 +153,7 @@ export const JOURNALS = {
     'bank',
     'receivable',
     'payable',
-  ], 
+  ],
   SINGLES: [
     'main',
     'cash',

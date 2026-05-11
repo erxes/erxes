@@ -94,3 +94,34 @@ export const INV_INCOME_EXPENSE_TYPES = [
   { value: 'amount', label: 'Дүн' },
   { value: 'count', label: 'Тоо' },
 ];
+
+export const TR_STATUSES = {
+  DRAFT: 'draft',
+  MENTION: 'mention',
+  PENDING: 'pending',
+  REJECTED: 'rejected',
+  CONFIRM: 'confirm',
+  PLAN: 'plan',
+  COMPLETE: 'complete',
+  ALL: [
+    'draft',
+    'mention',
+    'pending',
+    'rejected',
+    'confirm',
+  ],
+  MENTIONS: [
+    'mention',
+    'pending',
+    'rejected',
+    'confirm',
+  ],
+  OPTIONS: [
+    { value: 'draft', label: 'Ноорог' },
+    { value: 'mention', label: 'Батлуулах' },
+    { value: 'pending', label: 'Эргэж харах' },
+    { value: 'rejected', label: 'Цуцалсан' },
+    { value: 'confirm', label: 'Зөвшөөрсөн' },
+  ],
+
+}

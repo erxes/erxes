@@ -58,9 +58,12 @@ export const transactionSchema = schemaWrapper(
       default: 'real',
       index: true,
     },
+    mentionOwnerId: { type: String, optional: true, label: 'Mention Owner' },
+    mentionUserIds: { type: [String], optional: true, label: 'Mention Users' },
     ptrId: { type: String, label: 'Group', index: true },
     parentId: { type: String, optional: true, label: 'Parent ID', index: true },
     number: { type: String, optional: true, label: 'Number', index: true },
+    ptrNumber: { type: String, optional: true, label: 'Number', index: true },
     journal: {
       type: String,
       enum: JOURNALS.ALL,

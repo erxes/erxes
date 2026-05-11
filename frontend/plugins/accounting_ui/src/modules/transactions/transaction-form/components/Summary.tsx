@@ -42,7 +42,7 @@ export const sumDtAndCt = (trDocs: TTrDoc[], followTrDocs: ITransaction[]) => {
 
 export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
   const navigate = useNavigate();
-  const { trDocs } = useWatch({ control: form.control });
+  const { ptrNumber, trDocs } = useWatch({ control: form.control });
   const followTrDocs = useAtomValue(followTrDocsState);
   const [parentId] = useQueryState<string>('parentId');
 
@@ -68,6 +68,9 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
 
   return (
     <div className="flex justify-end items-center col-span-2 xl:col-span-3 gap-6">
+      <div className="flex items-center gap-2 text-sm">
+        <span className="text-accent-foreground">{ptrNumber}</span>
+      </div>
       <div className="flex items-center gap-2 text-sm">
         <span className="text-accent-foreground">Дебет дүн:</span>
         <span className="text-primary font-bold">

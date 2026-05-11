@@ -32,6 +32,9 @@ const transactionFields = `
   date: Date
   description: String
   journal: String
+  status: String
+  mentionOwnerId: String
+  mentionUserIds: [String]
   side: String
   originType: String
   followInfos: JSON
@@ -72,7 +75,7 @@ export const types = () => `
 
     ${transactionFields}
 
-    status: String
+    ptrNumber: String
     ptrStatus: String
 
     createdAt: Date
@@ -107,7 +110,6 @@ export const types = () => `
 
     ${transactionFields}
 
-    status: String
     ptrStatus: String
 
     createdAt: Date
@@ -161,6 +163,8 @@ const trsQueryParams = `
   ids: [String],
   excludeIds: Boolean,
   status: String,
+  mentionOwnerId: String
+  mentionUserIds: String
   searchValue: String,
   number: String,
   ptrStatus: String,

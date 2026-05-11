@@ -31,9 +31,12 @@ export interface ITransaction {
   fullDate?: Date;
   description?: string;
   status?: string;
+  mentionOwnerId?: string;
+  mentionUserIds?: string[];
   ptrId?: string;
   parentId?: string;
   number?: string;
+  ptrNumber?: string;
   journal: string;
   ptrStatus?: string;
 
