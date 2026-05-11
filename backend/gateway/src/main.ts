@@ -118,7 +118,14 @@ app.use(async (req, res, next) => {
       }
 
       if (isValid === '1') {
-        return cors({ credentials: true, origin: true })(req, res, next);
+        // A valid app token authenticates the *caller*, but it must NOT relax
+        // browser cross-origin protection. Reuse the same allowlist as the
+        // default branch so credentialed responses are only granted to
+        // configured origins (DOMAIN, WIDGETS_DOMAIN, ALLOWED_DOMAINS,
+        // ALLOWED_ORIGINS, plus the dev-mode local hosts). This closes the
+        // CSRF surface flagged by CodeQL js/cors-permissive-configuration
+        // (alert #1125) without breaking legitimate multi-tenant clients.
+        return cors(corsOptions)(req, res, next);
       }
     } catch {
       // Fall through to regular CORS
@@ -131,9 +138,11 @@ app.use(async (req, res, next) => {
   //       clientPortalToken,
   //       process.env.JWT_TOKEN_SECRET || 'SECRET',
   //     );
-
+  //
   //     if (decoded?.clientPortalId) {
-  //       return cors({ credentials: true, origin: true })(req, res, next);
+  //       // Same rationale as the app-token branch above: authentication of
+  //       // the caller does not justify bypassing the CORS allowlist.
+  //       return cors(corsOptions)(req, res, next);
   //     }
   //   } catch {
   //     // Fall through to regular CORS
