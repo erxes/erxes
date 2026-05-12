@@ -18,8 +18,13 @@ export const router: Router = express.Router();
 const instagramLoginLimiter = rateLimit({
   store: new RedisStore({
     prefix: 'rl:ig-login:',
-    sendCommand: (...args: string[]) =>
-      redis.call(...(args as [string, ...string[]])) as Promise<any>,
+    // ioredis `call(...args)` requires the first element to be typed as
+    // `command: string`; type the parameter as a tuple so we no longer need
+    // an `as [string, ...string[]]` cast. The `as Promise<any>` remains
+    // because ioredis returns `Promise<unknown>` while rate-limit-redis'
+    // SendCommandFn expects `Promise<RedisReply>`.
+    sendCommand: (...args: [string, ...string[]]) =>
+      redis.call(...args) as Promise<any>,
   }),
   windowMs: 15 * 60 * 1000,
   max: 150,
