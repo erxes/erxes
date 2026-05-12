@@ -177,25 +177,29 @@ export default class Field extends React.Component<Props, State> {
   componentDidMount() {
     const { field } = this.props;
 
-    if (field.type === 'multiSelect' || field.type === 'industry') {
-      const multiSelects = Array.from(
+    const isSingleSelect = field.type === 'select';
+
+    if (field.type === 'multiSelect' || field.type === 'industry' || isSingleSelect) {
+      const selects = Array.from(
         document.querySelectorAll(`#_id${field._id}`)
       );
 
       const onChange = (checked: boolean, value: string) => {
-        let multipleSelectValues = this.state.multipleSelectValues || [];
-
-        if (multipleSelectValues) {
-          if (checked) {
-            multipleSelectValues.push(value);
-          } else {
-            multipleSelectValues = multipleSelectValues.filter(
-              (e) => e === value
-            );
-          }
-          this.onChange(multipleSelectValues.toString());
+        if (isSingleSelect) {
+          this.onChange(checked ? value : '');
+          return;
         }
 
+        let multipleSelectValues = this.state.multipleSelectValues || [];
+
+        if (checked) {
+          multipleSelectValues.push(value);
+        } else {
+          multipleSelectValues = multipleSelectValues.filter(
+            (e) => e !== value
+          );
+        }
+        this.onChange(multipleSelectValues.toString());
         this.setState({ multipleSelectValues });
       };
 
@@ -203,13 +207,15 @@ export default class Field extends React.Component<Props, State> {
         this.setState({ multipleSelectValues: values });
       };
 
-      multiSelects.map((query) => {
+      selects.map((query) => {
         const select = new MSFmultiSelect(query, {
           theme: 'theme2',
-          selectAll: true,
+          selectAll: !isSingleSelect,
           searchBox: true,
+          singleSelect: isSingleSelect,
+          placeholder: isSingleSelect ? __('Choose option') : '',
           onChange,
-          afterSelectAll,
+          ...(!isSingleSelect && { afterSelectAll }),
         });
 
         const options =
@@ -217,14 +223,16 @@ export default class Field extends React.Component<Props, State> {
             ? DEFAULT_COMPANY_INDUSTRY_TYPES
             : field.options || [];
 
-        const selectedValues: any = this.props.value || [];
+        const selectedValues: any = this.props.value || (isSingleSelect ? '' : []);
 
         select.loadSource(
-          options.map((e) => {
-            const selected = selectedValues.indexOf(e) > -1 ? true : false;
-
-            return { caption: e, value: e, selected };
-          })
+          options.map((e) => ({
+            caption: e,
+            value: e,
+            selected: isSingleSelect
+              ? e === String(selectedValues)
+              : (selectedValues as string[]).indexOf(e) > -1,
+          }))
         );
 
         return select;
@@ -629,11 +637,18 @@ export default class Field extends React.Component<Props, State> {
         return <PhoneInput {...updatedProps} />;
 
       case 'select':
-        return Field.renderSelect(options, {
-          onChange: this.onSelectChange,
-          id: field._id,
-          value: String(value),
-        });
+        return (
+          <select
+            id={`_id${field._id}`}
+            className='form-control'
+            defaultValue={String(value || '')}
+            onChange={this.onSelectChange}
+          >
+            {options.map((opt, i) => (
+              <option key={i} value={opt}>{opt}</option>
+            ))}
+          </select>
+        );
 
       case 'multiSelect':
         return Field.renderSelect(options, {
@@ -786,6 +801,17 @@ export default class Field extends React.Component<Props, State> {
 
       case 'objectList':
         return this.renderObjectList(field.objectListConfigs, attrs);
+
+      case 'vehiclePlate':
+        return Field.renderInput({
+          onChange: this.onInputChange,
+          type: 'text',
+          id: field._id,
+          value,
+          pattern: '\\d{4}[А-ЯӨҮЁ]{3}',
+          placeholder: '0000УБА',
+          maxLength: 7,
+        });
 
       default:
         return Field.renderInput({

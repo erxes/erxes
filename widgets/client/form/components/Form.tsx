@@ -52,6 +52,7 @@ type State = {
   currentLocation?: ILocationOption;
   mapScriptLoaded?: boolean;
   qty?: number;
+  formatErrors: IFieldError[];
 };
 
 class Form extends React.Component<Props, State> {
@@ -67,7 +68,7 @@ class Form extends React.Component<Props, State> {
       };
     }
 
-    this.state = { doc: this.resetDocState(), currentPage: 1, currentLocation };
+    this.state = { doc: this.resetDocState(), currentPage: 1, currentLocation, formatErrors: [] };
   }
 
   componentDidMount() {
@@ -162,16 +163,43 @@ class Form extends React.Component<Props, State> {
       doc[fieldId].groupId = groupId;
     }
 
-    this.setState({ doc });
+    const formatErrors = this.state.formatErrors.filter(
+      (e) => e.fieldId !== fieldId
+    );
+
+    this.setState({ doc, formatErrors });
   };
 
   onQtyChange = (qty: number) => {
     this.setState({ qty });
   };
 
+  static PLATE_REGEX = /^\d{4}[А-ЯӨҮЁ]{3}$/;
+
   onSubmit = () => {
     const doc: any = {};
     const { fields } = this.props.form;
+
+    const formatErrors: IFieldError[] = [];
+
+    for (const key of Object.keys(this.state.doc)) {
+      const field = this.state.doc[key];
+      if (field.validation === "vehiclePlate" && field.value && !field.isHidden) {
+        if (!Form.PLATE_REGEX.test(String(field.value))) {
+          formatErrors.push({
+            fieldId: key,
+            text: __("Invalid plate number. Use format: 0000УБА") as string,
+          });
+        }
+      }
+    }
+
+    if (formatErrors.length > 0) {
+      this.setState({ formatErrors });
+      return;
+    }
+
+    this.setState({ formatErrors: [] });
 
     let subTotal = 0;
 
@@ -359,7 +387,7 @@ class Form extends React.Component<Props, State> {
 
     const fields = this.getCurrentFields();
 
-    const errors = currentStatus.errors || [];
+    const errors = [...(currentStatus.errors || []), ...this.state.formatErrors];
     const nonFieldError = errors.find((error) => !error.fieldId);
 
     const renderedFields = fields.map((field) => {

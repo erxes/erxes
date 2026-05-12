@@ -319,6 +319,13 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
           }
         }
 
+        if (validation === "vehiclePlate") {
+          const plateRegex = /^\d{4}[А-ЯӨҮЁ]{3}$/;
+          if (!plateRegex.test(value)) {
+            throw new Error(throwMsg("Invalid plate number (e.g. 0000УБА)"));
+          }
+        }
+
         // objectList
         if (type === "objectList") {
           const { objectListConfigs = [] } = field;

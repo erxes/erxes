@@ -98,36 +98,60 @@ export default class GenerateField extends React.Component<Props, State> {
     }
   }
 
-  renderSelect(options: string[] = [], attrs = {}) {
+  renderSelect(options: string[] = [], attrs: any = {}) {
+    const { onChange, value, id, name, ...rest } = attrs;
+
+    const selectOptions = options.map((o) => ({ value: o, label: o }));
+
+    const handleChange = (option: IOption | null) => {
+      const val = option ? option.value : "";
+      if (onChange) {
+        onChange({ target: { value: val } } as any);
+      }
+    };
+
     return (
-      <FormControl componentclass="select" {...attrs}>
-        <option key={""} value="">
-          Choose option
-        </option>
-        {options.map((option, index) => (
-          <option key={index} value={option}>
-            {option}
-          </option>
-        ))}
-      </FormControl>
+      <Select
+        inputId={id}
+        name={name}
+        {...rest}
+        options={selectOptions}
+        value={selectOptions.find((o) => o.value === value) || null}
+        onChange={handleChange}
+        isSearchable={true}
+        isClearable={true}
+        placeholder={__("Choose option")}
+      />
     );
   }
 
   renderLabelSelect(
     options: { key: string; label: string }[] = [],
-    attrs = {}
+    attrs: any = {}
   ) {
+    const { onChange, value, id, name, ...rest } = attrs;
+
+    const selectOptions = options.map((o) => ({ value: o.key, label: o.label }));
+
+    const handleChange = (option: IOption | null) => {
+      const val = option ? option.value : "";
+      if (onChange) {
+        onChange({ target: { value: val } } as any);
+      }
+    };
+
     return (
-      <FormControl componentclass="select" {...attrs}>
-        <option key={""} value="">
-          Choose option
-        </option>
-        {options.map((option, index) => (
-          <option key={index} value={option.key}>
-            {option.label}
-          </option>
-        ))}
-      </FormControl>
+      <Select
+        inputId={id}
+        name={name}
+        {...rest}
+        options={selectOptions}
+        value={selectOptions.find((o) => o.value === value) || null}
+        onChange={handleChange}
+        isSearchable={true}
+        isClearable={true}
+        placeholder={__("Choose option")}
+      />
     );
   }
 
@@ -144,15 +168,21 @@ export default class GenerateField extends React.Component<Props, State> {
     };
 
     const selectOptions = options.map((e) => ({ value: e, label: e }));
+    const selectedValues: string[] = attrs.value
+      ? attrs.value.split(",").map((v: string) => v.trim()).filter(Boolean)
+      : [];
 
     return (
       <Select
         value={selectOptions.filter((option) =>
-          (attrs.value || []).includes(option.value)
+          selectedValues.includes(option.value)
         )}
         options={selectOptions}
         onChange={onChange}
         isMulti={true}
+        isSearchable={true}
+        isClearable={true}
+        placeholder={__("Choose options")}
       />
     );
   }

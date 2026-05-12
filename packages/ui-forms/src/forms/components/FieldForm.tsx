@@ -235,6 +235,7 @@ class FieldForm extends React.Component<Props, State> {
           <option value='datetime'>{__('Date Time')}</option>
           <option value='date'>{__('Date')}</option>
           <option value='phone'>{__('Phone')}</option>
+          <option value='vehiclePlate'>{__('Vehicle Plate (0000УБА)')}</option>
           <option value='regex'>{__('Regular Expression')}</option>
         </FormControl>
 
