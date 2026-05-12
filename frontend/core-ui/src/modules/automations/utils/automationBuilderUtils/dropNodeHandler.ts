@@ -16,7 +16,7 @@ import { generateAutomationElementId } from 'ui-modules';
  * triggers list, and actions list.
  */
 
-const generateNewNode = ({
+export const generateNewNode = ({
   draggingNode,
   id,
   position,

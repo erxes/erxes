@@ -23,7 +23,6 @@ export const automationBuilderSecondarySidebarOpenState =
 
 export const toggleAutomationBuilderOpenSidebar = atom(true, (get, set) => {
   const isOpen = get(automationBuilderSiderbarOpenState);
-
   set(automationBuilderSiderbarOpenState, !isOpen);
 });
 

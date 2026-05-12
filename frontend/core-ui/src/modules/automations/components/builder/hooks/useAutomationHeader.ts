@@ -18,17 +18,13 @@ export const useAutomationHeader = () => {
     useFormContext<TAutomationBuilderForm>();
   const navigate = useNavigate();
 
-  const { setQueryParams, reactFlowInstance } = useAutomation();
+  const { setQueryParams } = useAutomation();
   const { actions, triggers } = useAutomationNodes();
 
-  const { getNode, getNodes, setNodes } = useReactFlow();
+  const { getNode } = useReactFlow();
   const { id } = useParams();
 
-  const { handleNodeErrors, clearNodeErrors } = useNodeErrorHandler({
-    reactFlowInstance,
-    getNodes: getNodes as () => Node<NodeData>[],
-    setNodes: setNodes as (nodes: Node<NodeData>[]) => void,
-  });
+  const { handleNodeErrors, clearNodeErrors } = useNodeErrorHandler();
 
   const [save, { loading }] = useMutation(
     id ? AUTOMATION_EDIT : AUTOMATION_CREATE,
