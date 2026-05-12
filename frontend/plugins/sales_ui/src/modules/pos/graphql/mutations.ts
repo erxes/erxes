@@ -4,7 +4,6 @@ import { posCommonFields } from './queries';
 const commonFields = `
   $name: String
   $description: String
-  $type: String
   $orderPassword: String
   $scopeBrandIds: [String]
   $pdomain: String
@@ -46,7 +45,6 @@ const commonFields = `
 const commonVariables = `
   name: $name,
   description: $description,
-  type: $type,
   orderPassword: $orderPassword,
   scopeBrandIds: $scopeBrandIds,
   pdomain: $pdomain,
@@ -89,7 +87,6 @@ const posAdd = gql`
   mutation PosAdd(
     $name: String
     $description: String
-    $type: String
     $branchId: String
     $paymentIds: [String]
     $adminIds: [String]
@@ -99,7 +96,6 @@ const posAdd = gql`
     posAdd(
       name: $name
       description: $description
-      type: $type
       branchId: $branchId
       paymentIds: $paymentIds
       adminIds: $adminIds
