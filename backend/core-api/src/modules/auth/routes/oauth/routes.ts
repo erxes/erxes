@@ -334,8 +334,11 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
     // length-bounded so a malicious payload can't blow up the key namespace.
     // The client_id bucket only runs when a client_id is supplied — anonymous
     // traffic is already capped by the per-IP bucket above.
+    // Truncate BEFORE the regex so a pathologically long client_id (e.g. an
+    // attacker shipping megabytes of payload) doesn't force the engine to scan
+    // the whole string just to discard it on slice(0, 64) afterwards.
     const clientIdSalt = rawClientId
-      ? rawClientId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64)
+      ? rawClientId.slice(0, 64).replace(/[^a-zA-Z0-9_-]/g, '')
       : '';
     if (clientIdSalt) {
       await checkRateLimit(
@@ -350,6 +353,11 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
     grantType = String(req.body?.grant_type || '').trim();
   } catch (e) {
     if (isRateLimitError(e)) {
+      // RFC 6585 §4: 429 responses SHOULD carry Retry-After. We use a fixed
+      // 60s window in checkRateLimit above, so 60 is the correct upper bound
+      // for when the bucket will have rolled over and the caller can try
+      // again.
+      res.set('Retry-After', '60');
       return sendOAuthError(res, 429, 'slow_down', e.message);
     }
     // Limiter/Redis or subdomain/model-resolution failures are server-side
