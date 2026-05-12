@@ -45,7 +45,15 @@ export const generateOrderNumber = async (
 
   if (config?.beginNumber) {
     beginNumber = `${config.beginNumber}.`;
-    regexSuffix = `${config.beginNumber}\.[0-9]*$`;
+    // Escape regex meta-characters in the operator-configurable beginNumber,
+    // then match a LITERAL '.' separator. The previous `\.` was a JavaScript
+    // string escape (stripped at parse time), leaving a regex meta-`.` that
+    // matched any character — causing cross-POS collisions on this lookup.
+    const escapedBeginNumber = config.beginNumber.replace(
+      /[.*+?^${}()|[\]\\]/g,
+      '\\$&',
+    );
+    regexSuffix = `${escapedBeginNumber}\\.[0-9]*$`;
   }
 
   let number = `${todayStr}_${beginNumber}${suffix}`;
