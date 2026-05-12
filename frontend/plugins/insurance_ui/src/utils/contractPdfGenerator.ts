@@ -53,9 +53,13 @@ export function sanitizeContractHtml(html: string): string {
   const sanitizedBody = DOMPurify.sanitize(stripped, SANITIZE_OPTS);
   // Inherit lang from the host document so non-Mongolian deployments still
   // get accessible text (screen readers, font selection). Falls back to 'mn'
-  // because that's the canonical erxes deployment locale.
-  const lang =
+  // because that's the canonical erxes deployment locale. The value is
+  // restricted to BCP-47 charset (letters, digits, hyphen) so it cannot
+  // close the attribute or inject markup even if upstream code is ever
+  // compromised.
+  const rawLang =
     (typeof document !== 'undefined' && document.documentElement.lang) || 'mn';
+  const lang = rawLang.replace(/[^a-zA-Z0-9-]/g, '') || 'mn';
   return `<!DOCTYPE html><html lang="${lang}"><head><meta charset="UTF-8">${styleBlocks}</head><body>${sanitizedBody}</body></html>`;
 }
 
