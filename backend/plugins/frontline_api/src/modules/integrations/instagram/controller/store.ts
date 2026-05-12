@@ -335,7 +335,10 @@ export async function fetchInstagramPostDetails(
   params: ICommentParams,
 ) {
   const integration = await models.InstagramIntegrations.findOne({
-    $and: [{ facebookPageId: pageId }, { kind: INTEGRATION_KINDS.POST }],
+    $and: [
+      { facebookPageId: { $eq: pageId } },
+      { kind: INTEGRATION_KINDS.POST },
+    ],
   });
 
   if (!integration) {
