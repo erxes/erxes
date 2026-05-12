@@ -438,7 +438,7 @@ export const MessageInput = ({
             }
             onClick={handleSubmit}
           >
-            {loading || isLoading ? <Spinner /> : <IconArrowUp />}
+            {loading || isLoading ? <Spinner size="sm" /> : <IconArrowUp />}
             Send
             <Kbd className="ml-1">
               <IconCommand size={12} />
