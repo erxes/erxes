@@ -1,5 +1,5 @@
 import { AlertDialog } from 'erxes-ui';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useBlocker } from 'react-router';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
@@ -10,6 +10,8 @@ export const AutomationBuilderUnsavedChangesAlert = () => {
     formState: { isDirty },
   } = useFormContext<TAutomationBuilderForm>();
   const { t } = useTranslation('automations');
+  const isProceedingRef = useRef(false);
+  const [isProceeding, setIsProceeding] = useState(false);
 
   const blocker = useBlocker(({ currentLocation, nextLocation }) => {
     const currentLocationPathName = currentLocation.pathname;
@@ -42,11 +44,18 @@ export const AutomationBuilderUnsavedChangesAlert = () => {
     };
   }, [isDirty]);
 
+  useEffect(() => {
+    if (blocker.state === 'unblocked') {
+      isProceedingRef.current = false;
+      setIsProceeding(false);
+    }
+  }, [blocker.state]);
+
   return (
     <AlertDialog
-      open={blocker.state === 'blocked'}
+      open={blocker.state === 'blocked' && !isProceeding}
       onOpenChange={(open) => {
-        if (!open && blocker.state === 'blocked') {
+        if (!open && blocker.state === 'blocked' && !isProceedingRef.current) {
           blocker.reset();
         }
       }}
@@ -63,6 +72,8 @@ export const AutomationBuilderUnsavedChangesAlert = () => {
           <AlertDialog.Action
             onClick={() => {
               if (blocker.state === 'blocked') {
+                isProceedingRef.current = true;
+                setIsProceeding(true);
                 blocker.proceed();
               }
             }}

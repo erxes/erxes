@@ -45,7 +45,7 @@ export const AutomationBuilderHeaderActions = () => {
         />
       </div>
       <div className="flex items-center gap-2">
-        {AUTOMATION_LIBRARY_TABS.map(({ value, label }) => (
+        {AUTOMATION_LIBRARY_TABS.map(({ value, label, icon: Icon }) => (
           <Toggle
             key={value}
             variant="outline"
@@ -55,7 +55,7 @@ export const AutomationBuilderHeaderActions = () => {
             onPressedChange={() => handleNodeLibraryToggle(value)}
           >
             <Button variant="outline">
-              <IconBolt></IconBolt>
+              <Icon />
               {label}
             </Button>
           </Toggle>

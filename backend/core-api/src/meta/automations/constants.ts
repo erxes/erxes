@@ -89,7 +89,7 @@ export const coreAutomationConstants: AutomationConstants = {
     },
     {
       type: AUTOMATION_CORE_ACTIONS.SPLIT,
-      icon: 'IconArrowSplit',
+      icon: 'IconArrowsSplit',
       label: 'Split',
       description:
         'Create conditional branches to route workflows based on criteria',
@@ -142,7 +142,7 @@ export const coreAutomationConstants: AutomationConstants = {
     },
     {
       type: AUTOMATION_CORE_ACTIONS.AI_AGENT,
-      icon: 'IconAi',
+      icon: 'IconBrain',
       label: 'AI Agent',
       description:
         'Use a configured AI agent to generate text, route topics, or classify structured data.',
