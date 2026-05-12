@@ -193,70 +193,62 @@ export const hashClientSecret = async (secret: string): Promise<string> => {
 // it only needs to be stable so the decoy CPU cost matches a real verify.
 const SCRYPT_DECOY_SALT = crypto.randomBytes(SCRYPT_SALT_LEN);
 
+interface ParsedStoredHash {
+  params: { N: number; r: number; p: number };
+  salt: Buffer;
+  expected: Buffer;
+}
+
+// Decode a PHC-encoded `scrypt$N=...,r=...,p=...$<salt>$<hash>` stored hash.
+// Returns null on any malformedness so the caller can pick the constant-time
+// decoy path instead of returning false early (which would leak via timing).
+//
+// Defensive checks here mirror the structural guarantees `hashClientSecret`
+// emits — canonical salt = 16 raw bytes, derived key = 64 raw bytes — so a
+// corrupted `secretHash` row can never drive an oversized Buffer.from
+// allocation, an off-spec scrypt `keylen`, or out-of-bounds N/r/p.
+const parseStoredHash = (storedHash: unknown): ParsedStoredHash | null => {
+  if (typeof storedHash !== 'string') return null;
+  const parts = storedHash.split('$');
+  if (parts.length !== 4) return null;
+  if (parts[0] !== 'scrypt') return null;
+  // Reject pathologically large base64 payloads BEFORE decoding. Canonical
+  // sizes are 16 raw bytes (≤24 base64 chars) for salt and 64 raw bytes
+  // (≤88 base64 chars) for the derived key — anything significantly larger
+  // is malformed.
+  if (parts[2].length > 32) return null;
+  if (parts[3].length > 128) return null;
+  const params = parseScryptParams(parts[1]);
+  if (params === null) return null;
+  const salt = Buffer.from(parts[2], 'base64');
+  if (salt.length !== SCRYPT_SALT_LEN) return null;
+  const expected = Buffer.from(parts[3], 'base64');
+  if (expected.length !== SCRYPT_KEY_LEN) return null;
+  return { params, salt, expected };
+};
+
 export const verifyClientSecret = async (
   secret: string,
   storedHash: string,
 ): Promise<boolean> => {
-  // Branch carefully here. Any early `return false` would leak — via response
-  // latency — whether `validateClientSecret`'s upstream guards short-circuited
-  // (empty/missing secret) vs. a real scrypt mismatch. Even though
-  // `validateClientSecret` already rejects falsy secrets and the OAuth token
-  // routes are rate-limited per-IP, we keep `verifyClientSecret` itself
-  // timing-equivalent across all auth-fail paths as defense-in-depth (Kimi
-  // MEDIUM, alert #1188): a future caller that wires this function up without
-  // the upstream guards must not gain a fast/slow oracle on input validity.
-  let invalidInput = false;
-  let parsedParams: { N: number; r: number; p: number } | null = null;
-  let salt: Buffer = SCRYPT_DECOY_SALT;
-  let expected: Buffer | null = null;
-  let keylen = SCRYPT_KEY_LEN;
+  // Timing-uniform across all auth-fail paths (Kimi MEDIUM, alert #1188).
+  // Any early `return false` would leak — via response latency — whether
+  // `validateClientSecret`'s upstream guards short-circuited (empty/missing
+  // secret) vs. a real scrypt mismatch. Even though `validateClientSecret`
+  // already rejects falsy secrets and the OAuth token routes are rate-limited
+  // per-IP, `verifyClientSecret` itself must stay timing-equivalent as
+  // defense-in-depth: a future caller wiring this up without those upstream
+  // guards must not gain a fast/slow oracle on input validity.
+  const secretValid = typeof secret === 'string' && secret.length > 0;
+  const parsed = parseStoredHash(storedHash);
+  const inputValid = secretValid && parsed !== null;
 
-  if (typeof secret !== 'string' || secret.length === 0) {
-    invalidInput = true;
-  }
-  if (typeof storedHash !== 'string') {
-    invalidInput = true;
-  } else {
-    const parts = storedHash.split('$');
-    if (parts.length !== 4 || parts[0] !== 'scrypt') {
-      invalidInput = true;
-    } else if (parts[2].length > 32 || parts[3].length > 128) {
-      // Reject pathologically large base64 payloads BEFORE decoding so a
-      // corrupted `secretHash` row can't push us into a giant `Buffer.from`
-      // allocation. Canonical sizes are 16 raw bytes (≤24 base64 chars) for
-      // salt and 64 raw bytes (≤88 base64 chars) for the derived key.
-      invalidInput = true;
-    } else {
-      parsedParams = parseScryptParams(parts[1]);
-      if (!parsedParams) {
-        invalidInput = true;
-      } else {
-        const decodedSalt = Buffer.from(parts[2], 'base64');
-        const decodedExpected = Buffer.from(parts[3], 'base64');
-        if (
-          decodedSalt.length !== SCRYPT_SALT_LEN ||
-          decodedExpected.length !== SCRYPT_KEY_LEN
-        ) {
-          // Mismatched `expected.length` would otherwise be passed straight
-          // through to scrypt as `keylen`, letting a malformed stored hash
-          // drive an oversized KDF call on the auth path.
-          invalidInput = true;
-        } else {
-          salt = decodedSalt;
-          expected = decodedExpected;
-          keylen = decodedExpected.length;
-        }
-      }
-    }
-  }
-
-  // Pick scrypt params for the decoy path that match the real path's CPU cost
-  // envelope, so both branches consume comparable time.
-  const params = parsedParams ?? {
-    N: SCRYPT_N,
-    r: SCRYPT_R,
-    p: SCRYPT_P,
-  };
+  // Pick scrypt params + salt + keylen for the decoy path so it consumes
+  // comparable CPU to a real verify. The decoy salt is a stable random buffer
+  // of canonical length; the params fall back to the current defaults.
+  const params = parsed?.params ?? { N: SCRYPT_N, r: SCRYPT_R, p: SCRYPT_P };
+  const salt = parsed?.salt ?? SCRYPT_DECOY_SALT;
+  const keylen = parsed?.expected.length ?? SCRYPT_KEY_LEN;
   // Coerce the secret to a string for the decoy path — scrypt accepts an empty
   // buffer, so this is safe even when `secret` was non-string/empty.
   const secretInput = typeof secret === 'string' ? secret : '';
@@ -280,14 +272,14 @@ export const verifyClientSecret = async (
     return false;
   }
 
-  if (invalidInput || expected === null) {
-    // Decoy comparison against a buffer of matching length to keep
-    // `timingSafeEqual` happy and the work it does identical to a real verify.
-    crypto.timingSafeEqual(derived, Buffer.alloc(derived.length));
-    return false;
+  if (inputValid && parsed !== null) {
+    return crypto.timingSafeEqual(derived, parsed.expected);
   }
 
-  return crypto.timingSafeEqual(derived, expected);
+  // Decoy comparison against a same-length zero buffer to keep the
+  // `timingSafeEqual` cost identical to a real verify.
+  crypto.timingSafeEqual(derived, Buffer.alloc(derived.length));
+  return false;
 };
 
 export const createRandomToken = (bytes = 32) => {
