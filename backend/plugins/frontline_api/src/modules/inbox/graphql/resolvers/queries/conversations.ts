@@ -6,15 +6,21 @@ import {
 } from '@/inbox/@types/conversations';
 import { countByConversations } from '@/inbox/conversationUtils';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate,markResolvers } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 import QueryBuilder, { IListArgs } from '~/conversationQueryBuilder';
 
-// count helper
 const count = async (models: IModels, query: any): Promise<number> => {
   const result = await models.Conversations.countDocuments(query);
   return Number(result);
 };
+
+const toQueryUser = (user: IContext['user']) => ({
+  _id: user._id,
+  code: user.code,
+  starredConversationIds: user.starredConversationIds,
+  role: user.role,
+});
 
 export const conversationQueries = {
   /**
@@ -54,12 +60,7 @@ export const conversationQueries = {
       return { list, totalCount, pageInfo };
     }
 
-    const qb = new QueryBuilder(models, subdomain, params, {
-      _id: user._id,
-      code: user.code,
-      starredConversationIds: user.starredConversationIds,
-      role: user.role,
-    });
+    const qb = new QueryBuilder(models, subdomain, params, toQueryUser(user));
 
     await qb.buildAllQueries();
 
@@ -146,12 +147,7 @@ export const conversationQueries = {
     const { only } = params;
 
     const response: IConversationRes = {};
-    const _user = {
-      _id: user._id,
-      code: user.code,
-      starredConversationIds: user.starredConversationIds,
-      role: user.role,
-    };
+    const _user = toQueryUser(user);
 
     const qb = new QueryBuilder(models, subdomain, params, _user);
 
@@ -229,12 +225,7 @@ export const conversationQueries = {
     params: IListArgs,
     { user, models, subdomain }: IContext,
   ) {
-    // initiate query builder
-    const qb = new QueryBuilder(models, subdomain, params, {
-      _id: user._id,
-      code: user.code,
-      starredConversationIds: user.starredConversationIds,
-    });
+    const qb = new QueryBuilder(models, subdomain, params, toQueryUser(user));
 
     await qb.buildAllQueries();
 
@@ -249,12 +240,7 @@ export const conversationQueries = {
     params: IListArgs,
     { user, models, subdomain }: IContext,
   ) {
-    // initiate query builder
-    const qb = new QueryBuilder(models, subdomain, params, {
-      _id: user._id,
-      code: user.code,
-      starredConversationIds: user.starredConversationIds,
-    });
+    const qb = new QueryBuilder(models, subdomain, params, toQueryUser(user));
 
     await qb.buildAllQueries();
 
@@ -331,3 +317,9 @@ export const conversationQueries = {
     return { list, totalCount, pageInfo };
   },
 };
+
+markResolvers(conversationQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});

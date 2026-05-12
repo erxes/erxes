@@ -31,7 +31,7 @@ import {
   instagramRepairIntegrations,
   instagramUpdateIntegrations,
 } from '@/integrations/instagram/messageBroker';
-import { getUniqueValue, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { getUniqueValue, sendTRPCMessage,markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 interface IntegrationParams {
@@ -561,26 +561,11 @@ export const integrationMutations = {
     { _id, kind }: { _id: string; kind?: string },
     { subdomain }: IContext,
   ) {
-    try {
-      if (kind) {
-        const serviceName = kind.split('-')[0];
-
-        try {
-          await sendRemoveAccount(
-            subdomain,
-            serviceName, // kind should be explicitly set
-            { integrationId: _id },
-          );
-        } catch (error) {
-          console.error('Error during account removal process:', error);
-          throw error;
-        }
-      }
-      return 'success';
-    } catch (error) {
-      console.error(`Failed to remove ${kind} integration ${_id}:`, error);
-      throw new Error(`Failed to remove ${kind} integration. ${error.message}`);
+    if (kind) {
+      const serviceName = kind.split('-')[0];
+      await sendRemoveAccount(subdomain, serviceName, { integrationId: _id });
     }
+    return 'success';
   },
 
   async integrationsRepair(
@@ -588,24 +573,8 @@ export const integrationMutations = {
     { _id, kind }: { _id: string; kind: string },
     { subdomain }: IContext,
   ) {
-    try {
-      if (!_id) {
-        throw new Error('Integration ID is required for repair');
-      }
-      if (!kind) {
-        throw new Error('Integration kind is required for repair');
-      }
-
-      const serviceName = kind.split('-')[0];
-
-      return await sendRepairIntegration(subdomain, serviceName, {
-        integrationId: _id,
-      });
-    } catch (error) {
-      console.error(`Failed to repair ${kind} integration ${_id}:`, error);
-      // Convert to a more user-friendly error if needed
-      throw new Error(`Failed to repair ${kind} integration. ${error.message}`);
-    }
+    const serviceName = kind.split('-')[0];
+    return sendRepairIntegration(subdomain, serviceName, { integrationId: _id });
   },
   async integrationsArchive(
     _root,
@@ -659,3 +628,9 @@ export const integrationMutations = {
     );
   },
 };
+
+markResolvers(integrationMutations, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
