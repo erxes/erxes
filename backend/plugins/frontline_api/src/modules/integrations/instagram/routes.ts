@@ -30,8 +30,21 @@ const instagramLoginLimiter = rateLimit({
   max: 150,
   standardHeaders: true,
   legacyHeaders: false,
-  // Fail open if Redis is unreachable so an outage doesn't take OAuth login down.
-  skip: () => redis.status !== 'ready',
+  // Fail open if Redis is unreachable so an outage doesn't take OAuth login
+  // down. Trade-off: an attacker who can also degrade Redis could bypass the
+  // limit; we accept this because the cost of OAuth login being down for all
+  // users during a Redis incident is higher than the residual abuse risk.
+  // Log a security event when this happens so operators can correlate
+  // Redis-outage windows with traffic spikes on /iglogin.
+  skip: (req) => {
+    const skipForRedisOutage = redis.status !== 'ready';
+    if (skipForRedisOutage) {
+      console.error(
+        `[SECURITY] Instagram /iglogin rate limit bypassed: Redis status=${redis.status} ip=${req.ip}`,
+      );
+    }
+    return skipForRedisOutage;
+  },
   handler: (_req, res) => {
     res.status(429).json({
       errorCode: 'RATE_LIMIT_EXCEEDED',
