@@ -27,43 +27,52 @@ const permissionMutations = {
       }
     }
 
-    // Process each account: upsert or delete
+    // Prepare bulk operations
+    const bulkOps: any[] = [];
+    const deleteConditions: any[] = [];
+
     for (const accountId of accountIds) {
       const effectiveRead = read ?? 'none';
       const effectiveWrite = write ?? 'none';
 
-      let existing: IPermissionDocument | null = null;
-      try {
-        existing = await models.Permissions.findOne({ userId, accountId }).lean();
-      } catch {
-        // not found – continue
-      }
-
       if (effectiveRead === 'none' && effectiveWrite === 'none') {
-        if (existing) {
-          await models.Permissions.removePermissions([existing._id]);
-          results.push({ accountId, status: 'deleted' });
-        } else {
-          results.push({ accountId, status: 'no_op' });
-        }
+        // Mark for deletion
+        deleteConditions.push({ userId, accountId });
+        results.push({ accountId, status: 'deleted' });
       } else {
+        // Prepare upsert operation
         const updateDoc = {
-          userId,
-          accountId,
-          level: level ?? 0,
-          read: effectiveRead,
-          write: effectiveWrite,
-          updatedAt: new Date(),
+          $set: {
+            userId,
+            accountId,
+            level: level ?? 0,
+            read: effectiveRead,
+            write: effectiveWrite,
+            updatedAt: new Date(),
+          },
+          $setOnInsert: { createdAt: new Date() },
         };
-        if (!existing) {
-          await models.Permissions.createPermission(updateDoc);
-          results.push({ accountId, status: 'created' });
-        } else {
-          await models.Permissions.updatePermission(existing._id, updateDoc);
-          results.push({ accountId, status: 'updated' });
-        }
+        bulkOps.push({
+          updateOne: {
+            filter: { userId, accountId },
+            update: updateDoc,
+            upsert: true,
+          },
+        });
+        results.push({ accountId, status: 'success' });
       }
     }
+
+    // Execute bulk write for upserts
+    if (bulkOps.length) {
+      await models.Permissions.bulkWrite(bulkOps);
+    }
+
+    // Execute bulk delete
+    if (deleteConditions.length) {
+      await models.Permissions.deleteMany({ $or: deleteConditions });
+    }
+
     return results;
   },
 };
