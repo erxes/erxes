@@ -1,7 +1,9 @@
 export default class MSFmultiSelect {
   constructor(select, settings = {}) {
     this.select = select;
-    this.select.multiple = true;
+    if (!settings.singleSelect) {
+      this.select.multiple = true;
+    }
     this.select.style.display = "none";
 
     this.settings = this._getSettings(settings);
@@ -114,7 +116,7 @@ export default class MSFmultiSelect {
       option = options[i];
       optinVal = option.innerText.toLocaleLowerCase();
 
-      if (optinVal.indexOf(searchVal) !== 0) {
+      if (optinVal.indexOf(searchVal) === -1) {
         option.parentElement.classList.add("hidden");
         continue;
       }
@@ -201,10 +203,7 @@ export default class MSFmultiSelect {
   }
   searchValClear() {
     if (!this.settings.searchBox) return;
-    var searchResult, selectedSearchResult, selectAll;
-
-    searchResult = this._getLi(this.list, "label:not(.hidden) li:not(.ignore)");
-    selectedSearchResult = this._getLi(
+    var selectedSearchResult = this._getLi(
       this.list,
       "label:not(.hidden) li.active:not(.ignore)"
     );
@@ -364,15 +363,36 @@ export default class MSFmultiSelect {
       input.value = selectChild.value;
 
       caption = document.createTextNode(selectChild.innerText);
-      input.addEventListener("click", function() {
-        this.checked
-          ? self.setValue([this.value])
-          : self.removeValue([this.value]);
-
-        if (typeof self.settings.onChange == "function") {
-          self.settings.onChange(this.checked, this.value, self);
-        }
-      });
+      if (self.settings.singleSelect) {
+        input.style.display = "none";
+        li.addEventListener("click", function() {
+          var liInput = this.querySelector("input");
+          var allItems = self._getSearchableLi(self.list);
+          for (var k = 0; k < allItems.length; k++) {
+            allItems[k].classList.remove("active");
+            var kInput = allItems[k].querySelector("input");
+            if (kInput) kInput.checked = false;
+            self.data[k] = false;
+            if (self.select.children[k]) self.select.children[k].selected = false;
+          }
+          liInput.checked = true;
+          self.setValue([liInput.value]);
+          self.list.classList.add("hidden");
+          self.logger.classList.remove("open");
+          if (typeof self.settings.onChange === "function") {
+            self.settings.onChange(true, liInput.value, self);
+          }
+        });
+      } else {
+        input.addEventListener("click", function() {
+          this.checked
+            ? self.setValue([this.value])
+            : self.removeValue([this.value]);
+          if (typeof self.settings.onChange == "function") {
+            self.settings.onChange(this.checked, this.value, self);
+          }
+        });
+      }
       li.appendChild(input);
       li.appendChild(caption);
 
@@ -446,6 +466,19 @@ export default class MSFmultiSelect {
     var logger = self.logger;
     logger.innerHTML = "";
 
+    if (self.settings.singleSelect) {
+      var selectedText = "";
+      for (var j = 0; j < self.select.children.length; j++) {
+        if (self.data[j]) {
+          selectedText = self.select.children[j].innerText;
+          break;
+        }
+      }
+      logger.textContent = selectedText || self.settings.placeholder || "";
+      logger.style.color = selectedText ? "" : "#999";
+      return;
+    }
+
     var i,
       option = "",
       selectedOptions = "",
@@ -472,7 +505,11 @@ export default class MSFmultiSelect {
         closeBtn.classList.remove("readOnly");
         closeBtn.addEventListener("click", function(event) {
           event.stopPropagation();
-          self.removeValue([event.target.dataset.id]);
+          var removedId = event.target.dataset.id;
+          self.removeValue([removedId]);
+          if (typeof self.settings.onChange == "function") {
+            self.settings.onChange(false, removedId, self);
+          }
         });
       }
 
