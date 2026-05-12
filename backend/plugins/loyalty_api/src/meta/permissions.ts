@@ -238,7 +238,7 @@ export const permissions: IPermissionConfig = {
       name: 'donate',
       description: 'Donation management',
       scopeField: null,
-      ownerFields: [],
+      ownerFields: ['ownerId'], // Added for own-scope isolation
 
       scopes: [
         { name: 'own', description: 'Records user created' },
@@ -498,7 +498,7 @@ export const permissions: IPermissionConfig = {
       name: 'scoreLog',
       description: 'Score log management',
       scopeField: null,
-      ownerFields: [],
+      ownerFields: ['ownerId'], // Added for own-scope isolation
 
       scopes: [
         { name: 'own', description: 'Records user created' },
@@ -972,6 +972,12 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'loyalty',
+          module: 'assignmentCampaign',
+          actions: ['assignmentCampaignView'],
+          scope: 'all',
+        },
+        {
+          plugin: 'loyalty',
           module: 'loyalty',
           actions: ['loyaltyView'],
           scope: 'all',
@@ -984,14 +990,44 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'loyalty',
+          module: 'couponCampaign',
+          actions: ['couponCampaignView'],
+          scope: 'all',
+        },
+        {
+          plugin: 'loyalty',
           module: 'donate',
           actions: ['donateView'],
           scope: 'all',
         },
         {
           plugin: 'loyalty',
+          module: 'donateCampaign',
+          actions: ['donateCampaignView'],
+          scope: 'all',
+        },
+        {
+          plugin: 'loyalty',
           module: 'lottery',
           actions: ['lotteryView'],
+          scope: 'all',
+        },
+        {
+          plugin: 'loyalty',
+          module: 'lotteryCampaign',
+          actions: ['lotteryCampaignView'],
+          scope: 'all',
+        },
+        {
+          plugin: 'loyalty',
+          module: 'pricing',
+          actions: ['pricingView'],
+          scope: 'all',
+        },
+        {
+          plugin: 'loyalty',
+          module: 'pricingPlan',
+          actions: ['pricingPlanView'],
           scope: 'all',
         },
         {
@@ -1014,8 +1050,20 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'loyalty',
+          module: 'spinCampaign',
+          actions: ['spinCampaignView'],
+          scope: 'all',
+        },
+        {
+          plugin: 'loyalty',
           module: 'voucher',
           actions: ['voucherView'],
+          scope: 'all',
+        },
+        {
+          plugin: 'loyalty',
+          module: 'voucherCampaign',
+          actions: ['voucherCampaignView'],
           scope: 'all',
         },
       ],

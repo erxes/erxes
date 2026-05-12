@@ -3,7 +3,11 @@ import { IContext } from '~/connectionResolvers';
 import { IBuyParams } from '~/utils';
 
 export const spinsMutations = {
-  async spinsAdd(_root: undefined, doc: ISpin, { models, checkPermission }: IContext) {
+  async spinsAdd(
+    _root: undefined,
+    doc: ISpin,
+    { models, checkPermission }: IContext,
+  ) {
     await checkPermission('spinCreate');
     return models.Spins.createSpin(doc);
   },
@@ -26,12 +30,20 @@ export const spinsMutations = {
     return models.Spins.removeSpins(_ids);
   },
 
-  async buySpin(_root: undefined, param: IBuyParams, { models, checkPermission }: IContext) {
+  async buySpin(
+    _root: undefined,
+    param: IBuyParams,
+    { models, checkPermission }: IContext,
+  ) {
     await checkPermission('spinBuy');
     return models.Spins.buySpin(param);
   },
 
-  async doSpin(_root: undefined, spinId: string, { models, checkPermission }: IContext) {
+  async doSpin(
+    _root: undefined,
+    { spinId }: { spinId: string },
+    { models, checkPermission }: IContext,
+  ) {
     await checkPermission('spinDo');
     return models.Spins.doSpin(spinId);
   },

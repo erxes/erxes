@@ -6,12 +6,14 @@ import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
+import { escapeRegExp } from 'erxes-api-shared/utils';
+
 
 const generateFilter = (params: IDonateCampaignParams) => {
   const filter: FilterQuery<IDonateCampaignDocument> = {};
 
   if (params.searchValue) {
-    filter.name = new RegExp(params.searchValue, 'i');
+    filter.name = new RegExp(escapeRegExp(params.searchValue), 'i');
   }
 
   if (params.status) {

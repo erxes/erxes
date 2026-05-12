@@ -2,7 +2,7 @@ import {
   ISpinCampaignDocument,
   ISpinCampaignParams,
 } from '@/spin/@types/spinCampaign';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
@@ -11,7 +11,7 @@ const generateFilter = (params: ISpinCampaignParams) => {
   const filter: FilterQuery<ISpinCampaignDocument> = {};
 
   if (params.searchValue) {
-    filter.title = new RegExp(params.searchValue);
+    filter.title = new RegExp(escapeRegExp(params.searchValue), 'i');
   }
 
   if (params.status) {
@@ -30,7 +30,7 @@ export const spinCampaignQueries = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('spinCampaignView');
-    const filter: FilterQuery<ISpinCampaignDocument> = generateFilter(params);
+    const filter = generateFilter(params);
 
     return cursorPaginate({
       model: models.SpinCampaigns,
