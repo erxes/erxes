@@ -18,9 +18,6 @@ const CONFIG = {
 
 const WS_URL = `wss://${CONFIG.PBX_IP}:${CONFIG.WS_PORT}/websockify`;
 
-// Set up TLS for development
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
 // Types
 interface AgentInfo {
   member_extension: string;
