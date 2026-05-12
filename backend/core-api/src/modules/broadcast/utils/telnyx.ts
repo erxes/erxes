@@ -45,7 +45,9 @@ export const saveTelnyxHookData = async (models: IModels, data: any) => {
   if (data?.payload) {
     const { to = [], id } = data.payload;
 
-    const initialRequest = await models.SmsRequests.findOne({ telnyxId: id });
+    const initialRequest = await models.SmsRequests.findOne({
+      telnyxId: { $eq: id },
+    });
 
     if (initialRequest) {
       const receiver = to.find(
