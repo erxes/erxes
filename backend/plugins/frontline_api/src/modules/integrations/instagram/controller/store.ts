@@ -30,7 +30,9 @@ export const getOrCreateCustomer = async (
   if (!integration) {
     throw new Error('Instagram Integration not found ');
   }
-  let customer = await models.InstagramCustomers.findOne({ userId });
+  let customer = await models.InstagramCustomers.findOne({
+    userId: { $eq: userId },
+  });
   if (customer) {
     return customer;
   }
@@ -111,14 +113,14 @@ export const getOrCreateComment = async (
   customer: IInstagramCustomer,
 ) => {
   const mainConversation = await models.InstagramCommentConversation.findOne({
-    comment_id: commentParams.comment_id,
+    comment_id: { $eq: commentParams.comment_id },
   });
   const parentConversation = await models.InstagramCommentConversation.findOne({
     comment_id: commentParams.parent_id,
   });
   const replyConversation =
     await models.InstagramCommentConversationReply.findOne({
-      comment_id: commentParams.comment_id,
+      comment_id: { $eq: commentParams.comment_id },
     });
   if (mainConversation || replyConversation) {
     return;
