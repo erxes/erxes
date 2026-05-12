@@ -20,8 +20,5 @@ export const vatRowSchema = schemaWrapper(
       index: true,
     },
     percent: { type: Number, default: 0 },
-    accountId: { type: String, required: true, label: 'Account ID' },
-    createdBy: { type: String, label: 'Created by user' },
-    modifiedBy: { type: String, label: 'Last modified by user' },
   })
 );

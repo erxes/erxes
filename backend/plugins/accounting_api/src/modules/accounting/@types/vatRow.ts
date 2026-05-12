@@ -25,8 +25,6 @@ export interface IVatRow {
   isBold: boolean;
   status: string;
   percent: number;
-  createdBy?: string;
-  modifiedBy?: string;
 }
 
 export interface IVatRowDocument extends IVatRow, Document {

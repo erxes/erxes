@@ -3,47 +3,37 @@ import { ICtaxRow } from '@/accounting/@types/ctaxRow';
 
 const ctaxRowsMutations = {
   /**
-   * Creates a new CtaxRow
+   * Creates a new account category
+   * @param {Object} doc Account category document
    */
-  async ctaxRowsAdd(
-    _root,
-    doc: ICtaxRow & { accountId: string },
-    { user, models, checkPermission }: IContext,
-  ) {
+  async ctaxRowsAdd(_root, doc: ICtaxRow, { models, checkPermission }: IContext) {
     await checkPermission('manageCtaxRows');
-
-    const ctaxRow = await models.CtaxRows.createCtaxRow({
-      ...doc,
-      createdBy: user._id,
-      modifiedBy: user._id,
-    });
+    const ctaxRow = await models.CtaxRows.createCtaxRow(doc);
 
     return ctaxRow;
   },
 
   /**
-   * Edits a CtaxRow
+   * Edits a account category
+   * @param {string} param2._id CtaxRow id
+   * @param {Object} param2.doc CtaxRow info
    */
   async ctaxRowsEdit(
     _root,
     { _id, ...doc }: { _id: string } & ICtaxRow,
-    { user, models, checkPermission }: IContext,
+    { models, checkPermission }: IContext,
   ) {
     await checkPermission('manageCtaxRows');
-
-    const existing = await models.CtaxRows.findOne({ _id }).lean();
-    if (!existing) throw new Error('CtaxRow not found');
-
-    const updated = await models.CtaxRows.updateCtaxRow(_id, {
-      ...doc,
-      modifiedBy: user._id,
+    await models.CtaxRows.getCtaxRow({
+      _id,
     });
-
+    const updated = await models.CtaxRows.updateCtaxRow(_id, doc);
     return updated;
   },
 
   /**
-   * Removes CtaxRows by IDs
+   * Removes a account category
+   * @param {string} param1._id CtaxRow id
    */
   async ctaxRowsRemove(
     _root,
@@ -51,8 +41,11 @@ const ctaxRowsMutations = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('removeCtaxRows');
-
+    await models.CtaxRows.find({
+      _id: { $in: ctaxRowIds },
+    }).lean();
     const removed = await models.CtaxRows.removeCtaxRows(ctaxRowIds);
+
     return removed;
   },
 };

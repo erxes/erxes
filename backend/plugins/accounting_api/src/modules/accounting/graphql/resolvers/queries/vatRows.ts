@@ -22,15 +22,13 @@ const generateFilterCat = async ({ kinds, searchValue, status }) => {
 };
 
 const vatRowQueries = {
-  async vatRows(
-    _root,
-    { accountId, kinds, searchValue, status },
-    { models, checkPermission }: IContext,
-  ) {
+  async vatRows(_root, { kinds, searchValue, status }, { models, checkPermission }: IContext) {
     await checkPermission('readVatRows');
-
-    const filter = await generateFilterCat({ kinds, status, searchValue });
-    if (accountId) filter.accountId = accountId;
+    const filter = await generateFilterCat({
+      kinds,
+      status,
+      searchValue,
+    });
 
     const sortParams: any = { number: 1 };
 
@@ -42,22 +40,19 @@ const vatRowQueries = {
 
   async vatRowsCount(
     _root,
-    { accountId, kinds, searchValue, status },
+    { kinds, searchValue, status },
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('readVatRows');
-
-    const filter = await generateFilterCat({ kinds, status, searchValue });
-    if (accountId) filter.accountId = accountId;
-
+    const filter = await generateFilterCat({
+      searchValue,
+      status,
+      kinds,
+    });
     return models.VatRows.find(filter).countDocuments();
   },
 
-  async vatRowDetail(
-    _root,
-    { _id }: { _id: string },
-    { models, checkPermission }: IContext,
-  ) {
+  async vatRowDetail(_root, { _id }: { _id: string }, { models, checkPermission }: IContext) {
     await checkPermission('readVatRows');
     return models.VatRows.findOne({ _id }).lean();
   },

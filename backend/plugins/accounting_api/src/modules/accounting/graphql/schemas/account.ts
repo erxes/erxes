@@ -105,12 +105,6 @@ const accountsQueryParams = `
   code: String
   name: String
   extra:JSON
-  # NEW permission filters:
-  userId: String
-  minLvl: Int
-  maxLvl: Int
-  readPerm: String
-  writePerm: String
 `;
 
 export const queries = `

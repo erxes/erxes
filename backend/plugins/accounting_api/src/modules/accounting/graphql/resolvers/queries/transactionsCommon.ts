@@ -5,16 +5,16 @@ import {
 import {
   cursorPaginate,
   cursorPaginateAggregation,
+  defaultPaginate,
   escapeRegExp,
   getPureDate,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IModels, IContext } from '~/connectionResolvers';
 import { TR_STATUSES } from '@/accounting/@types/constants';
+import { ITransactionDocument } from '@/accounting/@types/transaction';
 import { generateFilter as accountGenerateFilter } from './accounts';
-import { checkAccountingPermission } from '../../../services/permissionChecker';
-import { makeGetUserLevel } from '../../../utils/getUserLevel';
-
+import { checkPermissionTrs } from '../../../utils/trPermissions';
 
 interface IQueryParams {
   ids?: string[];
@@ -25,6 +25,7 @@ interface IQueryParams {
   ptrStatus: string;
   customerType?: string;
   customerId?: string;
+
   accountIds?: string[];
   accountKind?: string;
   accountExcludeIds?: boolean;
@@ -38,6 +39,7 @@ interface IQueryParams {
   accountDepartmentId: string;
   accountCurrency: string;
   accountJournal: string;
+
   brandId?: string;
   isOutBalance?: boolean;
   branchId: string;
@@ -46,6 +48,7 @@ interface IQueryParams {
   journal: string;
   journals: string[];
   statuses: string[];
+
   createdUserId?: string;
   modifiedUserId?: string;
   startDate?: Date;
@@ -54,6 +57,7 @@ interface IQueryParams {
   endUpdatedDate?: Date;
   startCreatedDate?: Date;
   endCreatedDate?: Date;
+
   page?: number;
   perPage?: number;
   sortField?: string;
@@ -65,8 +69,6 @@ interface IRecordsParams extends IQueryParams {
   folded: boolean;
 }
 
-// helpers due to duplicated lines
-/** Retrieves all account IDs that match the filters */
 const getAccountIds = async (
   models: IModels,
   params: IQueryParams,
@@ -88,450 +90,408 @@ const getAccountIds = async (
     accountJournal,
   } = params;
 
-  const accountFilter = await accountGenerateFilter(models, {
-    ids: accountIds,
-    kind: accountKind,
-    excludeIds: accountExcludeIds,
-    status: accountStatus,
-    categoryId: accountCategoryId,
-    searchValue: accountSearchValue,
-    brand: accountBrand,
-    isTemp: accountIsTemp,
-    isOutBalance: accountIsOutBalance,
-    branchId: accountBranchId,
-    departmentId: accountDepartmentId,
-    currency: accountCurrency,
-    journal: accountJournal,
-  }, user);
-
-  const accs = await models.Accounts.find(accountFilter, { _id: 1 }).lean();
-  return accs.map(a => a._id);
-};
-
-/** Returns the list of account IDs the user is allowed to read */
-async function getAllowedAccountIds(
-  models: IModels,
-  params: IQueryParams,
-  user: IUserDocument,
-  subdomain: string,
-): Promise<string[]> {
-  const accountIds = await getAccountIds(models, params, user);
-  if (!accountIds.length) return [];
-
-  const getUserLevel = makeGetUserLevel(subdomain);
-  const allowed: string[] = [];
-  for (const accountId of accountIds) {
-    const { canRead } = await checkAccountingPermission(
-      user._id,
-      accountId,
-      {},
-      { Permissions: models.Permissions, Configs: models.Configs as any },
-      getUserLevel,
-    );
-    if (canRead) allowed.push(accountId);
-  }
-  return allowed;
-}
-
-/** Builds the read permission MongoDB filter and a flag for post‑processing */
-async function buildReadPermissionFilter(
-  models: IModels,
-  userId: string,
-  accountId: string,
-): Promise<{ mongoFilter: any; needsPostFilter: boolean }> {
-  const perm = await models.Permissions.findOne({ userId, accountId }).lean() as
-    | { read: string; level?: number }
-    | null;
-
-  if (!perm || perm.read === 'none') {
-    return { mongoFilter: { _id: null }, needsPostFilter: false };
-  }
-  if (perm.read === 'own') {
-    return {
-      mongoFilter: { $or: [{ createdBy: userId }, { modifiedBy: userId }] },
-      needsPostFilter: false,
-    };
-  }
-  // ltLvl, lteLvl, gtLvl – needs post‑filter in memory
-  return { mongoFilter: {}, needsPostFilter: true };
-}
-
-/**
- * Post‑filters an array of records (transactions or unwound details) according
- * to the level‑based read permission.  Returns the allowed subset.
- */
-async function applyLevelPostFilter(
-  records: any[],
-  perm: { read: string; level?: number },
-  getUserLevel: (userId: string) => Promise<number>,
-): Promise<any[]> {
-  const result: any[] = [];
-  for (const rec of records) {
-    const targetUserId = rec.modifiedBy || rec.createdBy;
-    if (!targetUserId) continue;
-    const targetLevel = await getUserLevel(targetUserId);
-    const actorLevel = perm.level ?? 0;
-    let ok = false;
-    switch (perm.read) {
-      case 'ltLvl':  ok = targetLevel <  actorLevel; break;
-      case 'lteLvl': ok = targetLevel <= actorLevel; break;
-      case 'gtLvl':  ok = targetLevel >  actorLevel; break;
-      default:       ok = false;
-    }
-    if (ok) result.push(rec);
-  }
-  return result;
-}
-
-/**
- * Small shared guard: returns the essential permission context for a query.
- * Returns null if the user has no accessible accounts.
- */
-async function getPermissionContext(
-  models: IModels,
-  params: IQueryParams,
-  user: IUserDocument,
-  subdomain: string,
-) {
-  const allowedAccountIds = await getAllowedAccountIds(models, params, user, subdomain);
-  if (!allowedAccountIds.length) return null;
-
-  const accountId = allowedAccountIds[0];
-  const { mongoFilter, needsPostFilter } = await buildReadPermissionFilter(
+  const accountFilter: any = await accountGenerateFilter(
     models,
-    user._id,
-    accountId,
+    {
+      ids: accountIds,
+      kind: accountKind,
+      excludeIds: accountExcludeIds,
+      status: accountStatus,
+      categoryId: accountCategoryId,
+      searchValue: accountSearchValue,
+      brand: accountBrand,
+      isTemp: accountIsTemp,
+      isOutBalance: accountIsOutBalance,
+      branchId: accountBranchId,
+      departmentId: accountDepartmentId,
+      currency: accountCurrency,
+      journal: accountJournal,
+    },
+    user,
   );
-  if (mongoFilter._id === null) return null;
 
-  const getUserLevel = makeGetUserLevel(subdomain);
-  const perm = await models.Permissions.findOne({ userId: user._id, accountId }).lean() as { read: string; level?: number } | null;
-
-  return { allowedAccountIds, mongoFilter, needsPostFilter, getUserLevel, perm };
-}
-
+  const accounts = await models.Accounts.find(
+    { ...accountFilter },
+    { _id: 1 },
+  ).lean();
+  return accounts.map((a) => a._id);
+};
 
 const generateFilter = async (
   subdomain: string,
   models: IModels,
   params: IQueryParams,
-  _user: IUserDocument,
+  user: IUserDocument,
 ) => {
   const {
-    ids, excludeIds, searchValue, number,
-    journal, journals, customerType, customerId,
-    brandId, branchId, departmentId, currency,
-    statuses, ptrStatus, status,
-    createdUserId, modifiedUserId,
-    startDate, endDate,
-    startUpdatedDate, endUpdatedDate,
-    startCreatedDate, endCreatedDate,
+    ids,
+    excludeIds,
+    searchValue,
+    number,
+    journal,
+    journals,
+    customerType,
+    customerId,
+    brandId,
+    branchId,
+    departmentId,
+    currency,
+    statuses,
+    ptrStatus,
+    status,
+    createdUserId,
+    modifiedUserId,
+    startDate,
+    endDate,
+    startUpdatedDate,
+    endUpdatedDate,
+    startCreatedDate,
+    endCreatedDate,
   } = params;
   const filter: any = {};
 
-  if (createdUserId) filter.createdBy = createdUserId;
-  if (modifiedUserId) filter.modifiedBy = modifiedUserId;
+  if (createdUserId) {
+    filter.createdBy = createdUserId;
+  }
+
+  if (modifiedUserId) {
+    filter.modifiedBy = modifiedUserId;
+  }
 
   const dateQry: any = {};
-  if (startDate) dateQry.$gte = getPureDate(startDate);
-  if (endDate) dateQry.$lte = getPureDate(endDate);
-  if (Object.keys(dateQry).length) filter.date = dateQry;
+  if (startDate) {
+    dateQry.$gte = getPureDate(startDate);
+  }
+  if (endDate) {
+    dateQry.$lte = getPureDate(endDate);
+  }
+  if (Object.keys(dateQry).length) {
+    filter.date = dateQry;
+  }
 
   const createdDateQry: any = {};
-  if (startCreatedDate) createdDateQry.$gte = getPureDate(startCreatedDate);
-  if (endCreatedDate) createdDateQry.$lte = getPureDate(endCreatedDate);
-  if (Object.keys(createdDateQry).length) filter.createdAt = createdDateQry;
+  if (startCreatedDate) {
+    createdDateQry.$gte = getPureDate(startCreatedDate);
+  }
+  if (endCreatedDate) {
+    createdDateQry.$lte = getPureDate(endCreatedDate);
+  }
+  if (Object.keys(createdDateQry).length) {
+    filter.createdAt = createdDateQry;
+  }
 
   const updatedDateQry: any = {};
-  if (startUpdatedDate) updatedDateQry.$gte = getPureDate(startUpdatedDate);
-  if (endUpdatedDate) updatedDateQry.$lte = getPureDate(endUpdatedDate);
-  if (Object.keys(updatedDateQry).length) filter.updatedAt = updatedDateQry;
+  if (startUpdatedDate) {
+    updatedDateQry.$gte = getPureDate(startUpdatedDate);
+  }
+  if (endUpdatedDate) {
+    updatedDateQry.$lte = getPureDate(endUpdatedDate);
+  }
+  if (Object.keys(updatedDateQry).length) {
+    filter.updatedAt = updatedDateQry;
+  }
 
-  // will be replaced by allowed account IDs later
-  filter['details.accountId'] = { $in: [] };
+  filter['details.accountId'] = {
+    $in: await getAccountIds(models, params, user),
+  };
 
-  if (journals?.length) filter.journal = { $in: journals };
-  if (journal) filter.journal = journal;
+  if (journals?.length) {
+    filter.journal = { $in: journals };
+  }
 
-  filter.status = statuses?.length ? { $in: statuses } : { $in: TR_STATUSES.ACTIVE };
+  if (journal) {
+    filter.journal = journal;
+  }
 
-  if (ids?.length) filter._id = { [excludeIds ? '$nin' : '$in']: ids };
+  if (statuses?.length) {
+    filter.status = { $in: statuses };
+  } else {
+    filter.status = { $in: TR_STATUSES.ACTIVE };
+  }
+
+  if (ids?.length) {
+    filter._id = { [excludeIds ? '$nin' : '$in']: ids };
+  }
 
   if (number) {
-    filter.number = { $in: [new RegExp(`.*${escapeRegExp(number)}.*`, 'i')] };
+    const regex = new RegExp(`.*${escapeRegExp(number)}.*`, 'i');
+    filter.number = { $in: [regex] };
   }
+
   if (searchValue) {
-    filter.description = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
+    const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
+    filter.description = regex;
   }
-  if (ptrStatus) filter.ptrStatus = ptrStatus;
-  if (status) filter.status = status;
-  if (brandId) filter.scopeBrandIds = { $in: [brandId] };
+
+  if (ptrStatus) {
+    filter.ptrStatus = ptrStatus;
+  }
+
+  if (status) {
+    filter.status = status;
+  }
+
+  if (brandId) {
+    filter.scopeBrandIds = { $in: [brandId] };
+  }
 
   if (branchId) {
     const branches = await sendTRPCMessage({
-      subdomain, pluginName: 'core', method: 'query',
-      module: 'branches', action: 'findWithChild',
-      input: { query: { _id: branchId }, fields: { _id: 1 } },
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'branches',
+      action: 'findWithChild',
+      input: {
+        query: { _id: branchId },
+        fields: { _id: 1 },
+      },
       defaultValue: [],
     });
-    filter.branchId = { $in: branches.map(b => b._id) };
+
+    filter.branchId = { $in: branches.map((item) => item._id) };
   }
 
   if (departmentId) {
     const departments = await sendTRPCMessage({
-      subdomain, pluginName: 'core', method: 'query',
-      module: 'departments', action: 'findWithChild',
-      input: { query: { _id: departmentId }, fields: { _id: 1 } },
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'departments',
+      action: 'findWithChild',
+      input: {
+        query: { _id: departmentId },
+        fields: { _id: 1 },
+      },
       defaultValue: [],
     });
-    filter.departmentId = { $in: departments.map(d => d._id) };
+
+    filter.departmentId = { $in: departments.map((item) => item._id) };
   }
 
-  if (customerType) filter.customerType = customerType;
-  if (customerId) filter.customerId = customerId;
-  if (currency) filter['details.currency'] = currency;
+  if (customerType) {
+    filter.customerType = customerType;
+  }
+  if (customerId) {
+    filter.customerId = customerId;
+  }
+
+  if (currency) {
+    filter['details.currency'] = currency;
+  }
 
   return filter;
 };
 
 const transactionCommon = {
-  async accTransactions(
+  async accTransactionsDetail(
     _root,
-    params: IQueryParams & { page: number; perPage: number },
-    { models, user, subdomain }: IContext,
+    params: { _id: string },
+    { models, user, checkPermission }: IContext,
   ) {
-    const ctx = await getPermissionContext(models, params, user, subdomain);
-    if (!ctx) return { list: [], totalCount: 0 };
+    await checkPermission('readTransactions');
+    const { _id } = params;
+    let firstTr = await models.Transactions.getTransaction({
+      $or: [{ _id }, { parentId: _id }],
+    });
 
-    const baseFilter = await generateFilter(subdomain, models, params, user);
-    baseFilter['details.accountId'] = { $in: ctx.allowedAccountIds };
-    const combinedFilter = { ...baseFilter, ...ctx.mongoFilter };
-
-    let results = await models.Transactions.find(combinedFilter).lean();
-
-    if (ctx.needsPostFilter && ctx.perm) {
-      results = await applyLevelPostFilter(results, ctx.perm, ctx.getUserLevel);
+    if (firstTr.originId) {
+      firstTr = await models.Transactions.getTransaction({
+        _id: firstTr.originId,
+      });
     }
 
-    // pagination & sorting
-    const { sortField, sortDirection, page, perPage, ids, excludeIds } = params;
-    const paginationArgs = { page, perPage };
-    if (ids?.length && !excludeIds && ids.length > (paginationArgs.perPage || 20)) {
-      paginationArgs.page = 1;
-      paginationArgs.perPage = ids.length;
-    }
-    results.sort((a, b) => (a[sortField || 'date'] > b[sortField || 'date'] ? 1 : -1));
-    const start = (paginationArgs.page - 1) * paginationArgs.perPage;
-    const paginated = results.slice(start, start + paginationArgs.perPage);
-    return { list: paginated, totalCount: results.length };
+    const relatedTrs: ITransactionDocument[] = await models.Transactions.find({
+      $or: [{ ptrId: firstTr.ptrId }, { parentId: firstTr.parentId }],
+    }).lean();
+
+    return await checkPermissionTrs(models, relatedTrs, user);
   },
 
-  async accTransactionDetail(_root, params: { _id: string }, { models, user, subdomain }: IContext) {
-    const transaction = await models.Transactions.findOne({ _id: params._id }).lean();
-    if (!transaction) throw new Error('Transaction not found');
+  async accTransactionDetail(
+    _root,
+    params: { _id: string },
+    { models }: IContext,
+  ) {
+    const transaction = await models.Transactions.findOne({
+      _id: params._id,
+    }).lean();
 
-    const accountId = (transaction as any).accountId || transaction.details?.[0]?.accountId;
-    if (!accountId) throw new Error('Transaction has no associated account');
+    if (!transaction) {
+      throw new Error('Transaction not found');
+    }
 
-    const getUserLevel = makeGetUserLevel(subdomain);
-    const { canRead } = await checkAccountingPermission(
-      user._id, accountId,
-      { createdBy: transaction.createdBy, modifiedBy: transaction.modifiedBy },
-      { Permissions: models.Permissions, Configs: models.Configs as any },
-      getUserLevel,
-    );
-    if (!canRead) throw new Error('Access denied');
     return transaction;
   },
 
   async accTransactionsMain(
     _root,
     params: IQueryParams & ICursorPaginateParams,
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
-    const ctx = await getPermissionContext(models, params, user, subdomain);
-    if (!ctx) return { list: [], totalCount: 0, pageInfo: { hasNextPage: false } };
+    await checkPermission('readTransactions');
+    const filter = await generateFilter(subdomain, models, params, user);
 
-    const baseFilter = await generateFilter(subdomain, models, params, user);
-    baseFilter['details.accountId'] = { $in: ctx.allowedAccountIds };
-    const combinedFilter = { ...baseFilter, ...ctx.mongoFilter };
+    // Set default orderBy
+    params.orderBy ??= { date: 1 };
+    params.orderBy = {
+      ...params.orderBy,
+      ptrId: params.orderBy?.ptrId ?? 1,
+    };
 
-    if (!ctx.needsPostFilter) {
-      params.orderBy ??= { date: 1 };
-      params.orderBy = { ...params.orderBy, ptrId: params.orderBy?.ptrId ?? 1 };
-      return await cursorPaginate({
-        model: models.Transactions,
-        params,
-        query: combinedFilter,
-      });
+    return await cursorPaginate({
+      model: models.Transactions,
+      params,
+      query: filter,
+    });
+  },
+
+  async accTransactions(
+    _root,
+    params: IQueryParams & { page: number; perPage: number },
+    { models, user, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('readTransactions');
+    const filter = await generateFilter(subdomain, models, params, user);
+
+    const { sortField, sortDirection, page, perPage, ids, excludeIds } = params;
+
+    const pagintationArgs = { page, perPage };
+    if (
+      ids?.length &&
+      !excludeIds &&
+      ids.length > (pagintationArgs.perPage || 20)
+    ) {
+      pagintationArgs.page = 1;
+      pagintationArgs.perPage = ids.length;
     }
 
-    // post‑filter & manual cursor pagination
-    let results = await models.Transactions.find(combinedFilter).lean();
-    results = await applyLevelPostFilter(results, ctx.perm!, ctx.getUserLevel);
+    let sort: any = { date: 1 };
+    if (sortField) {
+      sort = { [sortField]: sortDirection ?? 1 };
+    }
 
-    const cursor = params.cursor ? parseInt(params.cursor) : 0;
-    const limit = params.limit || 20;
-    const paginated = results.slice(cursor, cursor + limit);
-    const hasNextPage = results.length > cursor + limit;
-    return {
-      list: paginated,
-      totalCount: results.length,
-      pageInfo: { hasNextPage, endCursor: (cursor + limit).toString() },
-    };
+    return await defaultPaginate(
+      models.Transactions.find(filter)
+        .sort({ ...sort, parentId: 1, ptrId: 1 })
+        .lean(),
+      pagintationArgs,
+    );
   },
 
   async accTransactionsCount(
     _root,
     params: IQueryParams,
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
-    const ctx = await getPermissionContext(models, params, user, subdomain);
-    if (!ctx) return 0;
+    await checkPermission('readTransactions');
+    const filter = await generateFilter(subdomain, models, params, user);
 
-    const baseFilter = await generateFilter(subdomain, models, params, user);
-    baseFilter['details.accountId'] = { $in: ctx.allowedAccountIds };
-    const combinedFilter = { ...baseFilter, ...ctx.mongoFilter };
-
-    if (!ctx.needsPostFilter) {
-      return models.Transactions.find(combinedFilter).countDocuments();
-    }
-
-    let results = await models.Transactions.find(combinedFilter).lean();
-    results = await applyLevelPostFilter(results, ctx.perm!, ctx.getUserLevel);
-    return results.length;
+    return models.Transactions.find(filter).countDocuments();
   },
 
   async accTrRecordsMain(
     _root,
     params: IRecordsParams & ICursorPaginateParams,
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
-    const ctx = await getPermissionContext(models, params, user, subdomain);
-    if (!ctx) return { list: [], totalCount: 0, pageInfo: { hasNextPage: false } };
+    await checkPermission('readTransactions');
+    const filter = await generateFilter(subdomain, models, params, user);
+    const { ids, excludeIds } = params;
 
-    const baseFilter = await generateFilter(subdomain, models, params, user);
-    baseFilter['details.accountId'] = { $in: ctx.allowedAccountIds };
-    const combinedFilter = { ...baseFilter, ...ctx.mongoFilter };
-
-    if (!ctx.needsPostFilter) {
-      params.orderBy ??= { date: 1 };
-      params.orderBy = { ...params.orderBy, ptrId: params.orderBy?.ptrId ?? 1, _id: 1 };
-      return await cursorPaginateAggregation({
-        model: models.Transactions,
-        pipeline: [
-          { $match: combinedFilter },
-          { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
-          {
-            $replaceRoot: {
-              newRoot: { $mergeObjects: ['$$ROOT', { _id: { $concat: ['$_id', '-', '$details._id'] } }, { trId: '$_id' }] },
-            },
-          },
-        ],
-        params,
-        formatter: { date: 'date', createAt: 'date' },
-      });
+    if (ids?.length && !excludeIds && ids.length > (params.limit ?? 20)) {
+      params.cursor = '';
+      params.limit = ids.length;
     }
 
-    // post‑filter with manual cursor
-    let results = await models.Transactions.aggregate([
-      { $match: combinedFilter },
-      { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
-      {
-        $replaceRoot: {
-          newRoot: { $mergeObjects: ['$$ROOT', { _id: { $concat: ['$_id', '-', '$details._id'] } }, { trId: '$_id' }] },
-        },
-      },
-    ]);
-    results = await applyLevelPostFilter(results, ctx.perm!, ctx.getUserLevel);
-
-    const cursor = params.cursor ? parseInt(params.cursor) : 0;
-    const limit = params.limit || 20;
-    const paginated = results.slice(cursor, cursor + limit);
-    const hasNextPage = results.length > cursor + limit;
-    return {
-      list: paginated,
-      totalCount: results.length,
-      pageInfo: { hasNextPage, endCursor: (cursor + limit).toString() },
+    params.orderBy ??= { date: 1 };
+    params.orderBy = {
+      ...params.orderBy,
+      ptrId: params.orderBy?.ptrId ?? 1,
+      _id: params.orderBy?._id ?? 1,
     };
+
+    return await cursorPaginateAggregation({
+      model: models.Transactions,
+      pipeline: [
+        { $match: { ...filter } },
+        { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
+        {
+          $replaceRoot: {
+            newRoot: {
+              $mergeObjects: [
+                '$$ROOT',
+                { _id: { $concat: ['$_id', '-', '$details._id'] } },
+                { trId: '$_id' },
+              ],
+            },
+          },
+        },
+      ],
+      params,
+      formatter: { date: 'date', createAt: 'date' },
+    });
   },
 
   async accTrRecords(
     _root,
     params: IRecordsParams & { page: number; perPage: number },
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
-    const ctx = await getPermissionContext(models, params, user, subdomain);
-    if (!ctx) return [];
+    await checkPermission('readTransactions');
+    const filter = await generateFilter(subdomain, models, params, user);
+    const { sortField, sortDirection, page, perPage, ids, excludeIds } = params;
 
-    const baseFilter = await generateFilter(subdomain, models, params, user);
-    baseFilter['details.accountId'] = { $in: ctx.allowedAccountIds };
-    const combinedFilter = { ...baseFilter, ...ctx.mongoFilter };
-
-    const pipeline: any[] = [
-      { $match: combinedFilter },
-      { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
-      {
-        $replaceRoot: {
-          newRoot: { $mergeObjects: ['$$ROOT', { _id: { $concat: ['$_id', '-', '$details._id'] } }, { trId: '$_id' }] },
-        },
-      },
-    ];
-
-    if (!ctx.needsPostFilter) {
-      const { sortField, sortDirection, page, perPage, ids, excludeIds } = params;
-      const pageArgs = { page, perPage };
-      if (ids?.length && !excludeIds && ids.length > (pageArgs.perPage || 20)) {
-        pageArgs.page = 1;
-        pageArgs.perPage = ids.length;
-      }
-      const $limit = Number(pageArgs.perPage || '20');
-      const $skip = (Number(pageArgs.page || '1') - 1) * $limit;
-      const $sort = sortField ? { [sortField]: sortDirection ?? 1 } : { date: 1 };
-      pipeline.push({ $sort }, { $skip }, { $limit });
-      return await models.Transactions.aggregate(pipeline);
+    const pageArgs = { page, perPage };
+    if (ids?.length && !excludeIds && ids.length > (pageArgs.perPage || 20)) {
+      pageArgs.page = 1;
+      pageArgs.perPage = ids.length;
     }
-
-    // post‑filter then manual pagination
-    let results = await models.Transactions.aggregate(pipeline);
-    results = await applyLevelPostFilter(results, ctx.perm!, ctx.getUserLevel);
-
-    const { sortField, sortDirection, page, perPage } = params;
-    const pageArgs = { page: page || 1, perPage: perPage || 20 };
     const $limit = Number(pageArgs.perPage || '20');
     const $skip = (Number(pageArgs.page || '1') - 1) * $limit;
-    results.sort((a, b) => (a[sortField || 'date'] > b[sortField || 'date'] ? 1 : -1));
-    return results.slice($skip, $skip + $limit);
+
+    let $sort: any = { date: 1 };
+    if (sortField) {
+      $sort = { [sortField]: sortDirection ?? 1 };
+    }
+
+    return await models.Transactions.aggregate([
+      { $match: { ...filter } },
+      { $sort },
+      { $unwind: { path: '$details', includeArrayIndex: 'detailInd' } },
+      { $skip },
+      { $limit },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              '$$ROOT',
+              { _id: { $concat: ['$_id', '-', '$details._id'] } },
+              { trId: '$_id' },
+            ],
+          },
+        },
+      },
+      // accountaar groupleh ingesneer shortDetailiig bii bolgoh
+      // { $group: { _id: '$details.accountId', } }
+    ]);
   },
 
   async accTrRecordsCount(
     _root,
     params: IRecordsParams,
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
-    const ctx = await getPermissionContext(models, params, user, subdomain);
-    if (!ctx) return 0;
+    await checkPermission('readTransactions');
+    const filter = await generateFilter(subdomain, models, params, user);
 
-    const baseFilter = await generateFilter(subdomain, models, params, user);
-    baseFilter['details.accountId'] = { $in: ctx.allowedAccountIds };
-    const combinedFilter = { ...baseFilter, ...ctx.mongoFilter };
-
-    if (!ctx.needsPostFilter) {
-      const res = await models.Transactions.aggregate([
-        { $match: combinedFilter },
-        { $unwind: '$details' },
-        { $group: { _id: null, count: { $sum: 1 } } },
-      ]);
-      return res[0]?.count ?? 0;
-    }
-
-    let results = await models.Transactions.aggregate([
-      { $match: combinedFilter },
+    const count = await models.Transactions.aggregate([
+      { $match: { ...filter } },
       { $unwind: '$details' },
-      { $replaceRoot: { newRoot: { $mergeObjects: ['$$ROOT', { trId: '$_id' }] } } },
+      { $group: { _id: null, count: { $sum: 1 } } },
+      { $project: { _id: 0 } },
     ]);
-    results = await applyLevelPostFilter(results, ctx.perm!, ctx.getUserLevel);
-    return results.length;
+    return count[0].count;
   },
 };
 

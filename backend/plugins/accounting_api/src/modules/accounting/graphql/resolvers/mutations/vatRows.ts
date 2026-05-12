@@ -3,47 +3,38 @@ import { IVatRow } from '@/accounting/@types/vatRow';
 
 const vatRowsMutations = {
   /**
-   * Creates a new VatRow
+   * Creates a new account category
+   * @param {Object} doc Account category document
    */
-  async vatRowsAdd(
-    _root,
-    doc: IVatRow & { accountId: string },
-    { user, models, checkPermission }: IContext,
-  ) {
+  async vatRowsAdd(_root, doc: IVatRow, { models, checkPermission }: IContext) {
     await checkPermission('manageVatRows');
-
-    const vatRow = await models.VatRows.createVatRow({
-      ...doc,
-      createdBy: user._id,
-      modifiedBy: user._id,
-    });
+    const vatRow = await models.VatRows.createVatRow(doc);
 
     return vatRow;
   },
 
   /**
-   * Edits a VatRow
+   * Edits a account category
+   * @param {string} param2._id VatRow id
+   * @param {Object} param2.doc VatRow info
    */
   async vatRowsEdit(
     _root,
     { _id, ...doc }: { _id: string } & IVatRow,
-    { user, models, checkPermission }: IContext,
+    { models, checkPermission }: IContext,
   ) {
     await checkPermission('manageVatRows');
-
-    const existing = await models.VatRows.findOne({ _id }).lean();
-    if (!existing) throw new Error('VatRow not found');
-
-    const updated = await models.VatRows.updateVatRow(_id, {
-      ...doc,
-      modifiedBy: user._id,
+    await models.VatRows.getVatRow({
+      _id,
     });
+    const updated = await models.VatRows.updateVatRow(_id, doc);
 
     return updated;
   },
 
   /**
-   * Removes VatRows by IDs
+   * Removes a account category
+   * @param {string} param1._id VatRow id
    */
   async vatRowsRemove(
     _root,
@@ -51,8 +42,11 @@ const vatRowsMutations = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('removeVatRows');
-
+    await models.VatRows.find({
+      _id: { $in: vatRowIds },
+    }).lean();
     const removed = await models.VatRows.removeVatRows(vatRowIds);
+
     return removed;
   },
 };

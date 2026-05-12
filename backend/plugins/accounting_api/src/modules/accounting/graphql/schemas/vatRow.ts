@@ -1,7 +1,6 @@
 export const types = () => `
   type VatRow @key(fields: "_id") @cacheControl(maxAge: 3){
     _id: String!
-    accountId: String!         
     name: String
     number: String
     kind: String
@@ -15,7 +14,6 @@ export const types = () => `
 `;
 
 const vatRowParams = `
-  accountId: String!            
   name: String
   number: String
   kind: String
@@ -28,7 +26,6 @@ const vatRowParams = `
 `;
 
 const vatRowsQueryParams = `
-  accountId: String!,           
   status: String,
   name: String,
   number: String,

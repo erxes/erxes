@@ -1,7 +1,6 @@
 export const types = () => `
   type CtaxRow @key(fields: "_id") @cacheControl(maxAge: 3){
     _id: String!
-    accountId: String!
     name: String
     number: String
     kind: String
@@ -13,7 +12,6 @@ export const types = () => `
 `;
 
 const ctaxRowParams = `
-  accountId: String!
   name: String
   number: String
   kind: String
@@ -24,7 +22,6 @@ const ctaxRowParams = `
 `;
 
 const ctaxRowsQueryParams = `
-  accountId: String!,
   status: String,
   name: String,
   number: String,
