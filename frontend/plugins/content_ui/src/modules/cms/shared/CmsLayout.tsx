@@ -122,7 +122,9 @@ export function CmsLayout({
       id: 'settings',
       label: 'Settings',
       icon: <IconSettings className="w-4 h-4" />,
-      href: websiteId ? `/content/cms/${websiteId}/settings` : '/content/cms',
+      href: websiteId
+        ? `/content/cms/${websiteId}/cmssettings`
+        : '/content/cms',
     },
   ];
 

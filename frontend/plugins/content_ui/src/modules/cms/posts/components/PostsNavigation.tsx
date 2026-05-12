@@ -69,9 +69,9 @@ export const PostsNavigation = () => {
         icon: IconRulerMeasure,
       };
     }
-    if (pathname.includes('/settings')) {
+    if (pathname.includes('/cmssettings')) {
       return {
-        path: `${basePath}/settings`,
+        path: `${basePath}/cmssettings`,
         label: 'Settings',
         icon: IconSettings,
       };

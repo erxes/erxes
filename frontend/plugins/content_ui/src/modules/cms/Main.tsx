@@ -118,7 +118,7 @@ const CmsMain = () => {
           <Route path="menus" element={<Menus />} />
           <Route path="custom-types" element={<CustomTypes />} />
           <Route path="custom-fields" element={<CustomFields />} />
-          <Route path="settings" element={<Settings />} />
+          <Route path="cmssettings" element={<Settings />} />
         </Route>
         <Route path="web-builder/*" element={<WebBuilderPage />} />
       </Routes>

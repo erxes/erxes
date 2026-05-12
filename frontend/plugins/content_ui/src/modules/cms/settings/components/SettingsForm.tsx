@@ -3,12 +3,11 @@ import {
   IconCheck,
   IconPhoto,
   IconWorld,
-  IconX,
 } from '@tabler/icons-react';
 import {
   Badge,
-  Button,
   Input,
+  type MultiSelectOption,
   MultipleSelector,
   Select,
   Switch,
@@ -48,6 +47,17 @@ export const SettingsForm = ({
   const availableDefaultLanguages = LANGUAGES.filter((language) =>
     settings.languages.includes(language.value),
   );
+  const selectedKeywordOptions = settings.metaKeywords.reduce<
+    MultiSelectOption[]
+  >((options, keyword) => {
+    const value = keyword.trim();
+
+    if (value && !options.some((option) => option.value === value)) {
+      options.push({ value, label: value });
+    }
+
+    return options;
+  }, []);
 
   const handleLanguagesChange = (
     selected: Array<{ value: string; label: string }>,
@@ -66,24 +76,18 @@ export const SettingsForm = ({
     }
   };
 
-  const handleAddKeyword = () => {
-    updateSetting('metaKeywords', [...settings.metaKeywords, '']);
-  };
+  const handleKeywordChange = (selected: MultiSelectOption[]) => {
+    const keywords = selected.reduce<string[]>((acc, keyword) => {
+      const value = keyword.value.trim();
 
-  const handleKeywordChange = (index: number, value: string) => {
-    updateSetting(
-      'metaKeywords',
-      settings.metaKeywords.map((keyword, keywordIndex) =>
-        keywordIndex === index ? value : keyword,
-      ),
-    );
-  };
+      if (value && !acc.includes(value)) {
+        acc.push(value);
+      }
 
-  const handleRemoveKeyword = (index: number) => {
-    updateSetting(
-      'metaKeywords',
-      settings.metaKeywords.filter((_, keywordIndex) => keywordIndex !== index),
-    );
+      return acc;
+    }, []);
+
+    updateSetting('metaKeywords', keywords);
   };
 
   const getPostUrlFieldLabel = (value: string) => {
@@ -238,36 +242,16 @@ export const SettingsForm = ({
           label="Meta Keywords"
           hint="Injected into the meta keywords tag. Less critical for modern SEO but still used by some crawlers."
         >
-          <div className="space-y-2">
-            {settings.metaKeywords.map((keyword, index) => (
-              <div key={index} className="flex max-w-sm items-center gap-2">
-                <Input
-                  aria-label="Meta Keywords"
-                  value={keyword}
-                  onChange={(event) =>
-                    handleKeywordChange(index, event.target.value)
-                  }
-                  variant="secondary"
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label="Remove keyword"
-                  onClick={() => handleRemoveKeyword(index)}
-                >
-                  <IconX />
-                </Button>
-              </div>
-            ))}
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-dashed"
-              onClick={handleAddKeyword}
-            >
-              Add keyword
-            </Button>
-          </div>
+          <MultipleSelector
+            value={selectedKeywordOptions}
+            options={selectedKeywordOptions}
+            placeholder="Select"
+            hidePlaceholderWhenSelected
+            emptyIndicator="Empty"
+            creatable
+            inputProps={{ 'aria-label': 'Meta Keywords' }}
+            onChange={handleKeywordChange}
+          />
         </Field>
 
         <SectionLabel>Robots & Indexing</SectionLabel>
@@ -373,7 +357,7 @@ export const SettingsForm = ({
         </Field>
       </SettingsSection>
 
-      <SettingsSection id="content" title="Content">
+      {/* <SettingsSection id="content" title="Content">
         <div className="grid gap-4 md:grid-cols-2">
           <Field
             label="Post URL Format (postUrlField)"
@@ -460,7 +444,7 @@ export const SettingsForm = ({
             </div>
           </Field>
         </div>
-      </SettingsSection>
+      </SettingsSection> */}
 
       <SettingsSection id="languages" title="Languages">
         <Field label="Supported Languages">
