@@ -32,6 +32,7 @@ import {
 } from '../types/component-registry';
 import { getTopSource } from '../utils';
 import { ReportsViewSkeleton } from './ReportsView';
+import { useReportTotalMessages } from '../hooks/useTotalMessage';
 
 interface CardConfig {
   id: string;
@@ -76,6 +77,9 @@ export const FrontlineReportsList = () => {
         },
       },
     });
+
+const { totalMessages, loading: totalMessagesLoading } =
+  useReportTotalMessages();
   const [cards, setCards] = useState<CardConfig[]>(INITIAL_CARDS);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
@@ -149,7 +153,7 @@ export const FrontlineReportsList = () => {
     );
   };
 
-  if (openLoading || closedLoading || sourcesLoading) {
+  if (openLoading || closedLoading || sourcesLoading || totalMessagesLoading) {
     return <ReportsViewSkeleton />;
   }
 
@@ -269,6 +273,11 @@ export const FrontlineReportsList = () => {
             </div>
           </InfoCard.Content>
         </InfoCard>
+        <InfoCard title="Total Messages">
+  <InfoCard.Content className="text-center">
+    <div>{totalMessages?.totalMessages || 0}</div>
+  </InfoCard.Content>
+</InfoCard>
       </div>
       <ScrollArea>
         <DndContext

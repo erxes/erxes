@@ -115,4 +115,12 @@ export const GET_RESOLVED_CONVERSATIONS_BY_DATE = gql`
       date
     }
   }
-`;
+`
+
+export const REPORT_TOTAL_MESSAGES = gql`
+  query ReportTotalMessages {
+    reportTotalMessages {
+      totalMessages
+    }
+  }
+`;;
