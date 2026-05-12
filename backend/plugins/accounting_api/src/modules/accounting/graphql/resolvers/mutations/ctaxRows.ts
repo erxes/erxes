@@ -1,7 +1,5 @@
 import { IContext } from '~/connectionResolvers';
 import { ICtaxRow } from '@/accounting/@types/ctaxRow';
-import { checkAccountingPermission } from '../../../services/permissionChecker';
-import { makeGetUserLevel } from '../../../utils/getUserLevel';
 
 const ctaxRowsMutations = {
   /**
@@ -9,30 +7,17 @@ const ctaxRowsMutations = {
    */
   async ctaxRowsAdd(
     _root,
-    doc: ICtaxRow & { accountId: string }, // ensure accountId is passed
-    { user, 
-      models, 
-      subdomain }: IContext,
+    doc: ICtaxRow & { accountId: string },
+    { user, models, checkPermission }: IContext,
   ) {
-    const { accountId } = doc;
-    if (!accountId) throw new Error('Account ID required');
+    await checkPermission('manageCtaxRows');
 
-    const getUserLevel = makeGetUserLevel(subdomain);
-    const { canWrite } = await checkAccountingPermission(
-      user._id,
-      accountId,
-      {}, // empty targetRecord – account‑level write check
-      { Permissions: models.Permissions, Configs: models.Configs as any },
-      getUserLevel,
-    );
-    if (!canWrite) throw new Error('No permission to create CtaxRow');
-
-    // Create with audit fields
     const ctaxRow = await models.CtaxRows.createCtaxRow({
       ...doc,
       createdBy: user._id,
       modifiedBy: user._id,
     });
+
     return ctaxRow;
   },
 
@@ -42,33 +27,18 @@ const ctaxRowsMutations = {
   async ctaxRowsEdit(
     _root,
     { _id, ...doc }: { _id: string } & ICtaxRow,
-    { user, models, subdomain }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
-    // Fetch existing row
+    await checkPermission('manageCtaxRows');
+
     const existing = await models.CtaxRows.findOne({ _id }).lean();
     if (!existing) throw new Error('CtaxRow not found');
 
-    const accountId = existing.accountId;
-    if (!accountId) throw new Error('CtaxRow has no associated account');
-
-    const getUserLevel = makeGetUserLevel(subdomain);
-    const { canWrite } = await checkAccountingPermission(
-      user._id,
-      accountId,
-      {
-        createdBy: existing.createdBy,
-        modifiedBy: existing.modifiedBy,
-      },
-       { Permissions: models.Permissions, Configs: models.Configs as any },
-      getUserLevel,
-    );
-    if (!canWrite) throw new Error('Write denied');
-
-    // Update with modifiedBy
     const updated = await models.CtaxRows.updateCtaxRow(_id, {
       ...doc,
       modifiedBy: user._id,
     });
+
     return updated;
   },
 
@@ -78,30 +48,9 @@ const ctaxRowsMutations = {
   async ctaxRowsRemove(
     _root,
     { ctaxRowIds }: { ctaxRowIds: string[] },
-    { user, models, subdomain }: IContext,
+    { models, checkPermission }: IContext,
   ) {
-    // Fetch all rows to check permissions
-    const rows = await models.CtaxRows.find({ _id: { $in: ctaxRowIds } }).lean();
-    if (!rows.length) throw new Error('No CtaxRows found');
-
-    // Check each row – all must be deletable
-    const getUserLevel = makeGetUserLevel(subdomain);
-    for (const row of rows) {
-      const accountId = row.accountId;
-      if (!accountId) throw new Error(`CtaxRow ${row._id} has no account`);
-
-      const { canWrite } = await checkAccountingPermission(
-        user._id,
-        accountId,
-        {
-          createdBy: row.createdBy,
-          modifiedBy: row.modifiedBy,
-        },
-        { Permissions: models.Permissions, Configs: models.Configs as any },
-        getUserLevel,
-      );
-      if (!canWrite) throw new Error(`Delete denied for CtaxRow ${row._id}`);
-    }
+    await checkPermission('removeCtaxRows');
 
     const removed = await models.CtaxRows.removeCtaxRows(ctaxRowIds);
     return removed;

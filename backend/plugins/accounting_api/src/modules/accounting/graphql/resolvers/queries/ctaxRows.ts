@@ -1,7 +1,5 @@
 import { IContext } from '~/connectionResolvers';
 import { CTAX_ROW_STATUS } from '@/accounting/@types/ctaxRow';
-import { checkAccountingPermission } from '../../../services/permissionChecker';
-import { makeGetUserLevel } from '../../../utils/getUserLevel';
 
 const generateFilterCat = async ({ kinds, searchValue, status }) => {
   const filter: any = {};
@@ -27,24 +25,15 @@ const ctaxRowQueries = {
   async ctaxRows(
     _root,
     { accountId, kinds, searchValue, status },
-    { models, user, subdomain }: IContext,
+    { models, checkPermission }: IContext,
   ) {
-    if (!accountId) throw new Error('Account ID is required');
-
-    const getUserLevel = makeGetUserLevel(subdomain);
-    const { canRead } = await checkAccountingPermission(
-      user._id,
-      accountId,
-      {},
-      { Permissions: models.Permissions, Configs: models.Configs as any },
-      getUserLevel,
-    );
-    if (!canRead) return [];
+    await checkPermission('readCtaxRows');
 
     const filter = await generateFilterCat({ kinds, status, searchValue });
-    filter.accountId = accountId; // add account filter
+    if (accountId) filter.accountId = accountId;
 
     const sortParams: any = { number: 1 };
+
     return await models.CtaxRows.find(filter)
       .sort(sortParams)
       .collation({ locale: 'en', numericOrdering: true })
@@ -54,50 +43,23 @@ const ctaxRowQueries = {
   async ctaxRowsCount(
     _root,
     { accountId, kinds, searchValue, status },
-    { models, user, subdomain }: IContext,
+    { models, checkPermission }: IContext,
   ) {
-    if (!accountId) return 0;
-
-    const getUserLevel = makeGetUserLevel(subdomain);
-    const { canRead } = await checkAccountingPermission(
-      user._id,
-      accountId,
-      {},
-      { Permissions: models.Permissions, Configs: models.Configs as any }, 
-      getUserLevel,
-    );
-    if (!canRead) return 0;
+    await checkPermission('readCtaxRows');
 
     const filter = await generateFilterCat({ kinds, status, searchValue });
-    filter.accountId = accountId;
+    if (accountId) filter.accountId = accountId;
+
     return models.CtaxRows.find(filter).countDocuments();
   },
 
   async ctaxRowDetail(
     _root,
     { _id }: { _id: string },
-    { models, user, subdomain }: IContext,
+    { models, checkPermission }: IContext,
   ) {
-    const row = await models.CtaxRows.findOne({ _id }).lean();
-    if (!row) throw new Error('CtaxRow not found');
-
-    const accountId = row.accountId;
-    if (!accountId) throw new Error('CtaxRow has no associated account');
-
-    const getUserLevel = makeGetUserLevel(subdomain);
-    const { canRead } = await checkAccountingPermission(
-      user._id,
-      accountId,
-      {
-        createdBy: row.createdBy,
-        modifiedBy: row.modifiedBy,
-      },
-      { Permissions: models.Permissions, Configs: models.Configs as any }, 
-      getUserLevel,
-    );
-    if (!canRead) throw new Error('Access denied');
-
-    return row;
+    await checkPermission('readCtaxRows');
+    return models.CtaxRows.findOne({ _id }).lean();
   },
 };
 
