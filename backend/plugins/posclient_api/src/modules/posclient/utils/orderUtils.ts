@@ -5,7 +5,12 @@ import { checkDirectDiscount } from './directDiscount';
 import { checkLoyalties } from './loyalties';
 import { checkPricing } from './pricing';
 import { checkRemainders } from './products';
-import { getPureDate, fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  getPureDate,
+  fixNum,
+  sendTRPCMessage,
+  escapeRegExp,
+} from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import {
   IConfig,
@@ -45,7 +50,11 @@ export const generateOrderNumber = async (
 
   if (config?.beginNumber) {
     beginNumber = `${config.beginNumber}.`;
-    regexSuffix = `${config.beginNumber}\.[0-9]*$`;
+    // Escape regex meta-characters in the operator-configurable beginNumber and
+    // match a LITERAL '.' separator. The previous `\.` was a JavaScript string
+    // escape (stripped at parse time), leaving a regex meta-`.` that matched any
+    // character — causing cross-POS collisions on this lookup.
+    regexSuffix = `${escapeRegExp(config.beginNumber)}\\.[0-9]*$`;
   }
 
   let number = `${todayStr}_${beginNumber}${suffix}`;
