@@ -11,7 +11,7 @@ import {
   SelectTriggerVariant,
   cn,
   useFilterContext,
-  useQueryState,
+  useFilterQueryState,
 } from 'erxes-ui';
 import { IconBuilding, IconPlus } from '@tabler/icons-react';
 import {
@@ -339,10 +339,11 @@ export const SelectCompanyFilterView = ({
   mode: 'single' | 'multiple';
   filterKey: string;
 }) => {
-  const [query, setQuery] = useQueryState<string[] | string | undefined>(
+  const { resetFilterState, sessionKey } = useFilterContext();
+  const [query, setQuery] = useFilterQueryState<string[] | string | undefined>(
     filterKey,
+    sessionKey,
   );
-  const { resetFilterState } = useFilterContext();
 
   return (
     <Filter.View filterKey={filterKey}>
@@ -371,6 +372,7 @@ export const SelectCompanyFilterBar = ({
   value,
   onValueChange,
   hideAvatar,
+  cursorKey,
 }: {
   mode?: 'single' | 'multiple';
   filterKey: string;
@@ -382,13 +384,17 @@ export const SelectCompanyFilterBar = ({
   value?: string[];
   hideAvatar?: boolean;
   onValueChange?: (value: string[] | string) => void;
+  cursorKey?: string;
 }) => {
   const isCardVariant = variant === 'card';
 
   const [localQuery, setLocalQuery] = useState<string[]>(
     value || initialValue || [],
   );
-  const [urlQuery, setUrlQuery] = useQueryState<string[]>(filterKey);
+  const [urlQuery, setUrlQuery] = useFilterQueryState<string[] | string>(
+    filterKey,
+    cursorKey,
+  );
   const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
@@ -416,29 +422,57 @@ export const SelectCompanyFilterBar = ({
       setLocalQuery((value as string[]) || []);
     } else {
       if (value && value.length > 0) {
-        setUrlQuery(value as string[]);
+        setUrlQuery(value);
       } else {
         setUrlQuery(null);
       }
     }
   };
 
+  if (isCardVariant) {
+    return (
+      <SelectCompanyProvider
+        mode={mode}
+        value={query || []}
+        onValueChange={handleValueChange}
+        hideAvatar={hideAvatar}
+      >
+        <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
+          <SelectTriggerOperation variant={variant || 'filter'}>
+            <SelectCompany.Value />
+          </SelectTriggerOperation>
+          <SelectOperationContent variant={variant || 'filter'}>
+            <SelectCompany.Content />
+          </SelectOperationContent>
+        </PopoverScoped>
+      </SelectCompanyProvider>
+    );
+  }
+
   return (
-    <SelectCompanyProvider
-      mode={mode}
-      value={query || []}
-      onValueChange={handleValueChange}
-      hideAvatar={hideAvatar}
-    >
-      <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant={variant || 'filter'}>
-          <SelectCompany.Value />
-        </SelectTriggerOperation>
-        <SelectOperationContent variant={variant || 'filter'}>
-          <SelectCompany.Content />
-        </SelectOperationContent>
-      </PopoverScoped>
-    </SelectCompanyProvider>
+    <Filter.BarItem queryKey={filterKey}>
+      <Filter.BarName>
+        <IconBuilding />
+        {label}
+      </Filter.BarName>
+      <SelectCompanyProvider
+        mode={mode}
+        value={query || []}
+        onValueChange={handleValueChange}
+        hideAvatar={hideAvatar}
+      >
+        <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
+          <Popover.Trigger asChild>
+            <Filter.BarButton filterKey={filterKey}>
+              <SelectCompany.Value />
+            </Filter.BarButton>
+          </Popover.Trigger>
+          <Combobox.Content>
+            <SelectCompany.Content />
+          </Combobox.Content>
+        </PopoverScoped>
+      </SelectCompanyProvider>
+    </Filter.BarItem>
   );
 };
 
