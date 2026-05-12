@@ -350,7 +350,7 @@ const transactionCommon = {
     const filter = await generateFilter(subdomain, models, params, user);
 
     // Set default orderBy
-    params.orderBy ??= { date: 1 };
+    params.orderBy ??= { ptrNumber: -1 };
     params.orderBy = {
       ...params.orderBy,
       ptrId: params.orderBy?.ptrId ?? 1,

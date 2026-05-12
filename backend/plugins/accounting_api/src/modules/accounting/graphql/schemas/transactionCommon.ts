@@ -111,6 +111,7 @@ export const types = () => `
     ${transactionFields}
 
     ptrStatus: String
+    ptrNumber: String
 
     createdAt: Date
     updatedAt: Date

@@ -37,6 +37,10 @@ import {
   AccountsTrJournalCommand,
   SelectAccountTrJournalCommand,
 } from './AccountsTrJournal';
+import {
+  AccountsTrStatusCommand,
+  SelectAccountTrStatusCommand,
+} from './AccountsTrStatus';
 
 // category helper
 export const AccountsFilterCategory = () => {
@@ -356,6 +360,44 @@ export const FilterBarTrJournal = () => {
         <SelectAccountTrJournalCommand
           selected={journal}
           onSelect={(value) => setJournal(value)}
+          variant="ghost"
+          className="rounded-none h-7 bg-background"
+        />
+      </Filter.BarButton>
+    </Filter.BarItem>
+  );
+};
+
+// tr status filter helper
+export const AccountsFilterTrStatus = () => {
+  const [statuses, setStatuses] = useQueryState<string[] | null>('statuses');
+
+  const handleSelect = (value: string[] | null) => {
+    setStatuses(value);
+  };
+
+  return (
+    <AccountsTrStatusCommand
+      focusOnMount
+      selected={statuses}
+      onSelect={handleSelect}
+    />
+  );
+};
+
+export const FilterBarTrStatus = () => {
+  const [statuses, setStatuses] = useQueryState<string[] | null>('statuses');
+
+  return (
+    <Filter.BarItem queryKey="statuses">
+      <Filter.BarName>
+        <IconNotebook />
+        TrStatus
+      </Filter.BarName>
+      <Filter.BarButton>
+        <SelectAccountTrStatusCommand
+          selected={statuses}
+          onSelect={(value) => setStatuses(value)}
           variant="ghost"
           className="rounded-none h-7 bg-background"
         />
