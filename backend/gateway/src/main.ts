@@ -98,7 +98,6 @@ app.use(gatewayRateLimiter);
 
 app.use(async (req, res, next) => {
   const appToken = req.headers['x-app-api-token'] as string;
-  // const clientPortalToken = req.headers['x-app-token'] as string;
 
   if (appToken) {
     try {
@@ -131,23 +130,6 @@ app.use(async (req, res, next) => {
       // Fall through to regular CORS
     }
   }
-
-  // if (clientPortalToken) {
-  //   try {
-  //     const decoded: any = jwt.verify(
-  //       clientPortalToken,
-  //       process.env.JWT_TOKEN_SECRET || 'SECRET',
-  //     );
-  //
-  //     if (decoded?.clientPortalId) {
-  //       // Same rationale as the app-token branch above: authentication of
-  //       // the caller does not justify bypassing the CORS allowlist.
-  //       return cors(corsOptions)(req, res, next);
-  //     }
-  //   } catch {
-  //     // Fall through to regular CORS
-  //   }
-  // }
 
   return cors(corsOptions)(req, res, next);
 });
