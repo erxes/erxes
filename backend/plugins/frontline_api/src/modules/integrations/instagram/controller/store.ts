@@ -163,10 +163,10 @@ export const getOrCreateComment = async (
   }
   const conversation =
     (await models.InstagramCommentConversation.findOne({
-      comment_id: commentParams.comment_id,
+      comment_id: { $eq: commentParams.comment_id },
     })) ||
     (await models.InstagramCommentConversation.findOne({
-      comment_id: commentParams.parent_id,
+      comment_id: { $eq: commentParams.parent_id },
     }));
 
   if (!conversation) {
@@ -249,11 +249,11 @@ export const getOrCreatePostConversation = async (
 ) => {
   try {
      let postConversation = await models.InstagramPostConversations.findOne({
-    postId
+    postId: { $eq: postId },
   });
   if (!postConversation) {
     const integration = await models.InstagramIntegrations.findOne({
-      instagramPageId: { $in: pageId }
+      instagramPageId: { $eq: pageId },
     });
 
     if (!integration) {
@@ -304,7 +304,7 @@ export const getOrCreatePost = async (
   }
 
   let post = await models.InstagramPostConversations.findOne({
-    postId: postParams.post_id,
+    postId: { $eq: postParams.post_id },
   });
 
   if (post) {
