@@ -14,7 +14,6 @@ const CONFIG = {
   HEARTBEAT_INTERVAL: 30000,
   MAX_RECONNECT_DELAY: 30000,
   RECONNECT_BASE_DELAY: 1000,
-  ALLOW_INSECURE_TLS: process.env.CALL_WS_INSECURE === 'true',
 } as const;
 
 const WS_URL = `wss://${CONFIG.PBX_IP}:${CONFIG.WS_PORT}/websockify`;
@@ -477,11 +476,11 @@ class PBXWebSocketClient {
   }
 
   private connect(): void {
-    this.ws = new WebSocket(
-      WS_URL,
-      undefined,
-      CONFIG.ALLOW_INSECURE_TLS ? { rejectUnauthorized: false } : undefined,
-    );
+    // TLS verification is intentionally left at Node's secure defaults.
+    // If a deployment needs to talk to a PBX presenting a self-signed cert,
+    // the correct fix is to add that PBX's CA to the trust store via
+    // NODE_EXTRA_CA_CERTS at deploy time, NOT to disable cert validation.
+    this.ws = new WebSocket(WS_URL);
     this.setupEventHandlers();
   }
 
