@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.17.52](https://github.com/erxes/erxes/compare/2.17.51...2.17.52) (2026-05-12)
+
+### Features
+
+* **forms:** add vehiclePlate field type and refactor select components  ([7e85b81](https://github.com/erxes/erxes/commit/7e85b814446946ecb466f584f4bf394512d5687c))
+
+### Bug Fixes
+
+* **facebook:** add messaging_type MESSAGE_TAG when sending tagged messages outside 24h window  ([b294897](https://github.com/erxes/erxes/commit/b294897cedaa7966c45c0636814560b94b498bb2))
+
 ## [2.17.51](https://github.com/erxes/erxes/compare/2.17.50...2.17.51) (2026-05-07)
 
 ### Features
