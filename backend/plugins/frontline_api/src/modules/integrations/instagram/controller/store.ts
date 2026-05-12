@@ -164,7 +164,7 @@ export const getOrCreateComment = async (
       comment_id: { $eq: commentParams.comment_id },
     })) ||
     (await models.InstagramCommentConversation.findOne({
-      comment_id: commentParams.parent_id,
+      comment_id: { $eq: commentParams.parent_id },
     }));
 
   if (!conversation) {
