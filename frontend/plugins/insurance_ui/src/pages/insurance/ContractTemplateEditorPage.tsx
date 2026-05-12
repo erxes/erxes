@@ -236,7 +236,6 @@ export const ContractTemplateEditorPage = () => {
     const previewWindow = openSanitizedContractWindow(buildPreviewHtml());
     if (!previewWindow) {
       alert('Popup blocked. Please allow popups.');
-      return;
     }
   };
 
@@ -251,7 +250,6 @@ export const ContractTemplateEditorPage = () => {
     );
     if (!printWindow) {
       alert('Popup blocked. Please allow popups.');
-      return;
     }
   };
 
