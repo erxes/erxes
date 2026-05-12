@@ -97,12 +97,15 @@ function normalizeHtmlTagCase(html: string): string {
  * filtering was the source of CodeQL alerts #1105, #1106, and #1107; this
  * implementation closes all three at source.
  *
- * Tag names are lowercased first so every case variant matches the
- * tokenizer's `stripTogetherWithTheirContents` list. Entity decoding in
- * the tokenizer is suppressed (`skipHtmlDecoding: true`) so
- * entity-encoded tag syntax like `&lt;script&gt;` is preserved as text
- * and decoded by {@link decodeEntities} afterward — matching the prior
- * behavior of the regex-based helper.
+ * Two-pass strip-after-decode guards against entity-encoded tag bypass:
+ * the first `stripHtml` pass uses `skipHtmlDecoding: true` so the
+ * tokenizer leaves entities like `&lt;script&gt;` as literal text. Those
+ * entities are then decoded by {@link decodeEntities}, which would
+ * otherwise resurrect tag syntax (`<script>`) as plain text that could be
+ * re-interpreted as HTML by a downstream renderer. A second `stripHtml`
+ * pass — again with case-normalized tag names — removes any tags revealed
+ * by decoding, closing the decode-after-strip bypass before whitespace
+ * normalization.
  *
  * `null` / `undefined` inputs are treated as an empty string so the
  * helper is total and cannot crash the migration on missing fields.
@@ -113,8 +116,11 @@ function normalizeHtmlTagCase(html: string): string {
 function htmlToText(html: string | null | undefined): string {
   const source = normalizeHtmlTagCase(html ?? '');
   const stripped = stripHtml(source, { skipHtmlDecoding: true }).result;
-  const normalized = stripped.replace(/\s+/g, ' ').trim();
-  return decodeEntities(normalized);
+  const decoded = decodeEntities(stripped);
+  const resanitized = stripHtml(normalizeHtmlTagCase(decoded), {
+    skipHtmlDecoding: true,
+  }).result;
+  return resanitized.replace(/\s+/g, ' ').trim();
 }
 
 const BATCH_SIZE = 1000;
