@@ -102,6 +102,7 @@ export const TR_STATUSES = {
   REJECTED: 'rejected',
   CONFIRM: 'confirm',
   PLAN: 'plan',
+  PROGRESS: 'progress',
   COMPLETE: 'complete',
   ALL: [
     'draft',
@@ -125,3 +126,15 @@ export const TR_STATUSES = {
   ],
 
 }
+
+export const TR_STATUS_LABELS: Record<string, string> = {
+  plan: 'Төлөвлөгөөт',
+  draft: 'Ноорог',
+  mention: 'Хүсэлт',
+  rejected: 'Татгалзсан',
+  confirm: 'Зөвшөөрсөн',
+  returnMention: 'Харилцан хүсэлт',
+  progress: 'Хэрэгжүүлж буй',
+  pending: 'Баталгаажуулах',
+  complete: 'Бүрэн',
+};

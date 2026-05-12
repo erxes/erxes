@@ -9,7 +9,7 @@ import { ITransaction, ITransactionDocument } from '../../@types/transaction';
 import { commonRemove } from '../../utils/commonRemove';
 import { commonSave } from '../../utils/commonSave';
 import { transactionSchema } from '../definitions/transaction';
-import { setPtrStatus } from './utils';
+import { generateTrStatusActivityLog, setPtrStatus } from './utils';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(selector: any): Promise<ITransactionDocument>;
@@ -53,7 +53,7 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
   }): Promise<{ n: number; ok: number }>;
 }
 
-export const loadTransactionClass = (models: IModels, subdomain: string, { sendDbEventLog }: EventDispatcherReturn) => {
+export const loadTransactionClass = (models: IModels, subdomain: string, { sendDbEventLog, createActivityLog, sendNotificationMessage }: EventDispatcherReturn) => {
   class Transaction {
     /**
      *
@@ -161,7 +161,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
     }
 
     /**
-     * Create a transaction
+     * Create a one transaction
      */
     public static async createTransaction(doc: ITransaction, userId: string) {
       if (!doc.details?.length) {
@@ -195,7 +195,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
     }
 
     /**
-     * Update transaction
+     * Update a one transaction
      */
     public static async updateTransaction(
       _id: string,
@@ -312,6 +312,19 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
           docId: parentId,
           currentDocument: transactions
         });
+
+        const activityLog = generateTrStatusActivityLog({
+          parentId,
+          userId,
+          status: transactions[0]?.status,
+          mentionOwnerId: transactions[0]?.mentionOwnerId,
+          mentionUserIds: transactions[0]?.mentionUserIds,
+        });
+
+        if (activityLog) {
+          createActivityLog(activityLog);
+        }
+
       } catch (e) {
         errMsg = e.message;
         await session.abortTransaction();
@@ -342,7 +355,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
         throw new Error('Not found old transactions');
       }
 
-      const ptrId = oldTrs[0].ptrId;
+      const { ptrId, status: oldStatus, mentionOwnerId: oldMentOwnerId, mentionUserIds: oldMentUserIds } = oldTrs[0];
 
       if (!ptrId) {
         throw new Error('Not found old transactions ptr');
@@ -419,6 +432,21 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
           currentDocument: transactions,
           prevDocument: oldTrs,
         });
+
+        const activityLog = generateTrStatusActivityLog({
+          parentId,
+          userId,
+          status: transactions[0]?.status,
+          mentionOwnerId: transactions[0]?.mentionOwnerId,
+          mentionUserIds: transactions[0]?.mentionUserIds,
+          oldStatus,
+          oldMentionOwnerId: oldMentOwnerId,
+          oldMentionUserIds: oldMentUserIds,
+        });
+
+        if (activityLog) {
+          createActivityLog(activityLog);
+        }
       } catch (e) {
         errMsg = e.message;
         await session.abortTransaction();

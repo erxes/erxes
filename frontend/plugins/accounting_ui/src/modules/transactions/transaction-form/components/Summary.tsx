@@ -2,11 +2,12 @@ import { followTrDocsState } from '../states/trStates';
 import { IconGavel, IconActivity, IconTrashX } from '@tabler/icons-react';
 import { ITransaction, ITrDetail } from '@/transactions/types/Transaction';
 import { ITransactionGroupForm, TTrDoc } from '../types/JournalForms';
-import { TR_SIDES } from '../../types/constants';
+import { TR_SIDES, TR_STATUS_LABELS } from '../../types/constants';
 import { useAtomValue } from 'jotai';
 import { useTransactionsRemove } from '../hooks/useTransactionsRemove';
 import { useWatch } from 'react-hook-form';
 import {
+  Badge,
   Button,
   CurrencyCode,
   CurrencyFormatedDisplay,
@@ -16,8 +17,14 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import { ActivityLogs, AddInternalNote } from 'ui-modules';
+import { ReactNode, useState } from 'react';
+import {
+  ActivityLogCustomActivity,
+  ActivityLogs,
+  AddInternalNote,
+  MembersInline,
+  TActivityLog,
+} from 'ui-modules';
 
 const getSum = (trDocs: any[], sumDebit: number, sumCredit: number) => {
   trDocs?.forEach((tr) => {
@@ -43,6 +50,103 @@ export const sumDtAndCt = (trDocs: TTrDoc[], followTrDocs: ITransaction[]) => {
   const [sumDebit, sumCredit] = getSum(followTrDocs, sumDt, sumCt);
   return [sumDebit, sumCredit];
 };
+
+const Sentence = ({ children }: { children: ReactNode }) => (
+  <div className="flex flex-wrap items-center gap-1 text-sm text-foreground">
+    {children}
+  </div>
+);
+
+const StatusBadge = ({ status }: { status?: string }) => {
+  if (!status) {
+    return null;
+  }
+
+  return (
+    <Badge variant="secondary" className="font-medium">
+      {TR_STATUS_LABELS[status] || status}
+    </Badge>
+  );
+};
+
+const MentionMembers = ({ memberIds }: { memberIds?: string[] }) => {
+  const ids = [...new Set((memberIds || []).filter(Boolean))];
+
+  if (!ids.length) {
+    return null;
+  }
+
+  return (
+    <MembersInline
+      memberIds={ids}
+      placeholder="Тодорхойгүй хэрэглэгч"
+      className="font-medium"
+    />
+  );
+};
+
+const TrCreatedActivityRow = ({ activity }: { activity: TActivityLog }) => {
+  const current = activity.changes?.current || {};
+
+  return (
+    <Sentence>
+      <ActivityLogs.ActorName activity={activity} />
+      <span className="text-muted-foreground">баримт үүсгэв</span>
+      <StatusBadge status={current.status || activity.metadata?.status} />
+      <MentionMembers memberIds={current.mentionUserIds} />
+    </Sentence>
+  );
+};
+
+const TrStatusActivityRow = ({ activity }: { activity: TActivityLog }) => {
+  const prev = activity.changes?.prev || {};
+  const current = activity.changes?.current || {};
+
+  return (
+    <Sentence>
+      <ActivityLogs.ActorName activity={activity} />
+      <span className="text-muted-foreground">төлөв өөрчлөв</span>
+      <StatusBadge status={prev.status} />
+      <span className="text-muted-foreground">-&gt;</span>
+      <StatusBadge status={current.status} />
+    </Sentence>
+  );
+};
+
+const TrMentionActivityRow = ({ activity }: { activity: TActivityLog }) => {
+  const prev = activity.changes?.prev || {};
+  const current = activity.changes?.current || {};
+
+  return (
+    <div className="flex flex-col gap-1">
+      <Sentence>
+        <ActivityLogs.ActorName activity={activity} />
+        <span className="text-muted-foreground">батлуулах хэрэглэгч өөрчлөв</span>
+      </Sentence>
+      <div className="flex flex-wrap items-center gap-2 pl-0 text-sm">
+        <span className="text-muted-foreground">Өмнө:</span>
+        <MentionMembers memberIds={prev.mentionUserIds} />
+        <span className="text-muted-foreground">Одоо:</span>
+        <MentionMembers memberIds={current.mentionUserIds} />
+      </div>
+    </div>
+  );
+};
+
+const transactionCustomActivities: ActivityLogCustomActivity[] = [
+  {
+    type: 'transaction.created',
+    render: (activity) => <TrCreatedActivityRow activity={activity} />,
+  },
+  {
+    type: 'transaction.status_changed',
+    render: (activity) => <TrStatusActivityRow activity={activity} />,
+  },
+  {
+    type: 'transaction.mention_changed',
+    render: (activity) => <TrMentionActivityRow activity={activity} />,
+  },
+];
 
 export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
   const navigate = useNavigate();
@@ -139,7 +243,7 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
                 <div className="pt-3">
                   <ActivityLogs
                     targetId={parentId || ''}
-                    // customActivities={dealCustomActivities}
+                    customActivities={transactionCustomActivities}
                     variant="backward"
                   />
                 </div>

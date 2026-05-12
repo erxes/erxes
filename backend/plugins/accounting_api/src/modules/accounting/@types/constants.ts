@@ -53,18 +53,21 @@ export const TR_SIDES = {
 };
 
 export const TR_STATUSES = {
+  // draft level
   DRAFT: 'draft', // noorog buyu uurtuu l uzej bui
   MENTION: 'mention', // butsahgui, mention avsan hun comlete esvel draft bolgoh
   PENDING: 'pending', // butsah, confirm or rejected
   CONFIRMED: 'confirmed',
   REJECTED: 'rejected',
-
+  // transaction level
   PLAN: 'plan',
+
+  // future level
   COMPLETE: 'complete',
   ALL: [
     'draft', 'mention', 'pending', 'confirmed', 'rejected', 'plan', 'complete',
   ],
-  ACTIVE: ['complete'],
+  ACTIVE: ['complete', 'new', 'synced', 'real', 'draft'],
 };
 
 export const PTR_STATUSES = {
