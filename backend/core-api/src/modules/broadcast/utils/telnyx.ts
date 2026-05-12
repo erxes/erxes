@@ -45,6 +45,14 @@ export const saveTelnyxHookData = async (models: IModels, data: any) => {
   if (data?.payload) {
     const { to = [], id } = data.payload;
 
+    // Fail fast on malformed payloads so non-string id values (objects,
+    // arrays, numbers) cannot reach the Mongoose query. Combined with the
+    // $eq wrapper below this gives defense-in-depth against NoSQL
+    // operator injection from the unauthenticated webhook body.
+    if (typeof id !== 'string') {
+      return;
+    }
+
     const initialRequest = await models.SmsRequests.findOne({
       telnyxId: { $eq: id },
     });
