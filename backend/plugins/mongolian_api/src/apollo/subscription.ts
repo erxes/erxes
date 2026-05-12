@@ -16,7 +16,9 @@ export default {
             graphqlPubsub.asyncIterator(`ebarimtResponded:${userId}`),
           (payload, variables) =>
             variables?.userId &&
-            payload?.ebarimtResponded?.userId === variables?.userId,
+            payload?.ebarimtResponded?.userId === variables?.userId &&
+            (!variables?.processId ||
+              payload?.ebarimtResponded?.processId === variables?.processId),
         ),
       },
       productPlacesResponded: {

@@ -1,6 +1,7 @@
 import { Button, useConfirm } from 'erxes-ui';
 
 import { IconTrash } from '@tabler/icons-react';
+import { getCurrentProcessId } from '@/deals/utils/processId';
 import { useRemoveProducts } from '../hooks/useRemoveProduct';
 
 export const ProductsDelete = ({
@@ -14,7 +15,7 @@ export const ProductsDelete = ({
 }) => {
   const { confirm } = useConfirm();
   const { removeProducts } = useRemoveProducts();
-  const processId = localStorage.getItem('processId') || '';
+  const processId = getCurrentProcessId();
 
   return (
     <Button

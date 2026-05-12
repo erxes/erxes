@@ -4,6 +4,7 @@ import { IconCircleCheck, IconDeviceFloppy } from '@tabler/icons-react';
 import { useCallback, useMemo, useState } from 'react';
 
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
+import { getCurrentProcessId } from '@/deals/utils/processId';
 
 const ProductsPayment = ({
   deal,
@@ -129,7 +130,7 @@ const ProductsPayment = ({
   };
 
   const handleSave = () => {
-    const processId = localStorage.getItem('processId') || '';
+    const processId = getCurrentProcessId();
 
     editDeals({
       variables: {
@@ -158,8 +159,8 @@ const ProductsPayment = ({
               Object.values(changeAmounts).some((amount) => amount > 0)
                 ? 'text-green-500'
                 : Object.values(changeAmounts).some((amount) => amount < 0)
-                  ? 'text-red-500'
-                  : ''
+                ? 'text-red-500'
+                : ''
             }`}
           >
             {Object.values(changeAmounts).some((amount) => amount > 0) && '+'}

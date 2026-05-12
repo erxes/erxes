@@ -1,25 +1,46 @@
 import { useSubscription } from '@apollo/client';
 import { useAtomValue } from 'jotai';
+import { useEffect, useState } from 'react';
 import { currentUserState } from 'ui-modules';
 import { EBARIMT_RESPONDED } from '~/modules/ebarimt/responded/graphql/respondedSubscription';
 import { PerResponse } from '~/modules/ebarimt/responded/components/PerResponse';
 import { Response } from '~/modules/ebarimt/responded/components/Response';
 
 export const EbarimtRespondedPage = () => {
-
   const currentUser = useAtomValue(currentUserState);
+  const [processId, setProcessId] = useState(
+    () => sessionStorage.getItem('processId') || '',
+  );
+
+  useEffect(() => {
+    const handleProcessIdChanged = () => {
+      setProcessId(sessionStorage.getItem('processId') || '');
+    };
+
+    window.addEventListener('erxes-process-id-changed', handleProcessIdChanged);
+
+    return () => {
+      window.removeEventListener(
+        'erxes-process-id-changed',
+        handleProcessIdChanged,
+      );
+    };
+  }, []);
 
   useSubscription(EBARIMT_RESPONDED, {
     variables: {
       userId: currentUser?._id,
-      processId: '',
+      processId,
     },
-    shouldResubscribe: false,
-    skip: !currentUser?._id,
+    skip: !currentUser?._id || !processId,
     onData: ({ data }) => {
-      const { content: contents } = data?.data?.ebarimtResponded ?? {};
+      const response = data?.data?.ebarimtResponded;
+      const { content: contents } = response ?? {};
 
-      if (!contents?.length) {
+      if (
+        !contents?.length ||
+        response?.processId !== sessionStorage.getItem('processId')
+      ) {
         return;
       }
 

@@ -13,6 +13,7 @@ import {
 import { BoardDealColumn } from '@/deals/types/boards';
 import ItemProductProbabilities from './ItemProductProbabilities';
 import { PrintDialog } from './common/Print';
+import { generateCurrentProcessId } from '@/deals/utils/processId';
 import { useDealsArchive } from '@/deals/cards/hooks/useDeals';
 import { useSetAtom } from 'jotai';
 import { useState } from 'react';
@@ -82,8 +83,7 @@ export const DealsBoardColumnHeader = ({
     confirm({
       message: `Are you sure you want to sort this list by ${sortLabel}?`,
     }).then(() => {
-      const processId = Math.random().toString();
-      localStorage.setItem('processId', processId);
+      const processId = generateCurrentProcessId();
       sortItems(_id, sortType, processId);
     });
     setShowSortOptions(false);

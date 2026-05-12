@@ -2,11 +2,12 @@ import { onLocalChangeAtom } from '../productTableAtom';
 import { useAtomValue } from 'jotai';
 import { useDealsEditProductData } from '../hooks/useDealsEditProductData';
 import { useQueryState } from 'erxes-ui';
+import { getCurrentProcessId } from '@/deals/utils/processId';
 
 export const useUpdateProductRecord = () => {
   const { editDealsProductData } = useDealsEditProductData();
   const [salesItemId] = useQueryState<string>('salesItemId');
-  const processId = localStorage.getItem('processId') || '';
+  const processId = getCurrentProcessId();
   const onLocalChange = useAtomValue(onLocalChangeAtom);
 
   const updateRecord = (product: any, patch: any) => {

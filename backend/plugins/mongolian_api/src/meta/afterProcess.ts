@@ -36,12 +36,17 @@ export const afterProcess: AfterProcessConfigs = {
       ) {
         const models = await generateModels(ctx.subdomain);
 
-        await dealAfterEbarimt(models, ctx.subdomain, ctx.processId || '', {
-          sourceStageId,
-          destinationStageId,
-          deal: result,
-          userId,
-        });
+        await dealAfterEbarimt(
+          models,
+          ctx.subdomain,
+          args.processId || ctx.processId || '',
+          {
+            sourceStageId,
+            destinationStageId,
+            deal: result,
+            userId,
+          },
+        );
       }
     }
 
