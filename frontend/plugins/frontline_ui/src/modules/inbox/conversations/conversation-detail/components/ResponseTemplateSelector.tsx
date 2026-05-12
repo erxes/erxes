@@ -1,19 +1,14 @@
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
 import {
   Popover,
-  Input,
-  Select,
   Skeleton,
   Button,
-  DropdownMenu,
-  Combobox,
   Command,
   cn,
 } from 'erxes-ui';
 import { useState, useMemo, ReactNode } from 'react';
 import { useDebounce } from 'use-debounce';
 import {
-  IconSearch,
   IconLayoutGrid,
   IconList,
   IconFilter,
@@ -122,8 +117,7 @@ export const ResponseTemplateSelector: React.FC<
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <Popover.Trigger asChild>{children}</Popover.Trigger>
 
-      {/* Өргөнийг w-[450px] болгож сунгаж, Grid view-д илүү зай гаргав */}
-      <Popover.Content className="w-[450px] p-4 shadow-xl border">
+      <Popover.Content className="w-full max-w-[450px] p-4 shadow-xl border">
         <div className="space-y-4">
           <div className="flex items-center justify-between border-b pb-2">
             <h3 className="font-semibold text-sm">Response Templates</h3>
@@ -163,11 +157,10 @@ export const ResponseTemplateSelector: React.FC<
             />
             <Command.List
               className={cn(
-                "mt-2 max-h-80 overflow-y-auto pr-1", // Скролл хийхэд контент дарагдахаас сэргийлж pr-1 нэмэв
-                viewMode === 'grid'
-                  ? '[&_div[cmdk-list-sizer]]:gap-2'
-                  : 'space-y-1.5',
-                '[&_div[cmdk-list-sizer]]:grid [&_div[cmdk-list-sizer]]:grid-cols-2',
+                "mt-2 max-h-80 overflow-y-auto pr-1",
+                viewMode === 'grid' 
+                  ? "[&_div[cmdk-list-sizer]]:grid [&_div[cmdk-list-sizer]]:grid-cols-2 [&_div[cmdk-list-sizer]]:gap-2" 
+                  : "space-y-1.5"
               )}
             >
               {filteredTemplates.length === 0 ? (
@@ -181,9 +174,7 @@ export const ResponseTemplateSelector: React.FC<
                   <div
                     key={template._id}
                     className={cn(
-                      viewMode === 'grid'
-                        ? 'h-32 col-span-1' // Карт доторх элементүүдэд зай гаргахын тулд өндрийг h-32 болгов
-                        : 'col-span-2 h-auto',
+                      viewMode === 'grid' ? 'h-32 col-span-1' : 'col-span-2 h-auto'
                     )}
                   >
                     <Command.Item
@@ -191,22 +182,21 @@ export const ResponseTemplateSelector: React.FC<
                       onSelect={() => handleSelectTemplate(template.content)}
                       className={cn(
                         "flex rounded border border-transparent transition-all cursor-pointer h-full gap-2",
-                        "hover:border-primary/20 hover:bg-accent/50", // Clickable мэдрэмж төрүүлэх hover эффект
+                        "hover:border-primary/20 hover:bg-accent/50",
                         {
-                          'flex-row items-center p-2.5': viewMode === 'list', // List view-д илүү цэгцтэй padding
-                          'flex-col items-start p-3': viewMode === 'grid',   //  Grid карт доторх зай (p-3)
-                        },
+                          'flex-row items-center p-2.5': viewMode === 'list',
+                          'flex-col items-start p-3': viewMode === 'grid',
+                        }
                       )}
                     >
-                      {/* Сувгийн мэдээллийг Badge хэлбэрээр ялгаж харуулав */}
                       {template.channelId && (
                         <div
                           className={cn(
-                            "text-[10px] text-primary shrink bg-primary/10 px-1.5 py-0.5 rounded font-medium",
+                            "text-[11px] text-primary shrink bg-primary/10 px-1.5 py-0.5 rounded font-medium",
                             { 
-                              'mb-1 order-first': viewMode === 'grid', // Grid дээр хамгийн дээр нь
-                              'ml-auto order-last': viewMode === 'list' // List дээр хамгийн баруун талд
-                            },
+                              'mb-1 order-first': viewMode === 'grid',
+                              'ml-auto order-last': viewMode === 'list'
+                            }
                           )}
                         >
                           <ChannelsInline
@@ -217,14 +207,12 @@ export const ResponseTemplateSelector: React.FC<
                       )}
 
                       <div className={cn(
-                        "min-w-0 flex-1", // Text overflow-г хянахын тулд min-w-0
-                        { 'basis-1/3': viewMode === 'list' } // List дээр нэрэнд тодорхой зай (1/3) өгөв
+                        "min-w-0 flex-1",
+                        { 'basis-1/3': viewMode === 'list' }
                       )}>
-                        {/* Нэрийг font-semibold болгож ялгарал нэмэв */}
                         <div className="font-semibold text-sm truncate leading-tight">
                           {template.name}
                         </div>
-                        {/* Контентыг text-muted-foreground-оор ялгав */}
                         <div className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-snug">
                           {getPreviewText(template.content)}
                         </div>
