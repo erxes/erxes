@@ -1,20 +1,18 @@
+import { useAutomationBuilderSidebarHooks } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSidebarHooks';
+import { useAutomationNodeLibrarySidebar } from '@/automations/components/builder/sidebar/hooks/useAutomationNodeLibrarySidebar';
+import { AUTOMATION_LIBRARY_TABS } from '@/automations/constants';
 import { automationBuilderActiveTabState } from '@/automations/states/automationState';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { Button, Form, Label, Switch, Toggle } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useFormContext } from 'react-hook-form';
-import { useAutomationNodeLibrarySidebar } from '@/automations/components/builder/sidebar/hooks/useAutomationNodeLibrarySidebar';
-import { useAutomationBuilderSidebarHooks } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSidebarHooks';
-import { AUTOMATION_LIBRARY_TABS } from '@/automations/constants';
-import { IconBolt } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
 export const AutomationBuilderHeaderActions = () => {
   const { control } = useFormContext<TAutomationBuilderForm>();
   const activeTab = useAtomValue(automationBuilderActiveTabState);
-  const { setQueryParams, activeNodeTab } = useAutomationNodeLibrarySidebar();
-  const { isOpenSideBar, handleNodeLibraryToggle, handleClose } =
-    useAutomationBuilderSidebarHooks();
+  const { activeNodeTab } = useAutomationNodeLibrarySidebar();
+  const { handleNodeLibraryToggle } = useAutomationBuilderSidebarHooks();
   const { t } = useTranslation('automations');
   if (activeTab !== 'builder') {
     return null;

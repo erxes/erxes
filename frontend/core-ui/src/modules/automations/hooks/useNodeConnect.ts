@@ -193,7 +193,7 @@ export const useNodeConnect = () => {
     targetId: string,
     generatedNode: any,
   ) => {
-    const [nodeType, awaitingNodeId, handleKey] = splitAwaitingConnectionId(
+    const [_nodeType, awaitingNodeId, handleKey] = splitAwaitingConnectionId(
       awaitingToConnectNodeId,
     );
 

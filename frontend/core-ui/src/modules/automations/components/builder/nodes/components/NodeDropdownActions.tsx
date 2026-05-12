@@ -1,3 +1,6 @@
+import { NodeEditMetaDataForm } from '@/automations/components/builder/nodes/components/NodeEditMetaDataForm';
+import { useNodeDropDownActions } from '@/automations/components/builder/nodes/hooks/useNodeDropDownActions';
+import { AutomationNodesType, NodeData } from '@/automations/types';
 import {
   IconDots,
   IconEdit,
@@ -6,11 +9,7 @@ import {
 } from '@tabler/icons-react';
 import { AlertDialog, Button, Dialog, DropdownMenu } from 'erxes-ui';
 import { Dispatch, SetStateAction } from 'react';
-import { AutomationNodesType, NodeData } from '@/automations/types';
-import { NodeEditMetaDataForm } from '@/automations/components/builder/nodes/components/NodeEditMetaDataForm';
-import { useNodeDropDownActions } from '@/automations/components/builder/nodes/hooks/useNodeDropDownActions';
 import { useTranslation } from 'react-i18next';
-import { Node } from '@xyflow/react';
 
 export const NodeDropdownActions = ({
   id,

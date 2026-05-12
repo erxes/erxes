@@ -1,8 +1,4 @@
-import {
-  AutomationProducers,
-  TAutomationProducers,
-  TAutomationProducersInput,
-} from 'erxes-api-shared/core-modules';
+import { AutomationProducers } from 'erxes-api-shared/core-modules';
 
 export const scoreAutomationProducers: AutomationProducers = {
   receiveActions: async ({ data }, { subdomain }) => {
