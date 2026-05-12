@@ -53,9 +53,21 @@ const transactionsMutations = {
   async accTransactionsLink(
     _root,
     doc: { ids: string[]; ptrId: string },
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
     const { ids, ptrId } = doc;
+    
+    const transactions = await models.Transactions.find({
+      _id: { $in: ids },
+    }).lean();
+    for (const tr of transactions) {
+      const accountId = tr.details?.[0]?.accountId;
+      if (accountId) {
+        // Ensure the user has write permission on the transaction's account
+        await ensureTransactionWritePermission(user, models, subdomain, {}, tr);
+      }
+    }
+
     return await models.Transactions.linkTransaction(ids, ptrId);
   },
 
@@ -84,7 +96,13 @@ const transactionsMutations = {
     const existing = await models.Transactions.findById(parentId).lean();
     if (!existing) throw new Error('Transaction not found');
 
-    await ensureTransactionWritePermission(user, models, subdomain, trDocs[0], existing);
+    await ensureTransactionWritePermission(
+      user,
+      models,
+      subdomain,
+      trDocs[0],
+      existing,
+    );
 
     const transactions = await models.Transactions.updatePTransaction(
       parentId,
@@ -102,7 +120,13 @@ const transactionsMutations = {
     const existing = await models.Transactions.findById(parentId).lean();
     if (!existing) throw new Error('Transaction not found');
 
-    await ensureTransactionWritePermission(user, models, subdomain, {}, existing);
+    await ensureTransactionWritePermission(
+      user,
+      models,
+      subdomain,
+      {},
+      existing,
+    );
 
     const removed = await models.Transactions.removePTransaction({
       parentId,
