@@ -299,13 +299,20 @@ router.post('/oauth/device/deny', async (req: Request, res: Response) => {
 });
 
 router.post('/oauth/token', async (req: Request, res: Response) => {
-  // Rate-limit the token endpoint by client IP BEFORE doing any DB work
-  // (subdomain lookup, model generation, client_secret bcrypt compare, etc.).
-  // This guards all grant-type branches — device_code, refresh_token, and the
-  // fallback — against brute-force and DoS, in addition to the per-device-code
+  // Rate-limit the token endpoint BEFORE doing any DB work (subdomain lookup,
+  // model generation, client_secret bcrypt compare, etc.). This guards all
+  // grant-type branches — device_code, refresh_token, and the fallback —
+  // against brute-force and DoS, in addition to the per-device-code
   // poll-interval limit enforced inside the device_code branch (RFC 8628 §3.5).
-  // 30 req/IP/min: comfortably above the legitimate device-poll cadence
-  // (12 req/min at the 5s DEVICE_POLL_INTERVAL) and refresh-token rotation rate.
+  //
+  // The bucket key is `client_id + IP` when client_id is present, falling back
+  // to IP only when it isn't. Combining client_id with IP means an attacker
+  // spoofing `X-Forwarded-For` (getClientIp currently trusts that header to
+  // remain compatible with our reverse proxies) cannot exhaust the quota for a
+  // specific legitimate client, and it bounds unique-key growth in Redis under
+  // an IP-rotation attack to one TTL window per (client_id, spoofed-IP) pair.
+  // 30 req/min: comfortably above the legitimate device-poll cadence (12
+  // req/min at the 5s DEVICE_POLL_INTERVAL) and refresh-token rotation rate.
   // The limiter is Redis-backed (see checkRateLimit -> redis.incr/expire) so it
   // works correctly across multiple core-api replicas behind a load balancer.
   let subdomain: string;
@@ -313,7 +320,13 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
   let grantType: string;
   try {
     const ip = getClientIp(req);
-    await checkRateLimit(`oauth:token:${ip}`, 30, 60);
+    const rawClientId = String(req.body?.client_id || '').trim();
+    // Salt with a length-bounded, sanitized client_id slice so an oversized or
+    // delimiter-stuffed payload can't blow up the Redis key namespace.
+    const clientIdSalt = rawClientId
+      ? rawClientId.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64) || 'anon'
+      : 'anon';
+    await checkRateLimit(`oauth:token:${clientIdSalt}:${ip}`, 30, 60);
 
     subdomain = getSubdomain(req);
     models = await generateModels(subdomain);
