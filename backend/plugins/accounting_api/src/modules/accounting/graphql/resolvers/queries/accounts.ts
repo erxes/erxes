@@ -5,7 +5,6 @@ import {
 } from 'erxes-api-shared/core-types';
 import {
   cursorPaginate,
-  defaultPaginate,
   escapeRegExp,
 } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
@@ -67,7 +66,6 @@ export const generateFilter = async (
   if (ids?.length) {
     filter._id = { [excludeIds ? '$nin' : '$in']: ids };
   }
-
   if (params.status) {
     filter.status = params.status;
   }
@@ -77,7 +75,6 @@ export const generateFilter = async (
       _id: categoryId,
       status: { $in: [null, 'active'] },
     });
-
     const accountCategoryIds = await models.AccountCategories.find(
       { order: { $regex: new RegExp(`^${escapeRegExp(category.order)}`) } },
       { _id: 1 },
@@ -87,7 +84,6 @@ export const generateFilter = async (
     const notActiveCategories = await models.AccountCategories.find({
       status: { $nin: [null, 'active'] },
     });
-
     if (notActiveCategories.length) {
       filter.categoryId = { $nin: notActiveCategories.map((e) => e._id) };
     }
@@ -97,10 +93,8 @@ export const generateFilter = async (
     filter.kind = kind;
   }
 
-  // search =========
   if (searchValue) {
     const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
-
     let codeFilter = { code: { $in: [regex] } };
     if (
       searchValue.includes('.') ||
@@ -113,7 +107,6 @@ export const generateFilter = async (
       );
       codeFilter = { code: { $in: [codeRegex] } };
     }
-
     filter.$or = [codeFilter, { name: { $in: [regex] } }];
   }
 
@@ -123,7 +116,6 @@ export const generateFilter = async (
       'igu',
     );
   }
-
   if (name) {
     filter.name = new RegExp(`.*${escapeRegExp(name)}.*`, 'i');
   }
@@ -131,47 +123,68 @@ export const generateFilter = async (
   if (currency) {
     filter.currency = currency;
   }
-
   if (journals?.length) {
     filter.journal = { $in: journals };
   }
-
   if (journal) {
     filter.journal = journal;
   }
-
   if (branchId) {
     filter.branchId = branchId;
   }
-
   if (departmentId) {
     filter.departmentId = departmentId;
   }
-
   if (brand) {
     filter.scopeBrandIds = { $in: [brand] };
   }
-
   if (isTemp !== undefined) {
     filter.isTemp = isTemp;
   }
-
   if (isOutBalance !== undefined) {
     filter.isOutBalance = isOutBalance;
   }
-
   if (user?.isOwner) {
     return filter;
   }
 
-
   return filter;
 };
 
+/**
+ * Applies permission filters in-memory to a list of accounts.
+ * Returns a new filtered array.
+ */
+async function applyPermissionFilters(
+  accounts: any[],
+  models: IModels,
+  params: {
+    userId?: string;
+    minLvl?: number;
+    maxLvl?: number;
+    readPerm?: string;
+    writePerm?: string;
+  },
+) {
+  const { userId, minLvl, maxLvl, readPerm, writePerm } = params;
+  if (!userId) return accounts;
+
+  const perms = await models.Permissions.find({ userId }).lean();
+  const permMap = new Map(perms.map(p => [p.accountId, p]));
+
+  return accounts.filter(acc => {
+    const p = permMap.get(acc._id) || { level: 0, read: 'none', write: 'none' };
+    if (minLvl !== undefined && p.level < minLvl) return false;
+    if (maxLvl !== undefined && p.level > maxLvl) return false;
+    if (readPerm && p.read !== readPerm) return false;
+    if (writePerm && p.write !== writePerm) return false;
+    return true;
+  });
+}
+
 const accountQueries = {
   /**
-   * Accounts list (cursor pagination) – we do NOT apply permission filters here for simplicity
-   * (can be added later if needed)
+   * Accounts list (cursor pagination) – does not apply permission filters.
    */
   async accountsMain(
     _root,
@@ -179,7 +192,6 @@ const accountQueries = {
     { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('accountsRead');
-    // Remove permission filters before generating filter
     const { userId, minLvl, maxLvl, readPerm, writePerm, ...baseParams } = params;
     const filter = await generateFilter(models, baseParams, user);
     params.orderBy ??= { code: 1 };
@@ -191,42 +203,28 @@ const accountQueries = {
   },
 
   /**
-   * Accounts list (standard pagination) – supports permission filters
+   * Accounts list (standard pagination) – supports permission filters.
    */
   async accounts(_root, params: IQueryParams, { models, user, checkPermission }: IContext) {
     await checkPermission('accountsRead');
 
-    // Separate permission filters from base filters
     const { userId, minLvl, maxLvl, readPerm, writePerm, ...baseParams } = params;
-
-    // Generate base filter (all existing filters except permission ones)
     const filter = await generateFilter(models, baseParams, user);
     let accounts = await models.Accounts.find(filter).lean();
 
-    // Apply permission filters if userId is provided
-    if (userId) {
-      const perms = await models.Permissions.find({ userId }).lean();
-      const permMap = new Map(perms.map(p => [p.accountId, p]));
+    accounts = await applyPermissionFilters(accounts, models, {
+      userId, minLvl, maxLvl, readPerm, writePerm,
+    });
 
-      accounts = accounts.filter(acc => {
-        const p = permMap.get(acc._id) || { level: 0, read: 'none', write: 'none' };
-        if (minLvl !== undefined && p.level < minLvl) return false;
-        if (maxLvl !== undefined && p.level > maxLvl) return false;
-        if (readPerm && p.read !== readPerm) return false;
-        if (writePerm && p.write !== writePerm) return false;
-        return true;
-      });
-    }
-
-    // Pagination and sorting (in‑memory because we filtered)
+    // In-memory sorting & pagination
     const { sortField, sortDirection, page, perPage, ids, excludeIds } = baseParams;
     const paginationArgs = { page: page || 1, perPage: perPage || 20 };
-    if (!excludeIds && ids?.length && ids.length > (paginationArgs.perPage)) {
+    if (!excludeIds && ids?.length && ids.length > paginationArgs.perPage) {
       paginationArgs.page = 1;
       paginationArgs.perPage = ids.length;
     }
 
-    let sortFn: (a: any, b: any) => number = (a, b) => {
+    const sortFn = (a: any, b: any) => {
       const aVal = a[sortField || 'code'];
       const bVal = b[sortField || 'code'];
       if (aVal === bVal) return 0;
@@ -236,13 +234,11 @@ const accountQueries = {
     accounts.sort(sortFn);
 
     const start = (paginationArgs.page - 1) * paginationArgs.perPage;
-    const end = start + paginationArgs.perPage;
-    const paginated = accounts.slice(start, end);
-    return paginated;
+    return accounts.slice(start, start + paginationArgs.perPage);
   },
 
   /**
-   * Accounts count – also supports permission filters
+   * Accounts count – also supports permission filters.
    */
   async accountsCount(_root, params: IQueryParams, { models, user, checkPermission }: IContext) {
     await checkPermission('accountsRead');
@@ -251,18 +247,10 @@ const accountQueries = {
     const filter = await generateFilter(models, baseParams, user);
     let accounts = await models.Accounts.find(filter).lean();
 
-    if (userId) {
-      const perms = await models.Permissions.find({ userId }).lean();
-      const permMap = new Map(perms.map(p => [p.accountId, p]));
-      accounts = accounts.filter(acc => {
-        const p = permMap.get(acc._id) || { level: 0, read: 'none', write: 'none' };
-        if (minLvl !== undefined && p.level < minLvl) return false;
-        if (maxLvl !== undefined && p.level > maxLvl) return false;
-        if (readPerm && p.read !== readPerm) return false;
-        if (writePerm && p.write !== writePerm) return false;
-        return true;
-      });
-    }
+    accounts = await applyPermissionFilters(accounts, models, {
+      userId, minLvl, maxLvl, readPerm, writePerm,
+    });
+
     return accounts.length;
   },
 
