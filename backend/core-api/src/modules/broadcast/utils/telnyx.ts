@@ -50,6 +50,11 @@ export const saveTelnyxHookData = async (models: IModels, data: any) => {
     // $eq wrapper below this gives defense-in-depth against NoSQL
     // operator injection from the unauthenticated webhook body.
     if (typeof id !== 'string') {
+      // Surface rejected payloads so suspicious / malformed webhook traffic
+      // is visible in the logs (no PII — only the unexpected type tag).
+      console.warn('Telnyx webhook rejected: non-string id', {
+        type: typeof id,
+      });
       return;
     }
 
