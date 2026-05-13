@@ -6,9 +6,9 @@ const FIELD_VALIDATOR_SCHEMA = z
     type: z.enum(['PRESET', 'CUSTOM', 'NONE']),
     presetKey: z
       .enum(['EMAIL', 'PHONE_INTL', 'POSTAL_CODE', 'ALPHANUMERIC'])
-      .optional(),
-    customRegex: z.string().optional(),
-    errorMessage: z.string().optional(),
+      .nullish(),
+    customRegex: z.string().nullish(),
+    errorMessage: z.string().nullish(),
   })
   .nullish();
 
@@ -52,7 +52,7 @@ export const FORM_CONTENT_SCHEMA = z.object({
             .array(
               z.object({
                 fieldId: z.string(),
-                logicOperator: z.string().optional(),
+                logicOperator: z.string().nullish(),
                 logicValue: z.any().optional(),
               }),
             )
