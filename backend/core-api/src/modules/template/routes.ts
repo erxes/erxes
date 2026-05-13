@@ -8,13 +8,20 @@ const router: Router = Router();
 
 const ALGORITHM = 'aes-256-gcm';
 
-// Reads the rightmost X-Forwarded-For entry because the gateway appends the
-// real client IP — leftmost values are attacker-controllable via forged XFF.
+// Reads the rightmost X-Forwarded-For entry because the gateway prepends
+// `app.set('trust proxy', ...)`-style trust and appends the real client IP —
+// leftmost values are attacker-controllable via a forged XFF header. Falls
+// back to `req.ip` when XFF is missing OR when parsing yields an empty entry
+// (which would otherwise collapse every such request into one rate-limit
+// bucket and amplify, rather than mitigate, the underlying issue).
 const getClientIp = (req: Request): string => {
   const xff = req.headers['x-forwarded-for'];
   if (xff) {
     const parts = (Array.isArray(xff) ? xff[0] : xff).split(',');
-    return parts[parts.length - 1].trim();
+    const candidate = parts[parts.length - 1]?.trim();
+    if (candidate) {
+      return candidate;
+    }
   }
   return req.ip || 'unknown';
 };
