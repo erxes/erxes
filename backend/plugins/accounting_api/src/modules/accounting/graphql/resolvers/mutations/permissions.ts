@@ -9,17 +9,28 @@ const mutationsAccountPermissions = {
     await checkPermission('manageAccountPermissions');
 
     const { accountIds, userId, level, read, write } = input;
+
+    // INPUT VALIDATION
+    const validReadScopes = ['none', 'own', 'ltLvl', 'lteLvl', 'gtLvl'];
+    const validWriteScopes = ['none', 'add', 'own', 'ltLvl', 'lteLvl', 'gtLvl'];
+
+    if (read !== undefined && !validReadScopes.includes(read)) {
+      throw new Error(`Invalid read scope: ${read}. Allowed: ${validReadScopes.join(', ')}`);
+    }
+    if (write !== undefined && !validWriteScopes.includes(write)) {
+      throw new Error(`Invalid write scope: ${write}. Allowed: ${validWriteScopes.join(', ')}`);
+    }
     const results: Array<{ accountId: string; status: string }> = [];
 
     const bulkOps: any[] = [];
-    const deleteConditions: any[] = [];
+    const deleteOps: any[] = [];   // renamed from deleteConditions
 
     for (const accountId of accountIds) {
       const effectiveRead = read ?? 'none';
       const effectiveWrite = write ?? 'none';
 
       if (effectiveRead === 'none' && effectiveWrite === 'none') {
-        deleteConditions.push({ userId, accountId });
+        deleteOps.push({ deleteOne: { filter: { userId, accountId } } });   // use deleteOne inside bulkWrite
         results.push({ accountId, status: 'deleted' });
       } else {
         const updateDoc = {
@@ -45,7 +56,7 @@ const mutationsAccountPermissions = {
     }
 
     if (bulkOps.length) await models.Permissions.bulkWrite(bulkOps);
-    if (deleteConditions.length) await models.Permissions.deleteMany({ $or: deleteConditions });
+    if (deleteOps.length) await models.Permissions.bulkWrite(deleteOps);   // use bulkWrite for deletes
 
     return results;
   },

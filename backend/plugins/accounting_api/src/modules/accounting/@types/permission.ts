@@ -6,7 +6,7 @@ export const ACCOUNT_PERMISSION_SCOPES = {
   LT_LVL: 'ltLvl',
   LTE_LVL: 'lteLvl',
   GT_LVL: 'gtLvl',
-  VALUES: ['own', 'ltLvl', 'lteLvl', 'gtLvl'],
+  VALUES: ['none', 'own', 'ltLvl', 'lteLvl', 'gtLvl'],
 } as const;
 
 export const ACCOUNT_PERMISSION_WRITE_SCOPES = {
@@ -16,7 +16,7 @@ export const ACCOUNT_PERMISSION_WRITE_SCOPES = {
   LT_LVL: 'ltLvl',
   LTE_LVL: 'lteLvl',
   GT_LVL: 'gtLvl',
-  VALUES: ['add', 'own', 'ltLvl', 'lteLvl', 'gtLvl'],
+  VALUES: ['none', 'add', 'own', 'ltLvl', 'lteLvl', 'gtLvl'],
 } as const;
 
 export interface IPermission {
