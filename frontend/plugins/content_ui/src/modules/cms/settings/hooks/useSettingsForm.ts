@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { NetworkStatus, useMutation, useQuery } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -25,19 +25,30 @@ export const useSettingsForm = () => {
     awaitRefetchQueries: true,
   };
 
-  const { data: cmsData, loading: cmsLoading } = useQuery(CONTENT_CMS_LIST, {
+  const cmsQuery = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
   });
 
-  const { data: websitesData, loading: websitesLoading } = useQuery(
-    GET_WEBSITES,
-    {
-      fetchPolicy: 'cache-first',
-    },
-  );
+  const websitesQuery = useQuery(GET_WEBSITES, {
+    fetchPolicy: 'cache-first',
+  });
+
+  const { data: cmsData, networkStatus: cmsNetworkStatus } = cmsQuery;
+  const { data: websitesData, networkStatus: websitesNetworkStatus } =
+    websitesQuery;
+
+  const cmsQueryFetched =
+    cmsNetworkStatus === NetworkStatus.ready &&
+    cmsQuery.observable.getCurrentResult().partial !== true &&
+    Array.isArray(cmsData?.contentCMSList);
+
+  const websitesQueryFetched =
+    websitesNetworkStatus === NetworkStatus.ready &&
+    websitesQuery.observable.getCurrentResult().partial !== true &&
+    Array.isArray(websitesData?.getClientPortals?.list);
 
   const settingsQueriesFetched =
-    !cmsLoading && Boolean(cmsData) && !websitesLoading && Boolean(websitesData);
+    cmsQueryFetched && websitesQueryFetched;
 
   const [createCMS, { loading: creatingCMS }] = useMutation(
     CONTENT_CREATE_CMS,
@@ -56,8 +67,12 @@ export const useSettingsForm = () => {
     [cmsData, websiteId],
   );
 
-  const clientPortals: ClientPortalOption[] =
-    websitesData?.getClientPortals?.list || [];
+  const clientPortalList = websitesData?.getClientPortals?.list;
+
+  const clientPortals = useMemo<ClientPortalOption[]>(
+    () => clientPortalList || [],
+    [clientPortalList],
+  );
 
   const clientPortal = useMemo(
     () => clientPortals.find((item) => item._id === websiteId),

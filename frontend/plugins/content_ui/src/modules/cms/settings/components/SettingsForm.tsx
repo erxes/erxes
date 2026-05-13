@@ -10,9 +10,9 @@ import {
   type MultiSelectOption,
   MultipleSelector,
   Select,
-  Switch,
+  // Switch,
   Textarea,
-  ToggleGroup,
+  // ToggleGroup,
 } from 'erxes-ui';
 import { LANGUAGES } from '../../../../constants';
 import {
@@ -90,17 +90,17 @@ export const SettingsForm = ({
     updateSetting('metaKeywords', keywords);
   };
 
-  const getPostUrlFieldLabel = (value: string) => {
-    if (value === '_id') {
-      return 'Post ID';
-    }
+  // const getPostUrlFieldLabel = (value: string) => {
+  //   if (value === '_id') {
+  //     return 'Post ID';
+  //   }
 
-    if (value === 'count') {
-      return 'Post count';
-    }
+  //   if (value === 'count') {
+  //     return 'Post count';
+  //   }
 
-    return 'Slug';
-  };
+  //   return 'Slug';
+  // };
 
   return (
     <div className="min-w-0 space-y-4 p-4">
