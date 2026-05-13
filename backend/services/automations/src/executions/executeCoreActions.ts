@@ -3,6 +3,7 @@ import { executeAiAgentAction } from './actions/executeAiAgentAction';
 import { executeDelayAction } from './actions/executeDelayAction';
 import { executeIfCondition } from './actions/executeIfCondition';
 import { executeSetPropertyAction } from './actions/executeSetPropertyAction';
+import { executeSplitAction } from './actions/executeSplitAction';
 import { executeWaitEvent } from './actions/executeWaitEvent';
 import { executeOutgoingWebhook } from './actions/webhook/outgoing/outgoingWebhook';
 import { executeFindObjectAction } from './executeFindObjectAction';
@@ -18,6 +19,8 @@ type TCoreActionResponse = Promise<{
   shouldBreak: boolean;
   actionResponse?: any;
 }>;
+
+const SPLIT_ACTION_TYPE = 'split';
 
 export const executeCoreActions = async (
   triggerType: string,
@@ -47,6 +50,13 @@ export const executeCoreActions = async (
       actionsMap,
     );
     return { actionResponse, shouldBreak: true };
+  }
+
+  if (actionType === SPLIT_ACTION_TYPE) {
+    const splitResponse = await executeSplitAction(subdomain, execution, action);
+
+    execAction.nextActionId = splitResponse?.nextActionId;
+    actionResponse = splitResponse?.result ?? splitResponse;
   }
 
   if (actionType === AUTOMATION_CORE_ACTIONS.WAIT_EVENT) {

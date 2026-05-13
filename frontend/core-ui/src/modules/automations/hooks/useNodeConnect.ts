@@ -193,17 +193,21 @@ export const useNodeConnect = () => {
     targetId: string,
     generatedNode: any,
   ) => {
-    const [_, awaitingNodeId] = splitAwaitingConnectionId(
+    const [_nodeType, awaitingNodeId, handleKey] = splitAwaitingConnectionId(
       awaitingToConnectNodeId,
     );
+
     const source = getNode(awaitingNodeId);
+
     if (source) {
+      const sourceHandleId = handleKey ? `${handleKey}-right` : null;
+
       const info = generateConnectInfo(
         {
           source: awaitingNodeId,
           target: targetId,
           targetHandle: 'left',
-          sourceHandle: null,
+          sourceHandle: sourceHandleId,
         },
         source,
         generatedNode,

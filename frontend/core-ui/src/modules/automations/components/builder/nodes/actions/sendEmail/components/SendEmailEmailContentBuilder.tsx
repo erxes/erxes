@@ -1,7 +1,7 @@
 import {
   AutomationVariableBrowser,
   TAutomationVariableSourceNode,
-} from '@/automations/components/builder/components/AutomationVariableBrowser';
+} from '@/automations/components/builder/sidebar/components/output-variables/AutomationVariableBrowser';
 import { EmailTemplateInEditor } from '@/automations/components/builder/nodes/actions/sendEmail/components/EmailTemplateInEditor';
 import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
 import { IconEdit } from '@tabler/icons-react';

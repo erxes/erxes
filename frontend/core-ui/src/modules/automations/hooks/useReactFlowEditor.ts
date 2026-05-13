@@ -14,6 +14,7 @@ import {
   useNodesState,
   useReactFlow,
 } from '@xyflow/react';
+// @ts-ignore
 import '@xyflow/react/dist/style.css';
 import { themeState } from 'erxes-ui';
 import { useAtomValue } from 'jotai';

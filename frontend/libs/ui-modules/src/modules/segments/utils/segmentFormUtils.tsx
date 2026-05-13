@@ -1,8 +1,8 @@
 import {
   IConditionsForPreview,
-  IField,
   IOperator,
   ISegment,
+  SegmentFormMode,
   TConditionsConjunction,
   TSegmentForm,
 } from '../types';
@@ -18,8 +18,8 @@ export function startCase(str: string) {
     .replace(/\b\w/g, (char) => char.toUpperCase()); // capitalize first letter of each word
 }
 
-export const groupFieldsByType = (fields: IField[]) => {
-  return fields.reduce((acc: Record<string, Array<IField>>, field) => {
+export const groupFieldsByType = (fields: any[]) => {
+  return fields.reduce((acc: Record<string, Array<any>>, field) => {
     const { value } = field || {};
     let key;
 
@@ -81,9 +81,11 @@ export const generateParamsSegmentPreviewCount = (
 export const getSegmentFormDefaultValues = (
   propertyType: string,
   segment: any,
+  mode?: SegmentFormMode.DEFAULT | SegmentFormMode.SINGLE,
 ) => {
   const {
     subSegmentConditions = [],
+    conditions = [],
     name,
     description,
     config,
@@ -99,14 +101,34 @@ export const getSegmentFormDefaultValues = (
     subOf: subOf || '',
   };
 
-  values.conditionSegments = subSegmentConditions.length
+  if (mode === 'single') {
+    values.conditions = conditions?.length
+      ? conditions
+      : [
+          {
+            propertyType,
+            propertyName: '',
+            propertyOperator: '',
+          },
+        ];
+
+    values.conditionSegments = undefined;
+
+    return values;
+  }
+
+  values.conditionSegments = subSegmentConditions?.length
     ? subSegmentConditions
     : [
         {
           contentType: propertyType,
           conditionsConjunction: TConditionsConjunction.AND,
           conditions: [
-            { propertyType, propertyName: '', propertyOperator: '' },
+            {
+              propertyType,
+              propertyName: '',
+              propertyOperator: '',
+            },
           ],
         },
       ];
@@ -116,8 +138,8 @@ export const getSegmentFormDefaultValues = (
 
 export const getSelectedFieldConfig = (
   fieldName: string,
-  fields: IField[],
-): { selectedField: IField; operators: IOperator[] } | undefined => {
+  fields: any[],
+): { selectedField: any; operators: IOperator[] } | undefined => {
   if (!fieldName) {
     return;
   }

@@ -24,7 +24,12 @@ export const CustomerWidgets = ({
   });
 
   const handleSelectCustomers = (customerIds: string[]) => {
-    manageRelations({ contentType, contentId, relatedContentType: 'core:customer', relatedContentIds: customerIds })
+    manageRelations({
+      contentType,
+      contentId,
+      relatedContentType: 'core:customer',
+      relatedContentIds: customerIds,
+    });
   };
 
   if (loading) {
@@ -35,7 +40,7 @@ export const CustomerWidgets = ({
     ? [customerId]
     : ownEntities?.map((entity) => entity.contentId);
 
-  if (ownEntities?.length === 0) {
+  if (ownEntities?.length === 0 && !customerId) {
     return (
       <div className="flex flex-auto flex-col gap-4 justify-center items-center text-muted-foreground">
         <div className="border border-dashed p-6 bg-background rounded-xl">

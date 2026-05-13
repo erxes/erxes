@@ -11,7 +11,7 @@ export const AutomationBuilderSecondarySidebarToggle = () => {
       <Tooltip.Trigger asChild>
         <Button
           size="icon"
-          variant="ghost"
+          variant="secondary"
           onClick={toggleSecondarySidebarOpen}
           aria-label={
             isSecondarySidebarOpen
