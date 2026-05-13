@@ -16,6 +16,7 @@ import {
   Select,
   Textarea,
   toast,
+  Upload,
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import React, { useEffect, useState } from 'react';
@@ -407,6 +408,45 @@ export const FormPreviewContent = ({
                               {...field}
                               placeholder={erxesField.placeholder}
                             />
+                            {erxesField.description && (
+                              <Form.Description>
+                                {erxesField.description}
+                              </Form.Description>
+                            )}
+                            <Form.Message />
+                          </ErxesFormItem>
+                        );
+                      }
+
+                      if (erxesField.type === 'file') {
+                        const urls: string[] = Array.isArray(field.value)
+                          ? field.value
+                          : [];
+                        const displayValue = urls.join(', ');
+                        return (
+                          <ErxesFormItem span={erxesField.span}>
+                            <Form.Label>{erxesField.label}</Form.Label>
+                            <Form.Control>
+                              <Upload.Root
+                                value={displayValue}
+                                onChange={(e) => {
+                                  const value = (e as any).target.value;
+                                  field.onChange(
+                                    value
+                                      ? value
+                                          .split(',')
+                                          .map((v: string) => v.trim())
+                                          .filter(Boolean)
+                                      : [],
+                                  );
+                                }}
+                              >
+                                <Upload.Preview />
+                                <Upload.Button type="button">
+                                  {erxesField.placeholder || 'Upload file'}
+                                </Upload.Button>
+                              </Upload.Root>
+                            </Form.Control>
                             {erxesField.description && (
                               <Form.Description>
                                 {erxesField.description}

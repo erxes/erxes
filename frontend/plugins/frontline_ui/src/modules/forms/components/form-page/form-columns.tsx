@@ -28,6 +28,7 @@ import { useFormToggleStatus } from '@/forms/hooks/useFormToggleStatus';
 import { FormStatus } from './filters/FormStatus';
 import { FormInstallScript } from '../actions/install-form';
 import { RemoveForm } from '../actions/remove-form';
+import { OpenLiveForm } from '../actions/open-live-form';
 
 export function FormToggleStatus({
   formId,
@@ -147,7 +148,7 @@ export const FormsMoreColumnCell = ({
       <DropdownMenu.Content side="bottom" align="start">
         <FormInstallScript
           formId={code}
-          channelId={channelId}
+          channelId={channelId as string}
           inActionBar={true}
         />
         <DropdownMenu.Item
@@ -157,6 +158,7 @@ export const FormsMoreColumnCell = ({
         >
           <IconEdit /> Edit
         </DropdownMenu.Item>
+        <OpenLiveForm formId={_id} channelId={channelId as string} />
         <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
         <MoveFormToChannel
           formId={_id}
