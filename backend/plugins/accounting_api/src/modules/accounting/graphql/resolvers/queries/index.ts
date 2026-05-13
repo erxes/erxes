@@ -7,6 +7,7 @@ import Transactions from './transactionsCommon';
 import Inventories from './inventories';
 import AdjustInventories from './adjustInventories';
 import JournalReport from './journalReport';  
+import { QueriesAccountPermissions } from './permissions';
 
 export {
   Accounts,
@@ -18,4 +19,5 @@ export {
   Inventories,
   AdjustInventories,
   JournalReport,
+  QueriesAccountPermissions,
 };

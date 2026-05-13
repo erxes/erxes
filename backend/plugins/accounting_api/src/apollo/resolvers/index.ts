@@ -25,6 +25,7 @@ import {
   Inventories as QueriesInventories,
   AdjustInventories as QueriesAdjustInventories,
   JournalReport as QueriesJournalReport,
+  QueriesAccountPermissions,
 } from '@/accounting/graphql/resolvers/queries';
 import ReserveRem from '@/inventories/graphql/resolvers/customResolvers/reserveRem';
 import SafeRemainderItem from '@/inventories/graphql/resolvers/customResolvers/safeRemainderItem';
@@ -78,7 +79,7 @@ const resolvers: any = {
     ...QueriesInventories,
     ...QueriesAdjustInventories,
     ...QueriesJournalReport,
-
+    ...QueriesAccountPermissions,
     ...QueriesReserveRem,
     ...QueriesSafeRemainderItem,
     ...QueriesSafeRemainder,

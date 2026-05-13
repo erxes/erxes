@@ -43,6 +43,17 @@ export const types = () => `
     pageInfo: PageInfo
     totalCount: Int,
   }
+    
+  type AccountPermission {
+    _id: String!
+    userId: String!
+    accountId: String!
+    level: Int
+    read: String
+    write: String
+    createdAt: Date
+    updatedAt: Date
+  }
 
   input SetAccountPermissionsInput {
     accountIds: [String!]!
@@ -124,6 +135,7 @@ export const queries = `
   ): [Account]
   accountsCount(${accountsQueryParams}): Int
   accountDetail(_id: String): Account
+  accountPermissions(userId: String!, accountId: String!): AccountPermission
 `;
 
 export const mutations = `
