@@ -263,6 +263,18 @@ export const getSaasOrganizationDetail = async ({
     }
   }
 
+  if (organization?.bundleId) {
+    const bundle = await coreModelBundles.findOne({ _id: organization.bundleId });
+
+    if (bundle) {
+      organization.bundle = {
+        bundleId: organization.bundleId,
+        title: bundle.title,
+        type: bundle.type,
+      };
+    }
+  }
+
   return {
     ...organization,
     experienceName,

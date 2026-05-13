@@ -17,12 +17,8 @@ export const AutomationBuilderWorkspace = () => {
   const { loading } = useAutomation();
 
   const {
-    // isPanelOpen,
-    // togglePanelOpen,
-    isOpenSideBar,
-    toggleSideBarOpen,
     onOpen,
-    isMac,
+    // isMac,
   } = useAutomationBilderWorkSpace();
 
   useScopedHotkeys(`mod+i`, () => onOpen(), AutomationsHotKeyScope.Builder);

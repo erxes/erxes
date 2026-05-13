@@ -1,4 +1,5 @@
 import { AutomationNodesType, AutomationNodeType } from '@/automations/types';
+import { IconBolt, IconPointerBolt } from '@tabler/icons-react';
 
 export const CANVAS_FIT_VIEW_OPTIONS = { padding: 4, minZoom: 0.8 };
 
@@ -71,8 +72,12 @@ export const AUTOMATION_RECORD_TABLE_FILTERS_SESSION_KEY =
   'automation-record-table-filters-cursor';
 
 export const AUTOMATION_LIBRARY_TABS = [
-  { value: AutomationNodeType.Trigger, label: 'Triggers' },
-  { value: AutomationNodeType.Action, label: 'Actions' },
+  {
+    value: AutomationNodeType.Trigger,
+    label: 'Triggers',
+    icon: IconPointerBolt,
+  },
+  { value: AutomationNodeType.Action, label: 'Actions', icon: IconBolt },
   // { value: AutomationNodeType.Workflow, label: 'Automations' },
 ];
 type ConnectionPropertyName = 'nextActionId' | 'actionId' | 'workflowId';

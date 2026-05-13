@@ -21,7 +21,7 @@ export const AutomationTriggerContentSidebar =
       <div className={containerClasses}>
         <AutomationDefaultTriggerHeader activeNode={activeNode} />
         <Separator />
-        <div className="flex-1 w-auto overflow-auto px-2">
+        <div className="flex-1 w-auto overflow-auto">
           <DefaultTriggerContent activeNode={activeNode} />
         </div>
       </div>

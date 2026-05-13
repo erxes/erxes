@@ -4,13 +4,14 @@ import {
   CheckInputField,
   ProductAssigneeField,
   ProductCalculatedNumberField,
+  ProductNumberField,
 } from '../hooks/getProductColumns';
 import {
-  CurrencyCode,
-  CurrencyFormatedDisplay,
+  CURRENCY_CODES,
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
+  formatAmount,
 } from 'erxes-ui';
 import {
   IconCurrencyDollar,
@@ -53,19 +54,27 @@ export const productColumns: ColumnDef<IProductData>[] = [
   {
     id: 'unitPrice',
     accessorKey: 'unitPrice',
-    accessorFn: (row) => row.product?.unitPrice,
     header: () => (
       <RecordTable.InlineHead icon={IconCurrencyDollar} label="Unit Price" />
     ),
     cell: ({ cell }) => {
+      const currencyCode = cell.row.original.currency;
+      const CurrencyIcon = currencyCode
+        ? CURRENCY_CODES[currencyCode]?.Icon
+        : null;
       return (
         <RecordTableInlineCell>
-          <CurrencyFormatedDisplay
-            currencyValue={{
-              amountMicros: cell.getValue() as number,
-              currencyCode: CurrencyCode.MNT,
-            }}
-          />
+          <ProductNumberField
+            value={Number(cell.getValue()) || 0}
+            field="unitPrice"
+            _id={cell.row.original._id}
+            product={cell.row.original}
+            formatValue={(v: number) => formatAmount(v)}
+          >
+            {CurrencyIcon && (
+              <CurrencyIcon className="size-4 text-muted-foreground shrink-0" />
+            )}
+          </ProductNumberField>
         </RecordTableInlineCell>
       );
     },

@@ -1,9 +1,14 @@
-import { IconDots, IconEdit, IconTrash } from '@tabler/icons-react';
-import { AlertDialog, Button, Dialog, DropdownMenu } from 'erxes-ui';
-import { Dispatch, SetStateAction } from 'react';
-import { AutomationNodesType, NodeData } from '@/automations/types';
 import { NodeEditMetaDataForm } from '@/automations/components/builder/nodes/components/NodeEditMetaDataForm';
 import { useNodeDropDownActions } from '@/automations/components/builder/nodes/hooks/useNodeDropDownActions';
+import { AutomationNodesType, NodeData } from '@/automations/types';
+import {
+  IconDots,
+  IconEdit,
+  IconSettings,
+  IconTrash,
+} from '@tabler/icons-react';
+import { AlertDialog, Button, Dialog, DropdownMenu } from 'erxes-ui';
+import { Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const NodeDropdownActions = ({
@@ -22,6 +27,7 @@ export const NodeDropdownActions = ({
     setOpenDialog,
     setOpenDropDown,
     onRemoveNode,
+    openNodeConfigurationForm,
   } = useNodeDropDownActions(id, data.nodeType);
 
   return (
@@ -46,7 +52,7 @@ export const NodeDropdownActions = ({
       </DropdownMenu.Trigger>
       <DropdownMenu.Content
         align="start"
-        className="w-[100px] min-w-0 [&>button]:cursor-pointer"
+        className="min-w-0 [&>button]:cursor-pointer"
         onClick={(e) => e.stopPropagation()}
         onDoubleClick={(e) => e.stopPropagation()}
       >
@@ -57,6 +63,17 @@ export const NodeDropdownActions = ({
           id={id}
           fieldName={fieldName}
         />
+        <DropdownMenu.Item asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start"
+            onClick={(e) => openNodeConfigurationForm(id)}
+          >
+            <IconSettings className="size-4" />
+            Configuration
+          </Button>
+        </DropdownMenu.Item>
         <NodeRemoveActionDialog
           onRemoveNode={onRemoveNode}
           isOpenRemoveAlert={isOpenRemoveAlert}

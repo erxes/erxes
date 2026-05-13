@@ -1,8 +1,8 @@
 import { AutomationAiAgentTableEmptyState } from '@/automations/components/settings/components/agents/components/AutomationAiAgentTableEmptyState';
 import { automationAiAgentColumns } from '@/automations/components/settings/components/agents/components/automationAiAgentColumns';
 import { useAiAgents } from '@/automations/components/settings/components/agents/hooks/useAiAgents';
-import { IconArchive, IconPlus } from '@tabler/icons-react';
-import { Button, Label, RecordTable } from 'erxes-ui';
+import { IconPlus } from '@tabler/icons-react';
+import { Button, RecordTable } from 'erxes-ui';
 import { Link } from 'react-router';
 
 export const AutomationAiAgentRecordTable = ({
@@ -11,6 +11,10 @@ export const AutomationAiAgentRecordTable = ({
   kind?: string | null;
 }) => {
   const { automationsAiAgents, loading } = useAiAgents(kind);
+
+  const toCreateUrl = `/settings/automations/agents/create${
+    kind ? `?kind=${kind}` : ''
+  }`;
 
   return (
     <div className="space-y-4">
@@ -24,7 +28,7 @@ export const AutomationAiAgentRecordTable = ({
         </div>
 
         <Button asChild>
-          <Link to="/settings/automations/agents/create">
+          <Link to={toCreateUrl}>
             <IconPlus className="size-4" />
             Create Agent
           </Link>
@@ -45,12 +49,10 @@ export const AutomationAiAgentRecordTable = ({
               {!loading && automationsAiAgents.length === 0 && (
                 <tr className="h-[320px]">
                   <td colSpan={6} className="py-10 text-center">
-                    <div className="flex flex-col items-center justify-center text-muted-foreground">
-                      <IconArchive className="mb-2 h-8 w-8" />
-                      <Label>No results</Label>
-                    </div>
                     <div className="mt-4">
-                      <AutomationAiAgentTableEmptyState />
+                      <AutomationAiAgentTableEmptyState
+                        toCreateUrl={toCreateUrl}
+                      />
                     </div>
                   </td>
                 </tr>

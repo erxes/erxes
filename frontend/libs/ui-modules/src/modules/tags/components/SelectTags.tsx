@@ -845,22 +845,50 @@ export const SelectTagsFilterBar = ({
     }
   };
 
+  if (isCardVariant) {
+    return (
+      <SelectTagsProvider
+        mode={mode}
+        value={query || []}
+        onValueChange={handleValueChange}
+        tagType={tagType}
+      >
+        <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
+          <SelectTriggerOperation variant={variant || 'filter'}>
+            <SelectTagsValue />
+          </SelectTriggerOperation>
+          <SelectOperationContent variant={variant || 'filter'}>
+            <SelectTagsContent />
+          </SelectOperationContent>
+        </PopoverScoped>
+      </SelectTagsProvider>
+    );
+  }
+
   return (
-    <SelectTagsProvider
-      mode={mode}
-      value={query || []}
-      onValueChange={handleValueChange}
-      tagType={tagType}
-    >
-      <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant={variant || 'filter'}>
-          <SelectTagsValue />
-        </SelectTriggerOperation>
-        <SelectOperationContent variant={variant || 'filter'}>
-          <SelectTagsContent />
-        </SelectOperationContent>
-      </PopoverScoped>
-    </SelectTagsProvider>
+    <Filter.BarItem queryKey={filterKey}>
+      <Filter.BarName>
+        <IconTag />
+        {label}
+      </Filter.BarName>
+      <SelectTagsProvider
+        mode={mode}
+        value={query || []}
+        onValueChange={handleValueChange}
+        tagType={tagType}
+      >
+        <Popover open={open} onOpenChange={setOpen}>
+          <Popover.Trigger asChild>
+            <Filter.BarButton filterKey={filterKey}>
+              <SelectTagsValue />
+            </Filter.BarButton>
+          </Popover.Trigger>
+          <Combobox.Content>
+            <SelectTagsContent />
+          </Combobox.Content>
+        </Popover>
+      </SelectTagsProvider>
+    </Filter.BarItem>
   );
 };
 

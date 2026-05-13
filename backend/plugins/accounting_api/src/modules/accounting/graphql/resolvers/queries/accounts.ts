@@ -10,7 +10,7 @@ import {
 } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 
-interface IQueryParams {
+export interface IAccountQueryParams {
   ids?: string[];
   excludeIds?: boolean;
   status?: string;
@@ -35,7 +35,7 @@ interface IQueryParams {
 
 export const generateFilter = async (
   models: IModels,
-  params: IQueryParams,
+  params: IAccountQueryParams,
   user: IUserDocument,
 ) => {
   const {
@@ -184,7 +184,7 @@ const accountQueries = {
    */
   async accountsMain(
     _root,
-    params: IQueryParams & ICursorPaginateParams,
+    params: IAccountQueryParams & ICursorPaginateParams,
     { models, user, commonQuerySelector, checkPermission }: IContext,
   ) {
     await checkPermission('accountsRead');
@@ -199,7 +199,7 @@ const accountQueries = {
     });
   },
 
-  async accounts(_root, params: IQueryParams, { models, user, checkPermission }: IContext) {
+  async accounts(_root, params: IAccountQueryParams, { models, user, checkPermission }: IContext) {
     await checkPermission('accountsRead');
     const filter = await generateFilter(models, params, user);
 
@@ -226,7 +226,7 @@ const accountQueries = {
     );
   },
 
-  async accountsCount(_root, params: IQueryParams, { models, user, checkPermission }: IContext) {
+  async accountsCount(_root, params: IAccountQueryParams, { models, user, checkPermission }: IContext) {
     await checkPermission('accountsRead');
     const filter = await generateFilter(models, params, user);
 

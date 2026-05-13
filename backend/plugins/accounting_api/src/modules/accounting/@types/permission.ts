@@ -1,31 +1,33 @@
 import { Document } from 'mongoose';
 
-export const ACCOUNT_PERM_LEVELS = {
-  READ: 'read',
-  CREATE: 'create',
-  SELF_UPDATE: 'selfUp',
-  SELF_DELETE: 'selfDel',
-  UPDATE: 'update',
-  DELETE: 'delete',
-  ALL: [
-    'read',
-    'create',
-    'selfUpdate',
-    'selfDelete',
-    'update',
-    'delete'
-  ]
-}
+export const ACCOUNT_PERMISSION_SCOPES = {
+  NONE: 'none',
+  OWN: 'own',
+  LT_LVL: 'ltLvl',
+  LTE_LVL: 'lteLvl',
+  GT_LVL: 'gtLvl',
+  ALL: ['none', 'own', 'ltLvl', 'lteLvl', 'gtLvl'],
+};
+
+export const ACCOUNT_PERMISSION_WRITE_SCOPES = {
+  NONE: 'none',
+  ADD: 'add',
+  OWN: 'own',
+  LT_LVL: 'ltLvl',
+  LTE_LVL: 'lteLvl',
+  GT_LVL: 'gtLvl',
+  ALL: ['none', 'add', 'own', 'ltLvl', 'lteLvl', 'gtLvl'],
+};
 
 export interface IPermission {
   userId: string;
   accountId: string;
-  permission: string;
+  level: number;
+  read: string;
+  write: string;
 }
 
-export interface IPermissionDocument
-  extends IPermission,
-  Document {
+export interface IPermissionDocument extends IPermission, Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;

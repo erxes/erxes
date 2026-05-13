@@ -19,6 +19,11 @@ const t = initTRPC.context<PosTRPCContext>().create();
 
 export const posclientTrpcRouter = t.router({
   posclient: t.router({
+    getConfigByToken: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { token } = input;
+      const { models } = ctx;
+      return models.Configs.findOne({ token }).lean();
+    }),
     manageConfig: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const data = input;
       const { models, subdomain } = ctx;

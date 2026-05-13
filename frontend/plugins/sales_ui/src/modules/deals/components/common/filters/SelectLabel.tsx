@@ -1,6 +1,19 @@
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import {
+  IconCheck,
+  IconLabel,
+  IconLoader,
+  IconPencil,
+  IconPlus,
+  IconTagMinus,
+} from '@tabler/icons-react';
 import LabelForm from '@/deals/cards/components/detail/overview/label/LabelForm';
-import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
-import { GET_PIPELINE_LABELS } from '@/deals/graphql/queries/PipelinesQueries';
 import {
   usePipelineLabelLabel,
   usePipelineLabels,
@@ -10,14 +23,6 @@ import {
   ISelectLabelContext,
   ISelectLabelProviderProps,
 } from '@/deals/types/pipelines';
-import {
-  IconCheck,
-  IconLabel,
-  IconLoader,
-  IconPencil,
-  IconPlus,
-  IconTagMinus,
-} from '@tabler/icons-react';
 import {
   Button,
   Combobox,
@@ -36,7 +41,6 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export const SelectLabelsContext = createContext<ISelectLabelContext | null>(
   null,
@@ -68,14 +72,14 @@ export const SelectLabelsProvider = ({
     const newSelectedLabelIds = isSingleMode
       ? [label._id]
       : isSelected
-        ? multipleValue.filter((p) => p !== label._id)
-        : [...multipleValue, label._id];
+      ? multipleValue.filter((p) => p !== label._id)
+      : [...multipleValue, label._id];
 
     const newSelectedLabels = isSingleMode
       ? [label]
       : isSelected
-        ? selectedLabels.filter((p) => p._id !== label._id)
-        : [...selectedLabels, label];
+      ? selectedLabels.filter((p) => p._id !== label._id)
+      : [...selectedLabels, label];
 
     setSelectedLabels(newSelectedLabels);
     onValueChange?.(isSingleMode ? label._id : newSelectedLabelIds);
@@ -127,25 +131,15 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
       newLabelIds.push(label._id);
     }
 
+    onSelect(label);
+
     if (targetId) {
       labelPipelineLabel({
         variables: {
           targetId: targetId,
           labelIds: newLabelIds,
         },
-        refetchQueries: [
-          {
-            query: GET_PIPELINE_LABELS,
-            variables: { pipelineId },
-          },
-          {
-            query: GET_DEALS,
-            variables: { pipelineId },
-          },
-        ],
       });
-    } else {
-      onSelect(label);
     }
   };
 
@@ -337,12 +331,12 @@ export const SelectLabelsInlineCell = ({
 export const SelectLabelsDetail = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectLabelsProvider>, 'children'> &
-  Omit<
-    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-    'children'
-  > & {
-    scope?: string;
-  }
+    Omit<
+      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+      'children'
+    > & {
+      scope?: string;
+    }
 >(({ onValueChange, scope, value, mode, className, ...props }, ref) => {
   const [open, setOpen] = useState(false);
   return (
@@ -493,9 +487,16 @@ export const SelectLabelsFilterBar = ({
   const [localQuery, setLocalQuery] = useState<string[]>(initialValue || []);
   const [urlQuery, setUrlQuery] = useQueryState<string[]>(filterKey);
   const [open, setOpen] = useState<boolean>(false);
+  const prevInitialValueRef = useRef<string[]>(initialValue || []);
 
   useEffect(() => {
-    if (isCardVariant && initialValue) {
+    if (!isCardVariant || !initialValue) return;
+    const prev = prevInitialValueRef.current;
+    const contentsChanged =
+      prev.length !== initialValue.length ||
+      !prev.every((id) => initialValue.includes(id));
+    if (contentsChanged) {
+      prevInitialValueRef.current = initialValue;
       setLocalQuery(initialValue);
     }
   }, [initialValue, isCardVariant]);

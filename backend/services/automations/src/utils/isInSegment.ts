@@ -16,42 +16,10 @@ export const isInSegment = async (
   targetId: string,
   delayMs: number = 15000,
 ) => {
-  const segmentCache = new Map<string, any>();
+  const { canUseFastPath, loadSegment, segment } =
+    await checkIsSegmentCanUseFastPath({ subdomain, segmentId });
 
-  const loadSegment = async (id: string) => {
-    if (segmentCache.has(id)) {
-      return segmentCache.get(id);
-    }
-
-    const loadedSegment = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'segment',
-      action: 'findOne',
-      input: { _id: id },
-      defaultValue: null,
-    });
-
-    segmentCache.set(id, loadedSegment);
-
-    return loadedSegment;
-  };
-
-  const segment = await loadSegment(segmentId);
-
-  if (!segment) {
-    return false;
-  }
-
-  const canUseFastPath =
-    Boolean(segment.contentType) &&
-    (await hasSingleSegmentContentType({
-      segment,
-      loadSegment,
-    }));
-
-  if (canUseFastPath) {
+  if (canUseFastPath && loadSegment) {
     const selector = await compileSegmentToMongoSelector({
       segment,
       loadSegment,
@@ -90,4 +58,49 @@ export const isInSegment = async (
     input: { segmentId, idToCheck: targetId },
     defaultValue: false,
   });
+};
+
+const checkIsSegmentCanUseFastPath = async ({
+  subdomain,
+  segmentId,
+}: {
+  subdomain: string;
+  segmentId: string;
+}) => {
+  const segmentCache = new Map<string, any>();
+
+  const loadSegment = async (id: string) => {
+    if (segmentCache.has(id)) {
+      return segmentCache.get(id);
+    }
+
+    const loadedSegment = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'segment',
+      action: 'findOne',
+      input: { _id: id },
+      defaultValue: null,
+    });
+
+    segmentCache.set(id, loadedSegment);
+
+    return loadedSegment;
+  };
+
+  const segment = await loadSegment(segmentId);
+
+  if (!segment) {
+    return { canUseFastPath: false };
+  }
+
+  const canUseFastPath =
+    Boolean(segment.contentType) &&
+    (await hasSingleSegmentContentType({
+      segment,
+      loadSegment,
+    }));
+
+  return { canUseFastPath, loadSegment, segment };
 };
