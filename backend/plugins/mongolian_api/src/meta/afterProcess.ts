@@ -19,7 +19,8 @@ export const afterProcess: AfterProcessConfigs = {
   rules: allRules,
 
   afterMutation: async (ctx, input) => {
-    const { mutationName, args, result, userId } = input?.data ?? {};
+    const { mutationName, args, requestData, result, userId } =
+      (input?.data as any) ?? {};
 
     if (!mutationName) return;
 
@@ -27,6 +28,9 @@ export const afterProcess: AfterProcessConfigs = {
 
     if (ebarimtMutationNames.includes(mutationName)) {
       const { stageId } = result || {};
+      const sessionCode = Array.isArray(requestData?.sessioncode)
+        ? requestData.sessioncode[0]
+        : requestData?.sessioncode || '';
 
       if (
         destinationStageId &&
@@ -36,17 +40,13 @@ export const afterProcess: AfterProcessConfigs = {
       ) {
         const models = await generateModels(ctx.subdomain);
 
-        await dealAfterEbarimt(
-          models,
-          ctx.subdomain,
-          args.processId || ctx.processId || '',
-          {
-            sourceStageId,
-            destinationStageId,
-            deal: result,
-            userId,
-          },
-        );
+        await dealAfterEbarimt(models, ctx.subdomain, ctx.processId || '', {
+          sourceStageId,
+          destinationStageId,
+          deal: result,
+          sessionCode,
+          userId,
+        });
       }
     }
 

@@ -4,7 +4,7 @@ export default {
   name: 'mongolian',
 
   typeDefs: `
-    ebarimtResponded(userId: String, processId: String): EbarimtResponse
+    ebarimtResponded(userId: String, sessionCode: String): EbarimtResponse
     productPlacesResponded(userId: String, sessionCode: String): ProductPlacesResponse
   `,
 
@@ -17,8 +17,9 @@ export default {
           (payload, variables) =>
             variables?.userId &&
             payload?.ebarimtResponded?.userId === variables?.userId &&
-            (!variables?.processId ||
-              payload?.ebarimtResponded?.processId === variables?.processId),
+            (!variables?.sessionCode ||
+              payload?.ebarimtResponded?.sessionCode ===
+                variables?.sessionCode),
         ),
       },
       productPlacesResponded: {

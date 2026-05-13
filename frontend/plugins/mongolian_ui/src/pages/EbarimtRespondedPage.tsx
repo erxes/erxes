@@ -1,45 +1,47 @@
 import { useSubscription } from '@apollo/client';
 import { useAtomValue } from 'jotai';
-import { useEffect, useState } from 'react';
 import { currentUserState } from 'ui-modules';
 import { EBARIMT_RESPONDED } from '~/modules/ebarimt/responded/graphql/respondedSubscription';
 import { PerResponse } from '~/modules/ebarimt/responded/components/PerResponse';
 import { Response } from '~/modules/ebarimt/responded/components/Response';
 
+const SESSION_CODE_STORAGE_KEY = 'sessioncode';
+
+const getSessionCode = () => {
+  const existingSessionCode = sessionStorage.getItem(SESSION_CODE_STORAGE_KEY);
+
+  if (existingSessionCode) {
+    return existingSessionCode;
+  }
+
+  const sessionCode =
+    typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+  sessionStorage.setItem(SESSION_CODE_STORAGE_KEY, sessionCode);
+
+  return sessionCode;
+};
+
 export const EbarimtRespondedPage = () => {
   const currentUser = useAtomValue(currentUserState);
-  const [processId, setProcessId] = useState(
-    () => sessionStorage.getItem('processId') || '',
-  );
-
-  useEffect(() => {
-    const handleProcessIdChanged = () => {
-      setProcessId(sessionStorage.getItem('processId') || '');
-    };
-
-    window.addEventListener('erxes-process-id-changed', handleProcessIdChanged);
-
-    return () => {
-      window.removeEventListener(
-        'erxes-process-id-changed',
-        handleProcessIdChanged,
-      );
-    };
-  }, []);
+  const sessionCode = getSessionCode();
 
   useSubscription(EBARIMT_RESPONDED, {
     variables: {
       userId: currentUser?._id,
-      processId,
+      sessionCode,
     },
-    skip: !currentUser?._id || !processId,
+    skip: !currentUser?._id || !sessionCode,
     onData: ({ data }) => {
       const response = data?.data?.ebarimtResponded;
       const { content: contents } = response ?? {};
 
       if (
         !contents?.length ||
-        response?.processId !== sessionStorage.getItem('processId')
+        response?.sessionCode !==
+          sessionStorage.getItem(SESSION_CODE_STORAGE_KEY)
       ) {
         return;
       }

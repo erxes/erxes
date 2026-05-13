@@ -11,10 +11,6 @@ import { ProductsRecordTable } from './ProductRecordTable';
 import { onLocalChangeAtom } from '../productTableAtom';
 import { useDealsCreateProductsData } from '../hooks/useDealsCreateProductsData';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
-import {
-  generateCurrentProcessId,
-  getCurrentProcessId,
-} from '@/deals/utils/processId';
 import { useProductCalculations } from '../hooks/useProductCalculations';
 
 const ProductsList = ({
@@ -138,7 +134,8 @@ const ProductsList = ({
       docs.push(productData);
     }
 
-    const processId = generateCurrentProcessId();
+    const processId = Math.random().toString();
+    localStorage.setItem('processId', processId);
 
     docs.forEach((p) => calculatePerProductAmount('discount', p));
 
@@ -154,7 +151,7 @@ const ProductsList = ({
   };
 
   const handleSave = () => {
-    const processId = getCurrentProcessId();
+    const processId = localStorage.getItem('processId') || '';
 
     const formattedProductsData = localProductsData.map((data) => ({
       ...data,

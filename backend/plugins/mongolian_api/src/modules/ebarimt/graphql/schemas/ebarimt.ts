@@ -14,6 +14,7 @@ export const types = `
     responseId: String
     userId: String
     processId: String
+    sessionCode: String
   }
 
   type PutResponse {

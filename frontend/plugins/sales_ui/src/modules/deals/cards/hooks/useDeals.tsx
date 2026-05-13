@@ -33,7 +33,6 @@ import { IDeal } from '@/deals/types/deals';
 import { PRODUCTS_DATA_CHANGED } from '@/deals/graphql/subscriptions/productsSubscriptions';
 import { currentUserState } from 'ui-modules';
 import { dealCreateDefaultValuesState } from '@/deals/states/dealCreateSheetState';
-import { getCurrentProcessId } from '@/deals/utils/processId';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 
 interface IDealChanged {
@@ -222,7 +221,7 @@ export const useDealDetail = (
 
         const { processId } = payload;
 
-        if (processId === getCurrentProcessId()) {
+        if (processId === localStorage.getItem('processId')) {
           return prev;
         }
 

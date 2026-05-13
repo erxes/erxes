@@ -16,7 +16,6 @@ import { StagesLoading } from '@/deals/components/loading/StagesLoading';
 import { useColumnPagination } from '@/deals/boards/hooks/useColumnPagination';
 import { useDealsBoardData } from '@/deals/boards/hooks/useDealsBoardData';
 import { useDealsChange } from '@/deals/cards/hooks/useDeals';
-import { generateCurrentProcessId } from '@/deals/utils/processId';
 import { useQueryState } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
 import { useStagesOrder } from '@/deals/stage/hooks/useStages';
@@ -194,7 +193,6 @@ export const DealsBoard = () => {
             destinationStageId: newItem.columnId,
             sourceStageId: oldItem.columnId,
             aboveItemId,
-            processId: generateCurrentProcessId(),
           },
         });
       }
