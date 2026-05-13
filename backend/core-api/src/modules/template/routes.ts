@@ -1,11 +1,41 @@
 import crypto from 'crypto';
 import { extractUserFromHeader, getSubdomain } from 'erxes-api-shared/utils';
 import { Request, Response, Router } from 'express';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { generateModels } from '~/connectionResolvers';
 
 const router: Router = Router();
 
 const ALGORITHM = 'aes-256-gcm';
+
+// Reads the rightmost X-Forwarded-For entry because the gateway appends the
+// real client IP — leftmost values are attacker-controllable via forged XFF.
+const getClientIp = (req: Request): string => {
+  const xff = req.headers['x-forwarded-for'];
+  if (xff) {
+    const parts = (Array.isArray(xff) ? xff[0] : xff).split(',');
+    return parts[parts.length - 1].trim();
+  }
+  return req.ip || 'unknown';
+};
+
+// Rate-limit GET /export/template/:templateId. The route authenticates first,
+// so this is defense-in-depth against credential-stuffing-style enumeration of
+// templateIds and against scrape-all-templates loops once a session token has
+// leaked. Limits are IP-keyed (in-memory, per-replica) and IPv6-subnet safe.
+const exportTemplateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 60, // 60 exports per IP per window — generous for humans, tight for scrapers
+  keyGenerator: (req) => ipKeyGenerator(getClientIp(req)),
+  handler: (_req, res) => {
+    res.status(429).json({
+      errorCode: 'RATE_LIMIT_EXCEEDED',
+      message: 'Too many template export requests, please try again later.',
+    });
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 /** Reads and validates the TEMPLATE_EXPORT_KEY environment variable. */
 const getEncryptionKey = (): string => {
@@ -91,6 +121,7 @@ const decryptData = (encryptedData: string, key: string): Record<string, unknown
 
 router.get(
   '/export/template/:templateId',
+  exportTemplateLimiter,
   async (req: Request, res: Response) => {
     const user = authenticateRequest(req, res);
     if (!user) return null;
