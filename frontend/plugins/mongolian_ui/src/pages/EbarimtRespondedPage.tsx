@@ -7,26 +7,9 @@ import { Response } from '~/modules/ebarimt/responded/components/Response';
 
 const SESSION_CODE_STORAGE_KEY = 'sessioncode';
 
-const getSessionCode = () => {
-  const existingSessionCode = sessionStorage.getItem(SESSION_CODE_STORAGE_KEY);
-
-  if (existingSessionCode) {
-    return existingSessionCode;
-  }
-
-  const sessionCode =
-    typeof crypto !== 'undefined' && 'randomUUID' in crypto
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-
-  sessionStorage.setItem(SESSION_CODE_STORAGE_KEY, sessionCode);
-
-  return sessionCode;
-};
-
 export const EbarimtRespondedPage = () => {
   const currentUser = useAtomValue(currentUserState);
-  const sessionCode = getSessionCode();
+  const sessionCode = sessionStorage.getItem(SESSION_CODE_STORAGE_KEY) || '';
 
   useSubscription(EBARIMT_RESPONDED, {
     variables: {

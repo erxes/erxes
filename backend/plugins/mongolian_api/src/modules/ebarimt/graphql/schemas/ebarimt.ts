@@ -13,7 +13,6 @@ export const types = `
     content: JSON
     responseId: String
     userId: String
-    processId: String
     sessionCode: String
   }
 

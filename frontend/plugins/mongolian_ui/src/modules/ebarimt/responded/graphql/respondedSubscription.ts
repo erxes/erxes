@@ -6,7 +6,6 @@ export const EBARIMT_RESPONDED = gql`
       content
       responseId
       userId
-      processId
       sessionCode
     }
   }
