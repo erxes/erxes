@@ -19,14 +19,24 @@ permissions:
 jobs:
   kimi-review:
     runs-on: ubuntu-latest
-    # Only run on PRs or comment events that start with "/"
+    # Only run on PRs or comment events that start with "/".
+    # Comment-triggered runs additionally require the commenter to be a
+    # repository owner/member/collaborator — otherwise an outside contributor
+    # could post "/review" on their own fork PR and execute attacker-controlled
+    # code in this privileged context (pull-requests: write, secrets available).
     if: |
       github.event_name == 'pull_request' ||
       (github.event_name == 'issue_comment' &&
        github.event.issue.pull_request &&
-       startsWith(github.event.comment.body, '/')) ||
+       startsWith(github.event.comment.body, '/') &&
+       (github.event.comment.author_association == 'OWNER' ||
+        github.event.comment.author_association == 'MEMBER' ||
+        github.event.comment.author_association == 'COLLABORATOR')) ||
       (github.event_name == 'pull_request_review_comment' &&
-       startsWith(github.event.comment.body, '/'))
+       startsWith(github.event.comment.body, '/') &&
+       (github.event.comment.author_association == 'OWNER' ||
+        github.event.comment.author_association == 'MEMBER' ||
+        github.event.comment.author_association == 'COLLABORATOR'))
     
     steps:
       # Step 1: Get PR information (for comment events)
@@ -45,10 +55,13 @@ jobs:
             core.setOutput('ref', pr.data.head.ref);
             core.setOutput('sha', pr.data.head.sha);
 
-      # Step 2: Checkout the code
+      # Step 2: Checkout the code.
+      # Pin to the head SHA (not the ref name) so a post-trigger force-push
+      # by the PR author cannot swap in a different commit between the
+      # get-pr lookup and the actual checkout.
       - uses: actions/checkout@v4
         with:
-          ref: ${{ (github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment') && steps.get-pr.outputs.ref || github.head_ref }}
+          ref: ${{ (github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment') && steps.get-pr.outputs.sha || github.event.pull_request.head.sha }}
 
       # Step 3: Run Kimi Code Review Action
       - uses: xiaoju111a/kimi-actions@main
