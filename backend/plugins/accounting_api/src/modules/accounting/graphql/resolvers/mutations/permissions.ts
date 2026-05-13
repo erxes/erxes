@@ -1,12 +1,11 @@
 import { IContext } from '~/connectionResolvers';
 
-const permissionMutations = {
+const mutationsAccountPermissions = {
   async setAccountPermissions(
     _root,
     { input }: { input: { accountIds: string[]; userId: string; level?: number; read?: string; write?: string } },
     { models, checkPermission }: IContext,
   ) {
-    // Global permission check
     await checkPermission('manageAccountPermissions');
 
     const { accountIds, userId, level, read, write } = input;
@@ -45,15 +44,11 @@ const permissionMutations = {
       }
     }
 
-    if (bulkOps.length) {
-      await models.Permissions.bulkWrite(bulkOps);
-    }
-    if (deleteConditions.length) {
-      await models.Permissions.deleteMany({ $or: deleteConditions });
-    }
+    if (bulkOps.length) await models.Permissions.bulkWrite(bulkOps);
+    if (deleteConditions.length) await models.Permissions.deleteMany({ $or: deleteConditions });
 
     return results;
   },
 };
 
-export const PermissionMutations = permissionMutations;
+export const MutationsAccountPermissions = mutationsAccountPermissions;
