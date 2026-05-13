@@ -4,7 +4,7 @@ import moment from 'moment';
 import { Model, connection } from 'mongoose';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
-import { PTR_STATUSES, TR_SIDES } from '../../@types/constants';
+import { PTR_STATUSES, TR_SIDES, TR_STATUSES } from '../../@types/constants';
 import { ITransaction, ITransactionDocument } from '../../@types/transaction';
 import { commonRemove } from '../../utils/commonRemove';
 import { commonSave } from '../../utils/commonSave';
@@ -52,6 +52,36 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
     ptrId?: string;
   }): Promise<{ n: number; ok: number }>;
 }
+
+const normalizeParentWorkflowDocs = (
+  docs: (ITransaction & { _id?: string })[],
+  userId: string,
+  oldTr?: ITransactionDocument,
+) => {
+  const firstDoc = docs[0];
+
+  if (!firstDoc) {
+    return docs;
+  }
+
+  const status = firstDoc.status;
+  const isReturned = status === TR_STATUSES.RETURNED;
+  const mentionOwnerId = isReturned
+    ? userId
+    : firstDoc.mentionOwnerId || oldTr?.mentionOwnerId;
+  const mentionUserIds = isReturned
+    ? oldTr?.mentionOwnerId
+      ? [oldTr.mentionOwnerId]
+      : []
+    : firstDoc.mentionUserIds || oldTr?.mentionUserIds || [];
+
+  return docs.map((doc) => ({
+    ...doc,
+    status,
+    mentionOwnerId,
+    mentionUserIds,
+  }));
+};
 
 export const loadTransactionClass = (models: IModels, subdomain: string, { sendDbEventLog, createActivityLog, sendNotificationMessage }: EventDispatcherReturn) => {
   class Transaction {
@@ -248,6 +278,8 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
       docs: ITransaction[],
       userId: string,
     ) {
+      docs = normalizeParentWorkflowDocs(docs, userId);
+
       const transactions: ITransactionDocument[] = [];
       let errMsg = '';
 
@@ -360,6 +392,8 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
       if (!ptrId) {
         throw new Error('Not found old transactions ptr');
       }
+
+      docs = normalizeParentWorkflowDocs(docs, userId, oldTrs[0]);
 
       const oldTrIds = oldTrs.map((ot) => ot._id);
 

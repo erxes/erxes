@@ -55,7 +55,7 @@ export const transactionSchema = schemaWrapper(
       type: String,
       enum: TR_STATUSES.ALL,
       label: 'Status',
-      default: 'real',
+      default: TR_STATUSES.DRAFT,
       index: true,
     },
     mentionOwnerId: { type: String, optional: true, label: 'Mention Owner' },

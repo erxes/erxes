@@ -53,21 +53,35 @@ export const TR_SIDES = {
 };
 
 export const TR_STATUSES = {
-  // draft level
-  DRAFT: 'draft', // noorog buyu uurtuu l uzej bui
-  MENTION: 'mention', // butsahgui, mention avsan hun comlete esvel draft bolgoh
-  PENDING: 'pending', // butsah, confirm or rejected
-  CONFIRMED: 'confirmed',
-  REJECTED: 'rejected',
-  // transaction level
-  PLAN: 'plan',
-
   // future level
+  PLAN: 'plan',
+  // conversation level
+  DRAFT: 'draft',
+  MENTIONED: 'mentioned',
+  APPROVED: 'approved',
+  REJECED: 'rejeced',
+  RETURNED: 'returned',
+  // business level
+  PROGRESS: 'progress',
+  ASSIGNED: 'assigned',
+  CONFIRMED: 'confirmed',
+  CANELLED: 'canelled',
   COMPLETE: 'complete',
+
   ALL: [
-    'draft', 'mention', 'pending', 'confirmed', 'rejected', 'plan', 'complete',
+    'plan',
+    'draft',
+    'mentioned',
+    'approved',
+    'rejeced',
+    'returned',
+    'progress',
+    'assigned',
+    'confirmed',
+    'canelled',
+    'complete',
   ],
-  ACTIVE: ['complete', 'new', 'synced', 'real', 'draft'],
+  ACTIVE: ['progress', 'assigned', 'confirmed', 'complete'],
 };
 
 export const PTR_STATUSES = {

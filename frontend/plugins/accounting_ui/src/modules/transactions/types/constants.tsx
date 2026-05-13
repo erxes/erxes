@@ -96,45 +96,82 @@ export const INV_INCOME_EXPENSE_TYPES = [
 ];
 
 export const TR_STATUSES = {
-  DRAFT: 'draft',
-  MENTION: 'mention',
-  PENDING: 'pending',
-  REJECTED: 'rejected',
-  CONFIRM: 'confirm',
+  // future level
   PLAN: 'plan',
+  // conversation level
+  DRAFT: 'draft',
+  MENTIONED: 'mentioned',
+  APPROVED: 'approved',
+  REJECED: 'rejeced',
+  RETURNED: 'returned',
+  // business level
   PROGRESS: 'progress',
+  ASSIGNED: 'assigned',
+  CONFIRMED: 'confirmed',
+  CANELLED: 'canelled',
   COMPLETE: 'complete',
-  ALL: [
-    'draft',
-    'mention',
-    'pending',
-    'rejected',
-    'confirm',
-  ],
-  MENTIONS: [
-    'mention',
-    'pending',
-    'rejected',
-    'confirm',
-  ],
-  OPTIONS: [
-    { value: 'draft', label: 'Ноорог' },
-    { value: 'mention', label: 'Батлуулах' },
-    { value: 'pending', label: 'Эргэж харах' },
-    { value: 'rejected', label: 'Цуцалсан' },
-    { value: 'confirm', label: 'Зөвшөөрсөн' },
-  ],
 
+  ALL: [
+    'plan',
+    'draft',
+    'mentioned',
+    'approved',
+    'rejeced',
+    'returned',
+    'progress',
+    'assigned',
+    'confirmed',
+    'canelled',
+    'complete',
+  ],
 }
 
 export const TR_STATUS_LABELS: Record<string, string> = {
+  // future level
   plan: 'Төлөвлөгөөт',
+  // conversation level
   draft: 'Ноорог',
-  mention: 'Хүсэлт',
-  rejected: 'Татгалзсан',
-  confirm: 'Зөвшөөрсөн',
-  returnMention: 'Харилцан хүсэлт',
+  mentioned: 'Хүсэлт',
+  approved: 'Зөвшөөрсөн',
+  rejeced: 'Татгалзсан',
+  returned: 'Хариу хүсэлт',
+  // business level
   progress: 'Хэрэгжүүлж буй',
-  pending: 'Баталгаажуулах',
+  assigned: 'Баталгаажуулах',
+  confirmed: 'Баталсан',
+  canelled: 'Цуцалсан',
+
   complete: 'Бүрэн',
 };
+
+export const TR_STATUS_OPTIONS = TR_STATUSES.ALL.map((status) => ({
+  value: status,
+  label: TR_STATUS_LABELS[status] || status,
+}));
+
+export const TR_STATUS_GROUPS = [
+  {
+    label: 'Хүсэлт',
+    values: [
+      TR_STATUSES.DRAFT,
+      TR_STATUSES.MENTIONED,
+      TR_STATUSES.APPROVED,
+      TR_STATUSES.REJECED,
+      TR_STATUSES.RETURNED,
+    ],
+  },
+  {
+    label: 'Гүйцэтгэл',
+    values: [
+      TR_STATUSES.PROGRESS,
+      TR_STATUSES.ASSIGNED,
+      TR_STATUSES.CONFIRMED,
+      TR_STATUSES.CANELLED,
+      TR_STATUSES.COMPLETE,
+    ],
+  },
+  {
+    label: 'Төлөвлөгөө',
+    values: [TR_STATUSES.PLAN],
+  },
+];

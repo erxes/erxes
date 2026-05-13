@@ -5,7 +5,12 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { memo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { currentUserState, IUser, SelectMember } from 'ui-modules';
-import { TR_STATUSES, TrJournalEnum } from '../../types/constants';
+import {
+  TR_STATUS_GROUPS,
+  TR_STATUSES,
+  TR_STATUS_OPTIONS,
+  TrJournalEnum,
+} from '../../types/constants';
 import { JOURNALS_BY_JOURNAL } from '../contants/defaultValues';
 import { transactionGroupSchema } from '../contants/transactionSchema';
 import { useTransactionsCreate } from '../hooks/useTransactionsCreate';
@@ -16,10 +21,44 @@ import { TAddTransactionGroup } from '../types/JournalForms';
 import { Summary } from './Summary';
 import { TransactionsTabsList } from './TransactionTabs';
 import { cleanTrDocs } from './utils';
+import {
+  getAvailableTrStatusOptions,
+  getNextMentionFields,
+} from '../utils/statusWorkflow';
 
 // Memoize form fields to prevent unnecessary re-renders
 const FormFields = memo(
-  ({ form }: { form: ReturnType<typeof useForm<TAddTransactionGroup>> }) => {
+  ({
+    form,
+    currentUserId,
+  }: {
+    form: ReturnType<typeof useForm<TAddTransactionGroup>>;
+    currentUserId?: string;
+  }) => {
+    const status = form.watch('status');
+    const mentionOwnerId = form.watch('mentionOwnerId');
+    const mentionUserIds = form.watch('mentionUserIds');
+    const statusOptions = getAvailableTrStatusOptions(
+      {
+        currentUserId,
+        mentionOwnerId,
+        mentionUserIds,
+        status,
+      },
+      TR_STATUS_OPTIONS,
+    );
+    const statusOptionsByValue = new Map(
+      statusOptions.map((option) => [option.value, option]),
+    );
+    const statusGroups = TR_STATUS_GROUPS.map((group) => ({
+      ...group,
+      options: group.values
+        .map((value) => statusOptionsByValue.get(value))
+        .filter((option): option is (typeof statusOptions)[number] =>
+          Boolean(option),
+        ),
+    })).filter((group) => group.options.length);
+
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-6 py-6">
         <Form.Field
@@ -57,15 +96,43 @@ const FormFields = memo(
             <Form.Item>
               <Form.Label>Төлөв</Form.Label>
               <Form.Control>
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select
+                  value={field.value}
+                  onValueChange={(nextStatus) => {
+                    field.onChange(nextStatus);
+
+                    const nextMentionFields = getNextMentionFields({
+                      currentUserId,
+                      nextStatus,
+                      mentionOwnerId,
+                      mentionUserIds,
+                    });
+
+                    form.setValue(
+                      'mentionOwnerId',
+                      nextMentionFields.mentionOwnerId,
+                    );
+                    form.setValue(
+                      'mentionUserIds',
+                      nextMentionFields.mentionUserIds,
+                    );
+                  }}
+                >
                   <Select.Trigger className="h-8">
                     <Select.Value />
                   </Select.Trigger>
                   <Select.Content>
-                    {TR_STATUSES.OPTIONS.map((side) => (
-                      <Select.Item key={side.value} value={side.value}>
-                        {side.label}
-                      </Select.Item>
+                    {statusGroups.map((group, groupIndex) => (
+                      <Select.Group key={group.label}>
+                        {group.options.map((side) => (
+                          <Select.Item key={side.value} value={side.value}>
+                            {side.label}
+                          </Select.Item>
+                        ))}
+                        {groupIndex < statusGroups.length - 1 && (
+                          <Select.Separator />
+                        )}
+                      </Select.Group>
                     ))}
                   </Select.Content>
                 </Select>
@@ -142,7 +209,15 @@ export const TransactionsGroupForm = () => {
 
   const onSubmit = (data: TAddTransactionGroup) => {
     // transactionGroup get
-    const trDocs = cleanTrDocs(data);
+    const trDocs = cleanTrDocs({
+      ...data,
+      ...getNextMentionFields({
+        currentUserId: currentUser._id,
+        nextStatus: data.status,
+        mentionOwnerId: data.mentionOwnerId,
+        mentionUserIds: data.mentionUserIds,
+      }),
+    });
 
     if (parentId) {
       updateTransaction({
@@ -173,7 +248,7 @@ export const TransactionsGroupForm = () => {
         number: currentTr?.number || 'auto',
         date: new Date(currentTr?.date || new Date()),
         status: currentTr?.status || TR_STATUSES.DRAFT,
-        mentionOwnerId: currentUser._id,
+        mentionOwnerId: currentTr?.mentionOwnerId || currentUser._id,
         mentionUserIds: currentTr?.mentionUserIds ?? [],
         trDocs: activeTrs.map((atr) =>
           JOURNALS_BY_JOURNAL(atr?.journal || '', atr),
@@ -212,7 +287,7 @@ export const TransactionsGroupForm = () => {
             <Summary form={form} />
           </div>
         </div>
-        <FormFields form={form} />
+        <FormFields form={form} currentUserId={currentUser._id} />
         <TransactionsTabsList form={form} />
       </form>
     </Form>
