@@ -45,6 +45,8 @@ export const GET_TOURS = gql`
         date_status
         cost
         categoryIds
+        customTourTypeId
+        customFieldsData
         modifiedAt
         createdAt
         categoryIds
@@ -116,6 +118,8 @@ export const GET_TOUR_GROUPS = gql`
           modifiedAt
           createdAt
           categoryIds
+          customTourTypeId
+          customFieldsData
         }
       }
     }
@@ -132,6 +136,9 @@ export const GET_TOUR_DETAIL = gql`
       advanceCheck
       advancePercent
       categoryIds
+      customTourTypeId
+      customFieldsData
+      customFieldsMap
       content
       cost
       date_status

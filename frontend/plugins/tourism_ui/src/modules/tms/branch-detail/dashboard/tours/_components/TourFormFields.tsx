@@ -2,6 +2,7 @@ import {
   Control,
   FieldPath,
   FieldPathByValue,
+  UseFormReturn,
   useFieldArray,
 } from 'react-hook-form';
 import {
@@ -29,6 +30,7 @@ import {
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useAtomValue } from 'jotai';
+import { useQuery } from '@apollo/client';
 import { nanoid } from 'nanoid';
 import { SelectItinerary } from '../../itinerary/_components/SelectItinerary';
 import { ImageUploadGrid } from '../../../components';
@@ -36,6 +38,16 @@ import { SelectTourCategory } from './SelectTourCategory';
 import { toOptionalString, toOptionalNumber } from '../utils/fieldConverters';
 import { LANGUAGES } from '@/tms/constants/languages';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
+import {
+  BMS_CUSTOM_TOUR_GROUPS,
+  BMS_CUSTOM_TOUR_TYPES,
+} from '../../custom-fields/graphql';
+import {
+  ICustomFieldValue,
+  ICustomTourField,
+  ICustomTourFieldGroup,
+  ICustomTourType,
+} from '../../custom-fields/types';
 
 type TourTextFieldPath = FieldPathByValue<TourFormValues, string | undefined>;
 
@@ -463,6 +475,234 @@ export const TourCategoryField = ({
         </Form.Item>
       )}
     />
+  );
+};
+
+export const TourCustomTourTypeField = ({
+  control,
+  branchId,
+}: {
+  control: Control<TourFormValues>;
+  branchId?: string;
+}) => {
+  const { data } = useQuery(BMS_CUSTOM_TOUR_TYPES, {
+    variables: { branchId },
+    skip: !branchId,
+  });
+
+  const customTypes = (data?.bmsCustomTourTypes || []) as ICustomTourType[];
+
+  return (
+    <Form.Field
+      control={control}
+      name="customTourTypeId"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>Custom tour type</Form.Label>
+          <Form.Control>
+            <Select
+              value={field.value || 'tour'}
+              onValueChange={(value) =>
+                field.onChange(value === 'tour' ? undefined : value)
+              }
+            >
+              <Select.Trigger>
+                <Select.Value placeholder="Default tour" />
+              </Select.Trigger>
+              <Select.Content>
+                <Select.Item value="tour">Default tour</Select.Item>
+                {customTypes.map((type) => (
+                  <Select.Item key={type._id} value={type._id}>
+                    {type.label}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select>
+          </Form.Control>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+const getCustomFieldValue = (
+  customFieldsData: ICustomFieldValue[] = [],
+  fieldId: string,
+) => customFieldsData.find((item) => item.field === fieldId)?.value;
+
+const buildCustomFieldValue = (
+  field: ICustomTourField,
+  rawValue: any,
+): ICustomFieldValue => {
+  const value =
+    field.type === 'checkbox'
+      ? Boolean(rawValue)
+      : rawValue === ''
+      ? undefined
+      : rawValue;
+  const numberValue =
+    field.type === 'number' && value !== undefined && value !== null
+      ? Number(value)
+      : undefined;
+
+  return {
+    field: field._id,
+    value,
+    stringValue:
+      typeof value === 'string' || typeof value === 'boolean'
+        ? String(value)
+        : undefined,
+    numberValue,
+    dateValue: field.type === 'date' ? value : undefined,
+  };
+};
+
+const CustomTourFieldInput = ({
+  field,
+  value,
+  onChange,
+}: {
+  field: ICustomTourField;
+  value: any;
+  onChange: (value: any) => void;
+}) => {
+  if (field.type === 'textarea') {
+    return <Textarea value={value || ''} onChange={(e) => onChange(e.target.value)} />;
+  }
+
+  if (field.type === 'number') {
+    return (
+      <Input
+        type="number"
+        value={value ?? ''}
+        onChange={(e) =>
+          onChange(e.target.value === '' ? undefined : Number(e.target.value))
+        }
+      />
+    );
+  }
+
+  if (field.type === 'date') {
+    return (
+      <Input
+        type="date"
+        value={value ? String(value).slice(0, 10) : ''}
+        onChange={(e) => onChange(e.target.value || undefined)}
+      />
+    );
+  }
+
+  if (field.type === 'select' || field.type === 'radio') {
+    return (
+      <Select value={value || ''} onValueChange={onChange}>
+        <Select.Trigger>
+          <Select.Value placeholder="Select value" />
+        </Select.Trigger>
+        <Select.Content>
+          {(field.options || []).map((option) => (
+            <Select.Item key={option} value={option}>
+              {option}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select>
+    );
+  }
+
+  if (field.type === 'checkbox') {
+    return (
+      <div className="flex items-center gap-2">
+        <Checkbox checked={Boolean(value)} onCheckedChange={onChange} />
+        <span className="text-sm text-muted-foreground">Enabled</span>
+      </div>
+    );
+  }
+
+  return <Input value={value || ''} onChange={(e) => onChange(e.target.value)} />;
+};
+
+export const TourCustomFieldsSection = ({
+  form,
+  branchId,
+}: {
+  form: UseFormReturn<TourFormValues>;
+  branchId?: string;
+}) => {
+  const customTourTypeId = form.watch('customTourTypeId');
+  const customFieldsData = form.watch('customFieldsData') || [];
+
+  const { data } = useQuery(BMS_CUSTOM_TOUR_GROUPS, {
+    variables: { branchId },
+    skip: !branchId,
+  });
+
+  const groups = ((data?.bmsCustomTourGroupList?.list ||
+    []) as ICustomTourFieldGroup[]).filter((group) => {
+    const showOn = group.customTourTypeIds || [];
+    if (!showOn.length) return true;
+    return showOn.includes(customTourTypeId || 'tour');
+  });
+
+  const fieldsCount = groups.reduce(
+    (count, group) => count + (group.fields?.length || 0),
+    0,
+  );
+
+  if (!fieldsCount) {
+    return null;
+  }
+
+  const updateField = (field: ICustomTourField, nextValue: any) => {
+    const nextEntry = buildCustomFieldValue(field, nextValue);
+    const nextData = [
+      ...customFieldsData.filter(
+        (item: ICustomFieldValue) => item.field !== field._id,
+      ),
+      nextEntry,
+    ];
+
+    form.setValue('customFieldsData', nextData, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  };
+
+  return (
+    <div className="space-y-4">
+      {groups.map((group) => (
+        <div key={group._id} className="space-y-3 rounded-md border p-4">
+          <div>
+            <Form.Label>{group.label}</Form.Label>
+            {group.code && (
+              <Form.Description>Custom group: {group.code}</Form.Description>
+            )}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {(group.fields || []).map((field) => (
+              <Form.Item key={field._id}>
+                <Form.Label>
+                  {field.label}
+                  {field.isRequired && (
+                    <span className="text-destructive"> *</span>
+                  )}
+                </Form.Label>
+                <Form.Control>
+                  <CustomTourFieldInput
+                    field={field}
+                    value={getCustomFieldValue(customFieldsData, field._id)}
+                    onChange={(value) => updateField(field, value)}
+                  />
+                </Form.Control>
+                {field.description && (
+                  <Form.Description>{field.description}</Form.Description>
+                )}
+              </Form.Item>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 };
 

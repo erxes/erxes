@@ -54,6 +54,10 @@ export const loadCmsClass = (models: IModels) => {
       return data;
     }
     public static async createContentCMS(doc: IContentCMSInput) {
+      if (!doc?.clientPortalId?.trim()) {
+        throw new Error('Client Portal is required');
+      }
+
       return models.CMS.create(this.buildCmsDoc(doc));
     }
     public static async updateContentCMS(_id: string, doc: IContentCMSInput) {

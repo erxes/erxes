@@ -126,6 +126,8 @@ export const TourCreateFormSchema = z
     content: z.string().optional(),
     itineraryId: z.string().min(1, 'Itinerary is required'),
     categoryIds: z.array(z.string()).optional(),
+    customTourTypeId: z.string().optional(),
+    customFieldsData: z.array(z.any()).optional(),
 
     isFlexibleDate: z.boolean().default(false),
     isGroupTour: z.boolean().default(false),
