@@ -58,13 +58,16 @@ export const getAvailableTrStatusOptions = (
   options: TStatusOption[],
 ) => {
   const { status } = params;
-  const values =
-    isMentionOwner(params) || !status
-      ? OWNER_STATUS_VALUES
-      : isMentionResponder(params) &&
-          [TR_STATUSES.MENTIONED, TR_STATUSES.RETURNED].includes(status)
-        ? RESPONDER_STATUS_VALUES
-        : DEFAULT_STATUS_VALUES;
+  let values = DEFAULT_STATUS_VALUES;
+
+  if (isMentionOwner(params) || !status) {
+    values = OWNER_STATUS_VALUES;
+  } else if (
+    isMentionResponder(params) &&
+    [TR_STATUSES.MENTIONED, TR_STATUSES.RETURNED].includes(status)
+  ) {
+    values = RESPONDER_STATUS_VALUES;
+  }
 
   return options.filter(
     (option) => values.includes(option.value) || option.value === status,

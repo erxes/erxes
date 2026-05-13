@@ -69,11 +69,11 @@ const normalizeParentWorkflowDocs = (
   const mentionOwnerId = isReturned
     ? userId
     : firstDoc.mentionOwnerId || oldTr?.mentionOwnerId;
-  const mentionUserIds = isReturned
-    ? oldTr?.mentionOwnerId
-      ? [oldTr.mentionOwnerId]
-      : []
-    : firstDoc.mentionUserIds || oldTr?.mentionUserIds || [];
+  let mentionUserIds = firstDoc.mentionUserIds || oldTr?.mentionUserIds || [];
+
+  if (isReturned) {
+    mentionUserIds = oldTr?.mentionOwnerId ? [oldTr.mentionOwnerId] : [];
+  }
 
   return docs.map((doc) => ({
     ...doc,
