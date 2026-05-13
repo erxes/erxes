@@ -43,9 +43,23 @@ export interface IOpenAIAgentConnection {
   config: IAiAgentConnectionConfig;
 }
 
+export interface IKimiAgentConnection {
+  provider: 'kimi';
+  model: string;
+  config: IAiAgentConnectionConfig;
+}
+
+export interface IGrokAgentConnection {
+  provider: 'grok';
+  model: string;
+  config: IAiAgentConnectionConfig;
+}
+
 export type IAiAgentConnection =
   | ICloudflareAiGatewayAgentConnection
-  | IOpenAIAgentConnection;
+  | IOpenAIAgentConnection
+  | IKimiAgentConnection
+  | IGrokAgentConnection;
 
 export interface ILegacyAiAgentConnectionConfig {
   apiKey?: string;
@@ -121,7 +135,7 @@ const aiAgentConnectionSchema = new Schema<IAiAgentConnection>(
     provider: {
       type: String,
       required: true,
-      enum: ['cloudflare-ai-gateway', 'openai'],
+      enum: ['cloudflare-ai-gateway', 'openai', 'kimi', 'grok'],
       default: 'cloudflare-ai-gateway',
     },
     model: { type: String, required: true, default: 'openai/gpt-5-mini' },

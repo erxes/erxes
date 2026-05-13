@@ -1,4 +1,8 @@
-import { SegmentForm, useFormValidationErrorHandler } from 'ui-modules';
+import {
+  SegmentForm,
+  SegmentFormMode,
+  useFormValidationErrorHandler,
+} from 'ui-modules';
 import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
 import { useSegmentActions } from 'ui-modules/modules/segments/hooks/useSegmentActions';
 import { AutoamtionConfigFormFooter } from './AutomationConfigFormFooter';
@@ -15,7 +19,11 @@ export const AutomationSegmentForm = ({
   saveButtonLabel?: string;
 }) => {
   return (
-    <SegmentForm.Root contentType={contentType} segmentId={segmentId}>
+    <SegmentForm.Root
+      contentType={contentType}
+      segmentId={segmentId}
+      mode={SegmentFormMode.SINGLE}
+    >
       <SegmentForm.Wrapper>
         <SegmentForm.Content callback={callback}>
           <div className="mt-2">
