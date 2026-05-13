@@ -12,6 +12,7 @@ import {
   Switch,
   Textarea,
 } from 'erxes-ui';
+import { WidgetUpload } from './WidgetUpload';
 import { IFormFieldLogic, IFormStep } from '../types/formTypes';
 import { useForm } from 'react-hook-form';
 import { useErxesForm } from '../context/erxesFormContext';
@@ -351,6 +352,31 @@ export const ErxesForm = ({
                               {...field}
                               placeholder={erxesField.text}
                             />
+                            {erxesField.description && (
+                              <Form.Description>
+                                {erxesField.description}
+                              </Form.Description>
+                            )}
+                            <Form.Message />
+                          </ErxesFormItem>
+                        );
+                      }
+
+                      if (erxesField.type === 'file') {
+                        const urls: string[] = Array.isArray(field.value)
+                          ? field.value
+                          : [];
+                        return (
+                          <ErxesFormItem span={erxesField.column}>
+                            <Form.Label>{erxesField.text}</Form.Label>
+                            <Form.Control>
+                              <WidgetUpload
+                                value={urls}
+                                onChange={field.onChange}
+                                multiple
+                                label={erxesField.content || 'Upload file'}
+                              />
+                            </Form.Control>
                             {erxesField.description && (
                               <Form.Description>
                                 {erxesField.description}

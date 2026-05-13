@@ -98,7 +98,14 @@ export const formSetupValuesAtom = atom((get) => {
             ),
             logicAction: field.logicAction,
             allowSearch: field.allowSearch,
-            validator: field.validator,
+            validator: field.validator
+              ? {
+                  type: field.validator.type,
+                  presetKey: field.validator.presetKey,
+                  customRegex: field.validator.customRegex,
+                  errorMessage: field.validator.errorMessage,
+                }
+              : undefined,
           };
         });
       })
@@ -117,13 +124,13 @@ export const resetFormSetupAtom = atom(null, (_, set) => {
 export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
   const general = {
     channelId: payload.channelId ?? '',
-    title: payload.title,
-    name: payload.title,
-    description: payload.description,
-    buttonText: payload.buttonText,
-    primaryColor: payload.leadData.primaryColor,
-    appearance: payload.leadData.appearance,
-    loadType: payload.leadData.loadType || 'embedded',
+    title: payload.title ?? '',
+    name: payload.title ?? '',
+    description: payload.description ?? '',
+    buttonText: payload.buttonText ?? '',
+    primaryColor: payload.leadData.primaryColor ?? '',
+    appearance: payload.leadData.appearance ?? 'iframe',
+    loadType: payload.leadData.loadType ?? 'embedded',
   };
 
   const content = {
@@ -139,8 +146,8 @@ export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
             .map((field) => ({
               id: field._id,
               type: field.type,
-              label: field.text,
-              description: field.description,
+              label: field.text ?? '',
+              description: field.description ?? '',
               placeholder: field.content || '',
               options: field.options,
               span: field.column ?? 1,
@@ -159,11 +166,12 @@ export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
   };
 
   const confirmation = {
-    title: payload.leadData.thankTitle,
-    description: payload.leadData.thankContent,
-    image: payload.leadData.thankImage,
+    title: payload.leadData.thankTitle ?? '',
+    description: payload.leadData.thankContent ?? '',
+    image: payload.leadData.thankImage ?? null,
   };
 
+  set(formSetupStepAtom, 1);
   set(formSetupGeneralAtom, general);
   set(formSetupContentAtom, content);
   set(formSetupConfirmationAtom, confirmation);
