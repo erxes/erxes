@@ -19,15 +19,13 @@ export const receiveComment = async (
   const rawCommentId = rawParams.comment_id || (rawParams as any).id;
   const rawFromId = rawParams.from?.id;
 
+  const isEmpty = (v: unknown) => v === null || v === undefined || v === '';
+
   if (
-    pageId == null ||
-    pageId === '' ||
-    rawPostId == null ||
-    rawPostId === '' ||
-    rawCommentId == null ||
-    rawCommentId === '' ||
-    rawFromId == null ||
-    rawFromId === ''
+    isEmpty(pageId) ||
+    isEmpty(rawPostId) ||
+    isEmpty(rawCommentId) ||
+    isEmpty(rawFromId)
   ) {
     debugError(
       `[instagram.receiveComment] missing required webhook fields: pageId=${pageId ? 'present' : 'missing'} post_id=${rawPostId ? 'present' : 'missing'} comment_id=${rawCommentId ? 'present' : 'missing'} from.id=${rawFromId ? 'present' : 'missing'}`,
