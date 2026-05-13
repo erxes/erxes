@@ -9,6 +9,7 @@ export interface BeforeResolverParams {
   resolver: string;
   args?: any;
   user?: any;
+  headers?: Record<string, any>;
 }
 
 export type BeforeResolverHandler = (
@@ -53,6 +54,7 @@ export const startBeforeResolvers = async (
             resolver: z.string(),
             args: z.any(),
             user: z.any().optional(),
+            headers: z.any().optional(),
           }),
         }),
       )

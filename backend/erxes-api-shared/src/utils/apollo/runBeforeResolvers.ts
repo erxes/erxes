@@ -25,7 +25,11 @@ const pluginHandlesResolver = (
 export const runBeforeResolvers = async (
   resolverName: string,
   args: any,
-  context: { subdomain: string; user?: any },
+  context: {
+    subdomain: string;
+    user?: any;
+    headers?: Record<string, string | string[] | undefined>;
+  },
 ): Promise<any> => {
   const pluginNames = await getPlugins();
 
@@ -49,6 +53,7 @@ export const runBeforeResolvers = async (
         resolver: resolverName,
         args: mergedArgs,
         user: context.user,
+        headers: context.headers,
       },
     });
 

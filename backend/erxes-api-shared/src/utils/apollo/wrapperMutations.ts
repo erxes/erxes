@@ -39,9 +39,13 @@ const withBefore = (
 ): GraphqlLogHandler => {
   return async (root, args, context, info) => {
     const { subdomain, user } = context;
+
+    const headers = (context as any).requestInfo?.headers || (context as any).req?.headers;
+
     const nextArgs = await runBeforeResolvers(resolverKey, args, {
       subdomain,
       user,
+      headers,
     });
     return resolver(root, nextArgs, context, info);
   };
