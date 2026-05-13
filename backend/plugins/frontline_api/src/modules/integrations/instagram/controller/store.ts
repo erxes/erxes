@@ -337,7 +337,7 @@ export async function fetchInstagramPostDetails(
   const integration = await models.InstagramIntegrations.findOne({
     $and: [
       { facebookPageId: { $eq: pageId } },
-      { kind: INTEGRATION_KINDS.POST },
+      { kind: { $eq: INTEGRATION_KINDS.POST } },
     ],
   });
 
