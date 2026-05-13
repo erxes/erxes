@@ -1,24 +1,6 @@
 import { Schema } from 'mongoose';
 import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
-
-export const ACCOUNT_PERMISSION_SCOPES = {
-  NONE: 'none',
-  OWN: 'own',
-  LT_LVL: 'ltLvl',
-  LTE_LVL: 'lteLvl',
-  GT_LVL: 'gtLvl',
-  VALUES: ['none', 'own', 'ltLvl', 'lteLvl', 'gtLvl'],   
-};
-
-export const ACCOUNT_PERMISSION_WRITE_SCOPES = {
-  NONE: 'none',
-  ADD: 'add',
-  OWN: 'own',
-  LT_LVL: 'ltLvl',
-  LTE_LVL: 'lteLvl',
-  GT_LVL: 'gtLvl',
-  VALUES: ['none', 'add', 'own', 'ltLvl', 'lteLvl', 'gtLvl'], 
-};
+import { ACCOUNT_PERMISSION_SCOPES, ACCOUNT_PERMISSION_WRITE_SCOPES } from '../../@types/permission';
 
 export const accountPermissionSchema = schemaWrapper(
   new Schema({
@@ -28,13 +10,13 @@ export const accountPermissionSchema = schemaWrapper(
     level: { type: Number, label: 'Level', default: 0 },
     read: {
       type: String,
-      enum: ACCOUNT_PERMISSION_SCOPES.VALUES,
+      enum: ACCOUNT_PERMISSION_SCOPES.ALL,
       default: ACCOUNT_PERMISSION_SCOPES.NONE,
       label: 'Read rule',
     },
     write: {
       type: String,
-      enum: ACCOUNT_PERMISSION_WRITE_SCOPES.VALUES,
+      enum: ACCOUNT_PERMISSION_WRITE_SCOPES.ALL,
       default: ACCOUNT_PERMISSION_WRITE_SCOPES.NONE,
       label: 'Write rule',
     },

@@ -1,4 +1,5 @@
 import { IContext } from '~/connectionResolvers';
+import { ACCOUNT_PERMISSION_SCOPES, ACCOUNT_PERMISSION_WRITE_SCOPES } from '~/modules/accounting/@types/permission';
 
 const accountPermissionsMutations = {
   async setAccountPermissions(
@@ -10,53 +11,51 @@ const accountPermissionsMutations = {
 
     const { accountIds, userId, level, read, write } = input;
 
-    // INPUT VALIDATION
-    const validReadScopes = ['none', 'own', 'ltLvl', 'lteLvl', 'gtLvl'];
-    const validWriteScopes = ['none', 'add', 'own', 'ltLvl', 'lteLvl', 'gtLvl'];
+    const effectiveRead = read ?? ACCOUNT_PERMISSION_SCOPES.NONE;
+    const effectiveWrite = write ?? ACCOUNT_PERMISSION_WRITE_SCOPES.NONE;
 
-    if (read !== undefined && !validReadScopes.includes(read)) {
-      throw new Error(`Invalid read scope: ${read}. Allowed: ${validReadScopes.join(', ')}`);
+    if (!ACCOUNT_PERMISSION_SCOPES.ALL.includes(effectiveRead)) {
+      throw new Error(`Invalid read scope: ${effectiveRead}. Allowed: ${ACCOUNT_PERMISSION_SCOPES.ALL.join(', ')}`);
     }
-    if (write !== undefined && !validWriteScopes.includes(write)) {
-      throw new Error(`Invalid write scope: ${write}. Allowed: ${validWriteScopes.join(', ')}`);
+    if (!ACCOUNT_PERMISSION_WRITE_SCOPES.ALL.includes(effectiveWrite)) {
+      throw new Error(`Invalid write scope: ${effectiveWrite}. Allowed: ${ACCOUNT_PERMISSION_WRITE_SCOPES.ALL.join(', ')}`);
     }
-    const results: Array<{ accountId: string; status: string }> = [];
+
+    if (effectiveRead === ACCOUNT_PERMISSION_SCOPES.NONE && effectiveWrite === ACCOUNT_PERMISSION_WRITE_SCOPES.NONE) {
+      await models.Permissions.deleteMany({
+        userId,
+        accountId: { $in: accountIds }
+      });
+
+      return accountIds.map(accId => ({ accountId: accId, status: 'deleted' }));
+    }
 
     const bulkOps: any[] = [];
-    const deleteOps: any[] = [];   // renamed from deleteConditions
+    const results: Array<{ accountId: string; status: string }> = [];
 
     for (const accountId of accountIds) {
-      const effectiveRead = read ?? 'none';
-      const effectiveWrite = write ?? 'none';
-
-      if (effectiveRead === 'none' && effectiveWrite === 'none') {
-        deleteOps.push({ deleteOne: { filter: { userId, accountId } } });   // use deleteOne inside bulkWrite
-        results.push({ accountId, status: 'deleted' });
-      } else {
-        const updateDoc = {
-          $set: {
-            userId,
-            accountId,
-            level: level ?? 0,
-            read: effectiveRead,
-            write: effectiveWrite,
-            updatedAt: new Date(),
-          },
-          $setOnInsert: { createdAt: new Date() },
-        };
-        bulkOps.push({
-          updateOne: {
-            filter: { userId, accountId },
-            update: updateDoc,
-            upsert: true,
-          },
-        });
-        results.push({ accountId, status: 'success' });
-      }
+      const updateDoc = {
+        $set: {
+          userId,
+          accountId,
+          level: level ?? 0,
+          read: effectiveRead,
+          write: effectiveWrite,
+          updatedAt: new Date(),
+        },
+        $setOnInsert: { createdAt: new Date() },
+      };
+      bulkOps.push({
+        updateOne: {
+          filter: { userId, accountId },
+          update: updateDoc,
+          upsert: true,
+        },
+      });
+      results.push({ accountId, status: 'success' });
     }
 
     if (bulkOps.length) await models.Permissions.bulkWrite(bulkOps);
-    if (deleteOps.length) await models.Permissions.bulkWrite(deleteOps);   // use bulkWrite for deletes
 
     return results;
   },
