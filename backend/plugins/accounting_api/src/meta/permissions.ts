@@ -49,6 +49,11 @@ const CONFIG_ACTIONS = {
   remove: 'removeAccountingConfigs',
 } as const;
 
+const ACCOUNT_PERMISSION_ACTIONS = {
+  read: 'readAccountPermissions',
+  manage: 'manageAccountPermissions',
+} as const;
+
 const allTransactionActions = Object.values(TRANSACTION_ACTIONS);
 const allActions = Object.values(ACTIONS);
 const allCategoryActions = Object.values(CATEGORY_ACTIONS); // for admin group
@@ -56,6 +61,7 @@ const allVatRowActions = Object.values(VAT_ROW_ACTIONS);
 const allCtaxRowActions = Object.values(CTAX_ROW_ACTIONS);
 const allAdjInvActions = Object.values(ADJ_INV_ACTIONS);
 const allConfigActions = Object.values(CONFIG_ACTIONS);
+const allPermissionActions = Object.values(ACCOUNT_PERMISSION_ACTIONS);
 
 export const permissions: IPermissionConfig = {
   plugin: 'accounting',
@@ -307,6 +313,12 @@ export const permissions: IPermissionConfig = {
           actions: [...allConfigActions],
           scope: 'all',
         },
+        {
+          plugin: 'accounting',
+          module: 'permission',
+          actions: [...allPermissionActions],
+          scope: 'all',
+        },
 
         {
           plugin: 'accounting',
@@ -349,6 +361,12 @@ export const permissions: IPermissionConfig = {
           plugin: 'accounting',
           module: 'config',
           actions: [CONFIG_ACTIONS.read],
+          scope: 'all',
+        },
+        {
+          plugin: 'accounting',
+          module: 'permission',
+          actions: [ACCOUNT_PERMISSION_ACTIONS.read],
           scope: 'all',
         },
         {

@@ -44,7 +44,8 @@ export const AutomationAiAgentDetail = ({
     values: normalizeAiAgentFormValues(detail, defaultProvider),
   });
 
-  const handleSubmit = form.handleSubmit(handleSave, () => {
+  const handleSubmit = form.handleSubmit(handleSave, (error) => {
+    console.error(error);
     toast({
       title: 'Invalid form',
       description: 'Please review the highlighted fields.',

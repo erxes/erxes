@@ -17,7 +17,6 @@ export const PropertyField = () => {
     propertyTypes,
   } = useSegmentGroupField();
   const fieldsGroupsMap = groupFieldsByType(fields);
-  console.log({ conditionFieldName, form: form.getValues() });
   return (
     <div className="flex flex-row w-full min-w-0 shadow-xs rounded-lg">
       {!withoutAssociationTypes && (
