@@ -8,6 +8,21 @@ import {
   Resolver,
 } from '../../core-types/common';
 import { logHandler } from '../logs';
+import { runBeforeResolvers } from './runBeforeResolvers';
+
+const withBeforeResolvers = (
+  resolver: Resolver,
+  resolverKey: string,
+): Resolver => {
+  return async (root, args, context, info) => {
+    const { subdomain, user } = context;
+    const nextArgs = await runBeforeResolvers(resolverKey, args, {
+      subdomain,
+      user,
+    });
+    return resolver(root, nextArgs, context, info);
+  };
+};
 
 const withLogging = (resolver: Resolver): Resolver => {
   return async (root, args, context, info) => {
@@ -51,7 +66,10 @@ export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
           );
         } else {
           mutationResolvers[mutationKey] = withLogging(
-            wrapPermission(mutationResolver, mutationKey),
+            wrapPermission(
+              withBeforeResolvers(mutationResolver, mutationKey),
+              mutationKey,
+            ),
           );
         }
       }
@@ -74,7 +92,10 @@ export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
             queryResolver.wrapperConfig,
           );
         } else {
-          queryResolvers[queryKey] = wrapPermission(queryResolver, queryKey);
+          queryResolvers[queryKey] = wrapPermission(
+            withBeforeResolvers(queryResolver, queryKey),
+            queryKey,
+          );
         }
       }
 

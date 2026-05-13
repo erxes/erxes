@@ -1,6 +1,7 @@
 import { IMainContext } from '../../core-types';
 import { GraphQLResolveInfo } from 'graphql';
 import { logHandler } from '../logs';
+import { runBeforeResolvers } from './runBeforeResolvers';
 
 type GraphqlLogHandler<TArgs = any, TReturn = any> = (
   root: any,
@@ -32,6 +33,20 @@ const withLogging = (resolver: GraphqlLogHandler): GraphqlLogHandler => {
   };
 };
 
+const withBefore = (
+  resolver: GraphqlLogHandler,
+  resolverKey: string,
+): GraphqlLogHandler => {
+  return async (root, args, context, info) => {
+    const { subdomain, user } = context;
+    const nextArgs = await runBeforeResolvers(resolverKey, args, {
+      subdomain,
+      user,
+    });
+    return resolver(root, nextArgs, context, info);
+  };
+};
+
 // Apply middleware to all mutations in an object
 export const wrapApolloMutations = (
   mutations: Record<string, GraphqlLogHandler>,
@@ -43,7 +58,7 @@ export const wrapApolloMutations = (
     if (muataionsForSkip?.includes(key)) {
       wrappedMutations[key] = resolver;
     } else {
-      wrappedMutations[key] = withLogging(resolver);
+      wrappedMutations[key] = withLogging(withBefore(resolver, key));
     }
   }
 
