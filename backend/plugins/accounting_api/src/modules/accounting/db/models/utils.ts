@@ -178,7 +178,7 @@ export const generateTrStatusActivityLog = (param: {
   const statusChanged = oldStatus !== undefined && oldStatus !== status;
   const mentionOwnerChanged = oldMentionOwnerId !== mentionOwnerId;
   const normalizeIds = (ids: string[] = []) =>
-    [...new Set(ids.filter(Boolean))].sort();
+    [...new Set(ids.filter(Boolean))];
   const currentMentionUserIds = normalizeIds(mentionUserIds);
   const previousMentionUserIds = normalizeIds(oldMentionUserIds);
   const mentionUsersChanged =
@@ -194,17 +194,16 @@ export const generateTrStatusActivityLog = (param: {
     return;
   }
 
-  const actionType = isCreate
-    ? 'created'
-    : statusChanged
-      ? 'status_changed'
-      : 'mention_changed';
+  let actionType = 'mention_changed';
+  let description = 'changed transaction mention';
 
-  const description = isCreate
-    ? `created transaction with ${status || 'unknown'} status`
-    : statusChanged
-      ? `changed transaction status from ${oldStatus || 'unknown'} to ${status || 'unknown'}`
-      : 'changed transaction mention';
+  if (isCreate) {
+    actionType = 'created';
+    description = `created transaction with ${status || 'unknown'} status`;
+  } else if (statusChanged) {
+    actionType = 'status_changed';
+    description = `changed transaction status from ${oldStatus || 'unknown'} to ${status || 'unknown'}`;
+  }
 
   return {
     activityType: `transaction.${actionType}`,

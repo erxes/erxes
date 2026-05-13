@@ -236,8 +236,10 @@ const generateFilter = async (
 
   if (number) {
     const regex = new RegExp(`.*${escapeRegExp(number)}.*`, 'i');
-    orFilter.push({ number: { $regex: regex } })
-    orFilter.push({ ptrNumber: { $regex: regex } })
+    orFilter.push(
+      { number: { $regex: regex } },
+      { ptrNumber: { $regex: regex } }
+    );
   }
 
   if (searchValue) {
