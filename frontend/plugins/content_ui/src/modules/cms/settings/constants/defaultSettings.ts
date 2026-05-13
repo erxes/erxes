@@ -1,0 +1,25 @@
+import { SettingsFormState } from '../types/settingsTypes';
+
+export const DEFAULT_SETTINGS: SettingsFormState = {
+  websiteName: '',
+  clientPortalKind: '',
+  shortDescription: '',
+  domain: '',
+  publicUrl: '',
+  metaTitle: '',
+  metaDescription: '',
+  metaKeywords: [],
+  metaImage: null,
+  indexing: 'index',
+  gaTrackingId: '',
+  googleTagManagerId: '',
+  customHeadScripts: '',
+  postUrlField: '_id',
+  postsPerPage: '10',
+  defaultPostStatus: 'draft',
+  allowComments: false,
+  languages: [],
+  defaultLanguage: '',
+  siteLogo: null,
+  favicon: null,
+};
