@@ -1,4 +1,4 @@
-import { AutomationVariableBrowser } from '@/automations/components/builder/components/AutomationVariableBrowser';
+import { AutomationVariableBrowser } from '@/automations/components/builder/sidebar/components/output-variables/AutomationVariableBrowser';
 import { useAutomationBuilderSecondarySidebar } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSecondarySidebar';
 
 export const AutomationBuilderNodeOutputVariables = () => {

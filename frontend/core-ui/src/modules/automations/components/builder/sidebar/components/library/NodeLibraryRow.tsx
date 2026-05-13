@@ -9,10 +9,16 @@ import {
 
 interface NodeLibraryRowProps {
   item: IAutomationsTriggerConfigConstants | IAutomationsActionConfigConstants;
-  nodeType: AutomationNodeType;
+  nodeType: AutomationNodeType.Trigger | AutomationNodeType.Action;
   onDragStart: (
     event: React.DragEvent<HTMLDivElement>,
     { type, label, description, icon, isCustom }: any,
+  ) => void;
+  onSelectNode: (
+    node: (
+      | IAutomationsTriggerConfigConstants
+      | IAutomationsActionConfigConstants
+    ) & { nodeType: AutomationNodeType.Trigger | AutomationNodeType.Action },
   ) => void;
 }
 
@@ -22,7 +28,7 @@ const createDragGhost = ({
   iconMarkup,
 }: {
   label: string;
-  nodeType: AutomationNodeType;
+  nodeType: AutomationNodeType.Trigger | AutomationNodeType.Action;
   iconMarkup: string;
 }) => {
   const ghost = document.createElement('div');
@@ -94,6 +100,7 @@ const createDragGhost = ({
 export const NodeLibraryRow = ({
   item,
   onDragStart,
+  onSelectNode,
   nodeType,
 }: NodeLibraryRowProps) => {
   const { icon: iconName, label, description } = item;
@@ -111,93 +118,78 @@ export const NodeLibraryRow = ({
     draggingNode.label === label;
 
   return (
-    <Command.Item value={label} asChild>
-      <div
-        className={cn(
-          'relative h-fit w-full rounded-xl border border-border/70 bg-background px-4 py-3.5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_24px_-20px_rgba(15,23,42,0.22)] transition-[transform,box-shadow,border-color,background-color] duration-200 ease-out will-change-transform',
-          {
-            'cursor-grab': !isDragging,
-            'cursor-grabbing': isDragging,
-            'border-success/30 bg-success/[0.035] shadow-[0_16px_32px_-22px_rgba(34,197,94,0.34),0_6px_14px_-10px_rgba(15,23,42,0.12)]':
-              nodeType === AutomationNodeType.Action && isHovered,
-            'border-primary/30 bg-primary/[0.035] shadow-[0_16px_32px_-22px_rgba(99,102,241,0.34),0_6px_14px_-10px_rgba(15,23,42,0.12)]':
-              nodeType === AutomationNodeType.Trigger && isHovered,
-            'border-success/35 bg-success/[0.05] shadow-[0_22px_44px_-26px_rgba(34,197,94,0.36),0_10px_18px_-12px_rgba(15,23,42,0.14)]':
-              nodeType === AutomationNodeType.Action && isDragging,
-            'border-primary/35 bg-primary/[0.05] shadow-[0_22px_44px_-26px_rgba(99,102,241,0.36),0_10px_18px_-12px_rgba(15,23,42,0.14)]':
-              nodeType === AutomationNodeType.Trigger && isDragging,
-          },
-        )}
-        draggable
-        onMouseEnter={() => setHoveredRowId(rowId)}
-        onMouseLeave={() => {
-          setHoveredRowId(null);
-        }}
-        onDragStart={(event) => {
-          startDragging({
-            nodeType: nodeType as
-              | AutomationNodeType.Action
-              | AutomationNodeType.Trigger,
-            ...item,
-          });
+    <Command.Item
+      value={label}
+      onSelect={() => onSelectNode({ nodeType, ...item })}
+      className={cn(
+        'relative !h-auto w-full rounded-lg border border-border/60 bg-background !p-0 transition-[border-color,background-color] duration-150 ease-out data-[selected=true]:bg-background',
+        {
+          'cursor-grab': !isDragging,
+          'cursor-grabbing': isDragging,
+          'border-success/20 bg-success/[0.035] data-[selected=true]:bg-success/[0.035]':
+            nodeType === AutomationNodeType.Action && isHovered,
+          'border-primary/20 bg-primary/[0.035] data-[selected=true]:bg-primary/[0.035]':
+            nodeType === AutomationNodeType.Trigger && isHovered,
+          'border-success/30 bg-success/5 data-[selected=true]:bg-success/5':
+            nodeType === AutomationNodeType.Action && isDragging,
+          'border-primary/30 bg-primary/5 data-[selected=true]:bg-primary/5':
+            nodeType === AutomationNodeType.Trigger && isDragging,
+        },
+      )}
+      draggable
+      onMouseEnter={() => setHoveredRowId(rowId)}
+      onMouseLeave={() => {
+        setHoveredRowId(null);
+      }}
+      onDragStart={(event) => {
+        startDragging({
+          nodeType,
+          ...item,
+        });
 
-          const iconElement = event.currentTarget.querySelector(
-            '.node-library-row-icon',
-          ) as HTMLElement | null;
+        const iconElement = event.currentTarget.querySelector(
+          '.node-library-row-icon',
+        ) as HTMLElement | null;
 
-          const ghost = createDragGhost({
-            label,
-            nodeType,
-            iconMarkup: iconElement?.innerHTML || '<span>+</span>',
-          });
+        const ghost = createDragGhost({
+          label,
+          nodeType,
+          iconMarkup: iconElement?.innerHTML || '<span>+</span>',
+        });
 
-          event.dataTransfer.setDragImage(ghost, 24, 20);
-          onDragStart(event, { nodeType, ...item });
+        event.dataTransfer.setDragImage(ghost, 24, 20);
+        onDragStart(event, { nodeType, ...item });
 
-          window.setTimeout(() => {
-            ghost.remove();
-          }, 0);
-        }}
-        onDragEnd={() => {
-          setHoveredRowId(null);
-          reset();
-        }}
-        style={{
-          transform: `translate3d(0, ${
-            isDragging ? -4 : isHovered ? -3 : 0
-          }px, 0)`,
-        }}
-      >
-        <div className="flex items-start gap-3.5">
-          <div
-            className={cn(
-              'node-library-row-icon flex size-10 shrink-0 items-center justify-center rounded-xl border border-transparent transition-[transform,background-color,color,box-shadow] duration-200 ease-out',
-              {
-                'bg-success/10 text-success':
-                  nodeType === AutomationNodeType.Action,
-                'bg-primary/10 text-primary':
-                  nodeType === AutomationNodeType.Trigger,
-                'translate-y-[-1px] shadow-[0_10px_18px_-14px_rgba(34,197,94,0.45)]':
-                  nodeType === AutomationNodeType.Action && isHovered,
-                'translate-y-[-1px] shadow-[0_10px_18px_-14px_rgba(99,102,241,0.45)]':
-                  nodeType === AutomationNodeType.Trigger && isHovered,
-                'translate-y-[-2px] shadow-[0_14px_24px_-16px_rgba(34,197,94,0.5)]':
-                  nodeType === AutomationNodeType.Action && isDragging,
-                'translate-y-[-2px] shadow-[0_14px_24px_-16px_rgba(99,102,241,0.5)]':
-                  nodeType === AutomationNodeType.Trigger && isDragging,
-              },
-            )}
-          >
-            <IconComponent name={iconName} />
+        window.setTimeout(() => {
+          ghost.remove();
+        }, 0);
+      }}
+      onDragEnd={() => {
+        setHoveredRowId(null);
+        reset();
+      }}
+    >
+      <div className="flex min-h-16 w-full items-center gap-3.5 px-4 py-1.5">
+        <div
+          className={cn(
+            'node-library-row-icon flex size-10 shrink-0 items-center justify-center rounded-lg transition-[background-color,color] duration-150 ease-out [&>svg]:size-5',
+            {
+              'bg-success/10 text-success':
+                nodeType === AutomationNodeType.Action,
+              'bg-primary/10 text-primary':
+                nodeType === AutomationNodeType.Trigger,
+            },
+          )}
+        >
+          <IconComponent name={iconName} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm font-medium leading-5 text-foreground">
+            {label || ''}
           </div>
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-semibold leading-5 text-foreground">
-              {label || ''}
-            </div>
-            <p className="mt-0.5 line-clamp-2 text-xs leading-4 text-muted-foreground">
-              {description || ''}
-            </p>
-          </div>
+          <p className="mt-0.5 line-clamp-2 text-xs leading-4 text-muted-foreground">
+            {description || ''}
+          </p>
         </div>
       </div>
     </Command.Item>

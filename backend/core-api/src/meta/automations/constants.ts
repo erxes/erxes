@@ -76,20 +76,9 @@ export const coreAutomationConstants: AutomationConstants = {
     },
   ],
   actions: [
-    {
-      type: AUTOMATION_CORE_ACTIONS.OUTGOING_WEBHOOK,
-      moduleName: 'automation',
-      collectionName: 'outgoingWebhook',
-      icon: 'IconWebhook',
-      label: 'Outgoing webhook',
-      description: 'Outgoing webhook',
-      allowTargetFromActions: true,
-      output: OUTGOING_WEBHOOK_ACTION_OUTPUT,
-    },
+    // Logic & Decisions
     {
       type: AUTOMATION_CORE_ACTIONS.IF,
-      moduleName: 'automation',
-      collectionName: 'branch',
       icon: 'IconSitemap',
       label: 'Branches',
       description: 'Create simple or if/then branches',
@@ -99,9 +88,15 @@ export const coreAutomationConstants: AutomationConstants = {
       ],
     },
     {
+      type: AUTOMATION_CORE_ACTIONS.SPLIT,
+      icon: 'IconArrowsSplit',
+      label: 'Split',
+      description:
+        'Create conditional branches to route workflows based on criteria',
+    },
+    // Data Operations
+    {
       type: AUTOMATION_CORE_ACTIONS.FIND_OBJECT,
-      moduleName: 'automation',
-      collectionName: 'findObject',
       icon: 'IconSearch',
       label: 'Find object',
       description: 'Find object',
@@ -122,13 +117,38 @@ export const coreAutomationConstants: AutomationConstants = {
     },
     {
       type: AUTOMATION_CORE_ACTIONS.SET_PROPERTY,
-      moduleName: 'automation',
-      collectionName: 'setProperty',
       icon: 'IconFlask',
       label: 'Manage properties',
       description: 'Update record properties.',
       allowTargetFromActions: true,
     },
+    // Communication & Integrations
+    {
+      type: AUTOMATION_CORE_ACTIONS.SEND_EMAIL,
+      icon: 'IconMailFast',
+      label: 'Send Email',
+      description: 'Send Email',
+      emailRecipientsConst: AUTOMATION_EMAIL_RECIPIENTS_TYPES,
+      allowTargetFromActions: true,
+      output: SEND_EMAIL_ACTION_OUTPUT,
+    },
+    {
+      type: AUTOMATION_CORE_ACTIONS.OUTGOING_WEBHOOK,
+      icon: 'IconWebhook',
+      label: 'Outgoing webhook',
+      description: 'Outgoing webhook',
+      allowTargetFromActions: true,
+      output: OUTGOING_WEBHOOK_ACTION_OUTPUT,
+    },
+    {
+      type: AUTOMATION_CORE_ACTIONS.AI_AGENT,
+      icon: 'IconBrain',
+      label: 'AI Agent',
+      description:
+        'Use a configured AI agent to generate text, route topics, or classify structured data.',
+      output: AI_AGENT_ACTION_OUTPUT,
+    },
+    // Timing & Delays
     {
       type: AUTOMATION_CORE_ACTIONS.DELAY,
       moduleName: 'automation',
@@ -138,33 +158,12 @@ export const coreAutomationConstants: AutomationConstants = {
       description: 'Delay the next action.',
     },
     {
-      type: AUTOMATION_CORE_ACTIONS.SEND_EMAIL,
-      moduleName: 'automation',
-      collectionName: 'sendEmail',
-      icon: 'IconMailFast',
-      label: 'Send Email',
-      description: 'Send Email',
-      emailRecipientsConst: AUTOMATION_EMAIL_RECIPIENTS_TYPES,
-      allowTargetFromActions: true,
-      output: SEND_EMAIL_ACTION_OUTPUT,
-    },
-    {
       type: AUTOMATION_CORE_ACTIONS.WAIT_EVENT,
       moduleName: 'automation',
       collectionName: 'waitEvent',
       icon: 'IconClockPlay',
       label: 'Wait event',
       description: 'Delay until event is triggered',
-    },
-    {
-      type: AUTOMATION_CORE_ACTIONS.AI_AGENT,
-      moduleName: 'automation',
-      collectionName: 'aiAgent',
-      icon: 'IconAi',
-      label: 'AI Agent',
-      description:
-        'Use a configured AI agent to generate text, route topics, or classify structured data.',
-      output: AI_AGENT_ACTION_OUTPUT,
     },
   ],
 };

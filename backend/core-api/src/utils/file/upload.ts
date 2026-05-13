@@ -76,8 +76,6 @@ const uploadToCFImages = async (
     body: formData,
   });
 
-  console.log({ response });
-
   const data = await response.json();
 
   if (!data.success) {

@@ -10,6 +10,7 @@ import { IContext, IModels } from '~/connectionResolvers';
 
 import { IProductParams } from '@/products/@types/product';
 import { PRODUCT_STATUSES } from '@/products/constants';
+import { fetchSegment } from '@/segments/utils/fetchSegment';
 import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount,
@@ -34,6 +35,8 @@ const generateFilter = async (
     excludeIds,
     image,
     pipelineId,
+    segment,
+    segmentData,
     branchId,
     departmentId,
     minRemainder,
@@ -61,8 +64,9 @@ const generateFilter = async (
   }
 
   if (categoryIds) {
-    const categories =
-      await models.ProductCategories.getChildCategories(categoryIds);
+    const categories = await models.ProductCategories.getChildCategories(
+      categoryIds,
+    );
 
     const catIds = categories.map((c) => c._id);
     andFilters.push({ categoryId: { $in: catIds } });
@@ -144,8 +148,10 @@ const generateFilter = async (
       input: {
         query: { _id: pipelineId },
         fields: {
-          initialCategoryIds: 1, excludeCategoryIds: 1, excludeProductIds: 1
-        }
+          initialCategoryIds: 1,
+          excludeCategoryIds: 1,
+          excludeProductIds: 1,
+        },
       },
       defaultValue: {},
     });
@@ -222,6 +228,165 @@ const generateFilter = async (
         },
       });
     }
+  } else {
+    if (minRemainder || minRemainder === 0) {
+      andFilters.push({
+        $expr: {
+          $gte: [
+            {
+              $sum: {
+                $map: {
+                  input: { $objectToArray: { $ifNull: ['$inventories', {}] } },
+                  as: 'branch',
+                  in: {
+                    $sum: {
+                      $map: {
+                        input: { $objectToArray: '$$branch.v' },
+                        as: 'dept',
+                        in: { $ifNull: ['$$dept.v.remainder', 0] },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            minRemainder,
+          ],
+        },
+      });
+    }
+    if (maxRemainder || maxRemainder === 0) {
+      andFilters.push({
+        $expr: {
+          $lte: [
+            {
+              $sum: {
+                $map: {
+                  input: { $objectToArray: { $ifNull: ['$inventories', {}] } },
+                  as: 'branch',
+                  in: {
+                    $sum: {
+                      $map: {
+                        input: { $objectToArray: '$$branch.v' },
+                        as: 'dept',
+                        in: { $ifNull: ['$$dept.v.remainder', 0] },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            maxRemainder,
+          ],
+        },
+      });
+    }
+
+    if (minDiscountValue || minDiscountValue === 0) {
+      andFilters.push({
+        $expr: {
+          $gte: [
+            {
+              $sum: {
+                $map: {
+                  input: { $objectToArray: { $ifNull: ['$discounts', {}] } },
+                  as: 'branch',
+                  in: {
+                    $sum: {
+                      $map: {
+                        input: { $objectToArray: '$$branch.v' },
+                        as: 'dept',
+                        in: { $ifNull: ['$$dept.v.value', 0] },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            minDiscountValue,
+          ],
+        },
+      });
+    }
+    if (maxDiscountValue || maxDiscountValue === 0) {
+      andFilters.push({
+        $expr: {
+          $lte: [
+            {
+              $sum: {
+                $map: {
+                  input: { $objectToArray: { $ifNull: ['$discounts', {}] } },
+                  as: 'branch',
+                  in: {
+                    $sum: {
+                      $map: {
+                        input: { $objectToArray: '$$branch.v' },
+                        as: 'dept',
+                        in: { $ifNull: ['$$dept.v.value', 0] },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            maxDiscountValue,
+          ],
+        },
+      });
+    }
+
+    if (minDiscountPercent || minDiscountPercent === 0) {
+      andFilters.push({
+        $expr: {
+          $gte: [
+            {
+              $avg: {
+                $map: {
+                  input: { $objectToArray: { $ifNull: ['$discounts', {}] } },
+                  as: 'branch',
+                  in: {
+                    $avg: {
+                      $map: {
+                        input: { $objectToArray: '$$branch.v' },
+                        as: 'dept',
+                        in: { $ifNull: ['$$dept.v.percent', 0] },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            minDiscountPercent,
+          ],
+        },
+      });
+    }
+    if (maxDiscountPercent || maxDiscountPercent === 0) {
+      andFilters.push({
+        $expr: {
+          $lte: [
+            {
+              $avg: {
+                $map: {
+                  input: { $objectToArray: { $ifNull: ['$discounts', {}] } },
+                  as: 'branch',
+                  in: {
+                    $avg: {
+                      $map: {
+                        input: { $objectToArray: '$$branch.v' },
+                        as: 'dept',
+                        in: { $ifNull: ['$$dept.v.percent', 0] },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            maxDiscountPercent,
+          ],
+        },
+      });
+    }
   }
 
   if (vendorId) {
@@ -242,6 +407,22 @@ const generateFilter = async (
   }
   if (maxPrice || maxPrice === 0) {
     andFilters.push({ unitPrice: { $exists: true, $lte: maxPrice } });
+  }
+
+  if (segment || segmentData) {
+    const segmentObj = segmentData
+      ? JSON.parse(segmentData)
+      : await models.Segments.findOne({ _id: segment }).lean();
+
+    if (segmentObj) {
+      const segmentProductIds = await fetchSegment(
+        models,
+        subdomain,
+        segmentObj,
+      );
+
+      andFilters.push({ _id: { $in: segmentProductIds } });
+    }
   }
 
   return { ...filter, ...(andFilters.length ? { $and: andFilters } : {}) };
@@ -388,16 +569,19 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
        * All other strings become unanchored escaped-substring matchers.
        */
       const WILDCARD_REGEX: Record<string, RegExp> = {
-        '*': /^..*/igu,
-        '.': /^\..*/igu,
-        '_': /^..*/igu,
+        '*': /^..*/giu,
+        '.': /^\..*/giu,
+        _: /^..*/giu,
       };
       const getRegex = (str: string): RegExp => {
-        return WILDCARD_REGEX[str] ?? new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
+        return (
+          WILDCARD_REGEX[str] ?? new RegExp(`.*${escapeRegExp(str)}.*`, 'igu')
+        );
       };
 
-      const similarityGroups =
-        await models.ProductsConfigs.getConfig('similarityGroup');
+      const similarityGroups = await models.ProductsConfigs.getConfig(
+        'similarityGroup',
+      );
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = (product.customFieldsData || []).map(
@@ -558,4 +742,3 @@ productQueries.cpProducts.wrapperConfig = {
 productQueries.cpProductDetail.wrapperConfig = {
   forClientPortal: true,
 };
-

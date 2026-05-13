@@ -1,4 +1,4 @@
-import { Button, Sheet, Input, MultipleSelector, Select } from 'erxes-ui';
+import { Button, Sheet, Input, MultipleSelector } from 'erxes-ui';
 import { useForm, Controller } from 'react-hook-form';
 import { useEffect } from 'react';
 import { useQuery } from '@apollo/client';
@@ -48,6 +48,17 @@ interface FieldGroupDrawerProps {
 }
 
 type ShowOnOption = { label: string; value: string };
+
+const normalizeOptionText = (text: string) => text.toLowerCase().trim();
+
+const getSearchableCommandProps = (options: ShowOnOption[]) => ({
+  filter: (value: string, search: string) => {
+    const option = options.find((item) => item.value === value);
+    const text = normalizeOptionText(`${option?.label || ''} ${value}`);
+
+    return text.includes(normalizeOptionText(search)) ? 1 : -1;
+  },
+});
 
 const BUILT_IN_SHOW_ON: ShowOnOption[] = [
   { label: 'Pages', value: 'page' },
@@ -216,6 +227,9 @@ export function FieldGroupDrawer({
                       options={allShowOnOptions as any}
                       placeholder="Pages, Categories, Posts, Post types…"
                       emptyIndicator="No options"
+                      commandProps={getSearchableCommandProps(
+                        allShowOnOptions,
+                      )}
                       onChange={(selected: any[]) =>
                         field.onChange(selected.map((s) => s.value))
                       }
@@ -233,26 +247,27 @@ export function FieldGroupDrawer({
                   <Controller
                     name="enabledPageId"
                     control={groupForm.control}
-                    render={({ field }) => (
-                      <Select
-                        value={field.value || ''}
-                        onValueChange={(val) =>
-                          field.onChange(val === '__all__' ? '' : val)
-                        }
-                      >
-                        <Select.Trigger className="w-full">
-                          <Select.Value placeholder="All pages" />
-                        </Select.Trigger>
-                        <Select.Content>
-                          <Select.Item value="__all__">All pages</Select.Item>
-                          {pages.map((p) => (
-                            <Select.Item key={p.value} value={p.value}>
-                              {p.label}
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select>
-                    )}
+                    render={({ field }) => {
+                      const selected = pages.filter(
+                        (p) => p.value === field.value,
+                      );
+
+                      return (
+                        <MultipleSelector
+                          value={selected as any}
+                          options={pages as any}
+                          placeholder="All pages"
+                          emptyIndicator="No pages found"
+                          hidePlaceholderWhenSelected
+                          commandProps={getSearchableCommandProps(pages)}
+                          onChange={(selected: any[]) =>
+                            field.onChange(
+                              selected[selected.length - 1]?.value || '',
+                            )
+                          }
+                        />
+                      );
+                    }}
                   />
                 </div>
               )}
@@ -276,6 +291,7 @@ export function FieldGroupDrawer({
                           options={categories as any}
                           placeholder="All categories"
                           emptyIndicator="No categories found"
+                          commandProps={getSearchableCommandProps(categories)}
                           onChange={(selected: any[]) =>
                             field.onChange(selected.map((s) => s.value))
                           }
@@ -305,6 +321,7 @@ export function FieldGroupDrawer({
                           options={posts as any}
                           placeholder="All posts"
                           emptyIndicator="No posts found"
+                          commandProps={getSearchableCommandProps(posts)}
                           onChange={(selected: any[]) =>
                             field.onChange(selected.map((s) => s.value))
                           }

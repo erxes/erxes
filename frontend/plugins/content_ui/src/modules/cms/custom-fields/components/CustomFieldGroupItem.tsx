@@ -30,15 +30,20 @@ export function CustomFieldGroupItem({
       defaultOpen={selectedGroupId === group._id}
       onOpenChange={(open) => open && onSelectGroup(group)}
     >
-      <div className="relative">
+      <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_3rem] items-center">
         <Collapsible.Trigger asChild>
-          <Button variant="secondary" className="w-full justify-start">
-            <Collapsible.TriggerIcon />
-            <span className="flex-1 text-left">{group.label}</span>
+          <Button
+            variant="secondary"
+            className="col-span-2 grid w-full grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-center gap-0 rounded-r-none px-2"
+          >
+            <span className="flex min-w-0 items-center gap-2">
+              <Collapsible.TriggerIcon className="size-4 shrink-0" />
+              <span className="truncate text-left">{group.label}</span>
+            </span>
             {group.code && (
-              <span className="text-xs text-muted-foreground mr-2">
+              <code className="min-w-0 truncate justify-self-start text-xs text-muted-foreground font-mono">
                 {group.code}
-              </span>
+              </code>
             )}
           </Button>
         </Collapsible.Trigger>
@@ -47,7 +52,7 @@ export function CustomFieldGroupItem({
             <Button
               variant="secondary"
               size="icon"
-              className="absolute right-0.5 top-0.5 size-7"
+              className="h-7 w-full rounded-l-none"
             >
               <IconDots className="w-4 h-4" />
             </Button>

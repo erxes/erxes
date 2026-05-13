@@ -6,6 +6,7 @@ import {
 } from '@/automations/utils/ai/aiAgentRuntimeSummary';
 import { IconAlertTriangle, IconInfoCircle } from '@tabler/icons-react';
 import { Alert, Badge, Card } from 'erxes-ui';
+import { DeepPartial } from 'react-hook-form';
 
 const INPUT_MODE_LABELS = {
   focused: 'Focused field',
@@ -21,7 +22,7 @@ export const AiAgentRuntimeInfo = ({
   description = 'Quick signal for response size and timeout risk before this automation runs.',
 }: {
   agent?: TAiAgentRuntimeSummarySource | null;
-  actionConfig?: Partial<TAiAgentConfigForm>;
+  actionConfig?: DeepPartial<TAiAgentConfigForm>;
   title?: string;
   description?: string;
 }) => {

@@ -88,12 +88,6 @@ export const posSchema = schemaWrapper(
       optional: true,
       label: 'Permission',
     },
-    type: {
-      type: String,
-      enum: ['ecommerce', 'restaurant', 'pos'],
-      optional: true,
-      label: 'Type',
-    },
     allowTypes: { type: [String], label: 'Allow Types' },
     isCheckRemainder: { type: Boolean, label: 'is Check Remainder' },
     checkExcludeCategoryIds: {

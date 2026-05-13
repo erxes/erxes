@@ -5,21 +5,27 @@ import { EBARIMT_RESPONDED } from '~/modules/ebarimt/responded/graphql/responded
 import { PerResponse } from '~/modules/ebarimt/responded/components/PerResponse';
 import { Response } from '~/modules/ebarimt/responded/components/Response';
 
-export const EbarimtRespondedPage = () => {
+const SESSION_CODE_STORAGE_KEY = 'sessioncode';
 
+export const EbarimtRespondedPage = () => {
   const currentUser = useAtomValue(currentUserState);
+  const sessionCode = sessionStorage.getItem(SESSION_CODE_STORAGE_KEY) || '';
 
   useSubscription(EBARIMT_RESPONDED, {
     variables: {
       userId: currentUser?._id,
-      processId: '',
+      sessionCode,
     },
-    shouldResubscribe: false,
-    skip: !currentUser?._id,
+    skip: !currentUser?._id || !sessionCode,
     onData: ({ data }) => {
-      const { content: contents } = data?.data?.ebarimtResponded ?? {};
+      const response = data?.data?.ebarimtResponded;
+      const { content: contents } = response ?? {};
 
-      if (!contents?.length) {
+      if (
+        !contents?.length ||
+        response?.sessionCode !==
+          sessionStorage.getItem(SESSION_CODE_STORAGE_KEY)
+      ) {
         return;
       }
 

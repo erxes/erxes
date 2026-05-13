@@ -1,4 +1,10 @@
 import { z } from 'zod';
+import {
+  aiAgentConnectionSchema,
+  normalizeAiAgentConnection,
+  TAiAgentConnection,
+} from '@/automations/components/settings/components/agents/states/AiAgentConnectionSchema';
+import { TAiAgentProvider } from '@/automations/components/settings/components/agents/constants/providers';
 
 const aiAgentFileVersionSchema = z.object({
   key: z.string(),
@@ -21,15 +27,7 @@ const aiAgentFileSchema = z.object({
 const baseAiAgentFormSchema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
   description: z.string().max(500).default(''),
-  connection: z.object({
-    provider: z.enum(['openai']),
-    model: z.string().trim().min(1, 'Model is required'),
-    config: z.object({
-      apiKey: z.string().optional().default(''),
-      baseUrl: z.string().trim().url('Enter a valid base URL'),
-      headers: z.record(z.string(), z.string()).default({}),
-    }),
-  }),
+  connection: aiAgentConnectionSchema,
   runtime: z.object({
     temperature: z.number().min(0).max(2),
     maxTokens: z.number().int().min(1).max(4000),
@@ -71,7 +69,11 @@ export const buildAiAgentFormSchema = ({
   requireApiKey?: boolean;
 } = {}) =>
   baseAiAgentFormSchema.superRefine((value, ctx) => {
-    if (requireApiKey && !value.connection.config.apiKey?.trim()) {
+    if (
+      requireApiKey &&
+      ['grok', 'kimi', 'openai'].includes(value.connection.provider) &&
+      !value.connection.config.apiKey?.trim()
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['connection', 'config', 'apiKey'],
@@ -101,13 +103,9 @@ export type TAiAgentFormDetail = {
   name?: string;
   description?: string;
   connection?: {
-    provider?: 'openai';
+    provider?: TAiAgentConnection['provider'];
     model?: string;
-    config?: {
-      apiKey?: string;
-      baseUrl?: string;
-      headers?: string;
-    };
+    config?: Partial<TAiAgentConnection['config']> & Record<string, unknown>;
   };
   runtime?: {
     temperature?: number;
@@ -191,24 +189,25 @@ const normalizeAiAgentFiles = (files: unknown[] = []) =>
 
 export const normalizeAiAgentFormValues = (
   detail?: TAiAgentFormDetail,
+  defaultProvider?: TAiAgentProvider,
 ): TAiAgentForm => ({
   name: detail?.name || '',
   description: detail?.description || '',
   connection: {
-    provider: detail?.connection?.provider || 'openai',
-    model: detail?.connection?.model || '',
-    config: {
-      apiKey: '',
-      baseUrl:
-        detail?.connection?.config?.baseUrl || 'https://api.openai.com/v1',
-      headers: isRecord(detail?.connection?.config?.headers)
-        ? Object.fromEntries(
-            Object.entries(detail.connection.config.headers).map(
-              ([key, value]) => [key, String(value ?? '')],
-            ),
-          )
-        : {},
-    },
+    ...normalizeAiAgentConnection({
+      provider: detail?.connection?.provider || defaultProvider,
+      model: detail?.connection?.model,
+      config: {
+        ...(detail?.connection?.config || {}),
+        headers: isRecord(detail?.connection?.config?.headers)
+          ? Object.fromEntries(
+              Object.entries(detail.connection.config.headers).map(
+                ([key, value]) => [key, String(value ?? '')],
+              ),
+            )
+          : {},
+      },
+    } as Partial<TAiAgentConnection>),
   },
   runtime: {
     temperature: detail?.runtime?.temperature ?? 0.2,
