@@ -65,7 +65,7 @@ export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
 
         if (isPublic) {
           mutationResolvers[mutationKey] = wrapPublicResolver(
-            mutationResolver,
+            withBeforeResolvers(mutationResolver, mutationKey),
             mutationResolver.wrapperConfig,
           );
         } else {
@@ -92,7 +92,7 @@ export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
 
         if (isPublic) {
           queryResolvers[queryKey] = wrapPublicResolver(
-            queryResolver,
+            withBeforeResolvers(queryResolver, queryKey),
             queryResolver.wrapperConfig,
           );
         } else {
