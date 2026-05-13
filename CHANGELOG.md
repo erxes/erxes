@@ -1,5 +1,18 @@
 
 
+## [3.0.22](https://github.com/erxes/erxes/compare/3.0.21...3.0.22) (2026-05-13)
+
+
+### Bug Fixes
+
+* **accounting:** transaction status and ptrNumber ([#7658](https://github.com/erxes/erxes/issues/7658)) ([6b239ba](https://github.com/erxes/erxes/commit/6b239ba98f310e11b846d3632c4da5b8bb24e44e))
+* **payment:** align paymentRemove mutation with schema using _ids ([#7668](https://github.com/erxes/erxes/issues/7668)) ([80c2463](https://github.com/erxes/erxes/commit/80c24634a48d6576370082a092d7d4d95309302f))
+
+
+### Features
+
+* **content:** settings page in cms ([#7614](https://github.com/erxes/erxes/issues/7614)) ([f6af24b](https://github.com/erxes/erxes/commit/f6af24bad252c38d377116d31ae21bbff4580c57))
+
 ## [3.0.21](https://github.com/erxes/erxes/compare/3.0.20...3.0.21) (2026-05-13)
 
 
