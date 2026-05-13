@@ -132,7 +132,7 @@ export const receiveMessage = async (
   }
 
   const existingMessage = await models.InstagramConversationMessages.findOne({
-    mid,
+    mid: { $eq: mid },
   });
 
   if (!existingMessage) {
