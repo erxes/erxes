@@ -4,6 +4,7 @@ import {
   DropdownMenu,
   IconComponent,
   Spinner,
+  Switch,
   Table,
   useConfirm,
 } from 'erxes-ui';
@@ -13,6 +14,7 @@ import { Link, useParams } from 'react-router';
 import { CORE_RELATION_TYPES, Can, IField, useFields } from 'ui-modules';
 import { FIELD_TYPES_OBJECT } from '../constants/fieldTypes';
 import { useFieldRemove } from '../hooks/useFieldRemove';
+import { useEditProperty } from '../hooks/useEditProperty';
 import { needsToRefreshState } from '../states/needsToRefresh';
 
 export const Properties = ({ groupId }: { groupId: string }) => {
@@ -82,7 +84,12 @@ const PropertyRow = ({
     groupId,
     contentType,
   });
-  const { type, name, icon, _id, relationType } = field;
+  const { editProperty } = useEditProperty();
+  const { type, name, icon, _id, relationType, isVisible, isVisibleInDetail } = field;
+
+  const handleToggleVisible = (key: 'isVisible' | 'isVisibleInDetail', value: boolean) => {
+    editProperty({ variables: { id: _id, [key]: value } });
+  };
 
   const handleDeleteField = (fieldId: string) => {
     confirm({
@@ -125,6 +132,12 @@ const PropertyRow = ({
               })`}
           </div>
         </Button>
+      </Table.Cell>
+      <Table.Cell className="w-24 text-center">
+        <Switch
+          checked={isVisibleInDetail !== false}
+          onCheckedChange={(v) => handleToggleVisible('isVisibleInDetail', v)}
+        />
       </Table.Cell>
       <Table.Cell className="w-8 p-0.5">
         <DropdownMenu>

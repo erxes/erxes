@@ -24,5 +24,5 @@ export interface IFieldGroup {
   description: string;
   contentType: string;
   order: number;
-  logics: string;
+  logics?: Record<string, any>;
 }

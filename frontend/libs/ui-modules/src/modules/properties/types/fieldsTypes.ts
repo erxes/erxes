@@ -7,6 +7,8 @@ export type IField = {
   group?: string;
   groupId?: string;
   logics?: Record<string, any>;
+  isVisible?: boolean;
+  isVisibleInDetail?: boolean;
   relationType?: string;
   multiple?: boolean;
   icon?: string;
