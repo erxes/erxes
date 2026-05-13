@@ -31,6 +31,11 @@ interface IQueryParams {
   kind?: string;
   code?: string;
   name?: string;
+  userId?: string;
+  minLvl?: number;
+  maxLvl?: number;
+  reads?: string[];
+  writes?: string[];
 }
 
 export const generateFilter = async (
@@ -82,7 +87,6 @@ export const generateFilter = async (
     const notActiveCategories = await models.AccountCategories.find({
       status: { $nin: [null, 'active'] },
     });
-
     if (notActiveCategories.length) {
       filter.categoryId = { $nin: notActiveCategories.map((e) => e._id) };
     }
@@ -92,10 +96,8 @@ export const generateFilter = async (
     filter.kind = kind;
   }
 
-  // search =========
   if (searchValue) {
     const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
-
     let codeFilter = { code: { $in: [regex] } };
     if (
       searchValue.includes('.') ||
@@ -108,7 +110,6 @@ export const generateFilter = async (
       );
       codeFilter = { code: { $in: [codeRegex] } };
     }
-
     filter.$or = [codeFilter, { name: { $in: [regex] } }];
   }
 
@@ -118,80 +119,50 @@ export const generateFilter = async (
       'igu',
     );
   }
-
   if (name) {
     filter.name = new RegExp(`.*${escapeRegExp(name)}.*`, 'i');
   }
-
   if (currency) {
     filter.currency = currency;
   }
-
   if (journals?.length) {
     filter.journal = { $in: journals };
   }
-
   if (journal) {
     filter.journal = journal;
   }
-
   if (branchId) {
     filter.branchId = branchId;
   }
-
   if (departmentId) {
     filter.departmentId = departmentId;
   }
-
   if (brand) {
     filter.scopeBrandIds = { $in: [brand] };
   }
-
   if (isTemp !== undefined) {
     filter.isTemp = isTemp;
   }
-
   if (isOutBalance !== undefined) {
     filter.isOutBalance = isOutBalance;
   }
-
   if (user?.isOwner) {
     return filter;
   }
-
-  // const permissions = await models.Permissions.find({ user: user._id }).lean();
-
-  // const hasPermAccountIds = permissions.map(p => p.accountId)
-
-  // if (filter._id?.$in?.length) {
-  //   filter._id.$in = _.intersection(filter._id.$in, hasPermAccountIds);
-  //   return filter;
-  // }
-
-  // if (filter._id?.$nin?.length) {
-  //   filter._id.$nin = _.difference(filter._id.$nin, hasPermAccountIds);
-  //   return filter;
-  // }
-
-  // filter._id = { $in: hasPermAccountIds };
 
   return filter;
 };
 
 const accountQueries = {
-  /**
-   * Accounts list
-   */
   async accountsMain(
     _root,
     params: IQueryParams & ICursorPaginateParams,
-    { models, user, commonQuerySelector, checkPermission }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('accountsRead');
-    const filter = await generateFilter(models, params, user);
-
+    const { userId, minLvl, maxLvl, reads, writes, ...baseParams } = params;
+    const filter = await generateFilter(models, baseParams, user);
     params.orderBy ??= { code: 1 };
-
     return await cursorPaginate({
       model: models.Accounts,
       params,
@@ -201,36 +172,97 @@ const accountQueries = {
 
   async accounts(_root, params: IQueryParams, { models, user, checkPermission }: IContext) {
     await checkPermission('accountsRead');
-    const filter = await generateFilter(models, params, user);
 
-    const { sortField, sortDirection, page, perPage, ids, excludeIds } = params;
+    const { userId, minLvl, maxLvl, reads, writes, ...baseParams } = params;
 
-    const pagintationArgs = { page, perPage };
-    if (
-      !excludeIds &&
-      ids?.length &&
-      ids?.length > (pagintationArgs.perPage || 20)
-    ) {
-      pagintationArgs.page = 1;
-      pagintationArgs.perPage = ids.length;
+    const filter = await generateFilter(models, baseParams, user);
+    let accounts = await models.Accounts.find(filter).lean();
+    let enrichedAccounts: any[] = accounts; // fallback
+
+    if (userId) {
+      const permissions = await models.Permissions.find({ userId }).lean();
+      const permMap = new Map(permissions.map(p => [p.accountId, p]));
+
+      enrichedAccounts = accounts.map(acc => ({
+        ...acc,
+        level: permMap.get(acc._id)?.level ?? 0,
+        read: permMap.get(acc._id)?.read ?? 'none',
+        write: permMap.get(acc._id)?.write ?? 'none',
+      }));
+
+      // Apply filters on enrichedAccounts
+      if (minLvl !== undefined) {
+        enrichedAccounts = enrichedAccounts.filter(acc => acc.level >= minLvl);
+      }
+      if (maxLvl !== undefined) {
+        enrichedAccounts = enrichedAccounts.filter(acc => acc.level <= maxLvl);
+      }
+      if (reads && reads.length) {
+        enrichedAccounts = enrichedAccounts.filter(acc => reads.includes(acc.read));
+      }
+      if (writes && writes.length) {
+        enrichedAccounts = enrichedAccounts.filter(acc => writes.includes(acc.write));
+      }
     }
 
-    let sort: any = { code: 1 };
-    if (sortField) {
-      sort = { [sortField]: sortDirection ?? 1 };
+    // Pagination and sorting on enrichedAccounts
+    const { sortField, sortDirection, page, perPage, ids, excludeIds } = baseParams;
+    const paginationArgs = { page: page || 1, perPage: perPage || 20 };
+    if (!excludeIds && ids?.length && ids.length > paginationArgs.perPage) {
+      paginationArgs.page = 1;
+      paginationArgs.perPage = ids.length;
     }
 
-    return await defaultPaginate(
-      models.Accounts.find(filter).sort(sort).lean(),
-      pagintationArgs,
-    );
+    const sortFn = (a: any, b: any) => {
+      const field = sortField || 'code';
+      const aVal = a[field];
+      const bVal = b[field];
+      if (aVal === bVal) return 0;
+      const direction = sortDirection === -1 ? -1 : 1;
+      return (aVal < bVal ? -1 : 1) * direction;
+    };
+    enrichedAccounts.sort(sortFn);
+
+    const start = (paginationArgs.page - 1) * paginationArgs.perPage;
+    const paginated = enrichedAccounts.slice(start, start + paginationArgs.perPage);
+    return paginated;
   },
 
   async accountsCount(_root, params: IQueryParams, { models, user, checkPermission }: IContext) {
     await checkPermission('accountsRead');
-    const filter = await generateFilter(models, params, user);
 
-    return models.Accounts.find(filter).countDocuments();
+    const { userId, minLvl, maxLvl, reads, writes, ...baseParams } = params;
+
+    const filter = await generateFilter(models, baseParams, user);
+    let accounts = await models.Accounts.find(filter).lean();
+    let enrichedAccounts: any[] = accounts;
+
+    if (userId) {
+      const permissions = await models.Permissions.find({ userId }).lean();
+      const permMap = new Map(permissions.map(p => [p.accountId, p]));
+
+      enrichedAccounts = accounts.map(acc => ({
+        ...acc,
+        level: permMap.get(acc._id)?.level ?? 0,
+        read: permMap.get(acc._id)?.read ?? 'none',
+        write: permMap.get(acc._id)?.write ?? 'none',
+      }));
+
+      if (minLvl !== undefined) {
+        enrichedAccounts = enrichedAccounts.filter(acc => acc.level >= minLvl);
+      }
+      if (maxLvl !== undefined) {
+        enrichedAccounts = enrichedAccounts.filter(acc => acc.level <= maxLvl);
+      }
+      if (reads && reads.length) {
+        enrichedAccounts = enrichedAccounts.filter(acc => reads.includes(acc.read));
+      }
+      if (writes && writes.length) {
+        enrichedAccounts = enrichedAccounts.filter(acc => writes.includes(acc.write));
+      }
+    }
+
+    return enrichedAccounts.length;
   },
 
   async accountDetail(_root, { _id }: { _id: string }, { models, checkPermission }: IContext) {

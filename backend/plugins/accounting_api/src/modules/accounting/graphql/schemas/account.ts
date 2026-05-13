@@ -36,6 +36,9 @@ export const types = () => `
     scopeBrandIds: [String]
     extra:JSON,
     category: AccountCategory
+    level: Int
+    read: String
+    write: String
   }
 
   type AccountsListResponse {
@@ -43,7 +46,7 @@ export const types = () => `
     pageInfo: PageInfo
     totalCount: Int,
   }
-    
+
   type AccountPermission {
     _id: String!
     userId: String!
@@ -116,6 +119,11 @@ const accountsQueryParams = `
   code: String
   name: String
   extra:JSON
+  userId: String
+  minLvl: Int
+  maxLvl: Int
+  reads: [String]
+  writes: [String]
 `;
 
 export const queries = `
