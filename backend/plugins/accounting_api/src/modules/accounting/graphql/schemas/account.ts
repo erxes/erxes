@@ -48,22 +48,23 @@ export const types = () => `
   }
 
   type AccountPermission {
-    _id: String!
-    userId: String!
-    accountId: String!
+    _id: String
+    userId: String
+    accountId: String
     level: Int
     read: String
     write: String
     createdAt: Date
     updatedAt: Date
+
+    user: User
+    account: Account
   }
 
-  input SetAccountPermissionsInput {
-    accountIds: [String!]!
-    userId: String!
-    level: Int
-    read: String
-    write: String
+  type AccountPermissionsResponse {
+    list: [AccountPermission],
+    pageInfo: PageInfo
+    totalCount: Int,
   }
 
   type AccountPermissionResult {
@@ -101,6 +102,14 @@ const accountCategoryParams = `
   mask: JSON
 `;
 
+const accountPermissionsInput = `
+  accountIds: [String!]!
+  userId: String!
+  level: Int
+  read: String
+  write: String
+`;
+
 const accountsQueryParams = `
   status: String,
   categoryId: String,
@@ -119,11 +128,6 @@ const accountsQueryParams = `
   code: String
   name: String
   extra:JSON
-  userId: String
-  minLvl: Int
-  maxLvl: Int
-  reads: [String]
-  writes: [String]
 `;
 
 export const queries = `
@@ -143,7 +147,15 @@ export const queries = `
   ): [Account]
   accountsCount(${accountsQueryParams}): Int
   accountDetail(_id: String): Account
-  accountPermissions(userId: String!, accountId: String!): AccountPermission
+  accountPermissions(
+    ${accountsQueryParams}
+    ${GQL_CURSOR_PARAM_DEFS}
+    userId: String
+    minLvl: Int
+    maxLvl: Int
+    reads: [String]
+    writes: [String]
+  ): AccountPermissionsResponse
 `;
 
 export const mutations = `
@@ -154,5 +166,5 @@ export const mutations = `
   accountCategoriesAdd(${accountCategoryParams}): AccountCategory
   accountCategoriesEdit(_id: String!, ${accountCategoryParams}): AccountCategory
   accountCategoriesRemove(_id: String!): JSON
-  setAccountPermissions(input: SetAccountPermissionsInput!): [AccountPermissionResult]!
+  setAccountPermissions(${accountPermissionsInput}): [AccountPermissionResult]
 `;

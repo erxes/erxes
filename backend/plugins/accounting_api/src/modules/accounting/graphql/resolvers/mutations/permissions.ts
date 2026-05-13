@@ -1,9 +1,9 @@
 import { IContext } from '~/connectionResolvers';
 
-const mutationsAccountPermissions = {
+const accountPermissionsMutations = {
   async setAccountPermissions(
     _root,
-    { input }: { input: { accountIds: string[]; userId: string; level?: number; read?: string; write?: string } },
+    input: { accountIds: string[]; userId: string; level?: number; read?: string; write?: string },
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('manageAccountPermissions');
@@ -62,4 +62,4 @@ const mutationsAccountPermissions = {
   },
 };
 
-export const MutationsAccountPermissions = mutationsAccountPermissions;
+export default accountPermissionsMutations;

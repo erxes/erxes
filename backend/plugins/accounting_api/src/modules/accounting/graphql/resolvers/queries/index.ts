@@ -1,23 +1,23 @@
-import Accounts from './accounts';
 import AccountCategories from './accountCategories';
-import AccountingConfigs from './configs';
-import VatRows from './vatRows';
-import CtaxRows from './ctaxRows';
-import Transactions from './transactionsCommon';
-import Inventories from './inventories';
+import Accounts from './accounts';
 import AdjustInventories from './adjustInventories';
-import JournalReport from './journalReport';  
-import { QueriesAccountPermissions } from './permissions';
+import AccountingConfigs from './configs';
+import CtaxRows from './ctaxRows';
+import Inventories from './inventories';
+import JournalReport from './journalReport';
+import AccountPermissions from './permissions';
+import Transactions from './transactionsCommon';
+import VatRows from './vatRows';
 
 export {
-  Accounts,
   AccountCategories,
   AccountingConfigs,
-  VatRows,
-  CtaxRows,
-  Transactions,
-  Inventories,
+  AccountPermissions,
+  Accounts,
   AdjustInventories,
+  CtaxRows,
+  Inventories,
   JournalReport,
-  QueriesAccountPermissions,
+  Transactions,
+  VatRows
 };
