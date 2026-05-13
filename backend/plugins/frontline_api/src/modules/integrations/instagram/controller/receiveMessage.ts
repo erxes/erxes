@@ -38,7 +38,7 @@ export const receiveMessage = async (
   const pageId = sanitizeString(recipient.id);
   const kind = INTEGRATION_KINDS.MESSENGER;
   const rawMid = message?.mid || postback?.mid;
-  const mid = rawMid != null ? sanitizeString(rawMid) : undefined;
+  const mid = rawMid == null ? undefined : sanitizeString(rawMid);
   const attachments = message?.attachments;
 
   debugInstagram(`Received message from ${userId} → page ${pageId}`);
