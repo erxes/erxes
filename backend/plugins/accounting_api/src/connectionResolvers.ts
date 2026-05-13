@@ -140,7 +140,7 @@ export const loadClasses = (
 
   models.Transactions = db.model<ITransactionDocument, ITransactionModel>(
     'accountings_transactions',
-    loadTransactionClass(models, subdomain),
+    loadTransactionClass(models, subdomain, accountingEventHandlers('accounting', 'transactions'),),
   );
 
   models.VatRows = db.model<IVatRowDocument, IVatRowModel>(

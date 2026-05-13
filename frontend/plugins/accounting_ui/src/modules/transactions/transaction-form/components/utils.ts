@@ -92,6 +92,9 @@ export const cleanTrDocs = (data: TAddTransactionGroup) => {
       })),
       date: data.date,
       number: data.number,
+      status: data.status,
+      mentionOwnerId: data.mentionOwnerId,
+      mentionUserIds: data.mentionUserIds,
     }),
   );
 };
