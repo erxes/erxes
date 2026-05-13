@@ -38,29 +38,37 @@ jobs:
         github.event.comment.author_association == 'MEMBER'))
     
     steps:
-      # Step 1: Get PR information (for comment events)
-      - name: Get PR ref (for comments)
+      # Step 1: Resolve the PR head SHA we will check out. Runs on every
+      # trigger so the checkout step doesn't have to fan out branches on
+      # `github.event.pull_request.head.sha` (which is undefined for
+      # `issue_comment` payloads) vs `steps.get-pr.outputs.sha`. For
+      # `pull_request` events the payload already carries the head SHA;
+      # for comment events we look it up via the REST API.
+      - name: Resolve PR head SHA
         id: get-pr
-        if: github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment'
         uses: actions/github-script@v7
         with:
           script: |
-            const prNumber = context.issue?.number || context.payload.pull_request?.number;
+            if (context.eventName === 'pull_request') {
+              core.setOutput('sha', context.payload.pull_request.head.sha);
+              return;
+            }
+            const prNumber =
+              context.issue?.number || context.payload.pull_request?.number;
             const pr = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: prNumber
+              pull_number: prNumber,
             });
-            core.setOutput('ref', pr.data.head.ref);
             core.setOutput('sha', pr.data.head.sha);
 
-      # Step 2: Checkout the code.
-      # Pin to the head SHA (not the ref name) so a post-trigger force-push
-      # by the PR author cannot swap in a different commit between the
-      # get-pr lookup and the actual checkout.
+      # Step 2: Checkout the resolved SHA. Pin to the head SHA (not the
+      # ref name) so a post-trigger force-push by the PR author cannot
+      # swap in a different commit between the get-pr lookup and the
+      # actual checkout.
       - uses: actions/checkout@v4
         with:
-          ref: ${{ (github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment') && steps.get-pr.outputs.sha || github.event.pull_request.head.sha }}
+          ref: ${{ steps.get-pr.outputs.sha }}
 
       # Step 3: Run Kimi Code Review Action
       - uses: xiaoju111a/kimi-actions@main
