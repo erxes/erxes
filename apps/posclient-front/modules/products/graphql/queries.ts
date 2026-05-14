@@ -82,7 +82,7 @@ const productSimilarities = gql`
         attachment {
           url
         }
-        customFieldsData
+        propertiesData
       }
       groups {
         fieldId

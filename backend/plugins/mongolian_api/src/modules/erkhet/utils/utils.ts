@@ -40,20 +40,7 @@ export const getConfig = async (
 };
 
 export const sendCardInfo = async (subdomain, deal, config, value) => {
-  const field = config.responseField.replace('customFieldsData.', '');
-
-  await sendTRPCMessage({
-    subdomain,
-    pluginName: 'sales',
-    module: 'deal',
-    method: 'mutation',
-    action: 'updateOne',
-    input: {
-      selector: { _id: deal._id },
-      modifier: { $pull: { customFieldsData: { field } } },
-    },
-    defaultValue: {},
-  });
+  const field = config.responseField.replace('propertiesData.', '');
 
   await sendTRPCMessage({
     subdomain,
@@ -64,12 +51,8 @@ export const sendCardInfo = async (subdomain, deal, config, value) => {
     input: {
       selector: { _id: deal._id },
       modifier: {
-        $push: {
-          customFieldsData: {
-            field,
-            value,
-            stringValue: value,
-          },
+        $set: {
+          [`propertiesData.${field}`]: value,
         },
       },
     },

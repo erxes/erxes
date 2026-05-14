@@ -26,6 +26,24 @@ export const getConfig = async (
   });
 };
 
+const getCustomerNo = async (subdomain, customer) => {
+  for (const code of ['vatCustomer', 'vatCompany']) {
+    const field = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'fields',
+      action: 'findOne',
+      input: { query: { code } },
+      defaultValue: null,
+    });
+
+    const value = field?._id && customer?.propertiesData?.[field._id];
+    if (value) {
+      return value;
+    }
+  }
+};
+
 export const consumeInventory = async (
   subdomain: string,
   config: any,
@@ -295,16 +313,11 @@ export const dealToDynamic = async (
     let custCode = null;
     let userLocationCode = null;
 
-    // sell_toCUstomer_no aa avahdaa currentUser iin customFieldsDatanaas aliig avahaa tohiruulsnii daguu avdag bolgohod bolno oo
+    // sell_toCUstomer_no aa avahdaa currentUser iin propertiesData-s aliig avahaa tohiruulsnii daguu avdag bolgohod bolno oo
     if (customerType === 'customer') {
-      (user?.customFieldsData ?? []).forEach((field) => {
-        if (field.field === config.custCode.fieldId) {
-          custCode = field.value || null;
-        }
-        if (field.field === config.userLocationCode.fieldId) {
-          userLocationCode = field.value || null;
-        }
-      });
+      custCode = user?.propertiesData?.[config.custCode.fieldId] || null;
+      userLocationCode =
+        user?.propertiesData?.[config.userLocationCode.fieldId] || null;
 
       if (!orderMsdNo) {
         const subSendData: any = {
@@ -325,6 +338,7 @@ export const dealToDynamic = async (
 
     const sellAddress = rawDescription.slice(0, 100);
     const sellAddress2 = rawDescription.slice(100, 150);
+    const customerNo = await getCustomerNo(subdomain, customer);
 
     const sendData: any = {
       Sell_to_Customer_No:
@@ -348,9 +362,7 @@ export const dealToDynamic = async (
       Salesperson_Code: user?.employeeId ?? '',
       Sell_to_Address: sellAddress,
       Sell_to_Address_2: sellAddress2,
-      CustomerNo:
-        customer?.customFieldsDataByFieldCode?.vatCustomer?.value ??
-        customer?.customFieldsDataByFieldCode?.vatCompany?.value,
+      CustomerNo: customerNo,
     };
 
     if (orderMsdNo) {
@@ -620,6 +632,8 @@ export const orderToDynamic = async (
       }
     }
 
+    const customerNo = await getCustomerNo(subdomain, customer);
+
     const sendData: any = {
       Sell_to_Customer_No: msdCustomer?.No
         ? msdCustomer?.No
@@ -638,9 +652,7 @@ export const orderToDynamic = async (
       BillType: config.billType || 'Receipt',
       Location_Code: config.locationCode || '',
       Deal_Type_Code: config.dealType || 'NORMAL',
-      CustomerNo:
-        customer?.customFieldsDataByFieldCode?.vatCustomer?.value ||
-        customer?.customFieldsDataByFieldCode?.vatCompany?.value,
+      CustomerNo: customerNo,
     };
 
     if (orderMsdNo) {
