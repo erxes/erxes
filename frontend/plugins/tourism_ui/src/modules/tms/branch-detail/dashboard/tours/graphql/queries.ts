@@ -42,6 +42,7 @@ export const GET_TOURS = gql`
         availableFrom
         availableTo
         status
+        type
         date_status
         cost
         categoryIds
@@ -110,8 +111,9 @@ export const GET_TOUR_GROUPS = gql`
           endDate
           availableFrom
           availableTo
-          status
-          date_status
+      status
+      type
+      date_status
           cost
           modifiedAt
           createdAt
@@ -161,7 +163,10 @@ export const GET_TOUR_DETAIL = gql`
       refNumber
       startDate
       status
+      type
       categoryIds
+      customFieldsData
+      customFieldsMap
       guides {
         guideId
         type
