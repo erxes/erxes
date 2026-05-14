@@ -81,9 +81,9 @@ const ChooseFromSimilarities = (
   const flattenProducts = (products || []).map(
     ({ customFieldsData, ...product }: IProduct) => {
       let flattenProduct: any = { ...product }
-        ; (customFieldsData || []).forEach((field) => {
-          flattenProduct[field.field] = field.value
-        })
+      ;(customFieldsData || []).forEach((field) => {
+        flattenProduct[field.field] = field.value
+      })
       return flattenProduct
     }
   )

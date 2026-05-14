@@ -80,6 +80,11 @@ export const productSchema = schemaWrapper(
       optional: true,
       label: 'Custom fields data',
     }),
+    propertiesData: {
+      type: Schema.Types.Mixed,
+      optional: true,
+      label: 'Properties data',
+    },
     status: field({
       type: String,
       enum: PRODUCT_STATUSES.ALL,

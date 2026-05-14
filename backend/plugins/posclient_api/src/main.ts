@@ -28,7 +28,7 @@ startPlugin({
   ),
   expressRouter: router,
   onServerInit: async () => {
-    await initMQWorkers(redis);
+    // await initMQWorkers(redis);
   },
   apolloServerContext: async (subdomain, context, req: any, res) => {
     const requestInfo = {
