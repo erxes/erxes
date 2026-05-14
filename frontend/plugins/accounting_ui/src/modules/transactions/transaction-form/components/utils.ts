@@ -98,3 +98,17 @@ export const cleanTrDocs = (data: TAddTransactionGroup) => {
     }),
   );
 };
+
+export const DUPLICATE_PRODUCT_CELL_CLASS =
+  'bg-pink-50/80 dark:bg-pink-950/30';
+
+export const hasDuplicateProductId = (
+  details: Pick<ITrDetail, 'productId'>[] = [],
+  productId?: string,
+) => {
+  if (!productId) {
+    return false;
+  }
+
+  return details.filter((detail) => detail.productId === productId).length > 1;
+};
