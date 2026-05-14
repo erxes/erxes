@@ -3,7 +3,7 @@ import { Button, PageContainer } from 'erxes-ui';
 import { Outlet, Route, Routes } from 'react-router-dom';
 import { PageHeader, PageHeaderStart } from 'ui-modules';
 import { IconMailCog } from '@tabler/icons-react';
-import { useTranslation } from 'react-i18next'; // 1. i18n hook нэмсэн
+import { useTranslation } from 'react-i18next';
 import { InboxPageChangeEffect } from '@/inbox/components/InboxPageChangeEffect';
 
 export const IntegrationConfigPage = lazy(() =>
@@ -13,7 +13,8 @@ export const IntegrationConfigPage = lazy(() =>
 );
 
 const IntegrationsConfigSettings = () => {
-  const { t } = useTranslation(); // 2. t функцийг зарласан
+  // Initialize translation hook
+  const { t } = useTranslation();
 
   return (
     <Suspense fallback={<div />}>
@@ -25,12 +26,14 @@ const IntegrationsConfigSettings = () => {
                 <PageHeaderStart>
                   <Button variant={'ghost'} className="font-semibold">
                     <IconMailCog className="w-4 h-4 text-accent-foreground" />
-                    {t('integrations.config.header')}
+                    {/* Added fallback text to prevent empty label if key is missing */}
+                    {t('integrations.config.header', 'Integrations config')}
                   </Button>
                 </PageHeaderStart>
               </PageHeader>
 
-              <PageContainer className="flex-1 overflow-y-auto p-4">
+              {/* Standardized padding to p-6 for visual consistency across settings pages */}
+              <PageContainer className="flex-1 overflow-y-auto p-6">
                 <Outlet />
               </PageContainer>
             </div>
