@@ -41,8 +41,8 @@ export const spinsMutations = {
 
   async doSpin(
     _root: undefined,
-    { spinId }: { spinId: string },
-    { models, checkPermission }: IContext,
+    spinId: string,
+    { models, checkPermission, subdomain }: IContext,
   ) {
     await checkPermission('spinDo');
     return models.Spins.doSpin(spinId);
