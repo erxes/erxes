@@ -220,7 +220,7 @@ export const MultipleFieldsInGroup = ({
       <Collapsible.Content className="pt-4">
         <div className="flex flex-col gap-4">
           {properties.map((property: any, index: number) => (
-            <div className="grid grid-cols-2 gap-4">
+            <div key={index} className="grid grid-cols-2 gap-4">
               {fields
                 .filter((field) => field.isVisibleInDetail !== false)
                 .map((field) => (
