@@ -1,12 +1,15 @@
 'use client';
 
-import { Button, Form, Input, Select } from 'erxes-ui';
+import { Button, Form, Input, Select, isEnabled } from 'erxes-ui';
 import { Control, useFieldArray } from 'react-hook-form';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import PaymentIcon, { paymentIconOptions } from './PaymentIcon';
 
-import { PAYMENT_LIST } from '../graphql/queries';
+import { PAYMENT_LIST } from '../graphql/queries/PaymentsQuery';
 import { useQuery } from '@apollo/client';
+import {
+  useLoyaltyScoreCampaign,
+} from '../hooks/useLoyaltyScoreCampaign';
 
 export interface PaymentType {
   _id: string;
@@ -97,8 +100,14 @@ export const OtherPayments = ({ control }: { control: Control<any> }) => {
     name: 'paymentTypes',
   });
 
+  const { scoreDetail } = useLoyaltyScoreCampaign({
+    variables: { serviceName: 'sales' },
+  });
+
+  const isLoyaltyEnabled = isEnabled('loyalty');
+
   const handleAddPayment = () => {
-    append({ type: '', title: '', icon: '', config: '' });
+    append({ type: '', title: '', icon: '', config: '', scoreCampaign: '' });
   };
 
   return (
@@ -113,7 +122,7 @@ export const OtherPayments = ({ control }: { control: Control<any> }) => {
           Хэрэв тухайн төлбөрт ебаримт хэвлэхгүй бол: "skipEbarimt: true",
           Харилцагч сонгосон үед л харагдах бол: "mustCustomer: true", Хэрэв
           хуваах боломжгүй бол: "notSplit: true" Урьдчилж төлсөн төлбөрөөр
-          (Татвар тооцсон) бол: "preTax: true
+          (Татвар тооцсон) бол: "preTax: true", Тухайн төрөл нь QRCode шаардлагатай бол "require": "qrCode"
         </p>
       </div>
 
@@ -228,6 +237,38 @@ export const OtherPayments = ({ control }: { control: Control<any> }) => {
               )}
             />
           </div>
+          {isLoyaltyEnabled && (
+          <div className="flex-1">
+            <Form.Field
+              control={control}
+              name={`paymentTypes.${index}.scoreCampaign`}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label className="text-xs text-gray-600">
+                    SCORE CAMPAIGN
+                  </Form.Label>
+                  <Form.Control>
+                    <Select
+                      value={field.value || ''}
+                      onValueChange={field.onChange}
+                    >
+                      <Select.Trigger className="mb-0">
+                        <Select.Value placeholder="Score campaigns" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {scoreDetail?.map((campaign) => (
+                          <Select.Item key={campaign._id} value={campaign._id}>
+                            {campaign.title}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+          </div>
+          )}
           <Button
             variant="ghost"
             className="px-2 h-8 text-destructive"
