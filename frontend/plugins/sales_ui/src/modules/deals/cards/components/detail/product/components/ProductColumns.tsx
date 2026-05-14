@@ -8,6 +8,7 @@ import {
 } from '../hooks/getProductColumns';
 import {
   CURRENCY_CODES,
+  CurrencyCode,
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
@@ -89,7 +90,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
     cell: ({ cell }) => {
       const currencyCode = cell.row.original.currency;
       const CurrencyIcon = currencyCode
-        ? CURRENCY_CODES[currencyCode]?.Icon
+        ? CURRENCY_CODES[currencyCode as CurrencyCode]?.Icon
         : null;
       return (
         <RecordTableInlineCell>
