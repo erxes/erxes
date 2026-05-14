@@ -552,6 +552,7 @@ const TourTypesView = ({
                     <Button
                       variant="ghost"
                       size="icon"
+                      aria-label={`Edit ${type.label}`}
                       onClick={() => onEditType(type)}
                     >
                       <IconEdit size={16} />
@@ -559,6 +560,7 @@ const TourTypesView = ({
                     <Button
                       variant="ghost"
                       size="icon"
+                      aria-label={`Delete ${type.label}`}
                       onClick={() => onRemoveType(type)}
                     >
                       <IconTrash size={16} />
@@ -665,6 +667,7 @@ const FieldGroupsView = ({
                     <Button
                       variant="ghost"
                       size="icon"
+                      aria-label={`Edit ${group.label || 'field group'}`}
                       onClick={(event) => {
                         event.stopPropagation();
                         onEditGroup(group);
@@ -675,6 +678,7 @@ const FieldGroupsView = ({
                     <Button
                       variant="ghost"
                       size="icon"
+                      aria-label={`Delete ${group.label || 'field group'}`}
                       onClick={(event) => {
                         event.stopPropagation();
                         onRemoveGroup(group);
@@ -777,6 +781,7 @@ const FieldList = ({
                       <Button
                         variant="ghost"
                         size="icon"
+                        aria-label={`Edit ${field.label}`}
                         onClick={() => onEditField(group, field)}
                       >
                         <IconEdit size={16} />
@@ -784,6 +789,7 @@ const FieldList = ({
                       <Button
                         variant="ghost"
                         size="icon"
+                        aria-label={`Delete ${field.label}`}
                         onClick={() => onRemoveField(group, field)}
                       >
                         <IconTrash size={16} />

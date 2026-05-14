@@ -42,7 +42,7 @@ const toOptionalNumber = (value: number | string | undefined) => {
 
   if (typeof value === 'string' && value.trim() !== '') {
     const parsed = Number(value);
-    return Number.isNaN(parsed) ? undefined : parsed;
+    return Number.isFinite(parsed) ? parsed : undefined;
   }
 
   return undefined;
@@ -90,9 +90,7 @@ export const normalizePricingOptionsForApi = (
       accommodationType: rest.accommodationType
         ? rest.accommodationType.trim().toLowerCase()
         : rest.accommodationType,
-      domesticFlightPerPerson: toOptionalNumber(
-        rest.domesticFlightPerPerson,
-      ),
+      domesticFlightPerPerson: toOptionalNumber(rest.domesticFlightPerPerson),
       singleSupplement: toOptionalNumber(rest.singleSupplement),
     };
   });
