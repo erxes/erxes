@@ -57,6 +57,7 @@ import {
   mutations as safeRemainderItemMutations,
   queries as safeRemainderItemQueries,
   types as safeRemainderItemTypes,
+  inputTypes as safeRemainderItemInputTypes,
 } from '~/modules/inventories/graphql/schemas/safeRemainderItem';
 
 export const types = `
@@ -87,6 +88,7 @@ export const types = `
   ${reserveRemsTypes}
   ${safeRemainderTypes}
   ${safeRemainderItemTypes}
+  ${safeRemainderItemInputTypes}
 `;
 
 export const queries = `
