@@ -21,6 +21,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { responseListViewAtom } from '../states/responseTemplate';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
 import { ChannelsInline } from '@/inbox/channel/components/ChannelsInline';
+import { useTranslation } from 'react-i18next';
 
 interface ResponseTemplate {
   _id: string;
@@ -51,13 +52,10 @@ const ViewModeIcon = (): JSX.Element => {
   }
 };
 
-const getViewModeTitle = (viewMode: ViewMode): string => {
-  return `Switch to ${viewMode === 'grid' ? 'list' : 'grid'} view`;
-};
-
 export const ResponseTemplateSelector: React.FC<
   ResponseTemplateSelectorProps
 > = ({ onSelect, children }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounce(search, 500);
@@ -73,13 +71,12 @@ export const ResponseTemplateSelector: React.FC<
     },
   });
 
-  const availableChannels = useMemo<ChannelOption[]>(() => {
-    if (!channels) return [];
-    return channels.map((channel: IChannel) => ({
-      id: channel._id,
-      name: channel.name,
-    }));
-  }, [channels]);
+  const getViewModeTitle = (mode: ViewMode): string => {
+    return t(
+      `inbox.responseTemplates.viewMode.switchTo${mode === 'grid' ? 'List' : 'Grid'}`,
+      `Switch to ${mode === 'grid' ? 'list' : 'grid'} view`
+    );
+  };
 
   const filteredTemplates = useMemo<ResponseTemplate[]>(() => {
     if (!responses) return [];
@@ -117,11 +114,17 @@ export const ResponseTemplateSelector: React.FC<
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <Popover.Trigger asChild>{children}</Popover.Trigger>
 
-      <Popover.Content className="w-full max-w-[450px] p-0 shadow-xl border overflow-hidden h-[500px]">
-        <div className="flex flex-col h-full w-full">
-          <div className="p-4 space-y-4 border-b bg-background">
+      {/* 
+          Improved height handling for better accessibility on smaller screens 
+          as suggested by Kimi-AI 
+      */}
+      <Popover.Content className="w-full max-w-[450px] p-0 shadow-xl border overflow-hidden h-[min(500px,85vh)]">
+        <div className="flex flex-col h-full w-full bg-background">
+          <div className="p-4 space-y-4 border-b">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-sm">Response Templates</h3>
+              <h3 className="font-semibold text-sm">
+                {t('inbox.responseTemplates.title', 'Response Templates')}
+              </h3>
               <div className="flex items-center space-x-2">
                 <Button
                   onClick={toggleViewMode}
@@ -154,7 +157,7 @@ export const ResponseTemplateSelector: React.FC<
               <Command.Input
                 variant="secondary"
                 focusOnMount
-                placeholder="Search templates..."
+                placeholder={t('inbox.responseTemplates.searchPlaceholder', 'Search templates...')}
                 value={search}
                 onValueChange={setSearch}
                 className="mb-4"
@@ -170,8 +173,8 @@ export const ResponseTemplateSelector: React.FC<
                 {filteredTemplates.length === 0 ? (
                   <div className="col-span-2 p-8 text-center text-muted-foreground text-sm italic">
                     {search
-                      ? 'No matching templates found'
-                      : 'No templates available'}
+                      ? t('inbox.responseTemplates.noMatches', 'No matching templates found')
+                      : t('inbox.responseTemplates.empty', 'No templates available')}
                   </div>
                 ) : (
                   filteredTemplates.map((template) => (
