@@ -8,6 +8,12 @@ export interface IAiAgentFile {
   size?: number;
   type?: string;
   uploadedAt?: Date | string;
+  purpose?: 'core' | 'knowledge' | 'policy' | 'examples';
+  status?: 'uploaded' | 'indexing' | 'indexed' | 'failed';
+  chunkCount?: number;
+  indexedAt?: Date | string;
+  contentHash?: string;
+  indexError?: string;
   versions?: IAiAgentFileVersion[];
 }
 
@@ -49,6 +55,12 @@ export interface IKimiAgentConnection {
   config: IAiAgentConnectionConfig;
 }
 
+export interface IKimiCodingAgentConnection {
+  provider: 'kimi-code';
+  model: string;
+  config: IAiAgentConnectionConfig;
+}
+
 export interface IGrokAgentConnection {
   provider: 'grok';
   model: string;
@@ -59,6 +71,7 @@ export type IAiAgentConnection =
   | ICloudflareAiGatewayAgentConnection
   | IOpenAIAgentConnection
   | IKimiAgentConnection
+  | IKimiCodingAgentConnection
   | IGrokAgentConnection;
 
 export interface ILegacyAiAgentConnectionConfig {
@@ -84,8 +97,17 @@ export interface IAiAgentRuntime {
   timeoutMs: number;
 }
 
+export interface IAiAgentRetrieval {
+  enabled: boolean;
+  strategy: 'keyword' | 'vector' | 'hybrid';
+  topK: number;
+  maxContextBytes: number;
+  minScore?: number;
+}
+
 export interface IAiAgentContext {
   systemPrompt: string;
+  retrieval?: IAiAgentRetrieval;
   files: IAiAgentFile[];
 }
 
@@ -122,6 +144,20 @@ const aiAgentFileSchema = new Schema<IAiAgentFile>(
     size: { type: Number },
     type: { type: String },
     uploadedAt: { type: Date },
+    purpose: {
+      type: String,
+      enum: ['core', 'knowledge', 'policy', 'examples'],
+      default: 'knowledge',
+    },
+    status: {
+      type: String,
+      enum: ['uploaded', 'indexing', 'indexed', 'failed'],
+      default: 'uploaded',
+    },
+    chunkCount: { type: Number },
+    indexedAt: { type: Date },
+    contentHash: { type: String },
+    indexError: { type: String },
     versions: {
       type: [aiAgentFileVersionSchema],
       default: () => [],
@@ -135,7 +171,7 @@ const aiAgentConnectionSchema = new Schema<IAiAgentConnection>(
     provider: {
       type: String,
       required: true,
-      enum: ['cloudflare-ai-gateway', 'openai', 'kimi', 'grok'],
+      enum: ['cloudflare-ai-gateway', 'openai', 'kimi', 'kimi-code', 'grok'],
       default: 'cloudflare-ai-gateway',
     },
     model: { type: String, required: true, default: 'openai/gpt-5-mini' },
@@ -159,6 +195,17 @@ const aiAgentRuntimeSchema = new Schema<IAiAgentRuntime>(
 const aiAgentContextSchema = new Schema<IAiAgentContext>(
   {
     systemPrompt: { type: String, default: '' },
+    retrieval: {
+      enabled: { type: Boolean, default: true },
+      strategy: {
+        type: String,
+        enum: ['keyword', 'vector', 'hybrid'],
+        default: 'keyword',
+      },
+      topK: { type: Number, default: 5 },
+      maxContextBytes: { type: Number, default: 8000 },
+      minScore: { type: Number },
+    },
     files: {
       type: [aiAgentFileSchema],
       default: () => [],

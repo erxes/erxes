@@ -2,6 +2,7 @@ import {
   AUTOMATION_STATUSES,
   IAutomation,
 } from 'erxes-api-shared/core-modules';
+import { sendWorkerQueue } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { sanitizeAiAgent } from './utils/aiAgent';
 
@@ -145,6 +146,36 @@ const mergeAiAgentConnectionSecrets = (
   };
 };
 
+const scheduleAiAgentKnowledgeIndex = async ({
+  subdomain,
+  agentId,
+  fileId,
+}: {
+  subdomain: string;
+  agentId: string;
+  fileId?: string;
+}) => {
+  try {
+    await sendWorkerQueue('automations', 'aiAgent').add(
+      'indexAiAgentKnowledge',
+      {
+        subdomain,
+        data: { agentId, fileId },
+      },
+      {
+        attempts: 2,
+        removeOnComplete: true,
+        removeOnFail: true,
+      },
+    );
+  } catch (error) {
+    console.error(
+      `Failed to schedule AI agent knowledge indexing for ${agentId}:`,
+      error,
+    );
+  }
+};
+
 export const automationMutations = {
   /**
    * Creates a new automation
@@ -250,11 +281,18 @@ export const automationMutations = {
     return automationIds;
   },
 
-  async automationsAiAgentAdd(_root, doc, { models }: IContext) {
+  async automationsAiAgentAdd(_root, doc, { models, subdomain }: IContext) {
     const agent = await models.AiAgents.create(doc);
+
+    await scheduleAiAgentKnowledgeIndex({ subdomain, agentId: agent._id });
+
     return sanitizeAiAgent(agent);
   },
-  async automationsAiAgentEdit(_root, { _id, ...doc }, { models }: IContext) {
+  async automationsAiAgentEdit(
+    _root,
+    { _id, ...doc },
+    { models, subdomain }: IContext,
+  ) {
     const currentAgent = await models.AiAgents.findOne({ _id });
 
     if (!currentAgent) {
@@ -269,7 +307,41 @@ export const automationMutations = {
       { runValidators: true, new: true },
     );
 
+    if (updatedAgent?._id) {
+      await scheduleAiAgentKnowledgeIndex({
+        subdomain,
+        agentId: updatedAgent._id,
+      });
+    }
+
     return sanitizeAiAgent(updatedAgent);
+  },
+
+  async automationsAiAgentReindex(
+    _root,
+    { _id, fileId }: { _id: string; fileId?: string },
+    { models, subdomain }: IContext,
+  ) {
+    const agent = await models.AiAgents.findOne({ _id }).lean();
+
+    if (!agent) {
+      throw new Error('AI agent not found');
+    }
+
+    if (
+      fileId &&
+      !agent.context?.files?.some((file: { id: string }) => file.id === fileId)
+    ) {
+      throw new Error('AI agent context file not found');
+    }
+
+    await scheduleAiAgentKnowledgeIndex({
+      subdomain,
+      agentId: _id,
+      fileId,
+    });
+
+    return { status: 'queued', agentId: _id, fileId };
   },
 
   /**

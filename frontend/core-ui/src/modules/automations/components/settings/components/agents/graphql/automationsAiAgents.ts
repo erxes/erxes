@@ -28,6 +28,12 @@ export const AUTOMATIONS_AI_AGENT_EDIT = gql`
   }
 `;
 
+export const AUTOMATIONS_AI_AGENT_REINDEX = gql`
+  mutation AutomationsAiAgentReindex($id: String!, $fileId: String) {
+    automationsAiAgentReindex(_id: $id, fileId: $fileId)
+  }
+`;
+
 export const AUTOMATIONS_AI_AGENT_DETAIL = gql`
   query AutomationsAiAgentDetail($id: String) {
     automationsAiAgentDetail(_id: $id)
