@@ -20,6 +20,8 @@ interface IQueryParams {
   ids?: string[];
   excludeIds?: boolean;
   status?: string;
+  mentionOwnerId: string;
+  mentionUserId: string;
   searchValue?: string;
   number?: string;
   ptrStatus: string;
@@ -139,6 +141,8 @@ const generateFilter = async (
     statuses,
     ptrStatus,
     status,
+    mentionOwnerId,
+    mentionUserId,
     createdUserId,
     modifiedUserId,
     startDate,
@@ -149,6 +153,7 @@ const generateFilter = async (
     endCreatedDate,
   } = params;
   const filter: any = {};
+  const orFilter: any[] = [];
 
   if (createdUserId) {
     filter.createdBy = createdUserId;
@@ -209,26 +214,37 @@ const generateFilter = async (
     filter.status = { $in: TR_STATUSES.ACTIVE };
   }
 
-  if (ids?.length) {
-    filter._id = { [excludeIds ? '$nin' : '$in']: ids };
-  }
-
-  if (number) {
-    const regex = new RegExp(`.*${escapeRegExp(number)}.*`, 'i');
-    filter.number = { $in: [regex] };
-  }
-
-  if (searchValue) {
-    const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
-    filter.description = regex;
-  }
-
   if (ptrStatus) {
     filter.ptrStatus = ptrStatus;
   }
 
   if (status) {
     filter.status = status;
+  }
+
+  if (mentionOwnerId) {
+    filter.mentionOwnerId = mentionOwnerId;
+  }
+
+  if (mentionUserId) {
+    filter.mentionUserId = { $in: mentionUserId };
+  }
+
+  if (ids?.length) {
+    filter._id = { [excludeIds ? '$nin' : '$in']: ids };
+  }
+
+  if (number) {
+    const regex = new RegExp(`.*${escapeRegExp(number)}.*`, 'i');
+    orFilter.push(
+      { number: { $regex: regex } },
+      { ptrNumber: { $regex: regex } }
+    );
+  }
+
+  if (searchValue) {
+    const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
+    filter.description = regex;
   }
 
   if (brandId) {
@@ -280,6 +296,9 @@ const generateFilter = async (
     filter['details.currency'] = currency;
   }
 
+  if (orFilter.length) {
+    return { ...filter, $or: orFilter };
+  }
   return filter;
 };
 
@@ -333,7 +352,7 @@ const transactionCommon = {
     const filter = await generateFilter(subdomain, models, params, user);
 
     // Set default orderBy
-    params.orderBy ??= { date: 1 };
+    params.orderBy ??= { ptrNumber: -1 };
     params.orderBy = {
       ...params.orderBy,
       ptrId: params.orderBy?.ptrId ?? 1,

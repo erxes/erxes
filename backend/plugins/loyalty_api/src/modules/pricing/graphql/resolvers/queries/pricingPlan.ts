@@ -184,6 +184,36 @@ export const pricingPlanQueries = {
     return Array.isArray(result?.list) ? result.list : [];
   },
 
+  cpPricingPlans: async (
+    _root: any,
+    params: any,
+    { subdomain, models }: IContext,
+  ) => {
+    const filter = await generateFilter(subdomain, models, params);
+    const { sortField, sortDirection } = params;
+    const sort: any =
+      sortField && sortDirection
+        ? { [sortField]: sortDirection }
+        : { updatedAt: -1 };
+
+    if (params.findOne) {
+      const docs = await models.PricingPlans.find(filter).sort(sort).limit(1);
+
+      return docs || [];
+    }
+
+    const result = await cursorPaginate({
+      model: models.PricingPlans,
+      query: filter,
+      params: {
+        ...params,
+        orderBy: sort,
+      },
+    });
+
+    return Array.isArray(result?.list) ? result.list : [];
+  },
+
   pricingPlansCount: async (
     _root: any,
     params: any,
@@ -200,6 +230,10 @@ export const pricingPlanQueries = {
   ) => {
     return await models.PricingPlans.findById(id);
   },
+};
+
+(pricingPlanQueries.cpPricingPlans as any).wrapperConfig = {
+  forClientPortal: true,
 };
 
 export default pricingPlanQueries;

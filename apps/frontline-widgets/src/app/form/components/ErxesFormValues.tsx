@@ -84,6 +84,12 @@ export const ErxesFormValues = ({
       formSchema[field._id] = z.boolean();
       return;
     }
+    if (field.type === 'file') {
+      formSchema[field._id] = field.isRequired
+        ? z.array(z.string()).min(1, 'At least one file is required')
+        : z.array(z.string());
+      return;
+    }
 
     // All string-valued field types — apply validator refinement if configured
     const base = field.isRequired ? z.string().min(1) : z.string();
@@ -109,6 +115,8 @@ export const ErxesFormValues = ({
       defaultValues[field._id] = false;
     } else if (field.type === 'radio') {
       defaultValues[field._id] = '';
+    } else if (field.type === 'file') {
+      defaultValues[field._id] = [];
     }
   });
 

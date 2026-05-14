@@ -14,6 +14,12 @@ import {
   types as tourTypes,
 } from './tour';
 import {
+  inputs as customTourInputs,
+  mutations as customTourMutations,
+  queries as customTourQueries,
+  types as customTourTypes,
+} from './customTourType';
+import {
   mutations as branchMutations,
   queries as branchQueries,
   types as branchTypes,
@@ -22,13 +28,16 @@ import {
 export const types = `
     ${elementTypes}
     ${itineraryTypes}
+    ${customTourTypes}
     ${tourTypes}
     ${branchTypes}
+    ${customTourInputs}
 `;
 
 export const queries = `
     ${elementQueries}
     ${itineraryQueries}
+    ${customTourQueries}
     ${tourQueries}
     ${branchQueries}
 `;
@@ -36,6 +45,7 @@ export const queries = `
 export const mutations = `
     ${elementMutations}
     ${itineraryMutations}
+    ${customTourMutations}
     ${tourMutations}
     ${branchMutations}
 `;

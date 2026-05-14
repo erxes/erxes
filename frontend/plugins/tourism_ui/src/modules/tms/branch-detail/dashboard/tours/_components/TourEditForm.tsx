@@ -2,7 +2,7 @@ import { Form, Sheet, Button, Tabs, useToast, Spinner } from 'erxes-ui';
 import { useForm, useWatch, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { nanoid } from 'nanoid';
 import { TourSideTab, TourOrdersSidePanel } from './TourOrdersSidePanel';
 
@@ -19,6 +19,11 @@ import {
   resolveMainLanguageName,
 } from '../utils/translationHelpers';
 import { normalizePricingOptionsForApi } from '../utils/pricingOptions';
+import { filterCustomFieldsData } from '../utils/customFields';
+import {
+  useTourCustomFieldGroups,
+  useTourCustomTypes,
+} from '../hooks/useTourCustomFields';
 
 import { TourCreateFormSchema, TourFormValues } from '../constants/formSchema';
 
@@ -46,6 +51,10 @@ import {
   TourPricingOptionsField,
   TourGuidesField,
 } from './TourFormFields';
+import {
+  TourCustomFieldsSection,
+  TourTypeField,
+} from './TourCustomFieldsSection';
 
 interface Props {
   tourId: string;
@@ -103,6 +112,7 @@ export const TourEditForm = ({
   const { createTour, loading: createLoading } = useCreateTour();
   const [editorResetKey, setEditorResetKey] = useState(0);
   const [sideTabLocal, setSideTabLocal] = useState<TourSideTab | null>(null);
+  const previousTypeRef = useRef<string | undefined>();
 
   const sideTab = sideTabProp ?? sideTabLocal;
   const setSideTab = onSideTabChange ?? setSideTabLocal;
@@ -120,6 +130,7 @@ export const TourEditForm = ({
       name: '',
       refNumber: '',
       status: 'draft',
+      customTourTypeId: 'tour',
       content: '',
       itineraryId: '',
       categoryIds: [],
@@ -145,6 +156,7 @@ export const TourEditForm = ({
       guides: [],
       pricingOptions: [],
       translations: [],
+      customFieldsData: [],
     },
   });
 
@@ -209,6 +221,32 @@ export const TourEditForm = ({
     name: 'duration',
   });
 
+  const selectedType = useWatch({
+    control: form.control,
+    name: 'customTourTypeId',
+  });
+
+  const { customTypes } = useTourCustomTypes(branchId ?? tourDetail?.branchId);
+
+  const { fieldGroups } = useTourCustomFieldGroups({
+    branchId: branchId ?? tourDetail?.branchId,
+    selectedType,
+    tourId,
+  });
+
+  useEffect(() => {
+    if (!selectedType) return;
+
+    if (
+      previousTypeRef.current &&
+      previousTypeRef.current !== selectedType
+    ) {
+      form.setValue('customFieldsData', []);
+    }
+
+    previousTypeRef.current = selectedType;
+  }, [selectedType, form]);
+
   const { data } = useQuery(GET_ITINERARIES, {
     variables: { branchId, limit: 100, orderBy: { createdAt: -1 } },
     skip: !branchId,
@@ -226,12 +264,15 @@ export const TourEditForm = ({
     if (!tourDetail?._id) return;
 
     const tour = tourDetail;
+    const resolvedCustomTourTypeId = tour.customTourTypeId ?? 'tour';
+    previousTypeRef.current = resolvedCustomTourTypeId;
 
     form.reset(
       {
         name: resolveMainLanguageName(tour, mainLanguage),
         refNumber: tour.refNumber ?? '',
         status: tour.status ?? 'draft',
+        customTourTypeId: resolvedCustomTourTypeId,
         content: tour.content ?? '',
         itineraryId: tour.itineraryId ?? '',
         categoryIds: tour.categoryIds ?? [],
@@ -278,6 +319,7 @@ export const TourEditForm = ({
           : undefined,
         availableTo: tour.availableTo ? new Date(tour.availableTo) : undefined,
         translations: buildTranslationsFromTour(tour, translationLanguages),
+        customFieldsData: tour.customFieldsData ?? [],
       },
       { keepDirty: false, keepTouched: false },
     );
@@ -328,6 +370,7 @@ export const TourEditForm = ({
         isGroupTour: _isGroupTour,
         pricingOptions,
         translations: rawTranslations,
+        customFieldsData,
         ...restValues
       } = values;
 
@@ -368,6 +411,7 @@ export const TourEditForm = ({
         id: tourId,
         language: resolvedPrimaryLanguage || undefined,
         ...restValues,
+        customFieldsData: filterCustomFieldsData(customFieldsData),
         pricingOptions: normalizedPricingOptions,
         translations: sanitizedTranslations,
         dateType: isFlexible ? 'flexible' : 'fixed',
@@ -403,6 +447,7 @@ export const TourEditForm = ({
                 branchId: targetBranchId,
                 language: resolvedPrimaryLanguage || undefined,
                 ...restValues,
+                customFieldsData: filterCustomFieldsData(customFieldsData),
                 refNumber,
                 pricingOptions: normalizedPricingOptions,
                 dateType: 'fixed',
@@ -484,6 +529,13 @@ export const TourEditForm = ({
 
                   <div className="grid grid-cols-2 gap-4">
                     <TourStatusField control={form.control} />
+                    <TourTypeField
+                      control={form.control}
+                      customTypes={customTypes}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
                     <TourItineraryIdField
                       control={form.control}
                       branchId={branchId}
@@ -502,6 +554,36 @@ export const TourEditForm = ({
                     control={form.control}
                     name={fieldPaths.content}
                     labelSuffix={labelSuffix}
+                  />
+
+                  <TourCustomFieldsSection
+                    fieldGroups={fieldGroups}
+                    getCustomFieldValue={(fieldId) => {
+                      const currentData = form.watch('customFieldsData') || [];
+                      return (
+                        currentData.find((item) => item.field === fieldId)
+                          ?.value ?? ''
+                      );
+                    }}
+                    updateCustomFieldValue={(fieldId, value) => {
+                      const currentData =
+                        form.getValues('customFieldsData') || [];
+                      const existingIndex = currentData.findIndex(
+                        (item) => item.field === fieldId,
+                      );
+                      const updated = [...currentData];
+
+                      if (existingIndex >= 0) {
+                        updated[existingIndex] = { field: fieldId, value };
+                      } else {
+                        updated.push({ field: fieldId, value });
+                      }
+
+                      form.setValue('customFieldsData', updated, {
+                        shouldDirty: true,
+                        shouldTouch: true,
+                      });
+                    }}
                   />
                 </div>
 

@@ -1,13 +1,16 @@
 import { AiAgentContextFileEditorDialog } from '@/automations/components/settings/components/agents/components/AiAgentContextFileEditorDialog';
 import { UploadDropzone } from '@/automations/components/settings/components/agents/components/DropFilesZone';
+import { AUTOMATIONS_AI_AGENT_REINDEX } from '@/automations/components/settings/components/agents/graphql/automationsAiAgents';
 import { TAiAgentForm } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import {
   getNextContextFilesAfterEdit,
   mapUploadedContextFiles,
 } from '@/automations/components/settings/components/agents/utils/contextFiles';
-import { Card, Form, Textarea } from 'erxes-ui';
+import { Card, Form, Textarea, toast } from 'erxes-ui';
+import { useMutation } from '@apollo/client';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useParams } from 'react-router';
 
 const AI_AGENT_UI_LIMITS = {
   maxFiles: 10,
@@ -24,8 +27,11 @@ const formatBytes = (bytes: number) => {
 };
 
 export const AiAgentContextForm = () => {
+  const { id } = useParams();
   const { control } = useFormContext<TAiAgentForm>();
   const [editingFileId, setEditingFileId] = useState<string | null>(null);
+  const [reindexingFileId, setReindexingFileId] = useState<string | null>(null);
+  const [reindex] = useMutation(AUTOMATIONS_AI_AGENT_REINDEX);
 
   return (
     <div className="grid gap-4">
@@ -100,6 +106,34 @@ export const AiAgentContextForm = () => {
                         field.onChange(files.filter(({ id }) => fileId !== id));
                       }}
                       onFileClick={setEditingFileId}
+                      onFileReindex={
+                        id
+                          ? async (fileId) => {
+                              setReindexingFileId(fileId);
+
+                              try {
+                                await reindex({
+                                  variables: { id, fileId },
+                                });
+                                toast({
+                                  title: 'Reindex queued',
+                                  description:
+                                    'Knowledge chunks will refresh in the background.',
+                                  variant: 'success',
+                                });
+                              } catch (error) {
+                                toast({
+                                  title: 'Could not queue reindex',
+                                  description: (error as Error).message,
+                                  variant: 'destructive',
+                                });
+                              } finally {
+                                setReindexingFileId(null);
+                              }
+                            }
+                          : undefined
+                      }
+                      reindexingFileId={reindexingFileId}
                     />
                   </Form.Control>
                   <AiAgentContextFileEditorDialog

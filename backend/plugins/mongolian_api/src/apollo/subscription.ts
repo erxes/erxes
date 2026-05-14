@@ -4,7 +4,7 @@ export default {
   name: 'mongolian',
 
   typeDefs: `
-    ebarimtResponded(userId: String, processId: String): EbarimtResponse
+    ebarimtResponded(userId: String, sessionCode: String): EbarimtResponse
     productPlacesResponded(userId: String, sessionCode: String): ProductPlacesResponse
   `,
 
@@ -16,7 +16,10 @@ export default {
             graphqlPubsub.asyncIterator(`ebarimtResponded:${userId}`),
           (payload, variables) =>
             variables?.userId &&
-            payload?.ebarimtResponded?.userId === variables?.userId,
+            payload?.ebarimtResponded?.userId === variables?.userId &&
+            (!variables?.sessionCode ||
+              payload?.ebarimtResponded?.sessionCode ===
+                variables?.sessionCode),
         ),
       },
       productPlacesResponded: {

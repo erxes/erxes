@@ -42,6 +42,7 @@ const mutations = `
   automationsRemoveNote(_id: String!): AutomationNote
   automationsAiAgentAdd(${aiAgentParams}):JSON
   automationsAiAgentEdit(_id:String!,${aiAgentParams}):JSON
+  automationsAiAgentReindex(_id:String!, fileId:String):JSON
   
   automationEmailTemplatesAdd(${emailTemplateFields}): AutomationEmailTemplate
   automationEmailTemplatesEdit(_id: String!, ${emailTemplateFields}): AutomationEmailTemplate

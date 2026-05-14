@@ -10,6 +10,8 @@ export const RelationWidgetSideTabs = ({
   contentType,
   access = 'write',
   hookOptions,
+  customerId,
+  companyId,
 }: {
   contentId: string;
   contentType: string;
@@ -19,6 +21,8 @@ export const RelationWidgetSideTabs = ({
     hiddenModules?: string[];
     hideCoreRelations?: boolean;
   };
+  customerId?: string;
+  companyId?: string;
 }) => {
   const { RelationWidget, relationWidgetsModules } =
     useRelationWidget(hookOptions);
@@ -35,6 +39,8 @@ export const RelationWidgetSideTabs = ({
               pluginName={module.pluginName}
               contentId={contentId}
               contentType={contentType}
+              customerId={customerId}
+              companyId={companyId}
               access={resolveAccess(access, module.name)}
             />
           </SideMenuContext.Provider>

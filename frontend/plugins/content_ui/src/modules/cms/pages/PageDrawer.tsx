@@ -697,7 +697,7 @@ export function PageDrawer({
       });
       formInitializedRef.current = true;
     }
-  }, [form, onSubmit, getSaving, onFormReady]);
+  }, [form, onSubmit, getSaving, onFormReady, onLanguageChange]);
 
   return (
     <ScrollArea className="flex-auto" viewportClassName="p-4">

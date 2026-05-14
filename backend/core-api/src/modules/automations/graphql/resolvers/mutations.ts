@@ -2,148 +2,17 @@ import {
   AUTOMATION_STATUSES,
   IAutomation,
 } from 'erxes-api-shared/core-modules';
+import { sendWorkerQueue } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { sanitizeAiAgent } from './utils/aiAgent';
+import {
+  mergeAiAgentConnectionSecrets,
+  sanitizeAiAgent,
+  scheduleAiAgentKnowledgeIndex,
+} from './utils/aiAgent';
 
 export interface IAutomationsEdit extends IAutomation {
   _id: string;
 }
-
-const MASKED_SECRET_VALUE = '********';
-
-type TPlainObject = Record<string, unknown>;
-type TObjectWithToObject = {
-  toObject?: () => unknown;
-};
-
-type TAiAgentConnectionConfig = TPlainObject & {
-  apiKey?: string;
-};
-
-type TAiAgentConnection = TPlainObject & {
-  config?: TAiAgentConnectionConfig;
-};
-
-type TAiAgentMutationDoc = TPlainObject & {
-  connection?: TAiAgentConnection;
-};
-
-type TSecretPath = string[];
-
-const toPlainObject = (value?: unknown | null) => {
-  if (!value || typeof value !== 'object') {
-    return value;
-  }
-
-  const candidate = value as TObjectWithToObject;
-
-  return typeof candidate.toObject === 'function'
-    ? candidate.toObject()
-    : value;
-};
-
-const mergeAiAgentConnectionSecrets = (
-  currentAgent: ({ connection?: unknown } & TObjectWithToObject) | null,
-  doc: TAiAgentMutationDoc,
-) => {
-  if (!doc?.connection) {
-    return doc;
-  }
-
-  const currentConnection =
-    (toPlainObject(currentAgent?.connection) as
-      | TAiAgentConnection
-      | undefined) || {};
-  const incomingConnection =
-    (toPlainObject(doc.connection) as TAiAgentConnection | undefined) || {};
-  const currentConfig = currentConnection.config || {};
-  const incomingConfig = incomingConnection.config || {};
-
-  const getPathValue = (source: TPlainObject, path: TSecretPath) => {
-    return path.reduce<unknown>((current, key) => {
-      if (!current || typeof current !== 'object') {
-        return undefined;
-      }
-
-      return (current as TPlainObject)[key];
-    }, source);
-  };
-
-  const setPathValue = (
-    source: TPlainObject,
-    path: TSecretPath,
-    value: unknown,
-  ) => {
-    const [key, ...rest] = path;
-
-    if (!rest.length) {
-      source[key] = value;
-      return;
-    }
-
-    const next =
-      source[key] && typeof source[key] === 'object'
-        ? (source[key] as TPlainObject)
-        : {};
-
-    source[key] = next;
-    setPathValue(next, rest, value);
-  };
-
-  const deletePathValue = (source: TPlainObject, path: TSecretPath) => {
-    const [key, ...rest] = path;
-
-    if (!rest.length) {
-      delete source[key];
-      return;
-    }
-
-    const next = source[key];
-
-    if (next && typeof next === 'object') {
-      deletePathValue(next as TPlainObject, rest);
-    }
-  };
-
-  const secretPaths: TSecretPath[] = [['apiKey'], ['gatewayToken']];
-  const shouldPreserveSecrets = secretPaths.filter((path) => {
-    const incomingValue = getPathValue(incomingConfig, path);
-
-    return (
-      incomingValue === '' ||
-      incomingValue === undefined ||
-      incomingValue === MASKED_SECRET_VALUE
-    );
-  });
-
-  if (!shouldPreserveSecrets.length) {
-    return doc;
-  }
-
-  const mergedConnection = {
-    ...currentConnection,
-    ...incomingConnection,
-    config: {
-      ...currentConfig,
-      ...incomingConfig,
-    },
-  };
-
-  for (const key of shouldPreserveSecrets) {
-    const currentValue = getPathValue(currentConfig, key);
-
-    if (currentValue !== undefined) {
-      setPathValue(mergedConnection.config, key, currentValue);
-    } else {
-      deletePathValue(mergedConnection.config, key);
-    }
-  }
-
-  return {
-    ...doc,
-    connection: mergedConnection,
-  };
-};
 
 export const automationMutations = {
   /**
@@ -250,11 +119,18 @@ export const automationMutations = {
     return automationIds;
   },
 
-  async automationsAiAgentAdd(_root, doc, { models }: IContext) {
+  async automationsAiAgentAdd(_root, doc, { models, subdomain }: IContext) {
     const agent = await models.AiAgents.create(doc);
+
+    await scheduleAiAgentKnowledgeIndex({ subdomain, agentId: agent._id });
+
     return sanitizeAiAgent(agent);
   },
-  async automationsAiAgentEdit(_root, { _id, ...doc }, { models }: IContext) {
+  async automationsAiAgentEdit(
+    _root,
+    { _id, ...doc },
+    { models, subdomain }: IContext,
+  ) {
     const currentAgent = await models.AiAgents.findOne({ _id });
 
     if (!currentAgent) {
@@ -269,7 +145,41 @@ export const automationMutations = {
       { runValidators: true, new: true },
     );
 
+    if (updatedAgent?._id) {
+      await scheduleAiAgentKnowledgeIndex({
+        subdomain,
+        agentId: updatedAgent._id,
+      });
+    }
+
     return sanitizeAiAgent(updatedAgent);
+  },
+
+  async automationsAiAgentReindex(
+    _root,
+    { _id, fileId }: { _id: string; fileId?: string },
+    { models, subdomain }: IContext,
+  ) {
+    const agent = await models.AiAgents.findOne({ _id }).lean();
+
+    if (!agent) {
+      throw new Error('AI agent not found');
+    }
+
+    if (
+      fileId &&
+      !agent.context?.files?.some((file: { id: string }) => file.id === fileId)
+    ) {
+      throw new Error('AI agent context file not found');
+    }
+
+    await scheduleAiAgentKnowledgeIndex({
+      subdomain,
+      agentId: _id,
+      fileId,
+    });
+
+    return { status: 'queued', agentId: _id, fileId };
   },
 
   /**

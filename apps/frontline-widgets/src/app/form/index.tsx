@@ -87,7 +87,9 @@ export const Form = () => {
   useEffect(() => {
     if (!isPopup || !settings.form_id) return;
     postMessage('fromForms', 'changeContainerClass', {
-      className: isPopupOpen ? 'erxes-modal-iframe' : 'erxes-modal-iframe hidden',
+      className: isPopupOpen
+        ? 'erxes-modal-iframe'
+        : 'erxes-modal-iframe hidden',
       settings,
     });
   }, [isPopup, isPopupOpen, settings.form_id]);
@@ -136,7 +138,7 @@ export const Form = () => {
   if (isPopup) {
     return (
       <Dialog open={isPopupOpen} onOpenChange={setIsPopupOpen}>
-        <Dialog.Content className='p-0'>{formContent}</Dialog.Content>
+        <Dialog.Content className="p-0">{formContent}</Dialog.Content>
       </Dialog>
     );
   }
