@@ -2,6 +2,7 @@ import { useMutation } from '@apollo/client';
 import { CREATE_TOUR } from '../graphql/mutation';
 import { ITourTranslationInput } from '../utils/translationHelpers';
 import type { PricingOptionInput } from '../utils/pricingOptions';
+import type { TourCustomFieldData } from '../utils/customFields';
 
 interface CreateTourResponse {
   bmsTourAdd: {
@@ -26,6 +27,7 @@ export interface ICreateTourVariables {
     | 'cancelled'
     | 'unscheduled';
   status?: string;
+  customTourTypeId?: string;
   groupCode?: string;
   itineraryId?: string;
   dateType?: 'fixed' | 'flexible';
@@ -52,6 +54,7 @@ export interface ICreateTourVariables {
   categoryIds?: string[];
   pricingOptions?: PricingOptionInput[];
   translations?: ITourTranslationInput[];
+  customFieldsData?: TourCustomFieldData[];
 }
 
 export const useCreateTour = () => {

@@ -6,6 +6,7 @@ export const CREATE_TOUR = gql`
     $language: String
     $date_status: DATE_STATUS!
     $status: String
+    $customTourTypeId: String
     $name: String
     $refNumber: String
     $groupCode: String
@@ -35,12 +36,14 @@ export const CREATE_TOUR = gql`
     $categoryIds: [String]
     $pricingOptions: [PricingOptionInput]
     $translations: [TourTranslationInput]
+    $customFieldsData: JSON
   ) {
     bmsTourAdd(
       branchId: $branchId
       language: $language
       date_status: $date_status
       status: $status
+      customTourTypeId: $customTourTypeId
       name: $name
       refNumber: $refNumber
       groupCode: $groupCode
@@ -70,6 +73,7 @@ export const CREATE_TOUR = gql`
       categoryIds: $categoryIds
       pricingOptions: $pricingOptions
       translations: $translations
+      customFieldsData: $customFieldsData
     ) {
       _id
     }
@@ -95,6 +99,7 @@ export const EDIT_TOUR = gql`
     $joinPercent: Float
     $advanceCheck: Boolean
     $status: String
+    $customTourTypeId: String
     $cost: Float
     $guides: [GuideItemInput]
     $refNumber: String
@@ -110,6 +115,7 @@ export const EDIT_TOUR = gql`
     $categoryIds: [String]
     $pricingOptions: [PricingOptionInput]
     $translations: [TourTranslationInput]
+    $customFieldsData: JSON
   ) {
     bmsTourEdit(
       _id: $id
@@ -129,6 +135,7 @@ export const EDIT_TOUR = gql`
       joinPercent: $joinPercent
       advanceCheck: $advanceCheck
       status: $status
+      customTourTypeId: $customTourTypeId
       cost: $cost
       guides: $guides
       refNumber: $refNumber
@@ -144,6 +151,7 @@ export const EDIT_TOUR = gql`
       categoryIds: $categoryIds
       pricingOptions: $pricingOptions
       translations: $translations
+      customFieldsData: $customFieldsData
     ) {
       _id
     }
