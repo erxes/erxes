@@ -1,5 +1,4 @@
 import { UseFormReturn, useFieldArray } from 'react-hook-form';
-import { IPropertyForm, IPropertyGroupForm } from '../types/Properties';
 import { Button, Form, Input, Select } from 'erxes-ui';
 import { FIELDS_COMBINED_BY_CONTENT_TYPE } from 'ui-modules';
 import { useQuery } from '@apollo/client';
@@ -95,7 +94,8 @@ const LogicValueInput = ({
 export const PropertyFormLogicFields = ({
   form,
 }: {
-  form: UseFormReturn<IPropertyForm | IPropertyGroupForm>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  form: UseFormReturn<any>;
 }) => {
   const { type: contentType } = useParams<{ type: string }>();
 
