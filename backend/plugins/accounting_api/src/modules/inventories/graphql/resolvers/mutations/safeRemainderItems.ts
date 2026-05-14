@@ -81,6 +81,56 @@ const safeRemainderItemMutations = {
     const bulkOps = productCodes.flatMap((code) => {
       const product = codeToProduct[code];
       if (!product) return [];
+
+      const setOnInsert = {
+        remainderId: safeRemainderId,
+        productId: product._id,
+        branchId: safeRemainder.branchId,
+        departmentId: safeRemainder.departmentId,
+        uom: product.uom,
+        preCount: 0,
+      };
+
+      if (duplicateRule === 'skip') {
+        return [
+          {
+            updateOne: {
+              filter: { remainderId: safeRemainderId, productId: product._id },
+              update: {
+                $setOnInsert: {
+                  ...setOnInsert,
+                  count: merged[code],
+                  status: SAFE_REMAINDER_ITEM_STATUSES.CHECKED,
+                  modifiedAt: new Date(),
+                  modifiedBy: user._id,
+                },
+              },
+              upsert: true,
+            },
+          },
+        ];
+      }
+
+      if (duplicateRule === 'add') {
+        return [
+          {
+            updateOne: {
+              filter: { remainderId: safeRemainderId, productId: product._id },
+              update: {
+                $inc: { count: merged[code] },
+                $set: {
+                  status: SAFE_REMAINDER_ITEM_STATUSES.CHECKED,
+                  modifiedAt: new Date(),
+                  modifiedBy: user._id,
+                },
+                $setOnInsert: setOnInsert,
+              },
+              upsert: true,
+            },
+          },
+        ];
+      }
+
       return [
         {
           updateOne: {
@@ -92,14 +142,7 @@ const safeRemainderItemMutations = {
                 modifiedAt: new Date(),
                 modifiedBy: user._id,
               },
-              $setOnInsert: {
-                remainderId: safeRemainderId,
-                productId: product._id,
-                branchId: safeRemainder.branchId,
-                departmentId: safeRemainder.departmentId,
-                uom: product.uom,
-                preCount: 0,
-              },
+              $setOnInsert: setOnInsert,
             },
             upsert: true,
           },
