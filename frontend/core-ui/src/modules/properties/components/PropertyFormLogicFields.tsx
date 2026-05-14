@@ -165,7 +165,14 @@ export const PropertyFormLogicFields = ({
                 name={`logics.${index}.field`}
                 render={({ field }) => (
                   <Form.Item className="col-span-1">
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        form.setValue(`logics.${index}.operator`, '');
+                        form.setValue(`logics.${index}.value`, '');
+                      }}
+                    >
                       <Form.Control>
                         <Select.Trigger>
                           <Select.Value placeholder="Select field" />
