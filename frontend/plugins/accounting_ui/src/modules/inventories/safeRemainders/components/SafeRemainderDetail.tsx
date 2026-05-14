@@ -421,8 +421,8 @@ const ImportFromFileButton = ({
         .filter(Boolean)
         .flatMap((line) => {
           const [code, qty] = line.split(',').map((s) => s.trim());
-          const quantity = parseFloat(qty);
-          if (!code || isNaN(quantity)) return [];
+          const quantity = Number.parseFloat(qty);
+          if (!code || Number.isNaN(quantity)) return [];
           return [{ productCode: code, count: quantity }];
         });
 
@@ -487,7 +487,7 @@ const ImportFromFileButton = ({
           </p>
           <div className="flex flex-col gap-3">
             {rules.map((rule) => (
-              <label
+              <Label
                 key={rule.value}
                 className="flex items-start gap-3 cursor-pointer rounded-md border p-3 hover:bg-accent"
               >
@@ -505,7 +505,7 @@ const ImportFromFileButton = ({
                     {rule.description}
                   </p>
                 </div>
-              </label>
+              </Label>
             ))}
           </div>
           <div className="flex justify-end gap-2 mt-2">

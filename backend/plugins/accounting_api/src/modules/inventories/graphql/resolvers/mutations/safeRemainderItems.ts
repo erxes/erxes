@@ -1,4 +1,4 @@
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import {
   SAFE_REMAINDER_ITEM_STATUSES,
@@ -51,11 +51,11 @@ const safeRemainderItemMutations = {
     for (const item of productsData) {
       const existing = merged[item.productCode];
       if (existing === undefined) {
-        merged[item.productCode] = item.count;
+        merged[item.productCode] = fixNum(item.count, 4);
       } else if (duplicateRule === 'last') {
-        merged[item.productCode] = item.count;
+        merged[item.productCode] = fixNum(item.count, 4);
       } else if (duplicateRule === 'add') {
-        merged[item.productCode] = existing + item.count;
+        merged[item.productCode] = existing + fixNum(item.count, 4);
       }
     }
 
@@ -73,14 +73,16 @@ const safeRemainderItemMutations = {
       defaultValue: [],
     });
 
-    const codeToProduct: Record<string, any> = {};
+    const productByCode: Record<string, any> = {};
     for (const p of products) {
-      codeToProduct[p.code] = p;
+      productByCode[p.code] = p;
     }
 
-    const bulkOps = productCodes.flatMap((code) => {
-      const product = codeToProduct[code];
-      if (!product) return [];
+    const bulkOps: any[] = [];
+
+    for (const code of productCodes) {
+      const product = productByCode[code];
+      if (!product) continue;
 
       const setOnInsert = {
         remainderId: safeRemainderId,
@@ -92,52 +94,31 @@ const safeRemainderItemMutations = {
       };
 
       if (duplicateRule === 'skip') {
-        return [
-          {
-            updateOne: {
-              filter: { remainderId: safeRemainderId, productId: product._id },
-              update: {
-                $setOnInsert: {
-                  ...setOnInsert,
-                  count: merged[code],
-                  status: SAFE_REMAINDER_ITEM_STATUSES.CHECKED,
-                  modifiedAt: new Date(),
-                  modifiedBy: user._id,
-                },
-              },
-              upsert: true,
-            },
-          },
-        ];
-      }
-
-      if (duplicateRule === 'add') {
-        return [
-          {
-            updateOne: {
-              filter: { remainderId: safeRemainderId, productId: product._id },
-              update: {
-                $inc: { count: merged[code] },
-                $set: {
-                  status: SAFE_REMAINDER_ITEM_STATUSES.CHECKED,
-                  modifiedAt: new Date(),
-                  modifiedBy: user._id,
-                },
-                $setOnInsert: setOnInsert,
-              },
-              upsert: true,
-            },
-          },
-        ];
-      }
-
-      return [
-        {
+        bulkOps.push({
           updateOne: {
             filter: { remainderId: safeRemainderId, productId: product._id },
             update: {
-              $set: {
+              $setOnInsert: {
+                ...setOnInsert,
                 count: merged[code],
+                status: SAFE_REMAINDER_ITEM_STATUSES.CHECKED,
+                modifiedAt: new Date(),
+                modifiedBy: user._id,
+              },
+            },
+            upsert: true,
+          },
+        })
+        continue;
+      }
+
+      if (duplicateRule === 'add') {
+        bulkOps.push({
+          updateOne: {
+            filter: { remainderId: safeRemainderId, productId: product._id },
+            update: {
+              $inc: { count: merged[code] },
+              $set: {
                 status: SAFE_REMAINDER_ITEM_STATUSES.CHECKED,
                 modifiedAt: new Date(),
                 modifiedBy: user._id,
@@ -146,9 +127,26 @@ const safeRemainderItemMutations = {
             },
             upsert: true,
           },
+        });
+        continue;
+      }
+
+      bulkOps.push({
+        updateOne: {
+          filter: { remainderId: safeRemainderId, productId: product._id },
+          update: {
+            $set: {
+              count: merged[code],
+              status: SAFE_REMAINDER_ITEM_STATUSES.CHECKED,
+              modifiedAt: new Date(),
+              modifiedBy: user._id,
+            },
+            $setOnInsert: setOnInsert,
+          },
+          upsert: true,
         },
-      ];
-    });
+      })
+    };
 
     if (!bulkOps.length) return 0;
 
