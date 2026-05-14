@@ -4,7 +4,7 @@ import {
   reportEndDateAtom,
   reportStartDateAtom,
 } from "@/store"
-import { paymentTypesAtom } from "@/store/config.store"
+import { configAtom, paymentTypesAtom } from "@/store/config.store"
 import { format } from "date-fns"
 import { useAtomValue } from "jotai"
 
@@ -37,9 +37,14 @@ const Flex = ({
 )
 
 type ReportProduct = {
+  _id?: string | null
+  id?: string | null
+  productId?: string | null
   name?: string | null
   code?: string | null
   count?: number
+  unitPrice?: number
+  totalAmount?: number
 }
 
 const normalizeText = (value?: string | null) => value?.trim() || ""
@@ -77,7 +82,16 @@ const getProductLabel = ({ name, code }: ReportProduct) => {
   return `${normalizedName} / ${size}`
 }
 
+const getServiceChargeAmount = (totalAmount = 0, serviceCharge = 0) => {
+  if (!totalAmount || !serviceCharge) {
+    return 0
+  }
+
+  return Math.round(totalAmount * (serviceCharge / (100 + serviceCharge)))
+}
+
 const Receipt = ({ date, report }: any) => {
+  const config = useAtomValue(configAtom)
   const paymentTypes = useAtomValue(paymentTypesAtom)
   const reportStartDate = useAtomValue(reportStartDateAtom)
   const reportEndDate = useAtomValue(reportEndDateAtom)
@@ -189,21 +203,52 @@ const Receipt = ({ date, report }: any) => {
     )
   }
 
-  const renderProduct = (product: ReportProduct) => {
+  const getProductTotal = (product: ReportProduct) =>
+    product.totalAmount || (product.unitPrice || 0) * (product.count || 0)
+
+  const isServiceChargeProduct = (product: ReportProduct) => {
+    const serviceProductId = config?.serviceChargeApplicableProductId
+    const productIds = [product.productId, product._id, product.id].filter(
+      Boolean
+    )
+
+    if (serviceProductId && productIds.includes(serviceProductId)) {
+      return true
+    }
+
+    return normalizeText(product.name).toLowerCase().includes("service charge")
+  }
+
+  const renderProduct = (product: ReportProduct, ordersAmounts?: any) => {
+    const isServiceCharge = isServiceChargeProduct(product)
+    const serviceChargeAmount = getServiceChargeAmount(
+      ordersAmounts?.totalAmount,
+      config?.serviceCharge
+    )
+
     return (
-      <Flex
-        className="pl-2 report-print__product"
+      <div
+        className="report-print__product"
         key={product.code || product.name}
       >
-        {`${getProductLabel(product)}: `}{" "}
-        <span className="report-print__value tabular-nums">
-          {formatNum(product.count)}
-        </span>
-      </Flex>
+        <div className="report-print__product-name">
+          {getProductLabel(product)}
+        </div>
+        <div className="report-print__product-amount tabular-nums">
+          {isServiceCharge ? (
+            formatNum(serviceChargeAmount || getProductTotal(product))
+          ) : (
+            <>
+              {formatNum(product.unitPrice)} * {formatNum(product.count)} ={" "}
+              {formatNum(getProductTotal(product))}
+            </>
+          )}
+        </div>
+      </div>
     )
   }
 
-  const renderCategory = (category: any) => {
+  const renderCategory = (category: any, ordersAmounts?: any) => {
     return (
       <>
         <div key={Math.random()} className="report-print__category">
@@ -211,9 +256,13 @@ const Receipt = ({ date, report }: any) => {
             {`Барааны бүлэг: `} {category.name}
           </b>
         </div>
+        <div className="report-print__product-header">
+          <span>Барааны нэр</span>
+          <span>Үнэ * Тоо = Дүн</span>
+        </div>
 
         {Object.keys(category.products).map((p) =>
-          renderProduct(category.products[p])
+          renderProduct(category.products[p], ordersAmounts)
         )}
       </>
     )
@@ -227,7 +276,9 @@ const Receipt = ({ date, report }: any) => {
           <span>{item.user.email}</span>
         </b>
         {renderAmounts(item.ordersAmounts)}
-        {Object.keys(item.items).map((i) => renderCategory(item.items[i]))}
+        {Object.keys(item.items).map((i) =>
+          renderCategory(item.items[i], item.ordersAmounts)
+        )}
       </div>
     )
   }
@@ -236,37 +287,39 @@ const Receipt = ({ date, report }: any) => {
 
   return (
     <PrintLayout>
-      <div className="flex min-h-[calc(100vh-1rem)] flex-col print:block print:min-h-0">
-        <div className="report-print">
-          <header className="block pb-2 border-b border-black/15">
-            <div className="report-print__title">Өдрийн тайлан</div>
-            <p className="report-print__meta">
-              Хамаарах:{" "}
-              <b className="font-semibold">
-                {format(reportStartDate || new Date(), "yyyy.MM.dd HH:mm")} -{" "}
-                {format(reportEndDate || new Date(), "yyyy.MM.dd HH:mm")}
-              </b>
-            </p>
-            <p className="report-print__meta">
-              Хэвлэсэн:{" "}
-              <b className="font-semibold">
-                {format(new Date(), "yyyy.MM.dd HH:mm")}
-              </b>
-            </p>
-          </header>
-          {Object.keys(report || {}).map((userId) =>
-            renderUser(report[userId])
-          )}
-          <footer className="space-y-1 report-print__signature">
-            <label className="font-semibold">Гарын үсэг:</label>
-            <span> _____________________</span>
-          </footer>
+      <div className="report-preview">
+        <div className="report-preview__paper">
+          <div className="report-print">
+            <header className="block pb-2 border-b border-black/15">
+              <div className="report-print__title">Өдрийн тайлан</div>
+              <p className="report-print__meta">
+                Хамаарах:{" "}
+                <b className="font-semibold">
+                  {format(reportStartDate || new Date(), "yyyy.MM.dd HH:mm")} -{" "}
+                  {format(reportEndDate || new Date(), "yyyy.MM.dd HH:mm")}
+                </b>
+              </p>
+              <p className="report-print__meta">
+                Хэвлэсэн:{" "}
+                <b className="font-semibold">
+                  {format(new Date(), "yyyy.MM.dd HH:mm")}
+                </b>
+              </p>
+            </header>
+            {Object.keys(report || {}).map((userId) =>
+              renderUser(report[userId])
+            )}
+            <footer className="space-y-1 report-print__signature">
+              <label className="font-semibold">Гарын үсэг:</label>
+              <span> _____________________</span>
+            </footer>
+          </div>
         </div>
 
-        <div className="sticky bottom-4 z-10 mt-auto px-4 pb-4 print:hidden">
+        <div className="report-preview__actions print:hidden">
           <Button
             onClick={handlePrint}
-            className="h-9 w-full px-3 text-xs shadow-md"
+            className="h-9 w-full px-3 text-xs shadow-sm"
             size="sm"
           >
             Хэвлэх
