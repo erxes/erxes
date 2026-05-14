@@ -8,6 +8,12 @@ export type TAiAgentContextFileVersion = {
 
 export type TAiAgentContextFile = TAiAgentContextFileVersion & {
   id: string;
+  purpose?: 'core' | 'knowledge' | 'policy' | 'examples';
+  status?: 'uploaded' | 'indexing' | 'indexed' | 'failed';
+  chunkCount?: number;
+  indexedAt?: string;
+  contentHash?: string;
+  indexError?: string;
   versions?: TAiAgentContextFileVersion[];
 };
 
@@ -115,6 +121,8 @@ export const mapUploadedContextFiles = (
         : typeof uploadedAt === 'string'
           ? uploadedAt
           : new Date().toISOString(),
+    purpose: 'knowledge',
+    status: 'uploaded',
     versions: [],
   }));
 

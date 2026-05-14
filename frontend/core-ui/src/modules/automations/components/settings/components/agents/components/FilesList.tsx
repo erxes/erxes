@@ -2,6 +2,7 @@ import {
   IconFileText,
   IconHistory,
   IconMarkdown,
+  IconRefresh,
   IconTrash,
   IconTxt,
 } from '@tabler/icons-react';
@@ -11,18 +12,22 @@ import {
   getContextFileVersionCount,
   TAiAgentContextFile,
 } from '@/automations/components/settings/components/agents/utils/contextFiles';
-import { Button, cn } from 'erxes-ui';
+import { Badge, Button, cn, Tooltip } from 'erxes-ui';
 
 interface FileGridProps {
   files: TAiAgentContextFile[];
   onFileDelete: (fileId: string) => void;
   onFileClick?: (fileId: string) => void;
+  onFileReindex?: (fileId: string) => void;
+  reindexingFileId?: string | null;
 }
 
 export function FileGrid({
   files = [],
   onFileDelete,
   onFileClick,
+  onFileReindex,
+  reindexingFileId,
 }: FileGridProps) {
   const getFileIcon = (file: TAiAgentContextFile) => {
     const name = file.name.toLowerCase();
@@ -37,6 +42,22 @@ export function FileGrid({
     }
 
     return <IconFileText className="size-5 text-muted-foreground" />;
+  };
+
+  const getStatusVariant = (status?: TAiAgentContextFile['status']) => {
+    if (status === 'indexed') {
+      return 'success';
+    }
+
+    if (status === 'failed') {
+      return 'destructive';
+    }
+
+    if (status === 'indexing') {
+      return 'warning';
+    }
+
+    return 'secondary';
   };
 
   return (
@@ -94,21 +115,72 @@ export function FileGrid({
                       {getContextFileVersionCount(file)} previous
                     </span>
                   )}
+                  {typeof file.chunkCount === 'number' && (
+                    <span>{file.chunkCount} chunks</span>
+                  )}
                 </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge
+                    variant={getStatusVariant(file.status)}
+                    className="w-fit"
+                  >
+                    {file.status || 'uploaded'}
+                  </Badge>
+                  {file.purpose && (
+                    <Badge variant="secondary" className="w-fit">
+                      {file.purpose}
+                    </Badge>
+                  )}
+                </div>
+                {file.indexError && (
+                  <p
+                    className="line-clamp-2 text-xs text-destructive"
+                    title={file.indexError}
+                  >
+                    {file.indexError}
+                  </p>
+                )}
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                onFileDelete(file.id);
-              }}
-              className="h-7 w-7 p-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-              aria-label={`Remove ${file.name}`}
-            >
-              <IconTrash className="size-4" />
-            </Button>
+            <div className="flex shrink-0 items-center gap-1">
+              {onFileReindex && (
+                <Tooltip>
+                  <Tooltip.Trigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onFileReindex(file.id);
+                      }}
+                      className="h-7 w-7 p-0 text-muted-foreground"
+                      aria-label={`Reindex ${file.name}`}
+                      disabled={reindexingFileId === file.id}
+                    >
+                      <IconRefresh
+                        className={cn(
+                          'size-4',
+                          reindexingFileId === file.id && 'animate-spin',
+                        )}
+                      />
+                    </Button>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content>Reindex knowledge</Tooltip.Content>
+                </Tooltip>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onFileDelete(file.id);
+                }}
+                className="h-7 w-7 p-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                aria-label={`Remove ${file.name}`}
+              >
+                <IconTrash className="size-4" />
+              </Button>
+            </div>
           </div>
         </div>
       ))}

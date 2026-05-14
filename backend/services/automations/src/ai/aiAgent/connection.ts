@@ -101,6 +101,33 @@ export const kimiConnectionSchema = z.object({
     .default({}),
 });
 
+export const kimiCodingConnectionSchema = z.object({
+  provider: z.literal('kimi-code'),
+  model: z
+    .string()
+    .trim()
+    .min(1, 'Connection model is required')
+    .max(AI_AGENT_LIMITS.maxModelChars)
+    .default(AI_AGENT_PROVIDER_DEFAULT_MODELS['kimi-code']),
+  config: z
+    .object({
+      apiKey: z
+        .string()
+        .trim()
+        .max(AI_AGENT_LIMITS.maxSecretChars)
+        .optional()
+        .default(''),
+      baseUrl: z
+        .string()
+        .trim()
+        .url()
+        .optional()
+        .default(AI_AGENT_DEFAULTS.kimiCodingBaseUrl),
+      headers: headersSchema,
+    })
+    .default({}),
+});
+
 export const grokConnectionSchema = z.object({
   provider: z.literal('grok'),
   model: z
@@ -133,6 +160,7 @@ export const aiAgentConnectionSchema = z
     cloudflareAiGatewayConnectionSchema,
     grokConnectionSchema,
     kimiConnectionSchema,
+    kimiCodingConnectionSchema,
     openAiConnectionSchema,
   ])
   .default({
@@ -153,6 +181,10 @@ export type TOpenAiAgentConnection = Extract<
 export type TKimiAgentConnection = Extract<
   TAiAgentConnection,
   { provider: 'kimi' }
+>;
+export type TKimiCodingAgentConnection = Extract<
+  TAiAgentConnection,
+  { provider: 'kimi-code' }
 >;
 export type TGrokAgentConnection = Extract<
   TAiAgentConnection,
