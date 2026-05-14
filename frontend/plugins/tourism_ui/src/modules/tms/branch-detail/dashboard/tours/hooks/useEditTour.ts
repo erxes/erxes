@@ -47,6 +47,8 @@ export interface IEditTourVariables {
   imageThumbnail?: string;
   attachment?: { url: string; name: string; type: string; size: number } | null;
   categoryIds?: string[];
+  customTourTypeId?: string;
+  customFieldsData?: any[];
   pricingOptions?: PricingOptionInput[];
   translations?: ITourTranslationInput[];
 }

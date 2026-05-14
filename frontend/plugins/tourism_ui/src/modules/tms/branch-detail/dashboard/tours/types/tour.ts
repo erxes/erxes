@@ -11,6 +11,8 @@ export interface ITour {
   status?: string;
   date_status?: string;
   cost?: number;
+  customTourTypeId?: string;
+  customFieldsData?: any[];
   createdAt?: string;
   categoryIds?: string[];
 }

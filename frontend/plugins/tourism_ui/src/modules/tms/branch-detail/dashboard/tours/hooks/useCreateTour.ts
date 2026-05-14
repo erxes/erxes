@@ -50,6 +50,8 @@ export interface ICreateTourVariables {
   joinPercent?: number;
   personCost?: Record<string, any>;
   categoryIds?: string[];
+  customTourTypeId?: string;
+  customFieldsData?: any[];
   pricingOptions?: PricingOptionInput[];
   translations?: ITourTranslationInput[];
 }

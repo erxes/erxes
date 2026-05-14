@@ -7,6 +7,7 @@ const steps = [
   { value: 'itinerary', title: 'Itinerary' },
   { value: 'elements', title: 'Elements' },
   { value: 'amenities', title: 'Amenities' },
+  { value: 'custom-fields', title: 'Custom Fields' },
 ];
 
 export const BranchSideBar = ({ activeTab }: { activeTab: string }) => {

@@ -18,12 +18,20 @@ import {
   queries as branchQueries,
   types as branchTypes,
 } from './bmsbranch';
+import {
+  inputs as customTourInputs,
+  mutations as customTourMutations,
+  queries as customTourQueries,
+  types as customTourTypes,
+} from './customTourType';
 
 export const types = `
     ${elementTypes}
     ${itineraryTypes}
     ${tourTypes}
     ${branchTypes}
+    ${customTourTypes}
+    ${customTourInputs}
 `;
 
 export const queries = `
@@ -31,6 +39,7 @@ export const queries = `
     ${itineraryQueries}
     ${tourQueries}
     ${branchQueries}
+    ${customTourQueries}
 `;
 
 export const mutations = `
@@ -38,4 +47,5 @@ export const mutations = `
     ${itineraryMutations}
     ${tourMutations}
     ${branchMutations}
+    ${customTourMutations}
 `;

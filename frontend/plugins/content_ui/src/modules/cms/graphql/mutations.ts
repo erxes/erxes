@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const CONTENT_CREATE_CMS = gql`
-  mutation ContentCreateCMS($input: ContentCMSInput) {
+  mutation ContentCreateCMS($input: ContentCMSInput!) {
     contentCreateCMS(input: $input) {
       _id
       clientPortalId

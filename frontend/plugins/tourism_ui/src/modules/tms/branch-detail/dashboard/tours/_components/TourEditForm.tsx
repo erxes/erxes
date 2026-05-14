@@ -45,6 +45,8 @@ import {
   TourDateSchedulingField,
   TourPricingOptionsField,
   TourGuidesField,
+  TourCustomTourTypeField,
+  TourCustomFieldsSection,
 } from './TourFormFields';
 
 interface Props {
@@ -123,6 +125,8 @@ export const TourEditForm = ({
       content: '',
       itineraryId: '',
       categoryIds: [],
+      customTourTypeId: undefined,
+      customFieldsData: [],
       duration: 0,
       groupSize: 0,
       isFlexibleDate: false,
@@ -235,6 +239,8 @@ export const TourEditForm = ({
         content: tour.content ?? '',
         itineraryId: tour.itineraryId ?? '',
         categoryIds: tour.categoryIds ?? [],
+        customTourTypeId: tour.customTourTypeId || undefined,
+        customFieldsData: tour.customFieldsData || [],
         duration: tour.duration ?? 0,
         groupSize: tour.groupSize ?? 0,
         advanceCheck: tour.advanceCheck ?? false,
@@ -328,6 +334,7 @@ export const TourEditForm = ({
         isGroupTour: _isGroupTour,
         pricingOptions,
         translations: rawTranslations,
+        customFieldsData,
         ...restValues
       } = values;
 
@@ -368,6 +375,7 @@ export const TourEditForm = ({
         id: tourId,
         language: resolvedPrimaryLanguage || undefined,
         ...restValues,
+        customFieldsData,
         pricingOptions: normalizedPricingOptions,
         translations: sanitizedTranslations,
         dateType: isFlexible ? 'flexible' : 'fixed',
@@ -403,6 +411,7 @@ export const TourEditForm = ({
                 branchId: targetBranchId,
                 language: resolvedPrimaryLanguage || undefined,
                 ...restValues,
+                customFieldsData,
                 refNumber,
                 pricingOptions: normalizedPricingOptions,
                 dateType: 'fixed',
@@ -497,6 +506,11 @@ export const TourEditForm = ({
                     language={selectedLang}
                   />
 
+                  <TourCustomTourTypeField
+                    control={form.control}
+                    branchId={branchId}
+                  />
+
                   <TourDescriptionField
                     key={`${fieldPaths.content}-${editorResetKey}`}
                     control={form.control}
@@ -544,6 +558,14 @@ export const TourEditForm = ({
                   labelSuffix={labelSuffix}
                   currencySymbol={currencySymbol}
                 />
+
+                <div className="flex items-center">
+                  <div className="flex-1 border-t" />
+                  <Form.Label className="mx-2">Custom Fields</Form.Label>
+                  <div className="flex-1 border-t" />
+                </div>
+
+                <TourCustomFieldsSection form={form} branchId={branchId} />
 
                 {hideFields && (
                   <div className="pt-4 space-y-4 border-t">

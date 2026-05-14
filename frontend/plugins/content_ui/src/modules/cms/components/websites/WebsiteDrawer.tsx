@@ -81,7 +81,7 @@ export function WebsiteDrawer({
       description: '',
       domain: '',
       url: '',
-      kind: 'client',
+      kind: '',
       languages: [],
       language: '',
       postUrlField: '_id',
@@ -126,7 +126,7 @@ export function WebsiteDrawer({
           description: '',
           domain: '',
           url: '',
-          kind: 'client',
+          kind: '',
           languages: [],
           language: '',
           postUrlField: '_id',
@@ -237,6 +237,7 @@ export function WebsiteDrawer({
 
   const onSubmit = (data: WebsiteFormType) => {
     const { name, description, language, languages, postUrlField } = data;
+    const clientPortalId = data.kind;
 
     if (isEditing && website?._id) {
       updateCMS({
@@ -247,7 +248,7 @@ export function WebsiteDrawer({
             description,
             language: language || undefined,
             languages: languages || [],
-            clientPortalId: data.kind,
+            clientPortalId,
             postUrlField,
           },
         },
@@ -262,7 +263,7 @@ export function WebsiteDrawer({
           description,
           language: language || undefined,
           languages: languages || [],
-          clientPortalId: data.kind,
+          clientPortalId,
           postUrlField,
           content: 'hello',
         },
@@ -456,7 +457,10 @@ export function WebsiteDrawer({
             />
 
             <div className="flex justify-end space-x-2">
-              <Button type="submit" disabled={saving || savingUpdate}>
+              <Button
+                type="submit"
+                disabled={saving || savingUpdate || clientPortalsLoading}
+              >
                 {saving || savingUpdate
                   ? isEditing
                     ? 'Saving...'

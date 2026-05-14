@@ -33,6 +33,8 @@ export const CREATE_TOUR = gql`
     $joinPercent: Float
     $personCost: JSON
     $categoryIds: [String]
+    $customTourTypeId: String
+    $customFieldsData: JSON
     $pricingOptions: [PricingOptionInput]
     $translations: [TourTranslationInput]
   ) {
@@ -68,6 +70,8 @@ export const CREATE_TOUR = gql`
       joinPercent: $joinPercent
       personCost: $personCost
       categoryIds: $categoryIds
+      customTourTypeId: $customTourTypeId
+      customFieldsData: $customFieldsData
       pricingOptions: $pricingOptions
       translations: $translations
     ) {
@@ -108,6 +112,8 @@ export const EDIT_TOUR = gql`
     $imageThumbnail: String
     $attachment: AttachmentInput
     $categoryIds: [String]
+    $customTourTypeId: String
+    $customFieldsData: JSON
     $pricingOptions: [PricingOptionInput]
     $translations: [TourTranslationInput]
   ) {
@@ -142,6 +148,8 @@ export const EDIT_TOUR = gql`
       imageThumbnail: $imageThumbnail
       attachment: $attachment
       categoryIds: $categoryIds
+      customTourTypeId: $customTourTypeId
+      customFieldsData: $customFieldsData
       pricingOptions: $pricingOptions
       translations: $translations
     ) {

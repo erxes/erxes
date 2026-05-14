@@ -5,6 +5,7 @@ import { ItineraryPage } from '@/tms/branch-detail/dashboard/pages/ItineraryPage
 import { ElementsPage } from '@/tms/branch-detail/dashboard/pages/ElementsPage';
 import { AmenitiesPage } from '@/tms/branch-detail/dashboard/pages/AmenitiesPage';
 import { CategoryPage } from '@/tms/branch-detail/dashboard/pages/CategoryPage';
+import { CustomTourFieldsPage } from '@/tms/branch-detail/dashboard/pages/CustomTourFieldsPage';
 
 interface MainContentProps {
   activeStep: string;
@@ -24,6 +25,8 @@ export const MainContent = ({ activeStep, branch }: MainContentProps) => {
         return <ElementsPage branch={branch} />;
       case 'amenities':
         return <AmenitiesPage branch={branch} />;
+      case 'custom-fields':
+        return <CustomTourFieldsPage branch={branch} />;
       default:
         return <TourPage branch={branch} />;
     }
