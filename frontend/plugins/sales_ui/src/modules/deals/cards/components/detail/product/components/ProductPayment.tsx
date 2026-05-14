@@ -23,10 +23,25 @@ import {
   useConfirm,
   useToast,
 } from 'erxes-ui';
+import { ICustomer } from 'ui-modules';
 import { IDeal, IPaymentsData } from '@/deals/types/deals';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { useRefundScoreCampaign } from '../hooks/useRefundScoreCampaign';
 import { useCheckOwnerScore } from '../hooks/useCheckOwnerScore';
+
+interface IPaymentType {
+  type: string;
+  title?: string;
+  icon?: string;
+  config?: {
+    require?: string;
+    skipEbarimt?: boolean;
+    mustCustomer?: boolean;
+    notSplit?: boolean;
+    preTax?: boolean;
+  };
+  scoreCampaign?: string;
+}
 
 type PayInfo = {
   score?: number;
@@ -41,8 +56,8 @@ const OwnerScoreCampaignScore = ({
   dealId,
   onScoreFetched,
 }: {
-  paymentType: any;
-  customers: any[];
+  paymentType: IPaymentType;
+  customers: ICustomer[];
   dealId: string;
   onScoreFetched?: (score: number) => void;
 }) => {
@@ -59,7 +74,7 @@ const OwnerScoreCampaignScore = ({
     variables: {
       ownerId: customer?._id,
       ownerType: 'customer',
-      campaignId: paymentType?.scoreCampaign?._id,
+      campaignId: paymentType?.scoreCampaign,
     },
     skip: !paymentType?.scoreCampaign || !customer?._id,
   }) || {};
@@ -113,7 +128,7 @@ const OwnerScoreCampaignScore = ({
         <div className="flex items-center gap-2 px-4 py-3 bg-muted/50 border-b">
           <IconAward size={16} className="text-amber-500 shrink-0" />
           <span className="font-semibold text-sm text-foreground truncate">
-            {paymentType.scoreCampaign?.title || 'Score Campaign'}
+            Score Campaign
           </span>
         </div>
         <div className="p-4 space-y-3">
@@ -435,89 +450,94 @@ const ProductsPayment = ({
             </div>
           </div>
         </div>
-        {deal.pipeline?.paymentTypes?.map((paymentType: any, index: number) => {
-          const typeName = paymentType.type;
-          const payInfo = payInfoByType[typeName] || {
-            hasPopup: false,
-            validQr: false,
-          };
-          const isQr = paymentType?.config?.require?.toLowerCase() === 'qrcode';
-          return (
-            <div
-              key={index}
-              className="flex items-center gap-2 py-2 w-full justify-center"
-            >
-              <div className="flex w-full justify-between items-center">
-                <p className="flex flex-1 gap-2 font-medium text-sm text-muted-foreground uppercase items-center">
-                  {paymentType.type}
-                  {isQr &&
-                    (payInfo.validQr ? (
-                      <IconKey size={14} className="text-green-500" />
-                    ) : (
-                      <IconLock size={14} className="text-gray-400" />
-                    ))}
-                </p>
-                <OwnerScoreCampaignScore
-                  paymentType={paymentType}
-                  customers={deal.customers || []}
-                  dealId={deal._id}
-                  onScoreFetched={(score) =>
-                    handleScoreFetched(score, paymentType)
-                  }
-                />
-                <div className="flex flex-1 items-center">
-                  {isQr && !payInfo.validQr ? (
-                    <Input
-                      readOnly
-                      className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-400 cursor-pointer"
-                      placeholder="Read QRCode"
-                      onClick={() => openQrModal(paymentType)}
-                      value=""
-                    />
-                  ) : (
-                    <Input
-                      type="text"
-                      inputMode="numeric"
-                      value={formatNumber(paymentsData[typeName]?.amount ?? '')}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                        const val = parseNumber(e.target.value);
-                        const max = payInfo.maxVal;
-                        updatePayment(
-                          typeName,
-                          'amount',
-                          max !== undefined ? Math.min(val, max) : val,
-                        );
-                      }}
-                      onClick={() => fillRemaining(typeName, payInfo.maxVal)}
-                      className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
-                      placeholder="Type amount"
-                    />
-                  )}
-                </div>
-                <div className="flex flex-1 items-center">
-                  <CurrencyField.SelectCurrency
-                    value={
-                      (paymentsData[typeName]?.currency as CurrencyCode) ||
-                      (defaultCurrency as CurrencyCode)
+        {deal.pipeline?.paymentTypes?.map(
+          (paymentType: IPaymentType, index: number) => {
+            const typeName = paymentType.type;
+            const payInfo = payInfoByType[typeName] || {
+              hasPopup: false,
+              validQr: false,
+            };
+            const isQr =
+              paymentType?.config?.require?.toLowerCase() === 'qrcode';
+            return (
+              <div
+                key={index}
+                className="flex items-center gap-2 py-2 w-full justify-center"
+              >
+                <div className="flex w-full justify-between items-center">
+                  <p className="flex flex-1 gap-2 font-medium text-sm text-muted-foreground uppercase items-center">
+                    {paymentType.type}
+                    {isQr &&
+                      (payInfo.validQr ? (
+                        <IconKey size={14} className="text-green-500" />
+                      ) : (
+                        <IconLock size={14} className="text-gray-400" />
+                      ))}
+                  </p>
+                  <OwnerScoreCampaignScore
+                    paymentType={paymentType}
+                    customers={deal.customers || []}
+                    dealId={deal._id}
+                    onScoreFetched={(score) =>
+                      handleScoreFetched(score, paymentType)
                     }
-                    onChange={(val: string) =>
-                      updatePayment(typeName, 'currency', val)
-                    }
-                    variant="ghost"
-                    className="w-full justify-end"
                   />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => fillRemaining(typeName, payInfo.maxVal)}
-                  >
-                    <IconCircleCheck className="w-5 h-5" />
-                  </Button>
+                  <div className="flex flex-1 items-center">
+                    {isQr && !payInfo.validQr ? (
+                      <Input
+                        readOnly
+                        className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-400 cursor-pointer"
+                        placeholder="Read QRCode"
+                        onClick={() => openQrModal(paymentType)}
+                        value=""
+                      />
+                    ) : (
+                      <Input
+                        type="text"
+                        inputMode="numeric"
+                        value={formatNumber(
+                          paymentsData[typeName]?.amount ?? '',
+                        )}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                          const val = parseNumber(e.target.value);
+                          const max = payInfo.maxVal;
+                          updatePayment(
+                            typeName,
+                            'amount',
+                            max !== undefined ? Math.min(val, max) : val,
+                          );
+                        }}
+                        onClick={() => fillRemaining(typeName, payInfo.maxVal)}
+                        className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
+                        placeholder="Type amount"
+                      />
+                    )}
+                  </div>
+                  <div className="flex flex-1 items-center">
+                    <CurrencyField.SelectCurrency
+                      value={
+                        (paymentsData[typeName]?.currency as CurrencyCode) ||
+                        (defaultCurrency as CurrencyCode)
+                      }
+                      onChange={(val: string) =>
+                        updatePayment(typeName, 'currency', val)
+                      }
+                      variant="ghost"
+                      className="w-full justify-end"
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => fillRemaining(typeName, payInfo.maxVal)}
+                    >
+                      <IconCircleCheck className="w-5 h-5" />
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          },
+        )}
       </div>
 
       <div className="flex items-center justify-end pt-2">
