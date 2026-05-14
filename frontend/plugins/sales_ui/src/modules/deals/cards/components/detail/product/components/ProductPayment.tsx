@@ -120,7 +120,7 @@ const OwnerScoreCampaignScore = ({
   return (
     <Popover>
       <Popover.Trigger asChild>
-        <Button variant="ghost" size={6}>
+        <Button variant="ghost" className='w-1'>
           <IconAward size={16} className="text-amber-500" />
         </Button>
       </Popover.Trigger>
@@ -186,7 +186,7 @@ const ProductsPayment = ({
   );
   const [qrModal, setQrModal] = useState<{
     open: boolean;
-    paymentType: any | null;
+    paymentType: any;
     password: string;
   }>({ open: false, paymentType: null, password: '' });
 
@@ -257,7 +257,7 @@ const ProductsPayment = ({
       const currentAmount = paymentsData[paymentType]?.amount || 0;
       const remaining = totalForCurrency - (currentPaid - currentAmount);
       const finalAmount =
-        maxVal !== undefined ? Math.min(remaining, maxVal) : remaining;
+        maxVal === undefined ? remaining : Math.min(remaining, maxVal);
 
       if (finalAmount > 0) {
         updatePayment(paymentType, 'amount', finalAmount);
@@ -396,13 +396,12 @@ const ProductsPayment = ({
             Change
           </span>
           <div
-            className={`font-semibold text-lg flex ${
-              Object.values(changeAmounts).some((amount) => amount > 0)
-                ? 'text-green-500'
-                : Object.values(changeAmounts).some((amount) => amount < 0)
+            className={`font-semibold text-lg flex ${Object.values(changeAmounts).some((amount) => amount > 0)
+              ? 'text-green-500'
+              : Object.values(changeAmounts).some((amount) => amount < 0)
                 ? 'text-red-500'
                 : ''
-            }`}
+              }`}
           >
             {Object.values(changeAmounts).some((amount) => amount > 0) && '+'}
             {renderTotals(changeAmounts)}
@@ -504,7 +503,7 @@ const ProductsPayment = ({
                           updatePayment(
                             typeName,
                             'amount',
-                            max !== undefined ? Math.min(val, max) : val,
+                            max === undefined ? val : Math.min(val, max),
                           );
                         }}
                         onClick={() => fillRemaining(typeName, payInfo.maxVal)}
