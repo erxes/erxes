@@ -18,6 +18,7 @@ import {
 import { addDeal, editDeal } from './utils';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { Resolver } from 'erxes-api-shared/core-types';
+import { processStageChangeScoreCampaigns } from './utils';
 
 export const dealMutations: Record<string, Resolver> = {
   /**
@@ -93,7 +94,15 @@ export const dealMutations: Record<string, Resolver> = {
 
     // Do not call mongolian plugin directly from sales.
     // Instead, emit an event (via logs) that will be handled by afterProcess.
-
+    if (item.stageId !== destinationStageId) {
+    await processStageChangeScoreCampaigns({
+      subdomain,
+      models,
+      deal: updatedItem,
+      newStageId: destinationStageId,
+      user
+    });
+  }
     await itemMover(models, user._id, item, destinationStageId);
 
     await subscriptionWrapper(models, {
