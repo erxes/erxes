@@ -1,4 +1,3 @@
-
 export const types = () => `
   type QuantityRule {
     type: String,
@@ -269,6 +268,7 @@ const pricingQueryParams = `
 
 export const queries = `
   pricingPlans(${pricingQueryParams}): [PricingPlan]
+  cpPricingPlans(${pricingQueryParams}): [PricingPlan]
   pricingPlansCount(${pricingQueryParams}): Int
   pricingPlanDetail(id: String): PricingPlan
 `;
