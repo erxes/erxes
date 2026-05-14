@@ -40,7 +40,7 @@ const propertyExistsFilter = (fieldIds: string[]) => ({
 });
 
 const propertyRegexFilter = (fieldId: string, regex: RegExp) => ({
-  [`propertiesData.${fieldId}`]: { $in: [regex] },
+  [`propertiesData.${fieldId}`]: { $regex: regex },
 });
 
 export interface ICommonParams {
