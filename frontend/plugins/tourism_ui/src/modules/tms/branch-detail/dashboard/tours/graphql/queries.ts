@@ -226,6 +226,119 @@ export const GET_TOUR_DETAIL = gql`
   }
 `;
 
+export const GET_CP_TOUR_GROUP_DETAIL = gql`
+  query CpBmToursGroupDetail(
+    $groupCode: String
+    $status: String
+    $language: String
+  ) {
+    cpBmToursGroupDetail(
+      groupCode: $groupCode
+      status: $status
+      language: $language
+    ) {
+      _id
+      name
+      items {
+        _id
+        branchId
+        language
+        groupCode
+        advanceCheck
+        advancePercent
+        categoryIds
+        content
+        cost
+        date_status
+        dateType
+        duration
+        endDate
+        availableFrom
+        availableTo
+        groupSize
+        imageThumbnail
+        images
+        attachment {
+          url
+          name
+          type
+          size
+        }
+        info1
+        info2
+        info3
+        info4
+        info5
+        itineraryId
+        joinPercent
+        name
+        personCost
+        refNumber
+        startDate
+        status
+        customTourTypeId
+        customTourType {
+          _id
+          branchId
+          code
+          label
+          pluralLabel
+          description
+        }
+        customFieldsData
+        customFieldsMap
+        guides {
+          guideId
+          type
+        }
+        pricingOptions {
+          _id
+          title
+          minPersons
+          maxPersons
+          prices {
+            type
+            price
+          }
+          pricePerPerson
+          accommodationType
+          domesticFlightPerPerson
+          singleSupplement
+          note
+        }
+        translations {
+          _id
+          objectId
+          language
+          name
+          refNumber
+          content
+          info1
+          info2
+          info3
+          info4
+          info5
+          pricingOptions {
+            optionId
+            title
+            accommodationType
+            note
+            prices {
+              type
+              price
+            }
+            pricePerPerson
+            domesticFlightPerPerson
+            singleSupplement
+          }
+        }
+        createdAt
+        modifiedAt
+      }
+    }
+  }
+`;
+
 export const GET_TOUR_ORDERS = gql`
   query BmsOrders(
     $tourId: String
