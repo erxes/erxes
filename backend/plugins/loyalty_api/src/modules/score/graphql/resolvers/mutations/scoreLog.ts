@@ -5,8 +5,9 @@ export const scoreLogMutations = {
   async changeScore(
     __root: undefined,
     { change, ...rest }: IScoreLog & { change?: number },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('scoreLogChange');
     return models.ScoreLogs.changeScore({
       ...rest,
       changeScore: change ?? rest.changeScore,

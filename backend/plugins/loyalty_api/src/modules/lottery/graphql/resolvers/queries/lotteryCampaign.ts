@@ -6,12 +6,14 @@ import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
+import { escapeRegExp } from 'erxes-api-shared/utils';
+
 
 const generateFilter = (params: ILotteryCampaignParams) => {
   const filter: FilterQuery<ILotteryCampaignDocument> = {};
 
   if (params.searchValue) {
-    filter.name = new RegExp(params.searchValue, 'i');
+    filter.name = new RegExp(escapeRegExp(params.searchValue), 'i');
   }
 
   if (params.status) {
@@ -27,8 +29,9 @@ export const lotteryCampaignQueries = {
   async lotteryCampaigns(
     _root: undefined,
     params: ILotteryCampaignParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('lotteryCampaignView');
     const filter = await generateFilter(params);
 
     return cursorPaginate({
@@ -41,8 +44,9 @@ export const lotteryCampaignQueries = {
   async cpLotteryCampaigns(
     _root: undefined,
     _args: undefined,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('lotteryCampaignView');
     const now = new Date();
 
     return models.LotteryCampaigns.find({
@@ -55,16 +59,18 @@ export const lotteryCampaignQueries = {
   async lotteryCampaignDetail(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('lotteryCampaignView');
     return models.LotteryCampaigns.getLotteryCampaign(_id);
   },
 
   async lotteryCampaignWinnerList(
     _root: undefined,
     params: ILotteryCampaignParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('lotteryCampaignView');
     const { awardId, campaignId } = params;
 
     return cursorPaginate({
@@ -81,8 +87,9 @@ export const lotteryCampaignQueries = {
   async lotteriesCampaignCustomerList(
     _root: undefined,
     params: ILotteryCampaignParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('lotteryCampaignView');
     const { campaignId } = params;
 
     return cursorPaginate({

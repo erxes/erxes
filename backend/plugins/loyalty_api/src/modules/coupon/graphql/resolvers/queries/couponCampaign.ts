@@ -10,8 +10,9 @@ export const couponCampaignQueries = {
   couponCampaigns: async (
     _root: undefined,
     params: ICouponCampaignParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('couponCampaignView');
     const filter: FilterQuery<ICouponCampaignDocument> = {};
 
     if (params.searchValue) {
@@ -32,8 +33,9 @@ export const couponCampaignQueries = {
   couponCampaign: async (
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('couponCampaignView');
     return models.CouponCampaigns.getCouponCampaign(_id);
   },
 };
