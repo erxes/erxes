@@ -54,7 +54,7 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
 
     if (weightField && weightField._id && doc.weight !== undefined) {
       document.propertiesData = {
-        ...(product?.propertiesData || {}),
+        ...product?.propertiesData,
         [weightField._id]: Number(doc.weight),
       };
     }
