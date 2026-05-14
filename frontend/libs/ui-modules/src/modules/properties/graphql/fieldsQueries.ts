@@ -14,6 +14,7 @@ export const FIELD_GROUPS_QUERY = gql`
         order
         updatedAt
         configs
+        logics
       }
       ${GQL_PAGE_INFO}
     }

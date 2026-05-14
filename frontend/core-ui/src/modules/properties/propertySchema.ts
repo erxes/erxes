@@ -1,10 +1,5 @@
 import { z } from 'zod';
 
-export const propertyGroupSchema = z.object({
-  name: z.string().min(1, 'Group name is required'),
-  code: z.string().optional(),
-});
-
 export const optionSchema = z.object({
   label: z.string().min(1, 'Label is required'),
   value: z.string().min(1, 'Value is required'),
@@ -15,6 +10,12 @@ export const logicSchema = z.object({
   operator: z.string(),
   value: z.string(),
   action: z.string(),
+});
+
+export const propertyGroupSchema = z.object({
+  name: z.string().min(1, 'Group name is required'),
+  code: z.string().optional(),
+  logics: z.array(logicSchema).nullable().optional(),
 });
 
 export const propertySchema = z
