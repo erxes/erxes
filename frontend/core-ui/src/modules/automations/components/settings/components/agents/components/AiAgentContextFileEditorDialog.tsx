@@ -211,7 +211,8 @@ export const AiAgentContextFileEditorDialog = ({
                   </p>
                 </div>
                 <Badge variant="secondary">
-                  {getContextFileVersionCount(file)} previous versions
+                  {getContextFileVersionCount(file || undefined)} previous
+                  versions
                 </Badge>
               </div>
 

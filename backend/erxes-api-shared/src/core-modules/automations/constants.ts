@@ -25,6 +25,7 @@ export const AUTOMATION_STATUSES = {
 export const AUTOMATION_CORE_ACTIONS = {
   DELAY: 'delay',
   IF: 'if',
+  SPLIT: 'split',
   FIND_OBJECT: 'findObject',
   SET_PROPERTY: 'setProperty',
   SEND_EMAIL: 'sendEmail',

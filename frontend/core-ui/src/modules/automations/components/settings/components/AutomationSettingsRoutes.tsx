@@ -45,7 +45,7 @@ export const AutomationSettingsRoutes = () => {
   return (
     <AutomationSettingsLayout>
       <Routes>
-        <Route path="/" element={<Navigate to="bots" replace />} />
+        <Route path="/" element={<Navigate to="agents" replace />} />
         <Route path="/bots" element={<AutomationsBotsSettingsPage />} />
         <Route
           path="/bots/:type"

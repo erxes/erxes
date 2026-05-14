@@ -8,6 +8,7 @@ import {
   IconCheck,
   IconCalendarEvent,
   IconNumbers,
+  IconPaperclip,
   IconPlus,
   IconTextScan2,
   IconTextSize,
@@ -93,6 +94,8 @@ export const FormDndFieldIcon = ({ type }: { type: string }) => {
       return <IconListCheck />;
     case 'check':
       return <IconListDetails />;
+    case 'file':
+      return <IconPaperclip />;
     default:
       return <IconTextSize />;
   }

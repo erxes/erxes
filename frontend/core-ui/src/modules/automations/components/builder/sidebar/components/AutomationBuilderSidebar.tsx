@@ -69,8 +69,8 @@ export const AutomationBuilderSidebar = () => {
       activeNode.nodeType === AutomationNodeType.Action);
   const canShowSecondarySidebar = isEditingNode;
   const sidebarWidthClasses = hasSegmentFormContent
-    ? 'min-w-md max-w-4xl w-fit'
-    : 'min-w-80 max-w-2xl w-fit';
+    ? 'w-full  sm:w-fit sm:min-w-md sm:max-w-4xl'
+    : 'w-full  sm:w-fit sm:min-w-80 sm:max-w-2xl';
 
   return (
     <AnimatePresence>
@@ -158,7 +158,7 @@ const AutomationBuilderSidebarHeader = ({
             <h2 className="font-semibold leading-none tracking-tight text-xl w-full">
               {activeNode?.label || ''}
             </h2>
-            <span className="text-sm text-muted-foreground font-normal w-full">
+            <span className="text-sm text-muted-foreground font-normal w-full truncate">
               {activeNode?.description || ''}
             </span>
           </div>
@@ -167,10 +167,10 @@ const AutomationBuilderSidebarHeader = ({
           {canShowSecondarySidebar ? (
             <AutomationBuilderSecondarySidebarToggle />
           ) : null}
-          <Button size="icon" variant="ghost" onClick={handleBack}>
+          <Button size="icon" variant="secondary" onClick={handleBack}>
             <IconArrowLeft />
           </Button>
-          <Button size="icon" variant="ghost" onClick={handleClose}>
+          <Button size="icon" variant="secondary" onClick={handleClose}>
             <IconX />
           </Button>
         </div>

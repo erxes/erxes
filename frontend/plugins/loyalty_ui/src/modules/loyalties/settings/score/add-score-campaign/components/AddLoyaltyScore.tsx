@@ -29,6 +29,12 @@ export function AddLoyaltyScoreForm({
         excludeProductIds: [],
         excludeTagIds: [],
       },
+      additionalConfig: {
+        discountCheck: false,
+        cardBasedRule: [
+          { boardId: '', pipelineId: '', stageIds: [], refundStageIds: [] },
+        ],
+      },
       add: { placeholder: '', currencyRatio: '' },
       subtract: { placeholder: '', currencyRatio: '' },
       ownerType: '',
@@ -39,6 +45,15 @@ export function AddLoyaltyScoreForm({
   });
 
   async function onSubmit(data: LoyaltyScoreFormValues) {
+    const cardBasedRule = (data.additionalConfig?.cardBasedRule || [])
+      .filter((rule) => rule.boardId && rule.pipelineId)
+      .map((rule) => ({
+        boardId: rule.boardId,
+        pipelineId: rule.pipelineId,
+        stageIds: rule.stageIds || [],
+        refundStageIds: rule.refundStageIds || [],
+      }));
+
     const variables: AddScoreVariables = {
       title: data.title,
       description: data.description || '',
@@ -51,6 +66,10 @@ export function AddLoyaltyScoreForm({
           data.conditions.excludeProductCategoryIds?.join(','),
         excludeProductIds: data.conditions.excludeProductIds?.join(','),
         excludeTagIds: data.conditions.excludeTagIds?.join(','),
+      },
+      additionalConfig: {
+        discountCheck: data.additionalConfig?.discountCheck ?? false,
+        cardBasedRule,
       },
       add: data.add,
       subtract: data.subtract,

@@ -21,7 +21,7 @@ import {
 import { useNavigate } from 'react-router';
 import { ProductsInline } from 'ui-modules';
 import { useTrRecordsRemove } from '../hooks/useTrRecordsRemove';
-import { TR_JOURNAL_LABELS, TR_SIDES, TrJournalEnum } from '../types/constants';
+import { TR_JOURNAL_LABELS, TR_SIDES, TR_STATUS_LABELS, TrJournalEnum } from '../types/constants';
 import { ITrRecord } from '../types/Transaction';
 
 const NumberCell = ({ row }: any) => {
@@ -97,6 +97,16 @@ const DepartmentCell = ({ row }: any) => {
   return (
     <RecordTableInlineCell>
       {[department?.code, department?.title].filter(Boolean).join(' - ')}
+    </RecordTableInlineCell>
+  );
+};
+
+const StatusCell = ({ row }: any) => {
+  const { status } = row.original;
+
+  return (
+    <RecordTableInlineCell>
+      {TR_STATUS_LABELS[status] || status}
     </RecordTableInlineCell>
   );
 };
@@ -225,6 +235,18 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
     size: 100,
   },
   {
+    id: 'status',
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Төлөв" />,
+    accessorKey: 'status',
+    cell: ({ row }) => <StatusCell row={row} />,
+  },
+  {
+    id: 'journal',
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Журнал" />,
+    accessorKey: 'journal',
+    cell: ({ row }) => <JournalCell row={row} />,
+  },
+  {
     id: 'product-inv',
     header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Бараа" />,
     accessorKey: 'product-inv',
@@ -282,11 +304,5 @@ export const trRecordColumns: ColumnDef<ITrRecord>[] = [
     header: () => <RecordTable.InlineHead icon={IconFile} label="Хэлтэс" />,
     accessorKey: 'department',
     cell: ({ row }) => <DepartmentCell row={row} />,
-  },
-  {
-    id: 'journal',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Журнал" />,
-    accessorKey: 'journal',
-    cell: ({ row }) => <JournalCell row={row} />,
   },
 ];

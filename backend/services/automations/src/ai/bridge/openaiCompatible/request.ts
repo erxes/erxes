@@ -42,7 +42,9 @@ export const normalizeOpenAiCompatibleBaseUrl = (
 
 const buildHeaders = (connection: TAiBridgeConnection) => {
   return {
-    Authorization: `Bearer ${connection.config.apiKey}`,
+    ...(connection.config.apiKey?.trim()
+      ? { Authorization: `Bearer ${connection.config.apiKey}` }
+      : {}),
     'Content-Type': 'application/json',
     ...(connection.config.headers || {}),
   };
@@ -62,7 +64,7 @@ export const requestOpenAiCompatible = async <TJson = any>({
     () => controller.abort(),
     runtime.timeoutMs || AI_AGENT_DEFAULTS.timeoutMs,
   );
-
+  const timeoutMs = runtime.timeoutMs || AI_AGENT_DEFAULTS.timeoutMs;
   try {
     const response = await fetch(
       `${normalizeOpenAiCompatibleBaseUrl(connection)}${path}`,
@@ -93,6 +95,14 @@ export const requestOpenAiCompatible = async <TJson = any>({
       text,
       json,
     };
+  } catch (error) {
+    if ((error as Error).name === 'AbortError') {
+      throw new Error(
+        `AI provider timed out after ${timeoutMs}ms before returning a response.`,
+      );
+    }
+
+    throw error;
   } finally {
     clearTimeout(timeoutId);
   }

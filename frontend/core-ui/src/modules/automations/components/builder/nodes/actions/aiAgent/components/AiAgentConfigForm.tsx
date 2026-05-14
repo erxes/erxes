@@ -1,163 +1,163 @@
 import { AiAgentRuntimeInfo } from '@/automations/components/aiAgent/AiAgentRuntimeInfo';
-import { AiAgentObjectBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentObjectBuilder';
 import { AiAgentInputMappingFields } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentInputMappingFields';
 import { AiAgentMemoryFields } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentMemoryFields';
+import { AiAgentObjectBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentObjectBuilder';
 import { AiAgentTopicBuilder } from '@/automations/components/builder/nodes/actions/aiAgent/components/AiAgentTopicBuilder';
 import { AI_AGENT_NODE_GOAL_TYPES } from '@/automations/components/builder/nodes/actions/aiAgent/constants/aiAgentConfigForm';
-import {
-  aiAgentConfigFormSchema,
-  getDefaultAiAgentMemoryConfig,
-  TAiAgentConfigForm,
-} from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
+import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
-import { useAiAgents } from '@/automations/components/settings/components/agents/hooks/useAiAgents';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { IconPlus } from '@tabler/icons-react';
-import { Button, Form, Select, Textarea } from 'erxes-ui';
-import { useEffect, useMemo, useRef } from 'react';
-import { FormProvider, useForm, useWatch } from 'react-hook-form';
-import { Link } from 'react-router';
 import {
-  TAutomationActionProps,
-  useFormValidationErrorHandler,
-} from 'ui-modules';
-import { useTranslation } from 'react-i18next';
+  IconBrain,
+  IconChartPie,
+  IconPlus,
+  IconSettings,
+} from '@tabler/icons-react';
+import { Button, Form, Select, Tabs, Textarea } from 'erxes-ui';
+import { FormProvider } from 'react-hook-form';
+import { Link } from 'react-router';
+import { TAutomationActionProps } from 'ui-modules';
+import { useAiAgentConfigForm } from '../hooks/useAiAgentConfigForm';
 
 export const AIAgentConfigForm = ({
   currentAction,
   handleSave,
 }: TAutomationActionProps<TAiAgentConfigForm>) => {
-  const { handleValidationErrors } = useFormValidationErrorHandler({
-    formName: 'Ai agent node Configuration',
-  });
-  const form = useForm<TAiAgentConfigForm>({
-    resolver: zodResolver(aiAgentConfigFormSchema),
-    defaultValues: {
-      inputMapping: {
-        source: 'trigger',
-        path: '',
-        customValue: '',
-      },
-      memory: getDefaultAiAgentMemoryConfig(currentAction?.config?.goalType),
-      ...(currentAction?.config || {}),
-    },
-  });
-  const { automationsAiAgents } = useAiAgents();
-  const { t } = useTranslation('automations');
-
-  const { control, handleSubmit, setValue } = form;
-  const config = useWatch<TAiAgentConfigForm>({
+  const {
+    form,
     control,
-  });
-  const selectedAgent = useMemo(
-    () =>
-      automationsAiAgents.find(({ _id }) => _id === config?.aiAgentId) || null,
-    [automationsAiAgents, config?.aiAgentId],
-  );
-  const previousGoalTypeRef = useRef(currentAction?.config?.goalType);
-
-  useEffect(() => {
-    if (!config?.goalType) {
-      previousGoalTypeRef.current = config?.goalType;
-      return;
-    }
-
-    if (previousGoalTypeRef.current !== config.goalType) {
-      setValue('memory', getDefaultAiAgentMemoryConfig(config.goalType), {
-        shouldDirty: true,
-      });
-    }
-
-    previousGoalTypeRef.current = config.goalType;
-  }, [config?.goalType, setValue]);
+    t,
+    handleSubmit,
+    handleValidationErrors,
+    selectedAgent,
+    config,
+    automationsAiAgents,
+  } = useAiAgentConfigForm({ currentAction });
 
   return (
     <FormProvider {...form}>
       <AutomationConfigFormWrapper
         onSave={handleSubmit(handleSave, handleValidationErrors)}
       >
-        <Form.Field
-          control={control}
-          name="aiAgentId"
-          render={({ field }) => {
-            return (
-              <Form.Item>
-                <Form.Label>{t('ai-agent')}</Form.Label>
+        <Tabs defaultValue="general" className="min-w-72">
+          <Tabs.List className="flex flex-row">
+            <Tabs.Trigger value="general" className="flex-1">
+              <IconSettings className="size-3.5 mr-2" /> Configuration
+            </Tabs.Trigger>
+            <Tabs.Trigger value="memory" className="flex-1">
+              <IconBrain className="size-3.5 mr-2" /> Memory
+            </Tabs.Trigger>
+            <Tabs.Trigger value="runtimeSnapshot" className="flex-1">
+              <IconChartPie className="size-3.5 mr-2" />
+              Runtime Snapshot
+            </Tabs.Trigger>
+          </Tabs.List>
+          <Tabs.Content value="general" className="flex flex-col gap-2">
+            <Form.Field
+              control={control}
+              name="aiAgentId"
+              render={({ field }) => {
+                return (
+                  <Form.Item>
+                    <Form.Label>{t('ai-agent')}</Form.Label>
 
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <Select.Trigger className="mt-1">
-                    <Select.Value placeholder={t('select-ai-agent')} />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {automationsAiAgents.map(({ _id, name }) => (
-                      <Select.Item key={_id} value={_id}>
-                        {name}
-                      </Select.Item>
-                    ))}
-                    <Link to="/settings/automations/agents">
-                      <Button variant="ghost" className="w-full">
-                        <IconPlus /> {t('add-new-agent')}
-                      </Button>
-                    </Link>
-                  </Select.Content>
-                </Select>
-                <Form.Message />
-              </Form.Item>
-            );
-          }}
-        />
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Select.Trigger className="mt-1">
+                        <Select.Value placeholder={t('select-ai-agent')} />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {automationsAiAgents.map(({ _id, name }) => (
+                          <Select.Item key={_id} value={_id}>
+                            {name}
+                          </Select.Item>
+                        ))}
+                        <Link to="/settings/automations/agents">
+                          <Button variant="ghost" className="w-full">
+                            <IconPlus /> {t('add-new-agent')}
+                          </Button>
+                        </Link>
+                      </Select.Content>
+                    </Select>
+                    <Form.Message />
+                  </Form.Item>
+                );
+              }}
+            />
 
-        <Form.Field
-          control={control}
-          name="goalType"
-          render={({ field }) => {
-            return (
-              <Form.Item>
-                <Form.Label>{t('goal-type')}</Form.Label>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <Select.Trigger className="mt-1">
-                    <Select.Value placeholder={t('select-goal-type')} />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {AI_AGENT_NODE_GOAL_TYPES.map(({ type, label }) => (
-                      <Select.Item key={type} value={type}>
-                        {label}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-                <Form.Message />
-              </Form.Item>
-            );
-          }}
-        />
+            <Form.Field
+              control={control}
+              name="goalType"
+              render={({ field }) => {
+                return (
+                  <Form.Item>
+                    <Form.Label>{t('goal-type')}</Form.Label>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Select.Trigger className="mt-1">
+                        <Select.Value placeholder={t('select-goal-type')} />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {AI_AGENT_NODE_GOAL_TYPES.map(({ type, label }) => (
+                          <Select.Item key={type} value={type}>
+                            {label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                    <Form.Message />
+                  </Form.Item>
+                );
+              }}
+            />
 
-        <AiAgentInputMappingFields />
+            <AiAgentInputMappingFields />
 
-        {config?.goalType === 'classification' && <AiAgentObjectBuilder />}
-        {config?.goalType === 'splitTopic' && <AiAgentTopicBuilder />}
-        {config?.goalType === 'generateText' && (
-          <Form.Field
-            name="prompt"
-            control={control}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('instruction-prompt')}</Form.Label>
-                <Textarea placeholder={t('enter-prompt')} {...field} />
-                <Form.Description>
-                  Describe the final artifact this action should produce. For
-                  email generation, ask for a ready-to-use email body instead of
-                  a conversational reply.
-                </Form.Description>
-                <Form.Message />
-              </Form.Item>
+            {config?.goalType === 'classification' && <AiAgentObjectBuilder />}
+            {config?.goalType === 'splitTopic' && <AiAgentTopicBuilder />}
+            {config?.goalType === 'generateText' && (
+              <>
+                <Form.Field
+                  name="prompt"
+                  control={control}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>{t('instruction-prompt')}</Form.Label>
+                      <Textarea placeholder={t('enter-prompt')} {...field} />
+                      <Form.Description>
+                        Заавал биш. Сонгосон agent-ийн system prompt болон
+                        context files-оос гадна нэмэлт заавар хэрэгтэй үед л
+                        бөглөнө.
+                      </Form.Description>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  name="fallbackText"
+                  control={control}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Удаашрах үеийн хариу</Form.Label>
+                      <Textarea
+                        placeholder="Уучлаарай, хариу бага зэрэг удааширлаа. Таны бичсэнийг авлаа."
+                        {...field}
+                      />
+                      <Form.Description>
+                        AI provider хугацаандаа хариу өгөхгүй үед энэ текстийг
+                        явуулна. Хоосон орхивол fallback хариу явуулахгүй.
+                      </Form.Description>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </>
             )}
-          />
-        )}
-
-        <AiAgentRuntimeInfo agent={selectedAgent} actionConfig={config} />
-
-        <AiAgentMemoryFields />
+          </Tabs.Content>
+          <Tabs.Content value="memory" className="my-2">
+            <AiAgentMemoryFields />
+          </Tabs.Content>
+          <Tabs.Content value="runtimeSnapshot" className="my-2">
+            <AiAgentRuntimeInfo agent={selectedAgent} actionConfig={config} />
+          </Tabs.Content>
+        </Tabs>
       </AutomationConfigFormWrapper>
     </FormProvider>
   );

@@ -15,6 +15,8 @@ import {
 import { getPlugins } from 'erxes-api-shared/utils';
 import { ACTION_METHODS, ERROR_MESSAGES, EXECUTION_STATUS } from '../constants';
 
+const SPLIT_ACTION_TYPE = 'split';
+
 /**
  * Determines the target type for an action based on its configuration
  * @param action - The automation action
@@ -82,6 +84,7 @@ export const executeActions = async (
 
   try {
     if (
+      actionType === SPLIT_ACTION_TYPE ||
       Object.values(AUTOMATION_CORE_ACTIONS).find(
         (value) => actionType === value,
       )

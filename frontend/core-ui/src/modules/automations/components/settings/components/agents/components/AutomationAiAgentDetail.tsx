@@ -1,10 +1,14 @@
-import { AiAgentConnectionForm } from '@/automations/components/settings/components/agents/components/form/AiAgentConnectionForm';
+import { AiAgentConnectionForm } from '@/automations/components/settings/components/agents/components/form/connection/AiAgentConnectionForm';
 import { AiAgentContextForm } from '@/automations/components/settings/components/agents/components/form/AiAgentContextForm';
 import { AiAgentGeneralForm } from '@/automations/components/settings/components/agents/components/form/AiAgentGeneralForm';
 import { AiAgentRuntimeForm } from '@/automations/components/settings/components/agents/components/form/AiAgentRuntimeForm';
 import { AutomationAiAgentHealthSection } from '@/automations/components/settings/components/agents/components/form/AutomationAiAgentHealthSection';
-import { getAiAgentKind } from '@/automations/components/settings/components/agents/constants/automationAiAgents';
 import { AiAgentInput } from '@/automations/components/settings/components/agents/hooks/useAiAgentDetail';
+import { AutomationSettingsDetailHeader } from '@/automations/components/settings/components/AutomationSettingsDetailHeader';
+import {
+  AI_AGENT_PROVIDER_TYPES,
+  TAiAgentProvider,
+} from '@/automations/components/settings/components/agents/constants/providers';
 import {
   buildAiAgentFormSchema,
   normalizeAiAgentFormValues,
@@ -12,10 +16,10 @@ import {
   TAiAgentForm,
 } from '@/automations/components/settings/components/agents/states/AiAgentFormSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconChevronLeft } from '@tabler/icons-react';
+import { IconDeviceFloppy } from '@tabler/icons-react';
 import { Button, Card, Tabs, toast } from 'erxes-ui';
 import { FormProvider, useForm } from 'react-hook-form';
-import { Link } from 'react-router';
+import { useSearchParams } from 'react-router';
 
 export const AutomationAiAgentDetail = ({
   detail,
@@ -24,18 +28,24 @@ export const AutomationAiAgentDetail = ({
   detail?: TAiAgentFormDetail;
   handleSave: (input: AiAgentInput) => Promise<unknown>;
 }) => {
+  const isEditing = !!detail;
+  const [searchParams] = useSearchParams();
+  const queryKind = searchParams.get('kind');
+  const defaultProvider =
+    !isEditing &&
+    AI_AGENT_PROVIDER_TYPES.includes(queryKind as TAiAgentProvider)
+      ? (queryKind as TAiAgentProvider)
+      : undefined;
+
   const form = useForm<TAiAgentForm>({
     resolver: zodResolver(
       buildAiAgentFormSchema({ requireApiKey: !detail?._id }),
     ),
-    values: normalizeAiAgentFormValues(detail),
+    values: normalizeAiAgentFormValues(detail, defaultProvider),
   });
 
-  const provider = form.watch('connection.provider');
-  const model = form.watch('connection.model');
-  const kind = getAiAgentKind(provider);
-  const Icon = kind.icon;
-  const handleSubmit = form.handleSubmit(handleSave, () => {
+  const handleSubmit = form.handleSubmit(handleSave, (error) => {
+    console.error(error);
     toast({
       title: 'Invalid form',
       description: 'Please review the highlighted fields.',
@@ -45,35 +55,24 @@ export const AutomationAiAgentDetail = ({
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col">
-      <div className="border-b bg-sidebar px-4 py-3">
-        <Card className="w-full max-w-sm rounded-lg p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-lg border bg-background">
-              <Icon className="size-5 text-primary" />
-            </div>
-            <div className="space-y-1">
-              <h6 className="text-sm font-semibold">{kind.label}</h6>
-              <p className="text-xs text-muted-foreground">
-                {model || 'Model not configured yet'}
-              </p>
-            </div>
-          </div>
-        </Card>
-      </div>
+      <FormProvider {...form}>
+        <AutomationSettingsDetailHeader
+          title={isEditing ? 'Edit AI Agent' : 'Create AI Agent'}
+          description={
+            isEditing
+              ? 'Update your AI agent'
+              : 'Create a new AI agent for automation'
+          }
+          backTo="/settings/automations/agents"
+          actions={
+            <Button onClick={handleSubmit}>
+              <IconDeviceFloppy className="size-4 " />
+              Save
+            </Button>
+          }
+        />
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-4">
-        <FormProvider {...form}>
-          <div className="sticky top-0 z-10 -mx-4 border-b bg-background/95 px-4 py-4 backdrop-blur-sm">
-            <div className="flex justify-between gap-2">
-              <Link to="/settings/automations/agents">
-                <Button variant="secondary">
-                  <IconChevronLeft /> Back
-                </Button>
-              </Link>
-              <Button onClick={handleSubmit}>Save</Button>
-            </div>
-          </div>
-
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-6 pb-4">
           <Tabs defaultValue="general" className="flex min-h-0 flex-1 flex-col">
             <Tabs.List className="mt-4 shrink-0">
               <Tabs.Trigger className="w-1/4" value="general">
@@ -104,6 +103,13 @@ export const AutomationAiAgentDetail = ({
                 <Card className="p-4">
                   <AiAgentConnectionForm
                     existingApiKeyMask={detail?.connection?.config?.apiKey}
+                    existingGatewayTokenMask={
+                      detail?.connection?.provider === 'cloudflare-ai-gateway'
+                        ? String(
+                            detail?.connection?.config?.gatewayToken || '',
+                          ) || undefined
+                        : undefined
+                    }
                   />
                 </Card>
                 <Card className="p-4">
@@ -120,8 +126,8 @@ export const AutomationAiAgentDetail = ({
               </Tabs.Content>
             </div>
           </Tabs>
-        </FormProvider>
-      </div>
+        </div>
+      </FormProvider>
     </div>
   );
 };

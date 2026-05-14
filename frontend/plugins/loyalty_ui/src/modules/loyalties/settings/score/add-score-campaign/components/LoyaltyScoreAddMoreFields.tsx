@@ -9,12 +9,14 @@ import {
   Combobox,
   Switch,
 } from 'erxes-ui';
+import { IconSettings } from '@tabler/icons-react';
 import { LoyaltyScoreFormValues } from '../../constants/formSchema';
 import { SelectFieldGroup } from './selects/SelectFieldGroup';
 import { SelectField } from './selects/SelectField';
 import { useQuery } from '@apollo/client';
 import { useState } from 'react';
 import { SCORE_CAMPAIGN_ATTRIBUTES_QUERY } from '../../graphql/queries/scoreCampaignAttributesQuery';
+import { ServiceConfigSheet } from './ServiceConfigSheet';
 
 const AttributionSelect = ({
   serviceName,
@@ -163,6 +165,7 @@ export const LoyaltyScoreAddMoreFields = ({
   const selectedService = form.watch('conditions.serviceName');
   const selectedOwnerType = form.watch('ownerType');
   const selectedFieldGroupId = form.watch('fieldGroupId');
+  const [serviceConfigOpen, setServiceConfigOpen] = useState(false);
 
   return (
     <div className="flex flex-col gap-4 mt-4">
@@ -176,8 +179,29 @@ export const LoyaltyScoreAddMoreFields = ({
               shouldValidate: true,
             })
           }
+          className="justify-between"
         >
-          Sales pipeline
+          <span>Sales pipeline</span>
+          {selectedService === 'sales' && (
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={(e) => {
+                e.stopPropagation();
+                setServiceConfigOpen(true);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.stopPropagation();
+                  setServiceConfigOpen(true);
+                }
+              }}
+              className="inline-flex items-center justify-center rounded-md p-1 hover:bg-white/10"
+              aria-label="Service configurations"
+            >
+              <IconSettings className="size-4" />
+            </span>
+          )}
         </Button>
 
         <Button
@@ -193,6 +217,12 @@ export const LoyaltyScoreAddMoreFields = ({
           POS order
         </Button>
       </div>
+
+      <ServiceConfigSheet
+        form={form}
+        open={serviceConfigOpen}
+        onOpenChange={setServiceConfigOpen}
+      />
 
       {selectedService && (
         <Tabs defaultValue="add" className="w-full">

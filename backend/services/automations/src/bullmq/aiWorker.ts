@@ -1,4 +1,8 @@
-import { getAiAgentHealth, parseAiAgentInput, runAiAction } from '../ai';
+import {
+  getAiAgentHealth,
+  indexAiAgentKnowledgeFiles,
+  parseAiAgentInput,
+} from '../ai';
 import { Job } from 'bullmq';
 import { generateModels } from '../connectionResolver';
 
@@ -15,31 +19,28 @@ export const checkAiAgentHealthWorker = async (job: Job) => {
   return await getAiAgentHealth(subdomain, agent);
 };
 
-// Worker for AI execution (automation actions)
-export const executeAiAgent = async (job: Job) => {
-  const { data = {}, subdomain } = job.data;
-  const { actionConfig, inputData, aiContext, memory } = data;
+export const indexAiAgentKnowledgeWorker = async (job: Job) => {
+  const { data, subdomain } = job.data;
+  console.log({ data });
+  const { agentId, fileId } = data;
   const models = await generateModels(subdomain);
 
-  const aiAgentId = actionConfig?.aiAgentId;
-
-  if (!aiAgentId) {
-    throw new Error('AI action config is missing aiAgentId.');
-  }
-
-  const agent = await models.AiAgents.findById({ _id: aiAgentId }).lean();
+  const agent = await models.AiAgents.findById({ _id: agentId }).lean();
 
   if (!agent) {
     throw new Error('AI Agent not found');
   }
 
-  return await runAiAction({
+  const parsedAgent = parseAiAgentInput(agent);
+  console.log({ parsedAgent });
+
+  return await indexAiAgentKnowledgeFiles({
+    models,
     subdomain,
-    agent: parseAiAgentInput(agent),
-    actionConfig,
-    inputData,
-    aiContext,
-    memory,
+    agentId,
+    files: fileId
+      ? parsedAgent.context.files.filter((file) => file.id === fileId)
+      : parsedAgent.context.files,
   });
 };
 
@@ -48,8 +49,8 @@ export const aiWorker = async (job: Job) => {
   switch (name) {
     case 'checkAiAgentHealth':
       return checkAiAgentHealthWorker(job);
-    case 'executeAiAgent':
-      return executeAiAgent(job);
+    case 'indexAiAgentKnowledge':
+      return indexAiAgentKnowledgeWorker(job);
     default:
       throw new Error(`Unknown job name: ${name}`);
   }

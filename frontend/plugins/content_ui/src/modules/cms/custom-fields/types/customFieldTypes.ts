@@ -10,7 +10,8 @@ export type FieldType =
   | 'radio'
   | 'file'
   | 'image'
-  | 'spreadsheet';
+  | 'spreadsheet'
+  | 'richText';
 
 export interface ICustomField {
   _id: string;
@@ -53,4 +54,5 @@ export const FIELD_TYPES: { value: FieldType; label: string }[] = [
   { value: 'file', label: 'File' },
   { value: 'image', label: 'Image' },
   { value: 'spreadsheet', label: 'Spreadsheet (Excel paste)' },
+  { value: 'richText', label: 'Rich Text (Editor)' },
 ];

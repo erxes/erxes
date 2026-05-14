@@ -1,12 +1,13 @@
 import { useAutomationEmailTemplateDetail } from '@/automations/components/settings/components/email-templates/hooks/useAutomationEmailTemplateDetail';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconArrowLeft, IconDeviceFloppy } from '@tabler/icons-react';
+import { IconDeviceFloppy } from '@tabler/icons-react';
 import { BlockEditor, Button, Input, Label, useBlockEditor } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { z } from 'zod';
 
+import { AutomationSettingsDetailHeader } from '@/automations/components/settings/components/AutomationSettingsDetailHeader';
 import {
   useCreateAutomationEmailTemplate,
   useUpdateAutomationEmailTemplate,
@@ -129,26 +130,31 @@ export function EmailTemplateForm({ templateId }: EmailTemplateFormProps) {
 
   return (
     <div className="h-full w-full flex flex-col">
-      <div className="flex items-center gap-4 p-6 border-b">
-        <Button variant="ghost" size="sm" asChild>
-          <Link to="/settings/automations/email-templates">
-            <IconArrowLeft className="size-4 mr-2" />
-            Back to Templates
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-lg font-semibold">
-            {isEditing ? 'Edit Email Template' : 'Create Email Template'}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {isEditing
-              ? 'Update your email template'
-              : 'Create a new email template for automation'}
-          </p>
-        </div>
-      </div>
+      <AutomationSettingsDetailHeader
+        title={isEditing ? 'Edit Email Template' : 'Create Email Template'}
+        description={
+          isEditing
+            ? 'Update your email template'
+            : 'Create a new email template for automation'
+        }
+        backTo="/settings/automations/email-templates"
+        actions={
+          <Button type="submit" form="email-template-form" disabled={isLoading}>
+            <IconDeviceFloppy className="size-4 mr-2" />
+            {isLoading
+              ? 'Saving...'
+              : isEditing
+              ? 'Update Template'
+              : 'Create Template'}
+          </Button>
+        }
+      />
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col">
+      <form
+        id="email-template-form"
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex-1 flex flex-col"
+      >
         <div className="flex-1 p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
@@ -187,25 +193,6 @@ export function EmailTemplateForm({ templateId }: EmailTemplateFormProps) {
               </p>
             )}
           </div>
-        </div>
-
-        <div className="flex items-center justify-end gap-3 p-6 border-t bg-background">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate('/settings/automations/email-templates')}
-            disabled={isLoading}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isLoading}>
-            <IconDeviceFloppy className="size-4 mr-2" />
-            {isLoading
-              ? 'Saving...'
-              : isEditing
-              ? 'Update Template'
-              : 'Create Template'}
-          </Button>
         </div>
       </form>
     </div>

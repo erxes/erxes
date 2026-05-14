@@ -10,7 +10,7 @@ import {
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
 import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { graphqlPubsub, sendTRPCMessage, markResolvers } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
 import { generateModels, IContext, IModels } from '~/connectionResolvers';
 import { debugError } from '~/modules/inbox/utils';
@@ -96,8 +96,6 @@ export const publishConversationsChanged = async (
     await graphqlPubsub.publish(`conversationChanged:${_id}`, {
       conversationChanged: { conversationId: _id, type },
     });
-
-    await models.Conversations.findOne({ _id });
   }
 
   return _ids;
@@ -339,7 +337,6 @@ export const conversationMutations = {
         );
       }
 
-      // Case: external service handled it, do not save locally
       if (response?.data?.data) {
         const { conversationId, content } = response.data.data;
         if (conversationId && content) {
@@ -379,7 +376,6 @@ export const conversationMutations = {
 
       return dbMessage;
     } catch (err) {
-      console.error('conversationMessageAdd error:', err);
       throw new Error(`Failed to add message to conversation: ${err.message}`);
     }
   },
@@ -577,3 +573,10 @@ export const conversationMutations = {
     return models.Conversations.getConversation(_id);
   },
 };
+markResolvers(conversationMutations, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
+
+

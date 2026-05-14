@@ -90,6 +90,19 @@ import {
 } from './modules/bms/db/models/TourCategoryTranslation';
 import { ITourCategoryTranslationDocument } from './modules/bms/@types/tourCategoryTranslation';
 
+import {
+  ICustomTourFieldGroupDocument,
+  ICustomTourTypeDocument,
+} from '@/bms/@types/customTourType';
+import {
+  ICustomTourTypeModel,
+  loadCustomTourTypeClass,
+} from '@/bms/db/models/CustomTourType';
+import {
+  ICustomTourFieldGroupModel,
+  loadCustomTourFieldGroupClass,
+} from '@/bms/db/models/CustomTourFieldGroups';
+
 export interface IModels {
   Elements: IElementModel;
   ElementCategories: IElementCategoryModel;
@@ -98,6 +111,8 @@ export interface IModels {
   ItineraryTranslations: IItineraryTranslationModel;
   Tours: ITourModel;
   BmsTourCategories: IBmsTourCategoryModel;
+  CustomTourTypes: ICustomTourTypeModel;
+  CustomTourFieldGroups: ICustomTourFieldGroupModel;
   TourTranslations: ITourTranslationModel;
   TourCategoryTranslations: ITourCategoryTranslationModel;
   Orders: IOrderModel;
@@ -167,6 +182,17 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     ITourCategoryDocument,
     IBmsTourCategoryModel
   >('bm_tour_categories', loadBmsTourCategoryClass(models));
+
+  models.CustomTourTypes = db.model<
+    ICustomTourTypeDocument,
+    ICustomTourTypeModel
+  >('bm_custom_tour_types', loadCustomTourTypeClass(models));
+
+  models.CustomTourFieldGroups = db.model<
+    ICustomTourFieldGroupDocument,
+    ICustomTourFieldGroupModel
+  >('bm_custom_tour_groups', loadCustomTourFieldGroupClass(models));
+
 
   models.TourCategoryTranslations = db.model<
     ITourCategoryTranslationDocument,

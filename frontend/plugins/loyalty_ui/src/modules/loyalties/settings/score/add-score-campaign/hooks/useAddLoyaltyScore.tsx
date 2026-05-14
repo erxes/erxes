@@ -8,6 +8,13 @@ export interface AddScoreResult {
   scoreCampaignAdd: any;
 }
 
+export interface CardBasedRuleVariable {
+  boardId?: string;
+  pipelineId?: string;
+  stageIds?: string[];
+  refundStageIds?: string[];
+}
+
 export interface AddScoreVariables {
   title: string;
   description?: string;
@@ -19,6 +26,10 @@ export interface AddScoreVariables {
     excludeProductIds?: string;
     tagIds?: string;
     excludeTagIds?: string;
+  };
+  additionalConfig?: {
+    discountCheck?: boolean;
+    cardBasedRule?: CardBasedRuleVariable[];
   };
   add?: { placeholder?: string; currencyRatio?: string };
   subtract?: { placeholder?: string; currencyRatio?: string };

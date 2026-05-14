@@ -22,7 +22,8 @@ const aiAgentObjectFieldSchema = z.object({
 
 const generateTextSchema = z.object({
   goalType: z.literal('generateText'),
-  prompt: z.string().min(1),
+  prompt: z.string().optional().default(''),
+  fallbackText: z.string().optional().default(''),
 });
 
 const splitTopicSchema = z.object({

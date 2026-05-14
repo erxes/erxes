@@ -4,11 +4,9 @@ import {
   IRecordTableCursorPageInfo,
   parseDateRangeFromString,
   useMultiQueryState,
-  useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
 import { CMS_CATEGORIES } from '../graphql';
-import { CATEGORIES_CURSOR_SESSION_KEY } from '../constants/categoriesCursorSessionKey';
 import { useSetAtom } from 'jotai';
 import { categoriesTotalCountAtom } from '../states/categoriesCounts';
 import { useEffect } from 'react';
@@ -31,13 +29,9 @@ export const useCategoriesVariables = (
     updatedAt: string;
   }>(['searchValue', 'status', 'createdAt', 'updatedAt']);
 
-  const { cursor } = useRecordTableCursor({
-    sessionKey: CATEGORIES_CURSOR_SESSION_KEY,
-  });
-
   return {
     limit: CATEGORIES_PER_PAGE,
-    cursor,
+    cursor: undefined,
     sortField: 'createdAt',
     sortDirection: '-1',
     searchValue: searchValue || undefined,
