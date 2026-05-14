@@ -51,6 +51,18 @@ export const TourTranslationSchema = z.object({
   pricingOptions: z.array(PricingOptionTranslationSchema).optional(),
 });
 
+const CustomFieldValueSchema = z.union([
+  z.string(),
+  z.boolean(),
+  z.array(z.string()),
+  z.null(),
+]);
+
+export const TourCustomFieldDataSchema = z.object({
+  field: z.string(),
+  value: CustomFieldValueSchema.optional(),
+});
+
 /* ================= PRICING ================= */
 
 const requiredPrice = z.preprocess((value) => {
@@ -123,6 +135,7 @@ export const TourCreateFormSchema = z
     refNumber: z.string().min(1, 'Ref number is required'),
 
     status: z.string().optional(),
+    customTourTypeId: z.string().optional(),
     content: z.string().optional(),
     itineraryId: z.string().min(1, 'Itinerary is required'),
     categoryIds: z.array(z.string()).optional(),
@@ -185,6 +198,7 @@ export const TourCreateFormSchema = z
       .min(1, 'At least one pricing option is required'),
 
     translations: z.array(TourTranslationSchema).optional(),
+    customFieldsData: z.array(TourCustomFieldDataSchema).optional(),
   })
 
   /* ================= VALIDATIONS ================= */

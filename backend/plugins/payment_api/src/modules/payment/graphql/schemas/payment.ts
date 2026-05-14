@@ -54,5 +54,5 @@ export const queries = `
 export const mutations = `
   paymentAdd(input: PaymentInput!): Payment
   paymentEdit(_id: String!, input: PaymentInput!): Payment
-  paymentRemove(_id: String!): String
+  paymentRemove(_ids: [String!]!): String
 `;

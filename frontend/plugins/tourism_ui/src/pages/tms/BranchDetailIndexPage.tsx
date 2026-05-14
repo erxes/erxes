@@ -15,7 +15,13 @@ import { ElementCreateSheet } from '@/tms/branch-detail/dashboard/elements';
 import { AmenityCreateSheet } from '@/tms/branch-detail/dashboard/amenities';
 import { CategoryCreateSheet } from '@/tms/branch-detail/dashboard/category';
 
-type ActiveTab = 'tour' | 'category' | 'itinerary' | 'elements' | 'amenities';
+type ActiveTab =
+  | 'tour'
+  | 'category'
+  | 'itinerary'
+  | 'elements'
+  | 'amenities'
+  | 'customFields';
 
 const VALID_TABS = new Set<ActiveTab>([
   'tour',
@@ -23,6 +29,7 @@ const VALID_TABS = new Set<ActiveTab>([
   'itinerary',
   'elements',
   'amenities',
+  'customFields',
 ]);
 
 export const BranchDetailIndexPage = () => {
