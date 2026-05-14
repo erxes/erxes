@@ -227,118 +227,162 @@ export const GET_TOUR_DETAIL = gql`
 `;
 
 export const GET_CP_TOUR_GROUP_DETAIL = gql`
-  query CpBmToursGroupDetail(
-    $groupCode: String
-    $status: String
-    $language: String
-  ) {
-    cpBmToursGroupDetail(
-      groupCode: $groupCode
-      status: $status
-      language: $language
-    ) {
-      _id
-      name
+  query CpBmToursGroupDetail($groupCode: String, $status: String) {
+    cpBmToursGroupDetail(groupCode: $groupCode, status: $status) {
       items {
         _id
         branchId
-        language
+        refNumber
         groupCode
-        advanceCheck
-        advancePercent
-        categoryIds
         content
-        cost
-        date_status
+        location {
+          lat
+          lng
+          name
+          mapId
+        }
+        itineraryId
+        itinerary {
+          _id
+          branchId
+          content
+          totalCost
+          groupDays {
+            day
+            title
+            images
+            content
+            elements {
+              elementId
+              orderOfDay
+            }
+          }
+          location {
+            lat
+            lng
+            name
+            mapId
+          }
+          images
+          status
+          color
+          foodCost
+          personCost
+          extra
+          gasCost
+          driverCost
+          guideCost
+          guideCostExtra
+          createdAt
+          modifiedAt
+          tours {
+            _id
+            branchId
+            language
+            name
+            refNumber
+            groupCode
+            content
+            duration
+            itineraryId
+            dateType
+            startDate
+            endDate
+            availableFrom
+            availableTo
+            groupSize
+            status
+            date_status
+            cost
+            orders {
+              _id
+              branchId
+              customerId
+              tourId
+              amount
+              status
+              note
+              internalNote
+              numberOfPeople
+              type
+              additionalCustomers
+              isChild
+              parent
+              createdAt
+            }
+            createdAt
+            modifiedAt
+            viewCount
+            advanceCheck
+            advancePercent
+            joinPercent
+            tagIds
+            categoryIds
+            info1
+            info2
+            customFieldsData
+            info3
+            info4
+            info5
+            personCost
+            extra
+            images
+            imageThumbnail
+            startingPrice
+          }
+        }
         dateType
-        duration
+        startDate
         endDate
         availableFrom
         availableTo
         groupSize
-        imageThumbnail
+        status
+        date_status
+        cost
+        createdAt
+        modifiedAt
+        viewCount
+        advanceCheck
+        advancePercent
+        joinPercent
+        tagIds
+        categoryIds
+        info1
+        info2
+        customFieldsData
+        customTourType {
+          _id
+          branchId
+          code
+          name
+          label
+          pluralLabel
+          description
+          isActive
+          createdAt
+          updatedAt
+        }
+        customTourTypeId
+        customFieldsMap
+        info3
+        info4
+        info5
+        personCost
+        extra
         images
+        imageThumbnail
         attachment {
           url
           name
           type
           size
+          duration
         }
-        info1
-        info2
-        info3
-        info4
-        info5
-        itineraryId
-        joinPercent
-        name
-        personCost
-        refNumber
-        startDate
-        status
-        customTourTypeId
-        customTourType {
-          _id
-          branchId
-          code
-          label
-          pluralLabel
-          description
-        }
-        customFieldsData {
-          field
-          value
-        }
-        customFieldsMap
-        guides {
-          _id
-          name
-          guideId
-          type
-        }
-        pricingOptions {
-          _id
-          title
-          minPersons
-          maxPersons
-          prices {
-            type
-            price
-          }
-          pricePerPerson
-          accommodationType
-          domesticFlightPerPerson
-          singleSupplement
-          note
-        }
-        translations {
-          _id
-          objectId
-          language
-          name
-          content
-          info1
-          info2
-          info3
-          info4
-          info5
-          pricingOptions {
-            optionId
-            title
-            accommodationType
-            note
-            prices {
-              type
-              price
-            }
-            pricePerPerson
-            domesticFlightPerPerson
-            singleSupplement
-          }
-        }
-        createdAt
-        modifiedAt
+        startingPrice
       }
+      _id
+      name
     }
   }
 `;
