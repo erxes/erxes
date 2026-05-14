@@ -107,7 +107,7 @@ export const TourCreateForm = ({
       name: '',
       refNumber: '',
       status: 'draft',
-      type: '',
+      customTourTypeId: 'tour',
       content: '',
       itineraryId: '',
       categoryIds: [],
@@ -223,7 +223,7 @@ export const TourCreateForm = ({
 
   const selectedType = useWatch({
     control: form.control,
-    name: 'type',
+    name: 'customTourTypeId',
   });
 
   const { customTypes } = useTourCustomTypes(branchId);

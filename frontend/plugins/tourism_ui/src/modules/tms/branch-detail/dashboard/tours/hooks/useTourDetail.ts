@@ -90,7 +90,15 @@ export interface ITourDetail {
   refNumber?: string;
   startDate?: string;
   status?: string;
-  type?: string;
+  customTourTypeId?: string;
+  customTourType?: {
+    _id: string;
+    branchId?: string;
+    code?: string;
+    label?: string;
+    pluralLabel?: string;
+    description?: string;
+  } | null;
   customFieldsData?: TourCustomFieldData[];
   customFieldsMap?: Record<string, any>;
   pricingOptions?: IPricingOption[];

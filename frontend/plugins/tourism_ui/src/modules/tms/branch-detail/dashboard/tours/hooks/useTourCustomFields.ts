@@ -1,21 +1,26 @@
 import { useQuery } from '@apollo/client';
 import {
   TOUR_CUSTOM_FIELD_GROUPS,
-  TOUR_CUSTOM_POST_TYPES,
+  TOUR_CUSTOM_TYPES,
 } from '../graphql/customFields';
 
 export interface ITourCustomPostType {
   _id: string;
+  branchId?: string;
   code?: string;
+  name?: string;
   label?: string;
   pluralLabel?: string;
   description?: string;
+  isActive?: boolean;
 }
 
 export interface ITourCustomField {
-  _id: string;
+  _id?: string;
   type: string;
   label: string;
+  code?: string;
+  description?: string;
   placeholder?: string;
   options?: string[];
   isRequired?: boolean;
@@ -25,24 +30,40 @@ export interface ITourCustomFieldGroup {
   _id: string;
   label: string;
   code?: string;
-  customPostTypeIds?: string[];
+  branchId?: string;
+  parentId?: string;
+  order?: number;
+  customTourTypeIds?: string[];
   enabledTourIds?: string[];
-  enabledTours?: string[];
   fields?: ITourCustomField[];
 }
 
 export const useTourCustomTypes = (branchId?: string) => {
   const { data, loading } = useQuery<{
-    bmsTourCustomPostTypes: ITourCustomPostType[];
-  }>(TOUR_CUSTOM_POST_TYPES, {
+    bmsCustomTourTypes: ITourCustomPostType[];
+  }>(TOUR_CUSTOM_TYPES, {
     variables: { branchId },
     skip: !branchId,
     fetchPolicy: 'cache-and-network',
     nextFetchPolicy: 'cache-first',
   });
 
+  const systemTourType: ITourCustomPostType = {
+    _id: 'tour',
+    branchId,
+    code: 'tour',
+    name: 'tour',
+    label: 'Tour',
+    pluralLabel: 'Tours',
+    isActive: true,
+  };
+
+  const customTypes = (data?.bmsCustomTourTypes || []).filter(
+    (type) => type.isActive !== false,
+  );
+
   return {
-    customTypes: data?.bmsTourCustomPostTypes || [],
+    customTypes: [systemTourType, ...customTypes],
     loading,
   };
 };
@@ -57,7 +78,7 @@ export const useTourCustomFieldGroups = ({
   tourId?: string;
 }) => {
   const { data, loading } = useQuery<{
-    bmsTourCustomFieldGroupList: { list: ITourCustomFieldGroup[] };
+    bmsCustomTourGroupList: { list: ITourCustomFieldGroup[] };
   }>(TOUR_CUSTOM_FIELD_GROUPS, {
     variables: { branchId },
     skip: !branchId || !selectedType,
@@ -65,29 +86,18 @@ export const useTourCustomFieldGroups = ({
     nextFetchPolicy: 'cache-first',
   });
 
-  const fieldGroups = (
-    data?.bmsTourCustomFieldGroupList?.list || []
-  ).filter((group) => {
-    const customPostTypeIds = group.customPostTypeIds || [];
+  const fieldGroups = (data?.bmsCustomTourGroupList?.list || []).filter(
+    (group) => {
+      const customTourTypeIds = group.customTourTypeIds || [];
+      const enabledTourIds = group.enabledTourIds || [];
+      const matchesTour = !!tourId && enabledTourIds.includes(tourId);
+      const matchesType =
+        customTourTypeIds.length === 0 ||
+        customTourTypeIds.includes(selectedType || 'tour');
 
-    if (
-      customPostTypeIds.length > 0 &&
-      !customPostTypeIds.includes(selectedType || '') &&
-      !customPostTypeIds.includes('tour')
-    ) {
-      return false;
-    }
-
-    const enabledTourIds = [
-      ...(group.enabledTourIds || []),
-      ...(group.enabledTours || []),
-    ];
-    if (enabledTourIds.length > 0 && tourId) {
-      return enabledTourIds.includes(tourId);
-    }
-
-    return true;
-  });
+      return matchesType || matchesTour;
+    },
+  );
 
   return {
     fieldGroups,

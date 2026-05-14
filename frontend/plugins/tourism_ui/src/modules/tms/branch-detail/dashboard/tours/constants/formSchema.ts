@@ -135,7 +135,7 @@ export const TourCreateFormSchema = z
     refNumber: z.string().min(1, 'Ref number is required'),
 
     status: z.string().optional(),
-    type: z.string().optional(),
+    customTourTypeId: z.string().optional(),
     content: z.string().optional(),
     itineraryId: z.string().min(1, 'Itinerary is required'),
     categoryIds: z.array(z.string()).optional(),

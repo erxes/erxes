@@ -130,7 +130,7 @@ export const TourEditForm = ({
       name: '',
       refNumber: '',
       status: 'draft',
-      type: '',
+      customTourTypeId: 'tour',
       content: '',
       itineraryId: '',
       categoryIds: [],
@@ -223,7 +223,7 @@ export const TourEditForm = ({
 
   const selectedType = useWatch({
     control: form.control,
-    name: 'type',
+    name: 'customTourTypeId',
   });
 
   const { customTypes } = useTourCustomTypes(branchId ?? tourDetail?.branchId);
@@ -239,14 +239,13 @@ export const TourEditForm = ({
 
     if (
       previousTypeRef.current &&
-      previousTypeRef.current !== selectedType &&
-      previousTypeRef.current !== tourDetail?.type
+      previousTypeRef.current !== selectedType
     ) {
       form.setValue('customFieldsData', []);
     }
 
     previousTypeRef.current = selectedType;
-  }, [selectedType, form, tourDetail?.type]);
+  }, [selectedType, form]);
 
   const { data } = useQuery(GET_ITINERARIES, {
     variables: { branchId, limit: 100, orderBy: { createdAt: -1 } },
@@ -265,13 +264,15 @@ export const TourEditForm = ({
     if (!tourDetail?._id) return;
 
     const tour = tourDetail;
+    const resolvedCustomTourTypeId = tour.customTourTypeId ?? 'tour';
+    previousTypeRef.current = resolvedCustomTourTypeId;
 
     form.reset(
       {
         name: resolveMainLanguageName(tour, mainLanguage),
         refNumber: tour.refNumber ?? '',
         status: tour.status ?? 'draft',
-        type: tour.type ?? '',
+        customTourTypeId: resolvedCustomTourTypeId,
         content: tour.content ?? '',
         itineraryId: tour.itineraryId ?? '',
         categoryIds: tour.categoryIds ?? [],

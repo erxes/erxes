@@ -27,7 +27,7 @@ export interface ICreateTourVariables {
     | 'cancelled'
     | 'unscheduled';
   status?: string;
-  type?: string;
+  customTourTypeId?: string;
   groupCode?: string;
   itineraryId?: string;
   dateType?: 'fixed' | 'flexible';

@@ -7,11 +7,13 @@ import {
   Select,
   Switch,
   Textarea,
-  readImage,
   useErxesUpload,
 } from 'erxes-ui';
 import { IconPaperclip, IconUpload, IconX } from '@tabler/icons-react';
 import type { CustomFieldValue } from '../utils/customFields';
+import { ImageUploadGrid } from '../../../components';
+
+const MAX_IMAGES = 10;
 
 export interface TourCustomFieldDefinition {
   _id: string;
@@ -33,63 +35,21 @@ const ImageFieldInput = ({
   onChange,
 }: {
   value: CustomFieldValue;
-  onChange: (value: string) => void;
+  onChange: (value: string[]) => void;
 }) => {
-  const url = typeof value === 'string' ? value : '';
-
-  const uploadProps = useErxesUpload({
-    allowedMimeTypes: ['image/*'],
-    maxFiles: 1,
-    maxFileSize: 20 * 1024 * 1024,
-    onFilesAdded: (added) => {
-      if (added[0]?.url) onChange(added[0].url);
-    },
-  });
-
-  useEffect(() => {
-    if (uploadProps.files.length > 0 && !uploadProps.loading) {
-      uploadProps.onUpload();
-    }
-  }, [uploadProps.files.length, uploadProps.loading]);
+  const urls = Array.isArray(value)
+    ? value
+    : typeof value === 'string' && value
+    ? [value]
+    : [];
 
   return (
-    <div className="space-y-2">
-      {url && (
-        <div className="relative w-full overflow-hidden border rounded-md group aspect-[3/1] bg-muted">
-          <img
-            src={readImage(url)}
-            alt="uploaded"
-            className="object-contain w-full h-full"
-          />
-          <button
-            type="button"
-            onClick={() => onChange('')}
-            className="absolute p-1 text-white transition rounded-md opacity-0 top-2 right-2 bg-destructive group-hover:opacity-100"
-          >
-            <IconX size={14} />
-          </button>
-        </div>
-      )}
-      <input {...uploadProps.getInputProps()} />
-      <Button
-        variant="outline"
-        type="button"
-        onClick={uploadProps.open}
-        disabled={uploadProps.loading}
-      >
-        <IconUpload size={16} />
-        {uploadProps.loading
-          ? 'Uploading...'
-          : url
-          ? 'Change image'
-          : 'Upload image'}
-      </Button>
-      {!!uploadProps.errors.length && (
-        <p className="text-xs text-destructive">
-          {uploadProps.errors[0]?.message || 'Upload failed'}
-        </p>
-      )}
-    </div>
+    <ImageUploadGrid
+      value={urls}
+      onChange={onChange}
+      maxImages={MAX_IMAGES}
+      maxFileSize={20 * 1024 * 1024}
+    />
   );
 };
 
@@ -168,7 +128,9 @@ export const TourCustomFieldInput = ({
       return (
         <Input
           type={field.type === 'text' ? 'text' : field.type}
-          placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
+          placeholder={
+            field.placeholder || `Enter ${field.label.toLowerCase()}`
+          }
           value={typeof value === 'string' ? value : ''}
           onChange={(e) => onChange(e.target.value)}
         />
@@ -177,7 +139,9 @@ export const TourCustomFieldInput = ({
     case 'textarea':
       return (
         <Textarea
-          placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
+          placeholder={
+            field.placeholder || `Enter ${field.label.toLowerCase()}`
+          }
           rows={6}
           value={typeof value === 'string' ? value : ''}
           onChange={(e) => onChange(e.target.value)}
@@ -189,7 +153,9 @@ export const TourCustomFieldInput = ({
       return (
         <Input
           type="number"
-          placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
+          placeholder={
+            field.placeholder || `Enter ${field.label.toLowerCase()}`
+          }
           value={typeof value === 'string' ? value : ''}
           onChange={(e) => onChange(e.target.value)}
         />
@@ -218,7 +184,9 @@ export const TourCustomFieldInput = ({
         >
           <Select.Trigger className="w-full">
             <Select.Value
-              placeholder={field.placeholder || `Select ${field.label.toLowerCase()}`}
+              placeholder={
+                field.placeholder || `Select ${field.label.toLowerCase()}`
+              }
             />
           </Select.Trigger>
           <Select.Content>
@@ -265,7 +233,9 @@ export const TourCustomFieldInput = ({
             selectedValues.includes(option.value),
           )}
           options={options}
-          placeholder={field.placeholder || `Select ${field.label.toLowerCase()}`}
+          placeholder={
+            field.placeholder || `Select ${field.label.toLowerCase()}`
+          }
           hidePlaceholderWhenSelected
           emptyIndicator="No options"
           onChange={(options: Array<{ value: string }>) =>
@@ -284,7 +254,9 @@ export const TourCustomFieldInput = ({
     default:
       return (
         <Input
-          placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
+          placeholder={
+            field.placeholder || `Enter ${field.label.toLowerCase()}`
+          }
           value={typeof value === 'string' ? value : ''}
           onChange={(e) => onChange(e.target.value)}
         />

@@ -2,7 +2,7 @@ export type CustomFieldValue = string | boolean | string[] | null | undefined;
 
 export interface TourCustomFieldData {
   field: string;
-  value: CustomFieldValue;
+  value?: CustomFieldValue;
 }
 
 export const filterCustomFieldsData = (

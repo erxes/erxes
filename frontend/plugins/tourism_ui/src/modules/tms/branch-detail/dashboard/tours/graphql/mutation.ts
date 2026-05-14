@@ -6,7 +6,7 @@ export const CREATE_TOUR = gql`
     $language: String
     $date_status: DATE_STATUS!
     $status: String
-    $type: String
+    $customTourTypeId: String
     $name: String
     $refNumber: String
     $groupCode: String
@@ -43,7 +43,7 @@ export const CREATE_TOUR = gql`
       language: $language
       date_status: $date_status
       status: $status
-      type: $type
+      customTourTypeId: $customTourTypeId
       name: $name
       refNumber: $refNumber
       groupCode: $groupCode
@@ -99,7 +99,7 @@ export const EDIT_TOUR = gql`
     $joinPercent: Float
     $advanceCheck: Boolean
     $status: String
-    $type: String
+    $customTourTypeId: String
     $cost: Float
     $guides: [GuideItemInput]
     $refNumber: String
@@ -135,7 +135,7 @@ export const EDIT_TOUR = gql`
       joinPercent: $joinPercent
       advanceCheck: $advanceCheck
       status: $status
-      type: $type
+      customTourTypeId: $customTourTypeId
       cost: $cost
       guides: $guides
       refNumber: $refNumber

@@ -32,7 +32,7 @@ export interface IEditTourVariables {
   joinPercent?: number;
   advanceCheck?: boolean;
   status?: string;
-  type?: string;
+  customTourTypeId?: string;
   cost?: number;
   guides?: Array<{
     guideId: string;

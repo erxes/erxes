@@ -22,7 +22,7 @@ export const TourTypeField = ({
   return (
     <Form.Field
       control={control}
-      name="type"
+      name="customTourTypeId"
       render={({ field }) => (
         <Form.Item>
           <Form.Label>Tour Type</Form.Label>
@@ -79,26 +79,32 @@ export const TourCustomFieldsSection = ({
           </Collapsible.Trigger>
           <Collapsible.Content className="pt-4">
             <div className="grid grid-cols-1 gap-4">
-              {(group.fields || []).map((field) => (
-                <div key={field._id} className="flex flex-col gap-2">
-                  <Form.Label
-                    className="text-sm font-medium"
-                    htmlFor={`tour-custom-field-${field._id}`}
-                  >
-                    {field.label}
-                    {field.isRequired && (
-                      <span className="ml-1 text-destructive">*</span>
-                    )}
-                  </Form.Label>
-                  <TourCustomFieldInput
-                    field={field}
-                    value={getCustomFieldValue(field._id)}
-                    onChange={(value) =>
-                      updateCustomFieldValue(field._id, value)
-                    }
-                  />
-                </div>
-              ))}
+              {(group.fields || []).map((field) => {
+                const fieldId = field._id || field.code;
+
+                if (!fieldId) return null;
+
+                return (
+                  <div key={fieldId} className="flex flex-col gap-2">
+                    <Form.Label
+                      className="text-sm font-medium"
+                      htmlFor={`tour-custom-field-${fieldId}`}
+                    >
+                      {field.label}
+                      {field.isRequired && (
+                        <span className="ml-1 text-destructive">*</span>
+                      )}
+                    </Form.Label>
+                    <TourCustomFieldInput
+                      field={{ ...field, _id: fieldId }}
+                      value={getCustomFieldValue(fieldId)}
+                      onChange={(value) =>
+                        updateCustomFieldValue(fieldId, value)
+                      }
+                    />
+                  </div>
+                );
+              })}
             </div>
           </Collapsible.Content>
         </Collapsible>
