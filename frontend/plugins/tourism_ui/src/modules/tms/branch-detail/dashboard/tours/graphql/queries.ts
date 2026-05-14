@@ -285,9 +285,14 @@ export const GET_CP_TOUR_GROUP_DETAIL = gql`
           pluralLabel
           description
         }
-        customFieldsData
+        customFieldsData {
+          field
+          value
+        }
         customFieldsMap
         guides {
+          _id
+          name
           guideId
           type
         }
