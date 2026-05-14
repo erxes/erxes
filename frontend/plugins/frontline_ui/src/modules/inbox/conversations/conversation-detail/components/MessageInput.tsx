@@ -42,15 +42,15 @@ import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
 
-// AI зөвлөмжийн дагуу Төрөлүүдийг (Types) гадна гаргаж тодорхойлов
-interface AttachmentType {
+// 1. Interfaces with I-prefix convention
+interface IAttachmentType {
   name: string;
   size: number;
   type: string;
   url?: string;
 }
 
-interface ResponseType {
+interface IResponseType {
   _id: string;
   content: string;
   name?: string;
@@ -79,8 +79,8 @@ export const MessageInput = ({
   const { responses } = useGetResponses({});
   const [content, setContent] = useState<Block[]>();
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
-  const [attachments, setAttachments] = useState<AttachmentType[]>([]);
-  const [attachmentPreview, setAttachmentPreview] = useState<(AttachmentType & { data?: string }) | null>(null);
+  const [attachments, setAttachments] = useState<IAttachmentType[]>([]);
+  const [attachmentPreview, setAttachmentPreview] = useState<(IAttachmentType & { data?: string }) | null>(null);
 
   const editor = useBlockEditor();
   const { addConversationMessage, loading } = useConversationMessageAdd();
@@ -90,25 +90,28 @@ export const MessageInput = ({
     goBackToPreviousHotkeyScope,
   } = usePreviousHotkeyScope();
 
-  const [suggestions, setSuggestions] = useState<ResponseType[]>([]);
+  const [suggestions, setSuggestions] = useState<IResponseType[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [responseTemplateId, setResponseTemplateId] = useState<string | null>(
     null,
   );
 
-  const preparedResponses = useMemo(
-    () =>
-      (responses || [])
-        .filter((r: { _id?: string; content?: string }) => r._id && r.content)
-        .map((r: { _id?: string; content?: string; name?: string }) => ({
-          _id: r._id as string,
-          content: r.content as string,
-          name: r.name,
-          preview: getPreviewText(r.content || ''),
-        })),
-    [responses],
-  );
+  // 2. Stronger type safety with Type Guard instead of 'as string'
+  const preparedResponses: IResponseType[] = useMemo(() => {
+    if (!responses) return [];
+    
+    return responses
+      .filter((r): r is { _id: string; content: string; name?: string } => 
+        Boolean(r._id && r.content)
+      )
+      .map((r) => ({
+        _id: r._id,
+        content: r.content,
+        name: r.name,
+        preview: getPreviewText(r.content),
+      }));
+  }, [responses]);
 
   const handleFileUpload = useCallback(
     (files: FileList) => {
@@ -245,7 +248,7 @@ export const MessageInput = ({
 
     if (plain.length >= 1) {
       const searchTerm = plain.toLowerCase();
-      const found = preparedResponses.filter((t: ResponseType) => {
+      const found = preparedResponses.filter((t: IResponseType) => {
         const titleMatch = t.name?.toLowerCase().includes(searchTerm);
         const contentMatch = t.preview?.toLowerCase().includes(searchTerm);
         return titleMatch || contentMatch;
@@ -324,6 +327,7 @@ export const MessageInput = ({
           isInternalNote && 'bg-warning/20',
         )}
       >
+        {/* Hide suggestions when composing Internal Note */}
         {showSuggestions && !isInternalNote && (
           <ResponseTemplateDropdown
             suggestions={suggestions}
@@ -400,6 +404,7 @@ export const MessageInput = ({
             Internal Note
           </Toggle>
 
+          {/* Hide ResponseTemplateSelector button on Internal Note */}
           {!isInternalNote && (
             <ResponseTemplateSelector onSelect={handleTemplateSelect}>
               <Button
