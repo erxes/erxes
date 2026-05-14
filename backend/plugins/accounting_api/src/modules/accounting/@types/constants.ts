@@ -84,6 +84,30 @@ export const TR_STATUSES = {
   ACTIVE: ['progress', 'assigned', 'confirmed', 'complete'],
 };
 
+export const TR_INVENTORY_STATUS_TYPES = {
+  OMIT: 'omit',
+  SOON: 'soon',
+  REAL: 'real',
+
+  OMIT_STATUSES: [
+    TR_STATUSES.PLAN,
+  ],
+  SOON_STATUSES: [
+    TR_STATUSES.DRAFT,
+    TR_STATUSES.MENTIONED,
+    TR_STATUSES.APPROVED,
+    TR_STATUSES.REJECED,
+    TR_STATUSES.RETURNED,
+  ],
+  REAL_STATUSES: [
+    TR_STATUSES.PROGRESS,
+    TR_STATUSES.ASSIGNED,
+    TR_STATUSES.CONFIRMED,
+    TR_STATUSES.CANELLED,
+    TR_STATUSES.COMPLETE,
+  ],
+};
+
 export const PTR_STATUSES = {
   UNKNOWN: 'unknown',
   DIFF: 'diff',

@@ -2,6 +2,10 @@ import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { JournalEnum } from '@/settings/account/types/Account';
 import { SelectCtax } from '@/settings/ctax/components/SelectCtaxRow';
 import { SelectVat } from '@/settings/vat/components/SelectVatRow';
+import {
+  TR_STATUSES,
+  TR_STATUS_OPTIONS,
+} from '@/transactions/types/constants';
 import { useQuery } from '@apollo/client';
 import {
   Button,
@@ -30,6 +34,7 @@ const configFormSchema = z.object({
   pipelineId: z.string().optional(),
   stageId: z.string(),
   dateRule: z.enum(['alwaysNow', 'syncedDateOrNow']),
+  trStatus: z.string().optional(),
   saleAccountId: z.string(),
   saleOutAccountId: z.string(),
   saleCostAccountId: z.string(),
@@ -96,6 +101,12 @@ export const SyncDealConfigForm = ({
     }
   }, [pipelineId, pipelineRefetch]);
 
+  useEffect(() => {
+    if (!form.getValues('trStatus')) {
+      form.setValue('trStatus', TR_STATUSES.COMPLETE);
+    }
+  }, [form]);
+
   // note: const paymentIds: string[] = pipelineDetail?.salesPipelineDetail?.paymentIds || [];
   const paymentTypes: any[] =
     pipelineDetail?.salesPipelineDetail?.paymentTypes || [];
@@ -134,6 +145,29 @@ export const SyncDealConfigForm = ({
                     <Select.Item value="syncedDateOrNow">
                       Sync огноо эсвэл одоо
                     </Select.Item>
+                  </Select.Content>
+                </Select>
+              </Form.Control>
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
+          name="trStatus"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Гүйлгээний төлөв</Form.Label>
+              <Form.Control>
+                <Select {...field} onValueChange={field.onChange}>
+                  <Select.Trigger>
+                    <Select.Value />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {TR_STATUS_OPTIONS.map((status) => (
+                      <Select.Item key={status.value} value={status.value}>
+                        {status.label}
+                      </Select.Item>
+                    ))}
                   </Select.Content>
                 </Select>
               </Form.Control>
