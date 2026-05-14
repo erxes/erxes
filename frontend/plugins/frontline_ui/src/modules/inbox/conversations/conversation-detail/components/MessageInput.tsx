@@ -42,6 +42,21 @@ import { useConversationMessageAdd } from '../hooks/useConversationMessageAdd';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
 
+// AI зөвлөмжийн дагуу Төрөлүүдийг (Types) гадна гаргаж тодорхойлов
+interface AttachmentType {
+  name: string;
+  size: number;
+  type: string;
+  url?: string;
+}
+
+interface ResponseType {
+  _id: string;
+  content: string;
+  name?: string;
+  preview?: string;
+}
+
 export const MessageInput = ({
   conversationId,
 }: {
@@ -53,6 +68,7 @@ export const MessageInput = ({
   const hideInput = useAtomValue(hideMessageInputState);
   const { integration } = useConversationContext();
   const messageExtraInfo = useAtomValue(messageExtraInfoState);
+
   useEffect(() => {
     const isLead = integration?.kind === 'lead';
     setOnlyInternal(isLead);
@@ -63,8 +79,8 @@ export const MessageInput = ({
   const { responses } = useGetResponses({});
   const [content, setContent] = useState<Block[]>();
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
-  const [attachments, setAttachments] = useState<any[]>([]);
-  const [attachmentPreview, setAttachmentPreview] = useState<any>(null);
+  const [attachments, setAttachments] = useState<AttachmentType[]>([]);
+  const [attachmentPreview, setAttachmentPreview] = useState<(AttachmentType & { data?: string }) | null>(null);
 
   const editor = useBlockEditor();
   const { addConversationMessage, loading } = useConversationMessageAdd();
@@ -74,7 +90,7 @@ export const MessageInput = ({
     goBackToPreviousHotkeyScope,
   } = usePreviousHotkeyScope();
 
-  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<ResponseType[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [responseTemplateId, setResponseTemplateId] = useState<string | null>(
@@ -83,10 +99,14 @@ export const MessageInput = ({
 
   const preparedResponses = useMemo(
     () =>
-      (responses || []).map((r) => ({
-        ...r,
-        preview: getPreviewText(r.content || ''),
-      })),
+      (responses || [])
+        .filter((r: { _id?: string; content?: string }) => r._id && r.content)
+        .map((r: { _id?: string; content?: string; name?: string }) => ({
+          _id: r._id as string,
+          content: r.content as string,
+          name: r.name,
+          preview: getPreviewText(r.content || ''),
+        })),
     [responses],
   );
 
@@ -225,7 +245,7 @@ export const MessageInput = ({
 
     if (plain.length >= 1) {
       const searchTerm = plain.toLowerCase();
-      const found = preparedResponses.filter((t) => {
+      const found = preparedResponses.filter((t: ResponseType) => {
         const titleMatch = t.name?.toLowerCase().includes(searchTerm);
         const contentMatch = t.preview?.toLowerCase().includes(searchTerm);
         return titleMatch || contentMatch;
@@ -304,13 +324,13 @@ export const MessageInput = ({
           isInternalNote && 'bg-warning/20',
         )}
       >
-        {showSuggestions && (
+        {showSuggestions && !isInternalNote && (
           <ResponseTemplateDropdown
             suggestions={suggestions}
             selectedIndex={selectedIndex}
             availableChannels={availableChannels}
-            onSelect={(content: string, templateId?: string) => {
-              handleTemplateSelect(content, templateId);
+            onSelect={(selectedContent: string, templateId?: string) => {
+              handleTemplateSelect(selectedContent, templateId);
               setShowSuggestions(false);
             }}
           />
@@ -380,15 +400,17 @@ export const MessageInput = ({
             Internal Note
           </Toggle>
 
-          <ResponseTemplateSelector onSelect={handleTemplateSelect}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              <IconMessage2 className="h-4 w-4" />
-            </Button>
-          </ResponseTemplateSelector>
+          {!isInternalNote && (
+            <ResponseTemplateSelector onSelect={handleTemplateSelect}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <IconMessage2 className="h-4 w-4" />
+              </Button>
+            </ResponseTemplateSelector>
+          )}
 
           <Button
             variant="ghost"
