@@ -5,6 +5,7 @@ import {
   IconFolder,
   IconLayout,
   IconMenu,
+  IconSettings,
   IconTag,
 } from '@tabler/icons-react';
 import { ComponentType } from 'react';
@@ -33,5 +34,6 @@ export function usePostsFieldTypes(): IPostsFieldType[] {
       label: 'Custom Post Types',
       icon: IconLayout,
     },
+    { value: PostsPath.Settings, label: 'Settings', icon: IconSettings },
   ];
 }

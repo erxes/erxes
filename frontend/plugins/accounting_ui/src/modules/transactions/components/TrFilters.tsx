@@ -1,8 +1,10 @@
 import {
   AccountsFilterCurrency,
   AccountsFilterTrJournal,
+  AccountsFilterTrStatus,
   FilterBarCurrency,
   FilterBarTrJournal,
+  FilterBarTrStatus,
 } from '@/settings/account/components/filters/FilterHelpers';
 import {
   IconCalendar,
@@ -64,7 +66,7 @@ const TransactionsFilterPopover = () => {
                   <IconNotebook />
                   Журнал
                 </Filter.Item>
-                <Filter.Item value="statuses" disabled={true}>
+                <Filter.Item value="statuses">
                   <IconToggleRightFilled />
                   Төлөв
                 </Filter.Item>
@@ -122,6 +124,9 @@ const TransactionsFilterPopover = () => {
           />
           <Filter.View filterKey="currency">
             <AccountsFilterCurrency />
+          </Filter.View>
+          <Filter.View filterKey="statuses">
+            <AccountsFilterTrStatus />
           </Filter.View>
           <Filter.View filterKey="journal">
             <AccountsFilterTrJournal />
@@ -214,6 +219,7 @@ export const TransactionsFilter = ({
           mode="single"
         />
         <FilterBarCurrency />
+        <FilterBarTrStatus />
         <FilterBarTrJournal />
 
         <SelectAccount.FilterBar queryKey="accountIds" mode="multiple" />

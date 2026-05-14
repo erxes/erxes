@@ -5,9 +5,9 @@ const transactionsMutations = {
   async accTransactionsLink(
     _root,
     doc: { ids: string[]; ptrId: string },
-    { user, models, checkPermission }: IContext,
+    { models, checkPermission }: IContext,
   ) {
-    await checkPermission('linkTransactions'); 
+    await checkPermission('linkTransactions');
     const { ids, ptrId } = doc;
     return await models.Transactions.linkTransaction(ids, ptrId);
   },

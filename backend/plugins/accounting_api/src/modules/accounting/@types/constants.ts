@@ -53,24 +53,35 @@ export const TR_SIDES = {
 };
 
 export const TR_STATUSES = {
+  // future level
   PLAN: 'plan',
-  PENDING: 'pending',
-  SYNCED: 'synced',
-  NEW: 'new',
-  REAL: 'real',
+  // conversation level
+  DRAFT: 'draft',
+  MENTIONED: 'mentioned',
+  APPROVED: 'approved',
+  REJECED: 'rejeced',
+  RETURNED: 'returned',
+  // business level
+  PROGRESS: 'progress',
+  ASSIGNED: 'assigned',
   CONFIRMED: 'confirmed',
+  CANELLED: 'canelled',
   COMPLETE: 'complete',
-  DELETED: 'deleted',
-  ACTIVE: ['synced', 'real', 'confirmed', 'complete'],
+
   ALL: [
     'plan',
-    'pending',
-    'synced',
-    'real',
+    'draft',
+    'mentioned',
+    'approved',
+    'rejeced',
+    'returned',
+    'progress',
+    'assigned',
     'confirmed',
+    'canelled',
     'complete',
-    'deleted',
   ],
+  ACTIVE: ['progress', 'assigned', 'confirmed', 'complete'],
 };
 
 export const PTR_STATUSES = {
@@ -159,7 +170,7 @@ export const JOURNALS = {
     'bank',
     'receivable',
     'payable',
-  ], 
+  ],
   SINGLES: [
     'main',
     'cash',
