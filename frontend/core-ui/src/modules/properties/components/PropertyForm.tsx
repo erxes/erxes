@@ -5,6 +5,7 @@ import {
   Input,
   Select,
   Spinner,
+  Switch,
   Textarea,
 } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
@@ -142,6 +143,23 @@ export const PropertyForm = ({
                   ))}
                 </Select.Content>
               </Select>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          name="isVisibleInDetail"
+          render={({ field }) => (
+            <Form.Item className="flex-auto">
+              <div className="flex items-center justify-between">
+                <Form.Label>Visible in detail</Form.Label>
+                <Form.Control>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </Form.Control>
+              </div>
               <Form.Message />
             </Form.Item>
           )}

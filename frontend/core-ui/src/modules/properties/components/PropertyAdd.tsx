@@ -47,6 +47,7 @@ export const AddProperty = () => {
           name: '',
           type: '',
           isSearchable: false,
+          isVisibleInDetail: true,
           description: '',
           code: '',
           validation: '',
