@@ -95,10 +95,10 @@ const addInventoryDiff = (
   const current = diffsByProductId[productId] || emptyInventoryDiff();
 
   diffsByProductId[productId] = {
-    diffCount: fixNum(current.diffCount + (diff.diffCount || 0), 4),
-    diffCost: fixNum(current.diffCost + (diff.diffCost || 0), 4),
-    diffSoonIn: fixNum(current.diffSoonIn + (diff.diffSoonIn || 0), 4),
-    diffSoonOut: fixNum(current.diffSoonOut + (diff.diffSoonOut || 0), 4),
+    diffCount: fixNum((current.diffCount ?? 0) + (diff.diffCount ?? 0), 6),
+    diffCost: fixNum((current.diffCost ?? 0) + (diff.diffCost ?? 0), 6),
+    diffSoonIn: fixNum((current.diffSoonIn ?? 0) + (diff.diffSoonIn ?? 0), 6),
+    diffSoonOut: fixNum((current.diffSoonOut ?? 0) + (diff.diffSoonOut ?? 0), 6),
   };
 };
 
