@@ -15,8 +15,8 @@ export const OpenLiveForm: FC<Props> = ({ formId, channelId }) => {
       target="_blank"
       to={`${REACT_APP_WIDGETS_URL}/live/${channelId}/${formId}`}
     >
-      <DropdownMenu.Item title="Open live code">
-        <IconExternalLink /> Open live code
+      <DropdownMenu.Item title="Open live form">
+        <IconExternalLink /> Open live form
       </DropdownMenu.Item>
     </Link>
   );

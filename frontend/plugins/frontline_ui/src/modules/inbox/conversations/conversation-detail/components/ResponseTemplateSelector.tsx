@@ -1,18 +1,8 @@
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
-import {
-  Popover,
-  Skeleton,
-  Button,
-  Command,
-  cn,
-} from 'erxes-ui';
+import { Popover, Skeleton, Button, Command, cn } from 'erxes-ui';
 import { useState, useMemo, ReactNode } from 'react';
 import { useDebounce } from 'use-debounce';
-import {
-  IconLayoutGrid,
-  IconList,
-  IconFilter,
-} from '@tabler/icons-react';
+import { IconLayoutGrid, IconList, IconFilter } from '@tabler/icons-react';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { IChannel } from '@/channels/types';
 import { getPreviewText } from '@/inbox/types/inbox';
@@ -114,6 +104,7 @@ export const ResponseTemplateSelector: React.FC<
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <Popover.Trigger asChild>{children}</Popover.Trigger>
 
+<<<<<<< HEAD
       {/* 
           Improved height handling for better accessibility on smaller screens 
           as suggested by Kimi-AI 
@@ -136,6 +127,22 @@ export const ResponseTemplateSelector: React.FC<
                   <ViewModeIcon />
                 </Button>
               </div>
+=======
+      <Popover.Content className="w-full max-w-md min-w-sm p-4 shadow-xl border">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between border-b pb-2">
+            <h3 className="font-semibold text-sm">Response Templates</h3>
+            <div className="flex items-center space-x-2">
+              <Button
+                onClick={toggleViewMode}
+                variant={'ghost'}
+                size="icon"
+                className="h-8 w-8 rounded hover:bg-muted"
+                title={getViewModeTitle(viewMode)}
+              >
+                <ViewModeIcon />
+              </Button>
+>>>>>>> 2dbfc091c8 (Frontline/chore - Form widget dialog height and response templates width optimization )
             </div>
 
             <div className="space-y-2">
@@ -152,6 +159,7 @@ export const ResponseTemplateSelector: React.FC<
             </div>
           </div>
 
+<<<<<<< HEAD
           <div className="flex-1 overflow-y-auto p-4">
             <Command className="border-none shadow-none">
               <Command.Input
@@ -223,6 +231,76 @@ export const ResponseTemplateSelector: React.FC<
                           <div className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-snug">
                             {getPreviewText(template.content)}
                           </div>
+=======
+          <Command className="border rounded-md shadow-sm">
+            <Command.Input
+              variant="secondary"
+              focusOnMount
+              placeholder="Search templates..."
+              value={search}
+              onValueChange={setSearch}
+            />
+            <Command.List
+              className={cn(
+                'mt-2 max-h-72 overflow-y-auto pr-1',
+                viewMode === 'grid'
+                  ? '[&_div[cmdk-list-sizer]]:grid [&_div[cmdk-list-sizer]]:grid-cols-2 [&_div[cmdk-list-sizer]]:gap-2'
+                  : 'space-y-1.5',
+              )}
+            >
+              {filteredTemplates.length === 0 ? (
+                <div className="col-span-2 p-8 text-center text-muted-foreground text-sm italic">
+                  {search
+                    ? 'No matching templates found'
+                    : 'No templates available'}
+                </div>
+              ) : (
+                filteredTemplates.map((template) => (
+                  <div
+                    key={template._id}
+                    className={cn(
+                      viewMode === 'grid'
+                        ? 'h-32 col-span-1'
+                        : 'col-span-2 h-auto',
+                    )}
+                  >
+                    <Command.Item
+                      value={template._id}
+                      onSelect={() => handleSelectTemplate(template.content)}
+                      className={cn(
+                        'flex rounded border border-transparent transition-all cursor-pointer h-full gap-2',
+                        'hover:border-primary/20 hover:bg-accent/50',
+                        {
+                          'flex-row items-center p-2.5': viewMode === 'list',
+                          'flex-col items-start p-3': viewMode === 'grid',
+                        },
+                      )}
+                    >
+                      {template.channelId && (
+                        <div
+                          className={cn(
+                            'text-[11px] text-primary shrink bg-primary/10 px-1.5 py-0.5 rounded font-medium',
+                            {
+                              'mb-1 order-first': viewMode === 'grid',
+                              'ml-auto order-last': viewMode === 'list',
+                            },
+                          )}
+                        >
+                          <ChannelsInline
+                            showIcon={true}
+                            channelIds={[template.channelId]}
+                          />
+                        </div>
+                      )}
+
+                      <div
+                        className={cn('min-w-0 flex-1', {
+                          'basis-1/3': viewMode === 'list',
+                        })}
+                      >
+                        <div className="font-semibold text-sm truncate leading-tight">
+                          {template.name}
+>>>>>>> 2dbfc091c8 (Frontline/chore - Form widget dialog height and response templates width optimization )
                         </div>
                       </Command.Item>
                     </div>
