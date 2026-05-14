@@ -1,7 +1,8 @@
 import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
 import { erxesMessengerSetupStepAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { Button, Sheet } from 'erxes-ui';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupResetState';
 
 export const EMLayout = ({
   children,
@@ -13,6 +14,12 @@ export const EMLayout = ({
   title: string;
 }) => {
   const step = useAtomValue(erxesMessengerSetupStepAtom);
+  const resetErxesMessengerSetup = useSetAtom(resetErxesMessengerSetupAtom);
+
+  const handleCancel = () => {
+    resetErxesMessengerSetup();
+  };
+
   return (
     <>
       <Sheet.Content className="grow overflow-hidden flex flex-col">
@@ -25,7 +32,11 @@ export const EMLayout = ({
         {children}
       </Sheet.Content>
       <Sheet.Footer>
-        <Button variant="secondary" className="mr-auto bg-border">
+        <Button
+          variant="secondary"
+          className="mr-auto bg-border"
+          onClick={handleCancel}
+        >
           Cancel
         </Button>
         {actions}
@@ -39,7 +50,7 @@ export const EMLayoutPreviousStepButton = () => {
   return (
     <Button
       variant="secondary"
-      className="mr-auto bg-border"
+      className="bg-border ml-auto"
       disabled={step === 1}
       onClick={() => setStep(step - 1)}
     >

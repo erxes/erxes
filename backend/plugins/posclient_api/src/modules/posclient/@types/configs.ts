@@ -13,13 +13,14 @@ export interface IEbarimtConfig {
 
   hasVat: boolean;
   hasCitytax: boolean;
-  defaultGSCode: string;
+  defaultUnitedCode: string;
   vatPercent: number;
   cityTaxPercent: number;
   reverseVatRules?: string[];
   reverseCtaxRules?: string[];
   footerText?: string;
   hasCopy: boolean;
+  isCleanTaxPrice?: boolean;
 }
 
 interface IConfigColors {

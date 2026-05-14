@@ -2,6 +2,7 @@ import { IconChevronRight, IconLanguage } from '@tabler/icons-react';
 import { DropdownMenu } from 'erxes-ui';
 import { INTL_LANGUAGES } from 'erxes-ui/constants/IntlLanguages';
 import { AvailableLanguage, useSwitchLanguage } from '~/i18n';
+import { useTranslation } from 'react-i18next';
 
 export const SelectLanguages = () => {
   const { currentLanguage, languages, switchLanguage } = useSwitchLanguage();
@@ -13,11 +14,12 @@ export const SelectLanguages = () => {
       )?.[0] || language
     );
   };
+  const { t } = useTranslation('organization');
 
   return (
     <DropdownMenu.Sub>
       <DropdownMenu.SubTrigger>
-        Change Language
+        {t('change-language')}
         <IconChevronRight className="ml-auto" />
       </DropdownMenu.SubTrigger>
       <DropdownMenu.Portal>

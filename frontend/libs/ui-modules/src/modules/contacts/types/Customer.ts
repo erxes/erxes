@@ -30,12 +30,14 @@ export interface ICustomer extends ICustomerInline {
   };
   sex?: SexCode;
   owner?: IUser;
+  propertiesData?: Record<string, unknown>;
 }
 
 export interface ICustomerDetail extends ICustomer {
   companies?: ICompany[];
   position?: string;
   department?: string;
+  state?: string;
 }
 
 export enum CustomerType {

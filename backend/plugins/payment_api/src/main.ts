@@ -4,13 +4,14 @@ import path from 'path';
 import { typeDefs } from '~/apollo/typeDefs';
 import { appRouter } from '~/trpc/init-trpc';
 import resolvers from './apollo/resolvers';
-import { generateModels } from './connectionResolvers';
+import { generateModels } from '~/connectionResolvers';
 import { PAYMENTS } from '~/constants';
 import { callbackHandler } from '~/apis/controller';
+import { initPaymentsWorker } from './workers/payments';
 
 startPlugin({
   name: 'payment',
-  port: 33010,
+  port: 3310,
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers,
@@ -24,7 +25,7 @@ startPlugin({
       : 'subscription.ts',
   ),
   apolloServerContext: async (subdomain, context) => {
-    const models = await generateModels(subdomain);
+    const models = await generateModels(subdomain, context);
 
     context.models = models;
     context.subdomain = subdomain;
@@ -69,5 +70,7 @@ startPlugin({
     app.get('/widget/*', (req, res) => {
       res.sendFile(path.join(__dirname, '/public/widget/index.html'));
     });
+
+    initPaymentsWorker();
   },
 });

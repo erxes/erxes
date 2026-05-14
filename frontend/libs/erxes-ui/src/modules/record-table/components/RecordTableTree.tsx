@@ -1,14 +1,13 @@
-import { useEffect } from 'react';
+import { IconCaretDownFilled } from '@tabler/icons-react';
+import { Button, ButtonProps } from 'erxes-ui/components';
+import { cn } from 'erxes-ui/lib';
+import { fixOrder } from 'erxes-ui/utils/fixOrder';
 import { useSetAtom } from 'jotai';
+import React, { useEffect } from 'react';
 import { RecordTableTreeContext } from '../contexts/RecordTableTreeContext';
+import { useRecordTableTree } from '../hooks/useRecordTableTree';
 import { recordTableTreeHideChildrenAtomFamily } from '../states/RecordTableTreeState';
 import { IRecordTableTreeContext } from '../types/RecordTableTreeTypes';
-import { useRecordTableTree } from '../hooks/useRecordTableTree';
-import { fixOrder } from 'erxes-ui/utils/fixOrder';
-import React from 'react';
-import { Button, ButtonProps } from 'erxes-ui/components';
-import { IconCaretDownFilled } from '@tabler/icons-react';
-import { cn } from 'erxes-ui/lib';
 import { RecordTableRow } from './RecordTableRow';
 
 const RecordTableTreeProvider = ({
@@ -22,7 +21,7 @@ const RecordTableTreeProvider = ({
   );
 
   useEffect(() => {
-    setHideChildrenState([]);
+    setHideChildrenState((prev) => (prev.length > 0 ? [] : prev));
   }, [length, setHideChildrenState]);
 
   return (
@@ -73,7 +72,7 @@ RecordTableTreeRow.displayName = 'RecordTableTreeRow';
 const RecordTableTreeArrow = React.forwardRef<
   HTMLButtonElement,
   ButtonProps & { order: string; hasChildren: boolean }
->(({ order, hasChildren, className, ...props }, ref) => {
+>(({ order, hasChildren, className }, ref) => {
   const { toggleHideChildren, isHidden } = useRecordTableTree(order);
 
   if (!hasChildren) {

@@ -16,6 +16,12 @@ export const productCategorySchema = schemaWrapper(
       parentId: { type: String, optional: true, label: 'Parent' },
       description: { type: String, optional: true, label: 'Description' },
       meta: { type: String, optional: true, label: 'Meta' },
+      scopeBrandIds: {
+        type: [String],
+        optional: true,
+        label: 'Scope Brand Ids',
+        index: true,
+      },
       attachment: { type: attachmentSchema },
       status: {
         type: String,

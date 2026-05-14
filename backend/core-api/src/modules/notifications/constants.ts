@@ -6,11 +6,22 @@ export const CORE_NOTIFICATION_MODULES = [
         name: 'structure',
         description: 'Structure',
         icon: 'IconBuilding',
-        types: [
-          { name: 'branchAssigneeChanged', text: 'Branch assignee changed' },
+        events: [
+          {
+            name: 'branchAssigneeChanged',
+            title: 'Branch assignee changed',
+            description: 'Triggered when the assignee of a branch is changed',
+          },
           {
             name: 'departmentAssigneeChanged',
-            text: 'Department assignee changed',
+            title: 'Department assignee changed',
+            description:
+              'Triggered when the assignee of a department is changed',
+          },
+          {
+            name: 'positionAssigneeChanged',
+            title: 'Position assignee changed',
+            description: 'Triggered when the assignee of a position is changed',
           },
         ],
       },

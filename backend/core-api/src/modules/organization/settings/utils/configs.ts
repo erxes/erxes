@@ -1,7 +1,7 @@
 import { getEnv } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
-export const getConfigs = async (models) => {
+export const getConfigs = async (models: IModels) => {
   const configsMap = {};
   const configs = await models.Configs.find({}).lean();
 

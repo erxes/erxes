@@ -10,6 +10,8 @@ export type IJobData = {
   payload: any;
   userId?: string;
   processId?: string;
+  docIds?: string[];
+  docId?: string;
 };
 
 export type AfterProcessProps = {

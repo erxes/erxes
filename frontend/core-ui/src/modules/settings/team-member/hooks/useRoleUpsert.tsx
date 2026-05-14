@@ -9,7 +9,7 @@ export const useRoleUpsert = () => {
       ...options,
       variables,
       onCompleted: (data) => {
-        toast({ title: 'Role has been updated', variant: 'default' });
+        toast({ title: 'Role has been updated', variant: 'success' });
         options?.onCompleted?.(data);
       },
       onError: (error) => {

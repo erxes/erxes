@@ -1,7 +1,6 @@
+import { Badge, cn } from 'erxes-ui';
 import { useMessenger } from '../hooks/useMessenger';
 import { IHeaderItem } from '../types';
-import { Badge } from 'erxes-ui';
-import { cn } from 'erxes-ui';
 
 export function HeaderItem({ title, Icon, value, disabled }: IHeaderItem) {
   const { switchToTab } = useMessenger();

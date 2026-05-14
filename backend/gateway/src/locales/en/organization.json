@@ -1,0 +1,10 @@
+{
+    "settings" : "Settings",
+    "change-theme" : "Change Theme",
+    "change-language" : "Change Language",
+    "logout" : "Logout",
+    "dark" : "Dark",
+    "light" : "Light",
+    "system" : "System",
+    "version" : "Version"
+}

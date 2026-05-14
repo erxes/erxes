@@ -8,6 +8,7 @@ import {
   RecordTable,
 } from 'erxes-ui';
 import { useRemoveBranch } from '../../hooks/useBranchActions';
+import { Can } from 'ui-modules';
 
 export const BranchesCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -43,10 +44,12 @@ export const BranchesCommandBar = () => {
           {table.getFilteredSelectedRowModel().rows.length} selected
         </CommandBar.Value>
         <Separator.Inline />
-        <Button variant="secondary" onClick={onRemove}>
-          <IconTrash />
-          Delete
-        </Button>
+        <Can action="branchesManage">
+          <Button variant="secondary" onClick={onRemove}>
+            <IconTrash />
+            Delete
+          </Button>
+        </Can>
       </CommandBar.Bar>
     </CommandBar>
   );

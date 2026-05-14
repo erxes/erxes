@@ -2,6 +2,8 @@ import {
   ADD_DEALS,
   DEALS_ARCHIVE,
   DEALS_CHANGE,
+  DEALS_COPY,
+  DEALS_WATCH,
   EDIT_DEALS,
   REMOVE_DEALS,
 } from '@/deals/graphql/mutations/DealsMutations';
@@ -24,18 +26,28 @@ import {
   useQuery,
 } from '@apollo/client';
 import { useAtom, useAtomValue } from 'jotai';
+import { useEffect, useMemo } from 'react';
 
-import { DEAL_LIST_CHANGED } from '~/modules/deals/graphql/subscriptions/dealListChange';
+import { DEAL_LIST_CHANGED } from '@/deals/graphql/subscriptions/dealListChange';
 import { IDeal } from '@/deals/types/deals';
+import { PRODUCTS_DATA_CHANGED } from '@/deals/graphql/subscriptions/productsSubscriptions';
 import { currentUserState } from 'ui-modules';
 import { dealCreateDefaultValuesState } from '@/deals/states/dealCreateSheetState';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
-import { useEffect } from 'react';
 
 interface IDealChanged {
   salesDealListChanged: {
     action: string;
     deal: IDeal;
+  };
+}
+
+interface ISalesProductsDataChangedPayload {
+  salesProductsDataChanged: {
+    _id: string;
+    processId: string;
+    action: string;
+    data: any;
   };
 }
 
@@ -66,16 +78,26 @@ export const useDeals = (
 
   const { list: deals, pageInfo, totalCount } = data?.deals || {};
 
+  const subscriptionVars = useMemo(
+    () => ({
+      pipelineId: lastPipelineId,
+      userId: currentUser?._id,
+      filter: options?.variables,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [lastPipelineId, currentUser?._id, JSON.stringify(options?.variables)],
+  );
+
   useEffect(() => {
+    if (!currentUser?._id) return;
+
     const unsubscribe = subscribeToMore<IDealChanged>({
       document: DEAL_LIST_CHANGED,
-      variables: {
-        pipelineId: lastPipelineId,
-        userId: currentUser?._id,
-        filter: options?.variables,
-      },
+      variables: subscriptionVars,
+
       updateQuery: (prev, { subscriptionData }) => {
         if (!prev || !subscriptionData.data) return prev;
+        if (!prev.deals?.list) return prev;
 
         const { action, deal } = subscriptionData.data.salesDealListChanged;
         const currentList = prev.deals.list;
@@ -87,7 +109,9 @@ export const useDeals = (
             (item: IDeal) => item._id === deal._id,
           );
           if (!exists) {
-            updatedList = [deal, ...currentList];
+            const merged = [...currentList, deal];
+            merged.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+            updatedList = merged;
           }
         }
 
@@ -95,14 +119,14 @@ export const useDeals = (
           updatedList = currentList.map((item: IDeal) =>
             item._id === deal._id ? { ...item, ...deal } : item,
           );
+          updatedList.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
         }
 
         if (action === 'remove') {
           updatedList = currentList.filter(
-            (item: IDeal) => item._id !== deal._id,
+            (item: IDeal) => item._id !== deal?._id,
           );
         }
-
         return {
           ...prev,
           deals: {
@@ -122,7 +146,7 @@ export const useDeals = (
 
     return unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [options?.variables]);
+  }, [subscribeToMore, subscriptionVars]);
 
   const handleFetchMore = ({
     direction,
@@ -171,19 +195,47 @@ export const useDealDetail = (
   const [activeDealId] = useAtom(dealDetailSheetState);
   const [salesItemId] = useQueryState('salesItemId');
 
-  const { data, loading, error } = useQuery<{ dealDetail: IDeal }>(
-    GET_DEAL_DETAIL,
-    {
-      ...options,
-      variables: {
-        ...options?.variables,
-        _id: salesItemId || activeDealId,
-      },
-      skip: !activeDealId && !salesItemId,
-    },
-  );
+  const passedId = options?.variables?._id;
+  const finalId = passedId || salesItemId || activeDealId;
 
-  return { deal: data?.dealDetail, loading, error };
+  const { data, loading, error, subscribeToMore, refetch } = useQuery<{
+    dealDetail: IDeal;
+  }>(GET_DEAL_DETAIL, {
+    ...options,
+    variables: {
+      ...options?.variables,
+      _id: finalId,
+    },
+    skip: !finalId,
+  });
+
+  useEffect(() => {
+    if (!salesItemId) return;
+
+    const unsubscribe = subscribeToMore<ISalesProductsDataChangedPayload>({
+      document: PRODUCTS_DATA_CHANGED,
+      variables: { _id: salesItemId },
+      updateQuery: (prev, { subscriptionData }) => {
+        const payload = subscriptionData?.data?.salesProductsDataChanged;
+        if (!payload) return prev;
+
+        const { processId } = payload;
+
+        if (processId === localStorage.getItem('processId')) {
+          return prev;
+        }
+
+        refetch();
+
+        return prev;
+      },
+    });
+
+    return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [salesItemId]);
+
+  return { deal: data?.dealDetail, loading, error, refetch };
 };
 
 export function useDealsEdit(options?: MutationHookOptions<any, any>) {
@@ -209,7 +261,7 @@ export function useDealsEdit(options?: MutationHookOptions<any, any>) {
     onCompleted: (...args) => {
       toast({
         title: 'Successfully updated a deal',
-        variant: 'default',
+        variant: 'success',
       });
       options?.onCompleted?.(...args);
     },
@@ -238,6 +290,7 @@ export function useDealsAdd(options?: MutationHookOptions<any, any>) {
     variables: {
       ...options?.variables,
       _id,
+      aboveItemId: '',
       stageId: defaultValues?.stageId,
     },
     awaitRefetchQueries: true,
@@ -358,6 +411,71 @@ export function useDealsArchive(options?: MutationHookOptions<any, any>) {
 
   return {
     archiveDeals,
+    loading,
+    error,
+  };
+}
+export function useDealsCopy(options?: MutationHookOptions<any, any>) {
+  const [_id] = useAtom(dealDetailSheetState);
+
+  const [copyDeals, { loading, error }] = useMutation(DEALS_COPY, {
+    ...options,
+    variables: {
+      ...options?.variables,
+      _id,
+    },
+    awaitRefetchQueries: true,
+    onCompleted: (...args) => {
+      toast({
+        title: 'Successfully copied a deal',
+        variant: 'default',
+      });
+      options?.onCompleted?.(...args);
+    },
+    onError: (err) => {
+      toast({
+        title: 'Error',
+        description: err.message || 'Update failed',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  return {
+    copyDeals,
+    loading,
+    error,
+  };
+}
+
+export function useDealsWatch(options?: MutationHookOptions<any, any>) {
+  const [_id] = useAtom(dealDetailSheetState);
+
+  const [watchDeals, { loading, error }] = useMutation(DEALS_WATCH, {
+    ...options,
+    variables: {
+      ...options?.variables,
+      _id,
+    },
+    awaitRefetchQueries: true,
+    onCompleted: (...args) => {
+      toast({
+        title: 'Successfully updated watch status',
+        variant: 'default',
+      });
+      options?.onCompleted?.(...args);
+    },
+    onError: (err) => {
+      toast({
+        title: 'Error',
+        description: err.message || 'Update failed',
+        variant: 'destructive',
+      });
+    },
+  });
+
+  return {
+    watchDeals,
     loading,
     error,
   };

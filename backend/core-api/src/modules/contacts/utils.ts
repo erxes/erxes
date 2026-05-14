@@ -33,7 +33,18 @@ export const generateFilter = async (
   }
 
   if (searchValue) {
-    filter['searchText'] = { $regex: searchValue, $options: 'i' };
+    const regex = { $regex: searchValue, $options: 'i' };
+
+    filter['$or'] = [
+      { searchText: regex },
+      { primaryEmail: regex },
+      { emails: regex },
+      { primaryPhone: regex },
+      { phones: regex },
+      { firstName: regex },
+      { lastName: regex },
+      { middleName: regex },
+    ];
   }
 
   if (ids?.length) {
@@ -185,3 +196,50 @@ export const findIntegrations = (subdomain: string, query, options?) =>
     defaultValue: [],
     options,
   });
+
+export const customersCount = async ({
+  models,
+  subdomain,
+  type,
+}: {
+  models: IModels;
+  subdomain: string;
+  type: string;
+}) => {
+  const counts = {};
+
+  switch (type) {
+    case 'tag':
+      const tagIds = await models.Tags.find({ type: 'core:customer' }).distinct(
+        '_id',
+      );
+
+      for (const tagId of tagIds) {
+        counts[tagId] = await models.Customers.countDocuments({
+          tagIds: tagId,
+        });
+      }
+
+      break;
+    case 'brand':
+      const brandIds = await models.Brands.find({}).distinct('_id');
+
+      const integrations = await findIntegrations(subdomain, {
+        brandId: { $in: brandIds },
+      });
+
+      for (const integration of integrations) {
+        if (!integration.brandId) {
+          continue;
+        }
+
+        counts[integration.brandId] = await models.Customers.countDocuments({
+          relatedIntegrationIds: integration._id,
+        });
+      }
+
+      break;
+  }
+
+  return counts;
+};

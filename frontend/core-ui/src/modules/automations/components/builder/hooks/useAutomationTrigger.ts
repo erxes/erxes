@@ -1,13 +1,17 @@
-import { getContentType } from '@/automations/utils/automationBuilderUtils';
-import { TAutomationBuilderForm } from '@/automations/utils/AutomationFormDefinitions';
-import { useWatch } from 'react-hook-form';
+import { useAutomation } from '@/automations/context/AutomationProvider';
+import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
+import { getTriggerOfAction } from '@/automations/utils/automationBuilderUtils/triggerUtils';
 
 export const useAutomationTrigger = (currentActionId: string) => {
-  const [actions = [], triggers = []] = useWatch<TAutomationBuilderForm>({
-    name: ['actions', 'triggers'],
-  });
+  const { actionFolks } = useAutomation();
+  const { actions, triggers } = useAutomationNodes();
 
-  const trigger = getContentType(currentActionId, actions, triggers);
+  const trigger = getTriggerOfAction(
+    currentActionId,
+    actions,
+    triggers,
+    actionFolks,
+  );
 
   return {
     trigger,

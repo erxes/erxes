@@ -12,7 +12,7 @@ import {
   IconMail,
 } from '@tabler/icons-react';
 import { WelcomeMessageBackground } from './WelcomeMessageBackground';
-import { currentUserState } from 'ui-modules/states';
+import { currentUserState, currentOrganizationState } from 'ui-modules/states';
 import { useAtomValue } from 'jotai';
 import { Button, cn } from 'erxes-ui';
 import { motion } from 'framer-motion';
@@ -148,10 +148,10 @@ const OnboardingStepsSection = ({
         <div className="p-[10px] rounded-md text-primary bg-primary/10 w-min">
           {item.icon}
         </div>
-        <h3 className="font-semibold text-primary text-lg break-words">
+        <h3 className="font-semibold text-primary text-lg wrap-break-word">
           {item.title}
         </h3>
-        <p className="text-base text-muted-foreground break-words flex-1">
+        <p className="text-base text-muted-foreground wrap-break-word flex-1">
           {item.description}
         </p>
       </div>
@@ -163,14 +163,14 @@ const OnboardingStepsSection = ({
           className="self-start mt-auto"
         >
           <Link to={item.action.to} className="hover:bg-background">
-            <span className="text-primary font-semibold text-base flex items-center gap-1 break-words">
+            <span className="text-primary font-semibold text-base flex items-center gap-1 wrap-break-word">
               <span className="truncate">{item.action.label}</span>
-              <IconArrowRight className="size-4 flex-shrink-0" />
+              <IconArrowRight className="size-4 shrink-0" />
             </span>
           </Link>
         </Button>
       ) : (
-        <span className="text-muted-foreground/70 font-semibold text-base flex items-center gap-1 break-words truncate ">
+        <span className="text-muted-foreground/70 font-semibold text-base flex items-center gap-1 wrap-break-word truncate ">
           {item.action.label}
         </span>
       )}
@@ -395,6 +395,7 @@ export const WelcomeNotificationContentLayout = ({
   isPlugin?: boolean;
 }) => {
   const currentUser = useAtomValue(currentUserState);
+  const organization = useAtomValue(currentOrganizationState);
 
   return (
     <div className="container px-4 sm:px-8 md:px-20 py-12 lg:px-4 xl:px-12 relative">
@@ -417,29 +418,46 @@ export const WelcomeNotificationContentLayout = ({
               isPlugin ? 'text-foreground' : 'text-primary',
             )}
           >
-            {title}
+            {organization?.orgCustomOnboarding
+              ? `Welcome to ${organization?.orgShortName}`
+              : title}
           </h1>
-          <p className="text-base text-muted-foreground">{description}</p>
+          <p className="text-base text-muted-foreground">
+            {organization?.orgCustomOnboarding
+              ? organization?.orgShortDescription
+              : description}
+          </p>
         </motion.div>
-
-        <div className="space-y-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.6 }}
-          >
-            <VideoPlayerWithTabs
-              src={videoSrc}
-              tabItems={tabItems}
-              poster={videoPoster}
+        {organization?.orgCustomOnboarding && (
+          <div className="space-y-8 relative z-10">
+            <img
+              src={organization?.orgLogo}
+              alt="Organization Logo"
+              className="w-full h-auto mx-auto"
             />
-          </motion.div>
-          <OnboardingStepsSection
-            isOwner={currentUser?.isOwner || false}
-            onboardingSteps={onboardingSteps}
-          />
-          <SocialSection />
-        </div>
+          </div>
+        )}
+
+        {!organization?.orgCustomOnboarding && (
+          <div className="space-y-8 relative z-10">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.6 }}
+            >
+              <VideoPlayerWithTabs
+                src={videoSrc}
+                tabItems={tabItems}
+                poster={videoPoster}
+              />
+            </motion.div>
+            <OnboardingStepsSection
+              isOwner={currentUser?.isOwner || false}
+              onboardingSteps={onboardingSteps}
+            />
+            <SocialSection />
+          </div>
+        )}
       </motion.div>
     </div>
   );

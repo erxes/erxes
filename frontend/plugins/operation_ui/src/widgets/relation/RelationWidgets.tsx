@@ -17,11 +17,18 @@ export const RelationWidgets = ({
   module,
   contentId,
   contentType,
+  customerId,
+  companyId,
 }: IRelationWidgetProps) => {
   return (
     <Suspense>
       {module === 'tasks' ? (
-        <Task contentId={contentId} contentType={contentType} />
+        <Task
+          contentId={contentId}
+          contentType={contentType}
+          customerId={customerId}
+          companyId={companyId}
+        />
       ) : (
         <ProjectWidget contentId={contentId} contentType={contentType} />
       )}

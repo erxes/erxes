@@ -22,11 +22,18 @@ import {
   types as UomTypes,
 } from './uom';
 
+import {
+  mutations as RuleMutations,
+  queries as RuleQueries,
+  types as RuleTypes,
+} from './rule';
+
 export const types = `
   ${CategoryTypes}
   ${ProductTypes}
   ${ConfigTypes}
   ${UomTypes}
+  ${RuleTypes}
 `;
 
 export const queries = `
@@ -34,6 +41,7 @@ export const queries = `
   ${ProductQueries}
   ${ConfigQueries}
   ${UomQueries}
+  ${RuleQueries}
 `;
 
 export const mutations = `
@@ -41,4 +49,5 @@ export const mutations = `
   ${ProductMutations}
   ${ConfigMutations}
   ${UomMutations}
+  ${RuleMutations}
 `;

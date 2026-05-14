@@ -49,7 +49,7 @@ export const PhoneVerificationInput = ({
         )}
       >
         <IconComponent
-          className={cn('!block', currentStatus?.className)}
+          className={cn('block!', currentStatus?.className)}
           size={16}
         />
       </Select.Trigger>

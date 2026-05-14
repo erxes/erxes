@@ -107,6 +107,7 @@ const SelectTeamMemberContent = () => {
 const SelectAssigneeFilterView = () => {
   const [assignee, setAssignee] = useQueryState<string>('assignee');
   const { resetFilterState } = useFilterContext();
+
   return (
     <Filter.View filterKey="assignee">
       <SelectAssigneeProvider
@@ -158,11 +159,13 @@ const SelectAssigneeTicketRoot = ({
   value,
   variant,
   id,
+  disabled,
 }: {
   value: string;
   scope?: string;
   variant: `${SelectTriggerVariant}`;
   id?: string;
+  disabled?: boolean;
 }) => {
   const { updateTicket } = useUpdateTicket();
   const [open, setOpen] = useState(false);
@@ -187,7 +190,10 @@ const SelectAssigneeTicketRoot = ({
       allowUnassigned
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerTicket variant={variant === 'card' ? 'icon' : variant}>
+        <SelectTriggerTicket
+          variant={variant === 'card' ? 'icon' : variant}
+          disabled={disabled}
+        >
           <SelectAssigneeValue variant={variant} />
         </SelectTriggerTicket>
         <SelectTicketContent variant={variant}>

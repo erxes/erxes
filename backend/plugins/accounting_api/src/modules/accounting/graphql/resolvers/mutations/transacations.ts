@@ -1,51 +1,67 @@
-import { IContext } from "~/connectionResolvers";
-import { ITransaction } from "@/accounting/@types/transaction";
+import { IContext } from '~/connectionResolvers';
+import { ITransaction } from '@/accounting/@types/transaction';
 
 const transactionsMutations = {
-  async accTransactionsLink(_root, doc: { ids: string[], ptrId: string }, { user, models }) {
+  async accTransactionsLink(
+    _root,
+    doc: { ids: string[]; ptrId: string },
+    { user, models, checkPermission }: IContext,
+  ) {
+    await checkPermission('linkTransactions'); 
     const { ids, ptrId } = doc;
-    return await models.Transactions.linkTransaction(ids, ptrId)
+    return await models.Transactions.linkTransaction(ids, ptrId);
   },
   /**
-   * Creates a new account category
-   * @param {Object} doc Account category document
+   * Creates a new perfect transaction form
    */
   async accTransactionsCreate(
     _root,
     { trDocs }: { trDocs: ITransaction[] },
-    { user, models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
-
-    const transactions = await models.Transactions.createPTransaction(trDocs, user);
+    await checkPermission('manageTransactions')
+    const transactions = await models.Transactions.createPTransaction(
+      trDocs,
+      user._id,
+    );
 
     return transactions;
   },
 
   /**
-   * Edits a account category
-   * @param {string} param2._id VatRow id
-   * @param {Object} param2.doc VatRow info
+   * Edits a perfect transaction form
    */
   async accTransactionsUpdate(
     _root,
-    { parentId, trDocs }: { parentId: string, trDocs: (ITransaction & { _id?: string })[] },
-    { user, models }: IContext,
+    {
+      parentId,
+      trDocs,
+    }: { parentId: string; trDocs: (ITransaction & { _id?: string })[] },
+    { user, models, checkPermission }: IContext,
   ) {
-    const transactions = await models.Transactions.updatePTransaction(parentId, trDocs, user);
+    await checkPermission('manageTransactions');
+    const transactions = await models.Transactions.updatePTransaction(
+      parentId,
+      trDocs,
+      user._id,
+    );
 
     return transactions;
   },
 
   /**
-   * Removes a account category
-   * @param {string} param1._id VatRow id
+   * Removes a transactions of parent
    */
   async accTransactionsRemove(
     _root,
-    { parentId, ptrId }: { parentId: string, ptrId: string },
-    { models }: IContext,
+    { parentId, ptrId }: { parentId: string; ptrId: string },
+    { models, checkPermission }: IContext,
   ) {
-    const removed = await models.Transactions.removePTransaction(parentId, ptrId);
+    await checkPermission('removeTransactions');
+    const removed = await models.Transactions.removePTransaction({
+      parentId,
+      ptrId,
+    });
 
     return removed;
   },

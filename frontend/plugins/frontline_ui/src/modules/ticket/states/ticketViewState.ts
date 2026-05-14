@@ -1,3 +1,10 @@
-import {atom} from 'jotai';
+import { atomWithStorage } from 'jotai/utils';
 
-export const ticketsViewAtom = atom<'list' | 'kanban'>('list');
+export const ticketViewAtom = atomWithStorage<'list' | 'grid'>(
+  'ticketView',
+  'list',
+  undefined,
+  {
+    getOnInit: true,
+  },
+);

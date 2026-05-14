@@ -26,6 +26,10 @@ const GET_CONVERSATION_DETAIL = gql`
         _id
         conversationId
         customerId
+        attachments {
+          name
+          url
+        }
         user {
           _id
           details {

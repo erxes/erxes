@@ -1,9 +1,9 @@
 import { AUTOMATION_EXECUTION_STATUS } from 'erxes-api-shared/core-modules';
-import { IModels } from '@/connectionResolver';
-import { debugError } from '@/debuuger';
-import { executeActions } from '@/executions/executeActions';
-import { IAutomationWaitingActionDocument } from '@/mongo/waitingActionsToExecute';
-import { getActionsMap } from '@/utils/utils';
+import { IModels } from '../connectionResolver';
+import { debugError } from '../debugger';
+import { executeActions } from './executeActions';
+import { IAutomationWaitingActionDocument } from '../mongo/waitingActionsToExecute';
+import { getActionsMap } from '../utils/utils';
 
 export const executeWaitingAction = async (
   subdomain: string,

@@ -1,5 +1,6 @@
-import { nanoid } from 'nanoid';
+import { IUserDocument } from 'erxes-api-shared/core-types';
 import { Model, Query } from 'mongoose';
+import { nanoid } from 'nanoid';
 import validator from 'validator';
 import { IModels } from '~/connectionResolvers';
 import {
@@ -153,18 +154,21 @@ export const loadFormClass = (models: IModels) => {
       const fields = await models.Fields.find({ contentTypeId: _id });
 
       for (const field of fields) {
-        await models.Fields.createField({
-          contentType: 'form',
-          contentTypeId: newForm._id,
-          type: field.type,
-          validation: field.validation,
-          text: field.text,
-          description: field.description,
-          options: field.options,
-          isRequired: field.isRequired,
-          order: field.order,
-          optionsValues: field?.optionsValues,
-        });
+        await models.Fields.createField(
+          {
+            contentType: 'form',
+            contentTypeId: newForm._id,
+            type: field.type,
+            logics: field.logics,
+            validations: field.validations,
+            options: field.options,
+            order: field.order,
+            name: field.name,
+            code: field.code,
+            groupId: field.groupId,
+          },
+          { _id: userId } as IUserDocument,
+        );
       }
 
       return newForm;
@@ -190,7 +194,7 @@ export const loadFormClass = (models: IModels) => {
       formId: string,
       submissions: ISubmission[],
     ) {
-      const fields = await models.Fields.find({ contentTypeId: formId });
+      const fields = await models.Fields.find({ contentTypeId: formId }).lean();
       const errors: Array<{ fieldId: string; code: string; text: string }> = [];
 
       for (const field of fields) {
@@ -203,12 +207,12 @@ export const loadFormClass = (models: IModels) => {
 
         const value = submission.value || '';
 
-        const { type, validation } = field || {};
+        const { type, validations } = field || {};
 
         // required
-        if (field.isRequired && !value) {
+        if (validations.isRequired && !value) {
           errors.push({
-            fieldId: field._id,
+            fieldId: field._id.toString(),
             code: 'required',
             text: 'Required',
           });
@@ -217,11 +221,11 @@ export const loadFormClass = (models: IModels) => {
         if (value) {
           // email
           if (
-            (type === 'email' || validation === 'email') &&
+            (type === 'email' || validations.email) &&
             !validator.isEmail(value)
           ) {
             errors.push({
-              fieldId: field._id,
+              fieldId: field._id.toString(),
               code: 'invalidEmail',
               text: 'Invalid email',
             });
@@ -229,44 +233,41 @@ export const loadFormClass = (models: IModels) => {
 
           // phone
           if (
-            (type === 'phone' || validation === 'phone') &&
+            (type === 'phone' || validations.phone) &&
             !/^\d{8,}$/.test(value.replace(/[\s()+\-\.]|ext/gi, ''))
           ) {
             errors.push({
-              fieldId: field._id,
+              fieldId: field._id.toString(),
               code: 'invalidPhone',
               text: 'Invalid phone',
             });
           }
 
           // number
-          if (
-            validation === 'number' &&
-            !validator.isNumeric(value.toString())
-          ) {
+          if (validations.number && !validator.isNumeric(value.toString())) {
             errors.push({
-              fieldId: field._id,
+              fieldId: field._id.toString(),
               code: 'invalidNumber',
               text: 'Invalid number',
             });
           }
 
           // date
-          if (validation === 'date' && !validator.isISO8601(value)) {
+          if (validations.date && !validator.isISO8601(value)) {
             errors.push({
-              fieldId: field._id,
+              fieldId: field._id.toString(),
               code: 'invalidDate',
               text: 'Invalid Date',
             });
           }
 
           // regex
-          if (validation === 'regex') {
-            const regex = new RegExp(field.regexValidation || '');
+          if (validations.regex) {
+            const regex = new RegExp(validations.regex || '');
 
             if (!regex.test(value)) {
               errors.push({
-                fieldId: field._id,
+                fieldId: field._id.toString(),
                 code: 'invalidRegex',
                 text: 'Invalid value',
               });

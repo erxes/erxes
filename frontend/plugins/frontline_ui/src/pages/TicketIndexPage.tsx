@@ -1,11 +1,25 @@
-import { Breadcrumb, Button, PageContainer } from 'erxes-ui';
+import { Breadcrumb, Button, PageContainer, PageSubHeader } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, Import } from 'ui-modules';
+import { Export } from 'ui-modules/modules/import-export/components/epxort/Export';
 import { IconTicket } from '@tabler/icons-react';
-import { TicketsBoard } from '@/ticket/components/TicketsBoard';
 import { AddTicketSheet } from '@/ticket/components/add-ticket/AddTicketSheet';
-import { TicketDetailSheet } from '@/ticket/components/ticket-detail/TicketDetailSheet';
+import {
+  TicketsViewControl,
+  TicketsView,
+} from '@/ticket/components/TicketsView';
+import { TicketsFilter } from '@/ticket/components/TicketsFilter';
+import { TicketPageEffect } from '@/ticket/components/TicketPageEffect';
+import { useTicketsVariables } from '@/ticket/hooks/useGetTickets';
+
 const TicketsIndexPage = () => {
+  const variables = useTicketsVariables();
+
+  const getFilters = () => {
+    const { cursor, limit, orderBy, ...filters } = variables;
+    return filters;
+  };
+
   return (
     <PageContainer>
       <PageHeader>
@@ -14,7 +28,7 @@ const TicketsIndexPage = () => {
             <Breadcrumb.List className="gap-1 ">
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/tickets">
+                  <Link to="/frontline/tickets">
                     <IconTicket />
                     Tickets
                   </Link>
@@ -27,9 +41,23 @@ const TicketsIndexPage = () => {
           <AddTicketSheet />
         </PageHeader.End>
       </PageHeader>
-      {/* <PageSubHeader></PageSubHeader> */}
-      <TicketsBoard />
-      <TicketDetailSheet />
+      <PageSubHeader>
+        <TicketsFilter />
+        <Import
+          pluginName="frontline"
+          moduleName="ticket"
+          collectionName="ticket"
+        />
+        <Export
+          pluginName="frontline"
+          moduleName="ticket"
+          collectionName="ticket"
+          getFilters={getFilters}
+        />
+        <TicketsViewControl />
+      </PageSubHeader>
+      <TicketsView />
+      <TicketPageEffect />
     </PageContainer>
   );
 };

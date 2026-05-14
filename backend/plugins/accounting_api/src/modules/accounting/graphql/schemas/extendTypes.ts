@@ -1,4 +1,8 @@
 const extendTypes = `
+  extend type ProductCategory @key(fields: "_id") {
+    _id: String! @external
+  }
+
   extend type Product @key(fields: "_id") {
     _id: String! @external
   }
@@ -26,12 +30,6 @@ const extendTypes = `
 `;
 
 export default extendTypes;
-
-
-
-// extend type ProductCategory @key(fields: "_id") {
-//   _id: String! @external
-// }
 
 // extend type Uom @key(fields: "_id") {
 //   _id: String! @external

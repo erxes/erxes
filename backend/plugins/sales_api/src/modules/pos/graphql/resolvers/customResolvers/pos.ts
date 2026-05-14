@@ -8,7 +8,6 @@ const resolvers = {
     }
     return sendTRPCMessage({
       subdomain,
-
       pluginName: 'core',
       module: 'users',
       action: 'findOne',
@@ -23,7 +22,6 @@ const resolvers = {
 
     const branch = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'core',
       module: 'branches',
       action: 'findOne',
@@ -40,7 +38,6 @@ const resolvers = {
 
     const department = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'core',
       module: 'departments',
       action: 'findOne',

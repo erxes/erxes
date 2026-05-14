@@ -1,8 +1,8 @@
 import { DocumentNode } from '@apollo/client';
 import { Combobox, Command, EnumCursorDirection, Popover } from 'erxes-ui';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { useQuerySelectInputList } from '../hooks';
+import { useQuerySelectInputList } from '../hooks/useQuerySelectInputList';
 
 type Props = {
   query: DocumentNode;

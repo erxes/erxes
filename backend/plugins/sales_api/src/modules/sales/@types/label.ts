@@ -2,8 +2,7 @@ import { Document } from 'mongoose';
 
 export interface ILabelObjectParams {
   labelIds: string[];
-  targetId: string;
-  collection: any;
+  dealId: string;
 }
 
 export interface IPipelineLabel {

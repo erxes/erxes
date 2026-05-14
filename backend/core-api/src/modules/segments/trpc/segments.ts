@@ -83,5 +83,12 @@ export const segmentsRouter = t.router({
 
         return await fetchSegment(models, subdomain, segment, options);
       }),
+    findOne: t.procedure
+      .input(z.object({ _id: z.string() }))
+      .query(async ({ input, ctx }) => {
+        const { models } = ctx;
+
+        return await models.Segments.findOne({ _id: input._id }).lean();
+      }),
   }),
 });

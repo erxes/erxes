@@ -1,4 +1,4 @@
-import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/src/utils';
+import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
 import { getConfig, getPureDate } from './utils';
 

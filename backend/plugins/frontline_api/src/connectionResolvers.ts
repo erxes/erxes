@@ -1,7 +1,6 @@
+import mongoose from 'mongoose';
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import { IMainContext } from 'erxes-api-shared/core-types';
-import mongoose from 'mongoose';
-
 import { IIntegrationDocument } from '@/inbox/@types/integrations';
 import { IConversationDocument } from '@/inbox/@types/conversations';
 import { IMessageDocument } from '@/inbox/@types/conversationMessages';
@@ -139,20 +138,118 @@ import {
 } from '@/ticket/db/models/Pipeline';
 import { IStatusModel, loadStatusClass } from '@/ticket/db/models/Status';
 import { ITicketModel, loadTicketClass } from '@/ticket/db/models/Ticket';
-import { ITicketDocument } from './modules/ticket/@types/ticket';
-import { ITicketPipelineDocument } from './modules/ticket/@types/pipeline';
-import { IStatusDocument } from './modules/ticket/@types/status';
+import { ITicketDocument } from '@/ticket/@types/ticket';
+import { ITicketPipelineDocument } from '@/ticket/@types/pipeline';
+import { IStatusDocument } from '@/ticket/@types/status';
 
 import {
   IMessengerAppModel,
   loadClass as loadMessengerAppClass,
-} from './modules/inbox/db/models/MessengerApps';
+} from '@/inbox/db/models/MessengerApps';
 import {
   IConfigModel,
   loadConfigClass,
   IConfigDocument,
-} from './modules/inbox/@types/configs';
-import { IMessengerAppDocument } from './modules/inbox/db/definitions/messengerApps';
+} from '@/inbox/@types/configs';
+import { IMessengerAppDocument } from '@/inbox/db/definitions/messengerApps';
+import { IActivityModel, loadActivityClass } from '@/ticket/db/models/Activity';
+import { IActivityDocument } from '@/ticket/@types/activity';
+
+import { INoteModel, loadNoteClass } from '@/ticket/db/models/Note';
+import { INoteDocument } from '@/ticket/@types/note';
+import { ITicketConfigDocument } from './modules/ticket/@types/ticketConfig';
+import {
+  ITicketConfigModel,
+  loadTicketConfigClass,
+} from './modules/ticket/db/models/TicketConfig';
+
+import {
+  IResponseTemplateModel,
+  loadClass as loadResponseTemplateClass,
+} from '@/response/db/models/responseTemplates';
+import { IResponseTemplateDocument } from '@/response/@types/responseTemplates';
+import { IFieldDocument } from '@/form/db/definitions/fields';
+import { IFormDocument } from '@/form/db/definitions/forms';
+import { IFieldModel, loadFieldClass } from './modules/form/db/models/Fields';
+import { IFormSubmissionDocument } from './modules/form/db/definitions/forms';
+import {
+  IFormModel,
+  IFormSubmissionModel,
+  loadFormClass,
+  loadFormSubmissionClass,
+} from './modules/form/db/models/Forms';
+
+import { IArticleDocument } from '@/knowledgebase/@types/article';
+import { ICategoryDocument } from '@/knowledgebase/@types/category';
+import { ITopicDocument } from '@/knowledgebase/@types/topic';
+
+import {
+  IArticleModel,
+  loadArticleClass,
+} from '@/knowledgebase/db/models/Article';
+import {
+  ICategoryModel,
+  loadCategoryClass,
+} from '@/knowledgebase/db/models/Category';
+import { ITopicModel, loadTopicClass } from '@/knowledgebase/db/models/Topic';
+
+// Instagram imports
+import {
+  IInstagramIntegrationModel,
+  loadInstagramIntegrationClass,
+} from '@/integrations/instagram/db/models/Integrations';
+import { IInstagramIntegrationDocument } from '@/integrations/instagram/@types/integrations';
+import {
+  IInstagramAccountModel,
+  loadInstagramAccountClass,
+} from '@/integrations/instagram/db/models/Accounts';
+import { IInstagramAccountDocument } from '@/integrations/instagram/@types/accounts';
+import {
+  IInstagramCustomerModel,
+  loadInstagramCustomerClass,
+} from '@/integrations/instagram/db/models/Customers';
+import { IInstagramCustomerDocument } from '@/integrations/instagram/@types/customers';
+import {
+  IInstagramConversationModel,
+  loadInstagramConversationClass,
+} from '@/integrations/instagram/db/models/Conversations';
+import { IInstagramConversationDocument } from '@/integrations/instagram/@types/conversations';
+import {
+  IInstagramConversationMessageModel,
+  loadInstagramConversationMessageClass,
+} from '@/integrations/instagram/db/models/ConversationMessages';
+import { IInstagramConversationMessageDocument } from '@/integrations/instagram/@types/conversationMessages';
+import {
+  IInstagramCommentConversationModel,
+  loadInstagramCommentConversationClass,
+} from '@/integrations/instagram/db/models/Comment_conversations';
+import { IInstagramCommentConversationDocument } from '@/integrations/instagram/@types/comment_conversations';
+import {
+  IInstagramCommentConversationReplyModel,
+  loadInstagramCommentConversationReplyClass,
+} from '@/integrations/instagram/db/models/Comment_conversations_reply';
+import { IInstagramCommentConversationReplyDocument } from '@/integrations/instagram/@types/comment_conversations_reply';
+import {
+  IInstagramPostConversationModel,
+  loadInstagramPostConversationClass,
+} from '@/integrations/instagram/db/models/PostConversations';
+import { IInstagramPostConversationDocument } from '@/integrations/instagram/@types/postConversations';
+import {
+  IInstagramLogModel,
+  loadInstagramLogClass,
+} from '@/integrations/instagram/db/models/Logs';
+import { IInstagramLogDocument } from '@/integrations/instagram/@types/logs';
+import {
+  IInstagramBotModel,
+  loadInstagramBotClass,
+} from '@/integrations/instagram/db/models/Bots';
+import { IInstagramBotDocument } from '@/integrations/instagram/@types/bots';
+
+import {
+  IInstagramConfigModel,
+  loadInstagramConfigClass,
+} from '@/integrations/instagram/db/models/Config';
+import { IInstagramConfigDocument } from './modules/integrations/instagram/@types/config';
 export interface IModels {
   //channel
   Channels: IChannelModel;
@@ -173,6 +270,19 @@ export interface IModels {
   FacebookLogs: IFacebookLogModel;
   FacebookPostConversations: IFacebookPostConversationModel;
   FacebookConfigs: IFacebookConfigModel;
+  //instagram
+  InstagramIntegrations: IInstagramIntegrationModel;
+  InstagramAccounts: IInstagramAccountModel;
+  InstagramCustomers: IInstagramCustomerModel;
+  InstagramConversations: IInstagramConversationModel;
+  InstagramConversationMessages: IInstagramConversationMessageModel;
+  InstagramCommentConversation: IInstagramCommentConversationModel;
+  InstagramCommentConversationReply: IInstagramCommentConversationReplyModel;
+  InstagramLogs: IInstagramLogModel;
+  InstagramPostConversations: IInstagramPostConversationModel;
+  InstagramBots: IInstagramBotModel;
+  InstagramConfigs: IInstagramConfigModel;
+
   //call
   CallIntegrations: ICallIntegrationModel;
   CallCustomers: ICallCustomerModel;
@@ -193,15 +303,32 @@ export interface IModels {
   Pipeline: ITicketPipelineModel;
   Status: IStatusModel;
   Ticket: ITicketModel;
+  Activity: IActivityModel;
+  Note: INoteModel;
+  TicketConfig: ITicketConfigModel;
 
   MessengerApps: IMessengerAppModel;
   Configs: IConfigModel;
+
+  //response templates
+  ResponseTemplates: IResponseTemplateModel;
+
+  Fields: IFieldModel;
+  Forms: IFormModel;
+  FormSubmissions: IFormSubmissionModel;
+
+  //knowledgebase
+  Article: IArticleModel;
+  Category: ICategoryModel;
+  Topic: ITopicModel;
+
 }
 
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
   serverTiming: any;
+  commonQuerySelector: Record<string, any>;
 }
 
 export const loadClasses = (
@@ -209,6 +336,12 @@ export const loadClasses = (
   subdomain: string,
 ): IModels => {
   const models = {} as IModels;
+
+  //response templates
+  models.ResponseTemplates = db.model<
+    IResponseTemplateDocument,
+    IResponseTemplateModel
+  >('response_templates', loadResponseTemplateClass(models));
 
   //ticket
   models.Pipeline = db.model<ITicketPipelineDocument, ITicketPipelineModel>(
@@ -223,6 +356,18 @@ export const loadClasses = (
   models.Ticket = db.model<ITicketDocument, ITicketModel>(
     'frontline_tickets',
     loadTicketClass(models),
+  );
+  models.Activity = db.model<IActivityDocument, IActivityModel>(
+    'frontline_ticket_activities',
+    loadActivityClass(models),
+  );
+  models.Note = db.model<INoteDocument, INoteModel>(
+    'frontline_tickets_notes',
+    loadNoteClass(models),
+  );
+  models.TicketConfig = db.model<ITicketConfigDocument, ITicketConfigModel>(
+    'frontline_ticket_configs',
+    loadTicketConfigClass(models),
   );
   //inbox models
   models.Channels = db.model<IChannelDocument, IChannelModel>(
@@ -295,6 +440,63 @@ export const loadClasses = (
     IFacebookConfigDocument,
     IFacebookConfigModel
   >('facebook_configs', loadFacebookConfigClass(models));
+
+  // Instagram models
+  models.InstagramIntegrations = db.model<
+    IInstagramIntegrationDocument,
+    IInstagramIntegrationModel
+  >('instagram_integrations', loadInstagramIntegrationClass(models));
+  models.InstagramAccounts = db.model<
+    IInstagramAccountDocument,
+    IInstagramAccountModel
+  >('instagram_accounts', loadInstagramAccountClass(models));
+  models.InstagramCustomers = db.model<
+    IInstagramCustomerDocument,
+    IInstagramCustomerModel
+  >('instagram_customers', loadInstagramCustomerClass(models));
+  models.InstagramConversations = db.model<
+    IInstagramConversationDocument,
+    IInstagramConversationModel
+  >('instagram_conversations', loadInstagramConversationClass(models));
+  models.InstagramConversationMessages = db.model<
+    IInstagramConversationMessageDocument,
+    IInstagramConversationMessageModel
+  >(
+    'instagram_conversation_messages',
+    loadInstagramConversationMessageClass(models),
+  );
+  models.InstagramCommentConversation = db.model<
+    IInstagramCommentConversationDocument,
+    IInstagramCommentConversationModel
+  >(
+    'instagram_comment_conversations',
+    loadInstagramCommentConversationClass(models),
+  );
+  models.InstagramCommentConversationReply = db.model<
+    IInstagramCommentConversationReplyDocument,
+    IInstagramCommentConversationReplyModel
+  >(
+    'instagram_comment_conversations_reply',
+    loadInstagramCommentConversationReplyClass(models),
+  );
+  models.InstagramPostConversations = db.model<
+    IInstagramPostConversationDocument,
+    IInstagramPostConversationModel
+  >('instagram_post_conversations', loadInstagramPostConversationClass(models));
+  models.InstagramLogs = db.model<IInstagramLogDocument, IInstagramLogModel>(
+    'instagram_logs',
+    loadInstagramLogClass(models),
+  );
+  models.InstagramBots = db.model<IInstagramBotDocument, IInstagramBotModel>(
+    'instagram_bots',
+    loadInstagramBotClass(models),
+  );
+
+  models.InstagramConfigs = db.model<
+    IInstagramConfigDocument,
+    IInstagramConfigModel
+  >('instagram_configs', loadInstagramConfigClass(models));
+
   //call models
   models.CallIntegrations = db.model<
     ICallIntegrationDocument,
@@ -328,7 +530,7 @@ export const loadClasses = (
 
   models.FacebookBots = db.model<IFacebookBotDocument, IFacebookBotModel>(
     'facebook_messengers_bots',
-    loadFacebookBotClass(models),
+    loadFacebookBotClass(models, subdomain),
   );
   //imap models
   models.ImapCustomers = db.model<ICustomerImapDocument, ICustomerImapModel>(
@@ -355,6 +557,34 @@ export const loadClasses = (
     'configs',
     loadConfigClass(models),
   );
+  models.Fields = db.model<IFieldDocument, IFieldModel>(
+    'frontline_form_fields',
+    loadFieldClass(models, subdomain),
+  );
+  models.Forms = db.model<IFormDocument, IFormModel>(
+    'frontline_forms',
+    loadFormClass(models),
+  );
+  models.FormSubmissions = db.model<
+    IFormSubmissionDocument,
+    IFormSubmissionModel
+  >('frontline_form_submissions', loadFormSubmissionClass(models));
+
+  models.Article = db.model<IArticleDocument, IArticleModel>(
+    'knowledgebase_articles',
+    loadArticleClass(models),
+  );
+
+  models.Category = db.model<ICategoryDocument, ICategoryModel>(
+    'knowledgebase_categories',
+    loadCategoryClass(models),
+  );
+
+  models.Topic = db.model<ITopicDocument, ITopicModel>(
+    'knowledgebase_topics',
+    loadTopicClass(models),
+  );
+
   return models;
 };
 

@@ -3,7 +3,13 @@ import { Sheet } from 'erxes-ui';
 import { dealCreateSheetState } from '@/deals/states/dealCreateSheetState';
 import { useAtom } from 'jotai';
 
-export const AddDealSheet = () => {
+export const AddDealSheet = ({
+  onComplete: onCompleteProp,
+  showWorkflowFields,
+}: {
+  onComplete?: (dealId: string) => void;
+  showWorkflowFields?: boolean;
+}) => {
   const [open, setOpen] = useAtom(dealCreateSheetState);
 
   const onOpen = () => {
@@ -22,7 +28,11 @@ export const AddDealSheet = () => {
           e.preventDefault();
         }}
       >
-        <AddCardForm onCloseSheet={onClose} />
+        <AddCardForm
+          onCloseSheet={onClose}
+          onComplete={onCompleteProp}
+          showWorkflowFields={showWorkflowFields}
+        />
       </Sheet.View>
     </Sheet>
   );

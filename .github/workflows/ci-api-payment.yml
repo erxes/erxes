@@ -14,6 +14,9 @@ on:
       - 'backend/erxes-api-shared/**'
       - '.github/workflows/ci-api-payment.yml'
 
+env:
+  NX_DAEMON: false
+
 jobs:
   payment_api-ci:
     runs-on: ubuntu-latest
@@ -24,25 +27,27 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 9
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
 
       - name: Set environment variables
         run: |
           echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
           echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+
       - name: Build shared module
         run: pnpm nx build erxes-api-shared
 
       - name: Build payment_api
         run: pnpm nx build payment_api
 
-      # Buildx setup
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -66,4 +71,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: |
             erxes/erxes-next-payment_api:latest
-            erxes/erxes-next-payment_api:${{ github.sha }}
+            erxes/erxes-next-payment_api:${{ env.DATE }}-${{ env.SHORT_SHA }}

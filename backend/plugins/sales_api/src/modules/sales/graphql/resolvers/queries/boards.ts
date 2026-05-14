@@ -8,7 +8,6 @@ import { IPipelineLabelDocument, IStageDocument } from '~/modules/sales/@types';
 import { IContext } from '~/connectionResolvers';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { getCloseDateByType } from '~/modules/sales/utils';
-import { moduleRequireLogin } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const boardQueries = {
@@ -192,9 +191,8 @@ export const boardQueries = {
       }
     }
 
-    const assignedUserIds = await models.Deals.find(filter).distinct(
-      'assignedUserIds',
-    );
+    const assignedUserIds =
+      await models.Deals.find(filter).distinct('assignedUserIds');
 
     if (assignedUserIds.length === 0) {
       return {};
@@ -497,5 +495,3 @@ export const boardQueries = {
     return intervals;
   },
 };
-
-// moduleRequireLogin(boardQueries);

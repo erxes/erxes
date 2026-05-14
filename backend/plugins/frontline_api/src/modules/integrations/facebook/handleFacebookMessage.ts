@@ -19,15 +19,15 @@ export const handleFacebookMessage = async (
   const doc = JSON.parse(payload || '{}');
   if (doc.internal) {
     const conversation = await models.FacebookConversations.getConversation({
-      erxesApiId: doc.conversationId,
+      erxesApiId: doc.conversationId
     });
 
-    return models.ConversationMessages.addMessage(
+    return models.FacebookConversationMessages.addMessage(
       {
         ...doc,
-        conversationId: conversation._id,
+        conversationId: conversation._id
       },
-      doc.userId,
+      doc.userId
     );
   }
   if (action === 'reply-post') {
@@ -124,12 +124,12 @@ export const handleFacebookMessage = async (
         input: { _id: userId },
       });
 
-      if (!user) {
+      if (!user?._id) {
         throw new Error('User not found');
       }
 
       // Send notification about the reply to relevant users/devices
-      sendNotifications({
+      sendNotifications(subdomain, {
         user,
         conversations: [inboxConversation],
         type: 'conversationStateChange',

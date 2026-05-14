@@ -57,7 +57,7 @@ export const SelectAccountCategory = React.forwardRef<
         onOpenChange={setOpen}
         scope={`select-account-category.${recordId}`}
       >
-        <RecordTableInlineCell.Trigger>
+        <RecordTableInlineCell.Trigger className="overflow-visible px-0">
           <SelectAccountCategoryTrigger
             ref={ref}
             {...props}
@@ -66,7 +66,7 @@ export const SelectAccountCategory = React.forwardRef<
           />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content>
-          <SelectAccountCommand
+          <SelectAccountCatCommand
             nullable={nullable}
             exclude={exclude}
             selected={selected}
@@ -86,7 +86,7 @@ export const SelectAccountCategory = React.forwardRef<
   );
 });
 
-export const SelectAccountCommand = ({
+export const SelectAccountCatCommand = ({
   selected,
   onSelect,
   focusOnMount,
@@ -121,7 +121,7 @@ export const SelectAccountCommand = ({
     <Command shouldFilter={false}>
       <Command.Input
         variant="secondary"
-        placeholder="Filter by category"
+        placeholder="Ангиллаар шүүх"
         ref={inputRef}
         value={search}
         onValueChange={(value) => setSearch(value)}
@@ -130,7 +130,7 @@ export const SelectAccountCommand = ({
         <Combobox.Empty error={error} loading={loading} />
         {nullable && (
           <Command.Item key="null" value="null" onSelect={() => onSelect(null)}>
-            No category selected
+            Ангилал сонгоогүй
           </Command.Item>
         )}
         {accountCategories?.map((category: IAccountCategory) => (
@@ -223,7 +223,7 @@ const SelectAccountCategoryTrigger = React.forwardRef<
       {selectedCategory ? (
         <SelectAccountCategoryBadge category={selectedCategory} />
       ) : (
-        <Combobox.Value placeholder="Select a category" />
+        <Combobox.Value placeholder="Ангилал сонгох" />
       )}
     </Combobox.Trigger>
   );

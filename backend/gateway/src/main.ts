@@ -4,6 +4,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import * as http from 'http';
+import rateLimit, { type RateLimitRequestHandler } from 'express-rate-limit';
 import { Queue } from 'bullmq';
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
@@ -20,7 +21,17 @@ import {
   proxyReq,
 } from '~/proxy/middleware';
 
-import { getPlugin, isDev, redis } from 'erxes-api-shared/utils';
+import {
+  applyTrustProxy,
+  getPlugin,
+  getPlugins,
+  getSubdomain,
+  isDev,
+  redis,
+  setActivePlugins,
+} from 'erxes-api-shared/utils';
+import { generateModels } from '~/connectionResolver';
+// import * as jwt from 'jsonwebtoken';
 import { applyGraphqlLimiters } from '~/middlewares/graphql-limiter';
 import {
   startSubscriptionServer,
@@ -32,18 +43,30 @@ import * as path from 'path';
 dotenv.config();
 
 const port = process.env.PORT ? Number(process.env.PORT) : 4000;
-const { DOMAIN } = process.env;
+const { DOMAIN, WIDGETS_DOMAIN, ALLOWED_ORIGINS, ALLOWED_DOMAINS } =
+  process.env;
 
 const corsOptions = {
   credentials: true,
   origin: [
-    ...(DOMAIN ? [DOMAIN] : []),
-    ...(isDev ? ['http://localhost:3001', 'http://localhost:5173', 'http://localhost:4200'] : []),
+    DOMAIN ? DOMAIN : 'http://localhost:3000',
+    WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
+    ...(ALLOWED_DOMAINS || '').split(','),
+    'https://studio.apollographql.com',
+    ...(ALLOWED_ORIGINS || '').split(',').map((c) => c && RegExp(c)),
+
+    ...(isDev
+      ? [
+          'http://localhost:3001',
+          'http://localhost:5173',
+          'http://localhost:4200',
+        ]
+      : []),
   ],
 };
 
 const myQueue = new Queue('gateway-service-discovery', {
-  connection: redis,
+  connection: redis as any,
   defaultJobOptions: {
     removeOnComplete: false,
   },
@@ -59,9 +82,66 @@ createBullBoard({
 serverAdapter.setBasePath('/bullmq-board');
 
 const app = express();
+applyTrustProxy(app);
 
-app.use(cors(corsOptions));
 app.use(cookieParser());
+
+const gatewayRateLimiter: RateLimitRequestHandler = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5000, // generous global cap per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.path === '/health' || req.path.startsWith('/bullmq-board'),
+});
+
+app.use(gatewayRateLimiter);
+
+app.use(async (req, res, next) => {
+  const appToken = req.headers['x-app-api-token'] as string;
+  // const clientPortalToken = req.headers['x-app-token'] as string;
+
+  if (appToken) {
+    try {
+      const subdomain = getSubdomain(req);
+      const cacheKey = `app_token:${subdomain}:${appToken}`;
+
+      let isValid = await redis.get(cacheKey);
+
+      if (isValid === null) {
+        const models = await generateModels(subdomain);
+        const appInDb = await models.Apps.findOne({
+          token: appToken,
+          status: 'active',
+        });
+        isValid = appInDb ? '1' : '0';
+        await redis.set(cacheKey, isValid, 'EX', 3600);
+      }
+
+      if (isValid === '1') {
+        return cors({ credentials: true, origin: true })(req, res, next);
+      }
+    } catch {
+      // Fall through to regular CORS
+    }
+  }
+
+  // if (clientPortalToken) {
+  //   try {
+  //     const decoded: any = jwt.verify(
+  //       clientPortalToken,
+  //       process.env.JWT_TOKEN_SECRET || 'SECRET',
+  //     );
+
+  //     if (decoded?.clientPortalId) {
+  //       return cors({ credentials: true, origin: true })(req, res, next);
+  //     }
+  //   } catch {
+  //     // Fall through to regular CORS
+  //   }
+  // }
+
+  return cors(corsOptions)(req, res, next);
+});
 
 app.use(userMiddleware);
 
@@ -71,14 +151,22 @@ app.get('/health', async (_req, res) => {
   res.end('ok');
 });
 
-app.get('/locales/:lng', async (req, res) => {
+app.get('/locales/:lng/:file', async (req, res) => {
+  const localesRoot = path.join(__dirname, './locales');
   try {
-    const lngJson = fs.readFileSync(
-      path.join(__dirname, `./locales/${req.params.lng}`),
+    const requestedPath = path.resolve(
+      localesRoot,
+      req.params.lng,
+      req.params.file,
     );
+    const realPath = fs.realpathSync(requestedPath);
+    if (!realPath.startsWith(localesRoot + path.sep)) {
+      return res.status(403).send('Forbidden');
+    }
+    const lngJson = fs.readFileSync(realPath);
     res.json(JSON.parse(lngJson.toString()));
   } catch {
-    res.status(500).send('Error fetching services');
+    res.status(500).send('Error fetching locale');
   }
 });
 app.use('/pl:serviceName', async (req, res) => {
@@ -122,6 +210,9 @@ let httpServer: http.Server;
 
 async function start() {
   try {
+    const enabledPlugins = await getPlugins();
+    await setActivePlugins(enabledPlugins);
+
     // Initial fetch of the proxy targets
     global.currentTargets = await retryGetProxyTargets();
 

@@ -52,6 +52,7 @@ export type BoardProviderProps<
   onDragEnd?: (event: DragEndEvent) => void;
   onDragOver?: (event: DragOverEvent) => void;
   emptyUrl?: string;
+  fallbackComponent?: React.ReactNode;
 };
 
 export type BoardCardProps<T extends BoardItemProps = BoardItemProps> = T & {

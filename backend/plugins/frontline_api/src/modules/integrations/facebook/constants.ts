@@ -19,7 +19,12 @@ export const INTEGRATION_KINDS = {
   ALL: ['facebook-post', 'facebook-messenger'],
 };
 
-export const BOT_SUBSCRIBE_FIELDS = [
+export const SUBSCRIBED_FIELDS = [
+  'conversations',
+  'feed',
+  'messages',
+  'standby',
+  'messaging_handovers',
   'messaging_postbacks',
   'messaging_referrals',
 ];

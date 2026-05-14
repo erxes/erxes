@@ -67,6 +67,8 @@ const queryParams = `
   closeDateStartDate: Date
   closeDateEndDate: Date
   resolvedDayBetween:[Int]
+  relationType: String
+  relationId: String
 
   ${GQL_CURSOR_PARAM_DEFS}
 `;
@@ -110,7 +112,7 @@ export const types = `
     labels: [SalesPipelineLabel]
     pipeline: SalesPipeline
     createdUser: User
-    customFieldsData: JSON
+    propertiesData: JSON
     score: Float
     timeTrack: SalesTimeTrack
     number: String
@@ -129,6 +131,7 @@ export const types = `
     products: [Product]
     productsData: JSON
     paymentsData: JSON
+    extraData: JSON
 
     cursor: String
   }
@@ -155,6 +158,12 @@ export const types = `
     action: String
     deal: Deal
   }
+  type DealProductsDataChangeResponse {
+    _id: String
+    processId: String
+    action: String
+    data: JSON
+  }
 `;
 
 const archivedDealsParams = `
@@ -174,7 +183,7 @@ const archivedDealsParams = `
  `;
 
 export const queries = `
-  checkDiscount(_id: String!,products:[SalesProductField], couponCode: String, voucherId: String):JSON
+  checkDiscount(_id: String!,products:[SalesProductField!]!, couponCode: String, voucherId: String):JSON
   
   deals(stageId: String, initialStageId: String, ${queryParams}): DealsListResponse
   dealDetail(_id: String!, clientPortalCard: Boolean): Deal
@@ -183,6 +192,9 @@ export const queries = `
   
   archivedDeals(${archivedDealsParams}): DealsListResponse
   archivedDealsCount(${archivedDealsParams}): Int
+
+  cpDeals(stageId: String, initialStageId: String, ${queryParams}): DealsListResponse
+  cpDealDetail(_id: String!, clientPortalCard: Boolean): Deal
 `;
 
 const mutationParams = `
@@ -201,7 +213,7 @@ const mutationParams = `
   priority: String,
   status: String,
   sourceConversationIds: [String],
-  customFieldsData: JSON,
+  propertiesData: JSON,
   tagIds: [String],
   branchIds: [String],
   departmentIds: [String],
@@ -221,5 +233,7 @@ export const mutations = `
   dealsArchive(stageId: String!, processId: String): String
   dealsCreateProductsData(processId: String, dealId: String, docs: JSON): JSON
   dealsEditProductData(processId: String, dealId: String, dataId: String, doc: JSON): JSON
-  dealsDeleteProductData(processId: String, dealId: String, dataId: String): JSON
+  dealsDeleteProductData(processId: String, dealId: String, dataIds: [String]): JSON
+
+  cpDealsAdd(name: String, companyIds: [String], customerIds: [String], labelIds: [String], ${mutationParams}): Deal
 `;

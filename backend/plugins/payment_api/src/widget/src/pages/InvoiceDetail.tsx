@@ -80,12 +80,14 @@ const InvoiceDetail = () => {
 
   const requestNewTransaction = (paymentId: string, details?: any) => {
     addTransaction({
-      variables: { input: {
-        invoiceId: id,
-        paymentId,
-        details,
-        amount: invoiceDetail.amount,
-      } }
+      variables: {
+        input: {
+          invoiceId: id,
+          paymentId,
+          details,
+          amount: invoiceDetail.amount,
+        }
+      }
     }).then(() => {
       invoiceDetailQuery.refetch();
     });

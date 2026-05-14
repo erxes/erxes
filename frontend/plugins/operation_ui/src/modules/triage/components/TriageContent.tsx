@@ -6,6 +6,7 @@ import { TriageFields } from './TriageFields';
 import { TaskDetailSheet } from '@/task/components/TaskDetailSheet';
 import { Suspense } from 'react';
 import { useParams } from 'react-router';
+import { TaskSideWidgets } from '~/widgets/relation/TaskSideWidgets';
 
 export const TriageContent = ({
   triageId: triageIdProp,
@@ -28,9 +29,12 @@ export const TriageContent = ({
   }
 
   return (
-    <ScrollArea className="overflow-hidden h-full">
-      <TriageContentWrapper triage={triage} />
-    </ScrollArea>
+    <div className="flex flex-1 overflow-hidden h-full">
+      <ScrollArea className="overflow-hidden h-full flex-1">
+        <TriageContentWrapper triage={triage} />
+      </ScrollArea>
+      <TaskSideWidgets contentId={triage._id} />
+    </div>
   );
 };
 
@@ -38,9 +42,10 @@ const TriageContentWrapper = ({ triage }: { triage: ITriage }) => {
   return (
     <Suspense>
       <TaskDetailSheet />
+
       <div className="h-full w-full flex overflow-auto">
         <div className="w-full xl:max-w-3xl mx-auto py-12 px-6">
-          <TriageFields triage={triage} />
+          <TriageFields key={triage._id} triage={triage} />
         </div>
       </div>
     </Suspense>

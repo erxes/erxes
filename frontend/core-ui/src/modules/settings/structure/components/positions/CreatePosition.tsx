@@ -16,6 +16,7 @@ import { usePositionForm } from '../../hooks/usePositionForm';
 import { usePositionAdd } from '../../hooks/usePositionActions';
 import { PositionHotKeyScope, TPositionForm } from '../../types/position';
 import { PositionForm } from './PositionForm';
+import { Can, usePermissionCheck } from 'ui-modules';
 
 export const CreatePosition = () => {
   const {
@@ -27,6 +28,8 @@ export const CreatePosition = () => {
   const { toast } = useToast();
   const setHotkeyScope = useSetHotkeyScope();
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canManagePositions = isLoaded && hasActionPermission('positionsManage');
 
   const onOpen = () => {
     setOpen(true);
@@ -42,7 +45,10 @@ export const CreatePosition = () => {
 
   useScopedHotkeys(
     `c`,
-    () => onOpen(),
+    () => {
+      if (!canManagePositions) return;
+      onOpen();
+    },
     PositionHotKeyScope.PositionSettingsPage,
   );
   useScopedHotkeys(
@@ -56,7 +62,11 @@ export const CreatePosition = () => {
       handleAdd({
         variables: data,
         onCompleted: () => {
-          toast({ title: 'Success!' });
+          toast({
+            title: 'Success!',
+            variant: 'success',
+            description: 'Position created successfully',
+          });
           methods.reset();
           setOpen(false);
         },
@@ -72,12 +82,14 @@ export const CreatePosition = () => {
   );
   return (
     <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus /> Create Position
-          <Kbd>C</Kbd>
-        </Button>
-      </Sheet.Trigger>
+      <Can action="positionsManage">
+        <Sheet.Trigger asChild>
+          <Button>
+            <IconPlus /> Create Position
+            <Kbd>C</Kbd>
+          </Button>
+        </Sheet.Trigger>
+      </Can>
       <Sheet.View
         className="p-0"
         onEscapeKeyDown={(e) => {

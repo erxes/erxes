@@ -110,14 +110,14 @@ const LabelForm = ({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col h-full overflow-hidden"
+        className="flex flex-col h-full px-2 py-2"
       >
         {labelId && labelDetailLoading ? (
           <div className="flex justify-center items-center h-48">
             <Spinner />
           </div>
         ) : (
-          <div className="flex-auto flex flex-col overflow-hidden py-2 gap-4">
+          <div className="flex-auto flex flex-col">
             <Form.Field
               control={form.control}
               name="name"
@@ -151,13 +151,14 @@ const LabelForm = ({
           </div>
         )}
 
-        <div className="flex justify-end flex-shrink-0 gap-3">
+        <div className="flex justify-end shrink-0 gap-3">
           {isEdit && (
             <Button
               type="button"
               variant="destructive"
               onClick={handleDelete}
               disabled={deleteLoading}
+              className="mt-2"
             >
               Delete
             </Button>
@@ -166,7 +167,7 @@ const LabelForm = ({
             <Button
               type="button"
               variant="ghost"
-              className="bg-background hover:bg-background/90"
+              className="bg-background hover:bg-background/90 mt-2"
             >
               Cancel
             </Button>
@@ -175,8 +176,8 @@ const LabelForm = ({
             type="submit"
             className={cn(
               loading
-                ? 'bg-primary/50 text-primary-foreground'
-                : 'bg-primary text-primary-foreground hover:bg-primary/90',
+                ? 'bg-primary/50 text-primary-foreground mt-2'
+                : 'bg-primary text-primary-foreground hover:bg-primary/90 mt-2',
             )}
           >
             {loading ? <IconLoader className="w-4 h-4 animate-spin" /> : 'Save'}

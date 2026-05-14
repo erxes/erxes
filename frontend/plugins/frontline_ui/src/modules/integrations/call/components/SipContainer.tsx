@@ -29,7 +29,7 @@ export const SipContainer = ({ children }: { children: React.ReactNode }) => {
   ) {
     return null;
   }
-  if (!callConfig || !callConfig.inboxId) {
+  if (!callConfig?.inboxId) {
     return <CallSelectConfig callUserIntegrations={callUserIntegrations} />;
   }
 
@@ -49,7 +49,7 @@ export const SipContainer = ({ children }: { children: React.ReactNode }) => {
     pathname: '/ws',
     user: operator?.gsUsername,
     password: operator?.gsPassword,
-    port: parseInt(port?.toString() || '8089', 10),
+    port: Number.parseInt(port?.toString() || '8089', 10),
     iceServers: [
       {
         urls: `turn:${callConfigs.TURN_SERVER_URL}`,

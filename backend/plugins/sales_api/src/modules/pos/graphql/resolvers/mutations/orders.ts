@@ -6,8 +6,9 @@ const orderMutations = {
   async posOrderReturnBill(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('posOrderReturnBill');
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
       throw new Error('not found order');
@@ -24,10 +25,9 @@ const orderMutations = {
 
     await sendTRPCMessage({
       subdomain,
-
-      method: 'query',
-      pluginName: 'ebarimt',
-      module: 'putresponses',
+      method: 'mutation',
+      pluginName: 'mongolian',
+      module: 'putResponses',
       action: 'returnBill',
       input: {
         contentType: 'pos',
@@ -39,10 +39,9 @@ const orderMutations = {
 
     await sendTRPCMessage({
       subdomain,
-
       method: 'mutation',
-      pluginName: 'coreintegrations',
-      module: 'syncerkhet',
+      pluginName: 'mongolian',
+      module: 'erkhet',
       action: 'returnOrder',
       input: {
         pos,
@@ -67,8 +66,9 @@ const orderMutations = {
       mobileAmount: number;
       paidAmounts: { type: string; amount: number }[];
     },
-    { models, __ }: IContext,
+    { models, __, checkPermission }: IContext,
   ) {
+    await checkPermission('posOrderChangePayments');
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
       throw new Error('not found order');
@@ -81,23 +81,21 @@ const orderMutations = {
     if (
       order.totalAmount !==
       cashAmount +
-        mobileAmount +
-        (paidAmounts || []).reduce(
-          (sum, i) => Number(sum) + Number(i.amount),
-          0,
-        )
+      mobileAmount +
+      (paidAmounts || []).reduce(
+        (sum, i) => Number(sum) + Number(i.amount),
+        0,
+      )
     ) {
       throw new Error('not balanced');
     }
 
-    await models.PosOrders.updateOne(
+    await models.PosOrders.updateOrder(
       { _id },
-      { $set: __({ cashAmount, mobileAmount, paidAmounts }) },
+      { ...order, cashAmount, mobileAmount, paidAmounts },
     );
     return models.PosOrders.findOne({ _id }).lean();
   },
 };
 
-// checkPermission(orderMutations, 'posOrderReturnBill', 'manageOrders');
-// checkPermission(orderMutations, 'posOrderChangePayments', 'manageOrders');
 export default orderMutations;

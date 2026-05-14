@@ -16,12 +16,18 @@ const CompaniesIndexPage = lazy(() =>
   })),
 );
 
+const ClientPortalUsersIndexPage = lazy(() =>
+  import('~/pages/contacts/ClientPortalUsersIndexPage').then((module) => ({
+    default: module.ClientPortalUsersIndexPage,
+  })),
+);
+
 export const ContactsRoutes = () => {
   return (
     <Suspense fallback={<></>}>
       <Routes>
         <Route
-          path="/"
+          index
           element={
             <Navigate
               to={`${ContactsPath.Index}${ContactsPath.Customers}`}
@@ -32,6 +38,10 @@ export const ContactsRoutes = () => {
         <Route path={ContactsPath.Leads} element={<CustomersIndexPage />} />
         <Route path={ContactsPath.Customers} element={<CustomersIndexPage />} />
         <Route path={ContactsPath.Companies} element={<CompaniesIndexPage />} />
+        <Route
+          path={ContactsPath.ClientPortalUsers}
+          element={<ClientPortalUsersIndexPage />}
+        />
       </Routes>
       <ContactsPageEffect />
     </Suspense>

@@ -1,11 +1,11 @@
-import { REMOVE_DOCUMENT } from "@/documents/graphql/documentMutations";
-import { useMutation } from "@apollo/client";
-import { toast } from "erxes-ui";
+import { REMOVE_DOCUMENT } from '@/documents/graphql/documentMutations';
+import { useMutation } from '@apollo/client';
+import { toast } from 'erxes-ui';
 
 export const useDocumentRemove = () => {
   const [removeDocument, { loading }] = useMutation(REMOVE_DOCUMENT, {
     onCompleted: () => {
-      toast({ title: 'Document removed successfully' });
+      toast({ title: 'Document removed successfully', variant: 'success' });
     },
     onError: (error) => {
       toast({

@@ -1,6 +1,7 @@
-import { Badge, cn, Skeleton, TextOverflowTooltip } from 'erxes-ui';
-import React from 'react';
+import { Badge, Skeleton, TextOverflowTooltip } from 'erxes-ui';
+
 import { IBranch } from '../types/Branch';
+import React from 'react';
 import { useBranchById } from '../hooks/useBranchById';
 
 export const BranchBadge = React.forwardRef<

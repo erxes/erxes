@@ -14,10 +14,31 @@ export const types = `
     mapId: String
   }
 
+  input BmsElementTranslationInput {
+    objectId: String 
+    language: String!
+    name: String
+    note: String
+    cost: Float
+  }
+
+  type ElementTranslation {      
+    _id: String!
+    objectId: String!
+    language: String!
+    name: String
+    note: String
+    cost: Float
+    createdAt: Date
+    updatedAt: Date
+  }
+
   type Element {
     _id: String!
     name: String
     quick: Boolean
+    orderCheck: Boolean
+    visibleName: Boolean
     icon: String
     content: String
     note: String
@@ -30,8 +51,11 @@ export const types = `
     itineraryId: String
     location: BMSLocation
     branchId: String
+    language: String
     createdAt: Date
     modifiedAt: Date
+    additionalInfo: JSON
+    translations: [ElementTranslation] 
   }
 
   type ElementCategory {
@@ -48,33 +72,52 @@ export const types = `
 `;
 
 export const queries = `
-  bmElements(branchId:String, categories: [String],name: String,quick: Boolean, ${GQL_CURSOR_PARAM_DEFS}): ElementListResponse
-  bmElementDetail(_id:String!): Element
-  bmElementCategories(parentId:String): [ElementCategory]
-  bmElementsInit: JSON
-  bmCategoryInit: JSON
+  bmsElements(
+    branchId: String
+    categories: [String]
+    name: String
+    quick: Boolean
+    language: String
+    ${GQL_CURSOR_PARAM_DEFS}
+  ): ElementListResponse
+
+  bmsElementDetail(_id: String!, language: String): Element
+
+  bmsElementCategories(parentId: String): [ElementCategory]
+  bmsElementsInit: JSON
+  bmsCategoryInit: JSON
 `;
 
-const params = `
-  name: String,
-  content: String,
-  note: String,
-  startTime: String,
-  duration: Int,
-  cost:Float,
-  images:[String],
-  categories: [String],
-  itineraryId: String,
-  location: BMSLocationInput,
-  quick: Boolean,
+const elementParams = `
+  name: String
+  content: String
+  note: String
+  startTime: String
+  duration: Int
+  cost: Float
+  images: [String]
+  categories: [String]
+  itineraryId: String
+  location: BMSLocationInput
+  quick: Boolean
+  orderCheck: Boolean
   branchId: String
+  language: String
+  icon: String
+  visibleName: Boolean
+  additionalInfo: JSON
+  translations: [BmsElementTranslationInput]
 `;
 
 export const mutations = `
-  bmsElementAdd(${params}): Element
+  bmsElementAdd(${elementParams}): Element
   bmsElementRemove(ids: [String]): JSON
-  bmsElementEdit(_id:String!, ${params}): Element
-  bmsElementCategoryAdd(name:String,parentId:String):ElementCategory
-  bmsElementCategoryRemove(_id: String!):JSON
-  bmsElementCategoryEdit(_id: String!, name:String,parentId:String): ElementCategory
+  bmsElementEdit(_id: String!, ${elementParams}): Element
+
+  bmsElementCategoryAdd(name: String, parentId: String): ElementCategory
+  bmsElementCategoryRemove(_id: String!): JSON
+  bmsElementCategoryEdit(_id: String!, name: String, parentId: String): ElementCategory
+
+  bmsElementTranslationUpsert(input: BmsElementTranslationInput!): ElementTranslation
+  bmsElementTranslationDelete(_id: String!): JSON
 `;

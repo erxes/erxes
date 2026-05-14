@@ -1,0 +1,51 @@
+"use client"
+
+import ChooseTheme from "@/modules/settings/ChooseTheme"
+import CategoriesToPrint from "@/modules/settings/components/categoriesToPrint"
+import GolomtConfig from "@/modules/settings/components/GolomtConfig"
+import Grid from "@/modules/settings/components/Grid"
+import PrintItemStatus from "@/modules/settings/components/printItemStatus"
+import ProductSimilarityConfig from "@/modules/settings/components/ProductSimilarityConfig"
+import ScrollerWidth from "@/modules/settings/components/ScrollerWidth"
+import StatusExplain from "@/modules/settings/components/StatusExplain"
+import { configAtom, currentUserAtom } from "@/store/config.store"
+import { useAtomValue } from "jotai"
+
+import Image from "@/components/ui/image"
+import ActivateOrderQr from "@/modules/settings/components/activateOrder"
+import ActiveteOrderPrint from "@/modules/settings/components/activeteOrderPrint"
+
+const Settings = () => {
+  const { details, email } = useAtomValue(currentUserAtom) || {}
+  const config = useAtomValue(configAtom)
+
+  return (
+    <>
+      <Image
+        alt=""
+        src="/user.png"
+        height={80}
+        width={80}
+        className="rounded-full"
+      />
+      <div className="mt-3 mb-1 font-bold">{details?.fullName}</div>
+      <div className="mb-5">{email}</div>
+      <div className="w-full py-2 mb-4 text-center rounded-lg bg-neutral-100">
+        <p>{config?.name}</p>
+        <div className="font-bold">{config?.createdAt}</div>
+      </div>
+      <ChooseTheme />
+      <Grid />
+      <GolomtConfig />
+      <ProductSimilarityConfig />
+      <ScrollerWidth />
+      <PrintItemStatus />
+      <ActivateOrderQr />
+      <ActiveteOrderPrint />
+      <CategoriesToPrint />
+      <StatusExplain />
+    </>
+  )
+}
+
+export default Settings

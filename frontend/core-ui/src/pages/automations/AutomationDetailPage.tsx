@@ -7,13 +7,12 @@ import { useParams } from 'react-router';
 export const AutomationDetailPage = () => {
   const { id } = useParams();
 
-  const { data, loading } = useQuery<{ automationDetail: IAutomation }>(
-    AUTOMATION_DETAIL,
-    {
-      variables: { id },
-      skip: !id,
-    },
-  );
+  const { data, loading } = useQuery<{
+    automationDetail: IAutomation;
+  }>(AUTOMATION_DETAIL, {
+    variables: { id },
+    skip: !id,
+  });
 
   if (loading) {
     return <Spinner />;

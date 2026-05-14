@@ -4,4 +4,5 @@ export const STATUS_TYPE_LABELS = [
   'Backlog',
   'Done',
   'Cancelled',
+  'Triage',
 ];

@@ -5,12 +5,12 @@ import { CoreTRPCContext } from '~/init-trpc';
 const t = initTRPC.context<CoreTRPCContext>().create();
 
 export const permissionTrpcRouter = t.router({
-  permissions: t.router({
+  permissionGroups: t.router({
     find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
       const { query } = input;
+      const { models } = ctx;
 
-      return await models.Permissions.find(query);
+      return await models.PermissionGroups.find(query);
     }),
   }),
 });

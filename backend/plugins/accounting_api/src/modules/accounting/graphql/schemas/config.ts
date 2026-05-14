@@ -1,17 +1,23 @@
 export const types = `
-
-  type AccountingsConfig @key(fields: "_id") @cacheControl(maxAge: 3){
+  type AccountingsConfig {
     _id: String!
     code: String!
+    subId: String
     value: JSON
   }
 `;
 
 export const queries = `
-  accountingsConfigs: [AccountingsConfig]
+  accountingsConfigDetail(_id: String!): AccountingsConfig
+  accountingsConfig(code: String!, subId: String): AccountingsConfig
+  accountingsConfigs(code: String!): [AccountingsConfig]
+  accountingsConfigsCount(code: String!): Int
   accountingsConfigsByCode(codes: [String]): JSON
 `;
 
 export const mutations = `
-  accountingsConfigsUpdate(configsMap: JSON!): JSON
+  accountingsConfigsCreate(code: String!, subId: String, value: JSON): AccountingsConfig
+  accountingsConfigsUpdate(_id: String!, subId: String, value: JSON): AccountingsConfig
+  accountingsConfigsRemove(_id: String!): String
+  accountingsConfigsUpdateByCode(configsMap: JSON!): JSON
 `;

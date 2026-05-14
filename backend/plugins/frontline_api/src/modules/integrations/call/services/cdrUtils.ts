@@ -52,10 +52,15 @@ const createNewCdr = async (
   conversationId,
 ) => {
   const camelCaseParams = toCamelCase(cdrParams);
-  const { AcctId: acctId, ...filteredParams } = camelCaseParams as any;
+  const {
+    AcctId: acctId,
+    disposition,
+    ...filteredParams
+  } = camelCaseParams as any;
 
   return await models.CallCdrs.create({
     acctId,
+    disposition,
     ...filteredParams,
     inboxIntegrationId: inboxId,
     conversationId,
@@ -108,7 +113,7 @@ const generateRecordUrl = async (cdrParams, inboxId, models, subdomain) => {
       fileDir,
       recordfiles: cdrParams.recordfiles,
       inboxIntegrationId: inboxId,
-      retryCount: 1,
+      retryCount: 3,
     },
     {},
     models,
@@ -158,7 +163,7 @@ export const extractOperatorId = (params) => {
   }
 
   const match = action_type?.match(/FOLLOWME\[(\d+)\]/);
-  if (match && match[1]) {
+  if (match?.[1]) {
     return match[1];
   }
 
@@ -166,7 +171,8 @@ export const extractOperatorId = (params) => {
 };
 
 export const getConversationContent = async (models: IModels, cdrParams) => {
-  const { disposition } = cdrParams;
+  const { disposition, userfield, action_type } = cdrParams;
+  const direction = userfield === 'Outbound' ? 'Outbound' : 'Inbound';
 
   if (!cdrParams.uniqueid) {
     return 'uniqueId not found';
@@ -180,32 +186,39 @@ export const getConversationContent = async (models: IModels, cdrParams) => {
       (cdr) =>
         cdr.disposition?.toLowerCase() === 'answered' &&
         cdr.lastapp !== 'ForkCDR' &&
-        !cdr.actionType?.includes('IVR'),
+        !cdr.actionType.includes('VM') &&
+        !cdr.actionType?.includes('IVR') &&
+        cdr.billsec > 0,
     );
 
-    if (answered) return 'ANSWERED';
+    if (answered) return `ANSWERED · ${direction}`;
   }
 
-  if (cdrParams.userfield === 'Outbound') return 'OUTBOUND';
+  if (userfield === 'Outbound') return `OUTBOUND`;
+
   if (
-    cdrParams.action_type?.includes('IVR') &&
-    cdrParams.disposition?.toLowerCase() === 'answered' &&
-    cdrParams.userfield?.toLowerCase() === 'inbound'
+    action_type?.includes('IVR') &&
+    disposition?.toLowerCase() === 'answered' &&
+    userfield?.toLowerCase() === 'inbound'
   ) {
-    return 'IVR';
+    return `IVR · ${direction}`;
+  }
+
+  if (action_type?.includes('FOLLOWME')) {
+    return `FOLLOWME · ${direction}`;
   }
 
   switch (disposition) {
     case 'ANSWERED':
-      return disposition;
+      return `${disposition} · ${direction}`;
     case 'NO ANSWER':
-      return disposition;
+      return `${disposition} · ${direction}`;
     case 'BUSY':
-      return disposition;
+      return `${disposition} · ${direction}`;
     case 'FAILED':
-      return disposition;
+      return `${disposition} · ${direction}`;
     default:
-      return 'MISSED';
+      return `MISSED · ${direction}`;
   }
 };
 
@@ -214,7 +227,10 @@ export function selectRelevantCdr(histories: any[]): any | null {
 
   const answered = histories.find(
     (h) =>
-      h.disposition === 'ANSWERED' && h.billsec > 0 && h.lastapp === 'Queue',
+      h.disposition === 'ANSWERED' &&
+      h.billsec > 0 &&
+      h.lastapp === 'Queue' &&
+      h.actionType !== 'VM',
   );
 
   const ivr = histories.find(
@@ -232,7 +248,6 @@ export function selectRelevantCdr(histories: any[]): any | null {
 
   return answered || noAnswer || ivr || histories[histories.length - 1] || null;
 }
-
 export const calculateFileDir = (doc) => {
   let fileDir = 'monitor';
 

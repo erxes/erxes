@@ -5,7 +5,7 @@ import {
   getPosPostData,
   sendCardInfo,
 } from '@/erkhet/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/src/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateModels, IContext } from '~/connectionResolvers';
 
 const checkSyncedMutations = {
@@ -79,7 +79,7 @@ const checkSyncedMutations = {
     const deals = await sendTRPCMessage({
       subdomain,
       pluginName: 'sales',
-      module: 'deals',
+      module: 'deal',
       action: 'find',
       input: { _id: { $in: dealIds } },
       method: 'query',
@@ -92,7 +92,7 @@ const checkSyncedMutations = {
       createdBy: user._id,
     };
 
-    for (const deal of deals) {
+    for (const deal of deals?.data) {
       const syncedStageId = configStageId || deal.stageId;
       if (Object.keys(configs).includes(syncedStageId)) {
         const syncLog = await models.SyncLogs.syncLogsAdd({

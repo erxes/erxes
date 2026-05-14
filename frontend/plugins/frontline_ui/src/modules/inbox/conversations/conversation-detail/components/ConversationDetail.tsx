@@ -1,7 +1,7 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Separator, Skeleton, useQueryState } from 'erxes-ui';
+import { Separator, useQueryState } from 'erxes-ui';
 
-import { ConversationContext } from '@/inbox/conversations/context/ConversationContext';
+import { ConversationProvider } from '@/inbox/conversations/context/ConversationContext';
 import { ConversationHeader } from './ConversationHeader';
 import { useConversationDetail } from '../hooks/useConversationDetail';
 
@@ -21,23 +21,31 @@ import { MessageInputIntegrationWrapper } from '@/integrations/components/Messag
 import { messageExtraInfoState } from '../states/messageExtraInfoState';
 import { useEffect } from 'react';
 import { ConversationSideWidget } from '@/inbox/conversations/conversation-detail/components/ConversationSideWidget';
+import { useLocation } from 'react-router-dom';
 
 export const ConversationDetail = () => {
   const [conversationId] = useQueryState<string>('conversationId');
+  const [relatedConversationId] = useQueryState<string>(
+    'relatedConversationId',
+  );
   const activeConversationCandidate = useAtomValue(activeConversationState);
   const setExtraInfo = useSetAtom(messageExtraInfoState);
 
+  const location = useLocation();
+  const isInInbox = location.pathname.includes('my-inbox');
+
   const currentConversation =
-    activeConversationCandidate?._id === conversationId
+    activeConversationCandidate?._id === conversationId ||
+    activeConversationCandidate?._id === relatedConversationId
       ? activeConversationCandidate
       : null;
 
   const { conversationDetail, loading } = useConversationDetail({
     variables: {
-      _id: conversationId,
+      _id: conversationId || relatedConversationId,
     },
-    skip: !conversationId,
-    fetchPolicy: 'cache-and-network',
+    skip: !conversationId && !relatedConversationId,
+    fetchPolicy: isInInbox ? 'network-only' : 'cache-and-network',
   });
 
   const { integrationId } = currentConversation || conversationDetail || {};
@@ -60,55 +68,52 @@ export const ConversationDetail = () => {
     return <NoConversationSelected />;
   }
 
-  if (loading) {
-    return (
-      <div className="flex flex-col">
-        <div className="h-12 border-b flex-none flex items-center px-6">
-          <Skeleton className="w-32 h-4" />
-          <Skeleton className="w-32 h-4 ml-auto" />
-        </div>
-        <div className="relative h-full">
-          <InboxMessagesSkeleton />
-        </div>
-      </div>
-    );
-  }
+  const conversationAllDetails = {
+    ...currentConversation,
+    ...conversationDetail,
+    integration,
+    loading,
+  } as IConversation & {
+    integration?: IIntegration;
+    loading?: boolean;
+  };
 
   return (
-    <ConversationContext.Provider
-      value={
-        {
-          ...currentConversation,
-          ...conversationDetail,
-          integration,
-          loading,
-        } as IConversation & {
-          integration?: IIntegration;
-          loading?: boolean;
-        }
-      }
-    >
-      <div className="flex h-full overflow-hidden">
-        <div className="flex flex-col h-full overflow-hidden flex-auto">
+    <div className="flex h-full overflow-hidden">
+      <div className="flex flex-col h-full overflow-hidden flex-auto">
+        <ConversationProvider conversation={conversationAllDetails}>
           <ConversationHeader />
           <Separator />
           <ConversationDetailLayout
             input={
-              <MessageInputIntegrationWrapper>
-                <MessageInput />
-              </MessageInputIntegrationWrapper>
+              integration?.kind === 'imap' ? null : (
+                <MessageInputIntegrationWrapper>
+                  <MessageInput conversationId={conversationId || ''} />
+                </MessageInputIntegrationWrapper>
+              )
             }
           >
-            {integration?.kind &&
-              ['messenger', 'lead'].includes(integration?.kind) && (
-                <ConversationMessages />
-              )}
-            <ConversationIntegrationDetail />
+            {loading ? (
+              <InboxMessagesSkeleton />
+            ) : (
+              <>
+                {integration?.kind &&
+                  ['messenger', 'lead'].includes(integration.kind) && (
+                    <ConversationMessages
+                      conversationId={conversationId || ''}
+                    />
+                  )}
+                <ConversationIntegrationDetail />
+              </>
+            )}
           </ConversationDetailLayout>
           <ConversationMarkAsReadEffect />
-        </div>
-        <ConversationSideWidget />
+        </ConversationProvider>
       </div>
-    </ConversationContext.Provider>
+      <ConversationSideWidget
+        customerId={conversationAllDetails?.customerId || ''}
+        _id={conversationAllDetails?._id || ''}
+      />
+    </div>
   );
 };

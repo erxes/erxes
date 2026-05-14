@@ -34,6 +34,8 @@ import {
 import { useSetAtom } from 'jotai';
 import { useState } from 'react';
 import { SelectMilestone } from './task-selects/SelectMilestone';
+import { TagsSelect } from 'ui-modules';
+import { tasksMoreColumn } from './TasksMoreColumn';
 
 export const tasksColumns = (
   _teams: ITeam[] | undefined,
@@ -42,6 +44,7 @@ export const tasksColumns = (
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ITask>;
 
   return [
+    tasksMoreColumn,
     checkBoxColumn,
     {
       id: 'name',
@@ -195,7 +198,7 @@ export const tasksColumns = (
           />
         );
       },
-      size: 240,
+      size: 170,
     },
     {
       id: 'project',
@@ -247,7 +250,38 @@ export const tasksColumns = (
           />
         );
       },
-      size: 240,
+      size: 180,
+    },
+    {
+      id: 'tagIds',
+      accessorKey: 'tagIds',
+      header: () => <RecordTable.InlineHead label="Tags" />,
+      cell: ({ cell }) => {
+        const tagIds = cell.getValue() as string[];
+
+        return (
+          <TagsSelect.InlineCell
+            type="operation:task"
+            mode="multiple"
+            value={tagIds}
+            targetIds={[cell.row.original._id]}
+            options={(newSelectedTagIds) => ({
+              update: (cache) => {
+                cache.modify({
+                  id: cache.identify({
+                    __typename: 'Task',
+                    _id: cell.row.original._id,
+                  }),
+                  fields: {
+                    tagIds: () => newSelectedTagIds,
+                  },
+                });
+              },
+            })}
+          />
+        );
+      },
+      size: 200,
     },
     {
       id: 'startDate',

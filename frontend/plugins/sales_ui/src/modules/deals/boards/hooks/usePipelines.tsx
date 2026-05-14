@@ -22,6 +22,7 @@ import {
   QueryHookOptions,
   useMutation,
   useQuery,
+  useApolloClient,
 } from '@apollo/client';
 
 import { IPipeline } from '@/deals/types/pipelines';
@@ -84,6 +85,20 @@ export const usePipelineRemove = (
     },
     refetchQueries: ['SalesPipelines'],
     awaitRefetchQueries: true,
+    onCompleted: (...args) => {
+      toast({
+        title: 'Successfully removed a pipeline',
+        variant: 'default',
+      });
+      options?.onCompleted?.(...args);
+    },
+    onError: (err) => {
+      toast({
+        title: 'Error',
+        description: err.message || 'Remove failed',
+        variant: 'destructive',
+      });
+    },
   });
 
   return {
@@ -126,7 +141,7 @@ export const usePipelineEdit = () => {
     editPipeline({
       ...options,
       variables,
-      refetchQueries: ['SalesPipelines'],
+      refetchQueries: ['SalesPipelines', 'SalesStages'],
       awaitRefetchQueries: true,
       update: (cache, { data: { salesPipelinesEdit } }) => {
         if (!salesPipelinesEdit) return;
@@ -134,7 +149,7 @@ export const usePipelineEdit = () => {
           id: cache.identify(salesPipelinesEdit),
           fields: Object.keys(variables || {}).reduce(
             (fields: Record<string, () => any>, field) => {
-              fields[field] = () => (variables || {})[field];
+              fields[field] = () => variables?.[field];
               return fields;
             },
             {},
@@ -247,10 +262,61 @@ export const usePipelineUpdateOrder = (
   };
 };
 
+export const usePipelinesBulkRemove = () => {
+  const [_removePipeline, { loading }] = useMutation(REMOVE_PIPELINE);
+  const client = useApolloClient();
+
+  const removePipelines = async (pipelines: IPipeline[]) => {
+    try {
+      const results = await Promise.allSettled(
+        pipelines.map((pipeline) =>
+          _removePipeline({
+            variables: {
+              _id: pipeline._id,
+            },
+            // Don't refetch individually, let bulk operation handle it
+            onCompleted: () => {
+              toast({
+                title: 'Pipelines removed successfully',
+              });
+            },
+          }),
+        ),
+      );
+
+      const failures = results.filter((result) => result.status === 'rejected');
+      if (failures.length > 0) {
+        throw new Error(`Failed to delete ${failures.length} pipelines`);
+      }
+
+      // Single refetch after all operations complete
+      client.refetchQueries({ include: ['SalesPipelines'] });
+
+      toast({
+        title: 'Success',
+        variant: 'success',
+        description: 'Pipelines deleted successfully',
+      });
+    } catch (e: any) {
+      toast({
+        title: 'Error',
+        description: e.message,
+        variant: 'destructive',
+      });
+      throw e;
+    }
+  };
+
+  return { removePipelines, loading };
+};
+
 export const usePipelineDetail = (
   options?: QueryHookOptions<{ salesPipelineDetail: IPipeline }>,
 ) => {
-  const [pipelineId] = useQueryState('pipelineId');
+  const [pipelineIdFromQuery] = useQueryState('pipelineId');
+
+  // Prioritize _id from passed variables, fallback to query state
+  const pipelineId = options?.variables?._id || pipelineIdFromQuery;
 
   const { data, loading, error } = useQuery<{ salesPipelineDetail: IPipeline }>(
     GET_PIPELINE_DETAIL,

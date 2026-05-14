@@ -1,70 +1,62 @@
-import { AutomationConfigs } from 'erxes-api-shared/src/core-modules/automations/types';
-import { generateModels } from '~/connectionResolvers';
 import { facebookConstants } from '@/integrations/facebook/meta/automation/constants';
 import { facebookAutomationWorkers } from '@/integrations/facebook/meta/automation/workers';
+import { instagramConstants } from '@/integrations/instagram/meta/constants';
+import { instagramAutomationWorkers } from '@/integrations/instagram/meta/automation/workers';
+
 import {
-  IAutomationReceiveActionData,
-  ICheckTriggerData,
-} from '@/integrations/facebook/meta/automation/types/automationTypes';
+  AutomationConfigs,
+  createCoreModuleProducerHandler,
+  TAutomationProducers,
+} from 'erxes-api-shared/core-modules';
+import { generateModels } from '~/connectionResolvers';
 
 const modules = {
   facebook: facebookAutomationWorkers,
+  instagram: instagramAutomationWorkers,
 };
-
-type ModuleKeys = keyof typeof modules;
-
-function createActionData(
-  args: IAutomationReceiveActionData,
-): IAutomationReceiveActionData {
-  const {
-    action,
-    execution,
-    actionType,
-    collectionType,
-    triggerType,
-    ...restArgs
-  } = args;
-
-  return {
-    action,
-    execution,
-    actionType,
-    collectionType,
-    triggerType,
-    ...restArgs,
-  };
-}
 
 export default {
   constants: {
-    actions: [...facebookConstants.actions],
-    triggers: [...facebookConstants.triggers],
-    bots: [...facebookConstants.bots],
+    actions: [...facebookConstants.actions, ...instagramConstants.actions],
+    triggers: [...facebookConstants.triggers, ...instagramConstants.triggers],
+    bots: [...facebookConstants.bots, ...instagramConstants.bots],
   },
 
-  receiveActions: async (
-    { subdomain },
-    {
-      moduleName,
-      ...args
-    }: { moduleName: string } & IAutomationReceiveActionData,
-  ) => {
-    const models = await generateModels(subdomain);
-    const context = { models, subdomain };
+  receiveActions: createCoreModuleProducerHandler({
+    moduleName: 'automations',
+    modules,
+    methodName: TAutomationProducers.RECEIVE_ACTIONS,
+    extractModuleName: (input) => input.moduleName,
+    generateModels,
+  }),
 
-    return modules[moduleName as ModuleKeys].receiveActions(
-      context,
-      createActionData(args),
-    );
-  },
+  checkCustomTrigger: createCoreModuleProducerHandler({
+    moduleName: 'automations',
+    modules,
+    methodName: TAutomationProducers.CHECK_CUSTOM_TRIGGER,
+    extractModuleName: (input) => input.moduleName,
+    generateModels,
+  }),
+  getAdditionalAttributes: createCoreModuleProducerHandler({
+    moduleName: 'automations',
+    modules,
+    methodName: TAutomationProducers.GET_ADDITIONAL_ATTRIBUTES,
+    extractModuleName: (input) => (input as any).moduleName,
+    generateModels,
+  }),
+  generateAiContext: createCoreModuleProducerHandler({
+    moduleName: 'automations',
+    modules,
+    methodName: TAutomationProducers.GENERATE_AI_CONTEXT,
+    extractModuleName: (input) => input.moduleName,
+    generateModels,
+  }),
 
-  checkCustomTrigger: async (
-    { subdomain },
-    { moduleName, ...props }: { moduleName: string } & ICheckTriggerData,
-  ) => {
-    const models = await generateModels(subdomain);
-    const context = { models, subdomain };
-
-    return modules[moduleName as ModuleKeys].checkCustomTrigger(context, props);
-  },
+  setProperties: createCoreModuleProducerHandler({
+    moduleName: 'automations',
+    modules,
+    methodName: TAutomationProducers.SET_PROPERTIES,
+    extractModuleName: (input) => input.moduleName,
+    generateModels,
+  }),
 } as AutomationConfigs;

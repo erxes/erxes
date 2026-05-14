@@ -21,7 +21,6 @@ const Payment = (props: Props) => {
     [invoiceDetail.transactions],
   );
 
-
   const [currentTransaction, setCurrentTransaction] = useState<any>(
     props.newTransaction,
   );
@@ -50,12 +49,9 @@ const Payment = (props: Props) => {
         (t) => t.paymentId === payment._id && t.status === 'pending',
       );
 
-      if (pendingTransaction && pendingTransaction.paymentKind === 'minupay') {
+      if (pendingTransaction?.paymentKind === 'minupay') {
         props.requestNewTransaction(payment._id);
-      } else if (
-        pendingTransaction &&
-        pendingTransaction.paymentKind === 'golomt'
-      ) {
+      } else if (pendingTransaction?.paymentKind === 'golomt') {
         // request new transaction for golomt if the transaction is older than 7 minutes
         const now = new Date();
         const sevenMinutesAgo = new Date(now.getTime() - 7 * 60 * 1000);
@@ -80,7 +76,7 @@ const Payment = (props: Props) => {
       <PaymentContext.Provider
         value={{
           ...props,
-          apiDomain:API_URL,
+          apiDomain: API_URL,
           isOpen: modalIsOpen,
           onClose: () => setModalIsOpen(false),
           transaction: currentTransaction,
@@ -118,7 +114,8 @@ const Payment = (props: Props) => {
           <div className="text-right border-t border-dashed pt-3">
             <p className="text-neutral-500 text-sm">Payment Amount</p>
             <div className="font-bold text-2xl">
-              {invoiceDetail.amount.toLocaleString()} {invoiceDetail.currency}
+              {(invoiceDetail.amount ?? 0).toLocaleString()}{' '}
+              {invoiceDetail.currency}
             </div>
           </div>
         </div>

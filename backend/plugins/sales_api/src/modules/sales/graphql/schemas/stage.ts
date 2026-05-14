@@ -64,6 +64,14 @@ export const queries = `
   salesStageDetail(_id: String!, ${queryParams}): SalesStage
   salesArchivedStages(pipelineId: String!, search: String): [SalesStage]
   salesArchivedStagesCount(pipelineId: String!, search: String): Int
+
+  cpSalesStages(
+    isNotLost: Boolean,
+    isAll: Boolean,
+    pipelineId: String,
+    pipelineIds: [String],
+    ${queryParams}
+  ): [SalesStage]
 `;
 
 export const mutations = `

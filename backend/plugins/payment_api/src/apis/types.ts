@@ -43,3 +43,13 @@ export interface IMonpayConfig {
   username: string;
   accountId: string;
 }
+
+export interface ITokiInvoice {
+  invoice_code: string;
+  sender_invoice_no: string;
+  invoice_receiver_code: string;
+  invoice_description: string;
+  sender_branch_code?: string;
+  amount: number;
+  callback_url: string;
+}

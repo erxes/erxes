@@ -16,6 +16,7 @@ import { useUnitForm } from '../../hooks/useUnitForm';
 import { useUnitAdd } from '../../hooks/useUnitActions';
 import { TUnitForm, UnitHotKeyScope } from '../../types/unit';
 import { UnitForm } from './UnitForm';
+import { Can, usePermissionCheck } from 'ui-modules';
 
 export const CreateUnit = () => {
   const {
@@ -27,6 +28,8 @@ export const CreateUnit = () => {
   const { toast } = useToast();
   const setHotkeyScope = useSetHotkeyScope();
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canManageUnits = isLoaded && hasActionPermission('unitsManage');
 
   const onOpen = () => {
     setOpen(true);
@@ -38,7 +41,14 @@ export const CreateUnit = () => {
     setOpen(false);
   };
 
-  useScopedHotkeys(`c`, () => onOpen(), UnitHotKeyScope.UnitSettingsPage);
+  useScopedHotkeys(
+    `c`,
+    () => {
+      if (!canManageUnits) return;
+      onOpen();
+    },
+    UnitHotKeyScope.UnitSettingsPage,
+  );
   useScopedHotkeys(`esc`, () => onClose(), UnitHotKeyScope.UnitAddSheet);
 
   const submitHandler: SubmitHandler<TUnitForm> = React.useCallback(
@@ -46,7 +56,11 @@ export const CreateUnit = () => {
       handleAdd({
         variables: data,
         onCompleted: () => {
-          toast({ title: 'Success!' });
+          toast({
+            title: 'Success!',
+            variant: 'success',
+            description: 'Unit created successfully',
+          });
           methods.reset();
           setOpen(false);
         },
@@ -62,12 +76,14 @@ export const CreateUnit = () => {
   );
   return (
     <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus /> Create Unit
-          <Kbd>C</Kbd>
-        </Button>
-      </Sheet.Trigger>
+      <Can action="unitsManage">
+        <Sheet.Trigger asChild>
+          <Button>
+            <IconPlus /> Create Unit
+            <Kbd>C</Kbd>
+          </Button>
+        </Sheet.Trigger>
+      </Can>
       <Sheet.View
         className="p-0"
         onEscapeKeyDown={(e) => {

@@ -15,7 +15,7 @@ export interface IVatRowModel extends Model<IVatRowDocument> {
   ): Promise<IVatRowDocument>;
 }
 
-export const loadVatRowClass = (models: IModels, subdomain: string) => {
+export const loadVatRowClass = (models: IModels, _subdomain: string) => {
   class VatRow {
     /**
      *
@@ -57,7 +57,9 @@ export const loadVatRowClass = (models: IModels, subdomain: string) => {
       const usedIds: string[] = [];
       const unUsedIds: string[] = [];
 
-      const usedVatRowIds = await models.Transactions.find({ vatRowId: { $in: _ids } }).distinct('vatRowId')
+      const usedVatRowIds = await models.Transactions.find({
+        vatRowId: { $in: _ids },
+      }).distinct('vatRowId');
 
       for (const id of _ids) {
         if (!usedVatRowIds.includes(id)) {
@@ -100,4 +102,3 @@ export const loadVatRowClass = (models: IModels, subdomain: string) => {
 
   return vatRowSchema;
 };
-

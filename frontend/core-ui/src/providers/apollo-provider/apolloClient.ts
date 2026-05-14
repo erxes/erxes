@@ -13,6 +13,29 @@ import { createClient } from 'graphql-ws';
 
 import { REACT_APP_API_URL } from 'erxes-ui';
 
+const SESSION_CODE_STORAGE_KEY = 'sessioncode';
+
+const generateSessionCode = () => {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return crypto.randomUUID();
+  }
+
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+};
+
+const getSessionCode = () => {
+  const existingSessionCode = sessionStorage.getItem(SESSION_CODE_STORAGE_KEY);
+
+  if (existingSessionCode) {
+    return existingSessionCode;
+  }
+
+  const sessionCode = generateSessionCode();
+  sessionStorage.setItem(SESSION_CODE_STORAGE_KEY, sessionCode);
+
+  return sessionCode;
+};
+
 // Create an http link:
 const httpLink = createHttpLink({
   uri: `${REACT_APP_API_URL}/graphql`,
@@ -34,7 +57,7 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      sessioncode: sessionStorage.getItem('sessioncode') || '',
+      sessioncode: getSessionCode(),
     },
   };
 });
@@ -43,9 +66,10 @@ const authLink = setContext((_, { headers }) => {
 const httpLinkWithMiddleware = from([errorLink, authLink, httpLink]);
 
 // Subscription config
+const wsUrl = REACT_APP_API_URL.replace(/^http/, 'ws') + '/graphql';
 export const wsLink = new GraphQLWsLink(
   createClient({
-    url: `${REACT_APP_API_URL}/graphql`,
+    url: wsUrl,
     retryAttempts: 1000,
     retryWait: async () => {
       await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -68,7 +92,6 @@ const link = split(
   wsLink,
   httpLinkWithMiddleware,
 );
-
 const typePolicies = {
   customers: {
     keyFields: ['_id'],

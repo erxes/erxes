@@ -93,7 +93,7 @@ export const InviteRow = ({
                     )}
                   />
                 </Form.Control>
-                <Form.Message className="text-destructive-foreground absolute top-full -left-px -right-px bg-destructive !m-0 px-2 py-1" />
+                <Form.Message className="text-destructive-foreground absolute top-full -left-px -right-px bg-destructive m-0! px-2 py-1" />
               </Form.Item>
             )}
           />

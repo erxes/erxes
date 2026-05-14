@@ -25,7 +25,8 @@ export const useAdjustInventoryDetail = (options: OperationVariables) => {
       updateQuery: (prev, { subscriptionData }) => {
         if (!prev || !subscriptionData.data) return prev;
 
-        const newAdjustInventoryDetail = subscriptionData.data.accountingAdjustInventoryChanged;
+        const newAdjustInventoryDetail =
+          subscriptionData.data.accountingAdjustInventoryChanged;
 
         try {
           // Get the cache ID for the conversation
@@ -48,7 +49,7 @@ export const useAdjustInventoryDetail = (options: OperationVariables) => {
         }
 
         return {
-          adjustInventoryDetail: newAdjustInventoryDetail
+          adjustInventoryDetail: newAdjustInventoryDetail,
         };
       },
     });

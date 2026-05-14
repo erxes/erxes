@@ -1,10 +1,14 @@
-import { PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
+import { Can, PageHeader, PageHeaderEnd, PageHeaderStart } from 'ui-modules';
 import { CreateBrand } from './CreateBrand';
 import { Breadcrumb, Button } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { IconChessKnightFilled } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 export function BrandsHeader() {
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'brands',
+  });
   return (
     <PageHeader>
       <PageHeaderStart>
@@ -14,7 +18,7 @@ export function BrandsHeader() {
               <Button variant="ghost" asChild>
                 <Link to="/settings/brands">
                   <IconChessKnightFilled />
-                  Brands
+                  {t('_')}
                 </Link>
               </Button>
             </Breadcrumb.Item>
@@ -22,7 +26,9 @@ export function BrandsHeader() {
         </Breadcrumb>
       </PageHeaderStart>
       <PageHeaderEnd>
-        <CreateBrand />
+        <Can action="brandsCreate">
+          <CreateBrand />
+        </Can>
       </PageHeaderEnd>
     </PageHeader>
   );

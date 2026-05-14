@@ -14,10 +14,13 @@ export const TBalanceTableRow = ({
   const rows = table.getRowModel().rows;
 
   const tableContent = rows.map((row, rowIndex) => {
-    const hasChangedPtrId = rows[rowIndex - 1]?.original?.ptrId !== row.original.ptrId;
+    const hasChangedPtrId =
+      rows[rowIndex - 1]?.original?.ptrId !== row.original.ptrId;
 
     return (
-      <React.Fragment key={`row-group-${row.original._id}`}>
+      <React.Fragment
+        key={`row-group-${row.original._id}-${row.original.detail?._id}`}
+      >
         {hasChangedPtrId ? (
           <RowComponent
             key={`${row.original.ptrId}_${rowIndex}`}
@@ -30,7 +33,10 @@ export const TBalanceTableRow = ({
               key={`${row.original.ptrId}_${rowIndex}__`}
               id={`${row.original.ptrId}_${rowIndex}__`}
               colSpan={row.getVisibleCells().length}
-              className={cn(rowIndex === 0 && 'border-t', row.original.ptrStatus === 'diff' && 'bg-red-50/25')}
+              className={cn(
+                rowIndex === 0 && 'border-t',
+                row.original.ptrStatus === 'diff' && 'bg-red-50/25',
+              )}
             >
               {`
                 Ажил гүйлгээ                
@@ -47,17 +53,13 @@ export const TBalanceTableRow = ({
           }
         >
           {row.getVisibleCells().map((cell, cellIndex) => (
-            <RecordTable.Cell
-              cell={cell}
-              key={cell.id}
-
-            >
+            <RecordTable.Cell cell={cell} key={cell.id}>
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </RecordTable.Cell>
           ))}
         </RowComponent>
       </React.Fragment>
-    )
+    );
   });
 
   const memoizedTableContent = useMemo(

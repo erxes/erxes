@@ -4,13 +4,13 @@ export const ACTIVITY_LOGS = gql`
   query activityLogs(
     $contentType: String!
     $contentId: String!
-    $activityType: String
+    $action: String
     $limit: Int
   ) {
     activityLogs(
       contentType: $contentType
       contentId: $contentId
-      activityType: $activityType
+      action: $action
       limit: $limit
     ) {
       _id

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useMailConfigForm } from '@/settings/mail-config/hooks/useMailConfigForm';
 import { Button, Form, Input, Select, cn } from 'erxes-ui';
 import { MAIL_CONFIG_FIELDS } from '@/settings/mail-config/constants/formData';
@@ -7,6 +7,7 @@ import { Path, useWatch } from 'react-hook-form';
 import { AnimatePresence } from 'framer-motion';
 import { useConfig } from '@/settings/file-upload/hook/useConfigs';
 import { IconLoader2 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 const MailConfigForm = () => {
   const {
@@ -15,6 +16,9 @@ const MailConfigForm = () => {
     submitHandler,
   } = useMailConfigForm();
   const { isLoading, configs } = useConfig();
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'mail-config',
+  });
   const COMPANY_EMAIL_TEMPLATE_TYPE = useWatch({
     control,
     name: 'COMPANY_EMAIL_TEMPLATE_TYPE',
@@ -42,6 +46,7 @@ const MailConfigForm = () => {
       DEFAULT_EMAIL_SERVICE: values.DEFAULT_EMAIL_SERVICE ?? 'SES',
     });
   }, [configs, methods]);
+  const columns = useMemo(() => MAIL_CONFIG_FIELDS(t), [t]);
 
   return (
     <Form {...methods}>
@@ -49,7 +54,7 @@ const MailConfigForm = () => {
         onSubmit={methods.handleSubmit(submitHandler)}
         className="grid grid-cols-4 gap-3 py-1"
       >
-        {MAIL_CONFIG_FIELDS['common'].map(
+        {columns['common'].map(
           ({ name, inputType, type, label, description, options }, idx) => {
             if (inputType === 'select') {
               return (
@@ -108,7 +113,7 @@ const MailConfigForm = () => {
                         <div>
                           <Form.Label>{label}</Form.Label>
                         </div>
-                        <div className="w-full flex items-center p-3 text-sm leading-[140%] font-normal bg-primary/[.06] text-primary rounded-lg border border-primary/30">
+                        <div className="w-full flex items-center p-3 text-sm leading-[140%] font-normal bg-primary/6 text-primary rounded-lg border border-primary/30">
                           {description}
                         </div>
                       </Form.Item>
@@ -131,7 +136,7 @@ const MailConfigForm = () => {
                         <div>
                           <Form.Label>{label}</Form.Label>
                         </div>
-                        <div className="w-full flex items-center p-3 text-sm leading-[140%] font-normal bg-primary/[.06] text-primary rounded-lg border border-primary/30">
+                        <div className="w-full flex items-center p-3 text-sm leading-[140%] font-normal bg-primary/6 text-primary rounded-lg border border-primary/30">
                           {description}
                         </div>
                       </Form.Item>
@@ -166,7 +171,7 @@ const MailConfigForm = () => {
           },
         )}
         <AnimatePresence mode="popLayout">
-          {MAIL_CONFIG_FIELDS[MAIL_SERVICE]?.map(
+          {columns[MAIL_SERVICE]?.map(
             ({ name, inputType, type, label, description, options }, idx) => (
               <Form.Field
                 key={name}

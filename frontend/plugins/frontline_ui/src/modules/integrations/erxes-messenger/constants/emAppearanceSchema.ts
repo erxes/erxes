@@ -1,7 +1,12 @@
 import { z } from 'zod';
 
 export const EMAPPEARANCE_SCHEMA = z.object({
-  color: z.string().optional(),
-  textColor: z.string().optional(),
+  primary: z
+    .object({
+      DEFAULT: z.string(),
+      foreground: z.string(),
+    })
+    .optional()
+    .nullable(),
   logo: z.string().optional(),
 });

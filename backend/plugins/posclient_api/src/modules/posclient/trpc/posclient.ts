@@ -8,6 +8,7 @@ import {
   importProducts,
   importSlots,
   preImportProducts,
+  preRemovePos,
   receivePosConfig,
   receiveProduct,
   receiveProductCategory,
@@ -18,15 +19,23 @@ const t = initTRPC.context<PosTRPCContext>().create();
 
 export const posclientTrpcRouter = t.router({
   posclient: t.router({
-    configs: t.router({
-      manage: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-        const data = input;
-        const { models, subdomain } = ctx;
-        return {
-          status: 'success',
-          data: await receivePosConfig(subdomain, models, data),
-        };
-      }),
+    getConfigByToken: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { token } = input;
+      const { models } = ctx;
+      return models.Configs.findOne({ token }).lean();
+    }),
+    manageConfig: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const data = input;
+      const { models, subdomain } = ctx;
+      return await receivePosConfig(subdomain, models, data);
+    }),
+    removeConfig: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const { posId, posToken } = input;
+      const { models } = ctx;
+
+      await preRemovePos(models, posId, posToken);
+      await models.Configs.removeConfig(posId);
+      return 'success';
     }),
     covers: t.router({
       remove: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
@@ -70,7 +79,7 @@ export const posclientTrpcRouter = t.router({
     }),
     crudData: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { models, subdomain } = ctx;
-      const { token, type } = input;
+      const { token, type, ...data } = input;
 
       if (type) {
         switch (type) {
@@ -83,22 +92,24 @@ export const posclientTrpcRouter = t.router({
           case 'user':
             await receiveUser(models, input);
             break;
-          case 'productGroups':
-            const { productGroups = [] } = input;
+          case 'productGroups': {
+            const { productGroups = [] } = data;
             await preImportProducts(models, token, productGroups);
             await importProducts(subdomain, models, token, productGroups);
             break;
-          case 'slots':
-            const { slots = [] } = input;
-            await importSlots(models, slots, token);
+          }
+          case 'slots': {
+            const { slots = [] } = data;
+            await importSlots(models, token, slots);
             break;
+          }
           default:
             break;
         }
       }
     }),
-    updateSynced: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models, subdomain } = ctx;
+    updateSynced: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const { models } = ctx;
 
       const { responseIds, orderId, convertDealId } = input;
 
@@ -111,9 +122,9 @@ export const posclientTrpcRouter = t.router({
         { $set: { synced: true } },
       );
     }),
-    erxes_posclient_to_pos_api: t.procedure
+    syncOrderFromPos: t.procedure
       .input(z.any())
-      .query(async ({ ctx, input }) => {
+      .mutation(async ({ ctx, input }) => {
         const { models, subdomain } = ctx;
 
         const { order } = input;
@@ -154,9 +165,9 @@ export const posclientTrpcRouter = t.router({
           },
         });
       }),
-    erxes_posclient_to_pos_api_remove: t.procedure
+    syncOrderFromPosRemove: t.procedure
       .input(z.any())
-      .query(async ({ ctx, input }) => {
+      .mutation(async ({ ctx, input }) => {
         const { models, subdomain } = ctx;
 
         const { order } = input;

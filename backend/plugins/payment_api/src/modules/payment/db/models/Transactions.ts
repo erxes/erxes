@@ -5,7 +5,7 @@ import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { transactionSchema } from '~/modules/payment/db/definitions/transactions';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
-  getTransaction(doc: any, leanObject?: boolean): ITransactionDocument;
+  getTransaction(doc: any, leanObject?: boolean): Promise<ITransactionDocument>;
   createTransaction({
     invoiceId,
     paymentId,
@@ -37,25 +37,25 @@ const generateCode = async (models: IModels) => {
   const last = await models.Transactions.findOne(
     {},
     {},
-    { sort: { createdAt: -1 } }
+    { sort: { createdAt: -1 } },
   );
 
   let code = `${currentDateString}-0001`;
-  if (!last || !last.code) {
-    code = `${currentDateString}-0001`;
-  } else {
+  if (last?.code) {
     const lastInvoiceDate = last.code.split('-')[0];
     const lastValue = Number(last.code.split('-')[1] || '0000');
 
     if (lastInvoiceDate === currentDateString) {
       const newIncrementalValue = lastValue + 1;
       const formattedIncrementalValue = ('0000' + newIncrementalValue).slice(
-        -4
+        -4,
       );
       code = `${currentDateString}-${formattedIncrementalValue}`;
     } else {
       code = `${currentDateString}-0001`;
     }
+  } else {
+    code = `${currentDateString}-0001`;
   }
 
   const codeExists = await models.Transactions.findOne({ code });
@@ -83,12 +83,12 @@ export const loadTransactionClass = (models: IModels) => {
 
     public static async createTransaction(doc: any) {
       const { subdomain } = doc;
-      if (!doc.amount && doc.amount === 0) {
+      if (!doc.amount || doc.amount === 0) {
         throw new Error('Amount is required');
       }
 
       const paymentMethod = await models.PaymentMethods.getPayment(
-        doc.paymentId
+        doc.paymentId,
       );
 
       const updatedDoc = {
@@ -103,9 +103,9 @@ export const loadTransactionClass = (models: IModels) => {
       const api = new ErxesPayment(paymentMethod, subdomain);
 
       try {
-        const reponse = await api.createInvoice(transaction);
+        const reponse = await api.createInvoice(transaction.toObject());
         transaction.response = reponse;
-        transaction.save();
+        await transaction.save();
 
         return transaction;
       } catch (e) {
@@ -117,7 +117,7 @@ export const loadTransactionClass = (models: IModels) => {
     public static async updateTransaction(_id: string, doc: any) {
       const result = await models.Transactions.updateOne(
         { _id },
-        { $set: doc }
+        { $set: doc },
       );
 
       if (result.matchedCount === 0) {
@@ -135,7 +135,7 @@ export const loadTransactionClass = (models: IModels) => {
       }
 
       const payment = await models.PaymentMethods.getPayment(
-        transaction.paymentId
+        transaction.paymentId,
       );
 
       const api = new ErxesPayment(payment);
@@ -156,7 +156,7 @@ export const loadTransactionClass = (models: IModels) => {
       const transaction = await models.Transactions.getTransaction({ _id });
 
       const payment = await models.PaymentMethods.getPayment(
-        transaction.paymentId
+        transaction.paymentId,
       );
 
       const api = new ErxesPayment(payment, subdomain);

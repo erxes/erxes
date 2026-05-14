@@ -4,6 +4,7 @@ import { IContext } from '~/connectionResolvers';
 const generateFilter = async (params) => {
   const filter: any = {};
 
+  // Search
   if (params.searchValue) {
     filter.title = {
       $regex: `.*${params.searchValue.trim()}.*`,
@@ -11,6 +12,7 @@ const generateFilter = async (params) => {
     };
   }
 
+  // TAX rule filters
   if (params.kind) {
     filter.kind = params.kind;
   }
@@ -23,17 +25,17 @@ const generateFilter = async (params) => {
     filter.taxType = params.taxType;
   }
 
-  return filter;
-};
-
-export const sortBuilder = (params) => {
-  const { sortField, sortDirection = 0 } = params;
-
-  if (sortField) {
-    return { [sortField]: sortDirection };
+  // v2.x parity
+  if (params.taxPercent !== undefined && params.taxPercent !== null) {
+    filter.taxPercent = params.taxPercent;
   }
 
-  return { createdAt: 1 };
+  // Product-specific rule
+  if (params.productId) {
+    filter.productIds = params.productId;
+  }
+
+  return filter;
 };
 
 export const productRuleQueries = {
@@ -44,9 +46,15 @@ export const productRuleQueries = {
   ) => {
     const filter = await generateFilter(params);
 
-    return await cursorPaginate({
+    // Default TAX sorting (v2.x style)
+    if (!params.sortField) {
+      params.sortField = 'createdAt';
+      params.sortDirection = -1;
+    }
+
+    return cursorPaginate({
       model: models.ProductRules,
-      params: params,
+      params,
       query: filter,
     });
   },
@@ -57,7 +65,6 @@ export const productRuleQueries = {
     { models }: IContext,
   ) => {
     const filter = await generateFilter(params);
-
-    return models.ProductRules.find(filter).countDocuments();
+    return models.ProductRules.countDocuments(filter);
   },
 };

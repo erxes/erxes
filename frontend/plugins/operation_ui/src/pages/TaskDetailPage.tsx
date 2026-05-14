@@ -5,6 +5,7 @@ import { Breadcrumb, Separator } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
 import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
 import { TaskBreadCrump } from '@/task/components/breadcrump/TaskBreadCrump';
+import { TaskDetailActions } from '@/task/components/task-actions/TaskDetailActions';
 
 export const TaskDetailPage = () => {
   const { teamId, taskId } = useParams<{ teamId?: string; taskId: string }>();
@@ -30,6 +31,9 @@ export const TaskDetailPage = () => {
               )}
               <Separator.Inline />
               <TaskDetailBreadCrump />
+              <TaskDetailActions
+                taskId={taskId}
+              />
             </Breadcrumb.List>
           </Breadcrumb>
         </PageHeader.Start>

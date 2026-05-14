@@ -1,11 +1,15 @@
-import { getBranchesUtil } from "@/pos/utils";
-import { paginate } from "erxes-api-shared/utils";
-import { IContext } from "~/connectionResolvers";
+import { getBranchesUtil } from '@/pos/utils';
+import { paginate } from 'erxes-api-shared/utils';
+import { IContext } from '~/connectionResolvers';
 
-const generateFilterQuery = async ({ isOnline }) => {
+const generateFilterQuery = async ({ isOnline, search }) => {
   const query: any = { status: { $ne: 'deleted' } };
   if (isOnline) {
     query.isOnline = isOnline === 'online';
+  }
+
+  if (search) {
+    query.name = { $regex: search }
   }
 
   return query;
@@ -15,49 +19,44 @@ const queries = {
   async posEnv() {
     const { ALL_AUTO_INIT } = process.env;
     return {
-      ALL_AUTO_INIT: [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '')
+      ALL_AUTO_INIT: [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || ''),
     };
   },
 
-  async posList(_root, params, { models }: IContext) {
+  async posList(_root, params, { models, checkPermission }: IContext) {
+    await checkPermission('posRead');
     const query = await generateFilterQuery(params);
-
     const posList = paginate(models.Pos.find(query), params);
-
     return posList;
   },
 
-  async posDetail(_root, { _id }, { models }: IContext) {
+  async posDetail(_root, { _id }, { models, checkPermission }: IContext) {
+    await checkPermission('posRead');
     return await models.Pos.getPos({ $or: [{ _id }, { token: _id }] });
   },
 
   async ecommerceGetBranches(
     _root,
     { posToken },
-    { models, subdomain }: IContext
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('posRead');
     return await getBranchesUtil(subdomain, models, posToken);
   },
 
   async productGroups(
     _root,
     { posId }: { posId: string },
-    { models }: IContext
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('posRead'); 
     return await models.ProductGroups.groups(posId);
   },
 
-  async posSlots(
-    _root,
-    { posId }: { posId: string },
-    { models }: IContext
-  ) {
+  async posSlots(_root, { posId }: { posId: string }, { models, checkPermission }: IContext) {
+    await checkPermission('posRead');
     return await models.PosSlots.find({ posId }).lean();
-  }
+  },
 };
-
-// checkPermission(queries, 'posList', 'showPos');
-// checkPermission(queries, 'posDetail', 'showPos');
-// checkPermission(queries, 'productGroups', 'managePos');
 
 export default queries;

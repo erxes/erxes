@@ -5,6 +5,7 @@ import { init } from '@module-federation/enhanced/runtime';
 
 import { NODE_ENV, REACT_APP_API_URL } from 'erxes-ui';
 
+import '@blocknote/shadcn/style.css';
 import './styles.css';
 
 import { App } from '@/app/components/App';

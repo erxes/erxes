@@ -5,36 +5,32 @@ import { toast } from 'erxes-ui';
 export const useAccountEdit = () => {
   const [_editAccount, { loading }] = useMutation(ACCOUNTS_EDIT);
 
-  const editAccount = (
-    operationVariables: OperationVariables,
-    fields: string[],
-  ) => {
-    const variables = operationVariables?.variables || {};
+  const editAccount = (options: OperationVariables, fields: string[]) => {
+    const variables = options?.variables || {};
     const fieldsToUpdate: Record<string, () => any> = {};
     fields.forEach((field) => {
       fieldsToUpdate[field] = () => variables[field];
     });
     return _editAccount({
-      ...operationVariables,
+      ...options,
       variables,
-      update: (cache, { data: { accountsEdit } }) => {
-        try {
-          cache.modify({
-            id: cache.identify(accountsEdit),
-            fields: fieldsToUpdate,
-            optimistic: true,
-          });
-        } catch (error) {
-          console.error(error);
-        }
-      },
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: 'Алдаа',
           description: error.message,
           variant: 'destructive',
         });
+        options.onError?.(error);
       },
+      onCompleted: (data) => {
+        toast({
+          title: 'Амжилттай',
+          description: 'Дансыг шинэчиллээ',
+          variant: 'success',
+        });
+        options?.onCompleted?.(data);
+      },
+      refetchQueries: ['AccountsMain'],
     });
   };
 

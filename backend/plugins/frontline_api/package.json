@@ -13,14 +13,26 @@
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.1692.0",
+    "base64-stream": "^1.0.0",
+    "date-fns": "^4.1.0",
     "debug": "^4.4.0",
     "erxes-api-shared": "workspace:^",
-    "fast-xml-parser": "^5.2.5",
+    "fast-xml-parser": "5.2.5",
     "fbgraph": "^1.4.4",
+    "graphql-tag": "^2.12.6",
+    "jsonwebtoken": "^9.0.2",
+    "mailparser": "^3.9.1",
     "moment-timezone": "^0.5.48",
+    "mongodb": "^6.18.0",
+    "node-imap": "^0.9.6",
+    "nodemailer": "^6.9.10",
     "redlock": "5.0.0-beta.2",
     "string-strip-html": "^13.4.12",
+    "strip": "^3.0.0",
     "strip-html": "^1.0.2",
-    "uuid-by-string": "^4.0.0"
+    "underscore": "^1.13.7",
+    "uuid-by-string": "^4.0.0",
+    "validator": "^13.15.0",
+    "ws": "^8.18.2"
   }
 }

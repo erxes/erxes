@@ -22,6 +22,20 @@ export default {
     return await models.Companies.findOne({ _id: parentCompanyId }).lean();
   },
 
+  industry: (company: ICompanyDocument) => {
+    const industry = company.industry;
+
+    if (!industry) {
+      return [];
+    }
+
+    if (Array.isArray(industry)) {
+      return industry;
+    }
+
+    return [industry];
+  },
+
   customers: async (
     company: ICompanyDocument,
     _params: undefined,

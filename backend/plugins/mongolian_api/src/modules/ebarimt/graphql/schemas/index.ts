@@ -1,14 +1,18 @@
-import { types as ebarimtTypes } from './ebarimt';
-import { types as productGroupTypes } from './productGroup';
-import { types as productRuleTypes } from './productRule';
-
-import { queries as ebarimtQueries } from './ebarimt';
-import { queries as productGroupQueries } from './productGroup';
-import { queries as productRuleQueries } from './productRule';
-
-import { mutations as ebarimtMutations } from './ebarimt';
-import { mutations as productGroupMutations } from './productGroup';
-import { mutations as productRuleMutations } from './productRule';
+import {
+    mutations as ebarimtMutations,
+    queries as ebarimtQueries,
+    types as ebarimtTypes
+} from './ebarimt';
+import {
+    mutations as productGroupMutations,
+    queries as productGroupQueries,
+    types as productGroupTypes
+} from './productGroup';
+import {
+    mutations as productRuleMutations,
+    queries as productRuleQueries,
+    types as productRuleTypes
+} from './productRule';
 
 export const types = `
     ${ebarimtTypes}

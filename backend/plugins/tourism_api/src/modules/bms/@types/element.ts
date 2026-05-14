@@ -16,6 +16,7 @@ export interface IElement {
   location?: ILocation;
   categories?: string[];
   branchId?: string;
+  language?: string;
   additionalInfo?: any;
 }
 

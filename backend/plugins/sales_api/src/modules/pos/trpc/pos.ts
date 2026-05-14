@@ -1,38 +1,32 @@
 import { initTRPC } from '@trpc/server';
 import { ITRPCContext } from 'erxes-api-shared/utils';
 import { z } from 'zod';
-// import { PosTRPCContext } from '~/init-trpc';
 import { IModels } from '~/connectionResolvers';
 import {
   getBranchesUtil,
   statusToDone,
   syncOrderFromClient,
 } from '~/modules/pos/utils';
-// const t = initTRPC.context<PosTRPCContext>().create();
+
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
 const t = initTRPC.context<SalesTRPCContext>().create();
 
 export const posTrpcRouter = t.router({
   pos: t.router({
-    orders: t.router({
-      updateOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-        const { selector, modifier } = input;
+    confirmCover: t.procedure
+      .input(z.any())
+      .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
+        const { cover } = input;
+        await models.Covers.updateOne(
+          { _id: cover._id },
+          { ...cover },
+          { upsert: true },
+        );
 
-        return {
-          status: 'success',
-          data: await models.PosOrders.updateOne(selector, modifier),
-        };
+        return await models.Covers.findOne({ _id: cover._id })
       }),
-    }),
-
-    confirm: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { query } = input;
-      const { models } = ctx;
-
-      return await models.Pos.find(query).lean();
-    }),
     ecommerceGetBranches: t.procedure
       .input(z.any())
       .query(async ({ ctx, input }) => {
@@ -64,14 +58,11 @@ export const posTrpcRouter = t.router({
 
         if (!order.deliveryInfo.dealId) {
           return {
-            status: 'success',
-            data: {
-              _id: order._id,
-              status: 'onKitchen',
-              date: order.paidDate,
-              description: order.description,
-            },
-          };
+            _id: order._id,
+            status: 'onKitchen',
+            date: order.paidDate,
+            description: order.description,
+          }
         }
 
         const dealId = order.deliveryInfo.dealId;
@@ -79,11 +70,8 @@ export const posTrpcRouter = t.router({
 
         if (!deal) {
           return {
-            status: 'success',
-            data: {
-              error: 'Deleted delivery information.',
-            },
-          };
+            error: 'Deleted delivery information.',
+          }
         }
         const stage = await models.Stages.findOne({ _id: deal.stageId });
         if (!stage) {
@@ -95,18 +83,15 @@ export const posTrpcRouter = t.router({
           };
         }
         return {
-          status: 'success',
-          data: {
-            _id: order._id,
-            status: stage.name,
-            date: deal.stageChangedDate || deal.updatedAt || deal.createdAt,
-            description: order.description,
-          },
-        };
+          _id: order._id,
+          status: stage.name,
+          date: deal.stageChangedDate || deal.updatedAt || deal.createdAt,
+          description: order.description,
+        }
       }),
     createOrUpdateOrders: t.procedure
       .input(z.any())
-      .query(async ({ ctx, input }) => {
+      .mutation(async ({ ctx, input }) => {
         const { models, subdomain } = ctx;
 
         const { action, posToken, responses, order, items } = input;
@@ -139,7 +124,7 @@ export const posTrpcRouter = t.router({
       }),
     createOrUpdateOrdersMany: t.procedure
       .input(z.any())
-      .query(async ({ ctx, input }) => {
+      .mutation(async ({ ctx, input }) => {
         const { models, subdomain } = ctx;
 
         const { posToken, syncOrders } = input;
@@ -172,5 +157,32 @@ export const posTrpcRouter = t.router({
           status: 'success',
         };
       }),
+  }),
+  order: t.router({
+    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+
+      return await models.PosOrders.findOne(input || {}).lean()
+    }),
+    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { query, skip, limit, sort = {} } = input || {};
+
+      if (!query) {
+        return await models.PosOrders.find(input || {}).lean();
+      }
+
+      return await models.PosOrders.find(query)
+        .skip(skip || 0)
+        .limit(limit || 0)
+        .sort(sort)
+        .lean();
+    }),
+    updateOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { selector, modifier } = input;
+      const { models } = ctx;
+
+      return await models.PosOrders.updateOrder(selector, modifier);
+    }),
   }),
 });

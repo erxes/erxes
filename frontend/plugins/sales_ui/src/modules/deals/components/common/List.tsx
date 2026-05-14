@@ -29,8 +29,8 @@ export const List = forwardRef<HTMLUListElement, Props>(
           transition-colors 
           duration-300 
           ease-in-out 
-          [grid-template-columns:repeat(var(--columns,1),minmax(0,1fr))]
-          after:content-[''] after:h-[10px] after:[grid-column-start:span_var(--columns,1)]
+          grid-cols-[repeat(var(--columns,1),minmax(0,1fr))]
+          after:content-[''] after:h-[10px] after:col-start-[span_var(--columns,1)]
           ${horizontal ? 'w-full grid-flow-col' : ''}
         `}
       >

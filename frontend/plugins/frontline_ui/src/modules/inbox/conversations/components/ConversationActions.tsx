@@ -1,5 +1,4 @@
-import { IconCheckbox } from '@tabler/icons-react';
-import { Button, Checkbox, CommandBar, Separator } from 'erxes-ui';
+import { Checkbox, CommandBar, Separator } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useConversationListContext } from '@/inbox/conversations/hooks/useConversationListContext';
 import { useEffect } from 'react';
@@ -10,6 +9,7 @@ import { FilterConversationsPopover } from '@/inbox/conversations/components/Con
 import { ConversationTag } from './ConversationTag';
 import { ConversationDisplay } from './ConversationDisplay';
 import { ConversationRefetch } from './ConversationRefetch';
+import { ResolveAll } from './ResolveAll';
 
 export const ConversationActions = () => {
   return (
@@ -75,10 +75,7 @@ export const ConversationsCommandBar = () => {
         <Separator.Inline />
         <ReplaceAssignee />
         <ConversationTag conversationIds={selectedConversations} />
-        <Button variant="secondary">
-          <IconCheckbox />
-          Resolve All
-        </Button>
+        <ResolveAll conversationIds={selectedConversations} />
       </CommandBar.Bar>
     </CommandBar>
   );

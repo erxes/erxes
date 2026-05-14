@@ -7,7 +7,7 @@ export const useRecordTableCursor = ({
   sessionKey?: string;
 }) => {
   const [cursor, setCursor] = useAtom(
-    recordTableCursorAtomFamily(sessionKey || ''),
+    recordTableCursorAtomFamily(sessionKey ?? '') ?? '',
   );
 
   useEffect(() => {

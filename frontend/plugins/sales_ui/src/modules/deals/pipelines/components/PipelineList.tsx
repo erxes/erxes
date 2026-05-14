@@ -38,7 +38,7 @@ export const PipelineList = ({
             >
               <Sidebar.MenuItem>
                 <Sidebar.MenuButton
-                  className="!h-auto"
+                  className="h-auto!"
                   isActive={pipeline._id === pipelineId}
                 >
                   <div className="flex items-center">{pipeline.name}</div>

@@ -12,7 +12,9 @@ const useReadConversation = () => {
   const [mutate, { loading, error }] = useMutation<
     ReadConversationResult,
     ReadConversationVariables
-  >(READ_CONVERSATION_MESSAGES_MUTATION);
+  >(READ_CONVERSATION_MESSAGES_MUTATION, {
+    refetchQueries: ['WidgetsNotifications'],
+  });
 
   return { readConversation: mutate, loading, error };
 };

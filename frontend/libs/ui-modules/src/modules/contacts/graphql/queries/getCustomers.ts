@@ -1,13 +1,14 @@
-import { gql } from '@apollo/client';
 import {
+  GQL_CURSOR_PARAMS,
   GQL_CURSOR_PARAM_DEFS,
   GQL_PAGE_INFO,
-  GQL_CURSOR_PARAMS,
 } from 'erxes-ui';
 
+import { gql } from '@apollo/client';
+
 export const GET_CUSTOMERS = gql`
-  query customers($searchValue: String ${GQL_CURSOR_PARAM_DEFS}) {
-    customers(searchValue: $searchValue ${GQL_CURSOR_PARAMS}) {
+  query customers($searchValue: String ${GQL_CURSOR_PARAM_DEFS} $ids: [String]) {
+    customers(searchValue: $searchValue ${GQL_CURSOR_PARAMS} ids: $ids) {
       list {
         _id
         firstName

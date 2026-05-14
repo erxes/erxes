@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
 export const commonParams = `
   $search: String,
@@ -76,17 +76,13 @@ const stageCommon = `
   status
   canMoveMemberIds
   canEditMemberIds
+  memberIds
+  departmentIds
 `;
 
 export const GET_ARCHIVED_STAGES_COUNT = gql`
-  query SalesArchivedStagesCount(
-    $pipelineId: String!,
-    $search: String
-  ) {
-    salesArchivedStagesCount(
-      pipelineId: $pipelineId,
-      search: $search
-    )
+  query SalesArchivedStagesCount($pipelineId: String!, $search: String) {
+    salesArchivedStagesCount(pipelineId: $pipelineId, search: $search)
   }
 `;
 
@@ -114,6 +110,14 @@ export const GET_CONVERSION_STAGES = gql`
       initialPurchasesTotalCount
       stayedPurchasesTotalCount
       inProcessPurchasesTotalCount
+    }
+  }
+`;
+
+export const GET_STAGE_DETAIL = gql`
+  query SalesStageDetail($_id: String!) {
+    salesStageDetail(_id: $_id) {
+      ${stageCommon}
     }
   }
 `;

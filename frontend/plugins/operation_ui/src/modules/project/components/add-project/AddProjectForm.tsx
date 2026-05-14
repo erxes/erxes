@@ -22,6 +22,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
+import { SelectMember, SelectTags } from 'ui-modules';
 
 export const AddProjectForm = ({
   onClose,
@@ -44,8 +45,10 @@ export const AddProjectForm = ({
       status: 2,
       priority: task?.priority || 0,
       leadId: task?.assigneeId || undefined,
+      memberIds: [] as string[],
       targetDate: task?.targetDate ? new Date(task?.targetDate) : undefined,
       convertedFromId: task?._id,
+      tagIds: [] as string[],
     },
   });
   useEffect(() => {
@@ -110,7 +113,7 @@ export const AddProjectForm = ({
           <IconChevronRight className="size-4" />
           <Sheet.Title className="">New project</Sheet.Title>
         </Sheet.Header>
-        <Sheet.Content className="px-7 py-4 gap-2 flex flex-col">
+        <Sheet.Content className="px-7 py-4 gap-2 flex flex-col min-h-0">
           <Form.Field
             control={form.control}
             name="icon"
@@ -150,7 +153,7 @@ export const AddProjectForm = ({
               name="status"
               control={form.control}
               render={({ field }) => (
-                <Form.Item className="flex-shrink-0">
+                <Form.Item className="shrink-0">
                   <Form.Label className="sr-only">Status</Form.Label>
                   <SelectStatus.FormItem
                     value={field.value}
@@ -163,7 +166,7 @@ export const AddProjectForm = ({
               name="priority"
               control={form.control}
               render={({ field }) => (
-                <Form.Item className="flex-shrink-0">
+                <Form.Item className="shrink-0">
                   <Form.Label className="sr-only">Priority</Form.Label>
                   <SelectPriority.FormItem
                     value={field.value}
@@ -176,7 +179,7 @@ export const AddProjectForm = ({
               name="leadId"
               control={form.control}
               render={({ field }) => (
-                <Form.Item className="flex-shrink-0">
+                <Form.Item className="shrink-0">
                   <Form.Label className="sr-only">Lead</Form.Label>
                   <SelectLead.FormItem
                     {...field}
@@ -190,10 +193,24 @@ export const AddProjectForm = ({
               )}
             />
             <Form.Field
+              name="memberIds"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item className="shrink-0">
+                  <Form.Label className="sr-only">Members</Form.Label>
+                  <SelectMember.FormItem
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    mode="multiple"
+                  />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
               name="startDate"
               control={form.control}
               render={({ field }) => (
-                <Form.Item className="flex-shrink-0">
+                <Form.Item className="shrink-0">
                   <Form.Label className="sr-only">Start Date</Form.Label>
                   <DateSelect.FormItem
                     {...field}
@@ -207,7 +224,7 @@ export const AddProjectForm = ({
               name="targetDate"
               control={form.control}
               render={({ field }) => (
-                <Form.Item className="flex-shrink-0">
+                <Form.Item className="shrink-0">
                   <Form.Label className="sr-only">Target Date</Form.Label>
                   <DateSelect.FormItem
                     {...field}
@@ -217,17 +234,32 @@ export const AddProjectForm = ({
                 </Form.Item>
               )}
             />
+            <Form.Field
+              name="tagIds"
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item className="shrink-0">
+                  <Form.Label className="sr-only">Tags</Form.Label>
+                  <SelectTags.FormItem
+                    tagType="operation:project"
+                    mode="multiple"
+                    value={field.value || []}
+                    onValueChange={(value) => field.onChange(value)}
+                  />
+                </Form.Item>
+              )}
+            />
           </div>
           <Separator className="my-4" />
-          <div className="flex-1 overflow-y-auto read-only">
+          <div className="flex-1 overflow-y-auto">
             <BlockEditor
               editor={editor}
               onChange={handleDescriptionChange}
-              className="min-h-full"
+              className="read-only min-h-full"
             />
           </div>
         </Sheet.Content>
-        <Sheet.Footer className="flex justify-end flex-shrink-0 gap-1 px-5">
+        <Sheet.Footer className="flex justify-end shrink-0 gap-1 px-5">
           <Button
             type="button"
             variant="ghost"

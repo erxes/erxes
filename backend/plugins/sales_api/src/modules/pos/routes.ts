@@ -11,7 +11,6 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   if (pos.adminIds) {
     data.adminUsers = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'core',
       module: 'users',
       action: 'find',
@@ -29,7 +28,6 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   if (pos.cashierIds) {
     data.cashiers = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'core',
       module: 'users',
       action: 'find',
@@ -43,16 +41,24 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
     });
   }
 
-  if (pos.erkhetConfig && pos.erkhetConfig.isSyncErkhet) {
-    const configs = await getConfig(subdomain, 'ERKHET', {});
+  // collect ebarimtConfig from mongolian/ebarimt
+  const ebarimtConfigs = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'mongolian',
+    module: 'mnConfigs',
+    action: 'find',
+    input: { query: { $or: [{ code: 'EBARIMT' }, { code: 'posInEbarimt', subId: pos._id }] } },
+    defaultValue: [],
+  });
 
-    data.pos.erkhetConfig = {
-      ...pos.erkhetConfig,
-      getRemainderApiUrl: configs.getRemainderApiUrl,
-      apiKey: configs.apiKey,
-      apiSecret: configs.apiSecret,
-      apiToken: configs.apiToken,
-    };
+  const ebarimtMain = ebarimtConfigs.find(conf => conf.code === 'EBARIMT');
+  const ebarimtPos = ebarimtConfigs.find(conf => conf.code === 'posInEbarimt' && conf.subId === pos._id);
+
+  data.pos.ebarimtConfig = {
+    ...ebarimtMain?.value,
+    ...ebarimtPos?.value,
+    ebarimtUrl: ebarimtPos?.value?.ebarimtUrl || ebarimtMain?.value?.ebarimtUrl,
+    companyName: ebarimtPos?.value?.companyName || ebarimtMain?.value?.companyName,
   }
 
   return data;
@@ -145,7 +151,6 @@ export const getProductsData = async (
 
     const pricing = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'loyalty',
       module: 'pricing',
       action: 'checkPricing',
@@ -204,11 +209,11 @@ export const getProductsData = async (
 
   const followProductIds: string[] = [];
 
-  if (pos.deliveryConfig && pos.deliveryConfig.productId) {
+  if (pos.deliveryConfig?.productId) {
     followProductIds.push(pos.deliveryConfig.productId);
   }
 
-  if (pos.catProdMappings && pos.catProdMappings.length) {
+  if (pos.catProdMappings?.length) {
     for (const map of pos.catProdMappings) {
       if (!followProductIds.includes(map.productId)) {
         followProductIds.push(map.productId);
@@ -305,11 +310,7 @@ export const unfetchOrderInfo = async (req, res) => {
   const { orderId, token } = req.body;
   const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
 
-  if (
-    !erkhetConfig ||
-    !erkhetConfig.apiToken ||
-    erkhetConfig.apiToken !== token
-  ) {
+  if (erkhetConfig?.apiToken !== token) {
     return res.send({ error: 'not found token' });
   }
 

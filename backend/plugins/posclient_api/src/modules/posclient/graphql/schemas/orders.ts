@@ -77,8 +77,8 @@ const addEditParams = `
   isPre: Boolean,
   isSingle: Boolean,
   deviceId: String,
-  couponCode: String
-  voucherId: String
+  couponCode: String,
+  voucherId: String,
 `;
 
 export const types = `
@@ -219,6 +219,12 @@ export const mutations = `
   ordersConvertToDeal(_id: String!): Order
   afterFormSubmit(_id: String!, conversationId: String!): Order
   ordersReturn(_id: String!, cashAmount: Float, paidAmounts: [PaidAmountInput], description: String): Order
+
+
+  cpOrdersAdd(${addEditParams}): Order
+  cpOrdersEdit(_id: String!, ${addEditParams}): Order
+  cpOrderChangeSaleStatus(_id: String!, saleStatus: String): Order
+  cpOrdersCancel(_id: String!): JSON
 `;
 
 export const queries = `
@@ -230,4 +236,11 @@ export const queries = `
   ordersDeliveryInfo(orderId: String!): JSON
   fullOrderItems(searchValue: String, statuses: [String], page: Int, perPage: Int, sortField: String, sortDirection: Int): [PosOrderItem]
   convertedDealLink(_id: String!): JSON
+
+  cpCurrentOrder(${ordersQueryParams}): [Order]
+  cpFullOrders(${ordersQueryParams}): [Order]
+  cpOrderDetail(_id: String!, customerId: String): OrderDetail
+  cpOrderItemDetail(searchValue: String, statuses: [String], page: Int, perPage: Int, sortField: String, sortDirection: Int): [PosOrderItem]
+  cpAddresses(orderId: String!): JSON
+  cpOrdersCheckCompany(registerNumber: String!): JSON
 `;

@@ -1,15 +1,17 @@
-import * as graph from 'fbgraph';
-import { IModels } from '~/connectionResolvers';
 import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
-import { debugError, debugFacebook } from '@/integrations/facebook/debuggers';
-import { generateAttachmentUrl } from '@/integrations/facebook/commonUtils';
 import {
   IAttachment,
   IAttachmentMessage,
 } from '@/integrations/facebook/@types/utils';
-import { randomAlphanumeric } from 'erxes-api-shared/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { generateAttachmentUrl } from '@/integrations/facebook/commonUtils';
+import { debugError, debugFacebook } from '@/integrations/facebook/debuggers';
 import * as AWS from 'aws-sdk';
+import { randomAlphanumeric, sendTRPCMessage } from 'erxes-api-shared/utils';
+import * as graph from 'fbgraph';
+import { IModels } from '~/connectionResolvers';
+import { SUBSCRIBED_FIELDS } from './constants';
+import { validateMediaUrl } from './urlValidation';
+
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
     // set access token
@@ -109,64 +111,109 @@ export const createAWS = async (subdomain: string) => {
 
 // Define a simple in-memory cache (outside the function scope)
 
-type UploadConfig = { AWS_BUCKET: string };
-let cachedUploadConfig: UploadConfig | null = null;
-let isFetchingConfig = false; // Concurrency control
-let lastFetchTime = 0; // Time-based cache invalidation
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+type UploadConfig = { AWS_BUCKET?: string; [k: string]: any } | null;
+let cachedUploadConfig: UploadConfig = null;
+let fetchUploadConfigPromise: Promise<UploadConfig | null> | null = null;
+let lastFetchTime = 0;
+const CACHE_TTL_MS = 5 * 60 * 1000;
 
 export const uploadMedia = async (
   subdomain: string,
   url: string,
   video: boolean,
 ) => {
+  try {
+    validateMediaUrl(url);
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    debugError(`SSRF protection blocked media fetch: ${message}`);
+    return null;
+  }
+
   const mediaFile = `uploads/${randomAlphanumeric(16)}.${
     video ? 'mp4' : 'jpg'
   }`;
-  // 1. Cache Handling (with concurrency + TTL)
-  if (
-    !cachedUploadConfig ||
-    (Date.now() - lastFetchTime > CACHE_TTL_MS && !isFetchingConfig)
-  ) {
-    try {
-      isFetchingConfig = true;
-      cachedUploadConfig = await sendTRPCMessage({
-        subdomain,
 
+  // 1. Ensure we have cachedUploadConfig (with promise-based concurrency control)
+  if (!cachedUploadConfig) {
+    if (fetchUploadConfigPromise) {
+      try {
+        cachedUploadConfig = await fetchUploadConfigPromise;
+      } catch (err) {
+        debugError(`Failed awaiting ongoing fetch: ${err?.message ?? err}`);
+        return null;
+      }
+    } else {
+      fetchUploadConfigPromise = sendTRPCMessage({
+        subdomain,
         pluginName: 'core',
         method: 'query',
         module: 'configs',
         action: 'getFileUploadConfigs',
         input: {},
-      });
-      lastFetchTime = Date.now();
-    } catch (err) {
-      debugError(`Failed to fetch upload config: ${err.message}`);
-      return null;
-    } finally {
-      isFetchingConfig = false;
+      })
+        .then((res) => {
+          cachedUploadConfig = res;
+          lastFetchTime = Date.now();
+          return res;
+        })
+        .catch((err) => {
+          debugError(`Failed to fetch upload config: ${err?.message ?? err}`);
+          cachedUploadConfig = null;
+          throw err;
+        })
+        .finally(() => {
+          fetchUploadConfigPromise = null;
+        });
+
+      try {
+        await fetchUploadConfigPromise;
+      } catch (err) {
+        return null;
+      }
     }
+  } else if (
+    Date.now() - lastFetchTime > CACHE_TTL_MS &&
+    !fetchUploadConfigPromise
+  ) {
+    fetchUploadConfigPromise = sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'configs',
+      action: 'getFileUploadConfigs',
+      input: {},
+    })
+      .then((res) => {
+        cachedUploadConfig = res;
+        lastFetchTime = Date.now();
+        return res;
+      })
+      .catch((err) => {
+        debugError(`Background refresh failed: ${err?.message ?? err}`);
+        return cachedUploadConfig;
+      })
+      .finally(() => {
+        fetchUploadConfigPromise = null;
+      });
   }
 
-  // 2. Null check after potential fetch
   if (!cachedUploadConfig) {
     debugError(`Upload config unavailable after retry`);
     return null;
   }
 
-  // 3. Upload to S3 (unchanged)
-  const { AWS_BUCKET } = cachedUploadConfig;
+  const { AWS_BUCKET } = cachedUploadConfig as any;
   try {
     const s3 = await createAWS(subdomain);
 
-    // Additional security: Set timeout for fetch request
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const timeout = setTimeout(() => controller.abort(), 10000);
 
     try {
       const response = await fetch(url, {
         signal: controller.signal,
-        redirect: 'error', // Prevent redirects that could bypass our validation
+        redirect: 'error',
       });
 
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -187,11 +234,10 @@ export const uploadMedia = async (
       clearTimeout(timeout);
     }
   } catch (e) {
-    debugError(`Upload failed: ${e.message}`);
+    debugError(`Upload failed: ${e?.message ?? e}`);
     return null;
   }
 };
-
 // 4. Manual cache invalidation (call this when configs change)
 export const invalidateUploadConfigCache = () => {
   cachedUploadConfig = null;
@@ -253,6 +299,8 @@ export const refreshPageAccessToken = async (
 
   facebookPageTokensMap[pageId] = pageAccessToken;
 
+  await models.FacebookBots.updatePageToken(pageId, pageAccessToken);
+
   await models.FacebookIntegrations.updateOne(
     { _id: integration._id },
     { $set: { facebookPageTokensMap } },
@@ -265,7 +313,7 @@ export const getPageAccessTokenFromMap = (
   pageId: string,
   pageTokens: { [key: string]: string },
 ): string => {
-  return (pageTokens || {})[pageId];
+  return pageTokens?.[pageId];
 };
 
 export const subscribePage = async (
@@ -273,16 +321,8 @@ export const subscribePage = async (
   pageId,
   pageToken,
 ): Promise<{ success: true } | any> => {
-  const subscribed_fields = [
-    'conversations',
-    'feed',
-    'messages',
-    'standby',
-    'messaging_handovers',
-  ];
-
   return graphRequest.post(`${pageId}/subscribed_apps`, pageToken, {
-    subscribed_fields,
+    subscribed_fields: SUBSCRIBED_FIELDS,
   });
 };
 
@@ -365,7 +405,7 @@ export const restorePost = async (
   let pageAccessToken;
 
   try {
-    pageAccessToken = await getPageAccessTokenFromMap(pageId, pageTokens);
+    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
   } catch (e) {
     debugError(
       `Error occurred while trying to get page access token with ${e.message}`,
@@ -547,7 +587,7 @@ export const getFacebookUserProfilePic = async (
       pageAccessToken,
     );
 
-    const { UPLOAD_SERVICE_TYPE } = await sendTRPCMessage({
+    const uploadConfig = await sendTRPCMessage({
       subdomain,
 
       pluginName: 'core',
@@ -556,6 +596,8 @@ export const getFacebookUserProfilePic = async (
       action: 'getFileUploadConfigs',
       input: {},
     });
+
+    const { UPLOAD_SERVICE_TYPE } = uploadConfig || {};
 
     if (UPLOAD_SERVICE_TYPE === 'AWS') {
       const awsResponse = await uploadMedia(

@@ -41,6 +41,10 @@ async function createPlugin() {
     .replace(/[\s_]+/g, '-')
     .toLowerCase();
 
+  const PascalCaseName = pluginName.replace(/(^\w|-\w)/g, (match) =>
+    match.replace('-', '').toUpperCase(),
+  );
+
   // Convert module name to kebab case
   const kebabCaseModuleName = moduleName
     .replace(/([a-z])([A-Z])/g, '$1-$2')
@@ -148,30 +152,55 @@ import exampleImage from '~/assets/example-image.svg';
     indexHtml,
   );
 
-  // Create config.ts
-  const configContent = `import { IconSandbox } from '@tabler/icons-react';
+  // Create config.tsx
+  const configContent = `
+import { IconSandbox } from '@tabler/icons-react';
+import { lazy, Suspense } from 'react';
+import { IUIConfig } from 'erxes-ui';
 
+const ${PascalCaseName}SettingsNavigation = lazy(() =>
+  import('@/${PascalCaseName}SettingsNavigation').then((module) => ({
+    default: module.${PascalCaseName}SettingsNavigation,
+  })),
+);
 
-import { IUIConfig } from 'erxes-ui/types';
+const ${PascalCaseName}Navigation = lazy(() =>
+  import('@/${PascalCaseName}Navigation').then((module) => ({
+    default: module.${PascalCaseName}Navigation,
+  })),
+);
+
 
 export const CONFIG: IUIConfig = {
   name: '${kebabCaseName}',
-  icon: IconSandbox,
+  path: '${kebabCaseName}',
+  settingsNavigation: () => (
+    <Suspense fallback={<div />}>
+      <${PascalCaseName}SettingsNavigation />
+    </Suspense>
+  ),
+  navigationGroup: {
+    name: '${kebabCaseName}',
+    icon: IconSandbox,
+    content: () => (
+      <Suspense fallback={<div />}>
+        <${PascalCaseName}Navigation />
+      </Suspense>
+    ),
+  },
+
   modules: [
     {
       name: '${moduleName}',
       icon: IconSandbox,
       path: '${kebabCaseModuleName}',
-      hasSettings: true,
-      hasRelationWidget: false,
-      hasFloatingWidget: false,
     },
   ],
 };
 `;
 
   fs.writeFileSync(
-    path.join(frontendPluginDir, 'src', 'config.ts'),
+    path.join(frontendPluginDir, 'src', 'config.tsx'),
     configContent,
   );
 
@@ -185,7 +214,7 @@ const IndexPage = lazy(() =>
   })),
 );
 
-const ${kebabCaseModuleName}Main = () => {
+const ${PascalCaseName}Main = () => {
   return (
     <Suspense fallback={<div />}>
       <Routes>
@@ -195,7 +224,30 @@ const ${kebabCaseModuleName}Main = () => {
   );
 };
 
-export default ${kebabCaseModuleName}Main;
+export default ${PascalCaseName}Main;
+`;
+
+  fs.writeFileSync(
+    path.join(frontendPluginDir, 'src', 'modules', `${PascalCaseName}Main.tsx`),
+    mainContent,
+  );
+
+  // Create Navigation.tsx for the module
+  const navigationContent = `
+  import { NavigationMenuLinkItem } from 'erxes-ui';
+  import { IconSandbox } from '@tabler/icons-react';
+
+export const ${PascalCaseName}Navigation = () => {
+  return (
+    <>
+     <NavigationMenuLinkItem
+        name="${moduleName}"
+        icon={IconSandbox}
+        path="${kebabCaseModuleName}"
+      />
+    </>
+  );
+};
 `;
 
   fs.writeFileSync(
@@ -203,14 +255,46 @@ export default ${kebabCaseModuleName}Main;
       frontendPluginDir,
       'src',
       'modules',
-      kebabCaseModuleName,
-      'Main.tsx',
+      `${PascalCaseName}Navigation.tsx`,
     ),
-    mainContent,
+    navigationContent,
+  );
+
+  // Create Navigation.tsx for the module
+  const settingsNavigationContent = `
+import { SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
+
+export const ${PascalCaseName}SettingsNavigation = () => {
+  return (
+    <Sidebar.Group>
+      <Sidebar.GroupLabel className="h-4">${moduleName}</Sidebar.GroupLabel>
+      <Sidebar.GroupContent className="pt-1">
+        <Sidebar.Menu>
+          <SettingsNavigationMenuLinkItem
+            pathPrefix={"${kebabCaseName}" + '/' + "${kebabCaseModuleName}"}
+            path="${kebabCaseModuleName}"
+            name="${moduleName}"
+          />
+          
+        </Sidebar.Menu>
+      </Sidebar.GroupContent>
+    </Sidebar.Group>
+  );
+};
+`;
+
+  fs.writeFileSync(
+    path.join(
+      frontendPluginDir,
+      'src',
+      'modules',
+      `${PascalCaseName}SettingsNavigation.tsx`,
+    ),
+    settingsNavigationContent,
   );
 
   // Create Settings.tsx for the module
-  const settingsContent = `const ${kebabCaseModuleName}Settings = () => {
+  const settingsContent = `const ${PascalCaseName}Settings = () => {
   return (
     <div>
       <h1>${moduleName} Settings</h1>
@@ -218,7 +302,7 @@ export default ${kebabCaseModuleName}Main;
   );
 };
 
-export default ${kebabCaseModuleName}Settings;
+export default ${PascalCaseName}Settings;
 `;
 
   fs.writeFileSync(
@@ -226,8 +310,7 @@ export default ${kebabCaseModuleName}Settings;
       frontendPluginDir,
       'src',
       'modules',
-      kebabCaseModuleName,
-      'Settings.tsx',
+      `${PascalCaseName}Settings.tsx`,
     ),
     settingsContent,
   );
@@ -312,9 +395,9 @@ const coreLibraries = new Set([
 const config: ModuleFederationConfig = {
   name: '${kebabCaseName}_ui',
   exposes: {
-    './config': './src/config.ts',
-    './${kebabCaseModuleName}': './src/modules/${kebabCaseModuleName}/Main.tsx',
-    './${kebabCaseModuleName}Settings': './src/modules/${kebabCaseModuleName}/Settings.tsx',
+    './config': './src/config.tsx',
+    './${kebabCaseName}': './src/modules/${kebabCaseModuleName}Main.tsx',
+    './${kebabCaseName}Settings': './src/modules/${kebabCaseModuleName}Settings.tsx',
     './widgets': './src/widgets/Widgets.tsx',
   },
 
@@ -623,9 +706,7 @@ export default Widgets;
   );
 
   console.log(`Plugin "${kebabCaseName}" created successfully!`);
-  console.log(`\nNext steps:`);
-  console.log(`1. cd frontend/plugins/${kebabCaseName}_ui && pnpm install`);
-  console.log(`2. Start developing your plugin!`);
+  console.log(`Start developing your plugin!`);
 }
 
 createPlugin();

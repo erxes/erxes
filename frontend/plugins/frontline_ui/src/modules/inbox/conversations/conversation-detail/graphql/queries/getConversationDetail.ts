@@ -13,6 +13,18 @@ export const GET_CONVERSATION_DETAIL = gql`
       customerId
       updatedAt
       status
+      customer {
+        _id
+        firstName
+        lastName
+        primaryEmail
+        primaryPhone
+        avatar
+      }
+      integration {
+        _id
+        channelId
+      }
     }
   }
 `;

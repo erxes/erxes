@@ -1,11 +1,5 @@
-import { activeJournalState } from '../states/trStates';
-import {
-  DatePicker,
-  Form,
-  Input,
-  Spinner,
-  useQueryState
-} from 'erxes-ui';
+import { activeJournalState, followTrDocsState } from '../states/trStates';
+import { DatePicker, Form, Input, Spinner, useQueryState } from 'erxes-ui';
 import { JOURNALS_BY_JOURNAL } from '../contants/defaultValues';
 import { memo, useEffect } from 'react';
 import { Summary } from './Summary';
@@ -16,7 +10,7 @@ import { TrJournalEnum } from '../../types/constants';
 import { useForm } from 'react-hook-form';
 import { useMainConfigs } from '@/settings/hooks/useMainConfigs';
 import { useSetAtom } from 'jotai';
-import { useTransactionDetail } from '../hooks/useTransactionDetail';
+import { useTransactionsDetail } from '../hooks/useTransactionsDetail';
 import { useTransactionsCreate } from '../hooks/useTransactionsCreate';
 import { useTransactionsUpdate } from '../hooks/useTransactionsUpdate';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -32,9 +26,9 @@ const FormFields = memo(
           name="number"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Number</Form.Label>
+              <Form.Label>Дугаар</Form.Label>
               <Form.Control>
-                <Input {...field} />
+                <Input {...field} value={field.value ?? ''} />
               </Form.Control>
             </Form.Item>
           )}
@@ -44,7 +38,7 @@ const FormFields = memo(
           name="date"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Date</Form.Label>
+              <Form.Label>Огноо</Form.Label>
               <Form.Control>
                 <DatePicker
                   value={field.value}
@@ -66,7 +60,7 @@ FormFields.displayName = 'FormFields';
 export const TransactionsGroupForm = () => {
   // const parentId = useParams().parentId;
   const [parentId] = useQueryState<string>('parentId');
-  const { activeTrs, loading } = useTransactionDetail({
+  const { activeTrs, followTrs, loading } = useTransactionsDetail({
     variables: { _id: parentId },
     skip: !parentId,
   });
@@ -83,6 +77,7 @@ export const TransactionsGroupForm = () => {
   const [trId] = useQueryState<string>('trId');
 
   const setActiveJournal = useSetAtom(activeJournalState);
+  const setFollowTrDocs = useSetAtom(followTrDocsState);
 
   const { createTransaction } = useTransactionsCreate();
   const { updateTransaction } = useTransactionsUpdate();
@@ -97,7 +92,7 @@ export const TransactionsGroupForm = () => {
       });
     } else {
       createTransaction({
-        variables: { trDocs }
+        variables: { trDocs },
       });
     }
   };
@@ -130,6 +125,8 @@ export const TransactionsGroupForm = () => {
         trDocs: [JOURNALS_BY_JOURNAL(defaultJournal)],
       });
     }
+
+    setFollowTrDocs(followTrs);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultJournal, trId, form, loading]);
 
@@ -144,7 +141,7 @@ export const TransactionsGroupForm = () => {
         onSubmit={form.handleSubmit(onSubmit, onError)}
       >
         <h3 className="text-lg font-bold">
-          {parentId ? `Edit` : `Create`} Transaction
+          {parentId ? `Гүйлгээ засах` : `Гүйлгээ үүсгэх`}
         </h3>
         <FormFields form={form} />
         <TransactionsTabsList form={form} />

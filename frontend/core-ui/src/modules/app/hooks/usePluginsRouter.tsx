@@ -3,30 +3,23 @@ import { Route } from 'react-router';
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
 import { pluginsConfigState } from 'ui-modules';
 import { useAtom } from 'jotai';
+import { PermissionRouteGuard } from '@/auth/components/PermissionRouteGuard';
 
 export const getPluginsRoutes = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
   const plugins = Object.values(pluginsMetaData || {});
 
-  const allModules = plugins.flatMap((plugin) =>
-    (plugin.modules || [])
-      .filter((module) => !module.settingsOnly)
-      .map((module) => ({
-        ...module,
-        pluginName: plugin.name,
-      })),
-  );
-
-  return allModules.map((module) => (
+  return plugins.map((module) => (
     <Route
       key={module.name}
       path={`/${module.path}/*`}
       element={
-        <RenderPluginsComponent
-          moduleName={module.name}
-          pluginName={`${module.pluginName}_ui`}
-          remoteModuleName={module.name}
-        />
+        <PermissionRouteGuard plugin={module.name}>
+          <RenderPluginsComponent
+            pluginName={`${module.name}_ui`}
+            remoteModuleName={module.name}
+          />
+        </PermissionRouteGuard>
       }
     />
   ));
@@ -36,25 +29,17 @@ export const getPluginsSettingsRoutes = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);
   const plugins = Object.values(pluginsMetaData || {});
 
-  const settingsModules = plugins.flatMap((plugin) =>
-    (plugin.modules || [])
-      .filter((module) => module.hasSettings || module.settingsOnly)
-      .map((module) => ({
-        ...module,
-        pluginName: plugin.name,
-      })),
-  );
-
-  return settingsModules.map((module) => (
+  return plugins.map((plugin) => (
     <Route
-      key={module.name}
-      path={`/${module.path}/*`}
+      key={plugin.name}
+      path={`/${plugin.path}/*`}
       element={
-        <RenderPluginsComponent
-          moduleName={module.name}
-          pluginName={`${module.pluginName}_ui`}
-          remoteModuleName={`${module.name}Settings`}
-        />
+        <PermissionRouteGuard plugin={plugin.name}>
+          <RenderPluginsComponent
+            pluginName={`${plugin.name}_ui`}
+            remoteModuleName={`${plugin.name}Settings`}
+          />
+        </PermissionRouteGuard>
       }
     />
   ));

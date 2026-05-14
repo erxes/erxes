@@ -87,7 +87,7 @@ const FacebookSelectedPost = ({
 
   return (
     <Card className=" flex h-24 overflow-hidden">
-      <div className="h-full aspect-video flex-shrink-0 overflow-hidden">
+      <div className="h-full aspect-video shrink-0 overflow-hidden">
         {facebookGetBotPost?.full_picture ? (
           <img
             src={facebookGetBotPost.full_picture}
@@ -208,15 +208,15 @@ const FacebookPost = ({
       <div className="p-2">
         <h5 className="truncate text-sm font-medium">{post.message}</h5>
         <div className="flex flex-row justify-between items-center">
-          <p className="text-xs text-gray-500 mb-2">Created at</p>
-          <p className="text-xs text-gray-600 mb-3">
+          <p className="text-xs text-muted-foreground mb-2">Created at</p>
+          <p className="text-xs text-accent-foreground mb-3">
             {format(post?.created_time, 'MMM dd, yyyy HH:mm')}
           </p>
         </div>
         <a
           href={post.permalink_url}
           target="_blank"
-          className="text-xs text-blue-600 hover:text-blue-800"
+          className="text-xs text-info hover:text-info/70"
         >
           See post in Facebook
         </a>

@@ -164,7 +164,7 @@ const SelectUsersGroupFilterView = () => {
   const { resetFilterState } = useFilterContext();
 
   return (
-    <Filter.View filterKey="channelId">
+    <Filter.View filterKey="groupId">
       <SelectUsersGroupProvider
         value={groupId || []}
         onValueChange={(value) => {

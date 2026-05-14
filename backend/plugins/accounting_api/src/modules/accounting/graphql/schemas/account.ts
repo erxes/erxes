@@ -1,3 +1,5 @@
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
+
 export const types = () => `
   type AccountCategory @key(fields: "_id") @cacheControl(maxAge: 3){
     _id: String!
@@ -12,7 +14,6 @@ export const types = () => `
     accountCount: Int
     maskType: String
     mask: JSON
-
     parent: AccountCategory
   }
 
@@ -33,8 +34,42 @@ export const types = () => `
     parentId: String
     createdAt: Date
     scopeBrandIds: [String]
-    
+    extra:JSON,
     category: AccountCategory
+    level: Int
+    read: String
+    write: String
+  }
+
+  type AccountsListResponse {
+    list: [Account],
+    pageInfo: PageInfo
+    totalCount: Int,
+  }
+
+  type AccountPermission {
+    _id: String
+    userId: String
+    accountId: String
+    level: Int
+    read: String
+    write: String
+    createdAt: Date
+    updatedAt: Date
+
+    user: User
+    account: Account
+  }
+
+  type AccountPermissionsResponse {
+    list: [AccountPermission],
+    pageInfo: PageInfo
+    totalCount: Int,
+  }
+
+  type AccountPermissionResult {
+    accountId: String!
+    status: String!
   }
 `;
 
@@ -51,7 +86,9 @@ const accountParams = `
   departmentId: String,
   isTemp: Boolean,
   isOutBalance: Boolean,
-  scopeBrandIds: [String]
+  scopeBrandIds: [String],
+  extra:JSON
+  status: String,
 `;
 
 const accountCategoryParams = `
@@ -63,6 +100,14 @@ const accountCategoryParams = `
   status: String
   maskType: String
   mask: JSON
+`;
+
+const accountPermissionsInput = `
+  accountIds: [String!]!
+  userId: String!
+  level: Int
+  read: String
+  write: String
 `;
 
 const accountsQueryParams = `
@@ -77,16 +122,22 @@ const accountsQueryParams = `
   branchId: String
   departmentId: String
   currency: String
+  journal: String
   journals: [String]
   kind: String
   code: String
   name: String
+  extra:JSON
 `;
 
 export const queries = `
   accountCategories(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String, brand: String): [AccountCategory]
   accountCategoriesTotalCount(parentId: String, withChild: Boolean, searchValue: String, status: String, meta: String): Int
   accountCategoryDetail(_id: String!): AccountCategory
+  accountsMain(
+    ${accountsQueryParams}
+    ${GQL_CURSOR_PARAM_DEFS}
+  ): AccountsListResponse
   accounts(
     ${accountsQueryParams},
     page: Int,
@@ -96,6 +147,15 @@ export const queries = `
   ): [Account]
   accountsCount(${accountsQueryParams}): Int
   accountDetail(_id: String): Account
+  accountPermissions(
+    ${accountsQueryParams}
+    ${GQL_CURSOR_PARAM_DEFS}
+    userId: String
+    minLvl: Int
+    maxLvl: Int
+    reads: [String]
+    writes: [String]
+  ): AccountPermissionsResponse
 `;
 
 export const mutations = `
@@ -106,4 +166,5 @@ export const mutations = `
   accountCategoriesAdd(${accountCategoryParams}): AccountCategory
   accountCategoriesEdit(_id: String!, ${accountCategoryParams}): AccountCategory
   accountCategoriesRemove(_id: String!): JSON
+  setAccountPermissions(${accountPermissionsInput}): [AccountPermissionResult]
 `;

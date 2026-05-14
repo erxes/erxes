@@ -61,11 +61,13 @@ export const saasOrganizationsSchema = new mongoose.Schema({
   industry: { type: String },
   annualRevenue: { type: String },
   experienceId: { type: String },
-  onboardingDone: { type: Boolean },
+  onboardedPlugins: { type: [String] },
   customDomainStatus: { type: Object },
 
   hostNameStatus: { type: String },
   sslStatus: { type: String },
+
+  cycleEnabled: { type: Boolean },
 });
 
 export const saasInstallationSchema = new mongoose.Schema({

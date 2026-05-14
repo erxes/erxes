@@ -1,4 +1,3 @@
-import { IModels } from '~/connectionResolvers';
 import { debugError, debugFacebook } from '@/integrations/facebook/debuggers';
 import {
   getPageAccessToken,
@@ -6,13 +5,14 @@ import {
   subscribePage,
   unsubscribePage,
 } from '@/integrations/facebook/utils';
-import fetch from 'node-fetch';
 import { getEnv, resetConfigsCache } from 'erxes-api-shared/utils';
+import fetch from 'node-fetch';
 import { generateModels } from '~/connectionResolvers';
 
 export const removeIntegration = async (
   subdomain: string,
   integrationErxesApiId: string,
+  actorId?: string,
 ): Promise<string> => {
   const models = await generateModels(subdomain);
 
@@ -40,6 +40,14 @@ export const removeIntegration = async (
       throw new Error('Account not found');
     }
 
+    await models.FacebookBots.markBrokenByPageIds(
+      integration.facebookPageIds || [],
+      {
+        reason: 'Facebook integration was removed',
+        userId: actorId,
+      },
+    );
+
     for (const pageId of integration.facebookPageIds || []) {
       let pageTokenResponse;
 
@@ -58,16 +66,15 @@ export const removeIntegration = async (
         await unsubscribePage(pageId, pageTokenResponse);
       } catch (e) {
         debugError(
-          `Error occured while trying to unsubscribe page pageId: ${pageId}`,
+          `Error occurred while trying to unsubscribe page pageId: ${pageId}: ${e.message}`,
         );
       }
     }
 
     integrationRemoveBy = { fbPageIds: integration.facebookPageIds };
 
-    const conversationIds = await models.FacebookConversations.find(
-      selector,
-    ).distinct('_id');
+    const conversationIds =
+      await models.FacebookConversations.find(selector).distinct('_id');
 
     await models.FacebookCustomers.deleteMany({
       integrationId: integrationErxesApiId,
@@ -124,6 +131,10 @@ export const removeAccount = async (
     throw new Error(`Account not found: ${_id}`);
   }
 
+  await models.FacebookBots.markBrokenByAccount(account._id, {
+    reason: 'Facebook account was removed',
+  });
+
   const erxesApiIds: string[] = [];
 
   const integrations = await models.FacebookIntegrations.find({
@@ -132,15 +143,11 @@ export const removeAccount = async (
 
   if (integrations.length > 0) {
     for (const integration of integrations) {
-      try {
-        const response = await removeIntegration(
-          subdomain,
-          integration.erxesApiId,
-        );
-        erxesApiIds.push(response);
-      } catch (e) {
-        throw e;
-      }
+      const response = await removeIntegration(
+        subdomain,
+        integration.erxesApiId,
+      );
+      erxesApiIds.push(response);
     }
   }
   await models.FacebookAccounts.deleteOne({ _id });
@@ -151,6 +158,7 @@ export const removeAccount = async (
 export const repairIntegrations = async (
   subdomain: string,
   integrationId: string,
+  actorId?: string,
 ): Promise<true | Error> => {
   const models = await generateModels(subdomain);
 
@@ -169,6 +177,18 @@ export const repairIntegrations = async (
     );
 
     await subscribePage(models, pageId, pageTokens[pageId]);
+
+    models.FacebookBots.reviveByPageId({
+      pageId,
+      accountId: integration.accountId,
+      token: pageTokens[pageId],
+      userId: actorId,
+      notify: true,
+    }).catch((error) => {
+      debugError(
+        `Failed to revive facebook bot for page ${pageId}: ${error.message}`,
+      );
+    });
 
     await models.FacebookIntegrations.deleteMany({
       erxesApiId: { $ne: integrationId },

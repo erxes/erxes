@@ -7,12 +7,22 @@ import { LOGS_CURSOR_SESSION_KEY } from '@/logs/constants/logFilter';
 
 export const LogsRecordTableFilter = () => {
   const [queries] = useMultiQueryState<{
-    status: string[];
+    status: string;
     source: string;
     action: string;
     userIds: string[];
     createdAt: string;
-  }>(['status', 'source', 'action', 'userIds', 'createdAt']);
+    contentType: string;
+    docId: string;
+  }>([
+    'status',
+    'source',
+    'action',
+    'userIds',
+    'createdAt',
+    'contentType',
+    'docId',
+  ]);
 
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,

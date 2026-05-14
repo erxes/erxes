@@ -1,4 +1,4 @@
-import { sendTRPCMessage } from 'erxes-api-shared/src/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { calcProductsTaxRule } from './productsByTaxType';
 import { getConfig, getPureDate } from './utils';
@@ -34,14 +34,12 @@ const calcPreTaxPercentage = (paymentTypes, order) => {
 };
 
 export const getPosPostData = async (subdomain, pos, order, paymentTypes) => {
-  let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
+  const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
 
   if (
-    !erkhetConfig ||
-    !erkhetConfig.apiKey! ||
-    !erkhetConfig.apiSecret ||
-    !pos.erkhetConfig ||
-    !pos.erkhetConfig.isSyncErkhet
+    !erkhetConfig?.apiKey ||
+    !erkhetConfig?.apiSecret ||
+    !pos.erkhetConfig?.isSyncErkhet
   ) {
     return;
   }
@@ -213,14 +211,13 @@ export const getPosPostData = async (subdomain, pos, order, paymentTypes) => {
 };
 
 export const orderDeleteToErkhet = async (subdomain, pos, order) => {
-  let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
+  const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
   const models = await generateModels(subdomain);
 
   if (
-    !erkhetConfig ||
-    !erkhetConfig.apiKey! ||
-    !erkhetConfig.apiSecret ||
-    !pos.erkhetConfig.isSyncErkhet
+    !erkhetConfig?.apiKey ||
+    !erkhetConfig?.apiSecret ||
+    !pos.erkhetConfig?.isSyncErkhet
   ) {
     return;
   }

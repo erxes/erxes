@@ -1,12 +1,12 @@
 import { IIntegrationDetail } from '@/integrations/types/Integration';
 import { IconTool } from '@tabler/icons-react';
-import { Button, Spinner, toast } from 'erxes-ui';
-import { Cell } from '@tanstack/table-core';
+import { Spinner, toast } from 'erxes-ui';
+import { CellContext } from '@tanstack/react-table';
 import { useFbIntegrationsRepair } from '../hooks/useFbIntegrationsRepair';
 import { useParams } from 'react-router-dom';
 
 type Props = {
-  cell: Cell<IIntegrationDetail, unknown>;
+  cell: CellContext<IIntegrationDetail, unknown>;
 };
 
 export const FacebookIntegrationRepair = ({ cell }: Props) => {
@@ -23,13 +23,13 @@ export const FacebookIntegrationRepair = ({ cell }: Props) => {
     });
   };
   return (
-    <Button
-      variant={'outline'}
-      size="icon"
-      disabled={loading}
-      onClick={handleRepair}
-    >
-      {loading ? <Spinner size="sm" /> : <IconTool />}
-    </Button>
+    <div onClick={handleRepair} className="flex items-center gap-2 w-full">
+      {loading ? (
+        <Spinner className="size-4 text-primary" />
+      ) : (
+        <IconTool size={16} />
+      )}
+      Repair
+    </div>
   );
 };

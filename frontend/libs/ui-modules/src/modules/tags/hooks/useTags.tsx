@@ -1,5 +1,4 @@
 import { OperationVariables, QueryHookOptions, useQuery } from '@apollo/client';
-
 import { TAG_BADGE_QUERY, TAGS_QUERY } from '../graphql/queries/tagsQueries';
 import { ITag } from 'ui-modules/modules';
 import { ICursorListResponse, EnumCursorDirection } from 'erxes-ui';

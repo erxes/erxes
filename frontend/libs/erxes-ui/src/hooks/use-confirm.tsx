@@ -85,9 +85,9 @@ const ConfirmDialog = ({
         control={formInstance.control as any}
         render={({ field }: { field: any }) => (
           <Form.Item>
-            <Form.Label className="text-xs">
-              Type <span className='font-semibold'>{confirmationValue}</span> in the field below to
-              confirm.
+            <Form.Label className="text-xs" variant="peer">
+              Type <span className="font-semibold">{confirmationValue}</span> in
+              the field below to confirm.
             </Form.Label>
             <Form.Control>
               <Input

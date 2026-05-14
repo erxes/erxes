@@ -6,7 +6,13 @@ export const productMutations = {
    * Creates a new product
    * @param {Object} doc Product document
    */
-  async productsAdd(_root: undefined, doc: IProduct, { models, __ }: IContext) {
+  async productsAdd(
+    _root: undefined,
+    doc: IProduct,
+    { models, __, checkPermission }: IContext,
+  ) {
+    await checkPermission('productsCreate');
+
     return await models.Products.createProduct(__(doc));
   },
 
@@ -18,8 +24,10 @@ export const productMutations = {
   async productsEdit(
     _parent: undefined,
     { _id, ...doc }: { _id: string } & IProduct,
-    { models, __ }: IContext,
+    { models, __, checkPermission }: IContext,
   ) {
+    await checkPermission('productsUpdate');
+
     return await models.Products.updateProduct(
       _id,
       __({
@@ -36,8 +44,10 @@ export const productMutations = {
   async productsRemove(
     _parent: undefined,
     { productIds }: { productIds: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('productsDelete');
+
     return await models.Products.removeProducts(productIds);
   },
 
@@ -50,8 +60,10 @@ export const productMutations = {
       productIds,
       productFields,
     }: { productIds: string[]; productFields: IProduct },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('productsMerge');
+
     return models.Products.mergeProducts(productIds, { ...productFields });
   },
 
@@ -61,8 +73,10 @@ export const productMutations = {
   async productsDuplicate(
     _parent: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('productsCreate');
+
     return await models.Products.duplicateProduct(_id);
   },
 };

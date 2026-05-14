@@ -117,7 +117,22 @@ export const channelMutations = {
 
     return models.ChannelMembers.removeChannelMember(channelId, memberId);
   },
+  channelRemoveMembers: async (
+    _parent: undefined,
+    { channelId, memberIds }: { channelId: string; memberIds: string[] },
+    { models, user }: IContext,
+  ) => {
+    if (!user.isOwner) {
+      await checkUserRole({
+        models,
+        channelId,
+        userId: user._id,
+        allowedRoles: [ChannelMemberRoles.ADMIN],
+      });
+    }
 
+    return models.ChannelMembers.removeChannelMembers(channelId, memberIds);
+  },
   channelUpdateMember: async (
     _parent: undefined,
     { _id, role }: { _id: string; memberId: string; role: ChannelMemberRoles },

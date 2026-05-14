@@ -129,5 +129,113 @@ export const productsTrpcRouter = t.router({
 
       return models.Products.find(query).countDocuments();
     }),
+
+    setInventories: t.procedure
+      .input(
+        z.object({
+          branchId: z.string(),
+          departmentId: z.string(),
+          productsInfo: z.array(
+            z.object({
+              productId: z.string(),
+              uom: z.string().optional(),
+              remainder: z.number().optional(),
+              cost: z.number().optional(),
+              soonIn: z.number().optional(),
+              soonOut: z.number().optional(),
+            }),
+          ),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { branchId, departmentId, productsInfo } = input;
+
+        await models.Products.bulkWrite(
+          productsInfo.map((info) => {
+            const updateSet = {};
+            const unSet: any = {};
+
+            if (info.remainder) {
+              updateSet[`inventories.${branchId}.${departmentId}.remainder`] =
+                info.remainder;
+            } else {
+              unSet[`inventories.${branchId}.${departmentId}.remainder`] = 0;
+            }
+
+            if (info.cost) {
+              updateSet[`inventories.${branchId}.${departmentId}.cost`] =
+                info.cost;
+            } else {
+              unSet[`inventories.${branchId}.${departmentId}.cost`] = 0;
+            }
+
+            if (info.soonIn) {
+              updateSet[`inventories.${branchId}.${departmentId}.soonIn`] =
+                info.soonIn;
+            } else {
+              unSet[`inventories.${branchId}.${departmentId}.soonIn`] = 0;
+            }
+
+            if (info.soonOut) {
+              updateSet[`inventories.${branchId}.${departmentId}.soonOut`] =
+                info.soonOut;
+            } else {
+              unSet[`inventories.${branchId}.${departmentId}.soonOut`] = 0;
+            }
+
+            return {
+              updateOne: {
+                filter: { _id: info.productId },
+                update: { $set: { ...updateSet }, $unset: { ...unSet } },
+                upsert: true,
+              },
+            };
+          }),
+        );
+      }),
+
+    increaseInventories: t.procedure
+      .input(
+        z.object({
+          branchId: z.string(),
+          departmentId: z.string(),
+          productsInfo: z.array(
+            z.object({
+              productId: z.string(),
+              uom: z.string().optional(),
+              diffCount: z.number().optional(),
+              diffCost: z.number().optional(),
+              diffSoonIn: z.number().optional(),
+              diffSoonOut: z.number().optional(),
+            }),
+          ),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { branchId, departmentId, productsInfo } = input;
+
+        await models.Products.bulkWrite(
+          productsInfo.map((info) => ({
+            updateOne: {
+              filter: { _id: info.productId },
+              update: {
+                $inc: {
+                  [`inventories.${branchId}.${departmentId}.remainder`]:
+                    info.diffCount ?? 0,
+                  [`inventories.${branchId}.${departmentId}.cost`]:
+                    info.diffCost ?? 0,
+                  [`inventories.${branchId}.${departmentId}.soonIn`]:
+                    info.diffSoonIn ?? 0,
+                  [`inventories.${branchId}.${departmentId}.soonOut`]:
+                    info.diffSoonOut ?? 0,
+                },
+              },
+              upsert: true,
+            },
+          })),
+        );
+      }),
   }),
 });

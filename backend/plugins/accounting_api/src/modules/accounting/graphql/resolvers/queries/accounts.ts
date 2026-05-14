@@ -1,10 +1,16 @@
 import { ACCOUNT_STATUSES } from '@/accounting/@types/constants';
-import { IUserDocument } from 'erxes-api-shared/core-types';
-import { defaultPaginate, escapeRegExp } from 'erxes-api-shared/utils';
+import {
+  ICursorPaginateParams,
+  IUserDocument,
+} from 'erxes-api-shared/core-types';
+import {
+  cursorPaginate,
+  defaultPaginate,
+  escapeRegExp,
+} from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 
-interface IQueryParams {
-  type: string;
+export interface IAccountQueryParams {
   ids?: string[];
   excludeIds?: boolean;
   status?: string;
@@ -29,11 +35,10 @@ interface IQueryParams {
 
 export const generateFilter = async (
   models: IModels,
-  params: IQueryParams,
-  user: IUserDocument
+  params: IAccountQueryParams,
+  user: IUserDocument,
 ) => {
   const {
-    type,
     categoryId,
     searchValue,
     brand,
@@ -60,9 +65,6 @@ export const generateFilter = async (
 
   if (params.status) {
     filter.status = params.status;
-  }
-  if (type) {
-    filter.type = type;
   }
 
   if (categoryId) {
@@ -95,23 +97,24 @@ export const generateFilter = async (
     const regex = new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i');
 
     let codeFilter = { code: { $in: [regex] } };
-    if (searchValue.includes('.') || searchValue.includes('_') || searchValue.includes('*')) {
+    if (
+      searchValue.includes('.') ||
+      searchValue.includes('_') ||
+      searchValue.includes('*')
+    ) {
       const codeRegex = new RegExp(
         `^${searchValue.replace(/\*/g, '.').replace(/_/g, '.')}$`,
         'igu',
       );
-      codeFilter = { code: { $in: [codeRegex] }, };
+      codeFilter = { code: { $in: [codeRegex] } };
     }
 
-    filter.$or = [
-      codeFilter,
-      { name: { $in: [regex] } },
-    ];
+    filter.$or = [codeFilter, { name: { $in: [regex] } }];
   }
 
   if (code) {
     filter.code = new RegExp(
-      `^${code.replace(/\*/g, '.').replace(/_/g, '.')}$`,
+      `${code.replace(/\*/g, '.').replace(/_/g, '.')}`,
       'igu',
     );
   }
@@ -125,7 +128,7 @@ export const generateFilter = async (
   }
 
   if (journals?.length) {
-    filter.journal = { $in: journals }
+    filter.journal = { $in: journals };
   }
 
   if (journal) {
@@ -145,11 +148,11 @@ export const generateFilter = async (
   }
 
   if (isTemp !== undefined) {
-    filter.isTemp = isTemp
+    filter.isTemp = isTemp;
   }
 
   if (isOutBalance !== undefined) {
-    filter.isOutBalance = isOutBalance
+    filter.isOutBalance = isOutBalance;
   }
 
   if (user?.isOwner) {
@@ -179,16 +182,26 @@ const accountQueries = {
   /**
    * Accounts list
    */
-  async accounts(
+  async accountsMain(
     _root,
-    params: IQueryParams,
-    { models, user }: IContext,
+    params: IAccountQueryParams & ICursorPaginateParams,
+    { models, user, commonQuerySelector, checkPermission }: IContext,
   ) {
-    const filter = await generateFilter(
-      models,
+    await checkPermission('accountsRead');
+    const filter = await generateFilter(models, params, user);
+
+    params.orderBy ??= { code: 1 };
+
+    return await cursorPaginate({
+      model: models.Accounts,
       params,
-      user,
-    );
+      query: filter,
+    });
+  },
+
+  async accounts(_root, params: IAccountQueryParams, { models, user, checkPermission }: IContext) {
+    await checkPermission('accountsRead');
+    const filter = await generateFilter(models, params, user);
 
     const { sortField, sortDirection, page, perPage, ids, excludeIds } = params;
 
@@ -210,29 +223,20 @@ const accountQueries = {
     return await defaultPaginate(
       models.Accounts.find(filter).sort(sort).lean(),
       pagintationArgs,
-    )
+    );
   },
 
-  async accountsCount(
-    _root,
-    params: IQueryParams,
-    { models, user }: IContext,
-  ) {
-    const filter = await generateFilter(
-      models,
-      params,
-      user,
-    );
+  async accountsCount(_root, params: IAccountQueryParams, { models, user, checkPermission }: IContext) {
+    await checkPermission('accountsRead');
+    const filter = await generateFilter(models, params, user);
 
     return models.Accounts.find(filter).countDocuments();
   },
 
-  async accountDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async accountDetail(_root, { _id }: { _id: string }, { models, checkPermission }: IContext) {
+    await checkPermission('accountsRead');
     return models.Accounts.findOne({ _id }).lean();
   },
 };
-
-// requireLogin(accountQueries, 'accountsCount');
-// checkPermission(accountQueries, 'accounts', 'showAccounts', []);
 
 export default accountQueries;

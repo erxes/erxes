@@ -1,23 +1,17 @@
 import { IFacebookConversationMessage } from '@/integrations/facebook/@types/conversationMessages';
 import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
 import {
-  IAction,
+  IAutomationAction,
   IAutomationExecution,
-  ITrigger,
+  IAutomationTrigger,
 } from 'erxes-api-shared/core-modules';
-import { IModels } from '~/connectionResolvers';
-
-export type IAutomationWorkerContext = {
-  models: IModels;
-  subdomain: string;
-};
-
 export type IAutomationReceiveActionData = {
-  action: IAction;
+  action: IAutomationAction;
   execution: { _id: string } & IAutomationExecution;
   actionType: string;
   collectionType: string;
   triggerType: string;
+  targetType: string;
 };
 
 export type ISendMessageData = {
@@ -31,14 +25,14 @@ export type ISendMessageData = {
 export type ICheckTriggerData = {
   collectionType: string;
   automationId: string;
-  trigger: ITrigger;
+  trigger: IAutomationTrigger;
   target: any;
   config: any;
 };
 
 export type IReplacePlaceholdersData = {
   target: IFacebookConversationMessage;
-  config: any;
+  config: TAutomationActionConfig;
   relatedValueProps: any;
 };
 
@@ -61,14 +55,14 @@ export type TQuickRepliesMessage = {
   quick_replies: TQuickReplyMessage[];
   text: string;
 
-  botData: any;
-  inputData?: any;
+  botData: TBotData[];
+  inputData?: TBotMessageInputData;
 };
 
 export type TTextInputMessage = {
   text: string;
-  botData: any;
-  inputData?: any;
+  botData: TBotData[];
+  inputData?: TBotMessageInputData;
 };
 
 export type TTemplateMessage = {
@@ -80,8 +74,8 @@ export type TTemplateMessage = {
       buttons: TFacebookMessageButton[];
     };
   };
-  botData: any;
-  inputData?: any;
+  botData: TBotData[];
+  inputData?: TBotMessageInputData;
 };
 
 export type TGenericTemplateMessage = {
@@ -97,8 +91,8 @@ export type TGenericTemplateMessage = {
       }[];
     };
   };
-  botData: any;
-  inputData?: any;
+  botData: TBotData[];
+  inputData?: TBotMessageInputData;
 };
 
 export type TAttachmentMessage = {
@@ -108,8 +102,8 @@ export type TAttachmentMessage = {
       url: string;
     };
   };
-  botData: any;
-  inputData?: any;
+  botData: TBotData[];
+  inputData?: TBotMessageInputData;
 };
 
 export type TBotConfigMessageButton = {
@@ -137,11 +131,23 @@ export type TBotConfigMessage = {
   audio?: string;
   video?: string;
   attachments?: any[];
-  input?: {
-    text: string;
-    value: string;
-    type: 'minute' | 'hour' | 'day' | 'month' | 'year';
-  };
+  input?: TBotMessageInputData;
+};
+
+export type TBotMessageInputData = {
+  text: string;
+  value: string;
+  type: 'minute' | 'hour' | 'day' | 'month' | 'year';
+};
+
+export type TAutomationActionConfig = {
+  botId: string;
+  messages: TBotConfigMessage[];
+  optionalConnects: {
+    sourceId: string;
+    actionId: string;
+    optionalConnectId: string;
+  }[];
 };
 
 type TBotDataCarousel = {
@@ -151,7 +157,7 @@ type TBotDataCarousel = {
     title: string;
     subtitle: string;
     buttons: {
-      title: any;
+      title: string;
       url: any;
       type: string | null;
     }[];
@@ -163,18 +169,14 @@ type TBotDataImage = {
   url: string;
 };
 
-type TBotDataTemplate = {
-  type: 'carousel';
-  elements: [
-    {
-      title: string;
-      buttons: {
-        title: any;
-        url: any;
-        type: string | null;
-      }[];
-    },
-  ];
+type TBotDataButtonTemplate = {
+  type: 'button_template';
+  text: string;
+  buttons: {
+    title: string;
+    url: any;
+    type: string | null;
+  }[];
 };
 
 type TBotDataText = {
@@ -183,14 +185,14 @@ type TBotDataText = {
 };
 
 type TBotDataQuickReplies = {
-  type: 'custom';
-  component: 'QuickReplies';
+  type: 'quick_replies';
+  text: string;
   quick_replies: { title: string }[];
 };
 
 export type TBotData =
   | TBotDataCarousel
   | TBotDataImage
-  | TBotDataTemplate
+  | TBotDataButtonTemplate
   | TBotDataText
   | TBotDataQuickReplies;

@@ -1,9 +1,9 @@
 import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
-import { IDetailsType } from '@/settings/team-member/types';
+import { IUserDetailsType } from '@/settings/team-member/types';
 import { cn, Textarea } from 'erxes-ui';
 import { ComponentProps, useRef, useState } from 'react';
 
-interface IDetails extends IDetailsType {
+interface IDetails extends IUserDetailsType {
   __typename?: string;
   description?: string;
 }

@@ -1,13 +1,6 @@
-// import { checkPermission } from "@erxes/api-utils/src/permissions";
-// import { IContext } from "../../../connectionResolver";
-// import { putUpdateLog, putCreateLog, putDeleteLog } from "../../../logUtils";
-// import { ISegment } from "../../../db/models/definitions/segments";
-// import { registerOnboardHistory } from "../../modules/robot";
-
 import { IContext } from '~/connectionResolvers';
 import { ISegment } from '../../db/definitions/segments';
 import { ISegmentsEdit } from '../../types';
-import { checkPermission } from 'erxes-api-shared/core-modules';
 
 export const segmentMutations = {
   /**
@@ -16,8 +9,10 @@ export const segmentMutations = {
   async segmentsAdd(
     _root,
     doc: ISegment,
-    { models, user, __, subdomain }: IContext,
+    { models, __, checkPermission }: IContext,
   ) {
+    await checkPermission('segmentsManage');
+
     const extendedDoc: any = __(doc);
 
     const { conditionSegments = [] } = extendedDoc || {};
@@ -31,8 +26,10 @@ export const segmentMutations = {
   async segmentsEdit(
     _root,
     { _id, ...doc }: ISegmentsEdit,
-    { models, subdomain, user }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('segmentsManage');
+
     const segment = await models.Segments.getSegment(_id);
 
     if (!segment) {
@@ -50,8 +47,10 @@ export const segmentMutations = {
   async segmentsRemove(
     _root,
     { _id, ids }: { _id: string; ids: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('segmentsManage');
+
     if (!_id && !ids?.length) {
       throw new Error('You should provide segment');
     }
@@ -62,7 +61,3 @@ export const segmentMutations = {
     return await models.Segments.removeSegment(_id);
   },
 };
-
-checkPermission(segmentMutations, 'segmentsAdd', 'manageSegments');
-checkPermission(segmentMutations, 'segmentsEdit', 'manageSegments');
-checkPermission(segmentMutations, 'segmentsRemove', 'manageSegments');

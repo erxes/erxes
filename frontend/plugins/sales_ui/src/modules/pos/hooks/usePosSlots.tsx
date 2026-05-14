@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import { useUpdatePosSlots } from './useSlotAdd';
-import { useToast } from 'erxes-ui/hooks';
+import { useToast } from 'erxes-ui';
 import { CustomNode } from '../slot/types';
 import { queries } from '../graphql';
 
@@ -9,6 +9,7 @@ interface UsePosSlotReturn {
   nodes: CustomNode[];
   setNodes: React.Dispatch<React.SetStateAction<CustomNode[]>>;
   loading: boolean;
+  saving: boolean;
   error: any;
   refetch: () => void;
   addSlot: (nodeData?: Partial<CustomNode['data']>) => CustomNode;
@@ -20,7 +21,7 @@ interface UsePosSlotReturn {
 
 export function usePosSlots(posId: string): UsePosSlotReturn {
   const [nodes, setNodes] = useState<CustomNode[]>([]);
-  const { updatePosSlots } = useUpdatePosSlots();
+  const { updatePosSlots, loading: saving } = useUpdatePosSlots();
   const { toast } = useToast();
 
   const { data, loading, error, refetch } = useQuery(queries.posSlots, {
@@ -43,6 +44,7 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
         position: { x, y },
         width,
         height,
+        zIndex: Number(slot.option?.zIndex) || 0,
         data: {
           label: slot.name || `TABLE ${slot._id}`,
           code: slot.code || slot._id,
@@ -51,7 +53,7 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
           height: slot.option?.height || height,
           positionX: x,
           positionY: y,
-          rounded: (slot.option?.borderRadius || 0) > 0,
+          rounded: Number(slot.option?.borderRadius) || 0,
           rotateAngle: Number(slot.option?.rotateAngle) || 0,
           zIndex: Number(slot.option?.zIndex) || 0,
           disabled: false,
@@ -77,9 +79,9 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
             top: y,
             left: x,
             rotateAngle: node.data.rotateAngle || 0,
-            borderRadius: node.data.rounded ? 8 : 0,
+            borderRadius: Number(node.data.rounded) || 0,
             color: node.data.color || '#4F46E5',
-            zIndex: node.data.zIndex || 0,
+            zIndex: node.zIndex ?? node.data.zIndex ?? 0,
             isShape: false,
           },
         };
@@ -94,18 +96,6 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
       setNodes(transformedNodes);
     }
   }, [data, transformSlotsToNodes]);
-
-  const generateNextId = useCallback((currentNodes: CustomNode[]): string => {
-    if (currentNodes.length === 0) return '1';
-
-    const numericIds = currentNodes
-      .map((node) => parseInt(node.id, 10))
-      .filter((id) => !isNaN(id));
-
-    if (numericIds.length === 0) return '1';
-
-    return String(Math.max(...numericIds) + 1);
-  }, []);
 
   const saveSlots = useCallback(
     async (targetPosId: string) => {
@@ -141,7 +131,16 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
 
   const addSlot = useCallback(
     (nodeData?: Partial<CustomNode['data']>) => {
-      const newId = generateNextId(nodes);
+      const getNextId = (currentNodes: CustomNode[]): string => {
+        if (currentNodes.length === 0) return '1';
+        const numericIds = currentNodes
+          .map((node) => Number.parseInt(node.id, 10))
+          .filter((id) => !isNaN(id));
+        if (numericIds.length === 0) return '1';
+        return String(Math.max(...numericIds) + 1);
+      };
+
+      const newId = getNextId(nodes);
       const x = nodeData?.positionX ?? 250 + (nodes.length % 3) * 200;
       const y = nodeData?.positionY ?? 100 + Math.floor(nodes.length / 3) * 150;
       const width = nodeData?.width ?? 80;
@@ -153,6 +152,7 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
         position: { x, y },
         width,
         height,
+        zIndex: nodeData?.zIndex || 0,
         data: {
           label: nodeData?.label || `TABLE ${newId}`,
           code: nodeData?.code || newId,
@@ -161,7 +161,7 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
           height,
           positionX: x,
           positionY: y,
-          rounded: nodeData?.rounded || false,
+          rounded: typeof nodeData?.rounded === 'number' ? nodeData.rounded : 0,
           rotateAngle: nodeData?.rotateAngle || 0,
           zIndex: nodeData?.zIndex || 0,
           disabled: nodeData?.disabled || false,
@@ -171,7 +171,7 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
       setNodes((prev) => [...prev, newNode]);
       return newNode;
     },
-    [nodes, generateNextId],
+    [nodes],
   );
 
   const updateSlot = useCallback((id: string, updates: Partial<CustomNode>) => {
@@ -211,6 +211,7 @@ export function usePosSlots(posId: string): UsePosSlotReturn {
     nodes,
     setNodes,
     loading,
+    saving,
     error,
     refetch,
     addSlot,

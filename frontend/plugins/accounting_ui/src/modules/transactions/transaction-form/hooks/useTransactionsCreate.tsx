@@ -2,8 +2,8 @@ import { OperationVariables, useMutation } from '@apollo/client';
 import { ACC_TRANSACTIONS_CREATE } from '../graphql/mutations/accTransactionsCreate';
 import { toast } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
-import { TR_RECORDS_QUERY, TRANSACTIONS_QUERY } from '../../graphql/transactionQueries';
-
+import { TRANSACTIONS_QUERY } from '../../graphql/transactionQueries';
+import { ACC_TRS__PER_PAGE } from '../../types/constants';
 
 export const useTransactionsCreate = (options?: OperationVariables) => {
   const navigate = useNavigate();
@@ -29,19 +29,19 @@ export const useTransactionsCreate = (options?: OperationVariables) => {
           title: 'Success',
           description: 'Transactions created successfully',
         });
-        options?.onCompleted()
+        options?.onCompleted();
       },
       refetchQueries: [
         {
           query: TRANSACTIONS_QUERY,
           variables: {
-            "page": 1,
-            "perPage": 20
-          }
+            limit: ACC_TRS__PER_PAGE,
+            orderBy: {
+              date: 1,
+            },
+            cursor: '',
+          },
         },
-        {
-          query: TR_RECORDS_QUERY,
-        }
       ],
       awaitRefetchQueries: true,
       update: (_cache, { data }) => {
@@ -49,7 +49,7 @@ export const useTransactionsCreate = (options?: OperationVariables) => {
 
         const pathname = newParentId
           ? `/accounting/transaction/edit?parentId=${newParentId}`
-          : "/accounting/main";
+          : '/accounting/main';
 
         navigate(pathname);
       },

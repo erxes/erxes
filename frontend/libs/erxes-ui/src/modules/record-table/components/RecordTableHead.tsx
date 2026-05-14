@@ -12,15 +12,15 @@ import { cn } from 'erxes-ui/lib/utils';
 import { useRecordTable } from './RecordTableProvider';
 
 export const recordTableHeadVariants = cva(
-  'sticky z-[2] top-0 transition-transform duration-200 whitespace-nowrap text-xs',
+  'sticky z-2 top-0 transition-transform duration-200 whitespace-nowrap text-xs [&_svg]:flex-none',
   {
     variants: {
       isDragging: {
-        true: 'z-[3]',
+        true: 'z-3',
       },
       isPinned: {
-        left: 'z-[3]',
-        right: 'z-[3]',
+        left: 'z-3',
+        right: 'z-3',
       },
     },
   },
@@ -70,7 +70,7 @@ export const RecordTableHead = ({
             {...attributes}
             {...listeners}
             tabIndex={-1}
-            className="absolute top-0 left-0 w-full h-full focus:outline-none"
+            className="absolute top-0 left-0 w-full h-full focus:outline-hidden"
           />
 
           {isDragging && (

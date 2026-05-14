@@ -54,7 +54,7 @@ export const useDocument = () => {
           return cache.modify({
             id: docId,
             fields: Object.keys(document || {}).reduce((fields: any, field) => {
-              fields[field] = () => (document || {})[field];
+              fields[field] = () => document?.[field];
               return fields;
             }, {}),
           });
@@ -78,7 +78,7 @@ export const useDocument = () => {
             }, 0);
           }
 
-          toast({ title: 'Successfully saved document' });
+          toast({ title: 'Successfully saved document', variant: 'success' });
         }
       },
       onError: (error) => {

@@ -18,7 +18,7 @@ export const EDIT_CUSTOMERS = gql`
     $sex: Int
     $code: String
     $birthDate: Date
-    $customFieldsData: JSON
+    $propertiesData: JSON
     $description: String
     $links: JSON
     $isSubscribed: String
@@ -40,7 +40,7 @@ export const EDIT_CUSTOMERS = gql`
       sex: $sex
       code: $code
       birthDate: $birthDate
-      customFieldsData: $customFieldsData
+      propertiesData: $propertiesData
       description: $description
       links: $links
       isSubscribed: $isSubscribed

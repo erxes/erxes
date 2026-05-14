@@ -26,6 +26,7 @@
       }
     ]
   },
+
   "plugins": [
     {
       "plugin": "@nx/eslint/plugin",

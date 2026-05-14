@@ -21,6 +21,7 @@ export const useCreateOwner = () => {
         toast({
           title: 'Success',
           description: 'Owner has been created successfully',
+          variant: 'success',
         });
 
         if (currentOrganization) {
@@ -31,6 +32,7 @@ export const useCreateOwner = () => {
         toast({
           title: 'Uh oh! Something went wrong.',
           description: e.message,
+          variant: 'destructive',
         });
       });
   };

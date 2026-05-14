@@ -29,7 +29,7 @@ export const DefaultLayout = () => {
         </SidebarAnimationContainer>
         <Sidebar.Rail />
       </Sidebar>
-      <Sidebar.Inset className="h-[calc(100svh-theme(spacing.4))] flex-grow-0 flex-shrink basis-full overflow-hidden shadow-sidebar-inset">
+      <Sidebar.Inset className="h-[calc(100svh-(--spacing(4)))] grow-0 shrink basis-full overflow-hidden shadow-sidebar-inset">
         <FloatingWidgets />
         <Outlet />
       </Sidebar.Inset>

@@ -25,7 +25,6 @@ export const useAutomationHistories = () => {
     sessionKey: AUTOMATION_HISTORIES_CURSOR_SESSION_KEY,
   });
 
-  const { actionsConst = [], triggersConst = [] } = useAutomation();
   const { data, loading, fetchMore, refetch } = useQuery(AUTOMATION_HISTORIES, {
     variables: {
       automationId: id,
@@ -80,8 +79,6 @@ export const useAutomationHistories = () => {
     loading,
     hasPreviousPage,
     hasNextPage,
-    triggersConst,
-    actionsConst,
     handleFetchMore,
     refetch,
   };

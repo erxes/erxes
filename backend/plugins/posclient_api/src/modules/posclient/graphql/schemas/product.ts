@@ -37,11 +37,14 @@ export const types = `
     attachmentMore: [Attachment]
     uom: String
     subUoms: JSON
+    currency: String
     category: PosProductCategory
+
     remainder: Float
     soonIn: Float
     soonOut: Float
     remainders: [JSON]
+    
     isCheckRem: Boolean
     hasSimilarity: Boolean
     pdfAttachment: PdfAttachment

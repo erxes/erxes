@@ -37,7 +37,7 @@ export const useUpdateCallHistory = () => {
       updateHistoryMutation({
         variables: {
           id: idToUse,
-          timeStamp: parseInt(timeStamp.toString()),
+          timeStamp: Number.parseInt(timeStamp.toString()),
           callStartTime,
           callEndTime,
           callDuration: duration,
@@ -69,7 +69,7 @@ export const useUpdateCallHistory = () => {
       if (callStatus === 'cancelled') {
         updateHistoryMutation({
           variables: {
-            timeStamp: parseInt(timeStamp.toString()),
+            timeStamp: Number.parseInt(timeStamp.toString()),
             callStartTime,
             callEndTime,
             callDuration: duration,
@@ -82,9 +82,6 @@ export const useUpdateCallHistory = () => {
           refetchQueries: ['callHistories'],
         })
           .then(() => {
-            console.log(
-              'Successfully created new history entry for cancelled call',
-            );
             setHistoryId('');
           })
           .catch((e) => {

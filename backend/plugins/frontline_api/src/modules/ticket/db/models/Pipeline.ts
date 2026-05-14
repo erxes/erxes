@@ -4,8 +4,10 @@ import {
   TicketsPipelineFilter,
 } from '@/ticket/@types/pipeline';
 import { ticketPipelineSchema } from '@/ticket/db/definitions/pipeline';
+import { IUserDocument } from 'erxes-api-shared/core-types';
 import { FlattenMaps, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
+import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
 
 export interface ITicketPipelineModel extends Model<ITicketPipelineDocument> {
   getPipeline(_id: string): Promise<ITicketPipelineDocument>;
@@ -16,6 +18,7 @@ export interface ITicketPipelineModel extends Model<ITicketPipelineDocument> {
   updatePipeline(
     _id: string,
     doc: ITicketPipeline,
+    user?: IUserDocument,
   ): Promise<ITicketPipelineDocument | null>;
 
   removePipeline(_id: string): Promise<{ ok: number }>;
@@ -48,7 +51,14 @@ export const loadPipelineClass = (models: IModels) => {
     public static async updatePipeline(
       _id: string,
       doc: ITicketPipeline,
+      user?: IUserDocument,
     ): Promise<ITicketPipelineDocument | null> {
+      const permissionValidator = createPermissionValidator(models);
+
+      if (doc.statusId) {
+        await permissionValidator.validateMovePermission(doc.statusId, user);
+      }
+
       return models.Pipeline.findOneAndUpdate(
         { _id },
         { $set: { ...doc } },

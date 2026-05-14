@@ -1,33 +1,26 @@
 import { useAutomation } from '@/automations/context/AutomationProvider';
-import { useTriggersActions } from '@/automations/hooks/useTriggersActions';
 import { toggleAutomationBuilderOpenSidebar } from '@/automations/states/automationState';
 import { AutomationNodeType, NodeData } from '@/automations/types';
-import { TAutomationBuilderForm } from '@/automations/utils/AutomationFormDefinitions';
 import { Node } from '@xyflow/react';
 import { useSetAtom } from 'jotai';
-import { useFormContext } from 'react-hook-form';
 
 export const useNodeEvents = () => {
   const toggleSideBarOpen = useSetAtom(toggleAutomationBuilderOpenSidebar);
-  const { setQueryParams } = useAutomation();
-  const { setValue } = useFormContext<TAutomationBuilderForm>();
-  const { getList } = useTriggersActions();
+  const { setQueryParams, setSelectedNode } = useAutomation();
 
-  const onNodeDragStop = (_: any, node: Node<NodeData>) => {
-    const nodeType = node.data.nodeType as AutomationNodeType;
+  const onNodeClick = (_event: any, node: Node<NodeData>) => {
+    setSelectedNode({
+      id: node.id,
+      type: node.data.type,
+      nodeType: node.data.nodeType,
+      label: node.data.label,
+      icon: node.data.icon,
+    });
+  };
 
-    const list = getList(nodeType);
-
-    if (!list?.length) {
-      return;
-    }
-
-    setValue(
-      `${nodeType}s`,
-      list.map((item) =>
-        item.id === node.id ? { ...item, position: node.position } : item,
-      ),
-    );
+  const openNodeConfigurationForm = (nodeId: string) => {
+    toggleSideBarOpen();
+    setQueryParams({ activeNodeId: nodeId });
   };
 
   const onNodeDoubleClick = (event: any, node: Node<NodeData>) => {
@@ -35,17 +28,24 @@ export const useNodeEvents = () => {
 
     const isCollapsibleTrigger = target.closest('[data-collapsible-trigger]');
     const isButton = target.closest('button');
-
-    if (isCollapsibleTrigger || isButton) {
+    if (
+      isCollapsibleTrigger ||
+      isButton ||
+      node.type === AutomationNodeType.Workflow
+    ) {
       return;
     }
+    openNodeConfigurationForm(node.id);
+  };
 
-    toggleSideBarOpen();
-    setQueryParams({ activeNodeId: node.id });
+  const onPaneClick = () => {
+    setSelectedNode(null);
   };
 
   return {
+    onNodeClick,
     onNodeDoubleClick,
-    onNodeDragStop,
+    onPaneClick,
+    openNodeConfigurationForm,
   };
 };

@@ -107,13 +107,13 @@ const SelectMilestoneValue = ({ placeholder }: { placeholder?: string }) => {
   return (
     <div className="flex items-center gap-2">
       <IconSquareRotated className="size-4" />
-      <span className="truncate font-medium">
-        {milestoneName}&nbsp;
+      <div className="flex gap-3 items-center">
+        <span className="truncate font-medium">{milestoneName}</span>
         <span className="text-xs text-muted-foreground">
           {selectedMilestone?.targetDate &&
             format(new Date(selectedMilestone.targetDate), 'MMM dd')}
         </span>
-      </span>
+      </div>
     </div>
   );
 };
@@ -130,15 +130,15 @@ const SelectMilestoneCommandItem = ({
       value={milestone._id}
       onSelect={() => onValueChange(milestone._id)}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-1">
         <IconSquareRotated className="size-4" />
-        <span className="truncate font-medium">
-          {milestone.name}&nbsp;
+        <div className="flex justify-between items-center flex-1">
+          <span className="truncate font-medium">{milestone.name}</span>
           <span className="text-xs text-muted-foreground">
             {milestone.targetDate &&
               format(new Date(milestone.targetDate), 'MMM dd')}
           </span>
-        </span>
+        </div>
       </div>
       <Combobox.Check checked={value === milestone._id} />
     </Command.Item>

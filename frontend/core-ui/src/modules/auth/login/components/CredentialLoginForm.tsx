@@ -23,6 +23,7 @@ export const CredentialLoginForm = () => {
               </Form.Label>
               <Form.Control>
                 <Input
+                  autoFocus
                   type="text"
                   placeholder="Enter your work email or username"
                   {...field}

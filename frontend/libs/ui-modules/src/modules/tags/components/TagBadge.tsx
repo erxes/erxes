@@ -1,7 +1,8 @@
 import { Badge, Skeleton, TextOverflowTooltip } from 'erxes-ui';
-import { useTagsByIds } from '../hooks/useTags';
-import { ITag } from '../types/Tag';
+
+import { ITag } from 'ui-modules/index';
 import React from 'react';
+import { useTagsByIds } from '../hooks/useTags';
 
 export const TagBadge = React.forwardRef<
   React.ElementRef<typeof Badge>,

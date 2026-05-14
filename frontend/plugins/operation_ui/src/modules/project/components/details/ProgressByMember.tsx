@@ -49,7 +49,7 @@ export const ProgressByMember = ({ projectId }: { projectId: string }) => {
                       {
                         name: 'Progress',
                         value: getProgress(item),
-                        fill: 'hsl(var(--primary))',
+                        fill: 'var(--primary)',
                       },
                     ]}
                     startAngle={90}
@@ -62,7 +62,7 @@ export const ProgressByMember = ({ projectId }: { projectId: string }) => {
                       tick={false}
                     />
                     <RadialBar
-                      background={{ fill: 'hsl(var(--border))' }}
+                      background={{ fill: 'var(--border)' }}
                       dataKey="value"
                       cornerRadius={10}
                     />

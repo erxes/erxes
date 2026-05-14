@@ -39,8 +39,8 @@ export const companySchema = schemaWrapper(
       },
 
       industry: {
-        type: String,
-        label: 'Industries',
+        type: [String],
+        label: 'Industry',
         optional: true,
         esType: 'keyword',
       },
@@ -48,12 +48,6 @@ export const companySchema = schemaWrapper(
       website: {
         type: String,
         label: 'Website',
-        optional: true,
-      },
-
-      plan: {
-        type: String,
-        label: 'Plan',
         optional: true,
       },
 
@@ -145,6 +139,12 @@ export const companySchema = schemaWrapper(
         type: [customFieldSchema],
         optional: true,
         label: 'Custom fields data',
+      },
+
+      propertiesData: {
+        type: Schema.Types.Mixed,
+        optional: true,
+        label: 'Properties data',
       },
 
       trackedData: {

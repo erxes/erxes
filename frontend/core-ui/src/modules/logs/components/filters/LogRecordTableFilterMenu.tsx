@@ -1,8 +1,10 @@
 import {
   IconCalendarPlus,
+  IconHash,
   IconProgressCheck,
   IconSettings,
   IconSourceCode,
+  IconTag,
   IconUser,
 } from '@tabler/icons-react';
 import { Command, Filter, Input, useMultiQueryState } from 'erxes-ui';
@@ -41,6 +43,14 @@ export const LogRecordTableFilterMenu = () => {
             <IconUser />
             User
           </Filter.Item>
+          <Filter.Item value="contentType">
+            <IconTag />
+            Content Type
+          </Filter.Item>
+          <Filter.Item value="docId">
+            <IconHash />
+            Document ID
+          </Filter.Item>
           <Command.Separator className="my-1" />
           <Filter.Item value="createdAt">
             <IconCalendarPlus />
@@ -52,11 +62,11 @@ export const LogRecordTableFilterMenu = () => {
             placeholder="Type a custom field name"
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
-                const value = e.currentTarget.value;
+                const value = e.currentTarget.value.trim();
                 const paramKeys = Array.from(searchParams.keys());
 
-                if (!paramKeys?.includes(value)) {
-                  setQueries({ [e.currentTarget.value]: '' });
+                if (value && !paramKeys?.includes(value)) {
+                  setQueries({ [value]: '' });
                 }
               }
             }}

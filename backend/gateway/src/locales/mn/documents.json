@@ -1,0 +1,16 @@
+{
+  "documents": "Баримтууд",
+  "document-types": "Баримтын төрлүүд",
+  "customer": "Харилцагч",
+  "company": "Компани",
+  "product": "Бүтээгдэхүүн",
+  "team-member": "Багийн гишүүн",
+  "add-document": "Баримт нэмэх",
+  "no-document-title": "Одоогоор баримт алга",
+  "no-document-description": "Эхний баримтаа үүсгэж эхлээрэй.",
+  "filter": {
+    "search": "Хайх",
+    "created-at": "Үүсгэсэн огноо",
+    "assigned-to": "Хариуцсан"
+  }
+}

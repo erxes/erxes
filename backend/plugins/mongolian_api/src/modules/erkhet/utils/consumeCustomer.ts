@@ -1,5 +1,5 @@
 import { getConfig } from './utils';
-import { sendTRPCMessage } from 'erxes-api-shared/src/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { validCompanyCode } from './customerToErkhet';
 
 export const consumeCustomer = async (subdomain, doc, old_code, action) => {
@@ -14,14 +14,14 @@ export const consumeCustomer = async (subdomain, doc, old_code, action) => {
       module: 'companies',
       action: 'findOne',
       input: { companyCode: old_code },
-      defaultValue: null
+      defaultValue: null,
     });
 
     if ((action === 'update' && old_code) || action === 'create') {
       const document = {
         primaryName: doc.name,
         code: doc.code,
-        names: [doc.name]
+        names: [doc.name],
       };
 
       if (company) {
@@ -61,7 +61,7 @@ export const consumeCustomer = async (subdomain, doc, old_code, action) => {
       module: 'customers',
       action: 'findOne',
       input: { customerCode: old_code },
-      defaultValue: null
+      defaultValue: null,
     });
 
     if ((action === 'update' && old_code) || action === 'create') {
@@ -71,7 +71,7 @@ export const consumeCustomer = async (subdomain, doc, old_code, action) => {
         primaryEmail: doc.mail,
         primaryPhone: doc.phone,
         emails: [{ email: doc.mail, type: 'other' }],
-        phones: [{ phone: doc.phone, type: 'other' }]
+        phones: [{ phone: doc.phone, type: 'other' }],
       };
 
       if (customer) {

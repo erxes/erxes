@@ -1,4 +1,5 @@
 import { Model } from 'mongoose';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { internalNoteSchema } from '~/modules/internalNote/db/definitions/internalNote';
 import {
@@ -23,7 +24,11 @@ export interface IInternalNoteModel extends Model<IInternalNoteDocument> {
   ): Promise<{ n: number; ok: number }>;
 }
 
-export const loadInternalNoteClass = (models: IModels) => {
+export const loadInternalNoteClass = (
+  models: IModels,
+  subdomain: string,
+  { createActivityLog }: EventDispatcherReturn,
+) => {
   class InternalNote {
     public static async getInternalNote(_id: string) {
       const internalNote = await models.InternalNotes.findOne({ _id }).lean();
@@ -42,19 +47,31 @@ export const loadInternalNoteClass = (models: IModels) => {
       { contentType, contentTypeId, ...fields }: IInternalNote,
       user,
     ) {
-      return await models.InternalNotes.create({
+      const note = await models.InternalNotes.create({
         contentType,
         contentTypeId,
         createdUserId: user._id,
         ...fields,
       });
+      createActivityLog({
+        activityType: 'create',
+        target: {
+          _id: note._id,
+        },
+        action: {
+          type: 'create',
+          description: 'Note created',
+        },
+        changes: {},
+      });
+      return note;
     }
 
     /*
      * Update internalNote
      */
     public static async updateInternalNote(_id: string, doc: IInternalNote) {
-      return models.InternalNotes.findOneAndUpdate(
+      return await models.InternalNotes.findOneAndUpdate(
         { _id },
         { $set: doc },
         { new: true },
@@ -84,10 +101,15 @@ export const loadInternalNoteClass = (models: IModels) => {
       contentTypeIds: string[],
     ) {
       // Removing every internal notes of contentType
-      return models.InternalNotes.deleteMany({
+      const toDelete = await models.InternalNotes.find({
         contentType,
         contentTypeId: { $in: contentTypeIds },
       });
+      const result = await models.InternalNotes.deleteMany({
+        contentType,
+        contentTypeId: { $in: contentTypeIds },
+      });
+      return result;
     }
   }
 

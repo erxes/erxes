@@ -2,9 +2,13 @@ import { Toggle } from 'erxes-ui';
 import { useChangeConversationStatus } from '@/inbox/conversations/hooks/useChangeConversationStatus';
 import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
 import { ConversationStatus } from '@/inbox/types/Conversation';
+import { useAtomValue } from 'jotai';
+import { refetchConversationsAtom } from '../../states/refetchConversationState';
 
 export const ConversationActions = () => {
   const { changeConversationStatus, loading } = useChangeConversationStatus();
+  const refetchConversations = useAtomValue(refetchConversationsAtom);
+
   const { _id, status } = useConversationContext();
 
   const handleChangeConversationStatus = (pressed: boolean) => {
@@ -14,6 +18,9 @@ export const ConversationActions = () => {
         status: pressed ? ConversationStatus.CLOSED : ConversationStatus.OPEN,
       },
     });
+    if (refetchConversations) {
+      refetchConversations();
+    }
   };
 
   return (

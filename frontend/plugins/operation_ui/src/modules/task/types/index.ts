@@ -19,6 +19,7 @@ export interface INote {
 export interface ITask {
   _id: string;
   name: string;
+  description?: string;
   number: string;
   tagIds: string[];
   createdAt: string;

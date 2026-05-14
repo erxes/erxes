@@ -12,10 +12,6 @@ export const useUpdatePipeline = () => {
     return _updatePipeline({
       ...options,
       onCompleted: (data) => {
-        toast({
-          title: 'Pipeline updated successfully',
-          variant: 'default',
-        });
         options.onCompleted?.(data);
       },
       onError: (error: ApolloError) => {

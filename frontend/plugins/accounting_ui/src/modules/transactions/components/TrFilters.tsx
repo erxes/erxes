@@ -1,174 +1,260 @@
 import {
-  IconCalendarEventFilled,
+  AccountsFilterCurrency,
+  AccountsFilterTrJournal,
+  FilterBarCurrency,
+  FilterBarTrJournal,
+} from '@/settings/account/components/filters/FilterHelpers';
+import {
+  IconCalendar,
   IconCoins,
   IconHash,
   IconLabelFilled,
   IconLayoutGridAdd,
   IconNotebook,
+  IconNumber,
+  IconSearch,
   IconToggleRightFilled,
 } from '@tabler/icons-react';
-import {
-  Combobox,
-  Command,
-  Filter,
-  SelectTree,
-  useQueryState,
-  CurrencyField,
-  useFilterContext,
-  CurrencyCode,
-} from 'erxes-ui';
-import { SelectAccountCommand } from '@/settings/account/account-categories/components/SelectAccountCategory';
-import { AccountsJournalCommand } from '@/settings/account/components/AccountsJournal';
-import { AccountsKindCommand } from '@/settings/account/components/AccountsKind';
+import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
+import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
+import { SelectAccount } from '~/modules/settings/account/components/SelectAccount';
+import { useTransactionsQueryParams } from '../hooks/useTransactionVars';
 
-export const TransactionsFilter = () => {
+const TransactionsFilterPopover = () => {
+  const queryParams = useTransactionsQueryParams();
+  const hasFilters = Object.values(queryParams || {}).some(
+    (value) => value !== null,
+  );
+
   return (
     <>
-      <Filter.Popover scope="transactions-filter">
-        <Filter.Trigger />
+      <Filter.Popover scope="accounts-filter">
+        <Filter.Trigger isFiltered={hasFilters} />
         <Combobox.Content>
           <Filter.View>
             <Command>
-              <Command.Input
-                placeholder="Filter"
+              <Filter.CommandInput
+                placeholder="Шүүлтүүр"
                 variant="secondary"
                 className="bg-background"
               />
-
               <Command.List className="p-1">
-                <Filter.Item value="name" inDialog>
-                  <IconLabelFilled />
-                  Name
+                <Filter.Item value="searchValue" inDialog>
+                  <IconSearch />
+                  Хайх
                 </Filter.Item>
-                <Filter.Item value="accountCode" inDialog>
-                  <IconHash />
-                  Account Code
+                <Filter.Item value="number" inDialog>
+                  <IconNumber />
+                  Дугаар
                 </Filter.Item>
-                <Filter.Item value="category">
-                  <IconLayoutGridAdd />
-                  Category
+                <Filter.Item value="date" inDialog>
+                  <IconCalendar />
+                  Огноо
                 </Filter.Item>
+                <SelectBranches.FilterItem value="branchId" label="Салбар" />
+                <SelectDepartments.FilterItem
+                  value="departmentId"
+                  label="Хэлтэс"
+                />
                 <Filter.Item value="currency">
                   <IconCoins />
-                  Currency
-                </Filter.Item>
-                <Filter.Item value="kind">
-                  <IconToggleRightFilled />
-                  Kind
+                  Валют
                 </Filter.Item>
                 <Filter.Item value="journal">
                   <IconNotebook />
-                  Journal
+                  Журнал
                 </Filter.Item>
+                <Filter.Item value="statuses" disabled={true}>
+                  <IconToggleRightFilled />
+                  Төлөв
+                </Filter.Item>
+
                 <Command.Separator className="my-1" />
-                <Filter.Item value="due">
-                  <IconCalendarEventFilled />
-                  Due date
+                <SelectAccount.FilterItem value="accountIds" />
+                <Filter.Item value="accountKind" disabled={true}>
+                  <IconToggleRightFilled />
+                  Дансны төрөл
+                </Filter.Item>
+                <Filter.Item value="accountStatus" disabled={true}>
+                  <IconToggleRightFilled />
+                  Дансны төлөв
+                </Filter.Item>
+                <Filter.Item value="accountCategoryId" disabled={true}>
+                  <IconLayoutGridAdd />
+                  Дансны ангилал
+                </Filter.Item>
+                <Filter.Item value="accountSearchValue" inDialog>
+                  <IconSearch />
+                  Данс хайх
+                </Filter.Item>
+                <Filter.Item value="isOutBalance" disabled={true}>
+                  <IconToggleRightFilled />
+                  Баланс бус эсэх
+                </Filter.Item>
+
+                <Command.Separator className="my-1" />
+                <SelectMember.FilterItem
+                  value="createdUserId"
+                  label="Үүсгэсэн"
+                />
+                <SelectMember.FilterItem
+                  value="modifiedUserId"
+                  label="Өөрчилсөн"
+                />
+                <Filter.Item value="updatedDate" inDialog>
+                  <IconCalendar />
+                  Өөрчилсөн
+                </Filter.Item>
+                <Filter.Item value="createdDate" inDialog>
+                  <IconCalendar />
+                  Үүсгэсэн
                 </Filter.Item>
               </Command.List>
             </Command>
           </Filter.View>
-          <AccountsFilterCategory />
-          <Filter.View filterKey="due">
-            <Filter.DateView filterKey="due" />
+          <Filter.View filterKey="date">
+            <Filter.DateView filterKey="date" />
           </Filter.View>
-          <Filter.View filterKey="created">
-            <Filter.DateView filterKey="created" />
-          </Filter.View>
-          <Filter.View filterKey="updated">
-            <Filter.DateView filterKey="updated" />
-          </Filter.View>
+          <SelectBranches.FilterView mode="single" filterKey="branchId" />
+          <SelectDepartments.FilterView
+            mode="single"
+            filterKey="departmentId"
+          />
           <Filter.View filterKey="currency">
             <AccountsFilterCurrency />
           </Filter.View>
-          <Filter.View filterKey="kind">
-            <AccountsFilterKind />
-          </Filter.View>
           <Filter.View filterKey="journal">
-            <AccountsFilterJournal />
+            <AccountsFilterTrJournal />
+          </Filter.View>
+          <SelectAccount.FilterView mode="multiple" queryKey="accountIds" />
+
+          <SelectMember.FilterView mode="single" queryKey="createdUserId" />
+          <SelectMember.FilterView mode="single" queryKey="modifiedUserId" />
+          <Filter.View filterKey="updatedDate">
+            <Filter.DateView filterKey="updatedDate" />
+          </Filter.View>
+          <Filter.View filterKey="createdDate">
+            <Filter.DateView filterKey="createdDate" />
           </Filter.View>
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
-        <Filter.View filterKey="name" inDialog>
-          <Filter.DialogStringView filterKey="name" />
+        <Filter.View filterKey="searchValue" inDialog>
+          <Filter.DialogStringView filterKey="searchValue" />
         </Filter.View>
-        <Filter.View filterKey="accountCode" inDialog>
-          <Filter.DialogStringView filterKey="accountCode" />
+        <Filter.View filterKey="number" inDialog>
+          <Filter.DialogStringView filterKey="number" />
         </Filter.View>
-        <Filter.View filterKey="due" inDialog>
-          <Filter.DialogDateView filterKey="due" />
+        <Filter.View filterKey="accountSearchValue" inDialog>
+          <Filter.DialogStringView filterKey="accountSearchValue" />
+        </Filter.View>
+        <Filter.View filterKey="date" inDialog>
+          <Filter.DialogDateView filterKey="date" />
+        </Filter.View>
+        <Filter.View filterKey="updatedDate" inDialog>
+          <Filter.DialogDateView filterKey="updatedDate" />
+        </Filter.View>
+        <Filter.View filterKey="createdDate" inDialog>
+          <Filter.DialogDateView filterKey="createdDate" />
         </Filter.View>
       </Filter.Dialog>
     </>
   );
 };
 
-export const AccountsFilterCategory = () => {
-  const [categoryId, setCategoryId] = useQueryState<string>('categoryId');
-  const { resetFilterState } = useFilterContext();
+export const TransactionsFilter = ({
+  afterBar,
+}: {
+  afterBar?: React.ReactNode;
+}) => {
+  const [queries] = useMultiQueryState<{
+    number: string;
+    searchValue: string;
+    accountSearchValue: string;
+  }>(['number', 'searchValue', 'accountSearchValue']);
+
+  const { number, searchValue, accountSearchValue } = queries;
 
   return (
-    <SelectTree.Provider id="account-category-filter" ordered>
-      <Filter.View filterKey="category">
-        <SelectAccountCommand
-          focusOnMount
-          selected={categoryId ?? undefined}
-          onSelect={(categoryId) => {
-            setCategoryId(categoryId);
-            resetFilterState();
-          }}
+    <Filter id="accounts-filter">
+      <Filter.Bar>
+        <Filter.BarItem queryKey="searchValue">
+          <Filter.BarName>
+            <IconSearch />
+            Хайх
+          </Filter.BarName>
+          <Filter.BarButton filterKey="searchValue" inDialog>
+            {searchValue}
+          </Filter.BarButton>
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="number">
+          <Filter.BarName>
+            <IconHash />
+            Дугаар
+          </Filter.BarName>
+          <Filter.BarButton filterKey="number" inDialog>
+            {number}
+          </Filter.BarButton>
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="date">
+          <Filter.BarName>
+            <IconCalendar />
+            Огноо
+          </Filter.BarName>
+          <Filter.Date filterKey="date" />
+        </Filter.BarItem>
+        <SelectBranches.FilterBar
+          label="Салбар"
+          filterKey="branchId"
+          mode="single"
         />
-      </Filter.View>
-    </SelectTree.Provider>
-  );
-};
+        <SelectDepartments.FilterBar
+          label="Хэлтэс"
+          filterKey="departmentId"
+          mode="single"
+        />
+        <FilterBarCurrency />
+        <FilterBarTrJournal />
 
-export const AccountsFilterCurrency = () => {
-  const [currency, setCurrency] = useQueryState<CurrencyCode>('currency');
-  const { resetFilterState } = useFilterContext();
-  return (
-    <Filter.View filterKey="currency">
-      <CurrencyField.SelectCurrencyCommand
-        focusOnMount
-        value={currency ?? undefined}
-        onSelect={(code) => {
-          setCurrency(code);
-          resetFilterState();
-        }}
-      />
-    </Filter.View>
-  );
-};
+        <SelectAccount.FilterBar queryKey="accountIds" mode="multiple" />
+        <Filter.BarItem queryKey="accountSearchValue">
+          <Filter.BarName>
+            <IconLabelFilled />
+            Данс хайх
+          </Filter.BarName>
+          <Filter.BarButton filterKey="accountSearchValue" inDialog>
+            {accountSearchValue}
+          </Filter.BarButton>
+        </Filter.BarItem>
 
-export const AccountsFilterKind = () => {
-  const [kind, setKind] = useQueryState<string | null>('kind');
-  const { resetFilterState } = useFilterContext();
+        <SelectMember.FilterBar
+          queryKey="createdUserId"
+          label="Үүсгэсэн"
+          mode="single"
+        />
+        <SelectMember.FilterBar
+          queryKey="modifiedUserId"
+          label="Өөрчилсөн"
+          mode="single"
+        />
+        <Filter.BarItem queryKey="createdDate">
+          <Filter.BarName>
+            <IconCalendar />
+            Үүсгэсэн огноо
+          </Filter.BarName>
+          <Filter.Date filterKey="createdDate" />
+        </Filter.BarItem>
+        <Filter.BarItem queryKey="updatedDate">
+          <Filter.BarName>
+            <IconCalendar />
+            Өөрчилсөн огноо
+          </Filter.BarName>
+          <Filter.Date filterKey="updatedDate" />
+        </Filter.BarItem>
 
-  const handleSelect = (value: string | null) => {
-    setKind(value);
-    resetFilterState();
-  };
-
-  return (
-    <AccountsKindCommand focusOnMount selected={kind} onSelect={handleSelect} />
-  );
-};
-
-export const AccountsFilterJournal = () => {
-  const [journal, setJournal] = useQueryState<string | null>('journal');
-  const { resetFilterState } = useFilterContext();
-
-  const handleSelect = (value: string | null) => {
-    setJournal(value);
-    resetFilterState();
-  };
-
-  return (
-    <AccountsJournalCommand
-      focusOnMount
-      selected={journal}
-      onSelect={handleSelect}
-    />
+        <TransactionsFilterPopover />
+        {afterBar && <>{afterBar}</>}
+      </Filter.Bar>
+    </Filter>
   );
 };

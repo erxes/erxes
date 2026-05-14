@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { IconLoader2 } from '@tabler/icons-react';
 import {
   Button,
   cn,
@@ -12,6 +13,10 @@ import {
   useSetHotkeyScope,
   useQueryState,
 } from 'erxes-ui';
+import {
+  type ProductAttachmentItem,
+  toProductAttachmentItem,
+} from 'ui-modules';
 import { renderingCategoryDetailAtom } from '../../states/ProductCategory';
 import { CategoryHotKeyScope } from '../../types/CategoryHotKeyScope';
 import { CategoriesUpdateCoreFields } from './CategoryUpdateCoreFields';
@@ -21,28 +26,36 @@ import {
   ProductFormValues,
 } from '../../add-category/components/formSchema';
 import { CategoryUpdateMoreFields } from './CategoryUpdateMoreFields';
+import { useProductCategoryDetail } from '../hooks/useCategoryDetail';
 
 export const CategoryDetailSheet = () => {
   const [activeTab] = useAtom(renderingCategoryDetailAtom);
   const setHotkeyScope = useSetHotkeyScope();
   const [categoryId, setCategoryId] = useQueryState<string>('category_id');
+  const [attachment, setAttachment] = useState<ProductAttachmentItem | null>(
+    null,
+  );
 
   const { toast } = useToast();
   const { productCategoriesEdit, loading: editLoading } =
     useProductCategoriesEdit();
+
+  const { categoryDetail, loading, error } = useProductCategoryDetail();
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
       name: '',
       code: '',
-      categoryId: '',
+      parentId: '',
       description: '',
       attachment: null,
-      accountMaskType: '',
-      state: '',
+      maskType: '',
+      status: '',
       meta: '',
       scopeBrandIds: [],
+      isSimilarity: false,
+      similarities: [],
     },
   });
 
@@ -51,6 +64,10 @@ export const CategoryDetailSheet = () => {
       setHotkeyScope(CategoryHotKeyScope.CategoryEditSheet);
     }
   }, [categoryId, setHotkeyScope]);
+
+  useEffect(() => {
+    setAttachment(toProductAttachmentItem(categoryDetail?.attachment));
+  }, [categoryDetail?._id, categoryDetail?.attachment?.url]);
 
   const setOpen = (newCategoryId: string | null) => {
     setCategoryId(newCategoryId);
@@ -65,7 +82,8 @@ export const CategoryDetailSheet = () => {
     Object.entries(data).forEach(([key, value]) => {
       if (value) cleanData[key] = value;
     });
-    const fieldsToUpdate = ['name', 'code', 'categoryId'];
+    cleanData.attachment = attachment || undefined;
+    const fieldsToUpdate = Object.keys(cleanData);
     productCategoriesEdit(
       {
         variables: {
@@ -76,18 +94,69 @@ export const CategoryDetailSheet = () => {
           toast({
             title: 'Error',
             description: e.message,
+            variant: 'destructive',
           });
         },
         onCompleted: () => {
           toast({
-            title: 'Success',
-            description: 'Category updated successfully',
+            title: 'Category updated successfully',
+            variant: 'success',
           });
           form.reset();
           setOpen(null);
         },
       },
       fieldsToUpdate,
+    );
+  }
+
+  if (loading) {
+    return (
+      <Sheet
+        open={!!categoryId}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) {
+            setOpen(null);
+            setHotkeyScope(CategoryHotKeyScope.CategoriesPage);
+          }
+        }}
+      >
+        <Sheet.View
+          className={cn(
+            'p-0 md:max-w-screen-[520px] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
+            !!activeTab && 'md:w-[calc(100vw-(--spacing(4)))]',
+          )}
+        >
+          <div className="flex flex-1 min-h-[200px] items-center justify-center p-5 text-muted-foreground">
+            <IconLoader2 className="w-4 h-4 animate-spin" />
+          </div>
+        </Sheet.View>
+      </Sheet>
+    );
+  }
+
+  if (error) {
+    return (
+      <Sheet
+        open={!!categoryId}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) {
+            setOpen(null);
+            setHotkeyScope(CategoryHotKeyScope.CategoriesPage);
+          }
+        }}
+      >
+        <Sheet.View
+          className={cn(
+            'p-0 md:max-w-screen-[520px] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
+            !!activeTab && 'md:w-[calc(100vw-(--spacing(4)))]',
+          )}
+        >
+          <div className="p-5 text-sm text-destructive">
+            {error?.message || 'Failed to load category.'}
+          </div>
+        </Sheet.View>
+      </Sheet>
     );
   }
 
@@ -104,15 +173,15 @@ export const CategoryDetailSheet = () => {
       <Sheet.View
         className={cn(
           'p-0 md:max-w-screen-[520px] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
-          !!activeTab && 'md:w-[calc(100vw-theme(spacing.4))]',
+          !!activeTab && 'md:w-[calc(100vw-(--spacing(4)))]',
         )}
       >
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col h-full overflow-hidden"
+            className="flex overflow-hidden flex-col h-full"
           >
-            <Sheet.Header className="border-b p-3 flex-row items-center space-y-0 gap-3">
+            <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
               <Sheet.Title>Edit Category</Sheet.Title>
               <Sheet.Close />
               <Sheet.Description className="sr-only">
@@ -120,29 +189,32 @@ export const CategoryDetailSheet = () => {
               </Sheet.Description>
             </Sheet.Header>
 
-            <Sheet.Content className="flex-auto overflow-hidden">
+            <Sheet.Content className="overflow-hidden flex-auto">
               <ScrollArea className="h-full">
                 <div className="p-5">
-                  <CategoriesUpdateCoreFields form={form} />
-                  <CategoryUpdateMoreFields form={form} />
+                  <CategoriesUpdateCoreFields
+                    form={form}
+                    categoryDetail={categoryDetail}
+                  />
+                  <CategoryUpdateMoreFields
+                    form={form}
+                    categoryDetail={categoryDetail}
+                    attachment={attachment}
+                    onAttachmentChange={setAttachment}
+                  />
                 </div>
               </ScrollArea>
             </Sheet.Content>
 
-            <Sheet.Footer className="flex justify-end flex-shrink-0 p-2.5 gap-1 bg-muted">
+            <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
               <Button
                 type="button"
-                variant="ghost"
-                className="bg-background hover:bg-background/90"
+                variant="outline"
                 onClick={() => setOpen(null)}
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                className="bg-primary text-primary-foreground hover:bg-primary/90"
-                disabled={editLoading}
-              >
+              <Button type="submit" disabled={editLoading}>
                 {editLoading ? 'Saving...' : 'Save'}
               </Button>
             </Sheet.Footer>

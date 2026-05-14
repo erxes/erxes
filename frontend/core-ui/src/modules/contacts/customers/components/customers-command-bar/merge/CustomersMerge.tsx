@@ -49,7 +49,8 @@ export const CustomersMerge = ({
         setSheetOpen(false);
         toast({
           title: 'Success',
-          variant: 'default',
+          variant: 'success',
+          description: 'Customers merged successfully',
         });
       },
     });
@@ -256,7 +257,7 @@ export const CustomersMerge = ({
       }}
       onSave={handleSave}
     >
-      <div className="flex-[2] h-full flex flex-col gap-2  ">
+      <div className="flex-2 h-full flex flex-col gap-2  ">
         <div className="flex justify-between gap-2 mb-1 ">
           <span className="text-sm font-semibold text-muted-foreground w-full">
             {customers[0]?.firstName}

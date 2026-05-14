@@ -74,7 +74,7 @@ export const GET_CUSTOMERS = gql`
         createdAt
         remoteAddress
         location
-        customFieldsData
+        propertiesData
         trackedData
         tagIds
         cursor

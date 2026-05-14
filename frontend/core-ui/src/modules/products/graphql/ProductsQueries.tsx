@@ -40,7 +40,7 @@ const productsMain = gql`
         categoryId
         code
         createdAt
-        customFieldsData
+        propertiesData
         description
         tagIds
         category {
@@ -54,10 +54,10 @@ const productsMain = gql`
         type
         vendor {
           _id
-            primaryName
-          }
+          primaryName
         }
-        ${GQL_PAGE_INFO}
+      }
+      ${GQL_PAGE_INFO}
     }
   }
 `;
@@ -93,9 +93,27 @@ const productCategoryDetail = gql`
   query productCategoryDetail($_id: String) {
     productCategoryDetail(_id: $_id) {
       _id
-      code
       name
+      description
+      meta
+      parentId
+      code
+      order
+      scopeBrandIds
+      attachment {
+        url
+        name
+        size
+        type
+        __typename
+      }
+      status
+      isRoot
       productCount
+      maskType
+      mask
+      isSimilarity
+      similarities
       __typename
     }
   }

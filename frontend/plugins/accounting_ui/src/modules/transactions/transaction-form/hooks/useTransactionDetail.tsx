@@ -1,26 +1,20 @@
 import { useQuery, OperationVariables } from '@apollo/client';
 import { TRANSACTION_DETAIL_QUERY } from '../graphql/queries/accTransactionDetail';
 import { ITransaction } from '../../types/Transaction';
-import { useSetAtom } from 'jotai';
-import { followTrDocsState } from '../states/trStates';
 
 export const useTransactionDetail = (options?: OperationVariables) => {
-  const { data, loading, error } = useQuery<
-    { accTransactionDetail: ITransaction[] },
-    OperationVariables
-  >(TRANSACTION_DETAIL_QUERY, {
-    ...options,
-  });
-
-  const transactions = data?.accTransactionDetail;
-  const ftrDocs = transactions?.filter(tr => tr.originId) || [];
-  const setFollowTrDocs = useSetAtom(followTrDocsState);
-  setFollowTrDocs(ftrDocs)
+  const { data, loading, error, refetch } = useQuery<OperationVariables>(
+    TRANSACTION_DETAIL_QUERY,
+    {
+      ...options,
+    },
+  );
+  const transaction: ITransaction = data?.accTransactionDetail;
 
   return {
-    transactions,
-    activeTrs: transactions?.filter(tr => !tr.originId),
+    transaction,
     loading,
     error,
+    refetch,
   };
 };

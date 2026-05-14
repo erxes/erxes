@@ -3,7 +3,7 @@ import { ThemeOption, themeState, ThemeValue } from 'erxes-ui';
 import { useEffect } from 'react';
 
 export const ThemeEffect = () => {
-  const [theme, setTheme] = useAtom(themeState);
+  const [theme] = useAtom(themeState);
 
   function getThemeValue(selected: ThemeOption): ThemeValue {
     if (selected === 'system') {

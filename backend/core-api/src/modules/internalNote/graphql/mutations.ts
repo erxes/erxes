@@ -13,8 +13,10 @@ export const internalNoteMutations = {
   async internalNotesAdd(
     _root: undefined,
     args: IInternalNote,
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('internalNotesManage');
+
     const { contentType, contentTypeId, mentionedUserIds = [] } = args;
 
     const [pluginName, moduleName] = contentType.split(':');
@@ -90,7 +92,51 @@ export const internalNoteMutations = {
       //   });
     }
 
-    return models.InternalNotes.createInternalNote(args, user);
+    const note = await models.InternalNotes.createInternalNote(args, user);
+
+    if (contentTypeId) {
+      try {
+        const actorData = {
+          _id: user._id,
+          email: user.email,
+          username: user.username,
+          details: user.details,
+          role: user.role,
+        };
+
+        const activityLog = await models.ActivityLogs.create({
+          activityType: 'internalNote',
+          targetId: contentTypeId,
+          targetType: contentType,
+          target: { _id: contentTypeId },
+          action: {
+            type: 'create',
+            description: 'added a note',
+          },
+          metadata: {
+            noteId: note._id.toString(),
+            content: note.content,
+          },
+          changes: {},
+          actorType: user.role || 'user',
+          actor: actorData,
+        });
+
+        graphqlPubsub.publish(
+          `activityLogInserted:${subdomain}:${contentTypeId}`,
+          {
+            activityLogInserted: activityLog.toObject(),
+          },
+        );
+      } catch (e) {
+        console.error('Failed to create activity log for internal note', e, {
+          contentTypeId,
+          contentType,
+        });
+      }
+    }
+
+    return note;
   },
 
   /**
@@ -99,8 +145,10 @@ export const internalNoteMutations = {
   async internalNotesEdit(
     _root,
     { _id, ...doc }: IInternalNote & { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('internalNotesManage');
+
     graphqlPubsub.publish('activityLogsChanged', {});
 
     return models.InternalNotes.updateInternalNote(_id, doc);
@@ -112,8 +160,10 @@ export const internalNoteMutations = {
   async internalNotesRemove(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('internalNotesManage');
+
     graphqlPubsub.publish('activityLogsChanged', {});
 
     return models.InternalNotes.removeInternalNote(_id);

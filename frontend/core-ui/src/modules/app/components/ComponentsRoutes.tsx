@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 
-import { ComponentsPath } from '@/types/paths/ComponentsPath';
+import { ComponentsPaths } from '@/types/paths/ComponentsPaths';
 
 const SelectComponentsIndexPage = lazy(() =>
   import('~/pages/components/SelectComponentIndexPage').then((module) => ({
@@ -17,13 +17,13 @@ export const ComponentsRoutes = () => {
           path="/"
           element={
             <Navigate
-              to={`${ComponentsPath.Index}${ComponentsPath.Select}`}
+              to={`${ComponentsPaths.Index}${ComponentsPaths.Select}`}
               replace
             />
           }
         />
         <Route
-          path={ComponentsPath.Select}
+          path={ComponentsPaths.Select}
           element={<SelectComponentsIndexPage />}
         />
       </Routes>

@@ -1,12 +1,12 @@
 import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
-import { IDetailsType } from '@/settings/team-member/types';
+import { IUserDetailsType } from '@/settings/team-member/types';
 import { DatePicker } from 'erxes-ui';
 import React from 'react';
 
 interface TDateField {
-  details: IDetailsType & { __typename?: string };
+  details: IUserDetailsType & { __typename?: string };
   _id: string;
-  field: keyof IDetailsType;
+  field: keyof IUserDetailsType;
 }
 
 export const UserDateField = ({
@@ -40,7 +40,7 @@ export const UserDateField = ({
           onSave(date as Date);
         }
       }}
-      variant={field === 'birthDate' ? 'outline' : 'ghost'}
+      variant="outline"
       mode="single"
     />
   );

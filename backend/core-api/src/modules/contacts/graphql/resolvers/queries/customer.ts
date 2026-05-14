@@ -1,21 +1,39 @@
 import {
-  checkPermission,
-  moduleRequireLogin,
-} from 'erxes-api-shared/core-modules';
-import {
   ICustomerDocument,
   ICustomerQueryFilterParams,
+  Resolver,
 } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
-import { generateFilter } from '~/modules/contacts/utils';
+import { customersCount, generateFilter } from '~/modules/contacts/utils';
 
-export const customerQueries = {
+export const customerQueries: Record<string, Resolver<any, any, IContext>> = {
   /**
    * Customers list
    */
   async customers(
+    _parent: undefined,
+    params: ICustomerQueryFilterParams,
+    { models, subdomain }: IContext,
+  ) {
+    const filter: FilterQuery<ICustomerDocument> = await generateFilter(
+      subdomain,
+      params,
+      models,
+    );
+
+    const { list, totalCount, pageInfo } =
+      await cursorPaginate<ICustomerDocument>({
+        model: models.Customers,
+        params,
+        query: filter,
+      });
+
+    return { list, totalCount, pageInfo };
+  },
+
+  async cpCustomers(
     _parent: undefined,
     params: ICustomerQueryFilterParams,
     { models, subdomain }: IContext,
@@ -77,7 +95,30 @@ export const customerQueries = {
 
     return result;
   },
+
+  async customersCount(
+    _parent: undefined,
+    params: { types: string[] },
+    { models, subdomain }: IContext,
+  ) {
+    const { types } = params;
+
+    const counts = {};
+
+    for (const type of types) {
+      const contentType = type.toLowerCase();
+
+      counts[contentType] = await customersCount({
+        models,
+        subdomain,
+        type: contentType,
+      });
+    }
+
+    return counts;
+  },
 };
 
-moduleRequireLogin(customerQueries);
-checkPermission(customerQueries, 'customers', 'showCustomers');
+customerQueries.cpCustomers.wrapperConfig = {
+  forClientPortal: true,
+};

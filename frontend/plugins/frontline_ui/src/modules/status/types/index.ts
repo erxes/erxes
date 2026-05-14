@@ -9,6 +9,17 @@ export interface ITicketStatus {
   pipelineId: string;
   type: number;
   updatedAt: string;
+  visibilityType?: string;
+  memberIds?: string[];
+  canMoveMemberIds?: string[];
+  canEditMemberIds?: string[];
+  departmentIds?: string[];
+  state?: string;
+  probability?: number;
+  members?: string[];
+  department?: string;
+  canMoveMember?: boolean;
+  canEditMember?: boolean;
 }
 
 export interface ITicketStatusChoice {
@@ -17,4 +28,3 @@ export interface ITicketStatusChoice {
   color: string;
   type: number;
 }
-

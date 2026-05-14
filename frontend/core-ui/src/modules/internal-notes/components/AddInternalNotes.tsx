@@ -1,9 +1,15 @@
-import { getMentionedUserIds, BlockEditor, useBlockEditor } from 'erxes-ui';
-import { AssignMemberInEditor } from 'ui-modules';
-import { Button, Spinner, toast } from 'erxes-ui';
-import { IconArrowUp } from '@tabler/icons-react';
 import { useAddInternalNote } from '@/internal-notes/hooks/useAddInternalNote';
+import { IconArrowUp } from '@tabler/icons-react';
+import {
+  BlockEditor,
+  Button,
+  getMentionedUserIds,
+  Spinner,
+  toast,
+  useBlockEditor,
+} from 'erxes-ui';
 import { useState } from 'react';
+import { AssignMemberInEditor } from 'ui-modules';
 
 export function AddInternalNotes({
   contentTypeId,
@@ -35,14 +41,18 @@ export function AddInternalNotes({
       },
       onCompleted: () => {
         editor?.removeBlocks(editor?.document);
+        toast({
+          title: 'Internal note added successfully',
+          variant: 'success',
+        });
       },
       onError: (error) => {
         toast({
           title: 'Error',
           description: error.message,
+          variant: 'destructive',
         });
       },
-      refetchQueries: ['activityLogs'],
     });
   };
 
@@ -57,11 +67,7 @@ export function AddInternalNotes({
       </BlockEditor>
 
       <Button variant="secondary" onClick={handleSubmit} className="mx-4">
-        {loading ? (
-          <Spinner size="small" />
-        ) : (
-          <IconArrowUp className="w-4 h-4" />
-        )}
+        {loading ? <Spinner size="sm" /> : <IconArrowUp className="w-4 h-4" />}
         Post
       </Button>
     </div>

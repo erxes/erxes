@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, Dispatch, SetStateAction } from 'react';
 import { AvatarProps } from 'erxes-ui';
 import { IUser } from '../types/TeamMembers';
 
@@ -8,7 +8,7 @@ export interface IUsersInlineContext {
   memberIds?: string[];
   placeholder: string;
   size?: AvatarProps['size'];
-  updateMembers?: (members: IUser[]) => void;
+  updateMembers?: Dispatch<SetStateAction<IUser[]>>;
   allowUnassigned?: boolean;
 }
 

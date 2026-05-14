@@ -21,6 +21,7 @@ export interface IChannel {
   updatedAt: string;
   memberCount: number;
   pipelineCount: number;
+  responseTemplateCount: number;
 }
 
 export interface IChannelMember {

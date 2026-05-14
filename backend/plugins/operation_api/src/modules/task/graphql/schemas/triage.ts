@@ -8,17 +8,26 @@ export const types = `
     teamId: String
     createdBy: String
     priority: Int
-
     number: Int
     createdAt: Date
     updatedAt: Date
+    status: Int
   }
 
-  input ITriageInput {
+  input ITriageAddInput {
     name: String!
     description: String
     teamId: String!
     priority: Int
+    status: Int
+  }
+
+  input ITriageUpdateInput {
+    name: String
+    description: String
+    teamId: String
+    priority: Int
+    status: Int
   }
 
   type TriageListResponse {
@@ -47,8 +56,8 @@ export const queries = `
 `;
 
 export const mutations = `
-  operationAddTriage(input: ITriageInput!): Triage
-  operationUpdateTriage(_id: String!, input: ITriageInput!): Triage
+  operationAddTriage(input: ITriageAddInput!): Triage
+  operationUpdateTriage(_id: String!, input: ITriageUpdateInput!): Triage
   operationCancelTriage(_id: String!): Triage
-  operationConvertTriageToTask(_id: String!): Triage
+  operationConvertTriageToTask(_id: String!, status: Int, reason: String): Task
 `;

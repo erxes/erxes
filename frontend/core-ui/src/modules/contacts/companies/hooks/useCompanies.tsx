@@ -29,7 +29,7 @@ export const useCompanies = (
   const companiesQueryVariables = {
     limit: COMPANIES_PER_PAGE,
     searchValue,
-    tags,
+    tagIds: tags?.length ? tags : undefined,
     dateFilters: JSON.stringify({
           createdAt: {
             gte: parseDateRangeFromString(created)?.from,

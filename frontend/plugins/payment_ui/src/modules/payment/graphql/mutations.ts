@@ -21,9 +21,7 @@ export const EDIT_PAYMENT = gql`
 `;
 
 export const REMOVE_PAYMENT = gql`
-  mutation paymentRemove($_id: String!) {
-    paymentRemove(_id: $_id) 
+  mutation paymentRemove($_ids: [String!]!) {
+    paymentRemove(_ids: $_ids)
   }
 `;
-
-

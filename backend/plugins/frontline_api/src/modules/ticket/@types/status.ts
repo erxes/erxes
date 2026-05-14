@@ -7,6 +7,13 @@ export interface IStatus {
   color?: string;
   type: number;
   order: number;
+  visibilityType?: string;
+  memberIds?: string[];
+  canMoveMemberIds?: string[];
+  canEditMemberIds?: string[];
+  departmentIds?: string[];
+  state?: string;
+  probability?: number;
 }
 
 export interface IStatusEditInput extends IStatus {
@@ -17,6 +24,13 @@ export interface IStatusEditInput extends IStatus {
   color?: string;
   type: number;
   order: number;
+  visibilityType?: string;
+  memberIds?: string[];
+  canMoveMemberIds?: string[];
+  canEditMemberIds?: string[];
+  departmentIds?: string[];
+  state?: string;
+  probability?: number;
 }
 
 export interface IStatusDocument extends IStatus, Document {

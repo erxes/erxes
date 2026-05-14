@@ -30,6 +30,7 @@ import { usePhoneFields } from '../hooks/usePhoneFields';
 import { PhoneFieldsContext } from '../contexts/PhoneFieldsContext';
 import { ValidationStatus } from 'erxes-ui/types';
 import { formatPhones } from 'erxes-ui/modules/display/utils/formatPhones';
+import { useTranslation } from 'react-i18next';
 
 export interface IPhoneField {
   phone?: string;
@@ -170,7 +171,7 @@ const PhoneOptions = forwardRef<
         <Button
           ref={ref}
           variant="secondary"
-          className={cn('w-full font-medium size-8 flex-shrink-0', className)}
+          className={cn('w-full font-medium size-8 shrink-0', className)}
           size="icon"
           {...props}
         >
@@ -239,6 +240,7 @@ const PhoneForm = forwardRef<
   const [editingPhone, setEditingPhone] = useAtom(
     editingPhoneFamilyState(recordId),
   );
+
   const { onValueChange } = usePhoneFields();
   const [showPhoneInput, setShowPhoneInput] = useAtom(
     showPhoneInputFamilyState(recordId),
@@ -287,13 +289,16 @@ const PhoneForm = forwardRef<
     }
     setNewPhone('');
   };
+  const { t } = useTranslation('contact', {
+    keyPrefix: 'customer.detail',
+  });
 
   return (
     <div ref={ref} className={className} {...props}>
       {showPhoneInput && (
         <div className="px-1 pb-1">
           <PhoneInput
-            placeholder={editingPhone ? 'Edit phone' : 'Add phone'}
+            placeholder={editingPhone ? t('edit-phone') : t('add-phone')}
             defaultCountry="MN"
             value={newPhone}
             onChange={(phone) => {
@@ -333,7 +338,7 @@ const PhoneForm = forwardRef<
           }}
         >
           <IconPlus />
-          {editingPhone ? 'Edit phone' : 'Add phone'}
+          {editingPhone ? t('edit-phone') : t('add-phone')}
         </Button>
       </div>
     </div>

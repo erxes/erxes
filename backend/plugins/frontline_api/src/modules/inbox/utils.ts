@@ -1,7 +1,12 @@
-import { getPlugins, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  getPlugins,
+  sendTRPCMessage,
+  validSearchText,
+} from 'erxes-api-shared/utils';
 import debug from 'debug';
 import { generateModels } from '~/connectionResolvers';
 import { getConfig } from '../integrations/facebook/commonUtils';
+import { ITicketWidget } from './graphql/resolvers/mutations/widget';
 
 export const debugInfo = debug(`erxes:info`);
 export const debugError = debug(`erxes:error`);
@@ -127,4 +132,13 @@ export const integrations = async ({ subdomain, data }) => {
   }
 
   return response;
+};
+export const fillSearchTextItem = (
+  doc: ITicketWidget,
+  item?: ITicketWidget,
+) => {
+  const document = item || { name: '', description: '' };
+  Object.assign(document, doc);
+
+  return validSearchText([document.name || '', document.description || '']);
 };

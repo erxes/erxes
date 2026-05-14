@@ -18,6 +18,33 @@ export const types = `
         totalCount: Int
         pageInfo: PageInfo
     }
+
+    type LogContentType {
+      value: String!
+      pluginName: String!
+      moduleName: String!
+      collectionName: String!
+    }
+
+    type ActivityLogsList {
+        list:[ActivityLog]
+        totalCount: Int
+        pageInfo: PageInfo
+    }
+    type ActivityLog {
+        _id: String
+        createdAt: Date
+        activityType: String
+        actorType: String
+        actor: JSON
+        targetType: String
+        target: JSON
+        action: JSON
+        context: JSON
+        contextType: String
+        changes: JSON
+        metadata: JSON
+    }
 `;
 
 const cursorParams = `
@@ -28,7 +55,6 @@ const cursorParams = `
 `;
 
 export const commonListQueryParams = `
-    searchValue:String,
     page:Int,
     perPage:Int,
     ids:[String]
@@ -38,11 +64,29 @@ export const commonListQueryParams = `
 const commonQueryParams = `
     ${commonListQueryParams},
     ${cursorParams},
+    status: String
+    source: String
+    action: String
+    userIds: [String]
+    contentType: String
+    documentId: String
+    createdAtFrom: Date
+    createdAtTo: Date
     filters:JSON
 `;
 
+const activityLogQueryParams = `
+    ${cursorParams},
+    targetType: String
+    targetId: String!
+    action: String
+    variant: String
+`;
+
 export const queries = `
+    activityLogs(${activityLogQueryParams}):ActivityLogsList
     logsMainList(${commonQueryParams}):MainLogsList
+    logsGetContentTypes: [LogContentType!]!
     logDetail(_id:String!):Log
 `;
 export default { types, queries };

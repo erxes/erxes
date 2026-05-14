@@ -10,6 +10,8 @@ export const posCommonFields = `
   createdAt
   token
   erxesAppToken
+  serviceCharge
+  serviceChargeApplicableProductId
   adminIds
   cashierIds
   paymentIds
@@ -21,7 +23,6 @@ export const posCommonFields = `
       fullName
     }
   }
-
   isOnline
   onServer
   branchId
@@ -90,8 +91,6 @@ const productGroups = gql`
     productGroups(posId: $posId) {
       _id
       posId
-      name
-      description
       categoryIds
       excludedCategoryIds
       excludedProductIds
@@ -141,6 +140,64 @@ const posOrdersSummary = gql`
   }
 `;
 
+const getPayments = gql`
+  query Payments($status: String, $kind: String) {
+    payments(status: $status, kind: $kind) {
+      _id
+      name
+      kind
+      status
+      config
+      createdAt
+    }
+  }
+`;
+
+const ebarimtProductRules = gql`
+  query EbarimtProductRules($searchValue: String, $kind: String) {
+    ebarimtProductRules(searchValue: $searchValue, kind: $kind) {
+      totalCount
+      list {
+        _id
+        title
+      }
+    }
+  }
+`;
+
+const fieldsCombinedByContentType = gql`
+  query FieldsCombinedByContentType(
+    $contentType: String!
+    $usageType: String
+    $excludedNames: [String]
+    $segmentId: String
+    $config: JSON
+    $onlyDates: Boolean
+  ) {
+    fieldsCombinedByContentType(
+      contentType: $contentType
+      usageType: $usageType
+      excludedNames: $excludedNames
+      segmentId: $segmentId
+      config: $config
+      onlyDates: $onlyDates
+    )
+  }
+`;
+
+const ProductCategories = gql`
+  query ProductCategories {
+    productCategories {
+      _id
+      parentId
+      code
+      name
+      order
+      productCount
+    }
+  }
+`;
+
 export default {
   posList,
   productGroups,
@@ -149,4 +206,8 @@ export default {
   getDbSchemaLabels,
   posSlots,
   posOrdersSummary,
+  getPayments,
+  ebarimtProductRules,
+  fieldsCombinedByContentType,
+  ProductCategories,
 };

@@ -1,10 +1,9 @@
-import { Meta } from '@storybook/react';
-
 import type { StoryObj } from '@storybook/react';
-import { Table } from 'erxes-ui/components/table';
+import { Meta } from '@storybook/react';
+import { IconDotsVertical } from '@tabler/icons-react';
 import { Button } from 'erxes-ui/components/button';
 import { Checkbox } from 'erxes-ui/components/checkbox';
-import { IconDotsVertical } from '@tabler/icons-react';
+import { Table } from 'erxes-ui/components/table';
 import { cn } from 'erxes-ui/lib/utils';
 
 const meta: Meta<typeof Table> = {
@@ -60,14 +59,14 @@ export const Default: Story = {
       <Table>
         <Table.Header className="[&_th]:w-40">
           <Table.Row>
-            <Table.Head className="!w-9 text-center">
+            <Table.Head className="w-9! text-center">
               <Checkbox />
             </Table.Head>
             <Table.Head>Invoice</Table.Head>
             <Table.Head>Status</Table.Head>
             <Table.Head>Method</Table.Head>
             <Table.Head className="text-right">Amount</Table.Head>
-            <Table.Head className="!w-9"></Table.Head>
+            <Table.Head className="w-9!"></Table.Head>
           </Table.Row>
         </Table.Header>
         <Table.Body>

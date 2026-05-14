@@ -1,87 +1,79 @@
-import { IconTrash } from '@tabler/icons-react';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Card, Label } from 'erxes-ui';
-import { useFieldArray, UseFormReturn } from 'react-hook-form';
-import { SegmentFormProps } from '../../types';
+import { useFieldArray } from 'react-hook-form';
 import { SegmentProperty } from './SegmentProperty';
+import { useSegment } from '../../context/SegmentProvider';
+import { useTranslation } from 'react-i18next';
+import { SegmentGroupProvider } from '../../context/SegmentGroupProvider';
+import { SegmentGroupAddButton } from './SegmentGroupAddButton';
+import { TConditionFieldPath } from '../../types';
+
 type Props = {
-  form: UseFormReturn<SegmentFormProps>;
   parentFieldName?: `conditionSegments.${number}`;
   onRemove?: () => void;
-  contentType: string;
+  withoutAssociationTypes?: boolean;
 };
 
 export const SegmentGroup = ({
-  form,
   parentFieldName,
   onRemove,
-  contentType,
+  withoutAssociationTypes,
 }: Props) => {
+  const { form } = useSegment();
   const { control } = form;
-
+  const { t } = useTranslation('segment', { keyPrefix: 'detail' });
+  const fieldPath: TConditionFieldPath = parentFieldName
+    ? `${parentFieldName}.conditions`
+    : 'conditions';
   const {
     fields: conditionFields,
     append,
     remove,
   } = useFieldArray({
     control: control,
-    name: parentFieldName ? `${parentFieldName}.conditions` : 'conditions',
+    name: fieldPath,
   });
-
   return (
-    <Card className="bg-accent rounded-md">
-      <Card.Header className="flex flex-row gap-2 items-center px-6 py-2 group">
-        <div className="w-2/5 mt-2 ">
-          <Label>Property</Label>
-        </div>
-        <div className="w-1/5 ">
-          <Label>Condition</Label>
-        </div>
-        <div className="w-2/5 pl-4">
-          <Label>Value</Label>
-        </div>
-        {onRemove && (
-          <Button
-            variant="destructive"
-            size="icon"
-            onClick={() => onRemove()}
-            className={`opacity-0 ${'group-hover:opacity-100'} transition-opacity`}
-          >
-            <IconTrash />
-          </Button>
-        )}
-      </Card.Header>
-      <Card className="mx-1 p-2 bg-white rounded-md">
-        <div className="flex flex-col ">
-          {(conditionFields || []).map((condition, index) => (
-            <div key={(condition as any).id}>
-              <SegmentProperty
-                index={index}
-                form={form}
-                parentFieldName={parentFieldName}
-                condition={condition}
-                contentType={contentType}
-                remove={() => remove(index)}
-                isFirst={index === 0}
-                isLast={index === conditionFields.length - 1}
-                total={conditionFields.length}
-              />
-            </div>
-          ))}
-        </div>
-        <Button
-          className="w-full mt-4"
-          variant="secondary"
-          onClick={() =>
-            append({
-              propertyType: contentType || '',
-              propertyName: '',
-              propertyOperator: '',
-            })
-          }
-        >
-          <Label>+ Add Condition</Label>
-        </Button>
+    <SegmentGroupProvider
+      append={append}
+      fieldPath={fieldPath}
+      remove={remove}
+      conditionFields={conditionFields}
+      withoutAssociationTypes={withoutAssociationTypes}
+    >
+      <Card className="bg-accent rounded-md">
+        <Card.Header className="flex flex-row gap-2 items-center px-6 py-1 group [&>div]:items-center [&>div]:flex [&>div]:m-0">
+          <div className="w-2/5 ">
+            <Label>{t('property')}</Label>
+          </div>
+          <div className="w-1/5 ">
+            <Label>{t('condition')}</Label>
+          </div>
+          <div className="w-2/5 pl-4">
+            <Label>{t('value')}</Label>
+          </div>
+          {onRemove && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onRemove()}
+              className={`opacity-0 group-hover:opacity-100 transition-opacity text-destructive`}
+            >
+              <IconTrash />
+            </Button>
+          )}
+        </Card.Header>
+        <Card className="mx-1 p-2 bg-background rounded-md">
+          <div className="flex flex-col ">
+            {(conditionFields || []).map((field, index) => (
+              <div key={field.id}>
+                <SegmentProperty index={index} />
+              </div>
+            ))}
+          </div>
+          <SegmentGroupAddButton />
+        </Card>
       </Card>
-    </Card>
+    </SegmentGroupProvider>
   );
 };

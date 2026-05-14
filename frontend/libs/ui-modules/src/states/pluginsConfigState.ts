@@ -6,3 +6,5 @@ export type PluginsConfigState = {
 };
 
 export const pluginsConfigState = atom<PluginsConfigState | null>(null);
+
+export const loadingPluginsConfigState = atom<boolean>(true);

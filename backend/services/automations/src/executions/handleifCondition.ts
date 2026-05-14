@@ -1,19 +1,20 @@
 import {
-  IAction,
-  IActionsMap,
+  IAutomationAction,
+  IAutomationActionsMap,
   IAutomationExecAction,
   IAutomationExecutionDocument,
 } from 'erxes-api-shared/core-modules';
-import { isInSegment } from '@/utils/segments/utils';
-import { executeActions } from '@/executions/executeActions';
+import { isInSegment } from '../utils/isInSegment';
+import { executeActions } from './executeActions';
+import { finalizeExecAction } from './executionActionMetrics';
 
-export const handleifAction = async (
+export const handleIfAction = async (
   subdomain: string,
   triggerType: string,
   execution: IAutomationExecutionDocument,
-  action: IAction,
+  action: IAutomationAction,
   execAction: IAutomationExecAction,
-  actionsMap: IActionsMap,
+  actionsMap: IAutomationActionsMap,
 ) => {
   let ifActionId: string;
 
@@ -30,6 +31,7 @@ export const handleifAction = async (
 
   execAction.nextActionId = ifActionId;
   execAction.result = { condition: isIn };
+  finalizeExecAction(execAction, 'success');
   execution.actions = [...(execution.actions || []), execAction];
   execution = await execution.save();
   return executeActions(

@@ -69,6 +69,8 @@ export const queries = `
   salesPipelineDetail(_id: String!): SalesPipeline
   salesPipelineAssignedUsers(_id: String!): [User]
   salesPipelineStateCount(boardId: String): JSON
+
+  cpSalesPipelineDetail(_id: String!): SalesPipeline
 `;
 
 const mutationParams = `

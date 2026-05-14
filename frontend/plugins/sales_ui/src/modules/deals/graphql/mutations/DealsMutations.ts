@@ -118,7 +118,7 @@ export const commonFields = `
     }
   }
   order
-  customFieldsData
+  propertiesData
   score
   timeTrack {
     status
@@ -163,7 +163,7 @@ export const commonMutationVariables = `
   $status: String,
   $priority: String,
   $sourceConversationIds: [String],
-  $customFieldsData: JSON,
+  $propertiesData: JSON,
   $tagIds: [String]
   $branchIds:[String],
   $departmentIds:[String]
@@ -185,7 +185,7 @@ export const commonMutationParams = `
   status: $status,
   priority: $priority,
   sourceConversationIds: $sourceConversationIds,
-  customFieldsData: $customFieldsData,
+  propertiesData: $propertiesData,
   tagIds: $tagIds
   branchIds: $branchIds
   departmentIds: $departmentIds
@@ -204,8 +204,8 @@ export const ADD_DEALS = gql`
 export const EDIT_DEALS = gql`
   mutation dealsEdit($_id: String!, $name: String, ${dealMutationVariables}, ${commonMutationVariables}) {
     dealsEdit(_id: $_id, name: $name, ${dealMutationParams}, ${commonMutationParams}) {
-      _id
-      name
+      ${commonFields}
+      ${dealFields}
     }
   }
 `;

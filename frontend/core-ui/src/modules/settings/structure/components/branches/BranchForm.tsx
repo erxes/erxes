@@ -238,7 +238,7 @@ type LinkFieldProps = {
 const LinkField = ({ field, link }: LinkFieldProps) => {
   const id = useId();
   return (
-    <div className="*:not-first:mt-2">
+    <div className="not-first:*:mt-2">
       <div className="relative">
         <Input
           id={id}

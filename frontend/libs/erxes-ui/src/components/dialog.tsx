@@ -22,7 +22,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      'fixed inset-0 grid place-items-center z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 backdrop-blur-sm',
+      'fixed inset-0 grid place-items-center z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 backdrop-blur-xs',
       'duration-200 ease-out',
       className,
     )}
@@ -44,7 +44,7 @@ const DialogContent = React.forwardRef<
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
           'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
           'duration-200 ease-out will-change-transform',
-          'sm:rounded-lg outline-none',
+          'sm:rounded-lg outline-hidden',
           className,
         )}
         {...props}
@@ -85,7 +85,7 @@ const DialogCombinedHeader = ({
 const DialogContentCombined = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> &
-    React.ComponentPropsWithoutRef<typeof DialogCombinedHeader>
+  React.ComponentPropsWithoutRef<typeof DialogCombinedHeader>
 >(({ className, children, title, description, hideClose, ...props }, ref) => (
   <DialogContent ref={ref} className={cn(className)} {...props}>
     <DialogCombinedHeader

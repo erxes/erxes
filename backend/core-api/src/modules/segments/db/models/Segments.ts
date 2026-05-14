@@ -79,12 +79,14 @@ export const loadSegmentClass = (models: IModels) => {
       doc: ISegment,
       conditionSegments: ISegment[],
     ) {
-      const conditions = await createOrUpdateSubSegments(
-        models,
-        conditionSegments || [],
-      );
+      if (conditionSegments?.length) {
+        const conditions = await createOrUpdateSubSegments(
+          models,
+          conditionSegments,
+        );
 
-      doc.conditions = conditions;
+        doc.conditions = conditions;
+      }
 
       return models.Segments.create(doc);
     }
@@ -97,12 +99,14 @@ export const loadSegmentClass = (models: IModels) => {
       doc: ISegment,
       conditionSegments: ISegment[],
     ) {
-      const conditions = await createOrUpdateSubSegments(
-        models,
-        conditionSegments || [],
-      );
+      if (conditionSegments?.length) {
+        const conditions = await createOrUpdateSubSegments(
+          models,
+          conditionSegments,
+        );
 
-      doc.conditions = conditions;
+        doc.conditions = conditions;
+      }
 
       await models.Segments.updateOne({ _id }, { $set: doc });
 

@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-
+import React, { useEffect, useState } from 'react';
 import {
-  Avatar,
   Combobox,
   Command,
   Skeleton,
   TextOverflowTooltip,
   SelectTree,
+  Button,
 } from 'erxes-ui';
+import { Link } from 'react-router-dom';
 import { IProductCategory } from '../types/category';
 import { useProductCategories } from '../hooks/useCategories';
 
@@ -20,21 +20,22 @@ export const SelectCategory = React.forwardRef<
     setOpen?: (open: boolean) => void;
     id?: string;
   }
->(({ onSelect, selected, id, ...props }, ref) => {
+>(({ onSelect, selected, id, open, setOpen, ...props }, ref) => {
+  const [_open, _setOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<IProductCategory>();
-  const { productCategories, error, loading } = useProductCategories({
-    onCompleted: ({
-      productCategories,
-    }: {
-      productCategories: IProductCategory[];
-    }) => {
+  const { productCategories, error, loading } = useProductCategories();
+
+  useEffect(() => {
+    if (!selected) {
+      setSelectedCategory(undefined);
+      return;
+    }
+    if (productCategories) {
       setSelectedCategory(
-        productCategories?.find(
-          (category: IProductCategory) => category._id === selected,
-        ),
+        productCategories.find((c: IProductCategory) => c._id === selected),
       );
-    },
-  });
+    }
+  }, [selected, productCategories]);
 
   const handleSelect = (categoryId: string) => {
     const category = productCategories?.find(
@@ -42,10 +43,16 @@ export const SelectCategory = React.forwardRef<
     );
     setSelectedCategory(category);
     onSelect(categoryId);
+    setOpen?.(false);
+    _setOpen(false);
   };
 
   return (
-    <SelectTree id={id || 'select-category'}>
+    <SelectTree
+      id={id || 'select-category'}
+      open={open ?? _open}
+      onOpenChange={setOpen ?? _setOpen}
+    >
       <SelectCategoryTrigger
         ref={ref}
         {...props}
@@ -53,10 +60,21 @@ export const SelectCategory = React.forwardRef<
         loading={loading}
       />
       <Combobox.Content>
-        <Command className="outline-none">
+        <Command className="outline-hidden">
           <Command.Input />
           <Command.List>
-            <Combobox.Empty error={error} loading={loading} />
+            {loading ? (
+              <Combobox.Empty error={error} loading={loading} />
+            ) : (
+              <Command.Empty>
+                <div className="flex flex-col gap-2 justify-center items-center text-sm text-center text-muted-foreground">
+                  No categories found
+                  <Button variant="secondary" size="sm" asChild>
+                    <Link to="/settings/products/categories">Add Category</Link>
+                  </Button>
+                </div>
+              </Command.Empty>
+            )}
             {productCategories?.map((category: IProductCategory) => (
               <SelectCategoryItem
                 key={category._id}
@@ -98,7 +116,6 @@ export const SelectCategoryItem = ({
       name={name}
       value={code + name}
       onSelect={() => onSelect(_id)}
-      selected={selected}
     >
       <SelectCategoryBadge category={category} selected={selected} />
     </SelectTree.Item>
@@ -113,25 +130,14 @@ export const SelectCategoryBadge = ({
   selected?: boolean;
 }) => {
   if (!category) return null;
-  const { avatar, code, name, productCount } = category;
-  const firstLetter = name.charAt(0);
+  const { code, name } = category;
   return (
     <>
-      <div className="flex items-center gap-2 flex-auto overflow-hidden justify-start">
-        <Avatar>
-          <Avatar.Image src={avatar?.url} />
-          <Avatar.Fallback>{firstLetter}</Avatar.Fallback>
-        </Avatar>
+      <div className="flex overflow-hidden flex-auto gap-2 justify-start items-center">
         <div className="text-muted-foreground">{code}</div>
         <TextOverflowTooltip value={name} className="flex-auto" />
       </div>
-      {!selected ? (
-        productCount > 0 && (
-          <div className="text-muted-foreground ml-auto">{productCount}</div>
-        )
-      ) : (
-        <Combobox.Check checked={selected} />
-      )}
+      <Combobox.Check checked={selected} />
     </>
   );
 };
@@ -148,11 +154,10 @@ export const SelectCategoryTrigger = React.forwardRef<
       <SelectCategoryBadge category={selectedCategory} />
       {!selectedCategory && <Combobox.Value placeholder="Select category" />}
       {loading && (
-        <>
-          <Skeleton className="w-4 h-4" />
+        <div className="flex gap-2 items-center">
           <Skeleton className="w-8 h-4" />
           <Skeleton className="w-16 h-4" />
-        </>
+        </div>
       )}
     </Combobox.Trigger>
   );

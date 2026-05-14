@@ -1,23 +1,31 @@
-import { useAtomValue, useSetAtom } from 'jotai';
-import { readImage, formatDateISOStringToRelativeDate, cn } from 'erxes-ui';
-import { Button } from 'erxes-ui';
-import { Tooltip } from 'erxes-ui';
+import { IconFile } from '@tabler/icons-react';
 import { format } from 'date-fns';
 import DOMPurify from 'dompurify';
+import {
+  Avatar,
+  Button,
+  cn,
+  formatDateISOStringToRelativeDate,
+  readImage,
+  Tooltip,
+} from 'erxes-ui';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useMemo } from 'react';
+import { useGetMessengerSupporters } from '../hooks/useGetMessengerSupporters';
 import {
   ReadConversationResult,
   useReadConversation,
 } from '../hooks/useReadConversation';
-import { useGetMessengerSupporters } from '../hooks/useGetMessengerSupporters';
 import {
   connectionAtom,
   conversationIdAtom,
   setActiveTabAtom,
 } from '../states';
-import { ISupporter } from '../types';
-import { Avatar } from 'erxes-ui';
-import { IMessage } from '../types';
+import { IAttachment, IConversationMessage, ISupporter } from '../types';
 import { AvatarGroup } from './avatar-group';
+
+const defaultLogo =
+  'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAB0CAMAAAAl8kW/AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACglBMVEUAAAD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8AAABxMqsfAAAA1HRSTlMAKRBgAZQKd1JAthrjKAXDiY7kDFT+WifxwNT7LKORaOg0+V8T4McCt/wzf5ZH7B7rBsjLkzgEWZ9PKvTvFSN2DddujVuq0hHnQnA9cSQ7pdzb8xtTBwO7c8SkhIdLRqhiIe74CM31jPAtm3zfYdpvL7EPtK73aXWCNko+4acZUCAcwrmK0PpRbSXZTqC+wTdmNR/2iOoxbNg6P4ESulcOj/0wxURjeM6cFLVdkC7yHZ5FfpcXyuZWaukJmpimr+0iGHmsQdUmekyzsoa/uFzdleIWoh4NTwYAAAABYktHRACIBR1IAAAACXBIWXMAAAsSAAALEgHS3X78AAAEk0lEQVRo3s3Z+UMUVRwA8Oc6bh60JjYVoSkbpaOI7KprHpikEhSiKGxFmG3YiomGW9BlmgWImrdU3hmVZ3afdtl92P39g3oX2wzL7rw38/2h9wsz7/jsLPN9875vh5D/eRmC7AWG4nrGsCAueNVwXG/ESFxvVN7VqF5o9DW4Fzgmfyyqd615Hap3/Q0FBqYXvLFwHOoFjoebUL0JMDGA6RWF4WZMr/gWuBXzjkyaDNYUzAucClCC6U2zoLQY0ZteBjAB0YtEAWZMQgRnApizcnWIhbS82QBwW+4uc3Qiau48gPnlufssuF3dW1hBL/AOt16LFiuDS6hXGXPrdWdVtaJ3F/XMu9371ZQtVfJqwxRcptAxsryuXKFbeT71VqxU+eh6iDa4dorfQz24V+m7GPdBo2vw3M+8CsWonWVCk0uXVSYDH1DzCFkN8GDODomHmLdE1SOJZgjnCp41DzMvOV0ZJGsBWtZlb36EebBe3SOBUoDWrMGzgXsb3UPBVh6lI6JZ0se2JAdX6XgkVEeHbIoP1pTayL3HtDxChrNBgwWP8Tj32hOaIBnNhnVk1j/BPXhS1yNPsdC1nh5Y/YzFvc0e0vNn2cCBwbOlSlzgVn2PPNfORuZts9fFnhfeCx48Qjr52C77l1srvG5v6XmgjI+2Bc92U4Buj45spUcMT2cuO1pEhef0PLRTAD3iNNglTsF7er5dANYufvai9Hb7SAb3CCK5lx7vk56v9Hy/vAs0eKY0S9Bfer5MKpWJVnlUlfIFHmiXzkH513d6fgicxXd6nup1eNZLPj1CXnaACOl57BWbh5Kez7GB+xA8QgrSHlJ6fjgNHkHxyNE0qJEu5yg7mtPg/GMY4HHbTVmE4J2wh2HzAd/eyXxHYI/3Db7qnMqnXvPptRUOeDh4W0DTxeiTjjnzlDx63Rf4Rv+FdZI35dFpP7OluFQqx+naXCKP1bdumeWMNFrP0pP4OXmilbk6ymG5RCXFUzVVKU5rvHqx/oX9vKzYliceil6XqRrpXUjXvCWy60PevJUXhVdg23/t4unmwbc9gavlGu/YXXTwune8eO/Kx8F+ZzWfipaHbKRBbB4y9nzxTaxWd09By3vCez+jIRhl9SN0vQUiBemLZDZ9wILnQ90EYiT3Pho1WNs6lsh+rOfVcy9cO3hrdRhgudZPUGPFlPgkWzvLPXt0wE63aGsC+PSkujuum6cJa7L3MBp1dnsG3y715pxfn0Vh3hZVcCifDC6RVl4HlxS9Y71KD72lpYWKr7Q+Z94X7v2qw18qeXvZ8talsh1ebNYq9Iqfpt5XXyt99vo+hU5sw2hNU/vnGI3ur8kus3n6jZpHSKTE9fdNtnP6Vv1JkvrOpUM19b5fqOzRWZ+7uaECoOUHDc+t/Eizop8QvQRddqcieuRngF8wX93QLdNOf5thZwluhotzMb9wE5j1mN6QbvgV0zOuwG9x/8x/5Xf4A2Xf1V8CE5NtmB75E2ajekXWGFQvPuMK6g0hHX+pvEFRL39XFaF65J8NuN6RYbhe6FLEP2Iv55WTHrVyuQ3XI7jX9y/JAcmAtCI0lQAAAABJRU5ErkJggg==)';
 
 export function EmptyChat() {
   const connection = useAtomValue(connectionAtom);
@@ -61,16 +69,19 @@ export function EmptyChat() {
 
 export function ConversationMessage({
   conversationId,
-  message,
+  conversation,
 }: {
   conversationId: string;
-  message?: IMessage;
+  conversation?: IConversationMessage;
 }) {
   const setConversationId = useSetAtom(conversationIdAtom);
   const setActiveTab = useSetAtom(setActiveTabAtom);
 
   const { readConversation } = useReadConversation();
-  const { userId, customerId, user } = message || {};
+  const { messages, content } = conversation || {};
+  const lastMessage = messages?.[messages.length - 1];
+  const { userId, customerId, user, isCustomerRead, fromBot } =
+    lastMessage || {};
 
   const handleClick = () => {
     readConversation({
@@ -82,30 +93,40 @@ export function ConversationMessage({
     });
   };
 
-  if (customerId) {
+  const unreadCount = useMemo(
+    () =>
+      messages?.filter(
+        (message) => !message.isCustomerRead && message.userId !== null,
+      ).length,
+    [messages],
+  );
+
+  const isUnread = !!(unreadCount && unreadCount > 0 && !isCustomerRead);
+
+  if (customerId || fromBot) {
     return (
       <div
         role="tabpanel"
-        id={message?._id}
+        id={lastMessage?._id}
         tabIndex={0}
-        className="flex items-center gap-3 cursor-pointer p-3 hover:bg-primary/5 rounded-md transition-all duration-300"
+        className="flex items-center gap-3 cursor-pointer p-3 rounded-md transition-all duration-200 hover:bg-accent/40 opacity-60 hover:opacity-80"
         onClick={handleClick}
       >
-        <Avatar className="size-10">
-          <Avatar.Image className="shrink-0 object-cover" alt={'you'} />
-          <Avatar.Fallback className="bg-background">{'C'}</Avatar.Fallback>
+        <Avatar className="size-10 grayscale">
+          <Avatar.Image className="shrink-0 object-cover" alt="you" />
+          <Avatar.Fallback className="bg-background">C</Avatar.Fallback>
         </Avatar>
-        <div className="flex flex-col gap-1 text-sm font-medium text-muted-foreground overflow-x-hidden">
+        <div className="flex flex-col gap-0.5 overflow-x-hidden flex-1 min-w-0">
           <span
-            className="truncate line-clamp-1 w-auto"
+            className="truncate line-clamp-1 text-sm text-muted-foreground"
             dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(message?.content || ''),
+              __html: DOMPurify.sanitize(content || ''),
             }}
           />
-          <span className="text-sm text-muted-foreground">
-            {'you'} ·{' '}
+          <span className="text-xs text-muted-foreground/70">
+            you ·{' '}
             {formatDateISOStringToRelativeDate(
-              message?.createdAt as unknown as string,
+              lastMessage?.createdAt as unknown as string,
             )}
           </span>
         </div>
@@ -115,36 +136,79 @@ export function ConversationMessage({
     return (
       <div
         role="tabpanel"
-        id={message?._id}
+        id={lastMessage?._id}
         tabIndex={0}
-        className="flex items-center gap-3 cursor-pointer p-3 hover:bg-accent rounded-md transition-all duration-300"
+        className={cn(
+          'flex items-center gap-3 cursor-pointer p-3 rounded-md transition-all duration-200',
+          isUnread
+            ? 'bg-primary/8 border-l-2 border-primary hover:bg-primary/12'
+            : 'opacity-55 hover:opacity-75 hover:bg-accent/30',
+        )}
         onClick={handleClick}
       >
-        <Avatar className="size-10 bg-background">
-          <Avatar.Image
-            src={readImage(user?.details?.avatar) || 'assets/user.webp'}
-            className="shrink-0 object-cover"
-            alt={user?.details?.fullName}
-          />
-          <Avatar.Fallback>
-            {user?.details?.fullName?.charAt(0) || 'C'}
-          </Avatar.Fallback>
-        </Avatar>
-        <div className="flex flex-col gap-1 text-sm font-medium text-muted-foreground overflow-x-hidden">
+        <div className="relative shrink-0">
+          <Avatar
+            className={cn('size-10 bg-background', !isUnread && 'grayscale')}
+          >
+            <Avatar.Image
+              src={readImage(user?.details?.avatar) || 'assets/user.webp'}
+              className="shrink-0 object-cover"
+              alt={user?.details?.fullName}
+            />
+            <Avatar.Fallback>
+              {user?.details?.fullName?.charAt(0) || 'C'}
+            </Avatar.Fallback>
+          </Avatar>
+          {isUnread && (
+            <span className="absolute -top-0.5 -right-0.5 size-2.5 rounded-full bg-primary border-2 border-background" />
+          )}
+        </div>
+
+        <div className="flex flex-col gap-0.5 overflow-x-hidden flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <span
+              className={cn(
+                'text-xs truncate',
+                isUnread
+                  ? 'font-bold text-foreground'
+                  : 'font-medium text-muted-foreground',
+              )}
+            >
+              {user?.details?.fullName ||
+                user?.details?.firstName ||
+                'Operator'}
+            </span>
+            <span
+              className={cn(
+                'text-[10px] shrink-0',
+                isUnread
+                  ? 'text-primary font-semibold'
+                  : 'text-muted-foreground/60',
+              )}
+            >
+              {formatDateISOStringToRelativeDate(
+                lastMessage?.createdAt as unknown as string,
+              )}
+            </span>
+          </div>
           <span
-            className="truncate line-clamp-1 w-auto"
+            className={cn(
+              'truncate line-clamp-1 text-sm',
+              isUnread
+                ? 'font-semibold text-foreground/90'
+                : 'font-normal text-muted-foreground/70',
+            )}
             dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(message?.content || ''),
+              __html: DOMPurify.sanitize(content || ''),
             }}
           />
-          <span className="text-sm text-muted-foreground">
-            {user?.details?.fullName || user?.details?.firstName || 'operator'}{' '}
-            ·{' '}
-            {formatDateISOStringToRelativeDate(
-              message?.createdAt as unknown as string,
-            )}
-          </span>
         </div>
+
+        {isUnread && unreadCount && (
+          <span className="shrink-0 min-w-[20px] h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center px-1.5">
+            {unreadCount > 99 ? '99+' : unreadCount}
+          </span>
+        )}
       </div>
     );
   }
@@ -160,6 +224,7 @@ export function OperatorMessage({
   isLastMessage,
   isMiddleMessage,
   isSingleMessage,
+  attachments,
 }: {
   content: string;
   src?: string;
@@ -169,87 +234,228 @@ export function OperatorMessage({
   isLastMessage?: boolean;
   isMiddleMessage?: boolean;
   isSingleMessage?: boolean;
+  attachments?: IAttachment[];
 }) {
+  const isImageAttachment = (url: string) => {
+    return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url);
+  };
+
   return (
-    <Tooltip>
-      <Tooltip.Trigger asChild>
-        <Button
-          variant="ghost"
-          className="flex group/operator-message items-end justify-start gap-2 p-0 mr-auto size-auto hover:bg-transparent"
-        >
-          {showAvatar ? (
-            <Avatar className="size-8">
-              <Avatar.Image
-                src={readImage(src || 'assets/user.webp')}
-                className="shrink-0 object-cover"
-                alt="Erxes"
-              />
-              <Avatar.Fallback className="bg-background">C</Avatar.Fallback>
-            </Avatar>
-          ) : (
-            <div className="size-8" />
-          )}
-          <div
-            className={cn(
-              'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-foreground text-left gap-1 px-3 py-2 bg-background max-w-[70%] whitespace-break-spaces break-words break-all',
-              isFirstMessage && 'rounded-md rounded-bl-sm rounded-t-lg',
-              isLastMessage && 'rounded-md rounded-tl-sm rounded-b-lg',
-              isMiddleMessage && 'rounded-r-md rounded-l-sm',
-              isSingleMessage && 'rounded-md',
+    <Tooltip.Provider>
+      <Tooltip>
+        <Tooltip.Trigger asChild>
+          <Button
+            variant="ghost"
+            className="flex group/operator-message items-end justify-start gap-2 p-0 mr-auto size-auto hover:bg-transparent"
+          >
+            {showAvatar ? (
+              <Avatar className="size-8">
+                <Avatar.Image
+                  src={readImage(src || 'assets/user.webp')}
+                  className="shrink-0 object-cover"
+                  alt="Erxes"
+                />
+                <Avatar.Fallback className="bg-background">C</Avatar.Fallback>
+              </Avatar>
+            ) : (
+              <div className="size-8" />
             )}
-            dangerouslySetInnerHTML={{
-              __html:
-                content || '<p>Hello! Have you fixed your problem yet?</p>',
-            }}
-          />
-        </Button>
-      </Tooltip.Trigger>
-      <Tooltip.Content>
-        {format(createdAt, 'MMM dd, yyyy hh:mm aa')}
-      </Tooltip.Content>
-    </Tooltip>
+            <div className="flex flex-col gap-2 max-w-[80%] flex-1">
+              {content && content !== '<p></p>' && (
+                <div
+                  className={cn(
+                    'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-foreground text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces wrap-break-word break-all',
+                    isFirstMessage && 'rounded-md rounded-bl-sm rounded-t-lg',
+                    isLastMessage &&
+                      !attachments?.length &&
+                      'rounded-md rounded-tl-sm rounded-b-lg shadow-2xs',
+                    isMiddleMessage && 'rounded-r-md rounded-l-sm',
+                    isSingleMessage &&
+                      !attachments?.length &&
+                      'rounded-md shadow-2xs',
+                    attachments?.length && 'rounded-t-md rounded-bl-sm',
+                  )}
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(content as string),
+                  }}
+                />
+              )}
+              {attachments && attachments.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  {attachments.map((attachment, index) => (
+                    <div
+                      key={index}
+                      className={cn(
+                        'overflow-hidden bg-background',
+                        content && index === 0 && 'rounded-b-md rounded-tl-sm',
+                        !content &&
+                          isFirstMessage &&
+                          index === 0 &&
+                          'rounded-t-md rounded-bl-sm',
+                        !content &&
+                          isLastMessage &&
+                          index === attachments.length - 1 &&
+                          'rounded-b-md rounded-tl-sm',
+                        !content &&
+                          isSingleMessage &&
+                          attachments.length === 1 &&
+                          'rounded-md',
+                        content &&
+                          index === attachments.length - 1 &&
+                          'rounded-b-md rounded-tl-sm',
+                      )}
+                    >
+                      {isImageAttachment(attachment.url) ? (
+                        <a
+                          href={readImage(attachment.url)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block"
+                        >
+                          <img
+                            src={readImage(attachment.url)}
+                            alt={attachment.name}
+                            className="max-w-full h-auto rounded"
+                          />
+                        </a>
+                      ) : (
+                        <a
+                          href={readImage(attachment.url)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 px-3 py-2 hover:bg-accent/50 transition-colors truncate"
+                        >
+                          <IconFile />
+                          <span className="text-[13px] text-foreground truncate">
+                            {attachment.name}
+                          </span>
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </Button>
+        </Tooltip.Trigger>
+        <Tooltip.Content>
+          {format(createdAt, 'MMM dd, yyyy hh:mm aa')}
+        </Tooltip.Content>
+      </Tooltip>
+    </Tooltip.Provider>
   );
 }
 
 export const CustomerMessage = ({
   content,
   createdAt,
+  attachments,
 }: {
   content?: string;
   createdAt: Date;
+  attachments?: IAttachment[];
 }) => {
+  const isImageAttachment = (url: string) => {
+    return /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url);
+  };
+
   return (
-    <Tooltip>
-      <Tooltip.Trigger asChild>
-        <Button
-          variant="ghost"
-          className="flex group/customer-message items-end size-auto gap-2 flex-row ml-auto p-0 hover:bg-transparent"
-        >
-          <span className="text-muted-foreground hidden group-hover/customer-message:block text-xs self-center">
-            {formatDateISOStringToRelativeDate(createdAt.toISOString())}
-          </span>
-          <div
-            className={cn(
-              'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-zinc-900 text-left gap-1 px-3 py-2 bg-accent rounded-md',
-            )}
-            dangerouslySetInnerHTML={{
-              __html:
-                content || '<p>Hello! Have you fixed your problem yet?</p>',
-            }}
-          />
-        </Button>
-      </Tooltip.Trigger>
-      <Tooltip.Content>
-        {format(createdAt, 'MMM dd, yyyy hh:mm aa')}
-      </Tooltip.Content>
-    </Tooltip>
+    <Tooltip.Provider>
+      <Tooltip delayDuration={100}>
+        <Tooltip.Trigger asChild>
+          <Button
+            variant="ghost"
+            className="flex group/customer-message items-end max-w-[70%] justify-end size-auto gap-2 flex-row ml-auto p-0 bg-transparent"
+          >
+            <div className="flex flex-col gap-2 w-fit">
+              {content && content !== '<p></p>' && (
+                <div
+                  className={cn(
+                    'h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-zinc-900 text-left gap-1 px-3 py-2 bg-accent hover:bg-accent-foreground transition-colors duration-100 shadow-2xs',
+                    attachments?.length ? 'rounded-t-md' : 'rounded-md',
+                  )}
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(content as string),
+                  }}
+                />
+              )}
+              {attachments && attachments.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  {attachments.map((attachment, index) => (
+                    <div
+                      key={index}
+                      className={cn(
+                        'overflow-hidden bg-accent',
+                        content && index === 0 && 'rounded-b-md',
+                        !content && index === 0 && 'rounded-t-md',
+                        !content &&
+                          index === attachments.length - 1 &&
+                          'rounded-b-md',
+                        !content && attachments.length === 1 && 'rounded-md',
+                        content &&
+                          index === attachments.length - 1 &&
+                          'rounded-b-md',
+                      )}
+                    >
+                      {isImageAttachment(attachment.url) ? (
+                        <a
+                          href={readImage(attachment.url)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block"
+                        >
+                          <img
+                            src={readImage(attachment.url)}
+                            alt={attachment.name}
+                            className="max-w-full h-auto rounded"
+                          />
+                        </a>
+                      ) : (
+                        <a
+                          href={readImage(attachment.url)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 px-3 py-2 hover:bg-accent/70 transition-colors truncate"
+                        >
+                          <IconFile />
+                          <span className="text-[13px] text-zinc-900 truncate">
+                            {attachment.name}
+                          </span>
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </Button>
+        </Tooltip.Trigger>
+        <Tooltip.Content>
+          {format(createdAt, 'MMM dd, yyyy hh:mm aa')}
+        </Tooltip.Content>
+      </Tooltip>
+    </Tooltip.Provider>
   );
 };
 
 export const BotMessage = ({ content }: { content?: string }) => {
   return (
-    <div className="flex items-end gap-2">
-      <div className="h-auto font-medium flex flex-col justify-start items-start text-sm leading-relaxed text-foreground text-left gap-1 p-3 bg-transparent">
+    <div className="flex justify-start gap-2">
+      <div
+        className="w-8 h-8 rounded-full bg-contain bg-center bg-primary"
+        style={{ backgroundImage: defaultLogo }}
+      />
+      <span className="h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-foreground text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces wrap-break-word break-all rounded-lg shadow-2xs">
+        {content}
+      </span>
+    </div>
+  );
+};
+
+export const WelcomeMessage = ({ content }: { content?: string }) => {
+  return (
+    <div className="flex items-end self-end gap-2">
+      <div className="h-auto font-medium flex flex-col justify-start items-start text-xs leading-relaxed text-muted-foreground text-left gap-1 p-3 bg-transparent">
         <p>{content}</p>
       </div>
     </div>

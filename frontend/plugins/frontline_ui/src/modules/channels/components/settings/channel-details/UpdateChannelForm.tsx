@@ -45,7 +45,7 @@ export const UpdateChannelForm = ({ channel }: { channel: IChannel }) => {
         className="flex flex-col gap-2 size-full"
       >
         <div className="flex w-full gap-4">
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <Form.Field
               control={form.control}
               name="icon"

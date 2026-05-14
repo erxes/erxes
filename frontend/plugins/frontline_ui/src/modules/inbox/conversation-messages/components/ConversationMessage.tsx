@@ -1,12 +1,11 @@
-import { cn } from 'erxes-ui';
-import { HAS_ATTACHMENT } from '../../constants/messengerConstants';
-import { ConversationFormDisplay } from './ConversationFormDisplay';
-import { Button, IAttachment, RelativeDateDisplay } from 'erxes-ui';
-import { MessageContent } from './MessageContent';
-import { useConversationMessageContext } from '../../conversations/conversation-detail/hooks/useConversationMessageContext';
-import { CustomersInline, MembersInline } from 'ui-modules';
+import { Button, cn, IAttachment, RelativeDateDisplay } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
+import { CustomersInline, MembersInline } from 'ui-modules';
+import { HAS_ATTACHMENT } from '../../constants/messengerConstants';
+import { useConversationMessageContext } from '../../conversations/conversation-detail/hooks/useConversationMessageContext';
 import { activeConversationState } from '../../conversations/states/activeConversationState';
+import { ConversationFormDisplay } from './ConversationFormDisplay';
+import { MessageContent } from './MessageContent';
 
 export const ConversationMessage = () => {
   const { previousMessage, nextMessage, ...message } =
@@ -37,10 +36,9 @@ export const ConversationMessage = () => {
           <Button
             variant="secondary"
             className={cn(
-              'mt-2 h-auto py-2 text-left [&_*]:whitespace-pre-wrap block font-normal space-y-2 overflow-x-hidden text-pretty break-words [&_a]:text-primary [&_a]:underline [&_img]:aspect-square [&_img]:object-cover [&_img]:rounded',
+              'mt-2 h-auto py-2 text-left **:whitespace-pre-wrap block font-normal space-y-2 overflow-x-hidden text-pretty wrap-break-word [&_a]:text-primary [&_a]:underline [&_img]:aspect-square [&_img]:object-cover [&_img]:rounded',
               userId && 'bg-primary/10 hover:bg-primary/10',
-              internal &&
-                'bg-yellow-50 hover:bg-yellow-50 dark:bg-yellow-950 dark:hover:bg-yellow-950',
+              internal && 'bg-warning/20 hover:bg-warning/5',
               separatePrevious && 'mt-8',
             )}
             asChild

@@ -1,20 +1,15 @@
 import { Document } from 'mongoose';
 
-export interface IFollowsForTr {
-  type: string;
-  id: string;
-  subId?: string;
-}
 export interface ITrDetail {
   _id?: string;
   accountId: string;
-  originId?: string;
-  followType?: string;
-  originSubId?: string;
+  branchId?: string;
+  departmentId?: string;
   followInfos?: any;
-  follows?: IFollowsForTr[];
+  originId?: string;
+  originType?: string;
+  originSubId?: string;
 
-  side: string;
   amount: number;
   currency?: string;
   currencyAmount?: number;
@@ -28,24 +23,24 @@ export interface ITrDetail {
   productId?: string;
   count?: number;
   unitPrice?: number;
-};
+}
 
 export interface ITransaction {
   _id?: string;
   date: Date;
   fullDate?: Date;
-  description: string;
+  description?: string;
   status?: string;
   ptrId?: string;
   parentId?: string;
   number?: string;
   journal: string;
   ptrStatus?: string;
-  originId?: string;
-  followType?: string;
-  originSubId?: string;
+
   followInfos?: any;
-  follows?: IFollowsForTr[];
+  originId?: string;
+  originType?: string;
+  originSubId?: string;
   preTrId?: string;
 
   branchId?: string;
@@ -56,6 +51,8 @@ export interface ITransaction {
 
   details: ITrDetail[];
   shortDetail?: ITrDetail;
+  side?: string;
+
   createdBy?: string;
   modifiedBy?: string;
 
@@ -72,6 +69,9 @@ export interface ITransaction {
   ctaxAmount?: number;
 
   extraData?: any;
+
+  contentType?: string;
+  contentId?: string;
 }
 
 export interface ITransactionDocument extends ITransaction, Document {
@@ -88,27 +88,36 @@ export interface ITransactionDocument extends ITransaction, Document {
 
   sumDt: number;
   sumCt: number;
+  side: string;
+  relAccounts: {
+    dt: string[];
+    ct: string[];
+    customDt: string[];
+    customCt: string[];
+  };
   permission?: string;
 }
 
+export interface ITrRecord extends Omit<ITransaction, 'details'> {
+  details: ITrDetail;
+  trId: string;
+}
+
 export interface IHiddenTransaction extends Document {
-  _id: string,
-  parentId: string,
-  ptrId: string,
+  _id: string;
+  parentId: string;
+  ptrId: string;
   ptrStatus: string;
-  originId?: string,
-  followType?: string,
-  originSubId?: string,
-  follows?: IFollowsForTr[]
+  originId?: string;
+  originType?: string;
+  originSubId?: string;
   details: {
     _id: string;
     originId?: string;
-    followType?: string;
+    originType?: string;
     originSubId?: string;
-    follows?: IFollowsForTr[];
-
     side: string;
-  }[]
+  }[];
   sumDt: number;
   sumCt: number;
   permission?: string;

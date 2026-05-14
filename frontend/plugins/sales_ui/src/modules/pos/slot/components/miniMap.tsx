@@ -16,10 +16,10 @@ export default function MiniMapToggle({
       <div className="absolute top-2 left-2 z-10">
         <button
           onClick={() => setIsVisible(true)}
-          className="bg-white dark:bg-gray-800 rounded-full p-2 shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          className="p-2 rounded-full shadow-sm transition-colors bg-background"
           aria-label="Show minimap"
         >
-          <IconMap className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+          <IconMap className="w-4 h-4 text-foreground" />
         </button>
       </div>
     );
@@ -33,8 +33,8 @@ export default function MiniMapToggle({
         pannable={pannable}
         position={position as PanelPosition}
         style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
-          border: '1px solid #e2e8f0',
+          backgroundColor: 'hsl(var(--background))',
+          border: '1px solid hsl(var(--border))',
           borderRadius: '0.375rem',
         }}
       />
@@ -42,10 +42,10 @@ export default function MiniMapToggle({
       <div className="absolute top-2 left-2 z-10">
         <button
           onClick={() => setIsVisible(false)}
-          className="bg-white dark:bg-gray-800 rounded-full p-1 shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          className="p-1 rounded-full shadow-sm transition-colors bg-background"
           aria-label="Close minimap"
         >
-          <IconX className="h-3 w-3 text-gray-500 dark:text-gray-400" />
+          <IconX className="w-3 h-3 text-foreground" />
         </button>
       </div>
     </div>

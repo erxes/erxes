@@ -1,10 +1,10 @@
 import * as dotenv from 'dotenv';
 
-import { USER_ROLES, userActionsMap } from 'erxes-api-shared/core-modules';
 import {
   getSubdomain,
-  PERMISSION_ROLES,
   redis,
+  setClientPortalHeader,
+  setCPUserHeader,
   setUserHeader,
 } from 'erxes-api-shared/utils';
 import { NextFunction, Request, Response } from 'express';
@@ -14,8 +14,24 @@ import { generateModels, IModels } from '../connectionResolver';
 
 dotenv.config();
 
+const getBearerToken = (req: Request) => {
+  const authorization = req.headers.authorization;
+
+  if (!authorization) {
+    return '';
+  }
+
+  if (Array.isArray(authorization)) {
+    throw new Error('Multiple authorization headers');
+  }
+
+  const match = authorization.match(/^Bearer\s+(\S+)$/i);
+
+  return match?.[1] || '';
+};
+
 export default async function userMiddleware(
-  req: Request & { user?: any },
+  req: Request & { user?: any; cpUser?: any; clientPortal?: any },
   res: Response,
   next: NextFunction,
 ) {
@@ -85,68 +101,79 @@ export default async function userMiddleware(
 
   if (appToken) {
     try {
-      const { app }: any = jwt.verify(
-        appToken,
+      const appInDb = await models.Apps.findOne({
+        token: appToken,
+        status: 'active',
+      });
+
+      if (!appInDb) {
+        return res.status(401).json({ error: 'Invalid app token' });
+      }
+
+      await models.Apps.updateOne(
+        { _id: appInDb._id },
+        { $set: { lastUsedAt: new Date() } },
+      );
+    } catch (e) {
+      console.error(e);
+
+      return next();
+    }
+  }
+
+  const clientPortalToken = req.headers['x-app-token'];
+  const clientAuthToken =
+    req.headers['client-auth-token'] || req.cookies['client-auth-token'];
+
+  if (clientPortalToken) {
+    const clientPortalTokenString = String(clientPortalToken);
+
+    try {
+      const clientPortalTokenDecoded: any = jwt.verify(
+        clientPortalTokenString,
         process.env.JWT_TOKEN_SECRET || 'SECRET',
       );
 
-      if (app && app._id) {
-        const appInDb = await models.Apps.findOne({ _id: app._id });
+      const clientPortal = await models.ClientPortals.findOne({
+        _id: clientPortalTokenDecoded.clientPortalId,
+      });
 
-        if (appInDb) {
-          const permissions = await models.Permissions.find({
-            groupId: appInDb.userGroupId,
-            allowed: true,
-          }).lean();
+      if (!clientPortal) {
+        return next();
+      }
 
-          const user = await models.Users.findOne({
-            role: USER_ROLES.SYSTEM,
-            groupIds: { $in: [app.userGroupId] },
-            appId: app._id,
-          }).lean();
+      req.clientPortal = clientPortal;
 
-          if (user) {
-            const key = `user_permissions_${user._id}`;
-            const cachedPermissions = await redis.get(key);
+      setClientPortalHeader(req.headers, req.clientPortal);
 
-            if (
-              !cachedPermissions ||
-              (cachedPermissions && cachedPermissions === '{}')
-            ) {
-              const userPermissions = await models.Permissions.find({
-                userId: user._id,
-              });
-              const groupPermissions = await models.Permissions.find({
-                groupId: { $in: user.groupIds },
-              });
+      if (clientAuthToken) {
+        try {
+          const clientAuthTokenString = String(clientAuthToken);
 
-              const actionMap = await userActionsMap(
-                userPermissions,
-                groupPermissions,
-                user,
-              );
+          const clientAuthTokenDecoded: any = jwt.verify(
+            clientAuthTokenString,
+            process.env.JWT_TOKEN_SECRET || 'SECRET',
+          );
 
-              await redis.set(key, JSON.stringify(actionMap));
-            }
+          const clientPortalUser = await models.CPUsers.findOne({
+            _id: clientAuthTokenDecoded.userId,
+            clientPortalId: clientPortal._id,
+          });
 
-            req.user = {
-              _id: user._id || 'userId',
-              ...user,
-              role: USER_ROLES.SYSTEM,
-              isOwner: appInDb.allowAllPermission || false,
-              customPermissions: permissions.map((p) => ({
-                action: p.action,
-                allowed: p.allowed,
-                requiredActions: p.requiredActions,
-              })),
-            };
+          if (clientPortalUser) {
+            req.cpUser = clientPortalUser;
+            setCPUserHeader(req.headers, req.cpUser);
+          }
+        } catch (e) {
+          if (e instanceof jwt.TokenExpiredError) {
+            return next();
+          } else {
+            console.error(e);
           }
         }
       }
 
-      setUserHeader(req.headers, req.user);
-
-      return next();
+      // return next();
     } catch (e) {
       console.error(e);
 
@@ -154,52 +181,17 @@ export default async function userMiddleware(
     }
   }
 
-  const clientToken = req.headers['x-app-token'];
+  let bearerToken = '';
 
-  if (clientToken) {
-    const token = String(clientToken);
-    try {
-      const decoded: any = jwt.verify(
-        token,
-        process.env.JWT_TOKEN_SECRET || 'SECRET',
-      );
-
-      const client = await models.Clients.findOne({
-        clientId: decoded.clientId,
-      });
-
-      if (!client) {
-        return next();
-      }
-
-      if (
-        client.whiteListedIps?.length > 0 &&
-        !client.whiteListedIps.includes(req.ip)
-      ) {
-        return next();
-      }
-
-      const systemUser = await models.Users.findOne({
-        role: USER_ROLES.SYSTEM,
-        appId: client._id,
-      });
-
-      if (!systemUser) {
-        return next();
-      }
-
-      req.user = systemUser;
-      setUserHeader(req.headers, req.user);
-
-      return next();
-    } catch (e) {
-      console.error(e);
-
-      return next();
+  try {
+    bearerToken = getBearerToken(req);
+  } catch (e) {
+    if (e instanceof Error) {
+      return res.status(400).json({ error: e.message });
     }
   }
 
-  const token = req.cookies['auth-token'];
+  const token = bearerToken || req.cookies['auth-token'];
 
   if (!token) {
     return next();
@@ -215,24 +207,11 @@ export default async function userMiddleware(
 
     const userDoc = await models.Users.findOne(
       { _id: user._id },
-      '_id email details isOwner groupIds brandIds username code departmentIds',
+      '_id email details isOwner groupIds brandIds username code departmentIds permissionGroupIds',
     ).lean();
 
     if (!userDoc) {
       return next();
-    }
-
-    let userRole = await models.Roles.findOne({ userId: userDoc._id }).lean();
-
-    if (!userRole) {
-      const role = userDoc.isOwner
-        ? PERMISSION_ROLES.OWNER
-        : PERMISSION_ROLES.MEMBER;
-
-      userRole = await models.Roles.create({
-        userId: userDoc._id,
-        role,
-      });
     }
 
     const validatedToken = await redis.get(`user_token_${user._id}_${token}`);
@@ -243,9 +222,17 @@ export default async function userMiddleware(
     }
 
     // save user in request
-    req.user = { ...userDoc, role: userRole.role };
+    req.user = { ...userDoc };
     req.user.loginToken = token;
     req.user.sessionCode = req.headers.sessioncode || '';
+
+    if (decoded.typ === 'oauth_access') {
+      req.user.oauthClientId = decoded.clientId || '';
+      req.user.oauthScopes = String(decoded.scope || '')
+        .split(/\s|,/)
+        .map((scope) => scope.trim())
+        .filter(Boolean);
+    }
 
     const hostname = await redis.get('hostname');
 

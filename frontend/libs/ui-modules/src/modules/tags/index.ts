@@ -6,3 +6,8 @@ export * from './hooks/useTags';
 export * from './types/Tag';
 export * from './components/CreateTagForm';
 export * from './components/SelectTagType';
+export * from './components/TagsColumns';
+export * from './components/TagsGroupsAddButtons';
+export * from './components/TagsRecordTable';
+export * from './components/TagsSettingFilter';
+export * from './components/TagProvider';

@@ -36,31 +36,26 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
     },
     ref,
   ) => {
-    const defaultCountryCode =
-      defaultCountry || (CountryPhoneCodes[0].code as CountryCode);
 
     let parsedNumber;
     try {
-      parsedNumber = parsePhoneNumberFromString(value || '', {
-        defaultCountry: defaultCountryCode,
-      });
+      parsedNumber = parsePhoneNumberFromString(value || '');
     } catch {
       parsedNumber = null;
     }
 
-    const initialCountry = parsedNumber?.country || defaultCountryCode;
-    const [selectedCountry, setSelectedCountry] = useState<TCountryCode>(
-      CountryPhoneCodes.find((c) => c.code === initialCountry) ||
-        CountryPhoneCodes[0],
+    const initialCountry = parsedNumber?.country;
+    const [selectedCountry, setSelectedCountry] = useState<TCountryCode | undefined>(
+      CountryPhoneCodes.find((c) => c.code === initialCountry)
     );
 
     const initialValue = value
       ? parsedNumber
         ? parsedNumber.formatInternational()
         : value
-      : selectedCountry.dial_code;
+      : selectedCountry?.dial_code || '';
     const [phoneNumber, setPhoneNumber] = useState<string>(() =>
-      formatPhoneNumber({ value: initialValue || selectedCountry.dial_code }),
+      formatPhoneNumber({ value: initialValue || selectedCountry?.dial_code || '' }),
     );
 
     const [open, setOpen] = useState<boolean>(false);
@@ -121,7 +116,7 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
       }
 
       const formattedPhone = formatPhoneNumber({
-        defaultCountry: countryToUse.code as CountryCode,
+        defaultCountry: countryToUse?.code as CountryCode,
         value: input,
       });
 
@@ -130,7 +125,7 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
       const cleanInput = input.replace(/[a-zA-Z\s]/g, '');
       validatePhone(cleanInput);
 
-      onChange?.(cleanInput, countryToUse.code as CountryCode);
+      onChange?.(cleanInput, countryToUse?.code as CountryCode);
     };
     const handleBlur = () => {
       if (!phoneNumber.startsWith('+')) {
@@ -138,7 +133,7 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
         setPhoneNumber(updatedNumber);
         const cleanNumber = updatedNumber.replace(/[a-zA-Z\s]/g, '');
         validatePhone(cleanNumber);
-        onChange?.(cleanNumber, selectedCountry.code as CountryCode);
+        onChange?.(cleanNumber, selectedCountry?.code as CountryCode);
       } else {
         validatePhone(phoneNumber.replace(/[a-zA-Z\s]/g, ''));
       }
@@ -154,7 +149,7 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
               className,
             )}
           >
-            {selectedCountry.flag}
+            {selectedCountry?.flag}
           </Combobox.TriggerBase>
           <Popover.Content className="w-56 p-0" align="start">
             <Command>
@@ -175,7 +170,7 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
                           {country.dial_code}
                         </span>
                       </div>
-                      {selectedCountry.code === country.code && (
+                      {selectedCountry?.code === country.code && (
                         <IconCheck className="size-4" />
                       )}
                     </Command.Item>
@@ -195,7 +190,7 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
             className={cn(
               'bg-accent',
               validationError &&
-                'border-destructive focus-visible:ring-destructive',
+              'border-destructive focus-visible:ring-destructive',
               className,
             )}
             type="tel"

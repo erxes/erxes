@@ -38,7 +38,6 @@ export const CallWidgetContent = () => {
     currentCallConversationIdAtom,
   );
   const { addCustomer, customer, channels, loading } = useAddCallCustomer();
-
   useEffect(() => {
     if (sipState.callStatus === CallStatusEnum.ENDED) {
       setHistoryId(null);
@@ -104,7 +103,6 @@ export const CallWidget = () => {
   const open = useAtomValue(callWidgetOpenAtom);
   const sipState = useAtomValue(sipStateAtom);
   const setOpen = useSetAtom(callWidgetOpenAtom);
-
   useLayoutEffect(() => {
     if (popoverContentRef.current) {
       setContentHeight(popoverContentRef.current.offsetHeight);

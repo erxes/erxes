@@ -1,39 +1,30 @@
 import {
-  DndContext,
-  closestCenter,
-  DragEndEvent,
-  DragMoveEvent,
-} from '@dnd-kit/core';
-import { useAtomValue, useAtom, useSetAtom } from 'jotai';
+  StatusInlineIcon,
+  StatusInlineLabel,
+} from '@/operation/components/StatusInline';
+import { useAddStatus } from '@/team/hooks/useAddStatus';
+import { useDeleteStatus } from '@/team/hooks/useDeleteStatus';
+import { useStatusesByType } from '@/team/hooks/useGetStatus';
+import { useUpdateStatus } from '@/team/hooks/useUpdateStatus';
+import { TEAM_STATUS_FORM_SCHEMA } from '@/team/schemas';
 import {
   addingStatusState,
   editingStatusState,
 } from '@/team/states/StatusStates';
-import { useAddStatus } from '@/team/hooks/useAddStatus';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { ITeamStatus } from '@/team/types';
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  DragMoveEvent,
+} from '@dnd-kit/core';
 import {
   arrayMove,
   SortableContext,
+  useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useState, useEffect } from 'react';
-import { useStatusesByType } from '@/team/hooks/useGetStatus';
-import { useUpdateStatus } from '@/team/hooks/useUpdateStatus';
-import { useSortable } from '@dnd-kit/sortable';
-import { ITeamStatus } from '@/team/types';
-import { TEAM_STATUS_FORM_SCHEMA } from '@/team/schemas';
-import {
-  Button,
-  cn,
-  DropdownMenu,
-  Form,
-  Input,
-  useToast,
-  Skeleton,
-  ColorPicker,
-} from 'erxes-ui';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   IconDots,
   IconEdit,
@@ -41,12 +32,21 @@ import {
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
-import { useParams } from 'react-router';
-import { useDeleteStatus } from '@/team/hooks/useDeleteStatus';
 import {
-  StatusInlineIcon,
-  StatusInlineLabel,
-} from '@/operation/components/StatusInline';
+  Button,
+  cn,
+  ColorPicker,
+  DropdownMenu,
+  Form,
+  Input,
+  Skeleton,
+  useToast,
+} from 'erxes-ui';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useParams } from 'react-router';
+import { z } from 'zod';
 
 const StatusSkeleton = () => {
   return (

@@ -2,7 +2,6 @@ import { LogUserInfo } from '@/logs/components/LogUser';
 import { ILogDoc } from '@/logs/types';
 import {
   IconCalendarTime,
-  IconEye,
   IconInfoCircle,
   IconProgressCheck,
   IconProgressX,
@@ -14,7 +13,6 @@ import { ColumnDef } from '@tanstack/table-core';
 import dayjs from 'dayjs';
 import {
   Badge,
-  Button,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
@@ -45,25 +43,6 @@ const generateUserName = (user: IUser | undefined) => {
 
 export const logColumns: ColumnDef<ILogDoc>[] = [
   {
-    id: 'detail',
-    cell: ({ cell }) => {
-      const [, setLogId] = useQueryState<string>('logId');
-      return (
-        <RecordTableInlineCell>
-          <Button
-            className="w-full"
-            variant="ghost"
-            size="icon"
-            onClick={() => setLogId(cell.row.original._id)}
-          >
-            <IconEye />
-          </Button>
-        </RecordTableInlineCell>
-      );
-    },
-    size: 33,
-  },
-  {
     id: 'status',
     accessorKey: 'status',
     header: () => (
@@ -71,11 +50,12 @@ export const logColumns: ColumnDef<ILogDoc>[] = [
     ),
     cell: ({ cell }) => {
       const status = cell.getValue() as 'failed' | 'success';
+      const [, setLogId] = useQueryState<string>('logId');
 
       const { Icon, variant } = statusInfos[status] || {};
 
       return (
-        <RecordTableInlineCell>
+        <RecordTableInlineCell onClick={() => setLogId(cell.row.original._id)}>
           <Badge variant={variant as 'success' | 'destructive'}>
             <Icon className="size-4" />
             {status}

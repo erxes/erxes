@@ -30,6 +30,11 @@ const CLOSE_ICON_STRING = `
 const erxesWidgetContainer = document.createElement('div');
 erxesWidgetContainer.id = ERXES_WIDGET_CONTAINER_ID;
 
+// Add margin-bottom to root element on mobile
+if (isMobile) {
+  document.documentElement.style.marginBottom = '72px';
+}
+
 // messenger iframe container
 const messengerIframeContainer = document.createElement('div');
 messengerIframeContainer.className = 'erxes-messenger-frame';
@@ -47,7 +52,7 @@ export const generateIntegrationUrl = (integrationKind: string): string => {
     })();
 
   if (script && script instanceof HTMLScriptElement) {
-    return script.src.replace(`index.js`, ``);
+    return script.src.replace(`messengerBundle.js`, ``);
   }
 
   return '';
@@ -58,6 +63,7 @@ messengerIframe.allow =
   'camera *; microphone *; clipboard-read; clipboard-write';
 
 let launcherIframeDocument: Document | undefined = undefined;
+let lastUnreadCount = 0;
 
 function renewViewPort() {
   if (viewportMeta) {
@@ -81,11 +87,85 @@ function revertViewPort() {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Parent-frame audio — unlocked on launcher click so AudioContext is ready
+// when a playSound message arrives outside a user gesture.
+// ---------------------------------------------------------------------------
+
+let _parentAudioCtx: AudioContext | null = null;
+
+const getParentAudioCtx = (): AudioContext | null => {
+  if (_parentAudioCtx) return _parentAudioCtx;
+  try {
+    const AudioCtx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext })
+        .webkitAudioContext;
+    if (!AudioCtx) return null;
+    _parentAudioCtx = new AudioCtx();
+  } catch {
+    // not supported
+  }
+  return _parentAudioCtx;
+};
+
+const playParentSound = () => {
+  const ctx = getParentAudioCtx();
+  if (!ctx) return;
+  ctx
+    .resume()
+    .then(() => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.setValueAtTime(660, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.3);
+    })
+    .catch((_err) => {
+      // AudioContext still locked — no prior user gesture in this frame
+    });
+};
+
+const renderBadge = (count: number) => {
+  if (!launcherIframeDocument) return;
+  const launcherBtn = launcherIframeDocument.querySelector('.erxes-launcher');
+  if (!launcherBtn) return;
+  let badge = launcherIframeDocument.getElementById('erxes-unread-badge');
+  if (count > 0) {
+    if (!badge) {
+      badge = launcherIframeDocument.createElement('span');
+      badge.id = 'erxes-unread-badge';
+      badge.style.cssText =
+        'position:absolute;top:2px;right:2px;min-width:16px;height:16px;' +
+        'background:#ef4444;color:#fff;font-size:9px;font-weight:700;' +
+        'border-radius:8px;display:flex;align-items:center;justify-content:center;' +
+        'padding:0 3px;box-sizing:border-box;pointer-events:none;line-height:1;' +
+        'font-family:sans-serif;z-index:1;';
+      launcherBtn.appendChild(badge);
+    }
+    badge.textContent = count > 99 ? '99+' : String(count);
+  } else if (badge) {
+    badge.remove();
+  }
+};
+
+const updateLauncherBadge = (count: number) => {
+  lastUnreadCount = count;
+  renderBadge(count);
+};
+
 const handleLauncherEvent = (event: MouseEvent | KeyboardEvent) => {
   if (
     (event.type === 'keyup' && (event as KeyboardEvent).key === 'Enter') ||
     event.type === 'click'
   ) {
+    getParentAudioCtx()?.resume();
     postMessageToContentWindow();
   }
 };
@@ -221,8 +301,11 @@ const handleMessageEvent = async (event: MessageEvent) => {
       return console.error('Messenger: launcher element is not defined');
     }
 
-    const { color, logo: uiOptionsLogo } = uiOptions;
+    const { primary, logo: uiOptionsLogo } = uiOptions;
+
     const logo = uiOptionsLogo;
+    const color = primary?.DEFAULT;
+    const foreground = primary?.foreground;
     hasCustomLogo = !!logo;
     backgroundImage = hasCustomLogo
       ? `url(${baseUrl}/read-file?key=${encodeURIComponent(logo)})`
@@ -250,9 +333,9 @@ const handleMessageEvent = async (event: MessageEvent) => {
       align-items: center;
       cursor: pointer;
       background-color: ${color};
-      color: ${color || '#673fbd'};
+      color: ${foreground || '#673fbd'};
       background-image: ${backgroundImage};
-      background-size: ${hasCustomLogo ? 'cover' : '18px'};
+      background-size: ${hasCustomLogo ? '32px' : '18px'};
       background-position: center;
     `;
   }
@@ -267,6 +350,15 @@ window.addEventListener('message', async (event) => {
   //   listenForCommonRequests(event, messengerIframe);
 
   if (data.fromErxes && data.source === 'fromMessenger') {
+    if (message === 'playSound') {
+      playParentSound();
+      return;
+    }
+    if (message === 'unreadCount') {
+      updateLauncherBadge(data.count ?? 0);
+      return;
+    }
+
     const launcher = launcherIframeDocument?.querySelector('.erxes-launcher');
 
     if (!launcher) {
@@ -289,14 +381,18 @@ window.addEventListener('message', async (event) => {
         messengerIframeContainer.classList.remove('erxes-messenger-hidden');
         (launcher as HTMLElement).style.backgroundImage = 'none';
         (launcher as HTMLElement).innerHTML = CLOSE_ICON_STRING;
+        // hide badge while chat is open — don't overwrite lastUnreadCount
+        renderBadge(0);
       } else {
         messengerIframeContainer.classList.remove('erxes-messenger-shown');
         messengerIframeContainer.classList.add('erxes-messenger-hidden');
         (launcher as HTMLElement).style.backgroundImage = backgroundImage;
         (launcher as HTMLElement).style.backgroundSize = hasCustomLogo
-          ? 'cover'
+          ? '32px'
           : '18px';
         launcher.innerHTML = '';
+        // restore badge using the saved count (not affected by the hide-on-open call)
+        renderBadge(lastUnreadCount);
       }
     }
 

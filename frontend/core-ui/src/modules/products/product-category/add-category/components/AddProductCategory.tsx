@@ -1,7 +1,13 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, ScrollArea, Sheet, Form, useToast } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
+import {
+  type ProductAttachmentItem,
+  useFieldGroups,
+  useFields,
+} from 'ui-modules';
 import { productFormSchema, ProductFormValues } from './formSchema';
 import { CategoryAddSheetHeader } from '../../components/AddProductCategoryForm';
 import { ProductCategoriesAddCoreFields } from './CategoryAddCoreFields';
@@ -14,21 +20,30 @@ export function AddCategoryForm({
   onOpenChange: (open: boolean) => void;
 }) {
   const { productCategoriesAdd, loading: editLoading } = useAddCategory();
+  const [attachment, setAttachment] = useState<ProductAttachmentItem | null>(
+    null,
+  );
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
       name: '',
       code: '',
-      categoryId: '',
+      parentId: '',
       description: '',
+      maskType: '',
       attachment: null,
-      accountMaskType: '',
-      state: '',
+      status: '',
       meta: '',
       scopeBrandIds: [],
+      isSimilarity: false,
+      similarities: [],
     },
   });
   const { toast } = useToast();
+
+  const { fieldGroups } = useFieldGroups({ contentType: 'core:product' });
+  const { fields } = useFields({ contentType: 'core:product' });
+
   async function onSubmit(data: ProductFormValues) {
     const cleanData: Record<string, any> = {};
 
@@ -43,15 +58,26 @@ export function AddCategoryForm({
         ...cleanData,
         name: cleanData.name ?? '',
         code: cleanData.code ?? '',
+        attachment: attachment || undefined,
+        isSimilarity: cleanData.isSimilarity ?? false,
+        similarities: cleanData.similarities?.length
+          ? cleanData.similarities
+          : undefined,
       },
       onError: (e: ApolloError) => {
         toast({
           title: 'Error',
           description: e.message,
+          variant: 'destructive',
         });
       },
       onCompleted: () => {
+        toast({
+          title: 'Success',
+          description: 'Category added successfully',
+        });
         form.reset();
+        setAttachment(null);
         onOpenChange(false);
       },
     });
@@ -59,6 +85,7 @@ export function AddCategoryForm({
 
   const handleCancel = () => {
     form.reset();
+    setAttachment(null);
     onOpenChange(false);
   };
 
@@ -66,19 +93,25 @@ export function AddCategoryForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col h-full overflow-hidden"
+        className="flex overflow-hidden flex-col h-full"
       >
         <CategoryAddSheetHeader />
-        <Sheet.Content className="flex-auto overflow-hidden">
+        <Sheet.Content className="overflow-hidden flex-auto">
           <ScrollArea className="h-full">
             <div className="p-5">
               <ProductCategoriesAddCoreFields form={form} />
-              <ProductCategoryAddMoreFields form={form} />
+              <ProductCategoryAddMoreFields
+                form={form}
+                attachment={attachment}
+                onAttachmentChange={setAttachment}
+                fieldGroups={fieldGroups}
+                fields={fields}
+              />
             </div>
           </ScrollArea>
         </Sheet.Content>
 
-        <Sheet.Footer className="flex justify-end flex-shrink-0 p-2.5 gap-1 bg-muted">
+        <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
           <Button
             type="button"
             variant="ghost"

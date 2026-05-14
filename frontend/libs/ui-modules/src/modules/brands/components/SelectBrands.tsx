@@ -1,6 +1,4 @@
-import { useState } from 'react';
-import { IBrand, ISelectBrandsProviderProps } from '../types/brand';
-import { SelectBrandsContext } from '../contexts/SelectBrandsContext';
+import { IconCheck, IconChessKnight, IconPlus } from '@tabler/icons-react';
 import {
   Button,
   cn,
@@ -8,19 +6,20 @@ import {
   Command,
   Filter,
   Form,
+  Popover,
   PopoverScoped,
   RecordTableInlineCell,
-  Popover,
   TextOverflowTooltip,
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
+import React, { useState } from 'react';
+import { useDebounce } from 'use-debounce';
+import { SelectBrandsContext } from '../contexts/SelectBrandsContext';
 import { useBrands } from '../hooks/useBrands';
 import { useSelectBrandsContext } from '../hooks/useSelectBrandsContext';
-import { useDebounce } from 'use-debounce';
-import { IconCheck, IconChessKnight, IconPlus } from '@tabler/icons-react';
+import { IBrand, ISelectBrandsProviderProps } from '../types/brand';
 import { BrandBadge } from './BrandBadge';
-import React from 'react';
 import {
   CreateBrandForm,
   SelectBrandCreateContainer,
@@ -46,14 +45,14 @@ export const SelectBrandsProvider = ({
     const newSelectedBrandIds = isSingleMode
       ? [brand._id]
       : isSelected
-      ? multipleValue.filter((b) => b !== brand._id)
-      : [...multipleValue, brand._id];
+        ? multipleValue.filter((b) => b !== brand._id)
+        : [...multipleValue, brand._id];
 
     const newSelectedBrands = isSingleMode
       ? [brand]
       : isSelected
-      ? selectedBrands.filter((b) => b._id !== brand._id)
-      : [...selectedBrands, brand];
+        ? selectedBrands.filter((b) => b._id !== brand._id)
+        : [...selectedBrands, brand];
 
     setSelectedBrands(newSelectedBrands);
     onValueChange?.(isSingleMode ? brand._id : newSelectedBrandIds);
@@ -188,7 +187,7 @@ export const BrandsList = ({
 
   const selectedBrandIds = Array.isArray(value) ? value : [value];
 
-  if (!value || !value.length) {
+  if (!value?.length) {
     return <Combobox.Value placeholder={placeholder || ''} />;
   }
 

@@ -12,22 +12,32 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { IconGripVertical, IconX } from '@tabler/icons-react';
-import { Button, Card, cn, Input, Label } from 'erxes-ui';
-import { TBotMessageButton } from '../states/replyMessageActionForm';
-import { generateAutomationElementId } from 'ui-modules';
+import {
+  IconGripVertical,
+  IconLink,
+  IconPlus,
+  IconX,
+} from '@tabler/icons-react';
+import { Button, Card, cn, Input, Popover } from 'erxes-ui';
 import React from 'react';
+import { generateAutomationElementId } from 'ui-modules';
+import { TBotMessageButton } from '../states/replyMessageActionForm';
 
 export const FacebookMessageButtonsGenerator = ({
   buttons = [],
   setButtons,
-  addButtonText = '+ Add button',
+  addButtonContent = (
+    <>
+      <IconPlus />
+      add button
+    </>
+  ),
   limit,
   ContentBeforeInput,
 }: {
   buttons: { disableRemoveButton?: boolean } & TBotMessageButton[];
   setButtons: (buttons: TBotMessageButton[]) => void;
-  addButtonText?: string;
+  addButtonContent?: React.ReactNode;
   limit: number;
   ContentBeforeInput?: ({
     button,
@@ -100,11 +110,11 @@ export const FacebookMessageButtonsGenerator = ({
       </DndContext>
       <Button
         variant="secondary"
-        className="w-full"
+        className="w-full font-mono uppercase font-semibold text-xs text-accent-foreground"
         disabled={buttons.length >= limit}
         onClick={onAddButton}
       >
-        <Label>{addButtonText}</Label>
+        {addButtonContent}
       </Button>
     </>
   );
@@ -149,23 +159,7 @@ const FacebookMessageButton = ({
   const onChangeButtonText = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.currentTarget.value;
 
-    const updatedButton = { ...button };
-    // Check if the value starts with "http://" or "https://" or "www."
-    const isLink = /^https?:\/\/|^www\./i.test(value);
-
-    if (isLink) {
-      if (button.text) {
-        updatedButton.type = 'link';
-        updatedButton.text = '';
-      }
-
-      updatedButton.link = value;
-    } else {
-      updatedButton.text = value;
-      updatedButton.link = '';
-    }
-
-    handleChangeButton(updatedButton);
+    handleChangeButton({ ...button, text: value });
   };
 
   return (
@@ -173,7 +167,9 @@ const FacebookMessageButton = ({
       ref={setNodeRef}
       style={style}
       {...(button.isEditing ? {} : { ...attributes })}
-      className={'px-3 py-2 flex flex-row gap-2 items-center justify-between'}
+      className={
+        'px-3 py-2 flex flex-row gap-2 items-center justify-between rounded'
+      }
       onDoubleClick={() => handleChangeButton({ ...button, isEditing: true })}
     >
       <div
@@ -196,7 +192,7 @@ const FacebookMessageButton = ({
           handleChangeButton={handleChangeButton}
         />
       ) : null}
-      <div className="flex-1 border rounded-lg p-2 flex items-center">
+      <div className="flex-1 border rounded p-2 flex items-center">
         {button?.isEditing ? (
           <Input
             autoFocus
@@ -217,14 +213,31 @@ const FacebookMessageButton = ({
             target="__blank"
             className="text-blue-500 hover:text-blue-500/70 transition ease-in-out"
           >
-            {button.link}
+            {button.text || button.link}
           </a>
         ) : (
-          <span className="font-mono font-bold text-foreground text-sm">
+          <span className="font-mono font-medium text-foreground text-sm">
             {button.text || 'Type a button label'}
           </span>
         )}
       </div>
+      <Popover>
+        <Popover.Trigger asChild>
+          <Button size="icon" variant="link">
+            <IconLink />
+          </Button>
+        </Popover.Trigger>
+        <Popover.Content>
+          <Input
+            type="url"
+            placeholder="Enter URL"
+            value={button.link}
+            onChange={(e) =>
+              handleChangeButton({ ...button, link: e.target.value })
+            }
+          />
+        </Popover.Content>
+      </Popover>
       <Button
         size="icon"
         variant="destructive"

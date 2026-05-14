@@ -1,4 +1,4 @@
-import { IconFolder, IconGitBranch, IconPlus } from '@tabler/icons-react';
+import { IconFolder, IconPlus } from '@tabler/icons-react';
 import {
   Button,
   Form,
@@ -16,6 +16,7 @@ import { useDepartmentForm } from '../../hooks/useDepartmentForm';
 import { useDepartmentAdd } from '../../hooks/useDepartmentActions';
 import { DepartmentHotKeyScope, TDepartmentForm } from '../../types/department';
 import { DepartmentForm } from './DepartmentForm';
+import { Can, usePermissionCheck } from 'ui-modules';
 
 export const CreateDepartment = () => {
   const {
@@ -27,6 +28,9 @@ export const CreateDepartment = () => {
   const { toast } = useToast();
   const setHotkeyScope = useSetHotkeyScope();
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canManageDepartments =
+    isLoaded && hasActionPermission('departmentsManage');
 
   const onOpen = () => {
     setOpen(true);
@@ -42,7 +46,10 @@ export const CreateDepartment = () => {
 
   useScopedHotkeys(
     `c`,
-    () => onOpen(),
+    () => {
+      if (!canManageDepartments) return;
+      onOpen();
+    },
     DepartmentHotKeyScope.DepartmentSettingsPage,
   );
   useScopedHotkeys(
@@ -56,7 +63,11 @@ export const CreateDepartment = () => {
       handleAdd({
         variables: data,
         onCompleted: () => {
-          toast({ title: 'Success!' });
+          toast({
+            title: 'Success!',
+            variant: 'success',
+            description: 'Department created successfully',
+          });
           methods.reset();
           setOpen(false);
         },
@@ -72,12 +83,14 @@ export const CreateDepartment = () => {
   );
   return (
     <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus /> Create Department
-          <Kbd>C</Kbd>
-        </Button>
-      </Sheet.Trigger>
+      <Can action="departmentsManage">
+        <Sheet.Trigger asChild>
+          <Button>
+            <IconPlus /> Create Department
+            <Kbd>C</Kbd>
+          </Button>
+        </Sheet.Trigger>
+      </Can>
       <Sheet.View
         className="p-0"
         onEscapeKeyDown={(e) => {

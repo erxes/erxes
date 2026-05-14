@@ -1,30 +1,90 @@
 import { useMutation } from '@apollo/client';
-import { REMOVE_BRANCH } from '../graphql/mutation';
-import { GET_BRANCH_LIST } from '../graphql/queries';
-import { IBranchRemoveResponse, IBranchRemoveVariables } from '../types/branch';
+import { REMOVE_BRANCH } from '@/tms/graphql/mutation';
+import { toast } from 'erxes-ui';
 
-export const useBranchRemove = () => {
-  const [removeBranch, { loading, error }] = useMutation<
-    IBranchRemoveResponse,
-    IBranchRemoveVariables
+interface RemoveBranchVariables {
+  id: string;
+}
+
+interface RemoveBranchResponse {
+  bmsBranchRemove: boolean;
+}
+
+interface UseBranchRemoveOptions {
+  onSuccess?: () => void;
+  onError?: (error: unknown) => void;
+}
+
+const showToast = {
+  success: () => {
+    toast({
+      title: 'Branch deleted successfully',
+    });
+  },
+  error: (message?: string) => {
+    toast({
+      title: 'Failed to delete branch',
+      description: message,
+      variant: 'destructive',
+    });
+  },
+};
+
+export const useBranchRemove = (options?: UseBranchRemoveOptions) => {
+  const [deleteBranchMutation, { loading }] = useMutation<
+    RemoveBranchResponse,
+    RemoveBranchVariables
   >(REMOVE_BRANCH, {
-    refetchQueries: [{ query: GET_BRANCH_LIST }],
-    onError: (error) => {
-      console.error('Error removing branch:', error);
-    },
+    refetchQueries: ['BmsBranchList'],
+    awaitRefetchQueries: false,
   });
 
-  const removeBranchById = async (branchId: string) => {
+  const removeBranchById = async (branchId: string): Promise<boolean> => {
     try {
-      const response = await removeBranch({
+      const result = await deleteBranchMutation({
         variables: { id: branchId },
       });
 
-      return response.data?.bmsBranchRemove || false;
+      if (result.data?.bmsBranchRemove) {
+        options?.onSuccess?.();
+        return true;
+      }
+      return false;
     } catch (error) {
+      options?.onError?.(error);
       return false;
     }
   };
 
-  return { removeBranchById, loading, error };
+  const handleDeleteBranch = async (
+    branchId: string,
+    refetch?: () => Promise<any>,
+  ): Promise<void> => {
+    try {
+      const success = await removeBranchById(branchId);
+
+      if (success) {
+        if (refetch) {
+          try {
+            await refetch();
+          } catch (error) {
+            showToast.error(error instanceof Error ? error.message : undefined);
+            return;
+          }
+        }
+        showToast.success();
+      } else {
+        showToast.error();
+      }
+    } catch (error) {
+      console.error('Error during branch deletion or refetch:', error);
+      showToast.error();
+    }
+  };
+
+  return {
+    removeBranchById,
+    handleDeleteBranch,
+    loading,
+  };
 };

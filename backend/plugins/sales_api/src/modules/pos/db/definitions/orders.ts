@@ -134,6 +134,7 @@ export const posOrderSchema = schemaWrapper(
     departmentId: { type: String, label: 'Department' },
     subBranchId: { type: String, label: 'Sub Branch' },
     posToken: { type: String, optional: true, label: 'Token' },
+    posId: { type: String, optional: true, label: 'POS' },
 
     syncedErkhet: { type: Boolean, default: false },
     syncErkhetInfo: {

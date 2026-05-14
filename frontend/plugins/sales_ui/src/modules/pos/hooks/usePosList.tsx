@@ -5,18 +5,15 @@ import { IPos } from '../types/pos';
 const POS_PER_PAGE = 30;
 
 export const usePosList = (options = {}) => {
-  const { data, loading, fetchMore } = useQuery(
-    queries.posList,
-    {
-      variables: {
-        perPage: POS_PER_PAGE,
-        ...options,
-      },
+  const { data, loading, fetchMore } = useQuery(queries.posList, {
+    variables: {
+      perPage: POS_PER_PAGE,
+      ...options,
     },
-  );
+  });
 
   const transformedPosList =
-    data?.posList?.map((pos:IPos) => ({
+    data?.posList?.map((pos: IPos) => ({
       _id: pos._id,
       name: pos.name,
       isOnline: pos.isOnline || false,
@@ -24,13 +21,17 @@ export const usePosList = (options = {}) => {
       branchTitle: pos.branchTitle || '',
       departmentTitle: pos.departmentTitle || '',
       createdAt: pos.createdAt,
-      createdBy: pos?.user?.details?.fullName || 'Admin'
+      createdBy: pos?.user?.details?.fullName || 'Admin',
+      logo: pos?.uiOptions?.logo || '',
+      adminIds: pos?.adminIds,
+      cashierIds: pos?.cashierIds,
+      description: pos?.description,
     })) || [];
 
   const handleFetchMore = () => {
     if (!data?.posList) {
-      return
-    };
+      return;
+    }
 
     fetchMore({
       variables: {
@@ -39,8 +40,8 @@ export const usePosList = (options = {}) => {
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) {
-          return prev
-        };
+          return prev;
+        }
         return Object.assign({}, prev, {
           posList: [...(prev.posList || []), ...fetchMoreResult.posList],
         });

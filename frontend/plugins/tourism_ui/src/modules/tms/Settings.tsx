@@ -1,7 +1,7 @@
 const Settings = () => {
   return (
     <div>
-      <h1>Tms Settings</h1>
+      <h1 className="justify-center text-center">Tms Settings</h1>
     </div>
   );
 };

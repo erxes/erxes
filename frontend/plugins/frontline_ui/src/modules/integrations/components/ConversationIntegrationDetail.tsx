@@ -25,6 +25,18 @@ const FbMessengerConversationDetail = lazy(() =>
   ).then((module) => ({ default: module.FacebookConversationMessages })),
 );
 
+const IgMessengerConversationDetail = lazy(() =>
+  import(
+    '@/integrations/instagram/components/InstagramConversationMessages'
+  ).then((module) => ({ default: module.InstagramConversationMessages })),
+);
+
+const IgPostConversationDetail = lazy(() =>
+  import(
+    '@/integrations/instagram/components/IgPostConversationDetail'
+  ).then((module) => ({ default: module.IgPostConversationDetail })),
+);
+
 export const ConversationIntegrationDetail = () => {
   const { integration } = useConversationContext();
 
@@ -37,6 +49,12 @@ export const ConversationIntegrationDetail = () => {
       )}
       {integration?.kind === IntegrationType.FACEBOOK_MESSENGER && (
         <FbMessengerConversationDetail />
+      )}
+      {integration?.kind === IntegrationType.INSTAGRAM_MESSENGER && (
+        <IgMessengerConversationDetail />
+      )}
+      {integration?.kind === IntegrationType.INSTAGRAM_POST && (
+        <IgPostConversationDetail />
       )}
     </Suspense>
   );

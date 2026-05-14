@@ -1,8 +1,9 @@
-import { UseFormReturn } from 'react-hook-form';
-import { segmentFormSchema } from '../states/segmentFormSchema';
 import { z } from 'zod';
+import { segmentFormSchema } from '../states/segmentFormSchema';
+import { IField } from 'ui-modules/modules/properties';
+import { FieldArray } from 'react-hook-form';
 
-export type SegmentFormProps = z.infer<typeof segmentFormSchema>;
+export type TSegmentForm = z.infer<typeof segmentFormSchema>;
 export interface ListQueryResponse {
   segments: ISegment[];
 }
@@ -38,8 +39,6 @@ export interface ICondition {
   config?: any;
 }
 
-export interface IConditionDocument extends ICondition, Document {}
-
 export interface ISegment {
   _id: string;
   contentType: string;
@@ -51,7 +50,9 @@ export interface ISegment {
   count?: number;
 
   conditions: ICondition[];
-  conditionsConjunction?: 'and' | 'or';
+  conditionsConjunction?:
+    | TConditionsConjunction.AND
+    | TConditionsConjunction.OR;
   conditionSegments: ISegment[];
 
   scopeBrandIds?: string[];
@@ -59,74 +60,55 @@ export interface ISegment {
   config?: any;
 }
 
-export type IField = {
-  _id: string;
-  name: string;
-  selectOptions?: Array<{ label: string; value: string | number }>;
-  type?: string;
-  group?: string;
-  value: string;
-  label: string;
-  options?: string[];
-  validation?: string;
-  choiceOptions?: string[];
-  selectionConfig?: {
-    queryName: string;
-    selectionName: string;
-    valueField: string;
-    labelField: string;
-    multi?: boolean;
-  };
-};
-
 export type FieldQueryResponse = {
   fieldsCombinedByContentType: IField[];
   segmentsGetAssociationTypes: { value: string; description: string }[];
 };
 
-export type IFormFieldName =
-  | `conditions.${number}`
-  | `conditionSegments.${number}.conditions.${number}`;
+export type TConditionParentFieldName = `conditionSegments.${number}`;
+export type TConditionFieldPath =
+  | `${TConditionParentFieldName}.conditions`
+  | 'conditions';
 
-export type IProperty = {
-  index: number;
-  condition: ICondition;
-  contentType: string;
-  remove: () => void;
-  isFirst: boolean;
-  isLast: boolean;
-  total: number;
-  parentFieldName?: `conditionSegments.${number}`;
-  form: UseFormReturn<SegmentFormProps>;
-};
+export type TSegmentCondition = FieldArray<TSegmentForm, TConditionFieldPath>;
+
+export type IFormFieldName = `${TConditionFieldPath}.${number}`;
+
+export type ConditionFieldKey =
+  | 'propertyType'
+  | 'propertyName'
+  | 'propertyOperator'
+  | 'propertyValue';
 
 export type IPropertyField = {
   index: number;
-  form: UseFormReturn<SegmentFormProps>;
   fields: IField[];
   currentField?: IField;
   parentFieldName: IFormFieldName;
   defaultValue?: any;
   propertyTypes: any[];
-  contentType: string;
+  loading: boolean;
+  onBeforeFieldChange?: (field: ConditionFieldKey) => void;
 };
 
 export type IPropertyCondtion = {
   index: number;
-  form: UseFormReturn<SegmentFormProps>;
   currentField?: IField;
   operators: IOperator[];
   parentFieldName: IFormFieldName;
   defaultValue?: any;
+  loading: boolean;
+  onBeforeFieldChange?: (field: ConditionFieldKey) => void;
 };
 
 export type IPropertyInput = {
   index: number;
-  form: UseFormReturn<SegmentFormProps>;
   parentFieldName: IFormFieldName;
   defaultValue?: any;
   operators: IOperator[];
   selectedField?: IField;
+  loading: boolean;
+  onBeforeFieldChange?: (field: ConditionFieldKey) => void;
 };
 
 export interface ISegmentMap {
@@ -141,4 +123,13 @@ export interface ISegmentMap {
 export interface IConditionsForPreview {
   type: string;
   subSegmentForPreview: ISegmentMap;
+}
+
+export enum TConditionsConjunction {
+  AND = 'and',
+  OR = 'or',
+}
+export enum SegmentFormMode {
+  DEFAULT = 'default',
+  SINGLE = 'single',
 }

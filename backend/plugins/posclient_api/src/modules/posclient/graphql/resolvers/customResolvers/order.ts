@@ -22,7 +22,6 @@ export default {
     if (order.customerType === 'company') {
       const company = await sendTRPCMessage({
         subdomain,
-
         method: 'query',
         pluginName: 'core',
         module: 'companies',
@@ -47,7 +46,6 @@ export default {
     if (order.customerType === 'user') {
       const user = await sendTRPCMessage({
         subdomain,
-
         method: 'query',
         pluginName: 'core',
         module: 'users',
@@ -156,7 +154,7 @@ export default {
       return null;
     }
 
-    return await sendTRPCMessage({
+    const response = await sendTRPCMessage({
       subdomain,
 
       method: 'query',
@@ -166,6 +164,7 @@ export default {
       input: { _id: order.convertDealId },
       defaultValue: {},
     });
+    return response?.data;
   },
 
   async dealLink(order: IOrderDocument, _params, { subdomain }: IContext) {
@@ -173,9 +172,8 @@ export default {
       return null;
     }
 
-    return await sendTRPCMessage({
+    const response = await sendTRPCMessage({
       subdomain,
-
       method: 'query',
       pluginName: 'sales',
       module: 'deal',
@@ -183,5 +181,6 @@ export default {
       input: { _id: order.convertDealId, type: 'deal' },
       defaultValue: {},
     });
+    return response?.data;
   },
 };

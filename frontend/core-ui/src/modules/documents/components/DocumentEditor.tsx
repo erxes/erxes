@@ -124,7 +124,7 @@ const DocumentTitleEditor = ({
       onChange={handleChange}
       onKeyDown={handleKeyDown}
       placeholder="Untitled"
-      className="flex-none px-9 py-4 w-full font-bold text-[2.25rem] leading-[2.5rem] bg-transparent border-none outline-none focus:outline-none focus:ring-0 resize-none overflow-hidden"
+      className="flex-none px-9 py-4 w-full font-bold text-[2.25rem] leading-10 bg-transparent border-none outline-hidden focus:outline-hidden focus:ring-0 resize-none overflow-hidden"
     />
   );
 };

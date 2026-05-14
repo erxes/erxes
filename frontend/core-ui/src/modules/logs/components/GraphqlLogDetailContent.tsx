@@ -1,35 +1,45 @@
-import dayjs from 'dayjs';
-import { Resizable, Sheet } from 'erxes-ui';
-import ReactJson from 'react-json-view';
-import { maskFields } from '../utils/logFormUtils';
+import { IconBolt } from '@tabler/icons-react';
 import { ILogDoc } from '../types';
+import { maskFields } from '../utils/logFormUtils';
+import { LogDetailJsonPanel, LogDetailSection } from './LogDetailPrimitives';
 
-export const GraphqlLogDetailContent = ({ payload, createdAt }: ILogDoc) => {
+export const GraphqlLogDetailContent = ({ payload }: ILogDoc) => {
   const { mutationName, args, result, error } = payload || {};
 
-  const res = error ? error : result;
+  const res = error || result;
 
   return (
-    <Resizable.PanelGroup direction="horizontal">
-      <Resizable.Panel defaultSize={50} className="p-4">
-        <Sheet.Description>Args</Sheet.Description>
-        <ReactJson
+    <LogDetailSection
+      title="Operation Payload"
+      description={
+        mutationName
+          ? `Captured arguments and response for ${mutationName}.`
+          : 'Captured arguments and response for this GraphQL operation.'
+      }
+      icon={IconBolt}
+    >
+      <div className="grid gap-4 xl:grid-cols-2">
+        <LogDetailJsonPanel
+          title="Arguments"
+          description="Variables and input values sent with this request."
           src={maskFields(args, ['password'])}
-          collapsed={1}
-          name={false}
+          emptyMessage="No arguments were captured for this request."
         />
-      </Resizable.Panel>
-      <Resizable.Handle withHandle />
-      <Resizable.Panel defaultSize={50} className="p-4">
-        <Sheet.Description>Result</Sheet.Description>
-        <ReactJson
-          src={
-            typeof res === 'string' ? { res } : maskFields(res, ['password'])
+        <LogDetailJsonPanel
+          title={error ? 'Error' : 'Result'}
+          description={
+            error
+              ? 'The resolver returned an error payload.'
+              : 'Resolved response returned by the API.'
           }
-          collapsed={1}
-          name={false}
+          src={
+            typeof res === 'string'
+              ? { message: res }
+              : maskFields(res, ['password'])
+          }
+          emptyMessage="No result payload was captured for this request."
         />
-      </Resizable.Panel>
-    </Resizable.PanelGroup>
+      </div>
+    </LogDetailSection>
   );
 };
