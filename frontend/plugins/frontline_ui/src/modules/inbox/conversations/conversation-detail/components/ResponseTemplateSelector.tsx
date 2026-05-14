@@ -1,18 +1,8 @@
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
-import {
-  Popover,
-  Skeleton,
-  Button,
-  Command,
-  cn,
-} from 'erxes-ui';
+import { Popover, Skeleton, Button, Command, cn } from 'erxes-ui';
 import { useState, useMemo, ReactNode } from 'react';
 import { useDebounce } from 'use-debounce';
-import {
-  IconLayoutGrid,
-  IconList,
-  IconFilter,
-} from '@tabler/icons-react';
+import { IconLayoutGrid, IconList, IconFilter } from '@tabler/icons-react';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { IChannel } from '@/channels/types';
 import { getPreviewText } from '@/inbox/types/inbox';
@@ -117,7 +107,7 @@ export const ResponseTemplateSelector: React.FC<
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <Popover.Trigger asChild>{children}</Popover.Trigger>
 
-      <Popover.Content className="w-full max-w-[450px] p-4 shadow-xl border">
+      <Popover.Content className="w-full max-w-md min-w-sm p-4 shadow-xl border">
         <div className="space-y-4">
           <div className="flex items-center justify-between border-b pb-2">
             <h3 className="font-semibold text-sm">Response Templates</h3>
@@ -157,10 +147,10 @@ export const ResponseTemplateSelector: React.FC<
             />
             <Command.List
               className={cn(
-                "mt-2 max-h-80 overflow-y-auto pr-1",
-                viewMode === 'grid' 
-                  ? "[&_div[cmdk-list-sizer]]:grid [&_div[cmdk-list-sizer]]:grid-cols-2 [&_div[cmdk-list-sizer]]:gap-2" 
-                  : "space-y-1.5"
+                'mt-2 max-h-72 overflow-y-auto pr-1',
+                viewMode === 'grid'
+                  ? '[&_div[cmdk-list-sizer]]:grid [&_div[cmdk-list-sizer]]:grid-cols-2 [&_div[cmdk-list-sizer]]:gap-2'
+                  : 'space-y-1.5',
               )}
             >
               {filteredTemplates.length === 0 ? (
@@ -174,29 +164,31 @@ export const ResponseTemplateSelector: React.FC<
                   <div
                     key={template._id}
                     className={cn(
-                      viewMode === 'grid' ? 'h-32 col-span-1' : 'col-span-2 h-auto'
+                      viewMode === 'grid'
+                        ? 'h-32 col-span-1'
+                        : 'col-span-2 h-auto',
                     )}
                   >
                     <Command.Item
                       value={template._id}
                       onSelect={() => handleSelectTemplate(template.content)}
                       className={cn(
-                        "flex rounded border border-transparent transition-all cursor-pointer h-full gap-2",
-                        "hover:border-primary/20 hover:bg-accent/50",
+                        'flex rounded border border-transparent transition-all cursor-pointer h-full gap-2',
+                        'hover:border-primary/20 hover:bg-accent/50',
                         {
                           'flex-row items-center p-2.5': viewMode === 'list',
                           'flex-col items-start p-3': viewMode === 'grid',
-                        }
+                        },
                       )}
                     >
                       {template.channelId && (
                         <div
                           className={cn(
-                            "text-[11px] text-primary shrink bg-primary/10 px-1.5 py-0.5 rounded font-medium",
-                            { 
+                            'text-[11px] text-primary shrink bg-primary/10 px-1.5 py-0.5 rounded font-medium',
+                            {
                               'mb-1 order-first': viewMode === 'grid',
-                              'ml-auto order-last': viewMode === 'list'
-                            }
+                              'ml-auto order-last': viewMode === 'list',
+                            },
                           )}
                         >
                           <ChannelsInline
@@ -206,10 +198,11 @@ export const ResponseTemplateSelector: React.FC<
                         </div>
                       )}
 
-                      <div className={cn(
-                        "min-w-0 flex-1",
-                        { 'basis-1/3': viewMode === 'list' }
-                      )}>
+                      <div
+                        className={cn('min-w-0 flex-1', {
+                          'basis-1/3': viewMode === 'list',
+                        })}
+                      >
                         <div className="font-semibold text-sm truncate leading-tight">
                           {template.name}
                         </div>

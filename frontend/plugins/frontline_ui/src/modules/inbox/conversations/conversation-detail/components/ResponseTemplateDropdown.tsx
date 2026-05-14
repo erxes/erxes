@@ -33,7 +33,7 @@ export const ResponseTemplateDropdown = ({
       side="top"
       align="start"
       onOpenAutoFocus={(e) => e.preventDefault()}
-      className="p-0 min-w-[300px] overflow-hidden"
+      className="p-0 min-w-lg overflow-hidden"
     >
       <div className="sticky top-0 bg-background/90 backdrop-blur-sm z-10 border-b border-border px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
         Response Templates
