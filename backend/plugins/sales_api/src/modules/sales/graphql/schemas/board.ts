@@ -27,6 +27,7 @@ export const types = `
 
 export const queries = `
   salesBoards: [SalesBoard]
+  cpSalesBoards: [SalesBoard]
   salesBoardCounts: [SalesBoardCount]
   salesBoardGetLast: SalesBoard
   salesBoardDetail(_id: String!): SalesBoard

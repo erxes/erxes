@@ -29,6 +29,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useFormWidgetLead } from '../hooks/useFormWidgetLead';
 import { ComboboxField } from './ComboboxField';
 import { SelectField } from './SelectField';
+import { useParams } from 'react-router-dom';
 
 const checkLogic = (
   logic: IFormFieldLogic,
@@ -100,10 +101,15 @@ export const ErxesForm = ({
   const setShowConfirmation = useSetAtom(showConfirmationAtom);
   const [globalFormValues, setFormValues] = useAtom(formValuesAtom);
   const browserInfo = useAtomValue(browserInfoAtom) || {};
+  const { id } = useParams<{ id: string }>();
   const { saveLead, loading: saveLeadLoading } = useFormWidgetLead();
   const fields = formData.fields.filter(
     (field) => field.pageNumber === step.order,
   );
+
+  const loadType = formData?.leadData?.loadType;
+  const isPopup = loadType === 'popup';
+
   const form = useForm({
     defaultValues: defaultValue,
     resolver: zodResolver(schema),
@@ -160,11 +166,20 @@ export const ErxesForm = ({
 
   return (
     <Form {...form}>
-      <form className="text-sm" onSubmit={form.handleSubmit(handleSubmit)}>
+      <form
+        className={cn('text-sm')}
+        onSubmit={form.handleSubmit(handleSubmit)}
+      >
         <InfoCard
           title={formData?.title || ''}
           description={formData?.description || ''}
-          className="p-2 bg-background/40 [&_h3]:text-accent-foreground"
+          className={cn(
+            {
+              'max-h-[600px] min-h-[400px] flex flex-col overflow-y-hidden':
+                id || isPopup,
+            },
+            'p-2 bg-background/40 [&_h3]:text-accent-foreground',
+          )}
         >
           {stepsLength > 1 && (
             <ErxesSteps
@@ -174,7 +189,15 @@ export const ErxesForm = ({
               description={step.description}
             />
           )}
-          <InfoCard.Content className="h-full">
+          <InfoCard.Content
+            className={cn(
+              {
+                'flex-1 styled-scroll hide-scroll overflow-y-auto':
+                  id || isPopup,
+              },
+              'h-full mt-2',
+            )}
+          >
             <div className="grid md:grid-cols-2 gap-4 mb-2">
               {fields.map((erxesField) => {
                 if (
@@ -283,6 +306,7 @@ export const ErxesForm = ({
                                     />
                                     <Label
                                       htmlFor={`${erxesField._id}-${option}`}
+                                      className="text-xs"
                                     >
                                       {option}
                                     </Label>
@@ -317,6 +341,7 @@ export const ErxesForm = ({
                                   >
                                     <Checkbox
                                       checked={checked}
+                                      id={`${erxesField._id}-${option}`}
                                       onCheckedChange={(isChecked) => {
                                         const current =
                                           (field.value as string[]) || [];
@@ -329,7 +354,12 @@ export const ErxesForm = ({
                                         );
                                       }}
                                     />
-                                    <span className="text-sm">{option}</span>
+                                    <Label
+                                      htmlFor={`${erxesField._id}-${option}`}
+                                      className="text-xs"
+                                    >
+                                      {option}
+                                    </Label>
                                   </label>
                                 );
                               })}

@@ -80,7 +80,17 @@ const adjustInventoryMutations = {
 
     const { beginDate, beforeAdjInv } = await checkValidDate(models, adjustInventory);
 
-    await models.AdjustInventories.updateOne({ _id: adjustId }, { $set: { status: ADJ_INV_STATUSES.RUNNING, modifiedBy: user._id } });
+    await models.AdjustInventories.updateOne(
+      { _id: adjustId },
+      {
+        $set: {
+          status: ADJ_INV_STATUSES.RUNNING,
+          modifiedBy: user._id,
+          error: '',
+          warning: '',
+        },
+      },
+    );
 
     graphqlPubsub.publish(`accountingAdjustInventoryChanged:${adjustId}`, {
       accountingAdjustInventoryChanged: {

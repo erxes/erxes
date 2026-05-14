@@ -18,6 +18,14 @@ export const boardQueries = {
     return models.Boards.find({}).lean();
   },
 
+  async cpSalesBoards(
+    _root: undefined,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    return models.Boards.find({}).lean();
+  },
+
   /**
    *  Boards count
    */
@@ -191,8 +199,9 @@ export const boardQueries = {
       }
     }
 
-    const assignedUserIds =
-      await models.Deals.find(filter).distinct('assignedUserIds');
+    const assignedUserIds = await models.Deals.find(filter).distinct(
+      'assignedUserIds',
+    );
 
     if (assignedUserIds.length === 0) {
       return {};
@@ -494,4 +503,8 @@ export const boardQueries = {
 
     return intervals;
   },
+};
+
+(boardQueries.cpSalesBoards as any).wrapperConfig = {
+  forClientPortal: true,
 };

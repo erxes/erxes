@@ -27,7 +27,12 @@ import { AutomationConfigs } from '../core-modules/automations/types';
 import type { ImportExportConfigs } from '../core-modules/import-export/types';
 import { startImportExportWorker } from '../core-modules/import-export/worker';
 import { IMainContext, IPermissionConfig } from '../core-types';
-import { generateApolloContext, wrapApolloResolvers } from './apollo';
+import {
+  generateApolloContext,
+  startBeforeResolvers,
+  wrapApolloResolvers,
+} from './apollo';
+import { BeforeResolversConfig } from './apollo/beforeResolvers';
 import { extractUserFromHeader } from './headers';
 import { AfterProcessConfigs, logHandler, startAfterProcess } from './logs';
 import { closeMongooose } from './mongo';
@@ -61,6 +66,7 @@ type IMeta = {
   tags?: any;
   properties?: IPropertyMeta;
   permissions?: IPermissionConfig;
+  beforeResolvers?: BeforeResolversConfig;
 };
 
 type ApiHandler = {
@@ -328,8 +334,14 @@ export async function startPlugin(
   );
 
   if (meta) {
-    const { automations, segments, afterProcess, notifications, payments } =
-      meta || {};
+    const {
+      automations,
+      segments,
+      afterProcess,
+      notifications,
+      payments,
+      beforeResolvers,
+    } = meta || {};
 
     if (automations) {
       await startAutomations(app, name, automations);
@@ -349,6 +361,10 @@ export async function startPlugin(
 
     if (payments) {
       await startPayments(name, payments);
+    }
+
+    if (beforeResolvers) {
+      await startBeforeResolvers(app, name, beforeResolvers);
     }
   } // end meta if
 

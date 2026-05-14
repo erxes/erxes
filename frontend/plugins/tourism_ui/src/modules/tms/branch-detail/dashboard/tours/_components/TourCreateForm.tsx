@@ -2,7 +2,7 @@ import { Form, Sheet, Button, Tabs, useToast } from 'erxes-ui';
 import { useForm, useWatch, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@apollo/client';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { nanoid } from 'nanoid';
 
 import { GET_ITINERARIES } from '../../itinerary/graphql/queries';
@@ -15,6 +15,11 @@ import {
   syncTranslationPricingOptions,
 } from '../utils/translationHelpers';
 import { normalizePricingOptionsForApi } from '../utils/pricingOptions';
+import { filterCustomFieldsData } from '../utils/customFields';
+import {
+  useTourCustomFieldGroups,
+  useTourCustomTypes,
+} from '../hooks/useTourCustomFields';
 
 import { TourCreateFormSchema, TourFormValues } from '../constants/formSchema';
 
@@ -42,6 +47,10 @@ import {
   TourPricingOptionsField,
   TourGuidesField,
 } from './TourFormFields';
+import {
+  TourCustomFieldsSection,
+  TourTypeField,
+} from './TourCustomFieldsSection';
 
 interface Props {
   branchId?: string;
@@ -90,6 +99,7 @@ export const TourCreateForm = ({
 }: Props) => {
   const { toast } = useToast();
   const { createTour, loading } = useCreateTour();
+  const previousTypeRef = useRef<string | undefined>();
 
   const form = useForm<TourFormValues>({
     resolver: zodResolver(TourCreateFormSchema),
@@ -97,6 +107,7 @@ export const TourCreateForm = ({
       name: '',
       refNumber: '',
       status: 'draft',
+      customTourTypeId: 'tour',
       content: '',
       itineraryId: '',
       categoryIds: [],
@@ -132,6 +143,7 @@ export const TourCreateForm = ({
         },
       ],
       translations: [],
+      customFieldsData: [],
     },
   });
 
@@ -209,6 +221,29 @@ export const TourCreateForm = ({
     name: 'duration',
   });
 
+  const selectedType = useWatch({
+    control: form.control,
+    name: 'customTourTypeId',
+  });
+
+  const { customTypes } = useTourCustomTypes(branchId);
+
+  const { fieldGroups } = useTourCustomFieldGroups({
+    branchId,
+    selectedType,
+  });
+
+  useEffect(() => {
+    if (
+      selectedType &&
+      previousTypeRef.current &&
+      previousTypeRef.current !== selectedType
+    ) {
+      form.setValue('customFieldsData', []);
+    }
+    previousTypeRef.current = selectedType;
+  }, [selectedType, form]);
+
   const { data } = useQuery(GET_ITINERARIES, {
     variables: { branchId, limit: 100, orderBy: { createdAt: -1 } },
     skip: !branchId,
@@ -275,6 +310,7 @@ export const TourCreateForm = ({
         isGroupTour: _isGroupTour,
         pricingOptions,
         translations,
+        customFieldsData,
         ...restValues
       } = values;
 
@@ -293,6 +329,7 @@ export const TourCreateForm = ({
             branchId,
             language: resolvedPrimaryLanguage || undefined,
             ...restValues,
+            customFieldsData: filterCustomFieldsData(customFieldsData),
             pricingOptions: normalizedPricingOptions,
             dateType: 'flexible',
             availableFrom: values.availableFrom,
@@ -336,6 +373,7 @@ export const TourCreateForm = ({
                   branchId,
                   language: resolvedPrimaryLanguage || undefined,
                   ...restValues,
+                  customFieldsData: filterCustomFieldsData(customFieldsData),
                   refNumber,
                   pricingOptions: normalizedPricingOptions,
                   dateType: 'fixed',
@@ -360,6 +398,7 @@ export const TourCreateForm = ({
               branchId,
               language: resolvedPrimaryLanguage || undefined,
               ...restValues,
+              customFieldsData: filterCustomFieldsData(customFieldsData),
               pricingOptions: normalizedPricingOptions,
               dateType: 'fixed',
               startDate: primaryStartDate,
@@ -443,6 +482,13 @@ export const TourCreateForm = ({
 
               <div className="grid grid-cols-2 gap-4">
                 <TourStatusField control={form.control} />
+                <TourTypeField
+                  control={form.control}
+                  customTypes={customTypes}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <TourItineraryIdField
                   control={form.control}
                   branchId={branchId}
@@ -461,6 +507,35 @@ export const TourCreateForm = ({
                 control={form.control}
                 name={fieldPaths.content}
                 labelSuffix={labelSuffix}
+              />
+
+              <TourCustomFieldsSection
+                fieldGroups={fieldGroups}
+                getCustomFieldValue={(fieldId) => {
+                  const currentData = form.watch('customFieldsData') || [];
+                  return (
+                    currentData.find((item) => item.field === fieldId)?.value ??
+                    ''
+                  );
+                }}
+                updateCustomFieldValue={(fieldId, value) => {
+                  const currentData = form.getValues('customFieldsData') || [];
+                  const existingIndex = currentData.findIndex(
+                    (item) => item.field === fieldId,
+                  );
+                  const updated = [...currentData];
+
+                  if (existingIndex >= 0) {
+                    updated[existingIndex] = { field: fieldId, value };
+                  } else {
+                    updated.push({ field: fieldId, value });
+                  }
+
+                  form.setValue('customFieldsData', updated, {
+                    shouldDirty: true,
+                    shouldTouch: true,
+                  });
+                }}
               />
             </div>
 
