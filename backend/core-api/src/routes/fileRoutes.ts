@@ -136,13 +136,22 @@ router.get(
 
       return res.send(response);
     } catch (e) {
-      if ((e as Error).message.includes('key does not exist')) {
+      const message = (e as Error).message || '';
+
+      if (
+        message === 'Key cannot be empty' ||
+        message.startsWith('Invalid key:')
+      ) {
+        return res.status(400).send('Invalid key');
+      }
+
+      if (message.includes('key does not exist')) {
         return res.status(404).send('Not found');
       }
 
       if (
         (e as { code?: string }).code === 'AccessDenied' ||
-        (e as Error).message.includes('Access Denied')
+        message.includes('Access Denied')
       ) {
         return res.status(403).send('Access denied');
       }

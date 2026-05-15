@@ -1,7 +1,10 @@
 import { Redis } from 'ioredis';
-import { createMQWorkerWithListeners } from 'erxes-api-shared/utils';
-
-// import { updateApolloRouter } from '~/apollo-router';
+import {
+  clearServiceDiscoveryCache,
+  createMQWorkerWithListeners,
+} from 'erxes-api-shared/utils';
+import { restartRouter } from '~/apollo-router';
+import { retryGetProxyTargets } from '~/proxy/targets';
 
 export const initMQWorkers = (redis: Redis) => {
   return new Promise<void>((resolve, reject) => {
@@ -10,7 +13,9 @@ export const initMQWorkers = (redis: Redis) => {
         'gateway',
         'update-apollo-router',
         async () => {
-          // updateApolloRouter();
+          clearServiceDiscoveryCache();
+          global.currentTargets = await retryGetProxyTargets();
+          await restartRouter(global.currentTargets);
           return { result: 'success' };
         },
         redis,
