@@ -43,6 +43,13 @@ export const receiveMessage = async (
     const mid = rawMid != null ? sanitizeString(rawMid) : undefined;
     const attachments = channelData.message?.attachments;
 
+    if (message?.is_echo || userId === pageId) {
+      debugFacebook(
+        `Skipping Facebook echo message ${mid || ''} from page ${pageId}`,
+      );
+      return;
+    }
+
     let text = activity.text || message?.text;
     let adData;
 

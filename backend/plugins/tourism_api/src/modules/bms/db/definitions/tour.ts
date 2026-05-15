@@ -1,4 +1,5 @@
 import { Schema } from 'mongoose';
+import { customFieldSchema } from 'erxes-api-shared/core-modules';
 import { locationSchema } from '@/bms/db/definitions/itinerary';
 import { TOUR_STATUS_TYPES } from '@/bms/constants';
 import { getEnum } from '~/modules/bms/utils/utils';
@@ -166,6 +167,18 @@ export const tourSchema = new Schema({
   },
   cost: { type: Number, optional: true, label: 'cost' },
   categoryIds: { type: [String], optional: true, label: 'categoryIds' },
+  customTourTypeId: {
+    type: String,
+    optional: true,
+    default: 'tour',
+    label: 'customTourTypeId',
+    index: true,
+  },
+  customFieldsData: {
+    type: [customFieldSchema],
+    optional: true,
+    default: [],
+  },
   tagIds: { type: [String], optional: true, label: 'tagIds' },
   viewCount: { type: Number, optional: true, label: 'viewCount' },
   advancePercent: {

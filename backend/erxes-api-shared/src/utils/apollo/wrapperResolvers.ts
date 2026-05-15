@@ -8,6 +8,25 @@ import {
   Resolver,
 } from '../../core-types/common';
 import { logHandler } from '../logs';
+import { runBeforeResolvers } from './runBeforeResolvers';
+
+const withBeforeResolvers = (
+  resolver: Resolver,
+  resolverKey: string,
+): Resolver => {
+  return async (root, args, context, info) => {
+    const { subdomain, user } = context;
+
+    const headers = (context as any).requestInfo?.headers || (context as any).req?.headers;
+
+    const nextArgs = await runBeforeResolvers(resolverKey, args, {
+      subdomain,
+      user,
+      headers,
+    });
+    return resolver(root, nextArgs, context, info);
+  };
+};
 
 const withLogging = (resolver: Resolver): Resolver => {
   return async (root, args, context, info) => {
@@ -46,12 +65,15 @@ export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
 
         if (isPublic) {
           mutationResolvers[mutationKey] = wrapPublicResolver(
-            mutationResolver,
+            withBeforeResolvers(mutationResolver, mutationKey),
             mutationResolver.wrapperConfig,
           );
         } else {
           mutationResolvers[mutationKey] = withLogging(
-            wrapPermission(mutationResolver, mutationKey),
+            wrapPermission(
+              withBeforeResolvers(mutationResolver, mutationKey),
+              mutationKey,
+            ),
           );
         }
       }
@@ -70,11 +92,14 @@ export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
 
         if (isPublic) {
           queryResolvers[queryKey] = wrapPublicResolver(
-            queryResolver,
+            withBeforeResolvers(queryResolver, queryKey),
             queryResolver.wrapperConfig,
           );
         } else {
-          queryResolvers[queryKey] = wrapPermission(queryResolver, queryKey);
+          queryResolvers[queryKey] = wrapPermission(
+            withBeforeResolvers(queryResolver, queryKey),
+            queryKey,
+          );
         }
       }
 

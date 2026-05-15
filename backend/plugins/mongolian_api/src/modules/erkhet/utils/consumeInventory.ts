@@ -52,23 +52,11 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
       defaultValue: null,
     });
 
-    if (weightField && weightField._id) {
-      const weightData = {
-        field: weightField._id,
-        value: doc.weight,
-        stringValue: doc.weight.toString(),
-        numberValue: Number(doc.weight),
+    if (weightField && weightField._id && doc.weight !== undefined) {
+      document.propertiesData = {
+        ...product?.propertiesData,
+        [weightField._id]: Number(doc.weight),
       };
-
-      if (product?.customFieldsData) {
-        const otherFieldsData = (product.customFieldsData || []).filter(
-          (cfd) => cfd.field !== weightField._id,
-        );
-        otherFieldsData.push(weightData);
-        document.customFieldsData = otherFieldsData;
-      } else {
-        document.customFieldsData = [weightData];
-      }
     }
 
     if (doc.sub_measure_unit_code && doc.ratio_measure_unit) {

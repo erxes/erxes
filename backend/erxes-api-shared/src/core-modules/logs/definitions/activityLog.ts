@@ -55,7 +55,7 @@ export const activityLogsSchema = new Schema({
   activityType: { type: String, required: true },
   actorType: { type: String, required: true },
   actor: { type: Object, required: true },
-  targetId: { type: String, required: true },
+  targetId: { type: String, required: true, index: true },
   targetType: { type: String, required: true },
   target: { type: Schema.Types.Mixed, required: true },
   contextType: { type: String, optional: true },

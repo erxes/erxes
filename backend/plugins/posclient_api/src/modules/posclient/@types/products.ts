@@ -1,4 +1,8 @@
-import { ICustomField, IPdfAttachment } from 'erxes-api-shared/core-types';
+import {
+  ICustomField,
+  IPdfAttachment,
+  IPropertyField,
+} from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
 
 interface IAttachment {
@@ -46,6 +50,7 @@ export interface IProduct extends IProductCommonFields {
   barcodeDescription?: string;
   prices: IPrice;
   customFieldsData?: ICustomField[];
+  propertiesData?: IPropertyField;
   tagIds?: string[];
   status?: string;
   vendorId?: string;

@@ -27,7 +27,7 @@ export const stringifyAiContextValue = (value: unknown) => {
 const buildHistorySection = (aiContext?: TAiContext | null) => {
   const items = (aiContext?.history || [])
     .filter((item) => item.text?.trim())
-    .slice(-10)
+    .slice(-6)
     .map((item) => `${item.role || item.type || 'context'}: ${item.text}`);
 
   if (!items.length) {

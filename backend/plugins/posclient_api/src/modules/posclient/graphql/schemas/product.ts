@@ -31,6 +31,7 @@ export const types = `
     categoryId: String
     customFieldsData: JSON
     customFieldsDataByFieldCode: JSON
+    propertiesData: JSON
     createdAt: Date
     tagIds: [String]
     vendorId: String

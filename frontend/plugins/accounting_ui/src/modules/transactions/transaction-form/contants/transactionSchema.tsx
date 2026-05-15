@@ -1,6 +1,6 @@
 import { CustomerType } from 'ui-modules';
 import { z } from 'zod';
-import { TR_SIDES, TrJournalEnum } from '../../types/constants';
+import { TR_SIDES, TR_STATUSES, TrJournalEnum } from '../../types/constants';
 
 export const undefed = <T extends z.ZodTypeAny>(schema: T) =>
   z.preprocess((val) => (val === null ? undefined : val), schema.optional());
@@ -94,8 +94,8 @@ export const baseTransactionSchema = z.object({
     z.object({
       dt: undefed(z.array(z.string())),
       ct: undefed(z.array(z.string())),
-      customDt: z.array(z.string()).nullish(),
-      customCt: z.array(z.string()).nullish(),
+      customDt: z.array(z.string()).optional(),
+      customCt: z.array(z.string()).optional(),
     }),
   ),
 
@@ -381,7 +381,13 @@ export const trDocSchema = z
 export const transactionGroupSchema = z.object({
   parentId: undefed(z.string()),
   number: undefed(z.string()),
+  ptrNumber: z.string().nullish(),
   date: z.date(),
+  status: z.string().refine((val) => TR_STATUSES.ALL.includes(val), {
+    message: 'wrong side',
+  }),
+  mentionOwnerId: z.string().optional(),
+  mentionUserIds: z.array(z.string()).optional(),
   trDocs: z.array(trDocSchema).min(1),
 });
 // #endregion core

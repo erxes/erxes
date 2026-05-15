@@ -1,4 +1,5 @@
 import { TAiAgentConfigForm } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
+import { DeepPartial } from 'react-hook-form';
 
 export type TAiAgentRuntimeSummarySource = {
   name?: string;
@@ -51,7 +52,7 @@ const DEFAULT_RUNTIME = {
 const sumStringLength = (...values: Array<string | undefined>) =>
   values.reduce((total, value) => total + (value?.trim().length || 0), 0);
 
-const getGoalPromptStats = (config?: Partial<TAiAgentConfigForm>) => {
+const getGoalPromptStats = (config?: DeepPartial<TAiAgentConfigForm>) => {
   if (!config?.goalType) {
     return { chars: 0, itemCount: 0 };
   }
@@ -67,35 +68,39 @@ const getGoalPromptStats = (config?: Partial<TAiAgentConfigForm>) => {
     const topics = config.topics || [];
 
     return {
-      chars: topics.reduce(
+      chars: topics.reduce<number>(
         (total, topic) =>
-          total + sumStringLength(topic.topicName, topic.prompt, topic.id),
+          total + sumStringLength(topic?.topicName, topic?.prompt, topic?.id),
         0,
       ),
       itemCount: topics.length,
     };
   }
 
-  const objectFields = config.objectFields || [];
+  if (config.goalType === 'classification') {
+    const objectFields = config.objectFields || [];
 
-  return {
-    chars: objectFields.reduce(
-      (total, field) =>
-        total +
-        sumStringLength(
-          field.fieldName,
-          field.prompt,
-          field.validation,
-          field.dataType,
-        ),
-      0,
-    ),
-    itemCount: objectFields.length,
-  };
+    return {
+      chars: objectFields.reduce<number>(
+        (total, field) =>
+          total +
+          sumStringLength(
+            field?.fieldName,
+            field?.prompt,
+            field?.validation,
+            field?.dataType,
+          ),
+        0,
+      ),
+      itemCount: objectFields.length,
+    };
+  }
+
+  return { chars: 0, itemCount: 0 };
 };
 
 const getInputMode = (
-  config?: Partial<TAiAgentConfigForm>,
+  config?: DeepPartial<TAiAgentConfigForm>,
 ): TAiAgentRuntimeSummary['inputMode'] => {
   if (!config?.inputMapping) {
     return 'full-trigger';
@@ -129,7 +134,7 @@ export const buildAiAgentRuntimeSummary = ({
   actionConfig,
 }: {
   agent?: TAiAgentRuntimeSummarySource | null;
-  actionConfig?: Partial<TAiAgentConfigForm>;
+  actionConfig?: DeepPartial<TAiAgentConfigForm>;
 }): TAiAgentRuntimeSummary => {
   const files = agent?.context?.files || [];
   const contextBytes = files.reduce((total, file) => {

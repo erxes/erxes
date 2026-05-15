@@ -5,6 +5,7 @@ import {
   IconCircleCheck,
   IconListDetails,
   IconNumbers,
+  IconPaperclip,
   IconTextScan2,
   IconTextSize,
 } from '@tabler/icons-react';
@@ -18,6 +19,7 @@ export const FORM_FIELD_TYPES = [
   { value: 'textarea', label: 'Textarea', icon: <IconTextScan2 /> },
   { value: 'radio', label: 'Radio Group', icon: <IconCircleCheck /> },
   { value: 'check', label: 'Checkbox Group', icon: <IconListDetails /> },
+  { value: 'file', label: 'Attachment', icon: <IconPaperclip /> },
 ];
 
 export type FormFieldType = (typeof FORM_FIELD_TYPES)[number];

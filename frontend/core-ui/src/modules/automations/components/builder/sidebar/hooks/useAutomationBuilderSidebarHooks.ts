@@ -5,7 +5,7 @@ import {
   toggleAutomationBuilderSecondarySidebar,
   toggleAutomationBuilderOpenSidebar,
 } from '@/automations/states/automationState';
-import { NodeData } from '@/automations/types';
+import { AutomationNodeType, NodeData } from '@/automations/types';
 import { Node, useReactFlow } from '@xyflow/react';
 import { useAtom, useSetAtom } from 'jotai';
 
@@ -25,8 +25,8 @@ export const useAutomationBuilderSidebarHooks = () => {
   const activeNode = getNode(queryParams?.activeNodeId || '')?.data;
 
   const handleClose = () => {
-    setIsOpenSideBar(false);
     setIsSecondarySidebarOpen(false);
+    toggleSideBarOpen();
     setQueryParams({
       activeNodeId: null,
       activeNodeTab: null,
@@ -41,6 +41,35 @@ export const useAutomationBuilderSidebarHooks = () => {
     });
   };
 
+  const closeNodeLibrary = () => {
+    setIsOpenSideBar(false);
+    setIsSecondarySidebarOpen(false);
+
+    setQueryParams({
+      activeNodeId: null,
+      activeNodeTab: null,
+    });
+  };
+
+  const openNodeLibrary = (nodeType: AutomationNodeType) => {
+    setIsOpenSideBar(true);
+    setIsSecondarySidebarOpen(false);
+
+    setQueryParams({
+      activeNodeId: null,
+      activeNodeTab: nodeType,
+    });
+  };
+
+  const handleNodeLibraryToggle = (nodeType: AutomationNodeType) => {
+    if (isOpenSideBar && queryParams.activeNodeTab === nodeType) {
+      closeNodeLibrary();
+      return;
+    }
+
+    openNodeLibrary(nodeType);
+  };
+
   return {
     setIsOpenSideBar,
     isOpenSideBar,
@@ -50,5 +79,6 @@ export const useAutomationBuilderSidebarHooks = () => {
     handleClose,
     toggleSideBarOpen,
     toggleSecondarySidebarOpen,
+    handleNodeLibraryToggle,
   };
 };

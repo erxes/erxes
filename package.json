@@ -1,6 +1,6 @@
 {
   "name": "erxes-next",
-  "version": "3.0.20",
+  "version": "3.0.22",
   "license": "MIT",
   "scripts": {
     "dev:core-api": "npx nx run-many -t serve -p core-api gateway",
@@ -97,6 +97,7 @@
     "graphql-ws": "^5.16.0",
     "handlebars": "^4.7.8",
     "helmet": "^8.1.0",
+    "html-to-image": "^1.11.13",
     "http-proxy-middleware": "^3.0.3",
     "https-proxy-agent": "^7.0.6",
     "i18next": "^23.16.4",

@@ -1,6 +1,6 @@
 import { ReactFlowProvider } from '@xyflow/react';
 import { useEffect } from 'react';
-
+// @ts-ignore
 import '@xyflow/react/dist/style.css';
 
 import { zodResolver } from '@hookform/resolvers/zod';

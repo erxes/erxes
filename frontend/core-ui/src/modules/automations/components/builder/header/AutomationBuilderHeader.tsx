@@ -1,7 +1,11 @@
 import { AutomationBuilderHeaderActions } from '@/automations/components/builder/header/AutomationBuilderHeaderActions';
 import { AutomationHeaderTabs } from '@/automations/components/builder/header/AutomationHeaderTabs';
 import { AutomationBuilderNameInput } from '@/automations/components/builder/header/AutomationBuilderNameInput';
-import { IconAffiliate, IconSettings } from '@tabler/icons-react';
+import {
+  IconAffiliate,
+  IconDeviceFloppy,
+  IconSettings,
+} from '@tabler/icons-react';
 import { Breadcrumb, Button, PageSubHeader, Spinner } from 'erxes-ui';
 import { Link } from 'react-router';
 import { Can, PageHeader } from 'ui-modules';
@@ -42,6 +46,7 @@ export const AutomationBuilderHeader = () => {
               disabled={loading}
               onClick={handleSubmit(handleSave, handleError)}
             >
+              <IconDeviceFloppy />
               {loading ? <Spinner /> : t('save')}
             </Button>
           </Can>

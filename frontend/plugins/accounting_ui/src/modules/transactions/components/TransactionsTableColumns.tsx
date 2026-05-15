@@ -22,7 +22,7 @@ import {
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTransactionsRemove } from '../transaction-form/hooks/useTransactionsRemove';
-import { TR_JOURNAL_LABELS, TrJournalEnum } from '../types/constants';
+import { TR_JOURNAL_LABELS, TR_STATUS_LABELS, TrJournalEnum } from '../types/constants';
 import { ITransaction } from '../types/Transaction';
 
 // Create named components for cell renderers to fix React Hook usage
@@ -63,6 +63,16 @@ const DescriptionCell = ({ getValue, row }: any) => {
         />
       </RecordTableInlineCell.Content>
     </PopoverScoped>
+  );
+};
+
+const StatusCell = ({ row }: any) => {
+  const { status } = row.original;
+
+  return (
+    <RecordTableInlineCell>
+      {TR_STATUS_LABELS[status] || status}
+    </RecordTableInlineCell>
   );
 };
 
@@ -159,8 +169,7 @@ const AccountCell = ({ row }: any) => {
 
   const handleEditAccount = () => {
     navigate(
-      `/accounting/transaction/edit?parentId=${parentId}&trId=${
-        originId || _id
+      `/accounting/transaction/edit?parentId=${parentId}&trId=${originId || _id
       }`,
     );
   };
@@ -192,8 +201,7 @@ const TransactionMoreColumnCell = ({
   const { removeTransactions } = useTransactionsRemove();
   const handleEditAcc = () => {
     navigate(
-      `/accounting/transaction/edit?parentId=${parentId}&trId=${
-        originId || _id
+      `/accounting/transaction/edit?parentId=${parentId}&trId=${originId || _id
       }`,
     );
   };
@@ -243,7 +251,7 @@ export const transactionColumns: ColumnDef<ITransaction>[] = [
     header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Данс" />,
     accessorKey: 'details',
     cell: ({ row }) => <AccountCell row={row} />,
-    size: 400,
+    size: 300,
   },
   {
     id: 'number',
@@ -268,6 +276,18 @@ export const transactionColumns: ColumnDef<ITransaction>[] = [
     size: 200,
   },
   {
+    id: 'status',
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Төлөв" />,
+    accessorKey: 'status',
+    cell: ({ row }) => <StatusCell row={row} />,
+  },
+  {
+    id: 'journal',
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Журнал" />,
+    accessorKey: 'journal',
+    cell: ({ row }) => <JournalCell row={row} />,
+  },
+  {
     id: 'sumDt',
     header: () => (
       <RecordTable.InlineHead icon={IconMoneybag} label="Дебет дүн" />
@@ -284,12 +304,6 @@ export const transactionColumns: ColumnDef<ITransaction>[] = [
     cell: ({ getValue, row }) => (
       <SumCreditCell getValue={getValue} row={row} />
     ),
-  },
-  {
-    id: 'journal',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Журнал" />,
-    accessorKey: 'journal',
-    cell: ({ row }) => <JournalCell row={row} />,
   },
   {
     id: 'branch',

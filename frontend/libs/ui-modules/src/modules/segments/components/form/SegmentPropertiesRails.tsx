@@ -1,18 +1,12 @@
+import { useSegmentGroup } from '../../context/SegmentGroupProvider';
 import { SegmentPropertiesRailsButton } from './SegmentPropertiesRailsButton';
 
-export const SegmentPropertiesRails = ({
-  total,
-  index,
-  parentFieldName,
-}: {
-  total: number;
-  index: number;
-  parentFieldName?: `conditionSegments.${number}`;
-}) => {
-  if (total < 2) {
+export const SegmentPropertiesRails = ({ index }: { index: number }) => {
+  const { totalFields } = useSegmentGroup();
+  if (totalFields < 2) {
     return null;
   }
-  const lastIndex = total - 1;
+  const lastIndex = totalFields - 1;
 
   const isFirst = index === 0;
   const isLast = index === lastIndex;
@@ -31,11 +25,7 @@ export const SegmentPropertiesRails = ({
       <div className="absolute left-[24px] w-[20px] h-[1px] bg-gray-300"></div>
 
       {/* OR label (only on second item) */}
-      <SegmentPropertiesRailsButton
-        total={total}
-        index={index}
-        parentFieldName={parentFieldName}
-      />
+      <SegmentPropertiesRailsButton index={index} />
     </div>
   );
 };

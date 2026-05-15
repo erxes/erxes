@@ -8,7 +8,9 @@ import {
   Button,
   useErxesUpload,
   readImage,
+  Editor,
 } from 'erxes-ui';
+import { REACT_APP_API_URL } from 'erxes-ui/utils';
 import { useEffect } from 'react';
 import { IconUpload, IconX, IconPaperclip } from '@tabler/icons-react';
 import { SpreadsheetInput } from './SpreadsheetInput';
@@ -346,6 +348,27 @@ export const CustomFieldInput = ({
           <FileFieldInput
             value={value}
             onChange={(urls) => onChange(urls)}
+          />
+        );
+
+      case 'richText':
+        return (
+          <Editor
+            className="h-64 border"
+            key={field._id}
+            isHTML
+            initialContent={typeof value === 'string' ? value : ''}
+            onChange={(content) => onChange(content)}
+            uploadFile={async (file) => {
+              const formData = new FormData();
+              formData.append('file', file);
+              const response = await fetch(
+                `${REACT_APP_API_URL}/upload-file?kind=main`,
+                { method: 'post', body: formData, credentials: 'include' },
+              );
+              const key = await response.text();
+              return readImage(key);
+            }}
           />
         );
 

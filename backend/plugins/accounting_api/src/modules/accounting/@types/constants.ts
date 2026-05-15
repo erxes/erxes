@@ -53,23 +53,58 @@ export const TR_SIDES = {
 };
 
 export const TR_STATUSES = {
+  // future level
   PLAN: 'plan',
-  PENDING: 'pending',
-  SYNCED: 'synced',
-  NEW: 'new',
-  REAL: 'real',
+  // conversation level
+  DRAFT: 'draft',
+  MENTIONED: 'mentioned',
+  APPROVED: 'approved',
+  REJECED: 'rejeced',
+  RETURNED: 'returned',
+  // business level
+  PROGRESS: 'progress',
+  ASSIGNED: 'assigned',
   CONFIRMED: 'confirmed',
+  CANELLED: 'canelled',
   COMPLETE: 'complete',
-  DELETED: 'deleted',
-  ACTIVE: ['synced', 'real', 'confirmed', 'complete'],
+
   ALL: [
     'plan',
-    'pending',
-    'synced',
-    'real',
+    'draft',
+    'mentioned',
+    'approved',
+    'rejeced',
+    'returned',
+    'progress',
+    'assigned',
     'confirmed',
+    'canelled',
     'complete',
-    'deleted',
+  ],
+  ACTIVE: ['progress', 'assigned', 'confirmed', 'complete'],
+};
+
+export const TR_INVENTORY_STATUS_TYPES = {
+  OMIT: 'omit',
+  SOON: 'soon',
+  REAL: 'real',
+
+  OMIT_STATUSES: [
+    TR_STATUSES.PLAN,
+  ],
+  SOON_STATUSES: [
+    TR_STATUSES.DRAFT,
+    TR_STATUSES.MENTIONED,
+    TR_STATUSES.APPROVED,
+    TR_STATUSES.REJECED,
+    TR_STATUSES.RETURNED,
+  ],
+  REAL_STATUSES: [
+    TR_STATUSES.PROGRESS,
+    TR_STATUSES.ASSIGNED,
+    TR_STATUSES.CONFIRMED,
+    TR_STATUSES.CANELLED,
+    TR_STATUSES.COMPLETE,
   ],
 };
 
@@ -159,7 +194,7 @@ export const JOURNALS = {
     'bank',
     'receivable',
     'payable',
-  ], 
+  ],
   SINGLES: [
     'main',
     'cash',

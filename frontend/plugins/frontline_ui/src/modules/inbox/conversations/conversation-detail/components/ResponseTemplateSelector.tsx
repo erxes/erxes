@@ -1,23 +1,8 @@
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
-import {
-  Popover,
-  Input,
-  Select,
-  Skeleton,
-  Button,
-  DropdownMenu,
-  Combobox,
-  Command,
-  cn,
-} from 'erxes-ui';
+import { Popover, Skeleton, Button, Command, cn } from 'erxes-ui';
 import { useState, useMemo, ReactNode } from 'react';
 import { useDebounce } from 'use-debounce';
-import {
-  IconSearch,
-  IconLayoutGrid,
-  IconList,
-  IconFilter,
-} from '@tabler/icons-react';
+import { IconLayoutGrid, IconList, IconFilter } from '@tabler/icons-react';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { IChannel } from '@/channels/types';
 import { getPreviewText } from '@/inbox/types/inbox';
@@ -122,16 +107,16 @@ export const ResponseTemplateSelector: React.FC<
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <Popover.Trigger asChild>{children}</Popover.Trigger>
 
-      <Popover.Content className="w-96 p-4">
+      <Popover.Content className="w-full max-w-md min-w-sm p-4 shadow-xl border">
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium">Response Templates</h3>
+          <div className="flex items-center justify-between border-b pb-2">
+            <h3 className="font-semibold text-sm">Response Templates</h3>
             <div className="flex items-center space-x-2">
               <Button
                 onClick={toggleViewMode}
                 variant={'ghost'}
                 size="icon"
-                className="p-1 rounded hover:bg-muted"
+                className="h-8 w-8 rounded hover:bg-muted"
                 title={getViewModeTitle(viewMode)}
               >
                 <ViewModeIcon />
@@ -140,17 +125,19 @@ export const ResponseTemplateSelector: React.FC<
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <IconFilter size={16} className="text-muted-foreground" />
-              <SelectChannel.CommandBar
-                mode="single"
-                value={selectedChannel}
-                onValueChange={(value) => setSelectedChannel(value as string)}
-              />
+            <div className="flex items-center space-x-2 bg-muted/30 p-1 rounded">
+              <IconFilter size={14} className="text-muted-foreground ml-1" />
+              <div className="flex-1">
+                <SelectChannel.CommandBar
+                  mode="single"
+                  value={selectedChannel}
+                  onValueChange={(value) => setSelectedChannel(value as string)}
+                />
+              </div>
             </div>
           </div>
 
-          <Command>
+          <Command className="border rounded-md shadow-sm">
             <Command.Input
               variant="secondary"
               focusOnMount
@@ -160,14 +147,14 @@ export const ResponseTemplateSelector: React.FC<
             />
             <Command.List
               className={cn(
+                'mt-2 max-h-72 overflow-y-auto pr-1',
                 viewMode === 'grid'
-                  ? '[&_div[cmdk-list-sizer]]:gap-2'
-                  : 'space-y-2',
-                '[&_div[cmdk-list-sizer]]:grid [&_div[cmdk-list-sizer]]:grid-cols-2 mt-2 max-h-80 overflow-y-auto',
+                  ? '[&_div[cmdk-list-sizer]]:grid [&_div[cmdk-list-sizer]]:grid-cols-2 [&_div[cmdk-list-sizer]]:gap-2'
+                  : 'space-y-1.5',
               )}
             >
               {filteredTemplates.length === 0 ? (
-                <div className="col-span-2 p-4 text-center text-muted-foreground">
+                <div className="col-span-2 p-8 text-center text-muted-foreground text-sm italic">
                   {search
                     ? 'No matching templates found'
                     : 'No templates available'}
@@ -178,7 +165,7 @@ export const ResponseTemplateSelector: React.FC<
                     key={template._id}
                     className={cn(
                       viewMode === 'grid'
-                        ? 'h-24 col-span-1'
+                        ? 'h-32 col-span-1'
                         : 'col-span-2 h-auto',
                     )}
                   >
@@ -186,24 +173,22 @@ export const ResponseTemplateSelector: React.FC<
                       value={template._id}
                       onSelect={() => handleSelectTemplate(template.content)}
                       className={cn(
+                        'flex rounded border border-transparent transition-all cursor-pointer h-full gap-2',
+                        'hover:border-primary/20 hover:bg-accent/50',
                         {
-                          'flex-row items-center': viewMode === 'list',
-                          'flex-col items-start': viewMode === 'grid',
+                          'flex-row items-center p-2.5': viewMode === 'list',
+                          'flex-col items-start p-3': viewMode === 'grid',
                         },
-                        'flex p-2 rounded h-full gap-0.5',
                       )}
                     >
-                      <div className="font-medium shrink basis-1/4">
-                        {template.name}
-                      </div>
-                      <div className="text-sm text-muted-foreground flex-1 line-clamp-2">
-                        {getPreviewText(template.content)}
-                      </div>
                       {template.channelId && (
                         <div
                           className={cn(
-                            { '-order-1': viewMode === 'grid' },
-                            'text-xs text-primary mt-1 shrink',
+                            'text-[11px] text-primary shrink bg-primary/10 px-1.5 py-0.5 rounded font-medium',
+                            {
+                              'mb-1 order-first': viewMode === 'grid',
+                              'ml-auto order-last': viewMode === 'list',
+                            },
                           )}
                         >
                           <ChannelsInline
@@ -212,6 +197,19 @@ export const ResponseTemplateSelector: React.FC<
                           />
                         </div>
                       )}
+
+                      <div
+                        className={cn('min-w-0 flex-1', {
+                          'basis-1/3': viewMode === 'list',
+                        })}
+                      >
+                        <div className="font-semibold text-sm truncate leading-tight">
+                          {template.name}
+                        </div>
+                        <div className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-snug">
+                          {getPreviewText(template.content)}
+                        </div>
+                      </div>
                     </Command.Item>
                   </div>
                 ))

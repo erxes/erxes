@@ -26,6 +26,8 @@ interface UploadDropzoneProps {
   onFilesUploaded: (file: UploadedContextFile[]) => void;
   onFileDelete: (fileId: string) => void;
   onFileClick?: (fileId: string) => void;
+  onFileReindex?: (fileId: string) => void;
+  reindexingFileId?: string | null;
 }
 
 const ACCEPTED_FORMATS = ['.md', '.markdown', '.txt'] as const;
@@ -46,6 +48,8 @@ export function UploadDropzone({
   onFilesUploaded,
   onFileDelete,
   onFileClick,
+  onFileReindex,
+  reindexingFileId,
 }: UploadDropzoneProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const { isLoading, upload } = useUpload();
@@ -283,6 +287,8 @@ export function UploadDropzone({
               onFileDelete(fileId);
             }}
             onFileClick={onFileClick}
+            onFileReindex={onFileReindex}
+            reindexingFileId={reindexingFileId}
           />
 
           {canAddMore && (

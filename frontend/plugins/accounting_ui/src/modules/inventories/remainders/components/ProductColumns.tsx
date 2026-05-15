@@ -121,6 +121,34 @@ export const productColumns: (
     ),
     size: 150,
   },
+  {
+    id: 'soonIn',
+    accessorKey: 'soonIn',
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label={t('soonIn')} />
+    ),
+    cell: ({ cell }: { cell: any }) => (
+      <ClickableCell
+        cell={cell}
+        value={String(cell.row.original?.remainder?.soonIn ?? '')}
+      />
+    ),
+    size: 150,
+  },
+  {
+    id: 'soonOut',
+    accessorKey: 'soonOut',
+    header: () => (
+      <RecordTable.InlineHead icon={IconLabel} label={t('soonOut')} />
+    ),
+    cell: ({ cell }: { cell: any }) => (
+      <ClickableCell
+        cell={cell}
+        value={String(cell.row.original?.remainder?.soonOut ?? '')}
+      />
+    ),
+    size: 150,
+  },
 ];
 
 export const useOpenRemainderSheet = (cell: any) => {

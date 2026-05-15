@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import {
-  AI_AGENT_DEFAULTS,
   AI_AGENT_LIMITS,
-  AI_AGENT_SUPPORTED_PROVIDERS,
+  AI_AGENT_DEFAULTS,
 } from './constants';
+import { aiAgentConnectionSchema } from './connection';
 
 const aiAgentFileVersionSchema = z.object({
   key: z.string().trim().min(1),
@@ -20,29 +20,13 @@ const aiAgentFileSchema = z.object({
   size: z.number().int().nonnegative().optional(),
   type: z.string().optional(),
   uploadedAt: z.union([z.string(), z.date()]).optional(),
+  purpose: z.enum(['core', 'knowledge', 'policy', 'examples']).optional(),
+  status: z.enum(['uploaded', 'indexing', 'indexed', 'failed']).optional(),
+  chunkCount: z.number().int().nonnegative().optional(),
+  indexedAt: z.union([z.string(), z.date()]).optional(),
+  contentHash: z.string().optional(),
+  indexError: z.string().optional(),
   versions: z.array(aiAgentFileVersionSchema).default([]),
-});
-
-const openAiCompatibleConfigSchema = z
-  .object({
-    apiKey: z
-      .string()
-      .trim()
-      .min(1, 'Connection apiKey is required')
-      .max(AI_AGENT_LIMITS.maxSecretChars),
-    baseUrl: z.string().url().default(AI_AGENT_DEFAULTS.baseUrl),
-    headers: z.record(z.string(), z.string()).default({}),
-  })
-  .passthrough();
-
-const aiAgentConnectionSchema = z.object({
-  provider: z.enum(AI_AGENT_SUPPORTED_PROVIDERS),
-  model: z
-    .string()
-    .trim()
-    .min(1, 'Connection model is required')
-    .max(AI_AGENT_LIMITS.maxModelChars),
-  config: openAiCompatibleConfigSchema,
 });
 
 const aiAgentRuntimeSchema = z
@@ -73,6 +57,15 @@ const aiAgentContextSchema = z
       .string()
       .max(AI_AGENT_LIMITS.maxSystemPromptChars)
       .default(''),
+    retrieval: z
+      .object({
+        enabled: z.boolean().default(true),
+        strategy: z.enum(['keyword', 'vector', 'hybrid']).default('keyword'),
+        topK: z.number().int().min(1).max(20).default(5),
+        maxContextBytes: z.number().int().min(500).max(50_000).default(8000),
+        minScore: z.number().optional(),
+      })
+      .default({}),
     files: z.array(aiAgentFileSchema).max(AI_AGENT_LIMITS.maxFiles).default([]),
   })
   .default({});
