@@ -254,7 +254,7 @@ const PipelineStageItem = (props: Props) => {
                     <Controller
                       name={`stages.${index}.canMoveMemberIds`}
                       control={control}
-                      defaultValue={stage?.canMoveMemberIds || ''}
+                      defaultValue={stage?.canMoveMemberIds || []}
                       render={({ field }) => (
                         <SelectMember.FormItem
                           mode="multiple"
@@ -273,7 +273,7 @@ const PipelineStageItem = (props: Props) => {
                     <Controller
                       name={`stages.${index}.canEditMemberIds`}
                       control={control}
-                      defaultValue={stage?.canEditMemberIds || ''}
+                      defaultValue={stage?.canEditMemberIds || []}
                       render={({ field }) => (
                         <SelectMember.FormItem
                           mode="multiple"
