@@ -77,8 +77,6 @@ export const stageQueries: Record<string, Resolver> = {
           ],
         });
       }
-    } else if (!isAll && user.isOwner) {
-      filter.status = { $ne: SALES_STATUSES.ARCHIVED };
     }
 
     return models.Stages.find(filter).sort({ order: 1, createdAt: -1 }).lean();

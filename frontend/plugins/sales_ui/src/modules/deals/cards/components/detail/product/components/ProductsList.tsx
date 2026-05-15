@@ -153,18 +153,26 @@ const ProductsList = ({
 
   const handleSave = () => {
     const processId = localStorage.getItem('processId') || '';
-    for (const data of localProductsData) {
+    const unassignedServiceItems = localProductsData.filter((data) => {
       const product =
         data.product || products.find((p) => p._id === data.productId);
       const assignee = data.assignedUserId || data.assignUserId;
-      if (product?.type === 'service' && data.tickUsed && !assignee) {
-        return toast({
-          variant: 'destructive',
-          title: 'Error',
-          description:
-            'Please assign a team member in Assigned to column to each service item before saving.',
-        });
-      }
+      return product?.type === 'service' && data.tickUsed && !assignee;
+    });
+
+    if (unassignedServiceItems.length > 0) {
+      const names = unassignedServiceItems
+        .map((data) => {
+          const product =
+            data.product || products.find((p) => p._id === data.productId);
+          return product?.name || data.productId;
+        })
+        .join(', ');
+      return toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: `Please assign a team member to the following service item(s) before saving: ${names}.`,
+      });
     }
     const formattedProductsData = localProductsData.map((data) => ({
       ...data,
