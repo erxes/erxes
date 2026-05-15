@@ -45,8 +45,9 @@ export const AddProperty = () => {
         defaultValues={{
           icon: '',
           name: '',
-          type: type || '',
+          type: '',
           isSearchable: false,
+          isVisibleInDetail: true,
           description: '',
           code: '',
           validation: '',

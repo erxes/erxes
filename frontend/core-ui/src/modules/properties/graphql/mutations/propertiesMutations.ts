@@ -91,6 +91,8 @@ export const FIELD_EDIT = gql`
     $validations: JSON
     $logics: JSON
     $icon: String
+    $isVisible: Boolean
+    $isVisibleInDetail: Boolean
   ) {
     fieldEdit(
       _id: $id
@@ -104,8 +106,12 @@ export const FIELD_EDIT = gql`
       validations: $validations
       logics: $logics
       icon: $icon
+      isVisible: $isVisible
+      isVisibleInDetail: $isVisibleInDetail
     ) {
       _id
+      isVisible
+      isVisibleInDetail
     }
   }
 `;

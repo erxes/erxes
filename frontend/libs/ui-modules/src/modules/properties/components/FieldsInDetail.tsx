@@ -3,7 +3,7 @@ import { Button, cn, Collapsible, InfoCard, Spinner, Tooltip } from 'erxes-ui';
 import { useState } from 'react';
 import { useFieldGroups } from '../hooks/useFieldGroups';
 import { useFields } from '../hooks/useFields';
-import { IFieldGroup, mutateFunction } from '../types/fieldsTypes';
+import { IField, IFieldGroup, mutateFunction } from '../types/fieldsTypes';
 import { Field, FieldMultiple } from './Field';
 import { useNavigate } from 'react-router-dom';
 
@@ -24,7 +24,13 @@ const FieldGroupContent = ({
     loading: boolean;
   };
 }) => {
+  const { fields, loading } = useFields({ groupId: group._id, contentType });
   const { configs } = group || {};
+
+  if (loading) return <Spinner containerClassName="py-6" />;
+
+  const visibleFields = fields.filter((f) => f.isVisibleInDetail !== false);
+  if (visibleFields.length === 0) return null;
 
   if (configs?.isMultiple) {
     return (
@@ -49,6 +55,7 @@ const FieldGroupContent = ({
       <Collapsible.Content className="pt-4">
         <FieldsInGroup
           group={group}
+          fields={visibleFields}
           id={id}
           contentType={contentType}
           propertiesData={propertiesData}
@@ -110,12 +117,14 @@ export const FieldsInDetail = ({
 
 export const FieldsInGroup = ({
   group,
+  fields: propFields,
   contentType,
   propertiesData,
   mutateHook,
   id,
 }: {
   group: IFieldGroup;
+  fields?: IField[];
   id: string;
   inCell?: boolean;
   contentType: string;
@@ -125,11 +134,16 @@ export const FieldsInGroup = ({
     loading: boolean;
   };
 }) => {
-  const { fields, loading } = useFields({ groupId: group._id, contentType });
+  const { fields: fetchedFields, loading } = useFields({
+    groupId: propFields ? undefined : group._id,
+    contentType,
+  });
 
-  if (loading) {
+  if (loading && !propFields) {
     return <Spinner containerClassName="py-6" />;
   }
+
+  const fields = propFields ?? fetchedFields.filter((f) => f.isVisibleInDetail !== false);
 
   return (
     <div className="grid grid-cols-2 gap-4">
@@ -206,8 +220,10 @@ export const MultipleFieldsInGroup = ({
       <Collapsible.Content className="pt-4">
         <div className="flex flex-col gap-4">
           {properties.map((property: any, index: number) => (
-            <div className="grid grid-cols-2 gap-4">
-              {fields.map((field) => (
+            <div key={index} className="grid grid-cols-2 gap-4">
+              {fields
+                .filter((field) => field.isVisibleInDetail !== false)
+                .map((field) => (
                 <FieldMultiple
                   key={field._id}
                   group={group}

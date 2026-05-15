@@ -38,6 +38,7 @@ export const PropertyGroupEditSheet = () => {
             defaultValues={{
               name: activePropertyGroup.name,
               code: activePropertyGroup.code,
+              logics: activePropertyGroup.logics,
             }}
             onCancel={() => setActivePropertyGroup(null)}
           />

@@ -28,6 +28,7 @@ export const AddPropertyGroup = () => {
       variables: {
         name: data.name,
         code: data.code,
+        logics: data.logics,
         contentType: type,
       },
       onCompleted: () => {

@@ -25,6 +25,8 @@ export interface IField {
 
   logics?: any;
   validations?: any;
+  isVisible?: boolean;
+  isVisibleInDetail?: boolean;
 }
 
 export interface IFieldDocument extends IField, Document {
