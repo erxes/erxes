@@ -17,8 +17,18 @@ const proxyAgent = new Agent({
 });
 
 export const proxyReq = (proxyReq, req: any) => {
-  proxyReq.setHeader('hostname', req.hostname);
-  proxyReq.setHeader('userid', req.user ? req.user._id : '');
+  if (proxyReq.headersSent) {
+    return;
+  }
+
+  const safeSetHeader = (name: string, value: string) => {
+    if (!proxyReq.headersSent) {
+      proxyReq.setHeader(name, value);
+    }
+  };
+
+  safeSetHeader('hostname', req.hostname || '');
+  safeSetHeader('userid', req.user?._id || '');
 
   /**
    * Manually forward client connection info instead of using the xfwd
@@ -28,20 +38,22 @@ export const proxyReq = (proxyReq, req: any) => {
   const existingXff = req.headers['x-forwarded-for'];
   const clientIp =
     req.socket?.remoteAddress || req.connection?.remoteAddress || '';
-  proxyReq.setHeader(
+  safeSetHeader(
     'x-forwarded-for',
     existingXff ? `${existingXff}, ${clientIp}` : clientIp,
   );
-  proxyReq.setHeader(
+  safeSetHeader(
     'x-forwarded-port',
     String(req.socket?.localPort || req.connection?.localPort || ''),
   );
-  proxyReq.setHeader(
+  safeSetHeader(
     'x-forwarded-proto',
     req.protocol || (req.socket?.encrypted ? 'https' : 'http'),
   );
 
-  fixRequestBody(proxyReq, req);
+  if (!proxyReq.headersSent) {
+    fixRequestBody(proxyReq, req);
+  }
 };
 
 export function applyProxiesCoreless(app: Express) {

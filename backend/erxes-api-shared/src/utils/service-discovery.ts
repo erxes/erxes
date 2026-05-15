@@ -3,6 +3,7 @@ import { redis } from './redis';
 import { getSaasOrganizationDetail } from './saas';
 import { getEnv } from './utils';
 import { IOrganizationCharge } from '../core-types';
+import { sendWorkerQueue } from './mq-worker';
 
 dotenv.config();
 
@@ -87,6 +88,18 @@ export const getAvailablePlugins = async (
 
 type ServiceInfo = { address: string; config: any };
 const serviceInfoCache: { [name in string]: Readonly<ServiceInfo> } = {};
+const pluginAddressCache = {} as any;
+
+export const clearServiceDiscoveryCache = (name?: string) => {
+  if (name) {
+    delete serviceInfoCache[name];
+    delete pluginAddressCache[name];
+    return;
+  }
+
+  Object.keys(serviceInfoCache).forEach((key) => delete serviceInfoCache[key]);
+  Object.keys(pluginAddressCache).forEach((key) => delete pluginAddressCache[key]);
+};
 
 export const getPlugin = async (
   name: string,
@@ -143,6 +156,24 @@ export const joinErxesGateway = async ({
 
   await redis.set(`erxes-service-${name}`, address);
 
+  try {
+    await sendWorkerQueue('gateway', 'update-apollo-router').add(
+      'service-discovery-updated',
+      { pluginName: name },
+      {
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 1000,
+        },
+        removeOnComplete: true,
+        removeOnFail: 100,
+      },
+    );
+  } catch (e) {
+    console.error(e);
+  }
+
   console.log(`erxes-service${name} joined with ${address}`);
 };
 
@@ -157,8 +188,6 @@ export const isEnabled = async (name: string) => {
 
   return enabledServices.includes(name);
 };
-
-const pluginAddressCache = {} as any;
 
 export const getPluginAddress = async (name: string) => {
   if (!pluginAddressCache[name]) {
