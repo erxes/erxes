@@ -6,6 +6,27 @@ import {
 import { restartRouter } from '~/apollo-router';
 import { retryGetProxyTargets } from '~/proxy/targets';
 
+let routerUpdateInFlight: Promise<void> | undefined;
+
+const updateApolloRouter = async () => {
+  if (routerUpdateInFlight) {
+    await routerUpdateInFlight;
+    return;
+  }
+
+  routerUpdateInFlight = (async () => {
+    clearServiceDiscoveryCache();
+    global.currentTargets = await retryGetProxyTargets();
+    await restartRouter(global.currentTargets);
+  })();
+
+  try {
+    await routerUpdateInFlight;
+  } finally {
+    routerUpdateInFlight = undefined;
+  }
+};
+
 export const initMQWorkers = (redis: Redis) => {
   return new Promise<void>((resolve, reject) => {
     try {
@@ -13,9 +34,7 @@ export const initMQWorkers = (redis: Redis) => {
         'gateway',
         'update-apollo-router',
         async () => {
-          clearServiceDiscoveryCache();
-          global.currentTargets = await retryGetProxyTargets();
-          await restartRouter(global.currentTargets);
+          await updateApolloRouter();
           return { result: 'success' };
         },
         redis,
