@@ -52,6 +52,9 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
   const { confirm } = useConfirm();
 
   const [sumDebit, sumCredit] = sumDtAndCt(trDocs as TTrDoc[], followTrDocs);
+  const hasHiddenTransaction = (trDocs || []).some(
+    (trDoc: any) => trDoc?.permission === 'hidden',
+  );
 
   const handleDelete = () =>
     confirm({
@@ -106,7 +109,15 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
           />
         </span>
       </div>
-      <Button type="submit">
+      <Button
+        type="submit"
+        disabled={hasHiddenTransaction}
+        title={
+          hasHiddenTransaction
+            ? 'Унших эрх хүрэхгүй гүйлгээ байгаа тул хадгалах боломжгүй'
+            : undefined
+        }
+      >
         <IconGavel />
         Хадгалах
       </Button>
