@@ -162,9 +162,8 @@ export const checkRemainders = async (
         filter: { _id: product._id },
         update: {
           $set: {
-            [`remainderByToken.${config.token}.${remBranchId}`]:
-              product.remainder ?? 0,
-            },
+            [`remainderByToken.${config.token}.${remBranchId}`]: product.remainder ?? 0,
+          },
         },
       },
     });
