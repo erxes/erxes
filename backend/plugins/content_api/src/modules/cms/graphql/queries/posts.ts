@@ -494,13 +494,21 @@ class PostQueryResolver extends BaseQueryResolver {
 
     if (!query) return null;
 
-    return this.getItemWithTranslation(
+    const post = await this.getItemWithTranslation<any>(
       models.Posts,
       query,
       language,
       FIELD_MAPPINGS.POST,
       clientPortal._id,
     );
+
+    if (!post?._id) {
+      return post;
+    }
+
+    await models.Posts.increaseViewCount(post._id);
+
+    return post;
   }
 
   async cpMostViewedPosts(
