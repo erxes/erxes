@@ -110,6 +110,7 @@ const getAccountIds = async (
       departmentId: accountDepartmentId,
       currency: accountCurrency,
       journal: accountJournal,
+      permissionMode: 'read',
     },
     user,
   );
@@ -242,7 +243,7 @@ const generateFilter = async (
     const regex = new RegExp(`.*${escapeRegExp(number)}.*`, 'i');
     orFilter.push(
       { number: { $regex: regex } },
-      { ptrNumber: { $regex: regex } }
+      { ptrNumber: { $regex: regex } },
     );
   }
 
@@ -340,8 +341,9 @@ const transactionCommon = {
   async accTransactionDetail(
     _root,
     params: { _id: string },
-    { models }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
+    await checkPermission('readTransactions');
     const transaction = await models.Transactions.findOne({
       _id: params._id,
     }).lean();
@@ -350,7 +352,13 @@ const transactionCommon = {
       throw new Error('Transaction not found');
     }
 
-    return transaction;
+    const [checkedTransaction] = await checkPermissionTrs(
+      models,
+      [transaction],
+      user,
+    );
+
+    return checkedTransaction;
   },
 
   async accTransactionsMain(

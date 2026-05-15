@@ -127,6 +127,7 @@ const accountsQueryParams = `
   kind: String
   code: String
   name: String
+  permissionMode: String
   extra:JSON
 `;
 
