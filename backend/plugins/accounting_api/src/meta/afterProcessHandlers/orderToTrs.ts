@@ -50,6 +50,7 @@ export const orderToTrs = async ({
   let oldOtherTrs: ITransactionDocument[] = [];
 
   const [contentType, contentId] = ['sales:order', order._id];
+  const number = order.number;
 
   const oldTrs = await models.Transactions.find({
     contentType,
@@ -76,6 +77,7 @@ export const orderToTrs = async ({
     _id: mainId,
     ptrId,
     parentId,
+    number,
     date,
     journal: JOURNALS.INV_SALE,
     side: TR_SIDES.CREDIT,
@@ -162,6 +164,7 @@ export const orderToTrs = async ({
       _id: nanoid(),
       ptrId,
       parentId,
+      number,
       date,
       journal,
       side,
@@ -196,6 +199,7 @@ export const orderToTrs = async ({
         _id: nanoid(),
         ptrId,
         parentId,
+        number,
         date,
         journal,
         side,

@@ -149,6 +149,7 @@ const commonSubsQueryParams = `
 export const queries = `
   posOrders(${queryParams}): [PosOrder]
   posOrderDetail(_id: String): PosOrderDetail
+  posOrderLink(_id: String): JSON
   posProducts(${queryParams} categoryId: String, searchValue: String): PosProducts
   posOrdersSummary(${queryParams}): JSON
   posOrdersGroupSummary(${queryParams}, ${groupParams}): JSON

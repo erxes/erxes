@@ -36,6 +36,7 @@ export const dealToReturnTrs = async ({
   let oldOtherTrs: ITransactionDocument[] = [];
 
   const [contentType, contentId] = ['sales:deal', deal._id];
+  const number = deal.number;
 
   const oldTrs = await models.Transactions.find({
     contentType,
@@ -89,6 +90,7 @@ export const dealToReturnTrs = async ({
     _id: mainId,
     ptrId,
     parentId,
+    number,
     date,
     journal: JOURNALS.INV_SALE_RETURN,
     side: TR_SIDES.DEBIT,
@@ -148,6 +150,7 @@ export const dealToReturnTrs = async ({
         _id: nanoid(),
         ptrId,
         parentId,
+        number,
         date,
         journal,
         side,
