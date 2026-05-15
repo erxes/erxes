@@ -75,11 +75,3 @@ export interface IPermission {
   user?: IPermissionUser;
   account?: IPermissionAccount;
 }
-
-export interface ISetAccountPermissionForm {
-  accountIds: string[];
-  userId: string;
-  level: number;
-  read: PermissionReadScope;
-  write: PermissionWriteScope;
-}
