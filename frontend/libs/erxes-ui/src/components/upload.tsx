@@ -186,7 +186,7 @@ const UploadPreview = React.forwardRef<
             type="button"
             variant="outline"
             className="relative size-16 overflow-hidden"
-            onClick={!url ? handleThumbnailClick : ImageFocus}
+            onClick={url ? ImageFocus : handleThumbnailClick}
             aria-label={url ? 'Change image' : 'Upload image'}
           >
             {isLoading ? (
