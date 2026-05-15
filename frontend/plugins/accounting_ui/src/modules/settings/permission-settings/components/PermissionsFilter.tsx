@@ -1,11 +1,14 @@
 import {
   IconCoins,
+  IconEdit,
+  IconEye,
   IconLayoutGridAdd,
   IconNotebook,
+  IconStairs,
   IconToggleRightFilled,
+  IconUser,
 } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
-import { AccountsTotalCount } from './AccountsTotalCount';
 import {
   AccountsFilterCategory,
   AccountsFilterCurrency,
@@ -24,32 +27,41 @@ import {
   FilterBarStringItem,
   FilterPopoverStringItems,
   FilterStringDialogViews,
+} from '../../account/components/filters/FilterHelpers';
+import {
+  FilterBarLevel,
+  FilterBarReads,
+  FilterBarUser,
+  FilterBarWrites,
+  PermissionsFilterLevel,
+  PermissionsFilterReads,
+  PermissionsFilterUser,
+  PermissionsFilterWrites,
 } from './filters/FilterHelpers';
+import { PermissionsTotalCount } from './PermissionsTotalCount';
 
-const AccountsFilterPopover = () => {
-  const [queries] = useMultiQueryState<{
-    searchValue?: string;
-    code?: string;
-    name?: string;
-    categoryId?: string;
-    currency?: string;
-    kind?: string;
-    journal?: string;
-    status?: string;
-    isTemp?: string;
-    isOutBalance?: string;
-  }>([
-    'searchValue',
-    'code',
-    'name',
-    'categoryId',
-    'currency',
-    'kind',
-    'journal',
-    'status',
-    'isTemp',
-    'isOutBalance',
-  ]);
+const PERMISSION_QUERY_KEYS = [
+  'searchValue',
+  'code',
+  'name',
+  'categoryId',
+  'currency',
+  'kind',
+  'journal',
+  'status',
+  'isTemp',
+  'isOutBalance',
+  'userId',
+  'minLvl',
+  'maxLvl',
+  'reads',
+  'writes',
+];
+
+const PermissionsFilterPopover = () => {
+  const [queries] = useMultiQueryState<Record<string, string>>(
+    PERMISSION_QUERY_KEYS,
+  );
 
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
@@ -57,20 +69,36 @@ const AccountsFilterPopover = () => {
 
   return (
     <>
-      <Filter.Popover scope="accounts-filter">
+      <Filter.Popover scope="permissions-filter">
         <Filter.Trigger isFiltered={hasFilters} />
         <Combobox.Content>
           <Filter.View>
             <Command>
               <Filter.CommandInput
-                placeholder="Шүүх"
+                placeholder="Filter"
                 variant="secondary"
                 className="bg-background"
               />
               <Command.List className="p-1">
-                <FilterPopoverStringItems
-                  filterKeys={['searchValue', 'code', 'name']}
-                />
+                <FilterPopoverStringItems filterKeys={['searchValue']} />
+                <Filter.Item value="userId">
+                  <IconUser />
+                  User
+                </Filter.Item>
+                <Filter.Item value="reads">
+                  <IconEye />
+                  Read
+                </Filter.Item>
+                <Filter.Item value="writes">
+                  <IconEdit />
+                  Write
+                </Filter.Item>
+                <Filter.Item value="minLvl" inDialog>
+                  <IconStairs />
+                  Level
+                </Filter.Item>
+                <Command.Separator className="my-1" />
+                <FilterPopoverStringItems filterKeys={['code', 'name']} />
                 <Filter.Item value="category">
                   <IconLayoutGridAdd />
                   Category
@@ -83,6 +111,7 @@ const AccountsFilterPopover = () => {
                   <IconToggleRightFilled />
                   Kind
                 </Filter.Item>
+                <Command.Separator className="my-1" />
                 <Filter.Item value="journal">
                   <IconNotebook />
                   Journal
@@ -93,16 +122,18 @@ const AccountsFilterPopover = () => {
                 </Filter.Item>
                 <Filter.Item value="isOutBalance">
                   <IconToggleRightFilled />
-                  Баланс бус
+                  Out of balance
                 </Filter.Item>
                 <Filter.Item value="status">
                   <IconToggleRightFilled />
                   Status
                 </Filter.Item>
-                <Command.Separator className="my-1" />
               </Command.List>
             </Command>
           </Filter.View>
+          <PermissionsFilterUser />
+          <PermissionsFilterReads />
+          <PermissionsFilterWrites />
           <AccountsFilterCategory />
           <Filter.View filterKey="currency">
             <AccountsFilterCurrency />
@@ -126,12 +157,13 @@ const AccountsFilterPopover = () => {
       </Filter.Popover>
       <Filter.Dialog>
         <FilterStringDialogViews filterKeys={['searchValue', 'code', 'name']} />
+        <PermissionsFilterLevel />
       </Filter.Dialog>
     </>
   );
 };
 
-export const AccountsFilter = () => {
+export const PermissionsFilter = () => {
   const [queries] = useMultiQueryState<{
     searchValue: string;
     code: string;
@@ -141,9 +173,13 @@ export const AccountsFilter = () => {
   const { code, name, searchValue } = queries;
 
   return (
-    <Filter id="accounts-filter">
+    <Filter id="permissions-filter">
       <Filter.Bar>
         <FilterBarStringItem queryKey="searchValue" value={searchValue} />
+        <FilterBarUser />
+        <FilterBarReads />
+        <FilterBarWrites />
+        <FilterBarLevel />
         <FilterBarStringItem queryKey="code" value={code} />
         <FilterBarStringItem queryKey="name" value={name} />
         <FilterBarCategory />
@@ -153,8 +189,8 @@ export const AccountsFilter = () => {
         <FilterBarIsTemp />
         <FilterBarIsOutBalance />
         <FilterBarStatus />
-        <AccountsFilterPopover />
-        <AccountsTotalCount />
+        <PermissionsFilterPopover />
+        <PermissionsTotalCount />
       </Filter.Bar>
     </Filter>
   );
