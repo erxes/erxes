@@ -119,6 +119,9 @@ const doScoreCampaignInput = z.object({
   ownerId: z.string(),
   actionMethod: z.string(),
   targetId: z.string(),
+  campaignId: z.string(),               
+  target: z.record(z.any()),           
+  serviceName: z.string().optional(),
 });
 
 const refundLoyaltyScoreInput = z.object({
