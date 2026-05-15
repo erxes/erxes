@@ -5,7 +5,17 @@ import {
   IHiddenTransaction,
   ITransaction,
 } from '../@types/transaction';
-import { ACCOUNT_PERMISSION_WRITE_SCOPES } from '../@types/permission';
+import {
+  ACCOUNT_PERMISSION_SCOPES,
+  ACCOUNT_PERMISSION_WRITE_SCOPES,
+} from '../@types/permission';
+
+const READ_SCOPE_BY_RATE = Object.entries(
+  ACCOUNT_PERMISSION_SCOPES.RATE,
+).reduce((acc, [scope, rate]) => ({ ...acc, [rate]: scope }), {}) as Record<
+  number,
+  string
+>;
 
 const getConfigUserIds = (config: any) => {
   if (Array.isArray(config?.value)) {
@@ -60,6 +70,56 @@ const canWriteExistingTransaction = ({
   }
 
   return write === ACCOUNT_PERMISSION_WRITE_SCOPES.GT_LVL;
+};
+
+const normalizeReadByWrite = ({
+  read,
+  write,
+}: {
+  read: string;
+  write: string;
+}) => {
+  const readRate =
+    (ACCOUNT_PERMISSION_SCOPES.RATE as Record<string, number>)[read] ?? 0;
+  const writeRate =
+    (ACCOUNT_PERMISSION_WRITE_SCOPES.RATE as Record<string, number>)[write] ??
+    0;
+
+  if (readRate >= writeRate) {
+    return read;
+  }
+
+  return READ_SCOPE_BY_RATE[writeRate] || ACCOUNT_PERMISSION_SCOPES.NONE;
+};
+
+const canReadExistingTransaction = ({
+  read,
+  currentLevel,
+  targetLevel,
+  isOwn,
+}: {
+  read: string;
+  currentLevel: number;
+  targetLevel: number;
+  isOwn: boolean;
+}) => {
+  if (read === ACCOUNT_PERMISSION_SCOPES.NONE) {
+    return false;
+  }
+
+  if (read === ACCOUNT_PERMISSION_SCOPES.OWN) {
+    return isOwn;
+  }
+
+  if (read === ACCOUNT_PERMISSION_SCOPES.LT_LVL) {
+    return targetLevel > currentLevel;
+  }
+
+  if (read === ACCOUNT_PERMISSION_SCOPES.LTE_LVL) {
+    return targetLevel >= currentLevel;
+  }
+
+  return read === ACCOUNT_PERMISSION_SCOPES.GT_LVL;
 };
 
 export const assertCanWriteTransactionAccounts = async ({
@@ -185,6 +245,7 @@ const convertToHidden = (transaction: ITransactionDocument) => {
     parentId: transaction.parentId,
     ptrId: transaction.ptrId,
     ptrStatus: transaction.ptrStatus,
+    journal: transaction.journal,
     originId: transaction.originId,
     originType: transaction.originType,
     details: transaction.details.map((detail) => ({
@@ -209,9 +270,84 @@ const canShowTr = async (
 ) => {
   // hidden, readOnly, update, delete|full|null
   if (!user._id) {
-    return 'false';
+    return 'hidden';
   }
-  return;
+
+  if (user.isOwner) {
+    return;
+  }
+
+  const accountIds = [
+    ...new Set(
+      (transaction.details || [])
+        .map((detail) => detail.accountId)
+        .filter(Boolean),
+    ),
+  ];
+
+  if (!accountIds.length) {
+    return;
+  }
+
+  const dominantConfigs = await models.Configs.find({
+    code: { $in: ['dominantReadAccountUsers', 'dominantWriteAccountUsers'] },
+    subId: '',
+  }).lean();
+
+  if (
+    dominantConfigs.some((config) =>
+      getConfigUserIds(config).includes(user._id),
+    )
+  ) {
+    return;
+  }
+
+  const permissions = await models.Permissions.find({
+    userId: user._id,
+    accountId: { $in: accountIds },
+  })
+    .select({ accountId: 1, read: 1, write: 1, level: 1 })
+    .lean();
+  const permissionByAccountId = new Map(
+    permissions.map((perm) => [perm.accountId, perm]),
+  );
+
+  const targetUserId = getTransactionOwnerId(transaction);
+  const targetPermissions = targetUserId
+    ? await models.Permissions.find({
+        userId: targetUserId,
+        accountId: { $in: accountIds },
+      })
+        .select({ accountId: 1, level: 1 })
+        .lean()
+    : [];
+  const targetLevelByAccountId = new Map(
+    targetPermissions.map((perm) => [perm.accountId, perm.level ?? 0]),
+  );
+
+  for (const accountId of accountIds) {
+    const currentPermission = permissionByAccountId.get(accountId);
+
+    if (!currentPermission) {
+      return 'hidden';
+    }
+
+    const effectiveRead = normalizeReadByWrite({
+      read: currentPermission.read || ACCOUNT_PERMISSION_SCOPES.NONE,
+      write: currentPermission.write || ACCOUNT_PERMISSION_WRITE_SCOPES.NONE,
+    });
+
+    if (
+      !canReadExistingTransaction({
+        read: effectiveRead,
+        currentLevel: currentPermission.level ?? 0,
+        targetLevel: targetLevelByAccountId.get(accountId) ?? 0,
+        isOwn: targetUserId === user._id,
+      })
+    ) {
+      return 'hidden';
+    }
+  }
 };
 
 export const checkPermissionTrs = async (
@@ -220,10 +356,11 @@ export const checkPermissionTrs = async (
   user: IUserDocument,
 ) => {
   const originTrs = transactions.filter((tr) => !tr.originId);
+  const rootTrs = originTrs.length ? originTrs : transactions;
 
   const result: (ITransactionDocument | IHiddenTransaction)[] = [];
 
-  for (const otr of originTrs) {
+  for (const otr of rootTrs) {
     const permStr: string | undefined = await canShowTr(models, otr, user);
 
     if (permStr === 'hidden') {

@@ -84,15 +84,7 @@ const normalizeParentWorkflowDocs = (
   }));
 };
 
-export const loadTransactionClass = (
-  models: IModels,
-  subdomain: string,
-  {
-    sendDbEventLog,
-    createActivityLog,
-    sendNotificationMessage,
-  }: EventDispatcherReturn,
-) => {
+export const loadTransactionClass = ( models: IModels, subdomain: string, { sendDbEventLog, createActivityLog, }: EventDispatcherReturn, ) => {
   class Transaction {
     /**
      *
