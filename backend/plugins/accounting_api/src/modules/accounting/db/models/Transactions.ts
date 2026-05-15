@@ -8,6 +8,7 @@ import { PTR_STATUSES, TR_SIDES, TR_STATUSES } from '../../@types/constants';
 import { ITransaction, ITransactionDocument } from '../../@types/transaction';
 import { commonRemove } from '../../utils/commonRemove';
 import { commonSave } from '../../utils/commonSave';
+import { assertCanWriteTransactionAccounts } from '../../utils/trPermissions';
 import { transactionSchema } from '../definitions/transaction';
 import { generateTrStatusActivityLog, setPtrStatus } from './utils';
 
@@ -83,7 +84,15 @@ const normalizeParentWorkflowDocs = (
   }));
 };
 
-export const loadTransactionClass = (models: IModels, subdomain: string, { sendDbEventLog, createActivityLog, sendNotificationMessage }: EventDispatcherReturn) => {
+export const loadTransactionClass = (
+  models: IModels,
+  subdomain: string,
+  {
+    sendDbEventLog,
+    createActivityLog,
+    sendNotificationMessage,
+  }: EventDispatcherReturn,
+) => {
   class Transaction {
     /**
      *
@@ -172,7 +181,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
       }
 
       return number;
-    };
+    }
 
     static async getPtrNumber(tr: ITransactionDocument, ptrNumber?: string) {
       const { _id, parentId } = tr;
@@ -300,6 +309,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
       userId: string,
     ) {
       docs = normalizeParentWorkflowDocs(docs, userId);
+      await assertCanWriteTransactionAccounts({ models, docs, userId });
 
       const transactions: ITransactionDocument[] = [];
       let errMsg = '';
@@ -322,18 +332,21 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
               ptrId,
             });
             parentId = firstTrs.mainTr.parentId;
-            ptrNumber = await this.getPtrNumber(firstTrs.mainTr, ptrNumber)
+            ptrNumber = await this.getPtrNumber(firstTrs.mainTr, ptrNumber);
             transactions.push(firstTrs.mainTr);
 
             if (firstTrs.otherTrs?.length) {
-              await models.Transactions.updateMany({
-                _id: { $in: firstTrs.otherTrs.map(ot => ot._id) },
-                $or: [
-                  { number: { $exists: false } },
-                  { number: null },
-                  { number: '' },
-                ]
-              }, { $set: { number: ptrNumber } });
+              await models.Transactions.updateMany(
+                {
+                  _id: { $in: firstTrs.otherTrs.map((ot) => ot._id) },
+                  $or: [
+                    { number: { $exists: false } },
+                    { number: null },
+                    { number: '' },
+                  ],
+                },
+                { $set: { number: ptrNumber } },
+              );
 
               for (const otherTr of firstTrs.otherTrs) {
                 transactions.push(otherTr);
@@ -345,7 +358,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
               ptrId,
               parentId,
               number: doc.number ?? ptrNumber,
-              ptrNumber
+              ptrNumber,
             });
             transactions.push(trs.mainTr);
             if (trs.otherTrs?.length) {
@@ -364,7 +377,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
         sendDbEventLog({
           action: 'create',
           docId: parentId,
-          currentDocument: transactions
+          currentDocument: transactions,
         });
 
         const activityLog = generateTrStatusActivityLog({
@@ -378,7 +391,6 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
         if (activityLog) {
           createActivityLog(activityLog);
         }
-
       } catch (e) {
         errMsg = e.message;
         await session.abortTransaction();
@@ -424,6 +436,12 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
         oldTrs[0].ptrNumber || (await this.getPtrNumber(oldTrs[0]));
 
       docs = normalizeParentWorkflowDocs(docs, userId, oldTrs[0]);
+      await assertCanWriteTransactionAccounts({
+        models,
+        docs,
+        userId,
+        oldTrs,
+      });
 
       const oldTrIds = oldTrs.map((ot) => ot._id);
 
