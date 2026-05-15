@@ -11,6 +11,8 @@ dotenv.config();
 
 const { NODE_ENV, SUPERGRAPH_POLL_INTERVAL_MS } = process.env;
 
+let supergraphPollInterval: NodeJS.Timeout | undefined;
+
 type SupergraphConfig = {
   federation_version: string;
   subgraphs: {
@@ -89,8 +91,8 @@ export default async function supergraphCompose(
 ) {
   await writeSupergraphConfig(proxyTargets);
   await supergraphComposeOnce();
-  if (NODE_ENV === 'development') {
-    setInterval(async () => {
+  if (NODE_ENV === 'development' && !supergraphPollInterval) {
+    supergraphPollInterval = setInterval(async () => {
       try {
         await supergraphComposeOnce();
       } catch (e: unknown) {
