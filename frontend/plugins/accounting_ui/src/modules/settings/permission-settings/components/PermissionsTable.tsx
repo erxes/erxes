@@ -1,11 +1,11 @@
-import { useAccountsMain } from '@/settings/account/hooks/useAccountsMain';
 import { RecordTable, Skeleton, Table } from 'erxes-ui';
-import { accountsColumns } from '@/settings/account/components/AccountsColumns';
-import { AccountsCommandbar } from './AccountsCommandBar';
-import { ACCOUNTS_CURSOR_SESSION_KEY } from '../../../accountsSessionKeys';
+import { PERMISSIONS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
+import { usePermissionsMain } from '../hooks/usePermissionsMain';
+import { permissionsColumns } from './PermissionsColumns';
+import { PermissionsCommandbar } from './PermissionsCommandBar';
 import { useMemo } from 'react';
 
-const AccountsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
+const PermissionsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
   const rowKeys = useMemo(
     () => Array.from({ length: rows }, () => crypto.randomUUID()),
     [rows],
@@ -14,7 +14,7 @@ const AccountsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
     <>
       {rowKeys.map((rowKey) => (
         <Table.Row key={rowKey} className="h-cell">
-          {accountsColumns.map((col, colIndex) => (
+          {permissionsColumns.map((col, colIndex) => (
             <Table.Cell
               key={`${rowKey}-${col.id ?? colIndex}`}
               className="border-r-0 px-2"
@@ -28,25 +28,25 @@ const AccountsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
   );
 };
 
-export const AccountsTable = () => {
-  const { accountsMain, loading, handleFetchMore, pageInfo } =
-    useAccountsMain();
+export const PermissionsTable = () => {
+  const { permissionsMain, loading, handleFetchMore, pageInfo } =
+    usePermissionsMain();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
-  const isFetchingMore = loading && (accountsMain?.length ?? 0) > 0;
+  const isFetchingMore = loading && (permissionsMain?.length ?? 0) > 0;
   const isInitialLoading = loading && !isFetchingMore;
 
   return (
     <RecordTable.Provider
-      columns={accountsColumns}
-      data={isInitialLoading ? [] : accountsMain || []}
-      stickyColumns={['more', 'checkbox', 'code']}
+      columns={permissionsColumns}
+      data={isInitialLoading ? [] : permissionsMain || []}
+      stickyColumns={['checkbox', 'accountName']}
       className="m-3"
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
         hasNextPage={hasNextPage}
-        dataLength={accountsMain?.length}
-        sessionKey={ACCOUNTS_CURSOR_SESSION_KEY}
+        dataLength={permissionsMain?.length}
+        sessionKey={PERMISSIONS_CURSOR_SESSION_KEY}
       >
         <RecordTable>
           <RecordTable.Header />
@@ -55,13 +55,13 @@ export const AccountsTable = () => {
               handleFetchMore={handleFetchMore}
             />
             <RecordTable.RowList />
-            {isInitialLoading && <AccountsInitialSkeleton rows={20} />}
+            {isInitialLoading && <PermissionsInitialSkeleton rows={20} />}
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}
             />
           </RecordTable.Body>
         </RecordTable>
-        <AccountsCommandbar />
+        <PermissionsCommandbar />
       </RecordTable.CursorProvider>
     </RecordTable.Provider>
   );
