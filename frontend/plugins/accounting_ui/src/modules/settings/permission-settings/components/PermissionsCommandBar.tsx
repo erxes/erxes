@@ -3,11 +3,8 @@ import { Button, CommandBar, Input, RecordTable, Separator } from 'erxes-ui';
 import { useState } from 'react';
 import { usePermissionEdit } from '../hooks/usePermissionEdit';
 import {
-  ACCOUNT_PERMISSION_SCOPES,
-  ACCOUNT_PERMISSION_WRITE_SCOPES,
+  ACCOUNT_PERMISSIONS,
   IPermission,
-  PERMISSION_READ_LABELS,
-  PERMISSION_WRITE_LABELS,
   PermissionReadScope,
   PermissionWriteScope,
 } from '../types/Permission';
@@ -32,9 +29,9 @@ export const PermissionsCommandbar = () => {
 
 const PermissionsBulkEditor = ({ selected }: { selected: IPermission[] }) => {
   const { editPermissionsBulk, loading } = usePermissionEdit();
+  const [level, setLevel] = useState<string>('');
   const [read, setRead] = useState<string | undefined>();
   const [write, setWrite] = useState<string | undefined>();
-  const [level, setLevel] = useState<string>('');
 
   const handleSave = () => {
     const changes: {
@@ -60,10 +57,19 @@ const PermissionsBulkEditor = ({ selected }: { selected: IPermission[] }) => {
   return (
     <>
       <div className="w-44">
+        <Input
+          type="number"
+          inputMode="numeric"
+          value={level}
+          placeholder="Level"
+          className="h-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          onChange={(e) => setLevel(e.target.value)}
+        />
+      </div>
+      <div className="w-44">
         <PermissionScopeSelect
           value={read}
-          options={ACCOUNT_PERMISSION_SCOPES.VALUES}
-          labels={PERMISSION_READ_LABELS}
+          options={ACCOUNT_PERMISSIONS.READ}
           placeholder="Read"
           triggerVariant="outline"
           hideChevron={false}
@@ -74,23 +80,12 @@ const PermissionsBulkEditor = ({ selected }: { selected: IPermission[] }) => {
       <div className="w-44">
         <PermissionScopeSelect
           value={write}
-          options={ACCOUNT_PERMISSION_WRITE_SCOPES.VALUES}
-          labels={PERMISSION_WRITE_LABELS}
+          options={ACCOUNT_PERMISSIONS.WRITE}
           placeholder="Write"
           triggerVariant="outline"
           hideChevron={false}
           triggerClassName="h-8 w-full font-normal"
           onChange={(next) => setWrite(next)}
-        />
-      </div>
-      <div className="w-44">
-        <Input
-          type="number"
-          inputMode="numeric"
-          value={level}
-          placeholder="Level"
-          className="h-8 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          onChange={(e) => setLevel(e.target.value)}
         />
       </div>
       <Button variant="secondary" disabled={!canSave} onClick={handleSave}>

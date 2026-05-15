@@ -19,17 +19,10 @@ import {
   NumberRangeBarItem,
   NumberRangeDialogView,
 } from '~/modules/inventories/remainders/products-filter/components/selects/NumberRangeFilter';
-import {
-  ACCOUNT_PERMISSION_SCOPES,
-  ACCOUNT_PERMISSION_WRITE_SCOPES,
-  PERMISSION_READ_LABELS,
-  PERMISSION_WRITE_LABELS,
-} from '../../types/Permission';
+import { ACCOUNT_PERMISSIONS } from '../../types/Permission';
 
-const READ_OPTIONS = ACCOUNT_PERMISSION_SCOPES.VALUES;
-const WRITE_OPTIONS = ACCOUNT_PERMISSION_WRITE_SCOPES.VALUES;
-const SCOPE_LABELS_READ: Record<string, string> = PERMISSION_READ_LABELS;
-const SCOPE_LABELS_WRITE: Record<string, string> = PERMISSION_WRITE_LABELS;
+type ScopeOption =
+  (typeof ACCOUNT_PERMISSIONS)['READ' | 'WRITE'][number];
 
 const splitCsv = (value?: string | null): string[] =>
   (value ?? '')
@@ -171,12 +164,10 @@ export const FilterBarUser = () => {
 // ───────── Scope (multi-select, close-on-pick) filter ─────────
 const ScopeMultiCommand = ({
   options,
-  labels,
   selected,
   onPick,
 }: {
-  options: readonly string[];
-  labels: Record<string, string>;
+  options: ReadonlyArray<ScopeOption>;
   selected: string[];
   onPick: (next: string[]) => void;
 }) => {
@@ -185,16 +176,20 @@ const ScopeMultiCommand = ({
       <Command.Input placeholder="Search" variant="secondary" focusOnMount />
       <Command.List className="p-1">
         <Command.Empty>No results found</Command.Empty>
-        {options.map((scope) => (
-          <Command.Item
-            key={scope}
-            value={labels[scope]}
-            onSelect={() => onPick(toggleValue(selected, scope))}
-          >
-            {labels[scope]}
-            <Combobox.Check checked={selected.includes(scope)} />
-          </Command.Item>
-        ))}
+        {options.map((option) => {
+          const Icon = option.icon;
+          return (
+            <Command.Item
+              key={option.value}
+              value={option.label}
+              onSelect={() => onPick(toggleValue(selected, option.value))}
+            >
+              <Icon className="size-4 shrink-0 text-muted-foreground" />
+              {option.label}
+              <Combobox.Check checked={selected.includes(option.value)} />
+            </Command.Item>
+          );
+        })}
       </Command.List>
     </Command>
   );
@@ -202,13 +197,15 @@ const ScopeMultiCommand = ({
 
 const ScopeChipLabel = ({
   selected,
-  labels,
+  options,
 }: {
   selected: string[];
-  labels: Record<string, string>;
+  options: ReadonlyArray<ScopeOption>;
 }) => (
   <span className="truncate block max-w-full">
-    {selected.map((s) => labels[s]).join(', ')}
+    {selected
+      .map((s) => options.find((o) => o.value === s)?.label ?? s)
+      .join(', ')}
   </span>
 );
 
@@ -219,8 +216,7 @@ export const PermissionsFilterReads = () => {
   return (
     <Filter.View filterKey="reads">
       <ScopeMultiCommand
-        options={READ_OPTIONS}
-        labels={SCOPE_LABELS_READ}
+        options={ACCOUNT_PERMISSIONS.READ}
         selected={splitCsv(reads)}
         onPick={(next) => {
           setReads(joinCsv(next));
@@ -246,13 +242,15 @@ export const FilterBarReads = () => {
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="reads" className="min-w-0">
-            <ScopeChipLabel selected={selected} labels={SCOPE_LABELS_READ} />
+            <ScopeChipLabel
+              selected={selected}
+              options={ACCOUNT_PERMISSIONS.READ}
+            />
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
           <ScopeMultiCommand
-            options={READ_OPTIONS}
-            labels={SCOPE_LABELS_READ}
+            options={ACCOUNT_PERMISSIONS.READ}
             selected={selected}
             onPick={(next) => {
               setReads(joinCsv(next));
@@ -272,8 +270,7 @@ export const PermissionsFilterWrites = () => {
   return (
     <Filter.View filterKey="writes">
       <ScopeMultiCommand
-        options={WRITE_OPTIONS}
-        labels={SCOPE_LABELS_WRITE}
+        options={ACCOUNT_PERMISSIONS.WRITE}
         selected={splitCsv(writes)}
         onPick={(next) => {
           setWrites(joinCsv(next));
@@ -299,13 +296,15 @@ export const FilterBarWrites = () => {
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="writes" className="min-w-0">
-            <ScopeChipLabel selected={selected} labels={SCOPE_LABELS_WRITE} />
+            <ScopeChipLabel
+              selected={selected}
+              options={ACCOUNT_PERMISSIONS.WRITE}
+            />
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
           <ScopeMultiCommand
-            options={WRITE_OPTIONS}
-            labels={SCOPE_LABELS_WRITE}
+            options={ACCOUNT_PERMISSIONS.WRITE}
             selected={selected}
             onPick={(next) => {
               setWrites(joinCsv(next));

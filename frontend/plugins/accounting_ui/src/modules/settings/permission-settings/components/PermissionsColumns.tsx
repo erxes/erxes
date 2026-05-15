@@ -7,44 +7,25 @@ import {
   RecordTable,
   RecordTableInlineCell,
 } from 'erxes-ui';
+import { useState } from 'react';
 import {
-  IconBan,
-  IconChevronsDown,
-  IconChevronsUp,
-  IconEqual,
-  IconPlus,
-  IconUser,
-  type Icon,
-  type IconProps,
-} from '@tabler/icons-react';
-import { ForwardRefExoticComponent, RefAttributes, useState } from 'react';
-import {
-  ACCOUNT_PERMISSION_SCOPES,
-  ACCOUNT_PERMISSION_WRITE_SCOPES,
+  ACCOUNT_PERMISSIONS,
   IPermission,
-  PERMISSION_READ_LABELS,
-  PERMISSION_WRITE_LABELS,
   PermissionReadScope,
   PermissionWriteScope,
 } from '../types/Permission';
 import { usePermissionEdit } from '../hooks/usePermissionEdit';
 
-type TablerIcon = ForwardRefExoticComponent<IconProps & RefAttributes<Icon>>;
+type ScopeOption = (typeof ACCOUNT_PERMISSIONS)['READ' | 'WRITE'][number];
 
-const SCOPE_ICONS: Record<string, TablerIcon> = {
-  none: IconBan,
-  own: IconUser,
-  add: IconPlus,
-  ltLvl: IconChevronsDown,
-  lteLvl: IconEqual,
-  gtLvl: IconChevronsUp,
-};
-
-const ScopeIcon = ({ scope }: { scope?: string }) => {
-  if (!scope) return null;
-  const Icon = SCOPE_ICONS[scope];
-  if (!Icon) return null;
-  return <Icon className="size-4 shrink-0 text-muted-foreground" />;
+const ScopeDisplay = ({ option }: { option: ScopeOption }) => {
+  const Icon = option.icon;
+  return (
+    <span className="inline-flex items-center gap-2">
+      <Icon className="size-4 shrink-0 text-muted-foreground" />
+      {option.label}
+    </span>
+  );
 };
 
 const PermissionLevelCell = ({
@@ -72,47 +53,38 @@ const PermissionLevelCell = ({
 const PermissionInlineScopeCell = ({
   value,
   options,
-  labels,
   onChange,
   placeholder = '-',
 }: {
   value?: string;
-  options: readonly string[];
-  labels: Record<string, string>;
+  options: ReadonlyArray<ScopeOption>;
   onChange: (next: string) => void;
   placeholder?: string;
 }) => {
   const [open, setOpen] = useState(false);
+  const selected = options.find((o) => o.value === value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <RecordTableInlineCell.Trigger>
-        {value ? (
-          <span className="inline-flex items-center gap-2">
-            <ScopeIcon scope={value} />
-            {labels[value]}
-          </span>
-        ) : (
-          placeholder
-        )}
+        {selected ? <ScopeDisplay option={selected} /> : placeholder}
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
         <Command>
           <Command.Input placeholder="Search" />
           <Command.List className="p-1">
             <Command.Empty>No results found</Command.Empty>
-            {options.map((scope) => (
+            {options.map((option) => (
               <Command.Item
-                key={scope}
-                value={labels[scope]}
+                key={option.value}
+                value={option.label}
                 onSelect={() => {
-                  if (scope !== value) onChange(scope);
+                  if (option.value !== value) onChange(option.value);
                   setOpen(false);
                 }}
               >
-                <ScopeIcon scope={scope} />
-                {labels[scope]}
-                <Combobox.Check checked={value === scope} />
+                <ScopeDisplay option={option} />
+                <Combobox.Check checked={value === option.value} />
               </Command.Item>
             ))}
           </Command.List>
@@ -125,7 +97,6 @@ const PermissionInlineScopeCell = ({
 export const PermissionScopeSelect = ({
   value,
   options,
-  labels,
   onChange,
   placeholder = '',
   triggerVariant = 'ghost',
@@ -133,8 +104,7 @@ export const PermissionScopeSelect = ({
   hideChevron = true,
 }: {
   value?: string;
-  options: readonly string[];
-  labels: Record<string, string>;
+  options: ReadonlyArray<ScopeOption>;
   onChange: (next: string) => void;
   placeholder?: string;
   triggerVariant?: 'ghost' | 'outline' | 'secondary';
@@ -142,6 +112,7 @@ export const PermissionScopeSelect = ({
   hideChevron?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
+  const selected = options.find((o) => o.value === value);
 
   return (
     <Popover modal open={open} onOpenChange={setOpen}>
@@ -150,11 +121,8 @@ export const PermissionScopeSelect = ({
         className={triggerClassName ?? 'w-full font-normal'}
         hideChevron={hideChevron}
       >
-        {value ? (
-          <span className="inline-flex items-center gap-2">
-            <ScopeIcon scope={value} />
-            {labels[value]}
-          </span>
+        {selected ? (
+          <ScopeDisplay option={selected} />
         ) : (
           <Combobox.Value placeholder={placeholder} />
         )}
@@ -164,18 +132,17 @@ export const PermissionScopeSelect = ({
           <Command.Input placeholder="Search" />
           <Command.List className="p-1">
             <Command.Empty>No results found</Command.Empty>
-            {options.map((scope) => (
+            {options.map((option) => (
               <Command.Item
-                key={scope}
-                value={labels[scope]}
+                key={option.value}
+                value={option.label}
                 onSelect={() => {
-                  onChange(scope);
+                  onChange(option.value);
                   setOpen(false);
                 }}
               >
-                <ScopeIcon scope={scope} />
-                {labels[scope]}
-                <Combobox.Check checked={value === scope} />
+                <ScopeDisplay option={option} />
+                <Combobox.Check checked={value === option.value} />
               </Command.Item>
             ))}
           </Command.List>
@@ -192,8 +159,7 @@ const PermissionReadCell = ({ cell }: { cell: Cell<IPermission, unknown> }) => {
   return (
     <PermissionInlineScopeCell
       value={original.read}
-      options={ACCOUNT_PERMISSION_SCOPES.VALUES}
-      labels={PERMISSION_READ_LABELS}
+      options={ACCOUNT_PERMISSIONS.READ}
       onChange={(next) =>
         editPermission(original, { read: next as PermissionReadScope })
       }
@@ -212,8 +178,7 @@ const PermissionWriteCell = ({
   return (
     <PermissionInlineScopeCell
       value={original.write}
-      options={ACCOUNT_PERMISSION_WRITE_SCOPES.VALUES}
-      labels={PERMISSION_WRITE_LABELS}
+      options={ACCOUNT_PERMISSIONS.WRITE}
       onChange={(next) =>
         editPermission(original, { write: next as PermissionWriteScope })
       }

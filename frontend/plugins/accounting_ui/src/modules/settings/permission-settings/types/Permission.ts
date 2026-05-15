@@ -1,3 +1,17 @@
+import {
+  IconBan,
+  IconMathEqualLower,
+  IconMathGreater,
+  IconMathLower,
+  IconPlus,
+  IconUser,
+  type Icon,
+  type IconProps,
+} from '@tabler/icons-react';
+import type { ForwardRefExoticComponent, RefAttributes } from 'react';
+
+type TablerIcon = ForwardRefExoticComponent<IconProps & RefAttributes<Icon>>;
+
 export interface IPermissionUser {
   _id?: string;
   email?: string;
@@ -17,66 +31,37 @@ export interface IPermissionAccount {
   status?: string;
 }
 
-export const ACCOUNT_PERMISSION_SCOPES = {
-  NONE: 'none',
-  OWN: 'own',
-  LT_LVL: 'ltLvl',
-  LTE_LVL: 'lteLvl',
-  GT_LVL: 'gtLvl',
-  VALUES: ['none', 'own', 'ltLvl', 'lteLvl', 'gtLvl'],
-} as const;
+export const PERMISSION_NONE = 'none';
 
-export const ACCOUNT_PERMISSION_WRITE_SCOPES = {
-  NONE: 'none',
-  ADD: 'add',
-  OWN: 'own',
-  LT_LVL: 'ltLvl',
-  LTE_LVL: 'lteLvl',
-  GT_LVL: 'gtLvl',
-  VALUES: ['none', 'add', 'own', 'ltLvl', 'lteLvl', 'gtLvl'],
-} as const;
+export const ACCOUNT_PERMISSIONS = {
+  READ: [
+    { value: 'none', label: 'Уншихгүй', icon: IconBan },
+    { value: 'own', label: 'Өөрийнхийгөө уншина', icon: IconUser },
+    { value: 'ltLvl', label: 'Бага түвшнийг уншина', icon: IconMathLower },
+    {
+      value: 'lteLvl',
+      label: 'Чацуу түвшнийг уншина',
+      icon: IconMathEqualLower,
+    },
+    { value: 'gtLvl', label: 'Бүгдийг уншина', icon: IconMathGreater },
+  ],
+  WRITE: [
+    { value: 'none', label: 'Бичихгүй', icon: IconBan },
+    { value: 'add', label: 'Зөвхөн үүсгэж чадна', icon: IconPlus },
+    { value: 'own', label: 'Өөрийн үүсгэснийг засна', icon: IconUser },
+    { value: 'ltLvl', label: 'Бага түвшнийг засна', icon: IconMathLower },
+    { value: 'lteLvl', label: 'Чацуу түвшнийг засна', icon: IconMathEqualLower },
+    { value: 'gtLvl', label: 'Бүх эрх', icon: IconMathGreater },
+  ],
+} as const satisfies Record<
+  'READ' | 'WRITE',
+  ReadonlyArray<{ value: string; label: string; icon: TablerIcon }>
+>;
 
 export type PermissionReadScope =
-  | 'none'
-  | 'own'
-  | 'ltLvl'
-  | 'lteLvl'
-  | 'gtLvl';
-
+  (typeof ACCOUNT_PERMISSIONS.READ)[number]['value'];
 export type PermissionWriteScope =
-  | 'none'
-  | 'add'
-  | 'own'
-  | 'ltLvl'
-  | 'lteLvl'
-  | 'gtLvl';
-
-export const ACCOUNT_PERMISSION_LABELS = [
-  { value: 'none', label: 'Уншихгүй' },
-  { value: 'own', label: 'Өөрийнхийгөө уншина' },
-  { value: 'ltLvl', label: 'Бага түвшнийг уншина' },
-  { value: 'lteLvl', label: 'Чацуу түвшнийг уншина' },
-  { value: 'gtLvl', label: 'Бүгдийг уншина' },
-] as const;
-
-export const ACCOUNT_PERMISSION_WRITE_LABELS = [
-  { value: 'none', label: 'Бичихгүй' },
-  { value: 'add', label: 'Зөвхөн үүсгэж чадна' },
-  { value: 'own', label: 'Өөрийн үүсгэснийг засна' },
-  { value: 'ltLvl', label: 'Бага түвшнийг засна' },
-  { value: 'lteLvl', label: 'Чацуу түвшнийг засна' },
-  { value: 'gtLvl', label: 'Бүх эрх' },
-] as const;
-
-export const PERMISSION_READ_LABELS: Record<PermissionReadScope, string> =
-  Object.fromEntries(
-    ACCOUNT_PERMISSION_LABELS.map(({ value, label }) => [value, label]),
-  ) as Record<PermissionReadScope, string>;
-
-export const PERMISSION_WRITE_LABELS: Record<PermissionWriteScope, string> =
-  Object.fromEntries(
-    ACCOUNT_PERMISSION_WRITE_LABELS.map(({ value, label }) => [value, label]),
-  ) as Record<PermissionWriteScope, string>;
+  (typeof ACCOUNT_PERMISSIONS.WRITE)[number]['value'];
 
 export interface IPermission {
   _id: string;
@@ -98,5 +83,3 @@ export interface ISetAccountPermissionForm {
   read: PermissionReadScope;
   write: PermissionWriteScope;
 }
-
-export const PERMISSION_NONE = 'none';
