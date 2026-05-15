@@ -6,6 +6,13 @@ import {
   assertOwnedDocuments,
   requireClientPortalId,
 } from '@/cms/graphql/utils/clientPortal';
+import {
+  assertCmsDocumentAccess,
+  assertCmsLanguageAccess,
+  hasCmsPermission,
+  requireCmsPermission,
+} from '@/cms/utils/permissions';
+import { CMS_POST_ACTIONS } from '~/meta/permissions';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -39,7 +46,35 @@ export const postMutations: Record<string, Resolver> = {
     const { input } = args;
     const { translations, language, ...postInput } = input;
 
+    await requireCmsPermission(context, [
+      CMS_POST_ACTIONS.createPublished,
+      CMS_POST_ACTIONS.createReview,
+    ]);
+    await assertCmsLanguageAccess({
+      context,
+      clientPortalId: postInput.clientPortalId,
+      language,
+      translations,
+    });
+
     postInput.authorId = user._id;
+
+    const canApprove = await hasCmsPermission(
+      context,
+      CMS_POST_ACTIONS.approve,
+    );
+    const canCreatePublished = await hasCmsPermission(
+      context,
+      CMS_POST_ACTIONS.createPublished,
+    );
+
+    if (canCreatePublished && !canApprove) {
+      postInput.status = 'published';
+    } else if (canCreatePublished) {
+      postInput.status = postInput.status || 'published';
+    } else {
+      postInput.status = 'draft';
+    }
 
     if (
       (!postInput.title || !String(postInput.title).trim()) &&
@@ -76,8 +111,12 @@ export const postMutations: Record<string, Resolver> = {
     const { models } = context;
     const clientPortalId = requireClientPortalId(context);
     const { input } = args;
-    const { translations, language, clientPortalId: _ignored, ...postInput } =
-      input;
+    const {
+      translations,
+      language,
+      clientPortalId: _ignored,
+      ...postInput
+    } = input;
 
     postInput.clientPortalId = clientPortalId;
 
@@ -113,10 +152,7 @@ export const postMutations: Record<string, Resolver> = {
       Array.isArray(translations) &&
       translations.length > 0
     ) {
-      const defaultLanguage = await getDefaultLanguage(
-        models,
-        clientPortalId,
-      );
+      const defaultLanguage = await getDefaultLanguage(models, clientPortalId);
 
       const fallback =
         (defaultLanguage &&
@@ -143,12 +179,33 @@ export const postMutations: Record<string, Resolver> = {
     const { models } = context;
     const { _id, input } = args;
     const { translations, language, ...postInput } = input;
+    const existingPost = await models.Posts.findOne({ _id }).lean();
 
-    if (language && postInput.clientPortalId) {
-      const rawDefault = await getDefaultLanguage(
-        models,
-        postInput.clientPortalId,
-      );
+    if (!existingPost) {
+      throw new Error('Post not found');
+    }
+
+    await assertCmsDocumentAccess({
+      context,
+      actions:
+        postInput.status === 'published'
+          ? CMS_POST_ACTIONS.approve
+          : CMS_POST_ACTIONS.update,
+      document: existingPost,
+    });
+
+    await assertCmsLanguageAccess({
+      context,
+      clientPortalId: postInput.clientPortalId || existingPost.clientPortalId,
+      language,
+      translations,
+    });
+
+    const clientPortalId =
+      postInput.clientPortalId || existingPost.clientPortalId;
+
+    if (language && clientPortalId) {
+      const rawDefault = await getDefaultLanguage(models, clientPortalId);
 
       const defaultLanguage = rawDefault || 'en';
 
@@ -190,6 +247,17 @@ export const postMutations: Record<string, Resolver> = {
   cmsPostsRemove: async (_parent, args, context: IContext) => {
     const { models } = context;
     const { _id } = args;
+    const post = await models.Posts.findOne({ _id }).lean();
+
+    if (!post) {
+      throw new Error('Post not found');
+    }
+
+    await assertCmsDocumentAccess({
+      context,
+      actions: CMS_POST_ACTIONS.remove,
+      document: post,
+    });
 
     await models.Translations.deleteMany({
       $or: [{ objectId: _id }, { postId: _id }],
@@ -200,23 +268,76 @@ export const postMutations: Record<string, Resolver> = {
   cmsPostsRemoveMany: async (_parent, args, context: IContext) => {
     const { models } = context;
     const { _ids } = args;
+    const uniqueIds = [...new Set((_ids || []).map((id: string) => String(id)))];
+
+    await requireCmsPermission(context, CMS_POST_ACTIONS.remove);
+
+    const posts = await models.Posts.find({ _id: { $in: uniqueIds } }).lean();
+
+    if (posts.length !== uniqueIds.length) {
+      throw new Error('Post not found');
+    }
+
+    for (const post of posts) {
+      await assertCmsDocumentAccess({
+        context,
+        actions: CMS_POST_ACTIONS.remove,
+        document: post,
+      });
+    }
 
     await models.Translations.deleteMany({
-      $or: [{ objectId: { $in: _ids } }, { postId: { $in: _ids } }],
+      $or: [{ objectId: { $in: uniqueIds } }, { postId: { $in: uniqueIds } }],
     });
-    const result = await models.Posts.deleteMany({ _id: { $in: _ids } });
+    const result = await models.Posts.deleteMany({ _id: { $in: uniqueIds } });
     return { deletedCount: result.deletedCount };
   },
 
   cmsPostsChangeStatus: async (_parent, args, context: IContext) => {
     const { models } = context;
     const { _id, status } = args;
+    const post = await models.Posts.findOne({ _id }).lean();
+
+    if (!post) {
+      throw new Error('Post not found');
+    }
+
+    await assertCmsDocumentAccess({
+      context,
+      actions:
+        status === 'published'
+          ? CMS_POST_ACTIONS.approve
+          : CMS_POST_ACTIONS.update,
+      document: post,
+    });
+
+    await assertCmsLanguageAccess({
+      context,
+      clientPortalId: post.clientPortalId,
+    });
+
     return models.Posts.changeStatus(_id, status);
   },
 
   cmsPostsToggleFeatured: async (_parent, args, context: IContext) => {
     const { models } = context;
     const { _id } = args;
+    const post = await models.Posts.findOne({ _id }).lean();
+
+    if (!post) {
+      throw new Error('Post not found');
+    }
+
+    await assertCmsDocumentAccess({
+      context,
+      actions: CMS_POST_ACTIONS.update,
+      document: post,
+    });
+    await assertCmsLanguageAccess({
+      context,
+      clientPortalId: post.clientPortalId,
+    });
+
     return models.Posts.toggleFeatured(_id);
   },
 
@@ -240,18 +361,86 @@ export const postMutations: Record<string, Resolver> = {
     const object = await model.findOne({ _id: targetId });
     if (!object) throw new Error('Object not found');
 
+    if (type === 'post') {
+      await assertCmsDocumentAccess({
+        context,
+        actions: CMS_POST_ACTIONS.update,
+        document: object,
+      });
+      await assertCmsLanguageAccess({
+        context,
+        clientPortalId: object.clientPortalId,
+        language: input.language,
+      });
+    }
+
     return models.Translations.upsertTranslation(input);
   },
 
   cmsEditTranslation: async (_parent, args, context: IContext) => {
     const { models } = context;
     const { input } = args;
+    const type = input.type || 'post';
+
+    if (type === 'post') {
+      const targetId = input.objectId || input.postId;
+      const post = await models.Posts.findOne({ _id: targetId }).lean();
+
+      if (!post) {
+        throw new Error('Post not found');
+      }
+
+      await assertCmsDocumentAccess({
+        context,
+        actions: CMS_POST_ACTIONS.update,
+        document: post,
+      });
+      await assertCmsLanguageAccess({
+        context,
+        clientPortalId: post.clientPortalId,
+        language: input.language,
+      });
+    }
+
     return models.Translations.upsertTranslation(input);
   },
 
   cmsDeleteTranslation: async (_parent, args, context: IContext) => {
     const { models } = context;
     const { _id } = args;
+    const translation = await models.Translations.findOne({ _id }).lean();
+
+    if (!translation) {
+      throw new Error('Translation not found');
+    }
+
+    if (!translation.type || translation.type === 'post') {
+      const post = await models.Posts.findOne({
+        _id: translation.objectId,
+      }).lean();
+
+      if (!post) {
+        throw new Error('Post not found');
+      }
+
+      await assertCmsDocumentAccess({
+        context,
+        actions: CMS_POST_ACTIONS.update,
+        document: post,
+      });
+      await assertCmsLanguageAccess({
+        context,
+        clientPortalId: post.clientPortalId,
+        language: translation.language,
+      });
+    } else {
+      await requireCmsPermission(context, CMS_POST_ACTIONS.update);
+      await assertCmsLanguageAccess({
+        context,
+        language: translation?.language,
+      });
+    }
+
     return models.Translations.deleteTranslation(_id);
   },
 
