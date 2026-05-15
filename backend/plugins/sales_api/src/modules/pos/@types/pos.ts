@@ -28,8 +28,6 @@ export interface IPos {
   kitchenScreen?: any;
   uiOptions?: any;
   token: string;
-  ebarimtConfig?: any;
-  erkhetConfig?: any;
   syncInfos?: any;
   catProdMappings?: any;
   initialCategoryIds?: string;
@@ -37,7 +35,6 @@ export interface IPos {
   kioskExcludeProductIds?: string;
   deliveryConfig?: any;
   cardsConfig?: any;
-  checkRemainder?: boolean;
   permissionConfig?: any;
   allowTypes: string[];
   isCheckRemainder: boolean;

@@ -56,12 +56,6 @@ export const posSchema = schemaWrapper(
     uiOptions: { type: Object, label: 'UI Options' },
     token: { type: String, label: 'Pos token' },
     erxesAppToken: { type: String, label: 'Erxes App token' },
-    ebarimtConfig: {
-      type: Object,
-      optional: true,
-      label: 'Ebarimt Config',
-    },
-    erkhetConfig: { type: Object, label: 'Erkhet Config' },
     syncInfos: { type: Object, label: 'sync info' },
     catProdMappings: {
       type: [Object],
@@ -82,7 +76,6 @@ export const posSchema = schemaWrapper(
     },
     deliveryConfig: { type: Object, label: 'Delivery Config' },
     cardsConfig: { type: Object, label: 'Cards Config' },
-    checkRemainder: { type: Boolean, optional: true },
     permissionConfig: {
       type: Object,
       optional: true,
