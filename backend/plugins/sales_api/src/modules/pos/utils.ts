@@ -76,9 +76,9 @@ export const getBranchesUtil = async (
 
   let healthyBranchIds = [] as any;
 
-  const { ALL_AUTO_INIT } = process.env;
+  const { ALLOW_OFFLINE_POS } = process.env;
 
-  if ([true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '')) {
+  if (![true, 'true', 'True', '1'].includes(ALLOW_OFFLINE_POS || '')) {
     healthyBranchIds = allowsPos.map((p) => p.branchId);
   } else {
     for (const allowPos of allowsPos) {

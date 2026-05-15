@@ -31,8 +31,6 @@ export interface PosDetailQueryResponse {
       kitchenScreen?: any;
       kioskMachine?: any;
       uiOptions?: any;
-      ebarimtConfig?: any;
-      erkhetConfig?: any;
       cardsConfig?: any;
       catProdMappings?: {
         _id: string;
@@ -45,11 +43,11 @@ export interface PosDetailQueryResponse {
       kioskExcludeCategoryIds?: string[];
       kioskExcludeProductIds?: string[];
       deliveryConfig?: any;
-      checkRemainder?: boolean;
       permissionConfig?: any;
       allowTypes?: string[];
       isCheckRemainder?: boolean;
       checkExcludeCategoryIds?: string[];
+      saveRemainder?: boolean;
       banFractions?: boolean;
       branchTitle?: string;
       departmentTitle?: string;

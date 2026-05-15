@@ -163,6 +163,5 @@ export const queries = `
 `;
 
 export const mutations = `
-  posOrderReturnBill(_id: String!): PosOrder
   posOrderChangePayments(_id: String!, cashAmount: Float, mobileAmount: Float, paidAmounts: JSON, description: String): PosOrder
 `;

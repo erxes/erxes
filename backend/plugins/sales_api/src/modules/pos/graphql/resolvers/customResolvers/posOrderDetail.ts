@@ -102,17 +102,6 @@ const resolvers = {
     return {};
   },
 
-  syncedErkhet: async (order, _, { subdomain }: IContext) => {
-    if (order.syncedErkhet) {
-      return true;
-    }
-    const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
-    if (!erkhetConfig?.apiToken) {
-      return true;
-    }
-    return order.syncedErkhet;
-  },
-
   putResponses: async (order, _, { subdomain }: IContext) => {
     sendTRPCMessage({
       subdomain,

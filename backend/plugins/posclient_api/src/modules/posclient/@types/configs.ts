@@ -65,7 +65,6 @@ export interface IConfig {
   token: string;
   uiOptions: IUIOptions;
   ebarimtConfig?: IEbarimtConfig;
-  erkhetConfig?: any;
   catProdMappings?: ICatProd[];
   initialCategoryIds?: string[];
   kioskExcludeCategoryIds?: string[];
@@ -78,7 +77,6 @@ export interface IConfig {
   branchId?: string;
   departmentId?: string;
   allowBranchIds?: string[];
-  checkRemainder?: boolean;
   permissionConfig?: any;
   allowTypes: string[];
   isCheckRemainder: boolean;
@@ -91,11 +89,6 @@ export interface IConfigDocument extends Document, IConfig {
   _id: string;
 }
 
-export interface IProductGroup {}
-
-export interface IProductGroupDocument extends Document, IProductGroup {
-  _id: string;
-}
 // products config
 export interface IProductsConfig {
   code: string;
