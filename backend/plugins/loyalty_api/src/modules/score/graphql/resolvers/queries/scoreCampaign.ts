@@ -130,7 +130,8 @@ export const scoreCampaignQueries = {
       ownerId,
       ownerType,
       campaignId,
-    }: { ownerId: string; ownerType: string; campaignId: string },
+      clientPortal,
+    }: { ownerId: string; ownerType: string; campaignId: string; clientPortal: string },
     { subdomain, models }: IContext,
   ) {
     const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });

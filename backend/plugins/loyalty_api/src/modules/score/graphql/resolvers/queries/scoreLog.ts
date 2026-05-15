@@ -9,7 +9,7 @@ export const scoreLogQueries = {
     params: IScoreLogParams,
     { models }: IContext,
   ) {
-    const { ownerType, ownerId, searchValue, campaignId, action } = params;
+    const { ownerType, ownerId, searchValue, campaignId, action, clientPortal } = params;
     const filter: FilterQuery<IScoreLogDocument> = {};
 
     if (ownerType) {
@@ -30,6 +30,9 @@ export const scoreLogQueries = {
 
     if (action) {
       filter.action = action;
+    }
+    if (clientPortal) {
+      filter.clientPortal = clientPortal;
     }
 
     return cursorPaginate({

@@ -22,6 +22,11 @@ const generateFilter = (params: IDonateListParams) => {
     filter.ownerId = params.ownerId;
   }
 
+  if (params.clientPortal) {
+    filter.clientPortal = params.clientPortal;
+  }
+
+
   return filter;
 };
 
