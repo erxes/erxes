@@ -382,6 +382,8 @@ export const transactionGroupSchema = z.object({
   parentId: undefed(z.string()),
   number: undefed(z.string()),
   ptrNumber: z.string().nullish(),
+  contentType: undefed(z.string()),
+  contentId: undefed(z.string()),
   date: z.date(),
   status: z.string().refine((val) => TR_STATUSES.ALL.includes(val), {
     message: 'wrong side',

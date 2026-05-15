@@ -1,5 +1,7 @@
+import { gql, useQuery } from '@apollo/client';
 import {
   IconChessKnight,
+  IconExternalLink,
   IconShoppingCart,
   IconTag,
 } from '@tabler/icons-react';
@@ -7,6 +9,7 @@ import { ColumnDef } from '@tanstack/table-core';
 import {
   Button,
   Form,
+  isEnabled,
   RecordTable,
   RecordTableInlineCell,
   Sheet,
@@ -21,6 +24,29 @@ import { usePosOrderForm } from '../detail/hooks/usePosOrderForm';
 import { usePosOrderQuery } from '../detail/hooks/usePosOrderQuery';
 import { PosOrderForm } from '../detail/PosOrderForm';
 import { TPosOrderFormData } from '../types/posOrderType';
+
+const POS_ORDER_TRANSACTIONS = gql`
+  query PosOrderTransactions($contentType: String, $contentId: String) {
+    accTransactions(
+      contentType: $contentType
+      contentId: $contentId
+      page: 1
+      perPage: 1
+    ) {
+      _id
+      parentId
+      ptrNumber
+      number
+    }
+  }
+`;
+
+type PosOrderTransaction = {
+  _id: string;
+  parentId?: string;
+  ptrNumber?: string;
+  number?: string;
+};
 
 const itemColumns: ColumnDef<any>[] = [
   {
@@ -119,8 +145,26 @@ export const PosOrderSheet = () => {
   const { posOrder, loading, refetch } = usePosOrderQuery(
     posOrderId || undefined,
   );
+  const isAccountingEnabled = isEnabled('accounting');
+  const { data: transactionData } = useQuery<{
+    accTransactions: PosOrderTransaction[];
+  }>(POS_ORDER_TRANSACTIONS, {
+    variables: {
+      contentType: 'sales:order',
+      contentId: posOrder?._id,
+    },
+    skip: !isAccountingEnabled || !posOrder?._id,
+  });
   const { posOrderChangePayments, loading: mutationLoading } =
     usePosOrderChangePayments();
+
+  const transaction = transactionData?.accTransactions?.[0];
+  const transactionNumber = transaction?.ptrNumber || transaction?.number;
+  const transactionHref = transaction
+    ? `/accounting/transaction/edit?parentId=${encodeURIComponent(
+        transaction.parentId || transaction._id,
+      )}`
+    : '';
 
   const paidAmountsSummary = React.useMemo(() => {
     if (!posOrder?.paidAmounts || !Array.isArray(posOrder.paidAmounts))
@@ -275,10 +319,22 @@ export const PosOrderSheet = () => {
                   </div>
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      Erkhet Info:
+                      Transaction:
                     </span>
                     <span className="text-base font-medium">
-                      {posOrder.syncErkhetInfo}
+                      {transaction && transactionNumber ? (
+                        <a
+                          href={transactionHref}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-primary hover:underline"
+                        >
+                          {transactionNumber}
+                          <IconExternalLink className="size-4" />
+                        </a>
+                      ) : (
+                        '-'
+                      )}
                     </span>
                   </div>
                   <div className="flex justify-between w-full gap-1">

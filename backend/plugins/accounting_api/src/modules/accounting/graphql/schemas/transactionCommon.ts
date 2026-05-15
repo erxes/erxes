@@ -58,6 +58,8 @@ const transactionFields = `
   ctaxAmount: Float
 
   extraData: JSON
+  contentType: String
+  contentId: String
 `;
 
 export const types = () => `
@@ -171,6 +173,8 @@ const trsQueryParams = `
   ptrStatus: String,
   customerType: String,
   customerId: String,
+  contentType: String,
+  contentId: String,
 
   accountIds: [String],
   accountKind: String,

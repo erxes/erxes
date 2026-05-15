@@ -27,6 +27,8 @@ interface IQueryParams {
   ptrStatus: string;
   customerType?: string;
   customerId?: string;
+  contentType?: string;
+  contentId?: string;
 
   accountIds?: string[];
   accountKind?: string;
@@ -134,6 +136,8 @@ const generateFilter = async (
     journals,
     customerType,
     customerId,
+    contentType,
+    contentId,
     brandId,
     branchId,
     departmentId,
@@ -290,6 +294,12 @@ const generateFilter = async (
   }
   if (customerId) {
     filter.customerId = customerId;
+  }
+  if (contentType) {
+    filter.contentType = contentType;
+  }
+  if (contentId) {
+    filter.contentId = contentId;
   }
 
   if (currency) {

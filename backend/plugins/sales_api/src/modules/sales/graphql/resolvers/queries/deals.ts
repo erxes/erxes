@@ -810,6 +810,48 @@ export const dealQueries: Record<string, Resolver> = {
     return models.Deals.find(filter).countDocuments();
   },
 
+  async dealLink(
+    _root,
+    { _id }: { _id?: string },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('showDeals');
+
+    if (!_id) {
+      return null;
+    }
+
+    const deal = await models.Deals.findOne({ _id }).lean();
+
+    if (!deal?.stageId) {
+      return null;
+    }
+
+    const stage = await models.Stages.findOne({ _id: deal.stageId }).lean();
+
+    if (!stage?.pipelineId) {
+      return null;
+    }
+
+    const pipeline = await models.Pipelines.findOne({
+      _id: stage.pipelineId,
+    }).lean();
+
+    if (!pipeline?.boardId) {
+      return null;
+    }
+
+    return {
+      contentType: 'sales:deal',
+      contentId: deal._id,
+      dealId: deal._id,
+      stageId: stage._id,
+      pipelineId: pipeline._id,
+      boardId: pipeline.boardId,
+      href: `/sales/deals?boardId=${encodeURIComponent(pipeline.boardId)}&pipelineId=${encodeURIComponent(pipeline._id)}&salesItemId=${encodeURIComponent(deal._id)}`,
+    };
+  },
+
   /**
    * Archived list
    */
