@@ -45,6 +45,7 @@ export const generateOrderNumber = async (
 
   if (config?.beginNumber) {
     beginNumber = `${config.beginNumber}.`;
+    // eslint-disable-next-line no-useless-escape
     regexSuffix = `${config.beginNumber}\.[0-9]*$`;
   }
 

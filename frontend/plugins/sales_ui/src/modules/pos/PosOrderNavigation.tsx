@@ -196,7 +196,7 @@ const PosActionsMenu = ({ pos }: { pos: Pos }) => {
         <DropdownMenu.Item
           className="cursor-pointer"
           onSelect={(e) => {
-            navigate(`/settings/sales/pos/details/${pos._id}`);
+            navigate(`/settings/sales/pos/${pos._id}`);
           }}
         >
           <IconSettings className="size-4" />

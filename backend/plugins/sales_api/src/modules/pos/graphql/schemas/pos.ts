@@ -33,14 +33,11 @@ const posCommonFields = `
   uiOptions: JSON
   token: String
   erxesAppToken: String
-  ebarimtConfig: JSON
-  erkhetConfig: JSON
   initialCategoryIds: [String]
   kioskExcludeCategoryIds: [String]
   kioskExcludeProductIds: [String]
   deliveryConfig: JSON
   cardsConfig: JSON
-  checkRemainder: Boolean
   permissionConfig: JSON
   allowTypes: [String]
   isCheckRemainder: Boolean
