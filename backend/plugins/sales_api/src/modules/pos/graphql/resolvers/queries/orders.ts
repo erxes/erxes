@@ -476,6 +476,38 @@ const queries = {
     return orderDetail;
   },
 
+  posOrderLink: async (_root, { _id }, { models, checkPermission }: IContext) => {
+    await checkPermission('posOrderRead');
+
+    if (!_id) {
+      return null;
+    }
+
+    const order = await models.PosOrders.findOne({ _id }).lean();
+
+    if (!order) {
+      return null;
+    }
+
+    const pos = order.posToken
+      ? await models.Pos.findOne({ token: order.posToken }).select('_id').lean()
+      : null;
+    const posId = order.posId || pos?._id;
+
+    if (!posId || !order.number) {
+      return null;
+    }
+
+    return {
+      contentType: 'sales:order',
+      contentId: order._id,
+      orderId: order._id,
+      posId,
+      number: order.number,
+      href: `/sales/pos/${posId}/orders?number=${encodeURIComponent(order.number)}`,
+    };
+  },
+
   posOrdersSummary: async (_root, params, { models, user, checkPermission }: IContext) => {
     await checkPermission('posOrderRead');
     const query = await generateFilterPosQuery(models, params, user._id);
