@@ -59,6 +59,8 @@ const SelectTeamMemberContent = ({
   teamIds?: string[] | string;
   exclude: boolean;
 }) => {
+  const hasTeamFilter =
+    !!teamIds && (Array.isArray(teamIds) ? teamIds.length > 0 : true);
   const { members: teamMembers } = useGetTeamMembers({ teamIds });
   const excludeIds = teamMembers?.map((member) => member.memberId);
   const [search, setSearch] = useState('');
@@ -70,9 +72,9 @@ const SelectTeamMemberContent = ({
     variables: {
       searchValue: debouncedSearch,
       excludeIds: exclude,
-      ids: filteredIds,
+      ids: hasTeamFilter ? filteredIds : undefined,
     },
-    skip: !excludeIds || !filteredIds?.length,
+    skip: hasTeamFilter && (!excludeIds || !filteredIds?.length),
   });
   const membersList = exclude
     ? [currentUser, ...users].filter(
