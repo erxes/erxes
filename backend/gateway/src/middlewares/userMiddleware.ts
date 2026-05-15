@@ -205,6 +205,10 @@ export default async function userMiddleware(
     );
     const user = decoded.user;
 
+    if (!user?._id) {
+      return next();
+    }
+
     const userDoc = await models.Users.findOne(
       { _id: user._id },
       '_id email details isOwner groupIds brandIds username code departmentIds permissionGroupIds',
@@ -239,6 +243,8 @@ export default async function userMiddleware(
     if (!hostname) {
       redis.set('hostname', process.env.DOMAIN || 'http://localhost:3001');
     }
+
+    setUserHeader(req.headers, req.user);
   } catch (e) {
     if (e instanceof jwt.TokenExpiredError) {
       return next();
@@ -246,7 +252,6 @@ export default async function userMiddleware(
       console.error(e);
     }
   }
-  setUserHeader(req.headers, req.user);
 
   return next();
 }
