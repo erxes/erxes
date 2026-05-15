@@ -1,6 +1,5 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IPosOrderDocument } from '@/pos/@types/orders';
-import { getConfig } from '@/pos/utils';
 import { IContext } from '~/connectionResolvers';
 
 const resolvers = {

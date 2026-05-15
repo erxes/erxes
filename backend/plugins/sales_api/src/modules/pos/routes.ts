@@ -2,7 +2,7 @@ import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
 import { IPosDocument } from './@types/pos';
 import { USER_FIELDS } from './db/definitions/constants';
-import { calcProductsTaxRule, getChildCategories, getConfig } from './utils';
+import { calcProductsTaxRule, getChildCategories } from './utils';
 
 export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   const data: any = { pos };

@@ -78,9 +78,7 @@ export const getBranchesUtil = async (
 
   const { ALLOW_OFFLINE_POS } = process.env;
 
-  if (![true, 'true', 'True', '1'].includes(ALLOW_OFFLINE_POS || '')) {
-    healthyBranchIds = allowsPos.map((p) => p.branchId);
-  } else {
+  if ([true, 'true', 'True', '1'].includes(ALLOW_OFFLINE_POS || '')) {
     for (const allowPos of allowsPos) {
       if (healthyBranchIds.includes(allowPos.branchId)) {
         continue;
@@ -95,6 +93,8 @@ export const getBranchesUtil = async (
         healthyBranchIds.push(allowPos.branchId);
       }
     }
+  } else {
+    healthyBranchIds = allowsPos.map((p) => p.branchId);
   }
 
   return await sendTRPCMessage({
