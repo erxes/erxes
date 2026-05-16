@@ -554,7 +554,7 @@ export const getItemList = async (
 
     updatedList.push({
       ...item,
-      isWatched: (item.watchedUserIds || []).includes(user._id),
+      isWatched: (item.watchedUserIds || []).includes(user?._id),
       // hasNotified: notification ? false : true,
       ...(getExtraFields ? getExtraFields(item) : {}),
     });
