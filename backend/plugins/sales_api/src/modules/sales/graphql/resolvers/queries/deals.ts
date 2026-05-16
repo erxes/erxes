@@ -943,8 +943,8 @@ export const dealQueries: Record<string, Resolver> = {
     return checkItemPermByUser(models, subdomain, user, deal);
   },
 
-  async cpDealDetail(_root, args, ctx: IContext) {
-    return dealQueries.dealDetail(_root, args, ctx);
+  async cpDealDetail(_root, args, ctx: IContext, info) {
+    return dealQueries.dealDetail(_root, args, ctx, info);
   },
 
   async checkDiscount(
