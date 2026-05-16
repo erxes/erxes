@@ -426,7 +426,7 @@ export const generateFilter = async (
       });
 
       let includeCheckUserIds = otherDepartmentUsers.map((x) => x._id) || [];
-      includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
+      includeCheckUserIds = includeCheckUserIds.concat(user?._id || []);
 
       const uqinueCheckUserIds = [
         ...new Set(includeCheckUserIds.concat(userId)),
@@ -473,7 +473,7 @@ export const generateFilter = async (
               userDepartmentIds.includes(departmentId),
             ).length
           ) {
-            includeCheckUserIds = includeCheckUserIds.concat(user._id || []);
+            includeCheckUserIds = includeCheckUserIds.concat(user?._id || []);
           }
         }
 
@@ -707,7 +707,7 @@ export const dealQueries: Record<string, Resolver> = {
     { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('showDeals');
-    return fetchDeals(models, subdomain, user._id, args, user);
+    return fetchDeals(models, subdomain, user?._id || '', args, user);
   },
 
   async cpDeals(
@@ -723,7 +723,7 @@ export const dealQueries: Record<string, Resolver> = {
     args: IDealQueryParams,
     { user, models, subdomain }: IContext,
   ) {
-    const filter = await generateFilter(models, subdomain, user._id, args);
+    const filter = await generateFilter(models, subdomain, user?._id || '', args);
 
     return models.Deals.find(filter).countDocuments();
   },
@@ -789,7 +789,7 @@ export const dealQueries: Record<string, Resolver> = {
     args: IDealQueryParams,
     { user, models, subdomain }: IContext,
   ) {
-    const filter = await generateFilter(models, subdomain, user._id, args);
+    const filter = await generateFilter(models, subdomain, user?._id || '', args);
 
     const amountList = await models.Deals.aggregate([
       {
