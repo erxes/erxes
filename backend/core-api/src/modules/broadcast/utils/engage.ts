@@ -84,13 +84,28 @@ export const checkCustomerExists = async (
 
   const must: any[] = [
     { terms: { state: [CONTENT_TYPES.CUSTOMER, CONTENT_TYPES.LEAD] } },
-  ];
-
-  must.push({
-    term: {
-      _id: id,
+    {
+      term: {
+        _id: id,
+      },
     },
-  });
+    {
+      bool: {
+        should: [
+          { term: { isSubscribed: 'yes' } },
+          {
+            bool: {
+              must_not: {
+                exists: {
+                  field: 'isSubscribed',
+                },
+              },
+            },
+          },
+        ],
+      },
+    },
+  ];
 
   // if (customerIds && customerIds.length > 0) {
   //   must.push({ terms: { _id: customerIds } });
@@ -139,23 +154,6 @@ export const checkCustomerExists = async (
   //     },
   //   });
   // }
-
-  must.push({
-    bool: {
-      should: [
-        { term: { isSubscribed: 'yes' } },
-        {
-          bool: {
-            must_not: {
-              exists: {
-                field: 'isSubscribed',
-              },
-            },
-          },
-        },
-      ],
-    },
-  });
 
   const customers = await findElk(subdomain, 'customers', {
     bool: {

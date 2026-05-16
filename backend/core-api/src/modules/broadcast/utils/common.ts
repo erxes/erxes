@@ -734,7 +734,7 @@ const sendCampaignNotification = async (
     //   );
     // });
   } catch (e) {
-    // await models.Logs.createLog(groupId, 'failure', e.message);
+    console.log('Error sending campaign notification:', e);
   }
 };
 
