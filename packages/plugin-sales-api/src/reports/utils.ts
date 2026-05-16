@@ -97,8 +97,12 @@ export const buildGroupBy = ({
   };
 };
 
-export const buildAction = (measures: string[]): object => {
+export const buildAction = (
+  measures: string[],
+  dimensions: string[] = []
+): object => {
   const actions = {};
+  const byPayment = dimensions.includes("paymentType");
 
   (measures || []).forEach((measure) => {
     switch (measure) {
@@ -106,15 +110,17 @@ export const buildAction = (measures: string[]): object => {
         actions[measure] = { $sum: 1 };
         break;
       case "totalAmount":
-        actions[measure] = {
-          $sum: {
-            $cond: [
-              { $eq: ["$productsData.tickUsed", true] },
-              "$productsData.amount",
-              0,
-            ],
-          },
-        };
+        actions[measure] = byPayment
+          ? { $sum: "$paymentType.v.amount" }
+          : {
+              $sum: {
+                $cond: [
+                  { $eq: ["$productsData.tickUsed", true] },
+                  "$productsData.amount",
+                  0,
+                ],
+              },
+            };
         break;
       case "unusedAmount":
         actions[measure] = {
@@ -128,31 +134,42 @@ export const buildAction = (measures: string[]): object => {
         };
         break;
       case "averageAmount":
-        actions[measure] = {
-          $avg: {
-            $cond: {
-              if: { $eq: ["$productsData.tickUsed", true] },
-              then: "$productsData.amount",
-              else: null,
-            },
-          },
-        };
+        actions[measure] = byPayment
+          ? { $avg: "$paymentType.v.amount" }
+          : {
+              $avg: {
+                $cond: {
+                  if: { $eq: ["$productsData.tickUsed", true] },
+                  then: "$productsData.amount",
+                  else: null,
+                },
+              },
+            };
         break;
       case "forecastAmount":
-        actions[measure] = {
-          $sum: {
-            $cond: {
-              if: { $eq: ["$productsData.tickUsed", true] },
-              then: {
+        actions[measure] = byPayment
+          ? {
+              $sum: {
                 $divide: [
-                  { $multiply: ["$productsData.amount", "$probability"] },
+                  { $multiply: ["$paymentType.v.amount", "$probability"] },
                   100,
                 ],
               },
-              else: 0,
-            },
-          },
-        };
+            }
+          : {
+              $sum: {
+                $cond: {
+                  if: { $eq: ["$productsData.tickUsed", true] },
+                  then: {
+                    $divide: [
+                      { $multiply: ["$productsData.amount", "$probability"] },
+                      100,
+                    ],
+                  },
+                  else: 0,
+                },
+              },
+            };
         break;
       default:
         actions[measure] = { $sum: 1 };
@@ -242,7 +259,7 @@ export const buildPipeline = (filter, type, matchFilter) => {
 
   const pipeline: any[] = [];
 
-  const actions = buildAction(measures);
+  const actions = buildAction(measures, dimensions);
 
   const formatType = buildFormatType(dateRange, startDate, endDate);
 
@@ -523,18 +540,25 @@ export const buildPipeline = (filter, type, matchFilter) => {
     );
   }
 
-  if (
+  const hasProductDimension =
     dimensions.includes("product") ||
     dimensions.includes("service") ||
-    dimensions.includes("productCategory") ||
-    measures.some((m) =>
-      [
-        "totalAmount",
-        "averageAmount",
-        "unusedAmount",
-        "forecastAmount",
-      ].includes(m)
-    )
+    dimensions.includes("productCategory");
+
+  const amountMeasureSourcedFromPayment =
+    dimensions.includes("paymentType") && !hasProductDimension;
+
+  if (
+    hasProductDimension ||
+    (!amountMeasureSourcedFromPayment &&
+      measures.some((m) =>
+        [
+          "totalAmount",
+          "averageAmount",
+          "unusedAmount",
+          "forecastAmount",
+        ].includes(m)
+      ))
   ) {
     pipeline.push(
       { $unwind: "$productsData" },
