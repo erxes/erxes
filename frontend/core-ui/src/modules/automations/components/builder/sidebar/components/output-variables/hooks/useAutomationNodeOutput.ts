@@ -60,7 +60,22 @@ export const useAutomationNodeOutput = (
       }),
     ) || [];
 
-  const mergedVariables = [...variables, ...findObjectVariables].filter(
+  const transformVariables =
+    activeSourceNode?.nodeType === AutomationNodeType.Action &&
+    activeSourceNode?.type === 'transform'
+      ? (sourceNodeConfig?.mappings || [])
+          .filter((mapping: any) => mapping?.key)
+          .map((mapping: any) => ({
+            key: `data.${mapping.key}`,
+            label: mapping.key,
+          }))
+      : [];
+
+  const mergedVariables = [
+    ...variables,
+    ...findObjectVariables,
+    ...transformVariables,
+  ].filter(
     (variable, index, array) =>
       array.findIndex((candidate) => candidate.key === variable.key) === index,
   );

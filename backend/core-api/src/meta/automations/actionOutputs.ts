@@ -37,6 +37,10 @@ export const FIND_OBJECT_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
   },
 };
 
+export const TRANSFORM_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
+  variables: [{ key: 'data', label: 'Data' }],
+};
+
 export const SEND_EMAIL_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
   variables: [
     { key: 'title', label: 'Title' },

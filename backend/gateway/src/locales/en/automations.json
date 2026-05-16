@@ -109,6 +109,7 @@
   "choose-action-type": "Choose your action type",
   "action-type-description": "Pick what should happen next after the automation is triggered",
   "search": "Search...",
+  "filter-by-type": "Filter by type",
   "variables-help-aria-label": "How variables work",
   "variables-help-title": "How variables work",
   "variables-help-description": "Use variables from triggers or previous actions to fill fields in the current node.",

@@ -190,6 +190,7 @@ export const useAutomationNodeLibrarySidebar = () => {
     AutomationNodesLibraryMap[AutomationNodeType.Trigger];
   return {
     activeNodeTab: activeTab,
+    queryParams,
     setQueryParams,
     loading,
     triggersConst,

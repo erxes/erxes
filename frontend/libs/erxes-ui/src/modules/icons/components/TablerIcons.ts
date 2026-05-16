@@ -280,6 +280,7 @@ import {
   IconBrandFacebook,
   IconArrowsSplit,
   IconBrain,
+  IconArrowMerge,
 } from '@tabler/icons-react';
 
 export const ALL_ICONS = {
@@ -564,4 +565,5 @@ export const ALL_ICONS = {
   IconBrandFacebook,
   IconArrowsSplit,
   IconBrain,
+  IconArrowMerge,
 };

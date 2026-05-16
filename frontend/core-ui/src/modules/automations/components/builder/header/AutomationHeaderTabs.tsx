@@ -6,13 +6,15 @@ import {
 import { Tabs, usePreviousHotkeyScope, useScopedHotkeys } from 'erxes-ui';
 import { motion } from 'motion/react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router';
 
 export const AutomationHeaderTabs = ({
   toggleTabs,
 }: {
   toggleTabs: (tab: AutomationBuilderTabsType) => void;
 }) => {
-  const { queryParams } = useAutomation();
+  const { queryParams, isCreatePage } = useAutomation();
+
   const { t } = useTranslation('automations');
 
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
@@ -45,6 +47,9 @@ export const AutomationHeaderTabs = ({
 
   const activeTab = queryParams.activeTab || 'builder';
 
+  if (isCreatePage) {
+    return null;
+  }
   return (
     <Tabs.List className="bg-foreground/5 rounded-md border-b-none border-none h-7 p-0 relative shrink-0">
       <Tabs.Trigger

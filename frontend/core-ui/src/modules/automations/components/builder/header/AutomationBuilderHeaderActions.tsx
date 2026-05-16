@@ -1,9 +1,10 @@
 import { useAutomationBuilderSidebarHooks } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSidebarHooks';
 import { useAutomationNodeLibrarySidebar } from '@/automations/components/builder/sidebar/hooks/useAutomationNodeLibrarySidebar';
 import { AUTOMATION_LIBRARY_TABS } from '@/automations/constants';
+import { useAutomation } from '@/automations/context/AutomationProvider';
 import { automationBuilderActiveTabState } from '@/automations/states/automationState';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
-import { Button, Form, Label, Switch, Toggle } from 'erxes-ui';
+import { Button, cn, Form, Label, Switch, Toggle } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +12,9 @@ import { useTranslation } from 'react-i18next';
 export const AutomationBuilderHeaderActions = () => {
   const { control } = useFormContext<TAutomationBuilderForm>();
   const activeTab = useAtomValue(automationBuilderActiveTabState);
-  const { activeNodeTab } = useAutomationNodeLibrarySidebar();
+  const { isCreatePage } = useAutomation();
+  const { activeNodeTab, queryParams } = useAutomationNodeLibrarySidebar();
+
   const { handleNodeLibraryToggle } = useAutomationBuilderSidebarHooks();
   const { t } = useTranslation('automations');
   if (activeTab !== 'builder') {
@@ -20,35 +23,41 @@ export const AutomationBuilderHeaderActions = () => {
 
   return (
     <div className="flex items-center gap-9">
-      <div className="flex flex-row justify-between items-center gap-4">
-        <Form.Field
-          control={control}
-          name="status"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Control>
-                <div className="flex items-center space-x-2">
-                  <Label htmlFor="mode">{t('inactive')}</Label>
-                  <Switch
-                    id="mode"
-                    onCheckedChange={(open) =>
-                      field.onChange(open ? 'active' : 'draft')
-                    }
-                    checked={field.value === 'active'}
-                  />
-                </div>
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
-      </div>
+      {!isCreatePage && (
+        <div className="flex flex-row justify-between items-center gap-4">
+          <Form.Field
+            control={control}
+            name="status"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Control>
+                  <div className="flex items-center space-x-2">
+                    <Label htmlFor="mode">{t('inactive')}</Label>
+                    <Switch
+                      id="mode"
+                      onCheckedChange={(open) =>
+                        field.onChange(open ? 'active' : 'draft')
+                      }
+                      checked={field.value === 'active'}
+                    />
+                  </div>
+                </Form.Control>
+              </Form.Item>
+            )}
+          />
+        </div>
+      )}
       <div className="flex items-center gap-2">
         {AUTOMATION_LIBRARY_TABS.map(({ value, label, icon: Icon }) => (
           <Toggle
             key={value}
             variant="outline"
-            className="data-[state=on]:shadow-focus data-[state=on]:bg-background bg-background text-foreground"
-            pressed={value === activeNodeTab}
+            className={cn(
+              'data-[state=on]:shadow-focus data-[state=on]:bg-background bg-background text-foreground',
+            )}
+            pressed={
+              Boolean(queryParams?.activeNodeTab) && value === activeNodeTab
+            }
             asChild
             onPressedChange={() => handleNodeLibraryToggle(value)}
           >

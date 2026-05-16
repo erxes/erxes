@@ -4,6 +4,7 @@ import { AutomationBuilderNameInput } from '@/automations/components/builder/hea
 import {
   IconAffiliate,
   IconDeviceFloppy,
+  IconLock,
   IconSettings,
 } from '@tabler/icons-react';
 import { Breadcrumb, Button, PageSubHeader, Spinner } from 'erxes-ui';
@@ -11,6 +12,7 @@ import { Link } from 'react-router';
 import { Can, PageHeader } from 'ui-modules';
 import { useAutomationHeader } from '@/automations/components/builder/hooks/useAutomationHeader';
 import { useTranslation } from 'react-i18next';
+import { AutomationButtonPermissionFallback } from '../../common/AutomationButtonPermissionFallback';
 
 export const AutomationBuilderHeader = () => {
   const { loading, handleSubmit, handleSave, handleError, toggleTabs } =
@@ -41,7 +43,10 @@ export const AutomationBuilderHeader = () => {
               {t('go-to-settings')}
             </Link>
           </Button>
-          <Can actions={['automationsCreate', 'automationsUpdate']}>
+          <Can
+            actions={['automationsCreate', 'automationsUpdate']}
+            fallback={<AutomationButtonPermissionFallback />}
+          >
             <Button
               disabled={loading}
               onClick={handleSubmit(handleSave, handleError)}

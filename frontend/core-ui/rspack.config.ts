@@ -5,6 +5,7 @@ import {
 } from '@nx/rspack/module-federation';
 import { DefinePlugin } from '@rspack/core';
 
+import { applyWatchOptions } from '../rspack.watch-options';
 import baseConfig from './module-federation.config';
 
 const config: ModuleFederationConfig = {
@@ -16,6 +17,8 @@ export default composePlugins(
   withReact(),
   withModuleFederation(config, { dts: false }),
   (config: any) => {
+    applyWatchOptions(config);
+
     // Define environment variables
     config.plugins?.push(
       new DefinePlugin({

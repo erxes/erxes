@@ -27,6 +27,7 @@ export const AUTOMATION_CORE_ACTIONS = {
   IF: 'if',
   SPLIT: 'split',
   FIND_OBJECT: 'findObject',
+  TRANSFORM: 'transform',
   SET_PROPERTY: 'setProperty',
   SEND_EMAIL: 'sendEmail',
   OUTGOING_WEBHOOK: 'outgoingWebhook',

@@ -60,7 +60,7 @@ export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
       <ReactFlowProvider>
         <AutomationBuilderDnDProvider>
           <FormProvider {...form}>
-            <AutomationBuilderUnsavedChangesAlert />
+            <AutomationBuilderUnsavedChangesAlert detail={detail} />
             <Tabs value={activeTab} className="h-screen flex flex-col">
               <AutomationBuilderHeader />
               {activeTab === 'builder' && (

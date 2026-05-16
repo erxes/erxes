@@ -64,9 +64,7 @@ export const AutomationBuilderSidebar = () => {
     activeNode?.nodeType === AutomationNodeType.Trigger &&
     !activeNode?.isCustom;
   const isEditingNode =
-    !!activeNode &&
-    (activeNode.nodeType === AutomationNodeType.Trigger ||
-      activeNode.nodeType === AutomationNodeType.Action);
+    !!activeNode && activeNode.nodeType === AutomationNodeType.Action;
   const canShowSecondarySidebar = isEditingNode;
   const sidebarWidthClasses = hasSegmentFormContent
     ? 'w-full  sm:w-fit sm:min-w-md sm:max-w-4xl'

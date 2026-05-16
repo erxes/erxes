@@ -89,6 +89,7 @@ export type IAutomationsActionConfig = {
   icon: string;
   label: string;
   description: string;
+  group?: string;
   isAvailableOptionalConnect?: boolean;
   emailRecipientsConst?: any;
   isTargetSource?: boolean;
