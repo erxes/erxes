@@ -2,10 +2,7 @@ import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { JournalEnum } from '@/settings/account/types/Account';
 import { SelectCtax } from '@/settings/ctax/components/SelectCtaxRow';
 import { SelectVat } from '@/settings/vat/components/SelectVatRow';
-import {
-  TR_STATUSES,
-  TR_STATUS_OPTIONS,
-} from '@/transactions/types/constants';
+import { TR_STATUSES, TR_STATUS_OPTIONS } from '@/transactions/types/constants';
 import { useQuery } from '@apollo/client';
 import {
   Button,
@@ -27,12 +24,14 @@ import {
 } from 'ui-modules';
 import { z } from 'zod';
 import { PIPELINE_DETAIL } from '../graphql/queries/relatedQueries';
+import { SyncResponseFieldSelect } from './SyncResponseFieldSelect';
 
 const configFormSchema = z.object({
   title: z.string(),
   boardId: z.string().optional(),
   pipelineId: z.string().optional(),
   stageId: z.string(),
+  responseFieldId: z.string().optional(),
   dateRule: z.enum(['alwaysNow', 'syncedDateOrNow']),
   trStatus: z.string().optional(),
   saleAccountId: z.string(),
@@ -217,6 +216,7 @@ export const SyncDealConfigForm = ({
             </Form.Item>
           )}
         />
+        <SyncResponseFieldSelect form={form} />
         <Form.Field
           control={form.control}
           name="saleAccountId"
@@ -387,28 +387,26 @@ export const SyncDealConfigForm = ({
             </Form.Item>
           )}
         />
-        {
-          useWatch({
-            control: form.control,
-            name: `hasVat`,
-          }) && (
-            <Form.Field
-              control={form.control}
-              name="vatRowId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>НӨАТ-ын мөр</Form.Label>
-                  <Form.Control>
-                    <SelectVat
-                      value={field.value || ''}
-                      onValueChange={field.onChange}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          )
-        }
+        {useWatch({
+          control: form.control,
+          name: `hasVat`,
+        }) && (
+          <Form.Field
+            control={form.control}
+            name="vatRowId"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>НӨАТ-ын мөр</Form.Label>
+                <Form.Control>
+                  <SelectVat
+                    value={field.value || ''}
+                    onValueChange={field.onChange}
+                  />
+                </Form.Control>
+              </Form.Item>
+            )}
+          />
+        )}
         <Form.Field
           control={form.control}
           name="hasCtax"
@@ -424,28 +422,26 @@ export const SyncDealConfigForm = ({
             </Form.Item>
           )}
         />
-        {
-          useWatch({
-            control: form.control,
-            name: `hasCtax`,
-          }) && (
-            <Form.Field
-              control={form.control}
-              name="ctaxRowId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>НХАТ-ын мөр</Form.Label>
-                  <Form.Control>
-                    <SelectCtax
-                      value={field.value || ''}
-                      onValueChange={field.onChange}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          )
-        }
+        {useWatch({
+          control: form.control,
+          name: `hasCtax`,
+        }) && (
+          <Form.Field
+            control={form.control}
+            name="ctaxRowId"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>НХАТ-ын мөр</Form.Label>
+                <Form.Control>
+                  <SelectCtax
+                    value={field.value || ''}
+                    onValueChange={field.onChange}
+                  />
+                </Form.Control>
+              </Form.Item>
+            )}
+          />
+        )}
 
         <Dialog.Footer className="col-span-3 mt-3 gap-2">
           <Dialog.Close asChild>

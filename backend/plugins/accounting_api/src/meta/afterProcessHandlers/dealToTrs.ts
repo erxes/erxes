@@ -25,6 +25,7 @@ export const dealToTrs = async ({
   deal: any;
   config: {
     dateRule: 'alwaysNow' | 'syncedDateOrNow';
+    responseFieldId?: string;
     saleAccountId: string;
     saleOutAccountId: string;
     saleCostAccountId: string;
@@ -262,11 +263,13 @@ export const dealToTrs = async ({
       parentId,
       [{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs],
       userId,
+      { skipAccountPermission: true },
     );
   } else {
     await models.Transactions.createPTransaction(
       [{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs],
       userId,
+      { skipAccountPermission: true },
     );
   }
 };

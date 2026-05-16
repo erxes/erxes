@@ -1,4 +1,8 @@
-import { AfterProcessConfigs, IAfterProcessRule } from 'erxes-api-shared/utils';
+import {
+  AfterProcessConfigs,
+  IAfterProcessRule,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { dealToTrs } from './afterProcessHandlers/dealToTrs';
 import { dealToReturnTrs } from './afterProcessHandlers/dealToReturnTrs';
@@ -35,6 +39,65 @@ const allRules: IAfterProcessRule[] = [
     },
   },
 ];
+
+const getErrorMessage = (error: any) =>
+  error?.message || error?.errorMessage || `${error}`;
+
+const setDealAccountingResponse = async ({
+  subdomain,
+  dealId,
+  responseFieldId,
+  message,
+  userId,
+}: {
+  subdomain: string;
+  dealId: string;
+  responseFieldId?: string;
+  message: string;
+  userId?: string;
+}) => {
+  if (!responseFieldId) {
+    return;
+  }
+
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'sales',
+    method: 'mutation',
+    module: 'deal',
+    action: 'updateOne',
+    input: {
+      selector: { _id: dealId },
+      modifier: {
+        $set: {
+          [`propertiesData.${responseFieldId}`]: message,
+        },
+      },
+    },
+    context: { userId },
+  });
+};
+
+const setOrderAccountingResponse = async ({
+  subdomain,
+  orderId,
+  message,
+}: {
+  subdomain: string;
+  orderId: string;
+  message: string;
+}) => {
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'sales',
+    module: 'order',
+    action: 'updateOne',
+    input: {
+      selector: { _id: orderId },
+      modifier: { accountingResponse: message },
+    },
+  });
+};
 
 export const afterProcess: AfterProcessConfigs = {
   rules: allRules,
@@ -81,21 +144,55 @@ export const afterProcess: AfterProcessConfigs = {
           }
 
           if (configSale?.stageId === currentStageId) {
-            await dealToTrs({
-              subdomain,
-              models,
-              userId,
-              deal: currentDocument,
-              config: configSale,
-            });
+            try {
+              await dealToTrs({
+                subdomain,
+                models,
+                userId,
+                deal: currentDocument,
+                config: configSale,
+              });
+              await setDealAccountingResponse({
+                subdomain,
+                dealId: currentDocument._id,
+                responseFieldId: configSale.responseFieldId,
+                message: 'success',
+                userId,
+              });
+            } catch (e) {
+              await setDealAccountingResponse({
+                subdomain,
+                dealId: currentDocument._id,
+                responseFieldId: configSale.responseFieldId,
+                message: getErrorMessage(e),
+                userId,
+              });
+            }
           }
           if (configReturn?.stageId === currentStageId) {
-            await dealToReturnTrs({
-              models,
-              userId,
-              deal: currentDocument,
-              config: configReturn,
-            });
+            try {
+              await dealToReturnTrs({
+                models,
+                userId,
+                deal: currentDocument,
+                config: configReturn,
+              });
+              await setDealAccountingResponse({
+                subdomain,
+                dealId: currentDocument._id,
+                responseFieldId: configReturn.responseFieldId,
+                message: 'success',
+                userId,
+              });
+            } catch (e) {
+              await setDealAccountingResponse({
+                subdomain,
+                dealId: currentDocument._id,
+                responseFieldId: configReturn.responseFieldId,
+                message: getErrorMessage(e),
+                userId,
+              });
+            }
           }
         }
         return;
@@ -110,19 +207,32 @@ export const afterProcess: AfterProcessConfigs = {
           );
 
           if (configOrder?.posId === currentPosId) {
-            if (currentDocument.status === 'return') {
-              await orderToReturnTrs({
-                models,
-                userId,
-                order: currentDocument,
-                config: configOrder,
+            try {
+              if (currentDocument.status === 'return') {
+                await orderToReturnTrs({
+                  models,
+                  userId,
+                  order: currentDocument,
+                  config: configOrder,
+                });
+              } else {
+                await orderToTrs({
+                  models,
+                  userId,
+                  order: currentDocument,
+                  config: configOrder,
+                });
+              }
+              await setOrderAccountingResponse({
+                subdomain,
+                orderId: currentDocument._id,
+                message: 'success',
               });
-            } else {
-              await orderToTrs({
-                models,
-                userId,
-                order: currentDocument,
-                config: configOrder,
+            } catch (e) {
+              await setOrderAccountingResponse({
+                subdomain,
+                orderId: currentDocument._id,
+                message: getErrorMessage(e),
               });
             }
           }
@@ -138,13 +248,8 @@ export const afterProcess: AfterProcessConfigs = {
       const { subdomain } = ctx;
       const models = await generateModels(subdomain);
 
-      const {
-        collectionName,
-        userId,
-        contentType,
-        docId,
-        currentDocument,
-      } = data;
+      const { collectionName, userId, contentType, docId, currentDocument } =
+        data;
 
       if (
         contentType === 'sales:sales.deals' &&
@@ -160,13 +265,30 @@ export const afterProcess: AfterProcessConfigs = {
           );
 
           if (configSale?.stageId === currentStageId) {
-            await dealToTrs({
-              subdomain,
-              models,
-              userId,
-              deal: currentDocument,
-              config: configSale,
-            });
+            try {
+              await dealToTrs({
+                subdomain,
+                models,
+                userId,
+                deal: currentDocument,
+                config: configSale,
+              });
+              await setDealAccountingResponse({
+                subdomain,
+                dealId: currentDocument._id,
+                responseFieldId: configSale.responseFieldId,
+                message: 'success',
+                userId,
+              });
+            } catch (e) {
+              await setDealAccountingResponse({
+                subdomain,
+                dealId: currentDocument._id,
+                responseFieldId: configSale.responseFieldId,
+                message: getErrorMessage(e),
+                userId,
+              });
+            }
           }
         }
         return;
@@ -180,12 +302,25 @@ export const afterProcess: AfterProcessConfigs = {
           );
 
           if (configOrder?.posId === currentPosId) {
-            await orderToTrs({
-              models,
-              userId,
-              order: currentDocument,
-              config: configOrder,
-            });
+            try {
+              await orderToTrs({
+                models,
+                userId,
+                order: currentDocument,
+                config: configOrder,
+              });
+              await setOrderAccountingResponse({
+                subdomain,
+                orderId: currentDocument._id,
+                message: 'success',
+              });
+            } catch (e) {
+              await setOrderAccountingResponse({
+                subdomain,
+                orderId: currentDocument._id,
+                message: getErrorMessage(e),
+              });
+            }
           }
         }
       }

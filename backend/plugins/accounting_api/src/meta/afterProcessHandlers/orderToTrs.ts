@@ -141,10 +141,10 @@ export const orderToTrs = async ({
   const paymentTrs: ITransaction[] = [];
   const paidAmounts = [...order.paidAmounts];
   if (order.cashAmount) {
-    paidAmounts.push({ type: 'cash', amount: order.cashAmount })
+    paidAmounts.push({ type: 'cash', amount: order.cashAmount });
   }
   if (order.mobileAmount) {
-    paidAmounts.push({ type: 'cash', amount: order.mobileAmount })
+    paidAmounts.push({ type: 'cash', amount: order.mobileAmount });
   }
   for (const paid of paidAmounts) {
     const { amount, type } = paid;
@@ -240,11 +240,13 @@ export const orderToTrs = async ({
       parentId,
       [{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs],
       userId,
+      { skipAccountPermission: true },
     );
   } else {
     await models.Transactions.createPTransaction(
       [{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs],
       userId,
+      { skipAccountPermission: true },
     );
   }
 };

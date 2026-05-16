@@ -2,16 +2,16 @@ import { gql } from '@apollo/client';
 
 export const POS_LIST = gql`
   query posList(
-    $page: Int,
-    $perPage: Int,
-    $sortField: String,
-    $sortDirection: Int,
+    $page: Int
+    $perPage: Int
+    $sortField: String
+    $sortDirection: Int
   ) {
     posList(
-      page: $page,
-      perPage: $perPage,
-      sortField: $sortField,
-      sortDirection: $sortDirection,
+      page: $page
+      perPage: $perPage
+      sortField: $sortField
+      sortDirection: $sortDirection
     ) {
       _id
       name
@@ -39,5 +39,11 @@ export const PIPELINE_DETAIL = gql`
       paymentIds
       paymentTypes
     }
+  }
+`;
+
+export const FIELDS_COMBINED_BY_CONTENT_TYPE = gql`
+  query FieldsCombinedByContentType($contentType: String!) {
+    fieldsCombinedByContentType(contentType: $contentType)
   }
 `;

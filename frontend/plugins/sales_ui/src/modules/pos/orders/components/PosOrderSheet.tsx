@@ -27,16 +27,19 @@ import { TPosOrderFormData } from '../types/posOrderType';
 
 const POS_ORDER_TRANSACTIONS = gql`
   query PosOrderTransactions($contentType: String, $contentId: String) {
-    accTransactions(
+    accTransactionsByContent(
       contentType: $contentType
       contentId: $contentId
       page: 1
       perPage: 1
     ) {
-      _id
-      parentId
-      ptrNumber
-      number
+      totalCount
+      list {
+        _id
+        parentId
+        ptrNumber
+        number
+      }
     }
   }
 `;
@@ -147,7 +150,10 @@ export const PosOrderSheet = () => {
   );
   const isAccountingEnabled = isEnabled('accounting');
   const { data: transactionData } = useQuery<{
-    accTransactions: PosOrderTransaction[];
+    accTransactionsByContent: {
+      list: PosOrderTransaction[];
+      totalCount: number;
+    };
   }>(POS_ORDER_TRANSACTIONS, {
     variables: {
       contentType: 'sales:order',
@@ -158,7 +164,9 @@ export const PosOrderSheet = () => {
   const { posOrderChangePayments, loading: mutationLoading } =
     usePosOrderChangePayments();
 
-  const transaction = transactionData?.accTransactions?.[0];
+  const transactionContent = transactionData?.accTransactionsByContent;
+  const transaction = transactionContent?.list?.[0];
+  const transactionTotalCount = transactionContent?.totalCount || 0;
   const transactionNumber = transaction?.ptrNumber || transaction?.number;
   const transactionHref = transaction
     ? `/accounting/transaction/edit?parentId=${encodeURIComponent(
@@ -332,9 +340,19 @@ export const PosOrderSheet = () => {
                           {transactionNumber}
                           <IconExternalLink className="size-4" />
                         </a>
+                      ) : transactionTotalCount ? (
+                        `${transactionTotalCount} transaction linked`
                       ) : (
                         '-'
                       )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between w-full gap-1">
+                    <span className="text-base font-medium text-muted-foreground">
+                      Accounting response:
+                    </span>
+                    <span className="text-base font-medium text-right max-w-[60%] break-words">
+                      {posOrder.accountingResponse || '-'}
                     </span>
                   </div>
                   <div className="flex justify-between w-full gap-1">

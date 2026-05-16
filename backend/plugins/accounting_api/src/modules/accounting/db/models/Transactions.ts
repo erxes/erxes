@@ -35,11 +35,13 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
   createPTransaction(
     docs: ITransaction[],
     userId: string,
+    options?: { skipAccountPermission?: boolean },
   ): Promise<ITransactionDocument[]>;
   updatePTransaction(
     parentId: string,
     docs: (ITransaction & { _id?: string })[],
     userId: string,
+    options?: { skipAccountPermission?: boolean },
   ): Promise<ITransactionDocument[]>;
   createTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   updateTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
@@ -84,7 +86,11 @@ const normalizeParentWorkflowDocs = (
   }));
 };
 
-export const loadTransactionClass = ( models: IModels, subdomain: string, { sendDbEventLog, createActivityLog, }: EventDispatcherReturn, ) => {
+export const loadTransactionClass = (
+  models: IModels,
+  subdomain: string,
+  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+) => {
   class Transaction {
     /**
      *
@@ -299,9 +305,12 @@ export const loadTransactionClass = ( models: IModels, subdomain: string, { send
     public static async createPTransaction(
       docs: ITransaction[],
       userId: string,
+      options: { skipAccountPermission?: boolean } = {},
     ) {
       docs = normalizeParentWorkflowDocs(docs, userId);
-      await assertCanWriteTransactionAccounts({ models, docs, userId });
+      if (!options.skipAccountPermission) {
+        await assertCanWriteTransactionAccounts({ models, docs, userId });
+      }
 
       const transactions: ITransactionDocument[] = [];
       let errMsg = '';
@@ -404,6 +413,7 @@ export const loadTransactionClass = ( models: IModels, subdomain: string, { send
       parentId: string,
       docs: (ITransaction & { _id?: string })[],
       userId: string,
+      options: { skipAccountPermission?: boolean } = {},
     ) {
       const oldTrs = await models.Transactions.find({
         parentId,
@@ -428,12 +438,14 @@ export const loadTransactionClass = ( models: IModels, subdomain: string, { send
         oldTrs[0].ptrNumber || (await this.getPtrNumber(oldTrs[0]));
 
       docs = normalizeParentWorkflowDocs(docs, userId, oldTrs[0]);
-      await assertCanWriteTransactionAccounts({
-        models,
-        docs,
-        userId,
-        oldTrs,
-      });
+      if (!options.skipAccountPermission) {
+        await assertCanWriteTransactionAccounts({
+          models,
+          docs,
+          userId,
+          oldTrs,
+        });
+      }
 
       const oldTrIds = oldTrs.map((ot) => ot._id);
 
