@@ -184,6 +184,21 @@ export const checkRateLimit = async (
   limit: number,
   windowSecs: number,
 ): Promise<void> => {
+  // Defensive: every caller passes literal constants, but a future caller
+  // computing windowSecs/limit from config (or env) could trip a 0/negative
+  // and silently break the limiter (TTL=0 → no expiration on EXPIRE, or
+  // EXPIRE rejected outright). Fail loud instead of degrading.
+  if (!Number.isInteger(windowSecs) || windowSecs <= 0) {
+    throw new Error(
+      `checkRateLimit: windowSecs must be a positive integer (got ${windowSecs})`,
+    );
+  }
+  if (!Number.isInteger(limit) || limit <= 0) {
+    throw new Error(
+      `checkRateLimit: limit must be a positive integer (got ${limit})`,
+    );
+  }
+
   const current = (await redis.eval(
     RATE_LIMIT_INCR_SCRIPT,
     1,
@@ -196,6 +211,21 @@ export const checkRateLimit = async (
   }
 };
 
+// Sanitize the client-IP string before it's used in a Redis rate-limit key.
+// The IP arrives from `X-Forwarded-For` which is fully attacker-controlled
+// when present, so without normalization an attacker can mint a fresh bucket
+// per crafted payload (e.g. `1.2.3.4`, `1.2.3.4 `, `1.2.3.4#a`, …) and bypass
+// the per-IP cap. We restrict to the character classes that valid IPv4/IPv6
+// addresses (and the `unknown` fallback) actually use — hex digits, dots,
+// colons, lowercase letters for "unknown" — and hard-bound the length
+// (IPv6 with zone-id maxes out near 45 chars). Anything left empty after
+// stripping collapses to the literal `unknown` bucket, which is still
+// rate-limited but no longer attacker-malleable.
+const sanitizeClientIp = (raw: string): string => {
+  const cleaned = raw.replace(/[^a-fA-F0-9.:]/g, '').slice(0, 45);
+  return cleaned || 'unknown';
+};
+
 export const getClientIp = (req: {
   headers: Record<string, any>;
   socket?: any;
@@ -204,10 +234,10 @@ export const getClientIp = (req: {
 
   if (forwarded) {
     const first = Array.isArray(forwarded) ? forwarded[0] : forwarded;
-    return first.split(',')[0].trim();
+    return sanitizeClientIp(String(first).split(',')[0].trim());
   }
 
-  return req.socket?.remoteAddress || 'unknown';
+  return sanitizeClientIp(String(req.socket?.remoteAddress || 'unknown'));
 };
 
 // ---------------------------------------------------------------------------
