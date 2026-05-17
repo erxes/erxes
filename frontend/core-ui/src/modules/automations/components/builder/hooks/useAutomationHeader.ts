@@ -14,8 +14,12 @@ import { SubmitErrorHandler, useFormContext } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 
 export const useAutomationHeader = () => {
-  const { handleSubmit, clearErrors, reset } =
-    useFormContext<TAutomationBuilderForm>();
+  const {
+    handleSubmit,
+    clearErrors,
+    reset,
+    formState: { isDirty },
+  } = useFormContext<TAutomationBuilderForm>();
   const navigate = useNavigate();
 
   const { setQueryParams } = useAutomation();
@@ -35,6 +39,8 @@ export const useAutomationHeader = () => {
     actions,
     name,
     status,
+    edgeType,
+    flowDirection,
     workflows,
   }: TAutomationBuilderForm) => {
     const generateValues = () => {
@@ -42,6 +48,8 @@ export const useAutomationHeader = () => {
         id,
         name,
         status: status,
+        edgeType,
+        flowDirection,
         triggers: triggers.map((t) => ({
           ...t,
           position: getNode(t.id)?.position || t.position,
@@ -131,6 +139,7 @@ export const useAutomationHeader = () => {
     setQueryParams({ activeTab: value });
 
   return {
+    isDirty,
     loading,
     handleSubmit,
     handleSave,

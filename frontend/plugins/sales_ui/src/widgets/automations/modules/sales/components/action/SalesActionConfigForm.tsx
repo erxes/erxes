@@ -11,5 +11,9 @@ export const SalesActionConfigForm = ({
     return <CreateDealActionConfigForm {...props} type={type} />;
   }
 
+  return <SalesActionConfigEmptyState />;
+};
+
+const SalesActionConfigEmptyState = () => {
   return null;
 };

@@ -19,6 +19,10 @@ export type TAutomationOutputVariable = {
   key: string;
   label: string;
   exposure?: 'placeholder' | 'reference';
+  field?: string;
+  referenceType?: string;
+  sourceType?: string;
+  type?: string;
 };
 
 export type TAutomationOutputPropertySource = {

@@ -51,7 +51,7 @@ export const AutomationHeaderTabs = ({
     return null;
   }
   return (
-    <Tabs.List className="bg-foreground/5 rounded-md border-b-none border-none h-7 p-0 relative shrink-0">
+    <Tabs.List className="bg-foreground/5 rounded-md border-b-none border-none h-7 p-0 relative shrink-0 mx-auto">
       <Tabs.Trigger
         className="w-24 font-normal after:content-none after:border-none after:shadow-none text-muted-foreground data-[state=active]:text-foreground hover:bg-transparent rounded-md transition-colors cursor-pointer relative z-10"
         value="builder"

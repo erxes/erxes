@@ -11,6 +11,7 @@ import { generateModels } from '~/connectionResolvers';
 import { appRouter } from '~/trpc/init-trpc';
 import { initMQWorkers } from '~/worker';
 import { couponExportHandlers } from '~/modules/coupon/meta/import-export/export/exportHandlers';
+import { automationMeta } from './meta/automations';
 
 startPlugin({
   name: 'loyalty',
@@ -39,6 +40,7 @@ startPlugin({
   onServerInit: async () => {
     await initMQWorkers(redis);
   },
+  meta: { automations: automationMeta },
   importExport: {
     export: {
       getExportHeaders: createCoreModuleProducerHandler({

@@ -1,3 +1,103 @@
+import { TAutomationRuntimeOutputDefinition } from 'erxes-api-shared/core-modules';
+
+const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition = {
+  variables: [
+    { key: '_id', label: 'Deal ID', exposure: 'reference', field: '_id' },
+    { key: 'name', label: 'Deal name' },
+    { key: 'number', label: 'Deal number' },
+    { key: 'description', label: 'Description' },
+    { key: 'status', label: 'Status' },
+    { key: 'priority', label: 'Priority' },
+    { key: 'score', label: 'Score' },
+    {
+      key: 'stageId',
+      label: 'Stage ID',
+      exposure: 'reference',
+      field: 'stageId',
+      referenceType: 'sales:sales.stage',
+    },
+    {
+      key: 'initialStageId',
+      label: 'Initial stage ID',
+      exposure: 'reference',
+      field: 'initialStageId',
+      referenceType: 'sales:sales.stage',
+    },
+    { key: 'stageChangedDate', label: 'Stage changed date' },
+    { key: 'startDate', label: 'Start date' },
+    { key: 'closeDate', label: 'Close date' },
+    { key: 'totalAmount', label: 'Total amount' },
+    { key: 'unUsedTotalAmount', label: 'Unused total amount' },
+    { key: 'bothTotalAmount', label: 'Both total amount' },
+    {
+      key: 'userId',
+      label: 'Created by',
+      exposure: 'reference',
+      field: 'userId',
+      referenceType: 'core:user',
+    },
+    {
+      key: 'assignedUserIds',
+      label: 'Assigned users',
+      exposure: 'reference',
+      field: 'assignedUserIds',
+      referenceType: 'core:user',
+    },
+    {
+      key: 'watchedUserIds',
+      label: 'Watched users',
+      exposure: 'reference',
+      field: 'watchedUserIds',
+      referenceType: 'core:user',
+    },
+    {
+      key: 'labelIds',
+      label: 'Labels',
+      exposure: 'reference',
+      field: 'labelIds',
+    },
+    { key: 'tagIds', label: 'Tags', exposure: 'reference', field: 'tagIds' },
+    {
+      key: 'branchIds',
+      label: 'Branches',
+      exposure: 'reference',
+      field: 'branchIds',
+    },
+    {
+      key: 'departmentIds',
+      label: 'Departments',
+      exposure: 'reference',
+      field: 'departmentIds',
+    },
+    {
+      key: 'customers',
+      label: 'Customers',
+      exposure: 'reference',
+      field: 'customers',
+      referenceType: 'core:customer',
+    },
+    {
+      key: 'companies',
+      label: 'Companies',
+      exposure: 'reference',
+      field: 'companies',
+      referenceType: 'core:company',
+    },
+    { key: 'productsData.amount', label: 'Products amount' },
+    { key: 'link', label: 'Deal link' },
+    { key: 'pipelineLabels', label: 'Pipeline labels' },
+    { key: 'createdAt', label: 'Created at' },
+    { key: 'updatedAt', label: 'Updated at' },
+  ],
+  propertySources: [
+    {
+      key: 'properties',
+      label: 'Deal properties',
+      propertyType: 'sales:sales.deal',
+    },
+  ],
+};
+
 export const salesAutomationContants = {
   triggers: [
     {
@@ -7,6 +107,7 @@ export const salesAutomationContants = {
       label: 'Sales pipeline',
       description:
         'Start with a blank workflow that enrolls and is triggered off sales pipeline item',
+      output: SALES_DEAL_TRIGGER_OUTPUT,
     },
     {
       moduleName: 'sales',
@@ -17,6 +118,7 @@ export const salesAutomationContants = {
       description:
         'Start with a blank workflow that triggered off sales pipeline item stage probability',
       isCustom: true,
+      output: SALES_DEAL_TRIGGER_OUTPUT,
     },
   ],
   actions: [

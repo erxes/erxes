@@ -115,6 +115,7 @@ const TriggerNode = ({ data, selected, id }: NodeProps<Node<NodeData>>) => {
           className="!bg-primary"
           addButtonClassName="hover:border-primary hover:text-primary "
           showAddButton={!actionId}
+          flowDirection={data.flowDirection}
         />
       </div>
     </div>

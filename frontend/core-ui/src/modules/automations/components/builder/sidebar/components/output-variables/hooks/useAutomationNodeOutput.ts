@@ -48,6 +48,7 @@ export const useAutomationNodeOutput = (
         ...variable,
         key: `object.${variable.key}`,
         label: `${findObjectTarget.label} ${variable.label}`,
+        sourceType: findObjectTarget.value,
       }),
     ) || [];
 

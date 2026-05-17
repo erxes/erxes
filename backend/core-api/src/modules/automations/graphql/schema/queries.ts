@@ -58,6 +58,7 @@ const queries = `
   automationsTotalCount(status: String): automationsTotalCountResponse
   automationConstants: JSON
   automationNodeOutput(nodeType: String!): JSON
+  automationReferenceFields(type: String!, field: String!): JSON
   automationBotsConstants:JSON
   automationsAiAgents(kind:String):JSON
   automationsAiAgentDetail(_id:String):JSON

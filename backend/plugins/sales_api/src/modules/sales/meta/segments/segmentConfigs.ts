@@ -2,7 +2,7 @@ export const salesSegmentConfigs = {
   dependentModules: [
     {
       name: 'core',
-      types: ['company', 'customer', 'lead'],
+      types: ['companies', 'customers', 'leads'],
       twoWay: true,
       associated: true,
     },

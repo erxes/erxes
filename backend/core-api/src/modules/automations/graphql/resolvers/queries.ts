@@ -18,6 +18,10 @@ import {
 } from 'erxes-api-shared/utils';
 import { SortOrder } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
+import {
+  fieldsCombinedByContentType,
+  getCustomFields,
+} from '~/modules/forms/utils';
 import { coreAutomationConstants } from '~/meta/automations/constants';
 import { sanitizeAiAgent, sanitizeAiAgents } from './utils/aiAgent';
 
@@ -172,6 +176,222 @@ type TAutomationConstantsResponse = {
   findObjectTargetsConst: any[];
 };
 
+const normalizeAutomationReferenceType = (type: string) => {
+  const [pluginName, contentType = ''] = (type || '').split(':');
+  const [moduleName, collectionName] = contentType.split('.');
+
+  if (!pluginName || !moduleName || !collectionName) {
+    return type;
+  }
+
+  return `${pluginName}:${moduleName}.${collectionName}`;
+};
+
+const REFERENCE_FIELD_TYPE_MAP: Record<string, Record<string, string>> = {
+  'core:user': {
+    _id: 'core:user',
+    groupIds: 'core:usersGroup',
+    brandIds: 'core:brand',
+    branchIds: 'core:branch',
+    departmentIds: 'core:department',
+    positionIds: 'core:position',
+    permissionGroupIds: 'core:permissionGroup',
+  },
+  'core:customer': {
+    _id: 'core:customer',
+    ownerId: 'core:user',
+    tagIds: 'core:tag',
+    integrationId: 'core:integration',
+    relatedIntegrationIds: 'core:integration',
+    mergedIds: 'core:customer',
+  },
+  'core:company': {
+    _id: 'core:company',
+    ownerId: 'core:user',
+    parentCompanyId: 'core:company',
+    tagIds: 'core:tag',
+    mergedIds: 'core:company',
+  },
+  'sales:sales.deal': {
+    _id: 'sales:sales.deal',
+    userId: 'core:user',
+    assignedUserIds: 'core:user',
+    watchedUserIds: 'core:user',
+    customers: 'core:customer',
+    companies: 'core:company',
+    products: 'core:product',
+    productIds: 'core:product',
+    'productsData.productId': 'core:product',
+    stageId: 'sales:sales.stage',
+    initialStageId: 'sales:sales.stage',
+    tagIds: 'core:tag',
+    branchIds: 'core:branch',
+    departmentIds: 'core:department',
+    labelIds: 'sales:sales.pipelineLabel',
+  },
+};
+
+const REFERENCE_BASE_FIELDS: Record<
+  string,
+  { key: string; label: string; exposure?: 'placeholder' | 'reference' }[]
+> = {
+  'core:user': [
+    { key: '_id', label: 'User ID', exposure: 'reference' },
+    { key: 'email', label: 'Email' },
+    { key: 'username', label: 'Username' },
+    { key: 'details.fullName', label: 'Full name' },
+    { key: 'details.shortName', label: 'Short name' },
+    { key: 'details.firstName', label: 'First name' },
+    { key: 'details.lastName', label: 'Last name' },
+  ],
+  'core:customer': [
+    { key: '_id', label: 'Customer ID', exposure: 'reference' },
+    { key: 'primaryEmail', label: 'Primary email' },
+    { key: 'emails', label: 'Emails' },
+    { key: 'primaryPhone', label: 'Primary phone' },
+    { key: 'phones', label: 'Phones' },
+    { key: 'firstName', label: 'First name' },
+    { key: 'lastName', label: 'Last name' },
+    { key: 'middleName', label: 'Middle name' },
+    { key: 'status', label: 'Status' },
+    { key: 'state', label: 'State' },
+    { key: 'createdAt', label: 'Created at' },
+    { key: 'updatedAt', label: 'Updated at' },
+  ],
+  'core:company': [
+    { key: '_id', label: 'Company ID', exposure: 'reference' },
+    { key: 'primaryName', label: 'Name' },
+    { key: 'names', label: 'Names' },
+    { key: 'primaryEmail', label: 'Primary email' },
+    { key: 'emails', label: 'Emails' },
+    { key: 'primaryPhone', label: 'Primary phone' },
+    { key: 'phones', label: 'Phones' },
+    { key: 'industry', label: 'Industry' },
+    { key: 'website', label: 'Website' },
+    { key: 'status', label: 'Status' },
+    { key: 'createdAt', label: 'Created at' },
+    { key: 'updatedAt', label: 'Updated at' },
+  ],
+  'core:product': [
+    { key: '_id', label: 'Product ID', exposure: 'reference' },
+    { key: 'name', label: 'Name' },
+    { key: 'code', label: 'Code' },
+    { key: 'unitPrice', label: 'Unit price' },
+    { key: 'type', label: 'Type' },
+    { key: 'categoryId', label: 'Category ID', exposure: 'reference' },
+  ],
+  'sales:sales.stage': [
+    { key: '_id', label: 'Stage ID', exposure: 'reference' },
+    { key: 'name', label: 'Name' },
+    { key: 'probability', label: 'Probability' },
+    { key: 'status', label: 'Status' },
+  ],
+  'core:tag': [
+    { key: '_id', label: 'Tag ID', exposure: 'reference' },
+    { key: 'name', label: 'Name' },
+    { key: 'colorCode', label: 'Color' },
+  ],
+  'core:branch': [
+    { key: '_id', label: 'Branch ID', exposure: 'reference' },
+    { key: 'title', label: 'Title' },
+    { key: 'code', label: 'Code' },
+  ],
+  'core:department': [
+    { key: '_id', label: 'Department ID', exposure: 'reference' },
+    { key: 'title', label: 'Title' },
+    { key: 'code', label: 'Code' },
+  ],
+  'sales:sales.pipelineLabel': [
+    { key: '_id', label: 'Label ID', exposure: 'reference' },
+    { key: 'name', label: 'Name' },
+    { key: 'colorCode', label: 'Color' },
+  ],
+};
+
+const resolveReferenceContentType = (type: string, field: string) => {
+  const normalizedType = normalizeAutomationReferenceType(type);
+
+  return REFERENCE_FIELD_TYPE_MAP[normalizedType]?.[field] || '';
+};
+
+const getReferenceContentTypeAliases = (contentType: string) => {
+  const aliases: Record<string, string[]> = {
+    'core:customer': [
+      'core:customer',
+      'core:lead',
+      'core:visitor',
+      'core:contact.customer',
+      'core:contacts.customers',
+      'customer',
+      'customers',
+    ],
+    'core:company': [
+      'core:company',
+      'core:contact.company',
+      'core:contacts.companies',
+      'company',
+      'companies',
+    ],
+    'core:user': ['core:user', 'core:teamMember', 'user', 'users'],
+    'core:product': ['core:product', 'product', 'products'],
+  };
+
+  return aliases[contentType] || [contentType];
+};
+
+const getReferenceCustomFields = async (
+  models: IContext['models'],
+  subdomain: string,
+  contentType: string,
+) => {
+  const toOutputVariable = (field) => ({
+    key: field.name || `customFieldsData.${field._id}`,
+    label: field.label || field.text || field.code || field.name,
+    type: field.type,
+  });
+
+  try {
+    const fields = await fieldsCombinedByContentType(models, subdomain, {
+      contentType,
+    } as any);
+    const combinedFields = (fields || [])
+      .filter((field) => field?.name?.startsWith('customFieldsData.'))
+      .map(toOutputVariable);
+
+    if (combinedFields.length) {
+      return combinedFields;
+    }
+  } catch (error) {
+    // Fall back to direct field lookup below. Reference field expansion should
+    // still work even if plugin-provided base fields are unavailable.
+  }
+
+  const contentTypes = getReferenceContentTypeAliases(contentType);
+  const customFields = await models.Fields.find({
+    contentType: { $in: contentTypes },
+  })
+    .sort({ order: 1, code: 1 })
+    .lean();
+
+  if (customFields.length) {
+    return customFields.map((field) =>
+      toOutputVariable({
+        ...field,
+        name: `customFieldsData.${field._id}`,
+      }),
+    );
+  }
+
+  const fallbackFields = await getCustomFields(models, contentType);
+
+  return (fallbackFields || []).map((field) =>
+    toOutputVariable({
+      ...field,
+      name: `customFieldsData.${field._id}`,
+    }),
+  );
+};
+
 const getAutomationConstants =
   async (): Promise<TAutomationConstantsResponse> => {
     const plugins = await getPlugins();
@@ -226,7 +446,6 @@ const getAutomationConstants =
           ];
         }
       }
-
       for (const action of actions) {
         constants.actionsConst.push({ ...action, pluginName });
       }
@@ -356,6 +575,30 @@ export const automationQueries = {
     return matchedAction?.output || null;
   },
 
+  async automationReferenceFields(
+    _root,
+    { type, field }: { type: string; field: string },
+    { models, subdomain }: IContext,
+  ) {
+    const referenceType = resolveReferenceContentType(type, field);
+
+    if (!referenceType) {
+      return [];
+    }
+
+    const baseFields = REFERENCE_BASE_FIELDS[referenceType] || [];
+    const customFields = await getReferenceCustomFields(
+      models,
+      subdomain,
+      referenceType,
+    );
+
+    return [...baseFields, ...customFields].filter(
+      (item, index, array) =>
+        array.findIndex((candidate) => candidate.key === item.key) === index,
+    );
+  },
+
   async getAutomationWebhookEndpoint(
     _root,
     { _id },
@@ -381,8 +624,9 @@ export const automationQueries = {
     { executionId },
     { models }: IContext,
   ) {
-    const execution =
-      await models.AutomationExecutions.findById(executionId).lean();
+    const execution = await models.AutomationExecutions.findById(
+      executionId,
+    ).lean();
     if (!execution) {
       throw new Error('Execution not found');
     }

@@ -42,7 +42,11 @@ export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
 
   const form = useForm<TAutomationBuilderForm>({
     resolver: zodResolver(automationBuilderFormSchema),
-    defaultValues: deepCleanNulls(detail),
+    defaultValues: {
+      edgeType: 'default',
+      flowDirection: 'horizontal',
+      ...deepCleanNulls(detail),
+    },
   });
 
   useEffect(() => {

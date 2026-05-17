@@ -33,8 +33,9 @@ export const useManagePropertySidebarContent = (
 
   const propertyType = module || selectedActionType || trigger?.type || '';
   const { propertyTypes } = useGetFieldsProperties(propertyType);
+  console.log({ propertyTypes });
   const isPropertyTypeValid = useMemo(
-    () => !!propertyTypes.find((p) => p.value === propertyType),
+    () => !!propertyTypes.find((p) => propertyType.startsWith(p.value)),
     [propertyTypes, propertyType],
   );
 

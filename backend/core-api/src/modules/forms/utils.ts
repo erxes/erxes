@@ -108,12 +108,10 @@ export const fieldsCombinedByContentType = async (
     validations = { date: true };
   }
 
-  const type = ['core:visitor', 'core:lead', 'core:customer'].includes(
-    contentType,
-  )
+  const type = ['visitors', 'leads', 'customers'].includes(contentType)
     ? 'core:customer'
-    : contentType;
-
+    : `${pluginName}:${collectionType}`;
+  console.log({ type });
   const customFields = await getCustomFields(models, type, validations);
 
   const groupCache = new Map();

@@ -1,6 +1,8 @@
 const commonFields = `
   name: String
   status: String
+  edgeType: String
+  flowDirection: String
   triggers: [TriggerInput],
   actions: [ActionInput],
   workflows: [WorkflowInput]

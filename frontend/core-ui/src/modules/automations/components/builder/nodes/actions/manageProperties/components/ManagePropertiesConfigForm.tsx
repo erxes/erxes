@@ -44,7 +44,7 @@ export const ManagePropertiesConfigForm = ({
       control: form.control,
       name: 'rules',
     }) || [];
-
+  console.log({ propertyType, isPropertyTypeValid });
   if (!propertyType || !isPropertyTypeValid) {
     return (
       <div className="p-4">

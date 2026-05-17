@@ -1,4 +1,6 @@
 import {
+  IconArrowDown,
+  IconArrowRight,
   IconBraces,
   IconFocusCentered,
   IconGridDots,
@@ -10,6 +12,15 @@ import {
   IconVectorBezier2,
 } from '@tabler/icons-react';
 import {
+  AUTOMATION_EDGE_TYPES,
+  TAutomationEdgeType,
+} from '@/automations/constants/edgeTypes';
+import {
+  AUTOMATION_FLOW_DIRECTIONS,
+  TAutomationFlowDirection,
+} from '@/automations/constants/flowDirection';
+import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
+import {
   Panel,
   getViewportForBounds,
   useOnViewportChange,
@@ -19,6 +30,7 @@ import { Button, DropdownMenu, Separator, Tooltip, cn } from 'erxes-ui';
 import { toPng, toSvg } from 'html-to-image';
 import type React from 'react';
 import { useState } from 'react';
+import { useFormContext } from 'react-hook-form';
 
 const EXPORT_PADDING = 160;
 const MIN_EXPORT_WIDTH = 800;
@@ -63,6 +75,8 @@ const getCurrentThemeBackgroundColor = () => {
 };
 
 type AutomationBuilderControlsProps = {
+  edgeType: TAutomationEdgeType;
+  flowDirection: TAutomationFlowDirection;
   showGrid: boolean;
   showMiniMap: boolean;
   onToggleGrid: () => void;
@@ -70,11 +84,14 @@ type AutomationBuilderControlsProps = {
 };
 
 export const AutomationBuilderControls = ({
+  edgeType,
+  flowDirection,
   showGrid,
   showMiniMap,
   onToggleGrid,
   onToggleMiniMap,
 }: AutomationBuilderControlsProps) => {
+  const { getValues, setValue } = useFormContext<TAutomationBuilderForm>();
   const {
     fitView,
     getEdges,
@@ -178,6 +195,40 @@ export const AutomationBuilderControls = ({
     downloadDataUrl('automation-flow.svg', dataUrl);
   };
 
+  const handleEdgeTypeChange = (value: string) => {
+    setValue('edgeType', value as TAutomationEdgeType, {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+  };
+
+  const handleFlowDirectionChange = (value: string) => {
+    if (value === flowDirection) {
+      return;
+    }
+
+    const resetNodePositions = <T extends { position?: unknown }>(
+      nodes: T[] = [],
+    ) => nodes.map((node) => ({ ...node, position: undefined }));
+
+    setValue('flowDirection', value as TAutomationFlowDirection, {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+    setValue('triggers', resetNodePositions(getValues('triggers')), {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+    setValue('actions', resetNodePositions(getValues('actions')), {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+    setValue('workflows', resetNodePositions(getValues('workflows') || []), {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+  };
+
   return (
     <Panel position="bottom-left" className="pointer-events-auto">
       <div className="flex w-10 flex-col items-center gap-0.5 rounded-md border bg-background/95 p-1 shadow-sm backdrop-blur">
@@ -231,6 +282,46 @@ export const AutomationBuilderControls = ({
               {showGrid ? 'Hide grid' : 'Show grid'}
             </DropdownMenu.Item>
             <DropdownMenu.Separator />
+            <DropdownMenu.Sub>
+              <DropdownMenu.SubTrigger>
+                {flowDirection === 'vertical' ? (
+                  <IconArrowDown className="size-4" />
+                ) : (
+                  <IconArrowRight className="size-4" />
+                )}
+                Direction
+              </DropdownMenu.SubTrigger>
+              <DropdownMenu.SubContent className="w-48">
+                <DropdownMenu.RadioGroup
+                  value={flowDirection}
+                  onValueChange={handleFlowDirectionChange}
+                >
+                  {AUTOMATION_FLOW_DIRECTIONS.map(({ value, label }) => (
+                    <DropdownMenu.RadioItem key={value} value={value}>
+                      {label}
+                    </DropdownMenu.RadioItem>
+                  ))}
+                </DropdownMenu.RadioGroup>
+              </DropdownMenu.SubContent>
+            </DropdownMenu.Sub>
+            <DropdownMenu.Sub>
+              <DropdownMenu.SubTrigger>
+                <IconVectorBezier2 className="size-4" />
+                Edge type
+              </DropdownMenu.SubTrigger>
+              <DropdownMenu.SubContent className="w-48">
+                <DropdownMenu.RadioGroup
+                  value={edgeType}
+                  onValueChange={handleEdgeTypeChange}
+                >
+                  {AUTOMATION_EDGE_TYPES.map(({ value, label }) => (
+                    <DropdownMenu.RadioItem key={value} value={value}>
+                      {label}
+                    </DropdownMenu.RadioItem>
+                  ))}
+                </DropdownMenu.RadioGroup>
+              </DropdownMenu.SubContent>
+            </DropdownMenu.Sub>
             <DropdownMenu.Sub>
               <DropdownMenu.SubTrigger>
                 <IconPhoto className="size-4" />

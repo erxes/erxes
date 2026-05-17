@@ -6,6 +6,10 @@ export type TAutomationOutputVariable = {
   key: string;
   label: string;
   exposure?: 'placeholder' | 'reference';
+  field?: string;
+  referenceType?: string;
+  sourceType?: string;
+  type?: string;
 };
 
 export type TAutomationOutputPropertySource = {
@@ -21,6 +25,10 @@ export type TAutomationNodeOutput = {
 
 export type TAutomationNodeOutputResponse = {
   automationNodeOutput: TAutomationNodeOutput | null;
+};
+
+export type TAutomationReferenceFieldsResponse = {
+  automationReferenceFields: TAutomationOutputVariable[];
 };
 
 export type TAutomationVariableSourceNode = {

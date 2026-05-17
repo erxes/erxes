@@ -47,7 +47,7 @@ export const AutomationVariableBrowser = ({
   return (
     <div className={cn('space-y-3 px-5 py-2 text-sm', className)}>
       {sourceNodes?.length ? (
-        <AutomationVariableBrowserSection title="Variable Sources">
+        <AutomationVariableBrowserSection title={sourceSectionTitle}>
           <AutomationVariableSourceNodeList
             activeSourceNodeId={activeSourceNode.id}
             sourceNodes={sourceNodes}
@@ -101,6 +101,7 @@ export const AutomationVariableBrowser = ({
           loading={loading}
           onInsertVariable={onInsertVariable}
           searchQuery={searchQuery}
+          sourceNode={activeSourceNode}
           variables={filteredVariables}
         />
       </AutomationVariableBrowserSection>

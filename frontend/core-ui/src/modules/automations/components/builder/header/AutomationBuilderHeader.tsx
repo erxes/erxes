@@ -7,7 +7,7 @@ import {
   IconLock,
   IconSettings,
 } from '@tabler/icons-react';
-import { Breadcrumb, Button, PageSubHeader, Spinner } from 'erxes-ui';
+import { Badge, Breadcrumb, Button, PageSubHeader, Spinner } from 'erxes-ui';
 import { Link } from 'react-router';
 import { Can, PageHeader } from 'ui-modules';
 import { useAutomationHeader } from '@/automations/components/builder/hooks/useAutomationHeader';
@@ -15,8 +15,14 @@ import { useTranslation } from 'react-i18next';
 import { AutomationButtonPermissionFallback } from '../../common/AutomationButtonPermissionFallback';
 
 export const AutomationBuilderHeader = () => {
-  const { loading, handleSubmit, handleSave, handleError, toggleTabs } =
-    useAutomationHeader();
+  const {
+    isDirty,
+    loading,
+    handleSubmit,
+    handleSave,
+    handleError,
+    toggleTabs,
+  } = useAutomationHeader();
   const { t } = useTranslation('automations');
 
   return (
@@ -58,8 +64,9 @@ export const AutomationBuilderHeader = () => {
         </PageHeader.End>
       </PageHeader>
       <PageSubHeader className="flex items-center justify-between overflow-x-auto styled-scroll">
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-3 shrink-0 flex-1">
           <AutomationBuilderNameInput />
+          {isDirty && <Badge variant="warning">Unsaved</Badge>}
           <AutomationHeaderTabs toggleTabs={toggleTabs} />
         </div>
         <div className="shrink-0">
