@@ -86,6 +86,17 @@ const normalizeParentWorkflowDocs = (
   }));
 };
 
+const cleanCreatePTransactionDoc = (doc: ITransaction & { _id?: string }) => {
+  const cleanDoc = { ...doc };
+
+  delete cleanDoc._id;
+  delete cleanDoc.ptrId;
+  delete cleanDoc.parentId;
+  delete cleanDoc.ptrNumber;
+
+  return cleanDoc;
+};
+
 export const loadTransactionClass = (
   models: IModels,
   subdomain: string,
@@ -323,13 +334,11 @@ export const loadTransactionClass = (
         let ptrNumber = '';
 
         for (const doc of docs) {
-          if (doc._id?.substring(0, 4) === 'temp') {
-            delete doc._id;
-          }
+          const cleanDoc = cleanCreatePTransactionDoc(doc);
 
           if (!parentId) {
             const firstTrs = await commonSave(subdomain, models, userId, {
-              ...doc,
+              ...cleanDoc,
               ptrId,
             });
             parentId = firstTrs.mainTr.parentId;
@@ -355,10 +364,10 @@ export const loadTransactionClass = (
             }
           } else {
             const trs = await commonSave(subdomain, models, userId, {
-              ...doc,
+              ...cleanDoc,
               ptrId,
               parentId,
-              number: doc.number ?? ptrNumber,
+              number: cleanDoc.number ?? ptrNumber,
               ptrNumber,
             });
             transactions.push(trs.mainTr);
