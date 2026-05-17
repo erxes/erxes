@@ -11,7 +11,11 @@ import {
 import { Breadcrumb, Button, Separator, Card, Skeleton } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { useContract } from '~/modules/insurance/hooks';
-import { generateContractHTML } from '~/utils/contractPdfGenerator';
+import {
+  generateContractHTML,
+  openSanitizedContractWindow,
+  sanitizeContractHtml,
+} from '~/utils/contractPdfGenerator';
 import { useMutation, gql } from '@apollo/client';
 
 const SAVE_CONTRACT_PDF = gql`
@@ -35,7 +39,7 @@ export const ContractPdfEditorPage = () => {
     if (contract) {
       // Use saved PDF content if exists, otherwise generate from template
       if ((contract as any).pdfContent) {
-        setHtmlContent((contract as any).pdfContent);
+        setHtmlContent(sanitizeContractHtml((contract as any).pdfContent));
       } else {
         setHtmlContent(generateContractHTML(contract));
       }
@@ -44,13 +48,15 @@ export const ContractPdfEditorPage = () => {
 
   const handleSaveContractPDF = async () => {
     if (!id || !htmlContent) return;
+    const sanitizedPdfContent = sanitizeContractHtml(htmlContent);
     try {
       await saveContractPDF({
         variables: {
           contractId: id,
-          pdfContent: htmlContent,
+          pdfContent: sanitizedPdfContent,
         },
       });
+      setHtmlContent(sanitizedPdfContent);
       alert('Contract PDF saved successfully!');
     } catch (error) {
       console.error('Error saving contract PDF:', error);
@@ -59,30 +65,21 @@ export const ContractPdfEditorPage = () => {
   };
 
   const handlePreview = () => {
-    const previewWindow = window.open('', '_blank');
+    const previewWindow = openSanitizedContractWindow(htmlContent);
     if (!previewWindow) {
       alert('Popup blocked. Please allow popups.');
-      return;
     }
-    previewWindow.document.write(htmlContent);
-    previewWindow.document.close();
   };
 
   const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
+    const printWindow = openSanitizedContractWindow(htmlContent, (win) => {
+      win.focus();
+      win.print();
+      setTimeout(() => win.close(), 100);
+    });
     if (!printWindow) {
       alert('Popup blocked. Please allow popups.');
-      return;
     }
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
-    printWindow.onload = () => {
-      printWindow.focus();
-      printWindow.print();
-      setTimeout(() => {
-        printWindow.close();
-      }, 100);
-    };
   };
 
   const handleDownload = () => {
@@ -221,7 +218,8 @@ export const ContractPdfEditorPage = () => {
                     </label>
                     <div className="border rounded-md p-4 bg-gray-50 overflow-auto max-h-[600px]">
                       <iframe
-                        srcDoc={htmlContent}
+                        srcDoc={sanitizeContractHtml(htmlContent)}
+                        sandbox="allow-popups"
                         className="w-full h-[800px] bg-white border-0"
                         title="PDF Preview"
                       />

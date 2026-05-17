@@ -9,6 +9,10 @@ import {
 } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator, Card, Alert } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
+import {
+  openSanitizedContractWindow,
+  sanitizeContractHtml,
+} from '~/utils/contractPdfGenerator';
 
 // Default template that will be used for all contracts
 const DEFAULT_TEMPLATE = `<!DOCTYPE html>
@@ -216,15 +220,8 @@ export const ContractTemplateEditorPage = () => {
     }
   };
 
-  const handlePreview = () => {
-    const previewWindow = window.open('', '_blank');
-    if (!previewWindow) {
-      alert('Popup блоклогдсон байна. Popup зөвшөөрнө үү.');
-      return;
-    }
-
-    // Replace placeholders with sample data for preview
-    const previewHtml = template
+  const buildPreviewHtml = () =>
+    template
       .replaceAll('{{contractNumber}}', 'INS2026010001')
       .replaceAll('{{vendorName}}', 'Монгол Даатгал ХХК')
       .replaceAll('{{customerName}}', 'Бат Болд')
@@ -235,37 +232,25 @@ export const ContractTemplateEditorPage = () => {
       .replaceAll('{{endDate}}', '2027 оны 1-р сарын 20')
       .replaceAll('{{chargedAmount}}', '1,500,000');
 
-    previewWindow.document.write(previewHtml);
-    previewWindow.document.close();
+  const handlePreview = () => {
+    const previewWindow = openSanitizedContractWindow(buildPreviewHtml());
+    if (!previewWindow) {
+      alert('Popup blocked. Please allow popups.');
+    }
   };
 
   const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
+    const printWindow = openSanitizedContractWindow(
+      buildPreviewHtml(),
+      (win) => {
+        win.focus();
+        win.print();
+        setTimeout(() => win.close(), 100);
+      },
+    );
     if (!printWindow) {
-      alert('Popup блоклогдсон байна. Popup зөвшөөрнө үү.');
-      return;
+      alert('Popup blocked. Please allow popups.');
     }
-
-    const previewHtml = template
-      .replaceAll('{{contractNumber}}', 'INS2026010001')
-      .replaceAll('{{vendorName}}', 'Монгол Даатгал ХХК')
-      .replaceAll('{{customerName}}', 'Бат Болд')
-      .replaceAll('{{registrationNumber}}', 'УБ12345678')
-      .replaceAll('{{insuranceType}}', 'Автомашины даатгал')
-      .replaceAll('{{productName}}', 'Стандарт даатгал')
-      .replaceAll('{{startDate}}', '2026 оны 1-р сарын 20')
-      .replaceAll('{{endDate}}', '2027 оны 1-р сарын 20')
-      .replaceAll('{{chargedAmount}}', '1,500,000');
-
-    printWindow.document.write(previewHtml);
-    printWindow.document.close();
-    printWindow.onload = () => {
-      printWindow.focus();
-      printWindow.print();
-      setTimeout(() => {
-        printWindow.close();
-      }, 100);
-    };
   };
 
   const handleDownload = () => {
@@ -378,16 +363,8 @@ export const ContractTemplateEditorPage = () => {
                     </label>
                     <div className="border rounded-md p-4 bg-gray-50 overflow-auto max-h-[600px]">
                       <iframe
-                        srcDoc={template
-                          .replaceAll('{{contractNumber}}', 'INS2026010001')
-                          .replaceAll('{{vendorName}}', 'Sample Insurance LLC')
-                          .replaceAll('{{customerName}}', 'John Smith')
-                          .replaceAll('{{registrationNumber}}', 'AB12345678')
-                          .replaceAll('{{insuranceType}}', 'Car Insurance')
-                          .replaceAll('{{productName}}', 'Standard Insurance')
-                          .replaceAll('{{startDate}}', 'January 20, 2026')
-                          .replaceAll('{{endDate}}', 'January 20, 2027')
-                          .replaceAll('{{chargedAmount}}', '1,500,000')}
+                        srcDoc={sanitizeContractHtml(buildPreviewHtml())}
+                        sandbox="allow-popups"
                         className="w-full h-[800px] bg-white border-0"
                         title="Template Preview"
                       />
