@@ -11,3 +11,4 @@ export * from './localization';
 export * from './regex';
 export * from './IsUndefinedOrNull';
 export * from './isEnabled';
+export * from './security';
