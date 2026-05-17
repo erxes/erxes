@@ -164,24 +164,75 @@ class RateLimitError extends Error {
 export const isRateLimitError = (e: unknown): e is RateLimitError =>
   e instanceof RateLimitError;
 
+// Atomic INCR-and-set-TTL Lua script. INCR + EXPIRE issued as two separate
+// commands is non-atomic: if the EXPIRE command is lost (process crash mid
+// pipeline, network blip after INCR ACKs) the key becomes a permanent counter
+// and Redis memory grows under sustained traffic. Doing both in a single
+// EVAL keeps the counter and its TTL bound together — the EXPIRE is guaranteed
+// to run on the first request iff the INCR returned 1, and the whole script
+// executes atomically on the Redis server.
+const RATE_LIMIT_INCR_SCRIPT = `
+  local n = redis.call('INCR', KEYS[1])
+  if n == 1 then
+    redis.call('EXPIRE', KEYS[1], ARGV[1])
+  end
+  return n
+`;
+
 export const checkRateLimit = async (
   key: string,
   limit: number,
   windowSecs: number,
 ): Promise<void> => {
-  try {
-    const current = await redis.incr(key);
-
-    if (current === 1) {
-      await redis.expire(key, windowSecs);
-    }
-
-    if (current > limit) {
-      throw new RateLimitError('Too many requests. Please try again later.');
-    }
-  } catch (e) {
-    throw e;
+  // Defensive: every caller passes literal constants, but a future caller
+  // computing windowSecs/limit from config (or env) could trip a 0/negative
+  // and silently break the limiter (TTL=0 → no expiration on EXPIRE, or
+  // EXPIRE rejected outright). Fail loud instead of degrading.
+  if (!Number.isInteger(windowSecs) || windowSecs <= 0) {
+    throw new Error(
+      `checkRateLimit: windowSecs must be a positive integer (got ${windowSecs})`,
+    );
   }
+  if (!Number.isInteger(limit) || limit <= 0) {
+    throw new Error(
+      `checkRateLimit: limit must be a positive integer (got ${limit})`,
+    );
+  }
+
+  const current = (await redis.eval(
+    RATE_LIMIT_INCR_SCRIPT,
+    1,
+    key,
+    String(windowSecs),
+  )) as number;
+
+  if (current > limit) {
+    throw new RateLimitError('Too many requests. Please try again later.');
+  }
+};
+
+// Sanitize the client-IP string before it's used in a Redis rate-limit key.
+// The IP arrives from `X-Forwarded-For` which is fully attacker-controlled
+// when present, so without normalization an attacker can mint a fresh bucket
+// per crafted payload (e.g. `1.2.3.4`, `1.2.3.4 `, `1.2.3.4#a`, …) and bypass
+// the per-IP cap. We restrict to the character classes that valid IPv4/IPv6
+// addresses actually use — hex digits A-F (preserved in both cases), dots,
+// and colons — and hard-bound the length to 45 chars (the practical upper
+// bound for a textual IPv6 address). Anything left empty after stripping
+// collapses to the literal `unknown` bucket, which is still rate-limited
+// but no longer attacker-malleable.
+//
+// RFC 4007 IPv6 zone identifiers (e.g. `fe80::1%eth0`) are stripped at the
+// `%` separator first, so two link-local clients on different interfaces
+// don't share a bucket purely because the character-class filter erased
+// their zone IDs. In practice the OAuth endpoint isn't reachable over
+// link-local addresses (it sits behind routable proxies), but handling the
+// case keeps the bucket-key per-source-distinguishable wherever it could
+// matter.
+const sanitizeClientIp = (raw: string): string => {
+  const withoutZone = raw.split('%', 1)[0];
+  const cleaned = withoutZone.replace(/[^a-fA-F0-9.:]/g, '').slice(0, 45);
+  return cleaned || 'unknown';
 };
 
 export const getClientIp = (req: {
@@ -192,10 +243,10 @@ export const getClientIp = (req: {
 
   if (forwarded) {
     const first = Array.isArray(forwarded) ? forwarded[0] : forwarded;
-    return first.split(',')[0].trim();
+    return sanitizeClientIp(String(first).split(',')[0].trim());
   }
 
-  return req.socket?.remoteAddress || 'unknown';
+  return sanitizeClientIp(String(req.socket?.remoteAddress || 'unknown'));
 };
 
 // ---------------------------------------------------------------------------

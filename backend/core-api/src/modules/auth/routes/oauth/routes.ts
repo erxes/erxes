@@ -299,9 +299,79 @@ router.post('/oauth/device/deny', async (req: Request, res: Response) => {
 });
 
 router.post('/oauth/token', async (req: Request, res: Response) => {
-  const subdomain = getSubdomain(req);
-  const models = await generateModels(subdomain);
-  const grantType = String(req.body?.grant_type || '').trim();
+  // Rate-limit the token endpoint BEFORE doing any DB work (subdomain lookup,
+  // model generation, client_secret bcrypt compare, etc.). This guards all
+  // grant-type branches — device_code, refresh_token, and the fallback —
+  // against brute-force and DoS, in addition to the per-device-code
+  // poll-interval limit enforced inside the device_code branch (RFC 8628 §3.5).
+  //
+  // Two layered buckets, both 30 req/min:
+  //   1. Per-IP — applied unconditionally. The hard ceiling that cannot be
+  //      bypassed by rotating `client_id` values from one source.
+  //   2. Per-(client_id, IP) — fairness layer on top. Prevents an attacker
+  //      that can spoof `X-Forwarded-For` (getClientIp trusts the header for
+  //      compatibility with our reverse proxies) from exhausting a specific
+  //      legitimate client's allowance, and bounds Redis unique-key growth
+  //      under an IP-rotation attack to one TTL window per (client_id, IP).
+  // 30 req/min is comfortably above the legitimate device-poll cadence (12
+  // req/min at the 5s DEVICE_POLL_INTERVAL) and refresh-token rotation rate.
+  // The limiter is Redis-backed (see checkRateLimit -> redis.incr/expire) so it
+  // works correctly across multiple core-api replicas behind a load balancer.
+  let subdomain: string;
+  let models: Awaited<ReturnType<typeof generateModels>>;
+  let grantType: string;
+  try {
+    const ip = getClientIp(req);
+    // Hard per-IP ceiling FIRST: applied unconditionally so rotating
+    // `client_id` values from the same source cannot bypass the global
+    // 30 req/min budget for this endpoint.
+    await checkRateLimit(`oauth:token:ip:${ip}`, 30, 60);
+
+    const rawClientId = String(req.body?.client_id || '').trim();
+    // Then a per-(client_id, IP) bucket for fairness: prevents an IP-spoofing
+    // attacker (getClientIp trusts X-Forwarded-For for proxy compatibility)
+    // from exhausting a specific legitimate client's quota. Sanitized +
+    // length-bounded so a malicious payload can't blow up the key namespace.
+    // The client_id bucket only runs when a client_id is supplied — anonymous
+    // traffic is already capped by the per-IP bucket above.
+    // Truncate BEFORE the regex so a pathologically long client_id (e.g. an
+    // attacker shipping megabytes of payload) doesn't force the engine to scan
+    // the whole string just to discard it on slice(0, 64) afterwards.
+    const clientIdSalt = rawClientId
+      ? rawClientId.slice(0, 64).replace(/[^a-zA-Z0-9_-]/g, '')
+      : '';
+    if (clientIdSalt) {
+      await checkRateLimit(
+        `oauth:token:client:${clientIdSalt}:${ip}`,
+        30,
+        60,
+      );
+    }
+
+    subdomain = getSubdomain(req);
+    models = await generateModels(subdomain);
+    grantType = String(req.body?.grant_type || '').trim();
+  } catch (e) {
+    if (isRateLimitError(e)) {
+      // RFC 6585 §4: 429 responses SHOULD carry Retry-After. We use a fixed
+      // 60s window in checkRateLimit above, so 60 is the correct upper bound
+      // for when the bucket will have rolled over and the caller can try
+      // again.
+      res.set('Retry-After', '60');
+      return sendOAuthError(res, 429, 'slow_down', e.message);
+    }
+    // Limiter/Redis or subdomain/model-resolution failures are server-side
+    // infrastructure issues, not malformed client input. Map to 503
+    // `temporarily_unavailable` so clients back off instead of retry-storming,
+    // and avoid leaking internal error messages to the caller.
+    console.error('oauth/token pre-handler failure:', e);
+    return sendOAuthError(
+      res,
+      503,
+      'temporarily_unavailable',
+      'Service temporarily unavailable. Please try again later.',
+    );
+  }
 
   if (grantType === DEVICE_CODE_GRANT) {
     try {
