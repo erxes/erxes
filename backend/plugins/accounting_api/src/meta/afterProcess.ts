@@ -89,6 +89,7 @@ const setOrderAccountingResponse = async ({
 }) => {
   await sendTRPCMessage({
     subdomain,
+    method: 'mutation',
     pluginName: 'sales',
     module: 'order',
     action: 'updateOne',

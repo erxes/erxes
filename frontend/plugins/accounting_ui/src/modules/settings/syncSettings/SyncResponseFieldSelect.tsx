@@ -1,10 +1,9 @@
 import { useQuery } from '@apollo/client';
 import { Form, Select, Spinner } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
-import { FIELDS_COMBINED_BY_CONTENT_TYPE } from '../graphql/queries/relatedQueries';
+import { DEAL_FIELD_GROUPS_WITH_FIELDS } from '../graphql/queries/relatedQueries';
 
-const getFieldLabel = (field: any) =>
-  field.label || field.text || field.code || field.name || field.fieldId;
+const getFieldLabel = (field: any) => field.name || field.code || field._id;
 
 export const SyncResponseFieldSelect = ({
   form,
@@ -15,13 +14,17 @@ export const SyncResponseFieldSelect = ({
   name?: string;
   label?: string;
 }) => {
-  const { data, loading } = useQuery(FIELDS_COMBINED_BY_CONTENT_TYPE, {
+  const { data, loading } = useQuery(DEAL_FIELD_GROUPS_WITH_FIELDS, {
     variables: { contentType: 'sales:deal' },
   });
 
-  const fields = (data?.fieldsCombinedByContentType || []).filter(
-    (field: any) => field?.fieldId,
+  const groupNameById = new Map(
+    (data?.fieldGroups?.list || []).map((group: any) => [
+      group._id,
+      group.name,
+    ]),
   );
+  const fields = data?.fields?.list || [];
 
   return (
     <Form.Field
@@ -48,11 +51,13 @@ export const SyncResponseFieldSelect = ({
                   </div>
                 ) : (
                   fields.map((customField: any) => (
-                    <Select.Item
-                      key={customField.fieldId}
-                      value={customField.fieldId}
-                    >
-                      {getFieldLabel(customField)}
+                    <Select.Item key={customField._id} value={customField._id}>
+                      {[
+                        groupNameById.get(customField.groupId),
+                        getFieldLabel(customField),
+                      ]
+                        .filter(Boolean)
+                        .join(' / ')}
                     </Select.Item>
                   ))
                 )}

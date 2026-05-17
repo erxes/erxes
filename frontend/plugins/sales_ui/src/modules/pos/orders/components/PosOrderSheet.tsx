@@ -26,7 +26,7 @@ import { PosOrderForm } from '../detail/PosOrderForm';
 import { TPosOrderFormData } from '../types/posOrderType';
 
 const POS_ORDER_TRANSACTIONS = gql`
-  query PosOrderTransactions($contentType: String, $contentId: String) {
+  query PosOrderTransactions($contentType: String!, $contentId: String!) {
     accTransactionsByContent(
       contentType: $contentType
       contentId: $contentId

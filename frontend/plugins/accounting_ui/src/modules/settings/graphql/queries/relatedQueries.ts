@@ -42,8 +42,22 @@ export const PIPELINE_DETAIL = gql`
   }
 `;
 
-export const FIELDS_COMBINED_BY_CONTENT_TYPE = gql`
-  query FieldsCombinedByContentType($contentType: String!) {
-    fieldsCombinedByContentType(contentType: $contentType)
+export const DEAL_FIELD_GROUPS_WITH_FIELDS = gql`
+  query DealFieldGroupsWithFields($contentType: String!, $limit: Int) {
+    fieldGroups(params: { contentType: $contentType, limit: $limit }) {
+      list {
+        _id
+        name
+      }
+    }
+    fields(params: { contentType: $contentType, limit: $limit }) {
+      list {
+        _id
+        name
+        code
+        type
+        groupId
+      }
+    }
   }
 `;

@@ -10,7 +10,7 @@ import {
 } from 'erxes-ui';
 
 const RELATED_TRANSACTIONS_QUERY = gql`
-  query RelatedTransactions($contentType: String, $contentId: String) {
+  query RelatedTransactions($contentType: String!, $contentId: String!) {
     accTransactionsByContent(
       contentType: $contentType
       contentId: $contentId
@@ -95,6 +95,7 @@ export const Transactions = ({
       contentType,
       contentId,
     },
+    fetchPolicy: 'network-only',
     skip: !contentId || !contentType,
   });
 
