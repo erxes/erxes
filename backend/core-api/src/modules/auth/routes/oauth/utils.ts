@@ -216,13 +216,22 @@ export const checkRateLimit = async (
 // when present, so without normalization an attacker can mint a fresh bucket
 // per crafted payload (e.g. `1.2.3.4`, `1.2.3.4 `, `1.2.3.4#a`, …) and bypass
 // the per-IP cap. We restrict to the character classes that valid IPv4/IPv6
-// addresses (and the `unknown` fallback) actually use — hex digits, dots,
-// colons, lowercase letters for "unknown" — and hard-bound the length
-// (IPv6 with zone-id maxes out near 45 chars). Anything left empty after
-// stripping collapses to the literal `unknown` bucket, which is still
-// rate-limited but no longer attacker-malleable.
+// addresses actually use — hex digits A-F (preserved in both cases), dots,
+// and colons — and hard-bound the length to 45 chars (the practical upper
+// bound for a textual IPv6 address). Anything left empty after stripping
+// collapses to the literal `unknown` bucket, which is still rate-limited
+// but no longer attacker-malleable.
+//
+// RFC 4007 IPv6 zone identifiers (e.g. `fe80::1%eth0`) are stripped at the
+// `%` separator first, so two link-local clients on different interfaces
+// don't share a bucket purely because the character-class filter erased
+// their zone IDs. In practice the OAuth endpoint isn't reachable over
+// link-local addresses (it sits behind routable proxies), but handling the
+// case keeps the bucket-key per-source-distinguishable wherever it could
+// matter.
 const sanitizeClientIp = (raw: string): string => {
-  const cleaned = raw.replace(/[^a-fA-F0-9.:]/g, '').slice(0, 45);
+  const withoutZone = raw.split('%', 1)[0];
+  const cleaned = withoutZone.replace(/[^a-fA-F0-9.:]/g, '').slice(0, 45);
   return cleaned || 'unknown';
 };
 
