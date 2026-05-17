@@ -19,89 +19,72 @@ export const getMainConditions = ({
   const now = dayjs(date || new Date());
   const nowISO = now.toISOString();
 
-  const andConditions: Record<string, any>[] = [];
-
-  // Build branch/department OR conditions
-  const branchDeptOr: Record<string, any>[] = [];
-
-  if (branchId) {
-    branchDeptOr.push({
-      branchIds: { $in: [branchId] },
-      departmentIds: { $size: 0 }
-    });
-  }
-
-  if (departmentId) {
-    branchDeptOr.push({
-      departmentIds: { $in: [departmentId] },
-      branchIds: { $size: 0 }
-    });
-  }
-
-  // Always include the case with no branch or department
-  branchDeptOr.push({
-    branchIds: { $size: 0 },
-    departmentIds: { $size: 0 }
-  });
-
-  if (branchId && departmentId) {
-    branchDeptOr.push({
-      departmentIds: { $in: [departmentId] },
-      branchIds: { $in: [branchId] }
-    });
-  }
-
-  if (branchDeptOr.length > 0) {
-    andConditions.push({ $or: branchDeptOr });
-  }
-
-  // Add pipeline condition if provided
-  if (pipelineId) {
-    andConditions.push({
-      $or: [
-        { pipelineId },
-        { pipelineId: { $exists: false } },
-        { pipelineId: '' }
-      ]
-    });
-  }
-
-  // Add date conditions
-  const dateOr = [
-    {
-      isStartDateEnabled: false,
-      isEndDateEnabled: false
-    },
-    {
-      isStartDateEnabled: true,
-      isEndDateEnabled: false,
-      startDate: {
-        $lt: nowISO
-      }
-    },
-    {
-      isStartDateEnabled: false,
-      isEndDateEnabled: true,
-      endDate: {
-        $gt: nowISO
-      }
-    },
-    {
-      isStartDateEnabled: true,
-      isEndDateEnabled: true,
-      startDate: {
-        $lt: nowISO
+  const dateFilter = {
+    $or: [
+      {
+        isStartDateEnabled: false,
+        isEndDateEnabled: false
       },
-      endDate: {
-        $gt: nowISO
+      {
+        isStartDateEnabled: true,
+        isEndDateEnabled: false,
+        startDate: {
+          $lt: nowISO
+        }
+      },
+      {
+        isStartDateEnabled: false,
+        isEndDateEnabled: true,
+        endDate: {
+          $gt: nowISO
+        }
+      },
+      {
+        isStartDateEnabled: true,
+        isEndDateEnabled: true,
+        startDate: {
+          $lt: nowISO
+        },
+        endDate: {
+          $gt: nowISO
+        }
       }
-    }
-  ];
+    ]
+  };
 
-  andConditions.push({ status: 'active', $or: dateOr });
+  const publicFilter = {
+    branchIds: { $size: 0 },
+    departmentIds: { $size: 0 },
+    $or: [{ pipelineId: { $exists: false } }, { pipelineId: '' }]
+  };
+
+  const targetFilter: Record<string, any>[] = [];
+
+  if (pipelineId) {
+    targetFilter.push({ pipelineId });
+  }
+
+  if (branchId || departmentId) {
+    targetFilter.push({
+      branchIds: branchId ? { $in: [branchId] } : { $size: 0 },
+      departmentIds: departmentId ? { $in: [departmentId] } : { $size: 0 }
+    });
+  }
+
+  const scopeFilters: Record<string, any>[] = [publicFilter];
+
+  if (targetFilter.length) {
+    scopeFilters.unshift({ $and: targetFilter });
+  }
 
   return {
-    $and: andConditions
+    status: 'active',
+    $and: [
+      dateFilter,
+      {
+        $or: scopeFilters
+      }
+    ]
   };
 };
 

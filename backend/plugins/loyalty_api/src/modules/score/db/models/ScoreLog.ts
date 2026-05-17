@@ -3,7 +3,7 @@ import {
   IScoreLogDocument,
   IScoreLogParams,
 } from '@/score/@types/scoreLog';
-import { SCORE_OWNER_TYPES } from '@/score/constants';
+import { SCORE_CAMPAIGN_STATUSES, SCORE_OWNER_TYPES } from '@/score/constants';
 import { scoreLogSchema } from '@/score/db/definitions/scoreLog';
 import { scoreStatistic } from '@/score/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
@@ -287,27 +287,41 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      let ownerScore = owner.score;
+      let ownerScore = 0;
+      const campaignFilter: any = {
+        status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
+      };
+      const usedCustomFieldIds: string[] = [];
 
       if (campaignId) {
-        const campaign = await models.ScoreCampaigns.findOne({
-          _id: campaignId,
-        });
+        campaignFilter._id = campaignId;
+      }
 
-        if (!campaign) {
-          throw new Error('Campaign not found');
+      const campaigns = await models.ScoreCampaigns.find(campaignFilter).lean();
+
+      if (campaignId && !campaigns?.length) {
+        throw new Error('Campaign not found');
+      }
+
+      for (const campaign of campaigns) {
+        if (!campaign.fieldId || usedCustomFieldIds.includes(campaign.fieldId)) {
+          continue;
         }
 
+        usedCustomFieldIds.push(campaign.fieldId);
         const campaignScore =
           (owner?.customFieldsData || []).find(
             ({ field }) => field === campaign.fieldId,
           )?.value || 0;
 
-        ownerScore = campaignScore;
+        ownerScore += Number(campaignScore) || 0;
       }
 
-      const oldScore = Number(ownerScore) || 0;
-      const newScore = oldScore + score;
+      if (!usedCustomFieldIds.length) {
+        ownerScore = Number(owner.score) || 0;
+      }
+
+      const newScore = (Number(ownerScore) || 0) + score;
 
       if (score < 0 && newScore < 0) {
         throw new Error(`score are not enough`);
@@ -315,10 +329,11 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       const response = await this.updateOwnerScore({
         subdomain,
-        ownerId,
+        owner,
         ownerType,
         newScore,
-        campaignId,
+        score,
+        usedCustomFieldIds,
       });
 
       if (!response || !Object.keys(response || {})?.length) {
@@ -328,12 +343,12 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       return await models.ScoreLogs.create({
         ownerId,
         ownerType,
-        changeScore: score,
+        changeScore: Math.abs(score),
         createdAt: new Date(),
         description,
         createdBy,
         campaignId,
-        action: 'add',
+        action: score < 0 ? 'subtract' : 'add',
         targetId,
         serviceName,
         amount,
@@ -344,9 +359,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     static async updateOwnerScore({
       subdomain,
       ownerType,
-      ownerId,
+      owner,
       newScore,
-      campaignId,
+      score,
+      usedCustomFieldIds,
     }) {
       const updateEntity = async (
         moduleName: string,
@@ -364,62 +380,91 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           defaultValue: null,
         });
 
+      const selector = { _id: owner._id };
       const modifier: any = { $set: { score: newScore } };
-      const selector: {
-        _id: string;
-      } = { _id: ownerId };
 
-      if (campaignId) {
-        const campaign = await models.ScoreCampaigns.findOne({
-          _id: campaignId,
-        });
+      if (usedCustomFieldIds?.length) {
+        let updatedCustomFieldsData = [...(owner.customFieldsData || [])];
 
-        if (!campaign?.fieldId) {
-          throw new Error(
-            'Something went wrong when trying to find campaign field',
+        if (score > 0) {
+          const fieldId = usedCustomFieldIds[0];
+          const hasOldFieldData = updatedCustomFieldsData.find(
+            (customFieldData) => customFieldData.field === fieldId,
           );
-        }
 
-        const prepareCustomFieldsData = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'fields',
-          action: 'prepareCustomFieldsData',
-          input: [{ field: campaign.fieldId, value: newScore }],
-          defaultValue: [],
-        });
-
-        if (!prepareCustomFieldsData[0]) {
-          throw new Error(
-            'Something went wrong when preparing score field data',
-          );
-        }
-
-        const prepareCustomFieldData: { field: string; value: number } =
-          prepareCustomFieldsData[0];
-
-        const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
-
-        const { customFieldsData } = owner || {};
-        let updatedCustomFieldsData;
-
-        if (
-          !customFieldsData ||
-          !(customFieldsData || []).find(
-            ({ field }) => field === campaign.fieldId,
-          )
-        ) {
-          updatedCustomFieldsData = [
-            ...(customFieldsData || []),
-            prepareCustomFieldData,
-          ];
+          if (hasOldFieldData) {
+            updatedCustomFieldsData = updatedCustomFieldsData.map(
+              (customFieldData) =>
+                customFieldData.field === fieldId
+                  ? {
+                      ...customFieldData,
+                      value: Number(customFieldData.value) + score,
+                      stringValue: `${Number(customFieldData.value) + score}`,
+                      numberValue: Number(customFieldData.value) + score,
+                    }
+                  : customFieldData,
+            );
+          } else {
+            updatedCustomFieldsData.push({
+              field: fieldId,
+              value: score,
+              stringValue: `${score}`,
+              numberValue: score,
+            });
+          }
         } else {
-          updatedCustomFieldsData = customFieldsData.map((customFieldData) =>
-            customFieldData.field === campaign.fieldId
-              ? { ...customFieldData, ...prepareCustomFieldData }
-              : customFieldData,
+          let remaining = Math.abs(score);
+
+          updatedCustomFieldsData = updatedCustomFieldsData.map(
+            (customFieldData) => {
+              if (
+                !remaining ||
+                !usedCustomFieldIds.includes(customFieldData.field)
+              ) {
+                return customFieldData;
+              }
+
+              const currentValue = Number(customFieldData.value) || 0;
+              const deduct = Math.min(currentValue, remaining);
+              const newValue = currentValue - deduct;
+              remaining -= deduct;
+
+              return {
+                ...customFieldData,
+                value: newValue,
+                stringValue: `${newValue}`,
+                numberValue: newValue,
+              };
+            },
           );
+
+          if (remaining) {
+            const fieldId = usedCustomFieldIds[0];
+            const hasOldFieldData = updatedCustomFieldsData.find(
+              (customFieldData) => customFieldData.field === fieldId,
+            );
+
+            if (hasOldFieldData) {
+              updatedCustomFieldsData = updatedCustomFieldsData.map(
+                (customFieldData) =>
+                  customFieldData.field === fieldId
+                    ? {
+                        ...customFieldData,
+                        value: Number(customFieldData.value) - remaining,
+                        stringValue: `${Number(customFieldData.value) - remaining}`,
+                        numberValue: Number(customFieldData.value) - remaining,
+                      }
+                    : customFieldData,
+              );
+            } else {
+              updatedCustomFieldsData.push({
+                field: fieldId,
+                value: -1 * remaining,
+                stringValue: `${-1 * remaining}`,
+                numberValue: -1 * remaining,
+              });
+            }
+          }
         }
 
         modifier.$set['customFieldsData'] = updatedCustomFieldsData || [];
@@ -430,10 +475,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         return await updateEntity('users', 'updateOne', selector, modifier);
       }
       if (ownerType === 'customer') {
-        return await updateEntity('customers', 'updateOne', selector, modifier);
+        return await updateEntity('customers', 'updateMany', selector, modifier);
       }
       if (ownerType === 'company') {
-        return await updateEntity('companies', 'updateOne', selector, modifier);
+        return await updateEntity('companies', 'updateMany', selector, modifier);
       }
       if (ownerType === 'cpUser') {
         const cpUser = await sendTRPCMessage({
@@ -443,7 +488,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           module: 'cpUsers',
           action: 'get',
           input: {
-            id: ownerId,
+            id: owner._id,
           },
           defaultValue: null,
         });

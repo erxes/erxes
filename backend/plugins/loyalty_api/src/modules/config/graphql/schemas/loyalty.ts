@@ -18,5 +18,5 @@ export const queries = `
 
 export const mutations = `
   confirmLoyalties(checkInfo: JSON): JSON
-  shareScore(ownerType: String, ownerId: String, score: Float, destinationOwnerId: String, destinationPhone: String, destinationEmail: String, destinationCode: String): String
+  shareScore(ownerType: String, ownerId: String, score: Float, destinationOwnerId: String, destinationPhone: String, destinationEmail: String, destinationCode: String, campaignId: String): String
 `;

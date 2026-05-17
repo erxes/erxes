@@ -13,6 +13,7 @@ export const loyaltyMutations = {
       destinationPhone: string;
       destinationEmail: string;
       destinationCode: string;
+      campaignId?: string;
     },
     { models, subdomain }: IContext,
   ) {
@@ -24,6 +25,7 @@ export const loyaltyMutations = {
       destinationPhone,
       destinationEmail,
       destinationCode,
+      campaignId,
     } = doc;
 
     let destOwnerId = destinationOwnerId;
@@ -97,6 +99,7 @@ export const loyaltyMutations = {
       ownerId,
       changeScore: -1 * score,
       description: 'share score',
+      campaignId,
     });
 
     await models.ScoreLogs.changeScore({
@@ -104,6 +107,7 @@ export const loyaltyMutations = {
       ownerId: destOwnerId,
       changeScore: (score / 100) * (100 - fee),
       description: 'receipt score',
+      campaignId,
     });
 
     return 'success';

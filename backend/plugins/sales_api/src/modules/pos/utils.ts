@@ -149,7 +149,8 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
             subdomain,
 
             pluginName: 'loyalty',
-            module: 'scores',
+            method: 'mutation',
+            module: 'score',
             action: 'doScoreCampaign',
             input: {
               ownerType: order.customerType || 'customer',
@@ -188,6 +189,7 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
       subdomain,
 
       pluginName: 'loyalty',
+      method: 'mutation',
       module: 'loyalty',
       action: 'confirmLoyalties',
       input: {

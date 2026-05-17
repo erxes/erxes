@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { getAllowedProducts } from '../../../utils/product';
 import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
+import { checkPricing } from '../../../utils';
 
 const buildDateFilter = (date: string | Date) => {
   const now = dayjs(date);
@@ -229,6 +230,45 @@ export const pricingPlanQueries = {
     { models }: IContext,
   ) => {
     return await models.PricingPlans.findById(id);
+  },
+
+  pricingCheckDiscount: async (
+    _root: any,
+    params: {
+      prioritizeRule?: string;
+      totalAmount: number;
+      departmentId: string;
+      branchId: string;
+      pipelineId: string;
+      products: Array<{
+        itemId: string;
+        productId: string;
+        quantity: number;
+        price: number;
+        manufacturedDate?: string;
+      }>;
+    },
+    { models, subdomain }: IContext,
+  ) => {
+    const {
+      prioritizeRule = 'exclude',
+      totalAmount,
+      departmentId,
+      branchId,
+      products,
+      pipelineId,
+    } = params;
+
+    return checkPricing({
+      models,
+      subdomain,
+      prioritizeRule,
+      totalAmount,
+      departmentId,
+      branchId,
+      pipelineId,
+      orderItems: products || [],
+    });
   },
 };
 

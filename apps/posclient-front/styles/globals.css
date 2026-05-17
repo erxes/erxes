@@ -110,6 +110,45 @@
   margin-top: 0.375rem;
 }
 
+.report-print__product {
+  padding-left: 2mm;
+  line-height: 1.25;
+  padding-top: 0.8mm;
+  padding-bottom: 0.8mm;
+}
+
+.report-print__product-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  column-gap: 2mm;
+  margin-top: 1mm;
+  padding: 0.6mm 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.report-print__product-header > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.report-print__product-header > span:last-child {
+  text-align: right;
+}
+
+.report-print__product-name {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.report-print__product-amount {
+  text-align: right;
+  font-style: italic;
+  overflow-wrap: anywhere;
+}
+
 .report-print__row {
   line-height: 1.3;
 }
