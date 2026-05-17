@@ -28,7 +28,7 @@ const allRules: IAfterProcessRule[] = [
     type: 'updatedDocument',
     contentTypes: ['sales:pos.orders'],
     when: {
-      fieldsUpdated: ['status'],
+      fieldsUpdated: ['status', 'cashAmount', 'mobileAmount', 'paidAmounts'],
     },
   },
   {

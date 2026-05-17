@@ -159,6 +159,7 @@ export const PosOrderSheet = () => {
       contentType: 'sales:order',
       contentId: posOrder?._id,
     },
+    fetchPolicy: 'network-only',
     skip: !isAccountingEnabled || !posOrder?._id,
   });
   const { posOrderChangePayments, loading: mutationLoading } =
