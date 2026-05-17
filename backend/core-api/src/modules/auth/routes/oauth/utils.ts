@@ -164,23 +164,35 @@ class RateLimitError extends Error {
 export const isRateLimitError = (e: unknown): e is RateLimitError =>
   e instanceof RateLimitError;
 
+// Atomic INCR-and-set-TTL Lua script. INCR + EXPIRE issued as two separate
+// commands is non-atomic: if the EXPIRE command is lost (process crash mid
+// pipeline, network blip after INCR ACKs) the key becomes a permanent counter
+// and Redis memory grows under sustained traffic. Doing both in a single
+// EVAL keeps the counter and its TTL bound together — the EXPIRE is guaranteed
+// to run on the first request iff the INCR returned 1, and the whole script
+// executes atomically on the Redis server.
+const RATE_LIMIT_INCR_SCRIPT = `
+  local n = redis.call('INCR', KEYS[1])
+  if n == 1 then
+    redis.call('EXPIRE', KEYS[1], ARGV[1])
+  end
+  return n
+`;
+
 export const checkRateLimit = async (
   key: string,
   limit: number,
   windowSecs: number,
 ): Promise<void> => {
-  try {
-    const current = await redis.incr(key);
+  const current = (await redis.eval(
+    RATE_LIMIT_INCR_SCRIPT,
+    1,
+    key,
+    String(windowSecs),
+  )) as number;
 
-    if (current === 1) {
-      await redis.expire(key, windowSecs);
-    }
-
-    if (current > limit) {
-      throw new RateLimitError('Too many requests. Please try again later.');
-    }
-  } catch (e) {
-    throw e;
+  if (current > limit) {
+    throw new RateLimitError('Too many requests. Please try again later.');
   }
 };
 
