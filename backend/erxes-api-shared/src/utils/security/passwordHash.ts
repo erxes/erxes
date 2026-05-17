@@ -68,7 +68,7 @@ const parseScryptParams = (
   return { N, r, p };
 };
 
-interface ParsedStoredHash {
+interface IParsedStoredHash {
   params: { N: number; r: number; p: number };
   salt: Buffer;
   expected: Buffer;
@@ -82,7 +82,7 @@ interface ParsedStoredHash {
 // emits - canonical salt = 16 raw bytes, derived key = 64 raw bytes - so a
 // corrupted stored hash can never drive an oversized `Buffer.from`
 // allocation, an off-spec scrypt `keylen`, or out-of-bounds N/r/p.
-const parseStoredHash = (storedHash: unknown): ParsedStoredHash | null => {
+const parseStoredHash = (storedHash: unknown): IParsedStoredHash | null => {
   if (typeof storedHash !== 'string') return null;
   const parts = storedHash.split('$');
   if (parts.length !== 4) return null;
@@ -146,7 +146,7 @@ export const hashPassword = async (password: string): Promise<string> => {
   ].join('$');
 };
 
-export interface VerifyPasswordOptions {
+export interface IVerifyPasswordOptions {
   /**
    * Optional verifier for stored hashes in a legacy bcrypt-shaped format
    * (i.e. starting with `$2a$`, `$2b$`, `$2y$`). Called with the raw
@@ -175,7 +175,7 @@ export interface VerifyPasswordOptions {
 export const verifyPassword = async (
   password: string,
   storedHash: string,
-  options: VerifyPasswordOptions = {},
+  options: IVerifyPasswordOptions = {},
 ): Promise<boolean> => {
   const looksLikeBcrypt =
     typeof storedHash === 'string' &&
