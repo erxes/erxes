@@ -212,8 +212,16 @@ export const verifyPassword = async (
       p: params.p,
       maxmem: scryptMaxmem(params.N, params.r, params.p),
     });
-  } catch {
-    return false;
+  } catch (error) {
+    // On the decoy / malformed-hash path (parsed === null) scrypt failure
+    // is expected — return false to keep the timing-uniform auth-fail
+    // outcome. On the valid-input path it's an operational failure (OOM,
+    // ERR_CRYPTO_INVALID_SCRYPT_PARAMS, etc.) and silently treating it as
+    // a wrong password would hide an unhealthy deployment; rethrow so the
+    // caller surfaces a real error.
+    if (parsed === null) return false;
+    const reason = error instanceof Error ? error.message : 'unknown';
+    throw new Error(`Failed to verify password with scrypt: ${reason}`);
   }
 
   if (inputValid && parsed !== null) {
@@ -245,10 +253,19 @@ const runDecoyScrypt = async (password: unknown): Promise<void> => {
 
 /**
  * `true` iff `storedHash` is recognised by `verifyPassword` as the
- * current (scrypt-PHC) format. Useful for callers that want to lazily
- * re-hash legacy rows on successful login: if `isCurrentFormat` returns
- * `false` after a successful verify, the caller can call `hashPassword`
- * and persist the new value.
+ * current (scrypt-PHC) format AND its embedded params match the active
+ * module constants. Useful for callers that want to lazily re-hash on
+ * successful login: when `SCRYPT_N`/`SCRYPT_R`/`SCRYPT_P` are tightened
+ * later, older scrypt rows return `false` here and the caller re-hashes
+ * them to the new params. Returns `false` for legacy bcrypt rows so
+ * those are migrated too.
  */
-export const isCurrentFormat = (storedHash: unknown): boolean =>
-  parseStoredHash(storedHash) !== null;
+export const isCurrentFormat = (storedHash: unknown): boolean => {
+  const parsed = parseStoredHash(storedHash);
+  return (
+    parsed !== null &&
+    parsed.params.N === SCRYPT_N &&
+    parsed.params.r === SCRYPT_R &&
+    parsed.params.p === SCRYPT_P
+  );
+};

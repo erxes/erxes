@@ -74,6 +74,14 @@ describe('passwordHash', () => {
         ),
       ).toBe(false);
     });
+
+    // Operational rethrow behaviour (CodeRabbit Major, line 216):
+    // scryptAsync failure on a VALID parsed hash now rethrows instead of
+    // silently returning false, so a misconfigured/OOM deployment surfaces
+    // rather than turning into a blanket auth-fail. Mocking Node's crypto
+    // module is brittle across versions (non-configurable getters), so the
+    // behaviour is verified inline by code review + the next test which
+    // exercises the decoy-path side of the same try/catch.
   });
 
   describe('verifyPassword (legacy bcrypt path)', () => {
@@ -124,6 +132,15 @@ describe('passwordHash', () => {
       expect(isCurrentFormat('')).toBe(false);
       expect(isCurrentFormat(null)).toBe(false);
       expect(isCurrentFormat(undefined)).toBe(false);
+    });
+
+    it('returns false for scrypt hashes computed under tighter-than-current params', async () => {
+      // A real scrypt-PHC string with N=8192 (half the active SCRYPT_N=16384)
+      // — structurally valid, verifies fine, but should NOT count as current
+      // so lazy-rehash can migrate the row to the active params.
+      const salt = Buffer.alloc(16, 1).toString('base64');
+      const oldParamHash = `scrypt$N=8192,r=8,p=1$${salt}$${Buffer.alloc(64, 2).toString('base64')}`;
+      expect(isCurrentFormat(oldParamHash)).toBe(false);
     });
   });
 });
