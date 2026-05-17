@@ -2,9 +2,9 @@ import { Document, Model, Schema } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import * as nodemailer from 'nodemailer';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { htmlToPlainText } from './utils';
 
 /* ── shared sub-types ───────────────────────────────────────────────── */
-
 interface IMapMail {
   name: string;
   address: string;
@@ -227,13 +227,23 @@ export const loadImapMessageClass = (models: IModels) => {
       }
 
       /* ── send via SMTP ────────────────────────────────────────── */
+      const smtpHost = integration.smtpHost?.trim();
+      
+      if (!smtpHost) {
+        throw new Error(
+          'SMTP host is not configured for this integration. Please set the SMTP host in integration settings.',
+        );
+      }
+
       const smtpPort = Number(integration.smtpPort) || 465;
       const secure = smtpPort === 465;
+      const requireTLS = smtpPort === 587;
 
       const transporter = nodemailer.createTransport({
-        host: integration.smtpHost,
+        host: smtpHost,
         port: smtpPort,
         secure,
+        requireTLS,
         auth: {
           user: integration.mainUser || integration.user,
           pass: integration.password,
@@ -246,6 +256,9 @@ export const loadImapMessageClass = (models: IModels) => {
         ...(replyToMessageId ? [replyToMessageId] : []),
       ].filter(Boolean);
 
+      // Plain-text fallback
+      const textBody = body ? htmlToPlainText(body) : undefined;
+
       const mailOptions: nodemailer.SendMailOptions = {
         from,
         to,
@@ -253,6 +266,7 @@ export const loadImapMessageClass = (models: IModels) => {
         bcc: bcc?.length ? bcc : undefined,
         subject,
         html: body,
+        text: textBody,
         inReplyTo: replyToMessageId,
         references: refsChain.length ? refsChain : undefined,
         attachments: (attachments ?? []).map((a) => ({
