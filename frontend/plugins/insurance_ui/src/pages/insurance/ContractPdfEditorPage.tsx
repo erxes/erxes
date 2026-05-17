@@ -8,7 +8,14 @@ import {
   IconCode,
   IconDeviceFloppy,
 } from '@tabler/icons-react';
-import { Breadcrumb, Button, Separator, Card, Skeleton } from 'erxes-ui';
+import {
+  Breadcrumb,
+  Button,
+  Separator,
+  Card,
+  Skeleton,
+  openSanitizedWindow,
+} from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { useContract } from '~/modules/insurance/hooks';
 import { generateContractHTML } from '~/utils/contractPdfGenerator';
@@ -59,23 +66,18 @@ export const ContractPdfEditorPage = () => {
   };
 
   const handlePreview = () => {
-    const previewWindow = window.open('', '_blank');
+    const previewWindow = openSanitizedWindow(htmlContent);
     if (!previewWindow) {
       alert('Popup blocked. Please allow popups.');
-      return;
     }
-    previewWindow.document.write(htmlContent);
-    previewWindow.document.close();
   };
 
   const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
+    const printWindow = openSanitizedWindow(htmlContent);
     if (!printWindow) {
       alert('Popup blocked. Please allow popups.');
       return;
     }
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
     printWindow.onload = () => {
       printWindow.focus();
       printWindow.print();

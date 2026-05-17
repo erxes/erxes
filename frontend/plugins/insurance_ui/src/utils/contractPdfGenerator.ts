@@ -1,3 +1,5 @@
+import { openSanitizedWindow } from 'erxes-ui';
+
 interface Contract {
   contractNumber: string;
   paymentStatus: string;
@@ -318,23 +320,16 @@ function generateContractHTML(contract: Contract): string {
 }
 
 export function generateContractPDF(contract: Contract): void {
-  // Create a new window for printing
-  const printWindow = window.open('', '_blank');
+  const printWindow = openSanitizedWindow(generateContractHTML(contract));
 
   if (!printWindow) {
     alert('Popup блоклогдсон байна. Popup зөвшөөрнө үү.');
     return;
   }
 
-  // Write HTML to the new window
-  printWindow.document.write(generateContractHTML(contract));
-  printWindow.document.close();
-
-  // Wait for content to load, then trigger print
   printWindow.onload = () => {
     printWindow.focus();
     printWindow.print();
-    // Close window after printing (user can cancel)
     setTimeout(() => {
       printWindow.close();
     }, 100);

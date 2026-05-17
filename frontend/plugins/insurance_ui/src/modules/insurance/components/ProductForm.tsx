@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Dialog, Button, Label, Input, Select } from 'erxes-ui';
+import { Dialog, Button, Label, Input, Select, openSanitizedWindow } from 'erxes-ui';
 import { IconEye, IconPlus, IconX } from '@tabler/icons-react';
 import {
   useCreateInsuranceProduct,
@@ -545,11 +545,7 @@ export const ProductForm = ({
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      const previewWindow = window.open('', '_blank');
-                      if (previewWindow) {
-                        previewWindow.document.write(formData.pdfContent);
-                        previewWindow.document.close();
-                      }
+                      openSanitizedWindow(formData.pdfContent);
                     }}
                   >
                     <IconEye size={16} />
