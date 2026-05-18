@@ -372,6 +372,7 @@ export const permissions: IPermissionConfig = {
         { plugin: 'loyalty', module: 'assignment', actions: ['assignmentView'], scope: 'all' },
         { plugin: 'loyalty', module: 'assignmentCampaign', actions: ['loyaltyCampaignView'], scope: 'all' },
         { plugin: 'loyalty', module: 'loyalty', actions: ['loyaltyView'], scope: 'all' },
+        { plugin: 'loyalty', module: 'config', actions: ['loyaltyConfigView'], scope: 'all' },  
         { plugin: 'loyalty', module: 'coupon', actions: ['couponView'], scope: 'all' },
         { plugin: 'loyalty', module: 'couponCampaign', actions: ['loyaltyCampaignView'], scope: 'all' },
         { plugin: 'loyalty', module: 'donate', actions: ['donateView'], scope: 'all' },
