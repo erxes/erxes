@@ -122,7 +122,7 @@ const getAccountIds = async (
   return accounts.map((a) => a._id);
 };
 
-const generateFilter = async (
+export const generateFilter = async (
   subdomain: string,
   models: IModels,
   params: IQueryParams,
@@ -389,7 +389,6 @@ const transactionCommon = {
   ) {
     await checkPermission('readTransactions');
     const filter = await generateFilter(subdomain, models, params, user);
-
 
     // Set default orderBy
     params.orderBy ??= { ptrNumber: -1 };
