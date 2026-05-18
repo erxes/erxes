@@ -47,7 +47,7 @@ router.post('/oauth/device/code', async (req: Request, res: Response) => {
       String(req.headers['oauth_secret'] || '').trim() || undefined;
 
     const oauthClientApp = await getOAuthClientApp(models, clientId);
-    validateClientSecret(oauthClientApp, clientSecret);
+    await validateClientSecret(oauthClientApp, clientSecret);
 
     let userCode = createUserCode();
     let userCodeHash = hashToken(userCode);
@@ -305,13 +305,19 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
 
   if (grantType === DEVICE_CODE_GRANT) {
     try {
+      // Per-IP cap before validateClientSecret. scrypt is intentionally slow
+      // (~30ms/attempt) so an unauthenticated attacker spraying bogus
+      // (client_id, oauth_secret) pairs would otherwise DoS the API process.
+      const ip = getClientIp(req);
+      await checkRateLimit(`oauth:token:device:${ip}`, 30, 60);
+
       const clientId = String(req.body?.client_id || '').trim();
       const clientSecret =
         String(req.headers['oauth_secret'] || '').trim() || undefined;
       const deviceCode = String(req.body?.device_code || '').trim();
 
       const oauthClientApp = await getOAuthClientApp(models, clientId);
-      validateClientSecret(oauthClientApp, clientSecret);
+      await validateClientSecret(oauthClientApp, clientSecret);
 
       if (!deviceCode) {
         return sendOAuthError(
@@ -392,13 +398,18 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
 
   if (grantType === 'refresh_token') {
     try {
+      // Per-IP cap before validateClientSecret — same rationale as the
+      // device_code branch above (scrypt cost would otherwise be a DoS amp).
+      const ip = getClientIp(req);
+      await checkRateLimit(`oauth:token:refresh:${ip}`, 30, 60);
+
       const clientId = String(req.body?.client_id || '').trim();
       const clientSecret =
         String(req.headers['oauth_secret'] || '').trim() || undefined;
       const refreshToken = String(req.body?.refresh_token || '').trim();
 
       const oauthClientApp = await getOAuthClientApp(models, clientId);
-      validateClientSecret(oauthClientApp, clientSecret);
+      await validateClientSecret(oauthClientApp, clientSecret);
 
       if (!refreshToken) {
         return sendOAuthError(
@@ -482,6 +493,9 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
         user: await models.Users.getTokenFields(user),
       });
     } catch (e) {
+      if (isRateLimitError(e)) {
+        return sendOAuthError(res, 429, 'rate_limit_exceeded', e.message);
+      }
       if (isClientAuthError(e)) {
         return sendOAuthError(res, 401, 'invalid_client', e.message);
       }

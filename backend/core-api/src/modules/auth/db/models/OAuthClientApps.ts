@@ -7,6 +7,7 @@ import {
   OAuthClientAppType,
   oauthClientAppSchema,
 } from '@/auth/db/definitions/oauthClientApps';
+import { hashClientSecret } from '@/auth/routes/oauth/utils';
 
 type OAuthClientAppDoc = {
   name: string;
@@ -41,10 +42,6 @@ const generateSecret = () => {
   return `ocs_${crypto.randomBytes(24).toString('hex')}`;
 };
 
-const hashSecret = (secret: string): string => {
-  return crypto.createHash('sha256').update(secret).digest('hex');
-};
-
 export interface IOAuthClientAppModel extends Model<IOAuthClientAppDocument> {
   getOAuthClientApp(_id: string): Promise<IOAuthClientAppDocument>;
   createOAuthClientApp(doc: OAuthClientAppDoc): Promise<any>;
@@ -73,6 +70,8 @@ export const loadOAuthClientAppClass = (
       const redirectUrls = normalizeRedirectUrls(doc.redirectUrls);
       const secret = doc.type === 'confidential' ? generateSecret() : undefined;
 
+      const secretHash = secret ? await hashClientSecret(secret) : undefined;
+
       const createWithUniqueId = async (attempt = 0): Promise<any> => {
         if (attempt >= 5) {
           throw new Error('Could not generate unique client id');
@@ -88,7 +87,7 @@ export const loadOAuthClientAppClass = (
             clientId,
             type: doc.type,
             redirectUrls,
-            secretHash: secret ? hashSecret(secret) : undefined,
+            secretHash,
             status: 'active',
           });
         } catch (e: any) {
@@ -149,7 +148,7 @@ export const loadOAuthClientAppClass = (
       if (nextType === 'public') {
         unsetFields.secretHash = 1;
       } else if (nextSecret) {
-        updateOperation.$set.secretHash = hashSecret(nextSecret);
+        updateOperation.$set.secretHash = await hashClientSecret(nextSecret);
       }
 
       if (Object.keys(unsetFields).length) {
