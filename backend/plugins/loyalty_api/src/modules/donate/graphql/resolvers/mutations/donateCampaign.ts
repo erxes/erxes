@@ -7,7 +7,7 @@ export const donateCampaignMutations = {
     doc: IDonateCampaign,
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('donateCampaignCreate');
+    await checkPermission('loyaltyCampaignCreate');
     return models.DonateCampaigns.createDonateCampaign(doc, user._id);
   },
 
@@ -16,7 +16,7 @@ export const donateCampaignMutations = {
     { _id, ...doc }: { _id: string } & IDonateCampaign,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('donateCampaignEdit');
+    await checkPermission('loyaltyCampaignUpdate');
     return models.DonateCampaigns.updateDonateCampaign(_id, doc);
   },
 
@@ -25,7 +25,7 @@ export const donateCampaignMutations = {
     { _ids }: { _ids: string[] },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('donateCampaignRemove');
+    await checkPermission('loyaltyCampaignRemove');
     return models.DonateCampaigns.removeDonateCampaigns(_ids);
   },
 };

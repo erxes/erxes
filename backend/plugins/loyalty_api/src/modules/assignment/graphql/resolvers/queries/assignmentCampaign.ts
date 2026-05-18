@@ -2,12 +2,10 @@ import {
   IAssignmentCampaignDocument,
   IAssignmentCampaignParams,
 } from '@/assignment/@types/assignmentCampaign';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
-import { escapeRegExp } from 'erxes-api-shared/utils';
-
 
 const generateFilter = (params: IAssignmentCampaignParams) => {
   const filter: FilterQuery<IAssignmentCampaignDocument> = {};
@@ -31,7 +29,7 @@ export const assignmentCampaignQueries = {
     params: IAssignmentCampaignParams,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('assignmentCampaignView');
+    await checkPermission('loyaltyCampaignView');
     const filter: FilterQuery<IAssignmentCampaignDocument> =
       generateFilter(params);
 
@@ -47,7 +45,7 @@ export const assignmentCampaignQueries = {
     _args: undefined,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('assignmentCampaignView');
+    await checkPermission('loyaltyCampaignView');
     const now = new Date();
 
     return models.AssignmentCampaigns.find({
@@ -62,7 +60,7 @@ export const assignmentCampaignQueries = {
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('assignmentCampaignView');
+    await checkPermission('loyaltyCampaignView');
     return models.AssignmentCampaigns.getAssignmentCampaign(_id);
   },
 };

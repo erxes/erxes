@@ -7,7 +7,7 @@ export const spinCampaignMutations = {
     doc: ISpinCampaign,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('spinCampaignCreate');
+    await checkPermission('loyaltyCampaignCreate');
     return models.SpinCampaigns.createSpinCampaign(doc);
   },
 
@@ -16,7 +16,7 @@ export const spinCampaignMutations = {
     { _id, ...doc }: ISpinCampaign & { _id: string },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('spinCampaignEdit');
+    await checkPermission('loyaltyCampaignUpdate');
     return models.SpinCampaigns.updateSpinCampaign(_id, doc);
   },
 
@@ -25,7 +25,7 @@ export const spinCampaignMutations = {
     { _ids }: { _ids: string[] },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('spinCampaignRemove');
+    await checkPermission('loyaltyCampaignRemove');
     return models.SpinCampaigns.removeSpinCampaigns(_ids);
   },
 };

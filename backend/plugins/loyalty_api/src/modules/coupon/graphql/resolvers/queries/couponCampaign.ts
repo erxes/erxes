@@ -2,7 +2,7 @@ import {
   ICouponCampaignDocument,
   ICouponCampaignParams,
 } from '@/coupon/@types/couponCampaign';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
@@ -12,11 +12,11 @@ export const couponCampaignQueries = {
     params: ICouponCampaignParams,
     { models, checkPermission }: IContext,
   ) => {
-    await checkPermission('couponCampaignView');
+    await checkPermission('loyaltyCampaignView');
     const filter: FilterQuery<ICouponCampaignDocument> = {};
 
     if (params.searchValue) {
-      filter.title = new RegExp(params.searchValue);
+      filter.title = new RegExp(escapeRegExp(params.searchValue));
     }
 
     if (params.status) {
@@ -35,7 +35,7 @@ export const couponCampaignQueries = {
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) => {
-    await checkPermission('couponCampaignView');
+    await checkPermission('loyaltyCampaignView');
     return models.CouponCampaigns.getCouponCampaign(_id);
   },
 };

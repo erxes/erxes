@@ -7,7 +7,7 @@ export const voucherCampaignMutations = {
     doc: IVoucherCampaign,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('voucherCampaignCreate');
+    await checkPermission('loyaltyCampaignCreate');
     return models.VoucherCampaigns.createVoucherCampaign(doc);
   },
 
@@ -16,7 +16,7 @@ export const voucherCampaignMutations = {
     { _id, ...doc }: { _id: string } & IVoucherCampaign,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('voucherCampaignEdit');
+    await checkPermission('loyaltyCampaignUpdate');
     return models.VoucherCampaigns.updateVoucherCampaign(_id, doc);
   },
 
@@ -25,7 +25,7 @@ export const voucherCampaignMutations = {
     { _ids }: { _ids: string[] },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('voucherCampaignRemove');
+    await checkPermission('loyaltyCampaignRemove');
     return models.VoucherCampaigns.removeVoucherCampaigns(_ids);
   },
 };

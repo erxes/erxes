@@ -1,4 +1,4 @@
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
@@ -39,7 +39,7 @@ const generateFilter = async (
   }
 
   if (searchValue) {
-    filter.title = new RegExp(searchValue, 'i');
+    filter.title = new RegExp(escapeRegExp(searchValue), 'i');
   }
 
   if (voucherType) {
@@ -65,7 +65,7 @@ export const voucherCampaignQueries = {
     params: IVoucherCampaignParams,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('voucherCampaignView');
+    await checkPermission('loyaltyCampaignView');
     const filter = await generateFilter(models, params);
 
     return cursorPaginate<IVoucherCampaignDocument>({
@@ -80,7 +80,7 @@ export const voucherCampaignQueries = {
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('voucherCampaignView');
+    await checkPermission('loyaltyCampaignView');
     return models.VoucherCampaigns.getVoucherCampaign(_id);
   },
 
@@ -89,7 +89,7 @@ export const voucherCampaignQueries = {
     _args: unknown,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('voucherCampaignView');
+    await checkPermission('loyaltyCampaignView');
     const now = new Date();
 
     return models.VoucherCampaigns.find({
@@ -100,4 +100,5 @@ export const voucherCampaignQueries = {
       .sort({ modifiedAt: -1 })
       .lean();
   },
-};
+};  
+

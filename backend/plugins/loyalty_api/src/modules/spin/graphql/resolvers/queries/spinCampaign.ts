@@ -29,7 +29,7 @@ export const spinCampaignQueries = {
     params: ISpinCampaignParams,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('spinCampaignView');
+    await checkPermission('loyaltyCampaignView');
     const filter = generateFilter(params);
 
     return cursorPaginate({
@@ -44,7 +44,7 @@ export const spinCampaignQueries = {
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('spinCampaignView');
+    await checkPermission('loyaltyCampaignView');
     return models.SpinCampaigns.getSpinCampaign(_id);
   },
 
@@ -53,7 +53,7 @@ export const spinCampaignQueries = {
     _args: undefined,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('spinCampaignView');
+    await checkPermission('loyaltyCampaignView');
     const now = new Date();
 
     return models.SpinCampaigns.find({

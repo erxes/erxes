@@ -9,7 +9,7 @@ export const assignmentCampaignMutations = {
   ) {
     await checkPermission('assignmentCampaignCreate');
     return models.AssignmentCampaigns.createAssignmentCampaign(doc);
-  },
+  },     
 
   async assignmentCampaignsEdit(
     _root: undefined,

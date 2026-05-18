@@ -7,7 +7,7 @@ export const scoreCampaignMutations = {
     doc: IScoreCampaign,
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('scoreCampaignCreate');
+    await checkPermission('loyaltyCampaignCreate');
     return await models.ScoreCampaigns.createScoreCampaign(doc, user);
   },
 
@@ -16,7 +16,7 @@ export const scoreCampaignMutations = {
     { _id, ...doc }: { _id: string } & IScoreCampaign,
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('scoreCampaignUpdate');
+    await checkPermission('loyaltyCampaignUpdate');
     return await models.ScoreCampaigns.updateScoreCampaign(_id, doc, user);
   },
 
@@ -25,7 +25,7 @@ export const scoreCampaignMutations = {
     { _id }: { _id: string },
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('scoreCampaignRemove');
+    await checkPermission('loyaltyCampaignRemove');
     return await models.ScoreCampaigns.removeScoreCampaign(_id, user);
   },
 
@@ -34,7 +34,7 @@ export const scoreCampaignMutations = {
     { _ids }: { _ids: string[] },
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('scoreCampaignRemove');
+    await checkPermission('loyaltyCampaignRemove');
     return await models.ScoreCampaigns.removeScoreCampaigns(_ids, user);
   },
 

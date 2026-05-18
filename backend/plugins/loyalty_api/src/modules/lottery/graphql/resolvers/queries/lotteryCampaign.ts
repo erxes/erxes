@@ -2,12 +2,10 @@ import {
   ILotteryCampaignDocument,
   ILotteryCampaignParams,
 } from '@/lottery/@types/lotteryCampaign';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
-import { escapeRegExp } from 'erxes-api-shared/utils';
-
 
 const generateFilter = (params: ILotteryCampaignParams) => {
   const filter: FilterQuery<ILotteryCampaignDocument> = {};
@@ -31,7 +29,7 @@ export const lotteryCampaignQueries = {
     params: ILotteryCampaignParams,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('lotteryCampaignView');
+    await checkPermission('loyaltyCampaignView');
     const filter = await generateFilter(params);
 
     return cursorPaginate({
@@ -46,7 +44,7 @@ export const lotteryCampaignQueries = {
     _args: undefined,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('lotteryCampaignView');
+    await checkPermission('loyaltyCampaignView');
     const now = new Date();
 
     return models.LotteryCampaigns.find({
@@ -61,7 +59,7 @@ export const lotteryCampaignQueries = {
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('lotteryCampaignView');
+    await checkPermission('loyaltyCampaignView');
     return models.LotteryCampaigns.getLotteryCampaign(_id);
   },
 
@@ -70,7 +68,7 @@ export const lotteryCampaignQueries = {
     params: ILotteryCampaignParams,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('lotteryCampaignView');
+    await checkPermission('loyaltyCampaignView');
     const { awardId, campaignId } = params;
 
     return cursorPaginate({
@@ -89,7 +87,7 @@ export const lotteryCampaignQueries = {
     params: ILotteryCampaignParams,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('lotteryCampaignView');
+    await checkPermission('loyaltyCampaignView');
     const { campaignId } = params;
 
     return cursorPaginate({

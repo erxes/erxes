@@ -7,7 +7,7 @@ export const lotteryCampaignMutations = {
     doc: ILotteryCampaign,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('lotteryCampaignCreate');
+    await checkPermission('loyaltyCampaignCreate');
     return models.LotteryCampaigns.createLotteryCampaign(doc);
   },
 
@@ -16,7 +16,7 @@ export const lotteryCampaignMutations = {
     { _id, ...doc }: ILotteryCampaign & { _id: string },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('lotteryCampaignEdit');
+    await checkPermission('loyaltyCampaignUpdate');
     return models.LotteryCampaigns.updateLotteryCampaign(_id, doc);
   },
 
@@ -25,7 +25,7 @@ export const lotteryCampaignMutations = {
     { _ids }: { _ids: string[] },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('lotteryCampaignRemove');
+    await checkPermission('loyaltyCampaignRemove');
     return models.LotteryCampaigns.removeLotteryCampaigns(_ids);
   },
 

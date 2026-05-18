@@ -7,7 +7,7 @@ export const couponCampaignMutations = {
     doc: ICouponCampaign,
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('couponCampaignCreate');
+    await checkPermission('loyaltyCampaignCreate');
     return models.CouponCampaigns.createCouponCampaign(doc, user);
   },
 
@@ -16,7 +16,7 @@ export const couponCampaignMutations = {
     { _id, ...doc }: ICouponCampaign & { _id: string },
     { models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('couponCampaignEdit');
+    await checkPermission('loyaltyCampaignUpdate');
     return models.CouponCampaigns.updateCouponCampaign(_id, doc, user);
   },
 
@@ -25,7 +25,7 @@ export const couponCampaignMutations = {
     { _ids }: { _ids: string[] },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('couponCampaignRemove');
+    await checkPermission('loyaltyCampaignRemove');
     return models.CouponCampaigns.removeCouponCampaigns(_ids);
   },
 };
