@@ -2,7 +2,7 @@ import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
 import { IPosDocument } from './@types/pos';
 import { USER_FIELDS } from './db/definitions/constants';
-import { calcProductsTaxRule, getChildCategories, getConfig } from './utils';
+import { calcProductsTaxRule, getChildCategories } from './utils';
 
 export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   const data: any = { pos };
@@ -81,6 +81,15 @@ export const getProductsData = async (
 
   const productGroups: any = [];
 
+  const ebarimtConfig = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'mongolian',
+    module: 'mnConfigs',
+    action: 'getConfig',
+    input: { code: 'posInEbarimt', subId: pos._id },
+    defaultValue: [],
+  });
+
   for (const group of groups) {
     const includeCatIds = await getChildCategories(
       subdomain,
@@ -145,7 +154,7 @@ export const getProductsData = async (
 
     const productsById = await calcProductsTaxRule(
       subdomain,
-      pos.ebarimtConfig,
+      ebarimtConfig,
       products,
     );
 
@@ -301,27 +310,4 @@ export const posSyncConfig = async (req, res) => {
   }
 
   return res.send({ error: 'wrong type' });
-};
-
-export const unfetchOrderInfo = async (req, res) => {
-  const subdomain = getSubdomain(req);
-  const models = await generateModels(subdomain);
-
-  const { orderId, token } = req.body;
-  const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
-
-  if (erkhetConfig?.apiToken !== token) {
-    return res.send({ error: 'not found token' });
-  }
-
-  const order = await models.PosOrders.findOne({ _id: orderId }).lean();
-  if (!order) {
-    return res.send({ error: 'not found order' });
-  }
-
-  await models.PosOrders.updateOne(
-    { _id: orderId },
-    { $set: { syncedErkhet: false } },
-  );
-  return res.send({ status: 'done' });
 };

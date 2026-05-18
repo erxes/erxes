@@ -132,6 +132,8 @@ export const commonTransactionFields = `
   }
 
   extraData
+  contentType
+  contentId
 
   permission
 `;

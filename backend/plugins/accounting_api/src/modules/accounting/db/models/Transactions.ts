@@ -8,6 +8,7 @@ import { PTR_STATUSES, TR_SIDES, TR_STATUSES } from '../../@types/constants';
 import { ITransaction, ITransactionDocument } from '../../@types/transaction';
 import { commonRemove } from '../../utils/commonRemove';
 import { commonSave } from '../../utils/commonSave';
+import { assertCanWriteTransactionAccounts } from '../../utils/trPermissions';
 import { transactionSchema } from '../definitions/transaction';
 import { generateTrStatusActivityLog, setPtrStatus } from './utils';
 
@@ -83,7 +84,7 @@ const normalizeParentWorkflowDocs = (
   }));
 };
 
-export const loadTransactionClass = (models: IModels, subdomain: string, { sendDbEventLog, createActivityLog, sendNotificationMessage }: EventDispatcherReturn) => {
+export const loadTransactionClass = ( models: IModels, subdomain: string, { sendDbEventLog, createActivityLog, }: EventDispatcherReturn, ) => {
   class Transaction {
     /**
      *
@@ -172,22 +173,43 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
       }
 
       return number;
-    };
+    }
 
     static async getPtrNumber(tr: ITransactionDocument, ptrNumber?: string) {
       const { _id, parentId } = tr;
-      const number = await this.generatePtrNumber();
-      await models.Transactions.updateOne({ _id }, { $set: { ptrNumber: number } });
+      const number = ptrNumber || (await this.generatePtrNumber());
 
-      const duplicatedTrs = await models.Transactions.findOne({ ptrNumber, parentId: { $ne: parentId } }).lean();
+      const duplicatedTrs = await models.Transactions.findOne({
+        ptrNumber: number,
+        parentId: { $ne: parentId },
+      }).lean();
       if (!duplicatedTrs) {
+        await models.Transactions.updateOne(
+          { _id },
+          { $set: { ptrNumber: number } },
+        );
+
         if (!tr.number) {
           await models.Transactions.updateOne({ _id }, { $set: { number } });
         }
-        return ptrNumber;
+        return number;
       }
 
-      return await this.getPtrNumber(tr, ptrNumber);
+      return await this.getPtrNumber(tr);
+    }
+
+    static async syncParentWorkflowIdentifiers(
+      parentId: string,
+      ptrNumber: string,
+    ) {
+      if (!parentId || !ptrNumber) {
+        return;
+      }
+
+      await models.Transactions.updateMany(
+        { parentId },
+        { $set: { parentId, ptrNumber } },
+      );
     }
 
     /**
@@ -279,6 +301,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
       userId: string,
     ) {
       docs = normalizeParentWorkflowDocs(docs, userId);
+      await assertCanWriteTransactionAccounts({ models, docs, userId });
 
       const transactions: ITransactionDocument[] = [];
       let errMsg = '';
@@ -301,18 +324,21 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
               ptrId,
             });
             parentId = firstTrs.mainTr.parentId;
-            ptrNumber = await this.getPtrNumber(firstTrs.mainTr, ptrNumber)
+            ptrNumber = await this.getPtrNumber(firstTrs.mainTr, ptrNumber);
             transactions.push(firstTrs.mainTr);
 
             if (firstTrs.otherTrs?.length) {
-              await models.Transactions.updateMany({
-                _id: { $in: firstTrs.otherTrs.map(ot => ot._id) },
-                $or: [
-                  { number: { $exists: false } },
-                  { number: null },
-                  { number: '' },
-                ]
-              }, { $set: { number: ptrNumber } });
+              await models.Transactions.updateMany(
+                {
+                  _id: { $in: firstTrs.otherTrs.map((ot) => ot._id) },
+                  $or: [
+                    { number: { $exists: false } },
+                    { number: null },
+                    { number: '' },
+                  ],
+                },
+                { $set: { number: ptrNumber } },
+              );
 
               for (const otherTr of firstTrs.otherTrs) {
                 transactions.push(otherTr);
@@ -324,7 +350,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
               ptrId,
               parentId,
               number: doc.number ?? ptrNumber,
-              ptrNumber
+              ptrNumber,
             });
             transactions.push(trs.mainTr);
             if (trs.otherTrs?.length) {
@@ -335,6 +361,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
           }
         }
 
+        await this.syncParentWorkflowIdentifiers(parentId, ptrNumber);
         await setPtrStatus(models, transactions);
 
         await session.commitTransaction();
@@ -342,7 +369,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
         sendDbEventLog({
           action: 'create',
           docId: parentId,
-          currentDocument: transactions
+          currentDocument: transactions,
         });
 
         const activityLog = generateTrStatusActivityLog({
@@ -356,7 +383,6 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
         if (activityLog) {
           createActivityLog(activityLog);
         }
-
       } catch (e) {
         errMsg = e.message;
         await session.abortTransaction();
@@ -387,13 +413,27 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
         throw new Error('Not found old transactions');
       }
 
-      const { ptrId, status: oldStatus, mentionOwnerId: oldMentOwnerId, mentionUserIds: oldMentUserIds } = oldTrs[0];
+      const {
+        ptrId,
+        status: oldStatus,
+        mentionOwnerId: oldMentOwnerId,
+        mentionUserIds: oldMentUserIds,
+      } = oldTrs[0];
 
       if (!ptrId) {
         throw new Error('Not found old transactions ptr');
       }
 
+      const ptrNumber =
+        oldTrs[0].ptrNumber || (await this.getPtrNumber(oldTrs[0]));
+
       docs = normalizeParentWorkflowDocs(docs, userId, oldTrs[0]);
+      await assertCanWriteTransactionAccounts({
+        models,
+        docs,
+        userId,
+        oldTrs,
+      });
 
       const oldTrIds = oldTrs.map((ot) => ot._id);
 
@@ -425,7 +465,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
             subdomain,
             models,
             userId,
-            { ...doc, ptrId, parentId },
+            { ...doc, ptrId, parentId, ptrNumber },
             oldTrs.find((ot) => ot._id === doc._id),
           );
           transactions.push(trs.mainTr);
@@ -441,6 +481,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
             ...doc,
             ptrId,
             parentId,
+            ptrNumber,
           });
           transactions.push(trs.mainTr);
           if (trs.otherTrs?.length) {
@@ -456,6 +497,7 @@ export const loadTransactionClass = (models: IModels, subdomain: string, { sendD
           });
         }
 
+        await this.syncParentWorkflowIdentifiers(parentId, ptrNumber);
         await setPtrStatus(models, transactions);
 
         await session.commitTransaction();

@@ -133,31 +133,58 @@ export const loadMenuItemClass = (models: IModels) => {
       return null;
     }
 
-    const query = {
-      _id: menuItem.contentTypeId,
+    const contentTypeId = String(menuItem.contentTypeId).trim();
+    const slug = normalizeContentLookupValue(menuItem.linkType, contentTypeId);
+    const contentQuery: any = {
       clientPortalId: menuItem.clientPortalId,
+      $or: [{ _id: contentTypeId }],
     };
+
+    if (slug && slug !== contentTypeId) {
+      contentQuery.$or.push({ _id: slug });
+    }
+
+    if (slug) {
+      contentQuery.$or.push({ slug });
+    }
 
     switch (menuItem.linkType) {
       case 'PAGE':
-        return models.Pages.findOne(query)
+        return models.Pages.findOne(contentQuery)
           .select({ _id: 1, name: 1, slug: 1 })
           .lean();
       case 'POST':
-        return models.Posts.findOne(query)
+        return models.Posts.findOne(contentQuery)
           .select({ _id: 1, title: 1, slug: 1, count: 1 })
           .lean();
       case 'CATEGORY':
-        return models.Categories.findOne(query)
+        return models.Categories.findOne(contentQuery)
           .select({ _id: 1, name: 1, slug: 1 })
           .lean();
       case 'TAG':
-        return models.PostTags.findOne(query)
+        return models.PostTags.findOne(contentQuery)
           .select({ _id: 1, name: 1, slug: 1 })
           .lean();
       default:
         return null;
     }
+  };
+
+  const normalizeContentLookupValue = (
+    linkType: MenuLinkType,
+    value: string,
+  ) => {
+    const trimmedValue = value.trim().replace(/^\/+|\/+$/g, '');
+
+    if (linkType === 'CATEGORY') {
+      return trimmedValue.replace(/^category\//, '');
+    }
+
+    if (linkType === 'TAG') {
+      return trimmedValue.replace(/^tag\//, '');
+    }
+
+    return trimmedValue;
   };
 
   const buildLinkedContentSummary = (
@@ -294,7 +321,7 @@ export const loadMenuItemClass = (models: IModels) => {
         throw new Error(`Linked ${contentType} not found`);
       }
 
-      normalizedDoc.contentTypeId = mergedDoc.contentTypeId;
+      normalizedDoc.contentTypeId = String(content._id);
       normalizedDoc.url = await buildComputedUrl(
         {
           clientPortalId: mergedDoc.clientPortalId,

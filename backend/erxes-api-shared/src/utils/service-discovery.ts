@@ -8,6 +8,7 @@ import { sendWorkerQueue } from './mq-worker';
 dotenv.config();
 
 const { NODE_ENV, LOAD_BALANCER_ADDRESS, MONGO_URL } = process.env;
+const GATEWAY_ROUTER_UPDATE_LOCK_KEY = 'gateway:update-apollo-router:pending';
 
 interface PluginConfig {
   name: string;
@@ -156,22 +157,41 @@ export const joinErxesGateway = async ({
 
   await redis.set(`erxes-service-${name}`, address);
 
-  try {
-    await sendWorkerQueue('gateway', 'update-apollo-router').add(
-      'service-discovery-updated',
-      { pluginName: name },
-      {
-        attempts: 3,
-        backoff: {
-          type: 'exponential',
-          delay: 1000,
+  if (NODE_ENV === 'production') {
+    try {
+      const didAcquireUpdateLock = await redis.set(
+        GATEWAY_ROUTER_UPDATE_LOCK_KEY,
+        '1',
+        'EX',
+        30,
+        'NX',
+      );
+
+      if (!didAcquireUpdateLock) {
+        console.log(
+          `gateway update-apollo-router already queued, skipped ${name}`,
+        );
+        console.log(`erxes-service${name} joined with ${address}`);
+        return;
+      }
+
+      await sendWorkerQueue('gateway', 'update-apollo-router').add(
+        'service-discovery-updated',
+        { pluginName: name },
+        {
+          delay: 10_000,
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 1000,
+          },
+          removeOnComplete: true,
+          removeOnFail: 100,
         },
-        removeOnComplete: true,
-        removeOnFail: 100,
-      },
-    );
-  } catch (e) {
-    console.error(e);
+      );
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   console.log(`erxes-service${name} joined with ${address}`);
