@@ -1,5 +1,5 @@
 import { initTRPC } from '@trpc/server';
-import { ITRPCContext, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { ITRPCContext } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
 import {
@@ -7,6 +7,8 @@ import {
   statusToDone,
   syncOrderFromClient,
 } from '~/modules/pos/utils';
+import { syncPosToClient } from '~/modules/pos/graphql/resolvers/mutations/utils';
+import { IPos } from '~/modules/pos/@types/pos';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -14,41 +16,24 @@ const t = initTRPC.context<SalesTRPCContext>().create();
 
 export const posTrpcRouter = t.router({
   pos: t.router({
-    create: t.procedure
-      .input(
-        z.object({
-          doc: z.record(z.any()),
-          ownerUserId: z.string().optional(),
-        }),
-      )
-      .mutation(async ({ ctx, input }) => {
-        const { models, subdomain } = ctx;
-        const { doc, ownerUserId } = input;
+    create: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const { models, subdomain } = ctx;
+      const { doc, user } = input;
 
-        let userId = ownerUserId;
+      const { ALLOW_OFFLINE_POS } = process.env;
 
-        if (!userId) {
-          const owner = (await sendTRPCMessage({
-            subdomain,
-            pluginName: 'core',
-            method: 'query',
-            module: 'users',
-            action: 'findOne',
-            input: { query: { isOwner: true } },
-            defaultValue: null,
-          })) as { _id: string } | null;
+      if (![true, 'true', 'True', 1, '1'].includes(ALLOW_OFFLINE_POS || '')) {
+        doc.onServer = true;
+      }
 
-          if (!owner?._id) {
-            throw new Error(
-              `No owner user found in subdomain "${subdomain}" to assign POS to`,
-            );
-          }
+      const pos = await models.Pos.posAdd(user, doc as IPos);
 
-          userId = owner._id;
-        }
+      if (pos.onServer) {
+        await syncPosToClient(subdomain, pos);
+      }
 
-        return models.Pos.posAdd({ _id: userId }, doc as any);
-      }),
+      return pos;
+    }),
     confirmCover: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
