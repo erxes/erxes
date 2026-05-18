@@ -93,7 +93,7 @@ export const AccountingTableRow = ({
                   left: `${ptrInfoLeft}px`,
                 }}
               >
-                <span className="shrink-0 font-semibold text-foreground">
+                <span className="shrink-0 text-foreground">
                   {row.original.ptrNumber || 'Дугааргүй багц'}
                 </span>
                 <span
