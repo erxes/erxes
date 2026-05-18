@@ -67,7 +67,6 @@ export const AccountingTableRow = ({
               className={cn(
                 'sticky z-1 bg-background p-0 transition-colors',
                 rowIndex === 0 && 'border-t',
-                isDiff && 'bg-red-50',
               )}
               style={moreColumn ? getPinnedCellStyle(moreColumn) : undefined}
             >
@@ -84,7 +83,6 @@ export const AccountingTableRow = ({
               className={cn(
                 'bg-background py-1 transition-colors',
                 rowIndex === 0 && 'border-t',
-                isDiff && 'bg-red-50/40',
               )}
             >
               <div

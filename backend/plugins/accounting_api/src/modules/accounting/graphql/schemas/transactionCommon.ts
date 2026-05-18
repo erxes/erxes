@@ -171,8 +171,8 @@ const trsQueryParams = `
   ids: [String],
   excludeIds: Boolean,
   status: String,
-  mentionOwnerId: String
-  mentionUserIds: String
+  mentionOwnerId: String,
+  mentionUserId: String,
   searchValue: String,
   number: String,
   ptrStatus: String,
@@ -206,14 +206,14 @@ const trsQueryParams = `
   statuses: [String],
   relAccounts: [String],
 
-  createdUserId: String
-  modifiedUserId: String
-  startDate: Date
-  endDate: Date
-  startUpdatedDate: Date
-  endUpdatedDate: Date
-  startCreatedDate: Date
-  endCreatedDate: Date
+  createdUserId: String,
+  modifiedUserId: String,
+  startDate: Date,
+  endDate: Date,
+  startUpdatedDate: Date,
+  endUpdatedDate: Date,
+  startCreatedDate: Date,
+  endCreatedDate: Date,
 `;
 
 const trRecsQueryParams = `
