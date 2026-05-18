@@ -32,9 +32,13 @@ export const fieldsTypes = `
 
   enum FieldValidatorPresetKey {
     EMAIL
-    PHONE_INTL
+    PHONE
     POSTAL_CODE
     ALPHANUMERIC
+    MN_VEHICLE_REGISTRATION
+    NUMBER
+    DATE
+    DATE_TIME
   }
 
   type FieldValidator {
