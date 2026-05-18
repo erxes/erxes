@@ -127,6 +127,7 @@ const generateFilter = async (
   models: IModels,
   params: IQueryParams,
   user: IUserDocument,
+  options: { skipAccountPermission?: boolean } = {},
 ) => {
   const {
     ids,
@@ -201,9 +202,11 @@ const generateFilter = async (
     filter.updatedAt = updatedDateQry;
   }
 
-  filter['details.accountId'] = {
-    $in: await getAccountIds(models, params, user),
-  };
+  if (!options.skipAccountPermission) {
+    filter['details.accountId'] = {
+      $in: await getAccountIds(models, params, user),
+    };
+  }
 
   if (journals?.length) {
     filter.journal = { $in: journals };
@@ -414,6 +417,39 @@ const transactionCommon = {
         .lean(),
       pagintationArgs,
     );
+  },
+
+  async accTransactionsByContent(
+    _root,
+    params: IQueryParams & { page: number; perPage: number },
+    { models, user, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('readTransactions');
+
+    const { sortField, sortDirection, page, perPage } = params;
+    const pageArgs = { page, perPage };
+
+    let sort: any = { ptrNumber: -1 };
+    if (sortField) {
+      sort = { [sortField]: sortDirection ?? 1, ptrNumber: -1 };
+    }
+
+    const listFilter = await generateFilter(subdomain, models, params, user);
+    const countFilter = await generateFilter(subdomain, models, params, user, {
+      skipAccountPermission: true,
+    });
+
+    const list = await defaultPaginate(
+      models.Transactions.find(listFilter)
+        .sort({ ...sort, parentId: 1, ptrId: 1 })
+        .lean(),
+      pageArgs,
+    );
+    const totalCount = await models.Transactions.find(
+      countFilter,
+    ).countDocuments();
+
+    return { list, totalCount };
   },
 
   async accTransactionsCount(

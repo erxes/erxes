@@ -144,6 +144,11 @@ export const types = () => `
     totalCount: Int,
   }
 
+  type AccTransactionsByContentResponse {
+    list: [AccCommonTransaction],
+    totalCount: Int,
+  }
+
   type AccTrRecordsListResponse {
     list: [AccCommonTrRecord],
     pageInfo: PageInfo
@@ -230,6 +235,14 @@ export const queries = `
     sortField: String
     sortDirection: Int
   ): [AccCommonTransaction]
+  accTransactionsByContent(
+    contentType: String!,
+    contentId: String!,
+    page: Int,
+    perPage: Int,
+    sortField: String
+    sortDirection: Int
+  ): AccTransactionsByContentResponse
   accTransactionsDetail(_id: String!): [AccCommonTransaction]
   accTransactionDetail(_id:String!): AccCommonTransaction
   accTransactionsCount(${trsQueryParams}): Int

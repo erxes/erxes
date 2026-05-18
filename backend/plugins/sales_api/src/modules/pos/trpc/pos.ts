@@ -198,7 +198,7 @@ export const posTrpcRouter = t.router({
         .sort(sort)
         .lean();
     }),
-    updateOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+    updateOne: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { selector, modifier } = input;
       const { models } = ctx;
 
