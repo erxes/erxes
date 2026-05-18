@@ -24,6 +24,7 @@ export const dealToReturnTrs = async ({
   deal: any;
   config: {
     dateRule: 'alwaysNow' | 'syncedDateOrNow';
+    responseFieldId?: string;
     defaultPayment: { accountId: string };
     returnType: 'delete' | 'fullTr' | 'onlySale';
     trStatus?: string;
@@ -176,11 +177,13 @@ export const dealToReturnTrs = async ({
       parentId,
       [{ ...returnTrDoc }, ...paymentTrs, ...oldOtherTrs],
       userId,
+      { skipAccountPermission: true },
     );
   } else {
     await models.Transactions.createPTransaction(
       [{ ...returnTrDoc }, ...paymentTrs, ...oldOtherTrs],
       userId,
+      { skipAccountPermission: true },
     );
   }
 };

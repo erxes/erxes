@@ -167,6 +167,8 @@ export default {
         sumCt: 1,
         sumDt: 1,
         journal: 1,
+        originId: 1,
+        ptrStatus: 1,
       },
     ).lean();
 

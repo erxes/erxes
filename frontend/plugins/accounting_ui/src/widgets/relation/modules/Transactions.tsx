@@ -10,25 +10,28 @@ import {
 } from 'erxes-ui';
 
 const RELATED_TRANSACTIONS_QUERY = gql`
-  query RelatedTransactions($contentType: String, $contentId: String) {
-    accTransactions(
+  query RelatedTransactions($contentType: String!, $contentId: String!) {
+    accTransactionsByContent(
       contentType: $contentType
       contentId: $contentId
       page: 1
       perPage: 20
     ) {
-      _id
-      parentId
-      number
-      ptrNumber
-      journal
-      status
-      sumDt
-      sumCt
-      details {
-        account {
-          code
-          name
+      totalCount
+      list {
+        _id
+        parentId
+        number
+        ptrNumber
+        journal
+        status
+        sumDt
+        sumCt
+        details {
+          account {
+            code
+            name
+          }
         }
       }
     }
@@ -65,9 +68,7 @@ const getAccounts = (transaction: RelatedTransaction) => {
   return (transaction.details || [])
     .map((detail) => detail.account)
     .filter((account): account is TransactionAccount => !!account)
-    .map((account) =>
-      [account.code, account.name].filter(Boolean).join(' - '),
-    )
+    .map((account) => [account.code, account.name].filter(Boolean).join(' - '))
     .filter((account) => {
       if (!account || accountKeys.has(account)) {
         return false;
@@ -85,16 +86,22 @@ export const Transactions = ({
   contentType: string;
 }) => {
   const { data, loading } = useQuery<{
-    accTransactions: RelatedTransaction[];
+    accTransactionsByContent: {
+      list: RelatedTransaction[];
+      totalCount: number;
+    };
   }>(RELATED_TRANSACTIONS_QUERY, {
     variables: {
       contentType,
       contentId,
     },
+    fetchPolicy: 'network-only',
     skip: !contentId || !contentType,
   });
 
-  const transactions = data?.accTransactions || [];
+  const transactionsByContent = data?.accTransactionsByContent;
+  const transactions = transactionsByContent?.list || [];
+  const totalCount = transactionsByContent?.totalCount || 0;
 
   if (loading) {
     return <Spinner containerClassName="py-20" />;
@@ -106,7 +113,11 @@ export const Transactions = ({
         <div className="border border-dashed p-6 bg-background rounded-xl">
           <IconReceipt />
         </div>
-        <span className="text-sm">No transactions to display.</span>
+        <span className="text-sm">
+          {totalCount
+            ? `${totalCount} transaction linked. No permitted transactions to display.`
+            : 'No transactions to display.'}
+        </span>
       </div>
     );
   }
@@ -115,7 +126,7 @@ export const Transactions = ({
     <>
       <FocusSheet.SideContentHeader
         Icon={IconReceipt}
-        label="Transactions"
+        label={`Transactions (${totalCount})`}
       />
       <ScrollArea className="flex-auto">
         <div className="flex flex-col gap-3 p-4">
