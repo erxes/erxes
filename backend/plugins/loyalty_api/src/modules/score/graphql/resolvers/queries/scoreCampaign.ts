@@ -157,4 +157,16 @@ export const scoreCampaignQueries = {
 
     return value;
   },
+
+  async cpCheckOwnerScore(
+    _root: undefined,
+    args: { ownerId: string; ownerType: string; campaignId: string; clientPortal: string },
+    context: IContext,
+  ) {
+    return scoreCampaignQueries.checkOwnerScore(_root, args, context);
+  },
+};
+
+(scoreCampaignQueries.cpCheckOwnerScore as any).wrapperConfig = {
+  forClientPortal: true,
 };
