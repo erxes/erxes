@@ -35,11 +35,13 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
   createPTransaction(
     docs: ITransaction[],
     userId: string,
+    options?: { skipAccountPermission?: boolean },
   ): Promise<ITransactionDocument[]>;
   updatePTransaction(
     parentId: string,
     docs: (ITransaction & { _id?: string })[],
     userId: string,
+    options?: { skipAccountPermission?: boolean },
   ): Promise<ITransactionDocument[]>;
   createTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
   updateTrDetail(_id: string, doc: ITransaction): Promise<ITransactionDocument>;
@@ -84,7 +86,22 @@ const normalizeParentWorkflowDocs = (
   }));
 };
 
-export const loadTransactionClass = ( models: IModels, subdomain: string, { sendDbEventLog, createActivityLog, }: EventDispatcherReturn, ) => {
+const cleanCreatePTransactionDoc = (doc: ITransaction & { _id?: string }) => {
+  const cleanDoc = { ...doc };
+
+  delete cleanDoc._id;
+  delete cleanDoc.ptrId;
+  delete cleanDoc.parentId;
+  delete cleanDoc.ptrNumber;
+
+  return cleanDoc;
+};
+
+export const loadTransactionClass = (
+  models: IModels,
+  subdomain: string,
+  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+) => {
   class Transaction {
     /**
      *
@@ -137,65 +154,79 @@ export const loadTransactionClass = ( models: IModels, subdomain: string, { send
     }
 
     static async generatePtrNumber() {
-      const todayStr = moment().format('YYYYMMDDhh').toString();
-
-      let suffix = '001';
-      let latestOrder;
-
-      let number = `${todayStr}_${suffix}`;
-
-      const latestTr = await models.Transactions.aggregate([
+      const todayStr = moment().format('YYYYMMDDHH').toString();
+      const latestTrs = await models.Transactions.aggregate([
         {
           $match: {
-            number: { $regex: new RegExp(`^${todayStr}_`) },
+            $or: [
+              { number: { $regex: new RegExp(`^${todayStr}_`) } },
+              { ptrNumber: { $regex: new RegExp(`^${todayStr}_`) } },
+            ],
           },
         },
         {
           $project: {
-            number: 1,
-            number_len: { $strLenCP: '$number' },
+            groupNumber: { $ifNull: ['$ptrNumber', '$number'] },
           },
         },
-        { $sort: { number_len: -1, number: -1 } },
+        {
+          $project: {
+            groupNumber: 1,
+            number_len: { $strLenCP: '$groupNumber' },
+          },
+        },
+        { $sort: { number_len: -1, groupNumber: -1 } },
         { $limit: 1 },
       ]);
+      const latestNumber = latestTrs[0]?.groupNumber || '';
+      const latestSuffix = Number.parseInt(latestNumber.split('_')[1], 10) || 0;
 
-      if (latestTr.length) {
-        latestOrder = latestTr[0];
-      }
+      const counter = (await models.TransactionCounters.findOneAndUpdate(
+        { _id: `ptrNumber:${todayStr}` },
+        [
+          {
+            $set: {
+              seq: {
+                $add: [{ $max: [{ $ifNull: ['$seq', 0] }, latestSuffix] }, 1],
+              },
+              updatedAt: new Date(),
+              createdAt: { $ifNull: ['$createdAt', new Date()] },
+            },
+          },
+        ] as any,
+        { upsert: true, returnDocument: 'after', lean: true },
+      )) as any;
 
-      if (latestOrder?._id) {
-        const parts = latestOrder.number.split('_');
-        const latestNum = Number.parseInt(parts[1], 10);
+      const seq = counter?.seq || latestSuffix + 1;
+      const suffix = String(seq).padStart(3, '0');
 
-        suffix = String(latestNum + 1).padStart(3, '0');
-        number = `${todayStr}_${suffix}`;
-      }
-
-      return number;
+      return `${todayStr}_${suffix}`;
     }
 
-    static async getPtrNumber(tr: ITransactionDocument, ptrNumber?: string) {
+    static async getPtrNumber(tr: ITransactionDocument) {
       const { _id, parentId } = tr;
-      const number = ptrNumber || (await this.generatePtrNumber());
+      let number = '';
 
-      const duplicatedTrs = await models.Transactions.findOne({
-        ptrNumber: number,
-        parentId: { $ne: parentId },
-      }).lean();
-      if (!duplicatedTrs) {
-        await models.Transactions.updateOne(
-          { _id },
-          { $set: { ptrNumber: number } },
-        );
+      while (true) {
+        number = await this.generatePtrNumber();
+        const duplicatedTrs = await models.Transactions.findOne({
+          ptrNumber: number,
+          parentId: { $ne: parentId },
+        }).lean();
 
-        if (!tr.number) {
-          await models.Transactions.updateOne({ _id }, { $set: { number } });
+        if (!duplicatedTrs) {
+          await models.Transactions.updateOne(
+            { _id },
+            { $set: { ptrNumber: number } },
+          );
+
+          if (!tr.number) {
+            await models.Transactions.updateOne({ _id }, { $set: { number } });
+          }
+
+          return number;
         }
-        return number;
       }
-
-      return await this.getPtrNumber(tr);
     }
 
     static async syncParentWorkflowIdentifiers(
@@ -299,9 +330,12 @@ export const loadTransactionClass = ( models: IModels, subdomain: string, { send
     public static async createPTransaction(
       docs: ITransaction[],
       userId: string,
+      options: { skipAccountPermission?: boolean } = {},
     ) {
       docs = normalizeParentWorkflowDocs(docs, userId);
-      await assertCanWriteTransactionAccounts({ models, docs, userId });
+      if (!options.skipAccountPermission) {
+        await assertCanWriteTransactionAccounts({ models, docs, userId });
+      }
 
       const transactions: ITransactionDocument[] = [];
       let errMsg = '';
@@ -314,17 +348,15 @@ export const loadTransactionClass = ( models: IModels, subdomain: string, { send
         let ptrNumber = '';
 
         for (const doc of docs) {
-          if (doc._id?.substring(0, 4) === 'temp') {
-            delete doc._id;
-          }
+          const cleanDoc = cleanCreatePTransactionDoc(doc);
 
           if (!parentId) {
             const firstTrs = await commonSave(subdomain, models, userId, {
-              ...doc,
+              ...cleanDoc,
               ptrId,
             });
             parentId = firstTrs.mainTr.parentId;
-            ptrNumber = await this.getPtrNumber(firstTrs.mainTr, ptrNumber);
+            ptrNumber = await this.getPtrNumber(firstTrs.mainTr);
             transactions.push(firstTrs.mainTr);
 
             if (firstTrs.otherTrs?.length) {
@@ -346,10 +378,10 @@ export const loadTransactionClass = ( models: IModels, subdomain: string, { send
             }
           } else {
             const trs = await commonSave(subdomain, models, userId, {
-              ...doc,
+              ...cleanDoc,
               ptrId,
               parentId,
-              number: doc.number ?? ptrNumber,
+              number: cleanDoc.number ?? ptrNumber,
               ptrNumber,
             });
             transactions.push(trs.mainTr);
@@ -404,6 +436,7 @@ export const loadTransactionClass = ( models: IModels, subdomain: string, { send
       parentId: string,
       docs: (ITransaction & { _id?: string })[],
       userId: string,
+      options: { skipAccountPermission?: boolean } = {},
     ) {
       const oldTrs = await models.Transactions.find({
         parentId,
@@ -428,12 +461,14 @@ export const loadTransactionClass = ( models: IModels, subdomain: string, { send
         oldTrs[0].ptrNumber || (await this.getPtrNumber(oldTrs[0]));
 
       docs = normalizeParentWorkflowDocs(docs, userId, oldTrs[0]);
-      await assertCanWriteTransactionAccounts({
-        models,
-        docs,
-        userId,
-        oldTrs,
-      });
+      if (!options.skipAccountPermission) {
+        await assertCanWriteTransactionAccounts({
+          models,
+          docs,
+          userId,
+          oldTrs,
+        });
+      }
 
       const oldTrIds = oldTrs.map((ot) => ot._id);
 
