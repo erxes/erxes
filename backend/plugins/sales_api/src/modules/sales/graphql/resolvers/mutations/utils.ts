@@ -456,7 +456,7 @@ const confirmLoyalties = async (
     input: {
       checkInfo: {},
       extraInfo: {
-        ...(deal.extraData || {}),
+        ...deal.extraData,
         ownerType: 'customer',
         ownerId: customerId || null,
         targetType: 'sales',
@@ -594,7 +594,7 @@ const doScoreCampaign = async (
   const target: any = {
     paymentsData: Object.entries(deal.paymentsData).map(([type, obj]) => ({
       type,
-      ...(obj || {}),
+      ...obj,
     })),
     totalAmount: generateTotalAmount(deal.productsData || []),
   };
@@ -605,7 +605,7 @@ const doScoreCampaign = async (
     )
     .map(([type, obj]) => ({
       type,
-      ...(obj || {}),
+      ...obj,
     }))
     .reduce((sum, payment: any) => sum + (payment?.amount || 0), 0);
 
