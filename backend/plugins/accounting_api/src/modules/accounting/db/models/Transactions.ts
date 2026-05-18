@@ -1,5 +1,5 @@
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
-import { getFullDate } from 'erxes-api-shared/utils';
+import { getFullDate, graphqlPubsub } from 'erxes-api-shared/utils';
 import moment from 'moment';
 import { Model, connection } from 'mongoose';
 import { nanoid } from 'nanoid';
@@ -95,6 +95,59 @@ const cleanCreatePTransactionDoc = (doc: ITransaction & { _id?: string }) => {
   delete cleanDoc.ptrNumber;
 
   return cleanDoc;
+};
+
+const toPlainTransaction = (transaction?: ITransactionDocument) => {
+  if (!transaction) {
+    return;
+  }
+
+  return typeof (transaction as any).toObject === 'function'
+    ? (transaction as any).toObject()
+    : transaction;
+};
+
+const toPlainTransactions = (transactions: ITransactionDocument[] = []) =>
+  transactions.map((transaction) => toPlainTransaction(transaction));
+
+const publishTransactionChanged = (payload: {
+  subdomain: string;
+  parentId?: string;
+  action: 'created' | 'updated' | 'removed';
+  transaction?: ITransactionDocument | any;
+  oldTransaction?: ITransactionDocument | any;
+  transactions?: (ITransactionDocument | any)[];
+  oldTransactions?: (ITransactionDocument | any)[];
+  publishGlobal?: boolean;
+}) => {
+  const { subdomain, publishGlobal = true, ...eventPayload } = payload;
+  const plainPayload = {
+    ...eventPayload,
+    transaction: toPlainTransaction(eventPayload.transaction),
+    oldTransaction: toPlainTransaction(eventPayload.oldTransaction),
+    transactions: toPlainTransactions(eventPayload.transactions),
+    oldTransactions: toPlainTransactions(eventPayload.oldTransactions),
+  };
+
+  const channels = publishGlobal
+    ? [`accountingTransactionChanged:${subdomain}`]
+    : [];
+
+  if (payload.parentId) {
+    channels.push(
+      `accountingTransactionChanged:${subdomain}:${payload.parentId}`,
+    );
+  }
+
+  for (const channel of channels) {
+    graphqlPubsub
+      .publish(channel, {
+        accountingTransactionChanged: plainPayload,
+      })
+      .catch((error) => {
+        console.error('Failed to publish accounting transaction change', error);
+      });
+  }
 };
 
 export const loadTransactionClass = (
@@ -415,6 +468,14 @@ export const loadTransactionClass = (
         if (activityLog) {
           createActivityLog(activityLog);
         }
+
+        publishTransactionChanged({
+          subdomain,
+          parentId,
+          action: 'created',
+          transaction: transactions[0],
+          transactions,
+        });
       } catch (e) {
         errMsg = e.message;
         await session.abortTransaction();
@@ -558,6 +619,16 @@ export const loadTransactionClass = (
         if (activityLog) {
           createActivityLog(activityLog);
         }
+
+        publishTransactionChanged({
+          subdomain,
+          parentId,
+          action: 'updated',
+          transaction: transactions[0],
+          oldTransaction: oldTrs[0],
+          transactions,
+          oldTransactions: oldTrs,
+        });
       } catch (e) {
         errMsg = e.message;
         await session.abortTransaction();
@@ -625,7 +696,7 @@ export const loadTransactionClass = (
 
       const summaryTrs = await models.Transactions.find({
         $or: [{ parentId: { $in: parentIds } }, { ptrId: { $in: ptrIds } }],
-      });
+      }).lean();
       const deleteTrIds = summaryTrs.map((tr) => tr._id);
 
       if (
@@ -662,6 +733,28 @@ export const loadTransactionClass = (
         action: 'deleteMany',
         docIds: parentIds,
       });
+
+      publishTransactionChanged({
+        subdomain,
+        action: 'removed',
+        oldTransactions: summaryTrs,
+      });
+
+      for (const removedParentId of parentIds) {
+        const removedParentTrs = summaryTrs.filter(
+          (tr) => tr.parentId === removedParentId,
+        );
+
+        publishTransactionChanged({
+          subdomain,
+          parentId: removedParentId,
+          action: 'removed',
+          oldTransaction: removedParentTrs[0],
+          oldTransactions: removedParentTrs,
+          publishGlobal: false,
+        });
+      }
+
       return response;
     }
   }

@@ -122,7 +122,7 @@ const getAccountIds = async (
   return accounts.map((a) => a._id);
 };
 
-const generateFilter = async (
+export const generateFilter = async (
   subdomain: string,
   models: IModels,
   params: IQueryParams,
@@ -160,6 +160,9 @@ const generateFilter = async (
   } = params;
   const filter: any = {};
   const orFilter: any[] = [];
+  const andFilter: any[] = [];
+  const hasStatusOrMentionFilter =
+    !!status || !!statuses?.length || !!mentionOwnerId || !!mentionUserId;
 
   if (createdUserId) {
     filter.createdBy = createdUserId;
@@ -216,26 +219,37 @@ const generateFilter = async (
     filter.journal = journal;
   }
 
-  if (statuses?.length) {
-    filter.status = { $in: statuses };
+  if (hasStatusOrMentionFilter) {
+    if (statuses?.length) {
+      filter.status = { $in: statuses };
+    }
+
+    if (status) {
+      filter.status = status;
+    }
+
+    if (mentionOwnerId) {
+      filter.mentionOwnerId = mentionOwnerId;
+    }
+
+    if (mentionUserId) {
+      filter.mentionUserIds = {
+        $in: [mentionUserId],
+      };
+    }
   } else {
-    filter.status = { $in: TR_STATUSES.ACTIVE };
+    andFilter.push({
+      $or: [
+        { status: { $in: TR_STATUSES.ACTIVE } },
+        { status: TR_STATUSES.DRAFT, createdBy: user._id },
+        { mentionOwnerId: user._id },
+        { mentionUserIds: { $in: [user._id] } },
+      ],
+    });
   }
 
   if (ptrStatus) {
     filter.ptrStatus = ptrStatus;
-  }
-
-  if (status) {
-    filter.status = status;
-  }
-
-  if (mentionOwnerId) {
-    filter.mentionOwnerId = mentionOwnerId;
-  }
-
-  if (mentionUserId) {
-    filter.mentionUserId = { $in: mentionUserId };
   }
 
   if (ids?.length) {
@@ -311,7 +325,11 @@ const generateFilter = async (
   }
 
   if (orFilter.length) {
-    return { ...filter, $or: orFilter };
+    andFilter.push({ $or: orFilter });
+  }
+
+  if (andFilter.length) {
+    return { ...filter, $and: andFilter };
   }
   return filter;
 };
