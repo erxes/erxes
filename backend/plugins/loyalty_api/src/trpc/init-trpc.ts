@@ -119,6 +119,9 @@ const doScoreCampaignInput = z.object({
   ownerId: z.string(),
   actionMethod: z.string(),
   targetId: z.string(),
+  campaignId: z.string(),               
+  target: z.record(z.any()),           
+  serviceName: z.string().optional(),
 });
 
 const refundLoyaltyScoreInput = z.object({
@@ -355,6 +358,29 @@ export const appRouter = t.router({
         // Type assertion to bypass persistent TypeScript mismatch; input is validated by Zod
         const data = await doScoreCampaign(models, input as any);
         return { data, status: 'success' };
+      }),
+
+    getScoreCampaignsByStage: t.procedure
+      .input(
+        z.object({
+          boardId: z.string(),
+          pipelineId: z.string(),
+          stageId: z.string(),
+        }),
+      )
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const campaigns = await models.ScoreCampaigns.find({
+          status: 'published',
+          'additionalConfig.cardBasedRule': {
+            $elemMatch: {
+              boardId: input.boardId,
+              pipelineId: input.pipelineId,
+              stageIds: input.stageId,
+            },
+          },
+        }).lean();
+        return { data: campaigns, status: 'success' };
       }),
 
     refundLoyaltyScore: t.procedure
