@@ -171,9 +171,20 @@ export const userQueries = {
       ...NORMAL_USER_SELECTOR,
     };
 
+
+    const { sortField, sortDirection, ...restArgs } = args;
+
+  
+    const orderBy: Record<string, any> = sortField 
+      ? { [sortField]: sortDirection || 1, _id: 1 } 
+      : { username: 1, _id: 1 };
+
     const { list, totalCount, pageInfo } = await cursorPaginate<IUserDocument>({
       model: models.Users,
-      params: args,
+      params: {
+        ...restArgs,
+        orderBy: orderBy as Record<string, any>, // Safe cast to clear the cursor-util type conflict
+      },
       query: selector,
     });
 

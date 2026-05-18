@@ -504,4 +504,15 @@ export const reportInboxQueries = {
       percentage: calculatePercentage(s.count, total),
     }));
   },
+async reportTotalMessages(
+  _parent: undefined,
+  _args: undefined,
+  { models }: IContext,
+) {
+  const total = await models.Conversations.countDocuments({});
+
+  return {
+    totalMessages: total,
+  };
+},
 };
