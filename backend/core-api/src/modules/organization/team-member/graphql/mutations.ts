@@ -41,7 +41,7 @@ const validatePermissionGroupIds = async (
   }
 
   const customPermissionGroupIds = permissionGroupIds.filter(
-    (id) => !id.includes(':'),
+    (id) => !validPermissionGroupIds.has(id),
   );
 
   if (customPermissionGroupIds.length > 0) {
@@ -61,7 +61,11 @@ const validatePermissionGroupIds = async (
   );
 
   if (invalidPermissionGroupIds.length > 0) {
-    throw new Error('One or more permission groups are invalid');
+    throw new Error(
+      `One or more permission groups are invalid: ${invalidPermissionGroupIds.join(
+        ', ',
+      )}`,
+    );
   }
 };
 
@@ -284,7 +288,12 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
     await checkPermission('teamMembersInvite');
 
     const permissionGroupIds = [
-      ...new Set(entries.flatMap((entry) => entry.permissionGroupIds || [])),
+      ...new Set(
+        entries.reduce<string[]>(
+          (ids, entry) => ids.concat(entry.permissionGroupIds || []),
+          [],
+        ),
+      ),
     ];
 
     if (permissionGroupIds.length > 0) {

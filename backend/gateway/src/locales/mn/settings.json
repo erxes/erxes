@@ -67,6 +67,7 @@
     "next": "Дараах",
     "back": "Буцах",
     "custom-groups": "Тусгай бүлгүүд",
+    "permission-groups-load-failed": "Бүлгүүдийг ачаалж чадсангүй",
     "send-invites": "Урилга илгээх",
     "date-created": "Үүсгэсэн огноо",
     "name": "Нэр",

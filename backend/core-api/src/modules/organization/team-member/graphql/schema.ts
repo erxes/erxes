@@ -30,7 +30,7 @@ export const types = `
   input InvitationEntry {
     email: String
     password: String
-    permissionGroupIds: [String]
+    permissionGroupIds: [String!]
   }
 
   enum UserChatStatus{

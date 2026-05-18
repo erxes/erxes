@@ -50,14 +50,21 @@ export function InviteForm({
   const canManagePermissions = hasActionPermission('permissionsManage');
   const shouldLoadPermissionGroups =
     canManagePermissions && step === 'permissions';
-  const { defaultGroups, loading: defaultGroupsLoading } =
-    useGetPermissionDefaultGroups({
-      skip: !shouldLoadPermissionGroups,
-    });
-  const { permissionGroups, loading: customGroupsLoading } =
-    useGetPermissionGroups({
-      skip: !shouldLoadPermissionGroups,
-    });
+  const {
+    defaultGroups,
+    loading: defaultGroupsLoading,
+    error: defaultGroupsError,
+  } = useGetPermissionDefaultGroups({
+    skip: !shouldLoadPermissionGroups,
+  });
+  const {
+    permissionGroups,
+    loading: customGroupsLoading,
+    error: customGroupsError,
+  } = useGetPermissionGroups({
+    skip: !shouldLoadPermissionGroups,
+  });
+  const permissionGroupsError = defaultGroupsError || customGroupsError;
 
   const addTag = (value: string) => {
     const normalizedValue = normalizeEmail(value);
@@ -176,6 +183,14 @@ export function InviteForm({
       return;
     }
 
+    if (step === 'permissions' && permissionGroupsError) {
+      toast({
+        title: t('permission-groups-load-failed'),
+        variant: 'destructive',
+      });
+      return;
+    }
+
     handleInvitations({
       variables: {
         entries: getInvitationEntries(),
@@ -195,7 +210,10 @@ export function InviteForm({
   }, [
     getInvitationEntries,
     handleInvitations,
+    permissionGroupsError,
     setIsOpen,
+    step,
+    t,
     toast,
     validateInvitations,
   ]);
@@ -376,6 +394,10 @@ export function InviteForm({
         <>
           {isPermissionGroupsLoading ? (
             <Spinner containerClassName="py-10" />
+          ) : permissionGroupsError ? (
+            <p className="text-sm text-destructive">
+              {t('permission-groups-load-failed')}
+            </p>
           ) : (
             <div className="flex max-h-80 flex-col gap-4 overflow-y-auto pr-1 styled-scroll">
               {Object.entries(groupedDefaultGroups).map(([plugin, groups]) => (
@@ -416,7 +438,7 @@ export function InviteForm({
             </Button>
             <Button
               onClick={submitHandler}
-              disabled={loading}
+              disabled={loading || Boolean(permissionGroupsError)}
               className="text-sm"
             >
               {loading ? (
