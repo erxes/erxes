@@ -140,9 +140,15 @@ export const updateSaasOrganization = async (
   subdomain: string,
   update: object,
 ) => {
+  if (typeof subdomain !== 'string' || subdomain.length === 0) {
+    throw new Error('subdomain must be a non-empty string');
+  }
   await getSaasCoreConnection();
 
-  return coreModelOrganizations.updateOne({ subdomain }, { $set: update });
+  return coreModelOrganizations.updateOne(
+    { subdomain: { $eq: subdomain } },
+    { $set: update },
+  );
 };
 
 export const getSaasOrganizationDetail = async ({
@@ -150,10 +156,13 @@ export const getSaasOrganizationDetail = async ({
 }: {
   subdomain: string;
 }) => {
+  if (typeof subdomain !== 'string' || subdomain.length === 0) {
+    return {};
+  }
   await getSaasCoreConnection();
 
   const organization = await coreModelOrganizations
-    .findOne({ subdomain })
+    .findOne({ subdomain: { $eq: subdomain } })
     .lean();
 
   if (!organization) {
