@@ -29,11 +29,18 @@ import {
 const NUMBER_TYPES = ['number'];
 const DATE_TYPES = ['date'];
 
-const VALIDATOR_PRESET_OPTIONS: { value: FieldValidatorPresetKey; label: string }[] = [
+const VALIDATOR_PRESET_OPTIONS: {
+  value: FieldValidatorPresetKey;
+  label: string;
+}[] = [
   { value: 'EMAIL', label: 'Email address' },
-  { value: 'PHONE_INTL', label: 'International phone' },
+  { value: 'PHONE', label: 'Phone number' },
   { value: 'POSTAL_CODE', label: 'Postal / ZIP code' },
   { value: 'ALPHANUMERIC', label: 'Alphanumeric only' },
+  { value: 'MN_VEHICLE_REGISTRATION', label: 'Vehicle plate (MN)' },
+  { value: 'NUMBER', label: 'Numeric value' },
+  { value: 'DATE', label: 'Date value' },
+  { value: 'DATE_TIME', label: 'Date and time' },
 ];
 
 const getOperatorOptions = (fieldType?: string) => {
