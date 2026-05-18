@@ -1,5 +1,50 @@
 
 
+## [3.0.23](https://github.com/erxes/erxes/compare/3.0.22...3.0.23) (2026-05-18)
+
+
+### Bug Fixes
+
+* accounting sales plugins relations ([#7698](https://github.com/erxes/erxes/issues/7698)) ([96c18aa](https://github.com/erxes/erxes/commit/96c18aa6e457f0c0ec183f78b8ee595a5e3474ec))
+* **accounting:** check perm on transactions ([#7699](https://github.com/erxes/erxes/issues/7699)) ([5ff3de9](https://github.com/erxes/erxes/commit/5ff3de954ba8b76e5d680a4dca935f46f6d549d7))
+* **accounting:** transaction order by ptrNumber ([28bc9ba](https://github.com/erxes/erxes/commit/28bc9bad4c4bf4aefa3452a42881baa9cb29bf6e))
+* **accounting:** transaction status other validations ([#7676](https://github.com/erxes/erxes/issues/7676)) ([7ba4aa6](https://github.com/erxes/erxes/commit/7ba4aa63ca1681c6f2835cd49363469ee7005fdc))
+* ci ([f4768cd](https://github.com/erxes/erxes/commit/f4768cd9e03019ee433b4ac1482422b4e63347b6))
+* gateway restart and not consumed core on gateway ([#7688](https://github.com/erxes/erxes/issues/7688)) ([0dc4afd](https://github.com/erxes/erxes/commit/0dc4afd92f02f7c7aee0ce0fce565b5b6ccaefdd))
+* index of cms_categories ([e040d60](https://github.com/erxes/erxes/commit/e040d60c24ba2f823b9226eb6fe45002269d6518))
+* **loyalty:** score campaign improve ([#7671](https://github.com/erxes/erxes/issues/7671)) ([2f06ead](https://github.com/erxes/erxes/commit/2f06eadce0e6c300ceff06aba459568d2c5bda84))
+* products remainder synced on posclient and some clean ([#7697](https://github.com/erxes/erxes/issues/7697)) ([51fa973](https://github.com/erxes/erxes/commit/51fa973752b985a78948dbbd59e63fe14a551d99))
+* sales and products some bugs ([#7696](https://github.com/erxes/erxes/issues/7696)) ([9f354af](https://github.com/erxes/erxes/commit/9f354af3a6174e5217daab1fb45e3ca67a586865))
+* **sales:** add cpSalesPipelines GraphQL query schema ([#7694](https://github.com/erxes/erxes/issues/7694)) ([5988508](https://github.com/erxes/erxes/commit/5988508c9b56de83b4f3609f62212a6a07f27b61))
+* **sales:** deal payment form with loyalty score ([#7684](https://github.com/erxes/erxes/issues/7684)) ([c8592bf](https://github.com/erxes/erxes/commit/c8592bf6171645616e01a70494ef28a9605698e2))
+* **sales:** fix cpDeals crash when user is null in getItemList ([d66a559](https://github.com/erxes/erxes/commit/d66a5596ed95257e6ed3dedaf6324baf53f80b9c))
+* **sales:** fix cpDeals crashing and skip internal user permission check for client portal ([870278b](https://github.com/erxes/erxes/commit/870278b52a1a2324f5672b542f8fda19136b5441))
+* some customFieldsData to propertiesData ([#7685](https://github.com/erxes/erxes/issues/7685)) ([22525d4](https://github.com/erxes/erxes/commit/22525d4d382d54df96920ee1745c07fb6911294a))
+* tour plugin category query ([f95e2e9](https://github.com/erxes/erxes/commit/f95e2e9ff41a6c0da2bafca075b1e18c8ba360b7))
+* **tourism:** improve custom fields inputs and layout ([#7669](https://github.com/erxes/erxes/issues/7669)) ([c04701f](https://github.com/erxes/erxes/commit/c04701f39f646a49024fec91b859953461c69cf6))
+* update Docker build platforms to only include linux/amd64 ([d011a79](https://github.com/erxes/erxes/commit/d011a792cca65120d7b4bef772119cb3ad6f47ca))
+* update Docker build platforms to only include linux/amd64 ([2b8116a](https://github.com/erxes/erxes/commit/2b8116afe4998fd7b30f36151cf55ee7b6fd213d))
+* update gateway continue from PR[#7688](https://github.com/erxes/erxes/issues/7688) ([d566752](https://github.com/erxes/erxes/commit/d5667521f7f0971814cef15c6b7c4068e268f862))
+
+
+### Features
+
+* **accounting:** Accounting permission front ([#7677](https://github.com/erxes/erxes/issues/7677)) ([6c9ae17](https://github.com/erxes/erxes/commit/6c9ae174750f7eb4fd39f4716c80e3703c1b2fb9))
+* add beforeResolvers hook for plugins to mutate or reject resolver args ([#7660](https://github.com/erxes/erxes/issues/7660)) ([68809db](https://github.com/erxes/erxes/commit/68809dbcd70c436c66eb622bccf20537878b39a9))
+* add clientPortal to checkOwnerScore, donatesMain, and scoreLogList queries ([#7686](https://github.com/erxes/erxes/issues/7686)) ([f513181](https://github.com/erxes/erxes/commit/f513181132d5fc26a86698964aa28ea7c045de23))
+* add cms permissions  ([f980ca0](https://github.com/erxes/erxes/commit/f980ca0b0a3729203c75a4c1f773d2092cfaa50a))
+* add cpSalesBoards and cpPricingPlans client portal queries ([#7678](https://github.com/erxes/erxes/issues/7678)) ([71137e3](https://github.com/erxes/erxes/commit/71137e3910052e7c23d3259bdd0b9a6aec12076c))
+* add Kimi Coding integration and knowledge chunking functionality ([bc75f25](https://github.com/erxes/erxes/commit/bc75f2586fa41767af69d66373e523c589831444))
+* add safe remainder bulk edit and import functionality ([#7644](https://github.com/erxes/erxes/issues/7644)) ([b437bc3](https://github.com/erxes/erxes/commit/b437bc3cc3ac03ccc34ba145fbd275a48def3b79))
+* add scroll integration configuration ([c45cf4a](https://github.com/erxes/erxes/commit/c45cf4a2f53734b4fec659eb89e15304f511ccbf))
+* gate customer widget write actions behind access prop ([b151163](https://github.com/erxes/erxes/commit/b1511633b3bdba6da5b2208fcf7132cd4f7580f1))
+* refactor AI agent utilities and enhance connection secret management ([dfcfdcf](https://github.com/erxes/erxes/commit/dfcfdcf0e68ac50ebbb14150347ceaaf829c6e61))
+
+
+### Reverts
+
+* tourism turn off cron ([e721a33](https://github.com/erxes/erxes/commit/e721a33fce18dfb714b867c350d2eb7ec1488c93))
+
 ## [3.0.22](https://github.com/erxes/erxes/compare/3.0.21...3.0.22) (2026-05-13)
 
 
