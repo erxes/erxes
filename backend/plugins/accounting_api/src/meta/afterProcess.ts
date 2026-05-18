@@ -43,6 +43,10 @@ const allRules: IAfterProcessRule[] = [
 const getErrorMessage = (error: any) =>
   error?.message || error?.errorMessage || `${error}`;
 
+const logAfterProcessError = (error: any) => {
+  console.error('[accounting afterProcess]', getErrorMessage(error));
+};
+
 const setDealAccountingResponse = async ({
   subdomain,
   dealId,
@@ -60,22 +64,26 @@ const setDealAccountingResponse = async ({
     return;
   }
 
-  await sendTRPCMessage({
-    subdomain,
-    pluginName: 'sales',
-    method: 'mutation',
-    module: 'deal',
-    action: 'updateOne',
-    input: {
-      selector: { _id: dealId },
-      modifier: {
-        $set: {
-          [`propertiesData.${responseFieldId}`]: message,
+  try {
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'sales',
+      method: 'mutation',
+      module: 'deal',
+      action: 'updateOne',
+      input: {
+        selector: { _id: dealId },
+        modifier: {
+          $set: {
+            [`propertiesData.${responseFieldId}`]: message,
+          },
         },
       },
-    },
-    context: { userId },
-  });
+      context: { userId },
+    });
+  } catch (e) {
+    logAfterProcessError(e);
+  }
 };
 
 const setOrderAccountingResponse = async ({
@@ -87,17 +95,21 @@ const setOrderAccountingResponse = async ({
   orderId: string;
   message: string;
 }) => {
-  await sendTRPCMessage({
-    subdomain,
-    method: 'mutation',
-    pluginName: 'sales',
-    module: 'order',
-    action: 'updateOne',
-    input: {
-      selector: { _id: orderId },
-      modifier: { accountingResponse: message },
-    },
-  });
+  try {
+    await sendTRPCMessage({
+      subdomain,
+      method: 'mutation',
+      pluginName: 'sales',
+      module: 'order',
+      action: 'updateOne',
+      input: {
+        selector: { _id: orderId },
+        modifier: { accountingResponse: message },
+      },
+    });
+  } catch (e) {
+    logAfterProcessError(e);
+  }
 };
 
 export const afterProcess: AfterProcessConfigs = {
@@ -239,7 +251,7 @@ export const afterProcess: AfterProcessConfigs = {
           }
         }
       }
-    })();
+    })().catch(logAfterProcessError);
   },
 
   afterDocumentCreated: (ctx, input) => {
@@ -325,6 +337,6 @@ export const afterProcess: AfterProcessConfigs = {
           }
         }
       }
-    })();
+    })().catch(logAfterProcessError);
   },
 };
