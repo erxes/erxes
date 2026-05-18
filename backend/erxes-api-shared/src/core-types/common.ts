@@ -141,12 +141,14 @@ export type Resolver<
   Args = any,
   Context = { subdomain: string } & IMainContext,
   Result = any,
-> = ((
-  parent: Parent,
-  args: Args,
-  context: Context,
-  info: GraphQLResolveInfo,
-) => Promise<Result> | Result) &
+> = {
+  resolve(
+    parent: Parent,
+    args: Args,
+    context: Context,
+    info: GraphQLResolveInfo,
+  ): Promise<Result> | Result;
+}['resolve'] &
   Partial<IResolverSymbol>;
 
 export interface ILocationOption {

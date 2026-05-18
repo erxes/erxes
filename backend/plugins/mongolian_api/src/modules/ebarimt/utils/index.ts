@@ -421,10 +421,12 @@ const getCustomerName = (customer) => {
 };
 
 const billTypeCustomFieldsData = async (config, deal) => {
+  const getPropertyValue = (fieldId) => deal.propertiesData?.[fieldId];
+
   if (
     config.dealBillType?.billType &&
     config.dealBillType?.regNo &&
-    deal.customFieldsData?.length
+    Object.keys(deal.propertiesData || {}).length
   ) {
     const checkCompanyStrs = [
       'Байгууллага',
@@ -434,31 +436,27 @@ const billTypeCustomFieldsData = async (config, deal) => {
       '3',
     ];
 
-    const customDataBillType = deal.customFieldsData.find(
-      (cfd) =>
-        cfd.field === config.dealBillType.billType &&
-        checkCompanyStrs.includes(cfd.value),
+    const customDataBillType = getPropertyValue(config.dealBillType.billType);
+    const customDataRegNo = getPropertyValue(config.dealBillType.regNo);
+    const customDataComName = getPropertyValue(
+      config.dealBillType.companyName,
     );
 
-    const customDataRegNo = deal.customFieldsData.find(
-      (cfd) => cfd.field === config.dealBillType.regNo && cfd.value,
-    );
-
-    const customDataComName = deal.customFieldsData.find(
-      (cfd) => cfd.field === config.dealBillType.companyName && cfd.value,
-    );
-
-    if (customDataBillType && customDataRegNo && customDataComName) {
+    if (
+      checkCompanyStrs.includes(customDataBillType) &&
+      customDataRegNo &&
+      customDataComName
+    ) {
       const resp = await getCompanyInfo({
         checkTaxpayerUrl: config.checkTaxpayerUrl,
-        no: customDataRegNo.value,
+        no: customDataRegNo,
       });
 
       if (resp.status === 'checked' && resp.tin) {
         return {
           type: 'B2B_RECEIPT',
-          customerCode: customDataRegNo.value,
-          customerName: customDataComName.value,
+          customerCode: customDataRegNo,
+          customerName: customDataComName,
           customerTin: resp.tin,
         };
       }

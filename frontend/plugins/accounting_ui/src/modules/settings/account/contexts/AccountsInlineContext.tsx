@@ -8,6 +8,7 @@ export interface IAccountsInlineContext {
   placeholder: string;
   updateAccounts?: (accounts: IAccount[]) => void;
   allowUnassigned?: boolean;
+  permissionMode?: 'read' | 'write';
 }
 
 export const AccountsInlineContext =

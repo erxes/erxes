@@ -7,6 +7,8 @@ import {
   statusToDone,
   syncOrderFromClient,
 } from '~/modules/pos/utils';
+import { syncPosToClient } from '~/modules/pos/graphql/resolvers/mutations/utils';
+import { IPos } from '~/modules/pos/@types/pos';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -14,6 +16,24 @@ const t = initTRPC.context<SalesTRPCContext>().create();
 
 export const posTrpcRouter = t.router({
   pos: t.router({
+    create: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const { models, subdomain } = ctx;
+      const { doc, user } = input;
+
+      const { ALLOW_OFFLINE_POS } = process.env;
+
+      if (![true, 'true', 'True', 1, '1'].includes(ALLOW_OFFLINE_POS || '')) {
+        doc.onServer = true;
+      }
+
+      const pos = await models.Pos.posAdd(user, doc as IPos);
+
+      if (pos.onServer) {
+        await syncPosToClient(subdomain, pos);
+      }
+
+      return pos;
+    }),
     confirmCover: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
@@ -25,7 +45,7 @@ export const posTrpcRouter = t.router({
           { upsert: true },
         );
 
-        return await models.Covers.findOne({ _id: cover._id })
+        return await models.Covers.findOne({ _id: cover._id });
       }),
     ecommerceGetBranches: t.procedure
       .input(z.any())
@@ -62,7 +82,7 @@ export const posTrpcRouter = t.router({
             status: 'onKitchen',
             date: order.paidDate,
             description: order.description,
-          }
+          };
         }
 
         const dealId = order.deliveryInfo.dealId;
@@ -71,7 +91,7 @@ export const posTrpcRouter = t.router({
         if (!deal) {
           return {
             error: 'Deleted delivery information.',
-          }
+          };
         }
         const stage = await models.Stages.findOne({ _id: deal.stageId });
         if (!stage) {
@@ -87,7 +107,7 @@ export const posTrpcRouter = t.router({
           status: stage.name,
           date: deal.stageChangedDate || deal.updatedAt || deal.createdAt,
           description: order.description,
-        }
+        };
       }),
     createOrUpdateOrders: t.procedure
       .input(z.any())
@@ -162,7 +182,7 @@ export const posTrpcRouter = t.router({
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
 
-      return await models.PosOrders.findOne(input || {}).lean()
+      return await models.PosOrders.findOne(input || {}).lean();
     }),
     find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;

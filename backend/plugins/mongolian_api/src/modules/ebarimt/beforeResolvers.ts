@@ -16,29 +16,24 @@ export const beforeResolverHandlers = async (subdomain, params) => {
     const mainConfig = await models.Configs.getConfigValue('EBARIMT');
 
     if (
-      args.customFieldsData?.length &&
+      Object.keys(args.propertiesData || {}).length &&
       mainConfig?.dealBillType?.regNo &&
       mainConfig?.dealBillType?.companyName
     ) {
-      const customsData = args.customFieldsData;
       const regNoFieldId = mainConfig.dealBillType.regNo;
-
-      const regNoData = customsData.find((cd) => cd.field === regNoFieldId);
+      const regNoData = args.propertiesData?.[regNoFieldId];
 
       if (regNoData) {
         const { status, tin, result } = await getCompanyInfo({
           checkTaxpayerUrl: mainConfig.checkTaxpayerUrl,
-          no: regNoData.value,
+          no: regNoData,
         });
 
         if (status === 'checked' && tin) {
-          args.customFieldsData = args.customFieldsData.filter(
-            (cd) => cd.field !== mainConfig.dealBillType.companyName,
-          );
-          args.customFieldsData.push({
-            field: mainConfig.dealBillType.companyName,
-            value: result.data?.name,
-          });
+          args.propertiesData = {
+            ...args.propertiesData,
+            [mainConfig.dealBillType.companyName]: result.data?.name,
+          };
         }
       }
     }

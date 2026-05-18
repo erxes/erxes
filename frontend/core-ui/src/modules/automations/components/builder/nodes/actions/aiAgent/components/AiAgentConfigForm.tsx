@@ -113,22 +113,42 @@ export const AIAgentConfigForm = ({
             {config?.goalType === 'classification' && <AiAgentObjectBuilder />}
             {config?.goalType === 'splitTopic' && <AiAgentTopicBuilder />}
             {config?.goalType === 'generateText' && (
-              <Form.Field
-                name="prompt"
-                control={control}
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('instruction-prompt')}</Form.Label>
-                    <Textarea placeholder={t('enter-prompt')} {...field} />
-                    <Form.Description>
-                      Describe the final artifact this action should produce.
-                      For email generation, ask for a ready-to-use email body
-                      instead of a conversational reply.
-                    </Form.Description>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
+              <>
+                <Form.Field
+                  name="prompt"
+                  control={control}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>{t('instruction-prompt')}</Form.Label>
+                      <Textarea placeholder={t('enter-prompt')} {...field} />
+                      <Form.Description>
+                        Заавал биш. Сонгосон agent-ийн system prompt болон
+                        context files-оос гадна нэмэлт заавар хэрэгтэй үед л
+                        бөглөнө.
+                      </Form.Description>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  name="fallbackText"
+                  control={control}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Удаашрах үеийн хариу</Form.Label>
+                      <Textarea
+                        placeholder="Уучлаарай, хариу бага зэрэг удааширлаа. Таны бичсэнийг авлаа."
+                        {...field}
+                      />
+                      <Form.Description>
+                        AI provider хугацаандаа хариу өгөхгүй үед энэ текстийг
+                        явуулна. Хоосон орхивол fallback хариу явуулахгүй.
+                      </Form.Description>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </>
             )}
           </Tabs.Content>
           <Tabs.Content value="memory" className="my-2">

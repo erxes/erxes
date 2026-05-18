@@ -65,11 +65,9 @@ export const productToErkhet = async (
 
   let weight;
   if (weightField && weightField._id) {
-    const weightData = (product.customFieldsData || []).find(
-      (cfd) => cfd.field === weightField._id,
-    );
-    if (weightData && weightData.value) {
-      weight = Number(weightData.value) || undefined;
+    const weightData = product.propertiesData?.[weightField._id];
+    if (weightData) {
+      weight = Number(weightData) || undefined;
     }
   }
 

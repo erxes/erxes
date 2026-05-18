@@ -1,58 +1,6 @@
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { getConfig } from '~/modules/pos/utils';
 
 const orderMutations = {
-  async posOrderReturnBill(
-    _root,
-    { _id }: { _id: string },
-    { models, subdomain, checkPermission }: IContext,
-  ) {
-    await checkPermission('posOrderReturnBill');
-    const order = await models.PosOrders.findOne({ _id }).lean();
-    if (!order) {
-      throw new Error('not found order');
-    }
-    const pos = await models.Pos.findOne({ token: order.posToken }).lean();
-    if (!pos) {
-      throw new Error('not found pos');
-    }
-    if (order.status === 'return') {
-      throw new Error('Already returned');
-    }
-
-    const ebarimtMainConfig = await getConfig(subdomain, 'EBARIMT', {});
-
-    await sendTRPCMessage({
-      subdomain,
-      method: 'mutation',
-      pluginName: 'mongolian',
-      module: 'putResponses',
-      action: 'returnBill',
-      input: {
-        contentType: 'pos',
-        contentId: _id,
-        number: order.number,
-        config: { ...pos.ebarimtConfig, ...ebarimtMainConfig },
-      },
-    });
-
-    await sendTRPCMessage({
-      subdomain,
-      method: 'mutation',
-      pluginName: 'mongolian',
-      module: 'erkhet',
-      action: 'returnOrder',
-      input: {
-        pos,
-        order,
-      },
-    });
-
-    await models.PosOrders.deleteOne({ _id });
-    return;
-  },
-
   async posOrderChangePayments(
     _root,
     {

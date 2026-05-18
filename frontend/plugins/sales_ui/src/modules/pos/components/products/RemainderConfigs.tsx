@@ -1,5 +1,5 @@
 import { Checkbox, Form, Label } from 'erxes-ui';
-import { type Control } from 'react-hook-form';
+import { useWatch, type Control } from 'react-hook-form';
 import { SelectCategory } from '@/pos/hooks/SelectCategory';
 import { type ProductsFormData } from '@/pos/components/products/Products';
 
@@ -10,9 +10,14 @@ interface RemainderConfigsProps {
 export const RemainderConfigs: React.FC<RemainderConfigsProps> = ({
   control,
 }) => {
+  const isCheckRemainder = useWatch({
+    control,
+    name: 'isCheckRemainder',
+  });
+
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Form.Field
           control={control}
           name="isCheckRemainder"
@@ -33,6 +38,27 @@ export const RemainderConfigs: React.FC<RemainderConfigsProps> = ({
             </Form.Item>
           )}
         />
+
+        {isCheckRemainder && (<Form.Field
+          control={control}
+          name="saveRemainder"
+          render={({ field }) => (
+            <Form.Item>
+              <div className="flex gap-2 items-center">
+                <Form.Control>
+                  <Checkbox
+                    id="saveRemainder"
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </Form.Control>
+                <Label htmlFor="saveRemainder" className="cursor-pointer">
+                  Save Remainder
+                </Label>
+              </div>
+            </Form.Item>
+          )}
+        />)}
 
         <Form.Field
           control={control}

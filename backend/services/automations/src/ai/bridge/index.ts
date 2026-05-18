@@ -1,4 +1,5 @@
 import type { TAiAgentInput } from '../aiAgent';
+import { anthropicMessagesBridge } from './anthropicMessages';
 import { openAiCompatibleBridge } from './openaiCompatible';
 import type { IAiProviderBridge, TAiBridgeMessage } from './types';
 import { resolveAiProviderConnection } from '../providers';
@@ -7,6 +8,7 @@ const providerBridgeRegistry: Record<string, IAiProviderBridge> = {
   'cloudflare-ai-gateway': openAiCompatibleBridge,
   grok: openAiCompatibleBridge,
   kimi: openAiCompatibleBridge,
+  'kimi-code': anthropicMessagesBridge,
   openai: openAiCompatibleBridge,
 };
 
@@ -55,4 +57,5 @@ export const invokeAiProvider = async (
 };
 
 export * from './types';
+export * from './anthropicMessages';
 export * from './openaiCompatible';

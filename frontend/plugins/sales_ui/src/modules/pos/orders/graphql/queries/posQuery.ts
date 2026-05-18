@@ -40,8 +40,6 @@ export const posCommonFields = `
   kitchenScreen
   kioskMachine
   uiOptions
-  ebarimtConfig
-  erkhetConfig
   cardsConfig
   catProdMappings {
     _id
@@ -55,11 +53,11 @@ export const posCommonFields = `
   kioskExcludeCategoryIds
   kioskExcludeProductIds
   deliveryConfig
-  checkRemainder
   permissionConfig
   allowTypes
   isCheckRemainder
   checkExcludeCategoryIds
+  saveRemainder
   banFractions
   branchTitle
   departmentTitle

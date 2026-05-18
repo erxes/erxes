@@ -9,7 +9,7 @@ export const scoreLogQueries = {
     params: IScoreLogParams,
     { models }: IContext,
   ) {
-    const { ownerType, ownerId, searchValue, campaignId, action } = params;
+    const { ownerType, ownerId, searchValue, campaignId, action, clientPortal } = params;
     const filter: FilterQuery<IScoreLogDocument> = {};
 
     if (ownerType) {
@@ -31,6 +31,9 @@ export const scoreLogQueries = {
     if (action) {
       filter.action = action;
     }
+    if (clientPortal) {
+      filter.clientPortal = clientPortal;
+    }
 
     return cursorPaginate({
       model: models.ScoreLogs,
@@ -47,6 +50,14 @@ export const scoreLogQueries = {
     return models.ScoreLogs.getScoreLogs(params);
   },
 
+  async cpScoreLogList(
+    _root: undefined,
+    params: IScoreLogParams,
+    { models }: IContext,
+  ) {
+    return models.ScoreLogs.getScoreLogs(params);
+  },
+
   async scoreLogStatistics(
     _root: undefined,
     params: IScoreLogParams,
@@ -54,4 +65,8 @@ export const scoreLogQueries = {
   ) {
     return models.ScoreLogs.getStatistic(params);
   },
+};
+
+(scoreLogQueries.cpScoreLogList as any).wrapperConfig = {
+  forClientPortal: true,
 };

@@ -55,6 +55,20 @@ export const kimiConnectionSchema = z.object({
   }),
 });
 
+export const kimiCodingConnectionSchema = z.object({
+  provider: z.literal('kimi-code'),
+  model: z.string().trim().min(1, 'Model is required'),
+  config: z.object({
+    apiKey: z.string().optional().default(''),
+    baseUrl: z
+      .string()
+      .trim()
+      .url('Enter a valid base URL')
+      .default(AI_AGENT_PROVIDER_DEFAULT_BASE_URLS['kimi-code']),
+    headers: headersSchema,
+  }),
+});
+
 export const grokConnectionSchema = z.object({
   provider: z.literal('grok'),
   model: z.string().trim().min(1, 'Model is required'),
@@ -73,6 +87,7 @@ export const aiAgentConnectionSchema = z.discriminatedUnion('provider', [
   cloudflareAiGatewayConnectionSchema,
   grokConnectionSchema,
   kimiConnectionSchema,
+  kimiCodingConnectionSchema,
   openAiConnectionSchema,
 ]);
 
@@ -86,19 +101,29 @@ export type TOpenAiConnection = Extract<
   { provider: 'openai' }
 >;
 export type TKimiConnection = Extract<TAiAgentConnection, { provider: 'kimi' }>;
+export type TKimiCodingConnection = Extract<
+  TAiAgentConnection,
+  { provider: 'kimi-code' }
+>;
 export type TGrokConnection = Extract<TAiAgentConnection, { provider: 'grok' }>;
 type TCloudflareAiGatewayConnectionConfig =
   TCloudflareAiGatewayConnection['config'];
 type TOpenAiCompatibleConnection =
   | TOpenAiConnection
   | TKimiConnection
+  | TKimiCodingConnection
   | TGrokConnection;
 type TOpenAiCompatibleConnectionConfig = TOpenAiCompatibleConnection['config'];
 
 export const buildDefaultAiAgentConnection = (
   provider: TAiAgentProvider = 'cloudflare-ai-gateway',
 ): TAiAgentConnection => {
-  if (provider === 'openai' || provider === 'kimi' || provider === 'grok') {
+  if (
+    provider === 'openai' ||
+    provider === 'kimi' ||
+    provider === 'kimi-code' ||
+    provider === 'grok'
+  ) {
     return {
       provider,
       model: AI_AGENT_PROVIDER_DEFAULT_MODELS[provider],
@@ -136,7 +161,12 @@ export const normalizeAiAgentConnection = (
   const defaults = buildDefaultAiAgentConnection(provider);
   const detailConfig = detailConnection?.config || {};
 
-  if (provider === 'openai' || provider === 'kimi' || provider === 'grok') {
+  if (
+    provider === 'openai' ||
+    provider === 'kimi' ||
+    provider === 'kimi-code' ||
+    provider === 'grok'
+  ) {
     const openAiCompatibleDefaults = defaults as TOpenAiCompatibleConnection;
     const config = detailConfig as Partial<TOpenAiCompatibleConnectionConfig>;
 

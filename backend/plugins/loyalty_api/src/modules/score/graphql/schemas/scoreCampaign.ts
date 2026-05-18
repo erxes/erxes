@@ -42,7 +42,8 @@ export const queries = `
   scoreCampaign(_id:String): ScoreCampaign
   scoreCampaignAttributes(serviceName:String): JSON
   scoreCampaignServices: JSON
-  checkOwnerScore(ownerId:String,ownerType:String,campaignId:String,action:String): JSON
+  checkOwnerScore(ownerId:String,ownerType:String,campaignId:String,action:String,clientPortal:String): JSON
+  cpCheckOwnerScore(ownerId:String,ownerType:String,campaignId:String,action:String,clientPortal:String): JSON
 `;
 
 const mutationParams = `

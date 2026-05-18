@@ -165,6 +165,19 @@ const SelectMemberContent = () => {
     },
   });
 
+  const filteredMembers = search
+    ? members.filter((member) => {
+        const q = search.toLowerCase();
+        const fullName = `${member.details?.firstName || ''} ${member.details?.lastName || ''}`.toLowerCase();
+        return (
+          fullName.includes(q) ||
+          (member.details?.fullName || '').toLowerCase().includes(q) ||
+          (member.email || '').toLowerCase().includes(q) ||
+          (member.username || '').toLowerCase().includes(q)
+        );
+      })
+    : members;
+
   return (
     <Command shouldFilter={false}>
       <Command.Input
@@ -176,9 +189,9 @@ const SelectMemberContent = () => {
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
         <Combobox.Empty loading={loading} error={error} />
-        {members.length > 0 && (
+        {filteredMembers.length > 0 && (
           <>
-            {members.map((member) => (
+            {filteredMembers.map((member) => (
               <SelectMemberCommandItem key={member._id} user={member} />
             ))}
             <Command.Separator className="my-1" />

@@ -3,6 +3,7 @@ import type { TAiAgentConnection } from '../aiAgent/connection';
 import { resolveCloudflareAiGatewayConnection } from './cloudflareAiGateway';
 import { resolveGrokConnection } from './grok';
 import { resolveKimiConnection } from './kimi';
+import { resolveKimiCodingConnection } from './kimiCoding';
 import { resolveOpenAiConnection } from './openai';
 import { TAiProviderResolutionInput } from './types';
 
@@ -32,6 +33,11 @@ export const resolveAiProviderConnection = ({
       subdomain,
       connection: effectiveConnection,
     });
+  } else if (effectiveConnection.provider === 'kimi-code') {
+    resolved = resolveKimiCodingConnection({
+      subdomain,
+      connection: effectiveConnection,
+    });
   } else if (effectiveConnection.provider === 'openai') {
     resolved = resolveOpenAiConnection({
       subdomain,
@@ -44,6 +50,7 @@ export const resolveAiProviderConnection = ({
   if (
     (resolved.provider === 'openai' ||
       resolved.provider === 'kimi' ||
+      resolved.provider === 'kimi-code' ||
       resolved.provider === 'grok') &&
     !resolved.config.apiKey?.trim()
   ) {
