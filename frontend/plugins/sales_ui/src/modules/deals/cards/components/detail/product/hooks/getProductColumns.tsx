@@ -28,10 +28,12 @@ export const ProductNumberField = ({
   _id,
   product,
   formatValue,
+  calculateProduct = false,
   children,
 }: INumberFieldContainerProps & {
   product: IProductData;
   formatValue?: (value: number) => string;
+  calculateProduct?: boolean;
   children?: React.ReactNode;
 }) => {
   const { updateRecord } = useUpdateProductRecord();
@@ -43,7 +45,14 @@ export const ProductNumberField = ({
       scope={`product-${_id}-${field}`}
       formatValue={formatValue}
       onSave={(value) => {
-        updateRecord(product, { [field]: value });
+        if (calculateProduct) {
+          const base = { ...product, [field]: value };
+          const updates = calculateProductValues(field, base);
+          const fullUpdate = { [field]: value, ...updates };
+          updateRecord(product, fullUpdate);
+        } else {
+          updateRecord(product, { [field]: value });
+        }
       }}
     >
       {children}
