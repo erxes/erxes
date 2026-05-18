@@ -418,3 +418,22 @@ export const generateAttachmentMessages = (
 
   return messages;
 };
+
+/**
+ * Sanitize a value expected to be a string to prevent NoSQL injection.
+ * Coerces non-string values (e.g. numbers, objects) to strings, which
+ * neutralizes injection objects like {"$gt": ""} by converting them to
+ * "[object Object]". Unexpected non-string, non-nullish inputs are
+ * logged so we can spot type confusion / probing attempts in monitoring.
+ */
+export const sanitizeString = (value: unknown): string => {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (value !== null && value !== undefined) {
+    debugError(
+      `[instagram.sanitizeString] received non-string input of type ${typeof value}`,
+    );
+  }
+  return String(value ?? '');
+};
