@@ -1,0 +1,219 @@
+name: Scheduled - Documentation Sync
+
+on:
+  schedule:
+    # Run on the 1st of every month at 9 AM UTC
+    - cron: '0 9 1 * *'
+  workflow_dispatch:
+    inputs:
+      days_back:
+        description: 'Number of days to look back for changes'
+        required: false
+        default: '30'
+      focus_area:
+        description: 'Focus area (all, backend, frontend, plugins)'
+        required: false
+        default: 'all'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  docs-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for code changes in period
+        id: check-changes
+        run: |
+          DAYS_BACK="${{ github.event.inputs.days_back || '30' }}"
+          FOCUS_AREA="${{ github.event.inputs.focus_area || 'all' }}"
+          SINCE_DATE=$(date -d "-${DAYS_BACK} days" +%Y-%m-%d)
+
+          echo "Checking for changes since: $SINCE_DATE"
+          echo "Focus area: $FOCUS_AREA"
+
+          # Define path patterns based on focus area
+          case $FOCUS_AREA in
+            backend)
+              PATHS="backend/"
+              ;;
+            frontend)
+              PATHS="frontend/"
+              ;;
+            plugins)
+              PATHS="backend/plugins/ frontend/plugins/"
+              ;;
+            *)
+              PATHS="backend/ frontend/ apps/"
+              ;;
+          esac
+
+          # Get changed code files (excluding tests, specs, stories)
+          CHANGED_FILES=$(git log --since="$SINCE_DATE" --name-only --pretty=format: -- \
+            $PATHS \
+            '*.ts' '*.tsx' '*.js' '*.jsx' '*.graphql' \
+            ':!*.test.*' ':!*.spec.*' ':!*.stories.*' \
+            ':!**/dist/**' ':!**/node_modules/**' \
+            | sort -u | grep -v '^$' | head -200)
+
+          # Get commit messages for context
+          COMMIT_SUMMARY=$(git log --since="$SINCE_DATE" --oneline --no-merges -- $PATHS | head -50)
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "No code changes found in the last $DAYS_BACK days"
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "changed_files<<EOF" >> $GITHUB_OUTPUT
+            echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "commit_summary<<EOF" >> $GITHUB_OUTPUT
+            echo "$COMMIT_SUMMARY" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+
+            FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l)
+            COMMIT_COUNT=$(echo "$COMMIT_SUMMARY" | wc -l)
+            echo "Found $FILE_COUNT changed files across $COMMIT_COUNT commits"
+          fi
+
+          echo "since_date=$SINCE_DATE" >> $GITHUB_OUTPUT
+          echo "focus_area=$FOCUS_AREA" >> $GITHUB_OUTPUT
+
+      - name: Claude Documentation Sync
+        if: steps.check-changes.outputs.has_changes == 'true'
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: claude-opus-4-5-20251101
+          timeout_minutes: 60
+          base_branch: main
+          branch_prefix: claude/scheduled-docs-sync-
+          track_progress: true
+          prompt: |
+            # Monthly Documentation Sync for erxes
+
+            You are running a scheduled documentation sync for the erxes monorepo. Code has changed since ${{ steps.check-changes.outputs.since_date }}.
+
+            ## Context
+            - **Focus Area**: ${{ steps.check-changes.outputs.focus_area }}
+            - **Period**: Last ${{ github.event.inputs.days_back || '30' }} days
+            - **Repository**: erxes XOS (Experience Operating System)
+            - **Architecture**: Nx monorepo with microservices backend + module federation frontend
+
+            ## Recent Commits Summary
+            ```
+            ${{ steps.check-changes.outputs.commit_summary }}
+            ```
+
+            ## Changed Files
+            The following code files have been modified:
+            ```
+            ${{ steps.check-changes.outputs.changed_files }}
+            ```
+
+            ## Your Tasks
+
+            ### 1. Analyze Changes
+            Review the changed files and commit messages to understand:
+            - New features or functionality added
+            - API changes (GraphQL schema, tRPC endpoints, REST routes)
+            - Breaking changes or deprecations
+            - Plugin system modifications
+            - Configuration changes
+
+            ### 2. Identify Documentation Areas
+            Find documentation that might be affected in:
+            - **CLAUDE.md** - AI assistant guide (architecture, patterns, conventions)
+            - **README.md** - Main repository documentation
+            - **docs/** directory (if exists)
+            - **Plugin READMEs** - Individual plugin documentation
+            - **TSDoc comments** - In-code documentation
+            - **GraphQL schema docs** - Type descriptions
+
+            ### 3. Verify Documentation Accuracy
+            For each code change, check if existing documentation is now INCORRECT:
+
+            **Backend Changes:**
+            - Are GraphQL schemas documented correctly?
+            - Do tRPC router examples still work?
+            - Are plugin configuration examples accurate?
+            - Are service discovery patterns documented correctly?
+            - Are environment variables up to date?
+
+            **Frontend Changes:**
+            - Are Module Federation configs documented?
+            - Are component props and interfaces correct?
+            - Are routing examples accurate?
+            - Are state management patterns documented?
+
+            **Plugin System:**
+            - Are plugin creation instructions accurate?
+            - Are plugin structure examples correct?
+            - Are meta configurations (automations, segments) documented?
+
+            **Architecture:**
+            - Are port allocations correct in CLAUDE.md?
+            - Are technology versions accurate?
+            - Are workflow patterns still valid?
+
+            ### 4. Fix Documentation Issues
+            **ONLY update documentation that is actually wrong:**
+
+            ✅ DO:
+            - Fix incorrect code examples
+            - Update outdated API signatures
+            - Correct wrong type definitions
+            - Update deprecated patterns
+            - Fix broken workflow instructions
+            - Add documentation for significant new features that have ZERO docs
+
+            ❌ DON'T:
+            - Add changelog entries
+            - Add "recently added" notes
+            - Document every minor change
+            - Add redundant examples
+            - Update "last updated" dates unless substantial changes made
+
+            ### 5. Create Pull Request
+            If you made any changes:
+            1. Create a new branch from main (will be auto-created as `claude/scheduled-docs-sync-XXXXX`)
+            2. Commit all documentation updates with clear messages
+            3. Push the branch
+            4. Create a PR with:
+               - **Title**: `docs: monthly sync - [brief description]`
+               - **Description**: Summary of what was fixed and why
+               - **Labels**: documentation
+
+            If NO documentation problems are found, simply report:
+            "✅ Documentation review complete. No incorrect or outdated documentation found."
+
+            ## Important Notes
+            - This is erxes, a complex microservices platform with plugin architecture
+            - Focus on technical accuracy over comprehensiveness
+            - Prioritize fixes that prevent developer confusion
+            - CLAUDE.md is critical - it guides AI assistants working on erxes
+            - Consider multi-tenancy (subdomain) implications in examples
+            - Remember Module Federation patterns in frontend docs
+          claude_args: |
+            --max-turns 40
+            --allowedTools "Read,Write,Edit,Glob,Grep,Task,Bash(git:*),Bash(gh:*)"
+
+      - name: Report no changes
+        if: steps.check-changes.outputs.has_changes == 'false'
+        run: |
+          echo "✅ No code changes found in the last ${{ github.event.inputs.days_back || '30' }} days for focus area: ${{ steps.check-changes.outputs.focus_area }}"
+          echo "Skipping documentation sync."
+          echo ""
+          echo "To run manually with different parameters, use workflow_dispatch with:"
+          echo "  - days_back: Number of days to look back"
+          echo "  - focus_area: all, backend, frontend, or plugins"
