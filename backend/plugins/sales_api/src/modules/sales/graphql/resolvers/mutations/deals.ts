@@ -15,10 +15,9 @@ import {
   itemMover,
   subscriptionWrapper,
 } from '../utils';
-import { addDeal, editDeal } from './utils';
+import { addDeal, editDeal, processStageChangeScoreCampaigns } from './utils';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { Resolver } from 'erxes-api-shared/core-types';
-import { processStageChangeScoreCampaigns } from './utils';
 
 export const dealMutations: Record<string, Resolver> = {
   /**

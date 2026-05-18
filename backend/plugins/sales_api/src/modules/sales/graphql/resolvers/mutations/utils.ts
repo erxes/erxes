@@ -2,11 +2,13 @@ import { canGroup } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { checkUserIds, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { IDeal } from '~/modules/sales/@types';
+import { IDeal, IDealDocument } from '~/modules/sales/@types';
 import {
   createRelations,
   getNewOrder,
   sendNotifications,
+  getCustomerIds, 
+  getCompanyIds
 } from '~/modules/sales/utils';
 import {
   changeItemStatus,
@@ -15,7 +17,6 @@ import {
   itemMover,
   subscriptionWrapper,
 } from '../utils';
-import { getCustomerIds, getCompanyIds } from '~/modules/sales/utils';
 
 export const addDeal = async ({
   models,
@@ -92,17 +93,15 @@ async function processStageChangeScoreCampaigns({
 }: {
   subdomain: string;
   models: IModels;
-  deal: any;
+  deal: IDealDocument;
   newStageId: string;
   user: IUserDocument;
 }) {
-  console.log("Inside processStageChangeScoreCampaigns", { newStageId });
   try {
     const stage = await models.Stages.getStage(newStageId);
     const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
-    console.log("Stage found:", stage._id, "Pipeline:", pipeline._id);
-
-    const campaigns = await sendTRPCMessage({
+    
+    const response = await sendTRPCMessage({
       subdomain,
       pluginName: 'loyalty',
       method: 'query',
@@ -115,55 +114,38 @@ async function processStageChangeScoreCampaigns({
       },
       defaultValue: []
     });
-
-    console.log("Found campaigns:", campaigns.length);
+    
+    // response is now { data: campaigns, status: 'success' } or the default []
+    const campaigns = response.data || response; // fallback if not wrapped
     if (!campaigns.length) return;
 
     for (const campaign of campaigns) {
-      console.log("Checking campaign:", campaign._id, "Owner type:", campaign.ownerType);
       const rule = campaign.additionalConfig?.cardBasedRule?.find(
         (r: any) => r.stageIds?.includes(newStageId)
       );
-      console.log("Matched rule:", rule ? "yes" : "no");
       if (!rule) continue;
 
-      // Fetch fresh deal data (for potential other uses)
       const freshDeal = await models.Deals.findById(deal._id).lean();
-      if (!freshDeal) {
-        console.warn(`Deal ${deal._id} not found after update`);
-        continue;
-      }
+      if (!freshDeal) continue;
 
       const actionMethod = rule.actionMethod || 'add';
       const ownerType = campaign.ownerType || 'customer';
       let ownerId: string | undefined;
 
       if (ownerType === 'customer') {
-        // Use the existing helper to get customer IDs
         const customerIds = await getCustomerIds(subdomain, freshDeal._id);
         ownerId = customerIds[0];
-        if (!ownerId) {
-          console.warn(`No customer found for deal ${freshDeal._id}, skipping campaign ${campaign._id}`);
-          continue;
-        }
+        if (!ownerId) continue;
       } else if (ownerType === 'company') {
-        // Use the existing helper to get company IDs
         const companyIds = await getCompanyIds(subdomain, freshDeal._id);
         ownerId = companyIds[0];
-        if (!ownerId) {
-          console.warn(`No company found for deal ${freshDeal._id}, skipping campaign ${campaign._id}`);
-          continue;
-        }
+        if (!ownerId) continue;
       } else if (ownerType === 'user') {
         ownerId = user._id;
       }
 
-      if (!ownerId) {
-        console.warn(`No ${ownerType} found for deal ${deal._id}, skipping campaign ${campaign._id}`);
-        continue;
-      }
+      if (!ownerId) continue;
 
-      console.log("Calling doScoreCampaign for owner:", ownerType, ownerId);
       await sendTRPCMessage({
         subdomain,
         pluginName: 'loyalty',
@@ -182,7 +164,7 @@ async function processStageChangeScoreCampaigns({
       });
     }
   } catch (error) {
-    console.error('Error processing stage-change score campaigns:', error.message);
+    console.error('Error processing stage-change score campaigns:', error instanceof Error ? error.message : error);
   }
 }
 
@@ -343,7 +325,6 @@ export const editDeal = async ({
     return updatedItem;
   }
   
- console.log("processStageChangeScoreCampaigns called", { newStageId: updatedItem.stageId });
  
   await processStageChangeScoreCampaigns({
   subdomain,

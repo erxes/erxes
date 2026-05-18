@@ -361,31 +361,27 @@ export const appRouter = t.router({
       }),
 
     getScoreCampaignsByStage: t.procedure
-  .input(
-    z.object({
-      boardId: z.string(),
-      pipelineId: z.string(),
-      stageId: z.string(),
-    }),
-  )
-  .query(async ({ ctx, input }) => {
-    const { models } = ctx;
-    console.log("🔍 getScoreCampaignsByStage called with:", input);
-    
-    const campaigns = await models.ScoreCampaigns.find({
-      status: 'published',
-      'additionalConfig.cardBasedRule': {
-        $elemMatch: {
-          boardId: input.boardId,
-          pipelineId: input.pipelineId,
-          stageIds: input.stageId
-        }
-      },
-    }).lean();
-    
-    console.log(`📊 Found ${campaigns.length} campaigns`);
-    return campaigns;
-  }),
+      .input(
+        z.object({
+          boardId: z.string(),
+          pipelineId: z.string(),
+          stageId: z.string(),
+        }),
+      )
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const campaigns = await models.ScoreCampaigns.find({
+          status: 'published',
+          'additionalConfig.cardBasedRule': {
+            $elemMatch: {
+              boardId: input.boardId,
+              pipelineId: input.pipelineId,
+              stageIds: input.stageId,
+            },
+          },
+        }).lean();
+        return { data: campaigns, status: 'success' };
+      }),
 
     refundLoyaltyScore: t.procedure
       .input(refundLoyaltyScoreInput)
