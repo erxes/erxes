@@ -125,6 +125,8 @@ export interface IHiddenTransaction extends Document {
   ptrId: string;
   ptrStatus: string;
   journal?: string;
+  number?: string;
+  ptrNumber?: string;
   originId?: string;
   originType?: string;
   originSubId?: string;

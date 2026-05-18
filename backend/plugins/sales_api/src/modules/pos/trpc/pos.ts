@@ -7,6 +7,7 @@ import {
   statusToDone,
   syncOrderFromClient,
 } from '~/modules/pos/utils';
+import { IPos } from '../@types/pos';
 
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -47,7 +48,7 @@ export const posTrpcRouter = t.router({
           userId = owner._id;
         }
 
-        return models.Pos.posAdd({ _id: userId }, doc as any);
+        return models.Pos.posAdd({ _id: userId }, doc as IPos);
       }),
     confirmCover: t.procedure
       .input(z.any())
