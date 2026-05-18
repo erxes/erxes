@@ -1,5 +1,5 @@
 import { initTRPC } from '@trpc/server';
-import { ITRPCContext } from 'erxes-api-shared/utils';
+import { ITRPCContext, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
 import {
@@ -14,6 +14,41 @@ const t = initTRPC.context<SalesTRPCContext>().create();
 
 export const posTrpcRouter = t.router({
   pos: t.router({
+    create: t.procedure
+      .input(
+        z.object({
+          doc: z.record(z.any()),
+          ownerUserId: z.string().optional(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models, subdomain } = ctx;
+        const { doc, ownerUserId } = input;
+
+        let userId = ownerUserId;
+
+        if (!userId) {
+          const owner = (await sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'query',
+            module: 'users',
+            action: 'findOne',
+            input: { query: { isOwner: true } },
+            defaultValue: null,
+          })) as { _id: string } | null;
+
+          if (!owner?._id) {
+            throw new Error(
+              `No owner user found in subdomain "${subdomain}" to assign POS to`,
+            );
+          }
+
+          userId = owner._id;
+        }
+
+        return models.Pos.posAdd({ _id: userId }, doc as any);
+      }),
     confirmCover: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
@@ -25,7 +60,7 @@ export const posTrpcRouter = t.router({
           { upsert: true },
         );
 
-        return await models.Covers.findOne({ _id: cover._id })
+        return await models.Covers.findOne({ _id: cover._id });
       }),
     ecommerceGetBranches: t.procedure
       .input(z.any())
@@ -62,7 +97,7 @@ export const posTrpcRouter = t.router({
             status: 'onKitchen',
             date: order.paidDate,
             description: order.description,
-          }
+          };
         }
 
         const dealId = order.deliveryInfo.dealId;
@@ -71,7 +106,7 @@ export const posTrpcRouter = t.router({
         if (!deal) {
           return {
             error: 'Deleted delivery information.',
-          }
+          };
         }
         const stage = await models.Stages.findOne({ _id: deal.stageId });
         if (!stage) {
@@ -87,7 +122,7 @@ export const posTrpcRouter = t.router({
           status: stage.name,
           date: deal.stageChangedDate || deal.updatedAt || deal.createdAt,
           description: order.description,
-        }
+        };
       }),
     createOrUpdateOrders: t.procedure
       .input(z.any())
@@ -162,7 +197,7 @@ export const posTrpcRouter = t.router({
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
 
-      return await models.PosOrders.findOne(input || {}).lean()
+      return await models.PosOrders.findOne(input || {}).lean();
     }),
     find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
