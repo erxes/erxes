@@ -1006,8 +1006,8 @@ export const dealQueries: Record<string, Resolver> = {
 
     const result = await sendTRPCMessage({
       subdomain,
-      pluginName: 'loyalties',
-      module: 'loyalties',
+      pluginName: 'loyalty',
+      module: 'loyalty',
       action: 'checkLoyalties',
       input: {
         ownerType,

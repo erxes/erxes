@@ -49,6 +49,11 @@ export interface IScoreCampaignModel extends Model<IScoreCampaignDocument> {
     ownerType: string,
     ownerId: string,
   ): Promise<boolean>;
+  updateOwnerScore(args: {
+    ownerId: string;
+    ownerType: string;
+    updatedCustomFieldsData: any[];
+  }): Promise<any>;
 }
 
 export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
@@ -233,11 +238,9 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
           subdomain,
           pluginName: 'core',
           method: 'query',
-          module: 'clientPortalUsers',
-          action: 'findOne',
-          input: {
-            erxesCustomerId: owner._id,
-          },
+          module: 'cpUsers',
+          action: 'get',
+          input: { erxesCustomerId: owner._id },
           defaultValue: null,
         });
 
@@ -510,8 +513,8 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
     }) {
       const actionsObj = {
         user: { module: 'users', action: 'updateOne' },
-        customer: { module: 'customers', action: 'updateOne' },
-        company: { module: 'companies', action: 'updateOne' },
+        customer: { module: 'customers', action: 'updateMany' },
+        company: { module: 'companies', action: 'updateMany' },
       };
 
       return await sendTRPCMessage({

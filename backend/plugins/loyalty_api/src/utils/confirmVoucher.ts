@@ -17,8 +17,11 @@ export const confirmVoucherSale = async (
     ownerType?: string;
     ownerId?: string;
     targetid?: string;
+    targetId?: string;
+    targetType?: string;
     serviceName?: string;
-    totalAmount?: string;
+    totalAmount?: string | number;
+    [key: string]: any;
   },
 ) => {
   const { couponCode, voucherId, totalAmount, ...usageInfo } = extraInfo || {};
@@ -28,11 +31,9 @@ export const confirmVoucherSale = async (
       subdomain,
       pluginName: 'core',
       method: 'query',
-      module: 'clientPortalUsers',
-      action: 'findOne',
-      input: {
-        erxesCustomerId: extraInfo.ownerId,
-      },
+      module: 'cpUsers',
+      action: 'get',
+      input: { erxesCustomerId: extraInfo.ownerId },
       defaultValue: null,
     });
 
