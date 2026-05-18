@@ -19,6 +19,20 @@ export interface IScoreLogModel extends Model<IScoreLogDocument> {
   changeOwnersScore(doc): Promise<IScoreLogDocument>;
 }
 
+const getOwnerFieldScore = (owner: any, fieldId?: string) => {
+  if (!fieldId) {
+    return Number(owner?.score) || 0;
+  }
+
+  return (
+    Number(
+      owner?.propertiesData?.[fieldId] ??
+        (owner?.customFieldsData || []).find(({ field }) => field === fieldId)
+          ?.value,
+    ) || 0
+  );
+};
+
 const generateFilter = async (
   params: IScoreLogParams,
   models: IModels,
@@ -309,10 +323,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         }
 
         usedCustomFieldIds.push(campaign.fieldId);
-        const campaignScore =
-          (owner?.customFieldsData || []).find(
-            ({ field }) => field === campaign.fieldId,
-          )?.value || 0;
+        const campaignScore = getOwnerFieldScore(owner, campaign.fieldId);
 
         ownerScore += Number(campaignScore) || 0;
       }
@@ -384,90 +395,34 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const modifier: any = { $set: { score: newScore } };
 
       if (usedCustomFieldIds?.length) {
-        let updatedCustomFieldsData = [...(owner.customFieldsData || [])];
+        const updatedPropertiesData = { ...(owner.propertiesData || {}) };
 
         if (score > 0) {
           const fieldId = usedCustomFieldIds[0];
-          const hasOldFieldData = updatedCustomFieldsData.find(
-            (customFieldData) => customFieldData.field === fieldId,
-          );
-
-          if (hasOldFieldData) {
-            updatedCustomFieldsData = updatedCustomFieldsData.map(
-              (customFieldData) =>
-                customFieldData.field === fieldId
-                  ? {
-                      ...customFieldData,
-                      value: Number(customFieldData.value) + score,
-                      stringValue: `${Number(customFieldData.value) + score}`,
-                      numberValue: Number(customFieldData.value) + score,
-                    }
-                  : customFieldData,
-            );
-          } else {
-            updatedCustomFieldsData.push({
-              field: fieldId,
-              value: score,
-              stringValue: `${score}`,
-              numberValue: score,
-            });
-          }
+          updatedPropertiesData[fieldId] =
+            getOwnerFieldScore(owner, fieldId) + score;
         } else {
           let remaining = Math.abs(score);
 
-          updatedCustomFieldsData = updatedCustomFieldsData.map(
-            (customFieldData) => {
-              if (
-                !remaining ||
-                !usedCustomFieldIds.includes(customFieldData.field)
-              ) {
-                return customFieldData;
-              }
-
-              const currentValue = Number(customFieldData.value) || 0;
-              const deduct = Math.min(currentValue, remaining);
-              const newValue = currentValue - deduct;
-              remaining -= deduct;
-
-              return {
-                ...customFieldData,
-                value: newValue,
-                stringValue: `${newValue}`,
-                numberValue: newValue,
-              };
-            },
-          );
-
-          if (remaining) {
-            const fieldId = usedCustomFieldIds[0];
-            const hasOldFieldData = updatedCustomFieldsData.find(
-              (customFieldData) => customFieldData.field === fieldId,
-            );
-
-            if (hasOldFieldData) {
-              updatedCustomFieldsData = updatedCustomFieldsData.map(
-                (customFieldData) =>
-                  customFieldData.field === fieldId
-                    ? {
-                        ...customFieldData,
-                        value: Number(customFieldData.value) - remaining,
-                        stringValue: `${Number(customFieldData.value) - remaining}`,
-                        numberValue: Number(customFieldData.value) - remaining,
-                      }
-                    : customFieldData,
-              );
-            } else {
-              updatedCustomFieldsData.push({
-                field: fieldId,
-                value: -1 * remaining,
-                stringValue: `${-1 * remaining}`,
-                numberValue: -1 * remaining,
-              });
+          for (const fieldId of usedCustomFieldIds) {
+            if (!remaining) {
+              break;
             }
+
+            const currentValue = getOwnerFieldScore(owner, fieldId);
+            const deduct = Math.min(currentValue, remaining);
+            updatedPropertiesData[fieldId] = currentValue - deduct;
+            remaining -= deduct;
+          }
+
+          if (remaining && usedCustomFieldIds[0]) {
+            const fieldId = usedCustomFieldIds[0];
+            updatedPropertiesData[fieldId] =
+              getOwnerFieldScore(owner, fieldId) - remaining;
           }
         }
 
-        modifier.$set['customFieldsData'] = updatedCustomFieldsData || [];
+        modifier.$set.propertiesData = updatedPropertiesData;
         delete modifier.$set.score;
       }
 
@@ -501,7 +456,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           pluginName: 'core',
           method: 'mutation',
           module: 'customers',
-          action: 'updateOne',
+          action: 'updateMany',
           input: {
             selector: { _id: cpUser.erxesCustomerId },
             modifier,

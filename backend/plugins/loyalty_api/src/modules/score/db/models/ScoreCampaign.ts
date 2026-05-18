@@ -52,9 +52,23 @@ export interface IScoreCampaignModel extends Model<IScoreCampaignDocument> {
   updateOwnerScore(args: {
     ownerId: string;
     ownerType: string;
-    updatedCustomFieldsData: any[];
+    updatedCustomFieldsData: Record<string, any>;
   }): Promise<any>;
 }
+
+const getOwnerFieldScore = (owner: any, fieldId?: string) => {
+  if (!fieldId) {
+    return Number(owner?.score) || 0;
+  }
+
+  return (
+    Number(
+      owner?.propertiesData?.[fieldId] ??
+        (owner?.customFieldsData || []).find(({ field }) => field === fieldId)
+          ?.value,
+    ) || 0
+  );
+};
 
 export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
   class ScoreCampaign {
@@ -167,15 +181,10 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
 
       let changeScore = (safeEvalMath(placeholder) || 0) * Number(currencyRatio) || 0;
 
-      const { score = 0, customFieldsData = [] } = owner || {};
-
-      let oldScore = score;
+      let oldScore = Number(owner?.score) || 0;
 
       if (campaign.fieldId) {
-        const fieldScore =
-          customFieldsData.find(({ field }) => field === campaign.fieldId)
-            ?.value || 0;
-        oldScore = fieldScore;
+        oldScore = getOwnerFieldScore(owner, campaign.fieldId);
         const scoreLog = await models.ScoreLogs.findOne({
           ownerId,
           ownerType,
@@ -317,15 +326,10 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
       //   return;
       // }
 
-      const { score = 0, customFieldsData = [] } = owner || {};
-
-      let oldScore = score;
+      let oldScore = Number(owner?.score) || 0;
 
       if (campaign.fieldId) {
-        const fieldScore =
-          customFieldsData.find(({ field }) => field === campaign.fieldId)
-            ?.value || 0;
-        oldScore = fieldScore;
+        oldScore = getOwnerFieldScore(owner, campaign.fieldId);
       }
 
       const newScore =
@@ -337,40 +341,17 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         throw new Error('There has no enough score to subtract');
       }
 
-      let updatedCustomFieldsData;
-
-      const [preparedCustomFieldsData] = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'fields',
-        action: 'prepareCustomFieldsData',
-        input: [{ field: campaign.fieldId, value: newScore }],
-        defaultValue: [],
-      });
-
-      if (
-        !customFieldsData ||
-        !(customFieldsData || []).find(
-          ({ field }) => field === campaign.fieldId,
-        )
-      ) {
-        updatedCustomFieldsData = [
-          ...(customFieldsData || []),
-          preparedCustomFieldsData,
-        ];
-      } else {
-        updatedCustomFieldsData = customFieldsData.map((customFieldData) =>
-          customFieldData.field === campaign.fieldId
-            ? { ...customFieldData, ...preparedCustomFieldsData }
-            : customFieldData,
-        );
-      }
+      const updatedPropertiesData = campaign.fieldId
+        ? {
+            ...(owner?.propertiesData || {}),
+            [campaign.fieldId]: newScore,
+          }
+        : owner?.propertiesData || {};
 
       await this.updateOwnerScore({
         ownerId,
         ownerType,
-        updatedCustomFieldsData,
+        updatedCustomFieldsData: updatedPropertiesData,
       });
 
       return await models.ScoreLogs.create({
@@ -466,31 +447,15 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         throw new Error('Cannot find owner');
       }
 
-      const { customFieldsData = [] } = owner || {};
-
-      const updatedCustomFieldsData = customFieldsData.map((customFieldData) =>
-        customFieldData.field === fieldId
-          ? {
-              ...customFieldData,
-              value: (customFieldData?.value || 0) + refundAmount,
-            }
-          : customFieldData,
-      );
-
-      const preparedCustomFieldsData = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'fields',
-        action: 'prepareCustomFieldsData',
-        input: updatedCustomFieldsData,
-        defaultValue: [],
-      });
+      const updatedPropertiesData = {
+        ...(owner?.propertiesData || {}),
+        [fieldId]: getOwnerFieldScore(owner, fieldId) + refundAmount,
+      };
 
       await this.updateOwnerScore({
         ownerId,
         ownerType,
-        updatedCustomFieldsData: preparedCustomFieldsData,
+        updatedCustomFieldsData: updatedPropertiesData,
       });
 
       return await models.ScoreLogs.create({
@@ -525,7 +490,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         action: actionsObj[ownerType].action,
         input: {
           selector: { _id: ownerId },
-          modifier: { $set: { customFieldsData: updatedCustomFieldsData } },
+          modifier: { $set: { propertiesData: updatedCustomFieldsData } },
         },
         defaultValue: null,
       });

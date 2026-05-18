@@ -813,48 +813,32 @@ export const handleLoyaltyOwnerChange = async (
   }).distinct('fieldId');
 
   const fieldIds = new Set(scoreFieldIds);
-  const customFieldsData: any[] = [];
-  const scoreFieldsData: Record<string, any> = {};
+  const propertiesData: Record<string, any> = {
+    ...((customer as any)?.propertiesData || {}),
+  };
+  const scoreFieldsData: Record<string, number> = {};
 
   for (const customFieldData of (customer as any)?.customFieldsData || []) {
     const { field, value, numberValue } = customFieldData || {};
 
     if (!fieldIds.has(field)) {
-      customFieldsData.push(customFieldData);
+      if (propertiesData[field] === undefined) {
+        propertiesData[field] = numberValue ?? value;
+      }
       continue;
     }
 
     const numericValue = Number(numberValue ?? value ?? 0) || 0;
-
-    if (!scoreFieldsData[field]) {
-      scoreFieldsData[field] = {
-        field,
-        value: 0,
-        numberValue: 0,
-        stringValue: '0',
-      };
-    }
-
-    scoreFieldsData[field].value += numericValue;
-    scoreFieldsData[field].numberValue += numericValue;
-    scoreFieldsData[field].stringValue = String(
-      scoreFieldsData[field].numberValue,
-    );
+    scoreFieldsData[field] = (scoreFieldsData[field] || 0) + numericValue;
   }
 
-  const preparedCustomFieldsData = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'mutation',
-    module: 'fields',
-    action: 'prepareCustomFieldsData',
-    input: [...customFieldsData, ...Object.values(scoreFieldsData)],
-    defaultValue: [],
-  });
+  for (const fieldId of Object.keys(scoreFieldsData)) {
+    propertiesData[fieldId] = scoreFieldsData[fieldId];
+  }
 
   await models.ScoreCampaigns.updateOwnerScore({
     ownerId,
     ownerType: 'customer',
-    updatedCustomFieldsData: preparedCustomFieldsData,
+    updatedCustomFieldsData: propertiesData,
   });
 };

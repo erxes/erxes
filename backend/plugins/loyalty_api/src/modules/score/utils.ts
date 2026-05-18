@@ -114,13 +114,19 @@ export const resolvePlaceholderValue = (target: any, attribute: string) => {
   const [propertyName, valueToCheck, valueField] = attribute.split('-');
 
   const parent = target[propertyName] || {};
-  // Case 1: customer-customFieldsData-1  (look up in customFieldsData)
-  if (valueToCheck?.includes('customFieldsData')) {
+  // Case 1: customer-propertiesData-1 / legacy customer-customFieldsData-1
+  if (
+    valueToCheck?.includes('propertiesData') ||
+    valueToCheck?.includes('customFieldsData')
+  ) {
     const fieldId = attribute.split('.').pop(); // extract the field number after '.'
-    const obj = (parent.customFieldsData || []).find(
-      (item: any) => item.field === fieldId,
+    return (
+      parent.propertiesData?.[fieldId || ''] ??
+      (parent.customFieldsData || []).find(
+        (item: any) => item.field === fieldId,
+      )?.value ??
+      '0'
     );
-    return obj?.value ?? '0';
   }
 
   // Case 2: paymentsData-loyalty-amount  (find in array/object by type)
