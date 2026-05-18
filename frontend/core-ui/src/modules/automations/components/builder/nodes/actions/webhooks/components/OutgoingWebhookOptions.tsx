@@ -4,27 +4,10 @@ import { Form, Input, Select, Switch } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 
 export const OutgoingWebhookOptions = () => {
-  const { control, getValues } = useFormContext<TOutgoingWebhookForm>();
+  const { control } = useFormContext<TOutgoingWebhookForm>();
 
   return (
     <div className="flex flex-col gap-6">
-      <Form.Field
-        control={control}
-        name="options.ignoreSSL"
-        render={({ field }) => (
-          <Form.Item className="flex flex-row justify-between">
-            <div>
-              <Form.Label>Enable SSL certificate verification </Form.Label>
-              <Form.Description>
-                Verify SSL certificates when sending a request. Verification
-                failures will result in the request being aborted.{' '}
-              </Form.Description>
-            </div>
-            <Switch checked={field.value} onCheckedChange={field.onChange} />
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
       <Form.Field
         control={control}
         name="options.timeout"

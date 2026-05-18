@@ -187,7 +187,6 @@ const proxySchema = z
 const optionsSchema = z.object({
   // Core options
   timeout: z.coerce.number().default(10000).optional(),
-  ignoreSSL: z.boolean().default(false),
   followRedirect: z.boolean().default(false),
   maxRedirects: z.coerce.number().optional(),
 
