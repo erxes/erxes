@@ -101,6 +101,19 @@ export interface ITransactionDocument extends ITransaction, Document {
   permission?: string;
 }
 
+export interface ITransactionCounter {
+  _id: string;
+  seq: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export interface ITransactionCounterDocument
+  extends ITransactionCounter,
+    Document {
+  _id: string;
+}
+
 export interface ITrRecord extends Omit<ITransaction, 'details'> {
   details: ITrDetail;
   trId: string;

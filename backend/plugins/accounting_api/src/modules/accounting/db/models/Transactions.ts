@@ -154,65 +154,79 @@ export const loadTransactionClass = (
     }
 
     static async generatePtrNumber() {
-      const todayStr = moment().format('YYYYMMDDhh').toString();
-
-      let suffix = '001';
-      let latestOrder;
-
-      let number = `${todayStr}_${suffix}`;
-
-      const latestTr = await models.Transactions.aggregate([
+      const todayStr = moment().format('YYYYMMDDHH').toString();
+      const latestTrs = await models.Transactions.aggregate([
         {
           $match: {
-            number: { $regex: new RegExp(`^${todayStr}_`) },
+            $or: [
+              { number: { $regex: new RegExp(`^${todayStr}_`) } },
+              { ptrNumber: { $regex: new RegExp(`^${todayStr}_`) } },
+            ],
           },
         },
         {
           $project: {
-            number: 1,
-            number_len: { $strLenCP: '$number' },
+            groupNumber: { $ifNull: ['$ptrNumber', '$number'] },
           },
         },
-        { $sort: { number_len: -1, number: -1 } },
+        {
+          $project: {
+            groupNumber: 1,
+            number_len: { $strLenCP: '$groupNumber' },
+          },
+        },
+        { $sort: { number_len: -1, groupNumber: -1 } },
         { $limit: 1 },
       ]);
+      const latestNumber = latestTrs[0]?.groupNumber || '';
+      const latestSuffix = Number.parseInt(latestNumber.split('_')[1], 10) || 0;
 
-      if (latestTr.length) {
-        latestOrder = latestTr[0];
-      }
+      const counter = (await models.TransactionCounters.findOneAndUpdate(
+        { _id: `ptrNumber:${todayStr}` },
+        [
+          {
+            $set: {
+              seq: {
+                $add: [{ $max: [{ $ifNull: ['$seq', 0] }, latestSuffix] }, 1],
+              },
+              updatedAt: new Date(),
+              createdAt: { $ifNull: ['$createdAt', new Date()] },
+            },
+          },
+        ] as any,
+        { upsert: true, returnDocument: 'after', lean: true },
+      )) as any;
 
-      if (latestOrder?._id) {
-        const parts = latestOrder.number.split('_');
-        const latestNum = Number.parseInt(parts[1], 10);
+      const seq = counter?.seq || latestSuffix + 1;
+      const suffix = String(seq).padStart(3, '0');
 
-        suffix = String(latestNum + 1).padStart(3, '0');
-        number = `${todayStr}_${suffix}`;
-      }
-
-      return number;
+      return `${todayStr}_${suffix}`;
     }
 
-    static async getPtrNumber(tr: ITransactionDocument, ptrNumber?: string) {
+    static async getPtrNumber(tr: ITransactionDocument) {
       const { _id, parentId } = tr;
-      const number = ptrNumber || (await this.generatePtrNumber());
+      let number = '';
 
-      const duplicatedTrs = await models.Transactions.findOne({
-        ptrNumber: number,
-        parentId: { $ne: parentId },
-      }).lean();
-      if (!duplicatedTrs) {
-        await models.Transactions.updateOne(
-          { _id },
-          { $set: { ptrNumber: number } },
-        );
+      while (true) {
+        number = await this.generatePtrNumber();
+        const duplicatedTrs = await models.Transactions.findOne({
+          ptrNumber: number,
+          parentId: { $ne: parentId },
+        }).lean();
 
-        if (!tr.number) {
-          await models.Transactions.updateOne({ _id }, { $set: { number } });
+        if (!duplicatedTrs) {
+          await models.Transactions.updateOne(
+            { _id },
+            { $set: { ptrNumber: number } },
+          );
+
+          if (!tr.number) {
+            await models.Transactions.updateOne({ _id }, { $set: { number } });
+          }
+
+          return number;
         }
-        return number;
       }
-
-      return await this.getPtrNumber(tr);
     }
 
     static async syncParentWorkflowIdentifiers(
@@ -342,7 +356,7 @@ export const loadTransactionClass = (
               ptrId,
             });
             parentId = firstTrs.mainTr.parentId;
-            ptrNumber = await this.getPtrNumber(firstTrs.mainTr, ptrNumber);
+            ptrNumber = await this.getPtrNumber(firstTrs.mainTr);
             transactions.push(firstTrs.mainTr);
 
             if (firstTrs.otherTrs?.length) {
