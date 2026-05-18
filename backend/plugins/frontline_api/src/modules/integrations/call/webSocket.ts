@@ -72,7 +72,11 @@ interface PBXEvent {
 
 // State Management
 class QueueStateManager {
-  private queueStates: Record<string, QueueState> = {};
+  // Null-prototype map so a PBX event with extension="__proto__" /
+  // "constructor" cannot resolve via prototype lookup to Object.prototype
+  // (or Object) and have the downstream `queue.waiting = …` / `queue.talking
+  // = …` assignments mutate every plain object in the process.
+  private queueStates: Record<string, QueueState> = Object.create(null);
 
   initializeQueue(extension: string): void {
     if (!this.queueStates[extension]) {
@@ -147,7 +151,7 @@ class QueueStateManager {
   }
 
   resetState(): void {
-    this.queueStates = {};
+    this.queueStates = Object.create(null);
   }
 
   handleCallAnswered(
