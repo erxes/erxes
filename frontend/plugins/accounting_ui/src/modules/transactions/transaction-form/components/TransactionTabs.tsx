@@ -256,7 +256,7 @@ export const TransactionsTabsList = ({
               window.open(
                 `/accounting/transaction/print?_id=${
                   fields[Number(activeJournal ?? '0')]?._id
-                }`,
+                }&inPreview=true`,
                 '_blank',
               );
             }}

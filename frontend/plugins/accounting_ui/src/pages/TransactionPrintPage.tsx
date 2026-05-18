@@ -1,11 +1,10 @@
 import { useLocation } from 'react-router-dom';
 import { useTransactionDetail } from '~/modules/transactions/transaction-form/hooks/useTransactionDetail';
 
-import { AccountingLayout } from '~/modules/layout/components/Layout';
-import { AccountingHeader } from '~/modules/layout/components/Header';
+import { Button, Spinner } from 'erxes-ui';
+import { IconPrinter } from '@tabler/icons-react';
 import { useEffect, useRef } from 'react';
 import { PrintBody } from '~/modules/transactions/transaction-form/components/documents';
-// import { numberToWord } from 'erxes:master/packages/api-utils/src/numberUtils';
 
 export const TransactionPrintPage = () => {
   const query = new URLSearchParams(useLocation().search);
@@ -25,27 +24,52 @@ export const TransactionPrintPage = () => {
       }, 300);
     }
   }, [loading, transaction]);
-  if (loading) return <div className="p-10">Ачаалж байна...</div>;
+
+  if (loading)
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Spinner size="sm" />
+      </div>
+    );
   if (error)
     return (
-      <div className="p-10 text-red-500">Алдаа гарлаа: {error.message}</div>
+      <div className="flex h-screen items-center justify-center text-destructive">
+        Алдаа гарлаа: {error.message}
+      </div>
     );
-  if (!transaction) return <div className="p-10">Гүйлгээ олдсонгүй.</div>;
+  if (!transaction)
+    return (
+      <div className="flex h-screen items-center justify-center text-accent-foreground">
+        Гүйлгээ олдсонгүй.
+      </div>
+    );
 
   return (
-    <AccountingLayout>
-      <AccountingHeader />
+    <div className="min-h-screen bg-muted">
       <style>
         {`
           @page { size: A4; margin: 10mm; }
           @media print {
-            body { margin: 0; }
-            #print-area { visibility: visible; position: absolute; left: 0; top: 0; width: 100%; }
-            body > *:not(#print-area) { visibility: hidden; }
+            html, body { margin: 0; background: #fff; }
+            #print-toolbar { display: none !important; }
+            #print-area { box-shadow: none !important; margin: 0 !important; }
           }
         `}
       </style>
-      <PrintBody transaction={transaction} />
-    </AccountingLayout>
+
+      <div
+        id="print-toolbar"
+        className="sticky top-0 z-10 flex items-center justify-end gap-2 border-b bg-background px-6 py-3"
+      >
+        <Button onClick={() => window.print()} variant="secondary">
+          <IconPrinter />
+          Хэвлэх
+        </Button>
+      </div>
+
+      <div className="flex justify-center py-8">
+        <PrintBody transaction={transaction} />
+      </div>
+    </div>
   );
 };
