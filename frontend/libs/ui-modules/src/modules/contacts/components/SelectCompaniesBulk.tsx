@@ -101,7 +101,9 @@ const SelectCompaniesBulkContent = ({
       <Sheet.Footer className="sm:justify-between">
         <AddCompany
           onSuccess={(id) =>
-            setSelectedCompanyIds((prev) => [...prev, id])
+            setSelectedCompanyIds((prev) =>
+              prev.includes(id) ? prev : [...prev, id],
+            )
           }
         />
         <div className="flex items-center gap-2">

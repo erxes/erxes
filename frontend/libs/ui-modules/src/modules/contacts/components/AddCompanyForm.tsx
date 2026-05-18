@@ -39,7 +39,10 @@ const SCHEMA = z.object({
     .optional(),
   location: z.string().optional(),
   businessType: z.string().optional(),
-  size: z.coerce.number().optional(),
+  size: z.preprocess(
+    (val) => (val === '' || val === null ? undefined : val),
+    z.number().optional(),
+  ),
   description: z.string().optional(),
 });
 

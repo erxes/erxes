@@ -105,7 +105,9 @@ const SelectCustomersBulkContent = ({
       <Sheet.Footer className="sm:justify-between">
         <AddCustomer
           onSuccess={(id) =>
-            setSelectedCustomerIds((prev) => [...prev, id])
+            setSelectedCustomerIds((prev) =>
+              prev.includes(id) ? prev : [...prev, id],
+            )
           }
         />
         <div className="flex items-center gap-2">
