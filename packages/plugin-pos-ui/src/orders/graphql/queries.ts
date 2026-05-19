@@ -92,6 +92,20 @@ const posOrders = `
   }
 `;
 
+const invoiceDetailByContent = `
+  query InvoiceDetailByContent($contentType: String!, $contentTypeId: String!) {
+    invoiceDetailByContent(contentType: $contentType, contentTypeId: $contentTypeId) {
+      _id
+      transactions {
+        _id
+        paymentKind
+        amount
+        status
+      }
+    }
+  }
+`;
+
 const posOrdersSummary = `
   query posOrdersSummary(${listParamsDef}) {
     posOrdersSummary(${listParamsValue})
@@ -327,6 +341,7 @@ const posOrdersBySubs = `
 
 export default {
   posOrders,
+  invoiceDetailByContent,
   posOrdersSummary,
   posOrdersGroupSummary,
   posOrderDetail,
