@@ -3,6 +3,7 @@ import { IModels } from '~/connectionResolvers';
 import { ISyncLogDocument } from '~/modules/msdynamic/@types/dynamic';
 import { getMsdCustomerInfo } from './utilsCustomer';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { generateModels } from '~/connectionResolvers';
 
 interface ExchangeRateConfig {
   exchangeRateApi: string;
@@ -15,15 +16,23 @@ export const getConfig = async (
   code: string,
   defaultValue?: any,
 ) => {
-  return await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'config',
-    action: 'getConfig',
-    method: 'query',
-    input: { code, defaultValue },
-    defaultValue,
-  });
+  const models = await generateModels(subdomain);
+  const config = await models.Configs.getConfig(code, '');
+
+  if (config) {
+    return config.value;
+  }
+
+  const configs = await models.Configs.getConfigs(code);
+
+  if (configs?.length) {
+    return configs.reduce((acc, conf) => {
+      acc[conf.subId || ''] = conf.value;
+      return acc;
+    }, {});
+  }
+
+  return defaultValue ?? null;
 };
 
 const getCustomerNo = async (subdomain, customer) => {
@@ -343,8 +352,8 @@ export const dealToDynamic = async (
     const sendData: any = {
       Sell_to_Customer_No:
         customerType === 'company'
-          ? (msdCustomer?.No ?? config.defaultUserCode)
-          : (custCode ?? config.defaultUserCode),
+          ? msdCustomer?.No ?? config.defaultUserCode
+          : custCode ?? config.defaultUserCode,
       Sell_to_Phone_No: customer?.primaryPhone ?? '',
       Sell_to_E_Mail: customer?.primaryEmail ?? '',
       External_Document_No: deal.number ?? deal.name.split(':').pop().trim(),

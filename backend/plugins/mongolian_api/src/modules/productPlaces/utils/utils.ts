@@ -4,15 +4,23 @@ import { generateModels } from '../../../connectionResolvers';
 
 // OLD function - keep for backward compatibility
 export const getConfig = async (subdomain, code, defaultValue?) => {
-  return sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'configs',
-    action: 'getConfig',
-    method: 'query',
-    input: { code, defaultValue },
-    defaultValue,
-  });
+  const models = await generateModels(subdomain);
+  const config = await models.Configs.getConfig(code, '');
+
+  if (config) {
+    return config.value;
+  }
+
+  const configs = await models.Configs.getConfigs(code);
+
+  if (configs?.length) {
+    return configs.reduce((acc, conf) => {
+      acc[conf.subId || ''] = conf.value;
+      return acc;
+    }, {});
+  }
+
+  return defaultValue ?? null;
 };
 
 // NEW function for mnConfigs (direct model access)
@@ -37,7 +45,7 @@ export const getMnConfig = async (
       }, {});
     }
 
-    return defaultValue;
+    return result?.value ?? defaultValue;
   } catch {
     return defaultValue;
   }
@@ -69,7 +77,7 @@ export const getMnConfigs = async (subdomain, codes: string[], subId = '') => {
           }, {});
         }
 
-        return null;
+        return config?.value ?? null;
       }),
     );
 
