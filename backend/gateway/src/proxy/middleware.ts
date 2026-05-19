@@ -75,15 +75,58 @@ export const proxyReq = (proxyReq, req: any) => {
   }
 };
 
+export const proxyRes = (proxyRes, req: any) => {
+  if (DEBUG_GATEWAY_AUTH && req.originalUrl?.startsWith('/graphql')) {
+    console.log(
+      JSON.stringify({
+        scope: 'gateway-proxy',
+        event: 'proxy-graphql-response',
+        method: req.method,
+        path: req.originalUrl,
+        statusCode: proxyRes.statusCode,
+        hasUser: Boolean(req.user?._id),
+        userId: req.user?._id || '',
+        hasUseridHeader: Boolean(req.headers.userid),
+      }),
+    );
+  }
+};
+
+export const proxyError = (error, req: any, res?: any) => {
+  if (DEBUG_GATEWAY_AUTH && req.originalUrl?.startsWith('/graphql')) {
+    console.log(
+      JSON.stringify({
+        scope: 'gateway-proxy',
+        event: 'proxy-graphql-error',
+        method: req.method,
+        path: req.originalUrl,
+        code: error?.code,
+        message: error?.message,
+        hasUser: Boolean(req.user?._id),
+        userId: req.user?._id || '',
+        hasUseridHeader: Boolean(req.headers.userid),
+      }),
+    );
+  }
+
+  if (res && !res.headersSent) {
+    res.status(502).json({
+      error: 'Gateway proxy error',
+      code: error?.code,
+    });
+  }
+};
+
 export function applyProxiesCoreless(app: Express) {
   app.use(
     '^/graphql',
     createProxyMiddleware({
       pathRewrite: { '^/graphql': '/' },
       target: `http://127.0.0.1:${apolloRouterPort}`,
-      agent: proxyAgent,
       on: {
         proxyReq,
+        proxyRes,
+        error: proxyError,
       },
     }),
   );
@@ -103,6 +146,8 @@ export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
       agent: proxyAgent,
       on: {
         proxyReq,
+        proxyRes,
+        error: proxyError,
       },
     }),
   );

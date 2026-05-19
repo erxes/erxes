@@ -118,6 +118,7 @@ export const queries = `
   contactsLogs(action: String, content:JSON, contentType: String): JSON
   
   cpCustomers(${queryParams}): CustomersListResponse
+  cpCustomerDetail(_id: String!): Customer
   `;
 
 const fields = `

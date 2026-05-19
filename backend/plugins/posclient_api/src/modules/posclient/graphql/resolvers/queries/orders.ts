@@ -164,7 +164,6 @@ const orderQueries: Record<string, Resolver<any, any, IContext>> = {
     params: ISearchParams,
     { models, config, posUser }: IContext,
   ) {
-    assertPosUser(posUser);
 
     return filterOrders(params, models, config);
   },
