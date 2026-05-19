@@ -5,6 +5,7 @@ import {
   FormHeader,
   NumberedItemRows,
   NumberedTableHead,
+  NumberedTotalRow,
   SignLine,
   TD,
   buildRows,
@@ -61,16 +62,7 @@ export const PrintInvSaleReturnDocument = ({
         <NumberedTableHead />
         <tbody>
           <NumberedItemRows rows={filled} />
-          <tr>
-            <td className={TD} />
-            <td className={`${TD} px-2 font-medium`}>Дүн:</td>
-            <td className={`${TD} text-center`}>X</td>
-            <td className={`${TD} px-2 text-center`}>X</td>
-            <td className={`${TD} text-center`}>X</td>
-            <td className={`${TD} text-right font-bold`}>
-              {formatNumber(subTotal)}
-            </td>
-          </tr>
+          <NumberedTotalRow total={subTotal} />
           <tr>
             <td className={`${TD} text-center`}>X</td>
             <td className={`${TD} px-2 font-medium`}>НӨАТ дүн:</td>

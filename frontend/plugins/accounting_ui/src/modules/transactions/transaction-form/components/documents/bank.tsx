@@ -2,23 +2,7 @@ import dayjs from 'dayjs';
 import { fixNum } from 'erxes-ui';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
 import { amountToMongolianText } from './numberToWords';
-
-const Field = ({
-  label,
-  value,
-  className = '',
-}: {
-  label: string;
-  value?: React.ReactNode;
-  className?: string;
-}) => (
-  <div className={`flex border-b border-black/60 ${className}`}>
-    <div className="w-[42%] shrink-0 bg-black/4 px-2 py-1 font-medium">
-      {label}
-    </div>
-    <div className="flex-1 px-2 py-1">{value || ' '}</div>
-  </div>
-);
+import { Field, VoucherHeader } from './shared';
 
 export const PrintBankDocument = ({
   transaction,
@@ -53,23 +37,11 @@ export const PrintBankDocument = ({
       id="print-area"
       className="w-[210mm] min-h-[297mm] bg-white px-[18mm] py-[14mm] font-serif text-[12px] leading-snug text-black shadow-sidebar-inset"
     >
-      <div className="mb-6 text-center">
-        <div className="text-[20px] font-bold uppercase tracking-wide">
-          Төлбөрийн даалгавар
-        </div>
-        <div className="mx-auto mt-1 h-0.5 w-28 bg-black" />
-      </div>
-
-      <div className="mb-4 flex items-end justify-between text-[12px]">
-        <div>
-          <span className="font-medium">№:</span>{' '}
-          <span className="font-bold">{documentNo || ' '}</span>
-        </div>
-        <div>
-          <span className="font-medium">Огноо:</span>{' '}
-          <span className="font-bold">{transactionDate || ' '}</span>
-        </div>
-      </div>
+      <VoucherHeader
+        title="Төлбөрийн даалгавар"
+        documentNo={documentNo}
+        date={transactionDate}
+      />
 
       <div className="mb-3">
         <Field label="Төлөгчийн нэр" value={payerName} />
@@ -138,7 +110,7 @@ export const PrintBankDocument = ({
             Төлбөрийн зориулалт
           </div>
           <div className="min-h-16 flex-1 px-2 py-1 whitespace-pre-wrap">
-            {description || ' '}
+            {description || ' '}
           </div>
         </div>
       </div>

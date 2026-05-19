@@ -124,6 +124,57 @@ export const TwinSheet = ({ children }: { children: React.ReactNode }) => (
 export const TH = 'border border-black px-1 py-1 font-medium';
 export const TD = 'border border-black px-1 py-1.5';
 
+// A labelled key/value row with a shaded label cell — used by the bank
+// payment order and the generic transaction voucher.
+export const Field = ({
+  label,
+  value,
+  className = '',
+}: {
+  label: string;
+  value?: React.ReactNode;
+  className?: string;
+}) => (
+  <div className={`flex border-b border-black/60 ${className}`}>
+    <div className="w-[42%] shrink-0 bg-black/4 px-2 py-1 font-medium">
+      {label}
+    </div>
+    <div className="flex-1 px-2 py-1">{value || ' '}</div>
+  </div>
+);
+
+// The centered title + "№ ... / Огноо ..." line printed at the top of the
+// bank payment order and the generic transaction voucher.
+export const VoucherHeader = ({
+  title,
+  documentNo,
+  date,
+}: {
+  title: string;
+  documentNo: string;
+  date: string;
+}) => (
+  <>
+    <div className="mb-6 text-center">
+      <div className="text-[20px] font-bold uppercase tracking-wide">
+        {title}
+      </div>
+      <div className="mx-auto mt-1 h-0.5 w-28 bg-black" />
+    </div>
+
+    <div className="mb-4 flex items-end justify-between text-[12px]">
+      <div>
+        <span className="font-medium">№:</span>{' '}
+        <span className="font-bold">{documentNo || ' '}</span>
+      </div>
+      <div>
+        <span className="font-medium">Огноо:</span>{' '}
+        <span className="font-bold">{date || ' '}</span>
+      </div>
+    </div>
+  </>
+);
+
 // === Shared receipt layouts ================================================
 // invSale and invIncome print near-identical forms; the components below take
 // the few differing labels as props so both files can reuse one implementation.
@@ -136,18 +187,25 @@ export interface IReceiptLabels {
   partyLabel: string; // "Хэнд(хаана):" / "Хэнээс(хаанаас):"
 }
 
-// The five-column simple item table body shared by twin/simple receipts.
-const SimpleItemRows = ({
+// The simple item table body shared by the twin/simple/location receipts.
+// With `withLocation` an extra (empty) "Байршил" column is rendered, which
+// the inv_sale_2 layout needs.
+export const SimpleItemRows = ({
   rows,
   total,
+  withLocation = false,
 }: {
   rows: (IReceiptRow | null)[];
   total: number;
+  withLocation?: boolean;
 }) => (
   <tbody>
     {rows.map((row, idx) => (
       <tr key={idx}>
-        <td className={TD}>{row?.name || ' '}</td>
+        <td className={`${TD}${withLocation ? ' px-2' : ''}`}>
+          {row?.name || ' '}
+        </td>
+        {withLocation && <td className={`${TD} px-2`}>&nbsp;</td>}
         <td className={`${TD} text-center`}>{row?.unit || ' '}</td>
         <td className={`${TD} text-right`}>
           {row?.count ? row.count.toLocaleString() : ' '}
@@ -161,7 +219,10 @@ const SimpleItemRows = ({
       </tr>
     ))}
     <tr>
-      <td className={`${TD} font-medium`}>Дүн:</td>
+      <td className={`${TD}${withLocation ? ' px-2' : ''} font-medium`}>
+        Дүн:
+      </td>
+      {withLocation && <td className={`${TD} px-2 text-center`}>X</td>}
       <td className={`${TD} text-center`}>X</td>
       <td className={`${TD} text-center`}>X</td>
       <td className={`${TD} text-center`}>X</td>
@@ -321,3 +382,147 @@ export const NumberedItemRows = ({
     ))}
   </>
 );
+
+// The "Дүн:" subtotal row that closes the numbered (six-column) tables.
+export const NumberedTotalRow = ({ total }: { total: number }) => (
+  <tr>
+    <td className={TD} />
+    <td className={`${TD} px-2 font-medium`}>Дүн:</td>
+    <td className={`${TD} text-center`}>X</td>
+    <td className={`${TD} px-2 text-center`}>X</td>
+    <td className={`${TD} text-center`}>X</td>
+    <td className={`${TD} text-right font-bold`}>{formatNumber(total)}</td>
+  </tr>
+);
+
+// The labels/values that vary between the inv_sale and inv_income discount
+// receipts (inv_sale_3 / inv_income_3) — every other markup is identical.
+export interface IDiscountReceiptConfig {
+  formCode: string;
+  title: string; // centered title; income appends the document number
+  showDocNo: boolean; // income shows "№{documentNo}" after the title
+  dateText: string; // pre-formatted date / placeholder line
+  partyLabel: string; // "Хэнд(хаана):" / "Хэнээс(хаанаас):"
+  unitHeader: string; // "Хэм. нэгж" / "Хэм,нэгж"
+  priceHeaderNote?: string; // invSale prints "\НӨАТ орсон\" under the price
+  groupHeader: string; // "Худалдсан" / "Худалдаж авсан"
+  percentHeader: string; // "Хөн. хувь" / "Хөн,хувь"
+  discountLabel: string; // "- Хөнгөлөлт:" / "Хөнгөлөлт:"
+  payableLabel: string; // "Төлбөр:" / "Нийт дүн:"
+  lastSignLabel: string; // "Хянасан" / "Шалгасан нягтлан бодогч"
+  minRows: number;
+}
+
+// The discount receipt shared by inv_sale_3 and inv_income_3 — a grouped
+// header table with a discount + payable summary block.
+export const DiscountReceipt = ({
+  transaction,
+  config,
+}: {
+  transaction: ITransaction;
+  config: IDiscountReceiptConfig;
+}) => {
+  const { documentNo } = getMeta(transaction);
+  const rows = buildRows(transaction);
+  const total = sumAmount(rows);
+  const discount = transaction?.extraData?.discount ?? 0;
+  const payable = total - discount;
+  const filled = padRows(rows, config.minRows);
+
+  return (
+    <A4Sheet>
+      <FormHeader code={config.formCode} />
+      <div className="mt-1 border-b border-black pb-1 font-bold">
+        Байгууллага:
+      </div>
+      <div className="mt-3 mb-3 text-center text-[16px] font-bold">
+        {config.title}
+        {config.showDocNo && documentNo ? ` №${documentNo}` : ''}
+      </div>
+      <div className="font-bold">{config.dateText}</div>
+      <div className="mt-1 font-bold">{config.partyLabel}</div>
+      <div className="mt-1 mb-2 font-bold">Утга:</div>
+
+      <table className="w-full border-collapse border border-black text-[11px]">
+        <thead>
+          <tr>
+            <th rowSpan={2} className={`${TH} px-2`}>
+              Бараа материал
+            </th>
+            <th rowSpan={2} className={TH}>
+              {config.unitHeader}
+            </th>
+            <th rowSpan={2} className={`${TH} px-2`}>
+              Нэгж үнэ
+              {config.priceHeaderNote ? (
+                <>
+                  <br />
+                  {config.priceHeaderNote}
+                </>
+              ) : null}
+            </th>
+            <th colSpan={4} className={`${TH} px-2`}>
+              {config.groupHeader}
+            </th>
+          </tr>
+          <tr>
+            <th className={TH}>Тоо</th>
+            <th className={TH}>{config.percentHeader}</th>
+            <th className={TH}>Хөнгөлөлт</th>
+            <th className={TH}>Дүн</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filled.map((row, idx) => (
+            <tr key={idx}>
+              <td className={`${TD} px-2`}>{row?.name || ' '}</td>
+              <td className={`${TD} text-center`}>{row?.unit || ' '}</td>
+              <td className={`${TD} px-2 text-right`}>
+                {row ? formatNumber(row.unitPrice) : ' '}
+              </td>
+              <td className={`${TD} text-right`}>
+                {row?.count ? row.count.toLocaleString() : ' '}
+              </td>
+              <td className={`${TD} text-right`}>&nbsp;</td>
+              <td className={`${TD} text-right`}>&nbsp;</td>
+              <td className={`${TD} text-right`}>
+                {row ? formatNumber(row.amount) : ' '}
+              </td>
+            </tr>
+          ))}
+          <tr>
+            <td className={`${TD} px-2 font-medium`}>Дүн:</td>
+            <td className={`${TD} text-center`}>X</td>
+            <td className={`${TD} px-2 text-center`}>X</td>
+            <td className={`${TD} text-center`}>X</td>
+            <td className={`${TD} text-center`}>X</td>
+            <td className={TD} />
+            <td className={`${TD} text-right font-bold`}>
+              {formatNumber(total)}
+            </td>
+          </tr>
+          <tr>
+            <td colSpan={6} className={`${TD} px-2 text-right font-medium`}>
+              {config.discountLabel}
+            </td>
+            <td className={`${TD} text-right`}>{formatNumber(discount)}</td>
+          </tr>
+          <tr>
+            <td colSpan={6} className={`${TD} px-2 text-right font-medium`}>
+              {config.payableLabel}
+            </td>
+            <td className={`${TD} text-right font-bold`}>
+              {formatNumber(payable)}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div className="mt-6 space-y-2">
+        <SignLine label="Хүлээн авсан" />
+        <SignLine label="Хүлээлгэн өгсөн" />
+        <SignLine label={config.lastSignLabel} />
+      </div>
+    </A4Sheet>
+  );
+};

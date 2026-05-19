@@ -3,6 +3,7 @@ import { fixNum } from 'erxes-ui';
 import { ITransaction, ITrDetail } from '~/modules/transactions/types/Transaction';
 import { TrJournalEnum } from '~/modules/transactions/types/constants';
 import { amountToMongolianText } from './numberToWords';
+import { Field, VoucherHeader } from './shared';
 
 // Journals whose details carry products (count / unitPrice) — printed as an item table.
 const INVENTORY_JOURNALS = new Set<TrJournalEnum>([
@@ -26,23 +27,6 @@ const DOCUMENT_TITLES: Partial<Record<TrJournalEnum, string>> = {
   [TrJournalEnum.INV_SALE]: 'Борлуулалтын баримт',
   [TrJournalEnum.INV_SALE_RETURN]: 'Борлуулалт буцаалтын баримт',
 };
-
-const Field = ({
-  label,
-  value,
-  className = '',
-}: {
-  label: string;
-  value?: React.ReactNode;
-  className?: string;
-}) => (
-  <div className={`flex border-b border-black/60 ${className}`}>
-    <div className="w-[42%] shrink-0 bg-black/4 px-2 py-1 font-medium">
-      {label}
-    </div>
-    <div className="flex-1 px-2 py-1">{value || ' '}</div>
-  </div>
-);
 
 const formatNumber = (value: number) => fixNum(value, 2).toLocaleString();
 
@@ -200,23 +184,11 @@ export const TransactionDocument = ({
       id="print-area"
       className="w-[210mm] min-h-[297mm] bg-white px-[18mm] py-[14mm] font-serif text-[12px] leading-snug text-black shadow-sidebar-inset"
     >
-      <div className="mb-6 text-center">
-        <div className="text-[20px] font-bold uppercase tracking-wide">
-          {title}
-        </div>
-        <div className="mx-auto mt-1 h-0.5 w-28 bg-black" />
-      </div>
-
-      <div className="mb-4 flex items-end justify-between text-[12px]">
-        <div>
-          <span className="font-medium">№:</span>{' '}
-          <span className="font-bold">{documentNo || ' '}</span>
-        </div>
-        <div>
-          <span className="font-medium">Огноо:</span>{' '}
-          <span className="font-bold">{transactionDate || ' '}</span>
-        </div>
-      </div>
+      <VoucherHeader
+        title={title}
+        documentNo={documentNo}
+        date={transactionDate}
+      />
 
       <div className="mb-3">
         <Field label="Харилцагч" value={partyName} />
