@@ -69,7 +69,7 @@ export const queries = `
   salesPipelineDetail(_id: String!): SalesPipeline
   salesPipelineAssignedUsers(_id: String!): [User]
   salesPipelineStateCount(boardId: String): JSON
-
+  cpSalesPipelines(${queryParams}): SalesPipelinesListResponse
   cpSalesPipelineDetail(_id: String!): SalesPipeline
 `;
 

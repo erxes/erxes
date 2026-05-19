@@ -8,10 +8,10 @@ import {
   Input,
   Label,
   RadioGroup,
-  Select,
   Spinner,
   Switch,
   Textarea,
+  Upload,
 } from 'erxes-ui';
 import { IFormFieldLogic, IFormStep } from '../types/formTypes';
 import { useForm } from 'react-hook-form';
@@ -27,6 +27,9 @@ import {
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFormWidgetLead } from '../hooks/useFormWidgetLead';
+import { ComboboxField } from './ComboboxField';
+import { SelectField } from './SelectField';
+import { useParams } from 'react-router-dom';
 
 const checkLogic = (
   logic: IFormFieldLogic,
@@ -98,10 +101,15 @@ export const ErxesForm = ({
   const setShowConfirmation = useSetAtom(showConfirmationAtom);
   const [globalFormValues, setFormValues] = useAtom(formValuesAtom);
   const browserInfo = useAtomValue(browserInfoAtom) || {};
+  const { id } = useParams<{ id: string }>();
   const { saveLead, loading: saveLeadLoading } = useFormWidgetLead();
   const fields = formData.fields.filter(
     (field) => field.pageNumber === step.order,
   );
+
+  const loadType = formData?.leadData?.loadType;
+  const isPopup = loadType === 'popup';
+
   const form = useForm({
     defaultValues: defaultValue,
     resolver: zodResolver(schema),
@@ -158,11 +166,20 @@ export const ErxesForm = ({
 
   return (
     <Form {...form}>
-      <form className="text-sm" onSubmit={form.handleSubmit(handleSubmit)}>
+      <form
+        className={cn('text-sm')}
+        onSubmit={form.handleSubmit(handleSubmit)}
+      >
         <InfoCard
           title={formData?.title || ''}
           description={formData?.description || ''}
-          className="p-2 bg-background/40 [&_h3]:text-accent-foreground"
+          className={cn(
+            {
+              'max-h-[600px] min-h-[400px] flex flex-col overflow-y-hidden':
+                id || isPopup,
+            },
+            'p-2 bg-background/40 [&_h3]:text-accent-foreground',
+          )}
         >
           {stepsLength > 1 && (
             <ErxesSteps
@@ -172,7 +189,15 @@ export const ErxesForm = ({
               description={step.description}
             />
           )}
-          <InfoCard.Content className="h-full">
+          <InfoCard.Content
+            className={cn(
+              {
+                'flex-1 styled-scroll hide-scroll overflow-y-auto':
+                  id || isPopup,
+              },
+              'h-full mt-2',
+            )}
+          >
             <div className="grid md:grid-cols-2 gap-4 mb-2">
               {fields.map((erxesField) => {
                 if (
@@ -244,34 +269,20 @@ export const ErxesForm = ({
                         );
                       }
 
-                      if (erxesField.type === 'select') {
+                      if (
+                        erxesField.type === 'select' ||
+                        erxesField.allowSearch === true
+                      ) {
+                        if (erxesField.allowSearch) {
+                          return (
+                            <ComboboxField
+                              field={field}
+                              erxesField={erxesField}
+                            />
+                          );
+                        }
                         return (
-                          <ErxesFormItem span={erxesField.column}>
-                            <Form.Label>{erxesField.text}</Form.Label>
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <Form.Control>
-                                <Select.Trigger>
-                                  <Select.Value placeholder={erxesField.text} />
-                                </Select.Trigger>
-                              </Form.Control>
-                              <Select.Content>
-                                {erxesField.options.map((option) => (
-                                  <Select.Item key={option} value={option}>
-                                    {option}
-                                  </Select.Item>
-                                ))}
-                              </Select.Content>
-                            </Select>
-                            {erxesField.description && (
-                              <Form.Description>
-                                {erxesField.description}
-                              </Form.Description>
-                            )}
-                            <Form.Message />
-                          </ErxesFormItem>
+                          <SelectField field={field} erxesField={erxesField} />
                         );
                       }
 
@@ -295,6 +306,7 @@ export const ErxesForm = ({
                                     />
                                     <Label
                                       htmlFor={`${erxesField._id}-${option}`}
+                                      className="text-xs"
                                     >
                                       {option}
                                     </Label>
@@ -329,6 +341,7 @@ export const ErxesForm = ({
                                   >
                                     <Checkbox
                                       checked={checked}
+                                      id={`${erxesField._id}-${option}`}
                                       onCheckedChange={(isChecked) => {
                                         const current =
                                           (field.value as string[]) || [];
@@ -341,7 +354,12 @@ export const ErxesForm = ({
                                         );
                                       }}
                                     />
-                                    <span className="text-sm">{option}</span>
+                                    <Label
+                                      htmlFor={`${erxesField._id}-${option}`}
+                                      className="text-xs"
+                                    >
+                                      {option}
+                                    </Label>
                                   </label>
                                 );
                               })}
@@ -364,6 +382,36 @@ export const ErxesForm = ({
                               {...field}
                               placeholder={erxesField.text}
                             />
+                            {erxesField.description && (
+                              <Form.Description>
+                                {erxesField.description}
+                              </Form.Description>
+                            )}
+                            <Form.Message />
+                          </ErxesFormItem>
+                        );
+                      }
+
+                      if (erxesField.type === 'file') {
+                        const urls: string[] = Array.isArray(field.value)
+                          ? field.value
+                          : [];
+                        return (
+                          <ErxesFormItem span={erxesField.column}>
+                            <Form.Label>{erxesField.text}</Form.Label>
+                            <Form.Control>
+                              <Upload.Root
+                                value={field.value}
+                                onChange={field.onChange}
+                                multiple
+                              >
+                                <Upload.Preview className="rounded-full" />
+                                <Upload.Button type="button">
+                                  {erxesField.content || 'Upload filez'}
+                                </Upload.Button>
+                                <Upload.RemoveButton />
+                              </Upload.Root>
+                            </Form.Control>
                             {erxesField.description && (
                               <Form.Description>
                                 {erxesField.description}
@@ -427,7 +475,7 @@ export const ErxesFormItem = ({
     {...props}
     className={cn(props.className, {
       'col-span-2': span === 2,
-      'col-span-1': span === 1,
+      'md:col-span-1 col-span-2': span === 1,
     })}
   />
 );

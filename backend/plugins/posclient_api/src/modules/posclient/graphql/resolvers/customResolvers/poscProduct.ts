@@ -1,14 +1,74 @@
 import { IProductDocument } from '@/posclient/@types/products';
 import { IContext } from '@/posclient/@types/types';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { getRemBranchId } from '~/modules/posclient/utils/products';
 
+const propertyToCustomFieldData = (field: string, value: any) => {
+  const data: any = { field, value };
+
+  if (typeof value === 'number') {
+    data.numberValue = value;
+  }
+
+  if (typeof value === 'string') {
+    data.stringValue = value;
+  }
+
+  if (value?.lat && value?.lng) {
+    data.locationValue = {
+      type: 'Point',
+      coordinates: [value.lng, value.lat],
+    };
+    data.stringValue = `${value.lng},${value.lat}`;
+  }
+
+  return data;
+};
+
+const getCustomFieldsData = (product: IProductDocument) => {
+  return Object.entries(product.propertiesData || {}).map(([field, value]) =>
+    propertyToCustomFieldData(field, value),
+  );
+};
+
 export default {
+  customFieldsData(product: IProductDocument) {
+    return getCustomFieldsData(product);
+  },
+
   async customFieldsDataByFieldCode(
     product: IProductDocument,
     _,
     { subdomain }: IContext,
   ) {
-    // return customFieldsDataByFieldCode(product, subdomain);
+    const customFieldsData = getCustomFieldsData(product);
+    const fieldIds = customFieldsData.map((data) => data.field);
+
+    const fields = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'fields',
+      action: 'find',
+      input: { query: { _id: { $in: fieldIds } }, projection: {}, sort: {} },
+      defaultValue: [],
+    });
+
+    const fieldCodesById = {};
+
+    for (const field of fields || []) {
+      fieldCodesById[field._id] = field.code;
+    }
+
+    const results: any = {};
+
+    for (const data of customFieldsData) {
+      if (fieldCodesById[data.field]) {
+        results[fieldCodesById[data.field]] = { ...data };
+      }
+    }
+
+    return results;
   },
 
   unitPrice(product: IProductDocument, _args, { config }: IContext) {

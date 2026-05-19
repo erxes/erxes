@@ -31,6 +31,7 @@ export const commonTransactionFields = `
   ptrId
   parentId
   number
+  ptrNumber
   ptrStatus
   createdAt
   updatedAt
@@ -38,6 +39,8 @@ export const commonTransactionFields = `
   date
   description
   status
+  mentionOwnerId
+  mentionUserIds
   journal
   side
   relAccounts
@@ -129,6 +132,8 @@ export const commonTransactionFields = `
   }
 
   extraData
+  contentType
+  contentId
 
   permission
 `;
@@ -137,6 +142,8 @@ const trsFilterParamDefs = `
   $ids: [String],
   $excludeIds: Boolean,
   $status: String,
+  $mentionOwnerId: String,
+  $mentionUserId: String,
   $searchValue: String,
   $number: String,
 
@@ -185,6 +192,8 @@ const trsFilterParams = `
   ids: $ids,
   excludeIds: $excludeIds,
   status: $status,
+  mentionOwnerId: $mentionOwnerId,
+  mentionUserId: $mentionUserId,
   searchValue: $searchValue,
   number: $number,
   customerType: $customerType,

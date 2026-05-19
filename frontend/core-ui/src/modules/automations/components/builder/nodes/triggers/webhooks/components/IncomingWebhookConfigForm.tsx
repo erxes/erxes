@@ -38,13 +38,13 @@ export const IncomingWebhookConfigForm = ({
   return (
     <FormProvider {...form}>
       <div className="flex flex-col gap-6">
-        <div className="flex flex-row items-end gap-2">
+        <div className="flex min-w-0 flex-row items-end gap-2">
           <Form.Field
             control={form.control}
             name="method"
             defaultValue={AUTOMATION_INCOMING_WEBHOOK_API_METHODS[1]}
             render={({ field }) => (
-              <Form.Item>
+              <Form.Item className="shrink-0">
                 <Form.Label>Method</Form.Label>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <Select.Trigger>

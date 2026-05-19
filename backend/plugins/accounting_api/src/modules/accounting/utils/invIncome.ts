@@ -2,7 +2,7 @@ import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import { TR_FOLLOW_TYPES, TR_SIDES } from '../@types/constants';
 import { ITransactionDocument } from '../@types/transaction';
-import { getSingleJournalByAccount } from './utils';
+import { createOrUpdateTr, getSingleJournalByAccount } from './utils';
 
 export const InvIncomeExpenseTrs = async (
   models: IModels,
@@ -54,16 +54,9 @@ export const InvIncomeExpenseTrs = async (
     const oldTr = oldFollowTrs.find(
       (oftr) => oftr.originSubId === expenseInfo._id,
     );
-    if (oldTr) {
-      matchedIds.push(oldTr._id);
-      await models.Transactions.updateTransaction(
-        oldTr._id,
-        followTrDoc,
-        userId,
-      );
-    } else {
-      await models.Transactions.createTransaction(followTrDoc, userId);
-    }
+    if (oldTr) { matchedIds.push(oldTr._id); }
+
+    await createOrUpdateTr(models, userId, followTrDoc, oldTr)
   }
 
   const removeTrIds = oldFollowTrs

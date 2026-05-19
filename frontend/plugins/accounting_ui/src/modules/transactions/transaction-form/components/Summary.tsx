@@ -1,19 +1,22 @@
-import { followTrDocsState } from '../states/trStates';
-import { IconGavel, IconTrashX } from '@tabler/icons-react';
 import { ITransaction, ITrDetail } from '@/transactions/types/Transaction';
-import { ITransactionGroupForm, TTrDoc } from '../types/JournalForms';
-import { TR_SIDES } from '../../types/constants';
-import { useAtomValue } from 'jotai';
-import { useTransactionsRemove } from '../hooks/useTransactionsRemove';
-import { useWatch } from 'react-hook-form';
+import { IconChevronLeft, IconGavel, IconTrashX } from '@tabler/icons-react';
 import {
   Button,
+  cn,
   CurrencyCode,
   CurrencyFormatedDisplay,
   useConfirm,
   useQueryState,
 } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
+import { useState } from 'react';
+import { useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { TR_SIDES } from '../../types/constants';
+import { useTransactionsRemove } from '../hooks/useTransactionsRemove';
+import { followTrDocsState } from '../states/trStates';
+import { ITransactionGroupForm, TTrDoc } from '../types/JournalForms';
+import { TrRightSidebar } from './TrRightSidebar';
 
 const getSum = (trDocs: any[], sumDebit: number, sumCredit: number) => {
   trDocs?.forEach((tr) => {
@@ -40,9 +43,16 @@ export const sumDtAndCt = (trDocs: TTrDoc[], followTrDocs: ITransaction[]) => {
   return [sumDebit, sumCredit];
 };
 
-export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
+export const Summary = ({
+  errorMessage,
+  form,
+}: {
+  errorMessage?: string;
+  form: ITransactionGroupForm;
+}) => {
+  const [showMore, setShowMore] = useState(false);
   const navigate = useNavigate();
-  const { trDocs } = useWatch({ control: form.control });
+  const { ptrNumber, trDocs } = useWatch({ control: form.control });
   const followTrDocs = useAtomValue(followTrDocsState);
   const [parentId] = useQueryState<string>('parentId');
 
@@ -50,6 +60,10 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
   const { confirm } = useConfirm();
 
   const [sumDebit, sumCredit] = sumDtAndCt(trDocs as TTrDoc[], followTrDocs);
+  const diffAmount = sumCredit - sumDebit;
+  const hasHiddenTransaction = (trDocs || []).some(
+    (trDoc: any) => trDoc?.permission === 'hidden',
+  );
 
   const handleDelete = () =>
     confirm({
@@ -67,52 +81,103 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
     });
 
   return (
-    <div className="flex justify-end items-center col-span-2 xl:col-span-3 gap-6">
-      <div className="flex items-center gap-2 text-sm">
-        <span className="text-accent-foreground">Дебет дүн:</span>
-        <span className="text-primary font-bold">
-          <CurrencyFormatedDisplay
-            currencyValue={{
-              currencyCode: CurrencyCode.MNT,
-              amountMicros: sumDebit,
-            }}
+    <div className="flex justify-end items-center col-span-2 xl:col-span-3 gap-3">
+      <div className="flex min-w-0 items-center justify-end gap-3 text-sm">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="size-7 shrink-0"
+          onClick={() => setShowMore((prev) => !prev)}
+          title={showMore ? 'Эвхэх' : 'Дэлгэх'}
+        >
+          <IconChevronLeft
+            className={cn(
+              'size-4 transition-transform',
+              showMore && 'rotate-180',
+            )}
           />
-        </span>
+        </Button>
+
+        {showMore ? (
+          <div className="flex min-w-0 items-center justify-end gap-3 whitespace-nowrap">
+            <span className="text-accent-foreground">[{ptrNumber}]</span>
+          </div>
+        ) : null}
+
+        {errorMessage ? (
+          <span className="max-w-80 truncate font-medium text-destructive">
+            {errorMessage}
+          </span>
+        ) : (
+          <>
+            <div className="flex items-center gap-2 whitespace-nowrap">
+              <span className="text-accent-foreground">Дебет:</span>
+              <span className="font-bold text-primary">
+                <CurrencyFormatedDisplay
+                  currencyValue={{
+                    currencyCode: CurrencyCode.MNT,
+                    amountMicros: sumDebit,
+                  }}
+                />
+              </span>
+            </div>
+            <div className="flex items-center gap-2 whitespace-nowrap">
+              <span className="text-accent-foreground">Кредит:</span>
+              <span className="font-bold text-primary">
+                <CurrencyFormatedDisplay
+                  currencyValue={{
+                    currencyCode: CurrencyCode.MNT,
+                    amountMicros: sumCredit,
+                  }}
+                />
+              </span>
+            </div>
+
+            {showMore ? (
+              <div className="flex items-center gap-2 whitespace-nowrap">
+                <span className="text-accent-foreground">Зөрүү:</span>
+                <span
+                  className={cn(
+                    'font-bold',
+                    diffAmount ? 'text-destructive' : 'text-primary',
+                  )}
+                >
+                  <CurrencyFormatedDisplay
+                    currencyValue={{
+                      currencyCode: CurrencyCode.MNT,
+                      amountMicros: diffAmount,
+                    }}
+                  />
+                </span>
+              </div>
+            ) : null}
+          </>
+        )}
       </div>
-      <div className="flex items-center gap-2 text-sm">
-        <span className="text-accent-foreground">Кредит дүн:</span>
-        <span className="text-primary font-bold">
-          <CurrencyFormatedDisplay
-            currencyValue={{
-              currencyCode: CurrencyCode.MNT,
-              amountMicros: sumCredit,
-            }}
-          />
-        </span>
-      </div>
-      <div className="flex items-center gap-2 text-sm">
-        <span className="text-accent-foreground">+CT:</span>
-        <span className="text-primary font-bold">
-          <CurrencyFormatedDisplay
-            currencyValue={{
-              currencyCode: CurrencyCode.MNT,
-              amountMicros: sumCredit - sumDebit,
-            }}
-          />
-        </span>
-      </div>
-      <Button type="submit">
+      <Button
+        type="submit"
+        disabled={hasHiddenTransaction || !!errorMessage}
+        title={
+          errorMessage ||
+          (hasHiddenTransaction
+            ? 'Унших эрх хүрэхгүй гүйлгээ байгаа тул хадгалах боломжгүй'
+            : undefined)
+        }
+      >
         <IconGavel />
         Хадгалах
       </Button>
       <Button
         variant="secondary"
         className="text-destructive"
+        disabled={!!errorMessage}
         onClick={handleDelete}
       >
         <IconTrashX />
         {`Устгах`}
       </Button>
+      <TrRightSidebar form={form} />
     </div>
   );
 };

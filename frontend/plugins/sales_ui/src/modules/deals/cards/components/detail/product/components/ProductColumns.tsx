@@ -4,13 +4,16 @@ import {
   CheckInputField,
   ProductAssigneeField,
   ProductCalculatedNumberField,
+  ProductNumberField,
 } from '../hooks/getProductColumns';
 import {
+  CURRENCY_CODES,
   CurrencyCode,
-  CurrencyFormatedDisplay,
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
+  cn,
+  formatAmount,
 } from 'erxes-ui';
 import {
   IconCurrencyDollar,
@@ -24,6 +27,26 @@ import { ColumnDef } from '@tanstack/table-core';
 import { IProductData } from 'ui-modules';
 import { productMoreColumn } from './ProductMoreColumn';
 
+const DUPLICATE_PRODUCT_CELL_CLASS =
+  'bg-pink-50/80 dark:bg-pink-950/30';
+
+const getProductId = (productData: IProductData) =>
+  productData.productId || productData.product?._id || '';
+
+const hasDuplicateProductId = (
+  productsData: IProductData[],
+  productId: string,
+) => {
+  if (!productId) {
+    return false;
+  }
+
+  return (
+    productsData.filter((productData) => getProductId(productData) === productId)
+      .length > 1
+  );
+};
+
 export const productColumns: ColumnDef<IProductData>[] = [
   productMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IProductData>,
@@ -34,10 +57,18 @@ export const productColumns: ColumnDef<IProductData>[] = [
     header: () => (
       <RecordTable.InlineHead icon={IconLabel} label="Product/Service" />
     ),
-    cell: ({ cell }) => {
+    cell: ({ cell, table }) => {
       const product = cell.row.original.product;
+      const productId = getProductId(cell.row.original);
+      const hasDuplicateProduct = hasDuplicateProductId(
+        table.options.data,
+        productId,
+      );
+
       return (
-        <RecordTableInlineCell>
+        <RecordTableInlineCell
+          className={cn(hasDuplicateProduct && DUPLICATE_PRODUCT_CELL_CLASS)}
+        >
           <div className="flex gap-1.5 items-center min-w-0">
             {product?.code && (
               <span className="font-mono text-xs bg-muted border rounded px-1 text-muted-foreground shrink-0">
@@ -53,19 +84,27 @@ export const productColumns: ColumnDef<IProductData>[] = [
   {
     id: 'unitPrice',
     accessorKey: 'unitPrice',
-    accessorFn: (row) => row.product?.unitPrice,
     header: () => (
       <RecordTable.InlineHead icon={IconCurrencyDollar} label="Unit Price" />
     ),
     cell: ({ cell }) => {
+      const currencyCode = cell.row.original.currency;
+      const CurrencyIcon = currencyCode
+        ? CURRENCY_CODES[currencyCode as CurrencyCode]?.Icon
+        : null;
       return (
         <RecordTableInlineCell>
-          <CurrencyFormatedDisplay
-            currencyValue={{
-              amountMicros: cell.getValue() as number,
-              currencyCode: CurrencyCode.MNT,
-            }}
-          />
+          <ProductNumberField
+            value={Number(cell.getValue()) || 0}
+            field="unitPrice"
+            _id={cell.row.original._id}
+            product={cell.row.original}
+            formatValue={(v: number) => formatAmount(v)}
+          >
+            {CurrencyIcon && (
+              <CurrencyIcon className="size-4 text-muted-foreground shrink-0" />
+            )}
+          </ProductNumberField>
         </RecordTableInlineCell>
       );
     },

@@ -24,6 +24,10 @@ import {
   ITransactionGroupForm,
   TInvIncomeJournal,
 } from '../../../types/JournalForms';
+import {
+  DUPLICATE_PRODUCT_CELL_CLASS,
+  hasDuplicateProductId,
+} from '../../utils';
 
 export const InventoryRow = ({
   detailIndex,
@@ -65,6 +69,10 @@ export const InventoryRow = ({
   ]);
 
   const { unitPrice, count, _id } = detail;
+  const hasDuplicateProduct = hasDuplicateProductId(
+    trDoc.details,
+    detail.productId,
+  );
 
   const calcTaxAmounts = (pCount?: number, pUnitPrice?: number) => {
     const unitPriceWithTax = ((pUnitPrice ?? 0) / 100) * (100 + rowPercent);
@@ -221,7 +229,10 @@ export const InventoryRow = ({
                 onValueChange={(accountId) => {
                   field.onChange(accountId);
                 }}
-                defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
+                defaultFilter={{
+                  journals: [JournalEnum.INVENTORY],
+                  permissionMode: 'write',
+                }}
                 variant="ghost"
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />
@@ -234,7 +245,9 @@ export const InventoryRow = ({
         rowIndex={detailIndex}
         enableOnFormTags
       >
-        <Table.Cell>
+        <Table.Cell
+          className={cn(hasDuplicateProduct && DUPLICATE_PRODUCT_CELL_CLASS)}
+        >
           <Form.Field
             control={form.control}
             name={`trDocs.${journalIndex}.details.${detailIndex}.productId`}

@@ -20,6 +20,10 @@ export const triggerFacebookMessageAutomation = (
     adData: any;
   },
 ) => {
+  if (conversationMessage.fromBot || conversationMessage.internal) {
+    return;
+  }
+
   const target: any = { ...conversationMessage };
   let repeatOptions;
 

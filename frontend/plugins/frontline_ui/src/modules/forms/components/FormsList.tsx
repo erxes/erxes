@@ -28,6 +28,7 @@ import { RemoveForm } from './actions/remove-form';
 import { FormToggleStatus } from './actions/toggle-form';
 import { FormCommandBar } from './form-page/command-bar/form-command-bar';
 import { FormsCreateButton } from './form-page/forms-create';
+import { OpenLiveForm } from './actions/open-live-form';
 
 export const FormsList = () => {
   const { id: channelId } = useParams<{ id: string }>();
@@ -107,7 +108,7 @@ export const FormsMoreColumnCell = ({
       <DropdownMenu.Content side="bottom" align="start">
         <FormInstallScript
           formId={code}
-          channelId={channelId}
+          channelId={channelId as string}
           inActionBar={true}
         />
         <DropdownMenu.Item
@@ -119,6 +120,7 @@ export const FormsMoreColumnCell = ({
         >
           <IconEdit /> Edit
         </DropdownMenu.Item>
+        <OpenLiveForm formId={_id} channelId={channelId as string} />
         <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
         <RemoveForm formId={_id} title={cell.row.original.name} />
       </DropdownMenu.Content>

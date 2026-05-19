@@ -272,7 +272,7 @@ export function WebsiteDrawer({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <Sheet.View className="sm:max-w-lg p-0">
+      <Sheet.View className="sm:max-w-lg p-0 bg-background">
         <Sheet.Header className="border-b gap-3">
           <Sheet.Title>{isEditing ? 'Edit CMS' : 'New CMS'}</Sheet.Title>
           <Sheet.Close />

@@ -1,7 +1,10 @@
 import {
   IconCoins,
+  IconHash,
+  IconLabelFilled,
   IconLayoutGridAdd,
   IconNotebook,
+  IconSearch,
   IconToggleRightFilled,
 } from '@tabler/icons-react';
 import {
@@ -37,6 +40,10 @@ import {
   AccountsTrJournalCommand,
   SelectAccountTrJournalCommand,
 } from './AccountsTrJournal';
+import {
+  AccountsTrStatusCommand,
+  SelectAccountTrStatusCommand,
+} from './AccountsTrStatus';
 
 // category helper
 export const AccountsFilterCategory = () => {
@@ -363,3 +370,108 @@ export const FilterBarTrJournal = () => {
     </Filter.BarItem>
   );
 };
+
+// tr status filter helper
+export const AccountsFilterTrStatus = () => {
+  const [statuses, setStatuses] = useQueryState<string[] | null>('statuses');
+
+  const handleSelect = (value: string[] | null) => {
+    setStatuses(value);
+  };
+
+  return (
+    <AccountsTrStatusCommand
+      focusOnMount
+      selected={statuses}
+      onSelect={handleSelect}
+    />
+  );
+};
+
+export const FilterBarTrStatus = () => {
+  const [statuses, setStatuses] = useQueryState<string[] | null>('statuses');
+
+  return (
+    <Filter.BarItem queryKey="statuses">
+      <Filter.BarName>
+        <IconNotebook />
+        TrStatus
+      </Filter.BarName>
+      <Filter.BarButton>
+        <SelectAccountTrStatusCommand
+          selected={statuses}
+          onSelect={(value) => setStatuses(value)}
+          variant="ghost"
+          className="rounded-none h-7 bg-background"
+        />
+      </Filter.BarButton>
+    </Filter.BarItem>
+  );
+};
+
+const FILTER_BAR_STRING_ICONS = {
+  searchValue: IconSearch,
+  code: IconHash,
+  name: IconLabelFilled,
+} as const;
+
+const FILTER_BAR_STRING_LABELS = {
+  searchValue: 'Search',
+  code: 'Code',
+  name: 'Name',
+} as const;
+
+type FilterBarStringKey = keyof typeof FILTER_BAR_STRING_ICONS;
+
+export const FilterBarStringItem = ({
+  queryKey,
+  value,
+}: {
+  queryKey: FilterBarStringKey;
+  value?: string | null;
+}) => {
+  const Icon = FILTER_BAR_STRING_ICONS[queryKey];
+  return (
+    <Filter.BarItem queryKey={queryKey}>
+      <Filter.BarName>
+        <Icon />
+        {FILTER_BAR_STRING_LABELS[queryKey]}
+      </Filter.BarName>
+      <Filter.BarButton filterKey={queryKey} inDialog>
+        {value}
+      </Filter.BarButton>
+    </Filter.BarItem>
+  );
+};
+
+export const FilterStringDialogViews = ({
+  filterKeys,
+}: {
+  filterKeys: FilterBarStringKey[];
+}) => (
+  <>
+    {filterKeys.map((filterKey) => (
+      <Filter.View key={filterKey} filterKey={filterKey} inDialog>
+        <Filter.DialogStringView filterKey={filterKey} />
+      </Filter.View>
+    ))}
+  </>
+);
+
+export const FilterPopoverStringItems = ({
+  filterKeys,
+}: {
+  filterKeys: FilterBarStringKey[];
+}) => (
+  <>
+    {filterKeys.map((filterKey) => {
+      const Icon = FILTER_BAR_STRING_ICONS[filterKey];
+      return (
+        <Filter.Item key={filterKey} value={filterKey} inDialog>
+          <Icon />
+          {FILTER_BAR_STRING_LABELS[filterKey]}
+        </Filter.Item>
+      );
+    })}
+  </>
+);

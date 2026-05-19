@@ -1,6 +1,7 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_TOUR_DETAIL } from '../graphql/queries';
 import type { PricingOptionPriceInput } from '../utils/pricingOptions';
+import type { TourCustomFieldData } from '../utils/customFields';
 
 export interface IPricingOption {
   _id: string;
@@ -50,6 +51,7 @@ export interface ITourDetail {
   _id: string;
   branchId?: string;
   language?: string;
+  groupCode?: string;
   advanceCheck?: boolean;
   advancePercent?: number;
   content?: string;
@@ -88,6 +90,17 @@ export interface ITourDetail {
   refNumber?: string;
   startDate?: string;
   status?: string;
+  customTourTypeId?: string;
+  customTourType?: {
+    _id: string;
+    branchId?: string;
+    code?: string;
+    label?: string;
+    pluralLabel?: string;
+    description?: string;
+  } | null;
+  customFieldsData?: TourCustomFieldData[];
+  customFieldsMap?: Record<string, any>;
   pricingOptions?: IPricingOption[];
   translations?: ITourTranslation[];
   createdAt?: string;

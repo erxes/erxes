@@ -81,11 +81,11 @@ export function FormInstallScript({
   };
 
   (function () {
-    const script = document.createElement('script');
+    var script = document.createElement('script');
     script.src = '${API}/formBundle.js';
     script.async = true;
 
-    const entry = document.getElementsByTagName('script')[0];
+    var entry = document.getElementsByTagName('script')[0];
     entry.parentNode.insertBefore(script, entry);
   })();
 </script>`;

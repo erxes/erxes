@@ -278,6 +278,7 @@ export const ExpenseRow = ({
                       JournalEnum.DEBT,
                     ],
                     currency: 'MNT',
+                    permissionMode: 'write',
                   }}
                   variant="ghost"
                   scope={AccountingHotkeyScope.TransactionFormSubPage}

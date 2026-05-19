@@ -131,6 +131,7 @@ export const types = `
     products: [Product]
     productsData: JSON
     paymentsData: JSON
+    extraData: JSON
 
     cursor: String
   }
@@ -186,6 +187,7 @@ export const queries = `
   
   deals(stageId: String, initialStageId: String, ${queryParams}): DealsListResponse
   dealDetail(_id: String!, clientPortalCard: Boolean): Deal
+  dealLink(_id: String): JSON
   dealsTotalCount(stageId: String, initialStageId: String, ${queryParams}): Int
   dealsTotalAmounts(${queryParams}): [SalesTotalForType]
   

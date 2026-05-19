@@ -36,9 +36,12 @@ interface ICommontTr {
   date?: Date;
   description?: string;
   status?: string;
+  mentionOwnerId?: string;
+  mentionUserIds?: string[];
   ptrId?: string;
   parentId?: string;
   number?: string;
+  ptrNumber?: string;
   journal: TrJournalEnum;
   ptrStatus?: string;
   originId?: string;
@@ -76,6 +79,8 @@ interface ICommontTr {
   ctaxRow?: ICtaxRow;
 
   extraData?: any;
+  contentType?: string;
+  contentId?: string;
 
   sumDt?: number;
   sumCt?: number;

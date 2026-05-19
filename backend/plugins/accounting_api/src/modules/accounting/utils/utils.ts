@@ -2,6 +2,7 @@ import {
   ACCOUNT_JOURNALS,
   JOURNALS,
   ACCOUNT_KINDS,
+  TR_INVENTORY_STATUS_TYPES,
 } from '@/accounting/@types/constants';
 import { IModels } from '~/connectionResolvers';
 import { ITransaction, ITransactionDocument } from '../@types/transaction';
@@ -56,6 +57,129 @@ export const getSingleJournalByAccount = (
   }
 };
 
+type TInventoryDiff = {
+  diffCount: number;
+  diffCost: number;
+  diffSoonIn: number;
+  diffSoonOut: number;
+};
+
+const emptyInventoryDiff = (): TInventoryDiff => ({
+  diffCount: 0,
+  diffCost: 0,
+  diffSoonIn: 0,
+  diffSoonOut: 0,
+});
+
+const getInventoryStatusType = (status?: string) => {
+  if (TR_INVENTORY_STATUS_TYPES.REAL_STATUSES.includes(status || '')) {
+    return TR_INVENTORY_STATUS_TYPES.REAL;
+  }
+
+  if (TR_INVENTORY_STATUS_TYPES.SOON_STATUSES.includes(status || '')) {
+    return TR_INVENTORY_STATUS_TYPES.SOON;
+  }
+
+  return TR_INVENTORY_STATUS_TYPES.OMIT;
+};
+
+const addInventoryDiff = (
+  diffsByProductId: Record<string, TInventoryDiff>,
+  productId: string,
+  diff: Partial<TInventoryDiff>,
+) => {
+  if (!productId) {
+    return;
+  }
+
+  const current = diffsByProductId[productId] || emptyInventoryDiff();
+
+  diffsByProductId[productId] = {
+    diffCount: fixNum((current.diffCount ?? 0) + (diff.diffCount ?? 0), 6),
+    diffCost: fixNum((current.diffCost ?? 0) + (diff.diffCost ?? 0), 6),
+    diffSoonIn: fixNum((current.diffSoonIn ?? 0) + (diff.diffSoonIn ?? 0), 6),
+    diffSoonOut: fixNum((current.diffSoonOut ?? 0) + (diff.diffSoonOut ?? 0), 6),
+  };
+};
+
+const collectInventoryDiffs = (
+  transaction: ITransactionDocument,
+  multiplier: number,
+  direction: 1 | -1,
+) => {
+  const diffsByProductId: Record<string, TInventoryDiff> = {};
+  const statusType = getInventoryStatusType(transaction.status);
+  const isIncome = multiplier > 0;
+
+  if (statusType === TR_INVENTORY_STATUS_TYPES.OMIT) {
+    return diffsByProductId;
+  }
+
+  for (const detail of transaction.details || []) {
+    const productId = detail.productId || '';
+    const count = detail.count || 0;
+    const amount = detail.amount || 0;
+
+    if (statusType === TR_INVENTORY_STATUS_TYPES.REAL) {
+      addInventoryDiff(diffsByProductId, productId, {
+        diffCount: direction * multiplier * count,
+        diffCost: direction * multiplier * amount,
+      });
+      continue;
+    }
+
+    addInventoryDiff(diffsByProductId, productId, {
+      diffSoonIn: isIncome ? direction * count : 0,
+      diffSoonOut: isIncome ? 0 : direction * count,
+    });
+  }
+
+  return diffsByProductId;
+};
+
+const mergeInventoryDiffs = (
+  baseDiffs: Record<string, TInventoryDiff>,
+  diffs: Record<string, TInventoryDiff>,
+) => {
+  for (const productId of Object.keys(diffs)) {
+    addInventoryDiff(baseDiffs, productId, diffs[productId]);
+  }
+};
+
+const hasInventoryDiff = (diff: TInventoryDiff) =>
+  diff.diffCount || diff.diffCost || diff.diffSoonIn || diff.diffSoonOut;
+
+const sendInventoryDiffs = (
+  subdomain: string,
+  branchId: string | undefined,
+  departmentId: string | undefined,
+  diffsByProductId: Record<string, TInventoryDiff>,
+) => {
+  const productsInfo = Object.keys(diffsByProductId)
+    .filter((productId) => hasInventoryDiff(diffsByProductId[productId]))
+    .map((productId) => ({
+      productId,
+      ...diffsByProductId[productId],
+    }));
+
+  if (!productsInfo.length) {
+    return;
+  }
+
+  sendTRPCMessage({
+    subdomain,
+    method: 'mutation',
+    pluginName: 'core',
+    module: 'products',
+    action: 'increaseInventories',
+    input: {
+      branchId,
+      departmentId,
+      productsInfo,
+    },
+  });
+};
+
 /**
  * barimt create or update hamaarah baraanii uldegdel sync hiih
  * @param transaction: undsen barimt
@@ -68,122 +192,46 @@ export const syncProductsInventory = async (
   oldTr?: ITransactionDocument,
   multiplier = 1,
 ) => {
-  const countByProductId: { [productId: string]: number } = {};
-  const costByProductId: { [productId: string]: number } = {};
-
-  // 1 transaction ni adilhan product buhii detailtai baij boloh
-  transaction?.details.forEach((det) => {
-    countByProductId[det.productId ?? ''] = fixNum(
-      (countByProductId[det.productId ?? ''] ?? 0) + (det.count ?? 0),
-      4,
-    );
-    costByProductId[det.productId ?? ''] = fixNum(
-      (costByProductId[det.productId ?? ''] ?? 0) + (det.amount ?? 0),
-      4,
-    );
-  });
-
   if (
     !oldTr?._id ||
     (transaction.branchId === oldTr?.branchId &&
       transaction.departmentId === oldTr?.departmentId)
   ) {
-    // huuchin baival shineer tsootsoolsnoo buuruulj baina
-    oldTr?.details.forEach((det) => {
-      countByProductId[det.productId ?? ''] = fixNum(
-        (countByProductId[det.productId ?? ''] ?? 0) - (det.count ?? 0),
-        4,
-      );
-      costByProductId[det.productId ?? ''] = fixNum(
-        (costByProductId[det.productId ?? ''] ?? 0) - (det.amount ?? 0),
-        4,
-      );
-    });
+    const diffsByProductId = collectInventoryDiffs(
+      transaction,
+      multiplier,
+      1,
+    );
 
-    sendTRPCMessage({
+    if (oldTr?._id) {
+      mergeInventoryDiffs(
+        diffsByProductId,
+        collectInventoryDiffs(oldTr, multiplier, -1),
+      );
+    }
+
+    sendInventoryDiffs(
       subdomain,
-      method: 'mutation',
-      pluginName: 'core',
-      module: 'products',
-      action: 'increaseInventories',
-      input: {
-        branchId: transaction.branchId,
-        departmentId: transaction.departmentId,
-        productsInfo: Object.keys(countByProductId)
-          .filter(
-            (productId) =>
-              countByProductId[productId] || costByProductId[productId],
-          )
-          .map((productId) => ({
-            productId,
-            diffCount: multiplier * countByProductId[productId],
-            diffCost: multiplier * costByProductId[productId],
-          })),
-      },
-    });
+      transaction.branchId,
+      transaction.departmentId,
+      diffsByProductId,
+    );
     return;
   }
 
-  // huuchin detailseer uldegdel hasna
-  const countByProductIdOld: { [productId: string]: number } = {};
-  const costByProductIdOld: { [productId: string]: number } = {};
-
-  // 1 transaction ni adilhan product buhii detailtai baij boloh
-  oldTr?.details.forEach((det) => {
-    countByProductIdOld[det.productId ?? ''] = fixNum(
-      (countByProductIdOld[det.productId ?? ''] ?? 0) + (det.count ?? 0),
-      4,
-    );
-    costByProductIdOld[det.productId ?? ''] = fixNum(
-      (costByProductIdOld[det.productId ?? ''] ?? 0) + (det.amount ?? 0),
-      4,
-    );
-  });
-
-  sendTRPCMessage({
+  sendInventoryDiffs(
     subdomain,
-    method: 'mutation',
-    pluginName: 'core',
-    module: 'products',
-    action: 'increaseInventories',
-    input: {
-      branchId: oldTr?.branchId,
-      departmentId: oldTr?.departmentId,
-      productsInfo: Object.keys(countByProductIdOld)
-        .filter(
-          (productId) =>
-            countByProductIdOld[productId] || costByProductIdOld[productId],
-        )
-        .map((productId) => ({
-          productId,
-          diffCount: -1 * multiplier * countByProductIdOld[productId],
-          diffCost: -1 * multiplier * costByProductIdOld[productId],
-        })),
-    },
-  });
+    oldTr?.branchId,
+    oldTr?.departmentId,
+    collectInventoryDiffs(oldTr, multiplier, -1),
+  );
 
-  // ehend tootsolsonoor shine detailseer uldegdel nemne
-  sendTRPCMessage({
+  sendInventoryDiffs(
     subdomain,
-    method: 'mutation',
-    pluginName: 'core',
-    module: 'products',
-    action: 'increaseInventories',
-    input: {
-      branchId: transaction.branchId,
-      departmentId: transaction.departmentId,
-      productsInfo: Object.keys(countByProductId)
-        .filter(
-          (productId) =>
-            countByProductId[productId] || costByProductId[productId],
-        )
-        .map((productId) => ({
-          productId,
-          diffCount: multiplier * countByProductId[productId],
-          diffCost: multiplier * costByProductId[productId],
-        })),
-    },
-  });
+    transaction.branchId,
+    transaction.departmentId,
+    collectInventoryDiffs(transaction, multiplier, 1),
+  );
 };
 
 /**
@@ -196,20 +244,10 @@ export const removeSyncProductsInventory = async (
   transaction: ITransactionDocument,
   multiplier = 1,
 ) => {
-  sendTRPCMessage({
+  sendInventoryDiffs(
     subdomain,
-    method: 'mutation',
-    pluginName: 'core',
-    module: 'products',
-    action: 'increaseInventories',
-    input: {
-      branchId: transaction.branchId,
-      departmentId: transaction.departmentId,
-      productsInfo: transaction.details?.map((det) => ({
-        productId: det.productId,
-        diffCount: -1 * multiplier * (det.count ?? 0),
-        diffCost: -1 * multiplier * (det.amount ?? 0),
-      })),
-    },
-  });
+    transaction.branchId,
+    transaction.departmentId,
+    collectInventoryDiffs(transaction, multiplier, -1),
+  );
 };

@@ -1,18 +1,22 @@
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { JournalEnum } from '@/settings/account/types/Account';
+import { TR_STATUSES, TR_STATUS_OPTIONS } from '@/transactions/types/constants';
 import { Button, Dialog, Form, Input, Select, Spinner } from 'erxes-ui';
 import { useEffect } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { BoardSelect, PipelineSelect, StageSelect } from 'ui-modules';
 import { z } from 'zod';
+import { SyncResponseFieldSelect } from './SyncResponseFieldSelect';
 
 const configFormSchema = z.object({
   title: z.string(),
   boardId: z.string().optional(),
   pipelineId: z.string().optional(),
   stageId: z.string(),
+  responseFieldId: z.string().optional(),
   returnType: z.enum(['fullTr', 'onlySale', 'delete']),
   dateRule: z.enum(['alwaysNow', 'syncedDateOrNow']),
+  trStatus: z.string().optional(),
   defaultPayment: z
     .object({
       accountId: z.string(),
@@ -49,6 +53,12 @@ export const SyncDealReturnConfigForm = ({
     form.setValue('stageId', '');
   }, [pipelineId, form]);
 
+  useEffect(() => {
+    if (!form.getValues('trStatus')) {
+      form.setValue('trStatus', TR_STATUSES.COMPLETE);
+    }
+  }, [form]);
+
   return (
     <Form {...form}>
       <form
@@ -83,6 +93,29 @@ export const SyncDealReturnConfigForm = ({
                     <Select.Item value="syncedDateOrNow">
                       Sync огноо эсвэл одоо
                     </Select.Item>
+                  </Select.Content>
+                </Select>
+              </Form.Control>
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
+          name="trStatus"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Гүйлгээний төлөв</Form.Label>
+              <Form.Control>
+                <Select {...field} onValueChange={field.onChange}>
+                  <Select.Trigger>
+                    <Select.Value />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {TR_STATUS_OPTIONS.map((status) => (
+                      <Select.Item key={status.value} value={status.value}>
+                        {status.label}
+                      </Select.Item>
+                    ))}
                   </Select.Content>
                 </Select>
               </Form.Control>
@@ -155,6 +188,7 @@ export const SyncDealReturnConfigForm = ({
             </Form.Item>
           )}
         />
+        <SyncResponseFieldSelect form={form} />
         <Form.Field
           control={form.control}
           name="defaultPayment.accountId"

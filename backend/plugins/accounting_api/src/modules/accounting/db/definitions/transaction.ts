@@ -55,12 +55,15 @@ export const transactionSchema = schemaWrapper(
       type: String,
       enum: TR_STATUSES.ALL,
       label: 'Status',
-      default: 'real',
+      default: TR_STATUSES.DRAFT,
       index: true,
     },
+    mentionOwnerId: { type: String, optional: true, label: 'Mention Owner' },
+    mentionUserIds: { type: [String], optional: true, label: 'Mention Users' },
     ptrId: { type: String, label: 'Group', index: true },
     parentId: { type: String, optional: true, label: 'Parent ID', index: true },
     number: { type: String, optional: true, label: 'Number', index: true },
+    ptrNumber: { type: String, optional: true, label: 'Number', index: true },
     journal: {
       type: String,
       enum: JOURNALS.ALL,
@@ -163,3 +166,17 @@ export const transactionSchema = schemaWrapper(
 transactionSchema.index({ originId: 1, originType: 1, originSubId: 1 });
 transactionSchema.index({ contentType: 1, contentId: 1 });
 transactionSchema.index({ date: 1, number: 1 });
+
+export const transactionCounterSchema = schemaWrapper(
+  new Schema({
+    _id: { type: String, label: 'Counter key' },
+    seq: { type: Number, default: 0, label: 'Sequence' },
+    createdAt: { type: Date, default: Date.now, label: 'Created at' },
+    updatedAt: { type: Date, default: Date.now, label: 'Modified at' },
+  }),
+);
+
+transactionCounterSchema.index(
+  { updatedAt: 1 },
+  { expireAfterSeconds: 60 * 60 * 24 },
+);

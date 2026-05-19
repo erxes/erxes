@@ -1,8 +1,14 @@
-import { TAiAgentInput } from '../aiAgent';
+import type { TAiAgentInput } from '../aiAgent';
+import { anthropicMessagesBridge } from './anthropicMessages';
 import { openAiCompatibleBridge } from './openaiCompatible';
-import { IAiProviderBridge, TAiBridgeMessage } from './types';
+import type { IAiProviderBridge, TAiBridgeMessage } from './types';
+import { resolveAiProviderConnection } from '../providers';
 
 const providerBridgeRegistry: Record<string, IAiProviderBridge> = {
+  'cloudflare-ai-gateway': openAiCompatibleBridge,
+  grok: openAiCompatibleBridge,
+  kimi: openAiCompatibleBridge,
+  'kimi-code': anthropicMessagesBridge,
   openai: openAiCompatibleBridge,
 };
 
@@ -16,11 +22,18 @@ export const getAiProviderBridge = (provider: string): IAiProviderBridge => {
   return bridge;
 };
 
-export const checkAiProviderHealth = async (agent: TAiAgentInput) => {
-  const bridge = getAiProviderBridge(agent.connection.provider);
+export const checkAiProviderHealth = async (
+  agent: TAiAgentInput,
+  subdomain?: string,
+) => {
+  const connection = resolveAiProviderConnection({
+    subdomain,
+    connection: agent.connection,
+  });
+  const bridge = getAiProviderBridge(connection.provider);
 
   return await bridge.checkHealth({
-    connection: agent.connection,
+    connection,
     runtime: agent.runtime,
   });
 };
@@ -28,15 +41,21 @@ export const checkAiProviderHealth = async (agent: TAiAgentInput) => {
 export const invokeAiProvider = async (
   agent: TAiAgentInput,
   messages: TAiBridgeMessage[],
+  subdomain?: string,
 ) => {
-  const bridge = getAiProviderBridge(agent.connection.provider);
+  const connection = resolveAiProviderConnection({
+    subdomain,
+    connection: agent.connection,
+  });
+  const bridge = getAiProviderBridge(connection.provider);
 
   return await bridge.invoke({
-    connection: agent.connection,
+    connection,
     runtime: agent.runtime,
     messages,
   });
 };
 
 export * from './types';
+export * from './anthropicMessages';
 export * from './openaiCompatible';

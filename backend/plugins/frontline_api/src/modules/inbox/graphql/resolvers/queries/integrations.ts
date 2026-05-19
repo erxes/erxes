@@ -1,6 +1,6 @@
 import { getIntegrationsKinds } from '@/inbox/utils';
 import { IContext } from '~/connectionResolvers';
-import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { cursorPaginate, markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IIntegrationDocument } from '@/inbox/@types/integrations';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { IChannelDocument } from '@/channel/@types/channel';
@@ -54,7 +54,7 @@ const generateFilterQuery = async ({
   }
 
   if (status) {
-    query.isActive = status === 'active' ? true : false;
+    query.isActive = status === 'active';
   }
 
   return query;
@@ -201,70 +201,63 @@ export const integrationQueries = {
       return models.Integrations.countDocuments(query);
     };
 
-    const tags = await sendTRPCMessage({
-      subdomain,
+    const [tags, kindMap, channels] = await Promise.all([
+      sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'tags',
+        action: 'find',
+        input: { type: 'inbox:integration' },
+      }),
+      getIntegrationsKinds(),
+      models.Channels.find({}),
+    ]);
 
-      pluginName: 'core',
-      method: 'query',
-      module: 'tags',
-      action: 'find',
-      input: {
-        type: 'inbox:integration',
-      },
-    });
-
-    for (const tag of tags) {
-      const countQueryResult = await count({ tagIds: tag._id, ...qry });
-
-      counts.byTag[tag._id] = !args.tag
-        ? countQueryResult
-        : args.tag === tag._id
-        ? countQueryResult
-        : 0;
+    const tagCounts = await Promise.all(
+      tags.map((tag) => count({ tagIds: tag._id, ...qry })),
+    );
+    for (let i = 0; i < tags.length; i++) {
+      counts.byTag[tags[i]._id] =
+        !args.tag || args.tag === tags[i]._id ? tagCounts[i] : 0;
     }
 
-    // Counting integrations by kind
-    const kindMap = await getIntegrationsKinds();
-
-    for (const kind of Object.keys(kindMap)) {
-      const countQueryResult = await count({ kind, ...qry });
-      counts.byKind[kind] = !args.kind
-        ? countQueryResult
-        : args.kind === kind
-        ? countQueryResult
-        : 0;
+    const kinds = Object.keys(kindMap);
+    const kindCounts = await Promise.all(
+      kinds.map((kind) => count({ kind, ...qry })),
+    );
+    for (let i = 0; i < kinds.length; i++) {
+      counts.byKind[kinds[i]] =
+        !args.kind || args.kind === kinds[i] ? kindCounts[i] : 0;
     }
 
-    const channels = await models.Channels.find({});
-    if (channels && channels.length > 0) {
-      for (const channel of channels as IChannelDocument[]) {
-        const countQueryResult = await count({
-          channelId: channel._id,
-          ...qry,
-        });
-
-        counts.byChannel[channel._id.toString()] = !args.channelId
-          ? countQueryResult
-          : args.channelId === channel._id.toString()
-          ? countQueryResult
-          : 0;
-      }
+    const channelList = channels as IChannelDocument[];
+    const channelCounts = await Promise.all(
+      channelList.map((ch) => count({ channelId: ch._id, ...qry })),
+    );
+    for (let i = 0; i < channelList.length; i++) {
+      const id = channelList[i]._id.toString();
+      counts.byChannel[id] =
+        !args.channelId || args.channelId === id ? channelCounts[i] : 0;
     }
 
-    counts.byStatus.active = await count({ isActive: true, ...qry });
-    counts.byStatus.archived = await count({ isActive: false, ...qry });
+    const [activeCount, archivedCount, total] = await Promise.all([
+      count({ isActive: true, ...qry }),
+      count({ isActive: false, ...qry }),
+      count(qry),
+    ]);
 
-    if (args.status) {
-      if (args.status === 'active') {
-        counts.byStatus.archived = 0;
-      } else {
-        counts.byStatus.active = 0;
-      }
-    }
-
-    // Counting all integrations without any filter
-    counts.total = await count(qry);
+    counts.byStatus.active = args.status === 'archived' ? 0 : activeCount;
+    counts.byStatus.archived = args.status === 'active' ? 0 : archivedCount;
+    counts.total = total;
 
     return counts;
   },
 };
+
+markResolvers(integrationQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
+

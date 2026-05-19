@@ -46,9 +46,7 @@ export const pipelineQueries: Record<string, Resolver> = {
         method: 'query',
         module: 'users',
         action: 'findOne',
-        input: {
-          _id: user._id,
-        },
+        input: { query: { _id: user._id } },
         defaultValue: {},
       });
 
@@ -121,9 +119,7 @@ export const pipelineQueries: Record<string, Resolver> = {
         method: 'query',
         module: 'users',
         action: 'findOne',
-        input: {
-          _id: user._id,
-        },
+        input: { query: { _id: user._id } },
         defaultValue: {},
       });
 
