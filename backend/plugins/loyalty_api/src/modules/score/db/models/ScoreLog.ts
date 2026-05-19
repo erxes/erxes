@@ -289,7 +289,6 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       let ownerScore = owner.score;
 
-      // For earning (positive score) with a campaign, read from propertiesData
       if (score > 0 && campaignId) {
         const campaign = await models.ScoreCampaigns.findOne({
           _id: campaignId,
@@ -310,7 +309,6 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         throw new Error(`score are not enough`);
       }
 
-      // For negative scores (gift/spend), do NOT pass campaignId – update global score only
       const effectiveCampaignId =
         score > 0 && campaignId ? campaignId : undefined;
 
@@ -379,17 +377,14 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           );
         }
 
-        // Get current owner to preserve existing propertiesData
         const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
         const currentProperties = owner?.propertiesData || {};
 
-        // Update the specific campaign field
         const updatedProperties = {
           ...currentProperties,
           [campaign.fieldId]: newScore,
         };
 
-        // Replace propertiesData and remove the global score update
         modifier.$set['propertiesData'] = updatedProperties;
         delete modifier.$set.score;
       }
