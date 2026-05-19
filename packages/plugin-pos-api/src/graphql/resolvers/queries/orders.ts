@@ -57,8 +57,13 @@ const generateFilterPosQuery = async (
     statuses,
     excludeStatuses,
     hasPaidDate,
-    brandId
+    brandId,
+    dealId
   } = params;
+
+  if (dealId) {
+    query.convertDealId = dealId;
+  }
 
   if (search) {
     query.$or = [

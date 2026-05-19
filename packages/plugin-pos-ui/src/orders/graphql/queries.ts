@@ -18,6 +18,7 @@ const listParamsDef = `
   $types: [String]
   $statuses: [String]
   $excludeStatuses: [String]
+  $dealId: String
 `;
 
 const listParamsValue = `
@@ -38,6 +39,7 @@ const listParamsValue = `
   types: $types
   statuses: $statuses
   excludeStatuses: $excludeStatuses
+  dealId: $dealId
 `;
 
 export const orderFields = `
@@ -86,6 +88,20 @@ const posOrders = `
   query posOrders(${listParamsDef}) {
     posOrders(${listParamsValue}) {
       ${orderFields}
+    }
+  }
+`;
+
+const invoiceDetailByContent = `
+  query InvoiceDetailByContent($contentType: String!, $contentTypeId: String!) {
+    invoiceDetailByContent(contentType: $contentType, contentTypeId: $contentTypeId) {
+      _id
+      transactions {
+        _id
+        paymentKind
+        amount
+        status
+      }
     }
   }
 `;
@@ -325,6 +341,7 @@ const posOrdersBySubs = `
 
 export default {
   posOrders,
+  invoiceDetailByContent,
   posOrdersSummary,
   posOrdersGroupSummary,
   posOrderDetail,
