@@ -274,4 +274,17 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
     }
     return changeContactService.confirmChangePhone(cpUser._id, code, models);
   },
+
+  async clientPortalUserDelete(
+    _root: unknown,
+    _args: unknown,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+
+    await models.CPUser.removeUser(cpUser._id, models);
+    return { _id: cpUser._id };
+  },
 };
