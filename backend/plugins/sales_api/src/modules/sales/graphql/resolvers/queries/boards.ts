@@ -503,8 +503,24 @@ export const boardQueries = {
 
     return intervals;
   },
+
+  async cpSalesCheckFreeTimes(
+    _root,
+    { pipelineId, intervals },
+    context: IContext,
+  ) {
+    return boardQueries.salesCheckFreeTimes(
+      _root,
+      { pipelineId, intervals },
+      context,
+    );
+  },
 };
 
 (boardQueries.cpSalesBoards as any).wrapperConfig = {
+  forClientPortal: true,
+};
+
+(boardQueries.cpSalesCheckFreeTimes as any).wrapperConfig = {
   forClientPortal: true,
 };

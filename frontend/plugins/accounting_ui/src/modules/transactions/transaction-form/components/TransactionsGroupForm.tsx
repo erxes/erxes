@@ -192,7 +192,7 @@ export const TransactionsGroupForm = () => {
   // const parentId = useParams().parentId;
   const currentUser = useAtomValue(currentUserState) as IUser;
   const [parentId] = useQueryState<string>('parentId');
-  const { activeTrs, followTrs, loading } = useTransactionsDetail({
+  const { activeTrs, error, followTrs, loading } = useTransactionsDetail({
     variables: { _id: parentId },
     skip: !parentId,
   });
@@ -248,6 +248,18 @@ export const TransactionsGroupForm = () => {
   };
 
   useEffect(() => {
+    if (parentId && activeTrs && !activeTrs.length) {
+      form.reset({
+        date: new Date(),
+        status: TR_STATUSES.DRAFT,
+        mentionOwnerId: currentUser._id,
+        mentionUserIds: [],
+        trDocs: [],
+      });
+      setFollowTrDocs([]);
+      return;
+    }
+
     if (activeTrs?.length && parentId) {
       const currentTr = trId
         ? activeTrs.find((tr) => tr._id === trId)
@@ -281,7 +293,7 @@ export const TransactionsGroupForm = () => {
 
     setFollowTrDocs(followTrs);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultJournal, trId, form, loading]);
+  }, [activeTrs, defaultJournal, followTrs, form, loading, parentId, trId]);
 
   if (configsLoading || loading) {
     return <Spinner />;
@@ -298,7 +310,7 @@ export const TransactionsGroupForm = () => {
             {parentId ? `Гүйлгээ засах` : `Гүйлгээ үүсгэх`}
           </h3>
           <div className="">
-            <Summary form={form} />
+            <Summary errorMessage={error?.message} form={form} />
           </div>
         </div>
         <FormFields form={form} currentUserId={currentUser._id} />

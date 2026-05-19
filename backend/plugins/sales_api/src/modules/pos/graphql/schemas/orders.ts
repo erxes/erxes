@@ -32,6 +32,7 @@ const posOrderFields = () => `
   user: User,
   customer: CustomerPos
   syncedErkhet: Boolean,
+  accountingResponse: String,
   description: String,
   isPre: Boolean,
   origin: String,

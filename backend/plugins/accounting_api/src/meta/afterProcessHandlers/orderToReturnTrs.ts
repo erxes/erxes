@@ -175,11 +175,13 @@ export const orderToReturnTrs = async ({
       parentId,
       [{ ...returnTrDoc }, ...paymentTrs, ...oldOtherTrs],
       userId,
+      { skipAccountPermission: true },
     );
   } else {
     await models.Transactions.createPTransaction(
       [{ ...returnTrDoc }, ...paymentTrs, ...oldOtherTrs],
       userId,
+      { skipAccountPermission: true },
     );
   }
 };

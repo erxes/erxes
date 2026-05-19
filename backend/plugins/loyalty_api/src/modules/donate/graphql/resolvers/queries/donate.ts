@@ -67,4 +67,16 @@ export const donateQueries = {
 
     return { list, totalCount };
   },
+
+  async cpDonatesMain(
+    _root: undefined,
+    params: IDonateListParams,
+    context: IContext,
+  ) {
+    return donateQueries.donatesMain(_root, params, context);
+  },
+};
+
+(donateQueries.cpDonatesMain as any).wrapperConfig = {
+  forClientPortal: true,
 };

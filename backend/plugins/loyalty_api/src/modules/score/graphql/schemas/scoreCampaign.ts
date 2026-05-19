@@ -43,6 +43,7 @@ export const queries = `
   scoreCampaignAttributes(serviceName:String): JSON
   scoreCampaignServices: JSON
   checkOwnerScore(ownerId:String,ownerType:String,campaignId:String,action:String,clientPortal:String): JSON
+  cpCheckOwnerScore(ownerId:String,ownerType:String,campaignId:String,action:String,clientPortal:String): JSON
 `;
 
 const mutationParams = `

@@ -50,6 +50,14 @@ export const scoreLogQueries = {
     return models.ScoreLogs.getScoreLogs(params);
   },
 
+  async cpScoreLogList(
+    _root: undefined,
+    params: IScoreLogParams,
+    { models }: IContext,
+  ) {
+    return models.ScoreLogs.getScoreLogs(params);
+  },
+
   async scoreLogStatistics(
     _root: undefined,
     params: IScoreLogParams,
@@ -57,4 +65,8 @@ export const scoreLogQueries = {
   ) {
     return models.ScoreLogs.getStatistic(params);
   },
+};
+
+(scoreLogQueries.cpScoreLogList as any).wrapperConfig = {
+  forClientPortal: true,
 };

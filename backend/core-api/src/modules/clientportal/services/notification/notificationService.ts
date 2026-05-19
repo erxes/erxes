@@ -102,15 +102,19 @@ async function sendViaCallPro(
   }
 
   try {
-    const response = await fetch(
-      'https://api.messagepro.mn/send?' +
-        new URLSearchParams({
-          key: apiKey,
-          from: phoneNumber,
-          to: options.toPhone,
-          text: options.message,
-        }),
-    );
+    const response = await fetch('https://api-text.callpro.mn/v1/sms/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+      body: JSON.stringify({
+        from: phoneNumber,
+        to: options.toPhone,
+        text: options.message,
+      }),
+    });
+
     if (!response.ok) {
       throw new Error(`MessagePro API error: ${response.statusText}`);
     }
