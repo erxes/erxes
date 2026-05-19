@@ -2,7 +2,12 @@ import { STRUCTURE_STATUSES } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 
-const getFilterOrder = async (models: IModels, type: string, user: IUserDocument, params: any) => {
+const getFilterOrder = async (
+  models: IModels,
+  type: string,
+  user: IUserDocument,
+  params: any,
+) => {
   if (type !== 'branch' && type !== 'department') {
     return;
   }
@@ -11,7 +16,12 @@ const getFilterOrder = async (models: IModels, type: string, user: IUserDocument
     return;
   }
 
-  if (!await models.Configs.findOne({ code: 'CHECK_TEAM_MEMBER_SHOWN', value: true })) {
+  if (
+    !(await models.Configs.findOne({
+      code: 'CHECK_TEAM_MEMBER_SHOWN',
+      value: true,
+    }))
+  ) {
     return;
   }
 
@@ -44,14 +54,17 @@ const getFilterOrder = async (models: IModels, type: string, user: IUserDocument
     _id: { $in: userDetail?.[userField] },
   });
 
-  const itemOrders = items.map(
-    (item) => new RegExp(item.order, 'i'),
-  );
+  const itemOrders = items.map((item) => new RegExp(item.order, 'i'));
 
   return { $in: itemOrders };
-}
+};
 
-const getFilterOrderSearch = async (models: IModels, type: string, structureFilter: any, filterOrder?: any) => {
+const getFilterOrderSearch = async (
+  models: IModels,
+  type: string,
+  structureFilter: any,
+  filterOrder?: any,
+) => {
   let collection;
 
   if (type === 'branch') {
@@ -70,7 +83,7 @@ const getFilterOrderSearch = async (models: IModels, type: string, structureFilt
     .map((obj) => obj.code)
     .join('|');
   return { $regex: new RegExp(objOrders) };
-}
+};
 
 export const generateFilters = async ({
   models,
@@ -101,7 +114,11 @@ export const generateFilters = async ({
     filter.parentId = params.parentId;
   }
 
-  filter.order = await getFilterOrder(models, type, user, params);
+  const filterOrder = await getFilterOrder(models, type, user, params);
+
+  if (filterOrder) {
+    filter.order = filterOrder;
+  }
 
   if (params.searchValue) {
     const regexOption = {
@@ -122,8 +139,13 @@ export const generateFilters = async ({
     }
 
     if (type === 'department' || type === 'branch') {
-      filter.order = await getFilterOrderSearch(models, type, structureFilter, filter.order)
-    }    
+      filter.order = await getFilterOrderSearch(
+        models,
+        type,
+        structureFilter,
+        filter.order,
+      );
+    }
   }
 
   return filter;
