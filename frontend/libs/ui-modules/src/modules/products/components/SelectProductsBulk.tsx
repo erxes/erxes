@@ -166,9 +166,11 @@ const ProductsList = ({
     setSelectedProductIds((prev) => [...prev, product._id]);
   };
 
-  const unselectedProducts = products.filter(
-    (p) => !selectedProductIds.includes(p._id),
-  );
+  const unselectedProducts = products
+    .filter((p) => !selectedProductIds.includes(p._id))
+    .sort(
+      (a, b) => (b.remainder?.remainder ?? 0) - (a.remainder?.remainder ?? 0),
+    );
 
   return (
     <div className="flex overflow-hidden flex-col border-r">
@@ -208,17 +210,17 @@ const ProductsList = ({
         </div>
       </div>
       <Separator />
-      <ScrollArea>
-        <div className="flex flex-col gap-1 p-4">
+      <div className="overflow-auto flex-1">
+        <div className="flex flex-col gap-1 p-4 min-w-max">
           {unselectedProducts.map((product) => {
             return (
               <Button
                 key={product._id}
                 variant="ghost"
-                className="min-h-9 h-auto justify-start font-normal whitespace-normal max-w-full text-left"
+                className="min-h-9 h-auto w-full justify-start font-normal whitespace-nowrap text-left"
                 onClick={() => handleProductSelect(product)}
               >
-                <div className="flex flex-1 gap-2 items-center min-w-0">
+                <div className="flex flex-1 gap-2 items-center">
                   <span className="font-mono text-xs bg-muted border rounded px-1.5 py-0.5 text-muted-foreground shrink-0">
                     {product.code}
                   </span>
@@ -249,7 +251,7 @@ const ProductsList = ({
             </div>
           )}
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 };

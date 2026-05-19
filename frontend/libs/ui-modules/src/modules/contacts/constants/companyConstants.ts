@@ -9,7 +9,7 @@ export const COMPANY_BUSINESS_TYPES = [
   'Press',
   'Prospect',
   'Reseller',
-  'Other'
+  'Other',
 ];
 
 export const DEFAULT_COMPANY_INDUSTRY_TYPES = [
@@ -95,5 +95,5 @@ export const DEFAULT_COMPANY_INDUSTRY_TYPES = [
   'Retail',
   'Health',
   'Construction',
-  'Management'
+  'Management',
 ];
