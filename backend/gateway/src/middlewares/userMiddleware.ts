@@ -308,7 +308,7 @@ export default async function userMiddleware(
 
     const userDoc = await models.Users.findOne(
       { _id: user._id },
-      '_id email details isOwner groupIds brandIds username code departmentIds permissionGroupIds',
+      '_id email details isOwner groupIds brandIds username code branchIds departmentIds permissionGroupIds',
     ).lean();
 
     if (!userDoc) {
