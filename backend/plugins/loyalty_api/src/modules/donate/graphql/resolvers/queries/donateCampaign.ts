@@ -2,6 +2,7 @@ import {
   IDonateCampaignDocument,
   IDonateCampaignParams,
 } from '@/donate/@types/donateCampaign';
+import { Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
@@ -23,7 +24,7 @@ const generateFilter = (params: IDonateCampaignParams) => {
   return filter;
 };
 
-export const donateCampaignQueries = {
+export const donateCampaignQueries: Record<string, Resolver<any, any, any>> = {
   async donateCampaigns(
     _root: undefined,
     params: IDonateCampaignParams,
@@ -62,4 +63,8 @@ export const donateCampaignQueries = {
     await checkPermission('loyaltyCampaignView');
     return models.DonateCampaigns.getDonateCampaign(_id);
   },
+};
+
+donateCampaignQueries.cpDonateCampaigns.wrapperConfig = {
+  forClientPortal: true,
 };

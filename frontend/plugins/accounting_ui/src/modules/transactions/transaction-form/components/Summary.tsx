@@ -5,6 +5,7 @@ import {
   cn,
   CurrencyCode,
   CurrencyFormatedDisplay,
+  fixNum,
   useConfirm,
   useQueryState,
 } from 'erxes-ui';
@@ -60,7 +61,7 @@ export const Summary = ({
   const { confirm } = useConfirm();
 
   const [sumDebit, sumCredit] = sumDtAndCt(trDocs as TTrDoc[], followTrDocs);
-  const diffAmount = sumCredit - sumDebit;
+  const diffAmount = fixNum(sumCredit - sumDebit, 4);
   const hasHiddenTransaction = (trDocs || []).some(
     (trDoc: any) => trDoc?.permission === 'hidden',
   );

@@ -119,6 +119,7 @@ async function sendViaCallPro(
       throw new Error(`MessagePro API error: ${response.statusText}`);
     }
   } catch (e) {
+    console.log(e)
     const error = e as Error;
     throw new NetworkError(error.message);
   }
