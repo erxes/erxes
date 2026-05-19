@@ -21,6 +21,7 @@ export const useScoreList = () => {
       scoreBoardId,
       scorePipelineId,
       scoreStageId,
+      scorePage,
       number,
       description,
     },
@@ -34,6 +35,7 @@ export const useScoreList = () => {
     scoreBoardId: string;
     scorePipelineId: string;
     scoreStageId: string;
+    scorePage: string;
     number: string;
     description: string;
   }>([
@@ -46,6 +48,7 @@ export const useScoreList = () => {
     'scoreBoardId',
     'scorePipelineId',
     'scoreStageId',
+    'scorePage',
     'number',
     'description',
   ]);
@@ -66,6 +69,9 @@ export const useScoreList = () => {
       stageId: scoreStageId || undefined,
       number: number || undefined,
       description: description || undefined,
+      page: Number(scorePage) || 1,
+      limit: 50,
+      logLimit: 5,
     },
     notifyOnNetworkStatusChange: true,
   });
