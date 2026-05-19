@@ -34,4 +34,7 @@ export const mutations = `
     manageRelations(
         contentType: String!, contentId: String!, relatedContentType: String!, relatedContentIds: [String]
     ): [Relation!]
+    cpManageRelations(
+        contentType: String!, contentId: String!, relatedContentType: String!, relatedContentIds: [String]
+    ): [Relation!]
 `;
