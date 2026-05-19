@@ -28,6 +28,13 @@ function getDepthPrefix(depth: number): string {
   return '-'.repeat(depth) + ' ';
 }
 
+/**
+ * Hook that creates column definitions for the CMS categories table.
+ * @param clientPortalId - The ID of the client portal.
+ * @param onEdit - Optional callback for editing a category.
+ * @param onRefetch - Optional callback for refetching categories.
+ * @returns An array of column definitions.
+ */
 export const useCategoriesColumns = (
   clientPortalId: string,
   onEdit?: (category: any) => void,
@@ -50,6 +57,10 @@ export const useCategoriesColumns = (
       accessorKey: 'name',
       cell: ({ cell }) => {
         const original = cell.row.original as ICategory & { _depth?: number };
+        const translation = getTranslation(
+          original.translations,
+          selectedLanguage,
+        );
         const missing = isMissing(original.translations);
 
         const isOpen = editingCell?.rowId === original._id;
@@ -65,7 +76,10 @@ export const useCategoriesColumns = (
             return;
           }
 
-          if (trimmedValue !== (original.name || '')) {
+          const existingValue =
+            translation?.title || (selectedLanguage ? '' : original.name) || '';
+
+          if (trimmedValue !== existingValue) {
             await editCategory({
               variables: {
                 _id: original._id,

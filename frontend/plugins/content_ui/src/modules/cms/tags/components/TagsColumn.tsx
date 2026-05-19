@@ -18,6 +18,13 @@ import { useAtomValue } from 'jotai';
 import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
 import { getTranslation } from '@/cms/shared/utils';
 
+/**
+ * Hook that creates column definitions for the CMS tags table.
+ * @param clientPortalId - The ID of the client portal.
+ * @param onEdit - Optional callback for editing a tag.
+ * @param onRefetch - Optional callback for refetching tags.
+ * @returns An array of column definitions.
+ */
 export const useTagsColumns = (
   clientPortalId: string,
   onEdit?: (tag: any) => void,
@@ -59,7 +66,10 @@ export const useTagsColumns = (
             return;
           }
 
-          if (trimmedValue !== (original.name || '')) {
+          const existingValue =
+            translation?.title || (selectedLanguage ? '' : original.name) || '';
+
+          if (trimmedValue !== existingValue) {
             await editTag(original._id, {
               name: trimmedValue,
               slug: original.slug,
