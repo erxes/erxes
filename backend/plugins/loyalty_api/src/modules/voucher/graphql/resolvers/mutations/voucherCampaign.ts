@@ -12,13 +12,14 @@ export const voucherCampaignMutations = {
   },
 
   async voucherCampaignsEdit(
-    _root: undefined,
-    { _id, ...doc }: { _id: string } & IVoucherCampaign,
-    { models, checkPermission }: IContext,
-  ) {
-    await checkPermission('loyaltyCampaignUpdate');
-    return models.VoucherCampaigns.updateVoucherCampaign(_id, doc);
-  },
+  _root: undefined,
+  { _id, ...doc }: { _id: string } & IVoucherCampaign,
+  { models, checkPermission }: IContext,
+) {
+  await checkPermission('loyaltyCampaignUpdate');
+  await models.VoucherCampaigns.updateVoucherCampaign(_id, doc);
+  return models.VoucherCampaigns.findOne({ _id });
+},
 
   async voucherCampaignsRemove(
     _root: undefined,
