@@ -150,23 +150,8 @@ export const resolvePlaceholderValue = (target: any, attribute: string) => {
 };
 
 export const doScoreCampaign = async (models: IModels, data: any) => {
-  const { ownerType, ownerId, actionMethod, targetId } = data;
-
   try {
     await models.ScoreCampaigns.checkScoreAviableSubtract(data);
-
-    const scoreLogs =
-      (await models.ScoreLogs.find({
-        ownerId,
-        ownerType,
-        targetId,
-        action: actionMethod,
-      }).lean()) || [];
-
-    if (scoreLogs.length) {
-      return;
-    }
-
     return await models.ScoreCampaigns.doCampaign(data);
   } catch (error: any) {
     throw new Error(error?.message || 'Score campaign execution failed');
@@ -263,7 +248,7 @@ export const scorePoint = async ({ doc, models, filter }) => {
     action: 'refund',
   });
 
-  let filterAggregate: any[] = [];
+  const filterAggregate: any[] = [];
 
   if (stageId || number) {
     const lookup = [
@@ -344,7 +329,7 @@ export const scorePoint = async ({ doc, models, filter }) => {
 export const scoreProducts = async ({ doc, models, filter }) => {
   const { stageId, number } = doc;
 
-  let filterAggregate: any[] = [];
+  const filterAggregate: any[] = [];
 
   if (stageId || number) {
     const lookup = [

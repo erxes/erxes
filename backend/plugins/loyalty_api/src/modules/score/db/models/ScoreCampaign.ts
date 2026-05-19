@@ -52,7 +52,8 @@ export interface IScoreCampaignModel extends Model<IScoreCampaignDocument> {
   updateOwnerScore(args: {
     ownerId: string;
     ownerType: string;
-    updatedCustomFieldsData: Record<string, any>;
+    updatedCustomFieldsData?: Record<string, any>;
+    updatedScore?: number;
   }): Promise<any>;
 }
 
@@ -64,8 +65,8 @@ const getOwnerFieldScore = (owner: any, fieldId?: string) => {
   return (
     Number(
       owner?.propertiesData?.[fieldId] ??
-        (owner?.customFieldsData || []).find(({ field }) => field === fieldId)
-          ?.value,
+      (owner?.customFieldsData || []).find(({ field }) => field === fieldId)
+        ?.value,
     ) || 0
   );
 };
@@ -168,7 +169,8 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         );
       }
 
-      let { placeholder, currencyRatio = 0 } = campaign?.subtract || {};
+      const { currencyRatio = 0 } = campaign?.subtract || {};
+      let placeholder = campaign?.subtract?.placeholder || '';
 
       const matches = (placeholder || '').match(/\{\{\s*([^}]+)\s*\}\}/g);
       const attributes = (matches || []).map((match) =>
@@ -179,7 +181,8 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         placeholder = resolvePlaceholderValue(target, attribute);
       }
 
-      let changeScore = (safeEvalMath(placeholder) || 0) * Number(currencyRatio) || 0;
+      let changeScore =
+        (safeEvalMath(placeholder) || 0) * Number(currencyRatio) || 0;
 
       let oldScore = Number(owner?.score) || 0;
 
@@ -260,7 +263,8 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      let { placeholder = '', currencyRatio = 0 } = campaign[actionMethod];
+      const { currencyRatio = 0 } = campaign[actionMethod] || {};
+      let placeholder = campaign[actionMethod]?.placeholder || ''
 
       const matches = (placeholder || '').match(/\{\{\s*([^}]+)\s*\}\}/g);
       const attributes = [
@@ -278,58 +282,60 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         );
       }
 
-      const changeScore = (safeEvalMath(placeholder) || 0) * Number(currencyRatio) || 0;
+      const changeScore =
+        (safeEvalMath(placeholder) || 0) * Number(currencyRatio) || 0;
       if (!changeScore) {
         return;
       }
-
-      // const scoreLog = await models.ScoreLogs.findOne({
-      //   targetId,
-      //   ownerId,
-      //   campaignId,
-      //   action: "subtract",
-      // });
-
-      // if (scoreLog) {
-      //   const prevChangeScore = scoreLog.changeScore;
-      //   if (changeScore !== scoreLog.changeScore) {
-      //     scoreLog.changeScore = changeScore;
-
-      //     const scoreDifference = changeScore - prevChangeScore;
-      //     const updatedCustomFieldsData = (owner?.customFieldsData || []).map(
-      //       (customFieldData) =>
-      //         customFieldData.field === campaign.fieldId
-      //           ? {
-      //               ...customFieldData,
-      //               value: (customFieldData?.value || 0) + -scoreDifference,
-      //             }
-      //           : customFieldData
-      //     );
-      //     const preparedCustomFieldsData = await sendCoreMessage({
-      //       subdomain,
-      //       action: "fields.prepareCustomFieldsData",
-      //       data: updatedCustomFieldsData,
-      //       defaultValue: [],
-      //       isRPC: true,
-      //     });
-
-      //     await this.updateOwnerScore({
-      //       ownerId,
-      //       ownerType,
-      //       updatedCustomFieldsData: preparedCustomFieldsData,
-      //     });
-
-      //     await scoreLog.save();
-      //     return;
-      //   }
-
-      //   return;
-      // }
 
       let oldScore = Number(owner?.score) || 0;
 
       if (campaign.fieldId) {
         oldScore = getOwnerFieldScore(owner, campaign.fieldId);
+      }
+
+      const scoreLog = await models.ScoreLogs.findOne({
+        targetId,
+        ownerId,
+        ownerType,
+        campaignId: campaign._id,
+        action: actionMethod,
+      });
+
+      if (scoreLog) {
+        const prevChangeScore = Number(scoreLog.changeScore) || 0;
+
+        if (changeScore === prevChangeScore) {
+          return scoreLog;
+        }
+
+        const scoreDifference = changeScore - prevChangeScore;
+        const recalculatedScore =
+          actionMethod === 'subtract'
+            ? oldScore - scoreDifference
+            : oldScore + scoreDifference;
+
+        if (actionMethod === 'subtract' && recalculatedScore < 0) {
+          throw new Error('There has no enough score to subtract');
+        }
+
+        await this.updateOwnerScore({
+          ownerId,
+          ownerType,
+          ...(campaign.fieldId
+            ? {
+              updatedCustomFieldsData: {
+                ...(owner?.propertiesData || {}),
+                [campaign.fieldId]: recalculatedScore,
+              },
+            }
+            : { updatedScore: recalculatedScore }),
+        });
+
+        scoreLog.changeScore = changeScore;
+        await scoreLog.save();
+
+        return scoreLog;
       }
 
       const newScore =
@@ -343,15 +349,17 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
 
       const updatedPropertiesData = campaign.fieldId
         ? {
-            ...(owner?.propertiesData || {}),
-            [campaign.fieldId]: newScore,
-          }
+          ...(owner?.propertiesData || {}),
+          [campaign.fieldId]: newScore,
+        }
         : owner?.propertiesData || {};
 
       await this.updateOwnerScore({
         ownerId,
         ownerType,
-        updatedCustomFieldsData: updatedPropertiesData,
+        ...(campaign.fieldId
+          ? { updatedCustomFieldsData: updatedPropertiesData }
+          : { updatedScore: newScore }),
       });
 
       return await models.ScoreLogs.create({
@@ -406,7 +414,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         );
       }
 
-      let { changeScore, campaignId, action } = scoreLog;
+      const { changeScore, campaignId, action } = scoreLog;
 
       const campaign = await models.ScoreCampaigns.findOne({ _id: campaignId });
       if (!campaign) {
@@ -447,15 +455,17 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         throw new Error('Cannot find owner');
       }
 
-      const updatedPropertiesData = {
-        ...(owner?.propertiesData || {}),
-        [fieldId]: getOwnerFieldScore(owner, fieldId) + refundAmount,
-      };
-
       await this.updateOwnerScore({
         ownerId,
         ownerType,
-        updatedCustomFieldsData: updatedPropertiesData,
+        ...(fieldId
+          ? {
+            updatedCustomFieldsData: {
+              ...(owner?.propertiesData || {}),
+              [fieldId]: getOwnerFieldScore(owner, fieldId) + refundAmount,
+            },
+          }
+          : { updatedScore: getOwnerFieldScore(owner) + refundAmount }),
       });
 
       return await models.ScoreLogs.create({
@@ -475,12 +485,28 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
       ownerId,
       ownerType,
       updatedCustomFieldsData,
+      updatedScore,
+    }: {
+      ownerId: string;
+      ownerType: string;
+      updatedCustomFieldsData?: Record<string, any>;
+      updatedScore?: number;
     }) {
       const actionsObj = {
         user: { module: 'users', action: 'updateOne' },
         customer: { module: 'customers', action: 'updateMany' },
         company: { module: 'companies', action: 'updateMany' },
       };
+
+      const $set: Record<string, any> = {};
+
+      if (updatedCustomFieldsData !== undefined) {
+        $set.propertiesData = updatedCustomFieldsData;
+      }
+
+      if (updatedScore !== undefined) {
+        $set.score = updatedScore;
+      }
 
       return await sendTRPCMessage({
         subdomain,
@@ -490,7 +516,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         action: actionsObj[ownerType].action,
         input: {
           selector: { _id: ownerId },
-          modifier: { $set: { propertiesData: updatedCustomFieldsData } },
+          modifier: { $set },
         },
         defaultValue: null,
       });

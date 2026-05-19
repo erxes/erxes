@@ -36,9 +36,10 @@ const getOwnerFieldScore = (owner: any, fieldId?: string) => {
 const generateFilter = async (
   params: IScoreLogParams,
   models: IModels,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   subdomain: string,
 ) => {
-  let filter: any = {
+  const filter: any = {
     changeScore: {
       $gte: Number.NEGATIVE_INFINITY,
       $lte: Number.POSITIVE_INFINITY,
@@ -129,7 +130,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       const filter = await generateFilter(doc, models, subdomain);
 
-      let filterAggregate: any[] = [];
+      const filterAggregate: any[] = [];
 
       if (stageId || pipelineId || boardId || number) {
         const lookup = [
@@ -395,7 +396,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const modifier: any = { $set: { score: newScore } };
 
       if (usedCustomFieldIds?.length) {
-        const updatedPropertiesData = { ...(owner.propertiesData || {}) };
+        const updatedPropertiesData = { ...owner.propertiesData };
 
         if (score > 0) {
           const fieldId = usedCustomFieldIds[0];

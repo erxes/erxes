@@ -730,16 +730,8 @@ export const handleLoyaltyReward = async ({ subdomain }) => {
 
 // Score campaign
 export const doScoreCampaign = async (models: IModels, data) => {
-  const { ownerType, ownerId, actionMethod, targetId } = data;
   try {
     await models.ScoreCampaigns.checkScoreAviableSubtract(data);
-    const scoreLog = await models.ScoreLogs.find({
-      ownerId,
-      ownerType,
-      targetId,
-      action: actionMethod,
-    }).lean();
-    if (scoreLog.length) return;
     return await models.ScoreCampaigns.doCampaign(data);
   } catch (error) {
     console.error(error);
