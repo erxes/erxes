@@ -806,7 +806,7 @@ export const handleLoyaltyOwnerChange = async (
 
   const fieldIds = new Set(scoreFieldIds);
   const propertiesData: Record<string, any> = {
-    ...((customer as any)?.propertiesData || {}),
+    ...customer?.propertiesData,
   };
   const scoreFieldsData: Record<string, number> = {};
 

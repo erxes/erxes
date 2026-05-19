@@ -374,7 +374,7 @@ export const loadScoreCampaignClass = (
           ...(campaign.fieldId
             ? {
               updatedCustomFieldsData: {
-                ...(owner?.propertiesData || {}),
+                ...owner?.propertiesData,
                 [campaign.fieldId]: recalculatedScore,
               },
             }
@@ -398,7 +398,7 @@ export const loadScoreCampaignClass = (
 
       const updatedPropertiesData = campaign.fieldId
         ? {
-          ...(owner?.propertiesData || {}),
+          ...owner?.propertiesData,
           [campaign.fieldId]: newScore,
         }
         : owner?.propertiesData || {};
@@ -510,7 +510,7 @@ export const loadScoreCampaignClass = (
         ...(fieldId
           ? {
             updatedCustomFieldsData: {
-              ...(owner?.propertiesData || {}),
+              ...owner?.propertiesData,
               [fieldId]: getOwnerFieldScore(owner, fieldId) + refundAmount,
             },
           }
