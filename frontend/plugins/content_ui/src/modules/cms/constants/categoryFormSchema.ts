@@ -12,7 +12,7 @@ export const baseCategoryFormSchema = z.object({
     .array(
       z.object({
         field: z.string(),
-        value: z.any().optional(),
+        value: z.unknown().optional(),
       }),
     )
     .default([]),
@@ -23,6 +23,21 @@ const isEmptyRequiredValue = (value: unknown): boolean => {
   if (typeof value === 'string') return value.trim() === '';
   if (Array.isArray(value)) return value.length === 0;
   return false;
+};
+
+const isValidByFieldType = (value: unknown, type: string): boolean => {
+  switch (type) {
+    case 'checkbox':
+    case 'boolean':
+      return typeof value === 'boolean';
+    case 'multiSelect':
+    case 'file':
+      return Array.isArray(value) && value.every((v) => typeof v === 'string');
+    case 'number':
+      return typeof value === 'number' || (typeof value === 'string' && !isNaN(Number(value)));
+    default:
+      return typeof value === 'string';
+  }
 };
 
 // Function to create dynamic schema with custom fields validation
@@ -50,6 +65,12 @@ export const createCategoryFormSchema = (fields: FieldDefinition[]) => {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: `${field.label} is required`,
+            path: [field._id],
+          });
+        } else if (!isValidByFieldType(value, field.type)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `${field.label} has an invalid format`,
             path: [field._id],
           });
         }

@@ -16,7 +16,7 @@ import {
   CategoryCustomFieldsSection,
   FieldGroup,
 } from './components/CategoryCustomFieldsSection';
-import { CustomFieldValue, FieldDefinition } from '../posts/CustomFieldInput';
+import { CustomFieldValue } from '../posts/CustomFieldInput';
 import {
   createCategoryFormSchema,
   CategoryFormType,
@@ -88,7 +88,6 @@ interface CmsCategoryDrawerProps {
   clientPortalId: string;
   onRefetch?: () => void;
 }
-
 
 interface CmsCategoriesResponse {
   cmsCategories: {
