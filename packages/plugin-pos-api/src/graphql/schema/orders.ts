@@ -130,6 +130,7 @@ const queryParams = `
   excludeStatuses: [String] 
   hasPaidDate: Boolean
   brandId: String
+  dealId: String
 `;
 
 const groupParams = `

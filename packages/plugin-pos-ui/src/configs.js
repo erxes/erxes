@@ -7,6 +7,7 @@ module.exports = {
     "./routes": "./src/routes.tsx",
     "./invoiceDetailRightSection": "./src/orders/containers/InvoiceDetail.tsx",
     "./customerSidebar": "./src/orders/containers/CustomerSidebar.tsx",
+    "./dealOrderSection": "./src/orders/containers/DealOrderSection.tsx",
     "./automation": "./src/automations.tsx",
   },
   routes: {
@@ -35,4 +36,8 @@ module.exports = {
     },
   ],
   customerRightSidebarSection: "./customerSidebar",
+  dealRightSidebarSection: {
+    title: "POS Orders",
+    component: "./dealOrderSection",
+  },
 };

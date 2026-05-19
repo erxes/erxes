@@ -18,6 +18,7 @@ const listParamsDef = `
   $types: [String]
   $statuses: [String]
   $excludeStatuses: [String]
+  $dealId: String
 `;
 
 const listParamsValue = `
@@ -38,6 +39,7 @@ const listParamsValue = `
   types: $types
   statuses: $statuses
   excludeStatuses: $excludeStatuses
+  dealId: $dealId
 `;
 
 export const orderFields = `
