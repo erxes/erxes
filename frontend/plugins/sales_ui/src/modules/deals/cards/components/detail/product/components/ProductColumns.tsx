@@ -27,8 +27,7 @@ import { ColumnDef } from '@tanstack/table-core';
 import { IProductData } from 'ui-modules';
 import { productMoreColumn } from './ProductMoreColumn';
 
-const DUPLICATE_PRODUCT_CELL_CLASS =
-  'bg-pink-50/80 dark:bg-pink-950/30';
+const DUPLICATE_PRODUCT_CELL_CLASS = 'bg-pink-50/80 dark:bg-pink-950/30';
 
 const getProductId = (productData: IProductData) =>
   productData.productId || productData.product?._id || '';
@@ -42,8 +41,9 @@ const hasDuplicateProductId = (
   }
 
   return (
-    productsData.filter((productData) => getProductId(productData) === productId)
-      .length > 1
+    productsData.filter(
+      (productData) => getProductId(productData) === productId,
+    ).length > 1
   );
 };
 
@@ -100,6 +100,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
             _id={cell.row.original._id}
             product={cell.row.original}
             formatValue={(v: number) => formatAmount(v)}
+            calculateProduct={true}
           >
             {CurrencyIcon && (
               <CurrencyIcon className="size-4 text-muted-foreground shrink-0" />

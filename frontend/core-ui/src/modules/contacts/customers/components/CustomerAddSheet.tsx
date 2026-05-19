@@ -55,6 +55,15 @@ export const CustomerAddSheet = () => {
           e.preventDefault();
         }}
       >
+        <Sheet.Header className="p-5">
+          <Sheet.Title>
+            {isLead ? t('lead.add._') : t('customer.add._')}
+          </Sheet.Title>
+          <Sheet.Description className="sr-only">
+            {isLead ? t('lead.add._') : t('customer.add._')}
+          </Sheet.Description>
+          <Sheet.Close />
+        </Sheet.Header>
         <AddCustomerForm onOpenChange={setOpen} />
       </Sheet.View>
     </Sheet>
