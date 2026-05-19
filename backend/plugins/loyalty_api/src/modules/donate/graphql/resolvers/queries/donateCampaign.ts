@@ -24,7 +24,7 @@ const generateFilter = (params: IDonateCampaignParams) => {
   return filter;
 };
 
-export const donateCampaignQueries: Record<string, Resolver<any, any, any>> = {
+export const donateCampaignQueries: Record<string, Resolver> = {
   async donateCampaigns(
     _root: undefined,
     params: IDonateCampaignParams,
@@ -43,9 +43,8 @@ export const donateCampaignQueries: Record<string, Resolver<any, any, any>> = {
   async cpDonateCampaigns(
     _root: undefined,
     _args: undefined,
-    { models, checkPermission }: IContext,
+    { models }: IContext,
   ) {
-    await checkPermission('loyaltyCampaignView');
     const now = new Date();
 
     return models.DonateCampaigns.find({
