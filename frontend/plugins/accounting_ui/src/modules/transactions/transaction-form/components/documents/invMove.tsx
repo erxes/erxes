@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
-import { formatNumber } from './shared';
+import { formatNumber, keyRows } from './shared';
 
 const TH = 'border border-black px-1 py-1 font-medium';
 const TD = 'border border-black px-1 py-1.5';
@@ -89,23 +89,23 @@ export const PrintInvMoveDocument = ({
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, idx) => (
-            <tr key={idx}>
-              <td className={`${TD} text-center`}>{idx + 1}</td>
-              <td className={`${TD} px-2`}>{row.name || ' '}</td>
-              <td className={`${TD} text-center`}>{row.unit || ' '}</td>
-              <td className={TD}>{row.from || ' '}</td>
-              <td className={TD}>{row.fromAccount || ' '}</td>
-              <td className={TD}>{row.to || ' '}</td>
-              <td className={TD}>{row.toAccount || ' '}</td>
+          {keyRows(rows).map(({ key, index, row }) => (
+            <tr key={key}>
+              <td className={`${TD} text-center`}>{index + 1}</td>
+              <td className={`${TD} px-2`}>{row?.name || ' '}</td>
+              <td className={`${TD} text-center`}>{row?.unit || ' '}</td>
+              <td className={TD}>{row?.from || ' '}</td>
+              <td className={TD}>{row?.fromAccount || ' '}</td>
+              <td className={TD}>{row?.to || ' '}</td>
+              <td className={TD}>{row?.toAccount || ' '}</td>
               <td className={`${TD} text-right`}>
-                {row.count ? row.count.toLocaleString() : ' '}
+                {row?.count ? row.count.toLocaleString() : ' '}
               </td>
               <td className={`${TD} text-right`}>
-                {row.unitPrice ? formatNumber(row.unitPrice) : ' '}
+                {row?.unitPrice ? formatNumber(row.unitPrice) : ' '}
               </td>
               <td className={`${TD} text-right`}>
-                {formatNumber(row.lineAmount)}
+                {row ? formatNumber(row.lineAmount) : ' '}
               </td>
             </tr>
           ))}

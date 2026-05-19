@@ -73,11 +73,11 @@ const LocationReceipt = ({ transaction }: { transaction: ITransaction }) => {
 
       <div className="mt-6 flex justify-between text-[11px]">
         <div>
-          Шивсэн:
+          <span>Шивсэн:</span>
           <span className="ml-1 inline-block w-40 border-b border-dotted border-black" />
         </div>
         <div>
-          Хэвлэсэн:
+          <span>Хэвлэсэн:</span>
           <span className="ml-1 inline-block w-40 border-b border-dotted border-black" />
         </div>
       </div>
@@ -145,9 +145,9 @@ const NumberedReceipt = ({ transaction }: { transaction: ITransaction }) => {
           </tr>
         </thead>
         <tbody>
-          {filled.map((row, idx) => (
-            <tr key={idx}>
-              <td className={`${TD} py-2 text-center`}>{idx + 1}</td>
+          {filled.map(({ key, index, row }) => (
+            <tr key={key}>
+              <td className={`${TD} py-2 text-center`}>{index + 1}</td>
               <td className={`${TD} px-2 py-2`}>{row?.name || ' '}</td>
               <td className={`${TD} py-2 text-center`}>{row?.unit || ' '}</td>
               <td className={`${TD} py-2 text-right`}>

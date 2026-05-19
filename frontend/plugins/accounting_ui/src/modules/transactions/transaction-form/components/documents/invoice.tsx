@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import { fixNum } from 'erxes-ui';
 import { ITransaction, ITrDetail } from '~/modules/transactions/types/Transaction';
 import { amountToMongolianText } from './numberToWords';
+import { keyRows } from './shared';
 
 const formatNumber = (value: number) => fixNum(value, 2).toLocaleString();
 
@@ -195,19 +196,19 @@ export const PrintInvoiceDocument = ({
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, idx) => (
-            <tr key={idx}>
+          {keyRows(rows).map(({ key, index, row }) => (
+            <tr key={key}>
               <td className="border border-black/60 px-2 py-1.5 text-center">
-                {idx + 1}
+                {index + 1}
               </td>
               <td className="border border-black/60 px-2 py-1.5">
-                {row.description || ' '}
+                {row?.description || ' '}
               </td>
               <td className="border border-black/60 px-2 py-1.5 text-right">
-                {row.count ? row.count.toLocaleString() : ' '}
+                {row?.count ? row.count.toLocaleString() : ' '}
               </td>
               <td className="border border-black/60 px-2 py-1.5 text-right">
-                {row.unitPrice ? formatNumber(row.unitPrice) : ' '}
+                {row?.unitPrice ? formatNumber(row.unitPrice) : ' '}
               </td>
               <td className="border border-black/60 px-2 py-1.5 text-right">
                 {formatNumber(row.amount)}

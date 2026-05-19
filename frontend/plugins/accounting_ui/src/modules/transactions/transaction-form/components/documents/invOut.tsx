@@ -6,6 +6,7 @@ import {
   SignLine,
   buildRows,
   formatNumber,
+  keyRows,
   sumAmount,
 } from './shared';
 
@@ -60,18 +61,18 @@ const OutReceipt = ({ transaction }: { transaction: ITransaction }) => {
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, idx) => (
-            <tr key={idx}>
-              <td className={TD}>{row.name || ' '}</td>
-              <td className={`${TD} text-center`}>{row.unit || ' '}</td>
+          {keyRows(rows).map(({ key, row }) => (
+            <tr key={key}>
+              <td className={TD}>{row?.name || ' '}</td>
+              <td className={`${TD} text-center`}>{row?.unit || ' '}</td>
               <td className={`${TD} text-right`}>
-                {row.count ? fixNum(row.count, 2).toLocaleString() : ' '}
+                {row?.count ? fixNum(row.count, 2).toLocaleString() : ' '}
               </td>
               <td className={`${TD} text-right`}>
-                {formatNumber(row.unitPrice)}
+                {row ? formatNumber(row.unitPrice) : ' '}
               </td>
               <td className={`${TD} text-right`}>
-                {formatNumber(row.amount)}
+                {row ? formatNumber(row.amount) : ' '}
               </td>
             </tr>
           ))}

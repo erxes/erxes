@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 import { fixNum } from 'erxes-ui';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
 import { amountToMongolianText } from './numberToWords';
+import { keyRows } from './shared';
 
 const formatNumber = (value: number) => fixNum(value, 2).toLocaleString();
 
@@ -98,8 +99,8 @@ const TwinTableReceipt = ({
           </tr>
         </thead>
         <tbody>
-          {(details.length ? details : [undefined]).map((d, idx) => (
-            <tr key={idx}>
+          {keyRows(details.length ? details : [null]).map(({ key, row: d }) => (
+            <tr key={key}>
               <td className="border border-black px-2 py-1.5">
                 {d?.account?.code || ' '}
               </td>
@@ -141,23 +142,24 @@ const TwinTableReceipt = ({
   );
 };
 
+// A label with an underlined inline value — used by the lined cash receipt.
+const LinedField = ({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string;
+}) => (
+  <div className="flex items-end gap-2">
+    <span className="shrink-0 font-bold">{label}:</span>
+    <span className="flex-1 border-b border-black px-1">{value || ' '}</span>
+  </div>
+);
+
 // === cash_2 / cash_5: single receipt with underlined inline fields.
 const LinedReceipt = ({ transaction }: { transaction: ITransaction }) => {
   const { documentNo, date, partyName, description, amountFormatted } =
     getCommonFields(transaction);
-
-  const LinedField = ({
-    label,
-    value,
-  }: {
-    label: string;
-    value?: string;
-  }) => (
-    <div className="flex items-end gap-2">
-      <span className="shrink-0 font-bold">{label}:</span>
-      <span className="flex-1 border-b border-black px-1">{value || ' '}</span>
-    </div>
-  );
 
   return (
     <div
@@ -191,25 +193,26 @@ const LinedReceipt = ({ transaction }: { transaction: ITransaction }) => {
   );
 };
 
+// A label above a dotted-underline value — used by the dotted cash receipt.
+const DottedField = ({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string;
+}) => (
+  <div className="space-y-2">
+    <div className="font-bold">{label}:</div>
+    <div className="border-b border-dotted border-black pb-0.5">
+      {value || ' '}
+    </div>
+  </div>
+);
+
 // === cash_3: НХМаягт МХ2 dotted-line "Бэлэн мөнгөний орлогын баримт".
 const DottedReceipt = ({ transaction }: { transaction: ITransaction }) => {
   const { documentNo, date, partyName, description, amountInWords } =
     getCommonFields(transaction);
-
-  const DottedField = ({
-    label,
-    value,
-  }: {
-    label: string;
-    value?: string;
-  }) => (
-    <div className="space-y-2">
-      <div className="font-bold">{label}:</div>
-      <div className="border-b border-dotted border-black pb-0.5">
-        {value || ' '}
-      </div>
-    </div>
-  );
 
   return (
     <div

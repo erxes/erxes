@@ -52,11 +52,32 @@ export const getMeta = (transaction: ITransaction) => ({
   description: transaction?.description || '',
 });
 
-// Pads `rows` with nulls so the printed table keeps at least `min` lines.
-export const padRows = <T,>(rows: T[], min: number): (T | null)[] => [
-  ...rows,
-  ...Array(Math.max(0, min - rows.length)).fill(null),
-];
+// A printed table row paired with a stable React key. Padding rows are
+// blanks; their position in the form is fixed, so a positional key is stable.
+export interface IKeyedRow<T> {
+  key: string;
+  index: number; // 0-based position, for tables that print a row number
+  row: T | null;
+}
+
+// Pads `rows` with blank entries so the printed table keeps at least `min`
+// lines, returning each entry with a stable key for React rendering.
+export const padRows = <T,>(rows: T[], min: number): IKeyedRow<T>[] => {
+  const blanks = Math.max(0, min - rows.length);
+  return [
+    ...rows.map((row, i) => ({ key: `row-${i}`, index: i, row })),
+    ...Array.from({ length: blanks }, (_, i) => ({
+      key: `blank-${i}`,
+      index: rows.length + i,
+      row: null,
+    })),
+  ];
+};
+
+// Pairs each row with a stable key (no padding) — for tables printed without
+// a fixed minimum line count.
+export const keyRows = <T,>(rows: T[]): IKeyedRow<T>[] =>
+  rows.map((row, i) => ({ key: `row-${i}`, index: i, row }));
 
 // Sums the line amounts of a set of receipt rows.
 export const sumAmount = (rows: IReceiptRow[]) =>
@@ -195,13 +216,13 @@ export const SimpleItemRows = ({
   total,
   withLocation = false,
 }: {
-  rows: (IReceiptRow | null)[];
+  rows: IKeyedRow<IReceiptRow>[];
   total: number;
   withLocation?: boolean;
 }) => (
   <tbody>
-    {rows.map((row, idx) => (
-      <tr key={idx}>
+    {rows.map(({ key, row }) => (
+      <tr key={key}>
         <td className={`${TD}${withLocation ? ' px-2' : ''}`}>
           {row?.name || ' '}
         </td>
@@ -236,7 +257,7 @@ const SimpleItemTable = ({
   rows,
   total,
 }: {
-  rows: (IReceiptRow | null)[];
+  rows: IKeyedRow<IReceiptRow>[];
   total: number;
 }) => (
   <table className="w-full border-collapse border border-black text-[11px]">
@@ -361,12 +382,12 @@ export const NumberedTableHead = () => (
 export const NumberedItemRows = ({
   rows,
 }: {
-  rows: (IReceiptRow | null)[];
+  rows: IKeyedRow<IReceiptRow>[];
 }) => (
   <>
-    {rows.map((row, idx) => (
-      <tr key={idx}>
-        <td className={`${TD} py-2 text-center`}>{idx + 1}</td>
+    {rows.map(({ key, index, row }) => (
+      <tr key={key}>
+        <td className={`${TD} py-2 text-center`}>{index + 1}</td>
         <td className={`${TD} px-2 py-2`}>{row?.name || ' '}</td>
         <td className={`${TD} py-2 text-center`}>{row?.unit || ' '}</td>
         <td className={`${TD} px-2 py-2 text-right`}>
@@ -473,8 +494,8 @@ export const DiscountReceipt = ({
           </tr>
         </thead>
         <tbody>
-          {filled.map((row, idx) => (
-            <tr key={idx}>
+          {filled.map(({ key, row }) => (
+            <tr key={key}>
               <td className={`${TD} px-2`}>{row?.name || ' '}</td>
               <td className={`${TD} text-center`}>{row?.unit || ' '}</td>
               <td className={`${TD} px-2 text-right`}>

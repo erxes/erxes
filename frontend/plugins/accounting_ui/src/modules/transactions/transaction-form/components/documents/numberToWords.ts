@@ -68,8 +68,7 @@ const belowThousand = (num: number, attr: boolean): string => {
 
   if (hundreds > 0) {
     const hasMore = tens > 0 || ones > 0;
-    parts.push(ONES_ATTR[hundreds]);
-    parts.push(hasMore || attr ? 'зуун' : 'зуу');
+    parts.push(ONES_ATTR[hundreds], hasMore || attr ? 'зуун' : 'зуу');
   }
 
   if (tens > 0) {
@@ -98,8 +97,7 @@ const integerToMongolianText = (value: number): string => {
       const count = Math.floor(remainder / scale.value);
       remainder = remainder % scale.value;
       const hasMore = remainder > 0;
-      parts.push(belowThousand(count, true));
-      parts.push(hasMore ? scale.attr : scale.std);
+      parts.push(belowThousand(count, true), hasMore ? scale.attr : scale.std);
     }
   }
 

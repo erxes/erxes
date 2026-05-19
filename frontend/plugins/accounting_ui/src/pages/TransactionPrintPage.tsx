@@ -39,7 +39,7 @@ export const TransactionPrintPage = () => {
       hasPrintedRef.current = true;
 
       setTimeout(() => {
-        window.print();
+        globalThis.print();
       }, 300);
     }
   }, [loading, transaction]);
@@ -98,7 +98,7 @@ export const TransactionPrintPage = () => {
           </Select>
         )}
 
-        <Button onClick={() => window.print()} variant="secondary">
+        <Button onClick={() => globalThis.print()} variant="secondary">
           <IconPrinter />
           Хэвлэх
         </Button>
