@@ -374,56 +374,52 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           _id: campaignId,
         });
 
-        if (!campaign?.fieldId) {
-          throw new Error(
-            'Something went wrong when trying to find campaign field',
-          );
+        if (campaign?.fieldId) {
+          const prepareCustomFieldsData = await sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'mutation',
+            module: 'fields',
+            action: 'prepareCustomFieldsData',
+            input: [{ field: campaign.fieldId, value: newScore }],
+            defaultValue: [],
+          });
+
+          if (!prepareCustomFieldsData[0]) {
+            throw new Error(
+              'Something went wrong when preparing score field data',
+            );
+          }
+
+          const prepareCustomFieldData: { field: string; value: number } =
+            prepareCustomFieldsData[0];
+
+          const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
+
+          const { customFieldsData } = owner || {};
+          let updatedCustomFieldsData;
+
+          if (
+            !customFieldsData ||
+            !(customFieldsData || []).find(
+              ({ field }) => field === campaign.fieldId,
+            )
+          ) {
+            updatedCustomFieldsData = [
+              ...(customFieldsData || []),
+              prepareCustomFieldData,
+            ];
+          } else {
+            updatedCustomFieldsData = customFieldsData.map((customFieldData) =>
+              customFieldData.field === campaign.fieldId
+                ? { ...customFieldData, ...prepareCustomFieldData }
+                : customFieldData,
+            );
+          }
+
+          modifier.$set['customFieldsData'] = updatedCustomFieldsData || [];
+          delete modifier.$set.score;
         }
-
-        const prepareCustomFieldsData = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'fields',
-          action: 'prepareCustomFieldsData',
-          input: [{ field: campaign.fieldId, value: newScore }],
-          defaultValue: [],
-        });
-
-        if (!prepareCustomFieldsData[0]) {
-          throw new Error(
-            'Something went wrong when preparing score field data',
-          );
-        }
-
-        const prepareCustomFieldData: { field: string; value: number } =
-          prepareCustomFieldsData[0];
-
-        const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
-
-        const { customFieldsData } = owner || {};
-        let updatedCustomFieldsData;
-
-        if (
-          !customFieldsData ||
-          !(customFieldsData || []).find(
-            ({ field }) => field === campaign.fieldId,
-          )
-        ) {
-          updatedCustomFieldsData = [
-            ...(customFieldsData || []),
-            prepareCustomFieldData,
-          ];
-        } else {
-          updatedCustomFieldsData = customFieldsData.map((customFieldData) =>
-            customFieldData.field === campaign.fieldId
-              ? { ...customFieldData, ...prepareCustomFieldData }
-              : customFieldData,
-          );
-        }
-
-        modifier.$set['customFieldsData'] = updatedCustomFieldsData || [];
-        delete modifier.$set.score;
       }
 
       if (ownerType === 'user') {
