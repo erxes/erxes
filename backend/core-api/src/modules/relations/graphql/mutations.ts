@@ -1,7 +1,7 @@
 import { IRelation, Resolver } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 
-export const relationsMutations: Record<string, Resolver> = {
+export const relationsMutations: Record<string, Resolver<any, any, any>> = {
   createRelation: async (
     _parent: undefined,
     { relation }: { relation: IRelation },
