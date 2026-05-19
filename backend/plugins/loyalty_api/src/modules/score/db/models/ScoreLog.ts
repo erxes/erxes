@@ -289,7 +289,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       let ownerScore = owner.score;
 
-      // Only for earning (positive score) with a campaign – read from customFieldsData array
+      // Read from propertiesData (flat object) for earning
       if (score > 0 && campaignId) {
         const campaign = await models.ScoreCampaigns.findOne({
           _id: campaignId,
@@ -299,11 +299,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           throw new Error('Campaign not found');
         }
 
-        const campaignScore =
-          (owner?.customFieldsData || []).find(
-            ({ field }) => field === campaign.fieldId,
-          )?.value || 0;
-
+        const campaignScore = owner.propertiesData?.[campaign.fieldId] || 0;
         ownerScore = campaignScore;
       }
 
@@ -314,7 +310,6 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         throw new Error(`score are not enough`);
       }
 
-      // For negative scores (gift/spend), do NOT pass campaignId – update global score only
       const effectiveCampaignId =
         score > 0 && campaignId ? campaignId : undefined;
 
@@ -372,7 +367,6 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const modifier: any = { $set: { score: newScore } };
       const selector: { _id: string } = { _id: ownerId };
 
-      // Original logic for updating customFieldsData (array) – kept unchanged
       if (campaignId) {
         const campaign = await models.ScoreCampaigns.findOne({
           _id: campaignId,
@@ -384,6 +378,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           );
         }
 
+        // Keep the prepareCustomFieldsData block (for validation or side effects)
         const prepareCustomFieldsData = await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
@@ -400,33 +395,16 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           );
         }
 
-        const prepareCustomFieldData: { field: string; value: number } =
-          prepareCustomFieldsData[0];
-
+        // Ignore the result – we will use propertiesData instead
         const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
+        const currentProperties = owner?.propertiesData || {};
 
-        const { customFieldsData } = owner || {};
-        let updatedCustomFieldsData;
+        const updatedProperties = {
+          ...currentProperties,
+          [campaign.fieldId]: newScore,
+        };
 
-        if (
-          !customFieldsData ||
-          !(customFieldsData || []).find(
-            ({ field }) => field === campaign.fieldId,
-          )
-        ) {
-          updatedCustomFieldsData = [
-            ...(customFieldsData || []),
-            prepareCustomFieldData,
-          ];
-        } else {
-          updatedCustomFieldsData = customFieldsData.map((customFieldData) =>
-            customFieldData.field === campaign.fieldId
-              ? { ...customFieldData, ...prepareCustomFieldData }
-              : customFieldData,
-          );
-        }
-
-        modifier.$set['customFieldsData'] = updatedCustomFieldsData || [];
+        modifier.$set['propertiesData'] = updatedProperties;
         delete modifier.$set.score;
       }
 
