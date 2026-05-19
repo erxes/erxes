@@ -166,15 +166,14 @@ export const assignmentQueries = {
                     pluginName: 'core',
                     method: 'mutation',
                     module: 'customers',
-                    action: 'updateOne',
+                    action: 'updateMany',
                     input: {
                       selector: {
                         _id: customerId,
-                        'customFieldsData.field': assignmentCampaign.fieldId,
                       },
                       modifier: {
                         $set: {
-                          'customFieldsData.$.value':
+                          [`propertiesData.${assignmentCampaign.fieldId}`]:
                             currentValue - checkValue * count,
                         },
                       },

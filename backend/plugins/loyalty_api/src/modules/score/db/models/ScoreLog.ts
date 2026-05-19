@@ -3,13 +3,14 @@ import {
   IScoreLogDocument,
   IScoreLogParams,
 } from '@/score/@types/scoreLog';
-import { SCORE_OWNER_TYPES } from '@/score/constants';
+import { SCORE_CAMPAIGN_STATUSES, SCORE_OWNER_TYPES } from '@/score/constants';
 import { scoreLogSchema } from '@/score/db/definitions/scoreLog';
 import { scoreStatistic } from '@/score/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
+import { getOwnerFieldScore } from './ScoreCampaign';
 
 export interface IScoreLogModel extends Model<IScoreLogDocument> {
   getScoreLog(_id: string): Promise<IScoreLogDocument>;
@@ -22,9 +23,10 @@ export interface IScoreLogModel extends Model<IScoreLogDocument> {
 const generateFilter = async (
   params: IScoreLogParams,
   models: IModels,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   subdomain: string,
 ) => {
-  let filter: any = {
+  const filter: any = {
     changeScore: {
       $gte: Number.NEGATIVE_INFINITY,
       $lte: Number.POSITIVE_INFINITY,
@@ -115,7 +117,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       const filter = await generateFilter(doc, models, subdomain);
 
-      let filterAggregate: any[] = [];
+      const filterAggregate: any[] = [];
 
       if (stageId || pipelineId || boardId || number) {
         const lookup = [
@@ -287,27 +289,38 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      let ownerScore = owner.score;
+      let ownerScore = 0;
+      const campaignFilter: any = {
+        status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
+      };
+      const usedCustomFieldIds: string[] = [];
 
       if (campaignId) {
-        const campaign = await models.ScoreCampaigns.findOne({
-          _id: campaignId,
-        });
-
-        if (!campaign) {
-          throw new Error('Campaign not found');
-        }
-
-        const campaignScore =
-          (owner?.customFieldsData || []).find(
-            ({ field }) => field === campaign.fieldId,
-          )?.value || 0;
-
-        ownerScore = campaignScore;
+        campaignFilter._id = campaignId;
       }
 
-      const oldScore = Number(ownerScore) || 0;
-      const newScore = oldScore + score;
+      const campaigns = await models.ScoreCampaigns.find(campaignFilter).lean();
+
+      if (campaignId && !campaigns?.length) {
+        throw new Error('Campaign not found');
+      }
+
+      for (const campaign of campaigns) {
+        if (!campaign.fieldId || usedCustomFieldIds.includes(campaign.fieldId)) {
+          continue;
+        }
+
+        usedCustomFieldIds.push(campaign.fieldId);
+        const campaignScore = getOwnerFieldScore(owner, campaign.fieldId);
+
+        ownerScore += Number(campaignScore) || 0;
+      }
+
+      if (!usedCustomFieldIds.length) {
+        ownerScore = Number(owner.score) || 0;
+      }
+
+      const newScore = (Number(ownerScore) || 0) + score;
 
       if (score < 0 && newScore < 0) {
         throw new Error(`score are not enough`);
@@ -315,10 +328,11 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       const response = await this.updateOwnerScore({
         subdomain,
-        ownerId,
+        owner,
         ownerType,
         newScore,
-        campaignId,
+        score,
+        usedCustomFieldIds,
       });
 
       if (!response || !Object.keys(response || {})?.length) {
@@ -328,12 +342,12 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       return await models.ScoreLogs.create({
         ownerId,
         ownerType,
-        changeScore: score,
+        changeScore: Math.abs(score),
         createdAt: new Date(),
         description,
         createdBy,
         campaignId,
-        action: 'add',
+        action: score < 0 ? 'subtract' : 'add',
         targetId,
         serviceName,
         amount,
@@ -344,9 +358,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     static async updateOwnerScore({
       subdomain,
       ownerType,
-      ownerId,
+      owner,
       newScore,
-      campaignId,
+      score,
+      usedCustomFieldIds,
     }) {
       const updateEntity = async (
         moduleName: string,
@@ -364,65 +379,38 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           defaultValue: null,
         });
 
+      const selector = { _id: owner._id };
       const modifier: any = { $set: { score: newScore } };
-      const selector: {
-        _id: string;
-      } = { _id: ownerId };
 
-      if (campaignId) {
-        const campaign = await models.ScoreCampaigns.findOne({
-          _id: campaignId,
-        });
+      if (usedCustomFieldIds?.length) {
+        const updatedPropertiesData = { ...owner.propertiesData };
 
-        if (!campaign?.fieldId) {
-          throw new Error(
-            'Something went wrong when trying to find campaign field',
-          );
-        }
-
-        const prepareCustomFieldsData = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'fields',
-          action: 'prepareCustomFieldsData',
-          input: [{ field: campaign.fieldId, value: newScore }],
-          defaultValue: [],
-        });
-
-        if (!prepareCustomFieldsData[0]) {
-          throw new Error(
-            'Something went wrong when preparing score field data',
-          );
-        }
-
-        const prepareCustomFieldData: { field: string; value: number } =
-          prepareCustomFieldsData[0];
-
-        const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
-
-        const { customFieldsData } = owner || {};
-        let updatedCustomFieldsData;
-
-        if (
-          !customFieldsData ||
-          !(customFieldsData || []).find(
-            ({ field }) => field === campaign.fieldId,
-          )
-        ) {
-          updatedCustomFieldsData = [
-            ...(customFieldsData || []),
-            prepareCustomFieldData,
-          ];
+        if (score > 0) {
+          const fieldId = usedCustomFieldIds[0];
+          updatedPropertiesData[fieldId] =
+            getOwnerFieldScore(owner, fieldId) + score;
         } else {
-          updatedCustomFieldsData = customFieldsData.map((customFieldData) =>
-            customFieldData.field === campaign.fieldId
-              ? { ...customFieldData, ...prepareCustomFieldData }
-              : customFieldData,
-          );
+          let remaining = Math.abs(score);
+
+          for (const fieldId of usedCustomFieldIds) {
+            if (!remaining) {
+              break;
+            }
+
+            const currentValue = getOwnerFieldScore(owner, fieldId);
+            const deduct = Math.min(currentValue, remaining);
+            updatedPropertiesData[fieldId] = currentValue - deduct;
+            remaining -= deduct;
+          }
+
+          if (remaining && usedCustomFieldIds[0]) {
+            const fieldId = usedCustomFieldIds[0];
+            updatedPropertiesData[fieldId] =
+              getOwnerFieldScore(owner, fieldId) - remaining;
+          }
         }
 
-        modifier.$set['customFieldsData'] = updatedCustomFieldsData || [];
+        modifier.$set.propertiesData = updatedPropertiesData;
         delete modifier.$set.score;
       }
 
@@ -430,10 +418,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         return await updateEntity('users', 'updateOne', selector, modifier);
       }
       if (ownerType === 'customer') {
-        return await updateEntity('customers', 'updateOne', selector, modifier);
+        return await updateEntity('customers', 'updateMany', selector, modifier);
       }
       if (ownerType === 'company') {
-        return await updateEntity('companies', 'updateOne', selector, modifier);
+        return await updateEntity('companies', 'updateMany', selector, modifier);
       }
       if (ownerType === 'cpUser') {
         const cpUser = await sendTRPCMessage({
@@ -443,7 +431,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           module: 'cpUsers',
           action: 'get',
           input: {
-            id: ownerId,
+            id: owner._id,
           },
           defaultValue: null,
         });
@@ -456,7 +444,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           pluginName: 'core',
           method: 'mutation',
           module: 'customers',
-          action: 'updateOne',
+          action: 'updateMany',
           input: {
             selector: { _id: cpUser.erxesCustomerId },
             modifier,

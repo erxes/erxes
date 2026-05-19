@@ -64,10 +64,10 @@ import {
   IVoucherCampaignModel,
   loadVoucherCampaignClass,
 } from '@/voucher/db/models/VoucherCampaign';
+import { ScopedEventHandlers } from 'erxes-api-shared/core-modules';
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import mongoose from 'mongoose';
-import { createEventHandlers } from 'erxes-api-shared/core-modules/common/eventHandlers';
 
 export interface IModels {
   Agents: IAgentModel;
@@ -98,61 +98,18 @@ export interface IContext extends IMainContext {
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string,
+  eventHandlers: ScopedEventHandlers,
 ): IModels => {
   const models = {} as IModels;
-  
-  const assignmentDispatcher = createEventHandlers({
-    subdomain,
-    pluginName: 'loyalty',
-    moduleName: 'assignment',
-    collectionName: 'assignment_campaigns',
-    getContext: () => ({ subdomain, processId: '', userId: '' }),
-  });
-  const couponDispatcher = createEventHandlers({
-    subdomain,
-    pluginName: 'loyalty',
-    moduleName: 'coupon',
-    collectionName: 'coupon_campaigns',
-    getContext: () => ({ subdomain, processId: '', userId: '' }),
-  });
-  const donateDispatcher = createEventHandlers({
-    subdomain,
-    pluginName: 'loyalty',
-    moduleName: 'donate',
-    collectionName: 'donate_campaigns',
-    getContext: () => ({ subdomain, processId: '', userId: '' }),
-  });
-  const voucherDispatcher = createEventHandlers({
-    subdomain,
-    pluginName: 'loyalty',
-    moduleName: 'voucher',
-    collectionName: 'voucher_campaigns',
-    getContext: () => ({ subdomain, processId: '', userId: '' }),
-  });
+  const loyaltyEventHandlers = eventHandlers('loyalty');
 
-  const spinDispatcher = createEventHandlers({
-    subdomain,
-    pluginName: 'loyalty',
-    moduleName: 'spin',
-    collectionName: 'spin_campaigns',
-    getContext: () => ({ subdomain, processId: '', userId: '' }),
-  });
-
-  const scoreDispatcher = createEventHandlers({
-    subdomain,
-    pluginName: 'loyalty',
-    moduleName: 'score',
-    collectionName: 'score_campaigns',
-    getContext: () => ({ subdomain, processId: '', userId: '' }),
-  });
-
-  const lotteryDispatcher = createEventHandlers({
-    subdomain,
-    pluginName: 'loyalty',
-    moduleName: 'lottery',
-    collectionName: 'lottery_campaigns',
-    getContext: () => ({ subdomain, processId: '', userId: '' }),
-  });
+  const assignmentDispatcher = loyaltyEventHandlers('assignment', 'assignment_campaigns');
+  const couponDispatcher = loyaltyEventHandlers('coupon', 'coupon_campaigns');
+  const donateDispatcher = loyaltyEventHandlers('donate', 'donate_campaigns');
+  const voucherDispatcher = loyaltyEventHandlers('voucher', 'voucher_campaigns');
+  const spinDispatcher = loyaltyEventHandlers('spin', 'spin_campaigns');
+  const scoreDispatcher = loyaltyEventHandlers('score', 'score_campaigns');
+  const lotteryDispatcher = loyaltyEventHandlers('lottery', 'lottery_campaigns');
 
   models.Agents = db.model<IAgentDocument, IAgentModel>(
     'agents',
@@ -170,7 +127,7 @@ export const loadClasses = (
   >(
     'assignment_campaigns',
     loadAssignmentCampaignClass(models, assignmentDispatcher),
-  ); 
+  );
 
   models.Coupons = db.model<ICouponDocument, ICouponModel>(
     'coupons',

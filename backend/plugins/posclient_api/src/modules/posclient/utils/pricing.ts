@@ -1,6 +1,6 @@
 import { IConfigDocument } from '~/modules/posclient/@types/configs';
-// import { sendPricingMessage } from '../../messageBroker';
 import { IOrderInput } from '~/modules/posclient/@types/types';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export const checkPricing = async (
   subdomain: string,
@@ -10,27 +10,28 @@ export const checkPricing = async (
   let pricing: any = {};
 
   try {
-    // pricing = await sendPricingMessage({
-    //   subdomain,
-    //   action: 'checkPricing',
-    //   data: {
-    //     prioritizeRule: 'exclude',
-    //     totalAmount: doc.totalAmount,
-    //     departmentId: config.departmentId,
-    //     branchId: config.branchId,
-    //     products: [
-    //       ...doc.items.map((i) => ({
-    //         itemId: i._id,
-    //         productId: i.productId,
-    //         quantity: i.count,
-    //         price: i.unitPrice,
-    //         manufacturedDate: i.manufacturedDate,
-    //       })),
-    //     ],
-    //   },
-    //   isRPC: true,
-    //   defaultValue: {},
-    // });
+    pricing = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      module: 'pricing',
+      action: 'checkPricing',
+      input: {
+        prioritizeRule: 'exclude',
+        totalAmount: doc.totalAmount,
+        departmentId: config.departmentId,
+        branchId: config.branchId,
+        products: [
+          ...doc.items.map((i) => ({
+            itemId: i._id,
+            productId: i.productId,
+            quantity: i.count,
+            price: i.unitPrice,
+            manufacturedDate: i.manufacturedDate,
+          })),
+        ],
+      },
+      defaultValue: {},
+    });
   } catch (e) {
     console.log(e.message);
   }

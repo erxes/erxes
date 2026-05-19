@@ -159,10 +159,12 @@ export const scoreCampaignQueries = {
       throw new Error('Campaign not found');
     }
 
-    const { value = 0 } =
+    const value =
+      owner?.propertiesData?.[campaign?.fieldId] ??
       (owner?.customFieldsData || []).find(
         ({ field }) => field === campaign?.fieldId,
-      ) || {};
+      )?.value ??
+      0;
 
     return value;
   },

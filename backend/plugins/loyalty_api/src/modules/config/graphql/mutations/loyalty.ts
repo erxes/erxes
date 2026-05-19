@@ -14,6 +14,7 @@ export const loyaltyMutations: Record<string, Resolver<any, any, any>> = {
       destinationPhone: string;
       destinationEmail: string;
       destinationCode: string;
+      campaignId?: string;
     },
     { models, subdomain, checkPermission }: IContext,
   ) {
@@ -26,6 +27,7 @@ export const loyaltyMutations: Record<string, Resolver<any, any, any>> = {
       destinationPhone,
       destinationEmail,
       destinationCode,
+      campaignId,
     } = doc;
 
     let destOwnerId = destinationOwnerId;
@@ -99,6 +101,7 @@ export const loyaltyMutations: Record<string, Resolver<any, any, any>> = {
       ownerId,
       changeScore: -1 * score,
       description: 'share score',
+      campaignId,
     });
 
     await models.ScoreLogs.changeScore({
@@ -106,6 +109,7 @@ export const loyaltyMutations: Record<string, Resolver<any, any, any>> = {
       ownerId: destOwnerId,
       changeScore: (score / 100) * (100 - fee),
       description: 'receipt score',
+      campaignId,
     });
 
     return 'success';

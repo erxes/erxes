@@ -18,6 +18,7 @@ import {
   subtractDependencies,
 } from 'mathjs';
 import { IModels } from '~/connectionResolvers';
+import { SCORE_CAMPAIGN_STATUSES } from '~/modules/score/constants';
 import { VOUCHER_STATUS } from '~/modules/voucher/constants';
 import { collections } from '../constants';
 
@@ -391,17 +392,27 @@ export const checkVouchersSale = async (
   }
 
   if (ownerType === 'customer') {
-    const customerRelatedClientPortalUser = await sendTRPCMessage({
+    const customerRelatedClientPortalUserById = await sendTRPCMessage({
       subdomain,
-      pluginName: 'clientportal',
+      pluginName: 'core',
       method: 'query',
-      module: 'clientPortalUsers',
-      action: 'findOne',
-      input: {
-        $or: [{ _id: ownerId }, { erxesCustomerId: ownerId }],
-      },
+      module: 'cpUsers',
+      action: 'get',
+      input: { id: ownerId },
       defaultValue: null,
     });
+    const customerRelatedClientPortalUser =
+      customerRelatedClientPortalUserById ||
+      (await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'cpUsers',
+        action: 'get',
+        input: { erxesCustomerId: ownerId },
+        defaultValue: null,
+      }));
+
     if (customerRelatedClientPortalUser) {
       ownerId = customerRelatedClientPortalUser._id;
       ownerType = 'cpUser';
@@ -483,8 +494,11 @@ export const confirmVoucherSale = async (
     ownerType?: string;
     ownerId?: string;
     targetid?: string;
+    targetId?: string;
+    targetType?: string;
     serviceName?: string;
-    totalAmount?: string;
+    totalAmount?: string | number;
+    [key: string]: any;
   },
 ) => {
   const { couponCode, voucherId, totalAmount, ...usageInfo } = extraInfo || {};
@@ -492,10 +506,10 @@ export const confirmVoucherSale = async (
   if (extraInfo?.ownerType === 'customer' && extraInfo?.ownerId) {
     const customerRelatedClientPortalUser = await sendTRPCMessage({
       subdomain,
-      pluginName: 'clientportal',
+      pluginName: 'core',
       method: 'query',
-      module: 'clientPortalUsers',
-      action: 'findOne',
+      module: 'cpUsers',
+      action: 'get',
       input: { erxesCustomerId: extraInfo.ownerId },
       defaultValue: null,
     });
@@ -716,16 +730,8 @@ export const handleLoyaltyReward = async ({ subdomain }) => {
 
 // Score campaign
 export const doScoreCampaign = async (models: IModels, data) => {
-  const { ownerType, ownerId, actionMethod, targetId } = data;
   try {
     await models.ScoreCampaigns.checkScoreAviableSubtract(data);
-    const scoreLog = await models.ScoreLogs.find({
-      ownerId,
-      ownerType,
-      targetId,
-      action: actionMethod,
-    }).lean();
-    if (scoreLog.length) return;
     return await models.ScoreCampaigns.doCampaign(data);
   } catch (error) {
     console.error(error);
@@ -762,4 +768,69 @@ export const refundLoyaltyScore = async (
       }
     }
   }
+};
+
+export const handleLoyaltyOwnerChange = async (
+  subdomain: string,
+  models: IModels,
+  ownerId: string,
+  ownerIds: string[],
+) => {
+  await models.Vouchers.updateMany(
+    { ownerId: { $in: ownerIds } },
+    { $set: { ownerId } },
+  );
+
+  await models.Coupons.updateMany(
+    { 'usageLogs.ownerId': { $in: ownerIds } },
+    { $set: { 'usageLogs.$[elem].ownerId': ownerId } },
+    { arrayFilters: [{ 'elem.ownerId': { $in: ownerIds } }] },
+  );
+
+  await models.ScoreLogs.updateMany(
+    { ownerId: { $in: ownerIds } },
+    { $set: { ownerId } },
+  );
+
+  const customer = await coreQuery(
+    subdomain,
+    'customers',
+    'findOne',
+    { query: { _id: ownerId } },
+    {},
+  );
+
+  const scoreFieldIds = await models.ScoreCampaigns.find({
+    status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
+  }).distinct('fieldId');
+
+  const fieldIds = new Set(scoreFieldIds);
+  const propertiesData: Record<string, any> = {
+    ...(customer as any)?.propertiesData,
+  };
+  const scoreFieldsData: Record<string, number> = {};
+
+  for (const customFieldData of (customer as any)?.customFieldsData || []) {
+    const { field, value, numberValue } = customFieldData || {};
+
+    if (!fieldIds.has(field)) {
+      if (propertiesData[field] === undefined) {
+        propertiesData[field] = numberValue ?? value;
+      }
+      continue;
+    }
+
+    const numericValue = Number(numberValue ?? value ?? 0) || 0;
+    scoreFieldsData[field] = (scoreFieldsData[field] || 0) + numericValue;
+  }
+
+  for (const fieldId of Object.keys(scoreFieldsData)) {
+    propertiesData[fieldId] = scoreFieldsData[fieldId];
+  }
+
+  await models.ScoreCampaigns.updateOwnerScore({
+    ownerId,
+    ownerType: 'customer',
+    updatedCustomFieldsData: propertiesData,
+  });
 };
