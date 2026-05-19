@@ -341,6 +341,46 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       });
     }
 
+    private static async buildCampaignModifier(
+      subdomain: string,
+      ownerType: string,
+      ownerId: string,
+      campaignId: string,
+      newScore: number,
+      modifier: any,
+    ) {
+      const campaign = await models.ScoreCampaigns.findOne({ _id: campaignId });
+      if (!campaign?.fieldId) return;
+
+      const prepareCustomFieldsData = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'mutation',
+        module: 'fields',
+        action: 'prepareCustomFieldsData',
+        input: [{ field: campaign.fieldId, value: newScore }],
+        defaultValue: [],
+      });
+
+      if (!prepareCustomFieldsData[0]) {
+        throw new Error('Something went wrong when preparing score field data');
+      }
+
+      const preparedField: { field: string; value: number } =
+        prepareCustomFieldsData[0];
+      const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
+      const existing = owner?.customFieldsData || [];
+      const hasField = existing.some(({ field }) => field === campaign.fieldId);
+
+      modifier.$set['customFieldsData'] = hasField
+        ? existing.map((fd) =>
+            fd.field === campaign.fieldId ? { ...fd, ...preparedField } : fd,
+          )
+        : [...existing, preparedField];
+
+      delete modifier.$set.score;
+    }
+
     static async updateOwnerScore({
       subdomain,
       ownerType,
@@ -365,61 +405,17 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         });
 
       const modifier: any = { $set: { score: newScore } };
-      const selector: {
-        _id: string;
-      } = { _id: ownerId };
+      const selector = { _id: ownerId };
 
       if (campaignId) {
-        const campaign = await models.ScoreCampaigns.findOne({
-          _id: campaignId,
-        });
-
-        if (campaign?.fieldId) {
-          const prepareCustomFieldsData = await sendTRPCMessage({
-            subdomain,
-            pluginName: 'core',
-            method: 'mutation',
-            module: 'fields',
-            action: 'prepareCustomFieldsData',
-            input: [{ field: campaign.fieldId, value: newScore }],
-            defaultValue: [],
-          });
-
-          if (!prepareCustomFieldsData[0]) {
-            throw new Error(
-              'Something went wrong when preparing score field data',
-            );
-          }
-
-          const prepareCustomFieldData: { field: string; value: number } =
-            prepareCustomFieldsData[0];
-
-          const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
-
-          const { customFieldsData } = owner || {};
-          let updatedCustomFieldsData;
-
-          if (
-            !customFieldsData ||
-            !(customFieldsData || []).find(
-              ({ field }) => field === campaign.fieldId,
-            )
-          ) {
-            updatedCustomFieldsData = [
-              ...(customFieldsData || []),
-              prepareCustomFieldData,
-            ];
-          } else {
-            updatedCustomFieldsData = customFieldsData.map((customFieldData) =>
-              customFieldData.field === campaign.fieldId
-                ? { ...customFieldData, ...prepareCustomFieldData }
-                : customFieldData,
-            );
-          }
-
-          modifier.$set['customFieldsData'] = updatedCustomFieldsData || [];
-          delete modifier.$set.score;
-        }
+        await ScoreLog.buildCampaignModifier(
+          subdomain,
+          ownerType,
+          ownerId,
+          campaignId,
+          newScore,
+          modifier,
+        );
       }
 
       if (ownerType === 'user') {
@@ -438,9 +434,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           method: 'query',
           module: 'cpUsers',
           action: 'get',
-          input: {
-            id: ownerId,
-          },
+          input: { id: ownerId },
           defaultValue: null,
         });
 
@@ -453,10 +447,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           method: 'mutation',
           module: 'customers',
           action: 'updateOne',
-          input: {
-            selector: { _id: cpUser.erxesCustomerId },
-            modifier,
-          },
+          input: { selector: { _id: cpUser.erxesCustomerId }, modifier },
           defaultValue: null,
         });
       }
