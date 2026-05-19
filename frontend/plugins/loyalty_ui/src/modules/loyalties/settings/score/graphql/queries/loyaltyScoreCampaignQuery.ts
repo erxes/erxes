@@ -27,6 +27,7 @@ export const LOYALTY_SCORE_CAMPAIGN_QUERY = gql`
         fieldGroupId
         fieldName
         fieldId
+        fieldOrigin
         serviceName
         additionalConfig
         restrictions
