@@ -95,7 +95,6 @@ export async function forgotPassword(
       const messageTemplate = isPhone
         ? undefined
         : resetPasswordConfig?.emailContent || '';
-      console.log('Sending OTP for password reset to user:', emailSubject, messageTemplate);
       await sendAndStoreOTP({
         user,
         identifierType,
