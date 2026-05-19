@@ -49,8 +49,9 @@ export const voucherQueries = {
   async vouchers(
     _parent: undefined,
     params: IVoucherParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('voucherView');
     const filter = generateFilter(params);
 
     return await cursorPaginate<IVoucherDocument>({
@@ -63,8 +64,9 @@ export const voucherQueries = {
   async vouchersMain(
     _parent: undefined,
     params: IVoucherParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('voucherView');
     const {
       page = 1,
       perPage = 20,

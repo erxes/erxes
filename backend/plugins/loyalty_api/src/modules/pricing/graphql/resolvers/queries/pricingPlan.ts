@@ -158,8 +158,9 @@ export const pricingPlanQueries = {
   pricingPlans: async (
     _root: any,
     params: any,
-    { subdomain, models }: IContext,
+    { subdomain, models, checkPermission }: IContext,
   ) => {
+    await checkPermission('pricingPlanView');
     const filter = await generateFilter(subdomain, models, params);
     const { sortField, sortDirection } = params;
     const sort: any =
@@ -169,7 +170,6 @@ export const pricingPlanQueries = {
 
     if (params.findOne) {
       const docs = await models.PricingPlans.find(filter).sort(sort).limit(1);
-
       return docs || [];
     }
 
@@ -218,8 +218,9 @@ export const pricingPlanQueries = {
   pricingPlansCount: async (
     _root: any,
     params: any,
-    { subdomain, models }: IContext,
+    { subdomain, models, checkPermission }: IContext,
   ) => {
+    await checkPermission('pricingPlanView');
     const filter = await generateFilter(subdomain, models, params);
     return await models.PricingPlans.find(filter).countDocuments();
   },
@@ -227,8 +228,9 @@ export const pricingPlanQueries = {
   pricingPlanDetail: async (
     _root: any,
     { id }: { id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('pricingPlanView');
     return await models.PricingPlans.findById(id);
   },
 

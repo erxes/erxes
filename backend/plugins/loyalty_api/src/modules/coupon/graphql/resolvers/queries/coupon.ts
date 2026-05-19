@@ -4,7 +4,8 @@ import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
 export const couponQueries = {
-  async coupons(_root: undefined, params: ICouponParams, { models }: IContext) {
+  async coupons(_root: undefined, params: ICouponParams, { models, checkPermission }: IContext) {
+    await checkPermission('couponView');
     const filter: FilterQuery<ICouponDocument> = {};
 
     if (params.status) {
@@ -48,8 +49,9 @@ export const couponQueries = {
   async couponsByOwner(
     _root: undefined,
     { ownerId, status }: { ownerId: string; status?: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('couponView');
     const filter: FilterQuery<ICouponDocument> = {
       ownerId,
     };

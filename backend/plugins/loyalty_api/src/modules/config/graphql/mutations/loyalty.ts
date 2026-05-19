@@ -16,8 +16,9 @@ export const loyaltyMutations: Record<string, Resolver<any, any, any>> = {
       destinationCode: string;
       campaignId?: string;
     },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyShareScore');
     const {
       ownerType,
       ownerId,
@@ -140,8 +141,9 @@ export const loyaltyMutations: Record<string, Resolver<any, any, any>> = {
         };
       };
     },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyConfirmVoucher');
     const { checkInfo } = param;
 
     return confirmVoucherSale(models, subdomain, checkInfo);

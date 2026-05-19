@@ -16,6 +16,7 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface IScoreCampaignModel extends Model<IScoreCampaignDocument> {
   getScoreCampaign(_id: string): Promise<IScoreCampaignDocument>;
@@ -57,7 +58,7 @@ export interface IScoreCampaignModel extends Model<IScoreCampaignDocument> {
   }): Promise<any>;
 }
 
-const getOwnerFieldScore = (owner: any, fieldId?: string) => {
+export const getOwnerFieldScore = (owner: any, fieldId?: string) => {
   if (!fieldId) {
     return Number(owner?.score) || 0;
   }
@@ -71,7 +72,13 @@ const getOwnerFieldScore = (owner: any, fieldId?: string) => {
   );
 };
 
-export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
+export const loadScoreCampaignClass = (
+  models: IModels,
+  subdomain: string,
+  dispatcher: EventDispatcherReturn,
+) => {
+  const { sendDbEventLog } = dispatcher;
+
   class ScoreCampaign {
     public static async getScoreCampaign(_id: string) {
       const scoreCampaign = await models.ScoreCampaigns.findOne({ _id });
@@ -89,10 +96,18 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
     ) {
       doc = await handleOnCreateCampaignScoreField({ doc, subdomain });
 
-      return await models.ScoreCampaigns.create({
+      const created = await models.ScoreCampaigns.create({
         ...doc,
         createdUserId: user?._id,
       });
+
+      sendDbEventLog?.({
+        action: 'create',
+        docId: created._id,
+        currentDocument: created.toObject(),
+      });
+
+      return created;
     }
 
     public static async updateScoreCampaign(
@@ -100,6 +115,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
       doc: IScoreCampaign,
       user: IUserDocument,
     ) {
+      const prevDoc = await models.ScoreCampaigns.findOne({ _id }).lean();
       const scoreCampaign = await this.getScoreCampaign(_id);
 
       if (
@@ -119,26 +135,59 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         scoreCampaign,
       });
 
-      return await models.ScoreCampaigns.updateOne(
+      const result = await models.ScoreCampaigns.updateOne(
         { _id },
         { $set: { ...doc } },
       );
+
+      sendDbEventLog?.({
+        action: 'update',
+        docId: _id,
+        currentDocument: doc,
+        prevDocument: prevDoc,
+      });
+
+      return result;
     }
 
     public static async removeScoreCampaign(_id: string, user: IUserDocument) {
+      const prevDoc = await models.ScoreCampaigns.findOne({ _id }).lean();
       await this.getScoreCampaign(_id);
 
-      return await models.ScoreCampaigns.updateOne(
+      const result = await models.ScoreCampaigns.updateOne(
         { _id },
         { $set: { status: SCORE_CAMPAIGN_STATUSES.ARCHIVED } },
       );
+
+      sendDbEventLog?.({
+        action: 'update', // soft delete (status change)
+        docId: _id,
+        currentDocument: { status: SCORE_CAMPAIGN_STATUSES.ARCHIVED },
+        prevDocument: prevDoc,
+      });
+
+      return result;
     }
 
-    public static async removeScoreCampaigns(_ids: string) {
-      return await models.ScoreCampaigns.updateMany(
-        { _id: { $in: _ids } },
+    public static async removeScoreCampaigns(_ids: string[], user: IUserDocument) {
+      const idsArray = Array.isArray(_ids) ? _ids : [_ids];
+      const prevDocs = await models.ScoreCampaigns.find({ _id: { $in: idsArray } }).lean();
+
+      const result = await models.ScoreCampaigns.updateMany(
+        { _id: { $in: idsArray } },
         { $set: { status: SCORE_CAMPAIGN_STATUSES.ARCHIVED } },
       );
+
+      for (const prev of prevDocs) {
+        sendDbEventLog?.({
+          action: 'update',
+          docId: prev._id,
+          currentDocument: { status: SCORE_CAMPAIGN_STATUSES.ARCHIVED },
+          prevDocument: prev,
+        });
+      }
+
+      return result;
     }
 
     public static async checkScoreAviableSubtract(data) {
