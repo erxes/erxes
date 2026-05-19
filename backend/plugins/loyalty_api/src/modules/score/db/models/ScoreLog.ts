@@ -272,7 +272,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
 
       if (!owner) {
-        throw new Error(`not fount ${ownerType}`);
+        throw new Error(`not found ${ownerType}`);
       }
 
       if (targetId && serviceName) {
@@ -289,7 +289,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       let ownerScore = owner.score;
 
-      // Only use campaign-specific balance for earning (positive score)
+      // For earning (positive score) with a campaign, read from propertiesData
       if (score > 0 && campaignId) {
         const campaign = await models.ScoreCampaigns.findOne({
           _id: campaignId,
@@ -299,11 +299,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           throw new Error('Campaign not found');
         }
 
-        const campaignScore =
-          (owner?.customFieldsData || []).find(
-            ({ field }) => field === campaign.fieldId,
-          )?.value || 0;
-
+        const campaignScore = owner.propertiesData?.[campaign.fieldId] || 0;
         ownerScore = campaignScore;
       }
 
@@ -327,7 +323,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       });
 
       if (!response || !Object.keys(response || {})?.length) {
-        throw new Error('Something went wrong for give score');
+        throw new Error('Something went wrong while giving score');
       }
 
       return await models.ScoreLogs.create({
@@ -337,7 +333,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         createdAt: new Date(),
         description,
         createdBy,
-        campaignId: effectiveCampaignId, // log with the effective campaignId (or undefined)
+        campaignId: effectiveCampaignId,
         action: 'add',
         targetId,
         serviceName,
@@ -370,9 +366,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         });
 
       const modifier: any = { $set: { score: newScore } };
-      const selector: {
-        _id: string;
-      } = { _id: ownerId };
+      const selector: { _id: string } = { _id: ownerId };
 
       if (campaignId) {
         const campaign = await models.ScoreCampaigns.findOne({
@@ -385,49 +379,18 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           );
         }
 
-        const prepareCustomFieldsData = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'fields',
-          action: 'prepareCustomFieldsData',
-          input: [{ field: campaign.fieldId, value: newScore }],
-          defaultValue: [],
-        });
-
-        if (!prepareCustomFieldsData[0]) {
-          throw new Error(
-            'Something went wrong when preparing score field data',
-          );
-        }
-
-        const prepareCustomFieldData: { field: string; value: number } =
-          prepareCustomFieldsData[0];
-
+        // Get current owner to preserve existing propertiesData
         const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
+        const currentProperties = owner?.propertiesData || {};
 
-        const { customFieldsData } = owner || {};
-        let updatedCustomFieldsData;
+        // Update the specific campaign field
+        const updatedProperties = {
+          ...currentProperties,
+          [campaign.fieldId]: newScore,
+        };
 
-        if (
-          !customFieldsData ||
-          !(customFieldsData || []).find(
-            ({ field }) => field === campaign.fieldId,
-          )
-        ) {
-          updatedCustomFieldsData = [
-            ...(customFieldsData || []),
-            prepareCustomFieldData,
-          ];
-        } else {
-          updatedCustomFieldsData = customFieldsData.map((customFieldData) =>
-            customFieldData.field === campaign.fieldId
-              ? { ...customFieldData, ...prepareCustomFieldData }
-              : customFieldData,
-          );
-        }
-
-        modifier.$set['customFieldsData'] = updatedCustomFieldsData || [];
+        // Replace propertiesData and remove the global score update
+        modifier.$set['propertiesData'] = updatedProperties;
         delete modifier.$set.score;
       }
 
