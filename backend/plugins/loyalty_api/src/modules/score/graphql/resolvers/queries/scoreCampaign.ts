@@ -3,6 +3,7 @@ import {
   IScoreCampaignParams,
 } from '@/score/@types/scoreCampaign';
 import { SCORE_CAMPAIGN_STATUSES } from '@/score/constants';
+import { Resolver } from 'erxes-api-shared/core-types';
 import {
   cursorPaginate,
   escapeRegExp,
@@ -48,7 +49,7 @@ const generateFilter = (
   return filter;
 };
 
-export const scoreCampaignQueries = {
+export const scoreCampaignQueries: Record<string, Resolver> = {
   scoreCampaigns: async (
     _root: undefined,
     params: IScoreCampaignParams,
@@ -140,9 +141,11 @@ export const scoreCampaignQueries = {
       campaignId,
       clientPortal,
     }: { ownerId: string; ownerType: string; campaignId: string; clientPortal: string },
-    { subdomain, models, checkPermission }: IContext,
+    { subdomain, models, checkPermission, user }: IContext,
   ) {
-    await checkPermission('loyaltyCampaignView');
+    if (user) {
+      await checkPermission('scoreLogView');
+    }
     const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
 
     if (!owner) {
@@ -173,11 +176,12 @@ export const scoreCampaignQueries = {
     _root: undefined,
     args: { ownerId: string; ownerType: string; campaignId: string; clientPortal: string },
     context: IContext,
+    info: any
   ) {
-    return scoreCampaignQueries.checkOwnerScore(_root, args, context);
+    return scoreCampaignQueries.checkOwnerScore(_root, args, context, info);
   },
 };
 
-(scoreCampaignQueries.cpCheckOwnerScore as any).wrapperConfig = {
+scoreCampaignQueries.cpCheckOwnerScore.wrapperConfig = {
   forClientPortal: true,
 };
