@@ -40,6 +40,5 @@ export interface IScoreLogParams extends ICursorPaginateParams {
   contentId?: string;
   contentType?: string;
   searchValue?: string;
-  page?: number;
-  logLimit?: number;
+  logsPerOwner?: number;
 }

@@ -6,8 +6,13 @@ import {
 import { SCORE_CAMPAIGN_STATUSES, SCORE_OWNER_TYPES } from '@/score/constants';
 import { scoreLogSchema } from '@/score/db/definitions/scoreLog';
 import { scoreStatistic } from '@/score/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { Model } from 'mongoose';
+import {
+  buildCursorQuery,
+  encodeCursor,
+  PageInfo,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
+import { Model, SortOrder } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
 import { getOwnerFieldScore } from './ScoreCampaign';
@@ -115,9 +120,23 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     public static async getScoreLogs(doc: IScoreLogParams) {
       const { stageId, pipelineId, boardId, number, orderType } = doc;
       const limit = Math.min(Math.max(Number(doc.limit) || 50, 1), 100);
-      const page = Math.max(Number(doc.page) || 1, 1);
-      const skip = (page - 1) * limit;
-      const logLimit = Math.min(Math.max(Number(doc.logLimit) || 5, 1), 100);
+      const direction = doc.direction === 'backward' ? 'backward' : 'forward';
+      const logsPerOwner = Math.min(
+        Math.max(Number(doc.logsPerOwner) || 5, 1),
+        100,
+      );
+      const orderBy: Record<string, SortOrder> =
+        orderType === 'createdAt' ? { createdAt: -1 } : { totalScore: -1 };
+      const sortFields = Object.keys(orderBy);
+      const sortOrder = {
+        ...Object.fromEntries(
+          Object.entries(orderBy).map(([field, order]) => [
+            field,
+            direction === 'forward' ? order : order === 1 ? -1 : 1,
+          ]),
+        ),
+        _id: direction === 'forward' ? 1 : -1,
+      };
 
       const filter = await generateFilter(doc, models, subdomain);
 
@@ -141,7 +160,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         filterAggregate.push(...lookup);
       }
 
-      const aggregation: any = [
+      const basePipeline: any[] = [
         ...filterAggregate,
         {
           $match: { ...filter },
@@ -169,35 +188,63 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
             totalScore: { $sum: '$signedScore' },
           },
         },
+      ];
+
+      const cursorMatch = doc.cursor
+        ? buildCursorQuery(doc.cursor, orderBy, direction, {
+            createdAt: 'date',
+            totalScore: 'number',
+          })
+        : null;
+
+      const listPipeline: any[] = [
+        ...basePipeline,
         {
           $project: {
-            _id: 0,
+            _id: '$_id',
             ownerId: '$_id',
             ownerType: 1,
-            logs: { $slice: ['$logs', logLimit] },
+            logs: { $slice: ['$logs', logsPerOwner] },
             createdAt: 1,
             totalScore: 1,
           },
         },
-        {
-          $sort:
-            orderType === 'createdAt' ? { createdAt: -1 } : { totalScore: -1 },
-        },
-        {
-          $facet: {
-            list: [{ $skip: skip }, { $limit: limit }],
-            total: [{ $count: 'count' }],
-          },
-        },
+        ...(cursorMatch ? [{ $match: cursorMatch }] : []),
+        { $sort: sortOrder },
+        { $limit: limit + 1 },
       ];
 
-      const [result] = await models.ScoreLogs.aggregate(
-        aggregation,
-      ).allowDiskUse(true);
-      const list = result?.list || [];
-      const total = result?.total?.[0]?.count || 0;
+      const [listRaw, countResult] = await Promise.all([
+        models.ScoreLogs.aggregate(listPipeline).allowDiskUse(true),
+        models.ScoreLogs.aggregate([
+          ...basePipeline,
+          { $count: 'totalCount' },
+        ]).allowDiskUse(true),
+      ]);
 
-      return { list, total };
+      const hasMore = listRaw.length > limit;
+      let list = hasMore ? listRaw.slice(0, limit) : listRaw;
+
+      if (direction === 'backward') {
+        list = list.reverse();
+      }
+
+      const pageInfo: PageInfo = {
+        hasNextPage: direction === 'forward' ? hasMore : Boolean(doc.cursor),
+        hasPreviousPage:
+          direction === 'backward' ? hasMore : Boolean(doc.cursor),
+        startCursor: list.length > 0 ? encodeCursor(list[0], sortFields) : null,
+        endCursor:
+          list.length > 0
+            ? encodeCursor(list[list.length - 1], sortFields)
+            : null,
+      };
+
+      return {
+        list,
+        pageInfo,
+        totalCount: countResult[0]?.totalCount || 0,
+      };
     }
 
     public static async getStatistic(doc: IScoreLogParams) {

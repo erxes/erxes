@@ -17,7 +17,9 @@ export const SCORE_LOG_LIST_QUERY = gql`
     $number: String
     $description: String
     $limit: Int
-    $logLimit: Int
+    $cursor: String
+    $direction: CURSOR_DIRECTION
+    $logsPerOwner: Int
   ) {
     scoreLogList(
       searchValue: $searchValue
@@ -35,7 +37,9 @@ export const SCORE_LOG_LIST_QUERY = gql`
       number: $number
       description: $description
       limit: $limit
-      logLimit: $logLimit
+      cursor: $cursor
+      direction: $direction
+      logsPerOwner: $logsPerOwner
     ) {
       list {
         ownerId
@@ -63,7 +67,13 @@ export const SCORE_LOG_LIST_QUERY = gql`
         }
         totalScore
       }
-      total
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      totalCount
     }
   }
 `;
