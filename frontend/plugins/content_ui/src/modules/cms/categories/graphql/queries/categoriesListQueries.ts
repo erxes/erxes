@@ -34,6 +34,7 @@ export const CMS_CATEGORIES = gql`
         customFieldsData
         translations {
           language
+          title
           content
         }
         parent {

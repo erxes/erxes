@@ -13,6 +13,7 @@ export const CMS_CATEGORIES_EDIT = gql`
       customFieldsData
       translations {
         language
+        title
         content
       }
       __typename

@@ -37,13 +37,14 @@ export const createCategoryFormSchema = (fields: FieldDefinition[]) => {
     .array(
       z.object({
         field: z.string(),
-        value: z.any().optional(),
+        value: z.unknown().optional(),
       }),
     )
     .default([])
     .superRefine((data, ctx) => {
       for (const field of requiredFields) {
-        const value = data.find((item) => item.field === field._id)?.value;
+        const item = data.find((item) => item.field === field._id);
+        const value = item?.value;
 
         if (isEmptyRequiredValue(value)) {
           ctx.addIssue({

@@ -11,6 +11,11 @@ export const CMS_CATEGORY_DETAIL = gql`
       slug
       status
       customFieldsData
+      translations {
+        language
+        title
+        content
+      }
       parent {
         _id
         clientPortalId

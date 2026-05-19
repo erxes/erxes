@@ -212,7 +212,9 @@ export function TagDrawer({
       return;
     }
 
-    applyTranslationToForm(cmsLanguage);
+    if (!form.getValues('name')) {
+      applyTranslationToForm(cmsLanguage);
+    }
     setSelectedLanguage(cmsLanguage);
   }, [
     isOpen,
@@ -221,6 +223,7 @@ export function TagDrawer({
     cmsLanguage,
     applyTranslationToForm,
     setSelectedLanguage,
+    form,
   ]);
 
   useEffect(() => {
@@ -233,7 +236,9 @@ export function TagDrawer({
       return;
     }
 
-    applyTranslationToForm(selectedLanguage);
+    if (!form.getValues('name')) {
+      applyTranslationToForm(selectedLanguage);
+    }
   }, [
     isOpen,
     selectedLanguage,
@@ -241,6 +246,7 @@ export function TagDrawer({
     translations,
     baseTag,
     applyTranslationToForm,
+    form,
   ]);
 
   const onLanguageChange = useCallback(
@@ -253,22 +259,13 @@ export function TagDrawer({
         setTranslationFormData,
         getOriginalTranslationData(),
       );
-
-      if (language === defaultLanguage) {
-        setTranslationFormData(defaultLangData || getOriginalTranslationData());
-      } else {
-        setTranslationFormData(translations[language] || {});
-      }
     },
     [
-      defaultLanguage,
-      defaultLangData,
       getCurrentTranslationData,
       getOriginalTranslationData,
       handleLanguageChange,
       setCmsLanguage,
       setTranslationFormData,
-      translations,
     ],
   );
 

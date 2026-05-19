@@ -36,6 +36,10 @@ export const useCategoriesColumns = (
   const { editCategory } = useEditCategory();
   const { isMissing, isNonDefaultLanguage } = useIsTranslationMissing();
   const selectedLanguage = useAtomValue(cmsLanguageAtom);
+  const [editingCell, setEditingCell] = useState<{
+    rowId: string;
+    value: string;
+  } | null>(null);
 
   return [
     categoryMoreColumn(clientPortalId, onEdit, undefined, onRefetch),
@@ -47,10 +51,7 @@ export const useCategoriesColumns = (
       cell: ({ cell }) => {
         const original = cell.row.original as ICategory & { _depth?: number };
         const missing = isMissing(original.translations);
-        const [editingCell, setEditingCell] = useState<{
-          rowId: string;
-          value: string;
-        } | null>(null);
+
         const isOpen = editingCell?.rowId === original._id;
         const currentValue =
           editingCell?.rowId === original._id && editingCell
