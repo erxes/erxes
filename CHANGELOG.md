@@ -1,5 +1,31 @@
 # Changelog
 
+## [2.17.53](https://github.com/erxes/erxes/compare/2.17.52...2.17.53) (2026-05-19)
+
+
+### Features
+
+* show related POS orders in deal right sidebar ([#7728](https://github.com/erxes/erxes/issues/7728)) ([ef0c4aa](https://github.com/erxes/erxes/commit/ef0c4aa8c8d7104acd519995d918d0bbc4955974))
+
+
+### Bug Fixes
+
+* insight correct totalAmount aggregation when grouping by paymentType ([1025c53](https://github.com/erxes/erxes/commit/1025c539bf92f5cdedb66de4a67740394b4eb78e))
+* **pos:** show service charge amount in daily report ([#7672](https://github.com/erxes/erxes/issues/7672)) ([e68d251](https://github.com/erxes/erxes/commit/e68d25171929b526f0743801c150a56d354f9f01))
+
+## [2.18.0](https://github.com/erxes/erxes/compare/2.17.52...2.18.0) (2026-05-19)
+
+
+### Features
+
+* show related POS orders in deal right sidebar ([#7728](https://github.com/erxes/erxes/issues/7728)) ([ef0c4aa](https://github.com/erxes/erxes/commit/ef0c4aa8c8d7104acd519995d918d0bbc4955974))
+
+
+### Bug Fixes
+
+* insight correct totalAmount aggregation when grouping by paymentType ([1025c53](https://github.com/erxes/erxes/commit/1025c539bf92f5cdedb66de4a67740394b4eb78e))
+* **pos:** show service charge amount in daily report ([#7672](https://github.com/erxes/erxes/issues/7672)) ([e68d251](https://github.com/erxes/erxes/commit/e68d25171929b526f0743801c150a56d354f9f01))
+
 ## [2.17.52](https://github.com/erxes/erxes/compare/2.17.51...2.17.52) (2026-05-12)
 
 ### Features
