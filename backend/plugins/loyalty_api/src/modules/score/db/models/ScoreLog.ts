@@ -289,7 +289,8 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       let ownerScore = owner.score;
 
-      if (campaignId) {
+      // Only use campaign-specific balance for earning (positive score)
+      if (score > 0 && campaignId) {
         const campaign = await models.ScoreCampaigns.findOne({
           _id: campaignId,
         });
@@ -313,12 +314,16 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         throw new Error(`score are not enough`);
       }
 
+      // For negative scores (gift/spend), do NOT pass campaignId – update global score only
+      const effectiveCampaignId =
+        score > 0 && campaignId ? campaignId : undefined;
+
       const response = await this.updateOwnerScore({
         subdomain,
         ownerId,
         ownerType,
         newScore,
-        campaignId,
+        campaignId: effectiveCampaignId,
       });
 
       if (!response || !Object.keys(response || {})?.length) {
@@ -332,7 +337,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         createdAt: new Date(),
         description,
         createdBy,
-        campaignId,
+        campaignId: effectiveCampaignId, // log with the effective campaignId (or undefined)
         action: 'add',
         targetId,
         serviceName,
