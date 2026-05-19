@@ -4,16 +4,16 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { Button, Form, Input, Sheet, toast } from 'erxes-ui';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { CONTENT_CMS_LIST } from '../graphql/queries';
-import { LanguageSelector } from '../shared/LanguageSelector';
+import { CONTENT_CMS_LIST } from '@/cms/graphql/queries';
+import { LanguageSelector } from '@/cms/shared/LanguageSelector';
 import {
   TranslationData,
   useCmsTranslation,
-} from '../shared/hooks/useCmsTranslation';
-import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
-import { CMS_TAGS_ADD, CMS_TAGS_EDIT } from './graphql/mutations';
-import { CMS_TAG_DETAIL } from './graphql/queries';
-import { CmsTag, TagFormData } from './types/tagTypes';
+} from '@/cms/shared/hooks/useCmsTranslation';
+import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
+import { CMS_TAGS_ADD, CMS_TAGS_EDIT } from '@/cms/tags/graphql/mutations';
+import { CMS_TAG_DETAIL } from '@/cms/tags/graphql/queries';
+import { CmsTag, TagFormData } from '@/cms/tags/types/tagTypes';
 
 interface TagDrawerProps {
   tag?: CmsTag;

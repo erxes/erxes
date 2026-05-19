@@ -16,18 +16,19 @@ import {
   IconFolder,
   IconCalendarPlus,
 } from '@tabler/icons-react';
-import { ICategory } from '../types/CategoriesType';
-import { useEditCategory } from '../hooks/useEditCategory';
-import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
+import { ICategory } from '@/cms/categories/types/CategoriesType';
+import { useEditCategory } from '@/cms/categories/hooks/useEditCategory';
+import { useIsTranslationMissing } from '@/cms/shared/hooks/useIsTranslationMissing';
 import { useAtomValue } from 'jotai';
-import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
+import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
+import { getTranslation } from '@/cms/shared/utils';
 
 function getDepthPrefix(depth: number): string {
   if (depth <= 0) return '';
   return '-'.repeat(depth) + ' ';
 }
 
-export const createCategoriesColumns = (
+export const useCategoriesColumns = (
   clientPortalId: string,
   onEdit?: (category: any) => void,
   onRefetch?: () => void,
@@ -57,12 +58,18 @@ export const createCategoriesColumns = (
             : (cell.getValue() as string);
 
         const onSave = async () => {
-          if (currentValue !== (original.name || '')) {
+          const trimmedValue = currentValue.trim();
+          if (!trimmedValue) {
+            setEditingCell(null);
+            return;
+          }
+
+          if (trimmedValue !== (original.name || '')) {
             await editCategory({
               variables: {
                 _id: original._id,
                 input: {
-                  name: currentValue,
+                  name: trimmedValue,
                   ...(selectedLanguage ? { language: selectedLanguage } : {}),
                 },
               },
@@ -119,8 +126,9 @@ export const createCategoriesColumns = (
       accessorKey: 'description',
       cell: ({ cell, row }) => {
         const category = row.original as ICategory;
-        const translation = category.translations?.find(
-          (item) => item.language === selectedLanguage,
+        const translation = getTranslation(
+          category.translations,
+          selectedLanguage,
         );
         const missing = isNonDefaultLanguage && !translation?.content?.trim();
         const value = cell.getValue() as string;
@@ -174,3 +182,4 @@ export const createCategoriesColumns = (
     },
   ];
 };
+

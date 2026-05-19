@@ -13,7 +13,7 @@ export interface FieldGroup {
 }
 
 interface CategoryCustomFieldsSectionProps<
-  T extends FieldValues = FieldValues,
+  T extends FieldValues & { customFieldsData?: any },
 > {
   fieldGroups: FieldGroup[];
   getCustomFieldValue: (fieldId: string) => CustomFieldValue;
@@ -38,7 +38,7 @@ const getCustomFieldsDataError = (
 };
 
 export const CategoryCustomFieldsSection = <
-  T extends FieldValues = FieldValues,
+  T extends FieldValues & { customFieldsData?: any },
 >({
   fieldGroups,
   getCustomFieldValue,
@@ -86,7 +86,7 @@ export const CategoryCustomFieldsSection = <
                       updateCustomFieldValue(field._id, value);
                       // Clear error when user starts typing
                       if (error) {
-                        form.clearErrors('customFieldsData' as FieldPath<T>);
+                        form.clearErrors('customFieldsData');
                       }
                     }}
                   />

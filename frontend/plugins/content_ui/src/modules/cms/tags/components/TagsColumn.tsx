@@ -11,13 +11,14 @@ import { ColumnDef } from '@tanstack/react-table';
 import { tagMoreColumn } from './TagsMoreColumn';
 import { useState } from 'react';
 import { IconTag, IconCalendar } from '@tabler/icons-react';
-import { CmsTag } from '../types/tagTypes';
-import { useEditTag } from '../hooks/useEditTag';
-import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
+import { CmsTag } from '@/cms/tags/types/tagTypes';
+import { useEditTag } from '@/cms/tags/hooks/useEditTag';
+import { useIsTranslationMissing } from '@/cms/shared/hooks/useIsTranslationMissing';
 import { useAtomValue } from 'jotai';
-import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
+import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
+import { getTranslation } from '@/cms/shared/utils';
 
-export const createTagsColumns = (
+export const useTagsColumns = (
   clientPortalId: string,
   onEdit?: (tag: any) => void,
   onRefetch?: () => void,
@@ -25,6 +26,10 @@ export const createTagsColumns = (
   const { editTag } = useEditTag();
   const { isNonDefaultLanguage } = useIsTranslationMissing();
   const selectedLanguage = useAtomValue(cmsLanguageAtom);
+  const [editingCell, setEditingCell] = useState<{
+    rowId: string;
+    value: string;
+  } | null>(null);
 
   return [
     tagMoreColumn(clientPortalId, onEdit, undefined, onRefetch),
@@ -35,14 +40,12 @@ export const createTagsColumns = (
       accessorKey: 'name',
       cell: ({ cell }) => {
         const original = cell.row.original as CmsTag;
-        const translation = original.translations?.find(
-          (item) => item.language === selectedLanguage,
+        const translation = getTranslation(
+          original.translations,
+          selectedLanguage,
         );
         const missing = isNonDefaultLanguage && !translation?.title?.trim();
-        const [editingCell, setEditingCell] = useState<{
-          rowId: string;
-          value: string;
-        } | null>(null);
+
         const isOpen = editingCell?.rowId === original._id;
         const currentValue =
           editingCell?.rowId === original._id && editingCell
@@ -50,9 +53,15 @@ export const createTagsColumns = (
             : (cell.getValue() as string);
 
         const onSave = async () => {
-          if (currentValue !== (original.name || '')) {
+          const trimmedValue = currentValue.trim();
+          if (!trimmedValue) {
+            setEditingCell(null);
+            return;
+          }
+
+          if (trimmedValue !== (original.name || '')) {
             await editTag(original._id, {
-              name: currentValue,
+              name: trimmedValue,
               slug: original.slug,
               clientPortalId: original.clientPortalId,
               colorCode: original.colorCode,
@@ -126,3 +135,4 @@ export const createTagsColumns = (
     },
   ];
 };
+
