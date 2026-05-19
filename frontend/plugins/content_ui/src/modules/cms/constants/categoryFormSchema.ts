@@ -88,9 +88,9 @@ export type DynamicCategoryFormType = z.infer<
 
 export type CategoryFormType = z.infer<typeof baseCategoryFormSchema> & {
   [key: `customFields.${string}`]:
-    | string
-    | boolean
-    | string[]
-    | null
-    | undefined;
+  | string
+  | boolean
+  | string[]
+  | null
+  | undefined;
 };
