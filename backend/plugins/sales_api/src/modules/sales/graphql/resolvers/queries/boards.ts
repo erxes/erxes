@@ -74,6 +74,14 @@ export const boardQueries = {
     return models.Boards.findOne({ _id }).lean();
   },
 
+  async cpSalesBoardDetail(
+    _root: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.Boards.findOne({ _id }).lean();
+  },
+
   /**
    * Get last board
    */
@@ -515,6 +523,10 @@ export const boardQueries = {
       context,
     );
   },
+};
+
+(boardQueries.cpSalesBoardDetail as any).wrapperConfig = {
+  forClientPortal: true,
 };
 
 (boardQueries.cpSalesBoards as any).wrapperConfig = {
