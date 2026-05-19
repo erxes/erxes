@@ -64,8 +64,8 @@ const queryParams = `
 
 export const queries = `
   scoreLogs(${queryParams} ${GQL_CURSOR_PARAM_DEFS}): ScoreLogListResponse
-  scoreLogList(${queryParams}, clientPortal:String): ScoreLogListResponse
-  cpScoreLogList(${queryParams}, clientPortal:String): ScoreLogListResponse
+  scoreLogList(${queryParams}, clientPortal:String): ScoreLogList
+  cpScoreLogList(${queryParams}, clientPortal:String): ScoreLogList
   scoreLogStatistics(${queryParams}): JSON
 `;
 

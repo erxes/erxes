@@ -138,6 +138,12 @@ const doScoreCampaignInput = z.object({
   targetId: z.string(),
 }).passthrough();
 
+const getScoreCampaignsByStageInput = z.object({
+  boardId: z.string(),
+  pipelineId: z.string(),
+  stageId: z.string(),
+});
+
 const refundLoyaltyScoreInput = z.object({
   targetId: z.string(),
   ownerType: z.string(),
@@ -367,6 +373,24 @@ export const appRouter = t.router({
         const data = await models.ScoreCampaigns.checkScoreAviableSubtract(
           input as any,
         );
+        return { data, status: 'success' };
+      }),
+
+    getScoreCampaignsByStage: t.procedure
+      .input(getScoreCampaignsByStageInput)
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const data = await models.ScoreCampaigns.find({
+          status: 'published',
+          'additionalConfig.cardBasedRule': {
+            $elemMatch: {
+              boardId: input.boardId,
+              pipelineId: input.pipelineId,
+              stageIds: input.stageId,
+            },
+          },
+        }).lean();
+
         return { data, status: 'success' };
       }),
 
