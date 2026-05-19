@@ -10,6 +10,7 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
+import { getOwnerFieldScore } from './ScoreCampaign';
 
 export interface IScoreLogModel extends Model<IScoreLogDocument> {
   getScoreLog(_id: string): Promise<IScoreLogDocument>;
@@ -18,20 +19,6 @@ export interface IScoreLogModel extends Model<IScoreLogDocument> {
   changeScore(doc: IScoreLog): Promise<IScoreLogDocument>;
   changeOwnersScore(doc): Promise<IScoreLogDocument>;
 }
-
-const getOwnerFieldScore = (owner: any, fieldId?: string) => {
-  if (!fieldId) {
-    return Number(owner?.score) || 0;
-  }
-
-  return (
-    Number(
-      owner?.propertiesData?.[fieldId] ??
-        (owner?.customFieldsData || []).find(({ field }) => field === fieldId)
-          ?.value,
-    ) || 0
-  );
-};
 
 const generateFilter = async (
   params: IScoreLogParams,
