@@ -3,7 +3,7 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { confirmVoucherSale } from '~/utils';
 
-export const loyaltyMutations: Record<string, Resolver<any, any, any>> = {
+export const loyaltyMutations: Record<string, Resolver> = {
   async shareScore(
     _root: undefined,
     doc: {
@@ -16,9 +16,11 @@ export const loyaltyMutations: Record<string, Resolver<any, any, any>> = {
       destinationCode: string;
       campaignId?: string;
     },
-    { models, subdomain, checkPermission }: IContext,
+    { models, subdomain, checkPermission, user }: IContext,
   ) {
-    await checkPermission('loyaltyShareScore');
+    if (user) {
+      await checkPermission('loyaltyShareScore');
+    }
     const {
       ownerType,
       ownerId,
@@ -127,8 +129,9 @@ export const loyaltyMutations: Record<string, Resolver<any, any, any>> = {
       destinationCode: string;
     },
     context: IContext,
+    info: any
   ) {
-    return loyaltyMutations.shareScore(_root, doc, context, undefined as any);
+    return loyaltyMutations.shareScore(_root, doc, context, info);
   },
 
   async confirmLoyalties(
