@@ -1,8 +1,9 @@
 import dayjs from 'dayjs';
-import { fixNum } from 'erxes-ui';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
+import { formatNumber } from './shared';
 
-const formatNumber = (value: number) => fixNum(value, 2).toLocaleString();
+const TH = 'border border-black px-1 py-1 font-medium';
+const TD = 'border border-black px-1 py-1.5';
 
 // inv_move_1 / inv_move_2 differ only in the ministry-order note suffix.
 export type InvMoveVariant = 'standard' | 'byPrice';
@@ -75,77 +76,45 @@ export const PrintInvMoveDocument = ({
       <table className="w-full border-collapse border border-black text-[11px]">
         <thead>
           <tr>
-            <th className="w-8 border border-black px-1 py-1 font-medium">
-              №
-            </th>
-            <th className="border border-black px-2 py-1 font-medium">
-              Бараа материал
-            </th>
-            <th className="border border-black px-1 py-1 font-medium">
-              Хэмжих нэгж
-            </th>
-            <th className="border border-black px-1 py-1 font-medium">
-              Хаанаас
-            </th>
-            <th className="border border-black px-1 py-1 font-medium">
-              Данснаас
-            </th>
-            <th className="border border-black px-1 py-1 font-medium">
-              Хаашаа
-            </th>
-            <th className="border border-black px-1 py-1 font-medium">
-              Дансанд
-            </th>
-            <th className="border border-black px-1 py-1 font-medium">Тоо</th>
-            <th className="border border-black px-1 py-1 font-medium">
-              Нэгжийн үнэ
-            </th>
-            <th className="border border-black px-1 py-1 font-medium">Үнэ</th>
+            <th className={`${TH} w-8`}>№</th>
+            <th className={`${TH} px-2`}>Бараа материал</th>
+            <th className={TH}>Хэмжих нэгж</th>
+            <th className={TH}>Хаанаас</th>
+            <th className={TH}>Данснаас</th>
+            <th className={TH}>Хаашаа</th>
+            <th className={TH}>Дансанд</th>
+            <th className={TH}>Тоо</th>
+            <th className={TH}>Нэгжийн үнэ</th>
+            <th className={TH}>Үнэ</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((row, idx) => (
             <tr key={idx}>
-              <td className="border border-black px-1 py-1.5 text-center">
-                {idx + 1}
-              </td>
-              <td className="border border-black px-2 py-1.5">
-                {row.name || ' '}
-              </td>
-              <td className="border border-black px-1 py-1.5 text-center">
-                {row.unit || ' '}
-              </td>
-              <td className="border border-black px-1 py-1.5">
-                {row.from || ' '}
-              </td>
-              <td className="border border-black px-1 py-1.5">
-                {row.fromAccount || ' '}
-              </td>
-              <td className="border border-black px-1 py-1.5">
-                {row.to || ' '}
-              </td>
-              <td className="border border-black px-1 py-1.5">
-                {row.toAccount || ' '}
-              </td>
-              <td className="border border-black px-1 py-1.5 text-right">
+              <td className={`${TD} text-center`}>{idx + 1}</td>
+              <td className={`${TD} px-2`}>{row.name || ' '}</td>
+              <td className={`${TD} text-center`}>{row.unit || ' '}</td>
+              <td className={TD}>{row.from || ' '}</td>
+              <td className={TD}>{row.fromAccount || ' '}</td>
+              <td className={TD}>{row.to || ' '}</td>
+              <td className={TD}>{row.toAccount || ' '}</td>
+              <td className={`${TD} text-right`}>
                 {row.count ? row.count.toLocaleString() : ' '}
               </td>
-              <td className="border border-black px-1 py-1.5 text-right">
+              <td className={`${TD} text-right`}>
                 {row.unitPrice ? formatNumber(row.unitPrice) : ' '}
               </td>
-              <td className="border border-black px-1 py-1.5 text-right">
+              <td className={`${TD} text-right`}>
                 {formatNumber(row.lineAmount)}
               </td>
             </tr>
           ))}
           <tr>
-            <td className="border border-black px-1 py-1.5" />
-            <td className="border border-black px-2 py-1.5 text-center font-medium">
-              Дүн
-            </td>
-            <td className="border border-black px-1 py-1.5" colSpan={6} />
-            <td className="border border-black px-1 py-1.5 text-right" />
-            <td className="border border-black px-1 py-1.5 text-right font-bold">
+            <td className={TD} />
+            <td className={`${TD} px-2 text-center font-medium`}>Дүн</td>
+            <td className={TD} colSpan={6} />
+            <td className={`${TD} text-right`} />
+            <td className={`${TD} text-right font-bold`}>
               {formatNumber(total)}
             </td>
           </tr>

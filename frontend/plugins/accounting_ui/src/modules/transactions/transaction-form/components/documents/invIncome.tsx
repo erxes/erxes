@@ -1,8 +1,18 @@
-import dayjs from 'dayjs';
-import { fixNum } from 'erxes-ui';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
+import {
+  A4Sheet,
+  FormHeader,
+  SignLine,
+  TwinSheet,
+  buildRows,
+  formatNumber,
+  getMeta,
+  padRows,
+  sumAmount,
+} from './shared';
 
-const formatNumber = (value: number) => fixNum(value, 2).toLocaleString();
+const TH = 'border border-black px-1 py-1 font-medium';
+const TD = 'border border-black px-1 py-1.5';
 
 // Four Бараа материалын орлого (inventory income) layouts.
 export type InvIncomeVariant =
@@ -11,63 +21,11 @@ export type InvIncomeVariant =
   | 'discount' // inv_income_3 — "Худалдаж авсан" group with a discount block
   | 'numbered'; // inv_income_4 — "ОРЛОГЫН БАРИМТ №" with a "Хүлээн авсан" group
 
-interface IIncomeRow {
-  name: string;
-  unit: string;
-  count: number;
-  unitPrice: number;
-  amount: number;
-}
-
-const buildRows = (transaction: ITransaction): IIncomeRow[] =>
-  (transaction?.details || []).map((d) => {
-    const count = d.count ?? 0;
-    const amount = d.amount ?? count * (d.unitPrice ?? 0);
-    const unitPrice = d.unitPrice ?? (count > 0 ? amount / count : amount);
-
-    return {
-      name: d.product?.name || d.account?.name || '',
-      unit: d.product?.uom || '',
-      count,
-      unitPrice,
-      amount,
-    };
-  });
-
-const getMeta = (transaction: ITransaction) => ({
-  documentNo: transaction?.number || transaction?.ptrNumber || '',
-  date: transaction?.date
-    ? dayjs(transaction.date).format('YYYY.MM.DD')
-    : '',
-});
-
-const FormHeader = ({ code }: { code: string }) => (
-  <div className="flex items-start justify-between text-[11px]">
-    <div className="font-medium">{code}</div>
-    <div className="text-right leading-tight">
-      Сангийн сайдын 2017 оны 347 дугаар
-      <br />
-      тушаалын хавсралт
-    </div>
-  </div>
-);
-
-// One signature line, e.g. "Хүлээн авсан: ......./......./".
-const SignLine = ({ label }: { label: string }) => (
-  <div className="flex items-end gap-2 text-[11px]">
-    <span className="shrink-0">{label}:</span>
-    <span className="inline-block flex-1 border-b border-dotted border-black" />
-    <span>/</span>
-    <span className="inline-block w-56 border-b border-dotted border-black" />
-    <span>/</span>
-  </div>
-);
-
 // === inv_income_1: one side of the twin simple receipt.
 const TwinReceipt = ({ transaction }: { transaction: ITransaction }) => {
   const rows = buildRows(transaction);
-  const total = rows.reduce((sum, r) => sum + r.amount, 0);
-  const filled = [...rows, ...Array(Math.max(0, 2 - rows.length)).fill(null)];
+  const total = sumAmount(rows);
+  const filled = padRows(rows, 2);
 
   return (
     <div className="flex-1">
@@ -85,47 +43,35 @@ const TwinReceipt = ({ transaction }: { transaction: ITransaction }) => {
       <table className="w-full border-collapse border border-black text-[11px]">
         <thead>
           <tr>
-            <th className="border border-black px-1 py-1 font-medium">
-              Бараа материал
-            </th>
-            <th className="border border-black px-1 py-1 font-medium">
-              Хэмжих нэгж
-            </th>
-            <th className="border border-black px-1 py-1 font-medium">Тоо</th>
-            <th className="border border-black px-1 py-1 font-medium">
-              Нэгжийн үнэ
-            </th>
-            <th className="border border-black px-1 py-1 font-medium">Үнэ</th>
+            <th className={TH}>Бараа материал</th>
+            <th className={TH}>Хэмжих нэгж</th>
+            <th className={TH}>Тоо</th>
+            <th className={TH}>Нэгжийн үнэ</th>
+            <th className={TH}>Үнэ</th>
           </tr>
         </thead>
         <tbody>
           {filled.map((row, idx) => (
             <tr key={idx}>
-              <td className="border border-black px-1 py-1.5">
-                {row?.name || ' '}
-              </td>
-              <td className="border border-black px-1 py-1.5 text-center">
-                {row?.unit || ' '}
-              </td>
-              <td className="border border-black px-1 py-1.5 text-right">
+              <td className={TD}>{row?.name || ' '}</td>
+              <td className={`${TD} text-center`}>{row?.unit || ' '}</td>
+              <td className={`${TD} text-right`}>
                 {row?.count ? row.count.toLocaleString() : ' '}
               </td>
-              <td className="border border-black px-1 py-1.5 text-right">
+              <td className={`${TD} text-right`}>
                 {row ? formatNumber(row.unitPrice) : ' '}
               </td>
-              <td className="border border-black px-1 py-1.5 text-right">
+              <td className={`${TD} text-right`}>
                 {row ? formatNumber(row.amount) : ' '}
               </td>
             </tr>
           ))}
           <tr>
-            <td className="border border-black px-1 py-1.5 font-medium">
-              Дүн:
-            </td>
-            <td className="border border-black px-1 py-1.5 text-center">X</td>
-            <td className="border border-black px-1 py-1.5 text-center">X</td>
-            <td className="border border-black px-1 py-1.5 text-center">X</td>
-            <td className="border border-black px-1 py-1.5 text-right font-bold">
+            <td className={`${TD} font-medium`}>Дүн:</td>
+            <td className={`${TD} text-center`}>X</td>
+            <td className={`${TD} text-center`}>X</td>
+            <td className={`${TD} text-center`}>X</td>
+            <td className={`${TD} text-right font-bold`}>
               {formatNumber(total)}
             </td>
           </tr>
@@ -143,14 +89,11 @@ const TwinReceipt = ({ transaction }: { transaction: ITransaction }) => {
 // === inv_income_2: single simple receipt.
 const SimpleReceipt = ({ transaction }: { transaction: ITransaction }) => {
   const rows = buildRows(transaction);
-  const total = rows.reduce((sum, r) => sum + r.amount, 0);
-  const filled = [...rows, ...Array(Math.max(0, 5 - rows.length)).fill(null)];
+  const total = sumAmount(rows);
+  const filled = padRows(rows, 5);
 
   return (
-    <div
-      id="print-area"
-      className="w-[210mm] min-h-[297mm] bg-white px-[18mm] py-[14mm] font-serif text-[12px] leading-snug text-black shadow-sidebar-inset"
-    >
+    <A4Sheet paddingX="18mm">
       <FormHeader code="НХМаягт БМ2" />
       <div className="mt-1 border-b border-black pb-1 font-bold">
         Байгууллага:
@@ -165,47 +108,35 @@ const SimpleReceipt = ({ transaction }: { transaction: ITransaction }) => {
       <table className="w-full border-collapse border border-black text-[11px]">
         <thead>
           <tr>
-            <th className="border border-black px-2 py-1 font-medium">
-              Бараа материал
-            </th>
-            <th className="border border-black px-2 py-1 font-medium">
-              Хэмжих нэгж
-            </th>
-            <th className="border border-black px-1 py-1 font-medium">Тоо</th>
-            <th className="border border-black px-2 py-1 font-medium">
-              Нэгжийн үнэ
-            </th>
-            <th className="border border-black px-1 py-1 font-medium">Үнэ</th>
+            <th className={`${TH} px-2`}>Бараа материал</th>
+            <th className={`${TH} px-2`}>Хэмжих нэгж</th>
+            <th className={TH}>Тоо</th>
+            <th className={`${TH} px-2`}>Нэгжийн үнэ</th>
+            <th className={TH}>Үнэ</th>
           </tr>
         </thead>
         <tbody>
           {filled.map((row, idx) => (
             <tr key={idx}>
-              <td className="border border-black px-2 py-1.5">
-                {row?.name || ' '}
-              </td>
-              <td className="border border-black px-2 py-1.5 text-center">
-                {row?.unit || ' '}
-              </td>
-              <td className="border border-black px-1 py-1.5 text-right">
+              <td className={`${TD} px-2`}>{row?.name || ' '}</td>
+              <td className={`${TD} px-2 text-center`}>{row?.unit || ' '}</td>
+              <td className={`${TD} text-right`}>
                 {row?.count ? row.count.toLocaleString() : ' '}
               </td>
-              <td className="border border-black px-2 py-1.5 text-right">
+              <td className={`${TD} px-2 text-right`}>
                 {row ? formatNumber(row.unitPrice) : ' '}
               </td>
-              <td className="border border-black px-1 py-1.5 text-right">
+              <td className={`${TD} text-right`}>
                 {row ? formatNumber(row.amount) : ' '}
               </td>
             </tr>
           ))}
           <tr>
-            <td className="border border-black px-2 py-1.5 font-medium">
-              Дүн:
-            </td>
-            <td className="border border-black px-2 py-1.5 text-center">X</td>
-            <td className="border border-black px-1 py-1.5 text-center">X</td>
-            <td className="border border-black px-2 py-1.5 text-center">X</td>
-            <td className="border border-black px-1 py-1.5 text-right font-bold">
+            <td className={`${TD} px-2 font-medium`}>Дүн:</td>
+            <td className={`${TD} px-2 text-center`}>X</td>
+            <td className={`${TD} text-center`}>X</td>
+            <td className={`${TD} px-2 text-center`}>X</td>
+            <td className={`${TD} text-right font-bold`}>
               {formatNumber(total)}
             </td>
           </tr>
@@ -217,7 +148,7 @@ const SimpleReceipt = ({ transaction }: { transaction: ITransaction }) => {
         <SignLine label="Хүлээлгэн өгсөн" />
         <SignLine label="Шалгасан нягтлан бодогч" />
       </div>
-    </div>
+    </A4Sheet>
   );
 };
 
@@ -225,16 +156,13 @@ const SimpleReceipt = ({ transaction }: { transaction: ITransaction }) => {
 const DiscountReceipt = ({ transaction }: { transaction: ITransaction }) => {
   const { documentNo } = getMeta(transaction);
   const rows = buildRows(transaction);
-  const total = rows.reduce((sum, r) => sum + r.amount, 0);
+  const total = sumAmount(rows);
   const discount = transaction?.extraData?.discount ?? 0;
   const grandTotal = total - discount;
-  const filled = [...rows, ...Array(Math.max(0, 4 - rows.length)).fill(null)];
+  const filled = padRows(rows, 4);
 
   return (
-    <div
-      id="print-area"
-      className="w-[210mm] min-h-[297mm] bg-white px-[16mm] py-[14mm] font-serif text-[12px] leading-snug text-black shadow-sidebar-inset"
-    >
+    <A4Sheet>
       <FormHeader code="НХМаягт БМ3" />
       <div className="mt-1 border-b border-black pb-1 font-bold">
         Байгууллага:
@@ -249,100 +177,66 @@ const DiscountReceipt = ({ transaction }: { transaction: ITransaction }) => {
       <table className="w-full border-collapse border border-black text-[11px]">
         <thead>
           <tr>
-            <th
-              rowSpan={2}
-              className="border border-black px-2 py-1 font-medium"
-            >
+            <th rowSpan={2} className={`${TH} px-2`}>
               Бараа материал
             </th>
-            <th
-              rowSpan={2}
-              className="border border-black px-1 py-1 font-medium"
-            >
+            <th rowSpan={2} className={TH}>
               Хэм,нэгж
             </th>
-            <th
-              rowSpan={2}
-              className="border border-black px-2 py-1 font-medium"
-            >
+            <th rowSpan={2} className={`${TH} px-2`}>
               Нэгж үнэ
             </th>
-            <th
-              colSpan={4}
-              className="border border-black px-2 py-1 font-medium"
-            >
+            <th colSpan={4} className={`${TH} px-2`}>
               Худалдаж авсан
             </th>
           </tr>
           <tr>
-            <th className="border border-black px-1 py-1 font-medium">Тоо</th>
-            <th className="border border-black px-1 py-1 font-medium">
-              Хөн,хувь
-            </th>
-            <th className="border border-black px-1 py-1 font-medium">
-              Хөнгөлөлт
-            </th>
-            <th className="border border-black px-1 py-1 font-medium">Дүн</th>
+            <th className={TH}>Тоо</th>
+            <th className={TH}>Хөн,хувь</th>
+            <th className={TH}>Хөнгөлөлт</th>
+            <th className={TH}>Дүн</th>
           </tr>
         </thead>
         <tbody>
           {filled.map((row, idx) => (
             <tr key={idx}>
-              <td className="border border-black px-2 py-1.5">
-                {row?.name || ' '}
-              </td>
-              <td className="border border-black px-1 py-1.5 text-center">
-                {row?.unit || ' '}
-              </td>
-              <td className="border border-black px-2 py-1.5 text-right">
+              <td className={`${TD} px-2`}>{row?.name || ' '}</td>
+              <td className={`${TD} text-center`}>{row?.unit || ' '}</td>
+              <td className={`${TD} px-2 text-right`}>
                 {row ? formatNumber(row.unitPrice) : ' '}
               </td>
-              <td className="border border-black px-1 py-1.5 text-right">
+              <td className={`${TD} text-right`}>
                 {row?.count ? row.count.toLocaleString() : ' '}
               </td>
-              <td className="border border-black px-1 py-1.5 text-right">
-                &nbsp;
-              </td>
-              <td className="border border-black px-1 py-1.5 text-right">
-                &nbsp;
-              </td>
-              <td className="border border-black px-1 py-1.5 text-right">
+              <td className={`${TD} text-right`}>&nbsp;</td>
+              <td className={`${TD} text-right`}>&nbsp;</td>
+              <td className={`${TD} text-right`}>
                 {row ? formatNumber(row.amount) : ' '}
               </td>
             </tr>
           ))}
           <tr>
-            <td className="border border-black px-2 py-1.5 font-medium">
-              Дүн:
-            </td>
-            <td className="border border-black px-1 py-1.5 text-center">X</td>
-            <td className="border border-black px-2 py-1.5 text-center">X</td>
-            <td className="border border-black px-1 py-1.5 text-center">X</td>
-            <td className="border border-black px-1 py-1.5 text-center">X</td>
-            <td className="border border-black px-1 py-1.5" />
-            <td className="border border-black px-1 py-1.5 text-right font-bold">
+            <td className={`${TD} px-2 font-medium`}>Дүн:</td>
+            <td className={`${TD} text-center`}>X</td>
+            <td className={`${TD} px-2 text-center`}>X</td>
+            <td className={`${TD} text-center`}>X</td>
+            <td className={`${TD} text-center`}>X</td>
+            <td className={TD} />
+            <td className={`${TD} text-right font-bold`}>
               {formatNumber(total)}
             </td>
           </tr>
           <tr>
-            <td
-              colSpan={6}
-              className="border border-black px-2 py-1.5 text-right font-medium"
-            >
+            <td colSpan={6} className={`${TD} px-2 text-right font-medium`}>
               Хөнгөлөлт:
             </td>
-            <td className="border border-black px-1 py-1.5 text-right">
-              {formatNumber(discount)}
-            </td>
+            <td className={`${TD} text-right`}>{formatNumber(discount)}</td>
           </tr>
           <tr>
-            <td
-              colSpan={6}
-              className="border border-black px-2 py-1.5 text-right font-medium"
-            >
+            <td colSpan={6} className={`${TD} px-2 text-right font-medium`}>
               Нийт дүн:
             </td>
-            <td className="border border-black px-1 py-1.5 text-right font-bold">
+            <td className={`${TD} text-right font-bold`}>
               {formatNumber(grandTotal)}
             </td>
           </tr>
@@ -354,7 +248,7 @@ const DiscountReceipt = ({ transaction }: { transaction: ITransaction }) => {
         <SignLine label="Хүлээлгэн өгсөн" />
         <SignLine label="Шалгасан нягтлан бодогч" />
       </div>
-    </div>
+    </A4Sheet>
   );
 };
 
@@ -362,14 +256,11 @@ const DiscountReceipt = ({ transaction }: { transaction: ITransaction }) => {
 const NumberedReceipt = ({ transaction }: { transaction: ITransaction }) => {
   const { documentNo } = getMeta(transaction);
   const rows = buildRows(transaction);
-  const total = rows.reduce((sum, r) => sum + r.amount, 0);
-  const filled = [...rows, ...Array(Math.max(0, 5 - rows.length)).fill(null)];
+  const total = sumAmount(rows);
+  const filled = padRows(rows, 5);
 
   return (
-    <div
-      id="print-area"
-      className="w-[210mm] min-h-[297mm] bg-white px-[16mm] py-[14mm] font-serif text-[12px] leading-snug text-black shadow-sidebar-inset"
-    >
+    <A4Sheet>
       <FormHeader code="НХМаягт БМ-2" />
       <div className="mt-1 border-b border-black pb-1 font-bold">
         Байгууллагын нэр:
@@ -384,74 +275,51 @@ const NumberedReceipt = ({ transaction }: { transaction: ITransaction }) => {
       <table className="w-full border-collapse border border-black text-[11px]">
         <thead>
           <tr>
-            <th
-              rowSpan={2}
-              className="w-8 border border-black px-1 py-1 font-medium"
-            >
+            <th rowSpan={2} className={`${TH} w-8`}>
               №
             </th>
-            <th
-              rowSpan={2}
-              className="border border-black px-2 py-1 font-medium"
-            >
+            <th rowSpan={2} className={`${TH} px-2`}>
               Материалын үнэт зүйлийн нэр,зэрэг, дугаар
             </th>
-            <th
-              rowSpan={2}
-              className="border border-black px-1 py-1 font-medium"
-            >
+            <th rowSpan={2} className={TH}>
               Хэмжих нэгж
             </th>
-            <th
-              rowSpan={2}
-              className="border border-black px-2 py-1 font-medium"
-            >
+            <th rowSpan={2} className={`${TH} px-2`}>
               Нэг бүрийн үнэ
             </th>
-            <th
-              colSpan={2}
-              className="border border-black px-2 py-1 font-medium"
-            >
+            <th colSpan={2} className={`${TH} px-2`}>
               Хүлээн авсан
             </th>
           </tr>
           <tr>
-            <th className="border border-black px-1 py-1 font-medium">Тоо</th>
-            <th className="border border-black px-1 py-1 font-medium">Үнэ</th>
+            <th className={TH}>Тоо</th>
+            <th className={TH}>Үнэ</th>
           </tr>
         </thead>
         <tbody>
           {filled.map((row, idx) => (
             <tr key={idx}>
-              <td className="border border-black px-1 py-2 text-center">
-                {idx + 1}
-              </td>
-              <td className="border border-black px-2 py-2">
-                {row?.name || ' '}
-              </td>
-              <td className="border border-black px-1 py-2 text-center">
-                {row?.unit || ' '}
-              </td>
-              <td className="border border-black px-2 py-2 text-right">
+              <td className={`${TD} py-2 text-center`}>{idx + 1}</td>
+              <td className={`${TD} px-2 py-2`}>{row?.name || ' '}</td>
+              <td className={`${TD} py-2 text-center`}>{row?.unit || ' '}</td>
+              <td className={`${TD} px-2 py-2 text-right`}>
                 {row ? formatNumber(row.unitPrice) : ' '}
               </td>
-              <td className="border border-black px-1 py-2 text-right">
+              <td className={`${TD} py-2 text-right`}>
                 {row?.count ? row.count.toLocaleString() : ' '}
               </td>
-              <td className="border border-black px-1 py-2 text-right">
+              <td className={`${TD} py-2 text-right`}>
                 {row ? formatNumber(row.amount) : ' '}
               </td>
             </tr>
           ))}
           <tr>
-            <td className="border border-black px-1 py-1.5" />
-            <td className="border border-black px-2 py-1.5 font-medium">
-              Дүн:
-            </td>
-            <td className="border border-black px-1 py-1.5 text-center">X</td>
-            <td className="border border-black px-2 py-1.5 text-center">X</td>
-            <td className="border border-black px-1 py-1.5 text-center">X</td>
-            <td className="border border-black px-1 py-1.5 text-right font-bold">
+            <td className={TD} />
+            <td className={`${TD} px-2 font-medium`}>Дүн:</td>
+            <td className={`${TD} text-center`}>X</td>
+            <td className={`${TD} px-2 text-center`}>X</td>
+            <td className={`${TD} text-center`}>X</td>
+            <td className={`${TD} text-right font-bold`}>
               {formatNumber(total)}
             </td>
           </tr>
@@ -463,19 +331,9 @@ const NumberedReceipt = ({ transaction }: { transaction: ITransaction }) => {
         <SignLine label="Хүлээлгэн өгсөн" />
         <SignLine label="Шалгасан нягтлан бодогч" />
       </div>
-    </div>
+    </A4Sheet>
   );
 };
-
-// Twin-layout wrapper for inv_income_1 (two receipts per landscape sheet).
-const TwinSheet = ({ children }: { children: React.ReactNode }) => (
-  <div
-    id="print-area"
-    className="w-[297mm] min-h-[210mm] bg-white px-[14mm] py-[14mm] font-serif text-black shadow-sidebar-inset"
-  >
-    <div className="flex gap-8">{children}</div>
-  </div>
-);
 
 export const PrintInvIncomeDocument = ({
   transaction,
