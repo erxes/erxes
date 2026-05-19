@@ -2,9 +2,10 @@ import { canGroup } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { checkUserIds, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { IDeal, IProductData } from '~/modules/sales/@types';
+import { IDeal, IDealDocument, IProductData } from '~/modules/sales/@types';
 import {
   createRelations,
+  getCompanyIds,
   getCustomerIds,
   getNewOrder,
   sendNotifications,
@@ -81,6 +82,103 @@ export const addDeal = async ({
     pipelineId: stage.pipelineId,
   });
   return deal;
+};
+
+export const processStageChangeScoreCampaigns = async ({
+  subdomain,
+  models,
+  deal,
+  newStageId,
+  user,
+}: {
+  subdomain: string;
+  models: IModels;
+  deal: IDealDocument | (IDeal & { _id: string });
+  newStageId: string;
+  user: IUserDocument;
+}) => {
+  try {
+    const stage = await models.Stages.getStage(newStageId);
+    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+
+    const result = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      method: 'query',
+      module: 'score',
+      action: 'getScoreCampaignsByStage',
+      input: {
+        boardId: pipeline.boardId,
+        pipelineId: stage.pipelineId,
+        stageId: newStageId,
+      },
+      defaultValue: [],
+    });
+
+    const campaigns = getTRPCData(result, []);
+
+    if (!campaigns.length) {
+      return;
+    }
+
+    const freshDeal = await models.Deals.findOne({ _id: deal._id }).lean();
+
+    if (!freshDeal) {
+      return;
+    }
+
+    for (const campaign of campaigns) {
+      const rule = campaign.additionalConfig?.cardBasedRule?.find(
+        (cardRule: any) => cardRule.stageIds?.includes(newStageId),
+      );
+
+      if (!rule) {
+        continue;
+      }
+
+      const ownerType = campaign.ownerType || 'customer';
+      let ownerId: string | undefined;
+
+      if (ownerType === 'customer') {
+        const [customerId] =
+          (await getCustomerIds(subdomain, freshDeal._id)) || [];
+        ownerId = customerId;
+      } else if (ownerType === 'company') {
+        const [companyId] =
+          (await getCompanyIds(subdomain, freshDeal._id)) || [];
+        ownerId = companyId;
+      } else if (ownerType === 'user') {
+        ownerId = user._id;
+      }
+
+      if (!ownerId) {
+        continue;
+      }
+
+      await sendTRPCMessage({
+        subdomain,
+        pluginName: 'loyalty',
+        method: 'mutation',
+        module: 'score',
+        action: 'doScoreCampaign',
+        input: {
+          ownerType,
+          ownerId,
+          campaignId: campaign._id,
+          target: freshDeal,
+          actionMethod: rule.actionMethod || 'add',
+          serviceName: 'sales',
+          targetId: freshDeal._id,
+        },
+        defaultValue: null,
+      });
+    }
+  } catch (error) {
+    console.error(
+      'Error processing stage-change score campaigns:',
+      error instanceof Error ? error.message : error,
+    );
+  }
 };
 
 export const editDeal = async ({
@@ -247,6 +345,14 @@ export const editDeal = async ({
   if (oldDeal.stageId === updatedItem.stageId) {
     return updatedItem;
   }
+
+  await processStageChangeScoreCampaigns({
+    subdomain,
+    models,
+    deal: updatedItem,
+    newStageId: updatedItem.stageId,
+    user,
+  });
 
   // if task moves between stages
   await itemMover(models, user._id, oldDeal, updatedItem.stageId);

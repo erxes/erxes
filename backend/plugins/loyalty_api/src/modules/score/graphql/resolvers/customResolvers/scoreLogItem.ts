@@ -56,6 +56,10 @@ const fetchTarget = async ({
 };
 
 export default {
+  change({ changeScore }: any) {
+    return changeScore ?? null;
+  },
+
   async campaign(
     { campaignId }: IScoreLog,
     _args: undefined,
