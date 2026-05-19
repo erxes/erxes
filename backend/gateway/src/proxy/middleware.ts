@@ -8,6 +8,7 @@ import { ErxesProxyTarget } from '~/proxy/targets';
 dotenv.config();
 
 const { NODE_ENV } = process.env;
+const DEBUG_GATEWAY_AUTH = process.env.DEBUG_GATEWAY_AUTH === 'true';
 
 const proxyAgent = new Agent({
   keepAlive: true,
@@ -29,6 +30,24 @@ export const proxyReq = (proxyReq, req: any) => {
 
   safeSetHeader('hostname', req.hostname || '');
   safeSetHeader('userid', req.user?._id || '');
+
+  if (DEBUG_GATEWAY_AUTH && req.originalUrl?.startsWith('/graphql')) {
+    console.log(
+      JSON.stringify({
+        scope: 'gateway-proxy',
+        event: 'proxy-graphql-request',
+        method: req.method,
+        path: req.originalUrl,
+        targetHost: proxyReq.host,
+        targetPath: proxyReq.path,
+        hasUser: Boolean(req.user?._id),
+        userId: req.user?._id || '',
+        hasUseridHeader: Boolean(req.headers.userid),
+        hasAuthorizationHeader: Boolean(req.headers.authorization),
+        hasAuthCookie: Boolean(req.cookies?.['auth-token']),
+      }),
+    );
+  }
 
   /**
    * Manually forward client connection info instead of using the xfwd
