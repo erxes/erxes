@@ -26,7 +26,6 @@ const generateFilter = (params: IDonateListParams) => {
     filter.clientPortal = params.clientPortal;
   }
 
-
   return filter;
 };
 
@@ -34,8 +33,9 @@ export const donateQueries = {
   async donates(
     _root: undefined,
     params: IDonateListParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('donateView');
     const filter: FilterQuery<IDonateDocument> = generateFilter(params);
 
     return await cursorPaginate({
@@ -48,8 +48,9 @@ export const donateQueries = {
   async donatesMain(
     _root: undefined,
     params: IDonateListParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('donateView');
     const {
       page = 1,
       perPage = 20,

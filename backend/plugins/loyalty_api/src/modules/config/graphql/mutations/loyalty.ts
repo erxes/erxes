@@ -1,8 +1,9 @@
+import { Resolver } from 'erxes-api-shared/core-types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { confirmVoucherSale } from '~/utils';
 
-export const loyaltyMutations = {
+export const loyaltyMutations: Record<string, Resolver<any, any, any>> = {
   async shareScore(
     _root: undefined,
     doc: {
@@ -14,8 +15,9 @@ export const loyaltyMutations = {
       destinationEmail: string;
       destinationCode: string;
     },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyShareScore');
     const {
       ownerType,
       ownerId,
@@ -109,6 +111,22 @@ export const loyaltyMutations = {
     return 'success';
   },
 
+  async cpShareScore(
+    _root: undefined,
+    doc: {
+      ownerType: string;
+      ownerId: string;
+      score: number;
+      destinationOwnerId: string;
+      destinationPhone: string;
+      destinationEmail: string;
+      destinationCode: string;
+    },
+    context: IContext,
+  ) {
+    return loyaltyMutations.shareScore(_root, doc, context, undefined as any);
+  },
+
   async confirmLoyalties(
     _root: undefined,
     param: {
@@ -119,10 +137,15 @@ export const loyaltyMutations = {
         };
       };
     },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyConfirmVoucher');
     const { checkInfo } = param;
 
     return confirmVoucherSale(models, subdomain, checkInfo);
   },
+};
+
+loyaltyMutations.cpShareScore.wrapperConfig = {
+  forClientPortal: true,
 };

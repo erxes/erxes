@@ -20,6 +20,7 @@ export const webBuilderMutations: Record<string, Resolver> = {
       'terms',
       'blogs',
       'blog',
+      'legal',
     ];
     const tourPages = [
       'tours',
