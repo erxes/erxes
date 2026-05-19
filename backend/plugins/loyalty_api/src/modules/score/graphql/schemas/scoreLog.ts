@@ -60,6 +60,9 @@ const queryParams = `
   stageId: String,
   number: String,
   description: String,
+  page: Int,
+  limit: Int,
+  logLimit: Int,
 `;
 
 export const queries = `

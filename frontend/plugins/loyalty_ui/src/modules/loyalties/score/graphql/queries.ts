@@ -16,6 +16,8 @@ export const SCORE_LOG_LIST_QUERY = gql`
     $stageId: String
     $number: String
     $description: String
+    $limit: Int
+    $logLimit: Int
   ) {
     scoreLogList(
       searchValue: $searchValue
@@ -32,6 +34,8 @@ export const SCORE_LOG_LIST_QUERY = gql`
       stageId: $stageId
       number: $number
       description: $description
+      limit: $limit
+      logLimit: $logLimit
     ) {
       list {
         ownerId
@@ -48,21 +52,6 @@ export const SCORE_LOG_LIST_QUERY = gql`
           campaign {
             _id
             title
-            description
-            add
-            subtract
-            createdAt
-            createdUserId
-            status
-            ownerType
-            fieldGroupId
-            fieldName
-            fieldId
-            fieldOrigin
-            serviceName
-            additionalConfig
-            restrictions
-            onlyClientPortal
           }
           targetId
           target

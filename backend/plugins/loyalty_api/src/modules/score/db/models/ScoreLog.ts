@@ -114,6 +114,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
     public static async getScoreLogs(doc: IScoreLogParams) {
       const { stageId, pipelineId, boardId, number, orderType } = doc;
+      const limit = Math.min(Math.max(Number(doc.limit) || 50, 1), 100);
+      const page = Math.max(Number(doc.page) || 1, 1);
+      const skip = (page - 1) * limit;
+      const logLimit = Math.min(Math.max(Number(doc.logLimit) || 5, 1), 100);
 
       const filter = await generateFilter(doc, models, subdomain);
 
@@ -143,6 +147,9 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           $match: { ...filter },
         },
         {
+          $sort: { createdAt: -1, _id: -1 },
+        },
+        {
           $addFields: {
             signedScore: {
               $cond: {
@@ -167,7 +174,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
             _id: 0,
             ownerId: '$_id',
             ownerType: 1,
-            logs: 1,
+            logs: { $slice: ['$logs', logLimit] },
             createdAt: 1,
             totalScore: 1,
           },
@@ -176,11 +183,21 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           $sort:
             orderType === 'createdAt' ? { createdAt: -1 } : { totalScore: -1 },
         },
+        {
+          $facet: {
+            list: [{ $skip: skip }, { $limit: limit }],
+            total: [{ $count: 'count' }],
+          },
+        },
       ];
 
-      const list = await models.ScoreLogs.aggregate(aggregation);
+      const [result] = await models.ScoreLogs.aggregate(
+        aggregation,
+      ).allowDiskUse(true);
+      const list = result?.list || [];
+      const total = result?.total?.[0]?.count || 0;
 
-      return { list, total: list.length };
+      return { list, total };
     }
 
     public static async getStatistic(doc: IScoreLogParams) {
