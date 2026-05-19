@@ -103,7 +103,7 @@ async function sendViaCallPro(
 
   try {
     const response = await fetch(
-      'https://api.messagepro.mn/send?' +
+      'https://api-text.callpro.mn/v1/sms/send?' +
         new URLSearchParams({
           key: apiKey,
           from: phoneNumber,
@@ -111,10 +111,12 @@ async function sendViaCallPro(
           text: options.message,
         }),
     );
+    console.log(response.status, await response.text());
     if (!response.ok) {
       throw new Error(`MessagePro API error: ${response.statusText}`);
     }
   } catch (e) {
+    console.log(e)
     const error = e as Error;
     throw new NetworkError(error.message);
   }
