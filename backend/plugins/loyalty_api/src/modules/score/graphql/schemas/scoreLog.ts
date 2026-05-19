@@ -35,7 +35,8 @@ export const types = `
 
   type ScoreLogList {
     list: [ScoreLog]
-    total: Int
+    pageInfo: PageInfo
+    totalCount: Int
   }
 
   type ScoreLogListResponse {
@@ -60,15 +61,13 @@ const queryParams = `
   stageId: String,
   number: String,
   description: String,
-  page: Int,
-  limit: Int,
-  logLimit: Int,
+  logsPerOwner: Int,
 `;
 
 export const queries = `
   scoreLogs(${queryParams} ${GQL_CURSOR_PARAM_DEFS}): ScoreLogListResponse
-  scoreLogList(${queryParams}, clientPortal:String): ScoreLogList
-  cpScoreLogList(${queryParams}, clientPortal:String): ScoreLogList
+  scoreLogList(${queryParams} ${GQL_CURSOR_PARAM_DEFS}, clientPortal:String): ScoreLogList
+  cpScoreLogList(${queryParams} ${GQL_CURSOR_PARAM_DEFS}, clientPortal:String): ScoreLogList
   scoreLogStatistics(${queryParams}): JSON
 `;
 
