@@ -121,18 +121,26 @@ export const PrintInvoiceDocument = ({
         <div className="w-1/2 space-y-1">
           <div className="font-bold">Нэхэмжлэгч:</div>
           <div>Байгууллагын нэр:</div>
-          <div>Утас, факс: {counterpartyPhone ? '' : ''}</div>
+          <div>Утас, факс:</div>
           <div>Э-шуудан:</div>
           <table className="mt-2 w-full border-collapse border border-black/60">
-            <tbody>
+            <thead>
               <tr>
-                <td className="w-1/2 border border-black/60 px-2 py-1 font-medium">
+                <th
+                  scope="col"
+                  className="w-1/2 border border-black/60 px-2 py-1 text-left font-medium"
+                >
                   Банкны нэр
-                </td>
-                <td className="w-1/2 border border-black/60 px-2 py-1 font-medium">
+                </th>
+                <th
+                  scope="col"
+                  className="w-1/2 border border-black/60 px-2 py-1 text-left font-medium"
+                >
                   {config.accountNumberLabel}
-                </td>
+                </th>
               </tr>
+            </thead>
+            <tbody>
               <tr>
                 <td className="border border-black/60 px-2 py-2.5">
                   {issuerBank}
@@ -153,6 +161,8 @@ export const PrintInvoiceDocument = ({
         <div className="w-1/2 space-y-2">
           <div className="font-bold">{config.counterpartyLabel}:</div>
           <div>Байгууллагын нэр: {counterpartyName}</div>
+          <div>Утас, факс: {counterpartyPhone}</div>
+          <div>Э-шуудан: {counterpartyEmail}</div>
           <div>
             Гэрээний №: ............................................
           </div>

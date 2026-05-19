@@ -2,7 +2,11 @@ import { ITransaction } from '~/modules/transactions/types/Transaction';
 import {
   A4Sheet,
   FormHeader,
+  IReceiptLabels,
   SignLine,
+  TD,
+  TH,
+  TwinReceipt,
   TwinSheet,
   buildRows,
   formatNumber,
@@ -11,9 +15,6 @@ import {
   sumAmount,
 } from './shared';
 
-const TH = 'border border-black px-1 py-1 font-medium';
-const TD = 'border border-black px-1 py-1.5';
-
 // Four Борлуулалт (sales) layouts shipped by the document config screen.
 export type InvSaleVariant =
   | 'twin' // inv_sale_1 — side-by-side simple receipts
@@ -21,73 +22,12 @@ export type InvSaleVariant =
   | 'discount' // inv_sale_3 — "Худалдсан" group with a discount block
   | 'numbered'; // inv_sale_4 — "ЗАРЛАГЫН БАРИМТ №" with a "Худалдах" group
 
-// === inv_sale_1: one side of the twin simple receipt.
-const TwinReceipt = ({ transaction }: { transaction: ITransaction }) => {
-  const { date } = getMeta(transaction);
-  const rows = buildRows(transaction);
-  const total = sumAmount(rows);
-  // At least five rows so the form keeps its printed shape.
-  const filled = padRows(rows, 5);
-
-  return (
-    <div className="flex-1">
-      <FormHeader code="НХМаягт БМ3" />
-      <div className="mt-1 border-b border-black pb-1 font-bold">
-        Байгууллага:
-      </div>
-      <div className="mt-2 mb-2 text-center text-[15px] font-bold">
-        Зарлагын баримт
-      </div>
-      <div className="text-[11px] font-bold">
-        Огноо: {date || '20.../.../...'}
-      </div>
-      <div className="mt-1 text-[11px] font-bold">Хэнд(хаана):</div>
-      <div className="mt-1 mb-2 text-[11px] font-bold">Утга:</div>
-
-      <table className="w-full border-collapse border border-black text-[11px]">
-        <thead>
-          <tr>
-            <th className={TH}>Бараа материал</th>
-            <th className={TH}>Хэмжих нэгж</th>
-            <th className={TH}>Тоо</th>
-            <th className={TH}>Нэгжийн үнэ</th>
-            <th className={TH}>Үнэ</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filled.map((row, idx) => (
-            <tr key={idx}>
-              <td className={TD}>{row?.name || ' '}</td>
-              <td className={`${TD} text-center`}>{row?.unit || ' '}</td>
-              <td className={`${TD} text-right`}>
-                {row?.count ? row.count.toLocaleString() : ' '}
-              </td>
-              <td className={`${TD} text-right`}>
-                {row ? formatNumber(row.unitPrice) : ' '}
-              </td>
-              <td className={`${TD} text-right`}>
-                {row ? formatNumber(row.amount) : ' '}
-              </td>
-            </tr>
-          ))}
-          <tr>
-            <td className={`${TD} font-medium`}>Дүн:</td>
-            <td className={`${TD} text-center`}>X</td>
-            <td className={`${TD} text-center`}>X</td>
-            <td className={`${TD} text-center`}>X</td>
-            <td className={`${TD} text-right font-bold`}>
-              {formatNumber(total)}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div className="mt-4 space-y-2">
-        <SignLine label="Хүлээн авсан" />
-        <SignLine label="Хүлээлгэн өгсөн" />
-      </div>
-    </div>
-  );
+// Labels for the shared twin receipt — inv_sale_1.
+const TWIN_LABELS: IReceiptLabels = {
+  formCode: 'НХМаягт БМ3',
+  title: 'Зарлагын баримт',
+  orgLabel: 'Байгууллага:',
+  partyLabel: 'Хэнд(хаана):',
 };
 
 // === inv_sale_2: single receipt with an extra Байршил column.
@@ -364,8 +304,16 @@ export const PrintInvSaleDocument = ({
     case 'twin':
       return (
         <TwinSheet>
-          <TwinReceipt transaction={transaction} />
-          <TwinReceipt transaction={transaction} />
+          <TwinReceipt
+            transaction={transaction}
+            labels={TWIN_LABELS}
+            minRows={5}
+          />
+          <TwinReceipt
+            transaction={transaction}
+            labels={TWIN_LABELS}
+            minRows={5}
+          />
         </TwinSheet>
       );
 

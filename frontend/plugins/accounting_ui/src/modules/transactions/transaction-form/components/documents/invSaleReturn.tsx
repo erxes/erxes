@@ -1,18 +1,17 @@
 import dayjs from 'dayjs';
-import { fixNum } from 'erxes-ui';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
 import {
   A4Sheet,
   FormHeader,
+  NumberedItemRows,
+  NumberedTableHead,
   SignLine,
+  TD,
   buildRows,
   formatNumber,
   padRows,
   sumAmount,
 } from './shared';
-
-const TH = 'border border-black px-1 py-1 font-medium';
-const TD = 'border border-black px-1 py-1.5';
 
 export const PrintInvSaleReturnDocument = ({
   transaction,
@@ -59,46 +58,9 @@ export const PrintInvSaleReturnDocument = ({
       </div>
 
       <table className="w-full border-collapse border border-black text-[11px]">
-        <thead>
-          <tr>
-            <th rowSpan={2} className={`${TH} w-8`}>
-              №
-            </th>
-            <th rowSpan={2} className={`${TH} px-2`}>
-              Материалын үнэт зүйлийн нэр,зэрэг, дугаар
-            </th>
-            <th rowSpan={2} className={TH}>
-              Хэмжих нэгж
-            </th>
-            <th rowSpan={2} className={`${TH} px-2`}>
-              Нэг бүрийн үнэ
-            </th>
-            <th colSpan={2} className={`${TH} px-2`}>
-              Хүлээн авсан
-            </th>
-          </tr>
-          <tr>
-            <th className={TH}>Тоо</th>
-            <th className={TH}>Үнэ</th>
-          </tr>
-        </thead>
+        <NumberedTableHead />
         <tbody>
-          {filled.map((row, idx) => (
-            <tr key={idx}>
-              <td className={`${TD} py-2 text-center`}>{idx + 1}</td>
-              <td className={`${TD} px-2 py-2`}>{row?.name || ' '}</td>
-              <td className={`${TD} py-2 text-center`}>{row?.unit || ' '}</td>
-              <td className={`${TD} px-2 py-2 text-right`}>
-                {row ? formatNumber(row.unitPrice) : ' '}
-              </td>
-              <td className={`${TD} py-2 text-right`}>
-                {row?.count ? fixNum(row.count, 2).toLocaleString() : ' '}
-              </td>
-              <td className={`${TD} py-2 text-right`}>
-                {row ? formatNumber(row.amount) : ' '}
-              </td>
-            </tr>
-          ))}
+          <NumberedItemRows rows={filled} />
           <tr>
             <td className={TD} />
             <td className={`${TD} px-2 font-medium`}>Дүн:</td>
