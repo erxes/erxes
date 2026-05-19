@@ -25,6 +25,18 @@ interface CategoryCustomFieldsSectionProps<
   customFieldErrors?: Record<string, string>;
 }
 
+const getCustomFieldsDataError = (
+  errors: Record<string, any>,
+  fieldId: string,
+): string | undefined => {
+  const customFieldsDataErrors = errors.customFieldsData;
+  const fieldError = customFieldsDataErrors?.[fieldId];
+
+  return typeof fieldError?.message === 'string'
+    ? fieldError.message
+    : undefined;
+};
+
 export const CategoryCustomFieldsSection = <
   T extends FieldValues = FieldValues,
 >({
@@ -47,10 +59,12 @@ export const CategoryCustomFieldsSection = <
         <Collapsible.Content className="pt-4">
           <div className="grid gap-4 grid-cols-1">
             {(group.fields || []).map((field) => {
-              const fieldName = `customFields.${field._id}` as FieldPath<T>;
               const error =
                 customFieldErrors[field._id] ||
-                (form.formState.errors[fieldName]?.message as string);
+                getCustomFieldsDataError(
+                  form.formState.errors as Record<string, any>,
+                  field._id,
+                );
 
               return (
                 <div key={field._id} className="flex flex-col gap-2">
@@ -72,7 +86,7 @@ export const CategoryCustomFieldsSection = <
                       updateCustomFieldValue(field._id, value);
                       // Clear error when user starts typing
                       if (error) {
-                        form.clearErrors(fieldName);
+                        form.clearErrors('customFieldsData' as FieldPath<T>);
                       }
                     }}
                   />

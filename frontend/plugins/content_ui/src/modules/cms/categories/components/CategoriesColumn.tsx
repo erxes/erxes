@@ -4,6 +4,8 @@ import {
   Input,
   RelativeDateDisplay,
   Popover,
+  Badge,
+  TextOverflowTooltip,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { categoryMoreColumn } from './CategoriesMoreColumn';
@@ -16,6 +18,9 @@ import {
 } from '@tabler/icons-react';
 import { ICategory } from '../types/CategoriesType';
 import { useEditCategory } from '../hooks/useEditCategory';
+import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
+import { useAtomValue } from 'jotai';
+import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
 
 function getDepthPrefix(depth: number): string {
   if (depth <= 0) return '';
@@ -28,6 +33,8 @@ export const createCategoriesColumns = (
   onRefetch?: () => void,
 ): ColumnDef<any>[] => {
   const { editCategory } = useEditCategory();
+  const { isMissing, isNonDefaultLanguage } = useIsTranslationMissing();
+  const selectedLanguage = useAtomValue(cmsLanguageAtom);
 
   return [
     categoryMoreColumn(clientPortalId, onEdit, undefined, onRefetch),
@@ -38,6 +45,7 @@ export const createCategoriesColumns = (
       accessorKey: 'name',
       cell: ({ cell }) => {
         const original = cell.row.original as ICategory & { _depth?: number };
+        const missing = isMissing(original.translations);
         const [editingCell, setEditingCell] = useState<{
           rowId: string;
           value: string;
@@ -51,7 +59,13 @@ export const createCategoriesColumns = (
         const onSave = async () => {
           if (currentValue !== (original.name || '')) {
             await editCategory({
-              variables: { _id: original._id, input: { name: currentValue } },
+              variables: {
+                _id: original._id,
+                input: {
+                  name: currentValue,
+                  ...(selectedLanguage ? { language: selectedLanguage } : {}),
+                },
+              },
             });
           }
           setEditingCell(null);
@@ -74,10 +88,13 @@ export const createCategoriesColumns = (
             }}
           >
             <RecordTableInlineCell.Trigger>
-              <span>
+              <Badge
+                variant={missing ? 'destructive' : 'secondary'}
+                className={missing ? 'border-red-300' : ''}
+              >
                 {prefix}
-                {cell.getValue() as string}
-              </span>
+                <TextOverflowTooltip value={cell.getValue() as string} />
+              </Badge>
             </RecordTableInlineCell.Trigger>
             <RecordTableInlineCell.Content>
               <Input
@@ -100,11 +117,26 @@ export const createCategoriesColumns = (
         <RecordTable.InlineHead icon={IconArticle} label="Description" />
       ),
       accessorKey: 'description',
-      cell: ({ cell }) => (
-        <RecordTableInlineCell>
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      ),
+      cell: ({ cell, row }) => {
+        const category = row.original as ICategory;
+        const translation = category.translations?.find(
+          (item) => item.language === selectedLanguage,
+        );
+        const missing = isNonDefaultLanguage && !translation?.content?.trim();
+        const value = cell.getValue() as string;
+
+        if (missing) {
+          return (
+            <RecordTableInlineCell>
+              <Badge variant="destructive" className="border-red-300">
+                <TextOverflowTooltip value={value} />
+              </Badge>
+            </RecordTableInlineCell>
+          );
+        }
+
+        return <RecordTableInlineCell>{value}</RecordTableInlineCell>;
+      },
     },
     {
       id: 'parent',

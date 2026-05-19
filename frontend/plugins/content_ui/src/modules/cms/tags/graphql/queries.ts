@@ -3,7 +3,6 @@ import { gql } from '@apollo/client';
 export const CMS_TAGS = gql`
   query CmsTags(
     $clientPortalId: String
-    $limit: Int
     $cursor: String
     $cursorMode: CURSOR_MODE
     $direction: CURSOR_DIRECTION
@@ -17,7 +16,6 @@ export const CMS_TAGS = gql`
   ) {
     cmsTags(
       clientPortalId: $clientPortalId
-      limit: $limit
       cursor: $cursor
       cursorMode: $cursorMode
       direction: $direction
@@ -37,6 +35,28 @@ export const CMS_TAGS = gql`
         name
         slug
         updatedAt
+        translations {
+          language
+          title
+        }
+      }
+    }
+  }
+`;
+
+export const CMS_TAG_DETAIL = gql`
+  query CmsTagDetail($_id: String!, $clientPortalId: String) {
+    cmsTag(_id: $_id, clientPortalId: $clientPortalId) {
+      _id
+      clientPortalId
+      name
+      slug
+      colorCode
+      createdAt
+      updatedAt
+      translations {
+        language
+        title
       }
     }
   }

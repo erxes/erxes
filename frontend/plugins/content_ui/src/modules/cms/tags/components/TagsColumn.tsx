@@ -4,6 +4,7 @@ import {
   Input,
   Popover,
   RelativeDateDisplay,
+  Badge,
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
@@ -12,6 +13,9 @@ import { useState } from 'react';
 import { IconTag, IconCalendar } from '@tabler/icons-react';
 import { CmsTag } from '../types/tagTypes';
 import { useEditTag } from '../hooks/useEditTag';
+import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
+import { useAtomValue } from 'jotai';
+import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
 
 export const createTagsColumns = (
   clientPortalId: string,
@@ -19,6 +23,8 @@ export const createTagsColumns = (
   onRefetch?: () => void,
 ): ColumnDef<any>[] => {
   const { editTag } = useEditTag();
+  const { isNonDefaultLanguage } = useIsTranslationMissing();
+  const selectedLanguage = useAtomValue(cmsLanguageAtom);
 
   return [
     tagMoreColumn(clientPortalId, onEdit, undefined, onRefetch),
@@ -29,6 +35,10 @@ export const createTagsColumns = (
       accessorKey: 'name',
       cell: ({ cell }) => {
         const original = cell.row.original as CmsTag;
+        const translation = original.translations?.find(
+          (item) => item.language === selectedLanguage,
+        );
+        const missing = isNonDefaultLanguage && !translation?.title?.trim();
         const [editingCell, setEditingCell] = useState<{
           rowId: string;
           value: string;
@@ -46,6 +56,7 @@ export const createTagsColumns = (
               slug: original.slug,
               clientPortalId: original.clientPortalId,
               colorCode: original.colorCode,
+              ...(selectedLanguage ? { language: selectedLanguage } : {}),
             });
           }
           setEditingCell(null);
@@ -66,13 +77,12 @@ export const createTagsColumns = (
             }}
           >
             <RecordTableInlineCell.Trigger>
-              <div className="flex items-center gap-2">
-                {/* <div
-                  className="size-2 rounded-full"
-                  style={{ backgroundColor: original.colorCode || '#ddd' }}
-                /> */}
-                <span>{cell.getValue() as string}</span>
-              </div>
+              <Badge
+                variant={missing ? 'destructive' : 'secondary'}
+                className={missing ? 'border-red-300' : ''}
+              >
+                <TextOverflowTooltip value={cell.getValue() as string} />
+              </Badge>
             </RecordTableInlineCell.Trigger>
             <RecordTableInlineCell.Content>
               <Input

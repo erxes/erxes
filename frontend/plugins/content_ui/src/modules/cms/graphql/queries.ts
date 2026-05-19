@@ -251,7 +251,6 @@ export const POST_LIST = gql`
 export const CMS_TAGS = gql`
   query CmsTags(
     $clientPortalId: String
-    $limit: Int
     $cursor: String
     $cursorMode: CURSOR_MODE
     $direction: CURSOR_DIRECTION
@@ -265,7 +264,6 @@ export const CMS_TAGS = gql`
   ) {
     cmsTags(
       clientPortalId: $clientPortalId
-      limit: $limit
       cursor: $cursor
       cursorMode: $cursorMode
       direction: $direction
@@ -285,6 +283,10 @@ export const CMS_TAGS = gql`
         name
         slug
         updatedAt
+        translations {
+          language
+          title
+        }
       }
     }
   }
@@ -526,6 +528,16 @@ export const CMS_TAGS_ADD = gql`
   mutation CmsTagsAdd($input: PostTagInput!) {
     cmsTagsAdd(input: $input) {
       _id
+      clientPortalId
+      name
+      slug
+      colorCode
+      createdAt
+      updatedAt
+      translations {
+        language
+        title
+      }
       __typename
     }
   }
@@ -541,6 +553,10 @@ export const CMS_TAGS_EDIT = gql`
       colorCode
       createdAt
       updatedAt
+      translations {
+        language
+        title
+      }
     }
   }
 `;
