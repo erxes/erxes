@@ -51,10 +51,10 @@ type FormValues = z.infer<typeof SCHEMA>;
 export function AddCompanyForm({
   onOpenChange,
   onSuccess,
-}: {
+}: Readonly<{
   onOpenChange: (open: boolean) => void;
   onSuccess?: (id: string) => void;
-}) {
+}>) {
   const { companiesAdd, loading } = useAddCompany();
 
   const form = useForm<FormValues>({
@@ -332,8 +332,8 @@ export function AddCompanyForm({
                       </Form.Control>
                       <Select.Content>
                         {COMPANY_BUSINESS_TYPES.filter(Boolean).map(
-                          (type, index) => (
-                            <Select.Item key={index} value={type}>
+                          (type) => (
+                            <Select.Item key={type} value={type}>
                               {type}
                             </Select.Item>
                           ),

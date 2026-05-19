@@ -54,11 +54,11 @@ export function AddCustomerForm({
   onOpenChange,
   state = 'customer',
   onSuccess,
-}: {
+}: Readonly<{
   onOpenChange: (open: boolean) => void;
   state?: 'lead' | 'customer';
   onSuccess?: (id: string) => void;
-}) {
+}>) {
   const { customersAdd, loading } = useAddCustomer();
 
   const form = useForm<FormValues>({
@@ -372,11 +372,9 @@ export function AddCustomerForm({
             Cancel
           </Button>
           <Button type="submit" disabled={loading}>
-            {loading
-              ? 'Creating...'
-              : state === 'lead'
-                ? 'Create Lead'
-                : 'Create Customer'}
+            {state === 'lead'
+              ? 'Create Lead'
+              : 'Create Customer'}
           </Button>
         </div>
       </form>
