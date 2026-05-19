@@ -1,10 +1,14 @@
 import { useLocation } from 'react-router-dom';
 import { useTransactionDetail } from '~/modules/transactions/transaction-form/hooks/useTransactionDetail';
 
-import { Button, Spinner } from 'erxes-ui';
+import { Button, Select, Spinner } from 'erxes-ui';
 import { IconPrinter } from '@tabler/icons-react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { PrintBody } from '~/modules/transactions/transaction-form/components/documents';
+import {
+  getDefaultVariant,
+  getDocumentVariants,
+} from '~/modules/transactions/transaction-form/components/documents/variants';
 
 export const TransactionPrintPage = () => {
   const query = new URLSearchParams(useLocation().search);
@@ -14,6 +18,21 @@ export const TransactionPrintPage = () => {
     variables: { _id: transactionId },
     skip: !transactionId,
   });
+
+  // Layout variants available for this transaction's journal.
+  const variants = useMemo(
+    () => (transaction ? getDocumentVariants(transaction) : []),
+    [transaction],
+  );
+  const [variant, setVariant] = useState<string>('');
+
+  // Reset to the journal's default layout once the transaction loads.
+  useEffect(() => {
+    if (transaction) {
+      setVariant(getDefaultVariant(transaction.journal));
+    }
+  }, [transaction]);
+
   const hasPrintedRef = useRef(false);
   useEffect(() => {
     if (!loading && transaction && !hasPrintedRef.current) {
@@ -59,8 +78,26 @@ export const TransactionPrintPage = () => {
 
       <div
         id="print-toolbar"
-        className="sticky top-0 z-10 flex items-center justify-end gap-2 border-b bg-background px-6 py-3"
+        className="sticky top-0 z-10 flex items-center justify-end gap-3 border-b bg-background px-6 py-3"
       >
+        {variants.length > 1 && (
+          <Select
+            value={variant}
+            onValueChange={(value) => value && setVariant(value)}
+          >
+            <Select.Trigger className="h-9 w-64">
+              <Select.Value placeholder="Баримтын загвар" />
+            </Select.Trigger>
+            <Select.Content>
+              {variants.map((opt) => (
+                <Select.Item key={opt.value} value={opt.value}>
+                  {opt.label}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
+        )}
+
         <Button onClick={() => window.print()} variant="secondary">
           <IconPrinter />
           Хэвлэх
@@ -68,7 +105,7 @@ export const TransactionPrintPage = () => {
       </div>
 
       <div className="flex justify-center py-8">
-        <PrintBody transaction={transaction} />
+        <PrintBody transaction={transaction} variant={variant} />
       </div>
     </div>
   );
