@@ -20,6 +20,7 @@ export interface IDonateListParams extends ICursorPaginateParams {
   campaignId?: string;
   ownerType?: string;
   ownerId?: string;
+  clientPortal?: string;
   status?: string;
   statuses?: string[];
   awardId?: string;

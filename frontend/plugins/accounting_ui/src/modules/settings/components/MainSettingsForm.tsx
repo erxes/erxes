@@ -10,11 +10,14 @@ import { useMainConfigs } from '../hooks/useMainConfigs';
 import { useEffect } from 'react';
 import { useMainUpdateConfigs } from '../hooks/useMainUpdateConfigs';
 import deepEqual from 'deep-equal';
+import { SelectMember } from 'ui-modules';
 
 const DEFAULT_VALUES: TMainSettings = {
   MainCurrency: 'MNT',
   HasVat: false,
   HasCtax: false,
+  dominantReadAccountUsers: [],
+  dominantWriteAccountUsers: [],
 };
 
 export const MainSettingsForm = () => {
@@ -26,6 +29,8 @@ export const MainSettingsForm = () => {
       MainCurrency: 'MNT',
       HasVat: false,
       HasCtax: false,
+      dominantReadAccountUsers: [],
+      dominantWriteAccountUsers: [],
     },
   });
   const { reset } = form;
@@ -57,10 +62,12 @@ export const MainSettingsForm = () => {
         <Collapsible defaultOpen>
           <Collapsible.TriggerButton className="h-8 w-auto text-base">
             <Collapsible.TriggerIcon />
-            Ерөнхий тохиргоо
+            Давуу эрхийн тохиргоо
           </Collapsible.TriggerButton>
 
-          <Collapsible.Content className="pt-4 grid grid-cols-2 gap-4"></Collapsible.Content>
+          <Collapsible.Content className="pt-4 grid grid-cols-2 gap-4">
+            <DominantAccountPermissionFields form={form} />
+          </Collapsible.Content>
         </Collapsible>
         <Collapsible defaultOpen>
           <Collapsible.TriggerButton className="h-8 w-auto text-base">
@@ -83,6 +90,55 @@ export const MainSettingsForm = () => {
         </div>
       </form>
     </Form>
+  );
+};
+
+export const DominantAccountPermissionFields = ({
+  form,
+}: {
+  form: UseFormReturn<TMainSettings>;
+}) => {
+  return (
+    <>
+      <Form.Field
+        control={form.control}
+        name="dominantReadAccountUsers"
+        render={({ field }) => (
+          <Form.Item className="col-span-2">
+            <Form.Label>Бүх данс унших хэрэглэгчид</Form.Label>
+            <Form.Control>
+              <SelectMember.FormItem
+                mode="multiple"
+                value={field.value || []}
+                onValueChange={(users) =>
+                  field.onChange(Array.isArray(users) ? users : [])
+                }
+              />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+      <Form.Field
+        control={form.control}
+        name="dominantWriteAccountUsers"
+        render={({ field }) => (
+          <Form.Item className="col-span-2">
+            <Form.Label>Бүх дансанд бичих хэрэглэгчид</Form.Label>
+            <Form.Control>
+              <SelectMember.FormItem
+                mode="multiple"
+                value={field.value || []}
+                onValueChange={(users) =>
+                  field.onChange(Array.isArray(users) ? users : [])
+                }
+              />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+    </>
   );
 };
 

@@ -1,14 +1,15 @@
 import { typeDefs } from './apollo/typeDefs';
 import { appRouter } from './init-trpc';
 
-import { startPlugin } from 'erxes-api-shared/utils';
-import resolvers from './apollo/resolvers';
-import { generateModels } from './connectionResolvers';
-import { router } from '~/routes';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import posUserMiddleware from './userMiddleware';
+import { redis, startPlugin } from 'erxes-api-shared/utils';
+import { router } from '~/routes';
+import resolvers from './apollo/resolvers';
 import posConfigMiddleware from './configMiddleware';
+import { generateModels } from './connectionResolvers';
+import posUserMiddleware from './userMiddleware';
+import { initMQWorkers } from './worker';
 
 startPlugin({
   name: 'posclient',
@@ -27,7 +28,7 @@ startPlugin({
   ),
   expressRouter: router,
   onServerInit: async () => {
-    // await initMQWorkers(redis);
+    await initMQWorkers(redis);
   },
   apolloServerContext: async (subdomain, context, req: any, res) => {
     const requestInfo = {

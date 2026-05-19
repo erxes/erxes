@@ -1,4 +1,4 @@
-import { Button, Filter, Input, Label, Switch } from 'erxes-ui';
+import { Button, Filter, Input, Label, Switch, useToast } from 'erxes-ui';
 import { FilterButton, ProductFilterBar, filterProducts } from './FilterButton';
 import { IProduct, IProductData, currentUserState } from 'ui-modules';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -53,6 +53,7 @@ const ProductsList = ({
   const currencies = configs?.dealCurrency || [];
 
   const filteredProducts = filterProducts(products, filters);
+  const { toast } = useToast();
 
   const productRecords = localProductsData
     .map((data) => ({
@@ -152,7 +153,27 @@ const ProductsList = ({
 
   const handleSave = () => {
     const processId = localStorage.getItem('processId') || '';
+    const unassignedServiceItems = localProductsData.filter((data) => {
+      const product =
+        data.product || products.find((p) => p._id === data.productId);
+      const assignee = data.assignedUserId || data.assignUserId;
+      return product?.type === 'service' && data.tickUsed && !assignee;
+    });
 
+    if (unassignedServiceItems.length > 0) {
+      const names = unassignedServiceItems
+        .map((data) => {
+          const product =
+            data.product || products.find((p) => p._id === data.productId);
+          return product?.name || data.productId;
+        })
+        .join(', ');
+      return toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: `Please assign a team member to the following service item(s) before saving: ${names}.`,
+      });
+    }
     const formattedProductsData = localProductsData.map((data) => ({
       ...data,
       productId: data.product?._id || data.productId,

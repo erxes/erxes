@@ -1,20 +1,19 @@
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { JournalEnum } from '@/settings/account/types/Account';
-import {
-  TR_STATUSES,
-  TR_STATUS_OPTIONS,
-} from '@/transactions/types/constants';
+import { TR_STATUSES, TR_STATUS_OPTIONS } from '@/transactions/types/constants';
 import { Button, Dialog, Form, Input, Select, Spinner } from 'erxes-ui';
 import { useEffect } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { BoardSelect, PipelineSelect, StageSelect } from 'ui-modules';
 import { z } from 'zod';
+import { SyncResponseFieldSelect } from './SyncResponseFieldSelect';
 
 const configFormSchema = z.object({
   title: z.string(),
   boardId: z.string().optional(),
   pipelineId: z.string().optional(),
   stageId: z.string(),
+  responseFieldId: z.string().optional(),
   returnType: z.enum(['fullTr', 'onlySale', 'delete']),
   dateRule: z.enum(['alwaysNow', 'syncedDateOrNow']),
   trStatus: z.string().optional(),
@@ -189,6 +188,7 @@ export const SyncDealReturnConfigForm = ({
             </Form.Item>
           )}
         />
+        <SyncResponseFieldSelect form={form} />
         <Form.Field
           control={form.control}
           name="defaultPayment.accountId"

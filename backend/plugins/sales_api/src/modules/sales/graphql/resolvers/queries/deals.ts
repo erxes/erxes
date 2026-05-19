@@ -37,6 +37,7 @@ export const generateFilter = async (
   subdomain: string,
   userId: string,
   params: any = {},
+  forClientPortal = false,
 ) => {
   const filter: FilterQuery<IDealDocument> = {};
 
@@ -364,7 +365,9 @@ export const generateFilter = async (
     filter.tagIds = { $in: tagIds };
   }
 
-  if (pipelineId) {
+  // Pipeline user/department permission check — internal users only.
+  // CP users are not erxes users so this block must be skipped for client portal.
+  if (pipelineId && !forClientPortal) {
     const pipeline = await models.Pipelines.getPipeline(pipelineId);
 
     const user = await sendTRPCMessage({
@@ -621,6 +624,79 @@ export const generateFilter = async (
   return filter;
 };
 
+const enrichDealsWithProducts = async (
+  subdomain: string,
+  deals: any[],
+): Promise<void> => {
+  const dealProductIds = deals.flatMap((deal) =>
+    deal.productsData?.length > 0
+      ? deal.productsData.flatMap((pData) => pData.productId || [])
+      : [],
+  );
+
+  const products =
+    (dealProductIds.length &&
+      (await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'products',
+        action: 'find',
+        input: { query: { _id: { $in: [...new Set(dealProductIds)] } } },
+        defaultValue: [],
+      }))) ||
+    [];
+
+  for (const deal of deals) {
+    let pd = deal.productsData;
+    if (!pd || pd.length === 0) continue;
+
+    deal.products = [];
+    const sliced = pd.slice(0, 10);
+
+    for (const pData of sliced) {
+      if (!pData.productId) continue;
+      deal.products.push({
+        ...(typeof pData.toJSON === 'function' ? pData.toJSON() : pData),
+        product: products.find((p) => p._id === pData.productId) || {},
+      });
+    }
+
+    if (pd.length > sliced.length) {
+      deal.products.push({ product: { name: '...More' } });
+    }
+  }
+};
+
+const fetchDeals = async (
+  models: IModels,
+  subdomain: string,
+  userId: string,
+  args: IDealQueryParams,
+  user: IContext['user'],
+  forClientPortal = false,
+) => {
+  const filter = await generateFilter(models, subdomain, userId, args, forClientPortal);
+
+  const getExtraFields = async (item: any) => ({
+    amount: await dealResolvers.amount(item),
+    unUsedAmount: await dealResolvers.unusedAmount(item),
+  });
+
+  const { list: deals, pageInfo, totalCount } = await getItemList(
+    models,
+    subdomain,
+    filter,
+    args,
+    user,
+    getExtraFields,
+  );
+
+  await enrichDealsWithProducts(subdomain, deals);
+
+  return { list: deals, pageInfo, totalCount };
+};
+
 export const dealQueries: Record<string, Resolver> = {
   /**
    * Deals list
@@ -631,86 +707,7 @@ export const dealQueries: Record<string, Resolver> = {
     { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('showDeals');
-    const filter = await generateFilter(models, subdomain, user._id, args);
-
-    const getExtraFields = async (item: any) => ({
-      amount: await dealResolvers.amount(item),
-      unUsedAmount: await dealResolvers.unusedAmount(item),
-    });
-
-    const {
-      list: deals,
-      pageInfo,
-      totalCount,
-    } = await getItemList(
-      models,
-      subdomain,
-      filter,
-      args,
-      user,
-      getExtraFields,
-    );
-
-    const dealProductIds = deals.flatMap((deal) => {
-      if (deal.productsData && deal.productsData.length > 0) {
-        return deal.productsData.flatMap((pData) => pData.productId || []);
-      }
-
-      return [];
-    });
-
-    const products =
-      (dealProductIds.length &&
-        (await sendTRPCMessage({
-          subdomain,
-
-          pluginName: 'core',
-          method: 'query',
-          module: 'products',
-          action: 'find',
-          input: {
-            query: {
-              _id: { $in: [...new Set(dealProductIds)] },
-            },
-          },
-          defaultValue: [],
-        }))) ||
-      [];
-
-    for (const deal of deals) {
-      let pd = deal.productsData;
-
-      if (!pd || pd.length === 0) {
-        continue;
-      }
-
-      deal.products = [];
-
-      // do not display to many products
-      pd = pd.slice(0, 10);
-
-      for (const pData of pd) {
-        if (!pData.productId) {
-          continue;
-        }
-
-        deal.products.push({
-          ...(typeof pData.toJSON === 'function' ? pData.toJSON() : pData),
-          product: products.find((p) => p._id === pData.productId) || {},
-        });
-      }
-
-      // do not display to many products
-      if (deal.productsData.length > pd.length) {
-        deal.products.push({
-          product: {
-            name: '...More',
-          },
-        });
-      }
-    }
-
-    return { list: deals, pageInfo, totalCount };
+    return fetchDeals(models, subdomain, user._id, args, user);
   },
 
   async cpDeals(
@@ -718,86 +715,7 @@ export const dealQueries: Record<string, Resolver> = {
     args: IDealQueryParams,
     { user, models, subdomain }: IContext,
   ) {
-    const filter = await generateFilter(models, subdomain, user._id, args);
-
-    const getExtraFields = async (item: any) => ({
-      amount: await dealResolvers.amount(item),
-      unUsedAmount: await dealResolvers.unusedAmount(item),
-    });
-
-    const {
-      list: deals,
-      pageInfo,
-      totalCount,
-    } = await getItemList(
-      models,
-      subdomain,
-      filter,
-      args,
-      user,
-      getExtraFields,
-    );
-
-    const dealProductIds = deals.flatMap((deal) => {
-      if (deal.productsData && deal.productsData.length > 0) {
-        return deal.productsData.flatMap((pData) => pData.productId || []);
-      }
-
-      return [];
-    });
-
-    const products =
-      (dealProductIds.length &&
-        (await sendTRPCMessage({
-          subdomain,
-
-          pluginName: 'core',
-          method: 'query',
-          module: 'products',
-          action: 'find',
-          input: {
-            query: {
-              _id: { $in: [...new Set(dealProductIds)] },
-            },
-          },
-          defaultValue: [],
-        }))) ||
-      [];
-
-    for (const deal of deals) {
-      let pd = deal.productsData;
-
-      if (!pd || pd.length === 0) {
-        continue;
-      }
-
-      deal.products = [];
-
-      // do not display to many products
-      pd = pd.slice(0, 10);
-
-      for (const pData of pd) {
-        if (!pData.productId) {
-          continue;
-        }
-
-        deal.products.push({
-          ...(typeof pData.toJSON === 'function' ? pData.toJSON() : pData),
-          product: products.find((p) => p._id === pData.productId) || {},
-        });
-      }
-
-      // do not display to many products
-      if (deal.productsData.length > pd.length) {
-        deal.products.push({
-          product: {
-            name: '...More',
-          },
-        });
-      }
-    }
-
-    return { list: deals, pageInfo, totalCount };
+    return fetchDeals(models, subdomain, user?._id || '', args, user, true);
   },
 
   async dealsTotalCount(
@@ -808,6 +726,48 @@ export const dealQueries: Record<string, Resolver> = {
     const filter = await generateFilter(models, subdomain, user._id, args);
 
     return models.Deals.find(filter).countDocuments();
+  },
+
+  async dealLink(
+    _root,
+    { _id }: { _id?: string },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('showDeals');
+
+    if (!_id) {
+      return null;
+    }
+
+    const deal = await models.Deals.findOne({ _id }).lean();
+
+    if (!deal?.stageId) {
+      return null;
+    }
+
+    const stage = await models.Stages.findOne({ _id: deal.stageId }).lean();
+
+    if (!stage?.pipelineId) {
+      return null;
+    }
+
+    const pipeline = await models.Pipelines.findOne({
+      _id: stage.pipelineId,
+    }).lean();
+
+    if (!pipeline?.boardId) {
+      return null;
+    }
+
+    return {
+      contentType: 'sales:deal',
+      contentId: deal._id,
+      dealId: deal._id,
+      stageId: stage._id,
+      pipelineId: pipeline._id,
+      boardId: pipeline.boardId,
+      href: `/sales/deals?boardId=${encodeURIComponent(pipeline.boardId)}&pipelineId=${encodeURIComponent(pipeline._id)}&salesItemId=${encodeURIComponent(deal._id)}`,
+    };
   },
 
   /**
@@ -983,19 +943,8 @@ export const dealQueries: Record<string, Resolver> = {
     return checkItemPermByUser(models, subdomain, user, deal);
   },
 
-  async cpDealDetail(
-    _root,
-    { _id, clientPortalCard }: { _id: string; clientPortalCard: boolean },
-    { user, models, subdomain }: IContext,
-  ) {
-    const deal = await models.Deals.getDeal(_id);
-
-    // no need to check permission on cp deal
-    if (clientPortalCard) {
-      return deal;
-    }
-
-    return checkItemPermByUser(models, subdomain, user, deal);
+  async cpDealDetail(_root, args, ctx: IContext, info) {
+    return dealQueries.dealDetail(_root, args, ctx, info);
   },
 
   async checkDiscount(

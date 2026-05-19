@@ -11,7 +11,10 @@ import {
 import { IConfigDocument } from './modules/accounting/@types/config';
 import { ICtaxRowDocument } from './modules/accounting/@types/ctaxRow';
 import { IPermissionDocument } from './modules/accounting/@types/permission';
-import { ITransactionDocument } from './modules/accounting/@types/transaction';
+import {
+  ITransactionCounterDocument,
+  ITransactionDocument,
+} from './modules/accounting/@types/transaction';
 import { IVatRowDocument } from './modules/accounting/@types/vatRow';
 import {
   IAccountCategoryModel,
@@ -43,6 +46,7 @@ import {
   ITransactionModel,
   loadTransactionClass,
 } from './modules/accounting/db/models/Transactions';
+import { transactionCounterSchema } from './modules/accounting/db/definitions/transaction';
 import {
   IVatRowModel,
   loadVatRowClass,
@@ -73,6 +77,7 @@ export interface IModels {
   Permissions: IPermissionModel;
   AdjustInventories: IAdjustInventoriesModel;
   AdjustInvDetails: IAdjustInvDetailsModel;
+  TransactionCounters: mongoose.Model<ITransactionCounterDocument>;
 
   ReserveRems: IReserveRemModel;
   SafeRemainderItems: ISafeRemainderItemModel;
@@ -140,7 +145,17 @@ export const loadClasses = (
 
   models.Transactions = db.model<ITransactionDocument, ITransactionModel>(
     'accountings_transactions',
-    loadTransactionClass(models, subdomain, accountingEventHandlers('accounting', 'transactions'),),
+    loadTransactionClass(
+      models,
+      subdomain,
+      accountingEventHandlers('accounting', 'transactions'),
+    ),
+  );
+
+  models.TransactionCounters = db.model<ITransactionCounterDocument>(
+    'accountings_transaction_counters',
+    transactionCounterSchema,
+    'accountings_transaction_counters',
   );
 
   models.VatRows = db.model<IVatRowDocument, IVatRowModel>(

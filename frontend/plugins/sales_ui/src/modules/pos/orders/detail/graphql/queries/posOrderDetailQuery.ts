@@ -12,6 +12,7 @@ export const POS_ORDER_DETAIL_QUERY = gql`
         lastName
       }
       _id
+      accountingResponse
       billId
       billType
       branch

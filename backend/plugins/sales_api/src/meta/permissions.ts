@@ -112,7 +112,6 @@ export const permissions: IPermissionConfig = {
         { title: 'Add POS', name: 'posAdd', description: 'Create a new POS' },
         { title: 'Edit POS', name: 'posEdit', description: 'Update POS' },
         { title: 'Remove POS', name: 'posRemove', description: 'Delete POS' },
-        { title: 'Return order', name: 'posOrderReturnBill', description: 'Return a POS order' },
         { title: 'Change order payments', name: 'posOrderChangePayments', description: 'Modify order payments' },
         { title: 'Manage product groups', name: 'productGroupsBulkInsert', description: 'Bulk update product groups' },
         { title: 'Manage slots', name: 'posSlotBulkUpdate', description: 'Bulk update POS slots' },
@@ -135,7 +134,7 @@ export const permissions: IPermissionConfig = {
         { plugin: 'sales', module: 'checklist', actions: ['checklistsAdd','checklistsEdit','checklistsRemove'], scope: 'all' },
         { plugin: 'sales', module: 'pipelineLabel', actions: ['pipelineLabelsAdd','pipelineLabelsEdit','pipelineLabelsRemove'], scope: 'all' },
         { plugin: 'sales', module: 'pipelineTemplate', actions: ['showTemplates','templatesAdd','templatesEdit','templatesRemove'], scope: 'all' },
-        { plugin: 'sales', module: 'pos', actions: ['posRead', 'posOrderRead', 'posCoversRead', 'posAdd', 'posEdit', 'posRemove', 'posOrderReturnBill', 'posOrderChangePayments', 'productGroupsBulkInsert', 'posSlotBulkUpdate', 'posCoversEdit', 'posCoversRemove'], scope: 'all' },
+        { plugin: 'sales', module: 'pos', actions: ['posRead', 'posOrderRead', 'posCoversRead', 'posAdd', 'posEdit', 'posRemove', 'posOrderChangePayments', 'productGroupsBulkInsert', 'posSlotBulkUpdate', 'posCoversEdit', 'posCoversRemove'], scope: 'all' },
       ],
     },
     {

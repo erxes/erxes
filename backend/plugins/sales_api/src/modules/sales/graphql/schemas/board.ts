@@ -37,6 +37,7 @@ export const queries = `
   salesBoardContentTypeDetail(contentType: String, contentId: String): JSON
   salesBoardLogs(action: String, content:JSON, contentId: String): JSON
   salesCheckFreeTimes(pipelineId: String, intervals: [SalesInterval]): JSON
+  cpSalesCheckFreeTimes(pipelineId: String, intervals: [SalesInterval]): JSON
 `;
 
 const mutationParams = `
