@@ -289,7 +289,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       let ownerScore = owner.score;
 
-      // Read from propertiesData (flat object) for earning
+      // Read from propertiesData for earning
       if (score > 0 && campaignId) {
         const campaign = await models.ScoreCampaigns.findOne({
           _id: campaignId,
