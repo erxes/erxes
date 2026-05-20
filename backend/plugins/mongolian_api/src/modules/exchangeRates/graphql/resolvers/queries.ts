@@ -27,12 +27,13 @@ export const exchangeRateQueries = {
   /**
    * Retrieve exchange rates with pagination and search
    */
-
   exchangeRatesMain: async (
     _root,
     params,
-    { models, commonQuerySelector }: IContext,
+    { models, commonQuerySelector, checkPermission }: IContext,
   ) => {
+    await checkPermission('showExchangeRates');
+
     const filter = await generateFilter(commonQuerySelector, params);
 
     return {
@@ -50,8 +51,10 @@ export const exchangeRateQueries = {
   async exchangeGetRate(
     _root,
     args: { currency: string; date: Date; mainCurrency?: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('showExchangeRates');
+
     const { date, currency, mainCurrency } = args;
     return await models.ExchangeRates.getActiveRate({
       date,

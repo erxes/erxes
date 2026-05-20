@@ -11,8 +11,10 @@ const inventoryMutations = {
   async toCheckProducts(
     _root: undefined,
     _params: undefined,
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('erkhetManageSync');
+
     const config = await getConfig(subdomain, 'ERKHET', {});
 
     if (!config.apiToken || !config.apiKey || !config.apiSecret) {
@@ -127,8 +129,11 @@ const inventoryMutations = {
   async toCheckCategories(
     _root: undefined,
     _params: undefined,
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) {
+    // Permission check
+    await checkPermission('erkhetManageSync');
+
     const config = await getConfig(subdomain, 'ERKHET', {});
 
     if (!config.apiToken || !config.apiKey || !config.apiSecret) {
@@ -219,8 +224,10 @@ const inventoryMutations = {
   async toSyncCategories(
     _root: undefined,
     { action, categories }: { action: string; categories: any[] },
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('erkhetManageSync');
+
     try {
       switch (action) {
         case 'CREATE': {
@@ -270,8 +277,10 @@ const inventoryMutations = {
   async toSyncProducts(
     _root: undefined,
     { action, products }: { action: string; products: any[] },
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('erkhetManageSync');
+
     try {
       switch (action) {
         case 'CREATE': {

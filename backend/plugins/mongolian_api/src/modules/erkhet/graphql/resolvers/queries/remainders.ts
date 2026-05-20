@@ -21,8 +21,11 @@ const erkhetQueries = {
       locationCodes?: string;
       productIds?: string[];
     },
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) {
+    // Permission check
+    await checkPermission('showErkhetRemainders');
+
     const result: {
       _id: string;
       remainder: number;
@@ -138,8 +141,11 @@ const erkhetQueries = {
       endDate?: Date;
       isMore: boolean;
     },
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) {
+    // Permission check
+    await checkPermission('showErkhetDebt');
+
     const result: any = {};
 
     try {
