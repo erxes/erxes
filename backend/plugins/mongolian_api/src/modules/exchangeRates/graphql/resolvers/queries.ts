@@ -30,10 +30,8 @@ export const exchangeRateQueries = {
   exchangeRatesMain: async (
     _root,
     params,
-    { models, commonQuerySelector, checkPermission }: IContext,
+    { models, commonQuerySelector }: IContext,
   ) => {
-    await checkPermission('showExchangeRates');
-
     const filter = await generateFilter(commonQuerySelector, params);
 
     return {
@@ -51,10 +49,8 @@ export const exchangeRateQueries = {
   async exchangeGetRate(
     _root,
     args: { currency: string; date: Date; mainCurrency?: string },
-    { models, checkPermission }: IContext,
+    { models }: IContext,
   ) {
-    await checkPermission('showExchangeRates');
-
     const { date, currency, mainCurrency } = args;
     return await models.ExchangeRates.getActiveRate({
       date,

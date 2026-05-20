@@ -72,18 +72,6 @@ export const permissions: IPermissionConfig = {
           always: true,
         },
         {
-          title: 'Get deal link',
-          name: 'getDealLink',
-          description: 'Get the link to the related deal',
-          always: true,
-        },
-        {
-          title: 'Ebarimt get company',
-          name: 'ebarimtGetCompany',
-          description: 'Get company information for ebarimt',
-          always: true,
-        },
-        {
           title: 'View duplicated put responses',
           name: 'putResponsesDuplicated',
           description: 'View duplicated put responses',
@@ -214,12 +202,6 @@ export const permissions: IPermissionConfig = {
       ],
       actions: [
         {
-          title: 'View exchange rates',
-          name: 'showExchangeRates',
-          description: 'View exchange rates',
-          always: true,
-        },
-        {
           title: 'Manage exchange rates',
           name: 'exchangeRatesManage',
           description: 'Create, update, and delete exchange rates',
@@ -284,8 +266,6 @@ export const permissions: IPermissionConfig = {
             'putResponseDetail',
             'putResponsesAmount',
             'putResponsesByDate',
-            'getDealLink',
-            'ebarimtGetCompany',
             'putResponsesDuplicated',
             'putResponsesDuplicatedCount',
             'putResponsesDuplicatedDetail',
@@ -320,7 +300,7 @@ export const permissions: IPermissionConfig = {
         {
           plugin: 'mongolian',
           module: 'exchangeRates',
-          actions: ['showExchangeRates', 'exchangeRatesManage'],
+          actions: ['exchangeRatesManage'],
           scope: 'all',
         },
         {
@@ -352,8 +332,6 @@ export const permissions: IPermissionConfig = {
             'putResponseDetail',
             'putResponsesAmount',
             'putResponsesByDate',
-            'getDealLink',
-            'ebarimtGetCompany',
             'putResponsesDuplicated',
             'putResponsesDuplicatedCount',
             'putResponsesDuplicatedDetail',
@@ -380,12 +358,6 @@ export const permissions: IPermissionConfig = {
             'showErkhetDebt',
             'showErkhetSyncHistory',
           ],
-          scope: 'all',
-        },
-        {
-          plugin: 'mongolian',
-          module: 'exchangeRates',
-          actions: ['showExchangeRates'],
           scope: 'all',
         },
         {
@@ -416,8 +388,6 @@ export const permissions: IPermissionConfig = {
             'putResponseDetail',
             'putResponsesAmount',
             'putResponsesByDate',
-            'getDealLink',
-            'ebarimtGetCompany',
             'putResponsesDuplicated',
             'putResponsesDuplicatedCount',
             'putResponsesDuplicatedDetail',
@@ -444,12 +414,6 @@ export const permissions: IPermissionConfig = {
             'showErkhetDebt',
             'showErkhetSyncHistory',
           ],
-          scope: 'all',
-        },
-        {
-          plugin: 'mongolian',
-          module: 'exchangeRates',
-          actions: ['showExchangeRates'],
           scope: 'all',
         },
         {

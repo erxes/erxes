@@ -423,8 +423,7 @@ export const putResponseQueries = {
     return dates.map((date) => ({ date, values: result[date] }));
   },
 
-  getDealLink: async (_root: undefined, param, { subdomain, checkPermission }: IContext) => {
-    await checkPermission('ebarimt:getDealLink');
+  getDealLink: async (_root: undefined, param, { subdomain }: IContext) => {
     const response = await sendTRPCMessage({
       subdomain,
       pluginName: 'sales',
@@ -441,9 +440,8 @@ export const putResponseQueries = {
   ebarimtGetCompany: async (
     _root: undefined,
     { companyRD }: { companyRD: string },
-    { models, checkPermission }: IContext,
+    { models }: IContext,
   ) => {
-    await checkPermission('ebarimt:ebarimtGetCompany');
     const config = await models.Configs.getConfigValue('EBARIMT');
     return getCompanyInfo({
       checkTaxpayerUrl: config.checkTaxpayerUrl,
