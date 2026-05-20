@@ -307,7 +307,6 @@ export const SelectTagsFilterBar = ({
   mode = 'single',
   clientPortalId,
 }: {
-  iconOnly?: boolean;
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
   clientPortalId?: string;
