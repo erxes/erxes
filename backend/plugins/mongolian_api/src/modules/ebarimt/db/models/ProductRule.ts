@@ -5,6 +5,7 @@ import {
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { productRuleSchema } from '../definitions/productRule';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface IProductRuleModel extends Model<IProductRuleDocument> {
   createProductRule(doc: IProductRule): Promise<IProductRuleDocument>;
@@ -24,36 +25,33 @@ const validateProductRule = (doc: IProductRule) => {
     throw new Error(`Invalid product rule kind: ${doc.kind}`);
   }
 
-  // 🔒 VAT rules MUST be defined via TAX
   if (doc.kind === 'vat') {
     if (!doc.taxType) {
       throw new Error('VAT product rule requires taxType');
     }
-
     if (!doc.taxCode) {
       throw new Error('VAT product rule requires taxCode');
     }
-
     if (doc.taxPercent === undefined || doc.taxPercent === null) {
       throw new Error('VAT product rule requires taxPercent');
     }
   }
 
-  // 🚫 Prevent leaking VAT fields into CTAX rules
   if (doc.kind === 'ctax') {
     if (
       doc.taxType ||
       doc.taxCode ||
       doc.taxPercent !== undefined
     ) {
-      throw new Error(
-        'CTAX product rule must not contain VAT tax fields',
-      );
+      throw new Error('CTAX product rule must not contain VAT tax fields');
     }
   }
 };
 
-export const loadProductRuleClass = (models: IModels) => {
+export const loadProductRuleClass = (
+  models: IModels,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class ProductRule {
     /**
      * Create a product rule
@@ -61,10 +59,18 @@ export const loadProductRuleClass = (models: IModels) => {
     public static async createProductRule(doc: IProductRule) {
       validateProductRule(doc);
 
-      return models.ProductRules.create({
+      const rule = await models.ProductRules.create({
         ...doc,
         createdAt: new Date(),
       });
+
+      sendDbEventLog({
+        action: 'create',
+        docId: rule._id,
+        currentDocument: rule.toObject(),
+      });
+
+      return rule;
     }
 
     /**
@@ -76,7 +82,12 @@ export const loadProductRuleClass = (models: IModels) => {
     ) {
       validateProductRule(doc);
 
-      return models.ProductRules.updateOne(
+      const oldRule = await models.ProductRules.findOne({ _id }).lean();
+      if (!oldRule) {
+        throw new Error('Product rule not found');
+      }
+
+      await models.ProductRules.updateOne(
         { _id },
         {
           $set: {
@@ -85,10 +96,34 @@ export const loadProductRuleClass = (models: IModels) => {
           },
         },
       );
+
+      const updatedRule = await models.ProductRules.findOne({ _id }).lean();
+
+      sendDbEventLog({
+        action: 'update',
+        docId: _id,
+        currentDocument: updatedRule,
+        prevDocument: oldRule,
+      });
+
+      return updatedRule as IProductRuleDocument;
     }
 
     public static async removeProductRules(ids: string[]) {
-      return models.ProductRules.deleteMany({ _id: { $in: ids } });
+      // Fetch the documents before deletion to log them
+      const rules = await models.ProductRules.find({ _id: { $in: ids } }).lean();
+
+      const result = await models.ProductRules.deleteMany({ _id: { $in: ids } });
+
+      // Log each deleted document individually
+      for (const rule of rules) {
+        sendDbEventLog({
+          action: 'delete',
+          docId: rule._id,
+        });
+      }
+
+      return result;
     }
   }
 
