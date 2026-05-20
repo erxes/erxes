@@ -231,7 +231,8 @@ export const pricingPlanQueries = {
     { models, checkPermission }: IContext,
   ) => {
     await checkPermission('pricingPlanView');
-    return await models.PricingPlans.findById(id);
+    console.log(id)
+    return await models.PricingPlans.getPricingPlan(id);
   },
 
   pricingCheckDiscount: async (
