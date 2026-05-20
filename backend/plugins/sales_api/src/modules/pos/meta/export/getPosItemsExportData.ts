@@ -7,6 +7,8 @@ import { IModels } from '~/connectionResolvers';
 import { posOrderRecordsQuery } from '@/pos/graphql/resolvers/queries/orders';
 
 interface IOrderItem {
+  _id?: string;
+  productId?: string;
   product?: {
     code?: string;
     name?: string;
@@ -20,46 +22,97 @@ interface IOrderItem {
   count?: number;
   unitPrice?: number;
   discountAmount?: number;
+  discountPercent?: number;
+  description?: string;
 }
 
 interface IOrderRecord {
+  _id?: string;
   number?: string;
   createdAt?: string;
+  paidDate?: string;
+  dueDate?: string;
+  status?: string;
+  posId?: string;
+  posToken?: string;
   posName?: string;
+  branchId?: string;
   branch?: { order: string; title: string };
+  departmentId?: string;
   department?: { order: string; title: string };
+  subBranchId?: string;
+  userId?: string;
   user?: { email?: string };
   type?: string;
   billType?: string;
   registerNumber?: string;
+  customerId?: string;
   customerType?: string;
   customer?: { primaryEmail?: string; firstName?: string };
   items?: IOrderItem;
   totalAmount?: number;
-  paidAmounts?: Array<{ type?: string }>;
+  finalAmount?: number;
+  cashAmount?: number;
+  mobileAmount?: number;
+  paidAmounts?: Array<{ type?: string; amount?: number; [key: string]: any }>;
+  description?: string;
+  origin?: string;
 }
 
 type ExportRow = Record<string, string | number>;
+
+function getOrderId(order: IOrderRecord): string {
+  const id = String(order._id || '');
+  const itemId = String(order.items?._id || '');
+
+  if (id && itemId && id.endsWith(`_${itemId}`)) {
+    return id.slice(0, -itemId.length - 1);
+  }
+
+  return id;
+}
 
 function extractOrderField(
   order: IOrderRecord,
   field: string,
 ): string | number {
   switch (field) {
+    case 'orderId':
+      return getOrderId(order);
+    case 'itemId':
+      return order.items?._id ?? '';
     case 'number':
       return order.number ?? '';
     case 'createdAt':
       return order.createdAt ?? '';
+    case 'paidDate':
+      return order.paidDate ?? '';
+    case 'dueDate':
+      return order.dueDate ?? '';
+    case 'status':
+      return order.status ?? '';
+    case 'posId':
+      return order.posId ?? '';
+    case 'posToken':
+      return order.posToken ?? '';
     case 'posName':
       return order.posName ?? '';
+    case 'branchId':
+      return order.branchId ?? '';
     case 'branch':
       return order.branch
         ? `${order.branch.order} - ${order.branch.title}`
         : '';
+    case 'departmentId':
+      return order.departmentId ?? '';
     case 'department':
       return order.department
         ? `${order.department.order} - ${order.department.title}`
         : '';
+    case 'subBranchId':
+      return order.subBranchId ?? '';
+    case 'userId':
+      return order.userId ?? '';
     case 'cashier':
       return order.user?.email ?? '';
     case 'type':
@@ -68,10 +121,14 @@ function extractOrderField(
       return order.billType ?? '';
     case 'registerNumber':
       return order.registerNumber ?? '';
+    case 'customerId':
+      return order.customerId ?? '';
     case 'customerType':
       return order.customerType ?? '';
     case 'customer':
       return order.customer?.primaryEmail ?? order.customer?.firstName ?? '';
+    case 'productId':
+      return order.items?.productId ?? '';
     case 'productCode':
       return order.items?.product?.code ?? '';
     case 'productName':
@@ -88,10 +145,26 @@ function extractOrderField(
       return order.items?.unitPrice ?? 0;
     case 'discountAmount':
       return order.items?.discountAmount ?? 0;
+    case 'discountPercent':
+      return order.items?.discountPercent ?? 0;
     case 'totalAmount':
       return order.totalAmount ?? 0;
+    case 'finalAmount':
+      return order.finalAmount ?? 0;
+    case 'cashAmount':
+      return order.cashAmount ?? 0;
+    case 'mobileAmount':
+      return order.mobileAmount ?? 0;
     case 'paymentType':
       return (order.paidAmounts ?? []).map((pa) => pa.type ?? '').join(', ');
+    case 'paidAmounts':
+      return order.paidAmounts?.length ? JSON.stringify(order.paidAmounts) : '';
+    case 'description':
+      return order.description ?? '';
+    case 'origin':
+      return order.origin ?? '';
+    case 'itemDescription':
+      return order.items?.description ?? '';
     default:
       return '';
   }
@@ -143,13 +216,20 @@ export async function getPosItemsExportData(
       params.ids = ids;
     }
 
-    const batch = (await posOrderRecordsQuery(models, subdomain, params)) as IOrderRecord[];
+    const batch = (await posOrderRecordsQuery(
+      models,
+      subdomain,
+      params,
+    )) as IOrderRecord[];
     if (!Array.isArray(batch) || batch.length === 0) break;
     allOrders.push(...batch);
     if (batch.length < perPage) break;
   }
 
-  const fields = selectedFields && selectedFields.length > 0 ? selectedFields : DEFAULT_FIELDS;
+  const fields =
+    selectedFields && selectedFields.length > 0
+      ? selectedFields
+      : DEFAULT_FIELDS;
 
   return allOrders.map((order) => {
     const row: ExportRow = {};

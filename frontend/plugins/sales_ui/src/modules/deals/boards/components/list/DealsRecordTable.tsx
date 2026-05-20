@@ -18,7 +18,7 @@ export const DealsRecordTable = () => {
     skip: !pipelineId,
   });
 
-  const ignoredKeys = ['boardId', 'pipelineId', 'salesItemId', 'tab'];
+  const ignoredKeys = ['boardId', 'pipelineId', 'salesItemId', 'stageId', 'tab'];
 
   const queryVariables: Record<string, any> = {};
 
@@ -39,12 +39,15 @@ export const DealsRecordTable = () => {
     queryVariables.noSkipArchive = true;
   }
 
+  const boardId = searchParams.get('boardId');
+  const stageId = searchParams.get('stageId');
+
   const { deals, loading, handleFetchMore } = useDeals({
     skip: !pipelineId,
     variables: {
-      boardId: searchParams.get('boardId'),
+      ...(boardId ? { boardIds: [boardId] } : {}),
       pipelineId,
-      stageId: searchParams.get('stageId'),
+      ...(stageId ? { stageId } : {}),
       ...queryVariables,
     },
   });

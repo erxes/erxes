@@ -6,9 +6,20 @@ import { PosBreadcrumb } from '../modules/pos/pos/breadcumb/PosBreadcrumb';
 import { PosOrderFilter } from '../modules/pos/orders/components/PosOrderFilter';
 import { PosOrderSideWidget } from '../modules/pos/orders/detail/PosOrderSideWidget';
 import { PosOrderSheet } from '~/modules/pos/orders/components/PosOrderSheet';
+import { useOrdersVariables } from '@/pos/orders/hooks/UseOrderList';
+import {
+  SalesExport,
+  SalesImport,
+} from '~/modules/import-export/components/SalesImportExportActions';
 
 export const OrdersPage = () => {
   const { posId } = useParams();
+  const variables = useOrdersVariables({ posId });
+
+  const getFilters = () => {
+    const { ...filters } = variables || {};
+    return filters;
+  };
 
   return (
     <>
@@ -31,6 +42,21 @@ export const OrdersPage = () => {
           <PageSubHeader>
             <PosOrderSheet />
             <PosOrderFilter />
+            <SalesImport
+              pluginName="sales"
+              moduleName="pos"
+              collectionName="posItems"
+              title="Import POS Items"
+              singularLabel="POS item"
+              pluralLabel="POS items"
+            />
+            <SalesExport
+              pluginName="sales"
+              moduleName="pos"
+              collectionName="posItems"
+              entityDisplayName="POS Items"
+              getFilters={getFilters}
+            />
           </PageSubHeader>
           <OrderRecordTable posId={posId} />
         </div>

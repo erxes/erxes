@@ -995,7 +995,7 @@ export const convertNestedDate = (obj: any) => {
   if (typeof obj !== 'object' || obj === null) return obj;
 
   for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
       // Check if the key is one of the target comparison operators
       if (
         ['$gte', '$lte', '$gt', '$lt'].includes(key) &&
@@ -1207,7 +1207,7 @@ export const PERMISSION_MAP = {
     dealsRemove: 'dealsRemove',
     dealsWatch: 'dealsWatch',
     dealsArchive: 'dealsArchive',
-    dealsCopy: 'dealsAdd', 
+    dealsCopy: 'dealsAdd',
     dealsCreateProductsData: 'dealsEdit',
     dealsEditProductData: 'dealsEdit',
     dealsDeleteProductData: 'dealsEdit',

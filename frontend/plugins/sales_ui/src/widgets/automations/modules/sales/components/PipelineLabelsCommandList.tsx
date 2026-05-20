@@ -2,6 +2,8 @@ import { GenericCommandList } from 'ui-modules';
 import { LabelBadge } from '~/modules/deals/components/common/filters/LabelBadge';
 import { usePipelineLabels } from '~/modules/deals/pipelines/hooks/usePipelineDetails';
 
+const noop = () => undefined;
+
 export const PipelineLabelsCommandList = ({
   searchValue,
   pipelineId,
@@ -25,7 +27,7 @@ export const PipelineLabelsCommandList = ({
       items={pipelineLabels || []}
       loading={loading}
       totalCount={pipelineLabels?.length || 0}
-      handleFetchMore={() => {}}
+      handleFetchMore={noop}
       onSelect={onSelect}
       getKey={(label) => label._id || ''}
       renderItem={(label) => <LabelBadge label={label} />}

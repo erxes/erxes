@@ -17,6 +17,7 @@
 
     "build:packageJson": {
       "executor": "@nx/js:tsc",
+      "dependsOn": ["^build"],
       "options": {
         "main": "backend/plugins/sales_api/dist/src/main.js",
         "tsConfig": "backend/plugins/sales_api/tsconfig.build.json",

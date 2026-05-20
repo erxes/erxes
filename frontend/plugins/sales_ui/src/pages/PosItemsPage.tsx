@@ -1,15 +1,19 @@
-import { PageHeader, Export } from 'ui-modules';
+import { PageHeader } from 'ui-modules';
 import { Breadcrumb, PageSubHeader, Separator } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
 import { PosBreadcrumb } from '@/pos/pos/breadcumb/PosBreadcrumb';
 import { PosItemsRecordTable } from '@/pos/pos-items/components/PosItemsRecordTable';
 import { PosItemsFilter } from '@/pos/pos-items/components/PosItemsFilter';
 import { PosItemDetailSheet } from '@/pos/pos-items/detail/PosItemDetailSheet';
-import { usePosItemsList } from '~/modules/pos/pos-items/hooks/UsePosItemsList';
+import { usePosItemsVariables } from '~/modules/pos/pos-items/hooks/UsePosItemsList';
+import {
+  SalesExport,
+  SalesImport,
+} from '~/modules/import-export/components/SalesImportExportActions';
 
 export const PosItemsPage = () => {
   const { posId } = useParams();
-  const { variables } = usePosItemsList();
+  const variables = usePosItemsVariables({ posId });
   const getFilters = () => {
     const { ...filters } = variables || {};
     return filters;
@@ -35,10 +39,19 @@ export const PosItemsPage = () => {
         <div className="flex flex-col overflow-hidden w-full h-full">
           <PageSubHeader>
             <PosItemsFilter />
-            <Export
+            <SalesImport
               pluginName="sales"
               moduleName="pos"
               collectionName="posItems"
+              title="Import POS Items"
+              singularLabel="POS item"
+              pluralLabel="POS items"
+            />
+            <SalesExport
+              pluginName="sales"
+              moduleName="pos"
+              collectionName="posItems"
+              entityDisplayName="POS Items"
               getFilters={getFilters}
             />
           </PageSubHeader>

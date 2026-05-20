@@ -61,7 +61,7 @@ const SelectPaymentProvider = ({
     onValueChange?.(newSelectedPaymentIds);
   };
 
-  const selectedIds = Array.isArray(value) ? value : value && [value] || [];
+  const selectedIds = Array.isArray(value) ? value : value ? [value] : [];
 
   return (
     <SelectPaymentContext.Provider

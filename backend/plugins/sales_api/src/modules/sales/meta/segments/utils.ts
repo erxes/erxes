@@ -5,7 +5,7 @@ export const generateProductsCategoryProductIds = async (
   subdomain,
   condition,
 ) => {
-  let productCategoryIds: string[] = [];
+  const productCategoryIds: string[] = [];
 
   const { propertyName, propertyValue } = condition;
   if (propertyName === 'productsData.categoryId') {

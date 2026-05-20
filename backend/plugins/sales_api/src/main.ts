@@ -14,8 +14,13 @@ import {
   TImportExportProducers,
   TGetExportDataInput,
   TGetExportHeadersInput,
+  TGetImportHeadersInput,
+  TInsertImportRowsInput,
 } from 'erxes-api-shared/core-modules';
 import { posExportHandlers } from './modules/pos/meta/export/exportHandlers';
+import { posImportHandlers } from './modules/pos/meta/import/importHandlers';
+import { dealExportHandlers } from './modules/sales/meta/import-export/export/exportHandlers';
+import { dealImportHandlers } from './modules/sales/meta/import-export/import/importHandlers';
 import { permissions } from '~/meta/permissions';
 
 startPlugin({
@@ -69,7 +74,7 @@ startPlugin({
     },
     notifications,
     payments: {
-      transactionCallback: async (subdomain, data) => {
+      transactionCallback: async () => {
         // TODO: implement transaction callback if necessary
       },
       callback: async ({ subdomain }, data) => {
@@ -129,14 +134,37 @@ startPlugin({
     },
     afterProcess,
     importExport: {
+      import: {
+        configured: true,
+        hasGetImportHeaders: true,
+        hasInsertImportRows: true,
+        types: [
+          {
+            label: 'Deals',
+            contentType: 'sales:deal.deals',
+            permissions: ['dealsAdd'],
+          },
+          {
+            label: 'POS Items',
+            contentType: 'sales:pos.posItems',
+            permissions: ['posOrderChangePayments'],
+          },
+        ],
+      },
       export: {
         configured: true,
         hasGetExportHeaders: true,
         hasGetExportData: true,
         types: [
           {
+            label: 'Deals',
+            contentType: 'sales:deal.deals',
+            permissions: ['showDeals'],
+          },
+          {
             label: 'POS Items',
             contentType: 'sales:pos.posItems',
+            permissions: ['posOrderRead'],
           },
         ],
       },
@@ -144,23 +172,57 @@ startPlugin({
     permissions,
   } as any,
   importExport: {
-    export: {
+    import: {
       types: [
+        {
+          label: 'Deals',
+          contentType: 'sales:deal.deals',
+          permissions: ['dealsAdd'],
+        },
         {
           label: 'POS Items',
           contentType: 'sales:pos.posItems',
+          permissions: ['posOrderChangePayments'],
+        },
+      ],
+      getImportHeaders: createCoreModuleProducerHandler({
+        moduleName: 'importExport',
+        modules: { deal: dealImportHandlers, pos: posImportHandlers },
+        methodName: TImportExportProducers.GET_IMPORT_HEADERS,
+        extractModuleName: (input: TGetImportHeadersInput) => input.moduleName,
+        generateModels,
+      }),
+      insertImportRows: createCoreModuleProducerHandler({
+        moduleName: 'importExport',
+        modules: { deal: dealImportHandlers, pos: posImportHandlers },
+        methodName: TImportExportProducers.INSERT_IMPORT_ROWS,
+        extractModuleName: (input: TInsertImportRowsInput) => input.moduleName,
+        generateModels,
+      }),
+    },
+    export: {
+      types: [
+        {
+          label: 'Deals',
+          contentType: 'sales:deal.deals',
+          permissions: ['showDeals'],
+        },
+        {
+          label: 'POS Items',
+          contentType: 'sales:pos.posItems',
+          permissions: ['posOrderRead'],
         },
       ],
       getExportHeaders: createCoreModuleProducerHandler({
         moduleName: 'importExport',
-        modules: { pos: posExportHandlers },
+        modules: { deal: dealExportHandlers, pos: posExportHandlers },
         methodName: TImportExportProducers.GET_EXPORT_HEADERS,
         extractModuleName: (input: TGetExportHeadersInput) => input.moduleName,
         generateModels,
       }),
       getExportData: createCoreModuleProducerHandler({
         moduleName: 'importExport',
-        modules: { pos: posExportHandlers },
+        modules: { deal: dealExportHandlers, pos: posExportHandlers },
         methodName: TImportExportProducers.GET_EXPORT_DATA,
         extractModuleName: (input: TGetExportDataInput) => input.moduleName,
         generateModels,

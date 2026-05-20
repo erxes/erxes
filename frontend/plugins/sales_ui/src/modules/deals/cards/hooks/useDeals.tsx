@@ -51,6 +51,47 @@ interface ISalesProductsDataChangedPayload {
   };
 }
 
+const toArray = (value: unknown) => (Array.isArray(value) ? value : [value]);
+
+const buildSubscriptionFilter = (variables: Record<string, any> = {}) => {
+  const filter = { ...variables };
+
+  if (filter.boardId) {
+    filter.boardIds = toArray(filter.boardId);
+  }
+
+  if (filter.productId) {
+    filter.productIds = toArray(filter.productId);
+  }
+
+  if (filter.searchValue) {
+    filter.search = filter.searchValue;
+  }
+
+  for (const key of [
+    'boardId',
+    'cursor',
+    'cursorMode',
+    'direction',
+    'limit',
+    'orderBy',
+    'productId',
+    'salesItemId',
+    'searchValue',
+    'tab',
+  ]) {
+    delete filter[key];
+  }
+
+  for (const [key, value] of Object.entries(filter)) {
+    if (value === undefined || value === null || value === '') {
+      delete filter[key];
+    }
+  }
+
+  return filter;
+};
+
 export const useDeals = (
   options?: QueryHookOptions<ICursorListResponse<IDeal>>,
   pipelineId?: string,
@@ -82,7 +123,7 @@ export const useDeals = (
     () => ({
       pipelineId: lastPipelineId,
       userId: currentUser?._id,
-      filter: options?.variables,
+      filter: buildSubscriptionFilter(options?.variables),
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [lastPipelineId, currentUser?._id, JSON.stringify(options?.variables)],

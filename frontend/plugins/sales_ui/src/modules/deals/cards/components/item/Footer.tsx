@@ -14,18 +14,17 @@ export const ItemFooter = ({ number, createdAt, assignedUsers = [], id }: Props)
   return (
     <div className="flex justify-between items-center p-2">
       <div className="flex items-center gap-1 text-gray-500 text-xs">
-        {number && (
+        {number ? (
           <>
             <IconNumber className="w-4 h-4" />
             <span>{number}</span>
           </>
-        ) || (
-            <>
-              <IconCalendar className="w-4 h-4" />
-              <span>{dayjs(createdAt).format('MMM DD, YYYY')}</span>
-            </>
-          )
-        }
+        ) : (
+          <>
+            <IconCalendar className="w-4 h-4" />
+            <span>{dayjs(createdAt).format('MMM DD, YYYY')}</span>
+          </>
+        )}
       </div>
       <SelectAssigneeDeal
         variant="card"
