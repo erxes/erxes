@@ -446,15 +446,20 @@ const productQueries = {
 
     if (groupedSimilarity === 'config') {
       const getRegex = (str) => {
-        return ['*', '.', '_'].includes(str)
-          ? new RegExp(
-              `^${str
-                .replace(/\./g, '\\.')
-                .replace(/\*/g, '.')
-                .replace(/_/g, '.')}.*`,
-              'igu',
-            )
-          : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
+        if (['*', '.', '_'].includes(str)) {
+          // First fully escape every regex meta-character (including
+          // backslashes) via the shared helper, then deliberately unescape
+          // the supported wildcards ('*' and '_' become '.', i.e. match any
+          // single character). This avoids the incomplete-sanitization
+          // pattern flagged by CodeQL js/incomplete-sanitization while
+          // preserving the original semantics for the gated single-character
+          // inputs.
+          const escaped = escapeRegExp(str)
+            .replaceAll(String.raw`\*`, '.')
+            .replaceAll('_', '.');
+          return new RegExp(`^${escaped}.*`, 'igu');
+        }
+        return new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
       const similarityGroups = await models.ProductsConfigs.getConfig(
