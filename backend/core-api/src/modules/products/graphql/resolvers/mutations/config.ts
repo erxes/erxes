@@ -7,11 +7,11 @@ import { IContext } from '~/connectionResolvers';
  * mask keys never reach a hand-rolled chained .replace() that could leak
  * un-escaped backslashes into the constructed RegExp source.
  */
-const WILDCARD_REGEX: Record<string, RegExp> = {
-  '*': /^..*/giu,
-  '.': /^\..*/giu,
-  _: /^..*/giu,
-};
+const WILDCARD_REGEX = new Map<string, RegExp>([
+  ['*', /^..*/giu],
+  ['.', /^\..*/giu],
+  ['_', /^..*/giu],
+]);
 
 export const configMutations = {
   /**
@@ -48,7 +48,7 @@ export const configMutations = {
           const maskValue = value[mask];
 
           const codeRegex =
-            WILDCARD_REGEX[mask] ??
+            WILDCARD_REGEX.get(mask) ??
             new RegExp(`.*${escapeRegExp(mask)}.*`, 'igu');
 
           const fieldFilter = (maskValue.filterField || 'code').includes(
