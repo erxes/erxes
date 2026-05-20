@@ -24,7 +24,7 @@ const generateSessionCode = () => {
 };
 
 const wasOpenedByAnotherTab = () => {
-  if (typeof globalThis.window === 'undefined') {
+  if (globalThis.window === undefined) {
     return false;
   }
 
@@ -38,7 +38,7 @@ const wasOpenedByAnotherTab = () => {
   }
 };
 
-if (typeof globalThis.window !== 'undefined' && wasOpenedByAnotherTab()) {
+if (globalThis.window !== undefined && wasOpenedByAnotherTab()) {
   sessionStorage.removeItem(SESSION_CODE_STORAGE_KEY);
 }
 
