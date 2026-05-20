@@ -192,10 +192,22 @@ export const buildLookupMaps = async (
 };
 
 export const resolvePos = (row: any, lookups: LookupMaps) => {
-  const pos =
-    getOne(lookups.posById, row.posId) ||
-    getOne(lookups.posByToken, row.posToken) ||
-    getOne(lookups.posByName, row.posName);
+  const posById = getOne(lookups.posById, row.posId);
+  const posByToken = getOne(lookups.posByToken, row.posToken);
+  const posByName = getOne(lookups.posByName, row.posName);
+  const matchedPosIds = new Set(
+    [posById, posByToken, posByName]
+      .filter(Boolean)
+      .map((matchedPos) => String(matchedPos._id)),
+  );
+
+  if (matchedPosIds.size > 1) {
+    throw new Error(
+      'Ambiguous POS match: POS ID, POS Token, and POS Name must refer to the same POS',
+    );
+  }
+
+  const pos = posById || posByToken || posByName;
 
   if (!pos) {
     throw new Error(

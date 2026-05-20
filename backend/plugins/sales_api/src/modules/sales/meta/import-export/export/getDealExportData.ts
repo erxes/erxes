@@ -316,7 +316,15 @@ export async function getDealExportData(
     _id: { $in: labelIds },
   }).lean();
 
-  const [relations, users, tags, branches, departments, products] =
+  const [
+    customerRelations,
+    companyRelations,
+    users,
+    tags,
+    branches,
+    departments,
+    products,
+  ] =
     await Promise.all([
       needsRelations
         ? fetchCoreArray({
@@ -329,20 +337,19 @@ export async function getDealExportData(
               relatedContentType: 'core:customer',
             },
             label: 'Customer relation',
-          }).then(async (customerRelations) => {
-            const companyRelations = await fetchCoreArray({
-              subdomain,
-              module: 'relation',
-              action: 'filterRelations',
-              input: {
-                contentType: 'sales:deal',
-                contentIds: dealIds,
-                relatedContentType: 'core:company',
-              },
-              label: 'Company relation',
-            });
-
-            return [...customerRelations, ...companyRelations];
+          })
+        : [],
+      needsRelations
+        ? fetchCoreArray({
+            subdomain,
+            module: 'relation',
+            action: 'filterRelations',
+            input: {
+              contentType: 'sales:deal',
+              contentIds: dealIds,
+              relatedContentType: 'core:company',
+            },
+            label: 'Company relation',
           })
         : [],
       userIds.length
@@ -412,6 +419,7 @@ export async function getDealExportData(
           })
         : [],
     ]);
+  const relations = [...customerRelations, ...companyRelations];
 
   const { relationMap, customerIds, companyIds } = buildRelationMap(relations);
 

@@ -245,16 +245,20 @@ const useSalesImportUploadHandler = (
       const disposition = response.headers.get('content-disposition') || '';
       const filename =
         disposition.match(/filename="(.+?)"/)?.[1] || 'import-template.csv';
-      const blobUrl = window.URL.createObjectURL(await response.blob());
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      let anchor: HTMLAnchorElement | null = null;
 
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-
-      window.URL.revokeObjectURL(blobUrl);
-      document.body.removeChild(a);
+      try {
+        anchor = document.createElement('a');
+        anchor.href = blobUrl;
+        anchor.download = filename;
+        document.body.appendChild(anchor);
+        anchor.click();
+      } finally {
+        window.URL.revokeObjectURL(blobUrl);
+        anchor?.remove();
+      }
     } catch (error: any) {
       toast({
         title: t('sales.importExport.failedToDownloadTemplate', {

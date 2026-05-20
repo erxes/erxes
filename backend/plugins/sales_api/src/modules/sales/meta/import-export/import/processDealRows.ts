@@ -309,13 +309,15 @@ export async function processDealRows(
         try {
           await models.Deals.deleteOne({ _id: deal._id });
         } catch (cleanupError: any) {
-          throw new Error(
-            `${
-              relationError?.message || 'Failed to create relations'
-            }; rollback failed for deal ${deal._id}: ${
-              cleanupError?.message || 'unknown error'
-            }`,
-          );
+          const errorMessage = [
+            relationError?.message || 'Failed to create relations',
+            `Rollback failed for deal ${deal._id}`,
+            cleanupError?.message || 'unknown error',
+          ].join('; ');
+          const wrappedError = new Error(errorMessage);
+          (wrappedError as any).cause = relationError;
+
+          throw wrappedError;
         }
 
         throw relationError;
