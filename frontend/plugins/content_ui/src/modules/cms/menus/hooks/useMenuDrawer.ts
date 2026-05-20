@@ -189,7 +189,7 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
   });
 
   const { data: tagsData } = useQuery(MENU_TAGS_QUERY, {
-    variables: { clientPortalId, limit: 100 },
+    variables: { clientPortalId, language: selectedLanguage || cmsLanguage },
     skip: !isOpen || !clientPortalId || linkType !== 'tag',
     fetchPolicy: 'cache-first',
   });

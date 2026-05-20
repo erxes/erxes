@@ -3,7 +3,6 @@ import { gql } from '@apollo/client';
 export const POST_CMS_TAGS = gql`
   query CmsTags(
     $clientPortalId: String
-    $limit: Int
     $cursor: String
     $cursorMode: CURSOR_MODE
     $direction: CURSOR_DIRECTION
@@ -17,7 +16,6 @@ export const POST_CMS_TAGS = gql`
   ) {
     cmsTags(
       clientPortalId: $clientPortalId
-      limit: $limit
       cursor: $cursor
       cursorMode: $cursorMode
       direction: $direction

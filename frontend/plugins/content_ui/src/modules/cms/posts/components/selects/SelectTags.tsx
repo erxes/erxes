@@ -20,6 +20,8 @@ import {
 import { IconTag } from '@tabler/icons-react';
 import { POST_CMS_TAGS } from '../../graphql/queries/postCmsTagsQuery';
 import { useQuery } from '@apollo/client';
+import { useAtomValue } from 'jotai';
+import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
 import {
   SelectContent,
   SelectTrigger,
@@ -66,10 +68,11 @@ export const SelectTagsProvider = ({
   mode?: 'single' | 'multiple';
   clientPortalId?: string;
 }) => {
+  const language = useAtomValue(cmsLanguageAtom);
   const { data, loading } = useQuery(POST_CMS_TAGS, {
     variables: {
       clientPortalId,
-      limit: 100,
+      language,
     },
     skip: clientPortalId == null,
   });

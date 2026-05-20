@@ -28,7 +28,7 @@ const hasNonEmptyValue = (data: TranslationData | undefined): boolean => {
 
 interface UseCmsTranslationOptions {
   objectId?: string;
-  type: 'post' | 'page' | 'menu' | 'webPage';
+  type: 'post' | 'page' | 'category' | 'tag' | 'menu' | 'webPage';
   availableLanguages: string[];
   defaultLanguage: string;
   /** Extra dependency for the reset effect. Change this value to force a state

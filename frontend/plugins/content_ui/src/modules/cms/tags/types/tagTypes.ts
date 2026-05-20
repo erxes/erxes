@@ -6,6 +6,7 @@ export interface CmsTag {
   clientPortalId: string;
   createdAt: string;
   updatedAt?: string;
+  translations?: { language: string; title?: string }[];
 }
 
 export interface TagFormData {
@@ -13,4 +14,10 @@ export interface TagFormData {
   slug: string;
   clientPortalId: string;
   colorCode: string;
+  language?: string;
+  translations?: {
+    language: string;
+    title: string;
+    type: string;
+  }[];
 }
