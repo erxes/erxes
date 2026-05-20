@@ -38,11 +38,16 @@ export async function processDealRows(
         }),
       });
 
-      await createRelations(subdomain, {
-        dealId: deal._id,
-        customerIds: doc.customerIds,
-        companyIds: doc.companyIds,
-      });
+      try {
+        await createRelations(subdomain, {
+          dealId: deal._id,
+          customerIds: doc.customerIds,
+          companyIds: doc.companyIds,
+        });
+      } catch (relationError) {
+        await models.Deals.deleteOne({ _id: deal._id });
+        throw relationError;
+      }
 
       successRows.push({ ...row, _id: deal._id });
     } catch (error: any) {

@@ -77,6 +77,7 @@ export interface ImportConfig extends TImportHandlers {
 export type GetExportData = {
   moduleName: string;
   collectionName: string;
+  userId?: string;
   cursor?: string;
   limit: number;
   filters?: Record<string, any>;

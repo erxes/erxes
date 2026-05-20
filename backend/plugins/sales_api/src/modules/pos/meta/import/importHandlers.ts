@@ -52,6 +52,10 @@ export const posImportHandlers: TImportHandlers = {
       throw new Error('POS import models are not available');
     }
 
+    if (!Array.isArray(rows)) {
+      throw new Error('Import rows must be an array');
+    }
+
     return getCollectionConfig(collectionName).processRows(
       models,
       subdomain,

@@ -19,6 +19,7 @@ export const actionCreate = async ({
 }) => {
   const { config = {} } = action;
   const { target, triggerType } = execution || {};
+  const safeTriggerType = triggerType || '';
   const relatedValueProps = {};
 
   let newData = action.config.assignedTo
@@ -28,7 +29,7 @@ export const actionCreate = async ({
         customResolver: { resolver: getRelatedValue, isRelated: false },
 
         actionData: { assignedTo: action.config.assignedTo },
-        target: { ...target, type: (triggerType || '').replace('sales:', '') },
+        target: { ...target, type: safeTriggerType.replace('sales:', '') },
       })
     : {};
 
@@ -50,7 +51,7 @@ export const actionCreate = async ({
       subdomain,
       customResolver: { resolver: getRelatedValue, props: relatedValueProps },
       actionData: action.config,
-      target: { ...target, type: (triggerType || '').replace('sales:', '') },
+      target: { ...target, type: safeTriggerType.replace('sales:', '') },
     })),
   };
 
@@ -111,7 +112,7 @@ export const actionCreate = async ({
   }
 
   if (Object.prototype.hasOwnProperty.call(newData, 'attachments')) {
-    const [serviceName] = triggerType.split(':');
+    const [serviceName] = safeTriggerType.split(':');
     if (serviceName === 'sales') {
       const item = await models.Deals.findOne({ _id: target._id });
       newData.attachments = item?.attachments;
@@ -126,48 +127,58 @@ export const actionCreate = async ({
     models.Deals.createDeal,
   );
 
-  const [serviceName, mainType] = splitType(execution.triggerType);
+  try {
+    const [serviceName, mainType] = splitType(safeTriggerType);
 
-  if (mainType === 'inbox:conversation') {
-    await sendTRPCMessage({
-      subdomain,
-      method: 'mutation',
-      pluginName: 'core',
-      module: 'relation',
-      action: 'createRelation',
-      input: {
-        entities: [
-          {
-            contentType: 'core:customer',
-            contentId: execution.target.customerId,
-          },
-          {
-            contentType: 'sales:deal',
-            contentId: item._id,
-          },
-        ],
-      },
-    });
-  } else if (serviceName !== 'sales') {
-    await sendTRPCMessage({
-      subdomain,
-      method: 'mutation',
-      pluginName: 'core',
-      module: 'relation',
-      action: 'createRelation',
-      input: {
-        entities: [
-          {
-            contentType: `core:${mainType.replace('lead', 'customer')}`,
-            contentId: execution.targetId,
-          },
-          {
-            contentType: 'sales:deal',
-            contentId: item._id,
-          },
-        ],
-      },
-    });
+    if (serviceName === 'inbox' && mainType === 'conversation') {
+      await sendTRPCMessage({
+        subdomain,
+        method: 'mutation',
+        pluginName: 'core',
+        module: 'relation',
+        action: 'createRelation',
+        input: {
+          entities: [
+            {
+              contentType: 'core:customer',
+              contentId: execution.target.customerId,
+            },
+            {
+              contentType: 'sales:deal',
+              contentId: item._id,
+            },
+          ],
+        },
+      });
+    } else if (serviceName && serviceName !== 'sales') {
+      await sendTRPCMessage({
+        subdomain,
+        method: 'mutation',
+        pluginName: 'core',
+        module: 'relation',
+        action: 'createRelation',
+        input: {
+          entities: [
+            {
+              contentType: `core:${mainType.replace('lead', 'customer')}`,
+              contentId: execution.targetId,
+            },
+            {
+              contentType: 'sales:deal',
+              contentId: item._id,
+            },
+          ],
+        },
+      });
+    }
+  } catch (error) {
+    try {
+      await models.Deals.deleteOne({ _id: item._id });
+    } catch (cleanupError) {
+      console.error('Failed to clean up automation-created deal', cleanupError);
+    }
+
+    throw error;
   }
 
   return {

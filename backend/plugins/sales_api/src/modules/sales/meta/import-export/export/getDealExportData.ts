@@ -176,6 +176,7 @@ export async function getDealExportData(
     filters,
     ids,
     selectedFields,
+    userId,
   } = (args?.data ?? args) as GetExportData;
   const effectiveLimit = normalizeExportLimit(limit, 5000);
 
@@ -183,8 +184,12 @@ export async function getDealExportData(
     throw new Error('Models not available in context');
   }
 
+  if (filters && !userId) {
+    throw new Error('Export userId is required for filtered deal exports');
+  }
+
   const filter = filters
-    ? await generateFilter(models, subdomain, '', filters, true)
+    ? await generateFilter(models, subdomain, userId as string, filters)
     : {};
 
   const { query: exportQuery, isIdsMode } = buildExportCursorQuery({

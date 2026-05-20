@@ -1,5 +1,6 @@
 import { PageHeader } from 'ui-modules';
 import { Breadcrumb, PageSubHeader, Separator } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { OrderRecordTable } from '../modules/pos/orders/components/OrderRecordTable';
 import { PosBreadcrumb } from '../modules/pos/pos/breadcumb/PosBreadcrumb';
@@ -14,6 +15,7 @@ import {
 
 export const OrdersPage = () => {
   const { posId } = useParams();
+  const { t } = useTranslation();
   const variables = useOrdersVariables({ posId });
 
   const getFilters = () => {
@@ -46,15 +48,23 @@ export const OrdersPage = () => {
               pluginName="sales"
               moduleName="pos"
               collectionName="posItems"
-              title="Import POS Items"
-              singularLabel="POS item"
-              pluralLabel="POS items"
+              title={t('sales.importExport.importPosItems', {
+                defaultValue: 'Import POS Items',
+              })}
+              singularLabel={t('sales.importExport.posItem', {
+                defaultValue: 'POS item',
+              })}
+              pluralLabel={t('sales.importExport.posItems', {
+                defaultValue: 'POS items',
+              })}
             />
             <SalesExport
               pluginName="sales"
               moduleName="pos"
               collectionName="posItems"
-              entityDisplayName="POS Items"
+              entityDisplayName={t('sales.importExport.posItems', {
+                defaultValue: 'POS Items',
+              })}
               getFilters={getFilters}
             />
           </PageSubHeader>

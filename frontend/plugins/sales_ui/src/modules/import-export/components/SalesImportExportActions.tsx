@@ -75,9 +75,18 @@ const useSalesImportUploadHandler = (
         return;
       }
 
+      if (files.length !== 1) {
+        toast({
+          title: 'Upload one file at a time',
+          description: 'Please select a single CSV file to import',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       const file = files[0];
 
-      if (!file.name.endsWith('.csv')) {
+      if (!file.name.toLowerCase().endsWith('.csv')) {
         toast({
           title: 'Invalid file type',
           description: 'Only .csv files are supported',
@@ -308,7 +317,7 @@ export const SalesImport = ({
       </Popover.Trigger>
       <Popover.Content
         align="end"
-        className="h-[85dvh] max-h-[(--radix-popover-content-available-height)] w-92 max-w-[calc(100vw-1rem)] overflow-hidden p-0"
+        className="h-[85dvh] max-h-[var(--radix-popover-content-available-height)] w-92 max-w-[calc(100vw-1rem)] overflow-hidden p-0"
       >
         <ScrollArea className="h-full">
           <div className="border-b bg-muted/30 px-5 py-4">

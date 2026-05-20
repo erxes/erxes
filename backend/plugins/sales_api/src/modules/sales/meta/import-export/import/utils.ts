@@ -37,6 +37,30 @@ const parseNumber = (value: unknown): number | undefined => {
   return Number.isFinite(parsed) ? parsed : undefined;
 };
 
+const parseBoolean = (value: unknown): boolean => {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+
+  if (typeof value === 'number') {
+    return value !== 0;
+  }
+
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+
+    if (['true', '1', 'yes'].includes(normalized)) {
+      return true;
+    }
+
+    if (['false', '0', 'no', ''].includes(normalized)) {
+      return false;
+    }
+  }
+
+  return Boolean(value);
+};
+
 const parseProductsData = (value: unknown): IProductData[] | undefined => {
   if (!value) {
     return undefined;
@@ -60,8 +84,8 @@ const parseProductsData = (value: unknown): IProductData[] | undefined => {
       globalUnitPrice: parseNumber(productData.globalUnitPrice) ?? 0,
       unitPricePercent: parseNumber(productData.unitPricePercent) ?? 0,
       amount: parseNumber(productData.amount),
-      tickUsed: Boolean(productData.tickUsed),
-      isVatApplied: Boolean(productData.isVatApplied),
+      tickUsed: parseBoolean(productData.tickUsed),
+      isVatApplied: parseBoolean(productData.isVatApplied),
     };
   });
 };

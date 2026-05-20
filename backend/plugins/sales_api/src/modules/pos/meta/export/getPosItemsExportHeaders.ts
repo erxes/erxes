@@ -1,15 +1,10 @@
 import {
   ImportHeaderDefinition,
-  IImportExportContext,
+  TExportHandlers,
 } from 'erxes-api-shared/core-modules';
 
-export async function getPosItemsExportHeaders(
-  _data: unknown,
-  _ctx: IImportExportContext,
-): Promise<ImportHeaderDefinition[]> {
-  void _data;
-  void _ctx;
-
+export const getPosItemsExportHeaders: TExportHandlers['getExportHeaders'] =
+  async (): Promise<ImportHeaderDefinition[]> => {
   return [
     { key: 'orderId', label: 'Order ID', isDefault: false },
     { key: 'itemId', label: 'Item ID', isDefault: false },
@@ -54,4 +49,4 @@ export async function getPosItemsExportHeaders(
     { key: 'origin', label: 'Origin', isDefault: false },
     { key: 'itemDescription', label: 'Item Description', isDefault: false },
   ];
-}
+};

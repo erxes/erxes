@@ -36,8 +36,14 @@ export const afterProcess: AfterProcessConfigs = {
     }
 
     const models = await generateModels(ctx.subdomain);
-    const dealIds =
-      (contentType === 'sales:deal' && [contentId]) || relatedContentIds;
+    const dealIds = [
+      ...new Set(
+        [
+          ...(contentType === 'sales:deal' ? [contentId] : []),
+          ...(relatedContentType === 'sales:deal' ? relatedContentIds : []),
+        ].filter(Boolean),
+      ),
+    ];
 
     const deals = await models.Deals.find({ _id: { $in: dealIds } }).lean();
 

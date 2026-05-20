@@ -22,6 +22,7 @@ export type TGetExportHeadersInput = z.infer<typeof GetExportHeadersInput>;
 export const GetExportDataInput = z.object({
   moduleName: z.string(),
   collectionName: z.string(),
+  userId: z.string().optional(),
   cursor: z.string().optional(),
   limit: z.number(),
   filters: z.record(z.any()).optional(),

@@ -59,6 +59,10 @@ export const dealImportHandlers = {
       throw new Error('Import userId is required');
     }
 
+    if (!Array.isArray(rows)) {
+      throw new Error('Import rows must be an array');
+    }
+
     return getCollectionConfig(collectionName).processRows(
       models,
       subdomain,

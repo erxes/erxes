@@ -391,6 +391,7 @@ export const createExportBatchProcessor = (
               data: {
                 moduleName,
                 collectionName,
+                userId: exportDoc.userId,
                 limit: BATCH_SIZE,
                 ...(cursor ? { cursor } : {}),
                 ...(exportDoc.filters ? { filters: exportDoc.filters } : {}),
