@@ -346,9 +346,13 @@ export const generateFilter = async (
     andFilter.push({
       $or: [
         { status: { $in: TR_STATUSES.ACTIVE } },
-        { status: TR_STATUSES.DRAFT, createdBy: user._id },
-        { mentionOwnerId: user._id },
-        { mentionUserIds: { $in: [user._id] } },
+        {
+          status: TR_STATUSES.CONVERSATION, $or: [
+            { createdBy: user._id },
+            { mentionOwnerId: user._id },
+            { mentionUserIds: { $in: [user._id] } },
+          ]
+        }
       ],
     });
   }
