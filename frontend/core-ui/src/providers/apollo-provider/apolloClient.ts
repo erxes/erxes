@@ -24,18 +24,21 @@ const generateSessionCode = () => {
 };
 
 const wasOpenedByAnotherTab = () => {
-  if (typeof window === 'undefined') {
+  if (typeof globalThis.window === 'undefined') {
     return false;
   }
 
   try {
-    return Boolean(window.opener) && window.opener !== window;
+    return (
+      Boolean(globalThis.window.opener) &&
+      globalThis.window.opener !== globalThis.window
+    );
   } catch {
     return false;
   }
 };
 
-if (typeof window !== 'undefined' && wasOpenedByAnotherTab()) {
+if (typeof globalThis.window !== 'undefined' && wasOpenedByAnotherTab()) {
   sessionStorage.removeItem(SESSION_CODE_STORAGE_KEY);
 }
 
@@ -64,7 +67,7 @@ const errorLink = onError(({ graphQLErrors }) => {
     const [error] = graphQLErrors;
 
     if (error.message === 'Login required') {
-      window.location.reload();
+      globalThis.window.location.reload();
     }
   }
 });
