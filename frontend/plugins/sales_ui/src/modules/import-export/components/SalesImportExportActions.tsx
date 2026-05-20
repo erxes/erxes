@@ -12,16 +12,19 @@ import {
   ExportFieldSelection,
   ImportProgress,
   useExport,
-  useImportUploadHandler,
+  useImport,
 } from 'ui-modules';
 import {
   Button,
   Dialog,
   Popover,
+  REACT_APP_API_URL,
   ScrollArea,
   Sheet,
   buttonVariants,
   cn,
+  toast,
+  useUpload,
 } from 'erxes-ui';
 import { Badge } from 'erxes-ui/components/badge';
 import {
@@ -29,6 +32,7 @@ import {
   type ComponentType,
   type DragEvent,
   type ReactNode,
+  useCallback,
   useId,
   useState,
 } from 'react';
@@ -46,6 +50,183 @@ const getContentType = ({
   collectionName,
 }: ImportExportContentType) =>
   `${pluginName}:${moduleName}.${collectionName}`;
+
+const useSalesImportUploadHandler = (
+  entityType?: string,
+  onFileUploaded?: (file: File) => void,
+) => {
+  const [isDragOver, setIsDragOver] = useState(false);
+  const { isLoading, upload } = useUpload();
+  const { activeImports, startImport } = useImport(entityType);
+
+  const handleDragOver = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  }, []);
+
+  const handleFileUpload = useCallback(
+    (files: FileList) => {
+      if (!files?.length) {
+        return;
+      }
+
+      const file = files[0];
+
+      if (!file.name.endsWith('.csv')) {
+        toast({
+          title: 'Invalid file type',
+          description: 'Only .csv files are supported',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      if (!entityType) {
+        toast({
+          title: 'Missing entity type',
+          description: 'Entity type is required to start import',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      upload({
+        files,
+        kind: 'import',
+        afterUpload: async ({ response }) => {
+          onFileUploaded?.(file);
+
+          if (!response) {
+            toast({
+              title: 'Upload failed',
+              description: 'File upload completed but no file key was returned',
+              variant: 'destructive',
+            });
+            return;
+          }
+
+          const fileKey =
+            typeof response === 'string' ? response : String(response);
+
+          if (!fileKey.trim()) {
+            toast({
+              title: 'Invalid file key',
+              description: 'File upload completed but file key is invalid',
+              variant: 'destructive',
+            });
+            return;
+          }
+
+          try {
+            await startImport(entityType, fileKey, file.name);
+            toast({
+              title: 'Import started',
+              description: `Import process has been started for ${file.name}`,
+            });
+          } catch (error: any) {
+            toast({
+              title: 'Failed to start import',
+              description:
+                error?.message || 'An error occurred while starting the import',
+              variant: 'destructive',
+            });
+          }
+        },
+      });
+    },
+    [entityType, onFileUploaded, startImport, upload],
+  );
+
+  const handleDrop = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      setIsDragOver(false);
+      handleFileUpload(e.dataTransfer.files);
+    },
+    [handleFileUpload],
+  );
+
+  const handleFileSelect = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files?.length) {
+        handleFileUpload(e.target.files);
+      }
+
+      e.target.value = '';
+    },
+    [handleFileUpload],
+  );
+
+  const handleClickUpload = useCallback((inputId = 'csv-upload-input') => {
+    const input = document.getElementById(inputId) as HTMLInputElement | null;
+    input?.click();
+  }, []);
+
+  const handleDownloadTemplate = useCallback(async () => {
+    if (!entityType) {
+      toast({
+        title: 'Missing entity type',
+        description: 'Entity type is required to download template',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${REACT_APP_API_URL}/import-export/download-template?entityType=${encodeURIComponent(
+          entityType,
+        )}`,
+        {
+          method: 'GET',
+          credentials: 'include',
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to download template');
+      }
+
+      const disposition = response.headers.get('content-disposition') || '';
+      const filename =
+        disposition.match(/filename="(.+?)"/)?.[1] || 'import-template.csv';
+      const blobUrl = window.URL.createObjectURL(await response.blob());
+
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+
+      window.URL.revokeObjectURL(blobUrl);
+      document.body.removeChild(a);
+    } catch (error: any) {
+      toast({
+        title: 'Failed to download template',
+        description:
+          error?.message || 'An error occurred while downloading the template',
+        variant: 'destructive',
+      });
+    }
+  }, [entityType]);
+
+  return {
+    activeImports,
+    isDragOver,
+    handleDragOver,
+    handleDragLeave,
+    handleDrop,
+    handleFileSelect,
+    handleClickUpload,
+    handleDownloadTemplate,
+    isLoading,
+  };
+};
 
 export const SalesImport = ({
   title,
@@ -79,7 +260,7 @@ export const SalesImport = ({
     handleClickUpload,
     handleDownloadTemplate,
     isLoading,
-  } = useImportUploadHandler(contentType, onFileUploaded);
+  } = useSalesImportUploadHandler(contentType, onFileUploaded);
 
   const renderAdditionInfo = () => {
     if (!additionContent) {
