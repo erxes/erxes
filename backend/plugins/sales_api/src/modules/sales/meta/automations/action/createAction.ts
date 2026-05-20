@@ -171,11 +171,17 @@ export const actionCreate = async ({
         },
       });
     }
-  } catch (error) {
+  } catch (error: any) {
     try {
       await models.Deals.deleteOne({ _id: item._id });
-    } catch (cleanupError) {
-      console.error('Failed to clean up automation-created deal', cleanupError);
+    } catch (cleanupError: any) {
+      throw new Error(
+        `${
+          error?.message || 'Failed to create automation relation'
+        }; rollback failed for deal ${item._id}: ${
+          cleanupError?.message || 'unknown error'
+        }`,
+      );
     }
 
     throw error;

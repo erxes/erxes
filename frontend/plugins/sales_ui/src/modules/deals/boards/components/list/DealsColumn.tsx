@@ -20,7 +20,7 @@ import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssign
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 
-export const DealsColumn = (): ColumnDef<IDeal>[] => {
+export const useDealsColumns = (): ColumnDef<IDeal>[] => {
   const { editDeals } = useDealsEdit();
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IDeal>;
 

@@ -37,13 +37,21 @@ const parseNumber = (value: unknown): number | undefined => {
   return Number.isFinite(parsed) ? parsed : undefined;
 };
 
-const parseBoolean = (value: unknown): boolean => {
+const parseBoolean = (value: unknown): boolean | undefined => {
   if (typeof value === 'boolean') {
     return value;
   }
 
   if (typeof value === 'number') {
-    return value !== 0;
+    if (value === 1) {
+      return true;
+    }
+
+    if (value === 0) {
+      return false;
+    }
+
+    return undefined;
   }
 
   if (typeof value === 'string') {
@@ -58,7 +66,7 @@ const parseBoolean = (value: unknown): boolean => {
     }
   }
 
-  return Boolean(value);
+  return undefined;
 };
 
 const parseProductsData = (value: unknown): IProductData[] | undefined => {

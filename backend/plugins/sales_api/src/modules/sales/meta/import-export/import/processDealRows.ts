@@ -44,8 +44,19 @@ export async function processDealRows(
           customerIds: doc.customerIds,
           companyIds: doc.companyIds,
         });
-      } catch (relationError) {
-        await models.Deals.deleteOne({ _id: deal._id });
+      } catch (relationError: any) {
+        try {
+          await models.Deals.deleteOne({ _id: deal._id });
+        } catch (cleanupError: any) {
+          throw new Error(
+            `${
+              relationError?.message || 'Failed to create relations'
+            }; rollback failed for deal ${deal._id}: ${
+              cleanupError?.message || 'unknown error'
+            }`,
+          );
+        }
+
         throw relationError;
       }
 
