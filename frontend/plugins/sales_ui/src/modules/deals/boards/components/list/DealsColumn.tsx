@@ -74,7 +74,7 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
             stageId={row.original.stageId}
             pipelineId={row.original.pipeline?._id || ''}
             onChange={(stageId) => {
-              void moveDealStage({
+              moveDealStage({
                 deal: row.original,
                 stageId,
               });

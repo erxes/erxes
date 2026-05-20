@@ -39,7 +39,7 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
           pipelineId={pipelineId}
           stageId={deal.stageId}
           onChangeStage={(stageId: string | string[]) => {
-            void moveDealStage({
+            moveDealStage({
               deal,
               stageId,
               onCompleted: () => {
