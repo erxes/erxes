@@ -94,7 +94,15 @@ const parseJSONList = (value: unknown): any[] | undefined => {
     return undefined;
   }
 
-  const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+  let parsed: unknown;
+
+  try {
+    parsed = typeof value === 'string' ? JSON.parse(value) : value;
+  } catch (error: any) {
+    throw new Error(
+      `Invalid Paid Amounts JSON: ${error?.message || 'Unable to parse value'}`,
+    );
+  }
 
   if (!Array.isArray(parsed)) {
     throw new Error('Paid Amounts JSON must be an array');
