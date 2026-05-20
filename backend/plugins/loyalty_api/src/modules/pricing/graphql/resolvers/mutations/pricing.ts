@@ -6,24 +6,27 @@ export const pricingMutations = {
   createPricing: async (
     _parent: undefined,
     { name }: { name: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('pricingCreate');
     return models.Pricing.createPricing({ name });
   },
 
   updatePricing: async (
     _parent: undefined,
     { _id, name }: { _id: string; name: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('pricingUpdate');
     return models.Pricing.updatePricing(_id, { name });
   },
 
   removePricing: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('pricingRemove');
     return models.Pricing.removePricing(_id);
   },
 

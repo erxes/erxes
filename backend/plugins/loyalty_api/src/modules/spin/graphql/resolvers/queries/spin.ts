@@ -35,7 +35,8 @@ const generateFilter = (params: ISpinParams | ISpinMainParams) => {
 };
 
 export const spinQueries = {
-  async spins(_root: undefined, params: ISpinParams, { models }: IContext) {
+  async spins(_root: undefined, params: ISpinParams, { models, checkPermission }: IContext) {
+    await checkPermission('spinView');
     const filter: FilterQuery<ISpinDocument> = generateFilter(params);
 
     return await cursorPaginate({
@@ -48,8 +49,9 @@ export const spinQueries = {
   async spinsMain(
     _root: undefined,
     params: ISpinMainParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('spinView');
     const {
       page = 1,
       perPage = 20,

@@ -6,7 +6,7 @@ export const SCORE_ACTION = {
 };
 
 export const SCORE_CAMPAIGN_STATUSES = {
-  PUBLISHED: 'published',
+  PUBLISHED: 'active',
   DRAFT: 'draft',
   ARCHIVED: 'archived',
 } as const;

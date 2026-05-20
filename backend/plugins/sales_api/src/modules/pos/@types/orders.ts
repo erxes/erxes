@@ -62,6 +62,7 @@ export interface IPosOrder {
   posId?: string;
   syncedErkhet?: boolean;
   syncErkhetInfo?: string;
+  accountingResponse?: string;
   deliveryInfo?: any;
   description?: string;
   isPre?: boolean;

@@ -219,12 +219,12 @@ export const ScoreDetailSheet = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal>
-      <Sheet.View className="sm:max-w-8xl p-0">
-        <Sheet.Header className="border-b px-6 py-8 gap-3">
+      <Sheet.View side="bottom" className="h-[70vh] p-0 flex flex-col">
+        <Sheet.Header className="border-b px-6 py-4 gap-3 shrink-0">
           <div>
             <Sheet.Title>{ownerName}</Sheet.Title>
-            <p className="text-xs text-muted-foreground mt-2 capitalize">
-              {record?.ownerType || ''} · Total score:{' '}
+            <p className="text-xs text-muted-foreground mt-1 capitalize">
+              {record?.ownerType || ''} · Total Score:{' '}
               <span className="font-semibold text-foreground">
                 {record?.totalScore ?? 0}
               </span>
@@ -232,7 +232,7 @@ export const ScoreDetailSheet = ({
           </div>
           <Sheet.Close />
         </Sheet.Header>
-        <Sheet.Content className="p-4 overflow-auto">
+        <Sheet.Content className="flex-1 min-h-0 p-4 overflow-auto">
           {logs.length === 0 ? (
             <div className="flex items-center justify-center h-24 text-xs text-muted-foreground">
               No log records found

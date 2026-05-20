@@ -1,5 +1,6 @@
-import { isEnabled, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { isEnabled } from 'erxes-api-shared/utils';
 import fetch from 'node-fetch';
+import { getConfig } from './utils';
 
 export default {
   products: ['products'],
@@ -18,25 +19,8 @@ export const afterQueryHandlers = async (subdomain, data) => {
     return results;
   }
   try {
-    const configs = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'configs',
-      action: 'getConfig',
-      input: { code: 'ERKHET', defaultValue: {} },
-      defaultValue: {},
-    });
-
-    const remConfigs = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'configs',
-      action: 'getConfig',
-      input: { code: 'remainderConfig', defaultValue: {} },
-      defaultValue: {},
-    });
+    const configs = await getConfig(subdomain, 'ERKHET', {});
+    const remConfigs = await getConfig(subdomain, 'remainderConfig', {});
 
     if (!Object.keys(remConfigs).includes(pipelineId)) {
       return results;

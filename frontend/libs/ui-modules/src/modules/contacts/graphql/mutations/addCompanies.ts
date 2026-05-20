@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
-export const companiesAdd = gql`
-  mutation companiesAdd(
+export const COMPANIES_ADD = gql`
+  mutation CompaniesAdd(
     $primaryName: String
     $primaryPhone: String
     $website: String
@@ -32,18 +32,6 @@ export const companiesAdd = gql`
       parentCompanyId: $parentCompanyId
     ) {
       _id
-      primaryName
-      names
-      primaryEmail
-      emails
-      primaryPhone
-      phones
-      website
-      industry
-      code
-      avatar
-      location
-      parentCompanyId
     }
   }
 `;

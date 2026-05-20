@@ -241,6 +241,14 @@ export const types = () => `
     isRepeatEnabled: Boolean,
     repeatRules: [RepeatRuleInput],
   }
+
+  input PricingCheckProduct {
+    itemId: String
+    productId: String
+    quantity: Float
+    price: Float
+    manufacturedDate: String
+  }
 `;
 
 const pricingQueryParams = `
@@ -266,11 +274,21 @@ const pricingQueryParams = `
   quantity: Float
 `;
 
+const checkDiscountParams = `
+  prioritizeRule: String
+  totalAmount: Float
+  departmentId: String
+  branchId: String
+  pipelineId: String
+  products: [PricingCheckProduct]
+`;
+
 export const queries = `
   pricingPlans(${pricingQueryParams}): [PricingPlan]
   cpPricingPlans(${pricingQueryParams}): [PricingPlan]
   pricingPlansCount(${pricingQueryParams}): Int
   pricingPlanDetail(id: String): PricingPlan
+  pricingCheckDiscount(${checkDiscountParams}): JSON
 `;
 
 export const mutations = `

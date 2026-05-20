@@ -16,6 +16,8 @@ import {
   getSimilaritiesProductsCount,
 } from '@/products/utils';
 
+const inventoryKey = (id?: string) => id || '_';
+
 const generateFilter = async (
   models: IModels,
   subdomain: string,
@@ -177,10 +179,13 @@ const generateFilter = async (
     }
   }
 
-  if (branchId && departmentId) {
+  if (branchId || departmentId) {
+    const branchKey = inventoryKey(branchId);
+    const departmentKey = inventoryKey(departmentId);
+
     if (minRemainder || minRemainder === 0) {
       andFilters.push({
-        [`inventories.${branchId}.${departmentId}.remainder`]: {
+        [`inventories.${branchKey}.${departmentKey}.remainder`]: {
           $exists: true,
           $gte: minRemainder,
         },
@@ -188,7 +193,7 @@ const generateFilter = async (
     }
     if (maxRemainder || maxRemainder === 0) {
       andFilters.push({
-        [`inventories.${branchId}.${departmentId}.remainder`]: {
+        [`inventories.${branchKey}.${departmentKey}.remainder`]: {
           $exists: true,
           $lte: maxRemainder,
         },
@@ -197,7 +202,7 @@ const generateFilter = async (
 
     if (minDiscountValue || minDiscountValue === 0) {
       andFilters.push({
-        [`discounts.${branchId}.${departmentId}.value`]: {
+        [`discounts.${branchKey}.${departmentKey}.value`]: {
           $exists: true,
           $gte: minDiscountValue,
         },
@@ -205,7 +210,7 @@ const generateFilter = async (
     }
     if (maxDiscountValue || maxDiscountValue === 0) {
       andFilters.push({
-        [`discounts.${branchId}.${departmentId}.value`]: {
+        [`discounts.${branchKey}.${departmentKey}.value`]: {
           $exists: true,
           $lte: maxDiscountValue,
         },
@@ -214,7 +219,7 @@ const generateFilter = async (
 
     if (minDiscountPercent || minDiscountPercent === 0) {
       andFilters.push({
-        [`discounts.${branchId}.${departmentId}.percent`]: {
+        [`discounts.${branchKey}.${departmentKey}.percent`]: {
           $exists: true,
           $gte: minDiscountPercent,
         },
@@ -222,7 +227,7 @@ const generateFilter = async (
     }
     if (maxDiscountPercent || maxDiscountPercent === 0) {
       andFilters.push({
-        [`discounts.${branchId}.${departmentId}.percent`]: {
+        [`discounts.${branchKey}.${departmentKey}.percent`]: {
           $exists: true,
           $lte: maxDiscountPercent,
         },

@@ -11,8 +11,8 @@ import {
   Spinner,
   Switch,
   Textarea,
+  Upload,
 } from 'erxes-ui';
-import { WidgetUpload } from './WidgetUpload';
 import { IFormFieldLogic, IFormStep } from '../types/formTypes';
 import { useForm } from 'react-hook-form';
 import { useErxesForm } from '../context/erxesFormContext';
@@ -400,12 +400,17 @@ export const ErxesForm = ({
                           <ErxesFormItem span={erxesField.column}>
                             <Form.Label>{erxesField.text}</Form.Label>
                             <Form.Control>
-                              <WidgetUpload
-                                value={urls}
+                              <Upload.Root
+                                value={field.value}
                                 onChange={field.onChange}
                                 multiple
-                                label={erxesField.content || 'Upload file'}
-                              />
+                              >
+                                <Upload.Preview className="rounded-full" />
+                                <Upload.Button type="button">
+                                  {erxesField.content || 'Upload filez'}
+                                </Upload.Button>
+                                <Upload.RemoveButton />
+                              </Upload.Root>
                             </Form.Control>
                             {erxesField.description && (
                               <Form.Description>
