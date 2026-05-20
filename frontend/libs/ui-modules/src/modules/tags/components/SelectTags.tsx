@@ -560,6 +560,7 @@ export const ConversationTagList = ({
           }
           {...props}
         />
+      ))}
       {overflowCount > 0 && (
         <Badge variant="secondary" className="shrink-0 text-xs">
           +{overflowCount}
