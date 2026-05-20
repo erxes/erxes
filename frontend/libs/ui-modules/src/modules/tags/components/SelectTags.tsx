@@ -13,6 +13,7 @@ import {
   SelectTree,
   SelectTriggerOperation,
   SelectTriggerVariant,
+  Separator,
   TextOverflowTooltip,
   useFilterContext,
   useQueryState,
@@ -538,28 +539,32 @@ export const ConversationTagList = ({
 
   return (
     <div className="flex items-center gap-1 min-w-0">
-      {visibleIds.map((tagId) => (
-        <TagBadge
-          key={tagId}
-          tagId={tagId}
-          tag={selectedTags.find((t) => t._id === tagId)}
-          renderAsPlainText={renderAsPlainText}
-          variant="secondary"
-          className="max-w-24 shrink truncate"
-          onCompleted={(tag) => {
-            if (!tag) return;
-            if (selectedTagIds.includes(tag._id)) {
-              setSelectedTags(selectedTags.filter((t) => t._id !== tag._id));
+      {visibleIds.map((tagId, index) => (
+        <React.Fragment key={tagId}>
+          <TagBadge
+            tagId={tagId}
+            tag={selectedTags.find((t) => t._id === tagId)}
+            renderAsPlainText={renderAsPlainText}
+            variant="secondary"
+            className="max-w-24 shrink truncate"
+            onCompleted={(tag) => {
+              if (!tag) return;
+              if (selectedTagIds.includes(tag._id)) {
+                setSelectedTags(selectedTags.filter((t) => t._id !== tag._id));
+              }
+              if (!selectedTags.includes(tag)) {
+                setSelectedTags([...selectedTags, tag]);
+              }
+            }}
+            onClose={() =>
+              onSelect?.(selectedTags.find((t) => t._id === tagId) as ITag)
             }
-            if (!selectedTags.includes(tag)) {
-              setSelectedTags([...selectedTags, tag]);
-            }
-          }}
-          onClose={() =>
-            onSelect?.(selectedTags.find((t) => t._id === tagId) as ITag)
-          }
-          {...props}
-        />
+            {...props}
+          />
+          {index < visibleIds.length - 1 && (
+            <Separator orientation="vertical" className="h-4" />
+          )}
+        </React.Fragment>
       ))}
       {overflowCount > 0 && (
         <Badge variant="secondary" className="shrink-0 text-xs">
