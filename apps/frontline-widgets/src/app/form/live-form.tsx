@@ -89,7 +89,9 @@ export const LiveForm = () => {
 
   return (
     <Dialog open>
-      <Dialog.Content className="p-0 border-none">{formContent}</Dialog.Content>
+      <Dialog.Content className="p-0 border-none max-w-xl">
+        {formContent}
+      </Dialog.Content>
     </Dialog>
   );
 };
