@@ -33,8 +33,31 @@ export const useDealsCreateProductsData = (options?: MutationHookOptions) => {
             __typename: 'Deal',
           }),
           fields: {
-            products(existingProducts = []) {
-              return [...existingProducts, ...newDocs];
+            productsData() {
+              return newDocs;
+            },
+            products(existingProducts = [], { readField }) {
+              const cachedProducts = Array.isArray(existingProducts)
+                ? existingProducts
+                : [];
+              const existingProductsById = new Map(
+                cachedProducts.map((product: any) => [readField('_id', product), product]),
+              );
+
+              return (newDocs as any[])
+                .filter((pd) => pd.productId)
+                .map((pd) => {
+                  if (pd.product?._id) {
+                    return { __typename: 'Product', ...pd.product };
+                  }
+
+                  return (
+                    existingProductsById.get(pd.productId) || {
+                      __typename: 'Product',
+                      _id: pd.productId,
+                    }
+                  );
+                });
             },
           },
         });
