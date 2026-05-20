@@ -52,14 +52,28 @@ const ProductsList = ({
   const configs = currentUser?.configs || {};
   const currencies = configs?.dealCurrency || [];
 
-  const filteredProducts = filterProducts(products, filters);
+  const availableProducts = [
+    ...products,
+    ...localProductsData
+      .map((data) => data.product)
+      .filter(
+        (product): product is IProduct =>
+          !!product && !products.some((existing) => existing._id === product._id),
+      ),
+  ];
+
+  const filteredProducts = filterProducts(availableProducts, filters);
   const { toast } = useToast();
 
   const productRecords = localProductsData
-    .map((data) => ({
-      ...data,
-      product: products.find((p) => p._id === data.productId),
-    }))
+    .map((data) => {
+      const product = data.product || products.find((p) => p._id === data.productId);
+
+      return {
+        ...data,
+        product,
+      };
+    })
     .filter((record) => {
       if (!record.product) return false;
       return filteredProducts.some((p) => p._id === record.product?._id);
@@ -75,7 +89,16 @@ const ProductsList = ({
   };
 
   useEffect(() => {
-    setLocalProductsData(productsData);
+    setLocalProductsData((prev) =>
+      (productsData || []).map((data) => {
+        const previousRecord = prev.find((prevData) => prevData._id === data._id);
+
+        return {
+          ...data,
+          product: data.product || previousRecord?.product,
+        };
+      }),
+    );
   }, [productsData]);
 
   useEffect(() => {
@@ -106,7 +129,7 @@ const ProductsList = ({
   };
 
   const onPoductBulkSave = (selectedProducts: IProduct[]) => {
-    if (!selectedProducts) return;
+    if (!selectedProducts?.length) return;
     const currency =
       currencies && currencies.length > 0 ? currencies[0] : 'MNT';
 
@@ -140,14 +163,21 @@ const ProductsList = ({
 
     docs.forEach((p) => calculatePerProductAmount('discount', p));
 
-    updateTotal(docs);
+    const previousProductsData = localProductsData;
+    const nextProductsData = [...previousProductsData, ...docs];
 
-    createDealsProductData({
+    setLocalProductsData(nextProductsData);
+    updateTotal(nextProductsData);
+
+    void createDealsProductData({
       variables: {
         processId,
         dealId,
         docs,
       },
+    }).catch(() => {
+      setLocalProductsData(previousProductsData);
+      updateTotal(previousProductsData);
     });
   };
 
@@ -234,15 +264,15 @@ const ProductsList = ({
           <ProductFilterBar filters={filters} onChange={setFilters} />
         </div>
       </Filter>
-      <ProductsRecordTable
-        products={productRecords || ([] as IProductData[])}
-        refetch={refetch}
-        dealId={dealId}
-        showAdvancedView={showAdvancedView}
-        onLocalChange={updateLocalProduct}
-      />
+        <ProductsRecordTable
+          products={productRecords || ([] as IProductData[])}
+          refetch={refetch}
+          dealId={dealId}
+          showAdvancedView={showAdvancedView}
+          onLocalChange={updateLocalProduct}
+        />
       <ProductFooter
-        productsCount={products?.length || 0}
+        productsCount={localProductsData.length || 0}
         total={total}
         unUsedTotal={unUsedTotal}
         bothTotal={bothTotal}

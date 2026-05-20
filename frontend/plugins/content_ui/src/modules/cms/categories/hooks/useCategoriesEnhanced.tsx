@@ -7,9 +7,10 @@ import {
   validateFetchMore,
 } from 'erxes-ui';
 import { CMS_CATEGORIES } from '../graphql';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { categoriesTotalCountAtom } from '../states/categoriesCounts';
 import { useEffect } from 'react';
+import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
 
 export const CATEGORIES_PER_PAGE = 30;
 
@@ -22,6 +23,7 @@ export const useCategoriesVariables = (
     };
   }>['variables'],
 ) => {
+  const language = useAtomValue(cmsLanguageAtom);
   const [{ searchValue, status, createdAt, updatedAt }] = useMultiQueryState<{
     searchValue: string;
     status: string;
@@ -34,6 +36,7 @@ export const useCategoriesVariables = (
     cursor: undefined,
     sortField: 'createdAt',
     sortDirection: '-1',
+    language,
     searchValue: searchValue || undefined,
     status: status && status !== 'all' ? status : undefined,
     dateFilters: {

@@ -27,7 +27,6 @@ export const exchangeRateQueries = {
   /**
    * Retrieve exchange rates with pagination and search
    */
-
   exchangeRatesMain: async (
     _root,
     params,

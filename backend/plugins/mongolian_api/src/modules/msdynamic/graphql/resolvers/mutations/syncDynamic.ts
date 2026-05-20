@@ -40,8 +40,10 @@ export const msdynamicSyncMutations = {
       action,
       products,
     }: { brandId: string; action: string; products: any[] },
-    { subdomain, user }: IContext,
+    { subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('msdSync');
+
     const models = await generateModels(subdomain);
     const config = await getDynamicConfig(models, brandId);
 
@@ -69,8 +71,10 @@ export const msdynamicSyncMutations = {
       action,
       customers,
     }: { brandId: string; action: string; customers: any[] },
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('msdSync');
+
     const models = await generateModels(subdomain);
     const config = await getDynamicConfig(models, brandId);
 
@@ -93,8 +97,10 @@ export const msdynamicSyncMutations = {
   async toSendMsdOrders(
     _root,
     { orderIds }: { orderIds: string[] },
-    { subdomain, user }: IContext,
+    { subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('msdSync');
+
     const models = await generateModels(subdomain);
 
     const order = await sendTRPCMessage({

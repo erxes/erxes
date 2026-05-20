@@ -1,15 +1,12 @@
 import { Button, DropdownMenu } from 'erxes-ui';
-import {
-  dealBoardState,
-  dealPipelineState,
-} from '@/deals/states/dealContainerState';
-import { memo, useState } from 'react';
+import { dealPipelineState } from '@/deals/states/dealContainerState';
+import { memo, useState, type MouseEvent } from 'react';
 
 import { DealSelect } from 'ui-modules';
 import { IDeal } from '../../types/deals';
 import { IconLayoutBoard } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
-import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
+import { useMoveDealStage } from '../../cards/hooks/useDeals';
 
 interface MoveDealDropdownProps {
   deal: IDeal;
@@ -18,9 +15,7 @@ interface MoveDealDropdownProps {
 export const MoveDealDropdown = memo(function MoveDealDropdown({
   deal,
 }: MoveDealDropdownProps) {
-  const { editDeals } = useDealsEdit();
-
-  const board = useAtomValue(dealBoardState);
+  const { moveDealStage } = useMoveDealStage();
   const pipeline = useAtomValue(dealPipelineState);
 
   const pipelineId = pipeline.pipelineId || deal.pipeline?._id;
@@ -32,7 +27,7 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
         <Button
           variant="outline"
           className="flex items-center gap-2"
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e: MouseEvent<HTMLButtonElement>) => e.stopPropagation()}
         >
           <IconLayoutBoard size={16} />
           Move Deal
@@ -43,14 +38,10 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
           boardId={deal.boardId}
           pipelineId={pipelineId}
           stageId={deal.stageId}
-          onChangeStage={(stageId) => {
-            editDeals({
-              variables: {
-                _id: deal._id,
-                boardId: board.boardId || deal.boardId,
-                pipelineId,
-                stageId: stageId as string,
-              },
+          onChangeStage={(stageId: string | string[]) => {
+            moveDealStage({
+              deal,
+              stageId,
               onCompleted: () => {
                 setOpen(false);
               },

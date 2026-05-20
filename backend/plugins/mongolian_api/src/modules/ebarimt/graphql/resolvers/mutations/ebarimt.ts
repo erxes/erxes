@@ -5,8 +5,11 @@ export const ebarimtMutations = {
   async putResponseReturnBill(
     _root: undefined,
     args,
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    // Check permission for returning a bill
+    await checkPermission('ebarimt:putResponseReturnBill');
+
     const { _id } = args;
 
     const putResponse = await models.PutResponses.findOne({
@@ -70,8 +73,11 @@ export const ebarimtMutations = {
   async putResponseReReturn(
     _root: undefined,
     args,
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    // Check permission for re-returning a bill
+    await checkPermission('ebarimt:putResponseReReturn');
+
     const { _id } = args;
 
     const putResponse = await models.PutResponses.findOne({ _id }).lean();
