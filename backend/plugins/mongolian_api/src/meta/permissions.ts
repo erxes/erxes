@@ -30,6 +30,91 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'ebarimt',
+      description: 'Ebarimt put responses and operations',
+      scopeField: null,
+      ownerFields: [],
+      scopes: [
+        {
+          name: 'all',
+          description: 'All ebarimt operations',
+        },
+      ],
+      actions: [
+        {
+          title: 'View put responses',
+          name: 'putResponses',
+          description: 'View ebarimt put responses',
+          always: true,
+        },
+        {
+          title: 'Count put responses',
+          name: 'putResponsesCount',
+          description: 'Count ebarimt put responses',
+          always: true,
+        },
+        {
+          title: 'View put response detail',
+          name: 'putResponseDetail',
+          description: 'View a single ebarimt put response',
+          always: true,
+        },
+        {
+          title: 'View put responses amount',
+          name: 'putResponsesAmount',
+          description: 'Aggregated amounts of put responses',
+          always: true,
+        },
+        {
+          title: 'View put responses by date',
+          name: 'putResponsesByDate',
+          description: 'View put responses grouped by date',
+          always: true,
+        },
+        {
+          title: 'Get deal link',
+          name: 'getDealLink',
+          description: 'Get the link to the related deal',
+          always: true,
+        },
+        {
+          title: 'Ebarimt get company',
+          name: 'ebarimtGetCompany',
+          description: 'Get company information for ebarimt',
+          always: true,
+        },
+        {
+          title: 'View duplicated put responses',
+          name: 'putResponsesDuplicated',
+          description: 'View duplicated put responses',
+          always: true,
+        },
+        {
+          title: 'Count duplicated put responses',
+          name: 'putResponsesDuplicatedCount',
+          description: 'Count duplicated put responses',
+          always: true,
+        },
+        {
+          title: 'View duplicated put response detail',
+          name: 'putResponsesDuplicatedDetail',
+          description: 'Detail of a duplicated put response',
+          always: true,
+        },
+        // Mutation actions (not always)
+        {
+          title: 'Return bill',
+          name: 'putResponseReturnBill',
+          description: 'Return an ebarimt bill',
+        },
+        {
+          title: 'Re-return bill',
+          name: 'putResponseReReturn',
+          description: 'Re-return an ebarimt bill',
+        },
+      ],
+    },
+    {
       name: 'ebarimtProductRules',
       description: 'Ebarimt product rules',
       scopeField: null,
@@ -189,6 +274,26 @@ export const permissions: IPermissionConfig = {
           actions: ['showMnConfig', 'manageMnConfig'],
           scope: 'all',
         },
+        // ebarmit module for admin
+        {
+          plugin: 'mongolian',
+          module: 'ebarimt',
+          actions: [
+            'putResponses',
+            'putResponsesCount',
+            'putResponseDetail',
+            'putResponsesAmount',
+            'putResponsesByDate',
+            'getDealLink',
+            'ebarimtGetCompany',
+            'putResponsesDuplicated',
+            'putResponsesDuplicatedCount',
+            'putResponsesDuplicatedDetail',
+            'putResponseReturnBill',
+            'putResponseReReturn',
+          ],
+          scope: 'all',
+        },
         {
           plugin: 'mongolian',
           module: 'ebarimtProductRules',
@@ -237,6 +342,24 @@ export const permissions: IPermissionConfig = {
           actions: ['showMnConfig'],
           scope: 'all',
         },
+        // ebarmit module for user (read-only)
+        {
+          plugin: 'mongolian',
+          module: 'ebarimt',
+          actions: [
+            'putResponses',
+            'putResponsesCount',
+            'putResponseDetail',
+            'putResponsesAmount',
+            'putResponsesByDate',
+            'getDealLink',
+            'ebarimtGetCompany',
+            'putResponsesDuplicated',
+            'putResponsesDuplicatedCount',
+            'putResponsesDuplicatedDetail',
+          ],
+          scope: 'all',
+        },
         {
           plugin: 'mongolian',
           module: 'ebarimtProductRules',
@@ -282,6 +405,23 @@ export const permissions: IPermissionConfig = {
           plugin: 'mongolian',
           module: 'configs',
           actions: ['showMnConfig'],
+          scope: 'all',
+        },
+        {
+          plugin: 'mongolian',
+          module: 'ebarimt',
+          actions: [
+            'putResponses',
+            'putResponsesCount',
+            'putResponseDetail',
+            'putResponsesAmount',
+            'putResponsesByDate',
+            'getDealLink',
+            'ebarimtGetCompany',
+            'putResponsesDuplicated',
+            'putResponsesDuplicatedCount',
+            'putResponsesDuplicatedDetail',
+          ],
           scope: 'all',
         },
         {
