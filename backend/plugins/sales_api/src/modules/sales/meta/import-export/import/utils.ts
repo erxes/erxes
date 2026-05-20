@@ -70,12 +70,22 @@ const parseBoolean = (value: unknown): boolean | undefined => {
   return undefined;
 };
 
+const parseJSONValue = (value: unknown, label: string): unknown => {
+  try {
+    return typeof value === 'string' ? JSON.parse(value) : value;
+  } catch (error: any) {
+    throw new Error(
+      `Invalid ${label} JSON: ${error?.message || 'Unable to parse value'}`,
+    );
+  }
+};
+
 const parseProductsData = (value: unknown): IProductData[] | undefined => {
   if (!value) {
     return undefined;
   }
 
-  const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+  const parsed = parseJSONValue(value, 'Products');
 
   if (!Array.isArray(parsed)) {
     throw new Error('Products JSON must be an array');
@@ -106,7 +116,7 @@ export const parseCustomFieldsData = (
     return undefined;
   }
 
-  const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+  const parsed = parseJSONValue(value, 'Custom fields');
 
   if (!Array.isArray(parsed)) {
     throw new Error('Custom fields JSON must be an array');

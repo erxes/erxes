@@ -26,8 +26,6 @@ export async function getDealExportHeaders(
   _data: unknown,
   { subdomain }: IImportExportContext,
 ): Promise<ImportHeaderDefinition[]> {
-  void _data;
-
   const customFields = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',

@@ -351,6 +351,7 @@ export async function getDealExportData(
             module: 'users',
             input: {
               query: { _id: { $in: userIds } },
+              limit: userIds.length,
               fields: {
                 _id: 1,
                 email: 1,
@@ -368,6 +369,7 @@ export async function getDealExportData(
             module: 'tags',
             input: {
               query: { _id: { $in: tagIds } },
+              limit: tagIds.length,
               fields: { _id: 1, name: 1 },
             },
             label: 'Tags',
@@ -379,6 +381,7 @@ export async function getDealExportData(
             module: 'branches',
             input: {
               query: { _id: { $in: branchIds } },
+              limit: branchIds.length,
               fields: { _id: 1, title: 1 },
             },
             label: 'Branches',
@@ -390,6 +393,7 @@ export async function getDealExportData(
             module: 'departments',
             input: {
               query: { _id: { $in: departmentIds } },
+              limit: departmentIds.length,
               fields: { _id: 1, title: 1 },
             },
             label: 'Departments',
@@ -401,6 +405,7 @@ export async function getDealExportData(
             module: 'products',
             input: {
               query: { _id: { $in: productIds } },
+              limit: productIds.length,
               fields: { _id: 1, name: 1, code: 1 },
             },
             label: 'Products',
@@ -415,7 +420,10 @@ export async function getDealExportData(
       ? fetchCoreArray({
           subdomain,
           module: 'customers',
-          input: { query: { _id: { $in: customerIds } } },
+          input: {
+            query: { _id: { $in: customerIds } },
+            limit: customerIds.length,
+          },
           label: 'Customers',
         })
       : [],
@@ -423,7 +431,10 @@ export async function getDealExportData(
       ? fetchCoreArray({
           subdomain,
           module: 'companies',
-          input: { query: { _id: { $in: companyIds } } },
+          input: {
+            query: { _id: { $in: companyIds } },
+            limit: companyIds.length,
+          },
           label: 'Companies',
         })
       : [],

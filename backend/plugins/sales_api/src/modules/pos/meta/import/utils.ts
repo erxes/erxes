@@ -72,6 +72,9 @@ export const parseNumber = (value: unknown): number | undefined => {
   return Number.isFinite(parsed) ? parsed : undefined;
 };
 
+const roundMoney = (value: number) =>
+  Math.round((value + Number.EPSILON) * 100) / 100;
+
 export const parseList = (value: unknown): string[] => {
   if (Array.isArray(value)) {
     return value.map((item) => String(item).trim()).filter(Boolean);
@@ -301,10 +304,13 @@ export const buildPosOrderDoc = async (
     };
   });
 
-  const computedTotal = items.reduce(
-    (sum, item) =>
-      sum + item.count * (item.unitPrice || 0) - (item.discountAmount || 0),
-    0,
+  const computedTotal = roundMoney(
+    items.reduce((sum, item) => {
+      const lineTotal =
+        item.count * (item.unitPrice || 0) - (item.discountAmount || 0);
+
+      return sum + roundMoney(lineTotal);
+    }, 0),
   );
   const totalAmount = parseNumber(firstRow.totalAmount) ?? computedTotal;
   const paidAmounts = buildPaidAmounts(firstRow, totalAmount);
