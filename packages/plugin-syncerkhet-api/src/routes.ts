@@ -1,9 +1,11 @@
-import { getSubdomain } from "@erxes/api-utils/src/core";
+import { fixNum, getSubdomain } from "@erxes/api-utils/src/core";
 import {
   sendSalesMessage,
   sendCoreMessage,
-  sendPosMessage
+  sendPosMessage,
+  sendPricingMessage
 } from "./messageBroker";
+import { getConfig } from "./utils/utils";
 
 export const getOrderInfo = async (req, res) => {
   const subdomain = getSubdomain(req);
@@ -142,4 +144,83 @@ export const getOrderInfo = async (req, res) => {
   }
 
   return res.send({});
+};
+
+export const calcPricing = async (req, res) => {
+  const subdomain = getSubdomain(req);
+
+  const {
+    apiKey,
+    unitPrices,
+    apiSecret,
+    counts,
+    inventoryCodes
+  } = req.body;
+
+  const mainConfig = await getConfig(subdomain, 'ERKHET', {});
+
+  if (!mainConfig?.apiKey || !mainConfig?.apiSecret || mainConfig?.apiKey !== apiKey || mainConfig?.apiSecret !== apiSecret) {
+    return res.send();
+  }
+
+  const productsOn = await sendCoreMessage({
+    subdomain,
+    action: "products.find",
+    data: {
+      query: {
+        code: { $in: inventoryCodes || [] }
+      },
+      field: { _id: 1 },
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const prodByCode = {};
+  for (const prod of productsOn) {
+    (inventoryCodes as string[]).indexOf(prod.code)
+    prodByCode[prod.code] = prod;
+  }
+
+
+  const productsData: any[] = [];
+  let totalAmount = 0;
+  for (let i = 0; i < inventoryCodes.length; i++) {
+    const prodId = prodByCode[inventoryCodes[i]]?._id;
+    totalAmount += fixNum((counts[i] ?? 0) * (unitPrices[i] ?? 0));
+    productsData.push({
+      itemId: prodId || '',
+      productId: prodId || '',
+      quantity: counts[i] ?? 0,
+      price: unitPrices[i] ?? 0,
+    });
+  }
+
+  const checkedPrice = await sendPricingMessage({
+    subdomain,
+    action: 'checkPricing',
+    data: {
+      prioritizeRule: "exclude",
+      totalAmount,
+      products: productsData
+    },
+    isRPC: true,
+    defaultValue: {}
+  });
+
+  const result: any = {};
+  for (let i = 0; i < inventoryCodes.length; i++) {
+    const invCode = inventoryCodes[i] || '';
+    const prodId = prodByCode[invCode]?._id;
+    const discountVals = checkedPrice[prodId];
+
+    if (discountVals) {
+      result[invCode] = fixNum(
+        (discountVals.value * 100) / (unitPrices[i] ?? 1),
+        8
+      );
+    }
+  }
+
+  return res.send( result );
 };

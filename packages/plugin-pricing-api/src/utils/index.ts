@@ -57,12 +57,11 @@ export const getMainConditions: any = ({
   const publicFilter = {
     branchIds: { $size: 0 },
     departmentIds: { $size: 0 },
-    $or: [{ pipelineId: { $exists: false } },
-    { pipelineId: '' }]
+    pipelineId: { $in: [null, ''] }
   }
 
   const targetFilter: any[] = [];
-  
+
   if (pipelineId) {
     targetFilter.push({ pipelineId });
   }
@@ -74,16 +73,21 @@ export const getMainConditions: any = ({
     });
   }
 
+  let lastFilter: any = publicFilter;
+  if (targetFilter.length) {
+    lastFilter = {
+      $or: [
+        { $and: targetFilter },
+        publicFilter
+      ]
+    }
+  }
+
   return {
     status: 'active',
     $and: [
       dateFilter,
-      {
-        $or: [
-          { $and: targetFilter },
-          publicFilter
-        ]
-      }
+      lastFilter
     ]
   };
 };

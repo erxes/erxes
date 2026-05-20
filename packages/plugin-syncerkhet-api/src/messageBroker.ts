@@ -223,6 +223,15 @@ export const sendEbarimtMessage = async (
   });
 };
 
+export const sendPricingMessage = async (
+  args: MessageArgsOmitService
+): Promise<any> => {
+  return sendMessage({
+    serviceName: "pricing",
+    ...args
+  });
+};
+
 export const sendCoreMessage = async (
   args: MessageArgsOmitService
 ): Promise<any> => {
