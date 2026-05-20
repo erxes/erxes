@@ -1,4 +1,5 @@
 import { IDonateDocument, IDonateListParams } from '@/donate/@types/donate';
+import { Resolver } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
@@ -26,16 +27,19 @@ const generateFilter = (params: IDonateListParams) => {
     filter.clientPortal = params.clientPortal;
   }
 
-
   return filter;
 };
 
-export const donateQueries = {
+export const donateQueries: Record<string, Resolver> = {
   async donates(
     _root: undefined,
     params: IDonateListParams,
-    { models }: IContext,
+    { models, checkPermission, user }: IContext,
   ) {
+    if (user) {
+      await checkPermission('donateView');
+    }
+    
     const filter: FilterQuery<IDonateDocument> = generateFilter(params);
 
     return await cursorPaginate({
@@ -48,8 +52,9 @@ export const donateQueries = {
   async donatesMain(
     _root: undefined,
     params: IDonateListParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('donateView');
     const {
       page = 1,
       perPage = 20,
@@ -72,11 +77,12 @@ export const donateQueries = {
     _root: undefined,
     params: IDonateListParams,
     context: IContext,
+    info: any
   ) {
-    return donateQueries.donatesMain(_root, params, context);
+    return donateQueries.donatesMain(_root, params, context, info);
   },
 };
 
-(donateQueries.cpDonatesMain as any).wrapperConfig = {
+donateQueries.cpDonatesMain.wrapperConfig = {
   forClientPortal: true,
 };

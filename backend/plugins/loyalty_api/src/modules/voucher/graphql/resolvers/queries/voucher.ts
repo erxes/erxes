@@ -3,7 +3,7 @@ import {
   IVoucherDocument,
   IVoucherParams,
 } from '@/voucher/@types/voucher';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
@@ -49,8 +49,9 @@ export const voucherQueries = {
   async vouchers(
     _parent: undefined,
     params: IVoucherParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('voucherView');
     const filter = generateFilter(params);
 
     return await cursorPaginate<IVoucherDocument>({
@@ -63,8 +64,9 @@ export const voucherQueries = {
   async vouchersMain(
     _parent: undefined,
     params: IVoucherParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('voucherView');
     const {
       page = 1,
       perPage = 20,
@@ -85,14 +87,42 @@ export const voucherQueries = {
 
   async ownerVouchers(
     _parent: undefined,
-    params: { ownerId: string; ownerType: string },
-    { models }: IContext,
+    params: { ownerId: string; ownerType?: string },
+    { models, subdomain }: IContext,
   ) {
-    const { ownerId, ownerType } = params || {};
+    let { ownerId, ownerType } = params || {};
+
+    if (!ownerType || ownerType === 'customer') {
+      const cpUserById = await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'cpUsers',
+        action: 'get',
+        input: { id: ownerId },
+        defaultValue: null,
+      });
+      const cpUser =
+        cpUserById ||
+        (await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'cpUsers',
+          action: 'get',
+          input: { erxesCustomerId: ownerId },
+          defaultValue: null,
+        }));
+
+      if (cpUser) {
+        ownerId = cpUser._id;
+        ownerType = 'cpUser';
+      }
+    }
 
     const ownerVouchers = await models.Vouchers.find({
       ownerId,
-      ownerType,
+      ...(ownerType && { ownerType }),
     }).lean();
 
     const campaignVoucherMap = new Map<string, { voucherIds: string[] }>();
@@ -122,6 +152,13 @@ export const voucherQueries = {
       campaign: (typeof campaigns)[number];
       count: number;
       voucherIds: string[];
+      vouchers: Array<{
+        _id: string;
+        status?: string;
+        ownerId?: string;
+        ownerType?: string;
+        createdAt?: Date;
+      }>;
     }> = [];
 
     for (const campaign of campaigns) {
@@ -135,6 +172,21 @@ export const voucherQueries = {
           campaign,
           count: voucherData.voucherIds.length,
           voucherIds: voucherData.voucherIds,
+          vouchers: voucherData.voucherIds.flatMap((id) => {
+              const voucher = ownerVouchers.find(
+                (ownerVoucher) => ownerVoucher._id.toString() === id,
+              );
+
+              if (!voucher) return [];
+
+              return [{
+                _id: voucher._id,
+                status: voucher.status,
+                ownerId: voucher.ownerId,
+                ownerType: voucher.ownerType,
+                createdAt: voucher.createdAt,
+              }];
+            }),
         });
       }
     }

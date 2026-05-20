@@ -1,4 +1,7 @@
-import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
+import {
+  IClientPortalDocument,
+  IResetPasswordConfig,
+} from '@/clientportal/types/clientPortal';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
 import * as crypto from 'crypto';
 import { IModels } from '~/connectionResolvers';
@@ -27,23 +30,18 @@ async function sendPasswordResetLink(
   user: ICPUserDocument,
   resetToken: string,
   clientPortal: IClientPortalDocument,
-  resetPasswordConfig: any,
+  resetPasswordConfig: IResetPasswordConfig | undefined,
   models: IModels,
 ): Promise<void> {
-  if (!user.email) {
-    return;
-  }
-
-  const resetUrl = `${
-    clientPortal.url || ''
-  }/reset-password?token=${resetToken}`;
+  const resetUrl = `${clientPortal.url || ''
+    }/reset-password?token=${resetToken}`;
   const emailSubject = resetPasswordConfig?.emailSubject || 'Password Reset';
   const emailContent = resetPasswordConfig?.emailContent || '';
 
   await notificationService.sendEmail(
     subdomain,
     {
-      toEmails: [user.email],
+      toEmails: [user.email!],
       title: emailSubject,
       customHtml: emailContent,
       customHtmlData: { resetUrl, token: resetToken },
@@ -65,7 +63,7 @@ export async function forgotPassword(
     identifierType,
     clientPortal._id,
   );
-
+  
   if (!user) {
     return;
   }
@@ -74,10 +72,10 @@ export async function forgotPassword(
     clientPortal.securityAuthConfig?.resetPasswordConfig;
   const mode = resetPasswordConfig?.mode || 'link';
 
-  if (mode === 'code') {
-    const emailSubject = resetPasswordConfig?.emailSubject || 'Password Reset';
-    const messageTemplate = resetPasswordConfig?.emailContent || '';
 
+  const isPhone = identifierType === 'phone';
+
+  if (isPhone) {
     await sendAndStoreOTP({
       user,
       identifierType,
@@ -86,22 +84,43 @@ export async function forgotPassword(
       clientPortal,
       subdomain,
       models,
-      emailSubject,
-      messageTemplate,
     });
-  } else {
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const resetExpires = new Date();
-    resetExpires.setHours(resetExpires.getHours() + RESET_TOKEN_EXPIRY_HOURS);
-
-    await setPasswordResetCode(user._id, resetToken, resetExpires, models);
-    await sendPasswordResetLink(
-      subdomain,
-      user,
-      resetToken,
-      clientPortal,
-      resetPasswordConfig,
-      models,
-    );
   }
+  else {
+
+    if (mode === 'code') {
+      const emailSubject = isPhone
+        ? undefined
+        : resetPasswordConfig?.emailSubject || 'Password Reset';
+      const messageTemplate = isPhone
+        ? undefined
+        : resetPasswordConfig?.emailContent || '';
+      await sendAndStoreOTP({
+        user,
+        identifierType,
+        actionCodeType: 'PASSWORD_RESET',
+        context: 'passwordReset',
+        clientPortal,
+        subdomain,
+        models,
+        emailSubject,
+        messageTemplate,
+      });
+    } else {
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const resetExpires = new Date();
+      resetExpires.setHours(resetExpires.getHours() + RESET_TOKEN_EXPIRY_HOURS);
+
+      await setPasswordResetCode(user._id, resetToken, resetExpires, models);
+      await sendPasswordResetLink(
+        subdomain,
+        user,
+        resetToken,
+        clientPortal,
+        resetPasswordConfig,
+        models,
+      );
+    }
+  }
+
 }

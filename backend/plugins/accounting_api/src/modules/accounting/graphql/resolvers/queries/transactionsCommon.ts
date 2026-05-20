@@ -122,11 +122,117 @@ const getAccountIds = async (
   return accounts.map((a) => a._id);
 };
 
-const generateFilter = async (
+const getConfigValues = async (subdomain: string) => {
+  const configs = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'configs',
+    action: 'getConfigs',
+    input: {
+      codes: [
+        'CHECK_TEAM_MEMBER_SHOWN',
+        'BRANCHES_MASTER_TEAM_MEMBERS_IDS',
+        'DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS',
+      ],
+    },
+    defaultValue: {},
+  });
+
+  const branchMasterUserIds = configs.BRANCHES_MASTER_TEAM_MEMBERS_IDS;
+  const departmentMasterUserIds = configs.DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS;
+
+  return {
+    checkMasterUsers: configs.CHECK_TEAM_MEMBER_SHOWN,
+    branchMasterUserIds: Array.isArray(branchMasterUserIds)
+      ? branchMasterUserIds
+      : [],
+    departmentMasterUserIds: Array.isArray(departmentMasterUserIds)
+      ? departmentMasterUserIds
+      : [],
+  };
+};
+
+const getStructureIdsWithChildren = async (
+  subdomain: string,
+  module: 'branches' | 'departments',
+  ids: string[],
+): Promise<string[]> => {
+  if (!ids.length) {
+    return [];
+  }
+
+  const records = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module,
+    action: 'findWithChild',
+    input: {
+      query: { _id: { $in: ids } },
+      fields: { _id: 1 },
+    },
+    defaultValue: [],
+  });
+
+  return records.map((record) => record._id);
+};
+
+const applyDefaultStructureFilter = async ({
+  subdomain,
+  filter,
+  user,
+  branchId,
+  departmentId,
+}: {
+  subdomain: string;
+  filter: any;
+  user: IUserDocument;
+  branchId?: string;
+  departmentId?: string;
+}) => {
+  if (user.isOwner) {
+    return;
+  }
+
+  const { checkMasterUsers, branchMasterUserIds, departmentMasterUserIds } =
+    await getConfigValues(subdomain);
+
+  if (checkMasterUsers !== true) {
+    return;
+  }
+
+  if (!branchId && !branchMasterUserIds.includes(user._id)) {
+    const branchIds = await getStructureIdsWithChildren(
+      subdomain,
+      'branches',
+      user.branchIds || [],
+    );
+
+    if (branchIds.length) {
+      filter.branchId = { $in: branchIds };
+    }
+  }
+
+  if (!departmentId && !departmentMasterUserIds.includes(user._id)) {
+    const departmentIds = await getStructureIdsWithChildren(
+      subdomain,
+      'departments',
+      user.departmentIds || [],
+    );
+
+    if (departmentIds.length) {
+      filter.departmentId = { $in: departmentIds };
+    }
+  }
+};
+
+export const generateFilter = async (
   subdomain: string,
   models: IModels,
   params: IQueryParams,
   user: IUserDocument,
+  options: { skipAccountPermission?: boolean } = {},
 ) => {
   const {
     ids,
@@ -159,6 +265,9 @@ const generateFilter = async (
   } = params;
   const filter: any = {};
   const orFilter: any[] = [];
+  const andFilter: any[] = [];
+  const hasStatusOrMentionFilter =
+    !!status || !!statuses?.length || !!mentionOwnerId || !!mentionUserId;
 
   if (createdUserId) {
     filter.createdBy = createdUserId;
@@ -201,9 +310,11 @@ const generateFilter = async (
     filter.updatedAt = updatedDateQry;
   }
 
-  filter['details.accountId'] = {
-    $in: await getAccountIds(models, params, user),
-  };
+  if (!options.skipAccountPermission) {
+    filter['details.accountId'] = {
+      $in: await getAccountIds(models, params, user),
+    };
+  }
 
   if (journals?.length) {
     filter.journal = { $in: journals };
@@ -213,26 +324,37 @@ const generateFilter = async (
     filter.journal = journal;
   }
 
-  if (statuses?.length) {
-    filter.status = { $in: statuses };
+  if (hasStatusOrMentionFilter) {
+    if (statuses?.length) {
+      filter.status = { $in: statuses };
+    }
+
+    if (status) {
+      filter.status = status;
+    }
+
+    if (mentionOwnerId) {
+      filter.mentionOwnerId = mentionOwnerId;
+    }
+
+    if (mentionUserId) {
+      filter.mentionUserIds = {
+        $in: [mentionUserId],
+      };
+    }
   } else {
-    filter.status = { $in: TR_STATUSES.ACTIVE };
+    andFilter.push({
+      $or: [
+        { status: { $in: TR_STATUSES.ACTIVE } },
+        { status: TR_STATUSES.DRAFT, createdBy: user._id },
+        { mentionOwnerId: user._id },
+        { mentionUserIds: { $in: [user._id] } },
+      ],
+    });
   }
 
   if (ptrStatus) {
     filter.ptrStatus = ptrStatus;
-  }
-
-  if (status) {
-    filter.status = status;
-  }
-
-  if (mentionOwnerId) {
-    filter.mentionOwnerId = mentionOwnerId;
-  }
-
-  if (mentionUserId) {
-    filter.mentionUserId = { $in: mentionUserId };
   }
 
   if (ids?.length) {
@@ -257,38 +379,26 @@ const generateFilter = async (
   }
 
   if (branchId) {
-    const branches = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'branches',
-      action: 'findWithChild',
-      input: {
-        query: { _id: branchId },
-        fields: { _id: 1 },
-      },
-      defaultValue: [],
-    });
-
-    filter.branchId = { $in: branches.map((item) => item._id) };
+    filter.branchId = {
+      $in: await getStructureIdsWithChildren(
+        subdomain, 'branches', [branchId]
+      )
+    }
   }
 
   if (departmentId) {
-    const departments = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'departments',
-      action: 'findWithChild',
-      input: {
-        query: { _id: departmentId },
-        fields: { _id: 1 },
-      },
-      defaultValue: [],
-    });
-
-    filter.departmentId = { $in: departments.map((item) => item._id) };
+    filter.departmentId = {
+      $in: await getStructureIdsWithChildren(
+        subdomain, 'departments', [departmentId]
+      )
+    };
   }
+
+  await applyDefaultStructureFilter({
+    subdomain,
+    filter,
+    user
+  });
 
   if (customerType) {
     filter.customerType = customerType;
@@ -308,7 +418,11 @@ const generateFilter = async (
   }
 
   if (orFilter.length) {
-    return { ...filter, $or: orFilter };
+    andFilter.push({ $or: orFilter });
+  }
+
+  if (andFilter.length) {
+    return { ...filter, $and: andFilter };
   }
   return filter;
 };
@@ -414,6 +528,39 @@ const transactionCommon = {
         .lean(),
       pagintationArgs,
     );
+  },
+
+  async accTransactionsByContent(
+    _root,
+    params: IQueryParams & { page: number; perPage: number },
+    { models, user, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('readTransactions');
+
+    const { sortField, sortDirection, page, perPage } = params;
+    const pageArgs = { page, perPage };
+
+    let sort: any = { ptrNumber: -1 };
+    if (sortField) {
+      sort = { [sortField]: sortDirection ?? 1, ptrNumber: -1 };
+    }
+
+    const listFilter = await generateFilter(subdomain, models, params, user);
+    const countFilter = await generateFilter(subdomain, models, params, user, {
+      skipAccountPermission: true,
+    });
+
+    const list = await defaultPaginate(
+      models.Transactions.find(listFilter)
+        .sort({ ...sort, parentId: 1, ptrId: 1 })
+        .lean(),
+      pageArgs,
+    );
+    const totalCount = await models.Transactions.find(
+      countFilter,
+    ).countDocuments();
+
+    return { list, totalCount };
   },
 
   async accTransactionsCount(

@@ -41,10 +41,7 @@ export const branchsQueries = {
       models,
       user,
       type: 'branch',
-      params: {
-        ...params,
-        withoutUserFilter: true,
-      },
+      params,
     });
 
     const { list, totalCount, pageInfo } = await cursorPaginate({

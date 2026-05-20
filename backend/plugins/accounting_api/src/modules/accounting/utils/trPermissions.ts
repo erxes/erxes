@@ -243,6 +243,8 @@ const convertToHidden = (transaction: ITransactionDocument) => {
   return {
     _id: transaction._id,
     parentId: transaction.parentId,
+    number: transaction.number,
+    ptrNumber: transaction.ptrNumber,
     ptrId: transaction.ptrId,
     ptrStatus: transaction.ptrStatus,
     journal: transaction.journal,

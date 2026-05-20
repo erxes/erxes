@@ -42,8 +42,8 @@ export const queries = `
   scoreCampaign(_id:String): ScoreCampaign
   scoreCampaignAttributes(serviceName:String): JSON
   scoreCampaignServices: JSON
-  checkOwnerScore(ownerId:String,ownerType:String,campaignId:String,action:String,clientPortal:String): JSON
-  cpCheckOwnerScore(ownerId:String,ownerType:String,campaignId:String,action:String,clientPortal:String): JSON
+  checkOwnerScore(ownerId:String, ownerType:String, campaignId:String, action:String, clientPortal:String): JSON
+  cpCheckOwnerScore(ownerId:String, ownerType:String, campaignId:String, action:String, clientPortal:String): JSON
 `;
 
 const mutationParams = `
@@ -70,5 +70,5 @@ export const mutations = `
   scoreCampaignUpdate(_id:String, ${mutationParams}): ScoreCampaign
   scoreCampaignRemove(_id:String): JSON
   scoreCampaignsRemove(_ids:[String]): JSON
-  refundLoyaltyScore(ownerId:String,ownerType:String,targetId:String): JSON
+  refundLoyaltyScore(ownerId:String, ownerType:String, targetId:String): JSON
 `;

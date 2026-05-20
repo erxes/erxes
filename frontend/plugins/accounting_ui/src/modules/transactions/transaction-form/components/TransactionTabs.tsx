@@ -286,7 +286,7 @@ export const TransactionsTabsList = ({
           <Button
             onClick={() => {
               window.open(
-                `/accounting/transaction/print?_id=${activeField?._id}`,
+                `/accounting/transaction/print?_id=${activeField?._id}&inPreview=true`,
                 '_blank',
               );
             }}

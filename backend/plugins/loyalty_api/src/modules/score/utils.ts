@@ -114,13 +114,19 @@ export const resolvePlaceholderValue = (target: any, attribute: string) => {
   const [propertyName, valueToCheck, valueField] = attribute.split('-');
 
   const parent = target[propertyName] || {};
-  // Case 1: customer-customFieldsData-1  (look up in customFieldsData)
-  if (valueToCheck?.includes('customFieldsData')) {
+  // Case 1: customer-propertiesData-1 / legacy customer-customFieldsData-1
+  if (
+    valueToCheck?.includes('propertiesData') ||
+    valueToCheck?.includes('customFieldsData')
+  ) {
     const fieldId = attribute.split('.').pop(); // extract the field number after '.'
-    const obj = (parent.customFieldsData || []).find(
-      (item: any) => item.field === fieldId,
+    return (
+      parent.propertiesData?.[fieldId || ''] ??
+      (parent.customFieldsData || []).find(
+        (item: any) => item.field === fieldId,
+      )?.value ??
+      '0'
     );
-    return obj?.value ?? '0';
   }
 
   // Case 2: paymentsData-loyalty-amount  (find in array/object by type)
@@ -144,23 +150,8 @@ export const resolvePlaceholderValue = (target: any, attribute: string) => {
 };
 
 export const doScoreCampaign = async (models: IModels, data: any) => {
-  const { ownerType, ownerId, actionMethod, targetId } = data;
-
   try {
     await models.ScoreCampaigns.checkScoreAviableSubtract(data);
-
-    const scoreLogs =
-      (await models.ScoreLogs.find({
-        ownerId,
-        ownerType,
-        targetId,
-        action: actionMethod,
-      }).lean()) || [];
-
-    if (scoreLogs.length) {
-      return;
-    }
-
     return await models.ScoreCampaigns.doCampaign(data);
   } catch (error: any) {
     throw new Error(error?.message || 'Score campaign execution failed');
@@ -257,7 +248,7 @@ export const scorePoint = async ({ doc, models, filter }) => {
     action: 'refund',
   });
 
-  let filterAggregate: any[] = [];
+  const filterAggregate: any[] = [];
 
   if (stageId || number) {
     const lookup = [
@@ -338,7 +329,7 @@ export const scorePoint = async ({ doc, models, filter }) => {
 export const scoreProducts = async ({ doc, models, filter }) => {
   const { stageId, number } = doc;
 
-  let filterAggregate: any[] = [];
+  const filterAggregate: any[] = [];
 
   if (stageId || number) {
     const lookup = [

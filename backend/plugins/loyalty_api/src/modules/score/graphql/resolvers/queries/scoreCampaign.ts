@@ -3,6 +3,7 @@ import {
   IScoreCampaignParams,
 } from '@/score/@types/scoreCampaign';
 import { SCORE_CAMPAIGN_STATUSES } from '@/score/constants';
+import { Resolver } from 'erxes-api-shared/core-types';
 import {
   cursorPaginate,
   escapeRegExp,
@@ -48,12 +49,13 @@ const generateFilter = (
   return filter;
 };
 
-export const scoreCampaignQueries = {
+export const scoreCampaignQueries: Record<string, Resolver> = {
   scoreCampaigns: async (
     _root: undefined,
     params: IScoreCampaignParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('loyaltyCampaignView');
     const filter = generateFilter(params);
 
     return cursorPaginate({
@@ -66,19 +68,20 @@ export const scoreCampaignQueries = {
   scoreCampaign: async (
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('loyaltyCampaignView');
     return models.ScoreCampaigns.getScoreCampaign(_id);
   },
 
   scoreCampaignAttributes: async (
     _root: undefined,
     { serviceName }: { serviceName: string },
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('loyaltyCampaignView');
     let attributes: IScoreCampaignAttribute[] = [];
 
-    // note: for (const serviceName of services) {
     const service = await getPlugin(serviceName);
     const meta = service.config?.meta || {};
 
@@ -101,7 +104,12 @@ export const scoreCampaignQueries = {
     return attributes;
   },
 
-  async scoreCampaignServices() {
+  async scoreCampaignServices(
+    _root: undefined,
+    _args: undefined,
+    { checkPermission }: IContext,
+  ) {
+    await checkPermission('loyaltyCampaignView');
     const services = await getPlugins();
     const result: IScoreCampaignService[] = [];
 
@@ -124,6 +132,7 @@ export const scoreCampaignQueries = {
 
     return result;
   },
+
   async checkOwnerScore(
     _root: undefined,
     {
@@ -132,8 +141,11 @@ export const scoreCampaignQueries = {
       campaignId,
       clientPortal,
     }: { ownerId: string; ownerType: string; campaignId: string; clientPortal: string },
-    { subdomain, models }: IContext,
+    { subdomain, models, checkPermission, user }: IContext,
   ) {
+    if (user) {
+      await checkPermission('scoreLogView');
+    }
     const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
 
     if (!owner) {
@@ -150,10 +162,12 @@ export const scoreCampaignQueries = {
       throw new Error('Campaign not found');
     }
 
-    const { value = 0 } =
+    const value =
+      owner?.propertiesData?.[campaign?.fieldId] ??
       (owner?.customFieldsData || []).find(
         ({ field }) => field === campaign?.fieldId,
-      ) || {};
+      )?.value ??
+      0;
 
     return value;
   },
@@ -162,11 +176,12 @@ export const scoreCampaignQueries = {
     _root: undefined,
     args: { ownerId: string; ownerType: string; campaignId: string; clientPortal: string },
     context: IContext,
+    info: any
   ) {
-    return scoreCampaignQueries.checkOwnerScore(_root, args, context);
+    return scoreCampaignQueries.checkOwnerScore(_root, args, context, info);
   },
 };
 
-(scoreCampaignQueries.cpCheckOwnerScore as any).wrapperConfig = {
+scoreCampaignQueries.cpCheckOwnerScore.wrapperConfig = {
   forClientPortal: true,
 };

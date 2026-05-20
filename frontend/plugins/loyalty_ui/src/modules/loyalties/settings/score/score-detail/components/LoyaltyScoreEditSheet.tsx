@@ -139,7 +139,7 @@ export const LoyaltyScoreEditSheet = () => {
   return (
     <Sheet onOpenChange={(open) => !open && onClose()} open={open} modal>
       <Sheet.View
-        className="sm:max-w-2xl p-0"
+        className="lg:max-w-1/2 md:max-w-2/3 sm:max-w-md p-0"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
         }}

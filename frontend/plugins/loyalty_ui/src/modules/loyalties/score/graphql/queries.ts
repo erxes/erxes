@@ -16,6 +16,10 @@ export const SCORE_LOG_LIST_QUERY = gql`
     $stageId: String
     $number: String
     $description: String
+    $limit: Int
+    $cursor: String
+    $direction: CURSOR_DIRECTION
+    $logsPerOwner: Int
   ) {
     scoreLogList(
       searchValue: $searchValue
@@ -32,6 +36,10 @@ export const SCORE_LOG_LIST_QUERY = gql`
       stageId: $stageId
       number: $number
       description: $description
+      limit: $limit
+      cursor: $cursor
+      direction: $direction
+      logsPerOwner: $logsPerOwner
     ) {
       list {
         ownerId
@@ -48,21 +56,6 @@ export const SCORE_LOG_LIST_QUERY = gql`
           campaign {
             _id
             title
-            description
-            add
-            subtract
-            createdAt
-            createdUserId
-            status
-            ownerType
-            fieldGroupId
-            fieldName
-            fieldId
-            fieldOrigin
-            serviceName
-            additionalConfig
-            restrictions
-            onlyClientPortal
           }
           targetId
           target
@@ -74,7 +67,13 @@ export const SCORE_LOG_LIST_QUERY = gql`
         }
         totalScore
       }
-      total
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      totalCount
     }
   }
 `;

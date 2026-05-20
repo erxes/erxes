@@ -2,6 +2,89 @@ import { STRUCTURE_STATUSES } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 
+const getFilterOrder = async (
+  models: IModels,
+  type: string,
+  user: IUserDocument,
+  params: any,
+) => {
+  if (type !== 'branch' && type !== 'department') {
+    return;
+  }
+
+  if (params.withoutUserFilter || user.isOwner) {
+    return;
+  }
+
+  if (
+    !(await models.Configs.findOne({
+      code: 'CHECK_TEAM_MEMBER_SHOWN',
+      value: true,
+    }))
+  ) {
+    return;
+  }
+
+  let fieldName = '';
+  let userField = '';
+  let collection;
+
+  if (type === 'branch') {
+    fieldName = 'BRANCHES';
+    userField = 'branchIds';
+    collection = models.Branches;
+  }
+
+  if (type === 'department') {
+    fieldName = 'DEPARTMENTS';
+    userField = 'departmentIds';
+    collection = models.Departments;
+  }
+
+  const mastersStructure = await models.Configs.findOne({
+    code: `${fieldName}_MASTER_TEAM_MEMBERS_IDS`,
+    value: { $in: [user._id] },
+  });
+  if (mastersStructure) {
+    return;
+  }
+
+  const userDetail = await models.Users.findOne({ _id: user._id });
+  const items = await collection.find({
+    _id: { $in: userDetail?.[userField] },
+  });
+
+  const itemOrders = items.map((item) => new RegExp(item.order, 'i'));
+
+  return { $in: itemOrders };
+};
+
+const getFilterOrderSearch = async (
+  models: IModels,
+  type: string,
+  structureFilter: any,
+  filterOrder?: any,
+) => {
+  let collection;
+
+  if (type === 'branch') {
+    collection = models.Branches;
+  }
+
+  if (type === 'department') {
+    collection = models.Departments;
+  }
+
+  if (filterOrder) {
+    structureFilter.order = filterOrder;
+  }
+
+  const objOrders = (await collection.find(structureFilter))
+    .map((obj) => obj.code)
+    .join('|');
+  return { $regex: new RegExp(objOrders) };
+};
+
 export const generateFilters = async ({
   models,
   user,
@@ -23,48 +106,20 @@ export const generateFilters = async ({
     filter.status = params.status;
   }
 
-  if (!params.withoutUserFilter) {
-    const userDetail = await models.Users.findOne({ _id: user._id });
-    if (type === 'branch') {
-      const branches = await models.Branches.find({
-        _id: { $in: userDetail?.branchIds },
-      });
-
-      const branchOrders = branches.map(
-        (branch) => new RegExp(branch.order, 'i'),
-      );
-
-      filter.order = { $in: branchOrders };
-    }
-    if (type === 'department') {
-      const departments = await models.Departments.find({
-        _id: { $in: userDetail?.departmentIds },
-      });
-
-      const departmentOrders = departments.map(
-        (department) => new RegExp(department.order, 'i'),
-      );
-
-      filter.order = { $in: departmentOrders };
-    }
+  if (params.onlyFirstLevel) {
+    filter.parentId = { $in: [null, ''] };
   }
 
-  let fieldName = '';
+  if (params?.parentId) {
+    filter.parentId = params.parentId;
+  }
 
-  if (type === 'department') {
-    fieldName = 'DEPARTMENTS';
-  }
-  if (type === 'branch') {
-    fieldName = 'BRANCHES';
-  }
-  const mastersStructure = await models.Configs.findOne({
-    code: `${fieldName}_MASTER_TEAM_MEMBERS_IDS`,
-    value: { $in: [user._id] },
-  });
+  const filterOrder = await getFilterOrder(models, type, user, params);
 
-  if (filter.order && (user.isOwner || mastersStructure)) {
-    delete filter.order;
+  if (filterOrder) {
+    filter.order = filterOrder;
   }
+
   if (params.searchValue) {
     const regexOption = {
       $regex: `.*${params.searchValue.trim()}.*`,
@@ -79,35 +134,18 @@ export const generateFilters = async ({
       ],
     };
 
-    if (filter.order) {
-      structureFilter.order = filter.order;
-    }
-
-    if (type === 'department') {
-      const departmentOrders = (await models.Departments.find(structureFilter))
-        .map((department) => department.code)
-        .join('|');
-      filter.order = { $regex: new RegExp(departmentOrders) };
-    }
-
-    if (type === 'branch') {
-      const branchOrders = (await models.Branches.find(structureFilter))
-        .map((department) => department.code)
-        .join('|');
-      filter.order = { $regex: new RegExp(branchOrders, 'i') };
-    }
-
-    if (type === 'position' && params.searchValue) {
+    if (type === 'position') {
       return { $and: [filter, structureFilter] };
     }
-  }
 
-  if (params.onlyFirstLevel) {
-    filter.parentId = { $in: [null, ''] };
-  }
-
-  if (params?.parentId) {
-    filter.parentId = params.parentId;
+    if (type === 'department' || type === 'branch') {
+      filter.order = await getFilterOrderSearch(
+        models,
+        type,
+        structureFilter,
+        filter.order,
+      );
+    }
   }
 
   return filter;

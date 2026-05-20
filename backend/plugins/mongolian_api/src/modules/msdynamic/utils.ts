@@ -1,8 +1,8 @@
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import fetch from 'node-fetch';
-import { IModels } from '~/connectionResolvers';
+import { generateModels, IModels } from '~/connectionResolvers';
 import { ISyncLogDocument } from '~/modules/msdynamic/@types/dynamic';
 import { getMsdCustomerInfo } from './utilsCustomer';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 interface ExchangeRateConfig {
   exchangeRateApi: string;
@@ -15,15 +15,23 @@ export const getConfig = async (
   code: string,
   defaultValue?: any,
 ) => {
-  return await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'config',
-    action: 'getConfig',
-    method: 'query',
-    input: { code, defaultValue },
-    defaultValue,
-  });
+  const models = await generateModels(subdomain);
+  const config = await models.Configs.getConfig(code, '');
+
+  if (config) {
+    return config.value;
+  }
+
+  const configs = await models.Configs.getConfigs(code);
+
+  if (configs?.length) {
+    return configs.reduce((acc, conf) => {
+      acc[conf.subId || ''] = conf.value;
+      return acc;
+    }, {});
+  }
+
+  return defaultValue ?? null;
 };
 
 const getCustomerNo = async (subdomain, customer) => {
@@ -240,11 +248,11 @@ export const dealToDynamic = async (
 
   let msdCustomer: any = {};
 
-  let orderMsdNo: string = '';
+  let orderMsdNo: string;
   let orderItemsMsdNo: any = {};
   const extraData = deal.extraData || {};
   const syncErkhetInfo = extraData.msdynamic || {};
-  orderMsdNo = syncErkhetInfo.no;
+  orderMsdNo = syncErkhetInfo.no || '';
   orderItemsMsdNo = syncErkhetInfo.lineNos || {};
 
   try {
@@ -343,8 +351,8 @@ export const dealToDynamic = async (
     const sendData: any = {
       Sell_to_Customer_No:
         customerType === 'company'
-          ? (msdCustomer?.No ?? config.defaultUserCode)
-          : (custCode ?? config.defaultUserCode),
+          ? msdCustomer?.No ?? config.defaultUserCode
+          : custCode ?? config.defaultUserCode,
       Sell_to_Phone_No: customer?.primaryPhone ?? '',
       Sell_to_E_Mail: customer?.primaryEmail ?? '',
       External_Document_No: deal.number ?? deal.name.split(':').pop().trim(),
@@ -417,7 +425,7 @@ export const dealToDynamic = async (
       for (const item of deal.productsData) {
         let lineUrlP = '';
         let linePostMethod = 'POST';
-        let linePostHeaders = {
+        const linePostHeaders = {
           'Content-Type': 'application/json',
           Authorization: `Basic ${Buffer.from(
             `${username}:${password}`,
@@ -583,11 +591,11 @@ export const orderToDynamic = async (
 
   let msdCustomer: any = {};
 
-  let orderMsdNo: string = '';
+  let orderMsdNo: string;
   let orderItemsMsdNo: any = {};
   try {
     const syncErkhetInfo = JSON.parse(order.syncErkhetInfo);
-    orderMsdNo = syncErkhetInfo.no;
+    orderMsdNo = syncErkhetInfo.no || '';
     orderItemsMsdNo = syncErkhetInfo.lineNos || {};
   } catch {
     orderMsdNo = order.syncErkhetInfo;
@@ -706,7 +714,7 @@ export const orderToDynamic = async (
       for (const item of order.items) {
         let lineUrlP = '';
         let linePostMethod = 'POST';
-        let linePostHeaders = {
+        const linePostHeaders = {
           'Content-Type': 'application/json',
           Authorization: `Basic ${Buffer.from(
             `${username}:${password}`,

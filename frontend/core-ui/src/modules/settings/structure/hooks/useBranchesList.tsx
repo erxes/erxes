@@ -13,6 +13,7 @@ export const useBranchesList = (operationVariables?: OperationVariables) => {
       ...operationVariables?.variables,
       searchValue,
       parentId,
+      withoutUserFilter: true
     },
     ...operationVariables,
   });
