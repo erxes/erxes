@@ -24,6 +24,7 @@ export const DealsRecordTable = () => {
     'pipelineId',
     'salesItemId',
     'stageId',
+    'archivedOnly',
     'tab',
   ];
 
