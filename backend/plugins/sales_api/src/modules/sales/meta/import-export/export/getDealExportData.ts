@@ -8,7 +8,7 @@ import {
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { generateFilter } from '~/modules/sales/graphql/resolvers/queries/deals';
-import { buildDealExportRow } from './buildDealExportRow';
+import { buildDealExportRows } from './buildDealExportRow';
 
 const asArray = (value: unknown, label: string): any[] => {
   if (value === null || value === undefined) {
@@ -35,6 +35,17 @@ const includesAnyField = (
   }
 
   return fields.some((field) => selectedFields.includes(field));
+};
+
+const includesFieldPrefix = (
+  selectedFields: string[] | undefined,
+  prefix: string,
+) => {
+  if (!selectedFields?.length) {
+    return true;
+  }
+
+  return selectedFields.some((field) => field.startsWith(prefix));
 };
 
 const fetchCoreArray = async ({
@@ -113,6 +124,18 @@ const buildNameMap = (
   return map;
 };
 
+const buildDocMap = (docs: any[]): Map<string, any> => {
+  const map = new Map<string, any>();
+
+  for (const doc of docs) {
+    if (doc?._id) {
+      map.set(String(doc._id), doc);
+    }
+  }
+
+  return map;
+};
+
 const buildRelationMap = (
   relations: any[],
 ): {
@@ -170,14 +193,8 @@ export async function getDealExportData(
   args: GetExportDataArgs,
   { models, subdomain }: IImportExportContext<IModels>,
 ): Promise<Record<string, any>[]> {
-  const {
-    cursor,
-    limit,
-    filters,
-    ids,
-    selectedFields,
-    userId,
-  } = (args?.data ?? args) as GetExportData;
+  const { cursor, limit, filters, ids, selectedFields, userId } = (args?.data ??
+    args) as GetExportData;
   const effectiveLimit = normalizeExportLimit(limit, 5000);
 
   if (!models) {
@@ -213,18 +230,34 @@ export async function getDealExportData(
   }
 
   const dealIds = deals.map((deal) => String(deal._id));
-  const stageIds = uniq(deals.map((deal) => deal.stageId));
+  const stageIds = uniq(
+    deals.flatMap((deal) => [deal.stageId, deal.initialStageId]),
+  );
   const labelIds = uniq(deals.flatMap((deal) => deal.labelIds || []));
   const needsUsers = includesAnyField(selectedFields, [
     'assignedUsers',
+    'watchedUsers',
     'owner',
+    'modifiedBy',
   ]);
   const needsTags = includesAnyField(selectedFields, ['tags']);
-  const needsBranches = includesAnyField(selectedFields, ['branches']);
-  const needsDepartments = includesAnyField(selectedFields, ['departments']);
-  const needsProducts = includesAnyField(selectedFields, ['products']);
+  const needsProductColumns = includesFieldPrefix(
+    selectedFields,
+    'productsData.',
+  );
+  const needsBranches =
+    includesAnyField(selectedFields, ['branches']) ||
+    includesAnyField(selectedFields, ['productsData.branch']);
+  const needsDepartments =
+    includesAnyField(selectedFields, ['departments']) ||
+    includesAnyField(selectedFields, ['productsData.department']);
+  const needsProducts =
+    includesAnyField(selectedFields, ['products']) || needsProductColumns;
   const needsRelations = includesAnyField(selectedFields, [
     'customers',
+    'customersEmail',
+    'customersName',
+    'customersPhone',
     'customerIds',
     'companies',
     'companyIds',
@@ -233,7 +266,9 @@ export async function getDealExportData(
     ? uniq(
         deals.flatMap((deal) => [
           deal.userId,
+          deal.modifiedBy,
           ...(deal.assignedUserIds || []),
+          ...(deal.watchedUserIds || []),
         ]),
       )
     : [];
@@ -241,10 +276,24 @@ export async function getDealExportData(
     ? uniq(deals.flatMap((deal) => deal.tagIds || []))
     : [];
   const branchIds = needsBranches
-    ? uniq(deals.flatMap((deal) => deal.branchIds || []))
+    ? uniq(
+        deals.flatMap((deal) => [
+          ...(deal.branchIds || []),
+          ...(deal.productsData || []).map(
+            (productData) => productData.branchId,
+          ),
+        ]),
+      )
     : [];
   const departmentIds = needsDepartments
-    ? uniq(deals.flatMap((deal) => deal.departmentIds || []))
+    ? uniq(
+        deals.flatMap((deal) => [
+          ...(deal.departmentIds || []),
+          ...(deal.productsData || []).map(
+            (productData) => productData.departmentId,
+          ),
+        ]),
+      )
     : [];
   const productIds = needsProducts
     ? uniq(
@@ -259,6 +308,10 @@ export async function getDealExportData(
   const pipelines = await models.Pipelines.find({
     _id: { $in: pipelineIds },
   }).lean();
+  const boardIds = uniq(pipelines.map((pipeline) => pipeline.boardId));
+  const boards = boardIds.length
+    ? await models.Boards.find({ _id: { $in: boardIds } }).lean()
+    : [];
   const labels = await models.PipelineLabels.find({
     _id: { $in: labelIds },
   }).lean();
@@ -395,17 +448,21 @@ export async function getDealExportData(
     departments,
     (department) => department.title || department._id,
   );
-  const productMap = buildNameMap(
-    products,
-    (product) => product.name || product.code || product._id,
-  );
+  const productMap = buildDocMap(products);
   const customerMap = buildNameMap(customers, getCustomerName);
   const companyMap = buildNameMap(companies, getCompanyName);
+  const customerDocMap = buildDocMap(customers);
+  const companyDocMap = buildDocMap(companies);
 
-  return deals.map((deal) =>
-    buildDealExportRow(deal, selectedFields, {
+  const boardMap = new Map<string, any>(
+    boards.map((board) => [String(board._id), board]),
+  );
+
+  return deals.flatMap((deal) =>
+    buildDealExportRows(deal, selectedFields, {
       stageMap,
       pipelineMap,
+      boardMap,
       labelMap,
       userMap,
       tagMap,
@@ -413,7 +470,9 @@ export async function getDealExportData(
       departmentMap,
       productMap,
       customerMap,
+      customerDocMap,
       companyMap,
+      companyDocMap,
       relationMap,
     }),
   );

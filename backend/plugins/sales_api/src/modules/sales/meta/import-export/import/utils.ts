@@ -1,3 +1,4 @@
+import { ICustomField } from 'erxes-api-shared/core-types';
 import { IDeal, IProductData } from '~/modules/sales/@types';
 
 const listSeparators = /[,;|\n]/;
@@ -17,7 +18,7 @@ export const parseList = (value: unknown): string[] => {
     .filter(Boolean);
 };
 
-const parseDate = (value: unknown): Date | undefined => {
+export const parseDate = (value: unknown): Date | undefined => {
   if (!value) {
     return undefined;
   }
@@ -98,9 +99,48 @@ const parseProductsData = (value: unknown): IProductData[] | undefined => {
   });
 };
 
-export const buildDealImportDoc = (row: any, userId: string): IDeal => {
+export const parseCustomFieldsData = (
+  value: unknown,
+): ICustomField[] | undefined => {
+  if (!value) {
+    return undefined;
+  }
+
+  const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+
+  if (!Array.isArray(parsed)) {
+    throw new Error('Custom fields JSON must be an array');
+  }
+
+  return parsed
+    .map((item) => ({
+      field: String(item?.field || '').trim(),
+      value: item?.value,
+    }))
+    .filter((item) => item.field);
+};
+
+export const buildDealImportDoc = (
+  row: any,
+  userId: string,
+  {
+    stageId: resolvedStageId,
+    assignedUserIds,
+    labelIds,
+    customerIds,
+    companyIds,
+    customFieldsData,
+  }: {
+    stageId?: string;
+    assignedUserIds?: string[];
+    labelIds?: string[];
+    customerIds?: string[];
+    companyIds?: string[];
+    customFieldsData?: ICustomField[];
+  } = {},
+): IDeal => {
   const name = String(row.name || '').trim();
-  const stageId = String(row.stageId || '').trim();
+  const stageId = String(resolvedStageId || row.stageId || '').trim();
 
   if (!name) {
     throw new Error('Name is required');
@@ -111,6 +151,9 @@ export const buildDealImportDoc = (row: any, userId: string): IDeal => {
   }
 
   const productsData = parseProductsData(row.productsData);
+  const parsedCustomFieldsData = customFieldsData
+    ? undefined
+    : parseCustomFieldsData(row.customFieldsData);
 
   return {
     name,
@@ -120,14 +163,16 @@ export const buildDealImportDoc = (row: any, userId: string): IDeal => {
     priority: row.priority,
     startDate: parseDate(row.startDate),
     closeDate: parseDate(row.closeDate),
-    assignedUserIds: parseList(row.assignedUserIds),
-    labelIds: parseList(row.labelIds),
+    assignedUserIds: assignedUserIds ?? parseList(row.assignedUserIds),
+    watchedUserIds: parseList(row.watchedUserIds),
+    labelIds: labelIds ?? parseList(row.labelIds),
     tagIds: parseList(row.tagIds),
     branchIds: parseList(row.branchIds),
     departmentIds: parseList(row.departmentIds),
-    customerIds: parseList(row.customerIds),
-    companyIds: parseList(row.companyIds),
+    customerIds: customerIds ?? parseList(row.customerIds),
+    companyIds: companyIds ?? parseList(row.companyIds),
     productsData,
+    customFieldsData: customFieldsData ?? parsedCustomFieldsData,
     initialStageId: stageId,
     userId,
     modifiedBy: userId,
