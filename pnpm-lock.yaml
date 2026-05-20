@@ -207,8 +207,8 @@ importers:
         specifier: ^4.21.2
         version: 4.21.2
       express-rate-limit:
-        specifier: ^8.0.1
-        version: 8.0.1(express@4.21.2)
+        specifier: ^8.5.2
+        version: 8.5.2(express@4.21.2)
       file-type:
         specifier: ^20.5.0
         version: 20.5.0
@@ -841,8 +841,8 @@ importers:
         specifier: ^4.21.2
         version: 4.21.2
       express-rate-limit:
-        specifier: ^8.0.1
-        version: 8.0.1(express@4.21.2)
+        specifier: ^8.5.2
+        version: 8.5.2(express@4.21.2)
       file-type:
         specifier: ^20.5.0
         version: 20.5.0
@@ -10890,12 +10890,6 @@ packages:
     resolution: {integrity: sha512-2Zks0hf1VLFYI1kbh0I5jP3KHHyCHpkfyHBzsSXRFgl/Bg9mWYfMW8oD+PdMPlEwy5HNsR9JutYy6pMeOh61nw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
 
-  express-rate-limit@8.0.1:
-    resolution: {integrity: sha512-aZVCnybn7TVmxO4BtlmnvX+nuz8qHW124KKJ8dumsBsmv5ZLxE0pYu7S2nwyRBGHHCAzdmnGyrc5U/rksSPO7Q==}
-    engines: {node: '>= 16'}
-    peerDependencies:
-      express: '>= 4.11'
-
   express-rate-limit@8.5.2:
     resolution: {integrity: sha512-5Kb34ipNX694DH48vN9irak1Qx30nb0PLYHXfJgw4YEjiC3ZEmZJhwOp+VfiCYwFzvFTdB9QkArYS5kXa2cx2A==}
     engines: {node: '>= 16'}
@@ -12063,10 +12057,6 @@ packages:
   ioredis@5.6.1:
     resolution: {integrity: sha512-UxC0Yv1Y4WRJiGQxQkP0hfdL0/5/6YvdfOOClRgJ0qppSarkhneSa6UvkMkms0AkdGimSH3Ikqm+6mkMmX7vGA==}
     engines: {node: '>=12.22.0'}
-
-  ip-address@10.0.1:
-    resolution: {integrity: sha512-NWv9YLW4PoW2B7xtzaS3NCot75m6nK7Icdv0o3lfMceJVRfSoQwqD4wEH5rLwoKJwUiZ/rfpiVBhnaF0FK4HoA==}
-    engines: {node: '>= 12'}
 
   ip-address@10.2.0:
     resolution: {integrity: sha512-/+S6j4E9AHvW9SWMSEY9Xfy66O5PWvVEJ08O0y5JGyEKQpojb0K0GKpz/v5HJ/G0vi3D2sjGK78119oXZeE0qA==}
@@ -30639,11 +30629,6 @@ snapshots:
       jest-message-util: 29.7.0
       jest-util: 29.7.0
 
-  express-rate-limit@8.0.1(express@4.21.2):
-    dependencies:
-      express: 4.21.2
-      ip-address: 10.0.1
-
   express-rate-limit@8.5.2(express@4.21.2):
     dependencies:
       express: 4.21.2
@@ -32177,8 +32162,6 @@ snapshots:
       standard-as-callback: 2.1.0
     transitivePeerDependencies:
       - supports-color
-
-  ip-address@10.0.1: {}
 
   ip-address@10.2.0: {}
 
@@ -37288,7 +37271,7 @@ snapshots:
 
   socks@2.8.7:
     dependencies:
-      ip-address: 10.0.1
+      ip-address: 10.2.0
       smart-buffer: 4.2.0
 
   sort-keys-length@1.0.1:
