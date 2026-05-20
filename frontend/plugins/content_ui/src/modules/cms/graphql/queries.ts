@@ -296,6 +296,7 @@ export const CMS_TAGS = gql`
         startCursor
         endCursor
       }
+      totalCount
     }
   }
 `;
