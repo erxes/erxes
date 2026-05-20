@@ -23,6 +23,22 @@ const generateSessionCode = () => {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 };
 
+const wasOpenedByAnotherTab = () => {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  try {
+    return Boolean(window.opener) && window.opener !== window;
+  } catch {
+    return false;
+  }
+};
+
+if (typeof window !== 'undefined' && wasOpenedByAnotherTab()) {
+  sessionStorage.removeItem(SESSION_CODE_STORAGE_KEY);
+}
+
 const getSessionCode = () => {
   const existingSessionCode = sessionStorage.getItem(SESSION_CODE_STORAGE_KEY);
 
