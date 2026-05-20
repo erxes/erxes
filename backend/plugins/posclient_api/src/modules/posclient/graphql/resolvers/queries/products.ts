@@ -455,8 +455,8 @@ const productQueries = {
           // preserving the original semantics for the gated single-character
           // inputs.
           const escaped = escapeRegExp(str)
-            .replaceAll(String.raw`\*`, '.')
-            .replaceAll('_', '.');
+            .replace(/\\\*/g, '.')
+            .replace(/_/g, '.');
           return new RegExp(`^${escaped}.*`, 'igu');
         }
         return new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
