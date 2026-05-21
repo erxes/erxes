@@ -16,6 +16,26 @@ import { useMutation } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useFormDetail } from './useFormDetail';
 
+type FormField = { tempFieldId?: string } & Record<string, unknown>;
+
+const buildEditFieldsVariables = (
+  id: string,
+  formFields: FormField[],
+  existingFields: { _id: string }[],
+) => ({
+  contentType: 'form',
+  contentTypeId: id,
+  updatedFields: formFields
+    .filter((field) => existingFields.some((f) => f._id === field.tempFieldId))
+    .map(({ tempFieldId, ...field }) => ({ ...field, _id: tempFieldId })),
+  newFields: formFields.filter(
+    (field) => !existingFields.some((f) => f._id === field.tempFieldId),
+  ),
+  removedFieldIds: existingFields
+    .filter((f) => !formFields.some((field) => field.tempFieldId === f._id))
+    .map((f) => f._id),
+});
+
 export const useFormMutate = () => {
   const { formId: id, id: _channelId } = useParams();
   const navigate = useNavigate();
@@ -63,27 +83,11 @@ export const useFormMutate = () => {
         },
         onCompleted: () => {
           fieldsBulkAction({
-            variables: {
-              contentType: 'form',
-              contentTypeId: id,
-              updatedFields: formFields
-                .filter((field) =>
-                  formDetail?.fields.some((f) => f._id === field.tempFieldId),
-                )
-                .map(({ tempFieldId, ...field }) => ({
-                  ...field,
-                  _id: tempFieldId,
-                })),
-              newFields: formFields.filter(
-                (field) =>
-                  !formDetail?.fields.some((f) => f._id === field.tempFieldId),
-              ),
-              removedFieldIds: (formDetail?.fields || [])
-                .filter(
-                  (f) => !formFields.some((field) => field.tempFieldId === f._id),
-                )
-                .map((f) => f._id),
-            },
+            variables: buildEditFieldsVariables(
+              id,
+              formFields,
+              formDetail?.fields || [],
+            ),
           });
         },
         onError: (error) => {
