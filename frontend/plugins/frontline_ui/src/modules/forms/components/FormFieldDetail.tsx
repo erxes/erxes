@@ -16,6 +16,7 @@ import { IFieldData, useFormDnd } from './FormDndProvider';
 import { UniqueIdentifier } from '@dnd-kit/core';
 import { IconInfoCircle, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useEffect } from 'react';
+import DOMPurify from 'dompurify';
 import {
   FieldValidatorPresetKey,
   FieldValidatorType,
@@ -186,8 +187,9 @@ export const FormFieldDetail = ({
                   editor
                     .blocksToHTMLLossy(editor.document)
                     .then((html) => {
-                      const stripped = html.replace(/<[^>]*>/g, '').trim();
-                      handleValueChange('description', stripped ? html : '');
+                      const safe = DOMPurify.sanitize(html);
+                      const stripped = safe.replace(/<[^>]*>/g, '').trim();
+                      handleValueChange('description', stripped ? safe : '');
                     });
                 }}
               />
