@@ -9,8 +9,8 @@ import {
   PriceAdjustType,
 } from '@/pricing/edit-pricing/components';
 import { useEditPricing } from '@/pricing/hooks/useEditPricing';
-import { IPricingPlanDetail } from '@/pricing/types';
-
+import { IPricingPlanDetail, IPricingFixedValue } from '@/pricing/types';
+import { FixedPricingTable } from './FixedPricingTable';
 interface CommonRuleInfoProps {
   pricingId?: string;
   pricingDetail?: IPricingPlanDetail;
@@ -24,6 +24,7 @@ interface CommonRuleFormValues {
   priceAdjustType: PriceAdjustType;
   priceAdjustFactor: number;
   bonusProductId: string | null;
+  fixedValues: IPricingFixedValue[];
 }
 
 export const CommonRuleInfo = ({
@@ -42,6 +43,7 @@ export const CommonRuleInfo = ({
       priceAdjustType: 'none',
       priceAdjustFactor: 0,
       bonusProductId: null,
+      fixedValues: [],
     },
   });
 
@@ -60,6 +62,7 @@ export const CommonRuleInfo = ({
         (pricingDetail.priceAdjustType as PriceAdjustType) || 'none',
       priceAdjustFactor: pricingDetail.priceAdjustFactor ?? 0,
       bonusProductId: pricingDetail.bonusProduct || null,
+      fixedValues: pricingDetail.fixedValues || [],
     });
   }, [form, pricingDetail]);
 
@@ -77,6 +80,17 @@ export const CommonRuleInfo = ({
       bonusProduct:
         values.discountType === 'bonus'
           ? values.bonusProductId || undefined
+          : undefined,
+      fixedValues:
+        values.discountType === 'fixed'
+          ? values.fixedValues.map(
+              ({ productId, uom, unitPrice, newPrice }) => ({
+                productId,
+                uom,
+                unitPrice,
+                newPrice,
+              }),
+            )
           : undefined,
     };
 
@@ -149,87 +163,101 @@ export const CommonRuleInfo = ({
           )}
         />
 
-        <Form.Field
-          control={form.control}
-          name="discountValue"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>
-                Discount value <span className="text-destructive">*</span>
-              </Form.Label>
-              <Form.Control>
-                <Input
-                  type="number"
-                  value={field.value}
-                  onChange={(event) =>
-                    field.onChange(Number(event.target.value) || 0)
-                  }
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
+        {discountType !== 'fixed' && (
+          <>
+            <Form.Field
+              control={form.control}
+              name="discountValue"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>
+                    Discount value <span className="text-destructive">*</span>
+                  </Form.Label>
+                  <Form.Control>
+                    <Input
+                      type="number"
+                      value={field.value}
+                      onChange={(event) =>
+                        field.onChange(Number(event.target.value) || 0)
+                      }
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
 
-        <Form.Field
-          control={form.control}
-          name="priceAdjustType"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Price adjust type</Form.Label>
-              <Form.Control>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <Select.Trigger>
-                    <Select.Value placeholder="None" />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {PRICE_ADJUST_TYPES.map((option) => (
-                      <Select.Item key={option.value} value={option.value}>
-                        {option.label}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
+            <Form.Field
+              control={form.control}
+              name="priceAdjustType"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Price adjust type</Form.Label>
+                  <Form.Control>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Select.Trigger>
+                        <Select.Value placeholder="None" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {PRICE_ADJUST_TYPES.map((option) => (
+                          <Select.Item key={option.value} value={option.value}>
+                            {option.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
 
-        <Form.Field
-          control={form.control}
-          name="priceAdjustFactor"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Price adjust factor</Form.Label>
-              <Form.Control>
-                <Input
-                  type="number"
-                  value={field.value}
-                  onChange={(event) =>
-                    field.onChange(Number(event.target.value) || 0)
-                  }
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
+            <Form.Field
+              control={form.control}
+              name="priceAdjustFactor"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Price adjust factor</Form.Label>
+                  <Form.Control>
+                    <Input
+                      type="number"
+                      value={field.value}
+                      onChange={(event) =>
+                        field.onChange(Number(event.target.value) || 0)
+                      }
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
 
-        {discountType === 'bonus' && (
-          <Form.Field
-            control={form.control}
-            name="bonusProductId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Bonus product</Form.Label>
-                <Form.Control>
-                  <SelectProduct
-                    value={field.value || ''}
-                    onValueChange={(value) =>
-                      field.onChange(Array.isArray(value) ? value[0] : value)
-                    }
-                  />
-                </Form.Control>
-              </Form.Item>
+            {discountType === 'bonus' && (
+              <Form.Field
+                control={form.control}
+                name="bonusProductId"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Bonus product</Form.Label>
+                    <Form.Control>
+                      <SelectProduct
+                        value={field.value || ''}
+                        onValueChange={(value) =>
+                          field.onChange(
+                            Array.isArray(value) ? value[0] : value,
+                          )
+                        }
+                      />
+                    </Form.Control>
+                  </Form.Item>
+                )}
+              />
             )}
+          </>
+        )}
+        {discountType === 'fixed' && (
+          <FixedPricingTable
+            control={form.control}
+            pricingId={pricingId}
+            productIds={pricingDetail?.products || []}
+            onSave={form.handleSubmit(handleSubmit)}
           />
         )}
       </form>

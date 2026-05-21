@@ -110,6 +110,7 @@ export interface IPricingPlanDetail {
   updatedUser?: { _id: string } | null;
 
   productIds?: string[];
+  fixedValues?: IPricingFixedValue[];
 }
 
 export interface IProductCategory {
@@ -122,6 +123,12 @@ export interface IProductCategory {
   parentId?: string;
 }
 
+export interface IPricingFixedValue {
+  productId: string;
+  uom: string;
+  unitPrice: number;
+  newPrice: number;
+}
 export interface ProductCategoriesResponse {
   productCategories: IProductCategory[];
 }

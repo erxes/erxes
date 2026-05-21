@@ -1,5 +1,5 @@
 import { Document } from 'mongoose';
-import { IPriceRule} from './priceRule';
+import { IPriceRule } from './priceRule';
 import { IQuantityRule } from './quantityRule';
 import { IExpiryRule } from './expiryRule';
 import { IRepeatRule } from './repeatRule';
@@ -52,8 +52,17 @@ export interface IPricingPlan {
 
   createdBy?: string;
   updatedBy?: string;
+
+  fixedValues?: IPricingFixedValue[];
 }
 
 export interface IPricingPlanDocument extends IPricingPlan, Document {
   _id: string;
+}
+
+export interface IPricingFixedValue {
+  productId?: string;
+  uom?: string;
+  unitPrice?: number;
+  newPrice?: number;
 }
