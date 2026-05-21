@@ -1,4 +1,5 @@
 import {
+  IconAlertTriangle,
   IconBuilding,
   IconCalendar,
   IconCalendarBolt,
@@ -29,6 +30,7 @@ export const ActionBarFilters: FilterItem[][] = [
   ],
   [
     { key: 'priority', value: 'Priority', icon: IconStackFront },
+    { key: 'riskLevel', value: 'Risk level', icon: IconAlertTriangle },
     { key: 'labelIds', value: 'Label', icon: IconLabel },
     { key: 'tagIds', value: 'Tags', icon: IconTag },
     { key: 'awaiting', value: 'Awaiting response', icon: IconLoader },
