@@ -4,6 +4,7 @@ import {
   getEnv,
   graphqlPubsub,
   sendWorkerQueue,
+  sendWorkerMessage,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
