@@ -1,9 +1,25 @@
+import { useFormDetail } from '@/forms/hooks/useFormDetail';
 import { IconForms } from '@tabler/icons-react';
-import { Breadcrumb, Button } from 'erxes-ui';
-import { Link } from 'react-router';
+import { Breadcrumb, Button, Separator, Skeleton } from 'erxes-ui';
+import { Link, useParams } from 'react-router';
 import { PageHeader } from 'ui-modules';
 
+export const FormDetailsBreadcrumbItem = ({ formId }: { formId: string }) => {
+  const { loading, formDetail } = useFormDetail({ formId });
+  if (loading) return <Skeleton className="size-4" />;
+  if (!formDetail) return null;
+  return (
+    <>
+      <Breadcrumb.Separator />
+      <Breadcrumb.Item>
+        <Button variant="ghost">{formDetail.name}</Button>
+      </Breadcrumb.Item>
+    </>
+  );
+};
+
 export const FormPageHeader = () => {
+  const { formId } = useParams<{ formId: string }>();
   return (
     <PageHeader>
       <PageHeader.Start>
@@ -17,9 +33,15 @@ export const FormPageHeader = () => {
                 </Link>
               </Button>
             </Breadcrumb.Item>
+            <FormDetailsBreadcrumbItem formId={formId || ''} />
           </Breadcrumb.List>
         </Breadcrumb>
-        <PageHeader.FavoriteToggleButton />
+        {!formId && (
+          <>
+            <Separator.Inline />
+            <PageHeader.FavoriteToggleButton />
+          </>
+        )}
       </PageHeader.Start>
     </PageHeader>
   );

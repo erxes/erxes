@@ -89,13 +89,13 @@ export function MentionMenu(props: SuggestionMenuProps<any>) {
   const userItems = items as UserSuggestionItem[];
 
   return (
-    <SuggestionMenu>
+    <SuggestionMenu className="hide-scroll styled-scroll *:hide-scroll *:styled-scroll">
       {userItems.map((item, index) => {
         if (item.isPlaceholder) {
           return (
             <div
               key="no-results"
-              className="p-2 text-gray-500 italic cursor-default"
+              className="p-2 text-muted-foreground italic cursor-default"
             >
               {item.title}
             </div>
