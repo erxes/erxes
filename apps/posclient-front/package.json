@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "WATCHPACK_POLLING=true WATCHPACK_POLLING_INTERVAL=1000 next dev -p 7002",
+    "dev": "next dev -p 7002",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -51,6 +51,7 @@
     "next": "^14.2.12",
     "next-pwa": "^5.6.0",
     "qrcode.react": "^3.1.0",
+    "qz-tray": "^2.2.6",
     "react": "^18.3.1",
     "react-day-picker": "^8.8.0",
     "react-dom": "^18.3.1",
