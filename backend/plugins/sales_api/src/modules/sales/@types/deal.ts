@@ -64,6 +64,7 @@ export interface IDeal {
   order?: number;
   searchText?: string;
   priority?: string;
+  riskLevel?: 'low' | 'medium' | 'high';
   sourceConversationIds?: string[];
   status?: string;
   timeTrack?: {

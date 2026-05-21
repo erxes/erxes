@@ -94,6 +94,12 @@ export const dealSchema = schemaWrapper(
       modifiedBy: { type: String, esType: 'keyword' },
       searchText: { type: String, optional: true, index: true },
       priority: { type: String, optional: true, label: 'Priority' },
+      riskLevel: {
+        type: String,
+        optional: true,
+        label: 'Risk level',
+        esType: 'keyword',
+      },
       // TODO remove after migration
       sourceConversationId: { type: String, optional: true },
       sourceConversationIds: { type: [String], optional: true },

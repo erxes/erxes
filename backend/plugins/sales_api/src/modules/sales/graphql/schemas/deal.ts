@@ -41,6 +41,7 @@ const queryParams = `
   labelIds: [String]
   search: String
   priority: [String]
+  riskLevel: [String]
   userIds: [String]
   segment: String
   segmentData: String
@@ -101,6 +102,7 @@ export const types = `
     stageId: String
     boardId: String
     priority: String
+    riskLevel: String
     status: String
     attachments: [Attachment]
     userId: String
@@ -212,6 +214,7 @@ const mutationParams = `
   reminderMinute: Int,
   isComplete: Boolean,
   priority: String,
+  riskLevel: String,
   status: String,
   sourceConversationIds: [String],
   propertiesData: JSON,
