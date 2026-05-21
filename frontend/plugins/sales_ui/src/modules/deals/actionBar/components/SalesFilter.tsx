@@ -16,6 +16,7 @@ import {
 import { DealsTotalCount } from '@/deals/components/DealsTotalCount';
 import { IDeal } from '@/deals/types/deals';
 import { SalesFilterState } from '@/deals/actionBar/types/actionBarTypes';
+import { SelectConfidenceScoreMin } from '@/deals/components/common/filters/SelectConfidenceScoreMin';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { SelectPriority } from '@/deals/components/common/filters/SelectPriority';
 
@@ -33,6 +34,7 @@ export const SalesFilter = () => {
     'startDateStartDate',
     'startDateEndDate',
     'priority',
+    'confidenceScoreMin',
     'labelIds',
     'tagIds',
     'awaiting',
@@ -102,6 +104,7 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
     customerIds,
     userIds,
     priority,
+    confidenceScoreMin,
     labelIds,
     productId,
   } = queries || {};
@@ -172,6 +175,7 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
         />
       )}
       {priority && <SelectPriority.FilterBar />}
+      {confidenceScoreMin != null && <SelectConfidenceScoreMin.FilterBar />}
       {labelIds && (
         <SelectLabels.FilterBar
           filterKey="labelIds"
@@ -215,6 +219,10 @@ const SalesFilterView = () => {
             />
             <SelectProduct.FilterItem value="productId" label="By Product" />
             <SelectPriority.FilterItem value="priority" label="By Priority" />
+            <SelectConfidenceScoreMin.FilterItem
+              value="confidenceScoreMin"
+              label="By Confidence ≥"
+            />
             <SelectLabels.FilterItem value="labelIds" label="By Label" />
             <Command.Separator className="my-1" />
             <Filter.Item value="createdStartDate">
@@ -240,6 +248,7 @@ const SalesFilterView = () => {
       <SelectDepartments.FilterView mode="multiple" filterKey="departmentIds" />
       <SelectProduct.FilterView filterKey="productId" mode="multiple" />
       <SelectPriority.FilterView />
+      <SelectConfidenceScoreMin.FilterView />
       <SelectLabels.FilterView filterKey="labelIds" mode="multiple" />
       <Filter.View filterKey="createdStartDate">
         <Filter.DateView filterKey="createdStartDate" />
