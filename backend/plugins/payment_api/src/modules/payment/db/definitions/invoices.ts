@@ -22,6 +22,7 @@ export const invoiceSchema = schemaWrapper(
     contentTypeId: { type: String },
     createdAt: { type: Date, default: Date.now },
     resolvedAt: { type: Date },
+    scannedAt: { type: Date },
     data: { type: Schema.Types.Mixed },
     apiResponse: { type: Schema.Types.Mixed },
     callback: { type: String },
