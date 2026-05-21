@@ -182,6 +182,12 @@ export const PRICING_PLAN_DETAIL = gql`
         _id
       }
       productIds
+      fixedValues {
+        productId
+        uom
+        unitPrice
+        newPrice
+      }
     }
   }
 `;
@@ -194,6 +200,20 @@ export const productCategories = gql`
       code
       name
       order
+    }
+  }
+`;
+
+export const GET_PRODUCTS_BY_IDS = gql`
+  query AssignedProducts($ids: [String]) {
+    productsMain(ids: $ids) {
+      list {
+        _id
+        name
+        code
+        uom
+        unitPrice
+      }
     }
   }
 `;

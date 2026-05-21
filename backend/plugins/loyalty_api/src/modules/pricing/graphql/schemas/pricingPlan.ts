@@ -99,7 +99,16 @@ export const types = `
     updatedUser: User
 
     productIds: [String]
+
+   fixedValues: [PricingFixedValue]    
+     
   }
+    type PricingFixedValue {
+productId: String
+uom: String
+unitPrice: Float
+newPrice: Float
+}
 
   input QuantityRuleInput {
     type: String,
@@ -192,6 +201,8 @@ export const types = `
 
     isRepeatEnabled: Boolean,
     repeatRules: [RepeatRuleInput],
+
+    fixedValues: [PricingFixedValueInput]  
   }
 
   input PricingPlanEditInput {
@@ -240,6 +251,8 @@ export const types = `
 
     isRepeatEnabled: Boolean,
     repeatRules: [RepeatRuleInput],
+
+    fixedValues: [PricingFixedValueInput]  
   }
 
   input PricingCheckProduct {
@@ -249,6 +262,16 @@ export const types = `
     price: Float
     manufacturedDate: String
   }
+
+input PricingFixedValueInput {
+productId: String
+  uom:       String
+  unitPrice: Float
+  newPrice:  Float
+
+}
+
+
 `;
 
 const pricingQueryParams = `
