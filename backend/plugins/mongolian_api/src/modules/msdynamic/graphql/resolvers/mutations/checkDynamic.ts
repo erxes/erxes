@@ -35,8 +35,10 @@ export const msdynamicCheckMutations = {
   async toCheckMsdProducts(
     _root,
     { brandId }: { brandId: string },
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('msdCheck');
+
     const models = await generateModels(subdomain);
     const config = await getDynamicConfig(models, brandId);
 
@@ -46,7 +48,6 @@ export const msdynamicCheckMutations = {
 
     const { itemApi, username, password } = config;
 
-    // 🔹 Get local products
     const products = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
@@ -58,7 +59,6 @@ export const msdynamicCheckMutations = {
 
     const productCodes = products.map((p: any) => p.code);
 
-    // 🔹 Get Dynamic products
     const response = await fetch(
       `${itemApi}?$filter=Item_Category_Code ne '' and Blocked ne true and Allow_Ecommerce eq true`,
       {

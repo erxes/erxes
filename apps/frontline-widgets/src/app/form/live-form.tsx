@@ -6,11 +6,13 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import {
   activeStepAtom,
   browserInfoAtom,
+  customerIdAtom,
   showConfirmationAtom,
 } from './states/erxesFormStates';
 import { ErxesFormValues } from './components/ErxesFormValues';
 import { ErxesFormFinal } from './components/ErxesFormFinal';
 import { useParams } from 'react-router-dom';
+import { getVisitorId } from '@libs/utils';
 
 export const LiveForm = () => {
   const { id: channelId, formId } = useParams<{ id: string; formId: string }>();
@@ -19,6 +21,7 @@ export const LiveForm = () => {
   const activeStep = useAtomValue(activeStepAtom);
   const setBrowserInfo = useSetAtom(browserInfoAtom);
   const showConfirmation = useAtomValue(showConfirmationAtom);
+  const customerId = useAtomValue(customerIdAtom);
 
   useEffect(() => {
     setBrowserInfo({
@@ -30,14 +33,19 @@ export const LiveForm = () => {
 
   useEffect(() => {
     if (formId && channelId) {
-      connectMutation({
-        variables: {
-          channelId,
-          formCode: formId,
-        },
-      });
+      const connect = async () => {
+        const cachedCustomerId = customerId || (await getVisitorId());
+        connectMutation({
+          variables: {
+            channelId,
+            formCode: formId,
+            cachedCustomerId,
+          },
+        });
+      };
+      connect();
     }
-  }, [connectMutation, formId, channelId]);
+  }, [connectMutation, formId, channelId, customerId]);
 
   useEffect(() => {
     if (form?.leadData?.primaryColor) {

@@ -1,14 +1,18 @@
-import { Button, Input, Sheet } from 'erxes-ui';
+import { Button, Input, Sheet, useFocusSheet } from 'erxes-ui';
 
 import { DealsActions } from '@/deals/actionBar/components/DealsActions';
 import { IDeal } from '@/deals/types/deals';
-import { IconLayoutSidebarLeftCollapse } from '@tabler/icons-react';
+import {
+  IconLayoutSidebarLeftCollapse,
+  IconLayoutSidebarLeftExpand,
+} from '@tabler/icons-react';
 import { MoveDealDropdown } from '@/deals/actionBar/components/MoveDealDropdown';
 import { useDealsContext } from '@/deals/context/DealContext';
 import { useState } from 'react';
 
 export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
   const { editDeals } = useDealsContext();
+  const { isSidebarOpen, setIsSidebarOpen } = useFocusSheet();
 
   const [name, setName] = useState(deal?.name || 'Untitled deal');
 
@@ -27,8 +31,16 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
 
   return (
     <Sheet.Header className="gap-2 flex-row items-center space-y-0">
-      <Button variant="ghost" size="icon">
-        <IconLayoutSidebarLeftCollapse />
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+      >
+        {isSidebarOpen ? (
+          <IconLayoutSidebarLeftCollapse />
+        ) : (
+          <IconLayoutSidebarLeftExpand />
+        )}
       </Button>
       <div className="flex flex-col flex-1 min-w-0">
         <Sheet.Title>

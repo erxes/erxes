@@ -29,8 +29,10 @@ const checkSyncedMutations = {
       ids,
       contentType = 'sales:deal',
     }: { ids: string[]; contentType?: string },
-    { subdomain }: IContext,
+    { subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('erkhetManageSync');
+
     const config = await getConfig(subdomain, 'ERKHET', {});
 
     if (!config.apiToken || !config.apiKey || !config.apiSecret) {
@@ -85,8 +87,10 @@ const checkSyncedMutations = {
       configStageId,
       dateType,
     }: { dealIds: string[]; configStageId: string; dateType: string },
-    { subdomain, user }: IContext,
+    { subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('erkhetManageSync');
+
     const result: { skipped: string[]; error: string[]; success: string[] } = {
       skipped: [],
       error: [],
@@ -105,7 +109,6 @@ const checkSyncedMutations = {
       module: 'deal',
       action: 'find',
       input: { _id: { $in: dealIds } },
-      method: 'query',
       defaultValue: [],
     });
 
@@ -115,7 +118,7 @@ const checkSyncedMutations = {
       createdBy: user._id,
     };
 
-    for (const deal of deals?.data) {
+    for (const deal of deals?.data || []) {
       const syncedStageId = configStageId || deal.stageId;
       if (Object.keys(configs).includes(syncedStageId)) {
         const syncLog = await models.SyncLogs.syncLogsAdd({
@@ -239,8 +242,10 @@ const checkSyncedMutations = {
   async toSyncOrders(
     _root: undefined,
     { orderIds }: { orderIds: string[] },
-    { subdomain, user }: IContext,
+    { subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('erkhetManageSync');
+
     const result: { skipped: string[]; error: string[]; success: string[] } = {
       skipped: [],
       error: [],

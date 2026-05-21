@@ -183,7 +183,7 @@ const fieldsCommonFields = `
 
 export const fieldsMutations = `
   frontlineFieldsAdd(contentType: String!, contentTypeId: String, ${fieldsCommonFields}): FrontlineField
-  frontlineFieldsBulkAction(contentType: String!, contentTypeId: String, newFields:[FrontlineFieldItem], updatedFields:[FrontlineFieldItem]): [FrontlineField]
+  frontlineFieldsBulkAction(contentType: String!, contentTypeId: String, newFields:[FrontlineFieldItem], updatedFields:[FrontlineFieldItem], removedFieldIds:[String]): [FrontlineField]
   frontlineFieldsEdit(_id: String!, ${fieldsCommonFields}): FrontlineField
   frontlineFieldsRemove(_id: String!): FrontlineField
   frontlineFieldsUpdateOrder(orders: [FrontlineOrderItem]): [FrontlineField]
