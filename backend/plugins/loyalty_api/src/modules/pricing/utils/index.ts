@@ -77,12 +77,6 @@ export const getMainConditions = ({
     });
   }
 
-  const scopeFilters: Record<string, any>[] = [publicFilter];
-
-  if (targetFilter.length) {
-    scopeFilters.unshift({ $and: targetFilter });
-  }
-
   let lastFilter: any = publicFilter;
   if (targetFilter.length) {
     lastFilter = {
@@ -92,7 +86,10 @@ export const getMainConditions = ({
 
   return {
     status: 'active',
-    $and: [dateFilter, lastFilter],
+    $and: [
+      dateFilter,
+      lastFilter,
+    ]
   };
 };
 

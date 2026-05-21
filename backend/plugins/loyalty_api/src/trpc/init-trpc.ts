@@ -411,7 +411,7 @@ export const appRouter = t.router({
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
         // Type assertion to bypass persistent TypeScript mismatch; input is validated by Zod
-        return await doScoreCampaign(models, input as any);
+        return await doScoreCampaign(models, input);
       }),
 
     refundLoyaltyScore: t.procedure
