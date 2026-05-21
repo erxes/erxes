@@ -1,3 +1,4 @@
+import { Fragment } from "react"
 import {
   qzMainPrinterAtom,
   qzTrayEnabledAtom,
@@ -100,7 +101,7 @@ const Receipt = ({ date, report }: any) => {
 
   const handlePrint = async () => {
     if (!qzEnabled) {
-      window.print()
+      globalThis.window.print()
       return
     }
     if (!qzMainPrinter) {
@@ -219,7 +220,19 @@ const Receipt = ({ date, report }: any) => {
     return normalizeText(product.name).toLowerCase().includes("service charge")
   }
 
-  const renderProduct = (product: ReportProduct, ordersAmounts?: any) => {
+  const getProductKey = (product: ReportProduct, fallbackKey: string) =>
+    product._id ||
+    product.productId ||
+    product.id ||
+    product.code ||
+    product.name ||
+    fallbackKey
+
+  const renderProduct = (
+    product: ReportProduct,
+    productKey: string,
+    ordersAmounts?: any
+  ) => {
     const isServiceCharge = isServiceChargeProduct(product)
     const serviceChargeAmount = getServiceChargeAmount(
       ordersAmounts?.totalAmount,
@@ -227,7 +240,10 @@ const Receipt = ({ date, report }: any) => {
     )
 
     return (
-      <div className="report-print__product" key={product.code || product.name}>
+      <div
+        className="report-print__product"
+        key={getProductKey(product, productKey)}
+      >
         <div className="report-print__product-name">
           {getProductLabel(product)}
         </div>
@@ -245,10 +261,21 @@ const Receipt = ({ date, report }: any) => {
     )
   }
 
-  const renderCategory = (category: any, ordersAmounts?: any) => {
+  const renderCategory = (
+    category: any,
+    categoryKey: string,
+    ordersAmounts?: any
+  ) => {
+    const key =
+      category._id ||
+      category.id ||
+      category.code ||
+      category.name ||
+      categoryKey
+
     return (
-      <>
-        <div key={Math.random()} className="report-print__category">
+      <Fragment key={key}>
+        <div className="report-print__category">
           <b className="font-semibold">
             {`Барааны бүлэг: `} {category.name}
           </b>
@@ -259,22 +286,24 @@ const Receipt = ({ date, report }: any) => {
         </div>
 
         {Object.keys(category.products).map((p) =>
-          renderProduct(category.products[p], ordersAmounts)
+          renderProduct(category.products[p], p, ordersAmounts)
         )}
-      </>
+      </Fragment>
     )
   }
 
-  const renderUser = (item: any) => {
+  const renderUser = (item: any, userId: string) => {
+    const key = item.user?._id || item.user?.email || userId
+
     return (
-      <div key={Math.random()} className="block report-print__user">
+      <div key={key} className="block report-print__user">
         <b className="font-semibold flex-v-center">
           <span>{`Хэрэглэгч: `}</span>
           <span>{item.user.email}</span>
         </b>
         {renderAmounts(item.ordersAmounts)}
         {Object.keys(item.items).map((i) =>
-          renderCategory(item.items[i], item.ordersAmounts)
+          renderCategory(item.items[i], i, item.ordersAmounts)
         )}
       </div>
     )
@@ -303,7 +332,7 @@ const Receipt = ({ date, report }: any) => {
             </p>
           </header>
           {Object.keys(report || {}).map((userId) =>
-            renderUser(report[userId])
+            renderUser(report[userId], userId)
           )}
           <footer className="space-y-1 report-print__signature">
             <label className="font-semibold">Гарын үсэг:</label>

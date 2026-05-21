@@ -561,10 +561,6 @@
       minmax(43px, 1fr) minmax(18px, 0.45fr) minmax(32px, 0.75fr)
       minmax(46px, 1fr);
     column-gap: 4px;
-  }
-
-  .receipt-print__stock-head,
-  .receipt-print__stock-row {
     font-size: 11px;
   }
 }

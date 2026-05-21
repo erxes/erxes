@@ -2,7 +2,7 @@ import qz from "qz-tray"
 
 let connectingPromise: Promise<void> | null = null
 
-const isBrowser = () => typeof window !== "undefined"
+const isBrowser = () => typeof globalThis.window !== "undefined"
 
 export const isQzActive = () => {
   if (!isBrowser()) return false
@@ -49,7 +49,7 @@ export const findPrinters = async (): Promise<string[]> => {
   }
 
   const result = await qz.printers.find()
-  if (Array.isArray(result)) return result as string[]
+  if (Array.isArray(result)) return result
   if (typeof result === "string") return [result]
   return []
 }

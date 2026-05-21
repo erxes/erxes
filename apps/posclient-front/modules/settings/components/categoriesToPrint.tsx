@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import useProductCategories from "@/modules/products/hooks/useProductCategories"
 import {
   categoriesToPrintAtom,
@@ -69,6 +70,16 @@ const normalizeUpdatedGroups = (groups: string[][], index: number) => {
   return normalizedGroups
 }
 
+let filterGroupKeyCounter = 0
+
+const createFilterGroupKey = () => {
+  filterGroupKeyCounter += 1
+  return `category-filter-${filterGroupKeyCounter}`
+}
+
+const createFilterGroupKeys = (count: number) =>
+  Array.from({ length: count }, createFilterGroupKey)
+
 const CategoriesToPrint = () => {
   const [categoriesToPrint, setCategoriesToPrint] = useAtom(
     categoriesToPrintAtom
@@ -90,6 +101,26 @@ const CategoriesToPrint = () => {
     )
   }, isActive || !isPrint)
   const { printers, loading: printersLoading } = useQzPrinters(qzEnabled)
+  const [filterKeys, setFilterKeys] = useState(() =>
+    createFilterGroupKeys(categoriesToPrint.length)
+  )
+
+  useEffect(() => {
+    setFilterKeys((prev) => {
+      if (prev.length === categoriesToPrint.length) {
+        return prev
+      }
+
+      if (prev.length < categoriesToPrint.length) {
+        return [
+          ...prev,
+          ...createFilterGroupKeys(categoriesToPrint.length - prev.length),
+        ]
+      }
+
+      return prev.slice(0, categoriesToPrint.length)
+    })
+  }, [categoriesToPrint.length])
 
   if (isActive || !isPrint) {
     return null
@@ -100,6 +131,7 @@ const CategoriesToPrint = () => {
   const addNewFilter = () => {
     setCategoriesToPrint((prev) => [...prev, []])
     setCategoryPrinters((prev) => [...prev, ""])
+    setFilterKeys((prev) => [...prev, createFilterGroupKey()])
   }
 
   const removeFilter = (index: number) => {
@@ -108,6 +140,7 @@ const CategoriesToPrint = () => {
         prev.length > 1 ? prev.filter((_, i) => i !== index) : prev
       )
       setCategoryPrinters((prev) => prev.filter((_, i) => i !== index))
+      setFilterKeys((prev) => prev.filter((_, i) => i !== index))
     }
   }
 
@@ -130,14 +163,20 @@ const CategoriesToPrint = () => {
     })
   }
 
+  const filterRows = categoriesToPrint.map((filterGroup, index) => ({
+    filterGroup,
+    filterKey: filterKeys[index],
+    index,
+  }))
+
   return (
     <div className="w-full space-y-3">
-      {categoriesToPrint.map((filterGroup, index) => {
+      {filterRows.map(({ filterGroup, filterKey, index }) => {
         const canRemove = categoriesToPrint.length > 1
 
         return (
           <div
-            key={`category-filter-${index}-${(filterGroup || []).join("|")}`}
+            key={filterKey}
             className={cn(
               "grid gap-2 border border-border/70 rounded-md p-2 sm:items-end",
               qzEnabled &&
