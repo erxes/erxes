@@ -163,7 +163,7 @@ export const commonMutationVariables = `
   $isComplete: Boolean,
   $status: String,
   $priority: String,
-  $riskLevel: String,
+  $riskLevel: RiskLevel,
   $sourceConversationIds: [String],
   $propertiesData: JSON,
   $tagIds: [String]

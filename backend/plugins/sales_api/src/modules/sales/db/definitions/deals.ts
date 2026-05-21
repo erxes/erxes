@@ -96,6 +96,7 @@ export const dealSchema = schemaWrapper(
       priority: { type: String, optional: true, label: 'Priority' },
       riskLevel: {
         type: String,
+        enum: ['low', 'medium', 'high'],
         optional: true,
         label: 'Risk level',
         esType: 'keyword',

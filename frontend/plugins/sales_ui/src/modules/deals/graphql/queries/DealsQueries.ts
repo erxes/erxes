@@ -9,7 +9,7 @@ const commonParams = `
   $labelIds: [String],
   $search: String,
   $priority: [String],
-  $riskLevel: [String],
+  $riskLevel: [RiskLevel],
   $date: SalesItemDate,
   $pipelineId: String,
   $parentId: String,

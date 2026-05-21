@@ -1,6 +1,12 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 const typeDeps = `
+  enum RiskLevel {
+    low
+    medium
+    high
+  }
+
   type SalesTimeTrack {
     status: String,
     timeSpent: Int,
@@ -41,7 +47,7 @@ const queryParams = `
   labelIds: [String]
   search: String
   priority: [String]
-  riskLevel: [String]
+  riskLevel: [RiskLevel]
   userIds: [String]
   segment: String
   segmentData: String
@@ -102,7 +108,7 @@ export const types = `
     stageId: String
     boardId: String
     priority: String
-    riskLevel: String
+    riskLevel: RiskLevel
     status: String
     attachments: [Attachment]
     userId: String
@@ -214,7 +220,7 @@ const mutationParams = `
   reminderMinute: Int,
   isComplete: Boolean,
   priority: String,
-  riskLevel: String,
+  riskLevel: RiskLevel,
   status: String,
   sourceConversationIds: [String],
   propertiesData: JSON,
