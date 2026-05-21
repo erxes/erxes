@@ -6,15 +6,21 @@ import {
   calculateQuantityRule,
   calculateDiscountValue,
   calculateExpiryRule,
-  calculatePriceAdjust
+  calculatePriceAdjust,
 } from './rule';
 import { getAllowedProducts } from './product';
 import { CalculatedRule, OrderItem } from '../types';
 
 export const getMainConditions = ({
-  branchId, departmentId, pipelineId, date
+  branchId,
+  departmentId,
+  pipelineId,
+  date,
 }: {
-  branchId?: string, departmentId?: string, pipelineId?: string, date?: Date
+  branchId?: string;
+  departmentId?: string;
+  pipelineId?: string;
+  date?: Date;
 }): Record<string, any> => {
   const now = dayjs(date || new Date());
   const nowISO = now.toISOString();
@@ -23,39 +29,39 @@ export const getMainConditions = ({
     $or: [
       {
         isStartDateEnabled: false,
-        isEndDateEnabled: false
+        isEndDateEnabled: false,
       },
       {
         isStartDateEnabled: true,
         isEndDateEnabled: false,
         startDate: {
-          $lt: nowISO
-        }
+          $lt: nowISO,
+        },
       },
       {
         isStartDateEnabled: false,
         isEndDateEnabled: true,
         endDate: {
-          $gt: nowISO
-        }
+          $gt: nowISO,
+        },
       },
       {
         isStartDateEnabled: true,
         isEndDateEnabled: true,
         startDate: {
-          $lt: nowISO
+          $lt: nowISO,
         },
         endDate: {
-          $gt: nowISO
-        }
-      }
-    ]
+          $gt: nowISO,
+        },
+      },
+    ],
   };
 
   const publicFilter = {
     branchIds: { $size: 0 },
     departmentIds: { $size: 0 },
-    $or: [{ pipelineId: { $exists: false } }, { pipelineId: '' }]
+    pipelineId: { $in: [null, ''] },
   };
 
   const targetFilter: Record<string, any>[] = [];
@@ -67,23 +73,22 @@ export const getMainConditions = ({
   if (branchId || departmentId) {
     targetFilter.push({
       branchIds: branchId ? { $in: [branchId] } : { $size: 0 },
-      departmentIds: departmentId ? { $in: [departmentId] } : { $size: 0 }
+      departmentIds: departmentId ? { $in: [departmentId] } : { $size: 0 },
     });
   }
 
-  const scopeFilters: Record<string, any>[] = [publicFilter];
-
+  let lastFilter: any = publicFilter;
   if (targetFilter.length) {
-    scopeFilters.unshift({ $and: targetFilter });
+    lastFilter = {
+      $or: [{ $and: targetFilter }, publicFilter],
+    };
   }
 
   return {
     status: 'active',
     $and: [
       dateFilter,
-      {
-        $or: scopeFilters
-      }
+      lastFilter,
     ]
   };
 };
@@ -95,14 +100,18 @@ const calculateDefaultDiscount = (plan: any, item: any): number => {
     item.price,
     defaultValue,
     plan.priceAdjustType,
-    plan.priceAdjustFactor
+    plan.priceAdjustFactor,
   );
   return defaultValue;
 };
 
 // Helper function to check if any rule has bonus products
 // Helper function to check if any rule has bonus products
-const hasBonusProducts = (priceRule: CalculatedRule, quantityRule: CalculatedRule, expiryRule: CalculatedRule): boolean => {
+const hasBonusProducts = (
+  priceRule: CalculatedRule,
+  quantityRule: CalculatedRule,
+  expiryRule: CalculatedRule,
+): boolean => {
   return !!(
     (priceRule.type === 'bonus' && priceRule.bonusProducts?.length) ||
     (quantityRule.type === 'bonus' && quantityRule.bonusProducts?.length) ||
@@ -110,25 +119,36 @@ const hasBonusProducts = (priceRule: CalculatedRule, quantityRule: CalculatedRul
   );
 };
 // Helper function to collect bonus products from all rules
-const collectBonusProducts = (priceRule: CalculatedRule, quantityRule: CalculatedRule, expiryRule: CalculatedRule): any[] => {
+const collectBonusProducts = (
+  priceRule: CalculatedRule,
+  quantityRule: CalculatedRule,
+  expiryRule: CalculatedRule,
+): any[] => {
   return [
     ...(priceRule.bonusProducts || []),
     ...(quantityRule.bonusProducts || []),
-    ...(expiryRule.bonusProducts || [])
+    ...(expiryRule.bonusProducts || []),
   ];
 };
 
 // Helper function to find the max value rule (excluding bonus type)
-const findMaxValueRule = (priceRule: CalculatedRule, quantityRule: CalculatedRule, expiryRule: CalculatedRule): CalculatedRule => {
+const findMaxValueRule = (
+  priceRule: CalculatedRule,
+  quantityRule: CalculatedRule,
+  expiryRule: CalculatedRule,
+): CalculatedRule => {
   const rules = [priceRule, quantityRule, expiryRule];
-  return rules.reduce((prev, current) => {
-    if (prev.value > current.value && prev.type !== 'bonus') {
+  return rules.reduce(
+    (prev, current) => {
+      if (prev.value > current.value && prev.type !== 'bonus') {
+        return prev;
+      } else if (current.type !== 'bonus') {
+        return current;
+      }
       return prev;
-    } else if (current.type !== 'bonus') {
-      return current;
-    }
-    return prev;
-  }, { type: '', value: 0 } as CalculatedRule);
+    },
+    { type: '', value: 0 } as CalculatedRule,
+  );
 };
 
 // Helper function to process a single item against a plan
@@ -137,8 +157,13 @@ const processItemWithPlan = (
   plan: any,
   totalAmount: number,
   defaultValue: number,
-  result: Record<string, { type: string; value: number; bonusProducts: any[] }>
-): { type: string; value: number; bonusProducts: any[]; shouldApply: boolean } => {
+  result: Record<string, { type: string; value: number; bonusProducts: any[] }>,
+): {
+  type: string;
+  value: number;
+  bonusProducts: any[];
+  shouldApply: boolean;
+} => {
   const priceRule = calculatePriceRule(plan, item, totalAmount, defaultValue);
   const quantityRule = calculateQuantityRule(plan, item, defaultValue);
   const expiryRule = calculateExpiryRule(plan, item, defaultValue);
@@ -184,7 +209,7 @@ const updateResultWithCalculations = (
   value: number,
   bonusProducts: any[],
   plan: any,
-  result: Record<string, { type: string; value: number; bonusProducts: any[] }>
+  result: Record<string, { type: string; value: number; bonusProducts: any[] }>,
 ): void => {
   if (type !== 'bonus') {
     result[itemId].type = type;
@@ -202,7 +227,7 @@ const updateResultWithCalculations = (
     if (plan.isPriority) {
       result[itemId].bonusProducts = [
         ...result[itemId].bonusProducts,
-        ...bonusProducts
+        ...bonusProducts,
       ];
     } else {
       result[itemId].bonusProducts = bonusProducts;
@@ -215,14 +240,14 @@ const applyBundleCalculation = (
   plan: any,
   appliedBundleItems: any[],
   appliedBundleCounts: number,
-  result: Record<string, { type: string; value: number; bonusProducts: any[] }>
+  result: Record<string, { type: string; value: number; bonusProducts: any[] }>,
 ): void => {
   if (plan.applyType !== 'bundle') return;
 
   appliedBundleItems.forEach((item: any) => {
     if (result[item.itemId].type !== 'bonus') {
       result[item.itemId].value = Math.floor(
-        (result[item.itemId].value / item.quantity) * appliedBundleCounts
+        (result[item.itemId].value / item.quantity) * appliedBundleCounts,
       );
     }
   });
@@ -247,19 +272,22 @@ export const checkPricing = async (params: {
     departmentId,
     branchId,
     pipelineId,
-    orderItems
+    orderItems,
   } = params;
 
-  const productIds = orderItems.map(p => p.productId);
-  const result: Record<string, { type: string; value: number; bonusProducts: any[] }> = {};
+  const productIds = orderItems.map((p) => p.productId);
+  const result: Record<
+    string,
+    { type: string; value: number; bonusProducts: any[] }
+  > = {};
 
   // Initialize result structure
-  orderItems.forEach(item => {
+  orderItems.forEach((item) => {
     if (!result[item.itemId]) {
       result[item.itemId] = {
         type: '',
         value: 0,
-        bonusProducts: []
+        bonusProducts: [],
       };
     }
   });
@@ -275,7 +303,7 @@ export const checkPricing = async (params: {
   // Fix: Use proper sort order type for MongoDB
   const sortArgs: Record<string, 1 | -1> = {
     isPriority: 1,
-    value: 1
+    value: 1,
   };
 
   const plans = await models.PricingPlans.find(conditions).sort(sortArgs);
@@ -286,7 +314,11 @@ export const checkPricing = async (params: {
 
   // Process each plan
   for (const plan of plans) {
-    const allowedProductIds = await getAllowedProducts(subdomain, plan, productIds || []);
+    const allowedProductIds = await getAllowedProducts(
+      subdomain,
+      plan,
+      productIds || [],
+    );
 
     if (!checkRepeatRule(plan)) {
       continue;
@@ -315,18 +347,30 @@ export const checkPricing = async (params: {
         plan,
         totalAmount,
         defaultValue,
-        result
+        result,
       );
 
       if (shouldApply) {
         // Update result with calculated values
-        updateResultWithCalculations(item.itemId, type, value, bonusProducts, plan, result);
+        updateResultWithCalculations(
+          item.itemId,
+          type,
+          value,
+          bonusProducts,
+          plan,
+          result,
+        );
         appliedBundleItems.push(item);
       }
     }
 
     // Apply bundle calculation if needed
-    applyBundleCalculation(plan, appliedBundleItems, appliedBundleCounts, result);
+    applyBundleCalculation(
+      plan,
+      appliedBundleItems,
+      appliedBundleCounts,
+      result,
+    );
   }
 
   return result;
