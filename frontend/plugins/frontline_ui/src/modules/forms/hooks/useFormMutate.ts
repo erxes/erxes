@@ -17,11 +17,12 @@ import { toast } from 'erxes-ui';
 import { useFormDetail } from './useFormDetail';
 
 export const useFormMutate = () => {
-  const { formId: id, id: channelId } = useParams();
+  const { formId: id, id: _channelId } = useParams();
   const navigate = useNavigate();
   const formSetupValues = useAtomValue(formSetupValuesAtom);
   const resetFormSetup = useSetAtom(resetFormSetupAtom);
   const { formDetail } = useFormDetail({ formId: id as string });
+  const channelId = formDetail?.channelId || _channelId;
   const { addForm, isAddingForm, client: addFormClient } = useFormAdd();
   const { editForm, loading: isEditingForm } = useFormEdit();
   const [createLeadIntegration, { loading: isCreatingIntegration }] =
@@ -77,6 +78,11 @@ export const useFormMutate = () => {
                 (field) =>
                   !formDetail?.fields.some((f) => f._id === field.tempFieldId),
               ),
+              removedFieldIds: (formDetail?.fields || [])
+                .filter(
+                  (f) => !formFields.some((field) => field.tempFieldId === f._id),
+                )
+                .map((f) => f._id),
             },
           });
         },
@@ -123,6 +129,9 @@ export const useFormMutate = () => {
       });
     }
     resetFormSetup();
+    if (!_channelId) {
+      navigate(`/frontline/forms`);
+    }
     navigate(`/settings/frontline/channels/${channelId}/forms`);
   };
 

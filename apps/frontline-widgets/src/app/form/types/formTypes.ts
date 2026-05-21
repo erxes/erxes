@@ -90,3 +90,11 @@ export interface IFormData {
   channelId: string;
   integrationId: string | null;
 }
+
+export type IAttachment = {
+  url: string;
+  name: string;
+  size: number;
+  type: string;
+  duration?: number;
+};
