@@ -112,6 +112,27 @@ Delete `console.log` / `console.warn` before declaring done unless the file's pu
 ### `any` to silence the type checker
 If you reach for `any`, **stop**. Either widen the type properly, or fix the underlying issue.
 
+### TS literal-union field without schema-level enum constraint (the type lies)
+```ts
+// ❌ slop
+// IDeal.ts
+interface IDeal { riskLevel?: 'low' | 'medium' | 'high' }
+
+// deals.ts (Mongoose)
+riskLevel: { type: String, optional: true }  // no enum!
+```
+The TypeScript layer says only three values are allowed; Mongoose accepts any string. A non-UI write (tRPC, direct Mongo, forged GraphQL) can store `'urgent'`. The type lies. Add `enum: ['low', 'medium', 'high']` to the Mongoose path OR declare a GraphQL `enum` type and resolve it strictly. The runtime guard must match the static type.
+
+### Function names cited but not grep-verified
+```markdown
+<!-- ❌ slop in a PR body / REVIEW.md / doc -->
+> auto-discovered by `generateSalesFields`
+```
+Before citing a function name in any artifact a human will read, `grep -rn '<name>'` and confirm both location and role. Skill files can be approximations; PR bodies and reviews cannot. Inheriting imprecise quotations is how docs drift.
+
+### Premature flexibility inherited from precedent
+Mirroring a sister field that uses `$in:` for filter when only single-value selection exists in the UI? You inherited an unbuilt multi-select. Either build the UI side or simplify the filter to single-value. Document the decision in GROUND.md's "Deviations from sister." Slop from precedent is still slop.
+
 ## How to use this checklist
 
 At the end of every phase (especially Phase 5 IMPLEMENT and Phase 6 VERIFY):

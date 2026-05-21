@@ -82,6 +82,24 @@ Quarterly: re-read this file end to end. Lessons that are now baked into rules/s
 **Lesson:** When adding a field, consider whether it's needed on the **list query** (board, table) or only on the **detail query** (one-deal fetch). If detail-only, add to `dealDetail` fragments instead of `commonListFields`. Not a slop blocker for small scalars; matters for arrays, JSON, or fields with N+1 resolvers.
 **Where applicable:** `add-deal-field.md` — add a "list-vs-detail fragment" note. Future fields like big JSON or arrays should default to detail-only.
 
+## 2026-05-22 — Default-at-read vs default-at-write — the existence trade-off
+**Symptom:** `riskLevel` defaults to `'low'` at every read site via `asRiskLevel(value)` coercion. Existing deals have `undefined` in Mongo until a user explicitly sets the field. No migration needed; the UI always renders correctly.
+**Root cause:** Choice between (a) backfill all existing deals to `'low'` at write-time vs (b) coerce at read-time. Default-at-read is cheaper to ship but creates hidden state — "most deals have undefined here." A future query like `models.Deals.find({ riskLevel: 'low' })` would NOT return undefined-deals; you'd need `{ $or: [{ riskLevel: 'low' }, { riskLevel: { $exists: false } }] }`.
+**Lesson:** Default-at-read is acceptable for display-only fields. If the field is ever used as a query criterion or sorted server-side, prefer default-at-write (or a one-time backfill migration). When you choose default-at-read, document the implication in the SPEC's "Out of scope" — "no backfill migration; existing deals have null".
+**Where applicable:** `add-deal-field.md` — add a "default-at-read vs default-at-write" decision step to Phase 2 SPEC; `data-model.md` should call out which Deal fields default at read.
+
+## 2026-05-22 — TS narrowing without Mongoose enforcement (the type lies)
+**Symptom:** PR #7758 declares `IDeal.riskLevel?: 'low' | 'medium' | 'high'` (a 3-value union) in TypeScript, but the Mongoose schema is `{ type: String, optional: true }` — no `enum:` constraint. A tRPC call, a direct Mongo write, or a forged GraphQL mutation could store `riskLevel: 'urgent'`. The TypeScript type would lie; the UI would render the default; the bug would only surface months later.
+**Root cause:** Mirroring `priority` 1:1 — but `priority` is a free-text string with no enum semantics. Narrowing the TS type without narrowing the schema produces a soft contract that breaks under any non-UI write path.
+**Lesson:** When you narrow a TS type to a literal union, narrow the data layer too. Mongoose: add `enum: ['low', 'medium', 'high']` to the schema path. GraphQL: declare an actual `enum RiskLevel` rather than `String`. The runtime guard then matches the static type.
+**Where applicable:** `add-deal-field.md` Phase 3 GROUND — when the wish narrows the type, the sister's loose typing is a misleading mirror. New `SLOP-CHECKLIST.md` entry: "TS literal-union field without schema-level enum constraint."
+
+## 2026-05-22 — Single-value filter shaped as an array (premature flexibility from mirror)
+**Symptom:** The action-bar `riskLevel` filter writes `[value]` (always length 1) and the resolver uses `filter.riskLevel = { $in: riskLevel }`. The `$in` over a one-element array is functionally equivalent to `{ riskLevel: value }`. No UI supports multi-select. The array shape is dead code.
+**Root cause:** `priority` does the same thing — the GraphQL `queryParams` declares `priority: [String]` and the resolver does `$in`. Mirroring 1:1 inherits the unused flexibility. This is the "just-in-case parameters" slop pattern from SLOP-CHECKLIST.md, but inherited from precedent rather than invented.
+**Lesson:** When mirroring precedent, audit the precedent for slop too. If `priority`'s array shape exists because it was supposed to support multi-select but the UI never shipped that, the new field inherits a half-built feature. Either build the UI side (proper feature) or simplify to single-value (less code). Document the decision in GROUND.md "Deviations from sister."
+**Where applicable:** `add-deal-field.md` — add an explicit "audit precedent for slop" step to Phase 3 GROUND; `SLOP-CHECKLIST.md` "just-in-case parameters" entry should note that the pattern can be inherited, not just invented.
+
 ## 2026-05-22 — tRPC procedures return `{ status, data | errorMessage }`
 **Symptom:** Easy to write a tRPC procedure that returns bare values; existing procedures in the sales plugin wrap with `{ status: 'success' | 'error', data | errorMessage }`.
 **Root cause:** Convention is not enforced by tRPC itself; only by precedent.
