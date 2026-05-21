@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconAt, IconBuildingStore, IconHash, IconPlus } from '@tabler/icons-react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
-import { Button, Checkbox, Form, Input, RecordTable, RecordTableInlineCell, Select, Sheet, Spinner } from 'erxes-ui';
+import { Button, Checkbox, Form, Input, RecordTable, RecordTableInlineCell, Select, Sheet } from 'erxes-ui';
 import { checkboxColumn } from 'erxes-ui/modules/record-table/components/CheckboxColumn';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -364,7 +364,7 @@ const buildColumns = ({
     header: () => <RecordTable.InlineHead icon={IconHash} label="Title" />,
     cell: ({ row }) => (
       <ErkhetConfigTitleCell
-        config={row.original as any}
+        config={{ _id: row.original._id ?? '', title: row.original.title }}
         renderEditSheet={(open, onOpenChange) => (
           <PosOrderErkhetConfigEditSheet
             config={row.original}
