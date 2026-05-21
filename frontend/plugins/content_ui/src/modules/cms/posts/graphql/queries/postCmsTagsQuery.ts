@@ -4,6 +4,7 @@ export const POST_CMS_TAGS = gql`
   query CmsTags(
     $clientPortalId: String
     $cursor: String
+    $limit: Int
     $cursorMode: CURSOR_MODE
     $direction: CURSOR_DIRECTION
     $orderBy: JSON
@@ -17,6 +18,7 @@ export const POST_CMS_TAGS = gql`
     cmsTags(
       clientPortalId: $clientPortalId
       cursor: $cursor
+      limit: $limit
       cursorMode: $cursorMode
       direction: $direction
       orderBy: $orderBy
@@ -36,6 +38,12 @@ export const POST_CMS_TAGS = gql`
         slug
         updatedAt
         __typename
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
       }
       __typename
     }

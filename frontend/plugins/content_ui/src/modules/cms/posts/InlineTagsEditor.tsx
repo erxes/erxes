@@ -18,6 +18,7 @@ export function InlineTagsEditor({
   const [tags, setTags] = useState(initialTags);
   const { tags: allTags, loading: loadingTags } = useTags({
     clientPortalId: websiteId || '',
+    fetchAll: true,
   });
   const [updatePost] = useMutation(CMS_POSTS_EDIT, {
     onError: (error) => {
