@@ -4,6 +4,7 @@ import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
+import { RiskLevelBadge } from '@/deals/components/deal-selects/RiskLevelInline';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { IDeal } from '@/deals/types/deals';
 import { IconAlertCircleFilled } from '@tabler/icons-react';
@@ -95,6 +96,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     assignedUsers,
     _id,
     priority,
+    riskLevel,
     createdAt,
     closeDate,
     labels,
@@ -158,6 +160,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             value={priority || ''}
             variant="card"
           />
+          <RiskLevelBadge level={riskLevel} />
           <SelectLabels.FilterBar
             filterKey=""
             mode="multiple"
