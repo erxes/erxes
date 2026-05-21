@@ -59,6 +59,7 @@ export const generateFilter = async (
     initialStageId,
     labelIds,
     priority,
+    riskLevel,
     userIds,
     tagIds,
     segment,
@@ -358,6 +359,10 @@ export const generateFilter = async (
 
   if (priority) {
     filter.priority = { $in: priority };
+  }
+
+  if (riskLevel) {
+    filter.riskLevel = { $in: riskLevel };
   }
 
   if (tagIds) {
