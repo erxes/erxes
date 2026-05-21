@@ -5,13 +5,19 @@ export interface ISyncHistory {
   contentId: string;
   createdAt: Date;
   createdBy: string;
-  consumeData: string;
+  consumeData: any;
   consumeStr: string;
-  sendData: string;
+  sendData: any;
   sendStr: string;
-  responseData: string;
+  responseData: any;
   responseStr: string;
   error: string;
   content: string;
-  createdUser: string;
+  createdUser?: {
+    _id: string;
+    email?: string;
+    details?: {
+      fullName?: string;
+    };
+  };
 }

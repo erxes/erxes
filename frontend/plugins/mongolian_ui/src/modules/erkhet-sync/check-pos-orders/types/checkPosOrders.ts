@@ -4,6 +4,11 @@ export interface ICheckPosOrders {
   totalAmount: string;
   createdAt: string;
   paidDate: string;
+  unSynced?: string;
+  isSynced?: boolean;
+  syncedDate?: string;
+  syncedBillNumber?: string;
+  syncedCustomer?: string;
   __typename: string;
 }
 

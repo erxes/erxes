@@ -5,9 +5,13 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { cn, Combobox, Command, PopoverScoped, SelectTriggerVariant } from 'erxes-ui';
+import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
 
-import { SelectContent, SelectTrigger } from './SelectShared';
+import {
+  SelectContent,
+  SelectTrigger,
+  SelectTriggerVariant,
+} from './SelectShared';
 import { useGetSalesStages } from '../../hooks/useGetSalesStages';
 interface IStage {
   _id: string;

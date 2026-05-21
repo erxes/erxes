@@ -5,11 +5,11 @@ export interface ICheckCategory {
   contentId: string;
   createdAt: Date;
   createdBy: string;
-  consumeData: string;
+  consumeData: any;
   consumeStr: string;
-  sendData: string;
+  sendData: any;
   sendStr: string;
-  responseData: string;
+  responseData: any;
   responseStr: string;
   error: string;
   content: string;

@@ -5,7 +5,7 @@ import {
   IconUser,
   IconCalendarPlus,
 } from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/table-core';
+import { ColumnDef } from '@tanstack/react-table';
 import {
   RecordTable,
   TextOverflowTooltip,
@@ -35,27 +35,31 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
     },
   },
   {
-    id: 'consumeData.user.email',
-    accessorKey: 'consumeData.user.email',
+    id: 'createdUser',
+    accessorKey: 'createdUser',
     header: () => <RecordTable.InlineHead icon={IconHash} label="User" />,
-    cell: ({ cell }) => {
+    cell: ({ row }) => {
+      const user = row.original.createdUser;
+      const value =
+        user?.email || user?.details?.fullName || row.original.createdBy || '';
+
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={value} />
         </RecordTableInlineCell>
       );
     },
   },
   {
-    id: 'consumeData.type',
-    accessorKey: 'consumeData.type',
+    id: 'contentType',
+    accessorKey: 'contentType',
     header: () => (
       <RecordTable.InlineHead icon={IconCurrencyDollar} label="Content Type" />
     ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
         </RecordTableInlineCell>
       );
     },
@@ -67,19 +71,28 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
         </RecordTableInlineCell>
       );
     },
   },
   {
-    id: 'responseData.message',
-    accessorKey: 'responseData.message',
+    id: 'error',
+    accessorKey: 'error',
     header: () => <RecordTable.InlineHead icon={IconCategory} label="Error" />,
-    cell: ({ cell }) => {
+    cell: ({ row }) => {
+      const { responseData, responseStr, error } = row.original;
+      const responseMessage =
+        typeof responseData === 'object'
+          ? responseData?.message ||
+            responseData?.error ||
+            responseData?.extra_info?.warnings
+          : '';
+      const value = error || responseMessage || responseStr || '';
+
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={String(value)} />
         </RecordTableInlineCell>
       );
     },
