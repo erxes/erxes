@@ -17,7 +17,7 @@ const clientPortalMutations = {
   async clientPortalTicketAdd(
     _root,
     doc: any & { processId: string; aboveItemId: string },
-    { models, subdomain, cpUser, user }: IContext
+    { models, subdomain, cpUser, user }: IContext,
   ) {
     if (!cpUser) {
       throw new Error("You are not logged in");
@@ -30,7 +30,7 @@ const clientPortalMutations = {
         action: "widgets.createTicket",
         data: { doc },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       // Step 2: Validate the response
@@ -46,7 +46,7 @@ const clientPortalMutations = {
         paymentStatus: "unpaid",
         paymentAmount: 0,
         offeredAmount: 0,
-        hasVat: false
+        hasVat: false,
       };
       try {
         await models.ClientPortalUserCards.create(data);
@@ -64,10 +64,10 @@ const clientPortalMutations = {
             ticketStatus: ticket.status || "new",
             ticketStageId: ticket.stageId || doc.stageId,
             ticketStageName: ticket.stageName || "",
-            ticketPriority: ticket.priority || doc.priority || "normal"
+            ticketPriority: ticket.priority || doc.priority || "normal",
           },
 
-          groupId: `ticket-${ticket._id}`
+          groupId: `ticket-${ticket._id}`,
         });
       } catch (err) {
         console.error("Error creating ClientPortalUserCard:", err);
@@ -83,15 +83,15 @@ const clientPortalMutations = {
   async clientPortalConfigUpdate(
     _root,
     { config }: { config: IClientPortal },
-    { models, subdomain, user }: IContext
+    { models, subdomain, user }: IContext,
   ) {
     try {
       const cpUser = await models.ClientPortalUsers.findOne({
         $or: [
           { email: { $regex: new RegExp(`^${config?.testUserEmail}$`, "i") } },
-          { phone: { $regex: new RegExp(`^${config?.testUserPhone}$`, "i") } }
+          { phone: { $regex: new RegExp(`^${config?.testUserPhone}$`, "i") } },
         ],
-        clientPortalId: config._id
+        clientPortalId: config._id,
       });
 
       if (!cpUser) {
@@ -112,12 +112,12 @@ const clientPortalMutations = {
             notificationSettings: {
               receiveByEmail: false,
               receiveBySms: false,
-              configs: []
-            }
+              configs: [],
+            },
           };
 
           await models.ClientPortalUsers.createTestUser(subdomain, {
-            ...args
+            ...args,
           });
         }
       }
@@ -133,8 +133,8 @@ const clientPortalMutations = {
         action: "registerOnboardHistory",
         data: {
           type: "clientPortalSetup",
-          user
-        }
+          user,
+        },
       });
     }
 
@@ -147,7 +147,7 @@ const clientPortalMutations = {
         "hotel",
         "restaurant",
         "tour",
-        "blog"
+        "blog",
       ].includes(config.template)
     ) {
       sendCommonMessage({
@@ -157,8 +157,8 @@ const clientPortalMutations = {
         data: {
           clientPortalId: cp._id,
           kind: config.template,
-          createdUserId: user._id
-        }
+          createdUserId: user._id,
+        },
       });
     }
 
@@ -168,7 +168,7 @@ const clientPortalMutations = {
   async clientPortalRemove(
     _root,
     { _id }: { _id: string },
-    { models, subdomain }: IContext
+    { models, subdomain }: IContext,
   ) {
     if (isEnabled("cms")) {
       sendCommonMessage({
@@ -176,8 +176,8 @@ const clientPortalMutations = {
         serviceName: "cms",
         action: "removePages",
         data: {
-          clientPortalId: _id
-        }
+          clientPortalId: _id,
+        },
       });
     }
 
@@ -187,7 +187,7 @@ const clientPortalMutations = {
   async clientPortalCreateCard(
     _root,
     args,
-    { subdomain, cpUser, models }: IContext
+    { subdomain, cpUser, models }: IContext,
   ) {
     if (!cpUser) {
       throw new Error("You are not logged in");
@@ -201,14 +201,14 @@ const clientPortalMutations = {
       type,
       cardId,
       cpUserIds,
-      oldCpUserIds
+      oldCpUserIds,
     }: {
       type: string;
       cardId: string;
       cpUserIds: [string];
       oldCpUserIds: [string];
     },
-    { subdomain, cpUser, models }: IContext
+    { subdomain, cpUser, models }: IContext,
   ) {
     return participantEditRelation(
       subdomain,
@@ -216,7 +216,7 @@ const clientPortalMutations = {
       type,
       cardId,
       oldCpUserIds,
-      cpUserIds
+      cpUserIds,
     );
   },
 
@@ -233,16 +233,16 @@ const clientPortalMutations = {
       offeredAmount: number;
       hasVat: Boolean;
     },
-    { subdomain, cpUser, models }: IContext
+    { subdomain, cpUser, models }: IContext,
   ) {
     const { _id, ...rest } = args;
     await models.ClientPortalUserCards.updateOne(
       { _id: args._id },
       {
         $set: {
-          ...rest
-        }
-      }
+          ...rest,
+        },
+      },
     );
     return models.ClientPortalUserCards.findOne({ _id: args._id });
   },
@@ -251,89 +251,117 @@ const clientPortalMutations = {
     _root,
     {
       clientPortalId,
-      transactionId
+      transactionId,
     }: { clientPortalId: string; transactionId: string },
-    { models }: IContext
+    { models }: IContext,
   ) {
-    const clientPortal = await models.ClientPortals.findOne({
-      _id: clientPortalId
-    });
-    if (!clientPortal) {
-      throw new Error("Client portal not found");
-    }
-    const tokiConfig = clientPortal.tokiConfig;
-    if (!tokiConfig) {
-      throw new Error("Toki config not found");
-    }
-
-    const testApiUrl = getEnv({ name: "TOKI_TEST_API_URL" });
-    const prodApiUrl = getEnv({ name: "TOKI_PRODUCTION_API_URL" });
-
-    const apiUrl = tokiConfig.production ? prodApiUrl : testApiUrl;
-    const { username, password, apiKey } = tokiConfig;
-
-    const authString = Buffer.from(`${username}:${password}`).toString(
-      "base64"
-    );
-
-    console.log({ apiUrl, Authorization: `Basic ${authString}` });
-
-    const response = await fetch(
-      `https://${apiUrl}/third-party-service/v1/auth/token`,
-      {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: `Basic ${authString}`
-        }
-      }
-    );
-
-    console.log({ response });
-    const contentType = response.headers.get("content-type");
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Toki API Error (${response.status}): ${errorText}`);
-    }
-
-    if (contentType && contentType.includes("application/json")) {
-      const data: any = await response.json();
-      const { accessToken } = data.data;
-      console.log({
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-        "api-key": apiKey
+    try {
+      console.log("clientPortalCheckTokiInvoice", {
+        clientPortalId,
+        transactionId,
       });
-      const invoiceResponse = await fetch(
-        `https://${apiUrl}/third-party-service/v1/payment-request/status?requestId=${transactionId}`,
+
+      const clientPortal = await models.ClientPortals.findOne({
+        _id: clientPortalId,
+      });
+
+      if (!clientPortal) {
+        console.log(`Client portal with ID ${clientPortalId} not found`);
+        throw new Error("Client portal not found");
+      }
+
+      const tokiConfig = clientPortal.tokiConfig;
+
+      console.log("tokiConfig", tokiConfig);
+
+      if (!tokiConfig) {
+        console.log("tokiConfig", tokiConfig);
+        throw new Error("Toki config not found");
+      }
+
+      const testApiUrl = getEnv({ name: "TOKI_TEST_API_URL" });
+
+      console.log("testApiUrl", testApiUrl);
+
+      const prodApiUrl = getEnv({ name: "TOKI_PRODUCTION_API_URL" });
+
+      console.log("prodApiUrl", prodApiUrl);
+
+      const apiUrl = tokiConfig.production ? prodApiUrl : testApiUrl;
+
+      console.log("apiUrl", apiUrl);
+
+      const { username, password, apiKey } = tokiConfig;
+
+      const authString = Buffer.from(`${username}:${password}`).toString(
+        "base64",
+      );
+
+      console.log({ apiUrl, Authorization: `Basic ${authString}` });
+
+      const response = await fetch(
+        `https://${apiUrl}/third-party-service/v1/auth/token`,
         {
           method: "GET",
           headers: {
+            Accept: "application/json",
             "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-            "api-key": apiKey
-          }
-        }
+            Authorization: `Basic ${authString}`,
+          },
+        },
       );
 
-      console.log({ invoiceResponse: await invoiceResponse.json() });
+      console.log({ response });
+      const contentType = response.headers.get("content-type");
 
-      return await invoiceResponse.json();
-    } else {
-      const text = await response.text();
-      throw new Error(`Expected JSON but received: ${text}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Toki API Error (${response.status}): ${errorText}`);
+      }
+
+      if (contentType && contentType.includes("application/json")) {
+        const data: any = await response.json();
+        const { accessToken } = data.data;
+        console.log({
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+          "api-key": apiKey,
+        });
+        const invoiceResponse = await fetch(
+          `https://${apiUrl}/third-party-service/v1/payment-request/status?requestId=${transactionId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${accessToken}`,
+              "api-key": apiKey,
+            },
+          },
+        );
+
+        console.log({ invoiceResponse: await invoiceResponse.json() });
+
+        return await invoiceResponse.json();
+      } else {
+        const text = await response.text();
+        throw new Error(`Expected JSON but received: ${text}`);
+      }
+    } catch (error) {
+      console.log("error", error);
+
+      throw new Error(
+        `Error checking Toki invoice: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   },
 
   async checkTokiUserLegalAge(
     _root,
     { clientPortalId, token },
-    { models }: IContext
+    { models }: IContext,
   ) {
     const clientPortal = await models.ClientPortals.findOne({
-      _id: clientPortalId
+      _id: clientPortalId,
     });
     if (!clientPortal) {
       throw new Error("Client portal not found");
@@ -355,9 +383,9 @@ const clientPortalMutations = {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
-          "api-key": apiKey
-        }
-      }
+          "api-key": apiKey,
+        },
+      },
     );
 
     const { data = {} } = ((await response.json()) || {}) as any;
@@ -365,19 +393,19 @@ const clientPortalMutations = {
     const isAdult = data?.isAdult;
 
     return Boolean(isAdult);
-  }
+  },
 };
 
 checkPermission(
   clientPortalMutations,
   "clientPortalConfigUpdate",
-  "manageClientPortal"
+  "manageClientPortal",
 );
 
 checkPermission(
   clientPortalMutations,
   "clientPortalRemove",
-  "removeClientPortal"
+  "removeClientPortal",
 );
 
 export default clientPortalMutations;
