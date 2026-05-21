@@ -7,14 +7,14 @@ import {
 } from '../../constants/formSchema';
 import { LoyaltyScoreAddCoreFields } from './LoyaltyScoreAddCoreFields';
 import { LoyaltyScoreAddMoreFields } from './LoyaltyScoreAddMoreFields';
-import { AddScoreVariables, useAddScore } from '../hooks/useAddLoyaltyScore';
+import { AddScoreCampaignVariables, useAddScoreCampaign } from '../hooks/useAddLoyaltyScore';
 
 export function AddLoyaltyScoreForm({
   onOpenChange,
 }: Readonly<{
   onOpenChange: (open: boolean) => void;
 }>) {
-  const { scoreAdd, loading: editLoading } = useAddScore();
+  const { scoreCampaignAdd, loading: editLoading } = useAddScoreCampaign();
   const form = useForm<LoyaltyScoreFormValues>({
     resolver: zodResolver(loyaltyScoreFormSchema),
     defaultValues: {
@@ -54,7 +54,7 @@ export function AddLoyaltyScoreForm({
         refundStageIds: rule.refundStageIds || [],
       }));
 
-    const variables: AddScoreVariables = {
+    const variables: AddScoreCampaignVariables = {
       title: data.title,
       description: data.description || '',
       serviceName: data.conditions.serviceName,
@@ -81,7 +81,7 @@ export function AddLoyaltyScoreForm({
       fieldId: data.fieldId,
     };
 
-    scoreAdd({
+    scoreCampaignAdd({
       variables,
       onCompleted: () => {
         form.reset();
