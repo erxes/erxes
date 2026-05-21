@@ -74,6 +74,7 @@ export interface IDeal {
   customFieldsData?: ICustomField[];
   propertiesData?: IPropertyField[];
   score?: number;
+  confidenceScore?: number;
   number?: string;
   data?: any;
   tagIds?: string[];

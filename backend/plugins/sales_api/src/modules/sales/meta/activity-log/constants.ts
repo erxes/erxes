@@ -6,4 +6,5 @@ export const DEAL_ACTIVITY_FIELDS = [
   { field: 'closeDate', label: 'Close Date' },
   { field: 'number', label: 'Deal Number' },
   { field: 'score', label: 'Score' },
+  { field: 'confidenceScore', label: 'Confidence score' },
 ] as const;

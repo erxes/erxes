@@ -123,6 +123,13 @@ export const dealSchema = schemaWrapper(
         label: 'Score',
         esType: 'number',
       },
+      confidenceScore: {
+        type: Number,
+        default: 50,
+        min: 0,
+        max: 100,
+        label: 'Confidence score',
+      },
       number: {
         type: String,
         unique: true,
