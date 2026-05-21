@@ -29,6 +29,7 @@ export interface IItem {
     columnId?: string;
     isWatched?: boolean;
     priority?: string;
+    confidenceScore?: number;
     hasNotified?: boolean;
     isComplete: boolean;
     reminderMinute: number;
