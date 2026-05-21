@@ -141,8 +141,10 @@ const Progress = () => {
 
   const hasPrintedRef = useRef(false)
   const latestItemsRef = useRef<OrderItem[]>([])
+  const nextQzGroupPositionRef = useRef(0)
 
   const setGroupedItems = useCallback((groupedItems: OrderItem[][]) => {
+    nextQzGroupPositionRef.current = 0
     setCurrentGroupIndex(null)
     setItemsToPrint(groupedItems)
     setIsCategoryLoaded(true)
@@ -327,6 +329,7 @@ const Progress = () => {
       )
 
       if (printed) {
+        nextQzGroupPositionRef.current = 0
         handleAfterPrint()
         return
       }
@@ -344,7 +347,16 @@ const Progress = () => {
 
   const printQzGroups = useCallback(
     (nonEmptyIndexes: number[]) => {
-      const missingPrinter = nonEmptyIndexes.find(
+      const completedPosition = nextQzGroupPositionRef.current
+      const remainingIndexes = nonEmptyIndexes.slice(completedPosition)
+
+      if (remainingIndexes.length === 0) {
+        nextQzGroupPositionRef.current = 0
+        handleAfterPrint()
+        return
+      }
+
+      const missingPrinter = remainingIndexes.find(
         (index) => !(qzCategoryPrinters[index] || "").trim()
       )
 
@@ -364,11 +376,15 @@ const Progress = () => {
         }
 
         try {
-          for (const index of nonEmptyIndexes) {
+          for (let offset = 0; offset < remainingIndexes.length; offset++) {
+            const index = remainingIndexes[offset]
             setCurrentGroupIndex(index)
             await wait(QZ_GROUP_PRINT_DELAY_MS)
             await printViaQz(qzCategoryPrinters[index])
+            nextQzGroupPositionRef.current = completedPosition + offset + 1
           }
+
+          nextQzGroupPositionRef.current = 0
           handleAfterPrint()
         } catch {
           onError(QZ_TRAY_NOT_RUNNING_MESSAGE)
@@ -390,6 +406,7 @@ const Progress = () => {
       const printed = await printWithQz(qzMainPrinter, QZ_GROUP_PRINT_DELAY_MS)
 
       if (printed) {
+        nextQzGroupPositionRef.current = 0
         handleAfterPrint()
         return
       }

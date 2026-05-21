@@ -7,7 +7,7 @@ import {
   QZ_TRAY_NOT_RUNNING_MESSAGE,
 } from "@/lib/qzTray"
 
-export type QzPrintersState = {
+export interface IQzPrintersState {
   printers: string[]
   loading: boolean
   error: string | null
@@ -15,7 +15,7 @@ export type QzPrintersState = {
   refresh: () => Promise<void>
 }
 
-const useQzPrinters = (enabled: boolean): QzPrintersState => {
+const useQzPrinters = (enabled: boolean): IQzPrintersState => {
   const [printers, setPrinters] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
