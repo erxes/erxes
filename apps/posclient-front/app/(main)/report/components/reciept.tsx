@@ -220,13 +220,17 @@ const Receipt = ({ date, report }: any) => {
     return normalizeText(product.name).toLowerCase().includes("service charge")
   }
 
-  const getProductKey = (product: ReportProduct, fallbackKey: string) =>
-    product._id ||
-    product.productId ||
-    product.id ||
-    product.code ||
-    product.name ||
-    fallbackKey
+  const getProductKey = (product: ReportProduct, fallbackKey: string) => {
+    const productIdentifier =
+      product._id ||
+      product.productId ||
+      product.id ||
+      product.code ||
+      product.name ||
+      "unknown"
+
+    return `${fallbackKey}:${productIdentifier}`
+  }
 
   const renderProduct = (
     product: ReportProduct,
@@ -266,15 +270,11 @@ const Receipt = ({ date, report }: any) => {
     categoryKey: string,
     ordersAmounts?: any
   ) => {
-    const key =
-      category._id ||
-      category.id ||
-      category.code ||
-      category.name ||
-      categoryKey
+    const categoryIdentifier =
+      category._id || category.id || category.code || category.name || "unknown"
 
     return (
-      <Fragment key={key}>
+      <Fragment key={`${categoryKey}:${categoryIdentifier}`}>
         <div className="report-print__category">
           <b className="font-semibold">
             {`Барааны бүлэг: `} {category.name}

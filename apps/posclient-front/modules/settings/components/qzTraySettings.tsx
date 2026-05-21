@@ -9,6 +9,7 @@ import {
   type ThermalPaperWidth,
 } from "@/store"
 import { configAtom } from "@/store/config.store"
+import type { CheckedState } from "@radix-ui/react-checkbox"
 import { Label } from "@radix-ui/react-label"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 
@@ -54,8 +55,10 @@ const QzTraySettings = () => {
     setShowInstallDialog(false)
   }
 
-  const handleToggle = (checked: boolean) => {
-    if (checked) {
+  const handleToggle = (checked: CheckedState) => {
+    const isChecked = checked === true
+
+    if (isChecked) {
       if (!qzEnabled) {
         setShowInstallDialog(true)
         return
@@ -78,7 +81,7 @@ const QzTraySettings = () => {
         <Checkbox
           id="qzTrayEnabled"
           checked={qzEnabled}
-          onCheckedChange={(checked: boolean) => handleToggle(!!checked)}
+          onCheckedChange={handleToggle}
         />
         Автоматаар хэвлэх / QZ Tray ашиглах
       </Label>

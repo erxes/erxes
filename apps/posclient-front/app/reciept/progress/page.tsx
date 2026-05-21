@@ -283,6 +283,10 @@ const Progress = () => {
     return true
   }, [])
 
+  const allowPrintRetry = useCallback(() => {
+    hasPrintedRef.current = false
+  }, [])
+
   const printWithQz = useCallback(
     async (printerName: string, delayMs: number) => {
       const ok = await ensureQzConnected()
@@ -312,15 +316,31 @@ const Progress = () => {
 
     if (!qzMainPrinter) {
       onError("Үндсэн принтер сонгогдоогүй байна")
-      handleAfterPrint()
+      allowPrintRetry()
       return
     }
 
     void (async () => {
-      await printWithQz(qzMainPrinter, QZ_CUSTOMER_PRINT_DELAY_MS)
-      handleAfterPrint()
+      const printed = await printWithQz(
+        qzMainPrinter,
+        QZ_CUSTOMER_PRINT_DELAY_MS
+      )
+
+      if (printed) {
+        handleAfterPrint()
+        return
+      }
+
+      allowPrintRetry()
     })()
-  }, [handleAfterPrint, printWithQz, qzEnabled, qzMainPrinter, triggerPrint])
+  }, [
+    allowPrintRetry,
+    handleAfterPrint,
+    printWithQz,
+    qzEnabled,
+    qzMainPrinter,
+    triggerPrint,
+  ])
 
   const printQzGroups = useCallback(
     (nonEmptyIndexes: number[]) => {
@@ -330,7 +350,7 @@ const Progress = () => {
 
       if (missingPrinter !== undefined) {
         onError("Принтер сонгогдоогүй байна")
-        handleAfterPrint()
+        allowPrintRetry()
         return
       }
 
@@ -339,7 +359,7 @@ const Progress = () => {
 
         if (!ok) {
           onError(QZ_TRAY_NOT_RUNNING_MESSAGE)
-          handleAfterPrint()
+          allowPrintRetry()
           return
         }
 
@@ -349,14 +369,40 @@ const Progress = () => {
             await wait(QZ_GROUP_PRINT_DELAY_MS)
             await printViaQz(qzCategoryPrinters[index])
           }
+          handleAfterPrint()
         } catch {
           onError(QZ_TRAY_NOT_RUNNING_MESSAGE)
-        } finally {
-          handleAfterPrint()
+          allowPrintRetry()
         }
       })()
     },
-    [handleAfterPrint, printViaQz, qzCategoryPrinters]
+    [allowPrintRetry, handleAfterPrint, printViaQz, qzCategoryPrinters]
+  )
+
+  const printKitchenWithMainPrinter = useCallback(() => {
+    if (!qzMainPrinter) {
+      onError("Үндсэн принтер сонгогдоогүй байна")
+      allowPrintRetry()
+      return
+    }
+
+    void (async () => {
+      const printed = await printWithQz(qzMainPrinter, QZ_GROUP_PRINT_DELAY_MS)
+
+      if (printed) {
+        handleAfterPrint()
+        return
+      }
+
+      allowPrintRetry()
+    })()
+  }, [allowPrintRetry, handleAfterPrint, printWithQz, qzMainPrinter])
+
+  const hasCategoryPrintGroups = useCallback(
+    (nonEmptyIndexes: number[]) =>
+      hasCategoryFilters(forCustomer, categoryOrders) &&
+      nonEmptyIndexes.some((index) => (qzCategoryPrinters[index] || "").trim()),
+    [categoryOrders, forCustomer, qzCategoryPrinters]
   )
 
   const printSeparateGroups = useCallback(() => {
@@ -388,7 +434,14 @@ const Progress = () => {
 
   const printKitchenReceipts = useCallback(() => {
     if (qzEnabled) {
-      printQzGroups(getNonEmptyGroupIndexes(itemsToPrint))
+      const nonEmptyIndexes = getNonEmptyGroupIndexes(itemsToPrint)
+
+      if (hasCategoryPrintGroups(nonEmptyIndexes)) {
+        printQzGroups(nonEmptyIndexes)
+        return
+      }
+
+      printKitchenWithMainPrinter()
       return
     }
 
@@ -399,7 +452,9 @@ const Progress = () => {
 
     triggerPrint({ closeAfterPrint: true })
   }, [
+    hasCategoryPrintGroups,
     itemsToPrint,
+    printKitchenWithMainPrinter,
     printQzGroups,
     printSeparateGroups,
     printSeparately,

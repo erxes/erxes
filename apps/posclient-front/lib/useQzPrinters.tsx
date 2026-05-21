@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import {
   connectQz,
@@ -20,30 +20,56 @@ const useQzPrinters = (enabled: boolean): QzPrintersState => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [connected, setConnected] = useState(false)
+  const mountedRef = useRef(true)
+  const requestIdRef = useRef(0)
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      await connectQz()
-      const list = await findPrinters()
-      setPrinters(list)
-      setConnected(isQzActive())
-    } catch {
-      setConnected(false)
-      setError(QZ_TRAY_NOT_RUNNING_MESSAGE)
-    } finally {
-      setLoading(false)
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false
+      requestIdRef.current += 1
     }
   }, [])
 
+  const canUpdate = useCallback((requestId: number) => {
+    return mountedRef.current && requestIdRef.current === requestId
+  }, [])
+
+  const load = useCallback(async () => {
+    const requestId = requestIdRef.current + 1
+    requestIdRef.current = requestId
+    setLoading(true)
+    setError(null)
+
+    try {
+      await connectQz()
+      const list = await findPrinters()
+
+      if (!canUpdate(requestId)) return
+
+      setPrinters(list)
+      setConnected(isQzActive())
+    } catch {
+      if (!canUpdate(requestId)) return
+
+      setConnected(false)
+      setError(QZ_TRAY_NOT_RUNNING_MESSAGE)
+    } finally {
+      if (canUpdate(requestId)) {
+        setLoading(false)
+      }
+    }
+  }, [canUpdate])
+
   useEffect(() => {
     if (!enabled) {
+      requestIdRef.current += 1
       setPrinters([])
       setError(null)
       setConnected(false)
+      setLoading(false)
       return
     }
+
     load()
   }, [enabled, load])
 
