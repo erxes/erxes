@@ -102,16 +102,18 @@ export const sendSms = async (
     }
 
     try {
-      await fetch(
-        "https://api.messagepro.mn/send?" +
-          new URLSearchParams({
-            key: MESSAGE_PRO_API_KEY,
-            from: MESSAGE_PRO_PHONE_NUMBER,
-            to: phoneNumber,
-            text: content
-          })
-      );
-
+      await fetch("https://api-text.callpro.mn/v1/sms/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": MESSAGE_PRO_API_KEY,
+        },
+        body: JSON.stringify({
+          from: MESSAGE_PRO_PHONE_NUMBER,
+          to: phoneNumber,
+          text: content,
+        }),
+      });
       return "sent";
     } catch (e) {
       debugError(e.message);
