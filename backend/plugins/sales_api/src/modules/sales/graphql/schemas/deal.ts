@@ -41,6 +41,7 @@ const queryParams = `
   labelIds: [String]
   search: String
   priority: [String]
+  confidenceScoreMin: Int
   userIds: [String]
   segment: String
   segmentData: String
@@ -101,6 +102,7 @@ export const types = `
     stageId: String
     boardId: String
     priority: String
+    confidenceScore: Int
     status: String
     attachments: [Attachment]
     userId: String
@@ -212,6 +214,7 @@ const mutationParams = `
   reminderMinute: Int,
   isComplete: Boolean,
   priority: String,
+  confidenceScore: Int,
   status: String,
   sourceConversationIds: [String],
   propertiesData: JSON,
