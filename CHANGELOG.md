@@ -1,5 +1,25 @@
 
 
+## [3.0.25](https://github.com/erxes/erxes/compare/3.0.24...3.0.25) (2026-05-21)
+
+
+### Bug Fixes
+
+* **accounting:** transaction status improve ([#7737](https://github.com/erxes/erxes/issues/7737)) ([af56792](https://github.com/erxes/erxes/commit/af567922f06e6f55d06b1ad7e913a6de2c4f1739))
+* **content:** CMS tag and category pagination ([#7741](https://github.com/erxes/erxes/issues/7741)) ([b86aa27](https://github.com/erxes/erxes/commit/b86aa27fe71c3cbd72d753e564a5726e42d61bb5))
+* **loyalty:** clean code on pricing ([#7733](https://github.com/erxes/erxes/issues/7733)) ([5f89038](https://github.com/erxes/erxes/commit/5f890381c023e213f21c76da0a01ea238f73f7b5))
+* sessioncode on new tab new code ([#7739](https://github.com/erxes/erxes/issues/7739)) ([a104273](https://github.com/erxes/erxes/commit/a104273254d69abef0659be28891642a3a961d10))
+* update product handling and improve product type display in sale and deal move from detail([#7740](https://github.com/erxes/erxes/issues/7740)) ([d084ef0](https://github.com/erxes/erxes/commit/d084ef059b815625358e8327fd1e2c1c24ee22ba))
+
+
+### Features
+
+* add bulk permission change ([c0bc83d](https://github.com/erxes/erxes/commit/c0bc83dbe5ca6593f3bc740ec616caf6b87dd539))
+* add permission popup to invite members flow  ([c9000b5](https://github.com/erxes/erxes/commit/c9000b51574fe2b40fb01e5c2bd7d158d808abc1))
+* **content:** cms category translation, fix tag translation and more ([#7727](https://github.com/erxes/erxes/issues/7727)) ([7af0aa1](https://github.com/erxes/erxes/commit/7af0aa18ee73f270b5fb5a1361a3f27f4ae24484))
+* **frontline:** submissions & customer related fields ([#7747](https://github.com/erxes/erxes/issues/7747)) ([c6fd6a6](https://github.com/erxes/erxes/commit/c6fd6a6765901fc422296e737b98d365b0779ee8))
+* **mongolian:** Add checkPermission to mongolian resolvers ,meta permissions, add event logging for ProductRule and ProductGroup models ([#7735](https://github.com/erxes/erxes/issues/7735)) ([ddeac80](https://github.com/erxes/erxes/commit/ddeac80d0986d34288cd4e6f808516f804264b22))
+
 ## [3.0.24](https://github.com/erxes/erxes/compare/3.0.23...3.0.24) (2026-05-19)
 
 
