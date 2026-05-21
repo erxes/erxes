@@ -73,6 +73,7 @@ export const commonFields = `
   closeDate
   description
   priority
+  riskLevel
   assignedUserIds
   assignedUsers {
     _id
@@ -162,6 +163,7 @@ export const commonMutationVariables = `
   $isComplete: Boolean,
   $status: String,
   $priority: String,
+  $riskLevel: String,
   $sourceConversationIds: [String],
   $propertiesData: JSON,
   $tagIds: [String]
@@ -184,6 +186,7 @@ export const commonMutationParams = `
   isComplete: $isComplete,
   status: $status,
   priority: $priority,
+  riskLevel: $riskLevel,
   sourceConversationIds: $sourceConversationIds,
   propertiesData: $propertiesData,
   tagIds: $tagIds
