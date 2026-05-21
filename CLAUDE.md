@@ -1,5 +1,14 @@
 # CLAUDE.md - AI Assistant Guide for erxes
 
+> ⚠️ **Authoritative source: [`.agents/README.md`](./.agents/README.md)**
+>
+> All conventions, skills, docs, evals, and the Sales shipping workflow live in `.agents/`.
+> **New rules go in `.agents/rules/` — do not add new conventions here.** This file is preserved for tools that read it but is no longer the primary entry point.
+>
+> If you are shipping a Sales feature, use the 7-phase workflow at [`.agents/WORKFLOW.md`](./.agents/WORKFLOW.md) (entry: `/sales "<wish>"`).
+
+---
+
 This document provides comprehensive information about the erxes codebase structure, development workflows, and key conventions for AI assistants working on this project.
 
 ## Table of Contents

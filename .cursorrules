@@ -1,3 +1,9 @@
+// AUTHORITATIVE source: .agents/README.md
+// All conventions, skills, docs, evals, and the Sales shipping workflow live in .agents/.
+// New rules go in .agents/rules/ — do not add new conventions here. This file is preserved
+// for tools that read it but is no longer the primary entry point.
+// If shipping a Sales feature, use the 7-phase workflow at .agents/WORKFLOW.md (entry: /sales).
+
 You are an expert in TypeScript, Node.js, Router, React, Shadcn UI, Radix UI and Tailwind.
 
 Code Style and Structure
