@@ -95,6 +95,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     assignedUsers,
     _id,
     priority,
+    confidenceScore,
     createdAt,
     closeDate,
     labels,
@@ -102,6 +103,11 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     stage,
     tagIds,
   } = deal;
+
+  const confidence =
+    typeof confidenceScore === 'number'
+      ? Math.max(0, Math.min(100, confidenceScore))
+      : 50;
 
   const onCardClick = () => {
     setSalesItemId(_id);
@@ -151,6 +157,26 @@ export const DealsBoardCard = memo(function DealsBoardCard({
               </h5>
             </span>
           )}
+        </div>
+        <div
+          className="flex items-center gap-2"
+          aria-label="Confidence score"
+        >
+          <div
+            className="h-1.5 flex-1 rounded bg-muted overflow-hidden"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={confidence}
+          >
+            <div
+              className="h-full rounded bg-primary"
+              style={{ width: `${confidence}%` }}
+            />
+          </div>
+          <span className="text-xs text-muted-foreground tabular-nums">
+            {confidence}%
+          </span>
         </div>
         <div className="flex flex-wrap gap-1">
           <SelectDealPriority
