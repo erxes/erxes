@@ -34,6 +34,7 @@ export const DealsBoard = () => {
     Record<string, number>
   >({});
   const locallyMovedIdsRef = useRef<Record<string, string>>({});
+  const resetColumnsRef = useRef(columns);
 
   const { pagination, initColumn, setLoading, updateAfterFetch } =
     useColumnPagination(PAGE_SIZE);
@@ -72,29 +73,41 @@ export const DealsBoard = () => {
     () => JSON.stringify(queryVariables),
     [queryVariables],
   );
+  const columnIdsKey = useMemo(
+    () => columns.map((column: { _id: string }) => column._id).join(','),
+    [columns],
+  );
+
+  useEffect(() => {
+    resetColumnsRef.current = columns;
+  }, [columnIdsKey, columns]);
 
   useEffect(() => {
     setBoardState(null);
   }, [archivedOnly, setBoardState]);
 
   useEffect(() => {
-    if (columns.length === 0) return;
+    const resetColumns = resetColumnsRef.current;
+
+    if (resetColumns.length === 0) return;
 
     const resetState: DealsBoardState = {
-      columns,
+      columns: resetColumns,
       items: {},
-      columnItems: Object.fromEntries(columns.map((col) => [col._id, []])),
+      columnItems: Object.fromEntries(
+        resetColumns.map((col: { _id: string }) => [col._id, []]),
+      ),
     };
     setBoardState(resetState);
     setAllDealsMap({});
     locallyMovedIdsRef.current = {};
 
-    columns.forEach((col) => {
+    resetColumns.forEach((col: { _id: string; itemsTotalCount?: number }) => {
       initColumn(col._id, col.itemsTotalCount);
     });
 
     setFetchMoreTriggers({});
-  }, [columns, queryVariablesKey, setBoardState, setAllDealsMap, initColumn]);
+  }, [columnIdsKey, queryVariablesKey, setBoardState, setAllDealsMap, initColumn]);
 
   useEffect(() => {
     setBoardState((prev) => {

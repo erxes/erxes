@@ -6,15 +6,18 @@ import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
 export interface CmsTag {
   _id: string;
   name: string;
+  slug: string;
+  clientPortalId: string;
   colorCode: string;
   createdAt: string;
+  updatedAt?: string;
+  translations?: { language: string; title?: string }[];
 }
 
 export interface UseTagsProps {
   clientPortalId?: string;
   type?: string;
   searchValue?: string;
-  limit?: number;
   cursor?: string;
   cursorMode?: string;
   direction?: 'forward' | 'backward';
@@ -34,7 +37,6 @@ export function useTags({
   clientPortalId,
   type,
   searchValue,
-  limit = 20,
   cursor,
   cursorMode,
   direction,
@@ -49,7 +51,6 @@ export function useTags({
       clientPortalId,
       type,
       searchValue,
-      limit,
       cursor,
       cursorMode,
       direction,

@@ -18,10 +18,10 @@ import { IDeal } from '@/deals/types/deals';
 import { RecordTable } from 'erxes-ui';
 import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
-import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
+import { useMoveDealStage } from '@/deals/cards/hooks/useDeals';
 
 export const DealsColumn = (): ColumnDef<IDeal>[] => {
-  const { editDeals } = useDealsEdit();
+  const { moveDealStage } = useMoveDealStage();
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<IDeal>;
 
   return [
@@ -74,13 +74,9 @@ export const DealsColumn = (): ColumnDef<IDeal>[] => {
             stageId={row.original.stageId}
             pipelineId={row.original.pipeline?._id || ''}
             onChange={(stageId) => {
-              editDeals({
-                variables: {
-                  _id: row.original._id,
-                  boardId: row.original.boardId,
-                  pipelineId: row.original.pipelineId,
-                  stageId: stageId as string,
-                },
+              moveDealStage({
+                deal: row.original,
+                stageId,
               });
             }}
           />

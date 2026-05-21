@@ -78,7 +78,13 @@ const generateFilter = (params: any) => {
  * ============================
  */
 export const msdynamicQueries = {
-  async syncMsdHistories(_root, params, { models }: IContext) {
+  async syncMsdHistories(
+    _root,
+    params,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('showMsd');
+
     return cursorPaginate({
       model: models.SyncLogsMSD,
       params,
@@ -86,7 +92,13 @@ export const msdynamicQueries = {
     });
   },
 
-  async syncMsdHistoriesCount(_root, params, { models }: IContext) {
+  async syncMsdHistoriesCount(
+    _root,
+    params,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('showMsd');
+
     return models.SyncLogsMSD.countDocuments(generateFilter(params));
   },
 
@@ -103,8 +115,10 @@ export const msdynamicQueries = {
       posToken?: string;
       branchId?: string;
     },
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('showMsd');
+
     const models = await generateModels(subdomain);
 
     let resolvedBrandId = brandId;
@@ -165,8 +179,10 @@ export const msdynamicQueries = {
   async msdCustomerRelations(
     _root,
     { customerId }: { customerId: string },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('showMsd');
+
     const relations = await models.CustomerRelations.find({
       customerId,
     }).lean();

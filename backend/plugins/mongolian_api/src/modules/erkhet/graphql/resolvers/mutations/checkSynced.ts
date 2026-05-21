@@ -12,8 +12,10 @@ const checkSyncedMutations = {
   async toCheckSynced(
     _root: undefined,
     { ids }: { ids: string[] },
-    { subdomain }: IContext,
+    { subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('erkhetManageSync');
+
     const config = await getConfig(subdomain, 'ERKHET', {});
 
     if (!config.apiToken || !config.apiKey || !config.apiSecret) {
@@ -27,14 +29,7 @@ const checkSyncedMutations = {
       orderIds: JSON.stringify(ids),
     };
 
-    // const response = await sendTRPCMessage(
-    //   "rpc_queue:erxes-automation-erkhet",
-    //   {
-    //     action: "check-order-synced",
-    //     payload: JSON.stringify(postData),
-    //     thirdService: true
-    //   }
-    // );
+    // const response = await sendTRPCMessage(...);
     const result = JSON.parse('{}');
 
     if (result.status === 'error') {
@@ -62,8 +57,10 @@ const checkSyncedMutations = {
       configStageId,
       dateType,
     }: { dealIds: string[]; configStageId: string; dateType: string },
-    { subdomain, user }: IContext,
+    { subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('erkhetManageSync');
+
     const result: { skipped: string[]; error: string[]; success: string[] } = {
       skipped: [],
       error: [],
@@ -125,19 +122,6 @@ const checkSyncedMutations = {
             dateType,
           );
 
-          //   const response = await sendRPCMessage(
-          //     models,
-          //     syncLog,
-          //     "rpc_queue:erxes-automation-erkhet",
-          //     {
-          //       action: "get-response-send-order-info",
-          //       isEbarimt: false,
-          //       payload: JSON.stringify(postData),
-          //       thirdService: true,
-          //       isJson: true
-          //     }
-          //   );
-
           const response: any = {};
 
           if (response.message || response.error) {
@@ -182,18 +166,6 @@ const checkSyncedMutations = {
 
           const postData = await getMoveData(subdomain, config, deal, dateType);
 
-          //   const response = await sendRPCMessage(
-          //     models,
-          //     syncLog,
-          //     "rpc_queue:erxes-automation-erkhet",
-          //     {
-          //       action: "get-response-inv-movement-info",
-          //       isEbarimt: false,
-          //       payload: JSON.stringify(postData),
-          //       thirdService: true,
-          //       isJson: true
-          //     }
-          //   );
           const response: any = {};
 
           if (response.message || response.error) {
@@ -231,8 +203,10 @@ const checkSyncedMutations = {
   async toSyncOrders(
     _root: undefined,
     { orderIds }: { orderIds: string[] },
-    { subdomain, user }: IContext,
+    { subdomain, user, checkPermission }: IContext,
   ) {
+    await checkPermission('erkhetManageSync');
+
     const result: { skipped: string[]; error: string[]; success: string[] } = {
       skipped: [],
       error: [],
@@ -293,19 +267,6 @@ const checkSyncedMutations = {
           result.skipped.push(order._id);
           throw new Error('maybe, has not config');
         }
-
-        // const response = await sendRPCMessage(
-        //   models,
-        //   syncLog,
-        //   "rpc_queue:erxes-automation-erkhet",
-        //   {
-        //     action: "get-response-send-order-info",
-        //     isEbarimt: false,
-        //     payload: JSON.stringify(postData),
-        //     thirdService: true,
-        //     isJson: true
-        //   }
-        // );
 
         const response: any = {};
 

@@ -1,5 +1,5 @@
 import { RecordTable } from 'erxes-ui';
-import { createTagsColumns } from './TagsColumn';
+import { useTagsColumns } from './TagsColumn';
 import { TagsCommandBar } from './tags-command-bar/TagsCommandBar';
 import { useTags } from '../../hooks/useTags';
 
@@ -20,7 +20,7 @@ export const TagsRecordTable = ({
     clientPortalId,
   });
 
-  const columns = createTagsColumns(
+  const columns = useTagsColumns(
     clientPortalId,
     onEdit || (() => {}),
     refetch,
@@ -44,3 +44,4 @@ export const TagsRecordTable = ({
     </RecordTable.Provider>
   );
 };
+
