@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useDebounce } from 'use-debounce';
-import { Label, Editor } from 'erxes-ui';
+import { Input, Label, Editor } from 'erxes-ui';
 import {
   SelectBranches,
   SelectDepartments,
@@ -22,7 +22,10 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
   const [debouncedDescription] = useDebounce(descriptionContent, 1000);
 
   const handleDealFieldChange = useCallback(
-    (key: string, value: string | string[] | undefined | null) => {
+    (
+      key: string,
+      value: string | string[] | number | undefined | null,
+    ) => {
       if (value === undefined || value === null) return;
 
       const isArrayKey = [
@@ -32,7 +35,10 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
         'departmentIds',
       ].includes(key);
 
-      const finalValue = isArrayKey && !Array.isArray(value) ? [value] : value;
+      const finalValue =
+        isArrayKey && !Array.isArray(value) && typeof value !== 'number'
+          ? [value]
+          : value;
 
       editDeals({
         variables: {
@@ -57,6 +63,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
     assignedUserIds,
     labels,
     priority,
+    confidenceScore,
     tagIds,
     branchIds,
     departmentIds,
@@ -125,6 +132,22 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
               variant="card"
             />
           </div>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="confidence-score">Confidence score</Label>
+          <Input
+            id="confidence-score"
+            type="number"
+            min={0}
+            max={100}
+            defaultValue={confidenceScore ?? 50}
+            onBlur={(e) => {
+              const next = Number(e.currentTarget.value);
+              if (Number.isFinite(next) && next >= 0 && next <= 100) {
+                handleDealFieldChange('confidenceScore', next);
+              }
+            }}
+          />
         </div>
         <div className="space-y-2">
           <Label>Tags</Label>
