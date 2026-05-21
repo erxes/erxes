@@ -32,7 +32,27 @@ If AI was NOT used, write "Human-only" and skip the rest of this section.
 
 - [ ] `.agents/evals/run.sh sales` passes
 - [ ] Playwright spec at `.agents/plugins/sales/tests/<file>.spec.ts` covers every SPEC criterion
-- [ ] Manual smoke test path from `.agents/evals/smoke-tests.md` (if applicable — note which path)
+- [ ] **No `test.skip(true, 'pending seeded …')`** without a named follow-up wish (see SLOP-CHECKLIST.md)
+
+## See it work in 60 seconds
+
+<!-- Mandatory per WORKFLOW.md Phase 7. No exceptions. -->
+
+**Stack running** (`pnpm dev:apis && pnpm dev:uis`):
+```bash
+AGENT_TEST_LIVE=1 .agents/evals/run.sh sales --include-e2e
+```
+Expected: all <N> tests pass. The spec seeds its own fixtures via API; no manual prep.
+
+**Reading only** (no stack):
+- [`.agents/plugins/sales/tests/<file>.spec.ts`](link to file) — every contracted behavior is a `test()` block with the user-visible flow scripted.
+
+**Manual path** (visual confirmation, runnable by someone unfamiliar with the wish):
+1. <exact URL or click>
+2. <next step>
+3. <next step>
+
+Expected: <one-sentence visual outcome — text label, color, count, URL change>.
 
 ## Files touched outside SPEC scope
 

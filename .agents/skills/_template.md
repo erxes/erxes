@@ -42,11 +42,17 @@ For each commit:
 
 ## Phase 6 — VERIFY
 
-Add or modify the Playwright spec at `.agents/plugins/sales/tests/<file>.spec.ts` so that:
-- <acceptance criterion 1>
-- <acceptance criterion 2>
+Write Playwright tests in `.agents/plugins/sales/tests/<file>.spec.ts` that **prove** the user-visible behavior end-to-end. **The spec seeds its own fixtures** — no `test.skip(true, 'pending seeded deal')` cop-out.
 
-Run: `cd .agents && pnpm test plugins/sales/tests/<file>.spec.ts`
+For each SPEC acceptance criterion:
+- `test.beforeAll`: seed via GraphQL mutations (board → pipeline → stage → deal, etc.). See [`../../docs/sales/playwright-fixtures.md`](../../docs/sales/playwright-fixtures.md).
+- `test()` body: execute the user-visible flow (navigate, click, type).
+- Assertion: the user-visible outcome (text, color class, URL change, count).
+- `test.afterAll`: tear down what you seeded.
+
+Run: `cd .agents && AGENT_TEST_LIVE=1 pnpm test plugins/sales/tests/<file>.spec.ts`. **Every non-skipped test must pass.**
+
+A skip is acceptable only if it references a real blocking wish (`test.skip(true, 'BLOCKED on wish <id>')`).
 
 ## Pitfalls (specific to this skill)
 
@@ -60,3 +66,5 @@ Run: `cd .agents && pnpm test plugins/sales/tests/<file>.spec.ts`
 - [ ] No "just in case" defaults
 - [ ] No try/catch around code that can't fail
 - [ ] No helper extracted for a single caller
+- [ ] No `test.skip(true, 'pending …')` without a named blocking wish
+- [ ] PR body includes "See it work in 60 seconds" section (Playwright command + file pointer + manual click path)

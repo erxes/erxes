@@ -24,6 +24,11 @@ For each item in [`../../SLOP-CHECKLIST.md`](../../SLOP-CHECKLIST.md):
 - [ ] **Defensive optional chaining on non-null types** — clean / fixed
 - [ ] **console.log left in shipped code** — clean / fixed
 - [ ] **`any` to silence the type checker** — clean / fixed
+- [ ] **TS literal-union without schema enum** — clean / fixed
+- [ ] **Function names cited but not grep-verified** — clean / fixed
+- [ ] **Premature flexibility inherited from precedent** — clean / fixed
+- [ ] **`test.skip(true, 'pending seeded …')` without follow-up wish** — clean / fixed
+- [ ] **"See it work" section missing or vague in PR body** — clean / fixed
 
 ### Other things I checked
 
@@ -52,11 +57,20 @@ Did I learn anything non-obvious during this wish?
 ## Final verification
 
 - [ ] `.agents/evals/run.sh sales` exit 0 — output captured below
-- [ ] Playwright spec covering SPEC criteria passing
+- [ ] Playwright spec covering SPEC criteria passing — **every non-skipped test passes** against a running stack
+- [ ] **No bare `test.skip(true, 'pending …')`** — every skip references a real follow-up wish or has been replaced with a self-seeding test
 
 ```
 <paste output of evals/run.sh sales>
 ```
+
+## See-it-work path drafted
+
+The PR body must include the "See it work in 60 seconds" section (see PR template). Confirm:
+
+- [ ] Playwright command with expected pass count
+- [ ] File pointer for read-only review
+- [ ] **Manual click path** — exact URL, exact clicks, exact expected visual outcome (text / color / count). No vague "exercise the picker" wording.
 
 ## PR
 

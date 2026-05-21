@@ -153,27 +153,38 @@ For each commit in PLAN.md:
 
 ## Phase 6 — VERIFY
 
-**Goal:** prove user-visible behavior with a behavioral test.
+**Goal:** ship a Playwright spec that **proves** user-visible behavior end-to-end, runnable from `evals/run.sh sales --include-e2e`. The spec is the deliverable, not the click-around demo.
 
 **AI does:**
-1. Open `.agents/plugins/sales/tests/`. Find the spec covering the affected module (e.g., `deals.spec.ts` for Deal changes).
-2. Add or modify tests that cover every acceptance criterion from SPEC.md.
-3. Use eval-files header convention (see `.agents/README.md`).
-4. Run the spec: `cd .agents && pnpm test plugins/sales/tests/<file>.spec.ts`.
-5. If it passes → commit the test changes.
-6. If it fails → fix the test (if the test is wrong) or fix the code (if the code is wrong). Halt and ask if unsure which.
+1. Open `.agents/plugins/sales/tests/`. Find the spec covering the affected module.
+2. For **every** SPEC.md acceptance criterion, write a Playwright test that:
+   - **Seeds its own fixtures via API** (GraphQL mutations or REST calls — not via UI). Need a deal? Create board → pipeline → stage → deal in `test.beforeAll`. Don't rely on pre-existing data.
+   - **Executes the user-visible flow** (navigate, click, type, observe).
+   - **Asserts the user-visible outcome** (text content, color class, URL, count).
+   - **Tears down fixtures** in `test.afterAll` to keep runs idempotent.
+3. Use the eval-files header convention (see `.agents/README.md`).
+4. Run the spec: `cd .agents && pnpm test plugins/sales/tests/<file>.spec.ts`. **Every** non-skipped test must pass.
+5. Commit the test changes.
 
-**Artifact:** updated/new `.agents/plugins/sales/tests/<file>.spec.ts` with passing run.
+**No-skip rule.** `test.skip(true, 'pending seeded deal')` is **forbidden**. Two acceptable forms only:
+- A test that seeds its own fixtures (preferred — write the seeder).
+- A `test.skip(true, '<reason>')` with a **named follow-up wish**: e.g., `'BLOCKED on wish 2026-06-01-test-auth-fixture'`. The blocking wish must exist as a real `.agents/wishes/<id>/WISH.md` before the skip is accepted.
 
-**Gate (automatic):** test exists, runs, passes; every SPEC.md acceptance criterion has at least one assertion.
+If the dev stack isn't running, the test should **fail loudly** with "stack not running" — not silently skip. The test still exists as a runnable contract.
 
-**Slop prevented:** "code compiles → it works." The most common slop pattern.
+**Artifact:** updated/new spec at `.agents/plugins/sales/tests/<file>.spec.ts` with every non-skipped test passing against a running stack.
+
+**Gate (automatic):** every SPEC.md acceptance criterion has at least one **non-skipped** test that passes (or a skip pointing at a real follow-up wish).
+
+**Slop prevented:**
+- "Code compiles → it works" (the original slop)
+- "I wrote tests but they all skip with `pending seeded deal`" (the cop-out slop — far more common in practice)
 
 ---
 
 ## Phase 7 — REVIEW + SHIP
 
-**Goal:** self-review, capture lessons, open PR.
+**Goal:** self-review, capture lessons, open PR with an executable "see it work" path.
 
 **AI does:**
 1. Copy `.agents/templates/REVIEW.md` to `.agents/wishes/<id>/REVIEW.md`.
@@ -182,14 +193,41 @@ For each commit in PLAN.md:
 4. If you learned something non-obvious during the wish, append a lesson to `.agents/memory/lessons.md` per its format.
 5. Open the PR:
    - Title: derived from SPEC's user-visible behavior
-   - Body: fill `.github/PULL_REQUEST_TEMPLATE.md`
+   - Body: fill `.github/PULL_REQUEST_TEMPLATE.md`, including the **"See it work"** section (see below — mandatory)
    - Reference the wish: link `.agents/wishes/<id>/`
 
-**Artifact:** PR opened on GitHub.
+### Mandatory "See it work" section (Phase 7 deliverable)
 
-**Gate (human):** developer reviews the PR. Merges or requests changes.
+The PR body MUST include this section. No exceptions.
 
-**Slop prevented:** unreviewed AI confidence reaching main.
+```markdown
+## See it work in 60 seconds
+
+**Stack running** (`pnpm dev:apis && pnpm dev:uis`):
+\`\`\`bash
+AGENT_TEST_LIVE=1 .agents/evals/run.sh sales --include-e2e
+\`\`\`
+Expected: all <N> tests pass. The spec seeds its own fixtures, so no manual prep.
+
+**Reading only** (no stack):
+- Open [`.agents/plugins/sales/tests/<file>.spec.ts`](link) — every contracted behavior is in a `test()` block with the user-visible flow scripted.
+
+**Manual path** (for visual confirmation):
+1. `<step 1 — exact URL or click>`
+2. `<step 2>`
+3. `<step 3>`
+Expected: `<one-sentence visual outcome>`
+```
+
+The "Manual path" must be runnable by someone unfamiliar with the wish in under 60 seconds.
+
+**Artifact:** PR opened on GitHub with the "See it work" section filled in.
+
+**Gate (human):** developer follows the "See it work" path. If it doesn't reproduce the behavior, PR is rejected — Phase 6 was inadequate.
+
+**Slop prevented:**
+- Unreviewed AI confidence reaching main
+- "I tested it locally, trust me" — the deliverable is a reproducible path, not a claim
 
 ---
 

@@ -133,6 +133,21 @@ Before citing a function name in any artifact a human will read, `grep -rn '<nam
 ### Premature flexibility inherited from precedent
 Mirroring a sister field that uses `$in:` for filter when only single-value selection exists in the UI? You inherited an unbuilt multi-select. Either build the UI side or simplify the filter to single-value. Document the decision in GROUND.md's "Deviations from sister." Slop from precedent is still slop.
 
+### `test.skip(true, 'pending seeded data')` without a follow-up wish
+```ts
+// ❌ slop
+test.skip(true, 'pending seeded deal');
+```
+A skip with no path to un-skip is a permanent skip. The acceptance criterion has no proof. Two acceptable forms:
+
+1. **Seed the fixtures yourself** (preferred). The Playwright test creates the board → pipeline → stage → deal via API in `test.beforeAll`, runs the user-visible flow, asserts the outcome, tears down in `test.afterAll`.
+2. **Skip with a named blocking wish:** `test.skip(true, 'BLOCKED on wish 2026-06-01-test-auth-fixture')`. The wish must exist as a real `.agents/wishes/<id>/WISH.md`. No wish, no skip.
+
+Phase 6 VERIFY is the **proof**, not a placeholder. Every SPEC acceptance criterion needs a non-skipped test (or a skip pointing at real follow-up work).
+
+### "See it work" section missing or vague in PR body
+Every PR must include the "See it work in 60 seconds" section (see WORKFLOW.md Phase 7): a runnable Playwright command, a file pointer for read-only review, AND a manual click path. "Start the stack, open the deals page, exercise the picker" is not a path — it's a hope. Exact URL + exact clicks + exact expected text/color/count.
+
 ## How to use this checklist
 
 At the end of every phase (especially Phase 5 IMPLEMENT and Phase 6 VERIFY):
