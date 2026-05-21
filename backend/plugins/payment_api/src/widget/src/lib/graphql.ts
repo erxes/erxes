@@ -73,3 +73,18 @@ export const CHECK_INVOICE = gql`
     invoicesCheck(_id: $id)
   }
 `;
+
+export const SCAN_BARCODE = gql`
+  mutation InvoiceScanBarcode($code: String!) {
+    invoiceScanBarcode(code: $code) {
+      _id
+      invoiceNumber
+      amount
+      currency
+      description
+      status
+      scannedAt
+      createdAt
+    }
+  }
+`;

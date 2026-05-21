@@ -1,5 +1,6 @@
 import { RecordTable } from 'erxes-ui';
 import { invoicesColumns } from './InvoiceColumns';
+import { InvoiceFilterBar } from './InvoiceFilterBar';
 import { useInvoices } from '../hooks/use-invoices';
 
 export function InvoiceRecordTable() {
@@ -13,6 +14,7 @@ export function InvoiceRecordTable() {
       className="m-3"
       stickyColumns={['checkbox', 'invoiceNumber']}
     >
+      <InvoiceFilterBar />
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
         hasNextPage={hasNextPage}
