@@ -100,6 +100,18 @@ Quarterly: re-read this file end to end. Lessons that are now baked into rules/s
 **Lesson:** When mirroring precedent, audit the precedent for slop too. If `priority`'s array shape exists because it was supposed to support multi-select but the UI never shipped that, the new field inherits a half-built feature. Either build the UI side (proper feature) or simplify to single-value (less code). Document the decision in GROUND.md "Deviations from sister."
 **Where applicable:** `add-deal-field.md` — add an explicit "audit precedent for slop" step to Phase 3 GROUND; `SLOP-CHECKLIST.md` "just-in-case parameters" entry should note that the pattern can be inherited, not just invented.
 
+## 2026-05-22 — Range filters (`$gte`) deviate from the `priority` precedent's `$in:` for set membership
+**Symptom:** Wish 2026-05-22-deal-confidence-score needed "filter deals by minimum confidence score." Mirroring `priority` 1:1 (queryParams `confidenceScore: [Int]` + resolver `{ $in: confidenceScore }`) would have been technically correct but is dead-code multi-select — the UI is a single numeric input. The right shape is `confidenceScoreMin: Int` + resolver `{ confidenceScore: { $gte: confidenceScoreMin } }`.
+**Root cause:** `add-deal-field.md` skill names `priority` as the canonical mirror but does not distinguish set-membership filters (`$in`) from range/threshold filters (`$gte`, `$lte`, `$between`).
+**Lesson:** When the wish says "minimum N" or "≤ threshold," the filter shape is a range, not a set. Reject `$in: [v]` even if precedent uses it. Add this to GROUND.md "Deviations from sister" explicitly — it tests SLOP-CHECKLIST "premature flexibility from precedent."
+**Where applicable:** `add-deal-field.md` should grow a "filter shape" decision step in Phase 3 — set vs range vs date-range, each with its own resolver pattern.
+
+## 2026-05-22 — Mongoose `default:` replaces the need for a backfill migration on display fields
+**Symptom:** Wish 2026-05-22-deal-confidence-score needed `default 50`. Three options: (a) default-at-read coercion in UI, (b) backfill migration writing 50 to every existing deal, (c) Mongoose schema `default: 50`. Chose (c). Existing deals materialize as 50 on document hydration; no migration, no UI coercion, and `$gte: 0` correctly matches every deal.
+**Root cause:** Lesson #8 (default-at-read vs default-at-write) framed the choice as a binary between UI coercion and a backfill. There's a third option — Mongoose's schema-level `default:` — which is cheaper than both and works correctly with `$gte` filters because Mongoose applies the default on every read.
+**Lesson:** For a new scalar with a default value that needs to participate in server-side filters (`$gte`, `$lte`, sort), use Mongoose `default:`. It's effectively default-at-read but built into the ORM, with no UI changes required and no migration. Document this as a third path in lesson #8.
+**Where applicable:** `add-deal-field.md` Phase 2 SPEC — the "default-at-read vs default-at-write" step should mention `Mongoose default:` as the preferred path for display + filter fields.
+
 ## 2026-05-22 — tRPC procedures return `{ status, data | errorMessage }`
 **Symptom:** Easy to write a tRPC procedure that returns bare values; existing procedures in the sales plugin wrap with `{ status: 'success' | 'error', data | errorMessage }`.
 **Root cause:** Convention is not enforced by tRPC itself; only by precedent.
