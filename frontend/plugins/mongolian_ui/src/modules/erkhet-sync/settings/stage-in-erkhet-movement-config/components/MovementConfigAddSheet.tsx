@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
-import { CHOOSE_RESPONSE_FIELD_DATA } from '../constants/chooseResponseFieldData';
 import { addStageInMovementErkhetConfigSchema } from '../constants/addStageInErkhetMovementConfigSchema';
 import { IMovementDetail, TMovementErkhetConfig } from '../types';
 import { MovementDetailRows } from './MovementDetailRows';
@@ -15,10 +14,14 @@ const defaultValues: TMovementErkhetConfig = {
   pipelineId: '',
   stageId: '',
   userEmail: '',
-  chooseResponseField: '',
+  responseField: '',
   defaultCustomer: '',
   details: [],
 };
+
+const RESPONSE_FIELD_OPTIONS = [
+  { label: 'Erkhet Response', value: 'propertiesData.erkhetResponse' },
+];
 
 interface Props {
   onSubmit: (data: TMovementErkhetConfig) => Promise<void>;
@@ -151,7 +154,9 @@ export const MovementConfigAddSheet = ({ onSubmit, loading }: Props) => {
                         <SelectStage
                           mode="single"
                           value={field.value}
-                          onValueChange={(value) => field.onChange(value as string)}
+                          onValueChange={(value) =>
+                            field.onChange(value as string)
+                          }
                           pipelineId={selectedPipelineId || undefined}
                           placeholder="Select stage"
                         />
@@ -162,16 +167,19 @@ export const MovementConfigAddSheet = ({ onSubmit, loading }: Props) => {
                 </div>
                 <Form.Field
                   control={form.control}
-                  name="chooseResponseField"
+                  name="responseField"
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>Choose Response Field</Form.Label>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Form.Label>Response Field</Form.Label>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
                         <Select.Trigger className="w-full">
-                          <Select.Value placeholder="Choose Response Field" />
+                          <Select.Value placeholder="Response Field" />
                         </Select.Trigger>
                         <Select.Content>
-                          {CHOOSE_RESPONSE_FIELD_DATA.map((type) => (
+                          {RESPONSE_FIELD_OPTIONS.map((type) => (
                             <Select.Item key={type.value} value={type.value}>
                               {type.label}
                             </Select.Item>
@@ -188,7 +196,11 @@ export const MovementConfigAddSheet = ({ onSubmit, loading }: Props) => {
                 />
               </div>
               <div className="flex justify-end gap-2 p-5 border-t">
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading}>
