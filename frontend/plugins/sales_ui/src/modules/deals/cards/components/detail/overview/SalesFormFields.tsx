@@ -11,7 +11,6 @@ import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { SelectDealRiskLevel } from '@/deals/components/deal-selects/SelectDealRiskLevel';
-import { TRiskLevel } from '@/deals/constants/riskLevel';
 import { IDeal } from '@/deals/types/deals';
 import { useDealsContext } from '@/deals/context/DealContext';
 
@@ -134,7 +133,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
           <div>
             <SelectDealRiskLevel
               dealId={_id}
-              value={riskLevel as TRiskLevel | undefined}
+              value={riskLevel}
               variant="card"
             />
           </div>
