@@ -70,6 +70,18 @@ Quarterly: re-read this file end to end. Lessons that are now baked into rules/s
 **Lesson:** For a new field that needs both an edit-in-detail picker AND an action-bar filter, you need to expose the picker at both surfaces — either with two files (`deal-selects/SelectX.tsx` + `common/filters/SelectX.tsx`) or one file that namespaces both via `Object.assign` (the route I took for `riskLevel`). Either is fine; pick the one that matches the closest sister. Don't try to unify across the two APIs.
 **Where applicable:** `skills/sales/add-deal-field.md` — add a "where the edit and filter surfaces differ" callout. The `priority` pattern has two files; I went one-file for `riskLevel`. Both work.
 
+## 2026-05-22 — Function-name slop in PR bodies (cite by grep, not by skill quotation)
+**Symptom:** PR #7758 body said "auto-discovered by `generateSalesFields`" for segment field #5. Reviewer caught it — `generateSalesFields` is at `backend/plugins/sales_api/src/modules/sales/fieldUtils.ts:178`, not in `meta/`, and the actual segment-field auto-discovery flows through core-modules (`setupSegmentProducers` → `esTypesMap` → `gatherDependentServicesType`). The local `generateSalesFields` feeds into that pipeline but is not the discoverer.
+**Root cause:** The PR body quoted a function name out of the skill (`add-sales-segment-field.md`) without grepping to confirm what the function actually does and where it lives. Skill text said "auto-discover via `generateSalesFields`" — true in spirit, but the body inherited the imprecision.
+**Lesson:** Before citing a function name in a PR body, REVIEW.md, or any artifact the developer will read: `grep -rn '<functionName>'` and confirm both location and role. Skills can be approximations; PR bodies cannot. SLOP-CHECKLIST.md needs a new entry for "function names cited but not grep-verified."
+**Where applicable:** Phase 7 REVIEW + SHIP; `SLOP-CHECKLIST.md`; `add-sales-segment-field.md` (the skill's claim should be tightened too).
+
+## 2026-05-22 — `Deal.riskLevel` rides every deal-list query via `commonListFields` (over-fetch awareness)
+**Symptom:** PR #7758 added `riskLevel` to `frontend/plugins/sales_ui/src/modules/deals/graphql/queries/DealsQueries.ts` `commonListFields`. Result: every deal-list query now fetches `riskLevel` even on pages that don't display the badge. Fine for a tiny string today, but the pattern compounds across many `add-deal-field` wishes.
+**Root cause:** The skill `add-deal-field.md` PLAN says "extend `commonFields`" without distinguishing "fields the kanban card needs" from "fields only the detail sheet needs." Mirroring `priority` 1:1 means inheriting `priority`'s over-fetch.
+**Lesson:** When adding a field, consider whether it's needed on the **list query** (board, table) or only on the **detail query** (one-deal fetch). If detail-only, add to `dealDetail` fragments instead of `commonListFields`. Not a slop blocker for small scalars; matters for arrays, JSON, or fields with N+1 resolvers.
+**Where applicable:** `add-deal-field.md` — add a "list-vs-detail fragment" note. Future fields like big JSON or arrays should default to detail-only.
+
 ## 2026-05-22 — tRPC procedures return `{ status, data | errorMessage }`
 **Symptom:** Easy to write a tRPC procedure that returns bare values; existing procedures in the sales plugin wrap with `{ status: 'success' | 'error', data | errorMessage }`.
 **Root cause:** Convention is not enforced by tRPC itself; only by precedent.
