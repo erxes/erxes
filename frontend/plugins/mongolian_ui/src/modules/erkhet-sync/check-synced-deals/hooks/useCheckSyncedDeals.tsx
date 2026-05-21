@@ -7,16 +7,16 @@ import {
   parseDateRangeFromString,
   useMultiQueryState,
   useRecordTableCursor,
+  useToast,
   validateFetchMore,
 } from 'erxes-ui';
-import { useToast } from 'erxes-ui';
-import { checkSyncedDealsQuery } from '../graphql/queries/checkSyncedDealsQuery';
-import { ICheckSyncedDeals } from '../types/checkSyncedDeals';
-import { useCheckSyncedDealsLeadSessionKey } from './useCheckSyncedDealsLeadSessionKey';
 import { atom, useAtom, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
-import { checkSyncedDealsTotalCountAtom } from '../states/checkSyncedDealsCounts';
 import { checkSyncedMutation } from '../../shared/graphql/mutations/checkSyncedMutations';
+import { checkSyncedDealsQuery } from '../graphql/queries/checkSyncedDealsQuery';
+import { checkSyncedDealsTotalCountAtom } from '../states/checkSyncedDealsCounts';
+import { ICheckSyncedDeals } from '../types/checkSyncedDeals';
+import { useCheckSyncedDealsLeadSessionKey } from './useCheckSyncedDealsLeadSessionKey';
 
 export const CHECK_SYNCED_DEALS_PER_PAGE = 30;
 
@@ -132,7 +132,7 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
   const { list: rawDeals, totalCount, pageInfo } = data?.deals || {};
   const Deals = (rawDeals || []).map((deal) => ({
     ...deal,
-    ...(checkedDeals[deal._id] || {}),
+    ...checkedDeals[deal._id],
   }));
 
   const checkDeals = async (ids: string[]) => {

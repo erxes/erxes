@@ -11,6 +11,7 @@ const stringify = (value: any) => {
     try {
       return JSON.stringify(JSON.parse(value), null, 2);
     } catch (_e) {
+      // not valid
       return value;
     }
   }

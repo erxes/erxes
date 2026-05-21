@@ -98,7 +98,7 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
   const checkPosOrders = (data?.posOrders || []).map(
     (order: ICheckPosOrders) => ({
       ...order,
-      ...(checkedOrders[order._id] || {}),
+      ...checkedOrders[order._id],
     }),
   );
   const totalCount = data?.posOrdersTotalCount || 0;

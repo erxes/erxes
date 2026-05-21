@@ -25,7 +25,7 @@ const StageInErkhetConfig = lazy(() =>
 
 const PosOrderErkhetConfig = lazy(() =>
   import('~/pages/PosOrderErkhetConfigPage').then((module) => ({
-    default: module.default,
+    default: module.PosOrderErkhetConfig,
   })),
 );
 

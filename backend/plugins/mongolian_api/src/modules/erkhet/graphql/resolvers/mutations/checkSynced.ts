@@ -18,6 +18,7 @@ const parseCheckSyncedData = (data: any) => {
     const parsed = JSON.parse(data);
     return parsed?.data || parsed || {};
   } catch (_e) {
+    // text is not valid JSON, so return it as-is
     return {};
   }
 };

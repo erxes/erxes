@@ -10,7 +10,6 @@ import { DEFAULT_PAY_DATA } from '../../stage-in-erkhet-config/constants/default
 import {
   TPos,
   TPosOrderErkhetConfig,
-  usePosOrderErkhetConfigs,
 } from '../hooks/usePosOrderErkhetConfigs';
 import { ErkhetConfigRecordTable } from '../../shared/components/ErkhetConfigRecordTable';
 import { ErkhetConfigCommandBar } from '../../shared/components/ErkhetConfigCommandBar';
@@ -59,7 +58,7 @@ const ConfigForm = ({
 }) => {
   const form = useForm<TPosOrderErkhetConfig>({
     resolver: zodResolver(formSchema),
-    defaultValues: { ...defaultValues, ...(config || {}) },
+    defaultValues: { ...defaultValues, ...config },
   });
 
   const posId = form.watch('posId');
@@ -440,36 +439,3 @@ export const PosOrderErkhetConfigRecordTable = ({
     }
   />
 );
-
-export const PosOrderErkhetConfig = () => {
-  const {
-    configs,
-    deleteConfig,
-    deleteManyConfigs,
-    loading,
-    poss,
-    saveConfig,
-    saveLoading,
-  } = usePosOrderErkhetConfigs();
-
-  const editConfig = async (id: string, data: TPosOrderErkhetConfig) => {
-    await saveConfig({ ...data, _id: id });
-  };
-
-  if (loading) {
-    return <Spinner />;
-  }
-
-  return (
-    <div className="flex flex-col flex-auto overflow-hidden">
-      <PosOrderErkhetConfigRecordTable
-        configs={configs}
-        editLoading={saveLoading}
-        onDelete={deleteConfig}
-        onDeleteMany={deleteManyConfigs}
-        onEdit={editConfig}
-        poss={poss}
-      />
-    </div>
-  );
-};

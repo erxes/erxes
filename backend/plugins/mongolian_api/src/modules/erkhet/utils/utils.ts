@@ -36,6 +36,7 @@ const parseErkhetResponse = async (response) => {
   try {
     return JSON.parse(text);
   } catch (_e) {
+    // text is not valid JSON, so return it as-is
     return text;
   }
 };
