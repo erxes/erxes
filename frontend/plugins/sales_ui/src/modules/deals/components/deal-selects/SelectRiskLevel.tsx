@@ -128,9 +128,6 @@ const SelectRiskLevelRoot = ({
   );
 };
 
-const isRiskLevel = (value: string): value is TRiskLevel =>
-  (RISK_LEVEL_OPTIONS as readonly string[]).includes(value);
-
 const SelectRiskLevelFilterItem = ({
   value,
   label,
@@ -182,7 +179,7 @@ const SelectRiskLevelFilterBar = () => {
       <SelectRiskLevelProvider
         value={riskLevel?.[0] ?? DEFAULT_RISK_LEVEL}
         onValueChange={(val) => {
-          if (val && isRiskLevel(val)) setRiskLevel([val]);
+          if (val) setRiskLevel([val]);
           else setRiskLevel([]);
           setOpen(false);
         }}
