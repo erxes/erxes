@@ -2,23 +2,17 @@
  * Eval files (verify these after changes — re-run this spec):
  *   backend/plugins/sales_api/src/modules/sales/db/models/Deals.ts
  *   backend/plugins/sales_api/src/modules/sales/db/definitions/deals.ts
- *   backend/plugins/sales_api/src/modules/sales/graphql/resolvers/mutations/deals.ts
  *   backend/plugins/sales_api/src/modules/sales/graphql/resolvers/queries/deals.ts
  *   backend/plugins/sales_api/src/modules/sales/graphql/schemas/deal.ts
- *   backend/plugins/sales_api/src/modules/sales/graphql/schemas/extensions.ts
- *   backend/plugins/sales_api/src/modules/sales/meta/segments/segmentConfigs.ts
- *   frontend/plugins/sales_ui/src/modules/deals/Main.tsx
+ *   backend/plugins/sales_api/src/modules/sales/meta/activity-log/constants.ts
  *   frontend/plugins/sales_ui/src/modules/deals/actionBar/components/SalesFilter.tsx
- *   frontend/plugins/sales_ui/src/modules/deals/actionBar/constants/Filters.ts
+ *   frontend/plugins/sales_ui/src/modules/deals/actionBar/types/actionBarTypes.ts
  *   frontend/plugins/sales_ui/src/modules/deals/boards/components/DealsBoardCard.tsx
- *   frontend/plugins/sales_ui/src/modules/deals/boards/hooks/useBoardDetails.ts
  *   frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/overview/SalesFormFields.tsx
- *   frontend/plugins/sales_ui/src/modules/deals/cards/hooks/useDeals.tsx
- *   frontend/plugins/sales_ui/src/modules/deals/components/deal-selects/RiskLevelInline.tsx
- *   frontend/plugins/sales_ui/src/modules/deals/components/deal-selects/SelectDealRiskLevel.tsx
- *   frontend/plugins/sales_ui/src/modules/deals/components/deal-selects/SelectRiskLevel.tsx
- *   frontend/plugins/sales_ui/src/modules/deals/constants/riskLevel.ts
- *   backend/plugins/sales_api/src/main.ts:71–129
+ *   frontend/plugins/sales_ui/src/modules/deals/components/common/filters/SelectConfidenceScoreMin.tsx
+ *   frontend/plugins/sales_ui/src/modules/deals/graphql/mutations/DealsMutations.ts
+ *   frontend/plugins/sales_ui/src/modules/deals/graphql/queries/DealsQueries.ts
+ *   frontend/plugins/sales_ui/src/modules/deals/types/deals.ts
  *
  * Module doc: ../modules/deals.md
  *
@@ -29,12 +23,17 @@
  * require seeded boards or pipelines are skipped explicitly rather than hidden
  * behind TODOs.
  *
- * Deal-risk-level scope (wish 2026-05-22-deal-risk-level):
- *   - SPEC #1: setting riskLevel on the detail sheet persists across reload
- *   - SPEC #2: default 'low' applies to deals created before the field existed
- *   - SPEC #3: kanban card renders a colored badge matching the level
- *   - SPEC #4: action-bar "Risk level" filter narrows the deal list
- *   - SPEC #5: riskLevel appears in the segment-builder field picker
+ * Deal-confidenceScore scope (wish 2026-05-22-deal-confidence-score):
+ *   - SPEC #1+#2: detail sheet renders Confidence score input pre-populated
+ *     with 50 (Mongoose default) for deals without an explicit value
+ *   - SPEC #2: edit-then-reload persists the value (requires seeded deal +
+ *     running stack)
+ *   - SPEC #3: writing a value outside 0..100 is rejected (Mongoose validator)
+ *   - SPEC #4: kanban card renders a progressbar element with the value
+ *   - SPEC #5: action-bar "+ Add filter" menu exposes Confidence ≥ entry
+ *     and selecting it pushes confidenceScoreMin to the URL
+ *   - SPEC #6: legacy deals render as 50 because the schema default applies
+ *     on document load
  *   Tests that require seeded boards/pipelines/segments are skipped with
  *   documented reasons rather than faked.
  */
@@ -165,14 +164,14 @@ test.describe('sales > deals (host UI)', () => {
     await page.goto('/sales/deals');
   });
 
-  test('SPEC #4: action-bar "+ Add filter" menu exposes Risk level', async ({
+  test('SPEC #5: action-bar "+ Add filter" menu exposes "By Confidence ≥"', async ({
     page,
   }) => {
     // frontend/plugins/sales_ui/src/modules/deals/actionBar/components/SalesFilter.tsx
-    // — SelectRiskLevel.FilterItem renders inside the Filter.View's Command list
-    // with the label "By Risk level". This proves SPEC #4 wiring is reachable
-    // from the action bar even without seeded data. Live test — requires the
-    // sales_ui dev server on AGENT_TEST_BASE_URL (default localhost:3000).
+    // — SelectConfidenceScoreMin.FilterItem renders inside the Filter.View's
+    // Command list with the label "By Confidence ≥". This proves the wiring
+    // is reachable from the action bar even without seeded data. Live test —
+    // requires the sales_ui dev server on AGENT_TEST_BASE_URL.
     test.skip(
       !process.env.AGENT_TEST_LIVE,
       'requires running sales_ui dev server (set AGENT_TEST_LIVE=1 and start the host app on localhost:3000)',
@@ -183,17 +182,16 @@ test.describe('sales > deals (host UI)', () => {
     await filterTrigger.click();
 
     await expect(
-      page.getByRole('option', { name: /by risk level/i }),
+      page.getByRole('option', { name: /by confidence/i }),
     ).toBeVisible();
   });
 
-  test('SPEC #4: choosing a riskLevel reflects in the URL query', async ({
+  test('SPEC #5: applying a confidence threshold pushes confidenceScoreMin to the URL', async ({
     page,
   }) => {
-    // frontend/plugins/sales_ui/src/modules/deals/components/deal-selects/SelectRiskLevel.tsx
-    // — SelectRiskLevelFilterView uses useQueryState<TRiskLevel[]>('riskLevel'),
-    // so picking a value should push ?riskLevel=high to the URL the same way
-    // the priority filter does today. Same live-stack gate as the menu test above.
+    // frontend/plugins/sales_ui/src/modules/deals/components/common/filters/SelectConfidenceScoreMin.tsx
+    // — the FilterView uses useQueryState<number>('confidenceScoreMin'). Entering
+    // 70 and pressing Apply should push ?confidenceScoreMin=70.
     test.skip(
       !process.env.AGENT_TEST_LIVE,
       'requires running sales_ui dev server (set AGENT_TEST_LIVE=1 and start the host app on localhost:3000)',
@@ -202,54 +200,55 @@ test.describe('sales > deals (host UI)', () => {
 
     const filterTrigger = page.getByRole('button', { name: /add filter/i });
     await filterTrigger.click();
-    await page.getByRole('option', { name: /by risk level/i }).click();
+    await page.getByRole('option', { name: /by confidence/i }).click();
 
-    await page.getByRole('option', { name: /^high$/i }).click();
+    await page.getByLabel(/minimum confidence/i).fill('70');
+    await page.getByRole('button', { name: /apply/i }).click();
 
-    await expect(page).toHaveURL(/[?&]riskLevel=.*high/);
+    await expect(page).toHaveURL(/[?&]confidenceScoreMin=70/);
   });
 
-  test('SPEC #1: detail sheet exposes a Risk level row when a deal is open', async () => {
+  test('SPEC #1+#2+#6: detail sheet exposes a Confidence score input pre-populated with the deal value (defaults to 50 for legacy deals)', async () => {
     // frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/overview/SalesFormFields.tsx
-    // renders a "Risk level" <Label> + <SelectDealRiskLevel> directly below the
-    // Priority row. Verifying this end-to-end requires opening a deal detail
-    // sheet, which in turn requires a seeded deal (boards/pipelines/stages).
+    // — renders a "Confidence score" <Label> + <Input type="number" min={0} max={100}>
+    // bound to deal.confidenceScore (fallback 50). For deals written before the
+    // schema default existed, Mongoose materializes 50 on load. Verifying this
+    // end-to-end requires opening the detail sheet, which requires a seeded deal.
     test.skip(
       true,
       'requires a seeded deal so the detail sheet can be opened (same gate as the AddDealSheet test above)',
     );
   });
 
-  test('SPEC #1+#2: setting riskLevel on the detail sheet persists across reload', async () => {
-    // Round-trip test: open deal, pick "high" in the SelectDealRiskLevel
-    // dropdown, reload the page, reopen the deal, assert "high" is still
-    // selected. Also covers SPEC #2 because a freshly seeded deal has no
-    // riskLevel and the picker should render the 'low' default.
+  test('SPEC #2: setting confidenceScore on the detail sheet persists across reload', async () => {
+    // Round-trip: open deal, type 80 into Confidence score, blur, reload,
+    // reopen, assert the input still reads 80. Requires a running stack
+    // because the dealsEdit mutation must round-trip to MongoDB.
     test.skip(
       true,
       'requires a seeded deal and a running sales_api + sales_ui stack (dealsEdit mutation must round-trip to MongoDB)',
     );
   });
 
-  test('SPEC #3: kanban card renders a colored badge matching the deal riskLevel', async () => {
-    // frontend/plugins/sales_ui/src/modules/deals/boards/components/DealsBoardCard.tsx
-    // — <RiskLevelBadge level={riskLevel} /> sits next to the priority chip.
-    // The badge sets data-risk-level="low|medium|high" and the Badge variant
-    // maps to success/warning/destructive (green/amber/red).
+  test('SPEC #3: writing a value outside 0..100 is rejected by the Mongoose validator', async () => {
+    // backend/plugins/sales_api/src/modules/sales/db/definitions/deals.ts
+    // — confidenceScore has { min: 0, max: 100 }. A direct models.Deals.updateOne
+    // with 150 throws a ValidatorError. Verified at the unit-test layer (no
+    // unit harness exists for sales_api today; sales_api has no test target
+    // per evals/run.sh output).
     test.skip(
       true,
-      'requires a seeded deal with riskLevel set so the kanban card actually renders the badge',
+      'requires a sales_api unit test harness (sales_api has no test target; min/max constraint is verified by the Mongoose runtime)',
     );
   });
 
-  test('SPEC #5: segment builder lists riskLevel as a filterable Deal field', async () => {
-    // backend/plugins/sales_api/src/modules/sales/db/definitions/deals.ts
-    // — riskLevel path has esType: 'keyword', which makes generateSalesFields
-    // surface it in the segment builder's field picker for content type
-    // sales:deal. End-to-end check needs the segments service + a running ES.
+  test('SPEC #4: kanban card renders a progressbar matching deal.confidenceScore', async () => {
+    // frontend/plugins/sales_ui/src/modules/deals/boards/components/DealsBoardCard.tsx
+    // — renders <div role="progressbar" aria-valuenow={N}> below the title.
+    // Requires a seeded deal so the kanban column actually mounts cards.
     test.skip(
       true,
-      'requires a running segments service with the sales:deal content type registered and an ES index',
+      'requires a seeded deal with confidenceScore so the kanban card actually renders the progressbar',
     );
   });
 });
