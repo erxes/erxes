@@ -82,10 +82,7 @@ export const loadMenuItemClass = (models: IModels) => {
   ) => {
     if (contentType) {
       const normalized = String(contentType).toLowerCase();
-      // Known CMS type — return normalized as-is
       if (LINK_TYPE_BY_CONTENT_TYPE[normalized]) return normalized;
-      // Unknown type (e.g. "product", "product-category", "external-url"):
-      // preserve the raw value so the frontend can render the correct UI
       return normalized;
     }
 
@@ -321,9 +318,6 @@ export const loadMenuItemClass = (models: IModels) => {
     if (!mergedDoc.clientPortalId) {
       throw new Error('clientPortalId is required');
     }
-
-    // Prioritize new input's linkType/contentType over the existing doc's stored linkType.
-    // Without this, an existing linkType:"URL" wins over a new contentType:"page" via short-circuit.
     const newTypeSource = (doc as any).linkType || (doc as any).contentType;
     const existingTypeSource = existingDoc.linkType || existingDoc.contentType;
     const linkType = normalizeLinkType(
@@ -385,8 +379,6 @@ export const loadMenuItemClass = (models: IModels) => {
         content,
       );
     } else {
-      // Preserve contentTypeId for non-CMS types (product, product-category,
-      // external-url) so the frontend can recover the selected item on edit.
       normalizedDoc.contentTypeId = mergedDoc.contentTypeId || undefined;
       normalizedDoc.url = await prepareDirectUrl(
         doc,
