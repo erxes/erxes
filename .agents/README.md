@@ -16,28 +16,21 @@ Before doing anything in this repo, an AI **must** read three files in order:
 
 ## How to start work
 
-| If the developer says... | You do... |
+The developer uses **slash commands** (native to Claude Code; for other tools they just type the wish and the convention file routes you):
+
+| Developer types... | You do... |
 |---|---|
-| `/sales "<wish>"` (Claude Code) | Enter the 7-phase workflow. See [WORKFLOW.md](./WORKFLOW.md). Orchestrator at [`.claude/commands/sales.md`](../.claude/commands/sales.md). |
-| `erxes-wish "<wish>"` piped in (any AI tool) | The wrapper CLI at [`bin/erxes-wish.mjs`](./bin/erxes-wish.mjs) has already constructed a complete briefing — follow it. |
-| "Add/change X in sales" without invocation | Tell the developer about `erxes-wish "<wish>"` (works with any AI tool) or `/sales` (Claude Code). If they decline tool-assist, manually follow [WORKFLOW.md](./WORKFLOW.md). |
-| "Just answer a question about sales" | OK — no workflow needed for pure Q&A. Use [`plugins/sales/`](./plugins/sales/) + [`docs/sales/`](./docs/sales/). |
-| "Touch a non-sales plugin" | Stop. The system is sales-only right now. Ask the developer to confirm they want to ship a non-sales feature without the workflow guards. |
+| `/sales "<wish>"` | Enter the 7-phase workflow. Orchestrator: [`.claude/commands/sales.md`](../.claude/commands/sales.md). See [`WORKFLOW.md`](./WORKFLOW.md). |
+| `/wishes` | List in-flight wishes with phase status. See [`.claude/commands/wishes.md`](../.claude/commands/wishes.md). |
+| `/wish <id>` | Show one wish's detail. See [`.claude/commands/wish.md`](../.claude/commands/wish.md). |
+| `/agents` | Help — list every slash command + system overview. See [`.claude/commands/agents.md`](../.claude/commands/agents.md). |
+| "Add/change X in sales" without slash | Suggest `/sales "<wish>"`. If they decline, manually follow [`WORKFLOW.md`](./WORKFLOW.md). |
+| "Just answer a question about sales" | OK — no workflow needed. Use [`plugins/sales/`](./plugins/sales/) + [`docs/sales/`](./docs/sales/). |
+| "Touch a non-sales plugin" | Stop. System is sales-only. See [`EXTENDING.md`](./EXTENDING.md). |
 
-### For the developer — tool-agnostic invocation
+### For developers on other AI tools
 
-Run from anywhere in the monorepo (pnpm finds the workspace root):
-
-```bash
-pnpm --silent erxes-wish "add confidenceScore to deals" | pbcopy   # paste into Cursor / ChatGPT / Codex / etc.
-pnpm --silent erxes-wish "add confidenceScore to deals"            # print to stdout for review
-pnpm --silent erxes-wish "<wish>" --skill add-sales-mutation       # force a specific skill
-pnpm --silent erxes-wish --help
-```
-
-The `--silent` flag suppresses pnpm's `> erxes-wish` preamble so output is clean for piping. The CLI detects plugin scope and probable skill from your wish text, then assembles a complete briefing with the constitution, workflow, recent lessons, and routed skill embedded. Works with any AI tool because the output is a string.
-
-**Full developer guide:** [`docs/erxes-wish.md`](./docs/erxes-wish.md) — covers all flags, per-AI-tool usage (Claude Code, Cursor, Codex, Copilot, Gemini, ChatGPT, Aider), skill detection rules, shell shortcuts, troubleshooting, and how to extend.
+No slash commands? Just describe the wish. Your convention file (`CLAUDE.md` / `AGENTS.md` / `GEMINI.md` / `.cursorrules` / `.clinerules` / `CONVENTIONS.md` / `.github/copilot-instructions.md`) auto-routes you to [`SYSTEM-PROMPT.md`](./SYSTEM-PROMPT.md) and [`WORKFLOW.md`](./WORKFLOW.md). Same workflow, no slash needed.
 
 ## Routing table (where to look for what)
 
@@ -53,7 +46,7 @@ The `--silent` flag suppresses pnpm's `> erxes-wish` preamble so output is clean
 | Run verification | [`evals/run.sh`](./evals/run.sh) — `evals/run.sh sales` |
 | See what AI got wrong here before | [`memory/lessons.md`](./memory/lessons.md) |
 | Run Playwright behavioral tests | `pnpm test` from `.agents/` (config: [`playwright.config.ts`](./playwright.config.ts)) |
-| Use the `erxes-wish` CLI | [`docs/erxes-wish.md`](./docs/erxes-wish.md) — full developer guide |
+| List slash commands & system overview | [`.claude/commands/agents.md`](../.claude/commands/agents.md) — or run `/agents` |
 | Replicate this system for another plugin | [`EXTENDING.md`](./EXTENDING.md) |
 
 ## First rules (the load-bearing ones)

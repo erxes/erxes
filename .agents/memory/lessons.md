@@ -40,6 +40,12 @@ Quarterly: re-read this file end to end. Lessons that are now baked into rules/s
 
 ## Entries
 
+## 2026-05-22 — CLI wrappers were overkill; slash commands are the native entry point
+**Symptom:** Built `erxes-wish` bin script (Node, ~250 LOC), then an interactive React+Ink TUI (~700 LOC across `.agents/cli/`). Both required install dance (`pnpm agents:install`), one collided with `/usr/bin/wish` causing macOS crash dialog, and the TUI had column-alignment bugs in SelectInput rendering. Developer feedback: "This is not really callable as product."
+**Root cause:** AI tools already have a native command primitive — slash commands (`.claude/commands/<name>.md`). Re-implementing dashboard / wizard / detail views in a Node CLI duplicates what AI tools do for free, and adds dependencies + install friction + UX bugs. CLI was solving the wrong problem.
+**Lesson:** When building a developer-facing helper for AI workflows, slash commands first (`.claude/commands/`). They're native, install-free, work in any chat-based AI tool, and AI handles UX (typography, navigation) better than a Node TUI ever could. Reach for a CLI only when the use case is shell-pipe / scripting / non-interactive. Even then, prefer a tiny script over a TUI.
+**Where applicable:** any future "wrapper" idea for `.agents/`. Decision tree: chat-based UX → slash command; scripted UX → tiny CLI; never both for the same need.
+
 ## 2026-05-22 — `add-deal-field.md` skill points to the wrong UI surface for "edit" wishes
 **Symptom:** Phase 3 GROUND for the riskLevel wish: skill said mirror `priority` through `AddCardForm.tsx` + `salesFormSchema`. Read both files — `priority` isn't there. The Add form covers only: name, description, assignedUserIds, companyIds, customerIds, labelIds, tagIds.
 **Root cause:** The skill conflates two surfaces — Add (the create sheet) and Detail/Edit (the persistent deal sheet). `priority` is only wired in the Detail/Edit surface. The skill's "frontend sister" file list omits the detail sheet entirely.
