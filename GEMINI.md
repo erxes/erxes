@@ -1,4 +1,4 @@
-# CLAUDE.md — entry point for any AI working in this repo
+# GEMINI.md — entry point for any AI working in this repo
 
 > **STOP. Before writing or editing any code, read [`.agents/SYSTEM-PROMPT.md`](./.agents/SYSTEM-PROMPT.md). It is the constitution; it is non-negotiable.**
 
@@ -12,8 +12,8 @@ You are working in the **erxes** monorepo — an Nx + pnpm microservices platfor
 
 | Developer's intent | Do this |
 |---|---|
-| Wishes a Sales feature ("add X to Deal", "show Y on the kanban", "filter by Z") | Run `/sales "<wish>"` — orchestrator at [`.claude/commands/sales.md`](./.claude/commands/sales.md). Drives the 7-phase workflow at [`.agents/WORKFLOW.md`](./.agents/WORKFLOW.md). |
-| Wishes a feature in another plugin (operation, frontline, etc.) | The system is **sales-only today**. Tell the developer; do not invent a workflow. See [`.agents/EXTENDING.md`](./.agents/EXTENDING.md) for how the sales pattern will be replicated. |
+| Wishes a Sales feature ("add X to Deal", "show Y on the kanban", "filter by Z") | Construct a full briefing with `pnpm --silent erxes-wish "<wish>"` and follow the 7-phase workflow at [`.agents/WORKFLOW.md`](./.agents/WORKFLOW.md). |
+| Wishes a feature in another plugin (operation, frontline, etc.) | The system is **sales-only today**. Tell the developer; do not invent a workflow. See [`.agents/EXTENDING.md`](./.agents/EXTENDING.md). |
 | Asks a question about the codebase | Read [`.agents/README.md`](./.agents/README.md) — routing table to docs, plugin maps, glossary. |
 | Asks "where is X file" | [`.agents/plugins/sales/INDEX.md`](./.agents/plugins/sales/INDEX.md) + [`.agents/plugins/sales/modules/`](./.agents/plugins/sales/modules/). |
 | Asks "what does Deal/Pipeline/Stage mean" | [`.agents/memory/glossary.md`](./.agents/memory/glossary.md). |
