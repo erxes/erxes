@@ -65,6 +65,12 @@ const StageInErkhetConfigAddSheetConnected = lazy(() =>
   })),
 );
 
+const PosOrderErkhetConfigAddSheetConnected = lazy(() =>
+  import('~/pages/PosOrderErkhetConfigPage').then((module) => ({
+    default: module.PosOrderErkhetConfigAddSheetConnected,
+  })),
+);
+
 const StageInErkhetIncomeConfig = lazy(() =>
   import('~/pages/StageInErkhetIncomeConfigPage').then((module) => ({
     default: module.StageInErkhetIncomeConfig,
@@ -77,6 +83,7 @@ const ErkhetSettingsHeader = () => {
   const isRemainder = pathname.endsWith('/remainder');
   const isReturn = pathname.endsWith('/return');
   const isStageIn = pathname.endsWith('/stage-in');
+  const isPosOrder = pathname.endsWith('/pos-order');
 
   return (
     <SettingsHeader breadcrumbs={<ErkhetSyncBreadcrumb />}>
@@ -99,6 +106,11 @@ const ErkhetSettingsHeader = () => {
       {isStageIn && (
         <Suspense fallback={null}>
           <StageInErkhetConfigAddSheetConnected />
+        </Suspense>
+      )}
+      {isPosOrder && (
+        <Suspense fallback={null}>
+          <PosOrderErkhetConfigAddSheetConnected />
         </Suspense>
       )}
     </SettingsHeader>
