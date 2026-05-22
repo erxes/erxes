@@ -30,7 +30,7 @@ After reading, create a TaskCreate task for each phase (8 tasks: 0 through 7). M
 
 1. Generate a wish ID: `YYYY-MM-DD-<slug>` where slug is a short kebab-case derived from the wish (e.g., `2026-05-22-deal-risk-level`).
 2. `mkdir .agents/wishes/<id>/`
-3. Read `.agents/templates/WISH.md` — copy it to `.agents/wishes/<id>/WISH.md` and fill it in.
+3. Read `.agents/templates/WISH.md` — copy it to `.agents/wishes/<id>/WISH.md` and fill it in. Set `Status: captured`.
 4. If anything is ambiguous, **STOP and ASK 1–3 clarifying questions** via AskUserQuestion. Common ambiguities:
    - Boolean vs enum vs free-text
    - Where it's visible (card / detail / list / multiple)
@@ -41,6 +41,8 @@ After reading, create a TaskCreate task for each phase (8 tasks: 0 through 7). M
 6. Tell the developer: "Here is the captured wish: <link to WISH.md>. Confirm before I proceed."
 7. Wait for confirmation. **Do not proceed without it.**
 8. Mark Phase 0 complete; start Phase 1.
+
+**Status transitions across the workflow** (the only legal `Status:` values are defined in [`WORKFLOW.md`](../.agents/WORKFLOW.md#status-state-machine-the-only-legal-status-values)). Update the WISH.md `Status:` line at the start of each phase: `captured` → `routed` → `speced` → `grounded` → `planned` → `implementing` → `verified` → `pr-open`. **Never write `shipped`** — that requires a merge SHA on `main` and is a developer-or-follow-up action, never AI.
 
 ---
 
@@ -75,6 +77,7 @@ After reading, create a TaskCreate task for each phase (8 tasks: 0 through 7). M
    - Data model changes
    - UI changes
    - Acceptance criteria (numbered — these become Phase 6 test assertions)
+   - **Test-coverage matrix** — for each criterion, label it `wiring` or `behavior` and name the Phase 6 form (live-gated, seed-in-beforeAll, or BLOCKED on a real wish). At least one criterion must be planned as a non-skipped, seeded behavior test.
    - Out of scope
 4. Tell the developer: "SPEC ready at <link>. Please review acceptance criteria — those are the test contract."
 5. Wait for SPEC approval. **Do not proceed without it.**
@@ -114,37 +117,49 @@ After reading, create a TaskCreate task for each phase (8 tasks: 0 through 7). M
 
 ## Phase 5 — IMPLEMENT
 
+**Branch:** `git checkout -b feat/<wish-id>` (the date-stamped slug, not the bare feature name — avoids collisions with abandoned-PR branches per lessons.md).
+
 For each commit in PLAN.md:
 
 1. Make the edits (use `Edit` tool — not `Write` — for existing files).
 2. Run `.agents/evals/run.sh sales` (or `--backend-only`/`--frontend-only` per the commit's scope).
-3. If exit 0:
+3. **Append one line to `.agents/wishes/<id>/EVAL.log`** in the form:
+   ```
+   commit-<n>  <ISO timestamp>  exit=<code>  <command>  <one-line summary or error tail>
+   ```
+   The file is the audit trail. Phase 7 reads it.
+4. If exit 0:
    - `git add -A`
    - `git commit -m "<message from PLAN>"`
    - Move to next commit.
-4. If non-zero:
-   - Read the error log from `/tmp/run.sh.*.log`
+5. If non-zero:
+   - Read the error log from `/tmp/run.sh.*.log`.
+   - Append the failure line to EVAL.log (do not erase prior lines).
    - Fix the failure.
-   - Re-run the script.
+   - Re-run the script. Each retry adds its own line.
    - **If you can't fix in 2 attempts, STOP and ask the developer.**
-5. After all commits: re-run `evals/run.sh sales` with full default (no `--*-only` flags). Must exit 0.
-6. Mark Phase 5 complete.
+6. After all commits: re-run `evals/run.sh sales` with full default (no `--*-only` flags). Must exit 0. Append the final aggregate line to EVAL.log.
+7. Mark Phase 5 complete only when EVAL.log has ≥1 exit-0 line per commit in PLAN.md plus a final aggregate exit-0 line.
 
 ---
 
 ## Phase 6 — VERIFY
 
 1. Identify the relevant Playwright spec at `.agents/plugins/sales/tests/<file>.spec.ts` (most often `deals.spec.ts`).
-2. Read it. Identify where to add tests covering SPEC's acceptance criteria.
-3. Add tests. Each acceptance criterion in SPEC.md must map to at least one test assertion.
-4. Use the eval-files header convention (see existing specs).
-5. Run: `cd .agents && pnpm test plugins/sales/tests/<file>.spec.ts`
-6. If passing → commit the test changes (this is a new atomic commit).
-7. If failing:
+2. Read it. Open SPEC.md's Test-coverage matrix.
+3. For each criterion, write the test in the form the matrix specifies:
+   - **wiring** → live-gated test (`test.skip(!process.env.AGENT_TEST_LIVE, '...')`), passes without seeded data.
+   - **behavior** → `test.beforeAll` seeds via GraphQL mutations per [`docs/sales/playwright-fixtures.md`](../.agents/docs/sales/playwright-fixtures.md); the test asserts the outcome; `test.afterAll` tears down.
+   - **BLOCKED on wish <id>** → only for individual behavior criteria that genuinely can't seed today, and only if at least one OTHER behavior criterion is non-skipped, seeded, and passing.
+4. **Behavior-coverage floor check** — count behavior-bucket criteria in SPEC vs. behavior-bucket criteria with non-skipped, passing tests. If the count of non-skipped behavior tests is zero, **STOP**. The wish has discovered an infra gap; tell the developer.
+5. Use the eval-files header convention (see existing specs).
+6. Run: `cd .agents && AGENT_TEST_LIVE=1 pnpm test plugins/sales/tests/<file>.spec.ts`
+7. If passing → commit the test changes (this is a new atomic commit). Append the exit line to `.agents/wishes/<id>/EVAL.log`.
+8. If failing:
    - If the test is wrong → fix the test.
    - If the code is wrong → STOP and tell the developer; you may have a Phase 5 regression.
-8. Run `.agents/evals/run.sh sales --include-e2e` for a final all-green confirmation.
-9. Mark Phase 6 complete.
+9. Run `.agents/evals/run.sh sales --include-e2e` for a final all-green confirmation. Append its exit line to EVAL.log.
+10. Mark Phase 6 complete only when the behavior-coverage floor is met.
 
 ---
 
@@ -154,12 +169,30 @@ For each commit in PLAN.md:
 2. Copy `.agents/templates/REVIEW.md` to `.agents/wishes/<id>/REVIEW.md`.
 3. Walk through `.agents/SLOP-CHECKLIST.md` item by item against your diff. Mark each clean or fixed.
 4. If you learned something non-obvious during this wish, append a lesson to `.agents/memory/lessons.md`.
-5. Open the PR via `gh pr create`:
-   - Title: derived from SPEC's user-visible behavior (≤70 chars)
-   - Body: fill `.github/PULL_REQUEST_TEMPLATE.md` completely
-   - Reference the wish: link `.agents/wishes/<id>/`
-6. Print the PR URL to the developer.
-7. Mark Phase 7 complete.
+5. Draft the PR body to disk first: write the filled `.github/PULL_REQUEST_TEMPLATE.md` into `.agents/wishes/<id>/PR-BODY.md`. Title ≤70 chars derived from SPEC's user-visible behavior.
+6. Push the branch: `git push -u origin <branch>` if not already pushed.
+7. Open the PR:
+   ```bash
+   gh pr create --title "<title>" --body-file .agents/wishes/<id>/PR-BODY.md
+   ```
+   - On failure (auth, branch already has PR, no remote, etc.) **STOP**. Do not invent the URL, do not declare success. Report the error verbatim to the developer and ask.
+   - On success: capture the URL printed to stdout.
+8. Verify the URL: `gh pr view <url> --json url,number,headRefOid,state` must return a real JSON payload. If it doesn't, Phase 7 is **not** complete.
+9. Write `.agents/wishes/<id>/SHIP.md`:
+   ```markdown
+   # SHIP: <wish title>
+   **PR:** <url>
+   **PR number:** <n>
+   **HEAD SHA:** <sha from gh pr view>
+   **Opened at:** <ISO timestamp>
+   **State at open:** OPEN | DRAFT
+   **Status transition:** verified → pr-open
+   ```
+10. Flip wish status:
+    - In WISH.md `Status:` line → `pr-open`
+    - **Do not write `shipped`.** Only the developer / a follow-up `/wish-merged` flow sets `shipped`, and only after a merge SHA exists on `main`.
+11. Print the PR URL to the developer.
+12. Mark Phase 7 complete only after SHIP.md exists. **If SHIP.md is missing, Phase 7 is incomplete regardless of which other artifacts are present.**
 
 ---
 

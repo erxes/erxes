@@ -13,13 +13,18 @@ Wish ID: $ARGUMENTS
 1. Resolve the wish directory: `.agents/wishes/$ARGUMENTS/`. If $ARGUMENTS is empty or vague, list available wish IDs and ask which one.
 2. If the directory doesn't exist, say so and list available wish IDs from `.agents/wishes/`.
 3. For each artifact that exists, read it and summarize:
-   - `WISH.md` — the original wish + clarifying answers + disambiguated intent + routing decision
-   - `SPEC.md` — acceptance criteria + scope (in/out)
+   - `WISH.md` — the original wish + clarifying answers + disambiguated intent + routing decision. **Read the `Status:` line.**
+   - `SPEC.md` — acceptance criteria + Test-coverage matrix + scope (in/out)
    - `GROUND.md` — sister features picked + files-read inventory + deviations
    - `PLAN.md` — atomic commits ordered, LOC budget
+   - `EVAL.log` — per-commit eval audit trail (exit lines)
    - `REVIEW.md` — slop checklist walkthrough + lessons captured + PR URL
+   - `SHIP.md` — PR URL + number + HEAD SHA + open timestamp (the proof Phase 7 ran)
    - `STATUS.md` (if present) — halt reason
-4. Determine current phase from highest artifact present.
+4. Determine current phase from the `Status:` value (the source of truth, defined in [`../.agents/WORKFLOW.md`](../.agents/WORKFLOW.md#status-state-machine-the-only-legal-status-values)). Cross-check vs. artifacts on disk; if they disagree, flag the drift and note which one to trust:
+   - `Status: shipped` but no `SHIP.md` or no merge SHA → **status-drift**, trust the absence
+   - `Status: pr-open` but no `SHIP.md` → **status-drift**, trust the absence
+   - `Status: verified` but no `EVAL.log` → **status-drift**, trust the absence
 5. Report:
 
 ```
