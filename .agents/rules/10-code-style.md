@@ -40,6 +40,11 @@
 - **Rich text:** Blocknote
 - **Component primitives:** `erxes-ui` (Radix-based)
 
+## File naming
+
+- **Filenames are unique within a module.** Within a single plugin module (e.g. `frontend/plugins/sales_ui/src/modules/deals/`), no two files may share the same basename across sibling directories. `deal-selects/SelectX.tsx` AND `common/filters/SelectX.tsx` is forbidden — pick `SelectX.tsx` + `FilterX.tsx`, or namespace both surfaces under one file via `Object.assign(Root, { FilterBar, FilterView, FilterItem })`. See [`../SLOP-CHECKLIST.md`](../SLOP-CHECKLIST.md) "Two files with the same basename in sibling directories."
+- This rule applies even when a sister field (e.g. `priority`) already violates it. The precedent is slop; do not inherit.
+
 ## Imports
 
 - Absolute imports per `.cursorrules`:

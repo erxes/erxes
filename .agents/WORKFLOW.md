@@ -15,6 +15,33 @@ checkpoint        gate                                                    gate
 
 Three human checkpoints. Everything else has automated gates AI cannot skip.
 
+## Status state machine (the only legal `Status:` values)
+
+A wish's `Status:` field in `WISH.md` may take **only** these values, in order:
+
+| Status | Set when | Required artifact |
+|---|---|---|
+| `captured` | Phase 0 complete | `WISH.md` exists, ambiguities resolved |
+| `routed` | Phase 1 complete | `WISH.md` has a `## Routing` section |
+| `speced` | Phase 2 complete (developer approved) | `SPEC.md` with Test-coverage matrix filled |
+| `grounded` | Phase 3 complete | `GROUND.md` exists, Read-tool calls ≥ files listed |
+| `planned` | Phase 4 complete | `PLAN.md` exists, atomic commits ordered |
+| `implementing` | Phase 5 in progress | branch `feat/<wish-id>` exists; commits landing |
+| `verified` | Phase 6 complete | `EVAL.log` exists; behavior-coverage floor met |
+| `pr-open` | Phase 7 partly complete | `SHIP.md` exists with a real `gh pr view`-verifiable URL |
+| `shipped` | After merge | the merge commit on `main` references the PR |
+| `aborted` | Wish abandoned mid-flow | `STATUS.md` with abort reason |
+| `halted` | Wish blocked, may resume | `STATUS.md` with halt reason |
+
+**Forbidden combinations** (these are the historical failure modes):
+
+- ❌ `shipped` without a merge commit on `main`. AI never self-assigns `shipped`.
+- ❌ `pr-open` without `SHIP.md`. The artifact is the proof.
+- ❌ "shipped (awaiting PR open)" — there is no such state. `pr-open` is its own status.
+- ❌ `verified` without `EVAL.log` or with every behavior-bucket criterion skipped against one wish.
+
+The status is a **claim about reality**. If reality disagrees (`gh pr view` 404s, the merge commit doesn't exist), reality wins and the AI fixes the status.
+
 ## Phase 0 — WISH
 
 **Goal:** capture the developer's intent unambiguously.
@@ -134,20 +161,35 @@ Three human checkpoints. Everything else has automated gates AI cannot skip.
 
 ## Phase 5 — IMPLEMENT
 
-**Goal:** execute the plan, one atomic commit at a time.
+**Goal:** execute the plan, one atomic commit at a time, with a captured audit trail.
+
+**Branch:** create the feature branch as `feat/<wish-id>` (e.g., `feat/2026-05-22-deal-confidence-score`). The date-stamped form avoids collisions with abandoned-PR branches that may still exist locally — see lesson "Branch name collision with abandoned-PR branches blocks fresh-wish retries."
 
 **AI does:**
 For each commit in PLAN.md:
 1. Make the edits.
 2. Run `.agents/evals/run.sh sales` (or `evals/run.sh sales --backend-only` for backend-only commits — see `evals/run.sh --help`).
-3. If exit 0 → `git add -A && git commit -m "<message>"` then proceed to next.
-4. If non-zero → fix the failure. If fix takes >2 attempts, **stop and ask**.
+3. **Append the result to `.agents/wishes/<id>/EVAL.log`** in the format:
+   ```
+   <commit-N>  <ISO-timestamp>  <exit-code>  <command>  <short-summary-or-error-snippet>
+   ```
+   One line per run. This file is the audit trail that Phase 7 reads.
+4. If exit 0 → `git add -A && git commit -m "<message from PLAN>"` then proceed to next.
+5. If non-zero → fix the failure. **Every retry adds a new line to EVAL.log** (so the iteration count is visible). If fix takes >2 attempts, **stop and ask**.
 
-**Artifact:** commits in the working tree.
+After all commits, run `.agents/evals/run.sh sales` with full default (no `--*-only` flags). Must exit 0. Append the final aggregate line to EVAL.log.
 
-**Gate (automatic):** every commit must leave the repo in a buildable state.
+**Artifacts:**
+- Commits in the working tree.
+- `.agents/wishes/<id>/EVAL.log` — exit-line per commit + final aggregate. **Required for Phase 7.**
 
-**Slop prevented:** broken intermediate states; "I'll fix it later."
+**Gates (automatic):**
+- Every commit must leave the repo in a buildable state (eval exit 0).
+- EVAL.log has at least one line per commit listed in PLAN.md.
+
+**Slop prevented:**
+- Broken intermediate states; "I'll fix it later."
+- **Self-narrated "I ran the eval on every commit" with no audit trail.** EVAL.log makes the per-commit gate auditable, not narrated.
 
 ---
 
@@ -157,44 +199,61 @@ For each commit in PLAN.md:
 
 **AI does:**
 1. Open `.agents/plugins/sales/tests/`. Find the spec covering the affected module.
-2. For **every** SPEC.md acceptance criterion, write a Playwright test that:
-   - **Seeds its own fixtures via API** (GraphQL mutations or REST calls — not via UI). Need a deal? Create board → pipeline → stage → deal in `test.beforeAll`. Don't rely on pre-existing data.
-   - **Executes the user-visible flow** (navigate, click, type, observe).
-   - **Asserts the user-visible outcome** (text content, color class, URL, count).
-   - **Tears down fixtures** in `test.afterAll` to keep runs idempotent.
-3. Use the eval-files header convention (see `.agents/README.md`).
-4. Run the spec: `cd .agents && pnpm test plugins/sales/tests/<file>.spec.ts`. **Every** non-skipped test must pass.
-5. Commit the test changes.
+2. **Classify every SPEC.md acceptance criterion** into one of two buckets in SPEC.md's Test-coverage matrix:
+   - **Wiring** — provable without seeded data: a label exists in a menu, a URL param updates, a network call fires with the right variables, an input has the right `min`/`max` attribute.
+   - **Behavior** — requires seeded data: "the saved deal exposes the value," "the filter actually hides deals," "the validation rejects the write."
+3. For each criterion write a Playwright test in the matching form:
+   - **Wiring** → a live test gated only by `AGENT_TEST_LIVE=1` (the stack must be running, no seeding needed). These **must not** skip on the named-blocking-wish marker — they have no seed dependency.
+   - **Behavior** → a test that **seeds its own fixtures via API** (GraphQL mutations) in `test.beforeAll` and tears down in `test.afterAll`. See [`docs/sales/playwright-fixtures.md`](./docs/sales/playwright-fixtures.md).
+4. Use the eval-files header convention (see `.agents/README.md`).
+5. Run the spec: `cd .agents && AGENT_TEST_LIVE=1 pnpm test plugins/sales/tests/<file>.spec.ts`. **Every** non-skipped test must pass.
+6. Commit the test changes.
 
-**No-skip rule.** `test.skip(true, 'pending seeded deal')` is **forbidden**. Two acceptable forms only:
-- A test that seeds its own fixtures (preferred — write the seeder).
-- A `test.skip(true, '<reason>')` with a **named follow-up wish**: e.g., `'BLOCKED on wish 2026-06-01-test-auth-fixture'`. The blocking wish must exist as a real `.agents/wishes/<id>/WISH.md` before the skip is accepted.
+**Behavior-coverage floor (the loophole closer).** A wish cannot move past Phase 6 if **all** of its behavior-bucket criteria are skipped. Concretely:
 
-If the dev stack isn't running, the test should **fail loudly** with "stack not running" — not silently skip. The test still exists as a runnable contract.
+- ✅ **At least one behavior-bucket test must be non-skipped** (i.e., must actually seed and execute against a live stack).
+- ✅ The seeder lives **inside the spec** (or in `.agents/plugins/sales/tests/fixtures.ts` once a real second caller exists). It is not deferred to a downstream wish.
+- ❌ If no behavior test is feasible without infrastructure that doesn't exist yet, **the wish has discovered a blocking infra dependency** — STOP and tell the developer. Do not ship a wish whose entire behavior surface is unverified.
 
-**Artifact:** updated/new spec at `.agents/plugins/sales/tests/<file>.spec.ts` with every non-skipped test passing against a running stack.
+**No-skip rule.** `test.skip(true, 'pending seeded deal')` is **forbidden**. Three forms are acceptable, **in this preference order**:
 
-**Gate (automatic):** every SPEC.md acceptance criterion has at least one **non-skipped** test that passes (or a skip pointing at a real follow-up wish).
+1. **Wiring test gated on `AGENT_TEST_LIVE`** — for criteria that are wiring-bucket. The skip-on-no-live-stack is structural (no live stack → cannot run the host UI assertion); when `AGENT_TEST_LIVE=1` it must pass.
+2. **Behavior test that seeds its own fixtures** — for criteria that are behavior-bucket. **Preferred for at least one criterion per wish.**
+3. **`test.skip(true, 'BLOCKED on wish <id>')` with a named follow-up wish** — *only for criteria that cannot be seeded inline today AND the wish has at least one passing behavior test elsewhere*. The blocking wish must exist as a real `.agents/wishes/<id>/WISH.md`. **Using this for every behavior criterion in a wish is the historical cop-out — Phase 6 rejects that pattern.**
+
+If the dev stack isn't running, wiring tests fail loudly with "stack not running" — not silently skip. The test still exists as a runnable contract.
+
+**Artifact:** updated/new spec at `.agents/plugins/sales/tests/<file>.spec.ts` with every non-skipped test passing against a running stack, plus the SPEC.md Test-coverage matrix.
+
+**Gate (automatic):**
+- Every SPEC.md acceptance criterion maps to at least one test.
+- Every wiring-bucket criterion has a non-skipped, passing test.
+- **At least one behavior-bucket criterion has a non-skipped, passing test that seeds its own data.**
+- Every skip references a real follow-up wish.
 
 **Slop prevented:**
 - "Code compiles → it works" (the original slop)
 - "I wrote tests but they all skip with `pending seeded deal`" (the cop-out slop — far more common in practice)
+- **"I named a blocking wish so every skip is legal" (the meta-cop-out — the named-blocking-wish marker is the floor's exception, not its default).**
 
 ---
 
 ## Phase 7 — REVIEW + SHIP
 
-**Goal:** self-review, capture lessons, open PR with an executable "see it work" path.
+**Goal:** self-review, capture lessons, open PR with an executable "see it work" path, **and produce a `SHIP.md` artifact carrying the live PR URL**. The wish does not reach status `pr-open` until the URL exists.
 
 **AI does:**
 1. Copy `.agents/templates/REVIEW.md` to `.agents/wishes/<id>/REVIEW.md`.
 2. `git diff main...HEAD` — read every line.
 3. Walk through `.agents/SLOP-CHECKLIST.md`, item by item. For each, note "clean" or "fixed".
 4. If you learned something non-obvious during the wish, append a lesson to `.agents/memory/lessons.md` per its format.
-5. Open the PR:
-   - Title: derived from SPEC's user-visible behavior
-   - Body: fill `.github/PULL_REQUEST_TEMPLATE.md`, including the **"See it work"** section (see below — mandatory)
-   - Reference the wish: link `.agents/wishes/<id>/`
+5. Push the branch: `git push -u origin <branch>` (or confirm it's already up to date).
+6. Open the PR — **this step is the gate, not a narration**:
+   - `gh pr create --title "<title>" --body-file <(cat <<'EOF' … EOF)` (or `--body-file .agents/wishes/<id>/PR-BODY.md` if you drafted the body to disk first).
+   - Capture the printed URL.
+   - If `gh pr create` fails (auth, no remote, branch already has a PR, etc.) → **STOP. Do not write SHIP.md.** Report the error verbatim.
+7. Write `.agents/wishes/<id>/SHIP.md` carrying the URL, PR number, HEAD SHA, and timestamp. The wish status flips to `pr-open` **only after this file exists with a real URL**.
+8. Update `.agents/wishes/<id>/STATUS.md` (or the `Status:` line in WISH.md) to `pr-open`. Status `shipped` is reserved for after the merge commit lands on `main` — the AI does not self-assign it.
 
 ### Mandatory "See it work" section (Phase 7 deliverable)
 
@@ -221,13 +280,19 @@ Expected: `<one-sentence visual outcome>`
 
 The "Manual path" must be runnable by someone unfamiliar with the wish in under 60 seconds.
 
-**Artifact:** PR opened on GitHub with the "See it work" section filled in.
+**Artifacts:**
+- PR opened on GitHub with the "See it work" section filled in.
+- `.agents/wishes/<id>/SHIP.md` — contains the PR URL, PR number, HEAD SHA, timestamp. **This file is the proof Phase 7 ran.** No SHIP.md → wish is not shippable, regardless of what status is narrated elsewhere.
+- `.agents/wishes/<id>/PR-BODY.md` is the body that was posted (kept in the wish folder, not just in stdout).
 
-**Gate (human):** developer follows the "See it work" path. If it doesn't reproduce the behavior, PR is rejected — Phase 6 was inadequate.
+**Gates:**
+- **Automatic:** SHIP.md exists *and* the URL inside it resolves (200 from `gh pr view <url>`). If either fails, Phase 7 has not completed.
+- **Human:** developer follows the "See it work" path. If it doesn't reproduce the behavior, PR is rejected — Phase 6 was inadequate.
 
 **Slop prevented:**
 - Unreviewed AI confidence reaching main
 - "I tested it locally, trust me" — the deliverable is a reproducible path, not a claim
+- **Self-declared "shipped" without a PR URL** — the historical failure mode of WISH.md saying `Status: shipped (awaiting PR open)` is now impossible: `shipped` requires a merge SHA, `pr-open` requires SHIP.md.
 
 ---
 

@@ -25,6 +25,8 @@ You are working in the erxes monorepo. Your job is to **ship customer-facing Sal
 10. **NEVER use `npm` or `yarn`** — pnpm only.
 11. **NEVER bypass plugin boundaries with a direct import.** Use federation, tRPC, or pubsub. See [`rules/20-architecture-boundaries.md`](./rules/20-architecture-boundaries.md).
 12. **NEVER touch a multi-tenant data path without subdomain.** See [`rules/30-multi-tenancy.md`](./rules/30-multi-tenancy.md).
+13. **NEVER self-assign wish status `shipped`.** Only the merge commit on `main` earns `shipped`. AI may set `pr-open` only after writing `SHIP.md` with a verifiable URL. The legal status enum is in [`WORKFLOW.md`](./WORKFLOW.md#status-state-machine-the-only-legal-status-values).
+14. **NEVER skip every behavior-bucket SPEC criterion against one named blocking wish.** That's the meta-cop-out. At least one behavior criterion must be non-skipped, seeded, passing — or Phase 6 halts.
 
 ## Always
 
