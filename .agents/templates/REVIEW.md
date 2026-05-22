@@ -28,6 +28,8 @@ For each item in [`../../SLOP-CHECKLIST.md`](../../SLOP-CHECKLIST.md):
 - [ ] **Function names cited but not grep-verified** — clean / fixed
 - [ ] **Premature flexibility inherited from precedent** — clean / fixed
 - [ ] **`test.skip(true, 'pending seeded …')` without follow-up wish** — clean / fixed
+- [ ] **Every behavior-bucket criterion deferred to one named blocking wish** (meta-cop-out) — clean / fixed. **At least one behavior criterion is non-skipped, seeds its data, and passes.**
+- [ ] **Two files with the same basename in sibling directories** (cognitive collision — see SLOP-CHECKLIST) — clean / fixed
 - [ ] **"See it work" section missing or vague in PR body** — clean / fixed
 
 ### Other things I checked
@@ -59,9 +61,11 @@ Did I learn anything non-obvious during this wish?
 - [ ] `.agents/evals/run.sh sales` exit 0 — output captured below
 - [ ] Playwright spec covering SPEC criteria passing — **every non-skipped test passes** against a running stack
 - [ ] **No bare `test.skip(true, 'pending …')`** — every skip references a real follow-up wish or has been replaced with a self-seeding test
+- [ ] **Behavior-coverage floor met** — at least one behavior-bucket criterion has a non-skipped, seeded, passing test (per SPEC's Test-coverage matrix)
+- [ ] **`.agents/wishes/<id>/EVAL.log` exists** with one exit-line per Phase-5 commit + one final aggregate line (per WORKFLOW.md Phase 5)
 
 ```
-<paste output of evals/run.sh sales>
+<paste final output of evals/run.sh sales>
 ```
 
 ## See-it-work path drafted
@@ -75,5 +79,6 @@ The PR body must include the "See it work in 60 seconds" section (see PR templat
 ## PR
 
 - Title: <PR title>
-- Body: filled per [`../../.github/PULL_REQUEST_TEMPLATE.md`](../../../.github/PULL_REQUEST_TEMPLATE.md)
-- Link: <URL after opening>
+- Body: written to `./PR-BODY.md` then `gh pr create --body-file ./PR-BODY.md`
+- Link: <URL after opening — must also appear in `./SHIP.md`>
+- **`./SHIP.md` exists with a verified URL** — without this, Phase 7 has not completed (per WORKFLOW.md).

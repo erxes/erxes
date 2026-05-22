@@ -2,7 +2,7 @@
 
 **ID:** `YYYY-MM-DD-<slug>`
 **Created:** YYYY-MM-DD
-**Status:** captured / routed / spec'd / grounded / planned / implementing / verifying / reviewing / shipped / aborted
+**Status:** `captured` — see [`../../WORKFLOW.md`](../../WORKFLOW.md#status-state-machine-the-only-legal-status-values) for the legal enum. AI never self-assigns `shipped` (that requires a merge SHA on `main`); `pr-open` requires `SHIP.md` to exist with a verifiable URL.
 
 ## Original wish
 

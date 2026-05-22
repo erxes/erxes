@@ -51,6 +51,17 @@ Numbered list. Phase 6 (VERIFY) will turn each into at least one test assertion.
 2. <user-visible thing 2>
 3. ...
 
+## Test-coverage matrix (filled in this SPEC, enforced in Phase 6)
+
+Classify every acceptance criterion above. **Wiring** = provable without seeded data (menu item exists, URL param updates, input has `min`/`max` attribute, network call fires with right variables). **Behavior** = requires seeded data ("the saved deal exposes the value," "the filter actually hides deals").
+
+| # | Criterion (short) | Bucket | Plan |
+|---|---|---|---|
+| 1 | <criterion 1> | wiring \| behavior | live-gated test \| seed in beforeAll \| BLOCKED on wish <id> |
+| 2 | <criterion 2> | wiring \| behavior | ... |
+
+**Phase 6 floor:** at least one behavior-bucket criterion must be non-skipped (i.e., its test seeds its own fixtures and passes against a live stack). If every behavior criterion points at the same blocking wish, the wish has discovered an infra dependency — Phase 6 halts.
+
 ## Out of scope
 
 - <what this SPEC does NOT change>

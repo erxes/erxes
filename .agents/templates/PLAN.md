@@ -47,9 +47,14 @@ If total > 300 LOC, the wish is probably too big. Consider splitting.
 - **Riskiest commit:** <which one and why>
 - **If shipped and broken in production:** how to revert. (Usually `git revert <sha>` and re-plan. For multi-commit changes, may need a partial revert.)
 
+## EVAL log expectation
+
+Phase 5 will write `./EVAL.log` — one line per `evals/run.sh sales` invocation across all commits + a final aggregate. The file is the audit trail Phase 7 reads. Without it, "I ran the eval on every commit" is a claim, not a proof.
+
 ## Approval
 
 - [ ] Each commit is atomic
 - [ ] Each commit is independently buildable
 - [ ] LOC budget reasonable
-- [ ] Test commit covers every SPEC acceptance criterion
+- [ ] Test commit covers every SPEC acceptance criterion (per SPEC.md's Test-coverage matrix)
+- [ ] At least one behavior-bucket test will be non-skipped, seeded, passing
