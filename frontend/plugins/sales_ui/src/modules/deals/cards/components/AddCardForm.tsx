@@ -27,6 +27,7 @@ export function AddCardForm({
       customerIds: [],
       labelIds: [],
       tagIds: [],
+      confidenceScore: undefined,
     },
   });
   const { addDeals, loading } = useDealsAdd();
@@ -159,6 +160,34 @@ export function AddCardForm({
                         value={field.value}
                         onValueChange={field.onChange}
                       />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  control={form.control}
+                  name="confidenceScore"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Confidence</Form.Label>
+                      <Form.Control>
+                        <Input
+                          type="number"
+                          min={0}
+                          max={100}
+                          step={1}
+                          placeholder="0–100"
+                          value={field.value ?? ''}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value === ''
+                                ? undefined
+                                : Number(e.target.value),
+                            )
+                          }
+                          data-testid="confidence-score-add-input"
+                        />
+                      </Form.Control>
+                      <Form.Message />
                     </Form.Item>
                   )}
                 />
