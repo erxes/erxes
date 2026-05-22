@@ -19,11 +19,13 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAtomValue } from 'jotai';
 import { useMenusColumns } from './MenusColumn';
 import { MenusCommandBar } from './menus-command-bar/MenusCommandBar';
 import { useMenus } from '../hooks/useMenus';
 import { CMS_MENU_EDIT, CMS_MENU_REMOVE } from '../../graphql/queries';
 import { buildFlatTree } from '@/cms/menus/menuUtils';
+import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
 
 interface MenuItem {
   _id: string;
@@ -42,7 +44,11 @@ interface MenusRecordTableProps {
 
 const getParentKey = (menu?: MenuItem) => menu?.parentId || null;
 
-const applySiblingOrder = (menus: MenuItem[], siblings: MenuItem[]) => {
+const applySiblingOrder = (
+  menus: MenuItem[],
+  siblings: MenuItem[],
+  locale?: string,
+) => {
   const orderById = new Map(
     siblings.map((menu, index) => [menu._id, index + 1]),
   );
@@ -53,7 +59,7 @@ const applySiblingOrder = (menus: MenuItem[], siblings: MenuItem[]) => {
     return order ? { ...menu, order } : menu;
   });
 
-  return buildFlatTree(updatedMenus);
+  return buildFlatTree(updatedMenus, locale);
 };
 
 type SortableMenuRowProps = React.ComponentProps<typeof RecordTable.Row> & {
@@ -120,6 +126,7 @@ export const MenusRecordTable = ({
   onEdit,
 }: MenusRecordTableProps) => {
   const { menus, loading, refetch } = useMenus({ clientPortalId, kind });
+  const language = useAtomValue(cmsLanguageAtom);
   const [orderedMenus, setOrderedMenus] = useState<MenuItem[]>(menus);
   const [isReordering, setIsReordering] = useState(false);
   const [removeMenu] = useMutation(CMS_MENU_REMOVE);
@@ -185,7 +192,11 @@ export const MenusRecordTable = ({
     }
 
     const reorderedSiblings = arrayMove(siblings, oldIndex, newIndex);
-    const nextMenus = applySiblingOrder(orderedMenus, reorderedSiblings);
+    const nextMenus = applySiblingOrder(
+      orderedMenus,
+      reorderedSiblings,
+      language || 'en',
+    );
 
     setOrderedMenus(nextMenus);
     setIsReordering(true);

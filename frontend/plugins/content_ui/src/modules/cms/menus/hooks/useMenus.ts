@@ -32,8 +32,8 @@ export const useMenus = ({
   });
 
   const menus = useMemo(
-    () => buildFlatTree(data?.cmsMenuList || []),
-    [data?.cmsMenuList],
+    () => buildFlatTree(data?.cmsMenuList || [], language || 'en'),
+    [data?.cmsMenuList, language],
   );
 
   return { menus, totalCount: menus.length, loading, error, refetch };

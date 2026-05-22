@@ -6,7 +6,11 @@ export type RawMenuItem = {
   [key: string]: unknown;
 };
 
-function compareMenuItems<T extends RawMenuItem>(a: T, b: T): number {
+function compareMenuItems<T extends RawMenuItem>(
+  a: T,
+  b: T,
+  locale = 'en',
+): number {
   const aOrder = a.order ?? Number.MAX_SAFE_INTEGER;
   const bOrder = b.order ?? Number.MAX_SAFE_INTEGER;
 
@@ -14,7 +18,7 @@ function compareMenuItems<T extends RawMenuItem>(a: T, b: T): number {
     return aOrder - bOrder;
   }
 
-  return a.label.localeCompare(b.label, 'en', {
+  return a.label.localeCompare(b.label, locale || 'en', {
     numeric: true,
     sensitivity: 'base',
   });
@@ -22,12 +26,13 @@ function compareMenuItems<T extends RawMenuItem>(a: T, b: T): number {
 
 export function buildFlatTree<T extends RawMenuItem>(
   items: T[],
+  locale = 'en',
 ): (T & { depth: number })[] {
   const result: (T & { depth: number })[] = [];
   const addChildren = (parentId: string | null, depth: number) => {
     items
       .filter((item) => (item.parentId || null) === parentId)
-      .sort(compareMenuItems)
+      .sort((a, b) => compareMenuItems(a, b, locale))
       .forEach((item) => {
         result.push({ ...item, depth });
         addChildren(item._id, depth + 1);
