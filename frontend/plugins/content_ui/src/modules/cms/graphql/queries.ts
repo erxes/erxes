@@ -72,7 +72,6 @@ export const CMS_MENU_ADD = gql`
       label
       contentType
       contentTypeId
-      type
       linkType
       kind
       icon
@@ -92,7 +91,6 @@ export const CMS_MENU_EDIT = gql`
       label
       contentType
       contentTypeId
-      type
       linkType
       kind
       icon
@@ -792,6 +790,7 @@ export const CMS_MENU_LIST = gql`
     $limit: Int
     $cursor: String
     $direction: CURSOR_DIRECTION
+    $orderBy: JSON
   ) {
     cmsMenuList(
       clientPortalId: $clientPortalId
@@ -800,13 +799,13 @@ export const CMS_MENU_LIST = gql`
       limit: $limit
       cursor: $cursor
       direction: $direction
+      orderBy: $orderBy
     ) {
       _id
       parentId
       label
       contentType
       contentTypeId
-      type
       linkType
       kind
       icon
