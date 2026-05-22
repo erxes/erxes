@@ -36,11 +36,12 @@ You are working in the **erxes** monorepo — an Nx + pnpm microservices platfor
 
 ## For the developer
 
-If you want zero-friction invocation regardless of which AI tool you're using, the wrapper CLI at `.agents/bin/erxes-wish` constructs a tool-agnostic prompt:
+If you want zero-friction invocation regardless of which AI tool you're using, the wrapper CLI constructs a tool-agnostic prompt. Works from anywhere in the monorepo:
 
 ```bash
-.agents/bin/erxes-wish "add confidenceScore to deals" | pbcopy   # paste into Cursor / ChatGPT / etc.
-.agents/bin/erxes-wish "add confidenceScore to deals"            # print to stdout for review
+pnpm --silent erxes-wish "add confidenceScore to deals" | pbcopy   # paste into Cursor / ChatGPT / etc.
+pnpm --silent erxes-wish "add confidenceScore to deals"            # print to stdout for review
+pnpm --silent erxes-wish --help
 ```
 
 See [`.agents/README.md`](./.agents/README.md) for the full system layout.

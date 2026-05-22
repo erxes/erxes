@@ -13,7 +13,7 @@
 
 ## Routing
 
-# - Sales feature wish? → construct prompt with `.agents/bin/erxes-wish "<wish>"`,
+# - Sales feature wish? → construct prompt with `pnpm --silent erxes-wish "<wish>"`,
 #   follow 7-phase workflow at .agents/WORKFLOW.md.
 # - Non-sales plugin? → system is sales-only today. Tell developer.
 # - Question about codebase? → .agents/README.md routes you.

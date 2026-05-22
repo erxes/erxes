@@ -26,14 +26,16 @@ Before doing anything in this repo, an AI **must** read three files in order:
 
 ### For the developer — tool-agnostic invocation
 
+Run from anywhere in the monorepo (pnpm finds the workspace root):
+
 ```bash
-.agents/bin/erxes-wish "add confidenceScore to deals" | pbcopy    # paste into Cursor / ChatGPT / Codex / etc.
-.agents/bin/erxes-wish "add confidenceScore to deals"             # print to stdout for review
-.agents/bin/erxes-wish "<wish>" --skill add-sales-mutation        # force a specific skill
-.agents/bin/erxes-wish --help
+pnpm --silent erxes-wish "add confidenceScore to deals" | pbcopy   # paste into Cursor / ChatGPT / Codex / etc.
+pnpm --silent erxes-wish "add confidenceScore to deals"            # print to stdout for review
+pnpm --silent erxes-wish "<wish>" --skill add-sales-mutation       # force a specific skill
+pnpm --silent erxes-wish --help
 ```
 
-The CLI detects the plugin scope and probable skill from your wish text, then assembles a complete briefing prompt with the constitution, workflow, recent lessons, and the routed skill embedded. Works with any AI tool because the output is a string.
+The `--silent` flag suppresses pnpm's `> erxes-wish` preamble so output is clean for piping. The CLI detects plugin scope and probable skill from your wish text, then assembles a complete briefing with the constitution, workflow, recent lessons, and routed skill embedded. Works with any AI tool because the output is a string.
 
 ## Routing table (where to look for what)
 

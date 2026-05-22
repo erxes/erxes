@@ -7,7 +7,7 @@
 
 ## Routing
 
-# - Sales feature wish? → `.agents/bin/erxes-wish "<wish>"` + follow .agents/WORKFLOW.md
+# - Sales feature wish? → `pnpm --silent erxes-wish "<wish>"` + follow .agents/WORKFLOW.md
 # - Non-sales plugin? → sales-only today. See .agents/EXTENDING.md.
 # - Question about codebase? → .agents/README.md
 # - Glossary? → .agents/memory/glossary.md

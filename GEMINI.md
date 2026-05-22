@@ -12,7 +12,7 @@ You are working in the **erxes** monorepo — an Nx + pnpm microservices platfor
 
 | Developer's intent | Do this |
 |---|---|
-| Wishes a Sales feature ("add X to Deal", "show Y on the kanban", "filter by Z") | Construct a full briefing with `.agents/bin/erxes-wish "<wish>"` and follow the 7-phase workflow at [`.agents/WORKFLOW.md`](./.agents/WORKFLOW.md). |
+| Wishes a Sales feature ("add X to Deal", "show Y on the kanban", "filter by Z") | Construct a full briefing with `pnpm --silent erxes-wish "<wish>"` and follow the 7-phase workflow at [`.agents/WORKFLOW.md`](./.agents/WORKFLOW.md). |
 | Wishes a feature in another plugin (operation, frontline, etc.) | The system is **sales-only today**. Tell the developer; do not invent a workflow. See [`.agents/EXTENDING.md`](./.agents/EXTENDING.md). |
 | Asks a question about the codebase | Read [`.agents/README.md`](./.agents/README.md) — routing table to docs, plugin maps, glossary. |
 | Asks "where is X file" | [`.agents/plugins/sales/INDEX.md`](./.agents/plugins/sales/INDEX.md) + [`.agents/plugins/sales/modules/`](./.agents/plugins/sales/modules/). |
@@ -36,11 +36,12 @@ You are working in the **erxes** monorepo — an Nx + pnpm microservices platfor
 
 ## For the developer
 
-If you want zero-friction invocation regardless of which AI tool you're using, the wrapper CLI at `.agents/bin/erxes-wish` constructs a tool-agnostic prompt:
+If you want zero-friction invocation regardless of which AI tool you're using, the wrapper CLI constructs a tool-agnostic prompt. Works from anywhere in the monorepo:
 
 ```bash
-.agents/bin/erxes-wish "add confidenceScore to deals" | pbcopy   # paste into Cursor / ChatGPT / etc.
-.agents/bin/erxes-wish "add confidenceScore to deals"            # print to stdout for review
+pnpm --silent erxes-wish "add confidenceScore to deals" | pbcopy   # paste into Cursor / ChatGPT / etc.
+pnpm --silent erxes-wish "add confidenceScore to deals"            # print to stdout for review
+pnpm --silent erxes-wish --help
 ```
 
 See [`.agents/README.md`](./.agents/README.md) for the full system layout.

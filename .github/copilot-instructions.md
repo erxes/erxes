@@ -12,7 +12,7 @@ You are working in the **erxes** monorepo — Nx + pnpm microservices. Backend: 
 
 | Developer's intent | Do this |
 |---|---|
-| Sales feature wish | `.agents/bin/erxes-wish "<wish>"` + follow [`/.agents/WORKFLOW.md`](../.agents/WORKFLOW.md). |
+| Sales feature wish | `pnpm --silent erxes-wish "<wish>"` + follow [`/.agents/WORKFLOW.md`](../.agents/WORKFLOW.md). |
 | Non-sales plugin | Sales-only today. Tell developer. See [`/.agents/EXTENDING.md`](../.agents/EXTENDING.md). |
 | Codebase question | [`/.agents/README.md`](../.agents/README.md). |
 | Glossary | [`/.agents/memory/glossary.md`](../.agents/memory/glossary.md). |

@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 // erxes-wish — tool-agnostic prompt enhancer for .agents/-driven feature wishes.
 //
-// Usage:
-//   .agents/bin/erxes-wish "add confidenceScore to deals"
-//   .agents/bin/erxes-wish "add confidenceScore to deals" | pbcopy
-//   .agents/bin/erxes-wish "add confidenceScore to deals" --no-lessons   # smaller prompt
-//   .agents/bin/erxes-wish --help
+// Usage (run from anywhere in the monorepo):
+//   pnpm --silent erxes-wish "add confidenceScore to deals"
+//   pnpm --silent erxes-wish "add confidenceScore to deals" | pbcopy
+//   pnpm --silent erxes-wish "add confidenceScore to deals" --no-lessons   # smaller prompt
+//   pnpm --silent erxes-wish --help
+//
+// Or invoke directly if your CWD is repo root:
+//   .agents/bin/erxes-wish.mjs "add confidenceScore to deals"
 //
 // Output: a complete, tool-agnostic prompt to stdout. Paste it into any AI tool
 // (Claude Code, Cursor, ChatGPT, Codex CLI, Copilot Chat, Cline, Aider, …).
@@ -27,17 +30,17 @@ const args = process.argv.slice(2);
 if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
   process.stderr.write(`erxes-wish — tool-agnostic prompt enhancer for .agents/
 
-Usage:
-  erxes-wish "<wish>"                          full prompt to stdout
-  erxes-wish "<wish>" | pbcopy                 copy to macOS clipboard
-  erxes-wish "<wish>" --no-lessons             skip lessons.md inline
-  erxes-wish "<wish>" --no-system-prompt       skip SYSTEM-PROMPT.md inline
-  erxes-wish "<wish>" --skill <skill-name>     force a specific skill
-  erxes-wish --help
+Usage (from anywhere in the monorepo):
+  pnpm --silent erxes-wish "<wish>"                          full prompt to stdout
+  pnpm --silent erxes-wish "<wish>" | pbcopy                 copy to macOS clipboard
+  pnpm --silent erxes-wish "<wish>" --no-lessons             skip lessons.md inline
+  pnpm --silent erxes-wish "<wish>" --no-system-prompt       skip SYSTEM-PROMPT.md inline
+  pnpm --silent erxes-wish "<wish>" --skill <skill-name>     force a specific skill
+  pnpm --silent erxes-wish --help
 
 Examples:
-  erxes-wish "add confidenceScore to deals"
-  erxes-wish "show win-rate dashboard" --skill add-sales-ui-page
+  pnpm --silent erxes-wish "add confidenceScore to deals"
+  pnpm --silent erxes-wish "show win-rate dashboard" --skill add-sales-ui-page
 `);
   process.exit(args.length === 0 ? 2 : 0);
 }
