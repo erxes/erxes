@@ -6,8 +6,6 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RecordTableTree,
-  Skeleton,
-  Table,
   TextOverflowTooltip,
   useMultiQueryState,
 } from 'erxes-ui';
@@ -26,35 +24,6 @@ import { categoryMoreColumn } from './ProductCategoryMoreColumn';
 import { CategoryCommandBar } from './product-command-bar/CategoryCommandBar';
 import { PRODUCTS_PER_PAGE } from '@/products/hooks/useProducts';
 import { renderingCategoryDetailAtom } from '../states/ProductCategory';
-
-const ProductCategoriesInitialSkeleton = ({
-  columns,
-  rows = PRODUCTS_PER_PAGE,
-}: {
-  columns: ColumnDef<IProductCategory & { hasChildren: boolean }>[];
-  rows?: number;
-}) => {
-  const rowKeys = useMemo(
-    () => Array.from({ length: rows }, () => crypto.randomUUID()),
-    [rows],
-  );
-  return (
-    <>
-      {rowKeys.map((rowKey) => (
-        <Table.Row key={rowKey} className="h-cell">
-          {columns.map((col, colIndex) => (
-            <Table.Cell
-              key={`${rowKey}-${col.id ?? colIndex}`}
-              className="border-r-0 px-2"
-            >
-              <Skeleton className="h-4 w-full min-w-4" />
-            </Table.Cell>
-          ))}
-        </Table.Row>
-      ))}
-    </>
-  );
-};
 
 export const ProductCategoriesRecordTable = () => {
   const [queries] = useMultiQueryState<{
@@ -99,11 +68,9 @@ export const ProductCategoriesRecordTable = () => {
     );
   }, [categories]);
 
-  const columns = productCategoryColumns(categoryObject);
-
   return (
     <RecordTable.Provider
-      columns={columns}
+      columns={productCategoryColumns(categoryObject)}
       data={isInitialLoading ? [] : categories || []}
       className="h-full"
     >
@@ -114,10 +81,7 @@ export const ProductCategoriesRecordTable = () => {
             <RecordTable.Body>
               <RecordTable.RowList Row={RecordTableTree.Row} />
               {isInitialLoading && (
-                <ProductCategoriesInitialSkeleton
-                  columns={columns}
-                  rows={PRODUCTS_PER_PAGE}
-                />
+                <RecordTable.RowSkeleton rows={PRODUCTS_PER_PAGE} />
               )}
             </RecordTable.Body>
           </RecordTable>
