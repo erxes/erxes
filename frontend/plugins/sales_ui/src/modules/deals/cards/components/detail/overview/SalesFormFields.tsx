@@ -9,6 +9,7 @@ import {
 } from 'ui-modules';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
+import { SelectDealConfidenceScore } from '@/deals/components/deal-selects/SelectDealConfidenceScore';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { IDeal } from '@/deals/types/deals';
 import { useDealsContext } from '@/deals/context/DealContext';
@@ -57,6 +58,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
     assignedUserIds,
     labels,
     priority,
+    confidenceScore,
     tagIds,
     branchIds,
     departmentIds,
@@ -122,6 +124,16 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             <SelectDealPriority
               dealId={_id}
               value={priority || ''}
+              variant="card"
+            />
+          </div>
+        </div>
+        <div className="space-y-2 flex-col">
+          <Label>Confidence</Label>
+          <div>
+            <SelectDealConfidenceScore
+              dealId={_id}
+              value={confidenceScore ?? 0}
               variant="card"
             />
           </div>
