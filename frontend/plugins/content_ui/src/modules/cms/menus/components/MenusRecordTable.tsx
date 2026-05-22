@@ -18,7 +18,13 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useAtomValue } from 'jotai';
 import { useMenusColumns } from './MenusColumn';
 import { MenusCommandBar } from './menus-command-bar/MenusCommandBar';
@@ -43,6 +49,7 @@ interface MenusRecordTableProps {
 }
 
 const getParentKey = (menu?: MenuItem) => menu?.parentId || null;
+const SortableRowDisabledContext = React.createContext(false);
 
 const applySiblingOrder = (
   menus: MenuItem[],
@@ -56,7 +63,7 @@ const applySiblingOrder = (
   const updatedMenus = menus.map((menu) => {
     const order = orderById.get(menu._id);
 
-    return order ? { ...menu, order } : menu;
+    return order !== undefined ? { ...menu, order } : menu;
   });
 
   return buildFlatTree(updatedMenus, locale);
@@ -120,6 +127,16 @@ const SortableMenuRow = React.forwardRef<
 
 SortableMenuRow.displayName = 'SortableMenuRow';
 
+const SortableMenuRowWithContext = (
+  props: React.ComponentProps<typeof RecordTable.Row>,
+) => {
+  const disabled = React.useContext(SortableRowDisabledContext);
+
+  return <SortableMenuRow {...props} disabled={disabled} />;
+};
+
+SortableMenuRowWithContext.displayName = 'SortableMenuRowWithContext';
+
 export const MenusRecordTable = ({
   clientPortalId,
   kind,
@@ -131,10 +148,17 @@ export const MenusRecordTable = ({
   const [isReordering, setIsReordering] = useState(false);
   const [removeMenu] = useMutation(CMS_MENU_REMOVE);
   const [editMenu] = useMutation(CMS_MENU_EDIT);
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
     setOrderedMenus(menus);
   }, [menus]);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -213,26 +237,24 @@ export const MenusRecordTable = ({
         ),
       );
     } catch (error) {
-      toast({
-        description:
-          error instanceof Error ? error.message : 'Failed to reorder menus.',
-      });
+      if (isMountedRef.current) {
+        toast({
+          description:
+            error instanceof Error ? error.message : 'Failed to reorder menus.',
+        });
+      }
     } finally {
       try {
         await refetch();
       } finally {
-        setIsReordering(false);
+        if (isMountedRef.current) {
+          setIsReordering(false);
+        }
       }
     }
   };
 
   const columns = useMenusColumns(onEdit, refetch);
-  const SortableRow = useCallback(
-    (props: React.ComponentProps<typeof RecordTable.Row>) => (
-      <SortableMenuRow {...props} disabled={isReordering} />
-    ),
-    [isReordering],
-  );
 
   return (
     <RecordTable.Provider
@@ -246,17 +268,22 @@ export const MenusRecordTable = ({
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
       >
-        <SortableContext items={menuIds} strategy={verticalListSortingStrategy}>
-          <RecordTable.Scroll>
-            <RecordTable>
-              <RecordTable.Header />
-              <RecordTable.Body>
-                {loading && <RecordTable.RowSkeleton rows={10} />}
-                <RecordTable.RowList Row={SortableRow} />
-              </RecordTable.Body>
-            </RecordTable>
-          </RecordTable.Scroll>
-        </SortableContext>
+        <SortableRowDisabledContext.Provider value={isReordering}>
+          <SortableContext
+            items={menuIds}
+            strategy={verticalListSortingStrategy}
+          >
+            <RecordTable.Scroll>
+              <RecordTable>
+                <RecordTable.Header />
+                <RecordTable.Body>
+                  {loading && <RecordTable.RowSkeleton rows={10} />}
+                  <RecordTable.RowList Row={SortableMenuRowWithContext} />
+                </RecordTable.Body>
+              </RecordTable>
+            </RecordTable.Scroll>
+          </SortableContext>
+        </SortableRowDisabledContext.Provider>
       </DndContext>
       <MenusCommandBar onBulkDelete={handleBulkDelete} />
     </RecordTable.Provider>
