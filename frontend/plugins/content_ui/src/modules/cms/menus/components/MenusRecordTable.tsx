@@ -53,9 +53,11 @@ const getParentKey = (menu?: MenuItem) => menu?.parentId || null;
 
 const DragTransformContext = React.createContext<{
   activeId: string | null;
+  activeParentId: string | null;
   containerRef: React.RefObject<HTMLDivElement | null>;
 }>({
   activeId: null,
+  activeParentId: null,
   containerRef: { current: null },
 });
 
@@ -81,89 +83,102 @@ const applySiblingOrder = (
   return buildFlatTree(updatedMenus, locale);
 };
 
-const SortableMenuRow = React.forwardRef<
-  HTMLTableRowElement,
-  React.ComponentProps<typeof RecordTable.Row>
->(({ className, original, style, ...props }, ref) => {
-  const {
-    attributes,
-    isDragging,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({
-    id: original?._id,
-  });
+const SortableMenuRow = React.memo(
+  React.forwardRef<
+    HTMLTableRowElement,
+    React.ComponentProps<typeof RecordTable.Row>
+  >(({ className, original, style, ...props }, ref) => {
+    const { activeId, activeParentId, containerRef } = React.useContext(
+      DragTransformContext,
+    );
 
-  const { activeId, containerRef } = React.useContext(DragTransformContext);
+    const isDraggingItem = activeId === original?._id;
+    const isSibling =
+      activeId &&
+      !isDraggingItem &&
+      (getParentKey(original) || 'root') === activeParentId;
 
-  const setRowRef = useCallback(
-    (node: HTMLTableRowElement | null) => {
-      setNodeRef(node);
+    const {
+      attributes,
+      isDragging,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+    } = useSortable({
+      id: original?._id,
+      // Disable sortable logic for items that don't need to move (non-siblings)
+      // This is the primary performance win.
+      disabled: activeId ? !isDraggingItem && !isSibling : false,
+    });
 
-      if (typeof ref === 'function') {
-        ref(node);
-      } else if (ref) {
-        (ref as React.MutableRefObject<HTMLTableRowElement | null>).current =
-          node;
+    const setRowRef = useCallback(
+      (node: HTMLTableRowElement | null) => {
+        setNodeRef(node);
+
+        if (typeof ref === 'function') {
+          ref(node);
+        } else if (ref) {
+          (ref as React.MutableRefObject<HTMLTableRowElement | null>).current =
+            node;
+        }
+      },
+      [ref, setNodeRef],
+    );
+
+    const isDescendant = useMemo(() => {
+      if (!activeId || !original?.path) return false;
+      return original.path.includes(activeId);
+    }, [activeId, original?.path]);
+
+    useEffect(() => {
+      if (isDragging && containerRef.current) {
+        const container = containerRef.current;
+        const tStr = CSS.Transform.toString(transform) || 'none';
+        container.style.setProperty('--drag-transform', tStr);
+        container.style.setProperty('--drag-transition', transition || 'none');
+
+        return () => {
+          container.style.removeProperty('--drag-transform');
+          container.style.removeProperty('--drag-transition');
+        };
       }
-    },
-    [ref, setNodeRef],
-  );
+    }, [isDragging, transform, transition, containerRef]);
 
-  const isDescendant = useMemo(() => {
-    if (!activeId || !original?.path) return false;
-    return original.path.includes(activeId);
-  }, [activeId, original?.path]);
+    const effectiveTransform = isDragging
+      ? CSS.Transform.toString(transform)
+      : isDescendant
+        ? 'var(--drag-transform)'
+        : CSS.Transform.toString(transform);
 
-  useEffect(() => {
-    if (isDragging && containerRef.current) {
-      const container = containerRef.current;
-      const tStr = CSS.Transform.toString(transform) || 'none';
-      container.style.setProperty('--drag-transform', tStr);
-      container.style.setProperty('--drag-transition', transition || 'none');
+    const effectiveTransition = isDragging
+      ? transition
+      : isDescendant
+        ? 'var(--drag-transition)'
+        : transition;
 
-      return () => {
-        container.style.removeProperty('--drag-transform');
-        container.style.removeProperty('--drag-transition');
-      };
-    }
-  }, [isDragging, transform, transition, containerRef]);
-
-  const effectiveTransform = isDragging
-    ? CSS.Transform.toString(transform)
-    : isDescendant
-      ? 'var(--drag-transform)'
-      : CSS.Transform.toString(transform);
-
-  const effectiveTransition = isDragging
-    ? transition
-    : isDescendant
-      ? 'var(--drag-transition)'
-      : transition;
-
-  return (
-    <RecordTable.Row
-      {...props}
-      {...attributes}
-      {...listeners}
-      ref={setRowRef}
-      original={original}
-      className={cn(
-        'cursor-grab active:cursor-grabbing',
-        isDragging && 'relative z-10 opacity-60',
-        isDescendant && 'relative z-10 opacity-80',
-        className,
-      )}
-      style={{
-        ...style,
-        transform: effectiveTransform,
-        transition: effectiveTransition,
-      }}
-    />
-  );
-});
+    return (
+      <RecordTable.Row
+        {...props}
+        {...attributes}
+        {...listeners}
+        ref={setRowRef}
+        original={original}
+        className={cn(
+          'cursor-grab active:cursor-grabbing will-change-transform',
+          isDragging && 'relative z-10 opacity-60',
+          isDescendant && 'relative z-10 opacity-80',
+          className,
+        )}
+        style={{
+          ...style,
+          transform: effectiveTransform,
+          transition: effectiveTransition,
+        }}
+      />
+    );
+  }),
+);
 
 SortableMenuRow.displayName = 'SortableMenuRow';
 
@@ -184,6 +199,7 @@ export const MenusRecordTable = ({
   const [orderedMenus, setOrderedMenus] = useState<MenuItem[]>(menus);
   const [reorderingCount, setReorderingCount] = useState(0);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeParentId, setActiveParentId] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [removeMenu] = useMutation(CMS_MENU_REMOVE);
@@ -205,10 +221,13 @@ export const MenusRecordTable = ({
     };
   }, []);
 
-  const pointerSensor = useSensor(PointerSensor, pointerSensorOptions);
+  const mouseSensor = useSensor(PointerSensor, pointerSensorOptions);
   const keyboardSensor = useSensor(KeyboardSensor, keyboardSensorOptions);
 
-  const sensors = useSensors(pointerSensor, keyboardSensor);
+  const sensors = useMemo(() => [mouseSensor, keyboardSensor], [
+    mouseSensor,
+    keyboardSensor,
+  ]);
 
   const menuIds = useMemo(
     () => orderedMenus.map((menu) => menu._id),
@@ -223,7 +242,9 @@ export const MenusRecordTable = ({
   };
 
   const handleDragStart = (event: DragStartEvent) => {
+    const activeMenu = orderedMenus.find((m) => m._id === event.active.id);
     setActiveId(event.active.id as string);
+    setActiveParentId(getParentKey(activeMenu) || 'root');
   };
 
   /**
@@ -234,6 +255,7 @@ export const MenusRecordTable = ({
   const handleDragEnd = useCallback(
     async ({ active, over }: DragEndEvent) => {
       setActiveId(null);
+      setActiveParentId(null);
 
       if (!over || active.id === over.id) {
         return;
@@ -339,11 +361,13 @@ export const MenusRecordTable = ({
       onDragEnd={handleDragEnd}
       onDragCancel={() => {
         setActiveId(null);
+        setActiveParentId(null);
       }}
     >
       <DragTransformContext.Provider
         value={{
           activeId,
+          activeParentId,
           containerRef,
         }}
       >
