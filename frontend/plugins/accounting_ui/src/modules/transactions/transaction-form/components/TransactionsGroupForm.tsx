@@ -131,6 +131,7 @@ const FormFields = memo(
                   <Select.Content>
                     {statusGroups.map((group, groupIndex) => (
                       <Select.Group key={group.label}>
+                        {group.label && <Select.Label>{group.label}</Select.Label>}
                         {group.options.map((side) => (
                           <Select.Item key={side.value} value={side.value}>
                             {side.label}

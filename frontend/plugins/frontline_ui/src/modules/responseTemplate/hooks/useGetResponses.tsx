@@ -2,14 +2,18 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_RESPONSES } from '@/responseTemplate/graphql/queries/getResponses';
 import {
   EnumCursorDirection,
+  ICursorListResponse,
   mergeCursorData,
   validateFetchMore,
 } from 'erxes-ui';
+import { IResponseTemplate } from '../types';
 
 const RESPONSES_PER_PAGE = 24;
 
 export const useGetResponses = (options?: QueryHookOptions) => {
-  const { data, loading, fetchMore } = useQuery(GET_RESPONSES, {
+  const { data, loading, fetchMore } = useQuery<
+    ICursorListResponse<IResponseTemplate>
+  >(GET_RESPONSES, {
     variables: {
       filter: {
         limit: RESPONSES_PER_PAGE,
@@ -21,8 +25,11 @@ export const useGetResponses = (options?: QueryHookOptions) => {
     ...options,
   });
 
-  const { list: responses, totalCount, pageInfo } =
-    data?.responseTemplates || {};
+  const {
+    list: responses,
+    totalCount,
+    pageInfo,
+  } = data?.responseTemplates || {};
 
   const handleFetchMore = ({
     direction,

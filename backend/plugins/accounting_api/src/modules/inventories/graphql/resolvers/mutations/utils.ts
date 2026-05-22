@@ -27,6 +27,18 @@ type TInventoryInfo = {
   soonOut: number;
 };
 
+const EMPTY_LOCATION_VALUES = [null, ''];
+
+const inventoryKey = (id?: string) => id || '_';
+
+const locationFilter = (field: 'branchId' | 'departmentId', id?: string) => {
+  if (id && id !== '_') {
+    return { [field]: id };
+  }
+
+  return { [field]: { $in: EMPTY_LOCATION_VALUES } };
+};
+
 const emptyInventoryInfo = (): TInventoryInfo => ({
   remainder: 0,
   cost: 0,
@@ -99,6 +111,8 @@ export const setSafeRemItems = async (
 ) => {
   let productFilter: any = {};
   const { productCategoryId, branchId, departmentId } = safeRemainder;
+  const branchKey = inventoryKey(branchId);
+  const departmentKey = inventoryKey(departmentId);
 
   productFilter = {
     query: { status: { $ne: 'deleted' } },
@@ -120,7 +134,7 @@ export const setSafeRemItems = async (
         _id: 1,
         uom: 1,
         code: 1,
-        [`inventories.${branchId}.${departmentId}`]: 1,
+        [`inventories.${branchKey}.${departmentKey}`]: 1,
       },
       sort: { code: 1 },
     },
@@ -140,8 +154,8 @@ export const setSafeRemItems = async (
   ).map((acc) => acc._id);
 
   const trFilter: any = {
-    branchId,
-    departmentId,
+    ...locationFilter('branchId', branchId),
+    ...locationFilter('departmentId', departmentId),
     'details.accountId': { $in: invAccountIds },
     'details.productId': { $in: allProductIds },
     date: { $lte: safeRemainder.date },
@@ -158,8 +172,8 @@ export const setSafeRemItems = async (
     trFilter.date.$gt = lastAdjInv.date;
     const lastConfigedDetails = await models.AdjustInvDetails.find({
       adjustId: lastAdjInv._id,
-      branchId,
-      departmentId,
+      ...locationFilter('branchId', branchId),
+      ...locationFilter('departmentId', departmentId),
       productId: { $in: allProductIds },
     }).lean();
 
@@ -347,6 +361,9 @@ export const updateLiveRemainders = async ({
   productIds,
 }: IUpdateRemaindersParams & { subdomain: string; models: IModels }) => {
   const productFilter: any = { status: { $ne: 'deleted' } };
+  const branchKey = inventoryKey(branchId);
+  const departmentKey = inventoryKey(departmentId);
+
   if (productIds?.length) {
     productFilter._id = { $in: productIds };
   }
@@ -360,10 +377,10 @@ export const updateLiveRemainders = async ({
     input: {
       query: productFilter,
       categoryId: productCategoryId,
-      fields: { _id: 1, [`inventories.${branchId}.${departmentId}`]: 1 },
+      fields: { _id: 1, [`inventories.${branchKey}.${departmentKey}`]: 1 },
       sort: { code: 1 },
     },
-    defaultValue: []
+    defaultValue: [],
   });
 
   // Get product ids
@@ -376,8 +393,8 @@ export const updateLiveRemainders = async ({
   ).map((acc) => acc._id);
 
   const trFilter: any = {
-    branchId,
-    departmentId,
+    ...locationFilter('branchId', branchId),
+    ...locationFilter('departmentId', departmentId),
     'details.accountId': { $in: invAccountIds },
     'details.productId': { $in: allProductIds },
     status: {
@@ -398,8 +415,8 @@ export const updateLiveRemainders = async ({
     trFilter.date = { $gt: lastAdjInv.date };
     const lastConfigedDetails = await models.AdjustInvDetails.find({
       adjustId: lastAdjInv._id,
-      branchId,
-      departmentId,
+      ...locationFilter('branchId', branchId),
+      ...locationFilter('departmentId', departmentId),
       productId: { $in: allProductIds },
     }).lean();
 
@@ -444,13 +461,13 @@ export const updateLiveRemainders = async ({
   for (const product of products) {
     const productId = product._id;
     const productRemainder =
-      product.inventories?.[branchId]?.[departmentId]?.remainder ?? 0;
+      product.inventories?.[branchKey]?.[departmentKey]?.remainder ?? 0;
     const productCost =
-      product.inventories?.[branchId]?.[departmentId]?.cost ?? 0;
+      product.inventories?.[branchKey]?.[departmentKey]?.cost ?? 0;
     const productSoonIn =
-      product.inventories?.[branchId]?.[departmentId]?.soonIn ?? 0;
+      product.inventories?.[branchKey]?.[departmentKey]?.soonIn ?? 0;
     const productSoonOut =
-      product.inventories?.[branchId]?.[departmentId]?.soonOut ?? 0;
+      product.inventories?.[branchKey]?.[departmentKey]?.soonOut ?? 0;
     const newInfo = inventoryByProductId[productId] ?? {
       remainder: 0,
       cost: 0,

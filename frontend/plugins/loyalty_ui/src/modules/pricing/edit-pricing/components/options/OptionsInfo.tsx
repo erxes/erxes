@@ -394,27 +394,6 @@ export const OptionsInfo = ({
                 <div className="grid grid-cols-2 gap-4">
                   <Form.Field
                     control={control}
-                    name="departmentIds"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>
-                          {t('loyalty.options.departments', {
-                            defaultValue: 'DEPARTMENTS',
-                          })}
-                        </Form.Label>
-                        <Form.Control>
-                          <SelectDepartments.FormItem
-                            mode="multiple"
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          />
-                        </Form.Control>
-                      </Form.Item>
-                    )}
-                  />
-
-                  <Form.Field
-                    control={control}
                     name="branchIds"
                     render={({ field }) => (
                       <Form.Item>
@@ -425,6 +404,26 @@ export const OptionsInfo = ({
                         </Form.Label>
                         <Form.Control>
                           <SelectBranches.FormItem
+                            mode="multiple"
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          />
+                        </Form.Control>
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    control={control}
+                    name="departmentIds"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>
+                          {t('loyalty.options.departments', {
+                            defaultValue: 'DEPARTMENTS',
+                          })}
+                        </Form.Label>
+                        <Form.Control>
+                          <SelectDepartments.FormItem
                             mode="multiple"
                             value={field.value}
                             onValueChange={field.onChange}

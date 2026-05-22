@@ -3,7 +3,7 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { confirmVoucherSale } from '~/utils';
 
-export const loyaltyMutations: Record<string, Resolver<any, any, any>> = {
+export const loyaltyMutations: Record<string, Resolver> = {
   async shareScore(
     _root: undefined,
     doc: {
@@ -14,9 +14,13 @@ export const loyaltyMutations: Record<string, Resolver<any, any, any>> = {
       destinationPhone: string;
       destinationEmail: string;
       destinationCode: string;
+      campaignId?: string;
     },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission, user }: IContext,
   ) {
+    if (user) {
+      await checkPermission('loyaltyShareScore');
+    }
     const {
       ownerType,
       ownerId,
@@ -25,6 +29,7 @@ export const loyaltyMutations: Record<string, Resolver<any, any, any>> = {
       destinationPhone,
       destinationEmail,
       destinationCode,
+      campaignId,
     } = doc;
 
     let destOwnerId = destinationOwnerId;
@@ -98,6 +103,7 @@ export const loyaltyMutations: Record<string, Resolver<any, any, any>> = {
       ownerId,
       changeScore: -1 * score,
       description: 'share score',
+      campaignId,
     });
 
     await models.ScoreLogs.changeScore({
@@ -105,6 +111,7 @@ export const loyaltyMutations: Record<string, Resolver<any, any, any>> = {
       ownerId: destOwnerId,
       changeScore: (score / 100) * (100 - fee),
       description: 'receipt score',
+      campaignId,
     });
 
     return 'success';
@@ -122,8 +129,9 @@ export const loyaltyMutations: Record<string, Resolver<any, any, any>> = {
       destinationCode: string;
     },
     context: IContext,
+    info: any
   ) {
-    return loyaltyMutations.shareScore(_root, doc, context, undefined as any);
+    return loyaltyMutations.shareScore(_root, doc, context, info);
   },
 
   async confirmLoyalties(
@@ -136,8 +144,9 @@ export const loyaltyMutations: Record<string, Resolver<any, any, any>> = {
         };
       };
     },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyConfirmVoucher');
     const { checkInfo } = param;
 
     return confirmVoucherSale(models, subdomain, checkInfo);

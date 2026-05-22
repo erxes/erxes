@@ -17,7 +17,6 @@ import {
   regexSearchText,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
-
 import { FilterQuery } from 'mongoose';
 import dealResolvers from '../customResolvers/deal';
 import moment from 'moment';
@@ -648,8 +647,8 @@ const enrichDealsWithProducts = async (
     [];
 
   for (const deal of deals) {
-    let pd = deal.productsData;
-    if (!pd || pd.length === 0) continue;
+    const pd = deal.productsData;
+    if (!pd?.length) continue;
 
     deal.products = [];
     const sliced = pd.slice(0, 10);
@@ -1006,8 +1005,8 @@ export const dealQueries: Record<string, Resolver> = {
 
     const result = await sendTRPCMessage({
       subdomain,
-      pluginName: 'loyalties',
-      module: 'loyalties',
+      pluginName: 'loyalty',
+      module: 'loyalty',
       action: 'checkLoyalties',
       input: {
         ownerType,

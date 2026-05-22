@@ -10,5 +10,5 @@ export type OrderItem = {
   productId: string;
   quantity: number;
   price: number;
-  manufacturedDate: string;
+  manufacturedDate?: string;
 };

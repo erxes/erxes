@@ -31,6 +31,7 @@ export const queries = `
   salesBoardCounts: [SalesBoardCount]
   salesBoardGetLast: SalesBoard
   salesBoardDetail(_id: String!): SalesBoard
+  cpSalesBoardDetail(_id: String!): SalesBoard
   salesConvertToInfo(conversationId: String!): SalesConvertTo
   salesItemsCountByAssignedUser(pipelineId: String!, stackBy: String): JSON
   salesCardsFields: JSON

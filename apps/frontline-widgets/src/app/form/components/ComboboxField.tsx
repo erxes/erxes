@@ -13,7 +13,10 @@ export const ComboboxField = ({ erxesField, field }: Props) => {
   const [open, setOpen] = useState<boolean>(false);
   return (
     <ErxesFormItem span={erxesField.column}>
-      <Form.Label>{erxesField.text}</Form.Label>
+      <Form.Label className="text-widget-label">
+        {erxesField.text}
+        {erxesField.isRequired && <span className="text-destructive"> *</span>}
+      </Form.Label>
       {erxesField.description && (
         <Form.Description>{erxesField.description}</Form.Description>
       )}

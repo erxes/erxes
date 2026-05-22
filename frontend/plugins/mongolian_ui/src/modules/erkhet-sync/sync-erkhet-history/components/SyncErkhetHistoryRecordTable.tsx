@@ -3,6 +3,7 @@ import { IconShoppingCartX } from '@tabler/icons-react';
 import { SYNC_HISTORIES_CURSOR_SESSION_KEY } from '../constants/syncErkhetHistoryCursorSessoinKey';
 import { syncErkhetHistoryColumns } from './SyncErkhetHistoryColumns';
 import { useSyncErkhetHistory } from '../hooks/useSyncErkhetHistory';
+import { SyncErkhetHistoryDetailSheet } from './SyncErkhetHistoryDetailSheet';
 export const SyncErkhetHistoryRecordTable = () => {
   const { SyncHistories, handleFetchMore, loading, pageInfo } =
     useSyncErkhetHistory();
@@ -53,6 +54,7 @@ export const SyncErkhetHistoryRecordTable = () => {
             </div>
           </div>
         )}
+        <SyncErkhetHistoryDetailSheet histories={SyncHistories || []} />
       </RecordTable.CursorProvider>
     </RecordTable.Provider>
   );

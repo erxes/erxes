@@ -221,7 +221,7 @@ export const calculateReviewStats = (reviews: any[]) => {
 export const enrichWithProductDetails = async (
   subdomain: string,
   items: any[],
-  productIdField: string = 'productId',
+  productIdField = 'productId',
 ): Promise<any[]> => {
   if (!items.length) {
     return items;
@@ -254,7 +254,7 @@ export const enrichWithProductDetails = async (
 export const enrichWithCustomerDetails = async (
   subdomain: string,
   items: any[],
-  customerIdField: string = 'customerId',
+  customerIdField = 'customerId',
 ): Promise<any[]> => {
   if (!items.length) {
     return items;

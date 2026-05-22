@@ -79,10 +79,50 @@ export const checkPosOrdersColumns: ColumnDef<ICheckPosOrders>[] = [
     },
   },
   {
-    id: 'createdAt',
-    accessorKey: 'createdAt',
+    id: 'unSynced',
+    accessorKey: 'unSynced',
+    header: () => <RecordTable.InlineHead icon={IconClock} label="Un Synced" />,
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'syncedDate',
+    accessorKey: 'syncedDate',
     header: () => (
-      <RecordTable.InlineHead icon={IconClock} label="Created At" />
+      <RecordTable.InlineHead icon={IconClock} label="Synced Date" />
+    ),
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'syncedBillNumber',
+    accessorKey: 'syncedBillNumber',
+    header: () => (
+      <RecordTable.InlineHead icon={IconClock} label="Synced Bill" />
+    ),
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'syncedCustomer',
+    accessorKey: 'syncedCustomer',
+    header: () => (
+      <RecordTable.InlineHead icon={IconClock} label="Synced Customer" />
     ),
     cell: ({ cell }) => {
       return (

@@ -122,6 +122,111 @@ const getAccountIds = async (
   return accounts.map((a) => a._id);
 };
 
+const getConfigValues = async (subdomain: string) => {
+  const configs = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'configs',
+    action: 'getConfigs',
+    input: {
+      codes: [
+        'CHECK_TEAM_MEMBER_SHOWN',
+        'BRANCHES_MASTER_TEAM_MEMBERS_IDS',
+        'DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS',
+      ],
+    },
+    defaultValue: {},
+  });
+
+  const branchMasterUserIds = configs.BRANCHES_MASTER_TEAM_MEMBERS_IDS;
+  const departmentMasterUserIds = configs.DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS;
+
+  return {
+    checkMasterUsers: configs.CHECK_TEAM_MEMBER_SHOWN,
+    branchMasterUserIds: Array.isArray(branchMasterUserIds)
+      ? branchMasterUserIds
+      : [],
+    departmentMasterUserIds: Array.isArray(departmentMasterUserIds)
+      ? departmentMasterUserIds
+      : [],
+  };
+};
+
+const getStructureIdsWithChildren = async (
+  subdomain: string,
+  module: 'branches' | 'departments',
+  ids: string[],
+): Promise<string[]> => {
+  if (!ids.length) {
+    return [];
+  }
+
+  const records = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module,
+    action: 'findWithChild',
+    input: {
+      query: { _id: { $in: ids } },
+      fields: { _id: 1 },
+    },
+    defaultValue: [],
+  });
+
+  return records.map((record) => record._id);
+};
+
+const applyDefaultStructureFilter = async ({
+  subdomain,
+  filter,
+  user,
+  branchId,
+  departmentId,
+}: {
+  subdomain: string;
+  filter: any;
+  user: IUserDocument;
+  branchId?: string;
+  departmentId?: string;
+}) => {
+  if (user.isOwner) {
+    return;
+  }
+
+  const { checkMasterUsers, branchMasterUserIds, departmentMasterUserIds } =
+    await getConfigValues(subdomain);
+
+  if (checkMasterUsers !== true) {
+    return;
+  }
+
+  if (!branchId && !branchMasterUserIds.includes(user._id)) {
+    const branchIds = await getStructureIdsWithChildren(
+      subdomain,
+      'branches',
+      user.branchIds || [],
+    );
+
+    if (branchIds.length) {
+      filter.branchId = { $in: branchIds };
+    }
+  }
+
+  if (!departmentId && !departmentMasterUserIds.includes(user._id)) {
+    const departmentIds = await getStructureIdsWithChildren(
+      subdomain,
+      'departments',
+      user.departmentIds || [],
+    );
+
+    if (departmentIds.length) {
+      filter.departmentId = { $in: departmentIds };
+    }
+  }
+};
+
 export const generateFilter = async (
   subdomain: string,
   models: IModels,
@@ -241,9 +346,13 @@ export const generateFilter = async (
     andFilter.push({
       $or: [
         { status: { $in: TR_STATUSES.ACTIVE } },
-        { status: TR_STATUSES.DRAFT, createdBy: user._id },
-        { mentionOwnerId: user._id },
-        { mentionUserIds: { $in: [user._id] } },
+        {
+          status: TR_STATUSES.CONVERSATION, $or: [
+            { createdBy: user._id },
+            { mentionOwnerId: user._id },
+            { mentionUserIds: { $in: [user._id] } },
+          ]
+        }
       ],
     });
   }
@@ -274,38 +383,26 @@ export const generateFilter = async (
   }
 
   if (branchId) {
-    const branches = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'branches',
-      action: 'findWithChild',
-      input: {
-        query: { _id: branchId },
-        fields: { _id: 1 },
-      },
-      defaultValue: [],
-    });
-
-    filter.branchId = { $in: branches.map((item) => item._id) };
+    filter.branchId = {
+      $in: await getStructureIdsWithChildren(
+        subdomain, 'branches', [branchId]
+      )
+    }
   }
 
   if (departmentId) {
-    const departments = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'departments',
-      action: 'findWithChild',
-      input: {
-        query: { _id: departmentId },
-        fields: { _id: 1 },
-      },
-      defaultValue: [],
-    });
-
-    filter.departmentId = { $in: departments.map((item) => item._id) };
+    filter.departmentId = {
+      $in: await getStructureIdsWithChildren(
+        subdomain, 'departments', [departmentId]
+      )
+    };
   }
+
+  await applyDefaultStructureFilter({
+    subdomain,
+    filter,
+    user
+  });
 
   if (customerType) {
     filter.customerType = customerType;

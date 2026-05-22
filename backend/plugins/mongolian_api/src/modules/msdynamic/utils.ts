@@ -1,8 +1,8 @@
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import fetch from 'node-fetch';
-import { IModels } from '~/connectionResolvers';
+import { generateModels, IModels } from '~/connectionResolvers';
 import { ISyncLogDocument } from '~/modules/msdynamic/@types/dynamic';
 import { getMsdCustomerInfo } from './utilsCustomer';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 interface ExchangeRateConfig {
   exchangeRateApi: string;
@@ -15,15 +15,23 @@ export const getConfig = async (
   code: string,
   defaultValue?: any,
 ) => {
-  return await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'config',
-    action: 'getConfig',
-    method: 'query',
-    input: { code, defaultValue },
-    defaultValue,
-  });
+  const models = await generateModels(subdomain);
+  const config = await models.Configs.getConfig(code, '');
+
+  if (config) {
+    return config.value;
+  }
+
+  const configs = await models.Configs.getConfigs(code);
+
+  if (configs?.length) {
+    return configs.reduce((acc, conf) => {
+      acc[conf.subId || ''] = conf.value;
+      return acc;
+    }, {});
+  }
+
+  return defaultValue ?? null;
 };
 
 const getCustomerNo = async (subdomain, customer) => {
@@ -68,9 +76,9 @@ export const consumeInventory = async (
     const productCategory = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'categories',
+      module: 'productCategories',
       action: 'findOne',
-      input: { code: doc.Item_Category_Code },
+      input: { query: { code: doc.Item_Category_Code } },
       defaultValue: null,
     });
 
@@ -157,9 +165,9 @@ export const consumeCategory = async (
   const productCategory = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    module: 'categories',
+    module: 'productCategories',
     action: 'findOne',
-    input: { code: updateCode },
+    input: { query: { code: updateCode } },
     defaultValue: {},
   });
 
@@ -182,9 +190,9 @@ export const consumeCategory = async (
       const parentCategory = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
-        module: 'categories',
+        module: 'productCategories',
         action: 'findOne',
-        input: { code: doc.Parent_Category },
+        input: { query: { code: doc.Parent_Category } },
       });
 
       if (parentCategory) {
@@ -196,32 +204,26 @@ export const consumeCategory = async (
       await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
-        module: 'categories',
+        module: 'productCategories',
         action: 'updateProductCategory',
         input: { _id: productCategory._id, doc: { ...document } },
         defaultValue: {},
-        // action: 'categories.updateProductCategory',
-        // data: { _id: productCategory._id, doc: { ...document } },
-        // isRPC: true,
       });
     } else {
       await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
-        module: 'categories',
+        module: 'productCategories',
         action: 'createProductCategory',
         input: { doc: { ...document } },
         defaultValue: {},
-        // action: 'categories.createProductCategory',
-        // data: { doc: { ...document } },
-        // isRPC: true,
       });
     }
   } else if (action === 'delete' && productCategory) {
     await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'categories',
+      module: 'productCategories',
       action: 'removeProductCategory',
       input: { _id: productCategory._id },
       defaultValue: null,
@@ -240,11 +242,11 @@ export const dealToDynamic = async (
 
   let msdCustomer: any = {};
 
-  let orderMsdNo: string = '';
+  let orderMsdNo: string;
   let orderItemsMsdNo: any = {};
   const extraData = deal.extraData || {};
   const syncErkhetInfo = extraData.msdynamic || {};
-  orderMsdNo = syncErkhetInfo.no;
+  orderMsdNo = syncErkhetInfo.no || '';
   orderItemsMsdNo = syncErkhetInfo.lineNos || {};
 
   try {
@@ -343,8 +345,8 @@ export const dealToDynamic = async (
     const sendData: any = {
       Sell_to_Customer_No:
         customerType === 'company'
-          ? (msdCustomer?.No ?? config.defaultUserCode)
-          : (custCode ?? config.defaultUserCode),
+          ? msdCustomer?.No ?? config.defaultUserCode
+          : custCode ?? config.defaultUserCode,
       Sell_to_Phone_No: customer?.primaryPhone ?? '',
       Sell_to_E_Mail: customer?.primaryEmail ?? '',
       External_Document_No: deal.number ?? deal.name.split(':').pop().trim(),
@@ -417,7 +419,7 @@ export const dealToDynamic = async (
       for (const item of deal.productsData) {
         let lineUrlP = '';
         let linePostMethod = 'POST';
-        let linePostHeaders = {
+        const linePostHeaders = {
           'Content-Type': 'application/json',
           Authorization: `Basic ${Buffer.from(
             `${username}:${password}`,
@@ -583,11 +585,11 @@ export const orderToDynamic = async (
 
   let msdCustomer: any = {};
 
-  let orderMsdNo: string = '';
+  let orderMsdNo: string;
   let orderItemsMsdNo: any = {};
   try {
     const syncErkhetInfo = JSON.parse(order.syncErkhetInfo);
-    orderMsdNo = syncErkhetInfo.no;
+    orderMsdNo = syncErkhetInfo.no || '';
     orderItemsMsdNo = syncErkhetInfo.lineNos || {};
   } catch {
     orderMsdNo = order.syncErkhetInfo;
@@ -706,7 +708,7 @@ export const orderToDynamic = async (
       for (const item of order.items) {
         let lineUrlP = '';
         let linePostMethod = 'POST';
-        let linePostHeaders = {
+        const linePostHeaders = {
           'Content-Type': 'application/json',
           Authorization: `Basic ${Buffer.from(
             `${username}:${password}`,
@@ -998,7 +1000,7 @@ export const getExchangeRates = async (config: ExchangeRateConfig) => {
       if (
         !latestByCurrency[currency] ||
         new Date(item.Starting_Date) >
-          new Date(latestByCurrency[currency].Starting_Date)
+        new Date(latestByCurrency[currency].Starting_Date)
       ) {
         latestByCurrency[currency] = item;
       }

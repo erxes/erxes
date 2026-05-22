@@ -747,25 +747,28 @@ export const checkScoreAviableSubtractScoreCampaign = async (
         continue;
       }
 
-      // await sendLoyaltiesMessage({
-      //   subdomain,
-      //   action: 'checkScoreAviableSubtract',
-      //   data: {
-      //     ownerType: order.customerType || 'customer',
-      //     ownerId: order.customerId,
-      //     campaignId: scoreCampaignId,
-      //     target: { ...order, paidAmounts },
-      //   },
-      //   isRPC: true,
-      //   defaultValue: false,
-      // }).catch((error) => {
-      //   if (error.message === 'There has no enough score to subtract') {
-      //     throw new Error(
-      //       `There has no enough score to subtract using ${title}`,
-      //     );
-      //   }
-      //   throw new Error(error.message);
-      // });
+      await sendTRPCMessage({
+        subdomain,
+        pluginName: 'loyalty',
+        module: 'score',
+        action: 'checkScoreAviableSubtract',
+        input: {
+          ownerType: order.customerType || 'customer',
+          ownerId: order.customerId,
+          campaignId: scoreCampaignId,
+          actionMethod: 'subtract',
+          targetId: order._id,
+          target: { ...order, paidAmounts },
+        },
+        defaultValue: false,
+      }).catch((error) => {
+        if (error.message === 'There has no enough score to subtract') {
+          throw new Error(
+            `There has no enough score to subtract using ${title}`,
+          );
+        }
+        throw new Error(error.message);
+      });
     }
   }
 };
@@ -786,17 +789,18 @@ export const checkCouponCode = async ({
   }
 
   try {
-    // await sendLoyaltiesMessage({
-    //   subdomain: subdomain,
-    //   action: 'checkCoupon',
-    //   data: {
-    //     ownerId: customerId,
-    //     code: couponCode,
-    //     totalAmount: rawTotalAmount,
-    //   },
-    //   isRPC: true,
-    //   defaultValue: false,
-    // });
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      module: 'coupon',
+      action: 'checkCoupon',
+      input: {
+        ownerId: customerId,
+        code: couponCode,
+        totalAmount: rawTotalAmount,
+      },
+      defaultValue: false,
+    });
   } catch (error) {
     throw new Error(error.message);
   }

@@ -317,7 +317,12 @@ const configMutations: Record<string, Resolver> = {
   ) => {
     assertPosUser(posUser);
 
-    const { token } = config;
+    const { token, saveRemainder } = config;
+
+    if (!saveRemainder) {
+      return 'needless';
+    }
+
     const $and: any[] = [{}];
 
     const filter: any = {

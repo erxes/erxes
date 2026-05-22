@@ -205,4 +205,41 @@ export const posTrpcRouter = t.router({
       return await models.PosOrders.updateOrder(selector, modifier);
     }),
   }),
+  orders: t.router({
+    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+
+      return await models.PosOrders.findOne(input || {}).lean();
+    }),
+    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { query, skip, limit, sort = {} } = input || {};
+
+      if (!query) {
+        return await models.PosOrders.find(input || {}).lean();
+      }
+
+      return await models.PosOrders.find(query)
+        .skip(skip || 0)
+        .limit(limit || 0)
+        .sort(sort)
+        .lean();
+    }),
+    updateOne: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const { selector, modifier } = input;
+      const { models } = ctx;
+
+      return await models.PosOrders.updateOrder(selector, modifier);
+    }),
+  }),
+  configs: t.router({
+    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      return await models.Pos.findOne(input || {}).lean();
+    }),
+    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      return await models.Pos.find(input || {}).lean();
+    }),
+  }),
 });

@@ -35,7 +35,13 @@ export const customerToErkhet = async (
     },
   };
 
-  toErkhet(models, syncLog, mainConfig, sendData, 'customer-change');
+  return await toErkhet(
+    models,
+    syncLog,
+    mainConfig,
+    sendData,
+    'customer-change',
+  );
 };
 
 export const validCompanyCode = async (config, companyCode) => {
@@ -83,5 +89,11 @@ export const companyToErkhet = async (
     },
   };
 
-  toErkhet(models, syncLog, mainConfig, sendData, 'customer-change');
+  return await toErkhet(
+    models,
+    syncLog,
+    mainConfig,
+    sendData,
+    'customer-change',
+  );
 };
