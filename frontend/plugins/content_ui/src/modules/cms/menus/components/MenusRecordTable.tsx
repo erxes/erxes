@@ -2,9 +2,8 @@ import { RecordTable, cn, toast } from 'erxes-ui';
 import { useMutation } from '@apollo/client';
 import {
   DndContext,
+  PointerSensor,
   KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
   closestCenter,
   type DragEndEvent,
   useSensor,
@@ -49,7 +48,6 @@ interface MenusRecordTableProps {
 }
 
 const getParentKey = (menu?: MenuItem) => menu?.parentId || null;
-const SortableRowDisabledContext = React.createContext(false);
 
 const applySiblingOrder = (
   menus: MenuItem[],
@@ -73,14 +71,10 @@ const applySiblingOrder = (
   return buildFlatTree(updatedMenus, locale);
 };
 
-type SortableMenuRowProps = React.ComponentProps<typeof RecordTable.Row> & {
-  disabled?: boolean;
-};
-
 const SortableMenuRow = React.forwardRef<
   HTMLTableRowElement,
-  SortableMenuRowProps
->(({ className, disabled, original, style, ...props }, ref) => {
+  React.ComponentProps<typeof RecordTable.Row>
+>(({ className, original, style, ...props }, ref) => {
   const {
     attributes,
     isDragging,
@@ -90,7 +84,6 @@ const SortableMenuRow = React.forwardRef<
     transition,
   } = useSortable({
     id: original?._id,
-    disabled: disabled || !original?._id,
   });
 
   const setRowRef = useCallback(
@@ -117,7 +110,6 @@ const SortableMenuRow = React.forwardRef<
       className={cn(
         'cursor-grab active:cursor-grabbing',
         isDragging && 'relative z-10 opacity-60',
-        disabled && 'cursor-default',
         className,
       )}
       style={{
@@ -131,15 +123,12 @@ const SortableMenuRow = React.forwardRef<
 
 SortableMenuRow.displayName = 'SortableMenuRow';
 
-const SortableMenuRowWithContext = (
-  props: React.ComponentProps<typeof RecordTable.Row>,
-) => {
-  const disabled = React.useContext(SortableRowDisabledContext);
-
-  return <SortableMenuRow {...props} disabled={disabled} />;
+const pointerSensorOptions = {
+  activationConstraint: { distance: 8 },
 };
-
-SortableMenuRowWithContext.displayName = 'SortableMenuRowWithContext';
+const keyboardSensorOptions = {
+  coordinateGetter: sortableKeyboardCoordinates,
+};
 
 export const MenusRecordTable = ({
   clientPortalId,
@@ -149,14 +138,16 @@ export const MenusRecordTable = ({
   const { menus, loading, refetch } = useMenus({ clientPortalId, kind });
   const language = useAtomValue(cmsLanguageAtom);
   const [orderedMenus, setOrderedMenus] = useState<MenuItem[]>(menus);
-  const [isReordering, setIsReordering] = useState(false);
+  const [reorderingCount, setReorderingCount] = useState(0);
   const [removeMenu] = useMutation(CMS_MENU_REMOVE);
   const [editMenu] = useMutation(CMS_MENU_EDIT);
   const isMountedRef = useRef(true);
 
   useEffect(() => {
-    setOrderedMenus(menus);
-  }, [menus]);
+    if (reorderingCount === 0) {
+      setOrderedMenus(menus);
+    }
+  }, [menus, reorderingCount]);
 
   useEffect(() => {
     return () => {
@@ -164,17 +155,10 @@ export const MenusRecordTable = ({
     };
   }, []);
 
-  const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: { distance: 8 },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: { delay: 150, tolerance: 5 },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
+  const pointerSensor = useSensor(PointerSensor, pointerSensorOptions);
+  const keyboardSensor = useSensor(KeyboardSensor, keyboardSensorOptions);
+
+  const sensors = useSensors(pointerSensor, keyboardSensor);
 
   const menuIds = useMemo(
     () => orderedMenus.map((menu) => menu._id),
@@ -188,108 +172,112 @@ export const MenusRecordTable = ({
     refetch();
   };
 
-  const handleDragEnd = async ({ active, over }: DragEndEvent) => {
-    if (!over || active.id === over.id || isReordering) {
-      return;
-    }
-
-    const activeMenu = orderedMenus.find((menu) => menu._id === active.id);
-    const overMenu = orderedMenus.find((menu) => menu._id === over.id);
-
-    if (!activeMenu || !overMenu) {
-      return;
-    }
-
-    const parentId = getParentKey(activeMenu);
-
-    if (parentId !== getParentKey(overMenu)) {
-      toast({
-        description: 'Menus can only be reordered within the same level.',
-      });
-      return;
-    }
-
-    const siblings = orderedMenus.filter(
-      (menu) => getParentKey(menu) === parentId,
-    );
-    const oldIndex = siblings.findIndex((menu) => menu._id === active.id);
-    const newIndex = siblings.findIndex((menu) => menu._id === over.id);
-
-    if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) {
-      return;
-    }
-
-    const reorderedSiblings = arrayMove(siblings, oldIndex, newIndex);
-    const nextMenus = applySiblingOrder(
-      orderedMenus,
-      reorderedSiblings,
-      language || 'en',
-    );
-
-    setOrderedMenus(nextMenus);
-    setIsReordering(true);
-
-    try {
-      await Promise.all(
-        reorderedSiblings.map((menu, index) =>
-          editMenu({
-            variables: {
-              _id: menu._id,
-              input: { order: index + 1 },
-            },
-          }),
-        ),
-      );
-    } catch (error) {
-      if (isMountedRef.current) {
-        toast({
-          description:
-            error instanceof Error ? error.message : 'Failed to reorder menus.',
-        });
+  const handleDragEnd = useCallback(
+    async ({ active, over }: DragEndEvent) => {
+      if (!over || active.id === over.id) {
+        return;
       }
-    } finally {
+
+      const activeMenu = orderedMenus.find((menu) => menu._id === active.id);
+      const overMenu = orderedMenus.find((menu) => menu._id === over.id);
+
+      if (!activeMenu || !overMenu) {
+        return;
+      }
+
+      const parentId = getParentKey(activeMenu);
+
+      if (parentId !== getParentKey(overMenu)) {
+        toast({
+          description: 'Menus can only be reordered within the same level.',
+        });
+        return;
+      }
+
+      const siblings = orderedMenus.filter(
+        (menu) => getParentKey(menu) === parentId,
+      );
+      const oldIndex = siblings.findIndex((menu) => menu._id === active.id);
+      const newIndex = siblings.findIndex((menu) => menu._id === over.id);
+
+      if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) {
+        return;
+      }
+
+      const reorderedSiblings = arrayMove(siblings, oldIndex, newIndex);
+      const nextMenus = applySiblingOrder(
+        orderedMenus,
+        reorderedSiblings,
+        language || 'en',
+      );
+
+      // Optimistic update
+      setOrderedMenus(nextMenus);
+      setReorderingCount((prev) => prev + 1);
+
       try {
+        await Promise.all(
+          reorderedSiblings.map((menu, index) =>
+            editMenu({
+              variables: {
+                _id: menu._id,
+                input: { order: index + 1 },
+              },
+            }),
+          ),
+        );
+        // Wait for refetch to complete to ensure server state is captured
         await refetch();
+      } catch (error) {
+        if (isMountedRef.current) {
+          toast({
+            description:
+              error instanceof Error
+                ? error.message
+                : 'Failed to reorder menus.',
+          });
+          // Revert on error if no other reorders are pending
+          if (reorderingCount === 1) {
+            setOrderedMenus(menus);
+          }
+        }
       } finally {
         if (isMountedRef.current) {
-          setIsReordering(false);
+          setReorderingCount((prev) => Math.max(0, prev - 1));
         }
       }
-    }
-  };
+    },
+    [orderedMenus, language, editMenu, refetch, menus, reorderingCount],
+  );
 
   const columns = useMenusColumns(onEdit, refetch);
 
   return (
-    <RecordTable.Provider
-      columns={columns}
-      data={orderedMenus}
-      className="h-full m-3 pb-1"
-      stickyColumns={['drag', 'more', 'checkbox', 'label']}
+    <DndContext
+      id="cms-menus-dnd"
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
     >
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
+      <RecordTable.Provider
+        columns={columns}
+        data={orderedMenus}
+        className="h-full m-3 pb-1"
+        stickyColumns={['drag', 'more', 'checkbox', 'label']}
       >
-        <SortableRowDisabledContext.Provider value={isReordering}>
-          <SortableContext
-            items={menuIds}
-            strategy={verticalListSortingStrategy}
-          >
-            <RecordTable.Scroll>
-              <RecordTable>
-                <RecordTable.Header />
-                <RecordTable.Body>
-                  {loading && <RecordTable.RowSkeleton rows={10} />}
-                  <RecordTable.RowList Row={SortableMenuRowWithContext} />
-                </RecordTable.Body>
-              </RecordTable>
-            </RecordTable.Scroll>
-          </SortableContext>
-        </SortableRowDisabledContext.Provider>
-      </DndContext>
-      <MenusCommandBar onBulkDelete={handleBulkDelete} />
-    </RecordTable.Provider>
+        <SortableContext items={menuIds} strategy={verticalListSortingStrategy}>
+          <RecordTable.Scroll>
+            <RecordTable>
+              <RecordTable.Header />
+              <RecordTable.Body>
+                {loading && <RecordTable.RowSkeleton rows={10} />}
+                <RecordTable.RowList Row={SortableMenuRow} />
+              </RecordTable.Body>
+            </RecordTable>
+          </RecordTable.Scroll>
+        </SortableContext>
+        <MenusCommandBar onBulkDelete={handleBulkDelete} />
+      </RecordTable.Provider>
+    </DndContext>
   );
 };
