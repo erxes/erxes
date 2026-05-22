@@ -142,6 +142,9 @@ export const MenusRecordTable = ({
   const [removeMenu] = useMutation(CMS_MENU_REMOVE);
   const [editMenu] = useMutation(CMS_MENU_EDIT);
   const isMountedRef = useRef(true);
+  
+  // Queue to serialize mutations per parent to prevent race conditions
+  const mutationQueueRef = useRef<Record<string, Promise<any>>>({});
 
   useEffect(() => {
     if (reorderingCount === 0) {
@@ -172,6 +175,11 @@ export const MenusRecordTable = ({
     refetch();
   };
 
+  /**
+   * Handles the end of a drag operation.
+   * Optimistically updates the UI and enqueues the server mutations
+   * to be processed sequentially per parent level.
+   */
   const handleDragEnd = useCallback(
     async ({ active, over }: DragEndEvent) => {
       if (!over || active.id === over.id) {
@@ -185,9 +193,9 @@ export const MenusRecordTable = ({
         return;
       }
 
-      const parentId = getParentKey(activeMenu);
+      const parentId = getParentKey(activeMenu) || 'root';
 
-      if (parentId !== getParentKey(overMenu)) {
+      if (parentId !== (getParentKey(overMenu) || 'root')) {
         toast({
           description: 'Menus can only be reordered within the same level.',
         });
@@ -195,7 +203,7 @@ export const MenusRecordTable = ({
       }
 
       const siblings = orderedMenus.filter(
-        (menu) => getParentKey(menu) === parentId,
+        (menu) => (getParentKey(menu) || 'root') === parentId,
       );
       const oldIndex = siblings.findIndex((menu) => menu._id === active.id);
       const newIndex = siblings.findIndex((menu) => menu._id === over.id);
@@ -206,7 +214,7 @@ export const MenusRecordTable = ({
 
       const reorderedSiblings = arrayMove(siblings, oldIndex, newIndex);
       
-      // Calculate changes: only update items whose order actually changed
+      // Only update items whose order actually changed
       const changes = reorderedSiblings
         .map((menu, index) => ({
           _id: menu._id,
@@ -225,37 +233,44 @@ export const MenusRecordTable = ({
       setOrderedMenus(nextMenus);
       setReorderingCount((prev) => prev + 1);
 
-      try {
-        await Promise.all(
-          changes.map((change) =>
-            editMenu({
-              variables: {
-                _id: change._id,
-                input: { order: change.newOrder },
-              },
-            }),
-          ),
-        );
-        // Wait for refetch to complete to ensure server state is captured
-        await refetch();
-      } catch (error) {
-        if (isMountedRef.current) {
-          toast({
-            description:
-              error instanceof Error
-                ? error.message
-                : 'Failed to reorder menus.',
-          });
-          // Revert on error if no other reorders are pending
-          if (reorderingCount === 1) {
-            setOrderedMenus(menus);
+      // Serialize mutations for this parent level
+      const currentQueue = mutationQueueRef.current[parentId] || Promise.resolve();
+      
+      const nextMutation = currentQueue.then(async () => {
+        try {
+          await Promise.all(
+            changes.map((change) =>
+              editMenu({
+                variables: {
+                  _id: change._id,
+                  input: { order: change.newOrder },
+                },
+              }),
+            ),
+          );
+          await refetch();
+        } catch (error) {
+          if (isMountedRef.current) {
+            toast({
+              description:
+                error instanceof Error
+                  ? error.message
+                  : 'Failed to reorder menus.',
+            });
+            // Revert on error if this was the last pending reorder for this parent
+            setOrderedMenus((current) => {
+              // If we've already moved on to more reorders, don't revert to stale data
+              return reorderingCount === 1 ? menus : current;
+            });
+          }
+        } finally {
+          if (isMountedRef.current) {
+            setReorderingCount((prev) => Math.max(0, prev - 1));
           }
         }
-      } finally {
-        if (isMountedRef.current) {
-          setReorderingCount((prev) => Math.max(0, prev - 1));
-        }
-      }
+      });
+
+      mutationQueueRef.current[parentId] = nextMutation;
     },
     [orderedMenus, language, editMenu, refetch, menus, reorderingCount],
   );
