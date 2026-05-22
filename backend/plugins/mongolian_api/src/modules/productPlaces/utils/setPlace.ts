@@ -73,7 +73,7 @@ export const setPlace = async (
   ];
 
   try {
-    const result = await sendTRPCMessage({
+    await sendTRPCMessage({
       subdomain,
       pluginName: 'sales',
       module: 'deal',
