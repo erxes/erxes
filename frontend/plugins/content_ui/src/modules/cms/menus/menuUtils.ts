@@ -6,6 +6,11 @@ export type RawMenuItem = {
   [key: string]: unknown;
 };
 
+/**
+ * Compares two menu items for sorting purposes.
+ * Prioritizes the 'order' field, then falls back to locale-aware label comparison.
+ * Items without an order are placed at the end.
+ */
 function compareMenuItems<T extends RawMenuItem>(
   a: T,
   b: T,
@@ -18,12 +23,16 @@ function compareMenuItems<T extends RawMenuItem>(
     return aOrder - bOrder;
   }
 
-  return a.label.localeCompare(b.label, locale || 'en', {
+  return a.label.localeCompare(b.label, locale, {
     numeric: true,
     sensitivity: 'base',
   });
 }
 
+/**
+ * Transforms a flat list of menu items into a sorted flat tree structure.
+ * Each item is enriched with its depth and the path of ancestor IDs.
+ */
 export function buildFlatTree<T extends RawMenuItem>(
   items: T[],
   locale = 'en',
@@ -46,6 +55,9 @@ export function buildFlatTree<T extends RawMenuItem>(
   return result;
 }
 
+/**
+ * Generates a visual indentation prefix based on the nesting depth.
+ */
 export function getDepthPrefix(depth: number): string {
   if (depth <= 0) return '';
   return '-'.repeat(depth) + ' ';

@@ -10,6 +10,7 @@ import {
   type DragEndEvent,
   type DragStartEvent,
   useSensor,
+  useSensors,
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -31,7 +32,7 @@ import { useMenusColumns } from './MenusColumn';
 import { MenusCommandBar } from './menus-command-bar/MenusCommandBar';
 import { useMenus } from '../hooks/useMenus';
 import { CMS_MENU_EDIT, CMS_MENU_REMOVE } from '../../graphql/queries';
-import { buildFlatTree } from '@/cms/menus/menuUtils';
+import { buildFlatTree, getDepthPrefix } from '@/cms/menus/menuUtils';
 import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
 
 interface MenuItem {
@@ -112,7 +113,7 @@ const StaticMenuRow = ({
               {/* Simplified rendering for overlay to keep it fast */}
               {column.id === 'label' ? (
                 <span className="text-sm font-medium">
-                  {'-'.repeat(menu.depth || 0) + ' ' + menu.label}
+                  {getDepthPrefix(menu.depth || 0) + menu.label}
                 </span>
               ) : column.id === 'drag' ? (
                 <div className="flex h-full items-center justify-center text-muted-foreground">
@@ -213,6 +214,10 @@ const keyboardSensorOptions = {
   coordinateGetter: sortableKeyboardCoordinates,
 };
 
+/**
+ * A high-performance record table for managing CMS menus with drag-and-drop reordering.
+ * Uses @dnd-kit for fluid subtree dragging and serialized mutations to prevent race conditions.
+ */
 export const MenusRecordTable = ({
   clientPortalId,
   kind,
@@ -231,8 +236,11 @@ export const MenusRecordTable = ({
 
   // Queue to serialize mutations per parent to prevent race conditions
   const mutationQueueRef = useRef<Record<string, Promise<any>>>({});
+  // Ref to avoid stale closure issues in async handlers
+  const reorderingCountRef = useRef(reorderingCount);
 
   useEffect(() => {
+    reorderingCountRef.current = reorderingCount;
     if (reorderingCount === 0) {
       setOrderedMenus(menus);
     }
@@ -241,16 +249,15 @@ export const MenusRecordTable = ({
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
+      // Clean up mutation queue on unmount
+      mutationQueueRef.current = {};
     };
   }, []);
 
-  const mouseSensor = useSensor(PointerSensor, pointerSensorOptions);
+  const pointerSensor = useSensor(PointerSensor, pointerSensorOptions);
   const keyboardSensor = useSensor(KeyboardSensor, keyboardSensorOptions);
 
-  const sensors = useMemo(
-    () => [mouseSensor, keyboardSensor],
-    [mouseSensor, keyboardSensor],
-  );
+  const sensors = useSensors(pointerSensor, keyboardSensor);
 
   const menuIds = useMemo(
     () => orderedMenus.map((menu) => menu._id),
@@ -276,11 +283,14 @@ export const MenusRecordTable = ({
     refetch();
   };
 
-  const handleDragStart = (event: DragStartEvent) => {
-    const item = orderedMenus.find((m) => m._id === event.active.id);
-    setActiveId(event.active.id as string);
-    setActiveParentId(getParentKey(item) || 'root');
-  };
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      const item = orderedMenus.find((m) => m._id === event.active.id);
+      setActiveId(event.active.id as string);
+      setActiveParentId(getParentKey(item) || 'root');
+    },
+    [orderedMenus],
+  );
 
   const handleDragEnd = useCallback(
     async ({ active, over }: DragEndEvent) => {
@@ -338,41 +348,49 @@ export const MenusRecordTable = ({
 
       const currentQueue = mutationQueueRef.current[pId] || Promise.resolve();
 
-      const nextMutation = currentQueue.then(async () => {
-        try {
-          await Promise.all(
-            changes.map((change) =>
-              editMenu({
-                variables: {
-                  _id: change._id,
-                  input: { order: change.newOrder },
-                },
-              }),
-            ),
-          );
-          await refetch();
-        } catch (error) {
-          if (isMountedRef.current) {
-            toast({
-              description:
-                error instanceof Error
-                  ? error.message
-                  : 'Failed to reorder menus.',
-            });
-            setOrderedMenus((current) =>
-              reorderingCount === 1 ? menus : current,
+      const nextMutation = currentQueue
+        .then(async () => {
+          try {
+            await Promise.all(
+              changes.map((change) =>
+                editMenu({
+                  variables: {
+                    _id: change._id,
+                    input: { order: change.newOrder },
+                  },
+                }),
+              ),
             );
+            await refetch();
+          } catch (error) {
+            if (isMountedRef.current) {
+              toast({
+                description:
+                  error instanceof Error
+                    ? error.message
+                    : 'Failed to reorder menus.',
+              });
+              // Use ref value to check if this was the last pending operation
+              if (reorderingCountRef.current === 1) {
+                setOrderedMenus(menus);
+              }
+            }
+          } finally {
+            if (isMountedRef.current) {
+              setReorderingCount((prev) => Math.max(0, prev - 1));
+            }
           }
-        } finally {
-          if (isMountedRef.current) {
-            setReorderingCount((prev) => Math.max(0, prev - 1));
+        })
+        .finally(() => {
+          // Clean up completed promise from queue
+          if (mutationQueueRef.current[pId] === nextMutation) {
+            delete mutationQueueRef.current[pId];
           }
-        }
-      });
+        });
 
       mutationQueueRef.current[pId] = nextMutation;
     },
-    [orderedMenus, language, editMenu, refetch, menus, reorderingCount],
+    [orderedMenus, language, editMenu, refetch, menus],
   );
 
   const columns = useMenusColumns(onEdit, refetch);
