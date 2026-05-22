@@ -12,15 +12,19 @@ import { ICustomFieldGroup } from '../types/customFieldTypes';
 const compareByLabel = (
   a: { _id?: string; label?: string; code?: string },
   b: { _id?: string; label?: string; code?: string },
-) =>
-  (a.label || a.code || a._id || '').localeCompare(
-    b.label || b.code || b._id || '',
-    undefined,
-    {
-      numeric: true,
-      sensitivity: 'base',
-    },
-  );
+) => {
+  const aValue = a.label || a.code || a._id || '';
+  const bValue = b.label || b.code || b._id || '';
+
+  if (!aValue && !bValue) return 0;
+  if (!aValue) return 1;
+  if (!bValue) return -1;
+
+  return aValue.localeCompare(bValue, undefined, {
+    numeric: true,
+    sensitivity: 'base',
+  });
+};
 
 export const useCustomFieldGroups = (websiteId?: string) => {
   const { data, loading, refetch } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
