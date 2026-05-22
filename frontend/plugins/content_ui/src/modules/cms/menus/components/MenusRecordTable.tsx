@@ -6,6 +6,7 @@ import {
   KeyboardSensor,
   closestCenter,
   type DragEndEvent,
+  type DragStartEvent,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
@@ -38,6 +39,7 @@ interface MenuItem {
   parentId?: string;
   order?: number;
   depth?: number;
+  path?: string[];
   [key: string]: unknown;
 }
 
@@ -48,6 +50,18 @@ interface MenusRecordTableProps {
 }
 
 const getParentKey = (menu?: MenuItem) => menu?.parentId || null;
+
+const DragTransformContext = React.createContext<{
+  activeId: string | null;
+  transform: string | null;
+  transition: string | null;
+  setTransform: (transform: string | null, transition: string | null) => void;
+}>({
+  activeId: null,
+  transform: null,
+  transition: null,
+  setTransform: () => {},
+});
 
 const applySiblingOrder = (
   menus: MenuItem[],
@@ -86,6 +100,13 @@ const SortableMenuRow = React.forwardRef<
     id: original?._id,
   });
 
+  const {
+    activeId,
+    transform: sharedTransform,
+    transition: sharedTransition,
+    setTransform,
+  } = React.useContext(DragTransformContext);
+
   const setRowRef = useCallback(
     (node: HTMLTableRowElement | null) => {
       setNodeRef(node);
@@ -100,6 +121,29 @@ const SortableMenuRow = React.forwardRef<
     [ref, setNodeRef],
   );
 
+  const isDescendant = useMemo(() => {
+    if (!activeId || !original?.path) return false;
+    return original.path.includes(activeId);
+  }, [activeId, original?.path]);
+
+  useEffect(() => {
+    if (isDragging) {
+      setTransform(CSS.Transform.toString(transform), transition || null);
+    }
+  }, [isDragging, transform, transition, setTransform]);
+
+  const effectiveTransform = isDragging
+    ? CSS.Transform.toString(transform)
+    : isDescendant
+      ? sharedTransform
+      : CSS.Transform.toString(transform);
+
+  const effectiveTransition = isDragging
+    ? transition
+    : isDescendant
+      ? sharedTransition
+      : transition;
+
   return (
     <RecordTable.Row
       {...props}
@@ -110,12 +154,13 @@ const SortableMenuRow = React.forwardRef<
       className={cn(
         'cursor-grab active:cursor-grabbing',
         isDragging && 'relative z-10 opacity-60',
+        isDescendant && 'relative z-10 opacity-80',
         className,
       )}
       style={{
         ...style,
-        transform: CSS.Transform.toString(transform),
-        transition,
+        transform: effectiveTransform,
+        transition: effectiveTransition,
       }}
     />
   );
@@ -139,6 +184,12 @@ export const MenusRecordTable = ({
   const language = useAtomValue(cmsLanguageAtom);
   const [orderedMenus, setOrderedMenus] = useState<MenuItem[]>(menus);
   const [reorderingCount, setReorderingCount] = useState(0);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeTransform, setActiveTransform] = useState<{
+    transform: string | null;
+    transition: string | null;
+  }>({ transform: null, transition: null });
+
   const [removeMenu] = useMutation(CMS_MENU_REMOVE);
   const [editMenu] = useMutation(CMS_MENU_EDIT);
   const isMountedRef = useRef(true);
@@ -175,6 +226,10 @@ export const MenusRecordTable = ({
     refetch();
   };
 
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
   /**
    * Handles the end of a drag operation.
    * Optimistically updates the UI and enqueues the server mutations
@@ -182,6 +237,9 @@ export const MenusRecordTable = ({
    */
   const handleDragEnd = useCallback(
     async ({ active, over }: DragEndEvent) => {
+      setActiveId(null);
+      setActiveTransform({ transform: null, transition: null });
+
       if (!over || active.id === over.id) {
         return;
       }
@@ -282,27 +340,43 @@ export const MenusRecordTable = ({
       id="cms-menus-dnd"
       sensors={sensors}
       collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onDragCancel={() => {
+        setActiveId(null);
+        setActiveTransform({ transform: null, transition: null });
+      }}
     >
-      <RecordTable.Provider
-        columns={columns}
-        data={orderedMenus}
-        className="h-full m-3 pb-1"
-        stickyColumns={['drag', 'more', 'checkbox', 'label']}
+      <DragTransformContext.Provider
+        value={{
+          activeId,
+          transform: activeTransform.transform,
+          transition: activeTransform.transition,
+          setTransform: (transform, transition) => {
+            setActiveTransform({ transform, transition });
+          },
+        }}
       >
-        <SortableContext items={menuIds} strategy={verticalListSortingStrategy}>
-          <RecordTable.Scroll>
-            <RecordTable>
-              <RecordTable.Header />
-              <RecordTable.Body>
-                {loading && <RecordTable.RowSkeleton rows={10} />}
-                <RecordTable.RowList Row={SortableMenuRow} />
-              </RecordTable.Body>
-            </RecordTable>
-          </RecordTable.Scroll>
-        </SortableContext>
-        <MenusCommandBar onBulkDelete={handleBulkDelete} />
-      </RecordTable.Provider>
+        <RecordTable.Provider
+          columns={columns}
+          data={orderedMenus}
+          className="h-full m-3 pb-1"
+          stickyColumns={['drag', 'more', 'checkbox', 'label']}
+        >
+          <SortableContext items={menuIds} strategy={verticalListSortingStrategy}>
+            <RecordTable.Scroll>
+              <RecordTable>
+                <RecordTable.Header />
+                <RecordTable.Body>
+                  {loading && <RecordTable.RowSkeleton rows={10} />}
+                  <RecordTable.RowList Row={SortableMenuRow} />
+                </RecordTable.Body>
+              </RecordTable>
+            </RecordTable.Scroll>
+          </SortableContext>
+          <MenusCommandBar onBulkDelete={handleBulkDelete} />
+        </RecordTable.Provider>
+      </DragTransformContext.Provider>
     </DndContext>
   );
 };

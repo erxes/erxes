@@ -27,18 +27,22 @@ function compareMenuItems<T extends RawMenuItem>(
 export function buildFlatTree<T extends RawMenuItem>(
   items: T[],
   locale = 'en',
-): (T & { depth: number })[] {
-  const result: (T & { depth: number })[] = [];
-  const addChildren = (parentId: string | null, depth: number) => {
+): (T & { depth: number; path: string[] })[] {
+  const result: (T & { depth: number; path: string[] })[] = [];
+  const addChildren = (
+    parentId: string | null,
+    depth: number,
+    path: string[],
+  ) => {
     items
       .filter((item) => (item.parentId || null) === parentId)
       .sort((a, b) => compareMenuItems(a, b, locale))
       .forEach((item) => {
-        result.push({ ...item, depth });
-        addChildren(item._id, depth + 1);
+        result.push({ ...item, depth, path });
+        addChildren(item._id, depth + 1, [...path, item._id]);
       });
   };
-  addChildren(null, 0);
+  addChildren(null, 0, []);
   return result;
 }
 
