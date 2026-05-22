@@ -63,7 +63,11 @@ const applySiblingOrder = (
   const updatedMenus = menus.map((menu) => {
     const order = orderById.get(menu._id);
 
-    return order === undefined ? menu : { ...menu, order };
+    if (typeof order === 'number') {
+      return { ...menu, order };
+    }
+
+    return menu;
   });
 
   return buildFlatTree(updatedMenus, locale);
