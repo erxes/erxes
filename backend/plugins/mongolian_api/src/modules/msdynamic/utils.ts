@@ -66,7 +66,7 @@ export const consumeInventory = async (
     pluginName: 'core',
     module: 'products',
     action: 'findOne',
-    input: { code: productCode },
+    input: { query: { code: productCode } },
     defaultValue: null,
   });
 
@@ -403,7 +403,9 @@ export const dealToDynamic = async (
         module: 'products',
         action: 'find',
         input: {
-          _id: { $in: deal.productsData.map((item) => item.productId) },
+          query: {
+            _id: { $in: deal.productsData.map((item) => item.productId) },
+          },
         },
         defaultValue: [],
       });
@@ -535,7 +537,7 @@ export const dealToDynamic = async (
     await sendTRPCMessage({
       subdomain,
       pluginName: 'sales',
-      module: 'deals',
+      module: 'deal',
       action: 'updateOne',
       input: {
         selector: { _id: deal._id },
@@ -693,7 +695,9 @@ export const orderToDynamic = async (
         pluginName: 'core',
         module: 'products',
         action: 'find',
-        input: { _id: { $in: order.items.map((item) => item.productId) } },
+        input: {
+          query: { _id: { $in: order.items.map((item) => item.productId) } },
+        },
         defaultValue: {},
       });
 
@@ -1000,7 +1004,7 @@ export const getExchangeRates = async (config: ExchangeRateConfig) => {
       if (
         !latestByCurrency[currency] ||
         new Date(item.Starting_Date) >
-        new Date(latestByCurrency[currency].Starting_Date)
+          new Date(latestByCurrency[currency].Starting_Date)
       ) {
         latestByCurrency[currency] = item;
       }
