@@ -34,6 +34,14 @@ const T = (props, ...kids) => {
 };
 const B = (props, ...kids) => h(Box, props, ...kids);
 
+// Shared SelectInput indicator/item — fixed-width so columns don't shift
+const selectStyle = {
+  indicatorComponent: ({ isSelected }) =>
+    T({ color: 'cyan' }, isSelected ? '▸ ' : '  '),
+  itemComponent: ({ label, isSelected }) =>
+    T({ color: isSelected ? 'cyan' : undefined, bold: isSelected }, label),
+};
+
 // ─── Header ──────────────────────────────────────────────────────────────
 
 const Header = ({ subtitle }) =>
@@ -44,40 +52,51 @@ const Header = ({ subtitle }) =>
 
 // ─── Dashboard ───────────────────────────────────────────────────────────
 
-const PhaseBadge = ({ phase, halted }) => {
-  if (halted) return T({ color: 'yellow', bold: true }, '⚠ HALTED   ');
-  if (phase?.startsWith('7')) return T({ color: 'green', bold: true }, '✓ SHIPPED  ');
-  if (phase?.startsWith('0')) return T({ color: 'gray' }, '◦ ' + phase + '   ');
-  return T({ color: 'cyan' }, '→ ' + (phase ?? '0 (empty)').padEnd(10, ' '));
+// One-character status icon — colored separately so the icon always pops
+const phaseIcon = (w) => {
+  if (w.halted) return { icon: '⚠', color: 'yellow' };
+  if (w.stage?.phase.startsWith('7')) return { icon: '✓', color: 'green' };
+  if (w.stage?.phase.startsWith('0')) return { icon: '◦', color: 'gray' };
+  if (w.stage?.phase) return { icon: '→', color: 'cyan' };
+  return { icon: '◦', color: 'gray' };
+};
+
+// Plain-text item label — short, self-descriptive, no padding artefacts.
+// Format: "<id> · <phase> · <when>"
+const wishItemLabel = (w) => {
+  const phase = w.halted ? 'HALTED' : (w.stage?.phase ?? '0 empty');
+  return `${w.id}  ·  ${phase}  ·  ${timeAgo(w.mostRecentMs)}`;
 };
 
 const Dashboard = ({ wishes, onSelect }) => {
-  const items = wishes.map(w => ({
-    label: `${w.id.padEnd(40)}  ${(w.stage?.phase ?? '0 (empty)').padEnd(12)}  ${timeAgo(w.mostRecentMs).padStart(10)}`,
-    value: w.id,
-  }));
+  const wishItems = wishes.map(w => {
+    const { icon } = phaseIcon(w);
+    return {
+      label: `${icon}  ${wishItemLabel(w)}`,
+      value: w.id,
+      key: w.id,
+    };
+  });
+
   const menu = [
-    { label: '➤  New wish', value: '__new__' },
-    ...items,
-    { label: '↺  Refresh', value: '__refresh__' },
-    { label: '✕  Quit (q)', value: '__quit__' },
+    { label: '+  New wish', value: '__new__', key: '__new__' },
+    ...wishItems,
+    { label: '↺  Refresh', value: '__refresh__', key: '__refresh__' },
+    { label: '✕  Quit', value: '__quit__', key: '__quit__' },
   ];
 
   return B({ flexDirection: 'column' },
-    h(Header, { subtitle: 'Dashboard — pick a wish or start a new one' }),
-    B({ flexDirection: 'column', paddingX: 2, paddingY: 1 },
-      wishes.length === 0
-        ? T({ dimColor: true }, '  (no wishes yet — pick "New wish" below to begin)')
-        : B({ flexDirection: 'column' },
-            T({ bold: true, dimColor: true }, '  ID' + ' '.repeat(38) + '  PHASE         UPDATED'),
-            T({ dimColor: true },              '  ' + '─'.repeat(40) + '  ' + '─'.repeat(12) + '  ' + '─'.repeat(10)),
-          ),
-    ),
-    B({ paddingX: 1 },
-      h(SelectInput, { items: menu, onSelect: item => onSelect(item.value) }),
+    h(Header, { subtitle: 'Dashboard — start a new wish or open an existing one' }),
+    wishes.length === 0
+      ? B({ paddingX: 2, paddingY: 1 }, T({ dimColor: true }, '(no wishes yet — pick "+ New wish" below)'))
+      : B({ paddingX: 2, paddingTop: 1, flexDirection: 'column' },
+          T({ dimColor: true }, `${wishes.length} wish${wishes.length === 1 ? '' : 'es'}   ·   ◦ empty   →  in progress   ✓ shipped   ⚠ halted`),
+        ),
+    B({ paddingX: 1, marginTop: 1 },
+      h(SelectInput, { items: menu, onSelect: item => onSelect(item.value), ...selectStyle }),
     ),
     B({ paddingX: 2, paddingY: 1 },
-      T({ dimColor: true }, '↑/↓ navigate · Enter select · q quit'),
+      T({ dimColor: true }, '↑/↓ navigate  ·  Enter select  ·  q quit  ·  r refresh  ·  n new'),
     ),
   );
 };
@@ -133,6 +152,7 @@ const NewWishConfirm = ({ wish, meta, onAccept, onSkillOverride, onBack }) => {
     ),
     B({ paddingX: 1, marginTop: 1 },
       h(SelectInput, {
+        ...selectStyle,
         items: [
           { label: 'Continue with current routing →', value: '__accept__' },
           ...(meta.isSales ? skillItems : [{ label: '← Back to edit wish (Esc)', value: '__back__' }]),
@@ -181,7 +201,7 @@ const NewWishOutput = ({ briefing, meta, wishId, onDone }) => {
       status?.file ? T({ color: 'green' }, status.file) : null,
     ),
     B({ paddingX: 1, marginTop: 1 },
-      h(SelectInput, { items, onSelect: item => handle(item.value) }),
+      h(SelectInput, { items, onSelect: item => handle(item.value), ...selectStyle }),
     ),
   );
 };
