@@ -205,6 +205,16 @@ export const MenusRecordTable = ({
       }
 
       const reorderedSiblings = arrayMove(siblings, oldIndex, newIndex);
+      
+      // Calculate changes: only update items whose order actually changed
+      const changes = reorderedSiblings
+        .map((menu, index) => ({
+          _id: menu._id,
+          newOrder: index + 1,
+          oldOrder: menu.order
+        }))
+        .filter(change => change.newOrder !== change.oldOrder);
+
       const nextMenus = applySiblingOrder(
         orderedMenus,
         reorderedSiblings,
@@ -217,11 +227,11 @@ export const MenusRecordTable = ({
 
       try {
         await Promise.all(
-          reorderedSiblings.map((menu, index) =>
+          changes.map((change) =>
             editMenu({
               variables: {
-                _id: menu._id,
-                input: { order: index + 1 },
+                _id: change._id,
+                input: { order: change.newOrder },
               },
             }),
           ),
