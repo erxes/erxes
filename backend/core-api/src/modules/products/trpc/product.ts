@@ -69,6 +69,9 @@ export const productsTrpcRouter = t.router({
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { query } = input;
       const { models } = ctx;
+      if (!Object.keys(query).length) {
+        return {};
+      }
 
       return models.Products.findOne(query).lean();
     }),
@@ -79,7 +82,7 @@ export const productsTrpcRouter = t.router({
         const { doc } = input;
         const { models } = ctx;
 
-        return models.Products.createProduct(doc);
+        return await models.Products.createProduct(doc);
       }),
 
     updateProduct: t.procedure

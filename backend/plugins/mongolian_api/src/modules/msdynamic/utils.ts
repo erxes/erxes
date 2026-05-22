@@ -76,9 +76,9 @@ export const consumeInventory = async (
     const productCategory = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'categories',
+      module: 'productCategories',
       action: 'findOne',
-      input: { code: doc.Item_Category_Code },
+      input: { query: { code: doc.Item_Category_Code } },
       defaultValue: null,
     });
 
@@ -165,9 +165,9 @@ export const consumeCategory = async (
   const productCategory = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    module: 'categories',
+    module: 'productCategories',
     action: 'findOne',
-    input: { code: updateCode },
+    input: { query: { code: updateCode } },
     defaultValue: {},
   });
 
@@ -190,9 +190,9 @@ export const consumeCategory = async (
       const parentCategory = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
-        module: 'categories',
+        module: 'productCategories',
         action: 'findOne',
-        input: { code: doc.Parent_Category },
+        input: { query: { code: doc.Parent_Category } },
       });
 
       if (parentCategory) {
@@ -204,32 +204,26 @@ export const consumeCategory = async (
       await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
-        module: 'categories',
+        module: 'productCategories',
         action: 'updateProductCategory',
         input: { _id: productCategory._id, doc: { ...document } },
         defaultValue: {},
-        // action: 'categories.updateProductCategory',
-        // data: { _id: productCategory._id, doc: { ...document } },
-        // isRPC: true,
       });
     } else {
       await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
-        module: 'categories',
+        module: 'productCategories',
         action: 'createProductCategory',
         input: { doc: { ...document } },
         defaultValue: {},
-        // action: 'categories.createProductCategory',
-        // data: { doc: { ...document } },
-        // isRPC: true,
       });
     }
   } else if (action === 'delete' && productCategory) {
     await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'categories',
+      module: 'productCategories',
       action: 'removeProductCategory',
       input: { _id: productCategory._id },
       defaultValue: null,
@@ -1006,7 +1000,7 @@ export const getExchangeRates = async (config: ExchangeRateConfig) => {
       if (
         !latestByCurrency[currency] ||
         new Date(item.Starting_Date) >
-          new Date(latestByCurrency[currency].Starting_Date)
+        new Date(latestByCurrency[currency].Starting_Date)
       ) {
         latestByCurrency[currency] = item;
       }

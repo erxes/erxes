@@ -95,7 +95,7 @@ export const getChildCategories = async (
     (await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'categories',
+      module: 'productCategories',
       action: 'withChilds',
       method: 'query',
       input: { ids: categoryIds },

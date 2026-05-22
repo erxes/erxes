@@ -185,7 +185,7 @@ const inventoryMutations = {
           pluginName: 'core',
           module: 'productCategories',
           action: 'findOne',
-          input: { code },
+          input: { query: { code } },
           method: 'query',
           defaultValue: {},
         });
