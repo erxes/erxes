@@ -37,6 +37,8 @@ pnpm --silent erxes-wish --help
 
 The `--silent` flag suppresses pnpm's `> erxes-wish` preamble so output is clean for piping. The CLI detects plugin scope and probable skill from your wish text, then assembles a complete briefing with the constitution, workflow, recent lessons, and routed skill embedded. Works with any AI tool because the output is a string.
 
+**Full developer guide:** [`docs/erxes-wish.md`](./docs/erxes-wish.md) — covers all flags, per-AI-tool usage (Claude Code, Cursor, Codex, Copilot, Gemini, ChatGPT, Aider), skill detection rules, shell shortcuts, troubleshooting, and how to extend.
+
 ## Routing table (where to look for what)
 
 | Task shape | Go to |
@@ -51,6 +53,7 @@ The `--silent` flag suppresses pnpm's `> erxes-wish` preamble so output is clean
 | Run verification | [`evals/run.sh`](./evals/run.sh) — `evals/run.sh sales` |
 | See what AI got wrong here before | [`memory/lessons.md`](./memory/lessons.md) |
 | Run Playwright behavioral tests | `pnpm test` from `.agents/` (config: [`playwright.config.ts`](./playwright.config.ts)) |
+| Use the `erxes-wish` CLI | [`docs/erxes-wish.md`](./docs/erxes-wish.md) — full developer guide |
 | Replicate this system for another plugin | [`EXTENDING.md`](./EXTENDING.md) |
 
 ## First rules (the load-bearing ones)
