@@ -17,9 +17,9 @@ import { Badge } from 'erxes-ui/components/badge';
 import { Button } from 'erxes-ui';
 
 interface ExportFailedNoticeProps {
-  exportItem: TExportProgress;
-  canRetry: boolean;
-  onRetry?: (exportId: string) => void;
+  readonly exportItem: TExportProgress;
+  readonly canRetry: boolean;
+  readonly onRetry?: (exportId: string) => void;
 }
 
 function ExportFailedNotice({
@@ -55,10 +55,10 @@ function ExportFailedNotice({
 export function ExportProgress({
   exportItem,
   onRetry,
-}: {
+}: Readonly<{
   exportItem: TExportProgress;
   onRetry?: (exportId: string) => void;
-}) {
+}>) {
   const progress = useExportProgress(exportItem);
   const {
     isProcessing,
