@@ -59,6 +59,7 @@ export const generateFilter = async (
     initialStageId,
     labelIds,
     priority,
+    confidenceScoreMin,
     userIds,
     tagIds,
     segment,
@@ -358,6 +359,10 @@ export const generateFilter = async (
 
   if (priority) {
     filter.priority = { $in: priority };
+  }
+
+  if (confidenceScoreMin !== undefined && confidenceScoreMin !== null) {
+    filter.confidenceScore = { $gte: confidenceScoreMin };
   }
 
   if (tagIds) {
