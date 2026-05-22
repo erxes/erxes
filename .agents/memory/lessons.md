@@ -46,6 +46,12 @@ Quarterly: re-read this file end to end. Lessons that are now baked into rules/s
 **Lesson:** When the wish says "editable from the deal detail sheet" (not "add deal sheet"), AddCardForm is the wrong file. The skill needs a second file-set for the detail/edit surface. For now: grep `frontend/plugins/sales_ui/src/modules/deals/` for `priority` to locate the real detail-sheet component before mirroring.
 **Where applicable:** `skills/sales/add-deal-field.md` — needs an update pass to split "create surface" from "edit/detail surface" sisters.
 
+## 2026-05-22 — `pnpm <script-name>` falls through to PATH binaries before checking package.json scripts
+**Symptom:** Added `"wish": "node .agents/cli/src/index.mjs"` to root package.json scripts. Running `pnpm wish "..."` launched `/usr/bin/wish` (Tcl/Tk's GUI shell) and crashed with `EXC_CRASH (SIGKILL (Code Signature Invalid))`, popping up a macOS crash dialog. Same root cause as the earlier `wish` lesson — but this time despite a properly defined script.
+**Root cause:** `pnpm <name>` resolves binaries in `node_modules/.bin/` and `PATH` BEFORE checking package.json `scripts`. The `wish` binary from Tcl/Tk (`/usr/bin/wish`) wins over `pnpm run wish`. Only `pnpm run <name>` checks scripts first. The convention "pnpm <name> just works" is wrong when the name collides with a PATH binary.
+**Lesson:** When naming a pnpm script, grep `/usr/bin/`, `/usr/local/bin/`, and other PATH dirs for collisions BEFORE choosing the name. Or: name scripts with prefixes/suffixes that obviously aren't system binaries (`agents`, `erxes-wish`, `wishctl`). Renamed `wish` → `agents` for the TUI script; no PATH conflict.
+**Where applicable:** root `package.json` scripts; future CLIs added to the system. Documented in `docs/erxes-wish.md`.
+
 ## 2026-05-22 — `.agents/` needs `pnpm install --ignore-workspace`
 **Symptom:** Running `pnpm install` from inside `.agents/` reports "Scope: all 23 workspace projects" in 1.8s and installs nothing. `pnpm exec playwright` then fails with `ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL`.
 **Root cause:** `pnpm-workspace.yaml` at repo root globs `backend/**` and `frontend/**`. `.agents/` is not in the workspace, but pnpm still detects the workspace config and runs in workspace mode, ignoring `.agents/package.json`.

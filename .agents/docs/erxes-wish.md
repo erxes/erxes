@@ -2,6 +2,15 @@
 
 Tool-agnostic prompt enhancer that turns a casual wish ("add a riskLevel field to deals") into a complete, disciplined briefing prompt — embedding the constitution, workflow, recent lessons, and the right skill from `.agents/` — that you paste into any AI coding tool.
 
+**Two ways to use it:**
+
+| Mode | Command | When |
+|---|---|---|
+| **Interactive TUI** | `pnpm agents` | Daily driver. Dashboard, new-wish wizard, wish-detail navigation, output-target picker. |
+| **Direct (pipe-friendly)** | `pnpm --silent erxes-wish "<wish>"` | Scripting, one-shot wishes, when you already know what you want. |
+
+The interactive mode (`pnpm agents`) is the recommended developer experience. The direct mode (`pnpm --silent erxes-wish`) is the same engine without the UI — useful for piping into shell commands or AI CLIs.
+
 ## Why this exists
 
 `.agents/` is a structured AI grounding system: rules, memory, skills, docs, evals. The system works **if AI knows to read it**. Two failure modes:
@@ -23,9 +32,34 @@ Tool-agnostic prompt enhancer that turns a casual wish ("add a riskLevel field t
 
 ## Setup
 
-If you're working in the erxes repo, **none**. The script is wired into root `package.json` as a pnpm script.
+**Direct mode** (`pnpm --silent erxes-wish ...`) — no setup needed. The bin script is dependency-free.
 
-If you want zero-typing shortcuts, see [Shell shortcuts](#shell-shortcuts) below.
+**Interactive TUI** (`pnpm agents`) — first-time only:
+```bash
+pnpm agents:install
+```
+This installs Ink + React inside `.agents/cli/node_modules/` (isolated from the monorepo). Required once per clone. The interactive TUI won't start without it.
+
+After that, `pnpm agents` launches the TUI from anywhere in the monorepo.
+
+## Interactive mode — `pnpm agents`
+
+```bash
+pnpm agents
+```
+
+Opens a full TUI:
+
+- **Dashboard** — table of all `.agents/wishes/`, sortable by recency, with phase indicators (◦ empty / → in progress / ✓ shipped / ⚠ halted)
+- **New wish wizard** — type the wish, see detected plugin/skill with the matched keyword, confirm or override the skill, pick output target (clipboard / file / both / stdout / back)
+- **Wish detail** — per-wish artifact list with timestamps, instructions for opening in editor or cat-ing each artifact
+- **Keyboard shortcuts** — `n` new wish, `r` refresh, `q` quit, `Esc` back, arrows navigate, `Enter` select
+
+Pass a wish directly to skip the wizard and prefill the input:
+```bash
+pnpm agents "add a riskLevel field to deals"
+# → assembles immediately and prints to stdout (direct mode)
+```
 
 ## Quick start
 

@@ -8,10 +8,13 @@
     "dev:uis": "dotenv -e .env -- node scripts/start-ui-dev.js",
     "create-plugin": "node scripts/create-plugin.js",
     "erxes-wish": "node .agents/bin/erxes-wish.mjs",
+    "agents": "node .agents/cli/src/index.mjs",
+    "agents:install": "cd .agents/cli && pnpm install --ignore-workspace",
     "release": "release-it"
   },
   "bin": {
-    "erxes-wish": "./.agents/bin/erxes-wish.mjs"
+    "erxes-wish": "./.agents/bin/erxes-wish.mjs",
+    "agents": "./.agents/cli/src/index.mjs"
   },
   "engines": {
     "pnpm": ">=8",

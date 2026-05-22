@@ -1,0 +1,25 @@
+{
+  "name": "erxes-agents-cli",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Interactive TUI for the erxes .agents/ AI shipping system. Manages wishes through the 7-phase workflow.",
+  "type": "module",
+  "bin": {
+    "erxes-wish-tui": "./src/index.mjs"
+  },
+  "scripts": {
+    "start": "node src/index.mjs",
+    "dev": "node src/index.mjs"
+  },
+  "dependencies": {
+    "ink": "^5.0.1",
+    "ink-select-input": "^6.0.0",
+    "ink-spinner": "^5.0.0",
+    "ink-text-input": "^6.0.0",
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.3.1"
+  }
+}
