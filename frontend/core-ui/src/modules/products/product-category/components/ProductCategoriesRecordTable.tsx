@@ -6,9 +6,13 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RecordTableTree,
+  Skeleton,
+  Table,
   TextOverflowTooltip,
+  useMultiQueryState,
 } from 'erxes-ui';
 import { useProductCategories } from '../hooks/useProductCategories';
+import { useProductCategoriesTotalCount } from '../hooks/useProductCategoriesTotalCount';
 import {
   IconHash,
   IconImageInPicture,
@@ -23,8 +27,60 @@ import { CategoryCommandBar } from './product-command-bar/CategoryCommandBar';
 import { PRODUCTS_PER_PAGE } from '@/products/hooks/useProducts';
 import { renderingCategoryDetailAtom } from '../states/ProductCategory';
 
+const ProductCategoriesInitialSkeleton = ({
+  columns,
+  rows = PRODUCTS_PER_PAGE,
+}: {
+  columns: ColumnDef<IProductCategory & { hasChildren: boolean }>[];
+  rows?: number;
+}) => {
+  const rowKeys = useMemo(
+    () => Array.from({ length: rows }, () => crypto.randomUUID()),
+    [rows],
+  );
+  return (
+    <>
+      {rowKeys.map((rowKey) => (
+        <Table.Row key={rowKey} className="h-cell">
+          {columns.map((col, colIndex) => (
+            <Table.Cell
+              key={`${rowKey}-${col.id ?? colIndex}`}
+              className="border-r-0 px-2"
+            >
+              <Skeleton className="h-4 w-full min-w-4" />
+            </Table.Cell>
+          ))}
+        </Table.Row>
+      ))}
+    </>
+  );
+};
+
 export const ProductCategoriesRecordTable = () => {
-  const { productCategories, loading } = useProductCategories();
+  const [queries] = useMultiQueryState<{
+    parentId?: string;
+    status?: string;
+    searchValue?: string;
+  }>(['parentId', 'status', 'searchValue']);
+
+  const filterVariables = {
+    parentId: queries?.parentId || undefined,
+    status: queries?.status || undefined,
+    searchValue: queries?.searchValue || undefined,
+  };
+
+  const { productCategories, loading } = useProductCategories({
+    variables: filterVariables,
+    fetchPolicy: 'cache-and-network',
+  });
+
+  useProductCategoriesTotalCount({
+    variables: filterVariables,
+    fetchPolicy: 'cache-and-network',
+  });
+
+  const isFetchingMore = loading && (productCategories?.length ?? 0) > 0;
+  const isInitialLoading = loading && !isFetchingMore;
 
   const categories = productCategories?.map((category: IProductCategory) => ({
     ...category,
@@ -43,10 +99,12 @@ export const ProductCategoriesRecordTable = () => {
     );
   }, [categories]);
 
+  const columns = productCategoryColumns(categoryObject);
+
   return (
     <RecordTable.Provider
-      columns={productCategoryColumns(categoryObject)}
-      data={categories || []}
+      columns={columns}
+      data={isInitialLoading ? [] : categories || []}
       className="h-full"
     >
       <RecordTableTree id="product-categories" ordered>
@@ -55,7 +113,12 @@ export const ProductCategoriesRecordTable = () => {
             <RecordTable.Header />
             <RecordTable.Body>
               <RecordTable.RowList Row={RecordTableTree.Row} />
-              {loading && <RecordTable.RowSkeleton rows={PRODUCTS_PER_PAGE} />}
+              {isInitialLoading && (
+                <ProductCategoriesInitialSkeleton
+                  columns={columns}
+                  rows={PRODUCTS_PER_PAGE}
+                />
+              )}
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.Scroll>
