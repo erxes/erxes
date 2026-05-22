@@ -51,7 +51,7 @@ export const FormCreatePage = lazy(() =>
 
 export const FormDetailPage = lazy(() =>
   import('~/pages/FormDetailPage').then((module) => ({
-    default: module.ChannelFormDetailPage,
+    default: module.default,
   })),
 );
 

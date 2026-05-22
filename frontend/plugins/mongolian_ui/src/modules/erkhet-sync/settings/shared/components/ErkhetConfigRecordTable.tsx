@@ -1,5 +1,6 @@
 import { IconSettings2 } from '@tabler/icons-react';
-import { ColumnDef, RecordTable } from 'erxes-ui';
+import { ColumnDef } from '@tanstack/react-table';
+import { RecordTable } from 'erxes-ui';
 import { ReactNode } from 'react';
 
 interface Props<T extends object> {
@@ -31,7 +32,9 @@ export const ErkhetConfigRecordTable = <T extends object>({
       <div className="flex items-center justify-center py-20">
         <div className="flex flex-col items-center gap-3 text-center">
           <IconSettings2 size={48} className="text-gray-400" />
-          <h3 className="text-lg font-semibold text-gray-900">No configs yet</h3>
+          <h3 className="text-lg font-semibold text-gray-900">
+            No configs yet
+          </h3>
           <p className="text-sm text-gray-500">{emptyDescription}</p>
         </div>
       </div>

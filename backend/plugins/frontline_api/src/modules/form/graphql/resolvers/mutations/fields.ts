@@ -17,6 +17,7 @@ export interface IFieldsBulkAddAndEditParams {
   contentTypeId: string;
   newFields: IField[];
   updatedFields: IFieldsEdit[];
+  removedFieldIds: string[];
 }
 
 export const fieldMutations = {
@@ -49,7 +50,7 @@ export const fieldMutations = {
     args: IFieldsBulkAddAndEditParams,
     { user, models }: IContext,
   ) {
-    const { contentType, contentTypeId, newFields, updatedFields } = args;
+    const { contentType, contentTypeId, newFields, updatedFields, removedFieldIds } = args;
     const tempFieldIdsMap: { [key: string]: string } = {};
     const response: IFieldDocument[] = [];
     const logicalFields: IField[] = [];
@@ -121,6 +122,10 @@ export const fieldMutations = {
       });
 
       response.push(field);
+    }
+
+    if (removedFieldIds?.length > 0) {
+      await models.Fields.deleteMany({ _id: { $in: removedFieldIds } });
     }
 
     const parentFields = response.filter((f) => f.type === 'parentField');

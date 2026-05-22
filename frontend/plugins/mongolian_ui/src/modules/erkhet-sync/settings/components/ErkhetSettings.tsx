@@ -23,6 +23,12 @@ const StageInErkhetConfig = lazy(() =>
   })),
 );
 
+const PosOrderErkhetConfig = lazy(() =>
+  import('~/pages/PosOrderErkhetConfigPage').then((module) => ({
+    default: module.PosOrderErkhetConfig,
+  })),
+);
+
 const PipelineRemainderConfig = lazy(() =>
   import('~/pages/PipelineRemainderConfigPage').then((module) => ({
     default: module.PipelineRemainderConfig,
@@ -116,6 +122,7 @@ const ErkhetSettings = () => {
             <Routes>
               <Route path="/" element={<ErkhetSyncGeneralConfig />} />
               <Route path="/stage-in" element={<StageInErkhetConfig />} />
+              <Route path="/pos-order" element={<PosOrderErkhetConfig />} />
               <Route path="/return" element={<StageInReturnErkhetConfig />} />
               <Route path="/remainder" element={<PipelineRemainderConfig />} />
               <Route

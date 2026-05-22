@@ -16,9 +16,7 @@ export const SuggestionMenu = React.forwardRef<
       className,
     )}
   >
-    <div className="overflow-auto flex flex-col gap-1 h-full hide-scroll styled-scroll">
-      {children}
-    </div>
+    <div className="overflow-auto flex flex-col gap-1 h-full">{children}</div>
   </div>
 ));
 

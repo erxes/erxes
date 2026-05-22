@@ -41,7 +41,7 @@ export const ProductsRecordTable = ({
       newColumns.splice(amountIndex + 1, 0, currency, uom);
 
     const assignedIndex = newColumns.findIndex(
-      (col) => col.id === 'assignedUserId',
+      (col) => col.id === 'assignUserId',
     );
     if (assignedIndex !== -1)
       newColumns.splice(assignedIndex + 1, 0, branch, department);

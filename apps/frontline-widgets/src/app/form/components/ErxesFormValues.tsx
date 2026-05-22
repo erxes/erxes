@@ -74,7 +74,7 @@ export const ErxesFormValues = ({
       formSchema[field._id] = field.isRequired ? z.number().min(1) : z.number();
       return;
     }
-    if (field.type === 'date') {
+    if (field.type === 'date' || field.type === 'core:customer:birthDate') {
       formSchema[field._id] = field.isRequired
         ? z.date().min(new Date())
         : z.date();
@@ -86,7 +86,27 @@ export const ErxesFormValues = ({
     }
     if (field.type === 'file') {
       formSchema[field._id] = field.isRequired
-        ? z.array(z.string()).min(1, 'At least one file is required')
+        ? z.array(z.string()).min(1, { message: 'Please upload a file.' })
+        : z.array(z.string());
+      return;
+    }
+    if (field.type === 'core:customer:avatar') {
+      formSchema[field._id] = field.isRequired
+        ? z.any({ message: 'Please upload a avatar picture.' })
+        : z.any();
+      return;
+    }
+    if (field.type === 'radio' || field.type === 'core:customer:sex') {
+      formSchema[field._id] = field.isRequired
+        ? z.string().min(1, { message: 'Please select an option.' })
+        : z.string();
+      return;
+    }
+    if (field.type === 'check') {
+      formSchema[field._id] = field.isRequired
+        ? z
+            .array(z.string())
+            .min(1, { message: 'Please select at least one option.' })
         : z.array(z.string());
       return;
     }
@@ -109,13 +129,20 @@ export const ErxesFormValues = ({
       defaultValues[field._id] = '';
     } else if (field.type === 'number') {
       defaultValues[field._id] = '';
-    } else if (field.type === 'date') {
+    } else if (
+      field.type === 'date' ||
+      field.type === 'core:customer:birthDate'
+    ) {
       defaultValues[field._id] = new Date();
     } else if (field.type === 'boolean') {
       defaultValues[field._id] = false;
-    } else if (field.type === 'radio') {
+    } else if (field.type === 'radio' || field.type === 'core:customer:sex') {
       defaultValues[field._id] = '';
     } else if (field.type === 'file') {
+      defaultValues[field._id] = [];
+    } else if (field.type === 'core:customer:avatar') {
+      defaultValues[field._id] = null;
+    } else if (field.type === 'check') {
       defaultValues[field._id] = [];
     }
   });

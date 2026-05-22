@@ -1,4 +1,4 @@
-export const types = () => `
+export const types = `
   type QuantityRule {
     type: String,
     value: Float,
@@ -44,7 +44,7 @@ export const types = () => `
     yearEndValue: Date,
   }
 
-  type PricingPlan @key(fields: "_id") {
+  type PricingPlan {
     _id: String,
     name: String,
     status: String,

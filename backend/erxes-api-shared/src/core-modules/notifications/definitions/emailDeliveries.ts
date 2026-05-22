@@ -4,7 +4,7 @@ import { Document, Schema } from 'mongoose';
 export interface IEmailDeliveryDocument extends Document {
   _id: string;
   notificationId?: string;
-  userId: string;
+  userId?: string;
   email: string;
   subject: string;
   content: string;
@@ -40,7 +40,6 @@ export const emailDeliverySchema = new Schema({
 
   userId: {
     type: String,
-    required: true,
   },
 
   email: {

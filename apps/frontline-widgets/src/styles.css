@@ -69,6 +69,8 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
 
+  --color-widget-label: var(--form-label);
+
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
@@ -216,6 +218,8 @@
     --chart-3: oklch(0.541 0.281 293.009);
     --chart-4: oklch(0.491 0.27 292.581);
     --chart-5: oklch(0.432 0.232 292.759);
+
+    --form-label: oklch(0.3156 0.0121 258.37);
   }
 
   .dark {
@@ -252,6 +256,8 @@
     --chart-3: oklch(0.541 0.281 293.009);
     --chart-4: oklch(0.491 0.27 292.581);
     --chart-5: oklch(0.432 0.232 292.759);
+
+    --form-label: oklch(0.8017 0.0121 258.37);
   }
 }
 

@@ -1,23 +1,66 @@
-import { RecordTable } from 'erxes-ui';
+import { Button, RecordTable } from 'erxes-ui';
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { checkPosOrdersColumns } from './CheckPosOrdersColumn';
 
 import { CHECK_POS_ORDERS_CURSOR_SESSION_KEY } from '../constants/checkPosOrdersCursorSessionKey';
 import { useCheckPosOrders } from '../hooks/useCheckPosOrders';
+import { ICheckPosOrders } from '../types/checkPosOrders';
+
+const CheckOrdersButton = ({
+  checking,
+  onCheck,
+  orders,
+}: {
+  checking: boolean;
+  onCheck: (ids: string[]) => void;
+  orders: ICheckPosOrders[];
+}) => {
+  const { table } = RecordTable.useRecordTable();
+  const selectedRows = table.getSelectedRowModel().rows;
+  const ids = (
+    selectedRows.length
+      ? selectedRows.map((row) => row.original._id)
+      : orders.map((order) => order._id)
+  ).filter(Boolean);
+
+  return (
+    <div className="flex items-center justify-between gap-3 px-3 pt-3">
+      <div className="text-sm text-muted-foreground">
+        {selectedRows.length
+          ? `${selectedRows.length} selected`
+          : `${orders.length} orders`}
+      </div>
+      <Button onClick={() => onCheck(ids)} disabled={checking || !ids.length}>
+        {checking ? 'Checking...' : 'Check Orders'}
+      </Button>
+    </div>
+  );
+};
 
 export const CheckPosOrdersRecordTable = () => {
-  const { checkPosOrders, handleFetchMore, loading, pageInfo } =
-    useCheckPosOrders();
+  const {
+    checkOrders,
+    checkPosOrders,
+    checking,
+    handleFetchMore,
+    loading,
+    pageInfo,
+  } = useCheckPosOrders();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   return (
     <RecordTable.Provider
       columns={checkPosOrdersColumns || []}
-      data={checkPosOrders || [{}]}
+      data={checkPosOrders || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'createdAt']}
     >
+      <CheckOrdersButton
+        checking={checking}
+        onCheck={checkOrders}
+        orders={checkPosOrders || []}
+      />
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
         hasNextPage={hasNextPage}

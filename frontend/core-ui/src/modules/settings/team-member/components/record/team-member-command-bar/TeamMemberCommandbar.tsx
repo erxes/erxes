@@ -1,6 +1,7 @@
 import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { TeamMemberDelete } from './delete/TeamMemberDelete';
+import { TeamMemberAssignPermissions } from './assign-permissions/TeamMemberAssignPermissions';
 import { Export } from 'ui-modules';
 
 export const TeamMemberCommandBar = () => {
@@ -23,6 +24,8 @@ export const TeamMemberCommandBar = () => {
             .getFilteredSelectedRowModel()
             .rows.map((row) => row.original._id)}
         />
+        <Separator.Inline />
+        <TeamMemberAssignPermissions teamMemberIds={teamMemberIds} />
         <Separator.Inline />
         <TeamMemberDelete teamMemberIds={teamMemberIds} />
       </CommandBar.Bar>

@@ -1,6 +1,5 @@
 import { isEnabled } from 'erxes-api-shared/utils';
-import fetch from 'node-fetch';
-import { getConfig } from './utils';
+import { getConfig, sendErkhetGet } from './utils';
 
 export default {
   products: ['products'],
@@ -30,24 +29,15 @@ export const afterQueryHandlers = async (subdomain, data) => {
 
     const codes = (results || []).map((item) => item.code);
 
-    const response = await fetch(
-      configs.getRemainderApiUrl +
-        '?' +
-        new URLSearchParams({
-          kind: 'remainder',
-          api_key: configs.apiKey,
-          api_secret: configs.apiSecret,
-          check_relate: codes.length < 4 ? '1' : '',
-          accounts: remConfig.account,
-          locations: remConfig.location,
-          inventories: codes.join(','),
-        }),
-      {
-        timeout: 8000,
-      },
-    );
-
-    const jsonRes = await response.json();
+    const jsonRes = await sendErkhetGet('/get-api/', {
+      kind: 'remainder',
+      api_key: configs.apiKey,
+      api_secret: configs.apiSecret,
+      check_relate: codes.length < 4 ? '1' : '',
+      accounts: remConfig.account,
+      locations: remConfig.location,
+      inventories: codes.join(','),
+    });
     const responseByCode = {};
 
     if (remConfig.account && remConfig.location) {

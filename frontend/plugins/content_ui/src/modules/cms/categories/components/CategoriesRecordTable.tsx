@@ -2,7 +2,7 @@ import { IconArticle } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { useMemo } from 'react';
 import { EmptyState } from '../../shared/EmptyState';
-import { createCategoriesColumns } from './CategoriesColumn';
+import { useCategoriesColumns } from './CategoriesColumn';
 
 import { useCategories } from '../hooks/useCategoriesEnhanced';
 import { CategoriesCommandBar } from './categories-command-bar/CategoriesCommandbar';
@@ -64,7 +64,7 @@ export const CategoriesRecordTable = ({
     [categories],
   );
 
-  const columns = createCategoriesColumns(
+  const columns = useCategoriesColumns(
     clientPortalId,
     onEdit,
     refetch,
