@@ -494,9 +494,9 @@ export const prepareOrderDoc = async (
       subdomain,
 
       pluginName: 'core',
-      module: 'uoms',
-      action: 'uoms.find',
-      input: { isForSubscription: true },
+      module: 'productUoms',
+      action: 'find',
+      input: { query: { isForSubscription: true } },
       defaultValue: [],
     });
   }

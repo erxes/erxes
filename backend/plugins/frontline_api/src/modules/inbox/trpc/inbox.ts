@@ -12,8 +12,14 @@ import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
 import { FrontlineTRPCContext } from '~/init-trpc';
 import { IConversationDocument } from '../@types/conversations';
-
 const t = initTRPC.context<FrontlineTRPCContext>().create();
+const unwrapRPResult = (result: any) => {
+  if (result?.status === 'error') {
+    throw new Error(result.errorMessage || 'TRPC error');
+  }
+
+  return result?.status === 'success' ? result.data ?? null : result;
+};
 interface CreateConversationAndMessageParams {
   userId?: string;
   status?: string;
@@ -32,7 +38,6 @@ const EngageDataSchema = z.object({
   kind: z.string(),
   sentAs: z.string(),
 });
-
 export const createConversationAndMessage = async (
   models: IModels,
   params: CreateConversationAndMessageParams,
@@ -56,7 +61,6 @@ export const createConversationAndMessage = async (
     integrationId,
     content,
   });
-
   // create message
   const message = await models.ConversationMessages.createMessage({
     engageData,
@@ -69,48 +73,20 @@ export const createConversationAndMessage = async (
   });
   return { conversation, message };
 };
-
 export const integrationsRouter = t.router({
   receive: t.procedure.input(z.any()).mutation(async ({ input, ctx }) => {
     const { subdomain } = ctx;
     try {
       const result = await receiveInboxMessage(subdomain, input);
-
-      return {
-        status: 'success',
-        data: result,
-        timestamp: new Date().toISOString(),
-        message: 'Message received successfully',
-      };
+      return unwrapRPResult(result);
     } catch (error) {
-      return {
-        status: 'error',
-        error: {
-          code: 'INTEGRATION_RECEIVE_FAILED',
-          message:
-            error instanceof Error
-              ? error.message
-              : 'Хүлээн авахад алдаа гарлаа',
-          ...(process.env.NODE_ENV === 'development' && {
-            stack: error instanceof Error ? error.stack : undefined,
-          }),
-        },
-        timestamp: new Date().toISOString(),
-      };
+      throw new Error('TRPC error');
     }
   }),
-
   remove: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
     const { _id } = input;
     if (!_id) {
-      return {
-        status: 'error',
-        error: {
-          code: 'INVALID_INPUT',
-          message: 'Integration ID is required for deletion',
-        },
-        timestamp: new Date().toISOString(),
-      };
+      throw new Error('TRPC error');
     }
     const { models } = ctx;
     try {
@@ -124,22 +100,9 @@ export const integrationsRouter = t.router({
       return models.Integrations.removeIntegration(_id);
     } catch (error) {
       console.error('Failed to create integration:', error);
-
-      return {
-        status: 'error',
-        error: {
-          code: 'INTEGRATION_CREATION_FAILED',
-          message: 'Failed to create integration',
-          details: error instanceof Error ? error.message : undefined,
-          ...(process.env.NODE_ENV === 'development' && {
-            stack: error instanceof Error ? error.stack : undefined,
-          }),
-        },
-        timestamp: new Date().toISOString(),
-      };
+      throw new Error('TRPC error');
     }
   }),
-
   find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
     const { query = {}, options } = input;
     const { models } = ctx;
@@ -148,33 +111,12 @@ export const integrationsRouter = t.router({
         query,
         options,
       );
-
-      return {
-        status: 'success',
-        data: integrations,
-        meta: {
-          count: integrations.length,
-        },
-        timestamp: new Date().toISOString(),
-      };
+      return integrations;
     } catch (error) {
       console.error('Failed to fetch integrations:', error);
-
-      return {
-        status: 'error',
-        error: {
-          code: 'INTEGRATIONS_FETCH_FAILED',
-          message: 'Failed to retrieve integrations',
-          details: error instanceof Error ? error.message : undefined,
-          ...(process.env.NODE_ENV === 'development' && {
-            stack: error instanceof Error ? error.stack : undefined,
-          }),
-        },
-        timestamp: new Date().toISOString(),
-      };
+      throw new Error('TRPC error');
     }
   }),
-
   copyLeadIntegration: t.procedure
     .input(z.any())
     .mutation(async ({ ctx, input }) => {
@@ -185,309 +127,146 @@ export const integrationsRouter = t.router({
           _id,
           userId,
         );
-
-        return {
-          status: 'success',
-          data: integration,
-          message: 'Lead integration copied successfully',
-          timestamp: new Date().toISOString(),
-        };
+        return integration;
       } catch (error) {
         console.error('Failed to copy lead integration:', error);
-
-        return {
-          status: 'error',
-          error: {
-            code: 'LEAD_INTEGRATION_COPY_FAILED',
-            message: 'Failed to duplicate lead integration',
-            details: error instanceof Error ? error.message : undefined,
-            suggestion: 'Please verify the integration exists and try again',
-            ...(process.env.NODE_ENV === 'development' && {
-              stack: error instanceof Error ? error.stack : undefined,
-            }),
-          },
-          timestamp: new Date().toISOString(),
-        };
+        throw new Error('TRPC error');
       }
     }),
-
   count: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
     const { models } = ctx;
     const { selector = {}, filters } = input;
-
     try {
       const query = {
         ...selector,
         ...(filters && { ...filters }),
       };
-
       const count = await models.Integrations.countDocuments(query);
-
-      return {
-        status: 'success',
-        data: count,
-        meta: {
-          filteredBy:
-            Object.keys(query).length > 0 ? Object.keys(query) : ['all'],
-          timestamp: new Date().toISOString(),
-        },
-      };
+      return count;
     } catch (error) {
       console.error('Count operation failed:', error);
-
-      return {
-        status: 'error',
-        error: {
-          code: 'COUNT_OPERATION_FAILED',
-          message: 'Failed to count documents',
-          details: error instanceof Error ? error.message : 'Database error',
-          ...(process.env.NODE_ENV === 'development' && {
-            stack: error instanceof Error ? error.stack : undefined,
-          }),
-        },
-        timestamp: new Date().toISOString(),
-      };
+      throw new Error('TRPC error');
     }
   }),
-
   findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
     const { models } = ctx;
     try {
       const result = await models.Integrations.findOne(input).lean();
-
       if (!result) {
-        return {
-          status: 'error',
-          error: {
-            code: 'NOT_FOUND',
-            message: 'Integration not found',
-            suggestion: 'Please verify the search criteria',
-          },
-          timestamp: new Date().toISOString(),
-        };
+        throw new Error('TRPC error');
       }
-
-      return {
-        status: 'success',
-        data: result,
-        timestamp: new Date().toISOString(),
-      };
+      return result;
     } catch (error) {
       console.error('FindOne operation failed:', error);
-
-      return {
-        status: 'error',
-        error: {
-          code: 'FIND_ONE_FAILED',
-          message: 'Failed to find integration',
-          details: error instanceof Error ? error.message : 'Database error',
-          ...(process.env.NODE_ENV === 'development' && {
-            stack: error instanceof Error ? error.stack : undefined,
-          }),
-        },
-        timestamp: new Date().toISOString(),
-      };
+      throw new Error('TRPC error');
     }
   }),
 });
-
 export const conversationMessagesRouter = t.router({
   findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
     const { models } = ctx;
     try {
       // Build the query from validated input
       const message = await models.ConversationMessages.findOne(input).lean();
-
       if (!message) {
-        return {
-          status: 'error',
-          error: {
-            code: 'MESSAGE_NOT_FOUND',
-            message: 'Conversation message not found',
-            suggestion: 'Verify the message identifiers and try again',
-          },
-          timestamp: new Date().toISOString(),
-        };
+        throw new Error('TRPC error');
       }
-
-      return {
-        status: 'success',
-        data: message,
-        timestamp: new Date().toISOString(),
-      };
+      return message;
     } catch (error) {
       console.error('Failed to find conversation message:', error);
-
-      return {
-        status: 'error',
-        error: {
-          code: 'MESSAGE_FIND_FAILED',
-          message: 'Failed to retrieve message',
-          details: error instanceof Error ? error.message : 'Database error',
-          ...(process.env.NODE_ENV === 'development' && {
-            stack: error instanceof Error ? error.stack : undefined,
-          }),
-        },
-        timestamp: new Date().toISOString(),
-      };
+      throw new Error('TRPC error');
     }
   }),
-
   find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
     try {
       const { skip, limit } = input;
       const { models } = ctx;
-
       if (skip || limit) {
         const queryParams = { ...input };
         delete queryParams.skip;
         delete queryParams.limit;
-
         const result = await models.ConversationMessages.find(queryParams)
           .skip(skip || 0)
           .limit(limit || 20)
           .lean();
-
-        return {
-          status: 'success',
-          data: result,
-        };
+        return result;
       }
-
       const result = await models.ConversationMessages.find(input).lean();
-      return {
-        status: 'success',
-        data: result,
-      };
+      return result;
     } catch (error) {
       console.error('Error fetching conversation messages:', error);
-
-      return {
-        status: 'error',
-        message: 'Failed to fetch conversation messages',
-        error:
-          process.env.NODE_ENV === 'development' ? error.message : undefined,
-      };
+      throw new Error('Failed to fetch conversation messages');
     }
   }),
-
   updateOne: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
     const { filter, updateDoc } = input;
     const { models } = ctx;
-
+    if (!filter || !Object.keys(filter).length) {
+      return {};
+    }
     return await models.ConversationMessages.updateOne(filter, {
       $set: updateDoc,
     });
   }),
 });
-
 export const conversationsRouter = t.router({
   count: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
     try {
       const { query = {}, options } = input;
       const { models } = ctx;
-
       const count = await models.Conversations.find(query)
         .skip(options?.skip || 0)
         .limit(options?.limit || 0) // 0 means no limit
         .countDocuments();
-
-      return {
-        status: 'success',
-        data: count,
-        timestamp: new Date().toISOString(),
-      };
+      return count;
     } catch (error) {
       console.error('Count documents error:', error);
-
-      return {
-        status: 'error',
-        message: 'Failed to count documents',
-        ...(process.env.NODE_ENV === 'development' && {
-          error: error instanceof Error ? error.message : 'Unknown error',
-          stack: error instanceof Error ? error.stack : undefined,
-        }),
-      };
+      throw new Error('Failed to count documents');
     }
   }),
-
   findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
     try {
       const { query } = input;
       const { models } = ctx;
-
       if (!query) {
-        return {
-          status: 'error',
-          message: 'Query parameter is required',
-        };
+        throw new Error('Query parameter is required');
       }
-
       const conversation = await models.Conversations.findOne(query).lean();
-
       if (!conversation) {
-        return {
-          status: 'success',
-          data: null,
-          message: 'No conversation found',
-        };
+        return null;
       }
-
-      return {
-        status: 'success',
-        data: conversation,
-      };
+      return conversation;
     } catch (error) {
       console.error('Error finding conversation:', error);
-      return {
-        status: 'error',
-        message: 'Failed to find conversation',
-        error:
-          process.env.NODE_ENV === 'development' ? error.message : undefined,
-      };
+      throw new Error('Failed to find conversation');
     }
   }),
-
   changeStatus: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
     try {
       const { id, status } = input;
       const { models } = ctx;
-
       if (!id || !status) {
-        return {
-          status: 'error',
-          message: `Both id and status are required. Received id: ${id}, status: ${status}`,
-        };
+        throw new Error(
+          `Both id and status are required. Received id: ${id}, status: ${status}`,
+        );
       }
-
       const result = await models.Conversations.updateOne(
         { _id: id },
         { status: status },
       );
-
       if (result.matchedCount === 0) {
         return {
           status: 'not_found',
           message: 'No conversation found with the provided ID',
         };
       }
-
-      return {
-        status: 'success',
-        data: result,
-      };
+      return result;
     } catch (error) {
       console.error('Update error:', error);
-      return {
-        status: 'error',
-        message: 'Update failed',
-        error:
-          process.env.NODE_ENV === 'development' ? error.message : undefined,
-      };
+      throw new Error('Update failed');
     }
   }),
 });
-
 export const visitorRouter = t.router({});
 export const channelsRouter = t.router({
   find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
@@ -497,28 +276,13 @@ export const channelsRouter = t.router({
         .lean()
         .maxTimeMS(5000)
         .exec();
-      return {
-        status: 'success',
-        data,
-        count: data.length, // Helpful metadata
-        timestamp: new Date().toISOString(),
-      };
+      return null;
     } catch (error) {
       console.error('channels query error:', error);
-
-      return {
-        status: 'error',
-        message: 'Failed to fetch channels',
-        code: 'QUERY_FAILED',
-        ...(process.env.NODE_ENV === 'development' && {
-          error: error instanceof Error ? error.message : 'Unknown error',
-          stack: error instanceof Error ? error.stack : undefined,
-        }),
-      };
+      throw new Error('Failed to fetch channels');
     }
   }),
 });
-
 export const inboxTrpcRouter = t.router({
   inbox: t.router({
     integrations: integrationsRouter,
@@ -543,16 +307,9 @@ export const inboxTrpcRouter = t.router({
         const { models } = ctx;
         try {
           const response = await createConversationAndMessage(models, input);
-
-          return {
-            status: 'success',
-            data: response,
-            timestamp: new Date().toISOString(),
-            message: 'Conversation created successfully',
-          };
+          return response;
         } catch (error) {
           console.error('Create conversation error:', error);
-
           const errorDetails =
             error instanceof Error
               ? {
@@ -565,19 +322,9 @@ export const inboxTrpcRouter = t.router({
               : {
                   message: 'Unknown error occurred',
                 };
-
-          return {
-            status: 'error',
-            error: {
-              code: 'CONVERSATION_CREATION_FAILED',
-              ...errorDetails,
-              suggestion: 'Please try again or contact support',
-            },
-            timestamp: new Date().toISOString(),
-          };
+          throw new Error('TRPC error');
         }
       }),
-
     createOnlyMessage: t.procedure
       .input(
         z.object({
@@ -591,7 +338,6 @@ export const inboxTrpcRouter = t.router({
       )
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
-
         try {
           const message = await models.ConversationMessages.createMessage({
             conversationId: input.conversationId,
@@ -601,31 +347,12 @@ export const inboxTrpcRouter = t.router({
             internal: input.internal,
             contentType: input.contentType,
           });
-
-          return {
-            status: 'success',
-            data: message,
-            timestamp: new Date().toISOString(),
-            message: 'Message created successfully',
-          };
+          return message;
         } catch (error) {
           console.error('Message creation failed:', error);
-
-          return {
-            status: 'error',
-            error: {
-              code: 'MESSAGE_CREATION_FAILED',
-              message: 'Failed to create message',
-              details: error instanceof Error ? error.message : 'Unknown error',
-              ...(process.env.NODE_ENV === 'development' && {
-                debug: error instanceof Error ? error.stack : undefined,
-              }),
-            },
-            timestamp: new Date().toISOString(),
-          };
+          throw new Error('TRPC error');
         }
       }),
-
     integrationsNotification: t.procedure
       .input(
         z.object({
@@ -635,63 +362,33 @@ export const inboxTrpcRouter = t.router({
       )
       .mutation(async ({ ctx, input }) => {
         const { subdomain } = ctx;
-
         try {
           const result = await receiveIntegrationsNotification(
             subdomain,
             input,
           );
-
-          return {
-            status: 'success',
-            data: result,
-            timestamp: new Date().toISOString(),
-            message: 'Notification processed successfully',
-          };
+          return unwrapRPResult(result);
         } catch (error) {
           console.error('Integration notification failed:', error);
-
-          return {
-            status: 'error',
-            error: {
-              code: 'NOTIFICATION_PROCESSING_FAILED',
-              message: 'Failed to process integration notification',
-              details: error instanceof Error ? error.message : 'Unknown error',
-              ...(process.env.NODE_ENV === 'development' && {
-                debug: error instanceof Error ? error.stack : undefined,
-              }),
-            },
-            timestamp: new Date().toISOString(),
-            suggestion: 'Please verify the notification payload and try again',
-          };
+          throw new Error('TRPC error');
         }
       }),
-
     getConversations: t.procedure
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { query = {} } = input;
         const { models } = ctx;
-
         try {
           const conversations = await models.Conversations.find(query).lean();
-          return {
-            status: 'success',
-            data: conversations,
-          };
+          return conversations;
         } catch (error) {
           console.error('Error fetching conversations:', {
             error: error instanceof Error ? error.message : String(error),
             query,
           });
-          return {
-            status: 'error',
-            message: 'Failed to fetch conversations',
-            error: error instanceof Error ? error.message : String(error),
-          };
+          throw new Error('Failed to fetch conversations');
         }
       }),
-
     removeCustomersConversations: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
@@ -702,54 +399,35 @@ export const inboxTrpcRouter = t.router({
             await models.Conversations.removeCustomersConversations(
               customerIds,
             );
-
-          return {
-            status: 'success',
-            deletedCount: result?.n ?? 0,
-          };
+          return null;
         } catch (error) {
           console.error('Error removing conversations:', {
             error: error instanceof Error ? error.message : String(error),
             customerIds,
           });
-          return {
-            status: 'error',
-            message: 'Failed to remove conversations',
-            error: error instanceof Error ? error.message : String(error),
-          };
+          throw new Error('Failed to remove conversations');
         }
       }),
-
     changeCustomer: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { customerId, customerIds } = input;
         const { models } = ctx;
-
         try {
           const result = await models.Conversations.changeCustomer(
             customerId,
             customerIds,
           );
-
-          return {
-            status: 'success',
-            data: result,
-          };
+          return result;
         } catch (error) {
           console.error('Error changing customer for conversations:', {
             error: error instanceof Error ? error.message : String(error),
             customerId,
             customerIds,
           });
-          return {
-            status: 'error',
-            message: 'Failed to change customer for conversations',
-            error: error instanceof Error ? error.message : String(error),
-          };
+          throw new Error('Failed to change customer for conversations');
         }
       }),
-
     updateConversationMessage: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
@@ -759,24 +437,16 @@ export const inboxTrpcRouter = t.router({
           const updated = await models.ConversationMessages.updateOne(filter, {
             $set: updateDoc,
           });
-          return {
-            status: 'success',
-            data: updated,
-          };
+          return updated;
         } catch (error) {
           console.error('Error updating conversation message:', {
             error: error instanceof Error ? error.message : String(error),
             filter,
             updateDoc,
           });
-          return {
-            status: 'error',
-            message: 'Failed to update conversation message',
-            error: error instanceof Error ? error.message : String(error),
-          };
+          throw new Error('Failed to update conversation message');
         }
       }),
-
     removeConversation: t.procedure
       .input(
         z.object({
@@ -787,7 +457,6 @@ export const inboxTrpcRouter = t.router({
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
         const { _id } = input;
-
         try {
           const messagesResult = await models.ConversationMessages.deleteMany({
             conversationId: _id,
@@ -795,40 +464,18 @@ export const inboxTrpcRouter = t.router({
           const conversationResult = await models.Conversations.deleteOne({
             _id,
           });
-
           return {
-            status: 'success',
-            data: {
-              conversationDeleted: conversationResult.deletedCount,
-              messagesDeleted: messagesResult.deletedCount,
-            },
-            timestamp: new Date().toISOString(),
-            message: `Deleted conversation and ${messagesResult.deletedCount} messages`,
+            conversationDeleted: conversationResult.deletedCount,
+            messagesDeleted: messagesResult.deletedCount,
           };
         } catch (error) {
           console.error('removeConversation failed:', {
             conversationId: _id,
             error: error instanceof Error ? error.stack : error,
           });
-
-          return {
-            status: 'error',
-            error: {
-              code: 'DELETION_FAILED',
-              message: 'Failed to delete conversation',
-              details:
-                error instanceof Error ? error.message : 'Database error',
-              conversationId: _id,
-              ...(process.env.NODE_ENV === 'development' &&
-              error instanceof Error
-                ? { stack: error.stack }
-                : {}),
-            },
-            timestamp: new Date().toISOString(),
-          };
+          throw new Error('TRPC error');
         }
       }),
-
     updateUserChannels: t.procedure
       .input(
         z.object({
@@ -839,121 +486,79 @@ export const inboxTrpcRouter = t.router({
       .mutation(async ({ ctx, input }) => {
         const { channelIds, userId } = input;
         const { models } = ctx;
-
         try {
           const result = await models.Channels.updateUserChannels(
             channelIds,
             userId,
           );
-          return {
-            status: 'success',
-            data: result,
-          };
+          return result;
         } catch (error) {
-          return {
-            status: 'error',
-            message: 'Failed to update user channels',
-            error: error instanceof Error ? error.message : String(error),
-          };
+          throw new Error('Failed to update user channels');
         }
       }),
-
     getIntegrationKinds: t.procedure.input(z.any()).query(async () => {
       try {
         const data = await getIntegrationsKinds();
-        return {
-          status: 'success',
-          data,
-        };
+        return null;
       } catch (error) {
         console.error('Error fetching integration kinds:', {
           error: error instanceof Error ? error.message : String(error),
         });
-        return {
-          status: 'error',
-          message: 'Failed to fetch integration kinds',
-          error: error instanceof Error ? error.message : String(error),
-        };
+        throw new Error('Failed to fetch integration kinds');
       }
     }),
-
     getConversationsList: t.procedure
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { query, listParams } = input;
         const { models } = ctx;
-
         const { list, totalCount, pageInfo } =
           await cursorPaginate<IConversationDocument>({
             model: models.Conversations,
             params: listParams,
             query: query,
           });
-
-        return {
-          status: 'success',
-          data: { list, totalCount, pageInfo },
-        };
+        return { list, totalCount, pageInfo };
       }),
-
     getModuleRelation: t.procedure.input(z.any()).query(async ({ input }) => {
       try {
         const { module, target } = input;
-        let filter: { _id: string } | null = null;
-
+        let filter: {
+          _id: string;
+        } | null = null;
         if (module.includes('contacts')) {
           const queryField = module.includes('company')
             ? target.companyId
             : target.customerId;
-
           if (!queryField) {
-            return {
-              status: 'error',
-              message: `Missing ${
+            throw new Error(
+              `Missing ${
                 module.includes('company') ? 'companyId' : 'customerId'
               } in target`,
-            };
+            );
           }
-
           filter = { _id: queryField };
         }
-
-        return {
-          status: 'success',
-          data: filter,
-        };
+        return filter;
       } catch (error) {
         console.error('Error generating module relation filter:', {
           error: error instanceof Error ? error.message : String(error),
           module,
         });
-        return {
-          status: 'error',
-          message: 'Failed to generate module relation filter',
-          error: error instanceof Error ? error.message : String(error),
-        };
+        throw new Error('Failed to generate module relation filter');
       }
     }),
-
     sendNotifications: t.procedure
       .input(z.any()) // Consider replacing with proper input validation
       .mutation(async ({ ctx, input }) => {
         const { subdomain } = ctx;
         try {
           await sendNotifications(subdomain, input);
-          return {
-            status: 'success',
-            message: 'Notifications sent successfully',
-          };
+          return null;
         } catch (error) {
-          return {
-            status: 'error',
-            message: 'Failed to send notifications',
-            error: error instanceof Error ? error.message : String(error),
-          };
+          throw new Error('Failed to send notifications');
         }
       }),
-
     conversationClientMessageInserted: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
@@ -963,62 +568,33 @@ export const inboxTrpcRouter = t.router({
             subdomain,
             input,
           );
-
-          return {
-            status: 'success',
-            data: result,
-            timestamp: new Date().toISOString(),
-          };
+          return result;
         } catch (error) {
           console.error('Failed to insert client message:', error);
-          return {
-            status: 'error',
-            message: 'Failed to process client message',
-            error: error instanceof Error ? error.message : String(error),
-          };
+          throw new Error('Failed to process client message');
         }
       }),
-
     widgetsGetUnreadMessagesCount: t.procedure
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { conversationId } = input;
         const { models } = ctx;
-
         try {
           const unreadCount =
             await models.ConversationMessages.widgetsGetUnreadMessagesCount(
               conversationId,
             );
-
           return {
-            status: 'success',
-            data: {
-              conversationId,
-              unreadCount,
-              lastChecked: new Date().toISOString(),
-            },
-            timestamp: new Date().toISOString(),
+            conversationId,
+            unreadCount,
+            lastChecked: new Date().toISOString(),
           };
         } catch (error) {
           console.error('Failed to get unread messages count:', {
             conversationId,
             error: error instanceof Error ? error.message : error,
           });
-
-          return {
-            status: 'error',
-            message: 'Failed to create message',
-            error: {
-              code: 'UNREAD_COUNT_FAILED',
-              message: 'Failed to retrieve unread messages count',
-              details:
-                error instanceof Error ? error.message : 'Database error',
-              conversationId,
-            },
-            timestamp: new Date().toISOString(),
-            suggestion: 'Please try again or refresh the conversation',
-          };
+          throw new Error('Failed to create message');
         }
       }),
   }),

@@ -174,7 +174,7 @@ export const getMessengerData = async (
     const getStarted = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'automations',
+      module: 'automation',
       action: 'trigger.find',
       input: {
         query: {

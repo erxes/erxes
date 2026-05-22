@@ -235,8 +235,9 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
       (marker.latitude || marker.lat)
     ) {
       pushInfo.addresses = {
-        id: `${marker.longitude || marker.lng}_${marker.latitude || marker.lat
-          }`,
+        id: `${marker.longitude || marker.lng}_${
+          marker.latitude || marker.lat
+        }`,
         location: {
           type: 'Point',
           coordinates: [
@@ -285,8 +286,9 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     name: `Delivery: ${doneOrder.number}`,
     startDate: doneOrder.createdAt,
     closeDate: doneOrder.dueDate,
-    description: `<p>${doneOrder.description || ''}</p> <p>${description || ''
-      }</p>`,
+    description: `<p>${doneOrder.description || ''}</p> <p>${
+      description || ''
+    }</p>`,
     stageId: deliveryConfig.stageId,
     assignedUserIds: deliveryConfig.assignedUserIds,
     watchedUserIds: deliveryConfig.watchedUserIds,
@@ -347,7 +349,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
       },
     });
 
-    const deal = response?.data;
+    const deal = response;
 
     await sendTRPCMessage({
       subdomain,
@@ -373,7 +375,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
         ...dealsData,
       },
     });
-    const deal = response?.data;
+    const deal = response;
     if (
       doneOrder.customerId &&
       deal._id &&
@@ -556,7 +558,7 @@ const createDealPerOrder = async ({
         paymentsData,
       },
     });
-    const cardDeal = response?.data;
+    const cardDeal = response;
 
     if (newOrder.customerId && cardDeal._id) {
       await sendTRPCMessage({
@@ -633,7 +635,9 @@ export const syncOrderFromClient = async ({
   });
 
   if (enabledMN) {
-    const putResponses = responses?.filter(resp => resp._id).map(resp => ({ ...resp, posToken }));
+    const putResponses = responses
+      ?.filter((resp) => resp._id)
+      .map((resp) => ({ ...resp, posToken }));
 
     if (putResponses?.length) {
       await sendTRPCMessage({
@@ -643,7 +647,7 @@ export const syncOrderFromClient = async ({
         module: 'putResponses',
         action: 'syncPutResponses',
         input: {
-          putResponses
+          putResponses,
         },
       });
     }
@@ -729,18 +733,20 @@ export const syncOrderFromClient = async ({
     }
   }
 
-  const syncedResponseIds = enabledMN ? (
-    (await sendTRPCMessage({
-      subdomain,
-      pluginName: 'mongolian',
-      module: 'putResponses',
-      action: 'find',
-      input: {
-        query: { _id: { $in: (responses || []).map((resp) => resp._id) } },
-      },
-      defaultValue: [],
-    })) || []
-  ).map((r) => r._id) : [];
+  const syncedResponseIds = enabledMN
+    ? (
+        (await sendTRPCMessage({
+          subdomain,
+          pluginName: 'mongolian',
+          module: 'putResponses',
+          action: 'find',
+          input: {
+            query: { _id: { $in: (responses || []).map((resp) => resp._id) } },
+          },
+          defaultValue: [],
+        })) || []
+      ).map((r) => r._id)
+    : [];
 
   // return info saved
   await sendPosclientMessage({
