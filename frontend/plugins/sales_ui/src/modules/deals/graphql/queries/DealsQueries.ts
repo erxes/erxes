@@ -9,6 +9,7 @@ const commonParams = `
   $labelIds: [String],
   $search: String,
   $priority: [String],
+  $confidenceScoreMin: Int,
   $date: SalesItemDate,
   $pipelineId: String,
   $parentId: String,
@@ -39,6 +40,7 @@ const commonParamDefs = `
   customerIds: $customerIds,
   assignedUserIds: $assignedUserIds,
   priority: $priority,
+  confidenceScoreMin: $confidenceScoreMin,
   productIds: $productIds,
   labelIds: $labelIds,
   search: $search,
@@ -114,6 +116,7 @@ export const commonListFields = `
   createdAt
   modifiedAt
   priority
+  confidenceScore
   hasNotified
   score
   number
