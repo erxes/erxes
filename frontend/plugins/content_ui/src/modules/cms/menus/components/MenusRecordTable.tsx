@@ -5,6 +5,9 @@ import {
   PointerSensor,
   KeyboardSensor,
   closestCenter,
+  rectIntersection,
+  DragOverlay,
+  defaultDropAnimationSideEffects,
   type DragEndEvent,
   type DragStartEvent,
   useSensor,
@@ -26,6 +29,7 @@ import React, {
   useState,
 } from 'react';
 import { useAtomValue } from 'jotai';
+import { flexRender } from '@tanstack/react-table';
 import { useMenusColumns } from './MenusColumn';
 import { MenusCommandBar } from './menus-command-bar/MenusCommandBar';
 import { useMenus } from '../hooks/useMenus';
@@ -51,16 +55,6 @@ interface MenusRecordTableProps {
 
 const getParentKey = (menu?: MenuItem) => menu?.parentId || null;
 
-const DragTransformContext = React.createContext<{
-  activeId: string | null;
-  activeParentId: string | null;
-  containerRef: React.RefObject<HTMLDivElement | null>;
-}>({
-  activeId: null,
-  activeParentId: null,
-  containerRef: { current: null },
-});
-
 const applySiblingOrder = (
   menus: MenuItem[],
   siblings: MenuItem[],
@@ -83,16 +77,72 @@ const applySiblingOrder = (
   return buildFlatTree(updatedMenus, locale);
 };
 
+const dropAnimation = {
+  sideEffects: defaultDropAnimationSideEffects({
+    styles: {
+      active: {
+        opacity: '0.5',
+      },
+    },
+  }),
+};
+
+// Static row for DragOverlay
+const StaticMenuRow = ({
+  menu,
+  columns,
+  isOverlay = false,
+}: {
+  menu: MenuItem;
+  columns: any[];
+  isOverlay?: boolean;
+}) => {
+  return (
+    <div
+      className={cn(
+        'flex items-center h-cell border-b bg-background',
+        isOverlay && 'opacity-40 border-none',
+      )}
+    >
+      {columns.map((column) => (
+        <div
+          key={column.id}
+          style={{ width: column.size, minWidth: column.size }}
+          className="px-2 overflow-hidden text-ellipsis whitespace-nowrap"
+        >
+          {column.cell ? (
+            <div className="flex h-full items-center">
+              {/* Simplified rendering for overlay to keep it fast */}
+              {column.id === 'label' ? (
+                <span className="text-sm font-medium">
+                  {'-'.repeat(menu.depth || 0) + ' ' + menu.label}
+                </span>
+              ) : column.id === 'drag' ? (
+                <div className="flex h-full items-center justify-center text-muted-foreground">
+                  <div className="w-4 h-4" />
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const SortableMenuRow = React.memo(
   React.forwardRef<
     HTMLTableRowElement,
-    React.ComponentProps<typeof RecordTable.Row>
-  >(({ className, original, style, ...props }, ref) => {
-    const { activeId, activeParentId, containerRef } = React.useContext(
-      DragTransformContext,
-    );
-
+    React.ComponentProps<typeof RecordTable.Row> & {
+      activeId: string | null;
+      activeParentId: string | null;
+      isDraggingAny: boolean;
+    }
+  >(({ className, original, style, activeId, activeParentId, isDraggingAny, ...props }, ref) => {
     const isDraggingItem = activeId === original?._id;
+    const isDescendant = activeId && original?.path?.includes(activeId);
+    
+    // Siblings of the dragging item are the only ones allowed to move
     const isSibling =
       activeId &&
       !isDraggingItem &&
@@ -107,8 +157,6 @@ const SortableMenuRow = React.memo(
       transition,
     } = useSortable({
       id: original?._id,
-      // Disable sortable logic for items that don't need to move (non-siblings)
-      // This is the primary performance win.
       disabled: activeId ? !isDraggingItem && !isSibling : false,
     });
 
@@ -126,36 +174,8 @@ const SortableMenuRow = React.memo(
       [ref, setNodeRef],
     );
 
-    const isDescendant = useMemo(() => {
-      if (!activeId || !original?.path) return false;
-      return original.path.includes(activeId);
-    }, [activeId, original?.path]);
-
-    useEffect(() => {
-      if (isDragging && containerRef.current) {
-        const container = containerRef.current;
-        const tStr = CSS.Transform.toString(transform) || 'none';
-        container.style.setProperty('--drag-transform', tStr);
-        container.style.setProperty('--drag-transition', transition || 'none');
-
-        return () => {
-          container.style.removeProperty('--drag-transform');
-          container.style.removeProperty('--drag-transition');
-        };
-      }
-    }, [isDragging, transform, transition, containerRef]);
-
-    const effectiveTransform = isDragging
-      ? CSS.Transform.toString(transform)
-      : isDescendant
-        ? 'var(--drag-transform)'
-        : CSS.Transform.toString(transform);
-
-    const effectiveTransition = isDragging
-      ? transition
-      : isDescendant
-        ? 'var(--drag-transition)'
-        : transition;
+    // Completely hide the row and its children in the table while they are in the overlay
+    const isHidden = isDraggingItem || isDescendant;
 
     return (
       <RecordTable.Row
@@ -165,15 +185,14 @@ const SortableMenuRow = React.memo(
         ref={setRowRef}
         original={original}
         className={cn(
-          'cursor-grab active:cursor-grabbing will-change-transform',
-          isDragging && 'relative z-10 opacity-60',
-          isDescendant && 'relative z-10 opacity-80',
+          'cursor-grab active:cursor-grabbing will-change-transform transition-opacity',
+          isHidden && 'opacity-0 pointer-events-none', // Hidden placeholder
           className,
         )}
         style={{
           ...style,
-          transform: effectiveTransform,
-          transition: effectiveTransition,
+          transform: CSS.Translate.toString(transform),
+          transition,
         }}
       />
     );
@@ -200,7 +219,6 @@ export const MenusRecordTable = ({
   const [reorderingCount, setReorderingCount] = useState(0);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeParentId, setActiveParentId] = useState<string | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const [removeMenu] = useMutation(CMS_MENU_REMOVE);
   const [editMenu] = useMutation(CMS_MENU_EDIT);
@@ -234,6 +252,16 @@ export const MenusRecordTable = ({
     [orderedMenus],
   );
 
+  const activeMenu = useMemo(
+    () => (activeId ? orderedMenus.find((m) => m._id === activeId) : null),
+    [activeId, orderedMenus],
+  );
+
+  const activeSubtree = useMemo(() => {
+    if (!activeId) return [];
+    return orderedMenus.filter((m) => m._id === activeId || m.path?.includes(activeId));
+  }, [activeId, orderedMenus]);
+
   const handleBulkDelete = async (ids: string[]) => {
     for (const id of ids) {
       await removeMenu({ variables: { _id: id } });
@@ -242,16 +270,11 @@ export const MenusRecordTable = ({
   };
 
   const handleDragStart = (event: DragStartEvent) => {
-    const activeMenu = orderedMenus.find((m) => m._id === event.active.id);
+    const item = orderedMenus.find((m) => m._id === event.active.id);
     setActiveId(event.active.id as string);
-    setActiveParentId(getParentKey(activeMenu) || 'root');
+    setActiveParentId(getParentKey(item) || 'root');
   };
 
-  /**
-   * Handles the end of a drag operation.
-   * Optimistically updates the UI and enqueues the server mutations
-   * to be processed sequentially per parent level.
-   */
   const handleDragEnd = useCallback(
     async ({ active, over }: DragEndEvent) => {
       setActiveId(null);
@@ -261,16 +284,16 @@ export const MenusRecordTable = ({
         return;
       }
 
-      const activeMenu = orderedMenus.find((menu) => menu._id === active.id);
-      const overMenu = orderedMenus.find((menu) => menu._id === over.id);
+      const aMenu = orderedMenus.find((menu) => menu._id === active.id);
+      const oMenu = orderedMenus.find((menu) => menu._id === over.id);
 
-      if (!activeMenu || !overMenu) {
+      if (!aMenu || !oMenu) {
         return;
       }
 
-      const parentId = getParentKey(activeMenu) || 'root';
+      const pId = getParentKey(aMenu) || 'root';
 
-      if (parentId !== (getParentKey(overMenu) || 'root')) {
+      if (pId !== (getParentKey(oMenu) || 'root')) {
         toast({
           description: 'Menus can only be reordered within the same level.',
         });
@@ -278,7 +301,7 @@ export const MenusRecordTable = ({
       }
 
       const siblings = orderedMenus.filter(
-        (menu) => (getParentKey(menu) || 'root') === parentId,
+        (menu) => (getParentKey(menu) || 'root') === pId,
       );
       const oldIndex = siblings.findIndex((menu) => menu._id === active.id);
       const newIndex = siblings.findIndex((menu) => menu._id === over.id);
@@ -289,7 +312,6 @@ export const MenusRecordTable = ({
 
       const reorderedSiblings = arrayMove(siblings, oldIndex, newIndex);
       
-      // Only update items whose order actually changed
       const changes = reorderedSiblings
         .map((menu, index) => ({
           _id: menu._id,
@@ -304,12 +326,10 @@ export const MenusRecordTable = ({
         language || 'en',
       );
 
-      // Optimistic update
       setOrderedMenus(nextMenus);
       setReorderingCount((prev) => prev + 1);
 
-      // Serialize mutations for this parent level
-      const currentQueue = mutationQueueRef.current[parentId] || Promise.resolve();
+      const currentQueue = mutationQueueRef.current[pId] || Promise.resolve();
       
       const nextMutation = currentQueue.then(async () => {
         try {
@@ -327,16 +347,9 @@ export const MenusRecordTable = ({
         } catch (error) {
           if (isMountedRef.current) {
             toast({
-              description:
-                error instanceof Error
-                  ? error.message
-                  : 'Failed to reorder menus.',
+              description: error instanceof Error ? error.message : 'Failed to reorder menus.',
             });
-            // Revert on error if this was the last pending reorder for this parent
-            setOrderedMenus((current) => {
-              // If we've already moved on to more reorders, don't revert to stale data
-              return reorderingCount === 1 ? menus : current;
-            });
+            setOrderedMenus((current) => (reorderingCount === 1 ? menus : current));
           }
         } finally {
           if (isMountedRef.current) {
@@ -345,18 +358,28 @@ export const MenusRecordTable = ({
         }
       });
 
-      mutationQueueRef.current[parentId] = nextMutation;
+      mutationQueueRef.current[pId] = nextMutation;
     },
     [orderedMenus, language, editMenu, refetch, menus, reorderingCount],
   );
 
   const columns = useMenusColumns(onEdit, refetch);
 
+  // Custom Row component for RecordTable to pass extra props
+  const CustomRow = useCallback((props: any) => (
+    <SortableMenuRow 
+      {...props} 
+      activeId={activeId} 
+      activeParentId={activeParentId}
+      isDraggingAny={!!activeId}
+    />
+  ), [activeId, activeParentId]);
+
   return (
     <DndContext
       id="cms-menus-dnd"
       sensors={sensors}
-      collisionDetection={closestCenter}
+      collisionDetection={rectIntersection}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragCancel={() => {
@@ -364,38 +387,38 @@ export const MenusRecordTable = ({
         setActiveParentId(null);
       }}
     >
-      <DragTransformContext.Provider
-        value={{
-          activeId,
-          activeParentId,
-          containerRef,
-        }}
+      <RecordTable.Provider
+        columns={columns}
+        data={orderedMenus}
+        className="h-full m-3 pb-1"
+        stickyColumns={['drag', 'more', 'checkbox', 'label']}
       >
-        <div ref={containerRef} className="h-full">
-          <RecordTable.Provider
-            columns={columns}
-            data={orderedMenus}
-            className="h-full m-3 pb-1"
-            stickyColumns={['drag', 'more', 'checkbox', 'label']}
-          >
-            <SortableContext
-              items={menuIds}
-              strategy={verticalListSortingStrategy}
-            >
-              <RecordTable.Scroll>
-                <RecordTable>
-                  <RecordTable.Header />
-                  <RecordTable.Body>
-                    {loading && <RecordTable.RowSkeleton rows={10} />}
-                    <RecordTable.RowList Row={SortableMenuRow} />
-                  </RecordTable.Body>
-                </RecordTable>
-              </RecordTable.Scroll>
-            </SortableContext>
-            <MenusCommandBar onBulkDelete={handleBulkDelete} />
-          </RecordTable.Provider>
-        </div>
-      </DragTransformContext.Provider>
+        <SortableContext
+          items={menuIds}
+          strategy={verticalListSortingStrategy}
+        >
+          <RecordTable.Scroll>
+            <RecordTable>
+              <RecordTable.Header />
+              <RecordTable.Body>
+                {loading && <RecordTable.RowSkeleton rows={10} />}
+                <RecordTable.RowList Row={CustomRow} />
+              </RecordTable.Body>
+            </RecordTable>
+          </RecordTable.Scroll>
+        </SortableContext>
+        <MenusCommandBar onBulkDelete={handleBulkDelete} />
+      </RecordTable.Provider>
+
+      <DragOverlay dropAnimation={dropAnimation}>
+        {activeId && activeMenu ? (
+          <div className="flex flex-col rounded-md overflow-hidden shadow-2xl ring-1 ring-primary/5">
+            {activeSubtree.map((m) => (
+              <StaticMenuRow key={m._id} menu={m} columns={columns} isOverlay />
+            ))}
+          </div>
+        ) : null}
+      </DragOverlay>
     </DndContext>
   );
 };
