@@ -4,14 +4,12 @@ import {
   DndContext,
   PointerSensor,
   KeyboardSensor,
-  closestCenter,
   rectIntersection,
   DragOverlay,
   defaultDropAnimationSideEffects,
   type DragEndEvent,
   type DragStartEvent,
   useSensor,
-  useSensors,
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -29,7 +27,6 @@ import React, {
   useState,
 } from 'react';
 import { useAtomValue } from 'jotai';
-import { flexRender } from '@tanstack/react-table';
 import { useMenusColumns } from './MenusColumn';
 import { MenusCommandBar } from './menus-command-bar/MenusCommandBar';
 import { useMenus } from '../hooks/useMenus';
@@ -138,65 +135,73 @@ const SortableMenuRow = React.memo(
       activeParentId: string | null;
       isDraggingAny: boolean;
     }
-  >(({ className, original, style, activeId, activeParentId, isDraggingAny, ...props }, ref) => {
-    const isDraggingItem = activeId === original?._id;
-    const isDescendant = activeId && original?.path?.includes(activeId);
-    
-    // Siblings of the dragging item are the only ones allowed to move
-    const isSibling =
-      activeId &&
-      !isDraggingItem &&
-      (getParentKey(original) || 'root') === activeParentId;
-
-    const {
-      attributes,
-      isDragging,
-      listeners,
-      setNodeRef,
-      transform,
-      transition,
-    } = useSortable({
-      id: original?._id,
-      disabled: activeId ? !isDraggingItem && !isSibling : false,
-    });
-
-    const setRowRef = useCallback(
-      (node: HTMLTableRowElement | null) => {
-        setNodeRef(node);
-
-        if (typeof ref === 'function') {
-          ref(node);
-        } else if (ref) {
-          (ref as React.MutableRefObject<HTMLTableRowElement | null>).current =
-            node;
-        }
+  >(
+    (
+      {
+        className,
+        original,
+        style,
+        activeId,
+        activeParentId,
+        isDraggingAny,
+        ...props
       },
-      [ref, setNodeRef],
-    );
+      ref,
+    ) => {
+      const isDraggingItem = activeId === original?._id;
+      const isDescendant = activeId && original?.path?.includes(activeId);
 
-    // Completely hide the row and its children in the table while they are in the overlay
-    const isHidden = isDraggingItem || isDescendant;
+      // Siblings of the dragging item are the only ones allowed to move
+      const isSibling =
+        activeId &&
+        !isDraggingItem &&
+        (getParentKey(original) || 'root') === activeParentId;
 
-    return (
-      <RecordTable.Row
-        {...props}
-        {...attributes}
-        {...listeners}
-        ref={setRowRef}
-        original={original}
-        className={cn(
-          'cursor-grab active:cursor-grabbing will-change-transform transition-opacity',
-          isHidden && 'opacity-0 pointer-events-none', // Hidden placeholder
-          className,
-        )}
-        style={{
-          ...style,
-          transform: CSS.Translate.toString(transform),
-          transition,
-        }}
-      />
-    );
-  }),
+      const { attributes, listeners, setNodeRef, transform, transition } =
+        useSortable({
+          id: original?._id,
+          disabled: activeId ? !isDraggingItem && !isSibling : false,
+        });
+
+      const setRowRef = useCallback(
+        (node: HTMLTableRowElement | null) => {
+          setNodeRef(node);
+
+          if (typeof ref === 'function') {
+            ref(node);
+          } else if (ref) {
+            (
+              ref as React.MutableRefObject<HTMLTableRowElement | null>
+            ).current = node;
+          }
+        },
+        [ref, setNodeRef],
+      );
+
+      // Completely hide the row and its children in the table while they are in the overlay
+      const isHidden = isDraggingItem || isDescendant;
+
+      return (
+        <RecordTable.Row
+          {...props}
+          {...attributes}
+          {...listeners}
+          ref={setRowRef}
+          original={original}
+          className={cn(
+            'cursor-grab active:cursor-grabbing will-change-transform transition-opacity',
+            isHidden && 'opacity-0 pointer-events-none', // Hidden placeholder
+            className,
+          )}
+          style={{
+            ...style,
+            transform: CSS.Translate.toString(transform),
+            transition,
+          }}
+        />
+      );
+    },
+  ),
 );
 
 SortableMenuRow.displayName = 'SortableMenuRow';
@@ -223,7 +228,7 @@ export const MenusRecordTable = ({
   const [removeMenu] = useMutation(CMS_MENU_REMOVE);
   const [editMenu] = useMutation(CMS_MENU_EDIT);
   const isMountedRef = useRef(true);
-  
+
   // Queue to serialize mutations per parent to prevent race conditions
   const mutationQueueRef = useRef<Record<string, Promise<any>>>({});
 
@@ -242,10 +247,10 @@ export const MenusRecordTable = ({
   const mouseSensor = useSensor(PointerSensor, pointerSensorOptions);
   const keyboardSensor = useSensor(KeyboardSensor, keyboardSensorOptions);
 
-  const sensors = useMemo(() => [mouseSensor, keyboardSensor], [
-    mouseSensor,
-    keyboardSensor,
-  ]);
+  const sensors = useMemo(
+    () => [mouseSensor, keyboardSensor],
+    [mouseSensor, keyboardSensor],
+  );
 
   const menuIds = useMemo(
     () => orderedMenus.map((menu) => menu._id),
@@ -259,7 +264,9 @@ export const MenusRecordTable = ({
 
   const activeSubtree = useMemo(() => {
     if (!activeId) return [];
-    return orderedMenus.filter((m) => m._id === activeId || m.path?.includes(activeId));
+    return orderedMenus.filter(
+      (m) => m._id === activeId || m.path?.includes(activeId),
+    );
   }, [activeId, orderedMenus]);
 
   const handleBulkDelete = async (ids: string[]) => {
@@ -311,14 +318,14 @@ export const MenusRecordTable = ({
       }
 
       const reorderedSiblings = arrayMove(siblings, oldIndex, newIndex);
-      
+
       const changes = reorderedSiblings
         .map((menu, index) => ({
           _id: menu._id,
           newOrder: index + 1,
-          oldOrder: menu.order
+          oldOrder: menu.order,
         }))
-        .filter(change => change.newOrder !== change.oldOrder);
+        .filter((change) => change.newOrder !== change.oldOrder);
 
       const nextMenus = applySiblingOrder(
         orderedMenus,
@@ -330,7 +337,7 @@ export const MenusRecordTable = ({
       setReorderingCount((prev) => prev + 1);
 
       const currentQueue = mutationQueueRef.current[pId] || Promise.resolve();
-      
+
       const nextMutation = currentQueue.then(async () => {
         try {
           await Promise.all(
@@ -347,9 +354,14 @@ export const MenusRecordTable = ({
         } catch (error) {
           if (isMountedRef.current) {
             toast({
-              description: error instanceof Error ? error.message : 'Failed to reorder menus.',
+              description:
+                error instanceof Error
+                  ? error.message
+                  : 'Failed to reorder menus.',
             });
-            setOrderedMenus((current) => (reorderingCount === 1 ? menus : current));
+            setOrderedMenus((current) =>
+              reorderingCount === 1 ? menus : current,
+            );
           }
         } finally {
           if (isMountedRef.current) {
@@ -366,14 +378,17 @@ export const MenusRecordTable = ({
   const columns = useMenusColumns(onEdit, refetch);
 
   // Custom Row component for RecordTable to pass extra props
-  const CustomRow = useCallback((props: any) => (
-    <SortableMenuRow 
-      {...props} 
-      activeId={activeId} 
-      activeParentId={activeParentId}
-      isDraggingAny={!!activeId}
-    />
-  ), [activeId, activeParentId]);
+  const CustomRow = useCallback(
+    (props: any) => (
+      <SortableMenuRow
+        {...props}
+        activeId={activeId}
+        activeParentId={activeParentId}
+        isDraggingAny={!!activeId}
+      />
+    ),
+    [activeId, activeParentId],
+  );
 
   return (
     <DndContext
@@ -393,10 +408,7 @@ export const MenusRecordTable = ({
         className="h-full m-3 pb-1"
         stickyColumns={['drag', 'more', 'checkbox', 'label']}
       >
-        <SortableContext
-          items={menuIds}
-          strategy={verticalListSortingStrategy}
-        >
+        <SortableContext items={menuIds} strategy={verticalListSortingStrategy}>
           <RecordTable.Scroll>
             <RecordTable>
               <RecordTable.Header />
