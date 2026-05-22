@@ -24,6 +24,9 @@ export const productCategoryTrpcRouter = t.router({
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { query } = input;
       const { models } = ctx;
+      if (!Object.keys(query).length) {
+        return {};
+      }
 
       const productCategory =
         await models.ProductCategories.findOne(query).lean();
