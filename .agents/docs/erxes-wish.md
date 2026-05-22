@@ -77,15 +77,19 @@ pnpm --silent erxes-wish "<wish>" > /tmp/wish.md
 aider --message-file /tmp/wish.md
 ```
 
-## Flags
+## Flags & subcommands
 
 ```bash
-pnpm --silent erxes-wish --help                      # show all flags
+pnpm --silent erxes-wish --help                       # show all flags
 
-# Output control
-pnpm --silent erxes-wish "<wish>"                    # full briefing (default)
-pnpm --silent erxes-wish "<wish>" --no-lessons       # skip lessons.md inline (smaller)
-pnpm --silent erxes-wish "<wish>" --no-system-prompt # skip constitution inline (smallest)
+# Subcommands — tracking & inspection
+pnpm --silent erxes-wish --list                       # dashboard of in-flight wishes
+pnpm --silent erxes-wish --show <wish-id>             # detail view of one wish
+
+# Output control on briefing assembly
+pnpm --silent erxes-wish "<wish>"                     # full briefing (default)
+pnpm --silent erxes-wish "<wish>" --no-lessons        # skip lessons.md inline (smaller)
+pnpm --silent erxes-wish "<wish>" --no-system-prompt  # skip constitution inline (smallest)
 
 # Skill routing
 pnpm --silent erxes-wish "<wish>" --skill add-deal-field             # force a specific skill
@@ -98,6 +102,70 @@ pnpm --silent erxes-wish "<wish>" --skill add-sales-trpc-procedure
 ```
 
 **Why `--silent`?** Without it, `pnpm` emits a preamble (`> erxes-next@3.0.25 erxes-wish ...`) on stdout that contaminates the prompt when piped. Always use `--silent` for piping into AI tools or `pbcopy`.
+
+## Tracking what's in flight
+
+Every wish creates `.agents/wishes/<wish-id>/` as AI progresses through phases. Files appear as phases land: `WISH.md` (Phase 0) → `SPEC.md` (Phase 2) → `GROUND.md` (Phase 3) → `PLAN.md` (Phase 4) → `REVIEW.md` (Phase 7). A `STATUS.md` is written if AI halts.
+
+### `--list` — dashboard view
+
+```
+$ pnpm --silent erxes-wish --list
+─── erxes-wish --list (3 wish dirs) ────────────────────────
+  ID                                      PHASE           UPDATED
+  ──────────────────────────────────────  ──────────────  ──────────
+  → 2026-05-23-deal-quoted-amount          3 GROUND        12m ago
+  ⚠ 2026-05-22-deal-confidence-score       3 GROUND HALTED 2h ago
+  ✓ 2026-05-22-deal-risk-level             7 REVIEW        3d ago
+────────────────────────────────────────────────────────────
+  Detail: pnpm --silent erxes-wish --show <id>
+```
+
+- `→` in progress
+- `✓` shipped (Phase 7 complete)
+- `⚠` halted (`STATUS.md` written)
+
+### `--show <id>` — detail per wish
+
+```
+$ pnpm --silent erxes-wish --show 2026-05-23-deal-quoted-amount
+─── erxes-wish --show 2026-05-23-deal-quoted-amount ────────
+  Path: .agents/wishes/2026-05-23-deal-quoted-amount/
+  Status: 3 GROUND (mapped)
+  Last updated: 12m ago
+
+  Artifacts:
+    ✓ WISH.md      0 WISH       (captured, 25m ago)
+    ✓ SPEC.md      2 SPEC       (drafted, 20m ago)
+    ✓ GROUND.md    3 GROUND     (mapped, 12m ago)
+    ✗ PLAN.md      4 PLAN
+    ✗ REVIEW.md    7 REVIEW
+────────────────────────────────────────────────────────────
+```
+
+Use this to answer "is the AI session still running?" or "where did it stop?" — the artifact files document the conversation history phase by phase. Open them directly with `cat .agents/wishes/<id>/SPEC.md` for the full content.
+
+## Stderr status — confirmation every invocation
+
+Every briefing assembly emits a status block to stderr (so it shows even when you pipe stdout to `pbcopy` or a file):
+
+```
+$ pnpm --silent erxes-wish "add a riskLevel field to deals" | pbcopy
+
+─── erxes-wish ─────────────────────────────────────────────
+  ✓ Briefing assembled for: "add a riskLevel field to deals"
+    Plugin:   sales            (matched on "deal")
+    Skill:    add-deal-field   (matched on "field")
+    Lessons:  8 most recent embedded
+    Total:    515 lines (~31.1 KB)
+  ✓ Output piped → paste into your AI tool to begin Phase 0
+  ℹ See active wishes: pnpm --silent erxes-wish --list
+────────────────────────────────────────────────────────────
+```
+
+Tells you at a glance: scope was detected, skill was matched, prompt was assembled, output was piped. No more "did anything happen?" guessing.
+
+For non-sales / unscoped wishes the block shows `⚠ STOP block emitted` so you know AI will halt before writing code.
 
 ## Anatomy of the generated prompt
 
