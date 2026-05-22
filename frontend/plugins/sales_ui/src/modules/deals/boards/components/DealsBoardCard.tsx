@@ -3,6 +3,7 @@ import { ItemFooter } from '@/deals/cards/components/item/Footer';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
+import { SelectDealConfidenceScore } from '@/deals/components/deal-selects/SelectDealConfidenceScore';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { IDeal } from '@/deals/types/deals';
@@ -95,6 +96,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     assignedUsers,
     _id,
     priority,
+    confidenceScore,
     createdAt,
     closeDate,
     labels,
@@ -156,6 +158,11 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           <SelectDealPriority
             dealId={_id}
             value={priority || ''}
+            variant="card"
+          />
+          <SelectDealConfidenceScore
+            dealId={_id}
+            value={confidenceScore ?? 0}
             variant="card"
           />
           <SelectLabels.FilterBar
