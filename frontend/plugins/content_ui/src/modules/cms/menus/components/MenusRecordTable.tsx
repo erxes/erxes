@@ -184,7 +184,6 @@ export const MenusRecordTable = ({
       return;
     }
 
-    const previousMenus = orderedMenus;
     const reorderedSiblings = arrayMove(siblings, oldIndex, newIndex);
     const nextMenus = applySiblingOrder(orderedMenus, reorderedSiblings);
 
@@ -202,15 +201,17 @@ export const MenusRecordTable = ({
           }),
         ),
       );
-      await refetch();
     } catch (error) {
-      setOrderedMenus(previousMenus);
       toast({
         description:
           error instanceof Error ? error.message : 'Failed to reorder menus.',
       });
     } finally {
-      setIsReordering(false);
+      try {
+        await refetch();
+      } finally {
+        setIsReordering(false);
+      }
     }
   };
 
