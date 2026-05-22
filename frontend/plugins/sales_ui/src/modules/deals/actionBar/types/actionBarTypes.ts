@@ -19,6 +19,7 @@ export type SalesFilterState = {
   startDateStartDate?: string | null;
   startDateEndDate?: string | null;
   priority?: string[] | null;
+  confidenceScoreMin?: number | null;
   labelIds?: string[] | null;
   tagIds?: string[] | null;
   awaiting?: boolean | null;

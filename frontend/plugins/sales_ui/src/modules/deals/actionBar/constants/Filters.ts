@@ -9,6 +9,7 @@ import {
   IconLoader,
   IconStackFront,
   IconTag,
+  IconTrendingUp,
   IconUserPlus,
   IconUserShare,
 } from '@tabler/icons-react';
@@ -29,6 +30,7 @@ export const ActionBarFilters: FilterItem[][] = [
   ],
   [
     { key: 'priority', value: 'Priority', icon: IconStackFront },
+    { key: 'confidenceScoreMin', value: 'Confidence', icon: IconTrendingUp },
     { key: 'labelIds', value: 'Label', icon: IconLabel },
     { key: 'tagIds', value: 'Tags', icon: IconTag },
     { key: 'awaiting', value: 'Awaiting response', icon: IconLoader },
