@@ -337,7 +337,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
   }
 
   if (doneOrder.deliveryInfo?.dealId) {
-    const response = await sendTRPCMessage({
+    const deal = await sendTRPCMessage({
       subdomain,
       method: 'mutation',
       pluginName: 'sales',
@@ -348,8 +348,6 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
         modifier: dealsData,
       },
     });
-
-    const deal = response;
 
     await sendTRPCMessage({
       subdomain,
@@ -364,7 +362,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
       },
     });
   } else {
-    const response = await sendTRPCMessage({
+    const deal = await sendTRPCMessage({
       subdomain,
 
       method: 'mutation',
@@ -375,7 +373,6 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
         ...dealsData,
       },
     });
-    const deal = response;
     if (
       doneOrder.customerId &&
       deal._id &&
@@ -533,7 +530,7 @@ const createDealPerOrder = async ({
       };
     }
 
-    const response = await sendTRPCMessage({
+    const cardDeal = await sendTRPCMessage({
       subdomain,
 
       method: 'mutation',
@@ -558,8 +555,6 @@ const createDealPerOrder = async ({
         paymentsData,
       },
     });
-    const cardDeal = response;
-
     if (newOrder.customerId && cardDeal._id) {
       await sendTRPCMessage({
         subdomain,
