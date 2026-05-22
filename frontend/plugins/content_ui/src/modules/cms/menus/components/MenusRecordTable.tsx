@@ -23,7 +23,7 @@ import { useMenusColumns } from './MenusColumn';
 import { MenusCommandBar } from './menus-command-bar/MenusCommandBar';
 import { useMenus } from '../hooks/useMenus';
 import { CMS_MENU_EDIT, CMS_MENU_REMOVE } from '../../graphql/queries';
-import { buildFlatTree } from '../menuUtils';
+import { buildFlatTree } from '@/cms/menus/menuUtils';
 
 interface MenuItem {
   _id: string;

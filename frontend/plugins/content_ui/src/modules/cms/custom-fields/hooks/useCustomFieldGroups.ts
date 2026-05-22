@@ -20,7 +20,7 @@ const compareByLabel = (
   if (!aValue) return 1;
   if (!bValue) return -1;
 
-  return aValue.localeCompare(bValue, undefined, {
+  return aValue.localeCompare(bValue, 'en', {
     numeric: true,
     sensitivity: 'base',
   });

@@ -14,7 +14,7 @@ function compareMenuItems<T extends RawMenuItem>(a: T, b: T): number {
     return aOrder - bOrder;
   }
 
-  return a.label.localeCompare(b.label, undefined, {
+  return a.label.localeCompare(b.label, 'en', {
     numeric: true,
     sensitivity: 'base',
   });
