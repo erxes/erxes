@@ -54,10 +54,7 @@ export const erkhetTrpcRouter = t.router({
         );
 
         if (!postData) {
-          return {
-            status: 'success',
-            data: {},
-          };
+          return {};
         }
 
         return await sendErkhetPost(
@@ -100,10 +97,7 @@ export const erkhetTrpcRouter = t.router({
             orderId,
           );
           if (!postData) {
-            return {
-              status: 'success',
-              data: {},
-            };
+            return {};
           }
 
           return await sendErkhetPost(
@@ -145,10 +139,7 @@ export const erkhetTrpcRouter = t.router({
             orderId,
           );
           if (!postData) {
-            return {
-              status: 'success',
-              data: {},
-            };
+            return {};
           }
 
           return await sendErkhetPost(
