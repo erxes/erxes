@@ -1,8 +1,8 @@
-# GitHub Copilot — entry point for any AI working in this repo
+# CONVENTIONS.md — entry point for Aider and other convention-reading AI
 
-> **STOP. Before writing or editing any code, read [`/.agents/SYSTEM-PROMPT.md`](../.agents/SYSTEM-PROMPT.md). It is the constitution; it is non-negotiable.**
+> **STOP. Before writing or editing any code, read [`.agents/SYSTEM-PROMPT.md`](./.agents/SYSTEM-PROMPT.md). It is the constitution; it is non-negotiable.**
 
-This file is intentionally short. Everything authoritative lives in `.agents/`.
+Everything authoritative lives in `.agents/`. This file is intentionally short.
 
 ## What you are doing
 
@@ -12,14 +12,14 @@ You are working in the **erxes** monorepo — Nx + pnpm microservices. Backend: 
 
 | Developer's intent | Do this |
 |---|---|
-| Sales feature wish | `.agents/bin/erxes-wish "<wish>"` + follow [`/.agents/WORKFLOW.md`](../.agents/WORKFLOW.md). |
-| Non-sales plugin | Sales-only today. Tell developer. See [`/.agents/EXTENDING.md`](../.agents/EXTENDING.md). |
-| Codebase question | [`/.agents/README.md`](../.agents/README.md). |
-| Glossary | [`/.agents/memory/glossary.md`](../.agents/memory/glossary.md). |
-| What NOT to do | [`/.agents/SLOP-CHECKLIST.md`](../.agents/SLOP-CHECKLIST.md). |
+| Sales feature wish | `.agents/bin/erxes-wish "<wish>"` + follow [`.agents/WORKFLOW.md`](./.agents/WORKFLOW.md). |
+| Non-sales plugin | Sales-only today. See [`.agents/EXTENDING.md`](./.agents/EXTENDING.md). |
+| Codebase question | [`.agents/README.md`](./.agents/README.md). |
+| Glossary | [`.agents/memory/glossary.md`](./.agents/memory/glossary.md). |
+| What NOT to do | [`.agents/SLOP-CHECKLIST.md`](./.agents/SLOP-CHECKLIST.md). |
 | Verify a change | `.agents/evals/run.sh sales`. |
 
-## Hard rules — full set in [`/.agents/SYSTEM-PROMPT.md`](../.agents/SYSTEM-PROMPT.md)
+## Hard rules — full set in [`.agents/SYSTEM-PROMPT.md`](./.agents/SYSTEM-PROMPT.md)
 
 - **pnpm only.** Inside `.agents/`: `pnpm install --ignore-workspace`.
 - **Mirror precedent.** Read sister feature files in full before generating.

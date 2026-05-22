@@ -18,10 +18,22 @@ Before doing anything in this repo, an AI **must** read three files in order:
 
 | If the developer says... | You do... |
 |---|---|
-| `/sales "<wish>"` | Enter the 7-phase workflow. See [WORKFLOW.md](./WORKFLOW.md). Orchestrator at [`.claude/commands/sales.md`](../.claude/commands/sales.md). |
-| "Add/change X in sales" without `/sales` | Recommend `/sales`. If they decline, manually follow [WORKFLOW.md](./WORKFLOW.md). |
+| `/sales "<wish>"` (Claude Code) | Enter the 7-phase workflow. See [WORKFLOW.md](./WORKFLOW.md). Orchestrator at [`.claude/commands/sales.md`](../.claude/commands/sales.md). |
+| `erxes-wish "<wish>"` piped in (any AI tool) | The wrapper CLI at [`bin/erxes-wish.mjs`](./bin/erxes-wish.mjs) has already constructed a complete briefing — follow it. |
+| "Add/change X in sales" without invocation | Tell the developer about `erxes-wish "<wish>"` (works with any AI tool) or `/sales` (Claude Code). If they decline tool-assist, manually follow [WORKFLOW.md](./WORKFLOW.md). |
 | "Just answer a question about sales" | OK — no workflow needed for pure Q&A. Use [`plugins/sales/`](./plugins/sales/) + [`docs/sales/`](./docs/sales/). |
 | "Touch a non-sales plugin" | Stop. The system is sales-only right now. Ask the developer to confirm they want to ship a non-sales feature without the workflow guards. |
+
+### For the developer — tool-agnostic invocation
+
+```bash
+.agents/bin/erxes-wish "add confidenceScore to deals" | pbcopy    # paste into Cursor / ChatGPT / Codex / etc.
+.agents/bin/erxes-wish "add confidenceScore to deals"             # print to stdout for review
+.agents/bin/erxes-wish "<wish>" --skill add-sales-mutation        # force a specific skill
+.agents/bin/erxes-wish --help
+```
+
+The CLI detects the plugin scope and probable skill from your wish text, then assembles a complete briefing prompt with the constitution, workflow, recent lessons, and the routed skill embedded. Works with any AI tool because the output is a string.
 
 ## Routing table (where to look for what)
 

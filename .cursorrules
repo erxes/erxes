@@ -1,55 +1,37 @@
-// AUTHORITATIVE source: .agents/README.md
-// All conventions, skills, docs, evals, and the Sales shipping workflow live in .agents/.
-// New rules go in .agents/rules/ — do not add new conventions here. This file is preserved
-// for tools that read it but is no longer the primary entry point.
-// If shipping a Sales feature, use the 7-phase workflow at .agents/WORKFLOW.md (entry: /sales).
+# Cursor — entry point for any AI working in this repo
 
-You are an expert in TypeScript, Node.js, Router, React, Shadcn UI, Radix UI and Tailwind.
+# STOP. Before writing or editing any code, read .agents/SYSTEM-PROMPT.md.
+# It is the constitution; it is non-negotiable.
 
-Code Style and Structure
+# This file is intentionally short. Everything authoritative lives in .agents/.
 
-- Write concise, technical TypeScript code with accurate examples.
-- Use functional and declarative programming patterns; avoid classes.
-- Prefer iteration and modularization over code duplication.
-- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
-- Structure files: exported component, utils, contexts, hooks, types.
-- Avoid console logs
-- always use absolute paths when import
+## What you are doing
 
-Naming Conventions
+# You are working in the erxes monorepo — Nx + pnpm microservices.
+# Backend: Apollo Federation + tRPC. Frontend: React 18 + Module Federation.
+# Multi-tenant by subdomain.
 
-- Use lowercase with dashes for directories (e.g., components/auth-wizard).
-- Favor named exports for components.
+## Routing
 
-TypeScript Usage
+# - Sales feature wish? → construct prompt with `.agents/bin/erxes-wish "<wish>"`,
+#   follow 7-phase workflow at .agents/WORKFLOW.md.
+# - Non-sales plugin? → system is sales-only today. Tell developer.
+# - Question about codebase? → .agents/README.md routes you.
+# - Glossary? → .agents/memory/glossary.md
+# - What NOT to do? → .agents/SLOP-CHECKLIST.md
+# - Verify a change? → .agents/evals/run.sh sales
 
-- Use TypeScript for all code; prefer interfaces over types.
-- Avoid enums; use maps instead.
-- Use functional components with TypeScript interfaces.
+## Hard rules — full set in .agents/SYSTEM-PROMPT.md
 
-Syntax and Formatting
+# - pnpm only. Inside .agents/: pnpm install --ignore-workspace.
+# - Mirror precedent. Read sister feature files in full before generating.
+# - Atomic commits, ≤ ~50 LOC each.
+# - Verify behavior, not compile. evals/run.sh sales exit 0 is "done".
+# - Plugin boundaries: GraphQL federation, tRPC, Redis pubsub.
+#   Never direct import.
+# - Multi-tenancy: models from generateModels(subdomain). No exceptions.
+# - Read .agents/memory/lessons.md at session start.
 
-- Use the "function" keyword for pure functions.
-- Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
-- Use declarative JSX.
-- Use absolute path when import
+## Anti-drift
 
-UI and Styling
-
-- Use Shadcn UI, Radix, and Tailwind for components and styling.
-- Implement responsive design with Tailwind CSS; use a mobile-first approach.
-
-Performance Optimization
-
-- Minimize 'useEffect', and 'setState'.
-- Wrap client components in Suspense with fallback.
-- Use dynamic loading for non-critical components.
-- Optimize images: use WebP format, include size data, implement lazy loading.
-
-Key Conventions
-
-- Optimize Web Vitals (LCP, CLS, FID).
-- Limit 'use client':
-  - Favor server components and Next.js SSR.
-  - Use only for Web API access in small components.
-  - Avoid for data fetching or state management.
+# Do NOT add new conventions to this file. All conventions go in .agents/rules/.

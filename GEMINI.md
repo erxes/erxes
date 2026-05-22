@@ -1,4 +1,4 @@
-# AGENTS.md — entry point for any AI working in this repo
+# GEMINI.md — entry point for any AI working in this repo
 
 > **STOP. Before writing or editing any code, read [`.agents/SYSTEM-PROMPT.md`](./.agents/SYSTEM-PROMPT.md). It is the constitution; it is non-negotiable.**
 

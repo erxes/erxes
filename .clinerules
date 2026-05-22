@@ -1,0 +1,29 @@
+# Cline — entry point for any AI working in this repo
+
+# STOP. Before writing or editing any code, read .agents/SYSTEM-PROMPT.md.
+# It is the constitution; it is non-negotiable.
+
+# Everything authoritative lives in .agents/. This file is intentionally short.
+
+## Routing
+
+# - Sales feature wish? → `.agents/bin/erxes-wish "<wish>"` + follow .agents/WORKFLOW.md
+# - Non-sales plugin? → sales-only today. See .agents/EXTENDING.md.
+# - Question about codebase? → .agents/README.md
+# - Glossary? → .agents/memory/glossary.md
+# - What NOT to do? → .agents/SLOP-CHECKLIST.md
+# - Verify a change? → .agents/evals/run.sh sales
+
+## Hard rules — full set in .agents/SYSTEM-PROMPT.md
+
+# - pnpm only. Inside .agents/: pnpm install --ignore-workspace.
+# - Mirror precedent. Read sister feature files in full before generating.
+# - Atomic commits, ≤ ~50 LOC each.
+# - Verify behavior, not compile. evals/run.sh sales exit 0 is "done".
+# - Plugin boundaries: GraphQL federation, tRPC, Redis pubsub. Never direct import.
+# - Multi-tenancy: models from generateModels(subdomain).
+# - Read .agents/memory/lessons.md at session start.
+
+## Anti-drift
+
+# Do NOT add new conventions to this file. All conventions go in .agents/rules/.
