@@ -1,0 +1,31 @@
+# EVAL.log — confidence-score wish
+
+# Format: <commit-marker>  <ISO timestamp>  exit=<code>  <command>  <summary>
+#
+# This file was created retroactively after the updated WORKFLOW.md added the
+# per-commit eval log requirement. The wish itself ran before EVAL.log was
+# part of the contract; the per-commit eval runs DID happen (REVIEW.md narrates
+# them), but the audit lines were not captured at the time.
+#
+# Going forward, every Phase-5 commit must append its own line as it lands.
+# The lines below are RETROACTIVE NOTES inferred from git log + REVIEW.md and
+# are explicitly marked as such.
+
+# --- Retroactive notes (not real-time captures) ---
+retro-eba6b40  unknown  exit=0?  evals/run.sh sales --backend-only  schema + IDeal — REVIEW.md asserts run; per-commit timestamp not captured
+retro-83b691f  unknown  exit=0?  evals/run.sh sales --backend-only  GraphQL Deal + mutationParams + confidenceScoreMin filter
+retro-27a8795  unknown  exit=0?  evals/run.sh sales                 UI mutation/query/IItem plumbing
+retro-28aad09  unknown  exit=0?  evals/run.sh sales                 detail-sheet edit (SelectDealConfidenceScore mount)
+retro-92943ec  unknown  exit=0?  evals/run.sh sales                 kanban card render
+retro-a9be4ff  unknown  exit=0?  evals/run.sh sales                 action-bar filter
+retro-d43338f  unknown  exit=0?  evals/run.sh sales                 Add-deal form numeric Input
+retro-ef236b1  unknown  exit=0?  cd .agents && pnpm test plugins/sales/tests/deals.spec.ts  Playwright test commit; 2 wiring tests live, 7 behavior tests named-skipped (BLOCKED on 2026-05-22-test-fixture-seeder)
+
+# --- Final aggregate run (per REVIEW.md, before updated workflow rule) ---
+final-aggregate  2026-05-22T~10:19  exit=0  evals/run.sh sales  All checks passed (build/typecheck); --include-e2e was NOT invoked
+
+# --- Gap captured under the updated rule ---
+# Under the updated Phase 6 (behavior-coverage floor), this wish would have
+# halted at Phase 6 because 7/7 behavior-bucket criteria are skipped against
+# the same blocking wish. The aggregate exit-0 above is build-only, not
+# behavior-verified. See STATUS.md.

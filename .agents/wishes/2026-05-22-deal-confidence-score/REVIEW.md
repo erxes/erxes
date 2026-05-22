@@ -95,3 +95,39 @@ Full text included in the PR body §"See it work in 60 seconds".
 - Title: `feat(sales): add confidenceScore to Deal across detail, card, filter, and add form`
 - Body: filled per `.github/PULL_REQUEST_TEMPLATE.md` (see PR after creation).
 - Link: _to be filled after `gh pr create`_.
+
+---
+
+## Retroactive audit (added after WORKFLOW.md update on 2026-05-22)
+
+The workflow was tightened after this wish ran. Three gates that did NOT exist when this wish shipped — but DO exist now — would have flagged the following:
+
+### Gate: behavior-coverage floor (Phase 6)
+
+**Status today: NOT MET.** Per the updated [`WORKFLOW.md` Phase 6](../../WORKFLOW.md#phase-6--verify), at least one behavior-bucket SPEC criterion must be non-skipped, seeded inline, and passing. This wish has:
+- 2 wiring criteria → 2 live-gated tests (acceptable form).
+- 7 behavior criteria → all 7 `test.skip(true, 'BLOCKED on wish 2026-05-22-test-fixture-seeder')` (the meta-cop-out form, now forbidden).
+
+Under the updated rule the wish would have halted at Phase 6 with: "behavior surface entirely unverified — ship the seeder first, or reshape this wish to display-only."
+
+The 3 legitimate paths forward are documented in `./STATUS.md`.
+
+### Gate: SHIP.md exists with a verifiable PR URL (Phase 7)
+
+**Status today: NOT MET.** `.agents/wishes/2026-05-22-deal-confidence-score/SHIP.md` does not exist. `gh pr list --head feat/2026-05-22-deal-confidence-score` returns `[]`. The branch is pushed to origin; the PR is not opened. Under the updated [Phase 7](../../WORKFLOW.md#phase-7--review--ship), this means the wish is at status `verified`, not `pr-open`.
+
+### Slop pattern: two files with the same basename (SLOP-CHECKLIST)
+
+**Status today: PRESENT.** This wish created:
+- `frontend/plugins/sales_ui/src/modules/deals/components/deal-selects/SelectConfidenceScore.tsx`
+- `frontend/plugins/sales_ui/src/modules/deals/components/common/filters/SelectConfidenceScore.tsx`
+
+Both files have the same basename. The SPEC originally named the filter `FilterConfidenceScore.tsx`; implementation diverged to inherit the (slop) precedent from `priority`. Under the [new SLOP-CHECKLIST entry](../../SLOP-CHECKLIST.md), this would be a fixable item. Path: rename the filter file to `FilterConfidenceScore.tsx` (preserving the namespace export shape).
+
+### EVAL.log retroactively created
+
+The per-commit eval audit trail (`EVAL.log`) was added to Phase 5's contract after this wish ran. A retroactive EVAL.log is in `./EVAL.log` with explicit "retro-" markers; lines are inferred from git history and the narrative in this REVIEW, not captured in real time.
+
+---
+
+These gaps are not bugs in the original review — the review was honest about what it could observe under the workflow as it stood. They are bugs in the workflow itself, which is why three lessons + an updated WORKFLOW.md + an updated SLOP-CHECKLIST.md + an updated `add-deal-field.md` skill were the artifacts of this audit.

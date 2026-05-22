@@ -2,7 +2,7 @@
 
 **ID:** `2026-05-22-deal-confidence-score`
 **Created:** 2026-05-22
-**Status:** reviewing
+**Status:** `verified` — code committed (9 commits on `feat/2026-05-22-deal-confidence-score`, branch pushed to origin), but **PR not yet opened**, so `pr-open` is not yet legal per [`../../WORKFLOW.md`](../../WORKFLOW.md#status-state-machine-the-only-legal-status-values). Phase 7 incomplete: `SHIP.md` does not exist. Also: behavior-coverage floor was NOT met (7/7 SPEC criteria deferred to fixture-seeder) — under the updated Phase 6 rule this wish would have halted before shipping. Retroactively logged in REVIEW.md.
 
 ## Original wish
 
