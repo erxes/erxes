@@ -53,14 +53,10 @@ const getParentKey = (menu?: MenuItem) => menu?.parentId || null;
 
 const DragTransformContext = React.createContext<{
   activeId: string | null;
-  transform: string | null;
-  transition: string | null;
-  setTransform: (transform: string | null, transition: string | null) => void;
+  containerRef: React.RefObject<HTMLDivElement | null>;
 }>({
   activeId: null,
-  transform: null,
-  transition: null,
-  setTransform: () => {},
+  containerRef: { current: null },
 });
 
 const applySiblingOrder = (
@@ -100,12 +96,7 @@ const SortableMenuRow = React.forwardRef<
     id: original?._id,
   });
 
-  const {
-    activeId,
-    transform: sharedTransform,
-    transition: sharedTransition,
-    setTransform,
-  } = React.useContext(DragTransformContext);
+  const { activeId, containerRef } = React.useContext(DragTransformContext);
 
   const setRowRef = useCallback(
     (node: HTMLTableRowElement | null) => {
@@ -127,21 +118,29 @@ const SortableMenuRow = React.forwardRef<
   }, [activeId, original?.path]);
 
   useEffect(() => {
-    if (isDragging) {
-      setTransform(CSS.Transform.toString(transform), transition || null);
+    if (isDragging && containerRef.current) {
+      const container = containerRef.current;
+      const tStr = CSS.Transform.toString(transform) || 'none';
+      container.style.setProperty('--drag-transform', tStr);
+      container.style.setProperty('--drag-transition', transition || 'none');
+
+      return () => {
+        container.style.removeProperty('--drag-transform');
+        container.style.removeProperty('--drag-transition');
+      };
     }
-  }, [isDragging, transform, transition, setTransform]);
+  }, [isDragging, transform, transition, containerRef]);
 
   const effectiveTransform = isDragging
     ? CSS.Transform.toString(transform)
     : isDescendant
-      ? sharedTransform
+      ? 'var(--drag-transform)'
       : CSS.Transform.toString(transform);
 
   const effectiveTransition = isDragging
     ? transition
     : isDescendant
-      ? sharedTransition
+      ? 'var(--drag-transition)'
       : transition;
 
   return (
@@ -185,10 +184,7 @@ export const MenusRecordTable = ({
   const [orderedMenus, setOrderedMenus] = useState<MenuItem[]>(menus);
   const [reorderingCount, setReorderingCount] = useState(0);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [activeTransform, setActiveTransform] = useState<{
-    transform: string | null;
-    transition: string | null;
-  }>({ transform: null, transition: null });
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const [removeMenu] = useMutation(CMS_MENU_REMOVE);
   const [editMenu] = useMutation(CMS_MENU_EDIT);
@@ -238,7 +234,6 @@ export const MenusRecordTable = ({
   const handleDragEnd = useCallback(
     async ({ active, over }: DragEndEvent) => {
       setActiveId(null);
-      setActiveTransform({ transform: null, transition: null });
 
       if (!over || active.id === over.id) {
         return;
@@ -344,38 +339,38 @@ export const MenusRecordTable = ({
       onDragEnd={handleDragEnd}
       onDragCancel={() => {
         setActiveId(null);
-        setActiveTransform({ transform: null, transition: null });
       }}
     >
       <DragTransformContext.Provider
         value={{
           activeId,
-          transform: activeTransform.transform,
-          transition: activeTransform.transition,
-          setTransform: (transform, transition) => {
-            setActiveTransform({ transform, transition });
-          },
+          containerRef,
         }}
       >
-        <RecordTable.Provider
-          columns={columns}
-          data={orderedMenus}
-          className="h-full m-3 pb-1"
-          stickyColumns={['drag', 'more', 'checkbox', 'label']}
-        >
-          <SortableContext items={menuIds} strategy={verticalListSortingStrategy}>
-            <RecordTable.Scroll>
-              <RecordTable>
-                <RecordTable.Header />
-                <RecordTable.Body>
-                  {loading && <RecordTable.RowSkeleton rows={10} />}
-                  <RecordTable.RowList Row={SortableMenuRow} />
-                </RecordTable.Body>
-              </RecordTable>
-            </RecordTable.Scroll>
-          </SortableContext>
-          <MenusCommandBar onBulkDelete={handleBulkDelete} />
-        </RecordTable.Provider>
+        <div ref={containerRef} className="h-full">
+          <RecordTable.Provider
+            columns={columns}
+            data={orderedMenus}
+            className="h-full m-3 pb-1"
+            stickyColumns={['drag', 'more', 'checkbox', 'label']}
+          >
+            <SortableContext
+              items={menuIds}
+              strategy={verticalListSortingStrategy}
+            >
+              <RecordTable.Scroll>
+                <RecordTable>
+                  <RecordTable.Header />
+                  <RecordTable.Body>
+                    {loading && <RecordTable.RowSkeleton rows={10} />}
+                    <RecordTable.RowList Row={SortableMenuRow} />
+                  </RecordTable.Body>
+                </RecordTable>
+              </RecordTable.Scroll>
+            </SortableContext>
+            <MenusCommandBar onBulkDelete={handleBulkDelete} />
+          </RecordTable.Provider>
+        </div>
       </DragTransformContext.Provider>
     </DndContext>
   );
