@@ -62,8 +62,44 @@ export const trpcContextHeaderName = 'x-trpc-context';
 
 const TRPC_CONTEXT_SIG_SEPARATOR = '.';
 
+/**
+ * Secret used to sign/verify the x-trpc-context header. Every backend service
+ * shares the same value (the auth JWT secret), so a header signed by one
+ * service verifies in another. The header carries tenant + caller context
+ * across the internal service-to-service mesh; it is NOT user-facing API.
+ *
+ * Because a request arriving from the public gateway cannot reproduce a valid
+ * HMAC without this secret, anonymous callers can no longer mint a context and
+ * reach the raw Mongoose tRPC procedures.
+ *
+ * There is intentionally NO default value. Falling back to a hardcoded secret
+ * (e.g. 'SECRET') would let anyone reproduce the HMAC and re-open the
+ * unauthenticated tRPC CRUD hole this signing is meant to close, so we fail
+ * closed: every sign/verify call throws until JWT_TOKEN_SECRET is configured.
+ */
 function getTRPCContextSecret(): string {
-  return process.env.JWT_TOKEN_SECRET || 'SECRET';
+  const secret = process.env.JWT_TOKEN_SECRET;
+
+  if (!secret || secret.trim() === '') {
+    throw new Error(
+      'JWT_TOKEN_SECRET is required to sign and verify the x-trpc-context ' +
+        'header used for service-to-service tRPC authentication. Set ' +
+        'JWT_TOKEN_SECRET to the same value across all backend services ' +
+        'before starting; refusing to run with an unauthenticated tRPC mesh.',
+    );
+  }
+
+  return secret;
+}
+
+/**
+ * Eagerly validate JWT_TOKEN_SECRET so a misconfigured service fails fast at
+ * startup (this is called when the tRPC route handler is built) instead of
+ * silently degrading (sendTRPCMessage swallows errors and returns defaults) or
+ * only erroring on the first inbound request.
+ */
+export function assertTRPCContextSecret(): void {
+  getTRPCContextSecret();
 }
 
 function signTRPCContext(contextBase64: string): string {
@@ -198,14 +234,18 @@ export const sendTRPCMessage = async ({
   }
 };
 
-export const createTRPCContext =
-  <TContext>(
-    trpcContext: (
-      subdomain: string,
-      context: any,
-    ) => Promise<TContext & TRPCContext>,
-  ) =>
-  async ({ req }: trpcExpress.CreateExpressContextOptions) => {
+export const createTRPCContext = <TContext>(
+  trpcContext: (
+    subdomain: string,
+    context: any,
+  ) => Promise<TContext & TRPCContext>,
+) => {
+  // Runs once per service when the tRPC route handler is built (i.e. at
+  // startup): fail fast if the signing secret is missing rather than only
+  // erroring on the first inbound request.
+  assertTRPCContextSecret();
+
+  return async ({ req }: trpcExpress.CreateExpressContextOptions) => {
     // Extract context from header (encoded) or fallback to request body/input
     const {
       subdomain,
@@ -249,6 +289,7 @@ export const createTRPCContext =
       eventHandlers,
     };
   };
+};
 
 export type ITRPCContext<TExtraContext = object> = Awaited<
   ReturnType<typeof createTRPCContext<TExtraContext>>
