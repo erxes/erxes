@@ -632,8 +632,6 @@ export const loadUserClass = (
         },
       );
 
-      // Do NOT return the user document: it carries the (new) bcrypt password
-      // hash and other sensitive fields, and this endpoint is anonymous.
       return { success: true };
     }
 
