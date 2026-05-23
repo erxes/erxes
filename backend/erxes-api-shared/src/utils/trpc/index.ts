@@ -5,6 +5,7 @@ import {
   TRPCRequestOptions,
 } from '@trpc/client';
 import * as trpcExpress from '@trpc/server/adapters/express';
+import { createHmac, timingSafeEqual } from 'crypto';
 import { IncomingHttpHeaders } from 'http';
 import { getPlugin, isEnabled } from '../service-discovery';
 import { generateRequestProcess, getEnv } from '../utils';
@@ -59,6 +60,28 @@ export type RP = (params: InterMessage) => RPResult | Promise<RPResult>;
 
 export const trpcContextHeaderName = 'x-trpc-context';
 
+const TRPC_CONTEXT_SIG_SEPARATOR = '.';
+
+/**
+ * Secret used to sign/verify the x-trpc-context header. Every backend service
+ * shares the same value (the auth JWT secret), so a header signed by one
+ * service verifies in another. The header carries tenant + caller context
+ * across the internal service-to-service mesh; it is NOT user-facing API.
+ *
+ * Because a request arriving from the public gateway cannot reproduce a valid
+ * HMAC without this secret, anonymous callers can no longer mint a context and
+ * reach the raw Mongoose tRPC procedures.
+ */
+function getTRPCContextSecret(): string {
+  return process.env.JWT_TOKEN_SECRET || 'SECRET';
+}
+
+function signTRPCContextPayload(payloadBase64: string): string {
+  return createHmac('sha256', getTRPCContextSecret())
+    .update(payloadBase64)
+    .digest('base64url');
+}
+
 export function encodeTRPCContextHeader(
   subdomain: string,
   method: 'query' | 'mutation',
@@ -69,8 +92,12 @@ export function encodeTRPCContextHeader(
     method,
     ...context,
   };
-  const contextJson = JSON.stringify(contextData);
-  return Buffer.from(contextJson, 'utf8').toString('base64');
+  const payloadBase64 = Buffer.from(
+    JSON.stringify(contextData),
+    'utf8',
+  ).toString('base64');
+  const signature = signTRPCContextPayload(payloadBase64);
+  return `${payloadBase64}${TRPC_CONTEXT_SIG_SEPARATOR}${signature}`;
 }
 
 function decodeTRPCContextHeader(headers: IncomingHttpHeaders): {
@@ -85,8 +112,29 @@ function decodeTRPCContextHeader(headers: IncomingHttpHeaders): {
   if (Array.isArray(contextHeader)) {
     throw new Error(`Multiple ${trpcContextHeaderName} headers`);
   }
+
+  // The header must be `<base64 payload>.<hmac signature>`. base64 never
+  // contains '.', so the last separator splits payload from signature. An
+  // unsigned or forged header has no valid signature and is rejected.
+  const separatorIndex = contextHeader.lastIndexOf(TRPC_CONTEXT_SIG_SEPARATOR);
+  if (separatorIndex === -1) {
+    return null;
+  }
+  const payloadBase64 = contextHeader.slice(0, separatorIndex);
+  const signature = contextHeader.slice(separatorIndex + 1);
+  const expectedSignature = signTRPCContextPayload(payloadBase64);
+
+  const signatureBuf = Buffer.from(signature);
+  const expectedBuf = Buffer.from(expectedSignature);
+  if (
+    signatureBuf.length !== expectedBuf.length ||
+    !timingSafeEqual(signatureBuf, expectedBuf)
+  ) {
+    return null;
+  }
+
   try {
-    const contextJson = Buffer.from(contextHeader, 'base64').toString('utf-8');
+    const contextJson = Buffer.from(payloadBase64, 'base64').toString('utf-8');
     const decoded = JSON.parse(contextJson);
     const { subdomain, method, ...context } = decoded;
     return { subdomain, method, context };

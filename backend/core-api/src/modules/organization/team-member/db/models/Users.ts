@@ -104,7 +104,7 @@ export interface IUserModel extends Model<IUserDocument> {
   resetPassword(params: {
     token: string;
     newPassword: string;
-  }): Promise<IUserDocument>;
+  }): Promise<{ success: boolean }>;
   resetMemberPassword(params: IPasswordParams): Promise<IUserDocument>;
   changePassword(
     params: IPasswordParams & { currentPassword: string },
@@ -632,7 +632,9 @@ export const loadUserClass = (
         },
       );
 
-      return models.Users.findOne({ _id: user._id });
+      // Do NOT return the user document: it carries the (new) bcrypt password
+      // hash and other sensitive fields, and this endpoint is anonymous.
+      return { success: true };
     }
 
     /**
