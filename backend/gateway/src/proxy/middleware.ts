@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
 import { Express } from 'express';
+import { trpcContextHeaderName } from 'erxes-api-shared/utils';
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { Agent } from 'http';
 import { apolloRouterPort } from '~/apollo-router';
@@ -30,6 +31,14 @@ export const proxyReq = (proxyReq, req: any) => {
 
   safeSetHeader('hostname', req.hostname || '');
   safeSetHeader('userid', req.user?._id || '');
+
+  // Strip inbound x-trpc-context from the public ingress. In OS mode,
+  // legitimate plugin-to-plugin tRPC bypasses this gateway entirely, so any
+  // inbound value here is forged. SaaS plugin-to-plugin still transits this
+  // proxy, so the strip is gated until that path has a trusted-channel fix.
+  if (process.env.VERSION !== 'saas') {
+    proxyReq.removeHeader(trpcContextHeaderName);
+  }
 
   if (DEBUG_GATEWAY_AUTH && req.originalUrl?.startsWith('/graphql')) {
     console.log(
