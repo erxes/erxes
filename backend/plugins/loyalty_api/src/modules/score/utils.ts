@@ -14,13 +14,19 @@ export const safeEvalMath = (expr: string): number => {
   let pos = 0;
 
   /** look at the current character without moving forward */
-  function peek() { return input[pos]; }
+  function peek() {
+    return input[pos];
+  }
 
   /** grab the current character and step to the next one */
-  function advance() { return input[pos++]; }
+  function advance() {
+    return input[pos++];
+  }
 
   /** jump past any spaces */
-  function skipWhitespace() { while (pos < input.length && input[pos] === ' ') pos++; }
+  function skipWhitespace() {
+    while (pos < input.length && input[pos] === ' ') pos++;
+  }
 
   /** read a number like 42, 3.14, or -5 from the input */
   function parseNumber(): number {
@@ -515,7 +521,9 @@ export const handleOnCreateCampaignScoreField = async ({ doc, subdomain }) => {
       throw new Error('Please provide a field name for score field');
     }
 
-    const fieldCode = `loyalty_score_${doc.fieldName?.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}`;
+    const fieldCode = `loyalty_score_${doc.fieldName
+      ?.toLowerCase()
+      .replace(/\s+/g, '_')}_${Date.now()}`;
 
     const field = await sendTRPCMessage({
       subdomain,
@@ -527,7 +535,7 @@ export const handleOnCreateCampaignScoreField = async ({ doc, subdomain }) => {
         name: doc.fieldName,
         code: fieldCode,
         groupId: doc.fieldGroupId,
-        type: 'input',
+        type: 'number',
         validations: { number: true },
         contentType: `core:${doc.ownerType}`,
       },
@@ -553,7 +561,9 @@ export const handleOnUpdateCampaignScoreField = async ({
     doc.fieldName && doc.fieldOrigin === 'new' && !doc?.fieldId;
 
   if (doc.fieldName && doc.fieldOrigin === 'new' && !doc?.fieldId) {
-    const fieldCode = `loyalty_score_${doc.fieldName?.toLowerCase().replace(/\s+/g, '_')}_${Date.now()}`;
+    const fieldCode = `loyalty_score_${doc.fieldName
+      ?.toLowerCase()
+      .replace(/\s+/g, '_')}_${Date.now()}`;
 
     const field = await sendTRPCMessage({
       subdomain,
@@ -565,7 +575,7 @@ export const handleOnUpdateCampaignScoreField = async ({
         name: doc.fieldName,
         code: fieldCode,
         groupId: doc.fieldGroupId,
-        type: 'input',
+        type: 'number',
         validations: { number: true },
         contentType: `core:${doc.ownerType}`,
       },
@@ -593,6 +603,11 @@ export const handleOnUpdateCampaignScoreField = async ({
       doc.fieldOrigin === 'new'
     ) {
       modifiedFieldData.text = doc.fieldName;
+    }
+
+    if (doc.fieldId === scoreCampaign.fieldId && doc.fieldOrigin === 'new') {
+      modifiedFieldData.type = 'number';
+      modifiedFieldData.validations = { number: true };
     }
 
     if (Object.keys(modifiedFieldData).length > 0) {
