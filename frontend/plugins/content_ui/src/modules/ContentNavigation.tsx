@@ -53,8 +53,17 @@ export const ContentNavigation = () => {
       /> */}
       {onlyCms?.clientPortalId ? (
         <>
-          <Sidebar.MenuItem>
-            <Sidebar.MenuButton asChild isActive={isCmsActive} className="pr-14">
+          <Sidebar.MenuItem className="group/cms-menu">
+            <Sidebar.MenuButton
+              asChild
+              isActive={isCmsActive}
+              className={cn(
+                'pr-14',
+                isCmsActive
+                  ? 'group-hover/cms-menu:bg-primary/10'
+                  : 'group-hover/cms-menu:bg-accent',
+              )}
+            >
               <Link to={cmsPath}>
                 <IconFileText
                   className={cn(
@@ -68,7 +77,7 @@ export const ContentNavigation = () => {
             <div className="absolute inset-y-0 right-1 flex items-center gap-0.5">
               <Button
                 aria-label="Add CMS"
-                className="h-6 w-6 p-0 text-primary/70 hover:bg-primary/10 hover:text-primary"
+                className="h-6 w-6 p-0 text-primary/70 hover:bg-transparent hover:text-primary"
                 size="icon"
                 title="Add CMS"
                 type="button"
@@ -83,7 +92,7 @@ export const ContentNavigation = () => {
               </Button>
               <Button
                 aria-label="Manage CMS"
-                className="h-6 w-6 p-0 text-primary/70 hover:bg-primary/10 hover:text-primary"
+                className="h-6 w-6 p-0 text-primary/70 hover:bg-transparent hover:text-primary"
                 size="icon"
                 title="Manage CMS"
                 type="button"
