@@ -52,8 +52,8 @@ export const buildDateFilter = (
       $lte = dayjs(NOW).subtract(1, 'week').endOf('week').toDate();
       break;
     case 'last2Week':
-      $gte = dayjs(NOW).subtract(14, 'day').startOf('day').toDate();
-      $lte = dayjs(NOW).endOf('day').toDate();
+      $gte = dayjs(NOW).subtract(2, 'week').startOf('week').toDate();
+      $lte = dayjs(NOW).subtract(1, 'week').endOf('week').toDate();
       break;
     case 'last3Week':
       $gte = dayjs(NOW).subtract(3, 'week').startOf('week').toDate();
