@@ -11,27 +11,14 @@ import { Link, useLocation } from 'react-router-dom';
 
 import { WebsiteDrawer } from './cms/components/websites/WebsiteDrawer';
 import { CONTENT_CMS_LIST } from './cms/graphql/queries';
-
-type CmsWebsite = {
-  _id: string;
-  clientPortalId: string;
-  name: string;
-  description: string;
-  domain: string;
-  url: string;
-  kind?: string;
-  createdAt: string;
-  languages?: string[];
-  language?: string;
-  postUrlField?: '_id' | 'count' | 'slug';
-};
+import { IWebsite } from './cms/types';
 
 export const ContentNavigation = () => {
   const { pathname } = useLocation();
   const [isWebsiteDrawerOpen, setIsWebsiteDrawerOpen] = useState(false);
-  const [editingWebsite, setEditingWebsite] = useState<CmsWebsite>();
+  const [editingWebsite, setEditingWebsite] = useState<IWebsite>();
   const { data, refetch } = useQuery<{
-    contentCMSList: CmsWebsite[];
+    contentCMSList: IWebsite[];
   }>(CONTENT_CMS_LIST);
 
   const cmsList = data?.contentCMSList || [];
@@ -52,7 +39,7 @@ export const ContentNavigation = () => {
     setEditingWebsite(undefined);
   };
 
-  const handleOpenWebsiteDrawer = (website?: CmsWebsite) => {
+  const handleOpenWebsiteDrawer = (website?: IWebsite) => {
     setEditingWebsite(website);
     setIsWebsiteDrawerOpen(true);
   };
@@ -64,7 +51,7 @@ export const ContentNavigation = () => {
         path="/content/knowledgebase"
         icon={IconLibraryPhoto}
       /> */}
-      {onlyCms ? (
+      {onlyCms?.clientPortalId ? (
         <>
           <Sidebar.MenuItem>
             <Sidebar.MenuButton asChild isActive={isCmsActive} className="pr-14">

@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { WebsiteDrawer } from '../components/websites/WebsiteDrawer';
 import { CONTENT_CMS_LIST } from '../graphql/queries';
+import { IWebsite } from '../types';
 import { CmsLayout } from './CmsLayout';
 import { EmptyState } from './EmptyState';
 
@@ -31,30 +32,16 @@ const getThumbnailGradient = (color: string) => {
   return gradients[color as keyof typeof gradients] || gradients.orange;
 };
 
-interface Website {
-  _id: string;
-  clientPortalId: string;
-  name: string;
-  description: string;
-  createdAt: string;
-  domain: string;
-  url: string;
-  kind?: string;
-  languages?: string[];
-  language?: string;
-  postUrlField?: '_id' | 'count' | 'slug';
-}
-
 export function Cms() {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('thumbnail');
   const [isWebsiteDrawerOpen, setIsWebsiteDrawerOpen] = useState(false);
-  const [editingWebsite, setEditingWebsite] = useState<Website>();
+  const [editingWebsite, setEditingWebsite] = useState<IWebsite>();
   const { data, loading, refetch } = useQuery<{
-    contentCMSList: Website[];
+    contentCMSList: IWebsite[];
   }>(CONTENT_CMS_LIST);
   const cmsList = data?.contentCMSList || [];
-  const displayWebsites: Website[] = cmsList;
+  const displayWebsites: IWebsite[] = cmsList;
   const onlyCms = cmsList.length === 1 ? cmsList[0] : null;
 
   const handleWebsiteCreatedOrUpdated = () => {
@@ -68,12 +55,17 @@ export function Cms() {
     setEditingWebsite(undefined);
   };
 
-  const handleEditWebsite = (website: Website) => {
+  const handleEditWebsite = (website: IWebsite) => {
     setEditingWebsite(website);
     setIsWebsiteDrawerOpen(true);
   };
 
-  const handleWebsiteClick = (website: Website) => {
+  const handleWebsiteClick = (website: IWebsite) => {
+    if (!website.clientPortalId) {
+      navigate('/content/cms');
+      return;
+    }
+
     navigate(`/content/cms/${website.clientPortalId}/posts`);
   };
 
