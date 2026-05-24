@@ -2,6 +2,7 @@ import { useQuery } from '@apollo/client';
 import {
   IconDotsVertical,
   IconFileText,
+  IconPlus,
   IconWorldPlus,
 } from '@tabler/icons-react';
 import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
@@ -28,6 +29,7 @@ type CmsWebsite = {
 export const ContentNavigation = () => {
   const { pathname } = useLocation();
   const [isWebsiteDrawerOpen, setIsWebsiteDrawerOpen] = useState(false);
+  const [editingWebsite, setEditingWebsite] = useState<CmsWebsite>();
   const { data, refetch } = useQuery<{
     contentCMSList: CmsWebsite[];
   }>(CONTENT_CMS_LIST);
@@ -42,6 +44,17 @@ export const ContentNavigation = () => {
   const handleWebsiteUpdated = () => {
     refetch();
     setIsWebsiteDrawerOpen(false);
+    setEditingWebsite(undefined);
+  };
+
+  const handleCloseWebsiteDrawer = () => {
+    setIsWebsiteDrawerOpen(false);
+    setEditingWebsite(undefined);
+  };
+
+  const handleOpenWebsiteDrawer = (website?: CmsWebsite) => {
+    setEditingWebsite(website);
+    setIsWebsiteDrawerOpen(true);
   };
 
   return (
@@ -61,24 +74,37 @@ export const ContentNavigation = () => {
               </Link>
             </Sidebar.MenuButton>
             <Sidebar.MenuAction
+              aria-label="Add CMS"
+              className="right-7 top-0.5 h-6 w-6 rounded text-primary/70 hover:bg-primary/10 hover:text-primary focus-visible:ring-1 focus-visible:ring-primary/40"
+              title="Add CMS"
+              type="button"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                handleOpenWebsiteDrawer();
+              }}
+            >
+              <IconPlus className="h-4 w-4" />
+            </Sidebar.MenuAction>
+            <Sidebar.MenuAction
               aria-label="Manage CMS"
-              className="right-1.5 top-1 h-5 w-5 rounded bg-transparent text-primary/70 hover:bg-primary/10 hover:text-primary focus-visible:ring-1 focus-visible:ring-primary/40"
+              className="right-1 top-0.5 h-6 w-6 rounded text-primary/70 hover:bg-primary/10 hover:text-primary focus-visible:ring-1 focus-visible:ring-primary/40"
               title="Manage CMS"
               type="button"
               onClick={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                setIsWebsiteDrawerOpen(true);
+                handleOpenWebsiteDrawer(onlyCms);
               }}
             >
-              <IconDotsVertical />
+              <IconDotsVertical className="h-4 w-4" />
             </Sidebar.MenuAction>
           </Sidebar.MenuItem>
           <WebsiteDrawer
             isOpen={isWebsiteDrawerOpen}
-            onClose={() => setIsWebsiteDrawerOpen(false)}
+            onClose={handleCloseWebsiteDrawer}
             onSuccess={handleWebsiteUpdated}
-            website={onlyCms}
+            website={editingWebsite}
           />
         </>
       ) : (
