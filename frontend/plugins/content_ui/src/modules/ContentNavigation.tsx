@@ -1,5 +1,9 @@
 import { useQuery } from '@apollo/client';
-import { IconDots, IconFileText, IconWorldPlus } from '@tabler/icons-react';
+import {
+  IconDotsVertical,
+  IconFileText,
+  IconWorldPlus,
+} from '@tabler/icons-react';
 import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -58,6 +62,7 @@ export const ContentNavigation = () => {
             </Sidebar.MenuButton>
             <Sidebar.MenuAction
               aria-label="Manage CMS"
+              className="right-1.5 top-1 h-5 w-5 rounded bg-transparent text-primary/70 hover:bg-primary/10 hover:text-primary focus-visible:ring-1 focus-visible:ring-primary/40"
               title="Manage CMS"
               type="button"
               onClick={(event) => {
@@ -66,7 +71,7 @@ export const ContentNavigation = () => {
                 setIsWebsiteDrawerOpen(true);
               }}
             >
-              <IconDots />
+              <IconDotsVertical />
             </Sidebar.MenuAction>
           </Sidebar.MenuItem>
           <WebsiteDrawer
