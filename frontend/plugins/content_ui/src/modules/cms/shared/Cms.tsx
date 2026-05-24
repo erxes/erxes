@@ -10,7 +10,7 @@ import {
 } from '@tabler/icons-react';
 import { Button, Spinner, ToggleGroup } from 'erxes-ui';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { WebsiteDrawer } from '../components/websites/WebsiteDrawer';
 import { CONTENT_CMS_LIST } from '../graphql/queries';
 import { CmsLayout } from './CmsLayout';
@@ -33,39 +33,47 @@ const getThumbnailGradient = (color: string) => {
 
 interface Website {
   _id: string;
+  clientPortalId: string;
   name: string;
-  description?: string;
+  description: string;
   createdAt: string;
-  domain?: string;
-  url?: string;
+  domain: string;
+  url: string;
+  kind?: string;
+  languages?: string[];
+  language?: string;
+  postUrlField?: '_id' | 'count' | 'slug';
 }
 
 export function Cms() {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('thumbnail');
   const [isWebsiteDrawerOpen, setIsWebsiteDrawerOpen] = useState(false);
-  const [editingWebsite, setEditingWebsite] = useState<any>(null);
-  const { data, loading, refetch } = useQuery(CONTENT_CMS_LIST);
+  const [editingWebsite, setEditingWebsite] = useState<Website>();
+  const { data, loading, refetch } = useQuery<{
+    contentCMSList: Website[];
+  }>(CONTENT_CMS_LIST);
   const cmsList = data?.contentCMSList || [];
   const displayWebsites: Website[] = cmsList;
+  const onlyCms = cmsList.length === 1 ? cmsList[0] : null;
 
   const handleWebsiteCreatedOrUpdated = () => {
     refetch();
     setIsWebsiteDrawerOpen(false);
-    setEditingWebsite(null);
+    setEditingWebsite(undefined);
   };
 
   const handleCloseWebsiteDrawer = () => {
     setIsWebsiteDrawerOpen(false);
-    setEditingWebsite(null);
+    setEditingWebsite(undefined);
   };
 
-  const handleEditWebsite = (website: any) => {
+  const handleEditWebsite = (website: Website) => {
     setEditingWebsite(website);
     setIsWebsiteDrawerOpen(true);
   };
 
-  const handleWebsiteClick = (website: any) => {
+  const handleWebsiteClick = (website: Website) => {
     navigate(`/content/cms/${website.clientPortalId}/posts`);
   };
 
@@ -85,6 +93,12 @@ export function Cms() {
       </Button>
     </div>
   );
+
+  if (!loading && onlyCms?.clientPortalId) {
+    return (
+      <Navigate to={`/content/cms/${onlyCms.clientPortalId}/posts`} replace />
+    );
+  }
 
   return (
     <CmsLayout
