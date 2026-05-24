@@ -7,6 +7,7 @@ export interface IWebsite {
   description?: string;
   createdAt: string;
   domain?: string;
+  publicUrl?: string;
   url?: string;
   kind?: string;
   languages?: string[];
