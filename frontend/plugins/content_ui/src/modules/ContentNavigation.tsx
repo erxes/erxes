@@ -5,7 +5,7 @@ import {
   IconPlus,
   IconWorldPlus,
 } from '@tabler/icons-react';
-import { Button, NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
+import { Button, cn, NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -56,7 +56,12 @@ export const ContentNavigation = () => {
           <Sidebar.MenuItem>
             <Sidebar.MenuButton asChild isActive={isCmsActive} className="pr-14">
               <Link to={cmsPath}>
-                <IconFileText />
+                <IconFileText
+                  className={cn(
+                    'text-accent-foreground',
+                    isCmsActive && 'text-primary',
+                  )}
+                />
                 <span className="capitalize">CMS</span>
               </Link>
             </Sidebar.MenuButton>
