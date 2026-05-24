@@ -5,7 +5,7 @@ import {
   IconPlus,
   IconWorldPlus,
 } from '@tabler/icons-react';
-import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
+import { Button, NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -67,38 +67,44 @@ export const ContentNavigation = () => {
       {onlyCms ? (
         <>
           <Sidebar.MenuItem>
-            <Sidebar.MenuButton asChild isActive={isCmsActive}>
+            <Sidebar.MenuButton asChild isActive={isCmsActive} className="pr-14">
               <Link to={cmsPath}>
                 <IconFileText />
                 <span className="capitalize">CMS</span>
               </Link>
             </Sidebar.MenuButton>
-            <Sidebar.MenuAction
-              aria-label="Add CMS"
-              className="right-7 top-0.5 h-6 w-6 rounded text-primary/70 hover:bg-primary/10 hover:text-primary focus-visible:ring-1 focus-visible:ring-primary/40"
-              title="Add CMS"
-              type="button"
-              onClick={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                handleOpenWebsiteDrawer();
-              }}
-            >
-              <IconPlus className="h-4 w-4" />
-            </Sidebar.MenuAction>
-            <Sidebar.MenuAction
-              aria-label="Manage CMS"
-              className="right-1 top-0.5 h-6 w-6 rounded text-primary/70 hover:bg-primary/10 hover:text-primary focus-visible:ring-1 focus-visible:ring-primary/40"
-              title="Manage CMS"
-              type="button"
-              onClick={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                handleOpenWebsiteDrawer(onlyCms);
-              }}
-            >
-              <IconDotsVertical className="h-4 w-4" />
-            </Sidebar.MenuAction>
+            <div className="absolute inset-y-0 right-1 flex items-center gap-0.5">
+              <Button
+                aria-label="Add CMS"
+                className="h-6 w-6 p-0 text-primary/70 hover:bg-primary/10 hover:text-primary"
+                size="icon"
+                title="Add CMS"
+                type="button"
+                variant="ghost"
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  handleOpenWebsiteDrawer();
+                }}
+              >
+                <IconPlus className="h-4 w-4" />
+              </Button>
+              <Button
+                aria-label="Manage CMS"
+                className="h-6 w-6 p-0 text-primary/70 hover:bg-primary/10 hover:text-primary"
+                size="icon"
+                title="Manage CMS"
+                type="button"
+                variant="ghost"
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  handleOpenWebsiteDrawer(onlyCms);
+                }}
+              >
+                <IconDotsVertical className="h-4 w-4" />
+              </Button>
+            </div>
           </Sidebar.MenuItem>
           <WebsiteDrawer
             isOpen={isWebsiteDrawerOpen}
