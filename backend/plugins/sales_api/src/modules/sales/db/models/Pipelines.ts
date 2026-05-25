@@ -42,6 +42,11 @@ export const loadPipelineClass = (
 ) => {
   const { sendDbEventLog } = dispatcher;
 
+  const normalizePaymentTypes = (paymentTypes?: any[]) =>
+    paymentTypes?.map(({ scoreCampaign, ...paymentType }) => ({
+      ...paymentType,
+    }));
+
   class Pipeline {
     /** Get pipeline */
     public static async getPipeline(_id: string) {
@@ -60,6 +65,10 @@ export const loadPipelineClass = (
       stages?: IStageDocument[],
       userId?: string,
     ) {
+      if (doc.paymentTypes) {
+        doc.paymentTypes = normalizePaymentTypes(doc.paymentTypes);
+      }
+
       if (doc.numberSize) {
         doc.lastNum = await generateLastNum(models, doc);
       }
@@ -87,6 +96,10 @@ export const loadPipelineClass = (
       userId?: string,
     ) {
       const prevPipeline = await models.Pipelines.getPipeline(_id);
+
+      if (doc.paymentTypes) {
+        doc.paymentTypes = normalizePaymentTypes(doc.paymentTypes);
+      }
 
       if (stages) {
         await createOrUpdatePipelineStages(models, stages, _id);

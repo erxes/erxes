@@ -15,7 +15,7 @@ import { LoyaltyScoreFormValues } from '../../constants/formSchema';
 import { SelectFieldGroup } from './selects/SelectFieldGroup';
 import { SelectField } from './selects/SelectField';
 import { useQuery } from '@apollo/client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SCORE_CAMPAIGN_ATTRIBUTES_QUERY } from '../../graphql/queries/scoreCampaignAttributesQuery';
 import { ServiceConfigSheet } from './ServiceConfigSheet';
 
@@ -88,11 +88,52 @@ const FieldNameSection = ({
   ownerType: string;
 }) => {
   const fieldOrigin = form.watch('fieldOrigin') || 'new';
+  const fieldName = form.watch('fieldName') || '';
+  const fieldId = form.watch('fieldId') || '';
+  const lastNewFieldName = useRef(fieldName);
+  const lastExistingFieldId = useRef(fieldId);
+
+  useEffect(() => {
+    if (fieldOrigin === 'new') {
+      lastNewFieldName.current = fieldName;
+    }
+  }, [fieldName, fieldOrigin]);
+
+  useEffect(() => {
+    if (fieldOrigin === 'exists') {
+      lastExistingFieldId.current = fieldId;
+    }
+  }, [fieldId, fieldOrigin]);
 
   const setFieldTab = (tab: 'new' | 'exists') => {
+    if (fieldOrigin === tab) {
+      return;
+    }
+
+    if (fieldOrigin === 'new') {
+      lastNewFieldName.current = form.getValues('fieldName') || '';
+    }
+
+    if (fieldOrigin === 'exists') {
+      lastExistingFieldId.current = form.getValues('fieldId') || '';
+    }
+
     form.setValue('fieldOrigin', tab, { shouldDirty: true });
-    form.setValue('fieldName', '');
-    form.setValue('fieldId', '');
+
+    if (tab === 'new') {
+      form.setValue('fieldName', lastNewFieldName.current, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      form.setValue('fieldId', '', { shouldDirty: false });
+      return;
+    }
+
+    form.setValue('fieldId', lastExistingFieldId.current, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    form.setValue('fieldName', '', { shouldDirty: false });
   };
 
   return (
@@ -101,20 +142,22 @@ const FieldNameSection = ({
       <div className="flex gap-2">
         <button
           type="button"
-          className={`pb-2 px-1 text-sm font-medium border-b-2 transition-colors ${fieldOrigin === 'new'
-            ? 'border-primary text-primary'
-            : 'border-transparent text-muted-foreground'
-            }`}
+          className={`pb-2 px-1 text-sm font-medium border-b-2 transition-colors ${
+            fieldOrigin === 'new'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-muted-foreground'
+          }`}
           onClick={() => setFieldTab('new')}
         >
           New
         </button>
         <button
           type="button"
-          className={`pb-2 px-1 text-sm font-medium border-b-2 transition-colors ${fieldOrigin === 'exists'
-            ? 'border-primary text-primary'
-            : 'border-transparent text-muted-foreground'
-            }`}
+          className={`pb-2 px-1 text-sm font-medium border-b-2 transition-colors ${
+            fieldOrigin === 'exists'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-muted-foreground'
+          }`}
           onClick={() => setFieldTab('exists')}
         >
           Exists
@@ -128,7 +171,14 @@ const FieldNameSection = ({
           render={({ field }) => (
             <Form.Item>
               <Form.Control>
-                <Input {...field} placeholder="Enter field name" />
+                <Input
+                  {...field}
+                  onChange={(event) => {
+                    lastNewFieldName.current = event.target.value;
+                    field.onChange(event);
+                  }}
+                  placeholder="Enter field name"
+                />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -142,7 +192,10 @@ const FieldNameSection = ({
             <Form.Item>
               <SelectField.FormItem
                 value={field.value || ''}
-                onValueChange={field.onChange}
+                onValueChange={(value) => {
+                  lastExistingFieldId.current = value;
+                  field.onChange(value);
+                }}
                 contentTypes={[`core:${ownerType}`]}
                 groupId={fieldGroupId}
                 placeholder="Select field"
@@ -232,7 +285,7 @@ export const LoyaltyScoreAddMoreFields = ({
 
           <Tabs.Content value="add" className="pt-4">
             <div className="grid gap-4">
-              <div className='w-1/1'>
+              <div className="w-1/1">
                 <Form.Field
                   control={form.control}
                   name="add.placeholder"
@@ -258,7 +311,7 @@ export const LoyaltyScoreAddMoreFields = ({
                   )}
                 />
               </div>
-              <div  className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <Form.Field
                   control={form.control}
                   name="add.currencyRatio"
@@ -295,7 +348,7 @@ export const LoyaltyScoreAddMoreFields = ({
 
           <Tabs.Content value="subtract" className="pt-4">
             <div className="grid gap-4">
-              <div className='w-1/1'>
+              <div className="w-1/1">
                 <Form.Field
                   control={form.control}
                   name="subtract.placeholder"
@@ -322,7 +375,7 @@ export const LoyaltyScoreAddMoreFields = ({
                 />
               </div>
             </div>
-            <div className='grid grid-cols-2 gap-4'>
+            <div className="grid grid-cols-2 gap-4">
               <Form.Field
                 control={form.control}
                 name="subtract.currencyRatio"

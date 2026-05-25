@@ -47,7 +47,7 @@ export const PIPELINE_CREATE_SCHEMA = z.object({
             })
             .optional(),
         ),
-        scoreCampaign: z.string().optional(),
+        scoreCampaignId: z.string().optional(),
       }),
     )
     .optional()
@@ -61,7 +61,7 @@ export const PIPELINE_CREATE_SCHEMA = z.object({
         title: z.string().min(1, 'Title is required'),
         icon: z.string().min(1, 'Icon is required'),
         config: z.string().optional(),
-        scoreCampaign: z.string().optional(),
+        scoreCampaignId: z.string().optional(),
       }),
     )
     .optional()

@@ -11,6 +11,15 @@ import {
   resolvePlaceholderValue,
   safeEvalMath,
 } from '@/score/utils';
+import {
+  applyScoreChange,
+  getOwnerScoreUpdate,
+  getOwnerScoreValue,
+  getSignedChangeScore,
+  prepareScoreLogChange,
+  refundScoreChange,
+  updateOwnerScoreCache,
+} from '@/score/services/scoreLedger';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
@@ -59,17 +68,105 @@ export interface IScoreCampaignModel extends Model<IScoreCampaignDocument> {
 }
 
 export const getOwnerFieldScore = (owner: any, fieldId?: string) => {
-  if (!fieldId) {
-    return Number(owner?.score) || 0;
+  return getOwnerScoreValue(owner, fieldId);
+};
+
+const calculateCampaignChangeScore = ({
+  campaign,
+  actionMethod,
+  target,
+}: {
+  campaign: any;
+  actionMethod: 'add' | 'subtract';
+  target: any;
+}) => {
+  const { currencyRatio = 1 } = campaign[actionMethod] || {};
+  const placeholder = campaign[actionMethod]?.placeholder || '';
+
+  if (!placeholder.trim() && actionMethod === 'subtract') {
+    return Number(target?.paymentAmount) || 0;
   }
 
-  return (
-    Number(
-      owner?.propertiesData?.[fieldId] ??
-      (owner?.customFieldsData || []).find(({ field }) => field === fieldId)
-        ?.value,
-    ) || 0
+  const expression = placeholder.replace(
+    /\{\{\s*([^}]+)\s*\}\}/g,
+    (_match, attribute) =>
+      String(resolvePlaceholderValue(target, String(attribute).trim())),
   );
+
+  return (safeEvalMath(expression) || 0) * Number(currencyRatio || 1) || 0;
+};
+
+const getCampaignStageStatus = (campaign: any, stageId?: string) => {
+  if (!stageId) {
+    return undefined;
+  }
+
+  const rules = campaign?.additionalConfig?.cardBasedRule || [];
+  const stageIds = rules.flatMap((rule: any) => rule.stageIds || []);
+  const refundStageIds = rules.flatMap(
+    (rule: any) => rule.refundStageIds || [],
+  );
+
+  if (stageIds.includes(stageId)) {
+    return 'stage';
+  }
+
+  if (refundStageIds.includes(stageId)) {
+    return 'refund';
+  }
+
+  return undefined;
+};
+
+const hasCampaignStageRules = (campaign: any) =>
+  (campaign?.additionalConfig?.cardBasedRule || []).some(
+    (rule: any) =>
+      (rule.stageIds || []).length || (rule.refundStageIds || []).length,
+  );
+
+const findActiveScoreLog = async ({
+  models,
+  targetId,
+  ownerId,
+  ownerType,
+  campaignId,
+  action,
+}: {
+  models: IModels;
+  targetId?: string;
+  ownerId: string;
+  ownerType: string;
+  campaignId: string;
+  action: 'add' | 'subtract';
+}) => {
+  if (!targetId) {
+    return null;
+  }
+
+  const scoreLogs = await models.ScoreLogs.find({
+    targetId,
+    ownerId,
+    ownerType,
+    campaignId,
+    action,
+  }).sort({ createdAt: -1 });
+
+  for (const scoreLog of scoreLogs) {
+    const refundLog = await models.ScoreLogs.exists({
+      targetId,
+      ownerId,
+      ownerType,
+      campaignId,
+      action: 'refund',
+      sourceScoreLogId: scoreLog._id,
+    });
+
+    if (!refundLog) {
+      return scoreLog;
+    }
+  }
+
+  return null;
 };
 
 export const loadScoreCampaignClass = (
@@ -169,9 +266,14 @@ export const loadScoreCampaignClass = (
       return result;
     }
 
-    public static async removeScoreCampaigns(_ids: string[], user: IUserDocument) {
+    public static async removeScoreCampaigns(
+      _ids: string[],
+      user: IUserDocument,
+    ) {
       const idsArray = Array.isArray(_ids) ? _ids : [_ids];
-      const prevDocs = await models.ScoreCampaigns.find({ _id: { $in: idsArray } }).lean();
+      const prevDocs = await models.ScoreCampaigns.find({
+        _id: { $in: idsArray },
+      }).lean();
 
       const result = await models.ScoreCampaigns.updateMany(
         { _id: { $in: idsArray } },
@@ -205,7 +307,7 @@ export const loadScoreCampaignClass = (
 
       const campaign = await models.ScoreCampaigns.findOne({
         _id: campaignId,
-        status: 'published',
+        status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
       });
 
       if (!campaign) {
@@ -218,20 +320,11 @@ export const loadScoreCampaignClass = (
         );
       }
 
-      const { currencyRatio = 0 } = campaign?.subtract || {};
-      let placeholder = campaign?.subtract?.placeholder || '';
-
-      const matches = (placeholder || '').match(/\{\{\s*([^}]+)\s*\}\}/g);
-      const attributes = (matches || []).map((match) =>
-        match.replace(/\{\{\s*|\s*\}\}/g, ''),
-      );
-
-      for (const attribute of attributes) {
-        placeholder = resolvePlaceholderValue(target, attribute);
-      }
-
-      let changeScore =
-        (safeEvalMath(placeholder) || 0) * Number(currencyRatio) || 0;
+      let changeScore = calculateCampaignChangeScore({
+        campaign,
+        actionMethod: 'subtract',
+        target,
+      });
 
       let oldScore = Number(owner?.score) || 0;
 
@@ -264,6 +357,7 @@ export const loadScoreCampaignClass = (
         ownerId,
         campaignId,
         target,
+        oldTarget,
         actionMethod,
         serviceName,
         targetId,
@@ -281,7 +375,7 @@ export const loadScoreCampaignClass = (
 
       const campaign = await models.ScoreCampaigns.findOne({
         _id: campaignId,
-        status: 'published',
+        status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
       });
 
       if (!campaign) {
@@ -292,6 +386,54 @@ export const loadScoreCampaignClass = (
         throw new Error(
           'Owner type is not the same as the owner type of the campaign',
         );
+      }
+
+      const calculationTarget = {
+        ...target,
+        [ownerType]: owner,
+      };
+      const oldStageStatus = getCampaignStageStatus(
+        campaign,
+        oldTarget?.stageId,
+      );
+      const newStageStatus = getCampaignStageStatus(
+        campaign,
+        calculationTarget?.stageId,
+      );
+      const activeScoreLog = await findActiveScoreLog({
+        models,
+        targetId,
+        ownerId,
+        ownerType,
+        campaignId: campaign._id,
+        action: actionMethod,
+      });
+      const hasStageRules = hasCampaignStageRules(campaign);
+
+      if (hasStageRules && newStageStatus !== 'stage') {
+        if (!activeScoreLog) {
+          return;
+        }
+
+        const { log } = await refundScoreChange({
+          models,
+          subdomain,
+          doc: {
+            targetId,
+            ownerType,
+            ownerId,
+            sourceScoreLogId: activeScoreLog._id,
+            netTargetAddsForSubtract: false,
+            description:
+              newStageStatus === 'refund'
+                ? 'Refund score campaign'
+                : `Clear score campaign from ${
+                    oldStageStatus || 'undefined'
+                  } stage`,
+          },
+        });
+
+        return log;
       }
 
       if (campaign.onlyClientPortal && ownerType === 'customer') {
@@ -312,28 +454,30 @@ export const loadScoreCampaignClass = (
         }
       }
 
-      const { currencyRatio = 0 } = campaign[actionMethod] || {};
-      let placeholder = campaign[actionMethod]?.placeholder || ''
+      const changeScore = calculateCampaignChangeScore({
+        campaign,
+        actionMethod,
+        target: calculationTarget,
+      });
 
-      const matches = (placeholder || '').match(/\{\{\s*([^}]+)\s*\}\}/g);
-      const attributes = [
-        ...new Set(
-          (matches || []).map((match) => match.replace(/\{\{\s*|\s*\}\}/g, '')),
-        ),
-      ];
-
-      for (const attribute of attributes) {
-        const placeholderValue = resolvePlaceholderValue(target, attribute);
-
-        placeholder = placeholder.replace(
-          new RegExp(`{{ ${attribute} }}`, 'g'),
-          placeholderValue,
-        );
-      }
-
-      const changeScore =
-        (safeEvalMath(placeholder) || 0) * Number(currencyRatio) || 0;
       if (!changeScore) {
+        if (activeScoreLog) {
+          const { log } = await refundScoreChange({
+            models,
+            subdomain,
+            doc: {
+              targetId,
+              ownerType,
+              ownerId,
+              sourceScoreLogId: activeScoreLog._id,
+              netTargetAddsForSubtract: false,
+              description: 'Clear zero score campaign',
+            },
+          });
+
+          return log;
+        }
+
         return;
       }
 
@@ -343,84 +487,63 @@ export const loadScoreCampaignClass = (
         oldScore = getOwnerFieldScore(owner, campaign.fieldId);
       }
 
-      const scoreLog = await models.ScoreLogs.findOne({
-        targetId,
-        ownerId,
-        ownerType,
-        campaignId: campaign._id,
-        action: actionMethod,
-      });
+      const scoreLog = activeScoreLog;
 
       if (scoreLog) {
-        const prevChangeScore = Number(scoreLog.changeScore) || 0;
+        const prevChangeScore = Math.abs(Number(scoreLog.changeScore) || 0);
 
         if (changeScore === prevChangeScore) {
           return scoreLog;
         }
 
-        const scoreDifference = changeScore - prevChangeScore;
-        const recalculatedScore =
-          actionMethod === 'subtract'
-            ? oldScore - scoreDifference
-            : oldScore + scoreDifference;
+        const nextPreparedChange = prepareScoreLogChange({
+          action: actionMethod,
+          signedChangeScore:
+            actionMethod === 'subtract' ? -changeScore : changeScore,
+        });
+        const scoreDifference =
+          nextPreparedChange.signedChangeScore - getSignedChangeScore(scoreLog);
+        const recalculatedScore = oldScore + scoreDifference;
 
-        if (actionMethod === 'subtract' && recalculatedScore < 0) {
+        if (recalculatedScore < 0) {
           throw new Error('There has no enough score to subtract');
         }
 
-        await this.updateOwnerScore({
+        await updateOwnerScoreCache({
+          subdomain,
           ownerId,
           ownerType,
-          ...(campaign.fieldId
-            ? {
-              updatedCustomFieldsData: {
-                ...owner?.propertiesData,
-                [campaign.fieldId]: recalculatedScore,
-              },
-            }
-            : { updatedScore: recalculatedScore }),
+          ...getOwnerScoreUpdate({
+            owner,
+            fieldId: campaign.fieldId,
+            newScore: recalculatedScore,
+          }),
         });
 
-        scoreLog.changeScore = changeScore;
+        scoreLog.changeScore = nextPreparedChange.changeScore;
         await scoreLog.save();
 
         return scoreLog;
       }
 
-      const newScore =
-        actionMethod === 'subtract'
-          ? oldScore - changeScore
-          : oldScore + changeScore;
-
-      if (actionMethod === 'subtract' && newScore < 0) {
-        throw new Error('There has no enough score to subtract');
-      }
-
-      const updatedPropertiesData = campaign.fieldId
-        ? {
-          ...owner?.propertiesData,
-          [campaign.fieldId]: newScore,
-        }
-        : owner?.propertiesData || {};
-
-      await this.updateOwnerScore({
-        ownerId,
-        ownerType,
-        ...(campaign.fieldId
-          ? { updatedCustomFieldsData: updatedPropertiesData }
-          : { updatedScore: newScore }),
+      const { log } = await applyScoreChange({
+        models,
+        subdomain,
+        doc: {
+          owner,
+          ownerId,
+          ownerType,
+          campaignId: campaign._id,
+          fieldId: campaign.fieldId,
+          serviceName,
+          targetId,
+          action: actionMethod,
+          signedChangeScore:
+            actionMethod === 'subtract' ? -changeScore : changeScore,
+        },
       });
 
-      return await models.ScoreLogs.create({
-        ownerId,
-        ownerType,
-        changeScore,
-        createdAt: new Date(),
-        campaignId: campaign._id,
-        serviceName,
-        targetId,
-        action: actionMethod,
-      });
+      return log;
     }
 
     public static async refundLoyaltyScore(
@@ -428,106 +551,17 @@ export const loadScoreCampaignClass = (
       ownerType: string,
       ownerId: string,
     ) {
-      if (!targetId || !ownerId || !ownerType) {
-        throw new Error('Please provide owner & target');
-      }
-
-      let scoreLog = await models.ScoreLogs.findOne({
-        targetId,
-        ownerId,
-        action: 'subtract',
-      });
-
-      if (!scoreLog) {
-        scoreLog = await models.ScoreLogs.findOne({
+      const { log } = await refundScoreChange({
+        models,
+        subdomain,
+        doc: {
           targetId,
+          ownerType,
           ownerId,
-          action: 'add',
-        });
-
-        if (!scoreLog) {
-          throw new Error('Cannot find score log on this target');
-        }
-      }
-
-      const refundScoreLog = await models.ScoreLogs.exists({
-        targetId,
-        ownerId,
-        action: 'refund',
-        sourceScoreLogId: scoreLog._id,
+        },
       });
 
-      if (refundScoreLog) {
-        throw new Error(
-          'Cannot refund loyalty score cause already refunded loyalty score',
-        );
-      }
-
-      const { changeScore, campaignId, action } = scoreLog;
-
-      const campaign = await models.ScoreCampaigns.findOne({ _id: campaignId });
-      if (!campaign) {
-        throw new Error(
-          'Error occurred while retrieving the score campaign from the score log for the target and owner.',
-        );
-      }
-
-      let refundAmount: number;
-
-      if (action === 'subtract') {
-        const addedScoreLogs = await models.ScoreLogs.find({
-          targetId,
-          ownerId,
-          action: 'add',
-        });
-
-        if (addedScoreLogs && addedScoreLogs.length > 0) {
-          const totalAddedScore = addedScoreLogs.reduce(
-            (acc, curr) => acc + curr.changeScore,
-            0,
-          );
-          refundAmount = changeScore - totalAddedScore;
-        } else {
-          refundAmount = changeScore;
-        }
-      } else if (action === 'add') {
-        refundAmount = -changeScore;
-      } else {
-        throw new Error(`Unsupported action type for refund: ${action}`);
-      }
-
-      const { fieldId } = campaign;
-
-      const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
-
-      if (!owner) {
-        throw new Error('Cannot find owner');
-      }
-
-      await this.updateOwnerScore({
-        ownerId,
-        ownerType,
-        ...(fieldId
-          ? {
-            updatedCustomFieldsData: {
-              ...owner?.propertiesData,
-              [fieldId]: getOwnerFieldScore(owner, fieldId) + refundAmount,
-            },
-          }
-          : { updatedScore: getOwnerFieldScore(owner) + refundAmount }),
-      });
-
-      return await models.ScoreLogs.create({
-        ownerId,
-        ownerType,
-        changeScore: refundAmount,
-        createdAt: new Date(),
-        campaignId: campaign._id,
-        serviceName: scoreLog.serviceName,
-        targetId,
-        action: 'refund',
-        sourceScoreLogId: scoreLog._id,
-      });
+      return log;
     }
 
     static async updateOwnerScore({
@@ -541,33 +575,12 @@ export const loadScoreCampaignClass = (
       updatedCustomFieldsData?: Record<string, any>;
       updatedScore?: number;
     }) {
-      const actionsObj = {
-        user: { module: 'users', action: 'updateOne' },
-        customer: { module: 'customers', action: 'updateMany' },
-        company: { module: 'companies', action: 'updateMany' },
-      };
-
-      const $set: Record<string, any> = {};
-
-      if (updatedCustomFieldsData !== undefined) {
-        $set.propertiesData = updatedCustomFieldsData;
-      }
-
-      if (updatedScore !== undefined) {
-        $set.score = updatedScore;
-      }
-
-      return await sendTRPCMessage({
+      return await updateOwnerScoreCache({
         subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: actionsObj[ownerType].module,
-        action: actionsObj[ownerType].action,
-        input: {
-          selector: { _id: ownerId },
-          modifier: { $set },
-        },
-        defaultValue: null,
+        ownerId,
+        ownerType,
+        updatedCustomFieldsData,
+        updatedScore,
       });
     }
   }

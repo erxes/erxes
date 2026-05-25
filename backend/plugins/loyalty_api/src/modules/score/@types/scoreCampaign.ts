@@ -37,6 +37,7 @@ export interface DoCampaignTypes {
   ownerId: string;
   campaignId: string;
   target: any;
+  oldTarget?: any;
   targetId?: string;
   actionMethod: 'add' | 'subtract';
   serviceName?: string;
