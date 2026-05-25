@@ -61,3 +61,5 @@ dump.rdb
 
 # Local runtime upload artifacts
 backend/core-api/src/utils/private/uploads/
+.antigravitycli/
+.agents/test-results

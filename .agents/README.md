@@ -18,11 +18,11 @@ Before doing anything in this repo, an AI **must** read three files in order:
 
 | If the developer says... | You do... |
 |---|---|
-| `/sales "<wish>"` (Claude Code) | Enter the 7-phase workflow. See [WORKFLOW.md](./WORKFLOW.md). Orchestrator at [`.claude/commands/sales.md`](../.claude/commands/sales.md). |
-| `erxes-wish "<wish>"` piped in (any AI tool) | The wrapper CLI at [`bin/erxes-wish.mjs`](./bin/erxes-wish.mjs) has already constructed a complete briefing — follow it. |
-| "Add/change X in sales" without invocation | Tell the developer about `erxes-wish "<wish>"` (works with any AI tool) or `/sales` (Claude Code). If they decline tool-assist, manually follow [WORKFLOW.md](./WORKFLOW.md). |
-| "Just answer a question about sales" | OK — no workflow needed for pure Q&A. Use [`plugins/sales/`](./plugins/sales/) + [`docs/sales/`](./docs/sales/). |
-| "Touch a non-sales plugin" | Stop. The system is sales-only right now. Ask the developer to confirm they want to ship a non-sales feature without the workflow guards. |
+| `/sales "<wish>"`, `/frontline "<wish>"`, or `/operation "<wish>"` (Claude Code) | Enter the 7-phase workflow. See [WORKFLOW.md](./WORKFLOW.md). Orchestrator at [`.claude/commands/sales.md`](../.claude/commands/sales.md), [`.claude/commands/frontline.md`](../.claude/commands/frontline.md), or [`.claude/commands/operation.md`](../.claude/commands/operation.md). |
+| `erxes-wish "<wish>"` piped in (any AI tool) | The wrapper CLI has already constructed a complete briefing — follow it. |
+| "Add/change X in sales/frontline/operation" without invocation | Tell the developer about `erxes-wish "<wish>"` (works with any AI tool) or `/sales` / `/frontline` / `/operation` (Claude Code). If they decline tool-assist, manually follow [WORKFLOW.md](./WORKFLOW.md). |
+| "Just answer a question about sales/frontline/operation" | OK — no workflow needed for pure Q&A. Use [`plugins/sales/`](./plugins/sales/) / [`plugins/frontline/`](./plugins/frontline/) / [`plugins/operation/`](./plugins/operation/) + docs. |
+| "Touch another plugin" | Stop. The system is sales, frontline, and operation-only right now. Ask the developer to confirm they want to ship a non-supported feature without the workflow guards. |
 
 ### For the developer — tool-agnostic invocation
 
@@ -41,14 +41,14 @@ The `--silent` flag suppresses pnpm's `> erxes-wish` preamble so output is clean
 
 | Task shape | Go to |
 |---|---|
-| Pick a skill for the wish | [`skills/sales/`](./skills/sales/) — index in [`skills/_template.md`](./skills/_template.md) |
-| Understand the Sales codebase | [`docs/sales/sales-plugin-map.md`](./docs/sales/sales-plugin-map.md) |
-| Find files for a Sales module | [`plugins/sales/INDEX.md`](./plugins/sales/INDEX.md) + [`plugins/sales/modules/`](./plugins/sales/modules/) |
-| Look up a Deal / Pipeline / Stage term | [`memory/glossary.md`](./memory/glossary.md) |
+| Pick a skill for the wish | [`skills/sales/`](./skills/sales/), [`skills/frontline/`](./skills/frontline/), or [`skills/operation/`](./skills/operation/) |
+| Understand the codebase layout | [`docs/sales/sales-plugin-map.md`](./docs/sales/sales-plugin-map.md) / [`docs/frontline/frontline-plugin-map.md`](./docs/frontline/frontline-plugin-map.md) / [`docs/operation/operation-plugin-map.md`](./docs/operation/operation-plugin-map.md) |
+| Find files for a plugin module | [`plugins/sales/INDEX.md`](./plugins/sales/INDEX.md) (Sales), [`plugins/frontline/INDEX.md`](./plugins/frontline/INDEX.md) (Frontline), or [`plugins/operation/INDEX.md`](./plugins/operation/INDEX.md) (Operation) |
+| Look up a Deal / Stage / Conversation term | [`memory/glossary.md`](./memory/glossary.md) |
 | Look up stack / port / version | [`memory/stack.md`](./memory/stack.md) |
 | Look up why something was decided | [`memory/decisions.md`](./memory/decisions.md) |
 | Check forbidden patterns before claiming done | [`SLOP-CHECKLIST.md`](./SLOP-CHECKLIST.md) |
-| Run verification | [`evals/run.sh`](./evals/run.sh) — `evals/run.sh sales` |
+| Run verification | [`evals/run.sh`](./evals/run.sh) — `evals/run.sh sales` or `evals/run.sh frontline` or `evals/run.sh operation` |
 | See what AI got wrong here before | [`memory/lessons.md`](./memory/lessons.md) |
 | Run Playwright behavioral tests | `pnpm test` from `.agents/` (config: [`playwright.config.ts`](./playwright.config.ts)) |
 | Replicate this system for another plugin | [`EXTENDING.md`](./EXTENDING.md) |

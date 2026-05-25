@@ -13,12 +13,14 @@ You are working in the **erxes** monorepo — an Nx + pnpm microservices platfor
 | Developer's intent | Do this |
 |---|---|
 | Wishes a Sales feature ("add X to Deal", "show Y on the kanban", "filter by Z") | Construct a full briefing with `pnpm --silent erxes-wish "<wish>"` and follow the 7-phase workflow at [`.agents/WORKFLOW.md`](./.agents/WORKFLOW.md). |
-| Wishes a feature in another plugin (operation, frontline, etc.) | The system is **sales-only today**. Tell the developer; do not invent a workflow. See [`.agents/EXTENDING.md`](./.agents/EXTENDING.md). |
+| Wishes a Frontline feature ("add X to Conversation", "show Y on the inbox", "filter by Z") | Construct a full briefing with `pnpm --silent erxes-wish "<wish>"` and follow the 7-phase workflow at [`.agents/WORKFLOW.md`](./.agents/WORKFLOW.md). |
+| Wishes an Operation feature ("add X to Task", "show Y on the timeline", "filter by Z") | Construct a full briefing with `pnpm --silent erxes-wish "<wish>"` and follow the 7-phase workflow at [`.agents/WORKFLOW.md`](./.agents/WORKFLOW.md). |
+| Wishes a feature in another plugin (accounting, etc.) | The system is **sales, frontline, and operation-only today**. Tell the developer; do not invent a workflow. See [`.agents/EXTENDING.md`](./.agents/EXTENDING.md). |
 | Asks a question about the codebase | Read [`.agents/README.md`](./.agents/README.md) — routing table to docs, plugin maps, glossary. |
-| Asks "where is X file" | [`.agents/plugins/sales/INDEX.md`](./.agents/plugins/sales/INDEX.md) + [`.agents/plugins/sales/modules/`](./.agents/plugins/sales/modules/). |
+| Asks "where is X file" | [`.agents/plugins/sales/INDEX.md`](./.agents/plugins/sales/INDEX.md) / [modules/](/.agents/plugins/sales/modules/), [`.agents/plugins/frontline/INDEX.md`](./.agents/plugins/frontline/INDEX.md) / [modules/](/.agents/plugins/frontline/modules/), or [`.agents/plugins/operation/INDEX.md`](./.agents/plugins/operation/INDEX.md) / [modules/](/.agents/plugins/operation/modules/). |
 | Asks "what does Deal/Pipeline/Stage mean" | [`.agents/memory/glossary.md`](./.agents/memory/glossary.md). |
 | Asks how to fix slop / what NOT to do | [`.agents/SLOP-CHECKLIST.md`](./.agents/SLOP-CHECKLIST.md). |
-| Asks to verify a change works | `.agents/evals/run.sh sales` — the "done" oracle. |
+| Asks to verify a change works | `.agents/evals/run.sh sales` or `.agents/evals/run.sh frontline` or `.agents/evals/run.sh operation` — the "done" oracle. |
 
 ## Hard rules — non-negotiable (full set in [`.agents/SYSTEM-PROMPT.md`](./.agents/SYSTEM-PROMPT.md))
 
