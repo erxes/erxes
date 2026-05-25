@@ -11,6 +11,7 @@ import {
 import { scoreLogSchema } from '@/score/db/definitions/scoreLog';
 import {
   buildSignedScoreExpression,
+  fixScoreNumber,
   getOwnerScoreValue,
   prepareScoreLogChange,
   updateOwnerScoreCache,
@@ -30,7 +31,7 @@ export interface IScoreLogModel extends Model<IScoreLogDocument> {
   getScoreLog(_id: string): Promise<IScoreLogDocument>;
   getScoreLogs(doc: IScoreLogParams): Promise<IScoreLogDocument>;
   getStatistic(doc: IScoreLogParams): Promise<IScoreLogDocument>;
-  changeScore(doc: IScoreLog): Promise<IScoreLogDocument>;
+  changeScore(doc: IScoreLog): Promise<IScoreLogDocument | null>;
   changeOwnersScore(doc): Promise<IScoreLogDocument>;
 }
 
@@ -333,7 +334,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       const { pluginName, moduleName } = SCORE_OWNER_TYPES[ownerType] || {};
 
-      const score = Number(changeScore);
+      const score = fixScoreNumber(Number(changeScore));
       const ownerFilter = { _id: { $in: ownerIds } };
 
       const owners = await sendTRPCMessage({
@@ -375,7 +376,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       const commonDoc = {
         ownerType,
-        changeScore: score,
+        changeScore: fixScoreNumber(score),
         createdAt: new Date(),
         description,
         createdBy,
@@ -399,11 +400,14 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         campaignId,
         targetId,
         serviceName,
+        action,
         amount,
         quantity,
       } = doc;
 
-      const score = Number(changeScore);
+      let score = fixScoreNumber(Number(changeScore));
+      const scoreAction =
+        action || (score < 0 ? SCORE_ACTION.SUBTRACT : SCORE_ACTION.ADD);
       const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
 
       if (!owner) {
@@ -414,7 +418,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         const target = await models.ScoreLogs.exists({
           targetId,
           serviceName,
-          action: SCORE_ACTION.ADD,
+          action: scoreAction,
         });
 
         if (target) {
@@ -441,7 +445,15 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         campaigns,
       );
 
-      const newScore = (Number(ownerScore) || 0) + score;
+      if (scoreAction === SCORE_ACTION.SET) {
+        score = fixScoreNumber(score - (Number(ownerScore) || 0));
+
+        if (score === 0) {
+          return null;
+        }
+      }
+
+      const newScore = fixScoreNumber((Number(ownerScore) || 0) + score);
 
       if (score < 0 && newScore < 0) {
         throw new Error(`score are not enough`);
@@ -464,6 +476,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       }
 
       const preparedChange = prepareScoreLogChange({
+        action: scoreAction as any,
         signedChangeScore: score,
       });
 

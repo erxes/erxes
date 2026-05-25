@@ -130,7 +130,7 @@ const checkScoreAviableSubtractInput = z
   .passthrough();
 
 const updateScoreInput = z.object({
-  action: z.enum(['add', 'subtract']),
+  action: z.enum(['add', 'subtract', 'set']),
   ownerId: z.string(),
   ownerType: z.string(),
   campaignId: z.string(),
@@ -416,7 +416,9 @@ export const appRouter = t.router({
               stageIds: { $in: [input.stageId] },
             },
           },
-        }).lean();
+        })
+          .sort({ order: 1, createdAt: 1 })
+          .lean();
       }),
 
     updateScore: t.procedure

@@ -4,7 +4,7 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
 
-export type ScoreAction = 'add' | 'subtract' | 'refund';
+export type ScoreAction = 'add' | 'subtract' | 'set' | 'refund';
 export type ScoreStorageMode = 'legacy' | 'signed';
 
 export type OwnerScoreUpdate = {
@@ -70,6 +70,13 @@ export type ScoreBalanceQuery = {
   campaignId?: string;
   campaignIds?: string[];
   fieldId?: string;
+};
+
+export const fixScoreNumber = (value: number, fractionDigits = 4) => {
+  const numberValue = Number(value) || 0;
+  const multiplier = 10 ** fractionDigits;
+
+  return Math.round((numberValue + Number.EPSILON) * multiplier) / multiplier;
 };
 
 export const getOwnerScoreValue = (owner: ScoreOwner, fieldId?: string) => {
@@ -145,20 +152,28 @@ export const prepareScoreLogChange = ({
   signedChangeScore: number;
   storageMode?: ScoreStorageMode;
 }) => {
-  const resolvedAction = resolveScoreAction(signedChangeScore, action);
+  const normalizedSignedChangeScore = fixScoreNumber(signedChangeScore);
+  const resolvedAction = resolveScoreAction(
+    normalizedSignedChangeScore,
+    action,
+  );
 
-  if (storageMode === 'signed' || resolvedAction === SCORE_ACTION.REFUND) {
+  if (
+    storageMode === 'signed' ||
+    resolvedAction === SCORE_ACTION.REFUND ||
+    resolvedAction === SCORE_ACTION.SET
+  ) {
     return {
       action: resolvedAction,
-      changeScore: signedChangeScore,
-      signedChangeScore,
+      changeScore: normalizedSignedChangeScore,
+      signedChangeScore: normalizedSignedChangeScore,
     };
   }
 
   return {
     action: resolvedAction,
-    changeScore: Math.abs(signedChangeScore),
-    signedChangeScore,
+    changeScore: fixScoreNumber(Math.abs(normalizedSignedChangeScore)),
+    signedChangeScore: normalizedSignedChangeScore,
   };
 };
 
@@ -365,7 +380,7 @@ export const applyScoreChange = async ({
     throw new Error('Owner not found');
   }
 
-  const signedChangeScore = getSignedChangeFromInput(doc);
+  const signedChangeScore = fixScoreNumber(getSignedChangeFromInput(doc));
 
   if (!signedChangeScore) {
     throw new Error('Score change must not be zero');
@@ -373,7 +388,7 @@ export const applyScoreChange = async ({
 
   const fieldId = await getCampaignFieldId(models, campaignId, doc.fieldId);
   const previousScore = getOwnerScoreValue(owner, fieldId);
-  const newScore = previousScore + signedChangeScore;
+  const newScore = fixScoreNumber(previousScore + signedChangeScore);
 
   if (preventNegativeBalance && newScore < 0) {
     throw new Error('There has no enough score to subtract');

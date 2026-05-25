@@ -22,6 +22,7 @@ import {
   SCORE_ACTION,
   SCORE_CAMPAIGN_STATUSES,
 } from '~/modules/score/constants';
+import { fixScoreNumber } from '~/modules/score/services/scoreLedger';
 import { VOUCHER_STATUS } from '~/modules/voucher/constants';
 import { collections } from '../constants';
 
@@ -653,7 +654,10 @@ export const handleScore = async (models: IModels, data) => {
   if (scoreCampaign.ownerType !== ownerType)
     throw new Error('Mismatching owner type');
 
-  const config = scoreCampaign[action as 'add' | 'subtract'];
+  const config = (scoreCampaign as any)[action as 'add' | 'subtract' | 'set'];
+  if (!config) {
+    throw new Error('Score campaign action config not found');
+  }
   let placeholder = config.placeholder;
   const attributes = generateAttributes(placeholder);
 
@@ -676,18 +680,23 @@ export const handleScore = async (models: IModels, data) => {
   }
 
   const scoreValue = safeEval(placeholder, scope);
-  const scoreToChange = scoreValue / Number(config.currencyRatio);
+  const scoreToChange = fixScoreNumber(
+    scoreValue / Number(config.currencyRatio),
+  );
 
   await models.ScoreLogs.changeScore({
     ownerId,
     ownerType,
     changeScore:
-      action === SCORE_ACTION.SUBTRACT
+      action === SCORE_ACTION.SET
+        ? scoreToChange
+        : action === SCORE_ACTION.SUBTRACT
         ? -Math.abs(scoreToChange)
         : Math.abs(scoreToChange),
     description,
     createdBy,
     campaignId,
+    action,
     targetId,
     serviceName,
     amount,
@@ -825,7 +834,9 @@ const getSalesDealStageCampaigns = async ({
   return models.ScoreCampaigns.find({
     status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
     $or,
-  }).lean();
+  })
+    .sort({ order: 1, createdAt: 1 })
+    .lean();
 };
 
 const getOwnerIdByCampaign = ({
@@ -845,6 +856,20 @@ const getOwnerIdByCampaign = ({
       ownerHints[ownerType] ||
       (ownerType === 'user' ? target?.userId : undefined),
   };
+};
+
+const getStageCampaignActionMethod = (
+  campaign: any,
+): 'add' | 'subtract' | 'set' => {
+  if (campaign?.set?.placeholder?.trim()) {
+    return 'set';
+  }
+
+  if (campaign?.add?.placeholder?.trim()) {
+    return 'add';
+  }
+
+  return 'add';
 };
 
 const uniqBy = (items: any[], key: (item: any) => string) =>
@@ -929,6 +954,7 @@ const consumeSalesDealScoreChange = async ({
     models,
     contexts: [oldContext, newContext],
   });
+
   for (const campaign of stageCampaigns) {
     const { ownerType, ownerId } = getOwnerIdByCampaign({
       campaign,
@@ -947,7 +973,7 @@ const consumeSalesDealScoreChange = async ({
         campaignId: campaign._id,
         target: calculationTarget,
         oldTarget,
-        actionMethod: 'add',
+        actionMethod: getStageCampaignActionMethod(campaign),
         serviceName: input.serviceName || 'sales',
         targetId: targetId || target._id,
       }),

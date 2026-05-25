@@ -13,6 +13,7 @@ import {
 } from '@/score/utils';
 import {
   applyScoreChange,
+  fixScoreNumber,
   getOwnerScoreUpdate,
   getOwnerScoreValue,
   getSignedChangeScore,
@@ -77,7 +78,7 @@ const calculateCampaignChangeScore = ({
   target,
 }: {
   campaign: any;
-  actionMethod: 'add' | 'subtract';
+  actionMethod: 'add' | 'subtract' | 'set';
   target: any;
 }) => {
   const { currencyRatio = 1 } = campaign[actionMethod] || {};
@@ -93,7 +94,9 @@ const calculateCampaignChangeScore = ({
       String(resolvePlaceholderValue(target, String(attribute).trim())),
   );
 
-  return (safeEvalMath(expression) || 0) * Number(currencyRatio || 1) || 0;
+  return fixScoreNumber(
+    (safeEvalMath(expression) || 0) * Number(currencyRatio || 1) || 0,
+  );
 };
 
 const getCampaignStageStatus = (campaign: any, stageId?: string) => {
@@ -137,7 +140,7 @@ const findActiveScoreLog = async ({
   ownerId: string;
   ownerType: string;
   campaignId: string;
-  action: 'add' | 'subtract';
+  action: 'add' | 'subtract' | 'set';
 }) => {
   if (!targetId) {
     return null;
@@ -368,6 +371,7 @@ export const loadScoreCampaignClass = (
       }
 
       const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
+      console.log('ownerrrrrr: ', owner);
 
       if (!owner) {
         throw new Error('Owner not found');
@@ -454,13 +458,13 @@ export const loadScoreCampaignClass = (
         }
       }
 
-      const changeScore = calculateCampaignChangeScore({
+      let changeScore = calculateCampaignChangeScore({
         campaign,
         actionMethod,
         target: calculationTarget,
       });
 
-      if (!changeScore) {
+      if (!changeScore && actionMethod !== 'set') {
         if (activeScoreLog) {
           const { log } = await refundScoreChange({
             models,
@@ -487,23 +491,41 @@ export const loadScoreCampaignClass = (
         oldScore = getOwnerFieldScore(owner, campaign.fieldId);
       }
 
+      if (actionMethod === 'set') {
+        if (changeScore === oldScore) {
+          return activeScoreLog || undefined;
+        }
+
+        changeScore = fixScoreNumber(changeScore - oldScore);
+      }
+
       const scoreLog = activeScoreLog;
+
+      if (!changeScore) {
+        return scoreLog || undefined;
+      }
 
       if (scoreLog) {
         const prevChangeScore = Math.abs(Number(scoreLog.changeScore) || 0);
 
-        if (changeScore === prevChangeScore) {
+        if (actionMethod !== 'set' && changeScore === prevChangeScore) {
           return scoreLog;
         }
 
+        const currentSignedChangeScore = getSignedChangeScore(scoreLog);
+        const nextSignedChangeScore =
+          actionMethod === 'set'
+            ? currentSignedChangeScore + changeScore
+            : actionMethod === 'subtract'
+            ? -changeScore
+            : changeScore;
         const nextPreparedChange = prepareScoreLogChange({
           action: actionMethod,
-          signedChangeScore:
-            actionMethod === 'subtract' ? -changeScore : changeScore,
+          signedChangeScore: nextSignedChangeScore,
         });
         const scoreDifference =
-          nextPreparedChange.signedChangeScore - getSignedChangeScore(scoreLog);
-        const recalculatedScore = oldScore + scoreDifference;
+          nextPreparedChange.signedChangeScore - currentSignedChangeScore;
+        const recalculatedScore = fixScoreNumber(oldScore + scoreDifference);
 
         if (recalculatedScore < 0) {
           throw new Error('There has no enough score to subtract');

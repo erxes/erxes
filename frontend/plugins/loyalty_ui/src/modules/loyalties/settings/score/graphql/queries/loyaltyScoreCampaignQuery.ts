@@ -18,8 +18,10 @@ export const LOYALTY_SCORE_CAMPAIGN_QUERY = gql`
         _id
         title
         description
+        order
         add
         subtract
+        set
         createdAt
         createdUserId
         status

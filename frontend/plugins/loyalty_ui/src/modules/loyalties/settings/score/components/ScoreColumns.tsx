@@ -1,4 +1,9 @@
-import { IconTag, IconToggleLeft, IconLabelFilled } from '@tabler/icons-react';
+import {
+  IconLabelFilled,
+  IconListNumbers,
+  IconTag,
+  IconToggleLeft,
+} from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   RecordTable,
@@ -29,6 +34,21 @@ export const scoreColumns: (
       );
     },
     size: 150,
+  },
+  {
+    id: 'order',
+    accessorKey: 'order',
+    header: () => (
+      <RecordTable.InlineHead icon={IconListNumbers} label="Order" />
+    ),
+    cell: ({ cell }: { cell: any }) => {
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={`${cell.getValue() ?? ''}`} />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 80,
   },
   {
     id: 'ownerType',
