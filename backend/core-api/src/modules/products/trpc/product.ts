@@ -67,9 +67,9 @@ export const productsTrpcRouter = t.router({
     }),
 
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { query } = input;
+      const query = input?.query || input?.selector || input;
       const { models } = ctx;
-      if (!Object.keys(query).length) {
+      if (!query || !Object.keys(query).length) {
         return {};
       }
 
@@ -134,6 +134,19 @@ export const productsTrpcRouter = t.router({
 
       return models.Products.find(query).countDocuments();
     }),
+    rules: t.router({
+      find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { _ids = [] } = input || {};
+
+        if (!_ids.length) {
+          return [];
+        }
+
+        return models.ProductRules.find({ _id: { $in: _ids } }).lean();
+      }),
+    }),
+
 
     setInventories: t.procedure
       .input(

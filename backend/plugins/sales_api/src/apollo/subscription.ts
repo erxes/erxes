@@ -50,10 +50,7 @@ export default {
                 userId,
               },
             });
-            let filterParams = [];
-            if (filterParamsResponse?.status === 'success') {
-              filterParams = filterParamsResponse?.data;
-            }
+            const filterParams = filterParamsResponse || [];
             const matchesOld = oldDeal ? sift(filterParams)(oldDeal) : false;
             const matchesNew = deal ? sift(filterParams)(deal) : false;
 

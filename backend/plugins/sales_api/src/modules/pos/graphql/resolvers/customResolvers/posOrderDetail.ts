@@ -122,7 +122,7 @@ const resolvers = {
       return null;
     }
 
-    const response = await sendTRPCMessage({
+    return await sendTRPCMessage({
       subdomain,
 
       pluginName: 'sales',
@@ -130,7 +130,6 @@ const resolvers = {
       action: 'findOne',
       input: { _id: order.convertDealId },
     });
-    return response?.data;
   },
 
   async dealLink(order: IPosOrderDocument, _, { subdomain }: IContext) {
@@ -138,7 +137,7 @@ const resolvers = {
       return null;
     }
 
-    const response = await sendTRPCMessage({
+    return await sendTRPCMessage({
       subdomain,
 
       pluginName: 'sales',
@@ -146,7 +145,6 @@ const resolvers = {
       action: 'getLink',
       input: { _id: order.convertDealId, type: 'deal' },
     });
-    return response?.data;
   },
 };
 

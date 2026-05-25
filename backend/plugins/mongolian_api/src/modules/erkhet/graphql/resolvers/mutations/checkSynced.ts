@@ -119,7 +119,7 @@ const checkSyncedMutations = {
       createdBy: user._id,
     };
 
-    for (const deal of deals?.data || []) {
+    for (const deal of deals || []) {
       const syncedStageId = configStageId || deal.stageId;
       if (Object.keys(configs).includes(syncedStageId)) {
         const syncLog = await models.SyncLogs.syncLogsAdd({
@@ -137,7 +137,7 @@ const checkSyncedMutations = {
           const pipeline = await sendTRPCMessage({
             subdomain,
             pluginName: 'sales',
-            module: 'pipelines',
+            module: 'pipeline',
             action: 'findOne',
             input: { stageId: configStageId || deal.stageId },
             method: 'query',

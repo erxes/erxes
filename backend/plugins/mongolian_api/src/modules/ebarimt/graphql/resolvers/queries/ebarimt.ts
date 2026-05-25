@@ -15,14 +15,6 @@ import {
   getPostData,
 } from '~/modules/ebarimt/utils';
 
-function getTRPCData<T>(response: any, defaultValue: T): T {
-  if (response?.status === 'success') {
-    return (response.data ?? defaultValue) as T;
-  }
-
-  return (response ?? defaultValue) as T;
-}
-
 const generateFilter = async (subdomain, params) => {
   const filter: any = {};
 
@@ -67,9 +59,7 @@ const generateFilter = async (subdomain, params) => {
         input: { number: { $regex: params.orderNumber, $options: 'mui' } },
         defaultValue: [],
       });
-      const ordersData = getTRPCData<any[]>(posOrders, []);
-
-      filter.contentId = { $in: ordersData.map((p) => p._id) };
+      filter.contentId = { $in: (posOrders || []).map((p) => p._id) };
     }
 
     if (params.contentType === 'deal') {
@@ -87,9 +77,7 @@ const generateFilter = async (subdomain, params) => {
             input: { pipelineId: params.pipelineId },
             defaultValue: [],
           });
-          const stagesData = getTRPCData<any[]>(stages, []);
-
-          dealsFilter.stageId = { $in: stagesData.map((s) => s._id) };
+          dealsFilter.stageId = { $in: (stages || []).map((s) => s._id) };
         }
       }
       if (params.dealName) {
@@ -106,9 +94,7 @@ const generateFilter = async (subdomain, params) => {
           input: { ...dealsFilter },
           defaultValue: [],
         });
-        const dealsData = getTRPCData<any[]>(deals, []);
-
-        filter.contentId = { $in: dealsData.map((d) => d._id) };
+        filter.contentId = { $in: (deals || []).map((d) => d._id) };
       }
     }
 
@@ -213,7 +199,11 @@ const genDuplicatedFilter = async (params) => {
 };
 
 export const putResponseQueries = {
-  putResponses: async (_root, params, { models, subdomain, checkPermission }: IContext) => {
+  putResponses: async (
+    _root,
+    params,
+    { models, subdomain, checkPermission }: IContext,
+  ) => {
     await checkPermission('ebarimt:putResponses');
     const { orderBy } = params;
     if (!orderBy || !Object.keys(orderBy)) {
@@ -277,7 +267,7 @@ export const putResponseQueries = {
         input: { _id: contentId },
         defaultValue: {},
       });
-      const dealData = getTRPCData<any>(deal, {});
+      const dealData = deal || {};
 
       stageId = stageId || dealData.stageId;
 
@@ -303,12 +293,12 @@ export const putResponseQueries = {
         subdomain,
         pluginName: 'sales',
         method: 'query',
-        module: 'pipelines',
+        module: 'pipeline',
         action: 'findOne',
         input: { stageId: stageId || deal.stageId },
         defaultValue: {},
       });
-      const pipelineData = getTRPCData<any>(pipeline, {});
+      const pipelineData = pipeline || {};
 
       const ebarimtData: IDoc = await getPostData(
         subdomain,
@@ -434,7 +424,7 @@ export const putResponseQueries = {
       defaultValue: '',
     });
 
-    return getTRPCData<string>(response, '');
+    return response || '';
   },
 
   ebarimtGetCompany: async (

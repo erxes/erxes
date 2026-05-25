@@ -207,8 +207,8 @@ export function CustomFields() {
       </CustomFieldsHeader>
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
-        <div className="flex overflow-hidden flex-col flex-auto w-full">
-          <div className="flex-auto">
+        <div className="flex min-h-0 overflow-hidden flex-col flex-auto w-full">
+          <div className="min-h-0 flex-auto overflow-y-auto">
             <div className="p-6">
               <div className="max-w-4xl mx-auto">
                 {/* Table Header */}
