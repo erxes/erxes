@@ -426,7 +426,6 @@ export const loadScoreCampaignClass = (
       }
 
       const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
-      console.log('ownerrrrrr: ', owner);
 
       if (!owner) {
         throw new Error('Owner not found');
