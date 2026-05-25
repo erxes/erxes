@@ -156,20 +156,30 @@ const ParentCategoryFilterView = () => {
     resetFilterState();
   };
 
+  const hasCategories = (productCategories?.length ?? 0) > 0;
+
+  const renderPlaceholder = () => {
+    if (loading) {
+      return <Combobox.Empty loading={loading} />;
+    }
+    if (hasCategories) {
+      return null;
+    }
+    return (
+      <Command.Empty>
+        <div className="flex flex-col gap-2 justify-center items-center text-sm text-center text-muted-foreground">
+          No categories found
+        </div>
+      </Command.Empty>
+    );
+  };
+
   return (
     <Filter.View filterKey="parentId">
       <Command className="outline-hidden">
         <Command.Input placeholder="Search categories" />
         <Command.List>
-          {loading ? (
-            <Combobox.Empty loading={loading} />
-          ) : !productCategories?.length ? (
-            <Command.Empty>
-              <div className="flex flex-col gap-2 justify-center items-center text-sm text-center text-muted-foreground">
-                No categories found
-              </div>
-            </Command.Empty>
-          ) : null}
+          {renderPlaceholder()}
           {productCategories?.map((category: IProductCategory) => (
             <ParentCategoryOptionItem
               key={category._id}
