@@ -75,10 +75,16 @@ export const afterMutationHandlers = async (subdomain, params) => {
     if (type === 'sales:deal') {
       if (action === 'update') {
         const deal = params.updatedDocument;
-        const oldDeal = params.object;
-        const destinationStageId = deal.stageId || '';
+        const oldDeal = params.object || {};
+        const destinationStageId = deal?.stageId || '';
 
-        if (!(destinationStageId && destinationStageId !== oldDeal.stageId)) {
+        if (
+          !(
+            destinationStageId &&
+            oldDeal?.stageId &&
+            destinationStageId !== oldDeal.stageId
+          )
+        ) {
           return;
         }
 
@@ -220,7 +226,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
       if (action === 'create') {
         const deal = params.object;
-        if (!deal.productsData?.filter((pd) => pd.tickUsed).length) {
+        if (!deal?.productsData?.filter((pd) => pd.tickUsed).length) {
           return;
         }
 

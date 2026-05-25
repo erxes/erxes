@@ -18,7 +18,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
   const deal = params.updatedDocument;
   const oldDeal = params.object;
 
-  if (!deal.stageId || deal.stageId === oldDeal?.stageId) {
+  if (!deal?.stageId || deal.stageId === oldDeal?.stageId) {
     return;
   }
 

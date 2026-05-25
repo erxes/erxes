@@ -317,4 +317,6 @@ export const changeDeal = async (
     oldDeal: item,
     pipelineId: stage.pipelineId,
   });
+
+  return updatedItem;
 };
