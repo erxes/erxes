@@ -684,15 +684,14 @@ export const handleScore = async (models: IModels, data) => {
     scoreValue / Number(config.currencyRatio),
   );
 
+  let changeScore = Math.abs(scoreToChange);
+  if (action === SCORE_ACTION.SET) changeScore = scoreToChange;
+  if (action === SCORE_ACTION.SUBTRACT) changeScore = -Math.abs(scoreToChange);
+
   await models.ScoreLogs.changeScore({
     ownerId,
     ownerType,
-    changeScore:
-      action === SCORE_ACTION.SET
-        ? scoreToChange
-        : action === SCORE_ACTION.SUBTRACT
-        ? -Math.abs(scoreToChange)
-        : Math.abs(scoreToChange),
+    changeScore,
     description,
     createdBy,
     campaignId,
@@ -786,23 +785,25 @@ const normalizeDealTarget = ({
   target: any;
   paymentTypes?: any[];
 }) => {
-  const scorePaymentTypes = paymentTypes
-    .filter((paymentType) => !!getPaymentScoreCampaignId(paymentType))
-    .map(({ type }) => type);
+  const scorePaymentTypes = new Set(
+    paymentTypes
+      .filter((paymentType) => !!getPaymentScoreCampaignId(paymentType))
+      .map(({ type }) => type),
+  );
   const paymentEntries = Object.entries(target?.paymentsData || {});
 
   return {
     ...target,
     paymentsData: paymentEntries.map(([type, obj]) => ({
       type,
-      ...(obj || {}),
+      ...(obj ?? {}),
     })),
     totalAmount: generateTargetTotalAmount(target?.productsData || []),
     excludeAmount: paymentEntries
-      .filter(([type]) => !scorePaymentTypes.includes(type))
+      .filter(([type]) => !scorePaymentTypes.has(type))
       .map(([type, obj]) => ({
         type,
-        ...(obj || {}),
+        ...(obj ?? {}),
       }))
       .reduce((sum, payment: any) => sum + (payment?.amount || 0), 0),
   };

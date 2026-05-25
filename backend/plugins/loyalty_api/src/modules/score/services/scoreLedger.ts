@@ -109,24 +109,32 @@ export const getSignedChangeScore = (log: ScoreLogLike) => {
   return changeScore;
 };
 
+const buildSwitchBranch = (caseExpression: any, thenExpression: any) => {
+  const branch = { case: caseExpression };
+
+  Object.assign(branch, { ['then']: thenExpression });
+
+  return branch;
+};
+
 export const buildSignedScoreExpression = (
   changeScoreField = '$changeScore',
   actionField = '$action',
 ) => ({
   $switch: {
     branches: [
-      {
-        case: { $eq: [actionField, SCORE_ACTION.SUBTRACT] },
-        then: { $multiply: [{ $abs: changeScoreField }, -1] },
-      },
-      {
-        case: { $eq: [actionField, SCORE_ACTION.ADD] },
-        then: { $abs: changeScoreField },
-      },
-      {
-        case: { $eq: [actionField, SCORE_ACTION.REFUND] },
-        then: changeScoreField,
-      },
+      buildSwitchBranch(
+        { $eq: [actionField, SCORE_ACTION.SUBTRACT] },
+        { $multiply: [{ $abs: changeScoreField }, -1] },
+      ),
+      buildSwitchBranch(
+        { $eq: [actionField, SCORE_ACTION.ADD] },
+        { $abs: changeScoreField },
+      ),
+      buildSwitchBranch(
+        { $eq: [actionField, SCORE_ACTION.REFUND] },
+        changeScoreField,
+      ),
     ],
     default: changeScoreField,
   },

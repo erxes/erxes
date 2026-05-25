@@ -35,7 +35,7 @@ const evaluateLegacyExpression = (expr: string): number | null => {
   const result = evaluate(expression);
   const numberResult = Number(result);
 
-  if (!isFinite(numberResult)) {
+  if (!Number.isFinite(numberResult)) {
     return 0;
   }
 

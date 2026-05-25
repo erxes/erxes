@@ -497,9 +497,8 @@ export const loadScoreCampaignClass = (
             description:
               newStageStatus === 'refund'
                 ? 'Refund score campaign'
-                : `Clear score campaign from ${
-                    oldStageStatus || 'undefined'
-                  } stage`,
+                : `Clear score campaign from ${oldStageStatus || 'undefined'
+                } stage`,
           },
         });
 
@@ -579,12 +578,10 @@ export const loadScoreCampaignClass = (
         }
 
         const currentSignedChangeScore = getSignedChangeScore(scoreLog);
-        const nextSignedChangeScore =
-          actionMethod === 'set'
-            ? currentSignedChangeScore + changeScore
-            : actionMethod === 'subtract'
-            ? -changeScore
-            : changeScore;
+        let nextSignedChangeScore = changeScore;
+        if (actionMethod === 'set') nextSignedChangeScore = currentSignedChangeScore + changeScore;
+        if (actionMethod === 'subtract') nextSignedChangeScore = -changeScore;
+
         const nextPreparedChange = prepareScoreLogChange({
           action: actionMethod,
           signedChangeScore: nextSignedChangeScore,
