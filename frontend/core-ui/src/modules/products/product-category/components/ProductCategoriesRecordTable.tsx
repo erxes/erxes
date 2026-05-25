@@ -7,8 +7,10 @@ import {
   RecordTableInlineCell,
   RecordTableTree,
   TextOverflowTooltip,
+  useMultiQueryState,
 } from 'erxes-ui';
 import { useProductCategories } from '../hooks/useProductCategories';
+import { useProductCategoriesTotalCount } from '../hooks/useProductCategoriesTotalCount';
 import {
   IconHash,
   IconImageInPicture,
@@ -24,7 +26,30 @@ import { PRODUCTS_PER_PAGE } from '@/products/hooks/useProducts';
 import { renderingCategoryDetailAtom } from '../states/ProductCategory';
 
 export const ProductCategoriesRecordTable = () => {
-  const { productCategories, loading } = useProductCategories();
+  const [queries] = useMultiQueryState<{
+    parentId?: string;
+    status?: string;
+    searchValue?: string;
+  }>(['parentId', 'status', 'searchValue']);
+
+  const filterVariables = {
+    parentId: queries?.parentId || undefined,
+    status: queries?.status || undefined,
+    searchValue: queries?.searchValue || undefined,
+  };
+
+  const { productCategories, loading } = useProductCategories({
+    variables: filterVariables,
+    fetchPolicy: 'cache-and-network',
+  });
+
+  useProductCategoriesTotalCount({
+    variables: filterVariables,
+    fetchPolicy: 'cache-and-network',
+  });
+
+  const isFetchingMore = loading && (productCategories?.length ?? 0) > 0;
+  const isInitialLoading = loading && !isFetchingMore;
 
   const categories = productCategories?.map((category: IProductCategory) => ({
     ...category,
@@ -46,7 +71,7 @@ export const ProductCategoriesRecordTable = () => {
   return (
     <RecordTable.Provider
       columns={productCategoryColumns(categoryObject)}
-      data={categories || []}
+      data={isInitialLoading ? [] : categories || []}
       className="h-full"
     >
       <RecordTableTree id="product-categories" ordered>
@@ -55,7 +80,9 @@ export const ProductCategoriesRecordTable = () => {
             <RecordTable.Header />
             <RecordTable.Body>
               <RecordTable.RowList Row={RecordTableTree.Row} />
-              {loading && <RecordTable.RowSkeleton rows={PRODUCTS_PER_PAGE} />}
+              {isInitialLoading && (
+                <RecordTable.RowSkeleton rows={PRODUCTS_PER_PAGE} />
+              )}
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.Scroll>

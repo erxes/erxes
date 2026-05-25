@@ -363,6 +363,24 @@ export const LoyaltyScoreAddMoreFields = ({
                   </Form.Item>
                 )}
               />
+
+              <Form.Field
+                control={form.control}
+                name="onlyClientPortal"
+                render={({ field }) => (
+                  <Form.Item className="flex flex-row items-center gap-2">
+                    <Form.Control>
+                      <Switch
+                        checked={field.value ?? false}
+                        onCheckedChange={field.onChange}
+                      />
+                    </Form.Control>
+                    <Form.Label className="mb-2">
+                      Only Client Portal (optional)
+                    </Form.Label>
+                  </Form.Item>
+                )}
+              />
             </div>
           </Tabs.Content>
 
