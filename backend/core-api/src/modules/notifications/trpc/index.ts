@@ -53,7 +53,41 @@ export const notificationTrpcRouter = t.router({
         }
       }
 
-      return models.Notifications.find({ userId: { $in: userIds } }).lean();
+      const created: INotificationDocument[] = [];
+
+      for (const userId of userIds) {
+        let notification: INotificationDocument | null = null;
+
+        const notificationDoc = {
+          ...data,
+          userId,
+          isRead: false,
+          priorityLevel: PRIORITY_ORDER[priority || 'medium'],
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        };
+
+        if (kind === 'user' && !allowMultiple) {
+          notification = await models.Notifications.findOneAndUpdate(
+            { contentTypeId, contentType, userId },
+            notificationDoc,
+            { new: true, upsert: true },
+          );
+        }
+
+        if (!notification) {
+          notification = await models.Notifications.create(notificationDoc);
+        }
+
+        if (notification) {
+          graphqlPubsub.publish(`notificationInserted:${subdomain}:${userId}`, {
+            notificationInserted: { ...notification.toObject() },
+          });
+
+          created.push(notification.toObject());
+        }
+      }
+
+      return created;
     }),
 
     sendEmail: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
