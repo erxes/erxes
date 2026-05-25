@@ -22,16 +22,10 @@ const confTypeRelType = {
   deal: 'sales:deal',
 };
 
-const BATCH_SIZE = 1000;
+const BATCH_SIZE = 5000;
 
 const conformityFilter = {
   _synced: { $ne: true },
-  $or: [
-    { mainType: 'deal', relType: 'customer' },
-    { mainType: 'deal', relType: 'company' },
-    { mainType: 'customer', relType: 'deal' },
-    { mainType: 'company', relType: 'deal' },
-  ],
 };
 
 const command = async () => {
