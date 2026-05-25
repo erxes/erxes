@@ -172,6 +172,61 @@ const findActiveScoreLog = async ({
   return null;
 };
 
+const cleanupRefundedScoreLogs = async ({
+  models,
+  targetId,
+  ownerId,
+  ownerType,
+  campaignId,
+  action,
+}: {
+  models: IModels;
+  targetId?: string;
+  ownerId: string;
+  ownerType: string;
+  campaignId: string;
+  action: 'add' | 'subtract' | 'set';
+}) => {
+  if (!targetId) {
+    return;
+  }
+
+  const scoreLogs = await models.ScoreLogs.find({
+    targetId,
+    ownerId,
+    ownerType,
+    campaignId,
+    action,
+  }).select('_id');
+
+  if (!scoreLogs.length) {
+    return;
+  }
+
+  const scoreLogIds = scoreLogs.map((scoreLog) => scoreLog._id);
+  const refundLogs = await models.ScoreLogs.find({
+    targetId,
+    ownerId,
+    ownerType,
+    campaignId,
+    action: 'refund',
+    sourceScoreLogId: { $in: scoreLogIds },
+  }).select('_id sourceScoreLogId');
+
+  if (!refundLogs.length) {
+    return;
+  }
+
+  const refundedSourceLogIds = refundLogs.map(
+    (refundLog) => refundLog.sourceScoreLogId,
+  );
+  const refundLogIds = refundLogs.map((refundLog) => refundLog._id);
+
+  await models.ScoreLogs.deleteMany({
+    _id: { $in: [...refundedSourceLogIds, ...refundLogIds] },
+  });
+};
+
 export const loadScoreCampaignClass = (
   models: IModels,
   subdomain: string,
@@ -404,6 +459,18 @@ export const loadScoreCampaignClass = (
         campaign,
         calculationTarget?.stageId,
       );
+
+      if (newStageStatus === 'stage') {
+        await cleanupRefundedScoreLogs({
+          models,
+          targetId,
+          ownerId,
+          ownerType,
+          campaignId: campaign._id,
+          action: actionMethod,
+        });
+      }
+
       const activeScoreLog = await findActiveScoreLog({
         models,
         targetId,
