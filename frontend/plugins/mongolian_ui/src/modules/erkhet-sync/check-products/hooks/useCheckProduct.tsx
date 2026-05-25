@@ -1,9 +1,10 @@
 import { useMutation } from '@apollo/client';
-import { checkProductsMutation } from '../graphql/mutations/checkProductsMutations';
 import { useToast } from 'erxes-ui';
-import { useAtom, atom } from 'jotai';
-import { ProductItem, ProductStatus } from '../types/productItem';
+import { atom, useAtom } from 'jotai';
+import { useCallback, useMemo } from 'react';
+import { checkProductsMutation } from '../graphql/mutations/checkProductsMutations';
 import { ICheckProduct } from '../types/checkProduct';
+import { ProductItem, ProductStatus } from '../types/productItem';
 import { useSyncProduct } from './useSyncProduct';
 
 interface CheckProductsResponse {
@@ -18,9 +19,47 @@ interface PageInfo {
   hasNextPage: boolean;
 }
 
+const EMPTY_PAGE_INFO: PageInfo = {
+  hasPreviousPage: false,
+  hasNextPage: false,
+};
+
 const toCheckProductsAtom = atom<ProductItem[] | null>(null);
 const toCheckProductsDataAtom = atom<CheckProductsResponse | null>(null);
 const selectedFilterAtom = atom<ProductStatus>('create');
+
+const getProductKey = (item: { _id?: string; id?: string }) =>
+  item._id ?? item.id;
+
+const buildProductItems = (
+  responseData: CheckProductsResponse,
+  previousItems: ProductItem[] | null,
+): ProductItem[] => {
+  const previousSynced =
+    previousItems?.filter((item) => item.isSynced === true) ?? [];
+
+  const incoming = ([
+    'create',
+    'update',
+    'delete',
+  ] as const).flatMap<ProductItem>((status) =>
+    (responseData[status]?.items ?? []).map(
+      (item: ICheckProduct) =>
+        ({
+          ...item,
+          status,
+          isSynced: false,
+        }) as ProductItem,
+    ),
+  );
+
+  const incomingKeys = new Set(incoming.map(getProductKey).filter(Boolean));
+  const carriedSynced = previousSynced.filter(
+    (item) => !incomingKeys.has(getProductKey(item)),
+  );
+
+  return [...carriedSynced, ...incoming];
+};
 
 export const useCheckProduct = () => {
   const [toCheckProducts, setToCheckProducts] = useAtom(toCheckProductsAtom);
@@ -37,51 +76,39 @@ export const useCheckProduct = () => {
 
   const { toast } = useToast();
 
-  const checkProduct = async () => {
+  const checkProduct = useCallback(async () => {
     try {
       const response = await mutate({
-        onError: (error) => {
+        onError: (mutationError) => {
           toast({
             title: 'Error',
-            description: error.message,
+            description: mutationError.message,
             variant: 'destructive',
           });
         },
       });
 
-      const responseData = response.data?.toCheckProducts;
+      const responseData: CheckProductsResponse | undefined =
+        response.data?.toCheckProducts;
 
-      if (responseData) {
-        const existingSyncedProducts =
-          toCheckProducts?.filter((item) => item.isSynced === true) || [];
-
-        const allProducts: ProductItem[] = [
-          ...existingSyncedProducts,
-          ...(responseData.create?.items || []).map((item: ICheckProduct) => ({
-            ...item,
-            status: 'create' as const,
-            isSynced: false,
-          })),
-          ...(responseData.update?.items || []).map((item: ICheckProduct) => ({
-            ...item,
-            status: 'update' as const,
-            isSynced: false,
-          })),
-          ...(responseData.delete?.items || []).map((item: ICheckProduct) => ({
-            ...item,
-            status: 'delete' as const,
-            isSynced: false,
-          })),
-        ];
-
-        setToCheckProductsData(responseData);
-        setToCheckProducts(allProducts);
-
-        toast({
-          title: 'Success',
-          description: `${allProducts.length} products found`,
-        });
+      if (!responseData) {
+        return;
       }
+
+      const allProducts = buildProductItems(responseData, toCheckProducts);
+
+      setToCheckProductsData(responseData);
+      setToCheckProducts(allProducts);
+
+      const pendingCount = allProducts.filter((item) => !item.isSynced).length;
+
+      toast({
+        title: pendingCount > 0 ? 'Success' : 'Up to date',
+        description:
+          pendingCount > 0
+            ? `${pendingCount} products to sync`
+            : 'No products require syncing',
+      });
     } catch (err) {
       console.error('Check product error:', err);
       toast({
@@ -90,9 +117,9 @@ export const useCheckProduct = () => {
         variant: 'destructive',
       });
     }
-  };
+  }, [mutate, setToCheckProducts, setToCheckProductsData, toCheckProducts, toast]);
 
-  const syncProducts = async () => {
+  const syncProducts = useCallback(async () => {
     if (!toCheckProducts || toCheckProducts.length === 0) {
       toast({
         title: 'Warning',
@@ -110,30 +137,32 @@ export const useCheckProduct = () => {
     if (updatedProducts) {
       setToCheckProducts(updatedProducts);
     }
-  };
+  }, [
+    selectedFilter,
+    setToCheckProducts,
+    syncProductsAction,
+    toCheckProducts,
+    toast,
+  ]);
 
-  const getFilteredProducts = (): ProductItem[] => {
-    if (!toCheckProducts) return [];
-    return toCheckProducts.filter((item) => item.status === selectedFilter);
-  };
-
-  const pageInfo: PageInfo = {
-    hasPreviousPage: false,
-    hasNextPage: false,
-  };
+  const filteredProducts = useMemo<ProductItem[]>(
+    () =>
+      (toCheckProducts ?? []).filter((item) => item.status === selectedFilter),
+    [toCheckProducts, selectedFilter],
+  );
 
   return {
     toCheckProducts,
     toCheckProductsData,
     selectedFilter,
     setSelectedFilter,
-    filteredProducts: getFilteredProducts(),
+    filteredProducts,
     checkProduct,
     syncProducts,
     loading,
     syncLoading,
     error,
     syncError,
-    pageInfo,
+    pageInfo: EMPTY_PAGE_INFO,
   };
 };
