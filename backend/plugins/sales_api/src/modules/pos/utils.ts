@@ -208,6 +208,45 @@ export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
   }
 };
 
+const syncOrderScoreCampaigns = async ({
+  subdomain,
+  newOrder,
+  oldOrder,
+}: {
+  subdomain: string;
+  newOrder: IPosOrderDocument;
+  oldOrder?: IPosOrderDocument;
+}) => {
+  if (!newOrder.customerId) {
+    return;
+  }
+
+  try {
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      method: 'mutation',
+      module: 'score',
+      action: 'consumeTargetChange',
+      input: {
+        contentType: 'sales:posOrder',
+        serviceName: 'sales',
+        targetId: newOrder._id,
+        target: newOrder,
+        oldTarget: oldOrder,
+        ownerHints: {
+          [newOrder.customerType || 'customer']: newOrder.customerId,
+          customer: newOrder.customerId,
+          user: newOrder.userId,
+        },
+      },
+      defaultValue: null,
+    });
+  } catch (error) {
+    console.log(subdomain, error.message);
+  }
+};
+
 const updateCustomer = async ({ subdomain, doneOrder }) => {
   const deliveryInfo = doneOrder.deliveryInfo || {};
   const {
@@ -235,9 +274,8 @@ const updateCustomer = async ({ subdomain, doneOrder }) => {
       (marker.latitude || marker.lat)
     ) {
       pushInfo.addresses = {
-        id: `${marker.longitude || marker.lng}_${
-          marker.latitude || marker.lat
-        }`,
+        id: `${marker.longitude || marker.lng}_${marker.latitude || marker.lat
+          }`,
         location: {
           type: 'Point',
           coordinates: [
@@ -286,9 +324,8 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     name: `Delivery: ${doneOrder.number}`,
     startDate: doneOrder.createdAt,
     closeDate: doneOrder.dueDate,
-    description: `<p>${doneOrder.description || ''}</p> <p>${
-      description || ''
-    }</p>`,
+    description: `<p>${doneOrder.description || ''}</p> <p>${description || ''
+      }</p>`,
     stageId: deliveryConfig.stageId,
     assignedUserIds: deliveryConfig.assignedUserIds,
     watchedUserIds: deliveryConfig.watchedUserIds,
@@ -652,6 +689,12 @@ export const syncOrderFromClient = async ({
   if (newOrder.paidDate) {
     if (newOrder.customerId && (await checkServiceRunning('automations'))) {
       try {
+        await syncOrderScoreCampaigns({
+          subdomain,
+          newOrder,
+          oldOrder,
+        });
+
         sendAutomationTrigger(subdomain, {
           type: 'pos:posOrder',
           targets: [newOrder],
@@ -730,17 +773,17 @@ export const syncOrderFromClient = async ({
 
   const syncedResponseIds = enabledMN
     ? (
-        (await sendTRPCMessage({
-          subdomain,
-          pluginName: 'mongolian',
-          module: 'putResponses',
-          action: 'find',
-          input: {
-            query: { _id: { $in: (responses || []).map((resp) => resp._id) } },
-          },
-          defaultValue: [],
-        })) || []
-      ).map((r) => r._id)
+      (await sendTRPCMessage({
+        subdomain,
+        pluginName: 'mongolian',
+        module: 'putResponses',
+        action: 'find',
+        input: {
+          query: { _id: { $in: (responses || []).map((resp) => resp._id) } },
+        },
+        defaultValue: [],
+      })) || []
+    ).map((r) => r._id)
     : [];
 
   // return info saved
