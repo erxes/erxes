@@ -243,7 +243,6 @@ mutations.invoicesCheck.wrapperConfig = {
 
 mutations.cpInvoiceCreate.wrapperConfig = {
   skipPermission: true,
-  forClientPortal: true,
 };
 
 mutations.cpInvoicesCheck.wrapperConfig = {
