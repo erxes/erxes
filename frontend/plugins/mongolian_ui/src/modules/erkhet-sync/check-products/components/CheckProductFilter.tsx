@@ -1,47 +1,78 @@
-import { Button } from 'erxes-ui';
+import { IconCirclePlus, IconEdit, IconTrash } from '@tabler/icons-react';
 import { useCheckProduct } from '../hooks/useCheckProduct';
+import { ProductStatus } from '../types/productItem';
 
-interface CheckProductFilterProps {
-  onFilterClick?: (filter: 'create' | 'update' | 'delete') => void;
+interface FilterConfig {
+  value: ProductStatus;
+  label: string;
+  icon: React.ElementType;
+  activeClass: string;
+  inactiveClass: string;
+  badgeClass: string;
 }
 
-export const CheckProductFilter = ({
-  onFilterClick,
-}: CheckProductFilterProps) => {
+const FILTERS: FilterConfig[] = [
+  {
+    value: 'create',
+    label: 'Create',
+    icon: IconCirclePlus,
+    activeClass: 'bg-green-600 text-white border-green-600',
+    inactiveClass: 'bg-white text-green-700 border-green-300 hover:bg-green-50',
+    badgeClass: 'bg-green-100 text-green-700',
+  },
+  {
+    value: 'update',
+    label: 'Update',
+    icon: IconEdit,
+    activeClass: 'bg-blue-600 text-white border-blue-600',
+    inactiveClass: 'bg-white text-blue-700 border-blue-300 hover:bg-blue-50',
+    badgeClass: 'bg-blue-100 text-blue-700',
+  },
+  {
+    value: 'delete',
+    label: 'Delete',
+    icon: IconTrash,
+    activeClass: 'bg-red-600 text-white border-red-600',
+    inactiveClass: 'bg-white text-red-700 border-red-300 hover:bg-red-50',
+    badgeClass: 'bg-red-100 text-red-700',
+  },
+];
+
+export const CheckProductFilter = () => {
   const { selectedFilter, setSelectedFilter, toCheckProductsData } =
     useCheckProduct();
 
-  const handleFilterClick = (filter: 'create' | 'update' | 'delete') => {
-    if (onFilterClick) {
-      onFilterClick(filter);
-    } else {
-      setSelectedFilter(filter);
-    }
-  };
-  const getCount = (type: 'create' | 'update' | 'delete') => {
-    return toCheckProductsData?.[type]?.items?.length || 0;
-  };
+  const getCount = (type: ProductStatus) =>
+    toCheckProductsData?.[type as 'create' | 'update' | 'delete']?.items
+      ?.length ?? 0;
 
   return (
     <div className="flex gap-2">
-      <Button
-        variant={selectedFilter === 'create' ? 'default' : 'outline'}
-        onClick={() => handleFilterClick('create')}
-      >
-        Create Products ({getCount('create')})
-      </Button>
-      <Button
-        variant={selectedFilter === 'update' ? 'default' : 'outline'}
-        onClick={() => handleFilterClick('update')}
-      >
-        Update Products ({getCount('update')})
-      </Button>
-      <Button
-        variant={selectedFilter === 'delete' ? 'default' : 'outline'}
-        onClick={() => handleFilterClick('delete')}
-      >
-        Delete Products ({getCount('delete')})
-      </Button>
+      {FILTERS.map((filter) => {
+        const isActive = selectedFilter === filter.value;
+        const count = getCount(filter.value);
+        const Icon = filter.icon;
+
+        return (
+          <button
+            key={filter.value}
+            onClick={() => setSelectedFilter(filter.value)}
+            className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
+              isActive ? filter.activeClass : filter.inactiveClass
+            }`}
+          >
+            <Icon size={14} />
+            {filter.label}
+            <span
+              className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${
+                isActive ? 'bg-white/20 text-white' : filter.badgeClass
+              }`}
+            >
+              {count}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 };
