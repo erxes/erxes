@@ -809,7 +809,47 @@ const normalizeDealTarget = ({
   };
 };
 
-const getSalesDealStageCampaigns = async ({
+const normalizePosOrderTarget = ({ target }: { target: any }) => {
+  const paymentEntries = (target?.paidAmounts || []).map((payment: any) => [
+    payment.type,
+    payment,
+  ]);
+
+  return {
+    ...target,
+    productsData: target?.items || [],
+    paymentsData: paymentEntries.map(([type, obj]) => ({
+      type,
+      ...(obj ?? {}),
+    })),
+    totalAmount:
+      Number(target?.totalAmount) ||
+      Number(target?.finalAmount) ||
+      generateTargetTotalAmount(target?.items || []),
+    excludeAmount: paymentEntries.reduce(
+      (sum, [, payment]: any) => sum + (payment?.amount || 0),
+      0,
+    ),
+  };
+};
+
+const getPosOrderStageContext = (target?: any) => {
+  if (!target) {
+    return {};
+  }
+
+  if (target.status === 'return') {
+    return { stage: { _id: 'lossStage' } };
+  }
+
+  if (target.status === 'complete') {
+    return { stage: { _id: 'wonStage' } };
+  }
+
+  return { stage: { _id: 'preStage' } };
+};
+
+const getStageCampaigns = async ({
   models,
   contexts,
 }: {
@@ -817,16 +857,26 @@ const getSalesDealStageCampaigns = async ({
   contexts: Array<{ stage?: any; pipeline?: any }>;
 }) => {
   const $or = contexts
-    .filter(({ stage, pipeline }) => stage?._id && pipeline?._id)
-    .map(({ stage, pipeline }) => ({
-      'additionalConfig.cardBasedRule': {
-        $elemMatch: {
-          boardId: pipeline.boardId,
-          pipelineId: pipeline._id,
-          $or: [{ stageIds: stage._id }, { refundStageIds: stage._id }],
+    .filter(({ stage }) => stage?._id)
+    .map(({ stage, pipeline }) => {
+      const elemMatch: any = {
+        $or: [{ stageIds: stage._id }, { refundStageIds: stage._id }],
+      };
+
+      if (pipeline?._id) {
+        elemMatch.pipelineId = pipeline._id;
+      }
+
+      if (pipeline?.boardId) {
+        elemMatch.boardId = pipeline.boardId;
+      }
+
+      return {
+        'additionalConfig.cardBasedRule': {
+          $elemMatch: elemMatch,
         },
-      },
-    }));
+      };
+    });
 
   if (!$or.length) {
     return [];
@@ -951,10 +1001,60 @@ const consumeSalesDealScoreChange = async ({
     }
   }
 
-  const stageCampaigns = await getSalesDealStageCampaigns({
+  const stageCampaigns = await getStageCampaigns({
     models,
     contexts: [oldContext, newContext],
   });
+
+  for (const campaign of stageCampaigns) {
+    const { ownerType, ownerId } = getOwnerIdByCampaign({
+      campaign,
+      ownerHints,
+      target,
+    });
+
+    if (!ownerId) {
+      continue;
+    }
+
+    results.push(
+      await models.ScoreCampaigns.doCampaign({
+        ownerType,
+        ownerId,
+        campaignId: campaign._id,
+        target: calculationTarget,
+        oldTarget,
+        actionMethod: getStageCampaignActionMethod(campaign),
+        serviceName: input.serviceName || 'sales',
+        targetId: targetId || target._id,
+      }),
+    );
+  }
+
+  return results.filter(Boolean);
+};
+
+const consumePosOrderScoreChange = async ({
+  models,
+  input,
+}: {
+  models: IModels;
+  input: any;
+}) => {
+  const { target, oldTarget, targetId, ownerHints = {} } = input;
+
+  if (!target?._id && !targetId) {
+    return [];
+  }
+
+  const oldContext = getPosOrderStageContext(oldTarget);
+  const newContext = getPosOrderStageContext(target);
+  const calculationTarget = normalizePosOrderTarget({ target });
+  const stageCampaigns = await getStageCampaigns({
+    models,
+    contexts: [oldContext, newContext],
+  });
+  const results: any[] = [];
 
   for (const campaign of stageCampaigns) {
     const { ownerType, ownerId } = getOwnerIdByCampaign({
@@ -995,6 +1095,10 @@ export const consumeScoreTargetChange = async ({
 }) => {
   if (input?.contentType === 'sales:deal') {
     return consumeSalesDealScoreChange({ models, subdomain, input });
+  }
+
+  if (input?.contentType === 'sales:posOrder') {
+    return consumePosOrderScoreChange({ models, input });
   }
 
   throw new Error(
