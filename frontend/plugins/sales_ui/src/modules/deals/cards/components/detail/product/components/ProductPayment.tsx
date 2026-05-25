@@ -33,13 +33,15 @@ interface IPaymentType {
   type: string;
   title?: string;
   icon?: string;
-  config?: {
-    require?: string;
-    skipEbarimt?: boolean;
-    mustCustomer?: boolean;
-    notSplit?: boolean;
-    preTax?: boolean;
-  };
+  config?:
+    | string
+    | {
+        require?: string;
+        skipEbarimt?: boolean;
+        mustCustomer?: boolean;
+        notSplit?: boolean;
+        preTax?: boolean;
+      };
   scoreCampaignId?: string;
 }
 
@@ -48,6 +50,22 @@ type PayInfo = {
   maxVal?: number;
   hasPopup: boolean;
   validQr: boolean;
+};
+
+const parsePaymentConfig = (config: IPaymentType['config']) => {
+  if (!config) {
+    return {};
+  }
+
+  if (typeof config === 'object') {
+    return config;
+  }
+
+  try {
+    return JSON.parse(config);
+  } catch {
+    return {};
+  }
 };
 
 const OwnerScoreCampaignScore = ({
@@ -288,8 +306,9 @@ const ProductsPayment = ({
   const handleScoreFetched = useCallback(
     (score: number, paymentType: any) => {
       const typeName = paymentType.type;
+      const paymentConfig = parsePaymentConfig(paymentType.config);
       const requiresQr =
-        paymentType?.config?.require?.toLowerCase() === 'qrcode';
+        paymentConfig?.require?.toLowerCase() === 'qrcode';
       const initialAmount = getInitialPaymentAmount(typeName);
       const availableAmount = score + initialAmount;
 
@@ -494,8 +513,9 @@ const ProductsPayment = ({
         {deal.pipeline?.paymentTypes?.map(
           (paymentType: IPaymentType, index: number) => {
             const typeName = paymentType.type;
+            const paymentConfig = parsePaymentConfig(paymentType.config);
             const isQr =
-              paymentType?.config?.require?.toLowerCase() === 'qrcode';
+              paymentConfig?.require?.toLowerCase() === 'qrcode';
             const hasInitialAmount = getInitialPaymentAmount(typeName) > 0;
             const payInfo = payInfoByType[typeName] || {
               hasPopup: false,
