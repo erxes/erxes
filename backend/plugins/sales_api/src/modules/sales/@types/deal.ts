@@ -54,6 +54,7 @@ export interface IDeal {
   description?: string;
   assignedUserIds?: string[];
   watchedUserIds?: string[];
+  mentionedUserIds?: string[]; 
   notifiedUserIds?: string[];
   labelIds?: string[];
   attachments?: any[];
@@ -90,7 +91,6 @@ export interface IDealDocument extends IDeal, Document {
   _id: string;
   createdAt?: Date;
   updatedAt?: Date;
-
   customProperties?: Record<string, any>;
 }
 
@@ -111,6 +111,8 @@ export interface IDealQueryParams extends IListParams, ICursorPaginateParams {
   customerIds?: string[];
   companyIds?: string[];
   assignedUserIds?: string[];
+  mentionedUserIds?: string[];
+  watchedUserIds?: string[];
   labelIds?: string[];
   userIds?: string[];
   segment?: string;

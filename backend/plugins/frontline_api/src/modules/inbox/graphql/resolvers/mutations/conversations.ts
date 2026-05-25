@@ -297,16 +297,65 @@ export const conversationMutations = {
 
       if (doc.mentionedUserIds && doc.mentionedUserIds.length > 0) {
         const userIds = doc.mentionedUserIds.filter((id) => id !== userId);
+        if (!userIds.length) return;
 
-        await createNotifications({
-          contentType: 'inbox',
-          contentTypeId: doc.conversationId,
-          fromUserId: userId,
+        // Find the deal linked to this conversation
+        const relations = await sendTRPCMessage({
           subdomain,
-          notificationType: 'internalNote',
-          userIds,
-          action: 'created',
+          pluginName: 'core',
+          method: 'query',
+          module: 'relation',
+          action: 'getRelations',
+          input: {
+            contentType: 'inbox:conversation',
+            contentId: conversationId,
+            relatedContentType: 'sales:deal',
+          },
+          defaultValue: [],
         });
+
+        let dealId = null;
+        if (relations.length) {
+          // Assuming each conversation relates to one deal
+          dealId = relations[0].relatedContentId;
+        }
+
+        if (dealId) {
+          // Now send a notification of type 'sales:deal' to mentioned users
+          const notificationData = {
+            title: 'mentioned you in a comment',
+            message:
+              content.length > 100 ? content.substring(0, 97) + '...' : content,
+            contentType: 'sales:deal',
+            contentTypeId: dealId,
+            action: `mentioned you in a comment`,
+            link: `/deal/board?itemId=${dealId}`, // Adjust link as needed
+          };
+
+          // Use the same sendNotification utility that deals use
+          await sendTRPCMessage({
+            subdomain,
+            method: 'mutation',
+            pluginName: 'core',
+            action: 'create',
+            module: 'notifications',
+            input: {
+              userIds,
+              data: notificationData,
+            },
+          });
+        } else {
+          // Fallback: send as inbox notification
+          await createNotifications({
+            contentType: 'inbox',
+            contentTypeId: doc.conversationId,
+            fromUserId: userId,
+            subdomain,
+            notificationType: 'internalNote',
+            userIds,
+            action: 'created',
+          });
+        }
       }
 
       const serviceName = integration.kind.split('-')[0];

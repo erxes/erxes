@@ -33,6 +33,9 @@ export const productDataSchema = new Schema(
     startDate: { type: Date, optional: true, label: 'Start date' }, //pms
     endDate: { type: Date, optional: true, label: 'End date' }, //pms
     information: { type: Object, optional: true, label: 'information' }, //pms
+    assignedUserIds: { type: [String], esType: 'keyword' },
+    mentionedUserIds: { type: [String], esType: 'keyword' },
+    watchedUserIds: { type: [String], esType: 'keyword' },
   },
   { _id: false },
 );

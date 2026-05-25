@@ -1054,11 +1054,13 @@ export const notifiedUserIds = async (
   stage?: IStageDocument,
   pipeline?: IPipelineDocument,
 ) => {
-  let userIds: string[] = [];
-
-  userIds = userIds.concat(item.assignedUserIds || []);
-
-  userIds = userIds.concat(item.watchedUserIds || []);
+  //let userIds: string[] = [];
+  const assigned = item.assignedUserIds || [];
+  const mentioned = item.mentionedUserIds || [];  
+  const watched = item.watchedUserIds || [];
+  //userIds = userIds.concat(item.assignedUserIds || []);
+  
+  //userIds = userIds.concat(item.watchedUserIds || []);
 
   if (!stage) {
     stage = await models.Stages.getStage(item.stageId);
@@ -1067,8 +1069,8 @@ export const notifiedUserIds = async (
     pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
   }
 
-  userIds = userIds.concat(pipeline.watchedUserIds || []);
-
+  //userIds = userIds.concat(pipeline.watchedUserIds || []);
+  const userIds = [...new Set([...assigned, ...mentioned, ...watched])];
   return userIds;
 };
 
@@ -1106,12 +1108,19 @@ export const sendNotifications = async (
     user._id,
   ];
 
+  // 🔍 LOG 1: Before calling notifiedUserIds
+  console.log('sendNotifications: deal', item._id, 'assignedUserIds', item.assignedUserIds);
+
   // exclude current user, invited user and removed users
   const receivers = (
     await notifiedUserIds(models, item, stage, pipeline)
   ).filter((id) => {
     return usersToExclude.indexOf(id) < 0;
   });
+
+  // 🔍 LOG 2: After computing receivers
+  console.log('sendNotifications: receivers (after exclusion)', receivers);
+  console.log('sendNotifications: usersToExclude', usersToExclude);
 
   const notificationDoc = {
     createdUser: user,
@@ -1124,6 +1133,8 @@ export const sendNotifications = async (
   };
 
   if (removedUsers && removedUsers.length > 0) {
+    // 🔍 LOG 3: removedUsers branch
+    console.log('sendNotifications: sending to removedUsers', removedUsers);
     sendNotification({
       subdomain,
       userIds: removedUsers.filter((id) => id !== user._id),
@@ -1136,6 +1147,8 @@ export const sendNotifications = async (
   }
 
   if (invitedUsers && invitedUsers.length > 0) {
+    // 🔍 LOG 4: invitedUsers branch
+    console.log('sendNotifications: sending to invitedUsers', invitedUsers);
     sendNotification({
       subdomain,
       userIds: invitedUsers.filter((id) => id !== user._id),
@@ -1147,6 +1160,8 @@ export const sendNotifications = async (
     });
   }
 
+  // 🔍 LOG 5: main notification branch
+  console.log('sendNotifications: sending to main receivers', receivers);
   sendNotification({
     subdomain,
     userIds: receivers,
