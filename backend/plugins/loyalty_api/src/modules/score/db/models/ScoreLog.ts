@@ -3,8 +3,19 @@ import {
   IScoreLogDocument,
   IScoreLogParams,
 } from '@/score/@types/scoreLog';
-import { SCORE_CAMPAIGN_STATUSES, SCORE_OWNER_TYPES } from '@/score/constants';
+import {
+  SCORE_ACTION,
+  SCORE_CAMPAIGN_STATUSES,
+  SCORE_OWNER_TYPES,
+} from '@/score/constants';
 import { scoreLogSchema } from '@/score/db/definitions/scoreLog';
+import {
+  buildSignedScoreExpression,
+  fixScoreNumber,
+  getOwnerScoreValue,
+  prepareScoreLogChange,
+  updateOwnerScoreCache,
+} from '@/score/services/scoreLedger';
 import { scoreStatistic } from '@/score/utils';
 import {
   buildCursorQuery,
@@ -15,13 +26,12 @@ import {
 import { Model, SortOrder } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
-import { getOwnerFieldScore } from './ScoreCampaign';
 
 export interface IScoreLogModel extends Model<IScoreLogDocument> {
   getScoreLog(_id: string): Promise<IScoreLogDocument>;
   getScoreLogs(doc: IScoreLogParams): Promise<IScoreLogDocument>;
   getStatistic(doc: IScoreLogParams): Promise<IScoreLogDocument>;
-  changeScore(doc: IScoreLog): Promise<IScoreLogDocument>;
+  changeScore(doc: IScoreLog): Promise<IScoreLogDocument | null>;
   changeOwnersScore(doc): Promise<IScoreLogDocument>;
 }
 
@@ -105,6 +115,72 @@ const generateFilter = async (
   return filter;
 };
 
+const getCampaignFieldScores = (owner: any, campaigns: any[]) => {
+  const usedCustomFieldIds: string[] = [];
+  let ownerScore = 0;
+
+  for (const campaign of campaigns) {
+    if (!campaign.fieldId || usedCustomFieldIds.includes(campaign.fieldId)) {
+      continue;
+    }
+
+    usedCustomFieldIds.push(campaign.fieldId);
+    ownerScore += getOwnerScoreValue(owner, campaign.fieldId);
+  }
+
+  return {
+    usedCustomFieldIds,
+    ownerScore: usedCustomFieldIds.length
+      ? ownerScore
+      : getOwnerScoreValue(owner),
+  };
+};
+
+const getManualScoreUpdate = ({
+  owner,
+  score,
+  newScore,
+  usedCustomFieldIds,
+}: {
+  owner: any;
+  score: number;
+  newScore: number;
+  usedCustomFieldIds: string[];
+}) => {
+  if (!usedCustomFieldIds.length) {
+    return { updatedScore: newScore };
+  }
+
+  const updatedCustomFieldsData = { ...owner?.propertiesData };
+
+  if (score > 0) {
+    const fieldId = usedCustomFieldIds[0];
+    updatedCustomFieldsData[fieldId] =
+      getOwnerScoreValue(owner, fieldId) + score;
+  } else {
+    let remaining = Math.abs(score);
+
+    for (const fieldId of usedCustomFieldIds) {
+      if (!remaining) {
+        break;
+      }
+
+      const currentValue = getOwnerScoreValue(owner, fieldId);
+      const deduct = Math.min(currentValue, remaining);
+      updatedCustomFieldsData[fieldId] = currentValue - deduct;
+      remaining -= deduct;
+    }
+
+    if (remaining && usedCustomFieldIds[0]) {
+      const fieldId = usedCustomFieldIds[0];
+      updatedCustomFieldsData[fieldId] =
+        getOwnerScoreValue(owner, fieldId) - remaining;
+    }
+  }
+
+  return { updatedCustomFieldsData };
+};
+
 export const loadScoreLogClass = (models: IModels, subdomain: string) => {
   class ScoreLog {
     public static async getScoreLog(_id: string) {
@@ -170,13 +246,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         },
         {
           $addFields: {
-            signedScore: {
-              $cond: {
-                if: { $eq: ['$action', 'subtract'] },
-                then: { $multiply: ['$changeScore', -1] },
-                else: '$changeScore',
-              },
-            },
+            signedScore: buildSignedScoreExpression(),
           },
         },
         {
@@ -264,7 +334,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       const { pluginName, moduleName } = SCORE_OWNER_TYPES[ownerType] || {};
 
-      const score = Number(changeScore);
+      const score = fixScoreNumber(Number(changeScore));
       const ownerFilter = { _id: { $in: ownerIds } };
 
       const owners = await sendTRPCMessage({
@@ -306,7 +376,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       const commonDoc = {
         ownerType,
-        changeScore: score,
+        changeScore: fixScoreNumber(score),
         createdAt: new Date(),
         description,
         createdBy,
@@ -330,11 +400,14 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         campaignId,
         targetId,
         serviceName,
+        action,
         amount,
         quantity,
       } = doc;
 
-      const score = Number(changeScore);
+      let score = fixScoreNumber(Number(changeScore));
+      const scoreAction =
+        action || (score < 0 ? SCORE_ACTION.SUBTRACT : SCORE_ACTION.ADD);
       const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
 
       if (!owner) {
@@ -345,7 +418,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         const target = await models.ScoreLogs.exists({
           targetId,
           serviceName,
-          action: 'add',
+          action: scoreAction,
         });
 
         if (target) {
@@ -353,11 +426,9 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      let ownerScore = 0;
       const campaignFilter: any = {
         status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
       };
-      const usedCustomFieldIds: string[] = [];
 
       if (campaignId) {
         campaignFilter._id = campaignId;
@@ -369,153 +440,60 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         throw new Error('Campaign not found');
       }
 
-      for (const campaign of campaigns) {
-        if (!campaign.fieldId || usedCustomFieldIds.includes(campaign.fieldId)) {
-          continue;
+      const { ownerScore, usedCustomFieldIds } = getCampaignFieldScores(
+        owner,
+        campaigns,
+      );
+
+      if (scoreAction === SCORE_ACTION.SET) {
+        score = fixScoreNumber(score - (Number(ownerScore) || 0));
+
+        if (score === 0) {
+          return null;
         }
-
-        usedCustomFieldIds.push(campaign.fieldId);
-        const campaignScore = getOwnerFieldScore(owner, campaign.fieldId);
-
-        ownerScore += Number(campaignScore) || 0;
       }
 
-      if (!usedCustomFieldIds.length) {
-        ownerScore = Number(owner.score) || 0;
-      }
-
-      const newScore = (Number(ownerScore) || 0) + score;
+      const newScore = fixScoreNumber((Number(ownerScore) || 0) + score);
 
       if (score < 0 && newScore < 0) {
         throw new Error(`score are not enough`);
       }
 
-      const response = await this.updateOwnerScore({
+      const response = await updateOwnerScoreCache({
         subdomain,
-        owner,
+        ownerId: owner._id,
         ownerType,
-        newScore,
-        score,
-        usedCustomFieldIds,
+        ...getManualScoreUpdate({
+          owner,
+          score,
+          newScore,
+          usedCustomFieldIds,
+        }),
       });
 
       if (!response || !Object.keys(response || {})?.length) {
         throw new Error('Something went wrong for give score');
       }
 
+      const preparedChange = prepareScoreLogChange({
+        action: scoreAction as any,
+        signedChangeScore: score,
+      });
+
       return await models.ScoreLogs.create({
         ownerId,
         ownerType,
-        changeScore: Math.abs(score),
+        changeScore: preparedChange.changeScore,
         createdAt: new Date(),
         description,
         createdBy,
         campaignId,
-        action: score < 0 ? 'subtract' : 'add',
+        action: preparedChange.action,
         targetId,
         serviceName,
         amount,
         quantity,
       });
-    }
-
-    static async updateOwnerScore({
-      subdomain,
-      ownerType,
-      owner,
-      newScore,
-      score,
-      usedCustomFieldIds,
-    }) {
-      const updateEntity = async (
-        moduleName: string,
-        action: string,
-        selector: any,
-        modifier: any,
-      ) =>
-        await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: moduleName,
-          action,
-          input: { selector, modifier },
-          defaultValue: null,
-        });
-
-      const selector = { _id: owner._id };
-      const modifier: any = { $set: { score: newScore } };
-
-      if (usedCustomFieldIds?.length) {
-        const updatedPropertiesData = { ...owner.propertiesData };
-
-        if (score > 0) {
-          const fieldId = usedCustomFieldIds[0];
-          updatedPropertiesData[fieldId] =
-            getOwnerFieldScore(owner, fieldId) + score;
-        } else {
-          let remaining = Math.abs(score);
-
-          for (const fieldId of usedCustomFieldIds) {
-            if (!remaining) {
-              break;
-            }
-
-            const currentValue = getOwnerFieldScore(owner, fieldId);
-            const deduct = Math.min(currentValue, remaining);
-            updatedPropertiesData[fieldId] = currentValue - deduct;
-            remaining -= deduct;
-          }
-
-          if (remaining && usedCustomFieldIds[0]) {
-            const fieldId = usedCustomFieldIds[0];
-            updatedPropertiesData[fieldId] =
-              getOwnerFieldScore(owner, fieldId) - remaining;
-          }
-        }
-
-        modifier.$set.propertiesData = updatedPropertiesData;
-        delete modifier.$set.score;
-      }
-
-      if (ownerType === 'user') {
-        return await updateEntity('users', 'updateOne', selector, modifier);
-      }
-      if (ownerType === 'customer') {
-        return await updateEntity('customers', 'updateMany', selector, modifier);
-      }
-      if (ownerType === 'company') {
-        return await updateEntity('companies', 'updateMany', selector, modifier);
-      }
-      if (ownerType === 'cpUser') {
-        const cpUser = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'query',
-          module: 'cpUsers',
-          action: 'get',
-          input: {
-            id: owner._id,
-          },
-          defaultValue: null,
-        });
-
-        if (!cpUser) {
-          throw new Error('Not Found Owner');
-        }
-        return await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'customers',
-          action: 'updateMany',
-          input: {
-            selector: { _id: cpUser.erxesCustomerId },
-            modifier,
-          },
-          defaultValue: null,
-        });
-      }
     }
   }
 

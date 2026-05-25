@@ -40,7 +40,7 @@ interface IPaymentType {
     notSplit?: boolean;
     preTax?: boolean;
   };
-  scoreCampaign?: string;
+  scoreCampaignId?: string;
 }
 
 type PayInfo = {
@@ -74,9 +74,9 @@ const OwnerScoreCampaignScore = ({
     variables: {
       ownerId: customer?._id,
       ownerType: 'customer',
-      campaignId: paymentType?.scoreCampaign,
+      campaignId: paymentType?.scoreCampaignId,
     },
-    skip: !paymentType?.scoreCampaign || !customer?._id,
+    skip: !paymentType?.scoreCampaignId || !customer?._id,
   }) || {};
 
   useEffect(() => {
@@ -86,7 +86,7 @@ const OwnerScoreCampaignScore = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkOwnerScore]);
 
-  if (!paymentType?.scoreCampaign || customers.length === 0) return null;
+  if (!paymentType?.scoreCampaignId || customers.length === 0) return null;
 
   const refundScore = () => {
     confirm({

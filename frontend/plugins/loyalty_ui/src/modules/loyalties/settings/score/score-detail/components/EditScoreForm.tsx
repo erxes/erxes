@@ -66,6 +66,7 @@ export const EditScoreForm = ({ onOpenChange, form }: Props) => {
           _id: scoreDetail._id,
           title: data.title,
           description: data.description || '',
+          order: data.order,
           serviceName: data.conditions.serviceName,
           restrictions,
           additionalConfig: {
@@ -74,6 +75,7 @@ export const EditScoreForm = ({ onOpenChange, form }: Props) => {
           },
           add: data.add,
           subtract: data.subtract,
+          set: data.set,
           ownerType: data.ownerType,
           onlyClientPortal: data.onlyClientPortal,
           fieldGroupId: data.fieldGroupId,
