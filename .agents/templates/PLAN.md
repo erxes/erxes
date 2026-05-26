@@ -11,7 +11,7 @@ Each commit must be atomic: one logical change, ≤~50 LOC, independently builda
   - `<file>` — <change>
   - `<file>` — <change>
 - **Why first:** <one sentence — schema before resolver, etc.>
-- **Verify:** `evals/run.sh sales --backend-only` (or appropriate scope)
+- **Verify:** `evals/run.sh <plugin> --backend-only` (or appropriate scope)
 
 ### Commit 2 — <subject>
 - **Files:**
@@ -29,8 +29,8 @@ Each commit must be atomic: one logical change, ≤~50 LOC, independently builda
 
 ### Commit N — Add behavioral test
 - **Files:**
-  - `.agents/plugins/sales/tests/<file>.spec.ts` — assertions for SPEC acceptance criteria
-- **Verify:** `cd .agents && pnpm test plugins/sales/tests/<file>.spec.ts`
+  - `.agents/plugins/<plugin>/tests/<file>.spec.ts` — assertions for SPEC acceptance criteria
+- **Verify:** `cd .agents && pnpm test plugins/<plugin>/tests/<file>.spec.ts`
 
 ## LOC budget
 

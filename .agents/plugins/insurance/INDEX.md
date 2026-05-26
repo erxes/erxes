@@ -1,19 +1,17 @@
-# insurance plugin
+# Insurance plugin
 
-> Status: **placeholder** — not yet mapped. See `../../README.md` for the schema this file should follow.
+**Backend:** `backend/plugins/insurance_api/`
+**Frontend:** `frontend/plugins/insurance_ui/`
+
+Specialized CRM extension for insurance brokerages and agencies.
 
 ## Modules
-_To be filled in. List each module here, linked to `modules/<feature>.md`._
 
-## External surfaces
-- GraphQL types federated out: _TBD_
-- tRPC routers: _TBD_
-- Express routes: _TBD_
-- BullMQ queues: _TBD_
-- Automation actions/triggers: _TBD_
+| Module | Doc | Backend root | Frontend root |
+|---|---|---|---|
+| **insurance** | [modules/insurance.md](modules/insurance.md) | `backend/plugins/insurance_api/src/modules/` | `frontend/plugins/insurance_ui/src/` |
 
-## Cross-plugin consumers
-_Who calls into this plugin._
-
-## Cross-plugin dependencies
-_What this plugin calls out to._
+## Integration with other plugins
+- **Core:** Maps `Customer` to insured parties and uses `User` for brokers.
+- **Sales:** Uses Deals to track insurance sales pipeline.
+- **Payment:** Collects premiums via the payment API.

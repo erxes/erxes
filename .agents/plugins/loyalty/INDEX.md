@@ -1,19 +1,17 @@
-# loyalty plugin
+# Loyalty plugin
 
-> Status: **placeholder** — not yet mapped. See `../../README.md` for the schema this file should follow.
+**Backend:** `backend/plugins/loyalty_api/`
+**Frontend:** `frontend/plugins/loyalty_ui/`
+
+Customer retention features including point scoring, vouchers, coupons, spin-the-wheel, donations, and lotteries.
 
 ## Modules
-_To be filled in. List each module here, linked to `modules/<feature>.md`._
 
-## External surfaces
-- GraphQL types federated out: _TBD_
-- tRPC routers: _TBD_
-- Express routes: _TBD_
-- BullMQ queues: _TBD_
-- Automation actions/triggers: _TBD_
+| Module | Doc | Backend root | Frontend root |
+|---|---|---|---|
+| **loyalty** | [modules/loyalty.md](modules/loyalty.md) | `backend/plugins/loyalty_api/src/modules/` | `frontend/plugins/loyalty_ui/src/` |
 
-## Cross-plugin consumers
-_Who calls into this plugin._
-
-## Cross-plugin dependencies
-_What this plugin calls out to._
+## Integration with other plugins
+- **Core:** Connects `ScoreLog` and `Voucher` to `Customer` and `Company`.
+- **Sales (POS):** Applies coupons or vouchers at checkout, calculates point accumulation from total spend.
+- **Ecommerce:** Same as POS (earn/burn points, use coupons).

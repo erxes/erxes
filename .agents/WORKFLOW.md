@@ -1,8 +1,8 @@
-# Sales Workflow — 7 Phases
+# Feature Workflow — 7 Phases
 
 > The pipeline that turns a developer's wish into a shipped customer-facing feature without slop.
 
-This file is the definition. The orchestrator at [`.claude/commands/sales.md`](../.claude/commands/sales.md) is the executable.
+This file is the definition. The orchestrators at `.claude/commands/<plugin>.md` are the executables (e.g., `sales.md`, `frontline.md`, `operation.md`).
 
 ## At a glance
 
@@ -19,7 +19,7 @@ Three human checkpoints. Everything else has automated gates AI cannot skip.
 
 **Goal:** capture the developer's intent unambiguously.
 
-**Trigger:** `/sales "<wish>"`
+**Trigger:** `/<plugin> "<wish>"` (e.g., `/sales`, `/frontline`, `/accounting`)
 
 **AI does:**
 1. Generate a wish ID: `YYYY-MM-DD-<slug>` (e.g., `2026-05-22-deal-priority`)
@@ -49,9 +49,9 @@ Three human checkpoints. Everything else has automated gates AI cannot skip.
 **Goal:** decide if this wish fits a known shape, and which skill to use.
 
 **AI does:**
-1. Read `.agents/skills/sales/` index — review each skill's "When to use" header.
+1. Read `.agents/skills/<plugin>/` index — review each skill's "When to use" header.
 2. Decide:
-   - **Fits an existing skill** → name it (e.g., `skills/sales/add-deal-field.md`)
+   - **Fits an existing skill** → name it (e.g., `skills/<plugin>/<matched-skill>.md`)
    - **NOVEL** — the wish doesn't fit any skill cleanly
 3. Append routing decision to `WISH.md` under `## Routing`.
 
@@ -93,7 +93,7 @@ Three human checkpoints. Everything else has automated gates AI cannot skip.
 
 **AI does:**
 1. Read the routed skill's "Mirror an existing feature" section.
-2. Identify 1–2 sister features in the Sales codebase. (For "add a Deal field" — `name`, `amount`, `closeDate`, `priority`-shape-fields if any exist.)
+2. Identify 1–2 sister features in the target plugin's codebase. (For "add a Deal field" — `name`, `amount`, `closeDate`, `priority`-shape-fields if any exist.)
 3. **Read every file the sister feature touches, in full.** No skimming.
 4. Copy `.agents/templates/GROUND.md` to `.agents/wishes/<id>/GROUND.md`. Fill in:
    - Sister features chosen
@@ -126,7 +126,7 @@ Three human checkpoints. Everything else has automated gates AI cannot skip.
 
 **Gate (automatic):**
 - Commits ≤ 50 LOC each (you'll know after Phase 5; if you blow the budget, halt and re-plan).
-- Independent buildability — `evals/run.sh sales` must pass after each commit, not just at the end.
+- Independent buildability — `evals/run.sh <plugin>` must pass after each commit, not just at the end.
 
 **Slop prevented:** big-bang refactors that no human can review.
 
@@ -139,7 +139,7 @@ Three human checkpoints. Everything else has automated gates AI cannot skip.
 **AI does:**
 For each commit in PLAN.md:
 1. Make the edits.
-2. Run `.agents/evals/run.sh sales` (or `evals/run.sh sales --backend-only` for backend-only commits — see `evals/run.sh --help`).
+2. Run `.agents/evals/run.sh <plugin>` (or `evals/run.sh <plugin> --backend-only` for backend-only commits — see `evals/run.sh --help`).
 3. If exit 0 → `git add -A && git commit -m "<message>"` then proceed to next.
 4. If non-zero → fix the failure. If fix takes >2 attempts, **stop and ask**.
 
@@ -153,17 +153,17 @@ For each commit in PLAN.md:
 
 ## Phase 6 — VERIFY
 
-**Goal:** ship a Playwright spec that **proves** user-visible behavior end-to-end, runnable from `evals/run.sh sales --include-e2e`. The spec is the deliverable, not the click-around demo.
+**Goal:** ship a Playwright spec that **proves** user-visible behavior end-to-end, runnable from `evals/run.sh <plugin> --include-e2e`. The spec is the deliverable, not the click-around demo.
 
 **AI does:**
-1. Open `.agents/plugins/sales/tests/`. Find the spec covering the affected module.
+1. Open `.agents/plugins/<plugin>/tests/`. Find the spec covering the affected module.
 2. For **every** SPEC.md acceptance criterion, write a Playwright test that:
    - **Seeds its own fixtures via API** (GraphQL mutations or REST calls — not via UI). Need a deal? Create board → pipeline → stage → deal in `test.beforeAll`. Don't rely on pre-existing data.
    - **Executes the user-visible flow** (navigate, click, type, observe).
    - **Asserts the user-visible outcome** (text content, color class, URL, count).
    - **Tears down fixtures** in `test.afterAll` to keep runs idempotent.
 3. Use the eval-files header convention (see `.agents/README.md`).
-4. Run the spec: `cd .agents && pnpm test plugins/sales/tests/<file>.spec.ts`. **Every** non-skipped test must pass.
+4. Run the spec: `cd .agents && pnpm test plugins/<plugin>/tests/<file>.spec.ts`. **Every** non-skipped test must pass.
 5. Commit the test changes.
 
 **No-skip rule.** `test.skip(true, 'pending seeded deal')` is **forbidden**. Two acceptable forms only:
@@ -172,7 +172,7 @@ For each commit in PLAN.md:
 
 If the dev stack isn't running, the test should **fail loudly** with "stack not running" — not silently skip. The test still exists as a runnable contract.
 
-**Artifact:** updated/new spec at `.agents/plugins/sales/tests/<file>.spec.ts` with every non-skipped test passing against a running stack.
+**Artifact:** updated/new spec at `.agents/plugins/<plugin>/tests/<file>.spec.ts` with every non-skipped test passing against a running stack.
 
 **Gate (automatic):** every SPEC.md acceptance criterion has at least one **non-skipped** test that passes (or a skip pointing at a real follow-up wish).
 
@@ -205,12 +205,12 @@ The PR body MUST include this section. No exceptions.
 
 **Stack running** (`pnpm dev:apis && pnpm dev:uis`):
 \`\`\`bash
-AGENT_TEST_LIVE=1 .agents/evals/run.sh sales --include-e2e
+AGENT_TEST_LIVE=1 .agents/evals/run.sh <plugin> --include-e2e
 \`\`\`
 Expected: all <N> tests pass. The spec seeds its own fixtures, so no manual prep.
 
 **Reading only** (no stack):
-- Open [`.agents/plugins/sales/tests/<file>.spec.ts`](link) — every contracted behavior is in a `test()` block with the user-visible flow scripted.
+- Open [`.agents/plugins/<plugin>/tests/<file>.spec.ts`](link) — every contracted behavior is in a `test()` block with the user-visible flow scripted.
 
 **Manual path** (for visual confirmation):
 1. `<step 1 — exact URL or click>`

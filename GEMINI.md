@@ -12,22 +12,23 @@ You are working in the **erxes** monorepo — an Nx + pnpm microservices platfor
 
 | Developer's intent | Do this |
 |---|---|
-| Wishes a Sales feature ("add X to Deal", "show Y on the kanban", "filter by Z") | Construct a full briefing with `pnpm --silent erxes-wish "<wish>"` and follow the 7-phase workflow at [`.agents/WORKFLOW.md`](./.agents/WORKFLOW.md). |
-| Wishes a Frontline feature ("add X to Conversation", "show Y on the inbox", "filter by Z") | Construct a full briefing with `pnpm --silent erxes-wish "<wish>"` and follow the 7-phase workflow at [`.agents/WORKFLOW.md`](./.agents/WORKFLOW.md). |
-| Wishes an Operation feature ("add X to Task", "show Y on the timeline", "filter by Z") | Construct a full briefing with `pnpm --silent erxes-wish "<wish>"` and follow the 7-phase workflow at [`.agents/WORKFLOW.md`](./.agents/WORKFLOW.md). |
-| Wishes a feature in another plugin (accounting, etc.) | The system is **sales, frontline, and operation-only today**. Tell the developer; do not invent a workflow. See [`.agents/EXTENDING.md`](./.agents/EXTENDING.md). |
+| **To start working on any feature or task** | **Load the Master Entrypoint skill at [skills/start.md](.agents/skills/start.md) to clarify the wish, rate task complexity, and boot the correct orchestration architecture.** |
+| Wishes a Sales feature ("add X to Deal", "show Y on the kanban", "filter by Z") | Construct a full briefing with `pnpm --silent erxes-wish "<wish>"` and follow the 7-phase workflow at [`.agents/WORKFLOW.md`](./.agents/WORKFLOW.md) combined with [skills/start.md](.agents/skills/start.md). |
+| Wishes a Frontline feature ("add X to Conversation", "show Y on the inbox", "filter by Z") | Construct a full briefing with `pnpm --silent erxes-wish "<wish>"` and follow the 7-phase workflow at [`.agents/WORKFLOW.md`](./.agents/WORKFLOW.md) combined with [skills/start.md](.agents/skills/start.md). |
+| Wishes an Operation feature ("add X to Task", "show Y on the timeline", "filter by Z") | Construct a full briefing with `pnpm --silent erxes-wish "<wish>"` and follow the 7-phase workflow at [`.agents/WORKFLOW.md`](./.agents/WORKFLOW.md) combined with [skills/start.md](.agents/skills/start.md). |
+| Wishes a feature in another plugin (accounting, payment, loyalty, etc.) | Construct a full briefing with `pnpm --silent erxes-wish "<wish>"` and follow the 7-phase workflow at [`.agents/WORKFLOW.md`](./.agents/WORKFLOW.md). The CLI auto-detects the plugin scope. |
 | Asks a question about the codebase | Read [`.agents/README.md`](./.agents/README.md) — routing table to docs, plugin maps, glossary. |
-| Asks "where is X file" | [`.agents/plugins/sales/INDEX.md`](./.agents/plugins/sales/INDEX.md) / [modules/](/.agents/plugins/sales/modules/), [`.agents/plugins/frontline/INDEX.md`](./.agents/plugins/frontline/INDEX.md) / [modules/](/.agents/plugins/frontline/modules/), or [`.agents/plugins/operation/INDEX.md`](./.agents/plugins/operation/INDEX.md) / [modules/](/.agents/plugins/operation/modules/). |
-| Asks "what does Deal/Pipeline/Stage mean" | [`.agents/memory/glossary.md`](./.agents/memory/glossary.md). |
+| Asks "where is X file" | [`.agents/plugins/<plugin>/INDEX.md`](./.agents/plugins/) — e.g., [sales](./.agents/plugins/sales/INDEX.md), [frontline](./.agents/plugins/frontline/INDEX.md), [operation](./.agents/plugins/operation/INDEX.md). |
+| Asks "what does Deal/Pipeline/Stage mean" | [`.agents/memory/glossary.md`](./.agents/memory/glossary.md) — covers all plugin domains. |
 | Asks how to fix slop / what NOT to do | [`.agents/SLOP-CHECKLIST.md`](./.agents/SLOP-CHECKLIST.md). |
-| Asks to verify a change works | `.agents/evals/run.sh sales` or `.agents/evals/run.sh frontline` or `.agents/evals/run.sh operation` — the "done" oracle. |
+| Asks to verify a change works | `.agents/evals/run.sh <plugin>` — e.g., `sales`, `frontline`, `operation`, `accounting`. |
 
 ## Hard rules — non-negotiable (full set in [`.agents/SYSTEM-PROMPT.md`](./.agents/SYSTEM-PROMPT.md))
 
 - **pnpm only.** Never `npm`/`yarn`. Inside `.agents/`: `pnpm install --ignore-workspace`.
 - **Mirror precedent.** Find a sister feature and read its files in full before generating. No generating from convention.
 - **Atomic commits.** One logical change, ≤ ~50 LOC each.
-- **Verify behavior, not compile.** `.agents/evals/run.sh sales` exit 0 is the "done" oracle. Playwright tests must seed their own fixtures — no `test.skip(true, 'pending …')` cop-outs.
+- **Verify behavior, not compile.** `.agents/evals/run.sh <plugin>` exit 0 is the "done" oracle. Playwright tests must seed their own fixtures — no `test.skip(true, 'pending …')` cop-outs.
 - **Plugin boundaries:** cross-plugin via GraphQL federation, tRPC, or Redis pubsub. **Never** direct import.
 - **Multi-tenancy:** every data path uses `models` from `generateModels(subdomain)`. No exceptions.
 - **Read `.agents/memory/lessons.md` at session start.** Past mistakes are documented; do not repeat them.

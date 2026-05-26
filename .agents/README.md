@@ -4,7 +4,7 @@
 
 This directory is the canonical, authoritative grounding for any AI working on the erxes repo. It exists for one purpose: **let AI ship customer-facing features without slop.**
 
-The system is currently scoped to the **Sales plugin**. When sales ships features reliably, we replicate the pattern to other plugins (see [EXTENDING.md](./EXTENDING.md)).
+The system covers **all erxes plugins** — sales, frontline, operation, accounting, content, insurance, loyalty, mongolian, payment, posclient, and tourism. Each plugin has its own skills, docs, module maps, and tests. See [EXTENDING.md](./EXTENDING.md) for how plugins are onboarded.
 
 ## Read this first
 
@@ -22,7 +22,7 @@ Before doing anything in this repo, an AI **must** read three files in order:
 | `erxes-wish "<wish>"` piped in (any AI tool) | The wrapper CLI has already constructed a complete briefing — follow it. |
 | "Add/change X in sales/frontline/operation" without invocation | Tell the developer about `erxes-wish "<wish>"` (works with any AI tool) or `/sales` / `/frontline` / `/operation` (Claude Code). If they decline tool-assist, manually follow [WORKFLOW.md](./WORKFLOW.md). |
 | "Just answer a question about sales/frontline/operation" | OK — no workflow needed for pure Q&A. Use [`plugins/sales/`](./plugins/sales/) / [`plugins/frontline/`](./plugins/frontline/) / [`plugins/operation/`](./plugins/operation/) + docs. |
-| "Touch another plugin" | Stop. The system is sales, frontline, and operation-only right now. Ask the developer to confirm they want to ship a non-supported feature without the workflow guards. |
+| "Touch another plugin" | Use the plugin's skills and docs at `skills/<plugin>/`, `docs/<plugin>/`, `plugins/<plugin>/`. If the plugin has no skills yet, flag it and follow the NOVEL path in WORKFLOW.md. |
 
 ### For the developer — tool-agnostic invocation
 
@@ -41,14 +41,14 @@ The `--silent` flag suppresses pnpm's `> erxes-wish` preamble so output is clean
 
 | Task shape | Go to |
 |---|---|
-| Pick a skill for the wish | [`skills/sales/`](./skills/sales/), [`skills/frontline/`](./skills/frontline/), or [`skills/operation/`](./skills/operation/) |
-| Understand the codebase layout | [`docs/sales/sales-plugin-map.md`](./docs/sales/sales-plugin-map.md) / [`docs/frontline/frontline-plugin-map.md`](./docs/frontline/frontline-plugin-map.md) / [`docs/operation/operation-plugin-map.md`](./docs/operation/operation-plugin-map.md) |
-| Find files for a plugin module | [`plugins/sales/INDEX.md`](./plugins/sales/INDEX.md) (Sales), [`plugins/frontline/INDEX.md`](./plugins/frontline/INDEX.md) (Frontline), or [`plugins/operation/INDEX.md`](./plugins/operation/INDEX.md) (Operation) |
-| Look up a Deal / Stage / Conversation term | [`memory/glossary.md`](./memory/glossary.md) |
+| Pick a skill for the wish | [`skills/<plugin>/`](./skills/) — e.g., [sales](./skills/sales/), [frontline](./skills/frontline/), [operation](./skills/operation/) |
+| Understand the codebase layout | [`docs/<plugin>/<plugin>-plugin-map.md`](./docs/) — e.g., [sales](./docs/sales/sales-plugin-map.md), [frontline](./docs/frontline/frontline-plugin-map.md), [operation](./docs/operation/operation-plugin-map.md) |
+| Find files for a plugin module | [`plugins/<plugin>/INDEX.md`](./plugins/) — e.g., [sales](./plugins/sales/INDEX.md), [frontline](./plugins/frontline/INDEX.md), [operation](./plugins/operation/INDEX.md) |
+| Look up a domain term (Deal, Task, Ticket, Invoice, etc.) | [`memory/glossary.md`](./memory/glossary.md) |
 | Look up stack / port / version | [`memory/stack.md`](./memory/stack.md) |
 | Look up why something was decided | [`memory/decisions.md`](./memory/decisions.md) |
 | Check forbidden patterns before claiming done | [`SLOP-CHECKLIST.md`](./SLOP-CHECKLIST.md) |
-| Run verification | [`evals/run.sh`](./evals/run.sh) — `evals/run.sh sales` or `evals/run.sh frontline` or `evals/run.sh operation` |
+| Run verification | [`evals/run.sh`](./evals/run.sh) — `evals/run.sh <plugin>` (e.g., `sales`, `frontline`, `operation`, `accounting`) |
 | See what AI got wrong here before | [`memory/lessons.md`](./memory/lessons.md) |
 | Run Playwright behavioral tests | `pnpm test` from `.agents/` (config: [`playwright.config.ts`](./playwright.config.ts)) |
 | Replicate this system for another plugin | [`EXTENDING.md`](./EXTENDING.md) |
@@ -62,7 +62,7 @@ Distilled from [`rules/`](./rules/). Read the full files for the *why*.
 - **Plugin boundaries** via gateway only. Cross-plugin: GraphQL federation, tRPC, or Redis pubsub. NEVER direct import. See [`rules/20-architecture-boundaries.md`](./rules/20-architecture-boundaries.md).
 - **Rebuild `erxes-api-shared`** after editing it — dependents reference its `dist/`.
 - **Mirror precedent before generating**. Find a sister feature, read in full, copy structure. See [`rules/00-orientation.md`](./rules/00-orientation.md) and every skill.
-- **Verify behavior, not just compile.** `evals/run.sh sales` must exit 0 before "done."
+- **Verify behavior, not just compile.** `evals/run.sh <plugin>` must exit 0 before "done."
 - **Atomic commits.** One logical change per commit. ≤~50 LOC each.
 
 ## Layout
@@ -71,17 +71,17 @@ Distilled from [`rules/`](./rules/). Read the full files for the *why*.
 .agents/
 ├── README.md                ← you are here
 ├── SYSTEM-PROMPT.md         ← hard rules, read first every session
-├── WORKFLOW.md              ← 7-phase Sales workflow
+├── WORKFLOW.md              ← 7-phase Feature workflow (all plugins)
 ├── SLOP-CHECKLIST.md        ← forbidden patterns
-├── EXTENDING.md             ← how to mirror sales for other plugins
+├── EXTENDING.md             ← how to onboard new plugins
 ├── rules/                   ← atoms (always-on conventions)
 ├── memory/                  ← cells (persistent state + lessons)
-├── skills/sales/            ← organs (task playbooks)
-├── docs/sales/              ← molecules (deep dives)
+├── skills/<plugin>/         ← organs (task playbooks per plugin)
+├── docs/<plugin>/           ← molecules (deep dives per plugin)
 ├── evals/                   ← golden tasks + run.sh + smoke tests
 ├── templates/               ← phase artifact templates
-├── wishes/                  ← per-feature directories (one per /sales invocation)
-├── plugins/sales/           ← file map + Playwright tests
+├── wishes/                  ← per-feature directories (one per /<plugin> invocation)
+├── plugins/<plugin>/        ← file map + Playwright tests per plugin
 ├── package.json             ← Playwright runner
 ├── playwright.config.ts
 └── .gitignore

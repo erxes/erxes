@@ -18,8 +18,8 @@ Most field-additions don't need smoke tests — the Playwright spec in Phase 6 i
 Local stack running:
 ```bash
 pnpm dev:core-api   # in one terminal — gateway + core-api
-pnpm nx serve sales_api  # sales backend
-pnpm nx serve sales_ui   # sales frontend
+pnpm nx serve <plugin>_api  # plugin backend
+pnpm nx serve <plugin>_ui   # plugin frontend
 # Open core-ui in browser
 ```
 
@@ -29,7 +29,7 @@ Required env vars per `memory/stack.md`.
 
 For: any wish that adds/changes a GraphQL query/mutation reachable from the UI.
 
-1. Open `http://localhost:3001/sales`
+1. Open `http://localhost:3001/<plugin>` (or relevant route)
 2. Navigate to the affected page
 3. Trigger the user-visible action (e.g., edit a deal's new field)
 4. Network tab — confirm the GraphQL request fires with the expected variables
@@ -40,7 +40,7 @@ For: any wish that adds/changes a GraphQL query/mutation reachable from the UI.
 
 For: any wish that touches `extensions.ts` or adds an `@key`.
 
-1. Restart `sales_api`
+1. Restart `<plugin>_api`
 2. Restart the gateway (`pnpm dev:core-api`)
 3. Watch the gateway startup logs for composition errors
 4. Hit introspection:
@@ -55,8 +55,8 @@ For: any wish that touches `extensions.ts` or adds an `@key`.
 
 For: any wish that touches `module-federation.config.ts`.
 
-1. Restart `sales_ui`
-2. `curl http://localhost:3005/mf-manifest.json | jq '.exposes'`
+1. Restart `<plugin>_ui`
+2. `curl http://localhost:<port>/mf-manifest.json | jq '.exposes'` (check stack.md for port)
 3. Confirm your new expose appears
 4. Open the host (`http://localhost:3001`)
 5. Navigate to the page that consumes the new module
@@ -96,11 +96,11 @@ For: any wish that adds/changes an automation trigger or action.
 
 ## Path 7 — REST endpoint
 
-For: any wish that adds/changes a sales REST route (`/pos-*`, `/ecommerce-*`).
+For: any wish that adds/changes a plugin REST route (e.g., `/pos-*`, `/ecommerce-*`).
 
 ```bash
 # Replace <subdomain> with your test tenant
-curl -X GET 'http://localhost:4000/pl:sales/ecommerce-init' \
+curl -X GET 'http://localhost:4000/pl:<plugin>/<route>' \
   -H 'X-Subdomain: <subdomain>' \
   -b 'auth-token=...' | jq
 ```

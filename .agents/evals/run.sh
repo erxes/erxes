@@ -70,9 +70,6 @@ if ! printf '%s\n' "${SUPPORTED_PLUGINS[@]}" | grep -qx "${PLUGIN}"; then
   exit 2
 fi
 
-if [[ "${PLUGIN}" != "sales" ]]; then
-  echo "⚠️  ${PLUGIN} is scaffolded but not validated. Workflow may need adaptation." >&2
-fi
 
 # Step counter for output clarity
 STEP=0

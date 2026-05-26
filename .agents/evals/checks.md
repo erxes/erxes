@@ -1,22 +1,22 @@
 # Checks
 
-> What runs when you call [`./run.sh sales`](./run.sh). Reference doc — the script is authoritative.
+> What runs when you call [`./run.sh <plugin>`](./run.sh). Reference doc — the script is authoritative.
 
-## What `run.sh sales` does
+## What `run.sh <plugin>` does
 
 1. Builds `erxes-api-shared` (prereq for any backend plugin)
-2. Builds `sales_api` via Nx
-3. Runs `sales_api` tests if a test target is configured
-4. Builds `sales_ui` via Nx
-5. (with `--include-e2e`) Runs the Playwright suite in `.agents/plugins/sales/tests/`
+2. Builds `<plugin>_api` via Nx
+3. Runs `<plugin>_api` tests if a test target is configured
+4. Builds `<plugin>_ui` via Nx (if it exists)
+5. (with `--include-e2e`) Runs the Playwright suite in `.agents/plugins/<plugin>/tests/`
 
 ## Flags
 
 ```bash
-.agents/evals/run.sh sales                    # full default
-.agents/evals/run.sh sales --backend-only     # skip frontend (faster, for backend-only commits)
-.agents/evals/run.sh sales --frontend-only    # skip backend
-.agents/evals/run.sh sales --include-e2e      # full + Playwright
+.agents/evals/run.sh <plugin>                    # full default
+.agents/evals/run.sh <plugin> --backend-only     # skip frontend (faster, for backend-only commits)
+.agents/evals/run.sh <plugin> --frontend-only    # skip backend
+.agents/evals/run.sh <plugin> --include-e2e      # full + Playwright
 ```
 
 ## Exit codes
@@ -52,10 +52,10 @@ There's no automated check for this today — it lives in [`golden-tasks.md`](./
 
 ### Module Federation runtime
 ```bash
-# Start sales_ui
-pnpm nx serve sales_ui
-# Check the manifest
-curl http://localhost:3005/mf-manifest.json
+# Start <plugin>_ui
+pnpm nx serve <plugin>_ui
+# Check the manifest (check the plugin's port, e.g., 3005 for sales)
+curl http://localhost:<port>/mf-manifest.json
 ```
 If your new exposes aren't in the manifest, the Rspack build didn't pick them up.
 
@@ -73,10 +73,10 @@ Skills note these explicitly when relevant. Phase 6 (VERIFY) should add a Playwr
 
 ## Caching notes
 
-Nx caches successful builds. If `run.sh` reports "✓ sales_api built" instantly, the build was cached — no actual recompile happened. That's fine; the binary on disk is current.
+Nx caches successful builds. If `run.sh` reports "✓ <plugin>_api built" instantly, the build was cached — no actual recompile happened. That's fine; the binary on disk is current.
 
 If you suspect a stale cache:
 ```bash
 pnpm nx reset       # clears Nx cache
-.agents/evals/run.sh sales
+.agents/evals/run.sh <plugin>
 ```

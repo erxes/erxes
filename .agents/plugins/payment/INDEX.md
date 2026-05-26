@@ -1,19 +1,27 @@
-# payment plugin
+# Payment plugin
 
-> Status: **placeholder** — not yet mapped. See `../../README.md` for the schema this file should follow.
+**Backend:** `backend/plugins/payment_api/`
+**Frontend:** `frontend/plugins/payment_ui/`
+
+Handles invoices, transactions, and integrations with payment gateways (QPay, SocialPay, Golomt, Stripe, etc.).
 
 ## Modules
-_To be filled in. List each module here, linked to `modules/<feature>.md`._
+
+| Module | Doc | Backend root | Frontend root |
+|---|---|---|---|
+| **payment** | [modules/payment.md](modules/payment.md) | `backend/plugins/payment_api/src/modules/payment/` | `frontend/plugins/payment_ui/src/` |
 
 ## External surfaces
-- GraphQL types federated out: _TBD_
-- tRPC routers: _TBD_
-- Express routes: _TBD_
-- BullMQ queues: _TBD_
-- Automation actions/triggers: _TBD_
 
-## Cross-plugin consumers
-_Who calls into this plugin._
+### GraphQL
+Provides standalone Queries and Mutations for managing invoices and checking transactions. Does not extend core types directly; instead, other plugins store `invoiceId`s.
 
-## Cross-plugin dependencies
-_What this plugin calls out to._
+### REST Routes
+Payment gateways typically hit webhooks.
+- `GET /pl:payment/check-*` routes for polling/redirect callbacks from banks.
+- Webhooks update `Transaction` and `Invoice` statuses, then dispatch events to other plugins.
+
+### Cross-plugin integration
+- **Sales:** When a POS deal is checked out, it creates an invoice in `payment_api`. When the invoice is paid via a webhook, `payment_api` fires a message/RPC to `sales_api` to mark the Deal as paid and update its stage.
+- **Tourism:** Tour bookings generate invoices.
+- **Accounting:** Syncs completed transactions to accounting ledger.

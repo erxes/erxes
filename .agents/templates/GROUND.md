@@ -4,7 +4,7 @@
 
 ## Sister features
 
-Pick 1–2 existing features in Sales that are closest in shape to what we're building.
+Pick 1–2 existing features in the target plugin that are closest in shape to what we're building.
 
 ### Sister 1: `<feature name>`
 **Why chosen:** <one sentence — same data type, same UI surface, same federation contract, etc.>
@@ -55,7 +55,7 @@ If anything in our change deviates from the sister, note it:
 ## Cross-plugin impact
 
 Does this change cross plugin boundaries?
-- [ ] No (sales only)
+- [ ] No (single plugin only)
 - [ ] Yes — affects: `<plugin>` via `<federation | tRPC | pubsub>`. See [`../../rules/20-architecture-boundaries.md`](../../rules/20-architecture-boundaries.md).
 
 ## Approval

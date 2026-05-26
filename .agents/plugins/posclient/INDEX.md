@@ -1,19 +1,18 @@
-# posclient plugin
+# POS Client plugin
 
-> Status: **placeholder** — not yet mapped. See `../../README.md` for the schema this file should follow.
+**Backend:** `backend/plugins/posclient_api/`
+**Frontend:** `frontend/plugins/posclient_ui/`
+
+An offline-first, local Point-of-Sale client API that syncs data between a local device (iPad/tablet/desktop app) and the main `sales_api` / `core-api`.
 
 ## Modules
-_To be filled in. List each module here, linked to `modules/<feature>.md`._
 
-## External surfaces
-- GraphQL types federated out: _TBD_
-- tRPC routers: _TBD_
-- Express routes: _TBD_
-- BullMQ queues: _TBD_
-- Automation actions/triggers: _TBD_
+| Module | Doc | Backend root | Frontend root |
+|---|---|---|---|
+| **posclient** | [modules/posclient.md](modules/posclient.md) | `backend/plugins/posclient_api/src/modules/posclient/` | `frontend/plugins/posclient_ui/src/` |
 
-## Cross-plugin consumers
-_Who calls into this plugin._
-
-## Cross-plugin dependencies
-_What this plugin calls out to._
+## Integration with other plugins
+- **Sales:** Syncs configuration from `sales_api` (pos configs, receipt templates).
+- **Core:** Caches `Products` and `Categories` locally to allow offline checkout.
+- **Payment:** When checking out, `posclient_api` requests `payment_api` to generate QPay/SocialPay QR codes. Once paid, the order is finalized.
+- **Accounting / Ebarimt (Mongolian):** Generates tax receipts automatically when an order is finalized.

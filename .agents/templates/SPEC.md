@@ -28,17 +28,17 @@ Example: "Sales managers can set a priority on every Deal (low / medium / high).
 
 ## Data model changes
 
-- **Entity:** `<Deal | Stage | ...>`
+- **Entity:** `<entity name>`
 - **New fields:**
   - `<name>: <type>` — required? default? indexed?
-- **Schema definition file:** `backend/plugins/sales_api/src/modules/sales/db/definitions/<entity>.ts`
+- **Schema definition file:** `backend/plugins/<plugin>_api/src/modules/<module>/db/definitions/<entity>.ts`
 
 ## UI changes
 
 - **New / modified components:**
-  - `frontend/plugins/sales_ui/src/modules/<module>/<file>.tsx`
+  - `frontend/plugins/<plugin>_ui/src/modules/<module>/<file>.tsx`
 - **New forms / schemas (Zod):**
-  - `frontend/plugins/sales_ui/src/modules/<module>/schemas/<name>.ts`
+  - `frontend/plugins/<plugin>_ui/src/modules/<module>/schemas/<name>.ts`
 - **New routes:**
   - `<path>` → `<component>`
 - **Module Federation exposes:** any change to `module-federation.config.ts`? (usually no for field additions)

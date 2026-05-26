@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const BASE_URL = process.env.AGENT_TEST_BASE_URL ?? 'http://localhost:3000';
+const BASE_URL = process.env.AGENT_TEST_BASE_URL ?? 'http://localhost:3001';
 
 export default defineConfig({
   testDir: './plugins',

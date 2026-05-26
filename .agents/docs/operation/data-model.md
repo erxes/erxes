@@ -13,9 +13,10 @@ Task
   ├─ projectId           → operation.Project
   ├─ milestoneId         → operation.Milestone
   ├─ cycleId             → operation.Cycle
+  ├─ teamId              → operation.Team
   ├─ assigneeId          → core.User
   ├─ createdBy           │ core.User
-  ├─ labelIds[]          → core.Tag[]
+  ├─ labelIds[]          → operation.Label[]
   └─ tagIds[]            → core.Tag[]
 
 Cycle (time-boxed iterations)
@@ -42,9 +43,13 @@ Cycle (time-boxed iterations)
 | `projectId` | string | links to Project |
 | `milestoneId` | string | links to Milestone |
 | `cycleId` | string | links to Cycle |
-| `labelIds` | string[] | custom labels |
+| `teamId` | string | links to Team |
+| `labelIds` | string[] | custom operation labels |
 | `tagIds` | string[] | core.Tag references |
 | `estimatePoint` | number | task estimate points |
+| `statusType` | number | status category (0-3) |
+
+> **Note on Custom Fields:** Unlike Sales (Deals) and Frontline (Tickets), the Operation `Task` entity currently **does not** support `customFieldsData` via the core properties module. All fields must be strongly typed in the Mongoose schema.
 
 ---
 

@@ -1,14 +1,14 @@
-# erxes Sales — System Prompt (Constitution)
+# erxes — System Prompt (Constitution)
 
-> **Read this at the start of every session that touches sales code. It is non-negotiable.**
+> **Read this at the start of every session that touches plugin code. It is non-negotiable.**
 
-You are working in the erxes monorepo. Your job is to **ship customer-facing Sales features without slop**. You operate under the 7-phase Sales Workflow defined in [`WORKFLOW.md`](./WORKFLOW.md).
+You are working in the erxes monorepo. Your job is to **ship customer-facing features without slop**. You operate under the 7-phase Feature Workflow defined in [`WORKFLOW.md`](./WORKFLOW.md).
 
 ## Session start protocol
 
 1. Read this file.
 2. Read [`memory/lessons.md`](./memory/lessons.md). If recent entries are relevant to the wish, internalize them.
-3. If the developer invoked `/sales "<wish>"`, follow the orchestrator at [`.claude/commands/sales.md`](../.claude/commands/sales.md).
+3. If the developer invoked `/<plugin> "<wish>"` (e.g., `/sales`, `/frontline`, `/operation`, `/accounting`), follow the orchestrator at [`.claude/commands/<plugin>.md`](../.claude/commands/).
 4. If the developer asked something else, identify the phase you're in and proceed.
 
 ## Hard rules — violating any of these means you stop and ask
@@ -44,15 +44,15 @@ Acceptable forms of asking:
 
 ## What a "customer-facing feature" means here
 
-A change to the Sales plugin that an end user (sales manager, agent, customer using the portal) can see and use. Specifically:
-- A new field on a Deal / Stage / Pipeline / Board they can edit
+A change to a plugin that an end user (sales manager, agent, customer using the portal) can see and use. Specifically:
+- A new field on a core entity (Deal, Task, Ticket, Conversation, etc.) they can edit
 - A new view / page / column they can navigate to
 - A new automation they can configure
 - A new integration with another plugin (payment, frontline, operation)
 - A new segment / filter they can save
 - A new dashboard widget / chart they can read
 
-NOT in scope for `/sales`:
+NOT in scope for `/<plugin>`:
 - Refactors with no user-visible behavior change → developer does manually
 - Performance tuning → developer does manually with profiling
 - New SDK / dependency → developer evaluates and adds; AI doesn't pick deps

@@ -1,19 +1,17 @@
-# mongolian plugin
+# Mongolian plugin
 
-> Status: **placeholder** — not yet mapped. See `../../README.md` for the schema this file should follow.
+**Backend:** `backend/plugins/mongolian_api/`
+**Frontend:** `frontend/plugins/mongolian_ui/`
+
+Local integrations for businesses operating in Mongolia. 
 
 ## Modules
-_To be filled in. List each module here, linked to `modules/<feature>.md`._
 
-## External surfaces
-- GraphQL types federated out: _TBD_
-- tRPC routers: _TBD_
-- Express routes: _TBD_
-- BullMQ queues: _TBD_
-- Automation actions/triggers: _TBD_
+| Module | Doc | Backend root | Frontend root |
+|---|---|---|---|
+| **mongolian** | [modules/mongolian.md](modules/mongolian.md) | `backend/plugins/mongolian_api/src/modules/` | `frontend/plugins/mongolian_ui/src/` |
 
-## Cross-plugin consumers
-_Who calls into this plugin._
-
-## Cross-plugin dependencies
-_What this plugin calls out to._
+## Integration with other plugins
+- **Core:** Core settings for the organization's registry numbers.
+- **Sales / POS / Ecommerce:** When a transaction completes, they call `mongolian_api` to generate Ebarimt tax receipts.
+- **Accounting:** Fetches official exchange rates from Mongolbank for multi-currency transactions.

@@ -11,7 +11,7 @@
 5. Note where the workflow snags. Fix the docs/skills/templates that caused the snag.
 6. Re-run until the task completes cleanly.
 
-These tasks are real-but-small Sales features. They span the workflow's full 7 phases.
+These tasks are real-but-small features (using Sales as the primary example, but adaptable to Frontline, Operation, etc.). They span the workflow's full 7 phases.
 
 ---
 
@@ -21,8 +21,7 @@ These tasks are real-but-small Sales features. They span the workflow's full 7 p
 
 **Expected behavior:**
 - AI reads `.agents/README.md`
-- Follows the routing table to `plugins/sales/INDEX.md` or `docs/sales/sales-plugin-map.md`
-- Returns the exact path: `backend/plugins/sales_api/src/modules/sales/db/definitions/deals.ts`
+- Returns the exact path: `backend/plugins/<plugin>_api/src/modules/<plugin>/db/definitions/<entity>.ts`
 - Time: < 2 minutes
 
 **This is the "single-entry" test.** If AI has to read 5 files to answer, the docs have a navigation gap.
@@ -38,11 +37,11 @@ These tasks are real-but-small Sales features. They span the workflow's full 7 p
 **Expected behavior:**
 - AI invokes `/sales` (or follows WORKFLOW.md manually)
 - Phase 0: asks 0–2 clarifying questions (color mapping? sortable?)
-- Phase 1: routes to `skills/sales/add-deal-field.md`
+- Phase 1: routes to `skills/<plugin>/add-<entity>-field.md`
 - Phase 2: SPEC.md with the 3 acceptance criteria above
 - Phase 3: GROUND.md naming sister features (e.g., how `name` or `closeDate` is implemented)
 - Phase 4: PLAN.md with 4–6 atomic commits
-- Phase 5: commits, each passing `evals/run.sh sales`
+- Phase 5: commits, each passing `evals/run.sh <plugin>`
 - Phase 6: Playwright spec covering the 3 criteria, passing
 - Phase 7: PR opened with template filled
 
@@ -55,7 +54,7 @@ These tasks are real-but-small Sales features. They span the workflow's full 7 p
 **Wish:** "Add a 'Deals closing this week' filtered view to the kanban — accessible from the action bar."
 
 **Expected behavior:**
-- Routes to `skills/sales/add-sales-ui-page.md` (or a UI-filter skill if added)
+- Routes to `skills/<plugin>/add-<plugin>-ui-page.md` (or a UI-filter skill if added)
 - Phase 3: mirrors how existing filters work (find one in `modules/deals/actionBar/`)
 - Phase 6: Playwright test exercises the filter (or skip with reason if data seeding needed)
 
@@ -66,8 +65,8 @@ These tasks are real-but-small Sales features. They span the workflow's full 7 p
 **Wish:** "When a Deal moves to the 'Won' stage, automatically create a follow-up Task in the operation plugin assigned to the deal's owner."
 
 **Expected behavior:**
-- Phase 1: routes to `skills/sales/add-sales-automation.md`
-- Phase 3: GROUND identifies sister features that cross plugin boundaries (e.g., existing payment ↔ sales callback at `backend/plugins/sales_api/src/main.ts:71`)
+- Phase 1: routes to `skills/<plugin>/add-<plugin>-automation.md`
+- Phase 3: GROUND identifies sister features that cross plugin boundaries (e.g., existing payment ↔ sales callback at `backend/plugins/<plugin>_api/src/main.ts:71`)
 - Phase 5: implementation uses GraphQL federation or tRPC, NEVER direct import
 - Phase 6: test validates both sides of the contract
 
@@ -95,7 +94,7 @@ When running a golden task, note any of these — they signal docs gaps:
 - AI greedy-reads >5 unrelated files
 - AI skips a phase
 - AI commits >50 LOC in one commit
-- AI declares "done" without `evals/run.sh sales`
+- AI declares "done" without `evals/run.sh <plugin>`
 - AI invents files that don't exist
 - AI directly imports from another plugin
 - AI writes tests that only assert non-throw

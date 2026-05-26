@@ -6,7 +6,7 @@
 
 ## Original wish
 
-> <verbatim from `/sales "..."`>
+> <verbatim from `/<plugin> "..."` or `erxes-wish`>
 
 ## Clarifying questions (and answers)
 
@@ -21,7 +21,7 @@
 
 ## Routing
 
-**Skill:** `.agents/skills/sales/<skill>.md`
+**Skill:** `.agents/skills/<plugin>/<skill>.md`
 (or)
 **Routing decision:** NOVEL — needs new skill / one-off / reshape wish
 

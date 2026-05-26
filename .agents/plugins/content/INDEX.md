@@ -1,19 +1,17 @@
-# content plugin
+# Content plugin
 
-> Status: **placeholder** — not yet mapped. See `../../README.md` for the schema this file should follow.
+**Backend:** `backend/plugins/content_api/`
+**Frontend:** `frontend/plugins/content_ui/`
+
+Headless CMS and Web Builder for managing marketing sites, blogs, and portals.
 
 ## Modules
-_To be filled in. List each module here, linked to `modules/<feature>.md`._
 
-## External surfaces
-- GraphQL types federated out: _TBD_
-- tRPC routers: _TBD_
-- Express routes: _TBD_
-- BullMQ queues: _TBD_
-- Automation actions/triggers: _TBD_
+| Module | Doc | Backend root | Frontend root |
+|---|---|---|---|
+| **cms** | [modules/cms.md](modules/cms.md) | `backend/plugins/content_api/src/modules/cms/` | `frontend/plugins/content_ui/src/modules/cms/` |
+| **webbuilder** | [modules/webbuilder.md](modules/webbuilder.md) | `backend/plugins/content_api/src/modules/webbuilder/` | `frontend/plugins/content_ui/src/modules/webbuilder/` |
 
-## Cross-plugin consumers
-_Who calls into this plugin._
-
-## Cross-plugin dependencies
-_What this plugin calls out to._
+## Integration with other plugins
+- **Core:** Exposes published content to external clients.
+- **Sales/Ecommerce:** CMS is often used to manage store pages and product catalog landing pages.

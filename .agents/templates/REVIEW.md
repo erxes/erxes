@@ -56,12 +56,12 @@ Did I learn anything non-obvious during this wish?
 
 ## Final verification
 
-- [ ] `.agents/evals/run.sh sales` exit 0 — output captured below
+- [ ] `.agents/evals/run.sh <plugin>` exit 0 — output captured below
 - [ ] Playwright spec covering SPEC criteria passing — **every non-skipped test passes** against a running stack
 - [ ] **No bare `test.skip(true, 'pending …')`** — every skip references a real follow-up wish or has been replaced with a self-seeding test
 
 ```
-<paste output of evals/run.sh sales>
+<paste output of evals/run.sh <plugin>>
 ```
 
 ## See-it-work path drafted

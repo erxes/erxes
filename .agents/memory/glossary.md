@@ -1,6 +1,6 @@
 # Glossary
 
-> Domain terms that show up in the Sales plugin and cross-cutting platform concepts. If a term is in this file, every page in `.agents/` uses it consistently.
+> Domain terms across all erxes plugins and cross-cutting platform concepts. If a term is in this file, every page in `.agents/` uses it consistently.
 
 ## Sales domain
 
@@ -55,6 +55,74 @@ A customer's rating + comment on a product. REST-only.
 
 ### LastViewedItem
 A customer's recent product views. Used for "you might like" suggestions.
+
+## Frontline domain
+
+### Conversation
+An inbound or outbound communication thread between a customer and an agent. Has a status lifecycle: new → open → closed. Backend: `backend/plugins/frontline_api/src/modules/inbox/`.
+
+### Channel
+A routing container that maps integrations to team members. Conversations arrive via integrations and are routed through channels.
+
+### Integration
+A connection to an external communication platform (email, messenger, SMS, Facebook, Instagram, etc.). Each integration belongs to a brand and feeds conversations into channels.
+
+### Ticket (frontline)
+A support ticket tracked through a pipeline. Similar structure to Deal (board → pipeline → stage → ticket). Backend: `backend/plugins/frontline_api/src/modules/ticket/`.
+
+### KnowledgeBase
+Self-service documentation organized as Topic → Category → Article. Can be embedded in the messenger widget.
+
+## Operation domain
+
+### Task
+A work item tracked through a pipeline (board → pipeline → stage → task). Has assignees, due dates, and status. Backend: `backend/plugins/operation_api/src/modules/task/`.
+
+### GrowthHack
+An experiment tracked through a pipeline. Has scoring fields (ease, impact, confidence, reach) for ICE/RICE prioritization. Backend: `backend/plugins/operation_api/src/modules/growthhack/`.
+
+## Payment domain
+
+### Payment Method
+A configured payment provider (e.g., bank transfer, card, QPay, SocialPay). Backend: `backend/plugins/payment_api/`.
+
+### Invoice
+A payment request generated from a deal or POS order. Tracks amount, status, and payment history.
+
+## Accounting domain
+
+### Journal Entry
+A double-entry bookkeeping record. Debits and credits must balance. Backend: `backend/plugins/accounting_api/`.
+
+### Account (accounting)
+A ledger account in the chart of accounts. Has a type (asset, liability, equity, revenue, expense).
+
+## Loyalty domain
+
+### Loyalty Program
+A customer reward program with rules for earning and redeeming points. Backend: `backend/plugins/loyalty_api/`.
+
+### Voucher
+A redeemable reward issued to a customer. Has an expiration and redemption status.
+
+### SpinWheel
+A gamified reward mechanism. Customers spin a wheel to win vouchers or points.
+
+## POS Client domain
+
+### POS Client
+A standalone point-of-sale terminal application. Syncs with the sales POS config for offline-capable order taking. Backend-only: `backend/plugins/posclient_api/`.
+
+## Mongolian integrations domain
+
+### Ebarimt
+Mongolian tax receipt system. Generates VAT receipts for POS transactions. Required by law for retail.
+
+### QPay / SocialPay
+Mongolian digital payment platforms. Integrated as payment methods.
+
+### XypService
+Mongolian citizen/company data lookup service. Used for customer verification.
 
 ## Cross-cutting platform terms
 

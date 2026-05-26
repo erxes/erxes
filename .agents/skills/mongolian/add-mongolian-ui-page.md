@@ -1,0 +1,80 @@
+# add mongolian ui page
+
+> **When to use:** the wish adds a new navigable page inside `mongolian_ui` — e.g., `/mongolian/dashboard`, `/mongolian/analytics`, `/mongolian/closed-ebarimts`. Not for tweaking an existing page (`/mongolian/ebarimts`) and not for a widget injected into someone else's surface.
+
+## Phase 3 — GROUND (mirror an existing feature)
+
+**Step 1 (mandatory): find the sister feature you will mirror.**
+
+Closest sisters in `frontend/plugins/mongolian_ui/`:
+
+| Sister page | File | Why |
+|---|---|---|
+| `EbarimtsIndexPage` | `src/pages/EbarimtsIndexPage.tsx` | the main `/mongolian` / `/mongolian/ebarimts` page — canonical layout with `PageHeader`, `PageContainer`, `Breadcrumb` |
+| `EbarimtsSettingsIndexPage` | `src/pages/EbarimtsSettingsIndexPage.tsx` | settings-area page (exposed under a separate federation key) |
+| `PosIndexPage` | `src/pages/PosIndexPage.tsx` | sibling top-level page in the same federation surface |
+
+**Read these files in full** before writing any code:
+
+- `frontend/plugins/mongolian_ui/src/pages/EbarimtsIndexPage.tsx` — canonical page shape: `Breadcrumb`, `PageHeader`, `PageContainer`, `PageSubHeader`
+- `frontend/plugins/mongolian_ui/src/modules/ebarimts/Main.tsx` — how routes inside the ebarimts module are declared (`<Route path="ebarimts" element={<EbarimtsMain />} />`)
+- `frontend/plugins/mongolian_ui/src/config.tsx` — `modules[]`, `path`, exposed navigation entries
+- `frontend/plugins/mongolian_ui/module-federation.config.ts` — `exposes` map; how pages become host-mountable
+- `frontend/plugins/mongolian_ui/src/MainNavigation.tsx`, `src/EbarimtsSubNavigation.tsx` — where the new page's nav link lives
+- [`../../docs/mongolian/module-federation.md`](../../docs/mongolian/module-federation.md) — host/remote conventions and shared-library rules
+
+If the page lives inside `mongolian` (e.g., `/mongolian/dashboard`), mirror `Main.tsx` routing. If it's a new top-level path the host should mount (e.g., `/mongolian-reports`), you must extend `module-federation.config.ts` `exposes` and update `config.tsx` `modules[]`.
+
+## Phase 4 — PLAN
+
+Default plan for an in-`/mongolian/*` sub-page (e.g., `/mongolian/dashboard`):
+
+1. **create the page component** — files: `frontend/plugins/mongolian_ui/src/pages/<NewPage>.tsx`
+2. **add the route** — files: `frontend/plugins/mongolian_ui/src/modules/ebarimts/Main.tsx`
+3. **add a nav entry** — files: `frontend/plugins/mongolian_ui/src/EbarimtsSubNavigation.tsx` or `src/MainNavigation.tsx`
+4. **(if the page needs data) add GraphQL queries + hook** — files: `src/modules/ebarimts/graphql/queries/...Queries.ts`, hook under `cards/hooks/` or a new directory if the page introduces a new entity surface
+5. **playwright spec navigates to the new route** — files: `.agents/plugins/mongolian/tests/ebarimts.spec.ts`
+
+If the page is host-exposed (rare), add one more commit:
+
+6. **expose page in module-federation.config.ts + register in config.tsx** — files: `frontend/plugins/mongolian_ui/module-federation.config.ts`, `frontend/plugins/mongolian_ui/src/config.tsx`
+
+## Phase 5 — IMPLEMENT (step-by-step)
+
+1. **`<NewPage>.tsx`** — start from `EbarimtsIndexPage.tsx`. Keep the same shell: `Breadcrumb`, `PageHeader`, `PageContainer`. Components come from `erxes-ui` and `ui-modules` only. Do not import from another plugin ([`../../rules/20-architecture-boundaries.md`](../../rules/20-architecture-boundaries.md)).
+2. **`Main.tsx`** — add a `<Route path="<new-segment>" element={<LazyNewPage />} />`. Use `lazy(() => import(...))` so the page chunks separately. Wrap the `<Routes>` in `Suspense` (already done — just add the route).
+3. **Navigation** — `EbarimtsSubNavigation.tsx` (sub-nav under mongolian group) or `MainNavigation.tsx` (top-level). Use `<Link to="/mongolian/<new-segment>">` and a Tabler icon.
+4. **Data** — if the page needs ebarimts/pipelines, mirror an existing query in `graphql/queries/EbarimtsQueries.ts` (see [`./add-mongolian-graphql-query.md`](./add-mongolian-graphql-query.md)).
+5. **State** — local UI with `useState`; cross-component with a Jotai atom under `src/modules/ebarimts/states/` (the dir already has `ebarimtsBoardState`, `ebarimtsViewState`, etc.). No new state library.
+6. **Forms** — React Hook Form + Zod, schema under `src/modules/ebarimts/schemas/`. See `boardFormSchema.ts` and the existing pattern in `cards/components/AddCardForm.tsx`.
+7. Run `.agents/evals/run.sh mongolian`. Exit 0.
+
+If host-exposed, restart `mongolian_ui` so Rspack rebuilds `mf-manifest.json` (see [`../../docs/mongolian/module-federation.md`](../../docs/mongolian/module-federation.md) "Verifying").
+
+## Phase 6 — VERIFY
+
+Add to `.agents/plugins/mongolian/tests/ebarimts.spec.ts`:
+
+- a test that `page.goto('/mongolian/<new-segment>')` and asserts the unique heading/breadcrumb is visible
+- a test that asserts the nav link is reachable from `/mongolian/ebarimts` (click it, expect the URL change)
+- if the page renders data, a test that the data area renders (or a `test.skip` with the seeding-required reason — see the existing skips in `ebarimts.spec.ts` lines 80–88)
+
+Run: `cd .agents && pnpm test plugins/mongolian/tests/ebarimts.spec.ts`
+
+## Pitfalls (specific to this skill)
+
+- **Don't add to `shared:`** in `module-federation.config.ts`. Singletons are reserved for libraries already host-shared. Adding a new one silently breaks every other plugin that doesn't share the same version. See [`../../rules/40-safety.md`](../../rules/40-safety.md) "Touching `module-federation.config.ts`".
+- A new exposed page MUST be lazy-loaded by the consumer. Static imports in the host bloat the initial bundle.
+- Routes must live inside the existing `<Routes>` in `Main.tsx` if the page is under `/mongolian/*`. Adding a sibling `<Routes>` at the page level causes React Router to mount/unmount incorrectly.
+- Do not import a UI component from `frontend/plugins/operation_ui/` etc. Cross-plugin UI is illegal here — if you need a component from another plugin, promote it to `frontend/libs/ui-modules/` first.
+- The page is multi-tenant transparently — `Apollo Client` already injects subdomain via the gateway. You almost never write subdomain code in the UI ([`../../rules/30-multi-tenancy.md`](../../rules/30-multi-tenancy.md) "if you're writing code that does NOT touch models").
+
+## Slop check before declaring done
+
+- [ ] Re-read [`../../SLOP-CHECKLIST.md`](../../SLOP-CHECKLIST.md)
+- [ ] No `console.log` left in the page
+- [ ] No `as any` casts to silence Apollo types
+- [ ] No defensive `ebarimt?.name ?? ''` where the type already guarantees `string`
+- [ ] No new shared deps in `module-federation.config.ts`
+- [ ] No commented-out section ("might use this later")
+- [ ] `Suspense` boundary wraps every `lazy()` import

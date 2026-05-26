@@ -172,10 +172,10 @@ test.describe('sales > deals (host UI)', () => {
     // — SelectRiskLevel.FilterItem renders inside the Filter.View's Command list
     // with the label "By Risk level". This proves SPEC #4 wiring is reachable
     // from the action bar even without seeded data. Live test — requires the
-    // sales_ui dev server on AGENT_TEST_BASE_URL (default localhost:3000).
+    // sales_ui dev server on AGENT_TEST_BASE_URL (default localhost:3001).
     test.skip(
       !process.env.AGENT_TEST_LIVE,
-      'requires running sales_ui dev server (set AGENT_TEST_LIVE=1 and start the host app on localhost:3000)',
+      'requires running sales_ui dev server (set AGENT_TEST_LIVE=1 and start the host app on localhost:3001)',
     );
     await page.goto('/sales/deals');
 
@@ -196,7 +196,7 @@ test.describe('sales > deals (host UI)', () => {
     // the priority filter does today. Same live-stack gate as the menu test above.
     test.skip(
       !process.env.AGENT_TEST_LIVE,
-      'requires running sales_ui dev server (set AGENT_TEST_LIVE=1 and start the host app on localhost:3000)',
+      'requires running sales_ui dev server (set AGENT_TEST_LIVE=1 and start the host app on localhost:3001)',
     );
     await page.goto('/sales/deals');
 
