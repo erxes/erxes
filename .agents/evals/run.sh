@@ -24,8 +24,8 @@ Usage: $(basename "$0") <plugin> [--backend-only|--frontend-only] [--include-e2e
 Plugins:
   sales            ← supported today
   operation, frontline, accounting, content, insurance,
-  loyalty, mongolian, payment, posclient, tourism
-                   ← scaffolded but not validated; flag will warn
+  loyalty, mongolian, payment, posclient, tourism, branched
+                    ← scaffolded but not validated; flag will warn
 
 Examples:
   $(basename "$0") sales
@@ -63,12 +63,12 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 cd "${REPO_ROOT}"
 
 # Validate plugin
-SUPPORTED_PLUGINS=(sales operation frontline accounting content insurance loyalty mongolian payment posclient tourism)
-if ! printf '%s\n' "${SUPPORTED_PLUGINS[@]}" | grep -qx "${PLUGIN}"; then
-  echo "Unknown plugin: ${PLUGIN}" >&2
-  echo "Supported: ${SUPPORTED_PLUGINS[*]}" >&2
-  exit 2
-fi
+  SUPPORTED_PLUGINS=(sales operation frontline accounting content insurance loyalty mongolian payment posclient tourism branched)
+  if ! printf '%s\n' "${SUPPORTED_PLUGINS[@]}" | grep -qx "${PLUGIN}"; then
+    echo "Unknown plugin: ${PLUGIN}" >&2
+    echo "Supported: ${SUPPORTED_PLUGINS[*]}" >&2
+    exit 2
+  fi
 
 
 # Step counter for output clarity

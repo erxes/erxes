@@ -1,0 +1,61 @@
+{
+  "name": "branched_ui",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "frontend/plugins/branched_ui/src",
+  "projectType": "application",
+  "tags": ["scope:branched", "type:frontend"],
+  "targets": {
+    "build": {
+      "executor": "@nx/rspack:rspack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "web",
+        "outputPath": "dist/frontend/plugins/branched_ui",
+        "main": "frontend/plugins/branched_ui/src/main.ts",
+        "tsConfig": "frontend/plugins/branched_ui/tsconfig.app.json",
+        "rspackConfig": "frontend/plugins/branched_ui/rspack.config.ts",
+        "assets": []
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production",
+          "optimization": true,
+          "sourceMap": false,
+          "rspackConfig": "frontend/plugins/branched_ui/rspack.config.prod.ts"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/rspack:module-federation-dev-server",
+      "options": {
+        "buildTarget": "branched_ui:build:development",
+        "port": 3007
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "buildTarget": "branched_ui:build:production"
+        }
+      }
+    },
+    "serve-static": {
+      "executor": "@nx/rspack:module-federation-static-server",
+      "defaultConfiguration": "production",
+      "options": {
+        "serveTarget": "branched_ui:serve"
+      },
+      "configurations": {
+        "development": {
+          "serveTarget": "branched_ui:serve:development"
+        },
+        "production": {
+          "serveTarget": "branched_ui:serve:production"
+        }
+      }
+    }
+  }
+}
