@@ -4,8 +4,10 @@ import { useCallback } from 'react';
 import { syncCategoriesMutation } from '../graphql/mutations/syncCategriesMutations';
 import { CategoryItem, CategoryStatus } from '../types/categoryItem';
 
-const getCategoryKey = (item: { _id?: string; id?: string }) =>
-  item._id ?? item.id;
+interface SyncResult {
+  success: number;
+  failed: number;
+}
 
 export const useSyncCategory = () => {
   const [mutate, { loading, error }] = useMutation(syncCategoriesMutation);
@@ -15,26 +17,17 @@ export const useSyncCategory = () => {
     async (
       toCheckCategories: CategoryItem[],
       selectedFilter: CategoryStatus,
-    ): Promise<CategoryItem[] | undefined> => {
-      if (!toCheckCategories || toCheckCategories.length === 0) {
-        toast({
-          title: 'Error',
-          description: 'Sync categories not found',
-          variant: 'destructive',
-        });
-        return;
-      }
-
+    ): Promise<SyncResult | undefined> => {
       const categoriesToSync = toCheckCategories.filter(
-        (item) => item.status === selectedFilter && !item.isSynced,
+        (item) => item.status === selectedFilter,
       );
 
       if (categoriesToSync.length === 0) {
         toast({
           title: 'Info',
-          description: `All ${selectedFilter} categories are already synced`,
+          description: `No ${selectedFilter} categories to sync`,
         });
-        return toCheckCategories;
+        return;
       }
 
       let mutationFailed = false;
@@ -44,7 +37,7 @@ export const useSyncCategory = () => {
           variables: {
             action: selectedFilter.toUpperCase(),
             categories: categoriesToSync.map((item) => ({
-              id: getCategoryKey(item),
+              id: item._id ?? item.id,
               code: item.code,
               name: item.name,
               parent: item.parent,
@@ -67,32 +60,24 @@ export const useSyncCategory = () => {
           },
         });
 
-        if (!response.data?.toSyncCategories) {
-          return;
-        }
+        const result = response.data?.toSyncCategories;
+        if (!result) return;
 
-        const syncedKeys = new Set(
-          categoriesToSync.map(getCategoryKey).filter(Boolean),
-        );
-
-        const updatedCategories = toCheckCategories.map((item) => {
-          const key = getCategoryKey(item);
-          if (key && syncedKeys.has(key)) {
-            return { ...item, isSynced: true };
-          }
-          return item;
-        });
+        const success = result.success ?? categoriesToSync.length;
+        const failed = result.failed ?? 0;
 
         toast({
-          title: 'Success',
-          description: `${categoriesToSync.length} ${selectedFilter} categories synced`,
+          title: failed === 0 ? 'Success' : 'Partial',
+          description:
+            failed === 0
+              ? `${success} ${selectedFilter} categories synced`
+              : `${success} synced, ${failed} failed`,
+          variant: failed === 0 ? undefined : 'destructive',
         });
 
-        return updatedCategories;
+        return { success, failed };
       } catch (err) {
-        if (mutationFailed) {
-          return;
-        }
+        if (mutationFailed) return;
         console.error('Sync categories error:', err);
         toast({
           title: 'Error',

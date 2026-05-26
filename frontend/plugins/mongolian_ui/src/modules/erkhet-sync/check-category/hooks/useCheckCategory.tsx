@@ -26,39 +26,16 @@ const EMPTY_PAGE_INFO: PageInfo = {
 const toCheckCategoriesAtom = atom<CategoryItem[] | null>(null);
 const toCheckCategoriesDataAtom = atom<CheckCategoriesResponse | null>(null);
 const selectedFilterAtom = atom<CategoryStatus>('create');
-
-const getCategoryKey = (item: { _id?: string; id?: string }) =>
-  item._id ?? item.id;
+export const syncedCategoryCodesAtom = atom<Set<string>>(new Set<string>());
 
 const buildCategoryItems = (
   responseData: CheckCategoriesResponse,
-  previousItems: CategoryItem[] | null,
-): CategoryItem[] => {
-  const previousSynced =
-    previousItems?.filter((item) => item.isSynced === true) ?? [];
-
-  const incoming = ([
-    'create',
-    'update',
-    'delete',
-  ] as const).flatMap<CategoryItem>((status) =>
+): CategoryItem[] =>
+  (['create', 'update', 'delete'] as const).flatMap<CategoryItem>((status) =>
     (responseData[status]?.items ?? []).map(
-      (item: ICheckCategory) =>
-        ({
-          ...item,
-          status,
-          isSynced: false,
-        }) as CategoryItem,
+      (item: ICheckCategory) => ({ ...item, status } as CategoryItem),
     ),
   );
-
-  const incomingKeys = new Set(incoming.map(getCategoryKey).filter(Boolean));
-  const carriedSynced = previousSynced.filter(
-    (item) => !incomingKeys.has(getCategoryKey(item)),
-  );
-
-  return [...carriedSynced, ...incoming];
-};
 
 export const useCheckCategory = () => {
   const [toCheckCategories, setToCheckCategories] = useAtom(
@@ -68,6 +45,7 @@ export const useCheckCategory = () => {
     toCheckCategoriesDataAtom,
   );
   const [selectedFilter, setSelectedFilter] = useAtom(selectedFilterAtom);
+  const [syncedCodes, setSyncedCodes] = useAtom(syncedCategoryCodesAtom);
   const [mutate, { loading, error }] = useMutation(checkCategoriesMutation);
   const {
     syncCategories: syncCategoriesAction,
@@ -77,50 +55,58 @@ export const useCheckCategory = () => {
 
   const { toast } = useToast();
 
-  const checkCategory = useCallback(async () => {
-    try {
-      const response = await mutate({
-        onError: (mutationError) => {
+  const runCheck = useCallback(
+    async (silent = false): Promise<CategoryItem[] | null> => {
+      try {
+        const response = await mutate({
+          onError: (mutationError) => {
+            toast({
+              title: 'Error',
+              description: mutationError.message,
+              variant: 'destructive',
+            });
+          },
+        });
+
+        const responseData: CheckCategoriesResponse | undefined =
+          response.data?.toCheckCategories;
+
+        if (!responseData) {
+          return null;
+        }
+
+        const allCategories = buildCategoryItems(responseData);
+
+        setToCheckCategoriesData(responseData);
+        setToCheckCategories(allCategories);
+        setSyncedCodes(new Set<string>());
+
+        if (!silent) {
+          const pendingCount = allCategories.length;
           toast({
-            title: 'Error',
-            description: mutationError.message,
-            variant: 'destructive',
+            title: pendingCount > 0 ? 'Success' : 'Up to date',
+            description:
+              pendingCount > 0
+                ? `${pendingCount} categories to sync`
+                : 'No categories require syncing',
           });
-        },
-      });
+        }
 
-      const responseData: CheckCategoriesResponse | undefined =
-        response.data?.toCheckCategories;
-
-      if (!responseData) {
-        return;
+        return allCategories;
+      } catch (err) {
+        console.error('Check category error:', err);
+        toast({
+          title: 'Error',
+          description: 'Failed to check categories',
+          variant: 'destructive',
+        });
+        return null;
       }
+    },
+    [mutate, setToCheckCategories, setToCheckCategoriesData, toast],
+  );
 
-      const allCategories = buildCategoryItems(responseData, toCheckCategories);
-
-      setToCheckCategoriesData(responseData);
-      setToCheckCategories(allCategories);
-
-      const pendingCount = allCategories.filter(
-        (item) => !item.isSynced,
-      ).length;
-
-      toast({
-        title: pendingCount > 0 ? 'Success' : 'Up to date',
-        description:
-          pendingCount > 0
-            ? `${pendingCount} categories to sync`
-            : 'No categories require syncing',
-      });
-    } catch (err) {
-      console.error('Check category error:', err);
-      toast({
-        title: 'Error',
-        description: 'Failed to check categories',
-        variant: 'destructive',
-      });
-    }
-  }, [mutate, setToCheckCategories, setToCheckCategoriesData, toCheckCategories, toast]);
+  const checkCategory = useCallback(() => runCheck(false), [runCheck]);
 
   const syncCategories = useCallback(async () => {
     if (!toCheckCategories || toCheckCategories.length === 0) {
@@ -132,17 +118,22 @@ export const useCheckCategory = () => {
       return;
     }
 
-    const updatedCategories = await syncCategoriesAction(
+    const categoriesToSync = toCheckCategories.filter(
+      (item) => item.status === selectedFilter,
+    );
+
+    const syncResult = await syncCategoriesAction(
       toCheckCategories,
       selectedFilter,
     );
 
-    if (updatedCategories) {
-      setToCheckCategories(updatedCategories);
+    if (syncResult) {
+      setSyncedCodes(new Set(categoriesToSync.map((item) => item.code)));
+      await runCheck(true);
     }
   }, [
+    runCheck,
     selectedFilter,
-    setToCheckCategories,
     syncCategoriesAction,
     toCheckCategories,
     toast,
@@ -150,10 +141,14 @@ export const useCheckCategory = () => {
 
   const filteredCategories = useMemo<CategoryItem[]>(
     () =>
-      (toCheckCategories ?? []).filter(
-        (item) => item.status === selectedFilter,
-      ),
-    [toCheckCategories, selectedFilter],
+      (toCheckCategories ?? [])
+        .filter((item) => item.status === selectedFilter)
+        .map((item) =>
+          syncedCodes.has(item.code)
+            ? { ...item, status: 'synced' as CategoryStatus }
+            : item,
+        ),
+    [toCheckCategories, selectedFilter, syncedCodes],
   );
 
   return {

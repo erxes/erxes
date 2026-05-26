@@ -4,8 +4,10 @@ import { useCallback } from 'react';
 import { syncProductsMutation } from '../graphql/mutations/syncProductsMutations';
 import { ProductItem, ProductStatus } from '../types/productItem';
 
-const getProductKey = (item: { _id?: string; id?: string }) =>
-  item._id ?? item.id;
+interface SyncResult {
+  success: number;
+  failed: number;
+}
 
 export const useSyncProduct = () => {
   const [mutate, { loading, error }] = useMutation(syncProductsMutation);
@@ -15,26 +17,17 @@ export const useSyncProduct = () => {
     async (
       toCheckProducts: ProductItem[],
       selectedFilter: ProductStatus,
-    ): Promise<ProductItem[] | undefined> => {
-      if (!toCheckProducts || toCheckProducts.length === 0) {
-        toast({
-          title: 'Error',
-          description: 'Sync products not found',
-          variant: 'destructive',
-        });
-        return;
-      }
-
+    ): Promise<SyncResult | undefined> => {
       const productsToSync = toCheckProducts.filter(
-        (item) => item.status === selectedFilter && !item.isSynced,
+        (item) => item.status === selectedFilter,
       );
 
       if (productsToSync.length === 0) {
         toast({
           title: 'Info',
-          description: `All ${selectedFilter} products are already synced`,
+          description: `No ${selectedFilter} products to sync`,
         });
-        return toCheckProducts;
+        return;
       }
 
       let mutationFailed = false;
@@ -44,7 +37,7 @@ export const useSyncProduct = () => {
           variables: {
             action: selectedFilter.toUpperCase(),
             products: productsToSync.map((item) => ({
-              id: getProductKey(item),
+              id: item._id ?? item.id,
               code: item.code,
               name: item.name,
               barcodes: item.barcodes,
@@ -78,32 +71,24 @@ export const useSyncProduct = () => {
           },
         });
 
-        if (!response.data?.toSyncProducts) {
-          return;
-        }
+        const result = response.data?.toSyncProducts;
+        if (!result) return;
 
-        const syncedKeys = new Set(
-          productsToSync.map(getProductKey).filter(Boolean),
-        );
-
-        const updatedProducts = toCheckProducts.map((item) => {
-          const key = getProductKey(item);
-          if (key && syncedKeys.has(key)) {
-            return { ...item, isSynced: true };
-          }
-          return item;
-        });
+        const success = result.success ?? productsToSync.length;
+        const failed = result.failed ?? 0;
 
         toast({
-          title: 'Success',
-          description: `${productsToSync.length} ${selectedFilter} products synced`,
+          title: failed === 0 ? 'Success' : 'Partial',
+          description:
+            failed === 0
+              ? `${success} ${selectedFilter} products synced`
+              : `${success} synced, ${failed} failed`,
+          variant: failed === 0 ? undefined : 'destructive',
         });
 
-        return updatedProducts;
+        return { success, failed };
       } catch (err) {
-        if (mutationFailed) {
-          return;
-        }
+        if (mutationFailed) return;
         console.error('Sync products error:', err);
         toast({
           title: 'Error',

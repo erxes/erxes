@@ -1,78 +1,66 @@
-import { IconCirclePlus, IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconChevronDown } from '@tabler/icons-react';
+import { Button, DropdownMenu, cn } from 'erxes-ui';
 import { useCheckProduct } from '../hooks/useCheckProduct';
 import { ProductStatus } from '../types/productItem';
 
-interface FilterConfig {
-  value: ProductStatus;
-  label: string;
-  icon: React.ElementType;
-  activeClass: string;
-  inactiveClass: string;
-  badgeClass: string;
-}
+type FilterableStatus = 'create' | 'update' | 'delete';
 
-const FILTERS: FilterConfig[] = [
-  {
-    value: 'create',
-    label: 'Create',
-    icon: IconCirclePlus,
-    activeClass: 'bg-green-600 text-white border-green-600',
-    inactiveClass: 'bg-white text-green-700 border-green-300 hover:bg-green-50',
-    badgeClass: 'bg-green-100 text-green-700',
-  },
-  {
-    value: 'update',
-    label: 'Update',
-    icon: IconEdit,
-    activeClass: 'bg-blue-600 text-white border-blue-600',
-    inactiveClass: 'bg-white text-blue-700 border-blue-300 hover:bg-blue-50',
-    badgeClass: 'bg-blue-100 text-blue-700',
-  },
-  {
-    value: 'delete',
-    label: 'Delete',
-    icon: IconTrash,
-    activeClass: 'bg-red-600 text-white border-red-600',
-    inactiveClass: 'bg-white text-red-700 border-red-300 hover:bg-red-50',
-    badgeClass: 'bg-red-100 text-red-700',
-  },
+const FILTERS: Array<{
+  value: FilterableStatus;
+  label: string;
+  dot: string;
+  badge: string;
+}> = [
+  { value: 'create', label: 'Create', dot: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-700' },
+  { value: 'update', label: 'Update', dot: 'bg-blue-500', badge: 'bg-blue-100 text-blue-700' },
+  { value: 'delete', label: 'Delete', dot: 'bg-red-500', badge: 'bg-red-100 text-red-700' },
 ];
+
+const DEFAULT_FILTER = FILTERS[0];
 
 export const CheckProductFilter = () => {
   const { selectedFilter, setSelectedFilter, toCheckProductsData } =
     useCheckProduct();
 
-  const getCount = (type: ProductStatus) =>
-    toCheckProductsData?.[type as 'create' | 'update' | 'delete']?.items
-      ?.length ?? 0;
+  const getCount = (type: FilterableStatus) =>
+    toCheckProductsData?.[type]?.items?.length ?? 0;
+
+  const selected = FILTERS.find((f) => f.value === selectedFilter) ?? DEFAULT_FILTER;;
 
   return (
-    <div className="flex gap-2">
-      {FILTERS.map((filter) => {
-        const isActive = selectedFilter === filter.value;
-        const count = getCount(filter.value);
-        const Icon = filter.icon;
-
-        return (
-          <button
-            key={filter.value}
-            onClick={() => setSelectedFilter(filter.value)}
-            className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
-              isActive ? filter.activeClass : filter.inactiveClass
-            }`}
-          >
-            <Icon size={14} />
-            {filter.label}
-            <span
-              className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${
-                isActive ? 'bg-white/20 text-white' : filter.badgeClass
-              }`}
+    <DropdownMenu>
+      <DropdownMenu.Trigger asChild>
+        <Button variant="outline" size="sm" className="gap-1.5 pr-2">
+          <span className={cn('size-2 rounded-full shrink-0', selected.dot)} />
+          {selected.label}
+          <span className={cn('ml-0.5 rounded px-1.5 py-0.5 text-xs font-medium tabular-nums', selected.badge)}>
+            {getCount(selectedFilter)}
+          </span>
+          <IconChevronDown size={13} className="ml-1 text-muted-foreground" />
+        </Button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content align="start" className="w-44 p-1">
+        {FILTERS.map((filter) => {
+          const count = getCount(filter.value);
+          const isActive = selectedFilter === filter.value;
+          return (
+            <DropdownMenu.Item
+              key={filter.value}
+              className={cn(
+                'flex items-center gap-2.5 rounded-sm px-2 py-1.5 cursor-pointer',
+                isActive && 'bg-accent',
+              )}
+              onSelect={() => setSelectedFilter(filter.value as ProductStatus)}
             >
-              {count}
-            </span>
-          </button>
-        );
-      })}
-    </div>
+              <span className={cn('size-2 rounded-full shrink-0', filter.dot)} />
+              <span className="flex-1 text-sm">{filter.label}</span>
+              <span className={cn('rounded px-1.5 py-0.5 text-xs font-medium tabular-nums', filter.badge)}>
+                {count}
+              </span>
+            </DropdownMenu.Item>
+          );
+        })}
+      </DropdownMenu.Content>
+    </DropdownMenu>
   );
 };

@@ -1,31 +1,23 @@
-import { PageContainer, PageSubHeader } from 'erxes-ui';
+import { PageContainer } from 'erxes-ui';
 
 import { CheckCategoryRecordTable } from '@/erkhet-sync/check-category/components/CheckCategoryRecordTable';
 import { CheckCategoryHeader } from '@/erkhet-sync/check-category/components/CheckCategoryHeader';
-import { CheckCategoryFilter } from '@/erkhet-sync/check-category/components/CheckCategoryFilter';
 import { useCheckCategory } from '~/modules/erkhet-sync/check-category/hooks/useCheckCategory';
-import CheckButton from '~/modules/erkhet-sync/check-category/components/useCheckButton';
 
 export const CheckCategoryPage = () => {
-  const { loading, toCheckCategories, setSelectedFilter } = useCheckCategory();
+  const { loading, toCheckCategories } = useCheckCategory();
 
-  const handleFilterClick = (filter: 'create' | 'update' | 'delete') => {
-    setSelectedFilter(filter);
-  };
+  const hasChecked = !!toCheckCategories;
 
   return (
     <PageContainer>
       <CheckCategoryHeader />
-      <PageSubHeader className="flex justify-between items-center">
-        <CheckCategoryFilter onFilterClick={handleFilterClick} />
-        <CheckButton />
-      </PageSubHeader>
 
-      {toCheckCategories && toCheckCategories.length > 0 ? (
+      {hasChecked ? (
         <CheckCategoryRecordTable />
       ) : (
-        <div className="m-3 text-center text-muted-foreground">
-          {loading ? 'Checking...' : 'No data found'}
+        <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
+          {loading ? 'Checking...' : 'Press "Check" to compare Erxes and Erkhet categories'}
         </div>
       )}
     </PageContainer>

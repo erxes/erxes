@@ -27,39 +27,16 @@ const EMPTY_PAGE_INFO: PageInfo = {
 const toCheckProductsAtom = atom<ProductItem[] | null>(null);
 const toCheckProductsDataAtom = atom<CheckProductsResponse | null>(null);
 const selectedFilterAtom = atom<ProductStatus>('create');
-
-const getProductKey = (item: { _id?: string; id?: string }) =>
-  item._id ?? item.id;
+export const syncedProductCodesAtom = atom<Set<string>>(new Set<string>());
 
 const buildProductItems = (
   responseData: CheckProductsResponse,
-  previousItems: ProductItem[] | null,
-): ProductItem[] => {
-  const previousSynced =
-    previousItems?.filter((item) => item.isSynced === true) ?? [];
-
-  const incoming = ([
-    'create',
-    'update',
-    'delete',
-  ] as const).flatMap<ProductItem>((status) =>
+): ProductItem[] =>
+  (['create', 'update', 'delete'] as const).flatMap<ProductItem>((status) =>
     (responseData[status]?.items ?? []).map(
-      (item: ICheckProduct) =>
-        ({
-          ...item,
-          status,
-          isSynced: false,
-        }) as ProductItem,
+      (item: ICheckProduct) => ({ ...item, status } as ProductItem),
     ),
   );
-
-  const incomingKeys = new Set(incoming.map(getProductKey).filter(Boolean));
-  const carriedSynced = previousSynced.filter(
-    (item) => !incomingKeys.has(getProductKey(item)),
-  );
-
-  return [...carriedSynced, ...incoming];
-};
 
 export const useCheckProduct = () => {
   const [toCheckProducts, setToCheckProducts] = useAtom(toCheckProductsAtom);
@@ -67,6 +44,7 @@ export const useCheckProduct = () => {
     toCheckProductsDataAtom,
   );
   const [selectedFilter, setSelectedFilter] = useAtom(selectedFilterAtom);
+  const [syncedCodes, setSyncedCodes] = useAtom(syncedProductCodesAtom);
   const [mutate, { loading, error }] = useMutation(checkProductsMutation);
   const {
     syncProducts: syncProductsAction,
@@ -76,48 +54,58 @@ export const useCheckProduct = () => {
 
   const { toast } = useToast();
 
-  const checkProduct = useCallback(async () => {
-    try {
-      const response = await mutate({
-        onError: (mutationError) => {
+  const runCheck = useCallback(
+    async (silent = false): Promise<ProductItem[] | null> => {
+      try {
+        const response = await mutate({
+          onError: (mutationError) => {
+            toast({
+              title: 'Error',
+              description: mutationError.message,
+              variant: 'destructive',
+            });
+          },
+        });
+
+        const responseData: CheckProductsResponse | undefined =
+          response.data?.toCheckProducts;
+
+        if (!responseData) {
+          return null;
+        }
+
+        const allProducts = buildProductItems(responseData);
+
+        setToCheckProductsData(responseData);
+        setToCheckProducts(allProducts);
+        setSyncedCodes(new Set<string>());
+
+        if (!silent) {
+          const pendingCount = allProducts.length;
           toast({
-            title: 'Error',
-            description: mutationError.message,
-            variant: 'destructive',
+            title: pendingCount > 0 ? 'Success' : 'Up to date',
+            description:
+              pendingCount > 0
+                ? `${pendingCount} products to sync`
+                : 'No products require syncing',
           });
-        },
-      });
+        }
 
-      const responseData: CheckProductsResponse | undefined =
-        response.data?.toCheckProducts;
-
-      if (!responseData) {
-        return;
+        return allProducts;
+      } catch (err) {
+        console.error('Check product error:', err);
+        toast({
+          title: 'Error',
+          description: 'Failed to check products',
+          variant: 'destructive',
+        });
+        return null;
       }
+    },
+    [mutate, setToCheckProducts, setToCheckProductsData, toast],
+  );
 
-      const allProducts = buildProductItems(responseData, toCheckProducts);
-
-      setToCheckProductsData(responseData);
-      setToCheckProducts(allProducts);
-
-      const pendingCount = allProducts.filter((item) => !item.isSynced).length;
-
-      toast({
-        title: pendingCount > 0 ? 'Success' : 'Up to date',
-        description:
-          pendingCount > 0
-            ? `${pendingCount} products to sync`
-            : 'No products require syncing',
-      });
-    } catch (err) {
-      console.error('Check product error:', err);
-      toast({
-        title: 'Error',
-        description: 'Failed to check products',
-        variant: 'destructive',
-      });
-    }
-  }, [mutate, setToCheckProducts, setToCheckProductsData, toCheckProducts, toast]);
+  const checkProduct = useCallback(() => runCheck(false), [runCheck]);
 
   const syncProducts = useCallback(async () => {
     if (!toCheckProducts || toCheckProducts.length === 0) {
@@ -129,17 +117,22 @@ export const useCheckProduct = () => {
       return;
     }
 
-    const updatedProducts = await syncProductsAction(
+    const productsToSync = toCheckProducts.filter(
+      (item) => item.status === selectedFilter,
+    );
+
+    const syncResult = await syncProductsAction(
       toCheckProducts,
       selectedFilter,
     );
 
-    if (updatedProducts) {
-      setToCheckProducts(updatedProducts);
+    if (syncResult) {
+      setSyncedCodes(new Set(productsToSync.map((item) => item.code)));
+      await runCheck(true);
     }
   }, [
+    runCheck,
     selectedFilter,
-    setToCheckProducts,
     syncProductsAction,
     toCheckProducts,
     toast,
@@ -147,8 +140,14 @@ export const useCheckProduct = () => {
 
   const filteredProducts = useMemo<ProductItem[]>(
     () =>
-      (toCheckProducts ?? []).filter((item) => item.status === selectedFilter),
-    [toCheckProducts, selectedFilter],
+      (toCheckProducts ?? [])
+        .filter((item) => item.status === selectedFilter)
+        .map((item) =>
+          syncedCodes.has(item.code)
+            ? { ...item, status: 'synced' as ProductStatus }
+            : item,
+        ),
+    [toCheckProducts, selectedFilter, syncedCodes],
   );
 
   return {
