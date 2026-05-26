@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useDebounce } from 'use-debounce';
+import { useRef, useCallback } from 'react';
 import { Label, Editor } from 'erxes-ui';
 import {
   SelectBranches,
@@ -16,10 +15,7 @@ import { useDealsContext } from '@/deals/context/DealContext';
 export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
   const { editDeals } = useDealsContext();
 
-  const [descriptionContent, setDescriptionContent] = useState<
-    string | undefined
-  >(undefined);
-  const [debouncedDescription] = useDebounce(descriptionContent, 1000);
+  const descriptionRef = useRef<string | undefined>(undefined);
 
   const handleDealFieldChange = useCallback(
     (key: string, value: string | string[] | undefined | null) => {
@@ -43,12 +39,6 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
     },
     [deal._id, editDeals],
   );
-
-  useEffect(() => {
-    if (debouncedDescription !== undefined) {
-      handleDealFieldChange('description', debouncedDescription);
-    }
-  }, [debouncedDescription, handleDealFieldChange]);
 
   const {
     startDate,
@@ -158,12 +148,20 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
           />
         </div>
       </div>
-      <div className="space-y-2">
+      <div
+        className="space-y-2"
+        onBlur={(e) => {
+          if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+          if (descriptionRef.current !== undefined) {
+            handleDealFieldChange('description', descriptionRef.current);
+          }
+        }}
+      >
         <Label>Description</Label>
         <Editor
           initialContent={deal.description || []}
           onChange={(content) => {
-            setDescriptionContent(content);
+            descriptionRef.current = content;
           }}
           className="h-28 overflow-y-auto"
         />
