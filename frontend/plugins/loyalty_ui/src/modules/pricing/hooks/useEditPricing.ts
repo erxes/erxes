@@ -21,9 +21,10 @@ export const useEditPricing = () => {
   });
 
   const editPricing = (doc: IEditPricingVariables['doc']) => {
+    const { fixedValues, ...rest } = doc as any;
     return mutate({
       variables: {
-        doc,
+        doc: rest,
       },
     });
   };

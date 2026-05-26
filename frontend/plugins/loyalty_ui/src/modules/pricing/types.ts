@@ -124,10 +124,16 @@ export interface IProductCategory {
 }
 
 export interface IPricingFixedValue {
+  _id: string;
+  pricingPlanId: string;
   productId: string;
   uom: string;
   unitPrice: number;
   newPrice: number;
+  createdBy?: string;
+  updatedBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 export interface ProductCategoriesResponse {
   productCategories: IProductCategory[];

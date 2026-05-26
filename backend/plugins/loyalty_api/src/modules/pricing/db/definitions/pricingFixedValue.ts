@@ -1,12 +1,14 @@
 import { Schema } from 'mongoose';
+
 export const pricingFixedValueSchema = new Schema(
   {
-    productId: { type: String },
+    pricingPlanId: { type: String, required: true, index: true },
+    productId: { type: String, index: true },
     uom: { type: String },
     unitPrice: { type: Number },
     newPrice: { type: Number },
+    createdBy: { type: String },
+    updatedBy: { type: String },
   },
-  {
-    _id: false,
-  },
+  { timestamps: true },
 );

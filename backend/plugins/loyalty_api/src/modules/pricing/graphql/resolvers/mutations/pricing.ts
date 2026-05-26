@@ -1,4 +1,5 @@
 import { IContext } from '~/connectionResolvers';
+import { pricingFixedValueMutations } from './pricingFixedValue';
 import { pricingPlanMutations } from './pricingPlan';
 
 export const pricingMutations = {
@@ -31,8 +32,10 @@ export const pricingMutations = {
   },
 
   pricingPlanAdd: pricingPlanMutations.pricingPlanAdd,
-
   pricingPlanEdit: pricingPlanMutations.pricingPlanEdit,
-
   pricingPlanRemove: pricingPlanMutations.pricingPlanRemove,
+
+  pricingFixedValueAdd: pricingFixedValueMutations.pricingFixedValueAdd,
+  pricingFixedValueEdit: pricingFixedValueMutations.pricingFixedValueEdit,
+  pricingFixedValueRemove: pricingFixedValueMutations.pricingFixedValueRemove,
 };

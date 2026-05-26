@@ -52,6 +52,7 @@ export const FixedPricingTable = ({
         (fv: any) => fv.productId === product._id,
       );
       return {
+        _id: existing?._id ?? undefined,
         productId: product._id,
         uom: product.uom || '',
         unitPrice: product.unitPrice || 0,

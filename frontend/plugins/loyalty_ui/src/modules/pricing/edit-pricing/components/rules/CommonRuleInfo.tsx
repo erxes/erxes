@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from 'react';
 import { Button, Form, InfoCard, Input, Select, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
+import { useMutation } from '@apollo/client';
 import { SelectProduct } from 'ui-modules';
 import {
   DISCOUNT_TYPES,
@@ -10,6 +11,10 @@ import {
 } from '@/pricing/edit-pricing/components';
 import { useEditPricing } from '@/pricing/hooks/useEditPricing';
 import { IPricingPlanDetail, IPricingFixedValue } from '@/pricing/types';
+import {
+  PRICING_FIXED_VALUE_ADD,
+  PRICING_FIXED_VALUE_EDIT,
+} from '@/pricing/graphql/mutations';
 import { FixedPricingTable } from './FixedPricingTable';
 interface CommonRuleInfoProps {
   pricingId?: string;
@@ -35,6 +40,12 @@ export const CommonRuleInfo = ({
 }: CommonRuleInfoProps) => {
   const { editPricing, loading } = useEditPricing();
   const { toast } = useToast();
+  const [addFixedValue] = useMutation(PRICING_FIXED_VALUE_ADD, {
+    refetchQueries: ['PricingPlanDetail'],
+  });
+  const [editFixedValue] = useMutation(PRICING_FIXED_VALUE_EDIT, {
+    refetchQueries: ['PricingPlanDetail'],
+  });
 
   const form = useForm<CommonRuleFormValues>({
     defaultValues: {
@@ -71,31 +82,36 @@ export const CommonRuleInfo = ({
       return;
     }
 
-    const doc: Parameters<typeof editPricing>[0] = {
-      _id: pricingId,
-      type: values.discountType,
-      value: values.discountValue,
-      priceAdjustType: values.priceAdjustType,
-      priceAdjustFactor: values.priceAdjustFactor,
-      bonusProduct:
-        values.discountType === 'bonus'
-          ? values.bonusProductId || undefined
-          : undefined,
-      fixedValues:
-        values.discountType === 'fixed'
-          ? values.fixedValues.map(
-              ({ productId, uom, unitPrice, newPrice }) => ({
-                productId,
-                uom,
-                unitPrice,
-                newPrice,
-              }),
-            )
-          : undefined,
-    };
-
     try {
-      await editPricing(doc);
+      await editPricing({
+        _id: pricingId,
+        type: values.discountType,
+        value: values.discountValue,
+        priceAdjustType: values.priceAdjustType,
+        priceAdjustFactor: values.priceAdjustFactor,
+        bonusProduct:
+          values.discountType === 'bonus'
+            ? values.bonusProductId || undefined
+            : undefined,
+      });
+
+      if (values.discountType === 'fixed') {
+        await Promise.all(
+          values.fixedValues.map((fv) => {
+            const doc = {
+              productId: fv.productId,
+              uom: fv.uom,
+              unitPrice: fv.unitPrice,
+              newPrice: fv.newPrice,
+            };
+            if (fv._id) {
+              return editFixedValue({ variables: { id: fv._id, doc } });
+            }
+            return addFixedValue({ variables: { pricingPlanId: pricingId, doc } });
+          }),
+        );
+      }
+
       form.reset(values);
       toast({
         title: 'Common rule updated',

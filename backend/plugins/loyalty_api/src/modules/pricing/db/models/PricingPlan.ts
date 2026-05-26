@@ -11,7 +11,7 @@ export interface IPricingPlanModel extends Model<IPricingPlanDocument> {
   updatePlan(
     id: string,
     doc: IPricingPlan,
-    userId: string
+    userId: string,
   ): Promise<IPricingPlanDocument>;
   removePlan(id: string): Promise<IPricingPlanDocument>;
 }
@@ -30,7 +30,7 @@ export const loadPricingPlanClass = (models: IModels) => {
         // createdAt: new Date(),
         createdBy: userId,
         // updatedAt: new Date(),
-        updatedBy: userId
+        updatedBy: userId,
       });
     }
 
@@ -44,7 +44,7 @@ export const loadPricingPlanClass = (models: IModels) => {
     public static async updatePlan(
       id: string,
       doc: IPricingPlan & { _id?: string },
-      userId: string
+      userId: string,
     ) {
       const result = await models.PricingPlans.findById(id);
 
@@ -57,8 +57,8 @@ export const loadPricingPlanClass = (models: IModels) => {
         $set: {
           ...doc,
           updatedAt: new Date(),
-          updatedBy: userId
-        }
+          updatedBy: userId,
+        },
       });
 
       return await models.PricingPlans.findById(id);
@@ -71,12 +71,11 @@ export const loadPricingPlanClass = (models: IModels) => {
      */
     public static async removePlan(id: string) {
       const result = await models.PricingPlans.findById(id);
+      if (!result) throw new Error(`Can't find plan`);
 
-      if (!result) {
-        throw new Error(`Can't find plan`);
-      }
+      await models.PricingFixedValues.removeByPlanId(id);
 
-      return await models.PricingPlans.findByIdAndDelete(id);
+      return models.PricingPlans.findByIdAndDelete(id);
     }
   }
 

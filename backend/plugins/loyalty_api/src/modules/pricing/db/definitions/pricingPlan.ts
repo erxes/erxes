@@ -9,7 +9,6 @@ import { priceRuleSchema } from './priceRule';
 import { quantityRuleSchema } from './quantityRule';
 import { expiryRuleSchema } from './expiryRule';
 import { repeatRuleSchema } from './repeatRule';
-import { pricingFixedValueSchema } from './pricingFixedValue';
 export const pricingPlanSchema = new Schema(
   {
     // Generals
@@ -77,8 +76,6 @@ export const pricingPlanSchema = new Schema(
 
     createdBy: { type: String },
     updatedBy: { type: String },
-    //Fixed
-    fixedValues: { type: [pricingFixedValueSchema], default: [] },
 
     // Timestamps
   },

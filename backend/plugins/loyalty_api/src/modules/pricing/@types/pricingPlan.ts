@@ -52,17 +52,8 @@ export interface IPricingPlan {
 
   createdBy?: string;
   updatedBy?: string;
-
-  fixedValues?: IPricingFixedValue[];
 }
 
 export interface IPricingPlanDocument extends IPricingPlan, Document {
   _id: string;
-}
-
-export interface IPricingFixedValue {
-  productId?: string;
-  uom?: string;
-  unitPrice?: number;
-  newPrice?: number;
 }

@@ -37,8 +37,13 @@ import {
   loadLotteryCampaignClass,
 } from '@/lottery/db/models/LotteryCampaign';
 import { IPricingDocument } from '@/pricing/@types/pricing';
+import { IPricingFixedValueDocument } from '@/pricing/@types/pricingFixedValue';
 import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
 import { IPricingModel, loadPricingClass } from '@/pricing/db/models/Pricing';
+import {
+  IPricingFixedValueModel,
+  loadPricingFixedValueClass,
+} from '@/pricing/db/models/PricingFixedValue';
 import {
   IPricingPlanModel,
   loadPricingPlanClass,
@@ -88,6 +93,7 @@ export interface IModels {
   SpinCampaigns: ISpinCampaignModel;
   Vouchers: IVoucherModel;
   VoucherCampaigns: IVoucherCampaignModel;
+  PricingFixedValues: IPricingFixedValueModel;
 }
 
 export interface IContext extends IMainContext {
@@ -103,13 +109,22 @@ export const loadClasses = (
   const models = {} as IModels;
   const loyaltyEventHandlers = eventHandlers('loyalty');
 
-  const assignmentDispatcher = loyaltyEventHandlers('assignment', 'assignment_campaigns');
+  const assignmentDispatcher = loyaltyEventHandlers(
+    'assignment',
+    'assignment_campaigns',
+  );
   const couponDispatcher = loyaltyEventHandlers('coupon', 'coupon_campaigns');
   const donateDispatcher = loyaltyEventHandlers('donate', 'donate_campaigns');
-  const voucherDispatcher = loyaltyEventHandlers('voucher', 'voucher_campaigns');
+  const voucherDispatcher = loyaltyEventHandlers(
+    'voucher',
+    'voucher_campaigns',
+  );
   const spinDispatcher = loyaltyEventHandlers('spin', 'spin_campaigns');
   const scoreDispatcher = loyaltyEventHandlers('score', 'score_campaigns');
-  const lotteryDispatcher = loyaltyEventHandlers('lottery', 'lottery_campaigns');
+  const lotteryDispatcher = loyaltyEventHandlers(
+    'lottery',
+    'lottery_campaigns',
+  );
 
   models.Agents = db.model<IAgentDocument, IAgentModel>(
     'agents',
@@ -203,6 +218,11 @@ export const loadClasses = (
     IVoucherCampaignDocument,
     IVoucherCampaignModel
   >('voucher_campaigns', loadVoucherCampaignClass(models, voucherDispatcher));
+
+  models.PricingFixedValues = db.model<
+    IPricingFixedValueDocument,
+    IPricingFixedValueModel
+  >('pricing_fixed_values', loadPricingFixedValueClass(models));
 
   return models;
 };

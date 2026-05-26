@@ -7,6 +7,7 @@ import DonateCampaign from '@/donate/graphql/resolvers/customResolvers/donateCam
 import Lottery from '@/lottery/graphql/resolvers/customResolvers/lottery';
 import LotteryCampaign from '@/lottery/graphql/resolvers/customResolvers/lotteryCampaign';
 import { Pricing } from '@/pricing/graphql/resolvers/customResolvers/pricing';
+import { PricingPlan } from '@/pricing/graphql/resolvers/customResolvers/pricingPlan';
 import ScoreLog from '@/score/graphql/resolvers/customResolvers/scoreLog';
 import ScoreLogItem from '@/score/graphql/resolvers/customResolvers/scoreLogItem';
 import Spin from '@/spin/graphql/resolvers/customResolvers/spin';
@@ -16,6 +17,7 @@ import VoucherCampaign from '@/voucher/graphql/resolvers/customResolvers/voucher
 
 export const customResolvers = {
   Pricing,
+  PricingPlan,
   Agent,
   Assignment,
   AssignmentCampaign,
