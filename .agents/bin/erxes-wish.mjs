@@ -56,14 +56,15 @@ ${paint('bright', 'Usage:')}
 
 ${paint('bright', 'Options:')}
   --plugin [name]  Bootstrap a fresh new plugin dynamically (interactive walkthrough)
+  --fix            Force the action to be a bug fix / repair request
   --skill <name>   Force a specific skill playbook (e.g., 'add-deal-field')
   --interactive    Force interactive walkthrough mode
   --help, -h       Show this beautiful help message
 
 ${paint('bright', 'Examples:')}
   pnpm erxes-wish --plugin loyalty
-  pnpm --silent erxes-wish "add riskLevel to deals"
-  pnpm --silent erxes-wish "add confidenceScore to deals" --skill add-deal-field
+  pnpm erxes-wish "fix the deal color calculation in sales"
+  pnpm erxes-wish "add confidenceScore to deals" --skill add-deal-field
   pnpm erxes-wish --interactive
 `);
 }
@@ -86,6 +87,12 @@ function closeRl() {
     activeRl.close();
     activeRl = null;
   }
+}
+
+function detectFixAction(wishText) {
+  const lower = wishText.toLowerCase();
+  const fixKeywords = ['fix', 'bug', 'issue', 'error', 'broken', 'fail', 'crash', 'repair', 'patch', 'correct', 'prevent', 'solve', 'resolve', 'regression'];
+  return fixKeywords.some(kw => lower.includes(kw));
 }
 
 async function runPluginWizard(pluginName) {
@@ -247,7 +254,8 @@ async function runInteractive() {
     console.log(`${paint('dim', 'Spawning specialized subagents for Backend, Frontend, and QA...')}`);
   }
   
-  const brief = compileBrief(wishText, plugin, wishId, complexity);
+  const isFix = detectFixAction(wishText);
+  const brief = compileBrief(wishText, plugin, wishId, complexity, isFix);
   
   const outputFilePath = path.join(AGENTS_DIR, `wishes/${wishId}/prompt_briefing.txt`);
   fs.writeFileSync(outputFilePath, brief, 'utf8');
@@ -318,7 +326,7 @@ function createWishOnDisk(wishText, plugin, complexity) {
   return wishId;
 }
 
-function compileBrief(wishText, plugin, wishId, complexity) {
+function compileBrief(wishText, plugin, wishId, complexity, isFix) {
   const readAgentFile = (filename) => {
     const p = path.join(AGENTS_DIR, filename);
     return fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : '';
@@ -329,6 +337,7 @@ function compileBrief(wishText, plugin, wishId, complexity) {
   const slopChecklist = readAgentFile('SLOP-CHECKLIST.md');
   const lessons = readAgentFile('memory/lessons.md');
   const masterSkill = readAgentFile('skills/start.md');
+  const fixSkill = isFix ? readAgentFile('skills/fix-issue.md') : '';
 
   return `
 =========================================
@@ -336,10 +345,10 @@ ERXES AI DEVELOPMENT BRIEFING
 =========================================
 
 You are working in the erxes monorepo.
-Your task is to implement the following customer-facing feature wish.
+Your task is to ${isFix ? 'FIX / RESOLVE the following plugin issue.' : 'implement the following customer-facing feature wish.'}
 
 -----------------------------------------
-THE WISH
+THE ${isFix ? 'BUG REPORT / ISSUE' : 'WISH'}
 -----------------------------------------
 "${wishText}"
 
@@ -347,6 +356,7 @@ THE WISH
 DETECTED ROUTING
 -----------------------------------------
 Plugin Scope: ${plugin}
+Action Type: ${isFix ? 'FIX / SELF-REPAIR' : 'CREATE / NEW FEATURE'}
 Wish ID: ${wishId}
 Complexity Rating: ${complexity.toUpperCase()}
 
@@ -374,6 +384,12 @@ ${lessons}
 5. MASTER ENTRYPOINT START PLAYBOOK
 =========================================
 ${masterSkill}
+${isFix ? `
+=========================================
+6. SPECIALIZED BUG-FIXING PLAYBOOK (fix-issue.md)
+=========================================
+${fixSkill}
+` : ''}
 `;
 }
 
@@ -422,7 +438,8 @@ if (hasPluginOption) {
   const plugin = detectPluginScope(wishText);
   const complexity = rateComplexity(wishText, plugin);
   const wishId = createWishOnDisk(wishText, plugin, complexity);
-  const brief = compileBrief(wishText, plugin, wishId, complexity);
+  const isFix = args.includes('--fix') || detectFixAction(wishText);
+  const brief = compileBrief(wishText, plugin, wishId, complexity, isFix);
   
   console.log(brief.trim());
 }

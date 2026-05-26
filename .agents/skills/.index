@@ -1,7 +1,24 @@
 {
   "generatedAt": "2026-05-26T15:21:58.489Z",
-  "totalSkills": 78,
+  "totalSkills": 79,
   "skills": [
+    {
+      "path": "skills/fix-issue.md",
+      "plugin": "system-wide",
+      "entity": "plugin",
+      "action": "fix",
+      "triggers": [
+        "--fix",
+        "fix",
+        "bug",
+        "error",
+        "issue",
+        "broken",
+        "fail",
+        "repair"
+      ],
+      "description": "the wish guides resolving, reproducing, and fixing reported bugs or crashes inside any existing monorepo plugin with e2e and eval validation."
+    },
     {
       "path": "skills/create-plugin.md",
       "plugin": "system-wide",
