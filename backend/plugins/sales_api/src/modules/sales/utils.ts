@@ -1022,9 +1022,8 @@ export const sendNotification = async ({
     message: string;
     type?: 'info' | 'success' | 'warning' | 'error';
     fromUserId?: string;
-    contentType: string; // 'frontline:conversation', 'sales:deal', etc.
-    contentTypeId?: string; // target object ID
-    // Additional data
+    contentType: string;
+    contentTypeId?: string;
     priority?: 'low' | 'medium' | 'high' | 'urgent';
     priorityLevel?: 1 | 2 | 3 | 4;
     metadata?: any; // plugin-specific data
@@ -1103,9 +1102,15 @@ export const sendNotifications = async (
     user._id,
   ];
 
-  // Only notify assigned users to avoid pipeline-wide notifications
- // Previous logic included watchers, which caused excessive notifications
-  const receivers = [...new Set(item.assignedUserIds || [])];
+  const allNotified = await notifiedUserIds(models, item, stage, pipeline);
+  // keep only assigned + watched, exclude pipeline watchers
+  const pipelineWatchers = pipeline.watchedUserIds || [];
+  const receivers = allNotified
+    .filter(
+      (id) =>
+        !pipelineWatchers.includes(id) || item.assignedUserIds?.includes(id),
+    ) // keep if assigned (already in list) but not pure pipeline watchers
+    .filter((id) => usersToExclude.indexOf(id) < 0);
 
   const notificationDoc = {
     createdUser: user,
@@ -1127,6 +1132,7 @@ export const sendNotifications = async (
         action: `removed you from deal`,
         message: `'${item.name}'`,
       },
+      allowMultiple: false,
     });
   }
 
@@ -1140,6 +1146,7 @@ export const sendNotifications = async (
         action: `invited you to the deal`,
         message: `'${item.name}'`,
       },
+      allowMultiple: false,
     });
   }
 
