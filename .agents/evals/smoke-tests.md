@@ -112,3 +112,34 @@ Confirm shape, status, and that auth/subdomain headers are respected.
 When a smoke test reveals a regression that the Playwright spec missed, **append a lesson to `memory/lessons.md`**: "Phase 6 spec passed but smoke test path N caught X. Lesson: add an assertion of shape Y to specs touching this surface."
 
 The goal is that lessons accumulate so future Phase 6 specs are stronger and smoke tests become rarer.
+
+## Path 8 — Bug-fix regression verification
+
+For: any wish processed through the `fix-issue.md` bug-fix workflow.
+
+1. Check out the commit **before** the fix (the regression test commit):
+   ```bash
+   git stash  # save current state
+   git checkout <regression-test-commit>
+   ```
+2. Run the regression test — it **must fail**:
+   ```bash
+   cd .agents && pnpm test plugins/<plugin>/tests/<regression-spec>.spec.ts
+   # Expected: FAIL
+   ```
+3. Check out the fix commit:
+   ```bash
+   git checkout <fix-commit>
+   ```
+4. Run the regression test again — it **must pass**:
+   ```bash
+   cd .agents && pnpm test plugins/<plugin>/tests/<regression-spec>.spec.ts
+   # Expected: PASS
+   ```
+5. Run the full eval suite — no regressions:
+   ```bash
+   .agents/evals/run.sh <plugin> --include-e2e
+   ```
+6. Verify `memory/lessons.md` has a new entry for this bug.
+
+If the regression test passes **before** the fix, the test doesn't actually reproduce the bug — it's a false green. **Do not ship.** The test must fail without the fix.

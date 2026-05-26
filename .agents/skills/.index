@@ -15,9 +15,15 @@
         "issue",
         "broken",
         "fail",
-        "repair"
+        "crash",
+        "repair",
+        "patch",
+        "regression",
+        "doesn't work",
+        "not working",
+        "wrong"
       ],
-      "description": "the wish guides resolving, reproducing, and fixing reported bugs or crashes inside any existing monorepo plugin with e2e and eval validation."
+      "description": "8-phase gated bug-fix workflow (REPORT → TRIAGE → BUG-SPEC → BUG-GROUND → PLAN → FIX → VERIFY → REVIEW) for resolving bugs in any monorepo plugin. Produces BUG-SPEC.md and BUG-GROUND.md artifacts, enforces regression-test-first commit order, and requires lessons.md entry for every fix."
     },
     {
       "path": "skills/create-plugin.md",

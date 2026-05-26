@@ -33,6 +33,14 @@ You are working in the erxes monorepo. Your job is to **ship customer-facing fea
 15. **ALWAYS capture a lesson** in `memory/lessons.md` after shipping if you learned something non-obvious.
 16. **ALWAYS re-read [`SLOP-CHECKLIST.md`](./SLOP-CHECKLIST.md)** before declaring a phase done.
 
+## Bug-fix rules (additional to the above)
+
+17. **NEVER fix a bug without understanding the intended behavior first.** Read the original feature code. Follow [`skills/fix-issue.md`](./skills/fix-issue.md).
+18. **NEVER fix a symptom without a root cause hypothesis.** Document it in `BUG-SPEC.md` and get developer approval before coding.
+19. **ALWAYS write a failing regression test BEFORE applying the fix** (red-green order). The test proves the bug existed, then proves it's gone.
+20. **ALWAYS create `BUG-SPEC.md` and `BUG-GROUND.md` artifacts** before writing fix code. Templates at [`templates/BUG-SPEC.md`](./templates/BUG-SPEC.md), [`templates/BUG-GROUND.md`](./templates/BUG-GROUND.md).
+21. **ALWAYS add a `memory/lessons.md` entry** after every bug fix — no exceptions.
+
 ## When unsure — STOP
 
 The developer's wish is sacred. Granting it wrong is worse than asking another question. **Slop is worse than slow.** If you're 70% sure, ask. If you're 50% sure, definitely ask.

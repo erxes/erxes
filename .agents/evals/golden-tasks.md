@@ -87,6 +87,32 @@ This task exercises the architecture-boundary rules. If AI does a direct import,
 
 ---
 
+## Task 6 — Fix a reported bug (the bug-fix canonical case)
+
+**Wish:** `pnpm --silent erxes-wish --fix "Deal card shows wrong stage color after drag-and-drop — the badge still shows the previous stage's color until page refresh"`
+
+**Expected behavior:**
+- AI reads the fix-issue skill at `skills/fix-issue.md`
+- Phase 0 REPORT: creates a wish ID `YYYY-MM-DD-fix-deal-card-shows-wrong-sta`
+- Phase 1 TRIAGE: searches for color/badge/stage logic in sales plugin
+- Phase 2 BUG-SPEC: produces `BUG-SPEC.md` with observed vs expected behavior, root cause hypothesis, fix criteria
+- **Human gate:** developer approves root cause and fix criteria
+- Phase 3 BUG-GROUND: reads the original color feature implementation, traces the causality chain, checks `lessons.md` for similar bugs
+- Phase 4 PLAN: commits in regression-test-first order (failing test → fix → optional docs)
+- Phase 5 FIX: applies minimal fix, each commit passes `evals/run.sh sales`
+- Phase 6 VERIFY: regression test that was failing now passes
+- Phase 7 REVIEW: `lessons.md` updated with a new entry
+
+**Acceptance:** BUG-SPEC.md exists and was approved. BUG-GROUND.md traces the original feature. Regression test exists. `lessons.md` has a new entry. PR has "See it work" section.
+
+**This task validates the bug-fix workflow.** Watch for:
+- AI skipping BUG-SPEC (jumping straight to code)
+- AI fixing the symptom without documenting root cause
+- AI not writing a regression test before the fix
+- AI not updating `lessons.md`
+
+---
+
 ## Failure modes to watch for
 
 When running a golden task, note any of these — they signal docs gaps:
@@ -99,6 +125,11 @@ When running a golden task, note any of these — they signal docs gaps:
 - AI directly imports from another plugin
 - AI writes tests that only assert non-throw
 - AI adds comments restating code
+- **(Bug-fix)** AI jumps to fixing without creating BUG-SPEC.md
+- **(Bug-fix)** AI applies fix before writing a failing regression test
+- **(Bug-fix)** AI fixes a symptom without a documented root cause hypothesis
+- **(Bug-fix)** AI skips `memory/lessons.md` update after bug fix
+- **(Bug-fix)** AI routes a bug wish through the feature workflow instead of fix-issue.md
 
 Each is a slop tell. Fix the source — usually a missing rule, a missing skill, or a missing routing entry.
 

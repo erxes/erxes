@@ -25,7 +25,7 @@ const colors = {
   reverse: '\x1b[7m',
   hidden: '\x1b[8m',
   
-  black: '\x1b[3 black:m',
+  black: '\x1b[30m',
   red: '\x1b[31m',
   green: '\x1b[32m',
   yellow: '\x1b[33m',
@@ -91,8 +91,14 @@ function closeRl() {
 
 function detectFixAction(wishText) {
   const lower = wishText.toLowerCase();
-  const fixKeywords = ['fix', 'bug', 'issue', 'error', 'broken', 'fail', 'crash', 'repair', 'patch', 'correct', 'prevent', 'solve', 'resolve', 'regression'];
-  return fixKeywords.some(kw => lower.includes(kw));
+  // Word-boundary matching to prevent false positives (e.g. 'tissue' matching 'issue').
+  // Removed ambiguous keywords: 'correct', 'prevent', 'solve', 'resolve' — these are
+  // often used in feature wishes ("add correction validation", "prevent duplicates").
+  const fixKeywords = ['fix', 'bug', 'issue', 'error', 'broken', 'fail', 'crash', 'repair', 'patch', 'regression', 'doesn\'t work', 'not working', 'wrong'];
+  return fixKeywords.some(kw => {
+    const regex = new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`);
+    return regex.test(lower);
+  });
 }
 
 async function runPluginWizard(pluginName) {
@@ -246,7 +252,7 @@ async function runInteractive() {
   console.log(`Sizing Score: ${paint('bgYellow', paint('black', ` ${complexity.toUpperCase()} `))}`);
   
   // Create wish on disk
-  const wishId = createWishOnDisk(wishText, plugin, complexity);
+  const wishId = createWishOnDisk(wishText, plugin, complexity, isFix);
   
   // Print appropriate instruction
   if (complexity === 'large') {
@@ -302,10 +308,11 @@ function rateComplexity(wishText, plugin) {
   return 'medium';
 }
 
-function createWishOnDisk(wishText, plugin, complexity) {
+function createWishOnDisk(wishText, plugin, complexity, isFix = false) {
   const dateStr = new Date().toISOString().slice(0, 10);
+  const prefix = isFix ? 'fix-' : '';
   const slug = wishText.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30).replace(/-$/, '');
-  const wishId = `${dateStr}-${slug}`;
+  const wishId = `${dateStr}-${prefix}${slug}`;
   const wishDir = path.join(AGENTS_DIR, 'wishes', wishId);
   
   if (!fs.existsSync(wishDir)) {
@@ -320,9 +327,33 @@ function createWishOnDisk(wishText, plugin, complexity) {
   content = content.replace(/YYYY-MM-DD/g, dateStr);
   content = content.replace(/captured/g, 'routed');
   content = content.replace(/<verbatim.*>/g, wishText);
-  content = content.replace(/skills\/<plugin>.*\.md/g, `skills/${plugin}/add-${plugin}-field.md`);
+  
+  // Route to fix-issue.md for bugs, plugin-specific skill for features
+  if (isFix) {
+    content = content.replace(/skills\/\<plugin\>.*\.md/g, `skills/fix-issue.md`);
+  } else {
+    content = content.replace(/skills\/\<plugin\>.*\.md/g, `skills/${plugin}/add-${plugin}-field.md`);
+  }
   
   fs.writeFileSync(path.join(wishDir, 'WISH.md'), content, 'utf8');
+  
+  // For bug fixes, also scaffold BUG-SPEC.md from template
+  if (isFix) {
+    const bugSpecTemplate = path.join(AGENTS_DIR, 'templates/BUG-SPEC.md');
+    if (fs.existsSync(bugSpecTemplate)) {
+      let bugSpec = fs.readFileSync(bugSpecTemplate, 'utf8');
+      bugSpec = bugSpec.replace(/<bug title>/g, wishText);
+      fs.writeFileSync(path.join(wishDir, 'BUG-SPEC.md'), bugSpec, 'utf8');
+    }
+    
+    const bugGroundTemplate = path.join(AGENTS_DIR, 'templates/BUG-GROUND.md');
+    if (fs.existsSync(bugGroundTemplate)) {
+      let bugGround = fs.readFileSync(bugGroundTemplate, 'utf8');
+      bugGround = bugGround.replace(/<bug title>/g, wishText);
+      fs.writeFileSync(path.join(wishDir, 'BUG-GROUND.md'), bugGround, 'utf8');
+    }
+  }
+  
   return wishId;
 }
 
@@ -437,8 +468,8 @@ if (hasPluginOption) {
   
   const plugin = detectPluginScope(wishText);
   const complexity = rateComplexity(wishText, plugin);
-  const wishId = createWishOnDisk(wishText, plugin, complexity);
   const isFix = args.includes('--fix') || detectFixAction(wishText);
+  const wishId = createWishOnDisk(wishText, plugin, complexity, isFix);
   const brief = compileBrief(wishText, plugin, wishId, complexity, isFix);
   
   console.log(brief.trim());

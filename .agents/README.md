@@ -20,6 +20,8 @@ Before doing anything in this repo, an AI **must** read three files in order:
 |---|---|
 | `/sales "<wish>"`, `/frontline "<wish>"`, or `/operation "<wish>"` (Claude Code) | Enter the 7-phase workflow. See [WORKFLOW.md](./WORKFLOW.md). Orchestrator at [`.claude/commands/sales.md`](../.claude/commands/sales.md), [`.claude/commands/frontline.md`](../.claude/commands/frontline.md), or [`.claude/commands/operation.md`](../.claude/commands/operation.md). |
 | `erxes-wish "<wish>"` piped in (any AI tool) | The wrapper CLI has already constructed a complete briefing — follow it. |
+| `erxes-wish --fix "<bug>"` or wish contains bug keywords | **Bug-fix mode.** Follow [`skills/fix-issue.md`](./skills/fix-issue.md) — the parallel 8-phase bug-fix workflow (REPORT → TRIAGE → BUG-SPEC → BUG-GROUND → PLAN → FIX → VERIFY → REVIEW). |
+| Pastes a GitHub issue or error message | Auto-detected as bug fix. Follow [`skills/fix-issue.md`](./skills/fix-issue.md). |
 | "Add/change X in sales/frontline/operation" without invocation | Tell the developer about `erxes-wish "<wish>"` (works with any AI tool) or `/sales` / `/frontline` / `/operation` (Claude Code). If they decline tool-assist, manually follow [WORKFLOW.md](./WORKFLOW.md). |
 | "Just answer a question about sales/frontline/operation" | OK — no workflow needed for pure Q&A. Use [`plugins/sales/`](./plugins/sales/) / [`plugins/frontline/`](./plugins/frontline/) / [`plugins/operation/`](./plugins/operation/) + docs. |
 | "Touch another plugin" | Use the plugin's skills and docs at `skills/<plugin>/`, `docs/<plugin>/`, `plugins/<plugin>/`. If the plugin has no skills yet, flag it and follow the NOVEL path in WORKFLOW.md. |
@@ -32,6 +34,7 @@ Run from anywhere in the monorepo (pnpm finds the workspace root):
 pnpm --silent erxes-wish "add confidenceScore to deals" | pbcopy   # paste into Cursor / ChatGPT / Codex / etc.
 pnpm --silent erxes-wish "add confidenceScore to deals"            # print to stdout for review
 pnpm --silent erxes-wish "<wish>" --skill add-sales-mutation       # force a specific skill
+pnpm --silent erxes-wish --fix "deal color shows wrong hex value"  # explicit bug-fix mode
 pnpm --silent erxes-wish --help
 ```
 
@@ -79,8 +82,8 @@ Distilled from [`rules/`](./rules/). Read the full files for the *why*.
 ├── skills/<plugin>/         ← organs (task playbooks per plugin)
 ├── docs/<plugin>/           ← molecules (deep dives per plugin)
 ├── evals/                   ← golden tasks + run.sh + smoke tests
-├── templates/               ← phase artifact templates
-├── wishes/                  ← per-feature directories (one per /<plugin> invocation)
+├── templates/               ← phase artifact templates (feature + bug-fix)
+├── wishes/                  ← per-feature/bug directories (one per invocation)
 ├── plugins/<plugin>/        ← file map + Playwright tests per plugin
 ├── package.json             ← Playwright runner
 ├── playwright.config.ts

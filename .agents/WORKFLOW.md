@@ -42,6 +42,20 @@ Three human checkpoints. Everything else has automated gates AI cannot skip.
 - Required vs optional, default value
 - Only sales managers can edit, or everyone with deal access?
 
+### Bug-fix routing (parallel workflow)
+
+If the wish is a **bug report** (contains `fix`, `bug`, `issue`, `error`, `broken`, `crash`, etc. — detected by `erxes-wish --fix` or auto-detection), the workflow diverges here:
+
+→ **Follow [`skills/fix-issue.md`](./skills/fix-issue.md) instead of Phases 1–7 below.**
+
+The bug-fix workflow has its own parallel phases: REPORT → TRIAGE → BUG-SPEC → BUG-GROUND → PLAN → FIX → VERIFY → REVIEW. It mirrors the same gated structure (human checkpoints, mandatory grounding, regression-test-first) but is adapted for root-cause analysis instead of feature design.
+
+**Key differences from the feature workflow:**
+- Phase 2 produces a `BUG-SPEC.md` (observed vs expected behavior, root cause hypothesis) instead of a `SPEC.md`
+- Phase 3 produces a `BUG-GROUND.md` (traces the original feature implementation) instead of a `GROUND.md` (finds sister features)
+- Phase 4 PLAN commits in regression-test-first order: failing test → fix → docs
+- Phase 7 REVIEW **always** adds a `memory/lessons.md` entry for every bug fix
+
 ---
 
 ## Phase 1 — ROUTE
