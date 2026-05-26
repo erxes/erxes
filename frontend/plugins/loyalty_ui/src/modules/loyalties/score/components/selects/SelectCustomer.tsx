@@ -258,6 +258,18 @@ const SelectScoreCustomerValue = ({
   );
 };
 
+const getOwnerSearchPlaceholder = (ownerType: string) => {
+  if (ownerType === 'company') return 'Search companies...';
+  if (ownerType === 'user') return 'Search team members...';
+  return 'Search customers...';
+};
+
+const getOwnerBarLabel = (ownerType: string) => {
+  if (ownerType === 'company') return 'Company';
+  if (ownerType === 'user') return 'Team Member';
+  return 'Customer';
+};
+
 const SelectOwnerContent = () => {
   const {
     value,
@@ -269,12 +281,7 @@ const SelectOwnerContent = () => {
     ownerType,
   } = useSelectScoreCustomerContext();
 
-  const placeholder =
-    ownerType === 'company'
-      ? 'Search companies...'
-      : ownerType === 'user'
-      ? 'Search team members...'
-      : 'Search customers...';
+  const placeholder = getOwnerSearchPlaceholder(ownerType);
 
   return (
     <Command shouldFilter={false}>
@@ -360,12 +367,7 @@ export const SelectScoreCustomerFilterBar = () => {
   const [ownerType] = useQueryState<string>('scoreOwnerType');
   const [open, setOpen] = useState(false);
 
-  const barLabel =
-    ownerType === 'company'
-      ? 'Company'
-      : ownerType === 'user'
-      ? 'Team Member'
-      : 'Customer';
+  const barLabel = getOwnerBarLabel(ownerType || 'customer');
 
   return (
     <Filter.BarItem queryKey="scoreOwnerId">
