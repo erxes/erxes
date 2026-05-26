@@ -99,7 +99,7 @@ export const SettingsForm = ({
   const canDeleteCMS =
     Boolean(cms?._id) &&
     deleteNameConfirmation.trim() === cmsName &&
-    deletePhraseConfirmation === DELETE_CONFIRMATION_PHRASE &&
+    deletePhraseConfirmation.trim() === DELETE_CONFIRMATION_PHRASE &&
     !isDeleting;
 
   const selectedLanguageOptions = settings.languages.map((language) => ({
