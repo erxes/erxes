@@ -182,7 +182,7 @@ export const queries = `
   formsMain(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams}, skip: Int): FormListResponse
   formsTotalCount(type: String, channelId: String, tagId: String, status: String, searchValue: String,${cursorParams} ): FormsTotalCount
   formSubmissions(${formSubmissionQueryParams}, ${cursorParams}): SubmissionListResponse
-  formSubmissionDetail(contentTypeId: String!): Submission
+  formSubmissionDetail(_id: String!): Submission
 
   formsGetContentTypes: [FormType]
 

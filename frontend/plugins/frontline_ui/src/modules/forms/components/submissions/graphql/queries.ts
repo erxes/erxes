@@ -32,6 +32,7 @@ export const GET_FORM_SUBMISSIONS = gql`
         createdAt
         formId
         channelId
+        contentTypeId
         submissions {
           _id
           customerId
@@ -43,6 +44,30 @@ export const GET_FORM_SUBMISSIONS = gql`
           value
           submittedAt
         }
+      }
+    }
+  }
+`;
+
+export const GET_SUBMISSION_DETAILS = gql`
+  query FormSubmissionDetail($_id: String!) {
+    formSubmissionDetail(_id: $_id) {
+      _id
+      customerId
+      createdAt
+      formId
+      channelId
+      contentTypeId
+      submissions {
+        _id
+        customerId
+        formId
+        formFieldId
+        text
+        formFieldText
+        formFieldType
+        value
+        submittedAt
       }
     }
   }

@@ -248,20 +248,37 @@ const formQueries: Record<string, Resolver> = {
 
   async formSubmissionDetail(
     _root,
-    { contentTypeId }: { contentTypeId: string },
-    { models }: IContext,
+    { _id }: { _id: string },
+    { models, user }: IContext,
   ) {
-    const submissions = await models.FormSubmissions.find({
-      contentTypeId,
-    }).lean();
+    if (!user?._id) throw new Error('Unauthorized');
+    const submissions = await models.FormSubmissions.aggregate([
+      { $match: { groupId: _id } },
+      {
+        $lookup: {
+          from: 'frontline_form_fields',
+          localField: 'formFieldId',
+          foreignField: '_id',
+          as: '_formField',
+        },
+      },
+      {
+        $addFields: {
+          formFieldText: { $arrayElemAt: ['$_formField.text', 0] },
+          formFieldType: { $arrayElemAt: ['$_formField.type', 0] },
+          text: { $arrayElemAt: ['$_formField.text', 0] },
+        },
+      },
+      { $project: { _formField: 0 } },
+    ]);
 
     if (!submissions.length) return null;
 
-    const first = submissions[0] as any;
+    const first = submissions[0];
 
     return {
-      _id: first.groupId || contentTypeId,
-      contentTypeId,
+      _id,
+      contentTypeId: first.contentTypeId,
       customerId: first.customerId,
       createdAt: first.submittedAt,
       customFieldsData: first.customFieldsData,
