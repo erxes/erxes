@@ -12,9 +12,38 @@ This skill serves as the single orchestration center for incoming LLMs. Use this
 
 ## Phase 1 — ROUTE & CLARIFY
 
-### Step 1: List of Available Core Skills
+### Step 1: Semantic Intent-to-Skill Routing Tree & Local RAG
 
-Based on what the user wants, identify which plugin and specific skill playbook to trigger. Below is the directory map of pre-constructed gold-standard playbooks:
+> [!TIP]
+> **Zero-Dependency Local Skill RAG Index:**
+> All 77 pre-constructed playbooks are fully cataloged inside [**`.agents/skills/.index`**](file:///Users/Amaraa0404/Documents/projects/erxes-ai-native-org/.agents/skills/.index). To find the exact matching playbook without context bloat, **read the `.index` file first**, check the `skills` array, and load the corresponding playbook file directly!
+
+Based on the developer's wish keywords and intent, you must route to the exact playbook file. Use the semantic classification tree below to determine the correct playbook:
+
+```mermaid
+graph TD
+    Wish["Developer Wish"] -->|Contains: field, column, property, date| Field["add-[entity]-field.md"]
+    Wish -->|Contains: trigger, action, automation, webhook, event| Auto["add-[plugin]-automation.md"]
+    Wish -->|Contains: query, get, fetch, list, total| Query["add-[plugin]-graphql-query.md"]
+    Wish -->|Contains: mutation, create, update, delete, remove| Mut["add-[plugin]-mutation.md"]
+    Wish -->|Contains: filter, segment, condition, segment-field| Seg["add-[plugin]-segment-field.md"]
+    Wish -->|Contains: trpc, rpc, procedure, internal-endpoint| TRPC["add-[plugin]-trpc-procedure.md"]
+    Wish -->|Contains: ui, page, screen, form, view| UI["add-[plugin]-ui-page.md (or sync.md)"]
+```
+
+| Developer Intent / Keywords | Targeted Skill File | Description |
+|---|---|---|
+| `"add X field to [entity]"`, `"database column"`, `"scalar property"`, `"enum"` | **`add-[entity]-field.md`** | Adds a persistent field/scalar to Mongoose, types, GraphQL, mutations, and Forms. |
+| `"trigger action"`, `"when X happens do Y"`, `"webhook notification"`, `"broker"` | **`add-[plugin]-automation.md`** | Intercepts system events and registers automation triggers or event dispatchers. |
+| `"fetch X"`, `"get [entities]"`, `"query list"`, `"dealsTotalCount"`, `"detail"` | **`add-[plugin]-graphql-query.md`** | Exposes read-only queries with cursor pagination, sorting, or custom loaders. |
+| `"create X"`, `"update Y"`, `"delete Z"`, `"remove list"`, `"save mutation"` | **`add-[plugin]-mutation.md`** | Exposes write-side GraphQL mutations with input validation and write hooks. |
+| `"segment filter"`, `"filter deals by X"`, `"search criteria"`, `"elastic"` | **`add-[plugin]-segment-field.md`** | Wires a Mongoose field into core auto-discovery/ElasticSearch segment queries. |
+| `"tRPC route"`, `"internal procedure"`, `"cross-plugin RPC"`, `"router"` | **`add-[plugin]-trpc-procedure.md`** | Exposes high-performance internal procedures for other backend services. |
+| `"render page"`, `"build form"`, `"new screen"`, `"UI component"`, `"fragment"` | **`add-[plugin]-ui-page.md`**<br>*(or `add-[plugin]-sync.md` for posclient)* | Builds front-end React views, routes, Zod schemas, and hooks. |
+
+---
+
+### Step 2: List of Available Playbooks by Plugin
 
 | Plugin Name | Plural Entity | Core Skills File Map |
 |---|---|---|
@@ -30,11 +59,16 @@ Based on what the user wants, identify which plugin and specific skill playbook 
 | **insurance** | `contracts` | `skills/insurance/` `add-contract-field.md`, `add-insurance-automation.md`, `add-insurance-graphql-query.md`, `add-insurance-mutation.md`, `add-insurance-segment-field.md`, `add-insurance-trpc-procedure.md`, `add-insurance-ui-page.md` |
 | **tourism** | `tours` | `skills/tourism/` `add-tour-field.md`, `add-tourism-automation.md`, `add-tourism-graphql-query.md`, `add-tourism-mutation.md`, `add-tourism-segment-field.md`, `add-tourism-trpc-procedure.md`, `add-tourism-ui-page.md` |
 
-### Step 2: Confirming Logic
+---
 
-> [!IMPORTANT]
-> You must clarify the developer's exact wish before proceeding. Ask a single clarifying or confirming question under **30 words**. 
-> Stop and wait for the developer to confirm their intent.
+### Step 3: Confirming Logic & Strict Context Guards
+
+> [!CAUTION]
+> **Strict Context Guard to Prevent Planning Bloat:**
+> 1. You must clarify the developer's exact wish before proceeding. Ask a single clarifying or confirming question under **30 words** directly in the chat window.
+> 2. **DO NOT** write a massive `implementation_plan.md` artifact. This dilutes active context and degrades performance. 
+> 3. Limit your planning to a simple, compact checklist (under 30 lines) directly in the chat UI. Keep all external plan files minimized.
+> 4. **STOP** and wait for the developer to confirm their intent before doing any codebase analysis or coding.
 
 ---
 
