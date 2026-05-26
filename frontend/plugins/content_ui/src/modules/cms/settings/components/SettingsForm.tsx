@@ -43,15 +43,15 @@ const DELETE_CONFIRMATION_PHRASE = 'delete my project';
 const DELETE_NAME_CONFIRMATION_INPUT_ID = 'delete-name-confirmation';
 const DELETE_PHRASE_CONFIRMATION_INPUT_ID = 'delete-phrase-confirmation';
 
-const trimTrailingSlashes = (value: string) => {
+function trimTrailingSlashes(value: string): string {
   let endIndex = value.length;
 
-  while (endIndex > 0 && value.charCodeAt(endIndex - 1) === 47) {
+  while (endIndex > 0 && value[endIndex - 1] === '/') {
     endIndex -= 1;
   }
 
   return value.slice(0, endIndex);
-};
+}
 
 interface ISettingsFormProps {
   cms?: CmsSettingsData;
@@ -83,12 +83,14 @@ export const SettingsForm = ({
     POST_URL_FIELD_OPTIONS.find(
       (option) => option.value === settings.postUrlField,
     ) || POST_URL_FIELD_OPTIONS[0];
-  const rawPublicUrl = settings.publicUrl || settings.domain;
-  const normalizedPublicUrl = rawPublicUrl
-    ? rawPublicUrl.startsWith('http')
+  const rawPublicUrl = settings.publicUrl.trim() || settings.domain.trim();
+  let normalizedPublicUrl = '';
+
+  if (rawPublicUrl) {
+    normalizedPublicUrl = rawPublicUrl.startsWith('http')
       ? rawPublicUrl
-      : `https://${rawPublicUrl}`
-    : '';
+      : `https://${rawPublicUrl}`;
+  }
   const previewUrl = normalizedPublicUrl
     ? `${trimTrailingSlashes(normalizedPublicUrl)}/${
         selectedPostUrlField.example
@@ -523,7 +525,7 @@ export const SettingsForm = ({
         id="delete"
         title="Delete CMS"
         className="border-destructive/40"
-        contentClassName="p-0"
+        contentClassName="space-y-0 p-0"
       >
         <div className="space-y-4 p-4">
           <p className="text-sm text-muted-foreground">

@@ -275,7 +275,7 @@ export const useSettingsForm = () => {
         variables: {
           id: cms._id,
         },
-        refetchQueries: [{ query: CONTENT_CMS_LIST }, { query: GET_WEBSITES }],
+        refetchQueries: [{ query: CONTENT_CMS_LIST }],
         awaitRefetchQueries: true,
       });
 

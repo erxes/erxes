@@ -25,7 +25,7 @@ export const SettingsSection = ({
       <Card.Title className="text-sm">{title}</Card.Title>
       {badge}
     </Card.Header>
-    <Card.Content className={contentClassName || 'space-y-4 p-4'}>
+    <Card.Content className={cn('space-y-4 p-4', contentClassName)}>
       {children}
     </Card.Content>
   </Card>
