@@ -4,36 +4,60 @@ const { prompt } = require('enquirer');
 const { createBackendPlugin } = require('./create-backend-plugin');
 
 async function createPlugin() {
-  const answers = await prompt([
-    {
-      type: 'input',
-      name: 'pluginName',
-      message: 'What is the name of your plugin?',
-      required: true,
-      validate: (input) => {
-        if (!input) return 'Plugin name is required';
-        if (!/^[a-zA-Z][a-zA-Z0-9]*$/.test(input)) {
-          return 'Plugin name must start with a letter and contain only letters and numbers';
-        }
-        return true;
-      },
-    },
-    {
-      type: 'input',
-      name: 'moduleName',
-      message: 'What is the name of your module?',
-      required: true,
-      validate: (input) => {
-        if (!input) return 'Module name is required';
-        if (!/^[a-zA-Z][a-zA-Z0-9]*$/.test(input)) {
-          return 'Module name must start with a letter and contain only letters and numbers';
-        }
-        return true;
-      },
-    },
-  ]);
+  let pluginName;
+  let moduleName;
+  
+  // Parse command line arguments to bypass prompt if provided
+  const args = process.argv.slice(2);
+  let passedPluginName;
+  let passedModuleName;
+  
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--name' && args[i+1]) {
+      passedPluginName = args[i+1];
+      i++;
+    } else if (args[i] === '--module' && args[i+1]) {
+      passedModuleName = args[i+1];
+      i++;
+    }
+  }
 
-  const { pluginName, moduleName } = answers;
+  if (passedPluginName && passedModuleName) {
+    pluginName = passedPluginName;
+    moduleName = passedModuleName;
+  } else {
+    const answers = await prompt([
+      {
+        type: 'input',
+        name: 'pluginName',
+        message: 'What is the name of your plugin?',
+        required: true,
+        validate: (input) => {
+          if (!input) return 'Plugin name is required';
+          if (!/^[a-zA-Z][a-zA-Z0-9]*$/.test(input)) {
+            return 'Plugin name must start with a letter and contain only letters and numbers';
+          }
+          return true;
+        },
+      },
+      {
+        type: 'input',
+        name: 'moduleName',
+        message: 'What is the name of your module?',
+        required: true,
+        validate: (input) => {
+          if (!input) return 'Module name is required';
+          if (!/^[a-zA-Z][a-zA-Z0-9]*$/.test(input)) {
+            return 'Module name must start with a letter and contain only letters and numbers';
+          }
+          return true;
+        },
+      },
+    ]);
+
+    pluginName = answers.pluginName;
+    moduleName = answers.moduleName;
+  }
 
   // Convert plugin name to kebab case
   const kebabCaseName = pluginName
