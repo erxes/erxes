@@ -65,6 +65,7 @@ export const Export = ({
         onConfirm={onFieldSelectionConfirm}
         recordCount={ids?.length}
         entityDisplayName={entityDisplayName}
+        filters={getFilters?.()}
       />
     </>
   );

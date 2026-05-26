@@ -269,11 +269,13 @@ const buildPostInput = (
   const videoPayload = normalizeAttachment(data.video ?? undefined);
   const audioPayload = normalizeAttachment(data.audio ?? undefined);
   const pdfPayload = normalizeAttachment(data.pdf ?? undefined);
+  const slug =
+    data.slug?.trim() || (!editingPostId ? generateSlug(main.title) : '');
 
   return {
     clientPortalId: websiteId,
     title: main.title,
-    slug: editingPostId ? data.slug : generateSlug(main.title),
+    ...(slug ? { slug } : {}),
     content: main.content,
     type: data.type,
     status: data.status ?? 'draft',
