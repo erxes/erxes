@@ -84,6 +84,9 @@ export const RecordTableProvider = forwardRef<
     const [colPinning, setColPinning] = useState<ColumnPinningState>(
       () => ({ left: stickyColumns ?? [] }),
     );
+    useEffect(() => {
+      setColPinning((prev) => ({ ...prev, left: stickyColumns ?? [] }));
+    }, [stickyColumns]);
     const table = useReactTable({
       data,
       columns,

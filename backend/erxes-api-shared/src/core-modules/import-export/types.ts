@@ -79,7 +79,7 @@ export type GetExportData = {
   collectionName: string;
   cursor?: string;
   limit: number;
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
   ids?: string[];
   selectedFields?: string[];
 };
@@ -95,7 +95,7 @@ export interface TExportHandlers {
       data: {
         moduleName: string;
         collectionName: string;
-        filters?: Record<string, any>;
+        filters?: Record<string, unknown>;
       };
     },
     ctx: IImportExportContext,

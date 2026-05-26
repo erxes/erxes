@@ -62,7 +62,7 @@ export function ExportFieldSelection({
     handleSelectAll,
     handleSelectDefaults,
     handleToggleField,
-  } = useExportFieldSelection({ entityType, filters, onConfirm, onOpenChange });
+  } = useExportFieldSelection({ entityType, filters, open, onConfirm, onOpenChange });
 
   const getEntityName = () => {
     if (entityDisplayName) return entityDisplayName;

@@ -249,8 +249,9 @@ const formQueries: Record<string, Resolver> = {
   async formSubmissionDetail(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, user }: IContext,
   ) {
+    if (!user?._id) throw new Error('Unauthorized');
     const submissions = await models.FormSubmissions.aggregate([
       { $match: { groupId: _id } },
       {

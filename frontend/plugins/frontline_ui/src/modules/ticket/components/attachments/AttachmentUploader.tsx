@@ -7,7 +7,7 @@ import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import { IAttachment } from '@/ticket/types/attachments';
 
 type Props = {
-  id?: string;
+  id: string;
   attachments: IAttachment[];
 };
 

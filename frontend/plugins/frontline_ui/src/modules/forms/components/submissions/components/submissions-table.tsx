@@ -26,8 +26,28 @@ type FlatRow = { _id: string } & Record<string, unknown>;
 
 type FieldMeta = { text: string; type: string };
 
+const MoreColumnCell = ({ cell }: { cell: Cell<FlatRow, unknown> }) => {
+  const { _id } = cell.row.original;
+  const [__blank, setSubmissionId] = useQueryState<string>('submissionId');
+
+  return (
+    <DropdownMenu>
+      <DropdownMenu.Trigger asChild>
+        <RecordTable.MoreButton />
+      </DropdownMenu.Trigger>
+
+      <DropdownMenu.Content side="bottom" align="start">
+        <DropdownMenu.Item onSelect={() => setSubmissionId(_id)}>
+          <IconEdit />
+          Edit
+        </DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu>
+  );
+};
+
 export const CheckboxCell = ({ value }: { value: string[] }) => {
-  if (value.length === 0 || !value) {
+  if (!value || value.length === 0) {
     return <RecordTableInlineCell>-</RecordTableInlineCell>;
   }
   return (
@@ -200,25 +220,6 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
     },
     size: 200,
   }));
-  const MoreColumnCell = ({ cell }: { cell: Cell<FlatRow, unknown> }) => {
-    const { _id } = cell.row.original;
-    const [__blank, setSubmissionId] = useQueryState<string>('submissionId');
-
-    return (
-      <DropdownMenu>
-        <DropdownMenu.Trigger asChild>
-          <RecordTable.MoreButton />
-        </DropdownMenu.Trigger>
-
-        <DropdownMenu.Content side="bottom" align="start">
-          <DropdownMenu.Item onSelect={() => setSubmissionId(_id)}>
-            <IconEdit />
-            Edit
-          </DropdownMenu.Item>
-        </DropdownMenu.Content>
-      </DropdownMenu>
-    );
-  };
   const moreColumns: ColumnDef<FlatRow> = {
     id: 'more',
     size: 30,

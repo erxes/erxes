@@ -18,7 +18,12 @@ import {
 } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CSS } from '@dnd-kit/utilities';
-import { IconSettings, IconGripVertical, IconPin, IconPinFilled } from '@tabler/icons-react';
+import {
+  IconSettings,
+  IconGripVertical,
+  IconPin,
+  IconPinFilled,
+} from '@tabler/icons-react';
 import { Column } from '@tanstack/react-table';
 
 const getColumnLabel = (column: Column<any, unknown>): string => {
@@ -68,7 +73,9 @@ const SortableColumnItem = ({ column }: { column: Column<any, unknown> }) => {
       <div
         {...attributes}
         {...listeners}
-        className={`text-muted-foreground flex-none flex items-center ${isPinned ? 'cursor-default opacity-30' : 'cursor-grab'}`}
+        className={`text-muted-foreground flex-none flex items-center ${
+          isPinned ? 'cursor-default opacity-30' : 'cursor-grab'
+        }`}
       >
         <IconGripVertical size={14} />
       </div>
@@ -90,6 +97,7 @@ const SortableColumnItem = ({ column }: { column: Column<any, unknown> }) => {
         variant="ghost"
         size="icon"
         title={isPinned ? 'Unpin column' : 'Pin column to left'}
+        aria-label={isPinned ? 'Unpin column' : 'Pin column to left'}
         className="h-5 w-5 flex-none text-muted-foreground hover:text-foreground"
         onClick={(e) => {
           e.preventDefault();
