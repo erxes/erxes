@@ -275,6 +275,8 @@ export const useSettingsForm = () => {
         variables: {
           id: cms._id,
         },
+        refetchQueries: [{ query: CONTENT_CMS_LIST }, { query: GET_WEBSITES }],
+        awaitRefetchQueries: true,
       });
 
       toast({

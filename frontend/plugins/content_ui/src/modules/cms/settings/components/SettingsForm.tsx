@@ -40,6 +40,27 @@ const POST_URL_FIELD_OPTIONS = [
 ];
 
 const DELETE_CONFIRMATION_PHRASE = 'delete my project';
+const DELETE_NAME_CONFIRMATION_INPUT_ID = 'delete-name-confirmation';
+const DELETE_PHRASE_CONFIRMATION_INPUT_ID = 'delete-phrase-confirmation';
+
+const trimTrailingSlashes = (value: string) => {
+  let endIndex = value.length;
+
+  while (endIndex > 0 && value.charCodeAt(endIndex - 1) === 47) {
+    endIndex -= 1;
+  }
+
+  return value.slice(0, endIndex);
+};
+
+interface ISettingsFormProps {
+  cms?: CmsSettingsData;
+  isDeleting: boolean;
+  settings: SettingsFormState;
+  clientPortals: ClientPortalOption[];
+  updateSetting: UpdateSetting;
+  onDelete: () => Promise<void> | void;
+}
 
 export const SettingsForm = ({
   cms,
@@ -48,14 +69,7 @@ export const SettingsForm = ({
   clientPortals,
   updateSetting,
   onDelete,
-}: {
-  cms?: CmsSettingsData;
-  isDeleting: boolean;
-  settings: SettingsFormState;
-  clientPortals: ClientPortalOption[];
-  updateSetting: UpdateSetting;
-  onDelete: () => Promise<void> | void;
-}) => {
+}: ISettingsFormProps) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteNameConfirmation, setDeleteNameConfirmation] = useState('');
   const [deletePhraseConfirmation, setDeletePhraseConfirmation] = useState('');
@@ -76,13 +90,13 @@ export const SettingsForm = ({
       : `https://${rawPublicUrl}`
     : '';
   const previewUrl = normalizedPublicUrl
-    ? `${normalizedPublicUrl.replace(/\/+$/, '')}/${
+    ? `${trimTrailingSlashes(normalizedPublicUrl)}/${
         selectedPostUrlField.example
       }`
     : `/${selectedPostUrlField.example}`;
   const canDeleteCMS =
     Boolean(cms?._id) &&
-    deleteNameConfirmation === cmsName &&
+    deleteNameConfirmation.trim() === cmsName &&
     deletePhraseConfirmation === DELETE_CONFIRMATION_PHRASE &&
     !isDeleting;
 
@@ -551,13 +565,17 @@ export const SettingsForm = ({
 
           <div className="space-y-5 bg-muted/40 p-6">
             <div className="space-y-2">
-              <label className="text-sm text-muted-foreground">
+              <label
+                htmlFor={DELETE_NAME_CONFIRMATION_INPUT_ID}
+                className="text-sm text-muted-foreground"
+              >
                 To confirm, type{' '}
                 <span className="font-semibold text-foreground">
                   &quot;{cmsName}&quot;
                 </span>
               </label>
               <Input
+                id={DELETE_NAME_CONFIRMATION_INPUT_ID}
                 value={deleteNameConfirmation}
                 onChange={(event) =>
                   setDeleteNameConfirmation(event.target.value)
@@ -567,13 +585,17 @@ export const SettingsForm = ({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm text-muted-foreground">
+              <label
+                htmlFor={DELETE_PHRASE_CONFIRMATION_INPUT_ID}
+                className="text-sm text-muted-foreground"
+              >
                 To confirm, type{' '}
                 <span className="font-semibold text-foreground">
                   &quot;{DELETE_CONFIRMATION_PHRASE}&quot;
                 </span>
               </label>
               <Input
+                id={DELETE_PHRASE_CONFIRMATION_INPUT_ID}
                 value={deletePhraseConfirmation}
                 onChange={(event) =>
                   setDeletePhraseConfirmation(event.target.value)
