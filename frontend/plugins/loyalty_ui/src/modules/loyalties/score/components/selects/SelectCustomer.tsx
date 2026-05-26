@@ -79,30 +79,6 @@ const getCustomerLabel = (c: {
   return name || c.primaryEmail || c.primaryPhone || 'Unnamed';
 };
 
-const useCustomerOptions = (searchValue?: string) => {
-  const { data, loading } = useQuery(GET_CUSTOMERS_SIMPLE, {
-    variables: { limit: 50, searchValue },
-    fetchPolicy: 'cache-first',
-  });
-
-  const options = useMemo<CustomerOption[]>(
-    () =>
-      (data?.customers?.list || []).map(
-        (c: {
-          _id: string;
-          firstName?: string;
-          middleName?: string;
-          lastName?: string;
-          primaryEmail?: string;
-          primaryPhone?: string;
-        }) => ({ value: c._id, label: getCustomerLabel(c) }),
-      ),
-    [data?.customers?.list],
-  );
-
-  return { options, loading };
-};
-
 const useOwnerOptions = (ownerType: string, search: string) => {
   const customerQuery = useQuery(GET_CUSTOMERS_SIMPLE, {
     variables: { limit: 50, searchValue: search || undefined },
@@ -201,7 +177,7 @@ const useSelectScoreCustomerContext = () => {
   return ctx;
 };
 
-export const SelectScoreCustomerProvider = ({
+const SelectOwnerProvider = ({
   value,
   onValueChange,
   ownerType = 'customer',
@@ -210,48 +186,6 @@ export const SelectScoreCustomerProvider = ({
   value: string;
   onValueChange: (val: string, label?: string) => void;
   ownerType?: string;
-  children: React.ReactNode;
-}) => {
-  const [search, setSearch] = useState('');
-  const { options, loading } = useCustomerOptions(search);
-
-  const handleChange = useCallback(
-    (val: string, label?: string) => {
-      if (!val) return;
-      onValueChange(val, label);
-    },
-    [onValueChange],
-  );
-
-  const ctx = useMemo(
-    () => ({
-      value: value || '',
-      onValueChange: handleChange,
-      options,
-      loading,
-      search,
-      setSearch,
-      ownerType,
-    }),
-    [value, handleChange, options, loading, search, ownerType],
-  );
-
-  return (
-    <SelectScoreCustomerContext.Provider value={ctx}>
-      {children}
-    </SelectScoreCustomerContext.Provider>
-  );
-};
-
-const SelectOwnerProvider = ({
-  value,
-  onValueChange,
-  ownerType,
-  children,
-}: {
-  value: string;
-  onValueChange: (val: string, label?: string) => void;
-  ownerType: string;
   children: React.ReactNode;
 }) => {
   const [search, setSearch] = useState('');
@@ -285,6 +219,20 @@ const SelectOwnerProvider = ({
   );
 };
 
+export const SelectScoreCustomerProvider = ({
+  value,
+  onValueChange,
+  children,
+}: {
+  value: string;
+  onValueChange: (val: string, label?: string) => void;
+  children: React.ReactNode;
+}) => (
+  <SelectOwnerProvider value={value} onValueChange={onValueChange} ownerType="customer">
+    {children}
+  </SelectOwnerProvider>
+);
+
 const SelectScoreCustomerValue = ({
   placeholder,
   className,
@@ -307,36 +255,6 @@ const SelectScoreCustomerValue = ({
     <div className="flex items-center gap-2">
       <p className={cn('font-medium text-sm', className)}>{selected.label}</p>
     </div>
-  );
-};
-
-const SelectScoreCustomerContent = () => {
-  const { value, onValueChange, options, loading, search, setSearch } =
-    useSelectScoreCustomerContext();
-
-  return (
-    <Command shouldFilter={false}>
-      <Command.Input
-        value={search}
-        onValueChange={setSearch}
-        placeholder="Search customers..."
-      />
-      <Command.Empty>
-        {loading ? 'Loading...' : 'No customers found'}
-      </Command.Empty>
-      <Command.List>
-        {options.map((opt) => (
-          <Command.Item
-            key={opt.value}
-            value={opt.value}
-            onSelect={() => onValueChange(opt.value, opt.label)}
-          >
-            <span className="font-medium">{opt.label}</span>
-            <Combobox.Check checked={value === opt.value} />
-          </Command.Item>
-        ))}
-      </Command.List>
-    </Command>
   );
 };
 
@@ -493,8 +411,9 @@ export const SelectScoreCustomerFormItem = ({
   const [open, setOpen] = useState(false);
 
   return (
-    <SelectScoreCustomerProvider
+    <SelectOwnerProvider
       value={value}
+      ownerType="customer"
       onValueChange={(val, label) => {
         onValueChange(val, label);
         setOpen(false);
@@ -507,10 +426,10 @@ export const SelectScoreCustomerFormItem = ({
           </Combobox.Trigger>
         </Form.Control>
         <Combobox.Content>
-          <SelectScoreCustomerContent />
+          <SelectOwnerContent />
         </Combobox.Content>
       </Popover>
-    </SelectScoreCustomerProvider>
+    </SelectOwnerProvider>
   );
 };
 
@@ -528,8 +447,9 @@ const SelectScoreCustomerRoot = ({
   const [open, setOpen] = useState(false);
 
   return (
-    <SelectScoreCustomerProvider
+    <SelectOwnerProvider
       value={value}
+      ownerType="customer"
       onValueChange={(val, label) => {
         onValueChange?.(val, label);
         setOpen(false);
@@ -540,17 +460,17 @@ const SelectScoreCustomerRoot = ({
           <SelectScoreCustomerValue placeholder={placeholder} />
         </Combobox.Trigger>
         <Combobox.Content>
-          <SelectScoreCustomerContent />
+          <SelectOwnerContent />
         </Combobox.Content>
       </Popover>
-    </SelectScoreCustomerProvider>
+    </SelectOwnerProvider>
   );
 };
 
 export const SelectScoreCustomer = Object.assign(SelectScoreCustomerRoot, {
   Provider: SelectScoreCustomerProvider,
   Value: SelectScoreCustomerValue,
-  Content: SelectScoreCustomerContent,
+  Content: SelectOwnerContent,
   FilterItem: SelectScoreCustomerFilterItem,
   FilterView: SelectScoreCustomerFilterView,
   FilterBar: SelectScoreCustomerFilterBar,
