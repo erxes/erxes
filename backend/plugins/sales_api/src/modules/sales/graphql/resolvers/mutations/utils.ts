@@ -101,7 +101,7 @@ export const processStageChangeScoreCampaigns = async ({
     const stage = await models.Stages.getStage(newStageId);
     const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
 
-    const result = await sendTRPCMessage({
+    const campaigns = await sendTRPCMessage({
       subdomain,
       pluginName: 'loyalty',
       method: 'query',
@@ -114,8 +114,6 @@ export const processStageChangeScoreCampaigns = async ({
       },
       defaultValue: [],
     });
-
-    const campaigns = getTRPCData(result, []);
 
     if (!campaigns.length) {
       return;
@@ -370,23 +368,11 @@ const fixNum = (num: number, fractionDigits = 2) => {
   return Number((num || 0).toFixed(fractionDigits));
 };
 
-const getTRPCData = (result: any, defaultValue: any) => {
-  if (result && typeof result === 'object' && 'data' in result) {
-    return result.data ?? defaultValue;
-  }
-
-  return result ?? defaultValue;
-};
-
 const createBonusProductDataId = (productId: string) => {
   return `${productId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 };
 
-const checkLoyalties = async (
-  subdomain: string,
-  _id: string,
-  deal: IDeal,
-) => {
+const checkLoyalties = async (subdomain: string, _id: string, deal: IDeal) => {
   const activeProductsData =
     deal.productsData?.filter((pd) => pd.tickUsed && !pd.bonusCount) || [];
 
@@ -405,7 +391,7 @@ const checkLoyalties = async (
     0,
   );
 
-  const result = await sendTRPCMessage({
+  const loyalties = await sendTRPCMessage({
     subdomain,
     pluginName: 'loyalty',
     module: 'loyalty',
@@ -423,8 +409,6 @@ const checkLoyalties = async (
     },
     defaultValue: {},
   });
-
-  const loyalties = getTRPCData(result, {});
 
   for (const item of activeProductsData) {
     if (item.discountPercent) {
@@ -471,7 +455,7 @@ const checkPricing = async (
     0,
   );
 
-  const result = await sendTRPCMessage({
+  const pricing = await sendTRPCMessage({
     subdomain,
     pluginName: 'loyalty',
     module: 'pricing',
@@ -492,7 +476,6 @@ const checkPricing = async (
     defaultValue: {},
   });
 
-  const pricing = getTRPCData(result, {});
   const bonusProductsToAdd: Record<string, { count: number }> = {};
 
   for (const item of activeProductsData) {
@@ -521,15 +504,16 @@ const checkPricing = async (
   }
 
   const addBonusPData: IProductData[] = Object.keys(bonusProductsToAdd).map(
-    (bonusProductId) => ({
-      _id: createBonusProductDataId(bonusProductId),
-      productId: bonusProductId,
-      bonusCount: bonusProductsToAdd[bonusProductId].count,
-      unitPrice: 0,
-      quantity: bonusProductsToAdd[bonusProductId].count,
-      amount: 0,
-      tickUsed: true,
-    }) as IProductData,
+    (bonusProductId) =>
+      ({
+        _id: createBonusProductDataId(bonusProductId),
+        productId: bonusProductId,
+        bonusCount: bonusProductsToAdd[bonusProductId].count,
+        unitPrice: 0,
+        quantity: bonusProductsToAdd[bonusProductId].count,
+        amount: 0,
+        tickUsed: true,
+      } as IProductData),
   );
 
   return [
@@ -603,11 +587,11 @@ const subtractScoreCampaign = async ({
     defaultValue: null,
   });
 
-  if (!scoreCampaign?.data) {
+  if (!scoreCampaign) {
     return;
   }
 
-  const { additionalConfig = {} } = scoreCampaign.data || {};
+  const { additionalConfig = {} } = scoreCampaign || {};
   const stageIds =
     additionalConfig?.cardBasedRule?.flatMap(({ stageIds }) => stageIds) || [];
 

@@ -4,14 +4,32 @@ import {
   getMoveData,
   getPosPostData,
   sendCardInfo,
+  sendErkhetPost,
 } from '@/erkhet/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateModels, IContext } from '~/connectionResolvers';
 
+const parseCheckSyncedData = (data: any) => {
+  if (typeof data !== 'string') {
+    return data?.data || data || {};
+  }
+
+  try {
+    const parsed = JSON.parse(data);
+    return parsed?.data || parsed || {};
+  } catch (_e) {
+    // text is not valid JSON, so return it as-is
+    return {};
+  }
+};
+
 const checkSyncedMutations = {
   async toCheckSynced(
     _root: undefined,
-    { ids }: { ids: string[] },
+    {
+      ids,
+      contentType = 'sales:deal',
+    }: { ids: string[]; contentType?: string },
     { subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('erkhetManageSync');
@@ -29,20 +47,33 @@ const checkSyncedMutations = {
       orderIds: JSON.stringify(ids),
     };
 
-    // const response = await sendTRPCMessage(...);
-    const result = JSON.parse('{}');
+    const models = await generateModels(subdomain);
+    const syncLog = await models.SyncLogs.syncLogsAdd({
+      contentType,
+      contentId: ids.join(','),
+      createdAt: new Date(),
+      consumeData: { ids },
+      consumeStr: JSON.stringify({ ids }),
+    });
+
+    const result = await sendErkhetPost(
+      models,
+      syncLog,
+      'check-order-synced',
+      postData,
+    );
 
     if (result.status === 'error') {
       throw new Error(result.message);
     }
 
-    const data = result.data || {};
+    const resultData = parseCheckSyncedData(result.data);
 
-    return (Object.keys(data) || []).map((_id) => {
-      const res: any = data[_id] || {};
+    return ids.map((_id) => {
+      const res: any = resultData[_id] || {};
       return {
         _id,
-        isSynced: res.isSynced,
+        isSynced: res.isSynced || false,
         syncedDate: res.date,
         syncedBillNumber: res.bill_number,
         syncedCustomer: res.customer,
@@ -79,7 +110,6 @@ const checkSyncedMutations = {
       module: 'deal',
       action: 'find',
       input: { _id: { $in: dealIds } },
-      method: 'query',
       defaultValue: [],
     });
 
@@ -89,7 +119,7 @@ const checkSyncedMutations = {
       createdBy: user._id,
     };
 
-    for (const deal of deals?.data) {
+    for (const deal of deals || []) {
       const syncedStageId = configStageId || deal.stageId;
       if (Object.keys(configs).includes(syncedStageId)) {
         const syncLog = await models.SyncLogs.syncLogsAdd({
@@ -100,14 +130,14 @@ const checkSyncedMutations = {
         });
         try {
           const config = {
-            ...configs[syncedStageId],
             ...mainConfig,
+            ...configs[syncedStageId],
           };
 
           const pipeline = await sendTRPCMessage({
             subdomain,
             pluginName: 'sales',
-            module: 'pipelines',
+            module: 'pipeline',
             action: 'findOne',
             input: { stageId: configStageId || deal.stageId },
             method: 'query',
@@ -122,7 +152,12 @@ const checkSyncedMutations = {
             dateType,
           );
 
-          const response: any = {};
+          const response = await sendErkhetPost(
+            models,
+            syncLog,
+            'get-response-send-order-info',
+            postData,
+          );
 
           if (response.message || response.error) {
             const txt = JSON.stringify({
@@ -160,13 +195,18 @@ const checkSyncedMutations = {
         });
         try {
           const config = {
-            ...moveConfigs[syncedStageId],
             ...mainConfig,
+            ...moveConfigs[syncedStageId],
           };
 
           const postData = await getMoveData(subdomain, config, deal, dateType);
 
-          const response: any = {};
+          const response = await sendErkhetPost(
+            models,
+            syncLog,
+            'get-response-inv-movement-info',
+            postData,
+          );
 
           if (response.message || response.error) {
             const txt = JSON.stringify({
@@ -241,7 +281,7 @@ const checkSyncedMutations = {
     }
 
     const syncLogDoc = {
-      contentType: 'sales:pos:order',
+      contentType: 'pos:order',
       createdAt: new Date(),
       createdBy: user._id,
     };
@@ -256,6 +296,11 @@ const checkSyncedMutations = {
       try {
         const pos = posByToken[order.posToken];
 
+        if (!pos) {
+          result.skipped.push(order._id);
+          throw new Error('POS config not found');
+        }
+
         const postData = await getPosPostData(
           subdomain,
           pos,
@@ -268,7 +313,12 @@ const checkSyncedMutations = {
           throw new Error('maybe, has not config');
         }
 
-        const response: any = {};
+        const response = await sendErkhetPost(
+          models,
+          syncLog,
+          'get-response-send-order-info',
+          postData,
+        );
 
         if (response.message || response.error) {
           const txt = JSON.stringify({
@@ -284,7 +334,7 @@ const checkSyncedMutations = {
             input: {
               selector: { _id: order._id },
               modifier: {
-                $set: { syncErkhetInfo: txt },
+                syncErkhetInfo: txt,
               },
             },
             method: 'mutation',

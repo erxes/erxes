@@ -339,6 +339,7 @@ export const createExportBatchProcessor = (
               data: {
                 moduleName,
                 collectionName,
+                ...(exportDoc.filters ? { filters: exportDoc.filters } : {}),
               },
             },
             context,

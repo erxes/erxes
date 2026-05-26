@@ -4,6 +4,7 @@ type DealCardDetailsProps = {
   items: any;
   color: string;
   className?: string;
+  separated?: boolean;
 };
 
 const MAX_VISIBLE_ITEMS = 5;
@@ -12,6 +13,7 @@ export const DealCardDetails = ({
   items,
   color,
   className,
+  separated,
 }: DealCardDetailsProps) => {
   if (!items || items.length === 0) return null;
 
@@ -19,17 +21,27 @@ export const DealCardDetails = ({
   const remainingCount = items.length - MAX_VISIBLE_ITEMS;
 
   return (
-    <div className={cn('flex flex-col gap-0.5', className)}>
+    <div
+      className={cn(
+        'flex flex-col',
+        separated ? 'gap-1.5' : 'gap-0.5',
+        className,
+      )}
+    >
       {visibleItems.map((item: any, index: number) => (
         <div
-          key={index}
-          className="flex items-start gap-1 text-xs text-muted-foreground"
+          key={item._id || index}
+          className={cn(
+            'flex min-w-0 items-start gap-1 text-xs text-muted-foreground',
+            separated &&
+              'rounded-md border border-border bg-background/80 px-2 py-1.5 text-foreground shadow-xs dark:border-border/80 dark:bg-muted/70',
+          )}
         >
           <span
             className="w-1 h-3 rounded-full shrink-0"
-            style={{ backgroundColor: color }}
+            style={{ backgroundColor: item.colorCode || color }}
           />
-          <span>
+          <span className="min-w-0">
             {item.product?.name ||
               item.name ||
               item.primaryName ||

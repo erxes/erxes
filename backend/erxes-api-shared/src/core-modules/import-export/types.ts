@@ -92,7 +92,11 @@ export interface TExportHandlers {
   getExportHeaders: (
     args: {
       subdomain: string;
-      data: { moduleName: string; collectionName: string };
+      data: {
+        moduleName: string;
+        collectionName: string;
+        filters?: Record<string, any>;
+      };
     },
     ctx: IImportExportContext,
   ) => Promise<ImportHeaderDefinition[]>;

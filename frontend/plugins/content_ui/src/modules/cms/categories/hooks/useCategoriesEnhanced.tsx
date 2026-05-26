@@ -35,7 +35,7 @@ export const useCategoriesVariables = (
     limit: CATEGORIES_PER_PAGE,
     cursor: undefined,
     sortField: 'createdAt',
-    sortDirection: '-1',
+    sortDirection: 'asc',
     language,
     searchValue: searchValue || undefined,
     status: status && status !== 'all' ? status : undefined,
@@ -68,7 +68,7 @@ export const useCategories = (options?: QueryHookOptions) => {
       ...options?.variables,
       ...variables,
     },
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'network-only',
   });
 
   const {

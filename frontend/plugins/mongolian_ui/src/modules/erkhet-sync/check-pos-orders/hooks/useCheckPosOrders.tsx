@@ -1,16 +1,28 @@
-import { QueryHookOptions, useQuery } from '@apollo/client';
+import { QueryHookOptions, useMutation, useQuery } from '@apollo/client';
 import {
   parseDateRangeFromString,
   useMultiQueryState,
   useQueryState,
+  useToast,
 } from 'erxes-ui';
 import { checkPosOrdersQuery } from '../graphql/queries/checkPosOrdersQuery';
 import { ICheckPosOrders } from '../types/checkPosOrders';
-import { useSetAtom } from 'jotai';
+import { atom, useAtom, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { checkPosOrdersTotalCountAtom } from '../states/checkPosOrdersDealsCounts';
+import { checkSyncedMutation } from '../../shared/graphql/mutations/checkSyncedMutations';
 
 export const CHECK_POS_ORDERS_PER_PAGE = 30;
+
+type CheckSyncedResponse = {
+  _id: string;
+  isSynced?: boolean;
+  syncedDate?: string;
+  syncedBillNumber?: string;
+  syncedCustomer?: string;
+};
+
+const checkedOrdersAtom = atom<Record<string, Partial<ICheckPosOrders>>>({});
 
 export const useCheckPosOrdersVariables = (
   variables?: QueryHookOptions<ICheckPosOrders[]>['variables'],
@@ -70,6 +82,11 @@ export const useCheckPosOrdersVariables = (
 
 export const useCheckPosOrders = (options?: QueryHookOptions) => {
   const setCheckPosOrdersTotalCount = useSetAtom(checkPosOrdersTotalCountAtom);
+  const [checkedOrders, setCheckedOrders] = useAtom(checkedOrdersAtom);
+  const [toCheckSynced, { loading: checking }] = useMutation<{
+    toCheckSynced: CheckSyncedResponse[];
+  }>(checkSyncedMutation);
+  const { toast } = useToast();
   const variables = useCheckPosOrdersVariables(options?.variables);
 
   const { data, loading, fetchMore } = useQuery(checkPosOrdersQuery, {
@@ -78,8 +95,60 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
     fetchPolicy: 'cache-and-network',
   });
 
-  const checkPosOrders = data?.posOrders || [];
+  const checkPosOrders = (data?.posOrders || []).map(
+    (order: ICheckPosOrders) => ({
+      ...order,
+      ...checkedOrders[order._id],
+    }),
+  );
   const totalCount = data?.posOrdersTotalCount || 0;
+
+  const checkOrders = async (ids: string[]) => {
+    if (!ids.length) {
+      toast({
+        title: 'Warning',
+        description: 'No orders to check',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const response = await toCheckSynced({
+      variables: { ids, contentType: 'pos:order' },
+      onError: (error) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
+    });
+
+    if (!response.data) {
+      return;
+    }
+
+    const checked = response.data?.toCheckSynced || [];
+    const nextChecked = checked.reduce(
+      (acc, item) => ({
+        ...acc,
+        [item._id]: {
+          isSynced: item.isSynced,
+          unSynced: item.isSynced ? '' : 'Yes',
+          syncedDate: item.syncedDate,
+          syncedBillNumber: item.syncedBillNumber,
+          syncedCustomer: item.syncedCustomer,
+        },
+      }),
+      {} as Record<string, Partial<ICheckPosOrders>>,
+    );
+
+    setCheckedOrders((current) => ({ ...current, ...nextChecked }));
+    toast({
+      title: 'Success',
+      description: `${checked.length} orders checked`,
+    });
+  };
 
   useEffect(() => {
     if (!totalCount) return;
@@ -111,6 +180,8 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
     loading,
     checkPosOrders,
     totalCount,
+    checkOrders,
+    checking,
     handleFetchMore,
     pageInfo: {
       hasNextPage: checkPosOrders.length < totalCount,

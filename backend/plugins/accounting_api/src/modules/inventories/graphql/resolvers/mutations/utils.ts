@@ -533,10 +533,10 @@ export const getProducts = async (subdomain, productId, productCategoryId) => {
       subdomain,
       pluginName: 'core',
       module: 'products',
-      action: 'find',
-      input: { _id: productId },
+      action: 'findOne',
+      input: { query: { _id: productId } },
     });
-    products = [product];
+    products = product?._id ? [product] : [];
   }
 
   if (productCategoryId) {
@@ -544,7 +544,7 @@ export const getProducts = async (subdomain, productId, productCategoryId) => {
       subdomain,
       pluginName: 'core',
       module: 'products',
-      action: 'products.find',
+      action: 'find',
       input: {
         query: { status: { $nin: ['archived', 'deleted'] } },
         categoryId: productCategoryId,

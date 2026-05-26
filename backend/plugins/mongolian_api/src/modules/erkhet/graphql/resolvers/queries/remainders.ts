@@ -1,6 +1,5 @@
-import { getConfig, getRemConfig } from '@/erkhet/utils';
+import { getConfig, getRemConfig, sendErkhetGet } from '@/erkhet/utils';
 import { getPureDate, sendTRPCMessage } from 'erxes-api-shared/utils';
-import fetch from 'node-fetch';
 import { IContext } from '~/connectionResolvers';
 
 const erkhetQueries = {
@@ -66,24 +65,15 @@ const erkhetQueries = {
 
       const codes = (products || []).map((item) => item.code);
 
-      const response = await fetch(
-        configs.getRemainderApiUrl +
-          '?' +
-          new URLSearchParams({
-            kind: 'remainder',
-            api_key: configs.apiKey,
-            api_secret: configs.apiSecret,
-            check_relate: codes.length < 4 ? '1' : '',
-            accounts: remConfig.account,
-            locations: remConfig.location,
-            inventories: codes.join(','),
-          }),
-        {
-          timeout: 9000,
-        },
-      );
-
-      const jsonRes = await response.json();
+      const jsonRes = await sendErkhetGet('/get-api/', {
+        kind: 'remainder',
+        api_key: configs.apiKey,
+        api_secret: configs.apiSecret,
+        check_relate: codes.length < 4 ? '1' : '',
+        accounts: remConfig.account,
+        locations: remConfig.location,
+        inventories: codes.join(','),
+      });
       const responseByCode: any = {};
 
       const accounts = remConfig.account.split(',') || [];
@@ -177,15 +167,7 @@ const erkhetQueries = {
         return {};
       }
 
-      const response = await fetch(
-        configs.getRemainderApiUrl + '?' + new URLSearchParams(sendParams),
-        {
-          timeout: 8000,
-        },
-      );
-
-      const jsonRes = await response.json();
-      return jsonRes;
+      return await sendErkhetGet('/get-api/', sendParams);
     } catch (e) {
       console.log(e.message);
       return result;

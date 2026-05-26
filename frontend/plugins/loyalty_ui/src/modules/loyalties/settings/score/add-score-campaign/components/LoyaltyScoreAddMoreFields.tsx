@@ -8,6 +8,7 @@ import {
   Command,
   Combobox,
   Switch,
+  Textarea,
 } from 'erxes-ui';
 import { IconSettings } from '@tabler/icons-react';
 import { LoyaltyScoreFormValues } from '../../constants/formSchema';
@@ -100,22 +101,20 @@ const FieldNameSection = ({
       <div className="flex gap-2">
         <button
           type="button"
-          className={`pb-2 px-1 text-sm font-medium border-b-2 transition-colors ${
-            fieldOrigin === 'new'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-muted-foreground'
-          }`}
+          className={`pb-2 px-1 text-sm font-medium border-b-2 transition-colors ${fieldOrigin === 'new'
+            ? 'border-primary text-primary'
+            : 'border-transparent text-muted-foreground'
+            }`}
           onClick={() => setFieldTab('new')}
         >
           New
         </button>
         <button
           type="button"
-          className={`pb-2 px-1 text-sm font-medium border-b-2 transition-colors ${
-            fieldOrigin === 'exists'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-muted-foreground'
-          }`}
+          className={`pb-2 px-1 text-sm font-medium border-b-2 transition-colors ${fieldOrigin === 'exists'
+            ? 'border-primary text-primary'
+            : 'border-transparent text-muted-foreground'
+            }`}
           onClick={() => setFieldTab('exists')}
         >
           Exists
@@ -232,73 +231,98 @@ export const LoyaltyScoreAddMoreFields = ({
           </Tabs.List>
 
           <Tabs.Content value="add" className="pt-4">
-            <div className="grid grid-cols-2 gap-4">
-              <Form.Field
-                control={form.control}
-                name="add.placeholder"
-                render={({ field }) => (
-                  <Form.Item>
-                    <div className="flex items-center gap-2">
-                      <Form.Label>Score Value</Form.Label>
-                      <AttributionSelect
-                        serviceName={selectedService}
-                        onSelect={(val) =>
-                          field.onChange((field.value || '') + val)
-                        }
-                      />
-                    </div>
-                    <Form.Control>
-                      <Input
-                        {...field}
-                        placeholder="Type a placeholder for add score"
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                control={form.control}
-                name="add.currencyRatio"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Currency Ratio</Form.Label>
-                    <Form.Control>
-                      <Input {...field} placeholder="Type a currency ratio" />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
+            <div className="grid gap-4">
+              <div className='w-1/1'>
+                <Form.Field
+                  control={form.control}
+                  name="add.placeholder"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <div className="flex items-center gap-2">
+                        <Form.Label>Score Value</Form.Label>
+                        <AttributionSelect
+                          serviceName={selectedService}
+                          onSelect={(val) =>
+                            field.onChange((field.value || '') + val)
+                          }
+                        />
+                      </div>
+                      <Form.Control>
+                        <Textarea
+                          {...field}
+                          placeholder="Type a placeholder for add score"
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </div>
+              <div  className="grid grid-cols-2 gap-4">
+                <Form.Field
+                  control={form.control}
+                  name="add.currencyRatio"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Currency Ratio</Form.Label>
+                      <Form.Control>
+                        <Input {...field} placeholder="Type a currency ratio" />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  control={form.control}
+                  name="onlyClientPortal"
+                  render={({ field }) => (
+                    <Form.Item className="flex flex-row items-center gap-2">
+                      <Form.Control>
+                        <Switch
+                          checked={field.value ?? false}
+                          onCheckedChange={field.onChange}
+                        />
+                      </Form.Control>
+                      <Form.Label className="mb-2">
+                        Only Client Portal (optional)
+                      </Form.Label>
+                    </Form.Item>
+                  )}
+                />
+              </div>
             </div>
           </Tabs.Content>
 
           <Tabs.Content value="subtract" className="pt-4">
-            <div className="grid grid-cols-2 gap-4">
-              <Form.Field
-                control={form.control}
-                name="subtract.placeholder"
-                render={({ field }) => (
-                  <Form.Item>
-                    <div className="flex items-center gap-2">
-                      <Form.Label>Score Value</Form.Label>
-                      <AttributionSelect
-                        serviceName={selectedService}
-                        onSelect={(val) =>
-                          field.onChange((field.value || '') + val)
-                        }
-                      />
-                    </div>
-                    <Form.Control>
-                      <Input
-                        {...field}
-                        placeholder="Type a placeholder for subtract score"
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
+            <div className="grid gap-4">
+              <div className='w-1/1'>
+                <Form.Field
+                  control={form.control}
+                  name="subtract.placeholder"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <div className="flex items-center gap-2">
+                        <Form.Label>Score Value</Form.Label>
+                        <AttributionSelect
+                          serviceName={selectedService}
+                          onSelect={(val) =>
+                            field.onChange((field.value || '') + val)
+                          }
+                        />
+                      </div>
+                      <Form.Control>
+                        <Textarea
+                          {...field}
+                          placeholder="Type a placeholder for subtract score"
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </div>
+            </div>
+            <div className='grid grid-cols-2 gap-4'>
               <Form.Field
                 control={form.control}
                 name="subtract.currencyRatio"
@@ -309,6 +333,24 @@ export const LoyaltyScoreAddMoreFields = ({
                       <Input {...field} placeholder="Type a currency ratio" />
                     </Form.Control>
                     <Form.Message />
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                control={form.control}
+                name="onlyClientPortal"
+                render={({ field }) => (
+                  <Form.Item className="flex flex-row items-center gap-2">
+                    <Form.Control>
+                      <Switch
+                        checked={field.value ?? false}
+                        onCheckedChange={field.onChange}
+                      />
+                    </Form.Control>
+                    <Form.Label className="mb-2">
+                      Only Client Portal (optional)
+                    </Form.Label>
                   </Form.Item>
                 )}
               />
@@ -338,26 +380,6 @@ export const LoyaltyScoreAddMoreFields = ({
             ))}
           </div>
         </div>
-      )}
-
-      {selectedService && (
-        <Form.Field
-          control={form.control}
-          name="onlyClientPortal"
-          render={({ field }) => (
-            <Form.Item className="flex flex-row items-center gap-2">
-              <Form.Control>
-                <Switch
-                  checked={field.value ?? false}
-                  onCheckedChange={field.onChange}
-                />
-              </Form.Control>
-              <Form.Label className="mb-2">
-                Only Client Portal (optional)
-              </Form.Label>
-            </Form.Item>
-          )}
-        />
       )}
 
       {selectedOwnerType && (

@@ -47,19 +47,26 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
     pluginName: 'mongolian',
     module: 'mnConfigs',
     action: 'find',
-    input: { query: { $or: [{ code: 'EBARIMT' }, { code: 'posInEbarimt', subId: pos._id }] } },
+    input: {
+      query: {
+        $or: [{ code: 'EBARIMT' }, { code: 'posInEbarimt', subId: pos._id }],
+      },
+    },
     defaultValue: [],
   });
 
-  const ebarimtMain = ebarimtConfigs.find(conf => conf.code === 'EBARIMT');
-  const ebarimtPos = ebarimtConfigs.find(conf => conf.code === 'posInEbarimt' && conf.subId === pos._id);
+  const ebarimtMain = ebarimtConfigs.find((conf) => conf.code === 'EBARIMT');
+  const ebarimtPos = ebarimtConfigs.find(
+    (conf) => conf.code === 'posInEbarimt' && conf.subId === pos._id,
+  );
 
   data.pos.ebarimtConfig = {
     ...ebarimtMain?.value,
     ...ebarimtPos?.value,
     ebarimtUrl: ebarimtPos?.value?.ebarimtUrl || ebarimtMain?.value?.ebarimtUrl,
-    companyName: ebarimtPos?.value?.companyName || ebarimtMain?.value?.companyName,
-  }
+    companyName:
+      ebarimtPos?.value?.companyName || ebarimtMain?.value?.companyName,
+  };
 
   return data;
 };
@@ -106,7 +113,6 @@ export const getProductsData = async (
 
     const productCategories = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'core',
       module: 'productCategories',
       action: 'find',
@@ -116,6 +122,7 @@ export const getProductsData = async (
       },
       defaultValue: [],
     });
+
     const categories: any[] = [];
 
     for (const category of productCategories) {
@@ -138,7 +145,6 @@ export const getProductsData = async (
 
     const products: any[] = await sendTRPCMessage({
       subdomain,
-
       pluginName: 'core',
       module: 'products',
       action: 'find',

@@ -1,7 +1,7 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { calcProductsTaxRule } from './productsByTaxType';
-import { getConfig, getPureDate } from './utils';
+import { getConfig, getPureDate, sendErkhetPost } from './utils';
 
 const calcPreTaxPercentage = (paymentTypes, order) => {
   let itemAmountPrePercent = 0;
@@ -33,13 +33,22 @@ const calcPreTaxPercentage = (paymentTypes, order) => {
   return { itemAmountPrePercent, preTaxPaymentTypes };
 };
 
-export const getPosPostData = async (subdomain, pos, order, paymentTypes) => {
+export const getPosPostData = async (
+  subdomain,
+  pos,
+  order,
+  paymentTypes,
+  configOverride?: any,
+) => {
   const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
+  const posErkhetConfig = configOverride || pos.erkhetConfig || {};
+  const posTaxConfig = configOverride || pos.ebarimtConfig || {};
 
   if (
     !erkhetConfig?.apiKey ||
     !erkhetConfig?.apiSecret ||
-    !pos.erkhetConfig?.isSyncErkhet
+    !erkhetConfig?.apiToken ||
+    (!configOverride && !posErkhetConfig?.isSyncErkhet)
   ) {
     return;
   }
@@ -74,7 +83,7 @@ export const getPosPostData = async (subdomain, pos, order, paymentTypes) => {
 
   const { productsById, oneMoreCtax, oneMoreVat } = await calcProductsTaxRule(
     subdomain,
-    pos.ebarimtConfig,
+    posTaxConfig,
     products,
   );
 
@@ -122,7 +131,7 @@ export const getPosPostData = async (subdomain, pos, order, paymentTypes) => {
   for (const paidAmount of (order.paidAmounts || []).filter(
     (pa) => !preTaxPaymentTypes.includes(pa.type),
   )) {
-    const erkhetType = pos.erkhetConfig[`_${paidAmount.type}`];
+    const erkhetType = posErkhetConfig[`_${paidAmount.type}`];
     if (!erkhetType) {
       continue;
     }
@@ -132,8 +141,8 @@ export const getPosPostData = async (subdomain, pos, order, paymentTypes) => {
   }
 
   if (sumSaleAmount > 0.005 || sumSaleAmount < -0.005) {
-    payments[pos.erkhetConfig.defaultPay] =
-      (payments[pos.erkhetConfig.defaultPay] || 0) + sumSaleAmount;
+    payments[posErkhetConfig.defaultPay] =
+      (payments[posErkhetConfig.defaultPay] || 0) + sumSaleAmount;
   }
 
   let customerCode = '';
@@ -177,9 +186,7 @@ export const getPosPostData = async (subdomain, pos, order, paymentTypes) => {
       hasVat:
         order.billType === '9'
           ? false
-          : (order.taxInfo
-              ? order.taxInfo.hasVat
-              : pos.ebarimtConfig?.hasVat) ||
+          : (order.taxInfo ? order.taxInfo.hasVat : posTaxConfig?.hasVat) ||
             oneMoreVat ||
             false,
       hasCitytax:
@@ -187,19 +194,19 @@ export const getPosPostData = async (subdomain, pos, order, paymentTypes) => {
           ? false
           : (order.taxInfo
               ? order.taxInfo.hasCitytax
-              : pos.ebarimtConfig?.hasCitytax) ||
+              : posTaxConfig?.hasCitytax) ||
             oneMoreCtax ||
             false,
       billType: order.billType,
       customerCode,
       description: `${pos.name}`,
-      number: `${pos.erkhetConfig.beginNumber || ''}${order.number}`,
+      number: `${posErkhetConfig.beginNumber || ''}${order.number}`,
       details,
       ...payments,
     },
   ];
 
-  let userEmail = pos.erkhetConfig.userEmail;
+  const userEmail = posErkhetConfig.userEmail || erkhetConfig.userEmail || '';
 
   return {
     userEmail,
@@ -210,14 +217,21 @@ export const getPosPostData = async (subdomain, pos, order, paymentTypes) => {
   };
 };
 
-export const orderDeleteToErkhet = async (subdomain, pos, order) => {
+export const orderDeleteToErkhet = async (
+  subdomain,
+  pos,
+  order,
+  configOverride?: any,
+) => {
   const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
   const models = await generateModels(subdomain);
+  const posErkhetConfig = configOverride || pos.erkhetConfig || {};
 
   if (
     !erkhetConfig?.apiKey ||
     !erkhetConfig?.apiSecret ||
-    !pos.erkhetConfig?.isSyncErkhet
+    !erkhetConfig?.apiToken ||
+    (!configOverride && !posErkhetConfig?.isSyncErkhet)
   ) {
     return;
   }
@@ -238,7 +252,7 @@ export const orderDeleteToErkhet = async (subdomain, pos, order) => {
       },
     ];
 
-    let userEmail = pos.erkhetConfig.userEmail;
+    const userEmail = posErkhetConfig.userEmail || erkhetConfig.userEmail || '';
 
     const postData = {
       userEmail,
@@ -248,19 +262,12 @@ export const orderDeleteToErkhet = async (subdomain, pos, order) => {
       orderInfos: JSON.stringify(orderInfos),
     };
 
-    // return await sendRPCMessage(
-    //   models,
-    //   syncLog,
-    //   "rpc_queue:erxes-automation-erkhet",
-    //   {
-    //     action: "get-response-return-order",
-    //     isJson: true,
-    //     isEbarimt: false,
-    //     payload: JSON.stringify(postData),
-    //     thirdService: true
-    //   }
-
-    //);
+    return await sendErkhetPost(
+      models,
+      syncLog,
+      'get-response-return-order',
+      postData,
+    );
   } catch (e) {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },

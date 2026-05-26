@@ -60,13 +60,13 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
   }
 
   return (
-    <div className="p-3 pt-0">
-      <DealCardDetails items={companies} color="#EA475D" />
-      <DealCardDetails items={customers} color="#F7CE53" />
-      <DealCardDetails items={dealProducts} color="#63D2D6" />
-      <DealCardDetails items={excludedProducts} color="#b49cf1" />
-      <DealCardDetails color="#FF6600" items={tags || []} />
-      <DealCardDetails color="#FF9900" items={customProperties || []} />
+    <div className="flex flex-col gap-1.5 p-3 pt-0">
+      <DealCardDetails items={companies} color="#EA475D" separated />
+      <DealCardDetails items={customers} color="#F7CE53" separated />
+      <DealCardDetails items={dealProducts} color="#63D2D6" separated />
+      <DealCardDetails items={excludedProducts} color="#b49cf1" separated />
+      <DealCardDetails items={tags || []} color="#FF6600" separated />
+      <DealCardDetails items={customProperties || []} color="#FF9900" separated />
     </div>
   );
 };

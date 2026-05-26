@@ -162,9 +162,8 @@ const orderQueries: Record<string, Resolver<any, any, IContext>> = {
   async cpCurrentOrder(
     _root,
     params: ISearchParams,
-    { models, config, posUser }: IContext,
+    { models, config }: IContext,
   ) {
-
     return filterOrders(params, models, config);
   },
 
@@ -434,7 +433,7 @@ orderQueries.cpAddresses.wrapperConfig = {
   forClientPortal: true,
 };
 orderQueries.cpCurrentOrder.wrapperConfig = {
-  forClientPortal: true,
+  skipPermission: true,
 };
 orderQueries.cpFullOrders.wrapperConfig = {
   forClientPortal: true,

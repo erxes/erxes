@@ -10,6 +10,7 @@ export const InsertImportRowsInput = z.object({
 export const GetExportHeadersInput = z.object({
   moduleName: z.string(),
   collectionName: z.string(),
+  filters: z.record(z.any()).optional(),
 });
 export const BatchSkipRowInput = z.object({
   moduleName: z.string(),

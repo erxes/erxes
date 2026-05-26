@@ -51,7 +51,7 @@ const CouponPage = lazy(() =>
   })),
 );
 
-const LoyaltySettingsRoutes = () => {
+const LoyaltyNavigationRoutes = () => {
   return (
     <Suspense
       fallback={
@@ -66,7 +66,7 @@ const LoyaltySettingsRoutes = () => {
           <Route path="lotteries" element={<LotteryPage />} />
           <Route path="spins" element={<SpinPage />} />
           <Route path="donates" element={<DonatePage />} />
-          <Route path="score" element={<ScorePage />} />
+          <Route path="scores" element={<ScorePage />} />
           <Route path="assignments" element={<AssignmentPage />} />
           <Route path="agents" element={<AgentPage />} />
           <Route path="coupons" element={<CouponPage />} />
@@ -76,4 +76,4 @@ const LoyaltySettingsRoutes = () => {
   );
 };
 
-export default LoyaltySettingsRoutes;
+export default LoyaltyNavigationRoutes;

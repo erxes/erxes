@@ -5,6 +5,11 @@ export interface ICheckSyncedDeals {
   number: string;
   createdAt: string;
   stageChangedDate: string;
+  unSynced?: string;
+  isSynced?: boolean;
+  syncedDate?: string;
+  syncedBillNumber?: string;
+  syncedCustomer?: string;
   __typename: string;
 }
 
