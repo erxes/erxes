@@ -212,6 +212,7 @@ export const useDealDetail = (
       _id: finalId,
     },
     skip: !finalId,
+    fetchPolicy: options?.fetchPolicy || 'cache-and-network',
   });
 
   useEffect(() => {

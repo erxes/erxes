@@ -221,7 +221,8 @@ export const REMOVE_DEALS = gql`
 export const DEALS_CHANGE = gql`
   mutation dealsChange(${commonDragVariables}) {
     dealsChange(${commonDragParams}) {
-      _id
+      ${commonFields}
+      ${dealFields}
     }
   }
 `;
