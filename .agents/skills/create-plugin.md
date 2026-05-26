@@ -43,14 +43,12 @@ When triggered, clarify the following details with the developer directly in the
 
 ### Step 2 — Scaffolding Automation (`scripts/create-plugin.js`)
 1. **STRICTLY REQUIRED:** You MUST use the built-in scaffolding automation script to generate the initial plugin structures. **Do NOT hand-make files and directory templates from scratch.**
-2. Execute the generator command:
+2. **PORT SCAN PRE-FLIGHT:** Before running the script, you MUST scan the entire monorepo for occupied ports as defined in Step 1.
+3. Execute the generator command:
    ```bash
    node scripts/create-plugin.js --name <plugin-name> --module <module-name>
    ```
-3. This command instantly scaffolds:
-   - `backend/plugins/<plugin-name>_api/` (Apollo Server, project config, main.ts, models)
-   - `frontend/plugins/<plugin-name>_ui/` (Rspack config, configuration navigation links, example view pages)
-4. Customize the scaffolded files as needed for database models, resolvers, endpoints, and metadata registration.
+4. **IMMEDIATE PORT UPDATE:** The scaffolding script hardcodes default ports (API: 33010, UI: 3005). You MUST immediately update these in `backend/plugins/<plugin>_api/src/main.ts` and `frontend/plugins/<plugin>_ui/project.json` to the unique ports selected in Step 1 before proceeding. Failing to do so is considered SLOP.
 
 ### Step 3 — Customizing Scaffolding for Features
 1. **Database Models (`src/models.ts` / `db/definitions/`)**: Refine database schemas for core entities. Wrap all paths using `generateModels(subdomain)` to ensure strict multi-tenancy.

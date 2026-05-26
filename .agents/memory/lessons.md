@@ -40,6 +40,12 @@ Quarterly: re-read this file end to end. Lessons that are now baked into rules/s
 
 ## Entries
 
+## 2026-05-27 — Scaffolding script hardcodes ports; immediate update required
+**Symptom:** New plugin fails to start with `EADDRINUSE: address already in use :::3005`.
+**Root cause:** `scripts/create-plugin.js` hardcodes default ports (33010 API, 3005 UI). If the AI doesn't manually update these to the unique ports chosen during Phase 1, it will collide with existing plugins.
+**Lesson:** Immediately after running the scaffolding script, you MUST search and replace the hardcoded ports in `backend/plugins/<plugin>_api/src/main.ts` and `frontend/plugins/<plugin>_ui/project.json`. Failing to do so is slop.
+**Where applicable:** `skills/create-plugin.md`, `SLOP-CHECKLIST.md`.
+
 ## 2026-05-22 — `add-deal-field.md` skill points to the wrong UI surface for "edit" wishes
 **Symptom:** Phase 3 GROUND for the riskLevel wish: skill said mirror `priority` through `AddCardForm.tsx` + `salesFormSchema`. Read both files — `priority` isn't there. The Add form covers only: name, description, assignedUserIds, companyIds, customerIds, labelIds, tagIds.
 **Root cause:** The skill conflates two surfaces — Add (the create sheet) and Detail/Edit (the persistent deal sheet). `priority` is only wired in the Detail/Edit surface. The skill's "frontend sister" file list omits the detail sheet entirely.

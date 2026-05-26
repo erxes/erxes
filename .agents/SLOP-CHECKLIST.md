@@ -145,6 +145,9 @@ A skip with no path to un-skip is a permanent skip. The acceptance criterion has
 
 Phase 6 VERIFY is the **proof**, not a placeholder. Every SPEC acceptance criterion needs a non-skipped test (or a skip pointing at real follow-up work).
 
+### Hardcoded port collision in new plugins
+If you create a new plugin, you MUST ensure it doesn't use a port already occupied by another plugin. `scripts/create-plugin.js` hardcodes `3005` and `33010`. Leaving these defaults without checking and updating to unique ports is slop.
+
 ### Skipping skill-mandated goals or non-negotiable rules
 If a skill (like `create-plugin.md`) lists specific "Non-Negotiable Rules" or "Goal Conditions", skipping even one of them is slop. Your SPEC must list them as acceptance criteria, and your PLAN must include commits to implement them.
 
