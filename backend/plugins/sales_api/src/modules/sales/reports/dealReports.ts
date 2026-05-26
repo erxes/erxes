@@ -1,14 +1,13 @@
-// backend/plugins/sales_api/src/modules/sales/reports/dealReports.ts
-
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { buildDateFilter, buildDateGroup, getRelatedIds } from './reportUtils';
 import { IModels } from '../../../connectionResolvers';
 import { PROBABILITY_CLOSED, PROBABILITY_OPEN } from './reportConfig';
+import { IDealReportFilter } from '@/sales/reports/@types/reportFilters';
 
 /**
  * 1. Total count of deals (optionally filtered by date)
  */
-export const dealsTotalCount = async (models: IModels, filters: any) => {
+export const dealsTotalCount = async (models: IModels, filters: IDealReportFilter) => {
   const match: Record<string, any> = buildDateFilter(filters, 'createdAt');
   const count = await models.Deals.countDocuments(match);
   return { labels: ['Total'], datasets: [{ data: [count] }] };
@@ -20,7 +19,7 @@ export const dealsTotalCount = async (models: IModels, filters: any) => {
 export const dealCountByTag = async (
   models: IModels,
   subdomain: string,
-  filters: any,
+  filters: IDealReportFilter,
 ) => {
   const match: Record<string, any> = buildDateFilter(filters, 'createdAt');
   match.tagIds = { $exists: true, $ne: [] };
@@ -57,7 +56,7 @@ export const dealCountByTag = async (
 export const dealCountByLabel = async (
   models: IModels,
   subdomain: string,
-  filters: any,
+  filters: IDealReportFilter,
 ) => {
   const match: Record<string, any> = buildDateFilter(filters, 'createdAt');
   match.labelIds = { $exists: true, $ne: [] };
@@ -93,7 +92,7 @@ export const dealCountByLabel = async (
  */
 export const dealCountByCustomProperties = async (
   models: IModels,
-  filters: any,
+  filters: IDealReportFilter,
 ) => {
   const match: Record<string, any> = buildDateFilter(filters, 'createdAt');
   const { fieldId } = filters;
@@ -149,7 +148,7 @@ export const dealCountByCustomProperties = async (
 export const dealAverageAmountByRep = async (
   models: IModels,
   subdomain: string,
-  filters: any,
+  filters: IDealReportFilter,
 ) => {
   const match: Record<string, any> = buildDateFilter(filters, 'createdAt');
   match['productsData.tickUsed'] = true;
@@ -194,7 +193,7 @@ export const dealAverageAmountByRep = async (
 export const dealLeaderBoardAmountClosedByRep = async (
   models: IModels,
   subdomain: string,
-  filters: any,
+  filters: IDealReportFilter,
 ) => {
   const match: Record<string, any> = buildDateFilter(filters, 'createdAt');
   const stages = await models.Stages.find({
@@ -245,7 +244,7 @@ export const dealLeaderBoardAmountClosedByRep = async (
 export const dealsClosedLostByRep = async (
   models: IModels,
   subdomain: string,
-  filters: any,
+  filters: IDealReportFilter,
 ) => {
   const match: Record<string, any> = buildDateFilter(filters, 'createdAt');
   const stages = await models.Stages.find({
@@ -287,7 +286,7 @@ export const dealsClosedLostByRep = async (
 export const dealsClosedWonByRep = async (
   models: IModels,
   subdomain: string,
-  filters: any,
+  filters: IDealReportFilter,
 ) => {
   const match: Record<string, any> = buildDateFilter(filters, 'createdAt');
   const stages = await models.Stages.find({
@@ -328,7 +327,7 @@ export const dealsClosedWonByRep = async (
  */
 export const dealRevenueByStage = async (
   models: IModels,
-  filters: any,
+  filters: IDealReportFilter,
 ) => {
   const match: Record<string, any> = buildDateFilter(filters, 'createdAt');
   match['productsData.tickUsed'] = true;
@@ -365,9 +364,12 @@ export const dealRevenueByStage = async (
  */
 export const dealsTotalCountByDueDate = async (
   models: IModels,
-  filters: any,
+  filters: IDealReportFilter,
 ) => {
   const match: Record<string, any> = buildDateFilter(filters, 'closeDate');
+  // Ensure closeDate exists, is not null, AND is of type 'date'
+  match.closeDate = { $exists: true, $ne: null, $type: 'date' };
+
   const group = buildDateGroup('closeDate', filters.frequency);
   const pipeline: any[] = [
     { $match: match },
@@ -386,7 +388,7 @@ export const dealsTotalCountByDueDate = async (
 export const dealAverageTimeSpentInEachStage = async (
   models: IModels,
   subdomain: string,
-  filters: any,
+  filters: IDealReportFilter,
 ) => {
   const match: Record<string, any> = buildDateFilter(filters, 'createdAt');
   const deals = await models.Deals.find(match, { _id: 1, stageId: 1 }).lean();
@@ -464,9 +466,12 @@ export const dealAverageTimeSpentInEachStage = async (
  */
 export const closedRevenueByMonthWithDealTotalAndClosedRevenueBreakdown = async (
   models: IModels,
-  filters: any,
+  filters: IDealReportFilter,
 ) => {
   const match: Record<string, any> = buildDateFilter(filters, 'createdAt');
+  // Make sure createdAt is a proper Date (not string)
+  match.createdAt = { ...match.createdAt, $type: 'date' };
+
   const stages = await models.Stages.find({
     probability: { $in: PROBABILITY_CLOSED },
     type: 'deal',

@@ -24,9 +24,7 @@ export interface IProductData {
   bonusCount?: number;
   amount?: number;
   tickUsed?: boolean;
-  isVatApplied?: boolean;
-  assignUserId?: string;
-  branchId?: string;
+    branchId?: string;
   departmentId?: string;
   startDate?: Date;
   endDate?: Date;

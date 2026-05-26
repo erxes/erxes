@@ -13,6 +13,7 @@ import {
   PosCovers as QueriesPosCovers,
   PosOrders as QueriesPosOrders,
 } from '@/pos/graphql/resolvers/queries';
+import { dealReports as dealReportsQueries } from '~/modules/sales/reports/graphql/resolvers/queries/reportsQueries';
 
 export const queries = {
   ...boardQueries,
@@ -28,4 +29,5 @@ export const queries = {
   ...lastViewedItemQueries,
   ...productReviewQueries,
   ...wishlistQueries,
+  ...dealReportsQueries, 
 };
