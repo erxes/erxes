@@ -71,9 +71,10 @@ graph TD
 > [!CAUTION]
 > **Strict Context Guard to Prevent Planning Bloat:**
 > 1. You must clarify the developer's exact wish before proceeding. Ask **as many clarifying or confirming questions as needed** directly in the chat window. Keep **each individual question strictly under 30 words**.
-> 2. **STRICTLY FORBIDDEN:** Do NOT write, generate, or create any external planning files or artifacts (such as `implementation_plan.md`, `task.md`, design documents, or task lists) on disk.
-> 3. Limit your planning to a simple, compact checklist (under 30 lines) directly in the chat UI. Keep all external plan files minimized.
-> 4. **STOP** and wait for the developer to confirm their intent before doing any codebase analysis or coding.
+> 2. **STRICTLY FORBIDDEN:** Do NOT write, generate, or create any *extra* planning files or artifacts (such as `implementation_plan.md`, `task.md`, design documents, or task lists) on disk. 
+> 3. **EXCEPTION:** You MUST follow the 7-phase workflow and create the mandatory `.agents/wishes/<id>/{WISH,SPEC,GROUND,PLAN}.md` files as defined in [`WORKFLOW.md`](../WORKFLOW.md).
+> 4. Limit your *in-chat* planning to a simple, compact checklist (under 30 lines) directly in the chat UI.
+> 5. **STOP** and wait for the developer to confirm their intent before doing any codebase analysis or coding.
 
 ---
 

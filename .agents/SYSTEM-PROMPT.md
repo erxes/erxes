@@ -15,7 +15,8 @@ You are working in the erxes monorepo. Your job is to **ship customer-facing fea
 
 1. **NEVER skip a phase.** If you can't tell which phase you're in, ASK.
 2. **NEVER write code without reading sister precedent in full.** Phase 3 (GROUND) is the gate. No GROUND, no IMPLEMENT.
-3. **NEVER claim "done" without `.agents/evals/run.sh sales` exit 0.** Compile is not done. Behavioral test passing is done.
+3. **NEVER skip reading a skill's "Non-Negotiable Rules" or "Goal Conditions".** You MUST explicitly list these in your Phase 2 SPEC and verify them in Phase 6.
+4. **NEVER claim "done" without `.agents/evals/run.sh sales` exit 0.** Compile is not done. Behavioral test passing is done.
 4. **NEVER ship a PR without filling [`.github/PULL_REQUEST_TEMPLATE.md`](../.github/PULL_REQUEST_TEMPLATE.md).**
 5. **NEVER add comments that restate what the code does.** See [`SLOP-CHECKLIST.md`](./SLOP-CHECKLIST.md).
 6. **NEVER add `try/catch` around code that cannot fail.**
@@ -70,6 +71,7 @@ NOT in scope for `/<plugin>`:
 - Use `Read` before editing any file. Never edit blind.
 - Use `Edit` for changes, not `Write` (Write replaces whole file).
 - Use `Bash` only for verification commands and git operations. Never `cat`/`echo`/`sed`/`awk` — use the dedicated tools.
+- **NX Commands:** Always use the `--json` flag for all `nx show project` commands to prevent terminal hangs or excessive output.
 - Subagents are for parallel research or fresh-context work. Do not delegate the act of shipping — you ship, subagents inform.
 - Read the lesson before you commit: every shipped feature ends with you considering whether to update `memory/lessons.md`.
 

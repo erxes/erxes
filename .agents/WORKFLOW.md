@@ -85,12 +85,13 @@ The bug-fix workflow has its own parallel phases: REPORT → TRIAGE → BUG-SPEC
 
 **AI does:**
 1. Copy `.agents/templates/SPEC.md` to `.agents/wishes/<id>/SPEC.md`.
-2. Fill in:
+2. **Read the routed skill's "Non-Negotiable Rules" or "Goal Conditions" in full.**
+3. Fill in:
    - **User-visible behavior:** what the user sees / does
    - **API contract changes:** new GraphQL fields/mutations/queries, new tRPC procedures, new REST routes
    - **Data model changes:** new fields on existing entities
    - **UI changes:** new components, modified forms, new routes
-   - **Acceptance criteria:** numbered list (e.g., "1. User can set Deal priority to low/medium/high. 2. Priority appears on deal card. 3. Priority persists across page reload.")
+   - **Acceptance criteria:** numbered list. **You MUST include every applicable Non-Negotiable Rule from the skill here.** (e.g., "1. User can set Deal priority... 2. Pure-Graph Seeding implemented... 3. Port allocation is collision-free...")
    - **Out of scope:** explicit list of what this SPEC does NOT change
 
 **Artifact:** `.agents/wishes/<id>/SPEC.md`.
@@ -135,6 +136,7 @@ The bug-fix workflow has its own parallel phases: REPORT → TRIAGE → BUG-SPEC
    - One logical change (e.g., "add field to schema" is one; "add field to schema + UI form + tests" is three)
    - Independently buildable (commit N can be checked out and built without commit N+1)
 3. For each commit, list the files touched and a one-line commit message.
+4. **Ensure the plan includes explicit steps for all skill-mandated goals** (e.g., "Commit 8: Add GraphQL seeding script").
 
 **Artifact:** `.agents/wishes/<id>/PLAN.md` with ordered commits.
 
