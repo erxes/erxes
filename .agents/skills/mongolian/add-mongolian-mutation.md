@@ -19,7 +19,7 @@ Closest sisters:
 - `backend/plugins/mongolian_api/src/modules/ebarimt/graphql/schemas/ebarimt.ts` — `mutationParams` and `mutations` (lines 201–240). See exactly how each mutation declares its variables.
 - `backend/plugins/mongolian_api/src/modules/mongolian/graphql/resolvers/mutations/ebarimts.ts` — the `ebarimtMutations` object. Note the `checkPermission` call at the top of every method (e.g., line 30 `await checkPermission('ebarimtsAdd')`).
 - `backend/plugins/mongolian_api/src/modules/mongolian/graphql/resolvers/mutations/utils.ts` — `addEbarimt`, `editEbarimt`, `processStageChangeScoreCampaigns` — shared business logic the resolvers delegate to.
-- `backend/plugins/mongolian_api/src/modules/ebarimt/db/models/Ebarimts.ts` — static methods (`createEbarimt` at line 41, `updateEbarimt` at line 70, `removeEbarimts` at line 116). Mutations should delegate writes here.
+- `backend/plugins/mongolian_api/src/modules/ebarimt/db/models/Ebarimt.ts` — static methods (`createEbarimt` at line 41, `updateEbarimt` at line 70, `removeEbarimts` at line 116). Mutations should delegate writes here.
 - `backend/plugins/mongolian_api/src/apollo/resolvers/mutations.ts` — how `ebarimtMutations` is merged
 - `backend/plugins/mongolian_api/src/modules/mongolian/meta/activity-log/` — every CRUD generates an entry. New mutation = new activity-log builder (see [`../../docs/mongolian/data-model.md`](../../docs/mongolian/data-model.md) "Activity log").
 - `backend/plugins/mongolian_api/src/meta/permissions.ts` — RBAC declaration

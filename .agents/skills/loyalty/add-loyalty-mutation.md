@@ -19,7 +19,7 @@ Closest sisters:
 - `backend/plugins/loyalty_api/src/modules/voucher/graphql/schemas/voucher.ts` — `mutationParams` and `mutations` (lines 201–240). See exactly how each mutation declares its variables.
 - `backend/plugins/loyalty_api/src/modules/loyalty/graphql/resolvers/mutations/vouchers.ts` — the `voucherMutations` object. Note the `checkPermission` call at the top of every method (e.g., line 30 `await checkPermission('vouchersAdd')`).
 - `backend/plugins/loyalty_api/src/modules/loyalty/graphql/resolvers/mutations/utils.ts` — `addVoucher`, `editVoucher`, `processStageChangeScoreCampaigns` — shared business logic the resolvers delegate to.
-- `backend/plugins/loyalty_api/src/modules/voucher/db/models/Vouchers.ts` — static methods (`createVoucher` at line 41, `updateVoucher` at line 70, `removeVouchers` at line 116). Mutations should delegate writes here.
+- `backend/plugins/loyalty_api/src/modules/voucher/db/models/Voucher.ts` — static methods (`createVoucher` at line 41, `updateVoucher` at line 70, `removeVouchers` at line 116). Mutations should delegate writes here.
 - `backend/plugins/loyalty_api/src/apollo/resolvers/mutations.ts` — how `voucherMutations` is merged
 - `backend/plugins/loyalty_api/src/modules/loyalty/meta/activity-log/` — every CRUD generates an entry. New mutation = new activity-log builder (see [`../../docs/loyalty/data-model.md`](../../docs/loyalty/data-model.md) "Activity log").
 - `backend/plugins/loyalty_api/src/meta/permissions.ts` — RBAC declaration

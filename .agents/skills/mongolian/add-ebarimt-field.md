@@ -22,7 +22,7 @@ Backend:
 - `backend/plugins/mongolian_api/src/modules/ebarimt/db/definitions/ebarimt.ts` — Mongoose schema (search for `priority:` at line 96)
 - `backend/plugins/mongolian_api/src/modules/ebarimt/@types/ebarimt.ts` — `IEbarimt` interface (line 66 `priority?: string`)
 - `backend/plugins/mongolian_api/src/modules/ebarimt/graphql/schemas/ebarimt.ts` — full GraphQL surface: `type Ebarimt`, `queryParams`, `mutationParams` (priority at lines 43, 103, 214)
-- `backend/plugins/mongolian_api/src/modules/ebarimt/db/models/Ebarimts.ts` — `createEbarimt` and `updateEbarimt` (the writes that accept the new field)
+- `backend/plugins/mongolian_api/src/modules/ebarimt/db/models/Ebarimt.ts` — `createEbarimt` and `updateEbarimt` (the writes that accept the new field)
 
 Frontend:
 - `frontend/plugins/mongolian_ui/src/graphql/mutations.ts` — `commonFields` fragment, `commonMutationVariables`, `commonMutationParams` (priority at lines 75, 164, 186)

@@ -19,7 +19,7 @@ Closest sisters (all in `backend/plugins/content_api/src/modules/content/`):
 - `backend/plugins/content_api/src/modules/cms/graphql/schemas/cms.ts` — `queryParams`, the `queries` export, see how `cmss` declares filter input
 - `backend/plugins/content_api/src/modules/content/graphql/resolvers/queries/cmss.ts` — the `cmsQueries` object + `generateFilter()` (the canonical filter builder)
 - `backend/plugins/content_api/src/apollo/resolvers/queries.ts` — how `cmsQueries` is merged into the root resolver
-- `backend/plugins/content_api/src/apollo/schema/schema.ts` — how `CMSQueries` typedef block joins the rest
+- `backend/plugins/content_api/src/apollo/schema/schema.ts` — how `CmsQueries` typedef block joins the rest
 - `backend/plugins/content_api/src/modules/content/graphql/resolvers/customResolvers/cms.ts` — read-only, to see how DataLoaders avoid N+1 (line 7+: `customers`, `companies`)
 
 Permissions sister:
@@ -35,17 +35,17 @@ Default plan for a list-shape query:
 4. **add UI query document** — files: `frontend/plugins/content_ui/src/graphql/queries.ts` (plus the hook that consumes it under `cards/hooks/` or `boards/hooks/`)
 5. **playwright spec asserts the UI uses the new query** — files: `.agents/plugins/content/tests/cmsList.spec.ts`
 
-If the query already returns `CMS`, no schema-side `customResolvers` change is needed — the existing custom resolvers fire.
+If the query already returns `Cms`, no schema-side `customResolvers` change is needed — the existing custom resolvers fire.
 
 ## Phase 5 — IMPLEMENT (step-by-step)
 
 For each commit:
 
-1. In `schemas/cms.ts`, extend `export const queries = ...`. Mirror the `cmss(stageId: String, ...)` line — declare your query, reuse `${queryParams}` if the wish needs the same filters, or declare a tighter input. Return `CMSsListResponse`, `Int`, `CMS`, or `[CMS]` based on shape.
+1. In `schemas/cms.ts`, extend `export const queries = ...`. Mirror the `cmss(stageId: String, ...)` line — declare your query, reuse `${queryParams}` if the wish needs the same filters, or declare a tighter input. Return `CmssListResponse`, `Int`, `Cms`, or `[Cms]` based on shape.
 2. In `resolvers/queries/cmss.ts`, add a property to the `cmsQueries: Record<string, Resolver>` object. Destructure `{ models, subdomain, user, checkPermission }` from `IContext` ([`../../rules/30-multi-tenancy.md`](../../rules/30-multi-tenancy.md)). Reuse `generateFilter(models, subdomain, user._id, args)` if your inputs overlap.
-3. If the query touches `CMS` lists, **do not** call `models.Users.findOne` per row — return raw cmss and let `customResolvers/cms.ts` + `loaders/index.ts` hydrate. See [`../../docs/content/graphql-federation.md`](../../docs/content/graphql-federation.md) "DataLoaders".
+3. If the query touches `Cms` lists, **do not** call `models.Users.findOne` per row — return raw cmss and let `customResolvers/cms.ts` + `loaders/index.ts` hydrate. See [`../../docs/content/graphql-federation.md`](../../docs/content/graphql-federation.md) "DataLoaders".
 4. Run `.agents/evals/run.sh content --backend-only`. Exit 0 before continuing.
-5. On the UI: add `gql` document to `CMSsQueries.ts`, write a hook (`useCMSsByPriority`) mirroring `useCMSs` (in `cards/hooks/useCMSs.tsx`). Then surface it in a component if the wish needs a view.
+5. On the UI: add `gql` document to `CmssQueries.ts`, write a hook (`useCmssByPriority`) mirroring `useCmss` (in `cards/hooks/useCmss.tsx`). Then surface it in a component if the wish needs a view.
 6. Run `.agents/evals/run.sh content`. Exit 0.
 
 ## Phase 6 — VERIFY
@@ -59,7 +59,7 @@ Run: `cd .agents && pnpm test plugins/content/tests/cmss.spec.ts`
 
 ## Pitfalls (specific to this skill)
 
-- A new query that returns `[CMS]` must be merged into `cmsQueries` and have its typedef appear in `schemas/cms.ts` `queries`. Forgetting either causes a silent `null` at runtime — federation composition does **not** fail.
+- A new query that returns `[Cms]` must be merged into `cmsQueries` and have its typedef appear in `schemas/cms.ts` `queries`. Forgetting either causes a silent `null` at runtime — federation composition does **not** fail.
 - Avoid hand-building filters. `generateFilter` already handles 30+ params and `parentId`/`status` defaults — bypassing it leaks archived cmss into the response.
 - If the query needs subdomain-scoped sorting or aggregation across stages, use the loader pattern from `customResolvers/cms.ts`. Inline `findOne` calls inside a list resolver = N+1 bug.
 - `checkPermission` throws — do not wrap it in `try/catch` (see [`../../SLOP-CHECKLIST.md`](../../SLOP-CHECKLIST.md)).

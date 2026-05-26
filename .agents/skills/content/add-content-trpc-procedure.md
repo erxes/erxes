@@ -12,7 +12,7 @@ Closest sisters in `backend/plugins/content_api/src/modules/content/trpc/cms.ts`
 |---|---|---|
 | `cms.findOne(input)` | query, returns one document | mirror for any "get one entity by id" |
 | `cms.find({ query, skip, limit, sort })` | query, returns a paged list | mirror for any list/filter read |
-| `cms.findCMSProductIds({ _ids })` | query, returns a derived array via aggregation | mirror for a computed lookup |
+| `cms.findCmsProductIds({ _ids })` | query, returns a derived array via aggregation | mirror for a computed lookup |
 | `cms.createItem` / `cms.editItem` / `cms.removeItem` | mutation, delegates to mutation/utils | mirror for any cross-plugin write |
 | `pos.ecommerceGetBranches` | query that delegates to a utility (`getBranchesUtil`) | mirror for any "wrap a util as a procedure" |
 
@@ -40,7 +40,7 @@ If the procedure is a brand-new namespace under content (e.g., a `forecast.*` se
 
 ## Phase 5 — IMPLEMENT (step-by-step)
 
-1. **Choose the sister procedure** that matches your shape. For a read: `find` or `findOne`. For a write: `createItem` or `editItem`. For aggregation: `findCMSProductIds`.
+1. **Choose the sister procedure** that matches your shape. For a read: `find` or `findOne`. For a write: `createItem` or `editItem`. For aggregation: `findCmsProductIds`.
 2. **Add the procedure** as a property of the existing namespace object (e.g., inside `cms: t.router({ ... })`). Shape:
    ```ts
    yourProcedureName: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
@@ -52,7 +52,7 @@ If the procedure is a brand-new namespace under content (e.g., a `forecast.*` se
    Use `.query(...)` for reads, `.mutation(...)` for writes. Returning `{ status, data }` is the convention every existing content procedure uses — callers expect it.
 3. **Validate input meaningfully** if it's a system-boundary contract. `z.any()` is the existing precedent for trust-the-caller plugin-to-plugin RPC; tighten only if you genuinely guard a public surface. Do not validate fields TypeScript already guarantees ([`../../SLOP-CHECKLIST.md`](../../SLOP-CHECKLIST.md) "validation at internal boundaries").
 4. **Subdomain.** `ctx.subdomain` is populated by the gateway proxy. Every data access must scope through `models` (subdomain-bound). See [`../../rules/30-multi-tenancy.md`](../../rules/30-multi-tenancy.md).
-5. **Reuse models / mutation utils.** Writes should delegate to `models.CMSs.createCMS` or `mutations/utils.ts addCMS/editCMS` — the same path GraphQL takes. Do not duplicate write logic in the tRPC handler. See how `createItem` (cms.ts line 153) calls `addCMS`.
+5. **Reuse models / mutation utils.** Writes should delegate to `models.Cmss.createCms` or `mutations/utils.ts addCms/editCms` — the same path GraphQL takes. Do not duplicate write logic in the tRPC handler. See how `createItem` (cms.ts line 153) calls `addCms`.
 6. Run `.agents/evals/run.sh content --backend-only`. Exit 0.
 7. Test the call from outside: gateway proxies tRPC at `/trpc/*`. The caller plugin uses `sendTRPCMessage({ pluginName: 'content', module: 'cms', action: 'cmssForCustomer', input: {...} })` — see the `fetchSegment` example at `cms.ts` line 430.
 
@@ -69,8 +69,8 @@ Run: `cd .agents && pnpm test plugins/content/tests/cmss.spec.ts`
 
 ## Pitfalls (specific to this skill)
 
-- **Wrong escape hatch.** If the consumer plugin is the UI of another plugin (frontend), tRPC is overkill — that plugin's GraphQL client can just query the federated `CMS` type. tRPC is for **backend-to-backend** calls.
-- **Direct import is illegal.** Even though both plugins live in the same repo, importing `models.CMSs` from `frontline_api` directly violates [`../../rules/20-architecture-boundaries.md`](../../rules/20-architecture-boundaries.md). The point of tRPC is to avoid that import.
+- **Wrong escape hatch.** If the consumer plugin is the UI of another plugin (frontend), tRPC is overkill — that plugin's GraphQL client can just query the federated `Cms` type. tRPC is for **backend-to-backend** calls.
+- **Direct import is illegal.** Even though both plugins live in the same repo, importing `models.Cmss` from `frontline_api` directly violates [`../../rules/20-architecture-boundaries.md`](../../rules/20-architecture-boundaries.md). The point of tRPC is to avoid that import.
 - **Subdomain hop.** When content calls another plugin via `sendTRPCMessage`, you must include `subdomain` in the message. The gateway forwards it; the callee's `ctx.subdomain` picks it up. Forgetting causes the callee to operate on the wrong tenant.
 - **Procedure naming.** The consumer reaches `content.cms.cmssForCustomer` via `action: 'cmssForCustomer'`, `module: 'cms'`. The procedure key in the router must match the action name exactly.
 - **Returning a Mongoose Document.** Always `.lean()` before returning. tRPC serializes via JSON; Mongoose docs carry methods that JSON drops, but they also carry hidden fields (`__v`, virtuals) that may surprise the caller.

@@ -19,7 +19,7 @@ Closest sisters:
 - `backend/plugins/tourism_api/src/modules/bms/graphql/schemas/tour.ts` — `mutationParams` and `mutations` (lines 201–240). See exactly how each mutation declares its variables.
 - `backend/plugins/tourism_api/src/modules/tourism/graphql/resolvers/mutations/tours.ts` — the `tourMutations` object. Note the `checkPermission` call at the top of every method (e.g., line 30 `await checkPermission('toursAdd')`).
 - `backend/plugins/tourism_api/src/modules/tourism/graphql/resolvers/mutations/utils.ts` — `addTour`, `editTour`, `processStageChangeScoreCampaigns` — shared business logic the resolvers delegate to.
-- `backend/plugins/tourism_api/src/modules/bms/db/models/Tours.ts` — static methods (`createTour` at line 41, `updateTour` at line 70, `removeTours` at line 116). Mutations should delegate writes here.
+- `backend/plugins/tourism_api/src/modules/bms/db/models/Tour.ts` — static methods (`createTour` at line 41, `updateTour` at line 70, `removeTours` at line 116). Mutations should delegate writes here.
 - `backend/plugins/tourism_api/src/apollo/resolvers/mutations.ts` — how `tourMutations` is merged
 - `backend/plugins/tourism_api/src/modules/tourism/meta/activity-log/` — every CRUD generates an entry. New mutation = new activity-log builder (see [`../../docs/tourism/data-model.md`](../../docs/tourism/data-model.md) "Activity log").
 - `backend/plugins/tourism_api/src/meta/permissions.ts` — RBAC declaration

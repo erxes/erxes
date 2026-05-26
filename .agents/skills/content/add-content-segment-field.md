@@ -1,6 +1,6 @@
 # add content segment field
 
-> **When to use:** the wish makes an existing CMS field filterable in the segment builder — e.g., "I want to build a segment of cmss where `priority` is `high`," or "let me filter by `closeDate < today`." The field must already exist (or be added first via [`./add-cms-field.md`](./add-cms-field.md)).
+> **When to use:** the wish makes an existing Cms field filterable in the segment builder — e.g., "I want to build a segment of cmss where `priority` is `high`," or "let me filter by `closeDate < today`." The field must already exist (or be added first via [`./add-cms-field.md`](./add-cms-field.md)).
 
 ## Phase 3 — GROUND (mirror an existing feature)
 
@@ -19,7 +19,7 @@ Closest sisters (all in `backend/plugins/content_api/src/modules/content/meta/se
 - `backend/plugins/content_api/src/modules/content/meta/segments/segmentConfigs.ts` — `dependentModules` + `contentTypes` registry (the static config)
 - `backend/plugins/content_api/src/modules/content/meta/segments/segments.ts` — `propertyConditionExtender`, `associationFilter`, `initialSelector` (the dynamic resolution)
 - `backend/plugins/content_api/src/modules/content/meta/segments/utils.ts` — helpers like `generateConditionStageIds` and `generateProductsCategoryProductIds`
-- `backend/plugins/content_api/src/modules/content/fieldUtils.ts` `generateCMSsFields()` — how CMS Mongoose schema paths become the field picker in the segment builder
+- `backend/plugins/content_api/src/modules/content/fieldUtils.ts` `generateCmssFields()` — how Cms Mongoose schema paths become the field picker in the segment builder
 - `backend/plugins/content_api/src/modules/cms/db/definitions/cms.ts` — verify the field exists with `esType` for ES-backed filtering
 - [`../../docs/content/data-model.md`](../../docs/content/data-model.md) "Segment content type" — the contract content has with the segments service
 
@@ -27,20 +27,20 @@ Closest sisters (all in `backend/plugins/content_api/src/modules/content/meta/se
 
 Three plan shapes depending on the field's nature. Pick one.
 
-### Plan A — plain scalar already on CMS (string/number/date) the schema indexes for ES
+### Plan A — plain scalar already on Cms (string/number/date) the schema indexes for ES
 
-Most fields are auto-discovered by `generateCMSsFields` via `models.CMSs.schema`. If the field has `esType:` on its schema definition, **no segments code change is needed** — the field will appear in the picker, and the segments service queries Elasticsearch via the `cmss` index.
+Most fields are auto-discovered by `generateCmssFields` via `models.Cmss.schema`. If the field has `esType:` on its schema definition, **no segments code change is needed** — the field will appear in the picker, and the segments service queries Elasticsearch via the `cmss` index.
 
 1. **add `esType:` to the schema path** if missing — files: `backend/plugins/content_api/src/modules/cms/db/definitions/cms.ts`
 2. **playwright spec asserts the field shows up in the segment picker** — files: `.agents/plugins/content/tests/cmsList.spec.ts`
 
 ### Plan B — derived / virtual property (like `stageProbability`)
 
-The field doesn't live directly on CMS but is computed from a related entity (Stage, Pipeline, Product, …).
+The field doesn't live directly on Cms but is computed from a related entity (Stage, Pipeline, Product, …).
 
 1. **add a branch to `propertyConditionExtender`** — files: `meta/segments/segments.ts`
 2. **(if it needs helper data) add helper to `utils.ts`** — files: `meta/segments/utils.ts`
-3. **register the property in the segment field picker** — files: `meta/segments/segmentConfigs.ts` or extend `generateCMSsFields` in `fieldUtils.ts`
+3. **register the property in the segment field picker** — files: `meta/segments/segmentConfigs.ts` or extend `generateCmssFields` in `fieldUtils.ts`
 4. **playwright spec asserts the field is selectable in the segment builder UI**
 
 ### Plan C — nested array path (like `productsData.productId`)
@@ -51,11 +51,11 @@ The field doesn't live directly on CMS but is computed from a related entity (St
 
 ## Phase 5 — IMPLEMENT (step-by-step)
 
-1. **Audit first.** Open the segment builder UI (`/segments`) and check if the field already appears for the `CMS` content type. If yes, you're done — segment fields auto-discover from the Mongoose schema via `generateCMSsFields`. Skip to Phase 6.
+1. **Audit first.** Open the segment builder UI (`/segments`) and check if the field already appears for the `Cms` content type. If yes, you're done — segment fields auto-discover from the Mongoose schema via `generateCmssFields`. Skip to Phase 6.
 2. **If not auto-discovered**, the field probably lacks `esType:` on its schema path. Add `esType: 'keyword'` (strings, enums, IDs), `'number'` (numerics), `'date'` (dates), `'boolean'` (bools). Restart `content_api` so the schema is re-indexed in ES on next reindex.
 3. **Derived field (Plan B)** — add a `if (condition.propertyName === '<yourField>')` branch to `propertyConditionExtender`. Build an ES `terms` / `range` / `bool` query and return `{ data: { positive, ignoreThisPostiveQuery: true }, status: 'success' }`. The flag tells the segments engine "the framework's default positive query for this property is wrong; use mine."
 4. **Nested-array field (Plan C)** — same shape as Plan B but build a `bool.should` of `match` clauses. Mirror lines 68–84 of `segments.ts`.
-5. **Make the field discoverable** — `generateCMSsFields` reads from `models.CMSs.schema`, so derived fields need to be injected somewhere. Pattern: extend the `fields` array in `generateCMSsFields` (see `fieldUtils.ts` line 178+) with a synthetic descriptor `{ _id, name, label, type, selectOptions? }`. Mirror the `createdByOptions` block at line 236.
+5. **Make the field discoverable** — `generateCmssFields` reads from `models.Cmss.schema`, so derived fields need to be injected somewhere. Pattern: extend the `fields` array in `generateCmssFields` (see `fieldUtils.ts` line 178+) with a synthetic descriptor `{ _id, name, label, type, selectOptions? }`. Mirror the `createdByOptions` block at line 236.
 6. Run `.agents/evals/run.sh content --backend-only`. Exit 0.
 7. For Plan A you also need an Elasticsearch reindex of `cmss` if the index pre-dates the new `esType:`. Check with the platform team — this is sometimes a deployment step, not a code change.
 
@@ -71,7 +71,7 @@ Run: `cd .agents && pnpm test plugins/content/tests/cmss.spec.ts`
 ## Pitfalls (specific to this skill)
 
 - **Adding a field to `cmss.ts` schema is not enough to make it segmentable.** Segments live in Elasticsearch index `cmss`. Without `esType:`, the field isn't indexed and ES filters return empty. See `db/definitions/cmss.ts` lines 70–76 (`closeDate` correctly declares `esType: 'date'`).
-- `generateCMSsFields` ([`fieldUtils.ts`](#) line 178+) walks `models.CMSs.schema.paths`. Nested sub-schemas (`productsData[]`) are walked separately. If your field is `productsData.priority`, it appears as a `productsData.priority` path automatically — you don't need to add it to `segments.ts` for simple terms filters.
+- `generateCmssFields` ([`fieldUtils.ts`](#) line 178+) walks `models.Cmss.schema.paths`. Nested sub-schemas (`productsData[]`) are walked separately. If your field is `productsData.priority`, it appears as a `productsData.priority` path automatically — you don't need to add it to `segments.ts` for simple terms filters.
 - `propertyConditionExtender` returns one positive query at a time. If two conditions exist (e.g., the user filters by both stage and product), the segments engine ANDs them. Do not OR them inside your handler.
 - The `ignoreThisPostiveQuery: true` flag is **critical**: without it, the segments engine builds its own default `match` clause on top of yours and the query becomes nonsense.
 - ES index lag: after deploying a schema change, existing docs are not re-indexed. New documents reflect the change; old ones don't. Coordinate a reindex.

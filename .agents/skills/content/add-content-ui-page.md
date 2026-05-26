@@ -10,17 +10,17 @@ Closest sisters in `frontend/plugins/content_ui/`:
 
 | Sister page | File | Why |
 |---|---|---|
-| `CMSsIndexPage` | `src/pages/CMSsIndexPage.tsx` | the main `/content` / `/content/cmss` page — canonical layout with `PageHeader`, `PageContainer`, `Breadcrumb` |
-| `CMSsSettingsIndexPage` | `src/pages/CMSsSettingsIndexPage.tsx` | settings-area page (exposed under a separate federation key) |
+| `CmssIndexPage` | `src/pages/CmssIndexPage.tsx` | the main `/content` / `/content/cmss` page — canonical layout with `PageHeader`, `PageContainer`, `Breadcrumb` |
+| `CmssSettingsIndexPage` | `src/pages/CmssSettingsIndexPage.tsx` | settings-area page (exposed under a separate federation key) |
 | `PosIndexPage` | `src/pages/PosIndexPage.tsx` | sibling top-level page in the same federation surface |
 
 **Read these files in full** before writing any code:
 
-- `frontend/plugins/content_ui/src/pages/CMSsIndexPage.tsx` — canonical page shape: `Breadcrumb`, `PageHeader`, `PageContainer`, `PageSubHeader`
-- `frontend/plugins/content_ui/src/modules/cmss/Main.tsx` — how routes inside the cmss module are declared (`<Route path="cmss" element={<CMSsMain />} />`)
+- `frontend/plugins/content_ui/src/pages/CmssIndexPage.tsx` — canonical page shape: `Breadcrumb`, `PageHeader`, `PageContainer`, `PageSubHeader`
+- `frontend/plugins/content_ui/src/modules/cmss/Main.tsx` — how routes inside the cmss module are declared (`<Route path="cmss" element={<CmssMain />} />`)
 - `frontend/plugins/content_ui/src/config.tsx` — `modules[]`, `path`, exposed navigation entries
 - `frontend/plugins/content_ui/module-federation.config.ts` — `exposes` map; how pages become host-mountable
-- `frontend/plugins/content_ui/src/MainNavigation.tsx`, `src/CMSsSubNavigation.tsx` — where the new page's nav link lives
+- `frontend/plugins/content_ui/src/MainNavigation.tsx`, `src/CmssSubNavigation.tsx` — where the new page's nav link lives
 - [`../../docs/content/module-federation.md`](../../docs/content/module-federation.md) — host/remote conventions and shared-library rules
 
 If the page lives inside `content` (e.g., `/content/dashboard`), mirror `Main.tsx` routing. If it's a new top-level path the host should mount (e.g., `/content-reports`), you must extend `module-federation.config.ts` `exposes` and update `config.tsx` `modules[]`.
@@ -31,7 +31,7 @@ Default plan for an in-`/content/*` sub-page (e.g., `/content/dashboard`):
 
 1. **create the page component** — files: `frontend/plugins/content_ui/src/pages/<NewPage>.tsx`
 2. **add the route** — files: `frontend/plugins/content_ui/src/modules/cmss/Main.tsx`
-3. **add a nav entry** — files: `frontend/plugins/content_ui/src/CMSsSubNavigation.tsx` or `src/MainNavigation.tsx`
+3. **add a nav entry** — files: `frontend/plugins/content_ui/src/CmssSubNavigation.tsx` or `src/MainNavigation.tsx`
 4. **(if the page needs data) add GraphQL queries + hook** — files: `src/modules/cmss/graphql/queries/...Queries.ts`, hook under `cards/hooks/` or a new directory if the page introduces a new entity surface
 5. **playwright spec navigates to the new route** — files: `.agents/plugins/content/tests/cmsList.spec.ts`
 
@@ -41,10 +41,10 @@ If the page is host-exposed (rare), add one more commit:
 
 ## Phase 5 — IMPLEMENT (step-by-step)
 
-1. **`<NewPage>.tsx`** — start from `CMSsIndexPage.tsx`. Keep the same shell: `Breadcrumb`, `PageHeader`, `PageContainer`. Components come from `erxes-ui` and `ui-modules` only. Do not import from another plugin ([`../../rules/20-architecture-boundaries.md`](../../rules/20-architecture-boundaries.md)).
+1. **`<NewPage>.tsx`** — start from `CmssIndexPage.tsx`. Keep the same shell: `Breadcrumb`, `PageHeader`, `PageContainer`. Components come from `erxes-ui` and `ui-modules` only. Do not import from another plugin ([`../../rules/20-architecture-boundaries.md`](../../rules/20-architecture-boundaries.md)).
 2. **`Main.tsx`** — add a `<Route path="<new-segment>" element={<LazyNewPage />} />`. Use `lazy(() => import(...))` so the page chunks separately. Wrap the `<Routes>` in `Suspense` (already done — just add the route).
-3. **Navigation** — `CMSsSubNavigation.tsx` (sub-nav under content group) or `MainNavigation.tsx` (top-level). Use `<Link to="/content/<new-segment>">` and a Tabler icon.
-4. **Data** — if the page needs cmss/pipelines, mirror an existing query in `graphql/queries/CMSsQueries.ts` (see [`./add-content-graphql-query.md`](./add-content-graphql-query.md)).
+3. **Navigation** — `CmssSubNavigation.tsx` (sub-nav under content group) or `MainNavigation.tsx` (top-level). Use `<Link to="/content/<new-segment>">` and a Tabler icon.
+4. **Data** — if the page needs cmss/pipelines, mirror an existing query in `graphql/queries/CmssQueries.ts` (see [`./add-content-graphql-query.md`](./add-content-graphql-query.md)).
 5. **State** — local UI with `useState`; cross-component with a Jotai atom under `src/modules/cmss/states/` (the dir already has `cmssBoardState`, `cmssViewState`, etc.). No new state library.
 6. **Forms** — React Hook Form + Zod, schema under `src/modules/cmss/schemas/`. See `boardFormSchema.ts` and the existing pattern in `cards/components/AddCardForm.tsx`.
 7. Run `.agents/evals/run.sh content`. Exit 0.

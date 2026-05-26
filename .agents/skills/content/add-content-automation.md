@@ -1,12 +1,12 @@
 # add content automation
 
-> **When to use:** the wish adds a new automation **trigger** (a content event other workflows can react to) or a new automation **action** (a step a workflow can execute on content data) — e.g., "trigger when a CMS hits Won stage," "action: append a checklist when a CMS moves stage."
+> **When to use:** the wish adds a new automation **trigger** (a content event other workflows can react to) or a new automation **action** (a step a workflow can execute on content data) — e.g., "trigger when a Cms hits Won stage," "action: append a checklist when a Cms moves stage."
 
 ## Phase 3 — GROUND (mirror an existing feature)
 
 **Step 1 (mandatory): find the sister feature you will mirror.**
 
-CMSs already registers two triggers and two actions. Mirror the one whose shape matches the wish:
+Cmss already registers two triggers and two actions. Mirror the one whose shape matches the wish:
 
 | Sister | What kind | Where |
 |---|---|---|
@@ -26,7 +26,7 @@ CMSs already registers two triggers and two actions. Mirror the one whose shape 
 
 UI side (only if the trigger/action needs custom configuration in the automation builder):
 - `frontend/plugins/content_ui/src/widgets/automations/components/AutomationRemoteEntry.tsx` — federation entry for content-side automation widgets
-- `frontend/plugins/content_ui/src/widgets/automations/modules/content/components/CMSsRemoteEntry.tsx`
+- `frontend/plugins/content_ui/src/widgets/automations/modules/content/components/CmssRemoteEntry.tsx`
 
 ## Phase 4 — PLAN
 
@@ -51,7 +51,7 @@ For a new action:
 1. **`constants.ts`** — append your entry to `triggers[]` or `actions[]`. Fields:
    - Triggers: `moduleName: 'content'`, `collectionName: 'cms' | 'checklist'`, `relationType` (only for custom), `icon`, `label`, `description`, `isCustom: true` for predicate-driven triggers.
    - Actions: `moduleName`, `collectionName`, `method: 'create' | ...`, `isTargetSource`, `targetSourceType: 'content:content.cms'`, `allowTargetFromActions`, `isAvailable`.
-2. **Custom trigger predicate** — copy `checkStageProbalityTrigger.ts`. The function signature is `{ models, target: ICMS, config }`. Return `boolean` or `Promise<boolean>`. Use `models.<X>` (subdomain-scoped) — never global model imports.
+2. **Custom trigger predicate** — copy `checkStageProbalityTrigger.ts`. The function signature is `{ models, target: ICms, config }`. Return `boolean` or `Promise<boolean>`. Use `models.<X>` (subdomain-scoped) — never global model imports.
 3. **Action handler** — copy `createAction.ts` or `createChecklist.ts`. Signature is `(models, execution, action)` for checklist-style or `({ models, subdomain, action, execution, collectionType })` for the unified action. Reuse `replacePlaceHolders` + `getRelatedValue` for any `{{ cms.name }}`-style template tokens — do **not** roll a custom resolver.
 4. **`automationHandlers.ts`** — extend the dispatch. `checkCustomTrigger` keys off `collectionType` + `relationType`; `receiveActions` keys off `collectionType` + (optionally) `method`. Mirror the existing `if (collectionType === 'cms' && relationType === 'probability')` shape.
 5. Run `.agents/evals/run.sh content --backend-only`. Exit 0.
@@ -74,7 +74,7 @@ If automations aren't reachable from the content UI under test (they often live 
 - A new trigger with `isCustom: true` **requires** a `checkCustomTrigger` predicate. Skipping it makes the trigger fire on every cms change — silently DOS'es subscribers.
 - `replacePlaceHolders` already knows how to resolve `customers.email`, `createdBy.fullName`, `productsData`. Look at `automationHandlers.replacePlaceHolders` line 60–82 before adding a new resolver — most fields work out of the box.
 - The action handler runs **asynchronously** inside the automations service. Subdomain comes from the producer context — pass it through, do not reconstruct it. See [`../../rules/30-multi-tenancy.md`](../../rules/30-multi-tenancy.md) "BullMQ jobs".
-- Activity log is **not** auto-generated for automation-triggered mutations unless the underlying model method (`models.CMSs.createCMS`, etc.) generates one. Audit by following the call into the model.
+- Activity log is **not** auto-generated for automation-triggered mutations unless the underlying model method (`models.Cmss.createCms`, etc.) generates one. Audit by following the call into the model.
 - `targetSourceType` strings are sniffed at runtime — typos silently disable the action. Format is exactly `content:<moduleName>.<collectionName>` — see `constants.ts` line 31.
 
 ## Slop check before declaring done

@@ -22,7 +22,7 @@ Backend:
 - `backend/plugins/loyalty_api/src/modules/voucher/db/definitions/voucher.ts` — Mongoose schema (search for `priority:` at line 96)
 - `backend/plugins/loyalty_api/src/modules/voucher/@types/voucher.ts` — `IVoucher` interface (line 66 `priority?: string`)
 - `backend/plugins/loyalty_api/src/modules/voucher/graphql/schemas/voucher.ts` — full GraphQL surface: `type Voucher`, `queryParams`, `mutationParams` (priority at lines 43, 103, 214)
-- `backend/plugins/loyalty_api/src/modules/voucher/db/models/Vouchers.ts` — `createVoucher` and `updateVoucher` (the writes that accept the new field)
+- `backend/plugins/loyalty_api/src/modules/voucher/db/models/Voucher.ts` — `createVoucher` and `updateVoucher` (the writes that accept the new field)
 
 Frontend:
 - `frontend/plugins/loyalty_ui/src/graphql/mutations.ts` — `commonFields` fragment, `commonMutationVariables`, `commonMutationParams` (priority at lines 75, 164, 186)

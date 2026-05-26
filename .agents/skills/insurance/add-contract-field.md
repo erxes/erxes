@@ -22,7 +22,7 @@ Backend:
 - `backend/plugins/insurance_api/src/modules/insurance/db/definitions/contract.ts` — Mongoose schema (search for `priority:` at line 96)
 - `backend/plugins/insurance_api/src/modules/insurance/@types/contract.ts` — `IContract` interface (line 66 `priority?: string`)
 - `backend/plugins/insurance_api/src/modules/insurance/graphql/schemas/contract.ts` — full GraphQL surface: `type Contract`, `queryParams`, `mutationParams` (priority at lines 43, 103, 214)
-- `backend/plugins/insurance_api/src/modules/insurance/db/models/Contracts.ts` — `createContract` and `updateContract` (the writes that accept the new field)
+- `backend/plugins/insurance_api/src/modules/insurance/db/models/contract.ts` — `createContract` and `updateContract` (the writes that accept the new field)
 
 Frontend:
 - `frontend/plugins/insurance_ui/src/graphql/mutations.ts` — `commonFields` fragment, `commonMutationVariables`, `commonMutationParams` (priority at lines 75, 164, 186)

@@ -22,7 +22,7 @@ Backend:
 - `backend/plugins/tourism_api/src/modules/bms/db/definitions/tour.ts` — Mongoose schema (search for `priority:` at line 96)
 - `backend/plugins/tourism_api/src/modules/bms/@types/tour.ts` — `ITour` interface (line 66 `priority?: string`)
 - `backend/plugins/tourism_api/src/modules/bms/graphql/schemas/tour.ts` — full GraphQL surface: `type Tour`, `queryParams`, `mutationParams` (priority at lines 43, 103, 214)
-- `backend/plugins/tourism_api/src/modules/bms/db/models/Tours.ts` — `createTour` and `updateTour` (the writes that accept the new field)
+- `backend/plugins/tourism_api/src/modules/bms/db/models/Tour.ts` — `createTour` and `updateTour` (the writes that accept the new field)
 
 Frontend:
 - `frontend/plugins/tourism_ui/src/graphql/mutations.ts` — `commonFields` fragment, `commonMutationVariables`, `commonMutationParams` (priority at lines 75, 164, 186)

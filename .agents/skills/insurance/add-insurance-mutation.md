@@ -19,7 +19,7 @@ Closest sisters:
 - `backend/plugins/insurance_api/src/modules/insurance/graphql/schemas/contract.ts` — `mutationParams` and `mutations` (lines 201–240). See exactly how each mutation declares its variables.
 - `backend/plugins/insurance_api/src/modules/insurance/graphql/resolvers/mutations/contracts.ts` — the `contractMutations` object. Note the `checkPermission` call at the top of every method (e.g., line 30 `await checkPermission('contractsAdd')`).
 - `backend/plugins/insurance_api/src/modules/insurance/graphql/resolvers/mutations/utils.ts` — `addContract`, `editContract`, `processStageChangeScoreCampaigns` — shared business logic the resolvers delegate to.
-- `backend/plugins/insurance_api/src/modules/insurance/db/models/Contracts.ts` — static methods (`createContract` at line 41, `updateContract` at line 70, `removeContracts` at line 116). Mutations should delegate writes here.
+- `backend/plugins/insurance_api/src/modules/insurance/db/models/contract.ts` — static methods (`createContract` at line 41, `updateContract` at line 70, `removeContracts` at line 116). Mutations should delegate writes here.
 - `backend/plugins/insurance_api/src/apollo/resolvers/mutations.ts` — how `contractMutations` is merged
 - `backend/plugins/insurance_api/src/modules/insurance/meta/activity-log/` — every CRUD generates an entry. New mutation = new activity-log builder (see [`../../docs/insurance/data-model.md`](../../docs/insurance/data-model.md) "Activity log").
 - `backend/plugins/insurance_api/src/meta/permissions.ts` — RBAC declaration
