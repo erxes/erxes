@@ -1,7 +1,21 @@
 {
   "generatedAt": "2026-05-26T15:21:58.489Z",
-  "totalSkills": 77,
+  "totalSkills": 78,
   "skills": [
+    {
+      "path": "skills/create-plugin.md",
+      "plugin": "system-wide",
+      "entity": "plugin",
+      "action": "create",
+      "triggers": [
+        "--plugin",
+        "fresh plugin",
+        "new plugin",
+        "create plugin",
+        "bootstrap plugin"
+      ],
+      "description": "the wish bootstraps a completely fresh microservice plugin dynamically inside the erxes monorepo following all non-negotiable codestyle and verification rules."
+    },
     {
       "path": "skills/sales/add-deal-field.md",
       "plugin": "sales",

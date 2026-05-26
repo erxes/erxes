@@ -55,28 +55,157 @@ ${paint('bright', 'Usage:')}
   pnpm erxes-wish [wish text] [options]
 
 ${paint('bright', 'Options:')}
+  --plugin [name]  Bootstrap a fresh new plugin dynamically (interactive walkthrough)
   --skill <name>   Force a specific skill playbook (e.g., 'add-deal-field')
   --interactive    Force interactive walkthrough mode
   --help, -h       Show this beautiful help message
 
 ${paint('bright', 'Examples:')}
+  pnpm erxes-wish --plugin loyalty
   pnpm --silent erxes-wish "add riskLevel to deals"
   pnpm --silent erxes-wish "add confidenceScore to deals" --skill add-deal-field
   pnpm erxes-wish --interactive
 `);
 }
 
-// Helper to ask questions interactively
+let activeRl = null;
 function askQuestion(query) {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-  
-  return new Promise((resolve) => rl.question(query, (ans) => {
-    rl.close();
+  if (!activeRl) {
+    activeRl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+  }
+  return new Promise((resolve) => activeRl.question(query, (ans) => {
     resolve(ans.trim());
   }));
+}
+
+function closeRl() {
+  if (activeRl) {
+    activeRl.close();
+    activeRl = null;
+  }
+}
+
+async function runPluginWizard(pluginName) {
+  console.log(`\n${paint('cyan', paint('bright', '=== erxes AI Native Plugin Generator ==='))}`);
+  console.log(`${paint('dim', 'Bootstrapping a fresh plugin using the create-plugin.md playbook...\n')}`);
+
+  let name = pluginName;
+  if (!name) {
+    name = await askQuestion(`${paint('bright', 'What is the name of your new plugin? (e.g., booking, loyalty, crm): ')}`);
+  }
+  
+  if (!name) {
+    console.log(paint('red', 'Error: Plugin name cannot be empty.'));
+    closeRl();
+    process.exit(1);
+  }
+
+  // Sanitize the plugin name
+  name = name.toLowerCase().replace(/[^a-z0-9_-]+/g, '');
+
+  const description = await askQuestion(`${paint('bright', 'Briefly describe the purpose of this plugin: ')}`);
+  const entity = await askQuestion(`${paint('bright', 'What is the primary entity/model name (singular)? (e.g., voucher, tour): ')}`);
+
+  if (!entity) {
+    console.log(paint('red', 'Error: Primary entity name cannot be empty.'));
+    closeRl();
+    process.exit(1);
+  }
+
+  console.log(`\n${paint('bright', 'Generating task specifications...')}`);
+  
+  const complexity = 'large';
+  const wishId = `${new Date().toISOString().slice(0, 10)}-create-plugin-${name}`;
+  const wishDir = path.join(AGENTS_DIR, 'wishes', wishId);
+  
+  if (!fs.existsSync(wishDir)) {
+    fs.mkdirSync(wishDir, { recursive: true });
+  }
+
+  // Create WISH.md
+  const templatePath = path.join(AGENTS_DIR, 'templates/WISH.md');
+  let wishContent = fs.existsSync(templatePath) ? fs.readFileSync(templatePath, 'utf8') : '';
+  wishContent = wishContent.replace(/<one-line title>/g, `Create fresh plugin: ${name}`);
+  wishContent = wishContent.replace(/YYYY-MM-DD/g, new Date().toISOString().slice(0, 10));
+  wishContent = wishContent.replace(/captured/g, 'routed');
+  wishContent = wishContent.replace(/<verbatim.*>/g, `Create fresh new plugin "${name}" with entity "${entity}"`);
+  wishContent = wishContent.replace(/skills\/<plugin>.*\.md/g, `skills/create-plugin.md`);
+  fs.writeFileSync(path.join(wishDir, 'WISH.md'), wishContent, 'utf8');
+
+  // Compile plugin brief
+  const brief = compilePluginBrief(name, description, entity, wishId, complexity);
+  
+  const outputFilePath = path.join(AGENTS_DIR, `wishes/${wishId}/prompt_briefing.txt`);
+  fs.writeFileSync(outputFilePath, brief, 'utf8');
+  
+  console.log(`\n${paint('green', '✓')} Scaffolding brief compiled successfully at:`);
+  console.log(paint('underscore', `file://${outputFilePath}`));
+  console.log(`\n${paint('bright', 'Copy/paste this briefing into your AI tool to scaffold the plugin!')}`);
+  closeRl();
+}
+
+function compilePluginBrief(pluginName, description, entity, wishId, complexity) {
+  const readAgentFile = (filename) => {
+    const p = path.join(AGENTS_DIR, filename);
+    return fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : '';
+  };
+
+  const constitution = readAgentFile('SYSTEM-PROMPT.md');
+  const workflow = readAgentFile('WORKFLOW.md');
+  const slopChecklist = readAgentFile('SLOP-CHECKLIST.md');
+  const lessons = readAgentFile('memory/lessons.md');
+  const pluginSkill = readAgentFile('skills/create-plugin.md');
+
+  return `
+=========================================
+ERXES AI DEVELOPMENT BRIEFING (NEW PLUGIN CREATION)
+=========================================
+
+You are working in the erxes monorepo.
+Your task is to implement the following fresh plugin using the strict .agents scaffolding skill.
+
+-----------------------------------------
+THE PLUGIN GENERATOR REQUEST
+-----------------------------------------
+Plugin Name: ${pluginName}
+Description: ${description}
+Primary Entity: ${entity}
+
+-----------------------------------------
+DETECTED ROUTING
+-----------------------------------------
+Plugin Scope: ${pluginName}
+Wish ID: ${wishId}
+Complexity Rating: ${complexity.toUpperCase()}
+
+=========================================
+1. CONSTITUTION (SYSTEM-PROMPT)
+=========================================
+${constitution}
+
+=========================================
+2. 7-PHASE WORKFLOW
+=========================================
+${workflow}
+
+=========================================
+3. CODESTYLE & ANTI-SLOP CHECKLIST
+=========================================
+${slopChecklist}
+
+=========================================
+4. RECENT LESSONS & SCAR TISSUE
+=========================================
+${lessons}
+
+=========================================
+5. SPECIALIZED PLUGIN SCAFFOLDING SKILL (create-plugin.md)
+=========================================
+${pluginSkill}
+`;
 }
 
 async function runInteractive() {
@@ -87,6 +216,7 @@ async function runInteractive() {
   
   if (!wishText) {
     console.log(paint('red', 'Error: Wish text cannot be empty.'));
+    closeRl();
     process.exit(1);
   }
   
@@ -99,6 +229,7 @@ async function runInteractive() {
   
   if (confirmation.toLowerCase() !== 'y' && confirmation.toLowerCase() !== 'yes') {
     console.log(paint('yellow', '\nAborted. Let\'s try again.'));
+    closeRl();
     process.exit(0);
   }
   
@@ -124,6 +255,7 @@ async function runInteractive() {
   console.log(`\n${paint('green', '✓')} Briefing file compiled successfully at:`);
   console.log(paint('underscore', `file://${outputFilePath}`));
   console.log(`\n${paint('bright', 'Copy/paste this file into your AI tool to instantly start coding!')}`);
+  closeRl();
 }
 
 function detectPluginScope(wishText) {
@@ -247,6 +379,7 @@ ${masterSkill}
 
 // CLI Logic
 const args = process.argv.slice(2);
+const hasPluginOption = args.includes('--plugin');
 const forceInteractive = args.includes('--interactive');
 const showHelpFlag = args.includes('--help') || args.includes('-h');
 
@@ -255,7 +388,17 @@ if (showHelpFlag) {
   process.exit(0);
 }
 
-if (forceInteractive || args.length === 0) {
+if (hasPluginOption) {
+  const pluginOptionIndex = args.indexOf('--plugin');
+  let specifiedPluginName = null;
+  if (pluginOptionIndex !== -1 && pluginOptionIndex + 1 < args.length) {
+    const nextArg = args[pluginOptionIndex + 1];
+    if (!nextArg.startsWith('-')) {
+      specifiedPluginName = nextArg;
+    }
+  }
+  runPluginWizard(specifiedPluginName);
+} else if (forceInteractive || args.length === 0) {
   runInteractive();
 } else {
   // Classic non-interactive mode
