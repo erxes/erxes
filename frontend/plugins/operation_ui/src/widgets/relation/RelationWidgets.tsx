@@ -7,9 +7,9 @@ const Task = lazy(() =>
   })),
 );
 
-const ProjectWidget = lazy(() =>
-  import('./modules/ProjectWidget').then((module) => ({
-    default: module.ProjectWidget,
+const Project = lazy(() =>
+  import('./modules/Project').then((module) => ({
+    default: module.Project,
   })),
 );
 
@@ -29,9 +29,14 @@ export const RelationWidgets = ({
           customerId={customerId}
           companyId={companyId}
         />
-      ) : (
-        <ProjectWidget contentId={contentId} contentType={contentType} />
-      )}
+      ) : module === 'projects' ? (
+        <Project
+          contentId={contentId}
+          contentType={contentType}
+          customerId={customerId}
+          companyId={companyId}
+        />
+      ) : null}
     </Suspense>
   );
 };

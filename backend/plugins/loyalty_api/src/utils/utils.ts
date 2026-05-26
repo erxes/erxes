@@ -18,7 +18,11 @@ import {
   subtractDependencies,
 } from 'mathjs';
 import { IModels } from '~/connectionResolvers';
-import { SCORE_CAMPAIGN_STATUSES } from '~/modules/score/constants';
+import {
+  SCORE_ACTION,
+  SCORE_CAMPAIGN_STATUSES,
+} from '~/modules/score/constants';
+import { fixScoreNumber } from '~/modules/score/services/scoreLedger';
 import { VOUCHER_STATUS } from '~/modules/voucher/constants';
 import { collections } from '../constants';
 
@@ -630,7 +634,19 @@ function safeEval(expression: string, scope: Record<string, number>): number {
 
 // Score handling
 export const handleScore = async (models: IModels, data) => {
-  const { action, ownerId, ownerType, campaignId, target, description } = data;
+  const {
+    action,
+    ownerId,
+    ownerType,
+    campaignId,
+    target,
+    description,
+    createdBy,
+    serviceName,
+    targetId,
+    amount,
+    quantity,
+  } = data;
   const scoreCampaign = await models.ScoreCampaigns.findOne({
     _id: campaignId,
   });
@@ -638,7 +654,10 @@ export const handleScore = async (models: IModels, data) => {
   if (scoreCampaign.ownerType !== ownerType)
     throw new Error('Mismatching owner type');
 
-  const config = scoreCampaign[action as 'add' | 'subtract'];
+  const config = (scoreCampaign as any)[action as 'add' | 'subtract' | 'set'];
+  if (!config) {
+    throw new Error('Score campaign action config not found');
+  }
   let placeholder = config.placeholder;
   const attributes = generateAttributes(placeholder);
 
@@ -661,13 +680,28 @@ export const handleScore = async (models: IModels, data) => {
   }
 
   const scoreValue = safeEval(placeholder, scope);
-  const scoreToChange = scoreValue / Number(config.currencyRatio);
+  const scoreToChange = fixScoreNumber(
+    scoreValue / Number(config.currencyRatio),
+  );
+
+  let changeScore = Math.abs(scoreToChange);
+  if (action === SCORE_ACTION.SET) changeScore = scoreToChange;
+  if (action === SCORE_ACTION.SUBTRACT) changeScore = -Math.abs(scoreToChange);
+
   await models.ScoreLogs.changeScore({
     ownerId,
     ownerType,
-    changeScore: scoreToChange,
+    changeScore,
     description,
+    createdBy,
+    campaignId,
+    action,
+    targetId,
+    serviceName,
+    amount,
+    quantity,
   });
+
   return 'success';
 };
 
@@ -731,12 +765,345 @@ export const handleLoyaltyReward = async ({ subdomain }) => {
 // Score campaign
 export const doScoreCampaign = async (models: IModels, data) => {
   try {
-    await models.ScoreCampaigns.checkScoreAviableSubtract(data);
     return await models.ScoreCampaigns.doCampaign(data);
   } catch (error) {
     console.error(error);
     throw new Error(error.message);
   }
+};
+
+const generateTargetTotalAmount = (productsData: any[] = []) =>
+  productsData.reduce((sum, product) => sum + (product?.amount || 0), 0);
+
+const getPaymentScoreCampaignId = (paymentType: any) =>
+  paymentType?.scoreCampaignId;
+
+const normalizeDealTarget = ({
+  target,
+  paymentTypes = [],
+}: {
+  target: any;
+  paymentTypes?: any[];
+}) => {
+  const scorePaymentTypes = new Set(
+    paymentTypes
+      .filter((paymentType) => !!getPaymentScoreCampaignId(paymentType))
+      .map(({ type }) => type),
+  );
+  const paymentEntries = Object.entries(target?.paymentsData || {});
+
+  return {
+    ...target,
+    paymentsData: paymentEntries.map(([type, obj]) => ({
+      type,
+      ...(obj ?? {}),
+    })),
+    totalAmount: generateTargetTotalAmount(target?.productsData || []),
+    excludeAmount: paymentEntries
+      .filter(([type]) => !scorePaymentTypes.has(type))
+      .map(([type, obj]) => ({
+        type,
+        ...(obj ?? {}),
+      }))
+      .reduce((sum, payment: any) => sum + (payment?.amount || 0), 0),
+  };
+};
+
+const normalizePosOrderTarget = ({ target }: { target: any }) => {
+  const paymentEntries = (target?.paidAmounts || []).map((payment: any) => [
+    payment.type,
+    payment,
+  ]);
+
+  return {
+    ...target,
+    productsData: target?.items || [],
+    paymentsData: paymentEntries.map(([type, obj]) => ({
+      type,
+      ...(obj ?? {}),
+    })),
+    totalAmount:
+      Number(target?.totalAmount) ||
+      Number(target?.finalAmount) ||
+      generateTargetTotalAmount(target?.items || []),
+    excludeAmount: paymentEntries.reduce(
+      (sum, [, payment]: any) => sum + (payment?.amount || 0),
+      0,
+    ),
+  };
+};
+
+const getPosOrderStageContext = (target?: any) => {
+  if (!target) {
+    return {};
+  }
+
+  if (target.status === 'return') {
+    return { stage: { _id: 'lossStage' } };
+  }
+
+  if (target.status === 'complete') {
+    return { stage: { _id: 'wonStage' } };
+  }
+
+  return { stage: { _id: 'preStage' } };
+};
+
+const getStageCampaigns = async ({
+  models,
+  contexts,
+}: {
+  models: IModels;
+  contexts: Array<{ stage?: any; pipeline?: any }>;
+}) => {
+  const $or = contexts
+    .filter(({ stage }) => stage?._id)
+    .map(({ stage, pipeline }) => {
+      const elemMatch: any = {
+        $or: [{ stageIds: stage._id }, { refundStageIds: stage._id }],
+      };
+
+      if (pipeline?._id) {
+        elemMatch.pipelineId = pipeline._id;
+      }
+
+      if (pipeline?.boardId) {
+        elemMatch.boardId = pipeline.boardId;
+      }
+
+      return {
+        'additionalConfig.cardBasedRule': {
+          $elemMatch: elemMatch,
+        },
+      };
+    });
+
+  if (!$or.length) {
+    return [];
+  }
+
+  return models.ScoreCampaigns.find({
+    status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
+    $or,
+  })
+    .sort({ order: 1, createdAt: 1 })
+    .lean();
+};
+
+const getOwnerIdByCampaign = ({
+  campaign,
+  ownerHints = {},
+  target,
+}: {
+  campaign: any;
+  ownerHints?: Record<string, string>;
+  target: any;
+}) => {
+  const ownerType = campaign.ownerType || 'customer';
+
+  return {
+    ownerType,
+    ownerId:
+      ownerHints[ownerType] ||
+      (ownerType === 'user' ? target?.userId : undefined),
+  };
+};
+
+const getStageCampaignActionMethod = (
+  campaign: any,
+): 'add' | 'subtract' | 'set' => {
+  if (campaign?.set?.placeholder?.trim()) {
+    return 'set';
+  }
+
+  if (campaign?.add?.placeholder?.trim()) {
+    return 'add';
+  }
+
+  return 'add';
+};
+
+const uniqBy = (items: any[], key: (item: any) => string) =>
+  Array.from(new Map(items.map((item) => [key(item), item])).values());
+
+const consumeSalesDealScoreChange = async ({
+  models,
+  subdomain,
+  input,
+}: {
+  models: IModels;
+  subdomain: string;
+  input: any;
+}) => {
+  const {
+    target,
+    oldTarget,
+    targetId,
+    ownerHints = {},
+    stageContexts = {},
+  } = input;
+
+  if (!target?._id && !targetId) {
+    return [];
+  }
+
+  const oldContext = stageContexts.old || {};
+  const newContext = stageContexts.current || {};
+
+  const currentPaymentTypes = newContext?.pipeline?.paymentTypes || [];
+  const allPaymentTypes = uniqBy(
+    [
+      ...(oldContext?.pipeline?.paymentTypes || []),
+      ...currentPaymentTypes,
+    ].filter((paymentType) => !!getPaymentScoreCampaignId(paymentType)),
+    (paymentType) =>
+      `${paymentType.type}:${getPaymentScoreCampaignId(paymentType)}`,
+  );
+
+  const calculationTarget = normalizeDealTarget({
+    target,
+    paymentTypes: currentPaymentTypes,
+  });
+  const results: any[] = [];
+  const currentPaymentTypeNames = Object.keys(target?.paymentsData || {});
+  const oldPaymentTypeNames = Object.keys(oldTarget?.paymentsData || {});
+  const changedPaymentTypeNames = new Set([
+    ...currentPaymentTypeNames,
+    ...oldPaymentTypeNames,
+  ]);
+
+  if (ownerHints.customer) {
+    for (const paymentType of allPaymentTypes) {
+      if (!changedPaymentTypeNames.has(paymentType.type)) {
+        continue;
+      }
+
+      const paymentData = calculationTarget.paymentsData.find(
+        (payment) => payment.type === paymentType.type,
+      );
+
+      results.push(
+        await models.ScoreCampaigns.doCampaign({
+          ownerType: 'customer',
+          ownerId: ownerHints.customer,
+          campaignId: getPaymentScoreCampaignId(paymentType),
+          target: {
+            ...calculationTarget,
+            paymentData,
+            paymentAmount: Number(paymentData?.amount) || 0,
+          },
+          oldTarget,
+          actionMethod: 'subtract',
+          serviceName: input.serviceName || 'sales',
+          targetId: targetId || target._id,
+        }),
+      );
+    }
+  }
+
+  const stageCampaigns = await getStageCampaigns({
+    models,
+    contexts: [oldContext, newContext],
+  });
+
+  for (const campaign of stageCampaigns) {
+    const { ownerType, ownerId } = getOwnerIdByCampaign({
+      campaign,
+      ownerHints,
+      target,
+    });
+
+    if (!ownerId) {
+      continue;
+    }
+
+    results.push(
+      await models.ScoreCampaigns.doCampaign({
+        ownerType,
+        ownerId,
+        campaignId: campaign._id,
+        target: calculationTarget,
+        oldTarget,
+        actionMethod: getStageCampaignActionMethod(campaign),
+        serviceName: input.serviceName || 'sales',
+        targetId: targetId || target._id,
+      }),
+    );
+  }
+
+  return results.filter(Boolean);
+};
+
+const consumePosOrderScoreChange = async ({
+  models,
+  input,
+}: {
+  models: IModels;
+  input: any;
+}) => {
+  const { target, oldTarget, targetId, ownerHints = {} } = input;
+
+  if (!target?._id && !targetId) {
+    return [];
+  }
+
+  const oldContext = getPosOrderStageContext(oldTarget);
+  const newContext = getPosOrderStageContext(target);
+  const calculationTarget = normalizePosOrderTarget({ target });
+  const stageCampaigns = await getStageCampaigns({
+    models,
+    contexts: [oldContext, newContext],
+  });
+  const results: any[] = [];
+
+  for (const campaign of stageCampaigns) {
+    const { ownerType, ownerId } = getOwnerIdByCampaign({
+      campaign,
+      ownerHints,
+      target,
+    });
+
+    if (!ownerId) {
+      continue;
+    }
+
+    results.push(
+      await models.ScoreCampaigns.doCampaign({
+        ownerType,
+        ownerId,
+        campaignId: campaign._id,
+        target: calculationTarget,
+        oldTarget,
+        actionMethod: getStageCampaignActionMethod(campaign),
+        serviceName: input.serviceName || 'sales',
+        targetId: targetId || target._id,
+      }),
+    );
+  }
+
+  return results.filter(Boolean);
+};
+
+export const consumeScoreTargetChange = async ({
+  models,
+  subdomain,
+  input,
+}: {
+  models: IModels;
+  subdomain: string;
+  input: any;
+}) => {
+  if (input?.contentType === 'sales:deal') {
+    return consumeSalesDealScoreChange({ models, subdomain, input });
+  }
+
+  if (input?.contentType === 'sales:posOrder') {
+    return consumePosOrderScoreChange({ models, input });
+  }
+
+  throw new Error(
+    `Unsupported score target content type: ${input?.contentType}`,
+  );
 };
 
 export const refundLoyaltyScore = async (

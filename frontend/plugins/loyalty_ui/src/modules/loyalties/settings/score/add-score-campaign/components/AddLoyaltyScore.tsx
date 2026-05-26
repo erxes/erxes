@@ -7,7 +7,10 @@ import {
 } from '../../constants/formSchema';
 import { LoyaltyScoreAddCoreFields } from './LoyaltyScoreAddCoreFields';
 import { LoyaltyScoreAddMoreFields } from './LoyaltyScoreAddMoreFields';
-import { AddScoreCampaignVariables, useAddScoreCampaign } from '../hooks/useAddLoyaltyScore';
+import {
+  AddScoreCampaignVariables,
+  useAddScoreCampaign,
+} from '../hooks/useAddLoyaltyScore';
 
 export function AddLoyaltyScoreForm({
   onOpenChange,
@@ -20,6 +23,7 @@ export function AddLoyaltyScoreForm({
     defaultValues: {
       title: '',
       description: '',
+      order: undefined,
       conditions: {
         serviceName: '',
         productCategoryIds: [],
@@ -37,6 +41,7 @@ export function AddLoyaltyScoreForm({
       },
       add: { placeholder: '', currencyRatio: '' },
       subtract: { placeholder: '', currencyRatio: '' },
+      set: { placeholder: '', currencyRatio: '' },
       ownerType: '',
       onlyClientPortal: false,
       fieldGroupId: '',
@@ -57,6 +62,7 @@ export function AddLoyaltyScoreForm({
     const variables: AddScoreCampaignVariables = {
       title: data.title,
       description: data.description || '',
+      order: data.order,
       serviceName: data.conditions.serviceName,
       restrictions: {
         productCategoryIds: data.conditions.productCategoryIds?.join(','),
@@ -73,6 +79,7 @@ export function AddLoyaltyScoreForm({
       },
       add: data.add,
       subtract: data.subtract,
+      set: data.set,
       ownerType: data.ownerType,
       onlyClientPortal: data.onlyClientPortal,
       fieldGroupId: data.fieldGroupId,
