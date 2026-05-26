@@ -101,6 +101,51 @@ function detectFixAction(wishText) {
   });
 }
 
+function detectOccupiedPorts() {
+  const backendPorts = [];
+  const frontendPorts = [];
+
+  const backendPluginsDir = path.join(REPO_ROOT, 'backend/plugins');
+  if (fs.existsSync(backendPluginsDir)) {
+    const dirs = fs.readdirSync(backendPluginsDir);
+    for (const d of dirs) {
+      const mainPath = path.join(backendPluginsDir, d, 'src/main.ts');
+      if (fs.existsSync(mainPath)) {
+        const content = fs.readFileSync(mainPath, 'utf8');
+        const match = content.match(/port:\s*(\d+)/);
+        if (match) {
+          backendPorts.push({ plugin: d, port: parseInt(match[1], 10) });
+        }
+      }
+    }
+  }
+
+  const frontendPluginsDir = path.join(REPO_ROOT, 'frontend/plugins');
+  if (fs.existsSync(frontendPluginsDir)) {
+    const dirs = fs.readdirSync(frontendPluginsDir);
+    for (const d of dirs) {
+      const projectJsonPath = path.join(frontendPluginsDir, d, 'project.json');
+      if (fs.existsSync(projectJsonPath)) {
+        try {
+          const content = JSON.parse(fs.readFileSync(projectJsonPath, 'utf8'));
+          const port = content.targets?.serve?.options?.port || content.targets?.build?.options?.port;
+          if (port) {
+            frontendPorts.push({ plugin: d, port: parseInt(port, 10) });
+          }
+        } catch (e) {
+          // ignore parsing error
+        }
+      }
+    }
+  }
+
+  // Sort by port number
+  backendPorts.sort((a, b) => a.port - b.port);
+  frontendPorts.sort((a, b) => a.port - b.port);
+
+  return { backendPorts, frontendPorts };
+}
+
 async function runPluginWizard(pluginName) {
   console.log(`\n${paint('cyan', paint('bright', '=== erxes AI Native Plugin Generator ==='))}`);
   console.log(`${paint('dim', 'Bootstrapping a fresh plugin using the create-plugin.md playbook...\n')}`);
@@ -128,6 +173,36 @@ async function runPluginWizard(pluginName) {
     process.exit(1);
   }
 
+  console.log(`\n${paint('bright', 'Scanning workspace to prevent port collision...')}`);
+  const portsInfo = detectOccupiedPorts();
+  
+  console.log(`\n${paint('yellow', '=== Occupied Backend Ports ===')}`);
+  if (portsInfo.backendPorts.length > 0) {
+    portsInfo.backendPorts.forEach(p => {
+      console.log(`  - ${paint('bright', p.plugin.padEnd(20))} : port ${paint('green', p.port)}`);
+    });
+  } else {
+    console.log('  None');
+  }
+
+  console.log(`\n${paint('yellow', '=== Occupied Frontend Ports ===')}`);
+  if (portsInfo.frontendPorts.length > 0) {
+    portsInfo.frontendPorts.forEach(p => {
+      console.log(`  - ${paint('bright', p.plugin.padEnd(20))} : port ${paint('green', p.port)}`);
+    });
+  } else {
+    console.log('  None');
+  }
+
+  const maxBackendPort = Math.max(...portsInfo.backendPorts.map(p => p.port), 3300);
+  const nextBackendPort = maxBackendPort + 1;
+  const maxFrontendPort = Math.max(...portsInfo.frontendPorts.map(p => p.port), 3000);
+  const nextFrontendPort = maxFrontendPort + 1;
+
+  console.log(`\n${paint('bright', 'Recommended Free Ports:')}`);
+  console.log(`  - Backend API:       ${paint('cyan', nextBackendPort.toString())}`);
+  console.log(`  - Frontend Dev:      ${paint('cyan', nextFrontendPort.toString())}`);
+
   console.log(`\n${paint('bright', 'Generating task specifications...')}`);
   
   const complexity = 'large';
@@ -149,7 +224,7 @@ async function runPluginWizard(pluginName) {
   fs.writeFileSync(path.join(wishDir, 'WISH.md'), wishContent, 'utf8');
 
   // Compile plugin brief
-  const brief = compilePluginBrief(name, description, entity, wishId, complexity);
+  const brief = compilePluginBrief(name, description, entity, wishId, complexity, portsInfo, nextBackendPort, nextFrontendPort);
   
   const outputFilePath = path.join(AGENTS_DIR, `wishes/${wishId}/prompt_briefing.txt`);
   fs.writeFileSync(outputFilePath, brief, 'utf8');
@@ -160,7 +235,7 @@ async function runPluginWizard(pluginName) {
   closeRl();
 }
 
-function compilePluginBrief(pluginName, description, entity, wishId, complexity) {
+function compilePluginBrief(pluginName, description, entity, wishId, complexity, portsInfo, nextBackendPort, nextFrontendPort) {
   const readAgentFile = (filename) => {
     const p = path.join(AGENTS_DIR, filename);
     return fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : '';
@@ -171,6 +246,9 @@ function compilePluginBrief(pluginName, description, entity, wishId, complexity)
   const slopChecklist = readAgentFile('SLOP-CHECKLIST.md');
   const lessons = readAgentFile('memory/lessons.md');
   const pluginSkill = readAgentFile('skills/create-plugin.md');
+
+  const backendList = portsInfo.backendPorts.map(p => `  - ${p.plugin}: port ${p.port}`).join('\n') || '  None';
+  const frontendList = portsInfo.frontendPorts.map(p => `  - ${p.plugin}: port ${p.port}`).join('\n') || '  None';
 
   return `
 =========================================
@@ -186,6 +264,19 @@ THE PLUGIN GENERATOR REQUEST
 Plugin Name: ${pluginName}
 Description: ${description}
 Primary Entity: ${entity}
+
+-----------------------------------------
+WORKSPACE PORT CONFLICT SCAN & RECS (STRICT RULE 11)
+-----------------------------------------
+Occupied Backend Ports:
+${backendList}
+
+Occupied Frontend Ports:
+${frontendList}
+
+Allocated Unique Ports for this Scaffolding (DO NOT COLLIDE):
+  - Backend API Port:  ${nextBackendPort}
+  - Frontend Dev Port: ${nextFrontendPort}
 
 -----------------------------------------
 DETECTED ROUTING
