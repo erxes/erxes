@@ -41,32 +41,34 @@ When triggered, clarify the following details with the developer directly in the
 - Search all `frontend/plugins/*/project.json` files for `"port": <number>` to compile a list of taken frontend dev server ports.
 - Select a unique, unallocated port for the backend (e.g., `3316` if `3315` is the highest) and for the frontend (e.g., `3016` if `3008` is the highest).
 
-### Step 2 — Backend API Scaffolding (`backend/plugins/<plugin>_api/`)
-1. Create the backend plugin directory under `backend/plugins/<plugin>_api/`.
-2. Establish a `project.json` for Nx.
-3. **Database Models (`src/models.ts`)**: Define Mongoose schemas for core entities. Wrap all paths using `generateModels(subdomain)` to ensure strict multi-tenancy.
-4. **GraphQL Service (`src/graphql/`)**:
-   - `typeDefs.ts`: Define federated schemas.
-   - `resolvers.ts`: Implement queries and mutations. Make sure to define standard write mutations that can be used for automated seeding.
-5. **tRPC Procedures (`src/trpc.ts`)**: Define procedures for internal microservice calls.
-6. **Main entrypoint (`src/main.ts`)**: Wire the Fastify sub-app and register handlers using the unique, checked free port (via `startPlugin({ name: '<plugin-name>', port: <unique-free-port>, ... })`).
-7. **Notification Registry (`src/meta/notifications.ts`)**: Define notification events and metadata in the plugin metadata.
+### Step 2 — Scaffolding Automation (`scripts/create-plugin.js`)
+1. **STRICTLY REQUIRED:** You MUST use the built-in scaffolding automation script to generate the initial plugin structures. **Do NOT hand-make files and directory templates from scratch.**
+2. Execute the generator command:
+   ```bash
+   node scripts/create-plugin.js --name <plugin-name> --module <module-name>
+   ```
+3. This command instantly scaffolds:
+   - `backend/plugins/<plugin-name>_api/` (Apollo Server, project config, main.ts, models)
+   - `frontend/plugins/<plugin-name>_ui/` (Rspack config, configuration navigation links, example view pages)
+4. Customize the scaffolded files as needed for database models, resolvers, endpoints, and metadata registration.
 
-### Step 3 — Frontend UI Scaffolding (`frontend/plugins/<plugin>_ui/`)
-1. Create the frontend directory under `frontend/plugins/<plugin>_ui/`.
-2. Configure `project.json` to run the dev server on the unique, checked free port.
-3. Configure Webpack Module Federation to expose the new plugin modules, including:
-   - Expose `./notificationWidget` pointing to `./src/widgets/notifications/NotificationRemoteEntries.tsx`.
-4. Build the core React components using CSS:
-   - Dashboard page showing listing tables.
-   - Creation/edit forms.
-5. **Build the Notification Widget (`src/widgets/notifications/NotificationRemoteEntries.tsx`)**: Build a beautiful React component that acts as the onboarding widget, listing and explaining all the new features and entity interactions introduced by this plugin.
-6. Integrate the Apollo Client and Zod schema validations for the form submission.
+### Step 3 — Customizing Scaffolding for Features
+1. **Database Models (`src/models.ts` / `db/definitions/`)**: Refine database schemas for core entities. Wrap all paths using `generateModels(subdomain)` to ensure strict multi-tenancy.
+2. **GraphQL Operations (`src/graphql/`)**:
+   - Refine federated type definitions and resolvers. Ensure mutations support standard database writes.
+3. **Frontend Views**: Customize form fields, tables, and Apollo Client hooks.
+4. **Notification Widget (`src/widgets/notifications/NotificationRemoteEntries.tsx`)**: Build the beautiful remote onboarding component.
 
 ### Step 4 — Automated Seeding & Testing
 1. **Automated Seeding**: Write a seeding script (e.g. `scripts/seed.ts` or as part of the setup) that triggers the GraphQL mutations (e.g., `loyaltyVouchersAdd(...)`) to establish starting records automatically.
 2. **Write Playwright Spec**: Create an end-to-end spec in `.agents/plugins/<plugin>/tests/` that loads the React route and performs basic smoke-test workflows, including validating the notification widget.
 3. **Register Workspace**: Append packages to `pnpm-workspace.yaml` and `nx.json`. Run `pnpm install` inside the monorepo root.
+4. **Nx Registration Verification:** Confirm the project is correctly registered in the Nx workspace by running the query with the `--json` flag:
+   ```bash
+   pnpm nx show project <plugin-name>_api --json
+   pnpm nx show project <plugin-name>_ui --json
+   ```
+   **STRICT LIMIT:** Always use the `--json` flag for all `nx show project` commands. Do not run bare `nx show project` without it.
 
 ### Step 5 — Indexing & Verification
 1. Create `.agents/plugins/<plugin>/INDEX.md` defining your new module boundaries.
