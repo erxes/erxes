@@ -11,7 +11,10 @@ import { IModels } from '~/connectionResolvers';
 import slugify from 'slugify';
 import { htmlToText } from 'html-to-text';
 import { postSchema } from '@/cms/db/definitions/posts';
-import { generateUniqueSlug } from '@/cms/utils/common';
+import {
+  generateUniqueSlug,
+  generateUniqueSlugWithExclusion,
+} from '@/cms/utils/common';
 
 export interface IPostModel extends Model<IPostDocument> {
   getPosts: (query: any) => Promise<IPostDocument[]>;
@@ -39,6 +42,9 @@ const prepareExcerpt = (content: string) => {
     ? plainTextContent.substring(0, excerptLength) + '...'
     : plainTextContent;
 };
+
+const prepareSlug = (slug?: string | null) =>
+  slugify(String(slug || '').trim(), { lower: true });
 
 const isValidReactionType = (reaction: string): reaction is PostReactionType =>
   POST_REACTION_TYPES.includes(reaction as PostReactionType);
@@ -127,8 +133,8 @@ export const loadPostClass = (models: IModels) => {
     public static createPost = async (doc: IPost) => {
       normalizeReactionFields(doc);
 
-      if (!doc.slug && doc.title) {
-        const baseSlug = slugify(doc.title, { lower: true });
+      if (doc.slug || doc.title) {
+        const baseSlug = prepareSlug(doc.slug || doc.title);
         doc.slug = await generateUniqueSlug(
           models.Posts,
           doc.clientPortalId,
@@ -155,20 +161,29 @@ export const loadPostClass = (models: IModels) => {
     public static updatePost = async (_id: string, doc: IPost) => {
       normalizeReactionFields(doc);
 
-      if (!doc.slug && doc.title) {
-        const baseSlug = slugify(doc.title, { lower: true });
-        doc.slug = await generateUniqueSlug(
-          models.Posts,
-          doc.clientPortalId,
-          'slug',
-          baseSlug,
-        );
-      }
-
       const post = await models.Posts.findOne({ _id });
 
       if (!post) {
         throw new Error('Post not found');
+      }
+
+      const clientPortalId = doc.clientPortalId || post.clientPortalId;
+
+      if (doc.slug !== undefined) {
+        const baseSlug = prepareSlug(doc.slug);
+
+        if (!baseSlug) {
+          throw new Error('Slug is required');
+        }
+
+        doc.slug = await generateUniqueSlugWithExclusion(
+          models.Posts,
+          clientPortalId,
+          'slug',
+          baseSlug,
+          _id,
+          1,
+        );
       }
 
       if (doc.content && !doc.excerpt && !post.excerpt) {
