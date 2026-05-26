@@ -229,11 +229,26 @@ export const doScoreCampaign = async (
       : null,
   ]);
 
+  let cpUserId: string | undefined;
+  if (customerId) {
+    const cpUser = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'cpUsers',
+      action: 'get',
+      input: { erxesCustomerId: customerId },
+      defaultValue: null,
+    });
+    cpUserId = cpUser?._id;
+  }
+
   const ownerHints = Object.fromEntries(
     Object.entries({
       customer: customerId,
       company: companyId,
       user: target.userId,
+      cpUser: cpUserId,
     }).filter(([, value]) => !!value),
   );
 
