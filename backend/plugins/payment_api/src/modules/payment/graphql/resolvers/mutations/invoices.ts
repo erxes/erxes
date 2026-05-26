@@ -429,6 +429,10 @@ mutations.invoiceScanBarcode.wrapperConfig = {
   skipPermission: true,
 };
 
+mutations.invoiceScanBarcode.wrapperConfig = {
+  skipPermission: true,
+};
+
 mutations.cpInvoicesCheck.wrapperConfig = {
   forClientPortal: true,
 };

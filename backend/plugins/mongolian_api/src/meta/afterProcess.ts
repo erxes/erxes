@@ -115,6 +115,35 @@ export const afterProcess: AfterProcessConfigs = {
       }
     }
 
+    // SYNC ERKHET
+    if (erkhetMutationNames.includes(mutationName)) {
+      const currentStageId = result?.stageId || destinationStageId;
+      const isCreate = mutationName === 'dealsAdd';
+      const isStageChanged =
+        destinationStageId &&
+        destinationStageId !== sourceStageId &&
+        destinationStageId === currentStageId &&
+        itemId;
+
+      if (
+        (isCreate || isStageChanged) &&
+        (await hasErkhetStageConfig(models, currentStageId))
+      ) {
+        await dealAfterErkhet(ctx.subdomain, {
+          type: 'sales:deal',
+          action: isCreate ? 'create' : 'update',
+          object: isCreate
+            ? result
+            : {
+                _id: itemId,
+                stageId: sourceStageId,
+              },
+          updatedDocument: result,
+          user: { _id: userId },
+        });
+      }
+    }
+
     // PRODUCT PLACES
     if (productPlacesMutationNames.includes(mutationName)) {
       try {
