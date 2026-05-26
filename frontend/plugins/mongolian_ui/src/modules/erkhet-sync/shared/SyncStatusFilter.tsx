@@ -18,7 +18,7 @@ const DEFAULT_FILTER = SYNC_FILTERS[0];
 
 interface SyncStatusFilterProps {
   selectedFilter: string;
-  onFilterChange: (value: FilterableStatus) => void;
+  onFilterChange: (value: FilterableStatus) => unknown;
   getCount: (type: FilterableStatus) => number;
 }
 

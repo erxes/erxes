@@ -41,15 +41,17 @@ const processBatches = async <T extends { code?: string }>(
 
       const reason = outcome.reason;
       result.failed += 1;
-      result.errors.push({
-        code: batch[index]?.code,
-        message:
-          reason instanceof Error
-            ? reason.message
-            : typeof reason === 'string'
-              ? reason
-              : 'Unknown error',
-      });
+
+      let message: string;
+      if (reason instanceof Error) {
+        message = reason.message;
+      } else if (typeof reason === 'string') {
+        message = reason;
+      } else {
+        message = 'Unknown error';
+      }
+
+      result.errors.push({ code: batch[index]?.code, message });
     });
   }
 

@@ -1,6 +1,5 @@
 import { SyncStatusFilter, FilterableStatus } from '../../shared/SyncStatusFilter';
 import { useCheckProduct } from '../hooks/useCheckProduct';
-import { ProductStatus } from '../types/productItem';
 
 export const CheckProductFilter = () => {
   const { selectedFilter, setSelectedFilter, toCheckProductsData } =
@@ -12,7 +11,7 @@ export const CheckProductFilter = () => {
   return (
     <SyncStatusFilter
       selectedFilter={selectedFilter}
-      onFilterChange={(val) => setSelectedFilter(val as ProductStatus)}
+      onFilterChange={setSelectedFilter}
       getCount={getCount}
     />
   );

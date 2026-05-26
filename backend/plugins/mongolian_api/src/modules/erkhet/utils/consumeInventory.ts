@@ -114,6 +114,64 @@ export const preloadInventoryContext = async (
   };
 };
 
+const applyWeightField = (
+  document: any,
+  product: any,
+  weightField: any,
+  doc: any,
+) => {
+  if (weightField?._id && doc.weight !== undefined) {
+    document.propertiesData = {
+      ...product?.propertiesData,
+      [weightField._id]: Number(doc.weight),
+    };
+  }
+};
+
+const applySubUoms = (document: any, product: any, doc: any) => {
+  if (!doc.sub_measure_unit_code || !doc.ratio_measure_unit) return;
+
+  let subUoms = product?.subUoms || [];
+  subUoms = subUoms.filter((u: any) => u.uom !== doc.sub_measure_unit_code);
+  subUoms.unshift({ uom: doc.sub_measure_unit_code, ratio: doc.ratio_measure_unit });
+  document.subUoms = subUoms;
+};
+
+const applyDescription = (doc: any, config: any) => {
+  if (!config?.consumeDescription) return;
+  doc.description = config.consumeDescription.replace(
+    /\$\{doc\.([^}]+)\}/g,
+    (match: string, path: string) => {
+      const value = path
+        .split('.')
+        .reduce((acc: any, segment: string) => acc?.[segment], doc);
+      return value !== undefined && value !== null ? String(value) : match;
+    },
+  );
+};
+
+const upsertProduct = async (subdomain: string, product: any, document: any) => {
+  if (product?._id) {
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'mutation',
+      module: 'products',
+      action: 'updateProduct',
+      input: { _id: product._id, doc: { ...document } },
+    });
+  } else {
+    await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'mutation',
+      module: 'products',
+      action: 'createProduct',
+      input: { doc: { ...document } },
+    });
+  }
+};
+
 export const consumeInventory = async (
   subdomain: string,
   doc: any,
@@ -160,61 +218,11 @@ export const consumeInventory = async (
     status: 'active',
   };
 
-  if (weightField?._id && doc.weight !== undefined) {
-    document.propertiesData = {
-      ...product?.propertiesData,
-      [weightField._id]: Number(doc.weight),
-    };
-  }
+  applyWeightField(document, product, weightField, doc);
+  applySubUoms(document, product, doc);
+  applyDescription(doc, config);
 
-  if (doc.sub_measure_unit_code && doc.ratio_measure_unit) {
-    let subUoms = product?.subUoms || [];
-    const subUomCodes = subUoms.map((u: any) => u.uom);
-
-    if (subUomCodes.includes(doc.sub_measure_unit_code)) {
-      subUoms = subUoms.filter(
-        (u: any) => u.uom !== doc.sub_measure_unit_code,
-      );
-    }
-    subUoms.unshift({
-      uom: doc.sub_measure_unit_code,
-      ratio: doc.ratio_measure_unit,
-    });
-
-    document.subUoms = subUoms;
-  }
-
-  if (config?.consumeDescription) {
-    doc.description = config.consumeDescription.replace(
-      /\$\{doc\.([^}]+)\}/g,
-      (match: string, path: string) => {
-        const value = path
-          .split('.')
-          .reduce((acc: any, segment: string) => acc?.[segment], doc);
-        return value !== undefined && value !== null ? String(value) : match;
-      },
-    );
-  }
-
-  if (product?._id) {
-    await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'mutation',
-      module: 'products',
-      action: 'updateProduct',
-      input: { _id: product._id, doc: { ...document } },
-    });
-  } else {
-    await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'mutation',
-      module: 'products',
-      action: 'createProduct',
-      input: { doc: { ...document } },
-    });
-  }
+  await upsertProduct(subdomain, product, document);
 };
 
 export const consumeInventoryCategory = async (
