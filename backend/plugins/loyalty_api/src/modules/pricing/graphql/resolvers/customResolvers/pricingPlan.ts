@@ -148,6 +148,11 @@ const PricingPlan = {
 
     return productIds;
   },
+  async fixedValues(plan: IPricingPlanDocument, _args, { models }: IContext) {
+    return models.PricingFixedValues.find({
+      pricingPlanId: plan._id.toString(),
+    });
+  },
 };
 
 export { PricingPlan };

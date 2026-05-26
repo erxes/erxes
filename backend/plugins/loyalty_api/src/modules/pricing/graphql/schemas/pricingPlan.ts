@@ -103,12 +103,18 @@ export const types = `
    fixedValues: [PricingFixedValue]    
      
   }
-    type PricingFixedValue {
-productId: String
-uom: String
-unitPrice: Float
-newPrice: Float
-}
+  type PricingFixedValue {
+    _id: String
+    pricingPlanId: String
+    productId: String
+    uom: String
+    unitPrice: Float
+    newPrice: Float
+    createdBy: String
+    updatedBy: String
+    createdAt: Date
+    updatedAt: Date
+  }
 
   input QuantityRuleInput {
     type: String,
@@ -201,8 +207,6 @@ newPrice: Float
 
     isRepeatEnabled: Boolean,
     repeatRules: [RepeatRuleInput],
-
-    fixedValues: [PricingFixedValueInput]  
   }
 
   input PricingPlanEditInput {
@@ -251,8 +255,13 @@ newPrice: Float
 
     isRepeatEnabled: Boolean,
     repeatRules: [RepeatRuleInput],
+  }
 
-    fixedValues: [PricingFixedValueInput]  
+  input PricingFixedValueInput {
+    productId: String
+    uom: String
+    unitPrice: Float
+    newPrice: Float
   }
 
   input PricingCheckProduct {
@@ -262,15 +271,6 @@ newPrice: Float
     price: Float
     manufacturedDate: String
   }
-
-input PricingFixedValueInput {
-productId: String
-  uom:       String
-  unitPrice: Float
-  newPrice:  Float
-
-}
-
 
 `;
 
@@ -318,4 +318,8 @@ export const mutations = `
   pricingPlanAdd(doc: PricingPlanAddInput): PricingPlan
   pricingPlanEdit(doc: PricingPlanEditInput): PricingPlan
   pricingPlanRemove(id: String): PricingPlan
+
+  pricingFixedValueAdd(pricingPlanId: String!, doc: PricingFixedValueInput!): PricingFixedValue
+  pricingFixedValueEdit(id: String!, doc: PricingFixedValueInput!): PricingFixedValue
+  pricingFixedValueRemove(id: String!): PricingFixedValue
 `;

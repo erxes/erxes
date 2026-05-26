@@ -183,6 +183,8 @@ export const PRICING_PLAN_DETAIL = gql`
       }
       productIds
       fixedValues {
+        _id
+        pricingPlanId
         productId
         uom
         unitPrice
