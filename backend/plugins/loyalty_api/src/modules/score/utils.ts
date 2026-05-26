@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { evaluate } from 'mathjs';
 import { IModels } from '~/connectionResolvers';
 
 /**
@@ -7,9 +8,49 @@ import { IModels } from '~/connectionResolvers';
  * Only supports: numbers (int/float), +, -, *, /, parentheses.
  * No eval/Function — purely structural parsing, no code execution.
  */
+const normalizeLegacyExpression = (expr: string) =>
+  (expr || '')
+    .replace(/!==/g, '!=')
+    .replace(/===/g, '==')
+    .replace(/&&/g, ' and ')
+    .replace(/\|\|/g, ' or ')
+    .trim();
+
+const evaluateLegacyExpression = (expr: string): number | null => {
+  const expression = normalizeLegacyExpression(expr);
+
+  if (!/[<>=?:]|\band\b|\bor\b|\bnot\b/.test(expression)) {
+    return null;
+  }
+
+  const expressionWithoutLogicWords = expression.replace(
+    /\b(and|or|not)\b/g,
+    '',
+  );
+
+  if (/[A-Za-z_$]/.test(expressionWithoutLogicWords)) {
+    throw new Error(`Invalid math expression: ${expression.slice(0, 50)}`);
+  }
+
+  const result = evaluate(expression);
+  const numberResult = Number(result);
+
+  if (!Number.isFinite(numberResult)) {
+    return 0;
+  }
+
+  return numberResult;
+};
+
 export const safeEvalMath = (expr: string): number => {
   const input = (expr || '').trim();
   if (!input) return 0;
+
+  const legacyExpressionResult = evaluateLegacyExpression(input);
+
+  if (legacyExpressionResult !== null) {
+    return legacyExpressionResult;
+  }
 
   let pos = 0;
 
@@ -120,18 +161,27 @@ export const resolvePlaceholderValue = (target: any, attribute: string) => {
   const [propertyName, valueToCheck, valueField] = attribute.split('-');
 
   const parent = target[propertyName] || {};
+
+  const normalizeValue = (value: any) => {
+    if (value && typeof value === 'object') {
+      return value.numberValue ?? value.value ?? '0';
+    }
+
+    return value ?? '0';
+  };
+
   // Case 1: customer-propertiesData-1 / legacy customer-customFieldsData-1
   if (
     valueToCheck?.includes('propertiesData') ||
     valueToCheck?.includes('customFieldsData')
   ) {
-    const fieldId = attribute.split('.').pop(); // extract the field number after '.'
-    return (
+    const fieldId = attribute.split('.').pop()?.trim(); // extract the field id after '.'
+    return normalizeValue(
       parent.propertiesData?.[fieldId || ''] ??
-      (parent.customFieldsData || []).find(
-        (item: any) => item.field === fieldId,
-      )?.value ??
-      '0'
+        (parent.customFieldsData || []).find(
+          (item: any) => item.field === fieldId,
+        ) ??
+        '0',
     );
   }
 
@@ -140,24 +190,21 @@ export const resolvePlaceholderValue = (target: any, attribute: string) => {
     const obj = Array.isArray(parent)
       ? parent.find((item: any) => item.type === valueToCheck)
       : parent[valueToCheck] || {};
-    return obj[valueField] || '0';
+    return normalizeValue(obj[valueField]);
   }
 
   // Case 3: customer-loyalty (simple nested property)
   if (valueToCheck) {
     const property = parent[valueToCheck];
-    return typeof property === 'object'
-      ? property?.value || '0'
-      : property || '0';
+    return normalizeValue(property);
   }
 
   // Case 4: simple top-level value (e.g. {{score}})
-  return target[attribute] || '0';
+  return normalizeValue(target[attribute]);
 };
 
 export const doScoreCampaign = async (models: IModels, data: any) => {
   try {
-    await models.ScoreCampaigns.checkScoreAviableSubtract(data);
     return await models.ScoreCampaigns.doCampaign(data);
   } catch (error: any) {
     throw new Error(error?.message || 'Score campaign execution failed');

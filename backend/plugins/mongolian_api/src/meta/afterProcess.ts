@@ -68,56 +68,68 @@ export const afterProcess: AfterProcessConfigs = {
         destinationStageId === stageId &&
         itemId
       ) {
-        await dealAfterEbarimt(models, ctx.subdomain, ctx.processId || '', {
-          sourceStageId,
-          destinationStageId,
-          deal: result,
-          sessionCode,
-          userId,
-        });
+        try {
+          await dealAfterEbarimt(models, ctx.subdomain, ctx.processId || '', {
+            sourceStageId,
+            destinationStageId,
+            deal: result,
+            sessionCode,
+            userId,
+          });
+        } catch (error) {
+          console.error('Ebarimt afterMutation failed:', error);
+        }
       }
     }
 
     // SYNC ERKHET
     if (erkhetMutationNames.includes(mutationName)) {
-      const currentStageId = result?.stageId || destinationStageId;
-      const isCreate = mutationName === 'dealsAdd';
-      const isStageChanged =
-        destinationStageId &&
-        destinationStageId !== sourceStageId &&
-        destinationStageId === currentStageId &&
-        itemId;
+      try {
+        const currentStageId = result?.stageId || destinationStageId;
+        const isCreate = mutationName === 'dealsAdd';
+        const isStageChanged =
+          destinationStageId &&
+          destinationStageId !== sourceStageId &&
+          destinationStageId === currentStageId &&
+          itemId;
 
-      if (
-        (isCreate || isStageChanged) &&
-        (await hasErkhetStageConfig(models, currentStageId))
-      ) {
-        await dealAfterErkhet(ctx.subdomain, {
-          type: 'sales:deal',
-          action: isCreate ? 'create' : 'update',
-          object: isCreate
-            ? result
-            : {
-                _id: itemId,
-                stageId: sourceStageId,
-              },
-          updatedDocument: result,
-          user: { _id: userId },
-        });
+        if (
+          (isCreate || isStageChanged) &&
+          (await hasErkhetStageConfig(models, currentStageId))
+        ) {
+          await dealAfterErkhet(ctx.subdomain, {
+            type: 'sales:deal',
+            action: isCreate ? 'create' : 'update',
+            object: isCreate
+              ? result
+              : {
+                  _id: itemId,
+                  stageId: sourceStageId,
+                },
+            updatedDocument: result,
+            user: { _id: userId },
+          });
+        }
+      } catch (error) {
+        console.error('Erkhet afterMutation failed:', error);
       }
     }
 
     // PRODUCT PLACES
     if (productPlacesMutationNames.includes(mutationName)) {
-      await productPlacesAfterMutation(ctx.subdomain, {
-        type: 'sales:deal',
-        action: 'update',
-        updatedDocument: result,
-        object: {
-          stageId: sourceStageId,
-        },
-        user: userId,
-      });
+      try {
+        await productPlacesAfterMutation(ctx.subdomain, {
+          type: 'sales:deal',
+          action: 'update',
+          updatedDocument: result,
+          object: {
+            stageId: sourceStageId,
+          },
+          user: userId,
+        });
+      } catch (error) {
+        console.error('Product places afterMutation failed:', error);
+      }
     }
   },
 

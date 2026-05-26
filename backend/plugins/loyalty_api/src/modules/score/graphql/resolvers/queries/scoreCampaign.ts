@@ -60,7 +60,7 @@ export const scoreCampaignQueries: Record<string, Resolver> = {
 
     return cursorPaginate({
       model: models.ScoreCampaigns,
-      params,
+      params: { ...params, orderBy: { order: 1, createdAt: -1 } },
       query: filter,
     });
   },
@@ -140,7 +140,12 @@ export const scoreCampaignQueries: Record<string, Resolver> = {
       ownerType,
       campaignId,
       clientPortal,
-    }: { ownerId: string; ownerType: string; campaignId: string; clientPortal: string },
+    }: {
+      ownerId: string;
+      ownerType: string;
+      campaignId: string;
+      clientPortal: string;
+    },
     { subdomain, models, checkPermission, user }: IContext,
   ) {
     if (user) {
@@ -174,9 +179,14 @@ export const scoreCampaignQueries: Record<string, Resolver> = {
 
   async cpCheckOwnerScore(
     _root: undefined,
-    args: { ownerId: string; ownerType: string; campaignId: string; clientPortal: string },
+    args: {
+      ownerId: string;
+      ownerType: string;
+      campaignId: string;
+      clientPortal: string;
+    },
     context: IContext,
-    info: any
+    info: any,
   ) {
     return scoreCampaignQueries.checkOwnerScore(_root, args, context, info);
   },

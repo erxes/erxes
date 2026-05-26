@@ -33,14 +33,16 @@ interface IPaymentType {
   type: string;
   title?: string;
   icon?: string;
-  config?: {
-    require?: string;
-    skipEbarimt?: boolean;
-    mustCustomer?: boolean;
-    notSplit?: boolean;
-    preTax?: boolean;
-  };
-  scoreCampaign?: string;
+  config?:
+    | string
+    | {
+        require?: string;
+        skipEbarimt?: boolean;
+        mustCustomer?: boolean;
+        notSplit?: boolean;
+        preTax?: boolean;
+      };
+  scoreCampaignId?: string;
 }
 
 type PayInfo = {
@@ -48,6 +50,22 @@ type PayInfo = {
   maxVal?: number;
   hasPopup: boolean;
   validQr: boolean;
+};
+
+const parsePaymentConfig = (config: IPaymentType['config']) => {
+  if (!config) {
+    return {};
+  }
+
+  if (typeof config === 'object') {
+    return config;
+  }
+
+  try {
+    return JSON.parse(config);
+  } catch {
+    return {};
+  }
 };
 
 const OwnerScoreCampaignScore = ({
@@ -74,9 +92,9 @@ const OwnerScoreCampaignScore = ({
     variables: {
       ownerId: customer?._id,
       ownerType: 'customer',
-      campaignId: paymentType?.scoreCampaign,
+      campaignId: paymentType?.scoreCampaignId,
     },
-    skip: !paymentType?.scoreCampaign || !customer?._id,
+    skip: !paymentType?.scoreCampaignId || !customer?._id,
   }) || {};
 
   useEffect(() => {
@@ -86,7 +104,7 @@ const OwnerScoreCampaignScore = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkOwnerScore]);
 
-  if (!paymentType?.scoreCampaign || customers.length === 0) return null;
+  if (!paymentType?.scoreCampaignId || customers.length === 0) return null;
 
   const refundScore = () => {
     confirm({
@@ -288,8 +306,9 @@ const ProductsPayment = ({
   const handleScoreFetched = useCallback(
     (score: number, paymentType: any) => {
       const typeName = paymentType.type;
+      const paymentConfig = parsePaymentConfig(paymentType.config);
       const requiresQr =
-        paymentType?.config?.require?.toLowerCase() === 'qrcode';
+        paymentConfig?.require?.toLowerCase() === 'qrcode';
       const initialAmount = getInitialPaymentAmount(typeName);
       const availableAmount = score + initialAmount;
 
@@ -494,8 +513,9 @@ const ProductsPayment = ({
         {deal.pipeline?.paymentTypes?.map(
           (paymentType: IPaymentType, index: number) => {
             const typeName = paymentType.type;
+            const paymentConfig = parsePaymentConfig(paymentType.config);
             const isQr =
-              paymentType?.config?.require?.toLowerCase() === 'qrcode';
+              paymentConfig?.require?.toLowerCase() === 'qrcode';
             const hasInitialAmount = getInitialPaymentAmount(typeName) > 0;
             const payInfo = payInfoByType[typeName] || {
               hasPopup: false,

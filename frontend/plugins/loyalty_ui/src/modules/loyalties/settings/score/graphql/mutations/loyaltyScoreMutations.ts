@@ -4,8 +4,10 @@ export const CREATE_LOYALTY_SCORE = gql`
   mutation CreateScoreCampaign(
     $title: String
     $description: String
+    $order: Int
     $add: JSON
     $subtract: JSON
+    $set: JSON
     $createdAt: Date
     $createdUserId: String
     $status: String
@@ -22,8 +24,10 @@ export const CREATE_LOYALTY_SCORE = gql`
     scoreCampaignAdd(
       title: $title
       description: $description
+      order: $order
       add: $add
       subtract: $subtract
+      set: $set
       createdAt: $createdAt
       createdUserId: $createdUserId
       status: $status

@@ -2,7 +2,6 @@ import { IContext } from '~/connectionResolvers';
 import { IDeal, IDealDocument, IProductData } from '~/modules/sales/@types';
 import { SALES_STATUSES } from '~/modules/sales/constants';
 import {
-  checkMovePermission,
   createRelations,
   getCompanyIds,
   getCustomerIds,
@@ -12,10 +11,9 @@ import {
 import {
   checkAssignedUserFromPData,
   copyChecklists,
-  itemMover,
   subscriptionWrapper,
 } from '../utils';
-import { addDeal, editDeal, processStageChangeScoreCampaigns } from './utils';
+import { addDeal, changeDeal, editDeal } from './utils';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { Resolver } from 'erxes-api-shared/core-types';
 
@@ -59,61 +57,8 @@ export const dealMutations: Record<string, Resolver> = {
     { user, models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
-    const { itemId, aboveItemId, sourceStageId, destinationStageId } = doc;
 
-    const item = await models.Deals.findOne({ _id: itemId });
-
-    if (!item) {
-      throw new Error('Deal not found');
-    }
-
-    const stage = await models.Stages.getStage(item.stageId);
-
-    const extendedDoc: IDeal = {
-      modifiedBy: user._id,
-      stageId: destinationStageId,
-      order: await getNewOrder({
-        collection: models.Deals,
-        stageId: destinationStageId,
-        aboveItemId,
-      }),
-    };
-
-    if (item.stageId !== destinationStageId) {
-      checkMovePermission(stage, user);
-
-      const destinationStage = await models.Stages.getStage(destinationStageId);
-
-      checkMovePermission(destinationStage, user);
-
-      extendedDoc.stageChangedDate = new Date();
-    }
-
-    const updatedItem = await models.Deals.updateDeal(itemId, extendedDoc);
-
-    // Do not call mongolian plugin directly from sales.
-    // Instead, emit an event (via logs) that will be handled by afterProcess.
-
-    if (item.stageId !== destinationStageId) {
-      await processStageChangeScoreCampaigns({
-        subdomain,
-        models,
-        deal: updatedItem,
-        newStageId: destinationStageId,
-        user,
-      });
-    }
-
-    await itemMover(models, user._id, item, destinationStageId);
-
-    await subscriptionWrapper(models, {
-      action: 'update',
-      deal: updatedItem,
-      oldDeal: item,
-      pipelineId: stage.pipelineId,
-    });
-
-    return updatedItem;
+    return changeDeal(subdomain, models, user._id, { ...doc })
   },
 
   /**

@@ -14,19 +14,39 @@ export const LoyaltyScoreAddCoreFields: React.FC<
 > = ({ form }) => {
   return (
     <div className="flex flex-col gap-5">
-      <Form.Field
-        control={form.control}
-        name="title"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>Title</Form.Label>
-            <Form.Control>
-              <Input {...field} placeholder="Enter title" />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
+      <div className="grid grid-cols-[1fr_120px] gap-4">
+        <Form.Field
+          control={form.control}
+          name="title"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Title</Form.Label>
+              <Form.Control>
+                <Input {...field} placeholder="Enter title" />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
+          name="order"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Order</Form.Label>
+              <Form.Control>
+                <Input
+                  {...field}
+                  type="number"
+                  placeholder="0"
+                  value={field.value ?? ''}
+                />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+      </div>
       <Form.Field
         control={form.control}
         name="description"

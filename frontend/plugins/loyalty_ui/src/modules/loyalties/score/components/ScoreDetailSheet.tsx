@@ -13,6 +13,7 @@ import {
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
+  fixNum,
   RecordTable,
   RecordTableInlineCell,
   Sheet,
@@ -52,6 +53,9 @@ const formatDate = (dateStr?: string) => {
   if (!dateStr) return '—';
   return new Date(dateStr).toLocaleDateString('en-CA');
 };
+
+const formatScore = (value?: number) =>
+  fixNum(value, 4).toLocaleString()
 
 const logColumns: ColumnDef<IScoreLogItem>[] = [
   {
@@ -93,6 +97,7 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
       let variant = 'secondary';
       if (action === 'add') variant = 'success';
       else if (action === 'subtract') variant = 'destructive';
+      else if (action === 'set') variant = 'outline';
       return (
         <RecordTableInlineCell>
           <Badge variant={variant as any}>{action}</Badge>
@@ -145,7 +150,7 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
       const val = cell.getValue() as number | undefined;
       return (
         <RecordTableInlineCell className="text-right font-semibold text-green-600">
-          <TextOverflowTooltip value={val == null ? '' : String(val)} />
+          <TextOverflowTooltip value={formatScore(val)} />
         </RecordTableInlineCell>
       );
     },
@@ -161,7 +166,7 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
       const val = cell.getValue() as number | undefined;
       return (
         <RecordTableInlineCell className="text-right font-semibold text-red-500">
-          <TextOverflowTooltip value={val == null ? '' : String(val)} />
+          <TextOverflowTooltip value={formatScore(val)} />
         </RecordTableInlineCell>
       );
     },
@@ -177,11 +182,25 @@ const logColumns: ColumnDef<IScoreLogItem>[] = [
       const val = cell.getValue() as number | undefined;
       return (
         <RecordTableInlineCell className="text-right font-semibold text-blue-500">
-          <TextOverflowTooltip value={val == null ? '' : String(val)} />
+          <TextOverflowTooltip value={formatScore(val)} />
         </RecordTableInlineCell>
       );
     },
     size: 150,
+  },
+  {
+    id: 'pointsSet',
+    accessorFn: (row) => (row.action === 'set' ? row.change : undefined),
+    header: () => <RecordTable.InlineHead icon={IconCoins} label="Score Set" />,
+    cell: ({ cell }) => {
+      const val = cell.getValue() as number | undefined;
+      return (
+        <RecordTableInlineCell className="text-right font-semibold text-violet-600">
+          <TextOverflowTooltip value={formatScore(val)} />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 120,
   },
   {
     id: 'campaign',
@@ -226,7 +245,7 @@ export const ScoreDetailSheet = ({
             <p className="text-xs text-muted-foreground mt-1 capitalize">
               {record?.ownerType || ''} · Total Score:{' '}
               <span className="font-semibold text-foreground">
-                {record?.totalScore ?? 0}
+                {formatScore(record?.totalScore)}
               </span>
             </p>
           </div>

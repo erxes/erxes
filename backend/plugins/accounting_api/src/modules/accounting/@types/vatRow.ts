@@ -20,7 +20,7 @@ export interface IVatRow {
   number: string;
   kind: string;
   formula: string;
-  formula_text: string;
+  formulaText: string;
   tabCount: number;
   isBold: boolean;
   status: string;

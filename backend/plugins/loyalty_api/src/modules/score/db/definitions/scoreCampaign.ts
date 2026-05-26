@@ -2,15 +2,7 @@ import { SCORE_CAMPAIGN_STATUSES } from '@/score/constants';
 import { schemaWrapper } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 
-const addSchema = new Schema(
-  {
-    placeholder: { type: String, label: 'Placeholder' },
-    currencyRatio: { type: String, label: 'currencyRatio', default: 1 },
-  },
-  { _id: false },
-);
-
-const subtractSchema = new Schema(
+const valueSchema = new Schema(
   {
     placeholder: { type: String, label: 'Placeholder' },
     currencyRatio: { type: String, label: 'currencyRatio', default: 1 },
@@ -23,8 +15,10 @@ export const scoreCampaignSchema = schemaWrapper(
     {
       title: { type: String, label: 'Campaign Title' },
       description: { type: String, label: 'Campaign Description' },
-      add: { type: addSchema, label: 'Add config' },
-      subtract: { type: subtractSchema, label: 'Subtract config' },
+      order: { type: Number, label: 'Sort Order', index: true },
+      add: { type: valueSchema, label: 'Add config' },
+      subtract: { type: valueSchema, label: 'Subtract config' },
+      set: { type: valueSchema, label: 'Set config' },
       createdAt: { type: Date, label: 'Created At', default: new Date() },
       createdUserId: { type: String, label: 'Created User Id' },
       ownerType: { type: String, label: 'Owner Type' },
