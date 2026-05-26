@@ -94,7 +94,7 @@ const useOwnerOptions = (ownerType: string, search: string) => {
 
   const userQuery = useQuery(GET_USERS_SIMPLE, {
     variables: { searchValue: search || undefined, isActive: true },
-    skip: ownerType !== 'user',
+    skip: ownerType !== 'user' || !search,
     fetchPolicy: 'cache-first',
   });
 
