@@ -565,7 +565,7 @@ export const SettingsForm = ({
             </Dialog.Description>
           </Dialog.Header>
 
-          <div className="space-y-5 bg-muted/40 p-6">
+          <div className="space-y-5 p-6">
             <div className="space-y-2">
               <label
                 htmlFor={DELETE_NAME_CONFIRMATION_INPUT_ID}
