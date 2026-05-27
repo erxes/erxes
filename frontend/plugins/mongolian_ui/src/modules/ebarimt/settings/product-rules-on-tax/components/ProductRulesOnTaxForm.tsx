@@ -110,10 +110,7 @@ export const ProductRulesOnTaxForm = ({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Tax Code</Form.Label>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
+                  <Select value={field.value} onValueChange={field.onChange}>
                     <Form.Control>
                       <Select.Trigger className="text-muted-foreground">
                         <Select.Value placeholder="Select a tax code" />
@@ -200,9 +197,7 @@ export const ProductRulesOnTaxForm = ({
                   <Form.Label>Exclude Categories</Form.Label>
                   <SelectCategory
                     value={field.value}
-                    onSelect={(value) => {
-                      field.onChange(value);
-                    }}
+                    onSelect={field.onChange}
                     mode="multiple"
                   />
                 </Form.Item>
@@ -216,9 +211,7 @@ export const ProductRulesOnTaxForm = ({
                   <Form.Label>Products</Form.Label>
                   <SelectProduct
                     value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                    }}
+                    onValueChange={field.onChange}
                     mode="multiple"
                   />
                 </Form.Item>
@@ -232,9 +225,7 @@ export const ProductRulesOnTaxForm = ({
                   <Form.Label>Exclude Products</Form.Label>
                   <SelectProduct
                     value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                    }}
+                    onValueChange={field.onChange}
                     mode="multiple"
                   />
                 </Form.Item>
@@ -248,9 +239,7 @@ export const ProductRulesOnTaxForm = ({
                   <Form.Label>Tags</Form.Label>
                   <SelectTags
                     value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                    }}
+                    onValueChange={field.onChange}
                     mode="multiple"
                   />
                 </Form.Item>
@@ -264,9 +253,7 @@ export const ProductRulesOnTaxForm = ({
                   <Form.Label>Exclude Tags</Form.Label>
                   <SelectTags
                     value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                    }}
+                    onValueChange={field.onChange}
                     mode="multiple"
                   />
                 </Form.Item>
