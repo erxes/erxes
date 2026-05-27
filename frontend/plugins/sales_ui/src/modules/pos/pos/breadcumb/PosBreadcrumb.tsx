@@ -17,7 +17,7 @@ export const PosBreadcrumb = () => {
   return (
     <Breadcrumb.Item>
       <Button variant="ghost" asChild>
-        <Link to={`/operation/pos/${posItem?._id}`}>
+        <Link to={`/sales/pos/${posItem?._id}/orders`}>
           <IconBuilding size={16} />
           {posItem?.name}
         </Link>

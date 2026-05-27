@@ -1,9 +1,15 @@
 import { gql, useQuery } from '@apollo/client';
+import { useAtomValue } from 'jotai';
+import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
 import { CMS_CUSTOM_FIELD_GROUPS } from '../../../../custom-fields/graphql/queries';
 import { CONTENT_CMS_LIST } from '../../../../graphql/queries';
 
 const COMBINED_CMS_DATA = gql`
-  query CombinedCmsData($clientPortalId: String!, $limit: Int) {
+  query CombinedCmsData(
+    $clientPortalId: String!
+    $limit: Int
+    $language: String
+  ) {
     cmsCategories(clientPortalId: $clientPortalId, limit: $limit) {
       list {
         _id
@@ -11,7 +17,7 @@ const COMBINED_CMS_DATA = gql`
         parentId
       }
     }
-    cmsTags(clientPortalId: $clientPortalId, limit: $limit) {
+    cmsTags(clientPortalId: $clientPortalId, language: $language) {
       tags {
         _id
         name
@@ -70,11 +76,17 @@ function buildTreeOptions(rawList: IRawCategory[]): ICategoryOption[] {
   return result;
 }
 
-export const usePostData = (websiteId: string, selectedType?: string, postId?: string) => {
+export const usePostData = (
+  websiteId: string,
+  selectedType?: string,
+  postId?: string,
+) => {
+  const language = useAtomValue(cmsLanguageAtom);
+
   const { data: combinedData, loading: combinedLoading } = useQuery(
     COMBINED_CMS_DATA,
     {
-      variables: { clientPortalId: websiteId || '', limit: 100 },
+      variables: { clientPortalId: websiteId || '', limit: 100, language },
       skip: !websiteId,
       fetchPolicy: 'cache-first',
     },
@@ -91,9 +103,7 @@ export const usePostData = (websiteId: string, selectedType?: string, postId?: s
     fetchPolicy: 'cache-first',
   });
 
-  const categories = buildTreeOptions(
-    combinedData?.cmsCategories?.list || [],
-  );
+  const categories = buildTreeOptions(combinedData?.cmsCategories?.list || []);
 
   const tags = (combinedData?.cmsTags?.tags || []).map((t: any) => ({
     label: t.name,
@@ -113,7 +123,11 @@ export const usePostData = (websiteId: string, selectedType?: string, postId?: s
     fieldGroupsData?.cmsCustomFieldGroupList?.list || []
   ).filter((group: any) => {
     const ids: string[] = group.customPostTypeIds || [];
-    if (ids.length > 0 && !ids.includes(selectedType) && !ids.includes('post')) {
+    if (
+      ids.length > 0 &&
+      !ids.includes(selectedType || '') &&
+      !ids.includes('post')
+    ) {
       return false;
     }
     // if specific posts are set, only show for this post

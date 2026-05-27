@@ -18,12 +18,12 @@ const defaultValues = {
   pipelineId: '',
   stageId: '',
   userEmail: '',
-  chooseResponseField: '',
+  responseField: '',
   hasVat: false,
-  hasCityTax: false,
-  anotherRulesOfProductsOnCitytax: '',
-  anotherRulesOfProductsOnVat: '',
-  defaultPay: '',
+  hasCitytax: false,
+  reverseCtaxRules: '',
+  reverseVatRules: '',
+  defaultPay: 'debtAmount',
   нэхэмжлэх: '',
   хаанБанкданс: '',
   голомтБанкданс: '',
@@ -39,12 +39,11 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
       pipelineId: config?.pipelineId || '',
       stageId: config?.stageId || '',
       userEmail: config?.userEmail || '',
-      chooseResponseField: config?.chooseResponseField || '',
+      responseField: config?.responseField || '',
       hasVat: config?.hasVat || false,
-      hasCityTax: config?.hasCityTax || false,
-      anotherRulesOfProductsOnCitytax:
-        config?.anotherRulesOfProductsOnCitytax || '',
-      anotherRulesOfProductsOnVat: config?.anotherRulesOfProductsOnVat || '',
+      hasCitytax: config?.hasCitytax || false,
+      reverseCtaxRules: config?.reverseCtaxRules || '',
+      reverseVatRules: config?.reverseVatRules || '',
       defaultPay: config?.defaultPay || '',
       нэхэмжлэх: config?.нэхэмжлэх || '',
       хаанБанкданс: config?.хаанБанкданс || '',
@@ -103,7 +102,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                 />
                 <Form.Field
                   control={form.control}
-                  name="chooseResponseField"
+                  name="responseField"
                   render={({ field }) => (
                     <Form.Item className="w-full">
                       <Form.Label>Choose Response Field</Form.Label>
@@ -117,11 +116,13 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                           <Select.Value placeholder="Choose Response Field" />
                         </Select.Trigger>
                         <Select.Content>
-                          {CHOOSE_RESPONSE_FIELD_DATA.map((type) => (
-                            <Select.Item key={type.value} value={type.value}>
-                              {type.label}
-                            </Select.Item>
-                          ))}
+                          {CHOOSE_RESPONSE_FIELD_DATA.map(
+                            (type: { value: string; label: string }) => (
+                              <Select.Item key={type.value} value={type.value}>
+                                {type.label}
+                              </Select.Item>
+                            ),
+                          )}
                         </Select.Content>
                       </Select>
                       <Form.Message />
@@ -160,7 +161,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                 />
                 <Form.Field
                   control={form.control}
-                  name="anotherRulesOfProductsOnVat"
+                  name="reverseVatRules"
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>Another rules of products on vat</Form.Label>
@@ -176,7 +177,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                 />
                 <Form.Field
                   control={form.control}
-                  name="hasCityTax"
+                  name="hasCitytax"
                   render={({ field }) => (
                     <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
                       <Form.Label variant="peer">Has City Tax</Form.Label>
@@ -193,7 +194,7 @@ const EditConfigForm = ({ config, onNewConfig, onSubmit, loading }: any) => {
                 />
                 <Form.Field
                   control={form.control}
-                  name="anotherRulesOfProductsOnCitytax"
+                  name="reverseCtaxRules"
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>
@@ -303,7 +304,7 @@ const NewConfigForm = ({
                 />
                 <Form.Field
                   control={form.control}
-                  name="chooseResponseField"
+                  name="responseField"
                   render={({ field }) => (
                     <Form.Item className="w-full">
                       <Form.Label>Choose Response Field</Form.Label>
@@ -317,11 +318,13 @@ const NewConfigForm = ({
                           <Select.Value placeholder="Choose Response Field" />
                         </Select.Trigger>
                         <Select.Content>
-                          {CHOOSE_RESPONSE_FIELD_DATA.map((type) => (
-                            <Select.Item key={type.value} value={type.value}>
-                              {type.label}
-                            </Select.Item>
-                          ))}
+                          {CHOOSE_RESPONSE_FIELD_DATA.map(
+                            (type: { value: string; label: string }) => (
+                              <Select.Item key={type.value} value={type.value}>
+                                {type.label}
+                              </Select.Item>
+                            ),
+                          )}
                         </Select.Content>
                       </Select>
                       <Form.Message />
@@ -360,7 +363,7 @@ const NewConfigForm = ({
                 />
                 <Form.Field
                   control={form.control}
-                  name="anotherRulesOfProductsOnVat"
+                  name="reverseVatRules"
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>Another rules of products on vat</Form.Label>
@@ -376,7 +379,7 @@ const NewConfigForm = ({
                 />
                 <Form.Field
                   control={form.control}
-                  name="hasCityTax"
+                  name="hasCitytax"
                   render={({ field }) => (
                     <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
                       <Form.Label variant="peer">Has City Tax</Form.Label>
@@ -393,7 +396,7 @@ const NewConfigForm = ({
                 />
                 <Form.Field
                   control={form.control}
-                  name="anotherRulesOfProductsOnCitytax"
+                  name="reverseCtaxRules"
                   render={({ field }) => (
                     <Form.Item>
                       <Form.Label>
@@ -457,7 +460,7 @@ export const SalesAreTentativeForm = () => {
     fetchPolicy: 'network-only',
   });
 
-  const configValue = data?.configsGetValue?.value;
+  const configValue = data?.mnConfigs?.[0]?.value;
 
   const parseConfigValue = (value: any) => {
     if (!value) return null;
@@ -474,13 +477,12 @@ export const SalesAreTentativeForm = () => {
           boardId: formData.boardId,
           pipelineId: formData.pipelineId,
           stageId: formData.stageId,
-          chooseResponseField: formData.chooseResponseField,
+          responseField: formData.responseField,
           userEmail: formData.userEmail,
           hasVat: formData.hasVat,
-          hasCityTax: formData.hasCityTax,
-          anotherRulesOfProductsOnCitytax:
-            formData.anotherRulesOfProductsOnCitytax,
-          anotherRulesOfProductsOnVat: formData.anotherRulesOfProductsOnVat,
+          hasCitytax: formData.hasCitytax,
+          reverseCtaxRules: formData.reverseCtaxRules,
+          reverseVatRules: formData.reverseVatRules,
           defaultPay: formData.defaultPay,
           нэхэмжлэх: formData.нэхэмжлэх,
           хаанБанкданс: formData.хаанБанкданс,
@@ -491,7 +493,9 @@ export const SalesAreTentativeForm = () => {
 
       await createStageInErkhetConfig({
         variables: {
-          configsMap: configsMapString,
+          code: 'ebarimtConfig',
+          subId: formData.stageId,
+          value: configsMapString.ebarimtConfig,
         },
       });
 

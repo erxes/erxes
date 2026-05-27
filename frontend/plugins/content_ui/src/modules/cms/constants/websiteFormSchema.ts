@@ -8,7 +8,6 @@ export const websiteFormSchema = z.object({
   kind: z.string().min(1, 'Client Portal is required'),
   languages: z.array(z.string()).default([]),
   language: z.string().default(''),
-  postUrlField: z.enum(['_id', 'count', 'slug']).default('_id'),
 });
 
 export type WebsiteFormType = z.infer<typeof websiteFormSchema>;

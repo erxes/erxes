@@ -18,10 +18,6 @@ const reserveRemsMutations = {
       productCategoryId,
       productId,
     } = doc;
-    if (!departmentIds || !branchIds) {
-      throw new Error('Must fill departmend and branch');
-    }
-
     if (!productCategoryId && !productId) {
       throw new Error('Must fill product category or product');
     }
@@ -31,10 +27,12 @@ const reserveRemsMutations = {
       productId,
       productCategoryId,
     );
+    const targetBranchIds = branchIds?.length ? branchIds : ['_'];
+    const targetDepartmentIds = departmentIds?.length ? departmentIds : ['_'];
 
     const oldReserveRems = await models.ReserveRems.find({
-      departmentId: { $in: departmentIds },
-      branchId: { $in: branchIds },
+      departmentId: { $in: targetDepartmentIds },
+      branchId: { $in: targetBranchIds },
       productId: { $in: productIds },
     });
 
@@ -54,8 +52,8 @@ const reserveRemsMutations = {
     let updateCounter = 0;
     let insertCounter = 0;
 
-    for (const branchId of branchIds) {
-      for (const departmentId of departmentIds) {
+    for (const branchId of targetBranchIds) {
+      for (const departmentId of targetDepartmentIds) {
         for (const product of products) {
           const key = `${branchId}_${departmentId}_${product._id}`;
 
@@ -98,8 +96,9 @@ const reserveRemsMutations = {
             insertCounter += 1;
 
             if (insertCounter > 100) {
-              const inserted =
-                await models.ReserveRems.insertMany(bulkCreateOps);
+              const inserted = await models.ReserveRems.insertMany(
+                bulkCreateOps,
+              );
               inserteds.push(inserted);
               bulkCreateOps = [];
             }

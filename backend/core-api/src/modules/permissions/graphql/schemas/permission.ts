@@ -106,6 +106,7 @@ export const mutations = `
   permissionGroupRemove(_id: String!): JSON
 
   userUpdatePermissionGroups(userId: String!, groupIds: [String]!): User
+  usersUpdatePermissionGroups(userIds: [String]!, groupIds: [String]!): JSON
   userAddCustomPermission(userId: String!, permission: PermissionInput!): User
   userRemoveCustomPermission(userId: String!, module: String!): User
 

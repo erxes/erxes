@@ -1,6 +1,6 @@
 import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
-import { getConfig, getPureDate } from './utils';
+import { getConfig, getPureDate, sendErkhetPost } from './utils';
 
 export const getOrderPostData = async (subdomain, userEmail, order) => {
   const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
@@ -100,7 +100,7 @@ export const getOrderPostData = async (subdomain, userEmail, order) => {
   ];
 
   return {
-    userEmail,
+    userEmail: userEmail || erkhetConfig.userEmail || '',
     token: erkhetConfig.apiToken,
     apiKey: erkhetConfig.apiKey,
     apiSecret: erkhetConfig.apiSecret,
@@ -134,21 +134,15 @@ export const thirdOrderToErkhet = async (
       };
     }
 
-    /*    return {
-      status: "success",
-      data: await sendRPCMessage(
+    return {
+      status: 'success',
+      data: await sendErkhetPost(
         models,
         syncLog,
-        "rpc_queue:erxes-automation-erkhet",
-        {
-          action: "get-response-send-order-info",
-          isEbarimt: false,
-          payload: JSON.stringify(postData),
-          thirdService: true,
-          isJson: true
-        }
-      )
-    };*/
+        'get-response-send-order-info',
+        postData,
+      ),
+    };
   } catch (e) {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },

@@ -32,6 +32,7 @@ const posOrderFields = () => `
   user: User,
   customer: CustomerPos
   syncedErkhet: Boolean,
+  accountingResponse: String,
   description: String,
   isPre: Boolean,
   origin: String,
@@ -149,6 +150,7 @@ const commonSubsQueryParams = `
 export const queries = `
   posOrders(${queryParams}): [PosOrder]
   posOrderDetail(_id: String): PosOrderDetail
+  posOrderLink(_id: String): JSON
   posProducts(${queryParams} categoryId: String, searchValue: String): PosProducts
   posOrdersSummary(${queryParams}): JSON
   posOrdersGroupSummary(${queryParams}, ${groupParams}): JSON
@@ -163,6 +165,5 @@ export const queries = `
 `;
 
 export const mutations = `
-  posOrderReturnBill(_id: String!): PosOrder
   posOrderChangePayments(_id: String!, cashAmount: Float, mobileAmount: Float, paidAmounts: JSON, description: String): PosOrder
 `;

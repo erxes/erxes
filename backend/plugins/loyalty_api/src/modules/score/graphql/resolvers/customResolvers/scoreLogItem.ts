@@ -44,18 +44,20 @@ const fetchTarget = async ({
     },
   });
 
-  const target = response?.status === 'success' ? response?.data : response;
-
-  if (!target) {
+  if (!response) {
     return null;
   }
 
   return Object.fromEntries(
-    config.fields.map((field) => [field, target[field]]),
+    config.fields.map((field) => [field, response[field]]),
   );
 };
 
 export default {
+  change({ changeScore }: any) {
+    return changeScore ?? null;
+  },
+
   async campaign(
     { campaignId }: IScoreLog,
     _args: undefined,

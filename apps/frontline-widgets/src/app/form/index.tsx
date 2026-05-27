@@ -7,10 +7,11 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import {
   activeStepAtom,
   browserInfoAtom,
+  customerIdAtom,
   showConfirmationAtom,
 } from './states/erxesFormStates';
 import { ErxesFormValues } from './components/ErxesFormValues';
-import { postMessage } from '@libs/utils';
+import { getVisitorId, postMessage } from '@libs/utils';
 import { ErxesFormFinal } from './components/ErxesFormFinal';
 
 export const Form = () => {
@@ -20,6 +21,7 @@ export const Form = () => {
   const activeStep = useAtomValue(activeStepAtom);
   const setBrowserInfo = useSetAtom(browserInfoAtom);
   const showConfirmation = useAtomValue(showConfirmationAtom);
+  const customerId = useAtomValue(customerIdAtom);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const loadType = form?.leadData?.loadType;
@@ -53,14 +55,19 @@ export const Form = () => {
 
   useEffect(() => {
     if (settings.form_id && settings.channel_id) {
-      connectMutation({
-        variables: {
-          channelId: settings.channel_id,
-          formCode: settings.form_id,
-        },
-      });
+      const connect = async () => {
+        const cachedCustomerId = customerId || (await getVisitorId());
+        connectMutation({
+          variables: {
+            channelId: settings.channel_id,
+            formCode: settings.form_id,
+            cachedCustomerId,
+          },
+        });
+      };
+      connect();
     }
-  }, [connectMutation, settings]);
+  }, [connectMutation, settings, customerId]);
 
   useEffect(() => {
     if (form?.leadData?.primaryColor) {

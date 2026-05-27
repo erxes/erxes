@@ -1,12 +1,13 @@
 export const SCORE_ACTION = {
   ADD: 'add',
   SUBTRACT: 'subtract',
+  SET: 'set',
   REFUND: 'refund',
-  ALL: ['add', 'subtract', 'refund'],
+  ALL: ['add', 'subtract', 'set', 'refund'],
 };
 
 export const SCORE_CAMPAIGN_STATUSES = {
-  PUBLISHED: 'published',
+  PUBLISHED: 'active',
   DRAFT: 'draft',
   ARCHIVED: 'archived',
 } as const;

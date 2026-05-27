@@ -35,8 +35,7 @@ export const fetchTarget = async ({
     defaultValue: null,
   });
 
-  const payload = response?.status === 'success' ? response?.data : response;
-  const target = Array.isArray(payload) ? payload[0] : payload;
+  const target = Array.isArray(response) ? response[0] : response;
 
   return target?.[field] || '';
 };

@@ -112,6 +112,7 @@ export const ReportForm = () => {
                     value={field.value}
                     onValueChange={field.onChange}
                     mode="multiple"
+                    defaultFilter={{ permissionMode: 'read' }}
                   />
                 </Form.Control>
                 <Form.Message />

@@ -1,14 +1,15 @@
-import { PageContainer } from "erxes-ui";
-import { FormPageHeader } from "./FormPageHeader";
-import { FormPageList } from "./FormPageList";
-import { FormSubHeader } from "./FormSubHeader";
+import { PageContainer } from 'erxes-ui';
+import { FormPageHeader } from './FormPageHeader';
+import { FormSubHeader } from './FormSubHeader';
+import { Outlet } from 'react-router';
 
-export const FormView = () => {
+const FormView = () => {
   return (
     <PageContainer>
       <FormPageHeader />
-      <FormSubHeader />
-      <FormPageList />
+      <Outlet />
     </PageContainer>
   );
 };
+
+export default FormView;

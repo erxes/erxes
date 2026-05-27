@@ -1028,7 +1028,7 @@ const orderMutations: Record<string, Resolver> = {
           defaultValue: null,
         });
 
-        throw new Error(`Already converted: ${dealLink?.data || ''}`);
+        throw new Error(`Already converted: ${dealLink || ''}`);
       }
     }
 
@@ -1054,27 +1054,19 @@ const orderMutations: Record<string, Resolver> = {
 
     if (order.deliveryInfo && cardConfig.deliveryMapField) {
       const { description, marker } = order.deliveryInfo;
+      const fieldId = cardConfig.deliveryMapField.replace(
+        'propertiesData.',
+        '',
+      );
+
       dealData.description = description;
-      dealData.customFieldsData = [
-        {
-          field: cardConfig.deliveryMapField.replace('customFieldsData.', ''),
-          locationValue: {
-            type: 'Point',
-            coordinates: [
-              marker.longitude || marker.lng,
-              marker.latitude || marker.lat,
-            ],
-          },
-          value: {
-            lat: marker.latitude || marker.lat,
-            lng: marker.longitude || marker.lng,
-            description: 'location',
-          },
-          stringValue: `${marker.longitude || marker.lng},${
-            marker.latitude || marker.lat
-          }`,
+      dealData.propertiesData = {
+        [fieldId]: {
+          lat: marker.latitude || marker.lat,
+          lng: marker.longitude || marker.lng,
+          description: 'location',
         },
-      ];
+      };
     }
     const deal = await sendTRPCMessage({
       subdomain,
@@ -1090,18 +1082,6 @@ const orderMutations: Record<string, Resolver> = {
         deal._id &&
         ['customer', 'company'].includes(order.customerType || 'customer')
       ) {
-        // await sendCoreMessage({
-        //   subdomain,
-        //   action: 'conformities.addConformity',
-        //   data: {
-        //     mainType: 'deal',
-        //     mainTypeId: deal._id,
-        //     relType: order.customerType || 'customer',
-        //     relTypeId: order.customerId,
-        //   },
-        //   isRPC: true,
-        // });
-
         // conformity to relation
         await sendTRPCMessage({
           subdomain,

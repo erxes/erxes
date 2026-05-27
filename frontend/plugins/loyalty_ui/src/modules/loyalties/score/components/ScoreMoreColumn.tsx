@@ -50,7 +50,7 @@ export const ScoreMoreColumnCell = ({
           <Command.List>
             <Command.Item value="edit" onSelect={handleEdit}>
               <IconEdit size={14} />
-              Edit
+              Show scores
             </Command.Item>
             <Command.Item
               value="see-profile"

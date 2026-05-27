@@ -1,8 +1,14 @@
-import { IconAccessPoint, IconCrane, IconTrashX } from '@tabler/icons-react';
+import {
+  IconAccessPoint,
+  IconCrane,
+  IconTrashX,
+  IconFileImport,
+} from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import {
   Button,
   cn,
+  Dialog,
   Label,
   RecordTable,
   Spinner,
@@ -11,6 +17,7 @@ import {
   RecordTableHotkeyProvider,
   useSetHotkeyScope,
 } from 'erxes-ui';
+import { AccountingDialog } from '@/layout/components/Dialog';
 import { useSafeRemainderDetail } from '../hooks/useSafeRemainderDetail';
 import { useSafeRemainderDetails } from '../hooks/useSafeRemainderDetails';
 import { useSafeRemainderRemove } from '../hooks/useSafeRemainderRemove';
@@ -36,6 +43,8 @@ import { safeRemDetailColumnsOut } from './SafeRemainderDetailColsOut';
 import { safeRemDetailColumnsSale } from './SafeRemainderDetailColsSale';
 import { EditSafeRemainder } from './SafeRemainderEditForm';
 import { AccountingHotkeyScope } from '@/types/AccountingHotkeyScope';
+import { useRef, useState } from 'react';
+import { useSafeRemainderItemsBulkEdit } from '../hooks/useSafeRemainderItemsBulkEdit';
 export const SafeRemainderDetail = () => {
   const [id] = useQueryState<string>('id');
   const [activeTab, setActiveTab] = useAtom(activeTabState);
@@ -76,6 +85,7 @@ export const SafeRemainderDetail = () => {
       case SAFE_REMAINDER_STATUSES.DRAFT:
         return (
           <>
+            <ImportFromFileButton safeRemainderId={id} />
             <Button onClick={() => reCalcSafeRemainder(id)}>
               <IconCrane />
               ReCalc
@@ -129,6 +139,7 @@ export const SafeRemainderDetail = () => {
             </Button>
           </>
         );
+
       default:
         return null;
     }
@@ -379,5 +390,134 @@ const StatusBar = ({ safeRemainder }: { safeRemainder: ISafeRemainder }) => {
         <span>{safeRemainder.description}</span>
       </div>
     </div>
+  );
+};
+
+type DuplicateRule = 'last' | 'skip' | 'add';
+
+const ImportFromFileButton = ({
+  safeRemainderId,
+}: {
+  safeRemainderId: string;
+}) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [open, setOpen] = useState(false);
+  const [duplicateRule, setDuplicateRule] = useState<DuplicateRule>('last');
+  const [pendingItems, setPendingItems] = useState<
+    { productCode: string; count: number }[]
+  >([]);
+  const { bulkEditRemItems, loading } = useSafeRemainderItemsBulkEdit();
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string;
+      const items = text
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .flatMap((line) => {
+          const [code, qty] = line.split(',').map((s) => s.trim());
+          const quantity = Number.parseFloat(qty);
+          if (!code || Number.isNaN(quantity)) return [];
+          return [{ productCode: code, count: quantity }];
+        });
+
+      if (items.length > 0) {
+        setPendingItems(items);
+        setOpen(true);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const handleConfirm = () => {
+    bulkEditRemItems(safeRemainderId, pendingItems, duplicateRule);
+    setOpen(false);
+    setPendingItems([]);
+  };
+
+  const rules: { value: DuplicateRule; label: string; description: string }[] =
+    [
+      {
+        value: 'last',
+        label: 'Last',
+        description: 'Давтагдсан бол сүүлийн утгыг авна',
+      },
+      {
+        value: 'skip',
+        label: 'Skip',
+        description: 'Давтагдсан бол анхны утгыг хадгална',
+      },
+      {
+        value: 'add',
+        label: 'Add',
+        description: 'Давтагдсан бол утгуудыг нэмнэ',
+      },
+    ];
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <input
+        ref={inputRef}
+        type="file"
+        accept=".txt"
+        className="hidden"
+        onChange={handleFile}
+      />
+      <Button
+        variant="secondary"
+        disabled={loading}
+        onClick={() => inputRef.current?.click()}
+      >
+        <IconFileImport />
+        Import
+      </Button>
+      <AccountingDialog
+        title="Import from file"
+        description="Choose duplicate rule"
+      >
+        <div className="p-4 flex flex-col gap-4">
+          <p className="text-sm text-muted-foreground">
+            Давтагдсан productCode-тэй мөрүүдийг хэрхэн боловсруулах вэ?
+          </p>
+          <div className="flex flex-col gap-3">
+            {rules.map((rule) => (
+              <Label
+                key={rule.value}
+                className="flex items-start gap-3 cursor-pointer rounded-md border p-3 hover:bg-accent"
+              >
+                <input
+                  type="radio"
+                  name="duplicateRule"
+                  value={rule.value}
+                  checked={duplicateRule === rule.value}
+                  onChange={() => setDuplicateRule(rule.value)}
+                  className="mt-0.5"
+                />
+                <div>
+                  <p className="text-sm font-medium">{rule.label}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {rule.description}
+                  </p>
+                </div>
+              </Label>
+            ))}
+          </div>
+          <div className="flex justify-end gap-2 mt-2">
+            <Dialog.Close asChild>
+              <Button variant="secondary">Цуцлах</Button>
+            </Dialog.Close>
+            <Button onClick={handleConfirm} disabled={loading}>
+              Импортлох ({pendingItems.length} мөр)
+            </Button>
+          </div>
+        </div>
+      </AccountingDialog>
+    </Dialog>
   );
 };

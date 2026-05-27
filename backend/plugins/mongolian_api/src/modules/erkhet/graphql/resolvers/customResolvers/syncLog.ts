@@ -1,20 +1,30 @@
 import { IContext } from '~/connectionResolvers';
 import { ISyncLogDocument } from '~/modules/erkhet/@types/syncLog';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export default {
   async __resolveReference({ _id }: ISyncLogDocument, { models }: IContext) {
     return models.SyncLogs.findOne({ _id });
   },
 
-  async createdUser({ createdBy }: ISyncLogDocument) {
+  async createdUser(
+    { createdBy }: ISyncLogDocument,
+    _args: any,
+    { subdomain }: IContext,
+  ) {
     if (!createdBy) {
       return;
     }
 
-    return {
-      __typename: 'User',
-      _id: createdBy,
-    };
+    return await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'users',
+      action: 'findOne',
+      method: 'query',
+      input: { _id: createdBy },
+      defaultValue: null,
+    });
   },
 
   async content({ contentType, contentId, consumeData }: ISyncLogDocument) {

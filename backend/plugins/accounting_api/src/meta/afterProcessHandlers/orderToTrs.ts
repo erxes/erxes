@@ -50,6 +50,7 @@ export const orderToTrs = async ({
   let oldOtherTrs: ITransactionDocument[] = [];
 
   const [contentType, contentId] = ['sales:order', order._id];
+  const number = order.number;
 
   const oldTrs = await models.Transactions.find({
     contentType,
@@ -76,6 +77,7 @@ export const orderToTrs = async ({
     _id: mainId,
     ptrId,
     parentId,
+    number,
     date,
     journal: JOURNALS.INV_SALE,
     side: TR_SIDES.CREDIT,
@@ -139,10 +141,10 @@ export const orderToTrs = async ({
   const paymentTrs: ITransaction[] = [];
   const paidAmounts = [...order.paidAmounts];
   if (order.cashAmount) {
-    paidAmounts.push({ type: 'cash', amount: order.cashAmount })
+    paidAmounts.push({ type: 'cash', amount: order.cashAmount });
   }
   if (order.mobileAmount) {
-    paidAmounts.push({ type: 'cash', amount: order.mobileAmount })
+    paidAmounts.push({ type: 'cash', amount: order.mobileAmount });
   }
   for (const paid of paidAmounts) {
     const { amount, type } = paid;
@@ -162,6 +164,7 @@ export const orderToTrs = async ({
       _id: nanoid(),
       ptrId,
       parentId,
+      number,
       date,
       journal,
       side,
@@ -196,6 +199,7 @@ export const orderToTrs = async ({
         _id: nanoid(),
         ptrId,
         parentId,
+        number,
         date,
         journal,
         side,
@@ -236,11 +240,13 @@ export const orderToTrs = async ({
       parentId,
       [{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs],
       userId,
+      { skipAccountPermission: true },
     );
   } else {
     await models.Transactions.createPTransaction(
       [{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs],
       userId,
+      { skipAccountPermission: true },
     );
   }
 };

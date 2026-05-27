@@ -12,8 +12,10 @@ import {
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
+  Tooltip,
   cn,
   formatAmount,
+  Badge,
 } from 'erxes-ui';
 import {
   IconCurrencyDollar,
@@ -21,14 +23,16 @@ import {
   IconLabel,
   IconPentagonNumber1,
   IconUser,
+  IconShoppingCart,
+  IconBox,
+  IconFileInvoice,
 } from '@tabler/icons-react';
 
 import { ColumnDef } from '@tanstack/table-core';
 import { IProductData } from 'ui-modules';
 import { productMoreColumn } from './ProductMoreColumn';
 
-const DUPLICATE_PRODUCT_CELL_CLASS =
-  'bg-pink-50/80 dark:bg-pink-950/30';
+const DUPLICATE_PRODUCT_CELL_CLASS = 'bg-pink-50/80 dark:bg-pink-950/30';
 
 const getProductId = (productData: IProductData) =>
   productData.productId || productData.product?._id || '';
@@ -42,14 +46,64 @@ const hasDuplicateProductId = (
   }
 
   return (
-    productsData.filter((productData) => getProductId(productData) === productId)
-      .length > 1
+    productsData.filter(
+      (productData) => getProductId(productData) === productId,
+    ).length > 1
   );
+};
+
+const IconChooserForType = ({ type }: { type: string }) => {
+  switch (type) {
+    case 'service':
+      return (
+        <Tooltip.Provider>
+          <Tooltip>
+            <Tooltip.Trigger asChild>
+              <Badge className="bg-red-400">
+                <IconFileInvoice className="size-4 text-white" stroke={2} />
+              </Badge>
+            </Tooltip.Trigger>
+            <Tooltip.Content>Service</Tooltip.Content>
+          </Tooltip>
+        </Tooltip.Provider>
+      );
+    case 'product':
+      return (
+        <Tooltip.Provider>
+          <Tooltip>
+            <Tooltip.Trigger asChild>
+              <Badge className="bg-blue-400">
+                <IconBox className="size-4 text-white" stroke={2} />
+              </Badge>
+            </Tooltip.Trigger>
+            <Tooltip.Content>Product</Tooltip.Content>
+          </Tooltip>
+        </Tooltip.Provider>
+      );
+    default:
+      return null;
+  }
 };
 
 export const productColumns: ColumnDef<IProductData>[] = [
   productMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IProductData>,
+  {
+    id: 'type',
+    accessorKey: 'product.type',
+    header: () => (
+      <RecordTable.InlineHead icon={IconShoppingCart} label="Type" />
+    ),
+    cell: ({ cell }) => {
+      const type = cell.getValue() as string;
+      return (
+        <RecordTableInlineCell className="justify-center">
+          <IconChooserForType type={type} />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 80,
+  },
   {
     id: 'name',
     accessorKey: 'name',
@@ -100,6 +154,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
             _id={cell.row.original._id}
             product={cell.row.original}
             formatValue={(v: number) => formatAmount(v)}
+            calculateProduct={true}
           >
             {CurrencyIcon && (
               <CurrencyIcon className="size-4 text-muted-foreground shrink-0" />
@@ -219,20 +274,19 @@ export const productColumns: ColumnDef<IProductData>[] = [
     size: 120,
   },
   {
-    id: 'assignedUserId',
-    accessorKey: 'assignedUserId',
+    id: 'assignUserId',
+    accessorKey: 'assignUserId',
     header: () => (
       <RecordTable.InlineHead icon={IconUser} label="Assigned to" />
     ),
     cell: ({ cell }) => {
+      const assignedUserId =
+        cell.row.original.assignUserId || cell.row.original.assignedUserId;
+
       return (
         <ProductAssigneeField
-          value={
-            cell.row.original.assignedUserId
-              ? [cell.row.original.assignedUserId]
-              : []
-          }
-          field="assignedUserId"
+          value={assignedUserId ? [assignedUserId] : []}
+          field="assignUserId"
           _id={cell.row.original._id}
           product={cell.row.original}
         />

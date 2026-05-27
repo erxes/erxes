@@ -13,6 +13,7 @@ export const useDepartmentsList = (options?: OperationVariables) => {
       ...options?.variables,
       searchValue,
       parentId,
+      withoutUserFilter: true
     },
     ...options,
   });

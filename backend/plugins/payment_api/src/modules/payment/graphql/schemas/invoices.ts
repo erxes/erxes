@@ -12,7 +12,7 @@ export const types = `
     amount: Float
     currency: String
     remainingAmount: Float
-    
+
     phone: String
     email: String
     description: String
@@ -26,9 +26,10 @@ export const types = `
 
     createdAt: Date
     resolvedAt: Date
+    scannedAt: Date
     redirectUri: String
     paymentIds: [String]
-    
+
     data: JSON
     warningText: String
 
@@ -67,6 +68,7 @@ export const mutations = `
   invoiceUpdate(_id: String!, input: InvoiceInput!): Invoice
   invoicesCheck(_id:String!): String
   invoicesRemove(_ids: [String]!): String
+  invoiceScanBarcode(code: String!): Invoice
 
   cpInvoiceCreate(input: InvoiceInput!): Invoice
   cpInvoicesCheck(_id:String!): String
@@ -82,7 +84,7 @@ const queryParams = `
   searchValue: String
   kind: String
   status: String
-  
+
   contentType: String
   contentTypeId: String
   ${cursorParams}
@@ -93,7 +95,6 @@ export const queries = `
   invoicesTotalCount(${queryParams}): invoicesTotalCount
   invoiceDetail(_id: String!): Invoice
   invoiceDetailByContent(contentType: String!, contentTypeId: String!): [Invoice]
-
   cpInvoices(${queryParams}): InvoicesListResponse
   cpInvoiceDetail(_id: String!): Invoice
 `;

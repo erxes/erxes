@@ -6,7 +6,7 @@ export const SelectAnotherRulesOfProductsOnCityTax = ({
   value,
   onValueChange,
 }: {
-  value: string;
+  value?: string;
   onValueChange: (value: string) => void;
 }) => {
   const { anotherRulesOfProductsOnCityTax, loading } =
@@ -24,7 +24,7 @@ export const SelectAnotherRulesOfProductsOnCityTax = ({
     );
 
   return (
-    <Select value={value} onValueChange={onValueChange}>
+    <Select value={value || ''} onValueChange={onValueChange}>
       <Form.Control>
         <Select.Trigger>
           <span>

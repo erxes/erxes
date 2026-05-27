@@ -16,6 +16,8 @@ export const MENU_LINK_TYPES = [
   'TAG',
 ] as const;
 export type MenuLinkType = (typeof MENU_LINK_TYPES)[number];
+export const MENU_CONTENT_SOURCES = ['cms', 'web'] as const;
+export type MenuContentSource = (typeof MENU_CONTENT_SOURCES)[number];
 
 export interface IContentCMS {
   name: string;
@@ -75,6 +77,7 @@ export interface ICMSMenu {
   label: string;
   contentType?: string;
   contentTypeId?: string;
+  type?: MenuContentSource;
   linkType?: MenuLinkType;
   kind: string;
   icon?: string;
@@ -94,7 +97,8 @@ export interface IMenuLinkedContent {
 }
 
 export interface ICMSMenuDocument
-  extends Omit<Document, 'contentType'>, ICMSMenu {
+  extends Omit<Document, 'contentType'>,
+    ICMSMenu {
   _id: string;
   createdAt: Date;
   updatedAt: Date;

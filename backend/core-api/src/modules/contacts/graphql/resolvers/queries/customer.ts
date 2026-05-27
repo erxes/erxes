@@ -65,6 +65,14 @@ export const customerQueries: Record<string, Resolver<any, any, IContext>> = {
     return models.Customers.getCustomer(_id);
   },
 
+  async cpCustomerDetail(
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.Customers.getCustomer(_id);
+  },
+
   async contactsLogs(
     _parent: undefined,
     args: { action: string; contentType: string; content: string[] },
@@ -120,5 +128,9 @@ export const customerQueries: Record<string, Resolver<any, any, IContext>> = {
 };
 
 customerQueries.cpCustomers.wrapperConfig = {
+  forClientPortal: true,
+};
+
+customerQueries.cpCustomerDetail.wrapperConfig = {
   forClientPortal: true,
 };

@@ -39,7 +39,7 @@ export const stageQueries: Record<string, Resolver> = {
       filter.probability = { $ne: 'Lost' };
     }
 
-    if (!isAll) {
+    if (!isAll && !user.isOwner) {
       filter.status = { $ne: SALES_STATUSES.ARCHIVED };
 
       filter.$or = [
@@ -64,7 +64,8 @@ export const stageQueries: Record<string, Resolver> = {
         method: 'query',
         module: 'users',
         action: 'findOne',
-        input: {},
+        input: { query: { _id: user._id } },
+        defaultValue: {},
       });
 
       const departmentIds = userDetail?.departmentIds || [];
@@ -133,7 +134,8 @@ export const stageQueries: Record<string, Resolver> = {
         method: 'query',
         module: 'users',
         action: 'findOne',
-        input: {},
+        input: { query: { _id: user._id } },
+        defaultValue: {},
       });
 
       const departmentIds = userDetail?.departmentIds || [];

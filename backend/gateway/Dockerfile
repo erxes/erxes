@@ -11,7 +11,7 @@ COPY ./backend/gateway/package.json /app/backend/gateway/
 COPY ./backend/erxes-api-shared/package.json /app/backend/erxes-api-shared/
 
 # Install pnpm and dependencies
-RUN npm install -g pnpm \
+RUN npm install -g pnpm@9 \
     && pnpm install
 
 # Copy source files
@@ -54,7 +54,7 @@ fs.writeFileSync( \
   ), \
 ); \
 " \
-    && npm install -g pnpm \
+    && npm install -g pnpm@9 \
     && pnpm install --prod --shamefully-hoist --no-frozen-lockfile
 
 # Final image
@@ -78,7 +78,7 @@ COPY --chown=root:root --chmod=0444 --from=build /app/backend/erxes-api-shared/p
 COPY --chown=root:root --chmod=0555 --from=build /app/backend/gateway/dist ./backend/gateway/dist
 
 # Install pnpm
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9
 
 # Set PNPM env
 ENV PNPM_HOME="/root/.local/share/pnpm"

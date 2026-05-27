@@ -34,4 +34,12 @@ export const CONFIG: IUIConfig = {
       hasAutomation: true,
     },
   ],
+  widgets: {
+    relationWidgets: [
+      {
+        name: 'loyalty',
+        icon: IconAward,
+      },
+    ],
+  },
 };

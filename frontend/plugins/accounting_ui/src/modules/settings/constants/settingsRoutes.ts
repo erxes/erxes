@@ -7,6 +7,7 @@ export const SETTINGS_ROUTES = {
   '/settings/accounting/sync-deal': 'Deal дүрэм',
   '/settings/accounting/sync-deal-return': 'Deal буцаалтын дүрэм',
   '/settings/accounting/sync-order': 'Pos order дүрэм',
+  '/settings/accounting/permissions': 'Эрхийн тохиргоо',
 };
 
 export enum ACCOUNTING_SETTINGS_CODES {

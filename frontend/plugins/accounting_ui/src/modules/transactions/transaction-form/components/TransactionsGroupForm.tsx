@@ -1,6 +1,13 @@
 import { useMainConfigs } from '@/settings/hooks/useMainConfigs';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { DatePicker, Form, Input, Select, Spinner, useQueryState } from 'erxes-ui';
+import {
+  DatePicker,
+  Form,
+  Input,
+  Select,
+  Spinner,
+  useQueryState,
+} from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { memo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -63,7 +70,7 @@ const FormFields = memo(
       <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-6 py-6">
         <Form.Field
           control={form.control}
-          name='date'
+          name="date"
           render={({ field }) => (
             <Form.Item>
               <Form.Label>Огноо</Form.Label>
@@ -71,7 +78,7 @@ const FormFields = memo(
                 <DatePicker
                   value={field.value}
                   onChange={field.onChange}
-                  className='h-8 flex w-full'
+                  className="h-8 flex w-full"
                 />
               </Form.Control>
             </Form.Item>
@@ -79,7 +86,7 @@ const FormFields = memo(
         />
         <Form.Field
           control={form.control}
-          name='number'
+          name="number"
           render={({ field }) => (
             <Form.Item>
               <Form.Label>Дугаар</Form.Label>
@@ -91,7 +98,7 @@ const FormFields = memo(
         />
         <Form.Field
           control={form.control}
-          name='status'
+          name="status"
           render={({ field }) => (
             <Form.Item>
               <Form.Label>Төлөв</Form.Label>
@@ -124,6 +131,7 @@ const FormFields = memo(
                   <Select.Content>
                     {statusGroups.map((group, groupIndex) => (
                       <Select.Group key={group.label}>
+                        {group.label && <Select.Label>{group.label}</Select.Label>}
                         {group.options.map((side) => (
                           <Select.Item key={side.value} value={side.value}>
                             {side.label}
@@ -142,7 +150,7 @@ const FormFields = memo(
         />
         <Form.Field
           control={form.control}
-          name='mentionOwnerId'
+          name="mentionOwnerId"
           render={({ field }) => (
             <Form.Item>
               <Form.Label>Үйлдэгч</Form.Label>
@@ -150,7 +158,7 @@ const FormFields = memo(
                 <SelectMember.FormItem
                   onValueChange={(user) => field.onChange(user || '')}
                   value={field.value}
-                  mode='single'
+                  mode="single"
                 />
               </Form.Control>
               <Form.Message />
@@ -159,7 +167,7 @@ const FormFields = memo(
         />
         <Form.Field
           control={form.control}
-          name='mentionUserIds'
+          name="mentionUserIds"
           render={({ field }) => (
             <Form.Item>
               <Form.Label>Баталгаажуулах</Form.Label>
@@ -167,14 +175,14 @@ const FormFields = memo(
                 <SelectMember.FormItem
                   onValueChange={(users) => field.onChange(users || [])}
                   value={field.value}
-                  mode='multiple'
+                  mode="multiple"
                 />
               </Form.Control>
               <Form.Message />
             </Form.Item>
           )}
         />
-      </div >
+      </div>
     );
   },
 );
@@ -185,7 +193,7 @@ export const TransactionsGroupForm = () => {
   // const parentId = useParams().parentId;
   const currentUser = useAtomValue(currentUserState) as IUser;
   const [parentId] = useQueryState<string>('parentId');
-  const { activeTrs, followTrs, loading } = useTransactionsDetail({
+  const { activeTrs, error, followTrs, loading } = useTransactionsDetail({
     variables: { _id: parentId },
     skip: !parentId,
   });
@@ -208,6 +216,10 @@ export const TransactionsGroupForm = () => {
   const { updateTransaction } = useTransactionsUpdate();
 
   const onSubmit = (data: TAddTransactionGroup) => {
+    if (data.trDocs?.some((trDoc: any) => trDoc?.permission === 'hidden')) {
+      return;
+    }
+
     // transactionGroup get
     const trDocs = cleanTrDocs({
       ...data,
@@ -237,6 +249,18 @@ export const TransactionsGroupForm = () => {
   };
 
   useEffect(() => {
+    if (parentId && activeTrs && !activeTrs.length) {
+      form.reset({
+        date: new Date(),
+        status: TR_STATUSES.DRAFT,
+        mentionOwnerId: currentUser._id,
+        mentionUserIds: [],
+        trDocs: [],
+      });
+      setFollowTrDocs([]);
+      return;
+    }
+
     if (activeTrs?.length && parentId) {
       const currentTr = trId
         ? activeTrs.find((tr) => tr._id === trId)
@@ -246,6 +270,9 @@ export const TransactionsGroupForm = () => {
         ...form.getValues(),
         parentId,
         number: currentTr?.number || 'auto',
+        ptrNumber: currentTr?.ptrNumber,
+        contentType: currentTr?.contentType,
+        contentId: currentTr?.contentId,
         date: new Date(currentTr?.date || new Date()),
         status: currentTr?.status || TR_STATUSES.DRAFT,
         mentionOwnerId: currentTr?.mentionOwnerId || currentUser._id,
@@ -267,7 +294,7 @@ export const TransactionsGroupForm = () => {
 
     setFollowTrDocs(followTrs);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultJournal, trId, form, loading]);
+  }, [activeTrs, defaultJournal, followTrs, form, loading, parentId, trId]);
 
   if (configsLoading || loading) {
     return <Spinner />;
@@ -276,15 +303,15 @@ export const TransactionsGroupForm = () => {
   return (
     <Form {...form}>
       <form
-        className='p-6 flex-auto overflow-auto'
+        className="p-6 flex-auto overflow-auto"
         onSubmit={form.handleSubmit(onSubmit, onError)}
       >
-        <div className='flex justify-between'>
-          <h3 className='text-lg font-bold'>
+        <div className="flex justify-between">
+          <h3 className="text-lg font-bold">
             {parentId ? `Гүйлгээ засах` : `Гүйлгээ үүсгэх`}
           </h3>
-          <div className=''>
-            <Summary form={form} />
+          <div className="">
+            <Summary errorMessage={error?.message} form={form} />
           </div>
         </div>
         <FormFields form={form} currentUserId={currentUser._id} />

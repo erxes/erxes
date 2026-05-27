@@ -39,6 +39,8 @@ export interface IConfig {
     cashiers?: IPermissionConfig
   }
   initialCategoryIds?: string[]
+  serviceCharge?: number
+  serviceChargeApplicableProductId?: string
   ebarimtConfig?: IEbarimtConfig
   branchId: string
   departmentId: string

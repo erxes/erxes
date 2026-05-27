@@ -10,6 +10,7 @@ interface CheckProductsResponse {
   create?: { items: ICheckProduct[] };
   update?: { items: ICheckProduct[] };
   delete?: { items: ICheckProduct[] };
+  matched?: { count: number };
 }
 
 interface PageInfo {

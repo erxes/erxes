@@ -1,4 +1,4 @@
-import { QueryHookOptions, useQuery } from '@apollo/client';
+import { QueryHookOptions, useMutation, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   IRecordTableCursorPageInfo,
@@ -7,16 +7,28 @@ import {
   parseDateRangeFromString,
   useMultiQueryState,
   useRecordTableCursor,
+  useToast,
   validateFetchMore,
 } from 'erxes-ui';
+import { atom, useAtom, useSetAtom } from 'jotai';
+import { useEffect } from 'react';
+import { checkSyncedMutation } from '../../shared/graphql/mutations/checkSyncedMutations';
 import { checkSyncedDealsQuery } from '../graphql/queries/checkSyncedDealsQuery';
+import { checkSyncedDealsTotalCountAtom } from '../states/checkSyncedDealsCounts';
 import { ICheckSyncedDeals } from '../types/checkSyncedDeals';
 import { useCheckSyncedDealsLeadSessionKey } from './useCheckSyncedDealsLeadSessionKey';
-import { useSetAtom } from 'jotai';
-import { useEffect } from 'react';
-import { checkSyncedDealsTotalCountAtom } from '../states/checkSyncedDealsCounts';
 
 export const CHECK_SYNCED_DEALS_PER_PAGE = 30;
+
+type CheckSyncedResponse = {
+  _id: string;
+  isSynced?: boolean;
+  syncedDate?: string;
+  syncedBillNumber?: string;
+  syncedCustomer?: string;
+};
+
+const checkedDealsAtom = atom<Record<string, Partial<ICheckSyncedDeals>>>({});
 
 export const useCheckSyncedDealsVariables = (
   variables?: QueryHookOptions<{
@@ -97,6 +109,11 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
   const setCheckSyncedDealsTotalCount = useSetAtom(
     checkSyncedDealsTotalCountAtom,
   );
+  const [checkedDeals, setCheckedDeals] = useAtom(checkedDealsAtom);
+  const [toCheckSynced, { loading: checking }] = useMutation<{
+    toCheckSynced: CheckSyncedResponse[];
+  }>(checkSyncedMutation);
+  const { toast } = useToast();
   const variables = useCheckSyncedDealsVariables(options?.variables);
   const { data, loading, fetchMore } = useQuery<{
     deals: {
@@ -112,7 +129,59 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
     },
   });
 
-  const { list: Deals, totalCount, pageInfo } = data?.deals || {};
+  const { list: rawDeals, totalCount, pageInfo } = data?.deals || {};
+  const Deals = (rawDeals || []).map((deal) => ({
+    ...deal,
+    ...checkedDeals[deal._id],
+  }));
+
+  const checkDeals = async (ids: string[]) => {
+    if (!ids.length) {
+      toast({
+        title: 'Warning',
+        description: 'No deals to check',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const response = await toCheckSynced({
+      variables: { ids, contentType: 'sales:deal' },
+      onError: (error) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
+    });
+
+    if (!response.data) {
+      return;
+    }
+
+    const checked = response.data?.toCheckSynced || [];
+    const nextChecked = checked.reduce(
+      (acc, item) => ({
+        ...acc,
+        [item._id]: {
+          isSynced: item.isSynced,
+          unSynced: item.isSynced ? '' : 'Yes',
+          syncedDate: item.syncedDate,
+          syncedBillNumber: item.syncedBillNumber,
+          syncedCustomer: item.syncedCustomer,
+        },
+      }),
+      {} as Record<string, Partial<ICheckSyncedDeals>>,
+    );
+
+    setCheckedDeals((current) => ({ ...current, ...nextChecked }));
+    toast({
+      title: 'Success',
+      description: `${checked.length} deals checked`,
+    });
+  };
+
   useEffect(() => {
     if (!totalCount) return;
     setCheckSyncedDealsTotalCount(totalCount);
@@ -162,6 +231,8 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
     loading,
     Deals,
     totalCount,
+    checkDeals,
+    checking,
     handleFetchMore,
     pageInfo,
   };

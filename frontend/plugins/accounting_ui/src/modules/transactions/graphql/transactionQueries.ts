@@ -132,6 +132,8 @@ export const commonTransactionFields = `
   }
 
   extraData
+  contentType
+  contentId
 
   permission
 `;
@@ -141,7 +143,7 @@ const trsFilterParamDefs = `
   $excludeIds: Boolean,
   $status: String,
   $mentionOwnerId: String,
-  $mentionUserIds: String,
+  $mentionUserId: String,
   $searchValue: String,
   $number: String,
 
@@ -191,7 +193,7 @@ const trsFilterParams = `
   excludeIds: $excludeIds,
   status: $status,
   mentionOwnerId: $mentionOwnerId,
-  mentionUserIds: $mentionUserIds,
+  mentionUserId: $mentionUserId,
   searchValue: $searchValue,
   number: $number,
   customerType: $customerType,

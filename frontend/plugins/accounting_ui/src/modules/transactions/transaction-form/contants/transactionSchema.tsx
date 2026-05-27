@@ -198,8 +198,8 @@ export const transactionInvIncomeSchema = z
   })
   .extend({
     customerId: z.string(),
-    branchId: z.string(),
-    departmentId: z.string(),
+    branchId: undefed(z.string()),
+    departmentId: undefed(z.string()),
     hasVat: z.boolean(),
     hasCtax: z.boolean(),
     details: z.array(
@@ -232,8 +232,8 @@ export const transactionInvOutSchema = z
   })
   .extend({
     customerId: undefed(z.string()),
-    branchId: z.string(),
-    departmentId: z.string(),
+    branchId: undefed(z.string()),
+    departmentId: undefed(z.string()),
     details: z.array(
       z.object({
         ...invDetailSchema.shape,
@@ -249,12 +249,12 @@ export const transactionInvMoveSchema = z
   })
   .extend({
     customerId: undefed(z.string()),
-    branchId: z.string(),
-    departmentId: z.string(),
+    branchId: undefed(z.string()),
+    departmentId: undefed(z.string()),
     followInfos: z.object({
       moveInAccountId: z.string(),
-      moveInBranchId: z.string(),
-      moveInDepartmentId: z.string(),
+      moveInBranchId: undefed(z.string()),
+      moveInDepartmentId: undefed(z.string()),
     }),
     followExtras: undefed(
       z.object({
@@ -276,8 +276,8 @@ export const transactionInvSaleSchema = z
   })
   .extend({
     customerId: undefed(z.string()),
-    branchId: z.string(),
-    departmentId: z.string(),
+    branchId: undefed(z.string()),
+    departmentId: undefed(z.string()),
     followInfos: z.object({
       saleOutAccountId: z.string(),
       saleCostAccountId: z.string(),
@@ -303,8 +303,8 @@ export const transactionInvSaleReturnSchema = z
   })
   .extend({
     customerId: undefed(z.string()),
-    branchId: z.string(),
-    departmentId: z.string(),
+    branchId: undefed(z.string()),
+    departmentId: undefed(z.string()),
     followInfos: z.object({
       saleTransactionId: undefed(z.string()),
       saleOutAccountId: z.string(),
@@ -382,6 +382,8 @@ export const transactionGroupSchema = z.object({
   parentId: undefed(z.string()),
   number: undefed(z.string()),
   ptrNumber: z.string().nullish(),
+  contentType: undefed(z.string()),
+  contentId: undefed(z.string()),
   date: z.date(),
   status: z.string().refine((val) => TR_STATUSES.ALL.includes(val), {
     message: 'wrong side',
