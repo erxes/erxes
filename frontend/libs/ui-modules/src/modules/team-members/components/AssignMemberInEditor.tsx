@@ -71,6 +71,7 @@ export const AssignMemberInEditor = ({ editor }: { editor: IBlockEditor }) => {
             };
           });
         } catch (error) {
+          console.log(error);
           return [
             {
               title: 'Error loading users',
@@ -118,11 +119,11 @@ export function MentionMenu(props: SuggestionMenuProps<any>) {
 }
 
 interface MentionMenuItemProps {
-  onClick: () => void;
-  isSelected: boolean;
-  index: number;
-  text: string;
-  user?: IUser;
+  readonly onClick: () => void;
+  readonly isSelected: boolean;
+  readonly index: number;
+  readonly text: string;
+  readonly user?: IUser;
 }
 
 function MentionMenuItem({ onClick, isSelected, user }: MentionMenuItemProps) {
