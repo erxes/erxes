@@ -171,6 +171,7 @@ const safeRemainderMutations = {
         incomeDetails.push({
           accountId: incomeRule?.accountId ?? '',
           amount: fixNum(incomeCount * (item.trInfo?.unitCost ?? 0), 6),
+          unitPrice: fixNum(item.trInfo.unitCost, 6),
           productId,
           count: incomeCount,
         });
@@ -182,6 +183,7 @@ const safeRemainderMutations = {
         saleDetails.push({
           accountId: saleRule?.accountId ?? '',
           amount: fixNum(outCount * (item.trInfo?.unitPrice ?? 0), 6),
+          unitPrice: fixNum(item.trInfo?.unitPrice ?? 0, 6),
           productId,
           count: outCount,
         });
@@ -191,6 +193,7 @@ const safeRemainderMutations = {
       outDetails.push({
         accountId: outRule?.accountId ?? '',
         amount: fixNum(outCount * (item.trInfo?.unitCost ?? 0), 6),
+        unitPrice: fixNum(item.trInfo?.unitCost ?? 0, 6),
         productId,
         count: outCount,
       });
