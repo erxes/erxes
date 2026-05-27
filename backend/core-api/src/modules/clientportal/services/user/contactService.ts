@@ -193,7 +193,7 @@ export async function findOrCreateCompany(
 
   const createData: any = {
     ...document,
-    primaryName: document.companyName || '',
+    primaryName: document.username || '',
   };
 
   if (email) {
