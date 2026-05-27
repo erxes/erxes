@@ -17,11 +17,13 @@ import {
   Skeleton,
   Badge,
 } from 'erxes-ui';
-import { useNavigate } from 'react-router-dom';
 import { IntegrationNavigation } from '@/integrations/components/IntegrationNavigation';
 import { useConversations } from './inbox/conversations/hooks/useConversations';
 export const FrontlineNavigation = () => {
-  const navigate = useNavigate();
+  const navigate = (path: string) => {
+    window.history.pushState(null, '', path);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  };
 
   return (
     <>
