@@ -1,14 +1,17 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { CONVERSATION_SOURCE_PROGRESS } from '@/inbox/conversations/conversation-detail/graphql/queries/getInboxProgress';
 import { IConversationSourceProgress } from '@/inbox/types/Conversation';
-import { CONVERSATION_CHANGED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
-import { useEffect } from 'react';
+import { useQueryState } from 'erxes-ui';
+import { getDateRange } from '@/inbox/conversations/conversation-detail/utils/getDateRange';
+
 interface IGetConversationSourceProgressResponse {
   conversationSourceProgress: IConversationSourceProgress;
 }
 
 interface IGetConversationSourceProgressVariables {
-  customerId: string;
+  customerId?: string;
+  fromDate?: string;
+  toDate?: string;
 }
 
 export const useGetConversationSourceProgress = (
@@ -17,27 +20,21 @@ export const useGetConversationSourceProgress = (
     IGetConversationSourceProgressVariables
   >,
 ) => {
-  const { data, loading, refetch, subscribeToMore } = useQuery<
+  const [reportDate] = useQueryState<string>('reportDate', {
+    defaultValue: 'this-year',
+  });
+  const dateRange = getDateRange(reportDate);
+
+  const { data, loading, refetch } = useQuery<
     IGetConversationSourceProgressResponse,
     IGetConversationSourceProgressVariables
-  >(CONVERSATION_SOURCE_PROGRESS, options);
-  const conversationSourceProgress = data?.conversationSourceProgress;
+  >(CONVERSATION_SOURCE_PROGRESS, {
+    ...options,
+    variables: { ...options.variables, ...dateRange },
+  });
 
-  useEffect(() => {
-    const unsubscribe = subscribeToMore({
-      document: CONVERSATION_CHANGED,
-      variables: { customerId: options.variables?.customerId },
-      updateQuery: () => {
-        refetch();
-      },
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [options.variables?.customerId, subscribeToMore, refetch]);
   return {
-    conversationSourceProgress,
+    conversationSourceProgress: data?.conversationSourceProgress,
     loading,
     refetch,
   };

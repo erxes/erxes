@@ -1,8 +1,7 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { CONVERSATION_PROGRESS_CHART } from '@/inbox/conversations/conversation-detail/graphql/queries/getInboxProgress';
 import { useQueryState } from 'erxes-ui';
-import { CONVERSATION_CHANGED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
-import { useEffect } from 'react';
+import { getDateRange } from '@/inbox/conversations/conversation-detail/utils/getDateRange';
 
 interface IConversationProgressChart {
   conversationProgressChart: {
@@ -18,24 +17,17 @@ interface IConversationProgressChart {
 }
 
 export const useConversationProgressChart = (options: QueryHookOptions) => {
-  const [assignee] = useQueryState<string>('assignee');
+  const [reportDate] = useQueryState<string>('reportDate', {
+    defaultValue: 'this-year',
+  });
+  const dateRange = getDateRange(reportDate);
 
-  const { data, loading, refetch, subscribeToMore } =
-    useQuery<IConversationProgressChart>(CONVERSATION_PROGRESS_CHART, options);
-
-  useEffect(() => {
-    const unsubscribe = subscribeToMore({
-      document: CONVERSATION_CHANGED,
-      variables: { customerId: options.variables?.customerId },
-      updateQuery: () => {
-        refetch();
-      },
+  const { data, loading, refetch } =
+    useQuery<IConversationProgressChart>(CONVERSATION_PROGRESS_CHART, {
+      ...options,
+      variables: { ...options.variables, ...dateRange },
     });
 
-    return () => {
-      unsubscribe();
-    };
-  }, [options.variables?.customerId, subscribeToMore, refetch, assignee]);
   return {
     conversationProgressChart: data?.conversationProgressChart,
     loading,
