@@ -1,5 +1,6 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
+import { preparePdfAttachmentPages } from '@/cms/utils/pdfAttachments';
 import {
   assertOwnedDocument,
   requireClientPortalId,
@@ -40,7 +41,7 @@ const savePageTranslations = async (
 
 const mutations : Record<string, Resolver> = {
   async cmsPagesAdd(_parent: any, args: any, context: IContext): Promise<any> {
-    const { user, models } = context;
+    const { user, models, subdomain } = context;
     const { input } = args;
     const { translations, language, ...pageInput } = input;
 
@@ -70,6 +71,11 @@ const mutations : Record<string, Resolver> = {
       }
     }
 
+    pageInput.pdfAttachment = await preparePdfAttachmentPages({
+      subdomain,
+      pdfAttachment: pageInput.pdfAttachment,
+    });
+
     const page = await models.Pages.createPage(pageInput);
 
     await savePageTranslations(models, page._id, translations || []);
@@ -78,7 +84,7 @@ const mutations : Record<string, Resolver> = {
   },
 
   async cpCmsPagesAdd(_parent: any, args: any, context: IContext): Promise<any> {
-    const { models } = context;
+    const { models, subdomain } = context;
     const clientPortalId = requireClientPortalId(context);
     const { input } = args;
     const { translations, language, clientPortalId: _ignored, ...pageInput } =
@@ -119,6 +125,11 @@ const mutations : Record<string, Resolver> = {
       }
     }
 
+    pageInput.pdfAttachment = await preparePdfAttachmentPages({
+      subdomain,
+      pdfAttachment: pageInput.pdfAttachment,
+    });
+
     const page = await models.Pages.createPage(pageInput);
 
     await savePageTranslations(models, page._id, translations || []);
@@ -127,9 +138,14 @@ const mutations : Record<string, Resolver> = {
   },
 
   async cmsPagesEdit(_parent: any, args: any, context: IContext): Promise<any> {
-    const { models } = context;
+    const { models, subdomain } = context;
     const { _id, input } = args;
     const { translations, language, ...pageInput } = input;
+    const existingPage = await models.Pages.findOne({ _id }).lean();
+
+    if (!existingPage) {
+      throw new Error('Page not found');
+    }
 
     if (language && pageInput.clientPortalId) {
       const defaultLanguage = await getDefaultLanguage(
@@ -153,12 +169,28 @@ const mutations : Record<string, Resolver> = {
         const { name, description, customFieldsData, ...safePageInput } =
           pageInput;
 
+        if (safePageInput.pdfAttachment !== undefined) {
+          safePageInput.pdfAttachment = await preparePdfAttachmentPages({
+            subdomain,
+            pdfAttachment: safePageInput.pdfAttachment,
+            previousPdfAttachment: existingPage.pdfAttachment,
+          });
+        }
+
         const page = await models.Pages.updatePage(_id, safePageInput);
 
         await savePageTranslations(models, _id, translations || [], language);
 
         return page;
       }
+    }
+
+    if (pageInput.pdfAttachment !== undefined) {
+      pageInput.pdfAttachment = await preparePdfAttachmentPages({
+        subdomain,
+        pdfAttachment: pageInput.pdfAttachment,
+        previousPdfAttachment: existingPage.pdfAttachment,
+      });
     }
 
     // Default language edit — update everything on the page document

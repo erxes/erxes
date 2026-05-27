@@ -42,9 +42,18 @@ export const loadPipelineClass = (
 ) => {
   const { sendDbEventLog } = dispatcher;
 
+  const normalizePaymentConfig = (config: any) => {
+    if (!config || typeof config === 'string') {
+      return config || '';
+    }
+
+    return JSON.stringify(config);
+  };
+
   const normalizePaymentTypes = (paymentTypes?: any[]) =>
     paymentTypes?.map(({ scoreCampaign, ...paymentType }) => ({
       ...paymentType,
+      config: normalizePaymentConfig(paymentType.config),
     }));
 
   class Pipeline {
