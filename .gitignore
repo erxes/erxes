@@ -49,7 +49,9 @@ Thumbs.db
 .env
 
 # Agent skills and configuration
-.agents
+.agents/*
+!.agents/
+!.agents/README.md
 .claude
 
 storybook-static

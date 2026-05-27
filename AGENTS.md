@@ -8,7 +8,8 @@ behavior while keeping changes small.
 
 ## General Rules
 
-- Read the nearest `AI.md` before editing.
+- Read the nearest `AI.md` before editing if one exists; otherwise use this
+  `AGENTS.md` and the nearest nested `AGENTS.md`.
 - Search for a similar implementation before creating new code.
 - Reuse existing components, hooks, GraphQL documents, utilities, and state
   patterns before adding new ones.
@@ -33,7 +34,8 @@ behavior while keeping changes small.
 
 Before coding:
 
-1. Read the nearest `AI.md`.
+1. Read the nearest `AI.md` if one exists; otherwise use this `AGENTS.md` and
+   the nearest nested `AGENTS.md`.
 2. Search for similar implementations with `rg`.
 3. Confirm local routing, GraphQL, state, and UI patterns.
 4. Reuse nearby code structure before inventing a new one.
