@@ -143,12 +143,11 @@ export const dealToTrs = async ({
   let diffAmount = 0;
   for (const productData of activeProductsData) {
     diffAmount = diffAmount + productData.amount;
-    console.log(taxPercent)
     const taxAmount = fixNum(
       (productData.amount * taxPercent) / (100 + taxPercent),
       8,
     );
-    console.log(taxAmount)
+
     const amount = fixNum(productData.amount - taxAmount, 8);
 
     saleTrDoc.details.push({
@@ -159,7 +158,7 @@ export const dealToTrs = async ({
 
       productId: productData.productId,
       count: productData.quantity,
-      unitPrice: amount / productData.quantity,
+      unitPrice: fixNum(amount / productData.quantity, 4),
     });
   }
 

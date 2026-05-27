@@ -124,7 +124,7 @@ export const orderToTrs = async ({
 
       productId: productData.productId,
       count: productData.count,
-      unitPrice: fixNum(amount / productData.count),
+      unitPrice: fixNum(amount / productData.count, 4),
     });
   }
 
