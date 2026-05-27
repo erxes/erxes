@@ -25,3 +25,18 @@ export const REMOVE_PAYMENT = gql`
     paymentRemove(_ids: $_ids)
   }
 `;
+
+export const INVOICE_SCAN_BARCODE = gql`
+  mutation InvoiceScanBarcode($code: String!) {
+    invoiceScanBarcode(code: $code) {
+      _id
+      invoiceNumber
+      amount
+      currency
+      description
+      status
+      scannedAt
+      createdAt
+    }
+  }
+`;

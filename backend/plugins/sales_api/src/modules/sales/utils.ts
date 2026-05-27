@@ -822,12 +822,12 @@ export const getNewOrder = async ({
 
 export const checkMovePermission = (
   stage: IStageDocument,
-  user: IUserDocument,
+  userId: string,
 ) => {
   if (
     stage.canMoveMemberIds &&
     stage.canMoveMemberIds.length > 0 &&
-    !stage.canMoveMemberIds.includes(user._id)
+    !stage.canMoveMemberIds.includes(userId)
   ) {
     throw new Error('Permission denied');
   }

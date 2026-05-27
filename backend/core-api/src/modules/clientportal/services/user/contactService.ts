@@ -68,8 +68,10 @@ async function handleCustomerUser(
   );
 
   const hashedPassword = await prepareUserPassword(password, models);
+  const { username, ...restDocument } = document;
   const userData = {
-    ...document,
+    ...restDocument,
+    ...(username != null && { username }),
     ...(normalizedEmail && { email: normalizedEmail }),
     clientPortalId,
     ...(hashedPassword && { password: hashedPassword }),
@@ -109,8 +111,10 @@ async function handleCompanyUser(
 
   if (!user) {
     const hashedPassword = await prepareUserPassword(password, models);
+    const { username, ...restDocument } = document;
     user = await models.CPUser.create({
-      ...document,
+      ...restDocument,
+      ...(username != null && { username }),
       clientPortalId,
       ...(hashedPassword && { password: hashedPassword }),
     });

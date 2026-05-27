@@ -54,7 +54,7 @@ export const queries = `
     direction: CURSOR_DIRECTION
     cursorMode: CURSOR_MODE
   ): ExportHistoryList
-  exportHeaders(entityType: String!): [ExportHeader]
+  exportHeaders(entityType: String!, filters: JSON): [ExportHeader]
 `;
 
 export const mutations = `

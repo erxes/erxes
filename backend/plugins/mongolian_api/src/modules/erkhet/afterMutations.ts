@@ -10,6 +10,7 @@ import {
   productCategoryToErkhet,
   productToErkhet,
   sendCardInfo,
+  sendErkhetPost,
   userToErkhet,
 } from './utils';
 
@@ -23,17 +24,39 @@ const allowTypes = {
   'core:company': ['create', 'update', 'delete'],
 };
 
+export const hasErkhetStageConfig = async (models, stageId?: string) => {
+  if (!stageId) {
+    return false;
+  }
+
+  const mainConfig = await models.Configs.getConfigValue('ERKHET', '');
+
+  if (!mainConfig?.apiKey || !mainConfig?.apiSecret || !mainConfig?.apiToken) {
+    return false;
+  }
+
+  const configs = await Promise.all([
+    models.Configs.getConfig('ebarimtConfig', stageId),
+    models.Configs.getConfig('returnEbarimtConfig', stageId),
+    models.Configs.getConfig('stageInMoveConfig', stageId),
+  ]);
+
+  return configs.some(Boolean);
+};
+
 export const afterMutationHandlers = async (subdomain, params) => {
   const { type, action, user } = params;
 
   const models = await generateModels(subdomain);
+  const content = params.object || params.updatedDocument || {};
+  const userId = user?._id || user || params.userId;
 
   const syncLogDoc = {
     type: '',
     contentType: type,
-    contentId: params.object._id,
+    contentId: content._id,
     createdAt: new Date(),
-    createdBy: user._id,
+    createdBy: userId,
     consumeData: params,
     consumeStr: JSON.stringify(params),
   };
@@ -52,10 +75,16 @@ export const afterMutationHandlers = async (subdomain, params) => {
     if (type === 'sales:deal') {
       if (action === 'update') {
         const deal = params.updatedDocument;
-        const oldDeal = params.object;
-        const destinationStageId = deal.stageId || '';
+        const oldDeal = params.object || {};
+        const destinationStageId = deal?.stageId || '';
 
-        if (!(destinationStageId && destinationStageId !== oldDeal.stageId)) {
+        if (
+          !(
+            destinationStageId &&
+            oldDeal?.stageId &&
+            destinationStageId !== oldDeal.stageId
+          )
+        ) {
           return;
         }
 
@@ -80,8 +109,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
         if (Object.keys(returnConfigs).includes(destinationStageId)) {
           syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
           const returnConfig = {
-            ...returnConfigs[destinationStageId],
             ...mainConfig,
+            ...returnConfigs[destinationStageId],
           };
 
           const orderInfos = [
@@ -107,18 +136,12 @@ export const afterMutationHandlers = async (subdomain, params) => {
             orderInfos: JSON.stringify(orderInfos),
           };
 
-          /*await sendRPCMessage(
+          await sendErkhetPost(
             models,
             syncLog,
-            "rpc_queue:erxes-automation-erkhet",
-            {
-              action: "get-response-return-order",
-              isJson: true,
-              isEbarimt: false,
-              payload: JSON.stringify(postData),
-              thirdService: true
-            }
-          );*/
+            'get-response-return-order',
+            postData,
+          );
 
           return;
         }
@@ -127,25 +150,18 @@ export const afterMutationHandlers = async (subdomain, params) => {
         if (Object.keys(moveConfigs).includes(destinationStageId)) {
           syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
           const moveConfig = {
+            ...mainConfig,
             ...moveConfigs[destinationStageId],
-            ...(await getConfig(subdomain, 'ERKHET', {})),
           };
 
           const postData = await getMoveData(subdomain, moveConfig, deal);
 
-          /*const response = await sendRPCMessage(
+          const response = await sendErkhetPost(
             models,
             syncLog,
-            "rpc_queue:erxes-automation-erkhet",
-            {
-              action: "get-response-inv-movement-info",
-              isJson: true,
-              isEbarimt: false,
-              payload: JSON.stringify(postData),
-              thirdService: true
-            }
-          );*/
-          const response: any = {};
+            'get-response-inv-movement-info',
+            postData,
+          );
           if (response.message || response.error) {
             const txt = JSON.stringify({
               message: response.message,
@@ -165,8 +181,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
         if (Object.keys(configs).includes(destinationStageId)) {
           syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
           const config = {
+            ...mainConfig,
             ...configs[destinationStageId],
-            ...(await getConfig(subdomain, 'ERKHET', {})),
           };
 
           const pipeline = await sendTRPCMessage({
@@ -186,19 +202,12 @@ export const afterMutationHandlers = async (subdomain, params) => {
             pipeline.paymentTypes,
           );
 
-          /*const response = await sendRPCMessage(
+          const response = await sendErkhetPost(
             models,
             syncLog,
-            "rpc_queue:erxes-automation-erkhet",
-            {
-              action: "get-response-send-order-info",
-              isEbarimt: false,
-              payload: JSON.stringify(postData),
-              isJson: true,
-              thirdService: true
-            }
-          );*/
-          const response: any = {};
+            'get-response-send-order-info',
+            postData,
+          );
           if (response && (response.message || response.error)) {
             const txt = JSON.stringify({
               message: response.message,
@@ -217,7 +226,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
       if (action === 'create') {
         const deal = params.object;
-        if (!deal.productsData?.filter((pd) => pd.tickUsed).length) {
+        if (!deal?.productsData?.filter((pd) => pd.tickUsed).length) {
           return;
         }
 
@@ -240,8 +249,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
         if (Object.keys(configs).includes(destinationStageId)) {
           syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
           const config = {
+            ...mainConfig,
             ...configs[destinationStageId],
-            ...(await getConfig(subdomain, 'ERKHET', {})),
           };
 
           const cpipeline = await sendTRPCMessage({
@@ -260,19 +269,12 @@ export const afterMutationHandlers = async (subdomain, params) => {
             cpipeline.paymentTypes,
           );
 
-          /*const cresponse = await sendRPCMessage(
+          const cresponse = await sendErkhetPost(
             models,
             syncLog,
-            "rpc_queue:erxes-automation-erkhet",
-            {
-              action: "get-response-send-order-info",
-              isEbarimt: false,
-              payload: JSON.stringify(postData),
-              isJson: true,
-              thirdService: true
-            }
-          );*/
-          const cresponse: any = {};
+            'get-response-send-order-info',
+            postData,
+          );
           if (cresponse && (cresponse.message || cresponse.error)) {
             const txt = JSON.stringify({
               message: cresponse.message,
@@ -322,8 +324,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
         if (Object.keys(incomeConfigs).includes(destinationStageId)) {
           syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
           const incomeConfig = {
-            ...incomeConfigs[destinationStageId],
             ...mainConfig,
+            ...incomeConfigs[destinationStageId],
           };
 
           const postData = await getIncomeData(
@@ -332,19 +334,12 @@ export const afterMutationHandlers = async (subdomain, params) => {
             purchase,
           );
 
-          /*const response = await sendRPCMessage(
+          const response = await sendErkhetPost(
             models,
             syncLog,
-            "rpc_queue:erxes-automation-erkhet",
-            {
-              action: "get-response-inv-income-info",
-              isJson: true,
-              isEbarimt: false,
-              payload: JSON.stringify(postData),
-              thirdService: true
-            }
-          );*/
-          const response: any = {};
+            'get-response-inv-income-info',
+            postData,
+          );
           if (response.message || response.error) {
             const txt = JSON.stringify({
               message: response.message,
@@ -376,7 +371,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
       if (action === 'create') {
-        productToErkhet(
+        await productToErkhet(
           subdomain,
           models,
           mainConfig,
@@ -387,7 +382,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         return;
       }
       if (action === 'update') {
-        productToErkhet(
+        await productToErkhet(
           subdomain,
           models,
           mainConfig,
@@ -398,7 +393,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         return;
       }
       if (action === 'delete') {
-        productToErkhet(
+        await productToErkhet(
           subdomain,
           models,
           mainConfig,
@@ -423,7 +418,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
       if (action === 'create') {
-        productCategoryToErkhet(
+        await productCategoryToErkhet(
           subdomain,
           models,
           mainConfig,
@@ -435,7 +430,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       }
 
       if (action === 'update') {
-        productCategoryToErkhet(
+        await productCategoryToErkhet(
           subdomain,
           models,
           mainConfig,
@@ -447,7 +442,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
       }
 
       if (action === 'delete') {
-        productCategoryToErkhet(
+        await productCategoryToErkhet(
           subdomain,
           models,
           mainConfig,
@@ -471,17 +466,17 @@ export const afterMutationHandlers = async (subdomain, params) => {
 
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
       if (action === 'create') {
-        customerToErkhet(models, mainConfig, syncLog, params, 'create');
+        await customerToErkhet(models, mainConfig, syncLog, params, 'create');
         return;
       }
 
       if (action === 'update') {
-        customerToErkhet(models, mainConfig, syncLog, params, 'update');
+        await customerToErkhet(models, mainConfig, syncLog, params, 'update');
         return;
       }
 
       if (action === 'delete') {
-        customerToErkhet(models, mainConfig, syncLog, params, 'delete');
+        await customerToErkhet(models, mainConfig, syncLog, params, 'delete');
         return;
       }
     }
@@ -497,17 +492,17 @@ export const afterMutationHandlers = async (subdomain, params) => {
       }
       syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
       if (action === 'create') {
-        companyToErkhet(models, mainConfig, syncLog, params, 'create');
+        await companyToErkhet(models, mainConfig, syncLog, params, 'create');
         return;
       }
 
       if (action === 'update') {
-        companyToErkhet(models, mainConfig, syncLog, params, 'update');
+        await companyToErkhet(models, mainConfig, syncLog, params, 'update');
         return;
       }
 
       if (action === 'delete') {
-        companyToErkhet(models, mainConfig, syncLog, params, 'delete');
+        await companyToErkhet(models, mainConfig, syncLog, params, 'delete');
         return;
       }
     }
@@ -535,15 +530,19 @@ export const afterMutationHandlers = async (subdomain, params) => {
         }
 
         syncLog = await models.SyncLogs.syncLogsAdd(syncLogDoc);
-        userToErkhet(models, mainConfig, syncLog, params, 'create');
+        await userToErkhet(models, mainConfig, syncLog, params, 'create');
         return;
       }
     }
   } catch (e) {
-    await models.SyncLogs.updateOne(
-      { _id: syncLog._id },
-      { $set: { error: e.message } },
-    );
+    if (syncLog?._id) {
+      await models.SyncLogs.updateOne(
+        { _id: syncLog._id },
+        { $set: { error: e.message } },
+      );
+    }
+
+    throw e;
   }
 };
 

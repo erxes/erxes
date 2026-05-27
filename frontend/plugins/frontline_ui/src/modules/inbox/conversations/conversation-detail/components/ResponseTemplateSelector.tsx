@@ -177,7 +177,7 @@ export const ResponseTemplateSelector: React.FC<
                         'hover:border-primary/20 hover:bg-accent/50',
                         {
                           'flex-row items-center p-2.5': viewMode === 'list',
-                          'flex-col items-start p-3': viewMode === 'grid',
+                          'flex-col items-start p-3 overflow-hidden w-full': viewMode === 'grid',
                         },
                       )}
                     >
@@ -201,6 +201,7 @@ export const ResponseTemplateSelector: React.FC<
                       <div
                         className={cn('min-w-0 flex-1', {
                           'basis-1/3': viewMode === 'list',
+                          'w-full overflow-hidden': viewMode === 'grid',
                         })}
                       >
                         <div className="font-semibold text-sm truncate leading-tight">

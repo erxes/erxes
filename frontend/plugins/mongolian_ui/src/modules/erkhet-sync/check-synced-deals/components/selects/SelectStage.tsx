@@ -15,10 +15,13 @@ import {
   Form,
   useFilterContext,
   useQueryState,
-  SelectTriggerVariant,
 } from 'erxes-ui';
 
-import { SelectContent, SelectTrigger } from './SelectShared';
+import {
+  SelectContent,
+  SelectTrigger,
+  SelectTriggerVariant,
+} from './SelectShared';
 import { useGetSalesStages } from '../../hooks/SelectStage';
 import { IconLabel } from '@tabler/icons-react';
 

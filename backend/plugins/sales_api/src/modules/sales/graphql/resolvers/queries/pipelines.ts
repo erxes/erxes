@@ -91,7 +91,7 @@ export const pipelineQueries: Record<string, Resolver> = {
     const { boardId, isAll } = params;
 
     const query: any =
-      user.isOwner || isAll
+      user?.isOwner || isAll
         ? {}
         : {
             status: { $ne: 'archived' },
@@ -102,8 +102,8 @@ export const pipelineQueries: Record<string, Resolver> = {
                   { visibility: 'private' },
                   {
                     $or: [
-                      { memberIds: { $in: [user._id] } },
-                      { userId: user._id },
+                      { memberIds: { $in: [user?._id] } },
+                      { userId: user?._id },
                     ],
                   },
                 ],
@@ -111,7 +111,7 @@ export const pipelineQueries: Record<string, Resolver> = {
             ],
           };
 
-    if (!user.isOwner && !isAll) {
+    if (user?._id && !user.isOwner && !isAll) {
       const userDetail = await sendTRPCMessage({
         subdomain,
 

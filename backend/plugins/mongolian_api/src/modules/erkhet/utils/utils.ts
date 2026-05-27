@@ -2,6 +2,212 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import fetch from 'node-fetch';
 import { generateModels } from '~/connectionResolvers';
 
+const getErkhetUrl = () => {
+  const url = process.env.ERKHET_URL;
+
+  if (!url) {
+    throw new Error('ERKHET_URL env is not configured');
+  }
+
+  return url.replace(/\/+$/, '');
+};
+
+const getErkhetMessageUrl = () => {
+  const url = getErkhetUrl();
+
+  if (url.endsWith('/api/message')) {
+    return `${url}/`;
+  }
+
+  if (url.endsWith('/api/message/')) {
+    return url;
+  }
+
+  return `${url}/api/message/`;
+};
+
+const parseErkhetResponse = async (response) => {
+  const text = await response.text();
+
+  if (!text) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch (_e) {
+    // text is not valid JSON, so return it as-is
+    return text;
+  }
+};
+
+const getErkhetErrorMessage = (response, responseData) =>
+  responseData?.message ||
+  responseData?.error ||
+  responseData?.statusText ||
+  response.statusText ||
+  `Erkhet request failed with status ${response.status}`;
+
+const buildErkhetFormBody = (body: Record<string, any>) => {
+  const formBody = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(body)) {
+    if (value === undefined || value === null) {
+      continue;
+    }
+
+    formBody.set(
+      key,
+      typeof value === 'string' ? value : JSON.stringify(value),
+    );
+  }
+
+  return formBody;
+};
+
+const stripHtml = (value = '') =>
+  value
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const extractDjangoError = (responseStr = '') => {
+  const title = responseStr.match(/<title>([\s\S]*?)<\/title>/i)?.[1];
+  const exceptionValue = responseStr.match(
+    /<pre class="exception_value">([\s\S]*?)<\/pre>/i,
+  )?.[1];
+  const exceptionType = responseStr.match(
+    /<th>Exception Type:<\/th>\s*<td>([\s\S]*?)<\/td>/i,
+  )?.[1];
+  const exceptionLocation = responseStr.match(
+    /<th>Exception Location:<\/th>\s*<td>([\s\S]*?)<\/td>/i,
+  )?.[1];
+
+  return {
+    title: stripHtml(title),
+    exceptionType: stripHtml(exceptionType),
+    exceptionValue: stripHtml(exceptionValue),
+    exceptionLocation: stripHtml(exceptionLocation),
+  };
+};
+
+export const sendErkhetPost = async (models, syncLog, action, payload) => {
+  const body = {
+    action,
+    isEbarimt: false,
+    payload: JSON.stringify(payload),
+    isJson: true,
+    thirdService: true,
+  };
+  const sendData = { action, payload: body };
+  const requestUrl = getErkhetMessageUrl();
+
+  await models.SyncLogs.updateOne(
+    { _id: syncLog._id },
+    {
+      $set: {
+        sendData,
+        sendStr: JSON.stringify(sendData),
+        requestUrl,
+      },
+    },
+  );
+
+  const response = await fetch(requestUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: buildErkhetFormBody(body),
+  });
+
+  const responseData = await parseErkhetResponse(response);
+  const responseStr =
+    typeof responseData === 'string'
+      ? responseData
+      : JSON.stringify(responseData);
+
+  if (!response.ok || responseData?.error) {
+    console.error('[syncerkhet:sendPost:error]', {
+      action,
+      requestUrl,
+      status: response.status,
+      statusText: response.statusText,
+      djangoError:
+        typeof responseData === 'string'
+          ? extractDjangoError(responseStr)
+          : undefined,
+      requestBody: body,
+      payloadData: payload,
+      response:
+        responseStr.length > 5000
+          ? `${responseStr.slice(0, 5000)}...`
+          : responseStr,
+    });
+  } else {
+    console.log('[syncerkhet:sendPost:success]', {
+      action,
+      requestUrl,
+      status: response.status,
+      response: responseStr,
+    });
+  }
+
+  const error =
+    !response.ok || responseData?.error
+      ? getErkhetErrorMessage(response, responseData)
+      : undefined;
+
+  await models.SyncLogs.updateOne(
+    { _id: syncLog._id },
+    {
+      $set: {
+        responseData,
+        responseStr,
+        ...(error ? { error } : {}),
+      },
+    },
+  );
+
+  if (error) {
+    return {
+      ...(typeof responseData === 'object'
+        ? responseData
+        : { message: responseData }),
+      error,
+      status: response.status,
+      requestUrl,
+    };
+  }
+
+  return responseData;
+};
+
+export const sendErkhetGet = async (
+  path: string,
+  params: Record<string, string>,
+) => {
+  const url = new URL(`${getErkhetUrl()}/${path.replace(/^\/+/, '')}`);
+
+  for (const [key, value] of Object.entries(params)) {
+    url.searchParams.set(key, value);
+  }
+
+  const response = await fetch(url.toString());
+  const responseData = await parseErkhetResponse(response);
+
+  if (!response.ok) {
+    return {
+      ...(typeof responseData === 'object'
+        ? responseData
+        : { message: responseData }),
+      error: getErkhetErrorMessage(response, responseData),
+      status: response.status,
+      requestUrl: url.toString(),
+    };
+  }
+
+  return responseData;
+};
+
 // Send data to Erkhet plugin
 export const toErkhet = async (models, syncLog, config, sendData, action) => {
   const postData = {
@@ -11,11 +217,7 @@ export const toErkhet = async (models, syncLog, config, sendData, action) => {
     orderInfos: JSON.stringify(sendData),
   };
 
-  /*sendRPCMessage(models, syncLog, "rpc_queue:erxes-automation-erkhet", {
-    action,
-    payload: JSON.stringify(postData),
-    thirdService: true
-  });*/
+  return sendErkhetPost(models, syncLog, action, postData);
 };
 
 export const getPureDate = (date: Date) => {
@@ -134,8 +336,8 @@ export const getRemConfig = async (
         subdomain,
         pluginName: 'sales',
         method: 'query',
-        module: 'sales',
-        action: 'pipeline.findOne',
+        module: 'pipeline',
+        action: 'findOne',
         input: { stageId },
         defaultValue: {},
       });

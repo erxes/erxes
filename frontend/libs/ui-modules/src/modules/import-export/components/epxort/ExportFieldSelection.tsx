@@ -51,6 +51,7 @@ export function ExportFieldSelection({
   onConfirm,
   recordCount,
   entityDisplayName,
+  filters,
 }: TExportFieldSelectionProps) {
   const {
     selectedFields,
@@ -61,7 +62,7 @@ export function ExportFieldSelection({
     handleSelectAll,
     handleSelectDefaults,
     handleToggleField,
-  } = useExportFieldSelection({ entityType, onConfirm, onOpenChange });
+  } = useExportFieldSelection({ entityType, filters, open, onConfirm, onOpenChange });
 
   const getEntityName = () => {
     if (entityDisplayName) return entityDisplayName;

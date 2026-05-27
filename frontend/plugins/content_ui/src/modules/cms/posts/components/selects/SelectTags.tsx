@@ -2,7 +2,9 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import {
@@ -43,6 +45,8 @@ interface SelectTagsContextType {
   loading?: boolean;
 }
 
+const TAGS_PER_PAGE = 100;
+
 const SelectTagsContext = createContext<SelectTagsContextType | null>(null);
 
 const useSelectTagsContext = () => {
@@ -69,13 +73,75 @@ export const SelectTagsProvider = ({
   clientPortalId?: string;
 }) => {
   const language = useAtomValue(cmsLanguageAtom);
-  const { data, loading } = useQuery(POST_CMS_TAGS, {
-    variables: {
+  const fetchedCursorsRef = useRef<Set<string>>(new Set());
+  const fetchingMoreRef = useRef(false);
+
+  const variables = useMemo(
+    () => ({
       clientPortalId,
+      limit: TAGS_PER_PAGE,
       language,
-    },
+    }),
+    [clientPortalId, language],
+  );
+
+  const { data, loading, fetchMore } = useQuery(POST_CMS_TAGS, {
+    variables,
     skip: clientPortalId == null,
   });
+
+  const pageInfo = data?.cmsTags?.pageInfo;
+
+  useEffect(() => {
+    fetchedCursorsRef.current.clear();
+  }, [variables]);
+
+  const fetchRemainingTags = useCallback(async () => {
+    const endCursor = pageInfo?.endCursor;
+
+    if (
+      !pageInfo?.hasNextPage ||
+      !endCursor ||
+      fetchingMoreRef.current ||
+      fetchedCursorsRef.current.has(endCursor)
+    ) {
+      return;
+    }
+
+    fetchingMoreRef.current = true;
+    fetchedCursorsRef.current.add(endCursor);
+
+    try {
+      await fetchMore({
+        variables: {
+          ...variables,
+          cursor: endCursor,
+        },
+        updateQuery: (prev, { fetchMoreResult }) => {
+          if (!fetchMoreResult?.cmsTags) {
+            return prev;
+          }
+
+          return {
+            ...prev,
+            cmsTags: {
+              ...fetchMoreResult.cmsTags,
+              tags: [
+                ...(prev.cmsTags?.tags || []),
+                ...(fetchMoreResult.cmsTags.tags || []),
+              ],
+            },
+          };
+        },
+      });
+    } finally {
+      fetchingMoreRef.current = false;
+    }
+  }, [fetchMore, pageInfo?.endCursor, pageInfo?.hasNextPage, variables]);
+
+  useEffect(() => {
+    fetchRemainingTags();
+  }, [fetchRemainingTags]);
 
   const tags = useMemo(() => data?.cmsTags?.tags || [], [data?.cmsTags?.tags]);
 
@@ -237,12 +303,10 @@ export const SelectTagsFilterView = ({
 };
 
 export const SelectTagsFilterBar = ({
-  iconOnly,
   onValueChange,
   mode = 'single',
   clientPortalId,
 }: {
-  iconOnly?: boolean;
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
   clientPortalId?: string;

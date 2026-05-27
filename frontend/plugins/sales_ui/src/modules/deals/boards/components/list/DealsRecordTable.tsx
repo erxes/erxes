@@ -3,6 +3,7 @@ import { RecordTable, useQueryState } from 'erxes-ui';
 import { DealsCommandBar } from '@/deals/boards/components/list/DealsListCommandBar';
 import { NoStagesWarning } from '@/deals/components/common/NoStagesWarning';
 import { useDeals } from '@/deals/cards/hooks/useDeals';
+import { getDealsQueryVariables } from '@/deals/utils/queryVariables';
 import { useSearchParams } from 'react-router-dom';
 import { useDealsColumns } from '@/deals/boards/components/list/DealsColumn';
 import { useStages } from '@/deals/stage/hooks/useStages';
@@ -19,33 +20,8 @@ export const DealsRecordTable = () => {
     skip: !pipelineId,
   });
 
-  const ignoredKeys = [
-    'boardId',
-    'pipelineId',
-    'salesItemId',
-    'stageId',
-    'archivedOnly',
-    'tab',
-  ];
-
-  const queryVariables: Record<string, any> = {};
-
-  for (const [key, value] of searchParams.entries()) {
-    if (ignoredKeys.includes(key)) continue;
-
-    try {
-      const parsed = JSON.parse(value);
-      queryVariables[key] = parsed;
-    } catch {
-      queryVariables[key] = value;
-    }
-  }
-
   const archivedOnly = searchParams.get('archivedOnly') === 'true';
-
-  if (archivedOnly) {
-    queryVariables.noSkipArchive = true;
-  }
+  const queryVariables = getDealsQueryVariables(searchParams);
 
   const boardId = searchParams.get('boardId');
   const stageId = searchParams.get('stageId');

@@ -26,14 +26,12 @@ const IntegrationsConfigSettings = () => {
                 <PageHeaderStart>
                   <Button variant={'ghost'} className="font-semibold">
                     <IconMailCog className="w-4 h-4 text-accent-foreground" />
-                    {/* Added fallback text to prevent empty label if key is missing */}
                     {t('integrations.config.header', 'Integrations config')}
                   </Button>
                 </PageHeaderStart>
               </PageHeader>
 
-              {/* Standardized padding to p-6 for visual consistency across settings pages */}
-              <PageContainer className="flex-1 overflow-y-auto p-6">
+              <PageContainer className="flex-1 py-3 overflow-y-auto hide-scroll styled-scroll">
                 <Outlet />
               </PageContainer>
             </div>

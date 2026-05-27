@@ -4,14 +4,7 @@ import {
   AccountKind,
   AccountStatus,
   JournalEnum,
-  BankEnum,
 } from '../types/Account';
-const extraSchema = z
-  .object({
-    bank: z.nativeEnum(BankEnum).optional(),
-    bankAccount: z.string().min(1).optional(),
-  })
-  .optional();
 
 export const accountSchema = z
   .object({
@@ -27,7 +20,10 @@ export const accountSchema = z
     isTemp: z.boolean(),
     isOutBalance: z.boolean(),
     status: z.nativeEnum(AccountStatus).optional(),
-    extra: extraSchema,
+    extra: z.object({
+      bank: z.string().optional(),
+      bankAccount: z.string().optional(),
+    }).nullish(),
   })
   .superRefine((data, ctx) => {
     if (data.journal === JournalEnum.BANK) {

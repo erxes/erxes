@@ -2,9 +2,9 @@ import {
   consumeInventory,
   consumeInventoryCategory,
   getConfig,
+  sendErkhetGet,
 } from '@/erkhet/utils';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import fetch from 'node-fetch';
 import { IContext } from '~/connectionResolvers';
 
 const inventoryMutations = {
@@ -49,21 +49,15 @@ const inventoryMutations = {
     }
 
     const productCodes = products.map((p) => p.code) || [];
-    const response = await fetch(
-      process.env.ERKHET_URL +
-        '/get-api/?' +
-        new URLSearchParams({
-          kind: 'inventory',
-          api_key: config.apiKey,
-          api_secret: config.apiSecret,
-          token: config.apiToken,
-          is_gen_fk: 'true',
-        }),
-    );
+    const responseData = await sendErkhetGet('/get-api/', {
+      kind: 'inventory',
+      api_key: config.apiKey,
+      api_secret: config.apiSecret,
+      token: config.apiToken,
+      is_gen_fk: 'true',
+    });
 
-    const responseData = await response.json();
-
-    if (!response.ok && Object.keys(responseData).length === 0) {
+    if (Object.keys(responseData).length === 0) {
       throw new Error('Erkhet data not found.');
     }
 
@@ -159,21 +153,15 @@ const inventoryMutations = {
       throw new Error('No category codes found.');
     }
 
-    const response = await fetch(
-      process.env.ERKHET_URL +
-        '/get-api/?' +
-        new URLSearchParams({
-          kind: 'inv_category',
-          api_key: config.apiKey,
-          api_secret: config.apiSecret,
-          token: config.apiToken,
-          is_gen_fk: 'true',
-        }),
-    );
+    const responseData = await sendErkhetGet('/get-api/', {
+      kind: 'inv_category',
+      api_key: config.apiKey,
+      api_secret: config.apiSecret,
+      token: config.apiToken,
+      is_gen_fk: 'true',
+    });
 
-    const responseData = await response.json();
-
-    if (!response || Object.keys(responseData).length === 0) {
+    if (Object.keys(responseData).length === 0) {
       throw new Error('Erkhet data not found.');
     }
     const result = responseData.map((r) => r.fields);
@@ -197,7 +185,7 @@ const inventoryMutations = {
           pluginName: 'core',
           module: 'productCategories',
           action: 'findOne',
-          input: { code },
+          input: { query: { code } },
           method: 'query',
           defaultValue: {},
         });

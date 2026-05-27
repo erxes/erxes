@@ -6,17 +6,13 @@ export interface ErkhetConfig {
   pipelineId: string;
   stageId: string;
   userEmail?: string;
-  chooseResponseField: string;
+  responseField?: string;
   hasVat: boolean;
-  hasCityTax: boolean;
-  anotherRulesOfProductsOnCitytax: string;
-  anotherRulesOfProductsOnVat: string;
-  defaultPay: string;
-  нэхэмжлэх: string;
-  хаанБанкданс: string;
-  голомтБанкданс: string;
-  barter: string;
-  paymentTypes?: Record<string, string>;
+  hasCitytax: boolean;
+  reverseVatRules?: string | string[];
+  reverseCtaxRules?: string | string[];
+  defaultPay?: string;
+  [paymentType: string]: any;
 }
 
 export type TErkhetConfig = z.infer<typeof addStageInErkhetConfigSchema>;

@@ -304,7 +304,7 @@ export const MessageInput = ({
           isInternalNote && 'bg-warning/20',
         )}
       >
-        {showSuggestions && (
+        {showSuggestions && !isInternalNote && (
           <ResponseTemplateDropdown
             suggestions={suggestions}
             selectedIndex={selectedIndex}

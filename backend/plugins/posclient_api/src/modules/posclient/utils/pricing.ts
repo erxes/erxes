@@ -36,7 +36,7 @@ export const checkPricing = async (
     console.log(e.message);
   }
 
-  let bonusProductsToAdd: any = {};
+  const bonusProductsToAdd: any = {};
 
   for (const item of doc.items || []) {
     const discount = pricing[item._id];

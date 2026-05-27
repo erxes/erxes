@@ -26,7 +26,7 @@ export const ScoreRecordTable = () => {
     <>
       <RecordTable.Provider
         columns={columns}
-        data={(list || []).filter((r) => !!r.owner)}
+        data={list || []}
         className="m-3 relative"
         stickyColumns={['more', 'ownerName']}
       >
