@@ -66,8 +66,220 @@ export const getAvailableOAuthScopesForUser = async ({
   return [...scopeMap.values()];
 };
 
+/**
+ * Fast indexable hash for server-issued opaque tokens
+ * (refresh tokens, device codes — generated via `createRandomToken(48)`, i.e.
+ * 48 bytes from `crypto.randomBytes` ≈ 384 bits of entropy).
+ *
+ * DO NOT use this on user-supplied passwords or `client_secret` values — those
+ * must go through `hashClientSecret`/`verifyClientSecret` (slow KDF with salt).
+ *
+ * `userCodeHash` (8 chars from a 32-symbol alphabet ≈ 40 bits of entropy from
+ * `createUserCode`) also lands in this hash, but its safety against offline
+ * brute force does NOT come from input entropy — it comes from operational
+ * controls: short TTL on `OAuthDeviceCodes.expiresAt`, the `failedAttempts`
+ * lockout on the `/oauth/device/verify` route, and the row being deleted/
+ * `denied` once the device flow completes. Treat the indexable SHA-256 here as
+ * a lookup token, not a password hash. If `OAuthDeviceCodes` is ever exposed
+ * to bulk read access, switch user-code hashing to the slow KDF used by
+ * `hashClientSecret` (or raise `createUserCode` entropy to ≥128 bits) before
+ * relying on hash strength alone.
+ */
 export const hashToken = (token: string) => {
   return crypto.createHash('sha256').update(token).digest('hex');
+};
+
+// ---------------------------------------------------------------------------
+// Password hashing for OAuth `client_secret` (CWE-916 / js/insufficient-password-hash).
+//
+// `client_secret` is a password-equivalent credential under RFC 6749 §2.3.1 and
+// must be hashed with a slow, salted KDF so a leaked `secretHash` cannot be
+// brute-forced offline. We use Node's built-in `crypto.scrypt` (no extra
+// dependency) with PHC-style encoding `scrypt$N=...,r=...,p=...$<salt>$<hash>`.
+// `verifyClientSecret` parses the embedded N/r/p so any future tightening of
+// `SCRYPT_N` etc. remains backward-compatible with hashes already stored under
+// the prior parameters.
+// ---------------------------------------------------------------------------
+
+const scryptAsync = (
+  password: crypto.BinaryLike,
+  salt: crypto.BinaryLike,
+  keylen: number,
+  options: crypto.ScryptOptions,
+): Promise<Buffer> =>
+  new Promise((resolve, reject) =>
+    crypto.scrypt(password, salt, keylen, options, (err, derived) =>
+      err ? reject(err) : resolve(derived as Buffer),
+    ),
+  );
+
+// Tuning these is fine, but values must stay inside the bounds enforced by
+// `parseScryptParams` below: N must be a power of 2 ≥ 2, r ∈ [1,32], p ∈ [1,16],
+// and 128·N·r·p must fit under SCRYPT_MAXMEM_CAP (1 GiB). Anything outside that
+// envelope makes previously-stored hashes unverifiable (verify will return
+// false because the encoded params won't pass parseScryptParams).
+const SCRYPT_N = 16384;
+const SCRYPT_R = 8;
+const SCRYPT_P = 1;
+const SCRYPT_KEY_LEN = 64;
+const SCRYPT_SALT_LEN = 16;
+
+// Node's default scrypt maxmem is 32 MiB and the runtime rejects calls when
+// roughly `128 * N * r * p > maxmem`. We size maxmem from the actual params so
+// future tuning of N or r doesn't trip ERR_CRYPTO_INVALID_SCRYPT_PARAMS, but we
+// also cap maxmem to prevent a malformed stored hash from requesting absurd
+// memory. 1 GiB is well above any sane production parameter set.
+const SCRYPT_MAXMEM_CAP = 1024 * 1024 * 1024;
+
+const scryptMaxmem = (N: number, r: number, p: number): number =>
+  Math.min(SCRYPT_MAXMEM_CAP, Math.max(32 * 1024 * 1024, 256 * N * r * p));
+
+const PHC_PARAMS_RE = /^N=(\d+),r=(\d+),p=(\d+)$/;
+
+const parseScryptParams = (
+  paramStr: string,
+): { N: number; r: number; p: number } | null => {
+  const m = PHC_PARAMS_RE.exec(paramStr);
+  if (!m) return null;
+  const N = Number(m[1]);
+  const r = Number(m[2]);
+  const p = Number(m[3]);
+  // N must be a power of 2 ≥ 2 (scrypt cost factor); r and p kept in sane
+  // bounds so a malformed stored hash can't request gigabytes of memory.
+  if (!Number.isInteger(N) || N < 2 || (N & (N - 1)) !== 0) return null;
+  if (!Number.isInteger(r) || r < 1 || r > 32) return null;
+  if (!Number.isInteger(p) || p < 1 || p > 16) return null;
+  if (128 * N * r * p > SCRYPT_MAXMEM_CAP) return null;
+  return { N, r, p };
+};
+
+export const hashClientSecret = async (secret: string): Promise<string> => {
+  if (typeof secret !== 'string' || secret.length === 0) {
+    throw new Error('client_secret must be a non-empty string');
+  }
+  const N = SCRYPT_N;
+  const r = SCRYPT_R;
+  const p = SCRYPT_P;
+  const salt = crypto.randomBytes(SCRYPT_SALT_LEN);
+  // Inputs here are all server-controlled (params from constants, salt from
+  // randomBytes), so a scrypt failure means the deployment is misconfigured —
+  // re-throw with a clearer message so callers (route handlers) don't surface
+  // raw ERR_CRYPTO_INVALID_SCRYPT_PARAMS to the client.
+  let derived: Buffer;
+  try {
+    derived = await scryptAsync(secret, salt, SCRYPT_KEY_LEN, {
+      N,
+      r,
+      p,
+      maxmem: scryptMaxmem(N, r, p),
+    });
+  } catch (e) {
+    const reason = e instanceof Error ? e.message : 'unknown';
+    throw new Error(`Failed to hash client_secret with scrypt: ${reason}`);
+  }
+  return [
+    'scrypt',
+    `N=${N},r=${r},p=${p}`,
+    salt.toString('base64'),
+    derived.toString('base64'),
+  ].join('$');
+};
+
+// Constant-time decoy salt used to mask the timing difference between a
+// well-formed auth attempt (runs scrypt) and a malformed/empty-input attempt
+// (would otherwise return instantly). The decoy must satisfy the same length
+// invariants as a real stored salt (`SCRYPT_SALT_LEN` bytes) so scrypt accepts
+// it. It's generated once at module load — its value never needs to be secret;
+// it only needs to be stable so the decoy CPU cost matches a real verify.
+const SCRYPT_DECOY_SALT = crypto.randomBytes(SCRYPT_SALT_LEN);
+
+interface ParsedStoredHash {
+  params: { N: number; r: number; p: number };
+  salt: Buffer;
+  expected: Buffer;
+}
+
+// Decode a PHC-encoded `scrypt$N=...,r=...,p=...$<salt>$<hash>` stored hash.
+// Returns null on any malformedness so the caller can pick the constant-time
+// decoy path instead of returning false early (which would leak via timing).
+//
+// Defensive checks here mirror the structural guarantees `hashClientSecret`
+// emits — canonical salt = 16 raw bytes, derived key = 64 raw bytes — so a
+// corrupted `secretHash` row can never drive an oversized Buffer.from
+// allocation, an off-spec scrypt `keylen`, or out-of-bounds N/r/p.
+const parseStoredHash = (storedHash: unknown): ParsedStoredHash | null => {
+  if (typeof storedHash !== 'string') return null;
+  const parts = storedHash.split('$');
+  if (parts.length !== 4) return null;
+  if (parts[0] !== 'scrypt') return null;
+  // Reject pathologically large base64 payloads BEFORE decoding. Canonical
+  // sizes are 16 raw bytes (≤24 base64 chars) for salt and 64 raw bytes
+  // (≤88 base64 chars) for the derived key — anything significantly larger
+  // is malformed.
+  if (parts[2].length > 32) return null;
+  if (parts[3].length > 128) return null;
+  const params = parseScryptParams(parts[1]);
+  if (params === null) return null;
+  const salt = Buffer.from(parts[2], 'base64');
+  if (salt.length !== SCRYPT_SALT_LEN) return null;
+  const expected = Buffer.from(parts[3], 'base64');
+  if (expected.length !== SCRYPT_KEY_LEN) return null;
+  return { params, salt, expected };
+};
+
+export const verifyClientSecret = async (
+  secret: string,
+  storedHash: string,
+): Promise<boolean> => {
+  // Timing-uniform across all auth-fail paths (Kimi MEDIUM, alert #1188).
+  // Any early `return false` would leak — via response latency — whether
+  // `validateClientSecret`'s upstream guards short-circuited (empty/missing
+  // secret) vs. a real scrypt mismatch. Even though `validateClientSecret`
+  // already rejects falsy secrets and the OAuth token routes are rate-limited
+  // per-IP, `verifyClientSecret` itself must stay timing-equivalent as
+  // defense-in-depth: a future caller wiring this up without those upstream
+  // guards must not gain a fast/slow oracle on input validity.
+  const secretValid = typeof secret === 'string' && secret.length > 0;
+  const parsed = parseStoredHash(storedHash);
+  const inputValid = secretValid && parsed !== null;
+
+  // Pick scrypt params + salt + keylen for the decoy path so it consumes
+  // comparable CPU to a real verify. The decoy salt is a stable random buffer
+  // of canonical length; the params fall back to the current defaults.
+  const params = parsed?.params ?? { N: SCRYPT_N, r: SCRYPT_R, p: SCRYPT_P };
+  const salt = parsed?.salt ?? SCRYPT_DECOY_SALT;
+  const keylen = parsed?.expected.length ?? SCRYPT_KEY_LEN;
+  // Coerce the secret to a string for the decoy path — scrypt accepts an empty
+  // buffer, so this is safe even when `secret` was non-string/empty.
+  const secretInput = typeof secret === 'string' ? secret : '';
+
+  // Always run scrypt, even on the invalid-input path, so timing is uniform.
+  // Treat any scrypt failure (memory pressure,
+  // ERR_CRYPTO_INVALID_SCRYPT_PARAMS from a stored hash that slipped past
+  // parseScryptParams, etc.) as a verification failure rather than letting the
+  // rejection propagate to the route handler — callers expect a boolean answer,
+  // and an unverifiable hash is the auth-fail outcome regardless of why scrypt
+  // couldn't run.
+  let derived: Buffer;
+  try {
+    derived = await scryptAsync(secretInput, salt, keylen, {
+      N: params.N,
+      r: params.r,
+      p: params.p,
+      maxmem: scryptMaxmem(params.N, params.r, params.p),
+    });
+  } catch {
+    return false;
+  }
+
+  if (inputValid && parsed !== null) {
+    return crypto.timingSafeEqual(derived, parsed.expected);
+  }
+
+  // Decoy comparison against a same-length zero buffer to keep the
+  // `timingSafeEqual` cost identical to a real verify.
+  crypto.timingSafeEqual(derived, Buffer.alloc(derived.length));
+  return false;
 };
 
 export const createRandomToken = (bytes = 32) => {
@@ -111,10 +323,10 @@ export const getOAuthClientApp = async (models: IModels, clientId: string) => {
   return oauthClientApp;
 };
 
-export const validateClientSecret = (
+export const validateClientSecret = async (
   oauthClientApp: { type: string; secretHash?: string },
   clientSecret?: string,
-): void => {
+): Promise<void> => {
   if (oauthClientApp.type !== 'confidential') {
     return;
   }
@@ -129,13 +341,8 @@ export const validateClientSecret = (
     throw new ClientAuthError('Client secret is not configured');
   }
 
-  const computed = Buffer.from(hashToken(clientSecret), 'hex');
-  const stored = Buffer.from(oauthClientApp.secretHash, 'hex');
-
-  if (
-    computed.length !== stored.length ||
-    !crypto.timingSafeEqual(computed, stored)
-  ) {
+  const ok = await verifyClientSecret(clientSecret, oauthClientApp.secretHash);
+  if (!ok) {
     throw new ClientAuthError('Invalid client_secret');
   }
 };
@@ -184,19 +391,15 @@ export const checkRateLimit = async (
   }
 };
 
-export const getClientIp = (req: {
-  headers: Record<string, any>;
-  socket?: any;
-}): string => {
-  const forwarded = req.headers['x-forwarded-for'];
-
-  if (forwarded) {
-    const first = Array.isArray(forwarded) ? forwarded[0] : forwarded;
-    return first.split(',')[0].trim();
-  }
-
-  return req.socket?.remoteAddress || 'unknown';
-};
+// Use Express's `req.ip` so the trust-proxy setting (`DEFAULT_TRUST_PROXY =
+// 'loopback, linklocal, uniquelocal'` from erxes-api-shared `applyTrustProxy`)
+// is honored — i.e., we only trust `x-forwarded-for` when it came through a
+// hop the operator has explicitly configured as a proxy. Parsing the header
+// ourselves would let an unauthenticated client spoof the rate-limit key by
+// rotating crafted `x-forwarded-for` values and either evade limits or
+// throttle other users.
+export const getClientIp = (req: Request): string =>
+  req.ip || req.socket?.remoteAddress || 'unknown';
 
 // ---------------------------------------------------------------------------
 
