@@ -76,3 +76,14 @@ When triggered, clarify the following details with the developer directly in the
    ```bash
    .agents/evals/run.sh <plugin>
    ```
+
+### Step 6 — Build Settings (post-scaffold follow-up)
+
+> [!IMPORTANT]
+> **The scaffolding script produces stub Settings pages and dead CRUD buttons.** After Steps 1–5 are complete and passing, invoke [`build-plugin-settings.md`](./build-plugin-settings.md) to:
+> - Wire the "Add / Edit / Delete" buttons to the existing GraphQL mutations
+> - Build a form component for entity creation/editing
+> - Populate the Settings page with real CRUD content
+> - Verify the full UI-to-API loop end-to-end
+>
+> This step uses the **Supervisor Model** — it spawns a Backend Specialist and Frontend Specialist sub-agent in parallel. See [`build-plugin-settings.md`](./build-plugin-settings.md) for the full orchestration architecture.

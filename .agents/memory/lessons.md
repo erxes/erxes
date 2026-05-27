@@ -117,3 +117,10 @@ Quarterly: re-read this file end to end. Lessons that are now baked into rules/s
 **Root cause:** Convention is not enforced by tRPC itself; only by precedent.
 **Lesson:** Mirror an existing procedure's return shape before declaring done. See `add-sales-trpc-procedure.md`.
 **Where applicable:** every new tRPC procedure on sales.
+
+## 2026-05-27 — `create-plugin.md` leaves Settings pages empty and CRUD buttons dead
+**Symptom:** After running `create-plugin.md` for `storebranch`, the Settings page renders `<h1>storebranch Settings</h1>` with no real content. The "Add Branch" button in `IndexPage.tsx` has no `onClick` handler. The "Edit" button in `StoreBranchList.tsx` has no handler. The `SettingsNavigation` path prefix is doubled (`"storebranch" + '/' + "storebranch"`), breaking routing.
+**Root cause:** `create-plugin.md` focuses on scaffolding the backend (Mongoose + GraphQL + tRPC) and basic frontend structure, but does not wire the UI to the mutations it creates. The scaffolding script generates stubs, not working features.
+**Lesson:** After `create-plugin.md` completes, always follow up with `build-plugin-settings.md` to wire CRUD buttons, build the form component, populate the Settings page, and fix the navigation path prefix. This is now Step 6 in `create-plugin.md`.
+**Where applicable:** `skills/create-plugin.md` Step 6, `skills/build-plugin-settings.md`, any future plugin scaffold.
+

@@ -55,6 +55,7 @@ The `--silent` flag suppresses pnpm's `> erxes-wish` preamble so output is clean
 | See what AI got wrong here before | [`memory/lessons.md`](./memory/lessons.md) |
 | Run Playwright behavioral tests | `pnpm test` from `.agents/` (config: [`playwright.config.ts`](./playwright.config.ts)) |
 | Replicate this system for another plugin | [`EXTENDING.md`](./EXTENDING.md) |
+| Build settings after scaffolding a new plugin | [`skills/build-plugin-settings.md`](./skills/build-plugin-settings.md) — uses Supervisor Model with 2 sub-agents |
 
 ## First rules (the load-bearing ones)
 

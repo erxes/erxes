@@ -30,6 +30,7 @@ graph TD
     Wish -->|Contains: trpc, rpc, procedure, internal-endpoint| TRPC["add-[plugin]-trpc-procedure.md"]
     Wish -->|Contains: ui, page, screen, form, view| UI["add-[plugin]-ui-page.md (or sync.md)"]
     Wish -->|Contains: --plugin, fresh plugin, new plugin| CreatePlugin["create-plugin.md"]
+    Wish -->|Contains: settings empty, wire buttons, build settings, dead button, stub settings| BuildSettings["build-plugin-settings.md"]
     Wish -->|Contains: --fix, fix, bug, error, issue, broken, crash, wrong| FixIssue["fix-issue.md"]
 ```
 
@@ -43,6 +44,7 @@ graph TD
 | `"tRPC route"`, `"internal procedure"`, `"cross-plugin RPC"`, `"router"` | **`add-[plugin]-trpc-procedure.md`** | Exposes high-performance internal procedures for other backend services. |
 | `"render page"`, `"build form"`, `"new screen"`, `"UI component"`, `"fragment"` | **`add-[plugin]-ui-page.md`**<br>*(or `add-[plugin]-sync.md` for posclient)* | Builds front-end React views, routes, Zod schemas, and hooks. |
 | `"--plugin"`, `"fresh plugin"`, `"new plugin"`, `"create plugin"` | **`create-plugin.md`** | Orchestrates creating an entirely new microservice plugin (`_api` & `_ui`) with strict verification rules. |
+| `"settings empty"`, `"wire buttons"`, `"build settings"`, `"dead button"`, `"stub settings"`, `"Add button does nothing"` | **`build-plugin-settings.md`** | Post-scaffold skill. Wires CRUD buttons (Add/Edit/Delete) to existing GraphQL mutations, builds the form component, populates the Settings page. Uses Supervisor Model with Backend + Frontend specialist sub-agents. |
 | `"--fix"`, `"fix"`, `"bug"`, `"error"`, `"issue"`, `"broken"`, `"crash"`, `"doesn't work"`, `"not working"`, `"wrong"` | **`fix-issue.md`** | 8-phase gated bug-fix workflow: REPORT → TRIAGE → BUG-SPEC → BUG-GROUND → PLAN → FIX → VERIFY → REVIEW. Produces `BUG-SPEC.md` and `BUG-GROUND.md` artifacts, enforces regression-test-first commit order. |
 
 ---
@@ -62,7 +64,7 @@ graph TD
 | **mongolian** | `ebarimts` | `skills/mongolian/` `add-ebarimt-field.md`, `add-mongolian-automation.md`, `add-mongolian-graphql-query.md`, `add-mongolian-mutation.md`, `add-mongolian-segment-field.md`, `add-mongolian-trpc-procedure.md`, `add-mongolian-ui-page.md` |
 | **insurance** | `contracts` | `skills/insurance/` `add-contract-field.md`, `add-insurance-automation.md`, `add-insurance-graphql-query.md`, `add-insurance-mutation.md`, `add-insurance-segment-field.md`, `add-insurance-trpc-procedure.md`, `add-insurance-ui-page.md` |
 | **tourism** | `tours` | `skills/tourism/` `add-tour-field.md`, `add-tourism-automation.md`, `add-tourism-graphql-query.md`, `add-tourism-mutation.md`, `add-tourism-segment-field.md`, `add-tourism-trpc-procedure.md`, `add-tourism-ui-page.md` |
-| **system-wide** | N/A | `skills/create-plugin.md`, `skills/fix-issue.md` |
+| **system-wide** | N/A | `skills/create-plugin.md`, `skills/build-plugin-settings.md`, `skills/fix-issue.md` |
 
 ---
 
