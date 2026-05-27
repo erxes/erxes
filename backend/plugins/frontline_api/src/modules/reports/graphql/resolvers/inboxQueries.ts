@@ -12,7 +12,7 @@ import {
 } from '@/reports/utils';
 import { IReportFilters } from '@/reports/@types/reportFilters';
 
-interface IProgressArgs {
+export interface IProgressArgs {
   customerId: string;
   fromDate?: string;
   toDate?: string;
