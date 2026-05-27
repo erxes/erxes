@@ -78,13 +78,12 @@ export const loadMenuItemClass = (models: IModels) => {
 
   const normalizeContentType = (
     contentType?: string | null,
-    linkType?: MenuLinkType,
+    _linkType?: MenuLinkType,
   ) => {
     if (contentType) {
       const normalized = String(contentType).toLowerCase();
-      return LINK_TYPE_BY_CONTENT_TYPE[normalized]
-        ? normalized
-        : CONTENT_TYPE_BY_LINK_TYPE[linkType || 'URL'];
+      if (LINK_TYPE_BY_CONTENT_TYPE[normalized]) return normalized;
+      return normalized;
     }
 
     return undefined;
@@ -319,10 +318,11 @@ export const loadMenuItemClass = (models: IModels) => {
     if (!mergedDoc.clientPortalId) {
       throw new Error('clientPortalId is required');
     }
-
+    const newTypeSource = (doc as any).linkType || (doc as any).contentType;
+    const existingTypeSource = existingDoc.linkType || existingDoc.contentType;
     const linkType = normalizeLinkType(
-      mergedDoc.linkType || mergedDoc.contentType,
-      normalizeLinkType(existingDoc.linkType || existingDoc.contentType),
+      newTypeSource || mergedDoc.linkType || mergedDoc.contentType,
+      normalizeLinkType(existingTypeSource),
     );
     const contentType = normalizeContentType(mergedDoc.contentType, linkType);
     const contentSource =
@@ -379,7 +379,7 @@ export const loadMenuItemClass = (models: IModels) => {
         content,
       );
     } else {
-      normalizedDoc.contentTypeId = undefined;
+      normalizedDoc.contentTypeId = mergedDoc.contentTypeId || undefined;
       normalizedDoc.url = await prepareDirectUrl(
         doc,
         mergedDoc,

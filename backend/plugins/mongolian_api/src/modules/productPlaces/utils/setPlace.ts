@@ -73,7 +73,7 @@ export const setPlace = async (
   ];
 
   try {
-    const result = await sendTRPCMessage({
+    await sendTRPCMessage({
       subdomain,
       pluginName: 'sales',
       module: 'deal',
@@ -90,10 +90,6 @@ export const setPlace = async (
         },
       },
     });
-
-    if (result?.status === 'error') {
-      throw new Error(result.message || 'Failed to update deal');
-    }
   } catch (error) {
     console.log('setPlace ERR:', error);
   }

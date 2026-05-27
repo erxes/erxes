@@ -1,5 +1,22 @@
 
 
+## [3.0.26](https://github.com/erxes/erxes/compare/3.0.25...3.0.26) (2026-05-22)
+
+
+### Bug Fixes
+
+* **loyalty:** pricing trpc without status ([#7755](https://github.com/erxes/erxes/issues/7755)) ([9234d59](https://github.com/erxes/erxes/commit/9234d5956191b672dc2d82f8e6087cf700910666))
+* sales pipeline card enhancement ([#7754](https://github.com/erxes/erxes/issues/7754)) ([8ffcee5](https://github.com/erxes/erxes/commit/8ffcee51ef348e65ea957f22171951e3e0041a3a))
+* scoreCampaign refactor and  products and productCategories trpc([#7757](https://github.com/erxes/erxes/issues/7757)) ([3f55f9c](https://github.com/erxes/erxes/commit/3f55f9cc75424f4f7f7f74609f09a0a565d6bdc9))
+* syncerkhet first end ([#7748](https://github.com/erxes/erxes/issues/7748)) ([b93cdb8](https://github.com/erxes/erxes/commit/b93cdb8b0d3bcc0dfd049763a9e3eecf2c5d3d34))
+
+
+### Features
+
+* **content:** cms menu has types for web ([8eac54d](https://github.com/erxes/erxes/commit/8eac54d81c57b83c7f3a42b7c6d4bbf8bfc3f2eb))
+* **payment:** add QR code generation  ([d3827af](https://github.com/erxes/erxes/commit/d3827af3ad9292b0d6fd9ebc12c218a1874965c2))
+* **pos:** add QZ Tray printing and improve report receipts ([#7749](https://github.com/erxes/erxes/issues/7749)) ([d475479](https://github.com/erxes/erxes/commit/d47547969d2e6f62481eb325a8f9de231c710c56))
+
 ## [3.0.25](https://github.com/erxes/erxes/compare/3.0.24...3.0.25) (2026-05-21)
 
 

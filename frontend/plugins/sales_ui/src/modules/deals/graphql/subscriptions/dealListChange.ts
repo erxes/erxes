@@ -10,6 +10,7 @@ export const DEAL_LIST_CHANGED = gql`
           _id
           name
         }
+        productsData
         unUsedAmount
         amount
         ${commonListFields}

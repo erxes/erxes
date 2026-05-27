@@ -33,6 +33,33 @@ const GET_CUSTOMERS_SIMPLE = gql`
   }
 `;
 
+const GET_COMPANIES_SIMPLE = gql`
+  query ScoreCompaniesSimpleFilter($searchValue: String, $limit: Int) {
+    companies(searchValue: $searchValue, limit: $limit) {
+      list {
+        _id
+        primaryName
+        primaryEmail
+        primaryPhone
+      }
+    }
+  }
+`;
+
+const GET_USERS_SIMPLE = gql`
+  query ScoreUsersSimpleFilter($searchValue: String, $isActive: Boolean) {
+    allUsers(searchValue: $searchValue, isActive: $isActive) {
+      _id
+      email
+      details {
+        fullName
+        firstName
+        lastName
+      }
+    }
+  }
+`;
+
 interface CustomerOption {
   value: string;
   label: string;
@@ -52,14 +79,28 @@ const getCustomerLabel = (c: {
   return name || c.primaryEmail || c.primaryPhone || 'Unnamed';
 };
 
-const useCustomerOptions = (searchValue?: string) => {
-  const { data, loading } = useQuery(GET_CUSTOMERS_SIMPLE, {
-    variables: { limit: 50, searchValue },
+const useOwnerOptions = (ownerType: string, search: string) => {
+  const customerQuery = useQuery(GET_CUSTOMERS_SIMPLE, {
+    variables: { limit: 50, searchValue: search || undefined },
+    skip: ownerType !== 'customer',
+    fetchPolicy: 'cache-first',
   });
 
-  const options = useMemo<CustomerOption[]>(
-    () =>
-      (data?.customers?.list || []).map(
+  const companyQuery = useQuery(GET_COMPANIES_SIMPLE, {
+    variables: { limit: 50, searchValue: search || undefined },
+    skip: ownerType !== 'company',
+    fetchPolicy: 'cache-first',
+  });
+
+  const userQuery = useQuery(GET_USERS_SIMPLE, {
+    variables: { searchValue: search || undefined, isActive: true },
+    skip: ownerType !== 'user' || !search,
+    fetchPolicy: 'cache-first',
+  });
+
+  const options = useMemo<CustomerOption[]>(() => {
+    if (ownerType === 'customer') {
+      return (customerQuery.data?.customers?.list || []).map(
         (c: {
           _id: string;
           firstName?: string;
@@ -68,20 +109,60 @@ const useCustomerOptions = (searchValue?: string) => {
           primaryEmail?: string;
           primaryPhone?: string;
         }) => ({ value: c._id, label: getCustomerLabel(c) }),
-      ),
-    [data?.customers?.list],
-  );
+      );
+    }
+    if (ownerType === 'company') {
+      return (companyQuery.data?.companies?.list || []).map(
+        (c: {
+          _id: string;
+          primaryName?: string;
+          primaryEmail?: string;
+          primaryPhone?: string;
+        }) => ({
+          value: c._id,
+          label: c.primaryName || c.primaryEmail || c.primaryPhone || 'Unnamed',
+        }),
+      );
+    }
+    if (ownerType === 'user') {
+      return (userQuery.data?.allUsers || []).map(
+        (u: {
+          _id: string;
+          email?: string;
+          details?: {
+            fullName?: string;
+            firstName?: string;
+            lastName?: string;
+          };
+        }) => ({
+          value: u._id,
+          label:
+            u.details?.fullName ||
+            [u.details?.firstName, u.details?.lastName]
+              .filter(Boolean)
+              .join(' ') ||
+            u.email ||
+            'Unnamed',
+        }),
+      );
+    }
+    return [];
+  }, [ownerType, customerQuery.data, companyQuery.data, userQuery.data]);
+
+  const loading =
+    customerQuery.loading || companyQuery.loading || userQuery.loading;
 
   return { options, loading };
 };
 
 interface SelectScoreCustomerContextType {
   value: string;
-  onValueChange: (val: string) => void;
+  onValueChange: (val: string, label?: string) => void;
   options: CustomerOption[];
   loading: boolean;
   search: string;
   setSearch: (s: string) => void;
+  ownerType: string;
 }
 
 const SelectScoreCustomerContext =
@@ -96,22 +177,24 @@ const useSelectScoreCustomerContext = () => {
   return ctx;
 };
 
-export const SelectScoreCustomerProvider = ({
+const SelectOwnerProvider = ({
   value,
   onValueChange,
+  ownerType = 'customer',
   children,
 }: {
   value: string;
-  onValueChange: (val: string) => void;
+  onValueChange: (val: string, label?: string) => void;
+  ownerType?: string;
   children: React.ReactNode;
 }) => {
   const [search, setSearch] = useState('');
-  const { options, loading } = useCustomerOptions(search);
+  const { options, loading } = useOwnerOptions(ownerType, search);
 
   const handleChange = useCallback(
-    (val: string) => {
+    (val: string, label?: string) => {
       if (!val) return;
-      onValueChange(val);
+      onValueChange(val, label);
     },
     [onValueChange],
   );
@@ -124,8 +207,9 @@ export const SelectScoreCustomerProvider = ({
       loading,
       search,
       setSearch,
+      ownerType,
     }),
-    [value, handleChange, options, loading, search],
+    [value, handleChange, options, loading, search, ownerType],
   );
 
   return (
@@ -134,6 +218,20 @@ export const SelectScoreCustomerProvider = ({
     </SelectScoreCustomerContext.Provider>
   );
 };
+
+export const SelectScoreCustomerProvider = ({
+  value,
+  onValueChange,
+  children,
+}: {
+  value: string;
+  onValueChange: (val: string, label?: string) => void;
+  children: React.ReactNode;
+}) => (
+  <SelectOwnerProvider value={value} onValueChange={onValueChange} ownerType="customer">
+    {children}
+  </SelectOwnerProvider>
+);
 
 const SelectScoreCustomerValue = ({
   placeholder,
@@ -160,26 +258,47 @@ const SelectScoreCustomerValue = ({
   );
 };
 
-const SelectScoreCustomerContent = () => {
-  const { value, onValueChange, options, loading, search, setSearch } =
-    useSelectScoreCustomerContext();
+const getOwnerSearchPlaceholder = (ownerType: string) => {
+  if (ownerType === 'company') return 'Search companies...';
+  if (ownerType === 'user') return 'Search team members...';
+  return 'Search customers...';
+};
+
+const getOwnerBarLabel = (ownerType: string) => {
+  if (ownerType === 'company') return 'Company';
+  if (ownerType === 'user') return 'Team Member';
+  return 'Customer';
+};
+
+const SelectOwnerContent = () => {
+  const {
+    value,
+    onValueChange,
+    options,
+    loading,
+    search,
+    setSearch,
+    ownerType,
+  } = useSelectScoreCustomerContext();
+
+  const placeholder = getOwnerSearchPlaceholder(ownerType);
 
   return (
     <Command shouldFilter={false}>
       <Command.Input
         value={search}
         onValueChange={setSearch}
-        placeholder="Search customers..."
+        placeholder={placeholder}
       />
       <Command.Empty>
-        {loading ? 'Loading...' : 'No customers found'}
+        {loading ? 'Loading...' : 'No results found'}
       </Command.Empty>
       <Command.List>
         {options.map((opt) => (
           <Command.Item
             key={opt.value}
             value={opt.value}
-            onSelect={() => onValueChange(opt.value)}
+            onSelect={() => onValueChange(opt.value, opt.label)}
           >
             <span className="font-medium">{opt.label}</span>
             <Combobox.Check checked={value === opt.value} />
@@ -193,7 +312,7 @@ const SelectScoreCustomerContent = () => {
 export const SelectScoreCustomerFilterItem = () => (
   <Filter.Item value="scoreOwnerId">
     <IconUser />
-    Customer
+    Owner
   </Filter.Item>
 );
 
@@ -203,34 +322,61 @@ export const SelectScoreCustomerFilterView = ({
   queryKey?: string;
 }) => {
   const [value, setValue] = useQueryState<string>(queryKey);
+  const [ownerType] = useQueryState<string>('scoreOwnerType');
   const { resetFilterState } = useFilterContext();
 
   return (
     <Filter.View filterKey={queryKey}>
-      <SelectScoreCustomerProvider
+      <SelectOwnerProvider
+        ownerType={ownerType || 'customer'}
         value={value || ''}
         onValueChange={(val) => {
           setValue(val);
           resetFilterState();
         }}
       >
-        <SelectScoreCustomerContent />
-      </SelectScoreCustomerProvider>
+        <SelectOwnerContent />
+      </SelectOwnerProvider>
     </Filter.View>
+  );
+};
+
+const SelectOwnerBarButton = ({
+  filterKey,
+  barLabel,
+}: {
+  filterKey: string;
+  barLabel: string;
+}) => {
+  const { value, options } = useSelectScoreCustomerContext();
+  const selectedOption = options.find((o) => o.value === value);
+
+  return (
+    <Filter.BarButton filterKey={filterKey}>
+      {value && selectedOption ? (
+        <span className="font-medium text-sm">{selectedOption.label}</span>
+      ) : (
+        <span className="text-accent-foreground/80">Select {barLabel}</span>
+      )}
+    </Filter.BarButton>
   );
 };
 
 export const SelectScoreCustomerFilterBar = () => {
   const [value, setValue] = useQueryState<string>('scoreOwnerId');
+  const [ownerType] = useQueryState<string>('scoreOwnerType');
   const [open, setOpen] = useState(false);
+
+  const barLabel = getOwnerBarLabel(ownerType || 'customer');
 
   return (
     <Filter.BarItem queryKey="scoreOwnerId">
       <Filter.BarName>
         <IconUser />
-        Customer
+        {barLabel}
       </Filter.BarName>
-      <SelectScoreCustomerProvider
+      <SelectOwnerProvider
+        ownerType={ownerType || 'customer'}
         value={value || ''}
         onValueChange={(val) => {
           setValue(val || null);
@@ -239,15 +385,16 @@ export const SelectScoreCustomerFilterBar = () => {
       >
         <Popover open={open} onOpenChange={setOpen}>
           <Popover.Trigger asChild>
-            <Filter.BarButton filterKey="scoreOwnerId">
-              <SelectScoreCustomerValue />
-            </Filter.BarButton>
+            <SelectOwnerBarButton
+              filterKey="scoreOwnerId"
+              barLabel={barLabel}
+            />
           </Popover.Trigger>
           <Combobox.Content>
-            <SelectScoreCustomerContent />
+            <SelectOwnerContent />
           </Combobox.Content>
         </Popover>
-      </SelectScoreCustomerProvider>
+      </SelectOwnerProvider>
     </Filter.BarItem>
   );
 };
@@ -259,17 +406,18 @@ export const SelectScoreCustomerFormItem = ({
   className,
 }: {
   value: string;
-  onValueChange: (val: string) => void;
+  onValueChange: (val: string, label?: string) => void;
   placeholder?: string;
   className?: string;
 }) => {
   const [open, setOpen] = useState(false);
 
   return (
-    <SelectScoreCustomerProvider
+    <SelectOwnerProvider
       value={value}
-      onValueChange={(val) => {
-        onValueChange(val);
+      ownerType="customer"
+      onValueChange={(val, label) => {
+        onValueChange(val, label);
         setOpen(false);
       }}
     >
@@ -280,10 +428,10 @@ export const SelectScoreCustomerFormItem = ({
           </Combobox.Trigger>
         </Form.Control>
         <Combobox.Content>
-          <SelectScoreCustomerContent />
+          <SelectOwnerContent />
         </Combobox.Content>
       </Popover>
-    </SelectScoreCustomerProvider>
+    </SelectOwnerProvider>
   );
 };
 
@@ -294,17 +442,18 @@ const SelectScoreCustomerRoot = ({
   className,
 }: {
   value: string;
-  onValueChange?: (val: string) => void;
+  onValueChange?: (val: string, label?: string) => void;
   placeholder?: string;
   className?: string;
 }) => {
   const [open, setOpen] = useState(false);
 
   return (
-    <SelectScoreCustomerProvider
+    <SelectOwnerProvider
       value={value}
-      onValueChange={(val) => {
-        onValueChange?.(val);
+      ownerType="customer"
+      onValueChange={(val, label) => {
+        onValueChange?.(val, label);
         setOpen(false);
       }}
     >
@@ -313,17 +462,17 @@ const SelectScoreCustomerRoot = ({
           <SelectScoreCustomerValue placeholder={placeholder} />
         </Combobox.Trigger>
         <Combobox.Content>
-          <SelectScoreCustomerContent />
+          <SelectOwnerContent />
         </Combobox.Content>
       </Popover>
-    </SelectScoreCustomerProvider>
+    </SelectOwnerProvider>
   );
 };
 
 export const SelectScoreCustomer = Object.assign(SelectScoreCustomerRoot, {
   Provider: SelectScoreCustomerProvider,
   Value: SelectScoreCustomerValue,
-  Content: SelectScoreCustomerContent,
+  Content: SelectOwnerContent,
   FilterItem: SelectScoreCustomerFilterItem,
   FilterView: SelectScoreCustomerFilterView,
   FilterBar: SelectScoreCustomerFilterBar,

@@ -33,14 +33,16 @@ interface IPaymentType {
   type: string;
   title?: string;
   icon?: string;
-  config?: {
-    require?: string;
-    skipEbarimt?: boolean;
-    mustCustomer?: boolean;
-    notSplit?: boolean;
-    preTax?: boolean;
-  };
-  scoreCampaign?: string;
+  config?:
+    | string
+    | {
+        require?: string;
+        skipEbarimt?: boolean;
+        mustCustomer?: boolean;
+        notSplit?: boolean;
+        preTax?: boolean;
+      };
+  scoreCampaignId?: string;
 }
 
 type PayInfo = {
@@ -48,6 +50,22 @@ type PayInfo = {
   maxVal?: number;
   hasPopup: boolean;
   validQr: boolean;
+};
+
+const parsePaymentConfig = (config: IPaymentType['config']) => {
+  if (!config) {
+    return {};
+  }
+
+  if (typeof config === 'object') {
+    return config;
+  }
+
+  try {
+    return JSON.parse(config);
+  } catch {
+    return {};
+  }
 };
 
 const OwnerScoreCampaignScore = ({
@@ -74,9 +92,9 @@ const OwnerScoreCampaignScore = ({
     variables: {
       ownerId: customer?._id,
       ownerType: 'customer',
-      campaignId: paymentType?.scoreCampaign,
+      campaignId: paymentType?.scoreCampaignId,
     },
-    skip: !paymentType?.scoreCampaign || !customer?._id,
+    skip: !paymentType?.scoreCampaignId || !customer?._id,
   }) || {};
 
   useEffect(() => {
@@ -86,7 +104,7 @@ const OwnerScoreCampaignScore = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkOwnerScore]);
 
-  if (!paymentType?.scoreCampaign || customers.length === 0) return null;
+  if (!paymentType?.scoreCampaignId || customers.length === 0) return null;
 
   const refundScore = () => {
     confirm({
@@ -120,7 +138,7 @@ const OwnerScoreCampaignScore = ({
   return (
     <Popover>
       <Popover.Trigger asChild>
-        <Button variant="ghost" className='w-1'>
+        <Button variant="ghost" className="w-1">
           <IconAward size={16} className="text-amber-500" />
         </Button>
       </Popover.Trigger>
@@ -228,6 +246,14 @@ const ProductsPayment = ({
 
   const defaultCurrency = Object.keys(total)[0] || 'MNT';
 
+  const getInitialPaymentAmount = useCallback(
+    (type: string) => {
+      const sourcePaymentsData = initialPaymentsData || deal.paymentsData || {};
+      return Number(sourcePaymentsData[type]?.amount || 0);
+    },
+    [deal.paymentsData, initialPaymentsData],
+  );
+
   const updatePayment = useCallback(
     (type: string, field: 'amount' | 'currency', value: number | string) => {
       setPaymentsData((prev: IPaymentsData) => {
@@ -266,19 +292,46 @@ const ProductsPayment = ({
     [paymentsData, defaultCurrency, total, paidAmounts, updatePayment],
   );
 
-  const handleScoreFetched = useCallback((score: number, paymentType: any) => {
-    const typeName = paymentType.type;
-    const requiresQr = paymentType?.config?.require?.toLowerCase() === 'qrcode';
-    setPayInfoByType((prev) => ({
-      ...prev,
-      [typeName]: {
-        hasPopup: requiresQr,
-        score,
-        maxVal: requiresQr ? (prev[typeName]?.validQr ? score : 0) : score,
-        validQr: prev[typeName]?.validQr || false,
-      },
-    }));
-  }, []);
+  const fillRemainingIfEmpty = useCallback(
+    (paymentType: string, maxVal?: number) => {
+      if (paymentsData[paymentType]?.amount) {
+        return;
+      }
+
+      fillRemaining(paymentType, maxVal);
+    },
+    [fillRemaining, paymentsData],
+  );
+
+  const handleScoreFetched = useCallback(
+    (score: number, paymentType: any) => {
+      const typeName = paymentType.type;
+      const paymentConfig = parsePaymentConfig(paymentType.config);
+      const requiresQr =
+        paymentConfig?.require?.toLowerCase() === 'qrcode';
+      const initialAmount = getInitialPaymentAmount(typeName);
+      const availableAmount = score + initialAmount;
+
+      setPayInfoByType((prev) => {
+        const validQr = prev[typeName]?.validQr || false;
+
+        return {
+          ...prev,
+          [typeName]: {
+            hasPopup: requiresQr,
+            score,
+            maxVal: requiresQr
+              ? validQr
+                ? availableAmount
+                : 0
+              : availableAmount,
+            validQr,
+          },
+        };
+      });
+    },
+    [getInitialPaymentAmount],
+  );
 
   const openQrModal = (paymentType: any) => {
     setQrModal({ open: true, paymentType, password: '' });
@@ -287,6 +340,7 @@ const ProductsPayment = ({
   const handleQrDismiss = () => {
     const typeName = qrModal.paymentType?.type;
     if (typeName) {
+      const initialAmount = getInitialPaymentAmount(typeName);
       setPayInfoByType((prev) => ({
         ...prev,
         [typeName]: {
@@ -294,7 +348,9 @@ const ProductsPayment = ({
           maxVal: 0,
         },
       }));
-      updatePayment(typeName, 'amount', 0);
+      if (!initialAmount) {
+        updatePayment(typeName, 'amount', 0);
+      }
     }
     setQrModal({ open: false, paymentType: null, password: '' });
   };
@@ -306,17 +362,19 @@ const ProductsPayment = ({
 
     if (qrModal.password && customer?._id === qrModal.password) {
       const score = payInfoByType[typeName]?.score ?? 0;
+      const availableAmount = score + getInitialPaymentAmount(typeName);
       setPayInfoByType((prev) => ({
         ...prev,
         [typeName]: {
           ...(prev[typeName] || { hasPopup: true }),
           validQr: true,
-          maxVal: score,
+          maxVal: availableAmount,
         },
       }));
       setQrModal({ open: false, paymentType: null, password: '' });
-      fillRemaining(typeName, score);
+      fillRemaining(typeName, availableAmount);
     } else {
+      const initialAmount = getInitialPaymentAmount(typeName);
       setPayInfoByType((prev) => ({
         ...prev,
         [typeName]: {
@@ -325,7 +383,9 @@ const ProductsPayment = ({
           maxVal: 0,
         },
       }));
-      updatePayment(typeName, 'amount', 0);
+      if (!initialAmount) {
+        updatePayment(typeName, 'amount', 0);
+      }
       setQrModal({ open: false, paymentType: null, password: '' });
       toast({
         variant: 'destructive',
@@ -396,12 +456,13 @@ const ProductsPayment = ({
             Change
           </span>
           <div
-            className={`font-semibold text-lg flex ${Object.values(changeAmounts).some((amount) => amount > 0)
-              ? 'text-green-500'
-              : Object.values(changeAmounts).some((amount) => amount < 0)
+            className={`font-semibold text-lg flex ${
+              Object.values(changeAmounts).some((amount) => amount > 0)
+                ? 'text-green-500'
+                : Object.values(changeAmounts).some((amount) => amount < 0)
                 ? 'text-red-500'
                 : ''
-              }`}
+            }`}
           >
             {Object.values(changeAmounts).some((amount) => amount > 0) && '+'}
             {renderTotals(changeAmounts)}
@@ -422,7 +483,7 @@ const ProductsPayment = ({
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   updatePayment('cash', 'amount', parseNumber(e.target.value))
                 }
-                onClick={() => fillRemaining('cash')}
+                onClick={() => fillRemainingIfEmpty('cash')}
                 className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
                 placeholder="Type amount"
               />
@@ -452,12 +513,15 @@ const ProductsPayment = ({
         {deal.pipeline?.paymentTypes?.map(
           (paymentType: IPaymentType, index: number) => {
             const typeName = paymentType.type;
+            const paymentConfig = parsePaymentConfig(paymentType.config);
+            const isQr =
+              paymentConfig?.require?.toLowerCase() === 'qrcode';
+            const hasInitialAmount = getInitialPaymentAmount(typeName) > 0;
             const payInfo = payInfoByType[typeName] || {
               hasPopup: false,
               validQr: false,
             };
-            const isQr =
-              paymentType?.config?.require?.toLowerCase() === 'qrcode';
+            const showQrUnlockInput = isQr && !payInfo.validQr;
             return (
               <div
                 key={index}
@@ -482,13 +546,17 @@ const ProductsPayment = ({
                     }
                   />
                   <div className="flex flex-1 items-center">
-                    {isQr && !payInfo.validQr ? (
+                    {showQrUnlockInput ? (
                       <Input
                         readOnly
                         className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-400 cursor-pointer"
                         placeholder="Read QRCode"
                         onClick={() => openQrModal(paymentType)}
-                        value=""
+                        value={
+                          hasInitialAmount
+                            ? formatNumber(paymentsData[typeName]?.amount ?? '')
+                            : ''
+                        }
                       />
                     ) : (
                       <Input
@@ -506,7 +574,9 @@ const ProductsPayment = ({
                             max === undefined ? val : Math.min(val, max),
                           );
                         }}
-                        onClick={() => fillRemaining(typeName, payInfo.maxVal)}
+                        onClick={() =>
+                          fillRemainingIfEmpty(typeName, payInfo.maxVal)
+                        }
                         className="text-right font-medium border-0 border-b rounded-none focus-visible:ring-0 px-0 shadow-none text-gray-700"
                         placeholder="Type amount"
                       />
@@ -527,7 +597,11 @@ const ProductsPayment = ({
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => fillRemaining(typeName, payInfo.maxVal)}
+                      onClick={() =>
+                        showQrUnlockInput
+                          ? openQrModal(paymentType)
+                          : fillRemaining(typeName, payInfo.maxVal)
+                      }
                     >
                       <IconCircleCheck className="w-5 h-5" />
                     </Button>

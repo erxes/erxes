@@ -18,6 +18,7 @@ export interface CardBasedRuleVariable {
 export interface AddScoreCampaignVariables {
   title: string;
   description?: string;
+  order?: number;
   serviceName: string;
   restrictions: {
     productCategoryIds?: string;
@@ -33,6 +34,7 @@ export interface AddScoreCampaignVariables {
   };
   add?: { placeholder?: string; currencyRatio?: string };
   subtract?: { placeholder?: string; currencyRatio?: string };
+  set?: { placeholder?: string; currencyRatio?: string };
   ownerType?: string;
   onlyClientPortal?: boolean;
   fieldGroupId?: string;
@@ -93,7 +95,10 @@ export const useAddScoreCampaign = () => {
   });
 
   const scoreCampaignAdd = async (
-    options: MutationHookOptions<AddScoreCampaignResult, AddScoreCampaignVariables>,
+    options: MutationHookOptions<
+      AddScoreCampaignResult,
+      AddScoreCampaignVariables
+    >,
   ) => {
     return addScore({
       ...options,

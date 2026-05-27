@@ -6,6 +6,7 @@ import {
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
+  fixNum,
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
@@ -164,7 +165,7 @@ export const makeScoreColumns = (
     size: 120,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="font-semibold">
-        {cell.getValue() as number}
+        {fixNum(cell.getValue() as number)}
       </RecordTableInlineCell>
     ),
   },

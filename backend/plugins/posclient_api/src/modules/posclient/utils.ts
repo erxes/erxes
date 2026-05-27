@@ -440,10 +440,10 @@ export const prepareSettlePayment = async (
           subdomain,
 
           pluginName: 'core',
-          module: 'product',
-          action: 'uoms.find',
+          module: 'productUoms',
+          action: 'find',
           input: {
-            data: {
+            query: {
               code: { $in: products.map((product) => product?.uom) },
             },
           },

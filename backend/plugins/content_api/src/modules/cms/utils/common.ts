@@ -140,6 +140,7 @@ export const generateUniqueSlug = async (
  */
 export const generateUniqueSlugWithExclusion = async (
   model: any,
+  cpId: string,
   field: string,
   baseSlug: string,
   excludeId: string,
@@ -154,6 +155,7 @@ export const generateUniqueSlugWithExclusion = async (
   // Check if slug already exists excluding current document
   const existingTag = await model.findOne({
     [field]: potentialSlug,
+    clientPortalId: cpId,
     _id: { $ne: excludeId },
   });
 
@@ -164,6 +166,7 @@ export const generateUniqueSlugWithExclusion = async (
   // If slug exists, try with next increment number
   return generateUniqueSlugWithExclusion(
     model,
+    cpId,
     field,
     baseSlug,
     excludeId,

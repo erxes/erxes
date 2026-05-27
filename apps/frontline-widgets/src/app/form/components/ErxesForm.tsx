@@ -444,11 +444,18 @@ export const ErxesForm = ({
                                 <span className="text-destructive"> *</span>
                               )}
                             </Form.Label>
-                            <DatePicker
-                              {...field}
-                              placeholder={erxesField.text}
-                              required={erxesField.isRequired}
-                            />
+                            <Form.Control>
+                              <DatePicker
+                                value={
+                                  field.value
+                                    ? new Date(field.value)
+                                    : undefined
+                                }
+                                onChange={(date) => field.onChange(date)}
+                                placeholder={erxesField.text}
+                                mode="single"
+                              />
+                            </Form.Control>
                             {erxesField.description && (
                               <Form.Description
                                 dangerouslySetInnerHTML={{

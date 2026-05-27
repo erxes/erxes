@@ -1,12 +1,14 @@
-import { GQL_CURSOR_PARAM_DEFS } from "erxes-api-shared/utils";
+import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
   type ScoreCampaign {
     _id: String,
     title: String,
     description:String,
+    order: Int,
     add:JSON,
     subtract:JSON,
+    set:JSON,
     createdAt:Date,
     createdUserId:String,
     status:String,
@@ -49,8 +51,10 @@ export const queries = `
 const mutationParams = `
   title: String,
   description:String,
+  order: Int,
   add:JSON,
   subtract:JSON,
+  set:JSON,
   createdAt:Date,
   createdUserId:String,
   ownerType:String,

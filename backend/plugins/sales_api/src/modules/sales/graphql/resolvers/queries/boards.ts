@@ -375,8 +375,8 @@ export const boardQueries = {
 
         pluginName: 'core',
         method: 'query',
-        module: 'forms',
-        action: 'fieldsGroups.find',
+        module: 'fieldsGroups',
+        action: 'find',
         input: {
           query: {
             contentType: `sales:${ct}`,
@@ -393,8 +393,8 @@ export const boardQueries = {
 
           pluginName: 'core',
           method: 'query',
-          module: 'forms',
-          action: 'fields.find',
+          module: 'fields',
+          action: 'find',
           input: {
             query: {
               contentType: `sales:${ct}`,

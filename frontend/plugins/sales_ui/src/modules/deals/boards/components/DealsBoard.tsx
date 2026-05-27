@@ -16,6 +16,7 @@ import { StagesLoading } from '@/deals/components/loading/StagesLoading';
 import { useColumnPagination } from '@/deals/boards/hooks/useColumnPagination';
 import { useDealsBoardData } from '@/deals/boards/hooks/useDealsBoardData';
 import { useDealsChange } from '@/deals/cards/hooks/useDeals';
+import { getDealsQueryVariables } from '@/deals/utils/queryVariables';
 import { useQueryState } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
 import { useStagesOrder } from '@/deals/stage/hooks/useStages';
@@ -39,34 +40,10 @@ export const DealsBoard = () => {
   const { pagination, initColumn, setLoading, updateAfterFetch } =
     useColumnPagination(PAGE_SIZE);
 
-  const queryVariables = useMemo(() => {
-    const ignoredKeys = ['boardId', 'pipelineId', 'salesItemId', 'tab'];
-    const vars: Record<string, any> = {};
-
-    for (const [key, value] of searchParams.entries()) {
-      if (ignoredKeys.includes(key)) continue;
-
-      try {
-        const parsed = JSON.parse(value);
-        vars[key] = parsed;
-      } catch {
-        vars[key] = value;
-      }
-    }
-
-    if (vars.productId) {
-      vars.productIds = Array.isArray(vars.productId)
-        ? vars.productId
-        : [vars.productId];
-      delete vars.productId;
-    }
-
-    if (searchParams.get('archivedOnly') === 'true') {
-      vars.noSkipArchive = true;
-    }
-
-    return vars;
-  }, [searchParams]);
+  const queryVariables = useMemo(
+    () => getDealsQueryVariables(searchParams),
+    [searchParams],
+  );
 
   const archivedOnly = searchParams.get('archivedOnly') === 'true';
   const queryVariablesKey = useMemo(

@@ -27,6 +27,7 @@ import {
   SelectOwnerTypeFilterBar,
 } from './selects/SelectOwnerType';
 import {
+  SelectScoreCustomerFilterItem,
   SelectScoreCustomerFilterView,
   SelectScoreCustomerFilterBar,
 } from './selects/SelectCustomer';
@@ -91,6 +92,7 @@ const ScoreFilterPopover = () => {
               <Command.List className="p-1">
                 <SelectScoreCampaignFilterItem />
                 <SelectOwnerTypeFilterItem />
+                <SelectScoreCustomerFilterItem />
                 <SelectScoreActionFilterItem />
                 <Filter.Item value="scoreBoardId">
                   <IconLabel />

@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useDebounce } from 'use-debounce';
+import { useRef, useCallback } from 'react';
 import { Label, Editor } from 'erxes-ui';
 import {
   SelectBranches,
@@ -16,10 +15,7 @@ import { useDealsContext } from '@/deals/context/DealContext';
 export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
   const { editDeals } = useDealsContext();
 
-  const [descriptionContent, setDescriptionContent] = useState<
-    string | undefined
-  >(undefined);
-  const [debouncedDescription] = useDebounce(descriptionContent, 1000);
+  const descriptionRef = useRef<string | undefined>(undefined);
 
   const handleDealFieldChange = useCallback(
     (key: string, value: string | string[] | undefined | null) => {
@@ -43,12 +39,6 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
     },
     [deal._id, editDeals],
   );
-
-  useEffect(() => {
-    if (debouncedDescription !== undefined) {
-      handleDealFieldChange('description', debouncedDescription);
-    }
-  }, [debouncedDescription, handleDealFieldChange]);
 
   const {
     startDate,
@@ -108,7 +98,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             {labels?.map((label) => (
               <div
                 key={label._id}
-                className="ml-1 pl-2 pr-2 py-1 rounded text-white text-sm font-medium inline-block"
+                className="inline-block py-1 pl-2 pr-2 ml-1 text-sm font-medium text-white rounded"
                 style={{ backgroundColor: label.colorCode }}
               >
                 {label.name}
@@ -116,7 +106,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             ))}
           </div>
         </div>
-        <div className="space-y-2 flex-col">
+        <div className="flex-col space-y-2">
           <Label>Priority</Label>
           <div>
             <SelectDealPriority
@@ -158,14 +148,22 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
           />
         </div>
       </div>
-      <div className="space-y-2">
+      <div
+        className="space-y-2"
+        onBlur={(e) => {
+          if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+          if (descriptionRef.current !== undefined) {
+            handleDealFieldChange('description', descriptionRef.current);
+          }
+        }}
+      >
         <Label>Description</Label>
         <Editor
-          initialContent={deal.description || []}
+          initialContent={deal.description || ''}
           onChange={(content) => {
-            setDescriptionContent(content);
+            descriptionRef.current = content;
           }}
-          className="h-28 overflow-y-auto"
+          className="overflow-y-auto h-28"
         />
       </div>
     </>

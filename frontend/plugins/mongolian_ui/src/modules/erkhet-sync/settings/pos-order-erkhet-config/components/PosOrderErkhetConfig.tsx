@@ -1,16 +1,28 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconAt, IconBuildingStore, IconHash, IconPlus } from '@tabler/icons-react';
+import {
+  IconAt,
+  IconBuildingStore,
+  IconHash,
+  IconPlus,
+} from '@tabler/icons-react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
-import { Button, Checkbox, Form, Input, RecordTable, RecordTableInlineCell, Select, Sheet } from 'erxes-ui';
+import {
+  Button,
+  Checkbox,
+  Form,
+  Input,
+  RecordTable,
+  RecordTableInlineCell,
+  Select,
+  Sheet,
+} from 'erxes-ui';
 import { checkboxColumn } from 'erxes-ui/modules/record-table/components/CheckboxColumn';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { SelectPos } from '@/ebarimt/settings/pos-in-ebarimt-config/components/selects/SelectPos';
 import { DEFAULT_PAY_DATA } from '../../stage-in-erkhet-config/constants/defaultPayData';
-import {
-  TPos,
-  TPosOrderErkhetConfig,
-} from '../hooks/usePosOrderErkhetConfigs';
+import { TPos, TPosOrderErkhetConfig } from '../hooks/usePosOrderErkhetConfigs';
 import { ErkhetConfigRecordTable } from '../../shared/components/ErkhetConfigRecordTable';
 import { ErkhetConfigCommandBar } from '../../shared/components/ErkhetConfigCommandBar';
 import {
@@ -53,7 +65,7 @@ const ConfigForm = ({
 }: {
   config?: TPosOrderErkhetConfig;
   formId: string;
-  onSubmit: (data: TPosOrderErkhetConfig) => void;
+  onSubmit: (data: TPosOrderErkhetConfig) => Promise<void> | void;
   poss: TPos[];
 }) => {
   const form = useForm<TPosOrderErkhetConfig>({
@@ -165,7 +177,10 @@ const ConfigForm = ({
               render={({ field }) => (
                 <Form.Item className="flex items-center gap-2 space-y-0">
                   <Form.Control>
-                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
                   </Form.Control>
                   <Form.Label className="font-medium">Has VAT</Form.Label>
                 </Form.Item>
@@ -177,7 +192,10 @@ const ConfigForm = ({
               render={({ field }) => (
                 <Form.Item className="flex items-center gap-2 space-y-0">
                   <Form.Control>
-                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
                   </Form.Control>
                   <Form.Label className="font-medium">Has City Tax</Form.Label>
                 </Form.Item>
@@ -221,8 +239,13 @@ const ConfigForm = ({
                   name={`_${paymentType.type}`}
                   render={({ field }) => (
                     <Form.Item>
-                      <Form.Label>{paymentType.title || paymentType.type}</Form.Label>
-                      <Select value={field.value || ''} onValueChange={field.onChange}>
+                      <Form.Label>
+                        {paymentType.title || paymentType.type}
+                      </Form.Label>
+                      <Select
+                        value={field.value || ''}
+                        onValueChange={field.onChange}
+                      >
                         <Select.Trigger className="w-full">
                           <Select.Value placeholder="Erkhet payment type" />
                         </Select.Trigger>
@@ -255,10 +278,17 @@ export const PosOrderErkhetConfigAddSheet = ({
   onSubmit: (data: TPosOrderErkhetConfig) => Promise<void>;
   poss: TPos[];
 }) => {
+  const [open, setOpen] = useState(false);
   const formId = 'pos-order-erkhet-config-add-form';
+  const formKey = open ? 'open' : 'closed';
+
+  const handleSubmit = async (data: TPosOrderErkhetConfig) => {
+    await onSubmit(data);
+    setOpen(false);
+  };
 
   return (
-    <Sheet modal>
+    <Sheet open={open} onOpenChange={setOpen} modal>
       <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
@@ -271,7 +301,12 @@ export const PosOrderErkhetConfigAddSheet = ({
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex flex-col overflow-hidden p-0">
-          <ConfigForm formId={formId} onSubmit={onSubmit} poss={poss} />
+          <ConfigForm
+            key={formKey}
+            formId={formId}
+            onSubmit={handleSubmit}
+            poss={poss}
+          />
         </Sheet.Content>
         <Sheet.Footer>
           <Button type="submit" form={formId} disabled={loading}>
@@ -300,6 +335,11 @@ const PosOrderErkhetConfigEditSheet = ({
 }) => {
   const formId = `pos-order-erkhet-config-edit-${config._id}`;
 
+  const handleSubmit = async (data: TPosOrderErkhetConfig) => {
+    await onSubmit(config._id || '', data);
+    onOpenChange(false);
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal>
       <Sheet.View className="sm:max-w-4xl">
@@ -311,7 +351,7 @@ const PosOrderErkhetConfigEditSheet = ({
           <ConfigForm
             config={config}
             formId={formId}
-            onSubmit={(data) => onSubmit(config._id || '', data)}
+            onSubmit={handleSubmit}
             poss={poss}
           />
         </Sheet.Content>
@@ -382,7 +422,9 @@ const buildColumns = ({
   {
     id: 'posId',
     accessorKey: 'posId',
-    header: () => <RecordTable.InlineHead icon={IconBuildingStore} label="POS" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconBuildingStore} label="POS" />
+    ),
     cell: ({ row }) => (
       <RecordTableInlineCell>
         {poss.find((pos) => pos._id === row.original.posId)?.name ||
@@ -397,16 +439,22 @@ const buildColumns = ({
     accessorKey: 'userEmail',
     header: () => <RecordTable.InlineHead icon={IconAt} label="User Email" />,
     cell: ({ cell }) => (
-      <RecordTableInlineCell>{(cell.getValue() as string) || '—'}</RecordTableInlineCell>
+      <RecordTableInlineCell>
+        {(cell.getValue() as string) || '—'}
+      </RecordTableInlineCell>
     ),
     size: 220,
   },
   {
     id: 'defaultPay',
     accessorKey: 'defaultPay',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Default Pay" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconHash} label="Default Pay" />
+    ),
     cell: ({ cell }) => (
-      <RecordTableInlineCell>{(cell.getValue() as string) || '—'}</RecordTableInlineCell>
+      <RecordTableInlineCell>
+        {(cell.getValue() as string) || '—'}
+      </RecordTableInlineCell>
     ),
     size: 160,
   },

@@ -336,8 +336,8 @@ export const getRemConfig = async (
         subdomain,
         pluginName: 'sales',
         method: 'query',
-        module: 'sales',
-        action: 'pipeline.findOne',
+        module: 'pipeline',
+        action: 'findOne',
         input: { stageId },
         defaultValue: {},
       });
