@@ -14,7 +14,7 @@ const getFieldValue = (
   if (isCustomField) {
     const fieldId = key.replace('customFieldsData.', '');
     const customFieldsData = customer.customFieldsData || [];
-    if (!!customFieldsData?.length) {
+    if (customFieldsData?.length) {
       const customField = customFieldsData.find(
         (cf) => getRealIdFromElk(cf.field || '') === fieldId,
       );
@@ -28,7 +28,7 @@ const getFieldValue = (
 
   // Handle tagIds specially to show tag names
   if (key === 'tagIds') {
-    if (!!customer.tagIds?.length) {
+    if (customer.tagIds?.length) {
       const tagNames = customer.tagIds
         .map((tagId: string) => tagMap?.get(String(tagId)) || tagId)
         .filter(Boolean);
@@ -76,7 +76,7 @@ export const buildCustomerExportRow = (
   } = customer;
 
   // Get tag names from tagIds
-  const tagNames = !!tagIds?.length
+  const tagNames = tagIds?.length
     ? tagIds
         .map((tagId: string) => tagMap?.get(String(tagId)) || tagId)
         .filter(Boolean)
@@ -111,7 +111,7 @@ export const buildCustomerExportRow = (
   };
 
   // Add custom fields
-  if (!!customFieldsData?.length) {
+  if (customFieldsData?.length) {
     for (const { field, value } of customFieldsData) {
       if (field && value) {
         const fieldId = getRealIdFromElk(field || '');
