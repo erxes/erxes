@@ -18,24 +18,31 @@ export const AddProductRulesOnTax = () => {
     resolver: zodResolver(productRulesOnTaxSchema),
     defaultValues: {
       title: '',
-      productCategoryIds: '',
-      excludeCategoryIds: '',
-      productIds: '',
-      excludeProductIds: '',
+      productCategoryIds: [],
+      excludeCategoryIds: [],
+      productIds: [],
+      excludeProductIds: [],
       kind: '',
       taxType: '',
       taxCode: '',
-      percent: 0,
-      tagIds: '',
-      excludeTagIds: '',
+      taxPercent: 0,
+      tagIds: [],
+      excludeTagIds: [],
       status: '',
     },
   });
   const { addProductRulesOnTax, loading } = useAddProductRulesOnTax();
 
   const onSubmit = (data: TProductRulesOnTaxForm) => {
-    const toArray = (val: string | undefined) =>
-      val ? val.split(',').map((s) => s.trim()) : [];
+    const toArray = (val: string[] | string | undefined) =>
+      Array.isArray(val)
+        ? val
+        : val
+        ? val
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [];
 
     const variables: any = {
       title: data.title,
@@ -47,13 +54,10 @@ export const AddProductRulesOnTax = () => {
       tagIds: toArray(data.tagIds),
       excludeTagIds: toArray(data.excludeTagIds),
       status: data.status,
+      taxType: data.taxType,
+      taxCode: data.taxCode,
+      taxPercent: data.taxPercent,
     };
-
-    if (data.kind !== 'ctax') {
-      variables.taxType = data.taxType;
-      variables.taxCode = data.taxCode;
-      variables.taxPercent = data.percent;
-    }
 
     addProductRulesOnTax({
       variables,
@@ -121,24 +125,31 @@ export const AddProductRulesOnTaxForm = ({
     resolver: zodResolver(productRulesOnTaxSchema),
     defaultValues: {
       title: '',
-      productCategoryIds: '',
-      excludeCategoryIds: '',
-      productIds: '',
-      excludeProductIds: '',
+      productCategoryIds: [],
+      excludeCategoryIds: [],
+      productIds: [],
+      excludeProductIds: [],
       kind: '',
       taxType: '',
       taxCode: '',
-      percent: 0,
-      tagIds: '',
-      excludeTagIds: '',
+      taxPercent: 0,
+      tagIds: [],
+      excludeTagIds: [],
       status: '',
     },
   });
   const { addProductRulesOnTax, loading } = useAddProductRulesOnTax();
 
   const onSubmitHandle = (data: TProductRulesOnTaxForm) => {
-    const toArray = (val: string | undefined) =>
-      val ? val.split(',').map((s) => s.trim()) : [];
+    const toArray = (val: string[] | string | undefined) =>
+      Array.isArray(val)
+        ? val
+        : val
+        ? val
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [];
 
     const variables: any = {
       title: data.title,
@@ -155,7 +166,7 @@ export const AddProductRulesOnTaxForm = ({
     if (data.kind !== 'ctax') {
       variables.taxType = data.taxType;
       variables.taxCode = data.taxCode;
-      variables.taxPercent = data.percent;
+      variables.taxPercent = data.taxPercent;
     }
 
     addProductRulesOnTax({
@@ -179,6 +190,10 @@ export const AddProductRulesOnTaxForm = ({
   };
 
   return (
-    <ProductRulesOnTaxForm form={form} onSubmit={onSubmitHandle} loading={loading} />
+    <ProductRulesOnTaxForm
+      form={form}
+      onSubmit={onSubmitHandle}
+      loading={loading}
+    />
   );
 };

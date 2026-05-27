@@ -1,8 +1,7 @@
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Form, Input, Textarea } from 'erxes-ui';
-import { SelectCategory } from '@/pricing/components/SelectCategory';
-import { SelectProduct, SelectTags } from 'ui-modules';
+import { SelectCategory, SelectProduct, SelectTags } from 'ui-modules';
 import { LoyaltyScoreFormValues } from '../../constants/formSchema';
 
 interface LoyaltyScoreAddCoreFieldsProps {
