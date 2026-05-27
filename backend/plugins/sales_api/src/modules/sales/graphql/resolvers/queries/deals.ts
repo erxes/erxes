@@ -32,6 +32,42 @@ const isListEmpty = (value) => {
   return value.length === 1 && value[0].length === 0;
 };
 
+const getCPUserId = ({ cpUser, clientPortal }: IContext) =>
+  cpUser?.erxesCustomerId || cpUser?._id || clientPortal?._id;
+
+const assertCPDealAccess = async (
+  subdomain: string,
+  dealId: string,
+  cpUserId: string,
+  dealUserId?: string,
+) => {
+  if (!cpUserId) {
+    throw new Error('Client portal user required');
+  }
+
+  if (dealUserId === `cp:${cpUserId}`) {
+    return;
+  }
+
+  const relatedDealIds = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'relation',
+    action: 'getRelationIds',
+    input: {
+      contentType: 'core:cp.user',
+      contentId: cpUserId,
+      relatedContentType: 'sales:deal',
+    },
+    defaultValue: [],
+  });
+
+  if (!relatedDealIds.includes(dealId)) {
+    throw new Error('Permission denied');
+  }
+};
+
 export const generateFilter = async (
   models: IModels,
   subdomain: string,
@@ -948,8 +984,18 @@ export const dealQueries: Record<string, Resolver> = {
     return checkItemPermByUser(models, subdomain, user, deal);
   },
 
-  async cpDealDetail(_root, args, ctx: IContext, info) {
-    return dealQueries.dealDetail(_root, args, ctx, info);
+  async cpDealDetail(
+    _root,
+    { _id }: { _id: string },
+    context: IContext,
+  ) {
+    const { models, subdomain } = context;
+    const deal = await models.Deals.getDeal(_id);
+    const userId = getCPUserId(context);
+
+    await assertCPDealAccess(subdomain, _id, userId, deal.userId);
+
+    return deal;
   },
 
   async checkDiscount(
