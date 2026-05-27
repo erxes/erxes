@@ -6,10 +6,7 @@ import {
   TR_SIDES,
   TR_STATUSES,
 } from '~/modules/accounting/@types/constants';
-import {
-  ITransaction,
-  ITransactionDocument,
-} from '~/modules/accounting/@types/transaction';
+import { ITransaction } from '~/modules/accounting/@types/transaction';
 import { getJournal } from './utils';
 
 export const orderToTrs = async ({
@@ -47,7 +44,6 @@ export const orderToTrs = async ({
   let mainId = nanoid();
   let ptrId = nanoid();
   let parentId = mainId;
-  let oldOtherTrs: ITransactionDocument[] = [];
 
   const [contentType, contentId] = ['sales:order', order._id];
   const number = order.number;
@@ -58,12 +54,6 @@ export const orderToTrs = async ({
     journal: JOURNALS.INV_SALE,
   }).lean();
   if (oldTrs?.length) {
-    const parentIds = [...new Set(oldTrs.map((otr) => otr.parentId))];
-    oldOtherTrs = await models.Transactions.find({
-      parentId: { $in: parentIds },
-      originId: { $in: [null, ''] },
-      contentId: { $in: [null, ''] },
-    }).lean();
     if (config.dateRule === 'syncedDateOrNow') {
       date = oldTrs[0].date;
     }
@@ -238,13 +228,13 @@ export const orderToTrs = async ({
 
     await models.Transactions.updatePTransaction(
       parentId,
-      [{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs],
+      [{ ...saleTrDoc }, ...paymentTrs],
       userId,
       { skipAccountPermission: true },
     );
   } else {
     await models.Transactions.createPTransaction(
-      [{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs],
+      [{ ...saleTrDoc }, ...paymentTrs],
       userId,
       { skipAccountPermission: true },
     );
