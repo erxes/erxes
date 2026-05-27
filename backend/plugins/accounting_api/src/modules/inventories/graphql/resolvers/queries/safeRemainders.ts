@@ -41,6 +41,36 @@ const safeRemainderQueries = {
       query.date = dateQuery;
     }
 
+    if (params.createdUserId) {
+      query.createdBy = params.createdUserId;
+    }
+
+    if (params.modifiedUserId) {
+      query.modifiedBy = params.modifiedUserId;
+    }
+
+    const createdAtQuery: any = {};
+    if (params.createdStartDate) {
+      createdAtQuery.$gte = new Date(params.createdStartDate);
+    }
+    if (params.createdEndDate) {
+      createdAtQuery.$lte = new Date(params.createdEndDate);
+    }
+    if (Object.keys(createdAtQuery).length) {
+      query.createdAt = createdAtQuery;
+    }
+
+    const modifiedAtQuery: any = {};
+    if (params.updatedStartDate) {
+      modifiedAtQuery.$gte = new Date(params.updatedStartDate);
+    }
+    if (params.updatedEndDate) {
+      modifiedAtQuery.$lte = new Date(params.updatedEndDate);
+    }
+    if (Object.keys(modifiedAtQuery).length) {
+      query.modifiedAt = modifiedAtQuery;
+    }
+
     if (params.productId) {
       const allRemainders = await models.SafeRemainders.find(query).lean();
       const remIds = allRemainders.map((r) => r._id);
