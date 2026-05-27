@@ -1,0 +1,75 @@
+# Contract: create-backend-entity
+
+skill:
+  name: create-backend-entity
+  version: "1.0.0"
+  type: feature
+  description: Add or extend Mongoose-backed erxes backend entities
+
+inputs:
+  - name: plugin_name
+    type: string
+    description: "Backend plugin name (e.g., 'sales', 'content')"
+    required: true
+    validation:
+      command: "pnpm nx show projects | grep '^{plugin_name}_api$'"
+
+  - name: entity_name
+    type: string
+    description: "PascalCase entity name (e.g., 'Tag', 'DealPriority')"
+    required: true
+    pattern: "^[A-Z][a-zA-Z0-9]+$"
+
+  - name: fields
+    type: array
+    description: "Entity field definitions"
+    required: true
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: enum
+          values: [String, Number, Boolean, Date, ObjectId, Array, Mixed]
+        required:
+          type: boolean
+          default: false
+
+rules_required:
+  - architecture
+  - typescript-guidelines
+  - server-migrations
+
+preconditions:
+  - description: "Plugin must be a backend plugin"
+    check: "test -d backend/plugins/{plugin_name}_api"
+  - description: "Similar entity must be found"
+    check: "find backend/plugins/{plugin_name}_api/src -name '*.ts' | xargs grep -l 'new Schema' | head -3"
+
+postconditions:
+  - description: "Build passes"
+    command: "pnpm nx build {plugin_name}_api"
+    required: true
+  - description: "Deliverables verified"
+    command: ".agents/evals/check-deliverables.sh {plugin_name}_api {entity_name}"
+    required: true
+  - description: "Rules compliance verified"
+    command: ".agents/evals/check-rules.sh backend/plugins/{plugin_name}_api/src/modules/{entity_name}"
+    required: true
+
+composes_with:
+  - create-backend-migration
+  - create-query
+
+conventions:
+  - "Use MongoDB and Mongoose, not TypeORM or NestJS"
+  - "Define schemas directly with new Schema(...), explicit fields"
+  - "Do not introduce new schemaWrapper usage"
+  - "Preserve existing string ID conventions unless collection uses ObjectIds"
+  - "Keep business validation in model/service layer"
+  - "Put schemas in db/definitions and model methods in db/models"
+  - "Wire schemas through src/apollo/schema/schema.ts"
+  - "Wire resolver maps through src/apollo/resolvers"
+  - "Register models in connectionResolvers.ts"
+  - "Named exports only"

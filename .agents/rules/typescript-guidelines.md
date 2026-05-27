@@ -4,7 +4,7 @@
 
 erxes does not enforce one identical TypeScript style everywhere. Frontend
 plugins are generally stricter than backend services, and legacy modules contain
-accepted patterns such as enums, interfaces, `any`, and default exports.
+accepted patterns such as enums, interfaces, and `any`.
 
 When editing:
 

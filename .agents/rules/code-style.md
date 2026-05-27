@@ -37,12 +37,10 @@
 
 ## Exports
 
-- erxes uses both named exports and default exports. Match the surrounding
-  module.
-- Default exports are common in route entry points, Module Federation entries,
-  resolver maps, GraphQL document maps, and config files.
-- Named exports are common for reusable components, hooks, constants, and
-  utility functions.
+- Use named exports only. Do not introduce new default exports.
+- Named exports are used for components, hooks, constants, utility functions,
+  route entry points, Module Federation entries, resolver maps, GraphQL document
+  maps, and config files.
 
 ## Comments
 

@@ -13,7 +13,7 @@
 
 ## Components
 
-Match the local export style. erxes uses both named and default exports.
+Use named exports only. Do not use default exports.
 
 Use composition to keep page components readable. Extract hooks for data
 fetching, mutations, form setup, and table state when nearby features do.

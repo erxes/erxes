@@ -1,0 +1,118 @@
+# Contract: create-plugin
+
+skill:
+  name: create-plugin
+  version: "1.0.0"
+  type: meta
+  description: Create a new erxes plugin from scratch with proper scaffolding and registration
+
+inputs:
+  - name: plugin_name
+    type: string
+    description: "Plugin name (e.g., 'inventory', 'analytics')"
+    required: true
+    pattern: "^[a-zA-Z][a-zA-Z0-9]*$"
+    validation:
+      command: "! test -d frontend/plugins/{plugin_name}_ui && ! test -d backend/plugins/{plugin_name}_api"
+      error_message: "Plugin {plugin_name} already exists"
+
+  - name: module_name
+    type: string
+    description: "Initial module name (e.g., 'items', 'reports')"
+    required: true
+    pattern: "^[a-zA-Z][a-zA-Z0-9]*$"
+
+  - name: description
+    type: string
+    description: "Brief description of plugin purpose"
+    required: true
+
+  - name: scope
+    type: enum
+    values: [frontend, backend, both]
+    description: "Which parts to create"
+    required: true
+
+  - name: keywords
+    type: array
+    description: "Keywords for feature map lookup"
+    required: false
+    items:
+      type: string
+
+rules_required:
+  - architecture
+  - code-style
+  - react-general-guidelines
+  - typescript-guidelines
+  - non-negotiable
+
+preconditions:
+  - description: "Plugin does not already exist"
+    check: "! test -d frontend/plugins/{plugin_name}_ui"
+  - description: "Plugin name is valid"
+    check: "echo {plugin_name} | grep -qE '^[a-zA-Z][a-zA-Z0-9]*$'"
+  - description: "User has confirmed requirements"
+    check: "user_confirmed == true"
+
+postconditions:
+  - description: "Frontend plugin builds"
+    command: "pnpm nx build {plugin_name}_ui"
+    when: "scope == frontend || scope == both"
+    required: true
+  - description: "Backend plugin builds"
+    command: "pnpm nx build {plugin_name}_api"
+    when: "scope == backend || scope == both"
+    required: true
+  - description: "Plugin registered in manifest"
+    check: "grep -q {plugin_name} .agents/manifest.yaml"
+    required: true
+  - description: "Plugin has AGENTS.md"
+    check: "test -f frontend/plugins/{plugin_name}_ui/AGENTS.md"
+    when: "scope == frontend || scope == both"
+    required: true
+  - description: "Plugin added to feature map"
+    check: "grep -q {plugin_name} .agents/maps/feature-map.yaml"
+    required: true
+
+workflow:
+  phases:
+    - confirm: "Gather requirements and confirm with user"
+    - scaffold: "Run pnpm create-plugin script"
+    - fix: "Fix default exports and patterns"
+    - config: "Create Module Federation config"
+    - docs: "Create AGENTS.md"
+    - register: "Register in manifest and feature map"
+    - host: "Update host app if needed"
+    - validate: "Build and verify"
+
+deliverables:
+  - "Frontend plugin directory with proper structure"
+  - "Backend plugin directory with proper structure (if applicable)"
+  - "Named exports only (no default exports)"
+  - "Module Federation configuration"
+  - "Plugin AGENTS.md"
+  - "Registration in manifest.yaml"
+  - "Entry in feature-map.yaml"
+  - "Host app references updated (if needed)"
+
+composes_with:
+  - create-page
+  - create-table
+  - create-backend-entity
+  - configure-plugin-navigation
+  - module-federation-expose
+
+examples:
+  - input:
+      plugin_name: "inventory"
+      module_name: "items"
+      description: "Inventory management with items and stock tracking"
+      scope: "both"
+      keywords: ["inventory", "stock", "item", "warehouse"]
+    output:
+      status: "created"
+      frontend_plugin: "inventory_ui"
+      backend_plugin: "inventory_api"
+      module: "items"
+      registered: true
