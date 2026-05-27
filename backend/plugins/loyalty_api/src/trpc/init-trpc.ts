@@ -10,6 +10,7 @@ import {
   doScoreCampaign,
   refundLoyaltyScore,
   handleScore,
+  consumeScoreTargetChange,
 } from '~/utils/utils';
 import { checkPricing, getMainConditions } from '~/modules/pricing/utils';
 import {
@@ -17,6 +18,7 @@ import {
   calculatePriceAdjust,
 } from '~/modules/pricing/utils/rule';
 import { getAllowedProducts } from '~/modules/pricing/utils/product';
+import { SCORE_CAMPAIGN_STATUSES } from '~/modules/score/constants';
 
 export type LoyaltyTRPCContext = ITRPCContext<{ models: IModels }>;
 const t = initTRPC.context<LoyaltyTRPCContext>().create();
@@ -128,12 +130,17 @@ const checkScoreAviableSubtractInput = z
   .passthrough();
 
 const updateScoreInput = z.object({
-  action: z.enum(['add', 'subtract']),
+  action: z.enum(['add', 'subtract', 'set']),
   ownerId: z.string(),
   ownerType: z.string(),
   campaignId: z.string(),
   target: z.record(z.any()),
   description: z.string(),
+  createdBy: z.string().optional(),
+  serviceName: z.string().optional(),
+  targetId: z.string().optional(),
+  amount: z.number().optional(),
+  quantity: z.number().optional(),
 });
 
 const doScoreCampaignInput = z
@@ -144,7 +151,20 @@ const doScoreCampaignInput = z
     campaignId: z.string().optional(),
     serviceName: z.string().optional(),
     target: z.record(z.any()).optional(),
+    oldTarget: z.record(z.any()).optional(),
     targetId: z.string(),
+  })
+  .passthrough();
+
+const consumeTargetChangeInput = z
+  .object({
+    contentType: z.string(),
+    serviceName: z.string().optional(),
+    targetId: z.string().optional(),
+    target: z.record(z.any()).optional(),
+    oldTarget: z.record(z.any()).optional(),
+    stageContexts: z.record(z.any()).optional(),
+    ownerHints: z.record(z.string().optional()).optional(),
   })
   .passthrough();
 
@@ -388,22 +408,24 @@ export const appRouter = t.router({
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
         return await models.ScoreCampaigns.find({
-          status: 'published',
+          status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
           'additionalConfig.cardBasedRule': {
             $elemMatch: {
               boardId: input.boardId,
               pipelineId: input.pipelineId,
-              stageIds: input.stageId,
+              stageIds: { $in: [input.stageId] },
             },
           },
-        }).lean();
+        })
+          .sort({ order: 1, createdAt: 1 })
+          .lean();
       }),
 
     updateScore: t.procedure
       .input(updateScoreInput)
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
-        await handleScore(models, input);
+        return await handleScore(models, input);
       }),
 
     doScoreCampaign: t.procedure
@@ -412,6 +434,13 @@ export const appRouter = t.router({
         const { models } = ctx;
         // Type assertion to bypass persistent TypeScript mismatch; input is validated by Zod
         return await doScoreCampaign(models, input);
+      }),
+
+    consumeTargetChange: t.procedure
+      .input(consumeTargetChangeInput)
+      .mutation(async ({ ctx, input }) => {
+        const { models, subdomain } = ctx;
+        return await consumeScoreTargetChange({ models, subdomain, input });
       }),
 
     refundLoyaltyScore: t.procedure

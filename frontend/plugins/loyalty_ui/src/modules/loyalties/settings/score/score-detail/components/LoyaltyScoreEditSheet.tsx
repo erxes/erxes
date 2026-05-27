@@ -34,6 +34,7 @@ export const LoyaltyScoreEditSheet = () => {
     defaultValues: {
       title: '',
       description: '',
+      order: undefined,
       conditions: {
         serviceName: '',
         productCategoryIds: [],
@@ -51,6 +52,7 @@ export const LoyaltyScoreEditSheet = () => {
       },
       add: { placeholder: '', currencyRatio: '' },
       subtract: { placeholder: '', currencyRatio: '' },
+      set: { placeholder: '', currencyRatio: '' },
       ownerType: '',
       onlyClientPortal: false,
       fieldGroupId: '',
@@ -75,6 +77,7 @@ export const LoyaltyScoreEditSheet = () => {
       form.reset({
         title: scoreDetail.title || '',
         description: scoreDetail.description || '',
+        order: scoreDetail.order,
         conditions: {
           serviceName: scoreDetail.serviceName || '',
           productCategoryIds: parseIds(restrictions.productCategoryIds),
@@ -107,6 +110,10 @@ export const LoyaltyScoreEditSheet = () => {
         subtract: {
           placeholder: scoreDetail.subtract?.placeholder || '',
           currencyRatio: scoreDetail.subtract?.currencyRatio || '',
+        },
+        set: {
+          placeholder: scoreDetail.set?.placeholder || '',
+          currencyRatio: scoreDetail.set?.currencyRatio || '',
         },
         ownerType: scoreDetail.ownerType || '',
         onlyClientPortal: scoreDetail.onlyClientPortal ?? false,

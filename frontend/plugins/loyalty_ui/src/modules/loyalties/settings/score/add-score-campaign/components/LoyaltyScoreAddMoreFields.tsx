@@ -8,13 +8,14 @@ import {
   Command,
   Combobox,
   Switch,
+  Textarea,
 } from 'erxes-ui';
 import { IconSettings } from '@tabler/icons-react';
 import { LoyaltyScoreFormValues } from '../../constants/formSchema';
 import { SelectFieldGroup } from './selects/SelectFieldGroup';
 import { SelectField } from './selects/SelectField';
 import { useQuery } from '@apollo/client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SCORE_CAMPAIGN_ATTRIBUTES_QUERY } from '../../graphql/queries/scoreCampaignAttributesQuery';
 import { ServiceConfigSheet } from './ServiceConfigSheet';
 
@@ -87,11 +88,52 @@ const FieldNameSection = ({
   ownerType: string;
 }) => {
   const fieldOrigin = form.watch('fieldOrigin') || 'new';
+  const fieldName = form.watch('fieldName') || '';
+  const fieldId = form.watch('fieldId') || '';
+  const lastNewFieldName = useRef(fieldName);
+  const lastExistingFieldId = useRef(fieldId);
+
+  useEffect(() => {
+    if (fieldOrigin === 'new') {
+      lastNewFieldName.current = fieldName;
+    }
+  }, [fieldName, fieldOrigin]);
+
+  useEffect(() => {
+    if (fieldOrigin === 'exists') {
+      lastExistingFieldId.current = fieldId;
+    }
+  }, [fieldId, fieldOrigin]);
 
   const setFieldTab = (tab: 'new' | 'exists') => {
+    if (fieldOrigin === tab) {
+      return;
+    }
+
+    if (fieldOrigin === 'new') {
+      lastNewFieldName.current = form.getValues('fieldName') || '';
+    }
+
+    if (fieldOrigin === 'exists') {
+      lastExistingFieldId.current = form.getValues('fieldId') || '';
+    }
+
     form.setValue('fieldOrigin', tab, { shouldDirty: true });
-    form.setValue('fieldName', '');
-    form.setValue('fieldId', '');
+
+    if (tab === 'new') {
+      form.setValue('fieldName', lastNewFieldName.current, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      form.setValue('fieldId', '', { shouldDirty: false });
+      return;
+    }
+
+    form.setValue('fieldId', lastExistingFieldId.current, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    form.setValue('fieldName', '', { shouldDirty: false });
   };
 
   return (
@@ -100,22 +142,20 @@ const FieldNameSection = ({
       <div className="flex gap-2">
         <button
           type="button"
-          className={`pb-2 px-1 text-sm font-medium border-b-2 transition-colors ${
-            fieldOrigin === 'new'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-muted-foreground'
-          }`}
+          className={`pb-2 px-1 text-sm font-medium border-b-2 transition-colors ${fieldOrigin === 'new'
+            ? 'border-primary text-primary'
+            : 'border-transparent text-muted-foreground'
+            }`}
           onClick={() => setFieldTab('new')}
         >
           New
         </button>
         <button
           type="button"
-          className={`pb-2 px-1 text-sm font-medium border-b-2 transition-colors ${
-            fieldOrigin === 'exists'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-muted-foreground'
-          }`}
+          className={`pb-2 px-1 text-sm font-medium border-b-2 transition-colors ${fieldOrigin === 'exists'
+            ? 'border-primary text-primary'
+            : 'border-transparent text-muted-foreground'
+            }`}
           onClick={() => setFieldTab('exists')}
         >
           Exists
@@ -129,7 +169,14 @@ const FieldNameSection = ({
           render={({ field }) => (
             <Form.Item>
               <Form.Control>
-                <Input {...field} placeholder="Enter field name" />
+                <Input
+                  {...field}
+                  onChange={(event) => {
+                    lastNewFieldName.current = event.target.value;
+                    field.onChange(event);
+                  }}
+                  placeholder="Enter field name"
+                />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -143,7 +190,10 @@ const FieldNameSection = ({
             <Form.Item>
               <SelectField.FormItem
                 value={field.value || ''}
-                onValueChange={field.onChange}
+                onValueChange={(value) => {
+                  lastExistingFieldId.current = value;
+                  field.onChange(value);
+                }}
                 contentTypes={[`core:${ownerType}`]}
                 groupId={fieldGroupId}
                 placeholder="Select field"
@@ -229,10 +279,11 @@ export const LoyaltyScoreAddMoreFields = ({
           <Tabs.List>
             <Tabs.Trigger value="add">Add</Tabs.Trigger>
             <Tabs.Trigger value="subtract">Subtract</Tabs.Trigger>
+            <Tabs.Trigger value="set">Set</Tabs.Trigger>
           </Tabs.List>
 
           <Tabs.Content value="add" className="pt-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-[1fr_120px] gap-4">
               <Form.Field
                 control={form.control}
                 name="add.placeholder"
@@ -248,7 +299,7 @@ export const LoyaltyScoreAddMoreFields = ({
                       />
                     </div>
                     <Form.Control>
-                      <Input
+                      <Textarea
                         {...field}
                         placeholder="Type a placeholder for add score"
                       />
@@ -274,7 +325,7 @@ export const LoyaltyScoreAddMoreFields = ({
           </Tabs.Content>
 
           <Tabs.Content value="subtract" className="pt-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-[1fr_120px] gap-4">
               <Form.Field
                 control={form.control}
                 name="subtract.placeholder"
@@ -290,7 +341,7 @@ export const LoyaltyScoreAddMoreFields = ({
                       />
                     </div>
                     <Form.Control>
-                      <Input
+                      <Textarea
                         {...field}
                         placeholder="Type a placeholder for subtract score"
                       />
@@ -312,79 +363,146 @@ export const LoyaltyScoreAddMoreFields = ({
                   </Form.Item>
                 )}
               />
+
+              <Form.Field
+                control={form.control}
+                name="onlyClientPortal"
+                render={({ field }) => (
+                  <Form.Item className="flex flex-row items-center gap-2">
+                    <Form.Control>
+                      <Switch
+                        checked={field.value ?? false}
+                        onCheckedChange={field.onChange}
+                      />
+                    </Form.Control>
+                    <Form.Label className="mb-2">
+                      Only Client Portal (optional)
+                    </Form.Label>
+                  </Form.Item>
+                )}
+              />
+            </div>
+          </Tabs.Content>
+
+          <Tabs.Content value="set" className="pt-4">
+            <div className="grid grid-cols-[1fr_120px] gap-4">
+              <Form.Field
+                control={form.control}
+                name="set.placeholder"
+                render={({ field }) => (
+                  <Form.Item>
+                    <div className="flex items-center gap-2">
+                      <Form.Label>Score Value</Form.Label>
+                      <AttributionSelect
+                        serviceName={selectedService}
+                        onSelect={(val) =>
+                          field.onChange((field.value || '') + val)
+                        }
+                      />
+                    </div>
+                    <Form.Control>
+                      <Textarea
+                        {...field}
+                        placeholder="Type a placeholder for set score"
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+              <Form.Field
+                control={form.control}
+                name="set.currencyRatio"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Currency Ratio</Form.Label>
+                    <Form.Control>
+                      <Input {...field} placeholder="Type a currency ratio" />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
             </div>
           </Tabs.Content>
         </Tabs>
-      )}
+      )
+      }
 
-      {selectedService && (
-        <div className="flex flex-col gap-2">
-          <Form.Label>Apply Score To</Form.Label>
-          <div className="grid grid-cols-3 gap-4">
-            {OWNER_TYPES.map(({ label, value }) => (
-              <Button
-                key={value}
-                type="button"
-                variant={selectedOwnerType === value ? 'default' : 'outline'}
-                onClick={() =>
-                  form.setValue('ownerType', value, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                }
-              >
-                {label}
-              </Button>
-            ))}
+      {
+        selectedService && (
+          <div className="flex flex-col gap-2">
+            <Form.Label>Apply Score To</Form.Label>
+            <div className="grid grid-cols-3 gap-4">
+              {OWNER_TYPES.map(({ label, value }) => (
+                <Button
+                  key={value}
+                  type="button"
+                  variant={selectedOwnerType === value ? 'default' : 'outline'}
+                  onClick={() =>
+                    form.setValue('ownerType', value, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    })
+                  }
+                >
+                  {label}
+                </Button>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
-      {selectedService && (
-        <Form.Field
-          control={form.control}
-          name="onlyClientPortal"
-          render={({ field }) => (
-            <Form.Item className="flex flex-row items-center gap-2">
-              <Form.Control>
-                <Switch
-                  checked={field.value ?? false}
-                  onCheckedChange={field.onChange}
-                />
-              </Form.Control>
-              <Form.Label className="mb-2">
-                Only Client Portal (optional)
-              </Form.Label>
-            </Form.Item>
-          )}
-        />
-      )}
+      {
+        selectedOwnerType && (
+          <div className="grid grid-cols-2 gap-4">
+            <Form.Field
+              control={form.control}
+              name="fieldGroupId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Field Group</Form.Label>
+                  <SelectFieldGroup
+                    value={field.value || ''}
+                    onValueChange={field.onChange}
+                    contentTypes={[`core:${selectedOwnerType}`]}
+                  />
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="onlyClientPortal"
+              render={({ field }) => (
+                <Form.Item className="flex flex-row items-center gap-2">
+                  <Form.Control>
+                    <Switch
+                      checked={field.value ?? false}
+                      onCheckedChange={field.onChange}
+                    />
+                  </Form.Control>
+                  <Form.Label className="mb-2">
+                    Only Client Portal (optional)
+                  </Form.Label>
+                </Form.Item>
+              )}
+            />
 
-      {selectedOwnerType && (
-        <Form.Field
-          control={form.control}
-          name="fieldGroupId"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Field Group</Form.Label>
-              <SelectFieldGroup
-                value={field.value || ''}
-                onValueChange={field.onChange}
-                contentTypes={[`core:${selectedOwnerType}`]}
-              />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-      )}
+          </div>
+        )
+      }
 
-      {selectedOwnerType && selectedFieldGroupId && (
-        <FieldNameSection
-          form={form}
-          fieldGroupId={selectedFieldGroupId}
-          ownerType={selectedOwnerType}
-        />
-      )}
-    </div>
+      {
+        selectedOwnerType && selectedFieldGroupId && (
+          <FieldNameSection
+            form={form}
+            fieldGroupId={selectedFieldGroupId}
+            ownerType={selectedOwnerType}
+          />
+        )
+      }
+    </div >
   );
 };

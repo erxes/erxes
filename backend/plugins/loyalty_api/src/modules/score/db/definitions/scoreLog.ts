@@ -27,7 +27,7 @@ export const scoreLogSchema = schemaWrapper(
       targetId: { type: String, label: 'Target' },
       action: {
         type: String,
-        enum: ['add', 'subtract', 'refund'],
+        enum: ['add', 'subtract', 'set', 'refund'],
         label: 'Action',
       },
       sourceScoreLogId: {

@@ -16,7 +16,6 @@ import { GET_WEBSITES } from '../../graphql/queries';
 import {
   CONTENT_CREATE_CMS,
   CONTENT_UPDATE_CMS,
-  CONTENT_DELETE_CMS,
 } from '../../graphql/mutations';
 import { useClientPortals } from '../../hooks/useClientPortals';
 import { LANGUAGES } from '../../../../constants';
@@ -33,19 +32,6 @@ interface WebsiteDrawerProps {
   onSuccess?: () => void;
 }
 
-const POST_URL_FIELD_OPTIONS = [
-  { value: '_id', label: 'Post ID' },
-  { value: 'count', label: 'Post Count' },
-  { value: 'slug', label: 'Post Slug' },
-] as const;
-
-const POST_URL_FIELD_EXAMPLES: Record<WebsiteFormType['postUrlField'], string> =
-  {
-    _id: 'fSY5zj2QmcnXUNSnF9sYo',
-    count: '1',
-    slug: 'my-first-post',
-  };
-
 export function WebsiteDrawer({
   website,
   isOpen,
@@ -57,7 +43,6 @@ export function WebsiteDrawer({
   const {
     clientPortals,
     loading: clientPortalsLoading,
-    error: clientPortalsError,
     refetch: refetchClientPortals,
   } = useClientPortals({}, !isOpen);
 
@@ -71,26 +56,8 @@ export function WebsiteDrawer({
       kind: 'client',
       languages: [],
       language: '',
-      postUrlField: '_id',
     },
   });
-
-  const selectedClientPortalId = form.watch('kind');
-  const selectedPostUrlField = form.watch('postUrlField');
-  const selectedClientPortal = clientPortals.find(
-    (portal) => portal._id === selectedClientPortalId,
-  );
-  const rawDomain = selectedClientPortal?.domain || '';
-  const normalizedDomain = rawDomain
-    ? rawDomain.startsWith('http')
-      ? rawDomain
-      : `https://${rawDomain}`
-    : '';
-  const previewPathSegment =
-    POST_URL_FIELD_EXAMPLES[selectedPostUrlField || '_id'];
-  const previewUrl = normalizedDomain
-    ? `${normalizedDomain.replace(/\/+$/, '')}/${previewPathSegment}`
-    : `/${previewPathSegment}`;
 
   useEffect(() => {
     if (isOpen) {
@@ -105,7 +72,6 @@ export function WebsiteDrawer({
           kind: website.clientPortalId || '',
           languages: website.languages || [],
           language: website.language || '',
-          postUrlField: website.postUrlField || '_id',
         });
       } else {
         form.reset({
@@ -116,7 +82,6 @@ export function WebsiteDrawer({
           kind: 'client',
           languages: [],
           language: '',
-          postUrlField: '_id',
         });
       }
     }
@@ -197,33 +162,8 @@ export function WebsiteDrawer({
     },
   );
 
-  const [deleteCMS, { loading: removing }] = useMutation(CONTENT_DELETE_CMS, {
-    refetchQueries: [{ query: GET_WEBSITES }],
-    awaitRefetchQueries: true,
-    onCompleted: () => {
-      onClose();
-      form.reset();
-      toast({
-        title: 'Success',
-        description: 'CMS deleted successfully',
-        variant: 'default',
-      });
-      if (onSuccess) {
-        onSuccess();
-      }
-    },
-    onError: (error) => {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to delete CMS. Please try again.',
-        variant: 'destructive',
-        duration: 5000,
-      });
-    },
-  });
-
   const onSubmit = (data: WebsiteFormType) => {
-    const { name, description, language, languages, postUrlField } = data;
+    const { name, description, language, languages } = data;
 
     if (isEditing && website?._id) {
       updateCMS({
@@ -235,7 +175,6 @@ export function WebsiteDrawer({
             language: language || undefined,
             languages: languages || [],
             clientPortalId: data.kind,
-            postUrlField,
           },
         },
       });
@@ -250,7 +189,6 @@ export function WebsiteDrawer({
           language: language || undefined,
           languages: languages || [],
           clientPortalId: data.kind,
-          postUrlField,
           content: 'hello',
         },
       },
@@ -341,38 +279,6 @@ export function WebsiteDrawer({
 
             <Form.Field
               control={form.control}
-              name="postUrlField"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>Post URL Field</Form.Label>
-                  <Form.Control>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <Select.Trigger>
-                        <Select.Value placeholder="Select post URL field" />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {POST_URL_FIELD_OPTIONS.map((option) => (
-                          <Select.Item key={option.value} value={option.value}>
-                            {option.label}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                  <p className="text-xs text-muted-foreground">
-                    Choose which post field the public website will use in post
-                    URLs.
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Preview: {previewUrl}
-                  </p>
-                  <Form.Message className="text-destructive" />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
               name="languages"
               render={({ field }) => (
                 <Form.Item>
@@ -449,28 +355,10 @@ export function WebsiteDrawer({
                     ? 'Saving...'
                     : 'Creating...'
                   : isEditing
-                    ? 'Save Changes'
-                    : 'Create CMS'}
+                  ? 'Save Changes'
+                  : 'Create CMS'}
               </Button>
 
-              {isEditing && (
-                <Button
-                  variant="destructive"
-                  type="button"
-                  onClick={async () => {
-                    if (website?._id) {
-                      try {
-                        await deleteCMS({ variables: { id: website._id } });
-                      } catch (error) {
-                        console.error('Error deleting CMS:', error);
-                      }
-                    }
-                  }}
-                  disabled={removing}
-                >
-                  {removing ? 'Deleting...' : 'Delete'}
-                </Button>
-              )}
               <Button onClick={onClose} variant="outline">
                 Cancel
               </Button>
