@@ -9,10 +9,7 @@ import {
   Popover,
   PopoverScoped,
   RecordTableInlineCell,
-  SelectOperationContent,
   SelectTree,
-  SelectTriggerOperation,
-  SelectTriggerVariant,
   TextOverflowTooltip,
   useFilterContext,
   useQueryState,
@@ -35,7 +32,6 @@ interface SelectCategoryProviderProps {
   onValueChange?: (value: string[] | string) => void;
   onSelect?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
-  clientPortalId?: string;
 }
 
 interface SelectCategoryContextValue {
@@ -78,11 +74,11 @@ const SelectCategoryProvider = ({
   const selectedValue = value ?? selected;
   const categoryIds = useMemo(
     () =>
-      !selectedValue
-        ? []
-        : Array.isArray(selectedValue)
+      Array.isArray(selectedValue)
         ? selectedValue
-        : [selectedValue],
+        : selectedValue
+        ? [selectedValue]
+        : [],
     [selectedValue],
   );
   const handleValueChange = onValueChange || onSelect;
@@ -546,80 +542,36 @@ const SelectCategoryFilterBar = ({
   filterKey,
   label = 'Categories',
   mode = 'single',
-  variant,
-  scope,
-  initialValue,
-  value,
 }: {
   onValueChange?: (value: string[] | string) => void;
   queryKey?: string;
   filterKey?: string;
   label?: string;
   mode?: 'single' | 'multiple';
-  variant?: `${SelectTriggerVariant}`;
-  scope?: string;
-  initialValue?: string[];
-  value?: string[];
 }) => {
   const key = filterKey || queryKey || 'category';
-  const isCardVariant = variant === 'card';
-  const [localQuery, setLocalQuery] = useState<string[]>(
-    value || initialValue || [],
-  );
-  const [urlQuery, setUrlQuery] = useQueryState<string[] | string | undefined>(
-    key,
-  );
+  const [categories, setCategories] = useQueryState<
+    string[] | string | undefined
+  >(key);
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    if (isCardVariant) {
-      setLocalQuery(value || initialValue || []);
-    }
-  }, [value, initialValue, isCardVariant]);
-
-  const query = isCardVariant ? localQuery : urlQuery;
-
-  if (!query && variant !== 'card') {
+  if (!categories) {
     return null;
   }
 
   const handleValueChange = (value: string[] | string) => {
     onValueChange?.(value);
 
-    if (isCardVariant) {
-      setLocalQuery(Array.isArray(value) ? value : value ? [value] : []);
-      return;
-    }
-
     if (value && value.length > 0) {
-      setUrlQuery(value);
+      setCategories(value);
     } else {
-      setUrlQuery(null);
+      setCategories(null);
     }
 
     if (mode === 'single') {
       setOpen(false);
     }
   };
-
-  if (isCardVariant) {
-    return (
-      <SelectCategoryProvider
-        mode={mode}
-        value={query || (mode === 'single' ? '' : [])}
-        onValueChange={handleValueChange}
-      >
-        <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-          <SelectTriggerOperation variant={variant || 'filter'}>
-            <SelectCategoryValue />
-          </SelectTriggerOperation>
-          <SelectOperationContent variant={variant || 'filter'}>
-            <SelectCategoryContent />
-          </SelectOperationContent>
-        </PopoverScoped>
-      </SelectCategoryProvider>
-    );
-  }
 
   return (
     <Filter.BarItem queryKey={key}>
@@ -629,7 +581,7 @@ const SelectCategoryFilterBar = ({
       </Filter.BarName>
       <SelectCategoryProvider
         mode={mode}
-        value={query || (mode === 'single' ? '' : [])}
+        value={categories || (mode === 'single' ? '' : [])}
         onValueChange={handleValueChange}
       >
         <Popover open={open} onOpenChange={setOpen}>
@@ -666,7 +618,6 @@ const SelectCategoryRoot = React.forwardRef<
       mode = 'single',
       value,
       selected,
-      clientPortalId,
       placeholder,
       scope,
       ...props
@@ -680,7 +631,6 @@ const SelectCategoryRoot = React.forwardRef<
         mode={mode}
         value={value}
         selected={selected}
-        clientPortalId={clientPortalId}
         onValueChange={(value) => {
           if (mode === 'single') {
             setOpen(false);
