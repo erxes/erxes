@@ -1,6 +1,13 @@
 import { paginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
+const buildDateRange = (from?: string, to?: string) => {
+  const range: any = {};
+  if (from) range.$gte = new Date(from);
+  if (to) range.$lte = new Date(to);
+  return Object.keys(range).length ? range : null;
+};
+
 const safeRemainderQueries = {
   safeRemainders: async (_root: any, params: any, { models }: IContext) => {
     const query: any = {};
@@ -19,27 +26,11 @@ const safeRemainderQueries = {
         $options: 'i',
       };
 
-      query.$or = [
-        {
-          name: regexOption,
-        },
-        {
-          code: regexOption,
-        },
-      ];
+      query.$or = [{ name: regexOption }, { code: regexOption }];
     }
 
-    const dateQuery: any = {};
-    if (params.beginDate) {
-      dateQuery.$gte = new Date(params.beginDate);
-    }
-    if (params.endDate) {
-      dateQuery.$lte = new Date(params.endDate);
-    }
-
-    if (Object.keys(dateQuery).length) {
-      query.date = dateQuery;
-    }
+    const dateRange = buildDateRange(params.beginDate, params.endDate);
+    if (dateRange) query.date = dateRange;
 
     if (params.createdUserId) {
       query.createdBy = params.createdUserId;
@@ -49,27 +40,17 @@ const safeRemainderQueries = {
       query.modifiedBy = params.modifiedUserId;
     }
 
-    const createdAtQuery: any = {};
-    if (params.createdStartDate) {
-      createdAtQuery.$gte = new Date(params.createdStartDate);
-    }
-    if (params.createdEndDate) {
-      createdAtQuery.$lte = new Date(params.createdEndDate);
-    }
-    if (Object.keys(createdAtQuery).length) {
-      query.createdAt = createdAtQuery;
-    }
+    const createdAtRange = buildDateRange(
+      params.createdStartDate,
+      params.createdEndDate,
+    );
+    if (createdAtRange) query.createdAt = createdAtRange;
 
-    const modifiedAtQuery: any = {};
-    if (params.updatedStartDate) {
-      modifiedAtQuery.$gte = new Date(params.updatedStartDate);
-    }
-    if (params.updatedEndDate) {
-      modifiedAtQuery.$lte = new Date(params.updatedEndDate);
-    }
-    if (Object.keys(modifiedAtQuery).length) {
-      query.modifiedAt = modifiedAtQuery;
-    }
+    const modifiedAtRange = buildDateRange(
+      params.updatedStartDate,
+      params.updatedEndDate,
+    );
+    if (modifiedAtRange) query.modifiedAt = modifiedAtRange;
 
     if (params.productId) {
       const allRemainders = await models.SafeRemainders.find(query).lean();
