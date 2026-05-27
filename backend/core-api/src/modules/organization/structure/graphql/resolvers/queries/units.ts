@@ -7,7 +7,7 @@ import {
 
 // Escapes regex special characters to prevent injection
 function escapeRegExp(str: string): string {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return str.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 }
 
 export const unitsQueries = {
@@ -25,10 +25,7 @@ export const unitsQueries = {
         $options: 'i',
       };
 
-      filter.$or = [
-        { title: regexOption },
-        { description: regexOption },
-      ];
+      filter.$or = [{ title: regexOption }, { description: regexOption }];
     }
 
     return models.Units.find(filter).sort({ title: 1 });
@@ -48,10 +45,7 @@ export const unitsQueries = {
         $options: 'i',
       };
 
-      filter.$or = [
-        { title: regex },
-        { description: regex },
-      ];
+      filter.$or = [{ title: regex }, { description: regex }];
     }
 
     const { list, totalCount, pageInfo } = await cursorPaginate({
