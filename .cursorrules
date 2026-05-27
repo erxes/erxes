@@ -1,13 +1,13 @@
 # erxes Cursor Rules
 
-Use `AGENTS.md`, nested `AGENTS.md` files, and `.ai/rules/*.mdc` as the source
+Use `AGENTS.md`, nested `AGENTS.md` files, and `.agents/rules/*.md` as the source
 of truth for this repository. These rules intentionally mirror the project
 specific guidance there instead of generic React or Next.js preferences.
 
 ## Core Workflow
 
-- Read the nearest `AI.md` if one exists; otherwise use `AGENTS.md` and the
-  nearest nested `AGENTS.md`.
+- Read the root `AGENTS.md` and any nested `AGENTS.md` that applies to the
+  touched path.
 - Search for similar implementations with `rg` before creating new code.
 - Reuse existing components, hooks, GraphQL documents, utilities, and state
   patterns before adding new ones.
