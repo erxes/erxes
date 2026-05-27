@@ -2,6 +2,7 @@ import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -312,6 +313,15 @@ const SelectOwnerFilterView = ({
   const [ownerType] = useQueryState<string>(ownerTypeKey);
   const { resetFilterState } = useFilterContext();
 
+  useEffect(() => {
+    if (value) {
+      setValue(null);
+    }
+    // Clearing the prior owner when ownerType switches avoids sending
+    // mismatched { ownerType, ownerId } pairs that return empty results.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ownerType]);
+
   return (
     <Filter.View filterKey={queryKey}>
       <SelectOwnerProvider
@@ -359,6 +369,13 @@ const SelectOwnerFilterBar = ({
   const [value, setValue] = useQueryState<string>(queryKey);
   const [ownerType] = useQueryState<string>(ownerTypeKey);
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (value) {
+      setValue(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ownerType]);
 
   const barLabel = getOwnerBarLabel(ownerType || 'customer');
 

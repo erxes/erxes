@@ -12,7 +12,7 @@ import {
 } from './selects/SelectAssignmentStatus';
 import { ASSIGNMENT_CURSOR_SESSION_KEY } from '../hooks/useAssignmentList';
 import { SelectOwner } from '~/modules/loyalties/components/SelectOwner';
-import { SelectOwnerTypeShared } from '~/modules/loyalties/components/SelectOwnerTypeShared';
+import { SelectOwnerType } from '../../vouchers/components/selects/SelectOwnerType';
 
 const AssignmentFilterPopover = () => {
   const [queries] = useMultiQueryState<{
@@ -44,7 +44,7 @@ const AssignmentFilterPopover = () => {
               <Command.List className="p-1">
                 <SelectAssignmentCampaignFilterItem />
                 <SelectAssignmentStatusFilterItem />
-                <SelectOwnerTypeShared.FilterItem
+                <SelectOwnerType.FilterItem
                   queryKey="assignmentOwnerType"
                 />
                 <SelectOwner.FilterItem queryKey="assignmentOwnerId" />
@@ -53,7 +53,7 @@ const AssignmentFilterPopover = () => {
           </Filter.View>
           <SelectAssignmentCampaignFilterView />
           <SelectAssignmentStatusFilterView />
-          <SelectOwnerTypeShared.FilterView queryKey="assignmentOwnerType" />
+          <SelectOwnerType.FilterView queryKey="assignmentOwnerType" />
           <SelectOwner.FilterView
             queryKey="assignmentOwnerId"
             ownerTypeKey="assignmentOwnerType"
@@ -68,7 +68,7 @@ const AssignmentFilterPopover = () => {
           <SelectAssignmentStatusFilterView />
         </Filter.View>
         <Filter.View filterKey="assignmentOwnerType" inDialog>
-          <SelectOwnerTypeShared.FilterView queryKey="assignmentOwnerType" />
+          <SelectOwnerType.FilterView queryKey="assignmentOwnerType" />
         </Filter.View>
         <Filter.View filterKey="assignmentOwnerId" inDialog>
           <SelectOwner.FilterView
@@ -87,7 +87,7 @@ export const AssignmentFilter = () => {
       <Filter.Bar>
         <SelectAssignmentCampaignFilterBar />
         <SelectAssignmentStatusFilterBar />
-        <SelectOwnerTypeShared.FilterBar queryKey="assignmentOwnerType" />
+        <SelectOwnerType.FilterBar queryKey="assignmentOwnerType" />
         <SelectOwner.FilterBar
           queryKey="assignmentOwnerId"
           ownerTypeKey="assignmentOwnerType"
