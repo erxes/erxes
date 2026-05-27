@@ -510,3 +510,100 @@ export const closedRevenueByMonthWithDealTotalAndClosedRevenueBreakdown = async 
     ],
   };
 };
+
+/**
+ * 13. Count deals grouped by stage, filtered by customer IDs
+ *     Uses getRelatedIds to find deals linked to given customers.
+ */
+export const dealCountByCustomer = async (
+  models: IModels,
+  subdomain: string,
+  filters: IDealReportFilter,
+) => {
+  const match: Record<string, any> = buildDateFilter(filters, 'createdAt');
+
+  // If customer IDs are provided, filter deals by those customers via conformity
+  if (filters.customerIds?.length) {
+    const relatedDealIds = await getRelatedIds(
+      subdomain,
+      'customer',
+      filters.customerIds,
+      'deal',
+    );
+    if (!relatedDealIds.length) {
+      return { labels: [], datasets: [{ data: [] }] };
+    }
+    match._id = { $in: relatedDealIds };
+  }
+
+  const pipeline: any[] = [
+    { $match: match },
+    {
+      $lookup: {
+        from: 'sales_stages',
+        localField: 'stageId',
+        foreignField: '_id',
+        as: 'stage',
+      },
+    },
+    { $unwind: '$stage' },
+    {
+      $group: {
+        _id: '$stage.name',
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { count: -1 } },
+  ];
+  const result = await models.Deals.aggregate(pipeline);
+  return {
+    labels: result.map(r => r._id),
+    datasets: [{ data: result.map(r => r.count) }],
+  };
+};
+
+/**
+ * 14. Count deals in open stages 
+ */
+export const dealCountByOpenProbability = async (
+  models: IModels,
+  filters: IDealReportFilter,
+) => {
+  const match: Record<string, any> = buildDateFilter(filters, 'createdAt');
+
+  // Get stages that are open
+  const stages = await models.Stages.find({
+    probability: { $in: PROBABILITY_OPEN },
+    type: 'deal',
+  }).lean();
+  const openStageIds = stages.map(s => s._id);
+  if (!openStageIds.length) {
+    return { labels: [], datasets: [{ data: [] }] };
+  }
+  match.stageId = { $in: openStageIds };
+
+  const pipeline: any[] = [
+    { $match: match },
+    {
+      $lookup: {
+        from: 'sales_stages',
+        localField: 'stageId',
+        foreignField: '_id',
+        as: 'stage',
+      },
+    },
+    { $unwind: '$stage' },
+    {
+      $group: {
+        _id: '$stage.name',
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { count: -1 } },
+  ];
+  const result = await models.Deals.aggregate(pipeline);
+  return {
+    labels: result.map(r => r._id),
+    datasets: [{ data: result.map(r => r.count) }],
+  };
+};
