@@ -7,6 +7,8 @@ boundaries, and local implementation patterns.
 ## Rule Files
 
 - `architecture.md` - erxes monorepo structure, stack, and ownership boundaries.
+- `operation-plugin-reference.md` - operation plugin patterns to use as the
+  preferred reference when local plugin patterns are missing or weaker.
 - `nx-rules.md` - pnpm and Nx command guidance.
 - `file-structure.md` - frontend, backend, plugin, and shared-code locations.
 - `code-style.md` - local code style and review expectations.
@@ -26,9 +28,11 @@ Before coding:
 
 1. Read the root `AGENTS.md` and any nested `AGENTS.md` that applies to the
    touched path.
-2. Search for similar implementations with `rg`.
-3. Confirm the touched project's routing, GraphQL, state, and UI patterns.
-4. Reuse nearby code before adding new abstractions.
+2. Read relevant `.agents/rules/*.md` and
+   `.agents/skills/<skill-name>/SKILL.md` files.
+3. Search for similar implementations with `rg`.
+4. Confirm the touched project's routing, GraphQL, state, and UI patterns.
+5. Reuse nearby code before adding new abstractions.
 
 During coding:
 
@@ -52,6 +56,9 @@ After coding:
 pnpm nx show projects
 pnpm nx serve core-ui
 pnpm nx serve content_ui
+pnpm nx build operation_ui
+pnpm nx lint operation_ui
+pnpm nx build operation_api
 pnpm nx build core-ui
 pnpm nx build content_ui
 pnpm nx lint content_ui

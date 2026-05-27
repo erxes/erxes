@@ -17,6 +17,9 @@
   for feature helpers depending on the plugin. Follow the local directory.
 - Backend model files often use PascalCase model names and lowercase definition
   files. Preserve the local convention.
+- Name GraphQL queries, mutations, and subscriptions with the plugin or module
+  prefix plus the operation purpose, such as `operationTaskList` or
+  `cmsPageList`; operation names must be unique.
 - Keep public GraphQL operation names, route names, and module federation
   exposes stable unless the task explicitly asks to change them.
 

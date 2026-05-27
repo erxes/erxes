@@ -1,3 +1,8 @@
+---
+name: create-page
+description: Add erxes frontend pages and routes using nearby plugin page, layout, routing, loading, and feature-module structure. Use for route-level page work.
+---
+
 # Skill: Create New Page
 
 ## Workflow

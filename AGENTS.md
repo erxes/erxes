@@ -10,6 +10,8 @@ behavior while keeping changes small.
 
 - Read this root `AGENTS.md` and any nested `AGENTS.md` that applies to the
   touched path before editing.
+- Read relevant `.agents/rules/*.md` and
+  `.agents/skills/<skill-name>/SKILL.md` files for task-specific guidance.
 - Search for a similar implementation before creating new code.
 - Reuse existing components, hooks, GraphQL documents, utilities, and state
   patterns before adding new ones.
@@ -27,6 +29,12 @@ behavior while keeping changes small.
   for reusable plugin UI.
 - Follow existing GraphQL, Apollo, routing, and state management patterns in
   the touched project.
+- Name GraphQL queries and mutations with the plugin or module prefix plus the
+  operation purpose, such as `cmsPageList`; operation names must be unique.
+- Do not introduce new `schemaWrapper` usage in backend schema definitions.
+  Define schemas directly with `new Schema(...)` and explicit fields following
+  nearby backend patterns; leave existing `schemaWrapper` usage untouched unless
+  the task explicitly asks to migrate it.
 - Do not modify backend contracts from a frontend task unless explicitly
   requested.
 

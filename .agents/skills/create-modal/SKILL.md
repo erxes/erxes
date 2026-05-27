@@ -1,3 +1,8 @@
+---
+name: create-modal
+description: Add erxes modal or dialog UI by reusing existing dialog components, state patterns, validation, layout, and button behavior. Use for frontend modal tasks.
+---
+
 # Skill: Create Modal
 
 ## Workflow

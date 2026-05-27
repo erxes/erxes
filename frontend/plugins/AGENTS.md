@@ -47,6 +47,8 @@
 
 - Search existing queries, mutations, fragments, and hooks before creating new
   GraphQL documents.
+- Name GraphQL queries and mutations with the plugin or module prefix plus the
+  operation purpose, such as `cmsPageList`; operation names must be unique.
 - Keep GraphQL operations near the feature module unless the plugin already has
   a shared GraphQL folder.
 - Reuse fragments and Apollo hook patterns from the same plugin.

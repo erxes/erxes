@@ -39,6 +39,8 @@
 - Use Apollo Client hooks already used in this plugin.
 - GraphQL operations should live in the feature's `graphql` folder when one
   exists.
+- Name GraphQL queries and mutations with the plugin or module prefix plus the
+  operation purpose, such as `cmsPageList`; operation names must be unique.
 - Search `src/modules/cms/graphql` before adding an operation; this plugin still
   has shared legacy CMS queries and mutations.
 - Reuse fragments such as `PageInfoFragment` before duplicating fields.

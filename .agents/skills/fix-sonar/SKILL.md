@@ -1,3 +1,8 @@
+---
+name: fix-sonar
+description: Fix Sonar, lint, or TypeScript issues in erxes with minimal behavior-preserving edits. Use when addressing static-analysis findings.
+---
+
 # Skill: Fix Sonar Issues
 
 ## Workflow

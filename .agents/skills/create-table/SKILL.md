@@ -1,3 +1,8 @@
+---
+name: create-table
+description: Build erxes table and list screens with existing RecordTable, cursor pagination, filters, loading states, actions, and command bar patterns.
+---
+
 # Skill: Create Table Page
 
 ## Workflow

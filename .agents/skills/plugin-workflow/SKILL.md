@@ -1,3 +1,8 @@
+---
+name: plugin-workflow
+description: Baseline workflow for erxes plugin contributions. Use for frontend or backend plugin changes to enforce local discovery, minimal scope, validation, and diff review.
+---
+
 # Skill: Plugin Contribution Workflow
 
 ## Before Coding

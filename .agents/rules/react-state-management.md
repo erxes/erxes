@@ -43,8 +43,26 @@ Guidelines:
 - Prefer existing hook wrappers for queries and mutations.
 - Keep mutation side effects consistent with nearby code: toast, cache update,
   refetch, closing drawers, and resetting forms.
+- After create, update, delete, convert, or bulk actions, update the visible UI
+  without requiring a browser refresh. Use the local Apollo pattern:
+  `cache.modify`, mutation `update`, `refetchQueries`, `client.refetchQueries`,
+  or an existing subscription flow.
+- Prefer targeted cache updates for simple single-record changes and
+  `refetchQueries` for filtered, aggregated, paginated, or permission-scoped
+  data where manual cache updates would be fragile.
 - For cursor lists, reuse existing `RecordTable.CursorProvider`,
   `useRecordTableCursor`, and `validateFetchMore` patterns where present.
+
+## Context and Providers
+
+- Use React context for scoped component trees, compound components, relation
+  widgets, editor integrations, selectors, or provider composition.
+- Keep contexts near the feature unless they are exported from `erxes-ui` or
+  `ui-modules`.
+- Prefer a local hook such as `useFeatureContext` when nearby code uses that
+  pattern.
+- Use `*ProviderEffect` components for host-level side effects only when the
+  surrounding provider setup already follows that pattern.
 
 ## Avoid
 
