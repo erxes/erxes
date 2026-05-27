@@ -23,22 +23,10 @@ import {
   websiteFormSchema,
   WebsiteFormType,
 } from '../../constants/websiteFormSchema';
-
-interface Website {
-  _id: string;
-  name: string;
-  description: string;
-  domain: string;
-  url: string;
-  kind?: string;
-  clientPortalId: string;
-  createdAt: string;
-  languages?: string[];
-  language?: string;
-}
+import { IWebsite } from '../../types';
 
 interface WebsiteDrawerProps {
-  website?: Website;
+  website?: IWebsite;
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
