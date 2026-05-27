@@ -339,9 +339,10 @@ const clientPortalMutations = {
           },
         );
 
-        console.log({ invoiceResponse: await invoiceResponse.json() });
+        const invoiceData = await invoiceResponse.json();
+        console.log({ invoiceResponse: invoiceData });
 
-        return await invoiceResponse.json();
+        return invoiceData;
       } else {
         const text = await response.text();
         throw new Error(`Expected JSON but received: ${text}`);
