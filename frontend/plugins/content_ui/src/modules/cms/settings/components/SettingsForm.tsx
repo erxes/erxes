@@ -566,10 +566,10 @@ export const SettingsForm = ({
           </Dialog.Header>
 
           <div className="space-y-5 bg-muted/40 p-6">
-            <div className="space-y-2">
+            <div className="space-y-3">
               <label
                 htmlFor={DELETE_NAME_CONFIRMATION_INPUT_ID}
-                className="text-sm text-muted-foreground"
+                className="block text-sm leading-5 text-muted-foreground"
               >
                 To confirm, type{' '}
                 <span className="font-semibold text-foreground">
@@ -586,10 +586,10 @@ export const SettingsForm = ({
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
               <label
                 htmlFor={DELETE_PHRASE_CONFIRMATION_INPUT_ID}
-                className="text-sm text-muted-foreground"
+                className="block text-sm leading-5 text-muted-foreground"
               >
                 To confirm, type{' '}
                 <span className="font-semibold text-foreground">
