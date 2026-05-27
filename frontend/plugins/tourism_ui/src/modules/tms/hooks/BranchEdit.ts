@@ -11,6 +11,8 @@ export interface IUpdateBranchVariables {
   managerIds?: string[];
   paymentIds?: string[];
   paymentTypes?: any[];
+  prepaid?: boolean;
+  prepaidPercent?: number | null;
   departmentId?: string;
   token?: string;
   erxesAppToken?: string;

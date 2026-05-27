@@ -136,6 +136,27 @@ async function applyTranslationsToTours(
   });
 }
 
+function resolveGroupDisplayName(
+  tours: Array<{ name?: string | null }>,
+  fallback?: string,
+) {
+  const names = tours
+    .map((tour) => tour?.name?.trim())
+    .filter((name): name is string => Boolean(name));
+
+  if (!names.length) {
+    return fallback || 'Untitled tour';
+  }
+
+  const frequency = new Map<string, number>();
+
+  for (const name of names) {
+    frequency.set(name, (frequency.get(name) || 0) + 1);
+  }
+
+  return [...frequency.entries()].sort((a, b) => b[1] - a[1])[0][0];
+}
+
 const tourQueries: Record<string, Resolver> = {
   async bmsTours(
     _root: any,
@@ -324,6 +345,41 @@ const tourQueries: Record<string, Resolver> = {
     return list;
   },
 
+  cpBmsTourCategories: async (
+    _root,
+    { parentId, name, branchId, language },
+    { models }: IContext,
+  ) => {
+    const selector: any = {};
+
+    if (parentId) {
+      selector.parentId = parentId;
+    } else if (parentId === null) {
+      selector.parentId = null;
+    }
+    if (name) selector.name = { $regex: escapeRegExp(name), $options: 'i' };
+    if (branchId) selector.branchId = branchId;
+
+    // No language — return raw sorted list
+    if (!language) {
+      return models.BmsTourCategories.find(selector).sort({
+        order: 1,
+        name: 1,
+      });
+    }
+
+    // With language — overlay translations
+    const { list } = await getBmsListWithTranslations(
+      models,
+      models.BmsTourCategories,
+      models.TourCategoryTranslations,
+      selector,
+      { branchId, language, orderBy: { order: 1, name: 1 } },
+      TOUR_CATEGORY_FIELD_MAPPINGS,
+    );
+    return list;
+  },
+
   cpBmsTourDetail(
     _root: any,
     { _id, language }: { _id: string; language?: string },
@@ -420,15 +476,20 @@ const tourQueries: Record<string, Resolver> = {
 
     return {
       list: await Promise.all(
-        group.map(async (item) => ({
-          ...item,
-          items: await applyTranslationsToTours(
+        group.map(async (item) => {
+          const items = await applyTranslationsToTours(
             models,
             item.items || [],
             language,
             branchId,
-          ),
-        })),
+          );
+
+          return {
+            ...item,
+            name: resolveGroupDisplayName(items, item._id),
+            items,
+          };
+        }),
       ),
       total,
     };
@@ -515,15 +576,20 @@ const tourQueries: Record<string, Resolver> = {
 
     return {
       list: await Promise.all(
-        group.map(async (item) => ({
-          ...item,
-          items: await applyTranslationsToTours(
+        group.map(async (item) => {
+          const items = await applyTranslationsToTours(
             models,
             item.items || [],
             language,
             branchId,
-          ),
-        })),
+          );
+
+          return {
+            ...item,
+            name: resolveGroupDisplayName(items, item._id),
+            items,
+          };
+        }),
       ),
       total,
     };
@@ -550,7 +616,21 @@ const tourQueries: Record<string, Resolver> = {
       ),
     );
 
-    return { _id: groupCode, items: translatedItems.filter(Boolean) };
+    const items = translatedItems.reduce<
+      Array<{ _id?: string; name?: string | null }>
+    >((acc, tour) => {
+      if (tour) {
+        acc.push(tour);
+      }
+
+      return acc;
+    }, []);
+
+    return {
+      _id: groupCode,
+      name: resolveGroupDisplayName(items, groupCode),
+      items,
+    };
   },
 
   async cpBmToursGroupDetail(
@@ -574,7 +654,21 @@ const tourQueries: Record<string, Resolver> = {
       ),
     );
 
-    return { _id: groupCode, items: translatedItems.filter(Boolean) };
+    const items = translatedItems.reduce<
+      Array<{ _id?: string; name?: string | null }>
+    >((acc, tour) => {
+      if (tour) {
+        acc.push(tour);
+      }
+
+      return acc;
+    }, []);
+
+    return {
+      _id: groupCode,
+      name: resolveGroupDisplayName(items, groupCode),
+      items,
+    };
   },
 };
 
@@ -585,3 +679,4 @@ tourQueries.cpBmsToursTotalCount.wrapperConfig = { forClientPortal: true };
 tourQueries.cpBmsTourDetail.wrapperConfig = { forClientPortal: true };
 tourQueries.cpBmToursGroup.wrapperConfig = { forClientPortal: true };
 tourQueries.cpBmToursGroupDetail.wrapperConfig = { forClientPortal: true };
+tourQueries.cpBmsTourCategories.wrapperConfig = { forClientPortal: true };

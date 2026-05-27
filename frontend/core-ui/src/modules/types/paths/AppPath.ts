@@ -5,6 +5,7 @@ export enum AppPath {
   CreateOwner = '/create-owner',
   ForgotPassword = '/forgot-password',
   ConfirmInvitation = '/confirmation',
+  OAuthDevice = '/oauth/device',
 
   //main
   Index = '/',

@@ -1,3 +1,5 @@
+import { Document } from 'mongoose';
+
 export interface IFacebookConversationMessage {
   mid: string;
   conversationId: string;

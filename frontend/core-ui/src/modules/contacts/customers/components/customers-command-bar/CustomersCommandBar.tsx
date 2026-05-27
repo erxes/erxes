@@ -1,12 +1,15 @@
 import { CustomersDelete } from '@/contacts/customers/components/customers-command-bar/delete/CustomersDelete';
 import { CustomersMerge } from '@/contacts/customers/components/customers-command-bar/merge/CustomersMerge';
+import { CustomersVerificationStatus } from '@/contacts/customers/components/customers-command-bar/CustomersVerificationStatus';
+import { CustomersChangeState } from '@/contacts/customers/components/customers-command-bar/CustomersChangeState';
 import { ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/table-core';
 import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
-import { Can, Export, ICustomer, TagsSelect } from 'ui-modules';
+import { Can, Export, ICustomer, TagsSelect, useVersion } from 'ui-modules';
 
 export const CustomersCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
+  const isOs = useVersion();
   const intersection = (arrays: string[][]): string[] => {
     if (arrays.length === 0) return [];
     return arrays.reduce((common, current) =>
@@ -17,12 +20,13 @@ export const CustomersCommandBar = () => {
   const customerIds = table
     .getFilteredSelectedRowModel()
     .rows.map((row: Row<ICustomer>) => row.original._id);
+
+  const selectedRows = table.getFilteredSelectedRowModel().rows;
+
   return (
-    <CommandBar open={table.getFilteredSelectedRowModel().rows.length > 0}>
+    <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
-        <CommandBar.Value>
-          {table.getFilteredSelectedRowModel().rows.length} selected
-        </CommandBar.Value>
+        <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
         <Can action="tagsTag">
           <>
             <Separator.Inline />
@@ -33,9 +37,7 @@ export const CustomersCommandBar = () => {
               className="shadow-none"
               value={
                 intersection(
-                  table
-                    .getFilteredSelectedRowModel()
-                    .rows.map((row) => row.original.tagIds),
+                  selectedRows.map((row) => row.original.tagIds),
                 ) || []
               }
               targetIds={customerIds}
@@ -67,20 +69,35 @@ export const CustomersCommandBar = () => {
         <Separator.Inline />
         <Export
           pluginName="core"
-          moduleName="contact"
-          collectionName="customer"
+          moduleName="contacts"
+          collectionName="customers"
           buttonVariant="secondary"
           ids={customerIds}
         />
+        {isOs && (
+          <Can action="contactsUpdate">
+            <>
+              <Separator.Inline />
+              <CustomersVerificationStatus
+                customerIds={customerIds}
+                rows={selectedRows}
+              />
+            </>
+          </Can>
+        )}
+        <Can action="contactsUpdate">
+          <>
+            <Separator.Inline />
+            <CustomersChangeState customerIds={customerIds} rows={selectedRows} />
+          </>
+        </Can>
         <Can action="contactsMerge">
           <>
             <Separator.Inline />
             <CustomersMerge
-              customers={table
-                .getFilteredSelectedRowModel()
-                .rows.map((row) => row.original)}
-              disabled={table.getFilteredSelectedRowModel().rows.length != 2}
-              rows={table.getFilteredSelectedRowModel().rows}
+              customers={selectedRows.map((row) => row.original)}
+              disabled={selectedRows.length !== 2}
+              rows={selectedRows}
             />
           </>
         </Can>

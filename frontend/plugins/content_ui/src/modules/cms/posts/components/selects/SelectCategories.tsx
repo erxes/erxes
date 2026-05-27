@@ -79,7 +79,10 @@ export const SelectCategoriesProvider = ({
   });
 
   const categories = useMemo(
-    () => data?.cmsCategories?.list || [],
+    () =>
+      [...(data?.cmsCategories?.list || [])].sort((a, b) =>
+        (a?.name || '').localeCompare(b?.name || '', undefined, { numeric: true }),
+      ),
     [data?.cmsCategories?.list],
   );
 
@@ -142,12 +145,12 @@ const SelectCategoriesValue = ({
 
 const SelectCategoriesCommandItem = ({ category }: { category: ICategory }) => {
   const { onValueChange, value } = useSelectCategoriesContext();
-  const { _id, name } = category || {};
+  const { _id, name, slug } = category || {};
   const isChecked = value.split(',').includes(_id);
 
   return (
     <Command.Item
-      value={_id}
+      value={[name, slug, _id].filter(Boolean).join(' ')}
       onSelect={() => {
         onValueChange(_id);
       }}

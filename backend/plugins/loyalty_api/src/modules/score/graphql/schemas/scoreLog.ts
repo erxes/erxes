@@ -25,17 +25,34 @@ export const types = `
   }
 
   type ScoreLog {
+    _id: String
     ownerId: String
     ownerType: String
-
     owner: JSON
-    logs: [ScoreLogItem]
     totalScore: Float
+
+    change: Float
+    action: String
+    description: String
+
+    campaignId: String
+    campaign: ScoreCampaign
+
+    targetId: String
+    target: JSON
+
+    serviceName: String
+    createdBy: String
+    createdAt: Date
+
+    amount: Float
+    quantity: Float
   }
 
   type ScoreLogList {
     list: [ScoreLog]
-    total: Int
+    pageInfo: PageInfo
+    totalCount: Int
   }
 
   type ScoreLogListResponse {
@@ -55,14 +72,18 @@ const queryParams = `
   orderType: String,
   fromDate: String,
   toDate: String,
+  boardId: String,
+  pipelineId: String,
   stageId: String,
   number: String,
   description: String,
+  logsPerOwner: Int,
 `;
 
 export const queries = `
   scoreLogs(${queryParams} ${GQL_CURSOR_PARAM_DEFS}): ScoreLogListResponse
-  scoreLogList(${queryParams}): ScoreLogList
+  scoreLogList(${queryParams} ${GQL_CURSOR_PARAM_DEFS}, clientPortal:String): ScoreLogList
+  cpScoreLogList(${queryParams} ${GQL_CURSOR_PARAM_DEFS}, clientPortal:String): ScoreLogList
   scoreLogStatistics(${queryParams}): JSON
 `;
 

@@ -1,5 +1,12 @@
 import { Document } from 'mongoose';
 
+export interface IRemainderParams {
+  departmentId?: string;
+  branchId?: string;
+  productId: string;
+  uom?: string;
+}
+
 export interface ISafeRemainderItem {
   remainderId: string;
   productId: string;

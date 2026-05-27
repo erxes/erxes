@@ -13,6 +13,7 @@ import { ICallIntegrationDocument } from '@/integrations/call/@types/integration
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { ICallHistory } from '@/integrations/call/@types/histories';
 import { ICallCdrDocument } from '@/integrations/call/@types/cdrs';
+import { debugCall } from '@/integrations/call/debuggers';
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET || 'secret';
 const MAX_RETRY_COUNT = 3;
@@ -75,17 +76,7 @@ export const sendToGrandStream = async (models: IModels, args, user) => {
     throw new Error('Cookie not found');
   }
 
-  cookie = cookie?.toString();
-
-  const isValid = await validateCookie(wsServer, cookie);
-  if (!isValid) {
-    await redis.del('callCookie');
-    cookie = await getOrSetCallCookie(wsServer);
-    if (!cookie) {
-      throw new Error('Failed to refresh cookie');
-    }
-    cookie = cookie.toString();
-  }
+  cookie = cookie.toString();
 
   const requestOptions: RequestInit & { headers: HeadersInit } = {
     method,
@@ -100,6 +91,19 @@ export const sendToGrandStream = async (models: IModels, args, user) => {
     }),
   };
 
+  const retryWithFreshCookie = async () => {
+    console.warn(
+      `[Call] Cookie expired (status -6) for ${wsServer}, refreshing and retrying (${retryCount - 1} left)...`,
+    );
+    await redis.del('callCookie');
+    await getOrSetCallCookie(wsServer);
+    return sendToGrandStream(
+      models,
+      { ...args, retryCount: retryCount - 1 },
+      user,
+    );
+  };
+
   try {
     const res = await sendRequest(
       `https://${wsServer}/${path}`,
@@ -110,27 +114,38 @@ export const sendToGrandStream = async (models: IModels, args, user) => {
       const response = await res.json();
 
       if (response.status === -6) {
-        await redis.del('callCookie');
-        return (await sendToGrandStream(
-          models,
-          {
-            path: 'api',
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            data,
-            integrationId,
-            retryCount: retryCount - 1,
-            isConvertToJson,
-            isGetExtension,
-          },
-          user,
-        )) as any;
+        return await retryWithFreshCookie();
       }
 
       if (isGetExtension) {
         return { response, extensionNumber };
       }
       return response;
+    }
+
+    try {
+      const contentType = res.headers.get('content-type') || '';
+      const contentLength = parseInt(
+        res.headers.get('content-length') || '0',
+        10,
+      );
+      const isLikelyJson =
+        contentType.includes('json') ||
+        contentType.includes('text') ||
+        contentType.includes('html');
+      const isSmallResponse = contentLength > 0 && contentLength < 1024;
+      const isUnknownType =
+        !contentType || contentType === 'application/octet-stream';
+
+      if ((isLikelyJson || isSmallResponse || isUnknownType) && !res.bodyUsed) {
+        const clonedRes = res.clone();
+        const maybeError = await clonedRes.json();
+        if (maybeError?.status === -6) {
+          return await retryWithFreshCookie();
+        }
+      }
+    } catch (e) {
+      debugCall('Non-JSON response body:', e);
     }
 
     if (isGetExtension) {
@@ -728,7 +743,7 @@ export const updateIntegrationQueueNames = async (
                 headers: { 'Content-Type': 'application/json' },
                 data: { request: { action: 'getQueue', queue } },
                 integrationId: integrationId,
-                retryCount: 1,
+                retryCount: 3,
                 isConvertToJson: true,
                 isGetExtension: true,
               },

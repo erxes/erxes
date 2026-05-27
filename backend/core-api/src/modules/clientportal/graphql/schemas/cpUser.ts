@@ -233,6 +233,7 @@ export const mutations = `
   clientPortalUserConfirmChangeEmail(code: String!): CPUser
   clientPortalUserRequestChangePhone(newPhone: String!): String
   clientPortalUserConfirmChangePhone(code: String!): CPUser
+  clientPortalUserDelete: CPUserRemoveResponse
 `;
 
 export const queries = `

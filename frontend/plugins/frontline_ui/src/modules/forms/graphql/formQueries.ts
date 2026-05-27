@@ -81,11 +81,19 @@ export const GET_FORM_DETAIL = gql`
           logicValue
         }
         logicAction
+        allowSearch
+        validator {
+          type
+          presetKey
+          customRegex
+          errorMessage
+        }
       }
       name
       numberOfPages
       leadData
       title
+      integrationId
     }
   }
 `;

@@ -181,6 +181,19 @@ export const styles = StyleSheet.create({
   dayContentGroup: {
     width: '100%',
   },
+  daySection: {
+    width: '100%',
+    marginBottom: 8,
+  },
+  daySectionTitle: {
+    fontFamily: PDF_FONT_FAMILY,
+    fontWeight: 'bold',
+    fontSize: 8,
+    color: COLORS.primaryDark,
+    textTransform: 'uppercase',
+    marginBottom: 4,
+    letterSpacing: 0.8,
+  },
   dayContentParagraph: {
     marginBottom: 4,
   },
@@ -192,6 +205,32 @@ export const styles = StyleSheet.create({
   },
   dayNoImage: {
     width: '100%',
+  },
+  dayElementItem: {
+    marginBottom: 5,
+  },
+  dayElementTitle: {
+    fontFamily: PDF_FONT_FAMILY,
+    fontSize: 8.6,
+    color: COLORS.black,
+    marginBottom: 1,
+  },
+  dayElementMeta: {
+    fontFamily: PDF_FONT_FAMILY,
+    fontWeight: 'bold',
+    fontSize: 8.6,
+    color: COLORS.primaryDark,
+  },
+  dayElementDescription: {
+    fontSize: 8,
+    color: COLORS.textLight,
+    lineHeight: 1.5,
+  },
+  dayAmenityItem: {
+    fontSize: 8.2,
+    color: COLORS.textLight,
+    lineHeight: 1.5,
+    marginBottom: 2,
   },
   noItineraryText: {
     fontSize: 11,

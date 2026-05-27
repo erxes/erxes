@@ -13,15 +13,17 @@ export const Container = ({
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    new ResizeObserver(() => {
-      if (ref.current && !loading) {
-        postMessage('fromForms', 'changeContainerStyle', {
-          style: `height: ${ref.current.scrollHeight}px;`,
-          settings,
-        });
-      }
-    }).observe(ref.current as Element);
-  }, [ref.current?.scrollHeight, children, settings, loading]);
+    if (!ref.current || loading) return;
+    const el = ref.current;
+    const observer = new ResizeObserver(() => {
+      postMessage('fromForms', 'changeContainerStyle', {
+        style: `height: ${el.scrollHeight}px;`,
+        settings,
+      });
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [settings, loading]);
 
   return <div ref={ref}>{children}</div>;
 };

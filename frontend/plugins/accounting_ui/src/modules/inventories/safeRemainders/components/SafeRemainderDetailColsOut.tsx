@@ -115,9 +115,7 @@ export const safeRemDetailColumnsOut: ColumnDef<ISafeRemainderItem>[] = [
   RecordTable.checkboxColumn as ColumnDef<ISafeRemainderItem>,
   {
     id: 'product',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Product" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Бараа" />,
     accessorKey: 'product',
     cell: ({ row }) => <ProductCell row={row} />,
     size: 300,
@@ -125,14 +123,16 @@ export const safeRemDetailColumnsOut: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'preCount',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Live Remainder" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Бодит үлдэгдэл" />
     ),
     accessorKey: 'preCount',
     cell: ({ row }) => <NumberCell value={row.original.preCount ?? 0} />,
   },
   {
     id: 'uom',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="UOM" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Хэмжих нэгж" />
+    ),
     accessorKey: 'uom',
     cell: ({ row }) => (
       <RecordTableInlineCell>{row.original.uom ?? ''}</RecordTableInlineCell>
@@ -141,7 +141,7 @@ export const safeRemDetailColumnsOut: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'remainder',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Remainder" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Үлдэгдэл" />
     ),
     accessorKey: 'remainder',
     cell: ({ row }) => (
@@ -155,7 +155,7 @@ export const safeRemDetailColumnsOut: ColumnDef<ISafeRemainderItem>[] = [
   },
   {
     id: 'diff',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Diff" />,
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Зөрүү" />,
     accessorKey: 'diff',
     cell: ({ row }) => (
       <DiffField
@@ -169,7 +169,9 @@ export const safeRemDetailColumnsOut: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'isSale',
     accessorKey: 'isSale',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="IsSale" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Борлуулах эсэх" />
+    ),
     size: 33,
     cell: ({ row }) => (
       <IsSaleField
@@ -183,7 +185,7 @@ export const safeRemDetailColumnsOut: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'UnitCost',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Unit Cost" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Нэгж өртөг" />
     ),
     accessorKey: 'unitCost',
     cell: ({ row }) => (
@@ -193,7 +195,7 @@ export const safeRemDetailColumnsOut: ColumnDef<ISafeRemainderItem>[] = [
   {
     id: 'CreditCost',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Unit Cost" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Нэгж өртөг" />
     ),
     accessorKey: 'unitCost',
     cell: ({ row }) => (

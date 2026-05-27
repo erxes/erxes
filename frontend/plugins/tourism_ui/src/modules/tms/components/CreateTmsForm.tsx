@@ -50,6 +50,8 @@ const CreateTmsForm = ({
     generalManager,
     managers,
     payment,
+    prepaid,
+    prepaidPercent,
     token,
     otherPayments,
   } = formData;
@@ -66,6 +68,8 @@ const CreateTmsForm = ({
       generalManager: Array.isArray(generalManager) ? generalManager : [],
       managers: Array.isArray(managers) ? managers : [],
       payment: Array.isArray(payment) ? payment : [],
+      prepaid: prepaid ?? false,
+      prepaidPercent: prepaid ? (prepaidPercent ?? undefined) : undefined,
       token: token || '',
       otherPayments: Array.isArray(otherPayments) ? otherPayments : [],
     },
@@ -92,6 +96,8 @@ const CreateTmsForm = ({
         generalManagerIds,
         managerIds,
         paymentIds,
+        prepaid,
+        prepaidPercent,
         erxesAppToken,
         permissionConfig,
         language: mainLanguageFromDetail,
@@ -115,6 +121,8 @@ const CreateTmsForm = ({
         payment: Array.isArray(paymentIds)
           ? paymentIds.filter((id): id is string => typeof id === 'string')
           : [],
+        prepaid: prepaid ?? false,
+        prepaidPercent: prepaid ? (prepaidPercent ?? undefined) : undefined,
         token: erxesAppToken || '',
         otherPayments: Array.isArray(permissionConfig)
           ? permissionConfig.map((config: PermissionConfig) => ({
@@ -135,7 +143,7 @@ const CreateTmsForm = ({
   }
 
   return (
-    <Sheet.View className="p-0 w-[700px] md:w-[700px] sm:max-w-[700px] h-full">
+    <Sheet.View className="h-full p-0 w-175 md:w-175 sm:max-w-175">
       {isEditMode ? (
         <Sheet.Header>
           <Sheet.Title>Edit Tour Management System</Sheet.Title>

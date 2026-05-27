@@ -1,20 +1,41 @@
-import { IconRobot } from '@tabler/icons-react';
-import type { ComponentType } from 'react';
-
 export type TAiAgentKind = {
   type: string;
   label: string;
   description: string;
-  icon: ComponentType<{ className?: string }>;
+  image?: string;
 };
 
 export const AI_AGENT_KINDS: TAiAgentKind[] = [
   {
-    type: 'openai-compatible',
-    label: 'OpenAI Compatible',
+    type: 'cloudflare-ai-gateway',
+    label: 'Cloudflare AI Gateway',
+    description: 'Use the platform-managed AI Gateway or override it.',
+    image: 'cloudflare.webp',
+  },
+  {
+    type: 'grok',
+    label: 'Grok',
+    description: 'Connect xAI Grok with organization-owned credentials.',
+    image: 'grok.webp',
+  },
+  {
+    type: 'kimi',
+    label: 'Kimi',
+    description: 'Connect Moonshot Kimi with organization-owned credentials.',
+    image: 'kimi.webp',
+  },
+  {
+    type: 'kimi-code',
+    label: 'Kimi for Code',
     description:
-      'Connect OpenAI or any compatible provider with your own credentials.',
-    icon: IconRobot,
+      'Connect Moonshot Kimi for Code with organization-owned credentials.',
+    image: 'kimi.webp',
+  },
+  {
+    type: 'openai',
+    label: 'OpenAI Direct',
+    description: 'Connect OpenAI with organization-owned credentials.',
+    image: 'openai.webp',
   },
 ];
 

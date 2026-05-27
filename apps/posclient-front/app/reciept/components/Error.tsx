@@ -8,11 +8,7 @@ const Error = ({
   if (!errorCode || !message) {
     return null
   }
-  return (
-    <div className="py-1">
-      {message}
-    </div>
-  )
+  return <div className="py-1 font-semibold">{message}</div>
 }
 
 export default Error

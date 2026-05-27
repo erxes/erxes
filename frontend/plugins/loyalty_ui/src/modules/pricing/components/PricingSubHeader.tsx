@@ -41,22 +41,21 @@ export function PricingSubHeader() {
     'isExpiryEnabled',
     'isRepeatEnabled',
   ]);
-
-  const hasFilters = Object.values(queries || {}).some(
-    (value) => value !== null,
+  const hasFilters = Object.values(queries).some(
+    (value) => value !== undefined && value !== null && value !== '',
   );
 
   return (
     <Filter id="pricing">
       <PageSubHeader>
         <Filter.Bar>
-          <PricingFilterBar queries={queries} />
           <Filter.Popover scope="pricing-page">
             <Filter.Trigger isFiltered={hasFilters} />
             <Combobox.Content>
               <PricingFilterView />
             </Combobox.Content>
           </Filter.Popover>
+          <PricingFilterBar queries={queries} />
           <Filter.Dialog>
             <Filter.View filterKey="searchValue" inDialog>
               <Filter.DialogStringView filterKey="searchValue" />

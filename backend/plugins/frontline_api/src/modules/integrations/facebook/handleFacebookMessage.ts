@@ -19,15 +19,15 @@ export const handleFacebookMessage = async (
   const doc = JSON.parse(payload || '{}');
   if (doc.internal) {
     const conversation = await models.FacebookConversations.getConversation({
-      erxesApiId: doc.conversationId,
+      erxesApiId: doc.conversationId
     });
 
-    return models.ConversationMessages.addMessage(
+    return models.FacebookConversationMessages.addMessage(
       {
         ...doc,
-        conversationId: conversation._id,
+        conversationId: conversation._id
       },
-      doc.userId,
+      doc.userId
     );
   }
   if (action === 'reply-post') {

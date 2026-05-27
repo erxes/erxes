@@ -19,16 +19,7 @@ export const ImportIndexPage = () => {
           </Breadcrumb>
         </PageHeader.Start>
       </PageHeader>
-      <ImportHistories
-        entityTypes={[
-          'core:contact.customer',
-          'core:contact.lead',
-          'core:contact.company',
-          'core:user.user',
-          'core:product.product',
-          'frontline:ticket.ticket',
-        ]}
-      />
+      <ImportHistories />
     </PageContainer>
   );
 };

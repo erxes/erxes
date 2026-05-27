@@ -5,6 +5,7 @@ import {
   JOURNALS,
   TR_FOLLOW_TYPES,
   TR_SIDES,
+  TR_STATUSES,
 } from '~/modules/accounting/@types/constants';
 import {
   ITransaction,
@@ -13,21 +14,20 @@ import {
 import { getJournal } from './utils';
 
 export const dealToReturnTrs = async ({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  subdomain,
   models,
   userId,
   deal,
   config,
 }: {
-  subdomain: string;
   models: IModels;
   userId: string;
   deal: any;
   config: {
     dateRule: 'alwaysNow' | 'syncedDateOrNow';
+    responseFieldId?: string;
     defaultPayment: { accountId: string };
     returnType: 'delete' | 'fullTr' | 'onlySale';
+    trStatus?: string;
   };
 }) => {
   let date = new Date();
@@ -37,6 +37,7 @@ export const dealToReturnTrs = async ({
   let oldOtherTrs: ITransactionDocument[] = [];
 
   const [contentType, contentId] = ['sales:deal', deal._id];
+  const number = deal.number;
 
   const oldTrs = await models.Transactions.find({
     contentType,
@@ -90,8 +91,11 @@ export const dealToReturnTrs = async ({
     _id: mainId,
     ptrId,
     parentId,
+    number,
     date,
     journal: JOURNALS.INV_SALE_RETURN,
+    side: TR_SIDES.DEBIT,
+    status: config.trStatus || TR_STATUSES.COMPLETE,
     followInfos: {
       ...firstSaleTr.followInfos,
       saleTransactionId: firstSaleTr._id,
@@ -119,7 +123,6 @@ export const dealToReturnTrs = async ({
     totalAmount += detail.amount;
     returnTrDoc.details.push({
       ...detail,
-      side: TR_SIDES.DEBIT,
     });
   }
 
@@ -148,8 +151,10 @@ export const dealToReturnTrs = async ({
         _id: nanoid(),
         ptrId,
         parentId,
+        number,
         date,
         journal,
+        side,
         branchId: firstSaleTr.branchId,
         departmentId: firstSaleTr.departmentId,
         customerType: firstSaleTr.customerType,
@@ -160,7 +165,6 @@ export const dealToReturnTrs = async ({
           {
             _id: nanoid(),
             accountId,
-            side,
             amount: fixNum(lastAmount, 4),
           },
         ],
@@ -173,11 +177,13 @@ export const dealToReturnTrs = async ({
       parentId,
       [{ ...returnTrDoc }, ...paymentTrs, ...oldOtherTrs],
       userId,
+      { skipAccountPermission: true },
     );
   } else {
     await models.Transactions.createPTransaction(
       [{ ...returnTrDoc }, ...paymentTrs, ...oldOtherTrs],
       userId,
+      { skipAccountPermission: true },
     );
   }
 };

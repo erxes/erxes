@@ -21,6 +21,7 @@ import {
   useFormValidationErrorHandler,
 } from 'ui-modules';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const OutgoingWebhookConfigForm = ({
   currentAction,
@@ -51,6 +52,7 @@ export const OutgoingWebhookConfigForm = ({
     control: form.control,
     name: 'bodyMode',
   });
+  const { t } = useTranslation('automations');
 
   return (
     <div className="w-[650px] flex flex-col h-full">
@@ -60,7 +62,7 @@ export const OutgoingWebhookConfigForm = ({
       >
         <Tabs.List className="w-full" defaultValue="request">
           <Tabs.Trigger className="w-1/5" value="request">
-            Request
+            {t('request')}
             <OutgoingWebhookTabFilledIndicator
               control={form.control}
               fields={['method', 'url', 'queryParams']}
@@ -68,7 +70,7 @@ export const OutgoingWebhookConfigForm = ({
             />
           </Tabs.Trigger>
           <Tabs.Trigger className="w-1/5" value="body">
-            Body
+            {t('body')}
             <OutgoingWebhookTabFilledIndicator
               control={form.control}
               fields={['body']}
@@ -77,7 +79,7 @@ export const OutgoingWebhookConfigForm = ({
           </Tabs.Trigger>
 
           <Tabs.Trigger className="w-1/5" value="auth">
-            Auth
+            {t('auth')}
             <OutgoingWebhookTabFilledIndicator
               control={form.control}
               fields={['auth']}
@@ -85,7 +87,7 @@ export const OutgoingWebhookConfigForm = ({
             />
           </Tabs.Trigger>
           <Tabs.Trigger className="w-1/5" value="header">
-            Headers
+            {t('headers')}
             <OutgoingWebhookTabFilledIndicator
               control={form.control}
               fields={['headers']}
@@ -94,7 +96,7 @@ export const OutgoingWebhookConfigForm = ({
           </Tabs.Trigger>
 
           <Tabs.Trigger className="w-1/5" value="options">
-            Options
+            {t('options')}
             <OutgoingWebhookTabFilledIndicator
               control={form.control}
               fields={['options']}
@@ -148,7 +150,7 @@ export const OutgoingWebhookConfigForm = ({
       </Tabs>
       <div className="p-2 flex justify-end border-t bg-background">
         <Button onClick={form.handleSubmit(handleSave, handleValidationErrors)}>
-          Save Configuration
+          {t('save-configuration')}
         </Button>
       </div>
     </div>

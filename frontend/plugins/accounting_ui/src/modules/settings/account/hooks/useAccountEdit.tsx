@@ -5,10 +5,7 @@ import { toast } from 'erxes-ui';
 export const useAccountEdit = () => {
   const [_editAccount, { loading }] = useMutation(ACCOUNTS_EDIT);
 
-  const editAccount = (
-    options: OperationVariables,
-    fields: string[],
-  ) => {
+  const editAccount = (options: OperationVariables, fields: string[]) => {
     const variables = options?.variables || {};
     const fieldsToUpdate: Record<string, () => any> = {};
     fields.forEach((field) => {
@@ -19,7 +16,7 @@ export const useAccountEdit = () => {
       variables,
       onError: (error) => {
         toast({
-          title: 'Error',
+          title: 'Алдаа',
           description: error.message,
           variant: 'destructive',
         });
@@ -27,8 +24,8 @@ export const useAccountEdit = () => {
       },
       onCompleted: (data) => {
         toast({
-          title: 'Success',
-          description: 'Account updated successfully',
+          title: 'Амжилттай',
+          description: 'Дансыг шинэчиллээ',
           variant: 'success',
         });
         options?.onCompleted?.(data);

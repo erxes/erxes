@@ -8,6 +8,11 @@ interface PricingDeleteProps {
   onDeleteSuccess?: () => void;
 }
 
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error
+    ? error.message
+    : 'Failed to delete pricing. Please try again.';
+
 export const PricingDelete = ({
   pricingIds,
   onDeleteSuccess,
@@ -50,10 +55,10 @@ export const PricingDelete = ({
         });
 
         navigate('/settings/loyalty/pricing');
-      } catch (e: any) {
+      } catch (error: unknown) {
         toast({
           title: 'Error',
-          description: e.message || 'Failed to delete pricing. Please try again.',
+          description: getErrorMessage(error),
           variant: 'destructive',
         });
       }
@@ -62,12 +67,12 @@ export const PricingDelete = ({
 
   return (
     <Button
-      variant="default"
+      variant="destructive"
       size="sm"
       onClick={handleDelete}
       disabled={loading}
     >
-      <IconTrash className="mr-2 w-4 h-4" />
+      <IconTrash className="w-4 h-4 mr-2" />
       {loading ? 'Deleting...' : 'Delete'}
     </Button>
   );

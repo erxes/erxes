@@ -2,7 +2,6 @@ export interface SyncErkhetGeneralConfigFormData {
   apiKey: string;
   apiSecret: string;
   apiToken: string;
-  getRemainderUrl: string;
   costAccount: string;
   salesAccount: string;
   productCategoryCode: string;

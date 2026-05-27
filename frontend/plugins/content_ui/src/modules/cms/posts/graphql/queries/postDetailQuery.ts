@@ -82,6 +82,7 @@ export const POST_DETAIL = gql`
         __typename
       }
       customFieldsData
+      customFieldsMap
       __typename
     }
   }

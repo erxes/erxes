@@ -1,8 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Button, Label } from 'erxes-ui';
-import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
-import { SelectProduct } from 'ui-modules';
-import { SelectCategory } from '@/pos/hooks/SelectCategory';
+import { Label } from 'erxes-ui';
+import { SelectCategory, SelectProduct } from 'ui-modules';
+import { MoreOptionsButton } from '@/pos/components/MoreOptionsButton';
 import { ProductGroup } from '@/pos/pos-detail/types/IPos';
 import { nanoid } from 'nanoid';
 
@@ -19,15 +18,19 @@ const INITIAL_STATE: FormState = {
 };
 
 interface AddGroupFormProps {
-  onGroupAdded?: (group: ProductGroup) => void;
-  onGroupUpdated?: (group: ProductGroup) => void;
+  onGroupAdded?: (group: ProductGroup) => void | Promise<void>;
+  onGroupUpdated?: (group: ProductGroup) => void | Promise<void>;
   editingGroup?: ProductGroup | null;
+  onDirtyChange?: (isDirty: boolean) => void;
+  onSaveRequestChange?: (onSave: (() => Promise<void>) | null) => void;
 }
 
 export const AddGroupForm: React.FC<AddGroupFormProps> = ({
   onGroupAdded,
   onGroupUpdated,
   editingGroup,
+  onDirtyChange,
+  onSaveRequestChange,
 }) => {
   const [formState, setFormState] = useState<FormState>(INITIAL_STATE);
   const [initialState, setInitialState] = useState<FormState>(INITIAL_STATE);
@@ -85,15 +88,25 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
     [updateField],
   );
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     const groupData: ProductGroup = {
       _id: editingGroup?._id || `temporaryId${nanoid()}`,
       ...formState,
     };
 
-    (editingGroup ? onGroupUpdated : onGroupAdded)?.(groupData);
+    await (editingGroup ? onGroupUpdated : onGroupAdded)?.(groupData);
     setInitialState(formState);
   }, [editingGroup, formState, onGroupAdded, onGroupUpdated]);
+
+  useEffect(() => {
+    onDirtyChange?.(hasChanges);
+    onSaveRequestChange?.(hasChanges ? handleSave : null);
+
+    return () => {
+      onDirtyChange?.(false);
+      onSaveRequestChange?.(null);
+    };
+  }, [handleSave, hasChanges, onDirtyChange, onSaveRequestChange]);
 
   const toggleMore = useCallback(() => setShowMore((prev) => !prev), []);
 
@@ -109,16 +122,7 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
         />
       </div>
 
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={toggleMore}
-        className="flex gap-1 items-center text-muted-foreground"
-      >
-        {showMore ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />}
-        {showMore ? 'Hide more options' : 'More options'}
-      </Button>
+      <MoreOptionsButton showMore={showMore} onToggle={toggleMore} />
 
       {showMore && (
         <>
@@ -142,12 +146,6 @@ export const AddGroupForm: React.FC<AddGroupFormProps> = ({
             />
           </div>
         </>
-      )}
-
-      {hasChanges && (
-        <div className="flex justify-end pt-4 border-t">
-          <Button onClick={handleSave}>Save Changes</Button>
-        </div>
       )}
     </div>
   );

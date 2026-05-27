@@ -7,8 +7,7 @@ import { useCompanies } from '@/contacts/companies/hooks/useCompanies';
 import { Export, Import } from 'ui-modules';
 
 export const CompaniesIndexPage = () => {
-
-  const {companiesQueryVariables}  = useCompanies();
+  const { companiesQueryVariables } = useCompanies();
 
   const getFilters = () => {
     const { limit, ...filters } = companiesQueryVariables;
@@ -21,14 +20,14 @@ export const CompaniesIndexPage = () => {
       <PageSubHeader>
         <CompaniesFilter />
         <Import
-          pluginName='core'
-          moduleName='contact'
-          collectionName='company'
+          pluginName="core"
+          moduleName="contacts"
+          collectionName="companies"
         />
         <Export
-          pluginName='core'
-          moduleName='contact'
-          collectionName='company'
+          pluginName="core"
+          moduleName="contacts"
+          collectionName="companies"
           getFilters={getFilters}
         />
       </PageSubHeader>

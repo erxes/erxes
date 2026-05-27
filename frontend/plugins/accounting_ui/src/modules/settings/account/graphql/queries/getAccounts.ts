@@ -17,6 +17,7 @@ export const ACCOUNT_MINI_FIELDS = `
   departmentId
   isTemp
   isOutBalance
+  extra 
 `;
 
 export const ACCOUNT_FIELDS = `
@@ -46,6 +47,7 @@ const ACCOUNT_PARAM_DEFS = `
   $kind: String
   $code: String
   $name: String
+  $permissionMode: String
   ${GQL_CURSOR_PARAM_DEFS}
 `;
 
@@ -66,8 +68,9 @@ const ACCOUNT_PARAMS = `
   kind: $kind
   code: $code
   name: $name
+  permissionMode: $permissionMode
   ${GQL_CURSOR_PARAMS}
-`
+`;
 
 export const GET_ACCOUNTS_MAIN = gql`
   query AccountsMain(
@@ -110,8 +113,8 @@ export const GET_ACCOUNT_DETAIL = gql`
 `;
 
 export const GET_ASSIGNED_ACCOUNTS = gql`
-  query AssignedAccounts($ids: [String]) {
-    accounts(ids: $ids) {
+  query AssignedAccounts($ids: [String], $permissionMode: String) {
+    accounts(ids: $ids, permissionMode: $permissionMode) {
       ${ACCOUNT_MINI_FIELDS}
     }
   }

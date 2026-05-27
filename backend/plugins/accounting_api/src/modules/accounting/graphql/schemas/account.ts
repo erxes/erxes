@@ -14,7 +14,6 @@ export const types = () => `
     accountCount: Int
     maskType: String
     mask: JSON
-
     parent: AccountCategory
   }
 
@@ -35,14 +34,42 @@ export const types = () => `
     parentId: String
     createdAt: Date
     scopeBrandIds: [String]
-    
+    extra:JSON,
     category: AccountCategory
+    level: Int
+    read: String
+    write: String
   }
 
   type AccountsListResponse {
     list: [Account],
     pageInfo: PageInfo
     totalCount: Int,
+  }
+
+  type AccountPermission {
+    _id: String
+    userId: String
+    accountId: String
+    level: Int
+    read: String
+    write: String
+    createdAt: Date
+    updatedAt: Date
+
+    user: User
+    account: Account
+  }
+
+  type AccountPermissionsResponse {
+    list: [AccountPermission],
+    pageInfo: PageInfo
+    totalCount: Int,
+  }
+
+  type AccountPermissionResult {
+    accountId: String!
+    status: String!
   }
 `;
 
@@ -60,6 +87,7 @@ const accountParams = `
   isTemp: Boolean,
   isOutBalance: Boolean,
   scopeBrandIds: [String],
+  extra:JSON
   status: String,
 `;
 
@@ -72,6 +100,14 @@ const accountCategoryParams = `
   status: String
   maskType: String
   mask: JSON
+`;
+
+const accountPermissionsInput = `
+  accountIds: [String!]!
+  userId: String!
+  level: Int
+  read: String
+  write: String
 `;
 
 const accountsQueryParams = `
@@ -91,6 +127,8 @@ const accountsQueryParams = `
   kind: String
   code: String
   name: String
+  permissionMode: String
+  extra:JSON
 `;
 
 export const queries = `
@@ -110,6 +148,15 @@ export const queries = `
   ): [Account]
   accountsCount(${accountsQueryParams}): Int
   accountDetail(_id: String): Account
+  accountPermissions(
+    ${accountsQueryParams}
+    ${GQL_CURSOR_PARAM_DEFS}
+    userId: String
+    minLvl: Int
+    maxLvl: Int
+    reads: [String]
+    writes: [String]
+  ): AccountPermissionsResponse
 `;
 
 export const mutations = `
@@ -120,4 +167,5 @@ export const mutations = `
   accountCategoriesAdd(${accountCategoryParams}): AccountCategory
   accountCategoriesEdit(_id: String!, ${accountCategoryParams}): AccountCategory
   accountCategoriesRemove(_id: String!): JSON
+  setAccountPermissions(${accountPermissionsInput}): [AccountPermissionResult]
 `;

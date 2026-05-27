@@ -3,6 +3,7 @@ import { AutomationNodesType, NodeData } from '@/automations/types';
 import { Node, useReactFlow } from '@xyflow/react';
 import { Button, Dialog, IconPicker, Input } from 'erxes-ui';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   id: string;
@@ -22,6 +23,7 @@ export const NodeEditMetaDataForm = ({
 }: Props) => {
   const { setAutomationBuilderFormValue } = useAutomationFormController();
   const { updateNodeData } = useReactFlow<Node<NodeData>>();
+  const { t } = useTranslation('automations');
 
   const { nodeIndex, label, description, icon } = data || {};
 
@@ -53,9 +55,9 @@ export const NodeEditMetaDataForm = ({
 
   return (
     <Dialog.Content>
-      <Dialog.Title>Edit Node Metadata</Dialog.Title>
+      <Dialog.Title>{t('edit-node-metadata-title')}</Dialog.Title>
       <Dialog.Description>
-        Customize the name and description of this node for better clarity.
+        {t('edit-node-metadata-description')}
       </Dialog.Description>
       <IconPicker
         // onValueChange={field.onChange}
@@ -74,7 +76,7 @@ export const NodeEditMetaDataForm = ({
         onChange={handleChange}
       />
       <Dialog.Footer>
-        <Button onClick={handleSave}>Save</Button>
+        <Button onClick={handleSave}>{t('save')}</Button>
       </Dialog.Footer>
     </Dialog.Content>
   );

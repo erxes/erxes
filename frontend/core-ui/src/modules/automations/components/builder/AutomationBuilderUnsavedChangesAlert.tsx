@@ -1,19 +1,31 @@
 import { AlertDialog } from 'erxes-ui';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { useBlocker, useLocation } from 'react-router';
+import { useBlocker } from 'react-router';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationBuilderUnsavedChangesAlert = () => {
-  const location = useLocation();
   const {
     formState: { isDirty },
   } = useFormContext<TAutomationBuilderForm>();
+  const { t } = useTranslation('automations');
+  const isProceedingRef = useRef(false);
+  const [isProceeding, setIsProceeding] = useState(false);
 
-  const blocker = useBlocker(
-    ({ nextLocation }) =>
-      isDirty && nextLocation.pathname !== location.pathname,
-  );
+  const blocker = useBlocker(({ currentLocation, nextLocation }) => {
+    const currentLocationPathName = currentLocation.pathname;
+    const nextLocationPathName = nextLocation.pathname;
+
+    if (
+      currentLocationPathName === '/automations/create' &&
+      nextLocationPathName.startsWith('/automations/edit/')
+    ) {
+      return false;
+    }
+
+    return isDirty && nextLocationPathName !== currentLocationPathName;
+  });
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -32,33 +44,41 @@ export const AutomationBuilderUnsavedChangesAlert = () => {
     };
   }, [isDirty]);
 
+  useEffect(() => {
+    if (blocker.state === 'unblocked') {
+      isProceedingRef.current = false;
+      setIsProceeding(false);
+    }
+  }, [blocker.state]);
+
   return (
     <AlertDialog
-      open={blocker.state === 'blocked'}
+      open={blocker.state === 'blocked' && !isProceeding}
       onOpenChange={(open) => {
-        if (!open && blocker.state === 'blocked') {
+        if (!open && blocker.state === 'blocked' && !isProceedingRef.current) {
           blocker.reset();
         }
       }}
     >
       <AlertDialog.Content>
         <AlertDialog.Header>
-          <AlertDialog.Title>Discard unsaved changes?</AlertDialog.Title>
+          <AlertDialog.Title>{t('unsaved-changes-title')}</AlertDialog.Title>
           <AlertDialog.Description>
-            You have unsaved changes in this automation. If you leave now, your
-            edits will be lost.
+            {t('unsaved-changes-description')}
           </AlertDialog.Description>
         </AlertDialog.Header>
         <AlertDialog.Footer>
-          <AlertDialog.Cancel>Stay here</AlertDialog.Cancel>
+          <AlertDialog.Cancel>{t('stay-here')}</AlertDialog.Cancel>
           <AlertDialog.Action
             onClick={() => {
               if (blocker.state === 'blocked') {
+                isProceedingRef.current = true;
+                setIsProceeding(true);
                 blocker.proceed();
               }
             }}
           >
-            Leave without saving
+            {t('leave-without-saving')}
           </AlertDialog.Action>
         </AlertDialog.Footer>
       </AlertDialog.Content>

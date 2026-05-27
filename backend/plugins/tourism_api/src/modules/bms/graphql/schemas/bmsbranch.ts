@@ -7,6 +7,8 @@ const commonFields = `
   managerIds: [String]
   paymentIds: [String]
   paymentTypes: [JSON]
+  prepaid: Boolean
+  prepaidPercent: Float
   departmentId: String
   token: String
   erxesAppToken: String

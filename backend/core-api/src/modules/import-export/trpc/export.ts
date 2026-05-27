@@ -20,6 +20,14 @@ const progressSchema = z.object({
   errorMessage: z.string().optional(),
   lastCursor: z.string().optional(),
   estimatedSecondsRemaining: z.number().optional(),
+  fileKey: z.string().optional(),
+  terminalError: z
+    .object({
+      code: z.string().optional(),
+      stage: z.string().optional(),
+      retryable: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 export const exportRouter = t.router({

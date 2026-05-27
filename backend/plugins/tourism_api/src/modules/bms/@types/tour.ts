@@ -1,7 +1,7 @@
 import { Document } from 'mongoose';
 import { ILocation } from '@/bms/@types/itinerary';
 import { IPageInfo } from 'erxes-api-shared/src/core-types';
-import { IAttachment } from 'erxes-api-shared/core-types';
+import { IAttachment, ICustomField } from 'erxes-api-shared/core-types';
 
 export interface IGuideItem {
   guideId: string;
@@ -10,12 +10,20 @@ export interface IGuideItem {
 
 export type DateType = 'fixed' | 'flexible';
 
+export type PassengerType = 'adult' | 'child' | 'infant';
+
+export interface IPricingOptionPrice {
+  type: PassengerType;
+  price: number;
+}
+
 export interface IPricingOption {
   _id: string;
   title: string;
   minPersons: number;
   maxPersons?: number;
-  pricePerPerson: number;
+  prices: IPricingOptionPrice[];
+  pricePerPerson?: number;
   accommodationType?: string;
   domesticFlightPerPerson?: number;
   singleSupplement?: number;
@@ -38,11 +46,13 @@ export interface ITour {
   groupSize: number;
   guides: IGuideItem[];
   status: string;
-  date_status: string;
+  date_status?: string;
   cost: number;
   branchId: string;
   tagIds?: string[];
   categoryIds?: string[];
+  customTourTypeId?: string;
+  customFieldsData?: ICustomField[];
   viewCount: number;
   advancePercent?: number;
   joinPercent?: number;

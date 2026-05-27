@@ -295,18 +295,29 @@ export const SelectChannelInlineCell = ({
         </RecordTableInlineCell.Content>
       </PopoverScoped>
     </SelectChannelProvider>
-  )
-}
+  );
+};
 
-const SelectChannelList = ({ channelId, onValueChange }: { channelId: string, onValueChange: (value: string) => void }) => {
+const SelectChannelList = ({
+  channelId,
+  onValueChange,
+}: {
+  channelId: string;
+  onValueChange: (value: string) => void;
+}) => {
   const { channels, onSelect } = useSelectChannelContext();
   const { channels: channelsData, loading } = useGetChannels({
     variables: {
-      searchValue: "",
+      searchValue: '',
     },
   });
 
-  const allChannels = [...channels, ...(channelsData || []).filter((c: IChannel) => !channels.find((ch) => ch._id === c._id))];
+  const allChannels = [
+    ...channels,
+    ...(channelsData || []).filter(
+      (c: IChannel) => !channels.find((ch) => ch._id === c._id),
+    ),
+  ];
 
   return (
     <DropdownMenu.RadioGroup
@@ -324,18 +335,48 @@ const SelectChannelList = ({ channelId, onValueChange }: { channelId: string, on
         </DropdownMenu.RadioItem>
       ))}
     </DropdownMenu.RadioGroup>
-  )
-}
+  );
+};
 
-export const SelectChannelDropDownContent = ({ channelId, onValueChange }: { channelId: string, onValueChange: (value: string) => void }) => {
+export const SelectChannelDropDownContent = ({
+  channelId,
+  onValueChange,
+}: {
+  channelId: string;
+  onValueChange: (value: string) => void;
+}) => {
   return (
-    <SelectChannelProvider mode='single' value={channelId} onValueChange={(value) => {
-      onValueChange?.(value as string)
-    }}>
+    <SelectChannelProvider
+      mode="single"
+      value={channelId}
+      onValueChange={(value) => {
+        onValueChange?.(value as string);
+      }}
+    >
       <SelectChannelList channelId={channelId} onValueChange={onValueChange} />
     </SelectChannelProvider>
-  )
-}
+  );
+};
+
+const SelectChannelCommandBar = (props: {
+  value: string | string[];
+  mode?: 'single' | 'multiple';
+  onValueChange?: (v: string | string[]) => void;
+}) => {
+  const [open, setOpen] = useState<boolean>(false);
+  return (
+    <SelectChannelProvider {...props}>
+      <Popover open={open} onOpenChange={setOpen}>
+        <Combobox.Trigger>
+          <SelectChannelsValue />
+        </Combobox.Trigger>
+        <Combobox.Content>
+          <SelectChannelsContent />
+        </Combobox.Content>
+      </Popover>
+    </SelectChannelProvider>
+  );
+};
 
 export const SelectChannel = {
   Provider: SelectChannelProvider,
@@ -347,4 +388,5 @@ export const SelectChannel = {
   FilterBar: SelectChannelFilterBar,
   InlineCell: SelectChannelInlineCell,
   DropDownContent: SelectChannelDropDownContent,
+  CommandBar: SelectChannelCommandBar,
 };

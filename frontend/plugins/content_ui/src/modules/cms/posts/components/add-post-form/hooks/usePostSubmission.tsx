@@ -167,7 +167,22 @@ const blocksToHtml = (raw: string): string => {
   }
 };
 
+/**
+ * Extracts plain text from HTML for derived fields (for example, fallback title).
+ *
+ * Uses a DOM parser instead of regex-only stripping to avoid malformed HTML edge
+ * cases where crafted input can bypass simplistic replacements.
+ */
 const extractText = (html: string): string => {
+  if (!html) {
+    return '';
+  }
+
+  if (typeof DOMParser !== 'undefined') {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return (doc.body.textContent ?? '').trim();
+  }
+
   return html.replace(/<[^>]*>/g, '').trim();
 };
 
@@ -254,11 +269,13 @@ const buildPostInput = (
   const videoPayload = normalizeAttachment(data.video ?? undefined);
   const audioPayload = normalizeAttachment(data.audio ?? undefined);
   const pdfPayload = normalizeAttachment(data.pdf ?? undefined);
+  const slug =
+    data.slug?.trim() || (!editingPostId ? generateSlug(main.title) : '');
 
   return {
     clientPortalId: websiteId,
     title: main.title,
-    slug: editingPostId ? data.slug : generateSlug(main.title),
+    ...(slug ? { slug } : {}),
     content: main.content,
     type: data.type,
     status: data.status ?? 'draft',

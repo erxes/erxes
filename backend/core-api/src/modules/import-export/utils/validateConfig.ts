@@ -1,18 +1,5 @@
+import { ImportExportMeta } from 'erxes-api-shared/core-modules';
 import { getPlugin, redis } from 'erxes-api-shared/utils';
-
-interface ImportExportMeta {
-  import?: {
-    configured: boolean;
-    hasGetImportHeaders?: boolean;
-    hasInsertImportRows?: boolean;
-  };
-  export?: {
-    configured: boolean;
-    hasGetExportHeaders?: boolean;
-    hasGetExportData?: boolean;
-    hasUploadFile?: boolean;
-  };
-}
 
 interface ValidateExportConfigOptions {
   pluginName: string;

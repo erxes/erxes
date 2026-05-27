@@ -7,19 +7,23 @@ import {
 } from '../../constants/formSchema';
 import { LoyaltyScoreAddCoreFields } from './LoyaltyScoreAddCoreFields';
 import { LoyaltyScoreAddMoreFields } from './LoyaltyScoreAddMoreFields';
-import { AddScoreVariables, useAddScore } from '../hooks/useAddLoyaltyScore';
+import {
+  AddScoreCampaignVariables,
+  useAddScoreCampaign,
+} from '../hooks/useAddLoyaltyScore';
 
 export function AddLoyaltyScoreForm({
   onOpenChange,
 }: Readonly<{
   onOpenChange: (open: boolean) => void;
 }>) {
-  const { scoreAdd, loading: editLoading } = useAddScore();
+  const { scoreCampaignAdd, loading: editLoading } = useAddScoreCampaign();
   const form = useForm<LoyaltyScoreFormValues>({
     resolver: zodResolver(loyaltyScoreFormSchema),
     defaultValues: {
       title: '',
       description: '',
+      order: undefined,
       conditions: {
         serviceName: '',
         productCategoryIds: [],
@@ -29,8 +33,15 @@ export function AddLoyaltyScoreForm({
         excludeProductIds: [],
         excludeTagIds: [],
       },
+      additionalConfig: {
+        discountCheck: false,
+        cardBasedRule: [
+          { boardId: '', pipelineId: '', stageIds: [], refundStageIds: [] },
+        ],
+      },
       add: { placeholder: '', currencyRatio: '' },
       subtract: { placeholder: '', currencyRatio: '' },
+      set: { placeholder: '', currencyRatio: '' },
       ownerType: '',
       onlyClientPortal: false,
       fieldGroupId: '',
@@ -39,9 +50,19 @@ export function AddLoyaltyScoreForm({
   });
 
   async function onSubmit(data: LoyaltyScoreFormValues) {
-    const variables: AddScoreVariables = {
+    const cardBasedRule = (data.additionalConfig?.cardBasedRule || [])
+      .filter((rule) => rule.boardId && rule.pipelineId)
+      .map((rule) => ({
+        boardId: rule.boardId,
+        pipelineId: rule.pipelineId,
+        stageIds: rule.stageIds || [],
+        refundStageIds: rule.refundStageIds || [],
+      }));
+
+    const variables: AddScoreCampaignVariables = {
       title: data.title,
       description: data.description || '',
+      order: data.order,
       serviceName: data.conditions.serviceName,
       restrictions: {
         productCategoryIds: data.conditions.productCategoryIds?.join(','),
@@ -52,8 +73,13 @@ export function AddLoyaltyScoreForm({
         excludeProductIds: data.conditions.excludeProductIds?.join(','),
         excludeTagIds: data.conditions.excludeTagIds?.join(','),
       },
+      additionalConfig: {
+        discountCheck: data.additionalConfig?.discountCheck ?? false,
+        cardBasedRule,
+      },
       add: data.add,
       subtract: data.subtract,
+      set: data.set,
       ownerType: data.ownerType,
       onlyClientPortal: data.onlyClientPortal,
       fieldGroupId: data.fieldGroupId,
@@ -62,7 +88,7 @@ export function AddLoyaltyScoreForm({
       fieldId: data.fieldId,
     };
 
-    scoreAdd({
+    scoreCampaignAdd({
       variables,
       onCompleted: () => {
         form.reset();

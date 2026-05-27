@@ -15,7 +15,7 @@ export const SelectMainProduct = ({
   const { mainProduct, loading } = useGetMainProduct({
     skip: false,
     variables: {
-      perPage: 20,
+      perPage: 200,
       page: 1,
     },
   });

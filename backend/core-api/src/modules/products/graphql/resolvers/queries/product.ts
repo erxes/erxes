@@ -10,10 +10,13 @@ import { IContext, IModels } from '~/connectionResolvers';
 
 import { IProductParams } from '@/products/@types/product';
 import { PRODUCT_STATUSES } from '@/products/constants';
+import { fetchSegment } from '@/segments/utils/fetchSegment';
 import {
   getSimilaritiesProducts,
   getSimilaritiesProductsCount,
 } from '@/products/utils';
+
+const inventoryKey = (id?: string) => id || '_';
 
 const generateFilter = async (
   models: IModels,
@@ -34,6 +37,8 @@ const generateFilter = async (
     excludeIds,
     image,
     pipelineId,
+    segment,
+    segmentData,
     branchId,
     departmentId,
     minRemainder,
@@ -61,8 +66,9 @@ const generateFilter = async (
   }
 
   if (categoryIds) {
-    const categories =
-      await models.ProductCategories.getChildCategories(categoryIds);
+    const categories = await models.ProductCategories.getChildCategories(
+      categoryIds,
+    );
 
     const catIds = categories.map((c) => c._id);
     andFilters.push({ categoryId: { $in: catIds } });
@@ -141,16 +147,23 @@ const generateFilter = async (
       method: 'query',
       module: 'pipeline',
       action: 'findOne',
-      input: { _id: pipelineId },
+      input: {
+        query: { _id: pipelineId },
+        fields: {
+          initialCategoryIds: 1,
+          excludeCategoryIds: 1,
+          excludeProductIds: 1,
+        },
+      },
       defaultValue: {},
     });
 
-    if (pipeline.initialCategoryIds?.length) {
+    if (pipeline?.initialCategoryIds?.length) {
       let incCategories = await models.ProductCategories.getChildCategories(
         pipeline.initialCategoryIds,
       );
 
-      if (pipeline.excludeCategoryIds?.length) {
+      if (pipeline?.excludeCategoryIds?.length) {
         const excCategories = await models.ProductCategories.getChildCategories(
           pipeline.excludeCategoryIds,
         );
@@ -160,16 +173,19 @@ const generateFilter = async (
 
       andFilters.push({ categoryId: { $in: incCategories.map((c) => c._id) } });
 
-      if (pipeline.excludeProductIds?.length) {
+      if (pipeline?.excludeProductIds?.length) {
         andFilters.push({ _id: { $nin: pipeline.excludeProductIds } });
       }
     }
   }
 
-  if (branchId && departmentId) {
+  if (branchId || departmentId) {
+    const branchKey = inventoryKey(branchId);
+    const departmentKey = inventoryKey(departmentId);
+
     if (minRemainder || minRemainder === 0) {
       andFilters.push({
-        [`inventories.${branchId}.${departmentId}.remainder`]: {
+        [`inventories.${branchKey}.${departmentKey}.remainder`]: {
           $exists: true,
           $gte: minRemainder,
         },
@@ -177,7 +193,7 @@ const generateFilter = async (
     }
     if (maxRemainder || maxRemainder === 0) {
       andFilters.push({
-        [`inventories.${branchId}.${departmentId}.remainder`]: {
+        [`inventories.${branchKey}.${departmentKey}.remainder`]: {
           $exists: true,
           $lte: maxRemainder,
         },
@@ -186,7 +202,7 @@ const generateFilter = async (
 
     if (minDiscountValue || minDiscountValue === 0) {
       andFilters.push({
-        [`discounts.${branchId}.${departmentId}.value`]: {
+        [`discounts.${branchKey}.${departmentKey}.value`]: {
           $exists: true,
           $gte: minDiscountValue,
         },
@@ -194,7 +210,7 @@ const generateFilter = async (
     }
     if (maxDiscountValue || maxDiscountValue === 0) {
       andFilters.push({
-        [`discounts.${branchId}.${departmentId}.value`]: {
+        [`discounts.${branchKey}.${departmentKey}.value`]: {
           $exists: true,
           $lte: maxDiscountValue,
         },
@@ -203,7 +219,7 @@ const generateFilter = async (
 
     if (minDiscountPercent || minDiscountPercent === 0) {
       andFilters.push({
-        [`discounts.${branchId}.${departmentId}.percent`]: {
+        [`discounts.${branchKey}.${departmentKey}.percent`]: {
           $exists: true,
           $gte: minDiscountPercent,
         },
@@ -211,9 +227,168 @@ const generateFilter = async (
     }
     if (maxDiscountPercent || maxDiscountPercent === 0) {
       andFilters.push({
-        [`discounts.${branchId}.${departmentId}.percent`]: {
+        [`discounts.${branchKey}.${departmentKey}.percent`]: {
           $exists: true,
           $lte: maxDiscountPercent,
+        },
+      });
+    }
+  } else {
+    if (minRemainder || minRemainder === 0) {
+      andFilters.push({
+        $expr: {
+          $gte: [
+            {
+              $sum: {
+                $map: {
+                  input: { $objectToArray: { $ifNull: ['$inventories', {}] } },
+                  as: 'branch',
+                  in: {
+                    $sum: {
+                      $map: {
+                        input: { $objectToArray: '$$branch.v' },
+                        as: 'dept',
+                        in: { $ifNull: ['$$dept.v.remainder', 0] },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            minRemainder,
+          ],
+        },
+      });
+    }
+    if (maxRemainder || maxRemainder === 0) {
+      andFilters.push({
+        $expr: {
+          $lte: [
+            {
+              $sum: {
+                $map: {
+                  input: { $objectToArray: { $ifNull: ['$inventories', {}] } },
+                  as: 'branch',
+                  in: {
+                    $sum: {
+                      $map: {
+                        input: { $objectToArray: '$$branch.v' },
+                        as: 'dept',
+                        in: { $ifNull: ['$$dept.v.remainder', 0] },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            maxRemainder,
+          ],
+        },
+      });
+    }
+
+    if (minDiscountValue || minDiscountValue === 0) {
+      andFilters.push({
+        $expr: {
+          $gte: [
+            {
+              $sum: {
+                $map: {
+                  input: { $objectToArray: { $ifNull: ['$discounts', {}] } },
+                  as: 'branch',
+                  in: {
+                    $sum: {
+                      $map: {
+                        input: { $objectToArray: '$$branch.v' },
+                        as: 'dept',
+                        in: { $ifNull: ['$$dept.v.value', 0] },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            minDiscountValue,
+          ],
+        },
+      });
+    }
+    if (maxDiscountValue || maxDiscountValue === 0) {
+      andFilters.push({
+        $expr: {
+          $lte: [
+            {
+              $sum: {
+                $map: {
+                  input: { $objectToArray: { $ifNull: ['$discounts', {}] } },
+                  as: 'branch',
+                  in: {
+                    $sum: {
+                      $map: {
+                        input: { $objectToArray: '$$branch.v' },
+                        as: 'dept',
+                        in: { $ifNull: ['$$dept.v.value', 0] },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            maxDiscountValue,
+          ],
+        },
+      });
+    }
+
+    if (minDiscountPercent || minDiscountPercent === 0) {
+      andFilters.push({
+        $expr: {
+          $gte: [
+            {
+              $avg: {
+                $map: {
+                  input: { $objectToArray: { $ifNull: ['$discounts', {}] } },
+                  as: 'branch',
+                  in: {
+                    $avg: {
+                      $map: {
+                        input: { $objectToArray: '$$branch.v' },
+                        as: 'dept',
+                        in: { $ifNull: ['$$dept.v.percent', 0] },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            minDiscountPercent,
+          ],
+        },
+      });
+    }
+    if (maxDiscountPercent || maxDiscountPercent === 0) {
+      andFilters.push({
+        $expr: {
+          $lte: [
+            {
+              $avg: {
+                $map: {
+                  input: { $objectToArray: { $ifNull: ['$discounts', {}] } },
+                  as: 'branch',
+                  in: {
+                    $avg: {
+                      $map: {
+                        input: { $objectToArray: '$$branch.v' },
+                        as: 'dept',
+                        in: { $ifNull: ['$$dept.v.percent', 0] },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            maxDiscountPercent,
+          ],
         },
       });
     }
@@ -237,6 +412,22 @@ const generateFilter = async (
   }
   if (maxPrice || maxPrice === 0) {
     andFilters.push({ unitPrice: { $exists: true, $lte: maxPrice } });
+  }
+
+  if (segment || segmentData) {
+    const segmentObj = segmentData
+      ? JSON.parse(segmentData)
+      : await models.Segments.findOne({ _id: segment }).lean();
+
+    if (segmentObj) {
+      const segmentProductIds = await fetchSegment(
+        models,
+        subdomain,
+        segmentObj,
+      );
+
+      andFilters.push({ _id: { $in: segmentProductIds } });
+    }
   }
 
   return { ...filter, ...(andFilters.length ? { $and: andFilters } : {}) };
@@ -376,19 +567,26 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
     const product: IProductDocument = await models.Products.getProduct({ _id });
 
     if (groupedSimilarity === 'config') {
-      const getRegex = (str) => {
-        return ['*', '.', '_'].includes(str)
-          ? new RegExp(
-              `^${escapeRegExp(str)
-                .replace(/\\\*/g, '.')
-                .replace(/\\_/g, '.')}.*`,
-              'igu',
-            )
-          : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
+      /**
+       * Converts a similarity mask character into a matching regex.
+       * Single wildcard chars (*, _) become "any single char" anchored at start.
+       * Literal '.' matches strings starting with a dot.
+       * All other strings become unanchored escaped-substring matchers.
+       */
+      const WILDCARD_REGEX: Record<string, RegExp> = {
+        '*': /^..*/giu,
+        '.': /^\..*/giu,
+        _: /^..*/giu,
+      };
+      const getRegex = (str: string): RegExp => {
+        return (
+          WILDCARD_REGEX[str] ?? new RegExp(`.*${escapeRegExp(str)}.*`, 'igu')
+        );
       };
 
-      const similarityGroups =
-        await models.ProductsConfigs.getConfig('similarityGroup');
+      const similarityGroups = await models.ProductsConfigs.getConfig(
+        'similarityGroup',
+      );
 
       const codeMasks = Object.keys(similarityGroups);
       const customFieldIds = (product.customFieldsData || []).map(
@@ -430,7 +628,7 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
         };
       }
 
-      const codeRegexes: any[] = [];
+      const codeRegexes: FilterQuery<IProductDocument>[] = [];
       const fieldIds: string[] = [];
       const groups: { title: string; fieldId: string }[] = [];
 
@@ -469,7 +667,7 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
         }
       }
 
-      const filters: any = {
+      const filters: FilterQuery<IProductDocument> = {
         $and: [
           {
             $or: codeRegexes,
@@ -506,7 +704,7 @@ export const productQueries: Record<string, Resolver<any, any, IContext>> = {
 
     const fieldIds = category.similarities.map((r) => r.fieldId);
 
-    const filters: any = {
+    const filters: FilterQuery<IProductDocument> = {
       $and: [
         {
           categoryId: category._id,
@@ -549,4 +747,3 @@ productQueries.cpProducts.wrapperConfig = {
 productQueries.cpProductDetail.wrapperConfig = {
   forClientPortal: true,
 };
-

@@ -1,11 +1,12 @@
 import {
   loadAiActionMemory,
   parseAiAgentActionConfig,
+  parseAiAgentInput,
   persistAiActionMemory,
+  runAiAction,
   TAiActionExecutionResult,
 } from '../../ai';
 import { generateModels } from '../../connectionResolver';
-import { sendAutomationWorkerMessage } from '../../utils/sendAutomationWorkerMessage';
 import {
   getContentType,
   getModuleName,
@@ -41,29 +42,32 @@ export const executeAiAgentAction = async (
       actionConfig: parsedActionConfig,
       aiContext,
     });
+    const aiAgentId = parsedActionConfig.aiAgentId;
 
-    const response = await sendAutomationWorkerMessage<
-      any,
-      TAiAgentActionWorkerResponse
-    >({
-      queueName: 'aiAgent',
-      jobName: 'executeAiAgent',
+    if (!aiAgentId) {
+      throw new Error('AI action config is missing aiAgentId.');
+    }
+
+    const agent = await models.AiAgents.findById({ _id: aiAgentId }).lean();
+
+    if (!agent) {
+      throw new Error('AI Agent not found.');
+    }
+    const timerLabel = `runAiAction:${execution._id}:${action.id}`;
+    console.time(timerLabel);
+    const response = await runAiAction({
       subdomain,
-      data: {
-        aiAgentActionId: action.id,
-        executionId: execution._id,
-        actionId: action.id,
-        actionConfig: parsedActionConfig,
-        inputData,
-        triggerData: execution.target,
-        aiContext,
-        memory,
-      },
-      timeout: 30000,
+      agent: parseAiAgentInput(agent),
+      agentId: aiAgentId,
+      models,
+      actionConfig: parsedActionConfig,
+      inputData,
+      aiContext,
+      memory,
     });
-
+    console.timeEnd(timerLabel);
     if (!response) {
-      throw new Error('AI agent worker returned an empty response.');
+      throw new Error('AI agent returned an empty response.');
     }
 
     await persistAiActionMemory({

@@ -63,6 +63,12 @@ export const productSchema = schemaWrapper(
         index: true,
       },
       vendorId: { type: String, optional: true, label: 'Vendor' },
+      scopeBrandIds: {
+        type: [String],
+        optional: true,
+        label: 'Scope Brand Ids',
+        index: true,
+      },
       mergedIds: { type: [String], optional: true },
 
       uom: {

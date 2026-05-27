@@ -52,6 +52,14 @@ const AppsSettings = lazy(() =>
   })),
 );
 
+const OAuthClientsSettings = lazy(() =>
+  import('~/pages/settings/workspace/OAuthClientsSettingsPage').then(
+    (module) => ({
+      default: module.OAuthClientsSettingsPage,
+    }),
+  ),
+);
+
 const ProductsSettingsRoutes = lazy(() =>
   import('@/products/settings/components/ProductSettingsRoutes').then(
     (module) => ({
@@ -66,11 +74,11 @@ const BrandsSettingsRoutes = lazy(() =>
 );
 
 const AutomationSettingsRoutes = lazy(() =>
-  import(
-    '@/automations/components/settings/components/AutomationSettingsRoutes'
-  ).then((module) => ({
-    default: module.AutomationSettingsRoutes,
-  })),
+  import('@/automations/components/settings/components/AutomationSettingsRoutes').then(
+    (module) => ({
+      default: module.AutomationSettingsRoutes,
+    }),
+  ),
 );
 
 const PropertiesSettingsRoutes = lazy(() =>
@@ -89,6 +97,14 @@ const BroadcastSettings = lazy(() =>
   import('~/pages/settings/workspace/BroadcastSettingsPage').then((module) => ({
     default: module.BroadcastSettingsPage,
   })),
+);
+
+const ImportExportSettingsRoutes = lazy(() =>
+  import('@/import-export/settings/components/ImportExportSettingsRoutes').then(
+    (module) => ({
+      default: module.ImportExportSettingsRoutes,
+    }),
+  ),
 );
 
 const SettingsNotificationRoutes = lazy(() =>
@@ -161,6 +177,10 @@ export function SettingsRoutes() {
         />
         <Route path={SettingsWorkspacePath.Logs} element={<LogsRoutes />} />
         <Route
+          path={SettingsWorkspacePath.ImportExportCatchAll}
+          element={<ImportExportSettingsRoutes />}
+        />
+        <Route
           path={SettingsWorkspacePath.StructureCatchAll}
           element={<StructureSettings />}
         />
@@ -181,6 +201,10 @@ export function SettingsRoutes() {
         <Route
           path={SettingsWorkspacePath.AppTokens}
           element={<AppsSettings />}
+        />
+        <Route
+          path={SettingsWorkspacePath.OAuthClients}
+          element={<OAuthClientsSettings />}
         />
         <Route
           path={SettingsWorkspacePath.PropertiesCatchAll}

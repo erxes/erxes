@@ -38,8 +38,7 @@ export const ConversationMessage = () => {
             className={cn(
               'mt-2 h-auto py-2 text-left **:whitespace-pre-wrap block font-normal space-y-2 overflow-x-hidden text-pretty wrap-break-word [&_a]:text-primary [&_a]:underline [&_img]:aspect-square [&_img]:object-cover [&_img]:rounded',
               userId && 'bg-primary/10 hover:bg-primary/10',
-              internal &&
-                'bg-yellow-50 hover:bg-yellow-50 dark:bg-yellow-950 dark:hover:bg-yellow-950',
+              internal && 'bg-warning/20 hover:bg-warning/5',
               separatePrevious && 'mt-8',
             )}
             asChild

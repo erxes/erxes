@@ -9,12 +9,12 @@ import { usePosSummaryList } from '~/modules/pos/pos-summary/hooks/UsePosSummary
 import { IconShoppingCartX } from '@tabler/icons-react';
 
 export const PosSummaryRecordTable = ({ posId }: { posId?: string }) => {
-  const { posSummaryList, handleFetchMore, loading, pageInfo } =
+  const { posSummaryList, handleFetchMore, loading, pageInfo, columns } =
     usePosSummaryList({ posId });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const allColumns = [
     ...firstPosSummaryColumns,
-    ...generateOtherPaymentColumns(posSummaryList?.[0]?.amounts || {}),
+    ...generateOtherPaymentColumns(posSummaryList?.[0]?.amounts || {}, columns),
     ...secondPosSummaryColumns,
   ];
   const columnsKey = allColumns.map((c) => c.id || '').join('|');

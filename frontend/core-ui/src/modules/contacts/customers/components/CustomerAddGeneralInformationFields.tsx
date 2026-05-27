@@ -13,13 +13,16 @@ import {
   PhoneValidationStatusField,
   PrimaryEmailField,
   PrimaryPhoneField,
+  StateField,
 } from '@/contacts/customers/components/CustomerFormFields';
+// import { useVersion } from 'ui-modules';
 
 export const CustomerAddGeneralInformationFields = ({
   form,
 }: {
   form: UseFormReturn<CustomerFormType>;
 }) => {
+  // const isOs = useVersion();
   return (
     <>
       <AvatarField control={form.control} />
@@ -32,6 +35,7 @@ export const CustomerAddGeneralInformationFields = ({
         <EmailValidationStatusField control={form.control} />
         <PrimaryPhoneField control={form.control} />
         <PhoneValidationStatusField control={form.control} />
+        <StateField control={form.control} />
       </div>
       <DescriptionField control={form.control} />
       <IsSubscribedField control={form.control} />

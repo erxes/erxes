@@ -180,6 +180,10 @@ export const deploy = async (
     throw new Error('No menus found');
   }
 
+  const hydratedMainMenus = await models.MenuItems.hydrateMenuItems(mainMenus);
+  const hydratedFooterMenus =
+    await models.MenuItems.hydrateMenuItems(footerMenus);
+
   const GITHUB_TOKEN = getEnv({ name: 'GITHUB_TOKEN' });
   const VERCEL_TOKEN = getEnv({ name: 'VERCEL_TOKEN' });
   const DOMAIN = getEnv({ name: 'DOMAIN' })
@@ -258,6 +262,7 @@ export const deploy = async (
       ERXES_FILE_URL: `${domain}/read-file?key=`,
       ERXES_CP_ID: web.clientPortalId || '',
       ERXES_APP_TOKEN: web.erxesAppToken,
+      NEXT_PUBLIC_ERXES_APP_TOKEN: web.erxesAppToken,
       ERXES_WEB_ID: web._id || '',
       TEMPLATE_TYPE: web.templateType || '',
       BUILD_MODE: 'production',
@@ -296,7 +301,12 @@ export const deploy = async (
     fs.writeFileSync(
       dataPath,
       JSON.stringify(
-        buildConfigs(subdomain, web, mainMenus as any, footerMenus as any),
+        buildConfigs(
+          subdomain,
+          web,
+          hydratedMainMenus as any,
+          hydratedFooterMenus as any,
+        ),
       ),
     );
     console.log('wrote configs.json');

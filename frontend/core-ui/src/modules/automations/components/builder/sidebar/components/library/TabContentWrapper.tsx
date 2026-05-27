@@ -14,13 +14,19 @@ interface TabContentWrapperProps {
   loading: boolean;
   error: ApolloError | undefined;
   refetch: () => void;
-  type: AutomationNodeType;
+  type: AutomationNodeType.Trigger | AutomationNodeType.Action;
   list:
     | IAutomationsTriggerConfigConstants[]
     | IAutomationsActionConfigConstants[];
   onDragStart: (
     event: React.DragEvent<HTMLDivElement>,
     { type, label, description, icon, isCustom }: any,
+  ) => void;
+  onSelectNode: (
+    node: (
+      | IAutomationsTriggerConfigConstants
+      | IAutomationsActionConfigConstants
+    ) & { nodeType: AutomationNodeType.Trigger | AutomationNodeType.Action },
   ) => void;
 }
 
@@ -31,6 +37,7 @@ export const TabContentWrapper = ({
   type,
   list,
   onDragStart,
+  onSelectNode,
 }: TabContentWrapperProps) => {
   if (loading) {
     return <LoadingSkeleton />;
@@ -55,6 +62,7 @@ export const TabContentWrapper = ({
           item={item}
           nodeType={type}
           onDragStart={onDragStart}
+          onSelectNode={onSelectNode}
         />
       ))}
     </>

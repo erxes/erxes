@@ -1,39 +1,48 @@
 import { RecordTable, Spinner } from 'erxes-ui';
 import { IconStar } from '@tabler/icons-react';
 import { makeScoreColumns } from './ScoreColumns';
-import { useScoreList } from '../hooks/useScoreList';
-import { IScoreLog } from '../types/score';
+import {
+  SCORE_LOG_CURSOR_SESSION_KEY,
+  useScoreList,
+} from '../hooks/useScoreList';
 import { GiveScoreModal } from './GiveScoreModal';
-import { ScoreDetailSheet } from './ScoreDetailSheet';
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 
 export const ScoreRecordTable = () => {
-  const { list, loading } = useScoreList();
-  const [selectedRecord, setSelectedRecord] = useState<IScoreLog | null>(null);
+  const { list, loading, handleFetchMore, pageInfo } = useScoreList();
+  const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
-  const columns = useMemo(
-    () => makeScoreColumns((row) => setSelectedRecord(row)),
-    [],
-  );
+  const columns = useMemo(() => makeScoreColumns(), []);
 
   if (loading && !list?.length) return <Spinner />;
 
   return (
-    <>
-      <RecordTable.Provider
-        columns={columns}
-        data={(list || []).filter((r) => !!r.owner)}
-        className="m-3 relative"
-        stickyColumns={['more', 'ownerName']}
+    <RecordTable.Provider
+      columns={columns}
+      data={list || []}
+      className="m-3 relative"
+      stickyColumns={['more', 'ownerName']}
+    >
+      <RecordTable.CursorProvider
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        dataLength={list?.length}
+        sessionKey={SCORE_LOG_CURSOR_SESSION_KEY}
       >
         <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
+            <RecordTable.CursorBackwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
             {loading ? (
               <RecordTable.RowSkeleton rows={32} />
             ) : (
               <RecordTable.RowList />
             )}
+            <RecordTable.CursorForwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
           </RecordTable.Body>
         </RecordTable>
 
@@ -51,13 +60,7 @@ export const ScoreRecordTable = () => {
             </div>
           </div>
         )}
-      </RecordTable.Provider>
-
-      <ScoreDetailSheet
-        open={!!selectedRecord}
-        onOpenChange={(open) => !open && setSelectedRecord(null)}
-        record={selectedRecord}
-      />
-    </>
+      </RecordTable.CursorProvider>
+    </RecordTable.Provider>
   );
 };

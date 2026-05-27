@@ -101,6 +101,9 @@ class InvSaleOutCostTrs {
       number: transaction.number,
       date: transaction.date,
       description: transaction.description,
+      status: transaction.status,
+      mentionOwnerId: transaction.mentionOwnerId,
+      mentionUserIds: transaction.mentionUserIds,
       branchId: transaction.branchId,
       departmentId: transaction.departmentId,
       customerType: transaction.customerType,
@@ -144,7 +147,6 @@ class InvSaleOutCostTrs {
         ...commonDetail,
         originType: TR_DETAIL_FOLLOW_TYPES.SALE_OUT,
         accountId: this.outAccount?._id ?? '',
-        side: TR_SIDES.CREDIT,
       });
 
       followCostDetails.push({
@@ -152,7 +154,6 @@ class InvSaleOutCostTrs {
         ...commonDetail,
         originType: TR_DETAIL_FOLLOW_TYPES.SALE_COST,
         accountId: this.costAccount?._id ?? '',
-        side: TR_SIDES.DEBIT,
       });
     }
 
@@ -160,6 +161,7 @@ class InvSaleOutCostTrs {
       ...commonFollowTrDoc,
       originType: TR_FOLLOW_TYPES.INV_SALE_OUT,
       journal: JOURNALS.INV_SALE_OUT,
+      side: TR_SIDES.CREDIT,
       details: followOutDetails,
     };
 
@@ -167,6 +169,7 @@ class InvSaleOutCostTrs {
       ...commonFollowTrDoc,
       originType: TR_FOLLOW_TYPES.INV_SALE_COST,
       journal: JOURNALS.INV_SALE_COST,
+      side: TR_SIDES.DEBIT,
       details: followCostDetails,
     };
 

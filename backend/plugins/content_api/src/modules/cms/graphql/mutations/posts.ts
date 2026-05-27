@@ -1,6 +1,19 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { POST_REACTION_TYPES, PostReactionType } from '@/cms/@types/posts';
 import { IContext } from '~/connectionResolvers';
+import {
+  assertOwnedDocument,
+  assertOwnedDocuments,
+  requireClientPortalId,
+} from '@/cms/graphql/utils/clientPortal';
+import {
+  assertCmsDocumentAccess,
+  assertCmsLanguageAccess,
+  hasCmsPermission,
+  requireCmsPermission,
+} from '@/cms/utils/permissions';
+import { CMS_POST_ACTIONS } from '~/meta/permissions';
+import { preparePdfAttachmentPages } from '@/cms/utils/pdfAttachments';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -30,11 +43,39 @@ const saveTranslations = async (
 
 export const postMutations: Record<string, Resolver> = {
   cmsPostsAdd: async (_parent, args, context: IContext) => {
-    const { models, user } = context;
+    const { models, user, subdomain } = context;
     const { input } = args;
     const { translations, language, ...postInput } = input;
 
+    await requireCmsPermission(context, [
+      CMS_POST_ACTIONS.createPublished,
+      CMS_POST_ACTIONS.createReview,
+    ]);
+    await assertCmsLanguageAccess({
+      context,
+      clientPortalId: postInput.clientPortalId,
+      language,
+      translations,
+    });
+
     postInput.authorId = user._id;
+
+    const canApprove = await hasCmsPermission(
+      context,
+      CMS_POST_ACTIONS.approve,
+    );
+    const canCreatePublished = await hasCmsPermission(
+      context,
+      CMS_POST_ACTIONS.createPublished,
+    );
+
+    if (canCreatePublished && !canApprove) {
+      postInput.status = 'published';
+    } else if (canCreatePublished) {
+      postInput.status = postInput.status || 'published';
+    } else {
+      postInput.status = 'draft';
+    }
 
     if (
       (!postInput.title || !String(postInput.title).trim()) &&
@@ -60,6 +101,84 @@ export const postMutations: Record<string, Resolver> = {
       }
     }
 
+    postInput.pdfAttachment = await preparePdfAttachmentPages({
+      subdomain,
+      pdfAttachment: postInput.pdfAttachment,
+    });
+
+    const post = await models.Posts.createPost(postInput);
+
+    await saveTranslations(models, post._id, translations || []);
+
+    return post;
+  },
+
+  cpCmsPostsAdd: async (_parent, args, context: IContext) => {
+    const { models, subdomain } = context;
+    const clientPortalId = requireClientPortalId(context);
+    const { input } = args;
+    const {
+      translations,
+      language,
+      clientPortalId: _ignored,
+      ...postInput
+    } = input;
+
+    postInput.clientPortalId = clientPortalId;
+
+    if (Array.isArray(postInput.categoryIds) && postInput.categoryIds.length) {
+      await assertOwnedDocuments(
+        models.Categories,
+        postInput.categoryIds,
+        clientPortalId,
+        'Category not found',
+      );
+    }
+
+    if (Array.isArray(postInput.tagIds) && postInput.tagIds.length) {
+      await assertOwnedDocuments(
+        models.PostTags,
+        postInput.tagIds,
+        clientPortalId,
+        'Tag not found',
+      );
+    }
+
+    if (postInput.webId) {
+      await assertOwnedDocument(
+        models.Web,
+        postInput.webId,
+        clientPortalId,
+        'Web not found',
+      );
+    }
+
+    if (
+      (!postInput.title || !String(postInput.title).trim()) &&
+      Array.isArray(translations) &&
+      translations.length > 0
+    ) {
+      const defaultLanguage = await getDefaultLanguage(models, clientPortalId);
+
+      const fallback =
+        (defaultLanguage &&
+          translations.find((t: any) => t?.language === defaultLanguage)) ||
+        translations[0];
+
+      if (fallback) {
+        postInput.title = fallback.title || postInput.title;
+        postInput.content = fallback.content || postInput.content;
+        postInput.excerpt = fallback.excerpt || postInput.excerpt;
+        postInput.customFieldsData =
+          fallback.customFieldsData || postInput.customFieldsData;
+      }
+    }
+
+    postInput.pdfAttachment = await preparePdfAttachmentPages({
+      subdomain,
+      pdfAttachment: postInput.pdfAttachment,
+    });
+
     const post = await models.Posts.createPost(postInput);
 
     await saveTranslations(models, post._id, translations || []);
@@ -68,15 +187,36 @@ export const postMutations: Record<string, Resolver> = {
   },
 
   cmsPostsEdit: async (_parent, args, context: IContext) => {
-    const { models } = context;
+    const { models, subdomain } = context;
     const { _id, input } = args;
     const { translations, language, ...postInput } = input;
+    const existingPost = await models.Posts.findOne({ _id }).lean();
 
-    if (language && postInput.clientPortalId) {
-      const rawDefault = await getDefaultLanguage(
-        models,
-        postInput.clientPortalId,
-      );
+    if (!existingPost) {
+      throw new Error('Post not found');
+    }
+
+    await assertCmsDocumentAccess({
+      context,
+      actions:
+        postInput.status === 'published'
+          ? CMS_POST_ACTIONS.approve
+          : CMS_POST_ACTIONS.update,
+      document: existingPost,
+    });
+
+    await assertCmsLanguageAccess({
+      context,
+      clientPortalId: postInput.clientPortalId || existingPost.clientPortalId,
+      language,
+      translations,
+    });
+
+    const clientPortalId =
+      postInput.clientPortalId || existingPost.clientPortalId;
+
+    if (language && clientPortalId) {
+      const rawDefault = await getDefaultLanguage(models, clientPortalId);
 
       const defaultLanguage = rawDefault || 'en';
 
@@ -97,6 +237,14 @@ export const postMutations: Record<string, Resolver> = {
         const { title, content, excerpt, customFieldsData, ...safePostInput } =
           postInput;
 
+        if (safePostInput.pdfAttachment !== undefined) {
+          safePostInput.pdfAttachment = await preparePdfAttachmentPages({
+            subdomain,
+            pdfAttachment: safePostInput.pdfAttachment,
+            previousPdfAttachment: existingPost.pdfAttachment,
+          });
+        }
+
         const post = await models.Posts.updatePost(_id, safePostInput);
 
         const remainingTranslations = (translations || []).filter(
@@ -106,6 +254,14 @@ export const postMutations: Record<string, Resolver> = {
 
         return post;
       }
+    }
+
+    if (postInput.pdfAttachment !== undefined) {
+      postInput.pdfAttachment = await preparePdfAttachmentPages({
+        subdomain,
+        pdfAttachment: postInput.pdfAttachment,
+        previousPdfAttachment: existingPost.pdfAttachment,
+      });
     }
 
     const post = await models.Posts.updatePost(_id, postInput);
@@ -118,6 +274,17 @@ export const postMutations: Record<string, Resolver> = {
   cmsPostsRemove: async (_parent, args, context: IContext) => {
     const { models } = context;
     const { _id } = args;
+    const post = await models.Posts.findOne({ _id }).lean();
+
+    if (!post) {
+      throw new Error('Post not found');
+    }
+
+    await assertCmsDocumentAccess({
+      context,
+      actions: CMS_POST_ACTIONS.remove,
+      document: post,
+    });
 
     await models.Translations.deleteMany({
       $or: [{ objectId: _id }, { postId: _id }],
@@ -128,23 +295,78 @@ export const postMutations: Record<string, Resolver> = {
   cmsPostsRemoveMany: async (_parent, args, context: IContext) => {
     const { models } = context;
     const { _ids } = args;
+    const uniqueIds = [
+      ...new Set((_ids || []).map((id: string) => String(id))),
+    ];
+
+    await requireCmsPermission(context, CMS_POST_ACTIONS.remove);
+
+    const posts = await models.Posts.find({ _id: { $in: uniqueIds } }).lean();
+
+    if (posts.length !== uniqueIds.length) {
+      throw new Error('Post not found');
+    }
+
+    for (const post of posts) {
+      await assertCmsDocumentAccess({
+        context,
+        actions: CMS_POST_ACTIONS.remove,
+        document: post,
+      });
+    }
 
     await models.Translations.deleteMany({
-      $or: [{ objectId: { $in: _ids } }, { postId: { $in: _ids } }],
+      $or: [{ objectId: { $in: uniqueIds } }, { postId: { $in: uniqueIds } }],
     });
-    const result = await models.Posts.deleteMany({ _id: { $in: _ids } });
+    const result = await models.Posts.deleteMany({ _id: { $in: uniqueIds } });
     return { deletedCount: result.deletedCount };
   },
 
   cmsPostsChangeStatus: async (_parent, args, context: IContext) => {
     const { models } = context;
     const { _id, status } = args;
+    const post = await models.Posts.findOne({ _id }).lean();
+
+    if (!post) {
+      throw new Error('Post not found');
+    }
+
+    await assertCmsDocumentAccess({
+      context,
+      actions:
+        status === 'published'
+          ? CMS_POST_ACTIONS.approve
+          : CMS_POST_ACTIONS.update,
+      document: post,
+    });
+
+    await assertCmsLanguageAccess({
+      context,
+      clientPortalId: post.clientPortalId,
+    });
+
     return models.Posts.changeStatus(_id, status);
   },
 
   cmsPostsToggleFeatured: async (_parent, args, context: IContext) => {
     const { models } = context;
     const { _id } = args;
+    const post = await models.Posts.findOne({ _id }).lean();
+
+    if (!post) {
+      throw new Error('Post not found');
+    }
+
+    await assertCmsDocumentAccess({
+      context,
+      actions: CMS_POST_ACTIONS.update,
+      document: post,
+    });
+    await assertCmsLanguageAccess({
+      context,
+      clientPortalId: post.clientPortalId,
+    });
+
     return models.Posts.toggleFeatured(_id);
   },
 
@@ -168,18 +390,86 @@ export const postMutations: Record<string, Resolver> = {
     const object = await model.findOne({ _id: targetId });
     if (!object) throw new Error('Object not found');
 
+    if (type === 'post') {
+      await assertCmsDocumentAccess({
+        context,
+        actions: CMS_POST_ACTIONS.update,
+        document: object,
+      });
+      await assertCmsLanguageAccess({
+        context,
+        clientPortalId: object.clientPortalId,
+        language: input.language,
+      });
+    }
+
     return models.Translations.upsertTranslation(input);
   },
 
   cmsEditTranslation: async (_parent, args, context: IContext) => {
     const { models } = context;
     const { input } = args;
+    const type = input.type || 'post';
+
+    if (type === 'post') {
+      const targetId = input.objectId || input.postId;
+      const post = await models.Posts.findOne({ _id: targetId }).lean();
+
+      if (!post) {
+        throw new Error('Post not found');
+      }
+
+      await assertCmsDocumentAccess({
+        context,
+        actions: CMS_POST_ACTIONS.update,
+        document: post,
+      });
+      await assertCmsLanguageAccess({
+        context,
+        clientPortalId: post.clientPortalId,
+        language: input.language,
+      });
+    }
+
     return models.Translations.upsertTranslation(input);
   },
 
   cmsDeleteTranslation: async (_parent, args, context: IContext) => {
     const { models } = context;
     const { _id } = args;
+    const translation = await models.Translations.findOne({ _id }).lean();
+
+    if (!translation) {
+      throw new Error('Translation not found');
+    }
+
+    if (!translation.type || translation.type === 'post') {
+      const post = await models.Posts.findOne({
+        _id: translation.objectId,
+      }).lean();
+
+      if (!post) {
+        throw new Error('Post not found');
+      }
+
+      await assertCmsDocumentAccess({
+        context,
+        actions: CMS_POST_ACTIONS.update,
+        document: post,
+      });
+      await assertCmsLanguageAccess({
+        context,
+        clientPortalId: post.clientPortalId,
+        language: translation.language,
+      });
+    } else {
+      await requireCmsPermission(context, CMS_POST_ACTIONS.update);
+      await assertCmsLanguageAccess({
+        context,
+        language: translation?.language,
+      });
+    }
+
     return models.Translations.deleteTranslation(_id);
   },
 
@@ -225,5 +515,8 @@ export const postMutations: Record<string, Resolver> = {
 };
 
 postMutations.cpPostsReact.wrapperConfig = {
+  forClientPortal: true,
+};
+postMutations.cpCmsPostsAdd.wrapperConfig = {
   forClientPortal: true,
 };

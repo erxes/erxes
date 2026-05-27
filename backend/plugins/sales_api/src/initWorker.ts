@@ -8,14 +8,15 @@ export const sendPosclientHealthCheck = async ({
   subdomain: string;
   pos: IPosDocument;
 }) => {
-  const { ALL_AUTO_INIT } = process.env;
+  const { ALLOW_OFFLINE_POS } = process.env;
 
   if (
-    [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') ||
+    ![true, 'true', 'True', '1'].includes(ALLOW_OFFLINE_POS || '') ||
     pos.onServer
   ) {
     return { healthy: 'ok' };
   }
+
   sendTRPCMessage({
     subdomain,
     pluginName: 'sales',
@@ -27,36 +28,42 @@ export const sendPosclientHealthCheck = async ({
   });
 };
 
-export const sendPosclientMessage = async (args: any) => {
-  const { action, pos, data, subdomain } = args;
+export const sendPosclientMessage = async (args: {
+  subdomain: string;
+  pos: IPosDocument,
+  action: string;
+  input: any;
+  method?: 'query' | 'mutation';
+  isAwait?: boolean;
+  defaultValue?: any;
+}) => {
+  const { action, pos, input, subdomain, method } = args;
   let lastAction = action;
 
-  const { ALL_AUTO_INIT } = process.env;
+  const { ALLOW_OFFLINE_POS } = process.env;
 
   if (
-    ![true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') &&
+    [true, 'true', 'True', '1'].includes(ALLOW_OFFLINE_POS || '') &&
     !pos.onServer
   ) {
     lastAction = `posclient:${action}_${pos.token}`;
-    args.data.thirdService = true;
-    args.isMQ = true;
+    input.thirdService = true;
 
-    if (args.isRPC) {
+    if (args.isAwait) {
       const response = await sendPosclientHealthCheck(args);
       if (response?.healthy !== 'ok') {
         throw new Error('syncing error not connected posclient');
       }
     }
   }
-  args.data.token = pos.token;
 
   const ret = await sendTRPCMessage({
     subdomain,
     pluginName: 'posclient',
-    method: lastAction === 'crudData' ? 'mutation' : 'query',
+    method,
     module: 'posclient',
     action: lastAction,
-    input: { ...data, token: pos.token },
+    input: { ...input, token: pos.token },
     defaultValue: {},
   });
 

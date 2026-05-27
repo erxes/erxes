@@ -10,6 +10,7 @@ import { randomAlphanumeric, sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as graph from 'fbgraph';
 import { IModels } from '~/connectionResolvers';
 import { SUBSCRIBED_FIELDS } from './constants';
+import { validateMediaUrl } from './urlValidation';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
@@ -121,6 +122,14 @@ export const uploadMedia = async (
   url: string,
   video: boolean,
 ) => {
+  try {
+    validateMediaUrl(url);
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    debugError(`SSRF protection blocked media fetch: ${message}`);
+    return null;
+  }
+
   const mediaFile = `uploads/${randomAlphanumeric(16)}.${
     video ? 'mp4' : 'jpg'
   }`;

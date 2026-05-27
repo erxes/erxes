@@ -1,11 +1,11 @@
 import { CustomerType } from 'ui-modules';
 import { z } from 'zod';
-import { TR_SIDES, TrJournalEnum } from '../../types/constants';
+import { TR_SIDES, TR_STATUSES, TrJournalEnum } from '../../types/constants';
 
 export const undefed = <T extends z.ZodTypeAny>(schema: T) =>
   z.preprocess((val) => (val === null ? undefined : val), schema.optional());
 
-//#region common:
+// #region common:
 export const vatSchema = z.object({
   hasVat: undefed(z.boolean()),
   handleVat: undefed(z.boolean()),
@@ -39,10 +39,9 @@ export const baseTrDetailSchema = z.object({
   accountId: undefed(z.string()).refine((val) => val?.length, {
     message: 'Must fill account',
   }),
+  branchId: undefed(z.string()),
+  departmentId: undefed(z.string()),
   amount: z.number().min(0),
-  side: z.string().refine((val) => TR_SIDES.ALL.includes(val), {
-    message: 'wrong side aaaa',
-  }),
 
   followInfos: undefed(z.object({})), // rel backend
   followExtras: undefed(z.object({})), // followInfos to object
@@ -88,15 +87,26 @@ export const baseTransactionSchema = z.object({
   departmentId: undefed(z.string()),
   assignedUserIds: undefed(z.array(z.string())),
   details: z.array(baseTrDetailSchema).min(1),
+  side: z.string().refine((val) => TR_SIDES.ALL.includes(val), {
+    message: 'wrong side',
+  }),
+  relAccounts: undefed(
+    z.object({
+      dt: undefed(z.array(z.string())),
+      ct: undefed(z.array(z.string())),
+      customDt: z.array(z.string()).optional(),
+      customCt: z.array(z.string()).optional(),
+    }),
+  ),
 
   ...vatSchema.shape,
   ...ctaxSchema.shape,
 
-  extraData: undefed(z.object({})),
+  extraData: undefed(z.any()),
 });
-//#endregion common
+// #endregion common
 
-//#region Single trs
+// #region Single trs
 export const transactionMainSchema = z.object({
   journal: z.literal(TrJournalEnum.MAIN),
   ...baseTransactionSchema.shape,
@@ -121,6 +131,11 @@ export const transactionCashSchema = z
     hasCtax: z.boolean(),
   });
 
+export const extraDataBankSchema = z.object({
+  bank: undefed(z.string()),
+  bankAccount: undefed(z.string()),
+});
+
 export const transactionBankSchema = z
   .object({
     journal: z.literal(TrJournalEnum.BANK),
@@ -130,6 +145,9 @@ export const transactionBankSchema = z
     customerId: z.string(),
     hasVat: z.boolean(),
     hasCtax: z.boolean(),
+  })
+  .extend({
+    extraData: undefed(z.object({ ...extraDataBankSchema.shape })),
   });
 
 export const transactionReceivableSchema = z
@@ -158,9 +176,9 @@ export const transactionTaxSchema = z.object({
   journal: z.literal(TrJournalEnum.TAX),
   ...baseTransactionSchema.shape,
 });
-//#endregion Single trs
+// #endregion Single trs
 
-//#region Inventories
+// #region Inventories
 export const invDetailSchema = z
   .object({
     ...baseTrDetailSchema.shape,
@@ -180,8 +198,8 @@ export const transactionInvIncomeSchema = z
   })
   .extend({
     customerId: z.string(),
-    branchId: z.string(),
-    departmentId: z.string(),
+    branchId: undefed(z.string()),
+    departmentId: undefed(z.string()),
     hasVat: z.boolean(),
     hasCtax: z.boolean(),
     details: z.array(
@@ -206,6 +224,7 @@ export const transactionInvIncomeSchema = z
     ),
   });
 
+// #region invOut
 export const transactionInvOutSchema = z
   .object({
     journal: z.literal(TrJournalEnum.INV_OUT),
@@ -213,15 +232,16 @@ export const transactionInvOutSchema = z
   })
   .extend({
     customerId: undefed(z.string()),
-    branchId: z.string(),
-    departmentId: z.string(),
+    branchId: undefed(z.string()),
+    departmentId: undefed(z.string()),
     details: z.array(
       z.object({
         ...invDetailSchema.shape,
       }),
     ),
   });
-
+// #endregion invOut
+// #region invMove
 export const transactionInvMoveSchema = z
   .object({
     journal: z.literal(TrJournalEnum.INV_MOVE),
@@ -229,12 +249,12 @@ export const transactionInvMoveSchema = z
   })
   .extend({
     customerId: undefed(z.string()),
-    branchId: z.string(),
-    departmentId: z.string(),
+    branchId: undefed(z.string()),
+    departmentId: undefed(z.string()),
     followInfos: z.object({
       moveInAccountId: z.string(),
-      moveInBranchId: z.string(),
-      moveInDepartmentId: z.string(),
+      moveInBranchId: undefed(z.string()),
+      moveInDepartmentId: undefed(z.string()),
     }),
     followExtras: undefed(
       z.object({
@@ -247,7 +267,8 @@ export const transactionInvMoveSchema = z
       }),
     ),
   });
-
+// #endregion invMove
+// #region invSale
 export const transactionInvSaleSchema = z
   .object({
     journal: z.literal(TrJournalEnum.INV_SALE),
@@ -255,8 +276,8 @@ export const transactionInvSaleSchema = z
   })
   .extend({
     customerId: undefed(z.string()),
-    branchId: z.string(),
-    departmentId: z.string(),
+    branchId: undefed(z.string()),
+    departmentId: undefed(z.string()),
     followInfos: z.object({
       saleOutAccountId: z.string(),
       saleCostAccountId: z.string(),
@@ -273,7 +294,8 @@ export const transactionInvSaleSchema = z
       }),
     ),
   });
-
+// #endregion invSale
+// #region invReturnSale
 export const transactionInvSaleReturnSchema = z
   .object({
     journal: z.literal(TrJournalEnum.INV_SALE_RETURN),
@@ -281,8 +303,8 @@ export const transactionInvSaleReturnSchema = z
   })
   .extend({
     customerId: undefed(z.string()),
-    branchId: z.string(),
-    departmentId: z.string(),
+    branchId: undefed(z.string()),
+    departmentId: undefed(z.string()),
     followInfos: z.object({
       saleTransactionId: undefed(z.string()),
       saleOutAccountId: z.string(),
@@ -303,8 +325,10 @@ export const transactionInvSaleReturnSchema = z
       }),
     ),
   });
-//#endregion Inventories
+// #endregion invReturnSale
+// #endregion Inventories
 
+// #region core
 export const trDocSchema = z
   .discriminatedUnion('journal', [
     transactionMainSchema,
@@ -357,6 +381,15 @@ export const trDocSchema = z
 export const transactionGroupSchema = z.object({
   parentId: undefed(z.string()),
   number: undefed(z.string()),
+  ptrNumber: z.string().nullish(),
+  contentType: undefed(z.string()),
+  contentId: undefed(z.string()),
   date: z.date(),
+  status: z.string().refine((val) => TR_STATUSES.ALL.includes(val), {
+    message: 'wrong side',
+  }),
+  mentionOwnerId: z.string().optional(),
+  mentionUserIds: z.array(z.string()).optional(),
   trDocs: z.array(trDocSchema).min(1),
 });
+// #endregion core

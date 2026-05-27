@@ -10,11 +10,20 @@ const FacebookRemoteEntry = lazy(() =>
   ),
 );
 
+const InstagramRemoteEntry = lazy(() =>
+  import('../modules/instagram/components/InstagramRemoteEntry').then(
+    (module) => ({
+      default: module.InstagramRemoteEntry,
+    }),
+  ),
+);
+
 const Remotes: Record<
   string,
   React.LazyExoticComponent<React.ComponentType<any>>
 > = {
   facebook: FacebookRemoteEntry,
+  instagram: InstagramRemoteEntry,
 };
 
 type GenericErrorFallbackProps = FallbackProps & {

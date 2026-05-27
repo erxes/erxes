@@ -1,107 +1,22 @@
-import { IconClock, IconEdit, IconHash, IconTrash } from '@tabler/icons-react';
-import { Cell, ColumnDef } from '@tanstack/table-core';
+import { IconHash } from '@tabler/icons-react';
+import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
-  Button,
   Input,
   RecordTable,
   RecordTableInlineCell,
   Popover,
   RecordTableTree,
-  Spinner,
   TextOverflowTooltip,
-  useConfirm,
-  useQueryState,
 } from 'erxes-ui';
 import { IDepartmentListItem } from '../../types/department';
-import { useSetAtom } from 'jotai';
-import { renderingDepartmentDetailAtom } from '../../states/renderingDepartmentDetail';
 import { SelectMember } from 'ui-modules';
-import {
-  useDepartmentInlineEdit,
-  useRemoveDepartment,
-} from '../../hooks/useDepartmentActions';
+import { useDepartmentInlineEdit } from '../../hooks/useDepartmentActions';
 import { useState } from 'react';
-
-export const DepartmentWorkingHoursColumnCell = ({
-  cell,
-}: {
-  cell: Cell<IDepartmentListItem, unknown>;
-}) => {
-  const [, setOpen] = useQueryState('workingHoursId');
-  const setRenderingDepartmentDetail = useSetAtom(
-    renderingDepartmentDetailAtom,
-  );
-  const { _id } = cell.row.original;
-  return (
-    <Button
-      onClick={() => {
-        setOpen(_id);
-        setRenderingDepartmentDetail(false);
-      }}
-      variant={'outline'}
-    >
-      <IconClock size={12} />
-    </Button>
-  );
-};
-
-export const DepartmentMoreColumnCell = ({
-  cell,
-}: {
-  cell: Cell<IDepartmentListItem, unknown>;
-}) => {
-  const [, setOpen] = useQueryState('department_id');
-  const setRenderingDepartmentDetail = useSetAtom(
-    renderingDepartmentDetailAtom,
-  );
-  const { _id } = cell.row.original;
-  return (
-    <Button
-      onClick={() => {
-        setOpen(_id);
-        setRenderingDepartmentDetail(false);
-      }}
-      variant={'outline'}
-    >
-      <IconEdit size={12} />
-    </Button>
-  );
-};
-
-export const DepartmentRemoveCell = ({
-  cell,
-}: {
-  cell: Cell<IDepartmentListItem, unknown>;
-}) => {
-  const { _id, title } = cell.row.original;
-  const { confirm } = useConfirm();
-  const { handleRemove, loading } = useRemoveDepartment();
-  const onRemove = () => {
-    confirm({
-      message: `Are you sure you want to remove '${title}'`,
-      options: { confirmationValue: 'delete' },
-    }).then(() =>
-      handleRemove({
-        variables: {
-          ids: [_id],
-        },
-      }),
-    );
-  };
-  return (
-    <Button
-      variant={'outline'}
-      disabled={loading}
-      onClick={onRemove}
-      className="text-destructive bg-destructive/10"
-    >
-      {loading ? <Spinner /> : <IconTrash size={12} />}
-    </Button>
-  );
-};
+import { DepartmentsMoreColumn } from './DepartmentsMoreColumn';
 
 export const DepartmentColumns: ColumnDef<IDepartmentListItem>[] = [
+  DepartmentsMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IDepartmentListItem>,
   {
     id: 'code',
@@ -223,19 +138,6 @@ export const DepartmentColumns: ColumnDef<IDepartmentListItem>[] = [
       return (
         <RecordTableInlineCell className="justify-center">
           <Badge variant={'secondary'}>{cell.getValue() as number}</Badge>
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'action-group',
-    header: () => <RecordTable.InlineHead label="Actions" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell className="gap-1 [&>button]:px-2 justify-center">
-          <DepartmentWorkingHoursColumnCell cell={cell} />
-          <DepartmentMoreColumnCell cell={cell} />
-          <DepartmentRemoveCell cell={cell} />
         </RecordTableInlineCell>
       );
     },

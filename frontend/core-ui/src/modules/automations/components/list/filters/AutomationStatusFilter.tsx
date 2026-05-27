@@ -4,6 +4,7 @@ import {
   IconProgressX,
 } from '@tabler/icons-react';
 import { Command, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationStatusFilter = () => {
   const [queries, setQueries] = useMultiQueryState<{
@@ -11,6 +12,7 @@ export const AutomationStatusFilter = () => {
   }>(['status']);
 
   const { status } = queries;
+  const { t } = useTranslation('automations');
 
   return (
     <Command shouldFilter={false}>
@@ -21,7 +23,7 @@ export const AutomationStatusFilter = () => {
           onSelect={() => setQueries({ status: 'draft' })}
         >
           <IconProgressX className="text-muted-foreground" />
-          Draft
+          {t('draft')}
           {status === 'draft' && <IconCheck className="ml-auto" />}
         </Command.Item>
         <Command.Item
@@ -30,7 +32,7 @@ export const AutomationStatusFilter = () => {
           onSelect={() => setQueries({ status: 'active' })}
         >
           <IconProgressCheck className="text-success" />
-          Active
+          {t('active')}
           {status === 'active' && <IconCheck className="ml-auto" />}
         </Command.Item>
       </Command.List>

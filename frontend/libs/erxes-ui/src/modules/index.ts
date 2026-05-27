@@ -17,3 +17,4 @@ export * from './navigation-menu';
 export * from './board';
 export * from './motion';
 export * from './select-operation';
+export * from './attachments';

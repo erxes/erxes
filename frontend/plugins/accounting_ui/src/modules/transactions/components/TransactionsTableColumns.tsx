@@ -1,18 +1,29 @@
-import dayjs from 'dayjs';
-import { Cell, ColumnDef } from '@tanstack/react-table';
-import { IconCalendar, IconFile, IconMoneybag } from '@tabler/icons-react';
-import { ITransaction } from '../types/Transaction';
-import { Link } from 'react-router-dom';
-import { TR_JOURNAL_LABELS, TrJournalEnum } from '../types/constants';
-import { useState } from 'react';
 import {
-  RecordTable,
-  Input,
+  IconCalendar,
+  IconEdit,
+  IconFile,
+  IconMoneybag,
+  IconTrash,
+} from '@tabler/icons-react';
+import { Cell, ColumnDef } from '@tanstack/react-table';
+import dayjs from 'dayjs';
+import {
+  Combobox,
+  Command,
   CurrencyCode,
   CurrencyFormatedDisplay,
-  RecordTableInlineCell,
+  Input,
+  Popover,
   PopoverScoped,
+  RecordTable,
+  RecordTableInlineCell,
+  useConfirm,
 } from 'erxes-ui';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useTransactionsRemove } from '../transaction-form/hooks/useTransactionsRemove';
+import { TR_JOURNAL_LABELS, TR_STATUS_LABELS, TrJournalEnum } from '../types/constants';
+import { ITransaction } from '../types/Transaction';
 
 // Create named components for cell renderers to fix React Hook usage
 const NumberCell = ({ getValue, row }: any) => {
@@ -52,6 +63,16 @@ const DescriptionCell = ({ getValue, row }: any) => {
         />
       </RecordTableInlineCell.Content>
     </PopoverScoped>
+  );
+};
+
+const StatusCell = ({ row }: any) => {
+  const { status } = row.original;
+
+  return (
+    <RecordTableInlineCell>
+      {TR_STATUS_LABELS[status] || status}
+    </RecordTableInlineCell>
   );
 };
 
@@ -130,20 +151,31 @@ const DateCell = ({ getValue }: any) => {
 };
 
 const AccountCell = ({ row }: any) => {
-  const { details } = row.original;
+  const { details, parentId, _id, originId } = row.original;
+  const navigate = useNavigate();
 
   const name0 = details[0].account?.name;
 
-  const infoByCode = details.reduce((acc: { [code: string]: number }, d: any) => {
-    const code = d.account?.code || '';
-    acc[code] = (acc[code] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const infoByCode = details.reduce(
+    (acc: { [code: string]: number }, d: any) => {
+      const code = d.account?.code || '';
+      acc[code] = (acc[code] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   const codes = Object.keys(infoByCode);
 
+  const handleEditAccount = () => {
+    navigate(
+      `/accounting/transaction/edit?parentId=${parentId}&trId=${originId || _id
+      }`,
+    );
+  };
+
   return (
-    <RecordTableInlineCell>
+    <RecordTableInlineCell onClick={handleEditAccount} className="cursor-pointer">
       {codes.map((code, i) => {
         const count = infoByCode[code];
         const tot = count > 1 ? `(${count})` : '';
@@ -164,14 +196,44 @@ const TransactionMoreColumnCell = ({
   cell: Cell<ITransaction, unknown>;
 }) => {
   const { parentId, _id, originId } = cell.row.original;
+  const navigate = useNavigate();
+  const { confirm } = useConfirm();
+  const { removeTransactions } = useTransactionsRemove();
+  const handleEditAcc = () => {
+    navigate(
+      `/accounting/transaction/edit?parentId=${parentId}&trId=${originId || _id
+      }`,
+    );
+  };
+  const handleDelete = () =>
+    confirm({
+      message: 'Are you sure you want to delete these transactions?',
+      options: {
+        okLabel: 'Delete',
+        cancelLabel: 'Cancel',
+      },
+    }).then(() => {
+      removeTransactions(parentId);
+    });
 
   return (
-    <Link
-      to={`/accounting/transaction/edit?parentId=${parentId}&trId=${originId || _id
-        }`}
-    >
-      <RecordTable.MoreButton className="w-full h-full" />
-    </Link>
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item value="edit" onSelect={handleEditAcc}>
+              <IconEdit /> Edit
+            </Command.Item>
+            <Command.Item value="delete" onSelect={handleDelete}>
+              <IconTrash /> Delete
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 
@@ -186,31 +248,27 @@ export const transactionColumns: ColumnDef<ITransaction>[] = [
   RecordTable.checkboxColumn as ColumnDef<ITransaction>,
   {
     id: 'account',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Account" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Данс" />,
     accessorKey: 'details',
     cell: ({ row }) => <AccountCell row={row} />,
-    size: 400,
+    size: 300,
   },
   {
     id: 'number',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Number" />,
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Дугаар" />,
     accessorKey: 'number',
     cell: ({ getValue, row }) => <NumberCell getValue={getValue} row={row} />,
   },
   {
     id: 'date',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
+    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Огноо" />,
     accessorKey: 'date',
     cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
     size: 100,
   },
   {
     id: 'description',
-    header: () => (
-      <RecordTable.InlineHead icon={IconFile} label="Description" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Тайлбар" />,
     accessorKey: 'description',
     cell: ({ getValue, row }) => (
       <DescriptionCell getValue={getValue} row={row} />
@@ -218,9 +276,21 @@ export const transactionColumns: ColumnDef<ITransaction>[] = [
     size: 200,
   },
   {
+    id: 'status',
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Төлөв" />,
+    accessorKey: 'status',
+    cell: ({ row }) => <StatusCell row={row} />,
+  },
+  {
+    id: 'journal',
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Журнал" />,
+    accessorKey: 'journal',
+    cell: ({ row }) => <JournalCell row={row} />,
+  },
+  {
     id: 'sumDt',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Sum Debit" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Дебет дүн" />
     ),
     accessorKey: 'sumDt',
     cell: ({ getValue, row }) => <SumDebitCell getValue={getValue} row={row} />,
@@ -228,7 +298,7 @@ export const transactionColumns: ColumnDef<ITransaction>[] = [
   {
     id: 'sumCt',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Sum Credit" />
+      <RecordTable.InlineHead icon={IconMoneybag} label="Кредит дүн" />
     ),
     accessorKey: 'sumCt',
     cell: ({ getValue, row }) => (
@@ -236,20 +306,14 @@ export const transactionColumns: ColumnDef<ITransaction>[] = [
     ),
   },
   {
-    id: 'journal',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Journal" />,
-    accessorKey: 'journal',
-    cell: ({ row }) => <JournalCell row={row} />,
-  },
-  {
     id: 'branch',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Branch" />,
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Салбар" />,
     accessorKey: 'branch',
     cell: ({ getValue, row }) => <BranchCell getValue={getValue} row={row} />,
   },
   {
     id: 'department',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Department" />,
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Хэлтэс" />,
     accessorKey: 'department',
     cell: ({ getValue, row }) => (
       <DepartmentCell getValue={getValue} row={row} />

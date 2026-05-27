@@ -1,16 +1,55 @@
-import { IconCoins, IconLayoutGridAdd, IconNotebook, IconToggleRightFilled } from "@tabler/icons-react";
-import { CurrencyCode, CurrencyField, Filter, SelectTree, useFilterContext, useQueryState } from "erxes-ui";
-import { SelectAccountCatCommand, SelectAccountCategory } from "../../account-categories/components/SelectAccountCategory";
-import { AccountsIsOutBalanceCommand, SelectAccountIsOutBalanceCommand } from "./AccountsIsOutBalance";
-import { AccountsIsTempCommand, SelectAccountIsTempCommand } from "./AccountsIsTemp";
-import { AccountsJournalCommand, SelectAccountJournalCommand } from "./AccountsJournal";
-import { AccountsKindCommand, SelectAccountKindCommand } from "./AccountsKind";
-import { AccountsStatusCommand, SelectAccountStatusCommand } from "./AccountsStatus";
-import { AccountsTrJournalCommand, SelectAccountTrJournalCommand } from "./AccountsTrJournal";
+import {
+  IconCoins,
+  IconHash,
+  IconLabelFilled,
+  IconLayoutGridAdd,
+  IconNotebook,
+  IconSearch,
+  IconToggleRightFilled,
+} from '@tabler/icons-react';
+import {
+  CurrencyCode,
+  CurrencyField,
+  Filter,
+  SelectTree,
+  useFilterContext,
+  useQueryState,
+} from 'erxes-ui';
+import {
+  SelectAccountCatCommand,
+  SelectAccountCategory,
+} from '../../account-categories/components/SelectAccountCategory';
+import {
+  AccountsIsOutBalanceCommand,
+  SelectAccountIsOutBalanceCommand,
+} from './AccountsIsOutBalance';
+import {
+  AccountsIsTempCommand,
+  SelectAccountIsTempCommand,
+} from './AccountsIsTemp';
+import {
+  AccountsJournalCommand,
+  SelectAccountJournalCommand,
+} from './AccountsJournal';
+import { AccountsKindCommand, SelectAccountKindCommand } from './AccountsKind';
+import {
+  AccountsStatusCommand,
+  SelectAccountStatusCommand,
+} from './AccountsStatus';
+import {
+  AccountsTrJournalCommand,
+  SelectAccountTrJournalCommand,
+} from './AccountsTrJournal';
+import {
+  AccountsTrStatusCommand,
+  SelectAccountTrStatusCommand,
+} from './AccountsTrStatus';
 
 // category helper
 export const AccountsFilterCategory = () => {
-  const [categoryId, setCategoryId] = useQueryState<string | null>('categoryId');
+  const [categoryId, setCategoryId] = useQueryState<string | null>(
+    'categoryId',
+  );
   const { resetFilterState } = useFilterContext();
 
   return (
@@ -30,7 +69,9 @@ export const AccountsFilterCategory = () => {
 };
 
 export const FilterBarCategory = () => {
-  const [categoryId, setCategoryId] = useQueryState<string | null>('categoryId');
+  const [categoryId, setCategoryId] = useQueryState<string | null>(
+    'categoryId',
+  );
 
   return (
     <Filter.BarItem queryKey="categoryId">
@@ -177,7 +218,11 @@ export const AccountsFilterIsTemp = () => {
   };
 
   return (
-    <AccountsIsTempCommand focusOnMount selected={isTemp} onSelect={handleSelect} />
+    <AccountsIsTempCommand
+      focusOnMount
+      selected={isTemp}
+      onSelect={handleSelect}
+    />
   );
 };
 
@@ -204,7 +249,9 @@ export const FilterBarIsTemp = () => {
 
 // account isOutBalance filter helper
 export const AccountsFilterIsOutBalance = () => {
-  const [isOutBalance, setIsOutBalance] = useQueryState<string | null>('isOutBalance');
+  const [isOutBalance, setIsOutBalance] = useQueryState<string | null>(
+    'isOutBalance',
+  );
   const { resetFilterState } = useFilterContext();
 
   const handleSelect = (value: string | null) => {
@@ -213,18 +260,24 @@ export const AccountsFilterIsOutBalance = () => {
   };
 
   return (
-    <AccountsIsOutBalanceCommand focusOnMount selected={isOutBalance} onSelect={handleSelect} />
+    <AccountsIsOutBalanceCommand
+      focusOnMount
+      selected={isOutBalance}
+      onSelect={handleSelect}
+    />
   );
 };
 
 export const FilterBarIsOutBalance = () => {
-  const [isOutBalance, setIsOutBalance] = useQueryState<string | null>('isOutBalance');
+  const [isOutBalance, setIsOutBalance] = useQueryState<string | null>(
+    'isOutBalance',
+  );
 
   return (
     <Filter.BarItem queryKey="isOutBalance">
       <Filter.BarName>
         <IconToggleRightFilled />
-        Is Out Balance
+        Баланс бус
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountIsOutBalanceCommand
@@ -249,7 +302,11 @@ export const AccountsFilterStatus = () => {
   };
 
   return (
-    <AccountsStatusCommand focusOnMount selected={status} onSelect={handleSelect} />
+    <AccountsStatusCommand
+      focusOnMount
+      selected={status}
+      onSelect={handleSelect}
+    />
   );
 };
 
@@ -260,7 +317,7 @@ export const FilterBarStatus = () => {
     <Filter.BarItem queryKey="status">
       <Filter.BarName>
         <IconToggleRightFilled />
-        Is Out Balance
+        Төлөв
       </Filter.BarName>
       <Filter.BarButton>
         <SelectAccountStatusCommand
@@ -273,7 +330,6 @@ export const FilterBarStatus = () => {
     </Filter.BarItem>
   );
 };
-
 
 // account journal filter helper
 export const AccountsFilterTrJournal = () => {
@@ -314,3 +370,108 @@ export const FilterBarTrJournal = () => {
     </Filter.BarItem>
   );
 };
+
+// tr status filter helper
+export const AccountsFilterTrStatus = () => {
+  const [statuses, setStatuses] = useQueryState<string[] | null>('statuses');
+
+  const handleSelect = (value: string[] | null) => {
+    setStatuses(value);
+  };
+
+  return (
+    <AccountsTrStatusCommand
+      focusOnMount
+      selected={statuses}
+      onSelect={handleSelect}
+    />
+  );
+};
+
+export const FilterBarTrStatus = () => {
+  const [statuses, setStatuses] = useQueryState<string[] | null>('statuses');
+
+  return (
+    <Filter.BarItem queryKey="statuses">
+      <Filter.BarName>
+        <IconNotebook />
+        TrStatus
+      </Filter.BarName>
+      <Filter.BarButton>
+        <SelectAccountTrStatusCommand
+          selected={statuses}
+          onSelect={(value) => setStatuses(value)}
+          variant="ghost"
+          className="rounded-none h-7 bg-background"
+        />
+      </Filter.BarButton>
+    </Filter.BarItem>
+  );
+};
+
+const FILTER_BAR_STRING_ICONS = {
+  searchValue: IconSearch,
+  code: IconHash,
+  name: IconLabelFilled,
+} as const;
+
+const FILTER_BAR_STRING_LABELS = {
+  searchValue: 'Search',
+  code: 'Code',
+  name: 'Name',
+} as const;
+
+type FilterBarStringKey = keyof typeof FILTER_BAR_STRING_ICONS;
+
+export const FilterBarStringItem = ({
+  queryKey,
+  value,
+}: {
+  queryKey: FilterBarStringKey;
+  value?: string | null;
+}) => {
+  const Icon = FILTER_BAR_STRING_ICONS[queryKey];
+  return (
+    <Filter.BarItem queryKey={queryKey}>
+      <Filter.BarName>
+        <Icon />
+        {FILTER_BAR_STRING_LABELS[queryKey]}
+      </Filter.BarName>
+      <Filter.BarButton filterKey={queryKey} inDialog>
+        {value}
+      </Filter.BarButton>
+    </Filter.BarItem>
+  );
+};
+
+export const FilterStringDialogViews = ({
+  filterKeys,
+}: {
+  filterKeys: FilterBarStringKey[];
+}) => (
+  <>
+    {filterKeys.map((filterKey) => (
+      <Filter.View key={filterKey} filterKey={filterKey} inDialog>
+        <Filter.DialogStringView filterKey={filterKey} />
+      </Filter.View>
+    ))}
+  </>
+);
+
+export const FilterPopoverStringItems = ({
+  filterKeys,
+}: {
+  filterKeys: FilterBarStringKey[];
+}) => (
+  <>
+    {filterKeys.map((filterKey) => {
+      const Icon = FILTER_BAR_STRING_ICONS[filterKey];
+      return (
+        <Filter.Item key={filterKey} value={filterKey} inDialog>
+          <Icon />
+          {FILTER_BAR_STRING_LABELS[filterKey]}
+        </Filter.Item>
+      );
+    })}
+  </>
+);

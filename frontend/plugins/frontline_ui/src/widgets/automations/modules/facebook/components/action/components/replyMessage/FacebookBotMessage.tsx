@@ -44,7 +44,7 @@ export const FacebookBotMessage = ({
           <Card.Title className="flex flex-row gap-2 p-4 text-lg items-center cursor-ns-resize">
             <div
               {...listeners}
-              className="cursor-grab hover:bg-gray-100 active:cursor-grabbing p-2 rounded text-accent-foreground"
+              className="cursor-grab hover:bg-accent active:cursor-grabbing p-2 rounded text-accent-foreground"
             >
               <IconGripVertical className="w-4 h-4" />
             </div>

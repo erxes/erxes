@@ -8,11 +8,23 @@ interface CategoryFieldProps {
   websiteId: string;
 }
 
+const normalizeOptionText = (text: string) => text.toLowerCase().trim();
+
+const getSearchableCommandProps = (options: any[]) => ({
+  filter: (value: string, search: string) => {
+    const option = options.find((item) => item.value === value);
+    const text = normalizeOptionText(`${option?.label || ''} ${value}`);
+
+    return text.includes(normalizeOptionText(search)) ? 1 : -1;
+  },
+});
+
 export const CategoryField = ({
   form,
   categories,
   websiteId,
 }: CategoryFieldProps) => {
+  const options = categories || [];
   const {
     newCategoryName,
     setNewCategoryName,
@@ -33,13 +45,14 @@ export const CategoryField = ({
           <Form.Control>
             <div className="flex gap-2">
               <MultipleSelector
-                value={categories.filter((o) =>
+                value={options.filter((o) =>
                   (field.value || []).includes(o.value),
                 )}
-                options={categories}
+                options={options}
                 placeholder="Select"
                 hidePlaceholderWhenSelected={true}
                 emptyIndicator="Empty"
+                commandProps={getSearchableCommandProps(options)}
                 onChange={(opts) => field.onChange(opts.map((o) => o.value))}
               />
               <Button

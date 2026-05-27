@@ -82,9 +82,7 @@ export const DealsBoardColumnHeader = ({
     confirm({
       message: `Are you sure you want to sort this list by ${sortLabel}?`,
     }).then(() => {
-      const processId = Math.random().toString();
-      localStorage.setItem('processId', processId);
-      sortItems(_id, sortType, processId);
+      sortItems(_id, sortType);
     });
     setShowSortOptions(false);
   };

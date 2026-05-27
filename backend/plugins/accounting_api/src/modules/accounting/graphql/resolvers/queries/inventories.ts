@@ -6,8 +6,9 @@ const configQueries = {
   async getAccLastIncomePrice(
     _root,
     { productIds }: { productIds: string[] },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('accountsRead');
     const aggByProductId = await models.Transactions.aggregate([
       {
         $match: {
@@ -45,11 +46,12 @@ const configQueries = {
     }: {
       productIds: string[];
       accountId: string;
-      branchId: string;
-      departmentId: string;
+      branchId?: string;
+      departmentId?: string;
     },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('accountsRead');
     return await activeCost(
       models,
       accountId,

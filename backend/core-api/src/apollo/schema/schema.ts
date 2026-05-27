@@ -13,6 +13,7 @@ import {
 import {
   mutations as AuthMutations,
   queries as AuthQueries,
+  types as AuthTypes,
 } from '@/auth/graphql/schemas/auth';
 
 import {
@@ -153,6 +154,10 @@ import {
 } from '@/clientportal/graphql/schemas/clientPortal';
 
 import {
+  queries as ImportExportCommonQueries,
+  types as ImportExportCommonTypes,
+} from '~/modules/import-export/graphql/schema/common';
+import {
   mutations as ImportMutations,
   queries as ImportQueries,
   types as ImportTypes,
@@ -215,6 +220,7 @@ export const types = `
     }
     ${CustomerTypes}
     ${CompanyTypes}
+    ${AuthTypes}
     ${UserTypes}
     ${ConfigTypes}
     ${TagTypes}
@@ -238,6 +244,7 @@ export const types = `
     ${InternalNoteTypes}
     ${PropertiesTypes}
     ${ClientPortalTypes}
+    ${ImportExportCommonTypes}
     ${ImportTypes}
     ${ExportTypes}
     ${CPUserTypes}
@@ -275,6 +282,7 @@ export const queries = `
     ${InternalNoteQueries}  
     ${PropertiesQueries}
     ${ClientPortalQueries}
+    ${ImportExportCommonQueries}
     ${ImportQueries}
     ${ExportQueries}
     ${CPUserQueries}

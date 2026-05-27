@@ -35,6 +35,11 @@ export const exportSchema = schemaWrapper(
       },
       totalRows: { type: Number, default: 0, label: 'Total Rows' },
       processedRows: { type: Number, default: 0, label: 'Processed Rows' },
+      terminalError: {
+        code: { type: String, optional: true },
+        stage: { type: String, optional: true },
+        retryable: { type: Boolean, optional: true },
+      },
       fileFormat: {
         type: String,
         enum: ['csv', 'xlsx'],

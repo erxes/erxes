@@ -1,5 +1,10 @@
 import { IContext } from '~/connectionResolvers';
 import { ITour, IPricingOption, ITourCategory } from '@/bms/@types/tour';
+import {
+  getTourTimezone,
+  resolveTourDateStatus,
+} from '@/bms/utils/dateStatus';
+import { syncTourDateStatuses } from '~/worker/tourDateStatus';
 
 const validateTranslationPricingOptions = (
   pricingOptions: IPricingOption[] = [],
@@ -47,16 +52,53 @@ const saveTourTranslations = async (
   );
 };
 
+const validateCustomTourType = async (
+  models: IContext['models'],
+  doc: Partial<ITour>,
+  existingTour?: Partial<ITour> | null,
+) => {
+  const customTourTypeId =
+    doc.customTourTypeId ?? existingTour?.customTourTypeId ?? 'tour';
+
+  if (!customTourTypeId || customTourTypeId === 'tour') {
+    doc.customTourTypeId = 'tour';
+    return;
+  }
+
+  const branchId = doc.branchId ?? existingTour?.branchId;
+
+  if (!branchId) {
+    throw new Error('Branch ID is required for custom tour type');
+  }
+
+  const customTourType = await models.CustomTourTypes.findOne({
+    _id: customTourTypeId,
+    branchId,
+    isActive: { $ne: false },
+  });
+
+  if (!customTourType) {
+    throw new Error('Custom tour type not found');
+  }
+};
+
 const tourMutations = {
   bmsTourAdd: async (
     _root,
     { translations, ...doc }: { translations?: any[] } & ITour,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) => {
     validateTranslationPricingOptions(
       doc.pricingOptions || [],
       translations ?? [],
     );
+    await validateCustomTourType(models, doc);
+
+    const timezone = await getTourTimezone(subdomain);
+    doc.date_status = resolveTourDateStatus({
+      doc,
+      timezone,
+    });
 
     const tour = await models.Tours.createTour(doc, user);
     await saveTourTranslations(models, tour._id, translations ?? []);
@@ -70,7 +112,7 @@ const tourMutations = {
       translations,
       ...doc
     }: { _id: string; translations?: any[] } & Partial<ITour>,
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) => {
     const existingTour = await models.Tours.findOne({ _id });
     if (!existingTour) throw new Error('Tour not found');
@@ -78,10 +120,31 @@ const tourMutations = {
     const finalPricingOptions =
       doc.pricingOptions ?? existingTour.pricingOptions ?? [];
     validateTranslationPricingOptions(finalPricingOptions, translations ?? []);
+    await validateCustomTourType(models, doc, existingTour);
+
+    const timezone = await getTourTimezone(subdomain);
+    doc.date_status = resolveTourDateStatus({
+      doc,
+      existingTour,
+      timezone,
+    });
 
     const tour = await models.Tours.updateTour(_id, doc as ITour);
     await saveTourTranslations(models, _id, translations ?? []);
     return tour;
+  },
+
+  bmsTourDateStatusSync: async (
+    _root,
+    { timezone }: { timezone?: string },
+    { subdomain }: IContext,
+  ) => {
+    const resolvedTimezone = timezone || (await getTourTimezone(subdomain));
+
+    return syncTourDateStatuses({
+      subdomain,
+      timezone: resolvedTimezone,
+    });
   },
 
   bmsTourViewCount: async (_root, { _id }, { models }: IContext) => {

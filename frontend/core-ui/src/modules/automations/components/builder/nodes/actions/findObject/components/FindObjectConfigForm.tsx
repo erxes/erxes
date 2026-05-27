@@ -13,6 +13,7 @@ import {
   TAutomationActionProps,
   useFormValidationErrorHandler,
 } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const FindObjectConfigForm = ({
   currentAction,
@@ -22,6 +23,7 @@ export const FindObjectConfigForm = ({
     formName: 'Find object Configuration',
   });
   const { findObjectTargetsConst } = useAutomation();
+  const { t } = useTranslation('automations');
   const form = useForm<TAutomationFindObjectConfig>({
     resolver: zodResolver(findObjectConfigFormSchema),
     defaultValues: {
@@ -52,10 +54,10 @@ export const FindObjectConfigForm = ({
           name="objectType"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Record Type</Form.Label>
+              <Form.Label>{t('record-type')}</Form.Label>
               <Select value={field.value} onValueChange={field.onChange}>
                 <Select.Trigger>
-                  <Select.Value placeholder="Select a record type" />
+                  <Select.Value placeholder={t('select-record-type')} />
                 </Select.Trigger>
                 <Select.Content>
                   {findObjectTargetsConst.map((target) => (
@@ -74,10 +76,10 @@ export const FindObjectConfigForm = ({
             name="lookupField"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Lookup By</Form.Label>
+                <Form.Label>{t('lookup-by')}</Form.Label>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <Select.Trigger>
-                    <Select.Value placeholder="Select a lookup field" />
+                    <Select.Value placeholder={t('select-lookup-field')} />
                   </Select.Trigger>
                   <Select.Content>
                     {lookupFields.map((lookupField: any) => (
@@ -99,7 +101,7 @@ export const FindObjectConfigForm = ({
             name="value"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Value</Form.Label>
+                <Form.Label>{t('value')}</Form.Label>
                 <PlaceholderInput
                   propertyType={objectType}
                   isDisabled={!lookupField || !objectType}

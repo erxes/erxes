@@ -1,15 +1,21 @@
 import { AutomationBuilderHeaderActions } from '@/automations/components/builder/header/AutomationBuilderHeaderActions';
 import { AutomationHeaderTabs } from '@/automations/components/builder/header/AutomationHeaderTabs';
 import { AutomationBuilderNameInput } from '@/automations/components/builder/header/AutomationBuilderNameInput';
-import { IconAffiliate, IconSettings } from '@tabler/icons-react';
+import {
+  IconAffiliate,
+  IconDeviceFloppy,
+  IconSettings,
+} from '@tabler/icons-react';
 import { Breadcrumb, Button, PageSubHeader, Spinner } from 'erxes-ui';
 import { Link } from 'react-router';
 import { Can, PageHeader } from 'ui-modules';
 import { useAutomationHeader } from '@/automations/components/builder/hooks/useAutomationHeader';
+import { useTranslation } from 'react-i18next';
 
 export const AutomationBuilderHeader = () => {
   const { loading, handleSubmit, handleSave, handleError, toggleTabs } =
     useAutomationHeader();
+  const { t } = useTranslation('automations');
 
   return (
     <div>
@@ -21,7 +27,7 @@ export const AutomationBuilderHeader = () => {
                 <Button variant="ghost" asChild>
                   <Link to="/automations">
                     <IconAffiliate />
-                    Automations
+                    {t('automations')}
                   </Link>
                 </Button>
               </Breadcrumb.Item>
@@ -32,7 +38,7 @@ export const AutomationBuilderHeader = () => {
           <Button variant="outline" asChild>
             <Link to="/settings/automations">
               <IconSettings />
-              Go to settings
+              {t('go-to-settings')}
             </Link>
           </Button>
           <Can actions={['automationsCreate', 'automationsUpdate']}>
@@ -40,7 +46,8 @@ export const AutomationBuilderHeader = () => {
               disabled={loading}
               onClick={handleSubmit(handleSave, handleError)}
             >
-              {loading ? <Spinner /> : `Save`}
+              <IconDeviceFloppy />
+              {loading ? <Spinner /> : t('save')}
             </Button>
           </Can>
         </PageHeader.End>

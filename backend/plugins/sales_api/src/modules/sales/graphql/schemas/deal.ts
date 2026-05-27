@@ -131,6 +131,7 @@ export const types = `
     products: [Product]
     productsData: JSON
     paymentsData: JSON
+    extraData: JSON
 
     cursor: String
   }
@@ -186,6 +187,7 @@ export const queries = `
   
   deals(stageId: String, initialStageId: String, ${queryParams}): DealsListResponse
   dealDetail(_id: String!, clientPortalCard: Boolean): Deal
+  dealLink(_id: String): JSON
   dealsTotalCount(stageId: String, initialStageId: String, ${queryParams}): Int
   dealsTotalAmounts(${queryParams}): [SalesTotalForType]
   
@@ -235,6 +237,4 @@ export const mutations = `
   dealsDeleteProductData(processId: String, dealId: String, dataIds: [String]): JSON
 
   cpDealsAdd(name: String, companyIds: [String], customerIds: [String], labelIds: [String], ${mutationParams}): Deal
-  cpDealsEdit(_id: String!, name: String, ${mutationParams}): Deal
-
 `;

@@ -3,7 +3,7 @@ import { renderingProductDetailAtom } from '../states/productDetailStates';
 import { IProduct } from '@/products/types/productTypes';
 import { useSetAtom } from 'jotai';
 import { useSearchParams } from 'react-router-dom';
-import {  RecordTableInlineCell, TextOverflowTooltip } from 'erxes-ui';
+import { RecordTableInlineCell, TextOverflowTooltip, Badge } from 'erxes-ui';
 
 export const ProductNameCell = ({
   cell,
@@ -22,17 +22,16 @@ export const ProductNameCell = ({
 
   return (
     <RecordTableInlineCell>
-      <div
+      <Badge
         onClick={() => {
-        setOpen(_id);
-        setRenderingProductDetail(false);
+          setOpen(_id);
+          setRenderingProductDetail(false);
         }}
-        className="cursor-pointer"
+        variant="secondary"
+        className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"
       >
         <TextOverflowTooltip value={cell.getValue() as string} />
-      </div>
+      </Badge>
     </RecordTableInlineCell>
   );
 };
-
-

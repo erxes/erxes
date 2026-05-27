@@ -17,11 +17,11 @@ interface IAddFacebookConversationBotMessage {
   conversationErxesApiId: string;
 }
 
-const hasMeaningfulHtml = (value: string = '') => {
+const hasMeaningfulHtml = (value = '') => {
   return stripHtml(value).result.trim().length > 0;
 };
 
-const wrapParagraph = (value: string = '') => {
+const wrapParagraph = (value = '') => {
   const trimmedValue = value.trim();
 
   if (!trimmedValue) {
@@ -207,7 +207,7 @@ export const loadFacebookConversationMessageClass = (models: IModels) => {
         });
 
       pConversationClientMessageInserted(subdomain, {
-        ...conversationMessage,
+        ...conversationMessage.toObject(),
         conversationId: conversationErxesApiId,
       });
       return conversationMessage;

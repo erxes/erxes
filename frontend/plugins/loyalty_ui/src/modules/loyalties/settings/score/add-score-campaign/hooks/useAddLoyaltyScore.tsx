@@ -4,13 +4,21 @@ import { LOYALTY_SCORE_CURSOR_SESSION_KEY } from '../../constants/loyaltyScoreCu
 import { LOYALTY_SCORE_CAMPAIGN_QUERY } from '../../graphql/queries/loyaltyScoreCampaignQuery';
 import { CREATE_SCORE_CAMPAIGN } from '../graphql/mutations/loyaltyScoreAddMutation';
 
-export interface AddScoreResult {
+export interface AddScoreCampaignResult {
   scoreCampaignAdd: any;
 }
 
-export interface AddScoreVariables {
+export interface CardBasedRuleVariable {
+  boardId?: string;
+  pipelineId?: string;
+  stageIds?: string[];
+  refundStageIds?: string[];
+}
+
+export interface AddScoreCampaignVariables {
   title: string;
   description?: string;
+  order?: number;
   serviceName: string;
   restrictions: {
     productCategoryIds?: string;
@@ -20,8 +28,13 @@ export interface AddScoreVariables {
     tagIds?: string;
     excludeTagIds?: string;
   };
+  additionalConfig?: {
+    discountCheck?: boolean;
+    cardBasedRule?: CardBasedRuleVariable[];
+  };
   add?: { placeholder?: string; currencyRatio?: string };
   subtract?: { placeholder?: string; currencyRatio?: string };
+  set?: { placeholder?: string; currencyRatio?: string };
   ownerType?: string;
   onlyClientPortal?: boolean;
   fieldGroupId?: string;
@@ -31,15 +44,15 @@ export interface AddScoreVariables {
 }
 export const SCORE_PER_PAGE = 30;
 
-export const useAddScore = () => {
+export const useAddScoreCampaign = () => {
   const { toast } = useToast();
   const { cursor } = useRecordTableCursor({
     sessionKey: LOYALTY_SCORE_CURSOR_SESSION_KEY,
   });
 
   const [addScore, { loading, error }] = useMutation<
-    AddScoreResult,
-    AddScoreVariables
+    AddScoreCampaignResult,
+    AddScoreCampaignVariables
   >(CREATE_SCORE_CAMPAIGN, {
     refetchQueries: [
       {
@@ -81,8 +94,11 @@ export const useAddScore = () => {
     },
   });
 
-  const scoreAdd = async (
-    options: MutationHookOptions<AddScoreResult, AddScoreVariables>,
+  const scoreCampaignAdd = async (
+    options: MutationHookOptions<
+      AddScoreCampaignResult,
+      AddScoreCampaignVariables
+    >,
   ) => {
     return addScore({
       ...options,
@@ -106,7 +122,7 @@ export const useAddScore = () => {
   };
 
   return {
-    scoreAdd,
+    scoreCampaignAdd,
     loading,
     error,
   };

@@ -14,9 +14,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@stripe/react-stripe-js": "^2.8.1",
-    "@stripe/stripe-js": "^4.9.0",
     "erxes-api-shared": "workspace:^",
+    "graphql-tag": "^2.12.6",
     "qrcode": "^1.5.0",
     "stripe": "^17.2.1"
   }

@@ -11,6 +11,7 @@ import {
   GeneralManager,
   Manager,
   Payments,
+  Prepaid,
   Token,
   OtherPayments,
   LanguageSelect,
@@ -61,6 +62,13 @@ export const TmsInformationFields = ({
         payment: Array.isArray(value.payment)
           ? value.payment.filter((id): id is string => !!id)
           : [],
+        prepaid: Boolean(value.prepaid),
+        prepaidPercent: value.prepaid
+          ? typeof value.prepaidPercent === 'number' &&
+            !Number.isNaN(value.prepaidPercent)
+            ? value.prepaidPercent
+            : undefined
+          : undefined,
         language: Array.isArray(value.language)
           ? value.language.filter((code): code is string => !!code)
           : [],
@@ -122,6 +130,7 @@ export const TmsInformationFields = ({
         >
           <div className="space-y-4">
             <Payments control={form.control} />
+            <Prepaid form={form} />
             <Token control={form.control} />
             <OtherPayments control={form.control} />
           </div>

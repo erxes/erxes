@@ -1,7 +1,10 @@
 import { BlobServiceClient } from '@azure/storage-blob';
 import { Storage } from '@google-cloud/storage';
 import AWS from 'aws-sdk';
+import * as fs from 'fs';
 import fetch from 'node-fetch';
+import * as path from 'path';
+import { Readable } from 'stream';
 import { sendTRPCMessage } from '../trpc';
 import { getEnv, isImage } from '../utils';
 
@@ -332,5 +335,130 @@ export const readFileFromStorage = async ({
 
   throw new Error(
     `Unsupported upload service type "${uploadType}" while reading "${key}"`,
+  );
+};
+
+// ---------------------------------------------------------------------------
+// Streaming readers — used by import pipeline to avoid loading whole files
+// into memory. Unlike readFileFromStorage (Buffer), these return a native
+// Readable stream that downstream parsers (csv-parse, ExcelJS) can consume
+// directly with backpressure support.
+// ---------------------------------------------------------------------------
+
+type ReadRemoteFileStreamParams = {
+  subdomain: string;
+  key: string;
+};
+
+const resolveLocalUploadsPath = () => {
+  const defaultPrivateUploadsPath = path.join(
+    __dirname,
+    'backend/core-api/src/utils/private/uploads',
+  );
+
+  return path.resolve(
+    getEnv({
+      name: 'LOCAL_UPLOADS_DIR',
+      defaultValue: defaultPrivateUploadsPath,
+    }),
+  );
+};
+
+const streamFromLocal = (key: string): Readable => {
+  const safeKey = key.replace(/^\/+/, '');
+
+  if (!safeKey || safeKey.includes('..') || path.isAbsolute(safeKey)) {
+    throw new Error('Invalid local storage key');
+  }
+
+  const uploadsPath = resolveLocalUploadsPath();
+  const absoluteBase = path.resolve(uploadsPath);
+  const filePath = path.resolve(absoluteBase, safeKey);
+
+  if (!fs.existsSync(absoluteBase)) {
+    throw new Error(`Local uploads directory does not exist: ${absoluteBase}`);
+  }
+
+  if (
+    filePath !== absoluteBase &&
+    !filePath.startsWith(`${absoluteBase}${path.sep}`)
+  ) {
+    throw new Error('Invalid local storage key path');
+  }
+
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Local file not found: ${safeKey}`);
+  }
+
+  return fs.createReadStream(filePath);
+};
+
+const streamFromGCS = (key: string, configs: StorageConfigMap): Readable => {
+  const bucket = requireConfigValue(configs, 'GOOGLE_CLOUD_STORAGE_BUCKET');
+  const projectId = requireConfigValue(configs, 'GOOGLE_PROJECT_ID');
+  const credentialsPath = requireConfigValue(
+    configs,
+    'GOOGLE_APPLICATION_CREDENTIALS',
+  );
+
+  const storage = new Storage({ projectId, keyFilename: credentialsPath });
+  return storage.bucket(bucket).file(key).createReadStream();
+};
+
+const streamFromAws = (key: string, configs: StorageConfigMap): Readable => {
+  const bucket = requireConfigValue(configs, 'AWS_BUCKET');
+  const s3 = createAwsClient(configs);
+  return s3.getObject({ Bucket: bucket, Key: key }).createReadStream();
+};
+
+const streamFromCR2 = (key: string, configs: StorageConfigMap): Readable => {
+  const bucket = requireConfigValue(configs, 'CLOUDFLARE_BUCKET_NAME');
+  const r2 = createCloudflareR2Client(configs);
+  return r2.getObject({ Bucket: bucket, Key: key }).createReadStream();
+};
+
+const streamFromAzure = async (
+  key: string,
+  configs: StorageConfigMap,
+): Promise<Readable> => {
+  const connectionString = requireConfigValue(
+    configs,
+    'AZURE_STORAGE_CONNECTION_STRING',
+  );
+  const container = requireConfigValue(configs, 'AZURE_STORAGE_CONTAINER');
+
+  const blobServiceClient =
+    BlobServiceClient.fromConnectionString(connectionString);
+  const containerClient = blobServiceClient.getContainerClient(container);
+  const blobClient = containerClient.getBlobClient(key);
+  const response = await blobClient.download();
+
+  if (!response.readableStreamBody) {
+    throw new Error('Azure blob download did not return a readable stream');
+  }
+
+  return response.readableStreamBody as Readable;
+};
+
+export const readFileStreamFromStorage = async ({
+  subdomain,
+  key,
+}: ReadRemoteFileStreamParams): Promise<Readable> => {
+  const configs = await fetchStorageConfigs(subdomain);
+  const uploadType = readConfigValue(
+    configs,
+    'UPLOAD_SERVICE_TYPE',
+    'AWS',
+  ).toUpperCase();
+
+  if (uploadType === 'GCS') return streamFromGCS(key, configs);
+  if (uploadType === 'AWS') return streamFromAws(key, configs);
+  if (uploadType === 'CLOUDFLARE') return streamFromCR2(key, configs);
+  if (uploadType === 'AZURE') return await streamFromAzure(key, configs);
+
+  if (uploadType === 'LOCAL') return streamFromLocal(key);
+
+  throw new Error(
+    `Unsupported upload service type "${uploadType}" while streaming "${key}"`,
   );
 };

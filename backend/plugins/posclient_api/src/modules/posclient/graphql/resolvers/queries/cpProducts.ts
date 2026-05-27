@@ -22,6 +22,30 @@ import {
   getRemBranchId,
 } from '~/modules/posclient/utils/products';
 
+const getPropertyFieldId = (field: string) =>
+  field.replace('propertiesData.', '');
+
+const getProductPropertyValue = (product: any, fieldId: string) =>
+  product?.propertiesData?.[fieldId];
+
+const getProductPropertyIds = (product: any) =>
+  Object.keys(product.propertiesData || {});
+
+const isPropertyField = (field: string) =>
+  field.includes('propertiesData.');
+
+const propertyExistsFilter = (fieldIds: string[]) => ({
+  $or: [
+    ...fieldIds.map((fieldId) => ({
+      [`propertiesData.${fieldId}`]: { $exists: true },
+    })),
+  ],
+});
+
+const propertyRegexFilter = (fieldId: string, regex: RegExp) => ({
+  [`propertiesData.${fieldId}`]: { $regex: regex },
+});
+
 export interface ICommonParams {
   sortField?: string;
   sortDirection?: number;
@@ -453,25 +477,23 @@ const cpProductQueries: Record<string, Resolver> = {
           : new RegExp(`.*${escapeRegExp(str)}.*`, 'igu');
       };
 
-      const similarityGroups =
-        await models.ProductsConfigs.getConfig('similarityGroup');
+      const similarityGroups = await models.ProductsConfigs.getConfig(
+        'similarityGroup',
+      );
 
       const codeMasks = Object.keys(similarityGroups);
-      const customFieldIds = (product.customFieldsData || []).map(
-        (cf) => cf.field,
-      );
+      const customFieldIds = getProductPropertyIds(product);
 
       const matchedMasks = codeMasks.filter((cm) => {
         const mask = similarityGroups[cm];
         const filterFieldDef = mask.filterField || 'code';
         const regexer = getRegex(cm);
 
-        if (filterFieldDef.includes('customFieldsData.')) {
+        if (isPropertyField(filterFieldDef)) {
+          const fieldId = getPropertyFieldId(filterFieldDef);
           if (
-            !(product.customFieldsData || []).find(
-              (cfd) =>
-                cfd.field === filterFieldDef.replace('customFieldsData.', '') &&
-                cfd.stringValue?.match(regexer),
+            !String(getProductPropertyValue(product, fieldId) || '').match(
+              regexer,
             )
           ) {
             return false;
@@ -509,22 +531,13 @@ const cpProductQueries: Record<string, Resolver> = {
         const matched = similarityGroups[matchedMask];
         const filterFieldDef = matched.filterField || 'code';
 
-        if (filterFieldDef.includes('customFieldsData.')) {
-          codeRegexs.push({
-            $and: [
-              {
-                'customFieldsData.field': filterFieldDef.replace(
-                  'customFieldsData.',
-                  '',
-                ),
-              },
-              {
-                'customFieldsData.stringValue': {
-                  $in: [getRegex(matchedMask)],
-                },
-              },
-            ],
-          });
+        if (isPropertyField(filterFieldDef)) {
+          codeRegexs.push(
+            propertyRegexFilter(
+              getPropertyFieldId(filterFieldDef),
+              getRegex(matchedMask),
+            ),
+          );
         } else {
           codeRegexs.push({
             [filterFieldDef]: { $in: [getRegex(matchedMask)] },
@@ -545,9 +558,7 @@ const cpProductQueries: Record<string, Resolver> = {
           {
             $or: codeRegexs,
           },
-          {
-            'customFieldsData.field': { $in: fieldIds },
-          },
+          propertyExistsFilter(fieldIds),
         ],
       };
 
@@ -587,7 +598,7 @@ const cpProductQueries: Record<string, Resolver> = {
       $and: [
         {
           categoryId: category._id,
-          'customFieldsData.field': { $in: fieldIds },
+          ...propertyExistsFilter(fieldIds),
         },
       ],
     };

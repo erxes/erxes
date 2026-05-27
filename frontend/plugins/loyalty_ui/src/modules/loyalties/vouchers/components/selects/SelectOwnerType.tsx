@@ -157,9 +157,13 @@ const SelectOwnerTypeContent = () => {
   );
 };
 
-export const SelectOwnerTypeFilterItem = () => {
+export const SelectOwnerTypeFilterItem = ({
+  queryKey = 'ownerType',
+}: {
+  queryKey?: string;
+} = {}) => {
   return (
-    <Filter.Item value="ownerType">
+    <Filter.Item value={queryKey}>
       <IconUsers />
       Owner Type
     </Filter.Item>
@@ -201,18 +205,18 @@ export const SelectOwnerTypeFilterBar = ({
   iconOnly,
   onValueChange,
   mode = 'single',
+  queryKey = 'ownerType',
 }: {
   iconOnly?: boolean;
   onValueChange?: (value: string[] | string) => void;
   mode?: 'single' | 'multiple';
+  queryKey?: string;
 }) => {
-  const [ownerType, setOwnerType] = useQueryState<string[] | string>(
-    'ownerType',
-  );
+  const [ownerType, setOwnerType] = useQueryState<string[] | string>(queryKey);
   const [open, setOpen] = useState(false);
 
   return (
-    <Filter.BarItem queryKey={'ownerType'}>
+    <Filter.BarItem queryKey={queryKey}>
       <Filter.BarName>
         <IconUsers />
         {!iconOnly && 'Owner Type'}
@@ -232,7 +236,7 @@ export const SelectOwnerTypeFilterBar = ({
       >
         <Popover open={open} onOpenChange={setOpen}>
           <Popover.Trigger asChild>
-            <Filter.BarButton filterKey={'ownerType'}>
+            <Filter.BarButton filterKey={queryKey}>
               <SelectOwnerTypeValue />
             </Filter.BarButton>
           </Popover.Trigger>

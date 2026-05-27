@@ -15,17 +15,72 @@ import {
   RecordTableInlineCell,
   Table,
 } from 'erxes-ui';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWatch } from 'react-hook-form';
-import { SelectProduct } from 'ui-modules';
+import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
 import { useGetAccCurrentCost } from '../../../hooks/useGetInvCostInfo';
-import { followTrDocsState, taxPercentsState } from '../../../states/trStates';
+import {
+  followTrDocsState,
+  showAdvancedViewState,
+  taxPercentsState,
+} from '../../../states/trStates';
 import {
   ITransactionGroupForm,
   TInvSaleJournal,
 } from '../../../types/JournalForms';
-import { fixSumDtCt, getTempId } from '../../utils';
+import {
+  DUPLICATE_PRODUCT_CELL_CLASS,
+  fixSumDtCt,
+  getTempId,
+  hasDuplicateProductId,
+} from '../../utils';
+
+const findFollowTr = (
+  followTrDocs: ITransaction[],
+  originId: string,
+  originType: string,
+) =>
+  followTrDocs.find(
+    (ftr) => ftr.originId === originId && ftr.originType === originType,
+  );
+
+const findFollowDetail = (details: ITrDetail[] = [], originId?: string) =>
+  details.find((detail) => detail.originId === originId);
+
+const buildSaleReturnFollowDetails = ({
+  account,
+  accountId,
+  activeDetail,
+  currentTr,
+  trDoc,
+  unitCost,
+}: {
+  account?: any;
+  accountId?: string;
+  activeDetail: ITrDetail;
+  currentTr?: ITransaction;
+  trDoc: TInvSaleJournal;
+  unitCost: number;
+}) =>
+  (trDoc.details || []).map((saleDetail) => {
+    const currentDetail = findFollowDetail(currentTr?.details, saleDetail._id);
+
+    if (currentDetail && saleDetail._id !== activeDetail._id) {
+      return currentDetail;
+    }
+
+    return {
+      ...saleDetail,
+      ...currentDetail,
+      productId: saleDetail.productId,
+      account,
+      accountId,
+      unitPrice: unitCost,
+      count: activeDetail.count,
+      amount: fixNum(unitCost * (activeDetail.count ?? 0)),
+    } as ITrDetail;
+  });
 
 export const InventoryRow = ({
   detailIndex,
@@ -36,6 +91,7 @@ export const InventoryRow = ({
   journalIndex: number;
   form: ITransactionGroupForm;
 }) => {
+  const showAdvancedView = useAtomValue(showAdvancedViewState);
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
@@ -45,8 +101,13 @@ export const InventoryRow = ({
     control: form.control,
     name: `trDocs.${journalIndex}.details.${detailIndex}`,
   });
+  const hasDuplicateProduct = hasDuplicateProductId(
+    trDoc.details,
+    detail.productId,
+  );
 
-  const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
+  const followTrDocs = useAtomValue(followTrDocsState);
+  const setFollowTrDocs = useSetAtom(followTrDocsState);
 
   const { unitPrice, count, _id } = detail;
 
@@ -68,95 +129,78 @@ export const InventoryRow = ({
   };
 
   useEffect(() => {
-    const currOut = followTrDocs.find(
-      (ftr) =>
-        ftr.originId === trDoc._id && ftr.originType === 'invSaleReturnOut',
-    );
-    const currCost = followTrDocs.find(
-      (ftr) =>
-        ftr.originId === trDoc._id && ftr.originType === 'invSaleReturnCost',
-    );
+    setFollowTrDocs((prev) => {
+      const currOut = findFollowTr(prev || [], trDoc._id, 'invSaleReturnOut');
+      const currCost = findFollowTr(prev || [], trDoc._id, 'invSaleReturnCost');
 
-    const ptrId = currOut?.ptrId || currCost?.ptrId || getTempId();
+      const ptrId = currOut?.ptrId || currCost?.ptrId || getTempId();
 
-    const commonFollowTr = {
-      originId: trDoc._id,
-      ptrId,
-      parentId: trDoc.parentId,
-    };
+      const commonFollowTr = {
+        originId: trDoc._id,
+        ptrId,
+        parentId: trDoc.parentId,
+      };
 
-    const invOutTr: ITransaction = fixSumDtCt({
-      ...currOut,
-      ...commonFollowTr,
-      _id: currOut?._id || getTempId(),
-      journal: TrJournalEnum.INV_SALE_RETURN_OUT,
-      originType: 'invSaleReturnOut',
-      details: (trDoc.details || []).map((saleDetail) => {
-        const curOutDetail = currOut?.details.find(
-          (outDetail) => outDetail.originId === saleDetail._id,
-        );
+      const invOutTr = fixSumDtCt({
+        ...currOut,
+        ...commonFollowTr,
+        _id: currOut?._id || getTempId(),
+        journal: TrJournalEnum.INV_SALE_RETURN_OUT,
+        side: TR_SIDES.DEBIT,
+        originType: 'invSaleReturnOut',
+        details: buildSaleReturnFollowDetails({
+          account: trDoc.followExtras?.saleOutAccount,
+          accountId: trDoc.followInfos?.saleOutAccountId,
+          activeDetail: detail as ITrDetail,
+          currentTr: currOut,
+          trDoc,
+          unitCost,
+        }),
+      });
 
-        if (!curOutDetail || saleDetail._id === detail._id) {
-          return {
-            ...saleDetail,
-            ...curOutDetail,
-            productId: saleDetail.productId,
-            account: trDoc.followExtras?.saleOutAccount,
-            accountId: trDoc.followInfos?.saleOutAccountId,
-            side: TR_SIDES.DEBIT,
-            unitPrice: unitCost,
-            count: detail.count,
-            amount: fixNum(unitCost * (detail.count ?? 0)),
-          } as ITrDetail;
-        }
-        return curOutDetail;
-      }),
+      const invCostTr = fixSumDtCt({
+        ...currCost,
+        ...commonFollowTr,
+        _id: currCost?._id || getTempId(),
+        journal: TrJournalEnum.INV_SALE_RETURN_COST,
+        side: TR_SIDES.CREDIT,
+        originType: 'invSaleReturnCost',
+        details: buildSaleReturnFollowDetails({
+          account: trDoc.followExtras?.saleCostAccount,
+          accountId: trDoc.followInfos?.saleCostAccountId,
+          activeDetail: detail as ITrDetail,
+          currentTr: currCost,
+          trDoc,
+          unitCost,
+        }),
+      });
+
+      return [
+        ...(prev || []).filter(
+          (ftr) =>
+            !(
+              ftr.originId === trDoc._id &&
+              ['invSaleReturnOut', 'invSaleReturnCost'].includes(
+                ftr.originType || '',
+              )
+            ),
+        ),
+        invOutTr,
+        invCostTr,
+      ];
     });
-
-    const invCostTr: ITransaction = fixSumDtCt({
-      ...currCost,
-      ...commonFollowTr,
-      _id: currCost?._id || getTempId(),
-      journal: TrJournalEnum.INV_SALE_RETURN_COST,
-      originType: 'invSaleReturnCost',
-      details: (trDoc.details || []).map((saleDetail) => {
-        const curCostDetail = currCost?.details.find(
-          (costDetail) => costDetail.originId === saleDetail._id,
-        );
-
-        if (!curCostDetail || saleDetail._id === detail._id) {
-          return {
-            ...saleDetail,
-            ...curCostDetail,
-            productId: saleDetail.productId,
-            account: trDoc.followExtras?.saleCostAccount,
-            accountId: trDoc.followInfos?.saleCostAccountId,
-            side: TR_SIDES.CREDIT,
-            unitPrice: unitCost,
-            count: detail.count,
-            amount: fixNum(unitCost * (detail.count ?? 0)),
-          } as ITrDetail;
-        }
-        return curCostDetail;
-      }),
-    });
-
-    setFollowTrDocs([
-      ...(followTrDocs || []).filter(
-        (ftr) =>
-          !(
-            ftr.originId === trDoc._id &&
-            ['invSaleReturnOut', 'invSaleReturnCost'].includes(
-              ftr.originType || '',
-            )
-          ),
-      ),
-      invOutTr,
-      invCostTr,
-    ]);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail, unitCost]);
+  }, [
+    detail,
+    unitCost,
+    trDoc._id,
+    trDoc.parentId,
+    trDoc.details,
+    trDoc.followExtras?.saleCostAccount,
+    trDoc.followExtras?.saleOutAccount,
+    trDoc.followInfos?.saleCostAccountId,
+    trDoc.followInfos?.saleOutAccountId,
+    setFollowTrDocs,
+  ]);
 
   const [taxPercents] = useAtom(taxPercentsState);
 
@@ -177,10 +221,27 @@ export const InventoryRow = ({
     detail.excludeCtax,
   ]);
 
-  const [taxAmounts, setTaxAmounts] = useState({
-    unitPriceWithTax: ((detail.unitPrice ?? 0) / 100) * (100 + rowPercent),
-    amountWithTax: ((detail.amount ?? 0) / 100) * (100 + rowPercent),
-  });
+  const calcTaxAmounts = (pCount?: number, pUnitPrice?: number) => {
+    const unitPriceWithTax = ((pUnitPrice ?? 0) / 100) * (100 + rowPercent);
+
+    return {
+      unitPriceWithTax,
+      amountWithTax: unitPriceWithTax * (pCount ?? 0),
+    };
+  };
+
+  const [taxAmounts, setTaxAmounts] = useState(
+    calcTaxAmounts(count, unitPrice),
+  );
+
+  useEffect(() => {
+    if (!(trDoc.hasVat || trDoc.hasCtax)) {
+      return;
+    }
+
+    setTaxAmounts(calcTaxAmounts(count, unitPrice));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail._id, rowPercent, trDoc.hasVat, trDoc.hasCtax, count, unitPrice]);
 
   const { currentCostInfo, loading } = useGetAccCurrentCost({
     variables: {
@@ -191,14 +252,10 @@ export const InventoryRow = ({
     },
     skip:
       !detail.productId ||
-      !trDoc.branchId ||
-      !trDoc.departmentId ||
       !trDoc.followInfos?.saleOutAccountId ||
       (initProductId.current &&
         detail.productId === initProductId.current &&
-        initBranchId.current &&
         trDoc.branchId === initBranchId.current &&
-        initDepartmentId.current &&
         trDoc.departmentId === initDepartmentId.current &&
         initOutAccountId.current &&
         trDoc.followInfos?.saleOutAccountId === initOutAccountId.current),
@@ -223,11 +280,25 @@ export const InventoryRow = ({
     onChange(value);
     const newUnitPrice = count ? value / count : 0;
     form.setValue(getFieldName('unitPrice'), newUnitPrice);
+
+    if (trDoc.hasVat || trDoc.hasCtax) {
+      setTaxAmounts({
+        unitPriceWithTax: (newUnitPrice / 100) * (100 + rowPercent),
+        amountWithTax: (value / 100) * (100 + rowPercent),
+      });
+    }
   };
 
   const calcAmount = (pCount?: number, pUnitPrice?: number) => {
     const newAmount = (pCount ?? 0) * (pUnitPrice ?? 0);
     form.setValue(getFieldName('amount'), newAmount);
+
+    if (trDoc.hasVat || trDoc.hasCtax) {
+      setTaxAmounts({
+        unitPriceWithTax: ((pUnitPrice ?? 0) / 100) * (100 + rowPercent),
+        amountWithTax: (newAmount / 100) * (100 + rowPercent),
+      });
+    }
   };
 
   const handleCountChange = (
@@ -296,7 +367,11 @@ export const InventoryRow = ({
         detailIndex === 0 && '[&>td]:border-t',
       )}
     >
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell
           className={cn({
             'border-t': detailIndex === 0,
@@ -324,7 +399,11 @@ export const InventoryRow = ({
         </Table.Cell>
       </RecordTableHotKeyControl>
 
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -336,7 +415,10 @@ export const InventoryRow = ({
                   // setMount(false)
                   field.onChange(accountId);
                 }}
-                defaultFilter={{ journals: [JournalEnum.MAIN] }}
+                defaultFilter={{
+                  journals: [JournalEnum.MAIN],
+                  permissionMode: 'write',
+                }}
                 variant="ghost"
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />
@@ -344,8 +426,14 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
-        <Table.Cell>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
+        <Table.Cell
+          className={cn(hasDuplicateProduct && DUPLICATE_PRODUCT_CELL_CLASS)}
+        >
           <Form.Field
             control={form.control}
             name={`trDocs.${journalIndex}.details.${detailIndex}.productId`}
@@ -372,7 +460,11 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -401,7 +493,11 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -430,7 +526,11 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -461,12 +561,12 @@ export const InventoryRow = ({
       </RecordTableHotKeyControl>
 
       {trDoc.hasVat && (
-        <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
-          <Table.Cell
-            className={cn({
-              'border-t': detailIndex === 0,
-            })}
-          >
+        <RecordTableHotKeyControl
+          rowId={_id}
+          rowIndex={detailIndex}
+          enableOnFormTags
+        >
+          <Table.Cell>
             <RecordTableInlineCell className="justify-center">
               <Form.Field
                 control={form.control}
@@ -495,12 +595,12 @@ export const InventoryRow = ({
       )}
 
       {trDoc.hasCtax && (
-        <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
-          <Table.Cell
-            className={cn({
-              'border-t': detailIndex === 0,
-            })}
-          >
+        <RecordTableHotKeyControl
+          rowId={_id}
+          rowIndex={detailIndex}
+          enableOnFormTags
+        >
+          <Table.Cell>
             <RecordTableInlineCell className="justify-center">
               <Form.Field
                 control={form.control}
@@ -530,7 +630,11 @@ export const InventoryRow = ({
 
       {(trDoc.hasVat || trDoc.hasCtax) && (
         <>
-          <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+          <RecordTableHotKeyControl
+            rowId={_id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
             <Table.Cell>
               <PopoverScoped
                 scope={`trDocs.${journalIndex}.details.${detailIndex}.untiPriceWithTax`}
@@ -553,13 +657,12 @@ export const InventoryRow = ({
             </Table.Cell>
           </RecordTableHotKeyControl>
 
-          <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
-            <Table.Cell
-              className={cn({
-                'border-t': detailIndex === 0,
-                'rounded-br-lg': detailIndex === trDoc.details.length - 1,
-              })}
-            >
+          <RecordTableHotKeyControl
+            rowId={_id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
+            <Table.Cell>
               <PopoverScoped
                 scope={`trDocs.${journalIndex}.details.${detailIndex}.amountWithTax`}
                 closeOnEnter
@@ -574,6 +677,66 @@ export const InventoryRow = ({
                   />
                 </RecordTableInlineCell.Content>
               </PopoverScoped>
+            </Table.Cell>
+          </RecordTableHotKeyControl>
+        </>
+      )}
+      {showAdvancedView && (
+        <>
+          <RecordTableHotKeyControl
+            rowId={_id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
+            <Table.Cell>
+              <RecordTableInlineCell className="justify-center">
+                <Form.Field
+                  control={form.control}
+                  name={`trDocs.${journalIndex}.details.${detailIndex}.branchId`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Control>
+                        <SelectBranches.InlineCell
+                          mode="single"
+                          value={field.value ?? ''}
+                          onValueChange={(branch) => field.onChange(branch)}
+                          scope={AccountingHotkeyScope.TransactionFormPage}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </RecordTableInlineCell>
+            </Table.Cell>
+          </RecordTableHotKeyControl>
+          <RecordTableHotKeyControl
+            rowId={_id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
+            <Table.Cell>
+              <RecordTableInlineCell className="justify-center">
+                <Form.Field
+                  control={form.control}
+                  name={`trDocs.${journalIndex}.details.${detailIndex}.departmentId`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Control>
+                        <SelectDepartments.InlineCell
+                          mode="single"
+                          value={field.value ?? ''}
+                          onValueChange={(department) =>
+                            field.onChange(department)
+                          }
+                          scope={AccountingHotkeyScope.TransactionFormPage}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </RecordTableInlineCell>
             </Table.Cell>
           </RecordTableHotKeyControl>
         </>

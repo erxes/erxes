@@ -7,7 +7,7 @@ import { getEnv } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { COC_LIFECYCLE_STATE_TYPES } from '~/modules/contacts/constants';
 
-export const customerMutations: Record<string, Resolver> = {
+export const customerMutations: Record<string, Resolver<any, any, IContext>> = {
   /**
    * Create new customer also adds Customer registration log
    */

@@ -7,6 +7,7 @@ import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 import { useTourGroups } from '../hooks/useTourGroups';
 import { TourCreateSheet } from './TourCreateSheet';
 import { TourCommandBar } from './TourCommandBar';
+import { TourGroupAddSheet } from './TourGroupAddSheet';
 import { GroupedTourColumns, TourGroupRow } from './TourGroupColumns';
 import { flattenGroups } from './TourGroupUtils';
 import { TourEditForm } from './TourEditForm';
@@ -30,10 +31,27 @@ export const TourGroupList = ({
 
   const [editTourId, setEditTourId] = useState<string | null>(null);
   const [sideTab, setSideTab] = useState<TourSideTab | null>(null);
+  const [addTourContext, setAddTourContext] = useState<{
+    groupCode: string;
+    templateTourId: string;
+  } | null>(null);
 
   const groupedTours = useMemo(() => flattenGroups(groups), [groups]);
   const columns = useMemo(
-    () => GroupedTourColumns({ onEdit: (id) => setEditTourId(id) }),
+    () =>
+      GroupedTourColumns({
+        onEdit: (id) => setEditTourId(id),
+        onAddTour: (row) => {
+          if (!row.groupCode || !row.templateTourId) {
+            return;
+          }
+
+          setAddTourContext({
+            groupCode: row.groupCode,
+            templateTourId: row.templateTourId,
+          });
+        },
+      }),
     [],
   );
   const tableOptions: TableOptions<TourGroupRow> = useMemo(
@@ -61,7 +79,7 @@ export const TourGroupList = ({
       columns={columns}
       data={groupedTours}
       className="h-full"
-      stickyColumns={['checkbox', 'name']}
+      stickyColumns={['more', 'checkbox', 'name']}
       tableOptions={tableOptions}
     >
       <RecordTableTree
@@ -116,6 +134,22 @@ export const TourGroupList = ({
           )}
         </Sheet.View>
       </Sheet>
+
+      {addTourContext && (
+        <TourGroupAddSheet
+          templateTourId={addTourContext.templateTourId}
+          groupCode={addTourContext.groupCode}
+          branchId={branchId}
+          branchLanguages={branchLanguages}
+          mainLanguage={mainLanguage}
+          open={!!addTourContext}
+          onOpenChange={(open) => {
+            if (!open) {
+              setAddTourContext(null);
+            }
+          }}
+        />
+      )}
     </RecordTable.Provider>
   );
 };

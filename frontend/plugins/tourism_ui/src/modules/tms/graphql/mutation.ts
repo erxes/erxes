@@ -6,6 +6,8 @@ export const CREATE_BRANCH = gql`
     $generalManagerIds: [String]
     $managerIds: [String]
     $paymentIds: [String]
+    $prepaid: Boolean
+    $prepaidPercent: Float
     $token: String
     $erxesAppToken: String
     $permissionConfig: JSON
@@ -18,6 +20,8 @@ export const CREATE_BRANCH = gql`
       generalManagerIds: $generalManagerIds
       managerIds: $managerIds
       paymentIds: $paymentIds
+      prepaid: $prepaid
+      prepaidPercent: $prepaidPercent
       token: $token
       erxesAppToken: $erxesAppToken
       permissionConfig: $permissionConfig
@@ -37,6 +41,8 @@ export const EDIT_BRANCH = gql`
     $generalManagerIds: [String]
     $managerIds: [String]
     $paymentIds: [String]
+    $prepaid: Boolean
+    $prepaidPercent: Float
     $token: String
     $erxesAppToken: String
     $permissionConfig: JSON
@@ -50,6 +56,8 @@ export const EDIT_BRANCH = gql`
       generalManagerIds: $generalManagerIds
       managerIds: $managerIds
       paymentIds: $paymentIds
+      prepaid: $prepaid
+      prepaidPercent: $prepaidPercent
       token: $token
       erxesAppToken: $erxesAppToken
       permissionConfig: $permissionConfig

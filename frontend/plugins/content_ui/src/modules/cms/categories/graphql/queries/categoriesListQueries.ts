@@ -5,6 +5,7 @@ export const CMS_CATEGORIES = gql`
     $clientPortalId: String!
     $searchValue: String
     $status: CategoryStatus
+    $language: String
     $limit: Int
     $cursor: String
     $direction: CURSOR_DIRECTION
@@ -15,6 +16,7 @@ export const CMS_CATEGORIES = gql`
       clientPortalId: $clientPortalId
       searchValue: $searchValue
       status: $status
+      language: $language
       limit: $limit
       cursor: $cursor
       direction: $direction
@@ -30,6 +32,11 @@ export const CMS_CATEGORIES = gql`
         slug
         status
         customFieldsData
+        translations {
+          language
+          title
+          content
+        }
         parent {
           _id
           clientPortalId

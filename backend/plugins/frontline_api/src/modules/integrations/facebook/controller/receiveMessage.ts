@@ -12,6 +12,18 @@ import {
   triggerFacebookMessageAutomation,
 } from '@/integrations/facebook/meta/automation/utils/messageUtils';
 
+/**
+ * Sanitize a value expected to be a string to prevent NoSQL injection.
+ * Coerces non-string values (e.g. numbers) to strings, which also neutralizes
+ * injection objects like {"$gt": ""} by converting them to "[object Object]".
+ */
+const sanitizeString = (value: unknown): string => {
+  if (typeof value === 'string') {
+    return value;
+  }
+  return String(value ?? '');
+};
+
 export const receiveMessage = async (
   models: IModels,
   subdomain: string,
@@ -24,11 +36,19 @@ export const receiveMessage = async (
     );
     const { recipient, from, timestamp, channelData } = activity;
     let { message, postback } = channelData;
-    const pageId = recipient.id;
-    const userId = from.id;
+    const pageId = sanitizeString(recipient.id);
+    const userId = sanitizeString(from.id);
     const kind = INTEGRATION_KINDS.MESSENGER;
-    const mid = channelData.message?.mid || postback?.mid;
+    const rawMid = channelData.message?.mid || postback?.mid;
+    const mid = rawMid != null ? sanitizeString(rawMid) : undefined;
     const attachments = channelData.message?.attachments;
+
+    if (message?.is_echo || userId === pageId) {
+      debugFacebook(
+        `Skipping Facebook echo message ${mid || ''} from page ${pageId}`,
+      );
+      return;
+    }
 
     let text = activity.text || message?.text;
     let adData;
@@ -74,8 +94,8 @@ export const receiveMessage = async (
     }
 
     let conversation = await models.FacebookConversations.findOne({
-      senderId: userId,
-      recipientId: pageId,
+      senderId: { $eq: userId },
+      recipientId: { $eq: pageId },
     });
 
     const bot = await checkIsBot(models, message, recipient.id);
@@ -154,7 +174,7 @@ export const receiveMessage = async (
     // get conversation message
     let conversationMessage = await models.FacebookConversationMessages.findOne(
       {
-        mid: mid,
+        mid: { $eq: mid },
       },
     );
 

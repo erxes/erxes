@@ -11,6 +11,8 @@ dotenv.config();
 
 const { NODE_ENV, SUPERGRAPH_POLL_INTERVAL_MS } = process.env;
 
+let supergraphPollInterval: NodeJS.Timeout | undefined;
+
 type SupergraphConfig = {
   federation_version: string;
   subgraphs: {
@@ -40,24 +42,15 @@ const writeSupergraphConfig = async (proxyTargets: ErxesProxyTarget[]) => {
     };
   }
 
-  if (NODE_ENV === 'production') {
-    if (fs.existsSync(supergraphConfigPath)) {
-      return;
-    }
-    fs.writeFileSync(supergraphConfigPath, yaml.stringify(config), {
-      encoding: 'utf-8',
-    });
-  } else {
-    fs.writeFileSync(superGraphConfigNext, yaml.stringify(config), {
-      encoding: 'utf-8',
-    });
+  fs.writeFileSync(superGraphConfigNext, yaml.stringify(config), {
+    encoding: 'utf-8',
+  });
 
-    if (
-      !fs.existsSync(supergraphConfigPath) ||
-      !isSameFile(supergraphConfigPath, superGraphConfigNext)
-    ) {
-      fs.cpSync(superGraphConfigNext, supergraphConfigPath, { force: true });
-    }
+  if (
+    !fs.existsSync(supergraphConfigPath) ||
+    !isSameFile(supergraphConfigPath, superGraphConfigNext)
+  ) {
+    fs.cpSync(superGraphConfigNext, supergraphConfigPath, { force: true });
   }
 };
 
@@ -89,8 +82,8 @@ export default async function supergraphCompose(
 ) {
   await writeSupergraphConfig(proxyTargets);
   await supergraphComposeOnce();
-  if (NODE_ENV === 'development') {
-    setInterval(async () => {
+  if (NODE_ENV === 'development' && !supergraphPollInterval) {
+    supergraphPollInterval = setInterval(async () => {
       try {
         await supergraphComposeOnce();
       } catch (e: unknown) {

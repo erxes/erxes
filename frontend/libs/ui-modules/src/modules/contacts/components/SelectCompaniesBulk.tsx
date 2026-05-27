@@ -11,6 +11,7 @@ import {
 import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 
+import { AddCompany } from './AddCompany';
 import { CompaniesInline } from './CompaniesInline';
 import { ICompany } from '../types/Company';
 import { useCompanies } from '../hooks/useCompanies';
@@ -97,7 +98,14 @@ const SelectCompaniesBulkContent = ({
           setSelectedCompanies={setSelectedCompanies}
         />
       </Sheet.Content>
-      <Sheet.Footer className="sm:justify-end">
+      <Sheet.Footer className="sm:justify-between">
+        <AddCompany
+          onSuccess={(id) =>
+            setSelectedCompanyIds((prev) =>
+              prev.includes(id) ? prev : [...prev, id],
+            )
+          }
+        />
         <div className="flex items-center gap-2">
           <Sheet.Close asChild>
             <Button variant="secondary" className="bg-border">

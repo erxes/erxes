@@ -52,15 +52,30 @@ export const EditScoreForm = ({ onOpenChange, form }: Props) => {
         excludeTagIds: (data.conditions.excludeTagIds || []).join(','),
       };
 
+      const cardBasedRule = (data.additionalConfig?.cardBasedRule || [])
+        .filter((rule) => rule.boardId && rule.pipelineId)
+        .map((rule) => ({
+          boardId: rule.boardId,
+          pipelineId: rule.pipelineId,
+          stageIds: rule.stageIds || [],
+          refundStageIds: rule.refundStageIds || [],
+        }));
+
       updateScore({
         variables: {
           _id: scoreDetail._id,
           title: data.title,
           description: data.description || '',
+          order: data.order,
           serviceName: data.conditions.serviceName,
           restrictions,
+          additionalConfig: {
+            discountCheck: data.additionalConfig?.discountCheck ?? false,
+            cardBasedRule,
+          },
           add: data.add,
           subtract: data.subtract,
+          set: data.set,
           ownerType: data.ownerType,
           onlyClientPortal: data.onlyClientPortal,
           fieldGroupId: data.fieldGroupId,

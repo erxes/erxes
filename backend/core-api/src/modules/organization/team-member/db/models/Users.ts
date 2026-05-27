@@ -56,6 +56,7 @@ interface IUpdateUser extends IEditProfile {
 interface IInviteParams {
   email: string;
   password?: string;
+  permissionGroupIds?: string[];
 }
 
 interface ILoginParams {
@@ -110,11 +111,14 @@ export interface IUserModel extends Model<IUserDocument> {
   ): Promise<IUserDocument>;
   forgotPassword(email: string): Promise<string>;
   createTokens(_user: IUserDocument, secret: string): Promise<string[]>;
-  refreshTokens(refreshToken: string): {
-    token: string;
-    refreshToken: string;
-    user: IUserDocument;
-  };
+  refreshTokens(refreshToken: string): Promise<
+    | {
+        token: string;
+        refreshToken: string;
+        user: IUserDocument;
+      }
+    | Record<string, never>
+  >;
   login(params: ILoginParams): Promise<{ token: string; refreshToken: string }>;
   checkLoginAuth({
     email,
@@ -363,7 +367,11 @@ export const loadUserClass = (
     /**
      * Create new user with invitation token
      */
-    public static async invite({ email, password }: IInviteParams) {
+    public static async invite({
+      email,
+      password,
+      permissionGroupIds,
+    }: IInviteParams) {
       email = (email || '').toLowerCase().trim();
       password = (password || '').trim();
 
@@ -382,6 +390,7 @@ export const loadUserClass = (
         registrationToken: token,
         registrationTokenExpires: expires,
         code: await this.generateUserCode(),
+        ...(permissionGroupIds?.length ? { permissionGroupIds } : {}),
         ...(password && { password: await this.generatePassword(password) }),
       });
 
@@ -770,13 +779,21 @@ export const loadUserClass = (
         return {};
       }
 
-      const dbUser = await models.Users.getUser(_id);
+      const dbUser = await models.Users.findOne({ _id, isActive: true });
+
+      if (!dbUser) {
+        return {};
+      }
 
       // recreate tokens
       const [newToken, newRefreshToken] = await this.createTokens(
         dbUser,
         this.getSecret(),
       );
+
+      if (newToken) {
+        await saveValidatedToken(newToken, dbUser);
+      }
 
       return {
         token: newToken,

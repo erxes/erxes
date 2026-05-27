@@ -12,7 +12,7 @@ export interface ITeamMember {
   teamId: string;
 
   member: IUser;
-  role: string;
+  role?: string;
 }
 
 export const useGetTeamMembers = ({

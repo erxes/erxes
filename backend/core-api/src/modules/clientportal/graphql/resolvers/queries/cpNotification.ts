@@ -7,7 +7,10 @@ import {
   CPNotificationFilterParams,
 } from '@/clientportal/services/helpers/queryBuilders';
 
-export const cpNotificationQueries: Record<string, Resolver> = {
+export const cpNotificationQueries: Record<
+  string,
+  Resolver<any, any, IContext>
+> = {
   async getClientPortalNotificationsByCpUserId(
     _root: unknown,
     params: {

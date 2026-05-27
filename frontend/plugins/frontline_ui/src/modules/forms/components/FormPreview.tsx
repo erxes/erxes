@@ -4,19 +4,23 @@ import {
   Button,
   Checkbox,
   cn,
+  Combobox,
+  Command,
   DatePicker,
   Form,
   InfoCard,
   Input,
+  Popover,
   RadioGroup,
   readImage,
   Select,
   Textarea,
   toast,
+  Upload,
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { ControllerRenderProps, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { FORM_CONTENT_SCHEMA } from '../constants/formSchema';
 import {
@@ -229,9 +233,11 @@ export const FormPreviewContent = ({
                               placeholder={erxesField.placeholder}
                             />
                             {erxesField.description && (
-                              <Form.Description>
-                                {erxesField.description}
-                              </Form.Description>
+                              <Form.Description
+                                dangerouslySetInnerHTML={{
+                                  __html: erxesField.description,
+                                }}
+                              />
                             )}
                             <Form.Message />
                           </ErxesFormItem>
@@ -255,7 +261,10 @@ export const FormPreviewContent = ({
                           </ErxesFormItem>
                         );
                       }
-                      if (erxesField.type === 'textarea') {
+                      if (
+                        erxesField.type === 'textarea' ||
+                        erxesField.type === 'core:customer:description'
+                      ) {
                         return (
                           <ErxesFormItem span={erxesField.span}>
                             <Form.Label>{erxesField.label}</Form.Label>
@@ -264,9 +273,11 @@ export const FormPreviewContent = ({
                               placeholder={erxesField.placeholder}
                             />
                             {erxesField.description && (
-                              <Form.Description>
-                                {erxesField.description}
-                              </Form.Description>
+                              <Form.Description
+                                dangerouslySetInnerHTML={{
+                                  __html: erxesField.description,
+                                }}
+                              />
                             )}
                             <Form.Message />
                           </ErxesFormItem>
@@ -274,6 +285,14 @@ export const FormPreviewContent = ({
                       }
 
                       if (erxesField.type === 'select') {
+                        if (erxesField.allowSearch) {
+                          return (
+                            <ErxesFormComboboxField
+                              field={field}
+                              erxesField={erxesField}
+                            />
+                          );
+                        }
                         return (
                           <ErxesFormItem span={erxesField.span}>
                             <Form.Label>{erxesField.label}</Form.Label>
@@ -301,19 +320,31 @@ export const FormPreviewContent = ({
                               </Select.Content>
                             </Select>
                             {erxesField.description && (
-                              <Form.Description>
-                                {erxesField.description}
-                              </Form.Description>
+                              <Form.Description
+                                dangerouslySetInnerHTML={{
+                                  __html: erxesField.description,
+                                }}
+                              />
                             )}
                             <Form.Message />
                           </ErxesFormItem>
                         );
                       }
 
-                      if (erxesField.type === 'radio') {
+                      if (
+                        erxesField.type === 'radio' ||
+                        erxesField.type === 'core:customer:sex'
+                      ) {
                         return (
                           <ErxesFormItem span={erxesField.span}>
                             <Form.Label>{erxesField.label}</Form.Label>
+                            {erxesField.description && (
+                              <Form.Description
+                                dangerouslySetInnerHTML={{
+                                  __html: erxesField.description,
+                                }}
+                              />
+                            )}
                             <Form.Control>
                               <RadioGroup
                                 value={field.value}
@@ -334,11 +365,6 @@ export const FormPreviewContent = ({
                                 })}
                               </RadioGroup>
                             </Form.Control>
-                            {erxesField.description && (
-                              <Form.Description>
-                                {erxesField.description}
-                              </Form.Description>
-                            )}
                             <Form.Message />
                           </ErxesFormItem>
                         );
@@ -348,12 +374,19 @@ export const FormPreviewContent = ({
                         return (
                           <ErxesFormItem span={erxesField.span}>
                             <Form.Label>{erxesField.label}</Form.Label>
+                            {erxesField.description && (
+                              <Form.Description
+                                dangerouslySetInnerHTML={{
+                                  __html: erxesField.description,
+                                }}
+                              />
+                            )}
                             <div className="flex flex-col gap-2">
                               {erxesField.options.map((option) => {
                                 if (!option) return null;
                                 const checked = (
                                   field.value as string[]
-                                ).includes(option);
+                                )?.includes(option);
                                 return (
                                   <label
                                     key={option}
@@ -362,7 +395,8 @@ export const FormPreviewContent = ({
                                     <Checkbox
                                       checked={checked}
                                       onCheckedChange={(isChecked) => {
-                                        const current = field.value as string[];
+                                        const current =
+                                          (field.value as string[]) || [];
                                         field.onChange(
                                           isChecked
                                             ? [...current, option]
@@ -377,17 +411,15 @@ export const FormPreviewContent = ({
                                 );
                               })}
                             </div>
-                            {erxesField.description && (
-                              <Form.Description>
-                                {erxesField.description}
-                              </Form.Description>
-                            )}
                             <Form.Message />
                           </ErxesFormItem>
                         );
                       }
 
-                      if (erxesField.type === 'date') {
+                      if (
+                        erxesField.type === 'date' ||
+                        erxesField.type === 'core:customer:birthDate'
+                      ) {
                         return (
                           <ErxesFormItem span={erxesField.span}>
                             <Form.Label>{erxesField.label}</Form.Label>
@@ -396,9 +428,59 @@ export const FormPreviewContent = ({
                               placeholder={erxesField.placeholder}
                             />
                             {erxesField.description && (
-                              <Form.Description>
-                                {erxesField.description}
-                              </Form.Description>
+                              <Form.Description
+                                dangerouslySetInnerHTML={{
+                                  __html: erxesField.description,
+                                }}
+                              />
+                            )}
+                            <Form.Message />
+                          </ErxesFormItem>
+                        );
+                      }
+
+                      if (
+                        erxesField.type === 'file' ||
+                        erxesField.type === 'core:customer:avatar'
+                      ) {
+                        const urls: string[] = Array.isArray(field.value)
+                          ? field.value
+                          : [];
+                        const displayValue = urls.join(', ');
+                        return (
+                          <ErxesFormItem span={erxesField.span}>
+                            <Form.Label>{erxesField.label}</Form.Label>
+                            <Form.Control>
+                              <Upload.Root
+                                value={displayValue}
+                                onChange={(e) => {
+                                  const value = (e as any).target.value;
+                                  field.onChange(
+                                    value
+                                      ? value
+                                          .split(',')
+                                          .map((v: string) => v.trim())
+                                          .filter(Boolean)
+                                      : [],
+                                  );
+                                }}
+                              >
+                                <Upload.Preview />
+                                <Upload.Button
+                                  type="button"
+                                  variant={'outline'}
+                                  size="sm"
+                                >
+                                  {erxesField.placeholder || 'Upload file'}
+                                </Upload.Button>
+                              </Upload.Root>
+                            </Form.Control>
+                            {erxesField.description && (
+                              <Form.Description
+                                dangerouslySetInnerHTML={{
+                                  __html: erxesField.description,
+                                }}
+                              />
                             )}
                             <Form.Message />
                           </ErxesFormItem>
@@ -408,15 +490,17 @@ export const FormPreviewContent = ({
                       return (
                         <ErxesFormItem span={erxesField.span}>
                           <Form.Label>{erxesField.label}</Form.Label>
+                          {erxesField.description && (
+                            <Form.Description
+                              dangerouslySetInnerHTML={{
+                                __html: erxesField.description,
+                              }}
+                            />
+                          )}
                           <Input
                             {...field}
                             placeholder={erxesField.placeholder}
                           />
-                          {erxesField.description && (
-                            <Form.Description>
-                              {erxesField.description}
-                            </Form.Description>
-                          )}
                           <Form.Message />
                         </ErxesFormItem>
                       );
@@ -459,3 +543,51 @@ export const ErxesFormItem = ({
     className={cn(props.className, span && `col-span-${span}`)}
   />
 );
+
+export const ErxesFormComboboxField = ({
+  erxesField,
+  field,
+}: {
+  erxesField: z.infer<
+    typeof FORM_CONTENT_SCHEMA
+  >['steps'][number]['fields'][number];
+  field: ControllerRenderProps<any, string>;
+}) => {
+  const [open, setOpen] = useState<boolean>(false);
+
+  return (
+    <ErxesFormItem span={erxesField.span}>
+      <Form.Label>{erxesField.label}</Form.Label>
+      <Popover open={open} onOpenChange={setOpen}>
+        <Combobox.Trigger>
+          <span>{field.value || erxesField?.placeholder}</span>
+        </Combobox.Trigger>
+        <Combobox.Content>
+          <Command>
+            <Command.List>
+              <Command.Input placeholder={`Search ${erxesField?.label}`} />
+              {erxesField?.options?.map((option) => (
+                <Command.Item
+                  key={option}
+                  value={option}
+                  onSelect={(value) => {
+                    field.onChange(value);
+                    setOpen(false);
+                  }}
+                >
+                  {option}
+                </Command.Item>
+              ))}
+            </Command.List>
+          </Command>
+        </Combobox.Content>
+      </Popover>
+      {erxesField.description && (
+        <Form.Description
+          dangerouslySetInnerHTML={{ __html: erxesField.description }}
+        />
+      )}
+      <Form.Message />
+    </ErxesFormItem>
+  );
+};

@@ -4,6 +4,7 @@ import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefini
 import { Form, IconComponent, Select } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 import { TAutomationActionProps } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
 
 export const WaitEventConfigForm = ({
   currentAction,
@@ -18,6 +19,7 @@ export const WaitEventConfigForm = ({
     config,
     onSelectTargetTypeId,
   } = useWaitEventConfigForm(currentAction, currentActionIndex);
+  const { t } = useTranslation('automations');
 
   const { targetType } = config || {};
 
@@ -31,7 +33,7 @@ export const WaitEventConfigForm = ({
         defaultValue={waitEventOptions[0]?.id}
         render={({ field }) => (
           <Form.Item className="px-4">
-            <Form.Label>Select target ({`${field.value}`})</Form.Label>
+            <Form.Label>{t('select-target-type')} ({`${field.value}`})</Form.Label>
             <Select
               value={field.value ?? waitEventOptions[0]?.id}
               onValueChange={onSelectTargetTypeId}
@@ -41,7 +43,7 @@ export const WaitEventConfigForm = ({
                 aria-describedby={`target-type-help-${currentAction.id}`}
                 className="mt-1"
               >
-                <Select.Value placeholder="Select target type" />
+                <Select.Value placeholder={t('select-target-type')} />
               </Select.Trigger>
               <Select.Content>
                 {waitEventOptions.map(({ id, label, icon }) => (
@@ -55,7 +57,7 @@ export const WaitEventConfigForm = ({
               </Select.Content>
             </Select>
             <Form.Description id={`target-type-help-${currentAction.id}`}>
-              This determines where the event will be listened from.
+              {t('event-listen-description')}
             </Form.Description>
             <Form.Message />
           </Form.Item>

@@ -112,6 +112,7 @@ export const ReportForm = () => {
                     value={field.value}
                     onValueChange={field.onChange}
                     mode="multiple"
+                    defaultFilter={{ permissionMode: 'read' }}
                   />
                 </Form.Control>
                 <Form.Message />
@@ -182,7 +183,7 @@ export const ReportForm = () => {
                     onCheckedChange={field.onChange}
                   />
                 </Form.Control>
-                <Form.Label>Out of Balance</Form.Label>
+                <Form.Label>Баланс бус</Form.Label>
               </Form.Item>
             )}
           />

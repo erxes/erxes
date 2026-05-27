@@ -13,6 +13,37 @@ export const CONTENT_CMS_LIST = gql`
       language
       postUrlField
       description
+      domain
+      publicUrl
+      metaTitle
+      metaDescription
+      metaKeywords
+      metaImage {
+        url
+        name
+        type
+        size
+        duration
+      }
+      googleTrackingId
+      googleTagManagerId
+      customScripts
+      defaultPostStatus
+      allowComments
+      siteLogo {
+        url
+        name
+        type
+        size
+        duration
+      }
+      favicon {
+        url
+        name
+        type
+        size
+        duration
+      }
     }
   }
 `;
@@ -39,8 +70,9 @@ export const CMS_MENU_ADD = gql`
       _id
       parentId
       label
-      # contentType
-      # contentTypeID
+      contentType
+      contentTypeId
+      linkType
       kind
       icon
       url
@@ -57,8 +89,9 @@ export const CMS_MENU_EDIT = gql`
       _id
       parentId
       label
-      # contentType
-      # contentTypeID
+      contentType
+      contentTypeId
+      linkType
       kind
       icon
       url
@@ -220,8 +253,8 @@ export const POST_LIST = gql`
 export const CMS_TAGS = gql`
   query CmsTags(
     $clientPortalId: String
-    $limit: Int
     $cursor: String
+    $limit: Int
     $cursorMode: CURSOR_MODE
     $direction: CURSOR_DIRECTION
     $orderBy: JSON
@@ -234,8 +267,8 @@ export const CMS_TAGS = gql`
   ) {
     cmsTags(
       clientPortalId: $clientPortalId
-      limit: $limit
       cursor: $cursor
+      limit: $limit
       cursorMode: $cursorMode
       direction: $direction
       orderBy: $orderBy
@@ -254,7 +287,18 @@ export const CMS_TAGS = gql`
         name
         slug
         updatedAt
+        translations {
+          language
+          title
+        }
       }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      totalCount
     }
   }
 `;
@@ -495,6 +539,16 @@ export const CMS_TAGS_ADD = gql`
   mutation CmsTagsAdd($input: PostTagInput!) {
     cmsTagsAdd(input: $input) {
       _id
+      clientPortalId
+      name
+      slug
+      colorCode
+      createdAt
+      updatedAt
+      translations {
+        language
+        title
+      }
       __typename
     }
   }
@@ -510,6 +564,10 @@ export const CMS_TAGS_EDIT = gql`
       colorCode
       createdAt
       updatedAt
+      translations {
+        language
+        title
+      }
     }
   }
 `;
@@ -732,6 +790,7 @@ export const CMS_MENU_LIST = gql`
     $limit: Int
     $cursor: String
     $direction: CURSOR_DIRECTION
+    $orderBy: JSON
   ) {
     cmsMenuList(
       clientPortalId: $clientPortalId
@@ -740,10 +799,14 @@ export const CMS_MENU_LIST = gql`
       limit: $limit
       cursor: $cursor
       direction: $direction
+      orderBy: $orderBy
     ) {
       _id
       parentId
       label
+      contentType
+      contentTypeId
+      linkType
       kind
       icon
       url
@@ -794,6 +857,9 @@ export const CMS_CUSTOM_FIELD_GROUPS = gql`
           label
           pluralLabel
         }
+        enabledPageIds
+        enabledCategoryIds
+        enabledPostIds
         fields
       }
     }
@@ -814,6 +880,8 @@ export const CMS_CUSTOM_FIELD_GROUP_ADD = gql`
         label
         pluralLabel
       }
+      enabledPageIds
+      enabledCategoryIds
       fields
     }
   }
@@ -836,6 +904,8 @@ export const CMS_CUSTOM_FIELD_GROUP_EDIT = gql`
         label
         pluralLabel
       }
+      enabledPageIds
+      enabledCategoryIds
       fields
     }
   }

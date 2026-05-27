@@ -17,6 +17,7 @@ import {
   buildTranslationsFromTour,
   sanitizeTourTranslations,
 } from '../utils/translationHelpers';
+import { normalizeTourDetailPricingOptionsForApi } from '../utils/pricingOptions';
 
 const stripTypename = <T extends Record<string, any>>(
   obj: T,
@@ -24,6 +25,13 @@ const stripTypename = <T extends Record<string, any>>(
   const { __typename, ...rest } = obj as any;
   return rest;
 };
+
+const cloneTourGuides = (
+  guides: ITourDetail['guides'],
+): Array<{ guideId: string; type: string }> =>
+  (guides ?? [])
+    .filter((g): g is { guideId: string; type: string } => Boolean(g?.guideId))
+    .map((g) => ({ guideId: g.guideId, type: g.type ?? 'guide' }));
 
 const duplicateNameSuffix = ' (copy)';
 const duplicateRefNumberSuffix = '-copy';
@@ -201,11 +209,7 @@ const FixedDuplicateSheet = ({
     resolvedPrimaryLanguage,
   );
   const normalizedPricingOptions = useMemo(
-    () =>
-      (tour.pricingOptions ?? []).map((opt) => ({
-        ...stripTypename(opt),
-        _id: opt._id || nanoid(8),
-      })),
+    () => normalizeTourDetailPricingOptionsForApi(tour.pricingOptions ?? []),
     [tour.pricingOptions],
   );
   const duplicateTranslations = useMemo(
@@ -220,8 +224,12 @@ const FixedDuplicateSheet = ({
   const form = useForm<FixedFormType>({
     resolver: zodResolver(FixedFormSchema),
     defaultValues: {
-      name: `${primaryTranslation?.name || tour.name || ''}${duplicateNameSuffix}`,
-      refNumber: `${primaryTranslation?.refNumber || tour.refNumber || ''}${duplicateRefNumberSuffix}`,
+      name: `${
+        primaryTranslation?.name || tour.name || ''
+      }${duplicateNameSuffix}`,
+      refNumber: `${
+        primaryTranslation?.refNumber || tour.refNumber || ''
+      }${duplicateRefNumberSuffix}`,
       startDate: tour.startDate ? new Date(tour.startDate) : undefined,
       translations: duplicateTranslations,
     },
@@ -235,8 +243,12 @@ const FixedDuplicateSheet = ({
     if (!open) return;
 
     form.reset({
-      name: `${primaryTranslation?.name || tour.name || ''}${duplicateNameSuffix}`,
-      refNumber: `${primaryTranslation?.refNumber || tour.refNumber || ''}${duplicateRefNumberSuffix}`,
+      name: `${
+        primaryTranslation?.name || tour.name || ''
+      }${duplicateNameSuffix}`,
+      refNumber: `${
+        primaryTranslation?.refNumber || tour.refNumber || ''
+      }${duplicateRefNumberSuffix}`,
       startDate: tour.startDate ? new Date(tour.startDate) : undefined,
       translations: duplicateTranslations,
     });
@@ -272,6 +284,8 @@ const FixedDuplicateSheet = ({
         language: resolvedPrimaryLanguage || undefined,
         date_status: getDateStatus(values.startDate),
         status: tour.status,
+        customTourTypeId: tour.customTourTypeId,
+        customFieldsData: tour.customFieldsData,
         dateType: 'fixed',
         startDate: values.startDate,
         endDate: computedEndDate,
@@ -297,6 +311,7 @@ const FixedDuplicateSheet = ({
         info4: primaryTranslation?.info4 ?? tour.info4,
         info5: primaryTranslation?.info5 ?? tour.info5,
         personCost: tour.personCost,
+        guides: cloneTourGuides(tour.guides),
         pricingOptions: normalizedPricingOptions,
         translations: sanitizeTourTranslations(values.translations),
       },
@@ -438,11 +453,7 @@ const FlexibleDuplicateSheet = ({
     resolvedPrimaryLanguage,
   );
   const normalizedPricingOptions = useMemo(
-    () =>
-      (tour.pricingOptions ?? []).map((opt) => ({
-        ...stripTypename(opt),
-        _id: opt._id || nanoid(8),
-      })),
+    () => normalizeTourDetailPricingOptionsForApi(tour.pricingOptions ?? []),
     [tour.pricingOptions],
   );
   const duplicateTranslations = useMemo(
@@ -457,8 +468,12 @@ const FlexibleDuplicateSheet = ({
   const form = useForm<FlexibleFormType>({
     resolver: zodResolver(FlexibleFormSchema),
     defaultValues: {
-      name: `${primaryTranslation?.name || tour.name || ''}${duplicateNameSuffix}`,
-      refNumber: `${primaryTranslation?.refNumber || tour.refNumber || ''}${duplicateRefNumberSuffix}`,
+      name: `${
+        primaryTranslation?.name || tour.name || ''
+      }${duplicateNameSuffix}`,
+      refNumber: `${
+        primaryTranslation?.refNumber || tour.refNumber || ''
+      }${duplicateRefNumberSuffix}`,
       availableFrom: tour.availableFrom
         ? new Date(tour.availableFrom)
         : undefined,
@@ -475,8 +490,12 @@ const FlexibleDuplicateSheet = ({
     if (!open) return;
 
     form.reset({
-      name: `${primaryTranslation?.name || tour.name || ''}${duplicateNameSuffix}`,
-      refNumber: `${primaryTranslation?.refNumber || tour.refNumber || ''}${duplicateRefNumberSuffix}`,
+      name: `${
+        primaryTranslation?.name || tour.name || ''
+      }${duplicateNameSuffix}`,
+      refNumber: `${
+        primaryTranslation?.refNumber || tour.refNumber || ''
+      }${duplicateRefNumberSuffix}`,
       availableFrom: tour.availableFrom
         ? new Date(tour.availableFrom)
         : undefined,
@@ -514,6 +533,8 @@ const FlexibleDuplicateSheet = ({
         language: resolvedPrimaryLanguage || undefined,
         date_status: 'unscheduled',
         status: tour.status,
+        customTourTypeId: tour.customTourTypeId,
+        customFieldsData: tour.customFieldsData,
         dateType: 'flexible',
         startDate: undefined,
         endDate: undefined,
@@ -539,6 +560,7 @@ const FlexibleDuplicateSheet = ({
         info4: primaryTranslation?.info4 ?? tour.info4,
         info5: primaryTranslation?.info5 ?? tour.info5,
         personCost: tour.personCost,
+        guides: cloneTourGuides(tour.guides),
         pricingOptions: normalizedPricingOptions,
         translations: sanitizeTourTranslations(values.translations),
       },

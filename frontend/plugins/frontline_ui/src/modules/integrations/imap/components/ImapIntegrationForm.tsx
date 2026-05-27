@@ -1,5 +1,5 @@
-import { IconPlus, IconInfoCircle } from '@tabler/icons-react';
-import { Button, Input, Form, Sheet, Alert } from 'erxes-ui';
+import { IconPlus, IconInfoCircle, IconX } from '@tabler/icons-react';
+import { Button, Input, Form, Dialog, Alert } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,65 +10,7 @@ import { IntegrationType } from '@/types/Integration';
 import { useParams } from 'react-router';
 import { SelectBrand } from 'ui-modules';
 
-type FormFieldConfig = {
-  name: keyof ImapFormValues;
-  label: string;
-  placeholder: string;
-  required?: boolean;
-  type?: string;
-};
-
-const FORM_FIELDS: FormFieldConfig[] = [
-  {
-    name: 'name',
-    label: 'Name',
-    placeholder: 'Enter integration name',
-    required: true,
-  },
-  {
-    name: 'host',
-    label: 'IMAP Host',
-    placeholder: 'Enter IMAP host',
-    required: true,
-  },
-  {
-    name: 'smtpHost',
-    label: 'SMTP Host',
-    placeholder: 'Enter SMTP host',
-    required: true,
-  },
-  {
-    name: 'smtpPort',
-    label: 'SMTP Port',
-    placeholder: 'Enter SMTP port',
-    required: true,
-  },
-  {
-    name: 'mainUser',
-    label: 'Main User',
-    placeholder: 'Enter main user email (for aliases)',
-  },
-  {
-    name: 'user',
-    label: 'User',
-    placeholder: 'Enter username',
-    required: true,
-  },
-  {
-    name: 'password',
-    label: 'Password',
-    placeholder: 'Enter password',
-    type: 'password',
-    required: true,
-  },
-];
-
-const GMAIL_CONFIG = {
-  host: 'imap.gmail.com',
-  smtpHost: 'smtp.gmail.com',
-  smtpPort: '465',
-  appPasswordGuide: 'https://support.google.com/accounts/answer/185833?hl=en',
-};
+/* ── Schema ─────────────────────────────────────────────────────────── */
 
 export const imapFormSchema = z.object({
   name: z.string().min(1),
@@ -83,33 +25,57 @@ export const imapFormSchema = z.object({
 
 export type ImapFormValues = z.infer<typeof imapFormSchema>;
 
-const FormField = ({
+/* ── Field config ────────────────────────────────────────────────────── */
+
+export type FormFieldConfig = {
+  name: keyof ImapFormValues;
+  label: string;
+  placeholder: string;
+  required?: boolean;
+  type?: string;
+};
+
+export const IMAP_FORM_FIELDS: FormFieldConfig[] = [
+  { name: 'name', label: 'Name', placeholder: 'Enter integration name', required: true },
+  { name: 'host', label: 'IMAP Host', placeholder: 'imap.example.com', required: true },
+  { name: 'smtpHost', label: 'SMTP Host', placeholder: 'smtp.example.com', required: true },
+  { name: 'smtpPort', label: 'SMTP Port', placeholder: '465', required: true },
+  { name: 'mainUser', label: 'Main User', placeholder: 'alias@example.com (optional)' },
+  { name: 'user', label: 'User', placeholder: 'login@example.com', required: true },
+  { name: 'password', label: 'Password', placeholder: '••••••••', type: 'password', required: true },
+];
+
+const GMAIL_CONFIG = {
+  host: 'imap.gmail.com',
+  smtpHost: 'smtp.gmail.com',
+  smtpPort: '465',
+  appPasswordGuide: 'https://support.google.com/accounts/answer/185833',
+};
+
+
+export const ImapFormField = ({
   name,
   label,
   placeholder,
   type = 'text',
+  required,
   control,
-}: {
-  name: keyof ImapFormValues;
-  label: string;
-  placeholder: string;
-  type?: string;
-  control: any;
-}) => (
+}: FormFieldConfig & { control: any }) => (
   <Form.Field
     name={name}
     control={control}
     render={({ field }) => (
       <Form.Item className="space-y-1">
         <Form.Label className="text-sm font-normal text-muted-foreground">
-          {label} {FORM_FIELDS.find((f) => f.name === name)?.required && '*'}
+          {label}
+          {required && <span className="ml-0.5 text-destructive">*</span>}
         </Form.Label>
         <Form.Control>
           <Input
             {...field}
             type={type}
             placeholder={placeholder}
-            value={field.value || ''}
+            value={field.value ?? ''}
             className="h-9"
           />
         </Form.Control>
@@ -119,20 +85,15 @@ const FormField = ({
   />
 );
 
+
 const GmailConfigHelper = () => (
   <Alert className="mb-4">
     <IconInfoCircle className="h-4 w-4" />
     <Alert.Title className="font-medium">Gmail Configuration</Alert.Title>
     <Alert.Description className="mt-2 text-sm space-y-1">
-      <p>
-        <strong>Host:</strong> {GMAIL_CONFIG.host}
-      </p>
-      <p>
-        <strong>SMTP Host:</strong> {GMAIL_CONFIG.smtpHost}
-      </p>
-      <p>
-        <strong>SMTP Port:</strong> {GMAIL_CONFIG.smtpPort}
-      </p>
+      <p><strong>Host:</strong> {GMAIL_CONFIG.host}</p>
+      <p><strong>SMTP Host:</strong> {GMAIL_CONFIG.smtpHost}</p>
+      <p><strong>SMTP Port:</strong> {GMAIL_CONFIG.smtpPort}</p>
       <p>
         <strong>Password:</strong>
         <a
@@ -141,12 +102,13 @@ const GmailConfigHelper = () => (
           rel="noopener noreferrer"
           className="ml-1 text-blue-600 hover:underline"
         >
-          Follow the app password creation guide
+          Create an app password
         </a>
       </p>
     </Alert.Description>
   </Alert>
 );
+
 
 export const ImapIntegrationFormSheet = () => {
   const [isOpen, setIsOpen] = useAtom(imapFormSheetAtom);
@@ -168,12 +130,12 @@ export const ImapIntegrationFormSheet = () => {
 
   const { addIntegration, loading } = useIntegrationAdd();
 
-  const submitHandler = (data: ImapFormValues) => {
+  const onSubmit = (data: ImapFormValues) => {
     addIntegration({
       variables: {
         name: data.name,
         kind: IntegrationType.IMAP,
-        channelId: id || '',
+        channelId: id ?? '',
         brandId: data.brandId,
         data: {
           host: data.host,
@@ -192,77 +154,81 @@ export const ImapIntegrationFormSheet = () => {
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <Sheet.Trigger asChild>
-        <Button className="h-9">
-          <IconPlus className="h-4 w-4 mr-2" />
-          Add IMAP Integration
-        </Button>
-      </Sheet.Trigger>
+    <div>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog.Trigger asChild>
+          <Button>
+            <IconPlus />
+            Add IMAP Integration
+          </Button>
+        </Dialog.Trigger>
 
-      <Sheet.View className="sm:max-w-2xl">
-        <Sheet.Header>
-          <Sheet.Title>Add IMAP Integration</Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
+        <Dialog.Content className="p-0 gap-0 max-w-md max-h-[90vh] flex flex-col overflow-hidden">
+          <Dialog.Header className="flex-row items-center justify-between space-y-0 px-5 h-14 border-b flex-none">
+            <Dialog.Title>Add IMAP Integration</Dialog.Title>
+            <Dialog.Close asChild>
+              <Button variant="secondary" size="icon" className="ml-auto">
+                <IconX />
+              </Button>
+            </Dialog.Close>
+          </Dialog.Header>
 
-        <Sheet.Content className="px-6 py-4 overflow-y-auto max-h-[calc(100vh-180px)]">
-          <GmailConfigHelper />
+          <div className="flex-1 overflow-y-auto flex flex-col gap-4 py-6 px-6">
+            <GmailConfigHelper />
 
-          <Form {...form}>
-            <form
-              id="imap-form"
-              onSubmit={form.handleSubmit(submitHandler)}
-              className="grid grid-cols-1 gap-3"
-            >
-              {FORM_FIELDS.map((field) => (
-                <FormField
-                  key={field.name}
-                  name={field.name}
-                  label={field.label}
-                  placeholder={field.placeholder}
-                  type={field.type}
+            <Form {...form}>
+              <form
+                id="imap-form"
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="grid grid-cols-1 gap-3"
+              >
+                {IMAP_FORM_FIELDS.map((field) => (
+                  <ImapFormField key={field.name} {...field} control={form.control} />
+                ))}
+
+                <Form.Field
+                  name="brandId"
                   control={form.control}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>
+                        Brand <span className="text-destructive">*</span>
+                      </Form.Label>
+                      <Form.Control>
+                        <SelectBrand
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          placeholder="Select a brand"
+                          className="w-full h-10 rounded-lg border bg-background"
+                        />
+                      </Form.Control>
+                      <Form.Description>
+                        Choose the brand for this integration
+                      </Form.Description>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
                 />
-              ))}
-              <Form.Field
-                name="brandId"
-                control={form.control}
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Brand</Form.Label>
-                    <Form.Control>
-                      <SelectBrand
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        placeholder="Select a brand"
-                        className="w-full h-10 rounded-lg border bg-background"
-                      />
-                    </Form.Control>
-                    <Form.Description>
-                      Choose the brand for this integration
-                    </Form.Description>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-            </form>
-          </Form>
-        </Sheet.Content>
+              </form>
+            </Form>
+          </div>
 
-        <Sheet.Footer className="px-6 py-4">
-          <Button
-            variant="outline"
-            onClick={() => setIsOpen(false)}
-            disabled={loading}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" form="imap-form" disabled={loading}>
-            {loading ? 'Saving…' : 'Save'}
-          </Button>
-        </Sheet.Footer>
-      </Sheet.View>
-    </Sheet>
+          <div className="flex items-center h-14 px-5 border-t flex-none">
+            <Dialog.Close asChild>
+              <Button
+                className="mr-auto text-muted-foreground"
+                variant="ghost"
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+            </Dialog.Close>
+            <Button type="submit" form="imap-form" disabled={loading}>
+              {loading ? 'Saving…' : 'Save'}
+            </Button>
+          </div>
+        </Dialog.Content>
+      </Dialog>
+    </div>
   );
 };

@@ -1,5 +1,6 @@
 import { printOnlyNewItemsAtom } from "@/store"
 import { configAtom } from "@/store/config.store"
+import type { CheckedState } from "@radix-ui/react-checkbox"
 import { Label } from "@radix-ui/react-label"
 import { useAtom, useAtomValue } from "jotai"
 
@@ -22,7 +23,9 @@ const PrintItemStatus = () => {
       <Checkbox
         checked={printOnlyNew}
         id="printOnlyNew"
-        onCheckedChange={(checked: boolean) => setPrintOnlyNew(checked)}
+        onCheckedChange={(checked: CheckedState) =>
+          setPrintOnlyNew(checked === true)
+        }
       />
       Зөвхөн шинэ бүтээгдэхүүнийг хэвлэх
     </Label>

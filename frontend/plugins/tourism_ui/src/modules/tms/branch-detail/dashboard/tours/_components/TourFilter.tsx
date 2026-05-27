@@ -4,13 +4,17 @@ import {
   Filter,
   useQueryState,
   useMultiQueryState,
+  useFilterQueryState,
 } from 'erxes-ui';
 import {
   IconCalendarEvent,
   IconCheck,
   IconListTree,
   IconProgressCheck,
+  IconSearch,
 } from '@tabler/icons-react';
+import { useAtomValue } from 'jotai';
+import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 import { TOURS_CURSOR_SESSION_KEY } from '../constants/tourCursorSessionKey';
 import { useCategories } from '../../category/hooks/useCategories';
 import { ICategory } from '../../category';
@@ -56,6 +60,31 @@ function SelectCategoryFilterItem() {
   );
 }
 
+function SelectTourSearchFilterItem() {
+  return (
+    <Filter.Item value="tourSearchValue" inDialog>
+      <IconSearch />
+      Search
+    </Filter.Item>
+  );
+}
+
+function TourSearchValueBarItem() {
+  const [tourSearchValue] = useFilterQueryState<string>('tourSearchValue');
+
+  return (
+    <Filter.BarItem queryKey="tourSearchValue">
+      <Filter.BarName>
+        <IconSearch />
+        Search
+      </Filter.BarName>
+      <Filter.BarButton filterKey="tourSearchValue" inDialog>
+        {tourSearchValue}
+      </Filter.BarButton>
+    </Filter.BarItem>
+  );
+}
+
 function SelectStatusFilterView() {
   const [status, setStatus] = useQueryState<string | undefined>('status');
 
@@ -80,12 +109,18 @@ function SelectStatusFilterView() {
   );
 }
 
-function SelectCategoryFilterView() {
+function SelectCategoryFilterView({ branchId }: { branchId: string }) {
   const [categoryIds, setCategoryIds] = useQueryState<string | undefined>(
     'categoryIds',
   );
+  const activeLang = useAtomValue(activeLangAtom);
 
-  const { categories, loading } = useCategories();
+  const { categories, loading } = useCategories({
+    variables: {
+      language: activeLang || undefined,
+      branchId,
+    },
+  });
 
   const value = categoryIds ? categoryIds.split(',').filter(Boolean) : [];
 
@@ -153,7 +188,7 @@ function SelectDateStatusFilterView() {
   );
 }
 
-const TourFilterPopover = () => {
+const TourFilterPopover = ({ branchId }: { branchId: string }) => {
   return (
     <>
       <Filter.Popover>
@@ -163,7 +198,7 @@ const TourFilterPopover = () => {
             <Command>
               <Filter.CommandInput placeholder="Filter" variant="secondary" />
               <Command.List className="p-1">
-                <Filter.SearchValueTrigger />
+                <SelectTourSearchFilterItem />
                 <Command.Separator className="my-1" />
                 <SelectStatusFilterItem />
                 <SelectDateStatusFilterItem />
@@ -173,27 +208,32 @@ const TourFilterPopover = () => {
           </Filter.View>
           <SelectStatusFilterView />
           <SelectDateStatusFilterView />
-          <SelectCategoryFilterView />
+          <SelectCategoryFilterView branchId={branchId} />
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
-        <Filter.View filterKey="searchValue" inDialog>
-          <Filter.DialogStringView filterKey="searchValue" />
+        <Filter.View filterKey="tourSearchValue" inDialog>
+          <Filter.DialogStringView filterKey="tourSearchValue" label="Search" />
         </Filter.View>
       </Filter.Dialog>
     </>
   );
 };
 
-export const TourFilter = () => {
+export const TourFilter = ({ branchId }: { branchId: string }) => {
+  const activeLang = useAtomValue(activeLangAtom);
   const [queries] = useMultiQueryState<{
-    searchValue: string;
     status: string;
     date_status: string;
     categoryIds: string;
-  }>(['searchValue', 'status', 'date_status', 'categoryIds']);
+  }>(['status', 'date_status', 'categoryIds']);
 
-  const { categories } = useCategories();
+  const { categories } = useCategories({
+    variables: {
+      language: activeLang || undefined,
+      branchId,
+    },
+  });
 
   const selectedStatusLabel = STATUS_OPTIONS.find(
     (item) => item.value === queries?.status,
@@ -221,8 +261,8 @@ export const TourFilter = () => {
   return (
     <Filter id="tours-filter" sessionKey={TOURS_CURSOR_SESSION_KEY}>
       <Filter.Bar>
-        <TourFilterPopover />
-        <Filter.SearchValueBarItem />
+        <TourFilterPopover branchId={branchId} />
+        <TourSearchValueBarItem />
 
         <Filter.BarItem queryKey="status">
           <Filter.BarName>

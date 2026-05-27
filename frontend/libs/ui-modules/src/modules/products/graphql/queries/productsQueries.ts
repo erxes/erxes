@@ -11,12 +11,14 @@ export const GET_PRODUCTS = gql`
     $searchValue: String
     $categoryIds: [String]
     $vendorId: String
+    $pipelineId: String
     ${GQL_CURSOR_PARAM_DEFS}
   ) {
     productsMain(
       searchValue: $searchValue
       categoryIds: $categoryIds
       vendorId: $vendorId
+      pipelineId: $pipelineId
       ${GQL_CURSOR_PARAMS}
     ) {
       list {
@@ -40,6 +42,7 @@ export const GET_PRODUCTS = gql`
         type
         barcodes
         subUoms
+        remainder
       }
       totalCount
       ${GQL_PAGE_INFO}

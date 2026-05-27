@@ -2,7 +2,8 @@ import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { JournalEnum } from '@/settings/account/types/Account';
 import { SelectCtax } from '@/settings/ctax/components/SelectCtaxRow';
 import { SelectVat } from '@/settings/vat/components/SelectVatRow';
-import { gql, useQuery } from '@apollo/client';
+import { TR_STATUSES, TR_STATUS_OPTIONS } from '@/transactions/types/constants';
+import { useQuery } from '@apollo/client';
 import {
   Button,
   Checkbox,
@@ -22,13 +23,17 @@ import {
   StageSelect,
 } from 'ui-modules';
 import { z } from 'zod';
+import { PIPELINE_DETAIL } from '../graphql/queries/relatedQueries';
+import { SyncResponseFieldSelect } from './SyncResponseFieldSelect';
 
 const configFormSchema = z.object({
   title: z.string(),
   boardId: z.string().optional(),
   pipelineId: z.string().optional(),
   stageId: z.string(),
+  responseFieldId: z.string().optional(),
   dateRule: z.enum(['alwaysNow', 'syncedDateOrNow']),
+  trStatus: z.string().optional(),
   saleAccountId: z.string(),
   saleOutAccountId: z.string(),
   saleCostAccountId: z.string(),
@@ -73,16 +78,7 @@ export const SyncDealConfigForm = ({
   });
 
   const { data: pipelineDetail, refetch: pipelineRefetch } = useQuery(
-    gql`
-      query SalesPipelineDetail($_id: String!) {
-        salesPipelineDetail(_id: $_id) {
-          _id
-          name
-          paymentIds
-          paymentTypes
-        }
-      }
-    `,
+    PIPELINE_DETAIL,
     {
       variables: { _id: pipelineId },
       skip: !pipelineId, // pipelineId байхгүй үед асуухгүй
@@ -104,6 +100,12 @@ export const SyncDealConfigForm = ({
     }
   }, [pipelineId, pipelineRefetch]);
 
+  useEffect(() => {
+    if (!form.getValues('trStatus')) {
+      form.setValue('trStatus', TR_STATUSES.COMPLETE);
+    }
+  }, [form]);
+
   // note: const paymentIds: string[] = pipelineDetail?.salesPipelineDetail?.paymentIds || [];
   const paymentTypes: any[] =
     pipelineDetail?.salesPipelineDetail?.paymentTypes || [];
@@ -119,7 +121,7 @@ export const SyncDealConfigForm = ({
           name="title"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Title</Form.Label>
+              <Form.Label>Гарчиг</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -131,17 +133,40 @@ export const SyncDealConfigForm = ({
           name="dateRule"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Date Rule</Form.Label>
+              <Form.Label>Огнооны дүрэм</Form.Label>
               <Form.Control>
                 <Select {...field} onValueChange={field.onChange}>
                   <Select.Trigger>
                     <Select.Value />
                   </Select.Trigger>
                   <Select.Content>
-                    <Select.Item value="alwaysNow">Always Now</Select.Item>
+                    <Select.Item value="alwaysNow">Үргэлж одоо</Select.Item>
                     <Select.Item value="syncedDateOrNow">
-                      Synced Date Or Now
+                      Sync огноо эсвэл одоо
                     </Select.Item>
+                  </Select.Content>
+                </Select>
+              </Form.Control>
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
+          name="trStatus"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Гүйлгээний төлөв</Form.Label>
+              <Form.Control>
+                <Select {...field} onValueChange={field.onChange}>
+                  <Select.Trigger>
+                    <Select.Value />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {TR_STATUS_OPTIONS.map((status) => (
+                      <Select.Item key={status.value} value={status.value}>
+                        {status.label}
+                      </Select.Item>
+                    ))}
                   </Select.Content>
                 </Select>
               </Form.Control>
@@ -191,12 +216,13 @@ export const SyncDealConfigForm = ({
             </Form.Item>
           )}
         />
+        <SyncResponseFieldSelect form={form} />
         <Form.Field
           control={form.control}
           name="saleAccountId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Sale Account</Form.Label>
+              <Form.Label>Борлуулалтын данс</Form.Label>
               <Form.Control>
                 <SelectAccount.FormItem
                   value={field.value}
@@ -212,7 +238,7 @@ export const SyncDealConfigForm = ({
           name="saleOutAccountId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Sale Out Account</Form.Label>
+              <Form.Label>Борлуулалтын зарлагын данс</Form.Label>
               <Form.Control>
                 <SelectAccount.FormItem
                   value={field.value}
@@ -228,7 +254,7 @@ export const SyncDealConfigForm = ({
           name="saleCostAccountId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Sale Cost Account</Form.Label>
+              <Form.Label>Борлуулалтын өртгийн данс</Form.Label>
               <Form.Control>
                 <SelectAccount.FormItem
                   value={field.value}
@@ -244,7 +270,7 @@ export const SyncDealConfigForm = ({
           name="branchId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Branch</Form.Label>
+              <Form.Label>Салбар</Form.Label>
               <Form.Control>
                 <SelectBranches.FormItem
                   mode="single"
@@ -260,7 +286,7 @@ export const SyncDealConfigForm = ({
           name="departmentId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Department</Form.Label>
+              <Form.Label>Хэлтэс</Form.Label>
               <Form.Control>
                 <SelectDepartments.FormItem
                   mode="single"
@@ -276,7 +302,7 @@ export const SyncDealConfigForm = ({
           name="defaultPayment.accountId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Default Payment Account</Form.Label>
+              <Form.Label>Төлбөрийн үндсэн данс</Form.Label>
               <Form.Control>
                 <SelectAccount.FormItem
                   value={field.value}
@@ -298,7 +324,7 @@ export const SyncDealConfigForm = ({
           name="defaultNegPayment.accountId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Default Negative Payment Account</Form.Label>
+              <Form.Label>Сөрөг төлбөрийн үндсэн данс</Form.Label>
               <Form.Control>
                 <SelectAccount.FormItem
                   value={field.value}
@@ -351,7 +377,7 @@ export const SyncDealConfigForm = ({
           name="hasVat"
           render={({ field }) => (
             <Form.Item className="flex items-center col-start-1 space-x-2 space-y-0 pt-5">
-              <Form.Label>Has VAT</Form.Label>
+              <Form.Label>НӨАТ-тэй</Form.Label>
               <Form.Control>
                 <Checkbox
                   checked={field.value ?? false}
@@ -370,7 +396,7 @@ export const SyncDealConfigForm = ({
             name="vatRowId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Vat Row</Form.Label>
+                <Form.Label>НӨАТ-ын мөр</Form.Label>
                 <Form.Control>
                   <SelectVat
                     value={field.value || ''}
@@ -386,7 +412,7 @@ export const SyncDealConfigForm = ({
           name="hasCtax"
           render={({ field }) => (
             <Form.Item className="flex items-center col-start-1 space-x-2 space-y-0 pt-5">
-              <Form.Label>Has CTAX</Form.Label>
+              <Form.Label>НХАТ-тэй</Form.Label>
               <Form.Control>
                 <Checkbox
                   checked={field.value ?? false}
@@ -405,7 +431,7 @@ export const SyncDealConfigForm = ({
             name="ctaxRowId"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Ctax Row</Form.Label>
+                <Form.Label>НХАТ-ын мөр</Form.Label>
                 <Form.Control>
                   <SelectCtax
                     value={field.value || ''}
@@ -420,11 +446,11 @@ export const SyncDealConfigForm = ({
         <Dialog.Footer className="col-span-3 mt-3 gap-2">
           <Dialog.Close asChild>
             <Button variant="outline" size="lg">
-              Cancel
+              Болих
             </Button>
           </Dialog.Close>
           <Button type="submit" disabled={loading} size="lg">
-            {loading ? <Spinner /> : 'Submit'}
+            {loading ? <Spinner /> : 'Хадгалах'}
           </Button>
         </Dialog.Footer>
       </form>

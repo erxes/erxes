@@ -16,6 +16,7 @@ export interface IAccount {
   isTemp?: boolean;
   isOutBalance: boolean;
   mergedIds?: string[];
+  extra?: any;
 }
 
 export interface IAccountDocument extends IAccount, Document {

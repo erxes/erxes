@@ -124,6 +124,7 @@ const updateTicketParams = `
   targetDate: Date
   isSubscribed: Boolean
   state: String
+  propertiesData: JSON
   attachments: [AttachmentInput]
   companyIds: [String]
   customerFieldData: JSON

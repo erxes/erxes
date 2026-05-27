@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import {
   IAttachment,
   IBrowserInfo,
@@ -173,7 +174,7 @@ export const getMessengerData = async (
     const getStarted = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      module: 'automations',
+      module: 'automation',
       action: 'trigger.find',
       input: {
         query: {
@@ -1039,7 +1040,7 @@ export const widgetMutations: Record<string, Resolver> = {
     { integrationId }: { integrationId: string },
     { models }: IContext,
   ) {
-    const sessionId = `_${Math.random().toString(36).substring(2, 11)}`;
+    const sessionId = `_${crypto.randomBytes(8).toString('hex')}`;
 
     await redis.set(
       `bot_initial_message_session_id_${integrationId}`,
@@ -1070,7 +1071,7 @@ export const widgetMutations: Record<string, Resolver> = {
   async widgetTicketCreated(
     _root,
     doc: ITicketWidget,
-    { models, subdomain }: IContext,
+    { models, subdomain, user }: IContext,
   ) {
     const { statusId, ...restFields } = doc;
     const status = await models.Status.findOne({ _id: statusId });
@@ -1090,7 +1091,7 @@ export const widgetMutations: Record<string, Resolver> = {
       pluginName: 'core',
       module: 'customers',
       action: 'find',
-      input: { _id: { $in: customerIds } },
+      input: { query: { _id: { $in: customerIds } } },
       defaultValue: [],
     });
     const validCustomerIds = customers.map((c: any) => c._id);
@@ -1107,6 +1108,7 @@ export const widgetMutations: Record<string, Resolver> = {
         stageChangedDate: new Date(),
         searchText: fillSearchTextItem(doc),
         number: Date.now().toString(),
+        createdBy: user?._id,
       });
       await sendTRPCMessage({
         subdomain,

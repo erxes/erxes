@@ -8,7 +8,7 @@ import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { customersCount, generateFilter } from '~/modules/contacts/utils';
 
-export const customerQueries: Record<string, Resolver> = {
+export const customerQueries: Record<string, Resolver<any, any, IContext>> = {
   /**
    * Customers list
    */
@@ -58,6 +58,14 @@ export const customerQueries: Record<string, Resolver> = {
    * Get one customer
    */
   async customerDetail(
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.Customers.getCustomer(_id);
+  },
+
+  async cpCustomerDetail(
     _parent: undefined,
     { _id }: { _id: string },
     { models }: IContext,
@@ -120,5 +128,9 @@ export const customerQueries: Record<string, Resolver> = {
 };
 
 customerQueries.cpCustomers.wrapperConfig = {
+  forClientPortal: true,
+};
+
+customerQueries.cpCustomerDetail.wrapperConfig = {
   forClientPortal: true,
 };

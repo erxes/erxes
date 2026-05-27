@@ -5,7 +5,7 @@ import { ITransactionGroupForm } from '../../../types/JournalForms';
 
 export const RemoveButton = ({
   form,
-  journalIndex
+  journalIndex,
 }: {
   form: ITransactionGroupForm;
   journalIndex: number;
@@ -15,10 +15,13 @@ export const RemoveButton = ({
     name: `trDocs.${journalIndex}.details`,
   });
 
-  if (!details.filter(d => d.checked).length) return null;
+  if (!details.filter((d) => d.checked).length) return null;
 
   const handleRemove = () => {
-    form.setValue(`trDocs.${journalIndex}.details`, details.filter(d => !d.checked))
+    form.setValue(
+      `trDocs.${journalIndex}.details`,
+      details.filter((d) => !d.checked),
+    );
   };
 
   return (
@@ -28,7 +31,7 @@ export const RemoveButton = ({
       onClick={handleRemove}
     >
       <IconX />
-      Remove Selected
+      Сонгосныг хасах
     </Button>
   );
 };

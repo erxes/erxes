@@ -20,7 +20,7 @@ class MenuQueryResolver extends BaseQueryResolver {
       'menu',
     );
 
-    return list;
+    return models.MenuItems.hydrateMenuItems(list);
   }
 
   async cmsMenuList(_parent: any, args: any, context: IContext) {
@@ -40,7 +40,7 @@ class MenuQueryResolver extends BaseQueryResolver {
       'menu',
     );
 
-    return list;
+    return models.MenuItems.hydrateMenuItems(list);
   }
 
   async cmsMenu(_parent: any, args: any, context: IContext) {
@@ -52,7 +52,7 @@ class MenuQueryResolver extends BaseQueryResolver {
     if (!clientPortalId) throw new Error('clientPortalId is required');
     const query = slug ? { slug, clientPortalId } : { _id, clientPortalId };
 
-    return this.getItemWithTranslation(
+    const menu = await this.getItemWithTranslation(
       models.MenuItems,
       query,
       language,
@@ -60,6 +60,8 @@ class MenuQueryResolver extends BaseQueryResolver {
       clientPortalId,
       'menu',
     );
+
+    return models.MenuItems.hydrateMenuItem(menu);
   }
 
   async cpMenus(_parent: any, args: any, context: IContext) {
@@ -79,7 +81,26 @@ class MenuQueryResolver extends BaseQueryResolver {
       'menu',
     );
 
-    return list;
+    return models.MenuItems.hydrateMenuItems(list);
+  }
+
+  async cpCmsMenuList(_parent: any, args: any, context: IContext) {
+    const { models, clientPortal } = context;
+    const { language, kind } = args;
+    const clientPortalId = clientPortal._id;
+
+    const query: any = { clientPortalId };
+    if (kind) query.kind = kind;
+
+    const { list } = await this.getListWithTranslations(
+      models.MenuItems,
+      query,
+      { ...args, clientPortalId, language },
+      FIELD_MAPPINGS.MENU,
+      'menu',
+    );
+
+    return models.MenuItems.hydrateMenuItems(list);
   }
 }
 
@@ -95,8 +116,12 @@ const queries: Record<string, Resolver> = {
 
   cpMenus: (_parent: any, args: any, context: IContext) =>
     new MenuQueryResolver(context).cpMenus(_parent, args, context),
+
+  cpCmsMenuList: (_parent: any, args: any, context: IContext) =>
+    new MenuQueryResolver(context).cpCmsMenuList(_parent, args, context),
 };
 
 queries.cpMenus.wrapperConfig = { forClientPortal: true };
+queries.cpCmsMenuList.wrapperConfig = { forClientPortal: true };
 
 export default queries;

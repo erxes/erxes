@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, ScrollArea, Select, Sheet, toast } from 'erxes-ui';
+import { Button, Input, ScrollArea, Select, Sheet, Switch, toast } from 'erxes-ui';
 import { Form } from 'erxes-ui/components/form';
 import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -143,13 +143,14 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
   // Get default values from payment prop
   const getDefaultValues = useMemo(() => {
     if (!payment) {
-      return { kind: '', name: '', status: 'active' };
+      return { kind: '', name: '', status: 'active', sendEmailOnPayment: true };
     }
 
     const defaultValues: Record<string, any> = {
       kind: payment.kind || '',
       name: payment.name || '',
       status: payment.status || 'active',
+      sendEmailOnPayment: payment.sendEmailOnPayment !== false,
     };
 
     // Add payment config values
@@ -212,12 +213,14 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
       name: data.name,
       kind: data.kind,
       status: data.status,
+      sendEmailOnPayment: data.sendEmailOnPayment !== false,
       config: {},
     };
 
     const config: any = {};
+    const topLevelKeys = new Set(['kind', 'name', 'status', 'sendEmailOnPayment']);
     Object.entries(data).forEach(([key, value]) => {
-      if (key !== 'kind' && key !== 'name' && key !== 'status') {
+      if (!topLevelKeys.has(key)) {
         config[key] = value;
       }
     });
@@ -416,6 +419,29 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                         </Select.Content>
                       </Select>
                     </Form.Control>
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                name="sendEmailOnPayment"
+                control={form.control}
+                render={({ field }) => (
+                  <Form.Item>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="space-y-0.5">
+                        <Form.Label>Send email after successful payment</Form.Label>
+                        <p className="text-xs text-muted-foreground">
+                          Automatically send a QR ticket to the customer's email when payment is completed.
+                        </p>
+                      </div>
+                      <Form.Control>
+                        <Switch
+                          checked={field.value !== false}
+                          onCheckedChange={field.onChange}
+                        />
+                      </Form.Control>
+                    </div>
                   </Form.Item>
                 )}
               />

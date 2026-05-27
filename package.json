@@ -1,6 +1,6 @@
 {
   "name": "erxes-next",
-  "version": "3.0.11",
+  "version": "3.0.26",
   "license": "MIT",
   "scripts": {
     "dev:core-api": "npx nx run-many -t serve -p core-api gateway",
@@ -47,7 +47,7 @@
     "@hookform/resolvers": "^3.9.1",
     "@internationalized/date": "^3.8.2",
     "@module-federation/sdk": "^0.8.9",
-    "@react-pdf/renderer": "^4.3.2",
+    "@react-pdf/renderer": "3.1.14",
     "@sendgrid/mail": "^8.1.5",
     "@sniptt/guards": "^0.2.0",
     "@tabler/icons-react": "^3.34.0",
@@ -70,6 +70,7 @@
     "cmdk": "^1.0.4",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "csv-parse": "^6.2.1",
     "dataloader": "^2.2.3",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
@@ -96,6 +97,7 @@
     "graphql-ws": "^5.16.0",
     "handlebars": "^4.7.8",
     "helmet": "^8.1.0",
+    "html-to-image": "^1.11.13",
     "http-proxy-middleware": "^3.0.3",
     "https-proxy-agent": "^7.0.6",
     "i18next": "^23.16.4",

@@ -30,7 +30,7 @@ export const handleInvCost = async (
   const $group = {
     _id: {
       accountId: '$details.accountId',
-      side: '$details.side',
+      side: '$side',
       productId: '$details.productId',
     },
     sumAmount: { $sum: '$details.amount' },

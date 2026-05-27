@@ -1,18 +1,22 @@
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { JournalEnum } from '@/settings/account/types/Account';
+import { TR_STATUSES, TR_STATUS_OPTIONS } from '@/transactions/types/constants';
 import { Button, Dialog, Form, Input, Select, Spinner } from 'erxes-ui';
 import { useEffect } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { BoardSelect, PipelineSelect, StageSelect } from 'ui-modules';
 import { z } from 'zod';
+import { SyncResponseFieldSelect } from './SyncResponseFieldSelect';
 
 const configFormSchema = z.object({
   title: z.string(),
   boardId: z.string().optional(),
   pipelineId: z.string().optional(),
   stageId: z.string(),
+  responseFieldId: z.string().optional(),
   returnType: z.enum(['fullTr', 'onlySale', 'delete']),
   dateRule: z.enum(['alwaysNow', 'syncedDateOrNow']),
+  trStatus: z.string().optional(),
   defaultPayment: z
     .object({
       accountId: z.string(),
@@ -49,6 +53,12 @@ export const SyncDealReturnConfigForm = ({
     form.setValue('stageId', '');
   }, [pipelineId, form]);
 
+  useEffect(() => {
+    if (!form.getValues('trStatus')) {
+      form.setValue('trStatus', TR_STATUSES.COMPLETE);
+    }
+  }, [form]);
+
   return (
     <Form {...form}>
       <form
@@ -60,7 +70,7 @@ export const SyncDealReturnConfigForm = ({
           name="title"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Title</Form.Label>
+              <Form.Label>Гарчиг</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -72,17 +82,40 @@ export const SyncDealReturnConfigForm = ({
           name="dateRule"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Date Rule</Form.Label>
+              <Form.Label>Огнооны дүрэм</Form.Label>
               <Form.Control>
                 <Select {...field} onValueChange={field.onChange}>
                   <Select.Trigger>
                     <Select.Value />
                   </Select.Trigger>
                   <Select.Content>
-                    <Select.Item value="alwaysNow">Always Now</Select.Item>
+                    <Select.Item value="alwaysNow">Үргэлж одоо</Select.Item>
                     <Select.Item value="syncedDateOrNow">
-                      Synced Date Or Now
+                      Sync огноо эсвэл одоо
                     </Select.Item>
+                  </Select.Content>
+                </Select>
+              </Form.Control>
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
+          name="trStatus"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Гүйлгээний төлөв</Form.Label>
+              <Form.Control>
+                <Select {...field} onValueChange={field.onChange}>
+                  <Select.Trigger>
+                    <Select.Value />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {TR_STATUS_OPTIONS.map((status) => (
+                      <Select.Item key={status.value} value={status.value}>
+                        {status.label}
+                      </Select.Item>
+                    ))}
                   </Select.Content>
                 </Select>
               </Form.Control>
@@ -94,16 +127,18 @@ export const SyncDealReturnConfigForm = ({
           name="returnType"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Return Type</Form.Label>
+              <Form.Label>Буцаалтын төрөл</Form.Label>
               <Form.Control>
                 <Select {...field} onValueChange={field.onChange}>
                   <Select.Trigger>
                     <Select.Value />
                   </Select.Trigger>
                   <Select.Content>
-                    <Select.Item value="fullTr">Full Transaction</Select.Item>
-                    <Select.Item value="onlySale">Only Sale</Select.Item>
-                    <Select.Item value="delete">Delete</Select.Item>
+                    <Select.Item value="fullTr">Бүтэн гүйлгээ</Select.Item>
+                    <Select.Item value="onlySale">
+                      Зөвхөн борлуулалт
+                    </Select.Item>
+                    <Select.Item value="delete">Устгах</Select.Item>
                   </Select.Content>
                 </Select>
               </Form.Control>
@@ -153,12 +188,13 @@ export const SyncDealReturnConfigForm = ({
             </Form.Item>
           )}
         />
+        <SyncResponseFieldSelect form={form} />
         <Form.Field
           control={form.control}
           name="defaultPayment.accountId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Default Return Payment Account</Form.Label>
+              <Form.Label>Буцаалтын төлбөрийн үндсэн данс</Form.Label>
               <Form.Control>
                 <SelectAccount.FormItem
                   value={field.value}
@@ -179,11 +215,11 @@ export const SyncDealReturnConfigForm = ({
         <Dialog.Footer className="col-span-3 mt-3 gap-2">
           <Dialog.Close asChild>
             <Button variant="outline" size="lg">
-              Cancel
+              Болих
             </Button>
           </Dialog.Close>
           <Button type="submit" disabled={loading} size="lg">
-            {loading ? <Spinner /> : 'Submit'}
+            {loading ? <Spinner /> : 'Хадгалах'}
           </Button>
         </Dialog.Footer>
       </form>

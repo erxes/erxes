@@ -1,20 +1,18 @@
 import { Sidebar } from 'erxes-ui';
-import { Link, useLocation } from 'react-router';
+import { NavLink } from 'react-router';
 
 const NAV_ITEMS = [
   { label: 'Vouchers', path: '/loyalty/vouchers' },
   { label: 'Lotteries', path: '/loyalty/lotteries' },
   { label: 'Spins', path: '/loyalty/spins' },
   { label: 'Donates', path: '/loyalty/donates' },
-  { label: 'Score', path: '/loyalty/score' },
+  { label: 'Scores', path: '/loyalty/scores' },
   { label: 'Assignments', path: '/loyalty/assignments' },
   { label: 'Agents', path: '/loyalty/agents' },
   { label: 'Coupons', path: '/loyalty/coupons' },
 ];
 
 export const LoyaltyMainSidebar = () => {
-  const { pathname } = useLocation();
-
   return (
     <Sidebar collapsible="none" className="flex-none border-r">
       <Sidebar.Group>
@@ -23,12 +21,13 @@ export const LoyaltyMainSidebar = () => {
           <Sidebar.Menu>
             {NAV_ITEMS.map(({ label, path }) => (
               <Sidebar.MenuItem key={path}>
-                <Sidebar.MenuButton
-                  isActive={pathname.startsWith(path)}
-                  asChild
-                >
-                  <Link to={path}>{label}</Link>
-                </Sidebar.MenuButton>
+                <NavLink to={path} end className="w-full">
+                  {({ isActive }) => (
+                    <Sidebar.MenuButton isActive={isActive} asChild={false}>
+                      {label}
+                    </Sidebar.MenuButton>
+                  )}
+                </NavLink>
               </Sidebar.MenuItem>
             ))}
           </Sidebar.Menu>

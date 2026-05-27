@@ -17,6 +17,7 @@ export interface IFieldsBulkAddAndEditParams {
   contentTypeId: string;
   newFields: IField[];
   updatedFields: IFieldsEdit[];
+  removedFieldIds: string[];
 }
 
 export const fieldMutations = {
@@ -49,7 +50,7 @@ export const fieldMutations = {
     args: IFieldsBulkAddAndEditParams,
     { user, models }: IContext,
   ) {
-    const { contentType, contentTypeId, newFields, updatedFields } = args;
+    const { contentType, contentTypeId, newFields, updatedFields, removedFieldIds } = args;
     const tempFieldIdsMap: { [key: string]: string } = {};
     const response: IFieldDocument[] = [];
     const logicalFields: IField[] = [];
@@ -83,9 +84,10 @@ export const fieldMutations = {
       const logics = f.logics || [];
 
       for (const logic of logics) {
-        if (f.logics && !logic.fieldId && logic.tempFieldId) {
-          f.logics[logics.indexOf(logic)].fieldId =
-            tempFieldIdsMap[logic.tempFieldId];
+        if (logic.fieldId && tempFieldIdsMap[logic.fieldId]) {
+          logic.fieldId = tempFieldIdsMap[logic.fieldId];
+        } else if (!logic.fieldId && logic.tempFieldId) {
+          logic.fieldId = tempFieldIdsMap[logic.tempFieldId];
         }
       }
 
@@ -106,9 +108,10 @@ export const fieldMutations = {
     for (const { _id, ...doc } of updatedFields || []) {
       if (doc.logics) {
         for (const logic of doc.logics) {
-          if (!logic.fieldId && logic.tempFieldId) {
-            doc.logics[doc.logics.indexOf(logic)].fieldId =
-              tempFieldIdsMap[logic.tempFieldId];
+          if (logic.fieldId && tempFieldIdsMap[logic.fieldId]) {
+            logic.fieldId = tempFieldIdsMap[logic.fieldId];
+          } else if (!logic.fieldId && logic.tempFieldId) {
+            logic.fieldId = tempFieldIdsMap[logic.tempFieldId];
           }
         }
       }
@@ -119,6 +122,10 @@ export const fieldMutations = {
       });
 
       response.push(field);
+    }
+
+    if (removedFieldIds?.length > 0) {
+      await models.Fields.deleteMany({ _id: { $in: removedFieldIds } });
     }
 
     const parentFields = response.filter((f) => f.type === 'parentField');

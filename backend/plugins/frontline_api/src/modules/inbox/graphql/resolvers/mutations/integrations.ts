@@ -24,7 +24,14 @@ import {
   facebookRepairIntegrations,
   facebookUpdateIntegrations,
 } from '@/integrations/facebook/messageBroker';
-import { getUniqueValue, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  instagramCreateIntegrations,
+  instagramRemoveIntegrations,
+  instagramRemoveAccount,
+  instagramRepairIntegrations,
+  instagramUpdateIntegrations,
+} from '@/integrations/instagram/messageBroker';
+import { getUniqueValue, sendTRPCMessage,markResolvers } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 interface IntegrationParams {
@@ -66,8 +73,7 @@ export const sendCreateIntegration = async (
         return await imapCreateIntegration({ subdomain, data });
 
       case 'instagram':
-        // TODO: Implement Instagram integration
-        break;
+        return await instagramCreateIntegrations({ subdomain, data });
 
       case 'mobinetSms':
         // TODO: Implement MobinetSms integration
@@ -95,7 +101,7 @@ export const sendUpdateIntegration = async (
       case 'calls':
         return await callUpdateIntegration({ subdomain, data });
       case 'instagram':
-        break;
+        return await instagramUpdateIntegrations({ subdomain, data });
       case 'imap':
         return await imapUpdateIntegration({ subdomain, data });
 
@@ -124,7 +130,7 @@ export const sendRemoveIntegration = async (
       case 'calls':
         return await callRemoveIntergration({ subdomain, data });
       case 'instagram':
-        break;
+        return await instagramRemoveIntegrations({ subdomain, data });
       case 'imap':
         return await imapRemoveIntegrations({ subdomain, data });
 
@@ -152,7 +158,7 @@ export const sendRemoveAccount = async (
         return await facebookRemoveAccount({ subdomain, data });
 
       case 'instagram':
-        break;
+        return await instagramRemoveAccount({ subdomain, data });
 
       case 'mobinetSms':
         break;
@@ -178,7 +184,7 @@ export const sendRepairIntegration = async (
         return await facebookRepairIntegrations({ subdomain, data });
 
       case 'instagram':
-        break;
+        return await instagramRepairIntegrations({ subdomain, data });
 
       case 'mobinetSms':
         break;
@@ -555,26 +561,11 @@ export const integrationMutations = {
     { _id, kind }: { _id: string; kind?: string },
     { subdomain }: IContext,
   ) {
-    try {
-      if (kind) {
-        const serviceName = kind.split('-')[0];
-
-        try {
-          await sendRemoveAccount(
-            subdomain,
-            serviceName, // kind should be explicitly set
-            { integrationId: _id },
-          );
-        } catch (error) {
-          console.error('Error during account removal process:', error);
-          throw error;
-        }
-      }
-      return 'success';
-    } catch (error) {
-      console.error(`Failed to remove ${kind} integration ${_id}:`, error);
-      throw new Error(`Failed to remove ${kind} integration. ${error.message}`);
+    if (kind) {
+      const serviceName = kind.split('-')[0];
+      await sendRemoveAccount(subdomain, serviceName, { integrationId: _id });
     }
+    return 'success';
   },
 
   async integrationsRepair(
@@ -582,24 +573,8 @@ export const integrationMutations = {
     { _id, kind }: { _id: string; kind: string },
     { subdomain }: IContext,
   ) {
-    try {
-      if (!_id) {
-        throw new Error('Integration ID is required for repair');
-      }
-      if (!kind) {
-        throw new Error('Integration kind is required for repair');
-      }
-
-      const serviceName = kind.split('-')[0];
-
-      return await sendRepairIntegration(subdomain, serviceName, {
-        integrationId: _id,
-      });
-    } catch (error) {
-      console.error(`Failed to repair ${kind} integration ${_id}:`, error);
-      // Convert to a more user-friendly error if needed
-      throw new Error(`Failed to repair ${kind} integration. ${error.message}`);
-    }
+    const serviceName = kind.split('-')[0];
+    return sendRepairIntegration(subdomain, serviceName, { integrationId: _id });
   },
   async integrationsArchive(
     _root,
@@ -653,3 +628,9 @@ export const integrationMutations = {
     );
   },
 };
+
+markResolvers(integrationMutations, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});

@@ -81,11 +81,13 @@ const ordersReturn = gql`
     $_id: String!
     $cashAmount: Float
     $paidAmounts: [PaidAmountInput]
+    $description: String
   ) {
     ordersReturn(
       _id: $_id
       cashAmount: $cashAmount
       paidAmounts: $paidAmounts
+      description: $description
     ) {
       _id
       status

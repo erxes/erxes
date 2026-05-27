@@ -11,9 +11,14 @@ export const SCORE_LOG_LIST_QUERY = gql`
     $orderType: String
     $fromDate: String
     $toDate: String
+    $boardId: String
+    $pipelineId: String
     $stageId: String
     $number: String
     $description: String
+    $limit: Int
+    $cursor: String
+    $direction: CURSOR_DIRECTION
   ) {
     scoreLogList(
       searchValue: $searchValue
@@ -25,52 +30,44 @@ export const SCORE_LOG_LIST_QUERY = gql`
       orderType: $orderType
       fromDate: $fromDate
       toDate: $toDate
+      boardId: $boardId
+      pipelineId: $pipelineId
       stageId: $stageId
       number: $number
       description: $description
+      limit: $limit
+      cursor: $cursor
+      direction: $direction
     ) {
       list {
+        _id
         ownerId
         ownerType
         owner
-        logs {
-          _id
-          ownerId
-          ownerType
-          change
-          action
-          description
-          campaignId
-          campaign {
-            _id
-            title
-            description
-            add
-            subtract
-            createdAt
-            createdUserId
-            status
-            ownerType
-            fieldGroupId
-            fieldName
-            fieldId
-            fieldOrigin
-            serviceName
-            additionalConfig
-            restrictions
-            onlyClientPortal
-          }
-          targetId
-          target
-          serviceName
-          createdBy
-          createdAt
-          amount
-          quantity
-        }
         totalScore
+        change
+        action
+        description
+        campaignId
+        campaign {
+          _id
+          title
+        }
+        targetId
+        target
+        serviceName
+        createdBy
+        createdAt
+        amount
+        quantity
       }
-      total
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      totalCount
     }
   }
 `;

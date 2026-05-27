@@ -1,5 +1,6 @@
 import { apolloCustomScalars } from 'erxes-api-shared/utils';
 import Account from '@/accounting/graphql/resolvers/customResolvers/account';
+import AccountPermission from '@/accounting/graphql/resolvers/customResolvers/accountPermission';
 import AccountCategory from '@/accounting/graphql/resolvers/customResolvers/accountCategory';
 import AccTransaction from '@/accounting/graphql/resolvers/customResolvers/accTransaction';
 import AccTrRecord from '@/accounting/graphql/resolvers/customResolvers/accTrRecord';
@@ -13,6 +14,7 @@ import {
   CtaxRows as MutationsCtaxRow,
   Transactions as MutationsTransactions,
   AdjustInventories as MutationsAdjustInventories,
+  AccountPermissions as MutationsAccountPermissions, 
 } from '@/accounting/graphql/resolvers/mutations';
 import {
   AccountingConfigs as QueriesAccountingConfig,
@@ -24,13 +26,12 @@ import {
   Inventories as QueriesInventories,
   AdjustInventories as QueriesAdjustInventories,
   JournalReport as QueriesJournalReport,
+  AccountPermissions as QueriesAccountPermissions,
 } from '@/accounting/graphql/resolvers/queries';
-import Remainder from '@/inventories/graphql/resolvers/customResolvers/remainder';
 import ReserveRem from '@/inventories/graphql/resolvers/customResolvers/reserveRem';
 import SafeRemainderItem from '@/inventories/graphql/resolvers/customResolvers/safeRemainderItem';
 import SafeRemainder from '@/inventories/graphql/resolvers/customResolvers/safeRemainder';
 import {
-  Remainders as QueriesRemainder,
   ReserveRems as QueriesReserveRem,
   SafeRemainderItems as QueriesSafeRemainderItem,
   SafeRemainders as QueriesSafeRemainder,
@@ -45,13 +46,13 @@ import {
 const resolvers: any = {
   ...apolloCustomScalars,
   Account,
+  AccountPermission,
   AccountCategory,
   AccCommonTransaction: AccTransaction,
   AccCommonTrRecord: AccTrRecord,
   AccTrDetail,
   AdjustInvDetail,
 
-  Remainder,
   ReserveRem,
   SafeRemainderItem,
   SafeRemainder,
@@ -64,7 +65,7 @@ const resolvers: any = {
     ...MutationsCtaxRow,
     ...MutationsTransactions,
     ...MutationsAdjustInventories,
-
+    ...MutationsAccountPermissions,
     ...MutationsRemainder,
     ...MutationsReserveRem,
     ...MutationsSafeRemainderItem,
@@ -80,8 +81,7 @@ const resolvers: any = {
     ...QueriesInventories,
     ...QueriesAdjustInventories,
     ...QueriesJournalReport,
-
-    ...QueriesRemainder,
+    ...QueriesAccountPermissions,
     ...QueriesReserveRem,
     ...QueriesSafeRemainderItem,
     ...QueriesSafeRemainder,

@@ -164,16 +164,19 @@ export const integrationTypeColumns = (): ColumnDef<IIntegrationDetail>[] => [
     accessorKey: 'healthStatus',
     header: () => <RecordTable.InlineHead label="Health status" />,
     cell: (cell: CellContext<IIntegrationDetail, unknown>) => {
-      const { status } = cell.getValue() as IIntegrationDetail['healthStatus'];
+      const healthStatus = cell.getValue() as IIntegrationDetail['healthStatus'];
+      const status = healthStatus?.status;
 
       return (
         <RecordTableInlineCell>
-          <Badge
-            className="text-xs capitalize mx-auto"
-            variant={status === 'healthy' ? 'success' : 'destructive'}
-          >
-            {status}
-          </Badge>
+          {status ? (
+            <Badge
+              className="text-xs capitalize mx-auto"
+              variant={status === 'healthy' ? 'success' : 'destructive'}
+            >
+              {status}
+            </Badge>
+          ) : null}
         </RecordTableInlineCell>
       );
     },

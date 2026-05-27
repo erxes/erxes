@@ -11,7 +11,7 @@ import {
   leaveErxesGateway,
 } from 'erxes-api-shared/utils';
 import express from 'express';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import * as http from 'http';
 import * as path from 'path';
 import { appRouter } from '~/init-trpc';
@@ -20,7 +20,7 @@ import { generateModels } from './connectionResolvers';
 import meta from './meta';
 import { initAutomation } from './meta/automations/automations';
 import { initBroadcast } from './meta/broadcast';
-import initImportExport from './meta/import-export/import';
+import initImportExport from './meta/import-export';
 import { initSegmentCoreProducers } from './meta/segments';
 import { router } from './routes';
 
@@ -64,9 +64,24 @@ app.options('*', cors(corsOptions));
 app.use(router);
 
 const fileLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.',
+  windowMs: 15 * 60 * 1000,
+  max: 500,
+  keyGenerator: (req) => {
+    const xff = req.headers['x-forwarded-for'];
+    if (xff) {
+      const parts = (Array.isArray(xff) ? xff[0] : xff).split(',');
+      return ipKeyGenerator(parts[parts.length - 1].trim());
+    }
+    return ipKeyGenerator(req.ip || 'unknown');
+  },
+  handler: (_req, res) => {
+    res.status(429).json({
+      errorCode: 'RATE_LIMIT_EXCEEDED',
+      message: 'Too many requests from this IP, please try again later.',
+    });
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 app.get('/subscriptionPlugin.js', fileLimiter, async (_req, res) => {

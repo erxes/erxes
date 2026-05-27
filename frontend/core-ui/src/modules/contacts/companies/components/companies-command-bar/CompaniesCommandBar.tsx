@@ -61,8 +61,8 @@ export const CompaniesCommandBar = () => {
         <Separator.Inline />
         <Export
           pluginName="core"
-          moduleName="contact"
-          collectionName="company"
+          moduleName="contacts"
+          collectionName="companies"
           buttonVariant="secondary"
           ids={companyIds}
         />

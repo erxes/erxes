@@ -6,18 +6,8 @@ import {
   GET_TOUR_DETAIL,
 } from '../graphql/queries';
 import { ITourTranslationInput } from '../utils/translationHelpers';
-
-export interface IPricingOption {
-  _id?: string;
-  title: string;
-  minPersons: number;
-  maxPersons?: number;
-  pricePerPerson: number;
-  accommodationType?: string;
-  domesticFlightPerPerson?: number;
-  singleSupplement?: number;
-  note?: string;
-}
+import type { PricingOptionInput } from '../utils/pricingOptions';
+import type { TourCustomFieldData } from '../utils/customFields';
 
 export interface IEditTourVariables {
   id: string;
@@ -42,10 +32,11 @@ export interface IEditTourVariables {
   joinPercent?: number;
   advanceCheck?: boolean;
   status?: string;
+  customTourTypeId?: string;
   cost?: number;
   guides?: Array<{
     guideId: string;
-    name?: string;
+    type: string;
   }>;
   refNumber?: string;
   info1?: string;
@@ -58,8 +49,9 @@ export interface IEditTourVariables {
   imageThumbnail?: string;
   attachment?: { url: string; name: string; type: string; size: number } | null;
   categoryIds?: string[];
-  pricingOptions?: IPricingOption[];
+  pricingOptions?: PricingOptionInput[];
   translations?: ITourTranslationInput[];
+  customFieldsData?: TourCustomFieldData[];
 }
 
 interface IEditTourResponse {

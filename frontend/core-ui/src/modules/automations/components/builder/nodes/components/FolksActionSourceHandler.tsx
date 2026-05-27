@@ -42,12 +42,13 @@ export const FolksActionSourceHandler = memo(
             label && label.length > 5 ? label.slice(0, 5) : label;
 
           const id = `${key}-right`;
+          const handleId = `${nodeId}__${key}`;
 
           return (
             <NodeOutputHandler
               key={id}
               id={id}
-              handlerId={`${nodeId}__${key}`}
+              handlerId={handleId}
               className={className}
               addButtonClassName={addButtonClassName}
               style={{ top: `${topPercent}%` }}

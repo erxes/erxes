@@ -113,7 +113,7 @@ const generateRecordUrl = async (cdrParams, inboxId, models, subdomain) => {
       fileDir,
       recordfiles: cdrParams.recordfiles,
       inboxIntegrationId: inboxId,
-      retryCount: 1,
+      retryCount: 3,
     },
     {},
     models,
@@ -171,7 +171,8 @@ export const extractOperatorId = (params) => {
 };
 
 export const getConversationContent = async (models: IModels, cdrParams) => {
-  const { disposition } = cdrParams;
+  const { disposition, userfield, action_type } = cdrParams;
+  const direction = userfield === 'Outbound' ? 'Outbound' : 'Inbound';
 
   if (!cdrParams.uniqueid) {
     return 'uniqueId not found';
@@ -190,29 +191,34 @@ export const getConversationContent = async (models: IModels, cdrParams) => {
         cdr.billsec > 0,
     );
 
-    if (answered) return 'ANSWERED';
+    if (answered) return `ANSWERED · ${direction}`;
   }
 
-  if (cdrParams.userfield === 'Outbound') return 'OUTBOUND';
+  if (userfield === 'Outbound') return `OUTBOUND`;
+
   if (
-    cdrParams.action_type?.includes('IVR') &&
-    cdrParams.disposition?.toLowerCase() === 'answered' &&
-    cdrParams.userfield?.toLowerCase() === 'inbound'
+    action_type?.includes('IVR') &&
+    disposition?.toLowerCase() === 'answered' &&
+    userfield?.toLowerCase() === 'inbound'
   ) {
-    return 'IVR';
+    return `IVR · ${direction}`;
+  }
+
+  if (action_type?.includes('FOLLOWME')) {
+    return `FOLLOWME · ${direction}`;
   }
 
   switch (disposition) {
     case 'ANSWERED':
-      return disposition;
+      return `${disposition} · ${direction}`;
     case 'NO ANSWER':
-      return disposition;
+      return `${disposition} · ${direction}`;
     case 'BUSY':
-      return disposition;
+      return `${disposition} · ${direction}`;
     case 'FAILED':
-      return disposition;
+      return `${disposition} · ${direction}`;
     default:
-      return 'MISSED';
+      return `MISSED · ${direction}`;
   }
 };
 

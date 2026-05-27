@@ -8,11 +8,11 @@ import { getCompanyExportHeaders } from './companies/getCompanyExportHeaders';
 import { getCompanyExportData } from './companies/getCompanyExportData';
 
 const contactExportMap = {
-  customer: {
+  customers: {
     getExportHeaders: getCustomerExportHeaders,
     getExportData: getCustomerExportData,
   },
-  company: {
+  companies: {
     getExportHeaders: getCompanyExportHeaders,
     getExportData: getCompanyExportData,
   },

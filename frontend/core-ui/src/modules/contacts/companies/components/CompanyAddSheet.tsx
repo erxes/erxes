@@ -52,6 +52,11 @@ export const CompanyAddSheet = () => {
           e.preventDefault();
         }}
       >
+        <Sheet.Header className="p-5">
+          <Sheet.Title>{t('company.add._', 'Add company')}</Sheet.Title>
+          <Sheet.Description className="sr-only">Add a new company</Sheet.Description>
+          <Sheet.Close />
+        </Sheet.Header>
         <AddCompanyForm onOpenChange={setOpen} />
       </Sheet.View>
     </Sheet>

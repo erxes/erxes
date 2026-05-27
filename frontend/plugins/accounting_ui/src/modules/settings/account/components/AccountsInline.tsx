@@ -1,8 +1,4 @@
-import {
-  Combobox,
-  Tooltip,
-  isUndefinedOrNull,
-} from 'erxes-ui';
+import { Combobox, Tooltip, isUndefinedOrNull } from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
 import {
   AccountsInlineContext,
@@ -18,6 +14,7 @@ export const AccountsInlineProvider = ({
   placeholder,
   updateAccounts,
   allowUnassigned,
+  permissionMode,
 }: {
   children?: React.ReactNode;
   accountIds?: string[];
@@ -25,32 +22,45 @@ export const AccountsInlineProvider = ({
   placeholder?: string;
   updateAccounts?: (accounts: IAccount[]) => void;
   allowUnassigned?: boolean;
+  permissionMode?: 'read' | 'write';
 }) => {
   const [accountsList, setAccountsList] = useState<IAccount[]>(accounts || []);
+  const accountIdsKey = accountIds?.join(',') || '';
+  const currentAccounts = accounts?.length ? accounts : accountsList;
+  const currentAccountIds = useMemo(
+    () => (accountIdsKey ? accountIdsKey.split(',') : []),
+    [accountIdsKey],
+  );
 
   const contextValue = useMemo(
     () => ({
-      accounts: accounts || accountsList,
+      accounts: currentAccounts,
       loading: false,
-      accountIds: accountIds || [],
+      accountIds: currentAccountIds,
       placeholder: isUndefinedOrNull(placeholder)
         ? 'Select Accounts'
         : placeholder,
       updateAccounts: updateAccounts || setAccountsList,
       allowUnassigned,
+      permissionMode,
     }),
     [
-      accounts,
-      accountsList,
-      accountIds,
+      currentAccounts,
+      currentAccountIds,
       placeholder,
       updateAccounts,
       allowUnassigned,
+      permissionMode,
     ],
   );
 
-  const missingAccountIds =
-    accountIds?.filter((id) => !accounts?.some((a) => a._id === id)) || [];
+  const missingAccountIds = useMemo(
+    () =>
+      currentAccountIds.filter(
+        (id) => !currentAccounts.some((account) => account._id === id),
+      ),
+    [currentAccountIds, currentAccounts],
+  );
 
   return (
     <AccountsInlineContext.Provider value={contextValue}>
@@ -68,19 +78,19 @@ const AccountsInlineEffectComponent = ({
 }: {
   missingAccountIds: string[];
 }) => {
-  const { updateAccounts, accounts } = useAccountsInlineContext();
+  const { updateAccounts, accounts, permissionMode } =
+    useAccountsInlineContext();
   const { accounts: missingAccounts } = useAccountsInline({
     variables: {
       ids: missingAccountIds,
+      permissionMode,
     },
   });
 
   useEffect(() => {
     if (!missingAccounts?.length) return;
 
-    const existingAccountsMap = new Map(
-      accounts.map((acc) => [acc._id, acc])
-    );
+    const existingAccountsMap = new Map(accounts.map((acc) => [acc._id, acc]));
     const newAccounts = missingAccounts.filter(
       (acc) => !existingAccountsMap.has(acc._id),
     );
@@ -135,6 +145,7 @@ export const AccountsInlineRoot = ({
   updateAccounts,
   className,
   allowUnassigned,
+  permissionMode,
 }: {
   accounts?: IAccount[];
   accountIds?: string[];
@@ -142,6 +153,7 @@ export const AccountsInlineRoot = ({
   updateAccounts?: (accounts: IAccount[]) => void;
   className?: string;
   allowUnassigned?: boolean;
+  permissionMode?: 'read' | 'write';
 }) => {
   return (
     <AccountsInlineProvider
@@ -150,6 +162,7 @@ export const AccountsInlineRoot = ({
       placeholder={placeholder}
       updateAccounts={updateAccounts}
       allowUnassigned={allowUnassigned}
+      permissionMode={permissionMode}
     >
       <AccountsInlineTitle className={className} />
     </AccountsInlineProvider>

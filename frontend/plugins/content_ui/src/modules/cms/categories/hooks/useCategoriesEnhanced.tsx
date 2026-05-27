@@ -4,14 +4,13 @@ import {
   IRecordTableCursorPageInfo,
   parseDateRangeFromString,
   useMultiQueryState,
-  useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
 import { CMS_CATEGORIES } from '../graphql';
-import { CATEGORIES_CURSOR_SESSION_KEY } from '../constants/categoriesCursorSessionKey';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { categoriesTotalCountAtom } from '../states/categoriesCounts';
 import { useEffect } from 'react';
+import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
 
 export const CATEGORIES_PER_PAGE = 30;
 
@@ -24,6 +23,7 @@ export const useCategoriesVariables = (
     };
   }>['variables'],
 ) => {
+  const language = useAtomValue(cmsLanguageAtom);
   const [{ searchValue, status, createdAt, updatedAt }] = useMultiQueryState<{
     searchValue: string;
     status: string;
@@ -31,15 +31,12 @@ export const useCategoriesVariables = (
     updatedAt: string;
   }>(['searchValue', 'status', 'createdAt', 'updatedAt']);
 
-  const { cursor } = useRecordTableCursor({
-    sessionKey: CATEGORIES_CURSOR_SESSION_KEY,
-  });
-
   return {
     limit: CATEGORIES_PER_PAGE,
-    cursor,
+    cursor: undefined,
     sortField: 'createdAt',
-    sortDirection: '-1',
+    sortDirection: 'asc',
+    language,
     searchValue: searchValue || undefined,
     status: status && status !== 'all' ? status : undefined,
     dateFilters: {
@@ -71,7 +68,7 @@ export const useCategories = (options?: QueryHookOptions) => {
       ...options?.variables,
       ...variables,
     },
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'network-only',
   });
 
   const {

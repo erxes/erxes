@@ -5,6 +5,8 @@ import { CoreTRPCContext } from '~/init-trpc';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
+const inventoryKey = (id?: string) => id || '_';
+
 export const productsTrpcRouter = t.router({
   products: t.router({
     find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
@@ -65,8 +67,11 @@ export const productsTrpcRouter = t.router({
     }),
 
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { query } = input;
+      const query = input?.query || input?.selector || input;
       const { models } = ctx;
+      if (!query || !Object.keys(query).length) {
+        return {};
+      }
 
       return models.Products.findOne(query).lean();
     }),
@@ -77,7 +82,7 @@ export const productsTrpcRouter = t.router({
         const { doc } = input;
         const { models } = ctx;
 
-        return models.Products.createProduct(doc);
+        return await models.Products.createProduct(doc);
       }),
 
     updateProduct: t.procedure
@@ -129,12 +134,25 @@ export const productsTrpcRouter = t.router({
 
       return models.Products.find(query).countDocuments();
     }),
+    rules: t.router({
+      find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { _ids = [] } = input || {};
+
+        if (!_ids.length) {
+          return [];
+        }
+
+        return models.ProductRules.find({ _id: { $in: _ids } }).lean();
+      }),
+    }),
+
 
     setInventories: t.procedure
       .input(
         z.object({
-          branchId: z.string(),
-          departmentId: z.string(),
+          branchId: z.string().optional(),
+          departmentId: z.string().optional(),
           productsInfo: z.array(
             z.object({
               productId: z.string(),
@@ -149,7 +167,9 @@ export const productsTrpcRouter = t.router({
       )
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
-        const { branchId, departmentId, productsInfo } = input;
+        const { productsInfo } = input;
+        const branchId = inventoryKey(input.branchId);
+        const departmentId = inventoryKey(input.departmentId);
 
         await models.Products.bulkWrite(
           productsInfo.map((info) => {
@@ -198,8 +218,8 @@ export const productsTrpcRouter = t.router({
     increaseInventories: t.procedure
       .input(
         z.object({
-          branchId: z.string(),
-          departmentId: z.string(),
+          branchId: z.string().optional(),
+          departmentId: z.string().optional(),
           productsInfo: z.array(
             z.object({
               productId: z.string(),
@@ -214,7 +234,9 @@ export const productsTrpcRouter = t.router({
       )
       .mutation(async ({ ctx, input }) => {
         const { models } = ctx;
-        const { branchId, departmentId, productsInfo } = input;
+        const { productsInfo } = input;
+        const branchId = inventoryKey(input.branchId);
+        const departmentId = inventoryKey(input.departmentId);
 
         await models.Products.bulkWrite(
           productsInfo.map((info) => ({

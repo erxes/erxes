@@ -1,1 +1,1 @@
-export const CATEGORIES_CURSOR_SESSION_KEY = 'categories-cursor';
+export const CATEGORIES_CURSOR_SESSION_KEY = 'cms-categories-cursor';

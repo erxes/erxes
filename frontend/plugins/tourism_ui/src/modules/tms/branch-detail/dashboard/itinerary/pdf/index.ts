@@ -10,6 +10,9 @@ export type {
   IItineraryPDFData,
   IBranchPDFData,
   IGroupDayWithImages,
+  ItineraryPdfAmenityData,
+  ItineraryPdfElementData,
+  ItineraryPdfRenderConfig,
   ItineraryPdfTemplate,
   ItineraryPDFProps,
 } from './types';

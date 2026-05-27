@@ -1,12 +1,13 @@
 import React, { useMemo } from 'react';
 import { Text, View, Image } from '@react-pdf/renderer';
-import type { IGroupDayWithImages } from './types';
+import type { IGroupDayWithImages, ItineraryPdfRenderConfig } from './types';
 import { styles } from './styles';
 import { stripHtml } from './utils';
 
 interface DayBlockProps {
   groupDay: IGroupDayWithImages;
   index: number;
+  config: ItineraryPdfRenderConfig;
 }
 
 const splitParagraphs = (text: string): string[] =>
@@ -14,6 +15,9 @@ const splitParagraphs = (text: string): string[] =>
     .split(/\n{2,}/)
     .map((paragraph) => paragraph.trim())
     .filter(Boolean);
+
+const normalizeBulletSpacing = (text: string) =>
+  text.replace(/(^|\n)\s*•(?!\s)/g, '$1• ');
 
 const parseBoldSegments = (
   text: string,
@@ -39,9 +43,9 @@ const parseBoldSegments = (
 };
 
 export const DayBlock: React.FC<DayBlockProps> = React.memo(
-  ({ groupDay, index }) => {
+  ({ groupDay, index, config }) => {
     const plainContent = useMemo(
-      () => stripHtml(groupDay.content),
+      () => normalizeBulletSpacing(stripHtml(groupDay.content)),
       [groupDay.content],
     );
     const paragraphs = useMemo(
@@ -49,61 +53,147 @@ export const DayBlock: React.FC<DayBlockProps> = React.memo(
       [plainContent],
     );
     const image = groupDay.base64Images?.[0];
+    const resolvedElements = useMemo(
+      () => groupDay.resolvedElements || [],
+      [groupDay.resolvedElements],
+    );
+    const resolvedAmenities = useMemo(
+      () => groupDay.resolvedAmenities || [],
+      [groupDay.resolvedAmenities],
+    );
     const dayNumber = groupDay.day ?? index + 1;
     const isImageLeft = index % 2 === 0;
 
     const titleParts = useMemo(
       () =>
-        [`DAY ${dayNumber}.`, (groupDay.title || 'UNTITLED').toUpperCase()]
+        [
+          `${config.labels.dayLabel} ${dayNumber}.`,
+          (groupDay.title || 'UNTITLED').toUpperCase(),
+        ]
           .filter(Boolean)
           .join(' '),
-      [dayNumber, groupDay.title],
+      [config.labels.dayLabel, dayNumber, groupDay.title],
     );
 
     const contentView = useMemo(
       () => (
         <View style={styles.dayContentGroup}>
-          {paragraphs.map((paragraph, paragraphIndex) => {
-            const contentSegments = parseBoldSegments(paragraph);
-
-            return (
-              <Text
-                key={`day-${dayNumber}-paragraph-${paragraphIndex}`}
-                style={[
-                  styles.dayContent,
-                  ...(paragraphIndex < paragraphs.length - 1
-                    ? [styles.dayContentParagraph]
-                    : []),
-                ]}
-              >
-                {contentSegments.map((seg, i) =>
-                  seg.bold ? (
-                    <Text
-                      key={`day-${dayNumber}-paragraph-${paragraphIndex}-seg-${i}-${seg.text.slice(
-                        0,
-                        16,
-                      )}`}
-                      style={styles.dayContentBold}
-                    >
-                      {seg.text}
-                    </Text>
-                  ) : (
-                    <Text
-                      key={`day-${dayNumber}-paragraph-${paragraphIndex}-seg-${i}-${seg.text.slice(
-                        0,
-                        16,
-                      )}`}
-                    >
-                      {seg.text}
-                    </Text>
-                  ),
-                )}
+          {config.showDayContent && paragraphs.length > 0 ? (
+            <View style={styles.daySection}>
+              <Text style={styles.daySectionTitle}>
+                {config.labels.dayOverviewTitle}
               </Text>
-            );
-          })}
+              {paragraphs.map((paragraph, paragraphIndex) => {
+                const contentSegments = parseBoldSegments(paragraph);
+
+                return (
+                  <Text
+                    key={`day-${dayNumber}-paragraph-${paragraphIndex}`}
+                    style={[
+                      styles.dayContent,
+                      ...(paragraphIndex < paragraphs.length - 1
+                        ? [styles.dayContentParagraph]
+                        : []),
+                    ]}
+                  >
+                    {contentSegments.map((seg, i) =>
+                      seg.bold ? (
+                        <Text
+                          key={`day-${dayNumber}-paragraph-${paragraphIndex}-seg-${i}-${seg.text.slice(
+                            0,
+                            16,
+                          )}`}
+                          style={styles.dayContentBold}
+                        >
+                          {seg.text}
+                        </Text>
+                      ) : (
+                        <Text
+                          key={`day-${dayNumber}-paragraph-${paragraphIndex}-seg-${i}-${seg.text.slice(
+                            0,
+                            16,
+                          )}`}
+                        >
+                          {seg.text}
+                        </Text>
+                      ),
+                    )}
+                  </Text>
+                );
+              })}
+            </View>
+          ) : null}
+
+          {config.showElements && resolvedElements.length > 0 ? (
+            <View style={styles.daySection}>
+              <Text style={styles.daySectionTitle}>
+                {config.labels.dayActivitiesTitle}
+              </Text>
+              {resolvedElements.map((element, elementIndex) => {
+                const meta = [
+                  element.startTime,
+                  element.duration ? `${element.duration} min` : '',
+                ]
+                  .filter(Boolean)
+                  .join(' • ');
+                const description = stripHtml(
+                  element.note || element.content || '',
+                );
+                const title = element.name || `Activity ${elementIndex + 1}`;
+
+                return (
+                  <View
+                    key={`day-${dayNumber}-element-${
+                      element._id || elementIndex
+                    }`}
+                    style={styles.dayElementItem}
+                  >
+                    <Text style={styles.dayElementTitle}>
+                      • {title}
+                      {meta ? (
+                        <Text
+                          style={styles.dayElementMeta}
+                        >{` (${meta})`}</Text>
+                      ) : null}
+                    </Text>
+                    {description ? (
+                      <Text style={styles.dayElementDescription}>
+                        {description}
+                      </Text>
+                    ) : null}
+                  </View>
+                );
+              })}
+            </View>
+          ) : null}
+
+          {config.showAmenities && resolvedAmenities.length > 0 ? (
+            <View style={styles.daySection}>
+              {resolvedAmenities.map((amenity, amenityIndex) => (
+                <Text
+                  key={`day-${dayNumber}-amenity-${
+                    amenity._id || amenityIndex
+                  }`}
+                  style={styles.dayAmenityItem}
+                >
+                  • {amenity.name || `Amenity ${amenityIndex + 1}`}
+                </Text>
+              ))}
+            </View>
+          ) : null}
         </View>
       ),
-      [paragraphs],
+      [
+        config.showAmenities,
+        config.showDayContent,
+        config.showElements,
+        config.labels.dayActivitiesTitle,
+        config.labels.dayOverviewTitle,
+        dayNumber,
+        paragraphs,
+        resolvedAmenities,
+        resolvedElements,
+      ],
     );
 
     if (!image) {
@@ -117,11 +207,11 @@ export const DayBlock: React.FC<DayBlockProps> = React.memo(
 
     return (
       <View style={styles.dayBlock} wrap={false}>
-        <Text style={styles.dayTitle}>{titleParts}</Text>
         <View style={styles.dayTwoColumn}>
           {isImageLeft ? (
             <>
               <View style={styles.dayImageColumn}>
+                <Text style={styles.dayTitle}>{titleParts}</Text>
                 <Image src={image} style={styles.dayImage} />
               </View>
               <View style={styles.dayContentColumn}>{contentView}</View>
@@ -130,6 +220,7 @@ export const DayBlock: React.FC<DayBlockProps> = React.memo(
             <>
               <View style={styles.dayContentColumnWide}>{contentView}</View>
               <View style={styles.dayImageColumnWide}>
+                <Text style={styles.dayTitle}>{titleParts}</Text>
                 <Image src={image} style={styles.dayImage} />
               </View>
             </>

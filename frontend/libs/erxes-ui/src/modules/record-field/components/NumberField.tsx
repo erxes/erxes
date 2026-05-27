@@ -21,10 +21,20 @@ export const NumberField = React.forwardRef<
     scope: string;
     onValueChange?: (value: number) => void;
     onSave?: (value: number) => void;
+    formatValue?: (value: number) => string;
   }
 >(
   (
-    { placeholder, value, scope, onSave, onValueChange, children, ...props },
+    {
+      placeholder,
+      value,
+      scope,
+      onSave,
+      onValueChange,
+      formatValue,
+      children,
+      ...props
+    },
     ref,
   ) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -54,8 +64,11 @@ export const NumberField = React.forwardRef<
           {children}
           <TextOverflowTooltip
             value={
-              (isOpen ? editingValue.toString() : value.toLocaleString()) ??
-              placeholder
+              (isOpen
+                ? editingValue.toString()
+                : formatValue
+                ? formatValue(value)
+                : value.toLocaleString()) ?? placeholder
             }
           />
         </RecordTableInlineCell.Trigger>

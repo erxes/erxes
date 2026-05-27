@@ -44,7 +44,6 @@ export const AddPostForm = ({
     setDefaultLangData,
     previousTypeRef,
     handleEditorChange,
-    generateSlug,
     fullPost,
     updateCustomFieldValue,
     getCustomFieldValue,
@@ -59,7 +58,7 @@ export const AddPostForm = ({
     availableLanguages,
     defaultLanguage,
     fieldGroups,
-  } = usePostData(websiteId, selectedType);
+  } = usePostData(websiteId, selectedType, currentEditingPost?._id);
 
   const languageOptions = useMemo(
     () =>
@@ -247,7 +246,6 @@ export const AddPostForm = ({
               selectedType={selectedType}
               fieldGroups={fieldGroups}
               fullPost={fullPost}
-              generateSlug={generateSlug}
               handleEditorChange={handleEditorChange}
               getCustomFieldValue={getCustomFieldValue}
               updateCustomFieldValue={updateCustomFieldValue}

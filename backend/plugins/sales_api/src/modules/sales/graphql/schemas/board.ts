@@ -27,15 +27,18 @@ export const types = `
 
 export const queries = `
   salesBoards: [SalesBoard]
+  cpSalesBoards: [SalesBoard]
   salesBoardCounts: [SalesBoardCount]
   salesBoardGetLast: SalesBoard
   salesBoardDetail(_id: String!): SalesBoard
+  cpSalesBoardDetail(_id: String!): SalesBoard
   salesConvertToInfo(conversationId: String!): SalesConvertTo
   salesItemsCountByAssignedUser(pipelineId: String!, stackBy: String): JSON
   salesCardsFields: JSON
   salesBoardContentTypeDetail(contentType: String, contentId: String): JSON
   salesBoardLogs(action: String, content:JSON, contentId: String): JSON
   salesCheckFreeTimes(pipelineId: String, intervals: [SalesInterval]): JSON
+  cpSalesCheckFreeTimes(pipelineId: String, intervals: [SalesInterval]): JSON
 `;
 
 const mutationParams = `

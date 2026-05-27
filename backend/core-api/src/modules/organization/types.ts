@@ -47,5 +47,5 @@ export interface IEmailParams {
   modifier?: (data: any, email: string) => Promise<void>;
   transportMethod?: string;
   getOrganizationDetail?: ({ subdomain }: { subdomain: string }) => any;
-  userId: string;
+  userId?: string;
 }

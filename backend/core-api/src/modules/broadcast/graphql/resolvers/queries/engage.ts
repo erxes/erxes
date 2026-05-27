@@ -285,6 +285,16 @@ export const engageQueries = {
     }
   },
 
+  async engageBroadcastTraces(
+    _root: undefined,
+    { engageMessageId }: { engageMessageId: string },
+    { models }: IContext,
+  ) {
+    return models.BroadcastTraces.find({ engageMessageId }).sort({
+      createdAt: -1,
+    });
+  },
+
   async engageSmsDeliveries(
     _root: undefined,
     params: ISmsDeliveryQueryParams,
@@ -308,4 +318,22 @@ export const engageQueries = {
 
     return { list: data, totalCount };
   },
+  async engageVerifiedEmails(
+    _root: undefined,
+    _args: undefined,
+    { models }: IContext,
+
+  ){
+    const users = await models.Users.find({
+      isActive: true,
+    })
+    const userEmails = users?.map(u => u.email);
+    const allVerifiedEmails: any =
+      (await awsRequests.getVerifiedEmails(models)) || [];
+
+    if (!allVerifiedEmails) {
+      return [];
+    }
+
+    return allVerifiedEmails.filter(email => userEmails.includes(email));  }
 };

@@ -51,11 +51,12 @@ export const formSetupValuesAtom = atom((get) => {
       title: general.title,
       name: general.title,
       type: 'lead',
-      description: confirmation.description,
+      description: general.description,
       buttonText: general.buttonText,
       numberOfPages: content.steps.length,
       leadData: {
         appearance: general.appearance,
+        loadType: general.loadType,
         thankTitle: confirmation.title,
         thankContent: confirmation.description,
         thankImage: confirmation.image,
@@ -74,7 +75,7 @@ export const formSetupValuesAtom = atom((get) => {
       },
     },
     formFields: Object.values(content.steps)
-      .map((step, stepIndex) => {
+      .map((step) => {
         return step.fields.map((field) => {
           return {
             tempFieldId: field.id,
@@ -84,7 +85,7 @@ export const formSetupValuesAtom = atom((get) => {
             isRequired: field.required,
             options: field.options,
             order: field.order,
-            pageNumber: stepIndex + 1,
+            pageNumber: step.order,
             text: field.label,
             type: field.type,
             validation: field.validation,
@@ -96,6 +97,15 @@ export const formSetupValuesAtom = atom((get) => {
               }),
             ),
             logicAction: field.logicAction,
+            allowSearch: field.allowSearch,
+            validator: field.validator
+              ? {
+                  type: field.validator.type,
+                  presetKey: field.validator.presetKey,
+                  customRegex: field.validator.customRegex,
+                  errorMessage: field.validator.errorMessage,
+                }
+              : undefined,
           };
         });
       })
@@ -113,13 +123,14 @@ export const resetFormSetupAtom = atom(null, (_, set) => {
 
 export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
   const general = {
-    channelId: payload.channelId,
-    title: payload.title,
-    name: payload.title,
-    description: payload.description,
-    buttonText: payload.buttonText,
-    primaryColor: payload.leadData.primaryColor,
-    appearance: payload.leadData.appearance,
+    channelId: payload.channelId ?? '',
+    title: payload.title ?? '',
+    name: payload.title ?? '',
+    description: payload.description ?? '',
+    buttonText: payload.buttonText ?? '',
+    primaryColor: payload.leadData.primaryColor ?? '',
+    appearance: payload.leadData.appearance ?? 'iframe',
+    loadType: payload.leadData.loadType ?? 'embedded',
   };
 
   const content = {
@@ -135,8 +146,8 @@ export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
             .map((field) => ({
               id: field._id,
               type: field.type,
-              label: field.text,
-              description: field.description,
+              label: field.text ?? '',
+              description: field.description ?? '',
               placeholder: field.content || '',
               options: field.options,
               span: field.column ?? 1,
@@ -145,6 +156,8 @@ export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
               validation: field.validation,
               logics: field.logics,
               logicAction: field.logicAction || '',
+              allowSearch: field.allowSearch || false,
+              validator: field.validator,
               stepId: key,
             })),
         },
@@ -153,11 +166,12 @@ export const formSetSetupAtom = atom(null, (_, set, payload: IForm) => {
   };
 
   const confirmation = {
-    title: payload.leadData.thankTitle,
-    description: payload.leadData.thankContent,
-    image: payload.leadData.thankImage,
+    title: payload.leadData.thankTitle ?? '',
+    description: payload.leadData.thankContent ?? '',
+    image: payload.leadData.thankImage ?? null,
   };
 
+  set(formSetupStepAtom, 1);
   set(formSetupGeneralAtom, general);
   set(formSetupContentAtom, content);
   set(formSetupConfirmationAtom, confirmation);

@@ -1,20 +1,39 @@
 import { initTRPC } from '@trpc/server';
 import { ITRPCContext } from 'erxes-api-shared/utils';
 import { z } from 'zod';
-// import { PosTRPCContext } from '~/init-trpc';
 import { IModels } from '~/connectionResolvers';
 import {
   getBranchesUtil,
   statusToDone,
   syncOrderFromClient,
 } from '~/modules/pos/utils';
-// const t = initTRPC.context<PosTRPCContext>().create();
+import { syncPosToClient } from '~/modules/pos/graphql/resolvers/mutations/utils';
+import { IPos } from '~/modules/pos/@types/pos';
+
 export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
 const t = initTRPC.context<SalesTRPCContext>().create();
 
 export const posTrpcRouter = t.router({
   pos: t.router({
+    create: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const { models, subdomain } = ctx;
+      const { doc, user } = input;
+
+      const { ALLOW_OFFLINE_POS } = process.env;
+
+      if (![true, 'true', 'True', 1, '1'].includes(ALLOW_OFFLINE_POS || '')) {
+        doc.onServer = true;
+      }
+
+      const pos = await models.Pos.posAdd(user, doc as IPos);
+
+      if (pos.onServer) {
+        await syncPosToClient(subdomain, pos);
+      }
+
+      return pos;
+    }),
     confirmCover: t.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
@@ -26,10 +45,7 @@ export const posTrpcRouter = t.router({
           { upsert: true },
         );
 
-        return {
-          status: 'success',
-          data: await models.Covers.findOne({ _id: cover._id }),
-        };
+        return await models.Covers.findOne({ _id: cover._id });
       }),
     ecommerceGetBranches: t.procedure
       .input(z.any())
@@ -37,10 +53,7 @@ export const posTrpcRouter = t.router({
         const { query } = input;
         const { subdomain, models } = ctx;
         const { posToken } = query;
-        return {
-          status: 'success',
-          data: await getBranchesUtil(subdomain, models, posToken),
-        };
+        return await getBranchesUtil(subdomain, models, posToken);
       }),
     ordersDeliveryInfo: t.procedure
       .input(z.any())
@@ -56,22 +69,16 @@ export const posTrpcRouter = t.router({
         // on kitchen
         if (!order.deliveryInfo) {
           return {
-            status: 'success',
-            data: {
-              error: 'Deleted delivery information.',
-            },
+            error: 'Deleted delivery information.',
           };
         }
 
         if (!order.deliveryInfo.dealId) {
           return {
-            status: 'success',
-            data: {
-              _id: order._id,
-              status: 'onKitchen',
-              date: order.paidDate,
-              description: order.description,
-            },
+            _id: order._id,
+            status: 'onKitchen',
+            date: order.paidDate,
+            description: order.description,
           };
         }
 
@@ -80,29 +87,20 @@ export const posTrpcRouter = t.router({
 
         if (!deal) {
           return {
-            status: 'success',
-            data: {
-              error: 'Deleted delivery information.',
-            },
+            error: 'Deleted delivery information.',
           };
         }
         const stage = await models.Stages.findOne({ _id: deal.stageId });
         if (!stage) {
           return {
-            status: 'success',
-            data: {
-              error: 'Deleted Deal Stage delivery information.',
-            },
+            error: 'Deleted Deal Stage delivery information.',
           };
         }
         return {
-          status: 'success',
-          data: {
-            _id: order._id,
-            status: stage.name,
-            date: deal.stageChangedDate || deal.updatedAt || deal.createdAt,
-            description: order.description,
-          },
+          _id: order._id,
+          status: stage.name,
+          date: deal.stageChangedDate || deal.updatedAt || deal.createdAt,
+          description: order.description,
         };
       }),
     createOrUpdateOrders: t.procedure
@@ -134,9 +132,7 @@ export const posTrpcRouter = t.router({
           responses,
         });
 
-        return {
-          status: 'success',
-        };
+        return null;
       }),
     createOrUpdateOrdersMany: t.procedure
       .input(z.any())
@@ -169,48 +165,95 @@ export const posTrpcRouter = t.router({
           }
         }
 
-        return {
-          status: 'success',
-        };
+        return null;
       }),
   }),
   order: t.router({
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
+      const query = input?.query || input?.selector || input;
 
-      return {
-        status: 'success',
-        data: await models.PosOrders.findOne(input || {}).lean(),
-      };
+      if (!query || !Object.keys(query).length) {
+        return {};
+      }
+
+      return await models.PosOrders.findOne(query).lean();
     }),
     find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
       const { models } = ctx;
       const { query, skip, limit, sort = {} } = input || {};
 
       if (!query) {
-        return {
-          status: 'success',
-          data: await models.PosOrders.find(input || {}).lean(),
-        };
+        return await models.PosOrders.find(input || {}).lean();
       }
 
-      return {
-        status: 'success',
-        data: await models.PosOrders.find(query)
-          .skip(skip || 0)
-          .limit(limit || 0)
-          .sort(sort)
-          .lean(),
-      };
+      return await models.PosOrders.find(query)
+        .skip(skip || 0)
+        .limit(limit || 0)
+        .sort(sort)
+        .lean();
     }),
-    updateOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+    updateOne: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
       const { selector, modifier } = input;
       const { models } = ctx;
 
-      return {
-        status: 'success',
-        data: await models.PosOrders.updateOne(selector, modifier),
-      };
+      if (!selector || !Object.keys(selector).length) {
+        return {};
+      }
+
+      return await models.PosOrders.updateOrder(selector, modifier);
+    }),
+  }),
+  orders: t.router({
+    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const query = input?.query || input?.selector || input;
+
+      if (!query || !Object.keys(query).length) {
+        return {};
+      }
+
+      return await models.PosOrders.findOne(query).lean();
+    }),
+    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const { query, skip, limit, sort = {} } = input || {};
+
+      if (!query) {
+        return await models.PosOrders.find(input || {}).lean();
+      }
+
+      return await models.PosOrders.find(query)
+        .skip(skip || 0)
+        .limit(limit || 0)
+        .sort(sort)
+        .lean();
+    }),
+    updateOne: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+      const { selector, modifier } = input;
+      const { models } = ctx;
+
+      if (!selector || !Object.keys(selector).length) {
+        return {};
+      }
+
+      return await models.PosOrders.updateOrder(selector, modifier);
+    }),
+  }),
+  configs: t.router({
+    findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      const query = input?.query || input?.selector || input;
+
+      if (!query || !Object.keys(query).length) {
+        return {};
+      }
+
+      return await models.Pos.findOne(query).lean();
+    }),
+    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      return await models.Pos.find(input || {}).lean();
     }),
   }),
 });

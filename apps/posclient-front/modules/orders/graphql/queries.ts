@@ -216,6 +216,7 @@ export const progressDetail = gql`
       _id
       modifiedAt
       number
+      slotCode
       items {
         _id
         productName

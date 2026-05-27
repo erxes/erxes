@@ -149,7 +149,7 @@ const filterOrders = (params: ISearchParams, models, config) => {
   );
 };
 
-const orderQueries: Record<string, Resolver> = {
+const orderQueries: Record<string, Resolver<any, any, IContext>> = {
   async orders(
     _root,
     params: ISearchParams,
@@ -162,10 +162,8 @@ const orderQueries: Record<string, Resolver> = {
   async cpCurrentOrder(
     _root,
     params: ISearchParams,
-    { models, config, posUser }: IContext,
+    { models, config }: IContext,
   ) {
-    assertPosUser(posUser);
-
     return filterOrders(params, models, config);
   },
 
@@ -425,7 +423,7 @@ const orderQueries: Record<string, Resolver> = {
     return info;
   },
 };
-markResolvers(orderQueries, {
+markResolvers<IContext>(orderQueries, {
   wrapperConfig: {
     skipPermission: true,
   },
@@ -435,7 +433,7 @@ orderQueries.cpAddresses.wrapperConfig = {
   forClientPortal: true,
 };
 orderQueries.cpCurrentOrder.wrapperConfig = {
-  forClientPortal: true,
+  skipPermission: true,
 };
 orderQueries.cpFullOrders.wrapperConfig = {
   forClientPortal: true,

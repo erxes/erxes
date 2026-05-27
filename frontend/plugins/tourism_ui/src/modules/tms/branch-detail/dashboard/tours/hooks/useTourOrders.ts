@@ -4,8 +4,13 @@ import {
   useMutation,
   useQuery,
 } from '@apollo/client';
-import { useEffect } from 'react';
-import { GET_TOUR_ORDERS, GET_TOUR_ORDER_DETAIL } from '../graphql/queries';
+import { useEffect, useMemo } from 'react';
+import { useCustomers } from 'ui-modules';
+import {
+  GET_TOUR_ORDERS,
+  GET_TOUR_ORDER_DETAIL,
+  GET_TOUR_ORDER_CUSTOMER_IDS,
+} from '../graphql/queries';
 import { EDIT_TOUR_ORDER } from '../graphql/mutation';
 
 export interface ITourOrder {
@@ -16,6 +21,7 @@ export interface ITourOrder {
   amount?: number;
   status?: string;
   note?: string;
+  internalNote?: string;
   numberOfPeople?: number;
   type?: string;
   additionalCustomers?: any[];
@@ -50,6 +56,14 @@ type TourOrdersQueryResult = {
       endCursor: string;
     };
   };
+};
+
+type TourOrderCustomerIdsQueryResult = {
+  bmsOrderCustomerIds: string[];
+};
+
+type TourOrderCustomerIdsQueryVariables = {
+  tourId: string;
 };
 
 export const useTourOrderDetail = (orderId?: string, open?: boolean) => {
@@ -98,5 +112,73 @@ export const useTourOrders = (
     orders: data?.bmsOrders?.list ?? [],
     totalCount: data?.bmsOrders?.totalCount ?? 0,
     pageInfo: data?.bmsOrders?.pageInfo,
+  };
+};
+
+export const useTourOrderCustomerIds = (
+  options?: QueryHookOptions<
+    TourOrderCustomerIdsQueryResult,
+    TourOrderCustomerIdsQueryVariables
+  >,
+) => {
+  const { data, loading, error, refetch } = useQuery<
+    TourOrderCustomerIdsQueryResult,
+    TourOrderCustomerIdsQueryVariables
+  >(GET_TOUR_ORDER_CUSTOMER_IDS, options);
+
+  return {
+    loading,
+    error,
+    refetch,
+    customerIds: data?.bmsOrderCustomerIds ?? [],
+  };
+};
+
+export const useTourCustomers = (tourId?: string) => {
+  const {
+    customerIds,
+    loading: idsLoading,
+    error: idsError,
+    refetch,
+  } = useTourOrderCustomerIds({
+    variables: {
+      tourId: tourId || '',
+    },
+    skip: !tourId,
+  });
+
+  const {
+    customers,
+    loading: customersLoading,
+    error: customersError,
+  } = useCustomers({
+    variables: {
+      ids: customerIds,
+      limit: Math.max(customerIds.length, 30),
+    },
+    skip: customerIds.length === 0,
+    fetchPolicy: 'cache-and-network',
+  });
+
+  const orderedCustomers = useMemo(() => {
+    if (!customerIds.length || !customers.length) {
+      return [];
+    }
+
+    const customerMap = new Map(
+      customers.map((customer) => [customer._id, customer]),
+    );
+
+    return customerIds
+      .map((customerId) => customerMap.get(customerId))
+      .filter((customer): customer is (typeof customers)[number] => !!customer);
+  }, [customerIds, customers]);
+
+  return {
+    customerIds,
+    customers: orderedCustomers,
+    loading: idsLoading || (customerIds.length > 0 && customersLoading),
+    error: idsError || customersError,
+    refetch,
   };
 };

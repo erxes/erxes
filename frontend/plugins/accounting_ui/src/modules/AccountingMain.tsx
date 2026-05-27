@@ -72,6 +72,12 @@ const InventoryReserveRemainders = lazy(() =>
   })),
 );
 
+const TransactionPrint = lazy(() =>
+  import('~/pages/TransactionPrintPage').then((module) => ({
+    default: module.TransactionPrintPage,
+  })),
+);
+
 const PluginAccounting = () => {
   return (
     <Suspense
@@ -87,6 +93,7 @@ const PluginAccounting = () => {
         <Route path="/records" element={<TrRecordList />} />
         <Route path="/transaction/edit" element={<TransactionForm />} />
         <Route path="/transaction/create" element={<TransactionForm />} />
+        <Route path="transaction/print" element={<TransactionPrint />} />
         <Route path="/adjustment" element={<AdjustmentsHomePage />} />
         <Route path="/adjustment/inventory" element={<AdjustInventoryList />} />
         <Route

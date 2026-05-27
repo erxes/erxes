@@ -2,7 +2,7 @@ import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import { TR_FOLLOW_TYPES, TR_SIDES } from '../@types/constants';
 import { ITransactionDocument } from '../@types/transaction';
-import { getSingleJournalByAccount } from './utils';
+import { createOrUpdateTr, getSingleJournalByAccount } from './utils';
 
 export const InvIncomeExpenseTrs = async (
   models: IModels,
@@ -37,6 +37,7 @@ export const InvIncomeExpenseTrs = async (
       date: transaction.date,
       description: transaction.description,
       journal: getSingleJournalByAccount(account.journal, account.kind),
+      side: TR_SIDES.CREDIT,
       branchId: transaction.branchId,
       departmentId: transaction.departmentId,
       customerType: transaction.customerType,
@@ -45,7 +46,6 @@ export const InvIncomeExpenseTrs = async (
         {
           _id: nanoid(),
           accountId: expenseInfo.accountId,
-          side: TR_SIDES.CREDIT,
           amount: expenseInfo.amount ?? 0,
         },
       ],
@@ -54,16 +54,9 @@ export const InvIncomeExpenseTrs = async (
     const oldTr = oldFollowTrs.find(
       (oftr) => oftr.originSubId === expenseInfo._id,
     );
-    if (oldTr) {
-      matchedIds.push(oldTr._id);
-      await models.Transactions.updateTransaction(
-        oldTr._id,
-        followTrDoc,
-        userId,
-      );
-    } else {
-      await models.Transactions.createTransaction(followTrDoc, userId);
-    }
+    if (oldTr) { matchedIds.push(oldTr._id); }
+
+    await createOrUpdateTr(models, userId, followTrDoc, oldTr)
   }
 
   const removeTrIds = oldFollowTrs

@@ -1,13 +1,14 @@
 import React from 'react';
 import { Image, Page, Text, View } from '@react-pdf/renderer';
 import type { IBranchPDFData } from '../../itinerary/pdf/types';
-import type { ITourPDFData } from './types';
+import type { ITourPDFData, TourPdfRenderConfig } from './types';
 import { COLORS, styles } from './styles';
 
 interface TourCoverPageProps {
   tour: ITourPDFData;
   branch?: IBranchPDFData;
   themeColor?: string;
+  config: TourPdfRenderConfig;
 }
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
@@ -36,12 +37,15 @@ const buildDateLabel = (tour: ITourPDFData) => {
 };
 
 export const TourCoverPage: React.FC<TourCoverPageProps> = React.memo(
-  function TourCoverPage({ tour, branch, themeColor }) {
+  function TourCoverPage({ tour, branch, themeColor, config }) {
     const primaryColor = themeColor || COLORS.primary;
     const dateLabel = buildDateLabel(tour);
-    const durationUnit = tour.duration === 1 ? 'Day' : 'Days';
+    const durationUnit =
+      tour.duration === 1
+        ? config.labels.coverDaySingularLabel
+        : config.labels.coverDayPluralLabel;
     const durationLabel = tour.duration
-      ? `Duration: ${tour.duration} ${durationUnit}`
+      ? `${config.labels.coverDurationLabel}: ${tour.duration} ${durationUnit}`
       : '';
     const subtitle = [dateLabel, durationLabel].filter(Boolean).join(' | ');
 
@@ -76,13 +80,15 @@ export const TourCoverPage: React.FC<TourCoverPageProps> = React.memo(
               { backgroundColor: primaryColor, opacity: 0.85 },
             ]}
           >
-            <Text style={styles.coverEyebrow}>Tour Book</Text>
+            <Text style={styles.coverEyebrow}>
+              {config.labels.coverEyebrow}
+            </Text>
             <Text style={styles.coverTitle}>
-              {tour.name || 'Untitled Tour'}
+              {tour.name || config.labels.untitledTourTitle}
             </Text>
             <View style={styles.coverDivider} />
             <Text style={styles.coverDateText}>
-              {subtitle || 'Custom Tour'}
+              {subtitle || config.labels.coverFallbackSubtitle}
             </Text>
           </View>
         </View>

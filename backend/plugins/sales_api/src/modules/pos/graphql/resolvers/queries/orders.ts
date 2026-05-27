@@ -162,10 +162,12 @@ const generateFilterSubsQuery = async (params: any) => {
   }
 
   if (params?.closeFrom) {
+    if (!filter.items) filter.items = {};
     filter.items.closeDate = { $gte: new Date(params.closeFrom) };
   }
 
   if (params?.closeTo) {
+    if (!filter.items) filter.items = {};
     filter.items.closeDate = {
       ...(filter?.items?.closeDate || {}),
       $lte: new Date(params.closeTo),
@@ -348,7 +350,7 @@ export const posOrderRecordsQuery = async (
         )
       : '';
     order.user = userById[order.userId];
-    order.posName = posByToken[order.posToken].name;
+    order.posName = posByToken[order.posToken]?.name || '';
 
     if (order.customerType === 'company') {
       const company = companyById[order.customerId || ''];
@@ -414,10 +416,15 @@ export const posOrderRecordsCountQuery = async (
 };
 
 const queries = {
-  posOrders: async (_root, params, { models, user }: IContext) => {
+  posOrders: async (
+    _root,
+    params,
+    { models, user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
     const query = await generateFilterPosQuery(models, params, user._id);
 
-    let sort: any = { number: 1 };
+    let sort: any = { number: -1 };
     if (params.sortField && params.sortDirection) {
       sort = {
         [params.sortField]: params.sortDirection,
@@ -430,12 +437,22 @@ const queries = {
     });
   },
 
-  posOrdersTotalCount: async (_root, params, { models, user }: IContext) => {
+  posOrdersTotalCount: async (
+    _root,
+    params,
+    { models, user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
     const query = await generateFilterPosQuery(models, params, user._id);
     return models.PosOrders.find(query).countDocuments();
   },
 
-  posOrderDetail: async (_root, { _id }, { models, subdomain }: IContext) => {
+  posOrderDetail: async (
+    _root,
+    { _id },
+    { models, subdomain, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
       throw new Error(`PosOrder ${_id} not found`);
@@ -444,7 +461,6 @@ const queries = {
 
     const products = await sendTRPCMessage({
       subdomain,
-
       method: 'query',
       pluginName: 'core',
       module: 'products',
@@ -472,7 +488,50 @@ const queries = {
     return orderDetail;
   },
 
-  posOrdersSummary: async (_root, params, { models, user }: IContext) => {
+  posOrderLink: async (
+    _root,
+    { _id },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
+
+    if (!_id) {
+      return null;
+    }
+
+    const order = await models.PosOrders.findOne({ _id }).lean();
+
+    if (!order) {
+      return null;
+    }
+
+    const pos = order.posToken
+      ? await models.Pos.findOne({ token: order.posToken }).select('_id').lean()
+      : null;
+    const posId = order.posId || pos?._id;
+
+    if (!posId || !order.number) {
+      return null;
+    }
+
+    return {
+      contentType: 'sales:order',
+      contentId: order._id,
+      orderId: order._id,
+      posId,
+      number: order.number,
+      href: `/sales/pos/${posId}/orders?number=${encodeURIComponent(
+        order.number,
+      )}`,
+    };
+  },
+
+  posOrdersSummary: async (
+    _root,
+    params,
+    { models, user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
     const query = await generateFilterPosQuery(models, params, user._id);
 
     const res = await models.PosOrders.aggregate([
@@ -551,7 +610,12 @@ const queries = {
     return ordersAmount;
   },
 
-  posOrdersGroupSummary: async (_root, params, { models, user }: IContext) => {
+  posOrdersGroupSummary: async (
+    _root,
+    params,
+    { models, user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
     const query = await generateFilterPosQuery(
       models,
       params,
@@ -679,7 +743,12 @@ const queries = {
     return { amounts, columns };
   },
 
-  posProducts: async (_root, params, { models, user, subdomain }: IContext) => {
+  posProducts: async (
+    _root,
+    params,
+    { models, user, subdomain, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
     const orderQuery = await generateFilterPosQuery(models, params, user._id);
 
     const page = Math.max(1, Number(params.page) || 1);
@@ -697,11 +766,20 @@ const queries = {
         module: 'productCategories',
         action: 'findOne',
         input: {
-          _id: params.categoryId,
-          status: { $in: [null, 'active'] },
+          query: {
+            _id: params.categoryId,
+            status: { $in: [null, 'active'] },
+          },
         },
         defaultValue: {},
       });
+
+      if (!category?.order) {
+        return {
+          totalCount: 0,
+          products: [],
+        };
+      }
 
       const productCategories = await sendTRPCMessage({
         subdomain,
@@ -710,6 +788,7 @@ const queries = {
         module: 'productCategories',
         action: 'find',
         input: {
+          query: {},
           regData: category.order,
         },
         defaultValue: [],
@@ -818,16 +897,27 @@ const queries = {
   posOrderRecords: async (
     _root,
     params,
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('posOrderRead');
     return posOrderRecordsQuery(models, subdomain, params, user);
   },
 
-  posOrderRecordsCount: async (_root, params, { models, user }: IContext) => {
+  posOrderRecordsCount: async (
+    _root,
+    params,
+    { models, user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
     return posOrderRecordsCountQuery(models, params, user);
   },
 
-  posOrderCustomers: async (_root, params, { models }: IContext) => {
+  posOrderCustomers: async (
+    _root,
+    params,
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
     return paginate(
       models.PosOrders.aggregate([
         {
@@ -859,8 +949,9 @@ const queries = {
   posOrderCustomersTotalCount: async (
     _root,
     params,
-    { subdomain, models }: IContext,
+    { subdomain, models, checkPermission }: IContext,
   ) => {
+    await checkPermission('posOrderRead');
     const [{ totalDocuments }] = await models.PosOrders.aggregate([
       {
         $group: {
@@ -880,8 +971,9 @@ const queries = {
   async checkSubscription(
     _root,
     { customerId, productId, productIds },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('posOrderRead');
     const filter: any = {
       customerId,
       'items.productId': productId,
@@ -907,8 +999,9 @@ const queries = {
   async posOrderBySubscriptions(
     _root,
     { page, perPage, ...params },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('posOrderRead');
     const filter = await generateFilterSubsQuery(params);
 
     const _page = Number(page || '1');
@@ -948,7 +1041,12 @@ const queries = {
       .limit(_limit);
   },
 
-  async posOrderBySubscriptionsTotalCount(_root, params, { models }: IContext) {
+  async posOrderBySubscriptionsTotalCount(
+    _root,
+    params,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('posOrderRead');
     const filter = await generateFilterSubsQuery(params);
 
     const [result] = await models.PosOrders.aggregate([

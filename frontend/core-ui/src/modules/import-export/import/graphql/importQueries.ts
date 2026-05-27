@@ -6,12 +6,13 @@ import {
 } from 'erxes-ui';
 
 export const GET_IMPORT_HISTORIES = gql`
-  query ImportHistories($entityType: String, ${GQL_CURSOR_PARAM_DEFS}) {
-    importHistories(entityType: $entityType, ${GQL_CURSOR_PARAMS}) {
+  query ImportHistories($entityTypes: [String], ${GQL_CURSOR_PARAM_DEFS}) {
+    importHistories(entityTypes: $entityTypes, ${GQL_CURSOR_PARAMS}) {
       list {
         _id
         entityType
         fileName
+        fileKey
         status
         totalRows
         processedRows

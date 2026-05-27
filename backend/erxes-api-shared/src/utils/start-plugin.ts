@@ -15,6 +15,7 @@ import express, {
 import { DocumentNode, GraphQLScalarType } from 'graphql';
 import * as http from 'http';
 import * as path from 'path';
+import rateLimit from 'express-rate-limit';
 import { startPayments } from '../common-modules/payment/worker';
 import type {
   IPropertyMeta,
@@ -26,7 +27,12 @@ import { AutomationConfigs } from '../core-modules/automations/types';
 import type { ImportExportConfigs } from '../core-modules/import-export/types';
 import { startImportExportWorker } from '../core-modules/import-export/worker';
 import { IMainContext, IPermissionConfig } from '../core-types';
-import { generateApolloContext, wrapApolloResolvers } from './apollo';
+import {
+  generateApolloContext,
+  startBeforeResolvers,
+  wrapApolloResolvers,
+} from './apollo';
+import { BeforeResolversConfig } from './apollo/beforeResolvers';
 import { extractUserFromHeader } from './headers';
 import { AfterProcessConfigs, logHandler, startAfterProcess } from './logs';
 import { closeMongooose } from './mongo';
@@ -60,6 +66,7 @@ type IMeta = {
   tags?: any;
   properties?: IPropertyMeta;
   permissions?: IPermissionConfig;
+  beforeResolvers?: BeforeResolversConfig;
 };
 
 type ApiHandler = {
@@ -191,8 +198,29 @@ export async function startPlugin(
   }
 
   if (hasSubscriptions) {
-    app.get('/subscriptionPlugin.js', async (_req, res) => {
-      res.sendFile(path.join(subscriptionPluginPath));
+    if (!subscriptionPluginPath) {
+      throw new Error(
+        'subscriptionPluginPath is required when hasSubscriptions is true',
+      );
+    }
+
+    /**
+     * Protects the public subscription bundle endpoint from request floods.
+     *
+     * The limit is intentionally generous so regular page loads, retries, and
+     * normal multi-user traffic are not blocked. It only throttles abnormal
+     * high-frequency bursts from the same IP.
+     */
+    const subscriptionFileLimiter = rateLimit({
+      windowMs: 15 * 60 * 1000,
+      max: 1000,
+      standardHeaders: true,
+      legacyHeaders: false,
+      message: 'Too many requests from this IP, please try again later.',
+    });
+
+    app.get('/subscriptionPlugin.js', subscriptionFileLimiter, (_req, res) => {
+      res.sendFile(path.resolve(subscriptionPluginPath));
     });
   }
 
@@ -306,8 +334,14 @@ export async function startPlugin(
   );
 
   if (meta) {
-    const { automations, segments, afterProcess, notifications, payments } =
-      meta || {};
+    const {
+      automations,
+      segments,
+      afterProcess,
+      notifications,
+      payments,
+      beforeResolvers,
+    } = meta || {};
 
     if (automations) {
       await startAutomations(app, name, automations);
@@ -327,6 +361,10 @@ export async function startPlugin(
 
     if (payments) {
       await startPayments(name, payments);
+    }
+
+    if (beforeResolvers) {
+      await startBeforeResolvers(app, name, beforeResolvers);
     }
   } // end meta if
 

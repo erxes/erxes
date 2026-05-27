@@ -13,6 +13,7 @@ export const useAutomationBots = () => {
 
   return {
     automationBotsConstants,
+    isEmpty: !automationBotsConstants?.length && !loading,
     loading,
     error,
   };

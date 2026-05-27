@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   Control,
+  UseFormReturn,
   useFieldArray,
   useWatch,
   useController,
@@ -18,6 +19,7 @@ import {
   Combobox,
   Command,
   Popover,
+  Switch,
 } from 'erxes-ui';
 import { TmsFormType } from '@/tms/constants/formSchema';
 import { LANGUAGES } from '@/tms/constants/languages';
@@ -221,7 +223,7 @@ const ImageUploadField = ({
               className="relative group"
             >
               {isLoading ? (
-                <div className="flex flex-col justify-center items-center w-full h-28 rounded-md border border-dashed bg-accent">
+                <div className="flex flex-col items-center justify-center w-full border border-dashed rounded-md h-28 bg-accent">
                   <Spinner className="text-muted-foreground" size="md" />
                 </div>
               ) : (
@@ -245,7 +247,7 @@ const ImageUploadField = ({
                     }
                   >
                     {!field.value && (
-                      <div className="flex relative z-10 flex-col gap-3 justify-center items-center">
+                      <div className="relative z-10 flex flex-col items-center justify-center gap-3">
                         <IconUpload size={20} />
                         <span className="text-xs text-muted-foreground">
                           Max size: 15MB, File type: PNG
@@ -253,8 +255,8 @@ const ImageUploadField = ({
                       </div>
                     )}
                     {field.value && (
-                      <div className="flex absolute inset-0 justify-center items-center transition-all duration-200 bg-black/0 group-hover:bg-black/20">
-                        <div className="opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                      <div className="absolute inset-0 flex items-center justify-center transition-all duration-200 bg-black/0 group-hover:bg-black/20">
+                        <div className="transition-opacity duration-200 opacity-0 group-hover:opacity-100">
                           <div className="px-2 py-1 text-xs font-medium text-black rounded-lg backdrop-blur-sm bg-white/90">
                             Change
                           </div>
@@ -268,7 +270,7 @@ const ImageUploadField = ({
                       size="sm"
                       variant="destructive"
                       disabled={isRemoving}
-                      className="absolute top-2 right-2 z-30 shadow-lg opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                      className="absolute z-30 transition-opacity duration-200 shadow-lg opacity-0 top-2 right-2 group-hover:opacity-100"
                       onClick={() => {
                         setIsRemoving(true);
                         field.onChange('');
@@ -474,7 +476,7 @@ export const Payments = ({ control }: { control: Control<TmsFormType> }) => {
           <Form.Description>
             Select payments that you want to use
           </Form.Description>
-          <div className="flex gap-4 justify-between items-end">
+          <div className="flex items-end justify-between gap-4">
             <Form.Control className="flex-1">
               <SelectPayment.FormItem
                 mode="multiple"
@@ -490,6 +492,86 @@ export const Payments = ({ control }: { control: Control<TmsFormType> }) => {
         </Form.Item>
       )}
     />
+  );
+};
+
+export const Prepaid = ({ form }: { form: UseFormReturn<TmsFormType> }) => {
+  const prepaidEnabled = useWatch({
+    control: form.control,
+    name: 'prepaid',
+  });
+
+  return (
+    <div className="py-3 border-y">
+      <Form.Field
+        control={form.control}
+        name="prepaid"
+        render={({ field }) => (
+          <Form.Item className="flex items-center justify-between gap-4">
+            <div className="space-y-2">
+              <Form.Label className="cursor-pointer">Prepaid</Form.Label>
+              <Form.Description>Enable prepaid percentage</Form.Description>
+            </div>
+            <Form.Control>
+              <Switch
+                checked={Boolean(field.value)}
+                onCheckedChange={(checked) => {
+                  field.onChange(checked);
+
+                  if (!checked) {
+                    form.setValue('prepaidPercent', undefined, {
+                      shouldDirty: true,
+                      shouldValidate: false,
+                    });
+                    form.clearErrors('prepaidPercent');
+                  }
+                }}
+              />
+            </Form.Control>
+          </Form.Item>
+        )}
+      />
+
+      {prepaidEnabled && (
+        <Form.Field
+          control={form.control}
+          name="prepaidPercent"
+          render={({ field }) => (
+            <Form.Item className="mt-4">
+              <Form.Label>Prepaid Percent</Form.Label>
+              <Form.Control>
+                <Input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  placeholder="Enter prepaid percent"
+                  value={field.value ?? ''}
+                  onChange={(event) => {
+                    const nextValue = event.target.value;
+
+                    if (nextValue === '') {
+                      field.onChange(undefined);
+                      return;
+                    }
+
+                    const parsedValue = Number(nextValue);
+
+                    if (Number.isNaN(parsedValue)) {
+                      field.onChange(undefined);
+                      return;
+                    }
+
+                    field.onChange(Math.min(100, Math.max(0, parsedValue)));
+                  }}
+                />
+              </Form.Control>
+              <Form.Message className="text-destructive" />
+            </Form.Item>
+          )}
+        />
+      )}
+    </div>
   );
 };
 
@@ -528,7 +610,7 @@ export const OtherPayments = ({
 
   return (
     <div className="py-3">
-      <div className="flex flex-col gap-2 items-start self-stretch">
+      <div className="flex flex-col items-start self-stretch gap-2">
         <h2 className="self-stretch text-sm font-medium leading-tight text-primary">
           Other Payments
         </h2>
@@ -542,10 +624,10 @@ export const OtherPayments = ({
         </p>
       </div>
 
-      <div className="flex gap-2 justify-end items-center p-3 pt-5">
+      <div className="flex items-center justify-end gap-2 p-3 pt-5">
         <Button
           variant="default"
-          className="flex gap-2 items-center mb-6"
+          className="flex items-center gap-2 mb-6"
           onClick={handleAddPayment}
           type="button"
         >
@@ -556,8 +638,8 @@ export const OtherPayments = ({
 
       <div className="space-y-3">
         {fields.map((field, index) => (
-          <div key={field.id} className="flex gap-6 items-end">
-            <div className="grid grid-cols-3 gap-6 w-full">
+          <div key={field.id} className="flex items-end gap-6">
+            <div className="grid w-full grid-cols-3 gap-6">
               <Form.Field
                 control={control}
                 name={`otherPayments.${index}.type`}

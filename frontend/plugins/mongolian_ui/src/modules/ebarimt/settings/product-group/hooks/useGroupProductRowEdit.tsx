@@ -14,22 +14,7 @@ export const useGroupProductRowEdit = () => {
           variables: PRODUCT_GROUP_ROW_DEFAULT_VARIABLES,
         },
       ],
-      update: (cache, { data }) => {
-        if (data?.editProductGroup) {
-          cache.modify({
-            fields: {
-              ebarimtProductGroups: (existing, { readField }) => {
-                return existing;
-              },
-            },
-          });
-
-          toast({
-            title: 'Success',
-            description: 'Product group updated successfully',
-          });
-        }
-      },
+      awaitRefetchQueries: true,
       onError: (error) => {
         toast({
           title: 'Error',

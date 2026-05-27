@@ -1,4 +1,4 @@
-import { RecordTable } from 'erxes-ui';
+import { RecordTable, Spinner } from 'erxes-ui';
 import { usePosByItemsList } from '@/pos/pos-by-items/hooks/UsePosByItemsList';
 import { PosByItemsColumns } from '@/pos/pos-by-items/components/PosByItemsColumn';
 import { IconShoppingCartX } from '@tabler/icons-react';
@@ -6,6 +6,8 @@ import { IconShoppingCartX } from '@tabler/icons-react';
 export const PosByItemsRecordTable = () => {
   const { posByItemsList, handleFetchMore, loading, pageInfo } =
     usePosByItemsList();
+
+  if (loading) return <Spinner />;
 
   return (
     <RecordTable.Provider
@@ -26,7 +28,6 @@ export const PosByItemsRecordTable = () => {
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading && <RecordTable.RowSkeleton rows={40} />}
             <RecordTable.RowList />
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}

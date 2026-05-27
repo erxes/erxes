@@ -6,7 +6,7 @@ const getChildCategories = async (subdomain: string, categoryIds) => {
     subdomain,
     pluginName: 'core',
     method: 'query',
-    module: 'categories',
+    module: 'productCategories',
     action: 'withChilds',
     input: { ids: categoryIds },
     defaultValue: [],

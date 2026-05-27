@@ -3,19 +3,41 @@ import { Image, Page, Text, View } from '@react-pdf/renderer';
 import { parseHtmlToPdfElements } from '../../itinerary/pdf/htmlParser';
 import { stripHtml } from '../../itinerary/pdf/utils';
 import type { IBranchPDFData } from '../../itinerary/pdf/types';
-import type { ITourItineraryPDFData, ITourPDFData } from './types';
+import type {
+  ITourItineraryPDFData,
+  ITourPDFData,
+  TourPdfRenderConfig,
+} from './types';
 import { COLORS, sharedStyles, styles } from './styles';
 
 interface TourDetailsPageProps {
   tour: ITourPDFData;
   itinerary?: ITourItineraryPDFData | null;
   branch?: IBranchPDFData;
+  config: TourPdfRenderConfig;
 }
 
 interface PricingFact {
   label: string;
   value: string;
 }
+
+const PASSENGER_PRICE_ORDER = ['adult', 'child', 'infant'] as const;
+
+const getPassengerPriceLabel = (
+  type: (typeof PASSENGER_PRICE_ORDER)[number],
+  labels: TourPdfRenderConfig['labels'],
+) => {
+  if (type === 'adult') {
+    return labels.pricingAdultLabel || labels.pricingPerPersonLabel;
+  }
+
+  if (type === 'child') {
+    return labels.pricingChildLabel || 'Child Price';
+  }
+
+  return labels.pricingInfantLabel || 'Infant Price';
+};
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
   year: 'numeric',
@@ -37,13 +59,24 @@ const formatPrice = (value?: number) => {
   }).format(value);
 };
 
-const formatPaxRange = (minPersons?: number, maxPersons?: number) => {
+const formatCurrency = (symbol: string, value?: number) => {
+  const formattedValue = formatPrice(value);
+  return formattedValue ? `${symbol} ${formattedValue}` : '';
+};
+
+const formatPaxRange = (
+  minPersons?: number,
+  maxPersons?: number,
+  labels?: TourPdfRenderConfig['labels'],
+) => {
   if (!minPersons && !maxPersons) return '';
   if (minPersons && maxPersons) {
-    return `${minPersons}-${maxPersons} pax`;
+    return `${minPersons}-${maxPersons} ${labels?.paxSuffixLabel || 'pax'}`;
   }
-  if (minPersons) return `${minPersons}+ pax`;
-  return `Up to ${maxPersons} pax`;
+  if (minPersons) return `${minPersons}+ ${labels?.paxSuffixLabel || 'pax'}`;
+  return `${labels?.upToLabel || 'Up to'} ${maxPersons} ${
+    labels?.paxSuffixLabel || 'pax'
+  }`;
 };
 
 const InfoSection = ({
@@ -84,10 +117,23 @@ const InfoSection = ({
 };
 
 export const TourDetailsPage: React.FC<TourDetailsPageProps> = React.memo(
-  function TourDetailsPage({ tour, itinerary, branch }) {
+  function TourDetailsPage({ tour, itinerary, branch, config }) {
     const themeColor = itinerary?.color || COLORS.primary;
+    const formatDurationValue = (value?: number) => {
+      if (typeof value !== 'number') {
+        return '-';
+      }
+
+      return `${value} ${
+        value === 1
+          ? config.labels.coverDaySingularLabel
+          : config.labels.coverDayPluralLabel
+      }`;
+    };
     const travelDateLabel =
-      tour.dateType === 'flexible' ? 'Available Range' : 'Travel Dates';
+      tour.dateType === 'flexible'
+        ? config.labels.overviewAvailableRangeLabel
+        : config.labels.overviewTravelDatesLabel;
     const travelDateValue =
       tour.dateType === 'flexible'
         ? `${formatDate(tour.availableFrom)} - ${formatDate(tour.availableTo)}`
@@ -95,16 +141,16 @@ export const TourDetailsPage: React.FC<TourDetailsPageProps> = React.memo(
     const currencySymbol = tour.currencySymbol || '$';
     const overview = [
       {
-        label: 'Reference',
+        label: config.labels.overviewReferenceLabel,
         value: tour.refNumber || '-',
       },
       {
-        label: 'Duration',
+        label: config.labels.overviewDurationLabel,
         value:
           typeof tour.duration === 'number'
-            ? `${tour.duration} Days`
+            ? formatDurationValue(tour.duration)
             : typeof itinerary?.duration === 'number'
-              ? `${itinerary.duration} Days`
+              ? formatDurationValue(itinerary.duration)
               : '-',
       },
       {
@@ -112,16 +158,19 @@ export const TourDetailsPage: React.FC<TourDetailsPageProps> = React.memo(
         value: travelDateValue,
       },
       {
-        label: 'Group Size',
+        label: config.labels.overviewGroupSizeLabel,
         value: tour.groupSize ? `${tour.groupSize}` : '-',
       },
     ];
     const infoSections = [
-      { title: 'Summary', value: tour.content },
-      { title: 'Included', value: tour.info1 },
-      { title: 'Not Included', value: tour.info2 },
-      { title: 'Highlights', value: tour.info3 },
-      { title: 'Additional Information', value: tour.info4 },
+      { title: config.labels.summarySectionTitle, value: tour.content },
+      { title: config.labels.includedSectionTitle, value: tour.info1 },
+      { title: config.labels.notIncludedSectionTitle, value: tour.info2 },
+      { title: config.labels.highlightsSectionTitle, value: tour.info3 },
+      {
+        title: config.labels.additionalInfoSectionTitle,
+        value: tour.info4,
+      },
     ];
 
     const pricingOptions = tour.pricingOptions || [];
@@ -135,7 +184,9 @@ export const TourDetailsPage: React.FC<TourDetailsPageProps> = React.memo(
               style={sharedStyles.pageHeaderLogo}
             />
           ) : null}
-          <Text style={sharedStyles.pageHeaderTitle}>TOUR OVERVIEW</Text>
+          <Text style={sharedStyles.pageHeaderTitle}>
+            {config.labels.detailsPageHeaderTitle}
+          </Text>
           <View
             style={[
               sharedStyles.pageHeaderDivider,
@@ -146,7 +197,7 @@ export const TourDetailsPage: React.FC<TourDetailsPageProps> = React.memo(
 
         <View style={sharedStyles.fixedFooter} fixed>
           <Text style={sharedStyles.fixedFooterText}>
-            {tour.name || 'Untitled Tour'}
+            {tour.name || config.labels.untitledTourTitle}
           </Text>
           <Text
             style={sharedStyles.fixedFooterText}
@@ -158,7 +209,7 @@ export const TourDetailsPage: React.FC<TourDetailsPageProps> = React.memo(
 
         <View style={styles.introSection}>
           <Text style={[styles.overviewEyebrow, { color: themeColor }]}>
-            Tour Information
+            {config.labels.detailsIntroEyebrow}
           </Text>
           <View
             style={[styles.titleDivider, { backgroundColor: themeColor }]}
@@ -185,38 +236,50 @@ export const TourDetailsPage: React.FC<TourDetailsPageProps> = React.memo(
                   { backgroundColor: themeColor },
                 ]}
               />
-              <Text style={styles.sectionTitle}>Pricing Options</Text>
+              <Text style={styles.sectionTitle}>
+                {config.labels.pricingSectionTitle}
+              </Text>
             </View>
             {pricingOptions.map((option, index) => {
+              const priceFacts = PASSENGER_PRICE_ORDER.map((type) => {
+                const price =
+                  option.prices?.find((item) => item.type === type)?.price ??
+                  (type === 'adult' ? option.pricePerPerson : undefined);
+
+                if (typeof price !== 'number') {
+                  return null;
+                }
+
+                return {
+                  label: getPassengerPriceLabel(type, config.labels),
+                  value: formatCurrency(currencySymbol, price),
+                };
+              }).filter((fact): fact is PricingFact => Boolean(fact));
+
               const pricingFacts: PricingFact[] = [
-                typeof option.pricePerPerson === 'number'
-                  ? {
-                      label: 'Price / Person',
-                      value: `${currencySymbol}${formatPrice(
-                        option.pricePerPerson,
-                      )}`,
-                    }
-                  : null,
+                ...priceFacts,
                 option.accommodationType
                   ? {
-                      label: 'Accommodation',
+                      label: config.labels.pricingAccommodationLabel,
                       value: option.accommodationType,
                     }
                   : null,
                 typeof option.domesticFlightPerPerson === 'number'
                   ? {
-                      label: 'Domestic Flight',
-                      value: `${currencySymbol}${formatPrice(
+                      label: config.labels.pricingDomesticFlightLabel,
+                      value: formatCurrency(
+                        currencySymbol,
                         option.domesticFlightPerPerson,
-                      )}`,
+                      ),
                     }
                   : null,
                 typeof option.singleSupplement === 'number'
                   ? {
-                      label: 'Single Supplement',
-                      value: `${currencySymbol}${formatPrice(
+                      label: config.labels.pricingSingleSupplementLabel,
+                      value: formatCurrency(
+                        currencySymbol,
                         option.singleSupplement,
-                      )}`,
+                      ),
                     }
                   : null,
               ].filter((fact): fact is PricingFact => Boolean(fact));
@@ -225,10 +288,14 @@ export const TourDetailsPage: React.FC<TourDetailsPageProps> = React.memo(
                 <View key={option._id} style={styles.pricingCard}>
                   <View style={styles.pricingHeaderRow}>
                     <Text style={styles.pricingTitle}>
-                      {option.title || 'Untitled option'}
+                      {option.title || config.labels.pricingUntitledOptionLabel}
                     </Text>
                     <Text style={[styles.pricingRange, { color: themeColor }]}>
-                      {formatPaxRange(option.minPersons, option.maxPersons)}
+                      {formatPaxRange(
+                        option.minPersons,
+                        option.maxPersons,
+                        config.labels,
+                      )}
                     </Text>
                   </View>
 

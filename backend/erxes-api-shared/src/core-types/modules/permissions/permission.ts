@@ -2,6 +2,8 @@ export interface IPermissionAction {
   title: string;
   name: string;
   description: string;
+  oauthScope?: string;
+  oauthScopes?: string[];
   always?: boolean;
   disabled?: boolean;
   type?: 'resolver' | 'custom';

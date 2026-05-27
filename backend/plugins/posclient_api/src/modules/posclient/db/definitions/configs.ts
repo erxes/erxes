@@ -26,7 +26,7 @@ const ebarimtConfigSchema = new Schema(
     branchNo: field({ type: String, optional: true, label: 'Branch NO' }),
     hasVat: field({ type: Boolean, optional: true }),
     hasCitytax: field({ type: Boolean, optional: true }),
-    defaultGSCode: field({
+    defaultUnitedCode: field({
       type: String,
       optional: true,
       label: 'Default inventory code',
@@ -47,8 +47,10 @@ const ebarimtConfigSchema = new Schema(
       optional: true,
       label: 'reverseCtaxRules',
     }),
+    headerText: field({ type: String, optional: true, label: 'Footer text' }),
     footerText: field({ type: String, optional: true, label: 'Footer text' }),
     hasCopy: field({ type: Boolean, optional: true }),
+    isCleanTaxPrice: field({ type: Boolean, optional: true }),
   },
   { _id: false },
 );
@@ -79,7 +81,6 @@ export const configSchema = new Schema({
   erxesAppToken: field({ type: String, label: 'Erxes app token' }),
   uiOptions: field({ type: Object, label: 'Logo & color configs' }),
   ebarimtConfig: field({ type: ebarimtConfigSchema, optional: true }),
-  erkhetConfig: field({ type: Object }),
   catProdMappings: field({
     type: [Object],
     label: 'Product category mappings',
@@ -108,7 +109,6 @@ export const configSchema = new Schema({
     optional: true,
     label: 'Allow branches',
   }),
-  checkRemainder: field({ type: Boolean, optional: true }),
   permissionConfig: field({ type: Object, optional: true }),
   allowTypes: field({ type: [String], label: 'Allow Types' }),
   isCheckRemainder: field({ type: Boolean, optional: true }),

@@ -15,6 +15,7 @@ import {
   order as MutationsOrder,
   cover as MutationsCover,
 } from '@/pos/graphql/resolvers/mutations';
+import { cpDealMutations } from '~/modules/sales/graphql/resolvers/mutations/clientPortal';
 
 export const mutations = {
   ...boardMutations,
@@ -30,4 +31,5 @@ export const mutations = {
   ...lastViewedItemMutations,
   ...productReviewMutations,
   ...wishlistMutations,
+  ...cpDealMutations,
 };

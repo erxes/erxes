@@ -50,6 +50,9 @@ export function CustomFields() {
       code: data.code,
       clientPortalId: websiteId,
       customPostTypeIds: data.customPostTypeIds || [],
+      enabledPageIds: data.enabledPageIds || [],
+      enabledCategoryIds: data.enabledCategoryIds || [],
+      enabledPostIds: data.enabledPostIds || [],
       fields: editingGroup?.fields || [],
     };
 
@@ -204,8 +207,8 @@ export function CustomFields() {
       </CustomFieldsHeader>
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
-        <div className="flex overflow-hidden flex-col flex-auto w-full">
-          <div className="flex-auto">
+        <div className="flex min-h-0 overflow-hidden flex-col flex-auto w-full">
+          <div className="min-h-0 flex-auto overflow-y-auto">
             <div className="p-6">
               <div className="max-w-4xl mx-auto">
                 {/* Table Header */}
@@ -276,6 +279,7 @@ export function CustomFields() {
         onSubmit={handleGroupSubmit}
         editingGroup={editingGroup}
         customTypes={customTypes}
+        websiteId={websiteId || ''}
       />
 
       <FieldDrawer

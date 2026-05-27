@@ -1,6 +1,24 @@
 import { IChannel } from '@/channels/types';
 import { IAttachment } from 'erxes-ui';
 
+export type FieldValidatorType = 'PRESET' | 'CUSTOM' | 'NONE';
+export type FieldValidatorPresetKey =
+  | 'EMAIL'
+  | 'PHONE'
+  | 'POSTAL_CODE'
+  | 'ALPHANUMERIC'
+  | 'MN_VEHICLE_REGISTRATION'
+  | 'NUMBER'
+  | 'DATE'
+  | 'DATE_TIME';
+
+export interface IFieldValidator {
+  type: FieldValidatorType;
+  presetKey?: FieldValidatorPresetKey;
+  customRegex?: string;
+  errorMessage?: string;
+}
+
 export interface IFormFieldLogics {
   fieldId: string;
   logicOperator?: string;
@@ -9,7 +27,7 @@ export interface IFormFieldLogics {
 
 export interface IForm {
   _id: string;
-  channelId: string;
+  channelId?: string;
   name: string;
   title: string;
   code: string;
@@ -20,12 +38,13 @@ export interface IForm {
   buttonText: string;
   fields: IFormField[];
   leadData: ILeadData;
-  channelId?: string;
   channel?: IChannel;
+  integrationId?: string;
 }
 
 export interface ILeadData {
   appearance: string;
+  loadType: string;
   thankTitle: string;
   thankContent: string;
   thankImage: IAttachment;
@@ -48,6 +67,8 @@ export interface IFormField {
   validation: string;
   logics?: IFormFieldLogics[];
   logicAction: string;
+  allowSearch?: boolean;
+  validator?: IFieldValidator;
 }
 
 export interface IFormSetupPayload {

@@ -12,6 +12,7 @@ export const AutomationSettingsSidebar = () => {
             <Sidebar.MenuItem>
               <Sidebar.MenuButton
                 isActive={activePath.includes('/settings/automations/agents')}
+                asChild
               >
                 <Link to={`/settings/automations/agents`}>Agents</Link>
               </Sidebar.MenuButton>
@@ -21,6 +22,7 @@ export const AutomationSettingsSidebar = () => {
                 isActive={activePath.includes(
                   '/settings/automations/email-templates',
                 )}
+                asChild
               >
                 <Link to={`/settings/automations/email-templates`}>
                   Email Templates
@@ -30,6 +32,7 @@ export const AutomationSettingsSidebar = () => {
             <Sidebar.MenuItem>
               <Sidebar.MenuButton
                 isActive={activePath.includes('/settings/automations/bots')}
+                asChild
               >
                 <Link to={`/settings/automations/bots`}>Bots</Link>
               </Sidebar.MenuButton>

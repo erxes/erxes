@@ -14,7 +14,7 @@ const POS_PER_PAGE = 30;
 
 interface UsePosItemsListOptions {
   posId?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface UsePosItemsListReturn {

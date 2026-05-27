@@ -5,20 +5,15 @@ import { IModels } from '~/connectionResolvers';
 import { IDoc } from './@types/common';
 import { getEbarimtData, getPostData } from './utils';
 
-
 export const afterMutationHandlers = async (
   models: IModels,
   subdomain: string,
   processId: string,
   params: any,
 ) => {
-  const {
-    destinationStageId,
-    deal,
-    userId
-  } = params;
+  const { destinationStageId, deal, sessionCode, userId } = params;
 
-  const mainConfig = await models.Configs.getConfigValue('EBARIMT')
+  const mainConfig = await models.Configs.getConfigValue('EBARIMT');
 
   if (!mainConfig) {
     return;
@@ -27,7 +22,7 @@ export const afterMutationHandlers = async (
   // return PutResponse
   const returnConfigVal = await models.Configs.getConfigValue(
     'returnStageInEbarimt',
-    destinationStageId
+    destinationStageId,
   );
 
   if (returnConfigVal) {
@@ -54,6 +49,7 @@ export const afterMutationHandlers = async (
             userId,
             responseId: returnResponses.map((er) => er._id).join('-'),
             processId,
+            sessionCode,
             content: returnResponses,
           },
         });
@@ -66,7 +62,10 @@ export const afterMutationHandlers = async (
   }
 
   // put *******
-  const configVal = await models.Configs.getConfigValue('stageInEbarimt', destinationStageId);
+  const configVal = await models.Configs.getConfigValue(
+    'stageInEbarimt',
+    destinationStageId,
+  );
   if (!configVal) {
     return;
   }
@@ -82,7 +81,7 @@ export const afterMutationHandlers = async (
     method: 'query',
     module: 'pipeline',
     action: 'findOne',
-    input: { stageId: destinationStageId },
+    input: { stageId: destinationStageId, fields: { paymentTypes: 1 } },
     defaultValue: {},
   });
 
@@ -138,8 +137,8 @@ export const afterMutationHandlers = async (
         userId,
       );
 
-      putData && ebarimtResponses.push(putData);
-      innerData && ebarimtResponses.push(innerData);
+      if (putData) ebarimtResponses.push(putData);
+      if (innerData) ebarimtResponses.push(innerData);
     } catch (e) {
       ebarimtResponses.push({
         _id: nanoid(),
@@ -157,6 +156,7 @@ export const afterMutationHandlers = async (
           userId,
           responseId: ebarimtResponses.map((er) => er._id).join('-'),
           processId,
+          sessionCode,
           content: ebarimtResponses.map((er) => ({
             ...config,
             ...er,

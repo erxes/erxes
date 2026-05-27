@@ -6,6 +6,7 @@ export interface IPayment {
   status: string;
   config: any;
   acceptedCurrencies: string[];
+  sendEmailOnPayment?: boolean;
 }
 
 export interface IPaymentDocument extends IPayment, Document {

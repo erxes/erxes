@@ -24,8 +24,8 @@ const createFieldListProcedure = (
   fieldGenerator: (
     subdomain: string,
     models: IModels,
-    input: any,
-  ) => Promise<any[]>,
+    input: z.infer<typeof fieldQueryInput>,
+  ) => Promise<unknown[]>,
 ) => {
   return t.procedure.input(fieldQueryInput).query(async ({ ctx, input }) => {
     const { models, subdomain } = ctx;
@@ -47,73 +47,6 @@ export const appRouter = t.mergeRouters(
           return [];
         },
       ),
-    }),
-  }),
-  t.router({
-    importExport: t.router({
-      getExportHeaders: t.procedure
-        .input(
-          z.object({
-            moduleName: z.string(),
-            collectionName: z.string(),
-          }),
-        )
-        .query(({ input }) => {
-          const { moduleName, collectionName } = input;
-
-          if (moduleName === 'pos' && collectionName === 'posItems') {
-            return [
-              {
-                key: 'number',
-                label: 'Number',
-                isDefault: true,
-                type: 'string',
-              },
-              {
-                key: 'createdAt',
-                label: 'Created Date',
-                isDefault: true,
-                type: 'date',
-              },
-            ];
-          }
-
-          return [];
-        }),
-
-      getExportData: t.procedure
-        .input(
-          z.object({
-            moduleName: z.string(),
-            collectionName: z.string(),
-          }),
-        )
-        .mutation(async ({ ctx, input }) => {
-          const { models } = ctx;
-          const { moduleName, collectionName } = input;
-
-          if (moduleName === 'pos' && collectionName === 'posItems') {
-            const MAX_EXPORT = 10000;
-
-            const items = await models.PosOrders.aggregate([
-              { $unwind: '$items' },
-              { $limit: MAX_EXPORT },
-              {
-                $project: {
-                  number: '$items.number',
-                  createdAt: '$createdAt',
-                },
-              },
-            ]);
-
-            return items.map((item: { number?: string; createdAt?: Date }) => ({
-              number: item.number,
-              createdAt: item.createdAt,
-            }));
-          }
-
-          return [];
-        }),
     }),
   }),
 );

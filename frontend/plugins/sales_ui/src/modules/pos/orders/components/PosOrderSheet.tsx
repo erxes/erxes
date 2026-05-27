@@ -1,5 +1,7 @@
+import { gql, useQuery } from '@apollo/client';
 import {
   IconChessKnight,
+  IconExternalLink,
   IconShoppingCart,
   IconTag,
 } from '@tabler/icons-react';
@@ -7,6 +9,7 @@ import { ColumnDef } from '@tanstack/table-core';
 import {
   Button,
   Form,
+  isEnabled,
   RecordTable,
   RecordTableInlineCell,
   Sheet,
@@ -21,6 +24,32 @@ import { usePosOrderForm } from '../detail/hooks/usePosOrderForm';
 import { usePosOrderQuery } from '../detail/hooks/usePosOrderQuery';
 import { PosOrderForm } from '../detail/PosOrderForm';
 import { TPosOrderFormData } from '../types/posOrderType';
+
+const POS_ORDER_TRANSACTIONS = gql`
+  query PosOrderTransactions($contentType: String!, $contentId: String!) {
+    accTransactionsByContent(
+      contentType: $contentType
+      contentId: $contentId
+      page: 1
+      perPage: 1
+    ) {
+      totalCount
+      list {
+        _id
+        parentId
+        ptrNumber
+        number
+      }
+    }
+  }
+`;
+
+type PosOrderTransaction = {
+  _id: string;
+  parentId?: string;
+  ptrNumber?: string;
+  number?: string;
+};
 
 const itemColumns: ColumnDef<any>[] = [
   {
@@ -119,8 +148,32 @@ export const PosOrderSheet = () => {
   const { posOrder, loading, refetch } = usePosOrderQuery(
     posOrderId || undefined,
   );
+  const isAccountingEnabled = isEnabled('accounting');
+  const { data: transactionData } = useQuery<{
+    accTransactionsByContent: {
+      list: PosOrderTransaction[];
+      totalCount: number;
+    };
+  }>(POS_ORDER_TRANSACTIONS, {
+    variables: {
+      contentType: 'sales:order',
+      contentId: posOrder?._id,
+    },
+    fetchPolicy: 'network-only',
+    skip: !isAccountingEnabled || !posOrder?._id,
+  });
   const { posOrderChangePayments, loading: mutationLoading } =
     usePosOrderChangePayments();
+
+  const transactionContent = transactionData?.accTransactionsByContent;
+  const transaction = transactionContent?.list?.[0];
+  const transactionTotalCount = transactionContent?.totalCount || 0;
+  const transactionNumber = transaction?.number || transaction?.ptrNumber;
+  const transactionHref = transaction
+    ? `/accounting/transaction/edit?parentId=${encodeURIComponent(
+      transaction.parentId || transaction._id,
+    )}`
+    : '';
 
   const paidAmountsSummary = React.useMemo(() => {
     if (!posOrder?.paidAmounts || !Array.isArray(posOrder.paidAmounts))
@@ -203,9 +256,8 @@ export const PosOrderSheet = () => {
             errorMessage =
               'This order has been returned and payment changes are not allowed.';
           } else if (error.message.includes('not balanced')) {
-            errorMessage = `Payments must sum to the total amount (${
-              posOrder?.totalAmount?.toLocaleString() || 0
-            }).`;
+            errorMessage = `Payments must sum to the total amount (${posOrder?.totalAmount?.toLocaleString() || 0
+              }).`;
           } else {
             errorMessage = error.message;
           }
@@ -275,10 +327,30 @@ export const PosOrderSheet = () => {
                   </div>
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
-                      Erkhet Info:
+                      Transaction:
                     </span>
                     <span className="text-base font-medium">
-                      {posOrder.syncErkhetInfo}
+                      {(transaction && transactionNumber) || transactionTotalCount ? (
+                        <a
+                          href={transactionHref}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-primary hover:underline"
+                        >
+                          {transactionNumber}(transactionTotalCount)
+                          <IconExternalLink className="size-4" />
+                        </a>
+                      ) : (
+                        '-'
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between w-full gap-1">
+                    <span className="text-base font-medium text-muted-foreground">
+                      Accounting response:
+                    </span>
+                    <span className="text-base font-medium text-right max-w-[60%] break-words">
+                      {posOrder.accountingResponse || '-'}
                     </span>
                   </div>
                   <div className="flex justify-between w-full gap-1">
@@ -296,8 +368,8 @@ export const PosOrderSheet = () => {
                     <span className="text-base font-medium">
                       {posOrder.putResponses?.[0]?.createdAt
                         ? new Date(
-                            posOrder.putResponses?.[0].createdAt,
-                          ).toLocaleDateString()
+                          posOrder.putResponses?.[0].createdAt,
+                        ).toLocaleDateString()
                         : '-'}
                     </span>
                   </div>

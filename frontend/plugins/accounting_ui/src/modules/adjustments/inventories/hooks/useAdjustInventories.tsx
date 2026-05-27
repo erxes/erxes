@@ -12,7 +12,7 @@ export const useAdjustInventories = (options?: OperationVariables) => {
         page: 1,
         perPage: ACC_TRS__PER_PAGE,
       },
-    }
+    },
   );
   const { adjustInventories, adjustInventoriesCount } = data || {};
 
@@ -27,7 +27,10 @@ export const useAdjustInventories = (options?: OperationVariables) => {
           return {
             ...prev,
             ...fetchMoreResult,
-            adjustInventories: [...prev.adjustInventories, ...fetchMoreResult.adjustInventories],
+            adjustInventories: [
+              ...prev.adjustInventories,
+              ...fetchMoreResult.adjustInventories,
+            ],
           };
         },
       });

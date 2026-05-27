@@ -1,6 +1,21 @@
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { useApolloClient } from '@apollo/client';
+import {
+  IconCheck,
+  IconLabel,
+  IconLoader,
+  IconPencil,
+  IconPlus,
+  IconTagMinus,
+} from '@tabler/icons-react';
 import LabelForm from '@/deals/cards/components/detail/overview/label/LabelForm';
-import { GET_DEALS } from '@/deals/graphql/queries/DealsQueries';
-import { GET_PIPELINE_LABELS } from '@/deals/graphql/queries/PipelinesQueries';
+import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
 import {
   usePipelineLabelLabel,
   usePipelineLabels,
@@ -10,14 +25,6 @@ import {
   ISelectLabelContext,
   ISelectLabelProviderProps,
 } from '@/deals/types/pipelines';
-import {
-  IconCheck,
-  IconLabel,
-  IconLoader,
-  IconPencil,
-  IconPlus,
-  IconTagMinus,
-} from '@tabler/icons-react';
 import {
   Button,
   Combobox,
@@ -36,7 +43,6 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export const SelectLabelsContext = createContext<ISelectLabelContext | null>(
   null,
@@ -68,14 +74,14 @@ export const SelectLabelsProvider = ({
     const newSelectedLabelIds = isSingleMode
       ? [label._id]
       : isSelected
-        ? multipleValue.filter((p) => p !== label._id)
-        : [...multipleValue, label._id];
+      ? multipleValue.filter((p) => p !== label._id)
+      : [...multipleValue, label._id];
 
     const newSelectedLabels = isSingleMode
       ? [label]
       : isSelected
-        ? selectedLabels.filter((p) => p._id !== label._id)
-        : [...selectedLabels, label];
+      ? selectedLabels.filter((p) => p._id !== label._id)
+      : [...selectedLabels, label];
 
     setSelectedLabels(newSelectedLabels);
     onValueChange?.(isSingleMode ? label._id : newSelectedLabelIds);
@@ -102,6 +108,7 @@ export const SelectLabelsProvider = ({
 export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
   const { labelPipelineLabel } = usePipelineLabelLabel();
   const { labelIds, onSelect } = useSelectLabelsContext();
+  const client = useApolloClient();
 
   const [pipelineId] = useQueryState('pipelineId');
 
@@ -113,6 +120,40 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
     variables: { pipelineId },
     skip: !pipelineId,
   });
+
+  const updateDealLabelsInCache = (
+    dealId: string,
+    nextLabelIds: string[],
+  ) => {
+    const cacheId = client.cache.identify({ __typename: 'Deal', _id: dealId });
+
+    if (!cacheId) {
+      return;
+    }
+
+    const nextLabels = nextLabelIds
+      .map((id) => {
+        const found = pipelineLabels.find((item: IPipelineLabel) => item._id === id);
+
+        return found
+          ? {
+              __typename: 'SalesPipelineLabel' as const,
+              _id: found._id,
+              name: found.name,
+              colorCode: found.colorCode,
+            }
+          : null;
+      })
+      .filter((item): item is NonNullable<typeof item> => item !== null);
+
+    client.cache.modify({
+      id: cacheId,
+      fields: {
+        labelIds: () => nextLabelIds,
+        labels: () => nextLabels,
+      },
+    });
+  };
 
   const toggleLabel = (label: IPipelineLabel) => {
     if (!label._id) {
@@ -127,25 +168,26 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
       newLabelIds.push(label._id);
     }
 
+    onSelect(label);
+
     if (targetId) {
+      updateDealLabelsInCache(targetId, newLabelIds);
+
       labelPipelineLabel({
         variables: {
           targetId: targetId,
           labelIds: newLabelIds,
         },
+        update: () => {
+          updateDealLabelsInCache(targetId, newLabelIds);
+        },
         refetchQueries: [
           {
-            query: GET_PIPELINE_LABELS,
-            variables: { pipelineId },
-          },
-          {
-            query: GET_DEALS,
-            variables: { pipelineId },
+            query: GET_DEAL_DETAIL,
+            variables: { _id: targetId },
           },
         ],
       });
-    } else {
-      onSelect(label);
     }
   };
 
@@ -337,12 +379,12 @@ export const SelectLabelsInlineCell = ({
 export const SelectLabelsDetail = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectLabelsProvider>, 'children'> &
-  Omit<
-    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-    'children'
-  > & {
-    scope?: string;
-  }
+    Omit<
+      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+      'children'
+    > & {
+      scope?: string;
+    }
 >(({ onValueChange, scope, value, mode, className, ...props }, ref) => {
   const [open, setOpen] = useState(false);
   return (
@@ -493,9 +535,16 @@ export const SelectLabelsFilterBar = ({
   const [localQuery, setLocalQuery] = useState<string[]>(initialValue || []);
   const [urlQuery, setUrlQuery] = useQueryState<string[]>(filterKey);
   const [open, setOpen] = useState<boolean>(false);
+  const prevInitialValueRef = useRef<string[]>(initialValue || []);
 
   useEffect(() => {
-    if (isCardVariant && initialValue) {
+    if (!isCardVariant || !initialValue) return;
+    const prev = prevInitialValueRef.current;
+    const contentsChanged =
+      prev.length !== initialValue.length ||
+      !prev.every((id) => initialValue.includes(id));
+    if (contentsChanged) {
+      prevInitialValueRef.current = initialValue;
       setLocalQuery(initialValue);
     }
   }, [initialValue, isCardVariant]);

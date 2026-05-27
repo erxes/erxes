@@ -145,6 +145,18 @@ export function applyPricingOptionsTranslation<T extends { _id: string }>(
       ...(pt.accommodationType
         ? { accommodationType: pt.accommodationType }
         : {}),
+      ...(Array.isArray(pt.prices) && pt.prices.length
+        ? { prices: pt.prices }
+        : {}),
+      ...(typeof pt.pricePerPerson === 'number'
+        ? { pricePerPerson: pt.pricePerPerson }
+        : {}),
+      ...(typeof pt.domesticFlightPerPerson === 'number'
+        ? { domesticFlightPerPerson: pt.domesticFlightPerPerson }
+        : {}),
+      ...(typeof pt.singleSupplement === 'number'
+        ? { singleSupplement: pt.singleSupplement }
+        : {}),
     };
   });
 

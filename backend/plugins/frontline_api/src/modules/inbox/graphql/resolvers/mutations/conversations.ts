@@ -8,13 +8,14 @@ import {
   CONVERSATION_STATUSES,
 } from '@/inbox/db/definitions/constants';
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
+import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { graphqlPubsub, sendTRPCMessage, markResolvers } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
 import { generateModels, IContext, IModels } from '~/connectionResolvers';
 import { debugError } from '~/modules/inbox/utils';
 import { createNotifications } from '~/utils/notifications';
-import * as strip from 'strip';
+import strip from 'strip';
 
 interface DispatchConversationData {
   action: string;
@@ -37,8 +38,7 @@ export const dispatchConversationToService = async (
         return await handleFacebookIntegration({ subdomain, data });
 
       case 'instagram':
-        // TODO: Implement Instagram logic
-        break;
+        return await handleInstagramIntegration({ subdomain, data });
 
       case 'calls':
         break;
@@ -96,8 +96,6 @@ export const publishConversationsChanged = async (
     await graphqlPubsub.publish(`conversationChanged:${_id}`, {
       conversationChanged: { conversationId: _id, type },
     });
-
-    await models.Conversations.findOne({ _id });
   }
 
   return _ids;
@@ -333,7 +331,12 @@ export const conversationMutations = {
         },
       );
 
-      // Case: external service handled it, do not save locally
+      if (response?.status === 'error') {
+        throw new Error(
+          response.errorMessage || 'Failed to send message to external service',
+        );
+      }
+
       if (response?.data?.data) {
         const { conversationId, content } = response.data.data;
         if (conversationId && content) {
@@ -373,7 +376,6 @@ export const conversationMutations = {
 
       return dbMessage;
     } catch (err) {
-      console.error('conversationMessageAdd error:', err);
       throw new Error(`Failed to add message to conversation: ${err.message}`);
     }
   },
@@ -571,3 +573,10 @@ export const conversationMutations = {
     return models.Conversations.getConversation(_id);
   },
 };
+markResolvers(conversationMutations, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
+
+

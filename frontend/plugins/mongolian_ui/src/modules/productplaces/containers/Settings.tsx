@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { Spinner, Form } from 'erxes-ui';
+import { Spinner, Form, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 
 import type {
@@ -37,6 +37,7 @@ const SettingsContainer = ({
   subId,
   multiple = false,
 }: Props) => {
+  const { toast } = useToast();
   const form = useForm();
 
   const { data, loading, error, refetch } = useQuery(
@@ -111,8 +112,13 @@ const SettingsContainer = ({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Spinner />
+      <div className="w-full h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Spinner />
+          <p className="text-sm text-muted-foreground">
+            Loading configurations...
+          </p>
+        </div>
       </div>
     );
   }
@@ -126,41 +132,75 @@ const SettingsContainer = ({
   }
 
   const save = async (config: Record<string, any>, formSubId?: string) => {
-    const { _id, ...rest } = config;
-    const value = denormalizeConfig(rest);
+    try {
+      const { _id, ...rest } = config;
+      const value = denormalizeConfig(rest);
 
-    const finalSubId = formSubId ?? rest.stageId ?? subId ?? '';
+      const finalSubId = formSubId ?? rest.stageId ?? subId ?? '';
 
-    if (_id) {
-      await updateConfig({
-        variables: {
-          _id,
-          subId: finalSubId,
-          value,
-        },
+      if (_id) {
+        await updateConfig({
+          variables: {
+            _id,
+            subId: finalSubId,
+            value,
+          },
+        });
+        toast({
+          title: 'Амжилттай',
+          description: 'Тохиргоо амжилттай шинэчлэгдсэн',
+          variant: 'default',
+        });
+      } else {
+        await createConfig({
+          variables: {
+            code: configCode,
+            subId: finalSubId,
+            value,
+          },
+        });
+        toast({
+          title: 'Амжилттай',
+          description: 'Тохиргоо амжилттай үүсгэгдсэн',
+          variant: 'default',
+        });
+      }
+
+      await refetch();
+      return true;
+    } catch (error: any) {
+      toast({
+        title: 'Алдаа',
+        description: error?.message || 'Тохиргоо хадгалахад алдаа гарлаа',
+        variant: 'destructive',
       });
-    } else {
-      await createConfig({
-        variables: {
-          code: configCode,
-          subId: finalSubId,
-          value,
-        },
-      });
+      throw error;
     }
-
-    await refetch();
-    return true;
   };
 
   const remove = async (id: string) => {
-    if (!id) return;
+    try {
+      if (!id) return;
 
-    await removeConfig({
-      variables: { _id: id },
-    });
+      await removeConfig({
+        variables: { _id: id },
+      });
 
-    await refetch();
+      toast({
+        title: 'Амжилттай',
+        description: 'Тохиргоо амжилттай устгагдсан',
+        variant: 'default',
+      });
+
+      await refetch();
+    } catch (error: any) {
+      toast({
+        title: 'Алдаа',
+        description: error?.message || 'Тохиргоо устгахад алдаа гарлаа',
+        variant: 'destructive',
+      });
+      throw error;
+    }
   };
 
   return (

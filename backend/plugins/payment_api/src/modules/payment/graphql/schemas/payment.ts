@@ -10,6 +10,7 @@ export const types = `
     kind: String!
     status: PaymentMethodStatus
     config: JSON
+    sendEmailOnPayment: Boolean
     createdAt: Date
   }
 
@@ -32,6 +33,7 @@ export const inputs = `
     kind: String!
     status: PaymentMethodStatus
     config: JSON
+    sendEmailOnPayment: Boolean
   }
 `;
 
@@ -54,5 +56,5 @@ export const queries = `
 export const mutations = `
   paymentAdd(input: PaymentInput!): Payment
   paymentEdit(_id: String!, input: PaymentInput!): Payment
-  paymentRemove(_id: String!): String
+  paymentRemove(_ids: [String!]!): String
 `;

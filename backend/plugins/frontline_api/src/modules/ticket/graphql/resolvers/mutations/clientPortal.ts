@@ -29,7 +29,7 @@ export const cpTicketMutations: Record<string, Resolver> = {
       ticketListChanged: { type: 'create', ticket },
     });
 
-    if (ticket && cpUser?.erxesCustomerId) {
+    if (ticket && userId) {
       await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
@@ -40,8 +40,8 @@ export const cpTicketMutations: Record<string, Resolver> = {
           relation: {
             entities: [
               {
-                contentType: 'core:customer',
-                contentId: cpUser.erxesCustomerId,
+                contentType: 'core:cp.user',
+                contentId: userId,
               },
               {
                 contentType: 'frontline:ticket',

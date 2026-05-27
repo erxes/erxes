@@ -8,6 +8,7 @@ import {
   getPosPostData,
   loansTransactionToErkhet,
   orderDeleteToErkhet,
+  sendErkhetPost,
 } from '../utils';
 
 export type ErkhetTRPCContext = ITRPCContext<{ models: IModels }>;
@@ -53,26 +54,15 @@ export const erkhetTrpcRouter = t.router({
         );
 
         if (!postData) {
-          return {
-            status: 'success',
-            data: {},
-          };
+          return {};
         }
 
-        //   return await sendTRPCMessage(
-        //       models,
-        //       syncLog,
-        //       "rpc_queue:erxes-automation-erkhet",
-        //       {
-        //         action: "get-response-send-order-info",
-        //         isEbarimt: false,
-        //         payload: JSON.stringify(postData),
-        //         thirdService: true,
-        //         isJson: true
-        //       }
-        //     )
-
-        return {};
+        return await sendErkhetPost(
+          models,
+          syncLog,
+          'get-response-send-order-info',
+          postData,
+        );
       } catch (e) {
         await models.SyncLogs.updateOne(
           { _id: syncLog._id },
@@ -107,26 +97,15 @@ export const erkhetTrpcRouter = t.router({
             orderId,
           );
           if (!postData) {
-            return {
-              status: 'success',
-              data: {},
-            };
+            return {};
           }
 
-          //   return await sendRPCMessage(
-          //       models,
-          //       syncLog,
-          //       "rpc_queue:erxes-automation-erkhet",
-          //       {
-          //         action: "get-response-send-journal-orders",
-          //         isEbarimt: false,
-          //         payload: JSON.stringify(postData),
-          //         thirdService: true,
-          //         isJson: true
-          //       }
-          //     );
-
-          return {};
+          return await sendErkhetPost(
+            models,
+            syncLog,
+            'get-response-send-journal-orders',
+            postData,
+          );
         } catch (e) {
           await models.SyncLogs.updateOne(
             { _id: syncLog._id },
@@ -160,26 +139,15 @@ export const erkhetTrpcRouter = t.router({
             orderId,
           );
           if (!postData) {
-            return {
-              status: 'success',
-              data: {},
-            };
+            return {};
           }
 
-          // return await sendRPCMessage(
-          //     models,
-          //     syncLog,
-          //     "rpc_queue:erxes-automation-erkhet",
-          //     {
-          //       action: "get-response-delete-journal-orders",
-          //       isEbarimt: false,
-          //       payload: JSON.stringify(postData),
-          //       thirdService: true,
-          //       isJson: true
-          //     }
-          //   )
-
-          return {};
+          return await sendErkhetPost(
+            models,
+            syncLog,
+            'get-response-delete-journal-orders',
+            postData,
+          );
         } catch (e) {
           await models.SyncLogs.updateOne(
             { _id: syncLog._id },
