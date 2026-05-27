@@ -1115,6 +1115,7 @@ export const sendNotifications = async (
 
   const notificationDoc = {
     createdUser: user,
+    fromUserId: user._id,
     title,
     contentType: 'sales:deal',
     contentTypeId: item._id,
