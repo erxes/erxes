@@ -19,7 +19,6 @@ export const SCORE_LOG_LIST_QUERY = gql`
     $limit: Int
     $cursor: String
     $direction: CURSOR_DIRECTION
-    $logsPerOwner: Int
   ) {
     scoreLogList(
       searchValue: $searchValue
@@ -39,33 +38,28 @@ export const SCORE_LOG_LIST_QUERY = gql`
       limit: $limit
       cursor: $cursor
       direction: $direction
-      logsPerOwner: $logsPerOwner
     ) {
       list {
+        _id
         ownerId
         ownerType
         owner
-        logs {
-          _id
-          ownerId
-          ownerType
-          change
-          action
-          description
-          campaignId
-          campaign {
-            _id
-            title
-          }
-          targetId
-          target
-          serviceName
-          createdBy
-          createdAt
-          amount
-          quantity
-        }
         totalScore
+        change
+        action
+        description
+        campaignId
+        campaign {
+          _id
+          title
+        }
+        targetId
+        target
+        serviceName
+        createdBy
+        createdAt
+        amount
+        quantity
       }
       pageInfo {
         hasNextPage
