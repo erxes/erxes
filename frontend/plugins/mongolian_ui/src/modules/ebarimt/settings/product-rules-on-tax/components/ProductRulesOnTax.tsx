@@ -25,7 +25,7 @@ export const AddProductRulesOnTax = () => {
       kind: '',
       taxType: '',
       taxCode: '',
-      percent: 0,
+      taxPercent: 0,
       tagIds: '',
       excludeTagIds: '',
       status: '',
@@ -52,7 +52,7 @@ export const AddProductRulesOnTax = () => {
     if (data.kind !== 'ctax') {
       variables.taxType = data.taxType;
       variables.taxCode = data.taxCode;
-      variables.taxPercent = data.percent;
+      variables.taxPercent = data.taxPercent;
     }
 
     addProductRulesOnTax({
@@ -128,7 +128,7 @@ export const AddProductRulesOnTaxForm = ({
       kind: '',
       taxType: '',
       taxCode: '',
-      percent: 0,
+      taxPercent: 0,
       tagIds: '',
       excludeTagIds: '',
       status: '',
@@ -155,7 +155,7 @@ export const AddProductRulesOnTaxForm = ({
     if (data.kind !== 'ctax') {
       variables.taxType = data.taxType;
       variables.taxCode = data.taxCode;
-      variables.taxPercent = data.percent;
+      variables.taxPercent = data.taxPercent;
     }
 
     addProductRulesOnTax({

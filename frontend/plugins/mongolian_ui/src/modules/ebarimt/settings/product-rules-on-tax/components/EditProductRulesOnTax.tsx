@@ -33,7 +33,7 @@ export const EditProductRulesOnTax = () => {
       taxType: '',
       taxCode: '',
       kind: '',
-      percent: 0,
+      taxPercent: 0,
       productCategoryIds: '',
       excludeCategoryIds: '',
       productIds: '',
@@ -52,7 +52,7 @@ export const EditProductRulesOnTax = () => {
         taxType: productRulesOnTaxDetail.taxType || '',
         taxCode: productRulesOnTaxDetail.taxCode || '',
         kind: productRulesOnTaxDetail.kind || '',
-        percent: productRulesOnTaxDetail.taxPercent || 0,
+        taxPercent: productRulesOnTaxDetail.taxPercent || 0,
         productCategoryIds:
           productRulesOnTaxDetail.productCategoryIds?.join(', ') || '',
         excludeCategoryIds:
@@ -82,6 +82,7 @@ export const EditProductRulesOnTax = () => {
       taxType: data.taxType,
       taxCode: data.taxCode,
       kind: data.kind,
+      taxPercent: data.taxPercent,
       productCategoryIds: toArray(data.productCategoryIds),
       excludeCategoryIds: toArray(data.excludeCategoryIds),
       productIds: toArray(data.productIds),
@@ -89,10 +90,6 @@ export const EditProductRulesOnTax = () => {
       tagIds: toArray(data.tagIds),
       excludeTagIds: toArray(data.excludeTagIds),
     };
-
-    if (data.kind !== 'ctax') {
-      newData.taxPercent = data.percent;
-    }
 
     const initialData = {
       title: productRulesOnTaxDetail.title || '',
@@ -110,11 +107,7 @@ export const EditProductRulesOnTax = () => {
 
     const comparisonData = { ...newData };
     const comparisonInitial = { ...initialData };
-    if (data.kind === 'ctax') {
-      delete comparisonData.taxPercent;
-      delete comparisonInitial.taxPercent;
-    }
-
+  
     if (isDeeplyEqual(comparisonData, comparisonInitial)) {
       toast({ title: 'Success', description: 'No changes made' });
       reset();

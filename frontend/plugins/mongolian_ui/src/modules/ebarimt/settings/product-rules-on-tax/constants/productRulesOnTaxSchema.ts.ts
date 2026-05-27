@@ -10,7 +10,7 @@ export const productRulesOnTaxSchema = z.object({
   productIds: z.string().optional(),
   excludeProductIds: z.string().optional(),
   kind: z.string().min(1, 'Select a kind'),
-  percent: z.number().min(0, 'Percent must be at least 0'),
+  taxPercent: z.number().min(0, 'Percent must be at least 0'),
   tagIds: z.string().optional(),
   excludeTagIds: z.string().optional(),
   status: z.string().optional(),

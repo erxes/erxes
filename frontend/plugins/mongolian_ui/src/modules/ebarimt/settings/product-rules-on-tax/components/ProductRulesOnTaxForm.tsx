@@ -1,7 +1,7 @@
 import { TAX_TYPES } from '@/ebarimt/settings/product-rules-on-tax/constants/productRulesOnTaxDefaultValues';
 import { TProductRulesOnTaxForm } from '@/ebarimt/settings/product-rules-on-tax/constants/productRulesOnTaxSchema.ts';
 import { Button, Dialog, Form, Input, Select, Spinner } from 'erxes-ui';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { SelectCategory, SelectProduct, SelectTags } from 'ui-modules';
 
@@ -19,6 +19,15 @@ export const ProductRulesOnTaxForm = ({
   formId?: string;
 }) => {
   const taxType = useWatch({ control: form.control, name: 'taxType' }) || '';
+
+  useEffect(() => {
+    if (taxType === 'ctax') {
+      form.setValue('kind', 'ctax');
+    } else {
+      form.setValue('kind', 'vat');
+      form.setValue('taxPercent', Number(TAX_TYPES[taxType]?.percent) || 0);
+    }
+  }, [taxType, form]);
 
   const handleNumberChange = useCallback(
     (value: string, onChange: (value: number) => void) => {
@@ -46,6 +55,7 @@ export const ProductRulesOnTaxForm = ({
     },
     [],
   );
+
   return (
     <Form {...form}>
       <form id={formId} onSubmit={form.handleSubmit(onSubmit)}>
@@ -76,17 +86,7 @@ export const ProductRulesOnTaxForm = ({
                   <Select value={field.value} onValueChange={field.onChange}>
                     <Form.Control>
                       <Select.Trigger className="text-muted-foreground">
-                        <Select.Value placeholder="Select a tax type">
-                          {field.value ? (
-                            <span className="text-foreground">
-                              {field.value}
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground">
-                              Select a tax type
-                            </span>
-                          )}
-                        </Select.Value>
+                        <Select.Value placeholder="Select a tax type" />
                       </Select.Trigger>
                     </Form.Control>
                     <Select.Content>
@@ -96,7 +96,7 @@ export const ProductRulesOnTaxForm = ({
                           value={key}
                           className="capitalize"
                         >
-                          TAX_TYPES[key].label
+                          {TAX_TYPES[key].label}
                         </Select.Item>
                       ))}
                     </Select.Content>
@@ -113,21 +113,10 @@ export const ProductRulesOnTaxForm = ({
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
-                    disabled={false}
                   >
                     <Form.Control>
                       <Select.Trigger className="text-muted-foreground">
-                        <Select.Value placeholder="Select a tax code">
-                          {field.value ? (
-                            <span className="text-foreground">
-                              {field.value}
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground">
-                              Select a tax code
-                            </span>
-                          )}
-                        </Select.Value>
+                        <Select.Value placeholder="Select a tax code" />
                       </Select.Trigger>
                     </Form.Control>
                     <Select.Content>
@@ -165,7 +154,7 @@ export const ProductRulesOnTaxForm = ({
             />
             <Form.Field
               control={form.control}
-              name="percent"
+              name="taxPercent"
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Percent</Form.Label>
@@ -178,7 +167,7 @@ export const ProductRulesOnTaxForm = ({
                         handleNumberChange(e.target.value, field.onChange);
                       }}
                       placeholder="Enter percent"
-                      disabled={!TAX_TYPES[taxType]?.percent}
+                      disabled={!!TAX_TYPES[taxType]?.percent}
                     />
                   </Form.Control>
                 </Form.Item>
