@@ -1,0 +1,414 @@
+# erxes – full-stack Docker Compose
+
+services:
+  # ── Infrastructure ──────────────────────────────────────────────────────────
+
+  mongo:
+    image: mongo:6
+    restart: unless-stopped
+    networks:
+      - erxes
+    volumes:
+      - mongo-data:/data/db
+    # ports:
+    #   - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    networks:
+      - erxes
+    command: >-
+      sh -c "redis-server --save 60 1 --loglevel warning ${REDIS_PASSWORD:+--requirepass ${REDIS_PASSWORD}}"
+    volumes:
+      - redis-data:/data
+    # ports:
+    #   - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # ── Core Backend ─────────────────────────────────────────────────────────────
+
+  gateway:
+    image: erxes/erxes-next-gateway:latest
+    restart: unless-stopped
+    networks:
+      - erxes
+    ports:
+      - "${GATEWAY_PORT:-4000}:4000"
+    environment:
+      NODE_ENV: production
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017/erxes}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      DOMAIN: ${DOMAIN:-http://localhost:4000}
+      WIDGETS_DOMAIN: ${WIDGETS_DOMAIN:-http://localhost:3200}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+      JWT_TOKEN_SECRET: ${JWT_TOKEN_SECRET:?JWT_TOKEN_SECRET must be set in .env}
+      # Uncomment when running plugin profiles: ENABLED_PLUGINS: ${ENABLED_PLUGINS}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  core-api:
+    image: erxes/erxes-next-core-api:latest
+    restart: unless-stopped
+    networks:
+      - erxes
+    environment:
+      NODE_ENV: production
+      PORT: "3300"
+      LOAD_BALANCER_ADDRESS: http://core-api:3300
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017/erxes}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      DOMAIN: ${DOMAIN:-http://localhost:4000}
+      WIDGETS_DOMAIN: ${WIDGETS_DOMAIN:-http://localhost:3200}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
+      JWT_TOKEN_SECRET: ${JWT_TOKEN_SECRET:?JWT_TOKEN_SECRET must be set in .env}
+      FILE_UPLOAD_MAX_SIZE: ${FILE_UPLOAD_MAX_SIZE:-52428800}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ── Frontend ─────────────────────────────────────────────────────────────────
+
+  core-ui:
+    image: erxes/erxes-next-ui:latest
+    restart: unless-stopped
+    networks:
+      - erxes
+    ports:
+      - "${UI_PORT:-3001}:80"
+    environment:
+      REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:4000}
+      REACT_APP_API_SUBSCRIPTION_URL: ${REACT_APP_API_SUBSCRIPTION_URL:-ws://localhost:4000/graphql}
+      REACT_APP_CDN_HOST: ${REACT_APP_CDN_HOST:-http://localhost:3001}
+      NGINX_HOST: ${NGINX_HOST:-localhost}
+      NGINX_PORT: "80"
+    depends_on:
+      gateway:
+        condition: service_healthy
+
+  # ── Background Services ───────────────────────────────────────────────────────
+
+  automations:
+    image: erxes/erxes-next-automations:latest
+    restart: unless-stopped
+    networks:
+      - erxes
+    profiles: [services]
+    environment:
+      NODE_ENV: production
+      PORT: "3302"
+      LOAD_BALANCER_ADDRESS: http://automations:3302
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017/erxes}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      DOMAIN: ${DOMAIN:-http://localhost:4000}
+      WIDGETS_DOMAIN: ${WIDGETS_DOMAIN:-http://localhost:3200}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  logs:
+    image: erxes/erxes-next-logs:latest
+    restart: unless-stopped
+    networks:
+      - erxes
+    profiles: [services]
+    environment:
+      NODE_ENV: production
+      PORT: "3301"
+      LOAD_BALANCER_ADDRESS: http://logs:3301
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017/erxes}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      DOMAIN: ${DOMAIN:-http://localhost:4000}
+      WIDGETS_DOMAIN: ${WIDGETS_DOMAIN:-http://localhost:3200}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ── Plugin APIs – plugins-base ────────────────────────────────────────────────
+
+  sales-api:
+    image: erxes/erxes-next-sales_api:latest
+    restart: unless-stopped
+    networks:
+      - erxes
+    profiles: [plugins-base]
+    environment:
+      NODE_ENV: production
+      PORT: "3305"
+      LOAD_BALANCER_ADDRESS: http://sales-api:3305
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017/erxes}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      DOMAIN: ${DOMAIN:-http://localhost:4000}
+      WIDGETS_DOMAIN: ${WIDGETS_DOMAIN:-http://localhost:3200}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  operation-api:
+    image: erxes/erxes-next-operation_api:latest
+    restart: unless-stopped
+    networks:
+      - erxes
+    profiles: [plugins-base]
+    environment:
+      NODE_ENV: production
+      PORT: "3307"
+      LOAD_BALANCER_ADDRESS: http://operation-api:3307
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017/erxes}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      DOMAIN: ${DOMAIN:-http://localhost:4000}
+      WIDGETS_DOMAIN: ${WIDGETS_DOMAIN:-http://localhost:3200}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontline-api:
+    image: erxes/erxes-next-frontline_api:latest
+    restart: unless-stopped
+    networks:
+      - erxes
+    profiles: [plugins-base]
+    environment:
+      NODE_ENV: production
+      PORT: "3304"
+      LOAD_BALANCER_ADDRESS: http://frontline-api:3304
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017/erxes}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      DOMAIN: ${DOMAIN:-http://localhost:4000}
+      WIDGETS_DOMAIN: ${WIDGETS_DOMAIN:-http://localhost:3200}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  content-api:
+    image: erxes/erxes-next-content_api:latest
+    restart: unless-stopped
+    networks:
+      - erxes
+    profiles: [plugins-base]
+    environment:
+      NODE_ENV: production
+      PORT: "3303"
+      LOAD_BALANCER_ADDRESS: http://content-api:3303
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017/erxes}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      DOMAIN: ${DOMAIN:-http://localhost:4000}
+      WIDGETS_DOMAIN: ${WIDGETS_DOMAIN:-http://localhost:3200}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ── Plugin APIs – plugins-fin ─────────────────────────────────────────────────
+
+  accounting-api:
+    image: erxes/erxes-next-accounting_api:latest
+    restart: unless-stopped
+    networks:
+      - erxes
+    profiles: [plugins-fin]
+    environment:
+      NODE_ENV: production
+      PORT: "3308"
+      LOAD_BALANCER_ADDRESS: http://accounting-api:3308
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017/erxes}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      DOMAIN: ${DOMAIN:-http://localhost:4000}
+      WIDGETS_DOMAIN: ${WIDGETS_DOMAIN:-http://localhost:3200}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  payment-api:
+    image: erxes/erxes-next-payment_api:latest
+    restart: unless-stopped
+    networks:
+      - erxes
+    profiles: [plugins-fin]
+    environment:
+      NODE_ENV: production
+      PORT: "3310"
+      LOAD_BALANCER_ADDRESS: http://payment-api:3310
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017/erxes}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      DOMAIN: ${DOMAIN:-http://localhost:4000}
+      WIDGETS_DOMAIN: ${WIDGETS_DOMAIN:-http://localhost:3200}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  loyalty-api:
+    image: erxes/erxes-next-loyalty_api:latest
+    restart: unless-stopped
+    networks:
+      - erxes
+    profiles: [plugins-fin]
+    environment:
+      NODE_ENV: production
+      PORT: "3309"
+      LOAD_BALANCER_ADDRESS: http://loyalty-api:3309
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017/erxes}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      DOMAIN: ${DOMAIN:-http://localhost:4000}
+      WIDGETS_DOMAIN: ${WIDGETS_DOMAIN:-http://localhost:3200}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ── Plugin APIs – plugins-extra ───────────────────────────────────────────────
+
+  tourism-api:
+    image: erxes/erxes-next-tourism_api:latest
+    restart: unless-stopped
+    networks:
+      - erxes
+    profiles: [plugins-extra]
+    environment:
+      NODE_ENV: production
+      PORT: "3311"
+      LOAD_BALANCER_ADDRESS: http://tourism-api:3311
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017/erxes}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      DOMAIN: ${DOMAIN:-http://localhost:4000}
+      WIDGETS_DOMAIN: ${WIDGETS_DOMAIN:-http://localhost:3200}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  posclient-api:
+    image: erxes/erxes-next-posclient_api:latest
+    restart: unless-stopped
+    networks:
+      - erxes
+    profiles: [plugins-extra]
+    environment:
+      NODE_ENV: production
+      PORT: "3312"
+      LOAD_BALANCER_ADDRESS: http://posclient-api:3312
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017/erxes}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      DOMAIN: ${DOMAIN:-http://localhost:4000}
+      WIDGETS_DOMAIN: ${WIDGETS_DOMAIN:-http://localhost:3200}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  mongolian-api:
+    image: erxes/erxes-next-mongolian_api:latest
+    restart: unless-stopped
+    networks:
+      - erxes
+    profiles: [plugins-extra]
+    environment:
+      NODE_ENV: production
+      PORT: "3313"
+      LOAD_BALANCER_ADDRESS: http://mongolian-api:3313
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017/erxes}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      DOMAIN: ${DOMAIN:-http://localhost:4000}
+      WIDGETS_DOMAIN: ${WIDGETS_DOMAIN:-http://localhost:3200}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  insurance-api:
+    image: erxes/erxes-next-insurance_api:latest
+    restart: unless-stopped
+    networks:
+      - erxes
+    profiles: [plugins-extra]
+    environment:
+      NODE_ENV: production
+      PORT: "33010"
+      LOAD_BALANCER_ADDRESS: http://insurance-api:33010
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017/erxes}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      DOMAIN: ${DOMAIN:-http://localhost:4000}
+      WIDGETS_DOMAIN: ${WIDGETS_DOMAIN:-http://localhost:3200}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+networks:
+  erxes:
+    driver: bridge
+
+volumes:
+  mongo-data:
+  redis-data:
