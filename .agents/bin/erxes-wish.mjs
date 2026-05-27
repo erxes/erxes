@@ -56,6 +56,7 @@ ${paint('bright', 'Usage:')}
 
 ${paint('bright', 'Options:')}
   --plugin [name]  Bootstrap a fresh new plugin dynamically (interactive walkthrough)
+  --settings       Force the action to be a post-scaffold settings build (spawns sub-agents)
   --fix            Force the action to be a bug fix / repair request
   --skill <name>   Force a specific skill playbook (e.g., 'add-deal-field')
   --interactive    Force interactive walkthrough mode
@@ -63,6 +64,7 @@ ${paint('bright', 'Options:')}
 
 ${paint('bright', 'Examples:')}
   pnpm erxes-wish --plugin loyalty
+  pnpm erxes-wish --settings "storebranch settings page is empty"
   pnpm erxes-wish "fix the deal color calculation in sales"
   pnpm erxes-wish "add confidenceScore to deals" --skill add-deal-field
   pnpm erxes-wish --interactive
@@ -99,6 +101,18 @@ function detectFixAction(wishText) {
     const regex = new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`);
     return regex.test(lower);
   });
+}
+
+function detectSettingsAction(wishText) {
+  const lower = wishText.toLowerCase();
+  const settingsKeywords = [
+    'settings empty', 'settings page empty', 'stub settings',
+    'wire buttons', 'wire crud', 'dead button',
+    'build settings', 'populate settings', 'post-scaffold settings',
+    'add button does nothing', 'button does nothing',
+    'settings page is empty', 'empty settings'
+  ];
+  return settingsKeywords.some(kw => lower.includes(kw));
 }
 
 function detectOccupiedPorts() {
@@ -379,21 +393,47 @@ function detectPluginScope(wishText) {
     sales: ['deal', 'board', 'pipeline', 'stage', 'sales', 'kanban', 'pos', 'ecommerce']
   };
 
+  // Check static keyword map first (non-sales plugins take priority)
   for (const [pluginName, keywords] of Object.entries(pluginKeywords)) {
     if (pluginName === 'sales') continue;
     if (keywords.some(kw => lowerWish.includes(kw))) {
       return pluginName;
     }
   }
+
+  // Dynamic detection: scan backend/plugins/ for custom plugins not in the keyword map.
+  // This catches plugins created via create-plugin.md (e.g., storebranch, booking).
+  const backendPluginsDir = path.join(REPO_ROOT, 'backend/plugins');
+  if (fs.existsSync(backendPluginsDir)) {
+    const pluginDirs = fs.readdirSync(backendPluginsDir)
+      .filter(d => d.endsWith('_api'))
+      .map(d => d.replace(/_api$/, ''));
+    for (const pluginName of pluginDirs) {
+      if (pluginKeywords[pluginName]) continue; // already checked
+      if (lowerWish.includes(pluginName)) {
+        return pluginName;
+      }
+    }
+  }
+
+  // Fallback: check sales keywords last
+  if (pluginKeywords.sales.some(kw => lowerWish.includes(kw))) {
+    return 'sales';
+  }
   return 'sales';
 }
 
-function rateComplexity(wishText, plugin) {
+function rateComplexity(wishText, plugin, isSettings = false) {
+  if (isSettings) return 'large'; // settings build always spawns sub-agents
   const lower = wishText.toLowerCase();
   if (lower.includes('field') || lower.includes('typo') || lower.includes('comment')) {
     return 'small';
   }
   if (lower.includes('trpc') || lower.includes('federation') || lower.includes('module federation') || lower.includes('integrate') || lower.includes('automation')) {
+    return 'large';
+  }
+  // Auto-detect settings wishes even without --settings flag
+  if (detectSettingsAction(wishText)) {
     return 'large';
   }
   return 'medium';
@@ -419,9 +459,12 @@ function createWishOnDisk(wishText, plugin, complexity, isFix = false) {
   content = content.replace(/captured/g, 'routed');
   content = content.replace(/<verbatim.*>/g, wishText);
   
-  // Route to fix-issue.md for bugs, plugin-specific skill for features
+  // Route to the correct skill based on action type
+  const isSettings = detectSettingsAction(wishText) || false;
   if (isFix) {
     content = content.replace(/skills\/\<plugin\>.*\.md/g, `skills/fix-issue.md`);
+  } else if (isSettings) {
+    content = content.replace(/skills\/\<plugin\>.*\.md/g, `skills/build-plugin-settings.md`);
   } else {
     content = content.replace(/skills\/\<plugin\>.*\.md/g, `skills/${plugin}/add-${plugin}-field.md`);
   }
@@ -448,7 +491,7 @@ function createWishOnDisk(wishText, plugin, complexity, isFix = false) {
   return wishId;
 }
 
-function compileBrief(wishText, plugin, wishId, complexity, isFix) {
+function compileBrief(wishText, plugin, wishId, complexity, isFix, isSettings = false) {
   const readAgentFile = (filename) => {
     const p = path.join(AGENTS_DIR, filename);
     return fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : '';
@@ -460,6 +503,43 @@ function compileBrief(wishText, plugin, wishId, complexity, isFix) {
   const lessons = readAgentFile('memory/lessons.md');
   const masterSkill = readAgentFile('skills/start.md');
   const fixSkill = isFix ? readAgentFile('skills/fix-issue.md') : '';
+  const settingsSkill = isSettings ? readAgentFile('skills/build-plugin-settings.md') : '';
+
+  // Determine action description
+  let actionDesc = 'implement the following customer-facing feature wish.';
+  let actionType = 'CREATE / NEW FEATURE';
+  let wishLabel = 'WISH';
+  if (isFix) {
+    actionDesc = 'FIX / RESOLVE the following plugin issue.';
+    actionType = 'FIX / SELF-REPAIR';
+    wishLabel = 'BUG REPORT / ISSUE';
+  } else if (isSettings) {
+    actionDesc = 'BUILD SETTINGS for the following scaffolded plugin. Use the Supervisor Model to spawn Backend + Frontend specialist sub-agents.';
+    actionType = 'BUILD SETTINGS (POST-SCAFFOLD)';
+    wishLabel = 'SETTINGS BUILD REQUEST';
+  }
+
+  // Build specialized skill section
+  let specializedSection = '';
+  if (isFix) {
+    specializedSection = `
+=========================================
+6. SPECIALIZED BUG-FIXING PLAYBOOK (fix-issue.md)
+=========================================
+${fixSkill}
+`;
+  } else if (isSettings) {
+    specializedSection = `
+=========================================
+6. SPECIALIZED SETTINGS BUILD PLAYBOOK (build-plugin-settings.md)
+=========================================
+This skill uses the SUPERVISOR MODEL — spawn 2 sub-agents:
+  - Backend Specialist: review/harden scaffolded mutations, models, multi-tenancy
+  - Frontend Specialist: build form component, wire Add/Edit/Delete buttons, populate Settings page
+
+${settingsSkill}
+`;
+  }
 
   return `
 =========================================
@@ -467,10 +547,10 @@ ERXES AI DEVELOPMENT BRIEFING
 =========================================
 
 You are working in the erxes monorepo.
-Your task is to ${isFix ? 'FIX / RESOLVE the following plugin issue.' : 'implement the following customer-facing feature wish.'}
+Your task is to ${actionDesc}
 
 -----------------------------------------
-THE ${isFix ? 'BUG REPORT / ISSUE' : 'WISH'}
+THE ${wishLabel}
 -----------------------------------------
 "${wishText}"
 
@@ -478,7 +558,7 @@ THE ${isFix ? 'BUG REPORT / ISSUE' : 'WISH'}
 DETECTED ROUTING
 -----------------------------------------
 Plugin Scope: ${plugin}
-Action Type: ${isFix ? 'FIX / SELF-REPAIR' : 'CREATE / NEW FEATURE'}
+Action Type: ${actionType}
 Wish ID: ${wishId}
 Complexity Rating: ${complexity.toUpperCase()}
 
@@ -506,18 +586,14 @@ ${lessons}
 5. MASTER ENTRYPOINT START PLAYBOOK
 =========================================
 ${masterSkill}
-${isFix ? `
-=========================================
-6. SPECIALIZED BUG-FIXING PLAYBOOK (fix-issue.md)
-=========================================
-${fixSkill}
-` : ''}
+${specializedSection}
 `;
 }
 
 // CLI Logic
 const args = process.argv.slice(2);
 const hasPluginOption = args.includes('--plugin');
+const hasSettingsOption = args.includes('--settings');
 const forceInteractive = args.includes('--interactive');
 const showHelpFlag = args.includes('--help') || args.includes('-h');
 
@@ -558,10 +634,11 @@ if (hasPluginOption) {
   }
   
   const plugin = detectPluginScope(wishText);
-  const complexity = rateComplexity(wishText, plugin);
   const isFix = args.includes('--fix') || detectFixAction(wishText);
+  const isSettings = hasSettingsOption || (!isFix && detectSettingsAction(wishText));
+  const complexity = rateComplexity(wishText, plugin, isSettings);
   const wishId = createWishOnDisk(wishText, plugin, complexity, isFix);
-  const brief = compileBrief(wishText, plugin, wishId, complexity, isFix);
+  const brief = compileBrief(wishText, plugin, wishId, complexity, isFix, isSettings);
   
   console.log(brief.trim());
 }
