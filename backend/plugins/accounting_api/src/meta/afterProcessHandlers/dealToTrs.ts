@@ -8,7 +8,6 @@ import {
 } from '~/modules/accounting/@types/constants';
 import {
   ITransaction,
-  ITransactionDocument,
 } from '~/modules/accounting/@types/transaction';
 import { getJournal } from './utils';
 
