@@ -47,6 +47,7 @@ export const insuranceTypeSchema = new Schema(
   {
     name: { type: String, required: true },
     code: { type: String, unique: true, sparse: true },
+    isCitizen: { type: Boolean, default: false },
     attributes: [AttributeDefinitionSchema],
   },
   { timestamps: true },

@@ -55,7 +55,7 @@ export default function SelectSegments({
           placeholder={
             loading
               ? 'Loading...'
-              : contentTypes?.length && 'Choose segment' || 'No contentTypes'
+              : (contentTypes?.length && 'Choose segment') || 'No contentTypes'
           }
         />
       </Select.Trigger>
@@ -71,5 +71,4 @@ export default function SelectSegments({
       </Select.Content>
     </Select>
   );
-
 }

@@ -109,7 +109,7 @@ export const tagQueries: Record<string, Resolver> = {
 
       const service = await getPlugin(serviceName);
       const meta = service.config.meta || {};
-      if (meta && meta.tags) {
+      if (meta?.tags) {
         const types = meta.tags.types || [];
 
         for (const type of types) {

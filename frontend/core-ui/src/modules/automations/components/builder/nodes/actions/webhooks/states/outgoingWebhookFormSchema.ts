@@ -2,7 +2,6 @@ import {
   JWT_AUTH_ALGORITHMS,
   OUTGOIN_WEBHOOK_RETRY_BACKOFFS,
   OUTGOING_WEBHOOK_AUTH_PLACEMENTS,
-  OUTGOING_WEBHOOK_HEADER_VALUE_TYPES,
 } from '@/automations/components/builder/nodes/actions/webhooks/constants/outgoingWebhookForm';
 import {
   validHostnameRegex,
@@ -10,6 +9,47 @@ import {
 } from '@/automations/components/builder/nodes/actions/webhooks/constants/validateRegexes';
 import { AUTOMATION_INCOMING_WEBHOOK_API_METHODS } from '@/automations/components/builder/nodes/triggers/webhooks/constants/incomingWebhook';
 import { z } from 'zod';
+
+const replaceWebhookPlaceholdersForValidation = (value: string) => {
+  let cursor = 0;
+  let normalized = '';
+
+  while (cursor < value.length) {
+    const placeholderStart = value.indexOf('{{', cursor);
+
+    if (placeholderStart === -1) {
+      normalized += value.slice(cursor);
+      break;
+    }
+
+    const placeholderEnd = value.indexOf('}}', placeholderStart + 2);
+
+    if (placeholderEnd === -1) {
+      normalized += value.slice(cursor);
+      break;
+    }
+
+    normalized += `${value.slice(cursor, placeholderStart)}placeholder`;
+    cursor = placeholderEnd + 2;
+  }
+
+  return normalized;
+};
+
+const isValidOutgoingWebhookUrl = (value: string) => {
+  if (!value?.trim()) {
+    return false;
+  }
+
+  const normalizedValue = replaceWebhookPlaceholdersForValidation(value);
+
+  try {
+    const parsed = new URL(normalizedValue);
+    return ['http:', 'https:'].includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+};
 
 const basicAuthSchema = z.object({
   type: z.literal('basic'),
@@ -71,7 +111,6 @@ const authSchema = z.discriminatedUnion('type', [
 const headerSchema = z.object({
   key: z.string().default(''),
   value: z.string().default(''),
-  type: z.enum(OUTGOING_WEBHOOK_HEADER_VALUE_TYPES).default('fixed'),
 });
 
 //Proxy Schema
@@ -170,15 +209,17 @@ const optionsSchema = z.object({
 const outgoingWebhookQueryParamsSchema = z.object({
   name: z.string().default(''),
   value: z.string().default(''),
-  type: z.enum(['fixed', 'expression']).default('fixed'),
 });
 
 export const outgoingWebhookFormSchema = z.object({
   method: z
     .enum(AUTOMATION_INCOMING_WEBHOOK_API_METHODS as [string, ...string[]])
     .default('POST'),
-  url: z.string().url(),
+  url: z.string().min(1, 'URL is required').refine(isValidOutgoingWebhookUrl, {
+    message: 'Enter a valid HTTP or HTTPS URL',
+  }),
   queryParams: z.array(outgoingWebhookQueryParamsSchema).default([]),
+  bodyMode: z.enum(['json', 'text']).default('json'),
   body: z.string().default(''),
   auth: authSchema.optional(),
   headers: z.array(headerSchema).default([]),

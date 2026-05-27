@@ -9,11 +9,15 @@ import {
 import { INTEGRATION_KINDS } from '@/integrations/facebook/constants';
 import { debugError } from '@/integrations/facebook/debuggers';
 import {
-  getFacebookUser, getFacebookUserProfilePic,
-  getPostDetails, getPostLink, uploadMedia
+  getFacebookUser,
+  getFacebookUserProfilePic,
+  getPostDetails,
+  getPostLink,
+  uploadMedia,
 } from '@/integrations/facebook/utils';
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
 
 export const getOrCreateCustomer = async (
   models: IModels,
@@ -214,6 +218,16 @@ export const getOrCreateComment = async (
         },
       },
     );
+
+    sendAutomationTrigger(
+      subdomain,
+      {
+        type: 'frontline:facebook.comments',
+        targets: [doc],
+        // repeatOptions,
+      },
+      { transport: 'trpc' },
+    );
   } catch {
     throw new Error(
       `Failed to update the database with the Erxes API response for this conversation.`,
@@ -298,9 +312,8 @@ export const getOrCreatePostConversation = async (
 
     const facebookPost = await fetchFacebookPostDetails(pageId, models, params);
     if (!postConversation) {
-      postConversation = await models.FacebookPostConversations.create(
-        facebookPost,
-      );
+      postConversation =
+        await models.FacebookPostConversations.create(facebookPost);
       return postConversation;
     } else {
       const hasPostContentChanged =

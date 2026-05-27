@@ -394,7 +394,7 @@ export const loadProductClass = (
      * Check product barcode
      */
     static fixBarcodes(barcodes?, variants?) {
-      if (barcodes && barcodes.length) {
+      if (barcodes?.length) {
         barcodes = barcodes
           .filter((bc) => bc)
           .map((bc) => bc.replace(/\s/g, '').replace(/_/g, ''));

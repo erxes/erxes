@@ -6,59 +6,60 @@ export const setPlace = async (
   dealId,
   productsData,
   config,
-  productById
+  productById,
+  userId,
+  processId,
 ) => {
   if (!config.conditions?.length) {
     return productsData;
   }
 
-  const pdatas = productsData;
+  const pdatas = productsData.map((p) => ({ ...p }));
 
-  const conditions = config.conditions.filter(
-    c => c.branchId || c.departmentId
+  const conditions = config.conditions
+    .filter((c) => c.branchId || c.departmentId)
+    .map((c) => ({ ...c }));
+
+  await Promise.all(
+    conditions.map(async (condition) => {
+      if (condition.productCategoryIds?.length) {
+        const [includeCatIds, excludeCatIds] = await Promise.all([
+          getChildCategories(subdomain, condition.productCategoryIds),
+          getChildCategories(subdomain, condition.excludeCategoryIds ?? []),
+        ]);
+
+        condition.calcedCatIds = includeCatIds.filter(
+          (c) => !excludeCatIds.includes(c),
+        );
+      } else {
+        condition.calcedCatIds = [];
+      }
+
+      if (condition.productTagIds?.length) {
+        const [includeTagIds, excludeTagIds] = await Promise.all([
+          getChildTags(subdomain, condition.productTagIds),
+          getChildTags(subdomain, condition.excludeTagIds ?? []),
+        ]);
+
+        condition.calcedTagIds = includeTagIds.filter(
+          (c) => !excludeTagIds.includes(c),
+        );
+      } else {
+        condition.calcedTagIds = [];
+      }
+    }),
   );
-
-  for (const condition of conditions) {
-    if (condition.productCategoryIds?.length) {
-      const includeCatIds = await getChildCategories(
-        subdomain,
-        condition.productCategoryIds
-      );
-
-      const excludeCatIds = await getChildCategories(
-        subdomain,
-        condition.excludeCategoryIds ?? []
-      );
-
-      condition.calcedCatIds = includeCatIds.filter(
-        c => !excludeCatIds.includes(c)
-      );
-    } else {
-      condition.calcedCatIds = [];
-    }
-
-    if (condition.productTagIds?.length) {
-      const includeTagIds = await getChildTags(
-        subdomain,
-        condition.productTagIds
-      );
-
-      const excludeTagIds = await getChildTags(
-        subdomain,
-        condition.excludeTagIds ?? []
-      );
-
-      condition.calcedTagIds = includeTagIds.filter(
-        c => !excludeTagIds.includes(c)
-      );
-    } else {
-      condition.calcedTagIds = [];
-    }
-  }
 
   for (const pdata of pdatas) {
     for (const condition of conditions) {
-      if (await checkCondition(subdomain, pdata, condition, productById)) {
+      const matches = await checkCondition(
+        subdomain,
+        pdata,
+        condition,
+        productById,
+      );
+
+      if (matches) {
         pdata.branchId = condition.branchId;
         pdata.departmentId = condition.departmentId;
         break;
@@ -66,17 +67,36 @@ export const setPlace = async (
     }
   }
 
-  await sendTRPCMessage({
-    subdomain,
-    pluginName: 'sales',
-    module: 'deal',
-    action: 'updateOne',
-    method: 'mutation',
-    input: {
-      selector: { _id: dealId },
-      modifier: { $set: { productsData: pdatas } },
-    },
-  });
+  const branchIds = [...new Set(pdatas.map((p) => p.branchId).filter(Boolean))];
+  const departmentIds = [
+    ...new Set(pdatas.map((p) => p.departmentId).filter(Boolean)),
+  ];
+
+  try {
+    const result = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'sales',
+      module: 'deal',
+      action: 'updateOne',
+      method: 'mutation',
+      input: {
+        selector: { _id: dealId },
+        modifier: {
+          $set: {
+            productsData: pdatas,
+            branchIds,
+            departmentIds,
+          },
+        },
+      },
+    });
+
+    if (result?.status === 'error') {
+      throw new Error(result.message || 'Failed to update deal');
+    }
+  } catch (error) {
+    console.log('setPlace ERR:', error);
+  }
 
   return pdatas;
 };

@@ -1,21 +1,34 @@
-import {
-  NotificationOrderByT,
-  NotificationPriorityT,
-  NotificationStatusT,
-  NotificationTypeT,
-} from '@/notification/types/notifications';
 import { parseDateRangeFromString, useNonNullMultiQueryState } from 'erxes-ui';
+import {
+  TNotificationOrderBy,
+  TNotificationPriority,
+  TNotificationStatus,
+  TNotificationType,
+} from 'ui-modules';
 
 export const useNotificationFilters = () => {
-  const { notificationStatus: status, notificationPriority: priority, notificationType: type, notificationCreatedAt: createdAt, notificationOrderBy: orderBy, notificationFromUserId: fromUserId } =
-    useNonNullMultiQueryState<{
-      notificationStatus: NotificationStatusT;
-      notificationPriority: NotificationPriorityT;
-      notificationType: NotificationTypeT;
-      notificationCreatedAt: string;
-      notificationOrderBy: NotificationOrderByT;
-      notificationFromUserId: string;
-    }>(['notificationStatus', 'notificationType', 'notificationPriority', 'notificationCreatedAt', 'notificationOrderBy', 'notificationFromUserId']);
+  const {
+    notificationStatus: status,
+    notificationPriority: priority,
+    notificationType: type,
+    notificationCreatedAt: createdAt,
+    notificationOrderBy: orderBy,
+    notificationFromUserId: fromUserId,
+  } = useNonNullMultiQueryState<{
+    notificationStatus: TNotificationStatus;
+    notificationPriority: TNotificationPriority;
+    notificationType: TNotificationType;
+    notificationCreatedAt: string;
+    notificationOrderBy: TNotificationOrderBy;
+    notificationFromUserId: string;
+  }>([
+    'notificationStatus',
+    'notificationType',
+    'notificationPriority',
+    'notificationCreatedAt',
+    'notificationOrderBy',
+    'notificationFromUserId',
+  ]);
 
   const orderByFilter = () => {
     if (orderBy === 'old') {

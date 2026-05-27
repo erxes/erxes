@@ -1,8 +1,7 @@
 import { useMutation, useQuery } from '@apollo/client';
-import { IExchangeRate, ExchangeRateFormValues } from '../types';
-import { queries } from '../graphql/index';
-import { mutations } from '../graphql/index';
 import ExchangeRateForm from '../components/ExchangeRateForm';
+import { mutations, queries } from '../graphql/index';
+import { ExchangeRateFormValues, IExchangeRate } from '../types';
 
 type Props = {
   exchangeRate?: IExchangeRate;

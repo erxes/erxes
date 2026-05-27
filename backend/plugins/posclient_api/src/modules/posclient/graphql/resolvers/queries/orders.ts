@@ -360,43 +360,6 @@ const orderQueries: Record<string, Resolver> = {
     return resp.result?.data;
   },
 
-  async cpInvoices(
-    _root,
-    {
-      customerId,
-      page,
-      perPage,
-      sortField,
-      sortDirection,
-    }: Pick<
-      ISearchParams,
-      'customerId' | 'page' | 'perPage' | 'sortField' | 'sortDirection'
-    >,
-    { models, config }: IContext,
-  ) {
-    const sort: { [key: string]: any } = {};
-    if (sortField) {
-      sort[sortField] = sortDirection;
-    } else {
-      sort.createdAt = sortDirection || -1;
-    }
-
-    const tokenFilter = {
-      $or: [{ posToken: config.token }, { subToken: config.token }],
-    };
-
-    return await paginate(
-      models.Orders.find({
-        ...tokenFilter,
-        ...(customerId ? { customerId } : {}),
-        paidDate: { $exists: true },
-      })
-        .sort(sort)
-        .lean(),
-      { page, perPage },
-    );
-  },
-
   async cpGetLastProductView(
     _root,
     { customerId }: { customerId?: string },
@@ -481,10 +444,6 @@ orderQueries.cpGetLastProductView.wrapperConfig = {
   forClientPortal: true,
 };
 
-// not done yet
-orderQueries.cpInvoices.wrapperConfig = {
-  forClientPortal: true,
-};
 orderQueries.cpOrderDetail.wrapperConfig = {
   forClientPortal: true,
 };

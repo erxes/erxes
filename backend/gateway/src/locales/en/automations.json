@@ -9,7 +9,9 @@
   "tags": "Tags",
   "last-updated-at": "Last updated at",
   "go-to-settings": "Go to settings",
-  "create": "Create",
+  "create": "Create a new automation",
   "updated-user": "Updated user",
-  "created-user": "Created user"
+  "created-user": "Created user",
+  "empty-title": "No automations found",
+  "empty-description": "Create a new automation or adjust your filters to keep moving."
 }

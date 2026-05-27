@@ -19,9 +19,8 @@ export const fetchSegment = async (
 ): Promise<any> => {
   const { contentType } = segment;
 
-  const { pluginConfigs, mongoConnectionString } = await getPluginSegmentConfig(
-    contentType,
-  );
+  const { pluginConfigs, mongoConnectionString } =
+    await getPluginSegmentConfig(contentType);
 
   let index = await getEsIndexByContentType(contentType);
   let selector = { bool: {} };
@@ -154,7 +153,7 @@ export const fetchSegment = async (
 
       /* istanbul ignore next */
 
-      if (hits.total && hits.total.value === results.length) {
+      if (hits.total?.value === results.length) {
         // check to see if we have collected all the documents
         break;
       }

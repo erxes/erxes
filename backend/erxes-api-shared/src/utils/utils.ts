@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { Request, Response } from 'express';
+import { Application, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import fetch from 'node-fetch'; // or global fetch in Node 18+
 import { IOrderInput } from '../core-types';
@@ -29,6 +29,36 @@ export const getEnv = ({
   }
 
   return value || '';
+};
+
+const DEFAULT_TRUST_PROXY = 'loopback, linklocal, uniquelocal';
+
+export const getTrustProxySetting = (): boolean | number | string => {
+  const trustProxy = getEnv({ name: 'TRUST_PROXY' }).trim();
+
+  if (!trustProxy) {
+    return DEFAULT_TRUST_PROXY;
+  }
+
+  if (/^\d+$/.test(trustProxy)) {
+    return Number(trustProxy);
+  }
+
+  const normalized = trustProxy.toLowerCase();
+
+  if (['true', 'yes', 'on'].includes(normalized)) {
+    return true;
+  }
+
+  if (['false', 'no', 'off'].includes(normalized)) {
+    return false;
+  }
+
+  return trustProxy;
+};
+
+export const applyTrustProxy = (app: Application) => {
+  app.set('trust proxy', getTrustProxySetting());
 };
 
 export const getSubdomain = (req: any): string => {

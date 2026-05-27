@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { propertyGroupSchema } from '../propertySchema';
 import { useParams, useLocation } from 'react-router-dom';
 import { PropertyGroupForm } from './PropertyGroupForm';
+import { Can } from 'ui-modules';
 
 export const AddPropertyGroup = () => {
   const { type } = useParams<{ type: string }>();
@@ -45,9 +46,11 @@ export const AddPropertyGroup = () => {
 
   return (
     <Sheet onOpenChange={setOpen} open={open}>
-      <Sheet.Trigger asChild>
-        <Button variant="outline">Add Group</Button>
-      </Sheet.Trigger>
+      <Can action="fieldGroupsManage">
+        <Sheet.Trigger asChild>
+          <Button variant="outline">Add Group</Button>
+        </Sheet.Trigger>
+      </Can>
       <Sheet.View
         className="p-0"
         onEscapeKeyDown={(e) => {

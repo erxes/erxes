@@ -2,6 +2,7 @@ import { Button, Label, Sheet } from 'erxes-ui';
 import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
 import { useSegmentActions } from 'ui-modules/modules/segments/hooks/useSegmentActions';
 import { useSegmentStats } from 'ui-modules/modules/segments/hooks/useSegmentStats';
+import { Can } from 'ui-modules/modules/permissions/components/PermissionGate';
 import { useTranslation } from 'react-i18next';
 
 export const SegmentFormFooter = ({
@@ -44,9 +45,11 @@ export const SegmentFormFooter = ({
         >
           {loading ? 'Calculating...' : t('calculate-segment-reach')}
         </Button>
-        <Button onClick={form.handleSubmit(handleSave)}>
-          {t('save-segment')}
-        </Button>
+        <Can action="segmentsManage">
+          <Button onClick={form.handleSubmit(handleSave)}>
+            {t('save-segment')}
+          </Button>
+        </Can>
       </Sheet.Footer>
     </>
   );

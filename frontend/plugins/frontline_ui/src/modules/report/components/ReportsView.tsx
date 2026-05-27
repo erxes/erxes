@@ -1,12 +1,22 @@
-import { Suspense } from 'react';
+import { Suspense, lazy } from 'react';
 import { FrontlineReportsList } from './FrontlineReportsList';
-import { Skeleton } from 'erxes-ui';
+import { Skeleton, useQueryState } from 'erxes-ui';
+
+const TicketReportsList = lazy(() =>
+  import('./TicketReportsList').then((m) => ({ default: m.TicketReportsList })),
+);
 
 export const ReportsView = () => {
+  const [reportModule] = useQueryState<string>('reportModule');
+
   return (
     <Suspense fallback={<ReportsViewSkeleton />}>
       <div className="flex flex-col overflow-hidden h-full relative">
-        <FrontlineReportsList />
+        {reportModule === 'ticket' ? (
+          <TicketReportsList />
+        ) : (
+          <FrontlineReportsList />
+        )}
       </div>
     </Suspense>
   );

@@ -23,7 +23,7 @@ export const AutomationBotsRecordTable = () => {
               <RecordTable.RowList />
               {!loading && facebookMessengerBots.length === 0 && (
                 <tr className="h-[80vh]">
-                  <td colSpan={4} className="py-10 text-center">
+                  <td colSpan={5} className="py-10 text-center">
                     <div className="flex flex-col items-center justify-center text-muted-foreground">
                       <IconArchive className="w-8 h-8 mb-2" />
                       <Label>No results</Label>

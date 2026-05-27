@@ -1,3 +1,5 @@
+import { ApolloError, useMutation } from '@apollo/client';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
 import {
   Button,
@@ -6,14 +8,11 @@ import {
   Popover,
   RecordTable,
   useConfirm,
-  useToast,
   useQueryState,
+  useToast,
 } from 'erxes-ui';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { ApolloError } from '@apollo/client';
-import { useLoyaltyScoreEdit } from '../hooks/useLoyaltyScoreEdit';
 import { LOYALTY_SCORE_ROW_REMOVE } from '../graphql/mutations/loyaltyScoreRowsRemove';
-import { useMutation } from '@apollo/client';
+import { useLoyaltyScoreEdit } from '../hooks/useLoyaltyScoreEdit';
 import { IScore } from '../types/loyaltyScoreTypes';
 
 export const ScoreMoreColumnCell = ({

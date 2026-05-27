@@ -144,7 +144,7 @@ export const DateSelectorCommandItem = ({
   const isChecked =
     option.value === 'custom'
       ? value === 'custom' ||
-      (typeof value === 'string' && value.startsWith('custom:'))
+        (typeof value === 'string' && value.startsWith('custom:'))
       : value === option.value;
 
   return (
@@ -159,8 +159,6 @@ export const DateSelectorCommandItem = ({
     </Command.Item>
   );
 };
-
-
 
 export const DateSelectorCustomDate = () => {
   const { value, onValueChange } = useDateSelectorContext();

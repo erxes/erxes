@@ -14,8 +14,7 @@ export const useTagEdit = () => {
           id: cache.identify(tagsEdit),
           fields: Object.keys(options.variables || {}).reduce(
             (fields: Record<string, () => any>, field) => {
-              fields[field] = () =>
-                (options.variables || {})[field as keyof ITag];
+              fields[field] = () => options.variables?.[field as keyof ITag];
               return fields;
             },
             {},

@@ -13,7 +13,7 @@ export interface ICallIntegrationModel extends Model<ICallIntegrationDocument> {
     userId: string,
     integrationId?: string,
   ): Promise<ICallIntegrationDocument>;
-  getIntegrationQueuesByUser(userId: string);
+  getIntegrationQueuesByUser(userId: string): Promise<string[]>;
 }
 
 export const loadCallIntegrationClass = (models: IModels) => {
@@ -59,7 +59,6 @@ export const loadCallIntegrationClass = (models: IModels) => {
       if (!integration) {
         throw new Error('Integration not found');
       }
-      console.log(integration, 'integration');
       return integration.queues || [];
     }
   }

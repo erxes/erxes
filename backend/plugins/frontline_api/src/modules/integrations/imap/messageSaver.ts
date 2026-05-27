@@ -21,12 +21,7 @@ export const saveMessages = async (
   console.log(`======== found ${msgs.length} messages`);
 
   for (const msg of msgs) {
-    if (
-      msg.to &&
-      msg.to.value &&
-      msg.to.value[0] &&
-      msg.to.value[0].address !== integration.user
-    ) {
+    if (msg.to?.value?.[0]?.address !== integration.user) {
       continue;
     }
 
@@ -87,10 +82,10 @@ export const saveMessages = async (
       references: msg.references,
       subject: msg.subject,
       body: msg.html,
-      to: msg.to && msg.to.value,
-      cc: msg.cc && msg.cc.value,
-      bcc: msg.bcc && msg.bcc.value,
-      from: msg.from && msg.from.value,
+      to: msg.to?.value,
+      cc: msg.cc?.value,
+      bcc: msg.bcc?.value,
+      from: msg.from?.value,
       attachments: msg.attachments.map(({ filename, contentType, size }) => ({
         filename,
         type: contentType,

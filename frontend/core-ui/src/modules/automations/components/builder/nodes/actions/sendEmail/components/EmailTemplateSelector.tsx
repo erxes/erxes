@@ -19,7 +19,7 @@ export const EmailTemplateSelector = ({
   const handleTemplateSelect = (templateId: string) => {
     if (templateId) {
       // Check if content already exists
-      if (content && content.trim()) {
+      if (content?.trim()) {
         confirm({
           message: `Are you sure you want to set this template to the email content? This will replace the current content.`,
         }).then(() => {

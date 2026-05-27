@@ -37,6 +37,13 @@ export const safeRemainderFields = `
       fullName
     }
   }
+
+  incomeRule
+  incomeTrId
+  outRule
+  outTrId
+  saleRule
+  saleTrId
 `;
 
 export const safeRemainderItemFields = `
@@ -58,6 +65,8 @@ export const safeRemainderItemFields = `
   }
   productId
   uom
+
+  trInfo
 `;
 
 const safeRemFilterParamDefs = `

@@ -1,10 +1,7 @@
-import { PROBABILITY } from './constants';
-import // BOARD_ITEM_EXPORT_EXTENDED_FIELDS,
-// BOARD_ITEM_EXTENDED_FIELDS,
-'~/modules/sales/constants';
-import { generateModels, IModels } from '~/connectionResolvers';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateFieldsFromSchema } from 'erxes-api-shared/core-modules';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { IModels } from '~/connectionResolvers';
+import { PROBABILITY } from './constants';
 
 const generateProductsOptions = async (
   name: string,

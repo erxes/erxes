@@ -11,6 +11,7 @@ import { lotteryQueries } from '@/lottery/graphql/resolvers/queries/lottery';
 import { lotteryCampaignQueries } from '@/lottery/graphql/resolvers/queries/lotteryCampaign';
 import { pricingQueries } from '@/pricing/graphql/resolvers/queries/pricing';
 import { scoreCampaignQueries } from '@/score/graphql/resolvers/queries/scoreCampaign';
+import { salesBoardQueries } from '@/score/graphql/resolvers/queries/salesBoard';
 import { scoreLogQueries } from '@/score/graphql/resolvers/queries/scoreLog';
 import { spinQueries } from '@/spin/graphql/resolvers/queries/spin';
 import { spinCampaignQueries } from '@/spin/graphql/resolvers/queries/spinCampaign';
@@ -36,6 +37,7 @@ export const queries = {
 
   ...scoreLogQueries,
   ...scoreCampaignQueries,
+  ...salesBoardQueries,
 
   ...spinQueries,
   ...spinCampaignQueries,

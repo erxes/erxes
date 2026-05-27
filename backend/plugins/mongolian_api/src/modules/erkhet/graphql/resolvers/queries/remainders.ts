@@ -88,7 +88,7 @@ const erkhetQueries = {
 
       for (const acc of accounts) {
         for (const loc of locations) {
-          const resp = (jsonRes[acc] || {})[loc] || {};
+          const resp = jsonRes[acc]?.[loc] || {};
           for (const invCode of Object.keys(resp)) {
             if (!Object.keys(responseByCode).includes(invCode)) {
               responseByCode[invCode] = { rem: 0, rems: [] };

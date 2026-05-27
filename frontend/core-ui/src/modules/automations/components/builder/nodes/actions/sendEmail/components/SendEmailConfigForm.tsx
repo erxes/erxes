@@ -3,7 +3,11 @@ import { TAutomationSendEmailConfig } from '@/automations/components/builder/nod
 import { AutomationConfigFormWrapper } from '@/automations/components/builder/nodes/components/AutomationConfigFormWrapper';
 import { Collapsible, Form, Label, RadioGroup, Separator } from 'erxes-ui';
 import { FormProvider } from 'react-hook-form';
-import { PlaceholderInput, TAutomationActionProps, useFormValidationErrorHandler } from 'ui-modules';
+import {
+  PlaceholderInput,
+  TAutomationActionProps,
+  useFormValidationErrorHandler,
+} from 'ui-modules';
 import { SendEmailEmailContentBuilder } from './SendEmailEmailContentBuilder';
 
 export const SendEmailConfigForm = ({
@@ -14,10 +18,8 @@ export const SendEmailConfigForm = ({
   const { handleValidationErrors } = useFormValidationErrorHandler({
     formName: 'Send email Configuration',
   });
-  const { form, contentType } = useSendEmailSidebarForm(
-    currentActionIndex,
-    currentAction,
-  );
+  const { form, contentType, availableVariableSourceNodes } =
+    useSendEmailSidebarForm(currentActionIndex, currentAction);
   return (
     <FormProvider {...form}>
       <AutomationConfigFormWrapper
@@ -61,6 +63,7 @@ export const SendEmailConfigForm = ({
                       <PlaceholderInput
                         propertyType={contentType || ''}
                         {...field}
+                        disabled={{ attribute: true }}
                         enabled={{
                           attribute: true,
                           call_user: true,
@@ -103,6 +106,7 @@ export const SendEmailConfigForm = ({
                 <PlaceholderInput
                   propertyType={contentType || ''}
                   {...field}
+                  disabled={{ attribute: true }}
                   enabled={{
                     attribute: true,
                     call_user: true,
@@ -126,6 +130,7 @@ export const SendEmailConfigForm = ({
                   <PlaceholderInput
                     propertyType={contentType || ''}
                     {...field}
+                    disabled={{ attribute: true }}
                     enabled={{
                       attribute: true,
                       call_user: true,
@@ -151,7 +156,11 @@ export const SendEmailConfigForm = ({
               <Form.Label>
                 Subject<span className="text-destructive">*</span>
               </Form.Label>
-              <PlaceholderInput propertyType={contentType || ''} {...field} />
+              <PlaceholderInput
+                propertyType={contentType || ''}
+                disabled={{ attribute: true }}
+                {...field}
+              />
             </Form.Item>
           )}
         />
@@ -167,6 +176,7 @@ export const SendEmailConfigForm = ({
               <SendEmailEmailContentBuilder
                 contentType={contentType}
                 content={field.value || ''}
+                variableSourceNodes={availableVariableSourceNodes}
                 onChange={field.onChange}
               />
             </Form.Item>

@@ -6,6 +6,7 @@ import {
   Separator,
   useConfirm,
 } from 'erxes-ui';
+import { Can } from 'ui-modules';
 import { useUomsRemove } from '../../hooks/useUomsRemove';
 
 export const UomsCommandBar = () => {
@@ -41,14 +42,16 @@ export const UomsCommandBar = () => {
           {table.getFilteredSelectedRowModel().rows.length} selected
         </CommandBar.Value>
         <Separator.Inline />
-        <Button
-          variant="secondary"
-          className="text-destructive"
-          onClick={handleDelete}
-        >
-          <IconTrash />
-          Delete
-        </Button>
+        <Can action="uomsManage">
+          <Button
+            variant="secondary"
+            className="text-destructive"
+            onClick={handleDelete}
+          >
+            <IconTrash />
+            Delete
+          </Button>
+        </Can>
       </CommandBar.Bar>
     </CommandBar>
   );

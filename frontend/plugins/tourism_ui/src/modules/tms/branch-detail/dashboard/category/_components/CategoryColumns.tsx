@@ -17,11 +17,19 @@ import {
 } from 'erxes-ui';
 import { ICategory } from '../types/category';
 import { CategoryEditSheet } from './CategoryEditSheet';
+import { categoryMoreColumn } from './CategoryMoreCell';
 
 export const categoryColumns: (
   categoryObject: Record<string, ICategory>,
-) => ColumnDef<ICategory & { hasChildren: boolean }>[] = (categoryObject) => [
+  branchLanguages?: string[],
+  mainLanguage?: string,
+) => ColumnDef<ICategory & { hasChildren: boolean }>[] = (
+  categoryObject,
+  branchLanguages,
+  mainLanguage,
+) => [
   RecordTable.checkboxColumn as ColumnDef<ICategory & { hasChildren: boolean }>,
+  categoryMoreColumn(branchLanguages, mainLanguage),
   {
     id: 'attachment',
     header: () => <RecordTable.InlineHead icon={IconImageInPicture} label="" />,
@@ -54,7 +62,12 @@ export const categoryColumns: (
             name={name}
             hasChildren={row.original.hasChildren}
           >
-            <CategoryEditSheet category={row.original} showTrigger={false}>
+            <CategoryEditSheet
+              category={row.original}
+              showTrigger={false}
+              branchLanguages={branchLanguages}
+              mainLanguage={mainLanguage}
+            >
               <Badge
                 variant="secondary"
                 className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"

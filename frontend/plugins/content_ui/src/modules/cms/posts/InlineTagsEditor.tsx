@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
 import { useMutation } from '@apollo/client';
-import { MultipleSelector } from 'erxes-ui';
-import { toast } from 'erxes-ui';
+import { MultipleSelector, toast } from 'erxes-ui';
+import { useEffect, useState } from 'react';
 import { CMS_POSTS_EDIT } from '../graphql/queries';
 import { useTags } from '../hooks/useTags';
 

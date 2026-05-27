@@ -8,8 +8,8 @@ export const types = `
     clientPortalId: String!
     webId: String
     label: String
-    objectType: String
-    objectId: String
+    contentType: String
+    contentTypeId: String
     kind: String
     icon: String
     url: String
@@ -31,8 +31,8 @@ export const inputs = `
     clientPortalId: String
     webId: String
     label: String
-    objectType: String
-    objectId: String
+    contentType: String
+    contentTypeId: String
     kind: String
     icon: String
     url: String

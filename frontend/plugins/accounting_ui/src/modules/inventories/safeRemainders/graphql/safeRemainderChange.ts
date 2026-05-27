@@ -40,7 +40,7 @@ export const SAFE_REMAINDER_UNDO_TR = gql`
 
 export const SAFE_REMAINDER_EDIT = gql`
   mutation SafeRemainderEdit(
-    $_id: String,
+    $_id: String!,
     $description: String,
     $incomeRule: JSON,
     $outRule: JSON,
@@ -53,7 +53,7 @@ export const SAFE_REMAINDER_EDIT = gql`
       outRule: $outRule,
       saleRule: $saleRule,
     ) {
-      ${safeRemainderItemFields}
+      ${safeRemainderFields}
     }
   }
 `;
@@ -64,11 +64,13 @@ export const SAFE_REMAINDER_ITEM_EDIT = gql`
     $_id: String,
     $status: String,
     $remainder: Float,
+    $trInfo: JSON,
   ) {
     safeRemainderItemEdit(
       _id: $_id,
       status: $status,
       remainder: $remainder,
+      trInfo: $trInfo,
     ) {
       ${safeRemainderItemFields}
     }

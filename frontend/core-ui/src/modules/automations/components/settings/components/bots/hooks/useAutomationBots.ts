@@ -26,7 +26,7 @@ export const useAutomationBotTotalCount = (queryName: string, skip?: any) => {
     },
   );
 
-  const totalCount = (data || {})[queryName] ?? 0;
+  const totalCount = data?.[queryName] ?? 0;
 
   return {
     totalCount,

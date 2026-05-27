@@ -45,7 +45,7 @@ const PageFooterSection: React.FC<{ name: string }> = React.memo(
 export const ItineraryPage: React.FC<ItineraryPageProps> = React.memo(
   function ItineraryPage({ itinerary, branch }) {
     const groupDays = itinerary.groupDays ?? [];
-    const primaryColor = branch?.primaryColor || COLORS.primary;
+    const primaryColor = itinerary.color || COLORS.primary;
     const name = itinerary.name || 'Untitled Itinerary';
 
     return (

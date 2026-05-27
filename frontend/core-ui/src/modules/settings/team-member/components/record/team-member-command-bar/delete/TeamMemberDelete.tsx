@@ -1,19 +1,16 @@
 import { useTeamMemberRemove } from '@/settings/team-member/hooks/useRemoveTeamMember';
 import { IconTrash } from '@tabler/icons-react';
-import { Row } from '@tanstack/table-core';
-import { Button, useConfirm, useToast } from 'erxes-ui';
+import { Button, RecordTable, useConfirm, useToast } from 'erxes-ui';
 import { Can } from 'ui-modules';
 
 export const TeamMemberDelete = ({
   teamMemberIds,
-  rows,
 }: {
   teamMemberIds: string[];
-  rows: Row<any>[];
 }) => {
   const { confirm } = useConfirm();
   const { removeTeamMember } = useTeamMemberRemove();
-
+  const { table } = RecordTable.useRecordTable();
   const { toast } = useToast();
   return (
     <Can action="teamMembersRemove">
@@ -26,9 +23,7 @@ export const TeamMemberDelete = ({
           }).then(async () => {
             try {
               await removeTeamMember(teamMemberIds);
-              rows.forEach((row) => {
-                row.toggleSelected(false);
-              });
+              table.setRowSelection({});
               toast({
                 title: 'Success',
                 variant: 'success',

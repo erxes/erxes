@@ -9,7 +9,7 @@ let broadcasTransporter: nodemailer.Transporter;
 const getAwsConfig = async (models: IModels) => {
   const config: ISESConfig = await models.EngageMessages.broadcastConfigs();
 
-  if (config && config.accessKeyId && config.secretAccessKey && config.region) {
+  if (config?.accessKeyId && config?.secretAccessKey && config?.region) {
     return config;
   }
 

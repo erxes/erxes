@@ -54,7 +54,7 @@ export const useDocument = () => {
           return cache.modify({
             id: docId,
             fields: Object.keys(document || {}).reduce((fields: any, field) => {
-              fields[field] = () => (document || {})[field];
+              fields[field] = () => document?.[field];
               return fields;
             }, {}),
           });

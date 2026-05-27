@@ -19,7 +19,7 @@ export const useAddCtaxRow = () => {
           query: GET_CTAXS,
           variables: CTAX_ROW_DEFAULT_VARIABLES,
         });
-        if (!existingData || !existingData.ctaxRows) return;
+        if (!existingData?.ctaxRows) return;
 
         cache.writeQuery({
           query: GET_CTAXS,

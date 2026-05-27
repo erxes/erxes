@@ -7,6 +7,7 @@ import {
   InsuranceCustomer,
   InsuranceContract,
   InsuranceVendorUser,
+  InsuranceRegion,
 } from '@/insurance/graphql/resolvers/customResolvers/insurance';
 
 export const customResolvers = {
@@ -18,4 +19,5 @@ export const customResolvers = {
   InsuranceCustomer,
   InsuranceContract,
   InsuranceVendorUser,
+  InsuranceRegion,
 };

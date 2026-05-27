@@ -1,3 +1,7 @@
+import { MemberForm } from '@/team/components/members/MemberForm';
+import { useAddMemberForm } from '@/team/hooks/useAddMemberForm';
+import { useAddTeamMember } from '@/team/hooks/useAddTeamMember';
+import { TeamHotKeyScope, TTeamMemberForm } from '@/team/types';
 import { IconPlus, IconX } from '@tabler/icons-react';
 import {
   Button,
@@ -7,17 +11,10 @@ import {
   usePreviousHotkeyScope,
   useScopedHotkeys,
   useSetHotkeyScope,
+  useToast,
 } from 'erxes-ui';
-
 import React, { useState } from 'react';
-// import { SubmitHandler } from 'react-hook-form';
-import { useAddMemberForm } from '@/team/hooks/useAddMemberForm';
-// import { useMemberCreate } from '@/team/hooks/useMemberCreate';
-import { TeamHotKeyScope, TTeamMemberForm } from '@/team/types';
-import { MemberForm } from '@/team/components/members/MemberForm';
-import { useAddTeamMember } from '@/team/hooks/useAddTeamMember';
 import { SubmitHandler } from 'react-hook-form';
-import { useToast } from 'erxes-ui';
 import { useParams } from 'react-router';
 
 export const AddMembers = () => {

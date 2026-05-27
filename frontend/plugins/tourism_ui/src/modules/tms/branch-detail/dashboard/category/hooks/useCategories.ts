@@ -9,6 +9,8 @@ import { categoryTotalCountAtom } from '../states/categoryCounts';
 type CategoriesQueryVariables = {
   parentId?: string;
   name?: string;
+  branchId?: string;
+  language?: string;
 };
 
 export const useCategories = (
@@ -35,6 +37,7 @@ export const useCategories = (
       ...normalizedVariables,
       name: searchValue || normalizedVariables?.name || undefined,
     },
+    fetchPolicy: 'cache-and-network',
   });
 
   const categories = data?.bmsTourCategories || [];

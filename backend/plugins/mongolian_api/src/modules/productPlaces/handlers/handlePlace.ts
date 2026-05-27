@@ -5,7 +5,9 @@ export const handlePlace = async (
   subdomain,
   deal,
   productsData,
-  placeConfig
+  placeConfig,
+  userId,
+  processId,
 ) => {
   const products = await sendTRPCMessage({
     subdomain,
@@ -14,8 +16,9 @@ export const handlePlace = async (
     action: 'find',
     method: 'query',
     input: {
-      query: { _id: { $in: productsData.map(p => p.productId) } },
+      query: { _id: { $in: productsData.map((p) => p.productId) } },
       limit: productsData.length,
+      withTags: true,
     },
     defaultValue: [],
   });
@@ -25,11 +28,15 @@ export const handlePlace = async (
     productById[product._id] = product;
   }
 
-  return setPlace(
+  const result = await setPlace(
     subdomain,
     deal._id,
     productsData,
     placeConfig,
-    productById
+    productById,
+    userId,
+    processId,
   );
+
+  return { productsData: result, productById };
 };

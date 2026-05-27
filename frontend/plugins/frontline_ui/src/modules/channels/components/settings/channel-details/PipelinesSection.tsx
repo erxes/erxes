@@ -13,7 +13,7 @@ export const PipelinesSection = ({ channel }: { channel: IChannel }) => {
     >
       <section className="w-full p-4">
         <div className="flex items-center justify-between">
-          <p>Manage channel pipelines</p>
+          <p>Manage ticket pipelines</p>
 
           <div className="flex items-center gap-2">
             <span className="flex items-center gap-1">

@@ -18,7 +18,6 @@ export const ConversationMessages = ({
       },
       fetchPolicy: 'cache-and-network',
     });
-
   return (
     <InboxMessagesContainer
       fetchMore={handleFetchMore}

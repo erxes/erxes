@@ -70,6 +70,10 @@ export type TAutomationWorkflowNode = {
 
 export interface IAutomationHistoryAction {
   createdAt: Date;
+  startedAt?: Date;
+  finishedAt?: Date;
+  durationMs?: number;
+  status?: 'success' | 'error' | 'waiting';
   actionId: string;
   actionType: string;
   actionConfig?: any;

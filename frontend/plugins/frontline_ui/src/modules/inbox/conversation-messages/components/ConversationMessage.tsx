@@ -1,12 +1,11 @@
-import { cn } from 'erxes-ui';
-import { HAS_ATTACHMENT } from '../../constants/messengerConstants';
-import { ConversationFormDisplay } from './ConversationFormDisplay';
-import { Button, IAttachment, RelativeDateDisplay } from 'erxes-ui';
-import { MessageContent } from './MessageContent';
-import { useConversationMessageContext } from '../../conversations/conversation-detail/hooks/useConversationMessageContext';
-import { CustomersInline, MembersInline } from 'ui-modules';
+import { Button, cn, IAttachment, RelativeDateDisplay } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
+import { CustomersInline, MembersInline } from 'ui-modules';
+import { HAS_ATTACHMENT } from '../../constants/messengerConstants';
+import { useConversationMessageContext } from '../../conversations/conversation-detail/hooks/useConversationMessageContext';
 import { activeConversationState } from '../../conversations/states/activeConversationState';
+import { ConversationFormDisplay } from './ConversationFormDisplay';
+import { MessageContent } from './MessageContent';
 
 export const ConversationMessage = () => {
   const { previousMessage, nextMessage, ...message } =

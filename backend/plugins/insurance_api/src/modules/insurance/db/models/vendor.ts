@@ -5,8 +5,8 @@ import { IVendorDocument } from '@/insurance/@types/vendor';
 
 export type IVendorModel = Model<IVendorDocument>;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const loadVendorClass = (_models: IModels) => {
-  void _models;
   class Vendor {}
 
   vendorSchema.loadClass(Vendor);

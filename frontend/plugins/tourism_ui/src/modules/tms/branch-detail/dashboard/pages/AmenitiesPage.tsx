@@ -12,7 +12,11 @@ export const AmenitiesPage = ({ branch }: { branch: IBranch }) => {
       </PageSubHeader>
       <div className="overflow-hidden flex-auto p-3 min-h-0">
         <div className="flex flex-col h-full min-h-0">
-          <AmenityRecordTable branchId={branch._id} />
+          <AmenityRecordTable
+            branchId={branch._id}
+            branchLanguages={branch.languages}
+            mainLanguage={branch.language}
+          />
         </div>
       </div>
     </div>

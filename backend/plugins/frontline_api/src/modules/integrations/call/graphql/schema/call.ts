@@ -41,7 +41,7 @@ export const types = `
   }
 
   type CallConversation {
-    _id: String 
+    _id: String
     erxesApiId: String
     integrationId: String
     customerPhone: String
@@ -177,55 +177,6 @@ export const types = `
     callstotal: Int
   }
 
-  type CallCdr {
-    conversationId: String
-  AcctId: String
-  src: String
-  dst: String
-  dcontext: String
-  clid: String
-  channel: String
-  dstchannel: String
-  lastapp: String
-  lastdata: String
-  start: String
-  answer: String
-  end: String
-  duration: String
-  billsec: String
-  disposition: String
-  amaflags: String
-  uniqueid: String
-  userfield: String
-  channel_ext: String
-  dstchannel_ext: String
-  service: String
-  caller_name: String
-  recordfiles: String
-  dstanswer: String
-  session: String
-  action_owner: String
-  action_type: String
-  src_trunk_name: String
-  dst_trunk_name: String
-  nat_call: String
-  nat_call_peer: String
-  video_call: String
-  gdms_unique_code: String
-  gds_call: String
-  gsc_call: String
-  wave_src_seqid: String
-  wave_dst_seqid: String
-  device_info: String
-  device_info_peer: String
-  recordfiles_desc: String
-  anonymous_call: String
-  reason: String
-  wave_src_hide: String
-  wave_dst_hide: String
-  new_src: String
-  sn: String
-}
   type AgentStats {
     agent: String!
     agentName: String
@@ -251,13 +202,6 @@ export const types = `
     averageCallbackTime: Float!
   }
 
-    type OperatorStats {
-    operatorId: String
-    totalCalls: Int
-    answeredCount: Int
-    missedCount: Int
-    answerRate: Float
-  }
 
   type CallLog {
     _id: ID
@@ -270,17 +214,17 @@ export const types = `
 
   type PaginatedCallLogs {
     calls: [CallLog]
-    totalCount: Int  
+    totalCount: Int
     totalPages: Int
   }
 
   input CallLogFilter {
     startDate: Date!
     endDate: Date!
-    operatorId: String 
+    operatorId: String
     status: String
   }
-    type AgentStat {
+    type OperatorStat {
     agent: String
     totalIncoming: Int
     incomingAnswered: Int
@@ -355,7 +299,7 @@ export const queries = `
   callGetQueueStats(startDate: String!, endDate: String!, queueId: String, direction: String): [QueueStats!]!
   callGetAgentStats(startDate: String!,endDate: String!, queueId: String, agentId: String, direction: String): [AgentStats!]!
   getCallbackStats(startDate: String!, endDate: String!, queueId: String): [CallbackStats!]!
-  callGetOperatorStats(startDate: Date!, endDate: Date!): [AgentStat]
+  callGetOperatorStats(startDate: Date!, endDate: Date!): [OperatorStat]
   `;
 
 export const mutations = `

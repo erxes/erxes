@@ -6,6 +6,7 @@ import {
 import { IReplyParams } from '@/integrations/facebook/@types/utils';
 import { sendReply } from '@/integrations/facebook/utils';
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
+import { TCreateBotInputDoc } from '../../db/models/Bots';
 export const facebookMutations = {
   async facebookUpdateConfigs(_root, { configsMap }, { subdomain }: IContext) {
     await updateConfigs(subdomain, configsMap);
@@ -68,7 +69,7 @@ export const facebookMutations = {
 
     const id = comment ? comment.comment_id : post.postId;
 
-    if (comment && comment.comment_id) {
+    if (comment?.comment_id) {
       data = {
         message: ` @[${comment.senderId}] ${content}`,
         attachment_url: attachment.url,
@@ -89,7 +90,7 @@ export const facebookMutations = {
         `${id}/comments`,
         data,
         recipientId,
-        (inboxConversation && inboxConversation.integrationId) || '',
+        inboxConversation?.integrationId ?? '',
       );
 
       await sendNotifications(subdomain, {
@@ -105,22 +106,28 @@ export const facebookMutations = {
       throw new Error(e.message);
     }
   },
-  async facebookMessengerAddBot(_root, args, { models }: IContext) {
-    return await models.FacebookBots.addBot(args);
+  async facebookMessengerAddBot(_root, args, { models, user }: IContext) {
+    return await models.FacebookBots.addBot(args, {
+      userId: user._id,
+    });
   },
 
   async facebookMessengerUpdateBot(
     _root,
-    { _id, ...args },
-    { models }: IContext,
+    { _id, ...args }: TCreateBotInputDoc & { _id: string },
+    { models, user }: IContext,
   ) {
-    return await models.FacebookBots.updateBot(_id, args);
+    return await models.FacebookBots.updateBot(_id, args, {
+      userId: user._id,
+    });
   },
 
   async facebookMessengerRemoveBot(_root, { _id }, { models }: IContext) {
     return await models.FacebookBots.removeBot(_id);
   },
-  async facebookMessengerRepairBot(_root, { _id }, { models }: IContext) {
-    return await models.FacebookBots.repair(_id);
+  async facebookMessengerRepairBot(_root, { _id }, { models, user }: IContext) {
+    return await models.FacebookBots.repair(_id, {
+      userId: user._id,
+    });
   },
 };

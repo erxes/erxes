@@ -227,7 +227,7 @@ export const widgetFormMutation: Record<string, Resolver> = {
 
     let integration: any = null;
 
-    if (form && form.integrationId) {
+    if (form?.integrationId) {
       integration = await models.Integrations.findOne({
         _id: form.integrationId,
       });
@@ -481,7 +481,7 @@ export const widgetFormMutation: Record<string, Resolver> = {
 
     let integration: any = null;
 
-    if (form && form.integrationId) {
+    if (form?.integrationId) {
       integration = await models.Integrations.findOne({
         _id: form.integrationId,
       });

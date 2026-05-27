@@ -17,17 +17,21 @@ export const getCustomerFieldLabel = (field: string) => {
   return match?.label || humanizeCustomerField(field);
 };
 
-export const getCustomerDisplayText = (doc: Partial<ICustomerDocument>) =>
-  [doc.firstName, doc.middleName, doc.lastName].filter(Boolean).join(' ') ||
-  doc.primaryEmail ||
-  doc.primaryPhone ||
-  (doc._id ? `Customer ${doc._id}` : 'this customer');
+export const getCustomerDisplayText = (
+  doc?: Partial<ICustomerDocument> | null,
+) =>
+  [doc?.firstName, doc?.middleName, doc?.lastName]
+    .filter(Boolean)
+    .join(' ') ||
+  doc?.primaryEmail ||
+  doc?.primaryPhone ||
+  (doc?._id ? `Customer ${doc._id}` : 'this customer');
 
 export const buildCustomerTarget = (
-  customer: ICustomerDocument | { _id: string },
+  customer?: ICustomerDocument | { _id: string } | null,
 ) => ({
   _id: customer?._id,
   moduleName: 'contacts',
   collectionName: 'customers',
-  text: getCustomerDisplayText(customer as ICustomerDocument),
+  text: getCustomerDisplayText(customer as Partial<ICustomerDocument> | null),
 });

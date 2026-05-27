@@ -6,13 +6,11 @@ export type TDelayActionConfig = {
 export interface OutgoingHeaderItem {
   key: string;
   value: string;
-  type: 'fixed' | 'expression';
 }
 
 interface OutgoingQueryParamItem {
   name: string;
   value: string;
-  type: 'fixed' | 'expression';
 }
 
 export interface OutgoingRetryOptions {
@@ -80,6 +78,7 @@ export type TOutgoinWebhookActionConfig = {
   method?: HttpMethod;
   url: string;
   queryParams?: OutgoingQueryParamItem[];
+  bodyMode?: 'json' | 'text';
   body?: string;
   auth?: OutgoingAuthConfig;
   headers?: OutgoingHeaderItem[];

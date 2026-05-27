@@ -42,7 +42,7 @@ export const getTelnyxInfo = async (subdomain: string) => {
 };
 
 export const saveTelnyxHookData = async (models: IModels, data: any) => {
-  if (data && data.payload) {
+  if (data?.payload) {
     const { to = [], id } = data.payload;
 
     const initialRequest = await models.SmsRequests.findOne({ telnyxId: id });
@@ -114,7 +114,7 @@ export const prepareMessage = async ({
     (i) => i.erxesApiId === fromIntegrationId,
   );
 
-  if (!integration || !integration.telnyxPhoneNumber) {
+  if (!integration?.telnyxPhoneNumber) {
     throw new Error('Telnyx phone is not configured');
   }
 
@@ -169,7 +169,7 @@ export const handleMessageCallback = async (
     });
   }
 
-  if (res && res.data && res.data.to) {
+  if (res?.data?.to) {
     const receiver = res.data.to.find((item) => item.phone_number === msg.to);
 
     if (engageMessageId) {
@@ -182,7 +182,7 @@ export const handleMessageCallback = async (
     }
 
     await models.SmsRequests.updateRequest(request._id.toString(), {
-      status: receiver && receiver.status,
+      status: receiver?.status,
       responseData: JSON.stringify(res.data),
       telnyxId: res.data.id,
     });

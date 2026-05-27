@@ -2,8 +2,13 @@ import { ILotteryDocument, ILotteryParams } from '@/lottery/@types/lottery';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
+import { ICommonParams } from '~/utils';
 
-const generateFilter = (params: ILotteryParams) => {
+export interface ILotteryMainParams extends ICommonParams {
+  voucherCampaignId?: string;
+}
+
+const generateFilter = (params: ILotteryParams | ILotteryMainParams) => {
   const filter: FilterQuery<ILotteryDocument> = {};
 
   if (params.campaignId) {
@@ -22,8 +27,8 @@ const generateFilter = (params: ILotteryParams) => {
     filter.ownerId = params.ownerId;
   }
 
-  if (params.voucherCampaignId) {
-    filter.voucherCampaignId = params.voucherCampaignId;
+  if ((params as ILotteryParams).voucherCampaignId) {
+    filter.voucherCampaignId = (params as ILotteryParams).voucherCampaignId;
   }
 
   return filter;
@@ -42,5 +47,29 @@ export const lotteryQueries = {
       params,
       query: filter,
     });
+  },
+
+  async lotteriesMain(
+    _root: undefined,
+    params: ILotteryMainParams,
+    { models }: IContext,
+  ) {
+    const {
+      page = 1,
+      perPage = 20,
+      sortField = 'createdAt',
+      sortDirection = -1,
+    } = params;
+
+    const filter = generateFilter(params);
+
+    const totalCount = await models.Lotteries.countDocuments(filter);
+    const list = await models.Lotteries.find(filter)
+      .sort({ [sortField]: sortDirection })
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .lean();
+
+    return { list, totalCount };
   },
 };

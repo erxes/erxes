@@ -64,7 +64,7 @@ export const afterQueryHandlers = async (subdomain, data) => {
     );
 
     const jsonRes = await response.json();
-    let responseByCode = {};
+    const responseByCode = {};
 
     if (remConfig.account && remConfig.location) {
       const accounts = remConfig.account.split(',') || [];
@@ -72,7 +72,7 @@ export const afterQueryHandlers = async (subdomain, data) => {
 
       for (const acc of accounts) {
         for (const loc of locations) {
-          const resp = (jsonRes[acc] || {})[loc] || {};
+          const resp = jsonRes[acc]?.[loc] || {};
           for (const invCode of Object.keys(resp)) {
             if (!Object.keys(responseByCode).includes(invCode)) {
               responseByCode[invCode] = '';

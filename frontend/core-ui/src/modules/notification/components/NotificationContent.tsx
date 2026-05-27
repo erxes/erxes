@@ -2,10 +2,9 @@ import { CoreNotificationContent } from '@/notification/components/contents/Core
 import { NoNotificationSelected } from '@/notification/components/NoNotificationSelected';
 import { useNotification } from '@/notification/hooks/useNotification';
 import { ScrollArea, Spinner } from 'erxes-ui';
-import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
-import { INotification } from '@/notification/types/notifications';
-import { usePermissionCheck } from 'ui-modules';
+import { TNotification, usePermissionCheck } from 'ui-modules';
 import { NoAccessPage } from '~/pages/no-access/NoAccessPage';
+import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
 
 export const NotificationContent = () => {
   const { notification, loading } = useNotification();
@@ -34,7 +33,7 @@ export const NotificationContent = () => {
 const NotificationContentWrapper = ({
   notification,
 }: {
-  notification: INotification;
+  notification: TNotification;
 }) => {
   const contentType = notification?.contentType ?? '';
   const { isLoaded, isWildcard, hasModulePermission } = usePermissionCheck();

@@ -1,24 +1,22 @@
+import Labels from '@/deals/cards/components/detail/overview/label/Labels';
+import { ItemFooter } from '@/deals/cards/components/item/Footer';
+import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
+import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
+import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
+import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
+import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
+import { IDeal } from '@/deals/types/deals';
+import { IconAlertCircleFilled } from '@tabler/icons-react';
+import { Separator, useQueryState } from 'erxes-ui';
+import { useSetAtom } from 'jotai';
+import { memo, useState } from 'react';
 import {
   SelectCompany,
   SelectCustomer,
   SelectTags,
   useManageRelations,
 } from 'ui-modules';
-import { Separator, useQueryState } from 'erxes-ui';
-
-import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import DealCardDetails from './DealsBoardCardDetails';
-import { IDeal } from '@/deals/types/deals';
-import { IconAlertCircleFilled } from '@tabler/icons-react';
-import { ItemFooter } from '@/deals/cards/components/item/Footer';
-import Labels from '@/deals/cards/components/detail/overview/label/Labels';
-import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
-import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
-import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
-import { memo } from 'react';
-import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
-import { useSetAtom } from 'jotai';
-import { useState } from 'react';
 
 interface DealsBoardCardProps {
   deal: IDeal;

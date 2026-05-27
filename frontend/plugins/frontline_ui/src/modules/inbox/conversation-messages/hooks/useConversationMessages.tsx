@@ -1,8 +1,6 @@
-import { QueryHookOptions } from '@apollo/client';
-
-import { useQuery } from '@apollo/client';
-import { GET_CONVERSATION_MESSAGES } from '../../conversations/conversation-detail/graphql/queries/getConversationMessages';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useEffect } from 'react';
+import { GET_CONVERSATION_MESSAGES } from '../../conversations/conversation-detail/graphql/queries/getConversationMessages';
 import { CONVERSATION_MESSAGE_INSERTED } from '../../conversations/graphql/subscriptions/inboxSubscriptions';
 import { IMessage } from '../../types/Conversation';
 

@@ -6,7 +6,7 @@ import {
   LEAD_SUCCESS_ACTIONS,
   MESSENGER_DATA_AVAILABILITY,
 } from './constants';
-import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
+import { schemaWrapper } from 'erxes-api-shared/utils';
 
 export interface IAttachment {
   name: string;

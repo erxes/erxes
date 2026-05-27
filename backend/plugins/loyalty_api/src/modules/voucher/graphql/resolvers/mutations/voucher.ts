@@ -1,4 +1,4 @@
-import { IVoucher } from '@/voucher/@types/voucher';
+import { IVoucher, IVoucherParams } from '@/voucher/@types/voucher';
 import { IContext } from '~/connectionResolvers';
 import { IBuyParams } from '~/utils';
 
@@ -25,6 +25,14 @@ export const voucherMutations = {
     { models }: IContext,
   ) {
     return models.Vouchers.removeVouchers(_ids);
+  },
+
+  async vouchersRemoveByFilter(
+    _root: undefined,
+    params: IVoucherParams,
+    { models }: IContext,
+  ) {
+    return models.Vouchers.removeVouchersByFilter(params);
   },
 
   async buyVoucher(_root: undefined, param: IBuyParams, { models }: IContext) {

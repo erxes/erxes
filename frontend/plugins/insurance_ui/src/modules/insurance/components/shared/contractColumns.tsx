@@ -1,23 +1,24 @@
 import {
-  IconFileText,
-  IconUser,
+  Icon,
+  IconBuilding,
   IconCalendar,
   IconCurrencyTugrik,
-  IconBuilding,
+  IconFileText,
   IconPackage,
+  IconProps,
+  IconUser,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
-  RecordTable,
-  TextOverflowTooltip,
-  RecordTableInlineCell,
   Badge,
+  RecordTable,
+  RecordTableInlineCell,
+  TextOverflowTooltip,
 } from 'erxes-ui';
+import { ForwardRefExoticComponent, RefAttributes } from 'react';
 import { InsuranceContract } from '~/modules/insurance/types';
 import { ContractMoreColumn } from './ContractMoreColumn';
-import { formatDate, formatCurrency } from './formatters';
-import { Icon, IconProps } from '@tabler/icons-react';
-import { ForwardRefExoticComponent, RefAttributes } from 'react';
+import { formatCurrency, formatDate } from './formatters';
 
 type TablerIcon = ForwardRefExoticComponent<IconProps & RefAttributes<Icon>>;
 

@@ -48,7 +48,7 @@ export const useSafeRemainderEdit = (
         {
           query: SAFE_REMAINDER_DETAILS_QUERY,
           variables: {
-            _id,
+            remainderId: _id,
             page: 1,
             perPage: ACC_TRS__PER_PAGE,
           },

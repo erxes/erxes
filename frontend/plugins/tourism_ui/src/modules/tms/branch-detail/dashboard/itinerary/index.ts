@@ -4,6 +4,11 @@ export { ItineraryCreateSheet } from './_components/ItineraryCreateSheet';
 export { ItineraryFilter } from './_components/ItineraryFilter';
 export { ItineraryCommandBar } from './_components/ItineraryCommandBar';
 export { itineraryColumns } from './_components/ItineraryColumns';
+export {
+  ItineraryMoreColumn,
+  itineraryMoreColumn,
+} from './_components/ItineraryMoreCell';
+export { ItineraryDuplicateSheet } from './_components/ItineraryDuplicateSheet';
 
 // Hooks
 export { useItineraries } from './hooks/useItineraries';

@@ -1,3 +1,8 @@
+import { ScopedEventHandlers } from 'erxes-api-shared/core-modules';
+import { IMainContext } from 'erxes-api-shared/core-types';
+import { createGenerateModels } from 'erxes-api-shared/utils';
+import mongoose from 'mongoose';
+
 import {
   IEbarimtDocument,
   IProductGroupDocument,
@@ -15,31 +20,46 @@ import {
   IProductRuleModel,
   loadProductRuleClass,
 } from '@/ebarimt/db/models/ProductRule';
-import { ISyncLogDocument } from '@/erkhet/@types';
-import { ISyncLogModel, loadSyncLogClass } from '@/erkhet/db/model/SyncLog';
-import { IMainContext } from 'erxes-api-shared/core-types';
-import { createGenerateModels } from 'erxes-api-shared/utils';
-import mongoose from 'mongoose';
-import { IConfigDocument } from './modules/configs/@types/configs';
+// Erkhet
+import { ISyncLogDocument as IErkhetSyncLogDocument } from '@/erkhet/@types';
 import {
-  IConfigModel,
-  loadConfigClass,
-} from './modules/configs/db/models/Configs';
-import { ScopedEventHandlers } from 'erxes-api-shared/core-modules';
+  ISyncLogModel as IErkhetSyncLogModel,
+  loadSyncLogClass as loadErkhetSyncLogClass,
+} from '@/erkhet/db/model/SyncLog';
+// MS Dynamic
+import {
+  ICustomerRelationDocument,
+  ISyncLogDocument as IMSDSyncLogDocument,
+} from '@/msdynamic/@types/dynamic';
+import {
+  ISyncLogModel as ISyncLogMSDModel,
+  loadSyncLogClass as loadSyncLogMSDClass,
+  ICustomerRelationModel,
+  loadCustomerRelationClass,
+} from '@/msdynamic/db/models/Dynamic';
+// Configs
 import { IExchangeRateDocument } from '@/exchangeRates/@types/exchangeRate';
 import {
   IExchangeRateModel,
   loadExchangeRateClass,
 } from '@/exchangeRates/db/models/ExchangeRates';
+import { IConfigDocument } from './modules/configs/@types/configs';
+import {
+  IConfigModel,
+  loadConfigClass,
+} from './modules/configs/db/models/Configs';
 
 export interface IModels {
   Configs: IConfigModel;
   PutResponses: IPutResponseModel;
   ProductRules: IProductRuleModel;
   ProductGroups: IProductGroupModel;
-  SyncLogs: ISyncLogModel;
+  SyncLogs: IErkhetSyncLogModel;
+  CustomerRelations: ICustomerRelationModel;
+  SyncLogsMSD: ISyncLogMSDModel;
   ExchangeRates: IExchangeRateModel;
 }
+
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
@@ -78,11 +98,20 @@ export const loadClasses = (
     loadProductGroupClass(models),
   );
 
-  models.SyncLogs = db.model<ISyncLogDocument, ISyncLogModel>(
+  models.SyncLogs = db.model<IErkhetSyncLogDocument, IErkhetSyncLogModel>(
     'syncerkhet_synclogs',
-    loadSyncLogClass(models),
+    loadErkhetSyncLogClass(models),
   );
 
+  models.SyncLogsMSD = db.model<IMSDSyncLogDocument, ISyncLogMSDModel>(
+    'msdynamics_synclogs',
+    loadSyncLogMSDClass(models),
+  );
+
+  models.CustomerRelations = db.model<
+    ICustomerRelationDocument,
+    ICustomerRelationModel
+  >('msdynamics_customer_relation', loadCustomerRelationClass(models));
   models.ExchangeRates = db.model<IExchangeRateDocument, IExchangeRateModel>(
     'exchange_rates',
     loadExchangeRateClass(models, subdomain),

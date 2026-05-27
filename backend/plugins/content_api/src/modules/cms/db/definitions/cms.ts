@@ -18,6 +18,7 @@ export const cmsSchema = new mongoose.Schema<IContentCMSDocument>(
     content: { type: String, required: true },
     language: { type: String, optional: true },
     languages: { type: [String], optional: true },
+    postUrlField: { type: String, optional: true, default: '_id' },
   },
   { timestamps: true },
 );
@@ -28,8 +29,8 @@ export const cmsMenuSchema = new mongoose.Schema<ICMSMenuDocument>(
     clientPortalId: { type: String, required: true },
     webId: { type: String, optional: true },
     label: { type: String, required: true },
-    objectType: { type: String },
-    objectId: { type: String },
+    contentType: { type: String },
+    contentTypeId: { type: String },
     kind: { type: String, required: true },
     icon: { type: String },
     url: { type: String },

@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 
 export const AutomationAiAgentTableEmptyState = () => {
   return (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
+    <div className="flex flex-col items-center justify-center py-6 text-center">
       <div className="flex flex-col items-center gap-4 max-w-sm">
         <div className="relative">
           <div className="size-16 rounded-full bg-muted/50 flex items-center justify-center">

@@ -14,8 +14,14 @@ import {
 } from 'erxes-ui';
 import { useEffect } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
-import { BoardSelect, PipelineSelect, SelectBranches, SelectDepartments, StageSelect } from 'ui-modules';
-import { z } from "zod";
+import {
+  BoardSelect,
+  PipelineSelect,
+  SelectBranches,
+  SelectDepartments,
+  StageSelect,
+} from 'ui-modules';
+import { z } from 'zod';
 
 const configFormSchema = z.object({
   title: z.string(),
@@ -32,9 +38,11 @@ const configFormSchema = z.object({
   vatRowId: z.string(),
   hasCtax: z.boolean(),
   ctaxRowId: z.string(),
-  payments: z.record(z.object({
-    accountId: z.string(),
-  })),
+  payments: z.record(
+    z.object({
+      accountId: z.string(),
+    }),
+  ),
   defaultPayment: z.object({
     accountId: z.string(),
   }),
@@ -54,25 +62,41 @@ export const SyncDealConfigForm = ({
   onSubmit: (data: any) => void;
   loading: boolean;
 }) => {
-  const pipelineId = useWatch({
+  const boardId = useWatch({
     control: form.control,
-    name: `pipelineId`
+    name: `boardId`,
   });
 
-  const { data: pipelineDetail, refetch: pipelineRefetch } = useQuery(gql`
-  query SalesPipelineDetail($_id: String!) {
-    salesPipelineDetail(_id: $_id) {
-      _id
-      name
-      paymentIds
-      paymentTypes
-    }
-  }
-`, {
-    variables: { _id: pipelineId },
-    skip: !pipelineId,          // pipelineId байхгүй үед асуухгүй
-    fetchPolicy: 'network-only' // заавал backend-ээс авна
+  const pipelineId = useWatch({
+    control: form.control,
+    name: `pipelineId`,
   });
+
+  const { data: pipelineDetail, refetch: pipelineRefetch } = useQuery(
+    gql`
+      query SalesPipelineDetail($_id: String!) {
+        salesPipelineDetail(_id: $_id) {
+          _id
+          name
+          paymentIds
+          paymentTypes
+        }
+      }
+    `,
+    {
+      variables: { _id: pipelineId },
+      skip: !pipelineId, // pipelineId байхгүй үед асуухгүй
+      fetchPolicy: 'network-only', // заавал backend-ээс авна
+    },
+  );
+
+  useEffect(() => {
+    form.setValue('pipelineId', '');
+  }, [boardId, form]);
+
+  useEffect(() => {
+    form.setValue('stageId', '');
+  }, [pipelineId, form]);
 
   useEffect(() => {
     if (pipelineId) {
@@ -81,7 +105,8 @@ export const SyncDealConfigForm = ({
   }, [pipelineId, pipelineRefetch]);
 
   // note: const paymentIds: string[] = pipelineDetail?.salesPipelineDetail?.paymentIds || [];
-  const paymentTypes: any[] = pipelineDetail?.salesPipelineDetail?.paymentTypes || [];
+  const paymentTypes: any[] =
+    pipelineDetail?.salesPipelineDetail?.paymentTypes || [];
 
   return (
     <Form {...form}>
@@ -114,7 +139,9 @@ export const SyncDealConfigForm = ({
                   </Select.Trigger>
                   <Select.Content>
                     <Select.Item value="alwaysNow">Always Now</Select.Item>
-                    <Select.Item value="syncedDateOrNow">Synced Date Or Now</Select.Item>
+                    <Select.Item value="syncedDateOrNow">
+                      Synced Date Or Now
+                    </Select.Item>
                   </Select.Content>
                 </Select>
               </Form.Control>
@@ -125,13 +152,10 @@ export const SyncDealConfigForm = ({
           control={form.control}
           name="boardId"
           render={({ field }) => (
-            <Form.Item className='col-start-1'>
+            <Form.Item className="col-start-1">
               <Form.Label>Board</Form.Label>
               <Form.Control>
-                <BoardSelect
-                  boardId={field.value}
-                  onChange={field.onChange}
-                />
+                <BoardSelect boardId={field.value} onChange={field.onChange} />
               </Form.Control>
             </Form.Item>
           )}
@@ -257,7 +281,13 @@ export const SyncDealConfigForm = ({
                 <SelectAccount.FormItem
                   value={field.value}
                   onValueChange={field.onChange}
-                  defaultFilter={{ journals: [JournalEnum.BANK, JournalEnum.CASH, JournalEnum.DEBT] }}
+                  defaultFilter={{
+                    journals: [
+                      JournalEnum.BANK,
+                      JournalEnum.CASH,
+                      JournalEnum.DEBT,
+                    ],
+                  }}
                 />
               </Form.Control>
             </Form.Item>
@@ -273,7 +303,13 @@ export const SyncDealConfigForm = ({
                 <SelectAccount.FormItem
                   value={field.value}
                   onValueChange={field.onChange}
-                  defaultFilter={{ journals: [JournalEnum.BANK, JournalEnum.CASH, JournalEnum.DEBT] }}
+                  defaultFilter={{
+                    journals: [
+                      JournalEnum.BANK,
+                      JournalEnum.CASH,
+                      JournalEnum.DEBT,
+                    ],
+                  }}
                 />
               </Form.Control>
             </Form.Item>
@@ -281,11 +317,11 @@ export const SyncDealConfigForm = ({
         />
         {[
           {
-            type: "cash",
-            title: "cash",
+            type: 'cash',
+            title: 'cash',
           },
-          ...paymentTypes
-        ].map(ptype => (
+          ...paymentTypes,
+        ].map((ptype) => (
           <Form.Field
             key={`${pipelineId}-${ptype.type}`}
             control={form.control}
@@ -297,7 +333,13 @@ export const SyncDealConfigForm = ({
                   <SelectAccount.FormItem
                     value={field.value}
                     onValueChange={field.onChange}
-                    defaultFilter={{ journals: [JournalEnum.BANK, JournalEnum.CASH, JournalEnum.DEBT] }}
+                    defaultFilter={{
+                      journals: [
+                        JournalEnum.BANK,
+                        JournalEnum.CASH,
+                        JournalEnum.DEBT,
+                      ],
+                    }}
                   />
                 </Form.Control>
               </Form.Item>
@@ -308,7 +350,7 @@ export const SyncDealConfigForm = ({
           control={form.control}
           name="hasVat"
           render={({ field }) => (
-            <Form.Item className='flex items-center col-start-1 space-x-2 space-y-0 pt-5'>
+            <Form.Item className="flex items-center col-start-1 space-x-2 space-y-0 pt-5">
               <Form.Label>Has VAT</Form.Label>
               <Form.Control>
                 <Checkbox
@@ -321,27 +363,29 @@ export const SyncDealConfigForm = ({
         />
         {useWatch({
           control: form.control,
-          name: `hasVat`
-        }) && (<Form.Field
-          control={form.control}
-          name="vatRowId"
-          render={({ field }) => (
-            <Form.Item >
-              <Form.Label>Vat Row</Form.Label>
-              <Form.Control>
-                <SelectVat
-                  value={field.value || ''}
-                  onValueChange={field.onChange}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />)}
+          name: `hasVat`,
+        }) && (
+          <Form.Field
+            control={form.control}
+            name="vatRowId"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Vat Row</Form.Label>
+                <Form.Control>
+                  <SelectVat
+                    value={field.value || ''}
+                    onValueChange={field.onChange}
+                  />
+                </Form.Control>
+              </Form.Item>
+            )}
+          />
+        )}
         <Form.Field
           control={form.control}
           name="hasCtax"
           render={({ field }) => (
-            <Form.Item className='flex items-center col-start-1 space-x-2 space-y-0 pt-5'>
+            <Form.Item className="flex items-center col-start-1 space-x-2 space-y-0 pt-5">
               <Form.Label>Has CTAX</Form.Label>
               <Form.Control>
                 <Checkbox
@@ -354,22 +398,24 @@ export const SyncDealConfigForm = ({
         />
         {useWatch({
           control: form.control,
-          name: `hasCtax`
-        }) && (<Form.Field
-          control={form.control}
-          name="ctaxRowId"
-          render={({ field }) => (
-            <Form.Item >
-              <Form.Label>Ctax Row</Form.Label>
-              <Form.Control>
-                <SelectCtax
-                  value={field.value || ''}
-                  onValueChange={field.onChange}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />)}
+          name: `hasCtax`,
+        }) && (
+          <Form.Field
+            control={form.control}
+            name="ctaxRowId"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Ctax Row</Form.Label>
+                <Form.Control>
+                  <SelectCtax
+                    value={field.value || ''}
+                    onValueChange={field.onChange}
+                  />
+                </Form.Control>
+              </Form.Item>
+            )}
+          />
+        )}
 
         <Dialog.Footer className="col-span-3 mt-3 gap-2">
           <Dialog.Close asChild>

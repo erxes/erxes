@@ -23,7 +23,6 @@ export const usePlaceholderInputSuggestionPopover = ({
     suggestionTypeMap,
   } = usePlaceholderInputContext();
 
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const internalRef = useRef<HTMLDivElement>(null);
 
   const type = useMemo(() => {
@@ -31,7 +30,8 @@ export const usePlaceholderInputSuggestionPopover = ({
     return suggestionType || 'attribute';
   }, [selectionType, suggestionType]);
 
-  const { mode, options } = suggestionTypeMap.get(type) || {};
+  const suggestionConfig = suggestionTypeMap.get(type);
+  const { mode, options } = suggestionConfig || {};
   const { formatSelection } = options || {};
 
   const isOpenPopover = useMemo(
@@ -62,10 +62,6 @@ export const usePlaceholderInputSuggestionPopover = ({
   }, [popoverRef, isOpenPopover]);
 
   useEffect(() => {
-    setSelectedIndex(0);
-  }, [searchQuery, type]);
-
-  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.stopPropagation();
@@ -76,16 +72,16 @@ export const usePlaceholderInputSuggestionPopover = ({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [selectedIndex, onSelect, onClose]);
+  }, [onClose]);
 
   return {
     type,
     isOpenPopover,
     onSelect,
     isCustomRenderer,
-    selectedIndex,
     internalRef,
     isCustomCommandRenderer,
     suggestionOptions: options,
+    suggestionConfig,
   };
 };

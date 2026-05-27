@@ -11,6 +11,7 @@ import {
 import { useState, useCallback } from 'react';
 import { useMutation, gql } from '@apollo/client';
 import { AssignMemberInEditor } from '../../team-members';
+import { Can } from 'ui-modules/modules/permissions/components/PermissionGate';
 
 const INTERNAL_NOTE_ADD = gql`
   mutation internalNotesAdd(
@@ -80,7 +81,6 @@ export function AddInternalNote({
           variant: 'destructive',
         });
       },
-      refetchQueries: ['activityLogs'],
     });
   }, [
     content,
@@ -102,31 +102,33 @@ export function AddInternalNote({
   );
 
   return (
-    <div
-      className="flex flex-col border rounded-lg min-h-14 px-4 py-3 ml-10 mr-8"
-      onKeyDown={handleKeyDown}
-    >
-      <BlockEditor
-        editor={editor}
-        onChange={handleChange}
-        className="read-only"
+    <Can action="internalNotesManage">
+      <div
+        className="flex flex-col border rounded-lg min-h-14 px-4 py-3 ml-10 mr-8"
+        onKeyDown={handleKeyDown}
       >
-        <AssignMemberInEditor editor={editor} />
-      </BlockEditor>
-      <div className="flex justify-end">
-        <Button
-          size="lg"
-          className="ml-auto"
-          onClick={handleSubmit}
-          disabled={loading || !content || content === '[]'}
+        <BlockEditor
+          editor={editor}
+          onChange={handleChange}
+          className="read-only"
         >
-          {loading ? <Spinner size="sm" /> : 'Send'}
-          <Kbd className="ml-1">
-            <IconCommand size={12} />
-            <IconCornerDownLeft size={12} />
-          </Kbd>
-        </Button>
+          <AssignMemberInEditor editor={editor} />
+        </BlockEditor>
+        <div className="flex justify-end">
+          <Button
+            size="lg"
+            className="ml-auto"
+            onClick={handleSubmit}
+            disabled={loading || !content || content === '[]'}
+          >
+            {loading ? <Spinner size="sm" /> : 'Send'}
+            <Kbd className="ml-1">
+              <IconCommand size={12} />
+              <IconCornerDownLeft size={12} />
+            </Kbd>
+          </Button>
+        </div>
       </div>
-    </div>
+    </Can>
   );
 }

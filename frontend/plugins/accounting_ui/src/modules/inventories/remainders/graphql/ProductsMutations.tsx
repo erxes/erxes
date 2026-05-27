@@ -3,25 +3,21 @@ import { gql } from '@apollo/client';
 const safeRemInputParamDefs = `
   $branchId: String,
   $departmentId: String,
-  $date: Date,
-  $description: String,
   $productCategoryId: String,
-  $attachment: AttachmentInput
-  $filterField: String
+  $productIds: [String],
 `;
 
 const safeRemInputParams = `
   branchId: $branchId,
   departmentId: $departmentId,
-  date: $date,
-  description: $description,
   productCategoryId: $productCategoryId,
-  attachment: $attachment,
-  filterField: $filterField,
+  productIds: $productIds
 `;
 
 export const RE_CALC_REMAINDERS = gql`
   mutation ReCalcRemainders(${safeRemInputParamDefs}) {
-    reCalcRemainders(${safeRemInputParams}) 
+    reCalcRemainders(${safeRemInputParams}) {
+      _id
+    }
   }
 `;

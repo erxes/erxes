@@ -36,6 +36,7 @@ interface Website {
   createdAt: string;
   languages?: string[];
   language?: string;
+  postUrlField?: '_id' | 'count' | 'slug';
 }
 
 interface WebsiteDrawerProps {
@@ -44,6 +45,19 @@ interface WebsiteDrawerProps {
   onClose: () => void;
   onSuccess?: () => void;
 }
+
+const POST_URL_FIELD_OPTIONS = [
+  { value: '_id', label: 'Post ID' },
+  { value: 'count', label: 'Post Count' },
+  { value: 'slug', label: 'Post Slug' },
+] as const;
+
+const POST_URL_FIELD_EXAMPLES: Record<WebsiteFormType['postUrlField'], string> =
+  {
+    _id: 'fSY5zj2QmcnXUNSnF9sYo',
+    count: '1',
+    slug: 'my-first-post',
+  };
 
 export function WebsiteDrawer({
   website,
@@ -70,8 +84,26 @@ export function WebsiteDrawer({
       kind: 'client',
       languages: [],
       language: '',
+      postUrlField: '_id',
     },
   });
+
+  const selectedClientPortalId = form.watch('kind');
+  const selectedPostUrlField = form.watch('postUrlField');
+  const selectedClientPortal = clientPortals.find(
+    (portal) => portal._id === selectedClientPortalId,
+  );
+  const rawDomain = selectedClientPortal?.domain || '';
+  const normalizedDomain = rawDomain
+    ? rawDomain.startsWith('http')
+      ? rawDomain
+      : `https://${rawDomain}`
+    : '';
+  const previewPathSegment =
+    POST_URL_FIELD_EXAMPLES[selectedPostUrlField || '_id'];
+  const previewUrl = normalizedDomain
+    ? `${normalizedDomain.replace(/\/+$/, '')}/${previewPathSegment}`
+    : `/${previewPathSegment}`;
 
   useEffect(() => {
     if (isOpen) {
@@ -86,6 +118,7 @@ export function WebsiteDrawer({
           kind: website.clientPortalId || '',
           languages: website.languages || [],
           language: website.language || '',
+          postUrlField: website.postUrlField || '_id',
         });
       } else {
         form.reset({
@@ -96,6 +129,7 @@ export function WebsiteDrawer({
           kind: 'client',
           languages: [],
           language: '',
+          postUrlField: '_id',
         });
       }
     }
@@ -202,7 +236,7 @@ export function WebsiteDrawer({
   });
 
   const onSubmit = (data: WebsiteFormType) => {
-    const { name, description, language, languages } = data;
+    const { name, description, language, languages, postUrlField } = data;
 
     if (isEditing && website?._id) {
       updateCMS({
@@ -214,6 +248,7 @@ export function WebsiteDrawer({
             language: language || undefined,
             languages: languages || [],
             clientPortalId: data.kind,
+            postUrlField,
           },
         },
       });
@@ -228,6 +263,7 @@ export function WebsiteDrawer({
           language: language || undefined,
           languages: languages || [],
           clientPortalId: data.kind,
+          postUrlField,
           content: 'hello',
         },
       },
@@ -314,6 +350,38 @@ export function WebsiteDrawer({
                   </Form.Item>
                 );
               }}
+            />
+
+            <Form.Field
+              control={form.control}
+              name="postUrlField"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Post URL Field</Form.Label>
+                  <Form.Control>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <Select.Trigger>
+                        <Select.Value placeholder="Select post URL field" />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {POST_URL_FIELD_OPTIONS.map((option) => (
+                          <Select.Item key={option.value} value={option.value}>
+                            {option.label}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  </Form.Control>
+                  <p className="text-xs text-muted-foreground">
+                    Choose which post field the public website will use in post
+                    URLs.
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Preview: {previewUrl}
+                  </p>
+                  <Form.Message className="text-destructive" />
+                </Form.Item>
+              )}
             />
 
             <Form.Field

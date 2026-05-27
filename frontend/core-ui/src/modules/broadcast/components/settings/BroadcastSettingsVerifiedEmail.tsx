@@ -118,22 +118,24 @@ export const BroadcastSettingsVerifiedEmail = () => {
                   <Skeleton className="w-32 h-7" />
                 </div>
               </Command.Empty>
-            ) : members?.length === 0 ? (
-              <Command.Empty>
-                <div>No results found.</div>
-              </Command.Empty>
             ) : (
               <Command.Empty className="p-1">
-                <Button
-                  variant="ghost"
-                  className={`w-full justify-start relative flex gap-2 select-none items-center rounded-sm px-2 py-1.5 text-sm outline-hidden data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[disabled=true]:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 h-8 cursor-pointer ${validator.isEmail(search) ? 'text-success' : 'text-destructive'}`}
-                  onClick={() => {
-                    handleAdd(search);
-                  }}
-                >
-                  <IconShieldFilled />
-                  Verify email: "{search}"
-                </Button>
+                {search ? (
+                  <Button
+                    variant="ghost"
+                    className={`w-full justify-start relative flex gap-2 select-none items-center rounded-sm px-2 py-1.5 text-sm outline-hidden data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[disabled=true]:opacity-50 [&>svg]:pointer-events-none [&>svg]:size-4 [&>svg]:shrink-0 h-8 cursor-pointer ${validator.isEmail(search) ? 'text-success' : 'text-destructive'}`}
+                    onClick={() => {
+                      handleAdd(search);
+                    }}
+                  >
+                    <IconShieldFilled />
+                    Verify email: "{search}"
+                  </Button>
+                ) : (
+                  <div className='py-5 px-3 text-center'>
+                    No verified emails found. You can add by typing an email address.
+                  </div>
+                )}
               </Command.Empty>
             )}
 

@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useCustomerEdit } from 'ui-modules';
+import { Can, useCustomerEdit } from 'ui-modules';
 import { useCustomerDetailWithQuery } from '../../hooks/useCustomerDetailWithQuery';
 
 export const CustomerDetailFields = () => {
@@ -65,7 +65,15 @@ export const CustomerDetailFields = () => {
   });
 
   const onSubmit = (data: CustomerFormType) => {
-    const { emailValidationStatus, phoneValidationStatus, sex, avatar, ...rest } = data;
+    const {
+      emailValidationStatus,
+      phoneValidationStatus,
+      sex,
+      avatar,
+      ...rest
+    } = data;
+    void emailValidationStatus;
+    void phoneValidationStatus;
 
     customerEdit({
       variables: {
@@ -94,7 +102,9 @@ export const CustomerDetailFields = () => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 px-8">
           <CustomerAddGeneralInformationFields form={form} />
           <div className="flex justify-end">
-            <Button type="submit">{t('save', 'Save')}</Button>
+            <Can action="contactsUpdate">
+              <Button type="submit">{t('save', 'Save')}</Button>
+            </Can>
           </div>
         </form>
       </Form>

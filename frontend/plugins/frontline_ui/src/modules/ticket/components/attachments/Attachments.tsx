@@ -21,7 +21,7 @@ const Attachments = () => {
 
   // Guard against null/undefined items that GraphQL may include in the array
   const safeAttachments = attachments.filter(
-    (attachment) => attachment != null && attachment.type != null,
+    (attachment) => attachment?.type !== null,
   );
 
   if (safeAttachments.length === 0) {

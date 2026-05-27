@@ -6,6 +6,7 @@ import {
   IconUsers,
 } from '@tabler/icons-react';
 import {
+  Badge,
   Checkbox,
   RecordTable,
   RecordTableInlineCell,
@@ -36,7 +37,13 @@ const formatDate = (value?: string) => {
   return dateFormatter.format(date);
 };
 
-export const GroupedTourColumns = (): ColumnDef<TourGroupRow>[] => [
+interface GroupedTourColumnsProps {
+  onEdit?: (tourId: string) => void;
+}
+
+export const GroupedTourColumns = (
+  props?: GroupedTourColumnsProps,
+): ColumnDef<TourGroupRow>[] => [
   {
     id: 'checkbox',
     header: ({ table }) => {
@@ -96,9 +103,17 @@ export const GroupedTourColumns = (): ColumnDef<TourGroupRow>[] => [
             hasChildren={row.original.hasChildren}
           >
             <div className="min-w-0">
-              <TextOverflowTooltip
-                value={row.original.isGroup ? row.original._id : value || '-'}
-              />
+              {row.original.isGroup ? (
+                <TextOverflowTooltip value={row.original._id} />
+              ) : (
+                <Badge
+                  variant="secondary"
+                  className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"
+                  onClick={() => props?.onEdit?.(row.original._id)}
+                >
+                  <TextOverflowTooltip value={value || '-'} />
+                </Badge>
+              )}
             </div>
           </RecordTableTree.Trigger>
         </RecordTableInlineCell>

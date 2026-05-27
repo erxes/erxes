@@ -11,7 +11,7 @@ interface CoverPageProps {
 
 export const CoverPage: React.FC<CoverPageProps> = React.memo(
   function CoverPage({ itinerary, branch, coverImageBase64 }) {
-    const primaryColor = branch?.primaryColor || COLORS.primary;
+    const primaryColor = itinerary.color || COLORS.primary;
     const title = itinerary.name || 'Untitled Itinerary';
     const duration = itinerary.duration;
 

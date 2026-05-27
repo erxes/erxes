@@ -187,7 +187,7 @@ const genDuplicatedFilter = async (params) => {
   const ced = new Date(endDate);
   if (
     ((ced ? ced.getTime() : 0) - (csd ? csd.getTime() : 0)) /
-    (1000 * 60 * 60 * 24) >
+      (1000 * 60 * 60 * 24) >
     32
   ) {
     throw new Error('The date range exceeds one month');
@@ -216,7 +216,7 @@ export const putResponseQueries = {
   putResponses: async (_root, params, { models, subdomain }: IContext) => {
     const { orderBy } = params;
     if (!orderBy || !Object.keys(orderBy)) {
-      params.orderBy = { createdAt: -2 }
+      params.orderBy = { createdAt: -2 };
     }
     const filter = await generateFilter(subdomain, params);
 
@@ -282,7 +282,10 @@ export const putResponseQueries = {
         throw new Error('Deal not found');
       }
 
-      const configVal = await models.Configs.getConfigValue('stageInEbarimt', stageId);
+      const configVal = await models.Configs.getConfigValue(
+        'stageInEbarimt',
+        stageId,
+      );
 
       if (!configVal) {
         throw new Error('Ebarimt config not found');
@@ -358,11 +361,11 @@ export const putResponseQueries = {
       { $group: { _id: '', amount: { $sum: { $toDecimal: '$totalAmount' } } } },
     ]);
 
-    if (!res || !res.length) {
+    if (!res?.length) {
       return 0;
     }
 
-    return Number((res[0] || {}).amount || 0);
+    return Number(res[0]?.amount || 0);
   },
 
   putResponsesByDate: async (
@@ -380,7 +383,7 @@ export const putResponseQueries = {
     const ced = new Date(createdEndDate);
     if (
       ((ced ? ced.getTime() : 0) - (csd ? csd.getTime() : 0)) /
-      (1000 * 60 * 60 * 24) >
+        (1000 * 60 * 60 * 24) >
       32
     ) {
       throw new Error('The date range exceeds one month');

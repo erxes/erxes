@@ -1,12 +1,27 @@
 import { IconLayoutGrid } from '@tabler/icons-react';
 import { RecordTable, useMultiQueryState } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
 import { AmenityCreateSheet } from './AmenityCreateSheet';
 import { amenityColumns } from './AmenityColumns';
 import { useAmenities } from '../hooks/useAmenities';
 import { AMENITIES_CURSOR_SESSION_KEY } from '../constants/amenityCursorSessionKey';
 import { AmenityCommandBar } from './AmenityCommandBar';
+import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
-export const AmenityRecordTable = ({ branchId }: { branchId: string }) => {
+interface AmenityRecordTableProps {
+  branchId: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
+}
+
+export const AmenityRecordTable = ({
+  branchId,
+  branchLanguages,
+  mainLanguage,
+}: AmenityRecordTableProps) => {
+  const activeLang = useAtomValue(activeLangAtom);
+  const language = activeLang || mainLanguage;
+
   const [queries] = useMultiQueryState<{
     searchValue: string;
   }>(['searchValue']);
@@ -17,21 +32,28 @@ export const AmenityRecordTable = ({ branchId }: { branchId: string }) => {
         quick: true,
         branchId,
         name: queries?.searchValue || undefined,
+        language,
       },
     });
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   if (!loading && (totalCount ?? 0) === 0) {
-    return <EmptyStateRow branchId={branchId} />;
+    return (
+      <EmptyStateRow
+        branchId={branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
+      />
+    );
   }
 
   return (
     <RecordTable.Provider
-      columns={amenityColumns}
+      columns={amenityColumns(branchId, branchLanguages, mainLanguage)}
       data={amenities || []}
       className="h-full"
-      stickyColumns={['checkbox', 'icon', 'name']}
+      stickyColumns={['more', 'checkbox', 'name', 'icon']}
     >
       <AmenityCommandBar />
       <RecordTable.CursorProvider
@@ -58,7 +80,15 @@ export const AmenityRecordTable = ({ branchId }: { branchId: string }) => {
   );
 };
 
-function EmptyStateRow({ branchId }: { branchId: string }) {
+function EmptyStateRow({
+  branchId,
+  branchLanguages,
+  mainLanguage,
+}: {
+  branchId: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
+}) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">
       <IconLayoutGrid
@@ -75,7 +105,11 @@ function EmptyStateRow({ branchId }: { branchId: string }) {
         Create your first amenity to get started.
       </p>
 
-      <AmenityCreateSheet branchId={branchId} />
+      <AmenityCreateSheet
+        branchId={branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
+      />
     </div>
   );
 }

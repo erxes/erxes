@@ -1,10 +1,9 @@
-import { useMemo } from 'react';
-import { useAtom, useAtomValue } from 'jotai';
-import { pluginsConfigState, usePermissionCheck } from 'ui-modules';
-import { useVersion } from 'ui-modules';
-import { useTranslation } from 'react-i18next';
-import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
 import { IUIConfig } from 'erxes-ui';
+import { useAtom } from 'jotai';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { pluginsConfigState, usePermissionCheck, useVersion } from 'ui-modules';
+import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
 
 export const usePluginsModules = () => {
   const [pluginsMetaData] = useAtom(pluginsConfigState);

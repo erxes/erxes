@@ -8,6 +8,7 @@ export const SOCIAL_LINKS = z.object({
       message: 'Invalid Facebook URL',
     })
     .optional()
+    .nullable()
     .or(z.literal('')),
   twitter: z
     .string()
@@ -16,11 +17,13 @@ export const SOCIAL_LINKS = z.object({
       message: 'Invalid Twitter URL',
     })
     .optional()
+    .nullable()
     .or(z.literal('')),
   website: z
     .string()
     .url({ message: 'Invalid website URL' })
     .optional()
+    .nullable()
     .or(z.literal('')),
   youtube: z
     .string()
@@ -29,6 +32,7 @@ export const SOCIAL_LINKS = z.object({
       message: 'Invalid Youtube URL',
     })
     .optional()
+    .nullable()
     .or(z.literal('')),
   whatsapp: z
     .string()
@@ -37,25 +41,27 @@ export const SOCIAL_LINKS = z.object({
       message: 'Invalid whatsapp URL',
     })
     .optional()
+    .nullable()
     .or(z.literal('')),
 });
 
 export const BRANCH_CREATE_SCHEMA = z.object({
   title: z.string(),
-  address: z.string(),
-  code: z.string(),
-  supervisorId: z.string().optional(),
+  address: z.string().optional().nullable().or(z.literal('')),
+  code: z.string().min(1, { message: 'Code is required' }),
+  supervisorId: z.string().optional().nullable(),
   parentId: z.string().optional().nullable(),
-  userIds: z.string().array().optional(),
+  userIds: z.string().array().optional().nullable(),
   phoneNumber: z.string().optional().nullable(),
   email: z.string().optional().nullable(),
   coordinate: z
     .object({
-      latitude: z.string().optional(),
-      longitude: z.string().optional(),
+      latitude: z.string().optional().nullable(),
+      longitude: z.string().optional().nullable(),
     })
-    .optional(),
-  links: SOCIAL_LINKS.optional(),
+    .optional()
+    .nullable(),
+  links: SOCIAL_LINKS.optional().nullable(),
   image: z
     .object({
       name: z.string(),

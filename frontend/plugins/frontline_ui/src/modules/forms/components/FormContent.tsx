@@ -29,12 +29,15 @@ export const FormContent = () => {
   return (
     <FormMutateLayout title="Content" description="Content" form={form}>
       <FormValueEffectComponent form={form} atom={formSetupContentAtom} />
-      <InfoCard title="Fields">
+      <InfoCard title="Fields" description="Drag to reorder fields">
         <Form.Field
           name="steps"
           control={form.control}
           render={({ field }) => (
-            <FormDndProvider value={field.value} onValueChange={field.onChange}>
+            <FormDndProvider
+              value={field.value as any}
+              onValueChange={field.onChange}
+            >
               <FormDnd />
             </FormDndProvider>
           )}

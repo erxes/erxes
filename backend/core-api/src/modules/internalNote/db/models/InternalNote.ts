@@ -27,7 +27,7 @@ export interface IInternalNoteModel extends Model<IInternalNoteDocument> {
 export const loadInternalNoteClass = (
   models: IModels,
   subdomain: string,
-  { sendDbEventLog, createActivityLog }: EventDispatcherReturn,
+  { createActivityLog }: EventDispatcherReturn,
 ) => {
   class InternalNote {
     public static async getInternalNote(_id: string) {
@@ -53,11 +53,6 @@ export const loadInternalNoteClass = (
         createdUserId: user._id,
         ...fields,
       });
-      sendDbEventLog({
-        action: 'create',
-        docId: note._id,
-        currentDocument: note.toObject(),
-      });
       createActivityLog({
         activityType: 'create',
         target: {
@@ -76,21 +71,11 @@ export const loadInternalNoteClass = (
      * Update internalNote
      */
     public static async updateInternalNote(_id: string, doc: IInternalNote) {
-      const oldNote = await models.InternalNotes.findOne({ _id });
-      const updatedNote = await models.InternalNotes.findOneAndUpdate(
+      return await models.InternalNotes.findOneAndUpdate(
         { _id },
         { $set: doc },
         { new: true },
       );
-      if (updatedNote && oldNote) {
-        sendDbEventLog({
-          action: 'update',
-          docId: updatedNote._id,
-          currentDocument: updatedNote.toObject(),
-          prevDocument: oldNote.toObject(),
-        });
-      }
-      return updatedNote;
     }
 
     /*
@@ -104,11 +89,6 @@ export const loadInternalNoteClass = (
       if (!internalNoteObj) {
         throw new Error(`InternalNote not found with id ${_id}`);
       }
-
-      sendDbEventLog({
-        action: 'delete',
-        docId: internalNoteObj._id,
-      });
 
       return internalNoteObj;
     }
@@ -129,12 +109,6 @@ export const loadInternalNoteClass = (
         contentType,
         contentTypeId: { $in: contentTypeIds },
       });
-      if (toDelete.length > 0) {
-        sendDbEventLog({
-          action: 'deleteMany',
-          docIds: toDelete.map((d) => d._id),
-        });
-      }
       return result;
     }
   }

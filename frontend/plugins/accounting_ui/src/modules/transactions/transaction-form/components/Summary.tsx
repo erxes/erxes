@@ -13,20 +13,21 @@ import {
   useConfirm,
   useQueryState,
 } from 'erxes-ui';
+import { useNavigate } from 'react-router-dom';
 
 const getSum = (trDocs: any[], sumDebit: number, sumCredit: number) => {
   trDocs?.forEach((tr) => {
-    if (!(tr?.details && tr?.details[0])) {
+    if (!tr?.details?.[0]) {
       return;
     }
 
     tr.details?.forEach((det: ITrDetail) => {
       if (det?.side === TR_SIDES.DEBIT) {
-        sumDebit += det.amount ?? 0
+        sumDebit += det.amount ?? 0;
       } else {
-        sumCredit += det.amount ?? 0
+        sumCredit += det.amount ?? 0;
       }
-    })
+    });
   });
   return [sumDebit, sumCredit];
 };
@@ -38,6 +39,7 @@ export const sumDtAndCt = (trDocs: TTrDoc[], followTrDocs: ITransaction[]) => {
 };
 
 export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
+  const navigate = useNavigate();
   const { trDocs } = useWatch({ control: form.control });
   const followTrDocs = useAtomValue(followTrDocsState);
   const [parentId] = useQueryState<string>('parentId');
@@ -55,6 +57,10 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
         cancelLabel: 'Cancel',
       },
     }).then(() => {
+      if (!parentId) {
+        const pathname = '/accounting/main';
+        return navigate(pathname);
+      }
       removeTransactions({
         variables: {
           parentId,
@@ -92,7 +98,7 @@ export const Summary = ({ form }: { form: ITransactionGroupForm }) => {
           <CurrencyFormatedDisplay
             currencyValue={{
               currencyCode: CurrencyCode.MNT,
-              amountMicros: (sumCredit - sumDebit),
+              amountMicros: sumCredit - sumDebit,
             }}
           />
         </span>

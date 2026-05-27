@@ -29,6 +29,21 @@ export const types = `
     value: String
   }
 
+  type WebChangeField {
+    field: String!
+    from: JSON
+    to: JSON
+  }
+
+  type WebActivityLog {
+    _id: String!
+    webId: String!
+    userId: String
+    action: String!
+    changes: [WebChangeField]
+    createdAt: Date
+  }
+
   type Web {
     _id: String!
     clientPortalId: String!
@@ -48,6 +63,7 @@ export const types = `
     integrations: Integrations
     environmentVariables: [EnvironmentVariable]
     projectId: String
+    vercelProjectId: String
     lastDeploymentId: String
     lastDeploymentUrl: String
     createdAt: Date
@@ -124,6 +140,7 @@ export const queries = `
   cpGetWebDetail(_id: String!): Web
   cpGetDomains(_id: String!): JSON
   cpGetDeploymentEvents(_id: String!): WebDeploymentResult
+  cpGetWebActivityLogs(webId: String!): [WebActivityLog]
 `;
 
 export const mutations = `

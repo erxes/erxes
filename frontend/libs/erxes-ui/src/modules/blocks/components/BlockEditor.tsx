@@ -1,7 +1,10 @@
 import {
   createReactInlineContentSpec,
+  DefaultReactSuggestionItem,
+  getDefaultReactSlashMenuItems,
   SuggestionMenuController,
 } from '@blocknote/react';
+import { filterSuggestionItems } from '@blocknote/core';
 import { BlockNoteView } from '@blocknote/shadcn';
 
 import { Button, Tooltip } from 'erxes-ui/components';
@@ -29,6 +32,38 @@ export const BlockEditor = ({
 }: BlockEditorProps) => {
   const theme = useAtomValue(themeState);
   const [focus, setFocus] = useState(false);
+
+  const getSlashMenuItems = (query: string) => {
+    const items = getDefaultReactSlashMenuItems(editor);
+    const hasImageItem = items.some((item) => item.title === 'Image');
+    const hasCustomImageBlock = 'image' in editor.schema.blockSchema;
+
+    if (!hasImageItem && hasCustomImageBlock) {
+      items.splice(9, 0, {
+        title: editor.dictionary.slash_menu.image.title,
+        subtext: editor.dictionary.slash_menu.image.subtext,
+        aliases: editor.dictionary.slash_menu.image.aliases,
+        badge: undefined,
+        group: editor.dictionary.slash_menu.image.group,
+        onItemClick: () => {
+          const currentBlock = editor.getTextCursorPosition().block;
+          const insertedBlock = editor.insertBlocks(
+            [{ type: 'image' }],
+            currentBlock,
+            'after',
+          )[0];
+
+          editor.transact((tr) =>
+            tr.setMeta(editor.filePanel!.plugins[0], {
+              block: insertedBlock,
+            }),
+          );
+        },
+      } satisfies DefaultReactSuggestionItem);
+    }
+
+    return Promise.resolve(filterSuggestionItems(items, query));
+  };
 
   return (
     <div
@@ -67,6 +102,7 @@ export const BlockEditor = ({
       >
         <SuggestionMenuController
           triggerCharacter="/"
+          getItems={getSlashMenuItems}
           suggestionMenuComponent={SlashMenu}
         />
         <Toolbar />

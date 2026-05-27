@@ -49,20 +49,20 @@ export const loadTourClass = (models: IModels) => {
     public static async createTour(doc) {
       const dateType = doc.dateType || 'fixed';
 
-      if (dateType === 'fixed') {
-        if (!doc.startDate) {
-          throw new Error('Start date is required for fixed schedule tours');
-        }
-      } else if (dateType === 'flexible') {
-        if (!doc.availableFrom || !doc.availableTo) {
-          throw new Error(
-            'Available date range (from and to) is required for flexible schedule tours',
-          );
-        }
-        if (new Date(doc.availableFrom) >= new Date(doc.availableTo)) {
-          throw new Error('Available "from" date must be before "to" date');
-        }
-      }
+      // if (dateType === 'fixed') {
+      //   if (!doc.startDate) {
+      //     throw new Error('Start date is required for fixed schedule tours');
+      //   }
+      // } else if (dateType === 'flexible') {
+      //   if (!doc.availableFrom || !doc.availableTo) {
+      //     throw new Error(
+      //       'Available date range (from and to) is required for flexible schedule tours',
+      //     );
+      //   }
+      //   if (new Date(doc.availableFrom) >= new Date(doc.availableTo)) {
+      //     throw new Error('Available "from" date must be before "to" date');
+      //   }
+      // }
 
       if (doc.pricingOptions) {
         if (doc.pricingOptions.length > 0) {

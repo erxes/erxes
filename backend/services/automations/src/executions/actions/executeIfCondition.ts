@@ -7,6 +7,7 @@ import {
 import { isInSegment } from '../../utils/isInSegment';
 import { executeActions } from '../executeActions';
 import { TIfActionConfig } from '../../types';
+import { finalizeExecAction } from '../executionActionMetrics';
 
 /**
  * Executes an if condition action by checking if target is in segment
@@ -48,6 +49,7 @@ export const executeIfCondition = async (
 
   execAction.nextActionId = ifActionId;
   execAction.result = { condition: isIn };
+  finalizeExecAction(execAction, 'success');
   execution.actions = [...(execution.actions || []), execAction];
   execution = await execution.save();
   return executeActions(

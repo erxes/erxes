@@ -47,11 +47,12 @@ export const getLoyaltyOwner = async (
     case 'cpUser':
       return await sendTRPCMessage({
         subdomain,
-        pluginName: 'content',
+        pluginName: 'core',
         method: 'query',
-        module: 'portalUser',
-        action: 'findOne',
-        input: { _id: ownerId },
+        module: 'cpUsers',
+        action: 'get',
+        input: { id: ownerId },
+        defaultValue: null,
       });
     default:
       return {};

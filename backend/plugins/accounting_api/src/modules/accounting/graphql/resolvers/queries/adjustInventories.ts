@@ -1,6 +1,6 @@
 import { ACCOUNT_STATUSES } from '@/accounting/@types/constants';
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { defaultPaginate, escapeRegExp } from 'erxes-api-shared/utils';
+import { defaultPaginate } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 
 interface IQueryParams {

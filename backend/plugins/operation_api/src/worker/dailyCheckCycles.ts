@@ -20,8 +20,6 @@ export const dailyCheckCycles = async () => {
         timezone: org.timezone,
       });
     }
-
-    return 'success';
   } else {
     const timezone = await sendTRPCMessage({
       subdomain: 'os',
@@ -40,8 +38,8 @@ export const dailyCheckCycles = async () => {
       subdomain: 'os',
       timezone,
     });
-    return 'success';
   }
+  return 'success';
 };
 
 export const checkCycle = async (job: Job) => {

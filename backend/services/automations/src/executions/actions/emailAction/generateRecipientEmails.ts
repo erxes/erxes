@@ -1,7 +1,7 @@
 import { generateAttributesFromPlaceholders } from '../../../utils/utils';
 import { splitType, TAutomationProducers } from 'erxes-api-shared/core-modules';
 import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
-import { extractValidEmails } from './utils';
+import { extractValidEmails, normalizeEmailActionPlaceholders } from './utils';
 
 export const getRecipientEmails = async ({
   subdomain,
@@ -42,10 +42,16 @@ export const collectEmails = async (
     targetType: string;
   },
 ) => {
-  const directEmails = extractValidEmails(mailPlaceHolder);
+  const normalizedMailPlaceHolder = normalizeEmailActionPlaceholders(
+    mailPlaceHolder,
+    targetType,
+  );
+  const directEmails = extractValidEmails(normalizedMailPlaceHolder);
   let recipientEmails: string[] = [];
   const [pluginName, moduleName, contentType] = splitType(targetType);
-  const attributes = generateAttributesFromPlaceholders(mailPlaceHolder);
+  const attributes = generateAttributesFromPlaceholders(
+    normalizedMailPlaceHolder,
+  );
   if (!attributes.length) return [];
 
   const relatedValueProps: Record<string, any> = {};
@@ -72,7 +78,7 @@ export const collectEmails = async (
     input: {
       moduleName,
       target: { ...(target || {}), type: contentType },
-      config: { mailPlaceHolder: mailPlaceHolder },
+      config: { mailPlaceHolder: normalizedMailPlaceHolder },
       relatedValueProps,
     },
   });

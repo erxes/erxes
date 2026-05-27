@@ -1,6 +1,12 @@
 import { Document } from 'mongoose';
 
-export type DataType = 'string' | 'number' | 'date' | 'boolean' | 'array' | 'object';
+export type DataType =
+  | 'string'
+  | 'number'
+  | 'date'
+  | 'boolean'
+  | 'array'
+  | 'object';
 
 export interface IAttributeDefinition {
   name: string;
@@ -17,6 +23,7 @@ export interface IAttributeDefinition {
 export interface IInsuranceType {
   name: string;
   code: string;
+  isCitizen?: boolean;
   attributes: IAttributeDefinition[];
 }
 

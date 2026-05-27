@@ -88,8 +88,7 @@ export const GroupInlineEffectComponent = ({
 }) => {
   const { groups, groupsIds, updateGroups } = useGroupsInlineContext();
   const { usersGroups } = useUsersGroup();
-  const groupDetail =
-    usersGroups && usersGroups?.find((g) => g._id === groupId);
+  const groupDetail = usersGroups?.find((g) => g._id === groupId);
 
   useEffect(() => {
     if (!groupDetail) return;

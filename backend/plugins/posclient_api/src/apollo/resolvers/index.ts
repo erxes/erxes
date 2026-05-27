@@ -11,6 +11,7 @@ const resolvers: any = {
   ...apolloCustomScalars,
   PosConfig,
   PoscProduct,
+  cpPoscProduct: PoscProduct,
   Order,
   OrderDetail: Order,
   Cover,

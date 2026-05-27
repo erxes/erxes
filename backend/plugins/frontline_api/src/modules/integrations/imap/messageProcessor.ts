@@ -114,7 +114,7 @@ export const findOrCreateCustomer = async (
     defaultValue: {},
   });
 
-  if (!apiCustomerResponse || !apiCustomerResponse._id) {
+  if (!apiCustomerResponse?._id) {
     throw new Error('Failed to create customer in Core');
   }
 

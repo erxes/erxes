@@ -42,7 +42,7 @@ const safeRemainderQueries = {
     }
 
     if (params.productId) {
-      let allRemainders = await models.SafeRemainders.find(query).lean();
+      const allRemainders = await models.SafeRemainders.find(query).lean();
       const remIds = allRemainders.map((r) => r._id);
 
       const items = await models.SafeRemainderItems.find({

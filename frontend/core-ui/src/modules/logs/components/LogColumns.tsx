@@ -2,7 +2,6 @@ import { LogUserInfo } from '@/logs/components/LogUser';
 import { ILogDoc } from '@/logs/types';
 import {
   IconCalendarTime,
-  IconEye,
   IconInfoCircle,
   IconProgressCheck,
   IconProgressX,
@@ -14,13 +13,11 @@ import { ColumnDef } from '@tanstack/table-core';
 import dayjs from 'dayjs';
 import {
   Badge,
-  Button,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
   useQueryState,
 } from 'erxes-ui';
-import { Link } from 'react-router-dom';
 import { IUser } from 'ui-modules';
 
 const statusInfos = {

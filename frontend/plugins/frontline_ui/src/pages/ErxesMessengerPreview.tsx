@@ -1,3 +1,8 @@
+import { EMPreviewIntro } from '@/integrations/erxes-messenger/components/EMPreviewIntro';
+import { EMPreviewMessages } from '@/integrations/erxes-messenger/components/EMPreviewMessages';
+import { useEMIntegrationDetail } from '@/integrations/erxes-messenger/hooks/useEMIntegrationDetail';
+import { erxesMessengerSetSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupSetAtom';
+import { erxesMessengerSetupAppearanceAtom, erxesMessengerSetupStepAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import {
   Button,
   ErxesLogoIcon,
@@ -7,13 +12,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { erxesMessengerSetupAppearanceAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
-import { EMPreviewMessages } from '@/integrations/erxes-messenger/components/EMPreviewMessages';
 import { useEffect, useLayoutEffect } from 'react';
-import { erxesMessengerSetupStepAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
-import { EMPreviewIntro } from '@/integrations/erxes-messenger/components/EMPreviewIntro';
-import { useEMIntegrationDetail } from '@/integrations/erxes-messenger/hooks/useEMIntegrationDetail';
-import { erxesMessengerSetSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupSetAtom';
 
 export const ErxesMessengerPreview = () => {
   const appearance = useAtomValue(erxesMessengerSetupAppearanceAtom);

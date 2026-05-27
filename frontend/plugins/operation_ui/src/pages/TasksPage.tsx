@@ -1,14 +1,12 @@
-import { Breadcrumb, PageSubHeader } from 'erxes-ui';
-import { useParams, useLocation } from 'react-router-dom';
-
-import { PageHeader, Can } from 'ui-modules';
-import { AddTaskSheet } from '@/task/components/add-task/AddTaskSheet';
-import { Separator } from 'erxes-ui';
-import { TaskBreadCrump } from '@/task/components/breadcrump/TaskBreadCrump';
-import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
 import { TasksFilter } from '@/task/components/TasksFilter';
 import { TasksView, TasksViewControl } from '@/task/components/TasksView';
+import { AddTaskSheet } from '@/task/components/add-task/AddTaskSheet';
+import { TaskBreadCrump } from '@/task/components/breadcrump/TaskBreadCrump';
 import { TasksSideWidget } from '@/task/components/detail/TasksSideWidget';
+import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
+import { Breadcrumb, PageSubHeader, Separator } from 'erxes-ui';
+import { useLocation, useParams } from 'react-router-dom';
+import { Can, PageHeader } from 'ui-modules';
 
 export const TasksPage = () => {
   const { teamId } = useParams();

@@ -1,4 +1,7 @@
-import { IScoreCampaignParams } from '@/score/@types/scoreCampaign';
+import {
+  IScoreCampaignDocument,
+  IScoreCampaignParams,
+} from '@/score/@types/scoreCampaign';
 import { SCORE_CAMPAIGN_STATUSES } from '@/score/constants';
 import {
   cursorPaginate,
@@ -7,11 +10,26 @@ import {
   getPlugins,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
 
-const generateFilter = (params: any) => {
-  const filter: any = {
+export interface IScoreCampaignAttribute {
+  name: string;
+  label: string;
+}
+
+export interface IScoreCampaignService {
+  name: string;
+  label: string;
+  isAviableAdditionalConfig: boolean;
+  icon: string;
+}
+
+const generateFilter = (
+  params: IScoreCampaignParams,
+): FilterQuery<IScoreCampaignDocument> => {
+  const filter: FilterQuery<IScoreCampaignDocument> = {
     status: { $ne: SCORE_CAMPAIGN_STATUSES.ARCHIVED },
   };
 
@@ -58,7 +76,7 @@ export const scoreCampaignQueries = {
     { serviceName }: { serviceName: string },
     { subdomain }: IContext,
   ) => {
-    let attributes: any[] = [];
+    let attributes: IScoreCampaignAttribute[] = [];
 
     // note: for (const serviceName of services) {
     const service = await getPlugin(serviceName);
@@ -85,7 +103,7 @@ export const scoreCampaignQueries = {
 
   async scoreCampaignServices() {
     const services = await getPlugins();
-    const result: any[] = [];
+    const result: IScoreCampaignService[] = [];
 
     for (const name of services) {
       const service = await getPlugin(name);

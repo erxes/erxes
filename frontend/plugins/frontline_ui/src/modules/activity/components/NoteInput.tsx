@@ -1,18 +1,17 @@
+import { useCreateTicketNote } from '@/activity/hooks/useCreateTicketNote';
+import { TicketHotKeyScope } from '@/ticket/types/ticketHotkeyScope';
+import type { Block } from '@blocknote/core';
+import { IconCommand, IconCornerDownLeft } from '@tabler/icons-react';
 import {
   BlockEditor,
+  Button,
   getMentionedUserIds,
   Kbd,
   useBlockEditor,
-  Button,
+  usePreviousHotkeyScope,
   useScopedHotkeys,
 } from 'erxes-ui';
-import { useCreateTicketNote } from '@/activity/hooks/useCreateTicketNote';
-
-import { usePreviousHotkeyScope } from 'erxes-ui';
-import { TicketHotKeyScope } from '@/ticket/types/ticketHotkeyScope';
 import { AssignMemberInEditor } from 'ui-modules';
-import { IconCommand, IconCornerDownLeft } from '@tabler/icons-react';
-import type { Block } from '@blocknote/core';
 
 export const NoteInput = ({ contentId }: { contentId: string }) => {
   const editor = useBlockEditor({ placeholder: 'Leave a note...' });

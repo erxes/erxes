@@ -6,7 +6,7 @@ import {
   Sheet,
 } from 'erxes-ui';
 import { useState } from 'react';
-import { IUom } from 'ui-modules';
+import { Can, IUom } from 'ui-modules';
 import { UomForm } from './UomForm';
 
 export const UomNameColumnCell = (props: CellContext<IUom, unknown>) => {
@@ -16,11 +16,13 @@ export const UomNameColumnCell = (props: CellContext<IUom, unknown>) => {
   return (
     <RecordTableInlineCell>
       <Sheet open={open} onOpenChange={setOpen} modal>
-        <Sheet.Trigger asChild>
-          <Badge variant="secondary" className="cursor-pointer">
-            <TextOverflowTooltip value={props.getValue() as string} />
-          </Badge>
-        </Sheet.Trigger>
+        <Can action="uomsManage">
+          <Sheet.Trigger asChild>
+            <Badge variant="secondary" className="cursor-pointer">
+              <TextOverflowTooltip value={props.getValue() as string} />
+            </Badge>
+          </Sheet.Trigger>
+        </Can>
         <Sheet.View className="p-0 sm:max-w-lg">
           <UomForm uom={uom} onOpenChange={(isOpen) => setOpen(isOpen)} />
         </Sheet.View>

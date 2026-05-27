@@ -1,6 +1,6 @@
 import { IconCircleDashed, IconCircleDashedCheck } from '@tabler/icons-react';
-import { Badge, cn } from 'erxes-ui';
-import React, { useId, useMemo } from 'react';
+import { cn } from 'erxes-ui';
+import React, { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 
 type TProps = {

@@ -87,7 +87,10 @@ export const loadProductCategoryClass = (
       // Generatingg order
       doc.order = await this.generateOrder(parentCategory, doc);
 
-      const category = await models.ProductCategories.create({ ...doc, createdAt: new Date() });
+      const category = await models.ProductCategories.create({
+        ...doc,
+        createdAt: new Date(),
+      });
       sendDbEventLog({
         action: 'create',
         docId: category._id,
@@ -115,7 +118,7 @@ export const loadProductCategoryClass = (
         _id: doc.parentId,
       }).lean();
 
-      if (parentCategory && parentCategory.parentId === _id) {
+      if (parentCategory?.parentId === _id) {
         throw new Error('Cannot change category');
       }
 

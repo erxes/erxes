@@ -1,10 +1,10 @@
-import { Skeleton, Table, TextOverflowTooltip } from 'erxes-ui';
-import { IconComponent } from 'erxes-ui';
-import { useGetTeams } from '@/team/hooks/useGetTeams';
-import { format } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
-import { IconUserX } from '@tabler/icons-react';
 import { CreateTeam } from '@/team/components/team-list/CreateTeam';
+import { useGetTeams } from '@/team/hooks/useGetTeams';
+import { IconUserX } from '@tabler/icons-react';
+import { format } from 'date-fns';
+import { IconComponent, Skeleton, Table, TextOverflowTooltip } from 'erxes-ui';
+import { useNavigate } from 'react-router-dom';
+
 export function Teams() {
   const { teams, loading } = useGetTeams();
   const navigate = useNavigate();

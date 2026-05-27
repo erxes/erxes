@@ -1,5 +1,5 @@
 import { IActivityLogDocument } from 'erxes-api-shared/core-modules';
-import { cursorPaginate, encodeCursor } from 'erxes-api-shared/utils';
+import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 const generateFilters = (params: any) => {

@@ -24,6 +24,9 @@
     "last-seen-at": "Last Seen At",
     "birthday": "Birthday"
   },
+  "logs": {
+    "searchContentType": "Search content type"
+  },
   "records-found": "Records Found",
   "organization": {
     "settings" : "Settings",

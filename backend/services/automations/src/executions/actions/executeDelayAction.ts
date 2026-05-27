@@ -13,13 +13,11 @@ export const executeDelayAction = async (
   subdomain: string,
   execution: IAutomationExecutionDocument,
   action: IAutomationAction<TDelayActionConfig>,
-  execAction: IAutomationExecAction,
 ) => {
   const models = await generateModels(subdomain);
   execution.waitingActionId = action.id;
   execution.startWaitingDate = new Date();
   execution.status = AUTOMATION_EXECUTION_STATUS.WAITING;
-  execution.actions = [...(execution.actions || []), execAction];
 
   const { value, type } = action?.config || {};
 

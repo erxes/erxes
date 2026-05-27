@@ -11,6 +11,12 @@ export const productSchema = new Schema(
       ref: 'insurance_types',
       required: true,
     },
+    regions: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'insurance_regions',
+      },
+    ],
     coveredRisks: [
       {
         risk: {

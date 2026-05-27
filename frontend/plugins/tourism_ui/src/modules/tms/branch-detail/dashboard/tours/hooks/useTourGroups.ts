@@ -13,6 +13,7 @@ type TourGroupsQueryVariables = {
     | 'cancelled'
     | 'unscheduled';
   categoryIds?: string[];
+  language?: string;
 };
 
 export const useTourGroups = (
@@ -49,6 +50,7 @@ export const useTourGroups = (
   const { data, loading, error, refetch } = useQuery(GET_TOUR_GROUPS, {
     ...options,
     variables,
+    fetchPolicy: 'cache-and-network',
   });
 
   return {

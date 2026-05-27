@@ -6,6 +6,7 @@ import {
   Separator,
   useConfirm,
 } from 'erxes-ui';
+import { Can } from 'ui-modules';
 import { useBundleRulesRemove } from '@/products/settings/hooks/useBundleRulesRemove';
 
 export const BundleRuleCommandBar = () => {
@@ -41,14 +42,16 @@ export const BundleRuleCommandBar = () => {
           {table.getFilteredSelectedRowModel().rows.length} selected
         </CommandBar.Value>
         <Separator.Inline />
-        <Button
-          variant="secondary"
-          className="text-destructive"
-          onClick={handleDelete}
-        >
-          <IconTrash />
-          Delete
-        </Button>
+        <Can action="bundleRulesManage">
+          <Button
+            variant="secondary"
+            className="text-destructive"
+            onClick={handleDelete}
+          >
+            <IconTrash />
+            Delete
+          </Button>
+        </Can>
       </CommandBar.Bar>
     </CommandBar>
   );

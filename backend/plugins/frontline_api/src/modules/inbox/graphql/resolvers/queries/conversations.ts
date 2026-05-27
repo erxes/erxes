@@ -25,7 +25,7 @@ export const conversationQueries = {
     params: IConversationListParams,
     { user, models, subdomain }: IContext,
   ) {
-    if (params && params.ids) {
+    if (params?.ids) {
       const { list, totalCount, pageInfo } =
         await cursorPaginate<IConversationDocument>({
           model: models.Conversations,
@@ -39,7 +39,7 @@ export const conversationQueries = {
       return { list, totalCount, pageInfo };
     }
 
-    if (params && params.customerId) {
+    if (params?.customerId) {
       const { list, totalCount, pageInfo } =
         await cursorPaginate<IConversationDocument>({
           model: models.Conversations,

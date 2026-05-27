@@ -1,6 +1,8 @@
 import { useMutation } from '@apollo/client';
 import { EDIT_ITINERARY } from '../graphql/mutation';
 
+import { IItineraryTranslationInput } from './useCreateItinerary';
+
 interface EditItineraryResponse {
   bmsItineraryEdit: {
     _id: string;
@@ -10,6 +12,7 @@ interface EditItineraryResponse {
 export interface IEditItineraryVariables {
   id: string;
   branchId?: string;
+  language?: string;
   name?: string;
   duration?: number;
   images?: string[];
@@ -29,6 +32,8 @@ export interface IEditItineraryVariables {
   personCost?: Record<string, number>;
   guideCostExtra?: number;
   content?: string;
+  color?: string;
+  translations?: IItineraryTranslationInput[];
 }
 
 export const useEditItinerary = () => {

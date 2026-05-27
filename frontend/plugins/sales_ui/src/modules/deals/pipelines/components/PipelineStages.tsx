@@ -10,7 +10,6 @@ import { useMemo } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import PipelineStageItem from './PipelineStageItem';
 import { Spinner } from 'erxes-ui';
-import { UniqueIdentifier } from '@dnd-kit/core';
 import { useFieldArray } from 'react-hook-form';
 
 const props: Partial<SortableProps> = {

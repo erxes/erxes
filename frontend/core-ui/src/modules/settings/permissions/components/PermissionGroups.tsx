@@ -11,6 +11,7 @@ import {
   DropdownMenu,
   Spinner,
   Table,
+  TextOverflowTooltip,
   toast,
   useConfirm,
 } from 'erxes-ui';
@@ -101,12 +102,16 @@ export const PermissionGroups = () => {
                   {groups.map((group: IDefaultPermissionGroup) => (
                     <Table.Row className="hover:bg-sidebar" key={group.id}>
                       <Table.Cell>
-                        <div className="font-medium">{group.name}</div>
+                        <TextOverflowTooltip
+                          value={group.name}
+                          className="block font-medium"
+                        />
                       </Table.Cell>
                       <Table.Cell>
-                        <div className="text-muted-foreground">
-                          {group.description}
-                        </div>
+                        <TextOverflowTooltip
+                          value={group.description}
+                          className="block text-muted-foreground"
+                        />
                       </Table.Cell>
                       <Table.Cell className="w-8 p-0.5">
                         <DropdownMenu>
@@ -181,12 +186,16 @@ export const PermissionGroups = () => {
                   {permissionGroups.map((group: IPermissionGroup) => (
                     <Table.Row className="hover:bg-sidebar" key={group._id}>
                       <Table.Cell>
-                        <div className="font-medium">{group.name}</div>
+                        <TextOverflowTooltip
+                          value={group.name}
+                          className="block font-medium"
+                        />
                       </Table.Cell>
                       <Table.Cell>
-                        <div className="text-muted-foreground">
-                          {group.description || 'No description'}
-                        </div>
+                        <TextOverflowTooltip
+                          value={group.description || 'No description'}
+                          className="block text-muted-foreground"
+                        />
                       </Table.Cell>
                       <Table.Cell className="w-8 p-0.5">
                         <CustomGroupDropdown group={group} />

@@ -6,8 +6,23 @@ import { useElements } from '../hooks/useElements';
 import { useElementCategories } from '../hooks/useElementCategories';
 import { ELEMENTS_CURSOR_SESSION_KEY } from '../constants/elementCursorSessionKey';
 import { ElementCommandBar } from './ElementCommandBar';
+import { useAtomValue } from 'jotai';
+import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
-export const ElementRecordTable = ({ branchId }: { branchId: string }) => {
+interface ElementRecordTableProps {
+  branchId: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
+}
+
+export const ElementRecordTable = ({
+  branchId,
+  branchLanguages,
+  mainLanguage,
+}: ElementRecordTableProps) => {
+  const activeLang = useAtomValue(activeLangAtom);
+  const language = activeLang || mainLanguage;
+
   const [queries] = useMultiQueryState<{
     searchValue: string;
     categoryId: string;
@@ -19,21 +34,33 @@ export const ElementRecordTable = ({ branchId }: { branchId: string }) => {
         branchId,
         name: queries?.searchValue || undefined,
         categories: queries?.categoryId ? [queries.categoryId] : undefined,
+        language,
       },
     });
   const { getCategoryNamesByIds } = useElementCategories();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   if (!loading && (totalCount ?? 0) === 0) {
-    return <EmptyStateRow branchId={branchId} />;
+    return (
+      <EmptyStateRow
+        branchId={branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
+      />
+    );
   }
 
   return (
     <RecordTable.Provider
-      columns={elementColumns(getCategoryNamesByIds)}
+      columns={elementColumns(
+        getCategoryNamesByIds,
+        branchId,
+        branchLanguages,
+        mainLanguage,
+      )}
       data={elements || []}
       className="h-full"
-      stickyColumns={['checkbox', 'name']}
+      stickyColumns={['more', 'checkbox', 'name']}
     >
       <ElementCommandBar />
       <RecordTable.CursorProvider
@@ -60,7 +87,15 @@ export const ElementRecordTable = ({ branchId }: { branchId: string }) => {
   );
 };
 
-function EmptyStateRow({ branchId }: { branchId: string }) {
+function EmptyStateRow({
+  branchId,
+  branchLanguages,
+  mainLanguage,
+}: {
+  branchId: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
+}) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">
       <IconPuzzle size={64} stroke={1.5} className="text-muted-foreground" />
@@ -73,7 +108,11 @@ function EmptyStateRow({ branchId }: { branchId: string }) {
         Create your first element to get started.
       </p>
 
-      <ElementCreateSheet branchId={branchId} />
+      <ElementCreateSheet
+        branchId={branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
+      />
     </div>
   );
 }

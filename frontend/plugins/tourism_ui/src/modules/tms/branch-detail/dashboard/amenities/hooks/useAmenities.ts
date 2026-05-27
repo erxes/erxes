@@ -26,6 +26,7 @@ type AmenitiesQueryVariables = {
   orderBy?: Record<string, number>;
   cursorMode?: string;
   sortMode?: string;
+  language?: string;
 };
 
 export const useAmenities = (
@@ -55,6 +56,7 @@ export const useAmenities = (
     ...options,
     skip: options?.skip || isUndefinedOrNull(variables.cursor),
     variables,
+    fetchPolicy: 'cache-and-network',
   });
 
   const { list: amenities, totalCount, pageInfo } = data?.bmsElements || {};

@@ -1,5 +1,4 @@
 import {
-  Button,
   Empty,
   FocusSheet,
   ScrollArea,
@@ -59,26 +58,6 @@ export const CustomerDetail = () => {
               >
                 <Tabs.Content value="overview">
                   <CustomerDetailFields />
-
-                  {!!customerDetail?._id && (
-                    <div className="flex flex-col mb-12">
-                      <AddInternalNote
-                        contentTypeId={customerDetail._id}
-                        contentType="core:customer"
-                      />
-                      <ActivityLogs
-                        targetId={customerDetail?._id || ''}
-                        limit={10}
-                        variant="forward"
-                      />
-                      <Button
-                        variant="link"
-                        onClick={() => setSelectedTab('activity')}
-                      >
-                        {t('view all activity')}
-                      </Button>
-                    </div>
-                  )}
                 </Tabs.Content>
                 <Tabs.Content value="properties" className="p-6">
                   <FieldsInDetail

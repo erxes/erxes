@@ -5,6 +5,7 @@ import {
 } from '@/types/paths/SettingsPath';
 import {
   IconAdjustmentsAlt,
+  IconBolt,
   IconBuilding,
   IconChessKnight,
   IconFile,
@@ -162,6 +163,11 @@ export const SETTINGS_PATH_DATA = (
       name: 'Products',
       icon: IconShoppingCart,
       path: SettingsWorkspacePath.Products,
+    },
+    {
+      name: t('automations'),
+      icon: IconBolt,
+      path: SettingsWorkspacePath.Automations,
     },
   ],
   developer: [

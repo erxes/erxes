@@ -6,3 +6,4 @@ export * from './useVendorUsers';
 export * from './useRiskTypes';
 export * from './useCustomers';
 export * from './useContractTemplates';
+export * from './useRegions';

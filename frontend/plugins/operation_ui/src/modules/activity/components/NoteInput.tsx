@@ -1,18 +1,17 @@
+import { useCreateNote } from '@/task/hooks/useCreateNote';
+import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
+import type { Block } from '@blocknote/core';
+import { IconCommand, IconCornerDownLeft } from '@tabler/icons-react';
 import {
   BlockEditor,
+  Button,
   getMentionedUserIds,
   Kbd,
   useBlockEditor,
-  Button,
+  usePreviousHotkeyScope,
   useScopedHotkeys,
 } from 'erxes-ui';
-import { useCreateNote } from '@/task/hooks/useCreateNote';
-
-import { usePreviousHotkeyScope } from 'erxes-ui';
-import { TaskHotKeyScope } from '@/task/TaskHotkeyScope';
 import { AssignMemberInEditor } from 'ui-modules';
-import { IconCommand, IconCornerDownLeft } from '@tabler/icons-react';
-import type { Block } from '@blocknote/core';
 
 export const NoteInput = ({ contentId }: { contentId: string }) => {
   const editor = useBlockEditor({ placeholder: 'Leave a note...' });

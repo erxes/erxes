@@ -27,13 +27,16 @@ export const EditAccountForm = () => {
 
   const form = useForm<TAccountForm>({
     resolver: zodResolver(accountSchema),
-    defaultValues: ACCOUNT_DEFAULT_VALUES,
+    defaultValues: accountDetail || ACCOUNT_DEFAULT_VALUES,
   });
   const { reset } = form;
 
   useEffect(() => {
     if (accountDetail) {
-      reset(accountDetail);
+      reset({
+        ...ACCOUNT_DEFAULT_VALUES,
+        ...accountDetail,
+      });
     }
   }, [accountDetail, reset]);
 

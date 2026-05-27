@@ -1,7 +1,7 @@
 import { ErxesForm } from './ErxesForm';
 import { IFormStep } from '../types/formTypes';
 import { z } from 'zod';
-import { useErxesForm } from '../ context/erxesFormContext';
+import { useErxesForm } from '../context/erxesFormContext';
 import { useAtomValue } from 'jotai';
 import { formValuesAtom } from '../states/erxesFormStates';
 
@@ -24,7 +24,7 @@ export const ErxesFormValues = ({
   const formSchema: Record<string, z.ZodType> = {};
 
   fields.forEach((field) => {
-    if (!field || !field.type) return;
+    if (!field?.type) return;
     if (field.type === 'text' || field.type === 'textarea') {
       formSchema[field._id] = field.isRequired ? z.string().min(1) : z.string();
     } else if (field.type === 'email') {
@@ -47,7 +47,7 @@ export const ErxesFormValues = ({
   const defaultValues: Record<string, any> = {};
 
   fields.forEach((field) => {
-    if (!field || !field.type) return;
+    if (!field?.type) return;
     if (
       field.type === 'text' ||
       field.type === 'textarea' ||

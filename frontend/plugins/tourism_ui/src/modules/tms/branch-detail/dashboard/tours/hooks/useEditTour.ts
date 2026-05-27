@@ -5,6 +5,7 @@ import {
   GET_TOUR_GROUPS,
   GET_TOUR_DETAIL,
 } from '../graphql/queries';
+import { ITourTranslationInput } from '../utils/translationHelpers';
 
 export interface IPricingOption {
   _id?: string;
@@ -20,6 +21,7 @@ export interface IPricingOption {
 
 export interface IEditTourVariables {
   id: string;
+  language?: string;
   dateStatus:
     | 'scheduled'
     | 'unscheduled'
@@ -54,8 +56,10 @@ export interface IEditTourVariables {
   personCost?: Record<string, any>;
   images?: string[];
   imageThumbnail?: string;
+  attachment?: { url: string; name: string; type: string; size: number } | null;
   categoryIds?: string[];
   pricingOptions?: IPricingOption[];
+  translations?: ITourTranslationInput[];
 }
 
 interface IEditTourResponse {

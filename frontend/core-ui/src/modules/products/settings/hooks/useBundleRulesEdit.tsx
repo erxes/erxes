@@ -16,7 +16,7 @@ export const useBundleRulesEdit = () => {
           fields: Object.keys(variables || {}).reduce(
             (fields: Record<string, () => unknown>, field) => {
               if (field !== '_id') {
-                fields[field] = () => (variables || {})[field];
+                fields[field] = () => variables?.[field];
               }
               return fields;
             },

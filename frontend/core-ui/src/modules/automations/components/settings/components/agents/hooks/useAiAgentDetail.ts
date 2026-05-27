@@ -2,8 +2,8 @@ import { useCallback, useMemo } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import {
   AUTOMATIONS_AI_AGENT_ADD,
-  AUTOMATIONS_AI_AGENT_EDIT,
   AUTOMATIONS_AI_AGENT_DETAIL,
+  AUTOMATIONS_AI_AGENT_EDIT,
 } from '@/automations/components/settings/components/agents/graphql/automationsAiAgents';
 import { toast } from 'erxes-ui';
 import { useParams } from 'react-router';
@@ -11,11 +11,24 @@ import { useParams } from 'react-router';
 export interface AiAgentInput {
   name?: string;
   description?: string;
-  provider?: string;
-  prompt?: string;
-  instructions?: string;
-  files?: unknown;
-  config?: unknown;
+  connection?: {
+    provider?: string;
+    model?: string;
+    config?: {
+      apiKey?: string;
+      baseUrl?: string;
+      headers?: Record<string, string>;
+    };
+  };
+  runtime?: {
+    temperature?: number;
+    maxTokens?: number;
+    timeoutMs?: number;
+  };
+  context?: {
+    systemPrompt?: string;
+    files?: unknown;
+  };
 }
 
 export function useAiAgentDetail() {
@@ -35,31 +48,34 @@ export function useAiAgentDetail() {
 
   const detail = useMemo(() => data?.automationsAiAgentDetail, [data]);
 
-  const handleSave = async (input: AiAgentInput) => {
-    const mutation = id ? editMutation : addMutation;
+  const handleSave = useCallback(
+    async (input: AiAgentInput) => {
+      const mutation = id ? editMutation : addMutation;
+      const responseFieldName = id
+        ? 'automationsAiAgentEdit'
+        : 'automationsAiAgentAdd';
 
-    const responseFieldName = id
-      ? 'automationsAiAgentEdit'
-      : 'automationsAiAgentAdd';
+      const res = await mutation({
+        variables: id ? { ...input, id } : input,
+        onError: ({ message }) => {
+          toast({
+            title: 'Something went wrong',
+            description: message,
+            variant: 'destructive',
+          });
+        },
+        onCompleted: () => {
+          toast({
+            title: `Succefully ${id ? 'edited' : 'added'}`,
+            variant: 'success',
+          });
+        },
+      });
 
-    const res = await mutation({
-      variables: id ? { ...input, id } : input,
-      onError: ({ message }) => {
-        toast({
-          title: 'Something went wrong',
-          description: message,
-          variant: 'destructive',
-        });
-      },
-      onCompleted: () => {
-        toast({
-          title: `Succefully ${id ? 'edited' : 'added'}`,
-          variant: 'success',
-        });
-      },
-    });
-    return (res?.data || {})[responseFieldName];
-  };
+      return res?.data?.[responseFieldName];
+    },
+    [addMutation, editMutation, id],
+  );
 
   return {
     detail,

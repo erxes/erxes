@@ -49,19 +49,19 @@ export const AutomationHistoryResultName = ({
 };
 
 const coreHistoryName = {
-  customer: {
+  customers: {
     getLink: (target: ICustomer) =>
       `/contacts/customers?contactId=${target._id}`,
     getName: (target: ICustomer) =>
       `${target?.firstName || ''}${target?.lastName || ''}` ||
       target.primaryEmail,
   },
-  company: {
+  companies: {
     getLink: (target: ICompany) =>
       `/contacts/companies?companyId=${target._id}`,
     getName: (target: ICompany) => target.names?.[0] || target.primaryName,
   },
-  user: {
+  users: {
     getLink: (target: IUser) => `/settings/team-member?user_id=${target._id}`,
     getName: (target: IUser) => target.email,
   },

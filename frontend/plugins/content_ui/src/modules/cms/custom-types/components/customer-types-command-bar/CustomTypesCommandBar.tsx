@@ -1,5 +1,4 @@
-import { CommandBar, Separator } from 'erxes-ui';
-import { RecordTable } from 'erxes-ui';
+import { CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { CustomTypesDelete } from './delete/CustomTypesDelete';
 
 interface CustomTypesCommandBarProps {

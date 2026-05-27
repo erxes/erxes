@@ -44,7 +44,7 @@ export interface IEmailParams {
   customHtmlData?: any;
   template?: { name?: string; data?: any };
   attachments?: object[];
-  modifier?: (data: any, email: string) => void;
+  modifier?: (data: any, email: string) => Promise<void>;
   transportMethod?: string;
   getOrganizationDetail?: ({ subdomain }: { subdomain: string }) => any;
   userId: string;

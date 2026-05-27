@@ -250,10 +250,10 @@ export const agentColumns: ColumnDef<CallQueueMemberList['member'][number]>[] =
               cell.getValue() === 'Idle'
                 ? 'success'
                 : ['Ringing', 'InUse'].includes(cell.getValue() as string)
-                ? 'warning'
-                : cell.getValue() === 'Paused'
-                ? 'destructive'
-                : 'secondary'
+                  ? 'warning'
+                  : cell.getValue() === 'Paused'
+                    ? 'destructive'
+                    : 'secondary'
             }
           >
             {cell.getValue() as string}

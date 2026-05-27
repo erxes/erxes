@@ -1,6 +1,6 @@
 import { TOutgoingWebhookForm } from '@/automations/components/builder/nodes/actions/webhooks/states/outgoingWebhookFormSchema';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { Button, Form, Input, Label, Select } from 'erxes-ui';
+import { Button, Form, Input, Label } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 
 export const OutgoingWebhookHeaders = () => {
@@ -16,7 +16,7 @@ export const OutgoingWebhookHeaders = () => {
             const { value: headers = [], onChange } = field;
 
             const handleAddHeader = () => {
-              onChange([...headers, { key: '', value: '', type: 'fixed' }]);
+              onChange([...headers, { key: '', value: '' }]);
             };
 
             if (!headers?.length) {
@@ -71,22 +71,6 @@ export const OutgoingWebhookHeaders = () => {
                       }}
                       className="flex-1 font-mono"
                     />
-                    <Select
-                      value={header.type}
-                      onValueChange={(value: 'fixed' | 'expression') => {
-                        const newHeaders = [...headers];
-                        newHeaders[index].type = value;
-                        onChange(newHeaders);
-                      }}
-                    >
-                      <Select.Trigger className="w-32">
-                        <Select.Value />
-                      </Select.Trigger>
-                      <Select.Content>
-                        <Select.Item value="fixed">Fixed</Select.Item>
-                        <Select.Item value="expression">Expression</Select.Item>
-                      </Select.Content>
-                    </Select>
                     <Button
                       variant="ghost"
                       size="sm"

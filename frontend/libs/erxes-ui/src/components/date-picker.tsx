@@ -79,6 +79,10 @@ export const DatePicker = ({
     }
 
     onChange && onChange(selectedDate);
+    if (mode === 'single') {
+      setIsOpen(false);
+    }
+    onChange?.(selectedDate);
   };
 
   return (
@@ -86,10 +90,12 @@ export const DatePicker = ({
       <Popover.Trigger asChild={true}>
         <Combobox.Trigger
           variant={variant}
-          disabled={Boolean(disabled)}
+          disabled={typeof disabled === 'boolean' ? disabled : false}
           className={cn(
             !value && 'text-accent-foreground',
-            Boolean(disabled) && 'cursor-not-allowed opacity-50',
+            typeof disabled === 'boolean' &&
+              disabled &&
+              'cursor-not-allowed opacity-50',
             className,
           )}
         >
@@ -105,6 +111,16 @@ export const DatePicker = ({
               : Boolean(disabled)
           }
           mode={mode as any}
+          disabled={(date: Date) => {
+            if (withPresent) {
+              return date > new Date() || date < new Date('1900-01-01');
+            }
+            if (typeof disabled === 'function') {
+              return disabled(date);
+            }
+            return Boolean(disabled);
+          }}
+          mode={mode}
           selected={value as any}
           onSelect={handleDateChange as any}
         />

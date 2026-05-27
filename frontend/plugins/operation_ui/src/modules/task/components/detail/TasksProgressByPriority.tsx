@@ -1,7 +1,6 @@
-import { Button, HoverCard, useQueryState } from 'erxes-ui';
-import { IStatItem } from '@/task/hooks/useTasksStats';
 import { ProgressDot } from '@/task/components/detail/TasksProgress';
-import { cn } from 'erxes-ui';
+import { IStatItem } from '@/task/hooks/useTasksStats';
+import { Button, cn, HoverCard, useQueryState } from 'erxes-ui';
 
 interface TasksProgressByPriorityProps {
   stats: IStatItem[];

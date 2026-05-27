@@ -63,6 +63,24 @@ export const importTemplates: Record<
     ],
   },
 
+  'frontline:ticket.ticket': {
+    filename: 'tickets-template.csv',
+    headers: [
+      'Name',
+      'Description',
+      'Type',
+      'Priority',
+      'Status',
+      'State',
+      'Pipeline ID',
+      'Channel ID',
+      'Assignee ID',
+      'Start Date',
+      'Due Date',
+      'Tags',
+    ],
+  },
+
   'core:user.user': {
     filename: 'team-members-template.csv',
     headers: [

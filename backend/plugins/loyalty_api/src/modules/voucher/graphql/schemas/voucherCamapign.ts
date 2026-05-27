@@ -47,7 +47,8 @@ const queryParams = `
   status: String,
   equalTypeCampaignId: String,
   voucherType: String,
-  
+  excludeVoucherTypes: [String],
+
   ${GQL_CURSOR_PARAM_DEFS}
 `;
 

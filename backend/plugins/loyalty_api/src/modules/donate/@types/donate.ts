@@ -3,9 +3,12 @@ import { Document } from 'mongoose';
 import { ICommonDocument, ICommonFields } from '~/utils';
 
 export interface IDonate extends ICommonFields {
-  donateScore: number;
-  awardId: string;
-  voucherId: string;
+  donateScore?: number;
+  awardId?: string;
+  voucherId?: string;
+  status?: string;
+  voucherCampaignId?: string;
+  number?: string;
 }
 
 export interface IDonateDocument extends IDonate, ICommonDocument, Document {
@@ -20,4 +23,9 @@ export interface IDonateListParams extends ICursorPaginateParams {
   status?: string;
   statuses?: string[];
   awardId?: string;
+  page?: number;
+  perPage?: number;
+  sortField?: string;
+  sortDirection?: 1 | -1;
+  voucherCampaignId?: string;
 }

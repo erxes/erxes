@@ -1,13 +1,11 @@
-import { Outlet } from 'react-router-dom';
-import { ProjectDetailBreadCrumb } from '@/project/components/breadcumb/ProjectDetailBreadCrumb';
-import { Can, PageHeader } from 'ui-modules';
-import { Breadcrumb, Separator } from 'erxes-ui';
-import { useParams } from 'react-router-dom';
-
 import { ProjectBreadCrumb } from '@/project/components/breadcumb/ProjectBreadCrumb';
-import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
-import { AddTaskSheet } from '@/task/components/add-task/AddTaskSheet';
+import { ProjectDetailBreadCrumb } from '@/project/components/breadcumb/ProjectDetailBreadCrumb';
 import { ProjectsSideWidget } from '@/project/components/details/ProjectsSideWidget';
+import { AddTaskSheet } from '@/task/components/add-task/AddTaskSheet';
+import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
+import { Breadcrumb, Separator } from 'erxes-ui';
+import { Outlet, useParams } from 'react-router-dom';
+import { Can, PageHeader } from 'ui-modules';
 
 export const ProjectLayout = () => {
   const { teamId, projectId } = useParams<{

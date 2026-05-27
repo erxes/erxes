@@ -110,7 +110,7 @@ export const fieldsTrpcRouter = t.router({
         const { subdomain } = ctx;
         const { moduleType } = input;
         switch (moduleType) {
-          case 'contact':
+          case 'contacts':
             return generateContactsFields({ subdomain, data: input });
 
           case 'product':

@@ -37,6 +37,7 @@ export const eventLogHandler = async (
         userId,
         status,
         processId,
+        contentType,
       };
       result = await models.Logs.insertOne(logDoc);
     }

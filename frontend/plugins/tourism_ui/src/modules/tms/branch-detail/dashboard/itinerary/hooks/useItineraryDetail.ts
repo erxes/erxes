@@ -1,9 +1,11 @@
 import { useQuery } from '@apollo/client';
 import { GET_ITINERARY_DETAIL } from '../graphql/queries';
+import { IItineraryTranslation } from '../types/itinerary';
 
 export interface IItineraryDetail {
   _id: string;
   branchId?: string;
+  language?: string;
   name?: string;
   duration?: number;
   totalCost?: number;
@@ -25,17 +27,28 @@ export interface IItineraryDetail {
   createdAt?: string;
   modifiedAt?: string;
   content?: string;
+  color?: string;
+  translations?: IItineraryTranslation[];
 }
 
 interface ItineraryDetailResponse {
   bmsItineraryDetail: IItineraryDetail;
 }
 
-export const useItineraryDetail = (id?: string, enabled = true) => {
+interface ItineraryDetailVariables {
+  id?: string;
+  language?: string;
+}
+
+export const useItineraryDetail = (
+  id?: string,
+  enabled = true,
+  language?: string,
+) => {
   const { data, loading, error, refetch } = useQuery<ItineraryDetailResponse>(
     GET_ITINERARY_DETAIL,
     {
-      variables: { id },
+      variables: { id, language } as ItineraryDetailVariables,
       skip: !id || !enabled,
       fetchPolicy: 'cache-and-network',
     },

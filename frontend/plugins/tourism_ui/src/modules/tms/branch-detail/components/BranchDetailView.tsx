@@ -34,7 +34,7 @@ export const BranchDetailView = () => {
     return (
       <div className="flex flex-col gap-2 justify-center items-center p-6 w-full h-full text-center">
         <IconBox size={64} stroke={1.5} className="text-muted-foreground" />
-        <div className="space-y-2">
+        <div className="space-y-5">
           <h2 className="text-lg font-semibold text-muted-foreground">
             Branch not found
           </h2>

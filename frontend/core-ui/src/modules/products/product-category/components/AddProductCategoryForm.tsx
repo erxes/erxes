@@ -11,6 +11,7 @@ import {
 import { useState } from 'react';
 import { AddCategoryForm } from '../add-category/components/AddProductCategory';
 import { CategoryHotKeyScope } from '../types/CategoryHotKeyScope';
+import { Can, usePermissionCheck } from 'ui-modules';
 
 export const ProductCategoryAddSheet = () => {
   const setHotkeyScope = useSetHotkeyScope();
@@ -28,8 +29,20 @@ export const ProductCategoryAddSheet = () => {
     setHotkeyScope(CategoryHotKeyScope.CategoriesPage);
     setOpen(false);
   };
+  const { hasActionPermission } = usePermissionCheck();
+  const canManageProductCategories = hasActionPermission(
+    'productCategoriesManage',
+  );
 
-  useScopedHotkeys(`c`, () => onOpen(), CategoryHotKeyScope.CategoriesPage);
+  useScopedHotkeys(
+    `c`,
+    () => {
+      if (!canManageProductCategories) return;
+      onOpen();
+    },
+    CategoryHotKeyScope.CategoriesPage,
+    [canManageProductCategories],
+  );
   useScopedHotkeys(
     `esc`,
     () => onClose(),
@@ -42,13 +55,15 @@ export const ProductCategoryAddSheet = () => {
       open={open}
       modal
     >
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          Add Category
-          <Kbd>C</Kbd>
-        </Button>
-      </Sheet.Trigger>
+      <Can action="productCategoriesManage">
+        <Sheet.Trigger asChild>
+          <Button>
+            <IconPlus />
+            Add Category
+            <Kbd>C</Kbd>
+          </Button>
+        </Sheet.Trigger>
+      </Can>
       <Sheet.View
         className="p-0 sm:max-w-lg"
         onEscapeKeyDown={(e) => {

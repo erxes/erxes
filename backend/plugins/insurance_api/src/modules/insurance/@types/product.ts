@@ -24,6 +24,7 @@ export interface IProduct {
   name: string;
   code?: string;
   insuranceType: string;
+  regions?: string[];
   coveredRisks: IProductCoveredRisk[];
   pricingConfig: any;
   pdfContent?: string;

@@ -1,14 +1,10 @@
-import { CellContext } from '@tanstack/react-table';
-import { RecordTable } from 'erxes-ui';
-import {
-  Button,
-  Popover,
-  Combobox,
-  Command,
-  useConfirm,
-  useToast,
-} from 'erxes-ui';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { CellContext } from '@tanstack/react-table';
+import {
+  Button, Combobox,
+  Command, Popover, RecordTable, useConfirm,
+  useToast
+} from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 import { useRemovePosts } from '../hooks/useRemovePosts';
 import { Posts } from '../types/postsType';

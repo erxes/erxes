@@ -1,6 +1,6 @@
-import { TourCreateFormType } from '../constants/formSchema';
+import { TourFormValues } from '../constants/formSchema';
 
-export const transformTourFormData = (data: TourCreateFormType) => {
+export const transformTourFormData = (data: TourFormValues) => {
   const { isFlexibleDate, availableFrom, availableTo, ...rest } = data;
 
   return {

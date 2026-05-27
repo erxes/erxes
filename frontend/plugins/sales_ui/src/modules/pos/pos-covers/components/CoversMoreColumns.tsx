@@ -1,14 +1,12 @@
-import { Cell } from '@tanstack/react-table';
-import { useSetAtom } from 'jotai';
-import { useSearchParams } from 'react-router-dom';
-import { RecordTable } from 'erxes-ui';
 import { ICovers } from '@/pos/pos-covers/types/posCover';
 import { renderingCoverDetailAtom } from '@/pos/states/coverDetail';
-import { Popover, Combobox, Command } from 'erxes-ui';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { useRemovePosCover } from '../hooks/usePosCoverRemove';
-import { useToast, useConfirm } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { Cell } from '@tanstack/react-table';
+import { Combobox, Command, Popover, RecordTable, useConfirm, useToast } from 'erxes-ui';
+import { useSetAtom } from 'jotai';
+import { useSearchParams } from 'react-router-dom';
+import { useRemovePosCover } from '../hooks/usePosCoverRemove';
 
 export const useCoverMoreColumnCell = ({
   cell,

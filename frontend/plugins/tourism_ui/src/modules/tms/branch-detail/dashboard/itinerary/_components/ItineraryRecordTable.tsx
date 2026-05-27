@@ -1,54 +1,118 @@
 import { IconRoute } from '@tabler/icons-react';
 import { RecordTable, useMultiQueryState } from 'erxes-ui';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ItineraryCreateSheet } from './ItineraryCreateSheet';
 import { ItineraryEditSheet } from './ItineraryEditSheet';
 import { itineraryColumns } from './ItineraryColumns';
 import { useItineraries } from '../hooks/useItineraries';
 import { ITINERARIES_CURSOR_SESSION_KEY } from '../constants/itineraryCursorSessionKey';
 import { ItineraryCommandBar } from './ItineraryCommandBar';
+import { useAtomValue } from 'jotai';
+import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
-export const ItineraryRecordTable = ({ branchId }: { branchId: string }) => {
+interface ItineraryRecordTableProps {
+  branchId: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
+}
+
+interface EditSheetState {
+  open: boolean;
+  itineraryId?: string;
+  branchId: string;
+}
+
+export const ItineraryRecordTable = ({
+  branchId,
+  branchLanguages,
+  mainLanguage,
+}: ItineraryRecordTableProps) => {
+  const activeLang = useAtomValue(activeLangAtom);
+  const language = activeLang || mainLanguage;
+
   const [queries] = useMultiQueryState<{
     searchValue: string;
   }>(['searchValue']);
 
-  const [editSheetOpen, setEditSheetOpen] = useState(false);
-  const [selectedItineraryId, setSelectedItineraryId] = useState<string>();
-  const [selectedBranchId, setSelectedBranchId] = useState<string>();
+  const [editSheetState, setEditSheetState] = useState<EditSheetState>({
+    open: false,
+    branchId,
+  });
+  const searchValue = queries?.searchValue?.trim() || undefined;
 
   const { itineraries, handleFetchMore, loading, pageInfo, totalCount } =
     useItineraries({
       variables: {
         branchId,
-        name: queries?.searchValue || undefined,
+        name: searchValue,
+        language,
       },
     });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
-  const handleEditClick = (itineraryId: string, itineraryBranchId?: string) => {
-    setSelectedItineraryId(itineraryId);
-    setSelectedBranchId(itineraryBranchId || branchId);
-    setEditSheetOpen(true);
-  };
+  const handleEditClick = useCallback(
+    (itineraryId: string, itineraryBranchId?: string) => {
+      setEditSheetState({
+        open: true,
+        itineraryId,
+        branchId: itineraryBranchId || branchId,
+      });
+    },
+    [branchId],
+  );
+  const handleEditSheetOpenChange = useCallback(
+    (open: boolean) => {
+      setEditSheetState((current) =>
+        open
+          ? current
+          : {
+              open: false,
+              itineraryId: undefined,
+              branchId,
+            },
+      );
+    },
+    [branchId],
+  );
+  const columns = useMemo(
+    () =>
+      itineraryColumns({
+        onEditClick: handleEditClick,
+        branchId,
+        branchLanguages,
+        mainLanguage,
+      }),
+    [branchId, branchLanguages, handleEditClick, mainLanguage],
+  );
+  const rowData = itineraries || [];
 
   if (!loading && (totalCount ?? 0) === 0) {
-    return <EmptyStateRow branchId={branchId} />;
+    return (
+      <EmptyStateRow
+        branchId={branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
+      />
+    );
   }
 
   return (
     <>
       <RecordTable.Provider
-        columns={itineraryColumns({ onEditClick: handleEditClick })}
-        data={itineraries || []}
+        columns={columns}
+        data={rowData}
         className="h-full"
-        stickyColumns={['checkbox', 'name']}
+        stickyColumns={['more', 'checkbox', 'name']}
       >
-        <ItineraryCommandBar />
+        <ItineraryCommandBar
+          branchId={branchId}
+          branchLanguages={branchLanguages}
+          mainLanguage={mainLanguage}
+        />
         <RecordTable.CursorProvider
           hasPreviousPage={hasPreviousPage}
           hasNextPage={hasNextPage}
-          dataLength={itineraries?.length}
+          dataLength={rowData.length}
           sessionKey={ITINERARIES_CURSOR_SESSION_KEY}
         >
           <RecordTable>
@@ -68,16 +132,26 @@ export const ItineraryRecordTable = ({ branchId }: { branchId: string }) => {
       </RecordTable.Provider>
 
       <ItineraryEditSheet
-        itineraryId={selectedItineraryId}
-        branchId={selectedBranchId}
-        open={editSheetOpen}
-        onOpenChange={setEditSheetOpen}
+        itineraryId={editSheetState.itineraryId}
+        branchId={editSheetState.branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
+        open={editSheetState.open}
+        onOpenChange={handleEditSheetOpenChange}
       />
     </>
   );
 };
 
-function EmptyStateRow({ branchId }: { branchId: string }) {
+function EmptyStateRow({
+  branchId,
+  branchLanguages,
+  mainLanguage,
+}: {
+  branchId: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
+}) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">
       <IconRoute size={64} stroke={1.5} className="text-muted-foreground" />
@@ -87,7 +161,11 @@ function EmptyStateRow({ branchId }: { branchId: string }) {
       <p className="max-w-sm text-sm text-muted-foreground">
         Create your first itinerary to get started.
       </p>
-      <ItineraryCreateSheet branchId={branchId} />
+      <ItineraryCreateSheet
+        branchId={branchId}
+        branchLanguages={branchLanguages}
+        mainLanguage={mainLanguage}
+      />
     </div>
   );
 }

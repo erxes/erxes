@@ -1,6 +1,7 @@
 import { Breadcrumb, Button, PageContainer, PageSubHeader } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { PageHeader } from 'ui-modules';
+import { PageHeader, Import } from 'ui-modules';
+import { Export } from 'ui-modules/modules/import-export/components/epxort/Export';
 import { IconTicket } from '@tabler/icons-react';
 import { AddTicketSheet } from '@/ticket/components/add-ticket/AddTicketSheet';
 import {
@@ -9,7 +10,16 @@ import {
 } from '@/ticket/components/TicketsView';
 import { TicketsFilter } from '@/ticket/components/TicketsFilter';
 import { TicketPageEffect } from '@/ticket/components/TicketPageEffect';
+import { useTicketsVariables } from '@/ticket/hooks/useGetTickets';
+
 const TicketsIndexPage = () => {
+  const variables = useTicketsVariables();
+
+  const getFilters = () => {
+    const { cursor, limit, orderBy, ...filters } = variables;
+    return filters;
+  };
+
   return (
     <PageContainer>
       <PageHeader>
@@ -33,6 +43,17 @@ const TicketsIndexPage = () => {
       </PageHeader>
       <PageSubHeader>
         <TicketsFilter />
+        <Import
+          pluginName="frontline"
+          moduleName="ticket"
+          collectionName="ticket"
+        />
+        <Export
+          pluginName="frontline"
+          moduleName="ticket"
+          collectionName="ticket"
+          getFilters={getFilters}
+        />
         <TicketsViewControl />
       </PageSubHeader>
       <TicketsView />

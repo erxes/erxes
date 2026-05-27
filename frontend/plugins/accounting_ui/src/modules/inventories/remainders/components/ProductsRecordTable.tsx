@@ -15,7 +15,7 @@ export const ProductsRecordTable = () => {
       columns={productColumns(t)}
       data={productsMain || []}
       className="h-full"
-      stickyColumns={['more', 'checkbox', 'name']}
+      stickyColumns={['checkbox', 'code', 'name']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

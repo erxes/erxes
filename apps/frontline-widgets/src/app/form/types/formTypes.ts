@@ -23,6 +23,14 @@ export interface IFormField {
   pageNumber: number;
   text: string;
   type: string;
+  logics?: IFormFieldLogic[];
+  logicAction?: string;
+}
+
+export interface IFormFieldLogic {
+  fieldId: string;
+  logicOperator?: string;
+  logicValue?: any;
 }
 
 export interface IRule {

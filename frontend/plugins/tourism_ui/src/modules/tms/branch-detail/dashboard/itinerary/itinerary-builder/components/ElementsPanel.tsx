@@ -12,6 +12,8 @@ interface ElementsPanelProps {
   onDragStart: (element: IElement) => void;
   onDragEnd: () => void;
   branchId?: string;
+  mainLanguage?: string;
+  branchLanguages?: string[];
 }
 
 export const ElementsPanel = ({
@@ -19,6 +21,8 @@ export const ElementsPanel = ({
   onDragStart,
   onDragEnd,
   branchId,
+  mainLanguage,
+  branchLanguages,
 }: ElementsPanelProps) => {
   const [search, setSearch] = useState('');
   const [createOpen, setCreateOpen] = useState(false);
@@ -75,6 +79,8 @@ export const ElementsPanel = ({
         open={createOpen}
         onOpenChange={setCreateOpen}
         showTrigger={false}
+        mainLanguage={mainLanguage}
+        branchLanguages={branchLanguages}
       />
 
       {editElement && (
@@ -83,6 +89,8 @@ export const ElementsPanel = ({
           open={!!editElement}
           onOpenChange={(open) => !open && setEditElement(null)}
           showTrigger={false}
+          mainLanguage={mainLanguage}
+          branchLanguages={branchLanguages}
         />
       )}
 

@@ -3,6 +3,12 @@ import { calculateExecution } from './calculateExecutions';
 import { executeActions } from './executeActions';
 import { getActionsMap } from '../utils/utils';
 
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const matchesTriggerType = (triggerType: string, incomingType: string) =>
+  triggerType === incomingType || triggerType.startsWith(`${incomingType}.`);
+
 /**
  * Receives and processes automation triggers for matching automations
  * @param models - Database models
@@ -33,7 +39,7 @@ export const receiveTrigger = async ({
         'triggers.type': { $in: [type] },
       },
       {
-        'triggers.type': { $regex: `^${type}\\..*` },
+        'triggers.type': { $regex: `^${escapeRegExp(type)}\\..*` },
       },
     ],
   }).lean();
@@ -49,7 +55,7 @@ export const receiveTrigger = async ({
 
     for (const automation of automations) {
       for (const trigger of automation.triggers) {
-        if (!trigger.type.includes(type)) {
+        if (!matchesTriggerType(trigger.type, type)) {
           continue;
         }
 

@@ -1,3 +1,5 @@
+import { CustomFieldValue } from '../../posts/CustomFieldInput';
+
 export interface ICategory {
   _id: string;
   clientPortalId: string;
@@ -7,8 +9,8 @@ export interface ICategory {
   status?: string;
   parentId?: string;
   parent?: ICategory;
-  customFieldsData?: any;
-  customFieldsMap?: any;
+  customFieldsData?: { field: string; value: CustomFieldValue }[];
+  customFieldsMap?: Record<string, CustomFieldValue>;
   createdAt?: string;
   updatedAt?: string;
   __typename?: string;
@@ -29,5 +31,5 @@ export interface PostCategoryInput {
   status?: string;
   parentId?: string;
   clientPortalId?: string;
-  customFieldsData?: any;
+  customFieldsData?: { field: string; value: CustomFieldValue }[];
 }

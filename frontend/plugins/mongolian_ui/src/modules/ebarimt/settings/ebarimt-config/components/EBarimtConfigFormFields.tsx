@@ -1,7 +1,5 @@
 import { Button, Form, Input, Select } from 'erxes-ui';
-
 import { useEBarimtConfig } from '@/ebarimt/settings/ebarimt-config/hooks/useEBarimtConfig';
-import { useEffect } from 'react';
 
 export const EBarimtMainSettingsForm = () => {
   const {

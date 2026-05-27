@@ -36,9 +36,7 @@ const SafeRelativeDate = ({ value }: { value?: string }) => {
   }
 };
 
-export const spinColumns: (
-  editStatus: (options: any) => void,
-) => ColumnDef<ISpin>[] = (editStatus) => [
+export const spinColumns: ColumnDef<ISpin>[] = [
   spinMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ISpin>,
 
@@ -46,7 +44,7 @@ export const spinColumns: (
     id: 'title',
     accessorKey: 'title',
     header: () => <RecordTable.InlineHead icon={IconTag} label="Title" />,
-    cell: ({ cell }: { cell: any }) => {
+    cell: ({ cell }) => {
       return (
         <SpinNameCell
           spin={cell.row.original}
@@ -62,7 +60,7 @@ export const spinColumns: (
     header: () => (
       <RecordTable.InlineHead icon={IconCalendar} label="Start Date" />
     ),
-    cell: ({ cell }: { cell: any }) => {
+    cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
           <SafeRelativeDate value={cell.getValue() as string} />
@@ -77,7 +75,7 @@ export const spinColumns: (
     header: () => (
       <RecordTable.InlineHead icon={IconCalendarEvent} label="End Date" />
     ),
-    cell: ({ cell }: { cell: any }) => {
+    cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
           <SafeRelativeDate value={cell.getValue() as string} />

@@ -1,12 +1,23 @@
 import { useMutation, useQuery, useApolloClient } from '@apollo/client';
 import { Button, Form, Input, Select, Sheet, Textarea, toast } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   CMS_CATEGORIES,
   CMS_CATEGORIES_ADD,
   CMS_CATEGORIES_EDIT,
+  CMS_CUSTOM_FIELD_GROUPS,
 } from './graphql';
+import {
+  CategoryCustomFieldsSection,
+  FieldGroup,
+} from './components/CategoryCustomFieldsSection';
+import { CustomFieldValue, FieldDefinition } from '../posts/CustomFieldInput';
+import {
+  createCategoryFormSchema,
+  CategoryFormType,
+} from '../constants/categoryFormSchema';
 
 interface Category {
   _id: string;
@@ -17,14 +28,28 @@ interface Category {
   description?: string;
   parentId?: string;
   status?: 'active' | 'inactive';
+  customFieldsData?: { field: string; value?: CustomFieldValue }[];
 }
 
 interface CmsCategoryDrawerProps {
   category?: Partial<Category>;
   isOpen: boolean;
-  onClose: () => void;
+  onClose: () => Promise<void>;
   clientPortalId: string;
   onRefetch?: () => void;
+}
+
+interface CustomFieldGroup {
+  _id: string;
+  label: string;
+  customPostTypeIds?: string[];
+  fields?: FieldDefinition[];
+}
+
+interface CmsCategoriesResponse {
+  cmsCategories: {
+    list: Category[];
+  };
 }
 
 interface CategoryFormData {
@@ -33,6 +58,8 @@ interface CategoryFormData {
   description?: string;
   parentId?: string;
   status: 'active' | 'inactive';
+  customFieldsData?: { field: string; value?: CustomFieldValue }[];
+  [key: `customFields.${string}`]: CustomFieldValue | undefined; // Allow dynamic custom field properties
 }
 
 export function CmsCategoryDrawer({
@@ -57,13 +84,36 @@ export function CmsCategoryDrawer({
       .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
   };
 
-  const form = useForm<CategoryFormData>({
+  // Fetch custom field groups first to create schema
+  const { data: customFieldsData } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
+    variables: {
+      clientPortalId,
+    },
+    fetchPolicy: 'cache-first',
+    skip: !isOpen,
+  });
+
+  const fieldGroups: FieldGroup[] = (
+    customFieldsData?.cmsCustomFieldGroupList?.list || []
+  ).filter(
+    (group: CustomFieldGroup) =>
+      !group.customPostTypeIds || group.customPostTypeIds.length === 0,
+  );
+
+  // Create dynamic schema with custom field validations
+  const schema = createCategoryFormSchema(
+    fieldGroups.flatMap((group: FieldGroup) => group.fields || []),
+  );
+
+  const form = useForm<CategoryFormType>({
+    resolver: zodResolver(schema),
     defaultValues: {
       name: '',
       slug: '',
       description: '',
       parentId: undefined,
       status: 'active',
+      customFieldsData: [],
     },
   });
 
@@ -74,7 +124,8 @@ export function CmsCategoryDrawer({
         slug: category.slug || '',
         description: category.description || '',
         parentId: category.parentId || undefined,
-        status: (category.status as any) || 'active',
+        status: category.status || 'active',
+        customFieldsData: category.customFieldsData || [],
       });
       setIsSlugManuallyEdited(false);
     } else if (isOpen) {
@@ -84,6 +135,7 @@ export function CmsCategoryDrawer({
         description: '',
         parentId: undefined,
         status: 'active',
+        customFieldsData: [],
       });
       setIsSlugManuallyEdited(false);
     }
@@ -115,10 +167,44 @@ export function CmsCategoryDrawer({
     catsData?.cmsCategories?.list || []
   ).filter((c: Category) => c._id !== category?._id);
 
+  // Custom fields functionality
+  const updateCustomFieldValue = useCallback(
+    (fieldId: string, value: CustomFieldValue) => {
+      const currentData = form.getValues('customFieldsData') || [];
+      const existingIndex = currentData.findIndex(
+        (item) => item.field === fieldId,
+      );
+
+      let updated;
+      if (existingIndex >= 0) {
+        updated = [...currentData];
+        updated[existingIndex] = { field: fieldId, value };
+      } else {
+        updated = [...currentData, { field: fieldId, value }];
+      }
+
+      form.setValue('customFieldsData', updated, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      });
+    },
+    [form],
+  );
+
+  const getCustomFieldValue = useCallback(
+    (fieldId: string): CustomFieldValue => {
+      const currentData = form.watch('customFieldsData') || [];
+      const item = currentData.find((item) => item.field === fieldId);
+      return item?.value ?? '';
+    },
+    [form],
+  );
+
   const [addCategory, { loading: adding }] = useMutation(CMS_CATEGORIES_ADD, {
     onCompleted: (data) => {
       // Update cache to automatically refresh all components using CMS_CATEGORIES query
-      const existingCategories = client.readQuery({
+      const existingCategories = client.readQuery<CmsCategoriesResponse>({
         query: CMS_CATEGORIES,
         variables: { clientPortalId, limit: 100 },
       });
@@ -159,14 +245,14 @@ export function CmsCategoryDrawer({
     {
       onCompleted: (data) => {
         // Update cache to automatically refresh all components using CMS_CATEGORIES query
-        const existingCategories = client.readQuery({
+        const existingCategories = client.readQuery<CmsCategoriesResponse>({
           query: CMS_CATEGORIES,
           variables: { clientPortalId, limit: 100 },
         });
 
         if (existingCategories && data?.cmsCategoriesEdit) {
           const updatedList = existingCategories.cmsCategories.list.map(
-            (cat: any) =>
+            (cat: Category) =>
               cat._id === data.cmsCategoriesEdit._id
                 ? data.cmsCategoriesEdit
                 : cat,
@@ -201,7 +287,7 @@ export function CmsCategoryDrawer({
   );
 
   const onSubmit = (data: CategoryFormData) => {
-    const input = { ...data, clientPortalId } as any;
+    const input = { ...data, clientPortalId } as CategoryFormData;
     if (isEditing && category?._id) {
       editCategory({ variables: { _id: category._id, input } });
     } else {
@@ -328,6 +414,15 @@ export function CmsCategoryDrawer({
                 </Form.Item>
               )}
             />
+
+            {fieldGroups.length > 0 && (
+              <CategoryCustomFieldsSection
+                fieldGroups={fieldGroups}
+                getCustomFieldValue={getCustomFieldValue}
+                updateCustomFieldValue={updateCustomFieldValue}
+                form={form}
+              />
+            )}
 
             <div className="flex justify-end space-x-2">
               <Button onClick={onClose} variant="outline">

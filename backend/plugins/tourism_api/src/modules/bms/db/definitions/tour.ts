@@ -1,7 +1,7 @@
 import { Schema } from 'mongoose';
 import { locationSchema } from '@/bms/db/definitions/itinerary';
 import { TOUR_STATUS_TYPES } from '@/bms/constants';
-import { getEnum } from '@/bms/utils';
+import { getEnum } from '~/modules/bms/utils/utils';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
 export const tourCategorySchema = new Schema({
@@ -10,7 +10,9 @@ export const tourCategorySchema = new Schema({
   code: { type: String, optional: true, label: 'code' },
   order: { type: String, optional: true, label: 'order', index: true },
   parentId: { type: String, label: 'parentId', index: true },
+  branchId: { type: String, optional: true, label: 'branchId', index: true },
   attachment: { type: Object, optional: true, label: 'attachment' },
+  language: { type: String, optional: true, label: 'language' },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -31,55 +33,61 @@ export const guideItemSchema = new Schema(
   { _id: false },
 );
 
-export const pricingOptionSchema = new Schema({
-  title: { type: String, required: true },
+export const pricingOptionSchema = new Schema(
+  {
+    _id: { type: String },
 
-  minPersons: {
-    type: Number,
-    required: true,
-    min: 1,
-  },
+    title: { type: String, required: true },
 
-  maxPersons: {
-    type: Number,
-    min: 1,
-    validate: {
-      validator(value: number) {
-        return !value || value >= this.minPersons;
-      },
-      message: 'Max persons must be greater than or equal to min persons',
+    minPersons: {
+      type: Number,
+      required: true,
+      min: 1,
     },
-  },
 
-  pricePerPerson: {
-    type: Number,
-    required: true,
-    min: 0.01,
-  },
+    maxPersons: {
+      type: Number,
+      min: 1,
+      validate: {
+        validator(value: number) {
+          return !value || value >= this.minPersons;
+        },
+        message: 'Max persons must be greater than or equal to min persons',
+      },
+    },
 
-  accommodationType: {
-    type: String,
-    set: (v: string) => v?.trim().toLowerCase(),
-  },
+    pricePerPerson: {
+      type: Number,
+      required: true,
+      min: 0.01,
+    },
 
-  domesticFlightPerPerson: {
-    type: Number,
-    min: 0,
-  },
+    accommodationType: {
+      type: String,
+      set: (v: string) => v?.trim().toLowerCase(),
+    },
 
-  singleSupplement: {
-    type: Number,
-    min: 0,
-  },
+    domesticFlightPerPerson: {
+      type: Number,
+      min: 0,
+    },
 
-  note: { type: String },
-});
+    singleSupplement: {
+      type: Number,
+      min: 0,
+    },
+
+    note: { type: String },
+  },
+  { _id: false },
+);
 
 export const tourSchema = new Schema({
   _id: mongooseStringRandomId,
 
   createdAt: { type: Date, label: 'Created at' },
   modifiedAt: { type: Date, label: 'Modified at' },
+  language: { type: String, optional: true, label: 'language' },
   refNumber: { type: String, optional: true, label: 'refnumber' },
   name: { type: String, optional: true, label: 'name' },
   groupCode: { type: String, optional: true, label: 'groupCode' },
@@ -158,6 +166,7 @@ export const tourSchema = new Schema({
 
   images: { type: [String], optional: true, label: 'images' },
   imageThumbnail: { type: String, optional: true, label: 'images' },
+  attachment: { type: Object, optional: true, label: 'attachment' },
 
   pricingOptions: {
     type: [pricingOptionSchema],

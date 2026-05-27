@@ -10,7 +10,7 @@ const useConfigByCode = (options?: OperationVariables) => {
       skip: !options?.variables?.codes,
     },
   );
-  const configs = (data && data.configsByCode) || [];
+  const configs = data?.configsByCode || [];
   return {
     loading,
     configs,

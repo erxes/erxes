@@ -2,12 +2,91 @@ import {
   AUTOMATION_STATUSES,
   IAutomation,
 } from 'erxes-api-shared/core-modules';
-import { sendWorkerMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { sanitizeAiAgent } from './utils/aiAgent';
 
 export interface IAutomationsEdit extends IAutomation {
   _id: string;
 }
+
+const MASKED_SECRET_VALUE = '********';
+
+type TPlainObject = Record<string, unknown>;
+type TObjectWithToObject = {
+  toObject?: () => unknown;
+};
+
+type TAiAgentConnectionConfig = TPlainObject & {
+  apiKey?: string;
+};
+
+type TAiAgentConnection = TPlainObject & {
+  config?: TAiAgentConnectionConfig;
+};
+
+type TAiAgentMutationDoc = TPlainObject & {
+  connection?: TAiAgentConnection;
+};
+
+const toPlainObject = (value?: unknown | null) => {
+  if (!value || typeof value !== 'object') {
+    return value;
+  }
+
+  const candidate = value as TObjectWithToObject;
+
+  return typeof candidate.toObject === 'function'
+    ? candidate.toObject()
+    : value;
+};
+
+const mergeAiAgentConnectionSecrets = (
+  currentAgent: ({ connection?: unknown } & TObjectWithToObject) | null,
+  doc: TAiAgentMutationDoc,
+) => {
+  if (!doc?.connection) {
+    return doc;
+  }
+
+  const currentConnection =
+    (toPlainObject(currentAgent?.connection) as
+      | TAiAgentConnection
+      | undefined) || {};
+  const incomingConnection =
+    (toPlainObject(doc.connection) as TAiAgentConnection | undefined) || {};
+  const currentConfig = currentConnection.config || {};
+  const incomingConfig = incomingConnection.config || {};
+
+  const incomingApiKey = doc.connection?.config?.apiKey;
+  const shouldPreserveApiKey =
+    incomingApiKey === '' ||
+    incomingApiKey === undefined ||
+    incomingApiKey === MASKED_SECRET_VALUE;
+
+  if (!shouldPreserveApiKey) {
+    return doc;
+  }
+
+  const mergedConnection = {
+    ...currentConnection,
+    ...incomingConnection,
+    config: {
+      ...currentConfig,
+      ...incomingConfig,
+    },
+  };
+
+  if (currentConfig?.apiKey !== undefined) {
+    mergedConnection.config.apiKey = currentConfig.apiKey;
+  } else {
+    delete mergedConnection.config.apiKey;
+  }
+
+  return {
+    ...doc,
+    connection: mergedConnection,
+  };
+};
 
 export const automationMutations = {
   /**
@@ -115,41 +194,25 @@ export const automationMutations = {
   },
 
   async automationsAiAgentAdd(_root, doc, { models }: IContext) {
-    return await models.AiAgents.create(doc);
+    const agent = await models.AiAgents.create(doc);
+    return sanitizeAiAgent(agent);
   },
   async automationsAiAgentEdit(_root, { _id, ...doc }, { models }: IContext) {
-    return await models.AiAgents.updateOne({ _id }, { $set: { ...doc } });
-  },
+    const currentAgent = await models.AiAgents.findOne({ _id });
 
-  async startAiTraining(_root, { agentId }, { subdomain }: IContext) {
-    await sendWorkerMessage({
-      pluginName: 'automations',
-      queueName: 'aiAgent',
-      jobName: 'trainAiAgent',
-      subdomain,
-      data: { agentId },
-    });
-    return await sendWorkerMessage({
-      pluginName: 'automations',
-      queueName: 'aiAgent',
-      jobName: 'trainAiAgent',
-      subdomain,
-      data: { agentId },
-    });
-  },
+    if (!currentAgent) {
+      throw new Error('AI agent not found');
+    }
 
-  async generateAgentMessage(
-    _root,
-    { agentId, question },
-    { subdomain }: IContext,
-  ) {
-    return await sendWorkerMessage({
-      pluginName: 'automations',
-      queueName: 'aiAgent',
-      jobName: 'generateText',
-      subdomain,
-      data: { agentId, question },
-    });
+    const mergedDoc = mergeAiAgentConnectionSecrets(currentAgent, doc);
+
+    const updatedAgent = await models.AiAgents.findOneAndUpdate(
+      { _id },
+      { $set: { ...mergedDoc } },
+      { runValidators: true, new: true },
+    );
+
+    return sanitizeAiAgent(updatedAgent);
   },
 
   /**

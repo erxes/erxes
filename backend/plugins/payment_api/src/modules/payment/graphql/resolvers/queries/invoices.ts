@@ -56,6 +56,18 @@ const queries: Record<string, Resolver> = {
     return { list, pageInfo, totalCount };
   },
 
+  async cpInvoices(_root, params: any, { models }: IContext) {
+    const query = generateFilterQuery(params);
+
+    const { list, pageInfo, totalCount } = await cursorPaginate({
+      model: models.Invoices,
+      params,
+      query,
+    });
+
+    return { list, pageInfo, totalCount };
+  },
+
   async invoicesTotalCount(_root, params: IParam, { models }: IContext) {
     const counts = {
       total: 0,
@@ -98,6 +110,10 @@ const queries: Record<string, Resolver> = {
     return models.Invoices.getInvoice({ _id });
   },
 
+  async cpInvoiceDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Invoices.getInvoice({ _id });
+  },
+
   async invoiceDetailByContent(
     _root,
     { contentType, contentTypeId },
@@ -109,6 +125,15 @@ const queries: Record<string, Resolver> = {
 
 queries.invoiceDetail.wrapperConfig = {
   skipPermission: true,
+};
+
+queries.cpInvoiceDetail.wrapperConfig = {
+  skipPermission: true,
+  forClientPortal: true,
+};
+
+queries.cpInvoices.wrapperConfig = {
+  forClientPortal: true,
 };
 
 export default queries;

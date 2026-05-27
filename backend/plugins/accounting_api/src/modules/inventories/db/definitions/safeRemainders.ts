@@ -2,12 +2,6 @@ import { Schema } from 'mongoose';
 import { attachmentSchema } from 'erxes-api-shared/core-modules';
 import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 
-const ITrRuleSchema = {
-  accountId: { type: String },
-  customerType: { type: String },
-  customerId: { type: String },
-};
-
 export const safeRemainderSchema = schemaWrapper(
   new Schema({
     _id: mongooseStringRandomId,
@@ -25,11 +19,11 @@ export const safeRemainderSchema = schemaWrapper(
     status: { type: String, label: 'Status' },
 
     // Тооллогоос үндсэн бичилтүүдийг л гаргаж өгнө, холбоос байна, тухайн гүйлээ рүү нь ороод нябо өөрөө харьцсан гүйлгээ болон бусад тохиргоо магадгүй НӨАТ зэргийг тодорхойлно
-    incomeRule: { type: ITrRuleSchema, optional: true },
+    incomeRule: { type: Object, optional: true },
     incomeTrId: { type: String, optional: true },
-    outRule: { type: ITrRuleSchema, optional: true },
+    outRule: { type: Object, optional: true },
     outTrId: { type: String, optional: true },
-    saleRule: { type: ITrRuleSchema, optional: true },
+    saleRule: { type: Object, optional: true },
     saleTrId: { type: String, optional: true },
 
     createdAt: { type: Date, default: new Date(), label: 'Created date' },

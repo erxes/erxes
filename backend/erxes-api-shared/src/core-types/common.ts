@@ -1,7 +1,7 @@
 import { GraphQLResolveInfo } from 'graphql';
 import { SortOrder } from 'mongoose';
 import { IUserDocument } from './modules/team-member/user';
-import { Request as ApiRequest, Response as ApiResponse } from 'express';
+import { Request as ApiRequest } from 'express';
 import { ScopedEventHandlers } from '../core-modules';
 
 export interface IRule {

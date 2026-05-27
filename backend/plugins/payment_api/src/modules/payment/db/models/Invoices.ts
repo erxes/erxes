@@ -37,7 +37,7 @@ export const loadInvoiceClass = (models: IModels) => {
 
       const invoice = await models.Invoices.create(doc);
 
-      if (doc.paymentIds && doc.paymentIds.length === 1) {
+      if (doc.paymentIds?.length === 1) {
         const payment = await models.PaymentMethods.getPayment(
           doc.paymentIds[0],
         );

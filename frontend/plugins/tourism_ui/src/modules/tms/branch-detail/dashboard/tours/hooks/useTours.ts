@@ -28,6 +28,7 @@ type ToursQueryVariables = {
     | 'cancelled'
     | 'unscheduled';
   categoryIds?: string[];
+  language?: string;
   limit?: number;
   cursor?: string;
   direction?: EnumCursorDirection;
@@ -78,10 +79,11 @@ export const useTours = (
     limit: TOURS_PER_PAGE,
   };
 
-  const { data, loading, fetchMore } = useQuery(GET_TOURS, {
+  const { data, loading, error, fetchMore } = useQuery(GET_TOURS, {
     ...options,
     skip: options?.skip || isUndefinedOrNull(variables.cursor),
     variables,
+    fetchPolicy: 'cache-and-network',
   });
 
   const { list: tours, totalCount, pageInfo } = data?.bmsTours || {};
@@ -122,6 +124,7 @@ export const useTours = (
 
   return {
     loading,
+    error,
     tours,
     totalCount,
     pageInfo,

@@ -6,6 +6,7 @@ import { RecordTable, Popover, Command, Combobox } from 'erxes-ui';
 import { renderingCategoryDetailAtom } from '@/products/product-category/states/ProductCategory';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { CategoriesDelete } from '@/products/product-category/components/product-command-bar/delete/CategoryDelete';
+import { Can } from 'ui-modules';
 
 export const CategoryMoreColumnCell = (
   props: CellContext<IProductCategory & { hasChildren: boolean }, unknown>,
@@ -27,9 +28,11 @@ export const CategoryMoreColumnCell = (
 
   return (
     <Popover>
-      <Popover.Trigger asChild>
-        <RecordTable.MoreButton className="w-full h-full" />
-      </Popover.Trigger>
+      <Can action="productCategoriesManage">
+        <Popover.Trigger asChild>
+          <RecordTable.MoreButton className="w-full h-full" />
+        </Popover.Trigger>
+      </Can>
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>

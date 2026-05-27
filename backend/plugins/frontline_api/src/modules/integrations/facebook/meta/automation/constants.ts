@@ -37,15 +37,6 @@ export const facebookConstants = {
         'Start with a blank workflow that enrolls and is triggered off facebook comments',
       isCustom: true,
     },
-    {
-      moduleName: 'facebook',
-      collectionName: 'ads',
-      icon: 'IconSpeakerphone',
-      label: 'Facebook Ads Message',
-      description:
-        'Start with a blank workflow that enrolls and is triggered off clicked send message on facebook ads',
-      isCustom: true,
-    },
   ],
   bots: [
     {

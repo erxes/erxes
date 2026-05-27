@@ -21,7 +21,7 @@ export const AiAgentTopicBuilder = () => {
                 name={`topics.${index}.topicName`}
                 control={control}
                 render={({ field }) => (
-                  <Input {...field} placeholder="Enter topic name" />
+                  <Input {...field} placeholder="Enter topic label" />
                 )}
               />
               <Button
@@ -39,7 +39,10 @@ export const AiAgentTopicBuilder = () => {
               name={`topics.${index}.prompt`}
               control={control}
               render={({ field }) => (
-                <Textarea {...field} placeholder="Enter prompt of topic" />
+                <Textarea
+                  {...field}
+                  placeholder="Explain when this topic should be selected"
+                />
               )}
             />
           </div>

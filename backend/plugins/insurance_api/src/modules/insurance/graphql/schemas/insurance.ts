@@ -33,10 +33,10 @@ export const types = `
   """
   type RiskType {
     id: ID!
-    name: String!
+    name: String
     description: String
-    createdAt: Date!
-    updatedAt: Date!
+    createdAt: Date
+    updatedAt: Date
   }
 
   """
@@ -44,18 +44,19 @@ export const types = `
   """
   type InsuranceType {
     id: ID!
-    name: String!
-    attributes: [Attribute!]!
-    createdAt: Date!
-    updatedAt: Date!
+    name: String
+    isCitizen: Boolean
+    attributes: [Attribute!]
+    createdAt: Date
+    updatedAt: Date
   }
 
   """
   эрсдлийн хамгаалах хувь тохиргоо
   """
   type CoveredRisk {
-    risk: RiskType!
-    coveragePercentage: Int!
+    risk: RiskType
+    coveragePercentage: Int
   }
 
   """
@@ -87,25 +88,27 @@ export const types = `
   """
   type InsuranceProduct {
     id: ID!
-    name: String!
-    insuranceType: InsuranceType!
-    coveredRisks: [CoveredRisk!]!
-    pricingConfig: JSON!
+    name: String
+    insuranceType: InsuranceType
+    regions: [InsuranceRegion!]
+    coveredRisks: [CoveredRisk!]
+    pricingConfig: JSON
     pdfContent: String
     templateId: ID
     additionalCoverages: [AdditionalCoverage!]
     compensationCalculations: [CompensationCalculation!]
     deductibleConfig: DeductibleConfig
-    createdAt: Date!
-    updatedAt: Date!
+    createdAt: Date
+    updatedAt: Date
   }
 
   """
   Даатгалын нийлүүлэгчийн бүтээгдэхүүн
   """
   type InsuranceVendorProduct {
-    product: InsuranceProduct!
+    product: InsuranceProduct
     pricingOverride: JSON
+    discountTiers: [DiscountTier!]
   }
 
   """
@@ -138,15 +141,15 @@ export const types = `
   """
   type InsuranceCustomer {
     id: ID!
-    firstName: String!
-    lastName: String!
-    type: CustomerType!
-    registrationNumber: String!
+    firstName: String
+    lastName: String
+    type: CustomerType
+    registrationNumber: String
     email: String
     phone: String
     companyName: String
-    createdAt: Date!
-    updatedAt: Date!
+    createdAt: Date
+    updatedAt: Date
   }
 
   """
@@ -154,21 +157,21 @@ export const types = `
   """
   type InsuranceContract {
     id: ID!
-    contractNumber: String!
-    vendor: InsuranceVendor!
-    customer: InsuranceCustomer!
-    insuranceType: InsuranceType!
-    insuranceProduct: InsuranceProduct!
-    coveredRisks: [CoveredRisk!]!
-    chargedAmount: Float!
-    startDate: Date!
-    endDate: Date!
-    insuredObject: JSON!
-    paymentKind: String!
-    paymentStatus: String!
+    contractNumber: String
+    vendor: InsuranceVendor
+    customer: InsuranceCustomer
+    insuranceType: InsuranceType
+    insuranceProduct: InsuranceProduct
+    coveredRisks: [CoveredRisk!]
+    chargedAmount: Float
+    startDate: Date
+    endDate: Date
+    insuredObject: JSON
+    paymentKind: String
+    paymentStatus: String
     pdfContent: String
-    createdAt: Date!
-    updatedAt: Date!
+    createdAt: Date
+    updatedAt: Date
   }
 
   type ContractTemplate {
@@ -202,6 +205,37 @@ export const types = `
   type InsuranceContractList {
     list: [InsuranceContract!]!
     totalCount: Int!
+  }
+
+  """
+  Бүс нутаг (Region)
+  """
+  type InsuranceRegion {
+    id: ID!
+    name: String!
+    countries: [String!]!
+    createdAt: Date!
+    updatedAt: Date!
+  }
+
+  """
+  Хөнгөлөлтийн шат
+  """
+  type DiscountTier {
+    minTravelers: Int!
+    discountPercent: Float!
+  }
+
+  """
+  Аялалын даатгалын үнийн тооцоо
+  """
+  type TravelPriceResult {
+    perPerson: Float!
+    total: Float!
+    discountPercent: Float!
+    days: Int!
+    travelerCount: Int!
+    dailyRate: Float!
   }
 `;
 
@@ -258,6 +292,11 @@ export const inputs = `
   input DeductibleConfigInput {
     levels: [String!]!
   }
+
+  input DiscountTierInput {
+    minTravelers: Int!
+    discountPercent: Float!
+  }
 `;
 
 export const queries = `
@@ -296,27 +335,32 @@ export const queries = `
 
   contractTemplates: [ContractTemplate!]!
   contractTemplate(id: ID!): ContractTemplate
+
+  insuranceRegions: [InsuranceRegion!]!
+  insuranceRegion(id: ID!): InsuranceRegion
+  productsByCountry(country: String!): [InsuranceProduct!]!
+  calculateTravelPrice(productId: ID!, vendorId: ID!, startDate: Date!, endDate: Date!, travelerCount: Int!): TravelPriceResult!
 `;
 
 export const mutations = `
-  createInsuranceType(name: String!, attributes: [AttributeInput!]): InsuranceType!
-  updateInsuranceType(id: ID!, name: String, attributes: [AttributeInput!]): InsuranceType!
+  createInsuranceType(name: String!, attributes: [AttributeInput!], isCitizen: Boolean): InsuranceType!
+  updateInsuranceType(id: ID!, name: String, attributes: [AttributeInput!], isCitizen: Boolean): InsuranceType!
   deleteInsuranceType(id: ID!): Boolean!
 
-  createInsuranceProduct(name: String!, insuranceTypeId: ID!, coveredRisks: [CoveredRiskInput!]!, pricingConfig: JSON!, pdfContent: String, templateId: ID, additionalCoverages: [AdditionalCoverageInput!], compensationCalculations: [CompensationCalculationInput!], deductibleConfig: DeductibleConfigInput): InsuranceProduct!
-  updateInsuranceProduct(id: ID!, name: String, coveredRisks: [CoveredRiskInput!], pricingConfig: JSON, pdfContent: String, templateId: ID, additionalCoverages: [AdditionalCoverageInput!], compensationCalculations: [CompensationCalculationInput!], deductibleConfig: DeductibleConfigInput): InsuranceProduct!
+  createInsuranceProduct(name: String!, insuranceTypeId: ID!, coveredRisks: [CoveredRiskInput!]!, pricingConfig: JSON!, pdfContent: String, templateId: ID, additionalCoverages: [AdditionalCoverageInput!], compensationCalculations: [CompensationCalculationInput!], deductibleConfig: DeductibleConfigInput, regionIds: [ID!]): InsuranceProduct!
+  updateInsuranceProduct(id: ID!, name: String, coveredRisks: [CoveredRiskInput!], pricingConfig: JSON, pdfContent: String, templateId: ID, additionalCoverages: [AdditionalCoverageInput!], compensationCalculations: [CompensationCalculationInput!], deductibleConfig: DeductibleConfigInput, regionIds: [ID!]): InsuranceProduct!
   deleteInsuranceProduct(id: ID!): Boolean!
 
   createVendor(name: String!): InsuranceVendor!
   updateVendor(id: ID!, name: String!): InsuranceVendor!
-  addProductToVendor(vendorId: ID!, productId: ID!, pricingOverride: JSON): InsuranceVendor!
+  addProductToVendor(vendorId: ID!, productId: ID!, pricingOverride: JSON, discountTiers: [DiscountTierInput!]): InsuranceVendor!
   removeProductFromVendor(vendorId: ID!, productId: ID!): InsuranceVendor!
 
   createCustomer(input: InsuranceCustomerInput!): InsuranceCustomer!
   updateCustomer(id: ID!, input: InsuranceCustomerInput): InsuranceCustomer!
   deleteCustomer(id: ID!): Boolean!
 
-  createInsuranceContract(vendorId: ID!, customerId: ID!, productId: ID!, insuredObject: JSON!, startDate: Date!, endDate: Date!, paymentKind: String!): InsuranceContract!
+  createInsuranceContract(vendorId: ID!, customerId: ID!, productId: ID!, insuredObject: JSON!, startDate: Date!, endDate: Date!, paymentKind: String!, chargedAmount: Float): InsuranceContract!
   updateContractPaymentStatus(contractId: ID!, paymentStatus: String!): InsuranceContract!
   updateContract(contractId: ID!, customerId: ID!, insuredObject: JSON, paymentStatus: String): InsuranceContract!
 
@@ -336,4 +380,11 @@ export const mutations = `
 
   generateContractPDF(contractId: ID!): ContractPDFResult!
   saveContractPDF(contractId: ID!, pdfContent: String!): InsuranceContract!
+
+  seedInsuranceRegions: [InsuranceRegion!]!
+  createInsuranceRegion(name: String!, countries: [String!]!): InsuranceRegion!
+  updateInsuranceRegion(id: ID!, name: String, countries: [String!]): InsuranceRegion!
+  deleteInsuranceRegion(id: ID!): Boolean!
+  addCountryToRegion(regionId: ID!, country: String!): InsuranceRegion!
+  removeCountryFromRegion(regionId: ID!, country: String!): InsuranceRegion!
 `;

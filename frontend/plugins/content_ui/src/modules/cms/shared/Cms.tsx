@@ -1,21 +1,20 @@
-import { Button, ToggleGroup } from 'erxes-ui';
 import { useQuery } from '@apollo/client';
-import { Spinner } from 'erxes-ui';
 import {
-  IconLayoutGrid,
-  IconList,
+  IconArrowUpRight,
   IconCalendar,
   IconEdit,
-  IconArrowUpRight,
   IconFileText,
+  IconLayoutGrid,
+  IconList,
   IconPlus,
 } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
+import { Button, Spinner, ToggleGroup } from 'erxes-ui';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { WebsiteDrawer } from '../components/websites/WebsiteDrawer';
+import { CONTENT_CMS_LIST } from '../graphql/queries';
 import { CmsLayout } from './CmsLayout';
 import { EmptyState } from './EmptyState';
-import { CONTENT_CMS_LIST } from '../graphql/queries';
 
 const getThumbnailGradient = (color: string) => {
   const gradients = {

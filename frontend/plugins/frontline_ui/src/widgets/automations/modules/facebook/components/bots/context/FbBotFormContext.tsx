@@ -10,7 +10,7 @@ import { generateAutomationElementId } from 'ui-modules';
 
 interface FbBotFormContextType {
   form: UseFormReturn<TFacebookBotForm>;
-  facebookMessengerBot?: TFacebookBotForm;
+  facebookMessengerBot?: IFacebookBot;
 }
 
 const FbBotFormContext = createContext<FbBotFormContextType | null>(null);
@@ -37,7 +37,7 @@ export const FbBotFormProvider = ({
         : [
             {
               _id: generateAutomationElementId(),
-              text: 'Get Started',
+              text: 'Persistent Menu 1',
               type: 'button',
               link: '',
             },

@@ -30,7 +30,7 @@ export const contractPdfMutations = {
         const template = await models.Template.findById(
           product.templateId,
         ).lean();
-        if (template && template.htmlContent) {
+        if (template?.htmlContent) {
           // Use custom template with Handlebars
           const compiledTemplate = Handlebars.compile(template.htmlContent);
           htmlContent = compiledTemplate({

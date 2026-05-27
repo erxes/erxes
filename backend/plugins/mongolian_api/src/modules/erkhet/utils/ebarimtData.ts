@@ -65,7 +65,11 @@ export const getConfigPostData = async (
     pluginName: 'core',
     module: 'relation',
     action: 'getRelationIds',
-    input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:company' },
+    input: {
+      contentType: 'sales:deal',
+      contentId: deal._id,
+      relatedContentType: 'core:company',
+    },
     defaultValue: [],
   });
 
@@ -107,7 +111,11 @@ export const getConfigPostData = async (
       pluginName: 'core',
       module: 'relation',
       action: 'getRelationIds',
-      input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:customer' },
+      input: {
+        contentType: 'sales:deal',
+        contentId: deal._id,
+        relatedContentType: 'core:customer',
+      },
       defaultValue: [],
     });
 
@@ -125,7 +133,7 @@ export const getConfigPostData = async (
         defaultValue: [],
       });
 
-      customerCode = (customers.find((c) => c.code) || {}).code || '';
+      customerCode = customers.find((c) => c.code)?.code ?? '';
     }
   }
 
@@ -369,7 +377,11 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
     pluginName: 'core',
     module: 'relation',
     action: 'getRelationIds',
-    input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:company' },
+    input: {
+      contentType: 'sales:deal',
+      contentId: deal._id,
+      relatedContentType: 'core:company',
+    },
     defaultValue: [],
   });
 
@@ -401,7 +413,11 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
       pluginName: 'core',
       module: 'relation',
       action: 'getRelationIds',
-      input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:customer' },
+      input: {
+        contentType: 'sales:deal',
+        contentId: deal._id,
+        relatedContentType: 'core:customer',
+      },
       defaultValue: [],
     });
 
@@ -419,7 +435,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
         defaultValue: [],
       });
 
-      customerCode = (customers.find((c) => c.code) || {}).code || '';
+      customerCode = customers.find((c) => c.code)?.code ?? '';
     }
   }
 

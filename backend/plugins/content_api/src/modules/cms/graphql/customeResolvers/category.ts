@@ -5,7 +5,7 @@ import { IPostCategoryDocument } from '@/cms/@types/posts';
 
 const PostCategory = {
   async parent(category: IPostCategoryDocument, _params, { models }: IContext) {
-    if (!category.parentId || !category.parentId.length) {
+    if (!category.parentId?.length) {
       return null;
     }
     return models.Categories.findOne({ _id: category.parentId });

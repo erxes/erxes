@@ -1,25 +1,24 @@
+import { FACEBOOK_INTEGRATION_SCHEMA } from '@/integrations/facebook/constants/FbMessengerSchema';
+import { useFbIntegrationContext } from '@/integrations/facebook/contexts/FbIntegrationContext';
+import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
+import { IntegrationType } from '@/types/Integration';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, Input } from 'erxes-ui';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useForm } from 'react-hook-form';
+import { useParams } from 'react-router';
 import { SelectBrand } from 'ui-modules';
-import {
-  FacebookIntegrationFormSteps,
-  FacebookIntegrationFormLayout,
-} from './FacebookIntegrationForm';
-import { useSetAtom } from 'jotai';
+import { z } from 'zod';
 import {
   activeFacebookFormStepAtom,
   resetFacebookAddStateAtom,
+  selectedFacebookAccountAtom,
   selectedFacebookPageAtom,
 } from '../states/facebookStates';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { FACEBOOK_INTEGRATION_SCHEMA } from '@/integrations/facebook/constants/FbMessengerSchema';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
-import { useAtomValue } from 'jotai';
-import { selectedFacebookAccountAtom } from '../states/facebookStates';
-import { IntegrationType } from '@/types/Integration';
-import { useFbIntegrationContext } from '@/integrations/facebook/contexts/FbIntegrationContext';
-import { useParams } from 'react-router';
+import {
+  FacebookIntegrationFormLayout,
+  FacebookIntegrationFormSteps,
+} from './FacebookIntegrationForm';
 
 export const FacebookIntegrationSetup = () => {
   const { id: channelId } = useParams();

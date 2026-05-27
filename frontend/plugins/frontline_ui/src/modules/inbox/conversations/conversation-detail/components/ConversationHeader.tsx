@@ -1,13 +1,13 @@
-import { Button, ScrollArea, Separator, Skeleton, toast } from 'erxes-ui';
-import { CustomersInline, SelectMember, SelectTags } from 'ui-modules';
-import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
 import { useAssignConversations } from '@/inbox/conversations/hooks/useAssignConversations';
-import { ConversationActions } from './ConversationActions';
-import { useQueryState } from 'erxes-ui';
-import { IconArrowLeft } from '@tabler/icons-react';
-import { useAtomValue } from 'jotai';
+import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
 import { inboxLayoutState } from '@/inbox/states/inboxLayoutState';
 import { IntegrationActions } from '@/integrations/components/IntegrationActions';
+import { IconArrowLeft } from '@tabler/icons-react';
+import { Button, ScrollArea, Separator, Skeleton, toast, useQueryState } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
+import { CustomersInline, SelectMember, SelectTags } from 'ui-modules';
+import { ConversationActions } from './ConversationActions';
+
 export const ConversationHeader = () => {
   const { customerId, loading, customer } = useConversationContext();
   const [, setConversationId] = useQueryState<string>('conversationId');

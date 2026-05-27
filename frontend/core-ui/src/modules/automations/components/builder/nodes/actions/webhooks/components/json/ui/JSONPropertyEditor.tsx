@@ -18,6 +18,7 @@ export function JSONPropertyEditor({
         propertyType="core:automation"
         value={value ?? ''}
         onChange={onApply}
+        disabled={{ attribute: true }}
         enabled={{
           attribute: true,
         }}

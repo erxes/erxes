@@ -42,13 +42,13 @@ const EBarimtSettings = () => {
     >
       <Routes>
         <Route index element={<EBarimtMainConfig />} />
-        <Route path="stage-in" element={<StageInEBarimtConfig />} />
-        <Route path="return" element={<ReturnEbarimtConfig />} />
+        <Route path="/stage-in" element={<StageInEBarimtConfig />} />
+        <Route path="/return" element={<ReturnEbarimtConfig />} />
         <Route
-          path="product-rules-on-tax"
+          path="/product-rules-on-tax"
           element={<AddProductRulesOnTaxPage />}
         />
-        <Route path="product-groups" element={<ProductGroupPage />} />
+        <Route path="/product-groups" element={<ProductGroupPage />} />
       </Routes>
     </SettingsLayout>
   );

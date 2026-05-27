@@ -128,3 +128,135 @@ export const getReportCallStatusFilterAtom = (cardId: string) =>
       },
     ),
   );
+
+// Ticket-specific filter atoms
+export const reportPipelineFilterState = atom<Record<string, string[]>>({});
+export const reportTicketTagFilterState = atom<Record<string, string[]>>({});
+export const reportStateFilterState = atom<Record<string, string>>({});
+export const reportPriorityFilterState = atom<Record<string, number[]>>({});
+export const reportFrequencyFilterState = atom<Record<string, string>>({});
+
+const pipelineFilterAtomCache = new Map<
+  string,
+  WritableAtom<string[], [string[]], void>
+>();
+const ticketTagFilterAtomCache = new Map<
+  string,
+  WritableAtom<string[], [string[]], void>
+>();
+const stateFilterAtomCache = new Map<
+  string,
+  WritableAtom<string, [string], void>
+>();
+const priorityFilterAtomCache = new Map<
+  string,
+  WritableAtom<number[], [number[]], void>
+>();
+const frequencyFilterAtomCache = new Map<
+  string,
+  WritableAtom<string, [string], void>
+>();
+
+export const getReportPipelineFilterAtom = (cardId: string) =>
+  getOrCreate(pipelineFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportPipelineFilterState)[cardId] || [],
+      (get, set, newValue: string[]) => {
+        set(reportPipelineFilterState, {
+          ...get(reportPipelineFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
+
+export const getReportTicketTagFilterAtom = (cardId: string) =>
+  getOrCreate(ticketTagFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportTicketTagFilterState)[cardId] || [],
+      (get, set, newValue: string[]) => {
+        set(reportTicketTagFilterState, {
+          ...get(reportTicketTagFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
+
+export const getReportStateFilterAtom = (cardId: string) =>
+  getOrCreate(stateFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportStateFilterState)[cardId] || '',
+      (get, set, newValue: string) => {
+        set(reportStateFilterState, {
+          ...get(reportStateFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
+
+export const getReportPriorityFilterAtom = (cardId: string) =>
+  getOrCreate(priorityFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportPriorityFilterState)[cardId] || [],
+      (get, set, newValue: number[]) => {
+        set(reportPriorityFilterState, {
+          ...get(reportPriorityFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
+
+export const getReportFrequencyFilterAtom = (cardId: string) =>
+  getOrCreate(frequencyFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportFrequencyFilterState)[cardId] || 'day',
+      (get, set, newValue: string) => {
+        set(reportFrequencyFilterState, {
+          ...get(reportFrequencyFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
+
+// Customer & Company filter atoms
+export const reportCustomerFilterState = atom<Record<string, string[]>>({});
+export const reportCompanyFilterState = atom<Record<string, string[]>>({});
+
+const customerFilterAtomCache = new Map<
+  string,
+  WritableAtom<string[], [string[]], void>
+>();
+const companyFilterAtomCache = new Map<
+  string,
+  WritableAtom<string[], [string[]], void>
+>();
+
+export const getReportCustomerFilterAtom = (cardId: string) =>
+  getOrCreate(customerFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportCustomerFilterState)[cardId] || [],
+      (get, set, newValue: string[]) => {
+        set(reportCustomerFilterState, {
+          ...get(reportCustomerFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );
+
+export const getReportCompanyFilterAtom = (cardId: string) =>
+  getOrCreate(companyFilterAtomCache, cardId, () =>
+    atom(
+      (get) => get(reportCompanyFilterState)[cardId] || [],
+      (get, set, newValue: string[]) => {
+        set(reportCompanyFilterState, {
+          ...get(reportCompanyFilterState),
+          [cardId]: newValue,
+        });
+      },
+    ),
+  );

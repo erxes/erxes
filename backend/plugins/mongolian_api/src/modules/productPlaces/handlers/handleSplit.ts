@@ -5,7 +5,7 @@ export const handleSplit = async (
   subdomain,
   deal,
   productsData,
-  splitConfig
+  splitConfig,
 ) => {
   const products = await sendTRPCMessage({
     subdomain,
@@ -14,7 +14,7 @@ export const handleSplit = async (
     action: 'find',
     method: 'query',
     input: {
-      query: { _id: { $in: productsData.map(p => p.productId) } },
+      query: { _id: { $in: productsData.map((p) => p.productId) } },
       limit: productsData.length,
     },
     defaultValue: [],
@@ -25,11 +25,5 @@ export const handleSplit = async (
     productById[product._id] = product;
   }
 
-  return splitData(
-    subdomain,
-    deal._id,
-    productsData,
-    splitConfig,
-    productById
-  );
+  return splitData(subdomain, deal._id, productsData, splitConfig, productById);
 };

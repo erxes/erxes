@@ -54,7 +54,7 @@ export function validateActionCode(
   code: string | number,
   expectedType: ActionCodeType,
 ): void {
-  if (!user || !user.actionCode) {
+  if (!user?.actionCode) {
     throw new AuthenticationError('Invalid or expired token');
   }
 

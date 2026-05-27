@@ -37,6 +37,12 @@ export const BROADCAST_MESSAGE_ADD = gql`
   }
 `;
 
+export const BROADCAST_UPDATE_CONFIGS = gql`
+  mutation BROADCAST_UPDATE_CONFIGS($configsMap: JSON!) {
+    broadcastUpdateConfigs(configsMap: $configsMap)
+  }
+`;
+
 export const BROADCAST_REMOVE = gql`
   mutation BROADCAST_REMOVE($_ids: [String]) {
     engageMessageRemove(_ids: $_ids)

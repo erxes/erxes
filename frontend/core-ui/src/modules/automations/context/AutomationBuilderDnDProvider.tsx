@@ -1,19 +1,67 @@
-import { createContext, useContext, useState } from 'react';
+import { TDraggingNode } from '@/automations/components/builder/sidebar/states/automationNodeLibrary';
+import { createContext, useContext, useMemo, useState } from 'react';
 
-const DnDContext = createContext([null, (_: any) => {}]);
-
-export const AutomationBuilderDnDProvider = ({ children }: any) => {
-  const [type, setType] = useState(null);
-
-  return (
-    <DnDContext.Provider value={[type, setType]}>
-      {children}
-    </DnDContext.Provider>
-  );
+type DragCursor = {
+  x: number;
+  y: number;
 };
 
-export default DnDContext;
+type BuilderDnDState = {
+  draggingNode: TDraggingNode | null;
+  hoveredRowId: string | null;
+  cursor: DragCursor | null;
+  isCanvasOver: boolean;
+};
+
+type BuilderDnDContextValue = {
+  state: BuilderDnDState;
+  setHoveredRowId: (id: string | null) => void;
+  startDragging: (node: TDraggingNode) => void;
+  updateCursor: (cursor: DragCursor | null) => void;
+  setCanvasOver: (value: boolean) => void;
+  reset: () => void;
+};
+
+const DnDContext = createContext<BuilderDnDContextValue | null>(null);
+
+export const AutomationBuilderDnDProvider = ({ children }: any) => {
+  const [state, setState] = useState<BuilderDnDState>({
+    draggingNode: null,
+    hoveredRowId: null,
+    cursor: null,
+    isCanvasOver: false,
+  });
+
+  const value = useMemo<BuilderDnDContextValue>(
+    () => ({
+      state,
+      setHoveredRowId: (hoveredRowId) =>
+        setState((prev) => ({ ...prev, hoveredRowId })),
+      startDragging: (draggingNode) =>
+        setState((prev) => ({ ...prev, draggingNode })),
+      updateCursor: (cursor) => setState((prev) => ({ ...prev, cursor })),
+      setCanvasOver: (isCanvasOver) =>
+        setState((prev) => ({ ...prev, isCanvasOver })),
+      reset: () =>
+        setState({
+          draggingNode: null,
+          hoveredRowId: null,
+          cursor: null,
+          isCanvasOver: false,
+        }),
+    }),
+    [state],
+  );
+
+  return <DnDContext.Provider value={value}>{children}</DnDContext.Provider>;
+};
 
 export const useDnD = () => {
-  return useContext(DnDContext);
+  const context = useContext(DnDContext);
+
+  if (!context) {
+    throw new Error('useDnD must be used within AutomationBuilderDnDProvider');
+  }
+
+  return context;
 };

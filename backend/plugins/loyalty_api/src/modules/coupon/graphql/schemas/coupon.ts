@@ -3,18 +3,17 @@ import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 export const types = `
   type Coupon {
     _id: String
-    name: String
-    description: String
     code: String
-    owner: Owner
-    ownerType: String
     campaignId: String
-    conditions: String
+    campaign: CouponCampaign
+    ownerType: String
+    ownerId: String
     status: String
+    usageLimit: Int
+    usageCount: Int
+    redemptionLimitPerUser: Int
     createdAt: String
     updatedAt: String
-    createdBy: User
-    updatedBy: User
   }
 
   type CouponListResponse {
@@ -32,10 +31,15 @@ export const types = `
 
 const queryParams = `
   searchValue: String
+  campaignId: String
+  ownerType: String
+  ownerId: String
   status: String
   fromDate: String
   toDate: String
   dateField: String
+  sortField: String
+  sortDirection: Int
 
   ${GQL_CURSOR_PARAM_DEFS}
 `;
@@ -45,17 +49,8 @@ export const queries = `
   couponsByOwner(ownerId: String!, status: String): [OwnerCoupon]
 `;
 
-const mutationParams = `
-  name: String!
-  description: String
-  ownerId: String
-  ownerType: String
-  campaignId: String
-  conditions: JSON
-  status: String
-`;
-
 export const mutations = `
-  couponAdd(${mutationParams}): [Coupon]
+  couponAdd(campaignId: String!): [Coupon]
+  couponEdit(_id: String!, status: String, usageLimit: Int, redemptionLimitPerUser: Int): Coupon
   couponsRemove(_ids: [String]): JSON
 `;

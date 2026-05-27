@@ -5,6 +5,7 @@ export const CREATE_ITINERARY = gql`
     $groupDays: [DayItemInput]
     $totalCost: Float
     $branchId: String
+    $language: String
     $name: String
     $duration: Int
     $images: [String]
@@ -15,11 +16,14 @@ export const CREATE_ITINERARY = gql`
     $personCost: JSON
     $guideCostExtra: Float
     $content: String
+    $color: String
+    $translations: [ItineraryTranslationInput]
   ) {
     bmsItineraryAdd(
       groupDays: $groupDays
       totalCost: $totalCost
       branchId: $branchId
+      language: $language
       name: $name
       duration: $duration
       images: $images
@@ -30,6 +34,8 @@ export const CREATE_ITINERARY = gql`
       personCost: $personCost
       guideCostExtra: $guideCostExtra
       content: $content
+      color: $color
+      translations: $translations
     ) {
       _id
     }
@@ -40,6 +46,7 @@ export const EDIT_ITINERARY = gql`
   mutation BmsItineraryEdit(
     $id: String!
     $branchId: String
+    $language: String
     $name: String
     $duration: Int
     $totalCost: Float
@@ -52,10 +59,13 @@ export const EDIT_ITINERARY = gql`
     $guideCost: Float
     $guideCostExtra: Float
     $content: String
+    $color: String
+    $translations: [ItineraryTranslationInput]
   ) {
     bmsItineraryEdit(
       _id: $id
       branchId: $branchId
+      language: $language
       name: $name
       duration: $duration
       totalCost: $totalCost
@@ -68,6 +78,8 @@ export const EDIT_ITINERARY = gql`
       guideCost: $guideCost
       guideCostExtra: $guideCostExtra
       content: $content
+      color: $color
+      translations: $translations
     ) {
       _id
     }

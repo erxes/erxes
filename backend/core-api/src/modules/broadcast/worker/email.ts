@@ -17,6 +17,12 @@ export const handleEmailProcessor = async (payload) => {
 
   const transporter = await createTransporter(models);
 
+  await models.Stats.findOneAndUpdate(
+    { engageMessageId: engageMessage._id },
+    { engageMessageId: engageMessage._id },
+    { upsert: true },
+  );
+
   const STATS = { validCustomersCount: 0, failureCount: 0 };
 
   try {
@@ -24,6 +30,20 @@ export const handleEmailProcessor = async (payload) => {
       const chunk = customers.slice(i, i + CHUNK_SIZE);
 
       for (const customer of chunk) {
+        const existing = await models.DeliveryReports.findOne({
+          engageMessageId: engageMessage._id,
+          email: customer.primaryEmail,
+        });
+
+        if (existing) {
+          await models.BroadcastTraces.createTrace(
+            engageMessage._id,
+            'regular',
+            `Email has already been sent to ${existing.email} before. (${existing.customerId})`,
+          );
+
+          continue;
+        }
         try {
           const replacedContent = await replaceContent({
             replacer: customer,
@@ -60,9 +80,25 @@ export const handleEmailProcessor = async (payload) => {
           );
 
           STATS.validCustomersCount++;
+
+          await models.Stats.updateOne(
+            { engageMessageId: engageMessage._id },
+            { $inc: { total: 1 } },
+          );
+
+          await models.BroadcastTraces.createTrace(
+            engageMessage._id,
+            'success',
+            `Sent email to: ${customer.primaryEmail}`,
+          );
         } catch (error) {
-          console.log('Error sending email:', error);
           STATS.failureCount++;
+
+          await models.BroadcastTraces.createTrace(
+            engageMessage._id,
+            'failure',
+            `Error occurred while sending email to ${customer.primaryEmail}: ${error.message}`,
+          );
         }
       }
 
@@ -101,6 +137,12 @@ export const handleEmailProcessor = async (payload) => {
           { _id: engageMessage._id, status: { $eq: 'sending' } },
           { $set: { status: finalStatus } },
         );
+
+        await models.BroadcastTraces.createTrace(
+          engageMessage._id,
+          finalStatus === 'failed' ? 'failure' : 'success',
+          `Campaign ${finalStatus}. Sent: ${STATS.validCustomersCount}, Failed: ${STATS.failureCount}`,
+        );
       }
     }
   } catch (error) {
@@ -115,6 +157,12 @@ export const handleEmailProcessor = async (payload) => {
           'progress.failureCount': customers.length - STATS.validCustomersCount,
         },
       },
+    );
+
+    await models.BroadcastTraces.createTrace(
+      engageMessage._id,
+      'failure',
+      `Critical error in email processor: ${error.message}`,
     );
   }
 };

@@ -21,7 +21,7 @@ const RecordTableTreeProvider = ({
   );
 
   useEffect(() => {
-    setHideChildrenState([]);
+    setHideChildrenState((prev) => (prev.length > 0 ? [] : prev));
   }, [length, setHideChildrenState]);
 
   return (
@@ -72,7 +72,7 @@ RecordTableTreeRow.displayName = 'RecordTableTreeRow';
 const RecordTableTreeArrow = React.forwardRef<
   HTMLButtonElement,
   ButtonProps & { order: string; hasChildren: boolean }
->(({ order, hasChildren, className, ...props }, ref) => {
+>(({ order, hasChildren, className }, ref) => {
   const { toggleHideChildren, isHidden } = useRecordTableTree(order);
 
   if (!hasChildren) {

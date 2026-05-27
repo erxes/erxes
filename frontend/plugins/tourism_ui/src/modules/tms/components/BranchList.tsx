@@ -7,7 +7,6 @@ import { EmptyList } from './EmptyList';
 import { BranchCard } from './BranchCard';
 import { Sheet, Spinner, useConfirm } from 'erxes-ui';
 import CreateTmsForm from './CreateTmsForm';
-import { useVisitWebsite } from '~/hooks/useVisitWebsite';
 
 export const BranchList = () => {
   const { list, totalCount, loading, error, refetch } = useBranchList();
@@ -20,8 +19,6 @@ export const BranchList = () => {
   const { editingBranch, handleEditBranch, closeEditDialog } = useBranchEdit();
 
   const { confirm } = useConfirm();
-
-  const onVisitWebsite = useVisitWebsite('tms', list);
 
   const deleteConfirmOptions = { confirmationValue: 'delete' };
   const duplicateConfirmOptions = { confirmationValue: 'duplicate' };
@@ -74,7 +71,6 @@ export const BranchList = () => {
               onEdit={handleEditBranch}
               onDuplicate={onDuplicate}
               onDelete={onDelete}
-              onVisitWebsite={onVisitWebsite}
               duplicateLoading={duplicateLoading}
             />
           ))}

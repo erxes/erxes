@@ -7,7 +7,8 @@ import DonateCampaign from '@/donate/graphql/resolvers/customResolvers/donateCam
 import Lottery from '@/lottery/graphql/resolvers/customResolvers/lottery';
 import LotteryCampaign from '@/lottery/graphql/resolvers/customResolvers/lotteryCampaign';
 import { Pricing } from '@/pricing/graphql/resolvers/customResolvers/pricing';
-import ScoreCampaign from '@/score/graphql/resolvers/customResolvers/scoreLogItem';
+import ScoreLog from '@/score/graphql/resolvers/customResolvers/scoreLog';
+import ScoreLogItem from '@/score/graphql/resolvers/customResolvers/scoreLogItem';
 import Spin from '@/spin/graphql/resolvers/customResolvers/spin';
 import SpinCampaign from '@/spin/graphql/resolvers/customResolvers/spinCampaign';
 import Voucher from '@/voucher/graphql/resolvers/customResolvers/voucher';
@@ -23,7 +24,8 @@ export const customResolvers = {
   DonateCampaign,
   Lottery,
   LotteryCampaign,
-  ScoreCampaign,
+  ScoreLog,
+  ScoreLogItem,
   Spin,
   SpinCampaign,
   Voucher,

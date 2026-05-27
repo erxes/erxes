@@ -5,12 +5,15 @@ import { useEffect } from 'react';
 import { ControllerRenderProps, FieldValues, useForm } from 'react-hook-form';
 import { useVersion } from 'ui-modules';
 import { BroadcastSettingsVerifiedEmail } from './BroadcastSettingsVerifiedEmail';
+import { useBroadcastConfig } from '@/broadcast/hooks/useBroadcastConfig';
 
 export const BroadcastSettings = () => {
   const form = useForm();
   const isSaas = useVersion('saas');
 
-  const { configs, updateConfig } = useConfig();
+  const { configs } = useConfig();
+
+  const { updateConfig } = useBroadcastConfig();
 
   useEffect(() => {
     if (!configs) return;

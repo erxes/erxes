@@ -10,6 +10,8 @@ export const CREATE_ELEMENT = gql`
     $categories: [String]
     $quick: Boolean
     $branchId: String
+    $language: String
+    $translations: [BmsElementTranslationInput]
   ) {
     bmsElementAdd(
       name: $name
@@ -20,6 +22,8 @@ export const CREATE_ELEMENT = gql`
       categories: $categories
       quick: $quick
       branchId: $branchId
+      language: $language
+      translations: $translations
     ) {
       _id
     }
@@ -36,6 +40,8 @@ export const EDIT_ELEMENT = gql`
     $cost: Float
     $categories: [String]
     $quick: Boolean
+    $language: String
+    $translations: [BmsElementTranslationInput]
   ) {
     bmsElementEdit(
       _id: $id
@@ -46,6 +52,8 @@ export const EDIT_ELEMENT = gql`
       cost: $cost
       categories: $categories
       quick: $quick
+      language: $language
+      translations: $translations
     ) {
       _id
     }

@@ -1,13 +1,11 @@
-import { cn, IAttachment } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
-import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
-import { CustomersInline, MembersInline } from 'ui-modules';
-import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
-import { RelativeDateDisplay } from 'erxes-ui';
-import { Button } from 'erxes-ui';
 import { HAS_ATTACHMENT } from '@/inbox/constants/messengerConstants';
+import { MessageContent } from '@/inbox/conversation-messages/components/MessageContent';
+import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { useCallConversationNoteContext } from '@/integrations/call/context/conversationNoteContext';
+import { Button, cn, IAttachment, RelativeDateDisplay } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
 import React from 'react';
+import { CustomersInline, MembersInline } from 'ui-modules';
 
 export const InternalNotes = (): JSX.Element => {
   const {

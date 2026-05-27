@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { EDIT_ELEMENT } from '../graphql/mutation';
+import { IElementTranslationInput } from './useCreateElement';
 
 interface EditElementResponse {
   bmsElementEdit: {
@@ -16,6 +17,8 @@ export interface IEditElementVariables {
   cost?: number;
   categories?: string[];
   quick?: boolean;
+  language?: string;
+  translations?: IElementTranslationInput[];
 }
 
 export const useEditElement = () => {

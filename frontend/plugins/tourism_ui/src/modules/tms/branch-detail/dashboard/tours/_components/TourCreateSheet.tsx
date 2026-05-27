@@ -5,6 +5,8 @@ import { TourCreateForm } from './TourCreateForm';
 
 interface TourCreateSheetProps {
   branchId?: string;
+  branchLanguages?: string[];
+  mainLanguage?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   showTrigger?: boolean;
@@ -12,6 +14,8 @@ interface TourCreateSheetProps {
 
 export const TourCreateSheet = ({
   branchId,
+  branchLanguages,
+  mainLanguage,
   open,
   onOpenChange,
   showTrigger = true,
@@ -43,6 +47,8 @@ export const TourCreateSheet = ({
       <Sheet.View className="w-[850px] sm:max-w-[850px] p-0">
         <TourCreateForm
           branchId={branchId}
+          branchLanguages={branchLanguages}
+          mainLanguage={mainLanguage}
           onSuccess={() => handleOpenChange(false)}
         />
       </Sheet.View>

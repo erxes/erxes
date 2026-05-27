@@ -7,11 +7,18 @@ interface CreateAmenityResponse {
   };
 }
 
+export interface IAmenityTranslationInput {
+  language: string;
+  name?: string;
+}
+
 export interface ICreateAmenityVariables {
   branchId?: string;
   name?: string;
   icon?: string;
   quick?: boolean;
+  language?: string;
+  translations?: IAmenityTranslationInput[];
 }
 
 export const useCreateAmenity = () => {
@@ -19,7 +26,7 @@ export const useCreateAmenity = () => {
     CreateAmenityResponse,
     ICreateAmenityVariables
   >(CREATE_AMENITY, {
-    refetchQueries: ['BmsElements'],
+    refetchQueries: ['BmsAmenities'],
     awaitRefetchQueries: true,
   });
 

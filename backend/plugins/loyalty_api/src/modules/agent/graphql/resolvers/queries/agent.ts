@@ -49,6 +49,24 @@ export const agentQueries = {
     });
   },
 
+  async agentsMain(
+    _root: undefined,
+    params: IAgentParams & { page?: number; perPage?: number },
+    { models }: IContext,
+  ) {
+    const { page = 1, perPage = 20 } = params;
+    const filter = generateFilter(params);
+
+    const totalCount = await models.Agents.countDocuments(filter);
+    const list = await models.Agents.find(filter)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * perPage)
+      .limit(perPage)
+      .lean();
+
+    return { list, totalCount };
+  },
+
   async agentDetail(
     _root: undefined,
     { _id }: { _id: string },

@@ -1,39 +1,24 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Dialog } from 'erxes-ui';
 import { useState } from 'react';
-import { useForm, UseFormReturn } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
 import { useAccountingConfigAdd } from '../hooks/useAccountingConfigAdd';
-import { SyncDealConfigForm } from './SyncDealConfigForm';
-import { SyncOrderConfigForm } from './SyncOrderConfigFrom';
+import { SettingsRuleByCode } from './AddEditConfigRules';
 
-type SettingsRule = {
-  subIdFieldName: string;
-  FormComponent: React.ComponentType<{
-    form: UseFormReturn<any>;
-    onSubmit: (data: any) => void;
-    loading: boolean;
-  }>;
-};
-
-const settingsRuleByCode: Record<ACCOUNTING_SETTINGS_CODES, SettingsRule> = {
-  syncDeal: {
-    subIdFieldName: 'stageId',
-    FormComponent: SyncDealConfigForm,
-  },
-  syncOrder: {
-    subIdFieldName: 'posId',
-    FormComponent: SyncOrderConfigForm,
-  },
-};
-
-export const AddAccountingConfig = ({ code }: { code: ACCOUNTING_SETTINGS_CODES }) => {
+export const AddAccountingConfig = ({
+  code,
+}: {
+  code: ACCOUNTING_SETTINGS_CODES;
+}) => {
   const [open, setOpen] = useState(false);
   return (
-    <Dialog open={open} onOpenChange={setOpen} >
-      <Dialog.Trigger asChild >
+    <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog.Trigger asChild>
         <Button>
-          <IconPlus />Add Config</Button >
+          <IconPlus />
+          Add Config
+        </Button>
       </Dialog.Trigger>
       <Dialog.ContentCombined
         title="Add Config"
@@ -42,18 +27,19 @@ export const AddAccountingConfig = ({ code }: { code: ACCOUNTING_SETTINGS_CODES 
       >
         <AddAccountingConfigForm code={code} setOpen={setOpen} />
       </Dialog.ContentCombined>
-    </Dialog >
+    </Dialog>
   );
 };
 
 export const AddAccountingConfigForm = ({
-  code, setOpen
+  code,
+  setOpen,
 }: {
-  code: ACCOUNTING_SETTINGS_CODES,
-  setOpen: (open: boolean) => void
+  code: ACCOUNTING_SETTINGS_CODES;
+  setOpen: (open: boolean) => void;
 }) => {
-  const rule = settingsRuleByCode[code];
-  const form = useForm<any>({ defaultValues: {}, });
+  const rule = SettingsRuleByCode[code];
+  const form = useForm<any>({ defaultValues: {} });
 
   const { addConfig, loading } = useAccountingConfigAdd({
     onCompleted: () => {
@@ -66,7 +52,7 @@ export const AddAccountingConfigForm = ({
     return <div>Unknown config type </div>;
   }
 
-  const { subIdFieldName, FormComponent } = settingsRuleByCode[code] || {};
+  const { subIdFieldName, FormComponent } = SettingsRuleByCode[code] || {};
 
   const onSubmit = (data: any) => {
     addConfig({
@@ -77,5 +63,4 @@ export const AddAccountingConfigForm = ({
   };
 
   return <FormComponent form={form} onSubmit={onSubmit} loading={loading} />;
-
 };

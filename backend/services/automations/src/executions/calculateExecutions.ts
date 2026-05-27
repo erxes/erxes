@@ -51,7 +51,7 @@ const checkValidTrigger = async (
 ) => {
   const { type = '', config, isCustom } = trigger;
   const { contentId } = config || {};
-  if (!!isCustom) {
+  if (Boolean(isCustom)) {
     const isValidCustomTigger = await checkIsValidCustomTigger(
       type,
       subdomain,

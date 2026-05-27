@@ -18,6 +18,9 @@ export const automationBuilderPanelOpenState = atomWithStorage<boolean>(
   false,
 );
 
+export const automationBuilderSecondarySidebarOpenState =
+  atomWithStorage<boolean>('automationSecondarySidebarOpen', false);
+
 export const toggleAutomationBuilderOpenSidebar = atom(true, (get, set) => {
   const isOpen = get(automationBuilderSiderbarOpenState);
 
@@ -29,6 +32,15 @@ export const toggleAutomationBuilderOpenPanel = atom(false, (get, set) => {
 
   set(automationBuilderPanelOpenState, !isOpen);
 });
+
+export const toggleAutomationBuilderSecondarySidebar = atom(
+  false,
+  (get, set) => {
+    const isOpen = get(automationBuilderSecondarySidebarOpenState);
+
+    set(automationBuilderSecondarySidebarOpenState, !isOpen);
+  },
+);
 
 export const automationAiAgentIsStartedTrainingState = atomWithStorage<boolean>(
   'automationAiStartedTraining',

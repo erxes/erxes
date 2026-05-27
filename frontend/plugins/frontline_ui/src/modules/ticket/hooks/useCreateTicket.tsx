@@ -1,8 +1,7 @@
-import { useMutation } from '@apollo/client';
-import { CREATE_TICKET } from '@/ticket/graphql/mutations/createTicket';
-import { useToast } from 'erxes-ui';
-import { useRecordTableCursor } from 'erxes-ui';
 import { TICKETS_CURSOR_SESSION_KEY } from '@/ticket/constants';
+import { CREATE_TICKET } from '@/ticket/graphql/mutations/createTicket';
+import { useMutation } from '@apollo/client';
+import { useRecordTableCursor, useToast } from 'erxes-ui';
 
 export const useCreateTicket = () => {
   const { toast } = useToast();

@@ -10,6 +10,7 @@ interface SelectItineraryProps {
   value?: string;
   onValueChange?: (value: string | null) => void;
   branchId?: string;
+  language?: string;
   placeholder?: string;
   className?: string;
 }
@@ -18,6 +19,7 @@ export const SelectItinerary = ({
   value,
   onValueChange,
   branchId,
+  language,
   placeholder = 'Select itinerary',
   className,
 }: SelectItineraryProps) => {
@@ -26,7 +28,7 @@ export const SelectItinerary = ({
   const [debouncedSearch] = useDebounce(search, 300);
 
   const { itineraries, loading } = useItineraries({
-    variables: { branchId },
+    variables: { branchId, language },
   });
 
   const filteredItineraries = React.useMemo(() => {
@@ -51,10 +53,10 @@ export const SelectItinerary = ({
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
         {selectedItinerary ? (
-          <div className="flex gap-2 items-center">
-            <span>{selectedItinerary.name}</span>
+          <div className="flex gap-2 items-center min-w-0 w-full">
+            <span className="truncate">{selectedItinerary.name}</span>
             {selectedItinerary.duration && (
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-muted-foreground shrink-0">
                 ({selectedItinerary.duration} days)
               </span>
             )}
@@ -83,10 +85,10 @@ export const SelectItinerary = ({
                   value={itinerary._id}
                   onSelect={() => handleSelect(itinerary)}
                 >
-                  <div className="flex gap-2 items-center">
-                    <span>{itinerary.name}</span>
+                  <div className="flex gap-2 items-center min-w-0 flex-1">
+                    <span className="truncate">{itinerary.name}</span>
                     {itinerary.duration && (
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-muted-foreground shrink-0">
                         ({itinerary.duration} days)
                       </span>
                     )}

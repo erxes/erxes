@@ -1,10 +1,8 @@
-import { Cell } from '@tanstack/react-table';
-import { RecordTable } from 'erxes-ui';
-
-import { Popover, Command, Combobox } from 'erxes-ui';
 import { IconEdit } from '@tabler/icons-react';
-import { Can, ICustomer } from 'ui-modules';
+import { Cell } from '@tanstack/react-table';
+import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
+import { Can, ICustomer } from 'ui-modules';
 
 export const CustomerMoreColumnCell = ({
   cell,

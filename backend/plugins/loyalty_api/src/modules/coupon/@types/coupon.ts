@@ -29,6 +29,8 @@ export interface ICouponParams extends ICursorPaginateParams {
   status?: string;
   fromDate?: string;
   toDate?: string;
+  sortField?: string;
+  sortDirection?: 1 | -1;
 }
 
 export interface ICouponInput {

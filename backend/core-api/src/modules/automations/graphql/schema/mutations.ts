@@ -17,11 +17,9 @@ const commonNoteFields = `
 const aiAgentParams = `
     name:String,
     description:String,
-    provider:String,
-    prompt:String,
-    instructions:String,
-    files:JSON,
-    config:JSON,
+    connection:JSON,
+    runtime:JSON,
+    context:JSON,
 `;
 
 const emailTemplateFields = `
@@ -44,9 +42,6 @@ const mutations = `
   automationsRemoveNote(_id: String!): AutomationNote
   automationsAiAgentAdd(${aiAgentParams}):JSON
   automationsAiAgentEdit(_id:String!,${aiAgentParams}):JSON
-  startAiTraining(agentId: String!): TrainingProgress!
-  getTrainingStatus(agentId: String!): TrainingProgress!
-  generateAgentMessage(agentId: String!, prevQuestions:[String],question: String!): AiAgentMessage!
   
   automationEmailTemplatesAdd(${emailTemplateFields}): AutomationEmailTemplate
   automationEmailTemplatesEdit(_id: String!, ${emailTemplateFields}): AutomationEmailTemplate

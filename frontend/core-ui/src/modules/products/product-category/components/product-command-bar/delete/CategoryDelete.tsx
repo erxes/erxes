@@ -3,6 +3,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { useRemoveCategories } from '@/products/product-category/hooks/useRemoveCategories';
 import type { ReactNode } from 'react';
 import { useCallback } from 'react';
+import { Can } from 'ui-modules';
 
 interface CategoriesDeleteProps {
   categoryIds: string;
@@ -77,18 +78,24 @@ export const CategoriesDelete = ({
   ]);
 
   if (children) {
-    return <>{children({ onClick: handleClick, disabled })}</>;
+    return (
+      <Can action="productCategoriesManage">
+        <>{children({ onClick: handleClick, disabled })}</>
+      </Can>
+    );
   }
 
   return (
-    <Button
-      variant="secondary"
-      className="text-destructive"
-      onClick={handleClick}
-      disabled={disabled}
-    >
-      <IconTrash />
-      Delete
-    </Button>
+    <Can action="productCategoriesManage">
+      <Button
+        variant="secondary"
+        className="text-destructive"
+        onClick={handleClick}
+        disabled={disabled}
+      >
+        <IconTrash />
+        Delete
+      </Button>
+    </Can>
   );
 };

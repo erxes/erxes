@@ -1,17 +1,21 @@
 import { gql } from '@apollo/client';
 
 export const CREATE_AMENITY = gql`
-  mutation BmsElementAdd(
+  mutation BmsAmenityAdd(
     $name: String
     $icon: String
     $quick: Boolean
     $branchId: String
+    $language: String
+    $translations: [BmsElementTranslationInput]
   ) {
     bmsElementAdd(
       name: $name
       icon: $icon
       quick: $quick
       branchId: $branchId
+      language: $language
+      translations: $translations
     ) {
       _id
     }
@@ -19,20 +23,29 @@ export const CREATE_AMENITY = gql`
 `;
 
 export const EDIT_AMENITY = gql`
-  mutation BmsElementEdit(
+  mutation BmsAmenityEdit(
     $id: String!
     $name: String
     $icon: String
     $quick: Boolean
+    $language: String
+    $translations: [BmsElementTranslationInput]
   ) {
-    bmsElementEdit(_id: $id, name: $name, icon: $icon, quick: $quick) {
+    bmsElementEdit(
+      _id: $id
+      name: $name
+      icon: $icon
+      quick: $quick
+      language: $language
+      translations: $translations
+    ) {
       _id
     }
   }
 `;
 
 export const REMOVE_AMENITY = gql`
-  mutation BmsElementRemove($ids: [String]) {
+  mutation BmsAmenityRemove($ids: [String]) {
     bmsElementRemove(ids: $ids)
   }
 `;

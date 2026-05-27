@@ -1,4 +1,4 @@
-import { IContext, IModels } from '~/connectionResolvers';
+import { IContext } from '~/connectionResolvers';
 import { paginate } from 'erxes-api-shared/utils';
 import { Resolver } from 'erxes-api-shared/core-types';
 

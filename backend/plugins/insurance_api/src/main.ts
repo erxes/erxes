@@ -22,7 +22,7 @@ startPlugin({
     // Try to decode vendor JWT token from Authorization header
     // This handles the case where vendorUserLogin token is used instead of erxes core token
     const authHeader = req?.headers?.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
+    if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
       try {
         const JWT_SECRET = process.env.JWT_TOKEN_SECRET;

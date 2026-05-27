@@ -2,7 +2,7 @@ import {
   AfterProcessConfigs,
   AfterProcessModules,
 } from 'erxes-api-shared/utils';
-import { generateModels, IModels } from '~/connectionResolvers';
+import { IModels } from '~/connectionResolvers';
 import { inboxAfterProcessWorkers } from '@/inbox/meta/afterProcess';
 import { facebookAfterProcessWorkers } from '@/integrations/facebook/meta/afterProcess/afterProcessWorkers';
 import {

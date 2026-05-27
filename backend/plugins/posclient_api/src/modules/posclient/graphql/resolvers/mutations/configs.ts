@@ -293,10 +293,8 @@ const configMutations: Record<string, Resolver> = {
   posChooseConfig: async (
     _root,
     { token }: { token: string },
-    { res, models, posUser }: IContext,
+    { res, models }: IContext,
   ) => {
-    assertPosUser(posUser);
-
     const config = await models.Configs.findOne({ token });
 
     if (!config) {

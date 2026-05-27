@@ -1,22 +1,25 @@
-import { IconChessKnight } from '@tabler/icons-react';
+import {
+  IconChessKnight,
+  IconShoppingCart,
+  IconTag,
+} from '@tabler/icons-react';
+import { ColumnDef } from '@tanstack/table-core';
 import {
   Button,
-  Sheet,
   Form,
-  useToast,
   RecordTable,
-  TextOverflowTooltip,
   RecordTableInlineCell,
+  Sheet,
+  TextOverflowTooltip,
+  useToast,
 } from 'erxes-ui';
 import React from 'react';
+import { SubmitHandler } from 'react-hook-form';
 import { useSearchParams } from 'react-router-dom';
+import { usePosOrderChangePayments } from '../detail/hooks/usePosOrderChangePayments';
 import { usePosOrderForm } from '../detail/hooks/usePosOrderForm';
 import { usePosOrderQuery } from '../detail/hooks/usePosOrderQuery';
-import { usePosOrderChangePayments } from '../detail/hooks/usePosOrderChangePayments';
-import { SubmitHandler } from 'react-hook-form';
 import { PosOrderForm } from '../detail/PosOrderForm';
-import { ColumnDef } from '@tanstack/table-core';
-import { IconTag, IconShoppingCart } from '@tabler/icons-react';
 import { TPosOrderFormData } from '../types/posOrderType';
 
 const itemColumns: ColumnDef<any>[] = [
@@ -293,12 +296,12 @@ export const PosOrderSheet = () => {
                     <span className="text-base font-medium">
                       {posOrder.putResponses?.[0]?.createdAt
                         ? new Date(
-                            posOrder.putResponses[0].createdAt,
+                            posOrder.putResponses?.[0].createdAt,
                           ).toLocaleDateString()
                         : '-'}
                     </span>
                   </div>
-                  {posOrder && posOrder.items && posOrder.items.length > 0 && (
+                  {posOrder?.items?.length && (
                     <div className="rounded-md overflow-hidden">
                       <RecordTable.Provider
                         columns={itemColumns}

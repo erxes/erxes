@@ -6,6 +6,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { isInSegment } from '../utils/isInSegment';
 import { executeActions } from './executeActions';
+import { finalizeExecAction } from './executionActionMetrics';
 
 export const handleIfAction = async (
   subdomain: string,
@@ -30,6 +31,7 @@ export const handleIfAction = async (
 
   execAction.nextActionId = ifActionId;
   execAction.result = { condition: isIn };
+  finalizeExecAction(execAction, 'success');
   execution.actions = [...(execution.actions || []), execAction];
   execution = await execution.save();
   return executeActions(

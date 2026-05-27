@@ -2,7 +2,7 @@ import { useAtom, useAtomValue } from 'jotai';
 import { activeStepAtom, formValuesAtom } from '../states/erxesFormStates';
 import { useFormWidgetLead } from '../hooks/useFormWidgetLead';
 import { browserInfoAtom } from '../../messenger/states';
-import { useErxesForm } from '../ context/erxesFormContext';
+import { useErxesForm } from '../context/erxesFormContext';
 import { Button, InfoCard, readImage, Spinner } from 'erxes-ui';
 import { useState } from 'react';
 

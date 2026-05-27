@@ -3,7 +3,6 @@ import {
   isEnabled,
   redis,
   sendTRPCMessage,
-  sendWorkerQueue,
 } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
 import { IModels, generateModels } from '~/connectionResolvers';
@@ -93,7 +92,7 @@ export const getBranchesUtil = async (
         pos: allowPos,
       });
 
-      if (response && response.healthy === 'ok') {
+      if (response?.healthy === 'ok') {
         healthyBranchIds.push(allowPos.branchId);
       }
     }
@@ -212,11 +211,7 @@ const otherPlugins = async (subdomain, newOrder, oldOrder?, userId?) => {
   const value = await redis.get('afterMutations');
   const afterMutations = JSON.parse(value || '{}');
 
-  if (
-    afterMutations['pos:order'] &&
-    afterMutations['pos:order']['synced'] &&
-    afterMutations['pos:order']['synced'].length
-  ) {
+  if (afterMutations['pos:order']?.['synced']?.length) {
     const user = await sendTRPCMessage({
       subdomain,
 
@@ -372,7 +367,7 @@ const createDeliveryDeal = async ({ subdomain, models, doneOrder, pos }) => {
     };
   }
 
-  if ((doneOrder.deliveryInfo || {}).dealId) {
+  if (doneOrder.deliveryInfo?.dealId) {
     const response = await sendTRPCMessage({
       subdomain,
       method: 'mutation',
@@ -540,7 +535,7 @@ const createDealPerOrder = async ({
       (c || ({} as any)).branchId && (c as any).branchId === newOrder.branchId,
   );
 
-  if (currentCardsConfig && currentCardsConfig.stageId) {
+  if (currentCardsConfig?.stageId) {
     const paymentsData: any = {};
     if (newOrder.cashAmount) {
       paymentsData.cash = {
@@ -641,7 +636,7 @@ const createDealPerOrder = async ({
 };
 
 const syncErkhetRemainder = async ({ subdomain, models, pos, newOrder }) => {
-  if (!(pos.erkhetConfig && pos.erkhetConfig.isSyncErkhet)) {
+  if (!pos.erkhetConfig?.isSyncErkhet) {
     return;
   }
   let resp;
@@ -716,7 +711,7 @@ export const syncOrderFromClient = async ({
 
   if (await isEnabled('ebarimt')) {
     for (const response of responses || []) {
-      if (response && response._id) {
+      if (response?._id) {
         await sendTRPCMessage({
           subdomain,
           method: 'mutation',
@@ -815,9 +810,8 @@ export const syncOrderFromClient = async ({
 
     // change branch and before another pos synced then remove from befort sync
     if (
-      oldOrder &&
-      oldOrder.subBranchId &&
-      newOrder.subBranchId !== oldOrder.subBranchId
+      oldOrder?.subBranchId &&
+      newOrder.subBranchId !== oldOrder?.subBranchId
     ) {
       const toCancelPos = await models.Pos.findOne({
         branchId: oldOrder.subBranchId,

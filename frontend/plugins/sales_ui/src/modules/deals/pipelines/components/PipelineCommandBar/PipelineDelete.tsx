@@ -1,8 +1,6 @@
-import React from 'react';
-import { Button } from 'erxes-ui';
-import { IconTrash } from '@tabler/icons-react';
-import { useConfirm } from 'erxes-ui';
 import { IPipeline } from '@/deals/types/pipelines';
+import { IconTrash } from '@tabler/icons-react';
+import { Button, useConfirm } from 'erxes-ui';
 import { usePipelinesBulkRemove } from '../../../boards/hooks/usePipelines';
 interface PipelineDeleteProps {
   pipelines: IPipeline[];

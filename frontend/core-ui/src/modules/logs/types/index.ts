@@ -35,6 +35,17 @@ export type LogsMainListQueryResponse = {
   };
 };
 
+export interface ILogContentTypeOption {
+  value: string;
+  pluginName: string;
+  moduleName: string;
+  collectionName: string;
+}
+
+export type LogsGetContentTypesQueryResponse = {
+  logsGetContentTypes: ILogContentTypeOption[];
+};
+
 export type AvatarSize = 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
 
 export type AvatarPopoverProps = {

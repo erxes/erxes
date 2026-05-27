@@ -2,6 +2,10 @@ import { Document, Schema } from 'mongoose';
 
 export interface IAutomationExecAction {
   createdAt?: string;
+  startedAt?: string;
+  finishedAt?: string;
+  durationMs?: number;
+  status?: 'success' | 'error' | 'waiting';
   actionId: string;
   actionType: string;
   actionConfig?: any;
@@ -44,6 +48,10 @@ export const AUTOMATION_EXECUTION_STATUS = {
 
 const execActionSchema = new Schema({
   createdAt: { type: Date, default: Date.now, required: true },
+  startedAt: { type: Date },
+  finishedAt: { type: Date },
+  durationMs: { type: Number },
+  status: { type: String, enum: ['success', 'error', 'waiting'] },
   actionId: { type: String },
   actionType: { type: String },
   actionConfig: { type: Object },

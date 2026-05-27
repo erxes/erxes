@@ -1,7 +1,6 @@
 import { IOrderInput } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 import { IField, IFieldDocument } from '~/modules/form/db/definitions/fields';
-import { markResolvers } from 'erxes-api-shared/utils';
 
 export interface IFieldsEdit extends IField {
   _id: string;

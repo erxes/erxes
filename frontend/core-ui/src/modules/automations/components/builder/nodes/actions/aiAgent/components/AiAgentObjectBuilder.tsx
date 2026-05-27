@@ -18,7 +18,7 @@ export const AiAgentObjectBuilder = () => {
           <Form.Item>
             <div className="flex flex-col gap-2 p-4">
               <div className="grid grid-cols-12 items-center gap-2">
-                <Label className="col-span-5">Field Name</Label>
+                <Label className="col-span-5">Field Key</Label>
                 <Label className="col-span-2">Data Type</Label>
                 <Label className="col-span-4">Validation</Label>
                 <div className="col-span-1" />
@@ -51,7 +51,7 @@ export const AiAgentObjectBuilder = () => {
                 ])
               }
             >
-              Add Field
+              Add Classification Field
             </Button>
           </Form.Item>
         );

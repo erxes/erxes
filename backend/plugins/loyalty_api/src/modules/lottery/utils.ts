@@ -26,7 +26,7 @@ const generateRandom = (type: string, len: number) => {
 
 export const getRandomNumber = (number) => {
   const re = /{ \[.-..?\] \* [0-9]* }/g;
-  const items = number.match(/{ \[.-..?\] \* [0-9]* }|./g);
+  const items = (number || '').match(/{ \[.-..?\] \* [0-9]* }|./g) || [];
 
   const result: string[] = [];
   for (const item of items) {

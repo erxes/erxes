@@ -57,7 +57,6 @@ const createNewCdr = async (
     disposition,
     ...filteredParams
   } = camelCaseParams as any;
-  console.log(disposition, 'disposition');
 
   return await models.CallCdrs.create({
     acctId,
@@ -164,7 +163,7 @@ export const extractOperatorId = (params) => {
   }
 
   const match = action_type?.match(/FOLLOWME\[(\d+)\]/);
-  if (match && match[1]) {
+  if (match?.[1]) {
     return match[1];
   }
 

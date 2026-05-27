@@ -12,7 +12,6 @@ export default function ReportIndexPage() {
   const isCallReport = location.pathname.includes('/call');
   const isTicketReport = location.pathname.includes('/ticket');
   const isOverviewReport = !isCallReport && !isTicketReport;
-
   return (
     <PageContainer>
       <PageHeader>
@@ -59,7 +58,7 @@ export default function ReportIndexPage() {
           </Breadcrumb>
         </PageHeader.Start>
       </PageHeader>
-      <div className="flex flex-wrap gap-2 px-4 pt-4">
+      <div className="mx-auto flex w-full max-w-[1600px] flex-wrap gap-2 px-8 pb-2 pt-6">
         <Button variant={isOverviewReport ? 'default' : 'outline'} asChild>
           <Link to="/frontline/reports">Frontline Overview</Link>
         </Button>

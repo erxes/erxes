@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { EDIT_AMENITY } from '../graphql/mutation';
+import { IAmenityTranslationInput } from './useCreateAmenity';
 
 interface EditAmenityResponse {
   bmsElementEdit: {
@@ -12,6 +13,8 @@ export interface IEditAmenityVariables {
   name?: string;
   icon?: string;
   quick?: boolean;
+  language?: string;
+  translations?: IAmenityTranslationInput[];
 }
 
 export const useEditAmenity = () => {
@@ -19,7 +22,7 @@ export const useEditAmenity = () => {
     EditAmenityResponse,
     IEditAmenityVariables
   >(EDIT_AMENITY, {
-    refetchQueries: ['BmsElements'],
+    refetchQueries: ['BmsAmenities'],
     awaitRefetchQueries: true,
   });
 

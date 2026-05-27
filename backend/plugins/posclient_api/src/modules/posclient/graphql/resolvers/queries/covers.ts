@@ -57,7 +57,7 @@ const coverQueries = {
       filter._id = { $ne: _id };
     }
 
-    let lastCover = await models.Covers.findOne(filter)
+    const lastCover = await models.Covers.findOne(filter)
       .sort({ endDate: -1 })
       .lean();
 
@@ -89,34 +89,6 @@ const coverQueries = {
     }
 
     return result;
-  },
-  async posCovers(_root, params, { models, config }: IContext) {
-    const selector: any = { posToken: config.token };
-
-    const { startDate, endDate, userId } = params;
-
-    if (userId) {
-      selector.userId = userId;
-    }
-
-    const dateQry: any = {};
-
-    if (startDate) {
-      dateQry.$gte = getPureDate(startDate);
-    }
-
-    if (endDate) {
-      dateQry.$lte = getPureDate(endDate);
-    }
-
-    if (Object.keys(dateQry).length) {
-      selector.endDate = dateQry;
-    }
-
-    return paginate(
-      models.Covers.find(selector).sort({ createdAt: -1 }).lean(),
-      { ...params },
-    );
   },
 };
 

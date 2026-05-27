@@ -25,6 +25,9 @@
     "last-seen-at": "Сүүлд идэвхтэй байсан",
     "birthday": "Төрсөн өдөр"
   },
+  "logs": {
+    "searchContentType": "Логийн төрлөөр хайх"
+  },
   "records-found": "Бичлэг олдлоо",
   "organization": {
     "settings": "Тохиргоо",

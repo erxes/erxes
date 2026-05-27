@@ -16,12 +16,17 @@ import {
 } from 'erxes-ui';
 import { IElement } from '../types/element';
 import { ElementEditSheet } from './ElementEditSheet';
+import { elementMoreColumn } from './ElementMoreCell';
 
 export const elementColumns = (
   getCategoryNamesByIds: (ids: string[]) => string[],
+  branchId?: string,
+  branchLanguages?: string[],
+  mainLanguage?: string,
 ): ColumnDef<IElement>[] => {
   return [
     RecordTable.checkboxColumn as ColumnDef<IElement>,
+    elementMoreColumn(branchId, branchLanguages, mainLanguage),
     {
       id: 'name',
       accessorKey: 'name',
@@ -30,7 +35,12 @@ export const elementColumns = (
         const element = row.original as IElement;
         return (
           <RecordTableInlineCell>
-            <ElementEditSheet element={element} showTrigger={false}>
+            <ElementEditSheet
+              element={element}
+              branchLanguages={branchLanguages}
+              mainLanguage={mainLanguage}
+              showTrigger={false}
+            >
               <Badge
                 variant="secondary"
                 className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"

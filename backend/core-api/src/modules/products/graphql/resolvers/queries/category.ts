@@ -74,9 +74,7 @@ export const categoryQueries: Record<string, Resolver> = {
     { models }: IContext,
   ) {
     const filter = await generateFilter(models, params);
-
     const sortParams: any = { order: 1 };
-
     return await models.ProductCategories.find(filter).sort(sortParams).lean();
   },
 
@@ -86,9 +84,7 @@ export const categoryQueries: Record<string, Resolver> = {
     { models }: IContext,
   ) {
     const filter = await generateFilter(models, params);
-
     const sortParams: any = { order: 1 };
-
     return await models.ProductCategories.find(filter).sort(sortParams).lean();
   },
 
@@ -98,7 +94,6 @@ export const categoryQueries: Record<string, Resolver> = {
     { models }: IContext,
   ) {
     const filter = await generateFilter(models, params);
-
     return models.ProductCategories.countDocuments(filter);
   },
 
@@ -108,6 +103,14 @@ export const categoryQueries: Record<string, Resolver> = {
     { models }: IContext,
   ) {
     return models.ProductCategories.findOne({ _id }).lean();
+  },
+
+  async categoriesWithChilds(
+    _parent: undefined,
+    { ids }: { ids: string[] },
+    { models }: IContext,
+  ) {
+    return await models.ProductCategories.getChildCategories(ids);
   },
 };
 

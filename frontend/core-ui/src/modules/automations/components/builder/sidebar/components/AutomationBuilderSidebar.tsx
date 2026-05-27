@@ -1,3 +1,5 @@
+import { AutomationBuilderSecondarySidebar } from '@/automations/components/builder/sidebar/components/AutomationBuilderSecondarySidebar';
+import { AutomationBuilderSecondarySidebarToggle } from '@/automations/components/builder/sidebar/components/AutomationBuilderSecondarySidebarToggle';
 import { AutomationActionContentSidebar } from '@/automations/components/builder/sidebar/components/content/action/AutomationActionContentSidebar';
 import { AutomationTriggerContentSidebar } from '@/automations/components/builder/sidebar/components/content/trigger/components/AutomationTriggerContentSidebar';
 import { AutomationNodeLibrarySidebar } from '@/automations/components/builder/sidebar/components/library/AutomationNodeLibrarySidebar';
@@ -30,6 +32,7 @@ export const AutomationBuilderSidebar = () => {
 
   const {
     isOpenSideBar,
+    isSecondarySidebarOpen,
     activeNode,
     handleBack,
     handleClose,
@@ -60,6 +63,11 @@ export const AutomationBuilderSidebar = () => {
   const hasSegmentFormContent =
     activeNode?.nodeType === AutomationNodeType.Trigger &&
     !activeNode?.isCustom;
+  const isEditingNode =
+    !!activeNode &&
+    (activeNode.nodeType === AutomationNodeType.Trigger ||
+      activeNode.nodeType === AutomationNodeType.Action);
+  const canShowSecondarySidebar = isEditingNode;
   const sidebarWidthClasses = hasSegmentFormContent
     ? 'min-w-md max-w-4xl w-fit'
     : 'min-w-80 max-w-2xl w-fit';
@@ -67,30 +75,36 @@ export const AutomationBuilderSidebar = () => {
   return (
     <AnimatePresence>
       {isOpenSideBar && (
-        <div
-          key="sidebar"
-          className={cn(
-            'absolute right-0 top-0 h-full bg-sidebar rounded-none flex flex-col z-50 border-l',
-            sidebarWidthClasses,
-          )}
-        >
-          <AutomationBuilderSidebarHeader
-            activeNode={activeNode}
-            handleBack={handleBack}
-            handleClose={handleClose}
-            wide={hasSegmentFormContent}
-          />
+        <div key="sidebar" className="absolute right-0 top-0 z-50 flex h-full">
+          {isSecondarySidebarOpen && canShowSecondarySidebar ? (
+            <AutomationBuilderSecondarySidebar />
+          ) : null}
 
-          <Card.Content
+          <div
             className={cn(
-              'w-full flex-1 overflow-auto p-0',
-              hasSegmentFormContent
-                ? 'min-w-md max-w-4xl'
-                : 'min-w-80 max-w-2xl',
+              'flex h-full flex-col rounded-none border-l bg-sidebar',
+              sidebarWidthClasses,
             )}
           >
-            <AutomationBuilderSidebarContent activeNode={activeNode} />
-          </Card.Content>
+            <AutomationBuilderSidebarHeader
+              activeNode={activeNode}
+              canShowSecondarySidebar={canShowSecondarySidebar}
+              handleBack={handleBack}
+              handleClose={handleClose}
+              wide={hasSegmentFormContent}
+            />
+
+            <Card.Content
+              className={cn(
+                'w-full flex-1 overflow-auto p-0',
+                hasSegmentFormContent
+                  ? 'min-w-md max-w-4xl'
+                  : 'min-w-80 max-w-2xl',
+              )}
+            >
+              <AutomationBuilderSidebarContent activeNode={activeNode} />
+            </Card.Content>
+          </div>
         </div>
       )}
     </AnimatePresence>
@@ -99,11 +113,13 @@ export const AutomationBuilderSidebar = () => {
 
 const AutomationBuilderSidebarHeader = ({
   activeNode,
+  canShowSecondarySidebar,
   handleClose,
   handleBack,
   wide = false,
 }: {
   activeNode?: NodeData;
+  canShowSecondarySidebar: boolean;
   handleClose: () => void;
   handleBack: () => void;
   wide?: boolean;
@@ -148,6 +164,9 @@ const AutomationBuilderSidebarHeader = ({
           </div>
         </div>
         <div className="flex flex-row gap-2 self-start mt-0">
+          {canShowSecondarySidebar ? (
+            <AutomationBuilderSecondarySidebarToggle />
+          ) : null}
           <Button size="icon" variant="ghost" onClick={handleBack}>
             <IconArrowLeft />
           </Button>

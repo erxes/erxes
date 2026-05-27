@@ -36,6 +36,7 @@ export const useCreateMessenger = () => {
 
     createMessengerMutation({
       variables: createVariables,
+      refetchQueries: ['Integrations', 'integrationDetail'],
       async onCompleted({ integrationsCreateMessengerIntegration }) {
         const { _id } = integrationsCreateMessengerIntegration;
 
@@ -85,12 +86,6 @@ export const useCreateMessenger = () => {
           ),
         ]);
 
-        // Single refetch after everything is done
-        await client.refetchQueries({
-          include: ['Integrations', 'integrationDetail'],
-        });
-
-        // Now close the sheet / reset state.
         onComplete?.();
       },
       onError(e) {

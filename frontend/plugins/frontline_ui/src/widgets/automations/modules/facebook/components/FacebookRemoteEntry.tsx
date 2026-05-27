@@ -6,12 +6,12 @@ import {
 } from 'ui-modules';
 import { ActionMessageConfigContent } from './action/components/replyMessage/ActionMessageConfigContent';
 import { MessageActionForm } from './action/components/replyMessage/MessageActionForm';
-import { MessageTriggerForm } from './trigger/components/MessageTriggerForm';
-import { TriggerConfigContent } from './trigger/components/TriggerConfigContent';
+import { MessageTriggerForm } from './trigger/components/message/MessageTriggerForm';
+import { TriggerConfigContent } from './trigger/components/summary/TriggerConfigContent';
 import { AutomationBotsRecordTable } from './bots/components/automationBotsRecordTable';
 import { AutomationHistoryName } from '~/widgets/automations/modules/facebook/components/AutomationHistoryName';
 import { AutomationHistoryResult } from '~/widgets/automations/modules/facebook/components/AutomationHistoryResult';
-import { CommentTriggerForm } from '~/widgets/automations/modules/facebook/components/trigger/components/CommentTriggerForm';
+import { CommentTriggerForm } from '~/widgets/automations/modules/facebook/components/trigger/components/comment/CommentTriggerForm';
 import { CommentActionForm } from '~/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm';
 import { ActionCommentConfigContent } from '~/widgets/automations/modules/facebook/components/action/components/replyComment/ActionCommentConfigContent';
 

@@ -1,9 +1,6 @@
 import { IModels } from '~/connectionResolvers';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
-import {
-  AuthenticationError,
-  ValidationError,
-} from '@/clientportal/services/errorHandler';
+import { ValidationError } from '@/clientportal/services/errorHandler';
 import {
   buildDuplicationQuery,
   UserFields,

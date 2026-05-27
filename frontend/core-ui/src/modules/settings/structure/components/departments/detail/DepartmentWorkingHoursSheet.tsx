@@ -17,6 +17,7 @@ import { Fragment, useEffect } from 'react';
 import { useDepartmentDetailsById } from '@/settings/structure/hooks/useDepartmentDetailsById';
 import { useDepartmentInlineEdit } from '@/settings/structure/hooks/useDepartmentActions';
 import { parseTime } from '@internationalized/date';
+import { Can } from 'ui-modules';
 
 export const DepartmentWorkingHoursSheet = () => {
   const [workingHoursId] = useQueryState('workingHoursId');
@@ -104,7 +105,7 @@ export const DepartmentWorkingHoursSheet = () => {
               <Sheet.Close />
             </Sheet.Header>
             <Sheet.Content className="grow size-full h-auto flex flex-col px-5">
-              {Object.entries(workingHours).map(([day, data], index) => {
+              {Object.entries(workingHours).map(([day], index) => {
                 return (
                   <Fragment key={day}>
                     {index !== 0 && <Separator />}
@@ -117,13 +118,15 @@ export const DepartmentWorkingHoursSheet = () => {
               <Button variant={'secondary'} onClick={() => setOpen(null)}>
                 Cancel
               </Button>
-              <Button
-                disabled={loading}
-                type="button"
-                onClick={form.handleSubmit(onSubmit)}
-              >
-                Save
-              </Button>
+              <Can action="departmentsManage">
+                <Button
+                  disabled={loading}
+                  type="button"
+                  onClick={form.handleSubmit(onSubmit)}
+                >
+                  Save
+                </Button>
+              </Can>
             </Sheet.Footer>
           </div>
         </Sheet.View>

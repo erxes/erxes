@@ -52,6 +52,21 @@ export const EDIT_BRANCH = gql`
       parentId
       userCount
       title
+      supervisorId
+      userIds
+      email
+      phoneNumber
+      radius
+      links
+      image {
+        name
+        type
+        url
+      }
+      coordinate {
+        latitude
+        longitude
+      }
     }
   }
 `;

@@ -76,9 +76,8 @@ export interface IOrderChangeParams {
 
 const getTaxInfo = (config: IConfig) => {
   return {
-    hasVat: (config.ebarimtConfig && config.ebarimtConfig.hasVat) || false,
-    hasCitytax:
-      (config.ebarimtConfig && config.ebarimtConfig?.hasCitytax) || false,
+    hasVat: config.ebarimtConfig?.hasVat || false,
+    hasCitytax: config.ebarimtConfig?.hasCitytax || false,
   };
 };
 
@@ -87,7 +86,7 @@ export const getStatus = (config, buttonType, doc, order?) => {
     return ORDER_STATUSES.PENDING;
   }
 
-  if (!(config && config.kitchenScreen && config.kitchenScreen.isActive)) {
+  if (!config?.kitchenScreen?.isActive) {
     return ORDER_STATUSES.COMPLETE;
   }
 
@@ -122,7 +121,7 @@ export const getStatus = (config, buttonType, doc, order?) => {
     return ORDER_STATUSES.COMPLETE;
   }
 
-  if (type === 'paid' && (!order || !order.paidDate)) {
+  if (type === 'paid' && !order?.paidDate) {
     return ORDER_STATUSES.PENDING;
   }
 
@@ -468,8 +467,7 @@ async function tryMergeQrMenuIntoExistingSlotOrder(
       duplicatedItem.byDevice = {
         ...(duplicatedItem.byDevice || {}),
         [doc.deviceId || '']:
-          ((duplicatedItem.byDevice || {})[doc.deviceId || ''] || 0) +
-          newItem.count,
+          (duplicatedItem.byDevice?.[doc.deviceId || ''] ?? 0) + newItem.count,
       };
     } else {
       items.push({
@@ -1157,10 +1155,7 @@ const orderMutations: Record<string, Resolver> = {
           (order.customerType || 'customer') === 'customer'
             ? order.customerId
             : '',
-        userId:
-          (config.adminIds && config.adminIds.length && config.adminIds[0]) ||
-          (config.cashierIds && config.cashierIds[0]) ||
-          '',
+        userId: config.adminIds?.[0] || config.cashierIds?.[0] || '',
         content: `
           Pos order:
             paid link:
@@ -1300,7 +1295,7 @@ const orderMutations: Record<string, Resolver> = {
 
     let order = await models.Orders.getOrder(_id);
 
-    if (order.returnInfo && order.returnInfo.returnAt) {
+    if (order.returnInfo?.returnAt) {
       throw new Error('Order is already returned');
     }
 

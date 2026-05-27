@@ -8,11 +8,19 @@ interface CreateCategoryResponse {
   };
 }
 
+export interface ICategoryTranslationInput {
+  language: string;
+  name?: string;
+}
+
 export interface ICreateCategoryVariables {
   name?: string;
   code?: string;
   parentId?: string;
+  branchId?: string;
   attachment?: IAttachment;
+  language?: string;
+  translations?: ICategoryTranslationInput[];
 }
 
 export const useCreateCategory = () => {

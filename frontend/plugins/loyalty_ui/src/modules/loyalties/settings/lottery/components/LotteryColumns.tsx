@@ -37,9 +37,7 @@ const SafeRelativeDate = ({ value }: { value?: string }) => {
   }
 };
 
-export const lotteryColumns: (
-  editStatus: (options: any) => void,
-) => ColumnDef<ILottery>[] = (editStatus) => [
+export const lotteryColumns: ColumnDef<ILottery>[] = [
   lotteryMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ILottery>,
 
@@ -47,7 +45,7 @@ export const lotteryColumns: (
     id: 'title',
     accessorKey: 'title',
     header: () => <RecordTable.InlineHead icon={IconTag} label="Title" />,
-    cell: ({ cell }: { cell: any }) => {
+    cell: ({ cell }) => {
       return (
         <LotteryNameCell
           lottery={cell.row.original}
@@ -63,7 +61,7 @@ export const lotteryColumns: (
     header: () => (
       <RecordTable.InlineHead icon={IconCalendar} label="Start Date" />
     ),
-    cell: ({ cell }: { cell: any }) => {
+    cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
           <SafeRelativeDate value={cell.getValue() as string} />
@@ -78,7 +76,7 @@ export const lotteryColumns: (
     header: () => (
       <RecordTable.InlineHead icon={IconCalendarEvent} label="End Date" />
     ),
-    cell: ({ cell }: { cell: any }) => {
+    cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
           <SafeRelativeDate value={cell.getValue() as string} />

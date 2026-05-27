@@ -83,8 +83,9 @@ export const PipelinePermissionsList = memo(() => {
         departmentOnly: pipeline.isCheckDepartment || false,
         allowAllUsers: true,
         selectedUsers: pipeline.excludeCheckUserIds || [],
-        visibility: ((pipeline.visibility && pipeline.visibility.trim()) ||
-          'public') as 'public' | 'private',
+        visibility: (pipeline.visibility?.trim() || 'public') as
+          | 'public'
+          | 'private',
         memberIds: pipeline.memberIds || [],
       };
 

@@ -27,8 +27,12 @@ export interface IPipelineModel extends Model<IPipelineDocument> {
   ): Promise<IPipelineDocument>;
   updateOrder(orders: IOrderInput[]): Promise<IPipelineDocument[]>;
   watchPipeline(_id: string, isAdd: boolean, userId: string): void;
-  removePipeline(_id: string, checked?: boolean, userId?: string): object;
-  archivePipeline(_id: string, userId?: string): object;
+  removePipeline(
+    _id: string,
+    checked?: boolean,
+    userId?: string,
+  ): Promise<object>;
+  archivePipeline(_id: string, userId?: string): Promise<object>;
 }
 
 export const loadPipelineClass = (

@@ -129,7 +129,7 @@ const posMutations = {
       });
     }
 
-    if (bulkOps && bulkOps.length) {
+    if (bulkOps?.length) {
       await models.PosSlots.bulkWrite(bulkOps);
     }
 

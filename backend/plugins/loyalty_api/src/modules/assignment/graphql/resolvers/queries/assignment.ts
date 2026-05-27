@@ -20,6 +20,14 @@ const generateFilter = (params: IAssignmentParams) => {
     filter.status = params.status;
   }
 
+  if (params.ownerId) {
+    filter.ownerId = params.ownerId;
+  }
+
+  if (params.ownerType) {
+    filter.ownerType = params.ownerType;
+  }
+
   return filter;
 };
 
@@ -65,9 +73,8 @@ export const assignmentQueries = {
       filter._id = { $in: _ids };
     }
 
-    const assignmentCampaigns = await models.AssignmentCampaigns.find(
-      filter,
-    ).lean();
+    const assignmentCampaigns =
+      await models.AssignmentCampaigns.find(filter).lean();
 
     const assignments = await models.Assignments.find({
       ownerId: customerId,

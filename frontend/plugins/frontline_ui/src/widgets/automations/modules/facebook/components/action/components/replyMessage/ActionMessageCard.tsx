@@ -1,11 +1,10 @@
 import { IconChevronDown, IconLink } from '@tabler/icons-react';
 import { Button, Collapsible, readImage } from 'erxes-ui';
-import { Link } from 'react-router';
 import { useState } from 'react';
+import { Link } from 'react-router';
+import { TAutomationAction, useAutomationOptionalConnect } from 'ui-modules';
 import { REPLY_MESSAGE_ACTION_BUTTONS } from '../../constants/ReplyMessage';
-import { TAutomationAction } from 'ui-modules';
 import { TMessageActionForm } from '../../states/replyMessageActionForm';
-import { useAutomationOptionalConnect } from 'ui-modules';
 
 interface MessageButton {
   _id: string;

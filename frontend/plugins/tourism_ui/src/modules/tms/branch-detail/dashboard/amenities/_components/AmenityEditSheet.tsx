@@ -1,7 +1,7 @@
 import { IconEdit } from '@tabler/icons-react';
 import { Button, Form, Sheet, useToast } from 'erxes-ui';
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState, useEffect, useMemo } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import {
@@ -12,9 +12,18 @@ import {
 import { AmenityNameField, AmenityIconField } from './AmenityFormFields';
 import { useEditAmenity } from '../hooks/useEditAmenity';
 import { IAmenity } from '../types/amenity';
+import { useAmenityLanguage } from '../hooks/useAmenityLanguage';
+import { TourFieldLanguageSwitch } from '@/tms/branch-detail/dashboard/_components/TourFieldLanguageSwitch';
+import {
+  buildTranslationsFromAmenity,
+  resolveMainLanguageName,
+  sanitizeAmenityTranslations,
+} from '../utils/translationHelpers';
 
 interface AmenityEditSheetProps {
   amenity: IAmenity;
+  branchLanguages?: string[];
+  mainLanguage?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   showTrigger?: boolean;
@@ -23,6 +32,8 @@ interface AmenityEditSheetProps {
 
 export const AmenityEditSheet = ({
   amenity,
+  branchLanguages,
+  mainLanguage,
   open,
   onOpenChange,
   showTrigger = true,
@@ -44,30 +55,84 @@ export const AmenityEditSheet = ({
   const { editAmenity, loading } = useEditAmenity();
   const { toast } = useToast();
 
+  // Compute translation languages early so defaultValues has correct translations
+  const allLanguages = useMemo(() => {
+    const base =
+      branchLanguages && branchLanguages.length > 0
+        ? branchLanguages
+        : mainLanguage
+          ? [mainLanguage]
+          : [];
+    if (mainLanguage && !base.includes(mainLanguage)) {
+      return [mainLanguage, ...base];
+    }
+    return base;
+  }, [branchLanguages, mainLanguage]);
+
+  const primaryLanguage = mainLanguage ?? allLanguages[0] ?? '';
+
+  const translationLanguages = useMemo(
+    () => allLanguages.filter((l) => l !== primaryLanguage),
+    [allLanguages, primaryLanguage],
+  );
+
   const form = useForm<AmenityCreateFormType>({
     resolver: zodResolver(AmenityCreateFormSchema),
     defaultValues: {
-      name: amenity.name || '',
+      name: resolveMainLanguageName(amenity, mainLanguage),
       icon: amenity.icon || '',
+      translations: buildTranslationsFromAmenity(amenity, translationLanguages),
     },
   });
 
+  useFieldArray({
+    control: form.control,
+    name: 'translations',
+  });
+
+  const { selectedLang, setSelectedLang, isMainLang, labelSuffix, fieldPaths } =
+    useAmenityLanguage({ branchLanguages, mainLanguage });
+
   useEffect(() => {
     form.reset({
-      name: amenity.name || '',
+      name: resolveMainLanguageName(amenity, mainLanguage),
       icon: amenity.icon || '',
+      translations: buildTranslationsFromAmenity(amenity, translationLanguages),
     });
-  }, [amenity, form]);
+    const resolvedPrimary = mainLanguage || allLanguages[0] || '';
+    setSelectedLang((prev) =>
+      allLanguages.includes(prev) ? prev : resolvedPrimary,
+    );
+  }, [
+    amenity,
+    translationLanguages,
+    mainLanguage,
+    allLanguages,
+    form,
+    setSelectedLang,
+  ]);
 
   const handleSubmit = async (values: AmenityCreateFormType) => {
+    // values.name is always the main-language value because:
+    //  - Form was initialized with the resolved main-language name
+    //  - fieldPaths routes main-lang edits to `name`, others to translations[]
+    const mainName = isMainLang
+      ? values.name
+      : values.name ||
+        values.translations?.find((t) => t.language === mainLanguage)?.name ||
+        amenity.name ||
+        '';
+
     try {
       await editAmenity({
         variables: {
           id: amenity._id,
-          name: values.name,
+          name: mainName,
           ...(values.icon &&
             values.icon.trim() !== '' && { icon: values.icon }),
           quick: true,
+          language: mainLanguage,
+          translations: sanitizeAmenityTranslations(values.translations),
         },
       });
 
@@ -106,13 +171,26 @@ export const AmenityEditSheet = ({
           >
             <Sheet.Header>
               <Sheet.Title>Edit amenity</Sheet.Title>
-              <Sheet.Close />
+              {allLanguages.length > 1 && (
+                <div className="flex items-center gap-2 ml-auto">
+                  <TourFieldLanguageSwitch
+                    availableLanguages={allLanguages}
+                    value={selectedLang}
+                    onValueChange={setSelectedLang}
+                  />
+                </div>
+              )}
             </Sheet.Header>
 
-            <Sheet.Content className="overflow-y-auto flex-1 px-6 py-4 rounded-none">
-              <div className="flex flex-col gap-6">
+            <Sheet.Content className="flex-1 px-6 py-4 overflow-y-auto rounded-none">
+              <div key={selectedLang} className="flex flex-col gap-6">
                 <div className="space-y-4">
-                  <AmenityNameField control={form.control} />
+                  <AmenityNameField
+                    key={fieldPaths.name}
+                    control={form.control}
+                    name={fieldPaths.name}
+                    labelSuffix={labelSuffix}
+                  />
                   <AmenityIconField control={form.control} />
                 </div>
               </div>
@@ -127,7 +205,6 @@ export const AmenityEditSheet = ({
               >
                 Cancel
               </Button>
-
               <Button type="submit" disabled={loading}>
                 {loading ? 'Updating...' : 'Update'}
               </Button>

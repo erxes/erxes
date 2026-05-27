@@ -1,6 +1,6 @@
 import { generateModels } from '../../../../connectionResolver';
 import { validateAgainstSchema } from './bodyValidator';
-import { validateSecurity } from './utils';
+import { resolveWebhookTargetId, validateSecurity } from './utils';
 import { executeActions } from '../../../executeActions';
 import { getActionsMap } from '../../../../utils/utils';
 import {
@@ -135,6 +135,11 @@ export const incomingWebhookHandler = async (req: Request, res: Response) => {
       'conditionConfig.endpoint': endpoint,
     });
 
+    const targetId = resolveWebhookTargetId(req, {
+      automationId: automation._id,
+      triggerId: trigger.id,
+    });
+
     // Create execution with security context
     const execution = await models.Executions.create({
       automationId: automation._id,
@@ -144,6 +149,7 @@ export const incomingWebhookHandler = async (req: Request, res: Response) => {
         ...trigger.config,
         security: undefined, // Remove secret from logs
       },
+      targetId,
       target: {
         // Webhook data
         body: req.body,
@@ -164,6 +170,7 @@ export const incomingWebhookHandler = async (req: Request, res: Response) => {
         },
 
         // Identifiers
+        targetId,
         webhookId: id,
         automationId: automation._id,
         triggerId: trigger.id,

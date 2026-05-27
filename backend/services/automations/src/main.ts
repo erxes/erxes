@@ -1,14 +1,15 @@
+import * as trpcExpress from '@trpc/server/adapters/express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import {
+  applyTrustProxy,
   closeMongooose,
   createHealthRoute,
+  createTRPCContext,
   isDev,
   keyForConfig,
   redis,
 } from 'erxes-api-shared/utils';
-import { createTRPCContext } from 'erxes-api-shared/utils';
-import * as trpcExpress from '@trpc/server/adapters/express';
 import express from 'express';
 import * as http from 'http';
 import { initMQWorkers } from './bullmq/initMQWorkers';
@@ -29,6 +30,7 @@ const port = PORT ? Number(PORT) : 3302;
 const serviceName = 'automations-service';
 
 const app = express();
+applyTrustProxy(app);
 
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ limit: '15mb', extended: true }));

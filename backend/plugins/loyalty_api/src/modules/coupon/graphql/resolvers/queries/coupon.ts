@@ -34,6 +34,10 @@ export const couponQueries = {
       };
     }
 
+    if (params.sortField && !params.orderBy) {
+      params.orderBy = { [params.sortField]: params.sortDirection ?? -1 };
+    }
+
     return await cursorPaginate({
       model: models.Coupons,
       params,

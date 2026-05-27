@@ -75,7 +75,7 @@ export const loadDealClass = (
       const searchText = fillSearchTextItem(doc, prevDeal);
 
       if (doc.productsData) {
-        doc.productsData = doc.productsData.filter((pd) => pd && pd.productId);
+        doc.productsData = doc.productsData.filter((pd) => pd.productId);
         const totals = await getTotalAmounts(doc.productsData);
         Object.assign(doc, totals);
       }

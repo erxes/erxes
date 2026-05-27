@@ -25,6 +25,7 @@ interface ElementsQueryVariables {
   orderBy?: Record<string, number>;
   cursorMode?: string;
   sortMode?: string;
+  language?: string;
 }
 
 export const useElements = (
@@ -45,6 +46,7 @@ export const useElements = (
 
   const variables: ElementsQueryVariables = {
     orderBy: { createdAt: -1 },
+    quick: false,
     ...(options?.variables || {}),
     cursor,
     limit: ELEMENTS_PER_PAGE,
@@ -54,6 +56,7 @@ export const useElements = (
     ...options,
     skip: options?.skip,
     variables,
+    fetchPolicy: 'cache-and-network',
   });
 
   const {

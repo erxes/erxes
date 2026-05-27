@@ -103,7 +103,7 @@ export const useConversations = (
         const newMessage =
           subscriptionData.data.conversationClientMessageInserted;
         const index = prev.conversations.list.findIndex(
-          (conversation) => conversation._id === newMessage._id,
+          (conversation) => conversation._id === newMessage?._id,
         );
         const list = [...prev.conversations.list];
         if (index === -1) {

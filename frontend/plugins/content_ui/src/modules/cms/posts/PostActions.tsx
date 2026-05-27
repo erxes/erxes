@@ -1,8 +1,7 @@
-import { useNavigate, useParams } from 'react-router-dom';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { Popover, Combobox, Command } from 'erxes-ui';
-import { RecordTable } from 'erxes-ui';
+import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
+import { useNavigate, useParams } from 'react-router-dom';
 
 type PostActionsProps = {
   post: any;

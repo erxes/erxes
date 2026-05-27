@@ -1,19 +1,18 @@
+import { useGetTeamMembers } from '@/team/hooks/useGetTeamMembers';
+import { TTeamMemberForm } from '@/team/types';
 import { Combobox, Command, Form, Popover } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
+import React, { useState } from 'react';
+import { UseFormReturn } from 'react-hook-form';
+import { useParams } from 'react-router';
 import {
   currentUserState,
   IUser,
   SelectMember,
-  useUsers,
   useSelectMemberContext,
+  useUsers,
 } from 'ui-modules';
-import { UseFormReturn } from 'react-hook-form';
-import { TTeamMemberForm } from '@/team/types';
-import { useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { useAtomValue } from 'jotai';
-import { useGetTeamMembers } from '@/team/hooks/useGetTeamMembers';
-import { useParams } from 'react-router';
-import React from 'react';
 
 export const MemberForm = ({
   form,

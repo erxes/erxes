@@ -125,7 +125,7 @@ export const AccountForm = ({
             <Form.Item>
               <Form.Label>Kind</Form.Label>
               <Form.Control>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <Select.Trigger>
                     <Select.Value placeholder="Select kind" />
                   </Select.Trigger>
@@ -150,7 +150,7 @@ export const AccountForm = ({
             <Form.Item>
               <Form.Label>Journal</Form.Label>
               <Form.Control>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <Select.Trigger>
                     <Select.Value placeholder="Select journal" />
                   </Select.Trigger>
@@ -244,7 +244,7 @@ export const AccountForm = ({
               <Form.Item>
                 <Form.Label>Status</Form.Label>
                 <Form.Control>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <Select.Trigger>
                       <Select.Value placeholder="Select status" />
                     </Select.Trigger>

@@ -1,6 +1,6 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
-import { getUserActionsMap, USER_ROLES } from 'erxes-api-shared/core-modules';
+import { USER_ROLES } from 'erxes-api-shared/core-modules';
 
 export default {
   __resolveReference: async ({ _id }, { models }: IContext) => {

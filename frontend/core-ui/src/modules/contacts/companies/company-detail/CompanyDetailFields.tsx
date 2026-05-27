@@ -10,7 +10,7 @@ import { Button, Combobox, Form, Label, Switch, useToast } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { TagsSelect, useCompaniesEdit } from 'ui-modules';
+import { Can, TagsSelect, useCompaniesEdit } from 'ui-modules';
 
 export const CompanyDetailFields = () => {
   const { companyDetail } = useCompanyDetailWithQuery();
@@ -104,7 +104,9 @@ export const CompanyDetailFields = () => {
           </DataListItem>
 
           <div className="flex justify-end">
-            <Button type="submit">{t('save', 'Save')}</Button>
+            <Can action="contactsUpdate">
+              <Button type="submit">{t('save', 'Save')}</Button>
+            </Can>
           </div>
         </form>
       </Form>

@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import {
   ISettlePaymentParams,
   getStatus,

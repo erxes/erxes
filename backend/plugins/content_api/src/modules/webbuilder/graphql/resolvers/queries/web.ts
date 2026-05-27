@@ -26,8 +26,8 @@ export const webQueries: Record<string, Resolver> = {
   async cpGetDomains(_root, { _id }: { _id: string }, { models }: IContext) {
     const web = await models.Web.findOne({ _id });
     if (!web) throw new Error('Web not found');
-    if (!web.projectId) throw new Error('No project found for this web');
-    return getDomains(web.projectId);
+    if (!web.vercelProjectId) throw new Error('No project found for this web');
+    return getDomains(web.vercelProjectId);
   },
 
   async cpGetDeploymentEvents(
@@ -140,6 +140,10 @@ export const webQueries: Record<string, Resolver> = {
       errorReason,
     };
   },
+
+  async cpGetWebActivityLogs(_root, { webId }, { models }: IContext) {
+    return models.WebActivityLogs.getLogsForWeb(webId);
+  },
 };
 
 webQueries.cpGetWebDetail.wrapperConfig = {
@@ -151,5 +155,8 @@ webQueries.cpGetDomains.wrapperConfig = {
 };
 
 webQueries.cpGetDeploymentEvents.wrapperConfig = {
+  forClientPortal: true,
+};
+webQueries.cpGetWebActivityLogs.wrapperConfig = {
   forClientPortal: true,
 };

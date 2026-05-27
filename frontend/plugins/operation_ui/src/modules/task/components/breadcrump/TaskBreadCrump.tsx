@@ -1,7 +1,6 @@
-import { Breadcrumb, Button, ToggleGroup } from 'erxes-ui';
 import { IconCheckbox } from '@tabler/icons-react';
-import { Link, useLocation } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
+import { Breadcrumb, Button, ToggleGroup } from 'erxes-ui';
+import { Link, useLocation, useParams } from 'react-router-dom';
 
 export const TaskBreadCrump = ({ link }: { link: string }) => {
   const { pathname } = useLocation();

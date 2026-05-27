@@ -1,16 +1,28 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Button, Label, Form } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
-
-import PerConditions from './PerConditions';
-import { PlaceConditionUI } from '../types';
-
-import { SelectSalesBoard } from '../../ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
+import { useMutation, useQuery } from '@apollo/client';
+import { Button, Label } from 'erxes-ui';
+import { useCallback, useEffect, useState } from 'react';
 import { SelectPipeline } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectPipeline';
+import { SelectSalesBoard } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
 import { SelectStage } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectStage';
+import {
+  MN_CONFIGS_CREATE,
+  MN_CONFIGS_REMOVE,
+  MN_CONFIGS_UPDATE,
+} from '../graphql/clientMutations';
+import { MN_CONFIGS } from '../graphql/clientQueries';
+import { PlaceConditionUI } from '../types';
+import {
+  keyValueArrayToObject,
+  objectToKeyValueArray,
+} from '../utils/transformers';
+import PerConditions from './PerConditions';
+import ConfigHeader from './shared/ConfigHeader';
+import SavedConfigsList from './shared/SavedConfigsList';
 
-interface PlaceConfigData {
+// ---------- Types ----------
+export interface PlaceConfigData {
   _id?: string;
+  subId?: string;
   title: string;
   boardId: string;
   pipelineId: string;
@@ -19,10 +31,19 @@ interface PlaceConfigData {
   conditions: PlaceConditionUI[];
 }
 
-interface PlaceConfigProps {
-  config: PlaceConfigData | null;
-  save: (data: PlaceConfigData) => Promise<boolean>;
-  loading?: boolean;
+interface MnConfigValueItem {
+  key: string;
+  value: any;
+}
+
+interface MnConfig {
+  _id: string;
+  subId?: string;
+  value: MnConfigValueItem[];
+}
+
+interface MnConfigsQueryResponse {
+  mnConfigs: MnConfig[];
 }
 
 const emptyForm: PlaceConfigData = {
@@ -34,48 +55,67 @@ const emptyForm: PlaceConfigData = {
   conditions: [],
 };
 
-const PlaceConfig: React.FC<PlaceConfigProps> = ({
-  config,
-  save,
-  loading = false,
-}) => {
-  const form = useForm();
-
-  /** UI-only saved configs */
+const PlaceConfig: React.FC = () => {
   const [savedConfigs, setSavedConfigs] = useState<PlaceConfigData[]>([]);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-
   const [formData, setFormData] = useState<PlaceConfigData>(emptyForm);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  /* sync form */
+  const { data, loading: queryLoading } = useQuery<MnConfigsQueryResponse>(
+    MN_CONFIGS,
+    {
+      variables: { code: 'dealsProductsDataPlaces' },
+      fetchPolicy: 'network-only',
+    },
+  );
+
+  const [createConfig] = useMutation(MN_CONFIGS_CREATE);
+  const [updateConfig] = useMutation(MN_CONFIGS_UPDATE);
+  const [deleteConfig] = useMutation(MN_CONFIGS_REMOVE);
+
   useEffect(() => {
-    if (activeIndex !== null) {
-      setFormData(savedConfigs[activeIndex] ?? emptyForm);
-      return;
+    if (data?.mnConfigs) {
+      const transformed = data.mnConfigs.map((cfg) => ({
+        _id: cfg._id,
+        subId: cfg.subId,
+        ...keyValueArrayToObject<PlaceConfigData>(cfg.value),
+      }));
+      setSavedConfigs(transformed);
     }
+  }, [data]);
 
-    if (!config) {
+  useEffect(() => {
+    if (activeIndex === null) {
       setFormData(emptyForm);
-      return;
+    } else {
+      setFormData(savedConfigs[activeIndex] ?? emptyForm);
     }
+  }, [activeIndex, savedConfigs]);
 
-    setFormData({
-      title: config.title ?? '',
-      boardId: config.boardId ?? '',
-      pipelineId: config.pipelineId ?? '',
-      stageId: config.stageId ?? '',
-      checkPricing: Boolean(config.checkPricing),
-      conditions: config.conditions ?? [],
-    });
-  }, [config, activeIndex, savedConfigs]);
-
-  /* helpers */
   const updateField = useCallback(
     <K extends keyof PlaceConfigData>(key: K, value: PlaceConfigData[K]) => {
       setFormData((prev) => ({ ...prev, [key]: value }));
     },
     [],
   );
+
+  const handleBoardChange = (boardId: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      boardId,
+      pipelineId: '',
+      stageId: '',
+    }));
+  };
+
+  const handlePipelineChange = (pipelineId: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      pipelineId,
+      stageId: '',
+    }));
+  };
 
   const addCondition = () => {
     setFormData((prev) => ({
@@ -94,9 +134,7 @@ const PlaceConfig: React.FC<PlaceConfigProps> = ({
   const updateCondition = (id: string, updated: PlaceConditionUI) => {
     setFormData((prev) => ({
       ...prev,
-      conditions: prev.conditions.map((c) =>
-        c.id === id ? updated : c,
-      ),
+      conditions: prev.conditions.map((c) => (c.id === id ? updated : c)),
     }));
   };
 
@@ -107,26 +145,40 @@ const PlaceConfig: React.FC<PlaceConfigProps> = ({
     }));
   };
 
-  /* actions */
   const handleSave = async () => {
-    const ok = await save(formData);
-    if (!ok) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const { _id, ...rest } = formData;
+      const valueArray = objectToKeyValueArray(rest);
 
-    setSavedConfigs((prev) => {
-      if (activeIndex === null) return [...prev, formData];
-      const next = [...prev];
-      next[activeIndex] = formData;
-      return next;
-    });
+      if (_id) {
+        await updateConfig({ variables: { _id, value: valueArray } });
+      } else {
+        await createConfig({
+          variables: {
+            code: 'dealsProductsDataPlaces',
+            subId: rest.stageId,
+            value: valueArray,
+          },
+        });
+      }
 
-    setActiveIndex(null);
+      setActiveIndex(null);
+      setFormData(emptyForm);
+    } catch {
+      setError('Save failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeleteUI = () => {
+  const handleDelete = async () => {
     if (activeIndex === null) return;
-    if (!window.confirm('Remove this config from list?')) return;
+    const config = savedConfigs[activeIndex];
+    if (!config._id) return;
 
-    setSavedConfigs((prev) => prev.filter((_, i) => i !== activeIndex));
+    await deleteConfig({ variables: { _id: config._id } });
     setActiveIndex(null);
     setFormData(emptyForm);
   };
@@ -136,92 +188,67 @@ const PlaceConfig: React.FC<PlaceConfigProps> = ({
     setFormData(emptyForm);
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (queryLoading && savedConfigs.length === 0) return <div>Loading...</div>;
 
   return (
-    <Form {...form}>
-      <div className="space-y-6">
-        {/* HEADER */}
-        <div className="flex justify-between items-center">
-          <h1 className="text-lg font-semibold">Product Places Config</h1>
-          <Button variant="outline" onClick={handleNewConfig}>
-            + New Config
-          </Button>
-        </div>
+    <div className="w-full flex justify-center overflow-y-auto">
+      <div className="w-full max-w-5xl px-6 py-6 space-y-8">
+        {/* ✅ REPLACED HEADER */}
+        <ConfigHeader
+          title="Product Places Config"
+          onNew={handleNewConfig}
+          disabled={loading}
+        />
 
-        {/* SAVED LIST */}
-        {savedConfigs.length > 0 && (
-          <div className="border rounded p-3 space-y-2">
-            <h3 className="font-medium">Saved configs</h3>
-
-            {savedConfigs.map((cfg, i) => (
-              <div
-                key={i}
-                className={`cursor-pointer p-2 rounded border
-                  ${i === activeIndex ? 'bg-primary/10' : 'hover:bg-muted'}`}
-                onClick={() => setActiveIndex(i)}
-              >
-                <div className="font-medium">{cfg.title || '(Untitled)'}</div>
-                <div className="text-xs text-gray-500">
-                  Stage: {cfg.stageId || '—'}
-                </div>
-              </div>
-            ))}
+        {/* Error */}
+        {error && (
+          <div className="bg-red-50 border text-red-700 px-4 py-3 rounded">
+            {error}
           </div>
         )}
 
+        {/* ✅ REPLACED SAVED LIST */}
+        <SavedConfigsList
+          configs={savedConfigs}
+          activeIndex={activeIndex}
+          onSelect={setActiveIndex}
+        />
+
         {/* FORM */}
-        <div className="border rounded p-6 space-y-6">
-          <div>
-            <Label>Title</Label>
-            <input
-              className="w-full border rounded p-2"
-              value={formData.title}
-              onChange={(e) => updateField('title', e.target.value)}
-            />
-          </div>
+        <div className="border rounded-xl p-6 bg-white space-y-6">
+          <Label className="text-sm font-medium">Title</Label>
+          <input
+            className="w-full border rounded px-3 py-2"
+            value={formData.title}
+            onChange={(e) => updateField('title', e.target.value)}
+          />
 
           <div className="grid grid-cols-3 gap-4">
             <SelectSalesBoard
               variant="form"
               value={formData.boardId}
-              onValueChange={(boardId) =>
-                setFormData((p) => ({
-                  ...p,
-                  boardId,
-                  pipelineId: '',
-                  stageId: '',
-                }))
-              }
+              onValueChange={handleBoardChange}
             />
-
             <SelectPipeline
               variant="form"
               boardId={formData.boardId}
               value={formData.pipelineId}
-              disabled={!formData.boardId}
-              onValueChange={(pipelineId) =>
-                setFormData((p) => ({
-                  ...p,
-                  pipelineId,
-                  stageId: '',
-                }))
-              }
+              onValueChange={handlePipelineChange}
             />
-
             <SelectStage
               id="place-stage"
               variant="form"
               pipelineId={formData.pipelineId}
               value={formData.stageId}
-              disabled={!formData.pipelineId}
-              onValueChange={(stageId) => updateField('stageId', stageId)}
+              onValueChange={(v) => updateField('stageId', v)}
             />
           </div>
         </div>
 
         {/* CONDITIONS */}
-        <div className="space-y-4">
+        <div className="border rounded-xl p-6 bg-white space-y-4">
+          <Button onClick={addCondition}>+ Add condition</Button>
+
           {formData.conditions.map((c) => (
             <PerConditions
               key={c.id}
@@ -230,24 +257,19 @@ const PlaceConfig: React.FC<PlaceConfigProps> = ({
               onRemove={deleteCondition}
             />
           ))}
-
-          <Button variant="outline" onClick={addCondition}>
-            + Add condition
-          </Button>
         </div>
 
         {/* ACTIONS */}
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-3">
           {activeIndex !== null && (
-            <Button variant="destructive" onClick={handleDeleteUI}>
-              Delete Config
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
             </Button>
           )}
-
-          <Button onClick={handleSave}>Save Config</Button>
+          <Button onClick={handleSave}>{loading ? 'Saving...' : 'Save'}</Button>
         </div>
       </div>
-    </Form>
+    </div>
   );
 };
 

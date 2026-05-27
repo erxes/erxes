@@ -1,12 +1,9 @@
-import { Cell } from '@tanstack/react-table';
-import { RecordTable } from 'erxes-ui';
-import { Popover, Command, Combobox } from 'erxes-ui';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { IChannel } from '@/channels/types';
-import { useNavigate } from 'react-router-dom';
 import { useChannelRemove } from '@/channels/hooks/useChannelRemove';
-import { useConfirm } from 'erxes-ui';
-import { Spinner } from 'erxes-ui';
+import { IChannel } from '@/channels/types';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { Cell } from '@tanstack/react-table';
+import { Combobox, Command, Popover, RecordTable, Spinner, useConfirm } from 'erxes-ui';
+import { useNavigate } from 'react-router-dom';
 
 export const ChannelsMoreColumnCell = ({
   cell,

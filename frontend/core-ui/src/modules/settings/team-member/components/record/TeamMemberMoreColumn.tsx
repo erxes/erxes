@@ -1,10 +1,5 @@
-import { Cell } from '@tanstack/react-table';
-import { useSetAtom } from 'jotai';
-import { useSearchParams } from 'react-router-dom';
-import { RecordTable, Spinner, toast, useQueryState } from 'erxes-ui';
-import { IUser } from '@/settings/team-member/types';
 import { renderingTeamMemberResetPasswordAtom } from '@/settings/team-member/states/teamMemberDetailStates';
-import { Popover, Command, Combobox } from 'erxes-ui';
+import { IUser } from '@/settings/team-member/types';
 import {
   IconEdit,
   IconLock,
@@ -13,9 +8,14 @@ import {
   IconToggleLeft,
   IconToggleRight,
 } from '@tabler/icons-react';
+import { Cell } from '@tanstack/react-table';
+import { Combobox, Command, Popover, RecordTable, Spinner, toast, useQueryState } from 'erxes-ui';
+import { useSetAtom } from 'jotai';
+import { useSearchParams } from 'react-router-dom';
+import { Can } from 'ui-modules';
 import { useResendInvite } from '../../hooks/useResendInvite';
 import { useUsersStatusEdit } from '../../hooks/useUserEdit';
-import { Can } from 'ui-modules';
+
 export const TeamMemberMoreColumnCell = ({
   cell,
 }: {
