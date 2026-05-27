@@ -84,6 +84,7 @@ export const useSafeRemainders = (options?: OperationVariables) => {
       fetchMore({
         variables: {
           ...filterVariables,
+          ...options?.variables,
           perPage: ACC_TRS__PER_PAGE,
           page: Math.ceil(remainders?.length / ACC_TRS__PER_PAGE) + 1,
         },

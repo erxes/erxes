@@ -5,7 +5,7 @@ import { safeRemainderColumns } from './SafeRemainderColumns';
 
 const SafeRemainderInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
   const rowKeys = useMemo(
-    () => Array.from({ length: rows }, () => crypto.randomUUID()),
+    () => Array.from({ length: rows }, (_, i) => `skeleton-row-${i}`),
     [rows],
   );
   return (

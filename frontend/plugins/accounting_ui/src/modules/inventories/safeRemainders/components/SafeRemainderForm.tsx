@@ -8,7 +8,6 @@ import {
   Form,
   Spinner,
   Textarea,
-  useQueryState,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -19,7 +18,6 @@ import { SelectBranches, SelectCategory, SelectDepartments } from 'ui-modules';
 
 export const AddSafeRemainder = () => {
   const [open, setOpen] = useState(false);
-  const [id] = useQueryState<string>('id');
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
@@ -29,7 +27,7 @@ export const AddSafeRemainder = () => {
         </Button>
       </Dialog.Trigger>
       <AccountingDialog
-        title={`${id ? 'Edit' : 'Create'} Adjust Inventory`}
+        title="Create Adjust Inventory"
         description="Adjust inventory for a specific branch, department, and category"
       >
         <AddSafeRemainderForm setOpen={setOpen} />
@@ -50,7 +48,6 @@ const AddSafeRemainderForm = ({
     },
   });
   const { addSafeRemainder, loading } = useSafeRemainderAdd();
-  const [id] = useQueryState<string>('id');
   const onSubmit = (data: TSafeRemainderForm) => {
     addSafeRemainder({
       variables: { ...data },
