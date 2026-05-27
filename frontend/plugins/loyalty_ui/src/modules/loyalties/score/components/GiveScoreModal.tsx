@@ -57,18 +57,22 @@ export const GiveScoreModal = ({
   const onSubmit = async (values: GiveScoreFormValues) => {
     if (!values.ownerId) return;
 
-    const result = await changeScore({
-      ownerType: values.ownerType,
-      ownerId: values.ownerId,
-      campaignId: values.campaignId || undefined,
-      action: values.action || 'add',
-      change: Number(values.change),
-      description: values.description || 'manual',
-      targetId: values.targetId || undefined,
-      serviceName: values.serviceName || undefined,
-    });
+    try {
+      const result = await changeScore({
+        ownerType: values.ownerType,
+        ownerId: values.ownerId,
+        campaignId: values.campaignId || undefined,
+        action: values.action || 'add',
+        change: Number(values.change),
+        description: values.description || 'manual',
+        targetId: values.targetId || undefined,
+        serviceName: values.serviceName || undefined,
+      });
 
-    if (result?.errors?.length) return;
+      if (result?.errors?.length) return;
+    } catch {
+      return;
+    }
 
     setOpen(false);
     setTargetType(null);
