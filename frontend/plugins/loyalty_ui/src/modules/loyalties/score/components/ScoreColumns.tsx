@@ -1,41 +1,28 @@
 import {
-  IconUser,
-  IconStar,
-  IconLabelFilled,
+  IconCalendar,
+  IconChartBar,
+  IconCoins,
+  IconCurrencyDollar,
   IconHash,
+  IconLabelFilled,
+  IconNote,
+  IconRefresh,
+  IconShoppingCart,
+  IconStar,
+  IconTag,
+  IconTrophy,
+  IconUser,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
+  Badge,
   fixNum,
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
-  useQueryState,
 } from 'erxes-ui';
-import { IScoreLog, IScoreLogItem, IScoreOwner } from '../types/score';
+import { IScoreLog, IScoreOwner } from '../types/score';
 import { makeScoreMoreColumn } from './ScoreMoreColumn';
-
-const ClickableScoreNumber = ({ item }: { item: IScoreLogItem }) => {
-  const [, setNumber] = useQueryState<string>('scoreNumber');
-  const number = item.target?.number;
-
-  if (!number) return <RecordTableInlineCell />;
-
-  return (
-    <RecordTableInlineCell>
-      <button
-        type="button"
-        className="cursor-pointer text-primary hover:underline bg-transparent border-0 p-0 text-left w-full"
-        onClick={(e) => {
-          e.stopPropagation();
-          setNumber(number);
-        }}
-      >
-        <TextOverflowTooltip value={number} />
-      </button>
-    </RecordTableInlineCell>
-  );
-};
 
 const getOwnerName = (owner?: IScoreOwner, ownerType?: string): string => {
   if (!owner) return '';
@@ -59,89 +46,27 @@ const getOwnerName = (owner?: IScoreOwner, ownerType?: string): string => {
   );
 };
 
-const getOwnerEmail = (owner?: IScoreOwner, ownerType?: string): string => {
-  if (!owner) return '';
-  if (ownerType === 'user') return owner.email || '';
-  return owner.primaryEmail || '';
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('en-CA');
 };
 
-const getOwnerPhone = (owner?: IScoreOwner, ownerType?: string): string => {
-  if (!owner) return '';
-  if (ownerType === 'user') return owner.phone || '';
-  return owner.primaryPhone || '';
-};
+const formatScore = (value?: number) => fixNum(value, 4).toLocaleString();
 
-const OwnerNameCell = ({
-  row,
-  onEdit,
-}: {
-  row: { original: IScoreLog };
-  onEdit?: (record: IScoreLog) => void;
-}) => {
-  const { owner, ownerType } = row.original;
-  const name = getOwnerName(owner, ownerType);
-
-  if (!name) return <RecordTableInlineCell>{name}</RecordTableInlineCell>;
-
-  return (
-    <RecordTableInlineCell>
-      <button
-        type="button"
-        className="cursor-pointer bg-transparent border-0 p-0 text-inherit text-left w-full"
-        onClick={(e) => {
-          e.stopPropagation();
-          onEdit?.(row.original);
-        }}
-      >
-        {name}
-      </button>
-    </RecordTableInlineCell>
-  );
-};
-
-export const makeScoreColumns = (
-  onEdit?: (record: IScoreLog) => void,
-): ColumnDef<IScoreLog>[] => [
-  makeScoreMoreColumn(onEdit) as ColumnDef<IScoreLog>,
-  {
-    id: 'number',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="Number" />,
-    size: 140,
-    cell: ({ row }) => {
-      const logs = row.original.logs || [];
-      const first = logs.find((l) => l.target?.number);
-      return (
-        <ClickableScoreNumber
-          item={first || logs[0] || ({} as IScoreLogItem)}
-        />
-      );
-    },
-  },
+export const makeScoreColumns = (): ColumnDef<IScoreLog>[] => [
+  makeScoreMoreColumn() as ColumnDef<IScoreLog>,
   {
     id: 'ownerName',
     header: () => <RecordTable.InlineHead icon={IconUser} label="Owner Name" />,
     size: 180,
-    cell: ({ row }) => <OwnerNameCell row={row} onEdit={onEdit} />,
-  },
-  {
-    id: 'email',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Email" />,
-    size: 200,
-    cell: ({ row }) => (
-      <RecordTableInlineCell className="text-xs text-muted-foreground">
-        {getOwnerEmail(row.original.owner, row.original.ownerType)}
-      </RecordTableInlineCell>
-    ),
-  },
-  {
-    id: 'phone',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Phone" />,
-    size: 150,
-    cell: ({ row }) => (
-      <RecordTableInlineCell className="text-xs text-muted-foreground">
-        {getOwnerPhone(row.original.owner, row.original.ownerType)}
-      </RecordTableInlineCell>
-    ),
+    cell: ({ row }) => {
+      const name = getOwnerName(row.original.owner, row.original.ownerType);
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={name} />
+        </RecordTableInlineCell>
+      );
+    },
   },
   {
     id: 'ownerType',
@@ -162,10 +87,178 @@ export const makeScoreColumns = (
     header: () => (
       <RecordTable.InlineHead icon={IconStar} label="Total Score" />
     ),
-    size: 120,
+    size: 140,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="font-semibold">
         {fixNum(cell.getValue() as number)}
+      </RecordTableInlineCell>
+    ),
+  },
+  {
+    id: 'createdAt',
+    accessorKey: 'createdAt',
+    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
+    size: 120,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={formatDate(cell.getValue() as string)} />
+      </RecordTableInlineCell>
+    ),
+  },
+  {
+    id: '_id',
+    accessorKey: '_id',
+    header: () => (
+      <RecordTable.InlineHead icon={IconHash} label="Transaction ID" />
+    ),
+    size: 200,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
+      </RecordTableInlineCell>
+    ),
+  },
+  {
+    id: 'action',
+    accessorKey: 'action',
+    header: () => <RecordTable.InlineHead icon={IconTag} label="Type" />,
+    size: 90,
+    cell: ({ cell }) => {
+      const action = cell.getValue() as string | undefined;
+      if (!action)
+        return (
+          <RecordTableInlineCell>
+            <span className="text-muted-foreground"></span>
+          </RecordTableInlineCell>
+        );
+      let variant = 'secondary';
+      if (action === 'add') variant = 'success';
+      else if (action === 'subtract') variant = 'destructive';
+      else if (action === 'set') variant = 'outline';
+      return (
+        <RecordTableInlineCell>
+          <Badge variant={variant as any}>{action}</Badge>
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'amount',
+    accessorKey: 'amount',
+    header: () => (
+      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Amount" />
+    ),
+    size: 100,
+    cell: ({ cell }) => {
+      const val = cell.getValue() as number | undefined;
+      return (
+        <RecordTableInlineCell className="text-right">
+          <TextOverflowTooltip
+            value={val == null ? '' : val.toLocaleString()}
+          />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'quantity',
+    accessorKey: 'quantity',
+    header: () => (
+      <RecordTable.InlineHead icon={IconShoppingCart} label="Quantity" />
+    ),
+    size: 100,
+    cell: ({ cell }) => {
+      const val = cell.getValue() as number | undefined;
+      return (
+        <RecordTableInlineCell className="text-right">
+          <TextOverflowTooltip value={val == null ? '' : String(val)} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'pointsEarned',
+    accessorFn: (row) => (row.action === 'add' ? row.change : undefined),
+    header: () => (
+      <RecordTable.InlineHead icon={IconCoins} label="Points Earned" />
+    ),
+    size: 130,
+    cell: ({ cell }) => {
+      const val = cell.getValue() as number | undefined;
+      return (
+        <RecordTableInlineCell className="text-right font-semibold text-green-600">
+          <TextOverflowTooltip value={formatScore(val)} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'pointsSpent',
+    accessorFn: (row) => (row.action === 'subtract' ? row.change : undefined),
+    header: () => (
+      <RecordTable.InlineHead icon={IconChartBar} label="Points Spent" />
+    ),
+    size: 130,
+    cell: ({ cell }) => {
+      const val = cell.getValue() as number | undefined;
+      return (
+        <RecordTableInlineCell className="text-right font-semibold text-red-500">
+          <TextOverflowTooltip value={formatScore(val)} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'pointsRefunded',
+    accessorFn: (row) => (row.action === 'refund' ? row.change : undefined),
+    header: () => (
+      <RecordTable.InlineHead icon={IconRefresh} label="Points Refunded" />
+    ),
+    size: 150,
+    cell: ({ cell }) => {
+      const val = cell.getValue() as number | undefined;
+      return (
+        <RecordTableInlineCell className="text-right font-semibold text-blue-500">
+          <TextOverflowTooltip value={formatScore(val)} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'pointsSet',
+    accessorFn: (row) => (row.action === 'set' ? row.change : undefined),
+    header: () => <RecordTable.InlineHead icon={IconCoins} label="Score Set" />,
+    size: 120,
+    cell: ({ cell }) => {
+      const val = cell.getValue() as number | undefined;
+      return (
+        <RecordTableInlineCell className="text-right font-semibold text-violet-600">
+          <TextOverflowTooltip value={formatScore(val)} />
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'campaign',
+    accessorFn: (row) => row.campaign?.title,
+    header: () => <RecordTable.InlineHead icon={IconTrophy} label="Campaign" />,
+    size: 140,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={cell.getValue() as string} />
+      </RecordTableInlineCell>
+    ),
+  },
+  {
+    id: 'description',
+    accessorKey: 'description',
+    header: () => (
+      <RecordTable.InlineHead icon={IconNote} label="Description" />
+    ),
+    size: 160,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
       </RecordTableInlineCell>
     ),
   },

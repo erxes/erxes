@@ -18,17 +18,11 @@ export interface IScoreOwner {
 }
 
 export interface IScoreLog {
+  _id: string;
   ownerId: string;
   ownerType: string;
   owner?: IScoreOwner;
   totalScore?: number;
-  logs?: IScoreLogItem[];
-}
-
-export interface IScoreLogItem {
-  _id: string;
-  ownerId: string;
-  ownerType: string;
   change?: number;
   action?: string;
   description?: string;
@@ -37,7 +31,10 @@ export interface IScoreLogItem {
   targetId?: string;
   target?: { _id?: string; number?: string };
   serviceName?: string;
+  createdBy?: string;
   createdAt?: string;
   amount?: number;
   quantity?: number;
 }
+
+export type IScoreLogItem = IScoreLog;
