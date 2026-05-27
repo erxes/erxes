@@ -105,7 +105,7 @@ export const orderToTrs = async ({
   }
 
   if (config.hasCtax && config.ctaxRowId) {
-    const ctaxRow = await models.VatRows.getVatRow({ _id: config.ctaxRowId });
+    const ctaxRow = await models.CtaxRows.getCtaxRow({ _id: config.ctaxRowId });
     taxPercent += fixNum(ctaxRow?.percent ?? 0);
     saleTrDoc.hasCtax = config.hasCtax;
     saleTrDoc.ctaxRowId = config.ctaxRowId;
