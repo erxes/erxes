@@ -1,16 +1,30 @@
 import { useEffect } from 'react';
-import { PageSubHeader } from 'erxes-ui';
+import { Button, PageSubHeader } from 'erxes-ui';
+import { Link } from 'react-router';
+import { IconSettings } from '@tabler/icons-react';
 import { useLoyaltyHeaderAction } from '~/modules/loyalties/components/LoyaltyHeaderActionContext';
 import { ScoreFilter } from '../../modules/loyalties/score/components/ScoreFilter';
 import { ScoreRecordTable } from '../../modules/loyalties/score/components/ScoreRecordTable';
 import { GiveScoreModal } from '../../modules/loyalties/score/components/GiveScoreModal';
-import { ScoreSummaryWidget } from '../../modules/loyalties/score/components/ScoreSummaryWidget';
+import { ScoreSummaryPanel } from '../../modules/loyalties/score/components/ScoreSummaryWidget';
+
+const ScoreHeaderActions = () => (
+  <div className="flex items-center gap-2">
+    <Button variant="outline" size="sm" asChild>
+      <Link to="/settings/loyalty/config/score">
+        <IconSettings className="size-4" />
+        Go to settings
+      </Link>
+    </Button>
+    <GiveScoreModal />
+  </div>
+);
 
 export const ScorePage = () => {
   const { setAction } = useLoyaltyHeaderAction();
 
   useEffect(() => {
-    setAction(<GiveScoreModal />);
+    setAction(<ScoreHeaderActions />);
     return () => setAction(null);
   }, [setAction]);
 
@@ -22,7 +36,7 @@ export const ScorePage = () => {
         </PageSubHeader>
         <ScoreRecordTable />
       </div>
-      <ScoreSummaryWidget />
+      <ScoreSummaryPanel />
     </div>
   );
 };

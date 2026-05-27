@@ -6,12 +6,7 @@ import { useMutation } from '@apollo/client';
 import { CHANGE_SCORE_MUTATION } from '../graphql/mutations';
 import { SelectOwnerTypeFormItem } from './selects/SelectOwnerType';
 import { SelectScoreCampaignFormItem } from './selects/SelectScoreCampaign';
-import { SelectScoreCustomerFormItem } from './selects/SelectCustomer';
-import {
-  SelectCompanyFormItem,
-  SelectUserFormItem,
-  SelectClientPortalUserFormItem,
-} from './selects/SelectOwnerById';
+import { SelectOwnerByType } from './selects/SelectOwnerByType';
 import { ChooseDealSheet } from './ChooseDealSheet';
 
 type TargetType = 'sales' | 'pos' | null;
@@ -139,81 +134,22 @@ export const GiveScoreModal = ({
                 )}
               />
 
-              {ownerType === 'customer' && (
-                <Form.Field
-                  control={form.control}
-                  name="ownerId"
-                  rules={{ required: 'Owner is required' }}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Owner *</Form.Label>
-                      <SelectScoreCustomerFormItem
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        placeholder="Choose customer"
-                      />
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              )}
-
-              {ownerType === 'company' && (
-                <Form.Field
-                  control={form.control}
-                  name="ownerId"
-                  rules={{ required: 'Owner is required' }}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Owner *</Form.Label>
-                      <SelectCompanyFormItem
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        placeholder="Choose company"
-                      />
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              )}
-
-              {ownerType === 'user' && (
-                <Form.Field
-                  control={form.control}
-                  name="ownerId"
-                  rules={{ required: 'Owner is required' }}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Owner *</Form.Label>
-                      <SelectUserFormItem
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        placeholder="Choose team member"
-                      />
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              )}
-
-              {ownerType === 'cpUser' && (
-                <Form.Field
-                  control={form.control}
-                  name="ownerId"
-                  rules={{ required: 'Owner is required' }}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Owner *</Form.Label>
-                      <SelectClientPortalUserFormItem
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        placeholder="Choose client portal user"
-                      />
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              )}
+              <Form.Field
+                control={form.control}
+                name="ownerId"
+                rules={{ required: 'Owner is required' }}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Owner *</Form.Label>
+                    <SelectOwnerByType
+                      ownerType={ownerType}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
 
               {ownerId && (
                 <div className="flex flex-col gap-2 w-full">

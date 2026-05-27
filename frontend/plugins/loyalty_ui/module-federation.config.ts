@@ -20,6 +20,7 @@ const config: ModuleFederationConfig = {
     './loyaltySettings': './src/LoyaltySettings.tsx',
     './loyaltySettingsNavigation': './src/LoyaltySettingsNavigation.tsx',
     './widgets': './src/widgets/Widgets.tsx',
+    './relationWidget': './src/widgets/Widgets.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {
