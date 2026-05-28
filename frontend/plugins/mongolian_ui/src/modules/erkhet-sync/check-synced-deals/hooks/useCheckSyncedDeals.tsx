@@ -86,7 +86,7 @@ export const useCheckSyncedDealsVariables = (
       createdAt: -1,
     },
     cursor,
-    number: String(number) || undefined,
+    number: String(number ?? '') || undefined,
     search: dealSearch || undefined,
     startDate: parseDateRangeFromString(dateRange)?.from,
     endDate: parseDateRangeFromString(dateRange)?.to,
