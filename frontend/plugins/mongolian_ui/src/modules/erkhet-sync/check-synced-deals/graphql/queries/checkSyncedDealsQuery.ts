@@ -4,6 +4,7 @@ export const checkSyncedDealsQuery = gql`
   query Deals(
     $limit: Int
     $userIds: [String]
+    $boardIds: [String]
     $pipelineId: String
     $stageId: String
     $stageChangedStartDate: Date
@@ -18,6 +19,7 @@ export const checkSyncedDealsQuery = gql`
     deals(
       limit: $limit
       userIds: $userIds
+      boardIds: $boardIds
       pipelineId: $pipelineId
       stageId: $stageId
       stageChangedStartDate: $stageChangedStartDate
