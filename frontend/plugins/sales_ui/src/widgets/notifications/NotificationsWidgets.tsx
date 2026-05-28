@@ -33,10 +33,22 @@ const SalesDealNotificationContent = ({
   contentTypeId,
   fromUser,
 }: TNotification) => {
-  const { data, loading } = useQuery<{ dealDetail: IDeal }>(GET_DEAL_DETAIL, {
-    variables: { _id: contentTypeId || '' },
-    skip: !contentTypeId,
-  });
+  const { data, loading, error } = useQuery<{ dealDetail: IDeal }>(
+    GET_DEAL_DETAIL,
+    {
+      variables: { _id: contentTypeId || '' },
+      skip: !contentTypeId,
+    },
+  );
+
+  if (error) {
+    return (
+      <NotificationContentUnavailable
+        title="Failed to load deal"
+        description={error.message}
+      />
+    );
+  }
 
   if (!contentTypeId) {
     return (
