@@ -48,9 +48,10 @@ Thumbs.db
 .nx
 .env
 
-# Agent skills and configuration
-.agents
-.claude
+# AI tool grounding — .agents/ is the canonical shared system (tracked).
+# .claude/ contents are mostly local (gitignored) EXCEPT slash commands which are shared.
+.claude/*
+!.claude/commands/
 
 storybook-static
 backend/plugins/payment_api/src/public/widget/
@@ -60,3 +61,5 @@ dump.rdb
 
 # Local runtime upload artifacts
 backend/core-api/src/utils/private/uploads/
+.antigravitycli/
+.agents/test-results

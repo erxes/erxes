@@ -1,0 +1,1129 @@
+{
+  "generatedAt": "2026-05-26T15:21:58.489Z",
+  "totalSkills": 80,
+  "skills": [
+    {
+      "path": "skills/fix-issue.md",
+      "plugin": "system-wide",
+      "entity": "plugin",
+      "action": "fix",
+      "triggers": [
+        "--fix",
+        "fix",
+        "bug",
+        "error",
+        "issue",
+        "broken",
+        "fail",
+        "crash",
+        "repair",
+        "patch",
+        "regression",
+        "doesn't work",
+        "not working",
+        "wrong"
+      ],
+      "description": "8-phase gated bug-fix workflow (REPORT → TRIAGE → BUG-SPEC → BUG-GROUND → PLAN → FIX → VERIFY → REVIEW) for resolving bugs in any monorepo plugin. Produces BUG-SPEC.md and BUG-GROUND.md artifacts, enforces regression-test-first commit order, and requires lessons.md entry for every fix."
+    },
+    {
+      "path": "skills/create-plugin.md",
+      "plugin": "system-wide",
+      "entity": "plugin",
+      "action": "create",
+      "triggers": [
+        "--plugin",
+        "fresh plugin",
+        "new plugin",
+        "create plugin",
+        "bootstrap plugin"
+      ],
+      "description": "the wish bootstraps a completely fresh microservice plugin dynamically inside the erxes monorepo following all non-negotiable codestyle and verification rules."
+    },
+    {
+      "path": "skills/build-plugin-settings.md",
+      "plugin": "system-wide",
+      "entity": "plugin",
+      "action": "build-settings",
+      "triggers": [
+        "settings empty",
+        "wire buttons",
+        "build settings",
+        "dead button",
+        "stub settings",
+        "Add button does nothing",
+        "settings page empty",
+        "wire CRUD",
+        "populate settings",
+        "post-scaffold settings"
+      ],
+      "description": "Post-scaffold skill. Wires CRUD buttons (Add/Edit/Delete) to existing GraphQL mutations, builds the form component, populates the Settings page with real content. Uses Supervisor Model with Backend + Frontend specialist sub-agents running in parallel."
+    },
+    {
+      "path": "skills/sales/add-deal-field.md",
+      "plugin": "sales",
+      "entity": "deal",
+      "action": "field",
+      "triggers": [
+        "add field",
+        "new column",
+        "db property",
+        "enum",
+        "mongoose schema",
+        "scalar"
+      ],
+      "description": "the wish adds a new field on `Deal` that the user can read and edit — e.g., a `dealColor` enum, a `riskScore` number, a `customerLifetimeValue` JSON."
+    },
+    {
+      "path": "skills/sales/add-sales-automation.md",
+      "plugin": "sales",
+      "entity": "deal",
+      "action": "automation",
+      "triggers": [
+        "trigger action",
+        "webhook",
+        "event broker",
+        "message broker",
+        "automation rules"
+      ],
+      "description": "the wish adds a new automation **trigger** (a sales event other workflows can react to) or a new automation **action** (a step a workflow can execute on sales data) — e.g., \"trigger when a Deal hits Won stage,\" \"action: append a checklist when a Deal moves stage.\""
+    },
+    {
+      "path": "skills/sales/add-sales-graphql-query.md",
+      "plugin": "sales",
+      "entity": "deal",
+      "action": "graphql-query",
+      "triggers": [
+        "graphql query",
+        "fetch list",
+        "get detail",
+        "total count",
+        "read endpoint"
+      ],
+      "description": "the wish needs a new GraphQL **read** on a sales entity that the existing `deals`/`dealDetail`/`pipelines`/`stages` queries can't serve — e.g., `dealsByPriority`, `dealsClosingThisWeek`, `pipelineHealthSummary`."
+    },
+    {
+      "path": "skills/sales/add-sales-mutation.md",
+      "plugin": "sales",
+      "entity": "deal",
+      "action": "mutation",
+      "triggers": [
+        "graphql mutation",
+        "create record",
+        "update record",
+        "delete record",
+        "remove item"
+      ],
+      "description": "the wish needs a new GraphQL **write** on a sales entity that the existing `dealsAdd` / `dealsEdit` / `dealsChange` / `dealsArchive` / `dealsRemove` set doesn't cover — e.g., `dealsBulkArchive(_ids)`, `dealsAssignBatch(_ids, userId)`, `dealsConvertToTemplate(_id)`."
+    },
+    {
+      "path": "skills/sales/add-sales-segment-field.md",
+      "plugin": "sales",
+      "entity": "deal",
+      "action": "segment-field",
+      "triggers": [
+        "segment filter",
+        "elastic filter",
+        "search criteria",
+        "segment builder"
+      ],
+      "description": "the wish makes an existing Deal field filterable in the segment builder — e.g., \"I want to build a segment of deals where `priority` is `high`,\" or \"let me filter by `closeDate < today`.\" The field must already exist (or be added first via [`./add-deal-field.md`](./add-deal-field.md))."
+    },
+    {
+      "path": "skills/sales/add-sales-trpc-procedure.md",
+      "plugin": "sales",
+      "entity": "deal",
+      "action": "trpc-procedure",
+      "triggers": [
+        "trpc route",
+        "internal api",
+        "cross-plugin rpc",
+        "router procedure"
+      ],
+      "description": "the wish exposes sales data/behavior to **another plugin** via type-safe RPC — e.g., `sales.deal.dealsForCustomer(customerId)` so frontline can show \"open deals\" inside a conversation card, or `sales.pos.activeTerminals()` so operation can list POS-affected branches. NOT for UI-only data flow (that's GraphQL) and NOT for fire-and-forget events (that's Redis pubsub — see [`../../rules/20-architecture-boundaries.md`](../../rules/20-architecture-boundaries.md))."
+    },
+    {
+      "path": "skills/sales/add-sales-ui-page.md",
+      "plugin": "sales",
+      "entity": "deal",
+      "action": "ui-page",
+      "triggers": [
+        "ui view",
+        "react page",
+        "form component",
+        "module federation expose",
+        "screen view"
+      ],
+      "description": "the wish adds a new navigable page inside `sales_ui` — e.g., `/sales/dashboard`, `/sales/analytics`, `/sales/closed-deals`. Not for tweaking an existing page (`/sales/deals`) and not for a widget injected into someone else's surface."
+    },
+    {
+      "path": "skills/frontline/add-frontline-automation.md",
+      "plugin": "frontline",
+      "entity": "ticket",
+      "action": "automation",
+      "triggers": [
+        "trigger action",
+        "webhook",
+        "event broker",
+        "message broker",
+        "automation rules"
+      ],
+      "description": "the wish adds a new automation **trigger** (a frontline event other workflows can react to) or a new automation **action** (a step a workflow can execute on frontline data) — e.g., \"trigger when a Ticket hits Won stage,\" \"action: append a checklist when a Ticket moves stage.\""
+    },
+    {
+      "path": "skills/frontline/add-frontline-graphql-query.md",
+      "plugin": "frontline",
+      "entity": "ticket",
+      "action": "graphql-query",
+      "triggers": [
+        "graphql query",
+        "fetch list",
+        "get detail",
+        "total count",
+        "read endpoint"
+      ],
+      "description": "the wish needs a new GraphQL **read** on a frontline entity that the existing `tickets`/`ticketDetail`/`pipelines`/`stages` queries can't serve — e.g., `ticketsByPriority`, `ticketsClosingThisWeek`, `pipelineHealthSummary`."
+    },
+    {
+      "path": "skills/frontline/add-frontline-mutation.md",
+      "plugin": "frontline",
+      "entity": "ticket",
+      "action": "mutation",
+      "triggers": [
+        "graphql mutation",
+        "create record",
+        "update record",
+        "delete record",
+        "remove item"
+      ],
+      "description": "the wish needs a new GraphQL **write** on a frontline entity that the existing `ticketsAdd` / `ticketsEdit` / `ticketsChange` / `ticketsArchive` / `ticketsRemove` set doesn't cover — e.g., `ticketsBulkArchive(_ids)`, `ticketsAssignBatch(_ids, userId)`, `ticketsConvertToTemplate(_id)`."
+    },
+    {
+      "path": "skills/frontline/add-frontline-segment-field.md",
+      "plugin": "frontline",
+      "entity": "ticket",
+      "action": "segment-field",
+      "triggers": [
+        "segment filter",
+        "elastic filter",
+        "search criteria",
+        "segment builder"
+      ],
+      "description": "the wish makes an existing Ticket field filterable in the segment builder — e.g., \"I want to build a segment of tickets where `priority` is `high`,\" or \"let me filter by `closeDate < today`.\" The field must already exist (or be added first via [`./add-ticket-field.md`](./add-ticket-field.md))."
+    },
+    {
+      "path": "skills/frontline/add-frontline-trpc-procedure.md",
+      "plugin": "frontline",
+      "entity": "ticket",
+      "action": "trpc-procedure",
+      "triggers": [
+        "trpc route",
+        "internal api",
+        "cross-plugin rpc",
+        "router procedure"
+      ],
+      "description": "the wish exposes frontline data/behavior to **another plugin** via type-safe RPC — e.g., `frontline.ticket.ticketsForCustomer(customerId)` so frontline can show \"open tickets\" inside a conversation card, or `frontline.pos.activeTerminals()` so operation can list POS-affected branches. NOT for UI-only data flow (that's GraphQL) and NOT for fire-and-forget events (that's Redis pubsub — see [`../../rules/20-architecture-boundaries.md`](../../rules/20-architecture-boundaries.md))."
+    },
+    {
+      "path": "skills/frontline/add-frontline-ui-page.md",
+      "plugin": "frontline",
+      "entity": "ticket",
+      "action": "ui-page",
+      "triggers": [
+        "ui view",
+        "react page",
+        "form component",
+        "module federation expose",
+        "screen view"
+      ],
+      "description": "the wish adds a new navigable page inside `frontline_ui` — e.g., `/frontline/dashboard`, `/frontline/analytics`, `/frontline/closed-tickets`. Not for tweaking an existing page (`/frontline/tickets`) and not for a widget injected into someone else's surface."
+    },
+    {
+      "path": "skills/frontline/add-ticket-field.md",
+      "plugin": "frontline",
+      "entity": "ticket",
+      "action": "field",
+      "triggers": [
+        "add field",
+        "new column",
+        "db property",
+        "enum",
+        "mongoose schema",
+        "scalar"
+      ],
+      "description": "the wish adds a new field on `Ticket` that the user can read and edit — e.g., a `ticketColor` enum, a `riskScore` number, a `customerLifetimeValue` JSON."
+    },
+    {
+      "path": "skills/operation/add-operation-automation.md",
+      "plugin": "operation",
+      "entity": "task",
+      "action": "automation",
+      "triggers": [
+        "trigger action",
+        "webhook",
+        "event broker",
+        "message broker",
+        "automation rules"
+      ],
+      "description": "the wish adds a new automation **trigger** (a operation event other workflows can react to) or a new automation **action** (a step a workflow can execute on operation data) — e.g., \"trigger when a Task hits Won stage,\" \"action: append a checklist when a Task moves stage.\""
+    },
+    {
+      "path": "skills/operation/add-operation-graphql-query.md",
+      "plugin": "operation",
+      "entity": "task",
+      "action": "graphql-query",
+      "triggers": [
+        "graphql query",
+        "fetch list",
+        "get detail",
+        "total count",
+        "read endpoint"
+      ],
+      "description": "the wish needs a new GraphQL **read** on a operation entity that the existing `tasks`/`taskDetail`/`pipelines`/`stages` queries can't serve — e.g., `tasksByPriority`, `tasksClosingThisWeek`, `pipelineHealthSummary`."
+    },
+    {
+      "path": "skills/operation/add-operation-mutation.md",
+      "plugin": "operation",
+      "entity": "task",
+      "action": "mutation",
+      "triggers": [
+        "graphql mutation",
+        "create record",
+        "update record",
+        "delete record",
+        "remove item"
+      ],
+      "description": "the wish needs a new GraphQL **write** on a operation entity that the existing `tasksAdd` / `tasksEdit` / `tasksChange` / `tasksArchive` / `tasksRemove` set doesn't cover — e.g., `tasksBulkArchive(_ids)`, `tasksAssignBatch(_ids, userId)`, `tasksConvertToTemplate(_id)`."
+    },
+    {
+      "path": "skills/operation/add-operation-segment-field.md",
+      "plugin": "operation",
+      "entity": "task",
+      "action": "segment-field",
+      "triggers": [
+        "segment filter",
+        "elastic filter",
+        "search criteria",
+        "segment builder"
+      ],
+      "description": "the wish makes an existing Task field filterable in the segment builder — e.g., \"I want to build a segment of tasks where `priority` is `high`,\" or \"let me filter by `closeDate < today`.\" The field must already exist (or be added first via [`./add-task-field.md`](./add-task-field.md))."
+    },
+    {
+      "path": "skills/operation/add-operation-trpc-procedure.md",
+      "plugin": "operation",
+      "entity": "task",
+      "action": "trpc-procedure",
+      "triggers": [
+        "trpc route",
+        "internal api",
+        "cross-plugin rpc",
+        "router procedure"
+      ],
+      "description": "the wish exposes operation data/behavior to **another plugin** via type-safe RPC — e.g., `operation.task.tasksForCustomer(customerId)` so frontline can show \"open tasks\" inside a conversation card, or `operation.pos.activeTerminals()` so operation can list POS-affected branches. NOT for UI-only data flow (that's GraphQL) and NOT for fire-and-forget events (that's Redis pubsub — see [`../../rules/20-architecture-boundaries.md`](../../rules/20-architecture-boundaries.md))."
+    },
+    {
+      "path": "skills/operation/add-operation-ui-page.md",
+      "plugin": "operation",
+      "entity": "task",
+      "action": "ui-page",
+      "triggers": [
+        "ui view",
+        "react page",
+        "form component",
+        "module federation expose",
+        "screen view"
+      ],
+      "description": "the wish adds a new navigable page inside `operation_ui` — e.g., `/operation/dashboard`, `/operation/analytics`, `/operation/closed-tasks`. Not for tweaking an existing page (`/operation/tasks`) and not for a widget injected into someone else's surface."
+    },
+    {
+      "path": "skills/operation/add-task-field.md",
+      "plugin": "operation",
+      "entity": "task",
+      "action": "field",
+      "triggers": [
+        "add field",
+        "new column",
+        "db property",
+        "enum",
+        "mongoose schema",
+        "scalar"
+      ],
+      "description": "the wish adds a new field on `Task` that the user can read and edit — e.g., a `taskColor` enum, a `riskScore` number, a `customerLifetimeValue` JSON."
+    },
+    {
+      "path": "skills/payment/add-invoice-field.md",
+      "plugin": "payment",
+      "entity": "invoice",
+      "action": "field",
+      "triggers": [
+        "add field",
+        "new column",
+        "db property",
+        "enum",
+        "mongoose schema",
+        "scalar"
+      ],
+      "description": "the wish adds a new field on `Invoice` that the user can read and edit — e.g., a `invoiceColor` enum, a `riskScore` number, a `customerLifetimeValue` JSON."
+    },
+    {
+      "path": "skills/payment/add-payment-automation.md",
+      "plugin": "payment",
+      "entity": "invoice",
+      "action": "automation",
+      "triggers": [
+        "trigger action",
+        "webhook",
+        "event broker",
+        "message broker",
+        "automation rules"
+      ],
+      "description": "the wish adds a new automation **trigger** (a payment event other workflows can react to) or a new automation **action** (a step a workflow can execute on payment data) — e.g., \"trigger when a Invoice hits Won stage,\" \"action: append a checklist when a Invoice moves stage.\""
+    },
+    {
+      "path": "skills/payment/add-payment-graphql-query.md",
+      "plugin": "payment",
+      "entity": "invoice",
+      "action": "graphql-query",
+      "triggers": [
+        "graphql query",
+        "fetch list",
+        "get detail",
+        "total count",
+        "read endpoint"
+      ],
+      "description": "the wish needs a new GraphQL **read** on a payment entity that the existing `invoices`/`invoiceDetail`/`pipelines`/`stages` queries can't serve — e.g., `invoicesByPriority`, `invoicesClosingThisWeek`, `pipelineHealthSummary`."
+    },
+    {
+      "path": "skills/payment/add-payment-mutation.md",
+      "plugin": "payment",
+      "entity": "invoice",
+      "action": "mutation",
+      "triggers": [
+        "graphql mutation",
+        "create record",
+        "update record",
+        "delete record",
+        "remove item"
+      ],
+      "description": "the wish needs a new GraphQL **write** on a payment entity that the existing `invoicesAdd` / `invoicesEdit` / `invoicesChange` / `invoicesArchive` / `invoicesRemove` set doesn't cover — e.g., `invoicesBulkArchive(_ids)`, `invoicesAssignBatch(_ids, userId)`, `invoicesConvertToTemplate(_id)`."
+    },
+    {
+      "path": "skills/payment/add-payment-segment-field.md",
+      "plugin": "payment",
+      "entity": "invoice",
+      "action": "segment-field",
+      "triggers": [
+        "segment filter",
+        "elastic filter",
+        "search criteria",
+        "segment builder"
+      ],
+      "description": "the wish makes an existing Invoice field filterable in the segment builder — e.g., \"I want to build a segment of invoices where `priority` is `high`,\" or \"let me filter by `closeDate < today`.\" The field must already exist (or be added first via [`./add-invoice-field.md`](./add-invoice-field.md))."
+    },
+    {
+      "path": "skills/payment/add-payment-trpc-procedure.md",
+      "plugin": "payment",
+      "entity": "invoice",
+      "action": "trpc-procedure",
+      "triggers": [
+        "trpc route",
+        "internal api",
+        "cross-plugin rpc",
+        "router procedure"
+      ],
+      "description": "the wish exposes payment data/behavior to **another plugin** via type-safe RPC — e.g., `payment.invoice.invoicesForCustomer(customerId)` so frontline can show \"open invoices\" inside a conversation card, or `payment.pos.activeTerminals()` so operation can list POS-affected branches. NOT for UI-only data flow (that's GraphQL) and NOT for fire-and-forget events (that's Redis pubsub — see [`../../rules/20-architecture-boundaries.md`](../../rules/20-architecture-boundaries.md))."
+    },
+    {
+      "path": "skills/payment/add-payment-ui-page.md",
+      "plugin": "payment",
+      "entity": "invoice",
+      "action": "ui-page",
+      "triggers": [
+        "ui view",
+        "react page",
+        "form component",
+        "module federation expose",
+        "screen view"
+      ],
+      "description": "the wish adds a new navigable page inside `payment_ui` — e.g., `/payment/dashboard`, `/payment/analytics`, `/payment/closed-invoices`. Not for tweaking an existing page (`/payment/invoices`) and not for a widget injected into someone else's surface."
+    },
+    {
+      "path": "skills/accounting/add-account-field.md",
+      "plugin": "accounting",
+      "entity": "account",
+      "action": "field",
+      "triggers": [
+        "add field",
+        "new column",
+        "db property",
+        "enum",
+        "mongoose schema",
+        "scalar"
+      ],
+      "description": "the wish adds a new field on `Account` that the user can read and edit — e.g., a `accountColor` enum, a `riskScore` number, a `customerLifetimeValue` JSON."
+    },
+    {
+      "path": "skills/accounting/add-accounting-automation.md",
+      "plugin": "accounting",
+      "entity": "account",
+      "action": "automation",
+      "triggers": [
+        "trigger action",
+        "webhook",
+        "event broker",
+        "message broker",
+        "automation rules"
+      ],
+      "description": "the wish adds a new automation **trigger** (a accounting event other workflows can react to) or a new automation **action** (a step a workflow can execute on accounting data) — e.g., \"trigger when a Account hits Won stage,\" \"action: append a checklist when a Account moves stage.\""
+    },
+    {
+      "path": "skills/accounting/add-accounting-graphql-query.md",
+      "plugin": "accounting",
+      "entity": "account",
+      "action": "graphql-query",
+      "triggers": [
+        "graphql query",
+        "fetch list",
+        "get detail",
+        "total count",
+        "read endpoint"
+      ],
+      "description": "the wish needs a new GraphQL **read** on a accounting entity that the existing `accounts`/`accountDetail`/`pipelines`/`stages` queries can't serve — e.g., `accountsByPriority`, `accountsClosingThisWeek`, `pipelineHealthSummary`."
+    },
+    {
+      "path": "skills/accounting/add-accounting-mutation.md",
+      "plugin": "accounting",
+      "entity": "account",
+      "action": "mutation",
+      "triggers": [
+        "graphql mutation",
+        "create record",
+        "update record",
+        "delete record",
+        "remove item"
+      ],
+      "description": "the wish needs a new GraphQL **write** on a accounting entity that the existing `accountsAdd` / `accountsEdit` / `accountsChange` / `accountsArchive` / `accountsRemove` set doesn't cover — e.g., `accountsBulkArchive(_ids)`, `accountsAssignBatch(_ids, userId)`, `accountsConvertToTemplate(_id)`."
+    },
+    {
+      "path": "skills/accounting/add-accounting-segment-field.md",
+      "plugin": "accounting",
+      "entity": "account",
+      "action": "segment-field",
+      "triggers": [
+        "segment filter",
+        "elastic filter",
+        "search criteria",
+        "segment builder"
+      ],
+      "description": "the wish makes an existing Account field filterable in the segment builder — e.g., \"I want to build a segment of accounts where `priority` is `high`,\" or \"let me filter by `closeDate < today`.\" The field must already exist (or be added first via [`./add-account-field.md`](./add-account-field.md))."
+    },
+    {
+      "path": "skills/accounting/add-accounting-trpc-procedure.md",
+      "plugin": "accounting",
+      "entity": "account",
+      "action": "trpc-procedure",
+      "triggers": [
+        "trpc route",
+        "internal api",
+        "cross-plugin rpc",
+        "router procedure"
+      ],
+      "description": "the wish exposes accounting data/behavior to **another plugin** via type-safe RPC — e.g., `accounting.account.accountsForCustomer(customerId)` so frontline can show \"open accounts\" inside a conversation card, or `accounting.pos.activeTerminals()` so operation can list POS-affected branches. NOT for UI-only data flow (that's GraphQL) and NOT for fire-and-forget events (that's Redis pubsub — see [`../../rules/20-architecture-boundaries.md`](../../rules/20-architecture-boundaries.md))."
+    },
+    {
+      "path": "skills/accounting/add-accounting-ui-page.md",
+      "plugin": "accounting",
+      "entity": "account",
+      "action": "ui-page",
+      "triggers": [
+        "ui view",
+        "react page",
+        "form component",
+        "module federation expose",
+        "screen view"
+      ],
+      "description": "the wish adds a new navigable page inside `accounting_ui` — e.g., `/accounting/dashboard`, `/accounting/analytics`, `/accounting/closed-accounts`. Not for tweaking an existing page (`/accounting/accounts`) and not for a widget injected into someone else's surface."
+    },
+    {
+      "path": "skills/loyalty/add-loyalty-automation.md",
+      "plugin": "loyalty",
+      "entity": "voucher",
+      "action": "automation",
+      "triggers": [
+        "trigger action",
+        "webhook",
+        "event broker",
+        "message broker",
+        "automation rules"
+      ],
+      "description": "the wish adds a new automation **trigger** (a loyalty event other workflows can react to) or a new automation **action** (a step a workflow can execute on loyalty data) — e.g., \"trigger when a Voucher hits Won stage,\" \"action: append a checklist when a Voucher moves stage.\""
+    },
+    {
+      "path": "skills/loyalty/add-loyalty-graphql-query.md",
+      "plugin": "loyalty",
+      "entity": "voucher",
+      "action": "graphql-query",
+      "triggers": [
+        "graphql query",
+        "fetch list",
+        "get detail",
+        "total count",
+        "read endpoint"
+      ],
+      "description": "the wish needs a new GraphQL **read** on a loyalty entity that the existing `vouchers`/`voucherDetail`/`pipelines`/`stages` queries can't serve — e.g., `vouchersByPriority`, `vouchersClosingThisWeek`, `pipelineHealthSummary`."
+    },
+    {
+      "path": "skills/loyalty/add-loyalty-mutation.md",
+      "plugin": "loyalty",
+      "entity": "voucher",
+      "action": "mutation",
+      "triggers": [
+        "graphql mutation",
+        "create record",
+        "update record",
+        "delete record",
+        "remove item"
+      ],
+      "description": "the wish needs a new GraphQL **write** on a loyalty entity that the existing `vouchersAdd` / `vouchersEdit` / `vouchersChange` / `vouchersArchive` / `vouchersRemove` set doesn't cover — e.g., `vouchersBulkArchive(_ids)`, `vouchersAssignBatch(_ids, userId)`, `vouchersConvertToTemplate(_id)`."
+    },
+    {
+      "path": "skills/loyalty/add-loyalty-segment-field.md",
+      "plugin": "loyalty",
+      "entity": "voucher",
+      "action": "segment-field",
+      "triggers": [
+        "segment filter",
+        "elastic filter",
+        "search criteria",
+        "segment builder"
+      ],
+      "description": "the wish makes an existing Voucher field filterable in the segment builder — e.g., \"I want to build a segment of vouchers where `priority` is `high`,\" or \"let me filter by `closeDate < today`.\" The field must already exist (or be added first via [`./add-voucher-field.md`](./add-voucher-field.md))."
+    },
+    {
+      "path": "skills/loyalty/add-loyalty-trpc-procedure.md",
+      "plugin": "loyalty",
+      "entity": "voucher",
+      "action": "trpc-procedure",
+      "triggers": [
+        "trpc route",
+        "internal api",
+        "cross-plugin rpc",
+        "router procedure"
+      ],
+      "description": "the wish exposes loyalty data/behavior to **another plugin** via type-safe RPC — e.g., `loyalty.voucher.vouchersForCustomer(customerId)` so frontline can show \"open vouchers\" inside a conversation card, or `loyalty.pos.activeTerminals()` so operation can list POS-affected branches. NOT for UI-only data flow (that's GraphQL) and NOT for fire-and-forget events (that's Redis pubsub — see [`../../rules/20-architecture-boundaries.md`](../../rules/20-architecture-boundaries.md))."
+    },
+    {
+      "path": "skills/loyalty/add-loyalty-ui-page.md",
+      "plugin": "loyalty",
+      "entity": "voucher",
+      "action": "ui-page",
+      "triggers": [
+        "ui view",
+        "react page",
+        "form component",
+        "module federation expose",
+        "screen view"
+      ],
+      "description": "the wish adds a new navigable page inside `loyalty_ui` — e.g., `/loyalty/dashboard`, `/loyalty/analytics`, `/loyalty/closed-vouchers`. Not for tweaking an existing page (`/loyalty/vouchers`) and not for a widget injected into someone else's surface."
+    },
+    {
+      "path": "skills/loyalty/add-voucher-field.md",
+      "plugin": "loyalty",
+      "entity": "voucher",
+      "action": "field",
+      "triggers": [
+        "add field",
+        "new column",
+        "db property",
+        "enum",
+        "mongoose schema",
+        "scalar"
+      ],
+      "description": "the wish adds a new field on `Voucher` that the user can read and edit — e.g., a `voucherColor` enum, a `riskScore` number, a `customerLifetimeValue` JSON."
+    },
+    {
+      "path": "skills/posclient/add-order-field.md",
+      "plugin": "posclient",
+      "entity": "order",
+      "action": "field",
+      "triggers": [
+        "add field",
+        "new column",
+        "db property",
+        "enum",
+        "mongoose schema",
+        "scalar"
+      ],
+      "description": "the wish adds a new field on `Order` that the user can read and edit — e.g., a `orderColor` enum, a `riskScore` number, a `customerLifetimeValue` JSON."
+    },
+    {
+      "path": "skills/posclient/add-posclient-automation.md",
+      "plugin": "posclient",
+      "entity": "order",
+      "action": "automation",
+      "triggers": [
+        "trigger action",
+        "webhook",
+        "event broker",
+        "message broker",
+        "automation rules"
+      ],
+      "description": "the wish adds a new automation **trigger** (a posclient event other workflows can react to) or a new automation **action** (a step a workflow can execute on posclient data) — e.g., \"trigger when a Order hits Won stage,\" \"action: append a checklist when a Order moves stage.\""
+    },
+    {
+      "path": "skills/posclient/add-posclient-graphql-query.md",
+      "plugin": "posclient",
+      "entity": "order",
+      "action": "graphql-query",
+      "triggers": [
+        "graphql query",
+        "fetch list",
+        "get detail",
+        "total count",
+        "read endpoint"
+      ],
+      "description": "the wish needs a new GraphQL **read** on a posclient entity that the existing `orders`/`orderDetail`/`pipelines`/`stages` queries can't serve — e.g., `ordersByPriority`, `ordersClosingThisWeek`, `pipelineHealthSummary`."
+    },
+    {
+      "path": "skills/posclient/add-posclient-mutation.md",
+      "plugin": "posclient",
+      "entity": "order",
+      "action": "mutation",
+      "triggers": [
+        "graphql mutation",
+        "create record",
+        "update record",
+        "delete record",
+        "remove item"
+      ],
+      "description": "the wish needs a new GraphQL **write** on a posclient entity that the existing `ordersAdd` / `ordersEdit` / `ordersChange` / `ordersArchive` / `ordersRemove` set doesn't cover — e.g., `ordersBulkArchive(_ids)`, `ordersAssignBatch(_ids, userId)`, `ordersConvertToTemplate(_id)`."
+    },
+    {
+      "path": "skills/posclient/add-posclient-segment-field.md",
+      "plugin": "posclient",
+      "entity": "order",
+      "action": "segment-field",
+      "triggers": [
+        "segment filter",
+        "elastic filter",
+        "search criteria",
+        "segment builder"
+      ],
+      "description": "the wish makes an existing Order field filterable in the segment builder — e.g., \"I want to build a segment of orders where `priority` is `high`,\" or \"let me filter by `closeDate < today`.\" The field must already exist (or be added first via [`./add-order-field.md`](./add-order-field.md))."
+    },
+    {
+      "path": "skills/posclient/add-posclient-trpc-procedure.md",
+      "plugin": "posclient",
+      "entity": "order",
+      "action": "trpc-procedure",
+      "triggers": [
+        "trpc route",
+        "internal api",
+        "cross-plugin rpc",
+        "router procedure"
+      ],
+      "description": "the wish exposes posclient data/behavior to **another plugin** via type-safe RPC — e.g., `posclient.order.ordersForCustomer(customerId)` so frontline can show \"open orders\" inside a conversation card, or `posclient.pos.activeTerminals()` so operation can list POS-affected branches. NOT for UI-only data flow (that's GraphQL) and NOT for fire-and-forget events (that's Redis pubsub — see [`../../rules/20-architecture-boundaries.md`](../../rules/20-architecture-boundaries.md))."
+    },
+    {
+      "path": "skills/posclient/add-posclient-ui-page.md",
+      "plugin": "posclient",
+      "entity": "order",
+      "action": "ui-page",
+      "triggers": [
+        "ui view",
+        "react page",
+        "form component",
+        "module federation expose",
+        "screen view"
+      ],
+      "description": "the wish adds a new navigable page inside `posclient_ui` — e.g., `/posclient/dashboard`, `/posclient/analytics`, `/posclient/closed-orders`. Not for tweaking an existing page (`/posclient/orders`) and not for a widget injected into someone else's surface."
+    },
+    {
+      "path": "skills/content/add-cms-field.md",
+      "plugin": "content",
+      "entity": "cms",
+      "action": "field",
+      "triggers": [
+        "add field",
+        "new column",
+        "db property",
+        "enum",
+        "mongoose schema",
+        "scalar"
+      ],
+      "description": "the wish adds a new field on `Cms` that the user can read and edit — e.g., a `cmsColor` enum, a `riskScore` number, a `customerLifetimeValue` JSON."
+    },
+    {
+      "path": "skills/content/add-content-automation.md",
+      "plugin": "content",
+      "entity": "cms",
+      "action": "automation",
+      "triggers": [
+        "trigger action",
+        "webhook",
+        "event broker",
+        "message broker",
+        "automation rules"
+      ],
+      "description": "the wish adds a new automation **trigger** (a content event other workflows can react to) or a new automation **action** (a step a workflow can execute on content data) — e.g., \"trigger when a Cms hits Won stage,\" \"action: append a checklist when a Cms moves stage.\""
+    },
+    {
+      "path": "skills/content/add-content-graphql-query.md",
+      "plugin": "content",
+      "entity": "cms",
+      "action": "graphql-query",
+      "triggers": [
+        "graphql query",
+        "fetch list",
+        "get detail",
+        "total count",
+        "read endpoint"
+      ],
+      "description": "the wish needs a new GraphQL **read** on a content entity that the existing `cmss`/`cmsDetail`/`pipelines`/`stages` queries can't serve — e.g., `cmssByPriority`, `cmssClosingThisWeek`, `pipelineHealthSummary`."
+    },
+    {
+      "path": "skills/content/add-content-mutation.md",
+      "plugin": "content",
+      "entity": "cms",
+      "action": "mutation",
+      "triggers": [
+        "graphql mutation",
+        "create record",
+        "update record",
+        "delete record",
+        "remove item"
+      ],
+      "description": "the wish needs a new GraphQL **write** on a content entity that the existing `cmsListAdd` / `cmsListEdit` / `cmssChange` / `cmssArchive` / `cmssRemove` set doesn't cover — e.g., `cmssBulkArchive(_ids)`, `cmssAssignBatch(_ids, userId)`, `cmssConvertToTemplate(_id)`."
+    },
+    {
+      "path": "skills/content/add-content-segment-field.md",
+      "plugin": "content",
+      "entity": "cms",
+      "action": "segment-field",
+      "triggers": [
+        "segment filter",
+        "elastic filter",
+        "search criteria",
+        "segment builder"
+      ],
+      "description": "the wish makes an existing Cms field filterable in the segment builder — e.g., \"I want to build a segment of cmss where `priority` is `high`,\" or \"let me filter by `closeDate < today`.\" The field must already exist (or be added first via [`./add-cms-field.md`](./add-cms-field.md))."
+    },
+    {
+      "path": "skills/content/add-content-trpc-procedure.md",
+      "plugin": "content",
+      "entity": "cms",
+      "action": "trpc-procedure",
+      "triggers": [
+        "trpc route",
+        "internal api",
+        "cross-plugin rpc",
+        "router procedure"
+      ],
+      "description": "the wish exposes content data/behavior to **another plugin** via type-safe RPC — e.g., `content.cms.cmssForCustomer(customerId)` so frontline can show \"open cmss\" inside a conversation card, or `content.pos.activeTerminals()` so operation can list POS-affected branches. NOT for UI-only data flow (that's GraphQL) and NOT for fire-and-forget events (that's Redis pubsub — see [`../../rules/20-architecture-boundaries.md`](../../rules/20-architecture-boundaries.md))."
+    },
+    {
+      "path": "skills/content/add-content-ui-page.md",
+      "plugin": "content",
+      "entity": "cms",
+      "action": "ui-page",
+      "triggers": [
+        "ui view",
+        "react page",
+        "form component",
+        "module federation expose",
+        "screen view"
+      ],
+      "description": "the wish adds a new navigable page inside `content_ui` — e.g., `/content/dashboard`, `/content/analytics`, `/content/closed-cmss`. Not for tweaking an existing page (`/content/cmss`) and not for a widget injected into someone else's surface."
+    },
+    {
+      "path": "skills/mongolian/add-ebarimt-field.md",
+      "plugin": "mongolian",
+      "entity": "ebarimt",
+      "action": "field",
+      "triggers": [
+        "add field",
+        "new column",
+        "db property",
+        "enum",
+        "mongoose schema",
+        "scalar"
+      ],
+      "description": "the wish adds a new field on `Ebarimt` that the user can read and edit — e.g., a `ebarimtColor` enum, a `riskScore` number, a `customerLifetimeValue` JSON."
+    },
+    {
+      "path": "skills/mongolian/add-mongolian-automation.md",
+      "plugin": "mongolian",
+      "entity": "ebarimt",
+      "action": "automation",
+      "triggers": [
+        "trigger action",
+        "webhook",
+        "event broker",
+        "message broker",
+        "automation rules"
+      ],
+      "description": "the wish adds a new automation **trigger** (a mongolian event other workflows can react to) or a new automation **action** (a step a workflow can execute on mongolian data) — e.g., \"trigger when a Ebarimt hits Won stage,\" \"action: append a checklist when a Ebarimt moves stage.\""
+    },
+    {
+      "path": "skills/mongolian/add-mongolian-graphql-query.md",
+      "plugin": "mongolian",
+      "entity": "ebarimt",
+      "action": "graphql-query",
+      "triggers": [
+        "graphql query",
+        "fetch list",
+        "get detail",
+        "total count",
+        "read endpoint"
+      ],
+      "description": "the wish needs a new GraphQL **read** on a mongolian entity that the existing `ebarimts`/`ebarimtDetail`/`pipelines`/`stages` queries can't serve — e.g., `ebarimtsByPriority`, `ebarimtsClosingThisWeek`, `pipelineHealthSummary`."
+    },
+    {
+      "path": "skills/mongolian/add-mongolian-mutation.md",
+      "plugin": "mongolian",
+      "entity": "ebarimt",
+      "action": "mutation",
+      "triggers": [
+        "graphql mutation",
+        "create record",
+        "update record",
+        "delete record",
+        "remove item"
+      ],
+      "description": "the wish needs a new GraphQL **write** on a mongolian entity that the existing `ebarimtsAdd` / `ebarimtsEdit` / `ebarimtsChange` / `ebarimtsArchive` / `ebarimtsRemove` set doesn't cover — e.g., `ebarimtsBulkArchive(_ids)`, `ebarimtsAssignBatch(_ids, userId)`, `ebarimtsConvertToTemplate(_id)`."
+    },
+    {
+      "path": "skills/mongolian/add-mongolian-segment-field.md",
+      "plugin": "mongolian",
+      "entity": "ebarimt",
+      "action": "segment-field",
+      "triggers": [
+        "segment filter",
+        "elastic filter",
+        "search criteria",
+        "segment builder"
+      ],
+      "description": "the wish makes an existing Ebarimt field filterable in the segment builder — e.g., \"I want to build a segment of ebarimts where `priority` is `high`,\" or \"let me filter by `closeDate < today`.\" The field must already exist (or be added first via [`./add-ebarimt-field.md`](./add-ebarimt-field.md))."
+    },
+    {
+      "path": "skills/mongolian/add-mongolian-trpc-procedure.md",
+      "plugin": "mongolian",
+      "entity": "ebarimt",
+      "action": "trpc-procedure",
+      "triggers": [
+        "trpc route",
+        "internal api",
+        "cross-plugin rpc",
+        "router procedure"
+      ],
+      "description": "the wish exposes mongolian data/behavior to **another plugin** via type-safe RPC — e.g., `mongolian.ebarimt.ebarimtsForCustomer(customerId)` so frontline can show \"open ebarimts\" inside a conversation card, or `mongolian.pos.activeTerminals()` so operation can list POS-affected branches. NOT for UI-only data flow (that's GraphQL) and NOT for fire-and-forget events (that's Redis pubsub — see [`../../rules/20-architecture-boundaries.md`](../../rules/20-architecture-boundaries.md))."
+    },
+    {
+      "path": "skills/mongolian/add-mongolian-ui-page.md",
+      "plugin": "mongolian",
+      "entity": "ebarimt",
+      "action": "ui-page",
+      "triggers": [
+        "ui view",
+        "react page",
+        "form component",
+        "module federation expose",
+        "screen view"
+      ],
+      "description": "the wish adds a new navigable page inside `mongolian_ui` — e.g., `/mongolian/dashboard`, `/mongolian/analytics`, `/mongolian/closed-ebarimts`. Not for tweaking an existing page (`/mongolian/ebarimts`) and not for a widget injected into someone else's surface."
+    },
+    {
+      "path": "skills/insurance/add-contract-field.md",
+      "plugin": "insurance",
+      "entity": "contract",
+      "action": "field",
+      "triggers": [
+        "add field",
+        "new column",
+        "db property",
+        "enum",
+        "mongoose schema",
+        "scalar"
+      ],
+      "description": "the wish adds a new field on `Contract` that the user can read and edit — e.g., a `contractColor` enum, a `riskScore` number, a `customerLifetimeValue` JSON."
+    },
+    {
+      "path": "skills/insurance/add-insurance-automation.md",
+      "plugin": "insurance",
+      "entity": "contract",
+      "action": "automation",
+      "triggers": [
+        "trigger action",
+        "webhook",
+        "event broker",
+        "message broker",
+        "automation rules"
+      ],
+      "description": "the wish adds a new automation **trigger** (a insurance event other workflows can react to) or a new automation **action** (a step a workflow can execute on insurance data) — e.g., \"trigger when a Contract hits Won stage,\" \"action: append a checklist when a Contract moves stage.\""
+    },
+    {
+      "path": "skills/insurance/add-insurance-graphql-query.md",
+      "plugin": "insurance",
+      "entity": "contract",
+      "action": "graphql-query",
+      "triggers": [
+        "graphql query",
+        "fetch list",
+        "get detail",
+        "total count",
+        "read endpoint"
+      ],
+      "description": "the wish needs a new GraphQL **read** on a insurance entity that the existing `contracts`/`contractDetail`/`pipelines`/`stages` queries can't serve — e.g., `contractsByPriority`, `contractsClosingThisWeek`, `pipelineHealthSummary`."
+    },
+    {
+      "path": "skills/insurance/add-insurance-mutation.md",
+      "plugin": "insurance",
+      "entity": "contract",
+      "action": "mutation",
+      "triggers": [
+        "graphql mutation",
+        "create record",
+        "update record",
+        "delete record",
+        "remove item"
+      ],
+      "description": "the wish needs a new GraphQL **write** on a insurance entity that the existing `contractsAdd` / `contractsEdit` / `contractsChange` / `contractsArchive` / `contractsRemove` set doesn't cover — e.g., `contractsBulkArchive(_ids)`, `contractsAssignBatch(_ids, userId)`, `contractsConvertToTemplate(_id)`."
+    },
+    {
+      "path": "skills/insurance/add-insurance-segment-field.md",
+      "plugin": "insurance",
+      "entity": "contract",
+      "action": "segment-field",
+      "triggers": [
+        "segment filter",
+        "elastic filter",
+        "search criteria",
+        "segment builder"
+      ],
+      "description": "the wish makes an existing Contract field filterable in the segment builder — e.g., \"I want to build a segment of contracts where `priority` is `high`,\" or \"let me filter by `closeDate < today`.\" The field must already exist (or be added first via [`./add-contract-field.md`](./add-contract-field.md))."
+    },
+    {
+      "path": "skills/insurance/add-insurance-trpc-procedure.md",
+      "plugin": "insurance",
+      "entity": "contract",
+      "action": "trpc-procedure",
+      "triggers": [
+        "trpc route",
+        "internal api",
+        "cross-plugin rpc",
+        "router procedure"
+      ],
+      "description": "the wish exposes insurance data/behavior to **another plugin** via type-safe RPC — e.g., `insurance.contract.contractsForCustomer(customerId)` so frontline can show \"open contracts\" inside a conversation card, or `insurance.pos.activeTerminals()` so operation can list POS-affected branches. NOT for UI-only data flow (that's GraphQL) and NOT for fire-and-forget events (that's Redis pubsub — see [`../../rules/20-architecture-boundaries.md`](../../rules/20-architecture-boundaries.md))."
+    },
+    {
+      "path": "skills/insurance/add-insurance-ui-page.md",
+      "plugin": "insurance",
+      "entity": "contract",
+      "action": "ui-page",
+      "triggers": [
+        "ui view",
+        "react page",
+        "form component",
+        "module federation expose",
+        "screen view"
+      ],
+      "description": "the wish adds a new navigable page inside `insurance_ui` — e.g., `/insurance/dashboard`, `/insurance/analytics`, `/insurance/closed-contracts`. Not for tweaking an existing page (`/insurance/contracts`) and not for a widget injected into someone else's surface."
+    },
+    {
+      "path": "skills/tourism/add-tour-field.md",
+      "plugin": "tourism",
+      "entity": "tour",
+      "action": "field",
+      "triggers": [
+        "add field",
+        "new column",
+        "db property",
+        "enum",
+        "mongoose schema",
+        "scalar"
+      ],
+      "description": "the wish adds a new field on `Tour` that the user can read and edit — e.g., a `tourColor` enum, a `riskScore` number, a `customerLifetimeValue` JSON."
+    },
+    {
+      "path": "skills/tourism/add-tourism-automation.md",
+      "plugin": "tourism",
+      "entity": "tour",
+      "action": "automation",
+      "triggers": [
+        "trigger action",
+        "webhook",
+        "event broker",
+        "message broker",
+        "automation rules"
+      ],
+      "description": "the wish adds a new automation **trigger** (a tourism event other workflows can react to) or a new automation **action** (a step a workflow can execute on tourism data) — e.g., \"trigger when a Tour hits Won stage,\" \"action: append a checklist when a Tour moves stage.\""
+    },
+    {
+      "path": "skills/tourism/add-tourism-graphql-query.md",
+      "plugin": "tourism",
+      "entity": "tour",
+      "action": "graphql-query",
+      "triggers": [
+        "graphql query",
+        "fetch list",
+        "get detail",
+        "total count",
+        "read endpoint"
+      ],
+      "description": "the wish needs a new GraphQL **read** on a tourism entity that the existing `tours`/`tourDetail`/`pipelines`/`stages` queries can't serve — e.g., `toursByPriority`, `toursClosingThisWeek`, `pipelineHealthSummary`."
+    },
+    {
+      "path": "skills/tourism/add-tourism-mutation.md",
+      "plugin": "tourism",
+      "entity": "tour",
+      "action": "mutation",
+      "triggers": [
+        "graphql mutation",
+        "create record",
+        "update record",
+        "delete record",
+        "remove item"
+      ],
+      "description": "the wish needs a new GraphQL **write** on a tourism entity that the existing `toursAdd` / `toursEdit` / `toursChange` / `toursArchive` / `toursRemove` set doesn't cover — e.g., `toursBulkArchive(_ids)`, `toursAssignBatch(_ids, userId)`, `toursConvertToTemplate(_id)`."
+    },
+    {
+      "path": "skills/tourism/add-tourism-segment-field.md",
+      "plugin": "tourism",
+      "entity": "tour",
+      "action": "segment-field",
+      "triggers": [
+        "segment filter",
+        "elastic filter",
+        "search criteria",
+        "segment builder"
+      ],
+      "description": "the wish makes an existing Tour field filterable in the segment builder — e.g., \"I want to build a segment of tours where `priority` is `high`,\" or \"let me filter by `closeDate < today`.\" The field must already exist (or be added first via [`./add-tour-field.md`](./add-tour-field.md))."
+    },
+    {
+      "path": "skills/tourism/add-tourism-trpc-procedure.md",
+      "plugin": "tourism",
+      "entity": "tour",
+      "action": "trpc-procedure",
+      "triggers": [
+        "trpc route",
+        "internal api",
+        "cross-plugin rpc",
+        "router procedure"
+      ],
+      "description": "the wish exposes tourism data/behavior to **another plugin** via type-safe RPC — e.g., `tourism.tour.toursForCustomer(customerId)` so frontline can show \"open tours\" inside a conversation card, or `tourism.pos.activeTerminals()` so operation can list POS-affected branches. NOT for UI-only data flow (that's GraphQL) and NOT for fire-and-forget events (that's Redis pubsub — see [`../../rules/20-architecture-boundaries.md`](../../rules/20-architecture-boundaries.md))."
+    },
+    {
+      "path": "skills/tourism/add-tourism-ui-page.md",
+      "plugin": "tourism",
+      "entity": "tour",
+      "action": "ui-page",
+      "triggers": [
+        "ui view",
+        "react page",
+        "form component",
+        "module federation expose",
+        "screen view"
+      ],
+      "description": "the wish adds a new navigable page inside `tourism_ui` — e.g., `/tourism/dashboard`, `/tourism/analytics`, `/tourism/closed-tours`. Not for tweaking an existing page (`/tourism/tours`) and not for a widget injected into someone else's surface."
+    }
+  ]
+}

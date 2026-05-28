@@ -1,0 +1,15 @@
+{
+  "name": "erxes-agent-tests",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Playwright specs that document the user-visible behavior contract of each erxes plugin. See README.md.",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^20.10.0"
+  }
+}

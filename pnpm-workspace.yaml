@@ -1,3 +1,5 @@
 packages:
   - 'backend/**'
   - 'frontend/**'
+  - 'backend/plugins/branched_api'
+  - 'frontend/plugins/branched_ui'
