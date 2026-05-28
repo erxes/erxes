@@ -1,5 +1,11 @@
 import { gql, useQuery } from '@apollo/client';
-import { Form, Select, Spinner } from 'erxes-ui';
+import {
+  Form,
+  isEnabled,
+  MultipleSelector,
+  MultiSelectOption,
+  Spinner,
+} from 'erxes-ui';
 import { Control, FieldPath, FieldValues } from 'react-hook-form';
 
 const EBARIMT_PRODUCT_RULES_QUERY = gql`
@@ -14,54 +20,74 @@ const EBARIMT_PRODUCT_RULES_QUERY = gql`
   }
 `;
 
-const EMPTY_VALUE = '__empty__';
-
 type ProductRule = {
   _id: string;
   title?: string;
   kind?: string;
 };
 
-const SelectEbarimtProductRule = ({
+const normalizeRuleIds = (value?: string | string[]) => {
+  if (!value) {
+    return [];
+  }
+
+  return Array.isArray(value) ? value.filter(Boolean) : [value].filter(Boolean);
+};
+
+const SelectEbarimtProductRules = ({
   value,
   kind,
   onValueChange,
 }: {
-  value?: string;
+  value?: string | string[];
   kind: 'vat' | 'ctax';
-  onValueChange: (value: string) => void;
+  onValueChange: (value: string[]) => void;
 }) => {
+  const mongolianEnabled = isEnabled('mongolian');
   const { data, loading } = useQuery(EBARIMT_PRODUCT_RULES_QUERY, {
     variables: { kind },
+    skip: !mongolianEnabled,
   });
 
   const productRules: ProductRule[] = data?.ebarimtProductRules?.list || [];
+  const options: MultiSelectOption[] = productRules.map((rule) => ({
+    value: rule._id,
+    label: rule.title || rule._id,
+  }));
+  const selectedRuleIds = normalizeRuleIds(value);
+  const selectedOptions: MultiSelectOption[] = selectedRuleIds.map((ruleId) => {
+    const rule = productRules.find((productRule) => productRule._id === ruleId);
+    return {
+      value: ruleId,
+      label: rule?.title || ruleId,
+    };
+  });
+
+  if (!mongolianEnabled) {
+    return null;
+  }
 
   return (
-    <Select
-      value={value || EMPTY_VALUE}
-      onValueChange={(ruleId) =>
-        onValueChange(ruleId === EMPTY_VALUE ? '' : ruleId)
+    <MultipleSelector
+      value={selectedOptions}
+      options={options}
+      placeholder="Дүрэм сонгох"
+      emptyIndicator={
+        <p className="text-center text-sm text-muted-foreground">
+          Дүрэм олдсонгүй
+        </p>
       }
-    >
-      <Select.Trigger>
-        <Select.Value placeholder="Дүрэм сонгох" />
-      </Select.Trigger>
-      <Select.Content>
-        <Select.Item value={EMPTY_VALUE}>Дүрэм сонгоогүй</Select.Item>
-        {loading ? (
-          <div className="flex h-16 items-center justify-center">
-            <Spinner />
-          </div>
-        ) : (
-          productRules.map((rule) => (
-            <Select.Item key={rule._id} value={rule._id}>
-              {rule.title || rule._id}
-            </Select.Item>
-          ))
-        )}
-      </Select.Content>
-    </Select>
+      loadingIndicator={
+        <div className="flex h-16 items-center justify-center">
+          <Spinner />
+        </div>
+      }
+      disabled={loading}
+      hidePlaceholderWhenSelected
+      onChange={(selectedOptions) =>
+        onValueChange(selectedOptions.map((option) => option.value))
+      }
+    />
   );
 };
 
@@ -76,6 +102,10 @@ export const FormSelectEbarimtProductRule = <T extends FieldValues>({
   control: Control<T>;
   kind: 'vat' | 'ctax';
 }) => {
+  if (!isEnabled('mongolian')) {
+    return null;
+  }
+
   return (
     <Form.Field
       name={name}
@@ -84,8 +114,8 @@ export const FormSelectEbarimtProductRule = <T extends FieldValues>({
         <Form.Item>
           <Form.Label>{label}</Form.Label>
           <Form.Control>
-            <SelectEbarimtProductRule
-              value={field.value || ''}
+            <SelectEbarimtProductRules
+              value={field.value || []}
               kind={kind}
               onValueChange={field.onChange}
             />

@@ -10,6 +10,7 @@ import {
   Dialog,
   Form,
   Input,
+  isEnabled,
   Select,
   Spinner,
 } from 'erxes-ui';
@@ -32,10 +33,10 @@ const configFormSchema = z.object({
   departmentId: z.string(),
   hasVat: z.boolean(),
   vatRowId: z.string(),
-  reverseVatRules: z.string().optional(),
+  reverseVatRules: z.array(z.string()).optional(),
   hasCtax: z.boolean(),
   ctaxRowId: z.string(),
-  reverseCtaxRules: z.string().optional(),
+  reverseCtaxRules: z.array(z.string()).optional(),
   payments: z.record(
     z.object({
       accountId: z.string(),
@@ -50,6 +51,14 @@ const configFormSchema = z.object({
 });
 
 type ConfigFormValues = z.infer<typeof configFormSchema>;
+
+const normalizeRuleIds = (value?: string | string[]) => {
+  if (!value) {
+    return [];
+  }
+
+  return Array.isArray(value) ? value.filter(Boolean) : [value].filter(Boolean);
+};
 
 export const SyncOrderConfigForm = ({
   form,
@@ -96,12 +105,21 @@ export const SyncOrderConfigForm = ({
 
   // note: const paymentIds: string[] = pipelineDetail?.salesPipelineDetail?.paymentIds || [];
   const paymentTypes: any[] = posDetailData?.posDetail?.paymentTypes || [];
+  const mongolianEnabled = isEnabled('mongolian');
 
   const handleSubmit = (data: ConfigFormValues) =>
     onSubmit({
       ...data,
+      vatRowId: data.hasVat ? data.vatRowId : '',
+      reverseVatRules:
+        mongolianEnabled && data.hasVat
+          ? normalizeRuleIds(data.reverseVatRules)
+          : [],
       ctaxRowId: data.hasCtax ? data.ctaxRowId : '',
-      reverseCtaxRules: data.hasCtax ? '' : data.reverseCtaxRules,
+      reverseCtaxRules:
+        !mongolianEnabled || data.hasCtax
+          ? []
+          : normalizeRuleIds(data.reverseCtaxRules),
     });
 
   return (

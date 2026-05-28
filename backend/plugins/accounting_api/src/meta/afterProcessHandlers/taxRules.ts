@@ -1,4 +1,4 @@
-import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { fixNum, isEnabled, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
 type PaymentConfig = {
@@ -163,6 +163,10 @@ const getProductRules = async (
   subdomain: string,
   ruleIds: string | string[] = [],
 ) => {
+  if (!(await isEnabled('mongolian'))) {
+    return [];
+  }
+
   const ids = asArray(ruleIds).filter(Boolean);
 
   if (!ids.length) {
