@@ -16,7 +16,7 @@ export interface ProductCategoriesResponse {
 }
 
 export interface UseProductCategoriesResult {
-  productCategories: IProductCategory[] | undefined;
+  productCategories: IProductCategory[];
   loading: boolean;
   error: ApolloError | undefined;
 }

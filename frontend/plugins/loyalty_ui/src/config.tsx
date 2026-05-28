@@ -33,4 +33,12 @@ export const CONFIG: IUIConfig = {
       path: 'loyalty',
     },
   ],
+  widgets: {
+    relationWidgets: [
+      {
+        name: 'loyalty',
+        icon: IconAward,
+      },
+    ],
+  },
 };

@@ -17,4 +17,5 @@ export interface IFormSubmission {
   submissions: ISubmissionItem[];
   formId: string;
   channelId: string;
+  contentTypeId?: string;
 }

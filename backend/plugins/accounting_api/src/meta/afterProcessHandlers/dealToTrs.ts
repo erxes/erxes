@@ -8,7 +8,6 @@ import {
 } from '~/modules/accounting/@types/constants';
 import {
   ITransaction,
-  ITransactionDocument,
 } from '~/modules/accounting/@types/transaction';
 import { getJournal } from './utils';
 
@@ -41,7 +40,7 @@ export const dealToTrs = async ({
     trStatus?: string;
   };
 }) => {
-  const activeProductsData = deal.productsData?.filter((pd) => pd.tickUsed);
+  const activeProductsData = deal.productsData?.filter((pd) => pd.tickUsed && pd.quantity);
   if (!activeProductsData?.length) {
     return;
   }
@@ -50,7 +49,6 @@ export const dealToTrs = async ({
   let mainId = nanoid();
   let ptrId = nanoid();
   let parentId = mainId;
-  let oldOtherTrs: ITransactionDocument[] = [];
 
   const [contentType, contentId] = ['sales:deal', deal._id];
   const number = deal.number;
@@ -61,12 +59,6 @@ export const dealToTrs = async ({
     journal: JOURNALS.INV_SALE,
   }).lean();
   if (oldTrs?.length) {
-    const parentIds = [...new Set(oldTrs.map((otr) => otr.parentId))];
-    oldOtherTrs = await models.Transactions.find({
-      parentId: { $in: parentIds },
-      originId: { $in: [null, ''] },
-      contentId: { $in: [null, ''] },
-    }).lean();
     if (config.dateRule === 'syncedDateOrNow') {
       date = oldTrs[0].date;
     }
@@ -82,6 +74,7 @@ export const dealToTrs = async ({
     parentId,
     number,
     date,
+    description: deal.name,
     journal: JOURNALS.INV_SALE,
     side: TR_SIDES.CREDIT,
     status: config.trStatus || TR_STATUSES.COMPLETE,
@@ -141,7 +134,7 @@ export const dealToTrs = async ({
   }
 
   if (config.hasCtax && config.ctaxRowId) {
-    const ctaxRow = await models.VatRows.getVatRow({ _id: config.ctaxRowId });
+    const ctaxRow = await models.CtaxRows.getCtaxRow({ _id: config.ctaxRowId });
     taxPercent += fixNum(ctaxRow?.percent ?? 0);
     saleTrDoc.hasCtax = config.hasCtax;
     saleTrDoc.ctaxRowId = config.ctaxRowId;
@@ -154,6 +147,7 @@ export const dealToTrs = async ({
       (productData.amount * taxPercent) / (100 + taxPercent),
       8,
     );
+
     const amount = fixNum(productData.amount - taxAmount, 8);
 
     saleTrDoc.details.push({
@@ -164,13 +158,17 @@ export const dealToTrs = async ({
 
       productId: productData.productId,
       count: productData.quantity,
-      unitPrice: productData.unitPrice,
+      unitPrice: fixNum(amount / productData.quantity, 4),
     });
   }
 
   const paymentTrs: ITransaction[] = [];
   for (const payKey of Object.keys(deal.paymentsData || {})) {
     const { amount, currency } = deal.paymentsData[payKey];
+    if (amount < 0.005 && amount > -0.005) {
+      continue;
+    }
+
     const payConfig = config.payments[payKey];
     if (!payConfig) {
       continue;
@@ -189,6 +187,7 @@ export const dealToTrs = async ({
       parentId,
       number,
       date,
+      description: `${deal.name} (${payKey})`,
       journal,
       side,
       branchId: deal.branchId || config.branchId,
@@ -224,6 +223,7 @@ export const dealToTrs = async ({
         parentId,
         number,
         date,
+        description: `${deal.name} (change)`,
         journal,
         side,
         branchId: saleTrDoc.branchId,
@@ -261,13 +261,13 @@ export const dealToTrs = async ({
 
     await models.Transactions.updatePTransaction(
       parentId,
-      [{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs],
+      [{ ...saleTrDoc }, ...paymentTrs],
       userId,
       { skipAccountPermission: true },
     );
   } else {
     await models.Transactions.createPTransaction(
-      [{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs],
+      [{ ...saleTrDoc }, ...paymentTrs],
       userId,
       { skipAccountPermission: true },
     );

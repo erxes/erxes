@@ -1,13 +1,21 @@
+import { IRelationWidgetProps } from 'ui-modules';
+import { ScoreSummaryWidget } from '../modules/loyalties/score/components/ScoreSummaryWidget';
+
+const CONTENT_TYPE_TO_OWNER_TYPE: Record<string, string> = {
+  'core:customer': 'customer',
+  'core:company': 'company',
+  'core:user': 'user',
+};
+
 export const Widgets = ({
-  module,
   contentId,
   contentType,
-}: {
-  module: any;
-  contentId: string;
-  contentType: string;
-}) => {
-  return <div>pricing Widget</div>;
+}: IRelationWidgetProps) => {
+  const ownerType = CONTENT_TYPE_TO_OWNER_TYPE[contentType] || contentType;
+
+  return (
+    <ScoreSummaryWidget ownerId={contentId} ownerType={ownerType} />
+  );
 };
 
 export default Widgets;

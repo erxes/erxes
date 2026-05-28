@@ -15,6 +15,7 @@ import {
   getNextMonth,
   getToday,
   regexSearchText,
+  escapeRegExp,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
@@ -298,7 +299,12 @@ export const generateFilter = async (
   }
 
   if (search) {
-    Object.assign(filter, regexSearchText(search));
+    Object.assign(filter, {
+      $or: [
+        regexSearchText(search),
+        { number: { $regex: new RegExp(`.*${escapeRegExp(search)}.*`, 'i') } },
+      ],
+    });
   }
 
   if (stageId) {

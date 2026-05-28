@@ -35,14 +35,13 @@ export const useSpinsVariables = (options: UseSpinsListOptions = {}) => {
     }>(['status', 'spinCampaign', 'ownerType', 'voucherCampaignId']);
 
   const [ownerId] = useQueryState<string>('ownerId');
-  const [userId] = useQueryState<string>('userId');
 
   return {
     page: 1,
     perPage: SPIN_PER_PAGE,
     campaignId: spinCampaign || undefined,
     status: status || undefined,
-    ownerId: ownerId || userId || undefined,
+    ownerId: ownerId || undefined,
     ownerType: ownerType || undefined,
     voucherCampaignId: voucherCampaignId || undefined,
     ...options,

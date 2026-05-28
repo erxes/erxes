@@ -8,6 +8,7 @@ import { IModels } from './connectionResolvers';
 import { conversationTrpcRouter } from './modules/inbox/trpc/conversation';
 import { inboxTrpcRouter } from './modules/inbox/trpc/inbox';
 import { integrationTrpcRouter } from './modules/integrations/trpc/integration';
+import { ticketTrpcRouter } from './modules/ticket/trpc/ticket';
 
 export type FrontlineTRPCContext = ITRPCContext<{ models: IModels }>;
 
@@ -17,6 +18,7 @@ export const appRouter = t.mergeRouters(
   integrationTrpcRouter,
   inboxTrpcRouter,
   conversationTrpcRouter,
+  ticketTrpcRouter,
   t.router({
     fields: t.router({
       getFieldList: t.procedure

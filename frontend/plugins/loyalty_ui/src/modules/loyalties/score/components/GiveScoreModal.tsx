@@ -1,17 +1,12 @@
-import { Button, Sheet, Form, Input, useToast, Tabs } from 'erxes-ui';
+import { Button, Sheet, Form, Input, Tabs } from 'erxes-ui';
 import { IconPlus, IconBriefcase, IconShoppingCart } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useMutation } from '@apollo/client';
-import { CHANGE_SCORE_MUTATION } from '../graphql/mutations';
+import { useChangeScore } from '../hooks/useChangeScore';
 import { SelectOwnerTypeFormItem } from './selects/SelectOwnerType';
 import { SelectScoreCampaignFormItem } from './selects/SelectScoreCampaign';
-import { SelectScoreCustomerFormItem } from './selects/SelectCustomer';
-import {
-  SelectCompanyFormItem,
-  SelectUserFormItem,
-  SelectClientPortalUserFormItem,
-} from './selects/SelectOwnerById';
+import { SelectOwnerByType } from './selects/SelectOwnerByType';
+import { SelectScoreActionTypeFormItem } from './selects/SelectScoreActionType';
 import { ChooseDealSheet } from './ChooseDealSheet';
 
 type TargetType = 'sales' | 'pos' | null;
@@ -20,6 +15,7 @@ interface GiveScoreFormValues {
   ownerType: string;
   ownerId: string;
   campaignId: string;
+  action: string;
   change: number;
   description: string;
   targetId: string;
@@ -39,17 +35,15 @@ export const GiveScoreModal = ({
   const [targetType, setTargetType] = useState<TargetType>(null);
   const [dealSheetOpen, setDealSheetOpen] = useState(false);
   const [selectedDealName, setSelectedDealName] = useState('');
-  const { toast } = useToast();
 
-  const [changeScore, { loading }] = useMutation(CHANGE_SCORE_MUTATION, {
-    refetchQueries,
-  });
+  const { changeScore, loading } = useChangeScore(refetchQueries);
 
   const form = useForm<GiveScoreFormValues>({
     defaultValues: {
       ownerType: 'customer',
       ownerId: '',
       campaignId: '',
+      action: 'add',
       change: 0,
       description: 'manual',
       targetId: '',
@@ -62,43 +56,37 @@ export const GiveScoreModal = ({
 
   const onSubmit = async (values: GiveScoreFormValues) => {
     if (!values.ownerId) return;
+
     try {
-      await changeScore({
-        variables: {
-          ownerType: values.ownerType,
-          ownerId: values.ownerId,
-          campaignId: values.campaignId || undefined,
-          action: 'add',
-          change: Number(values.change),
-          description: values.description || 'manual',
-          targetId: values.targetId || undefined,
-          serviceName: values.serviceName || undefined,
-        },
+      const result = await changeScore({
+        ownerType: values.ownerType,
+        ownerId: values.ownerId,
+        campaignId: values.campaignId || undefined,
+        action: values.action || 'add',
+        change: Number(values.change),
+        description: values.description || 'manual',
+        targetId: values.targetId || undefined,
+        serviceName: values.serviceName || undefined,
       });
-      toast({
-        title: 'Success',
-        description: 'Score given successfully',
-        variant: 'default',
-      });
-      setOpen(false);
-      setTargetType(null);
-      setSelectedDealName('');
-      form.reset({
-        ownerType: 'customer',
-        ownerId: '',
-        campaignId: '',
-        change: 0,
-        description: 'manual',
-        targetId: '',
-        serviceName: '',
-      });
-    } catch (e: unknown) {
-      toast({
-        title: 'Error',
-        description: e instanceof Error ? e.message : String(e),
-        variant: 'destructive',
-      });
+
+      if (result?.errors?.length) return;
+    } catch {
+      return;
     }
+
+    setOpen(false);
+    setTargetType(null);
+    setSelectedDealName('');
+    form.reset({
+      ownerType: 'customer',
+      ownerId: '',
+      campaignId: '',
+      action: 'add',
+      change: 0,
+      description: 'manual',
+      targetId: '',
+      serviceName: '',
+    });
   };
 
   return (
@@ -139,81 +127,97 @@ export const GiveScoreModal = ({
                 )}
               />
 
-              {ownerType === 'customer' && (
-                <Form.Field
-                  control={form.control}
-                  name="ownerId"
-                  rules={{ required: 'Owner is required' }}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Owner *</Form.Label>
-                      <SelectScoreCustomerFormItem
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        placeholder="Choose customer"
-                      />
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              )}
+              <Form.Field
+                control={form.control}
+                name="ownerId"
+                rules={{ required: 'Owner is required' }}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Owner *</Form.Label>
+                    <SelectOwnerByType
+                      ownerType={ownerType}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
 
-              {ownerType === 'company' && (
-                <Form.Field
-                  control={form.control}
-                  name="ownerId"
-                  rules={{ required: 'Owner is required' }}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Owner *</Form.Label>
-                      <SelectCompanyFormItem
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        placeholder="Choose company"
-                      />
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              )}
+              <Form.Field
+                control={form.control}
+                name="campaignId"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Score Campaign</Form.Label>
+                    <SelectScoreCampaignFormItem
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Choose score campaign (optional)"
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
 
-              {ownerType === 'user' && (
-                <Form.Field
-                  control={form.control}
-                  name="ownerId"
-                  rules={{ required: 'Owner is required' }}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Owner *</Form.Label>
-                      <SelectUserFormItem
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        placeholder="Choose team member"
-                      />
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              )}
+              <Form.Field
+                control={form.control}
+                name="action"
+                rules={{ required: 'Action is required' }}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Action *</Form.Label>
+                    <SelectScoreActionTypeFormItem
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Choose action"
+                    />
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
 
-              {ownerType === 'cpUser' && (
-                <Form.Field
-                  control={form.control}
-                  name="ownerId"
-                  rules={{ required: 'Owner is required' }}
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Owner *</Form.Label>
-                      <SelectClientPortalUserFormItem
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        placeholder="Choose client portal user"
+              <Form.Field
+                control={form.control}
+                name="change"
+                rules={{
+                  required: 'Score is required',
+                  validate: (v) => Number(v) !== 0 || 'Score cannot be zero',
+                }}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Score *</Form.Label>
+                    <Form.Control>
+                      <Input
+                        type="number"
+                        {...field}
+                        value={field.value === 0 ? '' : field.value}
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value === '' ? 0 : Number(e.target.value),
+                          )
+                        }
+                        placeholder="0"
                       />
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              )}
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+
+              <Form.Field
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>Description</Form.Label>
+                    <Form.Control>
+                      <Input {...field} placeholder="manual" />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
 
               {ownerId && (
                 <div className="flex flex-col gap-2 w-full">
@@ -271,64 +275,6 @@ export const GiveScoreModal = ({
                   )}
                 </div>
               )}
-
-              <Form.Field
-                control={form.control}
-                name="campaignId"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Score Campaign</Form.Label>
-                    <SelectScoreCampaignFormItem
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      placeholder="Choose score campaign (optional)"
-                    />
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="change"
-                rules={{
-                  required: 'Score is required',
-                  validate: (v) => Number(v) !== 0 || 'Score cannot be zero',
-                }}
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Score *</Form.Label>
-                    <Form.Control>
-                      <Input
-                        type="number"
-                        {...field}
-                        value={field.value === 0 ? '' : field.value}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value === '' ? 0 : Number(e.target.value),
-                          )
-                        }
-                        placeholder="0"
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Description</Form.Label>
-                    <Form.Control>
-                      <Input {...field} placeholder="manual" />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
 
               <div className="flex justify-end gap-2 pt-2">
                 <Button
