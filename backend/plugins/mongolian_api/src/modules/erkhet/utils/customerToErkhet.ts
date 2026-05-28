@@ -37,10 +37,10 @@ export const customerToErkhet = async (
 
   return await toErkhet(
     models,
-    syncLog,
     mainConfig,
     sendData,
     'customer-change',
+    syncLog,
   );
 };
 
@@ -91,9 +91,9 @@ export const companyToErkhet = async (
 
   return await toErkhet(
     models,
-    syncLog,
     mainConfig,
     sendData,
     'customer-change',
+    syncLog,
   );
 };

@@ -1,57 +1,6 @@
 import { IScoreLog } from '@/score/@types/scoreLog';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-
-const TARGET_ACTIONS: Record<
-  string,
-  { module: string; action: string; fields: string[] }
-> = {
-  pos: {
-    module: 'order',
-    action: 'findOne',
-    fields: ['items', 'number', 'totalAmount'],
-  },
-  sales: {
-    module: 'deal',
-    action: 'findOne',
-    fields: ['productsData', 'number'],
-  },
-};
-
-const fetchTarget = async ({
-  targetId,
-  module,
-  subdomain,
-}: {
-  targetId: string;
-  module: string;
-  subdomain: string;
-}) => {
-  const config = TARGET_ACTIONS[module];
-
-  if (!targetId || !config) {
-    return null;
-  }
-
-  const response = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'sales',
-    method: 'query',
-    module: config.module,
-    action: config.action,
-    input: {
-      _id: targetId,
-    },
-  });
-
-  if (!response) {
-    return null;
-  }
-
-  return Object.fromEntries(
-    config.fields.map((field) => [field, response[field]]),
-  );
-};
+import { fetchScoreTarget } from './_scoreTarget';
 
 export default {
   change({ changeScore }: any) {
@@ -75,14 +24,6 @@ export default {
     _args: undefined,
     { subdomain }: IContext,
   ) {
-    if (!targetId || !serviceName) {
-      return null;
-    }
-
-    return await fetchTarget({
-      targetId,
-      module: serviceName,
-      subdomain,
-    });
+    return await fetchScoreTarget({ targetId, serviceName, subdomain });
   },
 };

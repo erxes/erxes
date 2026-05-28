@@ -1,4 +1,3 @@
-import { IconUser } from '@tabler/icons-react';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { SpinHotKeyScope } from '../types/path/SpinHotKeyScope';
 import { SpinTotalCount } from './SpinTotalCount';
@@ -7,7 +6,7 @@ import { SelectStatus } from './selects/SelectStatus';
 import { SelectSpinCampaign } from './selects/SelectSpinCampaign';
 import { SelectOwnerType } from './selects/SelectOwnerType';
 import { SelectVoucherCampaign } from '../../vouchers/components/selects/SelectVoucherCampaign';
-import { SelectCustomer, SelectMember } from 'ui-modules';
+import { SelectOwner } from '~/modules/loyalties/components/SelectOwner';
 
 const SpinFilterPopover = () => {
   const [queries] = useMultiQueryState<{
@@ -16,14 +15,12 @@ const SpinFilterPopover = () => {
     status: string;
     voucherCampaignId: string;
     ownerId: string;
-    userId: string;
   }>([
     'spinCampaign',
     'ownerType',
     'status',
     'voucherCampaignId',
     'ownerId',
-    'userId',
   ]);
 
   const hasFilters = Object.values(queries || {}).some(
@@ -46,8 +43,7 @@ const SpinFilterPopover = () => {
                 <SelectSpinCampaign.FilterItem />
                 <SelectVoucherCampaign.FilterItem />
                 <SelectOwnerType.FilterItem />
-                <SelectCustomer.FilterItem value="ownerId" label="Customer" />
-                <SelectMember.FilterItem value="userId" label="Team Member" />
+                <SelectOwner.FilterItem queryKey="ownerId" />
                 <SelectStatus.FilterItem />
               </Command.List>
             </Command>
@@ -55,8 +51,7 @@ const SpinFilterPopover = () => {
           <SelectSpinCampaign.FilterView />
           <SelectVoucherCampaign.FilterView />
           <SelectOwnerType.FilterView />
-          <SelectCustomer.FilterView filterKey="ownerId" mode="single" />
-          <SelectMember.FilterView queryKey="userId" mode="single" />
+          <SelectOwner.FilterView queryKey="ownerId" ownerTypeKey="ownerType" />
           <SelectStatus.FilterView />
         </Combobox.Content>
       </Filter.Popover>
@@ -71,10 +66,7 @@ const SpinFilterPopover = () => {
           <SelectOwnerType.FilterView />
         </Filter.View>
         <Filter.View filterKey="ownerId" inDialog>
-          <SelectCustomer.FilterView filterKey="ownerId" mode="single" />
-        </Filter.View>
-        <Filter.View filterKey="userId" inDialog>
-          <SelectMember.FilterView queryKey="userId" mode="single" />
+          <SelectOwner.FilterView queryKey="ownerId" ownerTypeKey="ownerType" />
         </Filter.View>
         <Filter.View filterKey="status" inDialog>
           <SelectStatus.FilterView />
@@ -93,22 +85,7 @@ export const SpinFilter = () => {
         <SelectSpinCampaign.FilterBar />
         <SelectVoucherCampaign.FilterBar />
         <SelectOwnerType.FilterBar />
-        <Filter.BarItem queryKey="ownerId">
-          <Filter.BarName>
-            <IconUser />
-            Customer
-          </Filter.BarName>
-          <SelectCustomer.FilterBar
-            filterKey="ownerId"
-            label="Customer"
-            mode="single"
-          />
-        </Filter.BarItem>
-        <SelectMember.FilterBar
-          queryKey="userId"
-          label="Team Member"
-          mode="single"
-        />
+        <SelectOwner.FilterBar queryKey="ownerId" ownerTypeKey="ownerType" />
         <SelectStatus.FilterBar />
         <SpinFilterPopover />
         <SpinTotalCount />
