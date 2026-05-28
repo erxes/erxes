@@ -37,12 +37,14 @@ async function handleQPaySetup(input: any) {
   const { isCompany } = input.config;
 
   if (isCompany) {
-  input.config.name = input.config.companyName; 
-}
+    input.config.name = input.config.companyName;
+  }
 
-const response = isCompany
-  ? await api.createCompany(input.config)
-  : await api.createCustomer(input.config);
+  const response = await (
+    isCompany
+    ? await api.createCompany(input.config)
+    : await api.createCustomer(input.config)
+  );
 
   if (!response?.id) {
     throw new Error(
@@ -110,10 +112,10 @@ const mutations = {
 
     const payment = await models.PaymentMethods.createPayment(input);
 
-    // 1️⃣ Authorize first (multi-tenant safe)
+    // Authorize first (multi-tenant safe)
     await authorizePayment(payment, models, subdomain);
 
-    // 2️⃣ Register webhook only after successful authorization
+    // Register webhook only after successful authorization
     await registerWebhookIfNeeded(input, payment, domain, models);
 
     return payment;
