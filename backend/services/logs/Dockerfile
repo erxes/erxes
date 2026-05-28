@@ -49,9 +49,11 @@ COPY backend/erxes-api-shared/core-types ./node_modules/erxes-api-shared/core-ty
 COPY backend/erxes-api-shared/core-modules ./node_modules/erxes-api-shared/core-modules
 COPY backend/erxes-api-shared/package.json ./node_modules/erxes-api-shared/
 
+COPY sentry.instrument.cjs ./sentry.instrument.cjs
+
 # Environment & security
 ENV NODE_ENV=production
 USER 1000
 
 # Run app
-CMD ["node", "backend/services/logs/dist/src/main.js"]
+CMD ["node", "--require", "/app/sentry.instrument.cjs", "backend/services/logs/dist/src/main.js"]
