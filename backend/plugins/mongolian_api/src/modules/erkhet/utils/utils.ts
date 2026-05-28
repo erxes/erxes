@@ -42,9 +42,18 @@ const parseErkhetResponse = async (response) => {
   }
 };
 
+const getErkhetResponseMessage = (responseData) => {
+  if (!responseData || typeof responseData !== 'object') {
+    return '';
+  }
+
+  return responseData?.message || responseData?.data?.message || '';
+};
+
 const getErkhetErrorMessage = (response, responseData) =>
-  responseData?.message ||
+  getErkhetResponseMessage(responseData) ||
   responseData?.error ||
+  responseData?.data?.error ||
   responseData?.statusText ||
   response.statusText ||
   `Erkhet request failed with status ${response.status}`;
@@ -92,7 +101,12 @@ const extractDjangoError = (responseStr = '') => {
   };
 };
 
-export const sendErkhetPost = async (models: IModels, action: string, payload: any, syncLog?: ISyncLogDocument) => {
+export const sendErkhetPost = async (
+  models: IModels,
+  action: string,
+  payload: any,
+  syncLog?: ISyncLogDocument,
+) => {
   const body = {
     action,
     isEbarimt: false,
@@ -128,7 +142,17 @@ export const sendErkhetPost = async (models: IModels, action: string, payload: a
       ? responseData
       : JSON.stringify(responseData);
 
-  if (!response.ok || responseData?.error) {
+  const hasErkhetError =
+    !response.ok ||
+    responseData?.error ||
+    responseData?.data?.error ||
+    getErkhetResponseMessage(responseData);
+
+  const error = hasErkhetError
+    ? getErkhetErrorMessage(response, responseData)
+    : undefined;
+
+  if (error) {
     console.error('[syncerkhet:sendPost:error]', {
       action,
       requestUrl,
@@ -153,11 +177,6 @@ export const sendErkhetPost = async (models: IModels, action: string, payload: a
       response: responseStr,
     });
   }
-
-  const error =
-    !response.ok || responseData?.error
-      ? getErkhetErrorMessage(response, responseData)
-      : undefined;
 
   if (syncLog) {
     await models.SyncLogs.updateOne(
@@ -214,7 +233,13 @@ export const sendErkhetGet = async (
 };
 
 // Send data to Erkhet plugin
-export const toErkhet = async (models: IModels, config: any, sendData: any, action: string, syncLog?: ISyncLogDocument) => {
+export const toErkhet = async (
+  models: IModels,
+  config: any,
+  sendData: any,
+  action: string,
+  syncLog?: ISyncLogDocument,
+) => {
   const postData = {
     token: config.apiToken,
     apiKey: config.apiKey,
@@ -369,7 +394,7 @@ export const getRemConfig = async (
       pluginName: 'sales',
       method: 'query',
       module: 'pos',
-      action: 'configs.findOne',
+      action: 'findOne',
       input: { _id: posId },
       defaultValue: {},
     });

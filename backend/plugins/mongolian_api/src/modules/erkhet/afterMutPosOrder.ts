@@ -1,5 +1,5 @@
-import { sendTRPCMessage } from "erxes-api-shared/utils";
-import { orderDeleteToErkhet, getPosPostData, sendErkhetPost } from "./utils";
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { orderDeleteToErkhet, getPosPostData, sendErkhetPost } from './utils';
 
 const getErrorMessage = (error: any) =>
   error?.message || error?.errorMessage || `${error}`;
@@ -59,7 +59,7 @@ export const syncPosOrderToErkhet = async ({
     subdomain,
     pluginName: 'sales',
     module: 'pos',
-    action: 'configs.findOne',
+    action: 'findOne',
     method: 'query',
     input: { _id: posId },
     defaultValue: null,

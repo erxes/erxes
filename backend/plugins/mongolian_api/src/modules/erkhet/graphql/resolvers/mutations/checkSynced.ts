@@ -26,9 +26,7 @@ const parseCheckSyncedData = (data: any) => {
 const checkSyncedMutations = {
   async toCheckSynced(
     _root: undefined,
-    {
-      ids,
-    }: { ids: string[] },
+    { ids }: { ids: string[] },
     { subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('erkhetManageSync');
@@ -48,11 +46,7 @@ const checkSyncedMutations = {
 
     const models = await generateModels(subdomain);
 
-    const result = await sendErkhetPost(
-      models,
-      'check-order-synced',
-      postData,
-    );
+    const result = await sendErkhetPost(models, 'check-order-synced', postData);
 
     if (result.status === 'error') {
       throw new Error(result.message);
@@ -170,6 +164,7 @@ const checkSyncedMutations = {
           result.success.push(deal._id);
           continue;
         } catch (e) {
+          result.error.push(deal._id);
           await models.SyncLogs.updateOne(
             { _id: syncLog._id },
             { $set: { error: e.message } },
@@ -219,6 +214,7 @@ const checkSyncedMutations = {
           result.success.push(deal._id);
           continue;
         } catch (e) {
+          result.error.push(deal._id);
           await models.SyncLogs.updateOne(
             { _id: syncLog._id },
             { $set: { error: e.message } },
@@ -248,12 +244,11 @@ const checkSyncedMutations = {
       subdomain,
       pluginName: 'sales',
       method: 'query',
-      module: 'pos',
-      action: 'orders.find',
+      module: 'orders',
+      action: 'find',
       input: { _id: { $in: orderIds } },
       defaultValue: [],
     });
-
     const posTokens = [...new Set((orders || []).map((o) => o.posToken))];
     const models = await generateModels(subdomain);
     const poss = await sendTRPCMessage({
@@ -261,7 +256,7 @@ const checkSyncedMutations = {
       pluginName: 'sales',
       method: 'query',
       module: 'pos',
-      action: 'configs.find',
+      action: 'find',
       input: { token: { $in: posTokens } },
       defaultValue: [],
     });
@@ -340,6 +335,7 @@ const checkSyncedMutations = {
 
         result.success.push(order._id);
       } catch (e) {
+        result.error.push(order._id);
         await models.SyncLogs.updateOne(
           { _id: syncLog._id },
           { $set: { error: e.message } },

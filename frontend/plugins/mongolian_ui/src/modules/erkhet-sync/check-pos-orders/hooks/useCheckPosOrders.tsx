@@ -10,7 +10,10 @@ import { ICheckPosOrders } from '../types/checkPosOrders';
 import { atom, useAtom, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { checkPosOrdersTotalCountAtom } from '../states/checkPosOrdersDealsCounts';
-import { checkSyncedMutation } from '../../shared/graphql/mutations/checkSyncedMutations';
+import {
+  checkSyncedMutation,
+  syncOrdersMutation,
+} from '../../shared/graphql/mutations/checkSyncedMutations';
 
 export const CHECK_POS_ORDERS_PER_PAGE = 30;
 
@@ -86,6 +89,13 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
   const [toCheckSynced, { loading: checking }] = useMutation<{
     toCheckSynced: CheckSyncedResponse[];
   }>(checkSyncedMutation);
+  const [toSyncOrders, { loading: syncing }] = useMutation<{
+    toSyncOrders: {
+      skipped?: string[];
+      error?: string[];
+      success?: string[];
+    };
+  }>(syncOrdersMutation);
   const { toast } = useToast();
   const variables = useCheckPosOrdersVariables(options?.variables);
 
@@ -150,6 +160,46 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
     });
   };
 
+  const syncUncheckedOrders = async (ids: string[]) => {
+    const uncheckedIds = ids.filter(
+      (id) => checkedOrders[id]?.isSynced === false,
+    );
+
+    if (!uncheckedIds.length) {
+      toast({
+        title: 'Warning',
+        description: 'No unchecked orders to sync',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const response = await toSyncOrders({
+      variables: { orderIds: uncheckedIds },
+      onError: (error) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
+    });
+
+    const result = response.data?.toSyncOrders;
+    const successIds = result?.success || [];
+
+    if (successIds.length) {
+      await checkOrders(successIds);
+    }
+
+    toast({
+      title: 'Sync complete',
+      description: `${successIds.length} synced, ${
+        result?.error?.length || 0
+      } failed, ${result?.skipped?.length || 0} skipped`,
+    });
+  };
+
   useEffect(() => {
     if (!totalCount) return;
     setCheckPosOrdersTotalCount(totalCount);
@@ -181,7 +231,9 @@ export const useCheckPosOrders = (options?: QueryHookOptions) => {
     checkPosOrders,
     totalCount,
     checkOrders,
+    syncUncheckedOrders,
     checking,
+    syncing,
     handleFetchMore,
     pageInfo: {
       hasNextPage: checkPosOrders.length < totalCount,
