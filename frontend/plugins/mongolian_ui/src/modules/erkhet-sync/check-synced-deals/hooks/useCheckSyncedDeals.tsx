@@ -95,8 +95,6 @@ export const useCheckSyncedDealsVariables = (
     type: 'checkSyncedDeals',
 
     userIds: user ? [user] : undefined,
-    boardIds: boardId ? [boardId] : undefined,
-    pipelineId: pipelineId || undefined,
     stageId: stageId || undefined,
     stageChangedStartDate: parseDateRangeFromString(stageChangedDateRange)
       ?.from,
