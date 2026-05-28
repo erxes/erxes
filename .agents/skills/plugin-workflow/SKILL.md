@@ -31,6 +31,15 @@ description: Baseline workflow for erxes plugin contributions. Use for frontend 
 5. Remove debug code
 6. Review final diff
 
+## After Pushing / PR
+
+7. **Run `pr-review-loop` skill.** The erxes repo uses AI reviewers (CodeRabbit,
+   Sourcery, Claude Code Action, Kimi, SonarCloud). After every commit to a PR,
+   you MUST poll for new comments, address every actionable item, wait for CI
+   checks to pass, and loop until zero open comments and all checks green.
+   Only then is the task done. Do not declare a task complete while PR
+   comments are unresolved or CI is failing.
+
 ## Engineering Expectations
 
 - Consistency over cleverness

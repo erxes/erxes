@@ -130,6 +130,38 @@ After coding:
 6. **If you created a plugin, run `.agents/scripts/validate-scaffold.sh <plugin> [scope]`**
    to ensure the scaffolded code was properly fixed.
 
+## PR Review Loop (Mandatory)
+
+The erxes repo uses AI reviewers (CodeRabbit, Sourcery, Claude Code Action, Kimi,
+SonarCloud) on every PR. You MUST NOT declare a task complete while:
+
+- PR comments from AI reviewers are unresolved
+- CI checks are failing
+- `github-advanced-security[bot]` has flagged regressions
+
+### After Every Commit to a PR
+
+1. **Wait for CI** — Poll `gh pr checks` until no check is `pending`
+2. **Buffer** — Sleep 180s for async AI reviewers to finish posting
+3. **Poll comment stability** — Wait for comment count to stabilize across 2 consecutive polls
+4. **Triage** — Classify every comment: fix vs reply vs skip
+5. **Apply fixes** — One consolidated commit per round with all code changes
+6. **Post replies** — For non-actionable items (style, docs, out-of-scope)
+7. **Loop** — Re-fetch review state. Repeat until ALL of:
+   - Zero unanswered bot threads (use author-engagement filter, not `isResolved`)
+   - Zero failing relevant checks
+   - Zero walkthrough findings (Kimi/SonarCloud top-level comments)
+   - Comment count stable
+   - Working tree clean
+
+### Stop Conditions
+
+- **Settled** — all reviews addressed + CI green → task done
+- **Round cap** — default 5 rounds. If not settled, write blocker report and stop
+- **Merge conflict** — write blocker report, do NOT auto-rebase
+
+Use the `pr-review-loop` skill for this workflow. It composes with `plugin-workflow`.
+
 ## Red Lines (IMMEDIATE REJECTION)
 
 Performance matching any of these patterns will result in immediate task rejection and system reset:

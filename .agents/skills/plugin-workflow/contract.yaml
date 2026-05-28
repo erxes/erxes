@@ -71,6 +71,7 @@ composes_with:
   - configure-plugin-navigation
   - fix-sonar
   - operation-plugin-reference
+  - pr-review-loop
 
 workflow:
   phases:
