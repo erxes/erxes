@@ -14,23 +14,16 @@ const { MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true' } =
 
 if (!MONGO_URL) throw new Error('Environment variable MONGO_URL not set.');
 
-const STATIC_CHANNEL_ID = process.env.STATIC_CHANNEL_ID || 'J6TqczNih6GwscCBn';
+const STATIC_CHANNEL_ID = process.env.STATIC_CHANNEL_ID || 'MoxYtdjVP6arTc3jrUFZH';
 
-// ---------------------------------------------------------------------------
-// Collections
-// ---------------------------------------------------------------------------
 
 const client = new MongoClient(MONGO_URL);
 let db: Db;
-let TEMPLATES: Collection; // response_templates (in-place update)
+let TEMPLATES: Collection;
 
 const BATCH_SIZE = 1000;
 
-// ---------------------------------------------------------------------------
-// HTML → Blocknote block converter
-// ---------------------------------------------------------------------------
 
-/** Generate a random 20-char ID for each block */
 function genId(): string {
   return randomBytes(15).toString('base64url').slice(0, 20);
 }
@@ -63,15 +56,11 @@ const DEFAULT_PROPS = {
   textAlignment:   'left',
 };
 
-/**
- * Convert an inline HTML fragment (inside a block element) to an array of
- * Blocknote TextNode objects, preserving bold / italic / underline / strikethrough.
- */
+
 function parseInline(html: string): TextNode[] {
   const nodes: TextNode[] = [];
   const stack: TextStyle[] = [{}];
 
-  // Split on all tags
   for (const token of html.split(/(<[^>]+>)/)) {
     if (!token) continue;
 
@@ -99,7 +88,6 @@ function parseInline(html: string): TextNode[] {
     }
   }
 
-  // Merge adjacent nodes with identical styles
   const merged: TextNode[] = [];
   for (const node of nodes) {
     const prev = merged[merged.length - 1];
@@ -113,7 +101,6 @@ function parseInline(html: string): TextNode[] {
   return merged.filter((n) => n.text !== '');
 }
 
-/** Build a paragraph block */
 function makeParagraph(inner: string): object {
   const content = parseInline(inner);
   return {
@@ -125,12 +112,6 @@ function makeParagraph(inner: string): object {
   };
 }
 
-/**
- * Convert old HTML content to a Blocknote JSON string.
- *
- * Handles: <h1-h6>, <p>, <ul>/<li>, <ol>/<li>, <div>, <br>,
- *          inline: <strong>, <b>, <em>, <i>, <u>, <s>, <del>
- */
 function htmlToBlocks(html: string): string {
   if (!html?.trim()) {
     return JSON.stringify([makeParagraph('')]);
@@ -140,7 +121,6 @@ function htmlToBlocks(html: string): string {
   let remaining = html.replace(/\r\n?/g, '\n');
 
   while (remaining.trim()) {
-    // ── heading ────────────────────────────────────────────────────────────
     const hm = remaining.match(/^\s*<(h[1-6])[^>]*>([\s\S]*?)<\/\1>/i);
     if (hm) {
       const level   = parseInt(hm[1][1], 10);
@@ -158,7 +138,6 @@ function htmlToBlocks(html: string): string {
       continue;
     }
 
-    // ── unordered list ─────────────────────────────────────────────────────
     const ulm = remaining.match(/^\s*<ul[^>]*>([\s\S]*?)<\/ul>/i);
     if (ulm) {
       const liRe = /<li[^>]*>([\s\S]*?)<\/li>/gi;
@@ -176,7 +155,6 @@ function htmlToBlocks(html: string): string {
       continue;
     }
 
-    // ── ordered list ───────────────────────────────────────────────────────
     const olm = remaining.match(/^\s*<ol[^>]*>([\s\S]*?)<\/ol>/i);
     if (olm) {
       const liRe = /<li[^>]*>([\s\S]*?)<\/li>/gi;
@@ -194,7 +172,6 @@ function htmlToBlocks(html: string): string {
       continue;
     }
 
-    // ── paragraph ──────────────────────────────────────────────────────────
     const pm = remaining.match(/^\s*<p[^>]*>([\s\S]*?)<\/p>/i);
     if (pm) {
       blocks.push(makeParagraph(pm[1]));
@@ -202,7 +179,6 @@ function htmlToBlocks(html: string): string {
       continue;
     }
 
-    // ── div (treat as paragraph) ───────────────────────────────────────────
     const dm = remaining.match(/^\s*<div[^>]*>([\s\S]*?)<\/div>/i);
     if (dm) {
       const content = parseInline(dm[1]);
@@ -215,15 +191,12 @@ function htmlToBlocks(html: string): string {
       continue;
     }
 
-    // ── <br> — skip ────────────────────────────────────────────────────────
     const brm = remaining.match(/^\s*<br\s*\/?>/i);
     if (brm) { remaining = remaining.slice(brm[0].length); continue; }
 
-    // ── any other tag — skip ───────────────────────────────────────────────
     const tagm = remaining.match(/^\s*<[^>]*>/);
     if (tagm) { remaining = remaining.slice(tagm[0].length); continue; }
 
-    // ── plain text ─────────────────────────────────────────────────────────
     const txm = remaining.match(/^([^<]+)/);
     if (txm) {
       const text = decodeEntities(txm[1]).trim();
@@ -240,7 +213,6 @@ function htmlToBlocks(html: string): string {
       continue;
     }
 
-    // safety valve — skip one character to avoid infinite loop
     remaining = remaining.slice(1);
   }
 
@@ -249,9 +221,6 @@ function htmlToBlocks(html: string): string {
   return JSON.stringify(blocks);
 }
 
-// ---------------------------------------------------------------------------
-// Migration
-// ---------------------------------------------------------------------------
 
 async function migrateResponseTemplates(): Promise<void> {
   console.log('\n🚀 Migrating response_templates → new Blocknote format');
@@ -321,9 +290,7 @@ async function migrateResponseTemplates(): Promise<void> {
   console.log(`✅ Migrated : ${migratedCount}  |  Skipped : ${skippedCount}`);
 }
 
-// ---------------------------------------------------------------------------
-// Entry point
-// ---------------------------------------------------------------------------
+
 
 const command = async () => {
   await client.connect();

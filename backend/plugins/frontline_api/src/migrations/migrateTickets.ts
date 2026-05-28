@@ -1,68 +1,66 @@
 import * as dotenv from 'dotenv';
+
 dotenv.config();
 
-import { Collection, Db, Document, MongoClient } from 'mongodb';
+import { Collection, Db, MongoClient } from 'mongodb';
 
-// ---------------------------------------------------------------------------
-// Config
-// ---------------------------------------------------------------------------
 
-const { MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true' } = process.env;
+const { MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true' } =
+  process.env;
 
-if (!MONGO_URL) throw new Error('Environment variable MONGO_URL not set.');
+if (!MONGO_URL) {
+  throw new Error('Environment variable MONGO_URL not set.');
+}
 
-const DRY_RUN = process.env.DRY_RUN === 'true' || process.argv.includes('--dry-run');
-const BATCH_SIZE = 1000;
+const STATIC_CHANNEL_ID = process.env.STATIC_CHANNEL_ID || 'MoxYtdjVP6arTc3jrUFZH';
 
-// ---------------------------------------------------------------------------
-// MongoDB
-// ---------------------------------------------------------------------------
+
+
 
 const client = new MongoClient(MONGO_URL);
 let db: Db;
 
-// Source (old)
-let OLD_BOARDS: Collection;
-let OLD_PIPELINES: Collection;
-let OLD_STAGES: Collection;
-let OLD_TICKETS: Collection;
-let OLD_COMMENTS: Collection;
-let OLD_CHECKLISTS: Collection;
+let OLD_PIPELINES:       Collection;
+let OLD_STAGES:          Collection;
+let OLD_TICKETS:         Collection;
+let OLD_COMMENTS:        Collection;
+let OLD_CHECKLISTS:      Collection;
 let OLD_CHECKLIST_ITEMS: Collection;
 
-// Target (new)
-let NEW_CHANNELS: Collection;   // boards → frontline_channels
-let NEW_PIPELINES: Collection;
-let NEW_STATUSES: Collection;
-let NEW_TICKETS: Collection;
-let NEW_NOTES: Collection;
+let NEW_PIPELINES:  Collection;
+let NEW_STATUSES:   Collection;
+let NEW_TICKETS:    Collection;
+let NEW_NOTES:      Collection;
 let NEW_ACTIVITIES: Collection;
 
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
+const BATCH_SIZE = 1000;
+
 
 const STATUS_TYPES = {
-  NEW: 1, OPEN: 2, IN_PROGRESS: 3, RESOLVED: 4, CLOSED: 5, CANCELLED: 6,
+  NEW:         1,
+  OPEN:        2,
+  IN_PROGRESS: 3,
+  RESOLVED:    4,
+  CLOSED:      5,
+  CANCELLED:   6,
 } as const;
 
 const STATUS_COLORS: Record<number, string> = {
-  1: '#3B82F6', 2: '#F59E0B', 3: '#FBBF24', 4: '#10B981', 5: '#6B7280', 6: '#EF4444',
+  1: '#3B82F6',
+  2: '#F59E0B',
+  3: '#FBBF24',
+  4: '#10B981',
+  5: '#6B7280',
+  6: '#EF4444',
 };
 
-const VALID_TICKET_TYPES = new Set(['bug', 'ticket', 'feature', 'question', 'incident']);
+const VALID_TICKET_TYPES = new Set([
+  'bug', 'ticket', 'feature', 'question', 'incident',
+]);
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
-const log  = (m: string) => console.log(`[${new Date().toISOString()}] ${m}`);
-const warn = (m: string) => console.warn(`[WARN]  ${m}`);
-const fail = (m: string, e?: unknown) =>
-  console.error(`[ERROR] ${m}`, e instanceof Error ? e.message : e ?? '');
 
-type RawDoc = Record<string, any>;
-
+/** Map old probability string → new status type number (1–6) */
 function probabilityToStatusType(probability?: string): number {
   switch (probability?.toLowerCase().trim()) {
     case 'won':
@@ -83,11 +81,11 @@ function probabilityToStatusType(probability?: string): number {
 }
 
 function positionToStatusType(pos: number, total: number): number {
-  if (total === 1)       return STATUS_TYPES.IN_PROGRESS;
-  if (pos === 0)         return STATUS_TYPES.NEW;
-  if (pos === 1)         return STATUS_TYPES.OPEN;
-  if (pos === total - 1) return STATUS_TYPES.CLOSED;
-  if (pos === total - 2) return STATUS_TYPES.RESOLVED;
+  if (total === 1)           return STATUS_TYPES.IN_PROGRESS;
+  if (pos === 0)             return STATUS_TYPES.NEW;
+  if (pos === 1)             return STATUS_TYPES.OPEN;
+  if (pos === total - 1)     return STATUS_TYPES.CLOSED;
+  if (pos === total - 2)     return STATUS_TYPES.RESOLVED;
   return STATUS_TYPES.IN_PROGRESS;
 }
 
@@ -112,312 +110,246 @@ function mapPriority(p?: string): number {
 }
 
 function normalizeTicketType(t?: string): string {
-  const lower = t?.toLowerCase() ?? '';
+  const lower = (t ?? '').toLowerCase();
   return VALID_TICKET_TYPES.has(lower) ? lower : 'ticket';
 }
 
-// ---------------------------------------------------------------------------
-// Step 1: tickets_boards → frontline_channels
-//   board._id is preserved as channel._id  (both are nanoid strings)
-// ---------------------------------------------------------------------------
+/** Load a Set of existing _ids for idempotent re-runs */
+async function loadExistingIds(col: Collection): Promise<Set<string>> {
+  const docs = await col.find({}, { projection: { _id: 1 } }).toArray();
+  return new Set(docs.map((d) => d._id.toString()));
+}
 
-async function migrateBoards(): Promise<Map<string, string>> {
-  log('Step 1: tickets_boards → frontline_channels …');
 
-  const boards = (await OLD_BOARDS.find({}).toArray()) as RawDoc[];
+async function migratePipelines(): Promise<void> {
+  console.log('\n🚀 Step 1 — tickets_pipelines → frontline_tickets_pipelines');
+  console.log(`   Channel  : ${STATIC_CHANNEL_ID}`);
 
-  // Collect pipeline memberIds per board (boards have no memberIds themselves)
-  const pipelines  = (await OLD_PIPELINES.find({ type: 'ticket' }).toArray()) as RawDoc[];
-  const boardMembers = new Map<string, Set<string>>();
-  for (const p of pipelines) {
-    const bid = p.boardId?.toString() || '';
-    if (!boardMembers.has(bid)) boardMembers.set(bid, new Set());
-    const set = boardMembers.get(bid) ?? new Set<string>();
-    for (const mid of (p.memberIds || [])) if (mid) set.add(mid);
-    boardMembers.set(bid, set);
-  }
+  const existingIds = await loadExistingIds(NEW_PIPELINES);
+  console.log(`📋 Existing : ${existingIds.size}`);
 
-  let created = 0;
-  let skipped = 0;
-  const boardToChannel = new Map<string, string>(); // boardId → channelId (same value)
+  const cursor = OLD_PIPELINES.find({ type: 'ticket' }).batchSize(BATCH_SIZE);
 
-  for (const board of boards) {
-    const boardId = board._id.toString();
+  let bulk:          any[] = [];
+  let migratedCount        = 0;
+  let skippedCount         = 0;
 
-    const existing = await NEW_CHANNELS.findOne({ _id: boardId } as RawDoc);
-    if (existing) {
-      boardToChannel.set(boardId, boardId);
-      skipped++;
+  for await (const doc of cursor) {
+    if (!doc) continue;
+
+    if (existingIds.has(doc._id.toString())) {
+      skippedCount++;
       continue;
     }
 
-    const memberSet = new Set<string>();
-    if (board.userId) memberSet.add(board.userId);
-    for (const mid of (boardMembers.get(boardId) ?? new Set())) memberSet.add(mid);
+    bulk.push({
+      insertOne: {
+        document: {
+          _id:                 doc._id,
+          name:                doc.name              || 'Untitled Pipeline',
+          channelId:           STATIC_CHANNEL_ID,
+          userId:              doc.userId,
+          order:               doc.order              ?? 0,
+          state:               doc.status === 'archived' ? 'archived' : 'active',
+          visibility:          doc.visibility         || 'public',
+          memberIds:           doc.memberIds          || [],
+          tagId:               doc.tagId,
+          isCheckDate:         doc.isCheckDate,
+          isCheckUser:         doc.isCheckUser,
+          isCheckDepartment:   doc.isCheckDepartment,
+          isCheckBranch:       doc.isCheckBranch,
+          isHideName:          doc.isHideName,
+          excludeCheckUserIds: doc.excludeCheckUserIds || [],
+          numberConfig:        doc.numberConfig,
+          numberSize:          doc.numberSize,
+          nameConfig:          doc.nameConfig,
+          lastNum:             doc.lastNum,
+          departmentIds:       doc.departmentIds      || [],
+          branchIds:           doc.branchIds          || [],
+          createdAt:           doc.createdAt          || new Date(),
+          updatedAt:           doc.modifiedAt         || doc.createdAt || new Date(),
+        },
+      },
+    });
 
-    const doc: RawDoc = {
-      _id:                   boardId,       // board._id preserved as channel._id
-      name:                  board.name         || 'Untitled',
-      description:           board.description  ?? '',
-      userId:                board.userId        || '',
-      memberIds:             [...memberSet],
-      createdAt:             board.createdAt     || new Date(),
-      createdBy:             board.userId        || '',
-      conversationCount:     0,
-      openConversationCount: 0,
-    };
+    migratedCount++;
 
-    if (DRY_RUN) {
-      log(`  [DRY] channel "${board.name}" (_id: ${boardId})`);
-    } else {
-      try {
-        await NEW_CHANNELS.insertOne(doc as Document);
-      } catch (e) {
-        fail(`  board → channel (${boardId})`, e);
-        continue;
-      }
+    if (bulk.length >= BATCH_SIZE) {
+      await NEW_PIPELINES.bulkWrite(bulk, { ordered: false });
+      console.log(`💾 Wrote batch of ${bulk.length} pipeline(s)`);
+      bulk = [];
     }
-
-    boardToChannel.set(boardId, boardId);
-    created++;
   }
 
-  log(`  created: ${created}  skipped: ${skipped}\n`);
-  return boardToChannel;
+  if (bulk.length) await NEW_PIPELINES.bulkWrite(bulk, { ordered: false });
+
+  console.log(`✅ Migrated : ${migratedCount}  |  Skipped : ${skippedCount}`);
 }
-
-// ---------------------------------------------------------------------------
-// Step 2: tickets_pipelines → frontline_tickets_pipeline
-// ---------------------------------------------------------------------------
-
-async function migratePipelines(boardToChannel: Map<string, string>): Promise<void> {
-  log('Step 2: tickets_pipelines → frontline_tickets_pipeline …');
-
-  const filter: RawDoc = { type: 'ticket', status: { $ne: 'archived' } };
-  const total = await OLD_PIPELINES.countDocuments(filter);
-  log(`  total: ${total}`);
-
-  let migrated = 0;
-  let skipped  = 0;
-  let errors   = 0;
-  let skip     = 0;
-
-  while (true) {
-    const docs = (await OLD_PIPELINES.find(filter).skip(skip).limit(BATCH_SIZE).toArray()) as RawDoc[];
-    if (!docs.length) break;
-
-    for (const doc of docs) {
-      const _id = doc._id.toString();
-
-      if (await NEW_PIPELINES.findOne({ _id: doc._id } as RawDoc)) { skipped++; continue; }
-
-      // boardId → channelId (same value — board._id was preserved as channel._id)
-      const channelId = boardToChannel.get(doc.boardId?.toString()) || doc.boardId?.toString() || '';
-      if (!channelId) { warn(`Pipeline "${doc.name}" (${_id}): no channelId`); errors++; continue; }
-
-      const record: RawDoc = {
-        _id:                 doc._id,
-        name:                doc.name             || 'Untitled Pipeline',
-        channelId,
-        userId:              doc.userId,
-        order:               doc.order            ?? 0,
-        state:               doc.status === 'active' ? 'active' : 'archived',
-        visibility:          doc.visibility       || 'public',
-        memberIds:           doc.memberIds        || [],
-        tagId:               doc.tagId,
-        isCheckDate:         doc.isCheckDate,
-        isCheckUser:         doc.isCheckUser,
-        isCheckDepartment:   doc.isCheckDepartment,
-        isCheckBranch:       doc.isCheckBranch,
-        isHideName:          doc.isHideName,
-        excludeCheckUserIds: doc.excludeCheckUserIds || [],
-        numberConfig:        doc.numberConfig,
-        numberSize:          doc.numberSize,
-        nameConfig:          doc.nameConfig,
-        lastNum:             doc.lastNum,
-        departmentIds:       doc.departmentIds    || [],
-        branchIds:           doc.branchIds        || [],
-        createdAt:           doc.createdAt        || new Date(),
-        updatedAt:           doc.modifiedAt       || doc.createdAt || new Date(),
-      };
-
-      if (DRY_RUN) { log(`  [DRY] pipeline "${doc.name}" → channelId: ${channelId}`); migrated++; continue; }
-
-      try { await NEW_PIPELINES.insertOne(record as Document); migrated++; }
-      catch (e) { fail(`  pipeline (${_id})`, e); errors++; }
-    }
-
-    skip += docs.length;
-    if (docs.length < BATCH_SIZE) break;
-  }
-
-  log(`  migrated: ${migrated}  skipped: ${skipped}  errors: ${errors}\n`);
-}
-
-// ---------------------------------------------------------------------------
-// Step 3: tickets_stages → frontline_tickets_pipeline_status
-// ---------------------------------------------------------------------------
 
 async function migrateStatuses(): Promise<void> {
-  log('Step 3: tickets_stages → frontline_tickets_pipeline_status …');
+  console.log('\n🚀 Step 2 — tickets_stages → frontline_tickets_pipeline_statuses');
 
-  const allStages = (await OLD_STAGES
-    .find({ type: 'ticket', status: { $ne: 'archived' } })
-    .sort({ order: 1 })
-    .toArray()) as RawDoc[];
+  const existingIds = await loadExistingIds(NEW_STATUSES);
+  console.log(`📋 Existing : ${existingIds.size}`);
 
-  log(`  total: ${allStages.length}`);
 
-  // Group by pipelineId to derive position-based status types
-  const byPipeline = new Map<string, RawDoc[]>();
-  for (const s of allStages) {
-    const pid = s.pipelineId?.toString() || '';
-    if (!byPipeline.has(pid)) byPipeline.set(pid, []);
-    byPipeline.get(pid)?.push(s);
+  const allStages = await OLD_STAGES
+    .find({ type: 'ticket' })
+    .sort({ order: 1, createdAt: 1 })
+    .toArray();
+
+  console.log(`📋 Source   : ${allStages.length} stage(s)`);
+
+  const byPipeline = new Map<string, any[]>();
+  for (const stage of allStages) {
+    const pid   = stage.pipelineId?.toString() || '';
+    const group = byPipeline.get(pid) ?? [];
+    group.push(stage);
+    byPipeline.set(pid, group);
   }
 
-  let migrated = 0;
-  let skipped  = 0;
-  let errors   = 0;
+  let bulk:          any[] = [];
+  let migratedCount        = 0;
+  let skippedCount         = 0;
 
-  for (const stages of byPipeline.values()) {
+  for (const [, stages] of byPipeline) {
     const total = stages.length;
 
     for (let i = 0; i < stages.length; i++) {
       const stage = stages[i];
-      const _id   = stage._id.toString();
 
-      if (await NEW_STATUSES.findOne({ _id: stage._id } as RawDoc)) { skipped++; continue; }
+      if (existingIds.has(stage._id.toString())) { skippedCount++; continue; }
+
+      if (!stage.pipelineId) {
+        console.log(`⏭️  No pipelineId — skipping stage "${stage.name}" (${stage._id})`);
+        skippedCount++;
+        continue;
+      }
 
       const statusType = stage.probability
         ? probabilityToStatusType(stage.probability)
         : positionToStatusType(i, total);
 
-      const record: RawDoc = {
-        _id:              stage._id,
-        name:             stage.name            || 'Untitled Status',
-        pipelineId:       stage.pipelineId,
-        type:             statusType,
-        order:            i,
-        color:            STATUS_COLORS[statusType] ?? '#4F46E5',
-        probability:      probabilityToNumber(stage.probability),
-        visibilityType:   stage.visibility      || 'public',
-        memberIds:        stage.memberIds       || [],
-        canMoveMemberIds: stage.canMoveMemberIds || [],
-        canEditMemberIds: stage.canEditMemberIds || [],
-        departmentIds:    stage.departmentIds   || [],
-        state:            stage.status === 'active' ? 'active' : 'archived',
-        createdAt:        stage.createdAt       || new Date(),
-        updatedAt:        new Date(),
-      };
+      bulk.push({
+        insertOne: {
+          document: {
+            _id:              stage._id,
+            name:             stage.name             || 'Untitled Status',
+            pipelineId:       stage.pipelineId,
+            type:             statusType,
+            order:            stage.order            ?? i,
+            color:            stage.color            || STATUS_COLORS[statusType] || '#4F46E5',
+            probability:      probabilityToNumber(stage.probability),
+            visibilityType:   stage.visibility       || 'public',
+            memberIds:        stage.memberIds        || [],
+            canMoveMemberIds: stage.canMoveMemberIds || [],
+            canEditMemberIds: stage.canEditMemberIds || [],
+            departmentIds:    stage.departmentIds    || [],
+            state:            stage.status === 'archived' ? 'archived' : 'active',
+            createdAt:        stage.createdAt        || new Date(),
+            updatedAt:        stage.modifiedAt       || stage.createdAt || new Date(),
+          },
+        },
+      });
 
-      if (DRY_RUN) { log(`  [DRY] stage "${stage.name}" → type: ${statusType}, order: ${i}`); migrated++; continue; }
+      migratedCount++;
 
-      try { await NEW_STATUSES.insertOne(record as Document); migrated++; }
-      catch (e) { fail(`  status (${_id})`, e); errors++; }
+      if (bulk.length >= BATCH_SIZE) {
+        await NEW_STATUSES.bulkWrite(bulk, { ordered: false });
+        console.log(`💾 Wrote batch of ${bulk.length} status(es)`);
+        bulk = [];
+      }
     }
   }
 
-  log(`  migrated: ${migrated}  skipped: ${skipped}  errors: ${errors}\n`);
+  if (bulk.length) await NEW_STATUSES.bulkWrite(bulk, { ordered: false });
+
+  console.log(`✅ Migrated : ${migratedCount}  |  Skipped : ${skippedCount}`);
 }
 
-// ---------------------------------------------------------------------------
-// Step 4: tickets → frontline_tickets
-// ---------------------------------------------------------------------------
-
 async function migrateTickets(): Promise<void> {
-  log('Step 4: tickets → frontline_tickets …');
+  console.log('\n🚀 Step 3 — tickets → frontline_tickets + frontline_ticket_activities');
 
-  // Build stage → pipelineId lookup
-  const allStages = (await OLD_STAGES.find({}).toArray()) as RawDoc[];
+  const allStages = await OLD_STAGES
+    .find({}, { projection: { _id: 1, pipelineId: 1 } })
+    .toArray();
   const stageToPipeline = new Map<string, string>(
     allStages.map((s) => [s._id.toString(), s.pipelineId?.toString() || '']),
   );
 
-  // Build pipelineId → channelId from already-migrated pipelines
-  const allPipelines = (await NEW_PIPELINES.find({}).toArray()) as RawDoc[];
-  const pipelineToChannel = new Map<string, string>(
-    allPipelines.map((p) => [p._id.toString(), p.channelId?.toString() || '']),
-  );
+  const existingIds = await loadExistingIds(NEW_TICKETS);
+  console.log(`📋 Existing : ${existingIds.size}`);
 
-  const filter: RawDoc = { type: { $ne: 'deal' } };
-  const total = await OLD_TICKETS.countDocuments(filter);
-  log(`  total: ${total}`);
+  const cursor = OLD_TICKETS.find({ type: { $ne: 'deal' } }).batchSize(BATCH_SIZE);
 
-  let migrated = 0;
-  let skipped  = 0;
-  let errors   = 0;
-  let skip     = 0;
+  let bulk:          any[] = [];
+  let activityBulk:  any[] = [];
+  let migratedCount        = 0;
+  let skippedCount         = 0;
 
-  while (true) {
-    const docs = (await OLD_TICKETS.find(filter).skip(skip).limit(BATCH_SIZE).toArray()) as RawDoc[];
-    if (!docs.length) break;
+  for await (const doc of cursor) {
+    if (!doc) continue;
 
-    for (const doc of docs) {
-      const _id = doc._id.toString();
+    if (existingIds.has(doc._id.toString())) { skippedCount++; continue; }
 
-      if (await NEW_TICKETS.findOne({ _id: doc._id } as RawDoc)) { skipped++; continue; }
+    const pipelineId = stageToPipeline.get(doc.stageId?.toString() || '') || '';
 
-      const pipelineId = stageToPipeline.get(doc.stageId?.toString() || '') || '';
-      const channelId  = pipelineToChannel.get(pipelineId) || '';
+    const subscribedUserIds = [
+      ...new Set<string>([
+        ...(doc.watchedUserIds  || []),
+        ...(doc.notifiedUserIds || []),
+      ]),
+    ];
 
-      if (!pipelineId) warn(`Ticket ${_id}: no pipeline (stageId=${doc.stageId})`);
-      if (!channelId)  warn(`Ticket ${_id}: no channelId (pipelineId=${pipelineId})`);
-
-      // watchedUserIds + notifiedUserIds → subscribedUserIds (deduped)
-      const subscribedUserIds = [
-        ...new Set<string>([
-          ...(doc.watchedUserIds  || []),
-          ...(doc.notifiedUserIds || []),
-        ]),
-      ];
-
-      // customFieldsData [{field, value}] → propertiesData {fieldId: value}
-      let propertiesData: Record<string, unknown> | undefined;
-      if (Array.isArray(doc.customFieldsData) && doc.customFieldsData.length) {
-        propertiesData = {};
-        for (const cf of doc.customFieldsData) {
-          if (cf.field) propertiesData[cf.field] = cf.value ?? cf.stringValue;
-        }
+    let propertiesData: Record<string, unknown> | undefined;
+    if (Array.isArray(doc.customFieldsData) && doc.customFieldsData.length) {
+      propertiesData = {};
+      for (const cf of doc.customFieldsData) {
+        if (cf.field) propertiesData[cf.field] = cf.value ?? cf.stringValue;
       }
+    }
 
-      const record: RawDoc = {
-        _id:               doc._id,
-        name:              doc.name          || 'Untitled',
-        description:       doc.description,
-        channelId,
-        pipelineId,
-        statusId:          doc.stageId,       // stageId → statusId
-        stageId:           doc.stageId,
-        type:              normalizeTicketType(doc.type),
-        priority:          mapPriority(doc.priority),
-        assigneeId:        doc.assignedUserIds?.[0] ?? undefined,
-        createdBy:         doc.userId,
-        userId:            doc.userId,
-        attachments:       doc.attachments   || [],
-        labelIds:          doc.labelIds      || [],
-        tagIds:            doc.tagIds        || [],
-        startDate:         doc.startDate,
-        targetDate:        doc.closeDate,     // closeDate → targetDate
-        statusChangedDate: doc.stageChangedDate || doc.createdAt || new Date(),
-        number:            doc.number,
-        statusType:        0,
-        subscribedUserIds,
-        propertiesData,
-        companyIds:        doc.companyIds    || [],
-        ...(doc.sourceConversationIds?.length
-          ? { customerFieldData: { sourceConversationIds: doc.sourceConversationIds } }
-          : {}),
-        state:     doc.status === 'archived' ? 'archived' : 'active',
-        createdAt: doc.createdAt             || new Date(),
-        updatedAt: doc.modifiedAt            || doc.createdAt || new Date(),
-      };
+    const customerFieldData: Record<string, unknown> = {};
+    if (doc.sourceConversationIds?.length) customerFieldData.sourceConversationIds = doc.sourceConversationIds;
+    if (doc.customerIds?.length)           customerFieldData.customerIds           = doc.customerIds;
 
-      if (DRY_RUN) { log(`  [DRY] ticket "${doc.name}" (${_id})`); migrated++; continue; }
+    bulk.push({
+      insertOne: {
+        document: {
+          _id:               doc._id,
+          name:              doc.name          || 'Untitled',
+          description:       doc.description,
+          channelId:         STATIC_CHANNEL_ID,
+          pipelineId,
+          statusId:          doc.stageId,
+          stageId:           doc.stageId,
+          type:              normalizeTicketType(doc.type),
+          priority:          mapPriority(doc.priority),
+          assigneeId:        doc.assignedUserIds?.[0] ?? undefined,
+          createdBy:         doc.userId,
+          userId:            doc.userId,
+          attachments:       doc.attachments   || [],
+          labelIds:          doc.labelIds      || [],
+          tagIds:            doc.tagIds        || [],
+          startDate:         doc.startDate,
+          targetDate:        doc.closeDate,
+          statusChangedDate: doc.stageChangedDate || doc.createdAt || new Date(),
+          number:            doc.number,
+          statusType:        0,
+          subscribedUserIds,
+          propertiesData,
+          companyIds:        doc.companyIds    || [],
+          customerFieldData,
+          state:             doc.status === 'archived' ? 'archived' : 'active',
+          createdAt:         doc.createdAt     || new Date(),
+          updatedAt:         doc.modifiedAt    || doc.createdAt || new Date(),
+        },
+      },
+    });
 
-      try {
-        await NEW_TICKETS.insertOne(record as Document);
-        await NEW_ACTIVITIES.insertOne({
+    activityBulk.push({
+      insertOne: {
+        document: {
           action:    'CREATED',
           contentId: doc._id,
           module:    'NAME',
@@ -425,161 +357,154 @@ async function migrateTickets(): Promise<void> {
           createdBy: doc.userId || 'migration',
           createdAt: doc.createdAt || new Date(),
           updatedAt: doc.createdAt || new Date(),
-        });
-        migrated++;
-      } catch (e) {
-        fail(`  ticket (${_id})`, e);
-        errors++;
-      }
-    }
+        },
+      },
+    });
 
-    skip += docs.length;
-    if (docs.length < BATCH_SIZE) break;
+    migratedCount++;
+
+    if (bulk.length >= BATCH_SIZE) {
+      await NEW_TICKETS.bulkWrite(bulk, { ordered: false });
+      await NEW_ACTIVITIES.bulkWrite(activityBulk, { ordered: false });
+      console.log(`💾 Wrote batch of ${bulk.length} ticket(s)`);
+      bulk         = [];
+      activityBulk = [];
+    }
   }
 
-  log(`  migrated: ${migrated}  skipped: ${skipped}  errors: ${errors}\n`);
-}
+  if (bulk.length) {
+    await NEW_TICKETS.bulkWrite(bulk, { ordered: false });
+    await NEW_ACTIVITIES.bulkWrite(activityBulk, { ordered: false });
+  }
 
-// ---------------------------------------------------------------------------
-// Step 5: ticket_comments → frontline_tickets_notes
-// ---------------------------------------------------------------------------
+  console.log(`✅ Migrated : ${migratedCount}  |  Skipped : ${skippedCount}`);
+}
 
 async function migrateComments(): Promise<void> {
-  log('Step 5: ticket_comments → frontline_tickets_notes …');
+  console.log('\n🚀 Step 4 — ticket_comments → frontline_tickets_notes');
 
-  const filter: RawDoc = { content: { $exists: true, $ne: '' } };
-  const total = await OLD_COMMENTS.countDocuments(filter);
-  log(`  total: ${total}`);
+  const existingIds = await loadExistingIds(NEW_NOTES);
+  console.log(`📋 Existing : ${existingIds.size}`);
 
-  let migrated = 0;
-  let skipped  = 0;
-  let errors   = 0;
-  let skip     = 0;
+  const cursor = OLD_COMMENTS
+    .find({ content: { $exists: true, $ne: '' } })
+    .batchSize(BATCH_SIZE);
 
-  while (true) {
-    const docs = (await OLD_COMMENTS.find(filter).skip(skip).limit(BATCH_SIZE).toArray()) as RawDoc[];
-    if (!docs.length) break;
+  let bulk:          any[] = [];
+  let migratedCount        = 0;
+  let skippedCount         = 0;
 
-    for (const doc of docs) {
-      const _id = doc._id.toString();
+  for await (const doc of cursor) {
+    if (!doc) continue;
 
-      if (await NEW_NOTES.findOne({ _id: doc._id } as RawDoc)) { skipped++; continue; }
+    if (existingIds.has(doc._id.toString())) { skippedCount++; continue; }
 
-      if (!doc.content || !doc.typeId || !doc.userId) {
-        warn(`Comment ${_id}: missing content/typeId/userId — skipped.`);
-        skipped++;
-        continue;
-      }
-
-      // Replies: prefix with reference to parent
-      const content = doc.parentId
-        ? `*(Reply to comment ${doc.parentId})*\n\n${doc.content}`
-        : doc.content;
-
-      const record: RawDoc = {
-        _id:       doc._id,
-        content,
-        contentId: doc.typeId,    // typeId = ticket _id
-        createdBy: doc.userId,
-        mentions:  [],
-        createdAt: doc.createdAt || new Date(),
-        updatedAt: doc.createdAt || new Date(),
-      };
-
-      if (DRY_RUN) { log(`  [DRY] comment ${_id} → note for ticket ${doc.typeId}`); migrated++; continue; }
-
-      try { await NEW_NOTES.insertOne(record as Document); migrated++; }
-      catch (e) { fail(`  comment (${_id})`, e); errors++; }
+    if (!doc.content || !doc.typeId || !doc.userId) {
+      console.log(`⏭️  Skipping comment ${doc._id} — missing content/typeId/userId`);
+      skippedCount++;
+      continue;
     }
 
-    skip += docs.length;
-    if (docs.length < BATCH_SIZE) break;
+    const content = doc.parentId
+      ? `*(Reply to comment ${doc.parentId})*\n\n${doc.content}`
+      : doc.content;
+
+    bulk.push({
+      insertOne: {
+        document: {
+          _id:       doc._id,
+          content,
+          contentId: doc.typeId,
+          createdBy: doc.userId,
+          mentions:  [],
+          createdAt: doc.createdAt || new Date(),
+          updatedAt: doc.createdAt || new Date(),
+        },
+      },
+    });
+
+    migratedCount++;
+
+    if (bulk.length >= BATCH_SIZE) {
+      await NEW_NOTES.bulkWrite(bulk, { ordered: false });
+      console.log(`💾 Wrote batch of ${bulk.length} note(s)`);
+      bulk = [];
+    }
   }
 
-  log(`  migrated: ${migrated}  skipped: ${skipped}  errors: ${errors}\n`);
-}
+  if (bulk.length) await NEW_NOTES.bulkWrite(bulk, { ordered: false });
 
-// ---------------------------------------------------------------------------
-// Step 6: tickets_checklists + items → frontline_tickets_notes  (markdown)
-// ---------------------------------------------------------------------------
+  console.log(`✅ Migrated : ${migratedCount}  |  Skipped : ${skippedCount}`);
+}
 
 async function migrateChecklists(): Promise<void> {
-  log('Step 6: tickets_checklists → frontline_tickets_notes (markdown) …');
+  console.log('\n🚀 Step 5 — tickets_checklists → frontline_tickets_notes (markdown)');
 
-  const filter: RawDoc = { contentType: 'ticket' };
-  const total = await OLD_CHECKLISTS.countDocuments(filter);
-  log(`  total: ${total}`);
+  const existingIds = await loadExistingIds(NEW_NOTES);
+  console.log(`📋 Existing : ${existingIds.size}`);
 
-  let migrated = 0;
-  let skipped  = 0;
-  let errors   = 0;
-  let skip     = 0;
+  const cursor = OLD_CHECKLISTS
+    .find({ contentType: 'ticket' })
+    .batchSize(BATCH_SIZE);
 
-  while (true) {
-    const docs = (await OLD_CHECKLISTS.find(filter).skip(skip).limit(BATCH_SIZE).toArray()) as RawDoc[];
-    if (!docs.length) break;
+  let bulk:          any[] = [];
+  let migratedCount        = 0;
+  let skippedCount         = 0;
 
-    for (const checklist of docs) {
-      const checklistId = checklist._id.toString();
-      const noteId      = `cl_${checklistId}`; // stable, collision-free _id
+  for await (const checklist of cursor) {
+    if (!checklist) continue;
 
-      if (await NEW_NOTES.findOne({ _id: noteId } as RawDoc)) { skipped++; continue; }
+    const noteId = `cl_${checklist._id.toString()}`;
 
-      const items = (await OLD_CHECKLIST_ITEMS
-        .find({ checklistId: checklist._id } as RawDoc)
-        .sort({ order: 1 })
-        .toArray()) as RawDoc[];
+    if (existingIds.has(noteId)) { skippedCount++; continue; }
 
-      const lines = items
-        .map((item) => `- [${item.isChecked ? 'x' : ' '}] ${item.content}`)
-        .join('\n');
+    const items = await OLD_CHECKLIST_ITEMS
+      .find({ checklistId: checklist._id })
+      .sort({ order: 1 })
+      .toArray();
 
-      const content =
-        `**${checklist.title || 'Checklist'}**\n\n` +
-        (lines || '*(empty checklist)*');
+    const lines = items
+      .map((item) => `- [${item.isChecked ? 'x' : ' '}] ${item.content}`)
+      .join('\n');
 
-      const record: RawDoc = {
-        _id:       noteId,
-        content,
-        contentId: checklist.contentTypeId,    // ticket _id
-        createdBy: checklist.createdUserId || 'migration',
-        mentions:  [],
-        createdAt: checklist.createdDate   || new Date(),
-        updatedAt: checklist.createdDate   || new Date(),
-      };
+    const content =
+      `**${checklist.title || 'Checklist'}**\n\n` +
+      (lines || '*(empty checklist)*');
 
-      if (DRY_RUN) {
-        log(`  [DRY] checklist "${checklist.title}" (${checklistId}) — ${items.length} item(s)`);
-        migrated++;
-        continue;
-      }
+    bulk.push({
+      insertOne: {
+        document: {
+          _id:       noteId,
+          content,
+          contentId: checklist.contentTypeId,
+          createdBy: checklist.createdUserId || 'migration',
+          mentions:  [],
+          createdAt: checklist.createdDate   || new Date(),
+          updatedAt: checklist.createdDate   || new Date(),
+        },
+      },
+    });
 
-      try { await NEW_NOTES.insertOne(record as Document); migrated++; }
-      catch (e) { fail(`  checklist (${checklistId})`, e); errors++; }
+    migratedCount++;
+
+    if (bulk.length >= BATCH_SIZE) {
+      await NEW_NOTES.bulkWrite(bulk, { ordered: false });
+      console.log(`💾 Wrote batch of ${bulk.length} checklist note(s)`);
+      bulk = [];
     }
-
-    skip += docs.length;
-    if (docs.length < BATCH_SIZE) break;
   }
 
-  log(`  migrated: ${migrated}  skipped: ${skipped}  errors: ${errors}\n`);
+  if (bulk.length) await NEW_NOTES.bulkWrite(bulk, { ordered: false });
+
+  console.log(`✅ Migrated : ${migratedCount}  |  Skipped : ${skippedCount}`);
 }
 
-// ---------------------------------------------------------------------------
-// Entry point
-// ---------------------------------------------------------------------------
 
 const command = async () => {
-  log('=== Ticket Migration ===');
-  log(`DRY_RUN:   ${DRY_RUN}`);
-  log(`MONGO_URL: ${MONGO_URL.replace(/\/\/[^@]+@/, '//<hidden>@')}`);
-  log('');
-
   await client.connect();
+
   db = client.db() as Db;
 
-  // Source collections
-  OLD_BOARDS          = db.collection('tickets_boards');
   OLD_PIPELINES       = db.collection('tickets_pipelines');
   OLD_STAGES          = db.collection('tickets_stages');
   OLD_TICKETS         = db.collection('tickets');
@@ -587,31 +512,28 @@ const command = async () => {
   OLD_CHECKLISTS      = db.collection('tickets_checklists');
   OLD_CHECKLIST_ITEMS = db.collection('tickets_checklist_items');
 
-  // Target collections
-  NEW_CHANNELS   = db.collection('channels');
-  NEW_PIPELINES  = db.collection('frontline_tickets_pipeline');
-  NEW_STATUSES   = db.collection('frontline_tickets_pipeline_status');
+  NEW_PIPELINES  = db.collection('frontline_tickets_pipelines');
+  NEW_STATUSES   = db.collection('frontline_tickets_pipeline_statuses');
   NEW_TICKETS    = db.collection('frontline_tickets');
   NEW_NOTES      = db.collection('frontline_tickets_notes');
   NEW_ACTIVITIES = db.collection('frontline_ticket_activities');
 
-  log(`Connected: ${db.databaseName}\n`);
+  console.log('═══════════════════════════════════════════════');
+  console.log('  Frontline ticket migration');
+  console.log(`  STATIC_CHANNEL_ID : ${STATIC_CHANNEL_ID}`);
+  console.log('═══════════════════════════════════════════════');
 
-  try {
-    const boardToChannel = await migrateBoards();
-    await migratePipelines(boardToChannel);
-    await migrateStatuses();
-    await migrateTickets();
-    await migrateComments();
-    await migrateChecklists();
-  } finally {
-    await client.close();
-  }
+  await migratePipelines().catch((e) => console.log(`❌ Step 1 error: ${e.message}`));
+  await migrateStatuses().catch((e)  => console.log(`❌ Step 2 error: ${e.message}`));
+  await migrateTickets().catch((e)   => console.log(`❌ Step 3 error: ${e.message}`));
+  await migrateComments().catch((e)  => console.log(`❌ Step 4 error: ${e.message}`));
+  await migrateChecklists().catch((e)=> console.log(`❌ Step 5 error: ${e.message}`));
 
-  log('Done ✅');
+  console.log('\n═══════════════════════════════════════════════');
+  console.log(`  Finished at: ${new Date().toISOString()}`);
+  console.log('═══════════════════════════════════════════════');
+
+  process.exit();
 };
 
-command().catch((err) => {
-  fail('Migration failed', err);
-  process.exit(1);
-});
+command();
