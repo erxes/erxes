@@ -45,8 +45,6 @@ export const useCheckSyncedDealsVariables = (
   const [
     {
       user,
-      boardId,
-      pipelineId,
       stageId,
       dealSearch,
       number,
@@ -83,6 +81,7 @@ export const useCheckSyncedDealsVariables = (
 
   return {
     limit: CHECK_SYNCED_DEALS_PER_PAGE,
+    noSkipArchive: true,
     orderBy: {
       createdAt: -1,
     },
