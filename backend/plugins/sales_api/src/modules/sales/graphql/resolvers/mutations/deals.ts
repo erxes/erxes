@@ -13,7 +13,7 @@ import {
   copyChecklists,
   subscriptionWrapper,
 } from '../utils';
-import { addDeal, changeDeal, editDeal } from './utils';
+import { addDeal, changeDeal, createProductsData, editDeal } from './utils';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { Resolver } from 'erxes-api-shared/core-types';
 
@@ -227,93 +227,11 @@ export const dealMutations: Record<string, Resolver> = {
 
   async dealsCreateProductsData(
     _root,
-    {
-      processId,
-      dealId,
-      docs,
-    }: {
-      processId: string;
-      dealId: string;
-      docs: IProductData[];
-    },
-    { models, user, checkPermission }: IContext,
+    { processId, dealId, docs }: { processId: string; dealId: string; docs: IProductData[] },
+    { models, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
-    const deal = await models.Deals.getDeal(dealId);
-    const stage = await models.Stages.getStage(deal.stageId);
-
-    const oldDataIds = (deal.productsData || []).map((pd) => pd._id);
-
-    const { assignedUserIds, addedUserIds, removedUserIds } =
-      checkAssignedUserFromPData(
-        deal.assignedUserIds,
-        [
-          ...(deal.productsData || [])
-            .filter((pdata) => pdata.assignUserId)
-            .map((pdata) => pdata.assignUserId || ''),
-          ...docs
-            .filter((pdata) => pdata.assignUserId)
-            .map((pdata) => pdata.assignUserId || ''),
-        ],
-        deal.productsData,
-      );
-
-    for (const doc of docs) {
-      if (doc._id) {
-        const checkDup = (deal.productsData || []).find(
-          (pd) => pd._id === doc._id,
-        );
-        if (checkDup) {
-          throw new Error('Deals productData duplicated');
-        }
-      }
-    }
-
-    // undefenid or null then true
-    const tickUsed = !(stage.defaultTick === false);
-    const addDocs = (docs || []).map(
-      (doc) => ({ ...doc, tickUsed } as IProductData),
-    );
-    const productsData: IProductData[] = (deal.productsData || []).concat(
-      addDocs,
-    );
-
-    const updatedItem =
-      (await models.Deals.findOneAndUpdate(
-        { _id: dealId },
-        {
-          $set: {
-            productsData,
-            assignedUserIds,
-            ...(await getTotalAmounts(productsData)),
-          },
-        },
-        {
-          new: true,
-        },
-      )) || ({} as any);
-
-    const dataIds = (updatedItem.productsData || [])
-      .filter((pd) => !oldDataIds.includes(pd._id))
-      .map((pd) => pd._id);
-
-    graphqlPubsub.publish(`salesProductsDataChanged:${dealId}`, {
-      salesProductsDataChanged: {
-        _id: dealId,
-        processId,
-        action: 'create',
-        data: {
-          dataIds,
-          docs,
-          productsData,
-        },
-      },
-    });
-
-    return {
-      dataIds,
-      productsData,
-    };
+    return createProductsData({ models, processId, dealId, docs });
   },
 
   async dealsEditProductData(
@@ -405,92 +323,10 @@ export const dealMutations: Record<string, Resolver> = {
 
   async cpDealsCreateProductsData(
     _root,
-    {
-      processId,
-      dealId,
-      docs,
-    }: {
-      processId: string;
-      dealId: string;
-      docs: IProductData[];
-    },
-    { models, user }: IContext,
+    { processId, dealId, docs }: { processId: string; dealId: string; docs: IProductData[] },
+    { models }: IContext,
   ) {
-    const deal = await models.Deals.getDeal(dealId);
-    const stage = await models.Stages.getStage(deal.stageId);
-
-    const oldDataIds = (deal.productsData || []).map((pd) => pd._id);
-
-    const { assignedUserIds, addedUserIds, removedUserIds } =
-      checkAssignedUserFromPData(
-        deal.assignedUserIds,
-        [
-          ...(deal.productsData || [])
-            .filter((pdata) => pdata.assignUserId)
-            .map((pdata) => pdata.assignUserId || ''),
-          ...docs
-            .filter((pdata) => pdata.assignUserId)
-            .map((pdata) => pdata.assignUserId || ''),
-        ],
-        deal.productsData,
-      );
-
-    for (const doc of docs) {
-      if (doc._id) {
-        const checkDup = (deal.productsData || []).find(
-          (pd) => pd._id === doc._id,
-        );
-        if (checkDup) {
-          throw new Error('Deals productData duplicated');
-        }
-      }
-    }
-
-    // undefenid or null then true
-    const tickUsed = !(stage.defaultTick === false);
-    const addDocs = (docs || []).map(
-      (doc) => ({ ...doc, tickUsed } as IProductData),
-    );
-    const productsData: IProductData[] = (deal.productsData || []).concat(
-      addDocs,
-    );
-
-    const updatedItem =
-      (await models.Deals.findOneAndUpdate(
-        { _id: dealId },
-        {
-          $set: {
-            productsData,
-            assignedUserIds,
-            ...(await getTotalAmounts(productsData)),
-          },
-        },
-        {
-          new: true,
-        },
-      )) || ({} as any);
-
-    const dataIds = (updatedItem.productsData || [])
-      .filter((pd) => !oldDataIds.includes(pd._id))
-      .map((pd) => pd._id);
-
-    graphqlPubsub.publish(`salesProductsDataChanged:${dealId}`, {
-      salesProductsDataChanged: {
-        _id: dealId,
-        processId,
-        action: 'create',
-        data: {
-          dataIds,
-          docs,
-          productsData,
-        },
-      },
-    });
-
-    return {
-      dataIds,
-      productsData,
-    };
+    return createProductsData({ models, processId, dealId, docs });
   },
 
   async cpDealsEditProductData(
