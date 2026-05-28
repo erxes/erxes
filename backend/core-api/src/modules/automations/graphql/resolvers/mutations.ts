@@ -57,7 +57,6 @@ export const automationMutations = {
 
     return models.Automations.getAutomation(_id);
   },
-
   /**
    * Archive automations
    */
