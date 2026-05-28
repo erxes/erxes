@@ -59,7 +59,10 @@ export const useScoreList = () => {
     'description',
   ]);
 
-  const dateRange = parseDateRangeFromString(scoreDate);
+  const dateRange = useMemo(
+    () => parseDateRangeFromString(scoreDate),
+    [scoreDate],
+  );
 
   const variables = useMemo(
     () => ({
@@ -81,8 +84,7 @@ export const useScoreList = () => {
       scoreOwnerType,
       scoreOwnerId,
       scoreCampaignId,
-      dateRange?.from,
-      dateRange?.to,
+      dateRange,
       scoreOrderType,
       scoreAction,
       scoreBoardId,

@@ -35,6 +35,38 @@ export interface IScoreLogModel extends Model<IScoreLogDocument> {
   changeOwnersScore(doc): Promise<IScoreLogDocument>;
 }
 
+const pickOwnerSummary = (owner: any, ownerType: string) => {
+  if (!owner) return null;
+  if (ownerType === 'user') {
+    return {
+      _id: owner._id,
+      email: owner.email,
+      details: {
+        fullName: owner.details?.fullName,
+        firstName: owner.details?.firstName,
+        lastName: owner.details?.lastName,
+        avatar: owner.details?.avatar,
+      },
+    };
+  }
+  if (ownerType === 'company') {
+    return {
+      _id: owner._id,
+      primaryName: owner.primaryName,
+      avatar: owner.avatar,
+    };
+  }
+  return {
+    _id: owner._id,
+    firstName: owner.firstName,
+    middleName: owner.middleName,
+    lastName: owner.lastName,
+    primaryEmail: owner.primaryEmail,
+    primaryPhone: owner.primaryPhone,
+    avatar: owner.avatar,
+  };
+};
+
 const generateFilter = async (
   params: IScoreLogParams,
   models: IModels,
@@ -314,7 +346,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
             ownerType,
             ownerId,
           });
-          if (owner) ownerMap.set(key, owner);
+          if (owner) ownerMap.set(key, pickOwnerSummary(owner, ownerType));
         }),
       );
 

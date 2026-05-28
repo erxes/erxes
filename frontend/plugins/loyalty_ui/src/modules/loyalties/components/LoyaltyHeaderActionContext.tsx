@@ -1,18 +1,23 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 
-type LoyaltyHeaderActionContextType = {
+type SetAction = React.Dispatch<React.SetStateAction<React.ReactNode>>;
+
+const LoyaltyHeaderActionValueContext = createContext<React.ReactNode>(null);
+const LoyaltyHeaderActionSetterContext = createContext<SetAction>(() => {});
+
+export const useLoyaltyHeaderActionValue = (): React.ReactNode =>
+  useContext(LoyaltyHeaderActionValueContext);
+
+export const useSetLoyaltyHeaderAction = (): SetAction =>
+  useContext(LoyaltyHeaderActionSetterContext);
+
+export const useLoyaltyHeaderAction = (): {
   action: React.ReactNode;
-  setAction: (node: React.ReactNode) => void;
-};
-
-const LoyaltyHeaderActionContext =
-  createContext<LoyaltyHeaderActionContextType>({
-    action: null,
-    setAction: () => {},
-  });
-
-export const useLoyaltyHeaderAction = () =>
-  useContext(LoyaltyHeaderActionContext);
+  setAction: SetAction;
+} => ({
+  action: useLoyaltyHeaderActionValue(),
+  setAction: useSetLoyaltyHeaderAction(),
+});
 
 export const LoyaltyHeaderActionProvider = ({
   children,
@@ -20,11 +25,12 @@ export const LoyaltyHeaderActionProvider = ({
   children: React.ReactNode;
 }) => {
   const [action, setAction] = useState<React.ReactNode>(null);
-  const value = useMemo(() => ({ action, setAction }), [action]);
 
   return (
-    <LoyaltyHeaderActionContext.Provider value={value}>
-      {children}
-    </LoyaltyHeaderActionContext.Provider>
+    <LoyaltyHeaderActionSetterContext.Provider value={setAction}>
+      <LoyaltyHeaderActionValueContext.Provider value={action}>
+        {children}
+      </LoyaltyHeaderActionValueContext.Provider>
+    </LoyaltyHeaderActionSetterContext.Provider>
   );
 };
