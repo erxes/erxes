@@ -2,7 +2,9 @@ import { TAfterProcessProducers } from 'erxes-api-shared/core-modules';
 import { HandlerContext, isUpdatedDocumentRule } from '../types';
 import { sendProducer, shouldProcessUpdatedDocument } from '../utils';
 
-export function handleUpdatedDocument(context: HandlerContext): void {
+export async function handleUpdatedDocument(
+  context: HandlerContext,
+): Promise<void> {
   if (!isUpdatedDocumentRule(context.rule)) {
     return;
   }
@@ -10,10 +12,9 @@ export function handleUpdatedDocument(context: HandlerContext): void {
   if (
     shouldProcessUpdatedDocument(context.rule, context, context.payload)
   ) {
-    sendProducer(context, TAfterProcessProducers.AFTER_DOCUMENT_UPDATED, {
+    await sendProducer(context, TAfterProcessProducers.AFTER_DOCUMENT_UPDATED, {
       ...context.payload,
       contentType: context.contentType,
     });
   }
 }
-

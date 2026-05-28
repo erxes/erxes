@@ -24,18 +24,26 @@ export function getAllKeys(obj: Record<string, any>, prefix = ''): string[] {
   return keys;
 }
 
-export function sendProducer(
+export async function sendProducer(
   context: AfterProcessContext,
   producerName: TAfterProcessProducers,
   input: any,
-): void {
-  sendCoreModuleProducer({
-    subdomain: context.subdomain,
-    pluginName: context.pluginName,
-    moduleName: 'afterProcess',
-    producerName,
-    input,
-  });
+): Promise<void> {
+  try {
+    await sendCoreModuleProducer({
+      subdomain: context.subdomain,
+      pluginName: context.pluginName,
+      moduleName: 'afterProcess',
+      producerName,
+      input,
+    });
+  } catch (error) {
+    console.error(
+      `Error sending afterProcess producer ${String(producerName)} to plugin ${
+        context.pluginName
+      }: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    );
+  }
 }
 
 export function shouldProcessUpdatedDocument(
