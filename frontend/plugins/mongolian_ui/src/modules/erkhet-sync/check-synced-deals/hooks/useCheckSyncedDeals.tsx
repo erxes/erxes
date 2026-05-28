@@ -21,7 +21,7 @@ import { checkSyncedDealsTotalCountAtom } from '../states/checkSyncedDealsCounts
 import { ICheckSyncedDeals } from '../types/checkSyncedDeals';
 import { useCheckSyncedDealsLeadSessionKey } from './useCheckSyncedDealsLeadSessionKey';
 
-export const CHECK_SYNCED_DEALS_PER_PAGE = 30;
+export const CHECK_SYNCED_DEALS_PER_PAGE = 20;
 
 type CheckSyncedResponse = {
   _id: string;
@@ -45,8 +45,6 @@ export const useCheckSyncedDealsVariables = (
   const [
     {
       user,
-      boardId,
-      pipelineId,
       stageId,
       dealSearch,
       number,
@@ -83,11 +81,12 @@ export const useCheckSyncedDealsVariables = (
 
   return {
     limit: CHECK_SYNCED_DEALS_PER_PAGE,
+    noSkipArchive: true,
     orderBy: {
       createdAt: -1,
     },
     cursor,
-    number: number || undefined,
+    number: String(number ?? '') || undefined,
     search: dealSearch || undefined,
     startDate: parseDateRangeFromString(dateRange)?.from,
     endDate: parseDateRangeFromString(dateRange)?.to,
@@ -95,8 +94,6 @@ export const useCheckSyncedDealsVariables = (
     type: 'checkSyncedDeals',
 
     userIds: user ? [user] : undefined,
-    boardIds: boardId ? [boardId] : undefined,
-    pipelineId: pipelineId || undefined,
     stageId: stageId || undefined,
     stageChangedStartDate: parseDateRangeFromString(stageChangedDateRange)
       ?.from,

@@ -152,32 +152,6 @@ export const sendErkhetPost = async (
     ? getErkhetErrorMessage(response, responseData)
     : undefined;
 
-  if (error) {
-    console.error('[syncerkhet:sendPost:error]', {
-      action,
-      requestUrl,
-      status: response.status,
-      statusText: response.statusText,
-      djangoError:
-        typeof responseData === 'string'
-          ? extractDjangoError(responseStr)
-          : undefined,
-      requestBody: body,
-      payloadData: payload,
-      response:
-        responseStr.length > 5000
-          ? `${responseStr.slice(0, 5000)}...`
-          : responseStr,
-    });
-  } else {
-    console.log('[syncerkhet:sendPost:success]', {
-      action,
-      requestUrl,
-      status: response.status,
-      response: responseStr,
-    });
-  }
-
   if (syncLog) {
     await models.SyncLogs.updateOne(
       { _id: syncLog._id },
