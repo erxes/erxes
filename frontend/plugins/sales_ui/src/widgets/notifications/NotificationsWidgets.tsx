@@ -89,8 +89,8 @@ const SalesDealNotificationContent = ({
           </span>
         </div>
 
-        <p className="text-foreground">
-          {action || 'has updated deal'}{' '}
+        <p className="flex flex-wrap items-baseline justify-center gap-1 text-foreground">
+          <span>{action || 'has updated deal'}</span>
           {loading ? (
             <Skeleton className="inline-block w-24 h-4 align-middle" />
           ) : (

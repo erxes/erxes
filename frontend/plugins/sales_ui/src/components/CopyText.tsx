@@ -18,7 +18,7 @@ export const CopyText = ({ value, children, className }: CopyTextProps) => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      // setCopied(false);
+      // clipboard write failed (e.g. permissions denied) — leave copied false
     }
   };
 
