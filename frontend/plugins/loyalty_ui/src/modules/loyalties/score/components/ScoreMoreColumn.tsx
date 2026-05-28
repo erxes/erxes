@@ -1,8 +1,7 @@
 import { Cell } from '@tanstack/react-table';
 import { useNavigate } from 'react-router-dom';
 import { Popover, Command, Combobox, RecordTable } from 'erxes-ui';
-import { IconEdit, IconExternalLink } from '@tabler/icons-react';
-import { IScoreLog } from '../types/score';
+import { IconExternalLink } from '@tabler/icons-react';
 
 export const getProfileUrl = (ownerId: string, ownerType: string): string => {
   switch (ownerType) {
@@ -20,20 +19,19 @@ export const getProfileUrl = (ownerId: string, ownerType: string): string => {
   }
 };
 
+interface MoreRow {
+  ownerId?: string;
+  ownerType?: string;
+}
+
 export const ScoreMoreColumnCell = ({
   cell,
-  onEdit,
 }: {
-  cell: Cell<IScoreLog, unknown>;
-  onEdit?: (record: IScoreLog) => void;
+  cell: Cell<MoreRow, unknown>;
 }) => {
   const navigate = useNavigate();
   const record = cell.row.original;
   const { ownerId, ownerType } = record;
-
-  const handleEdit = () => {
-    onEdit?.(record);
-  };
 
   const handleSeeProfile = () => {
     if (!ownerId || !ownerType) return;
@@ -48,10 +46,6 @@ export const ScoreMoreColumnCell = ({
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit size={14} />
-              Show scores
-            </Command.Item>
             <Command.Item
               value="see-profile"
               onSelect={handleSeeProfile}
@@ -67,10 +61,10 @@ export const ScoreMoreColumnCell = ({
   );
 };
 
-export const makeScoreMoreColumn = (onEdit?: (record: IScoreLog) => void) => ({
+export const makeScoreMoreColumn = () => ({
   id: 'more',
-  cell: ({ cell }: { cell: Cell<IScoreLog, unknown> }) => (
-    <ScoreMoreColumnCell cell={cell} onEdit={onEdit} />
+  cell: ({ cell }: { cell: Cell<MoreRow, unknown> }) => (
+    <ScoreMoreColumnCell cell={cell} />
   ),
   size: 30,
 });
