@@ -171,7 +171,7 @@ class TaxTrs {
     }
   };
 
-  private calcTaxValue = (kind: 'vat' | 'ctax', taxPercent: number) => {
+  private readonly calcTaxValue = (kind: 'vat' | 'ctax', taxPercent: number) => {
     const vatPercent = this.vatRow?.percent || 0;
     const ctaxPercent = this.ctaxRow?.percent || 0;
 

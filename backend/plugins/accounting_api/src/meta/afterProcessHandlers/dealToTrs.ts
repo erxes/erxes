@@ -150,9 +150,9 @@ export const dealToTrs = async ({
 
   const hasVat = config.hasVat && config.vatRowId;
   const firstCtaxRule = Object.values(ctaxRuleByProductId)[0];
-  const reverseCtaxRow = !config.hasCtax
-    ? await ensureCtaxRowByProductRule(models, firstCtaxRule)
-    : undefined;
+  const reverseCtaxRow = config.hasCtax ? undefined
+    : await ensureCtaxRowByProductRule(models, firstCtaxRule);
+
   const ctaxRowId = config.hasCtax ? config.ctaxRowId : reverseCtaxRow?._id;
   const hasCtax = !!ctaxRowId && (config.hasCtax || productIdsByCtaxRule.size);
 
