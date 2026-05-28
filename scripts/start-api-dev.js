@@ -3,7 +3,29 @@ require('dotenv').config();
 
 const { ENABLED_PLUGINS, ENABLED_SERVICES, ENABLED_PLUGINS_ONLY_API } =
   process.env;
-const { execFileSync, execSync } = require('child_process');
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+
+const getCurrentGitSha = () => {
+  const gitPath = path.join(process.cwd(), '.git');
+  const gitStat = fs.statSync(gitPath);
+  const gitDir = gitStat.isDirectory()
+    ? gitPath
+    : path.resolve(
+        process.cwd(),
+        fs.readFileSync(gitPath, 'utf8').trim().replace(/^gitdir:\s*/, ''),
+      );
+  const head = fs.readFileSync(path.join(gitDir, 'HEAD'), 'utf8').trim();
+
+  if (!head.startsWith('ref: ')) {
+    return head.slice(0, 10);
+  }
+
+  const refPath = path.join(gitDir, head.slice(5));
+
+  return fs.readFileSync(refPath, 'utf8').trim().slice(0, 10);
+};
 
 const shouldGenerateSentryRelease =
   !process.env.SENTRY_RELEASE ||
@@ -11,10 +33,7 @@ const shouldGenerateSentryRelease =
 
 if (shouldGenerateSentryRelease) {
   try {
-    const sha = execFileSync('/usr/bin/git', ['rev-parse', '--short', 'HEAD'], {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    }).trim();
+    const sha = getCurrentGitSha();
 
     process.env.SENTRY_RELEASE = `erxes-${sha}`;
     console.log(`Using SENTRY_RELEASE=${process.env.SENTRY_RELEASE}`);
