@@ -12,7 +12,10 @@ import {
 } from 'erxes-ui';
 import { atom, useAtom, useSetAtom } from 'jotai';
 import { useEffect } from 'react';
-import { checkSyncedMutation } from '../../shared/graphql/mutations/checkSyncedMutations';
+import {
+  checkSyncedMutation,
+  syncDealsMutation,
+} from '../../shared/graphql/mutations/checkSyncedMutations';
 import { checkSyncedDealsQuery } from '../graphql/queries/checkSyncedDealsQuery';
 import { checkSyncedDealsTotalCountAtom } from '../states/checkSyncedDealsCounts';
 import { ICheckSyncedDeals } from '../types/checkSyncedDeals';
@@ -88,20 +91,16 @@ export const useCheckSyncedDealsVariables = (
     search: dealSearch || undefined,
     startDate: parseDateRangeFromString(dateRange)?.from,
     endDate: parseDateRangeFromString(dateRange)?.to,
-    dateFilters: stageChangedDateRange
-      ? JSON.stringify({
-          [dateType || 'createdAt']: {
-            gte: parseDateRangeFromString(stageChangedDateRange)?.from,
-            lte: parseDateRangeFromString(stageChangedDateRange)?.to,
-          },
-        })
-      : undefined,
+    dateType: dateType || undefined,
     type: 'checkSyncedDeals',
 
     userIds: user ? [user] : undefined,
-    boardId: boardId || undefined,
+    boardIds: boardId ? [boardId] : undefined,
     pipelineId: pipelineId || undefined,
     stageId: stageId || undefined,
+    stageChangedStartDate: parseDateRangeFromString(stageChangedDateRange)
+      ?.from,
+    stageChangedEndDate: parseDateRangeFromString(stageChangedDateRange)?.to,
     ...variables,
   };
 };
@@ -113,6 +112,13 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
   const [toCheckSynced, { loading: checking }] = useMutation<{
     toCheckSynced: CheckSyncedResponse[];
   }>(checkSyncedMutation);
+  const [toSyncDeals, { loading: syncing }] = useMutation<{
+    toSyncDeals: {
+      skipped?: string[];
+      error?: string[];
+      success?: string[];
+    };
+  }>(syncDealsMutation);
   const { toast } = useToast();
   const variables = useCheckSyncedDealsVariables(options?.variables);
   const { data, loading, fetchMore } = useQuery<{
@@ -182,6 +188,50 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
     });
   };
 
+  const syncUncheckedDeals = async (ids: string[]) => {
+    const uncheckedIds = ids.filter(
+      (id) => checkedDeals[id]?.isSynced === false,
+    );
+
+    if (!uncheckedIds.length) {
+      toast({
+        title: 'Warning',
+        description: 'No unchecked deals to sync',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const response = await toSyncDeals({
+      variables: {
+        dealIds: uncheckedIds,
+        configStageId: variables.stageId,
+        dateType: variables.dateType,
+      },
+      onError: (error) => {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
+    });
+
+    const result = response.data?.toSyncDeals;
+    const successIds = result?.success || [];
+
+    if (successIds.length) {
+      await checkDeals(successIds);
+    }
+
+    toast({
+      title: 'Sync complete',
+      description: `${successIds.length} synced, ${
+        result?.error?.length || 0
+      } failed, ${result?.skipped?.length || 0} skipped`,
+    });
+  };
+
   useEffect(() => {
     if (!totalCount) return;
     setCheckSyncedDealsTotalCount(totalCount);
@@ -232,7 +282,9 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
     Deals,
     totalCount,
     checkDeals,
+    syncUncheckedDeals,
     checking,
+    syncing,
     handleFetchMore,
     pageInfo,
   };

@@ -59,9 +59,9 @@ export const erkhetTrpcRouter = t.router({
 
         return await sendErkhetPost(
           models,
-          syncLog,
           'get-response-send-order-info',
           postData,
+          syncLog,
         );
       } catch (e) {
         await models.SyncLogs.updateOne(
@@ -102,9 +102,9 @@ export const erkhetTrpcRouter = t.router({
 
           return await sendErkhetPost(
             models,
-            syncLog,
             'get-response-send-journal-orders',
             postData,
+            syncLog,
           );
         } catch (e) {
           await models.SyncLogs.updateOne(
@@ -144,9 +144,9 @@ export const erkhetTrpcRouter = t.router({
 
           return await sendErkhetPost(
             models,
-            syncLog,
             'get-response-delete-journal-orders',
             postData,
+            syncLog,
           );
         } catch (e) {
           await models.SyncLogs.updateOne(
