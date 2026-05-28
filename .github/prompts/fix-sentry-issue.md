@@ -16,6 +16,7 @@ Rules:
 - Run targeted tests first.
 - If full tests are too expensive, run the most relevant command and document exactly what was run.
 - Commit only relevant files.
+- Do not commit `.opencode-sentry-pr.md`; it is a temporary PR body handoff file.
 - Do not commit API keys, tokens, DSNs, secrets, or `.env` files.
 
 PR title format:
@@ -30,6 +31,26 @@ PR body must include:
 - Fix summary.
 - Tests run.
 - Risks / follow-up.
+
+Before finishing, write `.opencode-sentry-pr.md` with this exact structure:
+
+```markdown
+## Root cause
+
+<specific root cause, or "Unable to determine from available Sentry context">
+
+## Fix summary
+
+<specific files/behavior changed>
+
+## Tests run
+
+- `<command>`
+
+## Risks / follow-up
+
+- <risk or follow-up, or "None identified">
+```
 
 GitHub issue body:
 

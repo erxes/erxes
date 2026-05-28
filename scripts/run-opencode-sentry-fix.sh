@@ -10,6 +10,7 @@ ISSUE_URL="${ISSUE_URL:-}"
 DRY_RUN="${DRY_RUN:-0}"
 SKIP_AGENT="${SKIP_AGENT:-0}"
 REMOTE_NAME="${REMOTE_NAME:-origin}"
+AGENT_PR_SUMMARY="${ROOT_DIR}/.opencode-sentry-pr.md"
 
 fail() {
   printf 'error: %s\n' "$1" >&2
@@ -111,7 +112,8 @@ cd "$ROOT_DIR"
 
 BRANCH_NAME="automated/sentry-issue-${ISSUE_NUMBER}"
 PROMPT_FILE="$(mktemp)"
-trap 'rm -f "$PROMPT_FILE"' EXIT
+AGENT_PR_SUMMARY_TMP="$(mktemp)"
+trap 'rm -f "$PROMPT_FILE" "$AGENT_PR_SUMMARY_TMP"' EXIT
 build_prompt > "$PROMPT_FILE"
 
 if [ "$DRY_RUN" = "1" ]; then
@@ -156,6 +158,21 @@ if [ "$HAS_WORKTREE_CHANGES" = "0" ] && [ "$HAS_NEW_COMMITS" = "0" ]; then
   exit 0
 fi
 
+if [ -f "$AGENT_PR_SUMMARY" ]; then
+  cp "$AGENT_PR_SUMMARY" "$AGENT_PR_SUMMARY_TMP"
+  rm "$AGENT_PR_SUMMARY"
+fi
+
+HAS_WORKTREE_CHANGES=0
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  HAS_WORKTREE_CHANGES=1
+fi
+
+if [ "$HAS_WORKTREE_CHANGES" = "0" ] && [ "$HAS_NEW_COMMITS" = "0" ]; then
+  printf 'No commit-worthy file changes or new commits detected after removing PR summary.\n'
+  exit 0
+fi
+
 run_known_safe_checks
 
 if [ "$DRY_RUN" = "1" ]; then
@@ -175,7 +192,7 @@ command -v gh >/dev/null 2>&1 || fail "gh CLI is required to create the pull req
 
 SENTRY_LINK="$(printf '%s\n' "$ISSUE_BODY" | grep -Eo 'https://sentry\.erxes\.io/[^[:space:])>]+' | head -n 1 || true)"
 PR_BODY="$(mktemp)"
-trap 'rm -f "$PROMPT_FILE" "$PR_BODY"' EXIT
+trap 'rm -f "$PROMPT_FILE" "$AGENT_PR_SUMMARY_TMP" "$PR_BODY"' EXIT
 {
   printf 'Closes %s\n\n' "$ISSUE_URL"
   printf '## Sentry issue\n\n'
@@ -184,14 +201,18 @@ trap 'rm -f "$PROMPT_FILE" "$PR_BODY"' EXIT
   else
     printf 'Not present in the GitHub issue body.\n\n'
   fi
-  printf '## Root cause\n\n'
-  printf 'See the generated commit and issue context.\n\n'
-  printf '## Fix summary\n\n'
-  printf 'Implemented by OpenCode from the Sentry-generated issue context.\n\n'
-  printf '## Tests run\n\n'
-  printf '- `pnpm --version`\n\n'
-  printf '## Risks / follow-up\n\n'
-  printf '- Review the generated diff and run broader project-specific checks before merge.\n'
+  if [ -s "$AGENT_PR_SUMMARY_TMP" ]; then
+    cat "$AGENT_PR_SUMMARY_TMP"
+  else
+    printf '## Root cause\n\n'
+    printf 'OpenCode did not write `.opencode-sentry-pr.md`; review the generated diff and issue context.\n\n'
+    printf '## Fix summary\n\n'
+    printf 'Implemented by OpenCode from the Sentry-generated issue context.\n\n'
+    printf '## Tests run\n\n'
+    printf '- `pnpm --version`\n\n'
+    printf '## Risks / follow-up\n\n'
+    printf '- Review the generated diff and run broader project-specific checks before merge.\n'
+  fi
 } > "$PR_BODY"
 
 gh pr create \
