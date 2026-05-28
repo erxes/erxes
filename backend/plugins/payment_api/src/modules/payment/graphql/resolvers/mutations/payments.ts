@@ -36,9 +36,13 @@ async function handleQPaySetup(input: any) {
   const api = new QPayQuickQrAPI(input.config);
   const { isCompany } = input.config;
 
-  const response = isCompany
-    ? await api.createCompany(input.config)
-    : await api.createCustomer(input.config);
+  if (isCompany) {
+  input.config.name = input.config.companyName; 
+}
+
+const response = isCompany
+  ? await api.createCompany(input.config)
+  : await api.createCustomer(input.config);
 
   if (!response?.id) {
     throw new Error(
