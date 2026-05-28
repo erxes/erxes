@@ -56,8 +56,10 @@ COPY backend/erxes-api-shared/core-modules ./node_modules/erxes-api-shared/core-
 COPY backend/erxes-api-shared/package.json ./node_modules/erxes-api-shared/
 
 # Plugin compiled dist (built by CI before docker build)
+COPY sentry.instrument.cjs ./sentry.instrument.cjs
+
 COPY backend/plugins/sales_api/dist ./dist
 
 ENV NODE_ENV=production
 USER 1000
-CMD ["node", "dist/src/main.js"]
+CMD ["node", "--require", "/app/sentry.instrument.cjs", "dist/src/main.js"]

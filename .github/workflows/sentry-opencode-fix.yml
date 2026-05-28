@@ -1,0 +1,107 @@
+name: Sentry OpenCode Fix
+
+on:
+  issues:
+    types: [opened, labeled, edited]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: GitHub issue number to process
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: read
+
+concurrency:
+  group: sentry-opencode-${{ github.event.issue.number || inputs.issue_number }}
+  cancel-in-progress: false
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Resolve issue context
+        id: issue
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
+        with:
+          script: |
+            const issueNumber = context.eventName === 'workflow_dispatch'
+              ? Number(core.getInput('issue_number'))
+              : context.payload.issue.number;
+
+            if (!issueNumber) {
+              core.setFailed('No issue number was provided.');
+              return;
+            }
+
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+            });
+
+            const labels = issue.labels.map((label) =>
+              typeof label === 'string' ? label : label.name
+            );
+            const hasRequiredLabels = labels.includes('sentry') && labels.includes('opencode');
+
+            core.setOutput('number', String(issue.number));
+            core.setOutput('title', issue.title || '');
+            core.setOutput('body', issue.body || '');
+            core.setOutput('url', issue.html_url);
+            core.setOutput('labels', labels.join(','));
+            core.setOutput('should_run', hasRequiredLabels ? 'true' : 'false');
+
+            if (!hasRequiredLabels) {
+              core.notice(`Skipping issue #${issue.number}; labels are: ${labels.join(', ')}`);
+            }
+
+      - name: Checkout
+        if: steps.issue.outputs.should_run == 'true'
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          token: ${{ secrets.GH_TOKEN || github.token }}
+
+      - name: Set up Node
+        if: steps.issue.outputs.should_run == 'true'
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '20'
+
+      - name: Enable pnpm
+        if: steps.issue.outputs.should_run == 'true'
+        run: corepack enable
+
+      - name: Install OpenCode
+        if: steps.issue.outputs.should_run == 'true'
+        run: npm install -g opencode-ai@latest
+
+      - name: Configure git author
+        if: steps.issue.outputs.should_run == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Run OpenCode Sentry fix
+        if: steps.issue.outputs.should_run == 'true'
+        env:
+          ISSUE_NUMBER: ${{ steps.issue.outputs.number }}
+          ISSUE_TITLE: ${{ steps.issue.outputs.title }}
+          ISSUE_BODY: ${{ steps.issue.outputs.body }}
+          ISSUE_URL: ${{ steps.issue.outputs.url }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
+          KIMI_API_KEY: ${{ secrets.KIMI_API_KEY }}
+          KIMI_BASE_URL: ${{ vars.KIMI_BASE_URL || 'https://api.kimi.com/coding/v1' }}
+          KIMI_MODEL: ${{ vars.KIMI_MODEL || 'kimi-for-coding' }}
+          MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
+          MOONSHOT_BASE_URL: ${{ vars.MOONSHOT_BASE_URL || 'https://api.moonshot.ai/v1' }}
+          MOONSHOT_MODEL: ${{ vars.MOONSHOT_MODEL || 'kimi-k2.6' }}
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+        run: bash scripts/run-opencode-sentry-fix.sh

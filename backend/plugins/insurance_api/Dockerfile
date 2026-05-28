@@ -55,10 +55,12 @@ COPY backend/erxes-api-shared/core-types ./node_modules/erxes-api-shared/core-ty
 COPY backend/erxes-api-shared/core-modules ./node_modules/erxes-api-shared/core-modules
 COPY backend/erxes-api-shared/package.json ./node_modules/erxes-api-shared/
 
+COPY sentry.instrument.cjs ./sentry.instrument.cjs
+
 COPY backend/plugins/insurance_api/dist ./dist
 
 ENV NODE_ENV=production
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 USER 1000
-CMD ["node", "dist/src/main.js"]
+CMD ["node", "--require", "/app/sentry.instrument.cjs", "dist/src/main.js"]
