@@ -19,7 +19,7 @@ const sourceIcons: Record<string, React.ReactNode> = {
 const ALL_STATUSES = ['new', 'open', 'closed', 'resolved'] as const;
 type ProgressStatus = (typeof ALL_STATUSES)[number];
 
-export const ProgressSource = ({ customerId }: { customerId: string }) => {
+export const ProgressSource = ({ customerId }: { customerId?: string }) => {
   const { conversationSourceProgress } = useGetConversationSourceProgress({
     variables: { customerId },
     skip: !customerId,

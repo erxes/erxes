@@ -12,10 +12,26 @@ import {
 } from '@/reports/utils';
 import { IReportFilters } from '@/reports/@types/reportFilters';
 
+export interface IProgressArgs {
+  customerId: string;
+  fromDate?: string;
+  toDate?: string;
+}
+
+const buildDateFilter = (fromDate?: string, toDate?: string) => {
+  if (!fromDate && !toDate) return {};
+  return {
+    createdAt: {
+      ...(fromDate ? { $gte: new Date(fromDate) } : {}),
+      ...(toDate ? { $lte: new Date(toDate) } : {}),
+    },
+  };
+};
+
 export const reportInboxQueries = {
   async conversationProgressChart(
     _parent: undefined,
-    { customerId }: { customerId: string },
+    { customerId, fromDate, toDate }: IProgressArgs,
     { models }: IContext,
   ) {
     const statuses = ['new', 'open', 'closed', 'resolved'];
@@ -25,6 +41,7 @@ export const reportInboxQueries = {
         $match: {
           customerId,
           status: { $in: statuses },
+          ...buildDateFilter(fromDate, toDate),
         },
       },
 
@@ -103,7 +120,7 @@ export const reportInboxQueries = {
 
   async conversationMemberProgress(
     _parent: undefined,
-    { customerId }: { customerId: string },
+    { customerId, fromDate, toDate }: IProgressArgs,
     { models }: IContext,
   ) {
     const statuses = ['new', 'open', 'closed', 'resolved'];
@@ -114,6 +131,7 @@ export const reportInboxQueries = {
           customerId,
           assignedUserId: { $exists: true, $ne: null },
           status: { $in: statuses },
+          ...buildDateFilter(fromDate, toDate),
         },
       },
       {
@@ -154,7 +172,7 @@ export const reportInboxQueries = {
 
   async conversationSourceProgress(
     _parent: undefined,
-    { customerId }: { customerId: string },
+    { customerId, fromDate, toDate }: IProgressArgs,
     { models }: IContext,
   ) {
     const statuses = [
@@ -166,7 +184,7 @@ export const reportInboxQueries = {
 
     const facet: Record<string, any[]> = {};
 
-  statuses.forEach((status) => {
+    statuses.forEach((status) => {
       facet[status.toLowerCase()] = [
         { $match: { status } },
 
@@ -209,6 +227,7 @@ export const reportInboxQueries = {
         $match: {
           customerId,
           status: { $in: statuses },
+          ...buildDateFilter(fromDate, toDate),
         },
       },
       { $facet: facet },
@@ -219,7 +238,7 @@ export const reportInboxQueries = {
 
   async conversationTagProgress(
     _parent: undefined,
-    { customerId }: { customerId: string },
+    { customerId, fromDate, toDate }: IProgressArgs,
     { models }: IContext,
   ) {
     const statuses = [
@@ -267,6 +286,7 @@ export const reportInboxQueries = {
           customerId,
           status: { $in: statuses },
           tagIds: { $exists: true, $not: { $size: 0 } },
+          ...buildDateFilter(fromDate, toDate),
         },
       },
       { $facet: facet },
