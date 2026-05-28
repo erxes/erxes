@@ -1,8 +1,9 @@
 import { gql } from '@apollo/client';
+import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS } from 'erxes-ui';
 
 export const checkSyncedDealsQuery = gql`
   query Deals(
-    $limit: Int
+    ${GQL_CURSOR_PARAM_DEFS}
     $userIds: [String]
     $stageId: String
     $stageChangedStartDate: Date
@@ -15,7 +16,7 @@ export const checkSyncedDealsQuery = gql`
     $number: String
   ) {
     deals(
-      limit: $limit
+      ${GQL_CURSOR_PARAMS}
       userIds: $userIds
       stageId: $stageId
       stageChangedStartDate: $stageChangedStartDate

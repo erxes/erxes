@@ -21,7 +21,7 @@ import { checkSyncedDealsTotalCountAtom } from '../states/checkSyncedDealsCounts
 import { ICheckSyncedDeals } from '../types/checkSyncedDeals';
 import { useCheckSyncedDealsLeadSessionKey } from './useCheckSyncedDealsLeadSessionKey';
 
-export const CHECK_SYNCED_DEALS_PER_PAGE = 30;
+export const CHECK_SYNCED_DEALS_PER_PAGE = 20;
 
 type CheckSyncedResponse = {
   _id: string;
