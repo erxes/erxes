@@ -59,6 +59,7 @@ export const ResponseTemplateSelector: React.FC<
     variables: {
       filter: {
         channelId: selectedChannel === 'all' ? undefined : selectedChannel,
+        searchValue: debouncedSearch || undefined,
       },
     },
   });
