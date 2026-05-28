@@ -230,6 +230,7 @@ export const afterProcess: AfterProcessConfigs = {
                 });
               } else {
                 await orderToTrs({
+                  subdomain,
                   models,
                   userId,
                   order: currentDocument,
@@ -317,6 +318,7 @@ export const afterProcess: AfterProcessConfigs = {
           if (configOrder?.posId === currentPosId) {
             try {
               await orderToTrs({
+                subdomain,
                 models,
                 userId,
                 order: currentDocument,

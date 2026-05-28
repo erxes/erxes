@@ -24,6 +24,7 @@ import {
 } from 'ui-modules';
 import { z } from 'zod';
 import { PIPELINE_DETAIL } from '../graphql/queries/relatedQueries';
+import { FormSelectEbarimtProductRule } from './SelectEbarimtProductRule';
 import { SyncResponseFieldSelect } from './SyncResponseFieldSelect';
 
 const configFormSchema = z.object({
@@ -41,8 +42,10 @@ const configFormSchema = z.object({
   departmentId: z.string(),
   hasVat: z.boolean(),
   vatRowId: z.string(),
+  reverseVatRules: z.string().optional(),
   hasCtax: z.boolean(),
   ctaxRowId: z.string(),
+  reverseCtaxRules: z.string().optional(),
   payments: z.record(
     z.object({
       accountId: z.string(),
@@ -110,10 +113,17 @@ export const SyncDealConfigForm = ({
   const paymentTypes: any[] =
     pipelineDetail?.salesPipelineDetail?.paymentTypes || [];
 
+  const handleSubmit = (data: ConfigFormValues) =>
+    onSubmit({
+      ...data,
+      ctaxRowId: data.hasCtax ? data.ctaxRowId : '',
+      reverseCtaxRules: data.hasCtax ? '' : data.reverseCtaxRules,
+    });
+
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(handleSubmit)}
         className="grid gap-3 xl:grid-cols-3 py-3"
       >
         <Form.Field
@@ -391,21 +401,29 @@ export const SyncDealConfigForm = ({
           control: form.control,
           name: `hasVat`,
         }) && (
-          <Form.Field
-            control={form.control}
-            name="vatRowId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>НӨАТ-ын мөр</Form.Label>
-                <Form.Control>
-                  <SelectVat
-                    value={field.value || ''}
-                    onValueChange={field.onChange}
-                  />
-                </Form.Control>
-              </Form.Item>
-            )}
-          />
+          <>
+            <Form.Field
+              control={form.control}
+              name="vatRowId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>НӨАТ-ын мөр</Form.Label>
+                  <Form.Control>
+                    <SelectVat
+                      value={field.value || ''}
+                      onValueChange={field.onChange}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+            <FormSelectEbarimtProductRule
+              name="reverseVatRules"
+              label="НӨАТ-с хасах барааны дүрэм"
+              kind="vat"
+              control={form.control}
+            />
+          </>
         )}
         <Form.Field
           control={form.control}
@@ -425,7 +443,7 @@ export const SyncDealConfigForm = ({
         {useWatch({
           control: form.control,
           name: `hasCtax`,
-        }) && (
+        }) ? (
           <Form.Field
             control={form.control}
             name="ctaxRowId"
@@ -441,8 +459,14 @@ export const SyncDealConfigForm = ({
               </Form.Item>
             )}
           />
+        ) : (
+          <FormSelectEbarimtProductRule
+            name="reverseCtaxRules"
+            label="НХАТ-тай онцгой барааны дүрэм"
+            kind="ctax"
+            control={form.control}
+          />
         )}
-
         <Dialog.Footer className="col-span-3 mt-3 gap-2">
           <Dialog.Close asChild>
             <Button variant="outline" size="lg">

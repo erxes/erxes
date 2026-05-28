@@ -2,10 +2,7 @@ import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { JournalEnum } from '@/settings/account/types/Account';
 import { SelectCtax } from '@/settings/ctax/components/SelectCtaxRow';
 import { SelectVat } from '@/settings/vat/components/SelectVatRow';
-import {
-  TR_STATUSES,
-  TR_STATUS_OPTIONS,
-} from '@/transactions/types/constants';
+import { TR_STATUSES, TR_STATUS_OPTIONS } from '@/transactions/types/constants';
 import { useQuery } from '@apollo/client';
 import {
   Button,
@@ -18,12 +15,10 @@ import {
 } from 'erxes-ui';
 import { useEffect, useMemo } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
-import {
-  SelectBranches,
-  SelectDepartments,
-} from 'ui-modules';
+import { SelectBranches, SelectDepartments } from 'ui-modules';
 import { z } from 'zod';
 import { POS_DETAIL, POS_LIST } from '../graphql/queries/relatedQueries';
+import { FormSelectEbarimtProductRule } from './SelectEbarimtProductRule';
 
 const configFormSchema = z.object({
   title: z.string(),
@@ -37,8 +32,10 @@ const configFormSchema = z.object({
   departmentId: z.string(),
   hasVat: z.boolean(),
   vatRowId: z.string(),
+  reverseVatRules: z.string().optional(),
   hasCtax: z.boolean(),
   ctaxRowId: z.string(),
+  reverseCtaxRules: z.string().optional(),
   payments: z.record(
     z.object({
       accountId: z.string(),
@@ -69,21 +66,21 @@ export const SyncOrderConfigForm = ({
   });
 
   const { data: posList, loading: posListLoading } = useQuery(POS_LIST, {});
-  const posOptions: { value: string, label: string }[] = useMemo(() => {
+  const posOptions: { value: string; label: string }[] = useMemo(() => {
     if (posListLoading) {
       return [];
     }
-    return posList?.posList?.map((p: { name: any; _id: any; }) => ({ label: p.name, value: p._id }));
+    return posList?.posList?.map((p: { name: any; _id: any }) => ({
+      label: p.name,
+      value: p._id,
+    }));
   }, [posList, posListLoading]);
 
-  const { data: posDetailData, refetch: posRefetch } = useQuery(
-    POS_DETAIL,
-    {
-      variables: { _id: posId },
-      skip: !posId, // posId байхгүй үед асуухгүй
-      fetchPolicy: 'network-only', // заавал backend-ээс авна
-    },
-  );
+  const { data: posDetailData, refetch: posRefetch } = useQuery(POS_DETAIL, {
+    variables: { _id: posId },
+    skip: !posId, // posId байхгүй үед асуухгүй
+    fetchPolicy: 'network-only', // заавал backend-ээс авна
+  });
 
   useEffect(() => {
     if (posId) {
@@ -98,13 +95,19 @@ export const SyncOrderConfigForm = ({
   }, [form]);
 
   // note: const paymentIds: string[] = pipelineDetail?.salesPipelineDetail?.paymentIds || [];
-  const paymentTypes: any[] =
-    posDetailData?.posDetail?.paymentTypes || [];
+  const paymentTypes: any[] = posDetailData?.posDetail?.paymentTypes || [];
+
+  const handleSubmit = (data: ConfigFormValues) =>
+    onSubmit({
+      ...data,
+      ctaxRowId: data.hasCtax ? data.ctaxRowId : '',
+      reverseCtaxRules: data.hasCtax ? '' : data.reverseCtaxRules,
+    });
 
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(handleSubmit)}
         className="grid gap-3 xl:grid-cols-3 py-3"
       >
         <Form.Field
@@ -177,7 +180,7 @@ export const SyncOrderConfigForm = ({
                 >
                   <Form.Control>
                     <Select.Trigger>
-                      <Select.Value placeholder='Select pos' />
+                      <Select.Value placeholder="Select pos" />
                     </Select.Trigger>
                   </Form.Control>
                   <Select.Content>
@@ -288,7 +291,7 @@ export const SyncOrderConfigForm = ({
                       JournalEnum.CASH,
                       JournalEnum.DEBT,
                     ],
-                    currency: 'MNT'
+                    currency: 'MNT',
                   }}
                 />
               </Form.Control>
@@ -311,7 +314,7 @@ export const SyncOrderConfigForm = ({
                       JournalEnum.CASH,
                       JournalEnum.DEBT,
                     ],
-                    currency: 'MNT'
+                    currency: 'MNT',
                   }}
                 />
               </Form.Control>
@@ -346,7 +349,7 @@ export const SyncOrderConfigForm = ({
                         JournalEnum.CASH,
                         JournalEnum.DEBT,
                       ],
-                      currency: 'MNT'
+                      currency: 'MNT',
                     }}
                   />
                 </Form.Control>
@@ -373,6 +376,7 @@ export const SyncOrderConfigForm = ({
           control: form.control,
           name: `hasVat`,
         }) && (
+          <>
             <Form.Field
               control={form.control}
               name="vatRowId"
@@ -388,7 +392,14 @@ export const SyncOrderConfigForm = ({
                 </Form.Item>
               )}
             />
-          )}
+            <FormSelectEbarimtProductRule
+              name="reverseVatRules"
+              label="НӨАТ-с хасах барааны дүрэм"
+              kind="vat"
+              control={form.control}
+            />
+          </>
+        )}
         <Form.Field
           control={form.control}
           name="hasCtax"
@@ -407,24 +418,30 @@ export const SyncOrderConfigForm = ({
         {useWatch({
           control: form.control,
           name: `hasCtax`,
-        }) && (
-            <Form.Field
-              control={form.control}
-              name="ctaxRowId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>НХАТ-ын мөр</Form.Label>
-                  <Form.Control>
-                    <SelectCtax
-                      value={field.value || ''}
-                      onValueChange={field.onChange}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          )}
-
+        }) ? (
+          <Form.Field
+            control={form.control}
+            name="ctaxRowId"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>НХАТ-ын мөр</Form.Label>
+                <Form.Control>
+                  <SelectCtax
+                    value={field.value || ''}
+                    onValueChange={field.onChange}
+                  />
+                </Form.Control>
+              </Form.Item>
+            )}
+          />
+        ) : (
+          <FormSelectEbarimtProductRule
+            name="reverseCtaxRules"
+            label="НХАТ-тай онцгой барааны дүрэм"
+            kind="ctax"
+            control={form.control}
+          />
+        )}
         <Dialog.Footer className="col-span-3 mt-3 gap-2">
           <Dialog.Close asChild>
             <Button variant="outline" size="lg">
