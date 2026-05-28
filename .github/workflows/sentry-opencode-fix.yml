@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: Resolve issue context
         id: issue
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b
         with:
           script: |
             const issueNumber = context.eventName === 'workflow_dispatch'
@@ -62,14 +62,15 @@ jobs:
 
       - name: Checkout
         if: steps.issue.outputs.should_run == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           fetch-depth: 0
+          persist-credentials: false
           token: ${{ secrets.GH_TOKEN || github.token }}
 
       - name: Set up Node
         if: steps.issue.outputs.should_run == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '20'
 

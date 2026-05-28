@@ -58,4 +58,4 @@ COPY backend/plugins/content_api/dist ./dist
 
 ENV NODE_ENV=production
 USER 1000
-CMD ["node", "dist/src/main.js"]
+CMD ["node", "--require", "/app/sentry.instrument.cjs", "dist/src/main.js"]

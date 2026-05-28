@@ -56,4 +56,4 @@ ENV NODE_ENV=production
 USER 1000
 
 # Run app
-CMD ["node", "backend/services/logs/dist/src/main.js"]
+CMD ["node", "--require", "/app/sentry.instrument.cjs", "backend/services/logs/dist/src/main.js"]

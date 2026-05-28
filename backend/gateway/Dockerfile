@@ -102,4 +102,4 @@ WORKDIR /app/backend/gateway/dist
 ENV NODE_ENV=production
 
 # Start app
-CMD ["node", "src/main.js"]
+CMD ["node", "--require", "/app/sentry.instrument.cjs", "src/main.js"]

@@ -139,7 +139,8 @@ else
   command -v opencode >/dev/null 2>&1 || fail "opencode is not installed. Install with: npm install -g opencode-ai@latest"
   configure_opencode
   printf 'Running OpenCode with model %s\n' "$OPENCODE_MODEL"
-  opencode run --model "$OPENCODE_MODEL" --agent build --file "$PROMPT_FILE" "Fix the Sentry-generated GitHub issue using the attached prompt."
+  env -u GH_TOKEN -u GITHUB_TOKEN \
+    opencode run --model "$OPENCODE_MODEL" --agent build --file "$PROMPT_FILE" "Fix the Sentry-generated GitHub issue using the attached prompt."
 fi
 
 HAS_WORKTREE_CHANGES=0
@@ -215,8 +216,18 @@ trap 'rm -f "$PROMPT_FILE" "$AGENT_PR_SUMMARY_TMP" "$PR_BODY"' EXIT
   fi
 } > "$PR_BODY"
 
-gh pr create \
-  --title "fix: resolve Sentry issue #${ISSUE_NUMBER}" \
-  --body-file "$PR_BODY" \
-  --base "${BASE_BRANCH:-main}" \
-  --head "$BRANCH_NAME"
+EXISTING_PR_NUMBER="$(
+  gh pr list --head "$BRANCH_NAME" --state open --json number --jq '.[0].number // empty' 2>/dev/null || true
+)"
+
+if [ -n "$EXISTING_PR_NUMBER" ]; then
+  gh pr edit "$EXISTING_PR_NUMBER" \
+    --title "fix: resolve Sentry issue #${ISSUE_NUMBER}" \
+    --body-file "$PR_BODY"
+else
+  gh pr create \
+    --title "fix: resolve Sentry issue #${ISSUE_NUMBER}" \
+    --body-file "$PR_BODY" \
+    --base "${BASE_BRANCH:-main}" \
+    --head "$BRANCH_NAME"
+fi

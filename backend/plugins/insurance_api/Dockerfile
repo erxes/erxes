@@ -63,4 +63,4 @@ ENV NODE_ENV=production
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 USER 1000
-CMD ["node", "dist/src/main.js"]
+CMD ["node", "--require", "/app/sentry.instrument.cjs", "dist/src/main.js"]
