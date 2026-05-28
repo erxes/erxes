@@ -98,9 +98,9 @@ export const syncPosOrderToErkhet = async ({
 
       response = await sendErkhetPost(
         models,
-        syncLog,
         'get-response-send-order-info',
         postData,
+        syncLog,
       );
     }
 

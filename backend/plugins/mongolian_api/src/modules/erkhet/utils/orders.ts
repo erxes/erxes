@@ -264,9 +264,9 @@ export const orderDeleteToErkhet = async (
 
     return await sendErkhetPost(
       models,
-      syncLog,
       'get-response-return-order',
       postData,
+      syncLog,
     );
   } catch (e) {
     await models.SyncLogs.updateOne(

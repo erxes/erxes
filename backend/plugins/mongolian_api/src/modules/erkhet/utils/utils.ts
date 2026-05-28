@@ -1,6 +1,7 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import fetch from 'node-fetch';
-import { generateModels } from '~/connectionResolvers';
+import { generateModels, IModels } from '~/connectionResolvers';
+import { ISyncLogDocument } from '../@types';
 
 const getErkhetUrl = () => {
   const url = process.env.ERKHET_URL;
@@ -91,7 +92,7 @@ const extractDjangoError = (responseStr = '') => {
   };
 };
 
-export const sendErkhetPost = async (models, syncLog, action, payload) => {
+export const sendErkhetPost = async (models: IModels, action: string, payload: any, syncLog?: ISyncLogDocument) => {
   const body = {
     action,
     isEbarimt: false,
@@ -102,16 +103,18 @@ export const sendErkhetPost = async (models, syncLog, action, payload) => {
   const sendData = { action, payload: body };
   const requestUrl = getErkhetMessageUrl();
 
-  await models.SyncLogs.updateOne(
-    { _id: syncLog._id },
-    {
-      $set: {
-        sendData,
-        sendStr: JSON.stringify(sendData),
-        requestUrl,
+  if (syncLog) {
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: {
+          sendData,
+          sendStr: JSON.stringify(sendData),
+          requestUrl,
+        },
       },
-    },
-  );
+    );
+  }
 
   const response = await fetch(requestUrl, {
     method: 'POST',
@@ -156,16 +159,18 @@ export const sendErkhetPost = async (models, syncLog, action, payload) => {
       ? getErkhetErrorMessage(response, responseData)
       : undefined;
 
-  await models.SyncLogs.updateOne(
-    { _id: syncLog._id },
-    {
-      $set: {
-        responseData,
-        responseStr,
-        ...(error ? { error } : {}),
+  if (syncLog) {
+    await models.SyncLogs.updateOne(
+      { _id: syncLog._id },
+      {
+        $set: {
+          responseData,
+          responseStr,
+          ...(error ? { error } : {}),
+        },
       },
-    },
-  );
+    );
+  }
 
   if (error) {
     return {
@@ -209,7 +214,7 @@ export const sendErkhetGet = async (
 };
 
 // Send data to Erkhet plugin
-export const toErkhet = async (models, syncLog, config, sendData, action) => {
+export const toErkhet = async (models: IModels, config: any, sendData: any, action: string, syncLog?: ISyncLogDocument) => {
   const postData = {
     token: config.apiToken,
     apiKey: config.apiKey,
@@ -217,7 +222,7 @@ export const toErkhet = async (models, syncLog, config, sendData, action) => {
     orderInfos: JSON.stringify(sendData),
   };
 
-  return sendErkhetPost(models, syncLog, action, postData);
+  return sendErkhetPost(models, action, postData, syncLog);
 };
 
 export const getPureDate = (date: Date) => {

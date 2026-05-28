@@ -28,9 +28,8 @@ const checkSyncedMutations = {
     _root: undefined,
     {
       ids,
-      contentType = 'sales:deal',
-    }: { ids: string[]; contentType?: string },
-    { subdomain, user, checkPermission }: IContext,
+    }: { ids: string[] },
+    { subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('erkhetManageSync');
 
@@ -48,17 +47,9 @@ const checkSyncedMutations = {
     };
 
     const models = await generateModels(subdomain);
-    const syncLog = await models.SyncLogs.syncLogsAdd({
-      contentType,
-      contentId: ids.join(','),
-      createdAt: new Date(),
-      consumeData: { ids },
-      consumeStr: JSON.stringify({ ids }),
-    });
 
     const result = await sendErkhetPost(
       models,
-      syncLog,
       'check-order-synced',
       postData,
     );
@@ -154,9 +145,9 @@ const checkSyncedMutations = {
 
           const response = await sendErkhetPost(
             models,
-            syncLog,
             'get-response-send-order-info',
             postData,
+            syncLog,
           );
 
           if (response.message || response.error) {
@@ -203,9 +194,9 @@ const checkSyncedMutations = {
 
           const response = await sendErkhetPost(
             models,
-            syncLog,
             'get-response-inv-movement-info',
             postData,
+            syncLog,
           );
 
           if (response.message || response.error) {
@@ -315,9 +306,9 @@ const checkSyncedMutations = {
 
         const response = await sendErkhetPost(
           models,
-          syncLog,
           'get-response-send-order-info',
           postData,
+          syncLog,
         );
 
         if (response.message || response.error) {
