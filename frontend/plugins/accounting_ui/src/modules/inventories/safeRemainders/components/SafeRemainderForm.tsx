@@ -8,7 +8,6 @@ import {
   Form,
   Spinner,
   Textarea,
-  useQueryState,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -27,7 +26,10 @@ export const AddSafeRemainder = () => {
           Add Safe Remainder
         </Button>
       </Dialog.Trigger>
-      <AccountingDialog title="Add Account" description="Add a new account">
+      <AccountingDialog
+        title="Create Adjust Inventory"
+        description="Adjust inventory for a specific branch, department, and category"
+      >
         <AddSafeRemainderForm setOpen={setOpen} />
       </AccountingDialog>
     </Dialog>
@@ -46,7 +48,6 @@ const AddSafeRemainderForm = ({
     },
   });
   const { addSafeRemainder, loading } = useSafeRemainderAdd();
-  const [id] = useQueryState<string>('id');
   const onSubmit = (data: TSafeRemainderForm) => {
     addSafeRemainder({
       variables: { ...data },
@@ -64,88 +65,96 @@ const AddSafeRemainderForm = ({
   return (
     <Form {...form}>
       <form
-        className="p-6 flex-auto overflow-auto"
+        className="flex flex-col flex-auto overflow-auto"
         onSubmit={form.handleSubmit(onSubmit, onError)}
       >
-        <h3 className="text-lg font-bold">
-          {id ? `Edit` : `Create`} Adjust Inventory
-        </h3>
-        <Form.Field
-          control={form.control}
-          name="date"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>Date</Form.Label>
-              <Form.Control>
-                <DatePicker
-                  value={field.value}
-                  onChange={field.onChange}
-                  className="h-8 flex w-full"
+        <div className="p-6 space-y-4">
+          <Form.Field
+            control={form.control}
+            name="date"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Date</Form.Label>
+                <Form.Control>
+                  <DatePicker
+                    value={field.value}
+                    onChange={field.onChange}
+                    className="h-8 flex w-full"
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <Form.Field
+              control={form.control}
+              name="branchId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Branch</Form.Label>
+                  <SelectBranches.FormItem
+                    mode="single"
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  />
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="departmentId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Department</Form.Label>
+                  <SelectDepartments.FormItem
+                    mode="single"
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  />
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          </div>
+
+          <Form.Field
+            control={form.control}
+            name="productCategoryId"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Product Category</Form.Label>
+                <SelectCategory
+                  selected={field.value}
+                  onSelect={field.onChange}
                 />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
 
-        <Form.Field
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <Form.Item className="col-span-2">
-              <Form.Label>Description</Form.Label>
-              <Form.Control>
-                <Textarea placeholder="Enter description" {...field} />
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="branchId"
-          render={({ field }) => (
-            <Form.Item className="col-span-2">
-              <Form.Label>Branch</Form.Label>
-              <SelectBranches.FormItem
-                mode="single"
-                value={field.value}
-                onValueChange={field.onChange}
-              />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="departmentId"
-          render={({ field }) => (
-            <Form.Item className="col-span-2">
-              <Form.Label>Department</Form.Label>
-              <SelectDepartments.FormItem
-                mode="single"
-                value={field.value}
-                onValueChange={field.onChange}
-              />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-        <Form.Field
-          control={form.control}
-          name="productCategoryId"
-          render={({ field }) => (
-            <Form.Item className="col-span-2">
-              <Form.Label>Product Category</Form.Label>
-              <SelectCategory
-                selected={field.value}
-                onSelect={field.onChange}
-              />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
+          <Form.Field
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Description</Form.Label>
+                <Form.Control>
+                  <Textarea
+                    placeholder="Enter description"
+                    rows={3}
+                    {...field}
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        </div>
 
-        <Dialog.Footer className="col-span-2 mt-4">
+        <Dialog.Footer className="px-6 py-4 border-t bg-muted/30">
           <Dialog.Close asChild>
             <Button variant="outline" type="button" size="lg">
               Cancel
