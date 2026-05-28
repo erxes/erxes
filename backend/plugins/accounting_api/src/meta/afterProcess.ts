@@ -100,7 +100,7 @@ const setOrderAccountingResponse = async ({
       subdomain,
       method: 'mutation',
       pluginName: 'sales',
-      module: 'order',
+      module: 'orders',
       action: 'updateOne',
       input: {
         selector: { _id: orderId },

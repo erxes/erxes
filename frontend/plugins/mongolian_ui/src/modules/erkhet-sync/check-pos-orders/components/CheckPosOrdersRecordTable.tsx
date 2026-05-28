@@ -8,11 +8,15 @@ import { ICheckPosOrders } from '../types/checkPosOrders';
 
 const CheckOrdersButton = ({
   checking,
+  syncing,
   onCheck,
+  onSyncUnchecked,
   orders,
 }: {
   checking: boolean;
+  syncing: boolean;
   onCheck: (ids: string[]) => void;
+  onSyncUnchecked: (ids: string[]) => void;
   orders: ICheckPosOrders[];
 }) => {
   const { table } = RecordTable.useRecordTable();
@@ -33,6 +37,13 @@ const CheckOrdersButton = ({
       <Button onClick={() => onCheck(ids)} disabled={checking || !ids.length}>
         {checking ? 'Checking...' : 'Check Orders'}
       </Button>
+      <Button
+        onClick={() => onSyncUnchecked(ids)}
+        disabled={syncing || !ids.length}
+        variant="outline"
+      >
+        {syncing ? 'Syncing...' : 'Sync Unchecked'}
+      </Button>
     </div>
   );
 };
@@ -45,6 +56,8 @@ export const CheckPosOrdersRecordTable = () => {
     handleFetchMore,
     loading,
     pageInfo,
+    syncUncheckedOrders,
+    syncing,
   } = useCheckPosOrders();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
@@ -59,7 +72,9 @@ export const CheckPosOrdersRecordTable = () => {
       <CheckOrdersButton
         checking={checking}
         onCheck={checkOrders}
+        onSyncUnchecked={syncUncheckedOrders}
         orders={checkPosOrders || []}
+        syncing={syncing}
       />
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

@@ -3,7 +3,10 @@ import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
-import { addEBarimtStageInConfigSchema, TStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
+import {
+  addEBarimtStageInConfigSchema,
+  TStageInEbarimtConfig,
+} from '@/ebarimt/settings/stage-in-ebarimt-config/types';
 import { useSaveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useSaveStageInEbarimtConfig';
 import { StageInEBarimtConfigFormFields } from './StageInEBarimtConfigFormFields';
 
@@ -26,10 +29,10 @@ const DEFAULT_VALUES: TStageInEbarimtConfig = {
   hasVat: false,
   citytaxPercent: '',
   vatPercent: '',
-  reverseVatRules: '',
+  reverseVatRules: [],
   hasCitytax: false,
   footerText: '',
-  reverseCtaxRules: '',
+  reverseCtaxRules: [],
   withDescription: false,
   skipEbarimt: false,
   headerText: '',
@@ -52,7 +55,11 @@ export const AddStageInEBarimtConfig = () => {
       setOpen(false);
       form.reset(DEFAULT_VALUES);
     } catch {
-      toast({ title: 'Error', description: 'Failed to create configuration', variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: 'Failed to create configuration',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
@@ -125,7 +132,9 @@ export const AddStageInEBarimtConfig = () => {
         </div>
         <Sheet.Footer className="gap-2 border-t bg-background">
           <Sheet.Close asChild>
-            <Button variant="outline" size="lg">Cancel</Button>
+            <Button variant="outline" size="lg">
+              Cancel
+            </Button>
           </Sheet.Close>
           <Button type="submit" form={FORM_ID} size="lg" disabled={loading}>
             {loading ? <Spinner /> : 'Save'}

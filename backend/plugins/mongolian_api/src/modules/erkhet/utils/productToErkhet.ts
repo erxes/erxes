@@ -31,7 +31,7 @@ export const productCategoryToErkhet = async (
     },
   };
 
-  await toErkhet(models, syncLog, mainConfig, sendData, 'product-change');
+  await toErkhet(models, mainConfig, sendData, 'product-change', syncLog);
 };
 
 export const productToErkhet = async (
@@ -100,5 +100,5 @@ export const productToErkhet = async (
     },
   };
 
-  await toErkhet(models, syncLog, mainConfig, sendData, 'product-change');
+  await toErkhet(models, mainConfig, sendData, 'product-change', syncLog);
 };

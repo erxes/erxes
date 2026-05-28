@@ -9,8 +9,8 @@ interface TargetActionConfig {
 
 const TARGET_ACTIONS: Record<string, TargetActionConfig> = {
   pos: {
-    pluginName: 'pos',
-    module: 'order',
+    pluginName: 'sales',
+    module: 'orders',
     action: 'findOne',
     fields: ['items', 'number', 'totalAmount'],
   },
