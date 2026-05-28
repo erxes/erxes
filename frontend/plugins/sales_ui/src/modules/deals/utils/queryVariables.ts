@@ -6,34 +6,66 @@ const IGNORED_QUERY_VARIABLE_KEYS = [
   'salesItemId',
   'tab',
   'archivedOnly',
+  'archivedSort',
 ];
 
-const SKIP_PARSE_VARIABLE_KEYS = ['search', 'productId'];
+const DATE_RANGE_MAP: Record<string, [string, string]> = {
+  createdStartDate: ['createdStartDate', 'createdEndDate'],
+  startDateStartDate: ['startDateStartDate', 'startDateEndDate'],
+};
 
-const DATE_RANGE_PAIRS: [string, string][] = [
-  ['createdStartDate', 'createdEndDate'],
-  ['startDateStartDate', 'startDateEndDate'],
-  ['closeDateStartDate', 'closeDateEndDate'],
-  ['stateChangedStartDate', 'stateChangedEndDate'],
-];
+const DATE_UPPER_BOUND_KEYS = new Set(['startDateEndDate', 'createdEndDate']);
+
+const parseValidRange = (value: string) => {
+  const range = parseDateRangeFromString(value);
+  if (
+    !range ||
+    Number.isNaN(range.from.getTime()) ||
+    Number.isNaN(range.to.getTime())
+  ) {
+    return undefined;
+  }
+  return range;
+};
+
+const resolveParam = (
+  vars: Record<string, any>,
+  key: string,
+  value: string,
+) => {
+  const dateRangePair = DATE_RANGE_MAP[key];
+  if (dateRangePair) {
+    const range = parseValidRange(value);
+    if (range) {
+      const [startKey, endKey] = dateRangePair;
+      vars[startKey] = range.from.toISOString();
+      vars[endKey] = range.to.toISOString();
+    }
+    return;
+  }
+
+  if (DATE_UPPER_BOUND_KEYS.has(key)) {
+    const range = parseValidRange(value);
+    if (range) vars[key] = range.to.toISOString();
+    return;
+  }
+
+  try {
+    vars[key] = JSON.parse(value);
+  } catch {
+    vars[key] = value;
+  }
+};
 
 export const getDealsQueryVariables = (searchParams: URLSearchParams) => {
   const vars: Record<string, any> = {};
 
   for (const [key, value] of searchParams.entries()) {
-    if (IGNORED_QUERY_VARIABLE_KEYS.includes(key)) continue;
-
-    if (!SKIP_PARSE_VARIABLE_KEYS.includes(key)) {
-      vars[key] = value;
-      continue;
-    }
-
-    try {
-      vars[key] = JSON.parse(value);
-    } catch {
-      vars[key] = value;
+    if (!IGNORED_QUERY_VARIABLE_KEYS.includes(key)) {
+      resolveParam(vars, key, value);
     }
   }
+
 
   if (vars.productId) {
     vars.productIds = Array.isArray(vars.productId)
@@ -44,28 +76,8 @@ export const getDealsQueryVariables = (searchParams: URLSearchParams) => {
 
   if (searchParams.get('archivedOnly') === 'true') {
     vars.noSkipArchive = true;
-  }
-
-  for (const [startKey, endKey] of DATE_RANGE_PAIRS) {
-    if (vars[startKey]) {
-      const range = parseDateRangeFromString(vars[startKey]);
-      if (range) {
-        vars[startKey] = range.from.toISOString();
-        if (!searchParams.has(endKey)) {
-          vars[endKey] = range.to.toISOString();
-        }
-      } else {
-        delete vars[startKey];
-      }
-    }
-    if (vars[endKey]) {
-      const range = parseDateRangeFromString(vars[endKey]);
-      if (range) {
-        vars[endKey] = range.to.toISOString();
-      } else {
-        delete vars[endKey];
-      }
-    }
+    const sortDir = searchParams.get('archivedSort') || 'desc';
+    vars.orderBy = { createdAt: sortDir === 'asc' ? 1 : -1 };
   }
 
   return vars;
