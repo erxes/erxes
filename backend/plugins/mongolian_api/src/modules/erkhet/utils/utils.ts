@@ -389,17 +389,14 @@ export const getRemConfig = async (
   }
 
   if (posId) {
-    const posConfig = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'sales',
-      method: 'query',
-      module: 'pos',
-      action: 'findOne',
-      input: { _id: posId },
-      defaultValue: {},
-    });
+    const models = await generateModels(subdomain);
+    const posErkhetConfig =
+      (await models.Configs.getConfigValue(
+        'posOrderErkhetConfig',
+        posId,
+        {},
+      )) || {};
 
-    const posErkhetConfig = await posConfig?.erkhetConfig;
     return {
       account: posErkhetConfig?.account,
       location: posErkhetConfig?.location,

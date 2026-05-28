@@ -33,6 +33,32 @@ const calcPreTaxPercentage = (paymentTypes, order) => {
   return { itemAmountPrePercent, preTaxPaymentTypes };
 };
 
+const getPosOrderErkhetConfig = async (
+  subdomain: string,
+  pos: any,
+  order?: any,
+  configOverride?: any,
+) => {
+  if (configOverride) {
+    return configOverride;
+  }
+
+  const posId = pos?._id || order?.posId;
+
+  if (!posId) {
+    return {};
+  }
+
+  const models = await generateModels(subdomain);
+  return (
+    (await models.Configs.getConfigValue(
+      'posOrderErkhetConfig',
+      String(posId),
+      {},
+    )) || {}
+  );
+};
+
 export const getPosPostData = async (
   subdomain,
   pos,
@@ -41,14 +67,19 @@ export const getPosPostData = async (
   configOverride?: any,
 ) => {
   const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
-  const posErkhetConfig = configOverride || pos.erkhetConfig || {};
-  const posTaxConfig = configOverride || pos.ebarimtConfig || {};
+  const posErkhetConfig = await getPosOrderErkhetConfig(
+    subdomain,
+    pos,
+    order,
+    configOverride,
+  );
+  const posTaxConfig = posErkhetConfig;
 
   if (
     !erkhetConfig?.apiKey ||
     !erkhetConfig?.apiSecret ||
     !erkhetConfig?.apiToken ||
-    (!configOverride && !posErkhetConfig?.isSyncErkhet)
+    !posErkhetConfig?.isSyncErkhet
   ) {
     return;
   }
@@ -225,13 +256,18 @@ export const orderDeleteToErkhet = async (
 ) => {
   const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
   const models = await generateModels(subdomain);
-  const posErkhetConfig = configOverride || pos.erkhetConfig || {};
+  const posErkhetConfig = await getPosOrderErkhetConfig(
+    subdomain,
+    pos,
+    order,
+    configOverride,
+  );
 
   if (
     !erkhetConfig?.apiKey ||
     !erkhetConfig?.apiSecret ||
     !erkhetConfig?.apiToken ||
-    (!configOverride && !posErkhetConfig?.isSyncErkhet)
+    !posErkhetConfig?.isSyncErkhet
   ) {
     return;
   }

@@ -266,6 +266,21 @@ const checkSyncedMutations = {
       posByToken[pos.token] = pos;
     }
 
+    const posIds = (poss || []).map((pos) => pos._id).filter(Boolean);
+    const posOrderConfigs = posIds.length
+      ? await models.Configs.find({
+          code: 'posOrderErkhetConfig',
+          subId: { $in: posIds },
+        }).lean()
+      : [];
+    const posOrderConfigByPosId = {};
+
+    for (const config of posOrderConfigs) {
+      if (config.subId) {
+        posOrderConfigByPosId[config.subId] = config.value || {};
+      }
+    }
+
     const syncLogDoc = {
       contentType: 'pos:order',
       createdAt: new Date(),
@@ -287,11 +302,19 @@ const checkSyncedMutations = {
           throw new Error('POS config not found');
         }
 
+        const posOrderConfig = posOrderConfigByPosId[pos._id];
+
+        if (!posOrderConfig?.isSyncErkhet) {
+          result.skipped.push(order._id);
+          throw new Error('Erkhet POS order config not found');
+        }
+
         const postData = await getPosPostData(
           subdomain,
           pos,
           order,
           pos.paymentTypes,
+          posOrderConfig,
         );
 
         if (!postData) {
