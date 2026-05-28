@@ -54,7 +54,6 @@ interface IInvoiceResponse {
 }
 
 export const meta = {
-  // apiUrl: 'https://sandbox-quickqr.qpay.mn',
   apiUrl: 'https://quickqr.qpay.mn',
   apiVersion: 'v2',
 
@@ -79,10 +78,7 @@ export const quickQrCallbackHandler = async (models: IModels, data: any) => {
     throw new Error('Invoice id is required');
   }
 
-  const transaction = await models.Transactions.getTransaction({
-    _id,
-  });
-
+  const transaction = await models.Transactions.getTransaction({ _id });
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
 
   if (payment.kind !== PAYMENTS.qpayQuickqr.kind) {
@@ -103,8 +99,10 @@ export const quickQrCallbackHandler = async (models: IModels, data: any) => {
     await transaction.save();
 
     return transaction;
-  } catch (e) {
-    throw new Error(e.message);
+  } catch (e: any) {
+    const message =
+      e?.message || (typeof e === 'object' ? JSON.stringify(e) : String(e));
+    throw new Error(message);
   }
 };
 
@@ -134,9 +132,13 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         },
       });
     } catch (error: any) {
+      const errMsg =
+        error?.message ||
+        (typeof error === 'object' ? JSON.stringify(error) : String(error));
+
       if (
-        error.message?.includes('MERCHANT_ALREADY_REGISTERED') ||
-        error.message?.includes('Бүртгэлтэй мерчант байна')
+        errMsg.includes('MERCHANT_ALREADY_REGISTERED') ||
+        errMsg.includes('Бүртгэлтэй мерчант байна')
       ) {
         return await this.updateExistingMerchant({
           ...args,
@@ -145,7 +147,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         });
       }
 
-      throw error;
+      throw new Error(`Create company failed: ${errMsg}`);
     }
   }
 
@@ -164,7 +166,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
 
   async createCustomer(args: IMerchantCustomerParams) {
     try {
-      const res = await this.makeRequest<IMerchantResponse>({
+      return await this.makeRequest<IMerchantResponse>({
         method: 'POST',
         path: meta.paths.person,
         data: {
@@ -176,20 +178,24 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
           business_name: args.businessName,
         },
       });
-      return res;
     } catch (error: any) {
+      const errMsg =
+        error?.message ||
+        (typeof error === 'object' ? JSON.stringify(error) : String(error));
+
       if (
-        error.message?.includes('MERCHANT_ALREADY_REGISTERED') ||
-        error.message?.includes('Бүртгэлтэй мерчант байна')
+        errMsg.includes('MERCHANT_ALREADY_REGISTERED') ||
+        errMsg.includes('Бүртгэлтэй мерчант байна')
       ) {
         return await this.updateExistingMerchant({
           ...args,
           first_name: args.firstName,
           last_name: args.lastName,
+          business_name: args.businessName,
         });
       }
 
-      throw error;
+      throw new Error(`Create customer failed: ${errMsg}`);
     }
   }
 
@@ -214,33 +220,46 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         method: 'DELETE',
         path: `${meta.paths.getMerchant}/${this.config.merchantId}`,
       });
-    } catch (e) {
-      if (e.message.includes('MERCHANT_NOTFOUND')) {
+    } catch (e: any) {
+      const message =
+        e?.message || (typeof e === 'object' ? JSON.stringify(e) : String(e));
+
+      if (message.includes('MERCHANT_NOTFOUND')) {
         return;
       }
-      throw new Error(e.message);
+
+      throw new Error(`Remove merchant failed: ${message}`);
     }
   }
 
   async updateExistingMerchant(args: any) {
-    const existingMerchant = await this.findExistingMerchant(
-      args.registerNumber,
-    );
-    const path =
-      existingMerchant?.type === 'COMPANY'
-        ? meta.paths.company
-        : meta.paths.person;
-    if (existingMerchant) {
-      return this.makeRequest<IMerchantResponse>({
-        method: 'PUT',
-        path: `${path}/${existingMerchant.id}`,
-        data: {
-          ...args,
-          business_name: args.businessName,
-          register_number: args.registerNumber,
-          mcc_code: args.mccCode,
-        },
-      });
+    try {
+      const existingMerchant = await this.findExistingMerchant(
+        args.registerNumber,
+      );
+
+      const path =
+        existingMerchant?.type === 'COMPANY'
+          ? meta.paths.company
+          : meta.paths.person;
+
+      if (existingMerchant) {
+        return this.makeRequest<IMerchantResponse>({
+          method: 'PUT',
+          path: `${path}/${existingMerchant.id}`,
+          data: {
+            ...args,
+            business_name: args.businessName,
+            register_number: args.registerNumber,
+            mcc_code: args.mccCode,
+          },
+        });
+      }
+    } catch (e: any) {
+      const message =
+        e?.message || (typeof e === 'object' ? JSON.stringify(e) : String(e));
+
+      throw new Error(`Update merchant failed: ${message}`);
     }
   }
 
@@ -284,13 +303,14 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         },
       });
 
-      if (res.invoice_status === 'PAID') {
-        return PAYMENT_STATUS.PAID;
-      }
+      return res.invoice_status === 'PAID'
+        ? PAYMENT_STATUS.PAID
+        : PAYMENT_STATUS.PENDING;
+    } catch (e: any) {
+      const message =
+        e?.message || (typeof e === 'object' ? JSON.stringify(e) : String(e));
 
-      return PAYMENT_STATUS.PENDING;
-    } catch (e) {
-      throw new Error(e.message);
+      throw new Error(`Invoice check failed: ${message}`);
     }
   }
 
@@ -304,13 +324,14 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         },
       });
 
-      if (res.invoice_status === 'PAID') {
-        return PAYMENT_STATUS.PAID;
-      }
+      return res.invoice_status === 'PAID'
+        ? PAYMENT_STATUS.PAID
+        : PAYMENT_STATUS.PENDING;
+    } catch (e: any) {
+      const message =
+        e?.message || (typeof e === 'object' ? JSON.stringify(e) : String(e));
 
-      return PAYMENT_STATUS.PENDING;
-    } catch (e) {
-      throw new Error(e.message);
+      throw new Error(`Manual check failed: ${message}`);
     }
   }
 
@@ -354,14 +375,9 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         (item) => item.register_number === registerNumber,
       );
 
-      if (found) {
-        return found;
-      }
+      if (found) return found;
 
-      // Stop if we’ve reached the end
-      if (!list.rows || list.rows.length < pageLimit) {
-        break;
-      }
+      if (!list.rows || list.rows.length < pageLimit) break;
 
       pageNumber++;
     }

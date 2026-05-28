@@ -20,7 +20,7 @@ interface RequestOptions {
 
 interface ErrorResponse {
   error: string;
-  message?: string;
+  message?: any;
   code?: string;
 }
 
@@ -50,7 +50,15 @@ export class VendorBaseAPI {
 
     if (!response.ok) {
       const error = data as ErrorResponse;
-      throw new Error(error.message || error.error || 'Unknown error occurred');
+
+      let message = error.message;
+
+      // 🔥 critical fix: avoid [object Object]
+      if (typeof message !== 'string') {
+        message = JSON.stringify(message || error.error || data);
+      }
+
+      throw new Error(message || 'Unknown error occurred');
     }
 
     return data as T;
@@ -89,8 +97,11 @@ export class VendorBaseAPI {
       // );
 
       return access_token;
-    } catch (error) {
-      throw new Error(`Authentication failed: ${error.message}`);
+    } catch (error: any) {
+      const message =
+        error?.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+
+      throw new Error(`Authentication failed: ${message}`);
     }
   }
 
@@ -132,8 +143,11 @@ export class VendorBaseAPI {
       this.accessToken = access_token;
 
       return access_token;
-    } catch (error) {
-      throw new Error(`Token refresh failed: ${error.message}`);
+    } catch (error: any) {
+      const message =
+        error?.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+
+      throw new Error(`Token refresh failed: ${message}`);
     }
   }
 
@@ -159,6 +173,7 @@ export class VendorBaseAPI {
       }
 
       const url = new URL(`${this.apiUrl}/${path}`);
+
       if (params) {
         Object.entries(params).forEach(([key, value]) => {
           url.searchParams.append(key, value);
@@ -166,14 +181,18 @@ export class VendorBaseAPI {
       }
 
       const response = await fetch(url.toString(), requestOptions);
+
       return await this.handleResponse<T>(response);
-    } catch (error) {
-      if (error.message.includes('Unauthorized')) {
+    } catch (error: any) {
+      const message =
+        error?.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+
+      if (message.includes('Unauthorized')) {
         await this.refreshToken();
         return await this.makeRequest(args);
       }
 
-      throw new Error(`Request failed: ${error.message}`);
+      throw new Error(`Request failed: ${message}`);
     }
   }
 }
