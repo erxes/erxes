@@ -5,6 +5,12 @@ description: Create a new erxes plugin from scratch. Scaffolds both frontend and
 
 # Skill: Create New Plugin
 
+## CRITICAL WARNING
+
+**The scaffold script (`pnpm create-plugin`) generates code that VIOLATES non-negotiable rules.**
+
+You MUST fix ALL generated code before declaring completion. The scaffold is a starting point, NOT a finished implementation.
+
 ## When to Use
 
 Use this skill when user wants to create a **brand new plugin** that doesn't exist in the monorepo yet.
@@ -17,10 +23,11 @@ Use this skill when user wants to create a **brand new plugin** that doesn't exi
 ## Prerequisites
 
 Before creating a plugin:
-1. Check if a similar plugin already exists
-2. Confirm the plugin name and purpose
-3. Determine initial module name
-4. Check if plugin should be frontend-only, backend-only, or both
+1. **READ** `.agents/rules/non-negotiable.md` - ALL rules apply
+2. Check if a similar plugin already exists
+3. Confirm the plugin name and purpose
+4. Determine initial module name
+5. Check if plugin should be frontend-only, backend-only, or both
 
 ## Workflow
 
@@ -32,7 +39,16 @@ Ask user:
 - Purpose/description
 - Frontend only, backend only, or both?
 
-### Step 2: Run Scaffolding Script
+### Step 2: Read Non-Negotiable Rules
+
+**BEFORE running the scaffold, confirm you have read:**
+- `.agents/rules/non-negotiable.md` (ALL rules)
+- `.agents/rules/architecture.md`
+- `.agents/rules/code-style.md`
+
+You will be held accountable for every rule violation.
+
+### Step 3: Run Scaffolding Script
 
 ```bash
 cd /Users/Amaraa0404/Documents/projects/erxes
@@ -43,35 +59,70 @@ This interactive script will ask for:
 - Plugin name
 - Module name
 
-### Step 3: Fix Generated Code
+**WARNING: The generated code will have:**
+- Default exports (RULE VIOLATION)
+- Placeholder content (RULE VIOLATION)
+- `any` types (RULE VIOLATION)
+- `schemaWrapper` usage in backend (RULE VIOLATION)
 
-The scaffold script generates code with **default exports**. You MUST fix this:
+### Step 4: Fix Generated Code (CRITICAL - DO NOT SKIP)
 
-**In frontend plugin:**
+This is the MOST IMPORTANT step. The scaffold generates broken code that violates rules.
+
+**You MUST run the validation script to verify fixes:**
 ```bash
-# Find and fix default exports
-find frontend/plugins/{plugin_name}_ui/src -name "*.tsx" -exec sed -i '' 's/export default /export const /g' {} +
-
-# Fix lazy imports to use named exports
-# Change from:
-const IndexPage = lazy(() => import('~/pages/{module}/IndexPage'));
-# To:
-const IndexPage = lazy(() => import('~/pages/{module}/IndexPage').then(m => ({ default: m.IndexPage })));
+./.agents/scripts/validate-scaffold.sh {plugin_name} {scope}
 ```
 
-**Critical fixes needed:**
-1. Replace all `export default` with named exports
-2. Fix lazy import patterns for named exports
-3. Ensure config.tsx uses proper patterns
-4. Add proper types
+**In frontend plugin - fix these files:**
 
-### Step 4: Create Module Federation Config
+1. **All .tsx files in `src/`** - Replace `export default` with named exports:
+   ```bash
+   # Find default exports (MANUAL REVIEW REQUIRED)
+   grep -rn "export default" frontend/plugins/{plugin_name}_ui/src --include="*.tsx"
+   
+   # Fix each one individually - do NOT use blind sed replacement
+   ```
 
-Create `module-federation.config.ts`:
+2. **Fix lazy imports** to handle named exports:
+   ```tsx
+   // BEFORE (scaffolded):
+   const IndexPage = lazy(() => import('~/pages/{module}/IndexPage'));
+   
+   // AFTER (correct):
+   const IndexPage = lazy(() => 
+     import('~/pages/{module}/IndexPage').then(m => ({ default: m.IndexPage }))
+   );
+   ```
+
+3. **Remove all `any` types** from Widgets.tsx and other files
+
+4. **Replace placeholder content** in Settings.tsx and IndexPage.tsx with real content or empty states
+
+5. **Verify `module-federation.config.ts`** uses named exports for exposed modules
+
+**In backend plugin - fix these files:**
+
+1. **Replace `schemaWrapper`** with direct `new Schema(...)` in db/definitions
+2. **Replace `export default`** with named exports in apollo/resolvers/index.ts
+3. **Fix imports** to use aliases (`~/`, `@/`) instead of relative paths (`./`)
+
+### Step 5: Run Rule Checker
+
+```bash
+./.agents/scripts/check-rules.sh frontend/plugins/{plugin_name}_ui
+./.agents/scripts/check-rules.sh backend/plugins/{plugin_name}_api
+```
+
+**If this fails, you MUST fix the issues before proceeding.**
+
+### Step 6: Create Module Federation Config
+
+Verify `module-federation.config.ts`:
 ```typescript
 import { ModuleFederationConfig } from '@nx/module-federation';
 
-const config: ModuleFederationConfig = {
+export const config: ModuleFederationConfig = {
   name: '{plugin_name}_ui',
   exposes: {
     './config': './src/config.tsx',
@@ -79,10 +130,11 @@ const config: ModuleFederationConfig = {
   },
 };
 
+// Default export required by Nx tooling - do not remove
 export default config;
 ```
 
-### Step 5: Create Plugin AGENTS.md
+### Step 7: Create Plugin AGENTS.md
 
 Create `frontend/plugins/{plugin_name}_ui/AGENTS.md`:
 ```markdown
@@ -118,7 +170,7 @@ Create `frontend/plugins/{plugin_name}_ui/AGENTS.md`:
 - Run `pnpm nx lint {plugin_name}_ui` and `pnpm nx build {plugin_name}_ui`.
 ```
 
-### Step 6: Register Plugin in Manifest
+### Step 8: Register Plugin in Manifest
 
 Add to `.agents/manifest.yaml`:
 ```yaml
@@ -135,7 +187,7 @@ plugins:
       status: "active"
 ```
 
-### Step 7: Add to Feature Map
+### Step 9: Add to Feature Map
 
 Add to `.agents/maps/feature-map.yaml`:
 ```yaml
@@ -155,38 +207,58 @@ Add to `.agents/maps/feature-map.yaml`:
     resolvers: ["{module}Queries", "{module}Mutations"]
 ```
 
-### Step 8: Update Host App (if needed)
+### Step 10: Update Host App (if needed)
 
 If this plugin should be loaded by core-ui:
 1. Add to `frontend/core-ui/src/plugins.ts` or equivalent
 2. Register route in host app
 3. Add Module Federation remote reference
 
-### Step 9: Validate
+### Step 11: Validate (MANDATORY)
 
 ```bash
+# Run the comprehensive validation script
+./.agents/scripts/validate-scaffold.sh {plugin_name} {scope}
+
+# If the above passes, also run:
 pnpm nx lint {plugin_name}_ui
 pnpm nx build {plugin_name}_ui
 pnpm nx build {plugin_name}_api
 ```
 
-## Important Rules
+**DO NOT declare completion until ALL validation passes.**
 
-- The scaffold script generates default exports - YOU MUST FIX THESE
-- Always create plugin-specific AGENTS.md
-- Register plugin in manifest immediately
-- Add to feature map for future reference
-- Ensure Module Federation config is correct
-- Host app must know about the new plugin
+## Critical Rules
 
-## Common Mistakes
+1. **The scaffold script generates rule-violating code - YOU MUST FIX IT**
+2. **ALWAYS run `validate-scaffold.sh` before declaring done**
+3. **ALWAYS create plugin-specific AGENTS.md**
+4. **Register plugin in manifest immediately**
+5. **Add to feature map for future reference**
+6. **Ensure Module Federation config uses named exports**
+7. **Host app must know about the new plugin**
 
-❌ Forgetting to fix default exports
-❌ Not creating AGENTS.md
-❌ Not registering in manifest
-❌ Forgetting Module Federation config
-❌ Not updating host app references
-❌ Using old lazy import patterns
+## Common Mistakes (WILL CAUSE FAILURE)
+
+❌ **Forgetting to fix default exports** - The #1 cause of "Module unavailable" errors
+❌ **Not running validate-scaffold.sh** - You'll ship broken code
+❌ **Leaving placeholder content** - Violates Completeness rule
+❌ **Not creating AGENTS.md** - Future agents won't know plugin conventions
+❌ **Not registering in manifest** - Plugin won't be recognized
+❌ **Forgetting Module Federation config** - Plugin won't load
+❌ **Not updating host app references** - Plugin won't appear in UI
+❌ **Using old lazy import patterns** - Named exports need `.then(m => ({ default: m.Name }))`
+
+## Why This Matters
+
+The scaffold script exists to create directory structure and boilerplate. It does NOT produce production-ready code. An agent that stops at scaffolding produces:
+
+- Broken plugins that can't load (default exports vs named exports mismatch)
+- Empty pages with no functionality (violates Completeness rule)
+- Code that fails lint and build (violates Quality rule)
+- Technical debt that requires cleanup by human developers
+
+**You are responsible for every line of code in the final plugin.**
 
 ## Example
 
@@ -195,14 +267,20 @@ User: "Create a new inventory plugin with items module"
 
 LLM:
 1. "I'll create the inventory plugin with items module."
-2. Run: pnpm create-plugin
+2. Read: .agents/rules/non-negotiable.md
+3. Run: pnpm create-plugin
    - Plugin name: inventory
    - Module name: items
-3. Fix default exports in generated files
-4. Create module-federation.config.ts
-5. Create AGENTS.md
-6. Register in manifest.yaml
-7. Add to feature-map.yaml
-8. Run validation
-9. "Inventory plugin created successfully!"
+4. Fix ALL default exports in generated files
+5. Replace placeholder content with real content
+6. Remove 'any' types
+7. Fix backend schemaWrapper usage
+8. Create module-federation.config.ts with named exports
+9. Create AGENTS.md
+10. Register in manifest.yaml
+11. Add to feature-map.yaml
+12. Run: ./.agents/scripts/validate-scaffold.sh inventory both
+13. Fix any issues found
+14. Run: pnpm nx build inventory_ui && pnpm nx build inventory_api
+15. "Inventory plugin created and validated successfully!"
 ```

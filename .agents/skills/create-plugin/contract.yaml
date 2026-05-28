@@ -1,8 +1,10 @@
 # Contract: create-plugin
+# CRITICAL: The scaffold script generates code that VIOLATES non-negotiable rules.
+# The agent MUST fix all generated code before declaring completion.
 
 skill:
   name: create-plugin
-  version: "1.0.0"
+  version: "1.1.0"
   type: meta
   description: Create a new erxes plugin from scratch with proper scaffolding and registration
 
@@ -41,11 +43,12 @@ inputs:
       type: string
 
 rules_required:
+  - constitution
+  - non-negotiable
   - architecture
   - code-style
   - react-general-guidelines
   - typescript-guidelines
-  - non-negotiable
 
 preconditions:
   - description: "Plugin does not already exist"
@@ -54,8 +57,16 @@ preconditions:
     check: "echo {plugin_name} | grep -qE '^[a-zA-Z][a-zA-Z0-9]*$'"
   - description: "User has confirmed requirements"
     check: "user_confirmed == true"
+  - description: "Agent has read non-negotiable.md"
+    check: "rules_loaded == true"
+    critical: true
+    failure_message: "MUST read .agents/rules/non-negotiable.md BEFORE running scaffold"
 
 postconditions:
+  - description: "No default exports in application code"
+    command: "./.agents/scripts/validate-scaffold.sh {plugin_name} {scope}"
+    required: true
+    critical: true
   - description: "Frontend plugin builds"
     command: "pnpm nx build {plugin_name}_ui"
     when: "scope == frontend || scope == both"
@@ -77,20 +88,59 @@ postconditions:
 
 workflow:
   phases:
-    - confirm: "Gather requirements and confirm with user"
-    - scaffold: "Run pnpm create-plugin script"
-    - fix: "Fix default exports and patterns"
-    - config: "Create Module Federation config"
-    - docs: "Create AGENTS.md"
-    - register: "Register in manifest and feature map"
-    - host: "Update host app if needed"
-    - validate: "Build and verify"
+    confirm:
+      description: "Gather requirements and confirm with user"
+      required: true
+    scaffold:
+      description: "Run pnpm create-plugin script"
+      required: true
+      warning: "Scaffold generates rule-violating code. MUST fix in next step."
+    fix:
+      description: "Fix ALL default exports and rule violations in generated code"
+      required: true
+      critical: true
+      validation: "./.agents/scripts/check-rules.sh frontend/plugins/{plugin_name}_ui"
+    config:
+      description: "Verify Module Federation config uses named exports"
+      required: true
+    docs:
+      description: "Create plugin-specific AGENTS.md"
+      required: true
+    register:
+      description: "Register in manifest.yaml and feature-map.yaml"
+      required: true
+    host:
+      description: "Update host app if needed"
+      required: false
+    validate:
+      description: "Run full validation: build, lint, rule check"
+      required: true
+      command: "./.agents/scripts/validate-scaffold.sh {plugin_name} {scope}"
+
+gates:
+  - name: "rule-awareness"
+    description: "Agent must confirm it has read and understands non-negotiable rules"
+    check: "agent_confirms_rules_read"
+    failure_action: "halt"
+  
+  - name: "scaffold-fix"
+    description: "Agent must explicitly fix all scaffolded default exports"
+    check: "no_default_exports_in_app_code"
+    failure_action: "halt"
+  
+  - name: "validation-pass"
+    description: "All validation scripts must pass"
+    check: "validate-scaffold.sh exits 0"
+    failure_action: "halt"
 
 deliverables:
   - "Frontend plugin directory with proper structure"
   - "Backend plugin directory with proper structure (if applicable)"
-  - "Named exports only (no default exports)"
-  - "Module Federation configuration"
+  - "Named exports only (NO default exports in application code)"
+  - "No 'any' types in application code"
+  - "No placeholder/empty page content"
+  - "No schemaWrapper usage in backend"
+  - "Module Federation configuration with named exports"
   - "Plugin AGENTS.md"
   - "Registration in manifest.yaml"
   - "Entry in feature-map.yaml"

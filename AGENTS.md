@@ -91,17 +91,23 @@ behavior while keeping changes small.
 Before coding:
 
 1. **Read `.agents/manifest.yaml`** — This is the entry point.
-2. **Assemble context** — Run `.agents/scripts/assemble-context.sh <path> [skill]`
+2. **Consult Semantic Index** — Read `.agents/skills/SEMANTIC_INDEX.md` to find the correct skills for your intent or to troubleshoot symptoms (404s, loading errors).
+3. **Assemble context** — Run `.agents/scripts/assemble-context.sh <path> [skill]`
    or follow the `assemble-context` skill to load all applicable rule layers.
 3. **Run intake** — Use `.agents/skills/intake` to gather requirements and
    confirm scope. **NEVER start coding without confirmed scope.**
-4. **Read relevant rules** — Load `.agents/rules/*.md` files declared in the
-   manifest for your working path. **Always read `non-negotiable.md`.**
+4. **Read ALL relevant rules** — Load `.agents/rules/*.md` files declared in the
+   manifest for your working path. **MUST read `non-negotiable.md` IN FULL.**
+   **MUST read `architecture.md` IN FULL.**
+   **MUST read `code-style.md` IN FULL.**
+   You are responsible for EVERY rule in these files.
 5. **Load skill contract** (if applicable) — Read
    `.agents/skills/<skill-name>/contract.yaml` before executing any skill.
-5. Search for similar implementations with `rg`.
-6. Confirm local routing, GraphQL, state, and UI patterns.
-7. Reuse nearby code structure before inventing a new one.
+6. **Confirm scaffold awareness** — If using `create-plugin` skill, acknowledge
+   that scaffolded code REQUIRES fixing. The scaffold generates violations.
+7. Search for similar implementations with `rg`.
+8. Confirm local routing, GraphQL, state, and UI patterns.
+9. Reuse nearby code structure before inventing a new one.
 
 During coding:
 
@@ -121,6 +127,38 @@ After coding:
 4. Review the diff for unrelated edits before finishing.
 5. **Run `.agents/scripts/validate-manifest.sh`** when modifying any `.agents/`
    files to ensure system integrity.
+6. **If you created a plugin, run `.agents/scripts/validate-scaffold.sh <plugin> [scope]`**
+   to ensure the scaffolded code was properly fixed.
+
+## Red Lines (IMMEDIATE REJECTION)
+
+Performance matching any of these patterns will result in immediate task rejection and system reset:
+
+1. **Scaffold Abandonment**: Running a scaffolding script and leaving the generated placeholders as "complete".
+2. **Rule Bypassing**: Knowingly violating `non-negotiable.md` (e.g., using `default` exports) because it's "easier" or because a tool generated it.
+3. **Type Erasure**: Using `any` or skipping types to avoid compiler errors.
+4. **Half-Implemented CRUD**: Providing a list page without a create form, or a button without a handler.
+5. **Architectural Isolation**: Using relative imports (`./`) for module boundaries or importing across plugin lines.
+6. **Path Mismatch**: Registering a config path (in `config.tsx`) that doesn't match the actual file path or route, causing 404s.
+
+## Scaffolded Code Warning
+
+**Scaffolding scripts (`pnpm create-plugin`, `pnpm create-backend-plugin`) generate code that VIOLATES non-negotiable rules.**
+
+When using the `create-plugin` skill:
+1. The scaffold creates directory structure and boilerplate
+2. The scaffold does NOT produce production-ready code
+3. You MUST fix all generated code before declaring completion
+4. You MUST run `.agents/scripts/validate-scaffold.sh <plugin> [scope]` before finishing
+
+**Common scaffold violations:**
+- Default exports in application code (Rule #4)
+- `any` types (Rule #9)
+- Placeholder/empty content (Rule #3)
+- `schemaWrapper` usage in backend (Rule #6)
+- Relative imports instead of aliases (Code Style)
+
+**You are responsible for every line of code in the final plugin.**
 
 ## Forbidden
 
@@ -129,6 +167,7 @@ After coding:
 - Do not rename public APIs casually.
 - Do not perform large refactors without an explicit request.
 - Do not move Module Federation exposes without updating host references.
+- Do not treat scaffolded code as finished implementation.
 
 ## Priority Order
 

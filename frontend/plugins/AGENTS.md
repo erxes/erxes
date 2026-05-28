@@ -58,8 +58,10 @@
 ## Module Federation
 
 - Check `module-federation.config.ts` before exposing new modules or widgets.
+- **Rule #4 (Named Exports) applies to ALL exposed modules.**
 - Do not rename or move exposes without updating host references.
 - Keep shared dependencies consistent with nearby plugin configs.
+- **MANDATORY**: Ensure the host app (`core-ui`) is compatible with the named exports you expose. If the host app loader expects a specific named export, you MUST provide it. NEVER use `default` export to satisfy the loader; fix the loader or adjust the expose pattern.
 
 ## Validation
 

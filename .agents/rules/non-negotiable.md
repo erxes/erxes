@@ -74,7 +74,7 @@ After ANY mutation (create, update, delete):
 // ✅ ALWAYS: Toast success AND update UI immediately
 ```
 
-## 3. Completeness (MANDATORY)
+## 3. Completeness & Quality (MANDATORY)
 
 ### Every Feature Must Be Complete
 - **NO button** is left without an `onClick` handler
@@ -84,6 +84,12 @@ After ANY mutation (create, update, delete):
 - **NO list** lacks create/edit/delete actions
 - **NO table** lacks loading state
 - **NO feature** is half-implemented (missing forms, missing mutations, etc.)
+- **NO placeholder content** is allowed (e.g., "Coming soon", "Widget here", or generated "h1 Settings" without actual fields)
+
+### Type Safety (ZERO TOLERANCE)
+- **NO usage of `any`** in new or modified code
+- **NO type casts** (`as any`, `as T`) unless strictly required by external library boundaries
+- **NO missing types** on component props or hook returns
 
 ### Checklist Before Declaring Done
 ```
