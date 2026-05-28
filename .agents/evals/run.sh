@@ -63,7 +63,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 cd "${REPO_ROOT}"
 
 # Validate plugin
-  SUPPORTED_PLUGINS=(sales operation frontline accounting content insurance loyalty mongolian payment posclient tourism branched)
+  SUPPORTED_PLUGINS=(sales operation frontline accounting content insurance loyalty mongolian payment posclient tourism branched agent-assistant)
   if ! printf '%s\n' "${SUPPORTED_PLUGINS[@]}" | grep -qx "${PLUGIN}"; then
     echo "Unknown plugin: ${PLUGIN}" >&2
     echo "Supported: ${SUPPORTED_PLUGINS[*]}" >&2
