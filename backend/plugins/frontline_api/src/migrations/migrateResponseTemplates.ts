@@ -5,9 +5,7 @@ dotenv.config();
 import { Collection, Db, MongoClient } from 'mongodb';
 import { randomBytes } from 'crypto';
 
-// ---------------------------------------------------------------------------
-// Config
-// ---------------------------------------------------------------------------
+
 
 const { MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true' } =
   process.env;
