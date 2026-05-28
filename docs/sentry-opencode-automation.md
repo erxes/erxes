@@ -22,6 +22,30 @@ Current Sentry instance:
 
 Use Sentry's existing GitHub integration. Do not send Sentry credentials to GitHub Actions unless a future workflow needs to call the Sentry API directly.
 
+## Production Sentry Release
+
+Use a release value that changes on each deploy so Sentry can tie an error back to the exact code revision:
+
+```bash
+SENTRY_RELEASE=erxes-<short-git-sha>
+```
+
+For local API development through `pnpm dev:apis`, `scripts/start-api-dev.js` auto-generates `SENTRY_RELEASE=erxes-$(git rev-parse --short HEAD)` when `SENTRY_RELEASE` is missing or still set to `erxes-<git-sha-or-version>`.
+
+For deploy scripts or Docker commands, wrap the command with:
+
+```bash
+bash scripts/with-sentry-release.sh <your-deploy-command>
+```
+
+Example:
+
+```bash
+bash scripts/with-sentry-release.sh docker compose up -d --build
+```
+
+Keep `SENTRY_DSN` in server environment variables or secret managers. Do not commit it.
+
 In Sentry:
 
 1. Open `https://sentry.erxes.io`.

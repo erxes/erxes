@@ -5,6 +5,26 @@ const { ENABLED_PLUGINS, ENABLED_SERVICES, ENABLED_PLUGINS_ONLY_API } =
   process.env;
 const { execSync } = require('child_process');
 
+const shouldGenerateSentryRelease =
+  !process.env.SENTRY_RELEASE ||
+  process.env.SENTRY_RELEASE.includes('<git-sha-or-version>');
+
+if (shouldGenerateSentryRelease) {
+  try {
+    const sha = execSync('git rev-parse --short HEAD', {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+
+    process.env.SENTRY_RELEASE = `erxes-${sha}`;
+    console.log(`Using SENTRY_RELEASE=${process.env.SENTRY_RELEASE}`);
+  } catch (error) {
+    console.warn(
+      'Unable to auto-generate SENTRY_RELEASE from git; continuing without changing it.',
+    );
+  }
+}
+
 let plugins = '';
 let services = '';
 let projectsCount = 2;
