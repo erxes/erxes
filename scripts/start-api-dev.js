@@ -3,7 +3,7 @@ require('dotenv').config();
 
 const { ENABLED_PLUGINS, ENABLED_SERVICES, ENABLED_PLUGINS_ONLY_API } =
   process.env;
-const { execSync } = require('child_process');
+const { execFileSync, execSync } = require('child_process');
 
 const shouldGenerateSentryRelease =
   !process.env.SENTRY_RELEASE ||
@@ -11,7 +11,7 @@ const shouldGenerateSentryRelease =
 
 if (shouldGenerateSentryRelease) {
   try {
-    const sha = execSync('git rev-parse --short HEAD', {
+    const sha = execFileSync('/usr/bin/git', ['rev-parse', '--short', 'HEAD'], {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
     }).trim();
