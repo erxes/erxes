@@ -135,13 +135,22 @@ export const integrationQueries = {
    * Get used integration types
    */
   async integrationsGetUsedTypes(_root, _args, { models }: IContext) {
+    const usedTypes: Array<{ _id: string; name: string }> = [];
+
     try {
       const kindMap = await getIntegrationsKinds();
-      const usedKinds: string[] = await models.Integrations.distinct('kind');
 
-      return usedKinds
-        .filter((kind) => kindMap[kind])
-        .map((kind) => ({ _id: kind, name: kindMap[kind] }));
+      for (const kind of Object.keys(kindMap)) {
+        if (
+          (await models.Integrations.findIntegrations({
+            kind,
+          }).countDocuments()) > 0
+        ) {
+          usedTypes.push({ _id: kind, name: kindMap[kind] });
+        }
+      }
+
+      return usedTypes;
     } catch (error) {
       console.error('Error in integrationsGetUsedTypes:', error);
       throw new Error('Failed to fetch used integration types');
