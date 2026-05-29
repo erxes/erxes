@@ -91,9 +91,6 @@ export const dealMutations: Record<string, Resolver> = {
 
     const updatedItem = await models.Deals.updateDeal(itemId, extendedDoc);
 
-    // Do not call mongolian plugin directly from sales.
-    // Instead, emit an event (via logs) that will be handled by afterProcess.
-
     if (item.stageId !== destinationStageId) {
       await processStageChangeScoreCampaigns({
         subdomain,
@@ -229,7 +226,6 @@ export const dealMutations: Record<string, Resolver> = {
       user,
     });
 
-    // order notification
     const stage = await models.Stages.getStage(clone.stageId);
 
     await subscriptionWrapper(models, {
@@ -316,7 +312,6 @@ export const dealMutations: Record<string, Resolver> = {
       }
     }
 
-    // undefenid or null then true
     const tickUsed = !(stage.defaultTick === false);
     const addDocs = (docs || []).map(
       (doc) => ({ ...doc, tickUsed } as IProductData),
