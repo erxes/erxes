@@ -53,8 +53,8 @@ const formatDate = (dateStr?: string) => {
 
 const formatScore = (value?: number) => fixNum(value, 4).toLocaleString();
 
-export const makeScoreColumns = (): ColumnDef<IScoreLog>[] => [
-  makeScoreMoreColumn() as ColumnDef<IScoreLog>,
+export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
+  makeScoreMoreColumn(),
   {
     id: 'ownerName',
     header: () => <RecordTable.InlineHead icon={IconUser} label="Owner Name" />,
