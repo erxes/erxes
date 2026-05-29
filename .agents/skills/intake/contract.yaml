@@ -48,7 +48,7 @@ inputs:
     description: "Auto-detected module from feature-map.yaml (legacy, prefer detected_scope)"
     required: false
 
-  outputs:
+outputs:
   - name: confirmed_scope
     type: object
     description: "Confirmed scope with plugin, module, components"
