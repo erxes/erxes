@@ -395,12 +395,6 @@ validation:
     command: ".agents/scripts/check-rules.sh [<path>]"
     description: "Verify non-negotiable rules are followed"
 
-  # Pre-flight gate
-  preflight_check:
-    command: ".agents/scripts/preflight-check.sh"
-    description: "Hard gate: detect-scope must complete before intake"
-    required_before: ["intake"]
-
 # ─── Agent Protocol ───
 # How agents must behave when using this system.
 
