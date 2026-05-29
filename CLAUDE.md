@@ -22,9 +22,9 @@ This document provides comprehensive information about the erxes codebase struct
 ### Key Characteristics
 - **Architecture**: Nx-powered pnpm monorepo with microservices architecture
 - **License**: AGPLv3 (core) with Enterprise Edition plugins
-- **Package Manager**: pnpm (v9.12.3) - **REQUIRED**
+- **Package Manager**: pnpm >= 8 - **REQUIRED**
 - **Build System**: Nx (v20.0.8) with intelligent caching and task orchestration
-- **Version**: TypeScript 5.7.3, Node.js 18+
+- **Version**: TypeScript 5.7.3, Node.js 22 in CI
 
 ### Core Philosophy
 - 100% customizable through plugin architecture
@@ -196,7 +196,7 @@ All backend services use consistent path aliases:
 ### Prerequisites
 
 - **pnpm** ≥ 8 (enforced in package.json)
-- **Node.js** 18.16.9+ (see `.nvmrc` if exists)
+- **Node.js** 22 recommended to match CI
 - **MongoDB** 27017
 - **Redis** (default port)
 - **Elasticsearch** 7 (optional, for search)
@@ -212,7 +212,7 @@ cd erxes
 pnpm install
 
 # Setup environment variables
-cp .env.example .env
+cp .env.sample .env
 # Edit .env with your configuration
 ```
 
@@ -252,8 +252,8 @@ pnpm nx build sales_api
 pnpm nx test sales_api
 
 # Run affected commands (only changed projects)
-pnpm nx affected:build
-pnpm nx affected:test
+pnpm nx affected --target=build
+pnpm nx affected --target=test
 ```
 
 ### Important Environment Variables
@@ -286,7 +286,10 @@ Core API:      3300
 Core UI:       3001
 
 Plugin APIs:   3305+ (sales=3305, operation=3306, etc.)
-Plugin UIs:    3005+ (sales=3005, operation=3006, etc.)
+Plugin UIs:    3002-3011
+               insurance=3002, content=3003, frontline=3004, sales=3005
+               operation=3006, mongolian=3007, accounting=3008
+               loyalty=3009, payment=3010, tourism=3011
 
 BullMQ Board:  4000/bullmq-board
 ```
@@ -764,7 +767,7 @@ pnpm nx test <project-name> --watch
 pnpm nx test <project-name> --coverage
 
 # Run affected tests (only changed projects)
-pnpm nx affected:test
+pnpm nx affected --target=test
 ```
 
 ### Test Configuration (Jest)
@@ -1251,13 +1254,13 @@ export default {
 **Finding Features:**
 ```bash
 # Find GraphQL type definition
-pnpm nx run-many -t grep -p 'type Deal'
+rg 'type Deal' backend frontend apps
 
 # Find component usage
-pnpm nx run-many -t grep -p 'UserList'
+rg 'UserList' frontend
 
 # Find API endpoint
-pnpm nx run-many -t grep -p '/api/deals'
+rg '/api/deals' backend frontend apps
 ```
 
 **Understanding Plugin Flow:**
@@ -1312,7 +1315,7 @@ pnpm nx run-many -t grep -p '/api/deals'
 
 ---
 
-**Last Updated**: 2026-01-15
+**Last Updated**: 2026-05-28
 **Version**: 1.0.0
 **Maintainer**: erxes Team
 

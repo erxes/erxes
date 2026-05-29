@@ -108,10 +108,10 @@ export const types = `
 `;
 
 export const queries = `
-  conversationProgressChart(customerId:String!): ConversationProgressChart
-  conversationMemberProgress(customerId:String!):[ConversationMemberProgress]
-  conversationSourceProgress(customerId:String!): ConversationSourceProgress
-  conversationTagProgress(customerId:String!): ConversationTagProgress
+  conversationProgressChart(customerId:String!, fromDate:String, toDate:String): ConversationProgressChart
+  conversationMemberProgress(customerId:String!, fromDate:String, toDate:String):[ConversationMemberProgress]
+  conversationSourceProgress(customerId:String!, fromDate:String, toDate:String): ConversationSourceProgress
+  conversationTagProgress(customerId:String!, fromDate:String, toDate:String): ConversationTagProgress
   reportConversationOpenDate(filters: ConversationReportFilter): [ConversationDateStat]
   reportConversationResolvedDate(filters: ConversationReportFilter): [ConversationDateStat]
   reportConversationList(filters: ConversationReportFilter): ConversationListResult
