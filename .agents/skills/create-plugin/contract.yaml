@@ -84,7 +84,7 @@ postconditions:
     required: true
   - description: "Plugin added to feature map"
     check: "grep -q {plugin_name} .agents/maps/feature-map.yaml"
-    required: false
+    required: true
     when: "feature_map_exists == true"
 
 workflow:
