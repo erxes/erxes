@@ -8,8 +8,7 @@ export const LOYALTIES_AUTOMATIONS_CONSTANTS: AutomationConstants = {
       collectionName: 'reward',
       icon: 'IconAward',
       label: 'Reward',
-      description:
-        'Start with a blank workflow that enrolls and is triggered off reward',
+      description: 'Start this workflow when a loyalty reward event occurs.',
       isCustom: true,
     },
   ],

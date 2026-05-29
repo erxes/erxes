@@ -111,7 +111,7 @@ export const fieldsCombinedByContentType = async (
   const type = ['visitors', 'leads', 'customers'].includes(contentType)
     ? 'core:customer'
     : `${pluginName}:${collectionType}`;
-  console.log({ type });
+
   const customFields = await getCustomFields(models, type, validations);
 
   const groupCache = new Map();
@@ -126,12 +126,11 @@ export const fieldsCombinedByContentType = async (
       return { customField, group };
     }),
   );
-
-  const extendedFields = customFieldsWithGroups
-    .filter(({ group }) => group?.isVisible)
-    .map(({ customField, group }) => ({
+  const extendedFields = customFieldsWithGroups.map(
+    ({ customField, group }) => ({
       _id: nanoid().toString(),
       name: `customFieldsData.${getRealIdFromElk(customField._id.toString())}`,
+      label: customField.name,
       options: customField.options,
       selectOptions: generateSelectOptions(customField.options),
       validations: customField.validations,
@@ -148,9 +147,13 @@ export const fieldsCombinedByContentType = async (
             description: group.description,
           }
         : undefined,
-    }));
+    }),
+  );
 
   fields = [...fields, ...extendedFields];
 
-  return fields.filter((field) => !(excludedNames || []).includes(field.name));
+  const response = fields.filter(
+    (field) => !(excludedNames || []).includes(field.name),
+  );
+  return response;
 };

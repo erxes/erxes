@@ -17,10 +17,13 @@ export const useAutomationNodes = () => {
       [AutomationNodeType.Workflow]: workflows,
     }[type]);
 
+  const isEmpty = (type: AutomationNodeType) => getList(type).length === 0;
+
   return {
     triggers,
     actions,
     workflows,
     getList,
+    isEmpty,
   };
 };

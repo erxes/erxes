@@ -1,3 +1,4 @@
+import { CANVAS_FIT_VIEW_OPTIONS } from '@/automations/constants';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { automationBuilderSiderbarOpenState } from '@/automations/states/automationState';
 import { IconBolt, IconPlus } from '@tabler/icons-react';
@@ -17,8 +18,7 @@ export const PlaceHolderNode = memo(
     useEffect(() => {
       reactFlowInstance?.fitView({
         nodes: [{ id }],
-        duration: 800,
-        padding: 0.4,
+        ...CANVAS_FIT_VIEW_OPTIONS,
       });
     }, [id, reactFlowInstance]);
 

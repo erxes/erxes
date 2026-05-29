@@ -2,7 +2,7 @@ import { TAutomationRuntimeOutputDefinition } from 'erxes-api-shared/core-module
 
 const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition = {
   variables: [
-    { key: '_id', label: 'Deal ID', exposure: 'reference', field: '_id' },
+    { key: '_id', label: 'Deal ID', field: '_id' },
     { key: 'name', label: 'Deal name' },
     { key: 'number', label: 'Deal number' },
     { key: 'description', label: 'Description' },
@@ -89,20 +89,18 @@ const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition = {
     { key: 'createdAt', label: 'Created at' },
     { key: 'updatedAt', label: 'Updated at' },
   ],
-  propertySources: [
-    {
-      key: 'properties',
-      label: 'Deal properties',
-      propertyType: 'sales:sales.deal',
-    },
-  ],
+  propertySource: {
+    key: 'properties',
+    label: 'Deal properties',
+    propertyType: 'sales:deal',
+  },
 };
 
 export const salesAutomationContants = {
   triggers: [
     {
       moduleName: 'sales',
-      collectionName: 'deal',
+      collectionName: 'deals',
       icon: 'IconPigMoney',
       label: 'Sales pipeline',
       description:
@@ -111,12 +109,12 @@ export const salesAutomationContants = {
     },
     {
       moduleName: 'sales',
-      collectionName: 'deal',
+      collectionName: 'deals',
       relationType: 'probability',
       icon: 'IconPigMoney',
-      label: 'Sales pipelines stage probability based',
+      label: 'Deal reaches stage probability',
       description:
-        'Start with a blank workflow that triggered off sales pipeline item stage probability',
+        'Start this workflow when a deal moves to a stage with the selected probability.',
       isCustom: true,
       output: SALES_DEAL_TRIGGER_OUTPUT,
     },
@@ -124,7 +122,7 @@ export const salesAutomationContants = {
   actions: [
     {
       moduleName: 'sales',
-      collectionName: 'deal',
+      collectionName: 'deals',
       method: 'create',
       icon: 'IconPigMoney',
       label: 'Create deal',

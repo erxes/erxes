@@ -40,7 +40,7 @@ export const useAutomationVariableBrowser = ({
       sourceNodes[0]
     : sourceNode || null;
 
-  const { loading, mergedVariables, mergedPropertySources } =
+  const { loading, mergedVariables, mergedPropertySource } =
     useAutomationNodeOutput(activeSourceNode);
 
   const deferredSearchValue = useDeferredValue(searchValue);
@@ -90,7 +90,7 @@ export const useAutomationVariableBrowser = ({
     buildVariableToken,
     filteredVariables,
     loading,
-    mergedPropertySources,
+    mergedPropertySource,
     searchQuery,
     searchValue,
     selectedSourceNodeId,

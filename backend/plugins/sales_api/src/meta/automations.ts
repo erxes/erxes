@@ -44,4 +44,12 @@ export default {
     extractModuleName: (input) => input.moduleName,
     generateModels,
   }),
+
+  checkTargetMatch: createCoreModuleProducerHandler({
+    moduleName: 'automations',
+    modules,
+    methodName: TAutomationProducers.CHECK_TARGET_MATCH,
+    extractModuleName: (input) => input.moduleName,
+    generateModels,
+  }),
 } as AutomationConfigs;

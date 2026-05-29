@@ -1,4 +1,7 @@
-import { IAutomationsActionConfigConstants } from 'ui-modules';
+import {
+  IAutomationsActionConfigConstants,
+  IAutomationsTriggerConfigConstants,
+} from 'ui-modules';
 
 const CORE_ACTION_GROUPS = [
   'Logic & Decisions',
@@ -6,6 +9,8 @@ const CORE_ACTION_GROUPS = [
   'Data Operations',
   'Timing & Delays',
 ];
+
+export const TRIGGER_GROUPS = ['Record based', 'Event based'];
 
 const titleCase = (value: string) =>
   value
@@ -53,5 +58,28 @@ export const groupActionsByType = ({
       name: group,
       list: actions.filter((action) => getActionGroup(action) === group),
     }))
+    .filter((group) => group.list.length);
+};
+
+export const groupTriggersByCustomType = ({
+  triggers,
+  activeGroup,
+}: {
+  triggers: IAutomationsTriggerConfigConstants[];
+  activeGroup?: string | null;
+}) => {
+  const groups = [
+    {
+      name: TRIGGER_GROUPS[0],
+      list: triggers.filter((trigger) => !trigger.isCustom),
+    },
+    {
+      name: TRIGGER_GROUPS[1],
+      list: triggers.filter((trigger) => trigger.isCustom),
+    },
+  ];
+
+  return groups
+    .filter((group) => !activeGroup || group.name === activeGroup)
     .filter((group) => group.list.length);
 };

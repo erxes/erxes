@@ -16,6 +16,10 @@ import { TSegmentProducersInput } from '../../core-modules/segments/zodSchemas';
 import { TImportExportProducersInput } from '../../core-modules/import-export/zodSchemas';
 import { TImportExportProducers } from '../../core-modules/import-export/types';
 import { encodeTRPCContextHeader, TRPCContext, trpcContextHeaderName } from '.';
+import {
+  TRecordReferenceProducers,
+  TRecordReferenceProducersInput,
+} from '../../core-modules/common/references/types';
 type TModuleProducerInputMap = {
   automations: {
     [K in TAutomationProducers]: TAutomationProducersInput[K];
@@ -31,6 +35,9 @@ type TModuleProducerInputMap = {
   };
   importExport: {
     [K in TImportExportProducers]: TImportExportProducersInput[K];
+  };
+  references: {
+    [K in TRecordReferenceProducers]: TRecordReferenceProducersInput[K];
   };
 };
 

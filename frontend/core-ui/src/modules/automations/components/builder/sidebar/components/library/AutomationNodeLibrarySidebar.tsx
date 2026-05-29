@@ -1,4 +1,4 @@
-import { TabContentWrapper } from '@/automations/components/builder/sidebar/components/library/TabContentWrapper';
+import { AutomationNodeLibraryTabContent } from '@/automations/components/builder/sidebar/components/library/AutomationNodeLibraryTabContent';
 import { useAutomationNodeLibrarySidebar } from '@/automations/components/builder/sidebar/hooks/useAutomationNodeLibrarySidebar';
 import { AutomationNodeType } from '@/automations/types';
 import { IconCheck, IconFilter, IconX } from '@tabler/icons-react';
@@ -8,13 +8,14 @@ import { useTranslation } from 'react-i18next';
 import { useAutomationBuilderSidebarHooks } from '../../hooks/useAutomationBuilderSidebarHooks';
 import { IAutomationsActionConfigConstants } from 'ui-modules';
 import {
-  groupActionsByType,
   getActionGroupBadges,
+  TRIGGER_GROUPS,
 } from '../../utils/automationNodeLibrarySidebarUtils';
 import {
   AutomationNodeLibraryActionGroupFilterProvider,
   useAutomationNodeLibraryActionGroupFilter,
 } from '../../context/AutomationNodeLibraryActionGroupFilterContext';
+import { AutomationNodeLibraryProvider } from '../../context/AutomationNodeLibraryProvider';
 
 const SidebarPanelHeader = ({
   title,
@@ -57,13 +58,6 @@ export const AutomationNodeLibrarySidebar = () => {
   } = useAutomationNodeLibrarySidebar();
   const { handleClose } = useAutomationBuilderSidebarHooks();
   const { t } = useTranslation('automations');
-  const commonTabContentProps = {
-    loading,
-    error,
-    refetch,
-    onDragStart,
-    onSelectNode,
-  };
 
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
@@ -75,13 +69,20 @@ export const AutomationNodeLibrarySidebar = () => {
         />
       </div>
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <AutomationNodeLibraryActionGroupFilterProvider>
-          <AutomationNodeLibrarySidebarContent
-            activeNodeTab={activeNodeTab}
-            config={config}
-            commonTabContentProps={commonTabContentProps}
-          />
-        </AutomationNodeLibraryActionGroupFilterProvider>
+        <AutomationNodeLibraryProvider
+          loading={loading}
+          error={error}
+          refetch={refetch}
+          onDragStart={onDragStart}
+          onSelectNode={onSelectNode}
+        >
+          <AutomationNodeLibraryActionGroupFilterProvider>
+            <AutomationNodeLibrarySidebarContent
+              activeNodeTab={activeNodeTab}
+              config={config}
+            />
+          </AutomationNodeLibraryActionGroupFilterProvider>
+        </AutomationNodeLibraryProvider>
       </div>
     </div>
   );
@@ -90,37 +91,11 @@ export const AutomationNodeLibrarySidebar = () => {
 const AutomationNodeLibrarySidebarContent = ({
   activeNodeTab,
   config,
-  commonTabContentProps,
 }: {
   activeNodeTab: AutomationNodeType;
   config: ReturnType<typeof useAutomationNodeLibrarySidebar>['config'];
-  commonTabContentProps: Pick<
-    ReturnType<typeof useAutomationNodeLibrarySidebar>,
-    'loading' | 'error' | 'refetch' | 'onDragStart' | 'onSelectNode'
-  >;
 }) => {
   const { t } = useTranslation('automations');
-  const { activeActionGroup } = useAutomationNodeLibraryActionGroupFilter();
-  const actionGroups = useMemo(
-    () =>
-      activeNodeTab === AutomationNodeType.Action
-        ? getActionGroupBadges(
-            config.list as IAutomationsActionConfigConstants[],
-          )
-        : [],
-    [activeNodeTab, config.list],
-  );
-  const groupedActions = useMemo(() => {
-    if (activeNodeTab !== AutomationNodeType.Action) {
-      return undefined;
-    }
-
-    return groupActionsByType({
-      actions: config.list as IAutomationsActionConfigConstants[],
-      groups: actionGroups,
-      activeGroup: activeActionGroup,
-    });
-  }, [activeActionGroup, activeNodeTab, actionGroups, config.list]);
 
   return (
     <Command className="flex h-full min-h-0 flex-col gap-0 bg-sidebar">
@@ -138,15 +113,13 @@ const AutomationNodeLibrarySidebarContent = ({
       </div>
       <div className="min-h-0 flex-1 overflow-hidden px-5 pb-4">
         <div className="h-full w-full overflow-auto p-0 pr-1">
-          <TabContentWrapper
-            {...commonTabContentProps}
+          <AutomationNodeLibraryTabContent
             type={
               activeNodeTab === AutomationNodeType.Action
                 ? AutomationNodeType.Action
                 : AutomationNodeType.Trigger
             }
             list={config.list}
-            groups={groupedActions}
           />
         </div>
       </div>
@@ -162,20 +135,32 @@ const AutomationNodeLibrarySidebarFilters = ({
   list: IAutomationsActionConfigConstants[];
 }) => {
   const [isGroupPopoverOpen, setIsGroupPopoverOpen] = useState(false);
-  const { activeActionGroup, setActiveActionGroup } =
-    useAutomationNodeLibraryActionGroupFilter();
+  const {
+    activeActionGroup,
+    setActiveActionGroup,
+    activeTriggerGroup,
+    setActiveTriggerGroup,
+  } = useAutomationNodeLibraryActionGroupFilter();
 
   const { t } = useTranslation('automations');
 
-  const actionGroups = useMemo(
+  const groups = useMemo(
     () =>
       activeNodeTab === AutomationNodeType.Action
         ? getActionGroupBadges(list as IAutomationsActionConfigConstants[])
-        : [],
+        : TRIGGER_GROUPS,
     [activeNodeTab, list],
   );
+  const activeGroup =
+    activeNodeTab === AutomationNodeType.Action
+      ? activeActionGroup
+      : activeTriggerGroup;
+  const setActiveGroup =
+    activeNodeTab === AutomationNodeType.Action
+      ? setActiveActionGroup
+      : setActiveTriggerGroup;
 
-  if (!actionGroups?.length) {
+  if (!groups.length) {
     return null;
   }
 
@@ -187,13 +172,13 @@ const AutomationNodeLibrarySidebarFilters = ({
           size="icon"
           className={cn(
             'size-9 relative',
-            activeActionGroup &&
+            activeGroup &&
               'border-primary/40 bg-primary/5 text-primary hover:bg-primary/10',
           )}
           aria-label={t('filter-by-type')}
         >
           <IconFilter className="size-4" />
-          {activeActionGroup ? (
+          {activeGroup ? (
             <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-primary" />
           ) : null}
         </Button>
@@ -207,12 +192,12 @@ const AutomationNodeLibrarySidebarFilters = ({
           <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             {t('filter-by-type')}
           </span>
-          {activeActionGroup ? (
+          {activeGroup ? (
             <button
               type="button"
               className="text-xs font-medium text-primary hover:underline"
               onClick={() => {
-                setActiveActionGroup(null);
+                setActiveGroup(null);
                 setIsGroupPopoverOpen(false);
               }}
             >
@@ -221,8 +206,8 @@ const AutomationNodeLibrarySidebarFilters = ({
           ) : null}
         </div>
         <div className="flex flex-wrap gap-1.5">
-          {actionGroups.map((group) => {
-            const isActive = activeActionGroup === group;
+          {groups.map((group) => {
+            const isActive = activeGroup === group;
 
             return (
               <Badge
@@ -235,7 +220,7 @@ const AutomationNodeLibrarySidebarFilters = ({
                     : 'border-border bg-muted/40 text-foreground hover:bg-muted',
                 )}
                 onClick={() => {
-                  setActiveActionGroup(isActive ? null : group);
+                  setActiveGroup(isActive ? null : group);
                   setIsGroupPopoverOpen(false);
                 }}
               >

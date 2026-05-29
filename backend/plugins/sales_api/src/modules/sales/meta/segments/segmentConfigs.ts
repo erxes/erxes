@@ -23,7 +23,7 @@ export const salesSegmentConfigs = {
   contentTypes: [
     {
       moduleName: 'sales',
-      type: 'deal',
+      type: 'deals',
       description: 'Deal',
       esIndex: 'deals',
     },

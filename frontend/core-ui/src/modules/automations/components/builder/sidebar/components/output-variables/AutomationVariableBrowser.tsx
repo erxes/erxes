@@ -26,7 +26,7 @@ export const AutomationVariableBrowser = ({
     buildVariableToken,
     filteredVariables,
     loading,
-    mergedPropertySources,
+    mergedPropertySource,
     searchQuery,
     searchValue,
     setSearchValue,
@@ -107,20 +107,15 @@ export const AutomationVariableBrowser = ({
       </AutomationVariableBrowserSection>
 
       <AutomationVariableBrowserSection title="Custom Properties">
-        {mergedPropertySources.length > 0 ? (
-          <div className="space-y-2">
-            {mergedPropertySources.map((source) => (
-              <AutomationOutputPropertySourceFields
-                key={`${source.key}-${source.propertyType}`}
-                source={source}
-                searchQuery={searchQuery}
-                buildVariablePath={buildVariablePath}
-                buildVariableToken={buildVariableToken}
-                buildVariablePayload={buildVariablePayload}
-                onInsertVariable={onInsertVariable}
-              />
-            ))}
-          </div>
+        {mergedPropertySource ? (
+          <AutomationOutputPropertySourceFields
+            source={mergedPropertySource}
+            searchQuery={searchQuery}
+            buildVariablePath={buildVariablePath}
+            buildVariableToken={buildVariableToken}
+            buildVariablePayload={buildVariablePayload}
+            onInsertVariable={onInsertVariable}
+          />
         ) : (
           <AutomationVariableBrowserEmptyState text="No property sources available." />
         )}

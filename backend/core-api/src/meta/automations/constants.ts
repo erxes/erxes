@@ -28,7 +28,7 @@ const CORE_ACTION_GROUPS = {
   TIMING_AND_DELAYS: 'Timing & Delays',
 };
 
-export const coreAutomationConstants: AutomationConstants = {
+export const CORE_AUTOMATION_CONSTANTS: AutomationConstants = {
   findObjectTargets: CORE_FIND_OBJECT_TARGETS_CONST,
   triggers: [
     {

@@ -6,6 +6,7 @@ import { useSuggestionMaps } from './useSuggestionMaps';
 
 export const usePlaceHolderInput = ({
   variant = 'fixed',
+  isExpression,
   enabled,
   disabled,
   suggestionGroups,
@@ -20,7 +21,7 @@ export const usePlaceHolderInput = ({
 }: UsePlaceHolderInputProps) => {
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
   const [inputVariant, setInputVariant] = useState<'expression' | 'fixed'>(
-    variant,
+    isExpression ? 'expression' : variant,
   );
 
   const { enabledTypes } = usePlaceholderEnabledTypes({

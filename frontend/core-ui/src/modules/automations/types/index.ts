@@ -36,11 +36,11 @@ export interface AutomationConstants {
         label: string;
         exposure?: 'placeholder' | 'reference';
       }>;
-      propertySources?: Array<{
+      propertySource?: {
         key: string;
         label: string;
         propertyType: string;
-      }>;
+      };
       resolverKeys?: string[];
     };
   }>;

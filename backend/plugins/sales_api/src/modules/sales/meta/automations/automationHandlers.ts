@@ -5,9 +5,9 @@ import {
   TAutomationProducersInput,
   TCoreModuleProducerContext,
 } from 'erxes-api-shared/core-modules';
-import { IModels } from '~/connectionResolvers';
+import { generateModels, IModels } from '~/connectionResolvers';
 import { IDeal } from '~/modules/sales/@types';
-import { actionCreate } from '~/modules/sales/meta/automations/action/createAction';
+import { createDealAction } from '~/modules/sales/meta/automations/action/createDealAction';
 import { createChecklist } from '~/modules/sales/meta/automations/action/createChecklist';
 import { getItems } from '~/modules/sales/meta/automations/action/getItems';
 import { getRelatedValue } from '~/modules/sales/meta/automations/action/getRelatedValue';
@@ -46,7 +46,7 @@ export const salesAutomationHandlers = {
       return createChecklist(models, execution, action);
     }
 
-    return await actionCreate({
+    return await createDealAction({
       models,
       subdomain,
       action,
@@ -104,5 +104,18 @@ export const salesAutomationHandlers = {
       relatedItems,
       targetType,
     });
+  },
+  checkTargetMatch: async ({ ...data }, { subdomain, ...props }) => {
+    const models = await generateModels(subdomain);
+    const { moduleName, collectionType, targetId, selector } = data || {};
+    if (collectionType === 'deals' && moduleName === 'sales') {
+      return Boolean(
+        await models.Deals.exists({
+          $and: [{ _id: targetId }, selector],
+        }),
+      );
+    }
+
+    return false;
   },
 };

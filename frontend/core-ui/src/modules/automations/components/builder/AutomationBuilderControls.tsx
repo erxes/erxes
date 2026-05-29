@@ -2,13 +2,17 @@ import {
   IconArrowDown,
   IconArrowRight,
   IconBraces,
+  IconCornerDownRight,
+  IconDownload,
   IconFocusCentered,
   IconGridDots,
+  IconLine,
   IconMap,
   IconMenu2,
   IconMinus,
   IconPhoto,
   IconPlus,
+  IconRoute,
   IconVectorBezier2,
 } from '@tabler/icons-react';
 import {
@@ -39,6 +43,26 @@ const CONTROL_BUTTON_CLASS =
   'size-7 rounded text-accent-foreground hover:bg-accent hover:text-foreground [&>svg]:size-4';
 const ACTIVE_CONTROL_BUTTON_CLASS =
   'bg-primary/15 text-primary hover:bg-primary/20 hover:text-primary';
+
+const FlowDirectionIcon = ({
+  value,
+}: {
+  value: TAutomationFlowDirection;
+}) => (value === 'vertical' ? <IconArrowDown /> : <IconArrowRight />);
+
+const EdgeTypeIcon = ({ value }: { value: TAutomationEdgeType }) => {
+  switch (value) {
+    case 'straight':
+      return <IconLine />;
+    case 'step':
+      return <IconCornerDownRight />;
+    case 'smoothstep':
+      return <IconRoute />;
+    case 'default':
+    default:
+      return <IconVectorBezier2 />;
+  }
+};
 
 const downloadDataUrl = (filename: string, dataUrl: string) => {
   const link = document.createElement('a');
@@ -298,6 +322,7 @@ export const AutomationBuilderControls = ({
                 >
                   {AUTOMATION_FLOW_DIRECTIONS.map(({ value, label }) => (
                     <DropdownMenu.RadioItem key={value} value={value}>
+                      <FlowDirectionIcon value={value} />
                       {label}
                     </DropdownMenu.RadioItem>
                   ))}
@@ -316,6 +341,7 @@ export const AutomationBuilderControls = ({
                 >
                   {AUTOMATION_EDGE_TYPES.map(({ value, label }) => (
                     <DropdownMenu.RadioItem key={value} value={value}>
+                      <EdgeTypeIcon value={value} />
                       {label}
                     </DropdownMenu.RadioItem>
                   ))}
@@ -324,30 +350,42 @@ export const AutomationBuilderControls = ({
             </DropdownMenu.Sub>
             <DropdownMenu.Sub>
               <DropdownMenu.SubTrigger>
-                <IconPhoto className="size-4" />
-                Download PNG
+                <IconDownload className="size-4" />
+                Download
               </DropdownMenu.SubTrigger>
               <DropdownMenu.SubContent className="w-48">
-                <DropdownMenu.Item
-                  onClick={() => handleExportPng({ withBackground: true })}
-                >
-                  With background
+                <DropdownMenu.Sub>
+                  <DropdownMenu.SubTrigger>
+                    <IconPhoto className="size-4" />
+                    PNG
+                  </DropdownMenu.SubTrigger>
+                  <DropdownMenu.SubContent className="w-48">
+                    <DropdownMenu.Item
+                      onClick={() =>
+                        handleExportPng({ withBackground: true })
+                      }
+                    >
+                      With background
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      onClick={() =>
+                        handleExportPng({ withBackground: false })
+                      }
+                    >
+                      Transparent
+                    </DropdownMenu.Item>
+                  </DropdownMenu.SubContent>
+                </DropdownMenu.Sub>
+                <DropdownMenu.Item onClick={handleExportSvg}>
+                  <IconVectorBezier2 className="size-4" />
+                  SVG
                 </DropdownMenu.Item>
-                <DropdownMenu.Item
-                  onClick={() => handleExportPng({ withBackground: false })}
-                >
-                  Transparent
+                <DropdownMenu.Item onClick={handleExportJson}>
+                  <IconBraces className="size-4" />
+                  Export JSON
                 </DropdownMenu.Item>
               </DropdownMenu.SubContent>
             </DropdownMenu.Sub>
-            <DropdownMenu.Item onClick={handleExportSvg}>
-              <IconVectorBezier2 className="size-4" />
-              Download SVG
-            </DropdownMenu.Item>
-            <DropdownMenu.Item onClick={handleExportJson}>
-              <IconBraces className="size-4" />
-              Export JSON
-            </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu>
       </div>

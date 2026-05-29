@@ -9,7 +9,7 @@ export const SalesActionHistoryResult = ({
   return (
     <div>
       <Link
-        to={`/deals?boardId=${result.boardId}&pipelineId=${result.pipelineId}&salesItemId=${result.targetId}`}
+        to={`/sales/deals?boardId=${result.boardId}&pipelineId=${result.pipelineId}&salesItemId=${result.targetId}`}
         target="_blank"
       >
         <Button variant="link" className="w-full">

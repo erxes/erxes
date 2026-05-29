@@ -1,6 +1,6 @@
 import { AUTOMATION_NODE_TYPE_LIST_PROERTY } from '@/automations/constants';
-import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useDnDActions } from '@/automations/context/AutomationBuilderDnDProvider';
+import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
 import { useNodeConnect } from '@/automations/hooks/useNodeConnect';
@@ -15,12 +15,11 @@ import {
   useReactFlow,
 } from '@xyflow/react';
 // @ts-ignore
-import '@xyflow/react/dist/style.css';
+import { generateEdges } from '@/automations/utils/automationBuilderUtils/generateEdges';
+import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { themeState } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { generateEdges } from '@/automations/utils/automationBuilderUtils/generateEdges';
-import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { useWatch } from 'react-hook-form';
 
 export const useReactFlowEditor = () => {
@@ -46,7 +45,6 @@ export const useReactFlowEditor = () => {
   const { getNodes, addNodes } = useReactFlow<Node<NodeData>>();
   const [edgeType, flowDirection] = useWatch<TAutomationBuilderForm>({
     name: ['edgeType', 'flowDirection'],
-    defaultValue: ['default', 'horizontal'],
   });
 
   const prevFlowDirectionRef = useRef(flowDirection);
@@ -132,6 +130,7 @@ export const useReactFlowEditor = () => {
 
       if (newNodeId && generatedNode) {
         addNodes(generatedNode);
+
         if (awaitingToConnectNodeId) {
           onAwaitingNodeConnection(
             awaitingToConnectNodeId,

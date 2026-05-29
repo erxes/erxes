@@ -33,7 +33,7 @@ export type TAutomationOutputPropertySource = {
 
 export type TAutomationOutputDefinition = {
   variables: TAutomationOutputVariable[];
-  propertySources?: TAutomationOutputPropertySource[];
+  propertySource?: TAutomationOutputPropertySource;
   resolverKeys?: string[];
 };
 

@@ -16,6 +16,7 @@ export const ManagePropertyRule = ({ propertyType, index }: LocalRuleProps) => {
     handleRemove,
     handleUpdate,
     placeholderInputProps,
+    rule,
   } = useManagePropertyRule({ propertyType, index });
   return (
     <div className="border rounded p-4  mb-2 relative group">
@@ -84,7 +85,7 @@ export const ManagePropertyRule = ({ propertyType, index }: LocalRuleProps) => {
         <Button
           variant="destructive"
           size="icon"
-          className="flex-shrink-0 opacity-0 absolute -top-6 right-1 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-in-out"
+          className="flex-shrink-0 opacity-0  absolute -top-6 right-1 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-in-out"
           onClick={handleRemove}
         >
           <IconTrash size={16} />
@@ -96,13 +97,14 @@ export const ManagePropertyRule = ({ propertyType, index }: LocalRuleProps) => {
           name={`rules.${index}.value`}
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Value </Form.Label>
+              <Form.Label>Value</Form.Label>
 
               <PlaceholderInput
                 propertyType={propertyType}
                 value={field.value ?? ''}
                 onChange={field.onChange}
                 disabled={{ attribute: true }}
+                isExpression={rule.isExpression}
                 onChangeInputMode={(mode) =>
                   handleUpdate({ isExpression: mode === 'expression' })
                 }

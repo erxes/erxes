@@ -1,4 +1,5 @@
 import { sendTRPCMessage } from '../../utils/trpc';
+import { resolveRecordReferenceValue } from '../common/references';
 import {
   AutomationConstants,
   IAutomationsActionConfig,
@@ -17,8 +18,6 @@ type TPropertyField = {
   code?: string;
   name?: string;
 };
-
-const propertyFieldsCache = new Map<string, Promise<TPropertyField[]>>();
 
 export const resolveFromSourceField =
   <TModels = unknown>(
@@ -50,10 +49,7 @@ export const resolveFromSourceField =
       defaultValue,
     });
 
-export const matchAutomationResolverKey = (
-  resolverKey: string,
-  path: string,
-) =>
+export const matchAutomationResolverKey = (resolverKey: string, path: string) =>
   resolverKey.endsWith('.*')
     ? path.startsWith(resolverKey.slice(0, -1))
     : resolverKey === path;
@@ -81,29 +77,104 @@ export const getValueByPath = (
   return { found: true, value: current };
 };
 
-const getPropertyFields = async (subdomain: string, propertyType: string) => {
-  const cacheKey = `${subdomain}:${propertyType}`;
+const getPropertyFields = async (
+  subdomain: string,
+  propertyType: string,
+): Promise<TPropertyField[]> => {
+  return await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    method: 'query',
+    module: 'fields',
+    action: 'find',
+    input: {
+      query: { contentType: propertyType },
+      projection: { _id: 1, code: 1, name: 1 },
+      sort: { order: 1 },
+    },
+    defaultValue: [],
+  }).catch(() => []);
+};
 
-  if (!propertyFieldsCache.has(cacheKey)) {
-    propertyFieldsCache.set(
-      cacheKey,
-      sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'fields',
-        action: 'find',
-        input: {
-          query: { contentType: propertyType },
-          projection: { _id: 1, code: 1, name: 1 },
-          sort: { order: 1 },
-        },
-        defaultValue: [],
-      }).catch(() => []),
-    );
+const findReferenceVariable = (
+  definition: TAutomationRuntimeOutputDefinition,
+  head: string,
+) =>
+  (definition.variables || []).find(
+    (variable) =>
+      variable.exposure === 'reference' &&
+      (variable.key === head || variable.field === head),
+  );
+
+const getOutputSourceType = ({
+  propertySource,
+}: TAutomationRuntimeOutputDefinition) => propertySource?.propertyType || '';
+
+const toReferenceIds = (value: unknown) =>
+  (Array.isArray(value) ? value : [value])
+    .filter((item) => item !== undefined && item !== null && item !== '')
+    .map(String);
+
+const resolveReferenceOutputValue = async ({
+  definition,
+  defaultValue,
+  source,
+  subdomain,
+  path,
+}: {
+  definition: TAutomationRuntimeOutputDefinition;
+  defaultValue?: unknown;
+  source: TAutomationOutputSource;
+  subdomain: string;
+  path: string;
+}) => {
+  const [head, ...restParts] = path.split('.');
+  const restPath = restParts.join('.');
+
+  if (!restPath) {
+    return { found: false };
   }
 
-  return propertyFieldsCache.get(cacheKey)!;
+  const variable = findReferenceVariable(definition, head);
+
+  if (!variable) {
+    return { found: false };
+  }
+
+  const sourceType = variable.sourceType || getOutputSourceType(definition);
+  const sourceField = variable.field || variable.key;
+  const sourceValue = getValueByPath(source, sourceField);
+  const targetIds = toReferenceIds(
+    sourceValue.found ? sourceValue.value : null,
+  );
+
+  if (variable.referenceType && targetIds.length) {
+    return {
+      found: true,
+      value: await resolveRecordReferenceValue({
+        subdomain,
+        type: variable.referenceType,
+        targetIds,
+        path: restPath,
+        defaultValue,
+      }),
+    };
+  }
+
+  if (!sourceType) {
+    return { found: true, value: defaultValue };
+  }
+
+  return {
+    found: true,
+    value: await resolveRecordReferenceValue({
+      subdomain,
+      type: sourceType,
+      target: source,
+      path,
+      defaultValue,
+    }),
+  };
 };
 
 export const resolveOutputValues = async ({
@@ -136,11 +207,9 @@ export const resolveOutputValues = async ({
       continue;
     }
 
-    const propertySource = definition.propertySources?.find((item) =>
-      path.startsWith(`${item.key}.`),
-    );
+    const propertySource = definition.propertySource;
 
-    if (propertySource) {
+    if (propertySource && path.startsWith(`${propertySource.key}.`)) {
       const propertyCode = path.slice(`${propertySource.key}.`.length);
       const fields = await getPropertyFields(
         subdomain,
@@ -155,8 +224,21 @@ export const resolveOutputValues = async ({
         | undefined;
 
       result[path] = field
-        ? (propertiesData?.[field._id] ?? defaultValue)
+        ? propertiesData?.[field._id] ?? defaultValue
         : defaultValue;
+      continue;
+    }
+
+    const reference = await resolveReferenceOutputValue({
+      definition,
+      defaultValue,
+      source,
+      subdomain,
+      path,
+    });
+
+    if (reference.found) {
+      result[path] = reference.value;
       continue;
     }
 
@@ -192,7 +274,9 @@ export const getAutomationNodeType = ({
   }
 
   const triggerNode = node as IAutomationsTriggerConfig;
-  return `${propertyType}${triggerNode.relationType ? `.${triggerNode.relationType}` : ''}`;
+  return `${propertyType}${
+    triggerNode.relationType ? `.${triggerNode.relationType}` : ''
+  }`;
 };
 
 export const toTransportOutput = (
@@ -204,7 +288,7 @@ export const toTransportOutput = (
 
   return {
     variables: output.variables,
-    propertySources: output.propertySources,
+    propertySource: output.propertySource,
     resolverKeys: output.resolverKeys || Object.keys(output.resolvers || {}),
   };
 };

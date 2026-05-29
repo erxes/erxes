@@ -76,7 +76,7 @@ export const AI_AGENT_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
   variables: [
     { key: 'type', label: 'Result Type' },
     { key: 'text', label: 'Generated Text' },
-    { key: 'topicId', label: 'Topic ID', exposure: 'reference' },
+    { key: 'topicId', label: 'Topic ID' },
     { key: 'matched', label: 'Matched' },
     { key: 'attributes', label: 'Attributes' },
     { key: 'usage.inputTokens', label: 'Input Tokens' },

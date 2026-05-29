@@ -6,13 +6,13 @@ import {
 import { Express } from 'express';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { checkTargetMatch } from './checkTargetMatch';
-import { coreAutomationConstants } from './constants';
+import { CORE_AUTOMATION_CONSTANTS } from './constants';
 import { findObject } from './findObject';
 import { getItems, getRelatedValue } from './utils';
 
 export const initAutomation = (app: Express) =>
   startAutomations(app, 'core', {
-    constants: coreAutomationConstants,
+    constants: CORE_AUTOMATION_CONSTANTS,
     replacePlaceHolders: async ({ subdomain, data }) => {
       const { target, config, relatedValueProps } = data || {};
       const models = await generateModels(subdomain);

@@ -107,7 +107,10 @@ const AutomationOutputVariableItem = ({
     token,
   });
   const referenceField = variable.field || variable.key;
-  const referenceFields = data?.automationReferenceFields || [];
+  const inlineReferenceFields = variable.referenceFields || [];
+  const referenceFields = inlineReferenceFields.length
+    ? inlineReferenceFields
+    : data?.automationReferenceFields || [];
 
   const handleReferenceClick = (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -115,7 +118,7 @@ const AutomationOutputVariableItem = ({
     const nextExpanded = !expanded;
     setExpanded(nextExpanded);
 
-    if (nextExpanded && !data && !loading) {
+    if (nextExpanded && !inlineReferenceFields.length && !data && !loading) {
       loadReferenceFields({
         variables: {
           type: variable.sourceType || sourceNode.type,

@@ -8,7 +8,7 @@ import {
 import { Button, Collapsible } from 'erxes-ui';
 import { useState } from 'react';
 
-interface ErrorStateProps {
+interface AutomationErrorStateProps {
   title?: string;
   description?: string;
   errorCode?: string;
@@ -17,14 +17,14 @@ interface ErrorStateProps {
   onDismiss?: () => void;
 }
 
-export function ErrorState({
+export function AutomationErrorState({
   title = 'An error occurred',
   description,
   errorCode = 'ERR_WORKFLOW_EXECUTION',
   errorDetails = 'The workflow execution failed because one of the required parameters is missing or invalid. Please check your configuration and try again.',
   onRetry,
   onDismiss,
-}: ErrorStateProps) {
+}: AutomationErrorStateProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (

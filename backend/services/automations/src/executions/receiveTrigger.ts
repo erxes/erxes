@@ -43,6 +43,7 @@ export const receiveTrigger = async ({
       },
     ],
   }).lean();
+  console.log({ automations });
 
   if (!automations.length) {
     return;
@@ -77,7 +78,6 @@ export const receiveTrigger = async ({
           trigger,
           target,
         });
-
         if (execution) {
           await executeActions(
             subdomain,

@@ -66,10 +66,8 @@ export const segmentQueries = {
       }
       const depModule = await getPlugin(dModule.name);
       const depServiceMeta = depModule.config.meta || {};
-      console.log({ depServiceMeta });
       if (depServiceMeta.segments) {
         let contentTypes = depServiceMeta.segments.contentTypes || [];
-        console.log({ types: dModule?.types, contentTypes });
         if (!!dModule?.types?.length) {
           contentTypes = contentTypes.filter(({ type }) =>
             (dModule?.types || []).includes(type),
@@ -83,7 +81,6 @@ export const segmentQueries = {
         });
       }
     }
-    console.log({ associatedTypes });
     // gather contentTypes of services that are dependent on current service
     await gatherDependentServicesType(
       pluginName,

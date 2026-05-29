@@ -21,8 +21,13 @@ import type {
   IPropertyMeta,
   LogsConfigs,
   SegmentConfigs,
+  TRecordReferencesConfig,
 } from '../core-modules';
-import { initSegmentProducers, startAutomations } from '../core-modules';
+import {
+  initRecordReferences,
+  initSegmentProducers,
+  startAutomations,
+} from '../core-modules';
 import { AutomationConfigs } from '../core-modules/automations/types';
 import type { ImportExportConfigs } from '../core-modules/import-export/types';
 import { startImportExportWorker } from '../core-modules/import-export/worker';
@@ -65,6 +70,7 @@ type IMeta = {
   notifications?: any;
   tags?: any;
   properties?: IPropertyMeta;
+  references?: TRecordReferencesConfig;
   permissions?: IPermissionConfig;
   beforeResolvers?: BeforeResolversConfig;
 };
@@ -341,6 +347,7 @@ export async function startPlugin(
       notifications,
       payments,
       beforeResolvers,
+      references,
     } = meta || {};
 
     if (automations) {
@@ -349,6 +356,10 @@ export async function startPlugin(
 
     if (segments) {
       await initSegmentProducers(app, name, segments);
+    }
+
+    if (references) {
+      await initRecordReferences(app, name, references);
     }
 
     if (afterProcess) {
