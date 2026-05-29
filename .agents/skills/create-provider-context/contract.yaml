@@ -1,0 +1,60 @@
+# Contract: create-provider-context
+
+skill:
+  name: create-provider-context
+  version: "1.0.0"
+  type: feature
+  description: Add scoped React providers or contexts using existing patterns
+
+inputs:
+  - name: plugin_name
+    type: string
+    description: "Frontend plugin name"
+    required: true
+    validation:
+      command: "pnpm nx show projects | grep '^{plugin_name}_ui$'"
+
+  - name: provider_name
+    type: string
+    description: "PascalCase provider name (e.g., 'TagProvider')"
+    required: true
+    pattern: "^[A-Z][a-zA-Z0-9]+Provider$"
+
+  - name: scope
+    type: enum
+    values: [feature, module, plugin, global]
+    description: "Scope of the provider"
+    required: true
+
+rules_required:
+  - react-general-guidelines
+  - react-state-management
+  - code-style
+
+preconditions:
+  - description: "Plugin must exist"
+    check: "test -d frontend/plugins/{plugin_name}_ui"
+  - description: "Need for provider is justified"
+    check: "scope != 'single-component'"
+
+postconditions:
+  - description: "Lint passes"
+    command: "pnpm nx lint {plugin_name}_ui"
+    required: true
+  - description: "Build passes"
+    command: "pnpm nx build {plugin_name}_ui"
+    required: true
+
+composes_with:
+  - create-page
+  - create-form-drawer
+
+conventions:
+  - "Use provider/context only for scoped component trees or shared child access"
+  - "Export a small hook such as useFeatureContext"
+  - "Throw clear error when context used outside provider"
+  - "Keep provider state and hooks near feature"
+  - "Do not create context for single-component state"
+  - "Do not duplicate Apollo data into context without reason"
+  - "Prefer props, local state, URL state, Apollo, or Jotai when better"
+  - "Named exports only"
