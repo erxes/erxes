@@ -24,25 +24,19 @@ interface ErrorResponse {
   code?: string;
 }
 
-/**
- * Safely convert any caught value to a readable string.
- * - Handles circular references via try/catch.
- * - Never throws.
- * - Returns a fallback string if everything fails.
- */
-function safeErrorToString(error: unknown): string {
-  if (typeof error === 'string') return error;
-  if (error && typeof error === 'object') {
-    // Handle common Error objects
-    if ('message' in error && typeof error.message === 'string') return error.message;
-    if ('error' in error && typeof error.error === 'string') return error.error;
+// Safe error to string - never returns [object Object]
+function forceString(err: unknown): string {
+  if (typeof err === 'string') return err;
+  if (err && typeof err === 'object') {
+    if ('message' in err && typeof err.message === 'string') return err.message;
+    if ('error' in err && typeof err.error === 'string') return err.error;
     try {
-      return JSON.stringify(error);
+      return JSON.stringify(err);
     } catch {
-      return '[Unable to stringify error]';
+      return '[unable to stringify error]';
     }
   }
-  return String(error);
+  return String(err);
 }
 
 export class VendorBaseAPI {
@@ -71,12 +65,9 @@ export class VendorBaseAPI {
 
     if (!response.ok) {
       const error = data as ErrorResponse;
-      // error.message is now `unknown` – we must normalize it
-      let message = safeErrorToString(error.message);
-      if (!message) {
-        message = safeErrorToString(error.error) || 'Unknown error occurred';
-      }
-      throw new Error(message);
+      let msg = forceString(error.message);
+      if (!msg) msg = forceString(error.error) || 'Unknown error occurred';
+      throw new Error(msg);
     }
 
     return data as T;
@@ -110,7 +101,7 @@ export class VendorBaseAPI {
 
       return access_token;
     } catch (error: unknown) {
-      throw new Error(`Authentication failed: ${safeErrorToString(error)}`);
+      throw new Error(`Authentication failed: ${forceString(error)}`);
     }
   }
 
@@ -147,7 +138,7 @@ export class VendorBaseAPI {
       this.accessToken = access_token;
       return access_token;
     } catch (error: unknown) {
-      throw new Error(`Token refresh failed: ${safeErrorToString(error)}`);
+      throw new Error(`Token refresh failed: ${forceString(error)}`);
     }
   }
 
@@ -182,8 +173,7 @@ export class VendorBaseAPI {
       const response = await fetch(url.toString(), requestOptions);
       return await this.handleResponse<T>(response);
     } catch (error: unknown) {
-      const errMsg = safeErrorToString(error);
-      // Only retry once on Unauthorized
+      const errMsg = forceString(error);
       if (errMsg.includes('Unauthorized') && retryCount < 1) {
         await this.refreshToken();
         return await this.makeRequest(args, retryCount + 1);
