@@ -36,20 +36,17 @@ async function handleQPaySetup(input: any) {
   const api = new QPayQuickQrAPI(input.config);
   const { isCompany } = input.config;
 
-  if (isCompany) {
-    input.config.name = input.config.companyName;
+  // Fallback for missing name (for company registration)
+  if (isCompany && !input.config.name) {
+    input.config.name = input.config.companyName || input.config.businessName || "Default Contact";
   }
 
-  const response = await (
-    isCompany
+  const response = isCompany
     ? await api.createCompany(input.config)
-    : await api.createCustomer(input.config)
-  );
+    : await api.createCustomer(input.config);
 
   if (!response?.id) {
-    throw new Error(
-      `QPay did not return merchant id: ${JSON.stringify(response)}`,
-    );
+    throw new Error(`QPay did not return merchant id: ${JSON.stringify(response)}`);
   }
 
   input.config.merchantId = response.id;
