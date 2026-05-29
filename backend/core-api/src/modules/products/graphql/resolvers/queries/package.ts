@@ -1,6 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { IPackageDocument, IPackageParams } from '@/products/@types/package';
-import { cursorPaginate } from 'erxes-api-shared/utils/mongo/mongoose-utils';
+import { cursorPaginate } from 'erxes-api-shared/utils';
 
 export const packageQueries = {
   async packages(
