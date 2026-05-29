@@ -16,7 +16,7 @@ export function TitleField<T extends FieldValues>({
       name={'title' as Path<T>}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{field.name}</Form.Label>
+          <Form.Label>Title</Form.Label>
           <Form.Control>
             <Input {...field} value={field.value ?? ''} placeholder="Title" />
           </Form.Control>
@@ -38,7 +38,7 @@ export function CodeField<T extends FieldValues>({
       name={'code' as Path<T>}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{field.name}</Form.Label>
+          <Form.Label>Code</Form.Label>
           <Form.Control>
             <Input {...field} value={field.value ?? ''} placeholder="Code" />
           </Form.Control>
@@ -60,7 +60,7 @@ export function DescriptionField<T extends FieldValues>({
       name={'description' as Path<T>}
       render={({ field }) => (
         <Form.Item className="col-span-2">
-          <Form.Label>{field.name}</Form.Label>
+          <Form.Label>Description</Form.Label>
           <Form.Control>
             <Textarea
               {...field}
