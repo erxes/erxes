@@ -14,7 +14,10 @@ const getCurrentGitSha = () => {
     ? gitPath
     : path.resolve(
         process.cwd(),
-        fs.readFileSync(gitPath, 'utf8').trim().replace(/^gitdir:\s*/, ''),
+        fs
+          .readFileSync(gitPath, 'utf8')
+          .trim()
+          .replace(/^gitdir:\s*/, ''),
       );
   const head = fs.readFileSync(path.join(gitDir, 'HEAD'), 'utf8').trim();
 
@@ -28,18 +31,18 @@ const getCurrentGitSha = () => {
 };
 
 const shouldGenerateSentryRelease =
-  !process.env.SENTRY_RELEASE ||
-  process.env.SENTRY_RELEASE.includes('<git-sha-or-version>');
+  !process.env.RELEASE_VERSION ||
+  process.env.RELEASE_VERSION.includes('<git-sha-or-version>');
 
 if (shouldGenerateSentryRelease) {
   try {
     const sha = getCurrentGitSha();
 
-    process.env.SENTRY_RELEASE = `erxes-${sha}`;
-    console.log(`Using SENTRY_RELEASE=${process.env.SENTRY_RELEASE}`);
+    process.env.RELEASE_VERSION = `erxes-${sha}`;
+    console.log(`Using RELEASE_VERSION=${process.env.RELEASE_VERSION}`);
   } catch (error) {
     console.warn(
-      'Unable to auto-generate SENTRY_RELEASE from git; continuing without changing it.',
+      'Unable to auto-generate RELEASE_VERSION from git; continuing without changing it.',
     );
   }
 }

@@ -6,17 +6,17 @@ if [ "$#" -eq 0 ]; then
   exit 64
 fi
 
-if [ -z "${SENTRY_RELEASE:-}" ] || [[ "${SENTRY_RELEASE}" == *"<git-sha-or-version>"* ]]; then
+if [ -z "${RELEASE_VERSION:-}" ] || [[ "${RELEASE_VERSION}" == *"<git-sha-or-version>"* ]]; then
   if GIT_SHA="$(git rev-parse --short HEAD 2>/dev/null)"; then
-    SENTRY_RELEASE="erxes-${GIT_SHA}"
-    export SENTRY_RELEASE
+    RELEASE_VERSION="erxes-${GIT_SHA}"
+    export RELEASE_VERSION
   else
-    printf 'warning: unable to auto-generate SENTRY_RELEASE from git; continuing without setting it\n' >&2
-    unset SENTRY_RELEASE
+    printf 'warning: unable to auto-generate RELEASE_VERSION from git; continuing without setting it\n' >&2
+    unset RELEASE_VERSION
   fi
 fi
 
-if [ -n "${SENTRY_RELEASE:-}" ]; then
-  printf 'Using SENTRY_RELEASE=%s\n' "$SENTRY_RELEASE"
+if [ -n "${RELEASE_VERSION:-}" ]; then
+  printf 'Using RELEASE_VERSION=%s\n' "$RELEASE_VERSION"
 fi
 exec "$@"
