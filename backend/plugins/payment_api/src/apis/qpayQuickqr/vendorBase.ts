@@ -20,7 +20,7 @@ interface RequestOptions {
 
 interface ErrorResponse {
   error: string;
-  message?: any;
+  message?: any; // can be string or object
   code?: string;
 }
 
@@ -52,8 +52,6 @@ export class VendorBaseAPI {
       const error = data as ErrorResponse;
 
       let message = error.message;
-
-      // 🔥 critical fix: avoid [object Object]
       if (typeof message !== 'string') {
         message = JSON.stringify(message || error.error || data);
       }
@@ -82,26 +80,19 @@ export class VendorBaseAPI {
 
       this.accessToken = access_token;
 
-      // TODO: uncomment this code when redis is ready
+      // TODO: uncomment when redis is ready
       // const data = {
       //   access_token,
       //   refresh_token,
       //   tokenExpiration: expires_in * 1000 + Date.now()
       // };
-
-      // await redis.set(
-      //   'qpay_merchant_data',
-      //   JSON.stringify(data),
-      //   'EX',
-      //   expires_in
-      // );
+      // await redis.set('qpay_merchant_data', JSON.stringify(data), 'EX', expires_in);
 
       return access_token;
     } catch (error: any) {
-      const message =
-        error?.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
-
-      throw new Error(`Authentication failed: ${message}`);
+      const raw = error?.message;
+      const msg = typeof raw === 'string' ? raw : JSON.stringify(raw || error);
+      throw new Error(`Authentication failed: ${msg}`);
     }
   }
 
@@ -133,25 +124,18 @@ export class VendorBaseAPI {
         tokenExpiration: expires_in * 1000 + Date.now(),
       };
 
-      await redis.set(
-        'qpay_merchant_data',
-        JSON.stringify(data),
-        'EX',
-        expires_in,
-      );
+      await redis.set('qpay_merchant_data', JSON.stringify(data), 'EX', expires_in);
 
       this.accessToken = access_token;
-
       return access_token;
     } catch (error: any) {
-      const message =
-        error?.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
-
-      throw new Error(`Token refresh failed: ${message}`);
+      const raw = error?.message;
+      const msg = typeof raw === 'string' ? raw : JSON.stringify(raw || error);
+      throw new Error(`Token refresh failed: ${msg}`);
     }
   }
 
-  async makeRequest<T>(args: RequestOptions): Promise<T> {
+  async makeRequest<T>(args: RequestOptions, retryCount = 0): Promise<T> {
     const { method, path, params, data } = args;
 
     try {
@@ -173,7 +157,6 @@ export class VendorBaseAPI {
       }
 
       const url = new URL(`${this.apiUrl}/${path}`);
-
       if (params) {
         Object.entries(params).forEach(([key, value]) => {
           url.searchParams.append(key, value);
@@ -181,18 +164,21 @@ export class VendorBaseAPI {
       }
 
       const response = await fetch(url.toString(), requestOptions);
-
       return await this.handleResponse<T>(response);
     } catch (error: any) {
-      const message =
-        error?.message || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+      const rawMessage = error?.message;
+      const messageStr =
+        typeof rawMessage === 'string'
+          ? rawMessage
+          : JSON.stringify(rawMessage || error);
 
-      if (message.includes('Unauthorized')) {
+      // Only retry once to avoid infinite loops
+      if (messageStr.includes('Unauthorized') && retryCount < 1) {
         await this.refreshToken();
-        return await this.makeRequest(args);
+        return await this.makeRequest(args, retryCount + 1);
       }
 
-      throw new Error(`Request failed: ${message}`);
+      throw new Error(`Request failed: ${messageStr}`);
     }
   }
 }
