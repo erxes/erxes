@@ -1,5 +1,6 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import fetch from 'node-fetch';
+import { generateModels } from '~/connectionResolvers';
 import { calcProductsTaxRule } from './productsByTaxType';
 
 export const validConfigMsg = async (config) => {
@@ -177,8 +178,10 @@ export const getConfigPostData = async (
     defaultValue: [],
   });
 
+  const models = await generateModels(subdomain);
   const { productsById, oneMoreCtax, oneMoreVat } = await calcProductsTaxRule(
     subdomain,
+    models,
     config,
     products,
   );
