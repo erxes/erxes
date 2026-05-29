@@ -14,14 +14,14 @@ export const ProductSelectBase = ({
   loading,
   products,
   placeholder,
-}: {
+}: Readonly<{
   value: string;
   onValueChange: (value: string) => void;
   disabled?: boolean;
   loading?: boolean;
   products: IProductOption[];
   placeholder: string;
-}) => {
+}>) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
 

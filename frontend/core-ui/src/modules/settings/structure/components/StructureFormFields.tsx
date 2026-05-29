@@ -7,9 +7,9 @@ import { SelectStructureStatus } from './SelectStructureStatus';
 
 export function TitleField<T extends FieldValues>({
   control,
-}: {
+}: Readonly<{
   control: Control<T>;
-}) {
+}>) {
   return (
     <Form.Field
       control={control}
@@ -29,9 +29,9 @@ export function TitleField<T extends FieldValues>({
 
 export function CodeField<T extends FieldValues>({
   control,
-}: {
+}: Readonly<{
   control: Control<T>;
-}) {
+}>) {
   return (
     <Form.Field
       control={control}
@@ -51,9 +51,9 @@ export function CodeField<T extends FieldValues>({
 
 export function DescriptionField<T extends FieldValues>({
   control,
-}: {
+}: Readonly<{
   control: Control<T>;
-}) {
+}>) {
   return (
     <Form.Field
       control={control}
@@ -79,9 +79,9 @@ export function DescriptionField<T extends FieldValues>({
 // the original (default) status value.
 export function DeletedStatusField<T extends FieldValues>({
   control,
-}: {
+}: Readonly<{
   control: Control<T>;
-}) {
+}>) {
   return (
     <Form.Field
       control={control}
