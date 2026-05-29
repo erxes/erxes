@@ -17,82 +17,76 @@ description: Requirement gathering and scope confirmation. ALWAYS use this skill
 
 ## Workflow
 
-### Step 1: Analyze User Request
+### Step 1: Receive Detected Scope
 
-Parse what the user is asking for:
-- Feature name or description
-- Action type (create, fix, update, delete, improve)
-- Target entity (posts, deals, tasks, etc.)
+The `detect-scope` skill has already run and provided:
+- `plugin`: Detected plugin name
+- `module`: Detected module path
+- `action`: create | modify | fix | delete | create-new-plugin
+- `scope`: frontend | backend | both
+- `existing_similar`: Reference implementations found in the same plugin
+- `goal_condition`: User's description of what "done" looks like
+- `user_confirmed`: Whether user confirmed the detected scope
 
-### Step 2: Map to Known Feature
+**Use this information directly.** Do NOT re-detect what detect-scope already found.
 
-Search `.agents/maps/feature-map.yaml` for matching features:
+### Step 2: Verify Scope (if needed)
 
-```bash
-# Search by keywords
-grep -i "keyword" .agents/maps/feature-map.yaml
+If `user_confirmed` is true and scope is clear, skip to Step 3.
 
-# Example: User says "I need tags"
-grep -i "tag" .agents/maps/feature-map.yaml
+If scope needs clarification (detect-scope couldn't determine):
+- Search `.agents/maps/feature-map.yaml` as fallback
+- Ask minimal clarifying questions ONLY about what's missing
+
+**DO NOT ask:**
+- "Which plugin?" → already detected
+- "Frontend or backend?" → already inferred
+- "What action?" → already classified
+
+### Step 3: Build Component Checklist from Detected Scope
+
+Use the `detected_scope` to build the checklist directly. Do NOT re-derive what detect-scope already determined.
+
+**Checklist templates based on action + scope:**
+
+For `create` action with `both` scope (full CRUD):
 ```
-
-**If exact match found:**
-- Use the mapping from feature-map.yaml
-- Identify plugin, module, components
-
-**If no match found:**
-- Ask user: "Which plugin does this belong to? (content, sales, operation, frontline, payment, etc.)"
-- Ask user: "Is this frontend, backend, or both?"
-- Use user's answers to determine scope
-
-### Step 3: Determine Scope
-
-Based on user request type, determine what needs to be built:
-
-| User Says | Likely Scope |
-|-----------|-------------|
-| "Add/create new X" | Frontend + Backend (full CRUD) |
-| "Fix X" | Minimal (wherever bug is) |
-| "X looks bad/broken" | Frontend only |
-| "X is slow" | Backend only |
-| "Add X to existing Y" | Depends on X and Y |
-| "Update/improve X" | Frontend + Backend |
-
-**Auto-detect logic:**
-- If user mentions UI elements (page, table, form, button) → Include frontend
-- If user mentions data/schema/model → Include backend
-- If user says "new feature" or "add" → Usually both
-- If user says "fix" → Minimal scope
-
-### Step 4: Build Component Checklist
-
-Based on the feature type from feature-map.yaml templates, create a checklist:
-
-```
-For "list_feature" type:
 □ RecordTable with cursor pagination
 □ Create button (opens Sheet/Dialog)
 □ Edit action per row
 □ Delete action with confirmation
-□ Filter bar
-□ Empty state
+□ Filter bar (when > 10 records)
+□ Empty state with illustration
 □ Loading skeleton
-
-For "form_feature" type:
-□ Form component with React Hook Form
-□ Zod validation
-□ All required fields
-□ Submit/Cancel buttons
-□ Success/error toast
-
-For "detail_feature" type:
-□ Detail view component
-□ Breadcrumb navigation
-□ Action buttons
-□ Related data sections
+□ Mongoose schema in db/definitions
+□ GraphQL type definitions
+□ Query resolvers (list, detail)
+□ Mutation resolvers (create, update, delete)
+□ Permission checks
 ```
 
-### Step 5: Present Scope to User
+For `fix` action (minimal scope):
+```
+□ Identify root cause
+□ Fix in affected files only
+□ Verify fix works
+□ No regressions in related features
+```
+
+For `create-new-plugin` action:
+```
+□ Scaffold frontend plugin ({plugin}_ui)
+□ Scaffold backend plugin ({plugin}_api)
+□ Register in manifest.yaml
+□ Add Module Federation config
+□ Add navigation config
+□ Basic page/component structure
+□ Basic entity/resolver structure
+```
+
+Use `existing_similar` as reference for component names and patterns.
+
+### Step 4: Present Scope to User
 
 **Format:**
 
@@ -149,7 +143,7 @@ Deliverables Checklist:
 Is this correct? (Yes / No, please specify changes)
 ```
 
-### Step 6: Wait for Confirmation
+### Step 5: Wait for Confirmation
 
 **If user says "Yes" or confirms:**
 - Proceed to next skill (create-page, create-table, etc.)
@@ -174,11 +168,17 @@ Is this correct? (Yes / No, please specify changes)
 
 ## Examples
 
-### Example 1: Clear Request
+### Example 1: Clear Request (detect-scope already ran)
+
+**detect-scope provided:**
+- plugin: content, module: cms/tags, action: create, scope: both
+- existing_similar: categories module (CategoriesRecordTable, CategoryForm)
+- goal_condition: "Tag management page + tag selector in post form"
+- user_confirmed: true
 
 **User:** "Add tags to CMS posts"
 
-**LLM:**
+**LLM (intake):**
 ```
 I'll implement tags in:
 
@@ -196,10 +196,13 @@ Backend:
   • Tag resolvers
 
 Checklist:
-  □ RecordTable
-  □ Create/Edit/Delete
-  □ Tag selector in post form
-  □ Real-time updates
+  □ RecordTable with cursor pagination
+  □ Create tag form in Sheet
+  □ Edit tag per row
+  □ Delete tag with confirmation
+  □ Tag selector for posts
+  □ Real-time updates after mutations
+  □ Empty state for no tags
 
 Is this correct?
 ```
@@ -208,38 +211,47 @@ Is this correct?
 
 **LLM:** Proceeds to build.
 
-### Example 2: Vague Request
+### Example 2: Vague Request (detect-scope already ran)
+
+**detect-scope provided:**
+- plugin: sales, module: pipelines, action: fix, scope: frontend
+- goal_condition: "Deal pipeline board drag-and-drop not working"
+- user_confirmed: true
 
 **User:** "Fix the deals page"
 
-**LLM:**
+**LLM (intake):**
 ```
-I need more information:
+I'll fix the deal pipeline board drag-and-drop in the sales plugin. Scope: frontend only.
 
-1. Which plugin? (sales_ui)
-2. What's broken? (UI, data loading, performance?)
-3. Is this frontend only or backend too?
+Checklist:
+  □ Identify root cause of drag failure
+  □ Fix PipelineBoard component
+  □ Verify drag-and-drop between stages works
+  □ Test stage transitions
+  □ No regressions in related features
 
-Please describe the issue.
+Is this correct? Any specific edge case you're seeing?
 ```
 
-### Example 3: Wrong Scope Detected
+### Example 3: Ambiguous Request (detect-scope found conflict)
+
+**detect-scope provided:**
+- plugin: content, module: cms/custom-fields, action: create, scope: both
+- detected_conflict: "User said 'products' but custom_fields domain is content, not sales"
+- user_confirmed: false (needs clarification)
 
 **User:** "Add custom fields to products"
 
-**LLM:**
+**LLM (intake):**
 ```
-I'll implement custom fields in:
+I detected custom fields for the content plugin (custom fields are managed centrally and applied to products via configuration).
 
-📁 Plugin: content (custom fields are in content plugin)
+📁 Plugin: content
 📂 Module: cms/custom-fields
 🎯 Scope: Frontend + Backend
 
-Note: Custom fields are typically managed in the content plugin 
-and applied to products via configuration.
-
-Is this correct? Or do you want product-specific custom fields 
-in the sales plugin?
+Is this correct? Or do you want product-specific custom fields in the sales plugin?
 ```
 
 ## Common Mistakes to Avoid
