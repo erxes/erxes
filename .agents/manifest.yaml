@@ -94,9 +94,15 @@ skills:
     directory: ".agents/skills/assemble-context"
     type: "meta"
 
+  detect-scope:
+    name: "detect-scope"
+    description: "Detects user request intent, identifies target plugin/module, loads relevant code context, and asks minimal informed questions before proceeding to intake."
+    directory: ".agents/skills/detect-scope"
+    type: "meta"
+
   intake:
     name: "intake"
-    description: "Requirement gathering and scope confirmation. ALWAYS use before coding."
+    description: "Requirement gathering and scope confirmation. ALWAYS use before coding. Receives detected scope from detect-scope."
     directory: ".agents/skills/intake"
     type: "meta"
 
@@ -402,17 +408,29 @@ protocol:
   # Step 3: Use assemble-context skill to load relevant rules
   context_assembly_required: true
 
-  # Step 4: Run intake skill to gather requirements
+  # Step 4: Load skill contract before executing any skill
+  # This applies to detect-scope, intake, and all feature skills
+  skill_contract_required: true
+
+  # Step 5: Run detect-scope skill to identify plugin/module and load context
+  # This runs silent discovery so intake asks informed questions
+  detect_scope_required: true
+
+  # Step 6: Run pre-flight check
+  # Validates detect-scope completed before intake can run
+  preflight_check:
+    enabled: true
+    command: ".agents/scripts/preflight-check.sh"
+    description: "Gate: detect-scope MUST complete before intake"
+
+  # Step 7: Run intake skill to gather requirements
   # NEVER start coding without confirmed scope
   intake_required: true
 
-  # Step 5: Load skill contract before executing any skill
-  skill_contract_required: true
-
-  # Step 6: Validate before declaring done
+  # Step 8: Validate before declaring done
   validation_required: true
 
-  # Step 7: Run PR review loop after creating a PR
+  # Step 9: Run PR review loop after creating a PR
   # Poll AI reviewer comments, address them, wait for CI, loop until clean
   pr_review_loop:
     enabled: true
@@ -425,7 +443,7 @@ protocol:
 
 # ─── Meta ───
 meta:
-  last_updated: "2026-05-28"
+  last_updated: "2026-05-29"
   maintained_by: "AI-agent-system"
   changelog: ".agents/CHANGELOG.md"
   extending_guide: ".agents/EXTENDING.md"
