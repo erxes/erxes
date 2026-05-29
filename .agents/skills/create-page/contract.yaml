@@ -1,0 +1,81 @@
+# Contract: create-page
+
+skill:
+  name: create-page
+  version: "1.0.0"
+  type: feature
+  description: Add erxes frontend pages and routes using nearby plugin structure
+
+inputs:
+  - name: plugin_name
+    type: string
+    description: "Frontend plugin name (e.g., 'content', 'sales')"
+    required: true
+    validation:
+      command: "pnpm nx show projects | grep '^{plugin_name}_ui$'"
+
+  - name: page_name
+    type: string
+    description: "PascalCase page component name"
+    required: true
+    pattern: "^[A-Z][a-zA-Z0-9]+$"
+
+  - name: route_path
+    type: string
+    description: "Route path (e.g., '/cms/tags')"
+    required: true
+    pattern: "^/[a-z-/]+$"
+
+  - name: module_name
+    type: string
+    description: "Module folder under src/modules"
+    required: false
+    default: "{page_name_lower}"
+
+rules_required:
+  - react-general-guidelines
+  - react-state-management
+  - code-style
+  - typescript-guidelines
+
+preconditions:
+  - description: "Plugin must be a frontend plugin"
+    check: "test -d frontend/plugins/{plugin_name}_ui"
+  - description: "Similar page must be found for reference"
+    check: "find frontend/plugins/{plugin_name}_ui/src -name '*.tsx' | head -5"
+
+postconditions:
+  - description: "Lint passes"
+    command: "pnpm nx lint {plugin_name}_ui"
+    required: true
+  - description: "Build passes"
+    command: "pnpm nx build {plugin_name}_ui"
+    required: true
+  - description: "Deliverables verified"
+    command: ".agents/evals/check-deliverables.sh {plugin_name}_ui {module_name}"
+    required: true
+  - description: "Rules compliance verified"
+    command: ".agents/evals/check-rules.sh frontend/plugins/{plugin_name}_ui/src/modules/{module_name}"
+    required: true
+
+composes_with:
+  - create-query
+  - create-table
+  - create-modal
+  - configure-plugin-navigation
+  - module-federation-expose
+
+workflow:
+  phases:
+    - discover: "Find similar page in same plugin"
+    - copy: "Copy existing structure"
+    - adapt: "Adapt for new feature"
+    - route: "Add route using existing pattern"
+    - validate: "Run lint and build"
+
+conventions:
+  - "Route-level pages may live in src/pages or src/modules"
+  - "Feature internals belong under src/modules/{module}"
+  - "Use lazy imports with Suspense for routes"
+  - "Preserve existing layout, spacing, loading states"
+  - "Named exports only (no default exports)"

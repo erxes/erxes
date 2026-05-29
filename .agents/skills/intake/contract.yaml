@@ -1,0 +1,109 @@
+# Contract: intake
+
+skill:
+  name: intake
+  version: "1.0.0"
+  type: meta
+  description: Requirement gathering and scope confirmation for all erxes development tasks
+
+inputs:
+  - name: user_request
+    type: string
+    description: "Raw user request describing what they want"
+    required: true
+
+  - name: suggested_plugin
+    type: string
+    description: "Auto-detected plugin from feature-map.yaml"
+    required: false
+
+  - name: suggested_module
+    type: string
+    description: "Auto-detected module from feature-map.yaml"
+    required: false
+
+outputs:
+  - name: confirmed_scope
+    type: object
+    description: "Confirmed scope with plugin, module, components"
+    properties:
+      plugin:
+        type: string
+      module:
+        type: string
+      scope:
+        type: enum
+        values: [frontend, backend, both]
+      components:
+        type: array
+        items: string
+      checklist:
+        type: array
+        items: string
+
+rules_required:
+  - non-negotiable
+  - architecture
+
+preconditions:
+  - description: "Feature map must exist"
+    check: "test -f .agents/maps/feature-map.yaml"
+  - description: "Manifest must be loaded"
+    check: "manifest_loaded == true"
+
+postconditions:
+  - description: "User has confirmed scope"
+    check: "user_confirmed == true"
+  - description: "Checklist is created"
+    check: "checklist.length > 0"
+
+workflow:
+  phases:
+    - analyze: "Parse user request for keywords and intent"
+    - map: "Search feature-map.yaml for matching features"
+    - scope: "Determine frontend/backend/both based on request type"
+    - checklist: "Build component checklist from templates"
+    - confirm: "Present scope to user and wait for confirmation"
+
+examples:
+  - input:
+      user_request: "Add tags to posts"
+    output:
+      confirmed_scope:
+        plugin: "content"
+        module: "cms/tags"
+        scope: "both"
+        components: ["TagsRecordTable", "TagForm", "TagSelector"]
+        checklist:
+          - "RecordTable with cursor pagination"
+          - "Create tag form in Sheet"
+          - "Edit tag per row"
+          - "Delete tag with confirmation"
+          - "Tag selector in post form"
+          - "Real-time updates after mutations"
+
+  - input:
+      user_request: "Fix deal pipeline board"
+    output:
+      confirmed_scope:
+        plugin: "sales"
+        module: "pipelines"
+        scope: "frontend"
+        components: ["PipelineBoard"]
+        checklist:
+          - "Fix PipelineBoard component"
+          - "Verify drag-and-drop works"
+          - "Test stage transitions"
+
+composes_with:
+  - plugin-workflow
+  - create-page
+  - create-table
+  - create-form-drawer
+  - create-backend-entity
+  - create-query
+
+meta:
+  auto_invoke: true
+  invocation_order: 0  # Right after assemble-context
+  required_before: ["create-page", "create-table", "create-form-drawer", "create-backend-entity"]

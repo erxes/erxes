@@ -1,0 +1,83 @@
+# Contract: create-table
+
+skill:
+  name: create-table
+  version: "1.0.0"
+  type: feature
+  description: Build erxes table and list screens with existing RecordTable patterns
+
+inputs:
+  - name: plugin_name
+    type: string
+    description: "Frontend plugin name"
+    required: true
+    validation:
+      command: "pnpm nx show projects | grep '^{plugin_name}_ui$'"
+
+  - name: table_name
+    type: string
+    description: "PascalCase table component name (e.g., 'TagsRecordTable')"
+    required: true
+    pattern: "^[A-Z][a-zA-Z0-9]+RecordTable$"
+
+  - name: entity_name
+    type: string
+    description: "Entity being listed (e.g., 'tags', 'deals')"
+    required: true
+
+  - name: columns
+    type: array
+    description: "Column definitions"
+    required: true
+    items:
+      type: object
+      properties:
+        key:
+          type: string
+          description: "Column key/field name"
+        header:
+          type: string
+          description: "Display header text"
+        type:
+          type: enum
+          values: [text, number, date, boolean, action]
+          description: "Column data type"
+
+rules_required:
+  - react-general-guidelines
+  - react-state-management
+  - code-style
+
+preconditions:
+  - description: "Plugin must exist"
+    check: "test -d frontend/plugins/{plugin_name}_ui"
+  - description: "Existing table pattern must be found"
+    check: "find frontend/plugins/{plugin_name}_ui/src -name '*RecordTable*' | head -3"
+
+postconditions:
+  - description: "Lint passes"
+    command: "pnpm nx lint {plugin_name}_ui"
+    required: true
+  - description: "Build passes"
+    command: "pnpm nx build {plugin_name}_ui"
+    required: true
+  - description: "Deliverables verified"
+    command: ".agents/evals/check-deliverables.sh {plugin_name}_ui {entity_name}"
+    required: true
+  - description: "Rules compliance verified"
+    command: ".agents/evals/check-rules.sh frontend/plugins/{plugin_name}_ui/src/modules/{entity_name}"
+    required: true
+
+composes_with:
+  - create-query
+  - create-form-drawer
+  - create-modal
+
+conventions:
+  - "Use RecordTable for cursor-paginated data"
+  - "Use useRecordTableCursor, validateFetchMore, RecordTable.CursorProvider"
+  - "Match existing filter/search behavior"
+  - "Match loading states and empty states"
+  - "Match action button layout"
+  - "Match bulk action and command bar behavior"
+  - "Named exports only"
