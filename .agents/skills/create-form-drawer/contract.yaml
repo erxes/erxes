@@ -1,0 +1,77 @@
+# Contract: create-form-drawer
+
+skill:
+  name: create-form-drawer
+  version: "1.0.0"
+  type: feature
+  description: Build erxes drawer, sheet, or dialog forms with validation
+
+inputs:
+  - name: plugin_name
+    type: string
+    description: "Frontend plugin name"
+    required: true
+    validation:
+      command: "pnpm nx show projects | grep '^{plugin_name}_ui$'"
+
+  - name: form_name
+    type: string
+    description: "PascalCase form component name (e.g., 'CreateTagForm')"
+    required: true
+    pattern: "^[A-Z][a-zA-Z0-9]+Form$"
+
+  - name: entity_name
+    type: string
+    description: "Entity being created/edited"
+    required: true
+
+  - name: mode
+    type: enum
+    values: [create, edit, both]
+    description: "Form mode"
+    required: true
+
+rules_required:
+  - react-general-guidelines
+  - react-state-management
+  - code-style
+  - typescript-guidelines
+
+preconditions:
+  - description: "Plugin must exist"
+    check: "test -d frontend/plugins/{plugin_name}_ui"
+  - description: "Similar form drawer must be found"
+    check: "find frontend/plugins/{plugin_name}_ui/src -name '*.tsx' | xargs grep -l 'Sheet\|Drawer' | head -3"
+
+postconditions:
+  - description: "Lint passes"
+    command: "pnpm nx lint {plugin_name}_ui"
+    required: true
+  - description: "Build passes"
+    command: "pnpm nx build {plugin_name}_ui"
+    required: true
+  - description: "Tests pass if touched"
+    command: "pnpm nx test {plugin_name}_ui"
+    when: "tests_touched"
+    required: false
+  - description: "Deliverables verified"
+    command: ".agents/evals/check-deliverables.sh {plugin_name}_ui {entity_name}"
+    required: true
+  - description: "Rules compliance verified"
+    command: ".agents/evals/check-rules.sh frontend/plugins/{plugin_name}_ui/src/modules/{entity_name}"
+    required: true
+
+composes_with:
+  - create-query
+  - create-modal
+  - create-page
+
+conventions:
+  - "Reuse erxes-ui form, drawer, sheet, dialog, input, button, toast"
+  - "Reuse React Hook Form and Zod patterns"
+  - "Keep form schema, defaults, types, hooks near feature"
+  - "Match submit behavior: loading, disabled buttons, toast, refetch"
+  - "Ensure UI updates without browser refresh after mutation"
+  - "Preserve route params and required IDs"
+  - "Do not store form values in global atoms unless nearby feature does"
+  - "Named exports only"
