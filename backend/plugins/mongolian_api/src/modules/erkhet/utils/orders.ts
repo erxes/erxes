@@ -112,8 +112,10 @@ export const getPosPostData = async (
     defaultValue: [],
   });
 
+  const models = await generateModels(subdomain);
   const { productsById, oneMoreCtax, oneMoreVat } = await calcProductsTaxRule(
     subdomain,
+    models,
     posTaxConfig,
     products,
   );

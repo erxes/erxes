@@ -10,8 +10,8 @@ export const addStageInErkhetConfigSchema = z
     responseField: z.string().optional().default(''),
     hasVat: z.boolean(),
     hasCitytax: z.boolean(),
-    reverseVatRules: z.string().optional().default(''),
-    reverseCtaxRules: z.string().optional().default(''),
+    reverseVatRules: z.array(z.string()).optional().default([]),
+    reverseCtaxRules: z.array(z.string()).optional().default([]),
     defaultPay: z.string().optional().default('debtAmount'),
   })
   .catchall(z.any());
