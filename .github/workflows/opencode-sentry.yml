@@ -13,7 +13,8 @@ jobs:
     name: Run OpenCode for Sentry issue
     if: |
       github.event.issue.pull_request == null &&
-      contains(github.event.issue.labels.*.name, 'sentry')
+      contains(github.event.issue.labels.*.name, 'sentry') &&
+      !contains(github.event.issue.labels.*.name, 'bug')
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -25,13 +26,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           fetch-depth: 0
           persist-credentials: false
 
       - name: Run OpenCode
-        uses: anomalyco/opencode/github@latest
+        uses: anomalyco/opencode/github@2410593023d2c61f05123c9b0faf189a28dfbeee
         env:
           KIMI_API_KEY: ${{ secrets.KIMI_API_KEY }}
         with:
