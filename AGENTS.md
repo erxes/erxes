@@ -43,11 +43,12 @@ Example: User says "Add tags to posts" → Map to `content/cms/tags`
 
 1. **Read manifest.yaml** — Understand the system
 2. **Assemble context** — Load all applicable rule layers
-3. **Run detect-scope** — Analyze request, identify plugin/module, load code context
-4. **Run intake** — Confirm scope and build checklist (receives from detect-scope)
-5. **Load skill contract** — If using a skill, load its contract.yaml
-6. **Execute with rules** — Follow loaded rules and skill workflow
-7. **Validate** — Run required validation before finishing
+3. **Load skill contract** — If using a skill, load its contract.yaml
+4. **Run detect-scope** — Analyze request, identify plugin/module, load code context
+5. **Run pre-flight check** — Validate detect-scope output before proceeding (HARD GATE)
+6. **Run intake** — Confirm scope and build checklist (receives from detect-scope)
+7. **Execute with rules** — Follow loaded rules and skill workflow
+8. **Validate** — Run required validation before finishing
 
 ## Purpose
 

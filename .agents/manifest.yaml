@@ -408,23 +408,24 @@ protocol:
   # Step 3: Use assemble-context skill to load relevant rules
   context_assembly_required: true
 
-  # Step 4: Run detect-scope skill to identify plugin/module and load context
+  # Step 4: Load skill contract before executing any skill
+  # This applies to detect-scope, intake, and all feature skills
+  skill_contract_required: true
+
+  # Step 5: Run detect-scope skill to identify plugin/module and load context
   # This runs silent discovery so intake asks informed questions
   detect_scope_required: true
 
-  # Step 5: Run pre-flight check
+  # Step 6: Run pre-flight check
   # Validates detect-scope completed before intake can run
   preflight_check:
     enabled: true
     command: ".agents/scripts/preflight-check.sh"
     description: "Gate: detect-scope MUST complete before intake"
 
-  # Step 6: Run intake skill to gather requirements
+  # Step 7: Run intake skill to gather requirements
   # NEVER start coding without confirmed scope
   intake_required: true
-
-  # Step 7: Load skill contract before executing any skill
-  skill_contract_required: true
 
   # Step 8: Validate before declaring done
   validation_required: true

@@ -32,7 +32,8 @@ outputs:
         description: "Plugin name (e.g., content, sales, operation)"
       module:
         type: string
-        description: "Module path within plugin"
+        description: "Module path within plugin (null for create-new-plugin)"
+        required: false
       action:
         type: enum
         values: [create, modify, fix, delete, create-new-plugin]
