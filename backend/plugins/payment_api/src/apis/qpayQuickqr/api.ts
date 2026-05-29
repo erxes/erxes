@@ -54,7 +54,6 @@ interface IInvoiceResponse {
 }
 
 export const meta = {
-  // apiUrl: 'https://sandbox-quickqr.qpay.mn',
   apiUrl: 'https://quickqr.qpay.mn',
   apiVersion: 'v2',
 
@@ -72,11 +71,19 @@ export const meta = {
   },
 };
 
-// Helper to safely extract a string error message
-function safeErrorMsg(error: any): string {
-  if (typeof error === 'string') return error;
-  if (error?.message && typeof error.message === 'string') return error.message;
-  return JSON.stringify(error);
+// Safe error to string - never returns [object Object]
+function forceString(err: unknown): string {
+  if (typeof err === 'string') return err;
+  if (err && typeof err === 'object') {
+    if ('message' in err && typeof err.message === 'string') return err.message;
+    if ('error' in err && typeof err.error === 'string') return err.error;
+    try {
+      return JSON.stringify(err);
+    } catch {
+      return '[unable to stringify error]';
+    }
+  }
+  return String(err);
 }
 
 export const quickQrCallbackHandler = async (models: IModels, data: any) => {
@@ -112,8 +119,8 @@ export const quickQrCallbackHandler = async (models: IModels, data: any) => {
     transaction.updatedAt = new Date();
     await transaction.save();
     return transaction;
-  } catch (e: any) {
-    throw new Error(safeErrorMsg(e));
+  } catch (e) {
+    throw new Error(forceString(e));
   }
 };
 
@@ -131,12 +138,14 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
   }
 
   async createCompany(args: IMerchantCompanyParams) {
+    // ✅ GUARANTEE name is set (fallback to companyName or default)
+    const companyName = args.name || args.companyName || 'Default Contact';
     try {
       return await this.makeRequest<IMerchantResponse>({
         method: 'POST',
         path: meta.paths.company,
         data: {
-          name: args.name,
+          name: companyName,
           company_name: args.companyName,
           register_number: args.registerNumber,
           mcc_code: args.mccCode,
@@ -148,7 +157,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         },
       });
     } catch (error: any) {
-      const errMsg = safeErrorMsg(error);
+      const errMsg = forceString(error);
       if (
         errMsg.includes('MERCHANT_ALREADY_REGISTERED') ||
         errMsg.includes('Бүртгэлтэй мерчант байна')
@@ -201,7 +210,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         },
       });
     } catch (error: any) {
-      const errMsg = safeErrorMsg(error);
+      const errMsg = forceString(error);
       if (
         errMsg.includes('MERCHANT_ALREADY_REGISTERED') ||
         errMsg.includes('Бүртгэлтэй мерчант байна')
@@ -246,17 +255,15 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         method: 'DELETE',
         path: `${meta.paths.getMerchant}/${this.config.merchantId}`,
       });
-    } catch (e: any) {
-      const message = safeErrorMsg(e);
+    } catch (e) {
+      const message = forceString(e);
       if (message.includes('MERCHANT_NOTFOUND')) return;
       throw new Error(`Remove merchant failed: ${message}`);
     }
   }
 
   async updateExistingMerchant(args: any) {
-    const existingMerchant = await this.findExistingMerchant(
-      args.registerNumber,
-    );
+    const existingMerchant = await this.findExistingMerchant(args.registerNumber);
     if (!existingMerchant) return;
 
     const isCompany = existingMerchant.type === 'COMPANY';
@@ -335,8 +342,8 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         return PAYMENT_STATUS.PAID;
       }
       return PAYMENT_STATUS.PENDING;
-    } catch (e: any) {
-      throw new Error(`Invoice check failed: ${safeErrorMsg(e)}`);
+    } catch (e) {
+      throw new Error(`Invoice check failed: ${forceString(e)}`);
     }
   }
 
@@ -354,8 +361,8 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         return PAYMENT_STATUS.PAID;
       }
       return PAYMENT_STATUS.PENDING;
-    } catch (e: any) {
-      throw new Error(`Manual check failed: ${safeErrorMsg(e)}`);
+    } catch (e) {
+      throw new Error(`Manual check failed: ${forceString(e)}`);
     }
   }
 
