@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import {
@@ -312,15 +313,14 @@ const SelectOwnerFilterView = ({
   const [value, setValue] = useQueryState<string>(queryKey);
   const [ownerType] = useQueryState<string>(ownerTypeKey);
   const { resetFilterState } = useFilterContext();
+  const previousOwnerTypeRef = useRef(ownerType);
 
   useEffect(() => {
-    if (value) {
+    if (previousOwnerTypeRef.current !== ownerType && value) {
       setValue(null);
     }
-    // Clearing the prior owner when ownerType switches avoids sending
-    // mismatched { ownerType, ownerId } pairs that return empty results.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ownerType]);
+    previousOwnerTypeRef.current = ownerType;
+  }, [ownerType, setValue, value]);
 
   return (
     <Filter.View filterKey={queryKey}>
@@ -369,13 +369,14 @@ const SelectOwnerFilterBar = ({
   const [value, setValue] = useQueryState<string>(queryKey);
   const [ownerType] = useQueryState<string>(ownerTypeKey);
   const [open, setOpen] = useState(false);
+  const previousOwnerTypeRef = useRef(ownerType);
 
   useEffect(() => {
-    if (value) {
+    if (previousOwnerTypeRef.current !== ownerType && value) {
       setValue(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ownerType]);
+    previousOwnerTypeRef.current = ownerType;
+  }, [ownerType, setValue, value]);
 
   const barLabel = getOwnerBarLabel(ownerType || 'customer');
 

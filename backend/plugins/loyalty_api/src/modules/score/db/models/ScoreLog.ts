@@ -194,11 +194,16 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     }
 
     public static async getScoreLogs(doc: IScoreLogParams) {
-      const { stageId, pipelineId, boardId, number } = doc;
-      const limit = Math.min(Math.max(Number(doc.limit) || 50, 1), 200);
+      const { stageId, pipelineId, boardId, number, orderType } = doc;
+      const limit = Math.min(Math.max(Number(doc.limit) || 50, 1), 100);
       const direction = doc.direction === 'backward' ? 'backward' : 'forward';
+      const logsPerOwner = Math.min(
+        Math.max(Number(doc.logsPerOwner) || 5, 1),
+        100,
+      );
+      const orderBy: Record<string, SortOrder> =
+        orderType === 'createdAt' ? { createdAt: -1 } : { totalScore: -1 };
 
-      const orderBy: Record<string, SortOrder> = { createdAt: -1 };
       const sortFields = Object.keys(orderBy);
       const sortOrder = {
         ...Object.fromEntries(
@@ -234,59 +239,57 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       const basePipeline: any[] = [
         ...filterAggregate,
-        { $match: { ...filter } },
+        {
+          $match: { ...filter },
+        },
+        {
+          $sort: { createdAt: -1, _id: -1 },
+        },
         {
           $addFields: {
             signedScore: buildSignedScoreExpression(),
+          },
+        },
+        {
+          $group: {
+            _id: '$ownerId',
+            ownerType: { $first: '$ownerType' },
+            logs: { $push: '$$ROOT' },
+            createdAt: { $max: '$createdAt' },
+            totalScore: { $sum: '$signedScore' },
           },
         },
       ];
 
       const cursorMatch = doc.cursor
         ? buildCursorQuery(doc.cursor, orderBy, direction, {
-            createdAt: 'date',
-          })
+          createdAt: 'date',
+          totalScore: 'number',
+
+        })
         : null;
 
       const listPipeline: any[] = [
         ...basePipeline,
+        {
+          $project: {
+            _id: '$_id',
+            ownerId: '$_id',
+            ownerType: 1,
+            logs: { $slice: ['$logs', logsPerOwner] },
+            createdAt: 1,
+            totalScore: 1,
+          },
+        },
         ...(cursorMatch ? [{ $match: cursorMatch }] : []),
         { $sort: sortOrder },
         { $limit: limit + 1 },
-        {
-          $lookup: {
-            from: 'score_logs',
-            let: { ownerId: '$ownerId' },
-            pipeline: [
-              { $match: { $expr: { $eq: ['$ownerId', '$$ownerId'] } } },
-              {
-                $addFields: { signedScore: buildSignedScoreExpression() },
-              },
-              {
-                $group: {
-                  _id: '$ownerId',
-                  totalScore: { $sum: '$signedScore' },
-                },
-              },
-            ],
-            as: '_ownerTotal',
-          },
-        },
-        {
-          $addFields: {
-            totalScore: {
-              $ifNull: [{ $arrayElemAt: ['$_ownerTotal.totalScore', 0] }, 0],
-            },
-          },
-        },
-        { $project: { _ownerTotal: 0, signedScore: 0 } },
       ];
 
       const [listRaw, countResult] = await Promise.all([
         models.ScoreLogs.aggregate(listPipeline).allowDiskUse(true),
         models.ScoreLogs.aggregate([
-          ...filterAggregate,
-          { $match: { ...filter } },
+          ...basePipeline,
           { $count: 'totalCount' },
         ]).allowDiskUse(true),
       ]);

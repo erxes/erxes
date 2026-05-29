@@ -22,31 +22,18 @@ export const types = `
 
     amount: Float
     quantity: Float
+
+    totalScore: Float
+    owner: JSON
   }
 
   type ScoreLog {
-    _id: String
     ownerId: String
     ownerType: String
+
     owner: JSON
+    logs: [ScoreLogItem]
     totalScore: Float
-
-    change: Float
-    action: String
-    description: String
-
-    campaignId: String
-    campaign: ScoreCampaign
-
-    targetId: String
-    target: JSON
-
-    serviceName: String
-    createdBy: String
-    createdAt: Date
-
-    amount: Float
-    quantity: Float
   }
 
   type ScoreLogList {

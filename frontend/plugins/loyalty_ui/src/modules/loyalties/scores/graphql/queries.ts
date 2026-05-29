@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
-export const SCORE_LOG_LIST_QUERY = gql`
-  query ScoreLogList(
+export const SCORE_LOGS_QUERY = gql`
+  query ScoreLogs(
     $searchValue: String
     $campaignId: String
     $ownerType: String
@@ -20,7 +20,7 @@ export const SCORE_LOG_LIST_QUERY = gql`
     $cursor: String
     $direction: CURSOR_DIRECTION
   ) {
-    scoreLogList(
+    scoreLogs(
       searchValue: $searchValue
       campaignId: $campaignId
       ownerType: $ownerType

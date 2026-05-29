@@ -6,6 +6,7 @@ import {
   IconListCheck,
   IconSearch,
 } from '@tabler/icons-react';
+
 import {
   Combobox,
   Command,
@@ -15,34 +16,18 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
+import { ScoreHotKeyScope } from '../types/path/ScoreHotKeyScope';
 import { ScoreTotalCount } from './ScoreTotalCount';
+import { useScoreLeadSessionKey } from '../hooks/useScoreLeadSessionKey';
+import { SelectScoreCampaign } from './selects/SelectScoreCampaign';
+import { SelectOwnerType } from './selects/SelectOwnerType';
+import { SelectScoreAction } from './selects/SelectScoreAction';
 import {
-  SelectScoreCampaignFilterItem,
-  SelectScoreCampaignFilterView,
-  SelectScoreCampaignFilterBar,
-} from './selects/SelectScoreCampaign';
-import {
-  SelectOwnerTypeFilterItem,
-  SelectOwnerTypeFilterView,
-  SelectOwnerTypeFilterBar,
-} from './selects/SelectOwnerType';
-import {
-  SelectScoreCustomerFilterItem,
-  SelectScoreCustomerFilterView,
-  SelectScoreCustomerFilterBar,
-} from './selects/SelectCustomer';
-import {
-  SelectScoreActionFilterItem,
-  SelectScoreActionFilterView,
-  SelectScoreActionFilterBar,
-} from './selects/SelectScoreAction';
-import {
+  SelectScoreActionTypeFilterBar,
   SelectScoreActionTypeFilterItem,
   SelectScoreActionTypeFilterView,
-  SelectScoreActionTypeFilterBar,
 } from './selects/SelectScoreActionType';
-
-export const SCORE_FILTER_SESSION_KEY = 'score_filter';
+import { SelectOwner } from '~/modules/loyalties/components/SelectOwner';
 
 const ScoreFilterPopover = () => {
   const [scoreBoardId] = useFilterQueryState<string>('scoreBoardId');
@@ -50,17 +35,17 @@ const ScoreFilterPopover = () => {
   const [, setPipelineId] = useQueryState<string>('scorePipelineId');
   const [, setStageId] = useQueryState<string>('scoreStageId');
   const [queries] = useMultiQueryState<{
-    scoreOwnerType: string | null;
-    scoreOwnerId: string | null;
-    scoreCampaignId: string | null;
-    scoreDate: string | null;
-    scoreOrderType: string | null;
-    scoreAction: string | null;
-    number: string | null;
-    description: string | null;
-    scoreBoardId: string | null;
-    scorePipelineId: string | null;
-    scoreStageId: string | null;
+    scoreOwnerType: string;
+    scoreOwnerId: string;
+    scoreCampaignId: string;
+    scoreDate: string;
+    scoreOrderType: string;
+    scoreAction: string;
+    number: string;
+    description: string;
+    scoreBoardId: string;
+    scorePipelineId: string;
+    scoreStageId: string;
   }>([
     'scoreOwnerType',
     'scoreOwnerId',
@@ -75,11 +60,13 @@ const ScoreFilterPopover = () => {
     'scoreStageId',
   ]);
 
-  const hasFilters = Object.values(queries || {}).some((v) => v !== null);
+  const hasFilters = Object.values(queries || {}).some(
+    (value) => value !== null,
+  );
 
   return (
     <>
-      <Filter.Popover>
+      <Filter.Popover scope={ScoreHotKeyScope.ScorePage}>
         <Filter.Trigger isFiltered={hasFilters} />
         <Combobox.Content>
           <Filter.View>
@@ -90,10 +77,10 @@ const ScoreFilterPopover = () => {
                 className="bg-background"
               />
               <Command.List className="p-1">
-                <SelectScoreCampaignFilterItem />
-                <SelectOwnerTypeFilterItem />
-                <SelectScoreCustomerFilterItem />
-                <SelectScoreActionFilterItem />
+                <SelectScoreCampaign.FilterItem />
+                <SelectOwnerType.FilterItem />
+                <SelectOwner.FilterItem queryKey="scoreOwnerId" />
+                <SelectScoreAction.FilterItem />
                 <Filter.Item value="scoreBoardId">
                   <IconLabel />
                   Board
@@ -122,11 +109,13 @@ const ScoreFilterPopover = () => {
               </Command.List>
             </Command>
           </Filter.View>
-
-          <SelectScoreCampaignFilterView />
-          <SelectOwnerTypeFilterView />
-          <SelectScoreCustomerFilterView />
-          <SelectScoreActionFilterView />
+          <SelectScoreCampaign.FilterView />
+          <SelectOwnerType.FilterView />
+          <SelectOwner.FilterView
+            queryKey="scoreOwnerId"
+            ownerTypeKey="scoreOwnerType"
+          />
+          <SelectScoreAction.FilterView />
           <SelectScoreActionTypeFilterView />
           <SelectBoard.FilterView
             queryKey="scoreBoardId"
@@ -148,16 +137,18 @@ const ScoreFilterPopover = () => {
           </Filter.View>
         </Combobox.Content>
       </Filter.Popover>
-
       <Filter.Dialog>
         <Filter.View filterKey="scoreCampaignId" inDialog>
-          <SelectScoreCampaignFilterView queryKey="scoreCampaignId" />
+          <SelectScoreCampaign.FilterView />
         </Filter.View>
         <Filter.View filterKey="scoreOwnerType" inDialog>
-          <SelectOwnerTypeFilterView queryKey="scoreOwnerType" />
+          <SelectOwnerType.FilterView />
         </Filter.View>
         <Filter.View filterKey="scoreOwnerId" inDialog>
-          <SelectScoreCustomerFilterView queryKey="scoreOwnerId" />
+          <SelectOwner.FilterView
+            queryKey="scoreOwnerId"
+            ownerTypeKey="scoreOwnerType"
+          />
         </Filter.View>
         <Filter.View filterKey="number" inDialog>
           <Filter.DialogStringView filterKey="number" />
@@ -174,17 +165,21 @@ const ScoreFilterPopover = () => {
 };
 
 export const ScoreFilter = () => {
+  const { sessionKey } = useScoreLeadSessionKey();
   const [number] = useFilterQueryState<string>('number');
   const [description] = useFilterQueryState<string>('description');
   const [scoreBoardId] = useFilterQueryState<string>('scoreBoardId');
   const [scorePipelineId] = useFilterQueryState<string>('scorePipelineId');
 
   return (
-    <Filter id="score-filter" sessionKey={SCORE_FILTER_SESSION_KEY}>
+    <Filter id="score-filter" sessionKey={sessionKey}>
       <Filter.Bar>
-        <SelectScoreCampaignFilterBar />
-        <SelectOwnerTypeFilterBar />
-        <SelectScoreCustomerFilterBar />
+        <SelectScoreCampaign.FilterBar />
+        <SelectOwnerType.FilterBar />
+        <SelectOwner.FilterBar
+          queryKey="scoreOwnerId"
+          ownerTypeKey="scoreOwnerType"
+        />
         <SelectBoard.FilterBar queryKey="scoreBoardId" />
         <SelectPipeline.FilterBar
           queryKey="scorePipelineId"
@@ -205,14 +200,14 @@ export const ScoreFilter = () => {
         </Filter.BarItem>
         <Filter.BarItem queryKey="description">
           <Filter.BarName>
-            <IconSearch />
+            <IconFileDescription />
             Description
           </Filter.BarName>
           <Filter.BarButton filterKey="description" inDialog>
             {description}
           </Filter.BarButton>
         </Filter.BarItem>
-        <SelectScoreActionFilterBar />
+        <SelectScoreAction.FilterBar />
         <SelectScoreActionTypeFilterBar />
         <Filter.BarItem queryKey="scoreDate">
           <Filter.BarName>
