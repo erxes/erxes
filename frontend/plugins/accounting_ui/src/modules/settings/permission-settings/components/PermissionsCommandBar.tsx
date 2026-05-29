@@ -28,6 +28,7 @@ export const PermissionsCommandbar = () => {
 };
 
 const PermissionsBulkEditor = ({ selected }: { selected: IPermission[] }) => {
+  const { table } = RecordTable.useRecordTable();
   const { editPermissionsBulk, loading } = usePermissionEdit();
   const [level, setLevel] = useState<string>('');
   const [read, setRead] = useState<string | undefined>();
@@ -46,7 +47,13 @@ const PermissionsBulkEditor = ({ selected }: { selected: IPermission[] }) => {
       if (!Number.isNaN(n)) changes.level = n;
     }
     if (!Object.keys(changes).length) return;
-    editPermissionsBulk(selected, changes);
+    const promise = editPermissionsBulk(selected, changes);
+    Promise.resolve(promise).then(() => {
+      table.resetRowSelection();
+      setLevel('');
+      setRead(undefined);
+      setWrite(undefined);
+    });
   };
 
   const canSave =

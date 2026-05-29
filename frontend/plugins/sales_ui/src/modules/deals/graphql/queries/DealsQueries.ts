@@ -172,6 +172,7 @@ export const GET_DEALS = gql`
           pipeline {
             _id
             name
+            boardId
           }
           boardId
         }

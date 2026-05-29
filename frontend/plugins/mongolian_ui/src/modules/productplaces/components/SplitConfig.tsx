@@ -4,17 +4,20 @@ import { Button, Input, Label, useToast } from 'erxes-ui';
 import { SelectSalesBoard } from '../selects/SelectSalesBoard';
 import { SelectPipeline } from '../selects/SelectPipeline';
 import { SelectStage } from '../selects/SelectStage';
-import SelectProductCategories from '../selects/SelectProductCategories';
 import SelectProductTags from '../selects/SelectProductTags';
 import SelectProducts from '../selects/SelectProducts';
 import SelectSegments from '../selects/SelectSegments';
+import { SelectCategory } from 'ui-modules';
 import { MN_CONFIGS } from '../graphql/clientQueries';
 import {
   MN_CONFIGS_CREATE,
   MN_CONFIGS_UPDATE,
   MN_CONFIGS_REMOVE,
 } from '../graphql/clientMutations';
-import { keyValueArrayToObject, objectToKeyValueArray } from '../utils/transformers';
+import {
+  keyValueArrayToObject,
+  objectToKeyValueArray,
+} from '../utils/transformers';
 import ConfigHeader from './shared/ConfigHeader';
 import SavedConfigsList from './shared/SavedConfigsList';
 
@@ -216,10 +219,14 @@ const SplitConfig: React.FC = () => {
                 <Label className="text-sm font-medium">
                   Include Categories
                 </Label>
-                <SelectProductCategories
+                <SelectCategory
+                  mode="multiple"
                   value={formData.productCategoryIds ?? []}
                   onValueChange={(ids) =>
-                    updateField('productCategoryIds', ids)
+                    updateField(
+                      'productCategoryIds',
+                      Array.isArray(ids) ? ids : [ids],
+                    )
                   }
                 />
               </div>
@@ -227,9 +234,15 @@ const SplitConfig: React.FC = () => {
                 <Label className="text-sm font-medium">
                   Exclude Categories
                 </Label>
-                <SelectProductCategories
+                <SelectCategory
+                  mode="multiple"
                   value={formData.excludeCategoryIds}
-                  onValueChange={(v) => updateField('excludeCategoryIds', v)}
+                  onValueChange={(ids) =>
+                    updateField(
+                      'excludeCategoryIds',
+                      Array.isArray(ids) ? ids : [ids],
+                    )
+                  }
                 />
               </div>
               <div className="flex flex-col gap-2">

@@ -14,7 +14,6 @@ import { IScoreLog } from '../types/score';
 import { scoreTotalCountAtom } from '../states/scoreCounts';
 
 const SCORE_PER_PAGE = 50;
-const LOGS_PER_OWNER = 5;
 export const SCORE_LOG_CURSOR_SESSION_KEY = 'score_logs_cursor';
 
 export const useScoreList = () => {
@@ -77,7 +76,6 @@ export const useScoreList = () => {
       number: number || undefined,
       description: description || undefined,
       limit: SCORE_PER_PAGE,
-      logsPerOwner: LOGS_PER_OWNER,
     }),
     [
       scoreOwnerType,

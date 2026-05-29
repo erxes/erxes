@@ -1,6 +1,7 @@
 import { IUser } from 'ui-modules';
 import { IconCalendar, IconNumber } from '@tabler/icons-react';
 import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
+import { CopyText } from '~/components/CopyText';
 import dayjs from 'dayjs';
 
 type Props = {
@@ -15,10 +16,10 @@ export const ItemFooter = ({ number, createdAt, assignedUsers = [], id }: Props)
     <div className="flex justify-between items-center p-2">
       <div className="flex items-center gap-1 text-gray-500 text-xs">
         {number ? (
-          <>
-            <IconNumber className="w-4 h-4" />
+          <CopyText value={number} className="text-inherit hover:text-foreground">
+            <IconNumber className="size-4 shrink-0" />
             <span>{number}</span>
-          </>
+          </CopyText>
         ) : (
           <>
             <IconCalendar className="w-4 h-4" />

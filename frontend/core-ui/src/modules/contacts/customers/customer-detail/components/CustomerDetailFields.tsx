@@ -4,6 +4,7 @@ import {
   customerFormSchema,
   CustomerFormType,
 } from '@/contacts/customers/constants/formSchema';
+import { useChangeCustomerState } from '@/contacts/customers/hooks/useChangeCustomerState';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
@@ -14,6 +15,7 @@ import { useCustomerDetailWithQuery } from '../../hooks/useCustomerDetailWithQue
 export const CustomerDetailFields = () => {
   const { customerDetail } = useCustomerDetailWithQuery();
   const { customerEdit } = useCustomerEdit();
+  const { changeCustomerState } = useChangeCustomerState();
   const { t } = useTranslation('contact');
   const { toast } = useToast();
 
@@ -44,16 +46,29 @@ export const CustomerDetailFields = () => {
 
   const { tagIds, _id } = customerDetail;
 
-  const onSubmit = (data: CustomerFormType) => {
+  const onSubmit = async (data: CustomerFormType) => {
     const {
       emailValidationStatus,
       phoneValidationStatus,
       sex,
       avatar,
+      state,
       ...rest
     } = data;
     void emailValidationStatus;
     void phoneValidationStatus;
+
+    if (state !== (customerDetail.state ?? '')) {
+      await changeCustomerState([_id], state, {
+        onError: (e: Error) => {
+          toast({
+            title: t('error', 'Update Failed'),
+            description: e.message,
+            variant: 'destructive',
+          });
+        },
+      });
+    }
 
     customerEdit({
       variables: {

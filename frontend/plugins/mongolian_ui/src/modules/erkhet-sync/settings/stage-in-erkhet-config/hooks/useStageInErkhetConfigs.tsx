@@ -15,9 +15,6 @@ export type TStageInErkhetConfigRow = TErkhetConfig & { _id: string };
 const parseConfigValue = (value: any) =>
   typeof value === 'string' ? JSON.parse(value) : value || {};
 
-const firstValue = (value: string | string[] | undefined) =>
-  Array.isArray(value) ? value[0] ?? '' : value ?? '';
-
 const readConfig = (value: any) => {
   const config = parseConfigValue(value);
   const paymentTypes = config.paymentTypes || {};
@@ -27,10 +24,10 @@ const readConfig = (value: any) => {
     ...paymentTypes,
     responseField: config.responseField ?? config.chooseResponseField ?? '',
     hasCitytax: config.hasCitytax ?? config.hasCityTax ?? false,
-    reverseVatRules: firstValue(
+    reverseVatRules: toArrayValue(
       config.reverseVatRules ?? config.anotherRulesOfProductsOnVat,
     ),
-    reverseCtaxRules: firstValue(
+    reverseCtaxRules: toArrayValue(
       config.reverseCtaxRules ?? config.anotherRulesOfProductsOnCitytax,
     ),
   };
@@ -50,11 +47,11 @@ const writeConfig = (data: TErkhetConfig) => {
     hasCityTax,
     anotherRulesOfProductsOnCitytax,
     anotherRulesOfProductsOnVat,
-    paymentTypes,
-    _id,
-    subId,
     ...config
   } = data;
+  delete config.paymentTypes;
+  delete config._id;
+  delete config.subId;
 
   return {
     ...config,

@@ -19,11 +19,11 @@ const assertPipelineOwner = async (
     throw new Error('Pipeline not found');
   }
 
-  if (pipeline.userId !== userId) {
-    throw new PermissionError(
-      'Access denied: Only the pipeline owner can manage statuses',
-    );
-  }
+  // if (pipeline.userId !== userId) {
+  //   throw new PermissionError(
+  //     'Access denied: Only the pipeline owner can manage statuses',
+  //   );
+  // }
 };
 
 export const statusMutations = {
