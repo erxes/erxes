@@ -1,59 +1,25 @@
 import { useFormContext } from 'react-hook-form';
-import { Form, Input, Textarea } from 'erxes-ui';
+import { Form } from 'erxes-ui';
 import { SelectDepartments, SelectMember } from 'ui-modules';
 import { TDepartmentForm } from '../../types/department';
-import { SelectStructureStatus } from '../SelectStructureStatus';
+import {
+  TitleField,
+  CodeField,
+  DescriptionField,
+  DeletedStatusField,
+} from '../StructureFormFields';
 
 export const DepartmentForm = () => {
   const { control, formState } = useFormContext<TDepartmentForm>();
-
+  // show the status field only when the record was originally deleted, so the
+  // field stays visible while the user switches it back to active
   const wasDeleted = formState.defaultValues?.status === 'deleted';
 
   return (
     <div className="grid grid-cols-2 gap-2">
-      <Form.Field
-        control={control}
-        name="title"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{field.name}</Form.Label>
-            <Form.Control>
-              <Input {...field} placeholder="Title" />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-      <Form.Field
-        control={control}
-        name="code"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{field.name}</Form.Label>
-            <Form.Control>
-              <Input {...field} placeholder="Code" />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-      <Form.Field
-        control={control}
-        name="description"
-        render={({ field }) => (
-          <Form.Item className="col-span-2">
-            <Form.Label>{field.name}</Form.Label>
-            <Form.Control>
-              <Textarea
-                {...field}
-                value={field.value ?? ''}
-                placeholder="Description"
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
+      <TitleField control={control} />
+      <CodeField control={control} />
+      <DescriptionField control={control} />
       <Form.Field
         control={control}
         name="supervisorId"
@@ -100,22 +66,7 @@ export const DepartmentForm = () => {
           </Form.Item>
         )}
       />
-      {wasDeleted && (
-        <Form.Field
-          control={control}
-          name="status"
-          render={({ field }) => (
-            <Form.Item className="col-span-2">
-              <Form.Label>Status</Form.Label>
-              <SelectStructureStatus.FormItem
-                value={field.value}
-                onValueChange={field.onChange}
-              />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-      )}
+      {wasDeleted && <DeletedStatusField control={control} />}
     </div>
   );
 };

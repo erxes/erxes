@@ -5,7 +5,11 @@ import { Collapsible, Form, Input, Skeleton, Textarea } from 'erxes-ui';
 import { SelectBranches, SelectMember } from 'ui-modules';
 import { PhoneInput } from 'erxes-ui/modules/record-field/meta-inputs/components/PhoneInput';
 import { IconChevronDown } from '@tabler/icons-react';
-import { SelectStructureStatus } from '../SelectStructureStatus';
+import {
+  TitleField,
+  CodeField,
+  DeletedStatusField,
+} from '../StructureFormFields';
 
 export const BranchForm = () => {
   const { control, formState } = useFormContext<TBranchForm>();
@@ -15,32 +19,8 @@ export const BranchForm = () => {
 
   return (
     <div className="grid grid-cols-2 gap-2">
-      <Form.Field
-        control={control}
-        name="title"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{field.name}</Form.Label>
-            <Form.Control>
-              <Input {...field} placeholder="Title" />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-      <Form.Field
-        control={control}
-        name="code"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{field.name}</Form.Label>
-            <Form.Control>
-              <Input {...field} placeholder="Code" />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
+      <TitleField control={control} />
+      <CodeField control={control} />
       <Form.Field
         control={control}
         name="address"
@@ -199,22 +179,7 @@ export const BranchForm = () => {
           </Form.Item>
         )}
       />
-      {wasDeleted && (
-        <Form.Field
-          control={control}
-          name="status"
-          render={({ field }) => (
-            <Form.Item className="col-span-2">
-              <Form.Label>Status</Form.Label>
-              <SelectStructureStatus.FormItem
-                value={field.value}
-                onValueChange={field.onChange}
-              />
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-      )}
+      {wasDeleted && <DeletedStatusField control={control} />}
       {/* <Form.Field
         control={control}
         name="image"

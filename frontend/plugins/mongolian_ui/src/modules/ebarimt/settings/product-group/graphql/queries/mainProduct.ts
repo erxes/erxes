@@ -18,6 +18,7 @@ export const GET_MAIN_PRODUCT = gql`
       _id
       name
       type
+      code
     }
   }
 `;

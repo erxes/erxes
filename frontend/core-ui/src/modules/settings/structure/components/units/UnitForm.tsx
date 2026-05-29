@@ -1,7 +1,12 @@
 import { useFormContext } from 'react-hook-form';
-import { Form, Input, Skeleton, Textarea } from 'erxes-ui';
+import { Form, Skeleton } from 'erxes-ui';
 import { SelectDepartments, SelectMember } from 'ui-modules';
 import { TUnitForm } from '../../types/unit';
+import {
+  TitleField,
+  CodeField,
+  DescriptionField,
+} from '../StructureFormFields';
 
 export const UnitForm = ({ loading = false }: { loading?: boolean }) => {
   const { control } = useFormContext<TUnitForm>();
@@ -12,49 +17,9 @@ export const UnitForm = ({ loading = false }: { loading?: boolean }) => {
 
   return (
     <div className="grid grid-cols-2 gap-2">
-      <Form.Field
-        control={control}
-        name="title"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{field.name}</Form.Label>
-            <Form.Control>
-              <Input {...field} placeholder="Title" />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-      <Form.Field
-        control={control}
-        name="code"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{field.name}</Form.Label>
-            <Form.Control>
-              <Input {...field} placeholder="Code" />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-      <Form.Field
-        control={control}
-        name="description"
-        render={({ field }) => (
-          <Form.Item className="col-span-2">
-            <Form.Label>{field.name}</Form.Label>
-            <Form.Control>
-              <Textarea
-                {...field}
-                value={field.value ?? ''}
-                placeholder="Description"
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
+      <TitleField control={control} />
+      <CodeField control={control} />
+      <DescriptionField control={control} />
       <Form.Field
         control={control}
         name="supervisorId"
