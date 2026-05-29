@@ -9,6 +9,14 @@ interface SelectOption {
   label: string;
 }
 
+interface CustomerItem {
+  _id: string;
+  firstName?: string;
+  lastName?: string;
+  primaryEmail?: string;
+  primaryPhone?: string;
+}
+
 interface CompanyItem {
   _id: string;
   primaryName?: string;
@@ -44,6 +52,20 @@ interface SelectOwnerFormItemProps {
 }
 
 // ─── Queries ──────────────────────────────────────────────────────────────────
+
+const GET_CUSTOMERS = gql`
+  query ScoreCustomersSimple($searchValue: String, $limit: Int) {
+    customers(searchValue: $searchValue, limit: $limit) {
+      list {
+        _id
+        firstName
+        lastName
+        primaryEmail
+        primaryPhone
+      }
+    }
+  }
+`;
 
 const GET_COMPANIES = gql`
   query ScoreCompaniesSimple($searchValue: String, $limit: Int) {
@@ -128,6 +150,68 @@ const SelectTrigger = ({
     )}
   </Combobox.Trigger>
 );
+
+// ─── Customer ──────────────────────────────────────────────────────────────────
+
+export const SelectCustomerFormItem = ({
+  value,
+  onValueChange,
+  placeholder = 'Choose customer',
+  className,
+}: SelectOwnerFormItemProps) => {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+
+  const { data, loading } = useQuery<{ customers: { list: CustomerItem[] } }>(
+    GET_CUSTOMERS,
+    { variables: { searchValue: search || undefined, limit: 50 } },
+  );
+
+  const options = useMemo<SelectOption[]>(
+    () =>
+      (data?.customers?.list || []).map((c) => ({
+        value: c._id,
+        label: c.firstName || c.primaryEmail || c.primaryPhone || 'Unnamed',
+      })),
+    [data?.customers?.list],
+  );
+
+  const selected = options.find((o) => o.value === value);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Form.Control>
+        <SelectTrigger
+          selected={selected}
+          placeholder={placeholder}
+          className={className}
+        />
+      </Form.Control>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.Input
+            value={search}
+            onValueChange={setSearch}
+            placeholder="Search customers..."
+          />
+          <Command.Empty>
+            {loading ? 'Loading...' : 'No customers found'}
+          </Command.Empty>
+          <Command.List>
+            <OptionList
+              options={options}
+              value={value}
+              onSelect={(v) => {
+                onValueChange(v);
+                setOpen(false);
+              }}
+            />
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
+  );
+};
 
 // ─── Company ──────────────────────────────────────────────────────────────────
 

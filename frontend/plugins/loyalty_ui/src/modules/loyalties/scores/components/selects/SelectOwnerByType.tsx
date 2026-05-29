@@ -1,5 +1,5 @@
-import { SelectScoreCustomerFormItem } from './SelectCustomer';
 import {
+  SelectCustomerFormItem,
   SelectCompanyFormItem,
   SelectUserFormItem,
   SelectClientPortalUserFormItem,
@@ -30,7 +30,7 @@ export const SelectOwnerByType = ({
   switch (ownerType) {
     case 'customer':
       return (
-        <SelectScoreCustomerFormItem
+        <SelectCustomerFormItem
           value={value}
           onValueChange={onValueChange}
           placeholder={resolvedPlaceholder}

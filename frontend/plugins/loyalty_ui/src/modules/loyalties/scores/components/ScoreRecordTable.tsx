@@ -1,24 +1,26 @@
 import { RecordTable, Spinner } from 'erxes-ui';
 import { IconStar } from '@tabler/icons-react';
-import { makeScoreColumns } from './ScoreColumns';
+import { useMemo } from 'react';
+import { scoreLogColumns } from './ScoreColumns';
 import {
   SCORE_LOG_CURSOR_SESSION_KEY,
   useScoreList,
 } from '../hooks/useScoreList';
 import { GiveScoreModal } from './GiveScoreModal';
-import { useMemo } from 'react';
 
 export const ScoreRecordTable = () => {
   const { list, loading, handleFetchMore, pageInfo } = useScoreList();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
-  const columns = useMemo(() => makeScoreColumns(), []);
+  // const columns = useMemo(() => makeScoreColumns(), []);
+  const columnsKey = scoreLogColumns.map((c) => c.id || '').join('|');
 
   if (loading && !list?.length) return <Spinner />;
 
   return (
     <RecordTable.Provider
-      columns={columns}
+      key={columnsKey}
+      columns={scoreLogColumns}
       data={list || []}
       className="m-3 relative"
       stickyColumns={['more', 'ownerName']}
@@ -56,7 +58,7 @@ export const ScoreRecordTable = () => {
               <p className="mt-1 text-sm text-gray-500 mb-4">
                 Get started by giving your first score.
               </p>
-              <GiveScoreModal />
+              {/* <GiveScoreModal /> */}
             </div>
           </div>
         )}
