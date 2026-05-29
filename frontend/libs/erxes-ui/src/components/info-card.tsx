@@ -22,7 +22,7 @@ const InfoCardRoot = ({
         className,
       )}
     >
-      <div className="flex items-center justify-between h-7 pl-2 pr-1">
+      <div className="flex items-center justify-between h-7 pl-2 pr-1 shrink-0">
         <h3 className="font-medium text-xs font-mono uppercase">{title}</h3>
         {!!description && (
           <Tooltip.Provider>
