@@ -111,6 +111,11 @@ export interface CpUsersSetPasswordParams {
   newPassword: string;
 }
 
+export interface ChangePasswordParams {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export interface RequestChangeEmailParams {
   newEmail: string;
 }
