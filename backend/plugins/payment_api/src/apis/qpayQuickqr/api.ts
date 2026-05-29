@@ -136,10 +136,15 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         method: 'POST',
         path: meta.paths.company,
         data: {
-          ...args,
+          name: args.name,
+          company_name: args.companyName,
           register_number: args.registerNumber,
           mcc_code: args.mccCode,
-          company_name: args.companyName,
+          city: args.city,
+          district: args.district,
+          address: args.address,
+          phone: args.phone,
+          email: args.email,
         },
       });
     } catch (error: any) {
@@ -165,29 +170,36 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
       path: `${meta.paths.company}/${this.config.merchantId}`,
       data: {
         name: safeName,
-        ...args,
+        company_name: args.companyName,
         register_number: args.registerNumber,
         mcc_code: args.mccCode,
-        company_name: args.companyName,
+        city: args.city,
+        district: args.district,
+        address: args.address,
+        phone: args.phone,
+        email: args.email,
       },
     });
   }
 
   async createCustomer(args: IMerchantCustomerParams) {
     try {
-      const res = await this.makeRequest<IMerchantResponse>({
+      return await this.makeRequest<IMerchantResponse>({
         method: 'POST',
         path: meta.paths.person,
         data: {
-          ...args,
-          register_number: args.registerNumber,
-          mcc_code: args.mccCode,
           first_name: args.firstName,
           last_name: args.lastName,
           business_name: args.businessName,
+          register_number: args.registerNumber,
+          mcc_code: args.mccCode,
+          city: args.city,
+          district: args.district,
+          address: args.address,
+          phone: args.phone,
+          email: args.email,
         },
       });
-      return res;
     } catch (error: any) {
       const errMsg = safeErrorMsg(error);
       if (
@@ -198,6 +210,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
           ...args,
           first_name: args.firstName,
           last_name: args.lastName,
+          business_name: args.businessName,
         });
       }
       throw new Error(`Create customer failed: ${errMsg}`);
@@ -205,21 +218,24 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
   }
 
   async updateCustomer(args: IMerchantCustomerParams) {
-    const safeName =
-      args.firstName && args.lastName
-        ? `${args.firstName} ${args.lastName}`
-        : 'Default Customer';
+    const safeName = args.firstName && args.lastName
+      ? `${args.firstName} ${args.lastName}`
+      : 'Default Customer';
     return await this.makeRequest<IMerchantResponse>({
       method: 'PUT',
       path: `${meta.paths.person}/${this.config.merchantId}`,
       data: {
         name: safeName,
-        ...args,
-        register_number: args.registerNumber,
-        mcc_code: args.mccCode,
         first_name: args.firstName,
         last_name: args.lastName,
         business_name: args.businessName,
+        register_number: args.registerNumber,
+        mcc_code: args.mccCode,
+        city: args.city,
+        district: args.district,
+        address: args.address,
+        phone: args.phone,
+        email: args.email,
       },
     });
   }
@@ -232,9 +248,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
       });
     } catch (e: any) {
       const message = safeErrorMsg(e);
-      if (message.includes('MERCHANT_NOTFOUND')) {
-        return;
-      }
+      if (message.includes('MERCHANT_NOTFOUND')) return;
       throw new Error(`Remove merchant failed: ${message}`);
     }
   }
@@ -248,7 +262,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
     const isCompany = existingMerchant.type === 'COMPANY';
     const path = isCompany ? meta.paths.company : meta.paths.person;
 
-    let updateData: any = {
+    const updateData: any = {
       register_number: args.registerNumber,
       mcc_code: args.mccCode,
       city: args.city,
@@ -262,10 +276,9 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
       updateData.name = args.name || args.companyName || 'Default Contact';
       updateData.company_name = args.companyName;
     } else {
-      updateData.name =
-        args.firstName && args.lastName
-          ? `${args.firstName} ${args.lastName}`
-          : 'Default Customer';
+      updateData.name = args.firstName && args.lastName
+        ? `${args.firstName} ${args.lastName}`
+        : 'Default Customer';
       updateData.first_name = args.firstName;
       updateData.last_name = args.lastName;
       updateData.business_name = args.businessName;
