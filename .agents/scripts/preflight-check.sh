@@ -3,8 +3,6 @@
 # This script MUST pass before intake skill can run.
 # It validates that detect-scope completed successfully and produced valid output.
 
-set -e
-
 SESSION_FILE=".agents/session.yaml"
 SCOPE_STATE_FILE=".agents/state/last-detect-scope.json"
 RED='\033[0;31m'
@@ -38,22 +36,46 @@ else
     echo -e "${GREEN}✓${NC} detect-scope state file exists"
 fi
 
-# ─── Check 3: Required fields in detect-scope output ───
+# ─── Check 3: Valid JSON structure ───
+if [ -f "$SCOPE_STATE_FILE" ]; then
+    # Use python3 or node to validate JSON if available, fallback to basic check
+    if command -v python3 &> /dev/null; then
+        if python3 -c "import json; json.load(open('$SCOPE_STATE_FILE'))" 2>/dev/null; then
+            echo -e "${GREEN}✓${NC} Valid JSON structure"
+        else
+            echo -e "${RED}✗ FAIL${NC}: Invalid JSON in detect-scope output"
+            errors=$((errors + 1))
+        fi
+    elif command -v node &> /dev/null; then
+        if node -e "JSON.parse(require('fs').readFileSync('$SCOPE_STATE_FILE', 'utf8'))" 2>/dev/null; then
+            echo -e "${GREEN}✓${NC} Valid JSON structure"
+        else
+            echo -e "${RED}✗ FAIL${NC}: Invalid JSON in detect-scope output"
+            errors=$((errors + 1))
+        fi
+    else
+        echo -e "${YELLOW}⚠ WARNING${NC}: Cannot validate JSON (no python3 or node available)"
+    fi
+fi
+
+# ─── Check 4: Required fields in detect-scope output ───
 if [ -f "$SCOPE_STATE_FILE" ]; then
     required_fields=("plugin" "action" "scope" "user_confirmed" "goal_condition")
     for field in "${required_fields[@]}"; do
-        if ! grep -q "\"$field\"" "$SCOPE_STATE_FILE" 2>/dev/null; then
+        # Use grep to check for JSON key presence (more robust pattern)
+        if grep -qE "^\s*\"$field\"\s*:" "$SCOPE_STATE_FILE" 2>/dev/null; then
+            echo -e "${GREEN}✓${NC} Field '$field' present"
+        else
             echo -e "${RED}✗ FAIL${NC}: Required field missing in detect-scope output: '$field'"
             errors=$((errors + 1))
-        else
-            echo -e "${GREEN}✓${NC} Field '$field' present"
         fi
     done
 fi
 
-# ─── Check 4: user_confirmed must be true ───
+# ─── Check 5: user_confirmed must be true ───
 if [ -f "$SCOPE_STATE_FILE" ]; then
-    if grep -q '"user_confirmed": true' "$SCOPE_STATE_FILE" 2>/dev/null; then
+    # Look for the exact pattern: "user_confirmed": true (as a boolean, not string)
+    if grep -qE '^\s*"user_confirmed"\s*:\s*true\b' "$SCOPE_STATE_FILE" 2>/dev/null; then
         echo -e "${GREEN}✓${NC} User confirmed scope (user_confirmed: true)"
     else
         echo -e "${RED}✗ FAIL${NC}: user_confirmed is not true"
@@ -62,9 +84,10 @@ if [ -f "$SCOPE_STATE_FILE" ]; then
     fi
 fi
 
-# ─── Check 5: Plugin exists in manifest ───
+# ─── Check 6: Plugin exists in manifest ───
 if [ -f "$SCOPE_STATE_FILE" ]; then
-    plugin=$(grep -o '"plugin": "[^"]*"' "$SCOPE_STATE_FILE" | head -1 | cut -d'"' -f4)
+    # Extract plugin value more carefully
+    plugin=$(grep -oE '^\s*"plugin"\s*:\s*"[^"]*"' "$SCOPE_STATE_FILE" | head -1 | grep -oE '"[^"]*"$' | tr -d '"')
     if [ -n "$plugin" ]; then
         if grep -q "name: \"$plugin\"" .agents/manifest.yaml 2>/dev/null || \
            grep -q "name: \"${plugin}_ui\"" .agents/manifest.yaml 2>/dev/null || \
@@ -77,7 +100,7 @@ if [ -f "$SCOPE_STATE_FILE" ]; then
     fi
 fi
 
-# ─── Check 6: Session timestamps (detect-scope must be recent) ───
+# ─── Check 7: Session timestamps (detect-scope must be recent) ───
 if [ -f "$SESSION_FILE" ] && [ -f "$SCOPE_STATE_FILE" ]; then
     session_mtime=$(stat -f %m "$SESSION_FILE" 2>/dev/null || stat -c %Y "$SESSION_FILE" 2>/dev/null)
     scope_mtime=$(stat -f %m "$SCOPE_STATE_FILE" 2>/dev/null || stat -c %Y "$SCOPE_STATE_FILE" 2>/dev/null)
