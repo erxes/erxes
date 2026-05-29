@@ -209,7 +209,7 @@ function createBackendPlugin(pluginName, moduleName) {
   const mainContent = `import { startPlugin } from 'erxes-api-shared/utils';
 import { typeDefs } from '~/apollo/typeDefs';
 import { appRouter } from '~/trpc/init-trpc';
-import resolvers from './apollo/resolvers';
+import { resolvers } from '~/apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 
 startPlugin({
@@ -306,7 +306,8 @@ export const typeDefs = async (): Promise<DocumentNode> => {
 import { customResolvers } from './resolvers';
 import { mutations } from './mutations';
 import { queries } from './queries';
-const resolvers: any = {
+
+export const resolvers = {
   Mutation: {
     ...mutations,
   },
@@ -316,8 +317,6 @@ const resolvers: any = {
   ...apolloCustomScalars,
   ...customResolvers,
 };
-
-export default resolvers;
 `;
 
   fs.writeFileSync(
@@ -362,26 +361,23 @@ export const customResolvers = {
   );
 
   // Create apollo/schema/schema.ts
-  const schemaContent = `import {
-  mutations as ${capitalizedModuleName}Mutations,
-  queries as ${capitalizedModuleName}Queries,
-  types as ${capitalizedModuleName}Types,
-} from '@/${moduleName}/graphql/schemas/${moduleName}';
-
-export const types = \`
-  \${${capitalizedModuleName}Types}
-\`;
-
-export const queries = \`
-  \${${capitalizedModuleName}Queries}
-\`;
-
-export const mutations = \`
-  \${${capitalizedModuleName}Mutations}
-\`;
-
-export default { types, queries, mutations };
-`;
+  const schemaContent = 'import {\n' +
+  '  mutations as ' + capitalizedModuleName + 'Mutations,\n' +
+  '  queries as ' + capitalizedModuleName + 'Queries,\n' +
+  '  types as ' + capitalizedModuleName + 'Types,\n' +
+  '} from \'@/' + moduleName + '/graphql/schemas/' + moduleName + '\';\n' +
+  '\n' +
+  'export const types = `\n' +
+  '  ${' + capitalizedModuleName + 'Types}\n' +
+  '`;\n' +
+  '\n' +
+  'export const queries = `\n' +
+  '  ${' + capitalizedModuleName + 'Queries}\n' +
+  '`;\n' +
+  '\n' +
+  'export const mutations = `\n' +
+  '  ${' + capitalizedModuleName + 'Mutations}\n' +
+  '`;\n';
 
   fs.writeFileSync(
     path.join(backendPluginDir, 'src', 'apollo', 'schema', 'schema.ts'),
@@ -466,18 +462,16 @@ export interface I${capitalizedModuleName}Document extends I${capitalizedModuleN
 
   const modelsDefinitionContent = `import { Schema } from 'mongoose';
 
-import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
+import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
-export const ${moduleName}Schema = schemaWrapper(
-  new Schema(
-    {
-      _id: mongooseStringRandomId,
-      name: { type: String, label: 'Name' },
-    },
-    {
-      timestamps: true,
-    },
-  ),
+export const ${moduleName}Schema = new Schema(
+  {
+    _id: mongooseStringRandomId,
+    name: { type: String, label: 'Name' },
+  },
+  {
+    timestamps: true,
+  },
 );
 `;
 
