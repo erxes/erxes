@@ -12,6 +12,7 @@ import {
   ColumnDef,
   ColumnFiltersState,
   ColumnOrderState,
+  ColumnPinningState,
   ColumnSizingState,
   VisibilityState,
   getCoreRowModel,
@@ -80,6 +81,12 @@ export const RecordTableProvider = forwardRef<
     const [colSizing, setColSizing] = useState<ColumnSizingState>(
       columnSizing || {},
     );
+    const [colPinning, setColPinning] = useState<ColumnPinningState>(
+      () => ({ left: stickyColumns ?? [] }),
+    );
+    useEffect(() => {
+      setColPinning((prev) => ({ ...prev, left: stickyColumns ?? [] }));
+    }, [stickyColumns]);
     const table = useReactTable({
       data,
       columns,
@@ -91,9 +98,7 @@ export const RecordTableProvider = forwardRef<
         columnOrder: colOrder,
         columnSizing: colSizing,
         columnVisibility: colVisibility,
-        columnPinning: {
-          left: stickyColumns,
-        },
+        columnPinning: colPinning,
         sorting,
         columnFilters,
         rowSelection,
@@ -102,6 +107,7 @@ export const RecordTableProvider = forwardRef<
       onColumnOrderChange: setColumnOrder,
       onColumnSizingChange: setColSizing,
       onColumnVisibilityChange: setColVisibility,
+      onColumnPinningChange: setColPinning,
       onSortingChange: setSorting,
       onColumnFiltersChange: setColumnFilters,
       onRowSelectionChange: setRowSelection,

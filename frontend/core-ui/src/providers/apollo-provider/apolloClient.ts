@@ -23,6 +23,25 @@ const generateSessionCode = () => {
   return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 };
 
+const wasOpenedByAnotherTab = () => {
+  if (globalThis.window === undefined) {
+    return false;
+  }
+
+  try {
+    return (
+      Boolean(globalThis.window.opener) &&
+      globalThis.window.opener !== globalThis.window
+    );
+  } catch {
+    return false;
+  }
+};
+
+if (globalThis.window !== undefined && wasOpenedByAnotherTab()) {
+  sessionStorage.removeItem(SESSION_CODE_STORAGE_KEY);
+}
+
 const getSessionCode = () => {
   const existingSessionCode = sessionStorage.getItem(SESSION_CODE_STORAGE_KEY);
 
@@ -48,7 +67,7 @@ const errorLink = onError(({ graphQLErrors }) => {
     const [error] = graphQLErrors;
 
     if (error.message === 'Login required') {
-      window.location.reload();
+      globalThis.window.location.reload();
     }
   }
 });

@@ -6,7 +6,6 @@ import Donate from '@/donate/graphql/resolvers/customResolvers/donate';
 import DonateCampaign from '@/donate/graphql/resolvers/customResolvers/donateCampaign';
 import Lottery from '@/lottery/graphql/resolvers/customResolvers/lottery';
 import LotteryCampaign from '@/lottery/graphql/resolvers/customResolvers/lotteryCampaign';
-import { Pricing } from '@/pricing/graphql/resolvers/customResolvers/pricing';
 import { PricingPlan } from '@/pricing/graphql/resolvers/customResolvers/pricingPlan';
 import ScoreLog from '@/score/graphql/resolvers/customResolvers/scoreLog';
 import ScoreLogItem from '@/score/graphql/resolvers/customResolvers/scoreLogItem';
@@ -16,7 +15,6 @@ import Voucher from '@/voucher/graphql/resolvers/customResolvers/voucher';
 import VoucherCampaign from '@/voucher/graphql/resolvers/customResolvers/voucherCampaign';
 
 export const customResolvers = {
-  Pricing,
   PricingPlan,
   Agent,
   Assignment,

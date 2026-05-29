@@ -706,8 +706,9 @@ function AddProductFormFieldsDetail({
                     </Form.Label>
                     <Form.Control>
                       <SelectCategory
-                        selected={field.value}
+                        value={field.value}
                         onSelect={field.onChange}
+                        mode='single'
                       />
                     </Form.Control>
                     <Form.Message />

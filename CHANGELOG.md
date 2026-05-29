@@ -1,5 +1,97 @@
 
 
+## [3.0.27](https://github.com/erxes/erxes/compare/3.0.26...3.0.27) (2026-05-28)
+
+
+### Bug Fixes
+
+* account add and edit ui ([c4f29a0](https://github.com/erxes/erxes/commit/c4f29a03146b7b3f210e358a526e018e02c1d59d))
+* **accounting:** improve safeRem to transaction and ctax some bug ([#7798](https://github.com/erxes/erxes/issues/7798)) ([688da3d](https://github.com/erxes/erxes/commit/688da3d56302ce96b8c94a94fedf92d992fabf7f))
+* **accounting:** safe-remainders-filter-enhancement ([#7793](https://github.com/erxes/erxes/issues/7793)) ([ec9b564](https://github.com/erxes/erxes/commit/ec9b5640e1aaa8535f58b08fcc04f6409b3b5b50))
+* **accounting:** safeRemainder to transction ([3ac3a21](https://github.com/erxes/erxes/commit/3ac3a210d82dd2fc726eaaf2c7221c04ed2d1d14))
+* bugs ([8e67716](https://github.com/erxes/erxes/commit/8e67716e7e9487e681a990ea57a0ac42339e36bc))
+* clean selectProductCategory and ebarimt taxRule ([#7795](https://github.com/erxes/erxes/issues/7795)) ([e5e67ab](https://github.com/erxes/erxes/commit/e5e67ab6c6a5ceadb265a8f0b906f55213e350f2))
+* **content:** cp user edit, password reset permission ([#7805](https://github.com/erxes/erxes/issues/7805)) ([a27a1a0](https://github.com/erxes/erxes/commit/a27a1a0ca3bbbb7f343947f217740d93e27ea8ef))
+* **content:** fix cms menu page target ([#7766](https://github.com/erxes/erxes/issues/7766)) ([f5f774d](https://github.com/erxes/erxes/commit/f5f774dd3482e9f1730fd9a47e1f26977d6b96dc))
+* **content:** move CMS deletion to settings with confirmation ([da80f0b](https://github.com/erxes/erxes/commit/da80f0ba71640445a00e4e9206501ec72a30d1bc))
+* edit form use textField reactive ([2b7dcdf](https://github.com/erxes/erxes/commit/2b7dcdf850643261fdf2c5c35685369f477fb27d))
+* feature-loyalty-widget-and-score-refactor ([#7791](https://github.com/erxes/erxes/issues/7791)) ([fad07c4](https://github.com/erxes/erxes/commit/fad07c430be6556e2a472d18905272b8a93e9d9a))
+* **frontline:** fix integrationsGetUsedTypes returning empty array ([930b360](https://github.com/erxes/erxes/commit/930b36042f1cd04b194aded73043dd8205dadfff))
+* **frontline:** response template search via backend searchValue ([#7807](https://github.com/erxes/erxes/issues/7807)) ([1be7fcc](https://github.com/erxes/erxes/commit/1be7fcc82b3e3dd2f6b206a4023a434d978e66d3))
+* handle null user in cpSalesPipelines client portal query ([#7783](https://github.com/erxes/erxes/issues/7783)) ([2fe0106](https://github.com/erxes/erxes/commit/2fe0106d70709ea32e05d98e33c0e55eb9ab0abf))
+* **logs:** try afterProcesses ([89ff810](https://github.com/erxes/erxes/commit/89ff810110316cac4db911d189b992dc9ae180ea))
+* loyalty score some bugs ([#7772](https://github.com/erxes/erxes/issues/7772)) ([f026365](https://github.com/erxes/erxes/commit/f026365fbb094a75a786e21cc214fdefbadc7713))
+* loyalty-scores-list-bug ([a0eeeec](https://github.com/erxes/erxes/commit/a0eeeecbf33bdd3480bf354786aa9dcbffb32cbd))
+* **loyalty:** loyalties change score fix and set score  ([#7774](https://github.com/erxes/erxes/issues/7774)) ([9a56765](https://github.com/erxes/erxes/commit/9a567651efed6a78e8934be8b360325d4b1ddb61))
+* **loyalty:** Loyalty widget ([#7786](https://github.com/erxes/erxes/issues/7786)) ([af743b0](https://github.com/erxes/erxes/commit/af743b032ca25230a04849140b10f7292214953a))
+* **mongolian:** ebarimt settings reverse tax rule with array ([#7800](https://github.com/erxes/erxes/issues/7800)) ([5d5a81d](https://github.com/erxes/erxes/commit/5d5a81dd8e004bdeb60b445d0cecfdfc397bf116))
+* **mongolian:** syncerkhet config on posOrder improve ([fa721f4](https://github.com/erxes/erxes/commit/fa721f439490879d9bbbf6f3c80d0f02538f4aa4))
+* **mongolian:** syncerkhet resync ([#7803](https://github.com/erxes/erxes/issues/7803)) ([be95c1a](https://github.com/erxes/erxes/commit/be95c1a41068b7a37fe246ac82c91ea8dec37f3f))
+* posorder to loyalties score ([#7775](https://github.com/erxes/erxes/issues/7775)) ([e133071](https://github.com/erxes/erxes/commit/e13307104bde436d74c00554abd5ab3760812c1a))
+* preserve userType when creating cpUsers ([b20ba5b](https://github.com/erxes/erxes/commit/b20ba5bee29819ee536f1de01b7b052a6cfbcffa))
+* sales form editor debounce ([6d4c612](https://github.com/erxes/erxes/commit/6d4c612930d89673885e36539db6d1b47a1112dc))
+* sales products changed then vibration ([66d92db](https://github.com/erxes/erxes/commit/66d92db33518caf672a500c21a9b28acd451db76))
+* **sales:** add common search and go to settings ([7f31ccd](https://github.com/erxes/erxes/commit/7f31ccd694f8a3864cdd5c32238733cf9593a173))
+* **sales:** deal detail productsData dont miss ([f159a97](https://github.com/erxes/erxes/commit/f159a97d784b503e0e319078cbadc2d93ce0484f))
+* **sales:** deals filter with number ([5bddb08](https://github.com/erxes/erxes/commit/5bddb089a45c0fc893e0b4641ebeca858d993517))
+* SalesFormField desc fix ([e2aa474](https://github.com/erxes/erxes/commit/e2aa47429494d392a323c09d37b7cbb9738d2867))
+* **sales:** limit deal notifications to assigned users and remove duplicate notification creation ([#7778](https://github.com/erxes/erxes/issues/7778)) ([48a8363](https://github.com/erxes/erxes/commit/48a8363047d8e767d220f6e3666fdc9b9201a383))
+* some trpc result and input improve ([#7765](https://github.com/erxes/erxes/issues/7765)) ([586e015](https://github.com/erxes/erxes/commit/586e0158d958e3823e0946fd13570b3a0b36f624))
+* syncerkhet check deals filter by without board and pipeline ([e26f026](https://github.com/erxes/erxes/commit/e26f026f38ef4d83bf0b87ca9ba4972a2a6f4eb4))
+* use username for company primaryName in client portal contact service ([434b706](https://github.com/erxes/erxes/commit/434b706e478b51e86616f099018f3f2cb15d29ca))
+
+
+### Features
+
+* add invoice relation widget for relation detail ([8ec2c58](https://github.com/erxes/erxes/commit/8ec2c582f8571d3dd82e611a8e61168095960db7))
+* attachments & submission details view ([f7f69f9](https://github.com/erxes/erxes/commit/f7f69f97cf732806a77481ea18a02d529b0f9c27))
+* **content:** add CMS menu reordering drag and drop ([ebe8137](https://github.com/erxes/erxes/commit/ebe813727639ded14990c43cc6bfd238601e9cd3))
+* **content:** improve single CMS navigation ([#7771](https://github.com/erxes/erxes/issues/7771)) ([589169c](https://github.com/erxes/erxes/commit/589169cd6d14c19326b2d6e8064df8a8762a3b2b))
+* **core-ui:** add parent/status filters and total count to product  ([#7768](https://github.com/erxes/erxes/issues/7768)) ([0fbaa73](https://github.com/erxes/erxes/commit/0fbaa73a3ffb67747920613acebccd70e888f3c3))
+* **core:** add change state (lead ↔ customer) for customers ([#7790](https://github.com/erxes/erxes/issues/7790)) ([c87cc96](https://github.com/erxes/erxes/commit/c87cc9611cbd0e615a57db1ae0b0a7cc32ab90c2))
+* **frontline:** ticket number/name config, pipeline attribution,migrations update ([4ee9291](https://github.com/erxes/erxes/commit/4ee92910aa63d605e2544a040ff4d2715bce1827))
+* implement pdfattachments feature, fix cpInvoiceCreate ([25266ef](https://github.com/erxes/erxes/commit/25266ef7057be119d494950eabb88515cb4d186d))
+* **operation:** add project relation widget and inbox notifications ([fe3750c](https://github.com/erxes/erxes/commit/fe3750c69837a01a8081183c6dfda592be114d52))
+* **operation:** add project relation widget and inbox notifications  ([c2daae4](https://github.com/erxes/erxes/commit/c2daae4e334b13e7deb23b930ef08b8267c379a0))
+* **sales:** add cpDealsEdit and cpDealsCreateProductsData ([660d5ce](https://github.com/erxes/erxes/commit/660d5ce38f25f46c2c06cb9e1c937af276a32797))
+
+## [3.0.26](https://github.com/erxes/erxes/compare/3.0.25...3.0.26) (2026-05-22)
+
+
+### Bug Fixes
+
+* **loyalty:** pricing trpc without status ([#7755](https://github.com/erxes/erxes/issues/7755)) ([9234d59](https://github.com/erxes/erxes/commit/9234d5956191b672dc2d82f8e6087cf700910666))
+* sales pipeline card enhancement ([#7754](https://github.com/erxes/erxes/issues/7754)) ([8ffcee5](https://github.com/erxes/erxes/commit/8ffcee51ef348e65ea957f22171951e3e0041a3a))
+* scoreCampaign refactor and  products and productCategories trpc([#7757](https://github.com/erxes/erxes/issues/7757)) ([3f55f9c](https://github.com/erxes/erxes/commit/3f55f9cc75424f4f7f7f74609f09a0a565d6bdc9))
+* syncerkhet first end ([#7748](https://github.com/erxes/erxes/issues/7748)) ([b93cdb8](https://github.com/erxes/erxes/commit/b93cdb8b0d3bcc0dfd049763a9e3eecf2c5d3d34))
+
+
+### Features
+
+* **content:** cms menu has types for web ([8eac54d](https://github.com/erxes/erxes/commit/8eac54d81c57b83c7f3a42b7c6d4bbf8bfc3f2eb))
+* **payment:** add QR code generation  ([d3827af](https://github.com/erxes/erxes/commit/d3827af3ad9292b0d6fd9ebc12c218a1874965c2))
+* **pos:** add QZ Tray printing and improve report receipts ([#7749](https://github.com/erxes/erxes/issues/7749)) ([d475479](https://github.com/erxes/erxes/commit/d47547969d2e6f62481eb325a8f9de231c710c56))
+
+## [3.0.25](https://github.com/erxes/erxes/compare/3.0.24...3.0.25) (2026-05-21)
+
+
+### Bug Fixes
+
+* **accounting:** transaction status improve ([#7737](https://github.com/erxes/erxes/issues/7737)) ([af56792](https://github.com/erxes/erxes/commit/af567922f06e6f55d06b1ad7e913a6de2c4f1739))
+* **content:** CMS tag and category pagination ([#7741](https://github.com/erxes/erxes/issues/7741)) ([b86aa27](https://github.com/erxes/erxes/commit/b86aa27fe71c3cbd72d753e564a5726e42d61bb5))
+* **loyalty:** clean code on pricing ([#7733](https://github.com/erxes/erxes/issues/7733)) ([5f89038](https://github.com/erxes/erxes/commit/5f890381c023e213f21c76da0a01ea238f73f7b5))
+* sessioncode on new tab new code ([#7739](https://github.com/erxes/erxes/issues/7739)) ([a104273](https://github.com/erxes/erxes/commit/a104273254d69abef0659be28891642a3a961d10))
+* update product handling and improve product type display in sale and deal move from detail([#7740](https://github.com/erxes/erxes/issues/7740)) ([d084ef0](https://github.com/erxes/erxes/commit/d084ef059b815625358e8327fd1e2c1c24ee22ba))
+
+
+### Features
+
+* add bulk permission change ([c0bc83d](https://github.com/erxes/erxes/commit/c0bc83dbe5ca6593f3bc740ec616caf6b87dd539))
+* add permission popup to invite members flow  ([c9000b5](https://github.com/erxes/erxes/commit/c9000b51574fe2b40fb01e5c2bd7d158d808abc1))
+* **content:** cms category translation, fix tag translation and more ([#7727](https://github.com/erxes/erxes/issues/7727)) ([7af0aa1](https://github.com/erxes/erxes/commit/7af0aa18ee73f270b5fb5a1361a3f27f4ae24484))
+* **frontline:** submissions & customer related fields ([#7747](https://github.com/erxes/erxes/issues/7747)) ([c6fd6a6](https://github.com/erxes/erxes/commit/c6fd6a6765901fc422296e737b98d365b0779ee8))
+* **mongolian:** Add checkPermission to mongolian resolvers ,meta permissions, add event logging for ProductRule and ProductGroup models ([#7735](https://github.com/erxes/erxes/issues/7735)) ([ddeac80](https://github.com/erxes/erxes/commit/ddeac80d0986d34288cd4e6f808516f804264b22))
+
 ## [3.0.24](https://github.com/erxes/erxes/compare/3.0.23...3.0.24) (2026-05-19)
 
 

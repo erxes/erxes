@@ -26,28 +26,8 @@ export const PIPELINE_CREATE_SCHEMA = z.object({
         type: z.string().min(1, 'Type is required'),
         title: z.string().min(1, 'Title is required'),
         icon: z.string().min(1, 'Icon is required'),
-        config: z.preprocess(
-          (val) => {
-            if (!val || val === '') return undefined;
-            if (typeof val === 'object') return val;
-
-            try {
-              return JSON.parse(val as string);
-            } catch {
-              return undefined;
-            }
-          },
-          z
-            .object({
-              skipEbarimt: z.boolean().optional(),
-              mustCustomer: z.boolean().optional(),
-              notSplit: z.boolean().optional(),
-              preTax: z.boolean().optional(),
-              require: z.string().optional(),
-            })
-            .optional(),
-        ),
-        scoreCampaign: z.string().optional(),
+        config: z.string().optional(),
+        scoreCampaignId: z.string().optional(),
       }),
     )
     .optional()
@@ -61,7 +41,7 @@ export const PIPELINE_CREATE_SCHEMA = z.object({
         title: z.string().min(1, 'Title is required'),
         icon: z.string().min(1, 'Icon is required'),
         config: z.string().optional(),
-        scoreCampaign: z.string().optional(),
+        scoreCampaignId: z.string().optional(),
       }),
     )
     .optional()

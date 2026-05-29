@@ -14,8 +14,12 @@ export const documentTrpcRouter = t.router({
     }),
 
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { query } = input;
+      const query = input?.query || input?.selector || input;
       const { models } = ctx;
+
+      if (!query || !Object.keys(query).length) {
+        return {};
+      }
 
       return await models.Documents.findOne(query);
     }),

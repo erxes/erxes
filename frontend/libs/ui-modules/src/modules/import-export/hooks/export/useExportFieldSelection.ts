@@ -5,15 +5,19 @@ import { TExportHeader } from '../../types/export/exportTypes';
 
 export const useExportFieldSelection = ({
   entityType,
+  filters,
+  open,
   onConfirm,
   onOpenChange,
 }: {
   entityType: string;
+  filters?: Record<string, any>;
+  open: boolean;
   onConfirm: (selectedFields: string[]) => void;
   onOpenChange: (open: boolean) => void;
 }) => {
   const { data, loading } = useQuery(GET_EXPORT_HEADERS, {
-    variables: { entityType },
+    variables: { entityType, ...(filters ? { filters } : {}) },
     skip: !open,
   });
 

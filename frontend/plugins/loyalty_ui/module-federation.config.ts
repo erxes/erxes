@@ -16,10 +16,11 @@ const config: ModuleFederationConfig = {
   name: 'loyalty_ui',
   exposes: {
     './config': './src/config.tsx',
-    './loyalty': './src/modules/loyalties/Settings.tsx',
+    './loyalty': './src/modules/loyalties/SubNavigations.tsx',
     './loyaltySettings': './src/LoyaltySettings.tsx',
     './loyaltySettingsNavigation': './src/LoyaltySettingsNavigation.tsx',
     './widgets': './src/widgets/Widgets.tsx',
+    './relationWidget': './src/widgets/Widgets.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {

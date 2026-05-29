@@ -1,10 +1,23 @@
-import { reportEndDateAtom, reportStartDateAtom } from "@/store"
+import { Fragment } from "react"
+import {
+  qzMainPrinterAtom,
+  qzTrayEnabledAtom,
+  reportEndDateAtom,
+  reportStartDateAtom,
+} from "@/store"
 import { configAtom, paymentTypesAtom } from "@/store/config.store"
 import { format } from "date-fns"
 import { useAtomValue } from "jotai"
 
 import { IPaymentType } from "@/types/config.types"
+import { captureDocumentHtml } from "@/lib/captureHtml"
+import {
+  ensureQzConnected,
+  printHtmlToPrinter,
+  QZ_TRAY_NOT_RUNNING_MESSAGE,
+} from "@/lib/qzTray"
 import { Button } from "@/components/ui/button"
+import { onError } from "@/components/ui/use-toast"
 import PrintLayout from "@/app/reciept/layout"
 
 const formatNum = (num?: number) => (num || 0).toLocaleString()
@@ -83,6 +96,30 @@ const Receipt = ({ date, report }: any) => {
   const paymentTypes = useAtomValue(paymentTypesAtom)
   const reportStartDate = useAtomValue(reportStartDateAtom)
   const reportEndDate = useAtomValue(reportEndDateAtom)
+  const qzEnabled = useAtomValue(qzTrayEnabledAtom)
+  const qzMainPrinter = useAtomValue(qzMainPrinterAtom)
+
+  const handlePrint = async () => {
+    if (!qzEnabled) {
+      globalThis.window.print()
+      return
+    }
+    if (!qzMainPrinter) {
+      onError("Үндсэн принтер сонгогдоогүй байна")
+      return
+    }
+    const ok = await ensureQzConnected()
+    if (!ok) {
+      onError(QZ_TRAY_NOT_RUNNING_MESSAGE)
+      return
+    }
+    try {
+      const html = await captureDocumentHtml()
+      await printHtmlToPrinter(qzMainPrinter, html)
+    } catch {
+      onError(QZ_TRAY_NOT_RUNNING_MESSAGE)
+    }
+  }
 
   if (!report) {
     return null
@@ -183,7 +220,23 @@ const Receipt = ({ date, report }: any) => {
     return normalizeText(product.name).toLowerCase().includes("service charge")
   }
 
-  const renderProduct = (product: ReportProduct, ordersAmounts?: any) => {
+  const getProductKey = (product: ReportProduct, fallbackKey: string) => {
+    const productIdentifier =
+      product._id ||
+      product.productId ||
+      product.id ||
+      product.code ||
+      product.name ||
+      "unknown"
+
+    return `${fallbackKey}:${productIdentifier}`
+  }
+
+  const renderProduct = (
+    product: ReportProduct,
+    productKey: string,
+    ordersAmounts?: any
+  ) => {
     const isServiceCharge = isServiceChargeProduct(product)
     const serviceChargeAmount = getServiceChargeAmount(
       ordersAmounts?.totalAmount,
@@ -193,7 +246,7 @@ const Receipt = ({ date, report }: any) => {
     return (
       <div
         className="report-print__product"
-        key={product.code || product.name}
+        key={getProductKey(product, productKey)}
       >
         <div className="report-print__product-name">
           {getProductLabel(product)}
@@ -212,10 +265,17 @@ const Receipt = ({ date, report }: any) => {
     )
   }
 
-  const renderCategory = (category: any, ordersAmounts?: any) => {
+  const renderCategory = (
+    category: any,
+    categoryKey: string,
+    ordersAmounts?: any
+  ) => {
+    const categoryIdentifier =
+      category._id || category.id || category.code || category.name || "unknown"
+
     return (
-      <>
-        <div key={Math.random()} className="report-print__category">
+      <Fragment key={`${categoryKey}:${categoryIdentifier}`}>
+        <div className="report-print__category">
           <b className="font-semibold">
             {`Барааны бүлэг: `} {category.name}
           </b>
@@ -226,22 +286,24 @@ const Receipt = ({ date, report }: any) => {
         </div>
 
         {Object.keys(category.products).map((p) =>
-          renderProduct(category.products[p], ordersAmounts)
+          renderProduct(category.products[p], p, ordersAmounts)
         )}
-      </>
+      </Fragment>
     )
   }
 
-  const renderUser = (item: any) => {
+  const renderUser = (item: any, userId: string) => {
+    const key = item.user?._id || item.user?.email || userId
+
     return (
-      <div key={Math.random()} className="block report-print__user">
+      <div key={key} className="block report-print__user">
         <b className="font-semibold flex-v-center">
           <span>{`Хэрэглэгч: `}</span>
           <span>{item.user.email}</span>
         </b>
         {renderAmounts(item.ordersAmounts)}
         {Object.keys(item.items).map((i) =>
-          renderCategory(item.items[i], item.ordersAmounts)
+          renderCategory(item.items[i], i, item.ordersAmounts)
         )}
       </div>
     )
@@ -251,36 +313,42 @@ const Receipt = ({ date, report }: any) => {
 
   return (
     <PrintLayout>
-      <div className="report-print">
-        <header className="block pb-2 border-b border-black/15">
-          <div className="report-print__title">Өдрийн тайлан</div>
-          <p className="report-print__meta">
-            Хамаарах:{" "}
-            <b className="font-semibold">
-              {format(reportStartDate || new Date(), "yyyy.MM.dd HH:mm")} -{" "}
-              {format(reportEndDate || new Date(), "yyyy.MM.dd HH:mm")}
-            </b>
-          </p>
-          <p className="report-print__meta">
-            Хэвлэсэн:{" "}
-            <b className="font-semibold">
-              {format(new Date(), "yyyy.MM.dd HH:mm")}
-            </b>
-          </p>
-        </header>
-        {Object.keys(report || {}).map((userId) => renderUser(report[userId]))}
-        <footer className="space-y-1 report-print__signature">
-          <label className="font-semibold">Гарын үсэг:</label>
-          <span> _____________________</span>
-        </footer>
+      <div className="flex min-h-[calc(100vh-1rem)] flex-col print:block print:min-h-0">
+        <div className="report-print">
+          <header className="block pb-2 border-b border-black/15">
+            <div className="report-print__title">Өдрийн тайлан</div>
+            <p className="report-print__meta">
+              Хамаарах:{" "}
+              <b className="font-semibold">
+                {format(reportStartDate || new Date(), "yyyy.MM.dd HH:mm")} -{" "}
+                {format(reportEndDate || new Date(), "yyyy.MM.dd HH:mm")}
+              </b>
+            </p>
+            <p className="report-print__meta">
+              Хэвлэсэн:{" "}
+              <b className="font-semibold">
+                {format(new Date(), "yyyy.MM.dd HH:mm")}
+              </b>
+            </p>
+          </header>
+          {Object.keys(report || {}).map((userId) =>
+            renderUser(report[userId], userId)
+          )}
+          <footer className="space-y-1 report-print__signature">
+            <label className="font-semibold">Гарын үсэг:</label>
+            <span> _____________________</span>
+          </footer>
+        </div>
 
-        <Button
-          onClick={() => window.print()}
-          className="print:hidden fixed bottom-4 w-full max-w-[70mm] mx-auto px-2 z-10"
-          size="sm"
-        >
-          Хэвлэх
-        </Button>
+        <div className="sticky bottom-4 z-10 mt-auto px-4 pb-4 print:hidden">
+          <Button
+            onClick={handlePrint}
+            className="h-9 w-full px-3 text-xs shadow-md"
+            size="sm"
+          >
+            Хэвлэх
+          </Button>
+        </div>
       </div>
     </PrintLayout>
   )

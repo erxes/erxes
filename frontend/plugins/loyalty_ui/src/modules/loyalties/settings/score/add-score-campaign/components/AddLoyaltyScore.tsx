@@ -7,19 +7,23 @@ import {
 } from '../../constants/formSchema';
 import { LoyaltyScoreAddCoreFields } from './LoyaltyScoreAddCoreFields';
 import { LoyaltyScoreAddMoreFields } from './LoyaltyScoreAddMoreFields';
-import { AddScoreVariables, useAddScore } from '../hooks/useAddLoyaltyScore';
+import {
+  AddScoreCampaignVariables,
+  useAddScoreCampaign,
+} from '../hooks/useAddLoyaltyScore';
 
 export function AddLoyaltyScoreForm({
   onOpenChange,
 }: Readonly<{
   onOpenChange: (open: boolean) => void;
 }>) {
-  const { scoreAdd, loading: editLoading } = useAddScore();
+  const { scoreCampaignAdd, loading: editLoading } = useAddScoreCampaign();
   const form = useForm<LoyaltyScoreFormValues>({
     resolver: zodResolver(loyaltyScoreFormSchema),
     defaultValues: {
       title: '',
       description: '',
+      order: undefined,
       conditions: {
         serviceName: '',
         productCategoryIds: [],
@@ -37,6 +41,7 @@ export function AddLoyaltyScoreForm({
       },
       add: { placeholder: '', currencyRatio: '' },
       subtract: { placeholder: '', currencyRatio: '' },
+      set: { placeholder: '', currencyRatio: '' },
       ownerType: '',
       onlyClientPortal: false,
       fieldGroupId: '',
@@ -54,9 +59,10 @@ export function AddLoyaltyScoreForm({
         refundStageIds: rule.refundStageIds || [],
       }));
 
-    const variables: AddScoreVariables = {
+    const variables: AddScoreCampaignVariables = {
       title: data.title,
       description: data.description || '',
+      order: data.order,
       serviceName: data.conditions.serviceName,
       restrictions: {
         productCategoryIds: data.conditions.productCategoryIds?.join(','),
@@ -73,6 +79,7 @@ export function AddLoyaltyScoreForm({
       },
       add: data.add,
       subtract: data.subtract,
+      set: data.set,
       ownerType: data.ownerType,
       onlyClientPortal: data.onlyClientPortal,
       fieldGroupId: data.fieldGroupId,
@@ -81,7 +88,7 @@ export function AddLoyaltyScoreForm({
       fieldId: data.fieldId,
     };
 
-    scoreAdd({
+    scoreCampaignAdd({
       variables,
       onCompleted: () => {
         form.reset();

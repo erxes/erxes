@@ -25,6 +25,7 @@ export const types = `
     label: String
     contentType: String
     contentTypeId: String
+    type: String
     linkType: MenuLinkType
     kind: String
     icon: String
@@ -51,6 +52,7 @@ export const inputs = `
     label: String
     contentType: String
     contentTypeId: String
+    type: String
     linkType: MenuLinkType
     kind: String
     icon: String

@@ -13,6 +13,7 @@ import {
   IconArticle,
   IconEdit,
   IconTrash,
+  IconGripVertical,
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useConfirm } from 'erxes-ui/hooks/use-confirm';
@@ -129,6 +130,16 @@ export const useMenusColumns = (
   const { isMissing } = useIsTranslationMissing();
 
   return [
+    {
+      id: 'drag',
+      header: () => <span className="sr-only">Reorder</span>,
+      cell: () => (
+        <div className="flex h-full items-center justify-center text-muted-foreground">
+          <IconGripVertical size={16} />
+        </div>
+      ),
+      size: 36,
+    },
     {
       id: 'more',
       header: () => <span className="sr-only">More</span>,

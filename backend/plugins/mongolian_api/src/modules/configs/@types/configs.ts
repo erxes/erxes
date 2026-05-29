@@ -18,6 +18,7 @@ export const MnConfigCodes = [
   'ERKHET',
   'ebarimtConfig',
   'returnEbarimtConfig',
+  'posOrderErkhetConfig',
   'stageInMoveConfig',
   'stageInIncomeConfig',
   'remainderConfig',

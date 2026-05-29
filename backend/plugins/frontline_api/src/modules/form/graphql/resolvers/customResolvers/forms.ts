@@ -40,3 +40,14 @@ export const Form = {
     return models.Channels.findOne({ _id: form.channelId });
   },
 };
+
+export const Submission = {
+  async __resolveReference({ _id }, { models }: IContext) {
+    return models.FormSubmissions.findOne({ _id });
+  },
+  async channelId(submission, _params, { models }: IContext) {
+    if (!submission.formId) return null;
+    const form = await models.Forms.findOne({ _id: submission.formId }).lean();
+    return form?.channelId || null;
+  },
+};

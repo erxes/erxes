@@ -36,10 +36,8 @@ import {
   ILotteryCampaignModel,
   loadLotteryCampaignClass,
 } from '@/lottery/db/models/LotteryCampaign';
-import { IPricingDocument } from '@/pricing/@types/pricing';
 import { IPricingFixedValueDocument } from '@/pricing/@types/pricingFixedValue';
 import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
-import { IPricingModel, loadPricingClass } from '@/pricing/db/models/Pricing';
 import {
   IPricingFixedValueModel,
   loadPricingFixedValueClass,
@@ -85,7 +83,6 @@ export interface IModels {
   Lotteries: ILotteryModel;
   LotteryCampaigns: ILotteryCampaignModel;
   LoyaltyConfigs: ILoyaltyConfigModel;
-  Pricing: IPricingModel;
   PricingPlans: IPricingPlanModel;
   ScoreCampaigns: IScoreCampaignModel;
   ScoreLogs: IScoreLogModel;
@@ -179,13 +176,8 @@ export const loadClasses = (
     loadLoyaltyConfigClass(models),
   );
 
-  models.Pricing = db.model<IPricingDocument, IPricingModel>(
-    'loyalty_pricing',
-    loadPricingClass(models),
-  );
-
   models.PricingPlans = db.model<IPricingPlanDocument, IPricingPlanModel>(
-    'pricing',
+    'pricings',
     loadPricingPlanClass(models),
   );
 

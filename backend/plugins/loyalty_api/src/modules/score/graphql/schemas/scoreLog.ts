@@ -22,6 +22,9 @@ export const types = `
 
     amount: Float
     quantity: Float
+
+    totalScore: Float
+    owner: JSON
   }
 
   type ScoreLog {

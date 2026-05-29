@@ -3,7 +3,7 @@ import {
   IUserDocument,
   Resolver,
 } from 'erxes-api-shared/core-types';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, cursorPaginateAggregation } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 
 interface FilterArgs {
@@ -177,9 +177,115 @@ const formQueries: Record<string, Resolver> = {
     return counts;
   },
 
-  // /**
-  //  * Get one form
-  //  */
+  async formSubmissions(
+    _root,
+    {
+      formId,
+      contentTypeIds,
+      customerId,
+      ...cursorParams
+    }: {
+      formId?: string;
+      tagId?: string;
+      contentTypeIds?: string[];
+      customerId?: string;
+      filters?: Array<{ operator: string; value: any; formFieldId: string }>;
+    } & ICursorPaginateParams,
+    { models }: IContext,
+  ) {
+    const match: Record<string, any> = {};
+
+    if (formId) match.formId = formId;
+    if (customerId) match.customerId = customerId;
+    if (contentTypeIds?.length) match.contentTypeId = { $in: contentTypeIds };
+
+    const pipeline = [
+      { $match: match },
+      {
+        $lookup: {
+          from: 'frontline_form_fields',
+          localField: 'formFieldId',
+          foreignField: '_id',
+          as: '_formField',
+        },
+      },
+      {
+        $addFields: {
+          formFieldText: { $arrayElemAt: ['$_formField.text', 0] },
+          formFieldType: { $arrayElemAt: ['$_formField.type', 0] },
+        },
+      },
+      {
+        $group: {
+          _id: '$groupId',
+          customerId: { $first: '$customerId' },
+          contentTypeId: { $first: '$contentTypeId' },
+          createdAt: { $first: '$submittedAt' },
+          formId: { $first: '$formId' },
+          customFieldsData: { $first: '$customFieldsData' },
+          submissions: {
+            $push: {
+              _id: '$_id',
+              formId: '$formId',
+              formFieldId: '$formFieldId',
+              text: '$formFieldText',
+              formFieldText: '$formFieldText',
+              formFieldType: '$formFieldType',
+              value: '$value',
+              submittedAt: '$submittedAt',
+            },
+          },
+        },
+      },
+    ];
+
+    return cursorPaginateAggregation({
+      model: models.FormSubmissions as any,
+      pipeline,
+      params: { ...cursorParams, orderBy: { createdAt: -1, _id: -1 } },
+    });
+  },
+
+  async formSubmissionDetail(
+    _root,
+    { _id }: { _id: string },
+    { models, user }: IContext,
+  ) {
+    if (!user?._id) throw new Error('Unauthorized');
+    const submissions = await models.FormSubmissions.aggregate([
+      { $match: { groupId: _id } },
+      {
+        $lookup: {
+          from: 'frontline_form_fields',
+          localField: 'formFieldId',
+          foreignField: '_id',
+          as: '_formField',
+        },
+      },
+      {
+        $addFields: {
+          formFieldText: { $arrayElemAt: ['$_formField.text', 0] },
+          formFieldType: { $arrayElemAt: ['$_formField.type', 0] },
+          text: { $arrayElemAt: ['$_formField.text', 0] },
+        },
+      },
+      { $project: { _formField: 0 } },
+    ]);
+
+    if (!submissions.length) return null;
+
+    const first = submissions[0];
+
+    return {
+      _id,
+      contentTypeId: first.contentTypeId,
+      customerId: first.customerId,
+      createdAt: first.submittedAt,
+      customFieldsData: first.customFieldsData,
+      submissions,
+    };
+  },
+
   async formDetail(_root, { _id }: { _id: string }, context) {
     const { models } = context as IContext;
     return models.Forms.findOne({ _id });
@@ -190,196 +296,6 @@ const formQueries: Record<string, Resolver> = {
     return models.Forms.findOne({ _id });
   },
 
-  // async formSubmissions(
-  //   _root,
-  //   {
-  //     formId,
-  //     tagId,
-  //     contentTypeIds,
-  //     customerId,
-  //     filters,
-  //     page,
-  //     perPage,
-  //   }: {
-  //     formId: string;
-  //     tagId: string;
-  //     contentTypeIds: string[];
-  //     customerId: string;
-  //     filters: IFormSubmissionFilter[];
-  //     page: number;
-  //     perPage: number;
-  //   },
-  //   { subdomain, models }: IContext,
-  // ) {
-  //   // const convsSelector = await formSubmissionsQuery(subdomain, models, {
-  //   //   formId,
-  //   //   tagId,
-  //   //   contentTypeIds,
-  //   //   customerId,
-  //   //   filters,
-  //   // });
-
-  //   // const conversations = await sendInboxMessage({
-  //   //   subdomain,
-  //   //   action: 'getConversationsList',
-  //   //   data: { query: convsSelector, listParams: { page, perPage } },
-  //   //   isRPC: true,
-  //   //   defaultValue: [],
-  //   // });
-
-  //   // const result: any[] = [];
-
-  //   // for (const conversation of conversations) {
-  //   //   const submissions = await models.FormSubmissions.find({
-  //   //     contentTypeId: conversation._id,
-  //   //   }).lean();
-
-  //   //   conversation.contentTypeId = conversation._id;
-  //   //   conversation.submissions = submissions;
-  //   //   result.push(conversation);
-  //   // }
-
-  //   // return result;
-
-  //   try {
-  //     // Calculate pagination params
-  //     const skip = (page - 1) * perPage;
-
-  //     // Fetch grouped submissions by groupId, with pagination
-  //     const submissions = await models.FormSubmissions.aggregate([
-  //       { $match: { formId } }, // Match submissions by formId
-  //       {
-  //         $group: {
-  //           _id: '$groupId', // Group by groupId (unique per user submission group)
-  //           submissions: {
-  //             $push: {
-  //               _id: '$_id',
-  //               formId: '$formId',
-  //               formFieldId: '$formFieldId',
-  //               text: '$text',
-  //               formFieldText: '$formFieldText',
-  //               value: '$value',
-  //               submittedAt: '$submittedAt',
-  //             },
-  //           },
-  //           customerId: { $first: '$customerId' }, // Take the first customerId in the group
-  //           contentTypeId: { $first: '$contentTypeId' }, // Take the first contentTypeId
-  //           createdAt: { $first: '$submittedAt' }, // Take the earliest submission date
-  //           customFieldsData: { $first: '$customFieldsData' }, // First customFieldsData
-  //         },
-  //       },
-  //       { $skip: skip }, // Skip for pagination
-  //       { $limit: perPage }, // Limit for pagination
-  //     ]);
-
-  //     // Return single submission per groupId
-  //     return submissions.map((submission) => ({
-  //       _id: submission._id, // The groupId is used as the _id
-  //       contentTypeId: submission._id,
-  //       customerId: submission.customerId,
-  //       // Assuming Customer schema
-  //       createdAt: submission.createdAt,
-  //       customFieldsData: submission.customFieldsData,
-  //       submissions: submission.submissions, // All grouped form submissions
-  //     }));
-  //   } catch (error) {
-  //     throw new Error('Error fetching form submissions');
-  //   }
-  // },
-
-  // async formSubmissionsTotalCount(
-  //   _root,
-  //   {
-  //     formId,
-  //     tagId,
-  //     contentTypeIds,
-  //     customerId,
-  //     filters,
-  //   }: {
-  //     formId: string;
-  //     tagId: string;
-  //     contentTypeIds: string[];
-  //     customerId: string;
-  //     filters: IFormSubmissionFilter[];
-  //   },
-  //   { models }: IContext,
-  // ) {
-  //   const result = await models.FormSubmissions.aggregate([
-  //     // Step 1: Filter submissions with contentType "lead"
-  //     {
-  //       $match: {
-  //         formId,
-  //       },
-  //     },
-  //     // Step 2: Group by both groupId and customerId to get unique submissions per user
-  //     {
-  //       $group: {
-  //         _id: {
-  //           groupId: '$groupId', // Group by groupId // Ensure unique by customerId (user)
-  //         },
-  //       },
-  //     },
-  //     // Step 3: Group by groupId to count unique submissions
-  //     {
-  //       $count: 'totalUniqueCount', // Return the total number of unique submissions
-  //     },
-  //   ]);
-
-  //   return result[0].totalUniqueCount;
-  // },
-
-  // formSubmissionDetail: async (
-  //   _root,
-  //   params,
-  //   { models, subdomain }: IContext,
-  // ) => {
-  //   const { contentTypeId } = params;
-
-  //   const conversation = await models.Conversations.findOne({
-  //     _id: contentTypeId,
-  //   });
-
-  //   if (!conversation) {
-  //     return null;
-  //   }
-
-  //   const submissions = await models.FormSubmissions.find({
-  //     contentTypeId,
-  //   }).lean();
-
-  //   return {
-  //     ...conversation,
-  //     submissions,
-  //   };
-  // },
-
-  // async formsGetContentTypes() {
-  //   // const services = await getServices();
-  //   // const formTypes: Array<{
-  //   //   title: string;
-  //   //   description: string;
-  //   //   contentType: string;
-  //   //   icon: string;
-  //   // }> = [
-  //   //   {
-  //   //     title: 'Lead generation',
-  //   //     description: 'Generate leads through the form',
-  //   //     contentType: 'leads',
-  //   //     icon: 'users-alt',
-  //   //   },
-  //   // ];
-  //   // for (const serviceName of services) {
-  //   //   const service = await getService(serviceName);
-  //   //   const meta = service.config?.meta || {};
-  //   //   if (meta && meta.forms) {
-  //   //     const { form = undefined } = meta.forms;
-  //   //     if (form) {
-  //   //       formTypes.push(form);
-  //   //     }
-  //   //   }
-  //   // }
-  //   // return formTypes;
-  // },
 };
 
 export default formQueries;

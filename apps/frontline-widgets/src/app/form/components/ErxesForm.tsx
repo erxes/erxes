@@ -13,7 +13,7 @@ import {
   Textarea,
   Upload,
 } from 'erxes-ui';
-import { IFormFieldLogic, IFormStep } from '../types/formTypes';
+import { IAttachment, IFormFieldLogic, IFormStep } from '../types/formTypes';
 import { useForm } from 'react-hook-form';
 import { useErxesForm } from '../context/erxesFormContext';
 import { ErxesSteps } from './steps';
@@ -21,6 +21,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   activeStepAtom,
   browserInfoAtom,
+  customerIdAtom,
   formValuesAtom,
   showConfirmationAtom,
 } from '../states/erxesFormStates';
@@ -30,6 +31,7 @@ import { useFormWidgetLead } from '../hooks/useFormWidgetLead';
 import { ComboboxField } from './ComboboxField';
 import { SelectField } from './SelectField';
 import { useParams } from 'react-router-dom';
+import React from 'react';
 
 const checkLogic = (
   logic: IFormFieldLogic,
@@ -103,9 +105,15 @@ export const ErxesForm = ({
   const browserInfo = useAtomValue(browserInfoAtom) || {};
   const { id } = useParams<{ id: string }>();
   const { saveLead, loading: saveLeadLoading } = useFormWidgetLead();
+  const [customerId, setCustomerId] = useAtom(customerIdAtom);
   const fields = formData.fields.filter(
     (field) => field.pageNumber === step.order,
   );
+  const [attachments, setAttachments] = React.useState<IAttachment[]>([]);
+
+  const addAttachment = (attachment: IAttachment) => {
+    setAttachments((prev) => [...prev, attachment]);
+  };
 
   const loadType = formData?.leadData?.loadType;
   const isPopup = loadType === 'popup';
@@ -156,10 +164,12 @@ export const ErxesForm = ({
           };
         }),
         browserInfo,
+        cachedCustomerId: customerId || undefined,
       },
-      onCompleted: () => {
+      onCompleted: (data) => {
         setFormValues({});
         setShowConfirmation(true);
+        setCustomerId(data?.widgetsSaveLead?.customerId || '');
       },
     });
   };
@@ -178,7 +188,7 @@ export const ErxesForm = ({
               'max-h-[600px] min-h-[400px] flex flex-col overflow-y-hidden':
                 id || isPopup,
             },
-            'p-2 bg-background/40 [&_h3]:text-accent-foreground',
+            'p-2 bg-background/40 [&_h3]:text-foreground',
           )}
         >
           {stepsLength > 1 && (
@@ -218,16 +228,24 @@ export const ErxesForm = ({
                       if (erxesField.type === 'number') {
                         return (
                           <ErxesFormItem span={erxesField.column}>
-                            <Form.Label>{erxesField.text}</Form.Label>
+                            <Form.Label className="text-widget-label">
+                              {erxesField.text}
+                              {erxesField.isRequired && (
+                                <span className="text-destructive"> *</span>
+                              )}
+                            </Form.Label>
                             <Input.Number
                               value={field.value}
                               onChange={(value) => field.onChange(value)}
                               placeholder={erxesField.text}
+                              required={erxesField.isRequired}
                             />
                             {erxesField.description && (
-                              <Form.Description>
-                                {erxesField.description}
-                              </Form.Description>
+                              <Form.Description
+                                dangerouslySetInnerHTML={{
+                                  __html: erxesField.description,
+                                }}
+                              />
                             )}
                             <Form.Message />
                           </ErxesFormItem>
@@ -241,28 +259,49 @@ export const ErxesForm = ({
                           >
                             <div className="flex items-center gap-2 h-8">
                               <Form.Control>
-                                <Switch {...field} />
+                                <Switch
+                                  {...field}
+                                  checked={field.value}
+                                  onCheckedChange={(checked) =>
+                                    field.onChange(checked)
+                                  }
+                                  required={erxesField.isRequired}
+                                />
                               </Form.Control>
                               <Form.Label variant="peer">
                                 {erxesField.text}
+                                {erxesField.isRequired && (
+                                  <span className="text-destructive"> *</span>
+                                )}
                               </Form.Label>
                             </div>
                             <Form.Message />
                           </ErxesFormItem>
                         );
                       }
-                      if (erxesField.type === 'textarea') {
+                      if (
+                        erxesField.type === 'textarea' ||
+                        erxesField.type === 'core:customer:description'
+                      ) {
                         return (
                           <ErxesFormItem span={erxesField.column}>
-                            <Form.Label>{erxesField.text}</Form.Label>
+                            <Form.Label className="text-widget-label">
+                              {erxesField.text}
+                              {erxesField.isRequired && (
+                                <span className="text-destructive"> *</span>
+                              )}
+                            </Form.Label>
                             <Textarea
                               {...field}
                               placeholder={erxesField.text}
+                              required={erxesField.isRequired}
                             />
                             {erxesField.description && (
-                              <Form.Description>
-                                {erxesField.description}
-                              </Form.Description>
+                              <Form.Description
+                                dangerouslySetInnerHTML={{
+                                  __html: erxesField.description,
+                                }}
+                              />
                             )}
                             <Form.Message />
                           </ErxesFormItem>
@@ -286,10 +325,18 @@ export const ErxesForm = ({
                         );
                       }
 
-                      if (erxesField.type === 'radio') {
+                      if (
+                        erxesField.type === 'radio' ||
+                        erxesField.type === 'core:customer:sex'
+                      ) {
                         return (
                           <ErxesFormItem span={erxesField.column}>
-                            <Form.Label>{erxesField.text}</Form.Label>
+                            <Form.Label className="text-widget-label">
+                              {erxesField.text}
+                              {erxesField.isRequired && (
+                                <span className="text-destructive"> *</span>
+                              )}
+                            </Form.Label>
                             <Form.Control>
                               <RadioGroup
                                 value={field.value}
@@ -303,6 +350,7 @@ export const ErxesForm = ({
                                     <RadioGroup.Item
                                       value={option}
                                       id={`${erxesField._id}-${option}`}
+                                      required={erxesField.isRequired}
                                     />
                                     <Label
                                       htmlFor={`${erxesField._id}-${option}`}
@@ -315,9 +363,11 @@ export const ErxesForm = ({
                               </RadioGroup>
                             </Form.Control>
                             {erxesField.description && (
-                              <Form.Description>
-                                {erxesField.description}
-                              </Form.Description>
+                              <Form.Description
+                                dangerouslySetInnerHTML={{
+                                  __html: erxesField.description,
+                                }}
+                              />
                             )}
                             <Form.Message />
                           </ErxesFormItem>
@@ -327,7 +377,12 @@ export const ErxesForm = ({
                       if (erxesField.type === 'check') {
                         return (
                           <ErxesFormItem span={erxesField.column}>
-                            <Form.Label>{erxesField.text}</Form.Label>
+                            <Form.Label className="text-widget-label">
+                              {erxesField.text}
+                              {erxesField.isRequired && (
+                                <span className="text-destructive"> *</span>
+                              )}
+                            </Form.Label>
                             <div className="flex flex-col gap-2">
                               {erxesField.options.map((option) => {
                                 if (!option) return null;
@@ -353,6 +408,7 @@ export const ErxesForm = ({
                                               ),
                                         );
                                       }}
+                                      required={erxesField.isRequired}
                                     />
                                     <Label
                                       htmlFor={`${erxesField._id}-${option}`}
@@ -365,27 +421,47 @@ export const ErxesForm = ({
                               })}
                             </div>
                             {erxesField.description && (
-                              <Form.Description>
-                                {erxesField.description}
-                              </Form.Description>
+                              <Form.Description
+                                dangerouslySetInnerHTML={{
+                                  __html: erxesField.description,
+                                }}
+                              />
                             )}
                             <Form.Message />
                           </ErxesFormItem>
                         );
                       }
 
-                      if (erxesField.type === 'date') {
+                      if (
+                        erxesField.type === 'date' ||
+                        erxesField.type === 'core:customer:birthDate'
+                      ) {
                         return (
                           <ErxesFormItem span={erxesField.column}>
-                            <Form.Label>{erxesField.text}</Form.Label>
-                            <DatePicker
-                              {...field}
-                              placeholder={erxesField.text}
-                            />
+                            <Form.Label className="text-widget-label">
+                              {erxesField.text}
+                              {erxesField.isRequired && (
+                                <span className="text-destructive"> *</span>
+                              )}
+                            </Form.Label>
+                            <Form.Control>
+                              <DatePicker
+                                value={
+                                  field.value
+                                    ? new Date(field.value)
+                                    : undefined
+                                }
+                                onChange={(date) => field.onChange(date)}
+                                placeholder={erxesField.text}
+                                mode="single"
+                              />
+                            </Form.Control>
                             {erxesField.description && (
-                              <Form.Description>
-                                {erxesField.description}
-                              </Form.Description>
+                              <Form.Description
+                                dangerouslySetInnerHTML={{
+                                  __html: erxesField.description,
+                                }}
+                              />
                             )}
                             <Form.Message />
                           </ErxesFormItem>
@@ -393,44 +469,174 @@ export const ErxesForm = ({
                       }
 
                       if (erxesField.type === 'file') {
-                        const urls: string[] = Array.isArray(field.value)
-                          ? field.value
-                          : [];
                         return (
                           <ErxesFormItem span={erxesField.column}>
-                            <Form.Label>{erxesField.text}</Form.Label>
+                            <Form.Label className="text-widget-label">
+                              {erxesField.text}
+                              {erxesField.isRequired && (
+                                <span className="text-destructive"> *</span>
+                              )}
+                            </Form.Label>
                             <Form.Control>
                               <Upload.Root
-                                value={field.value}
-                                onChange={field.onChange}
+                                value={
+                                  Array.isArray(field.value)
+                                    ? field.value[field.value.length - 1] ?? ''
+                                    : field.value ?? ''
+                                }
+                                onChange={(fileInfo) => {
+                                  if (typeof fileInfo === 'string') {
+                                    field.onChange([]);
+                                  } else if ('url' in fileInfo) {
+                                    addAttachment(fileInfo as any);
+                                    const current: string[] = Array.isArray(
+                                      field.value,
+                                    )
+                                      ? field.value
+                                      : [];
+                                    field.onChange([
+                                      ...current,
+                                      fileInfo.url as string,
+                                    ]);
+                                  }
+                                }}
                                 multiple
                               >
                                 <Upload.Preview className="rounded-full" />
-                                <Upload.Button type="button">
-                                  {erxesField.content || 'Upload filez'}
+                                <Upload.Button
+                                  type="button"
+                                  variant={'outline'}
+                                  size={'sm'}
+                                >
+                                  {erxesField.content || 'Upload file'}
                                 </Upload.Button>
-                                <Upload.RemoveButton />
+                                {Array.isArray(field.value) &&
+                                  field.value.length > 0 && (
+                                    <Upload.RemoveButton
+                                      variant={'destructive'}
+                                      size={'sm'}
+                                    />
+                                  )}
                               </Upload.Root>
                             </Form.Control>
                             {erxesField.description && (
-                              <Form.Description>
-                                {erxesField.description}
-                              </Form.Description>
+                              <Form.Description
+                                dangerouslySetInnerHTML={{
+                                  __html: erxesField.description,
+                                }}
+                              />
+                            )}
+                            <Form.Message />
+                          </ErxesFormItem>
+                        );
+                      }
+                      if (erxesField.type === 'core:customer:avatar') {
+                        return (
+                          <ErxesFormItem span={erxesField.column}>
+                            <Form.Label className="text-widget-label">
+                              {erxesField.text}
+                              {erxesField.isRequired && (
+                                <span className="text-destructive"> *</span>
+                              )}
+                            </Form.Label>
+                            <Form.Control>
+                              <Upload.Root
+                                value={field.value}
+                                onChange={(fileInfo) => {
+                                  if (typeof fileInfo === 'string') {
+                                    field.onChange('');
+                                  } else if ('url' in fileInfo) {
+                                    field.onChange(fileInfo.url);
+                                  }
+                                }}
+                              >
+                                <Upload.Preview className="rounded-full" />
+                                <Upload.Button
+                                  type="button"
+                                  variant={'outline'}
+                                  size={'sm'}
+                                >
+                                  {erxesField.content || 'Upload file'}
+                                </Upload.Button>
+                                {field.value && (
+                                  <Upload.RemoveButton
+                                    variant={'destructive'}
+                                    size={'sm'}
+                                  />
+                                )}
+                              </Upload.Root>
+                            </Form.Control>
+                            {erxesField.description && (
+                              <Form.Description
+                                dangerouslySetInnerHTML={{
+                                  __html: erxesField.description,
+                                }}
+                              />
                             )}
                             <Form.Message />
                           </ErxesFormItem>
                         );
                       }
 
+                      if (
+                        erxesField.type === 'core:customer:firstName' ||
+                        erxesField.type === 'core:customer:lastName' ||
+                        erxesField.type === 'core:customer:middleName' ||
+                        erxesField.type === 'core:customer:phone'
+                      ) {
+                        return (
+                          <ErxesFormItem span={erxesField.column}>
+                            <Form.Label
+                              htmlFor={erxesField._id}
+                              className="text-widget-label"
+                            >
+                              {erxesField.text}
+                              {erxesField.isRequired && (
+                                <span className="text-destructive"> *</span>
+                              )}
+                            </Form.Label>
+                            {erxesField.description && (
+                              <Form.Description
+                                dangerouslySetInnerHTML={{
+                                  __html: erxesField.description,
+                                }}
+                              />
+                            )}
+                            <Input
+                              {...field}
+                              id={erxesField._id}
+                              name={erxesField.type.split(':').slice(-1)[0]}
+                              placeholder={erxesField.content}
+                              required={erxesField.isRequired}
+                            />
+                            <Form.Message />
+                          </ErxesFormItem>
+                        );
+                      }
                       return (
                         <ErxesFormItem span={erxesField.column}>
-                          <Form.Label>{erxesField.text}</Form.Label>
-                          <Input {...field} placeholder={erxesField.text} />
+                          <Form.Label
+                            htmlFor={erxesField._id}
+                            className="text-widget-label"
+                          >
+                            {erxesField.text}
+                            {erxesField.isRequired && (
+                              <span className="text-destructive"> *</span>
+                            )}
+                          </Form.Label>
                           {erxesField.description && (
-                            <Form.Description>
-                              {erxesField.description}
-                            </Form.Description>
+                            <Form.Description
+                              dangerouslySetInnerHTML={{
+                                __html: erxesField.description,
+                              }}
+                            />
                           )}
+                          <Input
+                            {...field}
+                            id={erxesField._id}
+                            placeholder={erxesField.content}
+                            required={erxesField.isRequired}
+                          />
                           <Form.Message />
                         </ErxesFormItem>
                       );

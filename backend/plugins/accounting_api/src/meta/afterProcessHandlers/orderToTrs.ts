@@ -6,18 +6,25 @@ import {
   TR_SIDES,
   TR_STATUSES,
 } from '~/modules/accounting/@types/constants';
+import { ITransaction } from '~/modules/accounting/@types/transaction';
 import {
-  ITransaction,
-  ITransactionDocument,
-} from '~/modules/accounting/@types/transaction';
+  calcAccountingProductsTaxRule,
+  calcOrderPreTaxPercent,
+  ensureCtaxRowByProductRule,
+  getOrderPaymentTypes,
+  getProductsByIds,
+  subtractPreTaxAmount,
+} from './taxRules';
 import { getJournal } from './utils';
 
 export const orderToTrs = async ({
+  subdomain,
   models,
   userId,
   order,
   config,
 }: {
+  subdomain: string;
   models: IModels;
   userId: string;
   order: any;
@@ -35,6 +42,8 @@ export const orderToTrs = async ({
     payments: Record<string, { accountId: string }>;
     defaultPayment: { accountId: string };
     defaultNegPayment: { accountId: string };
+    reverseVatRules?: string[];
+    reverseCtaxRules?: string[];
     trStatus?: string;
   };
 }) => {
@@ -47,7 +56,6 @@ export const orderToTrs = async ({
   let mainId = nanoid();
   let ptrId = nanoid();
   let parentId = mainId;
-  let oldOtherTrs: ITransactionDocument[] = [];
 
   const [contentType, contentId] = ['sales:order', order._id];
   const number = order.number;
@@ -58,12 +66,6 @@ export const orderToTrs = async ({
     journal: JOURNALS.INV_SALE,
   }).lean();
   if (oldTrs?.length) {
-    const parentIds = [...new Set(oldTrs.map((otr) => otr.parentId))];
-    oldOtherTrs = await models.Transactions.find({
-      parentId: { $in: parentIds },
-      originId: { $in: [null, ''] },
-      contentId: { $in: [null, ''] },
-    }).lean();
     if (config.dateRule === 'syncedDateOrNow') {
       date = oldTrs[0].date;
     }
@@ -96,19 +98,41 @@ export const orderToTrs = async ({
     details: [],
   };
 
-  let taxPercent = 0;
+  const paymentTypes = await getOrderPaymentTypes(subdomain, order);
+  const { itemAmountPrePercent, preTaxPaymentTypes } = calcOrderPreTaxPercent(
+    paymentTypes,
+    order,
+  );
+
+  const products = await getProductsByIds(
+    subdomain,
+    activeProductsData.map((item) => item.productId),
+  );
+  const { productIdsByVatRule, productIdsByCtaxRule, ctaxRuleByProductId } =
+    await calcAccountingProductsTaxRule(subdomain, config, products);
+
+  const hasVat = config.hasVat && config.vatRowId;
+  const firstCtaxRule = Object.values(ctaxRuleByProductId)[0];
+  const reverseCtaxRow = config.hasCtax ? undefined
+    : await ensureCtaxRowByProductRule(models, firstCtaxRule);
+
+  const ctaxRowId = config.hasCtax ? config.ctaxRowId : reverseCtaxRow?._id;
+  const hasCtax = !!ctaxRowId && (config.hasCtax || productIdsByCtaxRule.size);
+
+  let vatPercent = 0;
+  let ctaxPercent = 0;
   if (config.hasVat && config.vatRowId) {
     const vatRow = await models.VatRows.getVatRow({ _id: config.vatRowId });
-    taxPercent += fixNum(vatRow?.percent ?? 0);
-    saleTrDoc.hasVat = config.hasVat;
+    vatPercent = fixNum(vatRow?.percent ?? 0);
+    saleTrDoc.hasVat = true;
     saleTrDoc.vatRowId = config.vatRowId;
   }
 
-  if (config.hasCtax && config.ctaxRowId) {
-    const ctaxRow = await models.VatRows.getVatRow({ _id: config.ctaxRowId });
-    taxPercent += fixNum(ctaxRow?.percent ?? 0);
-    saleTrDoc.hasCtax = config.hasCtax;
-    saleTrDoc.ctaxRowId = config.ctaxRowId;
+  if (hasCtax) {
+    const ctaxRow = await models.CtaxRows.getCtaxRow({ _id: ctaxRowId });
+    ctaxPercent = fixNum(ctaxRow?.percent ?? 0);
+    saleTrDoc.hasCtax = true;
+    saleTrDoc.ctaxRowId = ctaxRowId;
   }
 
   let diffAmount = 0;
@@ -116,10 +140,22 @@ export const orderToTrs = async ({
     if (!productData.count) {
       continue;
     }
-    const firstAmount = productData.count * productData.unitPrice;
+    const firstAmount = subtractPreTaxAmount(
+      productData.count * productData.unitPrice,
+      itemAmountPrePercent,
+    );
     diffAmount = diffAmount + firstAmount;
+    const excludeVat =
+      !!hasVat && productIdsByVatRule.has(productData.productId);
+    const includeCtax =
+      !!hasCtax &&
+      (config.hasCtax || productIdsByCtaxRule.has(productData.productId));
+    const excludeCtax = !!hasCtax && !includeCtax;
+    const productTaxPercent =
+      (hasVat && !excludeVat ? vatPercent : 0) +
+      (hasCtax && !excludeCtax ? ctaxPercent : 0);
     const taxAmount = fixNum(
-      (firstAmount * taxPercent) / (100 + taxPercent),
+      (firstAmount * productTaxPercent) / (100 + productTaxPercent),
       8,
     );
     const amount = fixNum(firstAmount - taxAmount, 8);
@@ -134,20 +170,26 @@ export const orderToTrs = async ({
 
       productId: productData.productId,
       count: productData.count,
-      unitPrice: fixNum(amount / productData.count),
+      unitPrice: fixNum(amount / productData.count, 4),
+      excludeVat,
+      excludeCtax,
     });
   }
 
   const paymentTrs: ITransaction[] = [];
-  const paidAmounts = [...order.paidAmounts];
+  const paidAmounts = [...(order.paidAmounts || [])];
   if (order.cashAmount) {
     paidAmounts.push({ type: 'cash', amount: order.cashAmount });
   }
   if (order.mobileAmount) {
-    paidAmounts.push({ type: 'cash', amount: order.mobileAmount });
+    paidAmounts.push({ type: 'mobile', amount: order.mobileAmount });
   }
   for (const paid of paidAmounts) {
     const { amount, type } = paid;
+    if (preTaxPaymentTypes.includes(type)) {
+      continue;
+    }
+
     const payConfig = config.payments[type];
     if (!payConfig) {
       continue;
@@ -238,13 +280,13 @@ export const orderToTrs = async ({
 
     await models.Transactions.updatePTransaction(
       parentId,
-      [{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs],
+      [{ ...saleTrDoc }, ...paymentTrs],
       userId,
       { skipAccountPermission: true },
     );
   } else {
     await models.Transactions.createPTransaction(
-      [{ ...saleTrDoc }, ...paymentTrs, ...oldOtherTrs],
+      [{ ...saleTrDoc }, ...paymentTrs],
       userId,
       { skipAccountPermission: true },
     );

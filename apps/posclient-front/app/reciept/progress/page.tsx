@@ -8,6 +8,9 @@ import {
   categoriesToPrintAtom,
   printOnlyNewItemsAtom,
   printSeparatelyAtom,
+  qzCategoryPrintersAtom,
+  qzMainPrinterAtom,
+  qzTrayEnabledAtom,
 } from "@/store"
 import { configAtom } from "@/store/config.store"
 import { useLazyQuery, useQuery } from "@apollo/client"
@@ -16,9 +19,16 @@ import { useAtomValue } from "jotai"
 
 import type { OrderItem } from "@/types/order.types"
 import { ICategory } from "@/types/product.types"
+import { captureDocumentHtml } from "@/lib/captureHtml"
 import { ORDER_ITEM_STATUSES } from "@/lib/constants"
+import {
+  ensureQzConnected,
+  printHtmlToPrinter,
+  QZ_TRAY_NOT_RUNNING_MESSAGE,
+} from "@/lib/qzTray"
 import { formatNum } from "@/lib/utils"
 import { Separator } from "@/components/ui/separator"
+import { onError } from "@/components/ui/use-toast"
 
 type CategoryOrdersByProductQueryResult = {
   poscProducts?: Array<{
@@ -33,6 +43,82 @@ type CategoryOrdersByProductQueryVariables = {
   ids?: string[]
 }
 
+type PrintOptions = {
+  closeAfterPrint?: boolean
+  onPrinted?: () => void
+}
+
+type ReceiptPrintGroup = {
+  items: OrderItem[]
+  title: string
+}
+
+const BROWSER_PRINT_DELAY_MS = 100
+const QZ_CUSTOMER_PRINT_DELAY_MS = 50
+const QZ_GROUP_PRINT_DELAY_MS = 200
+const SEPARATE_PRINT_DELAY_MS = 800
+
+const wait = (delayMs: number) =>
+  new Promise<void>((resolve) => {
+    setTimeout(resolve, delayMs)
+  })
+
+const hasCategoryFilters = (forCustomer: boolean, categoryOrders: string[][]) =>
+  !forCustomer && categoryOrders.some((group) => group.length > 0)
+
+const getNonEmptyGroupIndexes = (groups: OrderItem[][]) =>
+  groups.reduce<number[]>((indexes, group, index) => {
+    if (group.length > 0) {
+      indexes.push(index)
+    }
+
+    return indexes
+  }, [])
+
+const buildRenderGroups = ({
+  forCustomer,
+  items,
+  itemsToPrint,
+  printSeparately,
+  qzEnabled,
+  currentGroupIndex,
+  groupTitles,
+}: {
+  forCustomer: boolean
+  items?: OrderItem[]
+  itemsToPrint: OrderItem[][]
+  printSeparately: boolean
+  qzEnabled: boolean
+  currentGroupIndex: number | null
+  groupTitles: string[]
+}): ReceiptPrintGroup[] => {
+  if (forCustomer) {
+    return [{ items: items || [], title: "" }]
+  }
+
+  if ((printSeparately || qzEnabled) && currentGroupIndex !== null) {
+    return [
+      {
+        items: itemsToPrint[currentGroupIndex] || [],
+        title: groupTitles[currentGroupIndex],
+      },
+    ]
+  }
+
+  return itemsToPrint
+    .map((group, index) => ({
+      items: group,
+      title: groupTitles[index],
+    }))
+    .filter((group) => group.items.length > 0)
+}
+
+const getRenderGroupKey = (group: ReceiptPrintGroup) => {
+  const itemIds = group.items.map((item) => item._id).join("|")
+
+  return `${group.title || "customer"}-${itemIds || "empty"}`
+}
+
 const Progress = () => {
   const searchParams = useSearchParams()
   const slug = searchParams.get("id")
@@ -42,6 +128,9 @@ const Progress = () => {
   const onlyNewItems = useAtomValue(printOnlyNewItemsAtom)
   const categoryOrders = useAtomValue(categoriesToPrintAtom)
   const printSeparately = useAtomValue(printSeparatelyAtom)
+  const qzEnabled = useAtomValue(qzTrayEnabledAtom)
+  const qzMainPrinter = useAtomValue(qzMainPrinterAtom)
+  const qzCategoryPrinters = useAtomValue(qzCategoryPrintersAtom)
   const { name } = useAtomValue(configAtom) || {}
 
   const [itemsToPrint, setItemsToPrint] = useState<OrderItem[][]>([])
@@ -52,8 +141,10 @@ const Progress = () => {
 
   const hasPrintedRef = useRef(false)
   const latestItemsRef = useRef<OrderItem[]>([])
+  const nextQzGroupPositionRef = useRef(0)
 
   const setGroupedItems = useCallback((groupedItems: OrderItem[][]) => {
+    nextQzGroupPositionRef.current = 0
     setCurrentGroupIndex(null)
     setItemsToPrint(groupedItems)
     setIsCategoryLoaded(true)
@@ -165,28 +256,235 @@ const Progress = () => {
   }, [items])
 
   const handleAfterPrint = useCallback(() => {
-    window.parent.postMessage({ message: "close" }, "*")
+    globalThis.window.parent.postMessage({ message: "close" }, "*")
   }, [])
 
   const triggerPrint = useCallback(
-    (options?: { closeAfterPrint?: boolean; onPrinted?: () => void }) => {
+    (options?: PrintOptions) => {
       setTimeout(() => {
-        window.print()
+        globalThis.window.print()
         options?.onPrinted?.()
 
         if (options?.closeAfterPrint) {
           handleAfterPrint()
         }
-      }, 100)
+      }, BROWSER_PRINT_DELAY_MS)
     },
     [handleAfterPrint]
   )
 
+  const printViaQz = useCallback(async (printerName: string) => {
+    const html = await captureDocumentHtml()
+    await printHtmlToPrinter(printerName, html)
+  }, [])
+
+  const markPrinted = useCallback(() => {
+    if (hasPrintedRef.current) return false
+
+    hasPrintedRef.current = true
+    return true
+  }, [])
+
+  const allowPrintRetry = useCallback(() => {
+    hasPrintedRef.current = false
+  }, [])
+
+  const printWithQz = useCallback(
+    async (printerName: string, delayMs: number) => {
+      const ok = await ensureQzConnected()
+
+      if (!ok) {
+        onError(QZ_TRAY_NOT_RUNNING_MESSAGE)
+        return false
+      }
+
+      try {
+        await wait(delayMs)
+        await printViaQz(printerName)
+        return true
+      } catch {
+        onError(QZ_TRAY_NOT_RUNNING_MESSAGE)
+        return false
+      }
+    },
+    [printViaQz]
+  )
+
+  const printCustomerReceipt = useCallback(() => {
+    if (!qzEnabled) {
+      triggerPrint({ closeAfterPrint: true })
+      return
+    }
+
+    if (!qzMainPrinter) {
+      onError("Үндсэн принтер сонгогдоогүй байна")
+      allowPrintRetry()
+      return
+    }
+
+    void (async () => {
+      const printed = await printWithQz(
+        qzMainPrinter,
+        QZ_CUSTOMER_PRINT_DELAY_MS
+      )
+
+      if (printed) {
+        nextQzGroupPositionRef.current = 0
+        handleAfterPrint()
+        return
+      }
+
+      allowPrintRetry()
+    })()
+  }, [
+    allowPrintRetry,
+    handleAfterPrint,
+    printWithQz,
+    qzEnabled,
+    qzMainPrinter,
+    triggerPrint,
+  ])
+
+  const printQzGroups = useCallback(
+    (nonEmptyIndexes: number[]) => {
+      const completedPosition = nextQzGroupPositionRef.current
+      const remainingIndexes = nonEmptyIndexes.slice(completedPosition)
+
+      if (remainingIndexes.length === 0) {
+        nextQzGroupPositionRef.current = 0
+        handleAfterPrint()
+        return
+      }
+
+      const missingPrinter = remainingIndexes.find(
+        (index) => !(qzCategoryPrinters[index] || "").trim()
+      )
+
+      if (missingPrinter !== undefined) {
+        onError("Принтер сонгогдоогүй байна")
+        allowPrintRetry()
+        return
+      }
+
+      void (async () => {
+        const ok = await ensureQzConnected()
+
+        if (!ok) {
+          onError(QZ_TRAY_NOT_RUNNING_MESSAGE)
+          allowPrintRetry()
+          return
+        }
+
+        try {
+          for (let offset = 0; offset < remainingIndexes.length; offset++) {
+            const index = remainingIndexes[offset]
+            setCurrentGroupIndex(index)
+            await wait(QZ_GROUP_PRINT_DELAY_MS)
+            await printViaQz(qzCategoryPrinters[index])
+            nextQzGroupPositionRef.current = completedPosition + offset + 1
+          }
+
+          nextQzGroupPositionRef.current = 0
+          handleAfterPrint()
+        } catch {
+          onError(QZ_TRAY_NOT_RUNNING_MESSAGE)
+          allowPrintRetry()
+        }
+      })()
+    },
+    [allowPrintRetry, handleAfterPrint, printViaQz, qzCategoryPrinters]
+  )
+
+  const printKitchenWithMainPrinter = useCallback(() => {
+    if (!qzMainPrinter) {
+      onError("Үндсэн принтер сонгогдоогүй байна")
+      allowPrintRetry()
+      return
+    }
+
+    void (async () => {
+      const printed = await printWithQz(qzMainPrinter, QZ_GROUP_PRINT_DELAY_MS)
+
+      if (printed) {
+        nextQzGroupPositionRef.current = 0
+        handleAfterPrint()
+        return
+      }
+
+      allowPrintRetry()
+    })()
+  }, [allowPrintRetry, handleAfterPrint, printWithQz, qzMainPrinter])
+
+  const hasCategoryPrintGroups = useCallback(
+    (nonEmptyIndexes: number[]) =>
+      hasCategoryFilters(forCustomer, categoryOrders) &&
+      nonEmptyIndexes.some((index) => (qzCategoryPrinters[index] || "").trim()),
+    [categoryOrders, forCustomer, qzCategoryPrinters]
+  )
+
+  const printSeparateGroups = useCallback(() => {
+    let index = 0
+
+    const printNext = () => {
+      while (index < itemsToPrint.length && itemsToPrint[index].length === 0) {
+        index++
+      }
+
+      if (index >= itemsToPrint.length) {
+        handleAfterPrint()
+        return
+      }
+
+      const currentIndex = index
+      setCurrentGroupIndex(currentIndex)
+
+      triggerPrint({
+        onPrinted: () => {
+          index = currentIndex + 1
+          setTimeout(printNext, SEPARATE_PRINT_DELAY_MS)
+        },
+      })
+    }
+
+    printNext()
+  }, [handleAfterPrint, itemsToPrint, triggerPrint])
+
+  const printKitchenReceipts = useCallback(() => {
+    if (qzEnabled) {
+      const nonEmptyIndexes = getNonEmptyGroupIndexes(itemsToPrint)
+
+      if (hasCategoryPrintGroups(nonEmptyIndexes)) {
+        printQzGroups(nonEmptyIndexes)
+        return
+      }
+
+      printKitchenWithMainPrinter()
+      return
+    }
+
+    if (printSeparately && itemsToPrint.length > 1) {
+      printSeparateGroups()
+      return
+    }
+
+    triggerPrint({ closeAfterPrint: true })
+  }, [
+    hasCategoryPrintGroups,
+    itemsToPrint,
+    printKitchenWithMainPrinter,
+    printQzGroups,
+    printSeparateGroups,
+    printSeparately,
+    qzEnabled,
+    triggerPrint,
+  ])
+
   useEffect(() => {
     if (loading) return
 
-    const hasFilters = !forCustomer && categoryOrders.some((g) => g.length > 0)
-    if (hasFilters && !isCategoryLoaded) return
+    if (hasCategoryFilters(forCustomer, categoryOrders) && !isCategoryLoaded) {
+      return
+    }
 
     if (forCustomer) {
       if (!items || items.length === 0) {
@@ -194,10 +492,10 @@ const Progress = () => {
         return
       }
 
-      if (hasPrintedRef.current) return
-      hasPrintedRef.current = true
+      if (markPrinted()) {
+        printCustomerReceipt()
+      }
 
-      triggerPrint({ closeAfterPrint: true })
       return
     }
 
@@ -209,71 +507,38 @@ const Progress = () => {
       return
     }
 
-    if (hasPrintedRef.current) return
-    hasPrintedRef.current = true
-
-    if (printSeparately && itemsToPrint.length > 1) {
-      let index = 0
-      const printNext: () => void = () => {
-        if (index >= itemsToPrint.length) {
-          handleAfterPrint()
-          return
-        }
-
-        if (itemsToPrint[index].length === 0) {
-          index++
-          return printNext()
-        }
-
-        setCurrentGroupIndex(index)
-
-        triggerPrint({
-          onPrinted: () => {
-            index++
-            setTimeout(printNext, 800)
-          },
-        })
-      }
-
-      printNext()
-      return
+    if (markPrinted()) {
+      printKitchenReceipts()
     }
-
-    triggerPrint({ closeAfterPrint: true })
   }, [
     itemsToPrint,
     isCategoryLoaded,
-    printSeparately,
     forCustomer,
     items,
     loading,
     categoryOrders,
     handleAfterPrint,
-    triggerPrint,
+    markPrinted,
+    printCustomerReceipt,
+    printKitchenReceipts,
   ])
 
   if (loading) return <div />
 
-  const renderGroups = forCustomer
-    ? [{ items: items || [], title: "" }]
-    : printSeparately && currentGroupIndex !== null
-    ? [
-        {
-          items: itemsToPrint[currentGroupIndex] || [],
-          title: groupTitles[currentGroupIndex],
-        },
-      ]
-    : itemsToPrint
-        .map((g, i) => ({
-          items: g,
-          title: groupTitles[i],
-        }))
-        .filter((g) => g.items.length > 0)
+  const renderGroups = buildRenderGroups({
+    forCustomer,
+    items,
+    itemsToPrint,
+    printSeparately,
+    qzEnabled,
+    currentGroupIndex,
+    groupTitles,
+  })
 
   return (
     <div className="receipt-print space-y-2 text-[11px]">
       {renderGroups.map(({ items: groupItems, title }, i) => (
-        <div key={i}>
+        <div key={getRenderGroupKey({ items: groupItems, title })}>
           {i > 0 && (
             <div className="my-3 border-t border-dashed border-black/20" />
           )}

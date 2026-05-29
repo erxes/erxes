@@ -1,0 +1,36 @@
+# Contract: assemble-context
+# This skill has no traditional inputs/outputs - it is a meta-skill that prepares the environment.
+
+skill:
+  name: assemble-context
+  version: "1.0.0"
+  type: meta
+  description: Auto-assemble working context by loading relevant rules and skills
+
+# No inputs - this skill is always invoked implicitly at the start of work
+inputs: []
+
+# This skill loads ALL applicable rule layers
+rules_required:
+  - constitution
+  - global-rules
+  - frontend-plugin-category
+  - backend-plugin-category
+  - plugin-specific
+
+# No preconditions - this is the first step
+preconditions:
+  - description: "Manifest must exist"
+    check: "test -f .agents/manifest.yaml"
+
+# No postconditions - this skill produces context, not artifacts
+postconditions: []
+
+# This skill is invoked automatically and does not compose with others
+composes_with: []
+
+# Special flags
+meta:
+  auto_invoke: true
+  invocation_order: -1  # Always first
+  scope: global
