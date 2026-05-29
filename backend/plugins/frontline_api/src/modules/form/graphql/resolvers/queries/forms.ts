@@ -26,19 +26,12 @@ const generateFilterQuery = async (
 
   if (channelId) {
     query.channelId = channelId;
-    return query;
-  }
-
-  if (!channelId && !user?.isOwner) {
+  } else if (!user?.isOwner) {
     const channelMemberships = await models.ChannelMembers.find({
       memberId: user._id,
     }).lean();
 
-    let channelIds = channelMemberships.map((m) => m.channelId);
-
-    if (channelId) {
-      channelIds = [channelId];
-    }
+    const channelIds = channelMemberships.map((m) => m.channelId);
 
     if (channelIds.length === 0) {
       return { integrationId: { $in: [] } };
