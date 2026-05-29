@@ -33,9 +33,9 @@ jobs:
       - name: Run OpenCode
         uses: anomalyco/opencode/github@latest
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          KIMI_API_KEY: ${{ secrets.KIMI_API_KEY }}
         with:
-          model: openai/gpt-4.1
+          model: kimi-for-coding/k2p6
           agent: erxes-sentry-fixer
           share: false
           prompt: |
