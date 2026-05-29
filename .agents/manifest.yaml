@@ -412,6 +412,14 @@ protocol:
   # Step 6: Validate before declaring done
   validation_required: true
 
+  # Step 7: Run PR review loop after creating a PR
+  # Poll AI reviewer comments, address them, wait for CI, loop until clean
+  pr_review_loop:
+    enabled: true
+    skill: "pr-review-loop"
+    trigger: "after_pr_created"
+    description: "Post-commit PR review automation. Mandatory after every PR."
+
   # When in doubt, ask rather than guess
   ambiguity_resolution: "ask"
 

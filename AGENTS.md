@@ -127,7 +127,15 @@ After coding:
 4. Review the diff for unrelated edits before finishing.
 5. **Run `.agents/scripts/validate-manifest.sh`** when modifying any `.agents/`
    files to ensure system integrity.
-6. **If you created a plugin, run `.agents/scripts/validate-scaffold.sh <plugin> [scope]`**
+
+After creating a PR:
+
+6. **Run PR Review Loop** — Use `.agents/skills/pr-review-loop` to poll AI
+   reviewer comments (CodeRabbit, Sourcery, Claude Code Action, Kimi, SonarCloud),
+   address every actionable item, wait for CI checks, and loop until zero open
+   comments and all checks green. **Do not consider the task done until the PR
+   review loop passes.**
+7. **If you created a plugin, run `.agents/scripts/validate-scaffold.sh <plugin> [scope]`**
    to ensure the scaffolded code was properly fixed.
 
 ## PR Review Loop (Mandatory)
