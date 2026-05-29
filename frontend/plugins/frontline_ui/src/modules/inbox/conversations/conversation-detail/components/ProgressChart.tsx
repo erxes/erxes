@@ -5,12 +5,13 @@ import { CONVERSATION_STATUS_COLORS } from '@/inbox/conversations/conversation-d
 import { format, parseISO, endOfDay, subDays, isAfter } from 'date-fns';
 
 interface IProgressChartProps {
-  customerId: string;
+  customerId?: string;
 }
 
 export const ProgressChart = ({ customerId }: IProgressChartProps) => {
   const { conversationProgressChart } = useConversationProgressChart({
     variables: { customerId },
+    skip: !customerId,
   });
 
   const rawData = conversationProgressChart?.chartData || [];
