@@ -71,6 +71,18 @@ export const meta = {
   },
 };
 
+// Helper to safely convert any error-like value to a readable string
+function toSafeString(error: any): string {
+  if (typeof error === 'string') return error;
+  if (error?.message) {
+    const msg = error.message;
+    if (typeof msg === 'string') return msg;
+    return JSON.stringify(msg);
+  }
+  if (typeof error === 'object') return JSON.stringify(error);
+  return String(error);
+}
+
 export const quickQrCallbackHandler = async (models: IModels, data: any) => {
   const { _id } = data;
 
@@ -79,7 +91,14 @@ export const quickQrCallbackHandler = async (models: IModels, data: any) => {
   }
 
   const transaction = await models.Transactions.getTransaction({ _id });
+  if (!transaction) {
+    throw new Error(`Transaction not found with id: ${_id}`);
+  }
+
   const payment = await models.PaymentMethods.getPayment(transaction.paymentId);
+  if (!payment) {
+    throw new Error(`Payment method not found for transaction: ${_id}`);
+  }
 
   if (payment.kind !== PAYMENTS.qpayQuickqr.kind) {
     throw new Error('Payment config type is mismatched');
@@ -95,14 +114,10 @@ export const quickQrCallbackHandler = async (models: IModels, data: any) => {
 
     transaction.status = status;
     transaction.updatedAt = new Date();
-
     await transaction.save();
-
     return transaction;
   } catch (e: any) {
-    const message =
-      e?.message || (typeof e === 'object' ? JSON.stringify(e) : String(e));
-    throw new Error(message);
+    throw new Error(toSafeString(e));
   }
 };
 
@@ -125,17 +140,19 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         method: 'POST',
         path: meta.paths.company,
         data: {
-          ...args,
+          name: args.name,
+          company_name: args.companyName,
           register_number: args.registerNumber,
           mcc_code: args.mccCode,
-          company_name: args.companyName,
+          city: args.city,
+          district: args.district,
+          address: args.address,
+          phone: args.phone,
+          email: args.email,
         },
       });
     } catch (error: any) {
-      const errMsg =
-        error?.message ||
-        (typeof error === 'object' ? JSON.stringify(error) : String(error));
-
+      const errMsg = toSafeString(error);
       if (
         errMsg.includes('MERCHANT_ALREADY_REGISTERED') ||
         errMsg.includes('Бүртгэлтэй мерчант байна')
@@ -146,20 +163,25 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
           name: args.name,
         });
       }
-
       throw new Error(`Create company failed: ${errMsg}`);
     }
   }
 
   async updateCompany(args: IMerchantCompanyParams) {
+    const safeName = args.name || args.companyName || 'Default Contact';
     return await this.makeRequest<IMerchantResponse>({
       method: 'PUT',
       path: `${meta.paths.company}/${this.config.merchantId}`,
       data: {
-        ...args,
+        name: safeName,
+        company_name: args.companyName,
         register_number: args.registerNumber,
         mcc_code: args.mccCode,
-        company_name: args.companyName,
+        city: args.city,
+        district: args.district,
+        address: args.address,
+        phone: args.phone,
+        email: args.email,
       },
     });
   }
@@ -170,19 +192,20 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         method: 'POST',
         path: meta.paths.person,
         data: {
-          ...args,
-          register_number: args.registerNumber,
-          mcc_code: args.mccCode,
           first_name: args.firstName,
           last_name: args.lastName,
           business_name: args.businessName,
+          register_number: args.registerNumber,
+          mcc_code: args.mccCode,
+          city: args.city,
+          district: args.district,
+          address: args.address,
+          phone: args.phone,
+          email: args.email,
         },
       });
     } catch (error: any) {
-      const errMsg =
-        error?.message ||
-        (typeof error === 'object' ? JSON.stringify(error) : String(error));
-
+      const errMsg = toSafeString(error);
       if (
         errMsg.includes('MERCHANT_ALREADY_REGISTERED') ||
         errMsg.includes('Бүртгэлтэй мерчант байна')
@@ -194,22 +217,29 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
           business_name: args.businessName,
         });
       }
-
       throw new Error(`Create customer failed: ${errMsg}`);
     }
   }
 
   async updateCustomer(args: IMerchantCustomerParams) {
+    const safeName = args.firstName && args.lastName
+      ? `${args.firstName} ${args.lastName}`
+      : 'Default Customer';
     return await this.makeRequest<IMerchantResponse>({
       method: 'PUT',
       path: `${meta.paths.person}/${this.config.merchantId}`,
       data: {
-        ...args,
-        register_number: args.registerNumber,
-        mcc_code: args.mccCode,
+        name: safeName,
         first_name: args.firstName,
         last_name: args.lastName,
         business_name: args.businessName,
+        register_number: args.registerNumber,
+        mcc_code: args.mccCode,
+        city: args.city,
+        district: args.district,
+        address: args.address,
+        phone: args.phone,
+        email: args.email,
       },
     });
   }
@@ -221,13 +251,8 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         path: `${meta.paths.getMerchant}/${this.config.merchantId}`,
       });
     } catch (e: any) {
-      const message =
-        e?.message || (typeof e === 'object' ? JSON.stringify(e) : String(e));
-
-      if (message.includes('MERCHANT_NOTFOUND')) {
-        return;
-      }
-
+      const message = toSafeString(e);
+      if (message.includes('MERCHANT_NOTFOUND')) return;
       throw new Error(`Remove merchant failed: ${message}`);
     }
   }
@@ -237,28 +262,47 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
       const existingMerchant = await this.findExistingMerchant(
         args.registerNumber,
       );
+      if (!existingMerchant) return;
 
-      const path =
-        existingMerchant?.type === 'COMPANY'
-          ? meta.paths.company
-          : meta.paths.person;
+      const isCompany = existingMerchant.type === 'COMPANY';
+      const path = isCompany ? meta.paths.company : meta.paths.person;
 
-      if (existingMerchant) {
-        return this.makeRequest<IMerchantResponse>({
-          method: 'PUT',
-          path: `${path}/${existingMerchant.id}`,
-          data: {
-            ...args,
-            business_name: args.businessName,
-            register_number: args.registerNumber,
-            mcc_code: args.mccCode,
-          },
-        });
+      let updateData: any = {
+        register_number: args.registerNumber,
+        mcc_code: args.mccCode,
+        city: args.city,
+        district: args.district,
+        address: args.address,
+        phone: args.phone,
+        email: args.email,
+      };
+
+      if (isCompany) {
+        updateData = {
+          ...updateData,
+          name: args.name || args.companyName || 'Default Contact',
+          company_name: args.companyName,
+        };
+      } else {
+        const fullName = args.firstName && args.lastName
+          ? `${args.firstName} ${args.lastName}`
+          : 'Default Customer';
+        updateData = {
+          ...updateData,
+          name: fullName,
+          first_name: args.firstName,
+          last_name: args.lastName,
+          business_name: args.businessName,
+        };
       }
-    } catch (e: any) {
-      const message =
-        e?.message || (typeof e === 'object' ? JSON.stringify(e) : String(e));
 
+      return await this.makeRequest<IMerchantResponse>({
+        method: 'PUT',
+        path: `${path}/${existingMerchant.id}`,
+        data: updateData,
+      });
+    } catch (e: any) {
+      const message = toSafeString(e);
       throw new Error(`Update merchant failed: ${message}`);
     }
   }
@@ -298,18 +342,11 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
       const res = await this.makeRequest<IInvoiceResponse>({
         method: 'POST',
         path: meta.paths.checkInvoice,
-        data: {
-          invoice_id: invoice.response.id,
-        },
+        data: { invoice_id: invoice.response.id },
       });
-
-      return res.invoice_status === 'PAID'
-        ? PAYMENT_STATUS.PAID
-        : PAYMENT_STATUS.PENDING;
+      return res.invoice_status === 'PAID' ? PAYMENT_STATUS.PAID : PAYMENT_STATUS.PENDING;
     } catch (e: any) {
-      const message =
-        e?.message || (typeof e === 'object' ? JSON.stringify(e) : String(e));
-
+      const message = toSafeString(e);
       throw new Error(`Invoice check failed: ${message}`);
     }
   }
@@ -319,18 +356,11 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
       const res = await this.makeRequest<IInvoiceResponse>({
         method: 'POST',
         path: meta.paths.checkInvoice,
-        data: {
-          invoice_id: invoice.response.id,
-        },
+        data: { invoice_id: invoice.response.id },
       });
-
-      return res.invoice_status === 'PAID'
-        ? PAYMENT_STATUS.PAID
-        : PAYMENT_STATUS.PENDING;
+      return res.invoice_status === 'PAID' ? PAYMENT_STATUS.PAID : PAYMENT_STATUS.PENDING;
     } catch (e: any) {
-      const message =
-        e?.message || (typeof e === 'object' ? JSON.stringify(e) : String(e));
-
+      const message = toSafeString(e);
       throw new Error(`Manual check failed: ${message}`);
     }
   }
@@ -347,10 +377,7 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
       method: 'POST',
       path: meta.paths.merchantList,
       data: {
-        offset: {
-          page_number: 1,
-          page_limit: 20,
-        },
+        offset: { page_number: 1, page_limit: 20 },
       },
     });
   }
@@ -363,28 +390,27 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
       const list = await this.makeRequest<IMerchantResponse>({
         method: 'POST',
         path: meta.paths.merchantList,
-        data: {
-          offset: {
-            page_number: pageNumber,
-            page_limit: pageLimit,
-          },
-        },
+        data: { offset: { page_number: pageNumber, page_limit: pageLimit } },
       });
 
       const found = list.rows?.find(
         (item) => item.register_number === registerNumber,
       );
-
       if (found) return found;
 
       if (!list.rows || list.rows.length < pageLimit) break;
-
       pageNumber++;
     }
-
     return null;
   }
 
+  async getDistricts(city: string) {
+    return await this.makeRequest<{ districts: string[] }>({
+      method: 'GET',
+      path: `${meta.paths.districts}/${city}`,
+    });
+  }
+}
   async getDistricts(city: string) {
     return await this.makeRequest<{ districts: string[] }>({
       method: 'GET',
