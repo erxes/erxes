@@ -9,7 +9,7 @@ import {
 } from 'erxes-ui';
 import { parseDateRangeFromString } from 'erxes-ui/modules/filter/date-filter/utils/parseDateRangeFromString';
 import { useSetAtom } from 'jotai';
-import { SCORE_LOG_LIST_QUERY } from '../graphql/queries';
+import { SCORE_LOGS_QUERY } from '../graphql/queries';
 import { IScoreLog } from '../types/score';
 import { scoreTotalCountAtom } from '../states/scoreCounts';
 
@@ -97,22 +97,22 @@ export const useScoreList = () => {
     sessionKey: SCORE_LOG_CURSOR_SESSION_KEY,
   });
 
-  const { data, loading, refetch, fetchMore } = useQuery(SCORE_LOG_LIST_QUERY, {
+  const { data, loading, refetch, fetchMore } = useQuery(SCORE_LOGS_QUERY, {
     variables: { ...variables, cursor },
     notifyOnNetworkStatusChange: true,
   });
 
   const list = useMemo<IScoreLog[]>(
-    () => data?.scoreLogList?.list || [],
-    [data?.scoreLogList?.list],
+    () => data?.scoreLogs?.list || [],
+    [data?.scoreLogs?.list],
   );
 
   const total = useMemo<number>(
-    () => data?.scoreLogList?.totalCount || 0,
-    [data?.scoreLogList?.totalCount],
+    () => data?.scoreLogs?.totalCount || 0,
+    [data?.scoreLogs?.totalCount],
   );
 
-  const pageInfo = data?.scoreLogList?.pageInfo;
+  const pageInfo = data?.scoreLogs?.pageInfo;
 
   const handleFetchMore = useCallback(
     ({ direction }: { direction: EnumCursorDirection }) => {
@@ -128,18 +128,18 @@ export const useScoreList = () => {
           direction,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
-          if (!fetchMoreResult?.scoreLogList) return prev;
+          if (!fetchMoreResult?.scoreLogs) return prev;
 
           return {
-            scoreLogList: {
+            scoreLogs: {
               ...mergeCursorData({
                 direction,
-                fetchMoreResult: fetchMoreResult.scoreLogList,
-                prevResult: prev.scoreLogList,
+                fetchMoreResult: fetchMoreResult.scoreLogs,
+                prevResult: prev.scoreLogs,
               }),
               totalCount:
-                fetchMoreResult.scoreLogList.totalCount ??
-                prev.scoreLogList.totalCount,
+                fetchMoreResult.scoreLogs.totalCount ??
+                prev.scoreLogs.totalCount,
             },
           };
         },

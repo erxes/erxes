@@ -2,6 +2,7 @@ import { Cell } from '@tanstack/react-table';
 import { useNavigate } from 'react-router-dom';
 import { Popover, Command, Combobox, RecordTable } from 'erxes-ui';
 import { IconExternalLink } from '@tabler/icons-react';
+import { IScoreLog } from '../types/score';
 
 export const getProfileUrl = (ownerId: string, ownerType: string): string => {
   switch (ownerType) {
@@ -19,15 +20,10 @@ export const getProfileUrl = (ownerId: string, ownerType: string): string => {
   }
 };
 
-interface MoreRow {
-  ownerId?: string;
-  ownerType?: string;
-}
-
 export const ScoreMoreColumnCell = ({
   cell,
 }: {
-  cell: Cell<MoreRow, unknown>;
+  cell: Cell<IScoreLog, unknown>;
 }) => {
   const navigate = useNavigate();
   const record = cell.row.original;
@@ -63,7 +59,7 @@ export const ScoreMoreColumnCell = ({
 
 export const makeScoreMoreColumn = () => ({
   id: 'more',
-  cell: ({ cell }: { cell: Cell<MoreRow, unknown> }) => (
+  cell: ({ cell }: { cell: Cell<IScoreLog, unknown> }) => (
     <ScoreMoreColumnCell cell={cell} />
   ),
   size: 30,

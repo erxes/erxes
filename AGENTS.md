@@ -44,8 +44,11 @@ Example: User says "Add tags to posts" → Map to `content/cms/tags`
 1. **Read manifest.yaml** — Understand the system
 2. **Assemble context** — Load all applicable rule layers
 3. **Load skill contract** — If using a skill, load its contract.yaml
-4. **Execute with rules** — Follow loaded rules and skill workflow
-5. **Validate** — Run required validation before finishing
+4. **Run detect-scope** — Analyze request, identify plugin/module, load code context
+5. **Run pre-flight check** — Validate detect-scope output before proceeding (HARD GATE)
+6. **Run intake** — Confirm scope and build checklist (receives from detect-scope)
+7. **Execute with rules** — Follow loaded rules and skill workflow
+8. **Validate** — Run required validation before finishing
 
 ## Purpose
 
@@ -94,20 +97,31 @@ Before coding:
 2. **Consult Semantic Index** — Read `.agents/skills/SEMANTIC_INDEX.md` to find the correct skills for your intent or to troubleshoot symptoms (404s, loading errors).
 3. **Assemble context** — Run `.agents/scripts/assemble-context.sh <path> [skill]`
    or follow the `assemble-context` skill to load all applicable rule layers.
-3. **Run intake** — Use `.agents/skills/intake` to gather requirements and
-   confirm scope. **NEVER start coding without confirmed scope.**
-4. **Read ALL relevant rules** — Load `.agents/rules/*.md` files declared in the
+4. **Run detect-scope** — Use `.agents/skills/detect-scope` to analyze the user
+   request, identify the target plugin/module, load relevant code context, and
+   ask minimal informed questions. **ALWAYS run detect-scope before intake.**
+   detect-scope MUST write output to `.agents/state/last-detect-scope.json`.
+5. **Run pre-flight check** — Execute `.agents/scripts/preflight-check.sh`.
+   **This is a HARD GATE.** If detect-scope did not complete, this script FAILS
+   and intake CANNOT run. The script validates:
+   - detect-scope state file exists
+   - Required fields present (plugin, action, scope, user_confirmed, goal_condition)
+   - user_confirmed is true
+6. **Run intake** — Use `.agents/skills/intake` to build the component checklist
+   and confirm scope. Intake receives detected scope from detect-scope.
+   **NEVER start coding without confirmed scope.**
+7. **Read ALL relevant rules** — Load `.agents/rules/*.md` files declared in the
    manifest for your working path. **MUST read `non-negotiable.md` IN FULL.**
    **MUST read `architecture.md` IN FULL.**
    **MUST read `code-style.md` IN FULL.**
    You are responsible for EVERY rule in these files.
-5. **Load skill contract** (if applicable) — Read
+8. **Load skill contract** (if applicable) — Read
    `.agents/skills/<skill-name>/contract.yaml` before executing any skill.
-6. **Confirm scaffold awareness** — If using `create-plugin` skill, acknowledge
+9. **Confirm scaffold awareness** — If using `create-plugin` skill, acknowledge
    that scaffolded code REQUIRES fixing. The scaffold generates violations.
-7. Search for similar implementations with `rg`.
-8. Confirm local routing, GraphQL, state, and UI patterns.
-9. Reuse nearby code structure before inventing a new one.
+10. Search for similar implementations with `rg`.
+11. Confirm local routing, GraphQL, state, and UI patterns.
+12. Reuse nearby code structure before inventing a new one.
 
 During coding:
 
