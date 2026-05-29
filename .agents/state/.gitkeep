@@ -1,0 +1,3 @@
+# This directory stores runtime state files for the agent system.
+# Files in this directory are generated at runtime and should not be committed.
+# The directory itself should exist for the system to function.
