@@ -54,6 +54,7 @@ interface IInvoiceResponse {
 }
 
 export const meta = {
+  // apiUrl: 'https://sandbox-quickqr.qpay.mn',
   apiUrl: 'https://quickqr.qpay.mn',
   apiVersion: 'v2',
 
@@ -71,16 +72,11 @@ export const meta = {
   },
 };
 
-// Helper to safely convert any error-like value to a readable string
-function toSafeString(error: any): string {
+// Helper to safely extract a string error message
+function safeErrorMsg(error: any): string {
   if (typeof error === 'string') return error;
-  if (error?.message) {
-    const msg = error.message;
-    if (typeof msg === 'string') return msg;
-    return JSON.stringify(msg);
-  }
-  if (typeof error === 'object') return JSON.stringify(error);
-  return String(error);
+  if (error?.message && typeof error.message === 'string') return error.message;
+  return JSON.stringify(error);
 }
 
 export const quickQrCallbackHandler = async (models: IModels, data: any) => {
@@ -117,7 +113,7 @@ export const quickQrCallbackHandler = async (models: IModels, data: any) => {
     await transaction.save();
     return transaction;
   } catch (e: any) {
-    throw new Error(toSafeString(e));
+    throw new Error(safeErrorMsg(e));
   }
 };
 
@@ -140,19 +136,14 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         method: 'POST',
         path: meta.paths.company,
         data: {
-          name: args.name,
-          company_name: args.companyName,
+          ...args,
           register_number: args.registerNumber,
           mcc_code: args.mccCode,
-          city: args.city,
-          district: args.district,
-          address: args.address,
-          phone: args.phone,
-          email: args.email,
+          company_name: args.companyName,
         },
       });
     } catch (error: any) {
-      const errMsg = toSafeString(error);
+      const errMsg = safeErrorMsg(error);
       if (
         errMsg.includes('MERCHANT_ALREADY_REGISTERED') ||
         errMsg.includes('Бүртгэлтэй мерчант байна')
@@ -174,38 +165,31 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
       path: `${meta.paths.company}/${this.config.merchantId}`,
       data: {
         name: safeName,
-        company_name: args.companyName,
+        ...args,
         register_number: args.registerNumber,
         mcc_code: args.mccCode,
-        city: args.city,
-        district: args.district,
-        address: args.address,
-        phone: args.phone,
-        email: args.email,
+        company_name: args.companyName,
       },
     });
   }
 
   async createCustomer(args: IMerchantCustomerParams) {
     try {
-      return await this.makeRequest<IMerchantResponse>({
+      const res = await this.makeRequest<IMerchantResponse>({
         method: 'POST',
         path: meta.paths.person,
         data: {
+          ...args,
+          register_number: args.registerNumber,
+          mcc_code: args.mccCode,
           first_name: args.firstName,
           last_name: args.lastName,
           business_name: args.businessName,
-          register_number: args.registerNumber,
-          mcc_code: args.mccCode,
-          city: args.city,
-          district: args.district,
-          address: args.address,
-          phone: args.phone,
-          email: args.email,
         },
       });
+      return res;
     } catch (error: any) {
-      const errMsg = toSafeString(error);
+      const errMsg = safeErrorMsg(error);
       if (
         errMsg.includes('MERCHANT_ALREADY_REGISTERED') ||
         errMsg.includes('Бүртгэлтэй мерчант байна')
@@ -214,7 +198,6 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
           ...args,
           first_name: args.firstName,
           last_name: args.lastName,
-          business_name: args.businessName,
         });
       }
       throw new Error(`Create customer failed: ${errMsg}`);
@@ -222,24 +205,21 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
   }
 
   async updateCustomer(args: IMerchantCustomerParams) {
-    const safeName = args.firstName && args.lastName
-      ? `${args.firstName} ${args.lastName}`
-      : 'Default Customer';
+    const safeName =
+      args.firstName && args.lastName
+        ? `${args.firstName} ${args.lastName}`
+        : 'Default Customer';
     return await this.makeRequest<IMerchantResponse>({
       method: 'PUT',
       path: `${meta.paths.person}/${this.config.merchantId}`,
       data: {
         name: safeName,
+        ...args,
+        register_number: args.registerNumber,
+        mcc_code: args.mccCode,
         first_name: args.firstName,
         last_name: args.lastName,
         business_name: args.businessName,
-        register_number: args.registerNumber,
-        mcc_code: args.mccCode,
-        city: args.city,
-        district: args.district,
-        address: args.address,
-        phone: args.phone,
-        email: args.email,
       },
     });
   }
@@ -251,60 +231,51 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
         path: `${meta.paths.getMerchant}/${this.config.merchantId}`,
       });
     } catch (e: any) {
-      const message = toSafeString(e);
-      if (message.includes('MERCHANT_NOTFOUND')) return;
+      const message = safeErrorMsg(e);
+      if (message.includes('MERCHANT_NOTFOUND')) {
+        return;
+      }
       throw new Error(`Remove merchant failed: ${message}`);
     }
   }
 
   async updateExistingMerchant(args: any) {
-    try {
-      const existingMerchant = await this.findExistingMerchant(
-        args.registerNumber,
-      );
-      if (!existingMerchant) return;
+    const existingMerchant = await this.findExistingMerchant(
+      args.registerNumber,
+    );
+    if (!existingMerchant) return;
 
-      const isCompany = existingMerchant.type === 'COMPANY';
-      const path = isCompany ? meta.paths.company : meta.paths.person;
+    const isCompany = existingMerchant.type === 'COMPANY';
+    const path = isCompany ? meta.paths.company : meta.paths.person;
 
-      let updateData: any = {
-        register_number: args.registerNumber,
-        mcc_code: args.mccCode,
-        city: args.city,
-        district: args.district,
-        address: args.address,
-        phone: args.phone,
-        email: args.email,
-      };
+    let updateData: any = {
+      register_number: args.registerNumber,
+      mcc_code: args.mccCode,
+      city: args.city,
+      district: args.district,
+      address: args.address,
+      phone: args.phone,
+      email: args.email,
+    };
 
-      if (isCompany) {
-        updateData = {
-          ...updateData,
-          name: args.name || args.companyName || 'Default Contact',
-          company_name: args.companyName,
-        };
-      } else {
-        const fullName = args.firstName && args.lastName
+    if (isCompany) {
+      updateData.name = args.name || args.companyName || 'Default Contact';
+      updateData.company_name = args.companyName;
+    } else {
+      updateData.name =
+        args.firstName && args.lastName
           ? `${args.firstName} ${args.lastName}`
           : 'Default Customer';
-        updateData = {
-          ...updateData,
-          name: fullName,
-          first_name: args.firstName,
-          last_name: args.lastName,
-          business_name: args.businessName,
-        };
-      }
-
-      return await this.makeRequest<IMerchantResponse>({
-        method: 'PUT',
-        path: `${path}/${existingMerchant.id}`,
-        data: updateData,
-      });
-    } catch (e: any) {
-      const message = toSafeString(e);
-      throw new Error(`Update merchant failed: ${message}`);
+      updateData.first_name = args.firstName;
+      updateData.last_name = args.lastName;
+      updateData.business_name = args.businessName;
     }
+
+    return this.makeRequest<IMerchantResponse>({
+      method: 'PUT',
+      path: `${path}/${existingMerchant.id}`,
+      data: updateData,
+    });
   }
 
   async createInvoice(invoice: ITransactionDocument) {
@@ -342,12 +313,17 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
       const res = await this.makeRequest<IInvoiceResponse>({
         method: 'POST',
         path: meta.paths.checkInvoice,
-        data: { invoice_id: invoice.response.id },
+        data: {
+          invoice_id: invoice.response.id,
+        },
       });
-      return res.invoice_status === 'PAID' ? PAYMENT_STATUS.PAID : PAYMENT_STATUS.PENDING;
+
+      if (res.invoice_status === 'PAID') {
+        return PAYMENT_STATUS.PAID;
+      }
+      return PAYMENT_STATUS.PENDING;
     } catch (e: any) {
-      const message = toSafeString(e);
-      throw new Error(`Invoice check failed: ${message}`);
+      throw new Error(`Invoice check failed: ${safeErrorMsg(e)}`);
     }
   }
 
@@ -356,12 +332,17 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
       const res = await this.makeRequest<IInvoiceResponse>({
         method: 'POST',
         path: meta.paths.checkInvoice,
-        data: { invoice_id: invoice.response.id },
+        data: {
+          invoice_id: invoice.response.id,
+        },
       });
-      return res.invoice_status === 'PAID' ? PAYMENT_STATUS.PAID : PAYMENT_STATUS.PENDING;
+
+      if (res.invoice_status === 'PAID') {
+        return PAYMENT_STATUS.PAID;
+      }
+      return PAYMENT_STATUS.PENDING;
     } catch (e: any) {
-      const message = toSafeString(e);
-      throw new Error(`Manual check failed: ${message}`);
+      throw new Error(`Manual check failed: ${safeErrorMsg(e)}`);
     }
   }
 
@@ -377,7 +358,10 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
       method: 'POST',
       path: meta.paths.merchantList,
       data: {
-        offset: { page_number: 1, page_limit: 20 },
+        offset: {
+          page_number: 1,
+          page_limit: 20,
+        },
       },
     });
   }
@@ -390,7 +374,12 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
       const list = await this.makeRequest<IMerchantResponse>({
         method: 'POST',
         path: meta.paths.merchantList,
-        data: { offset: { page_number: pageNumber, page_limit: pageLimit } },
+        data: {
+          offset: {
+            page_number: pageNumber,
+            page_limit: pageLimit,
+          },
+        },
       });
 
       const found = list.rows?.find(
@@ -404,13 +393,6 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
     return null;
   }
 
-  async getDistricts(city: string) {
-    return await this.makeRequest<{ districts: string[] }>({
-      method: 'GET',
-      path: `${meta.paths.districts}/${city}`,
-    });
-  }
-}
   async getDistricts(city: string) {
     return await this.makeRequest<{ districts: string[] }>({
       method: 'GET',
