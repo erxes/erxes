@@ -50,7 +50,7 @@ Use the `detected_scope` to build the checklist directly. Do NOT re-derive what 
 **Checklist templates based on action + scope:**
 
 For `create` action with `both` scope (full CRUD):
-```
+```text
 □ RecordTable with cursor pagination
 □ Create button (opens Sheet/Dialog)
 □ Edit action per row
@@ -66,7 +66,7 @@ For `create` action with `both` scope (full CRUD):
 ```
 
 For `fix` action (minimal scope):
-```
+```text
 □ Identify root cause
 □ Fix in affected files only
 □ Verify fix works
@@ -74,7 +74,7 @@ For `fix` action (minimal scope):
 ```
 
 For `create-new-plugin` action:
-```
+```text
 □ Scaffold frontend plugin ({plugin}_ui)
 □ Scaffold backend plugin ({plugin}_api)
 □ Register in manifest.yaml
@@ -90,7 +90,7 @@ Use `existing_similar` as reference for component names and patterns.
 
 **Format:**
 
-```
+```text
 I'll implement this in:
 
 📁 Plugin: {plugin_name}
@@ -115,7 +115,7 @@ Is this correct? (Yes / No, please specify changes)
 
 **Example:**
 
-```
+```text
 I'll implement this in:
 
 📁 Plugin: content
@@ -179,7 +179,7 @@ Is this correct? (Yes / No, please specify changes)
 **User:** "Add tags to CMS posts"
 
 **LLM (intake):**
-```
+```text
 I'll implement tags in:
 
 📁 Plugin: content
@@ -197,12 +197,9 @@ Backend:
 
 Checklist:
   □ RecordTable with cursor pagination
-  □ Create tag form in Sheet
-  □ Edit tag per row
-  □ Delete tag with confirmation
-  □ Tag selector for posts
-  □ Real-time updates after mutations
-  □ Empty state for no tags
+  □ Create/Edit/Delete
+  □ Tag selector in post form
+  □ Real-time updates
 
 Is this correct?
 ```
@@ -221,7 +218,7 @@ Is this correct?
 **User:** "Fix the deals page"
 
 **LLM (intake):**
-```
+```text
 I'll fix the deal pipeline board drag-and-drop in the sales plugin. Scope: frontend only.
 
 Checklist:
@@ -244,7 +241,7 @@ Is this correct? Any specific edge case you're seeing?
 **User:** "Add custom fields to products"
 
 **LLM (intake):**
-```
+```text
 I detected custom fields for the content plugin (custom fields are managed centrally and applied to products via configuration).
 
 📁 Plugin: content
