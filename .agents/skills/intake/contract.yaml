@@ -21,6 +21,8 @@ inputs:
         type: string
       module:
         type: string
+        required: false
+        description: "Module path (null for create-new-plugin)"
       action:
         type: string
       scope:
@@ -46,7 +48,7 @@ inputs:
     description: "Auto-detected module from feature-map.yaml (legacy, prefer detected_scope)"
     required: false
 
-outputs:
+  outputs:
   - name: confirmed_scope
     type: object
     description: "Confirmed scope with plugin, module, components"
@@ -55,6 +57,8 @@ outputs:
         type: string
       module:
         type: string
+        required: false
+        description: "Module path (null for create-new-plugin)"
       scope:
         type: enum
         values: [frontend, backend, both]
