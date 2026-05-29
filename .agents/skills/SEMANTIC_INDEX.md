@@ -2,6 +2,14 @@
 
 Use this index to find the correct skill or workflow for specific tasks, symptoms, or edge cases.
 
+## 0. Scope Detection (ALWAYS RUN FIRST)
+
+| Symptom / Task | Use Skill | Key Pattern |
+|:---|:---|:---|
+| Starting ANY new task | `detect-scope` | **MANDATORY**: Run before `intake`. Reads feature-map, identifies plugin/module, loads code context, asks minimal questions. |
+| User request is vague | `detect-scope` → `intake` | detect-scope asks informed questions; intake builds checklist |
+| User mentions a feature | `detect-scope` | Auto-maps to plugin via feature-map.yaml |
+
 ## 1. Project Initialization & Scaffolding
 
 | Intent / Task | Use Skill | Key Correction / Edge Case |
