@@ -7,6 +7,7 @@ import {
   RelativeDateDisplay,
   Spinner,
   useConfirm,
+  useMultiQueryState,
 } from 'erxes-ui';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { IResponseTemplate } from '../types';
@@ -132,28 +133,39 @@ export const responseColumns: ColumnDef<IResponseTemplate>[] = [
 ];
 
 export const ResponseList = ({ channelId }: { channelId: string }) => {
-  const { responses, loading, handleFetchMore, pageInfo } = useGetResponses({
-    variables: {
-      filter: { channelId },
-    },
-  });
+  const [{ searchValue }] = useMultiQueryState<{ searchValue?: string }>([
+    'searchValue',
+  ]);
+
+  const { responses, isInitialLoad, isRefetching, handleFetchMore, pageInfo } =
+    useGetResponses({
+      variables: {
+        filter: { channelId, searchValue: searchValue || undefined },
+      },
+    });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
-  if (responses?.length === 0) {
+  if (!isInitialLoad && !isRefetching && responses?.length === 0) {
     return (
       <Empty className="bg-sidebar rounded-lg m-3">
         <Empty.Header>
           <Empty.Media>
             <IconGitBranch />
           </Empty.Media>
-          <Empty.Title>No responses yet</Empty.Title>
+          <Empty.Title>
+            {searchValue ? 'No results found' : 'No responses yet'}
+          </Empty.Title>
           <Empty.Description>
-            Get started by creating your first response
+            {searchValue
+              ? 'Try a different search term'
+              : 'Get started by creating your first response'}
           </Empty.Description>
         </Empty.Header>
-        <Empty.Content>
-          <CreateResponse />
-        </Empty.Content>
+        {!searchValue && (
+          <Empty.Content>
+            <CreateResponse />
+          </Empty.Content>
+        )}
       </Empty>
     );
   }
@@ -176,8 +188,10 @@ export const ResponseList = ({ channelId }: { channelId: string }) => {
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading ? (
+            {isInitialLoad ? (
               <RecordTable.RowSkeleton rows={32} />
+            ) : isRefetching ? (
+              <RecordTable.RowSkeleton rows={3} />
             ) : (
               <RecordTable.RowList />
             )}

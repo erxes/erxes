@@ -1,4 +1,5 @@
 import { Channels } from '@/channels/components/settings/channels-list/Channels';
+import { ChannelsSubHeader } from '@/channels/components/settings/channels-list/ChannelsSubHeader';
 import { CreateChannel } from '@/channels/components/settings/channels-list/CreateChannel';
 
 export const ChannelsSettingsIndexPage = () => {
@@ -8,6 +9,7 @@ export const ChannelsSettingsIndexPage = () => {
         <h1 className="text-xl font-semibold">Channels</h1>
         <CreateChannel />
       </div>
+      <ChannelsSubHeader />
       <Channels />
     </div>
   );

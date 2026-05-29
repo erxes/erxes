@@ -1,4 +1,5 @@
 import { ResponseList } from '@/responseTemplate/components/ResponseList';
+import { ResponseSubHeader } from '@/responseTemplate/components/ResponseSubHeader';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CreateResponse } from '@/responseTemplate/components/CreateResponse';
 import { Breadcrumb, ScrollArea, Button } from 'erxes-ui';
@@ -40,6 +41,7 @@ export const ChannelResponsePage = () => {
         <h1 className="text-xl font-semibold">Response Templates</h1>
       </div>
 
+      <ResponseSubHeader channelId={channelId} />
       <ResponseList channelId={channelId} />
     </>
   );
