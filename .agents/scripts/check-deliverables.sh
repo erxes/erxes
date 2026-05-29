@@ -67,10 +67,10 @@ echo "$DELIVERABLES" | while read -r item; do
       MISSING=$((MISSING + 1))
     fi
   elif echo "$item" | grep -q "feature map"; then
-    if [ -n "$PLUGIN_NAME" ] && grep -q "${PLUGIN_NAME}" .agents/maps/feature-map.yaml; then
+    if [ -f ".agents/maps/feature-map.yaml" ] && [ -n "$PLUGIN_NAME" ] && grep -q "${PLUGIN_NAME}" .agents/maps/feature-map.yaml; then
       echo " ✓"
     else
-      echo " MISSING"
+      echo " MISSING (or feature map not found)"
       MISSING=$((MISSING + 1))
     fi
   elif echo "$item" | grep -q "build\|lint\|test"; then
