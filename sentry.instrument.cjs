@@ -6,12 +6,14 @@ if (dsn) {
   Sentry.init({
     dsn,
     environment: process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV,
-    release: process.env.SENTRY_RELEASE || process.env.RELEASE,
+    release: process.env.RELEASE_VERSION || 'latest',
     serverName: process.env.SENTRY_SERVER_NAME,
     tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE || 0),
   });
 
   console.info(
-    `[sentry] initialized: ${process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || 'unknown'}`,
+    `[sentry] initialized: ${
+      process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || 'unknown'
+    }`,
   );
 }
