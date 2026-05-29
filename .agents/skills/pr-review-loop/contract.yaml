@@ -46,6 +46,11 @@ postconditions:
   - description: "Zero walkthrough findings"
     command: ".agents/scripts/pr-review-check.sh --walkthrough {pr_number}"
     required: true
+  - description: "Final comprehensive check — all clean"
+    command: ".agents/scripts/pr-review-check.sh --final {pr_number}"
+    required: true
+    on_failure: "notify_user_blocker"
+    max_notification_words: 20
 
 composes_with:
   - plugin-workflow

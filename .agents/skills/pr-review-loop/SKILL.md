@@ -145,6 +145,30 @@ Run after every round:
 - [ ] Working tree clean
 - [ ] No Anthropic branding in commits or comments
 
+### Final Exit Evaluation
+
+Before declaring the PR "done", run one final comprehensive check:
+
+```bash
+# Returns 0 only if ALL conditions pass
+.agents/scripts/pr-review-check.sh --final <pr_number>
+```
+
+This verifies:
+1. **Zero open issues** — no unresolved review threads from any bot
+2. **All CI green** — every check passing (excluding known-flaky)
+3. **Zero walkthrough findings** — Kimi/SonarCloud report clean
+4. **No GAS regressions** — no new security alerts
+
+If any condition fails:
+- **DO NOT** declare the task done
+- **DO** continue to next round (if under round cap)
+- **DO** report blocker to user in ≤20 words, e.g.:
+  - "Blocked: 3 unresolved CodeRabbit comments."
+  - "Blocked: CI check `payment_ui-ci` failing."
+  - "Blocked: SonarCloud quality gate failed."
+  - "Blocked: 2 GAS regressions need fixing."
+
 ## Critical Rules
 
 1. **Wait for checks BEFORE reading reviews.** Always poll `gh pr checks` until complete, sleep 180s buffer, THEN read comments.
