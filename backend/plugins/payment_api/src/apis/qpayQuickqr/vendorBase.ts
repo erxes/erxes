@@ -20,8 +20,29 @@ interface RequestOptions {
 
 interface ErrorResponse {
   error: string;
-  message?: any; // can be string or object
+  message?: unknown;
   code?: string;
+}
+
+/**
+ * Safely convert any caught value to a readable string.
+ * - Handles circular references via try/catch.
+ * - Never throws.
+ * - Returns a fallback string if everything fails.
+ */
+function safeErrorToString(error: unknown): string {
+  if (typeof error === 'string') return error;
+  if (error && typeof error === 'object') {
+    // Handle common Error objects
+    if ('message' in error && typeof error.message === 'string') return error.message;
+    if ('error' in error && typeof error.error === 'string') return error.error;
+    try {
+      return JSON.stringify(error);
+    } catch {
+      return '[Unable to stringify error]';
+    }
+  }
+  return String(error);
 }
 
 export class VendorBaseAPI {
@@ -50,13 +71,12 @@ export class VendorBaseAPI {
 
     if (!response.ok) {
       const error = data as ErrorResponse;
-
-      let message = error.message;
-      if (typeof message !== 'string') {
-        message = JSON.stringify(message || error.error || data);
+      // error.message is now `unknown` – we must normalize it
+      let message = safeErrorToString(error.message);
+      if (!message) {
+        message = safeErrorToString(error.error) || 'Unknown error occurred';
       }
-
-      throw new Error(message || 'Unknown error occurred');
+      throw new Error(message);
     }
 
     return data as T;
@@ -89,10 +109,8 @@ export class VendorBaseAPI {
       // await redis.set('qpay_merchant_data', JSON.stringify(data), 'EX', expires_in);
 
       return access_token;
-    } catch (error: any) {
-      const raw = error?.message;
-      const msg = typeof raw === 'string' ? raw : JSON.stringify(raw || error);
-      throw new Error(`Authentication failed: ${msg}`);
+    } catch (error: unknown) {
+      throw new Error(`Authentication failed: ${safeErrorToString(error)}`);
     }
   }
 
@@ -128,10 +146,8 @@ export class VendorBaseAPI {
 
       this.accessToken = access_token;
       return access_token;
-    } catch (error: any) {
-      const raw = error?.message;
-      const msg = typeof raw === 'string' ? raw : JSON.stringify(raw || error);
-      throw new Error(`Token refresh failed: ${msg}`);
+    } catch (error: unknown) {
+      throw new Error(`Token refresh failed: ${safeErrorToString(error)}`);
     }
   }
 
@@ -165,20 +181,14 @@ export class VendorBaseAPI {
 
       const response = await fetch(url.toString(), requestOptions);
       return await this.handleResponse<T>(response);
-    } catch (error: any) {
-      const rawMessage = error?.message;
-      const messageStr =
-        typeof rawMessage === 'string'
-          ? rawMessage
-          : JSON.stringify(rawMessage || error);
-
-      // Only retry once to avoid infinite loops
-      if (messageStr.includes('Unauthorized') && retryCount < 1) {
+    } catch (error: unknown) {
+      const errMsg = safeErrorToString(error);
+      // Only retry once on Unauthorized
+      if (errMsg.includes('Unauthorized') && retryCount < 1) {
         await this.refreshToken();
         return await this.makeRequest(args, retryCount + 1);
       }
-
-      throw new Error(`Request failed: ${messageStr}`);
+      throw new Error(`Request failed: ${errMsg}`);
     }
   }
 }
