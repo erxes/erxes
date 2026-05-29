@@ -5,9 +5,13 @@ import { Collapsible, Form, Input, Skeleton, Textarea } from 'erxes-ui';
 import { SelectBranches, SelectMember } from 'ui-modules';
 import { PhoneInput } from 'erxes-ui/modules/record-field/meta-inputs/components/PhoneInput';
 import { IconChevronDown } from '@tabler/icons-react';
+import { SelectStructureStatus } from '../SelectStructureStatus';
 
 export const BranchForm = () => {
-  const { control } = useFormContext<TBranchForm>();
+  const { control, formState } = useFormContext<TBranchForm>();
+  // show the status field only when the record was originally deleted, so the
+  // field stays visible while the user switches it back to active
+  const wasDeleted = formState.defaultValues?.status === 'deleted';
 
   return (
     <div className="grid grid-cols-2 gap-2">
@@ -44,7 +48,11 @@ export const BranchForm = () => {
           <Form.Item className="col-span-2">
             <Form.Label>{field.name}</Form.Label>
             <Form.Control>
-              <Textarea {...field} placeholder="Provide an address" />
+              <Textarea
+                {...field}
+                value={field.value ?? ''}
+                placeholder="Provide an address"
+              />
             </Form.Control>
             <Form.Message />
           </Form.Item>
@@ -57,7 +65,7 @@ export const BranchForm = () => {
           <Form.Item>
             <Form.Label>{'Supervisor'}</Form.Label>
             <SelectMember.FormItem
-              value={field.value}
+              value={field.value ?? ''}
               onValueChange={field.onChange}
             />
             <Form.Message />
@@ -85,7 +93,7 @@ export const BranchForm = () => {
           <Form.Item className="col-span-2">
             <Form.Label>{'Team members'}</Form.Label>
             <SelectMember.FormItem
-              value={field.value}
+              value={field.value ?? []}
               onValueChange={field.onChange}
               mode="multiple"
             />
@@ -164,7 +172,11 @@ export const BranchForm = () => {
           <Form.Item>
             <Form.Label>{'latitude'}</Form.Label>
             <Form.Control>
-              <Input {...field} placeholder="Latitude" />
+              <Input
+                {...field}
+                value={field.value ?? ''}
+                placeholder="Latitude"
+              />
             </Form.Control>
             <Form.Message />
           </Form.Item>
@@ -177,12 +189,32 @@ export const BranchForm = () => {
           <Form.Item>
             <Form.Label>{'longitude'}</Form.Label>
             <Form.Control>
-              <Input {...field} placeholder="Longitude" />
+              <Input
+                {...field}
+                value={field.value ?? ''}
+                placeholder="Longitude"
+              />
             </Form.Control>
             <Form.Message />
           </Form.Item>
         )}
       />
+      {wasDeleted && (
+        <Form.Field
+          control={control}
+          name="status"
+          render={({ field }) => (
+            <Form.Item className="col-span-2">
+              <Form.Label>Status</Form.Label>
+              <SelectStructureStatus.FormItem
+                value={field.value}
+                onValueChange={field.onChange}
+              />
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+      )}
       {/* <Form.Field
         control={control}
         name="image"

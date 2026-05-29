@@ -1,49 +1,49 @@
-import { OperationVariables, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
+import { IRecordTableCursorPageInfo } from 'erxes-ui';
 import { GET_PRODUCT_GROUP } from '@/ebarimt/settings/product-group/graphql/queries/getProductGroup';
 import { IProductGroup } from '@/ebarimt/settings/product-group/constants/productGroupDefaultValues';
 import { PRODUCT_GROUP_ROW_DEFAULT_VARIABLES } from '@/ebarimt/settings/product-group/constants/productGroupRowDefaultVariables';
-
 import { useCallback, useMemo } from 'react';
 
-export const useProductGroupRows = (options?: OperationVariables) => {
-  const { data, loading, fetchMore, error } = useQuery<{
-    ebarimtProductGroups: {
-      list: IProductGroup[];
-      totalCount: number;
-      pageInfo: any;
-    };
-  }>(GET_PRODUCT_GROUP, {
-    ...options,
-    variables: {
-      ...PRODUCT_GROUP_ROW_DEFAULT_VARIABLES,
-      ...options?.variables,
+interface IProductGroupQueryResult {
+  ebarimtProductGroups: {
+    list: IProductGroup[];
+    totalCount: number;
+    pageInfo: IRecordTableCursorPageInfo;
+  };
+}
+
+export const useProductGroupRows = () => {
+  const { data, loading, fetchMore, error } = useQuery<IProductGroupQueryResult>(
+    GET_PRODUCT_GROUP,
+    {
+      variables: PRODUCT_GROUP_ROW_DEFAULT_VARIABLES,
+      fetchPolicy: 'network-only',
+      nextFetchPolicy: 'cache-first',
     },
-    fetchPolicy: 'network-only',
-    nextFetchPolicy: 'cache-first',
-  });
+  );
 
   const productGroupRows = useMemo(
-    () => data?.ebarimtProductGroups?.list || [],
+    () => data?.ebarimtProductGroups?.list ?? [],
     [data?.ebarimtProductGroups?.list],
   );
-  const productGroupRowsCount = data?.ebarimtProductGroups?.totalCount || 0;
+
+  const totalCount = data?.ebarimtProductGroups?.totalCount ?? 0;
+  const pageInfo = data?.ebarimtProductGroups?.pageInfo;
+  const hasNextPage = pageInfo?.hasNextPage ?? false;
 
   const handleFetchMore = useCallback(() => {
-    if (!productGroupRows || loading) return;
-
-    const pageInfo = data?.ebarimtProductGroups?.pageInfo;
-    if (!pageInfo?.hasNextPage) return;
+    if (loading || !hasNextPage || !pageInfo?.endCursor) return;
 
     fetchMore({
       variables: {
         cursor: pageInfo.endCursor,
-        cursorMode: 'AFTER',
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult?.ebarimtProductGroups) return prev;
         return {
           ebarimtProductGroups: {
-            ...prev.ebarimtProductGroups,
+            ...fetchMoreResult.ebarimtProductGroups,
             list: [
               ...prev.ebarimtProductGroups.list,
               ...fetchMoreResult.ebarimtProductGroups.list,
@@ -52,11 +52,12 @@ export const useProductGroupRows = (options?: OperationVariables) => {
         };
       },
     });
-  }, [productGroupRows, loading, fetchMore, data]);
+  }, [loading, hasNextPage, pageInfo?.endCursor, fetchMore]);
 
   return {
     productGroupRows,
-    totalCount: productGroupRowsCount,
+    totalCount,
+    hasNextPage,
     loading,
     error,
     handleFetchMore,

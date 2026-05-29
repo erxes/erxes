@@ -45,7 +45,11 @@ export const UnitForm = ({ loading = false }: { loading?: boolean }) => {
           <Form.Item className="col-span-2">
             <Form.Label>{field.name}</Form.Label>
             <Form.Control>
-              <Textarea {...field} placeholder="Description" />
+              <Textarea
+                {...field}
+                value={field.value ?? ''}
+                placeholder="Description"
+              />
             </Form.Control>
             <Form.Message />
           </Form.Item>
@@ -58,7 +62,7 @@ export const UnitForm = ({ loading = false }: { loading?: boolean }) => {
           <Form.Item>
             <Form.Label>{'Supervisor'}</Form.Label>
             <SelectMember.FormItem
-              value={field.value}
+              value={field.value ?? ''}
               onValueChange={field.onChange}
             />
             <Form.Message />
@@ -74,7 +78,7 @@ export const UnitForm = ({ loading = false }: { loading?: boolean }) => {
             <Form.Control>
               <SelectDepartments.FormItem
                 mode={'single'}
-                value={field.value}
+                value={field.value ?? ''}
                 onValueChange={field.onChange}
               />
             </Form.Control>
@@ -90,7 +94,7 @@ export const UnitForm = ({ loading = false }: { loading?: boolean }) => {
             <Form.Label>{'Team members'}</Form.Label>
             <SelectMember.FormItem
               mode="multiple"
-              value={field.value}
+              value={field.value ?? []}
               onValueChange={field.onChange}
             />
             <Form.Message />
