@@ -83,7 +83,7 @@ grep -r "gql\|graphql" backend/plugins/{plugin}_api/src/ --include="*.ts" -l 2>/
 
 Synthesize findings into:
 
-```
+```text
 Detected Scope:
   Plugin: {plugin_name}
   Module: {module_name}
@@ -103,23 +103,23 @@ Detected Scope:
 **DO ask:**
 
 1. **Scope Confirmation** (1 sentence):
-   ```
+   ```text
    I'll {action} {feature} in the {plugin} plugin ({module} module). 
    Scope: {frontend/backend/both}. Is this correct?
    ```
 
 2. **Goal Condition** (1 question):
-   ```
+   ```text
    What does "done" look like for you? Any specific behavior, design, or constraint I should know?
    ```
 
 3. **Reference Preference** (optional, if similar implementations exist):
-   ```
+   ```text
    I found {similar_feature} in the same plugin. Should I model this after it?
    ```
 
 **If detection was uncertain**, ask ONE clarifying question:
-```
+```text
 I detected {plugin}/{module}, but I'm not certain. Is this correct, or did you mean {alternative}?
 ```
 
@@ -152,7 +152,7 @@ Once user confirms scope and provides goal conditions:
    - List `frontend/plugins/content_ui/src/modules/cms/` contents
    - Find similar: `categories` module has `CategoriesRecordTable`, `CategoryForm`
 5. Ask:
-   ```
+   ```text
    I'll add tags to the content plugin (cms/tags module). Scope: frontend + backend. Is this correct?
    
    What does "done" look like? (e.g., tag management page, tag selector in post form, both?)
@@ -177,7 +177,7 @@ Once user confirms scope and provides goal conditions:
    - Find `PipelineBoard` component
    - Check drag-and-drop library usage
 5. Ask:
-   ```
+   ```text
    I'll fix the deal pipeline board drag-and-drop in the sales plugin. Scope: frontend only. Is this correct?
    
    What does "fixed" look like? Smooth drag-and-drop between stages, or specific edge case?
@@ -193,7 +193,7 @@ Once user confirms scope and provides goal conditions:
 3. Classification: create-new-plugin
 4. Check manifest: no `warehouse` plugin exists
 5. Ask:
-   ```
+   ```text
    I'll create a new "warehouse" plugin for inventory management. This will scaffold both frontend (warehouse_ui) and backend (warehouse_api). Is this correct?
    
    What does "done" look like? (e.g., basic CRUD for products, stock tracking, warehouse locations?)
@@ -208,7 +208,7 @@ Once user confirms scope and provides goal conditions:
 2. Feature map: `custom_fields` domain=content (not sales!)
 3. Classification: modify (adding to existing entity)
 4. Ask:
-   ```
+   ```text
    I detected custom fields for the content plugin (custom fields are managed centrally and applied to products via config). Is this correct, or do you want product-specific custom fields in the sales plugin?
    ```
 
