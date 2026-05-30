@@ -193,6 +193,14 @@ export type IAutomationsTriggerConfigConstants = {
   label: string;
   description: string;
   isCustom?: boolean;
+  output?: {
+    variables?: Array<{
+      key: string;
+      label: string;
+      type?: string;
+      exposure?: 'placeholder' | 'reference';
+    }>;
+  };
   conditions?: {
     type: string;
     icon: string;

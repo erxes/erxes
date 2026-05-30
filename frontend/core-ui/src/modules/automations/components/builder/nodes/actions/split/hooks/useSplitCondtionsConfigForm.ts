@@ -1,3 +1,4 @@
+import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationTrigger } from '@/automations/components/builder/hooks/useAutomationTrigger';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback, useState } from 'react';
@@ -21,12 +22,16 @@ export const useSplitCondtionsConfigForm = (
   currentAction: TAutomationAction<TSplitConditionsConfigForm>,
 ) => {
   const { trigger } = useAutomationTrigger(currentAction.id);
+  const { triggerConstMap } = useAutomation();
   const contentType = trigger?.type || '';
   const isCustomTrigger = Boolean(trigger?.isCustom);
+  const triggerOutputVariables =
+    trigger?.type && triggerConstMap.get(trigger.type)?.output?.variables;
   const outputVariables =
     (trigger?.config as any)?.outVariables ||
     (trigger?.config as any)?.outputVariables ||
     (trigger?.config as any)?.schema ||
+    triggerOutputVariables ||
     [];
   const { handleValidationErrors } = useFormValidationErrorHandler({
     formName: 'Split conditions configuration',

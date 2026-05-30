@@ -108,7 +108,7 @@ export const fieldsCombinedByContentType = async (
     validations = { date: true };
   }
 
-  const type = ['visitors', 'leads', 'customers'].includes(contentType)
+  const type = ['visitors', 'leads', 'customers'].includes(collectionType)
     ? 'core:customer'
     : `${pluginName}:${collectionType}`;
 

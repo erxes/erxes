@@ -448,40 +448,52 @@ const createSourceRelation = async ({
     });
   }
 
-  const [serviceName, ...typeParts] = splitType(execution?.triggerType || '');
+  const [serviceName, _module, sourceType] = splitType(
+    execution?.triggerType || '',
+  );
 
   if (!serviceName || serviceName === 'sales' || !execution?.targetId) {
     return;
   }
 
-  const sourceType = typeParts[typeParts.length - 1];
-
   if (!sourceType) {
     return;
   }
+  const isContactTrigger = ['customers', 'leads', 'companies'].includes(
+    sourceType,
+  );
 
-  return sendTRPCMessage({
-    subdomain,
-    method: 'mutation',
-    pluginName: 'core',
-    module: 'relation',
-    action: 'createRelation',
-    input: {
-      entities: [
-        {
-          contentType: `${serviceName}:${sourceType.replace(
-            'lead',
-            'customer',
-          )}`,
-          contentId: execution.targetId,
+  console.log({ isContactTrigger, sourceType });
+
+  if (isContactTrigger) {
+    const contentTypes = {
+      customers: 'core:customer',
+      leads: 'core:customer',
+      companies: 'core:company',
+    };
+
+    return sendTRPCMessage({
+      subdomain,
+      method: 'mutation',
+      pluginName: 'core',
+      module: 'relation',
+      action: 'createRelation',
+      input: {
+        relation: {
+          entities: [
+            {
+              contentType: contentTypes[sourceType],
+              contentId: execution.targetId,
+            },
+            {
+              contentType: 'sales:deal',
+              contentId: dealId,
+            },
+          ],
         },
-        {
-          contentType: 'sales:deal',
-          contentId: dealId,
-        },
-      ],
-    },
-  });
+      },
+    });
+  }
 };
 
 const resolveDatePlaceholder = (key: string) => {

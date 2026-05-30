@@ -37,8 +37,9 @@ const generateDefaultValues = (
       ? mappings.map((mapping) => ({
           ...mapping,
           type: mapping.type || 'text',
+          isExpression: mapping.isExpression || false,
         }))
-      : [{ key: '', value: '', type: 'text' }],
+      : [{ key: '', value: '', type: 'text', isExpression: false }],
   };
 };
 
@@ -76,6 +77,7 @@ export const TransformConfigForm = ({
                   key: '',
                   value: '',
                   type: 'text',
+                  isExpression: false,
                 })
               }
             >
@@ -111,7 +113,7 @@ const TranformConfigRow = ({
   canRemove: boolean;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { control } = useFormContext<TTransformConfigForm>();
+  const { control, setValue } = useFormContext<TTransformConfigForm>();
 
   return (
     <Collapsible
@@ -190,6 +192,15 @@ const TranformConfigRow = ({
                 <PlaceholderInput
                   value={field.value ?? ''}
                   onChange={field.onChange}
+                  isExpression={
+                    control._formValues.mappings?.[index]?.isExpression
+                  }
+                  onChangeInputMode={(mode) =>
+                    setValue(
+                      `mappings.${index}.isExpression`,
+                      mode === 'expression',
+                    )
+                  }
                   disabled={{ attribute: true }}
                 >
                   <PlaceholderInput.Header />

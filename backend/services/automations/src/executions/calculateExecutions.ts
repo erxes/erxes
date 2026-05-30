@@ -18,6 +18,7 @@ const checkIsValidCustomTigger = async (
   trigger: IAutomationTrigger,
   target: any,
   config: any,
+  eventUpdateDescription?: Record<string, any>,
 ) => {
   const [pluginName, moduleName, collectionType, relationType] =
     splitType(type);
@@ -34,6 +35,7 @@ const checkIsValidCustomTigger = async (
       trigger,
       target,
       config,
+      eventUpdateDescription,
     },
     defaultValue: false,
   }).catch((e) =>
@@ -48,6 +50,7 @@ const checkValidTrigger = async (
   target: any,
   subdomain: string,
   automationId: string,
+  eventUpdateDescription?: Record<string, any>,
 ) => {
   const { type = '', config, isCustom } = trigger;
   const { contentId } = config || {};
@@ -59,6 +62,7 @@ const checkValidTrigger = async (
       trigger,
       target,
       config,
+      eventUpdateDescription,
     );
 
     return isValidCustomTigger;
@@ -69,28 +73,64 @@ const checkValidTrigger = async (
   return true;
 };
 
+const capitalize = (value: string) =>
+  value ? value.charAt(0).toUpperCase() + value.slice(1) : value;
+
+const buildExecutionTarget = (
+  target: any,
+  eventUpdateDescription?: Record<string, any>,
+) => {
+  const updated = eventUpdateDescription?.updated || {};
+  const eventFields = Object.entries(updated).reduce(
+    (acc, [field, change]: [string, any]) => {
+      if (!change || typeof change !== 'object') {
+        return acc;
+      }
+
+      const fieldName = capitalize(field);
+
+      return {
+        ...acc,
+        [`previous${fieldName}`]: change.prev,
+        [`current${fieldName}`]: change.current,
+      };
+    },
+    {} as Record<string, any>,
+  );
+
+  return {
+    ...target,
+    ...eventFields,
+    eventUpdateDescription,
+  };
+};
+
 export const calculateExecution = async ({
   models,
   subdomain,
   automationId,
   trigger,
   target,
+  eventUpdateDescription,
 }: {
   models: IModels;
   subdomain: string;
   automationId: string;
   trigger: IAutomationTrigger;
   target: any;
+  eventUpdateDescription?: Record<string, any>;
 }): Promise<IAutomationExecutionDocument | null | undefined> => {
   const { id, type = '', config } = trigger;
   const { reEnrollment, reEnrollmentRules } = config || {};
+  const executionTarget = buildExecutionTarget(target, eventUpdateDescription);
 
   try {
     const isValidTrigger = await checkValidTrigger(
       trigger,
-      target,
+      executionTarget,
       subdomain,
       automationId,
+      eventUpdateDescription,
     );
     if (!isValidTrigger) {
       return;
@@ -101,8 +141,8 @@ export const calculateExecution = async ({
       triggerId: id,
       triggerType: type,
       triggerConfig: config,
-      targetId: target._id,
-      target,
+      targetId: executionTarget._id,
+      target: executionTarget,
       status: AUTOMATION_EXECUTION_STATUS.ERROR,
       description: `An error occurred while checking the is in segment: "${e.message}"`,
       createdAt: new Date(),
@@ -128,7 +168,9 @@ export const calculateExecution = async ({
     let isChanged = false;
 
     for (const reEnrollmentRule of reEnrollmentRules) {
-      if (isDiffValue(latestExecution.target, target, reEnrollmentRule)) {
+      if (
+        isDiffValue(latestExecution.target, executionTarget, reEnrollmentRule)
+      ) {
         isChanged = true;
         break;
       }
@@ -144,8 +186,8 @@ export const calculateExecution = async ({
     triggerId: id,
     triggerType: type,
     triggerConfig: config,
-    targetId: target._id,
-    target,
+    targetId: executionTarget._id,
+    target: executionTarget,
     status: AUTOMATION_EXECUTION_STATUS.ACTIVE,
     description: `Met enrollment criteria`,
     createdAt: new Date(),

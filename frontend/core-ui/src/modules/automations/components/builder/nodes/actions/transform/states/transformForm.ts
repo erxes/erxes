@@ -15,6 +15,7 @@ export const transformConfigFormSchema = z.object({
         key: z.string().min(1, 'Output key is required'),
         value: z.any().optional(),
         type: z.enum(TRANSFORM_VALUE_TYPES).default('text'),
+        isExpression: z.boolean().default(false),
       }),
     )
     .min(1, 'At least one mapping is required'),

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { UsePlaceHolderInputProps } from '../types/placeholderInputTypes';
 import { usePlaceholderEnabledTypes } from './usePlaceholderEnabledTypes';
 import { useSelectionOnlyHandlers } from './useSelectionOnlyHandlers';
@@ -20,9 +20,14 @@ export const usePlaceHolderInput = ({
   extraSuggestionConfigs = [],
 }: UsePlaceHolderInputProps) => {
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  const defaultInputVariant = isExpression ? 'expression' : variant;
   const [inputVariant, setInputVariant] = useState<'expression' | 'fixed'>(
-    isExpression ? 'expression' : variant,
+    defaultInputVariant,
   );
+
+  useEffect(() => {
+    setInputVariant(defaultInputVariant);
+  }, [defaultInputVariant]);
 
   const { enabledTypes } = usePlaceholderEnabledTypes({
     enabled,
@@ -44,6 +49,7 @@ export const usePlaceHolderInput = ({
   } = useSelectionOnlyHandlers({
     value,
     onChange,
+    selectionType,
   });
 
   const setInputRef = (node: HTMLInputElement | HTMLTextAreaElement | null) => {

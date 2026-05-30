@@ -68,7 +68,7 @@ export const AutomationBuilderSidebar = () => {
   const canShowSecondarySidebar = isEditingNode;
   const sidebarWidthClasses = hasSegmentFormContent
     ? 'w-screen max-w-full sm:w-fit sm:min-w-md sm:max-w-[min(56rem,calc(100vw-1rem))]'
-    : 'w-screen max-w-full sm:w-fit sm:min-w-80 sm:max-w-[min(42rem,calc(100vw-1rem))]';
+    : 'w-screen max-w-full sm:w-fit sm:min-w-[28rem] sm:max-w-[min(42rem,calc(100vw-1rem))]';
 
   return (
     <AnimatePresence>
@@ -83,7 +83,7 @@ export const AutomationBuilderSidebar = () => {
 
           <div
             className={cn(
-              'flex h-full min-w-0 flex-col rounded-none border-l bg-sidebar',
+              'flex h-full min-w-0 shrink-0 flex-col rounded-none border-l bg-sidebar',
               sidebarWidthClasses,
             )}
           >

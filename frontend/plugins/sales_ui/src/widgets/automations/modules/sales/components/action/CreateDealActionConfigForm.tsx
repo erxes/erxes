@@ -149,7 +149,6 @@ export const CreateDealActionConfigForm = ({
                 allowOnlyTriggers: true,
               }}
               enabled={{
-                attribute: true,
                 call_user: true,
               }}
             />
@@ -209,9 +208,6 @@ export const CreateDealActionConfigForm = ({
                   ),
                 },
               ]}
-              enabled={{
-                attribute: true,
-              }}
             />
             <Form.Message />
           </Form.Item>

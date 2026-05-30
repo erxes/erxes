@@ -17,6 +17,20 @@ const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition = {
       referenceType: 'sales:sales.stage',
     },
     {
+      key: 'previousStageId',
+      label: 'Previous stage ID',
+      exposure: 'reference',
+      field: 'previousStageId',
+      referenceType: 'sales:sales.stage',
+    },
+    {
+      key: 'currentStageId',
+      label: 'Current stage ID',
+      exposure: 'reference',
+      field: 'currentStageId',
+      referenceType: 'sales:sales.stage',
+    },
+    {
       key: 'initialStageId',
       label: 'Initial stage ID',
       exposure: 'reference',
@@ -115,6 +129,17 @@ export const salesAutomationContants = {
       label: 'Deal reaches stage probability',
       description:
         'Start this workflow when a deal moves to a stage with the selected probability.',
+      isCustom: true,
+      output: SALES_DEAL_TRIGGER_OUTPUT,
+    },
+    {
+      moduleName: 'sales',
+      collectionName: 'deals',
+      relationType: 'stageChanged',
+      icon: 'IconArrowsExchange',
+      label: 'Deal stage changed',
+      description:
+        'Start this workflow when a deal moves from one stage to another.',
       isCustom: true,
       output: SALES_DEAL_TRIGGER_OUTPUT,
     },

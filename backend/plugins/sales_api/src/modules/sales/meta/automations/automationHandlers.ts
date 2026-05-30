@@ -11,6 +11,7 @@ import { createDealAction } from '~/modules/sales/meta/automations/action/create
 import { createChecklist } from '~/modules/sales/meta/automations/action/createChecklist';
 import { getItems } from '~/modules/sales/meta/automations/action/getItems';
 import { getRelatedValue } from '~/modules/sales/meta/automations/action/getRelatedValue';
+import { checkTriggerDealStageChanged } from '~/modules/sales/meta/automations/trigger/checkStageChangedTrigger';
 import { checkTriggerDealStageProbality } from '~/modules/sales/meta/automations/trigger/checkStageProbalityTrigger';
 
 export const salesAutomationHandlers = {
@@ -20,15 +21,27 @@ export const salesAutomationHandlers = {
       relationType,
       target,
       config,
+      eventUpdateDescription,
     }: TAutomationProducersInput[TAutomationProducers.CHECK_CUSTOM_TRIGGER],
     { models }: TCoreModuleProducerContext<IModels>,
   ) => {
-    if (collectionType === 'deal' && relationType === 'probability') {
-      return await checkTriggerDealStageProbality({
-        models,
-        target: target as IDeal,
-        config,
-      });
+    if (collectionType === 'deals') {
+      if (relationType === 'probability') {
+        return await checkTriggerDealStageProbality({
+          models,
+          target: target as IDeal,
+          config,
+        });
+      }
+
+      if (relationType === 'stageChanged') {
+        return await checkTriggerDealStageChanged({
+          models,
+          target: target as IDeal,
+          config,
+          eventUpdateDescription,
+        });
+      }
     }
 
     return false;

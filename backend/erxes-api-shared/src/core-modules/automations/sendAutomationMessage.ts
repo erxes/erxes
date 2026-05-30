@@ -19,6 +19,7 @@ export const sendAutomationTrigger = (
     targets,
     repeatOptions,
     recordType,
+    eventUpdateDescription,
   }: {
     type: string;
     targets: any;
@@ -28,9 +29,18 @@ export const sendAutomationTrigger = (
       optionalConnectId?: string;
     };
     recordType?: 'new' | 'existing';
+    eventUpdateDescription?: Record<string, any>;
   },
   { transport = 'bullmq', jobOptions }: TSendAutomationTriggerProps = {},
 ): void => {
+  const automtionTriggerPayload = {
+    type,
+    targets,
+    repeatOptions,
+    recordType,
+    eventUpdateDescription,
+  };
+
   if (transport === 'trpc') {
     redis
       .get('erxes-service-automations')
@@ -61,12 +71,7 @@ export const sendAutomationTrigger = (
         });
 
         client
-          .mutation('automations.trigger', {
-            type,
-            targets,
-            repeatOptions,
-            recordType,
-          })
+          .mutation('automations.trigger', automtionTriggerPayload)
           .catch((error) => {
             console.error('Error sending  trpc request ', error);
           });
@@ -84,7 +89,7 @@ export const sendAutomationTrigger = (
       'trigger',
       {
         subdomain,
-        data: { type, targets, repeatOptions, recordType },
+        data: automtionTriggerPayload,
       },
       jobOptions,
     )

@@ -79,6 +79,7 @@ export const CheckCustomTriggerInputData = z.object({
   }),
   target: z.record(z.any()),
   config: z.record(z.any()),
+  eventUpdateDescription: z.record(z.string(), z.any()).optional(),
 });
 
 export const CheckTargetMatchInputData = z.object({
