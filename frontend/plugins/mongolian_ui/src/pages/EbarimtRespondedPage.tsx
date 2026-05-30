@@ -17,14 +17,16 @@ export const EbarimtRespondedPage = () => {
       sessionCode,
     },
     skip: !currentUser?._id || !sessionCode,
+    onError: (error) => {
+      console.log('EBARIMT RESPONDED SUB ERROR:', error);
+    },
     onData: ({ data }) => {
       const response = data?.data?.ebarimtResponded;
       const { content: contents } = response ?? {};
 
       if (
         !contents?.length ||
-        response?.sessionCode !==
-          sessionStorage.getItem(SESSION_CODE_STORAGE_KEY)
+        response?.sessionCode !== sessionStorage.getItem(SESSION_CODE_STORAGE_KEY)
       ) {
         return;
       }
