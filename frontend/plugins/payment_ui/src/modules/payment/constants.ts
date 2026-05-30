@@ -26,9 +26,15 @@ export const PAYMENT_KINDS = {
   },
   [PaymentKind.QUICKQR]: {
     name: 'Qpay Quick QR',
-    description: 'Connect your bank account to Qpay',
+    description: 'Use your existing QPay merchant account with static QR code',
     active: true,
-    fields: [],
+    fields: [
+      {
+        key: 'merchantId',
+        label: 'QPay Merchant ID',
+        validation: { type: 'minLength', value: 1 },
+      },
+    ],
   },
   [PaymentKind.SOCIALPAY]: {
     name: 'Social Pay',

@@ -8,10 +8,7 @@ import { PAYMENT_KINDS } from '~/modules/payment/constants';
 import { usePaymentAdd } from '~/modules/payment/hooks/usePaymentAdd';
 import { usePaymentEdit } from '~/modules/payment/hooks/usePaymentEdit';
 import { IPayment, IPaymentDocument } from '~/modules/payment/types/Payment';
-import { PaymentKind } from '~/modules/payment/types/PaymentMethods';
 import { paymentKind } from '~/modules/payment/utils';
-import QuickQrForm from '~/modules/settings/payment/components/QuickQrForm';
-
 type Props = {
   payment: any;
   onCancel: () => void;
@@ -27,33 +24,6 @@ const baseSchema = z.object({
   status: z.enum(['active', 'inactive'], {
     required_error: 'Status is required',
   }),
-});
-
-const quickQrSchema = z.object({
-  kind: z.string().min(1, 'Payment method is required'),
-  name: z
-    .string()
-    .min(1, 'Name is required')
-    .max(100, 'Name must be less than 100 characters'),
-  status: z.enum(['active', 'inactive'], {
-    required_error: 'Status is required',
-  }),
-  type: z.string().min(1, 'Type is required'),
-  companyName: z.string().optional(),
-  firstName: z.string().optional(),
-  lastName: z.string().optional(),
-  registerNumber: z.string().optional(),
-  mccCode: z.string().optional(),
-  city: z.string().optional(),
-  district: z.string().min(1, 'District is required'),
-  businessName: z.string().min(1, 'Business name is required'),
-  address: z.string().min(1, 'Address is required'),
-  phone: z.string().min(1, 'Phone is required'),
-  email: z.string().min(1, 'Email is required'),
-  bankAccount: z.string().min(1, 'Bank account is required'),
-  bankCode: z.string().min(1, 'Bank code is required'),
-  ibanNumber: z.string().min(1, 'IBAN number is required'),
-  bankAccountName: z.string().min(1, 'Bank account name is required'),
 });
 
 // Dynamic schema generator based on payment kind
@@ -118,10 +88,6 @@ const createPaymentSchema = (selectedKind: string) => {
     }
   });
 
-  if (selectedKind === PaymentKind.QUICKQR) {
-    return quickQrSchema;
-  }
-
   return baseSchema.extend(dynamicFields);
 };
 
@@ -162,13 +128,8 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
       });
     }
 
-    if (selectedKind === PaymentKind.QUICKQR) {
-      defaultValues.type = 'person';
-      defaultValues.city = '11000';
-    }
-
     return defaultValues;
-  }, [payment, selectedKind]);
+  }, [payment]);
 
   // Initialize form with react-hook-form and zod resolver
   const form = useForm({
@@ -274,14 +235,6 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
   };
 
   const currentPaymentKind = paymentKind(selectedKind);
-
-  const renderQuickQr = () => {
-    if (selectedKind !== PaymentKind.QUICKQR) {
-      return null;
-    }
-
-    return <QuickQrForm payment={payment} form={form} Form={Form} />;
-  };
 
   return (
     <Form {...form}>
@@ -470,7 +423,6 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                 />
               ))}
 
-              {renderQuickQr()}
             </div>
           </ScrollArea>
         </Sheet.Content>

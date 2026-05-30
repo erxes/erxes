@@ -28,6 +28,11 @@ function validatePaymentKind(kind: string) {
 async function handleQPaySetup(input: any) {
   if (input.kind !== 'qpayQuickqr') return;
 
+  // If merchantId is already provided, skip merchant creation
+  if (input.config?.merchantId) {
+    return;
+  }
+
   if (input.config?.type) {
     input.config.isCompany = input.config.type === 'company';
     delete input.config.type;
@@ -133,23 +138,28 @@ const mutations = {
 
     if (kind === 'qpayQuickqr') {
       try {
-        if (config?.type) {
-          config.isCompany = config.type === 'company';
-          delete config.type;
+        // Skip update if merchantId is directly provided
+        if (config?.merchantId) {
+          // Merchant already exists, just update the config
+        } else {
+          if (config?.type) {
+            config.isCompany = config.type === 'company';
+            delete config.type;
+          }
+
+          const api = new QPayQuickQrAPI(config);
+          const { isCompany } = config;
+
+          const response = isCompany
+            ? await api.updateCompany(config)
+            : await api.updateCustomer(config);
+
+          if (!response?.id) {
+            throw new Error('QPay update did not return merchant id');
+          }
+
+          config.merchantId = response.id;
         }
-
-        const api = new QPayQuickQrAPI(config);
-        const { isCompany } = config;
-
-        const response = isCompany
-          ? await api.updateCompany(config)
-          : await api.updateCustomer(config);
-
-        if (!response?.id) {
-          throw new Error('QPay update did not return merchant id');
-        }
-
-        config.merchantId = response.id;
       } catch (e: any) {
         throw new Error(extractErrorMessage(e));
       }
