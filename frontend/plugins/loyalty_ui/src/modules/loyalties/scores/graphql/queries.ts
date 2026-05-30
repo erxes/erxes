@@ -43,7 +43,8 @@ export const SCORE_LOGS_QUERY = gql`
         _id
         ownerId
         ownerType
-
+        owner
+        totalScore
         change
         action
         description
