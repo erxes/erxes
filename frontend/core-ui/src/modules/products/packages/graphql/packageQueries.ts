@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const PACKAGE_FRAGMENT = gql`
-  fragment PackageFields on Package {
+  fragment PackageFields on ProductPackage {
     _id
     name
     description
@@ -12,7 +12,7 @@ export const PACKAGE_FRAGMENT = gql`
     }
     price
     percent
-    componentsTotal
+    totalPrice
     status
     createdAt
     updatedAt
@@ -20,13 +20,13 @@ export const PACKAGE_FRAGMENT = gql`
 `;
 
 export const GET_PACKAGES = gql`
-  query Packages(
+  query productPackages(
     $searchValue: String
     $status: String
     $cursor: String
     $limit: Int
   ) {
-    packages(
+    productPackages(
       searchValue: $searchValue
       status: $status
       cursor: $cursor
@@ -48,8 +48,8 @@ export const GET_PACKAGES = gql`
 `;
 
 export const GET_PACKAGE_DETAIL = gql`
-  query PackageDetail($_id: String!) {
-    packageDetail(_id: $_id) {
+  query productPackageDetail($_id: String!) {
+    productPackageDetail(_id: $_id) {
       ...PackageFields
     }
   }

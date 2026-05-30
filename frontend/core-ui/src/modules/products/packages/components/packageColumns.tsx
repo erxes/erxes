@@ -121,8 +121,8 @@ export const packageColumns: ColumnDef<IPackage>[] = [
     ),
   },
   {
-    id: 'componentsTotal',
-    accessorKey: 'componentsTotal',
+    id: 'totalPrice',
+    accessorKey: 'totalPrice',
     header: () => <RecordTable.InlineHead label="Total Price" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-sm">

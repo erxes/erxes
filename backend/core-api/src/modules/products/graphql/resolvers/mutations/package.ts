@@ -2,7 +2,7 @@ import { IContext } from '~/connectionResolvers';
 import { IPackage } from '@/products/@types/package';
 
 export const packageMutations = {
-  async packagesAdd(
+  async productPackagesAdd(
     _root: undefined,
     doc: IPackage,
     { models, checkPermission }: IContext,
@@ -12,7 +12,7 @@ export const packageMutations = {
     return models.Packages.createPackage(doc as any);
   },
 
-  async packagesEdit(
+  async productPackagesEdit(
     _root: undefined,
     { _id, ...doc }: { _id: string } & Partial<IPackage>,
     { models, checkPermission }: IContext,
@@ -22,7 +22,7 @@ export const packageMutations = {
     return models.Packages.updatePackage(_id, doc);
   },
 
-  async packagesChangeStatus(
+  async productPackagesChangeStatus(
     _root: undefined,
     { _ids, status }: { _ids: string[]; status: string },
     { models, checkPermission }: IContext,
@@ -32,7 +32,7 @@ export const packageMutations = {
     return models.Packages.changePackageStatus(_ids, status);
   },
 
-  async packagesRemove(
+  async productPackagesRemove(
     _root: undefined,
     { _ids }: { _ids: string[] },
     { models, checkPermission }: IContext,
