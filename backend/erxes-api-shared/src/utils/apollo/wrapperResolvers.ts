@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/node';
 import {
   wrapPermission,
   wrapPublicResolver,
+  AuthenticationError,
 } from '../../core-modules/permissions/utils';
 import {
   IMainContext,
@@ -20,6 +21,10 @@ const withSentryCapture = (
     try {
       return await resolver(root, args, context, info);
     } catch (err) {
+      if (err instanceof AuthenticationError) {
+        throw err;
+      }
+
       Sentry.withScope((scope) => {
         scope.setTag('graphql.operation', operation);
         scope.setTag('graphql.field', resolverKey);

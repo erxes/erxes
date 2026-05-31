@@ -6,9 +6,19 @@ import {
   getActivePlugins,
 } from '../../utils';
 
+export class AuthenticationError extends Error {
+  code: string;
+
+  constructor(message = 'Login required') {
+    super(message);
+    this.name = 'AuthenticationError';
+    this.code = 'AUTHENTICATION_REQUIRED';
+  }
+}
+
 export const checkLogin = (user?: IUserDocument) => {
   if (!user?._id) {
-    throw new Error('Login required');
+    throw new AuthenticationError();
   }
 };
 
