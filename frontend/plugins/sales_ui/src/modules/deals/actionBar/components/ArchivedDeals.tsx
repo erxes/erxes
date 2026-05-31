@@ -52,6 +52,7 @@ export default function ArchivedDeals() {
               size="icon"
               className="size-8 ml-1"
               title="Sort by created date"
+              aria-label="Sort by created date"
             >
               {sortDir === 'asc' ? (
                 <IconSortAscending size={16} />
