@@ -1,13 +1,12 @@
-import { Tooltip, cn } from 'erxes-ui';
 import { memo } from 'react';
-
 import { IconCheck } from '@tabler/icons-react';
-import { IDeal } from '@/deals/types/deals';
+import { Tooltip, cn } from 'erxes-ui';
 import { StageSelect } from 'ui-modules';
+import { IDeal } from '@/deals/types/deals';
 import { useMoveDealStage } from '@/deals/cards/hooks/useDeals';
 import { useStages } from '@/deals/stage/hooks/useStages';
 
-interface StagePipelineSelectorProps {
+interface IStagePipelineSelectorProps {
   deal: IDeal;
 }
 
@@ -15,7 +14,7 @@ const CIRCLE_HALF = 18;
 
 export const StagePipelineSelector = memo(function StagePipelineSelector({
   deal,
-}: StagePipelineSelectorProps) {
+}: IStagePipelineSelectorProps) {
   const pipelineId = deal.pipeline?._id || deal.pipelineId || '';
   const { stages, loading } = useStages({
     variables: { pipelineId },
