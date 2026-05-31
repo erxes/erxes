@@ -26,7 +26,6 @@ import { ProductGroupRowsCommandbar } from '@/ebarimt/settings/product-group/com
 import { IProductGroup } from '@/ebarimt/settings/product-group/constants/productGroupDefaultValues';
 import { useMemo } from 'react';
 import { AddProductGroup } from './ProductGroup';
-import { useProducts } from '@/ebarimt/settings/product-group/hooks/useProducts';
 import { useProductGroupRowsRemove } from '@/ebarimt/settings/product-group/hooks/useProductGroupRowsRemove';
 
 export const ProductGroupTable = () => {
@@ -81,9 +80,9 @@ export const ProductGroupMainProductCell = ({
 }) => {
   const [, setOpen] = useQueryState('product_group_id');
   const setDetail = useSetAtom(productGroupDetailAtom);
-  const { productsById } = useProducts();
+  
   const row = cell.row.original;
-  const name = productsById[row.mainProductId]?.name ?? '';
+  const productInfo = `${row.mainProduct?.code} - ${row.mainProduct?.name}` 
   return (
     <RecordTableInlineCell
       className="cursor-pointer"
@@ -92,7 +91,7 @@ export const ProductGroupMainProductCell = ({
         setOpen(row._id);
       }}
     >
-      <TextOverflowTooltip value={name} />
+      <TextOverflowTooltip value={productInfo} />
     </RecordTableInlineCell>
   );
 };
@@ -102,12 +101,11 @@ export const ProductGroupSubProductCell = ({
 }: {
   cell: Cell<IProductGroup, unknown>;
 }) => {
-  const { productsById } = useProducts();
   const row = cell.row.original;
-  const name = productsById[row.subProductId]?.name ?? '';
+  const productInfo = `${row.subProduct?.code} - ${row.subProduct?.name}` 
   return (
     <RecordTableInlineCell>
-      <TextOverflowTooltip value={name} />
+      <TextOverflowTooltip value={productInfo} />
     </RecordTableInlineCell>
   );
 };

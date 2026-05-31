@@ -1,3 +1,4 @@
+import './sentry-instrument';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
@@ -48,6 +49,7 @@ import {
 } from './service-discovery';
 import { createTRPCContext } from './trpc';
 import { applyTrustProxy, getSubdomain } from './utils';
+import * as Sentry from '@sentry/node';
 
 dotenv.config();
 
@@ -144,6 +146,11 @@ export async function startPlugin(
   } = configs || {};
   const PORT = process.env.PORT ? Number(process.env.PORT) : port;
 
+  Sentry.getGlobalScope().setTags({
+    plugin: name,
+    service: name,
+  });
+
   const app = express();
   applyTrustProxy(app);
   app.disable('x-powered-by');
@@ -158,6 +165,10 @@ export async function startPlugin(
   // for health check
   app.get('/health', async (_req, res) => {
     res.end('ok');
+  });
+
+  app.get('/debug-sentry', () => {
+    throw new Error('Sentry test error: ' + new Date().toISOString());
   });
 
   if (expressRouter) {
@@ -403,6 +414,8 @@ export async function startPlugin(
   //   applyInspectorEndpoints(name);
 
   //   debugInfo(`${name} server is running on port: ${PORT}`);
+
+  Sentry.setupExpressErrorHandler(app);
 
   return app;
 }

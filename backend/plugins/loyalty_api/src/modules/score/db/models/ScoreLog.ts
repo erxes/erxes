@@ -203,6 +203,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       );
       const orderBy: Record<string, SortOrder> =
         orderType === 'createdAt' ? { createdAt: -1 } : { totalScore: -1 };
+
       const sortFields = Object.keys(orderBy);
       const sortOrder = {
         ...Object.fromEntries(
@@ -262,9 +263,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
       const cursorMatch = doc.cursor
         ? buildCursorQuery(doc.cursor, orderBy, direction, {
-            createdAt: 'date',
-            totalScore: 'number',
-          })
+          createdAt: 'date',
+          totalScore: 'number',
+
+        })
         : null;
 
       const listPipeline: any[] = [
@@ -298,6 +300,31 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       if (direction === 'backward') {
         list = list.reverse();
       }
+
+      const ownerKeys = Array.from(
+        new Set(
+          list
+            .filter((l: any) => l.ownerId && l.ownerType)
+            .map((l: any) => `${l.ownerType}:${l.ownerId}`),
+        ),
+      );
+
+      const ownerMap = new Map<string, any>();
+      await Promise.all(
+        ownerKeys.map(async (key) => {
+          const [ownerType, ownerId] = key.split(':');
+          const owner = await getLoyaltyOwner(subdomain, {
+            ownerType,
+            ownerId,
+          });
+          if (owner) ownerMap.set(key, owner);
+        }),
+      );
+
+      list = list.map((item: any) => ({
+        ...item,
+        owner: ownerMap.get(`${item.ownerType}:${item.ownerId}`) || null,
+      }));
 
       const pageInfo: PageInfo = {
         hasNextPage: direction === 'forward' ? hasMore : Boolean(doc.cursor),

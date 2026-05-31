@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useEditSpin } from '../hooks/useEditSpin';
 import { SelectCustomer, SelectMember } from 'ui-modules';
 import { SelectCompany } from 'ui-modules/modules/contacts/components/SelectCompany';
-import { SelectClientPortalUserFormItem } from '../../score/components/selects/SelectOwnerById';
+import { SelectClientPortalUserFormItem } from '../../scores/components/selects/SelectOwnerById';
 import { ISpin } from '../types/spin';
 import { SelectSpinCampaign } from './selects/SelectSpinCampaign';
 import { SelectVoucherCampaign } from '../../vouchers/components/selects/SelectVoucherCampaign';

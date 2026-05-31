@@ -8,8 +8,9 @@ import {
 import { Link, useSearchParams } from 'react-router-dom';
 
 import { AddDealSheet } from '@/deals/components/AddDealSheet';
+import { CommonDealSearch } from '@/deals/components/commonSearch';
 import { DealsView } from '@/deals/actionBar/components/DealViewControl';
-import { IconSandbox } from '@tabler/icons-react';
+import { IconSandbox, IconSettings } from '@tabler/icons-react';
 import MainActionBar from '@/deals/actionBar/components/MainActionBar';
 import { PageHeader } from 'ui-modules';
 import { SalesBreadCrumb } from '@/deals/components/breadcrumb/SalesBreadCrumb';
@@ -29,7 +30,7 @@ export const SalesIndexPage = () => {
               <Breadcrumb.List className="gap-1">
                 <Breadcrumb.Item>
                   <Button variant="ghost" asChild>
-                    <Link to="/sales">
+                    <Link to="/sales/deal">
                       <IconSandbox />
                       Sales Pipeline
                     </Link>
@@ -42,6 +43,15 @@ export const SalesIndexPage = () => {
               </Breadcrumb.List>
             </Breadcrumb>
           </PageHeader.Start>
+          <PageHeader.End>
+            <CommonDealSearch />
+            <Button variant="ghost" asChild>
+              <Link to={`/settings/sales/deals?activeBoardId=${boardId}`}>
+                <IconSettings />
+                Go To Settings
+              </Link>
+            </Button>
+          </PageHeader.End>
           <AddDealSheet />
         </PageHeader>
 

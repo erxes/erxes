@@ -1,3 +1,5 @@
+import './sentry-instrument';
+import * as Sentry from '@sentry/node';
 import * as dotenv from 'dotenv';
 
 import express from 'express';
@@ -81,6 +83,11 @@ createBullBoard({
 
 serverAdapter.setBasePath('/bullmq-board');
 
+Sentry.getGlobalScope().setTags({
+  plugin: 'gateway',
+  service: 'gateway',
+});
+
 const app = express();
 applyTrustProxy(app);
 
@@ -149,6 +156,10 @@ app.use('/bullmq-board', serverAdapter.getRouter());
 
 app.get('/health', async (_req, res) => {
   res.end('ok');
+});
+
+app.get('/debug-sentry', () => {
+  throw new Error('Sentry test error (gateway): ' + new Date().toISOString());
 });
 
 app.get('/locales/:lng/:file', async (req, res) => {
@@ -230,6 +241,8 @@ async function start() {
     applyGraphqlLimiters(app);
     applyProxiesCoreless(app);
     applyProxyToCore(app, global.currentTargets);
+
+    Sentry.setupExpressErrorHandler(app);
 
     // Start the HTTP server
     httpServer = http.createServer(app);

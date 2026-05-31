@@ -323,12 +323,11 @@ export const safeRemainderDoTrs = async (
 
   if (!oldMainTr) {
     // create
-    const mainTrId = nanoid();
-    await models.Transactions.createPTransaction(
-      [{ ...transactionDoc, _id: mainTrId }],
+    const transactions = await models.Transactions.createPTransaction(
+      [{ ...transactionDoc }],
       user._id,
     );
-    return mainTrId;
+    return transactions?.[0]?.parentId;
   }
 
   // update
@@ -337,7 +336,7 @@ export const safeRemainderDoTrs = async (
     [{ ...oldMainTr, ...transactionDoc }, ...(otherTrs ?? [])],
     user._id,
   );
-  return oldMainTr._id;
+  return oldMainTr.parentId;
 };
 
 export const safeRemainderUndoTrs = async (models: IModels, trId?: string) => {

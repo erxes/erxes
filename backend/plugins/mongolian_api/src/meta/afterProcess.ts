@@ -1,7 +1,4 @@
-import {
-  AfterProcessConfigs,
-  IAfterProcessRule,
-} from 'erxes-api-shared/utils';
+import { AfterProcessConfigs, IAfterProcessRule } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { afterMutationHandlers as dealAfterEbarimt } from '~/modules/ebarimt/afterMutations';
 import {
@@ -112,35 +109,6 @@ export const afterProcess: AfterProcessConfigs = {
         }
       } catch (error) {
         console.error('Erkhet afterMutation failed:', error);
-      }
-    }
-
-    // SYNC ERKHET
-    if (erkhetMutationNames.includes(mutationName)) {
-      const currentStageId = result?.stageId || destinationStageId;
-      const isCreate = mutationName === 'dealsAdd';
-      const isStageChanged =
-        destinationStageId &&
-        destinationStageId !== sourceStageId &&
-        destinationStageId === currentStageId &&
-        itemId;
-
-      if (
-        (isCreate || isStageChanged) &&
-        (await hasErkhetStageConfig(models, currentStageId))
-      ) {
-        await dealAfterErkhet(ctx.subdomain, {
-          type: 'sales:deal',
-          action: isCreate ? 'create' : 'update',
-          object: isCreate
-            ? result
-            : {
-                _id: itemId,
-                stageId: sourceStageId,
-              },
-          updatedDocument: result,
-          user: { _id: userId },
-        });
       }
     }
 

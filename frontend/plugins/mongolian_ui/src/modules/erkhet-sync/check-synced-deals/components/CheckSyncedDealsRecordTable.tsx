@@ -9,11 +9,15 @@ import { ICheckSyncedDeals } from '../types/checkSyncedDeals';
 const CheckDealsButton = ({
   deals,
   checking,
+  syncing,
   onCheck,
+  onSyncUnchecked,
 }: {
   deals: ICheckSyncedDeals[];
   checking: boolean;
+  syncing: boolean;
   onCheck: (ids: string[]) => void;
+  onSyncUnchecked: (ids: string[]) => void;
 }) => {
   const { table } = RecordTable.useRecordTable();
   const selectedRows = table.getSelectedRowModel().rows;
@@ -33,13 +37,28 @@ const CheckDealsButton = ({
       <Button onClick={() => onCheck(ids)} disabled={checking || !ids.length}>
         {checking ? 'Checking...' : 'Check Deals'}
       </Button>
+      <Button
+        onClick={() => onSyncUnchecked(ids)}
+        disabled={syncing || !ids.length}
+        variant="outline"
+      >
+        {syncing ? 'Syncing...' : 'Sync Unchecked'}
+      </Button>
     </div>
   );
 };
 
 export const CheckSyncedDealsRecordTable = () => {
-  const { Deals, checkDeals, checking, handleFetchMore, loading, pageInfo } =
-    useCheckSyncedDeals();
+  const {
+    Deals,
+    checkDeals,
+    checking,
+    handleFetchMore,
+    loading,
+    pageInfo,
+    syncUncheckedDeals,
+    syncing,
+  } = useCheckSyncedDeals();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -54,6 +73,8 @@ export const CheckSyncedDealsRecordTable = () => {
         deals={Deals || []}
         checking={checking}
         onCheck={checkDeals}
+        onSyncUnchecked={syncUncheckedDeals}
+        syncing={syncing}
       />
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
