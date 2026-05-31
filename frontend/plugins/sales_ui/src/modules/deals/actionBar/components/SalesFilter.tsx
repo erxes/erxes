@@ -56,16 +56,22 @@ export const SalesFilter = () => {
           </Filter.Popover>
           <Filter.Dialog>
             <Filter.View filterKey="createdStartDate" inDialog>
-              <Filter.DialogDateView filterKey="createdStartDate" label="Date created" />
-            </Filter.View>
-            <Filter.View filterKey="createdEndDate" inDialog>
-              <Filter.DialogDateView filterKey="createdEndDate" label="Date created (end)" />
+              <Filter.DialogDateView
+                filterKey="createdStartDate"
+                label="Date created"
+              />
             </Filter.View>
             <Filter.View filterKey="startDateStartDate" inDialog>
-              <Filter.DialogDateView filterKey="startDateStartDate" label="Start date" />
+              <Filter.DialogDateView
+                filterKey="startDateStartDate"
+                label="Start date"
+              />
             </Filter.View>
             <Filter.View filterKey="startDateEndDate" inDialog>
-              <Filter.DialogDateView filterKey="startDateEndDate" label="End date" />
+              <Filter.DialogDateView
+                filterKey="startDateEndDate"
+                label="End date"
+              />
             </Filter.View>
           </Filter.Dialog>
         </div>
