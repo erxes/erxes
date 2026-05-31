@@ -994,6 +994,9 @@ importers:
 
   backend/plugins/content_api:
     dependencies:
+      '@google-analytics/data':
+        specifier: ^6.1.0
+        version: 6.1.0
       erxes-api-shared:
         specifier: workspace:^
         version: link:../../erxes-api-shared
@@ -1030,6 +1033,9 @@ importers:
       '@elastic/elasticsearch':
         specifier: 7.17.14
         version: 7.17.14
+      '@google-analytics/data':
+        specifier: ^6.1.0
+        version: 6.1.0
       '@google-cloud/storage':
         specifier: 7.17.3
         version: 7.17.3(encoding@0.1.13)
@@ -1039,6 +1045,9 @@ importers:
       '@prettier/sync':
         specifier: 0.5.5
         version: 0.5.5(prettier@3.6.2)
+      '@sentry/node':
+        specifier: 10.55.0
+        version: 10.55.0
       '@sniptt/guards':
         specifier: 0.2.0
         version: 0.2.0
@@ -1075,6 +1084,9 @@ importers:
       cors:
         specifier: 2.8.5
         version: 2.8.5
+      csv-parse:
+        specifier: 6.2.1
+        version: 6.2.1
       dataloader:
         specifier: 2.2.3
         version: 2.2.3
@@ -1094,8 +1106,8 @@ importers:
         specifier: 4.21.2
         version: 4.21.2
       express-rate-limit:
-        specifier: 6.11.2
-        version: 6.11.2(express@4.21.2)
+        specifier: 8.0.1
+        version: 8.0.1(express@4.21.2)
       file-type:
         specifier: 20.5.0
         version: 20.5.0
@@ -1115,7 +1127,7 @@ importers:
         specifier: 3.0.0
         version: 3.0.0(graphql@16.10.0)
       graphql-tag:
-        specifier: 2.12.6
+        specifier: ^2.12.6
         version: 2.12.6(graphql@16.10.0)
       helmet:
         specifier: 8.1.0
@@ -1228,198 +1240,6 @@ importers:
       ws:
         specifier: ^8.18.2
         version: 8.19.0
-
-  backend/plugins/frontline_api/dist:
-    dependencies:
-      '@apollo/server':
-        specifier: 4.11.3
-        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
-      '@apollo/subgraph':
-        specifier: 2.10.0
-        version: 2.10.0(graphql@16.10.0)
-      '@azure/storage-blob':
-        specifier: 12.29.1
-        version: 12.29.1
-      '@babel/preset-env':
-        specifier: 7.26.9
-        version: 7.26.9(@babel/core@7.26.10)
-      '@elastic/elasticsearch':
-        specifier: 7.17.14
-        version: 7.17.14
-      '@google-cloud/storage':
-        specifier: 7.17.3
-        version: 7.17.3(encoding@0.1.13)
-      '@preconstruct/cli':
-        specifier: 2.8.12
-        version: 2.8.12
-      '@prettier/sync':
-        specifier: 0.5.5
-        version: 0.5.5(prettier@3.6.2)
-      '@sniptt/guards':
-        specifier: 0.2.0
-        version: 0.2.0
-      '@trpc/client':
-        specifier: 11.0.4
-        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
-      '@trpc/server':
-        specifier: 11.0.4
-        version: 11.0.4(typescript@5.8.3)
-      '@types/babel__preset-env':
-        specifier: 7.10.0
-        version: 7.10.0
-      '@types/graphql':
-        specifier: 14.5.0
-        version: 14.5.0
-      '@types/ioredis':
-        specifier: 5.0.0
-        version: 5.0.0
-      '@types/lodash':
-        specifier: 4.17.21
-        version: 4.17.21
-      aws-sdk:
-        specifier: ^2.1692.0
-        version: 2.1692.0
-      babel-plugin-module-resolver:
-        specifier: 5.0.2
-        version: 5.0.2
-      base64-stream:
-        specifier: ^1.0.0
-        version: 1.0.0
-      bullmq:
-        specifier: 5.40.4
-        version: 5.40.4
-      cookie-parser:
-        specifier: 1.4.7
-        version: 1.4.7
-      cors:
-        specifier: 2.8.5
-        version: 2.8.5
-      dataloader:
-        specifier: 2.2.3
-        version: 2.2.3
-      date-fns:
-        specifier: 4.1.0
-        version: 4.1.0
-      dayjs:
-        specifier: 1.11.13
-        version: 1.11.13
-      debug:
-        specifier: ^4.4.0
-        version: 4.4.3(supports-color@8.1.1)
-      dotenv:
-        specifier: 16.4.7
-        version: 16.4.7
-      erxes-api-shared:
-        specifier: workspace:^
-        version: link:../../../erxes-api-shared
-      exceljs:
-        specifier: 4.4.0
-        version: 4.4.0
-      express:
-        specifier: 4.21.2
-        version: 4.21.2
-      express-rate-limit:
-        specifier: 6.11.2
-        version: 6.11.2(express@4.21.2)
-      fast-xml-parser:
-        specifier: 5.2.5
-        version: 5.2.5
-      fbgraph:
-        specifier: ^1.4.4
-        version: 1.4.4
-      file-type:
-        specifier: 20.5.0
-        version: 20.5.0
-      form-data:
-        specifier: 4.0.2
-        version: 4.0.2
-      glob:
-        specifier: 11.0.1
-        version: 11.0.1
-      graphql:
-        specifier: 16.10.0
-        version: 16.10.0
-      graphql-redis-subscriptions:
-        specifier: 2.7.0
-        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
-      graphql-subscriptions:
-        specifier: 3.0.0
-        version: 3.0.0(graphql@16.10.0)
-      graphql-tag:
-        specifier: 2.12.6
-        version: 2.12.6(graphql@16.10.0)
-      helmet:
-        specifier: 8.1.0
-        version: 8.1.0
-      ioredis:
-        specifier: 5.6.1
-        version: 5.6.1
-      jsonwebtoken:
-        specifier: 9.0.2
-        version: 9.0.2
-      lodash:
-        specifier: 4.17.21
-        version: 4.17.21
-      mailparser:
-        specifier: ^3.9.1
-        version: 3.9.1
-      moment:
-        specifier: 2.30.1
-        version: 2.30.1
-      moment-timezone:
-        specifier: ^0.5.48
-        version: 0.5.48
-      mongodb:
-        specifier: 6.18.0
-        version: 6.18.0(socks@2.8.7)
-      mongoose:
-        specifier: 8.13.2
-        version: 8.13.2(socks@2.8.7)
-      nanoid:
-        specifier: 3.3.11
-        version: 3.3.11
-      node-fetch:
-        specifier: 2.7.0
-        version: 2.7.0(encoding@0.1.13)
-      node-imap:
-        specifier: ^0.9.6
-        version: 0.9.6
-      nodemailer:
-        specifier: 6.9.10
-        version: 6.9.10
-      redlock:
-        specifier: 5.0.0-beta.2
-        version: 5.0.0-beta.2
-      string-strip-html:
-        specifier: ^13.4.12
-        version: 13.4.12
-      strip:
-        specifier: 3.0.0
-        version: 3.0.0
-      strip-ansi:
-        specifier: 6.0.1
-        version: 6.0.1
-      strip-html:
-        specifier: ^1.0.2
-        version: 1.0.2
-      tslib:
-        specifier: 2.8.1
-        version: 2.8.1
-      underscore:
-        specifier: 1.13.7
-        version: 1.13.7
-      uuid-by-string:
-        specifier: ^4.0.0
-        version: 4.0.0
-      validator:
-        specifier: 13.15.0
-        version: 13.15.0
-      ws:
-        specifier: 8.18.2
-        version: 8.18.2
-      zod:
-        specifier: 3.24.2
-        version: 3.24.2
 
   backend/plugins/insurance_api:
     dependencies:
@@ -1647,153 +1467,6 @@ importers:
         specifier: ^1.13.7
         version: 1.13.7
 
-  backend/plugins/sales_api/dist:
-    dependencies:
-      '@apollo/server':
-        specifier: 4.11.3
-        version: 4.11.3(encoding@0.1.13)(graphql@16.10.0)
-      '@apollo/subgraph':
-        specifier: 2.10.0
-        version: 2.10.0(graphql@16.10.0)
-      '@azure/storage-blob':
-        specifier: 12.29.1
-        version: 12.29.1
-      '@babel/preset-env':
-        specifier: 7.26.9
-        version: 7.26.9(@babel/core@7.26.10)
-      '@elastic/elasticsearch':
-        specifier: 7.17.14
-        version: 7.17.14
-      '@google-cloud/storage':
-        specifier: 7.17.3
-        version: 7.17.3(encoding@0.1.13)
-      '@preconstruct/cli':
-        specifier: 2.8.12
-        version: 2.8.12
-      '@prettier/sync':
-        specifier: 0.5.5
-        version: 0.5.5(prettier@3.6.2)
-      '@sentry/node':
-        specifier: 10.55.0
-        version: 10.55.0
-      '@sniptt/guards':
-        specifier: 0.2.0
-        version: 0.2.0
-      '@trpc/client':
-        specifier: 11.0.4
-        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
-      '@trpc/server':
-        specifier: 11.0.4
-        version: 11.0.4(typescript@5.8.3)
-      '@types/babel__preset-env':
-        specifier: 7.10.0
-        version: 7.10.0
-      '@types/graphql':
-        specifier: 14.5.0
-        version: 14.5.0
-      '@types/ioredis':
-        specifier: 5.0.0
-        version: 5.0.0
-      '@types/lodash':
-        specifier: 4.17.21
-        version: 4.17.21
-      aws-sdk:
-        specifier: 2.1692.0
-        version: 2.1692.0
-      babel-plugin-module-resolver:
-        specifier: 5.0.2
-        version: 5.0.2
-      bullmq:
-        specifier: 5.40.4
-        version: 5.40.4
-      cookie-parser:
-        specifier: 1.4.7
-        version: 1.4.7
-      cors:
-        specifier: 2.8.5
-        version: 2.8.5
-      csv-parse:
-        specifier: 6.2.1
-        version: 6.2.1
-      dataloader:
-        specifier: 2.2.3
-        version: 2.2.3
-      dayjs:
-        specifier: 1.11.13
-        version: 1.11.13
-      dotenv:
-        specifier: 16.4.7
-        version: 16.4.7
-      erxes-api-shared:
-        specifier: workspace:^
-        version: link:../../../erxes-api-shared
-      exceljs:
-        specifier: 4.4.0
-        version: 4.4.0
-      express:
-        specifier: 4.21.2
-        version: 4.21.2
-      express-rate-limit:
-        specifier: 8.0.1
-        version: 8.0.1(express@4.21.2)
-      file-type:
-        specifier: 20.5.0
-        version: 20.5.0
-      form-data:
-        specifier: 4.0.2
-        version: 4.0.2
-      glob:
-        specifier: 11.0.1
-        version: 11.0.1
-      graphql:
-        specifier: 16.10.0
-        version: 16.10.0
-      graphql-redis-subscriptions:
-        specifier: 2.7.0
-        version: 2.7.0(graphql-subscriptions@3.0.0(graphql@16.10.0))
-      graphql-subscriptions:
-        specifier: 3.0.0
-        version: 3.0.0(graphql@16.10.0)
-      graphql-tag:
-        specifier: ^2.12.6
-        version: 2.12.6(graphql@16.10.0)
-      helmet:
-        specifier: 8.1.0
-        version: 8.1.0
-      ioredis:
-        specifier: 5.6.1
-        version: 5.6.1
-      lodash:
-        specifier: 4.17.21
-        version: 4.17.21
-      moment:
-        specifier: 2.30.1
-        version: 2.30.1
-      mongoose:
-        specifier: 8.13.2
-        version: 8.13.2(socks@2.8.7)
-      nanoid:
-        specifier: 3.3.11
-        version: 3.3.11
-      node-fetch:
-        specifier: 2.7.0
-        version: 2.7.0(encoding@0.1.13)
-      sift:
-        specifier: ^17.1.3
-        version: 17.1.3
-      strip-ansi:
-        specifier: 6.0.1
-        version: 6.0.1
-      tslib:
-        specifier: 2.8.1
-        version: 2.8.1
-      underscore:
-        specifier: ^1.13.7
-        version: 1.13.7
-      zod:
-        specifier: 3.24.2
-        version: 3.24.2
-
   backend/plugins/tourism_api:
     dependencies:
       erxes-api-shared:
@@ -1927,7 +1600,7 @@ packages:
   '@apollo/server@4.11.3':
     resolution: {integrity: sha512-mW8idE2q0/BN14mimfJU5DAnoPHZRrAWgwsVLBEdACds+mxapIYxIbI6AH4AsOpxfrpvHts3PCYDbopy1XPW1g==}
     engines: {node: '>=14.16.0'}
-    deprecated: Apollo Server v4 is deprecated and will transition to end-of-life on January 26, 2026. As long as you are already using a non-EOL version of Node.js, upgrading to v5 should take only a few minutes. See https://www.apollographql.com/docs/apollo-server/previous-versions for details.
+    deprecated: Apollo Server v4 is end-of-life since January 26, 2026. As long as you are already using a non-EOL version of Node.js, upgrading to v5 should take only a few minutes. See https://www.apollographql.com/docs/apollo-server/previous-versions for details.
     peerDependencies:
       graphql: ^16.6.0
 
@@ -3750,6 +3423,10 @@ packages:
 
   '@formkit/auto-animate@0.8.2':
     resolution: {integrity: sha512-SwPWfeRa5veb1hOIBMdzI+73te5puUBHmqqaF1Bu7FjvxlYSz/kJcZKSa9Cg60zL0uRNeJL2SbRxV6Jp6Q1nFQ==}
+
+  '@google-analytics/data@6.1.0':
+    resolution: {integrity: sha512-72sICGmThvOuy1yVlaVRvWgUZ+4VvAlmkIlDgzo1SSSRl2MvbNJavnMTG7uGhNnlgwuHNwReKrm6R/7gAKo4hw==}
+    engines: {node: '>=18'}
 
   '@google-cloud/firestore@7.11.6':
     resolution: {integrity: sha512-EW/O8ktzwLfyWBOsNuhRoMi8lrC3clHM5LVFhGvO1HCsLozCOOXRAlHrYBoE6HL42Sc8yYMuCb2XqcnJ4OOEpw==}
@@ -9593,7 +9270,7 @@ packages:
   basic-ftp@5.1.0:
     resolution: {integrity: sha512-RkaJzeJKDbaDWTIPiJwubyljaEPwpVWkm9Rt5h9Nd6h7tEXTJ3VB4qxdZBioV7JO5yLUaOKwz7vDOzlncUsegw==}
     engines: {node: '>=10.0.0'}
-    deprecated: Security vulnerability fixed in 5.2.0, please upgrade
+    deprecated: Security vulnerability fixed in 5.2.1, please upgrade
 
   batch@0.6.1:
     resolution: {integrity: sha512-x+VAiMRL6UPkx+kudNvxTl6hB2XNNCG2r+7wixVfIYwu/2HKRXimwQyaumLjMveWvT2Hkd/cAJw+QBMfJ/EKVw==}
@@ -10596,6 +10273,10 @@ packages:
     resolution: {integrity: sha512-jRFi8UDGo6j+odZiEpjazZaWqEal3w/basFjQHQEwVtZJGDpxbH1MeYluwCS8Xq5wmLJooDlMgvVarmWfGM44g==}
     engines: {node: '>=0.10'}
 
+  data-uri-to-buffer@4.0.1:
+    resolution: {integrity: sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==}
+    engines: {node: '>= 12'}
+
   data-uri-to-buffer@6.0.2:
     resolution: {integrity: sha512-7hvf7/GW8e86rW0ptuwS3OcBGDjIi6SZva7hCyWC0yYry2cOPmLIjXAUHI6DK2HsnwJd9ifmt57i8eV2n4YNpw==}
     engines: {node: '>= 14'}
@@ -11467,12 +11148,6 @@ packages:
     resolution: {integrity: sha512-2Zks0hf1VLFYI1kbh0I5jP3KHHyCHpkfyHBzsSXRFgl/Bg9mWYfMW8oD+PdMPlEwy5HNsR9JutYy6pMeOh61nw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
 
-  express-rate-limit@6.11.2:
-    resolution: {integrity: sha512-a7uwwfNTh1U60ssiIkuLFWHt4hAC5yxlLGU2VP0X4YNlyEDZAqF4tK3GD3NSitVBrCQmQ0++0uOyFOgC2y4DDw==}
-    engines: {node: '>= 14'}
-    peerDependencies:
-      express: ^4 || ^5
-
   express-rate-limit@8.0.1:
     resolution: {integrity: sha512-aZVCnybn7TVmxO4BtlmnvX+nuz8qHW124KKJ8dumsBsmv5ZLxE0pYu7S2nwyRBGHHCAzdmnGyrc5U/rksSPO7Q==}
     engines: {node: '>= 16'}
@@ -11598,6 +11273,10 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
+
+  fetch-blob@3.2.0:
+    resolution: {integrity: sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ==}
+    engines: {node: ^12.20 || >= 14.13}
 
   fflate@0.8.2:
     resolution: {integrity: sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A==}
@@ -11794,6 +11473,10 @@ packages:
     resolution: {integrity: sha512-hGfm/slu0ZabnNt4oaRZ6uREyfCj6P4fT/n6A1rGV+Z0VdGXjfOhVUpkn6qVQONHGIFwmveGXyDs75+nr6FM8w==}
     engines: {node: '>= 6'}
 
+  formdata-polyfill@4.0.10:
+    resolution: {integrity: sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==}
+    engines: {node: '>=12.20.0'}
+
   formidable@3.5.4:
     resolution: {integrity: sha512-YikH+7CUTOtP44ZTnUhR7Ic2UASBPOqmaRkRKxRbywPTe5VxF7RRCck4af9wutiZ/QKM5nME9Bie2fFaPz5Gug==}
     engines: {node: '>=14.0.0'}
@@ -11927,9 +11610,17 @@ packages:
     resolution: {integrity: sha512-LDODD4TMYx7XXdpwxAVRAIAuB0bzv0s+ywFonY46k126qzQHT9ygyoa9tncmOiQmmDrik65UYsEkv3lbfqQ3yQ==}
     engines: {node: '>=14'}
 
+  gaxios@7.1.4:
+    resolution: {integrity: sha512-bTIgTsM2bWn3XklZISBTQX7ZSddGW+IO3bMdGaemHZ3tbqExMENHLx6kKZ/KlejgrMtj8q7wBItt51yegqalrA==}
+    engines: {node: '>=18'}
+
   gcp-metadata@6.1.1:
     resolution: {integrity: sha512-a4tiq7E0/5fTjxPAaH4jpjkSv/uCaU2p5KC6HVGrvl0cDjA8iBZv4vv1gyzlmK0ZUKqwpOyQMKzZQe3lTit77A==}
     engines: {node: '>=14'}
+
+  gcp-metadata@8.1.2:
+    resolution: {integrity: sha512-zV/5HKTfCeKWnxG0Dmrw51hEWFGfcF2xiXqcA3+J90WDuP0SvoiSO5ORvcBsifmx/FoIjgQN3oNOGaQ5PhLFkg==}
+    engines: {node: '>=18'}
 
   gensync@1.0.0-beta.2:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
@@ -12119,6 +11810,10 @@ packages:
     resolution: {integrity: sha512-s3Fq41ZVh7vbbe2PN3nrW7yC7U7MFVc5c98/iTl9c2GawNMKx/J648KQRW6WKkuU8GIbbh2IXfIRQjOZnXcTnw==}
     engines: {node: '>=18'}
 
+  google-auth-library@10.6.2:
+    resolution: {integrity: sha512-e27Z6EThmVNNvtYASwQxose/G57rkRuaRbQyxM2bvYLLX/GqWZ5chWq2EBoUchJbCc57eC9ArzO5wMsEmWftCw==}
+    engines: {node: '>=18'}
+
   google-auth-library@9.15.1:
     resolution: {integrity: sha512-Jb6Z0+nvECVz+2lzSMt9u98UsoakXxA2HGHMCxh+so3n90XgYWkq5dur19JAJV7ONiJY22yBTyJB1TSkvPq9Ng==}
     engines: {node: '>=14'}
@@ -12127,8 +11822,16 @@ packages:
     resolution: {integrity: sha512-V6eky/xz2mcKfAd1Ioxyd6nmA61gao3n01C+YeuIwu3vzM9EDR6wcVzMSIbLMDXWeoi9SHYctXuKYC5uJUT3eQ==}
     engines: {node: '>=14'}
 
+  google-gax@5.0.6:
+    resolution: {integrity: sha512-1kGbqVQBZPAAu4+/R1XxPQKP0ydbNYoLAr4l0ZO2bMV0kLyLW4I1gAk++qBLWt7DPORTzmWRMsCZe86gDjShJA==}
+    engines: {node: '>=18'}
+
   google-logging-utils@0.0.2:
     resolution: {integrity: sha512-NEgUnEcBiP5HrPzufUkBzJOD/Sxsco3rLNo1F1TNf7ieU8ryUzBhqba8r756CjLX7rn3fHl6iLEwPYuqpoKgQQ==}
+    engines: {node: '>=14'}
+
+  google-logging-utils@1.1.3:
+    resolution: {integrity: sha512-eAmLkjDjAFCVXg7A1unxHsLf961m6y17QFqXqAXGj/gVkKFrEICfStRfwUlGNfeCEjNRa32JEWOUTlYXPyyKvA==}
     engines: {node: '>=14'}
 
   gopd@1.2.0:
@@ -12558,6 +12261,7 @@ packages:
 
   imax@0.1.0:
     resolution: {integrity: sha512-MqxqNY4MXKtlndihkS5InjTSiul4UjKs6VJ23TJ2pZWiFbPN9yL1h6izkTNJqsUbxEJyn5+Vj4S+MLpYH9hq9A==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   immediate@3.0.6:
     resolution: {integrity: sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==}
@@ -14563,6 +14267,11 @@ packages:
   node-addon-api@7.1.1:
     resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
 
+  node-domexception@1.0.0:
+    resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
+    engines: {node: '>=10.5.0'}
+    deprecated: Use your platform's native DOMException instead
+
   node-fetch@2.6.0:
     resolution: {integrity: sha512-8dG4H5ujfvFiqDmVu9fQ5bOHUC15JMjMY/Zumv26oOvvVJjM67KF8koCWIabKQ1GJIa9r2mMZscBq/TbdOcmNA==}
     engines: {node: 4.x || >=6.0.0}
@@ -14575,6 +14284,10 @@ packages:
     peerDependenciesMeta:
       encoding:
         optional: true
+
+  node-fetch@3.3.2:
+    resolution: {integrity: sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   node-forge@1.3.1:
     resolution: {integrity: sha512-dPEtOeMvF9VMcYV/1Wb8CPoVAXtp6MKMlcbAt4ddqmGqUJ6fQZFXkNZNkNlfevtNkGtaSoXf/vNNNSvgrdXwtA==}
@@ -15621,6 +15334,10 @@ packages:
     resolution: {integrity: sha512-SAzp/O4Yh02jGdRc+uIrGoe87dkN/XtwxfZ4ZyafJHymd79ozp5VG5nyZ7ygqPM5+cpLDjjGnYFUkngonyDPOQ==}
     engines: {node: '>=14.0.0'}
 
+  proto3-json-serializer@3.0.4:
+    resolution: {integrity: sha512-E1sbAYg3aEbXrq0n1ojJkRHQJGE1kaE/O6GLA94y8rnJBfgvOPTOd1b9hOceQK1FFZI9qMh1vBERCyO2ifubcw==}
+    engines: {node: '>=18'}
+
   protobufjs@7.5.4:
     resolution: {integrity: sha512-CvexbZtbov6jW2eXAvLukXjXUW1TzFaivC46BpWc/3BpcCysb5Vffu+B3XHMm8lVEuy2Mm4XGex8hBSg1yapPg==}
     engines: {node: '>=12.0.0'}
@@ -16366,6 +16083,10 @@ packages:
   retry-request@7.0.2:
     resolution: {integrity: sha512-dUOvLMJ0/JJYEn8NrpOaGNE7X3vpI5XlZS/u0ANjqtcZVKnIxP7IgCFwrKTxENw29emmwug53awKtaMm4i9g5w==}
     engines: {node: '>=14'}
+
+  retry-request@8.0.2:
+    resolution: {integrity: sha512-JzFPAfklk1kjR1w76f0QOIhoDkNkSqW8wYKT08n9yysTmZfB+RQ2QoXoTAeOi1HD9ZipTyTAZg3c4pM/jeqgSw==}
+    engines: {node: '>=18'}
 
   retry@0.12.0:
     resolution: {integrity: sha512-9LkiTwjUh6rT555DtE9rTX+BKByPfrMzEAtnlEtdEwr3Nkffwiihqe2bWADg+OQRjt9gl6ICdmB/ZFDCGAtSow==}
@@ -17166,6 +16887,10 @@ packages:
     resolution: {integrity: sha512-5S7Va8hKfV7W5U6g3aYxXmlPoZVAwUMy9AOKyF2fVuZa2UD3qZjg578OrLRt8PcNN1PleVaL/5/yYATNL0ICUw==}
     engines: {node: '>=18'}
     deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+
+  teeny-request@10.1.2:
+    resolution: {integrity: sha512-Xj0ZAQ0CeuQn6UxCDPLbFRlgcSTUEyO3+wiepr2grjIjyL/lMMs1Z4OwXn8kLvn/V1OuaEP0UY7Na6UDNNsYrQ==}
+    engines: {node: '>=18'}
 
   teeny-request@9.0.0:
     resolution: {integrity: sha512-resvxdc6Mgb7YEThw6G6bExlXKkv6+YbuzGg9xuXxSgxJF7Ozs+o8Y9+2R3sArdWdW8nOokoQb1yrpFB0pQK2g==}
@@ -18004,6 +17729,10 @@ packages:
 
   web-namespaces@2.0.1:
     resolution: {integrity: sha512-bKr1DkiNa2krS7qxNtdrtHAmzuYGFQLiQ13TsorsdT6ULTkPLKuu5+GsFpDlg6JFjUTwX2DyhMPG2be8uPrqsQ==}
+
+  web-streams-polyfill@3.3.3:
+    resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==}
+    engines: {node: '>= 8'}
 
   webcrypto-core@1.8.1:
     resolution: {integrity: sha512-P+x1MvlNCXlKbLSOY4cYrdreqPG5hbzkmawbcXLKN/mf6DZW0SdNNkZ+sjwsqVkI4A4Ko2sPZmkZtCKY58w83A==}
@@ -20923,6 +20652,12 @@ snapshots:
 
   '@formkit/auto-animate@0.8.2': {}
 
+  '@google-analytics/data@6.1.0':
+    dependencies:
+      google-gax: 5.0.6
+    transitivePeerDependencies:
+      - supports-color
+
   '@google-cloud/firestore@7.11.6(encoding@0.1.13)':
     dependencies:
       '@opentelemetry/api': 1.9.0
@@ -21015,7 +20750,6 @@ snapshots:
     dependencies:
       '@grpc/proto-loader': 0.8.0
       '@js-sdsl/ordered-map': 4.4.2
-    optional: true
 
   '@grpc/proto-loader@0.7.15':
     dependencies:
@@ -21031,7 +20765,6 @@ snapshots:
       long: 5.3.2
       protobufjs: 7.5.4
       yargs: 17.7.2
-    optional: true
 
   '@hapi/hoek@9.3.0': {}
 
@@ -21667,8 +21400,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@js-sdsl/ordered-map@4.4.2':
-    optional: true
+  '@js-sdsl/ordered-map@4.4.2': {}
 
   '@jsonjoy.com/base64@1.1.2(tslib@2.8.1)':
     dependencies:
@@ -30172,6 +29904,8 @@ snapshots:
     dependencies:
       assert-plus: 1.0.0
 
+  data-uri-to-buffer@4.0.1: {}
+
   data-uri-to-buffer@6.0.2: {}
 
   data-urls@3.0.2:
@@ -31301,10 +31035,6 @@ snapshots:
       jest-message-util: 29.7.0
       jest-util: 29.7.0
 
-  express-rate-limit@6.11.2(express@4.21.2):
-    dependencies:
-      express: 4.21.2
-
   express-rate-limit@8.0.1(express@4.21.2):
     dependencies:
       express: 4.21.2
@@ -31470,6 +31200,11 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.3):
     optionalDependencies:
       picomatch: 4.0.3
+
+  fetch-blob@3.2.0:
+    dependencies:
+      node-domexception: 1.0.0
+      web-streams-polyfill: 3.3.3
 
   fflate@0.8.2: {}
 
@@ -31740,6 +31475,10 @@ snapshots:
       es-set-tostringtag: 2.1.0
       mime-types: 2.1.35
 
+  formdata-polyfill@4.0.10:
+    dependencies:
+      fetch-blob: 3.2.0
+
   formidable@3.5.4:
     dependencies:
       '@paralleldrive/cuid2': 2.2.2
@@ -31879,6 +31618,14 @@ snapshots:
       - encoding
       - supports-color
 
+  gaxios@7.1.4:
+    dependencies:
+      extend: 3.0.2
+      https-proxy-agent: 7.0.6
+      node-fetch: 3.3.2
+    transitivePeerDependencies:
+      - supports-color
+
   gcp-metadata@6.1.1(encoding@0.1.13):
     dependencies:
       gaxios: 6.7.1(encoding@0.1.13)
@@ -31886,6 +31633,14 @@ snapshots:
       json-bigint: 1.0.0
     transitivePeerDependencies:
       - encoding
+      - supports-color
+
+  gcp-metadata@8.1.2:
+    dependencies:
+      gaxios: 7.1.4
+      google-logging-utils: 1.1.3
+      json-bigint: 1.0.0
+    transitivePeerDependencies:
       - supports-color
 
   gensync@1.0.0-beta.2: {}
@@ -32124,6 +31879,17 @@ snapshots:
       slash: 5.1.0
       unicorn-magic: 0.1.0
 
+  google-auth-library@10.6.2:
+    dependencies:
+      base64-js: 1.5.1
+      ecdsa-sig-formatter: 1.0.11
+      gaxios: 7.1.4
+      gcp-metadata: 8.1.2
+      google-logging-utils: 1.1.3
+      jws: 4.0.0
+    transitivePeerDependencies:
+      - supports-color
+
   google-auth-library@9.15.1(encoding@0.1.13):
     dependencies:
       base64-js: 1.5.1
@@ -32155,7 +31921,25 @@ snapshots:
       - supports-color
     optional: true
 
+  google-gax@5.0.6:
+    dependencies:
+      '@grpc/grpc-js': 1.14.3
+      '@grpc/proto-loader': 0.8.0
+      duplexify: 4.1.3
+      google-auth-library: 10.6.2
+      google-logging-utils: 1.1.3
+      node-fetch: 3.3.2
+      object-hash: 3.0.0
+      proto3-json-serializer: 3.0.4
+      protobufjs: 7.5.4
+      retry-request: 8.0.2
+      rimraf: 5.0.10
+    transitivePeerDependencies:
+      - supports-color
+
   google-logging-utils@0.0.2: {}
+
+  google-logging-utils@1.1.3: {}
 
   gopd@1.2.0: {}
 
@@ -34451,8 +34235,7 @@ snapshots:
 
   lodash-es@4.17.21: {}
 
-  lodash.camelcase@4.3.0:
-    optional: true
+  lodash.camelcase@4.3.0: {}
 
   lodash.capitalize@4.2.1: {}
 
@@ -34552,8 +34335,7 @@ snapshots:
 
   long@4.0.0: {}
 
-  long@5.3.2:
-    optional: true
+  long@5.3.2: {}
 
   longest-streak@3.1.0: {}
 
@@ -35283,6 +35065,8 @@ snapshots:
   node-addon-api@7.1.1:
     optional: true
 
+  node-domexception@1.0.0: {}
+
   node-fetch@2.6.0: {}
 
   node-fetch@2.7.0(encoding@0.1.13):
@@ -35290,6 +35074,12 @@ snapshots:
       whatwg-url: 5.0.0
     optionalDependencies:
       encoding: 0.1.13
+
+  node-fetch@3.3.2:
+    dependencies:
+      data-uri-to-buffer: 4.0.1
+      fetch-blob: 3.2.0
+      formdata-polyfill: 4.0.10
 
   node-forge@1.3.1: {}
 
@@ -36459,6 +36249,10 @@ snapshots:
       protobufjs: 7.5.4
     optional: true
 
+  proto3-json-serializer@3.0.4:
+    dependencies:
+      protobufjs: 7.5.4
+
   protobufjs@7.5.4:
     dependencies:
       '@protobufjs/aspromise': 1.1.2
@@ -36473,7 +36267,6 @@ snapshots:
       '@protobufjs/utf8': 1.1.0
       '@types/node': 18.16.9
       long: 5.3.2
-    optional: true
 
   protocols@1.4.8: {}
 
@@ -37555,6 +37348,13 @@ snapshots:
       - encoding
       - supports-color
 
+  retry-request@8.0.2:
+    dependencies:
+      extend: 3.0.2
+      teeny-request: 10.1.2
+    transitivePeerDependencies:
+      - supports-color
+
   retry@0.12.0: {}
 
   retry@0.13.1: {}
@@ -38499,6 +38299,15 @@ snapshots:
       mkdirp: 3.0.1
       yallist: 5.0.0
 
+  teeny-request@10.1.2:
+    dependencies:
+      http-proxy-agent: 7.0.2
+      https-proxy-agent: 7.0.6
+      node-fetch: 3.3.2
+      stream-events: 1.0.5
+    transitivePeerDependencies:
+      - supports-color
+
   teeny-request@9.0.0(encoding@0.1.13):
     dependencies:
       http-proxy-agent: 5.0.0
@@ -39385,6 +39194,8 @@ snapshots:
       defaults: 1.0.4
 
   web-namespaces@2.0.1: {}
+
+  web-streams-polyfill@3.3.3: {}
 
   webcrypto-core@1.8.1:
     dependencies:

@@ -352,6 +352,26 @@ export const SettingsForm = ({
         <SectionLabel>Google Analytics</SectionLabel>
 
         <Field
+          id="gaPropertyId"
+          label="GA4 Property ID"
+          hint="Required for analytics reports. Use the numeric property ID from Google Analytics."
+        >
+          <div className="relative">
+            <IconChartBar className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              id="gaPropertyId"
+              value={settings.gaPropertyId}
+              placeholder="123456789"
+              onChange={(event) =>
+                updateSetting('gaPropertyId', event.target.value)
+              }
+              className="pl-9"
+              variant="secondary"
+            />
+          </div>
+        </Field>
+
+        <Field
           id="gaTrackingId"
           label="GA Tracking ID (gaTrackingId)"
           hint="Supports both GA4 (G-XXXXXXX) and Universal Analytics (UA-XXXXX-X) formats."
@@ -382,6 +402,11 @@ export const SettingsForm = ({
               <div className="truncate font-mono text-xs text-muted-foreground">
                 Tracking ID: {settings.gaTrackingId}
               </div>
+              {settings.gaPropertyId ? (
+                <div className="truncate font-mono text-xs text-muted-foreground">
+                  Reports property: {settings.gaPropertyId}
+                </div>
+              ) : null}
             </div>
           </div>
         ) : null}

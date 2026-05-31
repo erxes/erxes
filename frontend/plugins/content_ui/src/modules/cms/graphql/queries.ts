@@ -25,6 +25,7 @@ export const CONTENT_CMS_LIST = gql`
         size
         duration
       }
+      googleAnalyticsPropertyId
       googleTrackingId
       googleTagManagerId
       customScripts

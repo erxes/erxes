@@ -1,5 +1,47 @@
 {
   "my-inbox" : "My Inbox",
+  "cms": {
+    "analytics": {
+      "navigation-label": "Analytics",
+      "date-range": "Date range",
+      "refresh": "Refresh analytics",
+      "retry": "Retry",
+      "date-ranges": {
+        "last-7-days": "7 days",
+        "last-28-days": "28 days",
+        "last-90-days": "90 days"
+      },
+      "metrics": {
+        "active-users": "Active users",
+        "new-users": "New users",
+        "sessions": "Sessions",
+        "views": "Views",
+        "average-engagement-time": "Avg. engagement",
+        "engagement-rate": "Engagement rate"
+      },
+      "trend-title": "Traffic trend",
+      "trend-description": "Active users, sessions, and views over the selected period.",
+      "top-pages-title": "Top pages",
+      "top-pages-description": "Pages ranked by views for this CMS property.",
+      "table": {
+        "page": "Page",
+        "views": "Views",
+        "users": "Users",
+        "engagement": "Engagement"
+      },
+      "channels-title": "Channels",
+      "devices-title": "Devices",
+      "countries-title": "Countries",
+      "not-configured-title": "Analytics is not configured",
+      "not-configured-description": "Add a GA4 property ID in CMS settings to enable analytics reports.",
+      "no-data-title": "No analytics data yet",
+      "no-data-description": "Google Analytics returned no traffic for this CMS in the selected period.",
+      "backend-unavailable-title": "Analytics backend is not available",
+      "backend-unavailable-description": "The analytics report could not be loaded. Check the backend Google Analytics credentials and property access.",
+      "no-cms-title": "Select a CMS first",
+      "no-cms-description": "Analytics are scoped to a single CMS website."
+    }
+  },
   "core-modules": {
     "_": "Core modules",
     "contacts": "Contacts",

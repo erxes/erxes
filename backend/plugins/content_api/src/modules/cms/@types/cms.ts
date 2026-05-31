@@ -30,6 +30,7 @@ export interface IContentCMS {
   metaDescription?: string;
   metaKeywords?: string[];
   metaImage?: IAttachment;
+  googleAnalyticsPropertyId?: string;
   googleTrackingId?: string;
   googleTagManagerId?: string;
   customScripts?: string[];
@@ -59,6 +60,7 @@ export interface IContentCMSInput {
   metaDescription?: string;
   metaKeywords?: string[];
   metaImage?: IAttachment;
+  googleAnalyticsPropertyId?: string;
   googleTrackingId?: string;
   googleTagManagerId?: string;
   customScripts?: string[];

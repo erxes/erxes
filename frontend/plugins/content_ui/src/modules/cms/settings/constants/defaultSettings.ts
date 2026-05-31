@@ -11,6 +11,7 @@ export const DEFAULT_SETTINGS: SettingsFormState = {
   metaKeywords: [],
   metaImage: null,
   indexing: 'index',
+  gaPropertyId: '',
   gaTrackingId: '',
   googleTagManagerId: '',
   customHeadScripts: '',

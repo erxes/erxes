@@ -1,4 +1,5 @@
 import { contentCmsQueries } from '@/cms/graphql/queries/cms';
+import { contentCmsAnalyticsQueries } from '@/cms/graphql/queries/analytics';
 import { postQueries } from '@/cms/graphql/queries/posts';
 import { contentCmsTagQueries } from '@/cms/graphql/queries/tag';
 import { contentCmsCategoryQueries } from '@/cms/graphql/queries/category';
@@ -17,6 +18,7 @@ export const queries = {
   ...contentCmsPageQueries,
   ...customPostTypeQueries,
   ...contentCmsQueries,
+  ...contentCmsAnalyticsQueries,
   ...webPageQueries,
   ...contentCmsQueries,
 };

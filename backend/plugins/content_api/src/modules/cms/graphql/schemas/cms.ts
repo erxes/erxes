@@ -11,6 +11,7 @@ export const types = `
     metaDescription: String
     metaKeywords: [String]
     metaImage: Attachment
+    googleAnalyticsPropertyId: String
     googleTrackingId: String
     googleTagManagerId: String
     customScripts: [String]
@@ -39,6 +40,7 @@ export const inputs = `
     metaDescription: String
     metaKeywords: [String]
     metaImage: AttachmentInput
+    googleAnalyticsPropertyId: String
     googleTrackingId: String
     googleTagManagerId: String
     customScripts: [String]

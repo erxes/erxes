@@ -12,6 +12,7 @@ import {
 } from '../posts/constants/postsFieldTypes';
 import { useCustomTypes } from '../custom-types/hooks/useCustomTypes';
 import { PostsPath } from '../posts/types/path/PostsPath';
+import { ICustomPostType } from '../custom-types/types/customTypeTypes';
 
 export const CmsSidebar = () => {
   const { websiteId } = useParams();
@@ -49,7 +50,7 @@ const PostsMenuItemWithTypes = ({
   customTypes,
 }: {
   item: IPostsFieldType;
-  customTypes: any[];
+  customTypes: ICustomPostType[];
 }) => {
   const { websiteId } = useParams();
   const location = useLocation();

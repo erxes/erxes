@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-analytics/data": "^6.1.0",
     "erxes-api-shared": "workspace:^",
     "graphql-tag": "^2.12.6",
     "html-to-text": "^8.2.1",

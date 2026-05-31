@@ -1,5 +1,6 @@
 import {
   IconAlignJustified,
+  IconChartHistogram,
   IconFile,
   IconFileText,
   IconFolder,
@@ -9,6 +10,7 @@ import {
   IconTag,
 } from '@tabler/icons-react';
 import { ComponentType } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PostsPath } from '../types/path/PostsPath';
 
 export interface IPostsFieldType {
@@ -18,6 +20,8 @@ export interface IPostsFieldType {
 }
 
 export function usePostsFieldTypes(): IPostsFieldType[] {
+  const { t } = useTranslation('common');
+
   return [
     { value: PostsPath.Posts, label: 'Posts', icon: IconFileText },
     { value: PostsPath.Pages, label: 'Pages', icon: IconFile },
@@ -33,6 +37,11 @@ export function usePostsFieldTypes(): IPostsFieldType[] {
       value: PostsPath.CustomPostTypes,
       label: 'Custom Post Types',
       icon: IconLayout,
+    },
+    {
+      value: PostsPath.Analytics,
+      label: t('cms.analytics.navigation-label'),
+      icon: IconChartHistogram,
     },
     { value: PostsPath.Settings, label: 'Settings', icon: IconSettings },
   ];

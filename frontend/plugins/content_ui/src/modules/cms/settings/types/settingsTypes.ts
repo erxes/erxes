@@ -17,6 +17,7 @@ export type SettingsFormState = {
   metaKeywords: string[];
   metaImage: CmsAttachment | null;
   indexing: 'index' | 'noindex';
+  gaPropertyId: string;
   gaTrackingId: string;
   googleTagManagerId: string;
   customHeadScripts: string;
@@ -49,6 +50,7 @@ export type CmsSettingsData = {
   metaDescription?: string;
   metaKeywords?: string[];
   metaImage?: CmsAttachment | null;
+  googleAnalyticsPropertyId?: string;
   googleTrackingId?: string;
   googleTagManagerId?: string;
   customScripts?: string[];

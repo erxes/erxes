@@ -1,5 +1,47 @@
 {
   "my-inbox": "Миний инбокс",
+  "cms": {
+    "analytics": {
+      "navigation-label": "Аналитик",
+      "date-range": "Хугацаа",
+      "refresh": "Аналитик шинэчлэх",
+      "retry": "Дахин оролдох",
+      "date-ranges": {
+        "last-7-days": "7 өдөр",
+        "last-28-days": "28 өдөр",
+        "last-90-days": "90 өдөр"
+      },
+      "metrics": {
+        "active-users": "Идэвхтэй хэрэглэгчид",
+        "new-users": "Шинэ хэрэглэгчид",
+        "sessions": "Сешнүүд",
+        "views": "Үзэлтүүд",
+        "average-engagement-time": "Дундаж оролцоо",
+        "engagement-rate": "Оролцооны хувь"
+      },
+      "trend-title": "Урсгалын чиг хандлага",
+      "trend-description": "Сонгосон хугацааны идэвхтэй хэрэглэгч, сешн, үзэлтийн мэдээлэл.",
+      "top-pages-title": "Шилдэг хуудсууд",
+      "top-pages-description": "Энэ CMS property-ийн үзэлтээр эрэмбэлсэн хуудсууд.",
+      "table": {
+        "page": "Хуудас",
+        "views": "Үзэлт",
+        "users": "Хэрэглэгч",
+        "engagement": "Оролцоо"
+      },
+      "channels-title": "Сувгууд",
+      "devices-title": "Төхөөрөмжүүд",
+      "countries-title": "Улсууд",
+      "not-configured-title": "Аналитик тохируулаагүй байна",
+      "not-configured-description": "Аналитикийн тайланг идэвхжүүлэхийн тулд CMS тохиргоонд GA4 property ID нэмнэ үү.",
+      "no-data-title": "Аналитикийн мэдээлэл алга",
+      "no-data-description": "Сонгосон хугацаанд энэ CMS-д Google Analytics урсгал буцаасангүй.",
+      "backend-unavailable-title": "Аналитикийн backend бэлэн биш байна",
+      "backend-unavailable-description": "Аналитикийн тайланг ачаалж чадсангүй. Backend-ийн Google Analytics эрх болон property хандалтыг шалгана уу.",
+      "no-cms-title": "Эхлээд CMS сонгоно уу",
+      "no-cms-description": "Аналитик нь нэг CMS вебсайтад хамаарна."
+    }
+  },
   "core-modules": {
     "_": "Үндсэн модулиуд",
     "contacts": "Харилцагчид",
