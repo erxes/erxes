@@ -145,8 +145,8 @@ export const AnalyticsTopPagesTable = ({
         <RecordTable.Provider
           columns={columns}
           data={rows}
-          stickyColumns={['page']}
-          tableId="cms-analytics-top-pages-v2"
+          stickyColumns={['page', 'pageUrl']}
+          tableId="cms-analytics-top-pages-v3"
         >
           <RecordTable.Scroll className="max-h-80">
             <RecordTable>
