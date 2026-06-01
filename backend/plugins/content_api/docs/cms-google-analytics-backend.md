@@ -112,6 +112,9 @@ Supported date ranges:
 - Google reports are cached in memory for five minutes per property/date range.
 - The service requests totals, daily trend, top pages, traffic channels, device
   categories, countries, and quota status.
+- Average engagement time is calculated from `userEngagementDuration` because
+  some GA4 properties reject the `averageEngagementTime` metric in Data API
+  report requests.
 - Google 403 and 429 errors are normalized to user-safe messages. Credentials,
   service account emails, keys, tokens, and raw Google errors are not returned.
 

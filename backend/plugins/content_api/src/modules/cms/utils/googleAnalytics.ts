@@ -71,7 +71,7 @@ const TOTAL_METRICS = [
   'newUsers',
   'sessions',
   'screenPageViews',
-  'averageEngagementTime',
+  'userEngagementDuration',
   'engagementRate',
   'eventCount',
 ];
@@ -181,6 +181,9 @@ const toMetricNumber = (row: RunReportRow | undefined, index: number) => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
+const calculateAverage = (total: number, divisor: number) =>
+  divisor > 0 ? total / divisor : 0;
+
 const toDimensionValue = (
   row: RunReportRow | undefined,
   index: number,
@@ -208,13 +211,15 @@ const toDateRangeTimestamp = (
 
 const mapTotals = (report?: RunReportResponse): ICmsAnalyticsTotals => {
   const row = report?.rows?.[0];
+  const sessions = toMetricNumber(row, 2);
+  const userEngagementDuration = toMetricNumber(row, 4);
 
   return {
     activeUsers: toMetricNumber(row, 0),
     newUsers: toMetricNumber(row, 1),
-    sessions: toMetricNumber(row, 2),
+    sessions,
     screenPageViews: toMetricNumber(row, 3),
-    averageEngagementTime: toMetricNumber(row, 4),
+    averageEngagementTime: calculateAverage(userEngagementDuration, sessions),
     engagementRate: toMetricNumber(row, 5),
     eventCount: toMetricNumber(row, 6),
   };
@@ -234,13 +239,21 @@ const mapTimeSeries = (
 
 const mapTopPages = (report?: RunReportResponse): ICmsAnalyticsTopPage[] =>
   (report?.rows || [])
-    .map((row) => ({
-      pagePath: toDimensionValue(row, 0, '/'),
-      pageTitle: toDimensionValue(row, 1) || null,
-      screenPageViews: toMetricNumber(row, 0),
-      activeUsers: toMetricNumber(row, 1),
-      averageEngagementTime: toMetricNumber(row, 2),
-    }))
+    .map((row) => {
+      const activeUsers = toMetricNumber(row, 1);
+      const userEngagementDuration = toMetricNumber(row, 2);
+
+      return {
+        pagePath: toDimensionValue(row, 0, '/'),
+        pageTitle: toDimensionValue(row, 1) || null,
+        screenPageViews: toMetricNumber(row, 0),
+        activeUsers,
+        averageEngagementTime: calculateAverage(
+          userEngagementDuration,
+          activeUsers,
+        ),
+      };
+    })
     .filter((item) => Boolean(item.pagePath));
 
 const mapBreakdownItems = (
@@ -389,13 +402,22 @@ const normalizeGoogleAnalyticsError = (error: unknown) => {
     return new Error('Google Analytics access denied for this property.');
   }
 
-  if (
+  const hasInvalidArgument =
     apiError.code === 3 ||
     apiError.status === 'INVALID_ARGUMENT' ||
-    message.includes('invalid argument') ||
-    message.includes('property id')
-  ) {
-    return new Error('Google Analytics property ID is invalid.');
+    message.includes('invalid argument');
+  const hasInvalidProperty =
+    message.includes('property id') ||
+    message.includes('property_id') ||
+    message.includes('properties/') ||
+    message.includes('property not found');
+
+  if (hasInvalidArgument || hasInvalidProperty) {
+    return new Error(
+      hasInvalidProperty
+        ? 'Google Analytics property ID is invalid.'
+        : 'Google Analytics report request is invalid.',
+    );
   }
 
   if (
@@ -445,7 +467,7 @@ export const getCmsAnalyticsReport = async ({
           dateRange,
           dimensions: ['pagePath', 'pageTitle'],
           limit: 10,
-          metrics: ['screenPageViews', 'activeUsers', 'averageEngagementTime'],
+          metrics: ['screenPageViews', 'activeUsers', 'userEngagementDuration'],
           orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }],
           property,
         }),
