@@ -1,5 +1,4 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import fetch from 'node-fetch';
 import { generateModels } from '~/connectionResolvers';
 import { calcProductsTaxRule } from './productsByTaxType';
 
@@ -91,17 +90,9 @@ export const getConfigPostData = async (
     const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/giu;
     for (const company of companies) {
       if (re.test(company.code)) {
-        const checkCompanyRes = await fetch(
-          `${config.checkCompanyUrl}?${new URLSearchParams({
-            regno: company.code,
-          })}`,
-        ).then((res) => res.json());
-
-        if (checkCompanyRes.found) {
           billType = 3;
           customerCode = company.code;
           continue;
-        }
       }
     }
   }
