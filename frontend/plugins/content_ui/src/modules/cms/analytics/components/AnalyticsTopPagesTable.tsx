@@ -3,6 +3,7 @@ import {
   IconClock,
   IconEye,
   IconFileAnalytics,
+  IconLink,
   IconUsers,
 } from '@tabler/icons-react';
 import {
@@ -56,25 +57,32 @@ export const AnalyticsTopPagesTable = ({
         ),
         cell: ({ row }) => {
           const page = row.original;
+          const pageName = page.pageTitle?.trim() || page.pagePath;
+          const showPagePath = page.pagePath !== pageName;
 
           return (
             <RecordTableInlineCell>
-              <div className="min-w-0 space-y-0.5">
-                <div className="truncate text-sm font-medium">
+              <div className="flex min-w-0 flex-col gap-1 py-1.5">
+                <div className="min-w-0">
                   <TextOverflowTooltip
-                    value={page.pageTitle || page.pagePath}
+                    value={pageName}
+                    className="text-sm font-semibold text-foreground"
                   />
                 </div>
-                {page.pageTitle ? (
-                  <div className="truncate font-mono text-xs text-muted-foreground">
-                    <TextOverflowTooltip value={page.pagePath} />
+                {showPagePath ? (
+                  <div className="inline-flex max-w-full items-center gap-1.5 self-start rounded-sm bg-muted px-1.5 py-0.5 text-muted-foreground">
+                    <IconLink className="size-3 flex-none text-muted-foreground/70" />
+                    <TextOverflowTooltip
+                      value={page.pagePath}
+                      className="min-w-0 font-mono text-[11px] leading-4"
+                    />
                   </div>
                 ) : null}
               </div>
             </RecordTableInlineCell>
           );
         },
-        size: 520,
+        size: 320,
       },
       {
         id: 'views',
