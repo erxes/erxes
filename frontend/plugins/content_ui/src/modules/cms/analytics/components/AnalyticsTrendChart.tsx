@@ -1,10 +1,11 @@
-import { Card, ChartContainer, ChartTooltip, ChartTooltipContent } from 'erxes-ui';
+import { Card, ChartContainer, ChartTooltipContent } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Area,
   AreaChart,
   CartesianGrid,
+  Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
@@ -60,7 +61,7 @@ export const AnalyticsTrendChart = ({ data }: AnalyticsTrendChartProps) => {
               tickMargin={8}
             />
             <YAxis axisLine={false} tickLine={false} width={44} />
-            <ChartTooltip content={<ChartTooltipContent />} />
+            <Tooltip content={<ChartTooltipContent />} />
             <Area
               dataKey="screenPageViews"
               fill="var(--info)"
