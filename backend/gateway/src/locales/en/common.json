@@ -25,6 +25,7 @@
       "top-pages-description": "Pages ranked by views for this CMS property.",
       "table": {
         "page": "Page",
+        "url": "Page URL",
         "views": "Views",
         "users": "Users",
         "engagement": "Engagement"

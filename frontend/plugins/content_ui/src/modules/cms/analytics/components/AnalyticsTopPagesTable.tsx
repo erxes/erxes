@@ -58,31 +58,36 @@ export const AnalyticsTopPagesTable = ({
         cell: ({ row }) => {
           const page = row.original;
           const pageName = page.pageTitle?.trim() || page.pagePath;
-          const showPagePath = page.pagePath !== pageName;
 
           return (
             <RecordTableInlineCell>
-              <div className="flex min-w-0 flex-col gap-1 py-1.5">
-                <div className="min-w-0">
-                  <TextOverflowTooltip
-                    value={pageName}
-                    className="text-sm font-semibold text-foreground"
-                  />
-                </div>
-                {showPagePath ? (
-                  <div className="inline-flex max-w-full items-center gap-1.5 self-start rounded-sm bg-muted px-1.5 py-0.5 text-muted-foreground">
-                    <IconLink className="size-3 flex-none text-muted-foreground/70" />
-                    <TextOverflowTooltip
-                      value={page.pagePath}
-                      className="min-w-0 font-mono text-[11px] leading-4"
-                    />
-                  </div>
-                ) : null}
-              </div>
+              <TextOverflowTooltip
+                value={pageName}
+                className="text-sm font-semibold text-foreground"
+              />
             </RecordTableInlineCell>
           );
         },
-        size: 320,
+        size: 220,
+      },
+      {
+        id: 'pageUrl',
+        accessorKey: 'pagePath',
+        header: () => (
+          <RecordTable.InlineHead icon={IconLink} label={t('table.url')} />
+        ),
+        cell: ({ row }) => (
+          <RecordTableInlineCell>
+            <div className="inline-flex max-w-full items-center gap-1.5 rounded-sm bg-muted px-1.5 py-0.5 text-muted-foreground">
+              <IconLink className="size-3 flex-none text-muted-foreground/70" />
+              <TextOverflowTooltip
+                value={row.original.pagePath}
+                className="min-w-0 font-mono text-[11px] leading-4"
+              />
+            </div>
+          </RecordTableInlineCell>
+        ),
+        size: 260,
       },
       {
         id: 'views',
@@ -95,7 +100,7 @@ export const AnalyticsTopPagesTable = ({
             {formatAnalyticsNumber(row.original.screenPageViews)}
           </RecordTableInlineCell>
         ),
-        size: 120,
+        size: 84,
       },
       {
         id: 'users',
@@ -108,7 +113,7 @@ export const AnalyticsTopPagesTable = ({
             {formatAnalyticsNumber(row.original.activeUsers)}
           </RecordTableInlineCell>
         ),
-        size: 120,
+        size: 84,
       },
       {
         id: 'engagement',
@@ -124,7 +129,7 @@ export const AnalyticsTopPagesTable = ({
             {formatAnalyticsDuration(row.original.averageEngagementTime)}
           </RecordTableInlineCell>
         ),
-        size: 150,
+        size: 112,
       },
     ],
     [t],
@@ -141,7 +146,7 @@ export const AnalyticsTopPagesTable = ({
           columns={columns}
           data={rows}
           stickyColumns={['page']}
-          tableId="cms-analytics-top-pages"
+          tableId="cms-analytics-top-pages-v2"
         >
           <RecordTable.Scroll className="max-h-80">
             <RecordTable>

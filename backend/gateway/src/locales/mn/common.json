@@ -25,6 +25,7 @@
       "top-pages-description": "Энэ CMS property-ийн үзэлтээр эрэмбэлсэн хуудсууд.",
       "table": {
         "page": "Хуудас",
+        "url": "Хуудасны URL",
         "views": "Үзэлт",
         "users": "Хэрэглэгч",
         "engagement": "Оролцоо"
