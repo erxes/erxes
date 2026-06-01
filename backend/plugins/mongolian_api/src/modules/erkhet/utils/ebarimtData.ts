@@ -79,9 +79,8 @@ export const getConfigPostData = async (
       pluginName: 'core',
       module: 'companies',
       action: 'findActiveCompanies',
-      method: 'query',
       input: {
-        selector: { _id: { $in: companyIds } },
+        query: { _id: { $in: companyIds } },
         fields: { _id: 1, code: 1 },
       },
       defaultValue: [],
@@ -117,9 +116,8 @@ export const getConfigPostData = async (
         pluginName: 'core',
         module: 'customers',
         action: 'findActiveCustomers',
-        method: 'query',
         input: {
-          selector: { _id: { $in: customerIds } },
+          query: { _id: { $in: customerIds } },
           fields: { _id: 1, code: 1 },
         },
         defaultValue: [],
@@ -143,7 +141,6 @@ export const getConfigPostData = async (
     pluginName: 'core',
     module: 'users',
     action: 'find',
-    method: 'query',
     input: { query: { _id: { $in: assignUserIds } } },
     defaultValue: [],
   });
@@ -161,7 +158,6 @@ export const getConfigPostData = async (
     pluginName: 'core',
     module: 'products',
     action: 'find',
-    method: 'query',
     input: {
       query: { _id: { $in: productsIds } },
       limit: deal.productsData.length,
@@ -196,7 +192,6 @@ export const getConfigPostData = async (
       pluginName: 'core',
       module: 'branches',
       action: 'find',
-      method: 'query',
       input: { query: { _id: { $in: branchIds } } },
       defaultValue: [],
     });
@@ -209,7 +204,6 @@ export const getConfigPostData = async (
       pluginName: 'core',
       module: 'departments',
       action: 'find',
-      method: 'query',
       input: { _id: { $in: departmentIds } },
       defaultValue: [],
     });
@@ -385,9 +379,8 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
       pluginName: 'core',
       module: 'companies',
       action: 'findActiveCompanies',
-      method: 'query',
       input: {
-        selector: { _id: { $in: companyIds } },
+        query: { _id: { $in: companyIds } },
         fields: { _id: 1, code: 1 },
       },
       defaultValue: [],
@@ -421,9 +414,8 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
         pluginName: 'core',
         module: 'customers',
         action: 'findActiveCustomers',
-        method: 'query',
         input: {
-          selector: { _id: { $in: customerIds } },
+          query: { _id: { $in: customerIds } },
           fields: { _id: 1, code: 1 },
         },
         defaultValue: [],
@@ -444,7 +436,6 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
     pluginName: 'core',
     module: 'products',
     action: 'find',
-    method: 'query',
     input: {
       query: { _id: { $in: productsIds } },
       limit: deal.productsData.length,
@@ -471,7 +462,6 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
       pluginName: 'core',
       module: 'branches',
       action: 'find',
-      method: 'query',
       input: { query: { _id: { $in: branchIds } } },
       defaultValue: [],
     });
@@ -487,7 +477,6 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
       pluginName: 'core',
       module: 'departments',
       action: 'find',
-      method: 'query',
       input: { query: { _id: { $in: departmentIds } } },
       defaultValue: [],
     });
