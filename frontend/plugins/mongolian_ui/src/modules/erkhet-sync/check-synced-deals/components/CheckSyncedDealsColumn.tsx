@@ -28,19 +28,19 @@ type CheckSyncedDealsColumnsOptions = {
   onToggleAllToSync: (ids: string[], checked: boolean) => void;
 };
 
-const syncableStatuses: CheckSyncedDealStatus[] = [
+const syncableStatuses = new Set<CheckSyncedDealStatus>([
   'checked',
   'synced',
   'pending',
   'error',
   'resynced',
-];
+]);
 
 const getSyncStatus = (deal: ICheckSyncedDeals): CheckSyncedDealStatus =>
   deal.syncStatus || 'skipped';
 
 export const isSyncableDeal = (deal: ICheckSyncedDeals) =>
-  syncableStatuses.includes(getSyncStatus(deal));
+  syncableStatuses.has(getSyncStatus(deal));
 
 const stringifyAmount = (amount: unknown) => {
   if (!amount) {

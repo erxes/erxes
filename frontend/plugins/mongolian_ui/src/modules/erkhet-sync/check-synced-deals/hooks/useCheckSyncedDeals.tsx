@@ -277,10 +277,10 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
           continue;
         }
 
-        if (!item.isSynced) {
-          next[item._id] = true;
-        } else {
+        if (item.isSynced) {
           delete next[item._id];
+        } else {
+          next[item._id] = true;
         }
       }
 
@@ -316,15 +316,13 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
     };
 
     for (const batchIds of chunkIds(syncableIds, SYNC_DEALS_BATCH_SIZE)) {
-      const resyncedStatusById = batchIds.reduce(
-        (acc, id) => ({
-          ...acc,
-          ...(checkedDeals[id]?.isSynced === true && {
-            [id]: 'resynced' as CheckSyncedDealStatus,
-          }),
-        }),
-        {} as Record<string, CheckSyncedDealStatus>,
-      );
+      const resyncedStatusById: Record<string, CheckSyncedDealStatus> = {};
+
+      for (const id of batchIds) {
+        if (checkedDeals[id]?.isSynced === true) {
+          resyncedStatusById[id] = 'resynced';
+        }
+      }
 
       setCheckedDeals((current) => {
         const next = { ...current };
@@ -380,13 +378,11 @@ export const useCheckSyncedDeals = (options?: QueryHookOptions) => {
       const skippedIds = result?.skipped || [];
       const errorIds = result?.error || [];
       const successIds = result?.success || [];
-      const syncedStatusById = successIds.reduce(
-        (acc, id) => ({
-          ...acc,
-          [id]: resyncedStatusById[id] || 'synced',
-        }),
-        {} as Record<string, CheckSyncedDealStatus>,
-      );
+      const syncedStatusById: Record<string, CheckSyncedDealStatus> = {};
+
+      for (const id of successIds) {
+        syncedStatusById[id] = resyncedStatusById[id] || 'synced';
+      }
 
       summary.skipped += skippedIds.length;
       summary.error += errorIds.length;
