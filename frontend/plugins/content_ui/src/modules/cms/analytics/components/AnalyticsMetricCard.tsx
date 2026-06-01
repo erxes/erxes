@@ -1,9 +1,9 @@
+import { type Icon } from '@tabler/icons-react';
 import { Card } from 'erxes-ui';
-import { ComponentType } from 'react';
 
 type AnalyticsMetricCardProps = {
   description?: string;
-  icon: ComponentType<{ className?: string }>;
+  icon: Icon;
   label: string;
   value: string;
 };

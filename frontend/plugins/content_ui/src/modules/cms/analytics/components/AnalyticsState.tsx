@@ -1,11 +1,11 @@
+import { type Icon } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
-import { ComponentType } from 'react';
 import { EmptyState } from '../../shared/EmptyState';
 
 type AnalyticsStateProps = {
   actionLabel?: string;
   description: string;
-  icon: ComponentType<{ className?: string; size?: number }>;
+  icon: Icon;
   onAction?: () => void;
   title: string;
 };
