@@ -20,5 +20,4 @@ export const queries = {
   ...contentCmsQueries,
   ...contentCmsAnalyticsQueries,
   ...webPageQueries,
-  ...contentCmsQueries,
 };

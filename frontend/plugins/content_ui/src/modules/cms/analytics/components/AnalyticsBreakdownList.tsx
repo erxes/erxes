@@ -21,7 +21,9 @@ export const AnalyticsBreakdownList = ({
       <Card.Content className="space-y-3 p-4 pt-0">
         {items.map((item) => {
           const width =
-            maxSessions > 0 ? `${Math.max((item.sessions / maxSessions) * 100, 4)}%` : '0%';
+            maxSessions > 0 && item.sessions > 0
+              ? `${Math.max((item.sessions / maxSessions) * 100, 4)}%`
+              : '0%';
 
           return (
             <div key={item.name} className="space-y-1.5">

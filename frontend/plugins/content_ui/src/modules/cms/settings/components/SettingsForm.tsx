@@ -390,7 +390,7 @@ export const SettingsForm = ({
           </div>
         </Field>
 
-        {settings.gaTrackingId ? (
+        {settings.gaTrackingId || settings.gaPropertyId ? (
           <div className="flex items-center gap-3 rounded-lg border border-success/20 bg-success/10 p-3">
             <div className="flex size-9 items-center justify-center rounded-md bg-success text-success-foreground">
               <IconCheck className="size-5" />
@@ -399,9 +399,11 @@ export const SettingsForm = ({
               <div className="text-sm font-semibold text-success">
                 Google Analytics configured
               </div>
-              <div className="truncate font-mono text-xs text-muted-foreground">
-                Tracking ID: {settings.gaTrackingId}
-              </div>
+              {settings.gaTrackingId ? (
+                <div className="truncate font-mono text-xs text-muted-foreground">
+                  Tracking ID: {settings.gaTrackingId}
+                </div>
+              ) : null}
               {settings.gaPropertyId ? (
                 <div className="truncate font-mono text-xs text-muted-foreground">
                   Reports property: {settings.gaPropertyId}

@@ -33,7 +33,7 @@ export const formatAnalyticsShortNumber = (value: number) =>
   SHORT_NUMBER_FORMATTER.format(value);
 
 export const formatAnalyticsPercent = (value: number) =>
-  PERCENT_FORMATTER.format(value);
+  PERCENT_FORMATTER.format(value / 100);
 
 export const formatAnalyticsDuration = (seconds: number) => {
   if (seconds < 60) {
