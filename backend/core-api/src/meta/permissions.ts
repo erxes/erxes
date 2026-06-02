@@ -752,7 +752,7 @@ export const permissions: IPermissionConfig = {
         {
           plugin: 'core',
           module: 'apps',
-          actions: ['appsManage'],
+          actions: ['appsRead', 'appsManage'],
           scope: 'all',
         },
         {
