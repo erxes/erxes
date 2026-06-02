@@ -98,12 +98,22 @@ async function loadExistingIds(col: Collection): Promise<Set<string>> {
   return new Set(docs.map((d) => d._id.toString()));
 }
 
-
-async function migrateTeams(): Promise<void> {
+// Returns Map<oldPipelineId, newTeamObjectId>
+async function migrateTeams(): Promise<Map<string, ObjectId>> {
   console.log('\n🚀 Step 1 — pipelines (type=task) → operation_teams');
 
-  const existingIds = await loadExistingIds(NEW_TEAMS);
-  console.log(`📋 Existing : ${existingIds.size}`);
+  // Build map from existing teams: legacyId → _id
+  const existingTeams = await NEW_TEAMS
+    .find({}, { projection: { _id: 1, legacyId: 1 } })
+    .toArray();
+
+  const oldToNewTeam = new Map<string, ObjectId>();
+  for (const t of existingTeams) {
+    if (t.legacyId) {
+      oldToNewTeam.set(String(t.legacyId), t._id as ObjectId);
+    }
+  }
+  console.log(`📋 Existing : ${oldToNewTeam.size}`);
 
   const cursor = OLD_PIPELINES.find({ type: 'task' }).batchSize(BATCH_SIZE);
 
@@ -114,12 +124,18 @@ async function migrateTeams(): Promise<void> {
   for await (const doc of cursor) {
     if (!doc) continue;
 
-    if (existingIds.has(doc._id.toString())) { skipped++; continue; }
+    const legacyId = doc._id.toString();
+
+    if (oldToNewTeam.has(legacyId)) { skipped++; continue; }
+
+    const newTeamId = new ObjectId();
+    oldToNewTeam.set(legacyId, newTeamId);
 
     bulk.push({
       insertOne: {
         document: {
-          _id:          doc._id.toString(),
+          _id:          newTeamId,
+          legacyId,
           name:         doc.name        || 'Untitled Team',
           description:  doc.description || '',
           icon:         'IconBriefcase',
@@ -145,10 +161,11 @@ async function migrateTeams(): Promise<void> {
   if (bulk.length) await NEW_TEAMS.bulkWrite(bulk, { ordered: false });
 
   console.log(`✅ Migrated : ${migrated}  |  Skipped : ${skipped}`);
+  return oldToNewTeam;
 }
 
 
-async function migrateTeamMembers(): Promise<void> {
+async function migrateTeamMembers(oldToNewTeam: Map<string, ObjectId>): Promise<void> {
   console.log('\n🚀 Step 2 — pipeline.memberIds → operation_team_members');
 
   const existingDocs = await NEW_TEAM_MEMBERS
@@ -170,16 +187,19 @@ async function migrateTeamMembers(): Promise<void> {
 
   for (const pipeline of pipelines) {
     const memberIds: string[] = pipeline.memberIds || [];
+    const newTeamId = oldToNewTeam.get(pipeline._id.toString());
+
+    if (!newTeamId) { skipped += memberIds.length; continue; }
 
     for (const memberId of memberIds) {
-      const key = `${pipeline._id}::${memberId}`;
+      const key = `${newTeamId}::${memberId}`;
 
       if (existingKeys.has(key)) { skipped++; continue; }
 
       bulk.push({
         insertOne: {
           document: {
-            teamId:   pipeline._id.toString(),
+            teamId: newTeamId,
             memberId,
           },
         },
@@ -201,8 +221,7 @@ async function migrateTeamMembers(): Promise<void> {
 }
 
 
-
-async function migrateStatuses(): Promise<Map<string, ObjectId>> {
+async function migrateStatuses(oldToNewTeam: Map<string, ObjectId>): Promise<Map<string, ObjectId>> {
   console.log('\n🚀 Step 3 — stages → operation_statuses');
 
   const existingIds = await loadExistingIds(NEW_STATUSES);
@@ -240,7 +259,10 @@ async function migrateStatuses(): Promise<Map<string, ObjectId>> {
     stageToStatusId.set(s._id.toString(), s._id as ObjectId);
   }
 
-  for (const [, stages] of byPipeline) {
+  for (const [pipelineIdStr, stages] of byPipeline) {
+    const newTeamId = oldToNewTeam.get(pipelineIdStr);
+    if (!newTeamId) { skipped += stages.length; continue; }
+
     const total = stages.length;
 
     for (let i = 0; i < stages.length; i++) {
@@ -263,16 +285,15 @@ async function migrateStatuses(): Promise<Map<string, ObjectId>> {
         ? probabilityToStatusType(stage.probability)
         : positionToStatusType(i, total);
 
-      const newStatusId = stage._id as ObjectId;
-      const newStatusStrId = newStatusId.toString();
+      const newStatusId = new ObjectId();
       stageToStatusId.set(stageIdStr, newStatusId);
 
       bulk.push({
         insertOne: {
           document: {
-            _id:      newStatusStrId,
+            _id:      newStatusId,
             name:     stage.name  || 'Untitled Status',
-            teamId:   stage.pipelineId.toString(),
+            teamId:   newTeamId,
             type:     statusType,
             color:    STATUS_COLORS[statusType] || '#4F46E5',
             order:    stage.order ?? i,
@@ -308,7 +329,8 @@ async function migrateStatuses(): Promise<Map<string, ObjectId>> {
       insertOne: {
         document: {
           ...s,
-          teamId:    team._id.toString(),
+          _id:       new ObjectId(),
+          teamId:    team._id,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -328,14 +350,17 @@ async function migrateStatuses(): Promise<Map<string, ObjectId>> {
 }
 
 
-async function migrateTasks(stageToStatusId: Map<string, ObjectId>): Promise<void> {
+async function migrateTasks(
+  stageToStatusId: Map<string, ObjectId>,
+  oldToNewTeam: Map<string, ObjectId>,
+): Promise<void> {
   console.log('\n🚀 Step 4 — tasks → operation_tasks + operation_activities');
 
   const allStages = await OLD_STAGES
     .find({}, { projection: { _id: 1, pipelineId: 1 } })
     .toArray();
-  const stageToPipeline = new Map<string, ObjectId>(
-    allStages.map((s) => [s._id.toString(), s.pipelineId as ObjectId]),
+  const stageToPipelineStr = new Map<string, string>(
+    allStages.map((s) => [s._id.toString(), s.pipelineId?.toString() || '']),
   );
 
   const taskPipelines = await OLD_PIPELINES
@@ -367,15 +392,18 @@ async function migrateTasks(stageToStatusId: Map<string, ObjectId>): Promise<voi
     if (!doc) continue;
     if (existingIds.has(doc._id.toString())) { skipped++; continue; }
 
-    const stageIdStr = doc.stageId?.toString() || '';
-    const teamId     = stageToPipeline.get(stageIdStr);
+    const stageIdStr  = doc.stageId?.toString() || '';
+    const pipelineStr = stageToPipelineStr.get(stageIdStr);
 
-    if (!teamId || !taskPipelineSet.has(teamId.toString())) {
+    if (!pipelineStr || !taskPipelineSet.has(pipelineStr)) {
       skipped++;
       continue;
     }
 
-    const statusId   = stageToStatusId.get(stageIdStr);
+    const newTeamId = oldToNewTeam.get(pipelineStr);
+    if (!newTeamId) { skipped++; continue; }
+
+    const statusId = stageToStatusId.get(stageIdStr);
     if (!statusId) {
       console.log(`⏭️  No status mapping for stageId ${stageIdStr} — skipping task "${doc.name}" (${doc._id})`);
       skipped++;
@@ -385,7 +413,7 @@ async function migrateTasks(stageToStatusId: Map<string, ObjectId>): Promise<voi
     const statusDoc = await NEW_STATUSES.findOne({ _id: statusId }, { projection: { type: 1 } });
     const statusType = statusDoc?.type ?? STATUS_TYPES.UNSTARTED;
 
-    const teamKey    = teamId.toString();
+    const teamKey    = newTeamId.toString();
     const nextNumber = (teamNumberCounters.get(teamKey) ?? 0) + 1;
     teamNumberCounters.set(teamKey, nextNumber);
 
@@ -397,7 +425,7 @@ async function migrateTasks(stageToStatusId: Map<string, ObjectId>): Promise<voi
           description:       doc.description,
           status:            statusId,
           statusType,
-          teamId:            teamId.toString(),
+          teamId:            newTeamId,
           priority:          mapPriority(doc.priority),
           labelIds:          doc.labelIds          || [],
           tagIds:            doc.tagIds            || [],
@@ -592,17 +620,21 @@ const command = async () => {
   console.log(`  MONGO_URL : ${MONGO_URL}`);
   console.log('═══════════════════════════════════════════════');
 
-  await migrateTeams().catch((e)      => console.log(`❌ Step 1 error: ${e.message}`));
-  await migrateTeamMembers().catch((e)=> console.log(`❌ Step 2 error: ${e.message}`));
+  const oldToNewTeam = await migrateTeams().catch((e) => {
+    console.log(`❌ Step 1 error: ${e.message}`);
+    return new Map<string, ObjectId>();
+  });
 
-  const stageToStatusId = await migrateStatuses().catch((e) => {
+  await migrateTeamMembers(oldToNewTeam).catch((e) => console.log(`❌ Step 2 error: ${e.message}`));
+
+  const stageToStatusId = await migrateStatuses(oldToNewTeam).catch((e) => {
     console.log(`❌ Step 3 error: ${e.message}`);
     return new Map<string, ObjectId>();
   });
 
-  await migrateTasks(stageToStatusId).catch((e)    => console.log(`❌ Step 4 error: ${e.message}`));
-  await migrateComments().catch((e)                => console.log(`❌ Step 5 error: ${e.message}`));
-  await migrateChecklists().catch((e)              => console.log(`❌ Step 6 error: ${e.message}`));
+  await migrateTasks(stageToStatusId, oldToNewTeam).catch((e) => console.log(`❌ Step 4 error: ${e.message}`));
+  await migrateComments().catch((e)                           => console.log(`❌ Step 5 error: ${e.message}`));
+  await migrateChecklists().catch((e)                         => console.log(`❌ Step 6 error: ${e.message}`));
 
   console.log('\n═══════════════════════════════════════════════');
   console.log(`  Finished at: ${new Date().toISOString()}`);
