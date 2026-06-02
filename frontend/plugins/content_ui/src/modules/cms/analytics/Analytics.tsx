@@ -2,7 +2,8 @@ import { IconAlertCircle, IconChartHistogram } from '@tabler/icons-react';
 import { PageContainer } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
+import { useCmsAnalyticsSettings } from '../shared/hooks/useCmsAnalyticsSettings';
 import { CmsSidebar } from '../shared/CmsSidebar';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard';
 import { AnalyticsHeader } from './components/AnalyticsHeader';
@@ -18,23 +19,30 @@ export const Analytics = () => {
   });
   const [dateRange, setDateRange] =
     useState<CmsAnalyticsDateRange>('LAST_28_DAYS');
+  const { hasAnalyticsSettings, loading: settingsLoading } =
+    useCmsAnalyticsSettings(websiteId);
   const { error, loading, refetch, report } = useCmsAnalytics({
-    clientPortalId: websiteId,
+    clientPortalId: hasAnalyticsSettings ? websiteId : undefined,
     dateRange,
   });
+  const analyticsLoading = settingsLoading || loading;
+
+  if (websiteId && !settingsLoading && !hasAnalyticsSettings) {
+    return <Navigate to={`/content/cms/${websiteId}/cmssettings`} replace />;
+  }
 
   return (
     <PageContainer>
       <AnalyticsHeader
         dateRange={dateRange}
-        loading={loading}
+        loading={analyticsLoading}
         onDateRangeChange={setDateRange}
         onRefresh={refetch}
       />
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
         <div className="min-w-0 flex-1 overflow-auto bg-muted/20">
-          {loading && !report ? (
+          {analyticsLoading && !report ? (
             <AnalyticsSkeleton />
           ) : !websiteId ? (
             <AnalyticsState

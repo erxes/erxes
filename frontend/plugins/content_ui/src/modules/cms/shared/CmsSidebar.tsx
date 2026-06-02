@@ -13,10 +13,14 @@ import {
 import { useCustomTypes } from '../custom-types/hooks/useCustomTypes';
 import { PostsPath } from '../posts/types/path/PostsPath';
 import { ICustomPostType } from '../custom-types/types/customTypeTypes';
+import { useCmsAnalyticsSettings } from './hooks/useCmsAnalyticsSettings';
 
 export const CmsSidebar = () => {
   const { websiteId } = useParams();
-  const postsFieldTypes = usePostsFieldTypes();
+  const { hasAnalyticsSettings } = useCmsAnalyticsSettings(websiteId);
+  const postsFieldTypes = usePostsFieldTypes({
+    showAnalytics: hasAnalyticsSettings,
+  });
   const { customTypes } = useCustomTypes({ clientPortalId: websiteId });
 
   return (

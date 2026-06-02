@@ -42,6 +42,10 @@ export const useCmsAnalytics = ({
     error,
     loading,
     refetch: () => {
+      if (!clientPortalId) {
+        return;
+      }
+
       refetch();
     },
     report: data?.cmsAnalytics || null,

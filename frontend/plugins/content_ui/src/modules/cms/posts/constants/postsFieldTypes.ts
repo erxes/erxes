@@ -19,10 +19,16 @@ export interface IPostsFieldType {
   icon: ComponentType<{ className?: string }>;
 }
 
-export function usePostsFieldTypes(): IPostsFieldType[] {
+type UsePostsFieldTypesOptions = {
+  showAnalytics?: boolean;
+};
+
+export function usePostsFieldTypes({
+  showAnalytics = true,
+}: UsePostsFieldTypesOptions = {}): IPostsFieldType[] {
   const { t } = useTranslation('common');
 
-  return [
+  const postsFieldTypes = [
     { value: PostsPath.Posts, label: 'Posts', icon: IconFileText },
     { value: PostsPath.Pages, label: 'Pages', icon: IconFile },
     { value: PostsPath.Categories, label: 'Categories', icon: IconFolder },
@@ -45,4 +51,8 @@ export function usePostsFieldTypes(): IPostsFieldType[] {
     },
     { value: PostsPath.Settings, label: 'Settings', icon: IconSettings },
   ];
+
+  return showAnalytics
+    ? postsFieldTypes
+    : postsFieldTypes.filter((item) => item.value !== PostsPath.Analytics);
 }
