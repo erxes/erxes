@@ -246,24 +246,15 @@ export async function startPlugin(
     );
   }
 
-  app.use((req: any, _res, next) => {
+  app.use((req: ApiRequest & { rawBody?: string }, _res, next) => {
     req.rawBody = '';
 
-    req.on('data', (chunk: any) => {
+    req.on('data', (chunk: Buffer) => {
       req.rawBody += chunk.toString();
     });
 
     next();
   });
-
-  // Error handling middleware
-  // app.use((error: any, _req: any, res: any) => {
-  //   const msg = filterXSS(error.message);
-
-  //   // debugError(`Error: ${msg}`);
-
-  //   res.status(500).send(msg);
-  // });
 
   const httpServer = http.createServer(app);
   httpServer.keepAliveTimeout = 120000;
@@ -336,9 +327,29 @@ export async function startPlugin(
     }),
   );
 
-  await new Promise<void>((resolve) =>
-    httpServer.listen({ port: PORT }, resolve),
-  );
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const onError = (err: Error) => {
+        httpServer.removeListener('error', onError);
+        reject(err);
+      };
+      httpServer.once('error', onError);
+      httpServer.listen({ port: PORT }, () => {
+        httpServer.removeListener('error', onError);
+        resolve();
+      });
+    });
+  } catch (err: unknown) {
+    const error = err as NodeJS.ErrnoException;
+    if (error.code === 'EADDRINUSE') {
+      console.error(
+        `❌ ${name} failed to start: Port ${PORT} is already in use. Please check if another instance is running.`,
+      );
+    } else {
+      console.error(`❌ ${name} failed to start server:`, err);
+    }
+    process.exit(1);
+  }
 
   console.log(
     `🚀 ${name} graphql api ready at http://localhost:${PORT}/graphql`,
@@ -409,4 +420,4 @@ export async function startPlugin(
   return app;
 }
 
-export default startPlugin;
+
