@@ -140,6 +140,10 @@ const mutations = {
           config.isCompany = config.type === 'company';
           delete config.type;
         }
+        if (config.isCompany && !config.name) {
+          config.name =
+            config.companyName || config.businessName || 'Default Contact';
+        }
 
         const api = new QPayQuickQrAPI(config);
         const { isCompany } = config;

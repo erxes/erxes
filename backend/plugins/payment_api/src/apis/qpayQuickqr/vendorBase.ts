@@ -20,23 +20,8 @@ interface RequestOptions {
 
 interface ErrorResponse {
   error: string;
-  message?: unknown;
+  message?: string;
   code?: string;
-}
-
-// Safe error to string - never returns [object Object]
-function forceString(err: unknown): string {
-  if (typeof err === 'string') return err;
-  if (err && typeof err === 'object') {
-    if ('message' in err && typeof err.message === 'string') return err.message;
-    if ('error' in err && typeof err.error === 'string') return err.error;
-    try {
-      return JSON.stringify(err);
-    } catch {
-      return '[unable to stringify error]';
-    }
-  }
-  return String(err);
 }
 
 export class VendorBaseAPI {
@@ -65,9 +50,7 @@ export class VendorBaseAPI {
 
     if (!response.ok) {
       const error = data as ErrorResponse;
-      let msg = forceString(error.message);
-      if (!msg) msg = forceString(error.error) || 'Unknown error occurred';
-      throw new Error(msg);
+      throw new Error(error.message || error.error || 'Unknown error occurred');
     }
 
     return data as T;
@@ -91,17 +74,23 @@ export class VendorBaseAPI {
 
       this.accessToken = access_token;
 
-      // TODO: uncomment when redis is ready
+      // TODO: uncomment this code when redis is ready
       // const data = {
       //   access_token,
       //   refresh_token,
       //   tokenExpiration: expires_in * 1000 + Date.now()
       // };
-      // await redis.set('qpay_merchant_data', JSON.stringify(data), 'EX', expires_in);
+
+      // await redis.set(
+      //   'qpay_merchant_data',
+      //   JSON.stringify(data),
+      //   'EX',
+      //   expires_in
+      // );
 
       return access_token;
-    } catch (error: unknown) {
-      throw new Error(`Authentication failed: ${forceString(error)}`);
+    } catch (error) {
+      throw new Error(`Authentication failed: ${error.message}`);
     }
   }
 
@@ -133,16 +122,22 @@ export class VendorBaseAPI {
         tokenExpiration: expires_in * 1000 + Date.now(),
       };
 
-      await redis.set('qpay_merchant_data', JSON.stringify(data), 'EX', expires_in);
+      await redis.set(
+        'qpay_merchant_data',
+        JSON.stringify(data),
+        'EX',
+        expires_in,
+      );
 
       this.accessToken = access_token;
+
       return access_token;
-    } catch (error: unknown) {
-      throw new Error(`Token refresh failed: ${forceString(error)}`);
+    } catch (error) {
+      throw new Error(`Token refresh failed: ${error.message}`);
     }
   }
 
-  async makeRequest<T>(args: RequestOptions, retryCount = 0): Promise<T> {
+  async makeRequest<T>(args: RequestOptions): Promise<T> {
     const { method, path, params, data } = args;
 
     try {
@@ -172,13 +167,13 @@ export class VendorBaseAPI {
 
       const response = await fetch(url.toString(), requestOptions);
       return await this.handleResponse<T>(response);
-    } catch (error: unknown) {
-      const errMsg = forceString(error);
-      if (errMsg.includes('Unauthorized') && retryCount < 1) {
+    } catch (error) {
+      if (error.message.includes('Unauthorized')) {
         await this.refreshToken();
-        return await this.makeRequest(args, retryCount + 1);
+        return await this.makeRequest(args);
       }
-      throw new Error(`Request failed: ${errMsg}`);
+
+      throw new Error(`Request failed: ${error.message}`);
     }
   }
 }
