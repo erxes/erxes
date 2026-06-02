@@ -73,6 +73,14 @@ export const OAuthClientForm = () => {
                 field.onChange(value);
 
                 if (value === 'public') {
+                  form.setValue('accessTokenLifetime', undefined, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                  return;
+                }
+
+                if (!form.getValues('accessTokenLifetime')) {
                   form.setValue('accessTokenLifetime', 'year', {
                     shouldDirty: true,
                     shouldValidate: true,

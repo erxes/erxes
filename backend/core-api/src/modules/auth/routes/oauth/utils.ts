@@ -304,9 +304,10 @@ export const getAccessTokenExpiresIn = ({
   clientType: 'public' | 'confidential';
   accessTokenLifetime?: OAuthClientAccessTokenLifetime;
 }) => {
-  const accessTokenExpiresIn = accessTokenLifetime
-    ? ACCESS_TOKEN_LIFETIME_SECONDS[accessTokenLifetime]
-    : undefined;
+  const accessTokenExpiresIn =
+    clientType === 'confidential' && accessTokenLifetime
+      ? ACCESS_TOKEN_LIFETIME_SECONDS[accessTokenLifetime]
+      : undefined;
 
   if (accessTokenExpiresIn) {
     return accessTokenExpiresIn;

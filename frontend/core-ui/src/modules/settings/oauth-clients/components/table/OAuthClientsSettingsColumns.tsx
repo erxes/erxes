@@ -43,11 +43,9 @@ const ClientIdCell = ({ clientId }: { clientId: string }) => {
 const getAccessTokenLifetimeLabel = (
   value?: OAuthClientAccessTokenLifetime,
 ) => {
-  return (
-    OAUTH_CLIENT_ACCESS_TOKEN_LIFETIME_OPTIONS.find(
-      (option) => option.value === value,
-    )?.label || '1 year'
-  );
+  return OAUTH_CLIENT_ACCESS_TOKEN_LIFETIME_OPTIONS.find(
+    (option) => option.value === value,
+  )?.label;
 };
 
 export const oauthClientsSettingsColumns: ColumnDef<IOAuthClientApp>[] = [
@@ -79,11 +77,12 @@ export const oauthClientsSettingsColumns: ColumnDef<IOAuthClientApp>[] = [
     id: 'accessTokenLifetime',
     accessorKey: 'accessTokenLifetime',
     header: 'Token lifetime',
-    cell: ({ cell }) => (
+    cell: ({ row }) => (
       <RecordTableInlineCell>
-        {getAccessTokenLifetimeLabel(
-          cell.getValue<OAuthClientAccessTokenLifetime | undefined>(),
-        )}
+        {row.original.type === 'confidential'
+          ? getAccessTokenLifetimeLabel(row.original.accessTokenLifetime) ||
+            '1 year'
+          : '-'}
       </RecordTableInlineCell>
     ),
   },

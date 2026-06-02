@@ -43,6 +43,12 @@ const generateSecret = () => {
   return `ocs_${crypto.randomBytes(24).toString('hex')}`;
 };
 
+const getConfidentialAccessTokenLifetime = (
+  accessTokenLifetime?: OAuthClientAccessTokenLifetime,
+) => {
+  return accessTokenLifetime || 'year';
+};
+
 const hashSecret = (secret: string): string => {
   return crypto.createHash('sha256').update(secret).digest('hex');
 };
@@ -89,7 +95,10 @@ export const loadOAuthClientAppClass = (
             description: doc.description?.trim() || undefined,
             clientId,
             type: doc.type,
-            accessTokenLifetime: doc.accessTokenLifetime || 'year',
+            accessTokenLifetime:
+              doc.type === 'confidential'
+                ? getConfidentialAccessTokenLifetime(doc.accessTokenLifetime)
+                : undefined,
             redirectUrls,
             secretHash: secret ? hashSecret(secret) : undefined,
             status: 'active',
@@ -128,15 +137,20 @@ export const loadOAuthClientAppClass = (
           ? generateSecret()
           : undefined;
 
-      const updateDoc = {
+      const updateDoc: OAuthClientAppDoc = {
         name: doc.name.trim(),
         logo: doc.logo?.trim() || undefined,
         description: doc.description?.trim() || undefined,
         type: nextType,
-        accessTokenLifetime:
-          doc.accessTokenLifetime || existing.accessTokenLifetime || 'year',
         redirectUrls: normalizeRedirectUrls(doc.redirectUrls),
       };
+
+      if (nextType === 'confidential') {
+        updateDoc.accessTokenLifetime = getConfidentialAccessTokenLifetime(
+          doc.accessTokenLifetime || existing.accessTokenLifetime,
+        );
+      }
+
       const updateOperation: Record<string, any> = {
         $set: updateDoc,
       };
@@ -153,6 +167,7 @@ export const loadOAuthClientAppClass = (
 
       if (nextType === 'public') {
         unsetFields.secretHash = 1;
+        unsetFields.accessTokenLifetime = 1;
       } else if (nextSecret) {
         updateOperation.$set.secretHash = hashSecret(nextSecret);
       }

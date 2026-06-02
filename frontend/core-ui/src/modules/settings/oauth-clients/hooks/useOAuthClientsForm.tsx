@@ -13,7 +13,6 @@ export const useOAuthClientsForm = (
     defaultValues: {
       name: '',
       type: 'public',
-      accessTokenLifetime: 'year',
       redirectUrls: [],
       ...defaultValues,
     },

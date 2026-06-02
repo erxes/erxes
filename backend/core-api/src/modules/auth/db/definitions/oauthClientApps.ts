@@ -42,7 +42,6 @@ export const oauthClientAppSchema = new Schema(
       type: String,
       label: 'Access token lifetime',
       enum: ['year', 'half', 'trio'],
-      default: 'year',
     },
     redirectUrls: {
       type: [String],
