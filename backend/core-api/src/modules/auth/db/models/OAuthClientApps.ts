@@ -2,11 +2,12 @@ import crypto from 'crypto';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import {
+import type {
+  OAuthClientAccessTokenLifetime,
   IOAuthClientAppDocument,
   OAuthClientAppType,
-  oauthClientAppSchema,
 } from '@/auth/db/definitions/oauthClientApps';
+import { oauthClientAppSchema } from '@/auth/db/definitions/oauthClientApps';
 
 type OAuthClientAppDoc = {
   name: string;
@@ -14,6 +15,7 @@ type OAuthClientAppDoc = {
   description?: string;
   redirectUrls?: string[];
   type: OAuthClientAppType;
+  accessTokenLifetime?: OAuthClientAccessTokenLifetime;
 };
 
 const normalizeRedirectUrls = (redirectUrls?: string[]) => {
@@ -87,6 +89,7 @@ export const loadOAuthClientAppClass = (
             description: doc.description?.trim() || undefined,
             clientId,
             type: doc.type,
+            accessTokenLifetime: doc.accessTokenLifetime || 'year',
             redirectUrls,
             secretHash: secret ? hashSecret(secret) : undefined,
             status: 'active',
@@ -130,6 +133,8 @@ export const loadOAuthClientAppClass = (
         logo: doc.logo?.trim() || undefined,
         description: doc.description?.trim() || undefined,
         type: nextType,
+        accessTokenLifetime:
+          doc.accessTokenLifetime || existing.accessTokenLifetime || 'year',
         redirectUrls: normalizeRedirectUrls(doc.redirectUrls),
       };
       const updateOperation: Record<string, any> = {
