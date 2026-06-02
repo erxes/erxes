@@ -8,7 +8,7 @@ const IGNORED_QUERY_VARIABLE_KEYS = [
   'archivedOnly',
 ];
 
-const SKIP_PARSE_VARIABLE_KEYS = ['search'];
+const SKIP_PARSE_VARIABLE_KEYS = ['search', 'productId'];
 
 const DATE_RANGE_PAIRS: [string, string][] = [
   ['createdStartDate', 'createdEndDate'],
