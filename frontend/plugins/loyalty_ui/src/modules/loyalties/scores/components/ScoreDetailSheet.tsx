@@ -10,6 +10,8 @@ interface ScoreDetailSheetProps {
   record: IScoreLog | null;
 }
 
+const SCORE_DETAIL_LIMIT = 100;
+
 const formatScore = (value?: number) => fixNum(value, 4).toLocaleString();
 
 export const ScoreDetailSheet = ({
@@ -22,17 +24,18 @@ export const ScoreDetailSheet = ({
   // The detail is keyed by person: every score log row of the same owner opens
   // the same set of entries. We resolve them from the owner carried by the
   // selected (latest) score log, without a separate owner lookup.
-  const { data, loading } = useQuery(SCORE_LOGS_QUERY, {
+  const { data, loading, error } = useQuery(SCORE_LOGS_QUERY, {
     variables: {
       ownerId: record?.ownerId,
       ownerType: record?.ownerType,
-      limit: 100,
+      limit: SCORE_DETAIL_LIMIT,
     },
     skip: !open || !record?.ownerId,
     fetchPolicy: 'cache-and-network',
   });
 
   const logs: IScoreLog[] = data?.scoreLogs?.list || [];
+  const isTruncated = logs.length >= SCORE_DETAIL_LIMIT;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal>
@@ -52,6 +55,10 @@ export const ScoreDetailSheet = ({
         <Sheet.Content className="flex-1 min-h-0 p-4 overflow-auto">
           {loading && logs.length === 0 ? (
             <Spinner containerClassName="py-10" />
+          ) : error ? (
+            <div className="flex items-center justify-center h-24 text-xs text-destructive">
+              {error.message || 'Failed to load score logs'}
+            </div>
           ) : logs.length === 0 ? (
             <div className="flex items-center justify-center h-24 text-xs text-muted-foreground">
               No log records found
@@ -66,6 +73,11 @@ export const ScoreDetailSheet = ({
                   </RecordTable.Body>
                 </RecordTable>
               </RecordTable.Provider>
+              {isTruncated && (
+                <p className="mt-2 text-center text-xs text-muted-foreground">
+                  Showing the latest {SCORE_DETAIL_LIMIT} entries.
+                </p>
+              )}
             </div>
           )}
         </Sheet.Content>

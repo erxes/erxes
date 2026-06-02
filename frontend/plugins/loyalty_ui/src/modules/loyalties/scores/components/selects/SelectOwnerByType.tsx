@@ -48,6 +48,7 @@ export const SelectOwnerByType = ({
           value={value}
           onValueChange={handleChange}
           mode="single"
+          placeholder={resolvedPlaceholder}
         />
       );
     case 'cpUser':
