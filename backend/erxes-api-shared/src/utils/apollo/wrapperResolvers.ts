@@ -11,6 +11,21 @@ import {
 import { logHandler } from '../logs';
 import { runBeforeResolvers } from './runBeforeResolvers';
 
+const EXPECTED_ERRORS = [
+  'Permission required',
+  'Login required',
+  'Client portal required',
+  'Client portal user required',
+  'OAuth scope required',
+];
+
+const isExpectedError = (err: unknown): boolean => {
+  if (err instanceof Error) {
+    return EXPECTED_ERRORS.some((msg) => err.message === msg);
+  }
+  return false;
+};
+
 const withSentryCapture = (
   resolver: Resolver,
   resolverKey: string,
@@ -20,17 +35,19 @@ const withSentryCapture = (
     try {
       return await resolver(root, args, context, info);
     } catch (err) {
-      Sentry.withScope((scope) => {
-        scope.setTag('graphql.operation', operation);
-        scope.setTag('graphql.field', resolverKey);
-        scope.setContext('graphql', {
-          field: resolverKey,
-          operation,
-          subdomain: context?.subdomain,
-          userId: context?.user?._id,
+      if (!isExpectedError(err)) {
+        Sentry.withScope((scope) => {
+          scope.setTag('graphql.operation', operation);
+          scope.setTag('graphql.field', resolverKey);
+          scope.setContext('graphql', {
+            field: resolverKey,
+            operation,
+            subdomain: context?.subdomain,
+            userId: context?.user?._id,
+          });
+          Sentry.captureException(err);
         });
-        Sentry.captureException(err);
-      });
+      }
       throw err;
     }
   };
