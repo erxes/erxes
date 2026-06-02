@@ -1,30 +1,4 @@
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import { IContext } from '~/connectionResolvers';
 import { IProductGroupDocument } from '~/modules/ebarimt/@types';
-
-const fetchProduct = async (subdomain: string, _id?: string) => {
-  if (!_id) {
-    return null;
-  }
-
-  const products = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'products',
-    action: 'find',
-    input: { query: { _id }, limit: 1 },
-    defaultValue: [],
-  });
-
-  const product = Array.isArray(products) ? products[0] : null;
-
-  if (!product) {
-    return { __typename: 'Product', _id };
-  }
-
-  return { __typename: 'Product', ...product };
-};
 
 export default {
   async user(productGroup: IProductGroupDocument) {
@@ -38,19 +12,19 @@ export default {
     };
   },
 
-  async mainProduct(
-    productGroup: IProductGroupDocument,
-    _args: undefined,
-    { subdomain }: IContext,
-  ) {
-    return fetchProduct(subdomain, productGroup.mainProductId);
+  mainProduct(productGroup: IProductGroupDocument) {
+    if (!productGroup.mainProductId) {
+      return null;
+    }
+
+    return { __typename: 'Product', _id: productGroup.mainProductId };
   },
 
-  async subProduct(
-    productGroup: IProductGroupDocument,
-    _args: undefined,
-    { subdomain }: IContext,
-  ) {
-    return fetchProduct(subdomain, productGroup.subProductId);
+  subProduct(productGroup: IProductGroupDocument) {
+    if (!productGroup.subProductId) {
+      return null;
+    }
+
+    return { __typename: 'Product', _id: productGroup.subProductId };
   },
 };

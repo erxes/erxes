@@ -8,6 +8,7 @@ import {
   Popover,
   Combobox,
   Command,
+  Spinner,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import {
@@ -24,36 +25,45 @@ import { useProductGroupRows } from '@/ebarimt/settings/product-group/hooks/useP
 import { productGroupDetailAtom } from '@/ebarimt/settings/product-group/states/productGroupRowStates';
 import { ProductGroupRowsCommandbar } from '@/ebarimt/settings/product-group/components/ProductGroupRowsCommandbar';
 import { IProductGroup } from '@/ebarimt/settings/product-group/constants/productGroupDefaultValues';
+import { PRODUCT_GROUP_CURSOR_SESSION_KEY } from '@/ebarimt/settings/product-group/constants/productGroupRowDefaultVariables';
 import { useMemo } from 'react';
 import { AddProductGroup } from './ProductGroup';
 import { useProductGroupRowsRemove } from '@/ebarimt/settings/product-group/hooks/useProductGroupRowsRemove';
 
 export const ProductGroupTable = () => {
-  const { productGroupRows, loading, handleFetchMore, totalCount, hasNextPage } =
+  const { productGroupRows, loading, handleFetchMore, totalCount, pageInfo } =
     useProductGroupRows();
   const memoizedColumns = useMemo(() => productGroupsColumns, []);
+
+  const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   const isInitialLoading = loading && productGroupRows.length === 0;
 
   return (
     <RecordTable.Provider columns={memoizedColumns} data={productGroupRows}>
-      <RecordTable.Scroll>
+      <RecordTable.CursorProvider
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        dataLength={productGroupRows.length}
+        sessionKey={PRODUCT_GROUP_CURSOR_SESSION_KEY}
+      >
         <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
-            {isInitialLoading ? (
-              <RecordTable.RowSkeleton rows={10} />
-            ) : (
-              <>
-                <RecordTable.RowList />
-                {loading && <RecordTable.RowSkeleton rows={4} />}
-                {!loading && hasNextPage && (
-                  <RecordTable.RowSkeleton rows={4} handleInView={handleFetchMore} />
-                )}
-              </>
-            )}
+            <RecordTable.CursorBackwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
+            <RecordTable.RowList />
+            <RecordTable.CursorForwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
           </RecordTable.Body>
         </RecordTable>
+        {isInitialLoading && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Spinner />
+          </div>
+        )}
         {!loading && totalCount === 0 && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="flex flex-col items-center text-center">
@@ -68,7 +78,7 @@ export const ProductGroupTable = () => {
             </div>
           </div>
         )}
-      </RecordTable.Scroll>
+      </RecordTable.CursorProvider>
       <ProductGroupRowsCommandbar />
     </RecordTable.Provider>
   );

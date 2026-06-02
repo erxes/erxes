@@ -1,9 +1,19 @@
 import { useQuery } from '@apollo/client';
-import { IRecordTableCursorPageInfo } from 'erxes-ui';
+import {
+  EnumCursorDirection,
+  IRecordTableCursorPageInfo,
+  mergeCursorData,
+  useRecordTableCursor,
+  validateFetchMore,
+} from 'erxes-ui';
 import { GET_PRODUCT_GROUP } from '@/ebarimt/settings/product-group/graphql/queries/getProductGroup';
 import { IProductGroup } from '@/ebarimt/settings/product-group/constants/productGroupDefaultValues';
-import { PRODUCT_GROUP_ROW_DEFAULT_VARIABLES } from '@/ebarimt/settings/product-group/constants/productGroupRowDefaultVariables';
-import { useCallback, useMemo } from 'react';
+import {
+  PRODUCT_GROUP_CURSOR_SESSION_KEY,
+  PRODUCT_GROUP_ORDER_BY,
+  PRODUCT_GROUP_ROW_PER_PAGE,
+} from '@/ebarimt/settings/product-group/constants/productGroupRowDefaultVariables';
+import { useMemo } from 'react';
 
 interface IProductGroupQueryResult {
   ebarimtProductGroups: {
@@ -14,50 +24,60 @@ interface IProductGroupQueryResult {
 }
 
 export const useProductGroupRows = () => {
-  const { data, loading, fetchMore, error } = useQuery<IProductGroupQueryResult>(
-    GET_PRODUCT_GROUP,
-    {
-      variables: PRODUCT_GROUP_ROW_DEFAULT_VARIABLES,
-      fetchPolicy: 'network-only',
-      nextFetchPolicy: 'cache-first',
-    },
-  );
+  const { cursor } = useRecordTableCursor({
+    sessionKey: PRODUCT_GROUP_CURSOR_SESSION_KEY,
+  });
 
-  const productGroupRows = useMemo(
-    () => data?.ebarimtProductGroups?.list ?? [],
-    [data?.ebarimtProductGroups?.list],
-  );
+  const { data, loading, fetchMore, error } =
+    useQuery<IProductGroupQueryResult>(GET_PRODUCT_GROUP, {
+      variables: {
+        limit: PRODUCT_GROUP_ROW_PER_PAGE,
+        orderBy: PRODUCT_GROUP_ORDER_BY,
+        cursor,
+      },
+    });
 
-  const totalCount = data?.ebarimtProductGroups?.totalCount ?? 0;
-  const pageInfo = data?.ebarimtProductGroups?.pageInfo;
-  const hasNextPage = pageInfo?.hasNextPage ?? false;
+  const { list, totalCount = 0, pageInfo } = data?.ebarimtProductGroups || {};
 
-  const handleFetchMore = useCallback(() => {
-    if (loading || !hasNextPage || !pageInfo?.endCursor) return;
+  const productGroupRows = useMemo(() => list ?? [], [list]);
+
+  const handleFetchMore = ({
+    direction,
+  }: {
+    direction: EnumCursorDirection;
+  }) => {
+    if (!validateFetchMore({ direction, pageInfo })) return;
 
     fetchMore({
       variables: {
-        cursor: pageInfo.endCursor,
+        cursor:
+          direction === EnumCursorDirection.FORWARD
+            ? pageInfo?.endCursor
+            : pageInfo?.startCursor,
+        limit: PRODUCT_GROUP_ROW_PER_PAGE,
+        direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult?.ebarimtProductGroups) return prev;
+        if (!fetchMoreResult) return prev;
         return {
+          ...prev,
           ebarimtProductGroups: {
-            ...fetchMoreResult.ebarimtProductGroups,
-            list: [
-              ...prev.ebarimtProductGroups.list,
-              ...fetchMoreResult.ebarimtProductGroups.list,
-            ],
+            ...mergeCursorData({
+              direction,
+              fetchMoreResult: fetchMoreResult.ebarimtProductGroups,
+              prevResult: prev.ebarimtProductGroups,
+            }),
+            totalCount: fetchMoreResult.ebarimtProductGroups.totalCount,
           },
         };
       },
     });
-  }, [loading, hasNextPage, pageInfo?.endCursor, fetchMore]);
+  };
 
   return {
     productGroupRows,
     totalCount,
-    hasNextPage,
+    pageInfo,
     loading,
     error,
     handleFetchMore,
