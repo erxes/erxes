@@ -1,11 +1,13 @@
+import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 import { Schema } from 'mongoose';
 
 export const taskSchema = new Schema(
   {
+    _id: mongooseStringRandomId,
     name: { type: String, label: 'Name', required: true },
     description: { type: String, label: 'Description' },
-    status: { type: Schema.Types.ObjectId, label: 'Status ID', required: true },
-    teamId: { type: Schema.Types.ObjectId, label: 'Team ID', required: true },
+    status: { type: String, label: 'Status ID', required: true },
+    teamId: { type: String, label: 'Team ID', required: true },
     priority: { type: Number, label: 'Priority', default: 0 },
     labelIds: { type: [String], label: 'Label IDs' },
     tagIds: { type: [String], label: 'Tag IDs' },
@@ -13,9 +15,9 @@ export const taskSchema = new Schema(
     createdBy: { type: String, label: 'Created By' },
     startDate: { type: Date, label: 'Start Date' },
     targetDate: { type: Date, label: 'Target Date' },
-    cycleId: { type: Schema.Types.ObjectId, label: 'Cycle ID' },
-    projectId: { type: Schema.Types.ObjectId, label: 'Project ID' },
-    milestoneId: { type: Schema.Types.ObjectId, label: 'Milestone ID' },
+    cycleId: { type: String, label: 'Cycle ID' },
+    projectId: { type: String, label: 'Project ID' },
+    milestoneId: { type: String, label: 'Milestone ID' },
     estimatePoint: { type: Number, label: 'Estimate Point', default: 0 },
     statusChangedDate: {
       type: Date,
