@@ -19,6 +19,6 @@ export const teamSchema = new Schema(
 
 export const teamMembers = new Schema({
   memberId: { type: String, label: 'Member ID' },
-  teamId: { type: String, label: 'Team ID' },
+  teamId: { type: Schema.Types.ObjectId, label: 'Team ID' },
   role: { type: String, label: 'Role' },
 });

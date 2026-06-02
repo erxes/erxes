@@ -6,7 +6,7 @@ export const cycleSchema = new Schema(
     description: { type: String },
     startDate: { type: Date },
     endDate: { type: Date },
-    teamId: { type: String },
+    teamId: { type: String, ref: 'Team' },
     isCompleted: { type: Boolean, default: false },
     isActive: { type: Boolean, default: false },
     statistics: { type: Object },

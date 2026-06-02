@@ -14,7 +14,7 @@ export const activitySchema = new Schema(
   {
     action: { type: String, label: 'Action', required: true },
     contentId: {
-      type: String,
+      type: Schema.Types.ObjectId,
       label: 'Content ID',
       required: true,
     },
