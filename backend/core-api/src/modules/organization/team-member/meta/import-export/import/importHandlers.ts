@@ -1,10 +1,11 @@
 import {
   TCoreModuleProducerContext,
-  TInsertImportRowsInput,
   TGetImportHeadersOutput,
+  TInsertImportRowsInput,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { processUserRows } from './processUserRows';
+import { getCustomPropertyHeaders } from '~/meta/import-export/utils';
 
 const userImportMap = {
   users: {
@@ -30,6 +31,7 @@ const userImportMap = {
       { label: 'Departments', key: 'departments' },
       { label: 'Branches', key: 'branches' },
     ],
+    propertiesType: 'core:user',
     processRows: (models: IModels, rows: any[]) =>
       processUserRows(models, rows),
   },
@@ -37,20 +39,26 @@ const userImportMap = {
 
 export const userImportHandlers = {
   getImportHeaders: async (
-    { collectionName }: { collectionName: string },
-    _ctx: TCoreModuleProducerContext<IModels>,
+    { collectionName }: { collectionName: 'users' },
+    { models }: TCoreModuleProducerContext<IModels>,
   ): Promise<TGetImportHeadersOutput> => {
-    const handler = (userImportMap as any)[collectionName];
+    const handler = userImportMap[collectionName];
     if (!handler)
       throw new Error(`Import headers handler not found for ${collectionName}`);
-    return handler.headers;
+
+    const { propertiesType, headers = [] } = handler;
+
+    return [
+      ...headers,
+      ...(await getCustomPropertyHeaders(models, propertiesType)),
+    ];
   },
 
   insertImportRows: async (
     { collectionName, rows }: TInsertImportRowsInput,
     { models }: TCoreModuleProducerContext<IModels>,
   ) => {
-    const handler = (userImportMap as any)[collectionName];
+    const handler = userImportMap[collectionName];
     if (!handler)
       throw new Error(`Import handler not found for ${collectionName}`);
     if (!models) throw new Error('Models not available in context');

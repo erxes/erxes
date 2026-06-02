@@ -83,7 +83,9 @@ export const ProductGroupMainProductCell = ({
   const [, setOpen] = useQueryState('product_group_id');
   const setDetail = useSetAtom(productGroupDetailAtom);
   const row = cell.row.original;
-  const name = row.mainProduct?.name ?? '';
+  const productInfo = [row.mainProduct?.code, row.mainProduct?.name]
+    .filter(Boolean)
+    .join(' - ');
 
   return (
     <RecordTableInlineCell
@@ -93,7 +95,7 @@ export const ProductGroupMainProductCell = ({
         setOpen(row._id ?? null);
       }}
     >
-      <TextOverflowTooltip value={name} />
+      <TextOverflowTooltip value={productInfo} />
     </RecordTableInlineCell>
   );
 };
@@ -104,11 +106,13 @@ export const ProductGroupSubProductCell = ({
   cell: Cell<IProductGroup, unknown>;
 }) => {
   const row = cell.row.original;
-  const name = row.subProduct?.name ?? '';
+  const productInfo = [row.subProduct?.code, row.subProduct?.name]
+    .filter(Boolean)
+    .join(' - ');
 
   return (
     <RecordTableInlineCell>
-      <TextOverflowTooltip value={name} />
+      <TextOverflowTooltip value={productInfo} />
     </RecordTableInlineCell>
   );
 };

@@ -1,14 +1,13 @@
 import Labels from '@/deals/cards/components/detail/overview/label/Labels';
 import { ItemFooter } from '@/deals/cards/components/item/Footer';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
-import { CopyText } from '~/components/CopyText';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { IDeal } from '@/deals/types/deals';
 import { IconAlertCircleFilled } from '@tabler/icons-react';
-import { Separator, useQueryState } from 'erxes-ui';
+import { Separator, useQueryState, CopyText } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { memo, useState } from 'react';
 import {

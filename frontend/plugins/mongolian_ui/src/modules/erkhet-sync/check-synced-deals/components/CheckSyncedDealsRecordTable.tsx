@@ -1,6 +1,10 @@
 import { Button, RecordTable } from 'erxes-ui';
 import { IconShoppingCartX } from '@tabler/icons-react';
-import { checkSyncedDealsColumns } from './CheckSyncedDealsColumn';
+import { useMemo } from 'react';
+import {
+  getCheckSyncedDealsColumns,
+  isSyncableDeal,
+} from './CheckSyncedDealsColumn';
 
 import { CHECK_SYNCED_DEALS_CURSOR_SESSION_KEY } from '../constants/checkSyncedDealsCursorSessionKey';
 import { useCheckSyncedDeals } from '../hooks/useCheckSyncedDeals';
@@ -10,39 +14,35 @@ const CheckDealsButton = ({
   deals,
   checking,
   syncing,
+  toSyncCount,
   onCheck,
   onSyncUnchecked,
 }: {
   deals: ICheckSyncedDeals[];
   checking: boolean;
   syncing: boolean;
+  toSyncCount: number;
   onCheck: (ids: string[]) => void;
-  onSyncUnchecked: (ids: string[]) => void;
+  onSyncUnchecked: () => void;
 }) => {
   const { table } = RecordTable.useRecordTable();
   const selectedRows = table.getSelectedRowModel().rows;
-  const ids = (
-    selectedRows.length
-      ? selectedRows.map((row) => row.original._id)
-      : deals.map((deal) => deal._id)
-  ).filter(Boolean);
+  const ids = selectedRows.map((row) => row.original._id).filter(Boolean);
 
   return (
     <div className="flex items-center justify-between gap-3 px-3 pt-3">
       <div className="text-sm text-muted-foreground">
-        {selectedRows.length
-          ? `${selectedRows.length} selected`
-          : `${deals.length} deals`}
+        {selectedRows.length} selected / {deals.length} deals
       </div>
       <Button onClick={() => onCheck(ids)} disabled={checking || !ids.length}>
         {checking ? 'Checking...' : 'Check Deals'}
       </Button>
       <Button
-        onClick={() => onSyncUnchecked(ids)}
-        disabled={syncing || !ids.length}
+        onClick={onSyncUnchecked}
+        disabled={syncing || !toSyncCount}
         variant="outline"
       >
-        {syncing ? 'Syncing...' : 'Sync Unchecked'}
+        {syncing ? 'Syncing...' : `Sync Selected (${toSyncCount})`}
       </Button>
     </div>
   );
@@ -56,25 +56,44 @@ export const CheckSyncedDealsRecordTable = () => {
     handleFetchMore,
     loading,
     pageInfo,
+    setAllDealsToSync,
+    setDealToSync,
     syncUncheckedDeals,
+    syncSelectedDealIds,
     syncing,
+    toSyncDealIds,
   } = useCheckSyncedDeals();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const syncableDealIds = useMemo(
+    () => (Deals || []).filter(isSyncableDeal).map((deal) => deal._id),
+    [Deals],
+  );
+  const columns = useMemo(
+    () =>
+      getCheckSyncedDealsColumns({
+        toSyncDealIds,
+        syncableDealIds,
+        onToggleToSync: setDealToSync,
+        onToggleAllToSync: setAllDealsToSync,
+      }),
+    [setAllDealsToSync, setDealToSync, syncableDealIds, toSyncDealIds],
+  );
 
   return (
     <RecordTable.Provider
-      columns={checkSyncedDealsColumns || []}
+      columns={columns}
       data={Deals || []}
       className="m-3"
-      stickyColumns={['more', 'checkbox', 'createdAt']}
+      stickyColumns={['more', 'checkbox', 'toSync', 'createdAt']}
     >
       <CheckDealsButton
         deals={Deals || []}
         checking={checking}
         onCheck={checkDeals}
-        onSyncUnchecked={syncUncheckedDeals}
+        onSyncUnchecked={() => syncUncheckedDeals(syncSelectedDealIds)}
         syncing={syncing}
+        toSyncCount={syncSelectedDealIds.length}
       />
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
