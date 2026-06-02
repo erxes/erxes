@@ -36,6 +36,7 @@ export function useDepartmentEdit(
 ) {
   const [handleEdit, { loading, error }] = useMutation(EDIT_DEPARTMENT, {
     ...options,
+    refetchQueries: ['Departments'],
   });
 
   return {
