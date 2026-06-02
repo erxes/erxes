@@ -138,9 +138,10 @@ export const handleFacebookMessage = async (
       });
 
       return { status: 'success' };
-    } catch (e: any) {
-      console.error('Error replying to post comment:', e);
-      throw new Error(e.message);
+    } catch (e: unknown) {
+      const error = e as { message: string };
+      console.error('Error replying to post comment:', error);
+      throw new Error(error.message);
     }
   }
 
@@ -235,13 +236,30 @@ export const handleFacebookMessage = async (
           );
         }
       }
-    } catch (e) {
+    } catch (e: unknown) {
+      // Facebook Messenger error code 10: Message sent outside allowed window
+      // Save message locally even though Facebook rejected it
+      const error = e as { code?: number; message: string };
+      if (error.code === 10) {
+        localMessage = await models.FacebookConversationMessages.addMessage(
+          {
+            ...doc,
+            conversationId: conversation._id,
+          },
+          doc.userId,
+        );
+        return {
+          status: 'success',
+          data: { ...localMessage.toObject(), conversationId },
+        };
+      }
+
       if (localMessage) {
         await models.FacebookConversationMessages.deleteOne({
           _id: localMessage._id,
         });
       }
-      throw new Error(e.message);
+      throw new Error(error.message);
     }
 
     return {
