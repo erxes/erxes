@@ -27,13 +27,27 @@ const buildOAuthClientQuery = (searchValue?: string) => {
   return query;
 };
 
+const checkOAuthClientReadPermission = async (
+  checkPermission: IContext['checkPermission'],
+) => {
+  try {
+    await checkPermission('appsRead');
+  } catch (error) {
+    if (!(error instanceof Error) || error.message !== 'Permission required') {
+      throw error;
+    }
+
+    await checkPermission('appsManage');
+  }
+};
+
 export const oauthClientAppQueries = {
   async oauthClientApps(
     _parent: undefined,
     { searchValue, page = 1, perPage = 20 }: any,
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('appsRead');
+    await checkOAuthClientReadPermission(checkPermission);
 
     return models.OAuthClientApps.find(buildOAuthClientQuery(searchValue))
       .skip((page - 1) * perPage)
@@ -46,7 +60,7 @@ export const oauthClientAppQueries = {
     { searchValue }: { searchValue?: string },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('appsRead');
+    await checkOAuthClientReadPermission(checkPermission);
 
     return models.OAuthClientApps.countDocuments(
       buildOAuthClientQuery(searchValue),
@@ -58,7 +72,7 @@ export const oauthClientAppQueries = {
     { _id }: { _id: string },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('appsRead');
+    await checkOAuthClientReadPermission(checkPermission);
 
     return models.OAuthClientApps.findOne({ _id });
   },
