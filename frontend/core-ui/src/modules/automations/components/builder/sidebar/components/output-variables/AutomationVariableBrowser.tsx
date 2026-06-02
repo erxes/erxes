@@ -81,11 +81,6 @@ export const AutomationVariableBrowser = ({
         </AutomationVariableBrowserSection>
       )}
 
-      {/* <AutomationVariableBrowserInfoState
-        title="Insert variables"
-        description="Click or drag variables into a supported field to insert placeholders."
-      /> */}
-
       <Input
         value={searchValue}
         onChange={(event) => setSearchValue(event.target.value)}

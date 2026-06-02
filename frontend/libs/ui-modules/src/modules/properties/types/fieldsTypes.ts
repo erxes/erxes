@@ -11,6 +11,8 @@ export type IField = {
   multiple?: boolean;
   icon?: string;
   configs?: Record<string, any>;
+  validation?: any;
+  selectOptions?: Array<{ label: string; value: string }>;
 };
 
 export interface IFieldGroup {

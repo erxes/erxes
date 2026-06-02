@@ -91,7 +91,6 @@ export function createEventHandlers(
         contentType,
         eventUpdateDescription,
       );
-      console.log(JSON.stringify({ automationTriggerPayload }, null, 2));
 
       if (automationTriggerPayload) {
         sendAutomationTrigger(subdomain, automationTriggerPayload);

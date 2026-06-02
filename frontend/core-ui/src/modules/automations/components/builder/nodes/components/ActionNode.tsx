@@ -111,7 +111,7 @@ const ActionNodeHeader = ({
   );
 };
 
-const ActionNode = ({ data, selected, id }: any) => {
+const ActionNode = ({ data, selected, id, ...props }: any) => {
   const { beforeTitleContent, config, nextActionId, workflowId, error } = data;
   const isVertical = data.flowDirection === 'vertical';
 

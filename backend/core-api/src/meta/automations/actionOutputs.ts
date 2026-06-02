@@ -1,5 +1,6 @@
 import {
-  resolveOutputValues,
+  IAutomationExecution,
+  replaceOutputPlaceholders,
   TAutomationFindObjectType,
   TAutomationRuntimeOutputDefinition,
 } from 'erxes-api-shared/core-modules';
@@ -24,15 +25,28 @@ export const FIND_OBJECT_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
         return defaultValue;
       }
 
-      const resolved = await resolveOutputValues({
-        definition: target.output,
+      const execution: IAutomationExecution = {
+        automationId: '',
+        triggerId: '',
+        triggerType: objectType,
+        triggerConfig: {},
+        targetId: '',
+        target: source.object,
+        status: '',
+        description: '',
+        actions: [],
+      };
+
+      const resolved = await replaceOutputPlaceholders({
         subdomain,
-        source: source.object,
-        paths: [objectPath],
+        execution,
+        values: {
+          value: `{{ trigger.${objectPath} }}`,
+        },
         defaultValue,
       });
 
-      return resolved[objectPath];
+      return resolved.value;
     },
   },
 };

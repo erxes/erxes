@@ -19,7 +19,6 @@ export const resolveRecordReferenceValue = async ({
   type,
 }: TResolveRecordReferenceValueProps) => {
   const pluginName = getRecordReferencePluginName(type);
-
   if (!pluginName || !path) {
     return defaultValue;
   }

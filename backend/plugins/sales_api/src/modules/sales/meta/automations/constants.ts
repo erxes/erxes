@@ -1,6 +1,40 @@
-import { TAutomationRuntimeOutputDefinition } from 'erxes-api-shared/core-modules';
+import {
+  TAutomationRuntimeOutputDefinition,
+  TAutomationSetPropertyTarget,
+} from 'erxes-api-shared/core-modules';
+import { generateTotalAmount } from './action/getRelatedValue';
+import { IDeal } from '../../@types';
 
-const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition = {
+const SALES_DEAL_SET_PROPERTY_TARGETS: TAutomationSetPropertyTarget[] = [
+  {
+    label: 'Deal',
+    type: 'sales:sales.deals',
+    source: 'target',
+    cardinality: 'one',
+  },
+  {
+    label: 'Deal customers',
+    type: 'core:contacts.customers',
+    source: 'relation',
+    cardinality: 'many',
+    relation: {
+      contentType: 'sales:deal',
+      relatedContentType: 'core:customer',
+    },
+  },
+  {
+    label: 'Deal companies',
+    type: 'core:contacts.companies',
+    source: 'relation',
+    cardinality: 'many',
+    relation: {
+      contentType: 'sales:deal',
+      relatedContentType: 'core:company',
+    },
+  },
+];
+
+const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition<IDeal> = {
   variables: [
     { key: '_id', label: 'Deal ID', field: '_id' },
     { key: 'name', label: 'Deal name' },
@@ -108,6 +142,29 @@ const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition = {
     label: 'Deal properties',
     propertyType: 'sales:deal',
   },
+  resolvers: {
+    totalAmount: ({ source }) => generateTotalAmount(source.productsData),
+    unUsedTotalAmount: ({ source }) => {
+      let totalAmount = 0;
+
+      (source.productsData || []).forEach((product) => {
+        if (product.tickUsed) {
+          totalAmount += product?.amount || 0;
+        }
+      });
+
+      return totalAmount;
+    },
+    bothTotalAmount: ({ source }) => {
+      let totalAmount = 0;
+
+      (source.productsData || []).forEach((product) => {
+        totalAmount += product?.amount || 0;
+      });
+
+      return totalAmount;
+    },
+  },
 };
 
 export const salesAutomationContants = {
@@ -120,6 +177,7 @@ export const salesAutomationContants = {
       description:
         'Start with a blank workflow that enrolls and is triggered off sales pipeline item',
       output: SALES_DEAL_TRIGGER_OUTPUT,
+      setPropertyTargets: SALES_DEAL_SET_PROPERTY_TARGETS,
     },
     {
       moduleName: 'sales',
@@ -131,6 +189,7 @@ export const salesAutomationContants = {
         'Start this workflow when a deal moves to a stage with the selected probability.',
       isCustom: true,
       output: SALES_DEAL_TRIGGER_OUTPUT,
+      setPropertyTargets: SALES_DEAL_SET_PROPERTY_TARGETS,
     },
     {
       moduleName: 'sales',
@@ -142,6 +201,7 @@ export const salesAutomationContants = {
         'Start this workflow when a deal moves from one stage to another.',
       isCustom: true,
       output: SALES_DEAL_TRIGGER_OUTPUT,
+      setPropertyTargets: SALES_DEAL_SET_PROPERTY_TARGETS,
     },
   ],
   actions: [
@@ -155,6 +215,7 @@ export const salesAutomationContants = {
       isTargetSource: true,
       targetSourceType: 'sales:sales.deal',
       allowTargetFromActions: true,
+      setPropertyTargets: SALES_DEAL_SET_PROPERTY_TARGETS,
     },
     {
       moduleName: 'sales',
@@ -164,6 +225,30 @@ export const salesAutomationContants = {
       label: 'Create sales checklist',
       description: 'Create sales checklist',
       isAvailable: true,
+    },
+  ],
+  setPropertyTargets: [
+    {
+      label: 'Customer deals',
+      type: 'sales:sales.deals',
+      sourceType: 'core:contacts.customers',
+      source: 'relation',
+      cardinality: 'many',
+      relation: {
+        contentType: 'core:customer',
+        relatedContentType: 'sales:deal',
+      },
+    },
+    {
+      label: 'Company deals',
+      type: 'sales:sales.deals',
+      sourceType: 'core:contacts.companies',
+      source: 'relation',
+      cardinality: 'many',
+      relation: {
+        contentType: 'core:company',
+        relatedContentType: 'sales:deal',
+      },
     },
   ],
 };

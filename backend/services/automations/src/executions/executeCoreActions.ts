@@ -33,7 +33,7 @@ export const executeCoreActions = async (
   execAction: IAutomationExecAction,
   actionsMap: IAutomationActionsMap,
 ): TCoreActionResponse => {
-  let shouldBreak = false;
+  const shouldBreak = false;
 
   let actionResponse: any = null;
   if (actionType === AUTOMATION_CORE_ACTIONS.DELAY) {
@@ -116,6 +116,7 @@ export const executeCoreActions = async (
   if (actionType === AUTOMATION_CORE_ACTIONS.OUTGOING_WEBHOOK) {
     actionResponse = await executeOutgoingWebhook({
       subdomain,
+      execution,
       targetType,
       target: execution.target,
       action,

@@ -1,20 +1,11 @@
 import {
+  replaceOutputPlaceholders,
   splitType,
-  STATIC_PLACEHOLDER,
-  TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
-import {
-  sendCoreModuleProducer,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
-import moment from 'moment';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IDeal } from '~/modules/sales/@types';
 import { itemsAdd } from '~/modules/sales/utils';
-
-const PLACEHOLDER_REGEX = /{{\s*([^{}]+?)\s*}}/g;
-
-type TPlaceholderValues = Record<string, unknown>;
 
 export const createDealAction = async ({
   models,
@@ -31,17 +22,16 @@ export const createDealAction = async ({
 }) => {
   const config = { ...(action.config || {}) };
   const { target = {}, triggerType } = execution || {};
-  const [pluginName, moduleName, collectionName] = splitType(triggerType || '');
+  const [pluginName, , collectionName] = splitType(triggerType || '');
 
-  const resolvedValues = await resolveActionOutputPlaceholders({
+  const resolvedConfig = await replaceOutputPlaceholders({
     subdomain,
     execution,
-    config,
+    values: config,
+    defaultValue: '',
   });
 
-  const newData = normalizeDealActionData(
-    replacePlaceholders(config, resolvedValues),
-  );
+  const newData = normalizeDealActionData(resolvedConfig);
 
   if (execution?.target?.userId) {
     newData.userId = execution.target.userId;
@@ -95,204 +85,6 @@ export const createDealAction = async ({
     pipelineId: newData.pipelineId,
     boardId: newData.boardId,
   };
-};
-
-const resolveActionOutputPlaceholders = async ({
-  subdomain,
-  execution,
-  config,
-}: {
-  subdomain: string;
-  execution: any;
-  config: Record<string, any>;
-}): Promise<TPlaceholderValues> => {
-  const placeholderKeys = collectPlaceholderKeys(config);
-  const triggerPaths = placeholderKeys
-    .map(getTriggerOutputPath)
-    .filter(Boolean) as string[];
-  const values: TPlaceholderValues = {};
-
-  for (const key of placeholderKeys) {
-    const dateValue = resolveDatePlaceholder(key);
-
-    if (dateValue) {
-      values[key] = dateValue;
-    }
-  }
-
-  if (triggerPaths.length) {
-    const [pluginName] = splitType(execution?.triggerType || '');
-
-    if (pluginName) {
-      const resolved = await sendCoreModuleProducer({
-        subdomain,
-        moduleName: 'automations',
-        pluginName,
-        producerName: TAutomationProducers.RESOLVE_OUTPUT_PATHS,
-        input: {
-          nodeType: execution.triggerType,
-          source: execution.target || {},
-          paths: [...new Set(triggerPaths)],
-          defaultValue: '',
-        },
-        defaultValue: {},
-      }).catch(() => ({}));
-
-      for (const key of placeholderKeys) {
-        const triggerPath = getTriggerOutputPath(key);
-
-        if (!triggerPath || !hasOwn(resolved, triggerPath)) {
-          continue;
-        }
-
-        values[key] = resolved[triggerPath];
-      }
-    }
-  }
-
-  return {
-    ...values,
-    ...resolvePreviousActionPlaceholders({
-      execution,
-      placeholderKeys,
-    }),
-  };
-};
-
-const collectPlaceholderKeys = (value: unknown, result = new Set<string>()) => {
-  if (typeof value === 'string') {
-    for (const match of value.matchAll(PLACEHOLDER_REGEX)) {
-      result.add(match[1].trim());
-    }
-
-    return [...result];
-  }
-
-  if (Array.isArray(value)) {
-    value.forEach((item) => collectPlaceholderKeys(item, result));
-    return [...result];
-  }
-
-  if (value && typeof value === 'object') {
-    Object.values(value).forEach((item) =>
-      collectPlaceholderKeys(item, result),
-    );
-  }
-
-  return [...result];
-};
-
-const replacePlaceholders = (
-  value: unknown,
-  placeholderValues: TPlaceholderValues,
-): any => {
-  if (typeof value === 'string') {
-    return replaceStringPlaceholders(value, placeholderValues);
-  }
-
-  if (Array.isArray(value)) {
-    return value.map((item) => replacePlaceholders(item, placeholderValues));
-  }
-
-  if (value && typeof value === 'object') {
-    return Object.fromEntries(
-      Object.entries(value).map(([key, item]) => [
-        key,
-        replacePlaceholders(item, placeholderValues),
-      ]),
-    );
-  }
-
-  return value;
-};
-
-const replaceStringPlaceholders = (
-  value: string,
-  placeholderValues: TPlaceholderValues,
-) => {
-  const fullMatch = value.match(/^{{\s*([^{}]+?)\s*}}$/);
-
-  if (fullMatch) {
-    return readPlaceholderValue(fullMatch[1].trim(), placeholderValues);
-  }
-
-  return value.replace(PLACEHOLDER_REGEX, (_match, key) =>
-    stringifyPlaceholderValue(
-      readPlaceholderValue(String(key).trim(), placeholderValues),
-    ),
-  );
-};
-
-const readPlaceholderValue = (
-  key: string,
-  placeholderValues: TPlaceholderValues,
-) => {
-  if (hasOwn(placeholderValues, key)) {
-    return placeholderValues[key];
-  }
-
-  return '';
-};
-
-const stringifyPlaceholderValue = (value: unknown) => {
-  if (value === undefined || value === null) {
-    return '';
-  }
-
-  if (Array.isArray(value)) {
-    return value.map(stringifyPlaceholderValue).filter(Boolean).join(', ');
-  }
-
-  if (value instanceof Date) {
-    return value.toISOString();
-  }
-
-  if (typeof value === 'object') {
-    return JSON.stringify(value);
-  }
-
-  return String(value);
-};
-
-const getTriggerOutputPath = (placeholderKey: string) => {
-  if (resolveDatePlaceholder(placeholderKey)) {
-    return null;
-  }
-
-  if (placeholderKey.startsWith('trigger.')) {
-    return placeholderKey.slice('trigger.'.length);
-  }
-
-  if (placeholderKey.startsWith('actions.')) {
-    return null;
-  }
-
-  return placeholderKey;
-};
-
-const resolvePreviousActionPlaceholders = ({
-  execution,
-  placeholderKeys,
-}: {
-  execution: any;
-  placeholderKeys: string[];
-}) => {
-  const values: TPlaceholderValues = {};
-
-  for (const key of placeholderKeys) {
-    if (!key.startsWith('actions.')) {
-      continue;
-    }
-
-    const [, actionId, ...pathParts] = key.split('.');
-    const actionExecution = (execution?.actions || []).find(
-      (item) => item.actionId === actionId,
-    );
-
-    values[key] = readPath(actionExecution?.result, pathParts.join('.')) ?? '';
-  }
-
-  return values;
 };
 
 const normalizeDealActionData = (data: Record<string, any>) => {
@@ -448,7 +240,7 @@ const createSourceRelation = async ({
     });
   }
 
-  const [serviceName, _module, sourceType] = splitType(
+  const [serviceName, , sourceType] = splitType(
     execution?.triggerType || '',
   );
 
@@ -462,8 +254,6 @@ const createSourceRelation = async ({
   const isContactTrigger = ['customers', 'leads', 'companies'].includes(
     sourceType,
   );
-
-  console.log({ isContactTrigger, sourceType });
 
   if (isContactTrigger) {
     const contentTypes = {
@@ -494,30 +284,6 @@ const createSourceRelation = async ({
       },
     });
   }
-};
-
-const resolveDatePlaceholder = (key: string) => {
-  const fullKey = `{{ ${key} }}`;
-
-  if (hasOwn(STATIC_PLACEHOLDER, fullKey)) {
-    return moment().add(STATIC_PLACEHOLDER[fullKey], 'days').toISOString();
-  }
-
-  const dynamicDate = key.match(/^now\+(\d+)d$/);
-
-  if (dynamicDate) {
-    return moment().add(Number(dynamicDate[1]), 'days').toISOString();
-  }
-
-  return null;
-};
-
-const readPath = (target: any, path: string) => {
-  if (!path) {
-    return target;
-  }
-
-  return path.split('.').reduce((current, key) => current?.[key], target);
 };
 
 const hasOwn = (target: any, key: string) =>

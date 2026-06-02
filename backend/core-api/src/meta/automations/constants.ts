@@ -51,6 +51,14 @@ export const CORE_AUTOMATION_CONSTANTS: AutomationConstants = {
       description:
         'Start with a blank workflow that enrolls and is triggered off team members',
       output: TEAM_MEMBER_TRIGGER_OUTPUT,
+      setPropertyTargets: [
+        {
+          label: 'Team member',
+          type: AUTOMATION_CORE_TRIGGER_TYPES.USER,
+          source: 'target',
+          cardinality: 'one',
+        },
+      ],
     },
     {
       type: AUTOMATION_CORE_TRIGGER_TYPES.CUSTOMER,
@@ -61,6 +69,14 @@ export const CORE_AUTOMATION_CONSTANTS: AutomationConstants = {
       description:
         'Start with a blank workflow that enrolls and is triggered off Customers',
       output: CUSTOMER_TRIGGER_OUTPUT,
+      setPropertyTargets: [
+        {
+          label: 'Customer',
+          type: AUTOMATION_CORE_TRIGGER_TYPES.CUSTOMER,
+          source: 'target',
+          cardinality: 'one',
+        },
+      ],
     },
     {
       type: AUTOMATION_CORE_TRIGGER_TYPES.LEAD,
@@ -71,6 +87,14 @@ export const CORE_AUTOMATION_CONSTANTS: AutomationConstants = {
       description:
         'Start with a blank workflow that enrolls and is triggered off Leads',
       output: LEAD_TRIGGER_OUTPUT,
+      setPropertyTargets: [
+        {
+          label: 'Lead',
+          type: AUTOMATION_CORE_TRIGGER_TYPES.LEAD,
+          source: 'target',
+          cardinality: 'one',
+        },
+      ],
     },
     {
       type: AUTOMATION_CORE_TRIGGER_TYPES.COMPANY,
@@ -81,6 +105,14 @@ export const CORE_AUTOMATION_CONSTANTS: AutomationConstants = {
       description:
         'Start with a blank workflow that enrolls and is triggered off company',
       output: COMPANY_TRIGGER_OUTPUT,
+      setPropertyTargets: [
+        {
+          label: 'Company',
+          type: AUTOMATION_CORE_TRIGGER_TYPES.COMPANY,
+          source: 'target',
+          cardinality: 'one',
+        },
+      ],
     },
   ],
   actions: [

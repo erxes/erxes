@@ -1,5 +1,4 @@
 import {
-  replacePlaceHolders,
   setProperty,
   TAutomationProducers,
   TAutomationProducersInput,
@@ -50,7 +49,6 @@ export const salesAutomationHandlers = {
     {
       action,
       execution,
-      actionType,
       collectionType,
     }: TAutomationProducersInput[TAutomationProducers.RECEIVE_ACTIONS],
     { models, subdomain }: TCoreModuleProducerContext<IModels>,
@@ -65,32 +63,6 @@ export const salesAutomationHandlers = {
       action,
       execution,
       collectionType,
-    });
-  },
-  replacePlaceHolders: async (
-    data: TAutomationProducersInput[TAutomationProducers.REPLACE_PLACEHOLDERS],
-    { models, subdomain }: TCoreModuleProducerContext<IModels>,
-  ) => {
-    const { relatedValueProps, config, target } = data;
-
-    return await replacePlaceHolders({
-      models,
-      subdomain,
-      customResolver: { resolver: getRelatedValue, props: relatedValueProps },
-      actionData: config,
-      target: {
-        ...target,
-        ['createdBy.department']: '-',
-        ['createdBy.branch']: '-',
-        ['createdBy.phone']: '-',
-        ['createdBy.email']: '-',
-        ['customers.email']: '-',
-        ['customers.phone']: '-',
-        ['customers.fullName']: '-',
-        link: '-',
-        pipelineLabels: '-',
-      },
-      complexFields: ['productsData'],
     });
   },
   setProperties: async (
@@ -118,7 +90,7 @@ export const salesAutomationHandlers = {
       targetType,
     });
   },
-  checkTargetMatch: async ({ ...data }, { subdomain, ...props }) => {
+  checkTargetMatch: async ({ ...data }, { subdomain }) => {
     const models = await generateModels(subdomain);
     const { moduleName, collectionType, targetId, selector } = data || {};
     if (collectionType === 'deals' && moduleName === 'sales') {

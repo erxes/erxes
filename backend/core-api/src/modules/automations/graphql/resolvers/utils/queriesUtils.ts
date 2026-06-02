@@ -6,8 +6,10 @@ import {
   TAutomationOutputDefinition,
   TAutomationOutputVariable,
   TAutomationFindObjectTargetDefinition,
+  TAutomationSetPropertyTarget,
   TRecordReferencesConfig,
   normalizeAutomationConstantsForTransport,
+  splitType,
 } from 'erxes-api-shared/core-modules';
 import { IListArgs } from '../queries';
 import {
@@ -22,11 +24,17 @@ type TWithPluginName<T> = T & {
   pluginName?: string;
 };
 
+type TMatchedSetPropertyTarget =
+  TWithPluginName<TAutomationSetPropertyTarget> & {
+    matchRank: number;
+  };
+
 type TAutomationConstantsResponse = {
   triggersConst: TWithPluginName<IAutomationsTriggerConfig>[];
   triggerTypesConst: string[];
   actionsConst: TWithPluginName<IAutomationsActionConfig>[];
   findObjectTargetsConst: TAutomationFindObjectTargetDefinition[];
+  setPropertyTargetsConst: TWithPluginName<TAutomationSetPropertyTarget>[];
 };
 
 type TRecordReferenceType = TRecordReferencesConfig['types'][number];
@@ -160,6 +168,9 @@ export const getAutomationConstants =
       findObjectTargetsConst: [
         ...(normalizedCoreConstants.findObjectTargets || []),
       ],
+      setPropertyTargetsConst: [
+        ...(normalizedCoreConstants.setPropertyTargets || []),
+      ],
     };
 
     for (const pluginName of plugins) {
@@ -182,8 +193,12 @@ export const getAutomationConstants =
         triggers = [],
         actions = [],
         findObjectTargets = [],
+        setPropertyTargets = [],
       } = pluginConstants as AutomationConstants;
       constants.findObjectTargetsConst.push(...findObjectTargets);
+      constants.setPropertyTargetsConst.push(
+        ...setPropertyTargets.map((target) => ({ ...target, pluginName })),
+      );
 
       for (const trigger of triggers) {
         constants.triggersConst.push({ ...trigger, pluginName });
@@ -212,6 +227,133 @@ export const getAutomationConstants =
 
     return constants;
   };
+
+const getAutomationBaseType = (type: string) => {
+  const [pluginName, moduleName, collectionName] = splitType(type || '');
+
+  if (!pluginName || !moduleName || !collectionName) {
+    return type;
+  }
+
+  return `${pluginName}:${moduleName}.${collectionName}`;
+};
+
+const getAutomationSourceMatchRank = (candidate = '', sourceType = '') => {
+  if (!candidate || !sourceType) {
+    return -1;
+  }
+
+  if (candidate === sourceType) {
+    return 0;
+  }
+
+  if (candidate === getAutomationBaseType(sourceType)) {
+    return 1;
+  }
+
+  return -1;
+};
+
+const toSetPropertyTargetOption = (
+  target: TWithPluginName<TAutomationSetPropertyTarget>,
+) => ({
+  label: target.label,
+  type: target.type,
+  source: target.source,
+  cardinality: target.cardinality,
+  sourceType: target.sourceType,
+  relation: target.relation,
+  resolverKey: target.resolverKey,
+  pluginName: target.pluginName,
+  value: target.type,
+  description: target.label,
+});
+
+const getSetPropertyTargetOptionKey = (
+  target: TWithPluginName<TAutomationSetPropertyTarget>,
+) =>
+  [
+    target.pluginName || '',
+    target.label,
+    target.type,
+    target.source,
+    target.cardinality,
+    target.relation?.contentType || '',
+    target.relation?.relatedContentType || '',
+    target.resolverKey || '',
+  ].join(':');
+
+export const getAutomationSetPropertyTargets = async (sourceType: string) => {
+  const { triggersConst, actionsConst, setPropertyTargetsConst } =
+    await getAutomationConstants();
+  const targets: TMatchedSetPropertyTarget[] = [];
+
+  for (const trigger of triggersConst) {
+    const matchRank = getAutomationSourceMatchRank(
+      trigger.type || '',
+      sourceType,
+    );
+
+    if (matchRank === -1) {
+      continue;
+    }
+
+    targets.push(
+      ...(trigger.setPropertyTargets || []).map((target) => ({
+        ...target,
+        sourceType: target.sourceType || trigger.type,
+        pluginName: trigger.pluginName,
+        matchRank,
+      })),
+    );
+  }
+
+  for (const action of actionsConst) {
+    const actionSourceType = action.targetSourceType || action.type || '';
+    const matchRank = getAutomationSourceMatchRank(
+      actionSourceType,
+      sourceType,
+    );
+
+    if (matchRank === -1) {
+      continue;
+    }
+
+    targets.push(
+      ...(action.setPropertyTargets || []).map((target) => ({
+        ...target,
+        sourceType: target.sourceType || actionSourceType,
+        pluginName: action.pluginName,
+        matchRank,
+      })),
+    );
+  }
+
+  for (const target of setPropertyTargetsConst) {
+    const matchRank = getAutomationSourceMatchRank(
+      target.sourceType || '',
+      sourceType,
+    );
+
+    if (matchRank === -1) {
+      continue;
+    }
+
+    targets.push({ ...target, matchRank });
+  }
+
+  return targets
+    .sort((a, b) => a.matchRank - b.matchRank)
+    .filter(
+      (target, index, array) =>
+        array.findIndex(
+          (candidate) =>
+            getSetPropertyTargetOptionKey(candidate) ===
+            getSetPropertyTargetOptionKey(target),
+        ) === index,
+    )
+    .map(toSetPropertyTargetOption);
+};
 
 const normalizeReferenceType = (pluginName: string, type: string) =>
   type.includes(':') ? type : `${pluginName}:${type}`;
@@ -388,7 +530,7 @@ const toAutomationReferenceField = (
 };
 
 const toCustomReferenceField = (field: any): TAutomationOutputVariable => ({
-  key: `customFieldsData.${getRealIdFromElk(field._id.toString())}`,
+  key: `propertiesData.${getRealIdFromElk(field._id.toString())}`,
   label: field.label || field.text || field.name || field.code,
   type: field.type,
 });

@@ -1,6 +1,7 @@
 import {
   IAutomationDocument,
   IAutomationExecutionDocument,
+  splitType,
 } from 'erxes-api-shared/core-modules';
 import {
   IAutomationEmailTemplateDocument,
@@ -21,6 +22,7 @@ import {
   generateAutomationsFilter,
   getAutomationReferenceFields,
   getAutomationConstants,
+  getAutomationSetPropertyTargets,
 } from './utils/queriesUtils';
 
 export interface IListArgs extends ICursorPaginateParams {
@@ -151,8 +153,18 @@ export const automationQueries = {
     return models.Automations.find(filter).countDocuments();
   },
 
-  async automationConstants(_root, _args) {
+  async automationConstants() {
     return getAutomationConstants();
+  },
+
+  async automationSetPropertyTargets(
+    _root,
+    { sourceType }: { sourceType: string },
+  ) {
+    const [pluginName, moduleName, collectionName] = splitType(sourceType);
+    return getAutomationSetPropertyTargets(
+      `${pluginName}:${moduleName}.${collectionName}`,
+    );
   },
 
   async automationNodeOutput(_root, { nodeType }: { nodeType: string }) {

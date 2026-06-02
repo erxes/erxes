@@ -31,18 +31,32 @@ export const useManagePropertySidebarContent = (
     actionFolks,
   );
 
-  const propertyType = module || selectedActionType || trigger?.type || '';
-  const { propertyTypes, loading } = useGetFieldsProperties(propertyType);
+  console.log({ dasd: selectedActionType || trigger?.type || '' });
+
+  const sourceType = selectedActionType || trigger?.type || '';
+  const selectedPropertyType = module || sourceType;
+  const { propertyTypes, loading } = useGetFieldsProperties(
+    selectedPropertyType,
+    {
+      source: 'automations',
+      sourceType,
+    },
+  );
+  const defaultPropertyType = propertyTypes[0]?.value || sourceType;
+  const propertyType = module || defaultPropertyType;
   const isPropertyTypeValid = useMemo(
-    () => !!propertyTypes.find((p) => propertyType.startsWith(p.value)),
+    () =>
+      !!propertyTypes.find(
+        (p) => propertyType === p.value || propertyType.startsWith(p.value),
+      ),
     [propertyTypes, propertyType],
   );
 
   useEffect(() => {
-    if (!module) {
-      setValue('module', propertyType);
+    if (!module && defaultPropertyType) {
+      setValue('module', defaultPropertyType);
     }
-  }, [module, setValue]);
+  }, [defaultPropertyType, module, setValue]);
 
   return {
     propertyType,

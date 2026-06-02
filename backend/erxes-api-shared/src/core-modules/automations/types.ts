@@ -6,7 +6,6 @@ import {
   CheckTargetMatchInput,
   ReceiveActionsInput,
   ResolveOutputPathsInput,
-  ReplacePlaceholdersInput,
   SetPropertiesInput,
 } from './zodTypes';
 
@@ -37,16 +36,30 @@ export type TAutomationOutputDefinition = {
   resolverKeys?: string[];
 };
 
-export type TAutomationRuntimeOutputResolver<TModels = any> = (args: {
-  subdomain: string;
-  source: Record<string, any>;
-  path: string;
-  defaultValue?: any;
-}) => Promise<any>;
+export type TAutomationSetPropertyTarget = {
+  label: string;
+  type: string;
+  source: 'target' | 'relation' | 'resolver';
+  cardinality: 'one' | 'many';
+  sourceType?: string;
+  relation?: {
+    contentType: string;
+    relatedContentType: string;
+  };
+  resolverKey?: string;
+};
 
-export type TAutomationRuntimeOutputDefinition<TModels = any> =
+export type TAutomationRuntimeOutputResolver<TTarget = Record<string, any>> =
+  (args: {
+    subdomain: string;
+    source: TTarget;
+    path: string;
+    defaultValue?: any;
+  }) => any | Promise<any>;
+
+export type TAutomationRuntimeOutputDefinition<TTarget = any> =
   TAutomationOutputDefinition & {
-    resolvers?: Record<string, TAutomationRuntimeOutputResolver<TModels>>;
+    resolvers?: Record<string, TAutomationRuntimeOutputResolver<TTarget>>;
   };
 
 export type TAutomationFindObjectLookupFieldDefinition = {
@@ -77,6 +90,7 @@ export type IAutomationsTriggerConfig = {
     label: string;
     description: string;
   }[];
+  setPropertyTargets?: TAutomationSetPropertyTarget[];
 };
 
 export type IAutomationsActionConfigFolkConfig = {
@@ -101,6 +115,7 @@ export type IAutomationsActionConfig = {
   allowTargetFromActions?: boolean;
   folks?: IAutomationsActionConfigFolkConfig[];
   output?: TAutomationRuntimeOutputDefinition;
+  setPropertyTargets?: TAutomationSetPropertyTarget[];
 };
 
 export type IAutomationsBotsConfig = {
@@ -147,6 +162,7 @@ type IAutomationTriggersActionsConfig =
 export type AutomationConstants = IAutomationTriggersActionsConfig & {
   bots?: IAutomationsBotsConfig[];
   findObjectTargets?: TAutomationFindObjectTargetDefinition[];
+  setPropertyTargets?: TAutomationSetPropertyTarget[];
 };
 
 export type TAutomationFindObjectResult = {
@@ -203,15 +219,11 @@ export interface AutomationProducers {
     context: IAutomationContext,
   ) => Promise<TAiContext | null>;
 
-  replacePlaceHolders?: (
-    args: z.infer<typeof ReplacePlaceholdersInput>,
-    context: IAutomationContext,
-  ) => Promise<any>;
   resolveOutputPaths?: (
     args: z.infer<typeof ResolveOutputPathsInput>,
     context: IAutomationContext,
   ) => Promise<Record<string, any>>;
-  checkCustomTrigger?: <TTarget = any, TConfig = any>(
+  checkCustomTrigger?: (
     args: z.infer<typeof CheckCustomTriggerInput>,
     context: IAutomationContext,
   ) => Promise<boolean>;
@@ -234,25 +246,6 @@ export interface AutomationProducers {
 
 export interface AutomationConfigs extends AutomationProducers {
   constants?: AutomationConstants;
-}
-
-export interface IReplacePlaceholdersProps<TModels> {
-  models: TModels;
-  subdomain: string;
-  actionData: Record<string, any>;
-  target: Record<string, any>;
-  customResolver?: {
-    isRelated?: boolean;
-    resolver?: (
-      models: TModels,
-      subdomain: string,
-      referenceObject: any,
-      placeholderKey: string,
-      props: any,
-    ) => Promise<any>;
-    props?: any;
-  };
-  complexFields?: string[];
 }
 
 export interface IPerValueProps<TModels> {
@@ -337,7 +330,6 @@ export type AutomationExecutionSetWaitCondition =
 
 export enum TAutomationProducers {
   RECEIVE_ACTIONS = 'receiveActions',
-  REPLACE_PLACEHOLDERS = 'replacePlaceHolders',
   RESOLVE_OUTPUT_PATHS = 'resolveOutputPaths',
   CHECK_CUSTOM_TRIGGER = 'checkCustomTrigger',
   CHECK_TARGET_MATCH = 'checkTargetMatch',

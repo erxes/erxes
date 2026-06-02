@@ -6,17 +6,12 @@ import {
   actionCreateMessage,
   checkMessageTrigger,
 } from '@/integrations/instagram/meta/automation/messages';
+import { ICheckTriggerData } from '@/integrations/instagram/meta/automation/types/automationTypes';
 import {
-  ICheckTriggerData,
-  IReplacePlaceholdersData,
-} from '@/integrations/instagram/meta/automation/types/automationTypes';
-import {
-  replacePlaceHolders,
   setProperty,
   TAutomationProducers,
   TAutomationProducersInput,
 } from 'erxes-api-shared/core-modules';
-import { generateModels, IModels } from '~/connectionResolvers';
 
 const getItems = async (
   subdomain: string,
@@ -58,20 +53,6 @@ export const instagramAutomationWorkers = {
       default:
         return { result: null };
     }
-  },
-  replacePlaceHolders: async (
-    data: IReplacePlaceholdersData,
-    { models, subdomain },
-  ) => {
-    const { target, config, relatedValueProps } = data;
-
-    return await replacePlaceHolders<IModels>({
-      models,
-      subdomain,
-      customResolver: { resolver: getRelatedValue, props: relatedValueProps },
-      actionData: config,
-      target,
-    });
   },
   checkCustomTrigger: async (data: ICheckTriggerData, { subdomain }) => {
     const { collectionType } = data;

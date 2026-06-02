@@ -96,21 +96,6 @@ export const FindObjectInputData = z.object({
   value: z.string(),
 });
 
-export const ReplacePlaceholdersInputData = z.object({
-  moduleName: z.string(),
-  target: z.record(z.any()),
-  config: z.record(z.any()),
-  relatedValueProps: z
-    .record(
-      z.string(),
-      z.object({
-        key: z.string(),
-        filter: z.object({ key: z.string(), value: z.any() }).optional(),
-      }),
-    )
-    .optional(),
-});
-
 export const ResolveOutputPathsInputData = z.object({
   nodeType: z.string(),
   source: z.record(z.any()),
@@ -147,10 +132,6 @@ export const FindObjectInput = AutomationBaseInput.extend({
   data: FindObjectInputData,
 });
 
-export const ReplacePlaceholdersInput = AutomationBaseInput.extend({
-  data: ReplacePlaceholdersInputData,
-});
-
 export const ResolveOutputPathsInput = AutomationBaseInput.extend({
   data: ResolveOutputPathsInputData,
 });
@@ -174,9 +155,6 @@ export type TAutomationProducersInput = {
     typeof CheckTargetMatchInputData
   >;
   [TAutomationProducers.FIND_OBJECT]: z.infer<typeof FindObjectInputData>;
-  [TAutomationProducers.REPLACE_PLACEHOLDERS]: z.infer<
-    typeof ReplacePlaceholdersInputData
-  >;
   [TAutomationProducers.RESOLVE_OUTPUT_PATHS]: z.infer<
     typeof ResolveOutputPathsInputData
   >;

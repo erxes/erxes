@@ -57,6 +57,7 @@ const queries = `
   automationHistoriesTotalCount(${historiesParams}):Int
   automationsTotalCount(status: String): automationsTotalCountResponse
   automationConstants: JSON
+  automationSetPropertyTargets(sourceType: String!): JSON
   automationNodeOutput(nodeType: String!): JSON
   automationReferenceFields(type: String!, field: String!): JSON
   automationBotsConstants:JSON

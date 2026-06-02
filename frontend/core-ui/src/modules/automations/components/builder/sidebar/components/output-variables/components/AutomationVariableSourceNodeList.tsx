@@ -36,7 +36,7 @@ export const AutomationVariableSourceNodeList = ({
               <Command.Item
                 key={node.id}
                 className="py-2"
-                value={`${node.label} ${node.nodeType} ${node.type}`}
+                value={node.id}
                 onSelect={() => {
                   onSelectSourceNode(node.id);
                   setOpen(false);

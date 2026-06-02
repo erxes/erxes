@@ -14,6 +14,7 @@ export default {
   constants: {
     triggers: [...salesAutomationContants.triggers],
     actions: [...salesAutomationContants.actions],
+    setPropertyTargets: [...salesAutomationContants.setPropertyTargets],
   },
   receiveActions: createCoreModuleProducerHandler({
     moduleName: 'automations',
@@ -34,13 +35,6 @@ export default {
     moduleName: 'automations',
     modules,
     methodName: TAutomationProducers.SET_PROPERTIES,
-    extractModuleName: (input) => input.moduleName,
-    generateModels,
-  }),
-  replacePlaceHolders: createCoreModuleProducerHandler({
-    moduleName: 'automations',
-    modules,
-    methodName: TAutomationProducers.REPLACE_PLACEHOLDERS,
     extractModuleName: (input) => input.moduleName,
     generateModels,
   }),

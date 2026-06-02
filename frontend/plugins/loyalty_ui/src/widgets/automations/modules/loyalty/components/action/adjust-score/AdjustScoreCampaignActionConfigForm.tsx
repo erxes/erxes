@@ -10,10 +10,11 @@ import {
 } from '../../../states/adjustScoreActionConfigFormDefinitions';
 import { Form, ToggleGroup } from 'erxes-ui';
 import { IconMinus, IconPlus } from '@tabler/icons-react';
-import { SelectScoreCampaign } from '@/loyalties/score/components/selects/SelectScoreCampaign';
+// import { SelectScoreCampaign } from '@/loyalties/score/components/selects/SelectScoreCampaign';
 import { SCORE_ACTION_OPTIONS } from '../../../constants/adjustScoreAction';
 import { useAdjustScoreActionForm } from '../../../hooks/useAdjustScoreActionForm';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { SelectScoreCampaign } from '~/modules/loyalties/scores/components/selects/SelectScoreCampaign';
 
 export const AdjustScoreCampaignActionConfigForm = ({
   formRef,
@@ -71,7 +72,7 @@ export const AdjustScoreCampaignActionConfigForm = ({
           name="campaignId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Score campaign</Form.Label>
+              <Form.Label>Score campaign s</Form.Label>
               <SelectScoreCampaign.FormItem
                 value={field.value}
                 onValueChange={field.onChange}

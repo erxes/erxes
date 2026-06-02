@@ -6,18 +6,13 @@ import {
   actionCreateMessage,
   checkMessageTrigger,
 } from '@/integrations/facebook/meta/automation/messages';
+import { ICheckTriggerData } from '@/integrations/facebook/meta/automation/types/automationTypes';
 import {
-  ICheckTriggerData,
-  IReplacePlaceholdersData,
-} from '@/integrations/facebook/meta/automation/types/automationTypes';
-import {
-  replacePlaceHolders,
   TAiContext,
   setProperty,
   TAutomationProducers,
   TAutomationProducersInput,
 } from 'erxes-api-shared/core-modules';
-import { IModels } from '~/connectionResolvers';
 
 const toISOString = (value?: Date | string) => {
   if (!value) {
@@ -83,20 +78,6 @@ export const facebookAutomationWorkers = {
       default:
         return { result: null };
     }
-  },
-  replacePlaceHolders: async (
-    data: IReplacePlaceholdersData,
-    { models, subdomain },
-  ) => {
-    const { target, config, relatedValueProps } = data;
-
-    return await replacePlaceHolders<IModels>({
-      models,
-      subdomain,
-      customResolver: { resolver: getRelatedValue, props: relatedValueProps },
-      actionData: config,
-      target,
-    });
   },
   checkCustomTrigger: async (data: ICheckTriggerData, { subdomain }) => {
     const { collectionType } = data;

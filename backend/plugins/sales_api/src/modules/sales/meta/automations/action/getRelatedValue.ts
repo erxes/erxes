@@ -400,7 +400,7 @@ const generateCreatedByFieldValue = async ({
   }
 };
 
-const generateTotalAmount = (productsData) => {
+export const generateTotalAmount = (productsData) => {
   let totalAmount = 0;
 
   (productsData || []).forEach((product) => {

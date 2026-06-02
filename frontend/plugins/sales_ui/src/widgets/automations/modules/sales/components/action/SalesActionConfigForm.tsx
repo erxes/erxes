@@ -7,7 +7,7 @@ export const SalesActionConfigForm = ({
   ...props
 }: AutomationActionFormProps<TSalesActionConfigForm>) => {
   const [, , collectionType] = splitAutomationNodeType(type);
-  if (collectionType === 'deal') {
+  if (collectionType === 'deals') {
     return <CreateDealActionConfigForm {...props} type={type} />;
   }
 

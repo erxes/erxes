@@ -112,6 +112,10 @@ export const resolveRecordReferencePath = async ({
     const relationIds = await resolveRecordRelationIds({
       defaultValue: [],
       pluginName,
+      relatedContentType: normalizeRecordReferenceType(
+        pluginName,
+        field.reference.type,
+      ),
       relType: field.reference.relType,
       sourceId: target._id,
       sourceType: type,

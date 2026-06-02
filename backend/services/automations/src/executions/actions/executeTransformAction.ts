@@ -1,30 +1,22 @@
 import {
   IAutomationAction,
   IAutomationExecutionDocument,
-  splitType,
-  TAutomationProducers,
+  replaceOutputPlaceholders,
 } from 'erxes-api-shared/core-modules';
-import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
 
 type TTransformMapping = {
   key?: string;
   value?: any;
   type?: 'text' | 'number' | 'boolean' | 'object' | 'array';
+  isExpression?: boolean;
 };
 
-const getValueByPath = (source: any, path: string) => {
-  if (!path) {
-    return source;
-  }
-
-  return path.split('.').reduce((current, segment) => {
-    if (current === null || current === undefined) {
-      return undefined;
-    }
-
-    return current[segment];
-  }, source);
+type TParsedTernaryExpression = {
+  condition: string;
+  truthy: string;
+  falsy: string;
 };
+type TExpressionLiteral = string | number | boolean;
 
 const setValueByPath = (
   target: Record<string, any>,
@@ -52,18 +44,6 @@ const setValueByPath = (
   }
 
   current[lastSegment] = value;
-};
-
-const getActionResultValue = (
-  execution: IAutomationExecutionDocument,
-  actionId: string,
-  path: string,
-) => {
-  const action = (execution.actions || []).find(
-    (execAction) => execAction.actionId === actionId,
-  );
-
-  return getValueByPath(action?.result, path);
 };
 
 const parseBoolean = (value: any) => {
@@ -117,112 +97,170 @@ const coerceValue = (value: any, type: TTransformMapping['type']) => {
   return String(value);
 };
 
-const resolveRuntimeToken = (
-  tokenPath: string,
-  execution: IAutomationExecutionDocument,
-) => {
-  if (tokenPath.startsWith('trigger.')) {
-    return getValueByPath(execution.target || {}, tokenPath.slice(8));
+const parseExpressionLiteral = (value: string): TExpressionLiteral => {
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return '';
   }
 
-  if (tokenPath.startsWith('actions.')) {
-    const [, actionId, ...pathSegments] = tokenPath.split('.');
-    return getActionResultValue(execution, actionId, pathSegments.join('.'));
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    return trimmed.slice(1, -1);
   }
 
-  return undefined;
+  if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
+    return Number(trimmed);
+  }
+
+  if (trimmed === 'true') {
+    return true;
+  }
+
+  if (trimmed === 'false') {
+    return false;
+  }
+
+  return trimmed;
 };
 
-const resolveRuntimeValue = (
-  value: any,
-  execution: IAutomationExecutionDocument,
+const splitByOperator = (expression: string, operator: '&&' | '||') =>
+  expression
+    .split(operator)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+const compareExpressionValues = (
+  left: TExpressionLiteral,
+  right: TExpressionLiteral,
+  operator: string,
 ) => {
+  if (['>=', '<=', '>', '<'].includes(operator)) {
+    const leftNumber = Number(left);
+    const rightNumber = Number(right);
+
+    if (Number.isNaN(leftNumber) || Number.isNaN(rightNumber)) {
+      return false;
+    }
+
+    switch (operator) {
+      case '>=':
+        return leftNumber >= rightNumber;
+      case '<=':
+        return leftNumber <= rightNumber;
+      case '>':
+        return leftNumber > rightNumber;
+      case '<':
+        return leftNumber < rightNumber;
+      default:
+        return false;
+    }
+  }
+
+  switch (operator) {
+    case '===':
+      return left === right;
+    case '!==':
+      return left !== right;
+    case '==':
+      return String(left) === String(right);
+    case '!=':
+      return String(left) !== String(right);
+    default:
+      return false;
+  }
+};
+
+const evaluateComparisonExpression = (expression: string) => {
+  const operators = ['>=', '<=', '===', '!==', '==', '!=', '>', '<'];
+  const operator = operators.find((item) => expression.includes(item));
+
+  if (!operator) {
+    return Boolean(parseExpressionLiteral(expression));
+  }
+
+  const [left, ...rightParts] = expression.split(operator);
+
+  if (!left?.trim() || !rightParts.join(operator).trim()) {
+    return false;
+  }
+
+  return compareExpressionValues(
+    parseExpressionLiteral(left),
+    parseExpressionLiteral(rightParts.join(operator)),
+    operator,
+  );
+};
+
+const evaluateConditionExpression = (expression: string) => {
+  const orParts = splitByOperator(expression, '||');
+
+  return orParts.some((orPart) =>
+    splitByOperator(orPart, '&&').every(evaluateComparisonExpression),
+  );
+};
+
+const parseTernaryExpression = (
+  expression: string,
+): TParsedTernaryExpression | null => {
+  const questionIndex = expression.indexOf('?');
+
+  if (questionIndex === -1) {
+    return null;
+  }
+
+  let nestedTernaryCount = 0;
+
+  for (let index = questionIndex + 1; index < expression.length; index++) {
+    const char = expression[index];
+
+    if (char === '?') {
+      nestedTernaryCount++;
+      continue;
+    }
+
+    if (char !== ':') {
+      continue;
+    }
+
+    if (nestedTernaryCount > 0) {
+      nestedTernaryCount--;
+      continue;
+    }
+
+    return {
+      condition: expression.slice(0, questionIndex).trim(),
+      truthy: expression.slice(questionIndex + 1, index).trim(),
+      falsy: expression.slice(index + 1).trim(),
+    };
+  }
+
+  return null;
+};
+
+const evaluateTransformExpression = (value: unknown): unknown => {
   if (typeof value !== 'string') {
     return value;
   }
 
-  const tokenRegex = /{{\s*([^}]+)\s*}}/g;
-  const matches = [...value.matchAll(tokenRegex)];
+  const expression = value.trim();
+  const ternaryExpression = parseTernaryExpression(expression);
 
-  if (!matches.length) {
-    return value;
+  if (!ternaryExpression) {
+    return parseExpressionLiteral(expression);
   }
 
-  const fullTokenMatch =
-    matches.length === 1 && matches[0][0].trim() === value.trim();
-
-  if (fullTokenMatch) {
-    const resolved = resolveRuntimeToken(matches[0][1].trim(), execution);
-    return resolved === undefined ? value : resolved;
-  }
-
-  return matches.reduce((processed, match) => {
-    const resolved = resolveRuntimeToken(match[1].trim(), execution);
-    return processed.replace(
-      match[0],
-      resolved === undefined || resolved === null ? '' : String(resolved),
-    );
-  }, value);
-};
-
-const replacePlaceholders = async ({
-  subdomain,
-  triggerType,
-  targetType,
-  execution,
-  values,
-}: {
-  subdomain: string;
-  triggerType: string;
-  targetType: string;
-  execution: IAutomationExecutionDocument;
-  values: Record<string, any>;
-}) => {
-  const placeholderSourceType =
-    typeof targetType === 'string' && targetType.includes(':')
-      ? targetType
-      : triggerType;
-  const [pluginName, moduleName] = splitType(placeholderSourceType || '');
-
-  if (!pluginName) {
-    return values;
-  }
-
-  const valuesToReplace = Object.entries(values).reduce<Record<string, any>>(
-    (acc, [key, value]) => {
-      if (typeof value === 'string' && value.includes('{{')) {
-        acc[key] = value;
-      }
-
-      return acc;
-    },
-    {},
+  return evaluateTransformExpression(
+    evaluateConditionExpression(ternaryExpression.condition)
+      ? ternaryExpression.truthy
+      : ternaryExpression.falsy,
   );
-
-  if (!Object.keys(valuesToReplace).length) {
-    return values;
-  }
-
-  const replacedValues = await sendCoreModuleProducer({
-    subdomain,
-    moduleName: 'automations',
-    pluginName,
-    producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
-    input: {
-      moduleName,
-      target: execution.target || {},
-      config: valuesToReplace,
-    },
-    defaultValue: valuesToReplace,
-  });
-
-  return { ...values, ...(replacedValues || {}) };
 };
 
 export const executeTransformAction = async ({
   subdomain,
-  triggerType,
-  targetType,
   execution,
   action,
 }: {
@@ -233,21 +271,17 @@ export const executeTransformAction = async ({
   action: IAutomationAction;
 }) => {
   const mappings: TTransformMapping[] = action.config?.mappings || [];
-  const rawValues = mappings.reduce<Record<string, any>>((acc, mapping) => {
-    if (!mapping.key) {
-      return acc;
+  const values = mappings.reduce<Record<string, unknown>>((acc, mapping) => {
+    if (mapping.key) {
+      acc[mapping.key] = mapping.value;
     }
 
-    acc[mapping.key] = resolveRuntimeValue(mapping.value, execution);
     return acc;
   }, {});
-
-  const replacedValues = await replacePlaceholders({
+  const resolvedValues = await replaceOutputPlaceholders({
     subdomain,
-    triggerType,
-    targetType,
     execution,
-    values: rawValues,
+    values,
   });
 
   const data = mappings.reduce<Record<string, any>>((acc, mapping) => {
@@ -258,7 +292,12 @@ export const executeTransformAction = async ({
     setValueByPath(
       acc,
       mapping.key,
-      coerceValue(replacedValues?.[mapping.key], mapping.type),
+      coerceValue(
+        mapping.isExpression
+          ? evaluateTransformExpression(resolvedValues?.[mapping.key])
+          : resolvedValues?.[mapping.key],
+        mapping.type,
+      ),
     );
     return acc;
   }, {});

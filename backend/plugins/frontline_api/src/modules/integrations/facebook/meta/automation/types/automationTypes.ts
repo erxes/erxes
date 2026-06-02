@@ -1,4 +1,3 @@
-import { IFacebookConversationMessage } from '@/integrations/facebook/@types/conversationMessages';
 import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
 import {
   IAutomationAction,
@@ -28,12 +27,6 @@ export type ICheckTriggerData = {
   trigger: IAutomationTrigger;
   target: any;
   config: any;
-};
-
-export type IReplacePlaceholdersData = {
-  target: IFacebookConversationMessage;
-  config: TAutomationActionConfig;
-  relatedValueProps: any;
 };
 
 export type TFacebookMessageButton = {

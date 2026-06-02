@@ -1,9 +1,13 @@
 import { sendTRPCMessage } from '../../../utils/trpc';
-import { getLocalRecordReferenceType } from './utils';
+import {
+  getLocalRecordReferenceType,
+  normalizeRecordReferenceType,
+} from './utils';
 
 export const resolveRecordRelationIds = async ({
   defaultValue,
   pluginName,
+  relatedContentType,
   relType,
   sourceId,
   sourceType,
@@ -11,6 +15,7 @@ export const resolveRecordRelationIds = async ({
 }: {
   defaultValue?: any;
   pluginName: string;
+  relatedContentType: string;
   relType?: string;
   sourceId: string;
   sourceType: string;
@@ -18,6 +23,23 @@ export const resolveRecordRelationIds = async ({
 }) => {
   if (!sourceId || !relType) {
     return defaultValue ?? [];
+  }
+
+  const relationIds = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    module: 'relation',
+    action: 'getRelationIds',
+    input: {
+      contentType: normalizeRecordReferenceType(pluginName, sourceType),
+      contentId: sourceId,
+      relatedContentType,
+    },
+    defaultValue: [],
+  }).catch(() => []);
+
+  if (relationIds.length) {
+    return relationIds;
   }
 
   return sendTRPCMessage({

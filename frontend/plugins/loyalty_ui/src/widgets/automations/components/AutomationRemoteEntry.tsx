@@ -34,7 +34,6 @@ const AutomationRemoteErrorFallback = ({
 
 const AutomationRemoteEntries = ({ moduleName, ...props }: any) => {
   const RemoteComponent = Remotes[moduleName];
-  console.log({ moduleName, props });
 
   if (!RemoteComponent) {
     return null;
