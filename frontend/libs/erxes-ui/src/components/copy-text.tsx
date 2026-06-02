@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { IconCheck } from '@tabler/icons-react';
-import { cn, Tooltip } from 'erxes-ui';
+import { cn } from '../lib';
+import { Tooltip } from './tooltip';
 
 interface CopyTextProps {
   value: string;
@@ -18,7 +19,7 @@ export const CopyText = ({ value, children, className }: CopyTextProps) => {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      // clipboard write failed (e.g. permissions denied) — leave copied false
+      // clipboard write failed
     }
   };
 

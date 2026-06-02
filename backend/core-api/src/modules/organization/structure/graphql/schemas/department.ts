@@ -34,6 +34,7 @@ const commonDepartmentParams = `
     parentId: String
     userIds: [String]
     workhours: JSON
+    status: String
 `;
 
 export const mutations = `

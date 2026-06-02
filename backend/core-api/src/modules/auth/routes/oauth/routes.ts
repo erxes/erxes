@@ -2,8 +2,6 @@ import { getSubdomain } from 'erxes-api-shared/utils';
 import { Request, Response, Router } from 'express';
 import { generateModels } from '~/connectionResolvers';
 import {
-  ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL,
-  ACCESS_TOKEN_EXPIRES_IN_PUBLIC,
   DEVICE_CODE_EXPIRES_IN,
   DEVICE_CODE_GRANT,
   DEVICE_POLL_INTERVAL,
@@ -20,6 +18,7 @@ import {
   createUserCode,
   formatUserCode,
   getAuthenticatedUserId,
+  getAccessTokenExpiresIn,
   getAvailableOAuthScopesForUser,
   getClientIp,
   getOAuthClientApp,
@@ -368,6 +367,7 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
         clientId,
         subdomain,
         clientType: oauthClientApp.type,
+        accessTokenLifetime: oauthClientApp.accessTokenLifetime,
         scope: deviceCodeDoc.grantedScope || undefined,
       });
 
@@ -430,10 +430,10 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
         return sendOAuthError(res, 401, 'invalid_grant');
       }
 
-      const accessExpiresIn =
-        oauthClientApp.type === 'confidential'
-          ? ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL
-          : ACCESS_TOKEN_EXPIRES_IN_PUBLIC;
+      const accessExpiresIn = getAccessTokenExpiresIn({
+        clientType: oauthClientApp.type,
+        accessTokenLifetime: oauthClientApp.accessTokenLifetime,
+      });
 
       const refreshExpiresIn =
         oauthClientApp.type === 'confidential'

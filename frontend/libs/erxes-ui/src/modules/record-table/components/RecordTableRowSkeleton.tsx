@@ -17,7 +17,11 @@ export const RecordTableRowSkeleton = ({
 }) => {
   // get column count
   const { table } = useRecordTable();
-  const columnCount = table.getRowModel().rows[0]?.getVisibleCells().length;
+  // fall back to visible leaf columns so skeleton cells still render when there
+  // is no data yet (e.g. initial load before any rows have arrived)
+  const columnCount =
+    table.getRowModel().rows[0]?.getVisibleCells().length ||
+    table.getVisibleLeafColumns().length;
   const { ref } = useInView({
     onChange: (inView) => {
       inView && handleInView?.();
