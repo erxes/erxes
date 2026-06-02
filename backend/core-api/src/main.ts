@@ -130,6 +130,15 @@ app.get('/debug-sentry', () => {
 // Wrap the Express server
 const httpServer = http.createServer(app);
 
+httpServer.on('error', (error: NodeJS.ErrnoException) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`Port ${port} is already in use`);
+  } else {
+    console.error('HTTP server error:', error);
+  }
+  process.exit(1);
+});
+
 httpServer.listen(port, async () => {
   await initApolloServer(app, httpServer);
 
