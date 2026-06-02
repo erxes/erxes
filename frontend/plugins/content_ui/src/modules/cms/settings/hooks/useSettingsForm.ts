@@ -1,9 +1,10 @@
 import { NetworkStatus, useMutation, useQuery } from '@apollo/client';
 import { toast } from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   CONTENT_CREATE_CMS,
+  CONTENT_DELETE_CMS,
   CONTENT_UPDATE_CMS,
 } from '../../graphql/mutations';
 import { CONTENT_CMS_LIST, GET_WEBSITES } from '../../graphql/queries';
@@ -18,6 +19,7 @@ import { buildPublicUrl } from '../utils/settingsHelpers';
 
 export const useSettingsForm = () => {
   const { websiteId } = useParams();
+  const navigate = useNavigate();
   const [hydratedSettingsKey, setHydratedSettingsKey] = useState<string>();
   const [settings, setSettings] = useState<SettingsFormState>(DEFAULT_SETTINGS);
   const mutationOptions = {
@@ -47,8 +49,7 @@ export const useSettingsForm = () => {
     websitesQuery.observable.getCurrentResult().partial !== true &&
     Array.isArray(websitesData?.getClientPortals?.list);
 
-  const settingsQueriesFetched =
-    cmsQueryFetched && websitesQueryFetched;
+  const settingsQueriesFetched = cmsQueryFetched && websitesQueryFetched;
 
   const [createCMS, { loading: creatingCMS }] = useMutation(
     CONTENT_CREATE_CMS,
@@ -56,6 +57,10 @@ export const useSettingsForm = () => {
   );
   const [updateCMS, { loading: updatingCMS }] = useMutation(
     CONTENT_UPDATE_CMS,
+    mutationOptions,
+  );
+  const [deleteCMS, { loading: deletingCMS }] = useMutation(
+    CONTENT_DELETE_CMS,
     mutationOptions,
   );
 
@@ -82,8 +87,8 @@ export const useSettingsForm = () => {
   const hydrationKey = cms?._id
     ? `${websiteId}:cms:${cms._id}`
     : clientPortal?._id
-      ? `${websiteId}:clientPortal:${clientPortal._id}`
-      : undefined;
+    ? `${websiteId}:clientPortal:${clientPortal._id}`
+    : undefined;
 
   useEffect(() => {
     if (
@@ -255,16 +260,56 @@ export const useSettingsForm = () => {
     }
   };
 
+  const handleDelete = async () => {
+    if (!cms?._id) {
+      toast({
+        title: 'CMS not deleted',
+        description: 'Save this CMS before trying to delete it.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      await deleteCMS({
+        variables: {
+          id: cms._id,
+        },
+        refetchQueries: [{ query: CONTENT_CMS_LIST }],
+        awaitRefetchQueries: true,
+      });
+
+      toast({
+        title: 'Success',
+        description: 'CMS deleted successfully.',
+      });
+      navigate('/content/cms');
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'Failed to delete CMS. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return {
     canSave:
       Boolean(websiteId) &&
       settingsQueriesFetched &&
       !creatingCMS &&
-      !updatingCMS,
+      !updatingCMS &&
+      !deletingCMS,
     clientPortals,
+    cms,
+    isDeleting: deletingCMS,
     isSaving: creatingCMS || updatingCMS,
     settings,
     updateSetting,
+    handleDelete,
     handleSave,
   };
 };

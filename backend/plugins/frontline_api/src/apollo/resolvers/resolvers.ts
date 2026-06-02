@@ -4,7 +4,10 @@ import { Channel } from '@/channel/graphql/resolvers/customResolvers/channel';
 import { ChannelMember } from '@/channel/graphql/resolvers/customResolvers/member';
 import { Pipeline } from '@/ticket/graphql/resolvers/customResolvers/pipeline';
 import { Ticket } from '@/ticket/graphql/resolvers/customResolvers/status';
-import { Form } from '@/form/graphql/resolvers/customResolvers/forms';
+import {
+  Form,
+  Submission,
+} from '@/form/graphql/resolvers/customResolvers/forms';
 import KnowledgeBaseArticle from '@/knowledgebase/graphql/resolvers/customResolvers/article';
 import {
   KnowledgeBaseCategory,
@@ -19,6 +22,7 @@ export const customResolvers = {
   Pipeline,
   Ticket,
   Form,
+  Submission,
   KnowledgeBaseArticle,
   KnowledgeBaseCategory,
   KnowledgeBaseParentCategory,

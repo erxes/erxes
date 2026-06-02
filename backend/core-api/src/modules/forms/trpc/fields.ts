@@ -30,7 +30,11 @@ export const fieldsTrpcRouter = t.router({
       .query(async ({ ctx, input }) => {
         const { _id, query } = input;
         const { models } = ctx;
-        return await models.Fields.findOne(query || { _id });
+        const filter = _id ? { _id } : query;
+        if (!filter || !Object.keys(filter).length) {
+          return {};
+        }
+        return await models.Fields.findOne(filter);
       }),
     create: t.procedure
       .input(z.record(z.any()))
@@ -55,6 +59,9 @@ export const fieldsTrpcRouter = t.router({
       .mutation(async ({ ctx, input }) => {
         const { selector, modifier } = input;
         const { models } = ctx;
+        if (!selector || !Object.keys(selector).length) {
+          return {};
+        }
         return await models.Fields.updateOne(selector, modifier);
       }),
     prepareCustomFieldsData: t.procedure

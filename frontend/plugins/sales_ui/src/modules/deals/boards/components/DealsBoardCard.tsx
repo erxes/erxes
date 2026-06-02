@@ -7,7 +7,7 @@ import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPr
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { IDeal } from '@/deals/types/deals';
 import { IconAlertCircleFilled } from '@tabler/icons-react';
-import { Separator, useQueryState } from 'erxes-ui';
+import { Separator, useQueryState, CopyText } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { memo, useState } from 'react';
 import {
@@ -60,13 +60,13 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
   }
 
   return (
-    <div className="p-3 pt-0">
-      <DealCardDetails items={companies} color="#EA475D" />
-      <DealCardDetails items={customers} color="#F7CE53" />
-      <DealCardDetails items={dealProducts} color="#63D2D6" />
-      <DealCardDetails items={excludedProducts} color="#b49cf1" />
-      <DealCardDetails color="#FF6600" items={tags || []} />
-      <DealCardDetails color="#FF9900" items={customProperties || []} />
+    <div className="flex flex-col gap-1.5 p-3 pt-0">
+      <DealCardDetails items={companies} color="#EA475D" separated />
+      <DealCardDetails items={customers} color="#F7CE53" separated />
+      <DealCardDetails items={dealProducts} color="#63D2D6" separated />
+      <DealCardDetails items={excludedProducts} color="#b49cf1" separated />
+      <DealCardDetails items={tags || []} color="#FF6600" separated />
+      <DealCardDetails items={customProperties || []} color="#FF9900" separated />
     </div>
   );
 };
@@ -102,7 +102,6 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     stage,
     tagIds,
   } = deal;
-
   const onCardClick = () => {
     setSalesItemId(_id);
     setActiveDealAtom(_id);
@@ -140,7 +139,11 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           </div>
         )}
         <div className="flex flex-col gap-1">
-          <h5 className="font-semibold">{name}</h5>
+          <h5 className="font-semibold">
+            <CopyText value={name || ''} className="hover:opacity-70 text-left">
+              {name}
+            </CopyText>
+          </h5>
           {stage?.age !== undefined && stage.age < 0 && (
             <span className="px-2 rounded flex gap-1 bg-yellow-50 text-yellow-400 border-yellow-100 border">
               <IconAlertCircleFilled className="size-6 pt-2" />

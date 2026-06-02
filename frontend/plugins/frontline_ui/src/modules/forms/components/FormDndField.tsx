@@ -18,11 +18,23 @@ import {
   IconTrash,
   IconListCheck,
   IconListDetails,
+  IconUserCircle,
+  IconAt,
+  IconPhoneSpark,
+  IconGenderBigender,
+  IconAddressBook,
+  IconChevronLeft,
 } from '@tabler/icons-react';
-import { FORM_FIELD_TYPES } from '../constants/formFieldTypes';
+import {
+  FORM_FIELD_TYPES,
+  FormFieldType,
+  FormGroupKey,
+  GroupedFields,
+} from '../constants/formFieldTypes';
 import React, { useState } from 'react';
 import { FormFieldDetail, FormFieldDetailSheet } from './FormFieldDetail';
 import { useRemoveForm } from '../hooks/useRemoveForm';
+import { FORM_GROUP_LABELS } from '../constants/formGroupLabels';
 
 export const FormDndField = ({
   field,
@@ -96,6 +108,16 @@ export const FormDndFieldIcon = ({ type }: { type: string }) => {
       return <IconListDetails />;
     case 'file':
       return <IconPaperclip />;
+    case 'core:customer:avatar':
+      return <IconUserCircle />;
+    case 'core:customer:email':
+      return <IconAt />;
+    case 'core:customer:phone':
+      return <IconPhoneSpark />;
+    case 'core:customer:sex':
+      return <IconGenderBigender />;
+    case 'core:customer:birthDate':
+      return <IconCalendarEvent />;
     default:
       return <IconTextSize />;
   }
@@ -103,23 +125,93 @@ export const FormDndFieldIcon = ({ type }: { type: string }) => {
 
 export const AddField = ({ step }: { step: UniqueIdentifier }) => {
   const { handleAddField } = useFormDnd();
+  const [view, setView] = useState<'main' | 'customer'>('main');
+
+  const GROUPED_FIELD_TYPES: GroupedFields = FORM_FIELD_TYPES.reduce(
+    (groups, type) => {
+      const group = type.value.startsWith('core:customer:')
+        ? 'core:customer'
+        : 'basic';
+      if (!groups[group]) {
+        groups[group] = [];
+      }
+      groups[group].push(type);
+      return groups;
+    },
+    {} as Record<'basic' | 'core:customer', typeof FORM_FIELD_TYPES>,
+  );
+
   return (
-    <DropdownMenu>
+    <DropdownMenu
+      onOpenChange={(open) => {
+        if (!open) setView('main');
+      }}
+    >
       <DropdownMenu.Trigger asChild>
         <Button variant="secondary" className="ml-auto">
           <IconPlus /> Add Field
         </Button>
       </DropdownMenu.Trigger>
+
       <DropdownMenu.Content>
-        {FORM_FIELD_TYPES.map((type) => (
-          <DropdownMenu.Item
-            key={type.value}
-            onClick={() => handleAddField(step, type)}
-          >
-            <FormDndFieldIcon type={type.value} />
-            {type.label}
-          </DropdownMenu.Item>
-        ))}
+        {view === 'main' ? (
+          <>
+            <DropdownMenu.Label className="font-bold">
+              {FORM_GROUP_LABELS.basic.label}
+            </DropdownMenu.Label>
+
+            {GROUPED_FIELD_TYPES.basic.map((type) => (
+              <DropdownMenu.Item
+                key={type.value}
+                onClick={() => handleAddField(step, type)}
+              >
+                <FormDndFieldIcon type={type.value} />
+                {type.label}
+              </DropdownMenu.Item>
+            ))}
+
+            <DropdownMenu.Separator />
+
+            <DropdownMenu.Label className="font-bold">
+              {FORM_GROUP_LABELS['core:customer'].label}
+            </DropdownMenu.Label>
+
+            <DropdownMenu.Item
+              onSelect={(e) => {
+                e.preventDefault();
+                setView('customer');
+              }}
+            >
+              <IconAddressBook /> Customer fields
+            </DropdownMenu.Item>
+          </>
+        ) : (
+          <>
+            <DropdownMenu.Item
+              onSelect={(e) => {
+                e.preventDefault();
+                setView('main');
+              }}
+              className="text-accent-foreground text-xs"
+            >
+              <IconChevronLeft /> Back
+            </DropdownMenu.Item>
+
+            <DropdownMenu.Label className="font-bold">
+              Customer fields
+            </DropdownMenu.Label>
+
+            {GROUPED_FIELD_TYPES['core:customer'].map((type) => (
+              <DropdownMenu.Item
+                key={type.value}
+                onClick={() => handleAddField(step, type)}
+              >
+                <FormDndFieldIcon type={type.value} />
+                {type.label}
+              </DropdownMenu.Item>
+            ))}
+          </>
+        )}
       </DropdownMenu.Content>
     </DropdownMenu>
   );

@@ -18,13 +18,24 @@ import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import automations from './meta/automations';
 import { notifications } from './meta/notifications';
+import { permissions } from './meta/permissions';
 import { ticketImportHandlers } from './meta/import-export/import/importHandlers';
-import { ticketExportHandlers } from './meta/import-export/export/exportHandlers';
+import {
+  ticketExportHandlers,
+  formSubmissionExportHandlers,
+} from './meta/import-export/export/exportHandlers';
 
 const ticketImportExportTypes = [
   {
     label: 'Ticket',
     contentType: 'frontline:ticket.ticket',
+  },
+];
+
+const formSubmissionExportTypes = [
+  {
+    label: 'Form Response',
+    contentType: 'frontline:formSubmission.formSubmission',
   },
 ];
 
@@ -92,17 +103,23 @@ startPlugin({
       }),
     },
     export: {
-      types: ticketImportExportTypes,
+      types: [...ticketImportExportTypes, ...formSubmissionExportTypes],
       getExportData: createCoreModuleProducerHandler({
         moduleName: 'importExport',
-        modules: { ticket: ticketExportHandlers },
+        modules: {
+          ticket: ticketExportHandlers,
+          formSubmission: formSubmissionExportHandlers,
+        },
         methodName: TImportExportProducers.GET_EXPORT_DATA,
         extractModuleName: (input: TGetExportDataInput) => input.moduleName,
         generateModels,
       }),
       getExportHeaders: createCoreModuleProducerHandler({
         moduleName: 'importExport',
-        modules: { ticket: ticketExportHandlers },
+        modules: {
+          ticket: ticketExportHandlers,
+          formSubmission: formSubmissionExportHandlers,
+        },
         methodName: TImportExportProducers.GET_EXPORT_HEADERS,
         extractModuleName: (input: TGetExportHeadersInput) => input.moduleName,
         generateModels,
@@ -114,6 +131,7 @@ startPlugin({
     automations,
     afterProcess,
     notifications,
+    permissions,
     tags: {
       types: [
         {

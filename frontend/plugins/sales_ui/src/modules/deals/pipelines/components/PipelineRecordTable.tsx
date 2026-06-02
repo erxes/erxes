@@ -11,6 +11,7 @@ import {
   RelativeDateDisplay,
   useConfirm,
   useMultiQueryState,
+  useQueryState,
 } from 'erxes-ui';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
@@ -19,6 +20,7 @@ import {
   IconCalendarTime,
   IconCopy,
   IconEdit,
+  IconSandbox,
   IconSettings,
   IconTrash,
   IconUser,
@@ -33,6 +35,7 @@ import {
 import { IPipeline } from '@/deals/types/pipelines';
 import { PipelineCommandBar } from './PipelineCommandBar';
 import React from 'react';
+import { useNavigate } from 'react-router';
 
 export const PipelineMoreColumnCell = ({
   cell,
@@ -45,6 +48,7 @@ export const PipelineMoreColumnCell = ({
     pipelineId: string;
     tab: string;
   }>(['pipelineId', 'tab']);
+  const [activeBoardId] = useQueryState('activeBoardId')
   const { removePipeline, loading: removeLoading } = usePipelineRemove();
   const { copyPipeline } = usePipelineCopy();
   const { archivePipeline } = usePipelineArchive();
@@ -87,9 +91,8 @@ export const PipelineMoreColumnCell = ({
 
   const onArchive = () => {
     confirm({
-      message: `This will ${
-        status === 'active' ? 'archive' : 'unarchive'
-      } the current pipeline. Are you absolutely sure?`,
+      message: `This will ${status === 'active' ? 'archive' : 'unarchive'
+        } the current pipeline. Are you absolutely sure?`,
     }).then(async () => {
       try {
         archivePipeline({
@@ -103,6 +106,7 @@ export const PipelineMoreColumnCell = ({
     });
   };
 
+  const navigate = useNavigate();
   return (
     <Popover>
       <Popover.Trigger asChild>
@@ -140,6 +144,13 @@ export const PipelineMoreColumnCell = ({
               <IconSettings /> Product config
             </Command.Item>
             <Command.Item
+              onSelect={() => {
+                navigate(`/sales/deals?boardId=${activeBoardId}&pipelineId=${_id}`)
+              }}
+            >
+              <IconSandbox /> Go To Pipeline
+            </Command.Item>
+            <Command.Item
               disabled={removeLoading}
               value="remove"
               onSelect={onRemove}
@@ -156,120 +167,120 @@ export const PipelineMoreColumnCell = ({
 export const pipelinesColumns: ColumnDef<
   IPipeline & { hasChildren: boolean; type?: string }
 >[] = [
-  RecordTable.checkboxColumn as ColumnDef<
-    IPipeline & { hasChildren: boolean; type?: string }
-  >,
-  {
-    id: 'more',
-    cell: PipelineMoreColumnCell,
-    size: 33,
-  },
-  {
-    id: 'name',
-    header: 'Name',
-    accessorKey: 'name',
-    cell: ({ cell }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { pipelineEdit, loading } = usePipelineEdit();
-      const { _id, name, type } = cell.row.original;
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const [open, setOpen] = React.useState<boolean>(false);
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const [_name, setName] = React.useState<string>(name);
-
-      const onSave = () => {
-        if (name !== _name) {
-          pipelineEdit({
-            variables: {
-              id: _id,
-              type: type,
-              name: _name,
-            },
-          });
-        }
-      };
-
-      const onChange = (el: React.ChangeEvent<HTMLInputElement>) => {
-        setName(el.currentTarget.value);
-      };
-
-      return (
-        <Popover
-          open={open}
-          onOpenChange={(open) => {
-            setOpen(open);
-            if (!open) {
-              onSave();
-            }
-          }}
-        >
-          <RecordTableInlineCell.Trigger>
-            <RecordTableTree.Trigger
-              // order={cell.row.original.order || ''}
-              order=""
-              name={cell.getValue() as string}
-              hasChildren={cell.row.original.hasChildren}
-            >
-              {cell.getValue() as string}
-            </RecordTableTree.Trigger>
-          </RecordTableInlineCell.Trigger>
-          <RecordTableInlineCell.Content>
-            <Input value={_name} onChange={onChange} disabled={loading} />
-          </RecordTableInlineCell.Content>
-        </Popover>
-      );
+    RecordTable.checkboxColumn as ColumnDef<
+      IPipeline & { hasChildren: boolean; type?: string }
+    >,
+    {
+      id: 'more',
+      cell: PipelineMoreColumnCell,
+      size: 33,
     },
-    size: 300,
-  },
-  {
-    header: 'Status',
-    accessorKey: 'status',
-    cell: ({ cell }) => {
-      const status = cell.getValue() as string;
+    {
+      id: 'name',
+      header: 'Name',
+      accessorKey: 'name',
+      cell: ({ cell }) => {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const { pipelineEdit, loading } = usePipelineEdit();
+        const { _id, name, type } = cell.row.original;
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const [open, setOpen] = React.useState<boolean>(false);
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const [_name, setName] = React.useState<string>(name);
 
-      const variant =
-        status === 'active'
-          ? 'success'
-          : status === 'archived'
-            ? 'warning'
-            : 'default';
+        const onSave = () => {
+          if (name !== _name) {
+            pipelineEdit({
+              variables: {
+                id: _id,
+                type: type,
+                name: _name,
+              },
+            });
+          }
+        };
 
-      return (
-        <RecordTableInlineCell>
-          <Badge variant={variant}>{(cell.getValue() as string) || '-'}</Badge>
-        </RecordTableInlineCell>
-      );
+        const onChange = (el: React.ChangeEvent<HTMLInputElement>) => {
+          setName(el.currentTarget.value);
+        };
+
+        return (
+          <Popover
+            open={open}
+            onOpenChange={(open) => {
+              setOpen(open);
+              if (!open) {
+                onSave();
+              }
+            }}
+          >
+            <RecordTableInlineCell.Trigger>
+              <RecordTableTree.Trigger
+                // order={cell.row.original.order || ''}
+                order=""
+                name={cell.getValue() as string}
+                hasChildren={cell.row.original.hasChildren}
+              >
+                {cell.getValue() as string}
+              </RecordTableTree.Trigger>
+            </RecordTableInlineCell.Trigger>
+            <RecordTableInlineCell.Content>
+              <Input value={_name} onChange={onChange} disabled={loading} />
+            </RecordTableInlineCell.Content>
+          </Popover>
+        );
+      },
+      size: 300,
     },
-  },
-  {
-    id: 'createdAt',
-    accessorKey: 'createdAt',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCalendarTime} label="Created At" />
-    ),
-    cell: ({ cell }) => {
-      return (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+    {
+      header: 'Status',
+      accessorKey: 'status',
+      cell: ({ cell }) => {
+        const status = cell.getValue() as string;
+
+        const variant =
+          status === 'active'
+            ? 'success'
+            : status === 'archived'
+              ? 'warning'
+              : 'default';
+
+        return (
           <RecordTableInlineCell>
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+            <Badge variant={variant}>{(cell.getValue() as string) || '-'}</Badge>
           </RecordTableInlineCell>
-        </RelativeDateDisplay>
-      );
+        );
+      },
     },
-  },
-  {
-    id: 'createdBy',
-    accessorKey: 'createdUser.details.fullName',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Created by" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          {cell.getValue() as string}
-        </RecordTableInlineCell>
-      );
+    {
+      id: 'createdAt',
+      accessorKey: 'createdAt',
+      header: () => (
+        <RecordTable.InlineHead icon={IconCalendarTime} label="Created At" />
+      ),
+      cell: ({ cell }) => {
+        return (
+          <RelativeDateDisplay value={cell.getValue() as string} asChild>
+            <RecordTableInlineCell>
+              <RelativeDateDisplay.Value value={cell.getValue() as string} />
+            </RecordTableInlineCell>
+          </RelativeDateDisplay>
+        );
+      },
     },
-  },
-];
+    {
+      id: 'createdBy',
+      accessorKey: 'createdUser.details.fullName',
+      header: () => <RecordTable.InlineHead icon={IconUser} label="Created by" />,
+      cell: ({ cell }) => {
+        return (
+          <RecordTableInlineCell>
+            {cell.getValue() as string}
+          </RecordTableInlineCell>
+        );
+      },
+    },
+  ];
 
 const PipelineRecordTable = () => {
   const [queries] = useMultiQueryState<{

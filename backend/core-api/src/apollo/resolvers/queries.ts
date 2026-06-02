@@ -1,3 +1,4 @@
+import { markResolvers } from 'erxes-api-shared/utils';
 import { appQueries } from '@/apps/graphql/queries';
 import { authQueries } from '@/auth/graphql/resolvers/queries';
 import { oauthClientAppQueries } from '@/auth/graphql/resolvers/oauthClientApps';
@@ -33,7 +34,22 @@ import { propertiesQueries } from '~/modules/properties/graphql/resolvers/querie
 import { bundleQueries } from '@/bundle/graphql/resolvers/queries';
 import { templateQueries } from '@/template/graphql/queries';
 
+const sentryTestQueries = {
+  _sentryGraphqlTest: () => {
+    throw new Error(
+      'GraphQL Sentry test (core): ' + new Date().toISOString(),
+    );
+  },
+};
+
+markResolvers(sentryTestQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
+
 export const queries = {
+  ...sentryTestQueries,
   ...contactQueries,
   ...authQueries,
   ...oauthClientAppQueries,

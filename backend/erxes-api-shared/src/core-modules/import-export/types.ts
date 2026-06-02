@@ -10,6 +10,7 @@ export interface IImportExportContext<TModels = any> {
 export interface ImportHeaderDefinition {
   label: string;
   key: string;
+  aliases?: string[];
   isDefault?: boolean;
   type?: 'system' | 'customProperty';
 }
@@ -79,7 +80,7 @@ export type GetExportData = {
   collectionName: string;
   cursor?: string;
   limit: number;
-  filters?: Record<string, any>;
+  filters?: Record<string, unknown>;
   ids?: string[];
   selectedFields?: string[];
 };
@@ -92,7 +93,11 @@ export interface TExportHandlers {
   getExportHeaders: (
     args: {
       subdomain: string;
-      data: { moduleName: string; collectionName: string };
+      data: {
+        moduleName: string;
+        collectionName: string;
+        filters?: Record<string, unknown>;
+      };
     },
     ctx: IImportExportContext,
   ) => Promise<ImportHeaderDefinition[]>;

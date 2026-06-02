@@ -4,7 +4,7 @@ import { IContext } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
 
 const TARGET_ACTIONS = {
-  pos: { module: 'order', action: 'findOne', field: 'number' },
+  pos: { module: 'orders', action: 'findOne', field: 'number' },
   sales: { module: 'deal', action: 'findOne', field: 'name' },
 };
 
@@ -35,8 +35,7 @@ export const fetchTarget = async ({
     defaultValue: null,
   });
 
-  const payload = response?.status === 'success' ? response?.data : response;
-  const target = Array.isArray(payload) ? payload[0] : payload;
+  const target = Array.isArray(response) ? response[0] : response;
 
   return target?.[field] || '';
 };

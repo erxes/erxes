@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useDebounce } from 'use-debounce';
+import { useRef, useCallback } from 'react';
 import { Label, Editor } from 'erxes-ui';
 import {
   SelectBranches,
@@ -13,42 +12,37 @@ import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPr
 import { IDeal } from '@/deals/types/deals';
 import { useDealsContext } from '@/deals/context/DealContext';
 
+const ARRAY_KEYS = new Set(['assignedUserIds', 'tagIds', 'branchIds', 'departmentIds']);
+
+const FormField = ({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) => (
+  <div className="space-y-2">
+    <Label>{label}</Label>
+    {children}
+  </div>
+);
+
 export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
   const { editDeals } = useDealsContext();
+  const descriptionRef = useRef<string | undefined>(undefined);
 
-  const [descriptionContent, setDescriptionContent] = useState<
-    string | undefined
-  >(undefined);
-  const [debouncedDescription] = useDebounce(descriptionContent, 1000);
-
-  const handleDealFieldChange = useCallback(
+  const handleChange = useCallback(
     (key: string, value: string | string[] | undefined | null) => {
-      if (value === undefined || value === null) return;
-
-      const isArrayKey = [
-        'assignedUserIds',
-        'tagIds',
-        'branchIds',
-        'departmentIds',
-      ].includes(key);
-
-      const finalValue = isArrayKey && !Array.isArray(value) ? [value] : value;
-
+      if (value == null) return;
       editDeals({
         variables: {
           _id: deal._id,
-          [key]: finalValue,
+          [key]: ARRAY_KEYS.has(key) && !Array.isArray(value) ? [value] : value,
         },
       });
     },
     [deal._id, editDeals],
   );
-
-  useEffect(() => {
-    if (debouncedDescription !== undefined) {
-      handleDealFieldChange('description', debouncedDescription);
-    }
-  }, [debouncedDescription, handleDealFieldChange]);
 
   const {
     startDate,
@@ -65,8 +59,7 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
   return (
     <>
       <div className="grid grid-cols-2 gap-4 py-4">
-        <div className="space-y-2">
-          <Label>Due date</Label>
+        <FormField label="Due date">
           <div className="flex items-center">
             <DateSelectDeal
               value={startDate}
@@ -82,20 +75,16 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
               variant="button"
             />
           </div>
-        </div>
-        <div className="space-y-2">
-          <Label>Assigned to</Label>
+        </FormField>
+        <FormField label="Assigned to">
           <SelectMember
             value={assignedUserIds}
-            onValueChange={(value) =>
-              handleDealFieldChange('assignedUserIds', value)
-            }
+            onValueChange={(value) => handleChange('assignedUserIds', value)}
             className="text-foreground"
             mode="multiple"
           />
-        </div>
-        <div className="space-y-2">
-          <Label>Label</Label>
+        </FormField>
+        <FormField label="Label">
           <div className="flex flex-wrap items-center gap-1">
             <SelectLabels.FilterBar
               filterKey=""
@@ -108,64 +97,58 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
             {labels?.map((label) => (
               <div
                 key={label._id}
-                className="ml-1 pl-2 pr-2 py-1 rounded text-white text-sm font-medium inline-block"
+                className="inline-block py-1 pl-2 pr-2 ml-1 text-sm font-medium text-white rounded"
                 style={{ backgroundColor: label.colorCode }}
               >
                 {label.name}
               </div>
             ))}
           </div>
-        </div>
-        <div className="space-y-2 flex-col">
-          <Label>Priority</Label>
+        </FormField>
+        <FormField label="Priority">
           <div>
-            <SelectDealPriority
-              dealId={_id}
-              value={priority || ''}
-              variant="card"
-            />
+            <SelectDealPriority dealId={_id} value={priority || ''} variant="card" />
           </div>
-        </div>
-        <div className="space-y-2">
-          <Label>Tags</Label>
+        </FormField>
+        <FormField label="Tags">
           <SelectTags
             tagType="sales:deal"
             mode="multiple"
             value={tagIds}
-            onValueChange={(value) => {
-              handleDealFieldChange('tagIds', value);
-            }}
+            onValueChange={(value) => handleChange('tagIds', value)}
           />
-        </div>
-        <div className="space-y-2">
-          <Label>Branches</Label>
+        </FormField>
+        <FormField label="Branches">
           <SelectBranches.ComboboxItem
             value={branchIds}
-            onValueChange={(value) => {
-              handleDealFieldChange('branchIds', value);
-            }}
+            onValueChange={(value) => handleChange('branchIds', value)}
             mode="multiple"
           />
-        </div>
-        <div className="space-y-2">
-          <Label>Departments</Label>
+        </FormField>
+        <FormField label="Departments">
           <SelectDepartments.ComboboxItem
             mode="multiple"
             value={departmentIds}
-            onValueChange={(value) => {
-              handleDealFieldChange('departmentIds', value);
-            }}
+            onValueChange={(value) => handleChange('departmentIds', value)}
           />
-        </div>
+        </FormField>
       </div>
-      <div className="space-y-2">
+      <div
+        className="space-y-2"
+        onBlur={(e) => {
+          if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+          if (descriptionRef.current !== undefined) {
+            handleChange('description', descriptionRef.current);
+          }
+        }}
+      >
         <Label>Description</Label>
         <Editor
-          initialContent={deal.description || []}
+          initialContent={deal.description || ''}
           onChange={(content) => {
-            setDescriptionContent(content);
+            descriptionRef.current = content;
           }}
-          className="h-28 overflow-y-auto"
+          className="overflow-y-auto h-28"
         />
       </div>
     </>

@@ -373,13 +373,34 @@ export const createImportBatchProcessor = (
           if (rowIndex === 0) {
             headerRow = row;
             headerRow.forEach((headerText, index) => {
-              if (headerText) {
+              const normalizedHeaderText = String(headerText || '').trim();
+
+              if (normalizedHeaderText) {
                 const matchedHeader = importHeaders.find(
-                  (h) => h.label === headerText,
+                  (h) => {
+                    const candidates = [
+                      h.label,
+                      h.key,
+                      ...(h.aliases || []),
+                    ].map((candidate) => String(candidate || '').trim());
+
+                    if (candidates.includes(normalizedHeaderText)) {
+                      return true;
+                    }
+
+                    return (
+                      h.type === 'customProperty' &&
+                      candidates.some(
+                        (candidate) =>
+                          candidate &&
+                          normalizedHeaderText.includes(`[${candidate}]`),
+                      )
+                    );
+                  },
                 );
                 if (matchedHeader) {
                   columnToKeyMap[index] = matchedHeader.key;
-                  keyToHeaderMap[matchedHeader.key] = headerText;
+                  keyToHeaderMap[matchedHeader.key] = normalizedHeaderText;
                 }
               }
             });

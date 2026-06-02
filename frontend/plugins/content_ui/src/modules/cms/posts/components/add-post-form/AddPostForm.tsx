@@ -44,7 +44,6 @@ export const AddPostForm = ({
     setDefaultLangData,
     previousTypeRef,
     handleEditorChange,
-    generateSlug,
     fullPost,
     updateCustomFieldValue,
     getCustomFieldValue,
@@ -247,7 +246,6 @@ export const AddPostForm = ({
               selectedType={selectedType}
               fieldGroups={fieldGroups}
               fullPost={fullPost}
-              generateSlug={generateSlug}
               handleEditorChange={handleEditorChange}
               getCustomFieldValue={getCustomFieldValue}
               updateCustomFieldValue={updateCustomFieldValue}

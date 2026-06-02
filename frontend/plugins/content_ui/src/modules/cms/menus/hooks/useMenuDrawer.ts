@@ -155,7 +155,10 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     (m: RawMenuItem) => m._id !== menu?._id,
   );
 
-  const parentOptions = buildFlatTree(rawMenus).map((item) => ({
+  const parentOptions = buildFlatTree(
+    rawMenus,
+    selectedLanguage || cmsLanguage || defaultLanguage || 'en',
+  ).map((item) => ({
     _id: item._id,
     label: getDepthPrefix(item.depth) + item.label,
   }));

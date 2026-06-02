@@ -8,18 +8,16 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
     method: 'query',
     module: 'products',
     action: 'findOne',
-    input: { code: old_code },
-    defaultValue: {},
+    input: { query: { code: old_code } },
   });
 
   if ((action === 'update' && old_code) || action === 'create') {
     const productCategory = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      method: 'query',
-      module: 'categories',
+      module: 'productCategories',
       action: 'findOne',
-      input: { code: doc.category_code },
+      input: { query: { code: doc.category_code } },
       defaultValue: null,
     });
 
@@ -86,7 +84,7 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
       );
     }
 
-    if (product) {
+    if (product?._id) {
       await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
@@ -127,9 +125,9 @@ export const consumeInventoryCategory = async (
     subdomain,
     pluginName: 'core',
     method: 'query',
-    module: 'categories',
+    module: 'productCategories',
     action: 'findOne',
-    input: { code: old_code },
+    input: { query: { code: old_code } },
     defaultValue: null,
   });
 
@@ -138,9 +136,9 @@ export const consumeInventoryCategory = async (
       subdomain,
       pluginName: 'core',
       method: 'query',
-      module: 'categories',
+      module: 'productCategories',
       action: 'findOne',
-      input: { code: doc.parent_code },
+      input: { query: { code: doc.parent_code } },
       defaultValue: null,
     });
 
@@ -148,6 +146,7 @@ export const consumeInventoryCategory = async (
       code: doc.code,
       name: doc.name,
       order: doc.order,
+      status: 'active',
     };
 
     if (productCategory) {
@@ -155,7 +154,7 @@ export const consumeInventoryCategory = async (
         subdomain,
         pluginName: 'core',
         method: 'mutation',
-        module: 'categories',
+        module: 'productCategories',
         action: 'updateProductCategory',
         input: {
           _id: productCategory._id,
@@ -172,7 +171,7 @@ export const consumeInventoryCategory = async (
         subdomain,
         pluginName: 'core',
         method: 'mutation',
-        module: 'categories',
+        module: 'productCategories',
         action: 'createProductCategory',
         input: {
           doc: {
@@ -187,7 +186,7 @@ export const consumeInventoryCategory = async (
       subdomain,
       pluginName: 'core',
       method: 'mutation',
-      module: 'categories',
+      module: 'productCategories',
       action: 'removeProductCategory',
       input: { _id: productCategory._id },
     });

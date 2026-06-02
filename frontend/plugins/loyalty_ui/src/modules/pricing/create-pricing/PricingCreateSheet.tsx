@@ -15,10 +15,10 @@ import {
   SelectSegment,
   SelectTags,
   SelectProduct,
+  SelectCategory,
 } from 'ui-modules';
 import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
-import { SelectCategory } from '@/pricing/components/SelectCategory';
 import {
   formatDateValue,
   isDateRangeValid,

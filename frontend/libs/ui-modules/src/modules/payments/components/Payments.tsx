@@ -103,7 +103,7 @@ export const OtherPayments = ({ control }: { control: Control<any> }) => {
   });
 
   const handleAddPayment = () => {
-    append({ type: '', title: '', icon: '', config: '', scoreCampaign: '' });
+    append({ type: '', title: '', icon: '', config: '', scoreCampaignId: '' });
   };
 
   return (
@@ -237,7 +237,7 @@ export const OtherPayments = ({ control }: { control: Control<any> }) => {
           <div className="flex-1">
             <Form.Field
               control={control}
-              name={`paymentTypes.${index}.scoreCampaign`}
+              name={`paymentTypes.${index}.scoreCampaignId`}
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label className="text-xs text-gray-600">

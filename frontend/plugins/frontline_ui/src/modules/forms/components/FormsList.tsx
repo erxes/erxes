@@ -17,6 +17,7 @@ import {
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
+  useMultiQueryState,
 } from 'erxes-ui';
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -32,10 +33,18 @@ import { OpenLiveForm } from './actions/open-live-form';
 
 export const FormsList = () => {
   const { id: channelId } = useParams<{ id: string }>();
+  const [{ searchValue, status, tagId }] = useMultiQueryState<{
+    searchValue?: string;
+    status?: string;
+    tagId?: string;
+  }>(['searchValue', 'status', 'tagId']);
 
   const { forms, loading, handleFetchMore, pageInfo } = useFormsList({
     variables: {
       channelId: channelId || undefined,
+      searchValue: searchValue || undefined,
+      status: status || undefined,
+      tagId: tagId || undefined,
     },
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};

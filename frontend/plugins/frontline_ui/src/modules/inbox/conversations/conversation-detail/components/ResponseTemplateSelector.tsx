@@ -55,13 +55,15 @@ export const ResponseTemplateSelector: React.FC<
   const [selectedChannel, setSelectedChannel] = useState<string>('all');
 
   const { channels, loading: channelsLoading } = useGetChannels();
-  const { responses, loading: responsesLoading } = useGetResponses({
-    variables: {
-      filter: {
-        channelId: selectedChannel === 'all' ? undefined : selectedChannel,
+  const { responses, isInitialLoad: responsesInitialLoad } =
+    useGetResponses({
+      variables: {
+        filter: {
+          channelId: selectedChannel === 'all' ? undefined : selectedChannel,
+          searchValue: debouncedSearch || undefined,
+        },
       },
-    },
-  });
+    });
 
   const availableChannels = useMemo<ChannelOption[]>(() => {
     if (!channels) return [];
@@ -99,9 +101,7 @@ export const ResponseTemplateSelector: React.FC<
     setViewMode((prev) => (prev === 'grid' ? 'list' : 'grid'));
   };
 
-  if (channelsLoading || responsesLoading) {
-    return <Skeleton className="w-32 h-4 mt-1" />;
-  }
+  const isInitialLoad = (channelsLoading && !channels) || (responsesInitialLoad && !responses);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -153,7 +153,13 @@ export const ResponseTemplateSelector: React.FC<
                   : 'space-y-1.5',
               )}
             >
-              {filteredTemplates.length === 0 ? (
+              {isInitialLoad ? (
+                <div className="col-span-2 p-4 space-y-2">
+                  <Skeleton className="w-full h-10" />
+                  <Skeleton className="w-full h-10" />
+                  <Skeleton className="w-full h-10" />
+                </div>
+              ) : filteredTemplates.length === 0 ? (
                 <div className="col-span-2 p-8 text-center text-muted-foreground text-sm italic">
                   {search
                     ? 'No matching templates found'
@@ -161,57 +167,48 @@ export const ResponseTemplateSelector: React.FC<
                 </div>
               ) : (
                 filteredTemplates.map((template) => (
-                  <div
+                  <Command.Item
                     key={template._id}
+                    value={template._id}
+                    onSelect={() => handleSelectTemplate(template.content)}
                     className={cn(
+                      'flex rounded border border-transparent transition-all cursor-pointer gap-2',
+                      'hover:border-primary/20 hover:bg-accent/50',
                       viewMode === 'grid'
-                        ? 'h-32 col-span-1'
-                        : 'col-span-2 h-auto',
+                        ? 'h-32 col-span-1 flex-col items-start p-3 overflow-hidden w-full'
+                        : 'col-span-2 h-auto flex-row items-center p-2.5',
                     )}
                   >
-                    <Command.Item
-                      value={template._id}
-                      onSelect={() => handleSelectTemplate(template.content)}
-                      className={cn(
-                        'flex rounded border border-transparent transition-all cursor-pointer h-full gap-2',
-                        'hover:border-primary/20 hover:bg-accent/50',
-                        {
-                          'flex-row items-center p-2.5': viewMode === 'list',
-                          'flex-col items-start p-3': viewMode === 'grid',
-                        },
-                      )}
-                    >
-                      {template.channelId && (
-                        <div
-                          className={cn(
-                            'text-[11px] text-primary shrink bg-primary/10 px-1.5 py-0.5 rounded font-medium',
-                            {
-                              'mb-1 order-first': viewMode === 'grid',
-                              'ml-auto order-last': viewMode === 'list',
-                            },
-                          )}
-                        >
-                          <ChannelsInline
-                            showIcon={true}
-                            channelIds={[template.channelId]}
-                          />
-                        </div>
-                      )}
-
+                    {template.channelId && (
                       <div
-                        className={cn('min-w-0 flex-1', {
-                          'basis-1/3': viewMode === 'list',
-                        })}
+                        className={cn(
+                          'text-[11px] text-primary shrink bg-primary/10 px-1.5 py-0.5 rounded font-medium',
+                          viewMode === 'grid'
+                            ? 'mb-1 order-first'
+                            : 'ml-auto order-last',
+                        )}
                       >
-                        <div className="font-semibold text-sm truncate leading-tight">
-                          {template.name}
-                        </div>
-                        <div className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-snug">
-                          {getPreviewText(template.content)}
-                        </div>
+                        <ChannelsInline
+                          showIcon={true}
+                          channelIds={[template.channelId]}
+                        />
                       </div>
-                    </Command.Item>
-                  </div>
+                    )}
+
+                    <div
+                      className={cn('min-w-0 flex-1', {
+                        'basis-1/3': viewMode === 'list',
+                        'w-full overflow-hidden': viewMode === 'grid',
+                      })}
+                    >
+                      <div className="font-semibold text-sm truncate leading-tight">
+                        {template.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-snug">
+                        {getPreviewText(template.content)}
+                      </div>
+                    </div>
+                  </Command.Item>
                 ))
               )}
             </Command.List>

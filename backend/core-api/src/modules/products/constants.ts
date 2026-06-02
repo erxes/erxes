@@ -43,3 +43,10 @@ export const PRODUCT_EXTEND_FIELDS = [
     type: 'string',
   },
 ];
+
+export const PACKAGE_STATUSES = {
+  DRAFT: 'draft',
+  ACTIVE: 'active',
+  ARCHIVED: 'archived',
+  ALL: ['draft', 'active', 'archived'],
+};

@@ -1,15 +1,22 @@
-import { QueryHookOptions, useQuery } from '@apollo/client';
+import { NetworkStatus, QueryHookOptions, useQuery } from '@apollo/client';
 import { GET_RESPONSES } from '@/responseTemplate/graphql/queries/getResponses';
 import {
   EnumCursorDirection,
+  ICursorListResponse,
   mergeCursorData,
   validateFetchMore,
 } from 'erxes-ui';
+import { IResponseTemplate } from '../types';
 
 const RESPONSES_PER_PAGE = 24;
 
 export const useGetResponses = (options?: QueryHookOptions) => {
-  const { data, loading, fetchMore } = useQuery(GET_RESPONSES, {
+  const { data, fetchMore, networkStatus } = useQuery<
+    ICursorListResponse<IResponseTemplate>
+  >(GET_RESPONSES, {
+    fetchPolicy: 'cache-and-network',
+    notifyOnNetworkStatusChange: true,
+    ...options,
     variables: {
       filter: {
         limit: RESPONSES_PER_PAGE,
@@ -17,12 +24,18 @@ export const useGetResponses = (options?: QueryHookOptions) => {
         ...options?.variables?.filter,
       },
     },
-    fetchPolicy: 'cache-and-network',
-    ...options,
   });
 
-  const { list: responses, totalCount, pageInfo } =
-    data?.responseTemplates || {};
+  const {
+    list: responses,
+    totalCount,
+    pageInfo,
+  } = data?.responseTemplates || {};
+
+  const isInitialLoad = networkStatus === NetworkStatus.loading;
+  const isRefetching =
+    networkStatus === NetworkStatus.setVariables ||
+    networkStatus === NetworkStatus.refetch;
 
   const handleFetchMore = ({
     direction,
@@ -53,7 +66,8 @@ export const useGetResponses = (options?: QueryHookOptions) => {
 
   return {
     responses,
-    loading,
+    isInitialLoad,
+    isRefetching,
     handleFetchMore,
     totalCount,
     pageInfo,

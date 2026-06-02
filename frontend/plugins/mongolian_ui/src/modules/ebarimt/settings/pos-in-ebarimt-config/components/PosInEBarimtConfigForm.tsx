@@ -2,7 +2,11 @@ import { SelectPos } from '@/ebarimt/settings/pos-in-ebarimt-config/components/s
 import { useEbarimtConfigState } from '@/ebarimt/settings/pos-in-ebarimt-config/hooks/useEbarimtConfigState';
 import { useRemovePosInEbarimtConfig } from '@/ebarimt/settings/pos-in-ebarimt-config/hooks/useRemovePosInEbarimtConfig';
 import { useSavePosInEbarimtConfig } from '@/ebarimt/settings/pos-in-ebarimt-config/hooks/useSavePosInEbarimtConfig';
-import { addEBarimtPosInConfigSchema, TPosInEbarimtConfig } from '@/ebarimt/settings/pos-in-ebarimt-config/types';
+import {
+  addEBarimtPosInConfigSchema,
+  normalizeRuleIds,
+  TPosInEbarimtConfig,
+} from '@/ebarimt/settings/pos-in-ebarimt-config/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import { Accordion, AlertDialog, Button, Card, Form } from 'erxes-ui';
@@ -48,12 +52,11 @@ const PosInEbarimtConfigCard = ({
       hasVat: config.hasVat || false,
       citytaxPercent: config.citytaxPercent || '',
       vatPercent: config.vatPercent || '',
-      reverseVatRules: config.reverseVatRules || '',
+      reverseVatRules: normalizeRuleIds(config.reverseVatRules),
       hasCitytax: config.hasCitytax || false,
       headerText: config.headerText || '',
       footerText: config.footerText || '',
-      reverseCtaxRules:
-        config.reverseCtaxRules || '',
+      reverseCtaxRules: normalizeRuleIds(config.reverseCtaxRules),
       withDescription: config.withDescription || false,
       skipEbarimt: config.skipEbarimt || false,
     },
