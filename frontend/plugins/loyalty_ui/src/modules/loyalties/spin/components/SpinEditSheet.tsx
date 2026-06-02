@@ -20,7 +20,11 @@ const SpinOwnerSelect = ({
 }) => {
   if (ownerType === 'company') {
     return (
-      <SelectCompany value={value} onValueChange={onChange} mode="single" />
+      <SelectCompany
+        value={value}
+        onValueChange={(val) => onChange(val as string)}
+        mode="single"
+      />
     );
   }
   if (ownerType === 'user') {
@@ -42,7 +46,11 @@ const SpinOwnerSelect = ({
     );
   }
   return (
-    <SelectCustomer value={value} onValueChange={onChange} mode="single" />
+    <SelectCustomer
+      value={value}
+      onValueChange={(val) => onChange(val as string)}
+      mode="single"
+    />
   );
 };
 
