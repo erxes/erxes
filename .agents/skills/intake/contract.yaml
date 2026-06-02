@@ -74,8 +74,6 @@ rules_required:
   - architecture
 
 preconditions:
-  - description: "Feature map must exist"
-    check: "test -f .agents/maps/feature-map.yaml"
   - description: "Manifest must be loaded"
     check: "manifest_loaded == true"
   - description: "Pre-flight check must pass"
