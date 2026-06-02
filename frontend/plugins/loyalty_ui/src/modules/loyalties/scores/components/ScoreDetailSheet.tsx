@@ -37,6 +37,46 @@ export const ScoreDetailSheet = ({
   const logs: IScoreLog[] = data?.scoreLogs?.list || [];
   const isTruncated = logs.length >= SCORE_DETAIL_LIMIT;
 
+  const renderBody = () => {
+    if (loading && logs.length === 0) {
+      return <Spinner containerClassName="py-10" />;
+    }
+
+    if (error) {
+      return (
+        <div className="flex items-center justify-center h-24 text-xs text-destructive">
+          {error.message || 'Failed to load score logs'}
+        </div>
+      );
+    }
+
+    if (logs.length === 0) {
+      return (
+        <div className="flex items-center justify-center h-24 text-xs text-muted-foreground">
+          No log records found
+        </div>
+      );
+    }
+
+    return (
+      <div className="rounded-md overflow-hidden">
+        <RecordTable.Provider columns={scoreDetailColumns} data={logs}>
+          <RecordTable>
+            <RecordTable.Header />
+            <RecordTable.Body>
+              <RecordTable.RowList />
+            </RecordTable.Body>
+          </RecordTable>
+        </RecordTable.Provider>
+        {isTruncated && (
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            Showing the latest {SCORE_DETAIL_LIMIT} entries.
+          </p>
+        )}
+      </div>
+    );
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal>
       <Sheet.View side="bottom" className="h-[70vh] p-0 flex flex-col">
@@ -53,33 +93,7 @@ export const ScoreDetailSheet = ({
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="flex-1 min-h-0 p-4 overflow-auto">
-          {loading && logs.length === 0 ? (
-            <Spinner containerClassName="py-10" />
-          ) : error ? (
-            <div className="flex items-center justify-center h-24 text-xs text-destructive">
-              {error.message || 'Failed to load score logs'}
-            </div>
-          ) : logs.length === 0 ? (
-            <div className="flex items-center justify-center h-24 text-xs text-muted-foreground">
-              No log records found
-            </div>
-          ) : (
-            <div className="rounded-md overflow-hidden">
-              <RecordTable.Provider columns={scoreDetailColumns} data={logs}>
-                <RecordTable>
-                  <RecordTable.Header />
-                  <RecordTable.Body>
-                    <RecordTable.RowList />
-                  </RecordTable.Body>
-                </RecordTable>
-              </RecordTable.Provider>
-              {isTruncated && (
-                <p className="mt-2 text-center text-xs text-muted-foreground">
-                  Showing the latest {SCORE_DETAIL_LIMIT} entries.
-                </p>
-              )}
-            </div>
-          )}
+          {renderBody()}
         </Sheet.Content>
       </Sheet.View>
     </Sheet>

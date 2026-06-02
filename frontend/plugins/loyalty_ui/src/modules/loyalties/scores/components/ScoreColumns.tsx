@@ -282,9 +282,9 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
 // Columns for the per-person detail sheet: the same definitions as the main
 // list (so they stay in sync) minus the row actions and owner columns, which
 // are redundant when every row already belongs to the same person.
-const DETAIL_EXCLUDED_COLUMNS = ['more', 'ownerName', 'ownerType'];
+const DETAIL_EXCLUDED_COLUMNS = new Set(['more', 'ownerName', 'ownerType']);
 
 export const scoreDetailColumns: ColumnDef<IScoreLog>[] =
   scoreLogColumns.filter(
-    (column) => !DETAIL_EXCLUDED_COLUMNS.includes(column.id || ''),
+    (column) => !DETAIL_EXCLUDED_COLUMNS.has(column.id || ''),
   );
