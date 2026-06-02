@@ -31,6 +31,7 @@ export function useBranchEdit(
 ) {
   const [handleEdit, { loading, error }] = useMutation(EDIT_BRANCH, {
     ...options,
+    refetchQueries: ['Branches'],
   });
 
   return {
