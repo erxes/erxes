@@ -11,7 +11,7 @@ export interface IPackage {
   products?: IPackageProduct[];
   price?: number;
   percent?: number;
-  componentsTotal?: number;
+  totalPrice?: number;
   status?: string;
   createdAt?: string;
   updatedAt?: string;

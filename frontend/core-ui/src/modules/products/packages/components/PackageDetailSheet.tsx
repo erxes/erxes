@@ -38,7 +38,7 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
   const [products, setProducts] = useState<IPackageProduct[]>(pkg.products || []);
   const [status, setStatus] = useState(pkg.status || 'active');
 
-  const pricing = usePricing(pkg.price, pkg.percent, pkg.componentsTotal);
+  const pricing = usePricing(pkg.price, pkg.percent, pkg.totalPrice);
 
   const saving = savingEdits || savingStatus;
 
@@ -48,7 +48,7 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
     setCoverImage(pkg.coverImage || '');
     setProducts(pkg.products || []);
     setStatus(pkg.status || 'active');
-    pricing.reset(pkg.price, pkg.percent, pkg.componentsTotal);
+    pricing.reset(pkg.price, pkg.percent, pkg.totalPrice);
   }, [pkg._id]);
 
   const basicDirty =

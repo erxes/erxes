@@ -8,6 +8,7 @@ import {
   TicketsViewControl,
   TicketsView,
 } from '@/ticket/components/TicketsView';
+import { TicketsSortControl } from '@/ticket/components/TicketsSortControl';
 import { TicketsFilter } from '@/ticket/components/TicketsFilter';
 import { TicketPageEffect } from '@/ticket/components/TicketPageEffect';
 import { useTicketsVariables } from '@/ticket/hooks/useGetTickets';
@@ -54,7 +55,10 @@ const TicketsIndexPage = () => {
           collectionName="ticket"
           getFilters={getFilters}
         />
-        <TicketsViewControl />
+        <div>
+          <TicketsViewControl />
+          <TicketsSortControl />
+        </div>
       </PageSubHeader>
       <TicketsView />
       <TicketPageEffect />

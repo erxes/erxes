@@ -4,15 +4,17 @@ import { useMultiQueryState } from 'erxes-ui';
 import { IDepartmentListItem } from '../types/department';
 
 export const useDepartmentsList = (options?: OperationVariables) => {
-  const [{ searchValue, parentId }] = useMultiQueryState<{
+  const [{ searchValue, parentId, status }] = useMultiQueryState<{
     searchValue: string;
     parentId: string;
-  }>(['searchValue', 'parentId']);
+    status: string;
+  }>(['searchValue', 'parentId', 'status']);
   const { data, error, loading } = useQuery(GET_DEPARTMENTS_LIST, {
     variables: {
       ...options?.variables,
       searchValue,
       parentId,
+      status,
       withoutUserFilter: true
     },
     ...options,

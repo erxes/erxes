@@ -10,7 +10,7 @@ export const usePackageDetail = (id?: string | null) => {
   });
 
   return {
-    package: (data?.packageDetail || null) as IPackage | null,
+    package: (data?.productPackageDetail || null) as IPackage | null,
     loading,
     error,
     refetch,

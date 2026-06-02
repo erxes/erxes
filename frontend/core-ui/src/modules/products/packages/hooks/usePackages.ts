@@ -13,9 +13,9 @@ export const usePackages = (variables?: {
   });
 
   return {
-    packages: (data?.packages?.list || []) as IPackage[],
-    totalCount: data?.packages?.totalCount || 0,
-    pageInfo: data?.packages?.pageInfo,
+    packages: (data?.productPackages?.list || []) as IPackage[],
+    totalCount: data?.productPackages?.totalCount || 0,
+    pageInfo: data?.productPackages?.pageInfo,
     loading,
     error,
     refetch,

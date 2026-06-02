@@ -3,8 +3,15 @@ import { AccountingLayout } from '@/layout/components/Layout';
 import { AddTransaction } from '@/transactions/components/AddTransaction';
 import { TransactionTable } from '@/transactions/components/TransactionTable';
 import { TransactionsFilter } from '@/transactions/components/TrFilters';
-import { IconPlus } from '@tabler/icons-react';
-import { Button, Kbd, PageSubHeader, Separator } from 'erxes-ui';
+import { IconHelpCircle, IconPlus } from '@tabler/icons-react';
+import {
+  Button,
+  Dialog,
+  Kbd,
+  PageSubHeader,
+  Separator,
+  ScrollArea,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Import } from 'ui-modules';
 import { TrsTotalCount } from '~/modules/transactions/components/TrsTotalCount';
@@ -165,10 +172,30 @@ export const TransactionListPage = () => {
           moduleName="account"
           collectionName="transactions"
           title={t('Гүйлгээ импортлох')}
-          additionContent={renderAdditionHelper}
-          helperTriggerLabel={t('Гарын авлага харах')}
-          helperDescription={t('Импортын гарын авлага болон талбарын тайлбар')}
-        />
+        >
+          <Dialog>
+            <Dialog.Trigger asChild>
+              <Button
+                variant="secondary"
+                className="mt-1 w-full justify-start gap-2 border border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary"
+              >
+                <IconHelpCircle className="size-4" />
+                {t('Гарын авлага харах')}
+              </Button>
+            </Dialog.Trigger>
+            <Dialog.ContentCombined
+              title={t('Гүйлгээ импортлох')}
+              description={t('Импортын гарын авлага болон талбарын тайлбар')}
+              className="w-[min(1100px,90vw)] max-w-[min(1100px,90vw)] sm:max-w-[min(1100px,90vw)] h-[85vh] overflow-hidden grid-rows-[auto_1fr]"
+            >
+              <ScrollArea className="h-full mx-6 px-6 pb-2">
+                <div className="pt-2 text-sm leading-relaxed">
+                  {renderAdditionHelper()}
+                </div>
+              </ScrollArea>
+            </Dialog.ContentCombined>
+          </Dialog>
+        </Import>
       </PageSubHeader>
       <TransactionTable />
     </AccountingLayout>

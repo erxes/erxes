@@ -23,7 +23,7 @@ export default {
       .filter(Boolean);
   },
 
-  async componentsTotal(
+  async totalPrice(
     { products = [] }: IPackageDocument,
     _args: unknown,
     { models }: IContext,
