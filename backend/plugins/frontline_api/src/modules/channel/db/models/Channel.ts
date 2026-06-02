@@ -10,7 +10,7 @@ import { FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 
 export interface IChannelModel extends Model<IChannelDocument> {
-  getChannel(_id: string): Promise<IChannelDocument>;
+  getChannel(_id: string): Promise<IChannelDocument | null>;
   getChannels(params: IChannelFilter): Promise<IChannelDocument[]>;
 
   createChannel({
@@ -39,10 +39,10 @@ export const loadChannelClass = (models: IModels) => {
     /*
      * Get a Channel
      */
-    public static async getChannel(_id: string): Promise<IChannelDocument> {
+    public static async getChannel(_id: string): Promise<IChannelDocument | null> {
       const channel = await models.Channels.findOne({ _id }).lean();
 
-      if (!channel) throw new Error('Channel not found');
+      if (!channel) return null;
 
       const pipelineCount = await models.Pipeline.countDocuments({
         channelId: _id,
