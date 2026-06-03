@@ -73,7 +73,7 @@ export const useScoreList = () => {
       boardId: scoreBoardId || undefined,
       pipelineId: scorePipelineId || undefined,
       stageId: scoreStageId || undefined,
-      number: number || undefined,
+      number: number != null && number !== '' ? String(number) : undefined,
       description: description || undefined,
       limit: SCORE_PER_PAGE,
     }),
