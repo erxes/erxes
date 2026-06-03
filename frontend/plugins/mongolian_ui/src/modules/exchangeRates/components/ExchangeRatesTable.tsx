@@ -18,21 +18,15 @@ import {
   RecordTableInlineCell,
   Spinner,
   TextOverflowTooltip,
-  useConfirm,
   useQueryState,
 } from 'erxes-ui';
-import { useMutation } from '@apollo/client';
 import { useSetAtom } from 'jotai';
 import { useMemo } from 'react';
-import { mutations } from '../graphql';
-import {
-  EXCHANGE_RATE_ID_QUERY_KEY,
-  EXCHANGE_RATES_QUERY_NAME,
-} from '../constants';
+import { EXCHANGE_RATE_ID_QUERY_KEY } from '../constants';
 import { exchangeRateDetailAtom } from '../states/exchangeRatesStates';
 import { IExchangeRate } from '../types';
 import { useExchangeRates } from '../hooks/useExchangeRates';
-import { notifyError, notifySuccess } from '../utils';
+import { useRemoveExchangeRates } from '../hooks/useRemoveExchangeRates';
 import { AddExchangeRate } from './AddExchangeRate';
 import { ExchangeRatesCommandbar } from './ExchangeRatesCommandbar';
 
@@ -70,11 +64,7 @@ const ExchangeRateMoreCell = ({
 }) => {
   const [, setOpenId] = useQueryState(EXCHANGE_RATE_ID_QUERY_KEY);
   const setDetail = useSetAtom(exchangeRateDetailAtom);
-  const { confirm } = useConfirm();
-
-  const [removeExchangeRates] = useMutation(mutations.exchangeRatesRemove, {
-    refetchQueries: [EXCHANGE_RATES_QUERY_NAME],
-  });
+  const { remove } = useRemoveExchangeRates();
 
   const handleEdit = () => {
     setDetail(cell.row.original);
@@ -82,19 +72,8 @@ const ExchangeRateMoreCell = ({
   };
 
   const handleDelete = () => {
-    confirm({
-      message: 'Are you sure you want to delete this exchange rate?',
-      options: { okLabel: 'Delete', cancelLabel: 'Cancel' },
-    }).then(async () => {
-      try {
-        await removeExchangeRates({
-          variables: { rateIds: [cell.row.original._id] },
-        });
-        notifySuccess('Exchange rate deleted');
-      } catch (e) {
-        notifyError(e);
-      }
-    });
+    const id = cell.row.original._id;
+    if (id) remove([id]);
   };
 
   return (
