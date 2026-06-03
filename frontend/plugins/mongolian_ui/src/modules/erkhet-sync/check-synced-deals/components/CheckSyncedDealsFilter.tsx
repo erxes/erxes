@@ -116,11 +116,11 @@ export const CheckSyncedDealsFilterPopover = () => {
         <Filter.View filterKey="number" inDialog>
           <Filter.DialogStringView filterKey="number" />
         </Filter.View>
-        <Filter.View filterKey="stageChangedDateRange" inDialog>
-          <Filter.DialogStringView filterKey="stageChangedDateRange" />
-        </Filter.View>
         <Filter.View filterKey="dateRange" inDialog>
           <Filter.DialogDateView filterKey="dateRange" />
+        </Filter.View>
+        <Filter.View filterKey="stageChangedDateRange" inDialog>
+          <Filter.DialogDateView filterKey="stageChangedDateRange" />
         </Filter.View>
       </Filter.Dialog>
     </>
