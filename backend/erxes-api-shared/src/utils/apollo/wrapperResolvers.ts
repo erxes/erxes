@@ -11,6 +11,14 @@ import {
 import { logHandler } from '../logs';
 import { runBeforeResolvers } from './runBeforeResolvers';
 
+const AUTH_ERROR_MESSAGES = [
+  'Login required',
+  'Permission required',
+  'Client portal required',
+  'Client portal user required',
+  'OAuth scope required',
+];
+
 const withSentryCapture = (
   resolver: Resolver,
   resolverKey: string,
@@ -20,6 +28,13 @@ const withSentryCapture = (
     try {
       return await resolver(root, args, context, info);
     } catch (err) {
+      if (
+        err instanceof Error &&
+        AUTH_ERROR_MESSAGES.includes(err.message)
+      ) {
+        throw err;
+      }
+
       Sentry.withScope((scope) => {
         scope.setTag('graphql.operation', operation);
         scope.setTag('graphql.field', resolverKey);
@@ -78,11 +93,14 @@ const withLogging = (resolver: Resolver): Resolver => {
 };
 
 export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
-  const wrappedResolvers: any = {};
+  const wrappedResolvers: Record<
+    string,
+    Resolver | Record<string, Resolver>
+  > = {};
 
   for (const [key, resolver] of Object.entries(resolvers)) {
     if (key === 'Mutation') {
-      const mutationResolvers: any = {};
+      const mutationResolvers: Record<string, Resolver> = {};
 
       for (const [mutationKey, mutationResolver] of Object.entries(resolver)) {
         const { skipPermission, cpUserRequired, forClientPortal } =
@@ -116,7 +134,7 @@ export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
     }
 
     if (key === 'Query') {
-      const queryResolvers: any = {};
+      const queryResolvers: Record<string, Resolver> = {};
 
       for (const [queryKey, queryResolver] of Object.entries(resolver)) {
         const { skipPermission, cpUserRequired, forClientPortal } =
