@@ -1,5 +1,26 @@
 
 
+## [3.0.29](https://github.com/erxes/erxes/compare/3.0.28...3.0.29) (2026-06-03)
+
+
+### Bug Fixes
+
+* add status field to Department GraphQL type ([#7861](https://github.com/erxes/erxes/issues/7861)) ([be4644b](https://github.com/erxes/erxes/commit/be4644b3e64cbc185d69506ccad6816aa76d2d3c))
+* Exchange rates UI enhancement ([#7860](https://github.com/erxes/erxes/issues/7860)) ([07dbb4e](https://github.com/erxes/erxes/commit/07dbb4e8b02348348d629b1216ddb31a0d190622))
+* loyalty-score-statistics with filter param ([#7864](https://github.com/erxes/erxes/issues/7864)) ([a313341](https://github.com/erxes/erxes/commit/a313341cf2e376070583410e8acc5040a99f1356))
+* loyalty-scores-detail-sheet ([#7852](https://github.com/erxes/erxes/issues/7852)) ([50ec649](https://github.com/erxes/erxes/commit/50ec649fd761761770307f13c915a068ffb36db6))
+* **operation:** enforce ObjectId types for all cross-document reference fields ([d95a060](https://github.com/erxes/erxes/commit/d95a060b049d9d3b3301d953c6f4557c03f49a39))
+* **operation:** migration task ([ef52a0a](https://github.com/erxes/erxes/commit/ef52a0afc1147c71a67874530507ecc9fdd3bedd))
+* **operation:** patch legacy nanoid teamIds to ObjectId in migrateTasks ([70c32d3](https://github.com/erxes/erxes/commit/70c32d3c5f90dc6f6e95404ceda8b9530e53b703))
+* **operation:** use string IDs for schema relations and add task migration  ([1a06638](https://github.com/erxes/erxes/commit/1a066384dffddb45b1c30566bed6570c04d55e9b))
+* restrict export button to users with exportsManage permission ([#7862](https://github.com/erxes/erxes/issues/7862)) ([02fb5cb](https://github.com/erxes/erxes/commit/02fb5cbf12a9e278009c28242f4c58cbdc4738c4))
+* schema return ([#7863](https://github.com/erxes/erxes/issues/7863)) ([b2badf6](https://github.com/erxes/erxes/commit/b2badf6aae8eb0cdfcb7d61f3047b40a1b59bfb9))
+
+
+### Features
+
+* **core:** add custom field import/export for core and tickets; add load more for frontline response templates; fix inbox image preview, ([0677927](https://github.com/erxes/erxes/commit/0677927a9d58863484d5fe16c2b2bbb70d58c130))
+
 ## [3.0.28](https://github.com/erxes/erxes/compare/3.0.27...3.0.28) (2026-06-02)
 
 
