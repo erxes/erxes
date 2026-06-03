@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/node';
 import * as fs from 'fs';
 import * as path from 'path';
-import { classifyError } from './errorClassifier';
+import { sentryExpectedErrorFilter } from './errorClassifier';
 
 // Ensure to call this before importing any other modules!
 const dsn = process.env.SENTRY_DSN;
@@ -108,18 +108,6 @@ if (dsn) {
     release: getSentryRelease(),
     serverName: process.env.SENTRY_SERVER_NAME,
     tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE || 0),
-    beforeSend(event) {
-      // Filter out expected business errors from Sentry
-      // These are already handled at the GraphQL layer and don't need monitoring
-      const error = event.exception?.values?.[0];
-      if (error && error.value) {
-        const classification = classifyError(error.value);
-        if (classification.category === 'EXPECTED') {
-          // Drop the event — it's an expected business error
-          return null;
-        }
-      }
-      return event;
-    },
+    beforeSend: sentryExpectedErrorFilter,
   });
 }

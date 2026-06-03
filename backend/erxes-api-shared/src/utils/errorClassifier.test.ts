@@ -1,4 +1,4 @@
-import { classifyError, isExpectedError, extractMessage } from './errorClassifier';
+import { classifyError, isExpectedError, extractMessage, sentryExpectedErrorFilter, IClassificationResult } from './errorClassifier';
 
 describe('errorClassifier', () => {
   describe('classifyError', () => {
@@ -112,6 +112,89 @@ describe('errorClassifier', () => {
 
     it('should handle unknown types', () => {
       expect(extractMessage(123)).toBe('123');
+    });
+  });
+
+  describe('SYSTEM vs EXPECTED ordering', () => {
+    it('should classify "Cannot find module" as SYSTEM, not EXPECTED', () => {
+      const result = classifyError(new Error("Cannot find module 'lodash'"));
+      expect(result.category).toBe('SYSTEM');
+      expect(result.isExpected).toBe(false);
+      expect(result.statusCode).toBe(500);
+    });
+
+    it('should classify "Missing environment variable" as SYSTEM, not EXPECTED', () => {
+      const result = classifyError(new Error('Missing environment variable: API_KEY'));
+      expect(result.category).toBe('SYSTEM');
+      expect(result.isExpected).toBe(false);
+      expect(result.statusCode).toBe(500);
+    });
+
+    it('should classify Mongoose BSON errors as SYSTEM', () => {
+      const error = new Error('BSONTypeError: Cast to ObjectId failed for value "abc" at path "_id"');
+      const result = classifyError(error);
+      expect(result.category).toBe('SYSTEM');
+      expect(result.isExpected).toBe(false);
+      expect(result.statusCode).toBe(500);
+    });
+
+    it('should classify Cast to ObjectId as SYSTEM', () => {
+      const error = new Error('Cast to ObjectId failed for value "invalid"');
+      const result = classifyError(error);
+      expect(result.category).toBe('SYSTEM');
+      expect(result.isExpected).toBe(false);
+      expect(result.statusCode).toBe(500);
+    });
+
+    it('should still classify plain "Not found" as EXPECTED', () => {
+      const result = classifyError(new Error('Not found'));
+      expect(result.category).toBe('EXPECTED');
+      expect(result.isExpected).toBe(true);
+    });
+
+    it('should still classify plain "is required" as EXPECTED', () => {
+      const result = classifyError(new Error('Name is required'));
+      expect(result.category).toBe('EXPECTED');
+      expect(result.isExpected).toBe(true);
+    });
+  });
+
+  describe('sentryExpectedErrorFilter', () => {
+    it('should return null for EXPECTED errors', () => {
+      const event = {
+        exception: {
+          values: [{ value: 'User not found' }]
+        }
+      };
+      expect(sentryExpectedErrorFilter(event)).toBeNull();
+    });
+
+    it('should return event for SYSTEM errors', () => {
+      const event = {
+        exception: {
+          values: [{ value: 'MongoNetworkError: connection failed' }]
+        }
+      };
+      expect(sentryExpectedErrorFilter(event)).toBe(event);
+    });
+
+    it('should return event for PROVIDER errors', () => {
+      const event = {
+        exception: {
+          values: [{ value: 'Request timeout' }]
+        }
+      };
+      expect(sentryExpectedErrorFilter(event)).toBe(event);
+    });
+
+    it('should return event when no exception value', () => {
+      const event = { exception: { values: [{}] } };
+      expect(sentryExpectedErrorFilter(event)).toBe(event);
+    });
+
+    it('should return event when no exception', () => {
+      const event = {};
+      expect(sentryExpectedErrorFilter(event)).toBe(event);
     });
   });
 });

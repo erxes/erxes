@@ -1,5 +1,6 @@
 import type { ApolloServerPlugin, GraphQLRequestListener } from '@apollo/server';
-import { classifyError } from '../errorClassifier';
+import { GraphQLError } from 'graphql';
+import { classifyError, IClassificationResult } from '../errorClassifier';
 
 /**
  * Apollo Server plugin that handles expected errors
@@ -10,8 +11,25 @@ import { classifyError } from '../errorClassifier';
  * - Allows frontend to distinguish business errors from system errors
  */
 export const expectedErrorPlugin: ApolloServerPlugin = {
-  async requestDidStart(): Promise<GraphQLRequestListener> {
+  async requestDidStart(): Promise<GraphQLRequestListener<any>> {
+    // Store classifications from didEncounterErrors to use in willSendResponse
+    const errorClassifications = new Map<string, IClassificationResult>();
+
     return {
+      async didEncounterErrors(requestContext) {
+        // Capture original GraphQL errors with their full context
+        for (const error of requestContext.errors) {
+          const originalError = error.originalError || error;
+          const classification = classifyError(originalError);
+          
+          // Use error path as key to match in willSendResponse
+          const pathKey = error.path 
+            ? error.path.join('.') 
+            : error.message;
+          errorClassifications.set(pathKey, classification);
+        }
+      },
+
       async willSendResponse(requestContext) {
         const { response } = requestContext;
         
@@ -25,23 +43,36 @@ export const expectedErrorPlugin: ApolloServerPlugin = {
           return;
         }
 
-        // Classify each error
-        const classifications = errors.map(error => {
-          const originalError = error.originalError || error;
-          return classifyError(originalError);
+        // Classify each error using stored classifications from didEncounterErrors
+        const classifications: IClassificationResult[] = errors.map(error => {
+          const pathKey = error.path 
+            ? error.path.join('.') 
+            : error.message;
+          
+          // Use pre-computed classification from didEncounterErrors if available
+          const stored = errorClassifications.get(pathKey);
+          if (stored) {
+            return stored;
+          }
+          
+          // Fallback: classify from the formatted error message
+          return classifyError(error.message);
         });
 
         // Enrich error extensions with category metadata
         errors.forEach((error, index) => {
           const classification = classifications[index];
           
-          if (!error.extensions) {
-            error.extensions = {};
+          // Cast to any to bypass read-only restriction on formatted errors
+          const mutableError = error as any;
+          
+          if (!mutableError.extensions) {
+            mutableError.extensions = {};
           }
 
-          error.extensions.category = classification.category;
-          error.extensions.isExpected = classification.isExpected;
-          error.extensions.statusCode = classification.statusCode;
+          mutableError.extensions.category = classification.category;
+          mutableError.extensions.isExpected = classification.isExpected;
+          mutableError.extensions.statusCode = classification.statusCode;
         });
 
         // If ALL errors are expected, override HTTP status to 200

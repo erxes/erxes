@@ -10,7 +10,7 @@
 
 export type ErrorCategory = 'EXPECTED' | 'SYSTEM' | 'PROVIDER' | 'UNKNOWN';
 
-interface ClassificationResult {
+export interface IClassificationResult {
   category: ErrorCategory;
   statusCode: number;
   isExpected: boolean;
@@ -71,6 +71,7 @@ const EXPECTED_PATTERNS: RegExp[] = [
 ];
 
 // System error patterns — infrastructure/bugs
+// These are checked BEFORE expected patterns to prevent shadowing
 const SYSTEM_PATTERNS: RegExp[] = [
   /MongoNetworkError/i,
   /MongoServerError/i,
@@ -134,7 +135,7 @@ const PROVIDER_PATTERNS: RegExp[] = [
 /**
  * Classify an error by its message and optional code
  */
-export function classifyError(error: Error | string | unknown): ClassificationResult {
+export function classifyError(error: Error | string | unknown): IClassificationResult {
   const message = extractMessage(error);
   const code = extractCode(error);
   const errorName = extractErrorName(error);
@@ -157,13 +158,14 @@ export function classifyError(error: Error | string | unknown): ClassificationRe
     return { category: 'SYSTEM', statusCode: 500, isExpected: false };
   }
 
-  // Check message patterns
-  if (matchesAny(message, EXPECTED_PATTERNS)) {
-    return { category: 'EXPECTED', statusCode: 200, isExpected: true };
+  // Check SYSTEM patterns first to prevent EXPECTED patterns from shadowing
+  // system errors (e.g., "Cannot find module" should be SYSTEM, not EXPECTED)
+  if (matchesAny(message, SYSTEM_PATTERNS) || matchesAny(errorName, SYSTEM_PATTERNS)) {
+    return { category: 'SYSTEM', statusCode: 500, isExpected: false };
   }
 
-  if (matchesAny(message, SYSTEM_PATTERNS)) {
-    return { category: 'SYSTEM', statusCode: 500, isExpected: false };
+  if (matchesAny(message, EXPECTED_PATTERNS)) {
+    return { category: 'EXPECTED', statusCode: 200, isExpected: true };
   }
 
   if (matchesAny(message, PROVIDER_PATTERNS)) {
@@ -260,12 +262,17 @@ function classifyByCode(code: string): ErrorCategory | undefined {
     'CONFLICT', 'DUPLICATE', 'REQUIRED', 'INVALID',
   ];
   
-  const systemCodes = [
+  const providerCodes = [
     'ECONNREFUSED', 'ENOTFOUND', 'ETIMEDOUT', 'ECONNRESET',
-    'EPIPE', 'ENOMEM', 'EACCES', 'EPERM',
+    'EPIPE', 'EHOSTUNREACH', 'ECONNABORTED',
+  ];
+
+  const systemCodes = [
+    'ENOMEM', 'EACCES', 'EPERM',
   ];
 
   if (expectedCodes.includes(code)) return 'EXPECTED';
+  if (providerCodes.includes(code)) return 'PROVIDER';
   if (systemCodes.includes(code)) return 'SYSTEM';
   
   return undefined;
@@ -286,8 +293,9 @@ function getStatusCode(category: ErrorCategory): number {
 /**
  * Check if message matches any pattern
  */
-function matchesAny(message: string, patterns: RegExp[]): boolean {
-  return patterns.some(pattern => pattern.test(message));
+function matchesAny(text: string | undefined, patterns: RegExp[]): boolean {
+  if (!text) return false;
+  return patterns.some(pattern => pattern.test(text));
 }
 
 /**
@@ -308,4 +316,20 @@ function looksLikeBusinessError(error: unknown): boolean {
   if (stackLines <= 3) return true;
   
   return false;
+}
+
+/**
+ * Shared Sentry beforeSend filter that drops expected business errors.
+ * Use this in all Sentry.init() calls to keep filtering consistent.
+ */
+export function sentryExpectedErrorFilter(event: any): any {
+  const error = event.exception?.values?.[0];
+  if (error && error.value) {
+    const classification = classifyError(error.value);
+    if (classification.category === 'EXPECTED') {
+      // Drop the event — it's an expected business error
+      return null;
+    }
+  }
+  return event;
 }
