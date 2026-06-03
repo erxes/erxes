@@ -64,6 +64,22 @@ export const subscriptionWrapper = async (
       oldDeal,
     },
   });
+
+  //  Publish to dealChanged subscription
+  const mutationType =
+    action === 'delete' ? 'delete' : action === 'create' ? 'create' : 'update';
+  const data =
+    action === 'delete'
+      ? { _id: dealId }
+      : { ...(deal || oldDeal), pipelineId };
+  const dealChangedPayload = { dealChanged: { mutation: mutationType, data } };
+  await graphqlPubsub.publish('dealChanged', dealChangedPayload);
+  if (pipelineId) {
+    await graphqlPubsub.publish(
+      `dealChanged:${pipelineId}`,
+      dealChangedPayload,
+    );
+  }
 };
 
 /**
@@ -403,8 +419,8 @@ export const checkAssignedUserFromPData = (
   let assignedUserIds = oldAllUserIds || [];
 
   const oldAssignedUserPdata = (oldPData || [])
-    .filter((pdata) => pdata.assignUserId)
-    .map((pdata) => pdata.assignUserId || '');
+    .filter((pdata) => (pdata as any).assignUserId)
+    .map((pdata) => (pdata as any).assignUserId || '');
 
   const { addedUserIds, removedUserIds } = checkUserIds(
     oldAssignedUserPdata,

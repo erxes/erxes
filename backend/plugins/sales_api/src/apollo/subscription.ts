@@ -11,7 +11,7 @@ export default {
     salesProductsDataChanged(_id: String!): DealProductsDataChangeResponse
     salesChecklistsChanged(contentType: String!, contentTypeId: String!): SalesChecklist
     salesChecklistDetailChanged(_id: String!): SalesChecklist
-
+    dealChanged(pipelineId: String): DealChangePayload
   `,
   // salesDealActivityChanged(contentId: String!): SalesActivitySubscription
 
@@ -50,7 +50,10 @@ export default {
                 userId,
               },
             });
-            const filterParams = filterParamsResponse || [];
+            let filterParams = [];
+            if (filterParamsResponse?.status === 'success') {
+              filterParams = filterParamsResponse?.data;
+            }
             const matchesOld = oldDeal ? sift(filterParams)(oldDeal) : false;
             const matchesNew = deal ? sift(filterParams)(deal) : false;
 
@@ -92,6 +95,23 @@ export default {
         resolve: (payload) => payload.salesChecklistDetailChanged,
         subscribe: (_, { _id }) =>
           graphqlPubsub.asyncIterator(`salesChecklistDetailChanged:${_id}`),
+      },
+      dealChanged: {
+        subscribe: (_, { pipelineId }) => {
+          const topic = pipelineId
+            ? `dealChanged:${pipelineId}`
+            : 'dealChanged';
+
+          return graphqlPubsub.asyncIterator(topic);
+        },
+
+        resolve: (payload) => {
+          if (!payload || !payload.dealChanged) {
+            return null;
+          }
+
+          return payload.dealChanged;
+        },
       },
     };
   },

@@ -104,7 +104,7 @@ export const dealMutations: Record<string, Resolver> = {
       oldDeal: item,
     });
 
-    return removed;
+    return item;
   },
 
   /**
@@ -227,7 +227,11 @@ export const dealMutations: Record<string, Resolver> = {
 
   async dealsCreateProductsData(
     _root,
-    { processId, dealId, docs }: { processId: string; dealId: string; docs: IProductData[] },
+    {
+      processId,
+      dealId,
+      docs,
+    }: { processId: string; dealId: string; docs: IProductData[] },
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
@@ -323,7 +327,11 @@ export const dealMutations: Record<string, Resolver> = {
 
   async cpDealsCreateProductsData(
     _root,
-    { processId, dealId, docs }: { processId: string; dealId: string; docs: IProductData[] },
+    {
+      processId,
+      dealId,
+      docs,
+    }: { processId: string; dealId: string; docs: IProductData[] },
     { models }: IContext,
   ) {
     return createProductsData({ models, processId, dealId, docs });
@@ -480,10 +488,9 @@ export const dealMutations: Record<string, Resolver> = {
   },
 };
 
-
-dealMutations.cpDealsEdit.wrapperConfig= {
-  forClientPortal : true ,
-}
+dealMutations.cpDealsEdit.wrapperConfig = {
+  forClientPortal: true,
+};
 dealMutations.cpDealsCreateProductsData.wrapperConfig = {
   forClientPortal: true,
 };
