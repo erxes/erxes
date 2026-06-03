@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/node';
 import * as fs from 'fs';
 import * as path from 'path';
+import { classifyError } from 'erxes-api-shared/utils/errorClassifier';
 
 const dsn = process.env.SENTRY_DSN;
 
@@ -106,5 +107,15 @@ if (dsn) {
     release: getSentryRelease(),
     serverName: process.env.SENTRY_SERVER_NAME || 'gateway',
     tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE || 0),
+    beforeSend(event) {
+      const error = event.exception?.values?.[0];
+      if (error && error.value) {
+        const classification = classifyError(error.value);
+        if (classification.category === 'EXPECTED') {
+          return null;
+        }
+      }
+      return event;
+    },
   });
 }
