@@ -66,8 +66,8 @@ export const CustomersCommandBar = () => {
             />
           </>
         </Can>
-        <Separator.Inline />
         <Can action="exportsManage">
+          <Separator.Inline />
           <Export
             pluginName="core"
             moduleName="contacts"
