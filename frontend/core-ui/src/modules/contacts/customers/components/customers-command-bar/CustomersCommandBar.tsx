@@ -66,16 +66,14 @@ export const CustomersCommandBar = () => {
             />
           </>
         </Can>
-        <Can action="exportsManage">
-          <Separator.Inline />
-          <Export
-            pluginName="core"
-            moduleName="contacts"
-            collectionName="customers"
-            buttonVariant="secondary"
-            ids={customerIds}
-          />
-        </Can>
+        <Separator.Inline />
+        <Export
+          pluginName="core"
+          moduleName="contacts"
+          collectionName="customers"
+          buttonVariant="secondary"
+          ids={customerIds}
+        />
         {isOs && (
           <Can action="contactsUpdate">
             <>
