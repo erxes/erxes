@@ -57,7 +57,7 @@ const prevMessage = await sendTRPCMessage({
 
 ## Pagination
 
-When calling a list, you must always return `totalCount` and `pageInfo` in addition to the list data.
+When returning a list, you must always return `totalCount` and `pageInfo` in addition to the list data.
 Use the `cursorPaginate` function for all lists.
 
 ## Plugin Development
