@@ -80,6 +80,8 @@ export const buildTaskExportRow = (
     assigneeMap?: Map<string, string>;
     creatorMap?: Map<string, string>;
     teamMap?: Map<string, string>;
+    tagMap?: Map<string, string>;
+    labelMap?: Map<string, string>;
   },
   formatter = defaultTaskFieldFormatter,
 ): Record<string, any> => {
@@ -93,7 +95,19 @@ export const buildTaskExportRow = (
     assigneeMap,
     creatorMap,
     teamMap,
+    tagMap,
+    labelMap,
   } = maps || {};
+
+  const formatTags = (tagIds?: any[]) => {
+    if (!tagIds || !tagIds.length) return '';
+    return tagIds.map((id) => tagMap?.get(String(id)) || String(id)).join(', ');
+  };
+
+  const formatLabels = (labelIds?: any[]) => {
+    if (!labelIds || !labelIds.length) return '';
+    return labelIds.map((id) => labelMap?.get(String(id)) || String(id)).join(', ');
+  };
 
   const allFields: Record<string, any> = {
     _id: formatValue(task._id),
@@ -103,8 +117,8 @@ export const buildTaskExportRow = (
     status: formatValue(statusMap?.get(String(task.status)) || task.status),
     team: formatValue(teamMap?.get(String(task.teamId)) || task.teamId),
     priority: formatValue(task.priority),
-    labels: formatValue(task.labelIds),
-    tags: formatValue(task.tagIds),
+    labels: formatValue(formatLabels(task.labelIds)),
+    tags: formatValue(formatTags(task.tagIds)),
     assignee: formatValue(assigneeMap?.get(String(task.assigneeId)) || task.assigneeId),
     createdBy: formatValue(creatorMap?.get(String(task.createdBy)) || task.createdBy),
     
@@ -129,6 +143,8 @@ export const buildTaskExportRow = (
       if (key === 'description') result[key] = formatValue(cleanDescription(task.description));
       else if (key === 'status') result[key] = formatValue(statusMap?.get(String(task.status)) || task.status);
       else if (key === 'team') result[key] = formatValue(teamMap?.get(String(task.teamId)) || task.teamId);
+      else if (key === 'labels') result[key] = formatValue(formatLabels(task.labelIds));
+      else if (key === 'tags') result[key] = formatValue(formatTags(task.tagIds));
       else if (key === 'assignee') result[key] = formatValue(assigneeMap?.get(String(task.assigneeId)) || task.assigneeId);
       else if (key === 'createdBy') result[key] = formatValue(creatorMap?.get(String(task.createdBy)) || task.createdBy);
       else if (key === 'project') result[key] = formatValue(projectMap?.get(String(task.projectId)) || task.projectId);

@@ -337,6 +337,7 @@ export async function getTaskExportData(
   const cycleIds = new Set<string>();
   const assigneeIds = new Set<string>();
   const creatorIds = new Set<string>();
+  const tagIds = new Set<string>();
 
   for (const t of tasks) {
     if (t.status) statusIds.add(String(t.status));
@@ -346,9 +347,12 @@ export async function getTaskExportData(
     if (t.cycleId) cycleIds.add(String(t.cycleId));
     if (t.assigneeId) assigneeIds.add(String(t.assigneeId));
     if (t.createdBy) creatorIds.add(String(t.createdBy));
+    if (t.tagIds) {
+      t.tagIds.forEach((id) => tagIds.add(String(id)));
+    }
   }
 
-  const [statuses, teams, projects, milestones, cycles, users, creators] = await Promise.all([
+  const [statuses, teams, projects, milestones, cycles, users, creators, tags] = await Promise.all([
     statusIds.size ? Status.find({ _id: { $in: Array.from(statusIds) } }).select('_id name').lean() : [],
     teamIds.size ? Team.find({ _id: { $in: Array.from(teamIds) } }).select('_id name').lean() : [],
     projectIds.size ? Project.find({ _id: { $in: Array.from(projectIds) } }).select('_id name').lean() : [],
@@ -373,6 +377,16 @@ export async function getTaskExportData(
           module: 'users',
           action: 'find',
           input: { query: { _id: { $in: Array.from(creatorIds) } } },
+        })
+      : [],
+    tagIds.size
+      ? sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'tags',
+          action: 'find',
+          input: { query: { _id: { $in: Array.from(tagIds) } } },
         })
       : [],
   ]);
@@ -404,6 +418,9 @@ export async function getTaskExportData(
     creatorMap.set(String(c._id), name);
   });
 
+  const tagMap = new Map<string, string>();
+  (tags || []).forEach((t: { _id: string; name?: string }) => tagMap.set(String(t._id), t.name || ''));
+
   return tasks.map((t: any) =>
     buildTaskExportRow(t, selectedFields, {
       statusMap,
@@ -413,6 +430,7 @@ export async function getTaskExportData(
       assigneeMap,
       creatorMap,
       teamMap,
+      tagMap,
     }),
   );
 }
