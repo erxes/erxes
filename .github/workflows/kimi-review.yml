@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: howardpen9/kimi-code-reviewer@main
+      - uses: howardpen9/kimi-code-reviewer@183bb281ce03338ef8ddfb6ed6d5ff4aaa866bcb
         with:
           kimi_api_key: ${{ secrets.KIMI_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
