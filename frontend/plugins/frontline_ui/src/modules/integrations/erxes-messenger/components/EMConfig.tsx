@@ -1,12 +1,20 @@
-import { useFieldArray, useForm, UseFormReturn } from 'react-hook-form';
+import {
+  ControllerRenderProps,
+  useFieldArray,
+  useForm,
+  UseFormReturn,
+} from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { EM_CONFIG_SCHEMA } from '@/integrations/erxes-messenger/constants/emConfigSchema';
 import {
   Button,
   Collapsible,
+  Combobox,
+  Command,
   Form,
   Input,
+  Popover,
   Select,
   Spinner,
   Switch,
@@ -30,6 +38,8 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupResetState';
 import { useParams } from 'react-router';
 import { SelectTicketConfig } from '@/pipelines/components/configs/components/SelectTicketConfig';
+import { useState } from 'react';
+import { useTopics } from '@/knowledgebase/hooks/useTopics';
 
 type EMConfigFormValues = z.infer<typeof EM_CONFIG_SCHEMA>;
 
@@ -274,6 +284,28 @@ export const EMConfig = () => {
                 />
               </Collapsible.Content>
             </Collapsible>
+            <Collapsible>
+              <Collapsible.TriggerButton className="font-mono uppercase font-semibold">
+                <Collapsible.TriggerIcon />
+                Knowledge base topic
+              </Collapsible.TriggerButton>
+              <Collapsible.Content className="p-2 space-y-4">
+                <Form.Field<
+                  z.infer<typeof EM_CONFIG_SCHEMA>,
+                  'knowledgeBaseTopicId'
+                >
+                  name="knowledgeBaseTopicId"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>Select knowledge base topic</Form.Label>
+                      <Form.Control>
+                        <SelectKnowledgeBaseTopic field={field} />
+                      </Form.Control>
+                    </Form.Item>
+                  )}
+                />
+              </Collapsible.Content>
+            </Collapsible>
           </div>
         </EMLayout>
       </form>
@@ -468,5 +500,50 @@ const CallRouting = ({
         Add call routing
       </Button>
     </Form.Item>
+  );
+};
+
+const SelectKnowledgeBaseTopic = ({
+  field,
+}: {
+  field: ControllerRenderProps<
+    z.infer<typeof EM_CONFIG_SCHEMA>,
+    'knowledgeBaseTopicId'
+  >;
+}) => {
+  const [_open, _setOpen] = useState<boolean>(false);
+  const { topics } = useTopics();
+  const selectedTopic = (field.value?.length &&
+    topics?.find((t) => t._id === field.value)) || { title: 'Select a topic' };
+
+  console.log('topic', field.value);
+
+  return (
+    <Popover open={_open} onOpenChange={_setOpen}>
+      <Combobox.Trigger>
+        <span>{selectedTopic.title}</span>
+      </Combobox.Trigger>
+      <Combobox.Content>
+        <Command>
+          <Command.List>
+            <Command.Input placeholder="Search topic ..." />
+            {topics &&
+              topics.map((topic) => (
+                <Command.Item
+                  key={topic._id}
+                  value={topic._id}
+                  onSelect={(v) => {
+                    field.onChange(v);
+                    _setOpen(false);
+                  }}
+                >
+                  {topic.title}
+                  {topic._id === field.value && <Combobox.Check />}
+                </Command.Item>
+              ))}
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };

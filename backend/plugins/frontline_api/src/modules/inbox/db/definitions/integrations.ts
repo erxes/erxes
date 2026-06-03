@@ -32,6 +32,20 @@ const persistentMenuSchema = new Schema({
   isEditing: { type: Boolean },
 });
 
+const credentialsSchema = new Schema({
+  integrationId: { type: String },
+  description: { type: String },
+  buttonText: { type: String },
+  url: { type: String },
+});
+
+const websiteAppSchema = new Schema({
+  kind: { type: String, default: 'webstite' },
+  showInInbox: { type: Boolean, default: false },
+  credentials: credentialsSchema,
+  scopeBrandIds: { type: [String] },
+});
+
 // subdocument schema for MessengerData
 const messengerDataSchema = new Schema(
   {
@@ -78,6 +92,8 @@ const messengerDataSchema = new Schema(
     hideWhenOffline: { type: Boolean, default: false },
     forceLogoutWhenResolve: { type: Boolean, default: false },
     showVideoCallRequest: { type: Boolean, default: false },
+    knowledgeBaseTopicId: { type: String },
+    websiteApps: { type: [websiteAppSchema], optional: true },
   },
   { _id: false },
 );
@@ -270,6 +286,7 @@ const uiOptionsSchema = new Schema(
   {
     logo: { type: String },
     primary: { type: colorDefinitionSchema },
+    navigationVariant: { type: String },
   },
   { _id: false },
 );

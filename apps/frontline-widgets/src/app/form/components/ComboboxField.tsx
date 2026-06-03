@@ -27,11 +27,15 @@ export const ComboboxField = ({ erxesField, field }: Props) => {
         <Combobox.Content>
           <Command>
             <Command.List>
-              <Command.Input placeholder="search..." />
+              <Command.Input
+                placeholder="search..."
+                className="text-foreground"
+              />
               {erxesField.options.map((option) => (
                 <Command.Item
                   key={option}
                   value={option}
+                  className="text-foreground"
                   onSelect={(value) => {
                     field.onChange(value);
                     setOpen(false);

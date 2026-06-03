@@ -5,9 +5,9 @@ export const ErxesFormFinal = () => {
   const formData = useErxesForm();
 
   return (
-    <div className="p-5">
-      <InfoCard title={formData.leadData.thankTitle}>
-        <InfoCard.Content>
+    <div className="">
+      <InfoCard title={formData.leadData.thankTitle} className='bg-primary text-primary-foreground'>
+        <InfoCard.Content className='bg-muted'>
           <p className="text-muted-foreground">
             {formData.leadData.thankContent}
           </p>
