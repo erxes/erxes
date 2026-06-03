@@ -10,7 +10,7 @@ const generateFilter = async (
   params: IQueryParams,
 ) => {
   const { searchValue } = params;
-  const filter: any = commonQuerySelector;
+  const filter: any = { ...(commonQuerySelector || {}) };
 
   // search =========
   if (searchValue) {
