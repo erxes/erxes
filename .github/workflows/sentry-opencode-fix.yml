@@ -48,7 +48,7 @@ jobs:
             const labels = issue.labels.map((label) =>
               typeof label === 'string' ? label : label.name
             );
-            const hasRequiredLabels = labels.includes('sentry') && labels.includes('bug');
+            const hasRequiredLabels = labels.includes('sentry') && labels.includes('opencode');
 
             core.setOutput('number', String(issue.number));
             core.setOutput('title', issue.title || '');
