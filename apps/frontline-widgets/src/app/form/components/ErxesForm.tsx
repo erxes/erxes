@@ -4,7 +4,6 @@ import {
   cn,
   DatePicker,
   Form,
-  InfoCard,
   Input,
   Label,
   RadioGroup,
@@ -32,7 +31,6 @@ import { ComboboxField } from './ComboboxField';
 import { SelectField } from './SelectField';
 import { useParams } from 'react-router-dom';
 import React from 'react';
-import { IconShield } from '@tabler/icons-react';
 
 const checkLogic = (
   logic: IFormFieldLogic,

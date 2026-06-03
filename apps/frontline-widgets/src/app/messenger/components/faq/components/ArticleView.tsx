@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useAtom, useAtomValue } from 'jotai';
 import { connectionAtom, faqArticleIdAtom } from '../../../states';
 import { useGetKnowledgeBaseTopicDetails } from '../../../hooks/useGetKnowledgeBaseTopicDetails';
@@ -10,7 +9,7 @@ export const ArticleView = () => {
   const { messengerData } = connection.widgetsMessengerConnect;
   const { knowledgeBaseTopicId } = messengerData || {};
   const articleId = useAtomValue(faqArticleIdAtom);
-  const [selectedReaction, setSelectedReaction] = useState<string | null>(null);
+  // const [selectedReaction, setSelectedReaction] = useState<string | null>(null);
 
   const { details } = useGetKnowledgeBaseTopicDetails({
     variables: { _id: knowledgeBaseTopicId },
@@ -34,7 +33,7 @@ export const ArticleView = () => {
 
   if (!article) return null;
 
-  const { title, content, reactionChoices, modifiedDate } = article;
+  const { title, content, modifiedDate } = article;
 
   return (
     <div className="flex flex-col bg-transparent overflow-hidden">

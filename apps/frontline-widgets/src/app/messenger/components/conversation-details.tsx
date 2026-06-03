@@ -12,14 +12,7 @@ import {
   conversationIdAtom,
   messengerDataAtom,
 } from '../states';
-import {
-  Avatar,
-  Button,
-  DropdownMenu,
-  readImage,
-  Skeleton,
-  cn,
-} from 'erxes-ui';
+import { Avatar, Button, readImage, Skeleton, cn } from 'erxes-ui';
 import { formatMessageDate, getDateKey } from '@libs/formatDate';
 import { DateSeparator } from './date-separator';
 import { TypingStatus } from './typing-status';

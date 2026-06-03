@@ -8,8 +8,8 @@ import {
 } from '../states';
 import { WelcomeMessage } from '../constants';
 import { HeaderTabList } from './header-tab-list';
-import { IconArrowLeft, IconChevronLeft, IconX } from '@tabler/icons-react';
-import { Avatar, Button, cn, readImage, Tooltip } from 'erxes-ui';
+import { IconArrowLeft, IconChevronLeft } from '@tabler/icons-react';
+import { Avatar, Button, readImage, Tooltip } from 'erxes-ui';
 import { useHeader } from '../hooks/useHeader';
 import { formatOnlineHours } from '@libs/formatOnlineHours';
 import { LinkFavicon } from './link-favicon';

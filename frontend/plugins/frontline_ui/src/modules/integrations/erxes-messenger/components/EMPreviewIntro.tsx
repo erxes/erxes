@@ -47,7 +47,6 @@ import {
   IconTicket,
 } from '@tabler/icons-react';
 import {
-  emPreviewActiveTabAtom,
   emPreviewHasChatContext,
   emPreviewTabAtom,
   emPreviewWebsiteAppHeaderTitle,

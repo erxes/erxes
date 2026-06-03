@@ -113,7 +113,7 @@ export interface IMessengerData {
   showVideoCallRequest?: boolean;
   isReceiveWebCall?: boolean;
   knowledgeBaseTopicId?: string;
-  websiteApps: WebsiteApp[];
+  websiteApps?: WebsiteApp[];
 }
 
 export interface IMessengerDataDocument extends IMessengerData, Document {}
