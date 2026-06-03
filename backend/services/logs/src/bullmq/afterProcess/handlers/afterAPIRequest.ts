@@ -2,7 +2,9 @@ import { TAfterProcessProducers } from 'erxes-api-shared/core-modules';
 import { HandlerContext, isAfterAPIRequestRule } from '../types';
 import { sendProducer } from '../utils';
 
-export function handleAfterAPIRequest(context: HandlerContext): void {
+export async function handleAfterAPIRequest(
+  context: HandlerContext,
+): Promise<void> {
   if (!isAfterAPIRequestRule(context.rule)) {
     return;
   }
@@ -11,11 +13,10 @@ export function handleAfterAPIRequest(context: HandlerContext): void {
   const { path } = context.payload || {};
 
   if (paths.includes(path)) {
-    sendProducer(
+    await sendProducer(
       context,
       TAfterProcessProducers.AFTER_API_REQUEST,
       context.payload,
     );
   }
 }
-

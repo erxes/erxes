@@ -1,6 +1,6 @@
 import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
-import { Popover, Skeleton, Button, Command, cn } from 'erxes-ui';
-import { useState, useMemo, ReactNode } from 'react';
+import { Popover, Skeleton, Button, Command, cn, EnumCursorDirection } from 'erxes-ui';
+import { useState, useMemo, ReactNode, useRef, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
 import { IconLayoutGrid, IconList, IconFilter } from '@tabler/icons-react';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
@@ -53,12 +53,23 @@ export const ResponseTemplateSelector: React.FC<
   const [debouncedSearch] = useDebounce(search, 500);
   const [viewMode, setViewMode] = useAtom<ViewMode>(responseListViewAtom);
   const [selectedChannel, setSelectedChannel] = useState<string>('all');
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const isFetchingRef = useRef(false);
 
   const { channels, loading: channelsLoading } = useGetChannels();
-  const { responses, loading: responsesLoading } = useGetResponses({
+  const {
+    responses,
+    isInitialLoad: responsesInitialLoad,
+    handleFetchMore,
+    pageInfo,
+  } = useGetResponses({
     variables: {
       filter: {
         channelId: selectedChannel === 'all' ? undefined : selectedChannel,
+        searchValue: debouncedSearch || undefined,
       },
     },
   });
@@ -90,6 +101,36 @@ export const ResponseTemplateSelector: React.FC<
     });
   }, [responses, debouncedSearch, selectedChannel]);
 
+  // Clear the in-flight flag once Apollo delivers new results
+  useEffect(() => {
+    isFetchingRef.current = false;
+    setIsFetchingMore(false);
+  }, [responses]);
+
+  // Infinite scroll: fire when the sentinel enters the scroll container's viewport
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    const scrollContainer = containerRef.current?.querySelector(
+      '[cmdk-list]',
+    ) as Element | null;
+
+    if (!sentinel || !scrollContainer || !pageInfo?.hasNextPage) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !isFetchingRef.current) {
+          isFetchingRef.current = true;
+          setIsFetchingMore(true);
+          handleFetchMore({ direction: EnumCursorDirection.FORWARD });
+        }
+      },
+      { root: scrollContainer, rootMargin: '0px 0px 80px 0px', threshold: 0 },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [pageInfo?.hasNextPage, handleFetchMore, filteredTemplates.length]);
+
   const handleSelectTemplate = (content: string): void => {
     onSelect(content);
     setIsOpen(false);
@@ -99,9 +140,7 @@ export const ResponseTemplateSelector: React.FC<
     setViewMode((prev) => (prev === 'grid' ? 'list' : 'grid'));
   };
 
-  if (channelsLoading || responsesLoading) {
-    return <Skeleton className="w-32 h-4 mt-1" />;
-  }
+  const isInitialLoad = (channelsLoading && !channels) || (responsesInitialLoad && !responses);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -153,42 +192,40 @@ export const ResponseTemplateSelector: React.FC<
                   : 'space-y-1.5',
               )}
             >
-              {filteredTemplates.length === 0 ? (
+              {isInitialLoad ? (
+                <div className="col-span-2 p-4 space-y-2">
+                  <Skeleton className="w-full h-10" />
+                  <Skeleton className="w-full h-10" />
+                  <Skeleton className="w-full h-10" />
+                </div>
+              ) : filteredTemplates.length === 0 ? (
                 <div className="col-span-2 p-8 text-center text-muted-foreground text-sm italic">
                   {search
                     ? 'No matching templates found'
                     : 'No templates available'}
                 </div>
               ) : (
-                filteredTemplates.map((template) => (
-                  <div
-                    key={template._id}
-                    className={cn(
-                      viewMode === 'grid'
-                        ? 'h-32 col-span-1'
-                        : 'col-span-2 h-auto',
-                    )}
-                  >
+                <>
+                  {filteredTemplates.map((template) => (
                     <Command.Item
+                      key={template._id}
                       value={template._id}
                       onSelect={() => handleSelectTemplate(template.content)}
                       className={cn(
-                        'flex rounded border border-transparent transition-all cursor-pointer h-full gap-2',
+                        'flex rounded border border-transparent transition-all cursor-pointer gap-2',
                         'hover:border-primary/20 hover:bg-accent/50',
-                        {
-                          'flex-row items-center p-2.5': viewMode === 'list',
-                          'flex-col items-start p-3 overflow-hidden w-full': viewMode === 'grid',
-                        },
+                        viewMode === 'grid'
+                          ? 'h-32 col-span-1 flex-col items-start p-3 overflow-hidden w-full'
+                          : 'col-span-2 h-auto flex-row items-center p-2.5',
                       )}
                     >
                       {template.channelId && (
                         <div
                           className={cn(
                             'text-[11px] text-primary shrink bg-primary/10 px-1.5 py-0.5 rounded font-medium',
-                            {
-                              'mb-1 order-first': viewMode === 'grid',
-                              'ml-auto order-last': viewMode === 'list',
-                            },
+                            viewMode === 'grid'
+                              ? 'mb-1 order-first'
+                              : 'ml-auto order-last',
                           )}
                         >
                           <ChannelsInline
@@ -212,8 +249,24 @@ export const ResponseTemplateSelector: React.FC<
                         </div>
                       </div>
                     </Command.Item>
-                  </div>
-                ))
+                  ))}
+                  {pageInfo?.hasNextPage && (
+                    <div className="col-span-2 pt-2 text-center">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full text-xs text-muted-foreground"
+                        onClick={() =>
+                          handleFetchMore({
+                            direction: EnumCursorDirection.FORWARD,
+                          })
+                        }
+                      >
+                        Load more
+                      </Button>
+                    </div>
+                  )}
+                </>
               )}
             </Command.List>
           </Command>

@@ -8,7 +8,7 @@ const getChildCategories = async (subdomain: string, categoryIds) => {
     method: 'query',
     module: 'productCategories',
     action: 'withChilds',
-    input: { ids: categoryIds },
+    input: { _ids: categoryIds },
     defaultValue: [],
   });
 
@@ -22,7 +22,7 @@ const getChildTags = async (subdomain: string, tagIds: string[]) => {
     pluginName: 'core',
     method: 'query',
     module: 'tags',
-    action: 'withChilds',
+    action: 'findWithChild',
     input: { query: { _id: { $in: tagIds } }, fields: { _id: 1 } },
     defaultValue: [],
   });
@@ -73,10 +73,12 @@ const checkProductsByRule = async (subdomain, products, rule) => {
   // found special products
   const filterProducts = products.filter((p) => filterIds.includes(p._id));
 
-  if (rule.excludeCatIds?.length) {
+  const excludeCategoryIds = rule.excludeCatIds || rule.excludeCategoryIds;
+
+  if (excludeCategoryIds?.length) {
     const excludeCatIds = await getChildCategories(
       subdomain,
-      rule.excludeCatIds,
+      excludeCategoryIds,
     );
 
     const excProductIdsCat = filterProducts
@@ -103,6 +105,7 @@ const checkProductsByRule = async (subdomain, products, rule) => {
 
 export const calcProductsTaxRule = async (
   subdomain: string,
+  models: any,
   config: any,
   products: any[],
 ) => {
@@ -111,28 +114,16 @@ export const calcProductsTaxRule = async (
 
   const vatRules =
     (config?.reverseVatRules?.length &&
-      (await sendTRPCMessage({
-        subdomain,
-        pluginName: 'ebarimt',
-        method: 'query',
-        module: 'productRules',
-        action: 'find',
-        input: { query: { _id: { $in: config.reverseVatRules } } },
-        defaultValue: [],
-      }))) ||
+      (await models.ProductRules.find({
+        _id: { $in: config.reverseVatRules },
+      }).lean())) ||
     [];
 
   const ctaxRules =
     (config?.reverseCtaxRules?.length &&
-      (await sendTRPCMessage({
-        subdomain,
-        pluginName: 'ebarimt',
-        method: 'query',
-        module: 'productRules',
-        action: 'find',
-        input: { query: { _id: { $in: config.reverseCtaxRules } } },
-        defaultValue: [],
-      }))) ||
+      (await models.ProductRules.find({
+        _id: { $in: config.reverseCtaxRules },
+      }).lean())) ||
     [];
 
   const productsById = {};

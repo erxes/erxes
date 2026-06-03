@@ -2,6 +2,7 @@ import { Combobox, Command, Filter } from 'erxes-ui';
 import {
   SelectBranches,
   SelectBrands,
+  SelectCategory,
   SelectCompany,
   SelectDepartments,
   TagsFilter,
@@ -16,11 +17,6 @@ import {
 import { PRODUCTS_CURSOR_SESSION_KEY } from '../constants/productsCursorSessionKey';
 import { ProductHotKeyScope } from '../types/ProductsHotKeyScope';
 import { ProductsTotalCount } from './ProductsTotalCount';
-import {
-  SelectProductCategoryFilterBar,
-  SelectProductCategoryFilterItem,
-  SelectProductCategoryFilterView,
-} from '../products-filter/components/selects/SelectProductCategory';
 import {
   SelectProductSegmentFilterBar,
   SelectProductSegmentFilterItem,
@@ -48,10 +44,7 @@ export const ProductsFilterPopover = () => {
             <Filter.CommandInput placeholder="Filter" variant="secondary" />
             <Command.List className="p-1">
               <Filter.SearchValueTrigger />
-              <SelectProductCategoryFilterItem
-                value="categoryIds"
-                label="Category"
-              />
+              <SelectCategory.FilterItem value="categoryIds" label="Category" />
               <SelectProductTypeFilterItem />
               <SelectBranches.FilterItem value="branchId" label="Branch" />
               <SelectDepartments.FilterItem
@@ -81,7 +74,7 @@ export const ProductsFilterPopover = () => {
             </Command.List>
           </Command>
         </Filter.View>
-        <SelectProductCategoryFilterView filterKey="categoryIds" />
+        <SelectCategory.FilterView filterKey="categoryIds" mode="multiple" />
         <SelectProductTypeFilterView />
         <SelectBranches.FilterView mode="single" filterKey="branchId" />
         <SelectDepartments.FilterView mode="single" filterKey="departmentId" />
@@ -134,9 +127,10 @@ export const ProductsFilter = () => {
         </Filter.Dialog>
 
         <Filter.SearchValueBarItem />
-        <SelectProductCategoryFilterBar
+        <SelectCategory.FilterBar
           filterKey="categoryIds"
           label="Category"
+          mode="multiple"
         />
         <SelectProductTypeFilterBar />
         <SelectBranches.FilterBar

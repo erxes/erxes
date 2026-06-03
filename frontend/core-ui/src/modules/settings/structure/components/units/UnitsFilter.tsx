@@ -1,6 +1,5 @@
 import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
-import { Command } from 'cmdk';
-import { Combobox, Filter, PageSubHeader } from 'erxes-ui';
+import { Combobox, Command, Filter, PageSubHeader } from 'erxes-ui';
 import { UnitsTotalCount } from './UnitsTotalCount';
 
 export const UnitsFilter = () => {
@@ -13,8 +12,12 @@ export const UnitsFilter = () => {
             <Combobox.Content>
               <Filter.View>
                 <Command>
-                  <Filter.CommandInput />
-                  <Command.List>
+                  <Filter.CommandInput
+                    placeholder="Filter"
+                    variant="secondary"
+                    className="bg-background"
+                  />
+                  <Command.List className="p-1">
                     <Filter.SearchValueTrigger />
                   </Command.List>
                 </Command>

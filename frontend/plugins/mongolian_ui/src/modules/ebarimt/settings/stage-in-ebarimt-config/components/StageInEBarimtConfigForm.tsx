@@ -4,7 +4,11 @@ import { SelectStage } from '@/ebarimt/settings/stage-in-ebarimt-config/componen
 import { useEbarimtConfigState } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useEbarimtConfigState';
 import { useRemoveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useRemoveStageInEbarimtConfig';
 import { useSaveStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/hooks/useSaveStageInEbarimtConfig';
-import { TStageInEbarimtConfig, addEBarimtStageInConfigSchema } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
+import {
+  TStageInEbarimtConfig,
+  addEBarimtStageInConfigSchema,
+  normalizeRuleIds,
+} from '@/ebarimt/settings/stage-in-ebarimt-config/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPlus } from '@tabler/icons-react';
 import { Accordion, AlertDialog, Button, Card, Form } from 'erxes-ui';
@@ -51,12 +55,11 @@ const StageInEbarimtConfigCard = ({
       hasVat: config.hasVat || false,
       citytaxPercent: config.citytaxPercent || '',
       vatPercent: config.vatPercent || '',
-      reverseVatRules: config.reverseVatRules || '',
+      reverseVatRules: normalizeRuleIds(config.reverseVatRules),
       hasCitytax: config.hasCitytax || false,
       headerText: config.headerText || '',
       footerText: config.footerText || '',
-      reverseCtaxRules:
-        config.reverseCtaxRules || '',
+      reverseCtaxRules: normalizeRuleIds(config.reverseCtaxRules),
       withDescription: config.withDescription || false,
       skipEbarimt: config.skipEbarimt || false,
     },

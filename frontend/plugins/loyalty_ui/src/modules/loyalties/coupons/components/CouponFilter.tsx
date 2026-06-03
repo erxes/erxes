@@ -14,12 +14,14 @@ import {
 import { SelectOwnerType } from '../../vouchers/components/selects/SelectOwnerType';
 import { SelectSortField } from '../../vouchers/components/selects/SelectSortField';
 import { SelectOrderType } from '../../vouchers/components/selects/SelectOrderType';
+import { SelectOwner } from '~/modules/loyalties/components/SelectOwner';
 
 const CouponFilterPopover = () => {
   const [queries] = useMultiQueryState<{
     couponCampaignId: string;
     couponStatus: string;
     ownerType: string;
+    ownerId: string;
     couponDate: string;
     sortField: string;
     orderType: string;
@@ -27,6 +29,7 @@ const CouponFilterPopover = () => {
     'couponCampaignId',
     'couponStatus',
     'ownerType',
+    'ownerId',
     'couponDate',
     'sortField',
     'orderType',
@@ -49,6 +52,7 @@ const CouponFilterPopover = () => {
               <Command.List className="p-1">
                 <SelectCouponCampaignFilterItem />
                 <SelectOwnerType.FilterItem />
+                <SelectOwner.FilterItem queryKey="ownerId" />
                 <SelectSortField.FilterItem />
                 <SelectOrderType.FilterItem />
                 <SelectCouponStatusFilterItem />
@@ -61,6 +65,7 @@ const CouponFilterPopover = () => {
           </Filter.View>
           <SelectCouponCampaignFilterView />
           <SelectOwnerType.FilterView queryKey="ownerType" />
+          <SelectOwner.FilterView queryKey="ownerId" ownerTypeKey="ownerType" />
           <SelectSortField.FilterView queryKey="sortField" />
           <SelectOrderType.FilterView queryKey="orderType" />
           <SelectCouponStatusFilterView />
@@ -75,6 +80,9 @@ const CouponFilterPopover = () => {
         </Filter.View>
         <Filter.View filterKey="ownerType" inDialog>
           <SelectOwnerType.FilterView queryKey="ownerType" />
+        </Filter.View>
+        <Filter.View filterKey="ownerId" inDialog>
+          <SelectOwner.FilterView queryKey="ownerId" ownerTypeKey="ownerType" />
         </Filter.View>
         <Filter.View filterKey="sortField" inDialog>
           <SelectSortField.FilterView queryKey="sortField" />
@@ -99,6 +107,7 @@ export const CouponFilter = () => {
       <Filter.Bar>
         <SelectCouponCampaignFilterBar />
         <SelectOwnerType.FilterBar />
+        <SelectOwner.FilterBar queryKey="ownerId" ownerTypeKey="ownerType" />
         <SelectSortField.FilterBar />
         <SelectOrderType.FilterBar />
         <SelectCouponStatusFilterBar />

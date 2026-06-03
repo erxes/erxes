@@ -1,61 +1,37 @@
 import { IScoreLog } from '@/score/@types/scoreLog';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-
-const TARGET_ACTIONS: Record<
-  string,
-  { module: string; action: string; fields: string[] }
-> = {
-  pos: {
-    module: 'order',
-    action: 'findOne',
-    fields: ['items', 'number', 'totalAmount'],
-  },
-  sales: {
-    module: 'deal',
-    action: 'findOne',
-    fields: ['productsData', 'number'],
-  },
-};
-
-const fetchTarget = async ({
-  targetId,
-  module,
-  subdomain,
-}: {
-  targetId: string;
-  module: string;
-  subdomain: string;
-}) => {
-  const config = TARGET_ACTIONS[module];
-
-  if (!targetId || !config) {
-    return null;
-  }
-
-  const response = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'sales',
-    method: 'query',
-    module: config.module,
-    action: config.action,
-    input: {
-      _id: targetId,
-    },
-  });
-
-  if (!response) {
-    return null;
-  }
-
-  return Object.fromEntries(
-    config.fields.map((field) => [field, response[field]]),
-  );
-};
+import { fetchScoreTarget } from './_scoreTarget';
+import { getLoyaltyOwner } from '~/utils/getOwner';
 
 export default {
   change({ changeScore }: any) {
     return changeScore ?? null;
+  },
+
+  async owner(
+    { ownerType, ownerId, owner }: IScoreLog & { owner?: any },
+    _args: undefined,
+    { subdomain }: IContext,
+  ) {
+    if (owner) return owner;
+    return getLoyaltyOwner(subdomain, { ownerType, ownerId });
+  },
+
+  async totalScore(
+    { ownerType, ownerId, owner, campaignId }: IScoreLog & { owner?: any },
+    _args: undefined,
+    { subdomain, models }: IContext,
+  ) {
+    let lastOwner = owner;
+    if (!lastOwner) {
+      lastOwner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
+    }
+
+    const campaign = await models.ScoreCampaigns.findOne({ _id: campaignId }).lean();
+    if (campaign?.fieldId) {
+      return lastOwner?.propertiesData?.[campaign?.fieldId]
+    }
+    return 0;
   },
 
   async campaign(
@@ -75,14 +51,6 @@ export default {
     _args: undefined,
     { subdomain }: IContext,
   ) {
-    if (!targetId || !serviceName) {
-      return null;
-    }
-
-    return await fetchTarget({
-      targetId,
-      module: serviceName,
-      subdomain,
-    });
+    return await fetchScoreTarget({ targetId, serviceName, subdomain });
   },
 };

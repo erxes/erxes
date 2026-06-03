@@ -10,7 +10,6 @@ import {
 } from '@/score/constants';
 import { scoreLogSchema } from '@/score/db/definitions/scoreLog';
 import {
-  buildSignedScoreExpression,
   fixScoreNumber,
   getOwnerScoreValue,
   prepareScoreLogChange,
@@ -194,15 +193,12 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     }
 
     public static async getScoreLogs(doc: IScoreLogParams) {
-      const { stageId, pipelineId, boardId, number, orderType } = doc;
+      const { stageId, pipelineId, boardId, number } = doc;
       const limit = Math.min(Math.max(Number(doc.limit) || 50, 1), 100);
       const direction = doc.direction === 'backward' ? 'backward' : 'forward';
-      const logsPerOwner = Math.min(
-        Math.max(Number(doc.logsPerOwner) || 5, 1),
-        100,
-      );
-      const orderBy: Record<string, SortOrder> =
-        orderType === 'createdAt' ? { createdAt: -1 } : { totalScore: -1 };
+
+      const orderBy: Record<string, SortOrder> = { createdAt: -1 };
+
       const sortFields = Object.keys(orderBy);
       const sortOrder = {
         ...Object.fromEntries(
@@ -219,7 +215,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const filterAggregate: any[] = [];
 
       if (stageId || pipelineId || boardId || number) {
-        const lookup = [
+        filterAggregate.push(
           {
             $lookup: {
               from: 'deals',
@@ -231,54 +227,27 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           {
             $unwind: '$target',
           },
-        ];
-
-        filterAggregate.push(...lookup);
+        );
       }
 
+      // Each score log is returned as an individual row (no per-owner
+      // grouping). A single person can therefore appear on multiple rows;
+      // their detail is derived on demand from these rows by owner.
       const basePipeline: any[] = [
         ...filterAggregate,
         {
           $match: { ...filter },
-        },
-        {
-          $sort: { createdAt: -1, _id: -1 },
-        },
-        {
-          $addFields: {
-            signedScore: buildSignedScoreExpression(),
-          },
-        },
-        {
-          $group: {
-            _id: '$ownerId',
-            ownerType: { $first: '$ownerType' },
-            logs: { $push: '$$ROOT' },
-            createdAt: { $max: '$createdAt' },
-            totalScore: { $sum: '$signedScore' },
-          },
         },
       ];
 
       const cursorMatch = doc.cursor
         ? buildCursorQuery(doc.cursor, orderBy, direction, {
             createdAt: 'date',
-            totalScore: 'number',
           })
         : null;
 
       const listPipeline: any[] = [
         ...basePipeline,
-        {
-          $project: {
-            _id: '$_id',
-            ownerId: '$_id',
-            ownerType: 1,
-            logs: { $slice: ['$logs', logsPerOwner] },
-            createdAt: 1,
-            totalScore: 1,
-          },
-        },
         ...(cursorMatch ? [{ $match: cursorMatch }] : []),
         { $sort: sortOrder },
         { $limit: limit + 1 },
@@ -298,6 +267,31 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       if (direction === 'backward') {
         list = list.reverse();
       }
+
+      const ownerKeys = Array.from(
+        new Set(
+          list
+            .filter((l: any) => l.ownerId && l.ownerType)
+            .map((l: any) => `${l.ownerType}:${l.ownerId}`),
+        ),
+      );
+
+      const ownerMap = new Map<string, any>();
+      await Promise.all(
+        ownerKeys.map(async (key) => {
+          const [ownerType, ownerId] = key.split(':');
+          const owner = await getLoyaltyOwner(subdomain, {
+            ownerType,
+            ownerId,
+          });
+          if (owner) ownerMap.set(key, owner);
+        }),
+      );
+
+      list = list.map((item: any) => ({
+        ...item,
+        owner: ownerMap.get(`${item.ownerType}:${item.ownerId}`) || null,
+      }));
 
       const pageInfo: PageInfo = {
         hasNextPage: direction === 'forward' ? hasMore : Boolean(doc.cursor),

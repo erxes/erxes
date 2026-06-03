@@ -820,10 +820,7 @@ export const getNewOrder = async ({
   return order;
 };
 
-export const checkMovePermission = (
-  stage: IStageDocument,
-  userId: string,
-) => {
+export const checkMovePermission = (stage: IStageDocument, userId: string) => {
   if (
     stage.canMoveMemberIds &&
     stage.canMoveMemberIds.length > 0 &&
@@ -1025,9 +1022,8 @@ export const sendNotification = async ({
     message: string;
     type?: 'info' | 'success' | 'warning' | 'error';
     fromUserId?: string;
-    contentType: string; // 'frontline:conversation', 'sales:deal', etc.
-    contentTypeId?: string; // target object ID
-    // Additional data
+    contentType: string;
+    contentTypeId?: string;
     priority?: 'low' | 'medium' | 'high' | 'urgent';
     priorityLevel?: 1 | 2 | 3 | 4;
     metadata?: any; // plugin-specific data
@@ -1106,15 +1102,19 @@ export const sendNotifications = async (
     user._id,
   ];
 
-  // exclude current user, invited user and removed users
-  const receivers = (
-    await notifiedUserIds(models, item, stage, pipeline)
-  ).filter((id) => {
-    return usersToExclude.indexOf(id) < 0;
-  });
+  const allNotified = await notifiedUserIds(models, item, stage, pipeline);
+  // keep only assigned + watched, exclude pipeline watchers
+  const pipelineWatchers = pipeline.watchedUserIds || [];
+  const receivers = allNotified
+    .filter(
+      (id) =>
+        !pipelineWatchers.includes(id) || item.assignedUserIds?.includes(id),
+    ) // keep if assigned (already in list) but not pure pipeline watchers
+    .filter((id) => usersToExclude.indexOf(id) < 0);
 
   const notificationDoc = {
     createdUser: user,
+    fromUserId: user._id,
     title,
     contentType: 'sales:deal',
     contentTypeId: item._id,
@@ -1123,7 +1123,8 @@ export const sendNotifications = async (
     link: `/deal/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
   };
 
-  if (removedUsers && removedUsers.length > 0) {
+  // removed users
+  if (removedUsers?.length) {
     sendNotification({
       subdomain,
       userIds: removedUsers.filter((id) => id !== user._id),
@@ -1132,28 +1133,39 @@ export const sendNotifications = async (
         action: `removed you from deal`,
         message: `'${item.name}'`,
       },
+      allowMultiple: false,
     });
   }
 
-  if (invitedUsers && invitedUsers.length > 0) {
+  // invited users
+  if (invitedUsers?.length) {
     sendNotification({
       subdomain,
       userIds: invitedUsers.filter((id) => id !== user._id),
       data: {
         ...notificationDoc,
-        action: `invited you to the deal: `,
+        action: `invited you to the deal`,
         message: `'${item.name}'`,
       },
+      allowMultiple: false,
     });
   }
 
-  sendNotification({
-    subdomain,
-    userIds: receivers,
-    data: {
-      ...notificationDoc,
-    },
-  });
+  const excludedSet = new Set([...(removedUsers || []), user._id]);
+
+  const invitedSet = new Set(invitedUsers || []);
+
+  const filteredReceivers = receivers.filter(
+    (id) => !invitedSet.has(id) && !excludedSet.has(id),
+  );
+
+  if (filteredReceivers.length > 0) {
+    sendNotification({
+      subdomain,
+      userIds: filteredReceivers,
+      data: notificationDoc,
+    });
+  }
 };
 
 export const itemsAdd = async (
@@ -1207,7 +1219,7 @@ export const PERMISSION_MAP = {
     dealsRemove: 'dealsRemove',
     dealsWatch: 'dealsWatch',
     dealsArchive: 'dealsArchive',
-    dealsCopy: 'dealsAdd', 
+    dealsCopy: 'dealsAdd',
     dealsCreateProductsData: 'dealsEdit',
     dealsEditProductData: 'dealsEdit',
     dealsDeleteProductData: 'dealsEdit',

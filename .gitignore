@@ -49,7 +49,19 @@ Thumbs.db
 .env
 
 # Agent skills and configuration
-.agents
+.agents/*
+!.agents/
+!.agents/README.md
+!.agents/rules/
+!.agents/rules/*.md
+!.agents/skills/
+!.agents/skills/*.md
+!.agents/scripts/
+!.agents/scripts/*.sh
+!.agents/state/
+!.agents/state/.gitkeep
+.agents/state/*.json
+.agents/state/*.yaml
 .claude
 
 storybook-static
@@ -60,3 +72,6 @@ dump.rdb
 
 # Local runtime upload artifacts
 backend/core-api/src/utils/private/uploads/
+
+# Sentry CLI local auth (token set via SENTRY_AUTH_TOKEN env var)
+.sentryclirc

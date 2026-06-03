@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Label } from 'erxes-ui';
-import { SelectProduct } from 'ui-modules';
-import { SelectCategory } from '@/pos/hooks/SelectCategory';
+import { SelectCategory, SelectProduct } from 'ui-modules';
 import { MoreOptionsButton } from '@/pos/components/MoreOptionsButton';
 import { ProductGroup } from '@/pos/pos-detail/types/IPos';
 import { nanoid } from 'nanoid';

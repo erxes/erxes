@@ -25,6 +25,7 @@ import { productRulesOnTaxDetailAtom } from '@/ebarimt/settings/product-rules-on
 import { useProductRulesOnTaxRows } from '@/ebarimt/settings/product-rules-on-tax/hooks/useProductRulesOnTaxRows';
 import { useProductRulesOnTaxRemove } from '@/ebarimt/settings/product-rules-on-tax/hooks/useProductRulesOnTaxRowsRemove';
 import { AddProductRulesOnTax } from './ProductRulesOnTax';
+import { TAX_TYPES } from '../constants/productRulesOnTaxDefaultValues';
 
 export const ProductRulesOnTaxTable = () => {
   const { productRulesOnTaxRows, loading, handleFetchMore, totalCount } =
@@ -179,10 +180,10 @@ export const productRulesOnTaxColumns: ColumnDef<IProductRulesOnTax>[] = [
     id: 'taxCode',
     accessorKey: 'taxCode',
     header: () => <RecordTable.InlineHead label="Tax Code" icon={IconCode} />,
-    cell: ({ cell }) => {
+    cell: ({ row, cell }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={TAX_TYPES[row.original.taxType]?.options.find(opt => opt.value === cell.getValue() as string)?.label} />
         </RecordTableInlineCell>
       );
     },

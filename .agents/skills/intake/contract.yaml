@@ -1,0 +1,142 @@
+# Contract: intake
+
+skill:
+  name: intake
+  version: "1.0.0"
+  type: meta
+  description: Requirement gathering and scope confirmation for all erxes development tasks
+
+inputs:
+  - name: user_request
+    type: string
+    description: "Raw user request describing what they want"
+    required: true
+
+  - name: detected_scope
+    type: object
+    description: "Detected scope from detect-scope skill with plugin, module, action, and context"
+    required: true
+    properties:
+      plugin:
+        type: string
+      module:
+        type: string
+        required: false
+        description: "Module path (null for create-new-plugin)"
+      action:
+        type: string
+      scope:
+        type: string
+      frontend_plugin:
+        type: string
+      backend_plugin:
+        type: string
+      existing_similar:
+        type: array
+      goal_condition:
+        type: string
+      user_confirmed:
+        type: boolean
+
+  - name: suggested_plugin
+    type: string
+    description: "Auto-detected plugin from feature-map.yaml (legacy, prefer detected_scope)"
+    required: false
+
+  - name: suggested_module
+    type: string
+    description: "Auto-detected module from feature-map.yaml (legacy, prefer detected_scope)"
+    required: false
+
+outputs:
+  - name: confirmed_scope
+    type: object
+    description: "Confirmed scope with plugin, module, components"
+    properties:
+      plugin:
+        type: string
+      module:
+        type: string
+        required: false
+        description: "Module path (null for create-new-plugin)"
+      scope:
+        type: enum
+        values: [frontend, backend, both]
+      components:
+        type: array
+        items: string
+      checklist:
+        type: array
+        items: string
+
+rules_required:
+  - non-negotiable
+  - architecture
+
+preconditions:
+  - description: "Manifest must be loaded"
+    check: "manifest_loaded == true"
+  - description: "Pre-flight check must pass"
+    check: "bash .agents/scripts/preflight-check.sh"
+    required: true
+    failure_message: "detect-scope must complete before intake. Run detect-scope skill first."
+
+postconditions:
+  - description: "User has confirmed scope"
+    check: "user_confirmed == true"
+  - description: "Checklist is created"
+    check: "checklist.length > 0"
+
+workflow:
+  phases:
+    - receive: "Receive detected scope from detect-scope skill"
+    - verify: "Verify scope with user if needed (skip if already confirmed)"
+    - checklist: "Build component checklist from detected scope"
+    - confirm: "Present scope and checklist to user and wait for confirmation"
+
+examples:
+  - input:
+      user_request: "Add tags to posts"
+    output:
+      confirmed_scope:
+        plugin: "content"
+        module: "cms/tags"
+        scope: "both"
+        components: ["TagsRecordTable", "TagForm", "TagSelector"]
+        checklist:
+          - "RecordTable with cursor pagination"
+          - "Create tag form in Sheet"
+          - "Edit tag per row"
+          - "Delete tag with confirmation"
+          - "Tag selector in post form"
+          - "Real-time updates after mutations"
+
+  - input:
+      user_request: "Fix deal pipeline board"
+    output:
+      confirmed_scope:
+        plugin: "sales"
+        module: "pipelines"
+        scope: "frontend"
+        components: ["PipelineBoard"]
+        checklist:
+          - "Fix PipelineBoard component"
+          - "Verify drag-and-drop works"
+          - "Test stage transitions"
+
+receives_from:
+  - detect-scope
+
+composes_with:
+  - plugin-workflow
+  - create-page
+  - create-table
+  - create-form-drawer
+  - create-backend-entity
+  - create-query
+
+meta:
+  auto_invoke: true
+  invocation_order: 0  # After detect-scope (-0.5)
+  receives_from: ["detect-scope"]
+  required_before: ["create-page", "create-table", "create-form-drawer", "create-backend-entity"]

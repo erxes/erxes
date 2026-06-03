@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node';
 import {
   wrapPermission,
   wrapPublicResolver,
@@ -9,6 +10,41 @@ import {
 } from '../../core-types/common';
 import { logHandler } from '../logs';
 import { runBeforeResolvers } from './runBeforeResolvers';
+import { classifyError } from '../errorClassifier';
+
+const withSentryCapture = (
+  resolver: Resolver,
+  resolverKey: string,
+  operation: 'query' | 'mutation',
+): Resolver => {
+  return async (root, args, context, info) => {
+    try {
+      return await resolver(root, args, context, info);
+    } catch (err) {
+      const classification = classifyError(err);
+
+      // Only capture system/provider errors in Sentry
+      // Expected business errors (not found, validation, etc.) are skipped
+      if (classification.category !== 'EXPECTED') {
+        Sentry.withScope((scope) => {
+          scope.setTag('graphql.operation', operation);
+          scope.setTag('graphql.field', resolverKey);
+          scope.setTag('error.category', classification.category);
+          scope.setContext('graphql', {
+            field: resolverKey,
+            operation,
+            subdomain: context?.subdomain,
+            userId: context?.user?._id,
+            errorCategory: classification.category,
+          });
+          Sentry.captureException(err);
+        });
+      }
+
+      throw err;
+    }
+  };
+};
 
 const withBeforeResolvers = (
   resolver: Resolver,
@@ -63,19 +99,26 @@ export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
           mutationResolver.wrapperConfig || {};
         const isPublic = skipPermission || forClientPortal || cpUserRequired;
 
+        let wrapped: Resolver;
         if (isPublic) {
-          mutationResolvers[mutationKey] = wrapPublicResolver(
+          wrapped = wrapPublicResolver(
             withBeforeResolvers(mutationResolver, mutationKey),
             mutationResolver.wrapperConfig,
           );
         } else {
-          mutationResolvers[mutationKey] = withLogging(
+          wrapped = withLogging(
             wrapPermission(
               withBeforeResolvers(mutationResolver, mutationKey),
               mutationKey,
             ),
           );
         }
+
+        mutationResolvers[mutationKey] = withSentryCapture(
+          wrapped,
+          mutationKey,
+          'mutation',
+        );
       }
 
       wrappedResolvers[key] = mutationResolvers;
@@ -90,17 +133,24 @@ export const wrapApolloResolvers = (resolvers: Record<string, Resolver>) => {
           queryResolver.wrapperConfig || {};
         const isPublic = skipPermission || forClientPortal || cpUserRequired;
 
+        let wrapped: Resolver;
         if (isPublic) {
-          queryResolvers[queryKey] = wrapPublicResolver(
+          wrapped = wrapPublicResolver(
             withBeforeResolvers(queryResolver, queryKey),
             queryResolver.wrapperConfig,
           );
         } else {
-          queryResolvers[queryKey] = wrapPermission(
+          wrapped = wrapPermission(
             withBeforeResolvers(queryResolver, queryKey),
             queryKey,
           );
         }
+
+        queryResolvers[queryKey] = withSentryCapture(
+          wrapped,
+          queryKey,
+          'query',
+        );
       }
 
       wrappedResolvers[key] = queryResolvers;

@@ -7,7 +7,7 @@ import {
 } from '@/inbox/conversations/conversation-detail/constants/conversationStatusColors';
 
 interface ProgressProps {
-  customerId: string;
+  customerId?: string;
 }
 
 export const ProgressDot = ({ status }: { status: ConversationStatus }) => (

@@ -6,8 +6,9 @@ import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { IDeal } from '@/deals/types/deals';
+import { IProductData } from 'ui-modules';
 import { IconAlertCircleFilled } from '@tabler/icons-react';
-import { Separator, useQueryState } from 'erxes-ui';
+import { Separator, useQueryState, CopyText } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { memo, useState } from 'react';
 import {
@@ -48,9 +49,26 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
   const dealProducts = filterProducts(true);
   const excludedProducts = filterProducts(false);
 
+  const computeTotals = (items: IProductData[]) => {
+    const totals: Record<string, number> = {};
+    items.forEach((p) => {
+      const currency = p.currency || '';
+      totals[currency] = (totals[currency] || 0) + (p.amount || 0);
+    });
+    return totals;
+  };
+
+  const usedTotals = computeTotals(
+    deal.productsData?.filter((p) => p.tickUsed !== false) || [],
+  );
+  const unusedTotals = computeTotals(
+    deal.productsData?.filter((p) => p.tickUsed === false) || [],
+  );
+
+  const hasProducts = dealProducts.length > 0 || excludedProducts.length > 0;
+
   if (
-    !dealProducts?.length &&
-    !excludedProducts?.length &&
+    !hasProducts &&
     !companies?.length &&
     !customers?.length &&
     !tags?.length &&
@@ -67,6 +85,28 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
       <DealCardDetails items={excludedProducts} color="#b49cf1" separated />
       <DealCardDetails items={tags || []} color="#FF6600" separated />
       <DealCardDetails items={customProperties || []} color="#FF9900" separated />
+      {hasProducts && (
+        <div className="flex flex-col gap-0.5 pt-0.5">
+          {Object.entries(usedTotals).map(([currency, total]) => (
+            <div key={currency} className="flex justify-between text-xs font-semibold">
+              <span className="text-muted-foreground">Total</span>
+              <span>
+                {total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                {currency && <span className="text-muted-foreground ml-1 text-[10px]">{currency}</span>}
+              </span>
+            </div>
+          ))}
+          {Object.entries(unusedTotals).map(([currency, total]) => (
+            <div key={currency} className="flex justify-between text-xs opacity-60">
+              <span className="text-muted-foreground">Unused</span>
+              <span>
+                {total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                {currency && <span className="text-muted-foreground ml-1 text-[10px]">{currency}</span>}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -102,7 +142,6 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     stage,
     tagIds,
   } = deal;
-
   const onCardClick = () => {
     setSalesItemId(_id);
     setActiveDealAtom(_id);
@@ -140,7 +179,11 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           </div>
         )}
         <div className="flex flex-col gap-1">
-          <h5 className="font-semibold">{name}</h5>
+          <h5 className="font-semibold">
+            <CopyText value={name || ''} className="hover:opacity-70 text-left">
+              {name}
+            </CopyText>
+          </h5>
           {stage?.age !== undefined && stage.age < 0 && (
             <span className="px-2 rounded flex gap-1 bg-yellow-50 text-yellow-400 border-yellow-100 border">
               <IconAlertCircleFilled className="size-6 pt-2" />

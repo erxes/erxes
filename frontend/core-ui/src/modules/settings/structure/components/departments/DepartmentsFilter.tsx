@@ -1,8 +1,8 @@
 import { SettingsHotKeyScope } from '@/types/SettingsHotKeyScope';
-import { Command } from 'cmdk';
-import { Combobox, Filter, PageSubHeader } from 'erxes-ui';
+import { Combobox, Command, Filter, PageSubHeader } from 'erxes-ui';
 import { DepartmentsTotalCount } from './DepartmentsTotalCount';
 import { SelectDepartments } from 'ui-modules';
+import { SelectStructureStatus } from '../SelectStructureStatus';
 
 export const DepartmentsFilter = () => {
   return (
@@ -14,13 +14,18 @@ export const DepartmentsFilter = () => {
             <Combobox.Content>
               <Filter.View>
                 <Command>
-                  <Filter.CommandInput />
-                  <Command.List>
+                  <Filter.CommandInput
+                    placeholder="Filter"
+                    variant="secondary"
+                    className="bg-background"
+                  />
+                  <Command.List className="p-1">
                     <Filter.SearchValueTrigger />
                     <SelectDepartments.FilterItem
                       value="parentId"
                       label="By Parent"
                     />
+                    <SelectStructureStatus.FilterItem />
                   </Command.List>
                 </Command>
               </Filter.View>
@@ -28,6 +33,7 @@ export const DepartmentsFilter = () => {
                 mode="single"
                 filterKey="parentId"
               />
+              <SelectStructureStatus.FilterView />
             </Combobox.Content>
           </Filter.Popover>
           <Filter.Dialog>
@@ -39,6 +45,7 @@ export const DepartmentsFilter = () => {
             filterKey="parentId"
             label="By Parent"
           />
+          <SelectStructureStatus.FilterBar />
           <DepartmentsTotalCount />
         </Filter.Bar>
       </Filter>

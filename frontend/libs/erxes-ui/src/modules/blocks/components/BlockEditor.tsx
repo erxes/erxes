@@ -10,6 +10,7 @@ import { BlockNoteView } from '@blocknote/shadcn';
 import { Button, Tooltip } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 import { themeState } from 'erxes-ui/state';
+import { IconPhoto } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { BlockEditorProps } from '../types';
@@ -57,6 +58,25 @@ export const BlockEditor = ({
             tr.setMeta(editor.filePanel!.plugins[0], {
               block: insertedBlock,
             }),
+          );
+        },
+      } satisfies DefaultReactSuggestionItem);
+    }
+
+    if ('gallery' in editor.schema.blockSchema) {
+      items.push({
+        title: 'Gallery',
+        subtext: 'Insert a multi-image gallery grid',
+        aliases: ['gallery', 'images', 'grid'],
+        badge: undefined,
+        group: editor.dictionary.slash_menu.image.group,
+        icon: <IconPhoto size={18} />,
+        onItemClick: () => {
+          const currentBlock = editor.getTextCursorPosition().block;
+          editor.insertBlocks(
+            [{ type: 'gallery' as any }],
+            currentBlock,
+            'after',
           );
         },
       } satisfies DefaultReactSuggestionItem);

@@ -3,48 +3,9 @@ import { Button, Form, Sheet, Select } from 'erxes-ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAddSpin } from '../hooks/useAddSpin';
-import { SelectCustomer, SelectMember } from 'ui-modules';
-import { SelectCompany } from 'ui-modules/modules/contacts/components/SelectCompany';
-import { SelectClientPortalUserFormItem } from '../../score/components/selects/SelectOwnerById';
+import { SelectOwnerByType } from '../../scores/components/selects/SelectOwnerByType';
 import { SelectSpinCampaign } from './selects/SelectSpinCampaign';
 import { SelectVoucherCampaign } from '../../vouchers/components/selects/SelectVoucherCampaign';
-
-const SpinOwnerSelect = ({
-  ownerType,
-  value,
-  onChange,
-}: {
-  ownerType: string;
-  value: string;
-  onChange: (val: string) => void;
-}) => {
-  if (ownerType === 'company') {
-    return (
-      <SelectCompany value={value} onValueChange={onChange} mode="single" />
-    );
-  }
-  if (ownerType === 'user') {
-    return (
-      <SelectMember.FormItem
-        value={value}
-        onValueChange={(val) => onChange(val as string)}
-        mode="single"
-      />
-    );
-  }
-  if (ownerType === 'cpUser') {
-    return (
-      <SelectClientPortalUserFormItem
-        value={value}
-        onValueChange={onChange}
-        placeholder="Choose client portal user"
-      />
-    );
-  }
-  return (
-    <SelectCustomer value={value} onValueChange={onChange} mode="single" />
-  );
-};
 
 interface SpinAddFormValues {
   campaignId: string;
@@ -164,10 +125,10 @@ export const SpinAddSheet = () => {
                   <Form.Item>
                     <Form.Label>Owner *</Form.Label>
                     <Form.Control>
-                      <SpinOwnerSelect
+                      <SelectOwnerByType
                         ownerType={ownerType}
                         value={field.value}
-                        onChange={field.onChange}
+                        onValueChange={field.onChange}
                       />
                     </Form.Control>
                     <Form.Message />

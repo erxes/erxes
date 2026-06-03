@@ -1,4 +1,4 @@
-import { Button, Input, Sheet, useFocusSheet } from 'erxes-ui';
+import { Button, CopyText, Input, Sheet, useFocusSheet } from 'erxes-ui';
 
 import { DealsActions } from '@/deals/actionBar/components/DealsActions';
 import { IDeal } from '@/deals/types/deals';
@@ -13,7 +13,6 @@ import { useState } from 'react';
 export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
   const { editDeals } = useDealsContext();
   const { isSidebarOpen, setIsSidebarOpen } = useFocusSheet();
-
   const [name, setName] = useState(deal?.name || 'Untitled deal');
 
   const handleName = () => {
@@ -54,6 +53,14 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDeal }) => {
             onBlur={handleName}
           />
         </Sheet.Title>
+        {deal?.number && (
+          <CopyText
+            value={deal.number}
+            className="text-xs text-muted-foreground hover:text-foreground hover:opacity-100 text-left"
+          >
+            #{deal.number}
+          </CopyText>
+        )}
       </div>
 
       <div className="flex items-center gap-2 shrink-0">

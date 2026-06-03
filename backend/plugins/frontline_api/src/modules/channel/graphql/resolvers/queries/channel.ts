@@ -1,5 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { IChannelFilter } from '@/channel/@types/channel';
+import { canGroup } from 'erxes-api-shared/core-modules';
 
 export const channelQueries = {
   getChannel: async (_parent: undefined, { _id }, { models }: IContext) => {
@@ -23,25 +24,34 @@ export const channelQueries = {
   getChannels: async (
     _parent: undefined,
     params: IChannelFilter,
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) => {
+    const nameFilter = params.name
+      ? { name: { $regex: params.name, $options: 'i' } }
+      : {};
+
     if (params.channelIds && params.channelIds.length > 0) {
-      return models.Channels.find({ _id: { $in: params.channelIds } });
+      return models.Channels.find({ _id: { $in: params.channelIds }, ...nameFilter });
     }
 
     if (params.integrationId) {
       const channelIds = await models.Integrations.distinct('channelId', {
         _id: params.integrationId,
       });
-      return models.Channels.find({ _id: { $in: channelIds } });
+      return models.Channels.find({ _id: { $in: channelIds }, ...nameFilter });
     }
 
-    const userId = params.userId || user._id;
+    // System owners and users with showAllChannels permission see every channel.
+    if (user?.isOwner || await canGroup(subdomain, 'showAllChannels', user)) {
+      return models.Channels.find(nameFilter);
+    }
+
+    const userId = params.userId || user?._id;
     if (userId) {
       const channelIds = await models.ChannelMembers.find({
         memberId: userId,
       }).distinct('channelId');
-      return models.Channels.find({ _id: { $in: channelIds } });
+      return models.Channels.find({ _id: { $in: channelIds }, ...nameFilter });
     }
 
     return [];
