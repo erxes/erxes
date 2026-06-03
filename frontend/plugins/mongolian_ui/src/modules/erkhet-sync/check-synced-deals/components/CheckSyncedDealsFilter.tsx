@@ -104,6 +104,9 @@ export const CheckSyncedDealsFilterPopover = () => {
           <Filter.View filterKey="dateRange">
             <Filter.DateView filterKey="dateRange" />
           </Filter.View>
+          <Filter.View filterKey="stageChangedDateRange">
+            <Filter.DateView filterKey="stageChangedDateRange" />
+          </Filter.View>
         </Combobox.Content>
       </Filter.Popover>
       <Filter.Dialog>
