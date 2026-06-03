@@ -27,6 +27,59 @@ let NEW_STATUSES: Collection;
 let NEW_TASKS: Collection;
 let NEW_NOTES: Collection;
 let NEW_ACTIVITIES: Collection;
+let NEW_CYCLES: Collection;
+
+
+async function fixLegacyTeamIds(): Promise<void> {
+  console.log('\n🔧 Step 0 — fix legacy string teamIds → ObjectId');
+
+  const newTeams = await NEW_TEAMS
+    .find({ legacyId: { $exists: true } }, { projection: { _id: 1, legacyId: 1 } })
+    .toArray();
+
+  if (!newTeams.length) {
+    console.log('   Nothing to fix — no teams with legacyId found.');
+    return;
+  }
+
+  console.log(`   Found ${newTeams.length} team(s) with legacyId`);
+
+  const relatedCollections: Array<{ col: Collection; field: string }> = [
+    { col: NEW_TEAM_MEMBERS, field: 'teamId' },
+    { col: NEW_STATUSES,     field: 'teamId' },
+    { col: NEW_TASKS,        field: 'teamId' },
+    { col: NEW_CYCLES,       field: 'teamId' },
+  ];
+
+  let fixedDocs  = 0;
+  const oldIds: string[] = [];
+
+  for (const team of newTeams) {
+    const legacyId = String(team.legacyId);
+    const newId    = team._id as ObjectId;
+
+    oldIds.push(legacyId);
+
+    for (const { col, field } of relatedCollections) {
+      const result = await col.updateMany(
+        { [field]: legacyId },
+        { $set: { [field]: newId } },
+      );
+      if (result.modifiedCount > 0) {
+        console.log(`   ✅ ${col.collectionName}.${field}: ${result.modifiedCount} updated  (${legacyId} → ObjectId)`);
+        fixedDocs += result.modifiedCount;
+      }
+    }
+  }
+
+
+  if (oldIds.length) {
+    const deleted = await NEW_TEAMS.deleteMany({ _id: { $in: oldIds as any[] } });
+    console.log(`   🗑️  Removed ${deleted.deletedCount} stale nanoid-id team document(s)`);
+  }
+
+  console.log(`✅ Step 0 done — ${fixedDocs} related doc(s) re-pointed, ${oldIds.length} old team(s) removed`);
+}
 
 const BATCH_SIZE = 1000;
 
@@ -98,11 +151,9 @@ async function loadExistingIds(col: Collection): Promise<Set<string>> {
   return new Set(docs.map((d) => d._id.toString()));
 }
 
-// Returns Map<oldPipelineId, newTeamObjectId>
 async function migrateTeams(): Promise<Map<string, ObjectId>> {
   console.log('\n🚀 Step 1 — pipelines (type=task) → operation_teams');
 
-  // Build map from existing teams: legacyId → _id
   const existingTeams = await NEW_TEAMS
     .find({}, { projection: { _id: 1, legacyId: 1 } })
     .toArray();
@@ -614,11 +665,14 @@ const command = async () => {
   NEW_TASKS        = db.collection('operation_tasks');
   NEW_NOTES        = db.collection('operation_notes');
   NEW_ACTIVITIES   = db.collection('operation_activities');
+  NEW_CYCLES       = db.collection('operation_cycles');
 
   console.log('═══════════════════════════════════════════════');
   console.log('  Operation task migration');
   console.log(`  MONGO_URL : ${MONGO_URL}`);
   console.log('═══════════════════════════════════════════════');
+
+  await fixLegacyTeamIds().catch((e) => console.log(`❌ Step 0 error: ${e.message}`));
 
   const oldToNewTeam = await migrateTeams().catch((e) => {
     console.log(`❌ Step 1 error: ${e.message}`);
