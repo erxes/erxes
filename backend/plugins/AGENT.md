@@ -27,7 +27,7 @@ Provide the plugin name and the port it runs on. This information is stored by t
 
 ### Schema & Query Rules
 
-When defining a schema, you must declare `(keyfield: "_id")`.
+When defining a schema, you must declare `@key(fields: "_id")` on the entity type (e.g., `type User @key(fields: "_id") { _id: ID! ... }`). For Federation 2+, ensure `@key` is available via `@link`.
 All list responses must include both `list` and `totalCount`.
 When providing context, use `expressMiddleware`.
 
@@ -65,13 +65,13 @@ Use the `cursorPaginate` function for all lists.
 - You cannot use duplicate ports when creating a new plugin.
 - Specify the plugin name to be enabled in `.env`.
 
-### Required Bootstrap Export
+### Required Bootstrap
 
-Every backend plugin must export a `startPlugin()` function that returns an object containing:
+Every backend plugin entrypoint (`main.ts`) must call `startPlugin({...})` with a config object containing:
 
 - **graphql** — GraphQL schema (or schema factory)
-- **expressRouter** — Express Router instance
-- **trpcAppRouter** — tRPC router
+- **expressRouter** — Express Router instance (optional if unused)
+- **trpcAppRouter** — tRPC router config
 - **meta** — Plugin metadata configuration
 
 ## Warnings
