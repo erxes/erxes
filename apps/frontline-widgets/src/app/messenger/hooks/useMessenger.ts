@@ -17,8 +17,27 @@ export function useMessenger() {
     setActiveTab(tab);
   };
 
+  function resetExpand() {
+    const frame = window.parent.document.querySelector(
+      '.erxes-messenger-frame',
+    );
+    frame?.classList.replace('erxes-messenger-expand', 'erxes-messenger-shown');
+  }
+
+  function expandWindow() {
+    const frame = window.parent.document.querySelector(
+      '.erxes-messenger-frame',
+    );
+    frame?.classList.replace('erxes-messenger-shown', 'erxes-messenger-expand');
+  }
+
+  function closeWindow() {
+    window.postMessage({ action: 'closeMessenger' }, '*');
+  }
+
   const goBack = () => {
-    resetTab();
+    setActiveTab('messages');
+    resetExpand();
     setConversationId(null);
   };
 
@@ -26,5 +45,9 @@ export function useMessenger() {
     activeTab,
     switchToTab,
     goBack,
+    resetTab,
+    expandWindow,
+    resetExpand,
+    closeWindow,
   };
 }

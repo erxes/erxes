@@ -1,21 +1,26 @@
 import {
+  IconAlertTriangle,
   IconChartBar,
   IconCheck,
+  IconLink,
   IconPhoto,
+  IconTrash,
   IconWorld,
 } from '@tabler/icons-react';
 import {
   Badge,
+  Button,
+  Dialog,
   Input,
   type MultiSelectOption,
   MultipleSelector,
   Select,
-  // Switch,
   Textarea,
-  // ToggleGroup,
 } from 'erxes-ui';
+import { useState } from 'react';
 import { LANGUAGES } from '../../../../constants';
 import {
+  CmsSettingsData,
   ClientPortalOption,
   SettingsFormState,
   UpdateSetting,
@@ -28,17 +33,74 @@ import {
 import { SettingsSection } from './SettingsSection';
 import { Uploader } from './Uploader';
 
-export const SettingsForm = ({
-  settings,
-  clientPortals,
-  updateSetting,
-}: {
+const POST_URL_FIELD_OPTIONS = [
+  { value: '_id', label: 'Post ID', example: 'fSY5zj2QmcnXUNSnF9sYo' },
+  { value: 'count', label: 'Post Count', example: '1' },
+  { value: 'slug', label: 'Post Slug', example: 'my-first-post' },
+];
+
+const DELETE_CONFIRMATION_PHRASE = 'delete my project';
+const DELETE_NAME_CONFIRMATION_INPUT_ID = 'delete-name-confirmation';
+const DELETE_PHRASE_CONFIRMATION_INPUT_ID = 'delete-phrase-confirmation';
+
+function trimTrailingSlashes(value: string): string {
+  let endIndex = value.length;
+
+  while (endIndex > 0 && value[endIndex - 1] === '/') {
+    endIndex -= 1;
+  }
+
+  return value.slice(0, endIndex);
+}
+
+interface ISettingsFormProps {
+  cms?: CmsSettingsData;
+  isDeleting: boolean;
   settings: SettingsFormState;
   clientPortals: ClientPortalOption[];
   updateSetting: UpdateSetting;
-}) => {
+  onDelete: () => Promise<void> | void;
+}
+
+export const SettingsForm = ({
+  cms,
+  isDeleting,
+  settings,
+  clientPortals,
+  updateSetting,
+  onDelete,
+}: ISettingsFormProps) => {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteNameConfirmation, setDeleteNameConfirmation] = useState('');
+  const [deletePhraseConfirmation, setDeletePhraseConfirmation] = useState('');
+
   const getLanguageLabel = (language: string) =>
     LANGUAGES.find((option) => option.value === language)?.label || language;
+
+  const cmsName =
+    cms?.name?.trim() || settings.websiteName.trim() || 'this CMS';
+  const selectedPostUrlField =
+    POST_URL_FIELD_OPTIONS.find(
+      (option) => option.value === settings.postUrlField,
+    ) || POST_URL_FIELD_OPTIONS[0];
+  const rawPublicUrl = settings.publicUrl.trim() || settings.domain.trim();
+  let normalizedPublicUrl = '';
+
+  if (rawPublicUrl) {
+    normalizedPublicUrl = rawPublicUrl.startsWith('http')
+      ? rawPublicUrl
+      : `https://${rawPublicUrl}`;
+  }
+  const previewUrl = normalizedPublicUrl
+    ? `${trimTrailingSlashes(normalizedPublicUrl)}/${
+        selectedPostUrlField.example
+      }`
+    : `/${selectedPostUrlField.example}`;
+  const canDeleteCMS =
+    Boolean(cms?._id) &&
+    deleteNameConfirmation.trim() === cmsName &&
+    deletePhraseConfirmation.trim() === DELETE_CONFIRMATION_PHRASE &&
+    !isDeleting;
 
   const selectedLanguageOptions = settings.languages.map((language) => ({
     value: language,
@@ -90,17 +152,22 @@ export const SettingsForm = ({
     updateSetting('metaKeywords', keywords);
   };
 
-  // const getPostUrlFieldLabel = (value: string) => {
-  //   if (value === '_id') {
-  //     return 'Post ID';
-  //   }
+  const handleDeleteDialogChange = (open: boolean) => {
+    setDeleteDialogOpen(open);
 
-  //   if (value === 'count') {
-  //     return 'Post count';
-  //   }
+    if (!open) {
+      setDeleteNameConfirmation('');
+      setDeletePhraseConfirmation('');
+    }
+  };
 
-  //   return 'Slug';
-  // };
+  const handleDelete = async () => {
+    if (!canDeleteCMS) {
+      return;
+    }
+
+    await onDelete();
+  };
 
   return (
     <div className="min-w-0 space-y-4 p-4">
@@ -357,94 +424,33 @@ export const SettingsForm = ({
         </Field>
       </SettingsSection>
 
-      {/* <SettingsSection id="content" title="Content">
-        <div className="grid gap-4 md:grid-cols-2">
-          <Field
-            label="Post URL Format (postUrlField)"
-            hint="How post URLs are generated."
+      <SettingsSection id="content" title="Content">
+        <Field
+          id="postUrlField"
+          label="Post URL Field"
+          hint="Choose which post field the public website will use in post URLs."
+        >
+          <Select
+            value={settings.postUrlField}
+            onValueChange={(value) => updateSetting('postUrlField', value)}
           >
-            <ToggleGroup
-              type="single"
-              variant="outline"
-              value={settings.postUrlField}
-              onValueChange={(value) =>
-                value && updateSetting('postUrlField', value)
-              }
-              className="justify-start"
-            >
-              {['slug', '_id', 'count'].map((value) => (
-                <ToggleGroup.Item
-                  key={value}
-                  value={value}
-                  className="h-7 px-3 text-xs"
-                >
-                  {getPostUrlFieldLabel(value)}
-                </ToggleGroup.Item>
+            <Select.Trigger id="postUrlField" className="bg-muted">
+              <Select.Value placeholder="Select post URL field" />
+            </Select.Trigger>
+            <Select.Content>
+              {POST_URL_FIELD_OPTIONS.map((option) => (
+                <Select.Item key={option.value} value={option.value}>
+                  {option.label}
+                </Select.Item>
               ))}
-            </ToggleGroup>
-          </Field>
-
-          <Field
-            id="postsPerPage"
-            label="Posts Per Page"
-            hint="Pagination chunk size."
-          >
-            <Select
-              value={settings.postsPerPage}
-              onValueChange={(value) => updateSetting('postsPerPage', value)}
-            >
-              <Select.Trigger id="postsPerPage" className="bg-muted">
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Content>
-                {['10', '20', '50'].map((value) => (
-                  <Select.Item key={value} value={value}>
-                    {value}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select>
-          </Field>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <Field label="Default Post Status">
-            <ToggleGroup
-              type="single"
-              variant="outline"
-              value={settings.defaultPostStatus}
-              onValueChange={(value) =>
-                value && updateSetting('defaultPostStatus', value)
-              }
-              className="justify-start"
-            >
-              <ToggleGroup.Item value="draft" className="h-7 px-3 text-xs">
-                Draft
-              </ToggleGroup.Item>
-              <ToggleGroup.Item value="published" className="h-7 px-3 text-xs">
-                Published
-              </ToggleGroup.Item>
-            </ToggleGroup>
-          </Field>
-
-          <Field label="Comments">
-            <div className="flex items-center justify-between rounded-lg border bg-muted/30 p-3">
-              <div>
-                <div className="text-sm font-medium">Allow comments</div>
-                <div className="text-xs text-muted-foreground">
-                  Enable comment threads on posts
-                </div>
-              </div>
-              <Switch
-                checked={settings.allowComments}
-                onCheckedChange={(checked) =>
-                  updateSetting('allowComments', checked)
-                }
-              />
-            </div>
-          </Field>
-        </div>
-      </SettingsSection> */}
+            </Select.Content>
+          </Select>
+          <div className="mt-2 flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+            <IconLink className="size-4 shrink-0" />
+            <span className="min-w-0 truncate">Preview: {previewUrl}</span>
+          </div>
+        </Field>
+      </SettingsSection>
 
       <SettingsSection id="languages" title="Languages">
         <Field label="Supported Languages">
@@ -514,6 +520,119 @@ export const SettingsForm = ({
           />
         </Field>
       </SettingsSection>
+
+      <SettingsSection
+        id="delete"
+        title="Delete CMS"
+        className="border-destructive/40"
+        contentClassName="space-y-0 p-0"
+      >
+        <div className="space-y-4 p-4">
+          <p className="text-sm text-muted-foreground">
+            Permanently delete this CMS and its settings. This action cannot be
+            undone.
+          </p>
+          <div className="rounded-md border bg-muted/30 p-3">
+            <div className="text-sm font-medium">{cmsName}</div>
+            <div className="text-xs text-muted-foreground">
+              {cms?.domain ||
+                cms?.publicUrl ||
+                settings.domain ||
+                settings.publicUrl ||
+                'No public URL set'}
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-end border-t border-destructive/20 bg-destructive/10 p-4">
+          <Button
+            type="button"
+            variant="destructive"
+            disabled={!cms?._id || isDeleting}
+            onClick={() => handleDeleteDialogChange(true)}
+          >
+            <IconTrash className="size-4" />
+            Delete CMS
+          </Button>
+        </div>
+      </SettingsSection>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={handleDeleteDialogChange}>
+        <Dialog.Content className="max-w-xl gap-0 overflow-hidden p-0">
+          <Dialog.Header className="border-b p-6">
+            <Dialog.Title>Delete CMS</Dialog.Title>
+            <Dialog.Description>
+              This will permanently delete the CMS and related settings.
+            </Dialog.Description>
+          </Dialog.Header>
+
+          <div className="space-y-5 p-6">
+            <div className="space-y-2">
+              <label
+                htmlFor={DELETE_NAME_CONFIRMATION_INPUT_ID}
+                className="block text-sm leading-5 text-muted-foreground"
+              >
+                To confirm, type{' '}
+                <span className="font-semibold text-foreground">
+                  &quot;{cmsName}&quot;
+                </span>
+              </label>
+              <Input
+                id={DELETE_NAME_CONFIRMATION_INPUT_ID}
+                value={deleteNameConfirmation}
+                onChange={(event) =>
+                  setDeleteNameConfirmation(event.target.value)
+                }
+                autoFocus
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor={DELETE_PHRASE_CONFIRMATION_INPUT_ID}
+                className="block text-sm leading-5 text-muted-foreground"
+              >
+                To confirm, type{' '}
+                <span className="font-semibold text-foreground">
+                  &quot;{DELETE_CONFIRMATION_PHRASE}&quot;
+                </span>
+              </label>
+              <Input
+                id={DELETE_PHRASE_CONFIRMATION_INPUT_ID}
+                value={deletePhraseConfirmation}
+                onChange={(event) =>
+                  setDeletePhraseConfirmation(event.target.value)
+                }
+              />
+            </div>
+          </div>
+
+          <div className="border-y border-destructive/20 p-4">
+            <div className="flex items-center gap-3 rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive">
+              <IconAlertTriangle className="size-5 shrink-0" />
+              <span>Deleting {cmsName} cannot be undone.</span>
+            </div>
+          </div>
+
+          <Dialog.Footer className="flex-row items-center justify-between p-4 sm:justify-between sm:space-x-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleDeleteDialogChange(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={!canDeleteCMS}
+              onClick={handleDelete}
+            >
+              {isDeleting ? 'Deleting...' : 'Delete CMS'}
+            </Button>
+          </Dialog.Footer>
+        </Dialog.Content>
+      </Dialog>
     </div>
   );
 };
