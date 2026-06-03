@@ -8,6 +8,8 @@
  * - UNKNOWN: Default to SYSTEM for safety
  */
 
+import * as Sentry from '@sentry/node';
+
 export type ErrorCategory = 'EXPECTED' | 'SYSTEM' | 'PROVIDER' | 'UNKNOWN';
 
 export interface IClassificationResult {
@@ -322,7 +324,10 @@ function looksLikeBusinessError(error: unknown): boolean {
  * Shared Sentry beforeSend filter that drops expected business errors.
  * Use this in all Sentry.init() calls to keep filtering consistent.
  */
-export function sentryExpectedErrorFilter(event: any): any {
+export function sentryExpectedErrorFilter(
+  event: Sentry.ErrorEvent,
+  _hint?: Sentry.EventHint,
+): Sentry.ErrorEvent | null {
   const error = event.exception?.values?.[0];
   if (error?.value) {
     const classification = classifyError(error.value);

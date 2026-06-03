@@ -111,7 +111,7 @@ function getSentryRelease() {
  * @param serverName - Optional server name override (defaults to env or 'erxes')
  */
 export function initErxesSentry(
-  beforeSend?: (event: any) => any,
+  beforeSend?: (event: Sentry.ErrorEvent, hint?: Sentry.EventHint) => PromiseLike<Sentry.ErrorEvent | null> | Sentry.ErrorEvent | null,
   serverName?: string,
 ) {
   const dsn = process.env.SENTRY_DSN;
