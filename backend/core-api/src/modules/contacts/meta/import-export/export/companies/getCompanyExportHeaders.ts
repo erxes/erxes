@@ -28,8 +28,9 @@ export async function getCompanyExportHeaders(
     { label: 'Updated At', key: 'updatedAt' },
   ];
 
+  if (!models) return systemFields;
+
   const customFields = await getCustomPropertyHeaders(models, 'core:company');
 
   return [...systemFields, ...customFields];
 }
-  
