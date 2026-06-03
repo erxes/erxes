@@ -29,13 +29,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           fetch-depth: 0
           persist-credentials: false
 
       - name: Run OpenCode
-        uses: anomalyco/opencode/github@latest
+        uses: anomalyco/opencode/github@f4851e3bd9982be95bd1fb4b69514b4ef5a9e239
         env:
           KIMI_API_KEY: ${{ secrets.KIMI_API_KEY }}
         with:

@@ -2,47 +2,19 @@ import { classifyError, isExpectedError, extractMessage, sentryExpectedErrorFilt
 
 describe('errorClassifier', () => {
   describe('classifyError', () => {
-    it('should classify "not found" as EXPECTED', () => {
-      const result = classifyError(new Error('User not found'));
-      expect(result.category).toBe('EXPECTED');
-      expect(result.isExpected).toBe(true);
-      expect(result.statusCode).toBe(200);
-    });
-
-    it('should classify "already exists" as EXPECTED', () => {
-      const result = classifyError(new Error('Email already exists'));
-      expect(result.category).toBe('EXPECTED');
-      expect(result.isExpected).toBe(true);
-    });
-
-    it('should classify "is required" as EXPECTED', () => {
-      const result = classifyError(new Error('Name is required'));
-      expect(result.category).toBe('EXPECTED');
-      expect(result.isExpected).toBe(true);
-    });
-
-    it('should classify "invalid" as EXPECTED', () => {
-      const result = classifyError(new Error('Invalid email format'));
-      expect(result.category).toBe('EXPECTED');
-      expect(result.isExpected).toBe(true);
-    });
-
-    it('should classify "wrong password" as EXPECTED', () => {
-      const result = classifyError(new Error('Wrong password'));
-      expect(result.category).toBe('EXPECTED');
-      expect(result.isExpected).toBe(true);
-    });
-
-    it('should classify "permission denied" as EXPECTED', () => {
-      const result = classifyError(new Error('Permission denied'));
-      expect(result.category).toBe('EXPECTED');
-      expect(result.isExpected).toBe(true);
-    });
-
-    it('should classify "not authenticated" as EXPECTED', () => {
-      const result = classifyError(new Error('Not authenticated'));
-      expect(result.category).toBe('EXPECTED');
-      expect(result.isExpected).toBe(true);
+    test.each([
+      ['User not found', 'EXPECTED', true, 200],
+      ['Email already exists', 'EXPECTED', true, 200],
+      ['Name is required', 'EXPECTED', true, 200],
+      ['Invalid email format', 'EXPECTED', true, 200],
+      ['Wrong password', 'EXPECTED', true, 200],
+      ['Permission denied', 'EXPECTED', true, 200],
+      ['Not authenticated', 'EXPECTED', true, 200],
+    ])('should classify "%s" as EXPECTED', (msg, category, isExpected, statusCode) => {
+      const result = classifyError(new Error(msg));
+      expect(result.category).toBe(category);
+      expect(result.isExpected).toBe(isExpected);
+      expect(result.statusCode).toBe(statusCode);
     });
 
     it('should classify "MongoNetworkError" as SYSTEM', () => {
@@ -53,17 +25,14 @@ describe('errorClassifier', () => {
       expect(result.statusCode).toBe(500);
     });
 
-    it('should classify "timeout" as PROVIDER', () => {
-      const result = classifyError(new Error('Request timeout'));
-      expect(result.category).toBe('PROVIDER');
-      expect(result.isExpected).toBe(false);
-      expect(result.statusCode).toBe(502);
-    });
-
-    it('should classify "ECONNREFUSED" as PROVIDER', () => {
-      const result = classifyError(new Error('connect ECONNREFUSED 127.0.0.1:27017'));
-      expect(result.category).toBe('PROVIDER');
-      expect(result.isExpected).toBe(false);
+    test.each([
+      ['Request timeout', 'PROVIDER', false, 502],
+      ['connect ECONNREFUSED 127.0.0.1:27017', 'PROVIDER', false, 502],
+    ])('should classify "%s" as PROVIDER', (msg, category, isExpected, statusCode) => {
+      const result = classifyError(new Error(msg));
+      expect(result.category).toBe(category);
+      expect(result.isExpected).toBe(isExpected);
+      expect(result.statusCode).toBe(statusCode);
     });
 
     it('should classify unknown errors as UNKNOWN', () => {
@@ -145,18 +114,6 @@ describe('errorClassifier', () => {
       expect(result.isExpected).toBe(false);
       expect(result.statusCode).toBe(500);
     });
-
-    it('should still classify plain "Not found" as EXPECTED', () => {
-      const result = classifyError(new Error('Not found'));
-      expect(result.category).toBe('EXPECTED');
-      expect(result.isExpected).toBe(true);
-    });
-
-    it('should still classify plain "is required" as EXPECTED', () => {
-      const result = classifyError(new Error('Name is required'));
-      expect(result.category).toBe('EXPECTED');
-      expect(result.isExpected).toBe(true);
-    });
   });
 
   describe('sentryExpectedErrorFilter', () => {
@@ -166,7 +123,7 @@ describe('errorClassifier', () => {
           values: [{ value: 'User not found' }]
         }
       };
-      expect(sentryExpectedErrorFilter(event)).toBeNull();
+      expect(sentryExpectedErrorFilter(event as any)).toBeNull();
     });
 
     it('should return event for SYSTEM errors', () => {
@@ -175,7 +132,7 @@ describe('errorClassifier', () => {
           values: [{ value: 'MongoNetworkError: connection failed' }]
         }
       };
-      expect(sentryExpectedErrorFilter(event)).toBe(event);
+      expect(sentryExpectedErrorFilter(event as any)).toBe(event as any);
     });
 
     it('should return event for PROVIDER errors', () => {
@@ -184,17 +141,17 @@ describe('errorClassifier', () => {
           values: [{ value: 'Request timeout' }]
         }
       };
-      expect(sentryExpectedErrorFilter(event)).toBe(event);
+      expect(sentryExpectedErrorFilter(event as any)).toBe(event as any);
     });
 
     it('should return event when no exception value', () => {
       const event = { exception: { values: [{}] } };
-      expect(sentryExpectedErrorFilter(event)).toBe(event);
+      expect(sentryExpectedErrorFilter(event as any)).toBe(event as any);
     });
 
     it('should return event when no exception', () => {
       const event = {};
-      expect(sentryExpectedErrorFilter(event)).toBe(event);
+      expect(sentryExpectedErrorFilter(event as any)).toBe(event as any);
     });
   });
 });

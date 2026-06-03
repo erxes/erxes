@@ -435,13 +435,13 @@ if [[ "$DRY_RUN" != "1" && "$DRY_RUN" != "true" ]]; then
     -d "$FINAL_PAYLOAD"
 
   # Mark PR as ready for review if checks passed
-  if [ "$ALL_PASSED" = true ] && [ "$CHECKS_FOUND" = true ]; then
+  if [[ "$ALL_PASSED" = true ]] && [[ "$CHECKS_FOUND" = true ]]; then
     echo "All checks passed, marking PR as ready for review..."
     gh pr ready "$PR_NUMBER" || true
   fi
 else
   echo "[DRY RUN] Would post final comment on issue #${ISSUE_NUMBER}"
-  if [ "$ALL_PASSED" = true ] && [ "$CHECKS_FOUND" = true ]; then
+  if [[ "$ALL_PASSED" = true ]] && [[ "$CHECKS_FOUND" = true ]]; then
     echo "[DRY RUN] Would mark PR as ready for review"
   fi
 fi
