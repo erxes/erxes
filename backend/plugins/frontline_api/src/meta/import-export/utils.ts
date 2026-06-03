@@ -1,7 +1,7 @@
 import { ImportHeaderDefinition } from 'erxes-api-shared/core-modules';
 import { getRealIdFromElk, sendTRPCMessage } from 'erxes-api-shared/utils';
 
-export const TICKET_CONTENT_TYPE = 'frontline:ticket.ticket';
+export const TICKET_CONTENT_TYPE = 'frontline:ticket';
 
 export const getTicketCustomPropertyHeaders = async (
   subdomain: string,
