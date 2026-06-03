@@ -28,7 +28,6 @@ export default {
     }
 
     const campaign = await models.ScoreCampaigns.findOne({ _id: campaignId }).lean();
-    console.log(lastOwner, campaign, 'ddd')
     if (campaign?.fieldId) {
       return lastOwner?.propertiesData?.[campaign?.fieldId]
     }
