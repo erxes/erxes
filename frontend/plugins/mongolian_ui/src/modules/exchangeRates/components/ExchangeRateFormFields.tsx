@@ -1,4 +1,5 @@
 import { DatePicker, Form, Input, Select } from 'erxes-ui';
+import { useEffect } from 'react';
 import { FieldPath, UseFormReturn } from 'react-hook-form';
 import { TExchangeRateForm } from '../constants';
 import { useCurrencies } from '../hooks/useCurrencies';
@@ -51,7 +52,15 @@ const CurrencyField = ({
 );
 
 export const ExchangeRateFormFields = ({ form, formId, onSubmit }: Props) => {
-  const { currencies } = useCurrencies();
+  const { currencies, mainCurrency } = useCurrencies();
+  const { setValue, getValues } = form;
+
+  // Pre-select the system main currency when adding a new rate.
+  useEffect(() => {
+    if (mainCurrency && !getValues('mainCurrency')) {
+      setValue('mainCurrency', mainCurrency);
+    }
+  }, [mainCurrency, setValue, getValues]);
 
   return (
     <Form {...form}>

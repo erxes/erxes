@@ -12,6 +12,8 @@ export type MainQueryResponse = {
   exchangeRatesMain: { list: IExchangeRate[]; totalCount: number };
 };
 
-export type CurrenciesQueryResponse = {
-  configsGetValue: { value?: string[] } | null;
+export type CurrencyConfigResponse = {
+  // "Main currency" config (general settings). Value can be a single
+  // currency code or, in some setups, an array of codes.
+  configsGetValue: { value?: string | string[] } | null;
 };

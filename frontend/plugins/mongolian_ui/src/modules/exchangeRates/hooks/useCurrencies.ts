@@ -1,16 +1,26 @@
 import { useQuery } from '@apollo/client';
 import { queries } from '../graphql';
-import { CurrenciesQueryResponse } from '../types';
-
-const DEAL_CURRENCY_CODE = 'dealCurrency';
+import { CurrencyConfigResponse } from '../types';
 
 export const useCurrencies = () => {
-  const { data, loading } = useQuery<CurrenciesQueryResponse>(queries.configs, {
-    variables: { code: DEAL_CURRENCY_CODE },
-    fetchPolicy: 'cache-first',
-  });
+  const { data, loading } = useQuery<CurrencyConfigResponse>(
+    queries.currencyConfig,
+    {
+      fetchPolicy: 'cache-first',
+    },
+  );
 
-  const currencies = data?.configsGetValue?.value ?? [];
+  // Both currency fields are sourced from the "mainCurrency" config.
+  // It is usually a single code, so normalise it to a list for the
+  // <Select> options (guarding against unexpected shapes).
+  const value = data?.configsGetValue?.value;
+  const currencies: string[] = Array.isArray(value)
+    ? value
+    : value
+      ? [value]
+      : [];
 
-  return { currencies, loading };
+  const mainCurrency = currencies[0] ?? '';
+
+  return { currencies, mainCurrency, loading };
 };
