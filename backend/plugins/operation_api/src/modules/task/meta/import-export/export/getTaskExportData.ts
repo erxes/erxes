@@ -74,7 +74,7 @@ export async function getTaskExportData(
   const query: FilterQuery<ITaskDocument> = {};
 
   if (filter.name) {
-    query.name = { $regex: filter.name, $options: 'i' };
+    query.name = { $regex: escapeRegExp(filter.name), $options: 'i' };
   } else if (filter.search?.trim()) {
     const sv = escapeRegExp(filter.search.trim());
     const re = new RegExp(sv, 'i');
@@ -155,6 +155,9 @@ export async function getTaskExportData(
           teamId: filter.teamId,
           endDate: { $lt: now },
         }).distinct('_id');
+        if (pastCycles.length === 0) {
+          return [];
+        }
         query.cycleId = { $in: pastCycles } as any;
         break;
       }
@@ -166,6 +169,8 @@ export async function getTaskExportData(
         }).sort({ endDate: -1 });
         if (previousCycle) {
           query.cycleId = previousCycle._id;
+        } else {
+          return [];
         }
         break;
       }
@@ -178,6 +183,8 @@ export async function getTaskExportData(
         });
         if (currentCycle) {
           query.cycleId = currentCycle._id;
+        } else {
+          return [];
         }
         break;
       }
@@ -189,6 +196,8 @@ export async function getTaskExportData(
         }).sort({ startDate: 1 });
         if (upcomingCycle) {
           query.cycleId = upcomingCycle._id;
+        } else {
+          return [];
         }
         break;
       }
@@ -198,6 +207,9 @@ export async function getTaskExportData(
           teamId: filter.teamId,
           startDate: { $gt: now },
         }).distinct('_id');
+        if (futureCycles.length === 0) {
+          return [];
+        }
         query.cycleId = { $in: futureCycles } as any;
         break;
       }

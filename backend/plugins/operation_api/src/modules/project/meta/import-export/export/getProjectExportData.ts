@@ -42,17 +42,18 @@ export async function getProjectExportData(
   const filter = { ...data, ...(filters || {}) };
 
   const query: FilterQuery<IProjectDocument> = {};
+  const andFilters: any[] = [];
 
   if (filter._ids && filter._ids.length) {
     query._id = { $in: filter._ids };
   }
 
   if (filter.name) {
-    query.name = { $regex: filter.name, $options: 'i' };
+    query.name = { $regex: escapeRegExp(filter.name), $options: 'i' };
   } else if (filter.search?.trim()) {
     const sv = escapeRegExp(filter.search.trim());
     const re = new RegExp(sv, 'i');
-    query.$or = [{ name: re }, { description: re }];
+    andFilters.push({ $or: [{ name: re }, { description: re }] });
   }
 
   if (filter.status) {
@@ -80,10 +81,12 @@ export async function getProjectExportData(
   }
 
   if (filter.memberId) {
-    query.$or = [
-      { memberIds: { $in: [filter.memberId] } },
-      { leadId: filter.memberId },
-    ];
+    andFilters.push({
+      $or: [
+        { memberIds: { $in: [filter.memberId] } },
+        { leadId: filter.memberId },
+      ],
+    });
   }
 
   if (filter.tagIds && filter.tagIds.length > 0) {
@@ -103,11 +106,13 @@ export async function getProjectExportData(
     }).distinct('teamId');
 
     if (filter.userId) {
-      query.$or = [
-        { teamIds: { $in: teamIds } },
-        { leadId: filter.userId },
-        { memberIds: filter.userId },
-      ];
+      andFilters.push({
+        $or: [
+          { teamIds: { $in: teamIds } },
+          { leadId: filter.userId },
+          { memberIds: filter.userId },
+        ],
+      });
     } else {
       query.teamIds = { $in: teamIds };
     }
@@ -124,13 +129,19 @@ export async function getProjectExportData(
       });
 
       if (task?.projectId) {
-        query.$or = [{ status: statusFilter }, { _id: task.projectId }];
+        andFilters.push({
+          $or: [{ status: statusFilter }, { _id: task.projectId }],
+        });
       } else {
         query.status = statusFilter;
       }
     } else {
       query.status = statusFilter;
     }
+  }
+
+  if (andFilters.length > 0) {
+    query.$and = andFilters;
   }
 
   const { query: exportQuery, isIdsMode } = buildExportCursorQuery({

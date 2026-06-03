@@ -25,7 +25,10 @@ export const cleanDescription = (description: any) => {
   if (typeof description === 'string' && (description.startsWith('[') || description.startsWith('{'))) {
     try {
       const parsed = JSON.parse(description);
-      if (Array.isArray(parsed)) {
+      const isArray = Array.isArray(parsed);
+      const isObject = typeof parsed === 'object' && parsed !== null;
+      if (isArray || isObject) {
+        const blocks = isArray ? parsed : [parsed];
         const extractText = (content: any[]): string => {
           if (!Array.isArray(content)) return '';
           return content
@@ -52,7 +55,7 @@ export const cleanDescription = (description: any) => {
           return text;
         };
 
-        return parsed.map(processBlock).filter(Boolean).join('\n');
+        return blocks.map(processBlock).filter(Boolean).join('\n');
       }
     } catch {
       // ignore
