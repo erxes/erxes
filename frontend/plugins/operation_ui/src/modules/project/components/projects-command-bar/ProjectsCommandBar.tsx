@@ -1,5 +1,6 @@
 import { IconRepeat } from '@tabler/icons-react';
 import { useParams } from 'react-router';
+import { Export } from 'ui-modules';
 import {
   Button,
   Command,
@@ -33,10 +34,20 @@ export const ProjectsCommandBar = () => {
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const [currentContent, setCurrentContent] = useState<string>('main');
   const { teamId } = useParams<{ teamId: string }>();
+  const projectIds = selectedRows.map((row) => row.original._id);
+
   return (
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
+        <Separator.Inline />
+        <Export
+          pluginName="operation"
+          moduleName="project"
+          collectionName="projects"
+          buttonVariant="secondary"
+          ids={projectIds}
+        />
         <Separator.Inline />
 
         <Popover
