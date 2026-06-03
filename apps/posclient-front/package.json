@@ -48,7 +48,7 @@
     "graphql-ws": "^5.13.1",
     "jotai": "^2.1.1",
     "lucide-react": "^0.460.0",
-    "next": "^14.2.12",
+    "next": "^16.2.7",
     "next-pwa": "^5.6.0",
     "qrcode.react": "^3.1.0",
     "qz-tray": "^2.2.6",
@@ -78,7 +78,7 @@
     "eslint-plugin-react": "^7.34.2",
     "eslint-plugin-tailwindcss": "^3.8.0",
     "eslint-plugin-unused-imports": "^3.0.0",
-    "postcss": "^8.4.21",
+    "postcss": "^8.5.10",
     "prettier": "^2.7.1",
     "tailwindcss": "^3.3.1",
     "typescript": "5.7.3"
