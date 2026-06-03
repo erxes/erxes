@@ -6,6 +6,11 @@ const getFieldValue = (
   tagMap?: Map<string, string>,
   formatValue = defaultContactFieldFormatter,
 ): string => {
+  if (key.startsWith('propertiesData.')) {
+    const fieldId = key.replace('propertiesData.', '');
+    return formatValue(company?.propertiesData?.[fieldId]);
+  }
+
   if (key === 'tagIds') {
     const tagNames = (company.tagIds || [])
       .map((id: string) => tagMap?.get(String(id)) || id)
@@ -63,7 +68,15 @@ export const buildCompanyExportRow = (
     updatedAt: formatValue(company.updatedAt ? new Date(company.updatedAt) : ''),
   };
 
-  // selectedFields mode (Field selection UI)
+  const propertiesData = company?.propertiesData;
+  if (propertiesData && typeof propertiesData === 'object') {
+    for (const [fieldId, value] of Object.entries(propertiesData)) {
+      if (value !== undefined && value !== null) {
+        allFields[`propertiesData.${fieldId}`] = formatValue(value);
+      }
+    }
+  }
+
   if (selectedFields && selectedFields.length > 0) {
     const result: Record<string, any> = { _id: String(company._id || '') };
     selectedFields.forEach((key) => {
