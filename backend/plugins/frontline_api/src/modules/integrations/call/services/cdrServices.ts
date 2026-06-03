@@ -1,5 +1,5 @@
 import { IModels } from '~/connectionResolvers';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { sendTRPCMessage, graphqlPubsub } from 'erxes-api-shared/utils';
 import { debugCall } from '@/integrations/call/debuggers';
 import {
   determineExtension,
@@ -11,10 +11,12 @@ import {
 import { getOrCreateCustomer } from '@/integrations/call/store';
 import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
+import { redlock } from '@/integrations/call/redlock';
+
+const CDR_LOCK_TTL_MS = 20_000;
 
 export const receiveCdr = async (models: IModels, subdomain, params) => {
   debugCall(`Request to get post data with: ${JSON.stringify(params)}`);
-  // console.log(params.src, params.dst, 'received cdr phone number');
   const integration = await models.CallIntegrations.findOne({
     $or: [
       { srcTrunk: params.src_trunk_name },
@@ -23,6 +25,38 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
   });
   if (!integration) return;
 
+  const inboxId = integration.inboxId;
+
+  if (params.uniqueid) {
+    const lockKey = `${subdomain}:call:session:${params.uniqueid}`;
+    let lock;
+    try {
+      lock = await redlock.acquire([lockKey], CDR_LOCK_TTL_MS);
+    } catch (e) {
+      throw new Error(
+        `receiveCdr lock failure for ${params.uniqueid}: ${e.message}`,
+      );
+    }
+    try {
+      return await processCdrLocked(models, subdomain, params, integration);
+    } finally {
+      try {
+        await lock?.unlock();
+      } catch (e) {
+        console.error('receiveCdr: lock release failed', e);
+      }
+    }
+  }
+
+  return processCdrLocked(models, subdomain, params, integration);
+};
+
+const processCdrLocked = async (
+  models: IModels,
+  subdomain: string,
+  params: any,
+  integration: any,
+) => {
   const inboxId = integration.inboxId;
 
   const primaryPhone = determinePrimaryPhone(params);
@@ -61,6 +95,28 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
 
   let conversationId;
 
+  let existingSession: any = null;
+  if (params.uniqueid) {
+    existingSession = await models.CallSessions.findOne({
+      uniqueid: params.uniqueid,
+    });
+    if (existingSession?.conversationId) {
+      conversationId = existingSession.conversationId;
+      debugCall(
+        `CDR matched CallSession ${existingSession._id} for uniqueid=${params.uniqueid}`,
+      );
+      const payload: any = {
+        conversationId,
+        content,
+        updatedAt: new Date(),
+        owner: operatorPhone || '',
+        integrationId: inboxId,
+      };
+      if (customer) payload.customerId = customer?.erxesApiId;
+      await createOrUpdateErxesConversation(subdomain, payload);
+    }
+  }
+
   const existingCdr = await models.CallCdrs.findOne({
     uniqueid: params.uniqueid,
     conversationId: { $exists: true, $ne: '' },
@@ -89,7 +145,9 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
     }
   }
 
-  if (existingCdr || followmeCdr) {
+  if (conversationId) {
+    // resolved via CallSession above
+  } else if (existingCdr || followmeCdr) {
     conversationId = existingCdr?.conversationId || followmeCdr?.conversationId;
     const payload = {
       conversationId,
@@ -107,7 +165,8 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
     const localTimeString = `${datePart}T${timePart}+08:00`;
     const localStart = new Date(localTimeString);
     const startDate = new Date(localStart.getTime());
-    const rangeSeconds = 180;
+    // Tighter window when relying on phone+time fuzzy match (no uniqueid)
+    const rangeSeconds = extension ? 60 : 30;
     const startTime = new Date(startDate.getTime() - rangeSeconds * 1000);
     const endTime = new Date(startDate.getTime() + rangeSeconds * 1000);
 
@@ -195,6 +254,50 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
     conversationId: cdr.conversationId,
   };
   await pConversationClientMessageInserted(subdomain, doc);
+
+  if (params.uniqueid) {
+    try {
+      const endedAt = params.end
+        ? (() => {
+            const [d, t] = params.end.split(' ');
+            return new Date(`${d}T${t}+08:00`);
+          })()
+        : new Date();
+
+      await models.CallSessions.markEnded(params.uniqueid, {
+        endedAt,
+        durationSec: Number(params.billsec || params.duration) || undefined,
+        hangupCause: params.disposition,
+        recordUrl: cdr.recordUrl,
+        cdrAcctId: cdr.acctId,
+      });
+
+      const updatedSession = await models.CallSessions.findOne({
+        uniqueid: params.uniqueid,
+      });
+      if (updatedSession) {
+        const sessionPayload = {
+          callSessionUpdated: {
+            ...updatedSession.toObject(),
+            inboxIntegrationId: inboxId,
+            subdomain,
+          },
+        };
+        await graphqlPubsub.publish(
+          `callSessionUpdated:uniqueid:${params.uniqueid}`,
+          sessionPayload,
+        );
+        await graphqlPubsub.publish(
+          `callSessionUpdated:${inboxId}`,
+          sessionPayload,
+        );
+      }
+    } catch (e) {
+      debugCall(
+        `CallSession finalize failed for ${params.uniqueid}: ${e.message}`,
+      );
+    }
+  }
 
   return 'success';
 };

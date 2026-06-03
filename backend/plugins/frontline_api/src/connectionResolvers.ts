@@ -96,6 +96,11 @@ import {
   ICallQueueStatisticsModel,
   loadCallQueueClass,
 } from '@/integrations/call/db/models/QueueStatistics';
+import {
+  ICallSessionModel,
+  loadCallSessionClass,
+} from '@/integrations/call/db/models/CallSessions';
+import { ICallSessionDocument } from '@/integrations/call/@types/callSessions';
 import { ICallCdrDocument } from '@/integrations/call/@types/cdrs';
 import { ICallOperatorDocuments } from '@/integrations/call/@types/operators';
 import { ICallConfigDocument } from '@/integrations/call/@types/config';
@@ -291,6 +296,7 @@ export interface IModels {
   CallOperators: ICallOperatorModel;
   CallCdrs: ICallCdrModel;
   CallQueueStatistics: ICallQueueStatisticsModel;
+  CallSessions: ICallSessionModel;
 
   FacebookBots: IFacebookBotModel;
   //imap
@@ -527,6 +533,11 @@ export const loadClasses = (
     ICallQueueStatisticsDocuments,
     ICallQueueStatisticsModel
   >('calls_queue_statistics', loadCallQueueClass());
+
+  models.CallSessions = db.model<ICallSessionDocument, ICallSessionModel>(
+    'calls_sessions',
+    loadCallSessionClass(models),
+  );
 
   models.FacebookBots = db.model<IFacebookBotDocument, IFacebookBotModel>(
     'facebook_messengers_bots',

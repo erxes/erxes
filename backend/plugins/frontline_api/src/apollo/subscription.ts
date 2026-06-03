@@ -14,6 +14,7 @@ export default {
       talkingCallReceived(extension: String): String
       agentCallReceived(extension: String): String
       queueRealtimeUpdate(extension: String): String
+      callSessionUpdated(inboxIntegrationId: String, uniqueid: String, extension: String): CallSession
       ticketPipelineChanged(filter: TicketsPipelineFilter): TicketSubscription
       ticketPipelineListChanged: PipelineSubscription
       ticketChanged(_id: String!): TicketSubscription
@@ -287,6 +288,25 @@ export default {
             return response.extension === variables.extension;
           },
         ),
+      },
+
+      callSessionUpdated: {
+        resolve: (payload) => payload.callSessionUpdated,
+        subscribe: (_, { inboxIntegrationId, uniqueid, extension }) => {
+          if (uniqueid) {
+            return graphqlPubsub.asyncIterator(
+              `callSessionUpdated:uniqueid:${uniqueid}`,
+            );
+          }
+          if (inboxIntegrationId && extension) {
+            return graphqlPubsub.asyncIterator(
+              `callSessionUpdated:ext:${inboxIntegrationId}:${extension}`,
+            );
+          }
+          return graphqlPubsub.asyncIterator(
+            `callSessionUpdated:${inboxIntegrationId || 'global'}`,
+          );
+        },
       },
     };
   },

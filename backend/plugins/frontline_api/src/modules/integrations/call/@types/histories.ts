@@ -18,6 +18,7 @@ export interface ICallHistory {
   queueName: string;
   inboxIntegrationId: string;
   extensionNumber: string;
+  uniqueid?: string;
 }
 
 export interface ICallHistoryArgs {

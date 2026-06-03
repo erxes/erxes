@@ -1,6 +1,7 @@
 import { getEnv, getSubdomain, graphqlPubsub } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { receiveCdr } from '@/integrations/call/services/cdrServices';
+import { handleCallEvent } from '@/integrations/call/services/callEventService';
 
 import express from 'express';
 import redis from '@/integrations/call/redlock';
@@ -15,6 +16,10 @@ const authenticateApi = async (req, res, next) => {
 
   const subdomain = getSubdomain(req);
   if (data.history) {
+    next();
+    return;
+  }
+  if (data.type && data.uniqueid) {
     next();
     return;
   }
@@ -112,6 +117,20 @@ const initCallApp = async (app) => {
     } catch (error) {
       console.error('Error receiving cdr:', error);
       res.status(500).json({ error: 'Internal Server Error sda' });
+    }
+  });
+
+  app.post('/call/event', authenticateApi, async (req, res) => {
+    try {
+      const subdomain = getSubdomain(req);
+      const models = await generateModels(subdomain);
+      const result = await handleCallEvent(models, subdomain, req.body);
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('Error handling call event:', error);
+      return res
+        .status(500)
+        .json({ error: 'Internal Server Error', message: error.message });
     }
   });
 };

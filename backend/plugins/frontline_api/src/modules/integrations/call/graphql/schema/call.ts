@@ -79,6 +79,42 @@ export const types = `
     recordUrl: String
     inboxIntegrationId: String
     acctId: String
+    uniqueid: String
+  }
+
+  type CallSessionOperator {
+    userId: String
+    extensionNumber: String
+    state: String
+    ringedAt: Date
+    answeredAt: Date
+  }
+
+  type CallSession {
+    _id: String
+    uniqueid: String!
+    inboxIntegrationId: String
+    conversationId: String
+    customerId: String
+    customerPhone: String
+    operatorPhone: String
+    callType: String
+    status: String
+    queueName: String
+    ringingOperators: [CallSessionOperator]
+    answeredBy: String
+    answeredExtension: String
+    startedAt: Date
+    answeredAt: Date
+    endedAt: Date
+    durationSec: Int
+    hangupCause: String
+    source: String
+    cdrAcctId: String
+    recordUrl: String
+    diversion: String
+    createdAt: Date
+    updatedAt: Date
   }
 
   type CallStatistic {
@@ -274,6 +310,8 @@ const filterParams = `
 `;
 
 export const queries = `
+  callSessionDetail(uniqueid: String, conversationId: String): CallSession
+  callActiveSessions(inboxIntegrationId: String!, extension: String): [CallSession]
   callsIntegrationDetail(integrationId: String!): CallsIntegrationDetailResponse
   callUserIntegrations: [CallsIntegrationDetailResponse]
   callsCustomerDetail(customerPhone: String): Customer
