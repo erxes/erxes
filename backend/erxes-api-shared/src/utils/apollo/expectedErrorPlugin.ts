@@ -1,5 +1,4 @@
 import type { ApolloServerPlugin, GraphQLRequestListener } from '@apollo/server';
-import { GraphQLError } from 'graphql';
 import { classifyError, IClassificationResult } from '../errorClassifier';
 
 /**
@@ -63,16 +62,13 @@ export const expectedErrorPlugin: ApolloServerPlugin = {
         errors.forEach((error, index) => {
           const classification = classifications[index];
           
-          // Cast to any to bypass read-only restriction on formatted errors
-          const mutableError = error as any;
-          
-          if (!mutableError.extensions) {
-            mutableError.extensions = {};
+          if (!error.extensions) {
+            (error as any).extensions = {};
           }
 
-          mutableError.extensions.category = classification.category;
-          mutableError.extensions.isExpected = classification.isExpected;
-          mutableError.extensions.statusCode = classification.statusCode;
+          (error as any).extensions.category = classification.category;
+          (error as any).extensions.isExpected = classification.isExpected;
+          (error as any).extensions.statusCode = classification.statusCode;
         });
 
         // If ALL errors are expected, override HTTP status to 200

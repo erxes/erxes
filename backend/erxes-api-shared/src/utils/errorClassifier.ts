@@ -135,7 +135,7 @@ const PROVIDER_PATTERNS: RegExp[] = [
 /**
  * Classify an error by its message and optional code
  */
-export function classifyError(error: Error | string | unknown): IClassificationResult {
+export function classifyError(error: unknown): IClassificationResult {
   const message = extractMessage(error);
   const code = extractCode(error);
   const errorName = extractErrorName(error);
@@ -183,7 +183,7 @@ export function classifyError(error: Error | string | unknown): IClassificationR
 /**
  * Quick check if error is expected (for guard clauses)
  */
-export function isExpectedError(error: Error | string | unknown): boolean {
+export function isExpectedError(error: unknown): boolean {
   return classifyError(error).isExpected;
 }
 
@@ -324,7 +324,7 @@ function looksLikeBusinessError(error: unknown): boolean {
  */
 export function sentryExpectedErrorFilter(event: any): any {
   const error = event.exception?.values?.[0];
-  if (error && error.value) {
+  if (error?.value) {
     const classification = classifyError(error.value);
     if (classification.category === 'EXPECTED') {
       // Drop the event — it's an expected business error

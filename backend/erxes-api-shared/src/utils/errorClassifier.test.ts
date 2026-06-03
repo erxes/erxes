@@ -1,4 +1,4 @@
-import { classifyError, isExpectedError, extractMessage, sentryExpectedErrorFilter, IClassificationResult } from './errorClassifier';
+import { classifyError, isExpectedError, extractMessage, sentryExpectedErrorFilter } from './errorClassifier';
 
 describe('errorClassifier', () => {
   describe('classifyError', () => {
