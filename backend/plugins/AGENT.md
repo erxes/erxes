@@ -16,7 +16,7 @@ module_name/
 
 ## Join Gateway
 
-Provide the plugin name and the port it runs on. This information is stored from the plugin to Redis, and the gateway and other plugins retrieve it from Redis.
+Provide the plugin name and the port it runs on. This information is stored by the plugin in Redis, and the gateway and other plugins retrieve it from Redis.
 
 ## Imports
 
