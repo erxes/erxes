@@ -10,6 +10,7 @@ import {
 import { Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { IModels } from '~/connectionResolvers';
+import type { OAuthClientAccessTokenLifetime } from '@/auth/db/definitions/oauthClientApps';
 import {
   ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL,
   ACCESS_TOKEN_EXPIRES_IN_PUBLIC,
@@ -17,6 +18,15 @@ import {
   REFRESH_TOKEN_EXPIRES_IN_PUBLIC,
 } from './constants';
 import { OAuthClientInfo, OAuthScopeItem } from './types';
+
+const ACCESS_TOKEN_LIFETIME_SECONDS: Record<
+  OAuthClientAccessTokenLifetime,
+  number
+> = {
+  year: 365 * 24 * 60 * 60,
+  half: 182 * 24 * 60 * 60,
+  trio: 90 * 24 * 60 * 60,
+};
 
 export const getAvailableOAuthScopesForUser = async ({
   subdomain,
@@ -169,18 +179,14 @@ export const checkRateLimit = async (
   limit: number,
   windowSecs: number,
 ): Promise<void> => {
-  try {
-    const current = await redis.incr(key);
+  const current = await redis.incr(key);
 
-    if (current === 1) {
-      await redis.expire(key, windowSecs);
-    }
+  if (current === 1) {
+    await redis.expire(key, windowSecs);
+  }
 
-    if (current > limit) {
-      throw new RateLimitError('Too many requests. Please try again later.');
-    }
-  } catch (e) {
-    throw e;
+  if (current > limit) {
+    throw new RateLimitError('Too many requests. Please try again later.');
   }
 };
 
@@ -291,12 +297,34 @@ export const createOAuthRefreshToken = async ({
   return { refreshToken, tokenHash, expiresAt };
 };
 
+export const getAccessTokenExpiresIn = ({
+  clientType,
+  accessTokenLifetime,
+}: {
+  clientType: 'public' | 'confidential';
+  accessTokenLifetime?: OAuthClientAccessTokenLifetime;
+}) => {
+  const accessTokenExpiresIn =
+    clientType === 'confidential' && accessTokenLifetime
+      ? ACCESS_TOKEN_LIFETIME_SECONDS[accessTokenLifetime]
+      : undefined;
+
+  if (accessTokenExpiresIn) {
+    return accessTokenExpiresIn;
+  }
+
+  return clientType === 'confidential'
+    ? ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL
+    : ACCESS_TOKEN_EXPIRES_IN_PUBLIC;
+};
+
 export const buildTokenResponse = async ({
   models,
   user,
   clientId,
   subdomain,
   clientType,
+  accessTokenLifetime,
   scope,
 }: {
   models: IModels;
@@ -304,12 +332,13 @@ export const buildTokenResponse = async ({
   clientId: string;
   subdomain: string;
   clientType: 'public' | 'confidential';
+  accessTokenLifetime?: OAuthClientAccessTokenLifetime;
   scope?: string;
 }) => {
-  const accessExpiresIn =
-    clientType === 'confidential'
-      ? ACCESS_TOKEN_EXPIRES_IN_CONFIDENTIAL
-      : ACCESS_TOKEN_EXPIRES_IN_PUBLIC;
+  const accessExpiresIn = getAccessTokenExpiresIn({
+    clientType,
+    accessTokenLifetime,
+  });
 
   const refreshExpiresIn =
     clientType === 'confidential'

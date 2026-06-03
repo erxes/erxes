@@ -106,7 +106,9 @@ export const SalesFormFields = ({ deal }: { deal: IDeal }) => {
           </div>
         </FormField>
         <FormField label="Priority">
-          <SelectDealPriority dealId={_id} value={priority || ''} variant="card" />
+          <div>
+            <SelectDealPriority dealId={_id} value={priority || ''} variant="card" />
+          </div>
         </FormField>
         <FormField label="Tags">
           <SelectTags

@@ -11,13 +11,15 @@ if (!MONGO_URL) {
   throw new Error(`Environment variable MONGO_URL not set.`);
 }
 
+const STATIC_CHANNEL_ID =
+  process.env.STATIC_CHANNEL_ID || 'MoxYtdjVP6arTc3jrUFZH';
+
 const client = new MongoClient(MONGO_URL);
 
 let db: Db;
 
 let OLD_FORMS: Collection;
 let OLD_FIELDS: Collection;
-let OLD_CHANNELS: Collection;
 let OLD_SUBMISSIONS: Collection;
 
 let NEW_FORMS: Collection;
@@ -57,7 +59,6 @@ const command = async () => {
 
   OLD_FORMS = db.collection('forms');
   OLD_FIELDS = db.collection('form_fields');
-  OLD_CHANNELS = db.collection('channels');
   OLD_SUBMISSIONS = db.collection('form_submissions');
 
   NEW_FORMS = db.collection('frontline_forms');
@@ -77,43 +78,32 @@ const command = async () => {
         continue;
       }
 
-      const { _id, integrationId, leadData, numberOfPages, type } = form;
+      const {
+        _id,
+        createdUserId,
+        createdDate,
+        name,
+        title,
+        code,
+        type,
+        description,
+        numberOfPages,
+        buttonText,
+        tagIds,
+        departmentIds,
+        languageCode,
+        visibility,
+        status,
+        integrationId,
+        leadData = {},
+        // brandId is intentionally omitted — dropped in new schema
+      } = form;
 
-      if (!integrationId) {
-        console.log(
-          `⏭️ No integration found for form ${JSON.stringify({
-            _id,
-            type,
-            formId: _id,
-          })}`,
-        );
-      }
-
-      const channels = await OLD_CHANNELS.aggregate([
-        { $match: { integrationIds: integrationId } },
-        {
-          $addFields: {
-            arrayLength: {
-              $size: { $ifNull: ['$integrationIds', []] },
-            },
-          },
-        },
-        { $sort: { arrayLength: 1 } },
-        { $limit: 1 },
-        { $project: { arrayLength: 0 } },
-      ]).toArray();
-
-      const steps = {};
-
+      // Build steps map from numberOfPages
+      const steps: Record<string, { name: string; description: string; order: number }> = {};
       if (numberOfPages) {
         for (let i = 1; i <= numberOfPages; i++) {
-          let key = `step-${i}`;
-
-          if (i === 1) {
-            key = 'initial';
-          }
-
-          steps[key] = {
+          steps[i === 1 ? 'initial' : `step-${i}`] = {
             name: `Step ${i}`,
             description: '',
             order: i,
@@ -121,42 +111,66 @@ const command = async () => {
         }
       }
 
-      if (channels.length === 0) {
-        console.log(
-          `⏭️ No channel found for integration, inserted with no channel ${JSON.stringify(
-            {
-              integrationId,
-              formId: _id,
-            },
-          )}`,
-        );
+      const channelId = STATIC_CHANNEL_ID;
 
-        forms_bulk.push({
-          insertOne: {
-            document: {
-              ...form,
-              channelId: null,
-              leadData: {
-                ...leadData,
-                steps,
-              },
-            },
-          },
-        });
-
-        continue;
-      }
+      // Explicitly map to new schema — drops brandId, merges steps into leadData
+      const newDoc = {
+        _id,
+        createdUserId,
+        createdDate,
+        name,
+        title,
+        code,
+        type,
+        description,
+        numberOfPages,
+        buttonText,
+        tagIds,
+        departmentIds,
+        languageCode,
+        visibility,
+        status: status || 'active',
+        integrationId,
+        channelId,
+        leadData: {
+          loadType: leadData.loadType,
+          successAction: leadData.successAction,
+          fromEmail: leadData.fromEmail,
+          userEmailTitle: leadData.userEmailTitle,
+          userEmailContent: leadData.userEmailContent,
+          adminEmails: leadData.adminEmails,
+          adminEmailTitle: leadData.adminEmailTitle,
+          adminEmailContent: leadData.adminEmailContent,
+          thankTitle: leadData.thankTitle,
+          thankContent: leadData.thankContent,
+          redirectUrl: leadData.redirectUrl,
+          themeColor: leadData.themeColor,
+          callout: leadData.callout,
+          viewCount: leadData.viewCount ?? 0,
+          contactsGathered: leadData.contactsGathered ?? 0,
+          rules: leadData.rules,
+          isRequireOnce: leadData.isRequireOnce,
+          saveAsCustomer: leadData.saveAsCustomer,
+          clearCacheAfterSave: leadData.clearCacheAfterSave,
+          templateId: leadData.templateId,
+          attachments: leadData.attachments,
+          css: leadData.css,
+          successImage: leadData.successImage,
+          successImageSize: leadData.successImageSize,
+          verifyEmail: leadData.verifyEmail,
+          // new fields — default to undefined if not in old data
+          appearance: leadData.appearance,
+          thanksImage: leadData.thanksImage,
+          primaryColor: leadData.primaryColor,
+          steps,
+        },
+      };
 
       forms_bulk.push({
-        insertOne: {
-          document: {
-            ...form,
-            channelId: channels[0]._id,
-            leadData: {
-              ...leadData,
-              steps,
-            },
-          },
+        updateOne: {
+          filter: { _id },
+          update: { $setOnInsert: newDoc },
+          upsert: true,
         },
       });
 
@@ -196,12 +210,16 @@ const command = async () => {
       }
 
       fields_bulk.push({
-        insertOne: {
-          document: {
-            ...field,
-            description: htmlToText(field.description || ''),
-            pageNumber: field.pageNumber || 1,
+        updateOne: {
+          filter: { _id: field._id },
+          update: {
+            $setOnInsert: {
+              ...field,
+              description: htmlToText(field.description || ''),
+              pageNumber: field.pageNumber || 1,
+            },
           },
+          upsert: true,
         },
       });
 
@@ -239,8 +257,10 @@ const command = async () => {
       }
 
       submissions_bulk.push({
-        insertOne: {
-          document: submission,
+        updateOne: {
+          filter: { _id: submission._id },
+          update: { $setOnInsert: submission },
+          upsert: true,
         },
       });
 

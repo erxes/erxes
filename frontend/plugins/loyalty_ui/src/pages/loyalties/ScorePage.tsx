@@ -3,10 +3,10 @@ import { Button, PageSubHeader } from 'erxes-ui';
 import { Link } from 'react-router';
 import { IconSettings } from '@tabler/icons-react';
 import { useLoyaltyHeaderAction } from '~/modules/loyalties/components/LoyaltyHeaderActionContext';
-import { ScoreFilter } from '../../modules/loyalties/score/components/ScoreFilter';
-import { ScoreRecordTable } from '../../modules/loyalties/score/components/ScoreRecordTable';
-import { GiveScoreModal } from '../../modules/loyalties/score/components/GiveScoreModal';
-import { ScoreSummaryPanel } from '../../modules/loyalties/score/components/ScoreSummaryWidget';
+import { ScoreFilter } from '~/modules/loyalties/scores/components/ScoreFilter';
+import { ScoreRecordTable } from '~/modules/loyalties/scores/components/ScoreRecordTable';
+import { GiveScoreModal } from '~/modules/loyalties/scores/components/GiveScoreModal';
+import { ScoreSummaryPanel } from '~/modules/loyalties/scores/components/ScoreSummaryWidget';
 
 const ScoreHeaderActions = () => (
   <div className="flex items-center gap-2">

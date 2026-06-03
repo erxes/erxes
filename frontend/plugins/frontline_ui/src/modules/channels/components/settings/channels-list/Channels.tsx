@@ -10,6 +10,7 @@ import {
   useConfirm,
   Spinner,
   Tooltip,
+  useQueryState,
 } from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 import { type IChannel } from '@/channels/types';
@@ -18,7 +19,10 @@ import { useChannelRemove } from '@/channels/hooks/useChannelRemove';
 import { channelsMoreColumn } from './ChannelsMoreColumn';
 
 export function Channels() {
-  const { channels, loading } = useGetChannels();
+  const [searchValue] = useQueryState<string | null>('searchValue');
+  const { channels, loading } = useGetChannels({
+    variables: { name: searchValue || undefined },
+  });
   const navigate = useNavigate();
   const onClick = (channelId: string) => {
     navigate(`/settings/frontline/channels/${channelId}`);

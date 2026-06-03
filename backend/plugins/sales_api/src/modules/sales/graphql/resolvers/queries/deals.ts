@@ -600,29 +600,29 @@ export const generateFilter = async (
 
   if (createdStartDate || createdEndDate) {
     filter.createdAt = {
-      $gte: new Date(createdStartDate),
-      $lte: new Date(createdEndDate),
+      ...(createdStartDate && { $gte: new Date(createdStartDate) }),
+      ...(createdEndDate && { $lte: new Date(createdEndDate) }),
     };
   }
 
   if (stateChangedStartDate || stateChangedEndDate) {
     filter.stageChangedDate = {
-      $gte: new Date(stateChangedStartDate),
-      $lte: new Date(stateChangedEndDate),
+      ...(stateChangedStartDate && { $gte: new Date(stateChangedStartDate) }),
+      ...(stateChangedEndDate && { $lte: new Date(stateChangedEndDate) }),
     };
   }
 
   if (startDateStartDate || startDateEndDate) {
     filter.startDate = {
-      $gte: new Date(startDateStartDate),
-      $lte: new Date(startDateEndDate),
+      ...(startDateStartDate && { $gte: new Date(startDateStartDate) }),
+      ...(startDateEndDate && { $lte: new Date(startDateEndDate) }),
     };
   }
 
   if (closeDateStartDate || closeDateEndDate) {
     filter.closeDate = {
-      $gte: new Date(closeDateStartDate),
-      $lte: new Date(closeDateEndDate),
+      ...(closeDateStartDate && { $gte: new Date(closeDateStartDate) }),
+      ...(closeDateEndDate && { $lte: new Date(closeDateEndDate) }),
     };
   }
 

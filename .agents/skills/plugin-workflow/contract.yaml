@@ -1,0 +1,96 @@
+# Contract: plugin-workflow
+
+skill:
+  name: plugin-workflow
+  version: "1.0.0"
+  type: workflow
+  description: Baseline workflow for erxes plugin contributions
+
+inputs:
+  - name: plugin_name
+    type: string
+    description: "Name of the plugin being modified (e.g., 'sales', 'content')"
+    required: true
+    validation:
+      command: "pnpm nx show projects | grep -E '(^{plugin_name}_ui$|^{plugin_name}_api$)'"
+      error_message: "Plugin {plugin_name} not found in Nx projects"
+
+  - name: task_description
+    type: string
+    description: "Brief description of what needs to be done"
+    required: true
+
+  - name: work_type
+    type: enum
+    values: [frontend, backend, both]
+    description: "Type of work being performed"
+    required: true
+
+rules_required:
+  - architecture
+  - code-style
+  - nx-rules
+  - typescript-guidelines
+  - testing-guidelines
+
+preconditions:
+  - description: "Plugin must exist"
+    check: "test -d frontend/plugins/{plugin_name}_ui || test -d backend/plugins/{plugin_name}_api"
+  - description: "Context must be assembled"
+    check: "manifest_loaded == true"
+
+postconditions:
+  - description: "Lint must pass"
+    command: "pnpm nx lint {nx_target}"
+    when: "work_type == frontend || work_type == both"
+    required: true
+  - description: "Build must pass"
+    command: "pnpm nx build {nx_target}"
+    required: true
+  - description: "Tests must pass if touched"
+    command: "pnpm nx test {nx_target}"
+    when: "tests_or_tested_behavior_touched == true"
+    required: false
+
+nx_target_resolver:
+  frontend: "{plugin_name}_ui"
+  backend: "{plugin_name}_api"
+  both: ["{plugin_name}_ui", "{plugin_name}_api"]
+
+composes_with:
+  - create-page
+  - create-table
+  - create-query
+  - create-modal
+  - create-form-drawer
+  - create-backend-entity
+  - create-backend-migration
+  - create-provider-context
+  - add-translations
+  - module-federation-expose
+  - configure-plugin-navigation
+  - fix-sonar
+  - operation-plugin-reference
+  - pr-review-loop
+
+workflow:
+  phases:
+    - discover
+    - plan
+    - execute
+    - validate
+
+examples:
+  - input:
+      plugin_name: "sales"
+      task_description: "Add priority field to deals"
+      work_type: "both"
+    context:
+      rules:
+        - architecture
+        - code-style
+        - react-general-guidelines
+        - typescript-guidelines
+      skills:
+        - create-backend-entity
+        - create-form-drawer

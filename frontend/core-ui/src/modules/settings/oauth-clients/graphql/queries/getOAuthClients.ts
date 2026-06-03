@@ -9,6 +9,7 @@ const GET_OAUTH_CLIENTS = gql`
       description
       clientId
       type
+      accessTokenLifetime
       redirectUrls
       status
       lastUsedAt

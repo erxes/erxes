@@ -36,14 +36,17 @@ async function handleQPaySetup(input: any) {
   const api = new QPayQuickQrAPI(input.config);
   const { isCompany } = input.config;
 
+  // Fallback for missing name (for company registration)
+  if (isCompany && !input.config.name) {
+    input.config.name = input.config.companyName || input.config.businessName || "Default Contact";
+  }
+
   const response = isCompany
     ? await api.createCompany(input.config)
     : await api.createCustomer(input.config);
 
   if (!response?.id) {
-    throw new Error(
-      `QPay did not return merchant id: ${JSON.stringify(response)}`,
-    );
+    throw new Error(`QPay did not return merchant id: ${JSON.stringify(response)}`);
   }
 
   input.config.merchantId = response.id;
@@ -106,10 +109,10 @@ const mutations = {
 
     const payment = await models.PaymentMethods.createPayment(input);
 
-    // 1️⃣ Authorize first (multi-tenant safe)
+    // Authorize first (multi-tenant safe)
     await authorizePayment(payment, models, subdomain);
 
-    // 2️⃣ Register webhook only after successful authorization
+    // Register webhook only after successful authorization
     await registerWebhookIfNeeded(input, payment, domain, models);
 
     return payment;
@@ -136,6 +139,10 @@ const mutations = {
         if (config?.type) {
           config.isCompany = config.type === 'company';
           delete config.type;
+        }
+        if (config.isCompany && !config.name) {
+          config.name =
+            config.companyName || config.businessName || 'Default Contact';
         }
 
         const api = new QPayQuickQrAPI(config);
