@@ -6,18 +6,24 @@ import { PlaceholderInput } from 'ui-modules';
 interface LocalRuleProps {
   index: number;
   propertyType: string;
+  sourceType: string;
 }
 
-export const ManagePropertyRule = ({ propertyType, index }: LocalRuleProps) => {
+export const ManagePropertyRule = ({
+  propertyType,
+  sourceType,
+  index,
+}: LocalRuleProps) => {
   const {
     control,
     groups,
     operators,
+    handleFieldChange,
     handleRemove,
     handleUpdate,
     placeholderInputProps,
     rule,
-  } = useManagePropertyRule({ propertyType, index });
+  } = useManagePropertyRule({ propertyType, sourceType, index });
   return (
     <div className="border rounded p-4  mb-2 relative group">
       <div className="flex flex-row gap-4 mb-4  items-end">
@@ -28,7 +34,7 @@ export const ManagePropertyRule = ({ propertyType, index }: LocalRuleProps) => {
             <Form.Item className="w-3/5">
               <Form.Label>Field </Form.Label>
 
-              <Select value={field.value} onValueChange={field.onChange}>
+              <Select value={field.value} onValueChange={handleFieldChange}>
                 <Select.Trigger>
                   <Select.Value placeholder="Select an field" />
                 </Select.Trigger>

@@ -2,7 +2,7 @@ import {
   TAutomationRuntimeOutputDefinition,
   TAutomationSetPropertyTarget,
 } from 'erxes-api-shared/core-modules';
-import { generateTotalAmount } from './action/getRelatedValue';
+import { generateTotalAmount } from './action/generateTotalAmount';
 import { IDeal } from '../../@types';
 
 const SALES_DEAL_SET_PROPERTY_TARGETS: TAutomationSetPropertyTarget[] = [

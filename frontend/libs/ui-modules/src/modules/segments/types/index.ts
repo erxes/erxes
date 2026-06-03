@@ -67,6 +67,17 @@ export type FieldQueryResponse = {
 };
 
 export type TPropertyTypeOption = {
+  label?: string;
+  type?: string;
+  source?: 'target' | 'relation' | 'resolver';
+  cardinality?: 'one' | 'many';
+  sourceType?: string;
+  relation?: {
+    contentType: string;
+    relatedContentType: string;
+  };
+  resolverKey?: string;
+  pluginName?: string;
   value: string;
   description: string;
 };

@@ -79,22 +79,24 @@ export const actionCreate = async ({
     newData.companyIds = generateIds(newData.companies);
   }
 
-  if (Object.keys(newData).some((key) => key.startsWith('customFieldsData'))) {
-    const customFieldsData: Array<{ field: string; value: string }> = [];
+  if (Object.keys(newData).some((key) => key.startsWith('propertiesData.'))) {
+    const propertiesData =
+      newData.propertiesData &&
+      !Array.isArray(newData.propertiesData) &&
+      typeof newData.propertiesData === 'object'
+        ? { ...newData.propertiesData }
+        : {};
 
     const fieldKeys = Object.keys(newData).filter((key) =>
-      key.startsWith('customFieldsData'),
+      key.startsWith('propertiesData.'),
     );
 
     for (const fieldKey of fieldKeys) {
-      const [, fieldId] = fieldKey.split('.');
-
-      customFieldsData.push({
-        field: fieldId,
-        value: newData[fieldKey],
-      });
+      const fieldId = fieldKey.replace('propertiesData.', '');
+      propertiesData[fieldId] = newData[fieldKey];
+      delete newData[fieldKey];
     }
-    newData.customFieldsData = customFieldsData;
+    newData.propertiesData = propertiesData;
   }
 
   if (Object.prototype.hasOwnProperty.call(newData, 'attachments')) {

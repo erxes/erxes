@@ -125,37 +125,9 @@ const normalizeDealActionData = (data: Record<string, any>) => {
     }
   });
 
-  normalizeCustomFieldsData(newData);
   normalizePropertiesData(newData);
 
   return newData;
-};
-
-const normalizeCustomFieldsData = (data: Record<string, any>) => {
-  const fieldKeys = Object.keys(data).filter((key) =>
-    key.startsWith('customFieldsData.'),
-  );
-
-  if (!fieldKeys.length) {
-    return;
-  }
-
-  const customFieldsData = Array.isArray(data.customFieldsData)
-    ? [...data.customFieldsData]
-    : [];
-
-  for (const fieldKey of fieldKeys) {
-    const [, fieldId] = fieldKey.split('.');
-
-    customFieldsData.push({
-      field: fieldId,
-      value: data[fieldKey],
-    });
-
-    delete data[fieldKey];
-  }
-
-  data.customFieldsData = customFieldsData;
 };
 
 const normalizePropertiesData = (data: Record<string, any>) => {
@@ -240,9 +212,7 @@ const createSourceRelation = async ({
     });
   }
 
-  const [serviceName, , sourceType] = splitType(
-    execution?.triggerType || '',
-  );
+  const [serviceName, , sourceType] = splitType(execution?.triggerType || '');
 
   if (!serviceName || serviceName === 'sales' || !execution?.targetId) {
     return;

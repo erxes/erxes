@@ -56,9 +56,9 @@ export const PROPERTIES_WITH_FIELDS = gql(`
 `);
 
 export const AUTOMATION_PROPERTIES_WITH_FIELDS = gql(`
-    query AutomationPropertiesWithFields($contentType: String!) {
-      fieldsCombinedByContentType(contentType: $contentType)
-      automationSetPropertyTargets(sourceType: $contentType)
+    query AutomationPropertiesWithFields($contentType: String!, $sourceType: String!) {
+      fieldsCombinedByContentType(contentType: $contentType, usageType: "automations")
+      automationSetPropertyTargets(sourceType: $sourceType)
     }
 `);
 

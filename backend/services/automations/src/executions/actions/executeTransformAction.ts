@@ -18,6 +18,8 @@ type TParsedTernaryExpression = {
 };
 type TExpressionLiteral = string | number | boolean;
 
+const EMPTY_EXPRESSION_OPERAND = 0;
+
 const setValueByPath = (
   target: Record<string, any>,
   path: string,
@@ -126,6 +128,16 @@ const parseExpressionLiteral = (value: string): TExpressionLiteral => {
   return trimmed;
 };
 
+const parseExpressionOperand = (value: string): TExpressionLiteral => {
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return EMPTY_EXPRESSION_OPERAND;
+  }
+
+  return parseExpressionLiteral(trimmed);
+};
+
 const splitByOperator = (expression: string, operator: '&&' | '||') =>
   expression
     .split(operator)
@@ -182,14 +194,11 @@ const evaluateComparisonExpression = (expression: string) => {
   }
 
   const [left, ...rightParts] = expression.split(operator);
-
-  if (!left?.trim() || !rightParts.join(operator).trim()) {
-    return false;
-  }
+  const right = rightParts.join(operator);
 
   return compareExpressionValues(
-    parseExpressionLiteral(left),
-    parseExpressionLiteral(rightParts.join(operator)),
+    parseExpressionOperand(left || ''),
+    parseExpressionOperand(right || ''),
     operator,
   );
 };

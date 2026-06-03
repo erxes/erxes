@@ -129,7 +129,7 @@ export const fieldsCombinedByContentType = async (
   const extendedFields = customFieldsWithGroups.map(
     ({ customField, group }) => ({
       _id: nanoid().toString(),
-      name: `customFieldsData.${getRealIdFromElk(customField._id.toString())}`,
+      name: `propertiesData.${getRealIdFromElk(customField._id.toString())}`,
       label: customField.name,
       options: customField.options,
       selectOptions: generateSelectOptions(customField.options),

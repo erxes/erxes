@@ -8,6 +8,7 @@ import {
   ResolveOutputPathsInput,
   SetPropertiesInput,
 } from './zodTypes';
+import { IAutomationExecution } from './definitions';
 
 export type IAutomationContext = {
   subdomain: string;
@@ -38,6 +39,7 @@ export type TAutomationOutputDefinition = {
 
 export type TAutomationSetPropertyTarget = {
   label: string;
+  description?: string;
   type: string;
   source: 'target' | 'relation' | 'resolver';
   cardinality: 'one' | 'many';
@@ -241,7 +243,7 @@ export interface AutomationProducers {
   setProperties?: (
     args: z.infer<typeof SetPropertiesInput>,
     context: IAutomationContext,
-  ) => Promise<{ module: string; fields: string; result: any[] }>;
+  ) => Promise<TAutomationSetPropertyResult>;
 }
 
 export interface AutomationConfigs extends AutomationProducers {
@@ -251,31 +253,70 @@ export interface AutomationConfigs extends AutomationProducers {
 export interface IPerValueProps<TModels> {
   models: TModels;
   subdomain: string;
-  relatedItem: any;
-  rule: any;
-  target: any;
-  getRelatedValue: any;
+  relatedItem: Record<string, unknown>;
+  rule: TAutomationSetPropertyRule;
+  target: Record<string, unknown>;
   triggerType?: string;
   targetType?: string;
   serviceName?: string;
-  execution: any;
+  execution: Record<string, unknown>;
 }
 
-type IPRopertyRule = {
+export type TAutomationSetPropertyRule = {
   field: string;
+  fieldLabel?: string;
   operator: string;
-  value: any;
-  forwardTo: any;
+  value?: unknown;
+  forwardTo?: unknown;
+  isExpression?: boolean;
+};
+
+export type TAutomationSetPropertyChange = {
+  field: string;
+  fieldLabel: string;
+  operator: string;
+  placeholder?: string;
+  value?: unknown;
+  status: 'updated' | 'cleared' | 'skipped' | 'failed';
+};
+
+export type TAutomationSetPropertyResult = {
+  target: {
+    label: string;
+    type: string;
+    count: number;
+  };
+  changes: TAutomationSetPropertyChange[];
+  summary: string;
+};
+
+export type TAutomationSetPropertyModifier = {
+  $set?: Record<string, unknown>;
+  $unset?: Record<string, unknown>;
+  $push?: Record<string, unknown>;
+  $addToSet?: Record<string, unknown>;
+  $pull?: Record<string, unknown>;
+};
+
+export type TAutomationSetPropertyUpdateArgs = {
+  selector: Record<string, unknown>;
+  modifier: TAutomationSetPropertyModifier;
+  item?: Record<string, unknown>;
 };
 
 export interface IPropertyProps<TModels> {
   models: TModels;
   subdomain: string;
   module: string;
-  rules: IPRopertyRule[];
-  execution: any;
-  getRelatedValue: any;
-  relatedItems: any[];
+  rules: TAutomationSetPropertyRule[];
+  execution: IAutomationExecution;
+  setPropertyTarget?: TAutomationSetPropertyTarget;
+  relatedItems?: Record<string, unknown>[];
+  selector?: Record<string, unknown>;
+  fetchItems?: (
+    selector: Record<string, unknown>,
+  ) => Promise<Record<string, unknown>[]>;
+  update?: (args: TAutomationSetPropertyUpdateArgs) => Promise<unknown>;
   triggerType?: string;
   targetType?: string;
 }

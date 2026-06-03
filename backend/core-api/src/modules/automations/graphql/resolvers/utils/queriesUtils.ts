@@ -12,10 +12,7 @@ import {
   splitType,
 } from 'erxes-api-shared/core-modules';
 import { IListArgs } from '../queries';
-import {
-  getPlugin,
-  getPlugins,
-} from 'erxes-api-shared/utils/service-discovery';
+import { getPlugin, getPlugins } from 'erxes-api-shared/utils';
 import { getRealIdFromElk } from 'erxes-api-shared/utils';
 import { CORE_AUTOMATION_CONSTANTS } from '~/meta/automations/constants';
 import { CORE_REFERENCE_TYPES } from '~/meta/references/referenceTypes';

@@ -22,10 +22,9 @@ export const useGetFieldsProperties = (
   const query = isAutomationSource
     ? AUTOMATION_PROPERTIES_WITH_FIELDS
     : PROPERTIES_WITH_FIELDS;
-  console.log({ propertyType, contentType, sourceType, queryContentType });
 
   const { data, loading } = useQuery<FieldQueryResponse>(query, {
-    variables: { contentType: queryContentType },
+    variables: { contentType: queryContentType, sourceType },
     skip: !queryContentType || (isAutomationSource && !sourceType),
   });
 

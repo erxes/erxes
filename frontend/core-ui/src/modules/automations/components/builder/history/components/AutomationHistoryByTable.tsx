@@ -44,6 +44,42 @@ const formatExecutionDuration = (durationMs?: number) => {
   return `${minutes}m ${seconds}s`;
 };
 
+const getSetPropertyResultSummary = (result: any) => {
+  if (typeof result?.summary === 'string') {
+    return result.summary;
+  }
+
+  const resultList = result?.result || [];
+  const errors = resultList.map((r: any) => r.error || '').join(', ');
+
+  return `Update for ${resultList.length} ${result.module}: ${
+    result.fields || ''
+  }, (${errors})`;
+};
+
+const SetPropertyActionResult = ({ result }: { result: any }) => {
+  if (!Array.isArray(result?.changes)) {
+    return getSetPropertyResultSummary(result);
+  }
+
+  return (
+    <div className="space-y-2 text-sm">
+      <div>{result.summary}</div>
+      <div className="space-y-1">
+        {result.changes.map((change: any, index: number) => (
+          <div key={`${change.field}-${index}`}>
+            {change.fieldLabel || change.field}: {change.status}
+            {change.value !== undefined
+              ? ` ${stringifyAutomationHistoryValue(change.value)}`
+              : ''}
+            {change.placeholder ? ` (${change.placeholder})` : ''}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const getExecutionActionResultPreview = (
   action: IAutomationHistoryAction,
 ): string => {
@@ -63,12 +99,7 @@ const getExecutionActionResultPreview = (
   }
 
   if (action.actionType === 'setProperty') {
-    const resultList = result?.result || [];
-    const errors = resultList.map((r: any) => r.error || '').join(', ');
-
-    return `Update for ${resultList.length} ${result.module}: ${
-      result.fields || ''
-    }, (${errors})`;
+    return getSetPropertyResultSummary(result);
   }
 
   if (action.actionType === 'if') {
@@ -144,12 +175,7 @@ export const ExecutionActionResult = ({
   }
 
   if (action.actionType === 'setProperty') {
-    const resultList = result?.result || [];
-    const errors = resultList.map((r: any) => r.error || '').join(', ');
-
-    return `Update for ${resultList.length} ${result.module}: ${
-      result.fields || ''
-    }, (${errors})`;
+    return <SetPropertyActionResult result={result} />;
   }
 
   if (action.actionType === 'if') {

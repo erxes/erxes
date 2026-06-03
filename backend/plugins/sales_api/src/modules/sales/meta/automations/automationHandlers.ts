@@ -1,4 +1,5 @@
 import {
+  getSetPropertySelector,
   setProperty,
   TAutomationProducers,
   TAutomationProducersInput,
@@ -8,10 +9,19 @@ import { generateModels, IModels } from '~/connectionResolvers';
 import { IDeal } from '~/modules/sales/@types';
 import { createDealAction } from '~/modules/sales/meta/automations/action/createDealAction';
 import { createChecklist } from '~/modules/sales/meta/automations/action/createChecklist';
-import { getItems } from '~/modules/sales/meta/automations/action/getItems';
-import { getRelatedValue } from '~/modules/sales/meta/automations/action/getRelatedValue';
 import { checkTriggerDealStageChanged } from '~/modules/sales/meta/automations/trigger/checkStageChangedTrigger';
 import { checkTriggerDealStageProbality } from '~/modules/sales/meta/automations/trigger/checkStageProbalityTrigger';
+
+const getSalesSetPropertyModel = (models: IModels, module: string) => {
+  const [, moduleName, collectionName] = module.replace(/\./g, ':').split(':');
+  const collectionType = collectionName || moduleName;
+
+  if (['deal', 'deals'].includes(collectionType)) {
+    return models.Deals;
+  }
+
+  throw new Error(`Unsupported sales set property module: ${module}`);
+};
 
 export const salesAutomationHandlers = {
   checkCustomTrigger: async (
@@ -70,25 +80,31 @@ export const salesAutomationHandlers = {
     { models, subdomain }: TCoreModuleProducerContext<IModels>,
   ) => {
     const { action, execution, targetType } = data;
-    const { module, rules } = action.config;
-
-    const relatedItems = await getItems(
+    const { module, rules, setPropertyTarget } = action.config;
+    const model = getSalesSetPropertyModel(models, module);
+    const selector = await getSetPropertySelector({
       subdomain,
       module,
       execution,
-      targetType.split('.')[0],
-    );
+      targetType,
+      relation: setPropertyTarget?.relation,
+    });
 
-    return await setProperty({
+    const setPropertyArgs = {
       models,
       subdomain,
-      getRelatedValue,
       module,
       rules,
       execution,
-      relatedItems,
+      setPropertyTarget,
+      selector,
+      fetchItems: async (itemSelector) => await model.find(itemSelector).lean(),
+      update: async ({ selector: itemSelector, modifier }) =>
+        await model.updateMany(itemSelector, modifier),
       targetType,
-    });
+    };
+
+    return await setProperty(setPropertyArgs);
   },
   checkTargetMatch: async ({ ...data }, { subdomain }) => {
     const models = await generateModels(subdomain);

@@ -18,6 +18,10 @@ export const useManagePropertySidebarContent = (
     control,
     name: 'module',
   });
+  const setPropertyTarget = useWatch<TManagePropertiesForm>({
+    control,
+    name: 'setPropertyTarget',
+  });
 
   const { selectedActionType } = useActionTarget({
     actionId: currentAction.id,
@@ -31,8 +35,6 @@ export const useManagePropertySidebarContent = (
     actionFolks,
   );
 
-  console.log({ dasd: selectedActionType || trigger?.type || '' });
-
   const sourceType = selectedActionType || trigger?.type || '';
   const selectedPropertyType = module || sourceType;
   const { propertyTypes, loading } = useGetFieldsProperties(
@@ -44,6 +46,12 @@ export const useManagePropertySidebarContent = (
   );
   const defaultPropertyType = propertyTypes[0]?.value || sourceType;
   const propertyType = module || defaultPropertyType;
+  const selectedPropertyTarget = useMemo(
+    () =>
+      propertyTypes.find((p) => p.value === propertyType) ||
+      propertyTypes.find((p) => propertyType.startsWith(p.value)),
+    [propertyTypes, propertyType],
+  );
   const isPropertyTypeValid = useMemo(
     () =>
       !!propertyTypes.find(
@@ -58,8 +66,24 @@ export const useManagePropertySidebarContent = (
     }
   }, [defaultPropertyType, module, setValue]);
 
+  useEffect(() => {
+    if (!selectedPropertyTarget) {
+      return;
+    }
+
+    if (
+      setPropertyTarget?.type === selectedPropertyTarget.type &&
+      setPropertyTarget?.source === selectedPropertyTarget.source
+    ) {
+      return;
+    }
+
+    setValue('setPropertyTarget', selectedPropertyTarget);
+  }, [selectedPropertyTarget, setPropertyTarget, setValue]);
+
   return {
     propertyType,
+    sourceType,
     propertyTypes,
     loading,
     module,

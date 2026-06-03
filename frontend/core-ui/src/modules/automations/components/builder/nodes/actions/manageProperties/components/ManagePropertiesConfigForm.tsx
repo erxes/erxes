@@ -37,8 +37,13 @@ export const ManagePropertiesConfigForm = ({
     resolver: zodResolver(managePropertiesFormSchema),
     defaultValues: generateDefaultValues(currentAction),
   });
-  const { propertyTypes, propertyType, isPropertyTypeValid, loading } =
-    useManagePropertySidebarContent(currentAction, form);
+  const {
+    propertyTypes,
+    propertyType,
+    sourceType,
+    isPropertyTypeValid,
+    loading,
+  } = useManagePropertySidebarContent(currentAction, form);
   const { t } = useTranslation('automations');
   const { append, replace } = useFieldArray({
     control: form.control,
@@ -77,7 +82,15 @@ export const ManagePropertiesConfigForm = ({
                 <Select
                   value={field.value}
                   onValueChange={(value) => {
+                    const selectedPropertyTarget = propertyTypes.find(
+                      (target) => target.value === value,
+                    );
+
                     field.onChange(value);
+                    form.setValue('setPropertyTarget', selectedPropertyTarget, {
+                      shouldDirty: true,
+                      shouldTouch: true,
+                    });
                     replace([{ field: '', operator: '' }]);
                   }}
                 >
@@ -109,6 +122,7 @@ export const ManagePropertiesConfigForm = ({
                       key={`${propertyType}-${index}`}
                       index={index}
                       propertyType={propertyType}
+                      sourceType={sourceType}
                     />
                   ))}
                   <Button
