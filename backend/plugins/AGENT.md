@@ -24,7 +24,7 @@ This document defines the architecture, conventions, and best practices for deve
 
 A backend plugin follows this directory layout:
 
-```
+```text
 plugin_name_api/
 ├── package.json
 ├── tsconfig.json
@@ -130,13 +130,9 @@ startPlugin({
     process.env.NODE_ENV === 'production' ? 'subscription.js' : 'subscription.ts',
   ),
   
-  // Server init hook (optional)
+  // Server init hook (optional) — include all startup tasks in one hook
   onServerInit: async (app) => {
     // Initialize external services, websockets, etc.
-  },
-  
-  // Background workers (optional)
-  onServerInit: async () => {
     await initMQWorkers(redis);
   },
   
@@ -766,8 +762,8 @@ Place database migrations in `src/migrations/`:
 // src/migrations/migrateTasks.ts
 import { generateModels } from '~/connectionResolvers';
 
-export const migrateTasks = async () => {
-  const models = await generateModels('');
+export const migrateTasks = async (subdomain: string) => {
+  const models = await generateModels(subdomain);
   // Migration logic
   await models.Task.updateMany({}, { $set: { newField: 'default' } });
 };
