@@ -67,13 +67,15 @@ export const CustomersCommandBar = () => {
           </>
         </Can>
         <Separator.Inline />
-        <Export
-          pluginName="core"
-          moduleName="contacts"
-          collectionName="customers"
-          buttonVariant="secondary"
-          ids={customerIds}
-        />
+        <Can action="exportsManage">
+          <Export
+            pluginName="core"
+            moduleName="contacts"
+            collectionName="customers"
+            buttonVariant="secondary"
+            ids={customerIds}
+          />
+        </Can>
         {isOs && (
           <Can action="contactsUpdate">
             <>
