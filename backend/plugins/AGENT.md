@@ -816,41 +816,4 @@ import { Router } from 'express';
 
 ## Development Rules
 
-### Must Do
-- [ ] Use unique ports (check the port allocation table)
-- [ ] Register plugin name in `.env` to enable it
-- [ ] Prefix collection names with plugin name
-- [ ] Set `timestamps: true` on all schemas
-- [ ] Index frequently queried fields
-- [ ] Return `{ list, totalCount, pageInfo }` from list queries
-- [ ] Use `cursorPaginate` for pagination
-- [ ] Throw meaningful errors when entities not found
-- [ ] Use `@key(fields: "_id")` for federated entities
-- [ ] Export `startPlugin()` call from `main.ts`
-
-### Must Not Do
-- [ ] Do not modify core — extend instead
-- [ ] Do not use `any` type
-- [ ] Do not use relative imports (`../`, `./`)
-- [ ] Do not duplicate ports
-- [ ] Do not skip `connectionResolvers.ts` — it's required
-- [ ] Do not put business logic in schema definitions
-- [ ] Do not forget to register permissions in meta
-
-### Package.json Template
-
-```json
-{
-  "name": "plugin_name_api",
-  "version": "1.0.0",
-  "scripts": {
-    "dev": "tsx watch src/main.ts",
-    "build": "tsc --project tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "start": "node -r tsconfig-paths/register dist/src/main.js"
-  },
-  "dependencies": {
-    "erxes-api-shared": "workspace:^",
-    "graphql-tag": "^2.12.6"
-  }
-}
-```
+See [`rules/RULES.md`](./rules/RULES.md) for the complete list of mandatory development rules, port allocation table, and package.json template.
