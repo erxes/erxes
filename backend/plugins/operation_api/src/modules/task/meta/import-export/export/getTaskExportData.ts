@@ -102,15 +102,6 @@ export async function getTaskExportData(
 
   if (filter.createdDate) {
     handleDateFilter(query, 'createdAt', filter.createdDate);
-  } else if (filter.startDate || filter.endDate) {
-    const createdAtQuery: Record<string, Date> = {};
-    if (filter.startDate) {
-      createdAtQuery.$gte = new Date(filter.startDate);
-    }
-    if (filter.endDate) {
-      createdAtQuery.$lte = new Date(filter.endDate);
-    }
-    query.createdAt = createdAtQuery;
   }
 
   if (filter.updatedDate) {
