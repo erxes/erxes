@@ -15,6 +15,7 @@ import {
   getPlugin,
   getPlugins,
   sendWorkerMessage,
+  markResolvers
 } from 'erxes-api-shared/utils';
 import { SortOrder } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
@@ -501,6 +502,7 @@ export const automationQueries = {
   },
 };
 
-automationQueries.cpAutomationDetail.wrapperConfig = {
-  forClientPortal: true,
-};
+
+Object.assign(automationQueries.cpAutomationDetail, {
+  wrapperConfig: { forClientPortal: true },
+});
