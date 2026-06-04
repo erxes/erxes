@@ -42,6 +42,11 @@ export const cpTicketMutations: Record<string, Resolver> = {
               {
                 contentType: 'core:cp.user',
                 contentId: userId,
+                // TODO(CP_USER_TICKET): temporary relation for CP user-created tickets; refactor later
+              },
+              {
+                contentType: 'core:customer',
+                contentId: userId,
               },
               {
                 contentType: 'frontline:ticket',

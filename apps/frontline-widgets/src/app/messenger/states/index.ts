@@ -14,6 +14,21 @@ import { ITicketCheckProgress } from '../ticket/types';
 import { atomWithStorage } from 'jotai/utils';
 import { set } from 'date-fns';
 
+// FAQ navigation state
+export type FaqView = 'topic' | 'category' | 'article';
+// Stack of category IDs navigated into (supports nested categories)
+export const faqCategoryStackAtom = atom<string[]>([]);
+// Currently open article ID (null = not viewing article)
+export const faqArticleIdAtom = atom<string | null>(null);
+// Derived current view
+export const faqCurrentViewAtom = atom<FaqView>((get) => {
+  if (get(faqArticleIdAtom)) return 'article';
+  if (get(faqCategoryStackAtom).length > 0) return 'category';
+  return 'topic';
+});
+
+export const webAppCredentialsUrlAtom = atom<string | null>(null);
+
 export const customerIdAtom = atom<string | null>(null);
 
 export const customerDataAtom = atomWithStorage<ICustomerData | null>(
@@ -40,11 +55,14 @@ export const uiOptionsAtom = atom<IWidgetUiOptions>({
     foreground: '#ffffff',
   },
   logo: '',
+  navigationVariant: 'pill',
 });
 
 export const ticketConfigAtom = atom<ITicketConfig | null>(null);
 
 export const hasTicketConfigAtom = atom<boolean>(false);
+
+export const hasKnowledgeBaseTopicAtom = atom<boolean>(false);
 
 export const headerItemsAtom = atom<IHeaderItem[]>(HEADER_ITEMS);
 

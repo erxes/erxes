@@ -18,6 +18,7 @@ const commonDefs = `
   $code: String
   $parentId: String
   $userIds: [String]
+  $status: String
 `;
 
 const commonVars = `
@@ -27,6 +28,7 @@ const commonVars = `
   code: $code
   parentId: $parentId
   userIds: $userIds
+  status: $status
 `;
 
 const ADD_DEPARTMENT = gql`

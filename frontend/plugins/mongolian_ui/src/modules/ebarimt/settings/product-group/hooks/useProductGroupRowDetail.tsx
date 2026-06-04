@@ -1,25 +1,29 @@
 import { useQueryState } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { useQuery } from '@apollo/client';
+import { useEffect } from 'react';
 import { productGroupDetailAtom } from '@/ebarimt/settings/product-group/states/productGroupRowStates';
-import { GET_PRODUCT_GROUP } from '@/ebarimt/settings/product-group/graphql/queries/getProductGroup';
+import { IProductGroup } from '@/ebarimt/settings/product-group/constants/productGroupDefaultValues';
 
 export const useProductGroupRowDetail = () => {
   const [productGroupId, setProductGroupId] =
     useQueryState<string>('product_group_id');
   const productGroupDetail = useAtomValue(productGroupDetailAtom);
-  const { data, loading } = useQuery(GET_PRODUCT_GROUP, {
-    variables: { id: productGroupId },
-    skip: !!productGroupDetail || !productGroupId,
-  });
+
+  const detail: IProductGroup | null =
+    productGroupDetail?._id === productGroupId ? productGroupDetail : null;
+
+  // The detail is only kept in an atom that is populated on row click. On a
+  // fresh load / deep-link with product_group_id there is no matching detail,
+  // so close the sheet instead of leaving an uninitialized, unsubmittable form.
+  useEffect(() => {
+    if (productGroupId && !detail) {
+      setProductGroupId(null);
+    }
+  }, [productGroupId, detail, setProductGroupId]);
 
   return {
-    productGroupDetail:
-      productGroupDetail && productGroupDetail?._id === productGroupId
-        ? productGroupDetail
-        : data?.productGroupDetail,
-    loading,
+    productGroupDetail: detail,
+    loading: false,
     closeDetail: () => setProductGroupId(null),
   };
 };
- 

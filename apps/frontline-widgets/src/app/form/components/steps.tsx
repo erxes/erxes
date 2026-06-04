@@ -15,7 +15,7 @@ export const ErxesSteps = ({
   className?: string;
 }) => {
   return (
-    <div className={cn('flex flex-col gap-3 flex-none p-2', className)}>
+    <div className={cn('flex flex-col bg-background shadow-sm rounded-2xl gap-3 flex-none p-4 shrink-0 relative px-8 -mt-8 z-30', className)}>
       <div className="flex items-center gap-2">
         <Badge className="rounded-xl text-xs font-mono">STEP {step}</Badge>
         <h2 className="text-primary font-semibold text-base">{title}</h2>

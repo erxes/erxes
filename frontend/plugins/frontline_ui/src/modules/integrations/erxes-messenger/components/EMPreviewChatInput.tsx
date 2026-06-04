@@ -1,24 +1,64 @@
-import { IconMenu, IconSend } from '@tabler/icons-react';
-import { Button, DropdownMenu, Input } from 'erxes-ui';
+import {
+  IconArrowRight,
+  IconMenu,
+  IconMoodSmile,
+  IconPaperclip,
+} from '@tabler/icons-react';
+import { Button, DropdownMenu } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import {
   erxesMessengerSetupConfigAtom,
   erxesMessengerSetupIntroAtom,
 } from '../states/erxesMessengerSetupStates';
 import { Link } from 'react-router-dom';
+import { emPreviewTabAtom } from '../states/emPreviewStates';
 
 export const EMPreviewChatInput = () => {
   const intro = useAtomValue(erxesMessengerSetupIntroAtom);
+  const activetab = useAtomValue(emPreviewTabAtom);
+  const isInChat = activetab === 'chat';
   return (
-    <div className="flex items-center gap-2 p-4">
-      <Input
-        placeholder={intro?.welcome || 'Send message'}
-        className="flex-1 shadow-2xs"
-      />
-      <Button size={'icon'} className="shrink-0 size-8 bg-primary">
-        <IconSend />
-      </Button>
-      <EMPersistentMenu />
+    <div className="py-2 px-4 border-t border-border">
+      <label
+        className="flex items-center gap-1 rounded-2xl shadow-xs p-1.5 ps-2.5 bg-background"
+        htmlFor="em-preview-chat-input"
+      >
+        {/* Attachment uploader */}
+        {isInChat && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-5 hover:bg-transparent shrink-0 group"
+          >
+            <IconPaperclip className="size-4 text-muted-foreground shrink-0 group-hover:text-primary dark:group-hover:text-primary-foreground transition-all" />
+          </Button>
+        )}
+        <input
+          placeholder={!isInChat ? intro?.welcome : 'Reply...'}
+          className="border-none placeholder:truncate py-1.5 h-auto px-1 text-xs bg-transparent text-foreground shadow-none focus-visible:outline-none! focus-visible:ring-0! focus-visible:border-0! placeholder:text-muted-foreground placeholder:font-medium placeholder:text-sm flex-1"
+          id="em-preview-chat-input"
+        />
+        {/* emoji picker */}
+        {isInChat && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-5 hover:bg-transparent group shrink-0"
+          >
+            <IconMoodSmile className="size-5 text-muted-foreground shrink-0 group-hover:text-primary dark:group-hover:text-primary-foreground transition-all" />
+          </Button>
+        )}
+        <Button
+          size={'icon'}
+          className="shrink-0 size-8 bg-primary rounded-full"
+        >
+          <IconArrowRight />
+        </Button>
+        {/* persistent menu */}
+        {isInChat && <EMPersistentMenu />}
+      </label>
     </div>
   );
 };
@@ -29,7 +69,10 @@ export const EMPersistentMenu = () => {
   return (
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
-        <Button size={'icon'} className="shrink-0 size-8 bg-primary">
+        <Button
+          size={'icon'}
+          className="shrink-0 size-8 bg-primary rounded-full"
+        >
           <IconMenu />
         </Button>
       </DropdownMenu.Trigger>

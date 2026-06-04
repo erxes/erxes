@@ -32,6 +32,18 @@ export const LiveForm = () => {
   }, []);
 
   useEffect(() => {
+    const storedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia?.(
+      '(prefers-color-scheme: dark)',
+    ).matches;
+    if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  useEffect(() => {
     if (formId && channelId) {
       const connect = async () => {
         const cachedCustomerId = customerId || (await getVisitorId());
@@ -97,8 +109,13 @@ export const LiveForm = () => {
 
   return (
     <Dialog open>
-      <Dialog.Content className="p-0 border-none max-w-xl">
+      <Dialog.Content className="p-0 border-none max-w-xl bg-transparent shadow-none gap-1">
         {formContent}
+        <div className="flex items-center gap-0.5 justify-center my-1 text-primary-foreground text-[10px]">
+          <span>
+            Powered by <strong>Erxes</strong>
+          </span>
+        </div>
       </Dialog.Content>
     </Dialog>
   );
