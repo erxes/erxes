@@ -81,6 +81,16 @@ const applyReadAccessToPostQuery = async (
   );
 };
 
+const applyCmsAdminReadScopeToPostQuery = async (
+  query: Record<string, unknown>,
+  access: { query?: Record<string, unknown> },
+  models: IContext['models'],
+) => {
+  // Keep untranslated posts visible in CMS language views so the UI can mark
+  // missing translations instead of hiding those rows.
+  await applyReadAccessToPostQuery(query, { query: access.query }, models);
+};
+
 class PostQueryResolver extends BaseQueryResolver {
   private async findMostViewedPosts(
     args: {
@@ -273,7 +283,7 @@ class PostQueryResolver extends BaseQueryResolver {
 
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
-    await applyReadAccessToPostQuery(query, readAccess, models);
+    await applyCmsAdminReadScopeToPostQuery(query, readAccess, models);
 
     const { list } = await this.getListWithTranslations(
       models.Posts,
@@ -301,7 +311,7 @@ class PostQueryResolver extends BaseQueryResolver {
     );
 
     if (!query) return null;
-    await applyReadAccessToPostQuery(query, readAccess, models);
+    await applyCmsAdminReadScopeToPostQuery(query, readAccess, models);
 
     // clientPortalId must be passed explicitly — admin queries have no
     // clientPortal in context, so the base resolver cannot fall back to it.
@@ -325,7 +335,7 @@ class PostQueryResolver extends BaseQueryResolver {
 
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
-    await applyReadAccessToPostQuery(query, readAccess, models);
+    await applyCmsAdminReadScopeToPostQuery(query, readAccess, models);
 
     const { dateField, dateFrom, dateTo } = args;
     if (dateField && (dateFrom || dateTo)) {
