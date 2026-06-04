@@ -9,6 +9,7 @@ export const ADD_PACKAGE = gql`
     $description: String
     $coverImage: String
     ${PRODUCT_INPUT}
+    $tagIds: [String]
     $price: Float
     $percent: Float
     $status: String
@@ -18,6 +19,7 @@ export const ADD_PACKAGE = gql`
       description: $description
       coverImage: $coverImage
       products: $products
+      tagIds: $tagIds
       price: $price
       percent: $percent
       status: $status
@@ -35,6 +37,7 @@ export const EDIT_PACKAGE = gql`
     $description: String
     $coverImage: String
     ${PRODUCT_INPUT}
+    $tagIds: [String]
     $price: Float
     $percent: Float
   ) {
@@ -44,6 +47,7 @@ export const EDIT_PACKAGE = gql`
       description: $description
       coverImage: $coverImage
       products: $products
+      tagIds: $tagIds
       price: $price
       percent: $percent
     ) {

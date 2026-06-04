@@ -18,6 +18,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import {
   ProductPrimaryImageUpload,
+  TagsSelect,
   type ProductAttachmentItem,
 } from 'ui-modules';
 import { IPackageProduct, PACKAGE_STATUSES } from '../types/Package';
@@ -32,6 +33,7 @@ const schema = z.object({
   products: z
     .array(z.object({ productId: z.string(), quantity: z.number().min(1) }))
     .min(1, 'At least one product is required'),
+  tagIds: z.array(z.string()).optional(),
   status: z.enum(PACKAGE_STATUSES).default('active'),
 });
 
@@ -49,6 +51,7 @@ export const PackageAddSheet = () => {
       description: '',
       coverImage: '',
       products: [],
+      tagIds: [],
       status: 'active',
     },
   });
@@ -69,6 +72,7 @@ export const PackageAddSheet = () => {
           description: values.description || undefined,
           coverImage: values.coverImage || undefined,
           products: values.products,
+          tagIds: values.tagIds?.length ? values.tagIds : undefined,
           price: pricing.price ? Number(pricing.price) : undefined,
           percent: pricing.percent ? Number(pricing.percent) : undefined,
           status: values.status,
@@ -157,6 +161,26 @@ export const PackageAddSheet = () => {
                               <Form.Control>
                                 <Textarea className="min-h-20" rows={4} {...field} />
                               </Form.Control>
+                              <Form.Message />
+                            </Form.Item>
+                          )}
+                        />
+                        <Form.Field
+                          control={form.control}
+                          name="tagIds"
+                          render={({ field }) => (
+                            <Form.Item className="col-span-2">
+                              <Form.Label>Tags</Form.Label>
+                              <TagsSelect.FormItem
+                                type="core:product"
+                                mode="multiple"
+                                value={field.value || []}
+                                onValueChange={(value) =>
+                                  field.onChange(
+                                    Array.isArray(value) ? value : value ? [value] : [],
+                                  )
+                                }
+                              />
                               <Form.Message />
                             </Form.Item>
                           )}
