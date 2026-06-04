@@ -338,6 +338,7 @@ export async function getTaskExportData(
   const assigneeIds = new Set<string>();
   const creatorIds = new Set<string>();
   const tagIds = new Set<string>();
+  const labelIds = new Set<string>();
 
   for (const t of tasks) {
     if (t.status) statusIds.add(String(t.status));
@@ -350,9 +351,12 @@ export async function getTaskExportData(
     if (t.tagIds) {
       t.tagIds.forEach((id) => tagIds.add(String(id)));
     }
+    if (t.labelIds) {
+      t.labelIds.forEach((id) => labelIds.add(String(id)));
+    }
   }
 
-  const [statuses, teams, projects, milestones, cycles, users, creators, tags] = await Promise.all([
+  const [statuses, teams, projects, milestones, cycles, users, creators, tags, labels] = await Promise.all([
     statusIds.size ? Status.find({ _id: { $in: Array.from(statusIds) } }).select('_id name').lean() : [],
     teamIds.size ? Team.find({ _id: { $in: Array.from(teamIds) } }).select('_id name').lean() : [],
     projectIds.size ? Project.find({ _id: { $in: Array.from(projectIds) } }).select('_id name').lean() : [],
@@ -389,6 +393,16 @@ export async function getTaskExportData(
           input: { query: { _id: { $in: Array.from(tagIds) } } },
         })
       : [],
+    labelIds.size
+      ? sendTRPCMessage({
+          subdomain,
+          pluginName: 'sales',
+          method: 'query',
+          module: 'pipelineLabel',
+          action: 'find',
+          input: { _id: { $in: Array.from(labelIds) } },
+        })
+      : [],
   ]);
 
   const statusMap = new Map<string, string>();
@@ -421,6 +435,9 @@ export async function getTaskExportData(
   const tagMap = new Map<string, string>();
   (tags || []).forEach((t: { _id: string; name?: string }) => tagMap.set(String(t._id), t.name || ''));
 
+  const labelMap = new Map<string, string>();
+  (labels || []).forEach((l: { _id: string; name?: string }) => labelMap.set(String(l._id), l.name || ''));
+
   return tasks.map((t: any) =>
     buildTaskExportRow(t, selectedFields, {
       statusMap,
@@ -431,6 +448,7 @@ export async function getTaskExportData(
       creatorMap,
       teamMap,
       tagMap,
+      labelMap,
     }),
   );
 }
