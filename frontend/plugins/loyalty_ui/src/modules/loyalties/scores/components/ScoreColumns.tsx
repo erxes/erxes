@@ -205,12 +205,10 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
 export const scoreDetailColumns: ColumnDef<IScoreLog>[] = [
   dateColumn,
   {
-    id: '_id',
-    accessorKey: '_id',
-    header: () => (
-      <RecordTable.InlineHead icon={IconHash} label="Transaction ID" />
-    ),
-    size: 200,
+    id: 'number',
+    accessorFn: (row) => row.target?.number,
+    header: () => <RecordTable.InlineHead icon={IconHash} label="Number" />,
+    size: 160,
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
