@@ -8,39 +8,14 @@ import {
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
-  Checkbox,
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
 
-import {
-  CheckSyncedDealStatus,
-  ICheckSyncedDeals,
-} from '../types/checkSyncedDeals';
+import { ICheckSyncedDeals } from '../types/checkSyncedDeals';
 import { CheckSyncedDealsMoreColumn } from './CheckSyncedDealsMoreColumn';
-
-type CheckSyncedDealsColumnsOptions = {
-  toSyncDealIds: Record<string, boolean>;
-  syncableDealIds: string[];
-  onToggleToSync: (id: string, checked: boolean) => void;
-  onToggleAllToSync: (ids: string[], checked: boolean) => void;
-};
-
-const syncableStatuses = new Set<CheckSyncedDealStatus>([
-  'checked',
-  'synced',
-  'pending',
-  'error',
-  'resynced',
-]);
-
-const getSyncStatus = (deal: ICheckSyncedDeals): CheckSyncedDealStatus =>
-  deal.syncStatus || 'skipped';
-
-export const isSyncableDeal = (deal: ICheckSyncedDeals) =>
-  syncableStatuses.has(getSyncStatus(deal));
 
 const stringifyAmount = (amount: unknown) => {
   if (!amount) {
@@ -54,12 +29,8 @@ const stringifyAmount = (amount: unknown) => {
   return JSON.stringify(amount);
 };
 
-export const getCheckSyncedDealsColumns = ({
-  toSyncDealIds,
-  syncableDealIds,
-  onToggleToSync,
-  onToggleAllToSync,
-}: CheckSyncedDealsColumnsOptions): ColumnDef<ICheckSyncedDeals>[] => [
+export const getCheckSyncedDealsColumns =
+  (): ColumnDef<ICheckSyncedDeals>[] => [
   CheckSyncedDealsMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ICheckSyncedDeals>,
   {
@@ -163,50 +134,6 @@ export const getCheckSyncedDealsColumns = ({
         <RecordTableInlineCell>
           <TextOverflowTooltip value={status} />
         </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'toSync',
-    accessorKey: 'toSync',
-    header: () => {
-      const selectedCount = syncableDealIds.filter((id) => toSyncDealIds[id])
-        .length;
-      const isAllSelected =
-        syncableDealIds.length > 0 && selectedCount === syncableDealIds.length;
-      const isSomeSelected = selectedCount > 0 && !isAllSelected;
-      const nextChecked = !(isAllSelected || isSomeSelected);
-
-      return (
-        <div className="relative z-20 flex items-center justify-center h-8">
-          <Checkbox
-            key={`${syncableDealIds.length}-${selectedCount}`}
-            checked={isAllSelected || (isSomeSelected && 'indeterminate')}
-            disabled={!syncableDealIds.length}
-            onCheckedChange={() =>
-              onToggleAllToSync(syncableDealIds, nextChecked)
-            }
-            aria-label="Select all deals to sync"
-          />
-        </div>
-      );
-    },
-    size: 33,
-    cell: ({ row }) => {
-      const deal = row.original;
-      const disabled = !isSyncableDeal(deal);
-
-      return (
-        <div className="flex items-center justify-center">
-          <Checkbox
-            checked={!disabled && Boolean(toSyncDealIds[deal._id])}
-            disabled={disabled}
-            onCheckedChange={(value) =>
-              onToggleToSync(deal._id, Boolean(value))
-            }
-            aria-label="Select deal to sync"
-          />
-        </div>
       );
     },
   },
