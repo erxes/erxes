@@ -1,29 +1,41 @@
-import { IconChevronLeft } from '@tabler/icons-react';
-import { activePluginState, NavigationMenuGroup, Sidebar } from 'erxes-ui';
+import {
+  activePluginState,
+  NavigationMenuGroup,
+  NavigationMenuGroupHover,
+  NavigationMenuItem,
+} from 'erxes-ui';
 import { usePluginsNavigationGroups } from '../hooks/usePluginsNavigationGroups';
 import { useAtom } from 'jotai';
 
 export const NavigationPluginExitButton = () => {
   const [activePlugin, setActivePlugin] = useAtom(activePluginState);
+  const navigationGroups = usePluginsNavigationGroups();
+
+  const otherPlugins = Object.entries(navigationGroups).filter(
+    ([name]) => name !== activePlugin,
+  );
 
   if (!activePlugin) {
     return null;
   }
 
   return (
-    <>
-      <Sidebar.Menu className="px-4 py-2">
-        <Sidebar.MenuItem>
-          <Sidebar.MenuButton onClick={() => setActivePlugin(null)}>
-            <IconChevronLeft className="text-accent-foreground" />
-            <span className="font-sans font-semibold text-accent-foreground">
-              Exit {activePlugin}
-            </span>
-          </Sidebar.MenuButton>
-        </Sidebar.MenuItem>
-      </Sidebar.Menu>
-      <Sidebar.Separator className="mx-0" />
-    </>
+    <NavigationMenuGroupHover
+      name={`Exit ${activePlugin.charAt(0).toUpperCase() + activePlugin.slice(1)}`}
+      separate={false}
+      onNameClick={() => setActivePlugin(null)}
+    >
+      {otherPlugins.map(([name, group]) => (
+        <NavigationMenuItem
+          key={name}
+          name={name}
+          icon={group.icon}
+          onClick={() => {
+            setActivePlugin(name);
+          }}
+        />
+      ))}
+    </NavigationMenuGroupHover>
   );
 };
 
@@ -61,12 +73,14 @@ export const NavigationPlugins = () => {
   return (
     <NavigationMenuGroup name="Plugins">
       {Object.entries(navigationGroups).map(([name, group]) => (
-        <Sidebar.MenuItem key={name}>
-          <Sidebar.MenuButton onClick={() => setActivePlugin(name)}>
-            {group.icon && <group.icon className="text-accent-foreground" />}
-            <span className="capitalize">{name}</span>
-          </Sidebar.MenuButton>
-        </Sidebar.MenuItem>
+        <NavigationMenuItem
+          key={name}
+          name={name}
+          icon={group.icon}
+          onClick={() => {
+            setActivePlugin(name);
+          }}
+        />
       ))}
     </NavigationMenuGroup>
   );
