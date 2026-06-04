@@ -24,13 +24,14 @@ export interface IProductData {
   bonusCount?: number;
   amount?: number;
   tickUsed?: boolean;
-    branchId?: string;
+  branchId?: string;
   departmentId?: string;
   startDate?: Date;
   endDate?: Date;
   parentId?: string;
   information?: JSON;
   extraIds?: [];
+  assignUserId?: string;
 }
 
 interface IPaymentsData {
