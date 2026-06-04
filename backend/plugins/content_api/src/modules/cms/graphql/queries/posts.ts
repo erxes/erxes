@@ -59,12 +59,15 @@ const applyReadAccessToPostQuery = async (
     translationLanguage?: string;
   },
   models: IContext['models'],
+  options: { applyTranslationLanguageFilter?: boolean } = {},
 ) => {
+  const { applyTranslationLanguageFilter = true } = options;
+
   for (const [field, value] of Object.entries(access.query || {})) {
     applyFieldConstraint(query, field, value);
   }
 
-  if (!access.translationLanguage) {
+  if (!applyTranslationLanguageFilter || !access.translationLanguage) {
     return;
   }
 
@@ -88,7 +91,9 @@ const applyCmsAdminReadScopeToPostQuery = async (
 ) => {
   // Keep untranslated posts visible in CMS language views so the UI can mark
   // missing translations instead of hiding those rows.
-  await applyReadAccessToPostQuery(query, { query: access.query }, models);
+  await applyReadAccessToPostQuery(query, access, models, {
+    applyTranslationLanguageFilter: false,
+  });
 };
 
 class PostQueryResolver extends BaseQueryResolver {
