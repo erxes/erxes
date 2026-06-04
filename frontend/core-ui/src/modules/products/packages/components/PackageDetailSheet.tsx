@@ -16,6 +16,7 @@ import {
 import { useEffect, useState } from 'react';
 import {
   ProductPrimaryImageUpload,
+  TagsSelect,
   type ProductAttachmentItem,
 } from 'ui-modules';
 import { usePackageDetail } from '../hooks/usePackageDetail';
@@ -36,6 +37,7 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
   const [description, setDescription] = useState(pkg.description || '');
   const [coverImage, setCoverImage] = useState(pkg.coverImage || '');
   const [products, setProducts] = useState<IPackageProduct[]>(pkg.products || []);
+  const [tagIds, setTagIds] = useState<string[]>(pkg.tagIds || []);
   const [status, setStatus] = useState(pkg.status || 'active');
 
   const pricing = usePricing(pkg.price, pkg.percent, pkg.totalPrice);
@@ -47,6 +49,7 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
     setDescription(pkg.description || '');
     setCoverImage(pkg.coverImage || '');
     setProducts(pkg.products || []);
+    setTagIds(pkg.tagIds || []);
     setStatus(pkg.status || 'active');
     pricing.reset(pkg.price, pkg.percent, pkg.totalPrice);
   }, [pkg._id]);
@@ -57,7 +60,8 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
     coverImage !== (pkg.coverImage || '') ||
     pricing.price !== (pkg.price != null ? String(pkg.price) : '') ||
     pricing.percent !== (pkg.percent != null ? String(pkg.percent) : '') ||
-    JSON.stringify(products) !== JSON.stringify(pkg.products || []);
+    JSON.stringify(products) !== JSON.stringify(pkg.products || []) ||
+    JSON.stringify(tagIds) !== JSON.stringify(pkg.tagIds || []);
 
   const statusDirty = status !== (pkg.status || 'active');
   const dirty = basicDirty || statusDirty;
@@ -90,6 +94,7 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
               price: parsedPrice,
               percent: pricing.percent !== '' ? Number(pricing.percent) : undefined,
               products: products.map(({ productId, quantity }) => ({ productId, quantity })),
+              tagIds,
             },
           }),
         statusDirty && changeStatus({ variables: { _id: pkg._id, status } }),
@@ -139,6 +144,17 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       disabled={saving}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2 col-span-2">
+                    <Label>Tags</Label>
+                    <TagsSelect
+                      type="core:product"
+                      mode="multiple"
+                      value={tagIds}
+                      onValueChange={(value) =>
+                        setTagIds(Array.isArray(value) ? value : value ? [value] : [])
+                      }
                     />
                   </div>
                 </div>

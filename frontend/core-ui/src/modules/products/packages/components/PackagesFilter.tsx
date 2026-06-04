@@ -7,6 +7,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { IconCheck, IconTag } from '@tabler/icons-react';
+import { SelectTags } from 'ui-modules';
 import { PACKAGE_STATUSES } from '../types/Package';
 
 const STATUS_OPTIONS = PACKAGE_STATUSES.map((s) => ({
@@ -72,6 +73,21 @@ function StatusFilterBar() {
   );
 }
 
+function TagsFilterBar() {
+  const [tags] = useQueryState<string[]>('tags');
+
+  if (!tags?.length) return null;
+
+  return (
+    <SelectTags.FilterBar
+      mode="multiple"
+      filterKey="tags"
+      label="Tags"
+      tagType="core:product"
+    />
+  );
+}
+
 export const PackagesFilter = () => {
   return (
     <Filter id="packages-filter">
@@ -84,6 +100,7 @@ export const PackagesFilter = () => {
         </Filter.Dialog>
         <Filter.SearchValueBarItem />
         <StatusFilterBar />
+        <TagsFilterBar />
       </Filter.Bar>
     </Filter>
   );
@@ -104,10 +121,12 @@ export const PackagesFilterPopover = () => {
                   <IconTag />
                   Status
                 </Filter.Item>
+                <SelectTags.FilterItem value="tags" label="Tags" />
               </Command.List>
             </Command>
           </Filter.View>
           <StatusFilterView />
+          <SelectTags.FilterView mode="multiple" filterKey="tags" />
         </Combobox.Content>
       </Filter.Popover>
     </>
