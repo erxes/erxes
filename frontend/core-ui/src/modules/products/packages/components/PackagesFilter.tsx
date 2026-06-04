@@ -126,7 +126,11 @@ export const PackagesFilterPopover = () => {
             </Command>
           </Filter.View>
           <StatusFilterView />
-          <SelectTags.FilterView mode="multiple" filterKey="tags" />
+          <SelectTags.FilterView
+            mode="multiple"
+            filterKey="tags"
+            tagType="core:product"
+          />
         </Combobox.Content>
       </Filter.Popover>
     </>

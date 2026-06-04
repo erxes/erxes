@@ -2,6 +2,7 @@ import { ITicketDocument } from '@/ticket/@types/ticket';
 import { FilterQuery } from 'mongoose';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
+import { escapeRegExp } from 'erxes-api-shared/utils';
 
 export const generateFilter = async (
   filter: any,
@@ -9,6 +10,8 @@ export const generateFilter = async (
   models: IModels,
 ) => {
   const filterQuery: FilterQuery<ITicketDocument> = {};
+
+  const andConditions: FilterQuery<ITicketDocument>[] = [];
 
   let ownershipOrCondition: FilterQuery<ITicketDocument>['$or'] | null = null;
 
@@ -70,12 +73,9 @@ export const generateFilter = async (
   }
 
   if (filter.searchValue) {
-    const regex = { $regex: filter.searchValue, $options: 'i' };
+    const regex = { $regex: escapeRegExp(filter.searchValue), $options: 'i' };
 
-    filterQuery['$or'] = [
-      { name: regex },
-      { number: regex },
-    ];
+    andConditions.push({ $or: [{ name: regex }, { number: regex }] });
   }
 
   if (filter.status) {
@@ -132,12 +132,16 @@ export const generateFilter = async (
       break;
   }
 
-  if (ownershipOrCondition && stateCondition) {
-    filterQuery.$and = [{ $or: ownershipOrCondition }, stateCondition];
-  } else if (ownershipOrCondition) {
-    filterQuery.$or = ownershipOrCondition;
-  } else if (stateCondition) {
-    Object.assign(filterQuery, stateCondition);
+  if (ownershipOrCondition) {
+    andConditions.push({ $or: ownershipOrCondition });
+  }
+
+  if (stateCondition) {
+    andConditions.push(stateCondition);
+  }
+
+  if (andConditions.length) {
+    filterQuery.$and = andConditions;
   }
 
   return filterQuery;
