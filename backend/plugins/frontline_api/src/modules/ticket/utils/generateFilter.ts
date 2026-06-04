@@ -69,8 +69,13 @@ export const generateFilter = async (
     ownershipOrCondition = [{ assigneeId: user._id }, { createdBy: user._id }];
   }
 
-  if (filter.name) {
-    filterQuery.name = { $regex: filter.name, $options: 'i' };
+  if (filter.searchValue) {
+    const regex = { $regex: filter.searchValue, $options: 'i' };
+
+    filterQuery['$or'] = [
+      { name: regex },
+      { number: regex },
+    ];
   }
 
   if (filter.status) {
