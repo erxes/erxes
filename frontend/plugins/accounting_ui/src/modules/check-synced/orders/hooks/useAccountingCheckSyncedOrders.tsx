@@ -232,10 +232,10 @@ export const useAccountingCheckSyncedOrders = (
           continue;
         }
 
-        if (!item.isSynced) {
-          next[item._id] = true;
-        } else {
+        if (item.isSynced) {
           delete next[item._id];
+        } else {
+          next[item._id] = true;
         }
       }
 

@@ -9,7 +9,9 @@ export const AccTrCheckSidebar = () => {
         <Sidebar.GroupContent>
           <Sidebar.Menu>
             {Object.entries(ACC_TR_CHECK_ROUTES).map(([path, label]) => (
-              <AccTrCheckSidebarItem key={path} to={path} children={label} />
+              <AccTrCheckSidebarItem key={path} to={path}>
+                {label}
+              </AccTrCheckSidebarItem>
             ))}
           </Sidebar.Menu>
         </Sidebar.GroupContent>

@@ -58,7 +58,6 @@ export const dealToTrs = async ({
     return;
   }
 
-  let date = new Date();
   let mainId = nanoid();
   let ptrId = nanoid();
   let parentId = mainId;
@@ -77,7 +76,7 @@ export const dealToTrs = async ({
     ptrId = oldSaleTr?.ptrId || ptrId;
     parentId = oldSaleTr?.parentId || parentId;
   }
-  date = getDealAccountingDate({
+  const date = getDealAccountingDate({
     deal,
     dateRule: config.dateRule,
     dateType,

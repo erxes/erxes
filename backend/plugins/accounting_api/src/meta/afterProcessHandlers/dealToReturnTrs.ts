@@ -33,7 +33,6 @@ export const dealToReturnTrs = async ({
     trStatus?: string;
   };
 }) => {
-  let date = new Date();
   let mainId = nanoid();
   let ptrId = nanoid();
   let parentId = mainId;
@@ -59,7 +58,7 @@ export const dealToReturnTrs = async ({
     ptrId = oldReturnTr?.ptrId || ptrId;
     parentId = oldReturnTr?.parentId || parentId;
   }
-  date = getDealAccountingDate({
+  const date = getDealAccountingDate({
     deal,
     dateRule: config.dateRule,
     dateType,
