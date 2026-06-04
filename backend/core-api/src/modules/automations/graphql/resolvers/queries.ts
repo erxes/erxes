@@ -287,6 +287,14 @@ export const automationQueries = {
     return models.Automations.getAutomation(_id);
   },
 
+  async cpAutomationDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.Automations.getAutomation(_id);
+  },
+
   /**
    * Automations history list
    */
@@ -491,4 +499,8 @@ export const automationQueries = {
   ) {
     return models.AutomationEmailTemplates.getEmailTemplate(_id);
   },
+};
+
+automationQueries.cpAutomationDetail.wrapperConfig = {
+  forClientPortal: true,
 };
