@@ -7,8 +7,10 @@ import { FormMutateLayout } from './FormMutateLayout';
 import { ColorPicker, Form, Input, Textarea, ToggleGroup } from 'erxes-ui';
 import { FormValueEffectComponent } from './FormValueEffectComponent';
 import { SelectChannel } from '@/inbox/channel/components/SelectChannel';
+import { useParams } from 'react-router';
 
 export const FormGeneral = () => {
+  const { id } = useParams<{ id: string }>();
   const form = useForm<z.infer<typeof FORM_GENERAL_SCHEMA>>({
     resolver: zodResolver(FORM_GENERAL_SCHEMA),
     defaultValues: {
@@ -17,7 +19,7 @@ export const FormGeneral = () => {
       loadType: 'embedded',
       title: 'title',
       description: '',
-      channelId: '',
+      channelId: id ?? '',
       buttonText: 'Submit',
     },
   });
