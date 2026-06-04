@@ -137,11 +137,15 @@ export const AddPostForm = ({
   // Helper: apply translation (or clear) translatable fields and save default data
   const applyTranslationToForm = useCallback(
     (lang: string) => {
-      setDefaultLangData({
-        title: fullPost?.title || '',
-        content: fullPost?.content || '',
-        excerpt: fullPost?.excerpt || fullPost?.description || '',
-        customFieldsData: fullPost?.customFieldsData || [],
+      setDefaultLangData((current) => {
+        if (current) return current;
+
+        return {
+          title: fullPost?.title || '',
+          content: fullPost?.content || '',
+          excerpt: fullPost?.excerpt || fullPost?.description || '',
+          customFieldsData: fullPost?.customFieldsData || [],
+        };
       });
       const translation = translations[lang];
       form.setValue('title', translation?.title || '');
