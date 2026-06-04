@@ -1,3 +1,5 @@
+import { normalizePublicUrl } from '../../shared/utils';
+
 export const languageLabel = (language: string) => {
   const labels: Record<string, string> = {
     en: 'English',
@@ -8,13 +10,5 @@ export const languageLabel = (language: string) => {
 };
 
 export const buildPublicUrl = (domain?: string) => {
-  if (!domain) {
-    return '';
-  }
-
-  const trimmedDomain = domain.trim();
-
-  return /^https?:\/\//i.test(trimmedDomain)
-    ? trimmedDomain
-    : `https://${trimmedDomain}`;
+  return normalizePublicUrl(domain);
 };

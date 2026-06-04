@@ -4,6 +4,9 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
   Badge,
+  Button,
+  Tooltip,
+  useToast,
 } from 'erxes-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import {
@@ -15,22 +18,125 @@ import {
   IconTag,
   IconFolder,
   IconHash,
+  IconExternalLink,
+  IconEye,
+  IconUser,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { postMoreColumn } from './PostMoreColumn';
 import { PostsRecordTableStatusInlineCell } from './PostsRecordTableStatusInlineCell';
 import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
+import { buildPostPublicUrl } from '../../shared/utils';
+import type { Posts } from '../types/postsType';
+import type { IWebsite } from '../../types';
+import type { MouseEvent } from 'react';
+
+const getPostAuthorName = (post: Posts) => {
+  const details = post.author?.details;
+  const nameFromDetails = [
+    details?.firstName,
+    details?.middleName,
+    details?.lastName,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  return (
+    details?.fullName ||
+    details?.shortName ||
+    nameFromDetails ||
+    post.author?.username ||
+    post.author?.email ||
+    post.authorId ||
+    ''
+  );
+};
+
+const PublicPostLinkCell = ({
+  post,
+  cmsConfig,
+}: {
+  post: Posts;
+  cmsConfig?: IWebsite;
+}) => {
+  const publicUrl =
+    post.status === 'published' ? buildPostPublicUrl(cmsConfig, post) : '';
+  const { toast } = useToast();
+  const tooltip =
+    post.status !== 'published'
+      ? 'Publish post before opening on site'
+      : publicUrl
+      ? 'Open on site'
+      : 'Set public URL and post identifier';
+
+  const handleOpen = (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+
+    if (post.status !== 'published') {
+      toast({
+        title: 'Post is not published',
+        description: 'Publish this post before opening it on the website.',
+        variant: 'warning',
+      });
+      return;
+    }
+
+    if (!publicUrl) {
+      toast({
+        title: 'Public URL is not ready',
+        description:
+          'Set the CMS public URL and make sure the selected post URL field has a value.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    window.open(publicUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  return (
+    <RecordTableInlineCell>
+      <Tooltip.Provider>
+        <Tooltip>
+          <Tooltip.Trigger asChild>
+            <span className="inline-flex h-full w-full items-center justify-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                aria-label={tooltip}
+                onClick={handleOpen}
+              >
+                <IconExternalLink className="size-4" />
+              </Button>
+            </span>
+          </Tooltip.Trigger>
+          <Tooltip.Content>{tooltip}</Tooltip.Content>
+        </Tooltip>
+      </Tooltip.Provider>
+    </RecordTableInlineCell>
+  );
+};
 
 export const usePostsColumns = (
-  onEditPost?: (post: any) => void,
+  onEditPost?: (post: Posts) => void,
   onRefetch?: () => void,
-): ColumnDef<any>[] => {
+  cmsConfig?: IWebsite,
+): ColumnDef<Posts>[] => {
   const navigate = useNavigate();
   const { isMissing } = useIsTranslationMissing();
 
   return [
+    {
+      id: 'openPublicUrl',
+      header: () => <span className="sr-only">Open on site</span>,
+      cell: ({ row }) => (
+        <PublicPostLinkCell post={row.original} cmsConfig={cmsConfig} />
+      ),
+      size: 40,
+    },
     postMoreColumn(onEditPost, undefined, onRefetch),
-    RecordTable.checkboxColumn as ColumnDef<any>,
+    RecordTable.checkboxColumn as ColumnDef<Posts>,
     {
       id: 'title',
       header: () => (
@@ -123,6 +229,30 @@ export const usePostsColumns = (
           </RecordTableInlineCell>
         );
       },
+    },
+    {
+      id: 'author',
+      accessorFn: (post) => getPostAuthorName(post),
+      header: () => (
+        <RecordTable.InlineHead icon={IconUser} label="Journalist" />
+      ),
+      cell: ({ row }) => (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={getPostAuthorName(row.original)} />
+        </RecordTableInlineCell>
+      ),
+      size: 180,
+    },
+    {
+      id: 'viewCount',
+      accessorKey: 'viewCount',
+      header: () => <RecordTable.InlineHead icon={IconEye} label="Views" />,
+      cell: ({ row }) => (
+        <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
+          {row.original.viewCount ?? 0}
+        </RecordTableInlineCell>
+      ),
+      size: 110,
     },
     {
       id: 'scheduledDate',
