@@ -66,7 +66,10 @@ export function ExportFieldSelection({
 
   const getEntityName = () => {
     if (entityDisplayName) return entityDisplayName;
-    return getEntityLabelFromType(entityType, { capitalize: true });
+    return getEntityLabelFromType(entityType, {
+      plural: true,
+      capitalize: true,
+    });
   };
 
   const systemHeaders = headers.filter((h) => h.type !== 'customProperty');
