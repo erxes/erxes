@@ -21,6 +21,9 @@ export default {
       ticketStatusChanged(_id: String!): StatusSubscription
       ticketStatusListChanged: StatusSubscription
       ticketActivityChanged(contentId: String!): TicketActivitySubscription
+      cpConversationChanged(_id: String!): ConversationChangedResponse
+      cpConversationMessageInserted(_id: String!): ConversationMessage
+      cpConversationClientMessageInserted(userId: String!): ConversationMessage
 
 		`,
   generateResolvers: (graphqlPubsub) => {
@@ -287,6 +290,32 @@ export default {
             return response.extension === variables.extension;
           },
         ),
+      },
+
+      cpConversationChanged: {
+        subscribe: (_, { _id }) =>
+          graphqlPubsub.asyncIterator(`conversationChanged:${_id}`),
+      },
+
+      cpConversationMessageInserted: {
+        resolve: (payload) => payload.conversationMessageInserted,
+        subscribe: withFilter(
+          (_, { _id }) =>
+            graphqlPubsub.asyncIterator(`conversationMessageInserted:${_id}`),
+          async (payload, variables) => {
+            const conversationId =
+              payload.conversationMessageInserted.conversationId;
+            return !!conversationId && variables._id === conversationId;
+          },
+        ),
+      },
+
+      cpConversationClientMessageInserted: {
+        resolve: (payload) => payload.conversationClientMessageInserted,
+        subscribe: (_, { userId }, { subdomain }) =>
+          graphqlPubsub.asyncIterator(
+            `conversationClientMessageInserted:${subdomain}:${userId}`,
+          ),
       },
     };
   },
