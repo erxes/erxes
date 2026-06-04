@@ -523,21 +523,23 @@ export const ErxesForm = ({
                                 multiple
                               >
                                 <Upload.Preview className="rounded-full text-foreground" />
-                                <Upload.Button
-                                  type="button"
-                                  variant={'outline'}
-                                  size={'sm'}
-                                  className="text-foreground"
-                                >
-                                  {erxesField.content || 'Upload file'}
-                                </Upload.Button>
-                                {Array.isArray(field.value) &&
-                                  field.value.length > 0 && (
-                                    <Upload.RemoveButton
-                                      variant={'destructive'}
-                                      size={'sm'}
-                                    />
-                                  )}
+                                <div className="flex flex-col gap-1">
+                                  <Upload.Button
+                                    type="button"
+                                    variant={'outline'}
+                                    size={'sm'}
+                                    className="text-foreground"
+                                  >
+                                    {erxesField.content || 'Upload file'}
+                                  </Upload.Button>
+                                  {Array.isArray(field.value) &&
+                                    field.value.length > 0 && (
+                                      <Upload.RemoveButton
+                                        variant={'destructive'}
+                                        size={'sm'}
+                                      />
+                                    )}
+                                </div>
                               </Upload.Root>
                             </Form.Control>
                             {erxesField.description && (

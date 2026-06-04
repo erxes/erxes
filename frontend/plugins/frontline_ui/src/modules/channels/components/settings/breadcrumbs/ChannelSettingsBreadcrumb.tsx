@@ -1,4 +1,5 @@
 import { ChannelDetailBreadcrumb } from '@/channels/components/settings/breadcrumbs/ChannelDetailBreadcrumb';
+import { CreateChannel } from '@/channels/components/settings/channels-list/CreateChannel';
 import { FormDetailsBreadcrumb } from '@/forms/components/FormDetailsBreadcrumb';
 import { FormsCreateButton } from '@/forms/components/form-page/forms-create';
 import { PipelineDetailBreadcrumb } from '@/pipelines/components/PipelineDetailBreadcrumb';
@@ -50,6 +51,8 @@ export const ChannelSettingsBreadcrumb = () => {
     isMatchingLocation(FrontlinePaths.FormsCreate) ||
     isMatchingLocation(FrontlinePaths.FormDetail);
 
+  const isChannelsRoot = !isChannelDetailOrSubRoute && !isFormsRoute;
+
   return (
     <>
       <Link to="/settings/frontline/channels">
@@ -58,6 +61,12 @@ export const ChannelSettingsBreadcrumb = () => {
           Channels
         </Button>
       </Link>
+
+      {isChannelsRoot && (
+        <span className="ml-auto">
+          <CreateChannel />
+        </span>
+      )}
 
       {isChannelDetailOrSubRoute && (
         <>
