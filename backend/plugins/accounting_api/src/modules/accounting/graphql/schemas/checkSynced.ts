@@ -18,6 +18,6 @@ export const queries = ``;
 
 export const mutations = `
   accountingCheckSynced(ids: [String], contentType: String): [AccountingCheckSyncedResponse]
-  accountingSyncDeals(dealIds: [String], configStageId: String): AccountingSyncResult
+  accountingSyncDeals(dealIds: [String], configStageId: String, dateType: String): AccountingSyncResult
   accountingSyncOrders(orderIds: [String], posId: String): AccountingSyncResult
 `;

@@ -10,9 +10,8 @@ import {
   getAccountingContentType,
   getErrorMessage,
   setDealAccountingResponse,
-  setOrderAccountingResponse
+  setOrderAccountingResponse,
 } from '~/modules/accounting/utils/checkSynced';
-
 
 type SalesDeal = {
   _id: string;
@@ -69,7 +68,11 @@ const checkSyncedMutations = {
 
   async accountingSyncDeals(
     _root: undefined,
-    { dealIds, configStageId }: { dealIds?: string[]; configStageId?: string },
+    {
+      dealIds,
+      configStageId,
+      dateType,
+    }: { dealIds?: string[]; configStageId?: string; dateType?: string },
     { subdomain, models, user, checkPermission }: IContext,
   ) {
     await checkPermission('manageAccountingConfigs');
@@ -111,8 +114,8 @@ const checkSyncedMutations = {
         saleConfig?.stageId === stageId
           ? saleConfig
           : returnConfig?.stageId === stageId
-            ? returnConfig
-            : null;
+          ? returnConfig
+          : null;
 
       if (!config) {
         result.skipped.push(deal._id);
@@ -126,6 +129,7 @@ const checkSyncedMutations = {
             userId: user?._id,
             deal,
             config: returnConfig,
+            dateType,
           });
         } else {
           await dealToTrs({
@@ -134,6 +138,7 @@ const checkSyncedMutations = {
             userId: user?._id,
             deal,
             config: config as DealSyncConfig,
+            dateType,
           });
         }
 
@@ -241,4 +246,4 @@ const checkSyncedMutations = {
   },
 };
 // #endregion Mutations
-export default checkSyncedMutations
+export default checkSyncedMutations;

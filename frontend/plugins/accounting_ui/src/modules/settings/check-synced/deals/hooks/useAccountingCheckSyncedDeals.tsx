@@ -332,6 +332,7 @@ export const useAccountingCheckSyncedDeals = (
         variables: {
           dealIds: batchIds,
           configStageId: variables.stageId,
+          dateType: variables.dateType,
         },
         onError: (error) => {
           toast({

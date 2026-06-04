@@ -99,8 +99,8 @@ export const ACCOUNTING_CHECK_SYNCED_MUTATION = gql`
 `;
 
 export const ACCOUNTING_SYNC_DEALS_MUTATION = gql`
-  mutation AccountingSyncDeals($dealIds: [String], $configStageId: String) {
-    accountingSyncDeals(dealIds: $dealIds, configStageId: $configStageId) {
+  mutation AccountingSyncDeals($dealIds: [String], $configStageId: String, $dateType: String) {
+    accountingSyncDeals(dealIds: $dealIds, configStageId: $configStageId, dateType: $dateType) {
       skipped
       error
       success
