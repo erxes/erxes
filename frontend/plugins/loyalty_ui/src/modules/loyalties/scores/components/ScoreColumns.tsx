@@ -31,23 +31,34 @@ export const getOwnerName = (
   ownerType?: string,
 ): string => {
   if (!owner) return '';
+
+  let name = '';
   if (ownerType === 'user') {
-    return (
+    name =
       owner.details?.fullName ||
       [owner.details?.firstName, owner.details?.lastName]
         .filter(Boolean)
-        .join(' ') ||
-      ''
-    );
-  }
-  if (ownerType === 'company') {
-    return owner.primaryName || '';
-  }
-  return (
-    [owner.firstName, owner.middleName, owner.lastName]
+        .join(' ');
+  } else if (ownerType === 'company') {
+    name = owner.primaryName || '';
+  } else {
+    name = [owner.firstName, owner.middleName, owner.lastName]
       .filter(Boolean)
       .join(' ')
-      .trim() || ''
+      .trim();
+  }
+
+  if (name) return name;
+
+  // Fall back to a contact identifier so owners without a name (e.g. customers
+  // that only have an email/phone) are still recognizable — the dedicated
+  // email/phone columns are no longer shown on the main list.
+  return (
+    owner.primaryEmail ||
+    owner.email ||
+    owner.primaryPhone ||
+    owner.phone ||
+    ''
   );
 };
 
@@ -75,6 +86,9 @@ const ScoreOwnerNameCell = ({ row }: { row: Row<IScoreLog> }) => {
   );
 };
 
+// Main list columns: one row per owner — who they are, their net total score,
+// and their most recent activity (date + type). The full per-transaction
+// breakdown lives in the detail sheet — see `scoreDetailColumns`.
 export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
   makeScoreMoreColumn(),
   {
@@ -109,6 +123,47 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
       </RecordTableInlineCell>
     ),
   },
+  {
+    id: 'createdAt',
+    accessorKey: 'createdAt',
+    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
+    size: 120,
+    cell: ({ cell }) => (
+      <RecordTableInlineCell>
+        <TextOverflowTooltip value={formatDate(cell.getValue() as string)} />
+      </RecordTableInlineCell>
+    ),
+  },
+  {
+    id: 'action',
+    accessorKey: 'action',
+    header: () => <RecordTable.InlineHead icon={IconTag} label="Type" />,
+    size: 90,
+    cell: ({ cell }) => {
+      const action = cell.getValue() as string | undefined;
+      if (!action)
+        return (
+          <RecordTableInlineCell>
+            <span className="text-muted-foreground"></span>
+          </RecordTableInlineCell>
+        );
+      let variant = 'secondary';
+      if (action === 'add') variant = 'success';
+      else if (action === 'subtract') variant = 'destructive';
+      else if (action === 'set') variant = 'outline';
+      return (
+        <RecordTableInlineCell>
+          <Badge variant={variant as any}>{action}</Badge>
+        </RecordTableInlineCell>
+      );
+    },
+  },
+];
+
+// Detail-sheet columns: the per-transaction breakdown for a single owner. The
+// owner-identifying columns and the running total are omitted here because
+// every row in the sheet already belongs to the same person.
+export const scoreDetailColumns: ColumnDef<IScoreLog>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
@@ -278,13 +333,3 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
     ),
   },
 ];
-
-// Columns for the per-person detail sheet: the same definitions as the main
-// list (so they stay in sync) minus the row actions and owner columns, which
-// are redundant when every row already belongs to the same person.
-const DETAIL_EXCLUDED_COLUMNS = new Set(['more', 'ownerName', 'ownerType']);
-
-export const scoreDetailColumns: ColumnDef<IScoreLog>[] =
-  scoreLogColumns.filter(
-    (column) => !DETAIL_EXCLUDED_COLUMNS.has(column.id || ''),
-  );

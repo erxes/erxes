@@ -35,6 +35,8 @@ export interface IScoreLog {
   createdAt?: string;
   amount?: number;
   quantity?: number;
+  // present on aggregated owner rows (one row per owner in the main list)
+  logCount?: number;
 }
 
 export type IScoreLogItem = IScoreLog;

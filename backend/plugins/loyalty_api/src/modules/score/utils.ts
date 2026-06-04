@@ -249,14 +249,19 @@ export const refundLoyaltyScore = async (
   }
 };
 
-export const scoreActiveUsers = async ({ models }) => {
+export const scoreActiveUsers = async ({ models, filter = {} }) => {
   const currentMonthStart = dayjs().subtract(1, 'month').toDate();
   const currentMonthEnd = dayjs().toDate();
 
+  // Respect the same filter as the rest of the summary so "active members"
+  // reflects the filtered rows, not the whole collection.
   const monthlyActiveUsersPipeline = [
     {
       $match: {
-        createdAt: { $gte: currentMonthStart, $lte: currentMonthEnd },
+        $and: [
+          filter,
+          { createdAt: { $gte: currentMonthStart, $lte: currentMonthEnd } },
+        ],
       },
     },
     {
@@ -274,6 +279,9 @@ export const scoreActiveUsers = async ({ models }) => {
   );
 
   const totalActiveUsersPipeline = [
+    {
+      $match: { ...filter },
+    },
     {
       $group: {
         _id: '$ownerId',
@@ -508,6 +516,7 @@ export const scoreProducts = async ({ doc, models, filter }) => {
 export const scoreStatistic = async ({ doc, models, filter }) => {
   const { monthlyActiveUsers, totalActiveUsers } = await scoreActiveUsers({
     models,
+    filter,
   });
 
   const { totalPointEarned, totalPointRedeemed, totalPointBalance } =

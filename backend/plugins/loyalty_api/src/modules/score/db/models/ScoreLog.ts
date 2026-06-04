@@ -10,6 +10,7 @@ import {
 } from '@/score/constants';
 import { scoreLogSchema } from '@/score/db/definitions/scoreLog';
 import {
+  buildSignedScoreExpression,
   fixScoreNumber,
   getOwnerScoreValue,
   prepareScoreLogChange,
@@ -29,6 +30,7 @@ import { getLoyaltyOwner } from '~/utils';
 export interface IScoreLogModel extends Model<IScoreLogDocument> {
   getScoreLog(_id: string): Promise<IScoreLogDocument>;
   getScoreLogs(doc: IScoreLogParams): Promise<IScoreLogDocument>;
+  getOwnerScoreList(doc: IScoreLogParams): Promise<any>;
   getStatistic(doc: IScoreLogParams): Promise<IScoreLogDocument>;
   changeScore(doc: IScoreLog): Promise<IScoreLogDocument | null>;
   changeOwnersScore(doc): Promise<IScoreLogDocument>;
@@ -112,6 +114,77 @@ const generateFilter = async (
   }
 
   return filter;
+};
+
+// Score logs reference a deal only by `targetId`; the deal itself (and its
+// board/pipeline/stage) lives in the sales service, not in this database. So a
+// local `$lookup` on a `deals` collection finds nothing. Instead we ask the
+// sales plugin to resolve the matching deal ids and filter score logs by them.
+//
+// Returns `null` when no deal-based filter is requested, an array of deal ids
+// otherwise (possibly empty, meaning "no deal matched → no scores").
+const resolveDealTargetIds = async (
+  subdomain: string,
+  params: IScoreLogParams,
+): Promise<string[] | null> => {
+  const { boardId, pipelineId, stageId, number } = params;
+
+  if (!boardId && !pipelineId && !stageId && !number) {
+    return null;
+  }
+
+  const match: Record<string, any> = {};
+  if (stageId) match.stageId = stageId;
+  if (number) match.number = number;
+
+  const pipeline: any[] = [{ $match: match }];
+
+  if (boardId || pipelineId) {
+    pipeline.push(
+      {
+        $lookup: {
+          from: 'sales_stages',
+          localField: 'stageId',
+          foreignField: '_id',
+          as: '_stage',
+        },
+      },
+      { $unwind: '$_stage' },
+    );
+
+    if (pipelineId) {
+      pipeline.push({ $match: { '_stage.pipelineId': pipelineId } });
+    }
+
+    if (boardId) {
+      pipeline.push(
+        {
+          $lookup: {
+            from: 'sales_pipelines',
+            localField: '_stage.pipelineId',
+            foreignField: '_id',
+            as: '_pipeline',
+          },
+        },
+        { $unwind: '$_pipeline' },
+        { $match: { '_pipeline.boardId': boardId } },
+      );
+    }
+  }
+
+  pipeline.push({ $project: { _id: 1 } });
+
+  const deals = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'sales',
+    method: 'query',
+    module: 'deal',
+    action: 'aggregate',
+    input: pipeline,
+    defaultValue: [],
+  });
+
+  return (deals || []).map((deal: any) => deal._id);
 };
 
 const getCampaignFieldScores = (owner: any, campaigns: any[]) => {
@@ -311,10 +384,195 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       };
     }
 
-    public static async getStatistic(doc: IScoreLogParams) {
-      const filter = await generateFilter(doc, models, subdomain);
+    public static async getOwnerScoreList(doc: IScoreLogParams) {
+      const limit = Math.min(Math.max(Number(doc.limit) || 50, 1), 100);
+      const direction = doc.direction === 'backward' ? 'backward' : 'forward';
 
-      return scoreStatistic({ doc, models, filter });
+      const orderBy: Record<string, SortOrder> = { createdAt: -1 };
+
+      const sortFields = Object.keys(orderBy);
+      const sortOrder = {
+        ...Object.fromEntries(
+          Object.entries(orderBy).map(([field, order]) => [
+            field,
+            direction === 'forward' ? order : order === 1 ? -1 : 1,
+          ]),
+        ),
+        _id: direction === 'forward' ? 1 : -1,
+      };
+
+      const emptyResult = {
+        list: [],
+        pageInfo: {
+          hasNextPage: false,
+          hasPreviousPage: false,
+          startCursor: null,
+          endCursor: null,
+        } as PageInfo,
+        totalCount: 0,
+      };
+
+      // The board/pipeline/stage/number filters target a deal that lives in the
+      // sales service, so resolve the matching deal ids there and filter score
+      // logs by `targetId` instead of joining a (non-existent) local `deals`
+      // collection. The remaining filters are applied locally.
+      const targetIds = await resolveDealTargetIds(subdomain, doc);
+
+      if (targetIds !== null && targetIds.length === 0) {
+        return emptyResult;
+      }
+
+      const filter = await generateFilter(
+        {
+          ...doc,
+          boardId: undefined,
+          pipelineId: undefined,
+          stageId: undefined,
+          number: undefined,
+        },
+        models,
+        subdomain,
+      );
+
+      if (targetIds !== null) {
+        filter.targetId = { $in: targetIds };
+        filter.serviceName = 'sales';
+      }
+
+      // Collapse the per-transaction score logs into one row per owner: a
+      // single person shows up once, carrying their net total score and how
+      // many logs back it. The per-transaction breakdown is fetched on demand
+      // via `getScoreLogs` (filtered by ownerId) when a row is expanded.
+      const basePipeline: any[] = [
+        {
+          $match: { ...filter },
+        },
+        // Sort newest-first before grouping so `$first` picks each owner's most
+        // recent log for the Date/Type columns shown on the main list.
+        { $sort: { createdAt: -1, _id: -1 } },
+        {
+          $group: {
+            _id: { ownerType: '$ownerType', ownerId: '$ownerId' },
+            totalScore: { $sum: buildSignedScoreExpression() },
+            createdAt: { $first: '$createdAt' },
+            action: { $first: '$action' },
+            logCount: { $sum: 1 },
+          },
+        },
+        {
+          $project: {
+            _id: {
+              $concat: [
+                { $ifNull: ['$_id.ownerType', ''] },
+                ':',
+                { $ifNull: ['$_id.ownerId', ''] },
+              ],
+            },
+            ownerType: '$_id.ownerType',
+            ownerId: '$_id.ownerId',
+            totalScore: 1,
+            createdAt: 1,
+            action: 1,
+            logCount: 1,
+          },
+        },
+      ];
+
+      const cursorMatch = doc.cursor
+        ? buildCursorQuery(doc.cursor, orderBy, direction, {
+            createdAt: 'date',
+          })
+        : null;
+
+      const listPipeline: any[] = [
+        ...basePipeline,
+        ...(cursorMatch ? [{ $match: cursorMatch }] : []),
+        { $sort: sortOrder },
+        { $limit: limit + 1 },
+      ];
+
+      const [listRaw, countResult] = await Promise.all([
+        models.ScoreLogs.aggregate(listPipeline).allowDiskUse(true),
+        models.ScoreLogs.aggregate([
+          ...basePipeline,
+          { $count: 'totalCount' },
+        ]).allowDiskUse(true),
+      ]);
+
+      const hasMore = listRaw.length > limit;
+      let list = hasMore ? listRaw.slice(0, limit) : listRaw;
+
+      if (direction === 'backward') {
+        list = list.reverse();
+      }
+
+      const ownerKeys = Array.from(
+        new Set(
+          list
+            .filter((l: any) => l.ownerId && l.ownerType)
+            .map((l: any) => `${l.ownerType}:${l.ownerId}`),
+        ),
+      );
+
+      const ownerMap = new Map<string, any>();
+      await Promise.all(
+        ownerKeys.map(async (key) => {
+          const [ownerType, ownerId] = key.split(':');
+          const owner = await getLoyaltyOwner(subdomain, {
+            ownerType,
+            ownerId,
+          });
+          if (owner) ownerMap.set(key, owner);
+        }),
+      );
+
+      list = list.map((item: any) => ({
+        ...item,
+        owner: ownerMap.get(`${item.ownerType}:${item.ownerId}`) || null,
+      }));
+
+      const pageInfo: PageInfo = {
+        hasNextPage: direction === 'forward' ? hasMore : Boolean(doc.cursor),
+        hasPreviousPage:
+          direction === 'backward' ? hasMore : Boolean(doc.cursor),
+        startCursor: list.length > 0 ? encodeCursor(list[0], sortFields) : null,
+        endCursor:
+          list.length > 0
+            ? encodeCursor(list[list.length - 1], sortFields)
+            : null,
+      };
+
+      return {
+        list,
+        pageInfo,
+        totalCount: countResult[0]?.totalCount || 0,
+      };
+    }
+
+    public static async getStatistic(doc: IScoreLogParams) {
+      // Same cross-service rule as getOwnerScoreList: board/pipeline/stage/number
+      // filter a deal owned by the sales service, so resolve the matching deal
+      // ids there and filter score logs by `targetId`. Stripping these fields
+      // from the doc also stops the statistic helpers from attempting their
+      // own (empty) local `deals` lookup.
+      const targetIds = await resolveDealTargetIds(subdomain, doc);
+
+      const cleanDoc = {
+        ...doc,
+        boardId: undefined,
+        pipelineId: undefined,
+        stageId: undefined,
+        number: undefined,
+      };
+
+      const filter = await generateFilter(cleanDoc, models, subdomain);
+
+      if (targetIds !== null) {
+        filter.targetId = { $in: targetIds };
+        filter.serviceName = 'sales';
+      }
+
+      return scoreStatistic({ doc: cleanDoc, models, filter });
     }
 
     public static async changeOwnersScore(doc: IScoreLog) {
