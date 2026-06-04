@@ -51,6 +51,7 @@ const commonBranchParams = `
     userIds: [String]
     radius: Int
     workhours: JSON
+    status: String
     ${commonContactInfoParams}
 `;
 

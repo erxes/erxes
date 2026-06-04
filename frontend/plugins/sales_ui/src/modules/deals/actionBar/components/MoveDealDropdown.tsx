@@ -6,7 +6,6 @@ import { DealSelect } from 'ui-modules';
 import { IDeal } from '../../types/deals';
 import { IconLayoutBoard } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
-import { useMoveDealStage } from '../../cards/hooks/useDeals';
 
 interface MoveDealDropdownProps {
   deal: IDeal;
@@ -15,7 +14,6 @@ interface MoveDealDropdownProps {
 export const MoveDealDropdown = memo(function MoveDealDropdown({
   deal,
 }: MoveDealDropdownProps) {
-  const { moveDealStage } = useMoveDealStage();
   const pipeline = useAtomValue(dealPipelineState);
 
   const pipelineId = pipeline.pipelineId || deal.pipeline?._id;
@@ -37,16 +35,6 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
         <DealSelect
           boardId={deal.boardId}
           pipelineId={pipelineId}
-          stageId={deal.stageId}
-          onChangeStage={(stageId: string | string[]) => {
-            moveDealStage({
-              deal,
-              stageId,
-              onCompleted: () => {
-                setOpen(false);
-              },
-            });
-          }}
         />
       </DropdownMenu.Content>
     </DropdownMenu>

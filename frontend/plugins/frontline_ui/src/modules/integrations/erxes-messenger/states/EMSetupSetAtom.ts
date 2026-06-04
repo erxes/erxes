@@ -38,6 +38,7 @@ export const erxesMessengerSetSetupAtom = atom(
             DEFAULT_COLORS.FOREGROUND,
         },
         logo: payload?.uiOptions?.logo,
+        navigationVariant: payload?.uiOptions?.navigationVariant,
       };
       set(erxesMessengerSetupAppearanceAtom, appearance);
 
@@ -51,6 +52,7 @@ export const erxesMessengerSetSetupAtom = atom(
         channelId,
         brandId: payload?.brandId,
         ticketConfigId: payload?.ticketConfigId,
+        knowledgeBaseTopicId: payload?.messengerData?.knowledgeBaseTopicId,
         botSetup: {
           greetingMessage: payload?.messengerData?.botGreetMessage,
           persistentMenu: (payload?.messengerData?.persistentMenus || []).map(
@@ -131,6 +133,18 @@ export const erxesMessengerSetSetupAtom = atom(
         notifyCustomer: payload?.messengerData?.notifyCustomer ?? false,
         showVideoCallRequest:
           payload?.messengerData?.showVideoCallRequest ?? false,
+        websiteApps: (payload?.websiteMessengerApps ?? []).map((app) => ({
+          _id: app._id,
+          kind: app.kind ?? 'webstite',
+          showInInbox: app.showInInbox ?? false,
+          credentials: {
+            integrationId: app.credentials?.integrationId ?? '',
+            description: app.credentials?.description,
+            buttonText: app.credentials?.buttonText,
+            url: app.credentials?.url ?? '',
+          },
+          scopeBrandIds: [],
+        })),
       };
       // Set settings
       set(erxesMessengerSetupSettingsAtom, settings);

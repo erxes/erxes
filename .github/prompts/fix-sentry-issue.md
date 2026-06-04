@@ -1,8 +1,8 @@
 You are fixing a GitHub issue generated from Sentry for the Erxes repository.
 
-Issue number: #ISSUE_NUMBER
-Issue title: ISSUE_TITLE
-Issue URL: ISSUE_URL
+Issue number: #{{ env.ISSUE_NUMBER }}
+Issue title: {{ env.ISSUE_TITLE }}
+Issue URL: {{ env.ISSUE_URL }}
 
 Use the Sentry stack trace and GitHub issue body as the main source of truth. Identify the likely failing layer and files before editing.
 
@@ -16,12 +16,11 @@ Rules:
 - Run targeted tests first.
 - If full tests are too expensive, run the most relevant command and document exactly what was run.
 - Commit only relevant files.
-- Do not commit `.opencode-sentry-pr.md`; it is a temporary PR body handoff file.
 - Do not commit API keys, tokens, DSNs, secrets, or `.env` files.
 
 PR title format:
 
-fix: resolve Sentry issue #ISSUE_NUMBER
+fix: resolve Sentry issue #{{ env.ISSUE_NUMBER }}
 
 PR body must include:
 
@@ -55,5 +54,5 @@ Before finishing, write `.opencode-sentry-pr.md` with this exact structure:
 GitHub issue body:
 
 ```text
-ISSUE_BODY
+{{ env.ISSUE_BODY }}
 ```

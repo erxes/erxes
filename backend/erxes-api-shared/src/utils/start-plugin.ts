@@ -37,6 +37,7 @@ import {
   generateApolloContext,
   startBeforeResolvers,
   wrapApolloResolvers,
+  expectedErrorPlugin,
 } from './apollo';
 import { BeforeResolversConfig } from './apollo/beforeResolvers';
 import { extractUserFromHeader } from './headers';
@@ -328,7 +329,10 @@ export async function startPlugin(
       ]),
 
       // for graceful shutdown
-      plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+      plugins: [
+        ApolloServerPluginDrainHttpServer({ httpServer }),
+        expectedErrorPlugin,
+      ],
     });
   };
 

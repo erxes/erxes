@@ -313,7 +313,7 @@ export const scoreActiveUsers = async ({ models }) => {
 };
 
 export const scorePoint = async ({ doc, models, filter }) => {
-  const { stageId, number } = doc;
+  const { stageId, pipelineId, boardId, number } = doc;
 
   const refundedTargetIds = await models.ScoreLogs.distinct('targetId', {
     action: 'refund',
@@ -321,7 +321,7 @@ export const scorePoint = async ({ doc, models, filter }) => {
 
   const filterAggregate: any[] = [];
 
-  if (stageId || number) {
+  if (stageId || pipelineId || boardId || number) {
     const lookup = [
       {
         $lookup: {
@@ -398,11 +398,11 @@ export const scorePoint = async ({ doc, models, filter }) => {
 };
 
 export const scoreProducts = async ({ doc, models, filter }) => {
-  const { stageId, number } = doc;
+  const { stageId, pipelineId, boardId, number } = doc;
 
   const filterAggregate: any[] = [];
 
-  if (stageId || number) {
+  if (stageId || pipelineId || boardId || number) {
     const lookup = [
       {
         $lookup: {

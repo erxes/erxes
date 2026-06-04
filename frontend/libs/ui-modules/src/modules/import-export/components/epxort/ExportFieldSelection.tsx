@@ -64,12 +64,56 @@ export function ExportFieldSelection({
     handleToggleField,
   } = useExportFieldSelection({ entityType, filters, open, onConfirm, onOpenChange });
 
+  // If entityDisplayName is provided, use it; otherwise, derive the name from entityType
   const getEntityName = () => {
     if (entityDisplayName) return entityDisplayName;
     return getEntityLabelFromType(entityType, {
       plural: true,
       capitalize: true,
     });
+  };
+
+  const systemHeaders = headers.filter((h) => h.type !== 'customProperty');
+  const customHeaders = headers.filter((h) => h.type === 'customProperty');
+
+  const renderItem = (header: (typeof headers)[number]) => {
+    const isSelected = selectedFields.includes(header.key);
+    const searchValue = `${header.label} ${header.key}`.trim();
+    return (
+      <Command.Item
+        key={header.key}
+        value={searchValue}
+        className="cursor-pointer py-2 !overflow-visible !h-auto"
+        onSelect={() => handleToggleField(header.key)}
+      >
+        <div className="flex items-start gap-3 w-full">
+          <div
+            className="mt-0.5 flex-shrink-0"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleField(header.key);
+            }}
+          >
+            <Checkbox checked={isSelected} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <span className="flex-1 min-w-0 text-sm font-medium leading-snug break-words">
+                {header.label}
+              </span>
+              <div className="flex-shrink-0 flex flex-wrap items-start gap-1 pt-px">
+                {header.isDefault && (
+                  <Badge variant="default">Suggested</Badge>
+                )}
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground break-all mt-0.5">
+              {header.key}
+            </p>
+          </div>
+        </div>
+      </Command.Item>
+    );
   };
 
   return (
@@ -105,54 +149,16 @@ export function ExportFieldSelection({
                   totalCount={headers.length}
                 />
               </div>
-              <Command.List className="flex-1 overflow-y-auto h-full max-h-full p-1">
+              <Command.List className="flex-1 min-h-0 overflow-y-auto !max-h-none p-1">
                 <Combobox.Empty loading={loading} />
-                <ScrollArea>
-                  {headers.map((header) => {
-                    const isSelected = selectedFields.includes(header.key);
-                    const searchValue = `${header.label} ${header.key}`.trim();
-                    return (
-                      <Command.Item
-                        key={header.key}
-                        value={searchValue}
-                        className="cursor-pointer py-2"
-                        onSelect={() => handleToggleField(header.key)}
-                      >
-                        <div className="flex items-start gap-3 w-full">
-                          <div
-                            className="mt-0.5"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleToggleField(header.key);
-                            }}
-                          >
-                            <Checkbox checked={isSelected} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2">
-                              <div className="min-w-0">
-                                <span className="text-sm font-medium">
-                                  {header.label}
-                                </span>
-                                <p className="truncate text-xs text-muted-foreground">
-                                  {header.key}
-                                </p>
-                              </div>
-                              <div className="flex flex-wrap items-center gap-1">
-                                {header.type === 'customProperty' && (
-                                  <Badge variant="secondary">Custom</Badge>
-                                )}
-                                {header.isDefault && (
-                                  <Badge variant="default">Suggested</Badge>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </Command.Item>
-                    );
-                  })}
-                </ScrollArea>
+                <Command.Group heading="System Fields">
+                  {systemHeaders.map(renderItem)}
+                </Command.Group>
+                {customHeaders.length > 0 && (
+                  <Command.Group heading="Custom Properties">
+                    {customHeaders.map(renderItem)}
+                  </Command.Group>
+                )}
               </Command.List>
             </Command>
           </div>

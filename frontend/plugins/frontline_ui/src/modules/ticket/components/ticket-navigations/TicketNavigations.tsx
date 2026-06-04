@@ -5,6 +5,7 @@ import {
   Collapsible,
   IconComponent,
   NavigationMenuGroup,
+  NavigationMenuLinkItem,
   Sidebar,
   Skeleton,
   TextOverflowTooltip,
@@ -12,6 +13,7 @@ import {
 } from 'erxes-ui';
 import { IChannel } from '@/channels/types';
 import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 function LoadingSkeleton() {
   return (
@@ -28,35 +30,25 @@ interface ChannelItemProps {
 }
 
 function ChannelItem({ channel }: ChannelItemProps) {
-  const [channelId, setChannelId] = useQueryState<string | null>('channelId');
+  const [channelId] = useQueryState<string | null>('channelId');
   const isActive = channelId === channel._id;
   return (
-    <Sidebar.Group className="p-0">
-      <div className="w-full relative group/trigger hover:cursor-pointer">
-        <div className="w-full flex items-center justify-between">
-          <Sidebar.MenuButton
-            isActive={isActive}
-            onClick={() => {
-              setChannelId(channel._id);
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <IconComponent
-                name={channel.icon}
-                className={cn(
-                  'text-accent-foreground shrink-0 size-4',
-                  isActive && 'text-primary',
-                )}
-              />
-              <TextOverflowTooltip
-                className="font-sans font-semibold normal-case flex-1 min-w-0"
-                value={channel.name}
-              />
-            </div>
-          </Sidebar.MenuButton>
-        </div>
-      </div>
-    </Sidebar.Group>
+    <Sidebar.MenuItem>
+      <Sidebar.MenuButton asChild isActive={isActive}>
+        <Link to={`frontline/tickets?channelId=${channel._id}`}>
+          {!!channel.icon && (
+            <IconComponent
+              name={channel.icon}
+              className={cn(
+                'flex-none text-accent-foreground',
+                isActive && 'text-primary',
+              )}
+            />
+          )}
+          <span className="flex-1 min-w-0 truncate">{channel.name}</span>
+        </Link>
+      </Sidebar.MenuButton>
+    </Sidebar.MenuItem>
   );
 }
 
@@ -116,7 +108,7 @@ const Pipelines = () => {
                     setPipelineId(pipeline._id);
                   }}
                 >
-                  <span className="capitalize">{pipeline.name}</span>
+                  <span className="capitalize min-w-0 truncate">{pipeline.name}</span>
                 </Sidebar.MenuButton>
               </Sidebar.MenuItem>
             ))

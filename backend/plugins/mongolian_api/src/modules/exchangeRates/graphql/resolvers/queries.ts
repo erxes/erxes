@@ -10,7 +10,8 @@ const generateFilter = async (
   params: IQueryParams,
 ) => {
   const { searchValue } = params;
-  const filter: any = commonQuerySelector;
+  // Spreading a possibly-undefined value yields {}, so no fallback needed.
+  const filter: any = { ...commonQuerySelector };
 
   // search =========
   if (searchValue) {

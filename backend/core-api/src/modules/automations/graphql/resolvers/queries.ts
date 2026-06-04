@@ -13,6 +13,7 @@ import {
   getPlugin,
   getPlugins,
   sendWorkerMessage,
+  markResolvers
 } from 'erxes-api-shared/utils';
 import { SortOrder } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
@@ -95,6 +96,14 @@ export const automationQueries = {
    * Get one automation
    */
   async automationDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) {
+    return models.Automations.getAutomation(_id);
+  },
+
+  async cpAutomationDetail(
     _root,
     { _id }: { _id: string },
     { models }: IContext,
@@ -333,3 +342,8 @@ export const automationQueries = {
     return models.AutomationEmailTemplates.getEmailTemplate(_id);
   },
 };
+
+
+Object.assign(automationQueries.cpAutomationDetail, {
+  wrapperConfig: { forClientPortal: true },
+});

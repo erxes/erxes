@@ -23,6 +23,22 @@ const parseCheckSyncedData = (data: any) => {
   }
 };
 
+const getSyncErrorMessage = (error: unknown) => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === 'string') {
+    return error;
+  }
+
+  try {
+    return JSON.stringify(error) || String(error);
+  } catch (_e) {
+    return String(error);
+  }
+};
+
 const checkSyncedMutations = {
   async toCheckSynced(
     _root: undefined,
@@ -163,12 +179,15 @@ const checkSyncedMutations = {
 
           result.success.push(deal._id);
           continue;
-        } catch (e) {
+        } catch (e: unknown) {
+          const error = getSyncErrorMessage(e);
+
           result.error.push(deal._id);
           await models.SyncLogs.updateOne(
             { _id: syncLog._id },
-            { $set: { error: e.message } },
+            { $set: { error } },
           );
+          continue;
         }
       }
 
@@ -213,12 +232,15 @@ const checkSyncedMutations = {
 
           result.success.push(deal._id);
           continue;
-        } catch (e) {
+        } catch (e: unknown) {
+          const error = getSyncErrorMessage(e);
+
           result.error.push(deal._id);
           await models.SyncLogs.updateOne(
             { _id: syncLog._id },
-            { $set: { error: e.message } },
+            { $set: { error } },
           );
+          continue;
         }
       }
       result.skipped.push(deal._id);

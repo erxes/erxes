@@ -97,7 +97,6 @@ export const getChildCategories = async (
       pluginName: 'core',
       module: 'productCategories',
       action: 'withChilds',
-      method: 'query',
       input: { ids: categoryIds },
       defaultValue: [],
     })) || [];
@@ -113,7 +112,6 @@ export const getChildTags = async (subdomain: string, tagIds: string[]) => {
       pluginName: 'core',
       module: 'tags',
       action: 'tagWithChilds',
-      method: 'query',
       input: {
         query: { _id: { $in: tagIds } },
         fields: { _id: 1 },
@@ -232,7 +230,6 @@ export const checkCondition = async (
         pluginName: 'core',
         module: 'segment',
         action: 'isInSegment',
-        method: 'query',
         input: {
           segmentId,
           idToCheck: pdata.productId,
@@ -289,9 +286,8 @@ export const getCustomer = async (subdomain, deal) => {
         pluginName: 'core',
         module: 'companies',
         action: 'findActiveCompanies',
-        method: 'query',
         input: {
-          selector: { _id: { $in: companyIds } },
+          query: { _id: { $in: companyIds } },
           fields: { _id: 1, code: 1, primaryName: 1 },
         },
         defaultValue: [],
@@ -328,9 +324,8 @@ export const getCustomer = async (subdomain, deal) => {
         pluginName: 'core',
         module: 'customers',
         action: 'findActiveCustomers',
-        method: 'query',
         input: {
-          selector: { _id: { $in: customerIds } },
+          query: { _id: { $in: customerIds } },
           fields: {
             _id: 1,
             code: 1,
