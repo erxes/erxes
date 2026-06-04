@@ -1,10 +1,12 @@
-import { IconCheck, IconPackage } from '@tabler/icons-react';
+import { IconCheck, IconPackage, IconTagPlus } from '@tabler/icons-react';
 import {
   Badge,
   Button,
+  Combobox,
   CurrencyField,
   InfoCard,
   Input,
+  Popover,
   ScrollArea,
   Select,
   Sheet,
@@ -16,7 +18,8 @@ import {
 import { useEffect, useState } from 'react';
 import {
   ProductPrimaryImageUpload,
-  TagsSelect,
+  SelectTags,
+  TagBadge,
   type ProductAttachmentItem,
 } from 'ui-modules';
 import { usePackageDetail } from '../hooks/usePackageDetail';
@@ -28,6 +31,58 @@ import { PackageProductPicker } from './PackageProductPicker';
 const Label = ({ children }: { children: React.ReactNode }) => (
   <label className="font-medium text-sm">{children}</label>
 );
+
+const PackageTagsField = ({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: string[];
+  onChange: (tagIds: string[]) => void;
+  disabled?: boolean;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {value.map((tagId) => (
+        <TagBadge
+          key={tagId}
+          tagId={tagId}
+          variant="secondary"
+          onClose={
+            disabled ? undefined : () => onChange(value.filter((id) => id !== tagId))
+          }
+        />
+      ))}
+      <SelectTags.Provider
+        tagType="core:product"
+        mode="multiple"
+        value={value}
+        onValueChange={(next) =>
+          onChange(Array.isArray(next) ? next : next ? [next] : [])
+        }
+      >
+        <Popover open={open} onOpenChange={disabled ? undefined : setOpen}>
+          <Popover.Trigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              disabled={disabled}
+              className="size-7 shadow-xs"
+            >
+              <IconTagPlus className="size-4" />
+            </Button>
+          </Popover.Trigger>
+          <Combobox.Content>
+            <SelectTags.Content />
+          </Combobox.Content>
+        </Popover>
+      </SelectTags.Provider>
+    </div>
+  );
+};
 
 const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => void }) => {
   const { changeStatus, loading: savingStatus } = useChangePackageStatus();
@@ -148,13 +203,10 @@ const PackageDetailEditor = ({ pkg, onClose }: { pkg: IPackage; onClose: () => v
                   </div>
                   <div className="flex flex-col gap-2 col-span-2">
                     <Label>Tags</Label>
-                    <TagsSelect
-                      type="core:product"
-                      mode="multiple"
+                    <PackageTagsField
                       value={tagIds}
-                      onValueChange={(value) =>
-                        setTagIds(Array.isArray(value) ? value : value ? [value] : [])
-                      }
+                      onChange={setTagIds}
+                      disabled={saving}
                     />
                   </div>
                 </div>
