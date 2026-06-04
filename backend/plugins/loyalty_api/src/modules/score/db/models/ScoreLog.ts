@@ -253,6 +253,117 @@ const getManualScoreUpdate = ({
   return { updatedCustomFieldsData };
 };
 
+// For backward (previous-page) paging we invert each sort direction so the
+// cursor walks the other way; kept as a tiny helper to avoid a nested ternary.
+const flipSortOrder = (
+  order: SortOrder,
+  direction: 'forward' | 'backward',
+): SortOrder => {
+  if (direction === 'forward') return order;
+  return order === 1 ? -1 : 1;
+};
+
+const buildScoreSortOrder = (
+  orderBy: Record<string, SortOrder>,
+  direction: 'forward' | 'backward',
+) => ({
+  ...Object.fromEntries(
+    Object.entries(orderBy).map(([field, order]) => [
+      field,
+      flipSortOrder(order, direction),
+    ]),
+  ),
+  _id: direction === 'forward' ? 1 : -1,
+});
+
+const attachScoreOwners = async (subdomain: string, list: any[]) => {
+  const ownerKeys = Array.from(
+    new Set(
+      list
+        .filter((l: any) => l.ownerId && l.ownerType)
+        .map((l: any) => `${l.ownerType}:${l.ownerId}`),
+    ),
+  );
+
+  const ownerMap = new Map<string, any>();
+  await Promise.all(
+    ownerKeys.map(async (key) => {
+      const [ownerType, ownerId] = key.split(':');
+      const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
+      if (owner) ownerMap.set(key, owner);
+    }),
+  );
+
+  return list.map((item: any) => ({
+    ...item,
+    owner: ownerMap.get(`${item.ownerType}:${item.ownerId}`) || null,
+  }));
+};
+
+// Shared cursor pagination for the score-log aggregations: given the pipeline
+// that produces the rows to page over, it applies the cursor, fetches the page
+// and total count, enriches each row's owner and builds the page info.
+const paginateScoreAggregate = async ({
+  models,
+  subdomain,
+  doc,
+  orderBy,
+  basePipeline,
+}: {
+  models: IModels;
+  subdomain: string;
+  doc: IScoreLogParams;
+  orderBy: Record<string, SortOrder>;
+  basePipeline: any[];
+}) => {
+  const limit = Math.min(Math.max(Number(doc.limit) || 50, 1), 100);
+  const direction = doc.direction === 'backward' ? 'backward' : 'forward';
+  const sortFields = Object.keys(orderBy);
+  const sortOrder = buildScoreSortOrder(orderBy, direction);
+
+  const cursorMatch = doc.cursor
+    ? buildCursorQuery(doc.cursor, orderBy, direction, { createdAt: 'date' })
+    : null;
+
+  const listPipeline: any[] = [
+    ...basePipeline,
+    ...(cursorMatch ? [{ $match: cursorMatch }] : []),
+    { $sort: sortOrder },
+    { $limit: limit + 1 },
+  ];
+
+  const [listRaw, countResult] = await Promise.all([
+    models.ScoreLogs.aggregate(listPipeline).allowDiskUse(true),
+    models.ScoreLogs.aggregate([
+      ...basePipeline,
+      { $count: 'totalCount' },
+    ]).allowDiskUse(true),
+  ]);
+
+  const hasMore = listRaw.length > limit;
+  let list = hasMore ? listRaw.slice(0, limit) : listRaw;
+
+  if (direction === 'backward') {
+    list = list.reverse();
+  }
+
+  list = await attachScoreOwners(subdomain, list);
+
+  const pageInfo: PageInfo = {
+    hasNextPage: direction === 'forward' ? hasMore : Boolean(doc.cursor),
+    hasPreviousPage: direction === 'backward' ? hasMore : Boolean(doc.cursor),
+    startCursor: list.length > 0 ? encodeCursor(list[0], sortFields) : null,
+    endCursor:
+      list.length > 0 ? encodeCursor(list[list.length - 1], sortFields) : null,
+  };
+
+  return {
+    list,
+    pageInfo,
+    totalCount: countResult[0]?.totalCount || 0,
+  };
+};
+
 export const loadScoreLogClass = (models: IModels, subdomain: string) => {
   class ScoreLog {
     public static async getScoreLog(_id: string) {
@@ -267,21 +378,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
 
     public static async getScoreLogs(doc: IScoreLogParams) {
       const { stageId, pipelineId, boardId, number } = doc;
-      const limit = Math.min(Math.max(Number(doc.limit) || 50, 1), 100);
-      const direction = doc.direction === 'backward' ? 'backward' : 'forward';
-
       const orderBy: Record<string, SortOrder> = { createdAt: -1 };
-
-      const sortFields = Object.keys(orderBy);
-      const sortOrder = {
-        ...Object.fromEntries(
-          Object.entries(orderBy).map(([field, order]) => [
-            field,
-            direction === 'forward' ? order : order === 1 ? -1 : 1,
-          ]),
-        ),
-        _id: direction === 'forward' ? 1 : -1,
-      };
 
       const filter = await generateFilter(doc, models, subdomain);
 
@@ -313,104 +410,17 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         },
       ];
 
-      const cursorMatch = doc.cursor
-        ? buildCursorQuery(doc.cursor, orderBy, direction, {
-            createdAt: 'date',
-          })
-        : null;
-
-      const listPipeline: any[] = [
-        ...basePipeline,
-        ...(cursorMatch ? [{ $match: cursorMatch }] : []),
-        { $sort: sortOrder },
-        { $limit: limit + 1 },
-      ];
-
-      const [listRaw, countResult] = await Promise.all([
-        models.ScoreLogs.aggregate(listPipeline).allowDiskUse(true),
-        models.ScoreLogs.aggregate([
-          ...basePipeline,
-          { $count: 'totalCount' },
-        ]).allowDiskUse(true),
-      ]);
-
-      const hasMore = listRaw.length > limit;
-      let list = hasMore ? listRaw.slice(0, limit) : listRaw;
-
-      if (direction === 'backward') {
-        list = list.reverse();
-      }
-
-      const ownerKeys = Array.from(
-        new Set(
-          list
-            .filter((l: any) => l.ownerId && l.ownerType)
-            .map((l: any) => `${l.ownerType}:${l.ownerId}`),
-        ),
-      );
-
-      const ownerMap = new Map<string, any>();
-      await Promise.all(
-        ownerKeys.map(async (key) => {
-          const [ownerType, ownerId] = key.split(':');
-          const owner = await getLoyaltyOwner(subdomain, {
-            ownerType,
-            ownerId,
-          });
-          if (owner) ownerMap.set(key, owner);
-        }),
-      );
-
-      list = list.map((item: any) => ({
-        ...item,
-        owner: ownerMap.get(`${item.ownerType}:${item.ownerId}`) || null,
-      }));
-
-      const pageInfo: PageInfo = {
-        hasNextPage: direction === 'forward' ? hasMore : Boolean(doc.cursor),
-        hasPreviousPage:
-          direction === 'backward' ? hasMore : Boolean(doc.cursor),
-        startCursor: list.length > 0 ? encodeCursor(list[0], sortFields) : null,
-        endCursor:
-          list.length > 0
-            ? encodeCursor(list[list.length - 1], sortFields)
-            : null,
-      };
-
-      return {
-        list,
-        pageInfo,
-        totalCount: countResult[0]?.totalCount || 0,
-      };
+      return paginateScoreAggregate({
+        models,
+        subdomain,
+        doc,
+        orderBy,
+        basePipeline,
+      });
     }
 
     public static async getOwnerScoreList(doc: IScoreLogParams) {
-      const limit = Math.min(Math.max(Number(doc.limit) || 50, 1), 100);
-      const direction = doc.direction === 'backward' ? 'backward' : 'forward';
-
       const orderBy: Record<string, SortOrder> = { createdAt: -1 };
-
-      const sortFields = Object.keys(orderBy);
-      const sortOrder = {
-        ...Object.fromEntries(
-          Object.entries(orderBy).map(([field, order]) => [
-            field,
-            direction === 'forward' ? order : order === 1 ? -1 : 1,
-          ]),
-        ),
-        _id: direction === 'forward' ? 1 : -1,
-      };
-
-      const emptyResult = {
-        list: [],
-        pageInfo: {
-          hasNextPage: false,
-          hasPreviousPage: false,
-          startCursor: null,
-          endCursor: null,
-        } as PageInfo,
-        totalCount: 0,
-      };
 
       // The board/pipeline/stage/number filters target a deal that lives in the
       // sales service, so resolve the matching deal ids there and filter score
@@ -419,7 +429,16 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const targetIds = await resolveDealTargetIds(subdomain, doc);
 
       if (targetIds !== null && targetIds.length === 0) {
-        return emptyResult;
+        return {
+          list: [],
+          pageInfo: {
+            hasNextPage: false,
+            hasPreviousPage: false,
+            startCursor: null,
+            endCursor: null,
+          } as PageInfo,
+          totalCount: 0,
+        };
       }
 
       const filter = await generateFilter(
@@ -440,9 +459,9 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       }
 
       // Collapse the per-transaction score logs into one row per owner: a
-      // single person shows up once, carrying their net total score and how
-      // many logs back it. The per-transaction breakdown is fetched on demand
-      // via `getScoreLogs` (filtered by ownerId) when a row is expanded.
+      // single person shows up once, carrying their net total score and most
+      // recent activity (date + type). The per-transaction breakdown is fetched
+      // on demand via `getScoreLogs` (filtered by ownerId) when a row expands.
       const basePipeline: any[] = [
         {
           $match: { ...filter },
@@ -478,75 +497,13 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         },
       ];
 
-      const cursorMatch = doc.cursor
-        ? buildCursorQuery(doc.cursor, orderBy, direction, {
-            createdAt: 'date',
-          })
-        : null;
-
-      const listPipeline: any[] = [
-        ...basePipeline,
-        ...(cursorMatch ? [{ $match: cursorMatch }] : []),
-        { $sort: sortOrder },
-        { $limit: limit + 1 },
-      ];
-
-      const [listRaw, countResult] = await Promise.all([
-        models.ScoreLogs.aggregate(listPipeline).allowDiskUse(true),
-        models.ScoreLogs.aggregate([
-          ...basePipeline,
-          { $count: 'totalCount' },
-        ]).allowDiskUse(true),
-      ]);
-
-      const hasMore = listRaw.length > limit;
-      let list = hasMore ? listRaw.slice(0, limit) : listRaw;
-
-      if (direction === 'backward') {
-        list = list.reverse();
-      }
-
-      const ownerKeys = Array.from(
-        new Set(
-          list
-            .filter((l: any) => l.ownerId && l.ownerType)
-            .map((l: any) => `${l.ownerType}:${l.ownerId}`),
-        ),
-      );
-
-      const ownerMap = new Map<string, any>();
-      await Promise.all(
-        ownerKeys.map(async (key) => {
-          const [ownerType, ownerId] = key.split(':');
-          const owner = await getLoyaltyOwner(subdomain, {
-            ownerType,
-            ownerId,
-          });
-          if (owner) ownerMap.set(key, owner);
-        }),
-      );
-
-      list = list.map((item: any) => ({
-        ...item,
-        owner: ownerMap.get(`${item.ownerType}:${item.ownerId}`) || null,
-      }));
-
-      const pageInfo: PageInfo = {
-        hasNextPage: direction === 'forward' ? hasMore : Boolean(doc.cursor),
-        hasPreviousPage:
-          direction === 'backward' ? hasMore : Boolean(doc.cursor),
-        startCursor: list.length > 0 ? encodeCursor(list[0], sortFields) : null,
-        endCursor:
-          list.length > 0
-            ? encodeCursor(list[list.length - 1], sortFields)
-            : null,
-      };
-
-      return {
-        list,
-        pageInfo,
-        totalCount: countResult[0]?.totalCount || 0,
-      };
+      return paginateScoreAggregate({
+        models,
+        subdomain,
+        doc,
+        orderBy,
+        basePipeline,
+      });
     }
 
     public static async getStatistic(doc: IScoreLogParams) {

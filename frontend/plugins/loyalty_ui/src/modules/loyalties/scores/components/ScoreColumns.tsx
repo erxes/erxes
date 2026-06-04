@@ -14,6 +14,7 @@ import {
   IconUser,
 } from '@tabler/icons-react';
 import { ColumnDef, Row } from '@tanstack/table-core';
+import type { ComponentType } from 'react';
 import { useSetAtom } from 'jotai';
 import {
   Badge,
@@ -86,6 +87,77 @@ const ScoreOwnerNameCell = ({ row }: { row: Row<IScoreLog> }) => {
   );
 };
 
+// Shared between the main list (latest activity) and the detail sheet
+// (per-transaction): a date and a colour-coded action/type badge.
+const dateColumn: ColumnDef<IScoreLog> = {
+  id: 'createdAt',
+  accessorKey: 'createdAt',
+  header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
+  size: 120,
+  cell: ({ cell }) => (
+    <RecordTableInlineCell>
+      <TextOverflowTooltip value={formatDate(cell.getValue() as string)} />
+    </RecordTableInlineCell>
+  ),
+};
+
+const typeColumn: ColumnDef<IScoreLog> = {
+  id: 'action',
+  accessorKey: 'action',
+  header: () => <RecordTable.InlineHead icon={IconTag} label="Type" />,
+  size: 90,
+  cell: ({ cell }) => {
+    const action = cell.getValue() as string | undefined;
+    if (!action)
+      return (
+        <RecordTableInlineCell>
+          <span className="text-muted-foreground"></span>
+        </RecordTableInlineCell>
+      );
+    let variant = 'secondary';
+    if (action === 'add') variant = 'success';
+    else if (action === 'subtract') variant = 'destructive';
+    else if (action === 'set') variant = 'outline';
+    return (
+      <RecordTableInlineCell>
+        <Badge variant={variant as any}>{action}</Badge>
+      </RecordTableInlineCell>
+    );
+  },
+};
+
+// The "points earned / spent / refunded / set" detail columns differ only by
+// which action they surface and their colour, so build them from one factory.
+const makePointsColumn = ({
+  id,
+  action,
+  label,
+  icon,
+  colorClass,
+  size = 130,
+}: {
+  id: string;
+  action: string;
+  label: string;
+  icon: ComponentType<any>;
+  colorClass: string;
+  size?: number;
+}): ColumnDef<IScoreLog> => ({
+  id,
+  accessorFn: (row) => (row.action === action ? row.change : undefined),
+  header: () => <RecordTable.InlineHead icon={icon} label={label} />,
+  size,
+  cell: ({ cell }) => (
+    <RecordTableInlineCell
+      className={`text-right font-semibold ${colorClass}`}
+    >
+      <TextOverflowTooltip
+        value={formatScore(cell.getValue() as number | undefined)}
+      />
+    </RecordTableInlineCell>
+  ),
+});
+
 // Main list columns: one row per owner — who they are, their net total score,
 // and their most recent activity (date + type). The full per-transaction
 // breakdown lives in the detail sheet — see `scoreDetailColumns`.
@@ -123,58 +195,15 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
       </RecordTableInlineCell>
     ),
   },
-  {
-    id: 'createdAt',
-    accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
-    size: 120,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={formatDate(cell.getValue() as string)} />
-      </RecordTableInlineCell>
-    ),
-  },
-  {
-    id: 'action',
-    accessorKey: 'action',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Type" />,
-    size: 90,
-    cell: ({ cell }) => {
-      const action = cell.getValue() as string | undefined;
-      if (!action)
-        return (
-          <RecordTableInlineCell>
-            <span className="text-muted-foreground"></span>
-          </RecordTableInlineCell>
-        );
-      let variant = 'secondary';
-      if (action === 'add') variant = 'success';
-      else if (action === 'subtract') variant = 'destructive';
-      else if (action === 'set') variant = 'outline';
-      return (
-        <RecordTableInlineCell>
-          <Badge variant={variant as any}>{action}</Badge>
-        </RecordTableInlineCell>
-      );
-    },
-  },
+  dateColumn,
+  typeColumn,
 ];
 
 // Detail-sheet columns: the per-transaction breakdown for a single owner. The
 // owner-identifying columns and the running total are omitted here because
 // every row in the sheet already belongs to the same person.
 export const scoreDetailColumns: ColumnDef<IScoreLog>[] = [
-  {
-    id: 'createdAt',
-    accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
-    size: 120,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={formatDate(cell.getValue() as string)} />
-      </RecordTableInlineCell>
-    ),
-  },
+  dateColumn,
   {
     id: '_id',
     accessorKey: '_id',
@@ -188,30 +217,7 @@ export const scoreDetailColumns: ColumnDef<IScoreLog>[] = [
       </RecordTableInlineCell>
     ),
   },
-  {
-    id: 'action',
-    accessorKey: 'action',
-    header: () => <RecordTable.InlineHead icon={IconTag} label="Type" />,
-    size: 90,
-    cell: ({ cell }) => {
-      const action = cell.getValue() as string | undefined;
-      if (!action)
-        return (
-          <RecordTableInlineCell>
-            <span className="text-muted-foreground"></span>
-          </RecordTableInlineCell>
-        );
-      let variant = 'secondary';
-      if (action === 'add') variant = 'success';
-      else if (action === 'subtract') variant = 'destructive';
-      else if (action === 'set') variant = 'outline';
-      return (
-        <RecordTableInlineCell>
-          <Badge variant={variant as any}>{action}</Badge>
-        </RecordTableInlineCell>
-      );
-    },
-  },
+  typeColumn,
   {
     id: 'amount',
     accessorKey: 'amount',
@@ -246,68 +252,36 @@ export const scoreDetailColumns: ColumnDef<IScoreLog>[] = [
       );
     },
   },
-  {
+  makePointsColumn({
     id: 'pointsEarned',
-    accessorFn: (row) => (row.action === 'add' ? row.change : undefined),
-    header: () => (
-      <RecordTable.InlineHead icon={IconCoins} label="Points Earned" />
-    ),
-    size: 130,
-    cell: ({ cell }) => {
-      const val = cell.getValue() as number | undefined;
-      return (
-        <RecordTableInlineCell className="text-right font-semibold text-green-600">
-          <TextOverflowTooltip value={formatScore(val)} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
+    action: 'add',
+    label: 'Points Earned',
+    icon: IconCoins,
+    colorClass: 'text-green-600',
+  }),
+  makePointsColumn({
     id: 'pointsSpent',
-    accessorFn: (row) => (row.action === 'subtract' ? row.change : undefined),
-    header: () => (
-      <RecordTable.InlineHead icon={IconChartBar} label="Points Spent" />
-    ),
-    size: 130,
-    cell: ({ cell }) => {
-      const val = cell.getValue() as number | undefined;
-      return (
-        <RecordTableInlineCell className="text-right font-semibold text-red-500">
-          <TextOverflowTooltip value={formatScore(val)} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
+    action: 'subtract',
+    label: 'Points Spent',
+    icon: IconChartBar,
+    colorClass: 'text-red-500',
+  }),
+  makePointsColumn({
     id: 'pointsRefunded',
-    accessorFn: (row) => (row.action === 'refund' ? row.change : undefined),
-    header: () => (
-      <RecordTable.InlineHead icon={IconRefresh} label="Points Refunded" />
-    ),
+    action: 'refund',
+    label: 'Points Refunded',
+    icon: IconRefresh,
+    colorClass: 'text-blue-500',
     size: 150,
-    cell: ({ cell }) => {
-      const val = cell.getValue() as number | undefined;
-      return (
-        <RecordTableInlineCell className="text-right font-semibold text-blue-500">
-          <TextOverflowTooltip value={formatScore(val)} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
+  }),
+  makePointsColumn({
     id: 'pointsSet',
-    accessorFn: (row) => (row.action === 'set' ? row.change : undefined),
-    header: () => <RecordTable.InlineHead icon={IconCoins} label="Score Set" />,
+    action: 'set',
+    label: 'Score Set',
+    icon: IconCoins,
+    colorClass: 'text-violet-600',
     size: 120,
-    cell: ({ cell }) => {
-      const val = cell.getValue() as number | undefined;
-      return (
-        <RecordTableInlineCell className="text-right font-semibold text-violet-600">
-          <TextOverflowTooltip value={formatScore(val)} />
-        </RecordTableInlineCell>
-      );
-    },
-  },
+  }),
   {
     id: 'campaign',
     accessorFn: (row) => row.campaign?.title,
