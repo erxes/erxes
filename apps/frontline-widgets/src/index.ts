@@ -261,7 +261,7 @@ const sendMessageToIframe = (contentWindow: Window) => {
   const storedTheme = localStorage.getItem('theme');
   const prefersDark = window.matchMedia?.(
     '(prefers-color-scheme: dark)',
-  ).matches;
+  )?.matches;
   const theme =
     storedTheme === 'dark' || (!storedTheme && prefersDark) ? 'dark' : 'light';
   contentWindow.postMessage(
@@ -428,6 +428,8 @@ window.addEventListener('message', async (event) => {
       }
     }
 
-    erxesWidgetContainer.classList.toggle('small', isSmallContainer);
+    if ('isSmallContainer' in (data || {})) {
+      erxesWidgetContainer.classList.toggle('small', isSmallContainer);
+    }
   }
 });
