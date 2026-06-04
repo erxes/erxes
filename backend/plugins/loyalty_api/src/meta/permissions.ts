@@ -115,6 +115,7 @@ export const permissions: IPermissionConfig = {
         { title: 'Create coupon', name: 'couponCreate', description: 'Create coupon records' },
         { title: 'Edit coupon', name: 'couponEdit', description: 'Edit coupon records' },
         { title: 'Delete coupon', name: 'couponRemove', description: 'Delete coupon records' },
+        { title: 'Export coupons', name: 'couponExportManage', description: 'Export coupon records' },
       ],
     },
     {
@@ -324,7 +325,7 @@ export const permissions: IPermissionConfig = {
         { plugin: 'loyalty', module: 'assignmentCampaign', actions: ['loyaltyCampaignView', 'loyaltyCampaignCreate', 'loyaltyCampaignUpdate', 'loyaltyCampaignRemove'], scope: 'all' },
         { plugin: 'loyalty', module: 'config', actions: ['loyaltyConfigView', 'loyaltyConfigUpdate'], scope: 'all' },
         { plugin: 'loyalty', module: 'loyalty', actions: ['loyaltyView', 'loyaltyCheck', 'loyaltyShareScore', 'loyaltyConfirmVoucher'], scope: 'all' },
-        { plugin: 'loyalty', module: 'coupon', actions: ['couponView', 'couponCreate', 'couponEdit', 'couponRemove'], scope: 'all' },
+        { plugin: 'loyalty', module: 'coupon', actions: ['couponView', 'couponCreate', 'couponEdit', 'couponRemove', 'couponExportManage'], scope: 'all' },
         { plugin: 'loyalty', module: 'couponCampaign', actions: ['loyaltyCampaignView', 'loyaltyCampaignCreate', 'loyaltyCampaignUpdate', 'loyaltyCampaignRemove'], scope: 'all' },
         { plugin: 'loyalty', module: 'donate', actions: ['donateView', 'donateCreate', 'donateEdit', 'donateRemove'], scope: 'all' },
         { plugin: 'loyalty', module: 'donateCampaign', actions: ['loyaltyCampaignView', 'loyaltyCampaignCreate', 'loyaltyCampaignUpdate', 'loyaltyCampaignRemove'], scope: 'all' },
