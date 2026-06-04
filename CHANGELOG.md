@@ -1,5 +1,21 @@
 
 
+## [3.0.30](https://github.com/erxes/erxes/compare/3.0.29...3.0.30) (2026-06-04)
+
+
+### Bug Fixes
+
+* **core:** fix export field selection modal layout and pluralized titles  ([c60e0cc](https://github.com/erxes/erxes/commit/c60e0cc1419bef79e3d6f71bdeeb9a7e8e3e2326))
+* **frontline:** ticket export ([f7e7433](https://github.com/erxes/erxes/commit/f7e74334d15fed6dfea0673b81d63d374cdecf47))
+* sales product scroll ([#7879](https://github.com/erxes/erxes/issues/7879)) ([7e1a242](https://github.com/erxes/erxes/commit/7e1a242cf877d86980529144b9b229e9cdd10bdf))
+
+
+### Features
+
+* add error classifier and Sentry filtering for expected errors ([#7865](https://github.com/erxes/erxes/issues/7865)) ([c2ede97](https://github.com/erxes/erxes/commit/c2ede97ceac69a243db62449baefa5357a555693))
+* **frontline:** add client portal queries, mutations, and subscriptions  ([bc1f1c9](https://github.com/erxes/erxes/commit/bc1f1c9fd2e1fb18d10eee9d612b057cd1cde14e))
+* **frontline:** forms and messenger widget ui ([#7869](https://github.com/erxes/erxes/issues/7869)) ([06a764d](https://github.com/erxes/erxes/commit/06a764d53ee5a177bb2bfd696a688a298bceb519))
+
 ## [3.0.29](https://github.com/erxes/erxes/compare/3.0.28...3.0.29) (2026-06-03)
 
 
