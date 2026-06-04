@@ -5,6 +5,18 @@ const styleElement = document.createElement('style');
 styleElement.textContent = styles;
 document.head.appendChild(styleElement);
 
+const theme = localStorage.getItem('theme');
+
+const prefersColorSchemeDark = window.matchMedia?.(
+  '(prefers-color-scheme: dark)',
+).matches;
+
+if (theme === 'dark' || (!theme && prefersColorSchemeDark)) {
+  document.documentElement.classList.add('dark');
+} else {
+  document.documentElement.classList.remove('dark');
+}
+
 const isMobile =
   navigator.userAgent.match(/iPhone/i) ||
   navigator.userAgent.match(/iPad/i) ||
@@ -246,11 +258,18 @@ const setupShowMessengerProperty = (contentWindow: Window) => {
 
 const sendMessageToIframe = (contentWindow: Window) => {
   const settings = (window as any).erxesSettings?.messenger;
+  const storedTheme = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia?.(
+    '(prefers-color-scheme: dark)',
+  )?.matches;
+  const theme =
+    storedTheme === 'dark' || (!storedTheme && prefersDark) ? 'dark' : 'light';
   contentWindow.postMessage(
     {
       fromPublisher: true,
       settings,
       storage: getStorage(),
+      theme,
     },
     '*',
   );
@@ -369,6 +388,16 @@ window.addEventListener('message', async (event) => {
       document.body.classList.toggle('widget-mobile', isVisible);
     }
 
+    if (message === 'expandMessenger') {
+      messengerIframeContainer.classList.remove('erxes-messenger-shown');
+      messengerIframeContainer.classList.add('erxes-messenger-expand');
+    }
+
+    if (message === 'collapseMessenger') {
+      messengerIframeContainer.classList.remove('erxes-messenger-expand');
+      messengerIframeContainer.classList.add('erxes-messenger-shown');
+    }
+
     if (message === 'messenger') {
       if (isMobile && isVisible) {
         renewViewPort();
@@ -384,7 +413,10 @@ window.addEventListener('message', async (event) => {
         // hide badge while chat is open — don't overwrite lastUnreadCount
         renderBadge(0);
       } else {
-        messengerIframeContainer.classList.remove('erxes-messenger-shown');
+        messengerIframeContainer.classList.remove(
+          'erxes-messenger-shown',
+          'erxes-messenger-expand',
+        );
         messengerIframeContainer.classList.add('erxes-messenger-hidden');
         (launcher as HTMLElement).style.backgroundImage = backgroundImage;
         (launcher as HTMLElement).style.backgroundSize = hasCustomLogo
@@ -396,6 +428,8 @@ window.addEventListener('message', async (event) => {
       }
     }
 
-    erxesWidgetContainer.classList.toggle('small', isSmallContainer);
+    if ('isSmallContainer' in (data || {})) {
+      erxesWidgetContainer.classList.toggle('small', isSmallContainer);
+    }
   }
 });

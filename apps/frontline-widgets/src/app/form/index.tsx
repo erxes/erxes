@@ -28,10 +28,27 @@ export const Form = () => {
   const isPopup = loadType === 'popup';
 
   useEffect(() => {
+    const storedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia?.(
+      '(prefers-color-scheme: dark)',
+    ).matches;
+    if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data.fromPublisher) {
         if (event.data.settings) {
           setSettings(event.data.settings);
+        }
+        if (event.data.theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else if (event.data.theme === 'light') {
+          document.documentElement.classList.remove('dark');
         }
         if (event.data.message === 'sendingBrowserInfo') {
           setBrowserInfo(event.data.browserInfo || {});
@@ -145,7 +162,14 @@ export const Form = () => {
   if (isPopup) {
     return (
       <Dialog open={isPopupOpen} onOpenChange={setIsPopupOpen}>
-        <Dialog.Content className="p-0">{formContent}</Dialog.Content>
+        <Dialog.Content className="p-0 border-none bg-transparent">
+          {formContent}
+          <div className="flex items-center gap-0.5 justify-center mt-1 text-primary-foreground text-[10px]">
+            <span>
+              Powered by <strong>Erxes</strong>
+            </span>
+          </div>
+        </Dialog.Content>
       </Dialog>
     );
   }

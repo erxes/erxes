@@ -7,11 +7,11 @@ import {
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
-import { parseDateRangeFromString } from 'erxes-ui/modules/filter/date-filter/utils/parseDateRangeFromString';
 import { useSetAtom } from 'jotai';
 import { SCORE_LOGS_QUERY } from '../graphql/queries';
 import { IScoreLog } from '../types/score';
 import { scoreTotalCountAtom } from '../states/scoreCounts';
+import { useScoreFilters } from './useScoreFilters';
 
 const SCORE_PER_PAGE = 50;
 export const SCORE_LOG_CURSOR_SESSION_KEY = 'score_logs_cursor';
@@ -19,78 +19,19 @@ export const SCORE_LOG_CURSOR_SESSION_KEY = 'score_logs_cursor';
 export const useScoreList = () => {
   const setTotalCount = useSetAtom(scoreTotalCountAtom);
 
-  const [
-    {
-      scoreOwnerType,
-      scoreOwnerId,
-      scoreCampaignId,
-      scoreDate,
-      scoreOrderType,
-      scoreAction,
-      scoreBoardId,
-      scorePipelineId,
-      scoreStageId,
-      number,
-      description,
-    },
-  ] = useMultiQueryState<{
-    scoreOwnerType: string;
-    scoreOwnerId: string;
-    scoreCampaignId: string;
-    scoreDate: string;
-    scoreOrderType: string;
-    scoreAction: string;
-    scoreBoardId: string;
-    scorePipelineId: string;
-    scoreStageId: string;
-    number: string;
-    description: string;
-  }>([
-    'scoreOwnerType',
-    'scoreOwnerId',
-    'scoreCampaignId',
-    'scoreDate',
-    'scoreOrderType',
-    'scoreAction',
-    'scoreBoardId',
-    'scorePipelineId',
-    'scoreStageId',
-    'number',
-    'description',
-  ]);
+  const filters = useScoreFilters();
 
-  const dateRange = parseDateRangeFromString(scoreDate);
+  const [{ scoreOrderType }] = useMultiQueryState<{ scoreOrderType: string }>([
+    'scoreOrderType',
+  ]);
 
   const variables = useMemo(
     () => ({
-      ownerType: scoreOwnerType || undefined,
-      ownerId: scoreOwnerId || undefined,
-      campaignId: scoreCampaignId || undefined,
-      fromDate: dateRange?.from?.toISOString() || undefined,
-      toDate: dateRange?.to?.toISOString() || undefined,
+      ...filters,
       orderType: scoreOrderType || undefined,
-      action: scoreAction || undefined,
-      boardId: scoreBoardId || undefined,
-      pipelineId: scorePipelineId || undefined,
-      stageId: scoreStageId || undefined,
-      number: number || undefined,
-      description: description || undefined,
       limit: SCORE_PER_PAGE,
     }),
-    [
-      scoreOwnerType,
-      scoreOwnerId,
-      scoreCampaignId,
-      dateRange?.from,
-      dateRange?.to,
-      scoreOrderType,
-      scoreAction,
-      scoreBoardId,
-      scorePipelineId,
-      scoreStageId,
-      number,
-      description,
-    ],
+    [filters, scoreOrderType],
   );
 
   const { cursor } = useRecordTableCursor({

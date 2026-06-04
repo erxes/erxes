@@ -8,27 +8,25 @@ const getFieldValue = (
   tagMap?: Map<string, string>,
   formatValue = defaultContactFieldFormatter,
 ): string => {
-  const isCustomField = key.startsWith('customFieldsData.');
+  if (key.startsWith('propertiesData.')) {
+    const fieldId = key.replace('propertiesData.', '');
+    return formatValue((customer as any).propertiesData?.[fieldId]);
+  }
 
-  // Handle custom fields
-  if (isCustomField) {
+  if (key.startsWith('customFieldsData.')) {
     const fieldId = key.replace('customFieldsData.', '');
     const customFieldsData = customer.customFieldsData || [];
-    if (!!customFieldsData?.length) {
-      const customField = customFieldsData.find(
-        (cf) => getRealIdFromElk(cf.field || '') === fieldId,
+    if (customFieldsData?.length) {
+      const cf = customFieldsData.find(
+        (c) => getRealIdFromElk(c.field || '') === fieldId,
       );
-      return formatValue(customField?.value);
+      return formatValue(cf?.value);
     }
     return '';
   }
 
-  // Handle system fields
-  const value = (customer as any)[key];
-
-  // Handle tagIds specially to show tag names
   if (key === 'tagIds') {
-    if (!!customer.tagIds?.length) {
+    if (customer.tagIds?.length) {
       const tagNames = customer.tagIds
         .map((tagId: string) => tagMap?.get(String(tagId)) || tagId)
         .filter(Boolean);
@@ -37,7 +35,7 @@ const getFieldValue = (
     return '';
   }
 
-  return formatValue(value);
+  return formatValue((customer as any)[key]);
 };
 
 export const buildCustomerExportRow = (
@@ -75,8 +73,7 @@ export const buildCustomerExportRow = (
     customFieldsData = [],
   } = customer;
 
-  // Get tag names from tagIds
-  const tagNames = !!tagIds?.length
+  const tagNames = tagIds?.length
     ? tagIds
         .map((tagId: string) => tagMap?.get(String(tagId)) || tagId)
         .filter(Boolean)
@@ -110,19 +107,25 @@ export const buildCustomerExportRow = (
     updatedAt: formatValue(updatedAt ? new Date(updatedAt) : ''),
   };
 
-  // Add custom fields
-  if (!!customFieldsData?.length) {
+  if (customFieldsData?.length) {
     for (const { field, value } of customFieldsData) {
-      if (field && value) {
+      if (field && value !== undefined) {
         const fieldId = getRealIdFromElk(field || '');
         allFields[`customFieldsData.${fieldId}`] = formatValue(value);
       }
     }
   }
 
-  // If selectedFields provided, only return those fields
+  const propertiesData = (customer as any).propertiesData;
+  if (propertiesData && typeof propertiesData === 'object') {
+    for (const [fieldId, value] of Object.entries(propertiesData)) {
+      if (value !== undefined && value !== null) {
+        allFields[`propertiesData.${fieldId}`] = formatValue(value);
+      }
+    }
+  }
+
   if (selectedFields && selectedFields.length > 0) {
-    // Always include _id for cursor-based pagination; it is not exported
     const result: Record<string, any> = { _id: String(customer._id || '') };
     selectedFields.forEach((key) => {
       result[key] = getFieldValue(customer, key, tagMap, formatValue);

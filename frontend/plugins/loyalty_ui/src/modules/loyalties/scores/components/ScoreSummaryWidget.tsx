@@ -17,24 +17,7 @@ import {
   Spinner,
 } from 'erxes-ui';
 import { SCORE_LOG_STATISTICS_QUERY } from '../graphql/queries';
-
-type ScoreStats = {
-  totalPointEarned?: number;
-  totalPointBalance?: number;
-  totalPointRedeemed?: number;
-  redemptionRate?: number;
-  activeLoyaltyMembers?: number;
-  monthlyActiveUsers?: number;
-  mostRedeemedProductCategory?: string;
-};
-
-const useScoreStats = (ownerId?: string, ownerType?: string) => {
-  const { data, loading } = useQuery(SCORE_LOG_STATISTICS_QUERY, {
-    fetchPolicy: 'cache-and-network',
-    variables: { ownerId, ownerType },
-  });
-  return { stats: (data?.scoreLogStatistics || {}) as ScoreStats, loading };
-};
+import { ScoreStats, useScoreStatistics } from '../hooks/useScoreStatistics';
 
 const ScoreStatCards = ({
   stats,
@@ -99,7 +82,7 @@ const ScoreStatCards = ({
 };
 
 const ScoreSummaryPanelContent = () => {
-  const { stats, loading } = useScoreStats();
+  const { stats, loading } = useScoreStatistics();
 
   return (
     <div className="p-4">

@@ -29,7 +29,7 @@ const Attachments = () => {
   }
 
   const mediaAttachments = safeAttachments.filter((attachment) =>
-    attachment.type?.startsWith('image/'),
+    attachment.type?.startsWith('image'),
   );
   const fileAttachments = safeAttachments.filter((attachment) =>
     fileTypes.includes(attachment.type ?? ''),

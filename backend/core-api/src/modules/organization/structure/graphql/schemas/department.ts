@@ -17,6 +17,7 @@ export const DepartmentTypes = `
         userCount: Int
         userIds: [String]
         workhours:JSON
+        status: String
     }
 
     type DepartmentsListResponse {

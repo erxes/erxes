@@ -40,7 +40,7 @@ export const cpTicketMutations: Record<string, Resolver> = {
           relation: {
             entities: [
               {
-                contentType: 'core:cp.user',
+                contentType: 'core:customer',
                 contentId: userId,
               },
               {

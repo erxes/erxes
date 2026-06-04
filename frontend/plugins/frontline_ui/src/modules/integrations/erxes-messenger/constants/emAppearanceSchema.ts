@@ -9,4 +9,5 @@ export const EMAPPEARANCE_SCHEMA = z.object({
     .optional()
     .nullable(),
   logo: z.string().optional(),
+  navigationVariant: z.enum(['pill', 'fluid']).optional(),
 });
