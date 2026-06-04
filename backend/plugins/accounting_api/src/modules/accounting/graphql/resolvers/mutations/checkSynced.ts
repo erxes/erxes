@@ -51,7 +51,7 @@ const checkSyncedMutations = {
     { ids, contentType }: { ids?: string[]; contentType?: string },
     { models, checkPermission }: IContext,
   ) {
-    await checkPermission('readAccountingConfigs');
+    await checkPermission('readAccountingCheckSync');
 
     const checkedIds = ids || [];
 
@@ -75,7 +75,7 @@ const checkSyncedMutations = {
     }: { dealIds?: string[]; configStageId?: string; dateType?: string },
     { subdomain, models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('manageAccountingConfigs');
+    await checkPermission('manageAccountingCheckSync');
 
     const result = createResult();
     const ids = dealIds || [];
@@ -172,7 +172,7 @@ const checkSyncedMutations = {
     { orderIds, posId }: { orderIds?: string[]; posId?: string },
     { subdomain, models, user, checkPermission }: IContext,
   ) {
-    await checkPermission('manageAccountingConfigs');
+    await checkPermission('manageAccountingCheckSync');
 
     const result = createResult();
     const ids = orderIds || [];

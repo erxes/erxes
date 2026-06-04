@@ -5,7 +5,6 @@ import { SettingsHeader } from 'ui-modules';
 import { AccountSettingsBreadcrumb } from './settings/components/AccountSettingsBreadcrumb';
 import { AccountingTopbar } from './settings/components/AccountingTopbar';
 import { AccountingSidebar } from './settings/components/Sidebar';
-import { AccTrCheckSidebar } from './settings/check-synced/components/Sidebar';
 
 const AccountingMainConfig = lazy(() =>
   import('~/pages/SettingsPage').then((module) => ({
@@ -52,22 +51,6 @@ const SettingSyncDealReturn = lazy(() =>
 const SettingSyncOrder = lazy(() =>
   import('~/pages/syncConfigs/settingSyncOrderPage').then((module) => ({
     default: module.SettingSyncOrderPage,
-  })),
-);
-
-const AccountingCheckSyncedDealsPage = lazy(() =>
-  import(
-    './settings/check-synced/deals/components/AccountingCheckSyncedDealsPage'
-  ).then((module) => ({
-    default: module.AccountingCheckSyncedDealsPage,
-  })),
-);
-
-const AccountingCheckSyncedOrdersPage = lazy(() =>
-  import(
-    './settings/check-synced/orders/components/AccountingCheckSyncedOrdersPage'
-  ).then((module) => ({
-    default: module.AccountingCheckSyncedOrdersPage,
   })),
 );
 
@@ -119,41 +102,9 @@ const AccountingSubSettings = () => {
   );
 };
 
-const AccountingTrCheckSynced = () => {
-  return (
-    <Filter id="accounting-tr-check-synced">
-      <div className="flex flex-col flex-auto overflow-hidden">
-        <div className="flex flex-auto overflow-hidden">
-          <AccTrCheckSidebar />
-          <Suspense
-            fallback={
-              <div className="flex flex-auto justify-center items-center h-full w-full">
-                <Spinner />
-              </div>
-            }
-          >
-            <Routes>
-              <Route path="/" element={<AccountingCheckSyncedDealsPage />} />
-              <Route
-                path="/check/deal"
-                element={<AccountingCheckSyncedDealsPage />}
-              />
-              <Route
-                path="/check/order"
-                element={<AccountingCheckSyncedOrdersPage />}
-              />
-            </Routes>
-          </Suspense>
-        </div>
-      </div>
-    </Filter>
-  );
-};
-
 const AccountingSettings = () => {
   return (
     <Routes>
-      <Route path="/acc-tr-synced/*" element={<AccountingTrCheckSynced />} />
       <Route path="/*" element={<AccountingSubSettings />} />
     </Routes>
   );
