@@ -1,6 +1,6 @@
 import { Filter, Spinner } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { AccTrCheckSidebar } from '~/modules/check-synced/components/Sidebar';
 
 const AccountingCheckSyncedDealsPage = lazy(() =>
@@ -33,6 +33,7 @@ export const AccountingCheckSync = () => {
             }
           >
             <Routes>
+              <Route index element={<Navigate to="deal" replace />} />
               <Route
                 path="/deal"
                 element={<AccountingCheckSyncedDealsPage />}

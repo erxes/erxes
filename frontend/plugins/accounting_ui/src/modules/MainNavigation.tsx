@@ -83,7 +83,7 @@ export const MainNavigation = () => {
       <NavigationMenuLinkItem
         name="Мэдээ таталт"
         icon={IconRefreshAlert}
-        path="check-sync/deal"
+        path="check-sync"
         pathPrefix="accounting"
       />
     </>

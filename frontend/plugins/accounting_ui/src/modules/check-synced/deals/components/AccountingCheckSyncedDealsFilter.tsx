@@ -42,7 +42,6 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
     user: string;
     dealSearch: string;
     number: string;
-    stageChangedDateRange: string;
     dateType: string;
     dateRange: string;
   }>([
@@ -53,7 +52,6 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
     'stageId',
     'dealSearch',
     'number',
-    'stageChangedDateRange',
     'dateType',
     'dateRange',
   ]);
@@ -91,11 +89,7 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
                 </Filter.Item>
                 <Filter.Item value="dateRange">
                   <IconCalendar />
-                  Date range
-                </Filter.Item>
-                <Filter.Item value="stageChangedDateRange">
-                  <IconCalendar />
-                  Stage changed date range
+                  Created date range
                 </Filter.Item>
                 <AccountingDealDateTypeFilterItem />
               </Command.List>
@@ -129,9 +123,6 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
         </Filter.View>
         <Filter.View filterKey="number" inDialog>
           <Filter.DialogStringView filterKey="number" />
-        </Filter.View>
-        <Filter.View filterKey="stageChangedDateRange" inDialog>
-          <Filter.DialogStringView filterKey="stageChangedDateRange" />
         </Filter.View>
         <Filter.View filterKey="dateRange" inDialog>
           <Filter.DialogDateView filterKey="dateRange" />
@@ -173,16 +164,9 @@ export const AccountingCheckSyncedDealsFilter = () => {
         <Filter.BarItem queryKey="dateRange">
           <Filter.BarName>
             <IconCalendar />
-            Date range
+            Created date range
           </Filter.BarName>
           <Filter.Date filterKey="dateRange" />
-        </Filter.BarItem>
-        <Filter.BarItem queryKey="stageChangedDateRange">
-          <Filter.BarName>
-            <IconCalendar />
-            Stage changed date range
-          </Filter.BarName>
-          <Filter.Date filterKey="stageChangedDateRange" />
         </Filter.BarItem>
         <AccountingDealBoardFilterBar />
         <AccountingDealPipelineFilterBar boardId={boardId || undefined} />

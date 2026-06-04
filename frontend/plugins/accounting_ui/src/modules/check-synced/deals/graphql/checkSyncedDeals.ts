@@ -6,8 +6,6 @@ export const ACCOUNTING_CHECK_SYNCED_DEALS_QUERY = gql`
     ${GQL_CURSOR_PARAM_DEFS}
     $userIds: [String]
     $stageId: String
-    $stageChangedStartDate: Date
-    $stageChangedEndDate: Date
     $startDate: String
     $endDate: String
     $search: String
@@ -18,8 +16,6 @@ export const ACCOUNTING_CHECK_SYNCED_DEALS_QUERY = gql`
       ${GQL_CURSOR_PARAMS}
       userIds: $userIds
       stageId: $stageId
-      stageChangedStartDate: $stageChangedStartDate
-      stageChangedEndDate: $stageChangedEndDate
       startDate: $startDate
       endDate: $endDate
       search: $search
@@ -76,8 +72,14 @@ export const ACCOUNTING_SALES_STAGES_QUERY = gql`
 `;
 
 export const ACCOUNTING_SYNC_DEAL_RULES_QUERY = gql`
-  query AccountingSyncDealRules($code: String!) {
-    accountingsConfigs(code: $code) {
+  query AccountingSyncDealRules($saleCode: String!, $returnCode: String!) {
+    saleRules: accountingsConfigs(code: $saleCode) {
+      _id
+      code
+      subId
+      value
+    }
+    returnRules: accountingsConfigs(code: $returnCode) {
       _id
       code
       subId
@@ -99,8 +101,16 @@ export const ACCOUNTING_CHECK_SYNCED_MUTATION = gql`
 `;
 
 export const ACCOUNTING_SYNC_DEALS_MUTATION = gql`
-  mutation AccountingSyncDeals($dealIds: [String], $configStageId: String, $dateType: String) {
-    accountingSyncDeals(dealIds: $dealIds, configStageId: $configStageId, dateType: $dateType) {
+  mutation AccountingSyncDeals(
+    $dealIds: [String]
+    $ruleId: String
+    $dateType: String
+  ) {
+    accountingSyncDeals(
+      dealIds: $dealIds
+      ruleId: $ruleId
+      dateType: $dateType
+    ) {
       skipped
       error
       success

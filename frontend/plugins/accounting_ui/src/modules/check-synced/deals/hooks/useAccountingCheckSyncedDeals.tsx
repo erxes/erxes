@@ -63,37 +63,28 @@ const chunkIds = (ids: string[], size: number) => {
 export const useAccountingCheckSyncedDealsVariables = (
   variables?: QueryHookOptions<AccountingDealsQueryResult>['variables'],
 ) => {
-  const [
-    {
-      user,
-      stageId,
-      dealSearch,
-      number,
-      stageChangedDateRange,
-      dateType,
-      dateRange,
-    },
-  ] = useMultiQueryState<{
-    user: string;
-    boardId: string;
-    pipelineId: string;
-    stageId: string;
-    dealSearch: string;
-    number: string;
-    stageChangedDateRange: string;
-    dateType: string;
-    dateRange: string;
-  }>([
-    'user',
-    'boardId',
-    'pipelineId',
-    'stageId',
-    'dealSearch',
-    'number',
-    'stageChangedDateRange',
-    'dateType',
-    'dateRange',
-  ]);
+  const [{ user, ruleId, stageId, dealSearch, number, dateType, dateRange }] =
+    useMultiQueryState<{
+      user: string;
+      ruleId: string;
+      boardId: string;
+      pipelineId: string;
+      stageId: string;
+      dealSearch: string;
+      number: string;
+      dateType: string;
+      dateRange: string;
+    }>([
+      'user',
+      'ruleId',
+      'boardId',
+      'pipelineId',
+      'stageId',
+      'dealSearch',
+      'number',
+      'dateType',
+      'dateRange',
+    ]);
 
   const { cursor } = useRecordTableCursor({
     sessionKey: ACCOUNTING_CHECK_SYNCED_DEALS_SESSION_KEY,
@@ -113,9 +104,7 @@ export const useAccountingCheckSyncedDealsVariables = (
     startDate: parseDateRangeFromString(dateRange)?.from,
     endDate: parseDateRangeFromString(dateRange)?.to,
     dateType: dateType || undefined,
-    stageChangedStartDate: parseDateRangeFromString(stageChangedDateRange)
-      ?.from,
-    stageChangedEndDate: parseDateRangeFromString(stageChangedDateRange)?.to,
+    ruleId: ruleId || undefined,
     ...variables,
   };
 };
@@ -282,6 +271,15 @@ export const useAccountingCheckSyncedDeals = (
   };
 
   const syncDeals = async (ids: string[]) => {
+    if (!variables.ruleId) {
+      toast({
+        title: 'Warning',
+        description: 'Select a rule before syncing deals',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const syncableIds = ids.filter(
       (id) => getDealStatus(checkedDeals[id]) !== 'skipped',
     );
@@ -331,7 +329,7 @@ export const useAccountingCheckSyncedDeals = (
       const response = await accountingSyncDeals({
         variables: {
           dealIds: batchIds,
-          configStageId: variables.stageId,
+          ruleId: variables.ruleId,
           dateType: variables.dateType,
         },
         onError: (error) => {
@@ -492,6 +490,7 @@ export const useAccountingCheckSyncedDeals = (
   };
 
   return {
+    canSync: Boolean(variables.ruleId),
     checking,
     checkDeals,
     deals,

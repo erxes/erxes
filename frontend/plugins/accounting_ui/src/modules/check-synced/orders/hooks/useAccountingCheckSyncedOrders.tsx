@@ -1,5 +1,9 @@
 import { QueryHookOptions, useMutation, useQuery } from '@apollo/client';
-import { useMultiQueryState, useToast } from 'erxes-ui';
+import {
+  parseDateRangeFromString,
+  useMultiQueryState,
+  useToast,
+} from 'erxes-ui';
 import { atom, useAtom, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo } from 'react';
 import {
@@ -54,11 +58,23 @@ const chunkIds = (ids: string[], size: number) => {
 export const useAccountingCheckSyncedOrdersVariables = (
   variables?: QueryHookOptions<AccountingOrdersQueryResult>['variables'],
 ) => {
-  const [{ pos, searchValue, number }] = useMultiQueryState<{
+  const [
+    { orderRuleId, pos, searchValue, number, paidDateRange, createdDateRange },
+  ] = useMultiQueryState<{
+    orderRuleId: string;
     pos: string;
     searchValue: string;
     number: string;
-  }>(['pos', 'searchValue', 'number']);
+    paidDateRange: string;
+    createdDateRange: string;
+  }>([
+    'orderRuleId',
+    'pos',
+    'searchValue',
+    'number',
+    'paidDateRange',
+    'createdDateRange',
+  ]);
 
   const search = [searchValue, number].filter(Boolean).join(' ') || undefined;
 
@@ -68,6 +84,11 @@ export const useAccountingCheckSyncedOrdersVariables = (
     sortDirection: -1,
     posId: pos || undefined,
     search,
+    paidStartDate: parseDateRangeFromString(paidDateRange)?.from,
+    paidEndDate: parseDateRangeFromString(paidDateRange)?.to,
+    createdStartDate: parseDateRangeFromString(createdDateRange)?.from,
+    createdEndDate: parseDateRangeFromString(createdDateRange)?.to,
+    ruleId: orderRuleId || undefined,
     ...variables,
   };
 };
@@ -230,6 +251,15 @@ export const useAccountingCheckSyncedOrders = (
   };
 
   const syncOrders = async (ids: string[]) => {
+    if (!variables.ruleId) {
+      toast({
+        title: 'Warning',
+        description: 'Select a rule before syncing orders',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     const syncableIds = ids.filter(
       (id) => getOrderStatus(checkedOrders[id]) !== 'skipped',
     );
@@ -279,7 +309,7 @@ export const useAccountingCheckSyncedOrders = (
       const response = await accountingSyncOrders({
         variables: {
           orderIds: batchIds,
-          posId: variables.posId,
+          ruleId: variables.ruleId,
         },
         onError: (error) => {
           toast({
@@ -427,6 +457,7 @@ export const useAccountingCheckSyncedOrders = (
   };
 
   return {
+    canSync: Boolean(variables.ruleId),
     checkOrders,
     checking,
     handleFetchMore,

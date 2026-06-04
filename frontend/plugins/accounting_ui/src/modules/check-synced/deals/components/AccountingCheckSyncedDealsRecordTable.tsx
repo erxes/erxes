@@ -10,8 +10,29 @@ import {
   useAccountingCheckSyncedDeals,
 } from '../hooks/useAccountingCheckSyncedDeals';
 
+const getSyncButtonLabel = ({
+  canSync,
+  syncing,
+  toSyncCount,
+}: {
+  canSync: boolean;
+  syncing: boolean;
+  toSyncCount: number;
+}) => {
+  if (syncing) {
+    return 'Syncing...';
+  }
+
+  if (!canSync) {
+    return 'Select rule to sync';
+  }
+
+  return `Sync Selected (${toSyncCount})`;
+};
+
 const AccountingCheckSyncedDealsActions = ({
   checking,
+  canSync,
   dealsCount,
   syncing,
   toSyncCount,
@@ -19,6 +40,7 @@ const AccountingCheckSyncedDealsActions = ({
   onSync,
 }: {
   checking: boolean;
+  canSync: boolean;
   dealsCount: number;
   syncing: boolean;
   toSyncCount: number;
@@ -45,10 +67,10 @@ const AccountingCheckSyncedDealsActions = ({
         </Button>
         <Button
           onClick={onSync}
-          disabled={syncing || !toSyncCount}
+          disabled={syncing || !toSyncCount || !canSync}
           variant="outline"
         >
-          {syncing ? 'Syncing...' : `Sync Selected (${toSyncCount})`}
+          {getSyncButtonLabel({ canSync, syncing, toSyncCount })}
         </Button>
       </div>
     </div>
@@ -57,6 +79,7 @@ const AccountingCheckSyncedDealsActions = ({
 
 export const AccountingCheckSyncedDealsRecordTable = () => {
   const {
+    canSync,
     checking,
     checkDeals,
     deals,
@@ -95,6 +118,7 @@ export const AccountingCheckSyncedDealsRecordTable = () => {
       stickyColumns={['checkbox', 'toSync', 'name']}
     >
       <AccountingCheckSyncedDealsActions
+        canSync={canSync}
         checking={checking}
         dealsCount={deals?.length || 0}
         syncing={syncing}

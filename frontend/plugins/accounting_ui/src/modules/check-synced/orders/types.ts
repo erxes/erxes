@@ -20,6 +20,7 @@ export type AccountingCheckSyncedOrder = {
 export type AccountingOrderRuleValue = {
   title?: string;
   posId?: string;
+  returnType?: 'delete' | 'fullTr' | 'onlySale';
 };
 
 export type AccountingOrderRule = {

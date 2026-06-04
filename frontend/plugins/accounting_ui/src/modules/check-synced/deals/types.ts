@@ -42,6 +42,7 @@ export type AccountingDealRuleValue = {
   boardId?: string;
   pipelineId?: string;
   stageId?: string;
+  returnType?: 'delete' | 'fullTr' | 'onlySale';
 };
 
 export type AccountingDealRule = {

@@ -36,12 +36,20 @@ type DealReturnSyncConfig = Parameters<typeof dealToReturnTrs>[0]['config'] & {
 
 type OrderSyncConfig = Parameters<typeof orderToTrs>[0]['config'] & {
   posId?: string;
+  returnType?: 'delete' | 'fullTr' | 'onlySale';
 };
 
 type OrderReturnSyncConfig = Parameters<
   typeof orderToReturnTrs
 >[0]['config'] & {
   posId?: string;
+};
+
+type AccountingConfigDocument<TConfig> = {
+  _id: string;
+  code: string;
+  subId?: string;
+  value?: TConfig;
 };
 
 // #region Mutations
@@ -70,9 +78,9 @@ const checkSyncedMutations = {
     _root: undefined,
     {
       dealIds,
-      configStageId,
+      ruleId,
       dateType,
-    }: { dealIds?: string[]; configStageId?: string; dateType?: string },
+    }: { dealIds?: string[]; ruleId?: string; dateType?: string },
     { subdomain, models, user, checkPermission }: IContext,
   ) {
     await checkPermission('manageAccountingCheckSync');
@@ -81,6 +89,20 @@ const checkSyncedMutations = {
     const ids = dealIds || [];
 
     if (!ids.length) {
+      return result;
+    }
+
+    if (!ruleId) {
+      result.skipped.push(...ids);
+      return result;
+    }
+
+    const rule = (await models.Configs.getConfigDetail(
+      ruleId,
+    )) as AccountingConfigDocument<DealSyncConfig | DealReturnSyncConfig>;
+
+    if (!['syncDeal', 'syncDealReturn'].includes(rule.code) || !rule.value) {
+      result.skipped.push(...ids);
       return result;
     }
 
@@ -94,41 +116,15 @@ const checkSyncedMutations = {
     })) as SalesDeal[];
 
     for (const deal of deals || []) {
-      const stageId = configStageId || deal.stageId;
-
-      if (!stageId) {
-        result.skipped.push(deal._id);
-        continue;
-      }
-
-      const saleConfig = (await models.Configs.getConfigValue(
-        'syncDeal',
-        stageId,
-      )) as DealSyncConfig | null;
-      const returnConfig = (await models.Configs.getConfigValue(
-        'syncDealReturn',
-        stageId,
-      )) as DealReturnSyncConfig | null;
-
-      const config =
-        saleConfig?.stageId === stageId
-          ? saleConfig
-          : returnConfig?.stageId === stageId
-          ? returnConfig
-          : null;
-
-      if (!config) {
-        result.skipped.push(deal._id);
-        continue;
-      }
+      const config = rule.value;
 
       try {
-        if (returnConfig?.stageId === stageId && config === returnConfig) {
+        if (rule.code === 'syncDealReturn') {
           await dealToReturnTrs({
             models,
             userId: user?._id,
             deal,
-            config: returnConfig,
+            config: config as DealReturnSyncConfig,
             dateType,
           });
         } else {
@@ -169,7 +165,7 @@ const checkSyncedMutations = {
 
   async accountingSyncOrders(
     _root: undefined,
-    { orderIds, posId }: { orderIds?: string[]; posId?: string },
+    { orderIds, ruleId }: { orderIds?: string[]; ruleId?: string },
     { subdomain, models, user, checkPermission }: IContext,
   ) {
     await checkPermission('manageAccountingCheckSync');
@@ -181,6 +177,29 @@ const checkSyncedMutations = {
       return result;
     }
 
+    if (!ruleId) {
+      result.skipped.push(...ids);
+      return result;
+    }
+
+    const rule = (await models.Configs.getConfigDetail(
+      ruleId,
+    )) as AccountingConfigDocument<OrderSyncConfig>;
+
+    if (rule.code !== 'syncOrder' || !rule.value) {
+      result.skipped.push(...ids);
+      return result;
+    }
+
+    const config = rule.value;
+    const returnConfig: OrderReturnSyncConfig = {
+      dateRule: config.dateRule,
+      defaultPayment: config.defaultPayment,
+      posId: config.posId,
+      returnType: config.returnType || 'fullTr',
+      trStatus: config.trStatus,
+    };
+
     const orders = (await sendTRPCMessage({
       subdomain,
       pluginName: 'sales',
@@ -191,30 +210,13 @@ const checkSyncedMutations = {
     })) as PosOrder[];
 
     for (const order of orders || []) {
-      const configPosId = posId || order.posId;
-
-      if (!configPosId) {
-        result.skipped.push(order._id);
-        continue;
-      }
-
-      const config = (await models.Configs.getConfigValue(
-        'syncOrder',
-        configPosId,
-      )) as OrderSyncConfig | null;
-
-      if (!config?.posId || config.posId !== configPosId) {
-        result.skipped.push(order._id);
-        continue;
-      }
-
       try {
         if (order.status === 'return') {
           await orderToReturnTrs({
             models,
             userId: user?._id,
             order,
-            config: config as unknown as OrderReturnSyncConfig,
+            config: returnConfig,
           });
         } else {
           await orderToTrs({
