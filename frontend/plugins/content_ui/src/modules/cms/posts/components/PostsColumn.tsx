@@ -52,6 +52,18 @@ const getPostAuthorName = (post: Posts) => {
   );
 };
 
+const getPublicPostLinkTooltip = (isPublished: boolean, publicUrl: string) => {
+  if (isPublished && publicUrl) {
+    return 'Open on site';
+  }
+
+  if (isPublished) {
+    return 'Set public URL and post identifier';
+  }
+
+  return 'Publish post before opening on site';
+};
+
 const PublicPostLinkCell = ({
   post,
   cmsConfig,
@@ -59,29 +71,20 @@ const PublicPostLinkCell = ({
   post: Posts;
   cmsConfig?: IWebsite;
 }) => {
-  const publicUrl =
-    post.status === 'published' ? buildPostPublicUrl(cmsConfig, post) : '';
+  const isPublished = post.status === 'published';
+  const publicUrl = isPublished ? buildPostPublicUrl(cmsConfig, post) : '';
   const { toast } = useToast();
-  const tooltip =
-    post.status !== 'published'
-      ? 'Publish post before opening on site'
-      : publicUrl
-      ? 'Open on site'
-      : 'Set public URL and post identifier';
+  const tooltip = getPublicPostLinkTooltip(isPublished, publicUrl);
 
   const handleOpen = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
 
-    if (post.status !== 'published') {
-      toast({
-        title: 'Post is not published',
-        description: 'Publish this post before opening it on the website.',
-        variant: 'warning',
-      });
+    if (isPublished && publicUrl) {
+      window.open(publicUrl, '_blank', 'noopener,noreferrer');
       return;
     }
 
-    if (!publicUrl) {
+    if (isPublished) {
       toast({
         title: 'Public URL is not ready',
         description:
@@ -91,7 +94,11 @@ const PublicPostLinkCell = ({
       return;
     }
 
-    window.open(publicUrl, '_blank', 'noopener,noreferrer');
+    toast({
+      title: 'Post is not published',
+      description: 'Publish this post before opening it on the website.',
+      variant: 'warning',
+    });
   };
 
   return (
