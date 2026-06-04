@@ -1,5 +1,5 @@
 export const SETTINGS_ROUTES = {
-  '/settings/accounting/main': 'Ерөнхий тохиргоо',
+  '/settings/accounting': 'Ерөнхий тохиргоо',
   'account': '',
   '/settings/accounting/accounts': 'Данс',
   '/settings/accounting/account-categories': 'Дансны ангилал',

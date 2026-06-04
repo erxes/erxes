@@ -1,4 +1,4 @@
-import { IconListDetails } from '@tabler/icons-react';
+import { IconListDetails, IconRefreshAlert } from '@tabler/icons-react';
 import { SettingsNavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 
 export const SettingsNavigation = () => {
@@ -10,8 +10,16 @@ export const SettingsNavigation = () => {
           <SettingsNavigationMenuLinkItem
             name="Accounting"
             icon={IconListDetails}
-            path=""
-            pathPrefix="accounting"
+            path="/"
+            pathPrefix="accounting/"
+          />
+        </Sidebar.Menu>
+        <Sidebar.Menu>
+          <SettingsNavigationMenuLinkItem
+            name="Check Synced"
+            icon={IconRefreshAlert}
+            path="/"
+            pathPrefix="accounting/acc-tr-synced"
           />
         </Sidebar.Menu>
       </Sidebar.GroupContent>
