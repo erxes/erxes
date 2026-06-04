@@ -1,4 +1,6 @@
 import {
+  IRepairOwnerScoreParams,
+  IRepairOwnerScoreResult,
   IScoreLog,
   IScoreLogDocument,
   IScoreLogParams,
@@ -10,6 +12,7 @@ import {
 } from '@/score/constants';
 import { scoreLogSchema } from '@/score/db/definitions/scoreLog';
 import {
+  buildSignedScoreExpression,
   fixScoreNumber,
   getOwnerScoreValue,
   prepareScoreLogChange,
@@ -32,6 +35,9 @@ export interface IScoreLogModel extends Model<IScoreLogDocument> {
   getStatistic(doc: IScoreLogParams): Promise<IScoreLogDocument>;
   changeScore(doc: IScoreLog): Promise<IScoreLogDocument | null>;
   changeOwnersScore(doc): Promise<IScoreLogDocument>;
+  repairOwnerScore(
+    doc: IRepairOwnerScoreParams,
+  ): Promise<IRepairOwnerScoreResult>;
 }
 
 const generateFilter = async (
@@ -180,6 +186,39 @@ const getManualScoreUpdate = ({
   return { updatedCustomFieldsData };
 };
 
+type ScoreCampaignScoreTarget = {
+  _id: string;
+  fieldId?: string;
+};
+
+const getScoreLogBalance = async (
+  models: IModels,
+  filter: Record<string, unknown>,
+) => {
+  const [result] = await models.ScoreLogs.aggregate<{ balance?: number }>([
+    { $match: filter },
+    {
+      $group: {
+        _id: null,
+        balance: { $sum: buildSignedScoreExpression() },
+      },
+    },
+  ]);
+
+  return fixScoreNumber(Number(result?.balance) || 0);
+};
+
+const addGroupedCampaignId = (
+  fieldCampaignIds: Map<string, string[]>,
+  fieldId: string,
+  campaignId: string,
+) => {
+  fieldCampaignIds.set(fieldId, [
+    ...(fieldCampaignIds.get(fieldId) || []),
+    campaignId,
+  ]);
+};
+
 export const loadScoreLogClass = (models: IModels, subdomain: string) => {
   class ScoreLog {
     public static async getScoreLog(_id: string) {
@@ -243,6 +282,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const cursorMatch = doc.cursor
         ? buildCursorQuery(doc.cursor, orderBy, direction, {
             createdAt: 'date',
+            totalScore: 'number',
           })
         : null;
 
@@ -405,7 +445,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
 
       if (!owner) {
-        throw new Error(`not fount ${ownerType}`);
+        throw new Error(`Owner not found: ${ownerType}`);
       }
 
       if (targetId && serviceName) {
@@ -488,6 +528,104 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         amount,
         quantity,
       });
+    }
+
+    public static async repairOwnerScore({
+      ownerType,
+      ownerId,
+    }: IRepairOwnerScoreParams) {
+      const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
+
+      if (!owner) {
+        throw new Error(`Owner not found: ${ownerType}`);
+      }
+
+      const baseFilter = { ownerType, ownerId };
+      const loggedCampaignIds = await models.ScoreLogs.distinct('campaignId', {
+        ...baseFilter,
+        campaignId: { $exists: true, $nin: [null, ''] },
+      });
+      const campaigns = await models.ScoreCampaigns.find({
+        _id: { $in: loggedCampaignIds },
+      })
+        .select('_id fieldId')
+        .lean<ScoreCampaignScoreTarget[]>();
+      const campaignFieldIds = new Map(
+        campaigns.map((campaign) => [String(campaign._id), campaign.fieldId]),
+      );
+      const fieldCampaignIds = new Map<string, string[]>();
+      const defaultCampaignIds: string[] = [];
+
+      for (const campaignId of loggedCampaignIds.map(String)) {
+        const fieldId = campaignFieldIds.get(campaignId);
+
+        if (fieldId) {
+          addGroupedCampaignId(fieldCampaignIds, fieldId, campaignId);
+          continue;
+        }
+
+        defaultCampaignIds.push(campaignId);
+      }
+
+      const updatedCustomFieldsData = { ...owner?.propertiesData };
+      const fieldScores: IRepairOwnerScoreResult['fieldScores'] = [];
+
+      for (const [fieldId, campaignIds] of fieldCampaignIds.entries()) {
+        const score = await getScoreLogBalance(models, {
+          ...baseFilter,
+          campaignId: { $in: campaignIds },
+        });
+
+        updatedCustomFieldsData[fieldId] = score;
+        fieldScores.push({ fieldId, score, campaignIds });
+      }
+
+      const noCampaignFilter = {
+        ...baseFilter,
+        $or: [
+          { campaignId: { $exists: false } },
+          { campaignId: null },
+          { campaignId: '' },
+        ],
+      };
+      const noCampaignLogCount = await models.ScoreLogs.countDocuments(
+        noCampaignFilter,
+      );
+      const shouldUpdateDefaultScore =
+        defaultCampaignIds.length > 0 || noCampaignLogCount > 0;
+      const updatedScore = shouldUpdateDefaultScore
+        ? await getScoreLogBalance(models, {
+            ...baseFilter,
+            ...(defaultCampaignIds.length
+              ? {
+                  $or: [
+                    { campaignId: { $in: defaultCampaignIds } },
+                    ...noCampaignFilter.$or,
+                  ],
+                }
+              : { $or: noCampaignFilter.$or }),
+          })
+        : undefined;
+
+      const updatedCustomFieldPayload = fieldScores.length
+        ? updatedCustomFieldsData
+        : undefined;
+
+      await updateOwnerScoreCache({
+        subdomain,
+        ownerId,
+        ownerType,
+        updatedScore,
+        updatedCustomFieldsData: updatedCustomFieldPayload,
+      });
+
+      return {
+        ownerType,
+        ownerId,
+        updatedScore,
+        updatedCustomFieldsData: updatedCustomFieldPayload,
+        fieldScores,
+      };
     }
   }
 
