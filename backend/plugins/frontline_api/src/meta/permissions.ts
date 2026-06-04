@@ -70,6 +70,7 @@ export const permissions: IPermissionConfig = {
         { title: 'Edit ticket', name: 'updateTicket', description: 'Edit tickets' },
         { title: 'Remove ticket', name: 'removeTicket', description: 'Delete tickets' },
         { title: 'Export tickets', name: 'ticketsExport', description: 'Export tickets to file' },
+        { title: 'Import tickets', name: 'ticketsImportManage', description: 'Import tickets from file' },
       ],
     },
     {
@@ -141,7 +142,7 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'frontline', module: 'ticket',
-          actions: ['showTickets', 'createTicket', 'updateTicket', 'removeTicket', 'ticketsExport'],
+          actions: ['showTickets', 'createTicket', 'updateTicket', 'removeTicket', 'ticketsExport', 'ticketsImportManage'],
           scope: 'all',
         },
         {
