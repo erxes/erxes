@@ -10,6 +10,7 @@ export const PACKAGE_FRAGMENT = gql`
       productId
       quantity
     }
+    tagIds
     price
     percent
     totalPrice
@@ -23,12 +24,14 @@ export const GET_PACKAGES = gql`
   query productPackages(
     $searchValue: String
     $status: String
+    $tagIds: [String]
     $cursor: String
     $limit: Int
   ) {
     productPackages(
       searchValue: $searchValue
       status: $status
+      tagIds: $tagIds
       cursor: $cursor
       limit: $limit
     ) {
