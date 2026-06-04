@@ -13,10 +13,8 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
 import React, { useState } from 'react';
 import { useUsers } from 'ui-modules/modules';
-import { currentUserState } from 'ui-modules/states';
 import { useDebounce } from 'use-debounce';
 import {
   SelectMemberContext,
