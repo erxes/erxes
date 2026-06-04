@@ -9,7 +9,11 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { SelectMember } from 'ui-modules';
-import { AccountingCheckSyncedDealRuleSelect } from './AccountingCheckSyncedDealRuleSelect';
+import {
+  AccountingCheckSyncedDealRuleFilterBar,
+  AccountingCheckSyncedDealRuleFilterItem,
+  AccountingCheckSyncedDealRuleFilterView,
+} from './AccountingCheckSyncedDealRuleSelect';
 import { AccountingCheckSyncedDealsTotalCount } from './AccountingCheckSyncedDealsTotalCount';
 import {
   AccountingDealBoardFilterBar,
@@ -33,6 +37,7 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
   const [queries] = useMultiQueryState<{
     boardId: string;
     pipelineId: string;
+    ruleId: string;
     stageId: string;
     user: string;
     dealSearch: string;
@@ -42,6 +47,7 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
     dateRange: string;
   }>([
     'user',
+    'ruleId',
     'boardId',
     'pipelineId',
     'stageId',
@@ -69,6 +75,7 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
                 className="bg-background"
               />
               <Command.List className="p-1">
+                <AccountingCheckSyncedDealRuleFilterItem />
                 <AccountingDealBoardFilterItem />
                 <AccountingDealPipelineFilterItem />
                 <AccountingDealStageFilterItem />
@@ -106,6 +113,7 @@ export const AccountingCheckSyncedDealsFilterPopover = () => {
               <SelectMember.Content />
             </SelectMember.Provider>
           </Filter.View>
+          <AccountingCheckSyncedDealRuleFilterView />
           <AccountingDealBoardFilterView />
           <AccountingDealPipelineFilterView boardId={boardId || undefined} />
           <AccountingDealStageFilterView pipelineId={pipelineId || undefined} />
@@ -143,7 +151,7 @@ export const AccountingCheckSyncedDealsFilter = () => {
     <Filter id="accounting-check-synced-deals-filter">
       <Filter.Bar>
         <AccountingCheckSyncedDealsFilterPopover />
-        <AccountingCheckSyncedDealRuleSelect />
+        <AccountingCheckSyncedDealRuleFilterBar />
         <Filter.BarItem queryKey="dealSearch">
           <Filter.BarName>
             <IconBuilding />
