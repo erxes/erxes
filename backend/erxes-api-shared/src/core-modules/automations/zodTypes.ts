@@ -9,6 +9,10 @@ export const AutomationBaseInput = z.object({
 
 export const AutomationExecActionInput = z.object({
   createdAt: z.string().optional(),
+  startedAt: z.string().optional(),
+  finishedAt: z.string().optional(),
+  durationMs: z.number().optional(),
+  status: z.enum(['success', 'error', 'waiting']).optional(),
   actionId: z.string(),
   actionType: z.string(),
   actionConfig: z.any().optional(),

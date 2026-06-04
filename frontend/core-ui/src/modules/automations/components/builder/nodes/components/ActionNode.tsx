@@ -125,7 +125,7 @@ const ActionNode = ({ data, selected, id, ...props }: any) => {
           'relative rounded-md shadow-md bg-background border border-muted w-[280px] font-mono transition-all duration-200',
           {
             'ring-2 ring-success': selected,
-            'ring-2 ring-red-300': error,
+            'ring-2 ring-destructive': error,
           },
         )}
       >

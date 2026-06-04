@@ -5,6 +5,11 @@ export const CORE_REFERENCE_TYPES: TRecordReferencesConfig['types'] = [
     type: 'customer',
     label: 'Customer',
     fields: [
+      {
+        key: 'displayName',
+        label: 'Display name',
+        resolver: 'customerDisplayName',
+      },
       { key: '_id', label: 'Customer ID' },
       { key: 'firstName', label: 'First name' },
       { key: 'lastName', label: 'Last name' },
@@ -64,6 +69,7 @@ export const CORE_REFERENCE_TYPES: TRecordReferencesConfig['types'] = [
     type: 'company',
     label: 'Company',
     fields: [
+      { key: 'displayName', label: 'Display name', path: 'primaryName' },
       { key: '_id', label: 'Company ID' },
       { key: 'primaryName', label: 'Primary name' },
       { key: 'name', label: 'Name', path: 'primaryName' },
@@ -135,6 +141,7 @@ export const CORE_REFERENCE_TYPES: TRecordReferencesConfig['types'] = [
     type: 'product',
     label: 'Product',
     fields: [
+      { key: 'displayName', label: 'Display name', path: 'name' },
       { key: '_id', label: 'Product ID' },
       { key: 'name', label: 'Name' },
       { key: 'shortName', label: 'Short name' },
@@ -187,6 +194,7 @@ export const CORE_REFERENCE_TYPES: TRecordReferencesConfig['types'] = [
     type: 'tag',
     label: 'Tag',
     fields: [
+      { key: 'displayName', label: 'Display name', path: 'name' },
       { key: '_id', label: 'Tag ID' },
       { key: 'name', label: 'Name' },
       { key: 'colorCode', label: 'Color' },
@@ -214,6 +222,11 @@ export const CORE_REFERENCE_TYPES: TRecordReferencesConfig['types'] = [
     type: 'user',
     label: 'Team member',
     fields: [
+      {
+        key: 'displayName',
+        label: 'Display name',
+        path: 'details.fullName',
+      },
       { key: '_id', label: 'User ID' },
       { key: 'email', label: 'Email' },
       { key: 'username', label: 'Username' },
@@ -255,6 +268,7 @@ export const CORE_REFERENCE_TYPES: TRecordReferencesConfig['types'] = [
     type: 'branch',
     label: 'Branch',
     fields: [
+      { key: 'displayName', label: 'Display name', path: 'title' },
       { key: '_id', label: 'Branch ID' },
       { key: 'title', label: 'Title' },
       { key: 'code', label: 'Code' },
@@ -266,6 +280,7 @@ export const CORE_REFERENCE_TYPES: TRecordReferencesConfig['types'] = [
     type: 'department',
     label: 'Department',
     fields: [
+      { key: 'displayName', label: 'Display name', path: 'title' },
       { key: '_id', label: 'Department ID' },
       { key: 'title', label: 'Title' },
       { key: 'code', label: 'Code' },

@@ -7,6 +7,10 @@ export const salesReferenceCustomResolvers: TRecordReferencesConfig<
   IModels,
   IDealDocument
 >['resolvers'] = {
+  dealDisplayName: async ({ target }) => {
+    return target.name || target.number || target._id;
+  },
+
   dealLink: async ({ models, target }) => {
     const DOMAIN = getEnv({ name: 'DOMAIN' });
 
@@ -38,5 +42,23 @@ export const salesReferenceCustomResolvers: TRecordReferencesConfig<
 
       return total + (product?.amount || 0);
     }, 0);
+  },
+  excludeLoyaltyAmount: async ({ models, target, ...props }) => {
+    console.log({ target, ...props });
+    const stage = await models.Stages.getStage(target.stageId);
+
+    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+    const scoreCampaignTypes = (pipeline?.paymentTypes || []).filter(
+      ({ scoreCampaignId }) => !!scoreCampaignId,
+    );
+    return Object.entries(target?.paymentsData || {})
+      .filter(
+        ([type]) => !scoreCampaignTypes.map(({ type }) => type).includes(type),
+      )
+      .map(([type, obj]) => ({
+        type,
+        ...obj,
+      }))
+      .reduce((sum, payment) => sum + (payment?.amount || 0), 0);
   },
 };

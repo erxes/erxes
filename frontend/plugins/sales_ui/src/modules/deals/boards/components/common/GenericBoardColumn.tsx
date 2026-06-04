@@ -215,7 +215,7 @@ function VirtualizedCardListInner<TItem extends BaseBoardItem>({
       {items.length === 0 && !isLoadingMore && !isLoading && (
         <div
           className={`
-            border-2 border-dashed bg-white/80 rounded-lg text-muted-foreground
+            border-2 border-dashed bg-background/80 rounded-lg text-muted-foreground
             min-h-[100px] p-4 flex items-center justify-center text-sm
             ${isOver ? 'border-primary bg-primary/5' : 'border-muted'}
           `}

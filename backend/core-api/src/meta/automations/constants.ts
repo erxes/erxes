@@ -135,6 +135,7 @@ export const CORE_AUTOMATION_CONSTANTS: AutomationConstants = {
       description:
         'Create conditional branches to route workflows based on criteria',
       group: CORE_ACTION_GROUPS.LOGIC_AND_DECISIONS,
+      allowTargetFromActions: true,
     },
     // Data Operations
     {
@@ -167,6 +168,7 @@ export const CORE_AUTOMATION_CONSTANTS: AutomationConstants = {
       group: CORE_ACTION_GROUPS.DATA_OPERATIONS,
       allowTargetFromActions: true,
       output: TRANSFORM_ACTION_OUTPUT,
+      isTargetSource: true,
     },
     {
       type: AUTOMATION_CORE_ACTIONS.SET_PROPERTY,

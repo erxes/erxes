@@ -28,12 +28,12 @@ export function AutomationErrorState({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="p-4 rounded-lg border border-red-200 bg-background max-w-full overflow-auto">
-      <div className="border-red-500/50 flex flex-row items-center gap-2">
+    <div className="p-4 rounded-lg border border-destructive/20 bg-background max-w-full overflow-auto">
+      <div className="border-destructive/50 flex flex-row items-center gap-2">
         <IconAlertCircle className="h-5 w-5" />
         <div className="flex-1">
           <div className="flex items-start justify-between">
-            <h4 className="text-red-700 font-medium">{title}</h4>
+            <h4 className="text-destructive font-medium">{title}</h4>
             {onDismiss && (
               <Button
                 variant="ghost"
@@ -47,14 +47,14 @@ export function AutomationErrorState({
             )}
           </div>
           {description && (
-            <span className="text-red-700/90 mt-1">{description}</span>
+            <span className="text-destructive/90 mt-1">{description}</span>
           )}
         </div>
       </div>
 
       <div className="mt-3 text-sm">
         <div className="flex items-center text-gray-500 mb-1">
-          <span className="font-mono text-xs bg-red-50 px-2 py-0.5 rounded border border-red-100">
+          <span className="font-mono text-xs bg-destructive/5 px-2 py-0.5 rounded border border-destructive/10">
             {errorCode}
           </span>
         </div>
@@ -92,7 +92,7 @@ export function AutomationErrorState({
           <Button
             variant="outline"
             size="sm"
-            className="text-sm border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+            className="text-sm border-destructive/20 hover:bg-destructive/5 hover:text-destructive hover:border-destructive/30"
             onClick={onRetry}
           >
             <IconRefresh className="h-3.5 w-3.5 mr-1.5" />

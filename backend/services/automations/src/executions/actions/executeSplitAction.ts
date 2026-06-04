@@ -32,6 +32,19 @@ type TSplitActionConfig = {
   optionalConnects?: TSplitOptionalConnect[];
 };
 
+const getTargetActionResult = (
+  execution: IAutomationExecutionDocument,
+  targetActionId?: string,
+) => {
+  if (!targetActionId) {
+    return undefined;
+  }
+
+  return [...(execution.actions || [])]
+    .reverse()
+    .find(({ actionId }) => actionId === targetActionId)?.result;
+};
+
 const resolveNextActionId = (
   config: TSplitActionConfig,
   optionId: string,
@@ -155,17 +168,22 @@ const isOptionConfigMatched = (target: any, option: TSplitOption) => {
 const isSplitOptionMatched = async ({
   subdomain,
   execution,
+  action,
   option,
 }: {
   subdomain: string;
   execution: IAutomationExecutionDocument;
+  action: IAutomationAction<TSplitActionConfig>;
   option: TSplitOption;
 }) => {
   if (option.segmentId) {
     return await isInSegment(subdomain, option.segmentId, execution.targetId, 0);
   }
 
-  return isOptionConfigMatched(execution.target, option);
+  return isOptionConfigMatched(
+    getTargetActionResult(execution, action.targetActionId) ?? execution.target,
+    option,
+  );
 };
 
 export const executeSplitAction = async (
@@ -186,6 +204,7 @@ export const executeSplitAction = async (
     const isMatched = await isSplitOptionMatched({
       subdomain,
       execution,
+      action,
       option,
     });
 

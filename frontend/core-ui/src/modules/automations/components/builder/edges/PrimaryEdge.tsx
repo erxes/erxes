@@ -79,7 +79,7 @@ const PrimaryEdge: FC<EdgeProps> = (edge) => {
                   size="icon"
                   onClick={() => onDisconnect(edge)}
                 >
-                  <IconScissors className="w-4 h-4 text-red-500" />
+                  <IconScissors className="w-4 h-4 text-destructive" />
                 </Button>
               </motion.div>
             )}

@@ -525,7 +525,7 @@ export const loadClasses = (
 
   models.Relations = db.model<IRelationDocument, IRelationModel>(
     'relations',
-    loadRelationClass(models),
+    loadRelationClass(models, coreEventHandlers('relations', 'relations')),
   );
 
   models.Favorites = db.model<IFavoritesDocument, IFavoritesModel>(

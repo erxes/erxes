@@ -40,7 +40,7 @@ const WorkflowNode = ({
           'rounded-md shadow-md bg-background w-[280px] relative font-mono transition-all duration-200',
           {
             'ring-2 ring-warning': selected,
-            'ring-2 ring-red-300 ring-offset-2': data?.error,
+            'ring-2 ring-destructive ring-offset-2': data?.error,
           },
         )}
       >

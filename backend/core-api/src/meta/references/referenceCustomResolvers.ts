@@ -8,4 +8,11 @@ export const coreReferenceCustomResolvers: TRecordReferencesConfig<IModels>['res
   {
     customerFullName: async ({ target }) =>
       joinNames(target.firstName, target.middleName, target.lastName),
+
+    customerDisplayName: async ({ target }) =>
+      joinNames(target.firstName, target.middleName, target.lastName) ||
+      target.primaryEmail ||
+      target.primaryPhone ||
+      target.code ||
+      target._id,
   };

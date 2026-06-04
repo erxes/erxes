@@ -1,4 +1,6 @@
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IRelation, IRelationDocument } from 'erxes-api-shared/core-types';
+import { generateRelationActivityLogs } from '@/relations/meta/activity-log';
 import lodash from 'lodash';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
@@ -72,7 +74,10 @@ export interface IRelationModel extends Model<IRelationDocument> {
   }) => Promise<IRelationDocument[]>;
 }
 
-export const loadRelationClass = (models: IModels) => {
+export const loadRelationClass = (
+  models: IModels,
+  { createActivityLog, getContext }: EventDispatcherReturn,
+) => {
   class Relation {
     public static async createRelation({ relation }: { relation: IRelation }) {
       return models.Relations.create(relation);
@@ -222,6 +227,7 @@ export const loadRelationClass = (models: IModels) => {
       relatedContentType: string;
       relatedContentIds: string[];
     }) {
+      const { subdomain } = getContext();
       const existingRels = await models.Relations.getRelationsByEntity({ contentType, contentId, relatedContentType });
 
       const existingRelIds: string[] = lodash.uniq(existingRels.map(r => (
@@ -263,6 +269,17 @@ export const loadRelationClass = (models: IModels) => {
           ]
         })));
       }
+
+      await generateRelationActivityLogs({
+        subdomain,
+        createActivityLog,
+        contentType,
+        contentId,
+        relatedContentType,
+        addedRelationIds: toCreateRelIds,
+        removedRelationIds: toDeleteRelIds,
+      });
+
       return models.Relations.getRelationsByEntity({ contentType, contentId, relatedContentType })
     }
   }

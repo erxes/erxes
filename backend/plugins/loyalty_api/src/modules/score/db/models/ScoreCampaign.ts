@@ -72,15 +72,50 @@ export const getOwnerFieldScore = (owner: any, fieldId?: string) => {
   return getOwnerScoreValue(owner, fieldId);
 };
 
-const calculateCampaignChangeScore = ({
-  campaign,
-  actionMethod,
+const resolveExpression = async ({
+  subdomain,
   target,
+  placeholder,
 }: {
-  campaign: any;
-  actionMethod: 'add' | 'subtract' | 'set';
+  subdomain: string;
   target: any;
+  placeholder: string;
 }) => {
+  const regex = /\{\{\s*([^}]+)\s*\}\}/g;
+  const matches = [...placeholder.matchAll(regex)];
+
+  const resolvedValues = await Promise.all(
+    matches.map(async (match) => {
+      const value = await resolvePlaceholderValue(
+        subdomain,
+        target,
+        String(match[1]).trim(),
+      );
+
+      return {
+        raw: match[0],
+        value: String(value ?? 0),
+      };
+    }),
+  );
+
+  return resolvedValues.reduce(
+    (expression, { raw, value }) => expression.replace(raw, value),
+    placeholder,
+  );
+};
+const calculateCampaignChangeScore = async (
+  subdomain: string,
+  {
+    campaign,
+    actionMethod,
+    target,
+  }: {
+    campaign: any;
+    actionMethod: 'add' | 'subtract' | 'set';
+    target: any;
+  },
+) => {
   const { currencyRatio = 1 } = campaign[actionMethod] || {};
   const placeholder = campaign[actionMethod]?.placeholder || '';
 
@@ -88,12 +123,12 @@ const calculateCampaignChangeScore = ({
     return Number(target?.paymentAmount) || 0;
   }
 
-  const expression = placeholder.replace(
-    /\{\{\s*([^}]+)\s*\}\}/g,
-    (_match, attribute) =>
-      String(resolvePlaceholderValue(target, String(attribute).trim())),
-  );
-
+  const expression = await resolveExpression({
+    subdomain,
+    target,
+    placeholder,
+  });
+  console.log({ expression });
   return fixScoreNumber(
     (safeEvalMath(expression) || 0) * Number(currencyRatio || 1) || 0,
   );
@@ -378,7 +413,7 @@ export const loadScoreCampaignClass = (
         );
       }
 
-      let changeScore = calculateCampaignChangeScore({
+      let changeScore = await calculateCampaignChangeScore(subdomain, {
         campaign,
         actionMethod: 'subtract',
         target,
@@ -435,6 +470,8 @@ export const loadScoreCampaignClass = (
         _id: campaignId,
         status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
       });
+
+      console.log({ campaign, owner });
 
       if (!campaign) {
         throw new Error('Campaign not found');
@@ -497,8 +534,9 @@ export const loadScoreCampaignClass = (
             description:
               newStageStatus === 'refund'
                 ? 'Refund score campaign'
-                : `Clear score campaign from ${oldStageStatus || 'undefined'
-                } stage`,
+                : `Clear score campaign from ${
+                    oldStageStatus || 'undefined'
+                  } stage`,
           },
         });
 
@@ -523,12 +561,12 @@ export const loadScoreCampaignClass = (
         }
       }
 
-      let changeScore = calculateCampaignChangeScore({
+      let changeScore = await calculateCampaignChangeScore(subdomain, {
         campaign,
         actionMethod,
         target: calculationTarget,
       });
-
+      console.log({ changeScore });
       if (!changeScore && actionMethod !== 'set') {
         if (activeScoreLog) {
           const { log } = await refundScoreChange({
@@ -579,7 +617,8 @@ export const loadScoreCampaignClass = (
 
         const currentSignedChangeScore = getSignedChangeScore(scoreLog);
         let nextSignedChangeScore = changeScore;
-        if (actionMethod === 'set') nextSignedChangeScore = currentSignedChangeScore + changeScore;
+        if (actionMethod === 'set')
+          nextSignedChangeScore = currentSignedChangeScore + changeScore;
         if (actionMethod === 'subtract') nextSignedChangeScore = -changeScore;
 
         const nextPreparedChange = prepareScoreLogChange({

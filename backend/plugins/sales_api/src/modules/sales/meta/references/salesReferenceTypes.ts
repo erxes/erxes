@@ -5,6 +5,11 @@ export const SALES_REFERENCE_TYPES: TRecordReferencesConfig['types'] = [
     type: 'deal',
     label: 'Deal',
     fields: [
+      {
+        key: 'displayName',
+        label: 'Display name',
+        resolver: 'dealDisplayName',
+      },
       { key: '_id', label: 'Deal ID' },
       { key: 'name', label: 'Deal name' },
       { key: 'number', label: 'Deal number' },
@@ -148,6 +153,11 @@ export const SALES_REFERENCE_TYPES: TRecordReferencesConfig['types'] = [
         label: 'Products amount',
         resolver: 'productsAmount',
       },
+      {
+        key: 'excludeLoyaltyAmount',
+        label: 'Exclude loyalty amount',
+        resolver: 'excludeLoyaltyAmount',
+      },
     ],
   },
 
@@ -155,6 +165,7 @@ export const SALES_REFERENCE_TYPES: TRecordReferencesConfig['types'] = [
     type: 'stage',
     label: 'Stage',
     fields: [
+      { key: 'displayName', label: 'Display name', path: 'name' },
       { key: '_id', label: 'Stage ID' },
       { key: 'name', label: 'Name' },
       { key: 'probability', label: 'Probability' },
@@ -167,6 +178,7 @@ export const SALES_REFERENCE_TYPES: TRecordReferencesConfig['types'] = [
     type: 'pipelineLabels',
     label: 'Pipeline labels',
     fields: [
+      { key: 'displayName', label: 'Display name', path: 'name' },
       { key: '_id', label: 'Label ID' },
       { key: 'name', label: 'Name' },
       { key: 'colorCode', label: 'Color' },
