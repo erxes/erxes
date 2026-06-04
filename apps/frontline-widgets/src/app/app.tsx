@@ -128,7 +128,7 @@ export function App() {
         className={cn({
           'flex-1 overflow-y-auto hide-scroll min-h-0 flex flex-col bg-muted':
             (activeTab !== 'default' && activeTab !== 'faq') || isFaqArticle,
-          'flex-1 overflow-y-auto hide-scroll min-h-0': activeTab === 'default',
+          'flex-1 overflow-y-auto hide-scroll min-h-0 bg-muted': activeTab === 'default',
           'flex-1  overflow-y-auto hide-scroll min-h-0 flex flex-col':
             isFaqNonArticle,
         })}
