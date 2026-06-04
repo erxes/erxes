@@ -259,8 +259,11 @@ const setupShowMessengerProperty = (contentWindow: Window) => {
 const sendMessageToIframe = (contentWindow: Window) => {
   const settings = (window as any).erxesSettings?.messenger;
   const storedTheme = localStorage.getItem('theme');
-  const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
-  const theme = storedTheme === 'dark' || (!storedTheme && prefersDark) ? 'dark' : 'light';
+  const prefersDark = window.matchMedia?.(
+    '(prefers-color-scheme: dark)',
+  ).matches;
+  const theme =
+    storedTheme === 'dark' || (!storedTheme && prefersDark) ? 'dark' : 'light';
   contentWindow.postMessage(
     {
       fromPublisher: true,
@@ -383,6 +386,16 @@ window.addEventListener('message', async (event) => {
 
     if (isMobile) {
       document.body.classList.toggle('widget-mobile', isVisible);
+    }
+
+    if (message === 'expandMessenger') {
+      messengerIframeContainer.classList.remove('erxes-messenger-shown');
+      messengerIframeContainer.classList.add('erxes-messenger-expand');
+    }
+
+    if (message === 'collapseMessenger') {
+      messengerIframeContainer.classList.remove('erxes-messenger-expand');
+      messengerIframeContainer.classList.add('erxes-messenger-shown');
     }
 
     if (message === 'messenger') {

@@ -335,15 +335,15 @@ export const ConversationDetailsDropdown = () => {
     setExpanded(!expanded);
   };
   return (
-    <Button
-      variant="ghost"
-      size="icon"
+    <button
       onClick={handleExpanded}
-      className="text-primary-foreground hover:bg-primary-foreground/10 size-8 rounded-xl shrink-0"
+      className="text-primary-foreground hover:bg-primary-foreground/10 size-8 rounded-xl shrink-0 flex items-center justify-center cursor-pointer"
     >
-      {(expanded && <IconArrowsDiagonalMinimize className="size-4" />) || (
+      {expanded ? (
+        <IconArrowsDiagonalMinimize className="size-4" />
+      ) : (
         <IconArrowsDiagonal2 className="size-4" />
       )}
-    </Button>
+    </button>
   );
 };

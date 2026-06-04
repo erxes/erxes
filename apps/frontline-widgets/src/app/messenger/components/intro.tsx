@@ -193,12 +193,7 @@ export const Messages = () => {
     messengerData || {};
 
   const { hasEmailOrPhone } = useCustomerData();
-  const { switchToTab, goBack } = useMessenger();
-
-  const handleStartNewConversation = () => {
-    goBack();
-    switchToTab('chat');
-  };
+  const { switchToTab } = useMessenger();
 
   if (loading) {
     return <Spinner containerClassName="py-32" />;
@@ -217,14 +212,13 @@ export const Messages = () => {
   return (
     <div className="flex relative flex-col h-full hide-scroll overflow-y-auto flex-1 font-medium text-sm ">
       <div className="sticky top-0 bg-muted backdrop-blur-2xl z-30 flex-none p-4 pb-2">
-        <div
-          className="rounded-2xl group p-4 bg-background flex items-center gap-3 hover:shadow-sm hover:-translate-y-px shadow-xs transition-all ease-in-out cursor-pointer"
-          onClick={handleStartNewConversation}
-          role="button"
+        <button
+          className="rounded-2xl group p-4 bg-background flex text-left items-center gap-3 hover:shadow-sm hover:-translate-y-px shadow-xs transition-all ease-in-out cursor-pointer"
+          onClick={() => switchToTab('chat')}
           tabIndex={0}
         >
           <span className="size-9 bg-primary flex justify-center items-center rounded-full">
-            <IconPlus size={20} className="text-white" />
+            <IconPlus size={20} className="text-primary-foreground" />
           </span>
           <span>
             <div className="text-foreground text-[14px]">
@@ -245,7 +239,7 @@ export const Messages = () => {
             size={16}
             className="text-muted-foreground group-hover:translate-x-1 transition-all ease-in-out"
           />
-        </div>
+        </button>
       </div>
       <div className="flex-1 flex flex-col gap-2.5 p-4 pt-2">
         {conversations?.map((conversation) => (
