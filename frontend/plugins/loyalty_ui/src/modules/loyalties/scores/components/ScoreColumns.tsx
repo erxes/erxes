@@ -121,10 +121,10 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
     ),
   },
   {
-    id: '_id',
-    accessorKey: '_id',
+    id: 'dealNumber',
+    accessorFn: (row) => row.target?.number,
     header: () => (
-      <RecordTable.InlineHead icon={IconHash} label="Transaction ID" />
+      <RecordTable.InlineHead icon={IconHash} label="Deal Number" />
     ),
     size: 200,
     cell: ({ cell }) => (
