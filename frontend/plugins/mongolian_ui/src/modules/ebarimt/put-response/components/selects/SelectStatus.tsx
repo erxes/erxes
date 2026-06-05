@@ -22,7 +22,7 @@ import { STATUS_DATA } from '../../constants/statusData';
 import {
   SelectContent,
   SelectTrigger,
-  SelectTriggerVariant,
+  SelectTriggerVariantType,
 } from './SelectShared';
 
 interface IStatus {
@@ -279,7 +279,7 @@ const SelectStatusRoot = ({
   disabled,
 }: {
   value: string;
-  variant?: `${SelectTriggerVariant}`;
+  variant?: `${SelectTriggerVariantType}`;
   scope?: string;
   onValueChange?: (value: string) => void;
   disabled?: boolean;

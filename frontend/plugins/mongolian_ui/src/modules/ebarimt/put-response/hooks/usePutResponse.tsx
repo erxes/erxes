@@ -10,16 +10,21 @@ import {
 import { putResponseQueries } from '~/modules/ebarimt/put-response/graphql/queries/PutResopnseQueries';
 import { IPutResponse } from '~/modules/ebarimt/put-response/types/PutResponseType';
 import { usePutResponseLeadSessionKey } from '~/modules/ebarimt/put-response/hooks/usePutResponseLeadSessionKey';
+import { useSetAtom } from 'jotai';
+import { putResponseTotalCountAtom } from '../states/usePutResponseCounts';
+import { useEffect } from 'react';
 export const PUT_RESPONSE_PER_PAGE = 30;
 
+interface IusePutResponseVariables {
+  putResponses: {
+    list: IPutResponse[];
+    totalCount: number;
+    pageInfo: IRecordTableCursorPageInfo;
+  };
+}
+
 export const usePutResponseVariables = (
-  variables?: QueryHookOptions<{
-    putResponses: {
-      list: IPutResponse[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>['variables'],
+  variables?: QueryHookOptions<IusePutResponseVariables>['variables'],
 ) => {
   const [
     {
@@ -100,28 +105,23 @@ export const usePutResponseVariables = (
   };
 };
 
-export const usePutResponse = (options?: QueryHookOptions) => {
+export const usePutResponse = (
+  options?: QueryHookOptions<IusePutResponseVariables>,
+) => {
+  const setPutResponseTotalCount = useSetAtom(putResponseTotalCountAtom);
   const variables = usePutResponseVariables(options?.variables);
-  const { data, loading, fetchMore } = useQuery<{
-    putResponses: {
-      list: IPutResponse[];
-      totalCount: number;
-      pageInfo: IRecordTableCursorPageInfo;
-    };
-  }>(putResponseQueries.putResponses, {
-    ...options,
-
-    variables: {
-      ...options?.variables,
-      ...variables,
+  const { data, loading, fetchMore } = useQuery<IusePutResponseVariables>(
+    putResponseQueries.putResponses,
+    {
+      ...options,
+      notifyOnNetworkStatusChange: true,
+      variables,
     },
-  });
+  );
 
-  const {
-    list: putResponses = [],
-    totalCount = 0,
-    pageInfo,
-  } = data?.putResponses || {};
+  const totalCount = data?.putResponses?.totalCount;
+
+  const { list: putResponses = [], pageInfo } = data?.putResponses || {};
 
   const handleFetchMore = ({
     direction,
@@ -155,7 +155,10 @@ export const usePutResponse = (options?: QueryHookOptions) => {
               ...(prev.putResponses?.list || []),
               ...fetchMoreResult.putResponses.list,
             ],
-            totalCount: fetchMoreResult.putResponses.totalCount,
+            totalCount:
+              fetchMoreResult.putResponses.totalCount ??
+              prev.putResponses?.totalCount ??
+              0,
             pageInfo: fetchMoreResult.putResponses.pageInfo,
           },
         });
@@ -163,10 +166,16 @@ export const usePutResponse = (options?: QueryHookOptions) => {
     });
   };
 
+  useEffect(() => {
+    if (typeof totalCount === 'number') {
+      setPutResponseTotalCount(totalCount);
+    }
+  }, [totalCount, setPutResponseTotalCount]);
+
   return {
     loading,
     putResponses,
-    totalCount,
+    totalCount: totalCount ?? 0,
     handleFetchMore,
     pageInfo,
   };
