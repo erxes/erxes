@@ -49,6 +49,11 @@ const CONFIG_ACTIONS = {
   remove: 'removeAccountingConfigs',
 } as const;
 
+const CHECK_SYNC_ACTIONS = {
+  read: 'readAccountingCheckSync',
+  manage: 'manageAccountingCheckSync',
+} as const;
+
 const ACCOUNT_PERMISSION_ACTIONS = {
   read: 'readAccountPermissions',
   manage: 'manageAccountPermissions',
@@ -61,6 +66,7 @@ const allVatRowActions = Object.values(VAT_ROW_ACTIONS);
 const allCtaxRowActions = Object.values(CTAX_ROW_ACTIONS);
 const allAdjInvActions = Object.values(ADJ_INV_ACTIONS);
 const allConfigActions = Object.values(CONFIG_ACTIONS);
+const allCheckSyncActions = Object.values(CHECK_SYNC_ACTIONS);
 const allPermissionActions = Object.values(ACCOUNT_PERMISSION_ACTIONS);
 
 export const permissions: IPermissionConfig = {
@@ -276,6 +282,27 @@ export const permissions: IPermissionConfig = {
         },
       ],
     },
+    {
+      name: 'checkSync',
+      description: 'Accounting check sync management',
+      scopes: [
+        { name: 'own', description: 'Check sync records created by the user' },
+        { name: 'all', description: 'All check sync records' },
+      ],
+      actions: [
+        {
+          title: 'View check sync',
+          name: CHECK_SYNC_ACTIONS.read,
+          description: 'Check accounting transaction sync status',
+          always: true,
+        },
+        {
+          title: 'Manage check sync',
+          name: CHECK_SYNC_ACTIONS.manage,
+          description: 'Sync deals and orders to accounting transactions',
+        },
+      ],
+    },
   ],
   defaultGroups: [
     {
@@ -311,6 +338,12 @@ export const permissions: IPermissionConfig = {
           plugin: 'accounting',
           module: 'config',
           actions: [...allConfigActions],
+          scope: 'all',
+        },
+        {
+          plugin: 'accounting',
+          module: 'checkSync',
+          actions: [...allCheckSyncActions],
           scope: 'all',
         },
         {
@@ -361,6 +394,12 @@ export const permissions: IPermissionConfig = {
           plugin: 'accounting',
           module: 'config',
           actions: [CONFIG_ACTIONS.read],
+          scope: 'all',
+        },
+        {
+          plugin: 'accounting',
+          module: 'checkSync',
+          actions: [CHECK_SYNC_ACTIONS.read],
           scope: 'all',
         },
         {

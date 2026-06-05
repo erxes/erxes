@@ -13,12 +13,26 @@ BASE_BRANCH="${BASE_BRANCH:-main}"
 # GitHub API configuration
 GH_TOKEN="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
 if [[ -z "$GH_TOKEN" ]]; then
-  echo "Error: GH_TOKEN or GITHUB_TOKEN is required"
-  exit 1
+  if [[ "$DRY_RUN" != "1" && "$DRY_RUN" != "true" ]]; then
+    echo "Error: GH_TOKEN or GITHUB_TOKEN is required"
+    exit 1
+  else
+    echo "[DRY RUN] No GitHub token provided - using dummy token"
+    GH_TOKEN="dry-run-token"
+  fi
 fi
 
 # Kimi API configuration
-export KIMI_API_KEY="${KIMI_API_KEY:?KIMI_API_KEY is required}"
+export KIMI_API_KEY="${KIMI_API_KEY:-}"
+if [[ -z "$KIMI_API_KEY" ]]; then
+  if [[ "$DRY_RUN" != "1" && "$DRY_RUN" != "true" ]]; then
+    echo "Error: KIMI_API_KEY is required"
+    exit 1
+  else
+    echo "[DRY RUN] No Kimi API key provided - skipping OpenCode execution"
+    KIMI_API_KEY="dry-run-key"
+  fi
+fi
 export KIMI_BASE_URL="${KIMI_BASE_URL:-https://api.kimi.com/coding/v1}"
 export KIMI_MODEL="${KIMI_MODEL:-kimi-for-coding/k2p6}"
 
@@ -27,35 +41,62 @@ export MOONSHOT_API_KEY="${MOONSHOT_API_KEY:-}"
 export MOONSHOT_BASE_URL="${MOONSHOT_BASE_URL:-https://api.moonshot.ai/v1}"
 export MOONSHOT_MODEL="${MOONSHOT_MODEL:-kimi-k2.6}"
 
+# Dry run mode - don't create branches or PRs
+DRY_RUN="${DRY_RUN:-0}"
+if [[ "$DRY_RUN" == "1" || "$DRY_RUN" == "true" ]]; then
+  echo "=== DRY RUN MODE ==="
+  echo "No branches or PRs will be created"
+fi
+
 echo "=== Sentry OpenCode Fix ==="
 echo "Issue: #${ISSUE_NUMBER}"
 echo "Title: ${ISSUE_TITLE}"
 echo "Base branch: ${BASE_BRANCH}"
 
-# Check for existing open PRs/branches for this issue to avoid duplicates
-EXISTING_PRS=$(curl -s \
-  -H "Authorization: token ${GH_TOKEN}" \
-  -H "Accept: application/vnd.github.v3+json" \
-  "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?state=open" 2>/dev/null | \
-  jq -r --arg prefix "sentry-fix/issue-${ISSUE_NUMBER}-" '[.[] | select(.head.ref | startswith($prefix)) | .html_url] | join("\n")')
+# Check for jq availability
+if ! command -v jq &>/dev/null; then
+  echo "Installing jq..."
+  apt-get update -qq && apt-get install -y -qq jq
+fi
 
-if [ -n "$EXISTING_PRS" ]; then
-  echo "⚠️ Found existing open PR(s) for issue #${ISSUE_NUMBER}:"
-  echo "$EXISTING_PRS"
-  echo "Skipping duplicate fix creation."
-  exit 0
+# Check for gh CLI availability
+if ! command -v gh &>/dev/null; then
+  echo "Installing GitHub CLI..."
+  curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+  apt-get update -qq && apt-get install -y -qq gh
+fi
+
+# Check for existing open PRs/branches for this issue to avoid duplicates
+if [[ "$DRY_RUN" != "1" && "$DRY_RUN" != "true" ]]; then
+  EXISTING_PRS=$(curl -s \
+    -H "Authorization: token ${GH_TOKEN}" \
+    -H "Accept: application/vnd.github.v3+json" \
+    "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?state=open" 2>/dev/null | \
+    jq -r --arg prefix "sentry-fix/issue-${ISSUE_NUMBER}-" '[.[] | select(.head.ref | startswith($prefix)) | .html_url] | join("\n")')
+
+  if [ -n "$EXISTING_PRS" ]; then
+    echo "⚠️ Found existing open PR(s) for issue #${ISSUE_NUMBER}:"
+    echo "$EXISTING_PRS"
+    echo "Skipping duplicate fix creation."
+    exit 0
+  fi
 fi
 
 # Create a new branch for the fix
 BRANCH_NAME="sentry-fix/issue-${ISSUE_NUMBER}-$(date +%s)"
 echo "Creating branch: ${BRANCH_NAME}"
 
-git checkout -b "$BRANCH_NAME"
+if [[ "$DRY_RUN" != "1" && "$DRY_RUN" != "true" ]]; then
+  git checkout -b "$BRANCH_NAME"
+else
+  echo "[DRY RUN] Would create branch: ${BRANCH_NAME}"
+fi
 
 # Prepare the context for OpenCode
 # Extract Sentry error details from issue body if present
 SENTRY_CONTEXT=""
-if echo "$ISSUE_BODY" | grep -q "sentry\.io\|sentry\.com"; then
+if echo "$ISSUE_BODY" | grep -q "sentry\.io\|sentry\.com\|sentry\.erxes"; then
   SENTRY_CONTEXT="This issue is linked to a Sentry error. "
 fi
 
@@ -107,22 +148,33 @@ echo "$FULL_CONTEXT" > "$CONTEXT_FILE"
 
 echo "Running OpenCode with Kimi model to analyze and fix the issue..."
 
-# Run opencode with the issue context
-# Using the correct syntax: opencode run -m provider/model message
-opencode run -m "$KIMI_MODEL" "$(cat "$CONTEXT_FILE")" || {
-  echo "Warning: OpenCode run completed with potential issues"
-}
+if [[ "$DRY_RUN" != "1" && "$DRY_RUN" != "true" ]]; then
+  # Run opencode with the issue context
+  # Using non-interactive mode with the run command
+  opencode run -m "$KIMI_MODEL" "$(cat "$CONTEXT_FILE")" || {
+    echo "Warning: OpenCode run completed with potential issues"
+  }
+else
+  echo "[DRY RUN] Would run: opencode run -m $KIMI_MODEL <context>"
+  echo "[DRY RUN] Context preview (first 500 chars):"
+  echo "$(head -c 500 "$CONTEXT_FILE")"
+  echo "..."
+fi
 
 # Check if there are any changes
 if git diff --quiet HEAD; then
   echo "No changes were made by OpenCode. Exiting."
   
-  # Comment on the issue
-  curl -s -X POST \
-    -H "Authorization: token ${GH_TOKEN}" \
-    -H "Accept: application/vnd.github.v3+json" \
-    "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" \
-    -d "{\"body\":\"🤖 OpenCode analyzed this Sentry issue but could not automatically generate a fix. Manual investigation may be required.\"}"
+  if [[ "$DRY_RUN" != "1" && "$DRY_RUN" != "true" ]]; then
+    # Comment on the issue
+    curl -s -X POST \
+      -H "Authorization: token ${GH_TOKEN}" \
+      -H "Accept: application/vnd.github.v3+json" \
+      "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" \
+      -d "{\"body\":\"🤖 OpenCode analyzed this Sentry issue but could not automatically generate a fix. Manual investigation may be required.\"}"
+  else
+    echo "[DRY RUN] Would comment on issue #${ISSUE_NUMBER}: No fix generated"
+  fi
   
   exit 0
 fi
@@ -137,17 +189,21 @@ echo "Changed files:"
 echo "$CHANGED_FILES"
 
 # Stage and commit all changes
-git add -A
-git commit -m "fix: resolve Sentry issue #${ISSUE_NUMBER}
+if [[ "$DRY_RUN" != "1" && "$DRY_RUN" != "true" ]]; then
+  git add -A
+  git commit -m "fix: resolve Sentry issue #${ISSUE_NUMBER}
 
 ${ISSUE_TITLE}
 
 Automated fix generated by OpenCode using ${KIMI_MODEL}.
 Closes #${ISSUE_NUMBER}"
 
-# Push the branch
-echo "Pushing branch: ${BRANCH_NAME}"
-git push origin "$BRANCH_NAME"
+  # Push the branch
+  echo "Pushing branch: ${BRANCH_NAME}"
+  git push origin "$BRANCH_NAME"
+else
+  echo "[DRY RUN] Would commit and push branch: ${BRANCH_NAME}"
+fi
 
 # Identify affected CI workflows
 AFFECTED_CIS=""
@@ -194,35 +250,42 @@ ${AFFECTED_CIS:-General repository files}
 Closes #${ISSUE_NUMBER}"
 
 # Create PR with gh CLI
-export GH_TOKEN
-PR_URL=$(gh pr create \
-  --title "fix: resolve Sentry issue #${ISSUE_NUMBER} - ${ISSUE_TITLE}" \
-  --body "$PR_BODY" \
-  --base "$BASE_BRANCH" \
-  --head "$BRANCH_NAME" \
-  --label "sentry,opencode,automated-fix" \
-  --draft 2>&1) || {
-  echo "❌ Failed to create pull request"
-  echo "Error: $PR_URL"
-  exit 1
-}
+if [[ "$DRY_RUN" != "1" && "$DRY_RUN" != "true" ]]; then
+  export GH_TOKEN
+  PR_URL=$(gh pr create \
+    --title "fix: resolve Sentry issue #${ISSUE_NUMBER} - ${ISSUE_TITLE}" \
+    --body "$PR_BODY" \
+    --base "$BASE_BRANCH" \
+    --head "$BRANCH_NAME" \
+    --label "sentry,opencode,automated-fix" \
+    --draft 2>&1) || {
+    echo "❌ Failed to create pull request"
+    echo "Error: $PR_URL"
+    exit 1
+  }
 
-# Extract PR number from URL
-PR_NUMBER=$(echo "$PR_URL" | grep -oE '[0-9]+$')
+  # Extract PR number from URL
+  PR_NUMBER=$(echo "$PR_URL" | grep -oE '[0-9]+$')
 
-echo "✅ Pull request created: ${PR_URL}"
-echo "PR Number: ${PR_NUMBER}"
+  echo "✅ Pull request created: ${PR_URL}"
+  echo "PR Number: ${PR_NUMBER}"
 
-# Initial comment on issue
-curl -s -X POST \
-  -H "Authorization: token ${GH_TOKEN}" \
-  -H "Accept: application/vnd.github.v3+json" \
-  "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" \
-  -d "{\"body\":\"🤖 **OpenCode Fix Generated**\\n\\n**Pull Request:** ${PR_URL}\\n\\nCI checks are now running. I'll update this comment with the results shortly.\"}"
+  # Initial comment on issue
+  curl -s -X POST \
+    -H "Authorization: token ${GH_TOKEN}" \
+    -H "Accept: application/vnd.github.v3+json" \
+    "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" \
+    -d "{\"body\":\"🤖 **OpenCode Fix Generated**\\n\\n**Pull Request:** ${PR_URL}\\n\\nCI checks are now running. I'll update this comment with the results shortly.\"}"
 
-# Wait for CI checks to start and complete
-echo "Waiting for CI checks (max 20 minutes)..."
-sleep 60  # Give checks time to start
+  # Wait for CI checks to start and complete
+  echo "Waiting for CI checks (max 20 minutes)..."
+  sleep 60  # Give checks time to start
+else
+  echo "[DRY RUN] Would create PR with title: fix: resolve Sentry issue #${ISSUE_NUMBER} - ${ISSUE_TITLE}"
+  echo "[DRY RUN] Would add labels: sentry, opencode, automated-fix"
+  PR_NUMBER="DRY-RUN"
+  PR_URL="https://github.com/${GITHUB_REPOSITORY}/pull/DRY-RUN"
+fi
 
 MAX_WAIT=1200  # 20 minutes
 WAITED=60
@@ -230,7 +293,12 @@ CHECKS_FOUND=false
 ALL_PASSED=true
 CHECKS_SUMMARY=""
 
-while [ $WAITED -lt $MAX_WAIT ]; do
+if [[ "$DRY_RUN" == "1" || "$DRY_RUN" == "true" ]]; then
+  echo "[DRY RUN] Skipping CI check polling"
+  CHECKS_FOUND=false
+  CHECKS_SUMMARY="⏭️ **[DRY RUN] CI checks skipped**"
+else
+  while [ $WAITED -lt $MAX_WAIT ]; do
   echo "Polling checks... (${WAITED}s elapsed)"
   
   # Get check runs for this PR
@@ -271,9 +339,10 @@ while [ $WAITED -lt $MAX_WAIT ]; do
     fi
   fi
   
-  sleep 30
-  WAITED=$((WAITED + 30))
-done
+    sleep 30
+    WAITED=$((WAITED + 30))
+  done
+fi
 
 if [ "$CHECKS_FOUND" = false ]; then
   CHECKS_SUMMARY="⚠️ **No CI checks detected** - This may mean:\\n- Checks are still queueing\\n- No relevant CI workflows exist for the changed files\\n- CI may be disabled"
@@ -358,16 +427,23 @@ Please review the fix carefully before merging."
 # JSON-escape the message before sending
 FINAL_PAYLOAD=$(printf '%s' "$FINAL_MESSAGE" | jq -Rs '{body: .}')
 
-curl -s -X POST \
-  -H "Authorization: token ${GH_TOKEN}" \
-  -H "Accept: application/vnd.github.v3+json" \
-  "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" \
-  -d "$FINAL_PAYLOAD"
+if [[ "$DRY_RUN" != "1" && "$DRY_RUN" != "true" ]]; then
+  curl -s -X POST \
+    -H "Authorization: token ${GH_TOKEN}" \
+    -H "Accept: application/vnd.github.v3+json" \
+    "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${ISSUE_NUMBER}/comments" \
+    -d "$FINAL_PAYLOAD"
 
-# Mark PR as ready for review if checks passed
-if [ "$ALL_PASSED" = true ] && [ "$CHECKS_FOUND" = true ]; then
-  echo "All checks passed, marking PR as ready for review..."
-  gh pr ready "$PR_NUMBER" || true
+  # Mark PR as ready for review if checks passed
+  if [[ "$ALL_PASSED" = true ]] && [[ "$CHECKS_FOUND" = true ]]; then
+    echo "All checks passed, marking PR as ready for review..."
+    gh pr ready "$PR_NUMBER" || true
+  fi
+else
+  echo "[DRY RUN] Would post final comment on issue #${ISSUE_NUMBER}"
+  if [[ "$ALL_PASSED" = true ]] && [[ "$CHECKS_FOUND" = true ]]; then
+    echo "[DRY RUN] Would mark PR as ready for review"
+  fi
 fi
 
 # Cleanup

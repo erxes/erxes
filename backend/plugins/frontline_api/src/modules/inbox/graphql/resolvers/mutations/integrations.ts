@@ -382,7 +382,27 @@ export const integrationMutations = {
     if (brandId) {
       await models.Integrations.updateOne({ _id }, { $set: { brandId } });
     }
-    return models.Integrations.saveMessengerConfigs(_id, messengerData);
+
+    const { websiteApps, ...messengerDataWithoutApps } = messengerData ?? {};
+
+    if (Array.isArray(websiteApps)) {
+      await models.MessengerApps.deleteMany({
+        kind: 'website',
+        'credentials.integrationId': _id,
+      });
+
+      if (websiteApps.length > 0) {
+        await models.MessengerApps.insertMany(
+          websiteApps.map((app) => ({
+            kind: 'website',
+            showInInbox: app.showInInbox ?? false,
+            credentials: { ...app.credentials, integrationId: _id },
+          })),
+        );
+      }
+    }
+
+    return models.Integrations.saveMessengerConfigs(_id, messengerDataWithoutApps as IMessengerData);
   },
 
   async integrationsSaveMessengerColorTheme(

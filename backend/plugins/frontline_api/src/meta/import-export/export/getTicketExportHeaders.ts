@@ -2,12 +2,14 @@ import {
   ImportHeaderDefinition,
   IImportExportContext,
 } from 'erxes-api-shared/core-modules';
+import { IModels } from '~/connectionResolvers';
+import { getTicketCustomPropertyHeaders } from '../utils';
 
 export async function getTicketExportHeaders(
   _data: any,
-  _ctx: IImportExportContext,
+  { subdomain }: IImportExportContext<IModels>,
 ): Promise<ImportHeaderDefinition[]> {
-  return [
+  const systemFields: ImportHeaderDefinition[] = [
     { label: 'Name', key: 'name', isDefault: true },
     { label: 'Description', key: 'description' },
     { label: 'Type', key: 'type', isDefault: true },
@@ -23,4 +25,8 @@ export async function getTicketExportHeaders(
     { label: 'Created At', key: 'createdAt', isDefault: true },
     { label: 'Updated At', key: 'updatedAt' },
   ];
+
+  const customFields = await getTicketCustomPropertyHeaders(subdomain);
+
+  return [...systemFields, ...customFields];
 }

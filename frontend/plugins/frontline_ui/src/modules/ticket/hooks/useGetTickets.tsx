@@ -61,7 +61,7 @@ export const useTicketsVariables = (
     },
     direction: 'forward',
 
-    name: searchValue,
+    searchValue: searchValue,
     assigneeId: assignee,
     priority: priority,
     statusId: statusId,

@@ -1,4 +1,4 @@
-import { Sidebar } from 'erxes-ui';
+import { Separator, Sidebar } from 'erxes-ui';
 import { Link, useLocation } from 'react-router';
 import { SETTINGS_ROUTES } from '../constants/settingsRoutes';
 
@@ -26,6 +26,11 @@ export const AccountingSidebarItem = ({
   children: React.ReactNode;
 }) => {
   const isActive = useLocation().pathname === to;
+
+  if (!children) {
+    return <Separator />
+  }
+
   return (
     <Sidebar.MenuItem>
       <Sidebar.MenuButton asChild isActive={isActive}>

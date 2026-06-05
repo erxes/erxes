@@ -28,7 +28,7 @@ import { PIPELINE_DETAIL } from '../graphql/queries/relatedQueries';
 import { FormSelectEbarimtProductRule } from './SelectEbarimtProductRule';
 import { SyncResponseFieldSelect } from './SyncResponseFieldSelect';
 
-const configFormSchema = z.object({
+export const syncDealConfigFormSchema = z.object({
   title: z.string(),
   boardId: z.string().optional(),
   pipelineId: z.string().optional(),
@@ -60,7 +60,7 @@ const configFormSchema = z.object({
   }),
 });
 
-type ConfigFormValues = z.infer<typeof configFormSchema>;
+type ConfigFormValues = z.infer<typeof syncDealConfigFormSchema>;
 
 const normalizeRuleIds = (value?: string | string[]) => {
   if (!value) {

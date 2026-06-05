@@ -47,7 +47,8 @@ export interface IMessengerOnlineHours {
 }
 
 export interface IMessengerOnlineHoursDocument
-  extends IMessengerOnlineHours, Document {}
+  extends IMessengerOnlineHours,
+    Document {}
 
 export interface IMessengerDataMessagesItem {
   greetings?: { title?: string; message?: string };
@@ -65,6 +66,18 @@ type BotPersistentMenuTypeMessenger = {
   text: string;
   link: string;
   isEditing?: boolean;
+};
+type WebsiteApp = {
+  _id: string;
+  kind: string;
+  showInInbox: boolean;
+  credentials: {
+    integrationId: string;
+    description?: string;
+    buttonText?: string;
+    url: string;
+  };
+  scopeBrandIds: string[];
 };
 export interface IMessengerData {
   botEndpointUrl?: string;
@@ -99,6 +112,8 @@ export interface IMessengerData {
   forceLogoutWhenResolve?: boolean;
   showVideoCallRequest?: boolean;
   isReceiveWebCall?: boolean;
+  knowledgeBaseTopicId?: string;
+  websiteApps?: WebsiteApp[];
 }
 
 export interface IMessengerDataDocument extends IMessengerData, Document {}
@@ -160,6 +175,7 @@ export interface IColorDefinition {
 export interface IUiOptions {
   logo?: string;
   primary?: IColorDefinition;
+  navigationVariant?: string;
 }
 
 // subdocument schema for messenger UiOptions

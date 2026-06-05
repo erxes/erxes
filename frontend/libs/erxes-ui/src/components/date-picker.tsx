@@ -123,6 +123,7 @@ export const DatePicker = ({
           mode={mode}
           selected={value as any}
           onSelect={handleDateChange as any}
+          className="text-foreground"
         />
       </Popover.Content>
     </Popover>

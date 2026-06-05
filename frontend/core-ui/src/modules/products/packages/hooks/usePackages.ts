@@ -5,6 +5,7 @@ import { IPackage } from '../types/Package';
 export const usePackages = (variables?: {
   searchValue?: string;
   status?: string;
+  tagIds?: string[];
   limit?: number;
 }) => {
   const { data, loading, error, refetch } = useQuery(GET_PACKAGES, {
