@@ -22,13 +22,20 @@ jobs:
           WEBHOOK_SECRET: ${{ secrets.AUTO_ISSUE_WEBHOOK_SECRET }}
         run: |
           if [ -z "$WEBHOOK_URL" ]; then
-            echo "AUTO_ISSUE_WEBHOOK_URL secret is not configured"
+            echo "ERROR: AUTO_ISSUE_WEBHOOK_URL secret is not configured"
             exit 1
           fi
 
-          PAYLOAD='${{ toJson(github.event) }}'
+          if [ -z "$WEBHOOK_SECRET" ]; then
+            echo "ERROR: AUTO_ISSUE_WEBHOOK_SECRET secret is not configured"
+            exit 1
+          fi
 
-          SIGNATURE=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" | sed 's/^.* //')
+          PAYLOAD=$(cat "$GITHUB_EVENT_PATH")
+
+          SIGNATURE=$(printf '%s' "$PAYLOAD" | \
+            openssl dgst -sha256 -mac HMAC -macopt key:"$WEBHOOK_SECRET" | \
+            sed 's/^.* //')
 
           curl -X POST \
             -H "Content-Type: application/json" \
