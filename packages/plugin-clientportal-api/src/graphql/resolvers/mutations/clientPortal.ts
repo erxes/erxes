@@ -361,39 +361,54 @@ const clientPortalMutations = {
     { clientPortalId, token },
     { models }: IContext,
   ) {
-    const clientPortal = await models.ClientPortals.findOne({
-      _id: clientPortalId,
-    });
-    if (!clientPortal) {
-      throw new Error("Client portal not found");
-    }
+    try {
+      const clientPortal = await models.ClientPortals.findOne({
+        _id: clientPortalId,
+      });
+      if (!clientPortal) {
+        throw new Error("Client portal not found");
+      }
 
-    const tokiConfig = clientPortal.tokiConfig;
-    if (!tokiConfig) {
-      throw new Error("Toki config not found");
-    }
-    const testApiUrl = getEnv({ name: "TOKI_TEST_API_URL" });
-    const prodApiUrl = getEnv({ name: "TOKI_PRODUCTION_API_URL" });
+      const tokiConfig = clientPortal.tokiConfig;
+      if (!tokiConfig) {
+        throw new Error("Toki config not found");
+      }
+      const testApiUrl = getEnv({ name: "TOKI_TEST_API_URL" });
+      const prodApiUrl = getEnv({ name: "TOKI_PRODUCTION_API_URL" });
 
-    const apiUrl = tokiConfig.production ? prodApiUrl : testApiUrl;
-    const { apiKey } = tokiConfig;
-    const response = await fetch(
-      `https://${apiUrl}/third-party-service/v1/shoppy/user`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-          "api-key": apiKey,
+      const apiUrl = tokiConfig.production ? prodApiUrl : testApiUrl;
+      const { apiKey } = tokiConfig;
+      console.info(
+        "checking Toki user legal age with apiUrl:",
+        JSON.stringify({ apiUrl, apiKey, token }),
+      );
+      const response = await fetch(
+        `https://${apiUrl}/third-party-service/v1/shoppy/user`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+            "api-key": apiKey,
+          },
         },
-      },
-    );
+      );
 
-    const { data = {} } = ((await response.json()) || {}) as any;
+      const { data = {} } = ((await response.json()) || {}) as any;
+      console.info(
+        "checking Toki user legal age:",
+        JSON.stringify(data, null, 2),
+      );
 
-    const isAdult = data?.isAdult;
+      const isAdult = data?.isAdult;
 
-    return Boolean(isAdult);
+      return Boolean(isAdult);
+    } catch (error) {
+      console.error("Error checking Toki user legal age:", error);
+      throw new Error(
+        `Error checking Toki user legal age: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   },
 };
 
