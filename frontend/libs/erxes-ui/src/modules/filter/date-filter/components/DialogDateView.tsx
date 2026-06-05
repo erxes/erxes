@@ -16,7 +16,7 @@ import { cn } from 'erxes-ui/lib';
 import { MONTHS, QUARTERS } from '../constants/dateTypes';
 import { useFilterQueryState } from '../../hooks/useFilterQueryState';
 
-export const FilterDialogDateView = ({ filterKey }: { filterKey: string }) => {
+export const FilterDialogDateView = ({ filterKey, label }: { filterKey: string; label?: string }) => {
   const { sessionKey } = useFilterContext();
   const [tabs, setTabs] = useState('day');
   const [value, setValue] = useFilterQueryState<string>(filterKey, sessionKey);
@@ -55,7 +55,7 @@ export const FilterDialogDateView = ({ filterKey }: { filterKey: string }) => {
       <Tabs value={tabs} onValueChange={setTabs}>
         <Dialog.Header className="p-6 space-y-3">
           <Dialog.Title className="text-sm capitalize">
-            {filterKey}
+            {label ?? filterKey}
           </Dialog.Title>
           <div>
             <ToggleGroup
