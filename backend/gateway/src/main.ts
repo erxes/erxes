@@ -39,8 +39,7 @@ import {
   startSubscriptionServer,
   stopSubscriptionServer,
 } from './subscription';
-import * as fs from 'fs';
-import * as path from 'path';
+import { isValidLocaleParams, resolveLocale } from '~/util/locales';
 
 dotenv.config();
 
@@ -163,51 +162,19 @@ app.get('/debug-sentry', () => {
 });
 
 app.get('/locales/:lng/:file', async (req, res) => {
-  const localesRoot = path.join(__dirname, './locales');
-  try {
-    const requestedPath = path.resolve(
-      localesRoot,
-      req.params.lng,
-      req.params.file,
-    );
-    const realPath = fs.realpathSync(requestedPath);
-    if (!realPath.startsWith(localesRoot + path.sep)) {
-      return res.status(403).send('Forbidden');
-    }
-    const lngJson = fs.readFileSync(realPath);
+  const { lng, file } = req.params;
 
-    return res.json(JSON.parse(lngJson.toString()));
-  } catch {
-    console.log('Locale not found locally, trying plugins');
+  if (!isValidLocaleParams(lng, file)) {
+    return res.status(400).send('Invalid locale');
   }
 
-  try {
-    const { lng, file } = req.params;
+  const locale = await resolveLocale(lng, file);
 
-    const plugins = await getPlugins();
-
-    for (const pluginName of plugins) {
-      try {
-        const plugin = await getPlugin(pluginName);
-
-        if (!plugin?.address) continue;
-
-        const response = await fetch(`${plugin.address}/locales/${lng}/${file}`);
-
-        if (response.ok) {
-          const json = await response.json();
-
-          return res.json(json);
-        }
-      } catch {
-        console.log(`Error occurred while fetching locale from plugin: ${pluginName}`);
-      }
-    }
-  } catch {
-    console.log('Error occurred while fetching locales');
+  if (locale === null) {
+    return res.status(404).send('Locale not found');
   }
 
-  res.status(404).send('Locale not found');
+  return res.json(locale);
 });
 
 app.use('/pl:serviceName', async (req, res) => {
