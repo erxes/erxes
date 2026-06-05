@@ -1,7 +1,7 @@
-import { Button, Spinner, useUpload } from 'erxes-ui';
+import { Button, Spinner, useUpload, toast } from 'erxes-ui';
 import { REACT_APP_API_URL } from 'erxes-ui/utils';
 import { IconPaperclip, IconTrash } from '@tabler/icons-react';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { SpecificFieldProps } from './Field';
 
 export const FieldFile = (props: SpecificFieldProps) => {
@@ -9,6 +9,10 @@ export const FieldFile = (props: SpecificFieldProps) => {
   const [currentValue, setCurrentValue] = useState(value || null);
   const { upload, remove, isLoading } = useUpload();
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setCurrentValue(value || null);
+  }, [value]);
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -21,6 +25,8 @@ export const FieldFile = (props: SpecificFieldProps) => {
           const newValue = { url: response, name: fileInfo.name, type: fileInfo.type, size: fileInfo.size };
           setCurrentValue(newValue);
           handleChange(newValue);
+        } else {
+          if (inputRef.current) inputRef.current.value = '';
         }
       },
     });
@@ -30,12 +36,21 @@ export const FieldFile = (props: SpecificFieldProps) => {
     if (currentValue?.url) {
       remove({
         fileName: currentValue.url,
-        afterRemove: () => {},
+        afterRemove: ({ status }) => {
+          if (status === 'ok') {
+            setCurrentValue(null);
+            handleChange(null);
+            if (inputRef.current) inputRef.current.value = '';
+          } else {
+            toast({ description: 'Failed to delete file', variant: 'destructive' });
+          }
+        },
       });
+    } else {
+      setCurrentValue(null);
+      handleChange(null);
+      if (inputRef.current) inputRef.current.value = '';
     }
-    setCurrentValue(null);
-    handleChange(null);
-    if (inputRef.current) inputRef.current.value = '';
   };
 
   return (
@@ -62,7 +77,7 @@ export const FieldFile = (props: SpecificFieldProps) => {
             size="icon"
             className="size-6"
             onClick={handleRemove}
-            disabled={loading}
+            disabled={loading || isLoading}
           >
             <IconTrash className="size-3" />
           </Button>
