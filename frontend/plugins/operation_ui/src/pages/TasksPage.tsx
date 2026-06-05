@@ -6,7 +6,7 @@ import { TasksSideWidget } from '@/task/components/detail/TasksSideWidget';
 import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
 import { Breadcrumb, PageSubHeader, Separator } from 'erxes-ui';
 import { useLocation, useParams } from 'react-router-dom';
-import { Can, PageHeader, Export } from 'ui-modules';
+import { Can, PageHeader, Export, Import } from 'ui-modules';
 import { useTasksVariables } from '@/task/hooks/useGetTasks';
 
 export const TasksPage = () => {
@@ -50,6 +50,11 @@ export const TasksPage = () => {
           <PageSubHeader>
             <TasksFilter />
             <TasksViewControl />
+            <Import
+              pluginName="operation"
+              moduleName="task"
+              collectionName="tasks"
+            />
             <Export
               pluginName="operation"
               moduleName="task"

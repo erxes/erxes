@@ -12,9 +12,12 @@ import {
   TImportExportProducers,
   TGetExportDataInput,
   TGetExportHeadersInput,
+  TInsertImportRowsInput,
+  TGetImportHeadersInput,
 } from 'erxes-api-shared/core-modules';
 import { taskExportHandlers } from './modules/task/meta/import-export/export/exportHandlers';
 import { projectExportHandlers } from './modules/project/meta/import-export/export/exportHandlers';
+import { taskImportHandlers } from './modules/task/meta/import-export/import/importHandlers';
 
 export const router: Router = Router();
 
@@ -55,6 +58,32 @@ startPlugin({
   expressRouter: router,
 
   importExport: {
+    import: {
+      types: [
+        {
+          label: 'Task',
+          contentType: 'operation:task.tasks',
+        },
+      ],
+      insertImportRows: createCoreModuleProducerHandler({
+        moduleName: 'importExport',
+        modules: {
+          tasks: taskImportHandlers,
+        },
+        methodName: TImportExportProducers.INSERT_IMPORT_ROWS,
+        extractModuleName: (input: TInsertImportRowsInput) => input.collectionName || 'tasks',
+        generateModels,
+      }),
+      getImportHeaders: createCoreModuleProducerHandler({
+        moduleName: 'importExport',
+        modules: {
+          tasks: taskImportHandlers,
+        },
+        methodName: TImportExportProducers.GET_IMPORT_HEADERS,
+        extractModuleName: (input: TGetImportHeadersInput) => input.collectionName || 'tasks',
+        generateModels,
+      }),
+    },
     export: {
       types: [
         {

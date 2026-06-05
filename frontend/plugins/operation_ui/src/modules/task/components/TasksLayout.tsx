@@ -1,7 +1,7 @@
 import { PageSubHeader } from 'erxes-ui';
 import { TasksFilter } from '@/task/components/TasksFilter';
 import { TasksView, TasksViewControl } from '@/task/components/TasksView';
-import { Export } from 'ui-modules';
+import { Export, Import } from 'ui-modules';
 import { useTasksVariables } from '@/task/hooks/useGetTasks';
 
 export const TasksLayout = () => {
@@ -17,6 +17,11 @@ export const TasksLayout = () => {
       <PageSubHeader>
         <TasksFilter />
         <TasksViewControl />
+        <Import
+          pluginName="operation"
+          moduleName="task"
+          collectionName="tasks"
+        />
         <Export
           pluginName="operation"
           moduleName="task"
