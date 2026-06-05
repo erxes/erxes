@@ -89,4 +89,5 @@ const mutationParams = `
 
 export const mutations = `
   changeScore(${mutationParams}): ScoreLogItem
+  loyaltyScoreRepairOwner(ownerId: String!, ownerType: String!): JSON
 `;

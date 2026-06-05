@@ -30,6 +30,152 @@ let NEW_ACTIVITIES: Collection;
 let NEW_CYCLES: Collection;
 
 
+async function fixTaskIds(): Promise<void> {
+  console.log('\n🔧 Step 0c — fix string task _ids → ObjectId');
+
+  const tasks = await NEW_TASKS
+    .find({ _id: { $type: 'string' } })
+    .toArray();
+
+  if (!tasks.length) {
+    console.log('   Nothing to fix — no tasks with string _id.');
+    return;
+  }
+
+  console.log(`   Found ${tasks.length} task(s) with string _id`);
+
+  const idMap = new Map<string, ObjectId>();
+  for (const task of tasks) {
+    idMap.set(String(task._id), new ObjectId());
+  }
+
+  const oldIds = Array.from(idMap.keys());
+
+  // 1. Batch insert new documents with ObjectId _id
+  console.log('   Inserting new documents...');
+  const insertOps = tasks.map((task) => ({
+    insertOne: {
+      document: { ...task, _id: idMap.get(String(task._id)) } as any,
+    },
+  }));
+  for (let i = 0; i < insertOps.length; i += BATCH_SIZE) {
+    await NEW_TASKS.bulkWrite(insertOps.slice(i, i + BATCH_SIZE), { ordered: false });
+    console.log(`   💾 Inserted batch ${Math.floor(i / BATCH_SIZE) + 1} / ${Math.ceil(insertOps.length / BATCH_SIZE)}`);
+  }
+
+  // 2. Re-point activities.contentId
+  console.log('   Re-pointing activities...');
+  for (let i = 0; i < oldIds.length; i += BATCH_SIZE) {
+    const chunk = oldIds.slice(i, i + BATCH_SIZE);
+    const acts = await NEW_ACTIVITIES.find({ contentId: { $in: chunk as any[] } }).toArray();
+    if (acts.length) {
+      const bulk = acts.map((a) => ({
+        updateOne: {
+          filter: { _id: a._id },
+          update: { $set: { contentId: idMap.get(String(a.contentId)) } },
+        },
+      }));
+      await NEW_ACTIVITIES.bulkWrite(bulk, { ordered: false });
+    }
+  }
+
+  // 3. Re-point notes.contentId
+  console.log('   Re-pointing notes...');
+  for (let i = 0; i < oldIds.length; i += BATCH_SIZE) {
+    const chunk = oldIds.slice(i, i + BATCH_SIZE);
+    const notes = await NEW_NOTES.find({ contentId: { $in: chunk as any[] } }).toArray();
+    if (notes.length) {
+      const bulk = notes.map((n) => ({
+        updateOne: {
+          filter: { _id: n._id },
+          update: { $set: { contentId: idMap.get(String(n.contentId)) } },
+        },
+      }));
+      await NEW_NOTES.bulkWrite(bulk, { ordered: false });
+    }
+  }
+
+  // 4. Delete old string-_id documents
+  console.log('   Deleting old documents...');
+  for (let i = 0; i < oldIds.length; i += BATCH_SIZE) {
+    await NEW_TASKS.deleteMany({ _id: { $in: oldIds.slice(i, i + BATCH_SIZE) as any[] } });
+  }
+
+  console.log(`✅ Step 0c done — ${tasks.length} task(s) re-indexed`);
+}
+
+
+async function fixLegacyStatusIds(): Promise<void> {
+  console.log('\n🔧 Step 0b — fix legacy string status IDs → ObjectId in operation_tasks');
+
+  const tasks = await NEW_TASKS
+    .find({ status: { $type: 'string' } })
+    .toArray();
+
+  if (!tasks.length) {
+    console.log('   Nothing to fix — no tasks with string status.');
+    return;
+  }
+
+  console.log(`   Found ${tasks.length} task(s) with string status`);
+
+  const allStatuses = await NEW_STATUSES
+    .find({}, { projection: { _id: 1, teamId: 1, type: 1, order: 1 } })
+    .sort({ order: 1 })
+    .toArray();
+
+  const statusByTeamAndType = new Map<string, ObjectId>();
+  for (const s of allStatuses) {
+    const key = `${s.teamId}::${s.type}`;
+    if (!statusByTeamAndType.has(key)) {
+      statusByTeamAndType.set(key, s._id as ObjectId);
+    }
+  }
+
+  const statusByTeam = new Map<string, ObjectId>();
+  for (const s of allStatuses) {
+    const key = s.teamId?.toString();
+    if (key && !statusByTeam.has(key)) {
+      statusByTeam.set(key, s._id as ObjectId);
+    }
+  }
+
+  const bulk: any[] = [];
+  let fixed = 0;
+  let failed = 0;
+
+  for (const task of tasks) {
+    const teamIdStr = task.teamId?.toString();
+    if (!teamIdStr) { failed++; continue; }
+
+    const statusType = task.statusType ?? STATUS_TYPES.UNSTARTED;
+    const newStatusId =
+      statusByTeamAndType.get(`${teamIdStr}::${statusType}`) ||
+      statusByTeam.get(teamIdStr);
+
+    if (!newStatusId) {
+      console.log(`   ⚠️  No status for task "${task.name}" (${task._id}) — team ${teamIdStr}`);
+      failed++;
+      continue;
+    }
+
+    bulk.push({
+      updateOne: {
+        filter: { _id: task._id },
+        update: { $set: { status: newStatusId } },
+      },
+    });
+    fixed++;
+  }
+
+  if (bulk.length) {
+    await NEW_TASKS.bulkWrite(bulk, { ordered: false });
+  }
+
+  console.log(`✅ Step 0b done — ${fixed} fixed, ${failed} failed`);
+}
+
+
 async function fixLegacyTeamIds(): Promise<void> {
   console.log('\n🔧 Step 0 — fix legacy string teamIds → ObjectId');
 
@@ -673,6 +819,8 @@ const command = async () => {
   console.log('═══════════════════════════════════════════════');
 
   await fixLegacyTeamIds().catch((e) => console.log(`❌ Step 0 error: ${e.message}`));
+  await fixLegacyStatusIds().catch((e) => console.log(`❌ Step 0b error: ${e.message}`));
+  await fixTaskIds().catch((e) => console.log(`❌ Step 0c error: ${e.message}`));
 
   const oldToNewTeam = await migrateTeams().catch((e) => {
     console.log(`❌ Step 1 error: ${e.message}`);

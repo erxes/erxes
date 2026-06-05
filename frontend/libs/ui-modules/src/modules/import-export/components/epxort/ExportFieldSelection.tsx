@@ -64,6 +64,7 @@ export function ExportFieldSelection({
     handleToggleField,
   } = useExportFieldSelection({ entityType, filters, open, onConfirm, onOpenChange });
 
+  // If entityDisplayName is provided, use it; otherwise, derive the name from entityType
   const getEntityName = () => {
     if (entityDisplayName) return entityDisplayName;
     return getEntityLabelFromType(entityType, {

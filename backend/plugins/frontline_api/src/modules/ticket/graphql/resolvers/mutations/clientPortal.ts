@@ -69,6 +69,24 @@ export const cpTicketMutations: Record<string, Resolver> = {
       subdomain,
     });
   },
+
+  cpTicketCreateNote: async (
+    _parent: undefined,
+    { content, contentId },
+    { models, cpUser, clientPortal, subdomain }: IContext,
+  ) => {
+    const userId = cpUser?.erxesCustomerId || cpUser?._id || clientPortal?._id;
+
+    return models.Note.createNote({
+      doc: {
+        content,
+        contentId,
+        createdBy: `cp:${userId}`,
+      },
+      subdomain,
+      userId: `cp:${userId}`,
+    });
+  },
 };
 
 markResolvers(cpTicketMutations, {
