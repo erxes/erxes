@@ -1,7 +1,7 @@
 import { IMainContext } from 'erxes-api-shared/core-types';
 import { createGenerateModels } from 'erxes-api-shared/utils';
 import { ScopedEventHandlers } from 'erxes-api-shared/core-modules';
-import mongoose from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 
 import {
   IBoardDocument,
@@ -72,6 +72,8 @@ import { IProductReviewDocument } from '~/modules/ecommerce/@types/productReview
 import { IWishlistDocument } from '~/modules/ecommerce/@types/wishlist';
 import { ILastViewedItemDocument } from '~/modules/ecommerce/@types/lastViewedItem';
 import { IAddressDocument } from '~/modules/ecommerce/@types/address';
+import { loadSavedWidgetClass } from './modules/sales/reports/db/models/SavedWidget';
+import { ISavedWidget } from './modules/sales/reports/db/definitions/savedWidget';
 
 export interface IModels {
   Boards: IBoardModel;
@@ -93,6 +95,8 @@ export interface IModels {
   Wishlist: IWishlistModel;
   LastViewedItem: ILastViewedItemModel;
   Address: IAddressModel;
+
+  SavedWidget: Model<ISavedWidget>;
 }
 
 export interface IContext extends IMainContext {
@@ -206,6 +210,11 @@ export const loadClasses = (
     'ecommerce_address',
     loadAddressClass(models, subdomain),
   );
+
+  models.SavedWidget = db.model<ISavedWidget, Model<ISavedWidget>>(
+   'sales_saved_widgets',
+  loadSavedWidgetClass(models)
+ );
 
   return models;
 };

@@ -21,3 +21,13 @@ export interface IDealReportFilter {
   fieldId?: string;          // for custom properties report
   // add any other filter fields you need
 }
+
+export interface ISavedWidget {
+  userId: string;
+  name: string;
+  chartType: string;
+  filters: Record<string, any>;
+  position: number;
+  createdAt: Date;
+  updatedAt: Date;
+}

@@ -53,20 +53,49 @@ export const types = `
     forecastRevenue(filters: JSON): ForecastData
     dealsByStage(filters: JSON, sort: String, limit: Int, skip: Int): [StageDealGroup]
   }
+
   enum DealMutationType {
-  create
-  update
-  delete
-}
+    create
+    update
+    delete
+  }
 
-type DealChangePayload {
-  mutation: DealMutationType!
-  data: JSON
-}
+  type DealChangePayload {
+    mutation: DealMutationType!
+    data: JSON
+  }
 
-extend type Subscription {
-  dealChanged(pipelineId: String): DealChangePayload
-}
+  extend type Subscription {
+    dealChanged(pipelineId: String): DealChangePayload
+  }
+
+  type SavedWidget {
+    _id: String!
+    userId: String!
+    name: String!
+    chartType: String!
+    filters: JSON!
+    position: Int!
+    createdAt: Date!
+    updatedAt: Date!
+  }
+
+  input SavedWidgetInput {
+    name: String!
+    chartType: String!
+    filters: JSON!
+    position: Int
+  }
+
+  extend type Mutation {
+    saveWidget(widget: SavedWidgetInput!): SavedWidget
+    updateWidget(_id: String!, widget: SavedWidgetInput!): SavedWidget
+    deleteWidget(_id: String!): Boolean
+  }
+
+  extend type Query {
+    userWidgets: [SavedWidget!]!
+  }
 `;
 
 export const queries = ``;
