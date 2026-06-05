@@ -175,11 +175,41 @@ app.get('/locales/:lng/:file', async (req, res) => {
       return res.status(403).send('Forbidden');
     }
     const lngJson = fs.readFileSync(realPath);
-    res.json(JSON.parse(lngJson.toString()));
+
+    return res.json(JSON.parse(lngJson.toString()));
   } catch {
-    res.status(500).send('Error fetching locale');
+    console.log('Locale not found locally, trying plugins');
   }
+
+  try {
+    const { lng, file } = req.params;
+
+    const plugins = await getPlugins();
+
+    for (const pluginName of plugins) {
+      try {
+        const plugin = await getPlugin(pluginName);
+
+        if (!plugin?.address) continue;
+
+        const response = await fetch(`${plugin.address}/locales/${lng}/${file}`);
+
+        if (response.ok) {
+          const json = await response.json();
+
+          return res.json(json);
+        }
+      } catch {
+        console.log(`Error occurred while fetching locale from plugin: ${pluginName}`);
+      }
+    }
+  } catch {
+    console.log('Error occurred while fetching locales');
+  }
+
+  res.status(404).send('Locale not found');
 });
+
 app.use('/pl:serviceName', async (req, res) => {
   try {
     const serviceName: string = req.params.serviceName.replace(':', '');
