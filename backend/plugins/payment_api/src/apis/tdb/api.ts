@@ -9,7 +9,7 @@ import {
 } from 'erxes-api-shared/utils';
 import { splitType } from 'erxes-api-shared/core-modules';
 
-// TYPES 
+//  TYPES 
 export interface ITDBConfig {
   username: string;
   password: string;
@@ -54,16 +54,21 @@ export interface ITDBErrorResponse {
   errorDescription: string;
 }
 
-//HELPERS 
+export interface ITDBCallbackQuery {
+  ID: string;
+  STATUS: string;
+}
+
+// HELPERS
 const buildBasicAuth = (username: string, password: string): string => {
   return `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
 };
 
-// CALLBACK HANDLER 
+//  CALLBACK HANDLER 
 export const tdbCallbackHandler = async (
   models: IModels,
   subdomain: string,
-  data: Record<string, any>,   
+  data: ITDBCallbackQuery,
 ): Promise<ITransactionDocument> => {
   const { ID, STATUS } = data;
 
@@ -88,18 +93,18 @@ export const tdbCallbackHandler = async (
   const orderDetail = await api.checkInvoice(transaction);
 
   if (!orderDetail) {
-    // Not yet paid or not found – return transaction unchanged
     return transaction;
   }
 
-  // Validate amount & currency
-  const transactionAmount = (transaction as any).amount as number;
-  const transactionCurrency = (transaction as any).currency as string;
-  if (orderDetail.amount !== transactionAmount) {
-    throw new Error(`Amount mismatch: expected ${transactionAmount}, got ${orderDetail.amount}`);
+  const invoice = await models.Invoices.getInvoice({ _id: transaction.invoiceId });
+  const expectedAmount = invoice.amount;
+  const expectedCurrency = invoice.currency;
+
+  if (orderDetail.amount !== expectedAmount) {
+    throw new Error(`Amount mismatch: expected ${expectedAmount}, got ${orderDetail.amount}`);
   }
-  if (orderDetail.currency !== transactionCurrency) {
-    throw new Error(`Currency mismatch: expected ${transactionCurrency}, got ${orderDetail.currency}`);
+  if (orderDetail.currency !== expectedCurrency) {
+    throw new Error(`Currency mismatch: expected ${expectedCurrency}, got ${orderDetail.currency}`);
   }
 
   const successStatuses = ['FULLYPAID', 'PARTPAID', 'AUTHORIZED', 'PAID'];
@@ -118,12 +123,11 @@ export const tdbCallbackHandler = async (
       transactionUpdated: {
         _id: transaction._id,
         status: PAYMENT_STATUS.PAID,
-        amount: transactionAmount,
+        amount: transaction.amount,
         paymentKind: transaction.paymentKind,
       },
     });
 
-    const invoice = await models.Invoices.getInvoice({ _id: transaction.invoiceId });
     const result = await models.Invoices.checkInvoice(invoice._id, subdomain);
 
     if (result === PAYMENT_STATUS.PAID) {
@@ -200,11 +204,12 @@ export class TDBAPI extends BaseAPI {
 
   async createInvoice(transaction: ITransactionDocument): Promise<ITDBCreateOrderResponse> {
     const redirectUrl = `${this.domain}/pl:payment/callback/tdb`;
+    const currency = (transaction as any).currency || 'MNT';
 
     const payload: ITDBCreateOrderRequest = {
       typeRid: 'purch',
-      amount: (transaction as any).amount,
-      currency: (transaction as any).currency,
+      amount: transaction.amount,
+      currency,
       description: transaction.description || `Payment for invoice ${transaction.invoiceId}`,
       language: 'en',
       hppRedirectUrl: redirectUrl,
@@ -215,22 +220,41 @@ export class TDBAPI extends BaseAPI {
       path: 'order',
       headers: {
         Authorization: buildBasicAuth(this.username, this.password),
+        'Content-Type': 'application/json',
       },
       data: { order: payload },
     });
 
     const json = await response.json();
-    if (!json.order?.id || !json.order?.password || !json.order?.hppUrl) {
-      throw new Error('Invalid TDB create order response');
+
+    if (json.errorCode) {
+      throw new Error(`TDB create order failed: ${json.errorCode} - ${json.errorDescription}`);
     }
+
+    if (!json.order?.id || !json.order?.password || !json.order?.hppUrl) {
+      throw new Error('Invalid TDB create order response: missing id, password, or hppUrl');
+    }
+
+    // IMPORTANT: Do NOT call transaction.save() here.
+    // The caller (ErxesPayment or the GraphQL resolver) will save the response.
+    // Just return the JSON response.
     return json as ITDBCreateOrderResponse;
   }
 
-  private async getOrderDetail(transaction: ITransactionDocument): Promise<ITDBOrderDetail | null> {
-    const orderId = transaction.details?.tdbOrderId;
-    const password = transaction.details?.tdbPassword;
+  private async fetchOrderDetail(transaction: ITransactionDocument): Promise<ITDBOrderDetail | null> {
+    // The credentials should be found in transaction.response (saved by the caller)
+    const tdbResponse = transaction.response as any;
+    let orderId = tdbResponse?.order?.id;
+    let password = tdbResponse?.order?.password;
+
+    // Fallback to details (if caller stored them differently)
+    if (!orderId && transaction.details?.tdbOrderId) {
+      orderId = transaction.details.tdbOrderId;
+      password = transaction.details.tdbPassword;
+    }
+
     if (!orderId || !password) {
-      throw new Error('Missing TDB order ID or password in transaction details');
+      throw new Error('Missing TDB order ID or password in transaction response or details');
     }
 
     const response = await this.request({
@@ -247,21 +271,19 @@ export class TDBAPI extends BaseAPI {
   }
 
   async checkInvoice(transaction: ITransactionDocument): Promise<ITDBOrderDetail | null> {
-    const orderDetail = await this.getOrderDetail(transaction);
+    const orderDetail = await this.fetchOrderDetail(transaction);
     if (!orderDetail) return null;
 
-    const successStatuses = ['FULLYPAID', 'PARTPAID', 'AUTHORIZED', 'PAID'];
-    const isPaid = successStatuses.includes(orderDetail.status.toUpperCase());
-
-    transaction.details = {
-      ...transaction.details,
-      tdbOrderDetail: orderDetail,
-      tdbLastChecked: new Date(),
-    };
-    if (isPaid && transaction.status !== PAYMENT_STATUS.PAID) {
-      transaction.status = PAYMENT_STATUS.PAID;
+    // Store the fetched detail in details (optional, for audit)
+    // Note: transaction may be a plain object in some calls; we need to check if it has a 'save' method.
+    if (typeof transaction.save === 'function') {
+      transaction.details = {
+        ...transaction.details,
+        tdbOrderDetail: orderDetail,
+        tdbLastChecked: new Date(),
+      };
+      await transaction.save();
     }
-    await transaction.save();
 
     return orderDetail;
   }
