@@ -357,7 +357,11 @@ export const createExportBatchProcessor = (
           selectedFields.includes(h.key),
         )
         .map((h: { label: string; key: string }) => h.label);
-      const headerKeys = selectedFields;
+      const headerKeys = exportHeaders
+        .filter((h: { label: string; key: string }) =>
+          selectedFields.includes(h.key),
+        )
+        .map((h: { label: string; key: string }) => h.key);
 
       const tempWorkspace = await createImportExportTempWorkspace({
         kind: 'export',

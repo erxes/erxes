@@ -352,6 +352,12 @@ export const dealTrpcRouter = t.router({
       return pipeline || {};
     }),
   },
+  pipelineLabel: {
+    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+      return await models.PipelineLabels.find(input).lean();
+    }),
+  },
 });
 
 export const fetchSegment = async (

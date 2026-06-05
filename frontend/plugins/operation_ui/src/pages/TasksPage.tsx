@@ -6,17 +6,24 @@ import { TasksSideWidget } from '@/task/components/detail/TasksSideWidget';
 import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
 import { Breadcrumb, PageSubHeader, Separator } from 'erxes-ui';
 import { useLocation, useParams } from 'react-router-dom';
-import { Can, PageHeader } from 'ui-modules';
+import { Can, PageHeader, Export, Import } from 'ui-modules';
+import { useTasksVariables } from '@/task/hooks/useGetTasks';
 
 export const TasksPage = () => {
   const { teamId } = useParams();
   const { pathname } = useLocation();
+  const variables = useTasksVariables();
 
   const basePath = teamId
     ? `/operation/team/${teamId}/tasks`
     : `/operation/tasks`;
 
   const isCreatedView = pathname === '/operation/tasks/created';
+
+  const getFilters = () => {
+    const { cursor, limit, orderBy, direction, ...filters } = variables;
+    return filters;
+  };
 
   return (
     <>
@@ -43,6 +50,17 @@ export const TasksPage = () => {
           <PageSubHeader>
             <TasksFilter />
             <TasksViewControl />
+            <Import
+              pluginName="operation"
+              moduleName="task"
+              collectionName="tasks"
+            />
+            <Export
+              pluginName="operation"
+              moduleName="task"
+              collectionName="tasks"
+              getFilters={getFilters}
+            />
           </PageSubHeader>
           <TasksView isCreatedView={isCreatedView} />
         </div>
@@ -51,3 +69,4 @@ export const TasksPage = () => {
     </>
   );
 };
+
