@@ -18,21 +18,10 @@ export default {
   },
 
   async totalScore(
-    {
-      ownerType,
-      ownerId,
-      owner,
-      campaignId,
-      totalScore,
-    }: IScoreLog & { owner?: any; totalScore?: number },
+    { ownerType, ownerId, owner, campaignId }: IScoreLog & { owner?: any },
     _args: undefined,
     { subdomain, models }: IContext,
   ) {
-    // Main list rows are grouped per owner and already carry the net total.
-    if (typeof totalScore === 'number') {
-      return totalScore;
-    }
-
     let lastOwner = owner;
     if (!lastOwner) {
       lastOwner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });

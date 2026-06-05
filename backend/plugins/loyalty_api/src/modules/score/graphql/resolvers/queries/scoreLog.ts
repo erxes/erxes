@@ -11,21 +11,15 @@ export const scoreLogQueries = {
   ) {
     await checkPermission('scoreLogView');
     const { ownerType, ownerId, searchValue, campaignId, action, clientPortal } = params;
-
-    // Main list: when no specific owner is requested, collapse the logs into
-    // one row per owner (owner name/email/phone, type and net total score). The
-    // per-owner detail then re-queries with an `ownerId` to get the raw logs.
-    if (!ownerId) {
-      return models.ScoreLogs.getOwnerScoreList(params);
-    }
-
     const filter: FilterQuery<IScoreLogDocument> = {};
 
     if (ownerType) {
       filter.ownerType = ownerType;
     }
 
-    filter.ownerId = ownerId;
+    if (ownerId) {
+      filter.ownerId = ownerId;
+    }
 
     if (searchValue) {
       filter.description = searchValue;
