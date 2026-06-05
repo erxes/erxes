@@ -63,6 +63,7 @@ const queries = `
   automationReferenceFields(type: String!, field: String!): JSON
   automationBotsConstants:JSON
   automationsAiAgents(kind:String):JSON
+  automationsAiAgentTotalCounts:JSON
   automationsAiAgentDetail(_id:String):JSON
   automationsAiAgentHealth(agentId: String!): AiAgentHealth!
   getAutomationWebhookEndpoint(_id:String!,waitEventActionId:String):String

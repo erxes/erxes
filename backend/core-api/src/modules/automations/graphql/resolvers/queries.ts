@@ -264,6 +264,25 @@ export const automationQueries = {
     return sanitizeAiAgents(agents as any[]);
   },
 
+  async automationsAiAgentTotalCounts(_root, _args, { models }: IContext) {
+    const counts = await models.AiAgents.aggregate([
+      {
+        $group: {
+          _id: '$connection.provider',
+          totalCount: { $sum: 1 },
+        },
+      },
+    ]);
+
+    return counts.reduce<Record<string, number>>((acc, { _id, totalCount }) => {
+      if (_id) {
+        acc[_id] = totalCount;
+      }
+
+      return acc;
+    }, {});
+  },
+
   async automationsAiAgentDetail(
     _root,
     { _id }: { _id?: string },

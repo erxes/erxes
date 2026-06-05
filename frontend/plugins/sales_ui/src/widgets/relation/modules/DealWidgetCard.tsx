@@ -5,7 +5,7 @@ import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { PriorityBadge } from '@/deals/components/deal-selects/PriorityInline';
 import { IDeal } from '@/deals/types/deals';
 import { ItemFooter } from '@/deals/cards/components/item/Footer';
-import Labels from '@/deals/cards/components/detail/overview/label/Labels';
+import { Labels } from '@/deals/cards/components/detail/overview/label/Labels';
 
 const PRIORITY_MAP: Record<string, number> = {
   'No Priority': 0,

@@ -768,6 +768,9 @@ export const permissions: IPermissionConfig = {
             'automationsCreate',
             'automationsUpdate',
             'automationsDelete',
+            'automationsAiAgentAdd',
+            'automationsAiAgentEdit',
+            'automationsAiAgentRemove',
           ],
           scope: 'all',
         },
@@ -945,7 +948,12 @@ export const permissions: IPermissionConfig = {
         {
           plugin: 'core',
           module: 'automations',
-          actions: ['automationsCreate', 'automationsUpdate'],
+          actions: [
+            'automationsCreate',
+            'automationsUpdate',
+            'automationsAiAgentAdd',
+            'automationsAiAgentEdit',
+          ],
           scope: 'own',
         },
         {

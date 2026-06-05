@@ -98,6 +98,9 @@
   "event-listen-description": "This determines where the event will be listened from.",
 
   "ai-agent": "Ai Agent",
+  "ai-agent-delete-confirm-message": "Are you sure you want to delete \"{{name}}\"?",
+  "ai-agent-delete-success": "AI agent deleted successfully",
+  "select-provider": "Select Provider",
   "select-ai-agent": "Select ai agent",
   "add-new-agent": "Add new agent",
   "goal-type": "Goal Type",

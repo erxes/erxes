@@ -1,4 +1,4 @@
-import Labels from '@/deals/cards/components/detail/overview/label/Labels';
+import { Labels } from '@/deals/cards/components/detail/overview/label/Labels';
 import { ItemFooter } from '@/deals/cards/components/item/Footer';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
@@ -6,22 +6,30 @@ import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { IDeal } from '@/deals/types/deals';
-import { IProductData } from 'ui-modules';
 import { IconAlertCircleFilled } from '@tabler/icons-react';
-import { Separator, useQueryState, CopyText } from 'erxes-ui';
+import { CopyText, Separator, useQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { memo, useState } from 'react';
 import {
-  SelectCompany,
-  SelectCustomer,
-  SelectTags,
-  useManageRelations,
-} from 'ui-modules';
-import DealCardDetails from './DealsBoardCardDetails';
+  SelectCompanyFilterBar,
+  SelectCustomerFilterBar,
+} from 'ui-modules/modules/contacts';
+import { SelectTagsFilterBar } from 'ui-modules/modules/tags';
+import { useManageRelations } from 'ui-modules';
+import type { IProductData } from 'ui-modules';
+import { DealCardDetails } from './DealsBoardCardDetails';
 
 interface DealsBoardCardProps {
   deal: IDeal;
 }
+
+const normalizeSelectedIds = (value?: string | string[]) => {
+  if (!value) {
+    return [];
+  }
+
+  return Array.isArray(value) ? value : [value];
+};
 
 const CardDetails = ({ deal }: { deal: IDeal }) => {
   const { companies, customers, tags, customProperties } = deal;
@@ -209,7 +217,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             targetId={_id}
             initialValue={labels?.map((label) => label._id || '') || []}
           />
-          <SelectTags.FilterBar
+          <SelectTagsFilterBar
             filterKey=""
             mode="multiple"
             label="By Tag"
@@ -227,7 +235,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
               });
             }}
           />
-          <SelectCustomer.FilterBar
+          <SelectCustomerFilterBar
             filterKey=""
             mode="multiple"
             label="By Customer"
@@ -239,10 +247,12 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             value={
               currentCustomers?.map((customer) => customer._id || '') || []
             }
-            onValueChange={(value: any) => {
-              if (!value) return;
+            onValueChange={(value?: string | string[]) => {
+              const selectedIds = normalizeSelectedIds(value);
 
-              const updatedCustomers = (value || []).map(
+              if (!selectedIds.length) return;
+
+              const updatedCustomers = selectedIds.map(
                 (id: string) =>
                   currentCustomers?.find((c) => c._id === id) || { _id: id },
               );
@@ -252,12 +262,12 @@ export const DealsBoardCard = memo(function DealsBoardCard({
                 contentType: 'sales:deal',
                 contentId: _id,
                 relatedContentType: 'core:customer',
-                relatedContentIds: value || [],
+                relatedContentIds: selectedIds,
               });
             }}
             hideAvatar
           />
-          <SelectCompany.FilterBar
+          <SelectCompanyFilterBar
             filterKey=""
             mode="multiple"
             label="By Company"
@@ -267,10 +277,12 @@ export const DealsBoardCard = memo(function DealsBoardCard({
               currentCompanies?.map((company) => company._id || '') || []
             }
             value={currentCompanies?.map((company) => company._id || '') || []}
-            onValueChange={(value: any) => {
-              if (!value) return;
+            onValueChange={(value?: string | string[]) => {
+              const selectedIds = normalizeSelectedIds(value);
 
-              const updatedCompanies = (value || []).map(
+              if (!selectedIds.length) return;
+
+              const updatedCompanies = selectedIds.map(
                 (id: string) =>
                   currentCompanies?.find((c) => c._id === id) || { _id: id },
               );
@@ -280,7 +292,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
                 contentType: 'sales:deal',
                 contentId: _id,
                 relatedContentType: 'core:company',
-                relatedContentIds: value || [],
+                relatedContentIds: selectedIds,
               });
             }}
             hideAvatar

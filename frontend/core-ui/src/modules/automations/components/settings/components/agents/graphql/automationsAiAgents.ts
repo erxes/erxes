@@ -28,6 +28,12 @@ export const AUTOMATIONS_AI_AGENT_EDIT = gql`
   }
 `;
 
+export const AUTOMATIONS_AI_AGENT_REMOVE = gql`
+  mutation AutomationsAiAgentRemove($id: String!) {
+    automationsAiAgentRemove(_id: $id)
+  }
+`;
+
 export const AUTOMATIONS_AI_AGENT_REINDEX = gql`
   mutation AutomationsAiAgentReindex($id: String!, $fileId: String) {
     automationsAiAgentReindex(_id: $id, fileId: $fileId)
@@ -43,6 +49,12 @@ export const AUTOMATIONS_AI_AGENT_DETAIL = gql`
 export const AUTOMATIONS_AI_AGENTS = gql`
   query AutomationsAiAgents($kind: String) {
     automationsAiAgents(kind: $kind)
+  }
+`;
+
+export const AUTOMATIONS_AI_AGENT_TOTAL_COUNTS = gql`
+  query AutomationsAiAgentTotalCounts {
+    automationsAiAgentTotalCounts
   }
 `;
 

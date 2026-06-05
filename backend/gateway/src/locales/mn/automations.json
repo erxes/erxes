@@ -98,6 +98,9 @@
   "event-listen-description": "Энэ нь үйл явдлыг хаанаас хүлээн авахыг тодорхойлно.",
 
   "ai-agent": "Хиймэл оюун агент",
+  "ai-agent-delete-confirm-message": "\"{{name}}\" агентийг устгахдаа итгэлтэй байна уу?",
+  "ai-agent-delete-success": "Хиймэл оюун агент амжилттай устлаа",
+  "select-provider": "Үйлчилгээ сонгох",
   "select-ai-agent": "Хиймэл оюун агент сонгох",
   "add-new-agent": "Шинэ агент нэмэх",
   "goal-type": "Зорилгын төрөл",
