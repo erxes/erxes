@@ -302,6 +302,15 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     if (status === 'paid') {
       const invoice = await models.Invoices.getInvoice({ _id }, true);
 
+      const paymentId = invoice.paymentIds?.[0];
+      const payment = paymentId
+        ? await models.PaymentMethods.findOne({ _id: paymentId }).lean()
+        : null;
+      if (payment?.sendEmailOnPayment !== false && invoice.email) {
+        await models.Invoices.updateOne({ _id }, { sendEmailOnPayment: true });
+        sendInvoiceBarcodeEmail(subdomain, invoice).catch(() => undefined);
+      }
+
       if (invoice.contentType) {
         const [pluginName, moduleName, collectionType] = splitType(
           invoice.contentType,
