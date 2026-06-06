@@ -20,6 +20,7 @@ export type ISendMessageData = {
   integration: IFacebookIntegrationDocument;
   message: any;
   tag?: string;
+  commentId?: string;
 };
 
 export type ICheckTriggerData = {

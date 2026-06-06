@@ -131,22 +131,19 @@ export const receiveInboxMessage = async (
     }
 
     if (conversationId) {
-      if (!assignedUserId) {
-        const existingConversation = await Conversations.findOne({
-          $and: [{ _id: conversationId }, { integrationId: integrationId }],
-        }).lean();
-
-        assignedUserId = existingConversation?.assignedUserId || null;
-      }
-
       const conversation = await Conversations.findOne({
-        $and: [{ _id: conversationId }, { integrationId: integrationId }],
+        _id: conversationId,
       }).lean();
+
+      if (!assignedUserId) {
+        assignedUserId = conversation?.assignedUserId || null;
+      }
 
       if (conversation) {
         const updatedDoc = {
           content,
           assignedUserId,
+          integrationId,
           updatedAt,
 
           readUserIds: [],
