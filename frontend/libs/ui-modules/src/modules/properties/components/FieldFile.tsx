@@ -60,7 +60,10 @@ export const FieldFile = (props: SpecificFieldProps) => {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div
+      className="flex h-8 w-full items-center rounded-sm bg-background px-3 shadow-xs text-sm cursor-pointer border border-input"
+      onClick={() => !currentValue?.url && !isLoading && !loading && inputRef.current?.click()}
+    >
       <input
         ref={inputRef}
         type="file"
@@ -68,36 +71,33 @@ export const FieldFile = (props: SpecificFieldProps) => {
         onChange={handleUpload}
       />
       {currentValue?.url ? (
-        <div className="flex items-center gap-2">
+        <>
           <a
             href={`${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(currentValue.url)}`}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-1 text-sm text-primary hover:underline"
+            className="flex items-center gap-1 text-foreground hover:underline flex-1 truncate"
+            onClick={(e) => e.stopPropagation()}
           >
-            <IconPaperclip className="size-4" />
-            {currentValue.name || 'File'}
+            <IconPaperclip className="size-4 shrink-0" />
+            <span className="truncate">{currentValue.name || 'File'}</span>
           </a>
           <Button
             variant="ghost"
             size="icon"
-            className="size-6"
-            onClick={handleRemove}
+            className="size-5 ml-1 shrink-0"
+            onClick={(e) => { e.stopPropagation(); handleRemove(); }}
             disabled={loading || isLoading}
           >
-            <IconTrash className="size-3" />
+            {isLoading ? <Spinner size="sm" /> : <IconTrash className="size-3" />}
           </Button>
-        </div>
+        </>
       ) : (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => inputRef.current?.click()}
-          disabled={isLoading || loading}
-        >
-          {isLoading ? <Spinner size="sm" /> : <IconPaperclip className="size-4" />}
-          Upload file
-        </Button>
+        <span className="flex items-center gap-1 text-accent-foreground/70 hover:text-foreground transition-colors flex-1">
+          {isLoading ? <Spinner size="sm" /> : (
+            <><IconPaperclip className="size-4" /> Upload file</>
+          )}
+        </span>
       )}
     </div>
   );
