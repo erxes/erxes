@@ -8,6 +8,7 @@ export interface IEmailSignature {
 export interface IEmailSignatureDocument extends IEmailSignature, Document {}
 
 export interface ICustomPermission {
+  plugin?: string;
   module: string;
   actions: string[];
   scope: 'own' | 'group' | 'all';

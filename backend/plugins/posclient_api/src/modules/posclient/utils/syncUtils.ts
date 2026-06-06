@@ -14,9 +14,8 @@ export const getServerAddress = async (
 ) => {
   const { SERVER_DOMAIN } = process.env;
   if (SERVER_DOMAIN) {
-    return `${SERVER_DOMAIN.replace('<subdomain>', subdomain)}/pl:${
-      serviceName || 'sales'
-    }`;
+    return `${SERVER_DOMAIN.replace('<subdomain>', subdomain)}/pl:${serviceName || 'sales'
+      }`;
   }
   //uncomplete
   const posService = { address: '' }; //await getService(serviceName || 'pos');
@@ -32,7 +31,7 @@ export const importUsers = async (
   models: IModels,
   users: IPosUserDocument[],
   token: string,
-  isAdmin: boolean = false,
+  isAdmin = false,
 ) => {
   for (const user of users) {
     await models.PosUsers.createOrUpdateUser(
@@ -52,8 +51,8 @@ export const importUsers = async (
 
 export const importSlots = async (
   models: IModels,
-  slots: any[],
   token: string,
+  slots: any[],
 ) => {
   const pos = await models.Configs.getConfig({ token });
   await models.PosSlots.deleteMany({ posId: pos.posId });
@@ -143,21 +142,26 @@ export const importProducts = async (
 ) => {
   const FILE_PATH = `${await getServerAddress(subdomain, 'core')}/read-file`;
 
-  const attachmentUrlChanger = (attachment) => {
-    return attachment && attachment.url && !attachment.url.includes('http')
-      ? { ...attachment, url: `${FILE_PATH}?key=${attachment.url}` }
-      : attachment;
+  const attachmentUrlChanger = (attachment?: any) => {
+    if (!attachment) {
+      return;
+    }
+    return attachment.url?.includes('http')
+      ? attachment
+      : { ...attachment, url: `${FILE_PATH}?key=${attachment.url}` };
   };
 
   for (const group of groups) {
     const categories = group.categories || [];
 
     for (const category of categories) {
-      if (category._id) {
+      const { products, ...categoryDoc } = category;
+
+      if (categoryDoc._id) {
         await models.ProductCategories.updateOne(
-          { _id: category._id },
+          { _id: categoryDoc._id },
           {
-            $set: { ...category, products: undefined },
+            $set: { ...categoryDoc },
             $addToSet: { tokens: token },
           },
           { upsert: true },
@@ -172,13 +176,14 @@ export const importProducts = async (
         };
       }[] = [];
 
-      for (const product of category.products) {
+      for (const product of products) {
+        const { _id, ...productDoc } = product;
         bulkOps.push({
           updateOne: {
-            filter: { _id: product._id },
+            filter: { _id },
             update: {
               $set: {
-                ...product,
+                ...productDoc,
                 [`prices.${token}`]: product.unitPrice,
                 [`taxRules.${token}`]: product.taxRule || null,
                 uom: product.uom || 'ш',
@@ -266,7 +271,6 @@ export const extractConfig = async (subdomain, doc) => {
     orderPassword: doc.orderPassword,
     uiOptions,
     ebarimtConfig: doc.ebarimtConfig,
-    erkhetConfig: doc.erkhetConfig,
     kitchenScreen: doc.kitchenScreen,
     waitingScreen: doc.waitingScreen,
     catProdMappings: doc.catProdMappings,
@@ -283,7 +287,6 @@ export const extractConfig = async (subdomain, doc) => {
     branchId: doc.branchId,
     departmentId: doc.departmentId,
     allowBranchIds: doc.allowBranchIds,
-    checkRemainder: doc.checkRemainder,
     permissionConfig: doc.permissionConfig,
     allowTypes: doc.allowTypes,
     isCheckRemainder: doc.isCheckRemainder,
@@ -323,7 +326,7 @@ export const receiveProduct = async (models: IModels, data) => {
       tokens.push(token);
     }
     const info = action === 'update' ? updatedDocument : object;
-    if (info.attachment && info.attachment.url) {
+    if (info?.attachment?.url) {
       const FILE_PATH = `${await getServerAddress(
         'localhost',
         'core',
@@ -383,7 +386,7 @@ export const receiveProductCategory = async (models: IModels, data) => {
   }
 
   if (action === 'delete') {
-    if (!category || category.status !== PRODUCT_CATEGORY_STATUSES.ACTIVE) {
+    if (category?.status !== PRODUCT_CATEGORY_STATUSES.ACTIVE) {
       return;
     }
 
@@ -469,3 +472,39 @@ export const receivePosConfig = async (
   await importUsers(models, cashiers, token, false);
   return models.Configs.findOne({ _id: config._id }).lean();
 };
+
+export const preRemovePos = async (models: IModels, id: string, token: string) => {
+  const config = await models.Configs.findOne({
+    _id: id, token,
+  }).lean();
+
+  if (!config) {
+    return
+  }
+
+  const { adminIds, cashierIds } = config;
+
+  await models.PosUsers.updateMany(
+    { _id: { $in: [...adminIds, ...cashierIds] }, tokens: { $in: [token] } },
+    { $pull: { tokens: { $in: [token] } } },
+  );
+  await models.PosUsers.deleteMany({ tokens: { $size: 0 } });
+  await models.Covers.deleteMany({ posToken: token });
+  await models.PosSlots.deleteMany({ posToken: token });
+  await models.ProductCategories.updateMany(
+    { tokens: { $in: [token] } },
+    { $pull: { tokens: { $in: [token] } } },
+  );
+  await models.ProductCategories.deleteMany({ tokens: { $size: 0 } });
+  await models.Products.updateMany(
+    { tokens: { $in: [token] } },
+    { $pull: { tokens: { $in: [token] } } },
+  );
+  await models.Products.deleteMany({ tokens: { $size: 0 } });
+  await models.PutResponses.deleteMany({ posId: id });
+
+  const orderItems = await models.Orders.find({ posToken: token }, { _id: 1 });
+  await models.OrderItems.deleteMany({ orderId: { $in: orderItems.map(o => o._id) } });
+  await models.Orders.deleteMany({ posToken: token });
+
+}

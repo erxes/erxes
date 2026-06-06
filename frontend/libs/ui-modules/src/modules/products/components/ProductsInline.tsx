@@ -1,14 +1,10 @@
-import {
-  Combobox,
-  Tooltip,
-  isUndefinedOrNull,
-} from 'erxes-ui';
+import { Combobox, Tooltip, isUndefinedOrNull } from 'erxes-ui';
 import {
   ProductsInlineContext,
   useProductsInlineContext,
 } from '../contexts/ProductsInlineContext';
 import { IProduct } from '../types/Product';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useProductsInline } from '../hooks/useProducts';
 
 export const ProductsInlineProvider = ({
@@ -26,6 +22,14 @@ export const ProductsInlineProvider = ({
 }) => {
   const [productsList, setProductsList] = useState<IProduct[]>(products || []);
 
+  const missingProductIds = useMemo(() => {
+    if (!productIds?.length) {
+      return [];
+    }
+
+    return productIds.filter((id) => !products?.some((p) => p._id === id));
+  }, [productIds, products]);
+
   return (
     <ProductsInlineContext.Provider
       value={{
@@ -39,15 +43,9 @@ export const ProductsInlineProvider = ({
       }}
     >
       <Tooltip.Provider>{children}</Tooltip.Provider>
-      {productIds?.some(
-        (id) => !products?.some((product) => product._id === id),
-      ) && (
-          <ProductsInlineEffectComponent
-            missingProductIds={productIds.filter(
-              (id) => !products?.some((product) => product._id === id),
-            )}
-          />
-        )}
+      {missingProductIds.length > 0 && (
+        <ProductsInlineEffectComponent missingProductIds={missingProductIds} />
+      )}
     </ProductsInlineContext.Provider>
   );
 };
@@ -84,21 +82,29 @@ const ProductsInlineEffectComponent = ({
 };
 
 export const ProductsInlineTitle = ({ className }: { className?: string }) => {
-  const { products, loading, placeholder } =
-    useProductsInlineContext();
+  const { products, loading, placeholder } = useProductsInlineContext();
 
-  const getDisplayValue = () => {
+  const getDisplayValue = (): string | JSX.Element | undefined => {
     if (!products || products.length === 0) {
       return undefined;
     }
 
     const product = products[0];
+    const name =
+      products.length === 1
+        ? product.name
+        : `${product.name} +${products.length - 1} more`;
 
-    if (products.length === 1) {
-      return `${product.code} - ${product.name}`;
-    }
+    if (!product.code) return name;
 
-    return ` ${product.code}...${products.length - 1} products`;
+    return (
+      <span className="flex gap-1.5 items-center min-w-0">
+        <span className="font-mono text-xs bg-muted border rounded px-1 text-muted-foreground shrink-0">
+          {product.code}
+        </span>
+        <span className="truncate">{name}</span>
+      </span>
+    );
   };
 
   return (

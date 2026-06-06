@@ -6,6 +6,13 @@ const WelcomeNotificationContent = lazy(() =>
   })),
 );
 
+const FacebookBotHealthNotificationContent = lazy(() =>
+  import('./FacebookBotHealthNotification').then((module) => ({
+    default: module.FacebookBotHealthNotificationContent,
+  })),
+);
+
 export const NotificationContent = {
   welcome: WelcomeNotificationContent,
+  facebookBotHealth: FacebookBotHealthNotificationContent,
 };

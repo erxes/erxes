@@ -1,4 +1,3 @@
-import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { PAYMENTS, PAYMENT_STATUS } from '~/constants';
 
@@ -71,8 +70,5 @@ const queries = {
     return counts;
   },
 };
-
-requireLogin(queries, 'transactions');
-checkPermission(queries, 'transactions', 'showTransactions', []);
 
 export default queries;

@@ -1,8 +1,6 @@
 import { posTrpcRouter } from '@/pos/trpc/pos';
 import { dealTrpcRouter } from '@/sales/trpc/deal';
-
 import { initTRPC } from '@trpc/server';
-
 import { ITRPCContext } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { z } from 'zod';
@@ -12,32 +10,43 @@ export type SalesTRPCContext = ITRPCContext<{ models: IModels }>;
 
 const t = initTRPC.context<SalesTRPCContext>().create();
 
+// Common input schema for field queries
+const fieldQueryInput = z.object({
+  moduleType: z.string(),
+  collectionType: z.string().optional(),
+  segmentId: z.string().optional(),
+  usageType: z.string().optional(),
+  config: z.record(z.any()).optional(),
+});
+
+// Factory to create a field list procedure for a specific module
+const createFieldListProcedure = (
+  fieldGenerator: (
+    subdomain: string,
+    models: IModels,
+    input: z.infer<typeof fieldQueryInput>,
+  ) => Promise<unknown[]>,
+) => {
+  return t.procedure.input(fieldQueryInput).query(async ({ ctx, input }) => {
+    const { models, subdomain } = ctx;
+    return fieldGenerator(subdomain, models, input);
+  });
+};
+
 export const appRouter = t.mergeRouters(
   dealTrpcRouter,
   posTrpcRouter,
   t.router({
     fields: t.router({
-      getFieldList: t.procedure
-        .input(
-          z.object({
-            moduleType: z.string(),
-            collectionType: z.string().optional(),
-            segmentId: z.string().optional(),
-            usageType: z.string().optional(),
-            config: z.record(z.any()).optional(),
-          }),
-        )
-        .query(async ({ ctx, input }) => {
-          const { models, subdomain } = ctx;
-          const { moduleType } = input;
-          if (moduleType === 'sales') {
+      // Use the factory with sales-specific generator
+      getFieldList: createFieldListProcedure(
+        async (subdomain, models, input) => {
+          if (input.moduleType === 'sales') {
             return await generateSalesFields(subdomain, models, input);
           }
-
           return [];
-        }),
+        },
+      ),
     }),
   }),
 );
-
-export type AppRouter = typeof appRouter;

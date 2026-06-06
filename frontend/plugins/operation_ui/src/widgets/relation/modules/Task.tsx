@@ -1,10 +1,8 @@
 import { AddTriageSheet } from '@/triage/components/add-triage/AddTriageSheet';
-import { useRelations } from 'ui-modules';
-import { TaskWidget } from './TaskWidget';
-import { ScrollArea, Separator, Spinner } from 'erxes-ui';
 import { IconCaretLeftRight } from '@tabler/icons-react';
-
-import { useCreateMultipleRelations } from 'ui-modules';
+import { ScrollArea, Separator, Spinner } from 'erxes-ui';
+import { useCreateMultipleRelations, useRelations } from 'ui-modules';
+import { TaskWidget } from './TaskWidget';
 
 export const Task = ({
   contentId,

@@ -225,7 +225,7 @@ export const getSaasOrganizationDetail = async ({
           quantity += addon.quantity || 0;
         });
 
-      if (organization && organization.experienceId) {
+      if (organization?.experienceId) {
         const experience = await coreModelExperiences.findOne({
           _id: organization.experienceId,
         });
@@ -260,6 +260,18 @@ export const getSaasOrganizationDetail = async ({
 
     for (const addon of setupAddons) {
       setupService[addon.subkind] = true;
+    }
+  }
+
+  if (organization?.bundleId) {
+    const bundle = await coreModelBundles.findOne({ _id: organization.bundleId });
+
+    if (bundle) {
+      organization.bundle = {
+        bundleId: organization.bundleId,
+        title: bundle.title,
+        type: bundle.type,
+      };
     }
   }
 

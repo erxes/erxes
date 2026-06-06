@@ -5,15 +5,19 @@ import { TExportHeader } from '../../types/export/exportTypes';
 
 export const useExportFieldSelection = ({
   entityType,
+  filters,
+  open,
   onConfirm,
   onOpenChange,
 }: {
   entityType: string;
+  filters?: Record<string, any>;
+  open: boolean;
   onConfirm: (selectedFields: string[]) => void;
   onOpenChange: (open: boolean) => void;
 }) => {
   const { data, loading } = useQuery(GET_EXPORT_HEADERS, {
-    variables: { entityType },
+    variables: { entityType, ...(filters ? { filters } : {}) },
     skip: !open,
   });
 
@@ -36,11 +40,6 @@ export const useExportFieldSelection = ({
     );
   };
 
-  console.log('[ExportFieldSelection] entityType:', entityType);
-  console.log('[ExportFieldSelection] loading:', loading);
-  console.log('[ExportFieldSelection] headers:', headers);
-
-
   const handleSelectAll = () => {
     const allKeys = headers.map((h) => h.key);
     setSelectedFields(allKeys);
@@ -56,8 +55,6 @@ export const useExportFieldSelection = ({
   };
 
   const handleConfirm = () => {
-    console.log('[ExportFieldSelection] selectedFields:', selectedFields);
-    console.log('[ExportFieldSelection] headers:', headers);
     if (selectedFields.length === 0) {
       // If nothing selected, use defaults
       const defaultFields = headers

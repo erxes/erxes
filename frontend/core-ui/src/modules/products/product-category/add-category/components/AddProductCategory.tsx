@@ -1,18 +1,13 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Button,
-  ScrollArea,
-  Sheet,
-  Form,
-  useToast,
-  useErxesUpload,
-  useRemoveFile,
-  IAttachment,
-} from 'erxes-ui';
+import { Button, ScrollArea, Sheet, Form, useToast } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
-import { useFieldGroups, useFields } from 'ui-modules';
+import {
+  type ProductAttachmentItem,
+  useFieldGroups,
+  useFields,
+} from 'ui-modules';
 import { productFormSchema, ProductFormValues } from './formSchema';
 import { CategoryAddSheetHeader } from '../../components/AddProductCategoryForm';
 import { ProductCategoriesAddCoreFields } from './CategoryAddCoreFields';
@@ -25,7 +20,9 @@ export function AddCategoryForm({
   onOpenChange: (open: boolean) => void;
 }) {
   const { productCategoriesAdd, loading: editLoading } = useAddCategory();
-  const [files, setFiles] = useState<IAttachment[]>([]);
+  const [attachment, setAttachment] = useState<ProductAttachmentItem | null>(
+    null,
+  );
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
@@ -47,25 +44,6 @@ export function AddCategoryForm({
   const { fieldGroups } = useFieldGroups({ contentType: 'core:product' });
   const { fields } = useFields({ contentType: 'core:product' });
 
-  const uploadProps = useErxesUpload({
-    allowedMimeTypes: ['image/*'],
-    maxFiles: 1,
-    maxFileSize: 20 * 1024 * 1024,
-    onFilesAdded: (added) => {
-      setFiles((prev) => [
-        ...prev.filter(
-          (f) => !added.some((a) => (a.name ?? a.url) === (f.name ?? f.url)),
-        ),
-        ...added.map((f) => ({
-          name: f.name ?? f.url,
-          url: f.url,
-          type: f.type,
-          size: f.size,
-        })),
-      ]);
-    },
-  });
-
   async function onSubmit(data: ProductFormValues) {
     const cleanData: Record<string, any> = {};
 
@@ -75,22 +53,12 @@ export function AddCategoryForm({
       }
     });
 
-    const attachment =
-      files.length > 0
-        ? {
-            url: files[0].url,
-            name: files[0].name,
-            type: files[0].type,
-            size: files[0].size,
-          }
-        : undefined;
-
     productCategoriesAdd({
       variables: {
         ...cleanData,
         name: cleanData.name ?? '',
         code: cleanData.code ?? '',
-        attachment,
+        attachment: attachment || undefined,
         isSimilarity: cleanData.isSimilarity ?? false,
         similarities: cleanData.similarities?.length
           ? cleanData.similarities
@@ -109,6 +77,7 @@ export function AddCategoryForm({
           description: 'Category added successfully',
         });
         form.reset();
+        setAttachment(null);
         onOpenChange(false);
       },
     });
@@ -116,27 +85,8 @@ export function AddCategoryForm({
 
   const handleCancel = () => {
     form.reset();
-    setFiles([]);
+    setAttachment(null);
     onOpenChange(false);
-  };
-
-  const {
-    removeFile,
-  }: {
-    removeFile: (name: string, cb: (status: string) => void) => void;
-  } = useRemoveFile();
-
-  const removeFileFromState = (fileName: string) =>
-    setFiles((prevFiles) => prevFiles.filter((f) => f.name !== fileName));
-
-  const handleRemoveStatus = (fileName: string) => (status: string) => {
-    if (status === 'ok') {
-      removeFileFromState(fileName);
-    }
-  };
-
-  const handleRemoveFile = (file: IAttachment) => {
-    removeFile(file.name, handleRemoveStatus(file.name));
   };
 
   return (
@@ -152,10 +102,8 @@ export function AddCategoryForm({
               <ProductCategoriesAddCoreFields form={form} />
               <ProductCategoryAddMoreFields
                 form={form}
-                files={files}
-                isLoading={uploadProps.loading}
-                uploadProps={uploadProps}
-                onRemoveFile={handleRemoveFile}
+                attachment={attachment}
+                onAttachmentChange={setAttachment}
                 fieldGroups={fieldGroups}
                 fields={fields}
               />

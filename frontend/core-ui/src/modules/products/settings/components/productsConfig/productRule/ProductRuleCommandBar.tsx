@@ -7,6 +7,7 @@ import {
   useConfirm,
   useToast,
 } from 'erxes-ui';
+import { Can } from 'ui-modules';
 import { useProductRulesRemove } from '@/products/settings/hooks/useProductRulesRemove';
 
 export const ProductRuleCommandBar = () => {
@@ -14,6 +15,7 @@ export const ProductRuleCommandBar = () => {
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { removeProductRules } = useProductRulesRemove();
+  const confirmOptions = { confirmationValue: 'delete' };
 
   const handleDelete = () => {
     const selectedIds = table
@@ -24,6 +26,7 @@ export const ProductRuleCommandBar = () => {
       message: `Are you sure you want to delete the ${
         selectedIds.length
       } selected product rule${selectedIds.length === 1 ? '' : 's'}?`,
+      options: confirmOptions,
     }).then(() => {
       removeProductRules({
         variables: { _ids: selectedIds },
@@ -48,14 +51,16 @@ export const ProductRuleCommandBar = () => {
           {table.getFilteredSelectedRowModel().rows.length} selected
         </CommandBar.Value>
         <Separator.Inline />
-        <Button
-          variant="secondary"
-          className="text-destructive"
-          onClick={handleDelete}
-        >
-          <IconTrash />
-          Delete
-        </Button>
+        <Can action="productRulesManage">
+          <Button
+            variant="secondary"
+            className="text-destructive"
+            onClick={handleDelete}
+          >
+            <IconTrash />
+            Delete
+          </Button>
+        </Can>
       </CommandBar.Bar>
     </CommandBar>
   );

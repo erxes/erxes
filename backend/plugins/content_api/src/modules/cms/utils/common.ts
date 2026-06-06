@@ -7,11 +7,10 @@ export const getConfig = async (
 ) => {
   const configs = await sendTRPCMessage({
     subdomain,
-
     pluginName: 'core',
     method: 'query',
-    module: 'core',
-    action: 'getConfigs',
+    module: 'fields',
+    action: 'findOne',
     input: {},
     defaultValue: [],
   });
@@ -29,21 +28,40 @@ export const buildCustomFieldsMap = async (
   customFieldsData: any,
 ) => {
   const jsonMap: any = {};
+  const safeCustomFieldsData = Array.isArray(customFieldsData)
+    ? customFieldsData
+    : [];
 
   if (fieldGroups.length > 0) {
     for (const fieldGroup of fieldGroups) {
-      const fields = await sendTRPCMessage({
-        subdomain,
+      let fields: any[] = [];
 
-        pluginName: 'core',
-        method: 'query',
-        module: 'core',
-        action: 'fields.find',
-        input: { query: { groupId: fieldGroup._id } },
-      });
+      if (Array.isArray(fieldGroup?.fields)) {
+        fields = fieldGroup.fields;
+      } else if (typeof fieldGroup?.fields === 'string') {
+        try {
+          const parsed = JSON.parse(fieldGroup.fields);
+          fields = Array.isArray(parsed) ? parsed : [];
+        } catch {
+          fields = [];
+        }
+      }
+
+      if (!fields.length) {
+        fields = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'fields',
+          action: 'find',
+          input: { query: { groupId: fieldGroup._id } },
+        });
+      }
 
       jsonMap[fieldGroup.code] = fields.reduce((acc, field: any) => {
-        const value = customFieldsData.find((c: any) => c.field === field._id);
+        const value = safeCustomFieldsData.find(
+          (c: any) => c.field === field._id,
+        );
         acc[field.code] = value ? value.value : null;
         return acc;
       }, {});
@@ -57,10 +75,9 @@ export const customFieldsDataByFieldCode = async (
   subdomain: string,
   object,
 ) => {
-  const customFieldsData =
-    object.customFieldsData && object.customFieldsData.toObject
-      ? object.customFieldsData.toObject()
-      : object.customFieldsData || [];
+  const customFieldsData = object.customFieldsData?.toObject
+    ? object.customFieldsData.toObject()
+    : object.customFieldsData || [];
 
   const fieldIds = customFieldsData.map((data) => data.field);
 
@@ -69,8 +86,8 @@ export const customFieldsDataByFieldCode = async (
 
     pluginName: 'core',
     method: 'query',
-    module: 'core',
-    action: 'fields.find',
+    module: 'fields',
+    action: 'find',
     input: { query: { _id: { $in: fieldIds } } },
   });
 
@@ -123,6 +140,7 @@ export const generateUniqueSlug = async (
  */
 export const generateUniqueSlugWithExclusion = async (
   model: any,
+  cpId: string,
   field: string,
   baseSlug: string,
   excludeId: string,
@@ -137,6 +155,7 @@ export const generateUniqueSlugWithExclusion = async (
   // Check if slug already exists excluding current document
   const existingTag = await model.findOne({
     [field]: potentialSlug,
+    clientPortalId: cpId,
     _id: { $ne: excludeId },
   });
 
@@ -147,6 +166,7 @@ export const generateUniqueSlugWithExclusion = async (
   // If slug exists, try with next increment number
   return generateUniqueSlugWithExclusion(
     model,
+    cpId,
     field,
     baseSlug,
     excludeId,

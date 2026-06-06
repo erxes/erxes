@@ -1,6 +1,5 @@
 import {
   TExportHandlers,
-  GetExportDataArgs,
   IImportExportContext,
 } from 'erxes-api-shared/core-modules';
 import { getCustomerExportData } from './customers/getCustomerExportData';
@@ -9,16 +8,15 @@ import { getCompanyExportHeaders } from './companies/getCompanyExportHeaders';
 import { getCompanyExportData } from './companies/getCompanyExportData';
 
 const contactExportMap = {
-  customer: {
+  customers: {
     getExportHeaders: getCustomerExportHeaders,
     getExportData: getCustomerExportData,
   },
-  company: {
+  companies: {
     getExportHeaders: getCompanyExportHeaders,
     getExportData: getCompanyExportData,
   },
 };
-
 
 export const contactExportHandlers: TExportHandlers = {
   getExportHeaders: async (data: any, ctx: IImportExportContext) => {

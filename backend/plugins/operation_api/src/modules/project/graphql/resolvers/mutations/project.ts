@@ -1,7 +1,4 @@
 import { IProjectUpdate } from '@/project/@types/project';
-import { TeamMemberRoles } from '@/team/@types/team';
-import { checkUserRole } from '@/utils';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
@@ -21,8 +18,10 @@ export const projectMutations = {
       tagIds,
       convertedFromId,
     },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('projectCreate');
+
     const createdProject = await models.Project.createProject(
       {
         name,
@@ -56,18 +55,13 @@ export const projectMutations = {
 
     return createdProject;
   },
+
   updateProject: async (
     _parent: undefined,
     params: IProjectUpdate,
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
-    // const project = await models.Project.getProject(params._id);
-    // await checkUserRole({
-    //   models,
-    //   teamIds: project.teamIds,
-    //   userId: user._id,
-    //   allowedRoles: [TeamMemberRoles.ADMIN, TeamMemberRoles.LEAD],
-    // });
+    await checkPermission('projectUpdate');
 
     const updatedProject = await models.Project.updateProject({
       doc: params,
@@ -90,7 +84,14 @@ export const projectMutations = {
 
     return updatedProject;
   },
-  removeProject: async (_parent: undefined, { _id }, { models }: IContext) => {
+
+  removeProject: async (
+    _parent: undefined,
+    { _id },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('projectRemove');
+
     const deletedProject = await models.Project.removeProject(_id);
 
     graphqlPubsub.publish(`operationProjectChanged:${_id}`, {
@@ -110,7 +111,3 @@ export const projectMutations = {
     return deletedProject;
   },
 };
-
-requireLogin(projectMutations, 'createProject');
-requireLogin(projectMutations, 'updateProject');
-requireLogin(projectMutations, 'removeProject');

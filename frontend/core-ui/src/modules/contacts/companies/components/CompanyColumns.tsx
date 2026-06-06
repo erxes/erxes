@@ -217,7 +217,9 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
       ),
       cell: ({ cell }) => (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={(cell.getValue() as string[])?.join(', ') || ''} />
+          <TextOverflowTooltip
+            value={(cell.getValue() as string[])?.join(', ') || ''}
+          />
         </RecordTableInlineCell>
       ),
       size: 250,
@@ -289,7 +291,9 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
     {
       id: 'tagIds',
       accessorKey: 'tagIds',
-      header: () => <RecordTable.InlineHead icon={IconTags} label={t('tags')} />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconTags} label={t('tags')} />
+      ),
       cell: ({ cell }) => {
         return (
           <TagsSelect.InlineCell
@@ -319,7 +323,9 @@ export const companyColumns: (t: TFunction) => ColumnDef<TCompany>[] = (t) => {
     {
       id: 'lastSeenAt',
       accessorKey: 'lastSeenAt',
-      header: () => <RecordTable.InlineHead icon={IconClock} label={t('last-seen')} />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconClock} label={t('last-seen')} />
+      ),
       cell: ({ cell }) => {
         return (
           <RecordTableInlineCell>

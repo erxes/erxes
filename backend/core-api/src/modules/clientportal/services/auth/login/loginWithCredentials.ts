@@ -4,6 +4,7 @@ import { ICPUserDocument } from '@/clientportal/types/cpUser';
 import { buildUserQuery } from '@/clientportal/services/helpers/queryBuilders';
 import { updateLastLogin } from '@/clientportal/services/helpers/userUtils';
 import { AuthenticationError } from '@/clientportal/services/errorHandler';
+import { isTestAccountMatch } from '@/clientportal/services/helpers/testUserHelper';
 
 function validateUserVerificationStatus(user: ICPUserDocument): void {
   if (!user.isVerified) {
@@ -21,16 +22,23 @@ export async function loginWithCredentials(
   const query = buildUserQuery(undefined, email, phone, clientPortal._id);
   const user = await models.CPUser.findOne(query);
 
-  if (!user || !user.password) {
+  if (!user?.password) {
     throw new AuthenticationError('Invalid login');
   }
 
   validateUserVerificationStatus(user);
 
-  const isValid = await models.CPUser.comparePassword(
-    password,
-    user.password,
-  );
+  let isValid = false;
+
+  if (
+    clientPortal.testUser?.password &&
+    isTestAccountMatch(clientPortal, user) &&
+    password === clientPortal.testUser.password
+  ) {
+    isValid = true;
+  } else {
+    isValid = await models.CPUser.comparePassword(password, user.password);
+  }
 
   if (!isValid) {
     throw new AuthenticationError('Invalid login');

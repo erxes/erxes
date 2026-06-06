@@ -1,23 +1,27 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Button, Label, Form } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
-import { nanoid } from 'nanoid';
-
-import { PerPrintConfig, Condition } from '../types';
+import { Button, Card, Input, Label, useToast } from 'erxes-ui';
+import { SelectPipeline } from '../selects/SelectPipeline';
+import { SelectSalesBoard } from '../selects/SelectSalesBoard';
+import { SelectStage } from '../selects/SelectStage';
+import { Condition } from '../types';
+import { useBoardPipelineStage } from '../hooks/useBoardPipelineStage';
+import { useConditions } from '../hooks/useConditions';
+import { useMnConfig } from '../hooks/useMnConfig';
+import ConfigFooter from './shared/ConfigFooter';
+import ConfigHeader from './shared/ConfigHeader';
+import SavedConfigsList from './shared/SavedConfigsList';
 import PerPrintConditions from './PerPrintConditions';
 
-import { SelectSalesBoard } from '../../ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
-import { SelectPipeline } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectPipeline';
-import { SelectStage } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectStage';
+export interface PrintConfigData {
+  _id?: string;
+  subId?: string;
+  title: string;
+  boardId: string;
+  pipelineId: string;
+  stageId: string;
+  conditions: Condition[];
+}
 
-type Props = {
-  config: PerPrintConfig | null;
-  currentStageId: string;
-  save: (config: PerPrintConfig) => void;
-  delete: () => void;
-};
-
-const emptyForm: PerPrintConfig = {
+const emptyForm: PrintConfigData = {
   title: '',
   boardId: '',
   pipelineId: '',
@@ -25,248 +29,173 @@ const emptyForm: PerPrintConfig = {
   conditions: [],
 };
 
-const PrintConfig: React.FC<Props> = ({
-  config,
-  currentStageId,
-  save,
-  delete: deleteConfig,
-}) => {
-  const form = useForm();
+const PrintConfig: React.FC = () => {
+  const { toast } = useToast();
 
-  /** UI-only saved list */
-  const [savedConfigs, setSavedConfigs] = useState<PerPrintConfig[]>([]);
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-
-  /** active form */
-  const [formData, setFormData] = useState<PerPrintConfig>({
-    ...emptyForm,
-    stageId: currentStageId,
+  const {
+    savedConfigs,
+    activeIndex,
+    setActiveIndex,
+    formData,
+    setFormData,
+    loading,
+    reset,
+    handleSave,
+    handleDelete,
+  } = useMnConfig<PrintConfigData>({
+    code: 'dealsProductsDataPrint',
+    emptyForm,
+    getSubId: (f) => f.stageId,
   });
 
-  /** sync form */
-  useEffect(() => {
-    if (activeIndex !== null) {
-      const selected = savedConfigs[activeIndex];
-      if (selected) setFormData(selected);
-      return;
-    }
+  const { handleBoardChange, handlePipelineChange } =
+    useBoardPipelineStage(setFormData);
 
-    if (!config) {
-      setFormData({ ...emptyForm, stageId: currentStageId });
-      return;
-    }
+  const { addCondition, updateCondition, removeCondition } =
+    useConditions(setFormData);
 
-    setFormData({
-      title: config.title ?? '',
-      boardId: config.boardId ?? '',
-      pipelineId: config.pipelineId ?? '',
-      stageId: config.stageId ?? currentStageId,
-      conditions: config.conditions ?? [],
-    });
-  }, [config, activeIndex, savedConfigs, currentStageId]);
+  const onSave = () =>
+    handleSave(
+      () => toast({ title: 'Success', description: 'Configuration saved successfully' }),
+      (e) =>
+        toast({
+          title: 'Error',
+          description: e?.message || 'Failed to save configuration',
+          variant: 'destructive',
+        }),
+    );
 
-  /* ---------- helpers ---------- */
-  const updateField = useCallback(
-    <K extends keyof PerPrintConfig>(key: K, value: PerPrintConfig[K]) => {
-      setFormData((prev) => ({ ...prev, [key]: value }));
-    },
-    [],
-  );
-
-  const addCondition = () => {
-    const condition: Condition = {
-      id: nanoid(),
-      branchId: '',
-      departmentId: '',
-    };
-
-    setFormData((prev) => ({
-      ...prev,
-      conditions: [...prev.conditions, condition],
-    }));
-  };
-
-  const updateCondition = (id: string, updated: Condition) => {
-    setFormData((prev) => ({
-      ...prev,
-      conditions: prev.conditions.map((c) => (c.id === id ? updated : c)),
-    }));
-  };
-
-  const removeCondition = (id: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      conditions: prev.conditions.filter((c) => c.id !== id),
-    }));
-  };
-
-  /* ---------- actions ---------- */
-  const handleSave = () => {
-    save(formData);
-
-    setSavedConfigs((prev) => {
-      if (activeIndex === null) {
-        return [...prev, formData];
-      }
-
-      const next = [...prev];
-      next[activeIndex] = formData;
-      return next;
-    });
-
-    setActiveIndex(null);
-  };
-
-  const handleDelete = async () => {
-    if (!window.confirm('Delete this print config?')) return;
-
-    await deleteConfig();
-    setSavedConfigs([]);
-    setActiveIndex(null);
-    setFormData({ ...emptyForm, stageId: currentStageId });
-  };
-
-  const handleNewConfig = () => {
-    setActiveIndex(null);
-    setFormData({ ...emptyForm, stageId: currentStageId });
-  };
-
-  /* ================= RENDER ================= */
+  const onDelete = () =>
+    handleDelete(
+      () => toast({ title: 'Success', description: 'Configuration deleted successfully' }),
+      (e) =>
+        toast({
+          title: 'Error',
+          description: e?.message || 'Failed to delete configuration',
+          variant: 'destructive',
+        }),
+    );
 
   return (
-    <Form {...form}>
-      <div className="space-y-6">
-        {/* HEADER */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Print Configuration</h2>
+    <div className="w-full h-full overflow-y-auto">
+      <div className="mx-auto w-full max-w-6xl px-6 py-8 space-y-8">
+        <ConfigHeader
+          title="Print Configuration"
+          onNew={reset}
+          disabled={loading}
+        />
 
-          <Button type="button" variant="outline" onClick={handleNewConfig}>
-            + New Config
-          </Button>
-        </div>
+        <SavedConfigsList
+          configs={savedConfigs}
+          activeIndex={activeIndex}
+          onSelect={setActiveIndex}
+        />
 
-        {/* SAVED LIST */}
-        {savedConfigs.length > 0 && (
-          <div className="rounded border bg-background p-4 space-y-2">
-            <h3 className="font-medium">Saved configs</h3>
-
-            {savedConfigs.map((cfg, index) => (
-              <div
-                key={`${cfg.stageId}-${index}`}
-                className={`cursor-pointer rounded px-3 py-2 border
-                  ${index === activeIndex ? 'bg-primary/10' : 'hover:bg-muted'}`}
-                onClick={() => setActiveIndex(index)}
-              >
-                <div className="font-medium">
-                  {cfg.title || '(Untitled config)'}
-                </div>
-                <div className="text-xs text-gray-500">
-                  Stage: {cfg.stageId || '—'}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* FORM */}
-        <div className="bg-white p-4 rounded border space-y-4">
-          <div className="space-y-2">
-            <Label>Title</Label>
-            <input
-              className="w-full p-2 border rounded"
-              value={formData.title}
-              onChange={(e) => updateField('title', e.target.value)}
-            />
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
+        <Card>
+          <Card.Content className="space-y-6 pt-4">
             <div className="space-y-2">
-              <Label>Board</Label>
-              <SelectSalesBoard
-                variant="form"
-                value={formData.boardId || ''}
-                onValueChange={(boardId: string) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    boardId,
-                    pipelineId: '',
-                    stageId: '',
-                  }));
-                }}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Pipeline</Label>
-              <SelectPipeline
-                variant="form"
-                boardId={formData.boardId || ''}
-                value={formData.pipelineId || ''}
-                disabled={!formData.boardId}
-                onValueChange={(pipelineId: string) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    pipelineId,
-                    stageId: '',
-                  }));
-                }}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Stage</Label>
-              <SelectStage
-                id="print-stage"
-                variant="form"
-                pipelineId={formData.pipelineId || ''}
-                value={formData.stageId || ''}
-                disabled={!formData.pipelineId}
-                onValueChange={(stageId: string) =>
-                  updateField('stageId', stageId)
+              <Label className="text-xs font-semibold uppercase text-muted-foreground">
+                Title
+              </Label>
+              <Input
+                placeholder="Enter configuration title"
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, title: e.target.value }))
                 }
               />
             </div>
-          </div>
-        </div>
 
-        {/* CONDITIONS */}
-        <div className="bg-white p-4 rounded border space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="font-medium">Print Conditions</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold uppercase text-muted-foreground">
+                  Board
+                </Label>
+                <SelectSalesBoard
+                  variant="form"
+                  value={formData.boardId || ''}
+                  onValueChange={handleBoardChange}
+                />
+              </div>
 
-            <Button type="button" variant="outline" size="sm" onClick={addCondition}>
-              + Add condition
-            </Button>
-          </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold uppercase text-muted-foreground">
+                  Pipeline
+                </Label>
+                <SelectPipeline
+                  variant="form"
+                  boardId={formData.boardId || ''}
+                  value={formData.pipelineId || ''}
+                  onValueChange={handlePipelineChange}
+                  disabled={!formData.boardId}
+                />
+              </div>
 
-          {formData.conditions.length === 0 ? (
-            <div className="text-center py-4 text-gray-400">
-              No conditions added
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold uppercase text-muted-foreground">
+                  Stage
+                </Label>
+                <SelectStage
+                  id="print-stage"
+                  variant="form"
+                  pipelineId={formData.pipelineId || ''}
+                  value={formData.stageId || ''}
+                  onValueChange={(v) =>
+                    setFormData((prev) => ({ ...prev, stageId: v }))
+                  }
+                  disabled={!formData.pipelineId}
+                />
+              </div>
             </div>
-          ) : (
-            formData.conditions.map((condition) => (
-              <PerPrintConditions
-                key={condition.id}
-                condition={condition}
-                onChange={updateCondition}
-                onRemove={removeCondition}
-              />
-            ))
-          )}
-        </div>
+          </Card.Content>
+        </Card>
 
-        {/* ACTIONS */}
-        <div className="flex justify-end gap-3">
-          <Button type="button" variant="destructive" onClick={handleDelete}>
-            Delete
-          </Button>
+        <Card>
+          <Card.Header>
+            <div className="flex items-center justify-between">
+              <Card.Title>Conditions ({formData.conditions.length})</Card.Title>
+              <Button onClick={addCondition} variant="outline" className="text-xs">
+                + Add Condition
+              </Button>
+            </div>
+          </Card.Header>
 
-          <Button type="button" onClick={handleSave}>
-            Save
-          </Button>
-        </div>
+          <Card.Content>
+            {formData.conditions.length === 0 ? (
+              <div className="flex items-center justify-center py-8 text-muted-foreground">
+                <p className="text-sm">
+                  No conditions added yet. Click "Add Condition" to get started.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {formData.conditions.map((c, index) => (
+                  <PerPrintConditions
+                    key={c.id}
+                    condition={c}
+                    onChange={updateCondition}
+                    onRemove={removeCondition}
+                    onAddCondition={
+                      index === formData.conditions.length - 1
+                        ? addCondition
+                        : undefined
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </Card.Content>
+        </Card>
+
+        <ConfigFooter
+          activeIndex={activeIndex}
+          loading={loading}
+          onClear={reset}
+          onSave={onSave}
+          onDelete={onDelete}
+        />
       </div>
-    </Form>
+    </div>
   );
 };
 

@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { ITriageAddInput, ITriageUpdateInput } from '@/task/@types/triage';
 import { STATUS_TYPES } from '@/status/constants/types';
@@ -7,8 +6,10 @@ export const triageMutations = {
   operationAddTriage: async (
     _parent: undefined,
     { input }: { input: ITriageAddInput },
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('triageCreate');
+
     return models.Triage.createTriage({
       triage: {
         name: input.name,
@@ -27,22 +28,26 @@ export const triageMutations = {
   operationUpdateTriage: async (
     _parent: undefined,
     { _id, input }: { _id: string; input: ITriageUpdateInput },
-    { models, user }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('triageUpdate');
+
     return models.Triage.updateTriage(_id, input);
   },
 
   operationConvertTriageToTask: async (
     _parent: undefined,
     { _id, status, reason }: { _id: string; status?: number; reason?: string },
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('triageConvert');
+
     const triage = await models.Triage.getTriage(_id);
     if (!triage) {
       throw new Error('Triage not found');
     }
 
-    let statusId : string | undefined = undefined;
+    let statusId: string | undefined = undefined;
 
     if (typeof status === 'number') {
       const statusDoc = await models.Status.findOne({
@@ -88,7 +93,3 @@ export const triageMutations = {
     }
   },
 };
-
-requireLogin(triageMutations, 'operationAddTriage');
-requireLogin(triageMutations, 'operationUpdateTriage');
-requireLogin(triageMutations, 'operationConvertTriageToTask');

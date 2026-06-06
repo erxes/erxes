@@ -1,4 +1,9 @@
-import { GetExportData, IImportExportContext } from 'erxes-api-shared/core-modules';
+import {
+  GetExportData,
+  IImportExportContext,
+  buildExportCursorQuery,
+  normalizeExportLimit,
+} from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { buildUserExportRow } from './buildUserExportRow';
 import { escapeRegExp } from 'erxes-api-shared/utils';
@@ -16,15 +21,16 @@ export async function getUserExportData(
 ): Promise<Record<string, any>[]> {
   const { cursor, limit, ids, selectedFields } = data;
 
-  const effectiveLimit = limit && limit > 0 ? limit : 100;
+  const effectiveLimit = normalizeExportLimit(limit, 100);
 
   if (!models) throw new Error('Models not available in context');
 
-  const query: any = { role: { $ne: 'system' } }; 
+  const query: any = { role: { $ne: 'system' } };
 
   if (typeof data.isActive === 'boolean') query.isActive = data.isActive;
   if (data.brandIds?.length) query.brandIds = { $in: data.brandIds };
-  if (data.departmentIds?.length) query.departmentIds = { $in: data.departmentIds };
+  if (data.departmentIds?.length)
+    query.departmentIds = { $in: data.departmentIds };
   if (data.branchIds?.length) query.branchIds = { $in: data.branchIds };
   if (data.status === 'Verified') {
     query.registrationToken = { $eq: null };
@@ -43,22 +49,18 @@ export async function getUserExportData(
     ];
   }
 
-  if (ids?.length && !cursor) {
-    query._id = { $in: ids };
+  const { query: exportQuery, isIdsMode } = buildExportCursorQuery({
+    baseQuery: query,
+    cursor,
+    ids,
+    limit: effectiveLimit,
+  });
+
+  if (isIdsMode && exportQuery._id?.$in?.length === 0) {
+    return [];
   }
 
-  if (cursor) {
-    if (ids?.length) {
-      const processedCount = Number.parseInt(cursor, 10) || 0;
-      const remainingIds = ids.slice(processedCount);
-      if (remainingIds.length === 0) return [];
-      query._id = { $in: remainingIds.slice(0, effectiveLimit) };
-    } else {
-      query._id = query._id ? { ...query._id, $gt: cursor } : { $gt: cursor };
-    }
-  }
-
-  const users = await models.Users.find(query)
+  const users = await models.Users.find(exportQuery)
     .sort({ _id: 1 })
     .limit(effectiveLimit)
     .lean();
@@ -81,9 +83,21 @@ export async function getUserExportData(
     });
   }
   const [brands, departments, branches] = await Promise.all([
-    brandIds.size ? models.Brands?.find?.({ _id: { $in: Array.from(brandIds) } }).select('_id name').lean() : [],
-    departmentIds.size ? models.Departments?.find?.({ _id: { $in: Array.from(departmentIds) } })?.select('_id title')?.lean() : [],
-    branchIds.size ? models.Branches?.find?.({ _id: { $in: Array.from(branchIds) } })?.select('_id title')?.lean() : [],
+    brandIds.size
+      ? models.Brands?.find?.({ _id: { $in: Array.from(brandIds) } })
+          .select('_id name')
+          .lean()
+      : [],
+    departmentIds.size
+      ? models.Departments?.find?.({ _id: { $in: Array.from(departmentIds) } })
+          ?.select('_id title')
+          ?.lean()
+      : [],
+    branchIds.size
+      ? models.Branches?.find?.({ _id: { $in: Array.from(branchIds) } })
+          ?.select('_id title')
+          ?.lean()
+      : [],
   ]);
   const brandMap = new Map<string, string>();
   const departmentMap = new Map<string, string>();
@@ -99,10 +113,10 @@ export async function getUserExportData(
   });
 
   return users.map((u: any) =>
-    buildUserExportRow(
-      u,
-      selectedFields,
-      { brandMap, departmentMap, branchMap},
-    ),
+    buildUserExportRow(u, selectedFields, {
+      brandMap,
+      departmentMap,
+      branchMap,
+    }),
   );
 }

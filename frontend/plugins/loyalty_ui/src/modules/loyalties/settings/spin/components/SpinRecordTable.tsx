@@ -3,7 +3,6 @@ import { RecordTable } from 'erxes-ui';
 import { spinColumns } from './SpinColumns';
 import { SpinCommandBar } from './spin-command-bar/SpinCommandBar';
 import { useSpins } from '../hooks/useSpins';
-import { useSpinStatusEdit } from '../hooks/useSpinStatusEdit';
 import { SPINS_CURSOR_SESSION_KEY } from '../constants/spinsCursorSessionKey';
 
 import { IconHeart } from '@tabler/icons-react';
@@ -11,12 +10,11 @@ import { LoyaltySpinAddSheet } from './SpinAddSheet';
 
 export const SpinRecordTable = () => {
   const { spins, handleFetchMore, loading, pageInfo } = useSpins();
-  const { editStatus } = useSpinStatusEdit();
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   return (
     <RecordTable.Provider
-      columns={spinColumns(editStatus)}
+      columns={spinColumns}
       data={spins || []}
       className="m-3"
       stickyColumns={['more', 'checkbox', 'title']}

@@ -1,5 +1,4 @@
-import { IconCheckbox } from '@tabler/icons-react';
-import { Button, Checkbox, CommandBar, Separator } from 'erxes-ui';
+import { Checkbox, CommandBar, Separator } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useConversationListContext } from '@/inbox/conversations/hooks/useConversationListContext';
 import { useEffect } from 'react';

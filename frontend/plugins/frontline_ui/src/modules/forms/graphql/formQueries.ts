@@ -75,11 +75,52 @@ export const GET_FORM_DETAIL = gql`
         text
         type
         pageNumber
+        logics {
+          fieldId
+          logicOperator
+          logicValue
+        }
+        logicAction
+        allowSearch
+        validator {
+          type
+          presetKey
+          customRegex
+          errorMessage
+        }
       }
       name
       numberOfPages
       leadData
       title
+      integrationId
+    }
+  }
+`;
+
+export const GET_FORMS_TOTAL_COUNT = gql`
+  query FormsTotalCount(
+    $type: String
+    $channelId: String
+    $tagId: String
+    $status: String
+    $searchValue: String
+    $orderBy: JSON
+    ${GQL_CURSOR_PARAM_DEFS}
+  ) {
+    formsTotalCount(
+      type: $type
+      channelId: $channelId
+      tagId: $tagId
+      status: $status
+      searchValue: $searchValue
+      orderBy: $orderBy
+      ${GQL_CURSOR_PARAMS}
+    ) {
+      total
+      byTag
+      byChannel
+      byStatus
     }
   }
 `;

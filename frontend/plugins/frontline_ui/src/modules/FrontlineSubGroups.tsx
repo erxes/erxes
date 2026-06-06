@@ -1,11 +1,11 @@
 import { ChooseChannel } from '@/inbox/channel/components/ChooseChannel';
+import { ChooseBrand } from '@/inbox/brand/components/ChooseBrand';
 import { ChooseIntegrationTypeContent } from '@/integrations/components/ChooseIntegrationType';
 import { CreateChannel } from '@/channels/components/settings/channels-list/CreateChannel';
 import { NavigationMenuGroup } from 'erxes-ui';
 import { TicketNavigations } from '@/ticket/components/ticket-navigations/TicketNavigations';
 import { useLocation } from 'react-router-dom';
 import { ReportNavigations } from '@/report/components/report-navigations/ReportNavigations';
-import { Icon2fa } from '@tabler/icons-react';
 import { KnowledgeBaseSubGroup } from '@/knowledgebase/components/KnowledgeBaseTopicsNav';
 
 export const FrontlineSubGroups = () => {
@@ -13,7 +13,9 @@ export const FrontlineSubGroups = () => {
   const isInbox = location.pathname.startsWith('/frontline/inbox');
   const isTickets = location.pathname.startsWith('/frontline/tickets');
   const isReport = location.pathname.startsWith('/frontline/reports');
-  const isKnowledgeBase = location.pathname.startsWith('/frontline/knowledgebase');
+  const isKnowledgeBase = location.pathname.startsWith(
+    '/frontline/knowledgebase',
+  );
   const isForms = location.pathname.startsWith('/frontline/forms');
   if (isTickets) {
     return <TicketNavigations />;
@@ -32,7 +34,7 @@ export const FrontlineSubGroups = () => {
       >
         <ChooseChannel />
       </NavigationMenuGroup>
-    )
+    );
   }
   if (!isInbox) return null;
   return (
@@ -45,6 +47,9 @@ export const FrontlineSubGroups = () => {
       </NavigationMenuGroup>
       <NavigationMenuGroup name="Integration types">
         <ChooseIntegrationTypeContent />
+      </NavigationMenuGroup>
+      <NavigationMenuGroup name="Brands">
+        <ChooseBrand />
       </NavigationMenuGroup>
     </>
   );

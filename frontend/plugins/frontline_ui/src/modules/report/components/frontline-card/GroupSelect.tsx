@@ -24,7 +24,7 @@ export const GroupSelect = ({
       'facebook-post': 'Facebook Post',
       'instagram-messenger': 'Instagram Messenger',
       'instagram-post': 'Instagram Post',
-      call: 'Call',
+      calls: 'Calls',
       messenger: 'Messenger',
       form: 'Form',
     };
@@ -74,10 +74,10 @@ export const GroupSelect = ({
                 Instagram Post
               </Command.Item>
               <Command.Item
-                value="call"
-                onSelect={() => handleValueChange('call')}
+                value="calls"
+                onSelect={() => handleValueChange('calls')}
               >
-                Call
+                Calls
               </Command.Item>
               <Command.Item
                 value="messenger"

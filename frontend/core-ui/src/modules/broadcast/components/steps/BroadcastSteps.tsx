@@ -89,7 +89,7 @@ export const BroadcastSteps = ({
 
     const currentStep = BROADCAST_STEPS[step - 1];
 
-    if (currentStep && currentStep.validateFields) {
+    if (currentStep?.validateFields) {
       const isValid = await form.trigger(currentStep.validateFields as any);
 
       if (!isValid) {

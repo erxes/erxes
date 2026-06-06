@@ -43,7 +43,7 @@ export const getChildCategories = async (subdomain: string, categoryIds) => {
   const childs = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
-    module: 'categories',
+    module: 'productCategories',
     action: 'withChilds',
     input: {
       ids: categoryIds,
@@ -279,17 +279,26 @@ export const checkVouchersSale = async (
   }
 
   if (ownerType === 'customer') {
-    const customerRelatedClientPortalUser = await sendTRPCMessage({
+    const customerRelatedClientPortalUserById = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       method: 'query',
-      module: 'clientPortalUsers',
-      action: 'findOne',
-      input: {
-        $or: [{ _id: ownerId }, { erxesCustomerId: ownerId }],
-      },
+      module: 'cpUsers',
+      action: 'get',
+      input: { id: ownerId },
       defaultValue: null,
     });
+    const customerRelatedClientPortalUser =
+      customerRelatedClientPortalUserById ||
+      (await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        method: 'query',
+        module: 'cpUsers',
+        action: 'get',
+        input: { erxesCustomerId: ownerId },
+        defaultValue: null,
+      }));
 
     if (customerRelatedClientPortalUser) {
       ownerId = customerRelatedClientPortalUser._id;

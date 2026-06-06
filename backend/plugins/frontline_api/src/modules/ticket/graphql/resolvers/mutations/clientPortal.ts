@@ -13,9 +13,15 @@ export const cpTicketMutations: Record<string, Resolver> = {
     params: ITicketUpdate,
     { models, subdomain, cpUser, clientPortal }: IContext,
   ) => {
+    console.log('cpUser', JSON.stringify(cpUser, null, 2))
+    console.log('clientPortal', JSON.stringify(clientPortal, null, 2))
+    const userId = cpUser?.erxesCustomerId || cpUser?._id || clientPortal?._id;
+
+    console.log("userId", userId)
+
     const ticket = await models.Ticket.addTicket(
       params,
-      `cp:${clientPortal._id}`,
+      `cp:${userId}`,
       subdomain,
     );
 
@@ -27,7 +33,7 @@ export const cpTicketMutations: Record<string, Resolver> = {
       ticketListChanged: { type: 'create', ticket },
     });
 
-    if (ticket && cpUser?.erxesCustomerId) {
+    if (ticket && userId) {
       await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
@@ -39,7 +45,7 @@ export const cpTicketMutations: Record<string, Resolver> = {
             entities: [
               {
                 contentType: 'core:customer',
-                contentId: cpUser.erxesCustomerId,
+                contentId: userId,
               },
               {
                 contentType: 'frontline:ticket',
@@ -53,11 +59,42 @@ export const cpTicketMutations: Record<string, Resolver> = {
 
     return ticket;
   },
+
+  cpUpdateTicket: async (
+    _parent: undefined,
+    params: ITicketUpdate,
+    { models, cpUser, clientPortal, subdomain }: IContext,
+  ) => {
+    const userId = cpUser.erxesCustomerId || cpUser._id || clientPortal._id;
+
+    return await models.Ticket.updateTicket({
+      doc: params,
+      userId: `cp:${userId}`,
+      subdomain,
+    });
+  },
+
+  cpTicketCreateNote: async (
+    _parent: undefined,
+    { content, contentId },
+    { models, cpUser, clientPortal, subdomain }: IContext,
+  ) => {
+    const userId = cpUser?.erxesCustomerId || cpUser?._id || clientPortal?._id;
+
+    return models.Note.createNote({
+      doc: {
+        content,
+        contentId,
+        createdBy: `cp:${userId}`,
+      },
+      subdomain,
+      userId: `cp:${userId}`,
+    });
+  },
 };
 
 markResolvers(cpTicketMutations, {
   wrapperConfig: {
     forClientPortal: true,
-    cpUserRequired: true,
   },
 });

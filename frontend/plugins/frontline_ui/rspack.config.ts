@@ -17,4 +17,13 @@ export default composePlugins(
   withNx(),
   withReact(),
   withModuleFederation(config, { dts: false }),
+  (config: import('@rspack/core').Configuration) => {
+    config.module = config.module ?? {};
+    config.module.rules = config.module.rules ?? [];
+    config.module.rules.push({
+      test: /\.(mp3|wav|ogg)$/,
+      type: 'asset/resource',
+    });
+    return config;
+  },
 );

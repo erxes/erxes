@@ -9,7 +9,9 @@ import {
 export type ActionCodeType =
   | 'EMAIL_VERIFICATION'
   | 'PHONE_VERIFICATION'
-  | 'PASSWORD_RESET';
+  | 'PASSWORD_RESET'
+  | 'EMAIL_CHANGE'
+  | 'PHONE_CHANGE';
 
 export interface ActionCodeData {
   code: string;
@@ -52,7 +54,7 @@ export function validateActionCode(
   code: string | number,
   expectedType: ActionCodeType,
 ): void {
-  if (!user || !user.actionCode) {
+  if (!user?.actionCode) {
     throw new AuthenticationError('Invalid or expired token');
   }
 

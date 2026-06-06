@@ -168,7 +168,7 @@ export const generateEdge = (
   const { optionalConnects = [], ...config } = edge?.config || {};
 
   if (type === AutomationNodeType.Action) {
-    if (folksMap && folksMap.has(edge.type)) {
+    if (folksMap?.has(edge.type)) {
       generatedEdges.push(
         ...buildFolksEdges(
           type,

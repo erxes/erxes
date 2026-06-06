@@ -72,9 +72,13 @@ export const GET_PERMISSION_ACTIONS = gql`
 export const CURRENT_USER_PERMISSIONS = gql`
   query CurrentUserPermissions {
     currentUserPermissions {
-      module
-      actions
-      scope
+      permissions {
+        plugin
+        module
+        actions
+        scope
+      }
+      pluginsWithPermissions
     }
   }
 `;

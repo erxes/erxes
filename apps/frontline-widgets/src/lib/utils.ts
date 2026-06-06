@@ -91,3 +91,40 @@ export const requestBrowserInfo = ({
     });
   }, 2000);
 };
+
+export const getDomain = (subdomain: string) => {
+  const defaultValue = 'http://localhost:4000';
+  const VERSION = getEnv({ name: 'VERSION' });
+
+  const baseDefault =
+    VERSION === 'os' ? defaultValue : `http://${subdomain}.api.erxes.com`;
+
+  const DOMAIN = getEnv({
+    name: 'DOMAIN',
+    subdomain,
+    defaultValue: baseDefault,
+  });
+
+  return DOMAIN.replace('<subdomain>', subdomain);
+};
+export const getEnv = ({
+  name,
+  defaultValue,
+  subdomain,
+}: {
+  name: string;
+  defaultValue?: string;
+  subdomain?: string;
+}): string => {
+  let value = process.env[name] || '';
+
+  if (!value && defaultValue !== undefined) {
+    return defaultValue;
+  }
+
+  if (subdomain) {
+    value = value.replace('<subdomain>', subdomain);
+  }
+
+  return value || '';
+};

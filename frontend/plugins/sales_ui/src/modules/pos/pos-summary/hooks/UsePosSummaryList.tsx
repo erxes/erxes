@@ -14,13 +14,14 @@ const POS_PER_PAGE = 30;
 
 interface UsePosSummaryListOptions {
   posId?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface UsePosSummaryListReturn {
   loading: boolean;
   posSummaryList: IPosSummary[];
   totalCount: number;
+  columns: Record<string, string>;
   handleFetchMore: () => void;
   pageInfo: {
     hasNextPage: boolean;
@@ -43,6 +44,7 @@ export const usePosSummaryVariables = (
       user,
       pos,
       types,
+      groupField,
       status,
       excludeStatus,
       paidDateRange,
@@ -55,6 +57,7 @@ export const usePosSummaryVariables = (
     user: string;
     pos: string;
     types: string;
+    groupField: string;
     status: string;
     excludeStatus: string;
     paidDateRange: string;
@@ -66,6 +69,7 @@ export const usePosSummaryVariables = (
     'user',
     'pos',
     'types',
+    'groupField',
     'status',
     'excludeStatus',
     'paidDateRange',
@@ -75,7 +79,7 @@ export const usePosSummaryVariables = (
 
   return {
     perPage: POS_PER_PAGE,
-    ...(posId && { posId }),
+    posId: posId !== undefined ? posId : pos || undefined,
     search: (() => {
       const searchParts = [];
       if (searchValue) searchParts.push(searchValue);
@@ -84,8 +88,8 @@ export const usePosSummaryVariables = (
     })(),
     customerId: customer || company || undefined,
     userId: user || undefined,
-    posId: pos || undefined,
     types: types && types !== 'all' ? [types] : undefined,
+    groupField: groupField && groupField !== 'all' ? groupField : undefined,
     statuses: status && status !== 'all' ? [status] : undefined,
     excludeStatuses:
       excludeStatus && excludeStatus !== 'all' ? [excludeStatus] : undefined,
@@ -110,22 +114,26 @@ export const usePosSummaryList = (
 
   const posSummaryList = useMemo<IPosSummary[]>(
     () =>
-      data?.posOrdersGroupSummary?.amounts?.map((item: any) => ({
-        _id: item._id,
-        paidDate: item.paidDate || 'N/A',
-        number: item._id,
-        billId: '',
-        cashAmount: item.cashAmount || 0,
-        mobileAmount: item.mobileAmount || 0,
-        totalAmount: item.totalAmount || 0,
-        finalAmount: item.finalAmount || 0,
-        amounts: {
-          count: item.count || 0,
+      data?.posOrdersGroupSummary?.amounts?.map((item: any) => {
+        const groupKey = item.paidDate || '-';
+        return {
+          _id: groupKey,
+          paidDate: groupKey,
+          number: groupKey,
+          billId: '',
           cashAmount: item.cashAmount || 0,
           mobileAmount: item.mobileAmount || 0,
-          invoice: item.invoice || 0,
-        },
-      })) || [],
+          totalAmount: item.totalAmount || 0,
+          finalAmount: item.finalAmount || 0,
+          amounts: {
+            count: item.count || 0,
+            cashAmount: item.cashAmount || 0,
+            mobileAmount: item.mobileAmount || 0,
+            invoice: item.invoice || 0,
+            qpayAmount: item.qpayAmount || 0,
+          },
+        };
+      }) || [],
     [data?.posOrdersGroupSummary?.amounts],
   );
   const totalCount = useMemo(
@@ -166,10 +174,16 @@ export const usePosSummaryList = (
     setPosSummaryTotalCount(totalCount);
   }, [totalCount, setPosSummaryTotalCount]);
 
+  const columns = useMemo<Record<string, string>>(
+    () => data?.posOrdersGroupSummary?.columns || {},
+    [data?.posOrdersGroupSummary?.columns],
+  );
+
   return {
     loading,
     posSummaryList,
     totalCount,
+    columns,
     handleFetchMore,
     pageInfo: {
       hasNextPage: posSummaryList.length < totalCount,

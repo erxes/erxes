@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import React, { createContext, useContext, useMemo, useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { Select, cn } from 'erxes-ui';
+import { cn, Combobox, Command, PopoverScoped } from 'erxes-ui';
 
 const PRODUCTS_QUERY = gql`
   query products($ids: [String], $excludeIds: Boolean, $searchValue: String) {
@@ -13,67 +13,196 @@ const PRODUCTS_QUERY = gql`
 
 type Product = { _id: string; name: string };
 
-type Props = {
-  value?: string[];
-  onChange: (ids: string[]) => void;
-  disabled?: boolean;
+interface SelectProductsContextType {
+  value: string[];
+  onValueChange: (ids: string[]) => void;
+  loading?: boolean;
+  error?: any;
+  products?: Product[];
+}
+
+const SelectProductsContext = createContext<SelectProductsContextType | null>(
+  null,
+);
+
+const useSelectProductsContext = () => {
+  const context = useContext(SelectProductsContext);
+  if (!context) {
+    throw new Error(
+      'useSelectProductsContext must be used within SelectProductsProvider',
+    );
+  }
+  return context;
 };
 
-const MULTI_VALUE = '__multi__';
-
-export default function SelectProducts({
-  value = [],
-  onChange,
-  disabled,
-}: Props) {
-  const { data, loading } = useQuery(PRODUCTS_QUERY, {
-    variables: { ids: [] },
+export const SelectProductsProvider = ({
+  value,
+  onValueChange,
+  ids = [],
+  excludeIds,
+  searchValue,
+  children,
+}: {
+  value: string[];
+  onValueChange: (ids: string[]) => void;
+  ids?: string[];
+  excludeIds?: boolean;
+  searchValue?: string;
+  children: React.ReactNode;
+}) => {
+  const { data, loading, error } = useQuery(PRODUCTS_QUERY, {
+    variables: { ids, excludeIds, searchValue },
   });
 
   const products: Product[] = useMemo(() => data?.products || [], [data]);
 
-  const selectedSet = useMemo(() => new Set(value), [value]);
+  const contextValue = useMemo(
+    () => ({
+      value: value || [],
+      onValueChange,
+      products,
+      loading,
+      error,
+    }),
+    [value, onValueChange, products, loading, error],
+  );
 
-  const selectedLabel = useMemo(() => {
-    if (!value.length) return '';
-    const names = value
-      .map((id) => products.find((p) => p._id === id)?.name || id)
-      .slice(0, 2);
+  return (
+    <SelectProductsContext.Provider value={contextValue}>
+      {children}
+    </SelectProductsContext.Provider>
+  );
+};
 
-    return value.length > 2 ? `${names.join(', ')} +${value.length - 2}` : names.join(', ');
-  }, [value, products]);
+const SelectProductsValue = ({ placeholder }: { placeholder?: string }) => {
+  const { value, products } = useSelectProductsContext();
+  const selectedNames = useMemo(
+    () =>
+      value
+        .map((id) => products?.find((p) => p._id === id)?.name)
+        .filter(Boolean)
+        .join(', '),
+    [value, products],
+  );
 
-  const toggle = (id: string) => {
-    if (!id || id === MULTI_VALUE) return;
+  if (!selectedNames) {
+    return (
+      <span className="text-accent-foreground/80">
+        {placeholder || 'Choose products'}
+      </span>
+    );
+  }
 
-    if (selectedSet.has(id)) {
-      onChange(value.filter((x) => x !== id));
-    } else {
-      onChange([...value, id]);
+  return (
+    <div className="flex items-center gap-2">
+      <p className={cn('font-medium text-sm line-clamp-1')}>
+        {selectedNames}
+      </p>
+    </div>
+  );
+};
+
+const SelectProductsItem = ({ product }: { product: Product }) => {
+  const { onValueChange, value } = useSelectProductsContext();
+  const selectedSet = new Set(value);
+
+  return (
+    <Command.Item
+      value={product._id}
+      onSelect={() => {
+        const newValue = selectedSet.has(product._id)
+          ? value.filter((x) => x !== product._id)
+          : [...value, product._id];
+        onValueChange(newValue);
+      }}
+    >
+      <span className="font-medium">
+        {selectedSet.has(product._id) && '✓ '}
+        {product.name}
+      </span>
+      <Combobox.Check checked={selectedSet.has(product._id)} />
+    </Command.Item>
+  );
+};
+
+const SelectProductsContent = () => {
+  const { products, loading, error } = useSelectProductsContext();
+
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center h-24">
+          <span className="text-muted-foreground">Loading...</span>
+        </div>
+      );
     }
+
+    if (error) {
+      return (
+        <div className="flex items-center justify-center h-24 text-destructive">
+          Error: {error.message}
+        </div>
+      );
+    }
+
+    return products?.map((p) => (
+      <SelectProductsItem key={p._id} product={p} />
+    ));
   };
 
   return (
-    <Select value={MULTI_VALUE} onValueChange={toggle} disabled={disabled}>
-      <Select.Trigger className="w-full">
-        <span
-          className={cn(
-            'text-sm line-clamp-1',
-            !selectedLabel && 'text-accent-foreground/70',
-          )}
-        >
-          {selectedLabel || (loading ? 'Loading...' : 'Choose products to exclude')}
-        </span>
-      </Select.Trigger>
-
-      <Select.Content>
-        {products.map((p) => (
-          <Select.Item key={p._id} value={p._id}>
-            {selectedSet.has(p._id) ? '✓ ' : ''}
-            {p.name}
-          </Select.Item>
-        ))}
-      </Select.Content>
-    </Select>
+    <Command>
+      <Command.Input placeholder="Search product" />
+      <Command.Empty>
+        <span className="text-muted-foreground">No products found</span>
+      </Command.Empty>
+      <Command.List>{renderContent()}</Command.List>
+    </Command>
   );
-}
+};
+
+const SelectProductsRoot = ({
+  value,
+  onValueChange,
+  ids = [],
+  excludeIds,
+  searchValue,
+  disabled,
+}: {
+  value: string[];
+  onValueChange: (ids: string[]) => void;
+  ids?: string[];
+  excludeIds?: boolean;
+  searchValue?: string;
+  disabled?: boolean;
+}) => {
+  const [open, setOpen] = React.useState(false);
+
+  const handleValueChange = useCallback(
+    (ids: string[]) => {
+      onValueChange(ids);
+    },
+    [onValueChange],
+  );
+
+  return (
+    <SelectProductsProvider
+      value={value}
+      onValueChange={handleValueChange}
+      ids={ids}
+      excludeIds={excludeIds}
+      searchValue={searchValue}
+    >
+      <PopoverScoped open={open} onOpenChange={setOpen}>
+        <Combobox.Trigger disabled={disabled}>
+          <SelectProductsValue />
+        </Combobox.Trigger>
+        <Combobox.Content>
+          <SelectProductsContent />
+        </Combobox.Content>
+      </PopoverScoped>
+    </SelectProductsProvider>
+  );
+};
+
+export default SelectProductsRoot;

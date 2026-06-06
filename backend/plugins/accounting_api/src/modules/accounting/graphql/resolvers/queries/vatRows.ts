@@ -1,11 +1,7 @@
-import { IContext } from "~/connectionResolvers";
-import { VAT_ROW_STATUS } from "@/accounting/@types/vatRow";
+import { IContext } from '~/connectionResolvers';
+import { VAT_ROW_STATUS } from '@/accounting/@types/vatRow';
 
-const generateFilterCat = async ({
-  kinds,
-  searchValue,
-  status,
-}) => {
+const generateFilterCat = async ({ kinds, searchValue, status }) => {
   const filter: any = {};
   filter.status = { $nin: [VAT_ROW_STATUS.DELETED] };
 
@@ -26,28 +22,28 @@ const generateFilterCat = async ({
 };
 
 const vatRowQueries = {
-  async vatRows(
-    _root,
-    { kinds, searchValue, status },
-    { models }: IContext,
-  ) {
+  async vatRows(_root, { kinds, searchValue, status }, { models, checkPermission }: IContext) {
+    await checkPermission('readVatRows');
     const filter = await generateFilterCat({
       kinds,
       status,
-      searchValue
+      searchValue,
     });
 
     const sortParams: any = { number: 1 };
 
-    return await models.VatRows.find(filter).sort(sortParams)
-      .collation({ locale: "en", numericOrdering: true }).lean();
+    return await models.VatRows.find(filter)
+      .sort(sortParams)
+      .collation({ locale: 'en', numericOrdering: true })
+      .lean();
   },
 
   async vatRowsCount(
     _root,
     { kinds, searchValue, status },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('readVatRows');
     const filter = await generateFilterCat({
       searchValue,
       status,
@@ -56,11 +52,10 @@ const vatRowQueries = {
     return models.VatRows.find(filter).countDocuments();
   },
 
-  async vatRowDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+  async vatRowDetail(_root, { _id }: { _id: string }, { models, checkPermission }: IContext) {
+    await checkPermission('readVatRows');
     return models.VatRows.findOne({ _id }).lean();
   },
 };
-
-// checkPermission(vatRowQueries, 'vatRows', 'showVatRows', []);
 
 export default vatRowQueries;

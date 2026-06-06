@@ -86,7 +86,7 @@ const genStock = (detail, product, config) => {
     name: product.shortName || `${product.code} - ${product.name}`,
     barCode,
     barCodeType,
-    classificationCode: config.defaultGSCode,
+    classificationCode: config.defaultUnitedCode,
     taxProductCode: product.taxCode,
     measureUnit: product.uom ?? 'ш',
     qty: detail.quantity,
@@ -367,9 +367,7 @@ export const companyCheckCode = async (params, models: IModels) => {
 
   const config = await models.Configs.getConfigValue('EBARIMT');
 
-  if (
-    !(config?.checkTaxpayerUrl || '').includes('http')
-  ) {
+  if (!(config?.checkTaxpayerUrl || '').includes('http')) {
     return params;
   }
 
@@ -423,10 +421,12 @@ const getCustomerName = (customer) => {
 };
 
 const billTypeCustomFieldsData = async (config, deal) => {
+  const getPropertyValue = (fieldId) => deal.propertiesData?.[fieldId];
+
   if (
     config.dealBillType?.billType &&
     config.dealBillType?.regNo &&
-    deal.customFieldsData?.length
+    Object.keys(deal.propertiesData || {}).length
   ) {
     const checkCompanyStrs = [
       'Байгууллага',
@@ -436,31 +436,27 @@ const billTypeCustomFieldsData = async (config, deal) => {
       '3',
     ];
 
-    const customDataBillType = deal.customFieldsData.find(
-      (cfd) =>
-        cfd.field === config.dealBillType.billType &&
-        checkCompanyStrs.includes(cfd.value),
+    const customDataBillType = getPropertyValue(config.dealBillType.billType);
+    const customDataRegNo = getPropertyValue(config.dealBillType.regNo);
+    const customDataComName = getPropertyValue(
+      config.dealBillType.companyName,
     );
 
-    const customDataRegNo = deal.customFieldsData.find(
-      (cfd) => cfd.field === config.dealBillType.regNo && cfd.value,
-    );
-
-    const customDataComName = deal.customFieldsData.find(
-      (cfd) => cfd.field === config.dealBillType.companyName && cfd.value,
-    );
-
-    if (customDataBillType && customDataRegNo && customDataComName) {
+    if (
+      checkCompanyStrs.includes(customDataBillType) &&
+      customDataRegNo &&
+      customDataComName
+    ) {
       const resp = await getCompanyInfo({
         checkTaxpayerUrl: config.checkTaxpayerUrl,
-        no: customDataRegNo.value,
+        no: customDataRegNo,
       });
 
       if (resp.status === 'checked' && resp.tin) {
         return {
           type: 'B2B_RECEIPT',
-          customerCode: customDataRegNo.value,
-          customerName: customDataComName.value,
+          customerCode: customDataRegNo,
+          customerName: customDataComName,
           customerTin: resp.tin,
         };
       }
@@ -474,7 +470,11 @@ const billTypeConfomityCompany = async (subdomain, config, deal) => {
     pluginName: 'core',
     module: 'relation',
     action: 'getRelationIds',
-    input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:company' },
+    input: {
+      contentType: 'sales:deal',
+      contentId: deal._id,
+      relatedContentType: 'core:company',
+    },
     defaultValue: [],
   });
 
@@ -544,7 +544,11 @@ const checkBillType = async (subdomain, config, deal) => {
       pluginName: 'core',
       module: 'relation',
       action: 'getRelationIds',
-      input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:customer' },
+      input: {
+        contentType: 'sales:deal',
+        contentId: deal._id,
+        relatedContentType: 'core:customer',
+      },
       defaultValue: [],
     });
 
@@ -569,7 +573,7 @@ const checkBillType = async (subdomain, config, deal) => {
         defaultValue: [],
       });
 
-      let customer = customers.find((c) => c.code && c.code.match(/^\d{8}$/g));
+      let customer = customers.find((c) => c.code?.match(/^\d{8}$/g));
 
       if (customer) {
         customerCode = customer.code || '';
@@ -814,7 +818,7 @@ const calcGrouped = async (models: IModels, activeProductsData: any[]) => {
         amount: fixNum(mainData.amount * mainRatio + subData.amount * subRatio),
         discount: fixNum(
           (mainData.discount ?? 0) * mainRatio +
-          (subData.discount ?? 0) * subRatio,
+            (subData.discount ?? 0) * subRatio,
         ),
         unitPrice: fixNum(mainData.unitPrice + subData.unitPrice),
       });
@@ -993,7 +997,7 @@ export const returnResponse = async (url, data) => {
         return { status: 200 };
       }
       try {
-        return r.json();
+        return await r.json();
       } catch (e) {
         return {
           status: 'ERROR',

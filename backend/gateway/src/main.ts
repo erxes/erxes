@@ -1,9 +1,12 @@
+import './sentry-instrument';
+import * as Sentry from '@sentry/node';
 import * as dotenv from 'dotenv';
 
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import * as http from 'http';
+import rateLimit, { type RateLimitRequestHandler } from 'express-rate-limit';
 import { Queue } from 'bullmq';
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
@@ -20,14 +23,23 @@ import {
   proxyReq,
 } from '~/proxy/middleware';
 
-import { getPlugin, isDev, redis } from 'erxes-api-shared/utils';
+import {
+  applyTrustProxy,
+  getPlugin,
+  getPlugins,
+  getSubdomain,
+  isDev,
+  redis,
+  setActivePlugins,
+} from 'erxes-api-shared/utils';
+import { generateModels } from '~/connectionResolver';
+// import * as jwt from 'jsonwebtoken';
 import { applyGraphqlLimiters } from '~/middlewares/graphql-limiter';
 import {
   startSubscriptionServer,
   stopSubscriptionServer,
 } from './subscription';
-import * as fs from 'fs';
-import * as path from 'path';
+import { isValidLocaleParams, resolveLocale } from '~/util/locales';
 
 dotenv.config();
 
@@ -70,10 +82,72 @@ createBullBoard({
 
 serverAdapter.setBasePath('/bullmq-board');
 
-const app = express();
+Sentry.getGlobalScope().setTags({
+  plugin: 'gateway',
+  service: 'gateway',
+});
 
-app.use(cors(corsOptions));
+const app = express();
+applyTrustProxy(app);
+
 app.use(cookieParser());
+
+const gatewayRateLimiter: RateLimitRequestHandler = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5000, // generous global cap per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => req.path === '/health' || req.path.startsWith('/bullmq-board'),
+});
+
+app.use(gatewayRateLimiter);
+
+app.use(async (req, res, next) => {
+  const appToken = req.headers['x-app-api-token'] as string;
+  // const clientPortalToken = req.headers['x-app-token'] as string;
+
+  if (appToken) {
+    try {
+      const subdomain = getSubdomain(req);
+      const cacheKey = `app_token:${subdomain}:${appToken}`;
+
+      let isValid = await redis.get(cacheKey);
+
+      if (isValid === null) {
+        const models = await generateModels(subdomain);
+        const appInDb = await models.Apps.findOne({
+          token: appToken,
+          status: 'active',
+        });
+        isValid = appInDb ? '1' : '0';
+        await redis.set(cacheKey, isValid, 'EX', 3600);
+      }
+
+      if (isValid === '1') {
+        return cors({ credentials: true, origin: true })(req, res, next);
+      }
+    } catch {
+      // Fall through to regular CORS
+    }
+  }
+
+  // if (clientPortalToken) {
+  //   try {
+  //     const decoded: any = jwt.verify(
+  //       clientPortalToken,
+  //       process.env.JWT_TOKEN_SECRET || 'SECRET',
+  //     );
+
+  //     if (decoded?.clientPortalId) {
+  //       return cors({ credentials: true, origin: true })(req, res, next);
+  //     }
+  //   } catch {
+  //     // Fall through to regular CORS
+  //   }
+  // }
+
+  return cors(corsOptions)(req, res, next);
+});
 
 app.use(userMiddleware);
 
@@ -83,24 +157,26 @@ app.get('/health', async (_req, res) => {
   res.end('ok');
 });
 
-app.get('/locales/:lng/:file', async (req, res) => {
-  const localesRoot = path.join(__dirname, './locales');
-  try {
-    const requestedPath = path.resolve(
-      localesRoot,
-      req.params.lng,
-      req.params.file,
-    );
-    const realPath = fs.realpathSync(requestedPath);
-    if (!realPath.startsWith(localesRoot + path.sep)) {
-      return res.status(403).send('Forbidden');
-    }
-    const lngJson = fs.readFileSync(realPath);
-    res.json(JSON.parse(lngJson.toString()));
-  } catch {
-    res.status(500).send('Error fetching locale');
-  }
+app.get('/debug-sentry', () => {
+  throw new Error('Sentry test error (gateway): ' + new Date().toISOString());
 });
+
+app.get('/locales/:lng/:file', async (req, res) => {
+  const { lng, file } = req.params;
+
+  if (!isValidLocaleParams(lng, file)) {
+    return res.status(400).send('Invalid locale');
+  }
+
+  const locale = await resolveLocale(lng, file);
+
+  if (locale === null) {
+    return res.status(404).send('Locale not found');
+  }
+
+  return res.json(locale);
+});
+
 app.use('/pl:serviceName', async (req, res) => {
   try {
     const serviceName: string = req.params.serviceName.replace(':', '');
@@ -142,6 +218,9 @@ let httpServer: http.Server;
 
 async function start() {
   try {
+    const enabledPlugins = await getPlugins();
+    await setActivePlugins(enabledPlugins);
+
     // Initial fetch of the proxy targets
     global.currentTargets = await retryGetProxyTargets();
 
@@ -159,6 +238,8 @@ async function start() {
     applyGraphqlLimiters(app);
     applyProxiesCoreless(app);
     applyProxyToCore(app, global.currentTargets);
+
+    Sentry.setupExpressErrorHandler(app);
 
     // Start the HTTP server
     httpServer = http.createServer(app);

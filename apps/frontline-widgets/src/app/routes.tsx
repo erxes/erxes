@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import { App } from './app';
 import { Form } from './form';
+import { LiveForm } from './form/live-form';
 
 /**
  * Add new routes here.
@@ -13,6 +14,7 @@ export function AppRoutes() {
     <Routes>
       <Route path="/" element={<App />} />
       <Route path="/form" element={<Form />} />
+      <Route path="/live/:id/:formId" element={<LiveForm />} />
     </Routes>
   );
 }

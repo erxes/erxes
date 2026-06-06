@@ -5,8 +5,7 @@ import { useAtomValue } from 'jotai';
 import { EMHoursAvailability } from '@/integrations/erxes-messenger/components/EmHoursAvailability';
 import { EMSettings } from '@/integrations/erxes-messenger/components/EMSettings';
 import { EMConfig } from '@/integrations/erxes-messenger/components/EMConfig';
-import { Sheet, Spinner } from 'erxes-ui';
-import { Preview, Resizable, Separator } from 'erxes-ui';
+import { Preview, Resizable, Separator, Sheet, Spinner } from 'erxes-ui';
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 import { erxesMessengerSetupStepAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 

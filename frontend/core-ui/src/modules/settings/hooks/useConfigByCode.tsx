@@ -1,5 +1,5 @@
 import { OperationVariables, useQuery } from '@apollo/client';
-import React from 'react';
+
 import { SettingsQueries } from '../graphql';
 
 const useConfigByCode = (options?: OperationVariables) => {
@@ -10,7 +10,7 @@ const useConfigByCode = (options?: OperationVariables) => {
       skip: !options?.variables?.codes,
     },
   );
-  const configs = (data && data.configsByCode) || [];
+  const configs = data?.configsByCode || [];
   return {
     loading,
     configs,

@@ -2,19 +2,31 @@ import { useAtom, useAtomValue } from 'jotai';
 import { HEADER_ITEMS } from '../constants';
 import { HeaderContentType, IHeaderItem } from '../types';
 import { useMessenger } from './useMessenger';
-import { hasTicketConfigAtom, headerItemsAtom } from '../states';
+import {
+  connectionAtom,
+  hasTicketConfigAtom,
+  headerItemsAtom,
+} from '../states';
 import { useEffect } from 'react';
 
 export function useHeader() {
   const { activeTab, switchToTab, goBack } = useMessenger();
   const hasTicketConfig = useAtomValue(hasTicketConfigAtom);
+  const connection = useAtomValue(connectionAtom);
+  const { showVideoCallRequest } =
+    connection.widgetsMessengerConnect.messengerData || {};
   const [headerItems, setHeaderItems] = useAtom(headerItemsAtom);
 
   const getCurrentTitle = (): string => {
     return (
       HEADER_ITEMS.find((item: IHeaderItem) => item.value === activeTab)
-        ?.title ?? 'Chat'
+        ?.title ?? 'Your conversations'
     );
+  };
+
+  const getCurrentEyebrow = (): string | undefined => {
+    return HEADER_ITEMS.find((item: IHeaderItem) => item.value === activeTab)
+      ?.eyebrow;
   };
 
   const renderHeaderContent = (): HeaderContentType => {
@@ -29,20 +41,24 @@ export function useHeader() {
   };
 
   useEffect(() => {
-    if (!hasTicketConfig) {
-      setHeaderItems(HEADER_ITEMS.filter((item) => item.value !== 'ticket'));
-    } else {
-      setHeaderItems([
-        ...HEADER_ITEMS.filter((item) => item.value !== 'ticket'),
-        {
-          ...(HEADER_ITEMS.find(
-            (item) => item.value === 'ticket',
-          ) as IHeaderItem),
-          disabled: false,
-        },
-      ]);
-    }
-  }, [hasTicketConfig]);
+    let items = [...HEADER_ITEMS];
+
+    items = items.map((item) => {
+      if (item.value === 'ticket') {
+        return { ...item, disabled: !hasTicketConfig };
+      }
+      return item;
+    });
+
+    items = items.map((item) => {
+      if (item.value === 'call') {
+        return { ...item, disabled: !showVideoCallRequest };
+      }
+      return item;
+    });
+
+    setHeaderItems(items);
+  }, [hasTicketConfig, showVideoCallRequest]);
 
   return {
     activeTab,
@@ -51,5 +67,6 @@ export function useHeader() {
     getCurrentTitle,
     renderHeaderContent,
     headerItems,
+    getCurrentEyebrow,
   };
 }

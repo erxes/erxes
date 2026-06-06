@@ -1,0 +1,169 @@
+# Contract: create-plugin
+# CRITICAL: The scaffold script generates code that VIOLATES non-negotiable rules.
+# The agent MUST fix all generated code before declaring completion.
+
+skill:
+  name: create-plugin
+  version: "1.1.0"
+  type: meta
+  description: Create a new erxes plugin from scratch with proper scaffolding and registration
+
+inputs:
+  - name: plugin_name
+    type: string
+    description: "Plugin name (e.g., 'inventory', 'analytics')"
+    required: true
+    pattern: "^[a-zA-Z][a-zA-Z0-9]*$"
+    validation:
+      command: "! test -d frontend/plugins/{plugin_name}_ui && ! test -d backend/plugins/{plugin_name}_api"
+      error_message: "Plugin {plugin_name} already exists"
+
+  - name: module_name
+    type: string
+    description: "Initial module name (e.g., 'items', 'reports')"
+    required: true
+    pattern: "^[a-zA-Z][a-zA-Z0-9]*$"
+
+  - name: description
+    type: string
+    description: "Brief description of plugin purpose"
+    required: true
+
+  - name: scope
+    type: enum
+    values: [frontend, backend, both]
+    description: "Which parts to create"
+    required: true
+
+  - name: keywords
+    type: array
+    description: "Keywords for feature map lookup"
+    required: false
+    items:
+      type: string
+
+rules_required:
+  - constitution
+  - non-negotiable
+  - architecture
+  - code-style
+  - react-general-guidelines
+  - typescript-guidelines
+
+preconditions:
+  - description: "Plugin does not already exist"
+    check: "! test -d frontend/plugins/{plugin_name}_ui"
+  - description: "Plugin name is valid"
+    check: "echo {plugin_name} | grep -qE '^[a-zA-Z][a-zA-Z0-9]*$'"
+  - description: "User has confirmed requirements"
+    check: "user_confirmed == true"
+  - description: "Agent has read non-negotiable.md"
+    check: "rules_loaded == true"
+    critical: true
+    failure_message: "MUST read .agents/rules/non-negotiable.md BEFORE running scaffold"
+
+postconditions:
+  - description: "No default exports in application code"
+    command: "./.agents/scripts/validate-scaffold.sh {plugin_name} {scope}"
+    required: true
+    critical: true
+  - description: "Frontend plugin builds"
+    command: "pnpm nx build {plugin_name}_ui"
+    when: "scope == frontend || scope == both"
+    required: true
+  - description: "Backend plugin builds"
+    command: "pnpm nx build {plugin_name}_api"
+    when: "scope == backend || scope == both"
+    required: true
+  - description: "Plugin registered in manifest"
+    check: "grep -q {plugin_name} .agents/manifest.yaml"
+    required: true
+  - description: "Plugin has AGENTS.md"
+    check: "test -f frontend/plugins/{plugin_name}_ui/AGENTS.md"
+    when: "scope == frontend || scope == both"
+    required: true
+  - description: "Plugin added to feature map"
+    check: "grep -q {plugin_name} .agents/maps/feature-map.yaml"
+    required: true
+    when: "feature_map_exists == true"
+
+workflow:
+  phases:
+    confirm:
+      description: "Gather requirements and confirm with user"
+      required: true
+    scaffold:
+      description: "Run pnpm create-plugin script"
+      required: true
+      warning: "Scaffold generates rule-violating code. MUST fix in next step."
+    fix:
+      description: "Fix ALL default exports and rule violations in generated code"
+      required: true
+      critical: true
+      validation: "./.agents/scripts/check-rules.sh frontend/plugins/{plugin_name}_ui"
+    config:
+      description: "Verify Module Federation config uses named exports"
+      required: true
+    docs:
+      description: "Create plugin-specific AGENTS.md"
+      required: true
+    register:
+      description: "Register in manifest.yaml and feature-map.yaml"
+      required: true
+    host:
+      description: "Update host app if needed"
+      required: false
+    validate:
+      description: "Run full validation: build, lint, rule check"
+      required: true
+      command: "./.agents/scripts/validate-scaffold.sh {plugin_name} {scope}"
+
+gates:
+  - name: "rule-awareness"
+    description: "Agent must confirm it has read and understands non-negotiable rules"
+    check: "agent_confirms_rules_read"
+    failure_action: "halt"
+  
+  - name: "scaffold-fix"
+    description: "Agent must explicitly fix all scaffolded default exports"
+    check: "no_default_exports_in_app_code"
+    failure_action: "halt"
+  
+  - name: "validation-pass"
+    description: "All validation scripts must pass"
+    check: "validate-scaffold.sh exits 0"
+    failure_action: "halt"
+
+deliverables:
+  - "Frontend plugin directory with proper structure"
+  - "Backend plugin directory with proper structure (if applicable)"
+  - "Named exports only (NO default exports in application code)"
+  - "No 'any' types in application code"
+  - "No placeholder/empty page content"
+  - "No schemaWrapper usage in backend"
+  - "Module Federation configuration with named exports"
+  - "Plugin AGENTS.md"
+  - "Registration in manifest.yaml"
+  - "Entry in feature-map.yaml"
+  - "Host app references updated (if needed)"
+
+composes_with:
+  - create-page
+  - create-table
+  - create-backend-entity
+  - configure-plugin-navigation
+  - module-federation-expose
+
+examples:
+  - input:
+      plugin_name: "inventory"
+      module_name: "items"
+      description: "Inventory management with items and stock tracking"
+      scope: "both"
+      keywords: ["inventory", "stock", "item", "warehouse"]
+    output:
+      status: "created"
+      frontend_plugin: "inventory_ui"
+      backend_plugin: "inventory_api"
+      module: "items"
+      registered: true

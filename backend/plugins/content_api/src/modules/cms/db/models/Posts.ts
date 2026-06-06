@@ -1,11 +1,20 @@
 import { Model } from 'mongoose';
 
-import { IPost, IPostDocument } from '@/cms/@types/posts';
+import {
+  IPost,
+  IPostDocument,
+  IPostReactionCounts,
+  POST_REACTION_TYPES,
+  PostReactionType,
+} from '@/cms/@types/posts';
 import { IModels } from '~/connectionResolvers';
 import slugify from 'slugify';
 import { htmlToText } from 'html-to-text';
 import { postSchema } from '@/cms/db/definitions/posts';
-import { generateUniqueSlug } from '@/cms/utils/common';
+import {
+  generateUniqueSlug,
+  generateUniqueSlugWithExclusion,
+} from '@/cms/utils/common';
 
 export interface IPostModel extends Model<IPostDocument> {
   getPosts: (query: any) => Promise<IPostDocument[]>;
@@ -17,6 +26,11 @@ export interface IPostModel extends Model<IPostDocument> {
     status: 'draft' | 'published' | 'archived' | 'scheduled',
   ) => Promise<IPostDocument>;
   increaseViewCount: (_id: string) => Promise<IPostDocument>;
+  updateReactionCount: (
+    _id: string,
+    reaction: PostReactionType,
+    modifyType: 'inc' | 'dec',
+  ) => Promise<IPostDocument>;
   toggleFeatured: (_id: string) => Promise<IPostDocument>;
 }
 
@@ -29,8 +43,66 @@ const prepareExcerpt = (content: string) => {
     : plainTextContent;
 };
 
+const prepareSlug = (slug?: string | null) =>
+  slugify(String(slug || '').trim(), { lower: true });
+
+const isValidReactionType = (reaction: string): reaction is PostReactionType =>
+  POST_REACTION_TYPES.includes(reaction as PostReactionType);
+
+const normalizeReactions = (reactions?: string[]): PostReactionType[] => {
+  if (!Array.isArray(reactions)) {
+    return [];
+  }
+
+  return Array.from(new Set(reactions.filter(isValidReactionType)));
+};
+
+const normalizeReactionCounts = (
+  reactionCounts?: IPostReactionCounts,
+): IPostReactionCounts => {
+  if (!reactionCounts || typeof reactionCounts !== 'object') {
+    return {};
+  }
+
+  return POST_REACTION_TYPES.reduce((acc, reaction) => {
+    const value = reactionCounts[reaction];
+
+    if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+      acc[reaction] = Math.trunc(value);
+    }
+
+    return acc;
+  }, {} as IPostReactionCounts);
+};
+
+const normalizeReactionFields = (doc: Partial<IPost>) => {
+  if ('reactions' in doc) {
+    doc.reactions = normalizeReactions(doc.reactions as string[]);
+  }
+
+  if ('reactionCounts' in doc) {
+    doc.reactionCounts = normalizeReactionCounts(doc.reactionCounts);
+  }
+};
+
 export const loadPostClass = (models: IModels) => {
   class Posts {
+    public static getNextPostCount = async (clientPortalId: string) => {
+      const latestPostWithCount = await models.Posts.findOne({
+        clientPortalId,
+        count: { $exists: true },
+      })
+        .sort({ count: -1 })
+        .select({ count: 1 })
+        .lean();
+
+      if (typeof latestPostWithCount?.count === 'number') {
+        return latestPostWithCount.count + 1;
+      }
+
+      return models.Posts.countDocuments({ clientPortalId });
+    };
+
     public static async generateUniqueSlug(
       title: string,
       attempt = 0,
@@ -59,8 +131,10 @@ export const loadPostClass = (models: IModels) => {
     };
 
     public static createPost = async (doc: IPost) => {
-      if (!doc.slug && doc.title) {
-        const baseSlug = slugify(doc.title, { lower: true });
+      normalizeReactionFields(doc);
+
+      if (doc.slug || doc.title) {
+        const baseSlug = prepareSlug(doc.slug || doc.title);
         doc.slug = await generateUniqueSlug(
           models.Posts,
           doc.clientPortalId,
@@ -77,24 +151,39 @@ export const loadPostClass = (models: IModels) => {
         doc.publishedDate = new Date();
       }
 
+      if (doc.count === undefined) {
+        doc.count = await this.getNextPostCount(doc.clientPortalId);
+      }
+
       return models.Posts.create(doc);
     };
 
     public static updatePost = async (_id: string, doc: IPost) => {
-      if (!doc.slug && doc.title) {
-        const baseSlug = slugify(doc.title, { lower: true });
-        doc.slug = await generateUniqueSlug(
-          models.Posts,
-          doc.clientPortalId,
-          'slug',
-          baseSlug,
-        );
-      }
+      normalizeReactionFields(doc);
 
       const post = await models.Posts.findOne({ _id });
 
       if (!post) {
         throw new Error('Post not found');
+      }
+
+      const clientPortalId = doc.clientPortalId || post.clientPortalId;
+
+      if (doc.slug !== undefined) {
+        const baseSlug = prepareSlug(doc.slug);
+
+        if (!baseSlug) {
+          throw new Error('Slug is required');
+        }
+
+        doc.slug = await generateUniqueSlugWithExclusion(
+          models.Posts,
+          clientPortalId,
+          'slug',
+          baseSlug,
+          _id,
+          1,
+        );
       }
 
       if (doc.content && !doc.excerpt && !post.excerpt) {
@@ -131,11 +220,63 @@ export const loadPostClass = (models: IModels) => {
     };
 
     public static increaseViewCount = async (_id: string) => {
-      return models.Posts.findOneAndUpdate(
+      const post = await models.Posts.findOneAndUpdate(
         { _id },
         { $inc: { viewCount: 1 } },
         { new: true },
       );
+
+      if (!post) {
+        throw new Error('Post not found');
+      }
+
+      await models.PostViews.incrementDailyCount(_id, post.clientPortalId);
+
+      return post;
+    };
+
+    public static updateReactionCount = async (
+      _id: string,
+      reaction: PostReactionType,
+      modifyType: 'inc' | 'dec',
+    ) => {
+      if (!isValidReactionType(reaction)) {
+        throw new Error('Invalid reaction type');
+      }
+
+      const post = await models.Posts.findOne({ _id });
+
+      if (!post) {
+        throw new Error('Post not found');
+      }
+
+      const enabledReactions = normalizeReactions(post.reactions as string[]);
+
+      if (!enabledReactions.length) {
+        throw new Error('Reactions are not enabled for this post');
+      }
+
+      if (!enabledReactions.includes(reaction)) {
+        throw new Error('Reaction is not enabled for this post');
+      }
+
+      const reactionCounts = normalizeReactionCounts(
+        post.reactionCounts as IPostReactionCounts,
+      );
+      const nextCount = Math.max(
+        (reactionCounts[reaction] || 0) + (modifyType === 'inc' ? 1 : -1),
+        0,
+      );
+
+      if (nextCount > 0) {
+        reactionCounts[reaction] = nextCount;
+      } else {
+        delete reactionCounts[reaction];
+      }
+
+      post.reactionCounts = reactionCounts;
+
+      return post.save();
     };
 
     public static toggleFeatured = async (_id: string) => {

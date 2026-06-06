@@ -26,11 +26,10 @@ export const getIncomeData = async (
     const companies = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      method: 'query',
       module: 'companies',
       action: 'findActiveCompanies',
       input: {
-        selector: { _id: { $in: companyIds } },
+        query: { _id: { $in: companyIds } },
         fields: { _id: 1, code: 1 },
       },
       defaultValue: [],
@@ -48,7 +47,6 @@ export const getIncomeData = async (
     const customerIds = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      method: 'query',
       module: 'conformity',
       action: 'savedConformity',
       input: {
@@ -63,17 +61,16 @@ export const getIncomeData = async (
       const customers = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
-        method: 'query',
         module: 'customers',
         action: 'findActiveCustomers',
         input: {
-          selector: { _id: { $in: customerIds } },
+          query: { _id: { $in: customerIds } },
           fields: { _id: 1, code: 1 },
         },
         defaultValue: [],
       });
 
-      customerCode = (customers.find((c) => c.code) || {}).code || '';
+      customerCode = customers.find((c) => c.code)?.code ?? '';
     }
   }
 
@@ -184,7 +181,7 @@ export const getIncomeData = async (
   for (const paymentKind of Object.keys(purchase.paymentsData || [])) {
     const payment = purchase.paymentsData[paymentKind];
     const accountStr =
-      (config.payAccounts || {})[paymentKind] || config.defaultPayAccount;
+      config.payAccounts?.[paymentKind] || config.defaultPayAccount;
     payments[accountStr] = (payments[accountStr] || 0) + payment.amount;
     sumSaleAmount = sumSaleAmount - payment.amount;
   }

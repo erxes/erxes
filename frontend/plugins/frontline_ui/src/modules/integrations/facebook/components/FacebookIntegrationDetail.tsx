@@ -12,6 +12,7 @@ import {
   toast,
   Label,
 } from 'erxes-ui';
+import { SelectBrands } from 'ui-modules';
 import { IconEdit } from '@tabler/icons-react';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { z } from 'zod';
@@ -41,13 +42,11 @@ export const FacebookIntegrationDetail = ({ isPost }: { isPost?: boolean }) => {
     if (fbAuthorized === 'true') {
       setFacebookFormSheet(true);
 
-      // If accountId is provided, automatically select it and move to step 2
       if (accountId) {
         setSelectedAccount(accountId);
         setActiveStep(2);
       }
 
-      // Clean up the URL parameters
       searchParams.delete('fbAuthorized');
       searchParams.delete('accountId');
       setSearchParams(searchParams, { replace: true });
@@ -112,6 +111,7 @@ export const FacebookIntegrationEditForm = ({
     if (integrationDetail) {
       form.reset({
         name: integrationDetail.name,
+        brandId: integrationDetail.brandId ?? '',
       });
     }
   }, [integrationDetail, form]);
@@ -122,6 +122,7 @@ export const FacebookIntegrationEditForm = ({
         _id: id,
         name: data.name,
         channelId: integrationDetail?.channelId || '',
+        brandId: data.brandId,
       },
       onCompleted: () => {
         setOpen(false);
@@ -163,6 +164,20 @@ export const FacebookIntegrationEditForm = ({
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              name="brandId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Brand</Form.Label>
+                  <SelectBrands.FormItem
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  />
+                  <Form.Message />
                 </Form.Item>
               )}
             />

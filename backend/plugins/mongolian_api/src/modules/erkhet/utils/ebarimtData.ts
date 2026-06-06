@@ -1,5 +1,5 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import fetch from 'node-fetch';
+import { generateModels } from '~/connectionResolvers';
 import { calcProductsTaxRule } from './productsByTaxType';
 
 export const validConfigMsg = async (config) => {
@@ -65,7 +65,11 @@ export const getConfigPostData = async (
     pluginName: 'core',
     module: 'relation',
     action: 'getRelationIds',
-    input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:company' },
+    input: {
+      contentType: 'sales:deal',
+      contentId: deal._id,
+      relatedContentType: 'core:company',
+    },
     defaultValue: [],
   });
 
@@ -75,9 +79,8 @@ export const getConfigPostData = async (
       pluginName: 'core',
       module: 'companies',
       action: 'findActiveCompanies',
-      method: 'query',
       input: {
-        selector: { _id: { $in: companyIds } },
+        query: { _id: { $in: companyIds } },
         fields: { _id: 1, code: 1 },
       },
       defaultValue: [],
@@ -86,17 +89,9 @@ export const getConfigPostData = async (
     const re = /(^[А-ЯЁӨҮ]{2}\d{8}$)|(^\d{7}$)/giu;
     for (const company of companies) {
       if (re.test(company.code)) {
-        const checkCompanyRes = await fetch(
-          `${config.checkCompanyUrl}?${new URLSearchParams({
-            regno: company.code,
-          })}`,
-        ).then((res) => res.json());
-
-        if (checkCompanyRes.found) {
           billType = 3;
           customerCode = company.code;
           continue;
-        }
       }
     }
   }
@@ -107,7 +102,11 @@ export const getConfigPostData = async (
       pluginName: 'core',
       module: 'relation',
       action: 'getRelationIds',
-      input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:customer' },
+      input: {
+        contentType: 'sales:deal',
+        contentId: deal._id,
+        relatedContentType: 'core:customer',
+      },
       defaultValue: [],
     });
 
@@ -117,15 +116,14 @@ export const getConfigPostData = async (
         pluginName: 'core',
         module: 'customers',
         action: 'findActiveCustomers',
-        method: 'query',
         input: {
-          selector: { _id: { $in: customerIds } },
+          query: { _id: { $in: customerIds } },
           fields: { _id: 1, code: 1 },
         },
         defaultValue: [],
       });
 
-      customerCode = (customers.find((c) => c.code) || {}).code || '';
+      customerCode = customers.find((c) => c.code)?.code ?? '';
     }
   }
 
@@ -143,7 +141,6 @@ export const getConfigPostData = async (
     pluginName: 'core',
     module: 'users',
     action: 'find',
-    method: 'query',
     input: { query: { _id: { $in: assignUserIds } } },
     defaultValue: [],
   });
@@ -161,7 +158,6 @@ export const getConfigPostData = async (
     pluginName: 'core',
     module: 'products',
     action: 'find',
-    method: 'query',
     input: {
       query: { _id: { $in: productsIds } },
       limit: deal.productsData.length,
@@ -169,8 +165,10 @@ export const getConfigPostData = async (
     defaultValue: [],
   });
 
+  const models = await generateModels(subdomain);
   const { productsById, oneMoreCtax, oneMoreVat } = await calcProductsTaxRule(
     subdomain,
+    models,
     config,
     products,
   );
@@ -194,7 +192,6 @@ export const getConfigPostData = async (
       pluginName: 'core',
       module: 'branches',
       action: 'find',
-      method: 'query',
       input: { query: { _id: { $in: branchIds } } },
       defaultValue: [],
     });
@@ -207,7 +204,6 @@ export const getConfigPostData = async (
       pluginName: 'core',
       module: 'departments',
       action: 'find',
-      method: 'query',
       input: { _id: { $in: departmentIds } },
       defaultValue: [],
     });
@@ -369,7 +365,11 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
     pluginName: 'core',
     module: 'relation',
     action: 'getRelationIds',
-    input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:company' },
+    input: {
+      contentType: 'sales:deal',
+      contentId: deal._id,
+      relatedContentType: 'core:company',
+    },
     defaultValue: [],
   });
 
@@ -379,9 +379,8 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
       pluginName: 'core',
       module: 'companies',
       action: 'findActiveCompanies',
-      method: 'query',
       input: {
-        selector: { _id: { $in: companyIds } },
+        query: { _id: { $in: companyIds } },
         fields: { _id: 1, code: 1 },
       },
       defaultValue: [],
@@ -401,7 +400,11 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
       pluginName: 'core',
       module: 'relation',
       action: 'getRelationIds',
-      input: { contentType: 'sales:deal', contentId: deal._id, relatedContentType: 'core:customer' },
+      input: {
+        contentType: 'sales:deal',
+        contentId: deal._id,
+        relatedContentType: 'core:customer',
+      },
       defaultValue: [],
     });
 
@@ -411,15 +414,14 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
         pluginName: 'core',
         module: 'customers',
         action: 'findActiveCustomers',
-        method: 'query',
         input: {
-          selector: { _id: { $in: customerIds } },
+          query: { _id: { $in: customerIds } },
           fields: { _id: 1, code: 1 },
         },
         defaultValue: [],
       });
 
-      customerCode = (customers.find((c) => c.code) || {}).code || '';
+      customerCode = customers.find((c) => c.code)?.code ?? '';
     }
   }
 
@@ -434,7 +436,6 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
     pluginName: 'core',
     module: 'products',
     action: 'find',
-    method: 'query',
     input: {
       query: { _id: { $in: productsIds } },
       limit: deal.productsData.length,
@@ -461,7 +462,6 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
       pluginName: 'core',
       module: 'branches',
       action: 'find',
-      method: 'query',
       input: { query: { _id: { $in: branchIds } } },
       defaultValue: [],
     });
@@ -477,7 +477,6 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
       pluginName: 'core',
       module: 'departments',
       action: 'find',
-      method: 'query',
       input: { query: { _id: { $in: departmentIds } } },
       defaultValue: [],
     });

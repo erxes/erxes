@@ -1,3 +1,15 @@
+import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
+import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
+import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
+import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
+import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
+import { useCreateTicket } from '@/ticket/hooks/useCreateTicket';
+import { ticketCreateDefaultValuesState } from '@/ticket/states/ticketCreateSheetState';
+import { TAddTicket, addTicketSchema } from '@/ticket/types';
+import { Block } from '@blocknote/core';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { IconTags } from '@tabler/icons-react';
 import {
   BlockEditor,
   Button,
@@ -10,24 +22,10 @@ import {
   useQueryState,
   useToast,
 } from 'erxes-ui';
-import { TagsSelect, currentUserState } from 'ui-modules';
 import { useAtom, useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
-
-import { Block } from '@blocknote/core';
-import { IconTags } from '@tabler/icons-react';
-import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
-import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
-import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
-import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
-import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
-import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
-import { TAddTicket } from '@/ticket/types';
-import { addTicketSchema } from '@/ticket/types';
-import { ticketCreateDefaultValuesState } from '@/ticket/states/ticketCreateSheetState';
-import { useCreateTicket } from '@/ticket/hooks/useCreateTicket';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { TagsSelect, currentUserState } from 'ui-modules';
 
 export const AddTicketForm = ({
   onClose,

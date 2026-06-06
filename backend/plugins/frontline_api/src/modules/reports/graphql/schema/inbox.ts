@@ -5,6 +5,7 @@ export const types = `
     toDate: String
     status: String
     source: String
+    callStatus: String
     limit: Int
     page: Int
     channelIds: [String]
@@ -59,13 +60,58 @@ export const types = `
     messageCount: Int
   }
 
+  type ConversationMemberProgress {
+    assigneeId: String!
+    new: Int!
+    open: Int!
+    closed: Int!
+    resolved: Int!
+  }
+
+  type ConversationChartDataPoint {
+    date: String!
+    new: Int!
+    open: Int!
+    closed: Int!
+    resolved: Int!
+  }
+
+  type ConversationProgressChart {
+    total: Int!
+    chartData: [ConversationChartDataPoint!]!
+  }
+
+  type ConversationSourceProgressItem {
+    source: String!
+    count: Int!
+  }
+
+  type ConversationSourceProgress {
+    new: [ConversationSourceProgressItem!]!
+    open: [ConversationSourceProgressItem!]!
+    closed: [ConversationSourceProgressItem!]!
+    resolved: [ConversationSourceProgressItem!]!
+  }
+
+  type ConversationTagProgressItem {
+    tagId: String!
+    count: Int!
+  }
+
+  type ConversationTagProgress {
+    new: [ConversationTagProgressItem!]!
+    open: [ConversationTagProgressItem!]!
+    closed: [ConversationTagProgressItem!]!
+    resolved: [ConversationTagProgressItem!]!
+  }
+
 `;
 
 export const queries = `
-  conversationProgressChart(customerId:String!):JSON
-  conversationMemberProgress(customerId:String!):JSON
-  conversationSourceProgress(customerId:String!):JSON
-  conversationTagProgress(customerId:String!):JSON
+  conversationProgressChart(customerId:String!, fromDate:String, toDate:String): ConversationProgressChart
+  conversationMemberProgress(customerId:String!, fromDate:String, toDate:String):[ConversationMemberProgress]
+  conversationSourceProgress(customerId:String!, fromDate:String, toDate:String): ConversationSourceProgress
+  conversationTagProgress(customerId:String!, fromDate:String, toDate:String): ConversationTagProgress
   reportConversationOpenDate(filters: ConversationReportFilter): [ConversationDateStat]
   reportConversationResolvedDate(filters: ConversationReportFilter): [ConversationDateStat]
   reportConversationList(filters: ConversationReportFilter): ConversationListResult

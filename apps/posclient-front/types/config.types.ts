@@ -39,6 +39,8 @@ export interface IConfig {
     cashiers?: IPermissionConfig
   }
   initialCategoryIds?: string[]
+  serviceCharge?: number
+  serviceChargeApplicableProductId?: string
   ebarimtConfig?: IEbarimtConfig
   branchId: string
   departmentId: string
@@ -53,6 +55,7 @@ export interface IEbarimtConfig {
   ebarimtUrl?: string
   companyRD?: string
   companyName?: string
+  isCleanTaxPrice?: boolean
 }
 
 export interface IPaymentType {

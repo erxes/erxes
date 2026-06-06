@@ -1,10 +1,10 @@
 import {
-  useQuery,
-  useMutation,
-  QueryHookOptions,
+  gql,
   MutationHookOptions,
+  QueryHookOptions,
+  useMutation,
+  useQuery,
 } from '@apollo/client';
-import { gql } from '@apollo/client';
 
 const CONTRACT_TEMPLATE_FIELDS = `
   id

@@ -4,7 +4,6 @@ import {
 } from '../../core-types/modules/structure/structure';
 import { IUserDocument } from '../../core-types';
 import { redis, sendTRPCMessage } from '../../utils';
-import { getKey } from './utils';
 
 export const userActionsMap = async (
   userPermissions: any[],
@@ -47,7 +46,7 @@ export const getUserActionsMap = async (
   user: IUserDocument,
   permissionsFind?: (query: any) => any,
 ): Promise<any> => {
-  const key = getKey(user);
+  const key = `user_permissions_${user._id}`;
   const permissionCache = await redis.get(key);
 
   let actionMap: any;

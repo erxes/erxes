@@ -13,8 +13,8 @@ export const PaymentSettingsNavigation = () => {
           {/* Payment Settings */}
           <SettingsNavigationMenuLinkItem
             pathPrefix="payment"
-            path=""
-            name="Payment Settings"
+            path="/methods"
+            name="Payment"
           />
 
           {/* Invoices */}

@@ -1,4 +1,3 @@
-import { checkPermission } from 'erxes-api-shared/core-modules';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 import { notificationService } from '@/clientportal/services';
@@ -11,7 +10,10 @@ interface CPNotificationSendInput {
   kind?: 'SYSTEM' | 'USER';
 }
 
-export const cpNotificationMutations: Record<string, Resolver> = {
+export const cpNotificationMutations: Record<
+  string,
+  Resolver<any, any, IContext>
+> = {
   async clientPortalSendNotification(
     _root: unknown,
     {
@@ -118,9 +120,3 @@ cpNotificationMutations.clientPortalMarkNotificationAsRead.wrapperConfig = {
 cpNotificationMutations.clientPortalMarkAllNotificationsAsRead.wrapperConfig = {
   forClientPortal: true,
 };
-
-checkPermission(
-  cpNotificationMutations,
-  'clientPortalSendNotification',
-  'manageClientPortalUsers',
-);

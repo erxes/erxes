@@ -93,6 +93,7 @@ export const loadNoteClass = (models: IModels) => {
           notificationType: 'note',
           userIds,
           action: 'note',
+          models,
         });
       }
 

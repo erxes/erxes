@@ -23,7 +23,7 @@ export const AiAgentObjectFieldBuilder = ({
             name={`objectFields.${index}.fieldName`}
             render={({ field }) => (
               <Form.Item className="col-span-5">
-                <Input {...field} placeholder="Enter field name" />
+                <Input {...field} placeholder="productName" />
                 <Form.Message />
               </Form.Item>
             )}
@@ -56,7 +56,10 @@ export const AiAgentObjectFieldBuilder = ({
             name={`objectFields.${index}.validation`}
             render={({ field }) => (
               <Form.Item className="col-span-4">
-                <Input placeholder="Enter field validation" {...field} />
+                <Input
+                  placeholder="Optional validation or enum hints"
+                  {...field}
+                />
                 <Form.Message />
               </Form.Item>
             )}
@@ -78,7 +81,10 @@ export const AiAgentObjectFieldBuilder = ({
           name={`objectFields.${index}.prompt`}
           render={({ field }) => (
             <Form.Item>
-              <Textarea placeholder="Enter prompt" {...field} />
+              <Textarea
+                placeholder="Describe what this field should extract from the input"
+                {...field}
+              />
               <Form.Message />
             </Form.Item>
           )}

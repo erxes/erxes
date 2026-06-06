@@ -30,6 +30,7 @@ export const types = `
   input InvitationEntry {
     email: String
     password: String
+    permissionGroupIds: [String!]
   }
 
   enum UserChatStatus{
@@ -148,6 +149,7 @@ const commonParams = `
   employeeId: String
   password: String
   isOnboarded: Boolean
+  score: Float
 `;
 
 const commonSelector = `
@@ -196,4 +198,5 @@ export const mutations = `
   editOrganizationInfo(icon: String, logo: String, link: String, name: String, iconColor: String, backgroundColor: String, description: String, domain: String, favicon: String, textColor: String): Organization
   editOrganizationDomain(type: String, domain: String): Organization
   usersCreateOwner(email: String!, password: String!, firstName: String!, lastName: String, purpose: String, subscribeEmail: Boolean): String
+  usersSetActiveStatusBatch(_ids: [String!]!): Boolean
 `;

@@ -11,6 +11,7 @@ import { SocialPayAPI } from '~/apis/socialpay/api';
 import { StorePayAPI } from '~/apis/storepay/api';
 import { StripeAPI } from '~/apis/stripe/api';
 import { WechatPayAPI } from '~/apis/wechatpay/api';
+import { TokiAPI } from './toki/api';
 import { IPaymentDocument } from '~/modules/payment/@types/payment';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { extractErrorMessage } from '~/utils/extractErrorMessage';
@@ -68,6 +69,9 @@ class ErxesPayment {
         break;
       case 'khanbank':
         this.api = new KhanbankAPI(payment.config, subdomain || '');
+        break;
+      case 'toki':
+        this.api = new TokiAPI(payment.config, this.domain);
         break;
       default:
         this.api = null;

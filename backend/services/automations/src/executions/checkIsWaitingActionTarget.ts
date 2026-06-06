@@ -1,10 +1,10 @@
-import { IModels } from '@/connectionResolver';
-import { IAutomationWaitingActionDocument } from '@/mongo/waitingActionsToExecute';
-import { isInSegment } from '@/utils/isInSegment';
+import { IModels } from '../connectionResolver';
+import { IAutomationWaitingActionDocument } from '../mongo/waitingActionsToExecute';
+import { isInSegment } from '../utils/isInSegment';
 import { EXECUTE_WAIT_TYPES } from 'erxes-api-shared/core-modules';
 
 function accessNestedObject(obj: any, keys: string[]) {
-  return keys.reduce((acc, key) => acc && acc[key], obj) || '';
+  return keys.reduce((acc, key) => acc?.[key], obj) || '';
 }
 
 const handleCheckObjectCondition = async (
@@ -42,7 +42,7 @@ const handleCheckObjectCondition = async (
         ({ optionalConnectId }) => optionalConnectId === valueToCheck,
       );
 
-      if (optionalConnect && optionalConnect?.actionId) {
+      if (optionalConnect?.actionId) {
         if (waitingAction.responseActionId !== optionalConnect.actionId) {
           waitingAction.responseActionId = optionalConnect.actionId;
         }

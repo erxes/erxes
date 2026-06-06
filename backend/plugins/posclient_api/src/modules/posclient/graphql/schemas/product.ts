@@ -31,17 +31,21 @@ export const types = `
     categoryId: String
     customFieldsData: JSON
     customFieldsDataByFieldCode: JSON
+    propertiesData: JSON
     createdAt: Date
     tagIds: [String]
     vendorId: String
     attachmentMore: [Attachment]
     uom: String
     subUoms: JSON
+    currency: String
     category: PosProductCategory
+
     remainder: Float
     soonIn: Float
     soonOut: Float
     remainders: [JSON]
+    
     isCheckRem: Boolean
     hasSimilarity: Boolean
     pdfAttachment: PdfAttachment

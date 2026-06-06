@@ -14,7 +14,7 @@ const POS_PER_PAGE = 30;
 
 interface UsePosItemsListOptions {
   posId?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface UsePosItemsListReturn {
@@ -28,6 +28,7 @@ interface UsePosItemsListReturn {
     startCursor: null;
     endCursor: null;
   };
+  variables: ReturnType<typeof usePosItemsVariables>;
 }
 
 export const usePosItemsVariables = (options: UsePosItemsListOptions = {}) => {
@@ -73,7 +74,7 @@ export const usePosItemsVariables = (options: UsePosItemsListOptions = {}) => {
 
   return {
     perPage: POS_PER_PAGE,
-    ...(posId && { posId }),
+    posId: posId !== undefined ? posId : pos || undefined,
     search: (() => {
       const searchParts = [];
       if (searchValue) searchParts.push(searchValue);
@@ -82,7 +83,6 @@ export const usePosItemsVariables = (options: UsePosItemsListOptions = {}) => {
     })(),
     customerId: customer || company || undefined,
     userId: user || undefined,
-    posId: pos || undefined,
     types: types && types !== 'all' ? [types] : undefined,
     statuses: status && status !== 'all' ? [status] : undefined,
     excludeStatuses:
@@ -116,8 +116,8 @@ export const usePosItemsList = (
     [data?.posOrderRecords],
   );
   const totalCount = useMemo(
-    () => data?.posOrderRecords?.totalCount || 0,
-    [data?.posOrderRecords?.totalCount],
+    () => data?.posOrderRecordsCount || 0,
+    [data?.posOrderRecordsCount],
   );
 
   const handleFetchMore = useCallback(() => {
@@ -138,14 +138,14 @@ export const usePosItemsList = (
             ...(prev.posOrderRecords || []),
             ...fetchMoreResult.posOrderRecords,
           ],
-          totalCount: fetchMoreResult.posOrderRecords.totalCount,
+          posOrderRecordsCount:
+            fetchMoreResult.posOrderRecordsCount ?? prev.posOrderRecordsCount,
         };
       },
     });
   }, [posItemList.length, fetchMore, data?.posOrderRecords]);
 
   useEffect(() => {
-    if (!totalCount) return;
     setPosItemsTotalCount(totalCount);
   }, [totalCount, setPosItemsTotalCount]);
 
@@ -160,5 +160,6 @@ export const usePosItemsList = (
       startCursor: null,
       endCursor: null,
     },
+    variables,
   };
 };

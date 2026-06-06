@@ -17,8 +17,13 @@ type Props = {
 export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
   const [activeTab, setActiveTab] = useState('campaign');
 
-  const { couponEdit, loading: editLoading } = useCouponEdit();
   const { couponDetail } = useCouponDetailWithQuery();
+  const { couponEdit, loading: editLoading } = useCouponEdit(
+    couponDetail?._id,
+    () => {
+      onOpenChange(false);
+    },
+  );
   const { toast } = useToast();
 
   const getNextTab = (currentTab: string) => {
@@ -57,7 +62,7 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
     };
 
     const variables: any = {
-      _idid: couponDetail._id,
+      _id: couponDetail._id,
       title: data.title || '',
       description: data.description || '',
       status: data.status || 'active',
@@ -75,7 +80,7 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
         orExcludeTag: data.orExcludeTag,
       },
       buyScore: data.buyScore,
-      count: data.count,
+      value: data.count,
       codeRule: {
         codeLength: data.codeLength,
         prefixUppercase: data.prefixUppercase,
@@ -85,6 +90,7 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
         numberOfCodes: data.numberOfCodes,
         postfixUppercase: data.postfixUppercase,
         usageLimit: data.usageLimit,
+        staticCode: data.staticCode,
       },
     };
 
@@ -96,9 +102,6 @@ export const EditCouponTabs = ({ onOpenChange, form }: Props) => {
           description: e.message,
           variant: 'destructive',
         });
-      },
-      onCompleted: () => {
-        onOpenChange(false);
       },
     });
   };

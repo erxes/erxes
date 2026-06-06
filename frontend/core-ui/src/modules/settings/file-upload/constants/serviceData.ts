@@ -156,6 +156,16 @@ export const FILE_MIME_TYPES: fileMimeTypes[] = [
     extension: '.txt',
   },
   {
+    value: 'text/markdown',
+    label: 'Markdown',
+    extension: '.md',
+  },
+  {
+    value: 'text/x-markdown',
+    label: 'Markdown (legacy)',
+    extension: '.markdown',
+  },
+  {
     value: 'application/haansoft-hwp',
     label: 'Hanword Document (HWP)',
     extension: '.hwp',

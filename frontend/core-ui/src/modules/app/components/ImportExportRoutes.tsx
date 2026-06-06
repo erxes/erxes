@@ -1,31 +1,30 @@
-import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router';
+import { Suspense } from 'react';
+import { Navigate, Route, Routes } from 'react-router';
 
 import { Spinner } from 'erxes-ui';
-
-const ImportIndexPage = lazy(() =>
-  import('~/pages/import-export/ImportIndexPage').then((module) => ({
-    default: module.ImportIndexPage,
-  })),
-);
-
-const ExportIndexPage = lazy(() =>
-  import('~/pages/import-export/ExportIndexPage').then((module) => ({
-    default: module.ExportIndexPage,
-  })),
-);
+import { ImportExportSettingsPath } from '@/import-export/settings/constants/importExportSettingsPaths';
 
 export enum ImportExportPath {
-  Import = '/import',
-  Export = '/export',
+  Import = 'import',
+  Export = 'export',
 }
 
 export const ImportExportRoutes = () => {
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
-        <Route path={ImportExportPath.Import} element={<ImportIndexPage />} />
-        <Route path={ImportExportPath.Export} element={<ExportIndexPage />} />
+        <Route
+          index
+          element={<Navigate to={ImportExportSettingsPath.Import} replace />}
+        />
+        <Route
+          path={ImportExportPath.Import}
+          element={<Navigate to={ImportExportSettingsPath.Import} replace />}
+        />
+        <Route
+          path={ImportExportPath.Export}
+          element={<Navigate to={ImportExportSettingsPath.Export} replace />}
+        />
       </Routes>
     </Suspense>
   );

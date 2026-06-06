@@ -107,14 +107,16 @@ const emailValidationStatuses = [
   { label: 'Unknown', value: 'unknown' },
   { label: 'Disposable', value: 'disposable' },
   { label: 'Catch all', value: 'catchall' },
-  { label: 'Bat syntax', value: 'bad_syntax' },
+  { label: 'Bad syntax', value: 'bad_syntax' },
   { label: 'Not checked', value: 'not_checked' },
 ];
 
 export const EmailValidationStatusField = ({
   control,
+  disabled,
 }: {
   control: Control<CustomerFormType>;
+  disabled?: boolean;
 }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
   return (
@@ -124,7 +126,7 @@ export const EmailValidationStatusField = ({
       render={({ field }) => (
         <Form.Item>
           <Form.Label>{t('email-verification-status')}</Form.Label>
-          <Select onValueChange={field.onChange} value={field.value}>
+          <Select onValueChange={field.onChange} value={field.value} disabled={disabled}>
             <Form.Control>
               <Select.Trigger>
                 <Select.Value placeholder={'Choose'}>
@@ -352,6 +354,53 @@ export const PrimaryPhoneField = ({
           <Form.Control>
             <Input className="h-8 rounded-md" {...field} />
           </Form.Control>
+          <Form.Message className="text-destructive" />
+        </Form.Item>
+      )}
+    />
+  );
+};
+
+const lifecycleStates = [
+  { label: 'Lead', value: 'lead' },
+  { label: 'Customer', value: 'customer' },
+];
+
+export const StateField = ({
+  control,
+}: {
+  control: Control<CustomerFormType>;
+}) => {
+  return (
+    <Form.Field
+      control={control}
+      name="state"
+      render={({ field }) => (
+        <Form.Item>
+          <Form.Label>Lifecycle State</Form.Label>
+          <Select onValueChange={field.onChange} value={field.value ?? ''}>
+            <Form.Control>
+              <Select.Trigger className="truncate w-full rounded-md justify-between text-foreground h-8">
+                <Select.Value placeholder="Choose state">
+                  <span className="text-foreground font-medium text-sm">
+                    {lifecycleStates.find((s) => s.value === field.value)
+                      ?.label ?? 'Unknown'}
+                  </span>
+                </Select.Value>
+              </Select.Trigger>
+            </Form.Control>
+            <Select.Content align="start">
+              {lifecycleStates.map((state) => (
+                <Select.Item
+                  key={state.value}
+                  className="h-7 text-xs"
+                  value={state.value}
+                >
+                  {state.label}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
           <Form.Message className="text-destructive" />
         </Form.Item>
       )}

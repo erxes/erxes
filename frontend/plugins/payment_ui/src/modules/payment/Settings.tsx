@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 
 export const PaymentSettingsPage = lazy(() =>
@@ -23,7 +23,8 @@ const PaymentSettings = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <Routes>
-        <Route path="/" element={<PaymentSettingsPage />} />
+        <Route index element={<Navigate to="methods" replace />} />
+        <Route path="methods" element={<PaymentSettingsPage />} />
         <Route path="invoices" element={<InvoicesPage />} />
         <Route path="corporate-gateway" element={<CorporateGatewayPage />} />
       </Routes>

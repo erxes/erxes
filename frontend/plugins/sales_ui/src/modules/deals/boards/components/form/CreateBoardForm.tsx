@@ -37,7 +37,7 @@ export const CreateBoardForm = () => {
         ...values,
       },
       onCompleted({ addBoard }) {
-        setNewBoardName && setNewBoardName('');
+        setNewBoardName?.('');
         // onSelect({
         //   _id: addBoard._id,
         //   ...values,
@@ -89,7 +89,7 @@ export function SelectBoardsCreateContainer({
         <Button
           variant="ghost"
           onClick={() => {
-            setNewBoardName && setNewBoardName('');
+            setNewBoardName?.('');
           }}
           className="pl-1 gap-1"
         >

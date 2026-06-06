@@ -1,5 +1,6 @@
 import { AssigneeActivityRow } from './AssigneeActivityRow';
 import { PriorityChangedActivityRow } from './PriorityChangedActivityRow';
+import { DescriptionChangedActivityRow } from './DescriptionChangedActivityRow';
 
 export const customActivitiesRows = [
   {
@@ -9,5 +10,9 @@ export const customActivitiesRows = [
   {
     type: 'priorityChanged',
     render: PriorityChangedActivityRow,
+  },
+  {
+    type: 'description_change',
+    render: DescriptionChangedActivityRow,
   },
 ];

@@ -1,18 +1,22 @@
 import { IContext, IModels } from '~/connectionResolvers';
 import { IElement, IElementCategory } from '@/bms/@types/element';
 import { CATEGORIES } from '@/bms/constants';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import {
+  getBmsListWithTranslations,
+  getBmsItemWithTranslation,
+  ELEMENT_FIELD_MAPPINGS,
+} from '@/bms/utils/translations';
 
 const checkDefaults = async (models: IModels, name: string, icon: string) => {
   const one = await models.Elements.findOne({ name, itineraryId: null });
 
   if (!one) {
-    const element: IElement = { name: name, content: '', quick: true, icon };
+    const element: IElement = { name, content: '', quick: true, icon };
     await models.Elements.createElement(element, null);
   } else {
     await models.Elements.updateElement(one._id, {
       quick: true,
-      icon: icon,
+      icon,
       name: one?.name,
       content: one?.content,
     });
@@ -39,7 +43,7 @@ const insertCategoryDefaults = async (
 const elementQueries = {
   async bmsElements(
     _root,
-    { categories, branchId, name, quick, ...params },
+    { categories, branchId, name, quick, language, ...params },
     { models }: IContext,
   ) {
     const selector: any = {};
@@ -54,7 +58,6 @@ const elementQueries = {
         allSubcategories = [...newIds, ...allSubcategories];
         ids = newIds;
       }
-
       selector.categories = { $in: allSubcategories };
     }
 
@@ -64,35 +67,48 @@ const elementQueries = {
         { 'location.name': { $regex: name, $options: 'i' } },
       ];
     }
+
     if (typeof quick === 'boolean') {
       selector.quick = quick;
     }
+
     if (branchId) {
       selector.branchId = branchId;
     }
 
-    const { list, totalCount, pageInfo } = await cursorPaginate({
-      model: models.Elements,
-      params,
-      query: selector,
-    });
+    return getBmsListWithTranslations(
+      models,
+      models.Elements,
+      models.ElementTranslations,
+      selector,
+      { ...params, branchId, language },
+      ELEMENT_FIELD_MAPPINGS,
+    );
+  },
 
-    return { list, totalCount, pageInfo };
+  async bmsElementDetail(
+    _root,
+    { _id, language }: { _id: string; language?: string },
+    { models }: IContext,
+  ) {
+    return getBmsItemWithTranslation(
+      models,
+      models.Elements,
+      models.ElementTranslations,
+      { _id },
+      language,
+      ELEMENT_FIELD_MAPPINGS,
+    );
   },
 
   async bmsElementCategories(_root, { parentId }, { models }: IContext) {
     const selector: any = {};
-
     if (parentId) {
       selector.parentId = parentId;
     } else if (parentId === null) {
       selector.parentId = null;
     }
-
-    return await models.ElementCategories.find(selector);
-  },
-  async bmsElementDetail(_root, { _id }, { models }: IContext) {
-    return await models.Elements.findById(_id);
+    return models.ElementCategories.find(selector);
   },
 
   async bmsElementsInit(_root, _args, { models }: IContext) {
@@ -103,19 +119,17 @@ const elementQueries = {
     await checkDefaults(models, 'Check-in', 'door-open');
     await checkDefaults(models, 'Check-out', 'door-closed');
     await checkDefaults(models, 'Overnight', 'moon');
-
     await checkDefaults(models, 'Hot shower', 'moon');
     await checkDefaults(models, 'unable to shower', 'moon');
     await checkDefaults(models, 'pick-up service', 'moon');
     await checkDefaults(models, 'electricity', 'moon');
     await checkDefaults(models, 'no electricity', 'moon');
     await checkDefaults(models, 'horse & camel', 'moon');
-
     return 'ok';
   },
+
   async bmsCategoryInit(_root, _args, { models }: IContext) {
     let one: any = null;
-
     for (const x of CATEGORIES) {
       one = await insertCategoryDefaults(models, x.name, null);
       if (x.children.length > 0) {
@@ -135,7 +149,6 @@ const elementQueries = {
         }
       }
     }
-
     return 'ok';
   },
 };

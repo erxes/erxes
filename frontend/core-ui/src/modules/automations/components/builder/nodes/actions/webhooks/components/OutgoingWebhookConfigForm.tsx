@@ -14,12 +14,14 @@ import { Button, Form, Tabs } from 'erxes-ui';
 // @ts-ignore
 import { merge } from 'lodash';
 import { OutgoingWebhookBodyBuilder } from '@/automations/components/builder/nodes/actions/webhooks/components/OutgoingWebhookBodyBuilder';
-import { FormProvider, useForm } from 'react-hook-form';
+import { normalizeOutgoingWebhookBodyValue } from '@/automations/components/builder/nodes/actions/webhooks/utils/outgoingWebhookBodyBuilder';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import {
   TAutomationActionProps,
   useFormValidationErrorHandler,
 } from 'ui-modules';
-import { useActionTarget } from '../../../hooks/useActionTarget';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const OutgoingWebhookConfigForm = ({
   currentAction,
@@ -28,17 +30,29 @@ export const OutgoingWebhookConfigForm = ({
   const { handleValidationErrors } = useFormValidationErrorHandler({
     formName: 'Webhook Configuration',
   });
-  const { selectedActionType } = useActionTarget({
-    actionId: currentAction.id,
-    targetActionId: currentAction.targetActionId,
-  });
-  const form = useForm<TOutgoingWebhookForm>({
-    resolver: zodResolver(outgoingWebhookFormSchema),
-    defaultValues: merge(
+  const defaultValues = useMemo(() => {
+    const merged = merge(
+      {},
       OUTGOING_WEBHOOK_FORM_DEFAULT_VALUES,
       currentAction?.config || {},
-    ),
+    );
+
+    merged.body = normalizeOutgoingWebhookBodyValue(
+      merged.body,
+      merged.bodyMode,
+    );
+
+    return merged;
+  }, [currentAction?.config]);
+  const form = useForm<TOutgoingWebhookForm>({
+    resolver: zodResolver(outgoingWebhookFormSchema),
+    defaultValues,
   });
+  const bodyMode = useWatch({
+    control: form.control,
+    name: 'bodyMode',
+  });
+  const { t } = useTranslation('automations');
 
   return (
     <div className="w-[650px] flex flex-col h-full">
@@ -48,7 +62,7 @@ export const OutgoingWebhookConfigForm = ({
       >
         <Tabs.List className="w-full" defaultValue="request">
           <Tabs.Trigger className="w-1/5" value="request">
-            Request
+            {t('request')}
             <OutgoingWebhookTabFilledIndicator
               control={form.control}
               fields={['method', 'url', 'queryParams']}
@@ -56,7 +70,7 @@ export const OutgoingWebhookConfigForm = ({
             />
           </Tabs.Trigger>
           <Tabs.Trigger className="w-1/5" value="body">
-            Body
+            {t('body')}
             <OutgoingWebhookTabFilledIndicator
               control={form.control}
               fields={['body']}
@@ -65,7 +79,7 @@ export const OutgoingWebhookConfigForm = ({
           </Tabs.Trigger>
 
           <Tabs.Trigger className="w-1/5" value="auth">
-            Auth
+            {t('auth')}
             <OutgoingWebhookTabFilledIndicator
               control={form.control}
               fields={['auth']}
@@ -73,7 +87,7 @@ export const OutgoingWebhookConfigForm = ({
             />
           </Tabs.Trigger>
           <Tabs.Trigger className="w-1/5" value="header">
-            Headers
+            {t('headers')}
             <OutgoingWebhookTabFilledIndicator
               control={form.control}
               fields={['headers']}
@@ -82,7 +96,7 @@ export const OutgoingWebhookConfigForm = ({
           </Tabs.Trigger>
 
           <Tabs.Trigger className="w-1/5" value="options">
-            Options
+            {t('options')}
             <OutgoingWebhookTabFilledIndicator
               control={form.control}
               fields={['options']}
@@ -101,9 +115,21 @@ export const OutgoingWebhookConfigForm = ({
                 name="body"
                 render={({ field }) => (
                   <OutgoingWebhookBodyBuilder
+                    bodyMode={bodyMode || 'json'}
                     value={field.value}
                     onChange={field.onChange}
-                    contentType={selectedActionType}
+                    onBodyModeChange={(value) => {
+                      form.setValue('bodyMode', value, { shouldDirty: true });
+
+                      const currentBody = form.getValues('body');
+                      if (value === 'text' && currentBody.trim() === '{}') {
+                        form.setValue('body', '', { shouldDirty: true });
+                      }
+
+                      if (value === 'json' && !currentBody.trim()) {
+                        form.setValue('body', '{}', { shouldDirty: true });
+                      }
+                    }}
                   />
                 )}
               />
@@ -124,7 +150,7 @@ export const OutgoingWebhookConfigForm = ({
       </Tabs>
       <div className="p-2 flex justify-end border-t bg-background">
         <Button onClick={form.handleSubmit(handleSave, handleValidationErrors)}>
-          Save Configuration
+          {t('save-configuration')}
         </Button>
       </div>
     </div>

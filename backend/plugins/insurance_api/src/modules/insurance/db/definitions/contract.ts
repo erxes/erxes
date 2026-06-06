@@ -60,7 +60,7 @@ export const insuranceContractSchema = new Schema(
     },
     paymentStatus: {
       type: String,
-      enum: ['pending', 'paid'],
+      enum: ['pending', 'paid', 'cancelled', 'refunded'],
       default: 'pending',
     },
     contractNumber: {

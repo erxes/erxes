@@ -2,7 +2,7 @@ import { Application } from 'express';
 import * as trpcExpress from '@trpc/server/adapters/express';
 // import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-import { createTRPCContext, TRPCContext } from './utils';
+import { createTRPCContext, TRPCContext } from '../../utils';
 // import {
 //   createTRPCSecurityMiddleware,
 //   createTRPCSecurityLoggingMiddleware,

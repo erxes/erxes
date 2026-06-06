@@ -1,18 +1,6 @@
-// import {
-//     checkPermission,
-//     requireLogin
-//   } from "@erxes/api-utils/src/permissions";
-//   import {
-//     fieldsCombinedByContentType,
-//     getContentTypes
-//   } from "../../../formUtils";
-
 import { IContext } from '~/connectionResolvers';
 import { fieldsCombinedByContentType } from '../../utils';
 
-//   import { fetchServiceForms } from "../../../messageBroker";
-//   import { IContext } from "../../../connectionResolver";
-//   import { getService, getServices } from "@erxes/api-utils/src/serviceDiscovery";
 interface IFieldsDefaultColmns {
   [index: number]: { name: string; label: string; order: number } | {};
 }
@@ -237,12 +225,6 @@ const fieldQueries = {
   },
 };
 
-//   requireLogin(fieldQueries, "fieldsCombinedByContentType");
-//   requireLogin(fieldQueries, "fieldsDefaultColumnsConfig");
-
-//   checkPermission(fieldQueries, "fields", "showForms", []);
-//   checkPermission(fieldQueries, "fieldsGetDetail", "showForms", []);
-
 const fieldsGroupQueries = {
   /**
    * Fields group list
@@ -309,7 +291,5 @@ const fieldsGroupQueries = {
     return models.FieldsGroups.findOne(query);
   },
 };
-
-// checkPermission(fieldsGroupQueries, 'fieldsGroups', 'showForms', []);
 
 export { fieldQueries, fieldsGroupQueries };

@@ -4,8 +4,8 @@ import { IContext } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
 
 const TARGET_ACTIONS = {
-  pos: { module: 'orders', action: 'find', field: 'number' },
-  sales: { module: 'deals', action: 'find', field: 'name' },
+  pos: { module: 'orders', action: 'findOne', field: 'number' },
+  sales: { module: 'deal', action: 'findOne', field: 'name' },
 };
 
 export const fetchTarget = async ({
@@ -23,19 +23,21 @@ export const fetchTarget = async ({
     return '';
   }
 
-  const [target] = await sendTRPCMessage({
+  const response = await sendTRPCMessage({
     subdomain,
     pluginName: 'sales',
     method: 'query',
     module: module,
     action,
     input: {
-      query: { _id: targetId },
+      _id: targetId,
     },
-    defaultValue: [],
+    defaultValue: null,
   });
 
-  return target[field];
+  const target = Array.isArray(response) ? response[0] : response;
+
+  return target?.[field] || '';
 };
 
 export default {

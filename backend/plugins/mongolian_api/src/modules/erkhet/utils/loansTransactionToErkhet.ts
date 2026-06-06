@@ -8,11 +8,10 @@ export const loansTransactionToErkhet = async (
   const erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
 
   if (
-    !erkhetConfig ||
-    !erkhetConfig.apiKey! ||
-    !erkhetConfig.apiSecret ||
-    !erkhetConfig.userEmail ||
-    !erkhetConfig.defaultCustomer
+    !erkhetConfig?.apiKey ||
+    !erkhetConfig?.apiSecret ||
+    !erkhetConfig?.userEmail ||
+    !erkhetConfig?.defaultCustomer
   ) {
     return;
   }
@@ -20,7 +19,7 @@ export const loansTransactionToErkhet = async (
   const ptrs: any[] = [];
 
   generals.forEach((row) => {
-    let work: any[] = [];
+    const work: any[] = [];
 
     row.dtl.forEach((dtl: any) => {
       work.push({

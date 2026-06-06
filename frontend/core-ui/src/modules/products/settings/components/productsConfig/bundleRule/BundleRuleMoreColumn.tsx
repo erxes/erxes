@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { IBundleRule } from './types';
 import { useBundleRulesRemove } from '@/products/settings/hooks/useBundleRulesRemove';
 import { BundleRuleForm } from './BundleRuleForm';
+import { Can } from 'ui-modules';
 
 export const BundleRuleMoreColumn = (
   props: CellContext<IBundleRule, unknown>,
@@ -22,6 +23,7 @@ export const BundleRuleMoreColumn = (
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { removeBundleRules, loading } = useBundleRulesRemove();
+  const confirmOptions = { confirmationValue: 'delete' };
 
   const handleEdit = () => {
     setIsEditOpen(true);
@@ -30,6 +32,7 @@ export const BundleRuleMoreColumn = (
   const handleDelete = () => {
     confirm({
       message: `Are you sure you want to delete "${bundleRule.name}"?`,
+      options: confirmOptions,
     }).then(() => {
       removeBundleRules({
         variables: { _ids: [bundleRule._id] },
@@ -47,9 +50,11 @@ export const BundleRuleMoreColumn = (
   return (
     <>
       <Popover>
-        <Popover.Trigger asChild>
-          <RecordTable.MoreButton className="w-full h-full" />
-        </Popover.Trigger>
+        <Can action="bundleRulesManage">
+          <Popover.Trigger asChild>
+            <RecordTable.MoreButton className="w-full h-full" />
+          </Popover.Trigger>
+        </Can>
         <Combobox.Content>
           <Command shouldFilter={false}>
             <Command.List>

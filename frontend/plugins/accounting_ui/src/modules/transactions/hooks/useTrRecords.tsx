@@ -3,7 +3,7 @@ import {
   EnumCursorDirection,
   IRecordTableCursorPageInfo,
   mergeCursorData,
-  validateFetchMore
+  validateFetchMore,
 } from 'erxes-ui';
 import { TR_RECORDS_QUERY } from '../graphql/transactionQueries';
 import { ACC_TRS__PER_PAGE } from '../types/constants';
@@ -22,11 +22,15 @@ export const useTrRecords = (options?: OperationVariables) => {
     ...options,
     variables: {
       ...options?.variables,
-      ...variables
+      ...variables,
     },
   });
 
-  const { list: trRecords, totalCount, pageInfo } = data?.accTrRecordsMain || {};
+  const {
+    list: trRecords,
+    totalCount,
+    pageInfo,
+  } = data?.accTrRecordsMain || {};
 
   const handleFetchMore = ({
     direction,

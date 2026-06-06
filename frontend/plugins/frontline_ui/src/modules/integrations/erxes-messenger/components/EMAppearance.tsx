@@ -1,4 +1,4 @@
-import { Button, ColorPicker, Form, Upload } from 'erxes-ui';
+import { Button, ColorPicker, Form, ToggleGroup, Upload } from 'erxes-ui';
 import {
   erxesMessengerSetupAppearanceAtom,
   erxesMessengerSetupStepAtom,
@@ -20,9 +20,10 @@ export const EMAppearance = () => {
     resolver: zodResolver(EMAPPEARANCE_SCHEMA),
     defaultValues: {
       primary: {
-        DEFAULT: '#000',
+        DEFAULT: '#5048e5',
         foreground: '#fff',
       },
+      navigationVariant: 'pill',
     },
   });
 
@@ -102,9 +103,38 @@ export const EMAppearance = () => {
                       }}
                     >
                       <Upload.Preview />
+                      <Upload.RemoveButton
+                        size="sm"
+                        variant="outline"
+                        type="button"
+                      />
                     </Upload.Root>
                   </Form.Control>
                   <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              name="navigationVariant"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Navigation bar type</Form.Label>
+                  <Form.Control>
+                    <ToggleGroup
+                      type="single"
+                      variant={'outline'}
+                      value={field.value}
+                      className='max-w-32'
+                      onValueChange={field.onChange}
+                    >
+                      <ToggleGroup.Item className="flex-auto" value="pill">
+                        Pill
+                      </ToggleGroup.Item>
+                      <ToggleGroup.Item className="flex-auto" value="fluid">
+                        Fluid
+                      </ToggleGroup.Item>
+                    </ToggleGroup>
+                  </Form.Control>
                 </Form.Item>
               )}
             />

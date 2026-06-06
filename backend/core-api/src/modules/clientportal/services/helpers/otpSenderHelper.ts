@@ -1,11 +1,11 @@
-import { IModels } from '~/connectionResolvers';
+import { notificationService } from '@/clientportal/services/notification';
 import { IClientPortalDocument } from '@/clientportal/types/clientPortal';
 import { ICPUserDocument } from '@/clientportal/types/cpUser';
-import { setActionCode, type ActionCodeType } from './actionCodeHelper';
-import { getOTPConfig } from './otpConfigHelper';
+import { IModels } from '~/connectionResolvers';
+
+import { setActionCode, type ActionCodeType, type SetActionCodeOptions } from './actionCodeHelper';
 import { generateVerificationCode } from './codeGenerator';
-import { notificationService } from '@/clientportal/services/notification';
-import type { SetActionCodeOptions } from './actionCodeHelper';
+import { getOTPConfig } from './otpConfigHelper';
 
 type OTPContext = 'registration' | 'login' | 'passwordReset';
 

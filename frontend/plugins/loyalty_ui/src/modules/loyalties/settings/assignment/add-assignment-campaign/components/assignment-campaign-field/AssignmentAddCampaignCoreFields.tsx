@@ -1,9 +1,9 @@
 import { Form, Input } from 'erxes-ui';
 import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { SelectSegment } from 'ui-modules';
 import { SelectVoucherCampaign } from '../../../components/selects/SelectVoucherCampaign';
 import { AssignmentFormValues } from '../../../constants/assignmentFormSchema';
+import { SelectSegment } from '../selects/SelectSegment';
 
 interface AssignmentAddCampaignCoreFieldsProps {
   form: UseFormReturn<AssignmentFormValues>;
@@ -34,12 +34,11 @@ export const AssignmentAddCampaignCoreFields: React.FC<
         render={({ field }) => (
           <Form.Item>
             <Form.Label>SEGMENT</Form.Label>
-            <Form.Control>
-              <SelectSegment
-                selected={field.value?.[0] || undefined}
-                onSelect={(id) => field.onChange(id)}
-              />
-            </Form.Control>
+            <SelectSegment
+              value={field.value?.[0] || ''}
+              onValueChange={(id) => field.onChange(id ? [id] : [])}
+              contentTypes={['core:customer', 'core:lead']}
+            />
           </Form.Item>
         )}
       />

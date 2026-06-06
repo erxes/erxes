@@ -43,11 +43,12 @@ export const EditLotteryTabs = ({ onOpenChange, form, lotteryId }: Props) => {
       startDate: formatDate(data.startDate),
       endDate: formatDate(data.endDate),
       buyScore: data.buyScore,
+      numberFormat: data.numberFormat || '',
 
       awards: data.awards?.map((award) => ({
         name: award.name,
         voucherCampaignId: award.voucherCampaignId,
-        probablity: award.probablity,
+        count: award.count,
       })),
     };
 

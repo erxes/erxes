@@ -52,15 +52,17 @@ const queries = `
   automationsMain(${listParams}): AutomationsListResponse
   automations(${queryParams}): [Automation]
   automationDetail(_id: String!): Automation
+  cpAutomationDetail(_id: String!): Automation
   automationNotes(automationId: String!, triggerId: String, actionId: String): [AutomationNote]
   automationHistories(${GQL_CURSOR_PARAM_DEFS},${historiesParams}): AutomationHistories
   automationHistoriesTotalCount(${historiesParams}):Int
   automationsTotalCount(status: String): automationsTotalCountResponse
   automationConstants: JSON
+  automationNodeOutput(nodeType: String!): JSON
   automationBotsConstants:JSON
   automationsAiAgents(kind:String):JSON
-  automationsAiAgentDetail:JSON
-  getTrainingStatus(agentId: String!): TrainingProgress!
+  automationsAiAgentDetail(_id:String):JSON
+  automationsAiAgentHealth(agentId: String!): AiAgentHealth!
   getAutomationWebhookEndpoint(_id:String!,waitEventActionId:String):String
   getAutomationExecutionDetail(executionId: String!): AutomationHistory
   automationEmailTemplates(${emailTemplateParams}): AutomationEmailTemplatesListResponse

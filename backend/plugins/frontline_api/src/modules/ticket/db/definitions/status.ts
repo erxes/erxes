@@ -5,11 +5,23 @@ export const statusSchema = new Schema(
   {
     _id: mongooseStringRandomId,
     name: { type: String, required: true },
-    description: { type: String, label: 'Description' },
-    pipelineId: { type: String, required: true },
-    color: { type: String, label: 'Color', default: '#4F46E5' },
-    type: { type: Number, label: 'Type', required: true },
-    order: { type: Number, label: 'Order', required: true },
+    description: { type: String },
+
+    pipelineId: { type: String, required: true, index: true },
+
+    color: { type: String, default: '#4F46E5' },
+
+    type: { type: Number, required: true },
+    order: { type: Number, required: true },
+
+    visibilityType: { type: String },
+    memberIds: [{ type: String }],
+    canMoveMemberIds: [{ type: String }],
+    canEditMemberIds: [{ type: String }],
+    departmentIds: [{ type: String }],
+
+    state: { type: String },
+    probability: { type: Number },
   },
   {
     timestamps: true,

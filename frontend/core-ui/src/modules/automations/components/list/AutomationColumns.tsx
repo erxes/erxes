@@ -13,16 +13,11 @@ import {
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
-  Badge,
-  cn,
   Input,
-  Label,
-  Popover,
   PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  Switch,
   DropdownMenu,
   Button,
   useConfirm,
@@ -33,6 +28,7 @@ import { AutomationRecordTableUserInlineCell } from '@/automations/components/li
 import { AutomationRecordTableStatusInlineCell } from '@/automations/components/list/AutomationRecordTableStatusInlineCell';
 import { useState } from 'react';
 import { useRemoveAutomations } from '@/automations/hooks/useRemoveAutomations';
+import { useTranslation } from 'react-i18next';
 
 const checkBoxColumn =
   RecordTable.checkboxColumn as ColumnDef<TAutomationRecordTableColumnDefData>;
@@ -46,6 +42,7 @@ export const getAutomationColumns: (
       const navigate = useNavigate();
       const { confirm } = useConfirm();
       const { removeAutomations, loading } = useRemoveAutomations();
+      const { t } = useTranslation('automations');
       const { toast } = useToast();
 
       const onRemove = () => {
@@ -90,7 +87,7 @@ export const getAutomationColumns: (
                 }
               >
                 <IconEdit className="size-4" />
-                Edit
+                {t('edit')}
               </Button>
             </DropdownMenu.Item>
             <DropdownMenu.Item asChild>
@@ -101,7 +98,7 @@ export const getAutomationColumns: (
                 onClick={() => onRemove()}
               >
                 <IconTrash className="size-4" />
-                Delete
+                {t('delete')}
               </Button>
             </DropdownMenu.Item>
           </DropdownMenu.Content>

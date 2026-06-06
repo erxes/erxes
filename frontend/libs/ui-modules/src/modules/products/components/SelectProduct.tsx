@@ -79,7 +79,8 @@ const SelectProductProvider = ({
 };
 
 const SelectProductContent = () => {
-  const { productIds, products, defaultSearchValue } = useSelectProductContext();
+  const { productIds, products, defaultSearchValue } =
+    useSelectProductContext();
   const [search, setSearch] = useState(defaultSearchValue ?? '');
   const [debouncedSearch] = useDebounce(search, 500);
   const {
@@ -148,9 +149,11 @@ const SelectProductCommandItem = ({ product }: { product: IProduct }) => {
 
 const SelectProductInlineCell = ({
   onValueChange,
+  placeholder,
   scope,
   ...props
 }: Omit<React.ComponentProps<typeof SelectProductProvider>, 'children'> & {
+  placeholder?: string;
   scope?: string;
 }) => {
   const [open, setOpen] = useState(false);
@@ -164,7 +167,7 @@ const SelectProductInlineCell = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <RecordTableInlineCell.Trigger>
-          <SelectProductValue />
+          <SelectProductValue placeholder={placeholder} />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content>
           <SelectProductContent />
@@ -183,7 +186,16 @@ const SelectProductRoot = React.forwardRef<
     }
 >(
   (
-    { onValueChange, className, mode, value, placeholder, scope, defaultSearchValue, ...props },
+    {
+      onValueChange,
+      className,
+      mode,
+      value,
+      placeholder,
+      scope,
+      defaultSearchValue,
+      ...props
+    },
     ref,
   ) => {
     const [open, setOpen] = useState(false);
@@ -202,12 +214,12 @@ const SelectProductRoot = React.forwardRef<
       >
         <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
           <Combobox.Trigger
-            className={cn('w-full inline-flex', className)}
+            className={cn('inline-flex w-full', className)}
             variant="outline"
             ref={ref}
             {...props}
           >
-            <SelectProductValue />
+            <SelectProductValue placeholder={placeholder} />
           </Combobox.Trigger>
           <Combobox.Content>
             <SelectProductContent />
@@ -222,7 +234,7 @@ const SelectProductValue = ({ placeholder }: { placeholder?: string }) => {
   const { productIds, products, setProducts } = useSelectProductContext();
 
   if (productIds.length === 0) {
-    return null;
+    return <Combobox.Value placeholder={placeholder || 'Select Products'} />;
   }
 
   return (

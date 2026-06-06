@@ -31,9 +31,20 @@ const queries: Record<string, Resolver> = {
     return { list, totalCount, pageInfo };
   },
 
-  cmsCustomFieldGroups: async (_parent: any, args: any, context: IContext) => {
+  cmsCustomFieldGroups: async (
+    _parent: any,
+    args: any,
+    context: IContext,
+  ): Promise<any> => {
     const { models } = context;
-    const { clientPortalId, searchValue, pageId, categoryId } = args;
+    const {
+      clientPortalId,
+      searchValue,
+      pageId,
+      categoryId,
+      postType,
+      postId,
+    } = args;
 
     const query: any = {
       clientPortalId,
@@ -46,8 +57,8 @@ const queries: Record<string, Resolver> = {
       ];
     }
 
-    if (args.postType) {
-      query.customPostTypeIds = args.postType;
+    if (postType) {
+      query.customPostTypeIds = postType;
     }
 
     if (pageId) {
@@ -56,6 +67,10 @@ const queries: Record<string, Resolver> = {
 
     if (categoryId) {
       query.enabledCategoryIds = categoryId;
+    }
+
+    if (postId) {
+      query.enabledPostIds = postId;
     }
 
     const { list, totalCount, pageInfo } = await cursorPaginate({
@@ -178,7 +193,7 @@ const queries: Record<string, Resolver> = {
     context: IContext,
   ): Promise<any> => {
     const { models, clientPortal } = context;
-    const { searchValue, postType, pageId, categoryId } = args;
+    const { searchValue, postType, pageId, categoryId, postId } = args;
 
     const query: any = {
       clientPortalId: clientPortal._id,
@@ -192,7 +207,7 @@ const queries: Record<string, Resolver> = {
       ];
     }
 
-    if (args.postType) {
+    if (postType) {
       query.customPostTypeIds = postType;
     }
 
@@ -202,6 +217,10 @@ const queries: Record<string, Resolver> = {
 
     if (categoryId) {
       query.enabledCategoryIds = categoryId;
+    }
+
+    if (postId) {
+      query.enabledPostIds = postId;
     }
 
     return models.CustomFieldGroups.find(query);

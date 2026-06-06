@@ -1,9 +1,11 @@
 import { channelQueries } from '@/channel/graphql/resolvers/queries/channel';
 import { conversationQueries } from '@/inbox/graphql/resolvers/queries/conversations';
 import { integrationQueries } from '@/inbox/graphql/resolvers/queries/integrations';
+import { cpInboxQueries } from '@/inbox/graphql/resolvers/queries/clientPortal';
 import { widgetQueries } from '@/inbox/graphql/resolvers/queries/widget';
 import callQueries from '@/integrations/call/graphql/resolvers/queries';
 import { facebookQueries } from '@/integrations/facebook/graphql/resolvers/queries';
+import { instagramQueries } from '@/integrations/instagram/graphql/resolvers/queries';
 import { imapQueries } from '@/integrations/imap/graphql/resolvers/queries';
 import { knowledgeBaseQueries } from '@/knowledgebase/graphql/resolvers/queries/knowledgeBaseQueries';
 import { reportInboxQueries } from '@/reports/graphql/resolvers/inboxQueries';
@@ -17,7 +19,9 @@ export const queries = {
   ...channelQueries,
   ...conversationQueries,
   ...integrationQueries,
+  ...cpInboxQueries,
   ...facebookQueries,
+  ...instagramQueries,
   ...callQueries,
   ...imapQueries,
   ...ticketQueries,

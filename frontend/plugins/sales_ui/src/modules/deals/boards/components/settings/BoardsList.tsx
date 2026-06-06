@@ -39,12 +39,11 @@ export const BoardsList = () => {
         </div>
         <Sidebar.GroupContent>
           <Sidebar.Menu>
-            {boards &&
-              boards.map((board) => (
-                <Sidebar.MenuItem key={board._id}>
-                  <BoardMenuItem board={board} />
-                </Sidebar.MenuItem>
-              ))}
+            {boards?.map((board) => (
+              <Sidebar.MenuItem key={board._id}>
+                <BoardMenuItem board={board} />
+              </Sidebar.MenuItem>
+            ))}
             {loading &&
               Array.from({ length: 10 }).map((_, index) => (
                 <Sidebar.MenuItem key={index}>

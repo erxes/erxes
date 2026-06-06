@@ -3,10 +3,15 @@ import { useRecordTableCursor, useToast } from 'erxes-ui';
 import { QUERY_SPIN_CAMPAIGNS } from '../add-spin-campaign/graphql/queries/getCampaignsQuery';
 import { SPINS_CURSOR_SESSION_KEY } from '../constants/spinsCursorSessionKey';
 import { CREATE_SPIN_CAMPAIGN } from '../graphql/mutations/SpinMutations';
+import { ISpin } from '../types/spinTypes';
 import { SPINS_PER_PAGE } from './useSpins';
 
+interface SpinCampaignsQueryData {
+  spinCampaigns: { list: ISpin[]; totalCount: number };
+}
+
 export interface AddSpinResult {
-  spinCampaignsAdd: any;
+  spinCampaignsAdd: ISpin;
 }
 
 export interface AddSpinVariables {
@@ -20,7 +25,7 @@ export interface AddSpinVariables {
   awards?: Array<{
     name?: string;
     voucherCampaignId?: string;
-    probablity?: string;
+    probability?: number;
   }>;
 }
 
@@ -47,7 +52,7 @@ export const useAddSpin = () => {
           return;
         }
 
-        const existingData: any = cache.readQuery({
+        const existingData = cache.readQuery<SpinCampaignsQueryData>({
           query: QUERY_SPIN_CAMPAIGNS,
           variables: {
             limit: SPINS_PER_PAGE,

@@ -30,6 +30,8 @@ export interface SuggestionConfig {
 // Dynamic enabling config
 export interface EnabledSuggestions extends Partial<Record<string, boolean>> {}
 
+export interface DisabledSuggestions extends Partial<Record<string, boolean>> {}
+
 type CustomRendererProps = {
   searchValue: string;
   onSelect: (value: string) => void;
@@ -53,6 +55,7 @@ export type PlaceholderInputProps = {
   // Dynamic enablement API (preferred)
   variant?: 'fixed' | 'expression';
   enabled?: EnabledSuggestions;
+  disabled?: DisabledSuggestions;
   suggestionGroups?: string[];
   suggestionsOptions?: Partial<Record<string, SuggestionsOption>>;
   enableAll?: boolean;
@@ -80,6 +83,7 @@ export type PlaceholderInputProps = {
 export type UsePlaceHolderInputProps = {
   // New dynamic configuration: supply explicit per-type enables
   enabled?: EnabledSuggestions;
+  disabled?: DisabledSuggestions;
   // Optional suggestionGroups to toggle in bulk: e.g., ['common'], ['calls'], ['all']
   suggestionGroups?: string[];
   // Backward-compat toggles; prefer using `enabled` or `suggestionGroups`

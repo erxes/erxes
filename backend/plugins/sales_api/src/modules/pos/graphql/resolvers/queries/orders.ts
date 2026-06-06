@@ -69,11 +69,8 @@ const generateFilterPosQuery = async (models, params, currentUserId) => {
         : customerType;
   }
 
-  if (
-    (statuses && statuses.length) ||
-    (excludeStatuses && excludeStatuses.length)
-  ) {
-    const _in = statuses && statuses.length ? { $in: statuses || [] } : {};
+  if (statuses?.length || excludeStatuses?.length) {
+    const _in = statuses?.length ? { $in: statuses || [] } : {};
     query.status = { ..._in, $nin: excludeStatuses || [] };
   }
 
@@ -127,7 +124,7 @@ const generateFilterPosQuery = async (models, params, currentUserId) => {
     query.createdAt = createdQry;
   }
 
-  if (types && types.length) {
+  if (types?.length) {
     query.type = { $in: types };
   }
 
@@ -165,10 +162,12 @@ const generateFilterSubsQuery = async (params: any) => {
   }
 
   if (params?.closeFrom) {
+    if (!filter.items) filter.items = {};
     filter.items.closeDate = { $gte: new Date(params.closeFrom) };
   }
 
   if (params?.closeTo) {
+    if (!filter.items) filter.items = {};
     filter.items.closeDate = {
       ...(filter?.items?.closeDate || {}),
       $lte: new Date(params.closeTo),
@@ -351,7 +350,7 @@ export const posOrderRecordsQuery = async (
         )
       : '';
     order.user = userById[order.userId];
-    order.posName = posByToken[order.posToken].name;
+    order.posName = posByToken[order.posToken]?.name || '';
 
     if (order.customerType === 'company') {
       const company = companyById[order.customerId || ''];
@@ -373,7 +372,7 @@ export const posOrderRecordsQuery = async (
         order.customer = {
           _id: user._id,
           code: user.code,
-          primaryPhone: (user.details && user.details.operatorPhone) || '',
+          primaryPhone: user.details?.operatorPhone || '',
           firstName: `${user.firstName || ''} ${user.lastName || ''}`,
           primaryEmail: user.email,
           lastName: user.username,
@@ -417,10 +416,15 @@ export const posOrderRecordsCountQuery = async (
 };
 
 const queries = {
-  posOrders: async (_root, params, { models, user }: IContext) => {
+  posOrders: async (
+    _root,
+    params,
+    { models, user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
     const query = await generateFilterPosQuery(models, params, user._id);
 
-    let sort: any = { number: 1 };
+    let sort: any = { number: -1 };
     if (params.sortField && params.sortDirection) {
       sort = {
         [params.sortField]: params.sortDirection,
@@ -433,12 +437,22 @@ const queries = {
     });
   },
 
-  posOrdersTotalCount: async (_root, params, { models, user }: IContext) => {
+  posOrdersTotalCount: async (
+    _root,
+    params,
+    { models, user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
     const query = await generateFilterPosQuery(models, params, user._id);
     return models.PosOrders.find(query).countDocuments();
   },
 
-  posOrderDetail: async (_root, { _id }, { models, subdomain }: IContext) => {
+  posOrderDetail: async (
+    _root,
+    { _id },
+    { models, subdomain, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
     const order = await models.PosOrders.findOne({ _id }).lean();
     if (!order) {
       throw new Error(`PosOrder ${_id} not found`);
@@ -447,7 +461,6 @@ const queries = {
 
     const products = await sendTRPCMessage({
       subdomain,
-
       method: 'query',
       pluginName: 'core',
       module: 'products',
@@ -469,13 +482,56 @@ const queries = {
     const orderDetail = order as any;
 
     for (const item of orderDetail.items || []) {
-      item.productName = (productById[item.productId] || {}).name || 'unknown';
+      item.productName = productById[item.productId]?.name || 'unknown';
     }
 
     return orderDetail;
   },
 
-  posOrdersSummary: async (_root, params, { models, user }: IContext) => {
+  posOrderLink: async (
+    _root,
+    { _id },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
+
+    if (!_id) {
+      return null;
+    }
+
+    const order = await models.PosOrders.findOne({ _id }).lean();
+
+    if (!order) {
+      return null;
+    }
+
+    const pos = order.posToken
+      ? await models.Pos.findOne({ token: order.posToken }).select('_id').lean()
+      : null;
+    const posId = order.posId || pos?._id;
+
+    if (!posId || !order.number) {
+      return null;
+    }
+
+    return {
+      contentType: 'sales:order',
+      contentId: order._id,
+      orderId: order._id,
+      posId,
+      number: order.number,
+      href: `/sales/pos/${posId}/orders?number=${encodeURIComponent(
+        order.number,
+      )}`,
+    };
+  },
+
+  posOrdersSummary: async (
+    _root,
+    params,
+    { models, user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
     const query = await generateFilterPosQuery(models, params, user._id);
 
     const res = await models.PosOrders.aggregate([
@@ -554,7 +610,12 @@ const queries = {
     return ordersAmount;
   },
 
-  posOrdersGroupSummary: async (_root, params, { models, user }: IContext) => {
+  posOrdersGroupSummary: async (
+    _root,
+    params,
+    { models, user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
     const query = await generateFilterPosQuery(
       models,
       params,
@@ -682,93 +743,94 @@ const queries = {
     return { amounts, columns };
   },
 
-  posProducts: async (_root, params, { models, user, subdomain }: IContext) => {
+  posProducts: async (
+    _root,
+    params,
+    { models, user, subdomain, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
     const orderQuery = await generateFilterPosQuery(models, params, user._id);
-    const query: any = {};
 
+    const page = Math.max(1, Number(params.page) || 1);
+    const limit = Math.max(1, Number(params.perPage) || 20);
+    const skip = (page - 1) * limit;
+
+    const productQuery: any = {};
+
+    // ✅ Category filter
     if (params.categoryId) {
       const category = await sendTRPCMessage({
         subdomain,
-
         method: 'query',
         pluginName: 'core',
         module: 'productCategories',
         action: 'findOne',
         input: {
-          _id: params.categoryId,
-          status: { $in: [null, 'active'] },
+          query: {
+            _id: params.categoryId,
+            status: { $in: [null, 'active'] },
+          },
         },
         defaultValue: {},
       });
 
+      if (!category?.order) {
+        return {
+          totalCount: 0,
+          products: [],
+        };
+      }
+
       const productCategories = await sendTRPCMessage({
         subdomain,
-
         method: 'query',
         pluginName: 'core',
         module: 'productCategories',
         action: 'find',
         input: {
+          query: {},
           regData: category.order,
         },
         defaultValue: [],
       });
 
-      const product_category_ids = productCategories.map((p) => p._id);
-
-      query.categoryId = { $in: product_category_ids };
+      productQuery.categoryId = {
+        $in: productCategories.map((p) => p._id),
+      };
     }
 
+    // ✅ Search filter
     if (params.searchValue) {
-      const fields = [
+      productQuery.$or = [
         {
           name: {
-            $in: [new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, 'i')],
+            $regex: new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, 'i'),
           },
         },
         {
           code: {
-            $in: [new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, 'i')],
+            $regex: new RegExp(`.*${escapeRegExp(params.searchValue)}.*`, 'i'),
           },
         },
       ];
-
-      query.$or = fields;
     }
-    const limit = params.perPage || 20;
-    const skip = params.page ? (params.page - 1) * limit : 0;
 
-    const products = await sendTRPCMessage({
+    // ❗ STEP 1: get ALL matching products (no pagination yet)
+    const allProducts = await sendTRPCMessage({
       subdomain,
-
       method: 'query',
       pluginName: 'core',
       module: 'products',
       action: 'find',
       input: {
-        query,
+        query: productQuery,
         sort: {},
-        skip,
-        limit,
       },
     });
 
-    const totalCount = await sendTRPCMessage({
-      subdomain,
+    const productIds = allProducts.map((p) => p._id);
 
-      method: 'query',
-      pluginName: 'core',
-      module: 'products',
-      action: 'count',
-      input: {
-        query,
-      },
-    });
-
-    const productIds = products.map((p) => p._id);
-
-    query['items.productId'] = { $in: productIds };
-
+    // ❗ STEP 2: aggregate ALL stats first
     const items = await models.PosOrders.aggregate([
       { $match: orderQuery },
       { $unwind: '$items' },
@@ -790,49 +852,72 @@ const queries = {
       },
     ]);
 
-    const diffZone = process.env.TIMEZONE;
+    const diffZone = Number(process.env.TIMEZONE || 0);
 
-    for (const product of products) {
-      product.counts = {};
-      product.count = 0;
-      product.amount = 0;
-
-      const itemsByProduct =
+    // ❗ STEP 3: build enriched products
+    const enrichedProducts = allProducts.map((product) => {
+      const productItems =
         items.filter((i) => i._id.productId === product._id) || [];
 
-      for (const item of itemsByProduct) {
-        const { _id, count, amount } = item;
-        const { hour } = _id;
+      const counts: any = {};
+      let totalCount = 0;
+      let totalAmount = 0;
 
-        const pureHour = Number(hour) + Number(diffZone || 0);
-
-        product.counts[pureHour] = count;
-        product.count += count;
-        product.amount += amount;
+      for (const item of productItems) {
+        const hour = Number(item._id.hour) + diffZone;
+        counts[hour] = item.count;
+        totalCount += item.count;
+        totalAmount += item.amount;
       }
-    }
+
+      return {
+        ...product,
+        counts,
+        count: totalCount,
+        amount: totalAmount,
+      };
+    });
+
+    // ❗ STEP 4: filter BEFORE pagination (IMPORTANT FIX)
+    const filteredProducts = enrichedProducts.filter(
+      (p) => !(p.status === 'deleted' && !p.count && !p.amount),
+    );
+
+    const totalCount = filteredProducts.length;
+
+    // ❗ STEP 5: apply pagination LAST (correct place)
+    const paginatedProducts = filteredProducts.slice(skip, skip + limit);
 
     return {
       totalCount,
-      products: products.filter(
-        (p) => !(p.status === 'deleted' && !p.count && !p.amount),
-      ),
+      products: paginatedProducts,
     };
   },
 
   posOrderRecords: async (
     _root,
     params,
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('posOrderRead');
     return posOrderRecordsQuery(models, subdomain, params, user);
   },
 
-  posOrderRecordsCount: async (_root, params, { models, user }: IContext) => {
+  posOrderRecordsCount: async (
+    _root,
+    params,
+    { models, user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
     return posOrderRecordsCountQuery(models, params, user);
   },
 
-  posOrderCustomers: async (_root, params, { models }: IContext) => {
+  posOrderCustomers: async (
+    _root,
+    params,
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
     return paginate(
       models.PosOrders.aggregate([
         {
@@ -864,8 +949,9 @@ const queries = {
   posOrderCustomersTotalCount: async (
     _root,
     params,
-    { subdomain, models }: IContext,
+    { subdomain, models, checkPermission }: IContext,
   ) => {
+    await checkPermission('posOrderRead');
     const [{ totalDocuments }] = await models.PosOrders.aggregate([
       {
         $group: {
@@ -885,8 +971,9 @@ const queries = {
   async checkSubscription(
     _root,
     { customerId, productId, productIds },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('posOrderRead');
     const filter: any = {
       customerId,
       'items.productId': productId,
@@ -912,8 +999,9 @@ const queries = {
   async posOrderBySubscriptions(
     _root,
     { page, perPage, ...params },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('posOrderRead');
     const filter = await generateFilterSubsQuery(params);
 
     const _page = Number(page || '1');
@@ -953,7 +1041,12 @@ const queries = {
       .limit(_limit);
   },
 
-  async posOrderBySubscriptionsTotalCount(_root, params, { models }: IContext) {
+  async posOrderBySubscriptionsTotalCount(
+    _root,
+    params,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('posOrderRead');
     const filter = await generateFilterSubsQuery(params);
 
     const [result] = await models.PosOrders.aggregate([
@@ -973,15 +1066,5 @@ const queries = {
     return result?.totalCount || 0;
   },
 };
-
-// checkPermission(queries, "posOrders", "showOrders");
-// checkPermission(queries, "posOrdersTotalCount", "showOrders");
-// checkPermission(queries, "posOrderDetail", "showOrders");
-// checkPermission(queries, "posOrdersSummary", "showOrders");
-// checkPermission(queries, "posOrdersGroupSummary", "showOrders");
-// checkPermission(queries, "posProducts", "showOrders");
-// checkPermission(queries, "posOrderRecords", "showOrders");
-// checkPermission(queries, "posOrderRecordsCount", "showOrders");
-// checkPermission(queries, 'posOrderCustomers', 'showOrders');
 
 export default queries;

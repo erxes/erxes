@@ -42,7 +42,7 @@ export const ProductsPage = () => {
   const handleDelete = useCallback(
     async (product: InsuranceProduct) => {
       if (
-        window.confirm(`Are you sure you want to delete "${product.name}"?`)
+        globalThis.confirm(`Are you sure you want to delete "${product.name}"?`)
       ) {
         try {
           await deleteInsuranceProduct({

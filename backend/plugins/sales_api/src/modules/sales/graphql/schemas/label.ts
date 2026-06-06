@@ -12,6 +12,8 @@ export const types = `
 export const queries = `
   salesPipelineLabels(pipelineId: String, pipelineIds: [String]): [SalesPipelineLabel]
   salesPipelineLabelDetail(_id: String!): SalesPipelineLabel
+
+  cpSalesPipelineLabels(pipelineId: String, pipelineIds: [String]): [SalesPipelineLabel]
 `;
 
 const mutationParams = `
@@ -25,4 +27,6 @@ export const mutations = `
   salesPipelineLabelsEdit(_id: String!, ${mutationParams}): SalesPipelineLabel
   salesPipelineLabelsRemove(_id: String!): JSON
   salesPipelineLabelsLabel(targetId: String!, labelIds: [String!]!): String
+
+  cpSalesPipelineLabelsAdd(${mutationParams}): SalesPipelineLabel
 `;

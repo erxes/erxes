@@ -60,9 +60,12 @@ export const loadProductClass = (models) => {
     }
 
     public static async isUsed(_id: string) {
-      const count = await models.OrderItems.countDocuments({ productId: _id });
+      const exists = await models.OrderItems.findOne(
+        { productId: _id },
+        { _id: 1 },
+      ).lean();
 
-      return count > 0;
+      return !!exists;
     }
   } // end Product class
 

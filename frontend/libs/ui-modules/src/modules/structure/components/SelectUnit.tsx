@@ -357,10 +357,10 @@ export const SelectUnitFilterBar = () => {
         Unit
       </Filter.BarName>
       <SelectUnitProvider
-        value={query as string}
+        value={query}
         onValueChange={(value) => {
           if (value) {
-            setQuery(value as string);
+            setQuery(value);
           } else {
             setQuery(null);
           }

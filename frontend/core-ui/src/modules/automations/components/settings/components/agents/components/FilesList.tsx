@@ -1,114 +1,188 @@
-import { Button, Card } from 'erxes-ui';
-
-interface UploadedFile {
-  id: string;
-  name: string;
-  size: number;
-  type: string;
-  uploadedAt: string;
-}
+import {
+  IconFileText,
+  IconHistory,
+  IconMarkdown,
+  IconRefresh,
+  IconTrash,
+  IconTxt,
+} from '@tabler/icons-react';
+import {
+  formatContextFileSize,
+  formatContextFileUploadedAt,
+  getContextFileVersionCount,
+  TAiAgentContextFile,
+} from '@/automations/components/settings/components/agents/utils/contextFiles';
+import { Badge, Button, cn, Tooltip } from 'erxes-ui';
 
 interface FileGridProps {
-  files: UploadedFile[];
+  files: TAiAgentContextFile[];
   onFileDelete: (fileId: string) => void;
+  onFileClick?: (fileId: string) => void;
+  onFileReindex?: (fileId: string) => void;
+  reindexingFileId?: string | null;
 }
 
-export function FileGrid({ files = [], onFileDelete }: FileGridProps) {
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return (
-      Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
-    );
+export function FileGrid({
+  files = [],
+  onFileDelete,
+  onFileClick,
+  onFileReindex,
+  reindexingFileId,
+}: FileGridProps) {
+  const getFileIcon = (file: TAiAgentContextFile) => {
+    const name = file.name.toLowerCase();
+    const type = file.type || '';
+
+    if (name.endsWith('.md') || name.endsWith('.markdown')) {
+      return <IconMarkdown className="size-5 text-primary" />;
+    }
+
+    if (type.includes('text') || name.endsWith('.txt')) {
+      return <IconTxt className="size-5 text-info" />;
+    }
+
+    return <IconFileText className="size-5 text-muted-foreground" />;
   };
 
-  const getFileIcon = (type: string) => {
-    if (type.includes('pdf')) {
-      return (
-        <svg
-          className="w-8 h-8 text-red-500"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
-        </svg>
-      );
+  const getStatusVariant = (status?: TAiAgentContextFile['status']) => {
+    if (status === 'indexed') {
+      return 'success';
     }
-    if (type.includes('text') || type.includes('txt')) {
-      return (
-        <svg
-          className="w-8 h-8 text-blue-500"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
-        </svg>
-      );
+
+    if (status === 'failed') {
+      return 'destructive';
     }
-    if (type.includes('json')) {
-      return (
-        <svg
-          className="w-8 h-8 text-yellow-500"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path d="M5,3H7V5H5V10A2,2 0 0,1 3,12A2,2 0 0,1 5,14V19H7V21H5C3.93,20.73 3,20.1 3,19V15A2,2 0 0,0 1,13H0V11H1A2,2 0 0,0 3,9V5C3,3.9 3.9,3 5,3M19,3A2,2 0 0,1 21,5V9A2,2 0 0,0 23,11H24V13H23A2,2 0 0,0 21,15V19A2,2 0 0,1 19,21H17V19H19V14A2,2 0 0,1 21,12A2,2 0 0,1 19,10V5H17V3H19Z" />
-        </svg>
-      );
+
+    if (status === 'indexing') {
+      return 'warning';
     }
-    return (
-      <svg
-        className="w-8 h-8 text-gray-500"
-        fill="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
-      </svg>
-    );
+
+    return 'secondary';
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-h-96 overflow-auto p-2 ">
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
       {files.map((file) => (
-        <Card key={file.id} className="p-4 hover:shadow-md transition-shadow">
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex-shrink-0">{getFileIcon(file.type)}</div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onFileDelete(file.id)}
-              className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </Button>
-          </div>
+        <div
+          key={file.id}
+          role={onFileClick ? 'button' : undefined}
+          tabIndex={onFileClick ? 0 : undefined}
+          onClick={(event) => {
+            if (!onFileClick) {
+              return;
+            }
 
-          <div className="space-y-1">
-            <h4 className="font-medium text-sm truncate" title={file.name}>
-              {file.name}
-            </h4>
-            <p className="text-xs text-muted-foreground">
-              {formatFileSize(file.size)}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {new Date(file.uploadedAt).toLocaleDateString()}
-            </p>
+            event.stopPropagation();
+            onFileClick(file.id);
+          }}
+          onKeyDown={(event) => {
+            if (!onFileClick) {
+              return;
+            }
+
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              event.stopPropagation();
+              onFileClick(file.id);
+            }
+          }}
+          className={cn(
+            'rounded-xl border bg-background/95 px-4 py-3 shadow-xs transition-colors',
+            'hover:border-border hover:bg-accent/20',
+            onFileClick &&
+              'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+          )}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 items-start gap-3">
+              <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted/70">
+                {getFileIcon(file)}
+              </div>
+              <div className="min-w-0 space-y-1">
+                <p className="truncate text-sm font-medium" title={file.name}>
+                  {file.name}
+                </p>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  <span>{formatContextFileSize(file.size)}</span>
+                  {formatContextFileUploadedAt(file.uploadedAt) && (
+                    <span>
+                      Added {formatContextFileUploadedAt(file.uploadedAt)}
+                    </span>
+                  )}
+                  {getContextFileVersionCount(file) > 0 && (
+                    <span className="inline-flex items-center gap-1">
+                      <IconHistory className="size-3.5" />
+                      {getContextFileVersionCount(file)} previous
+                    </span>
+                  )}
+                  {typeof file.chunkCount === 'number' && (
+                    <span>{file.chunkCount} chunks</span>
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge
+                    variant={getStatusVariant(file.status)}
+                    className="w-fit"
+                  >
+                    {file.status || 'uploaded'}
+                  </Badge>
+                  {file.purpose && (
+                    <Badge variant="secondary" className="w-fit">
+                      {file.purpose}
+                    </Badge>
+                  )}
+                </div>
+                {file.indexError && (
+                  <p
+                    className="line-clamp-2 text-xs text-destructive"
+                    title={file.indexError}
+                  >
+                    {file.indexError}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex shrink-0 items-center gap-1">
+              {onFileReindex && (
+                <Tooltip>
+                  <Tooltip.Trigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onFileReindex(file.id);
+                      }}
+                      className="h-7 w-7 p-0 text-muted-foreground"
+                      aria-label={`Reindex ${file.name}`}
+                      disabled={reindexingFileId === file.id}
+                    >
+                      <IconRefresh
+                        className={cn(
+                          'size-4',
+                          reindexingFileId === file.id && 'animate-spin',
+                        )}
+                      />
+                    </Button>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content>Reindex knowledge</Tooltip.Content>
+                </Tooltip>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onFileDelete(file.id);
+                }}
+                className="h-7 w-7 p-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                aria-label={`Remove ${file.name}`}
+              >
+                <IconTrash className="size-4" />
+              </Button>
+            </div>
           </div>
-        </Card>
+        </div>
       ))}
     </div>
   );

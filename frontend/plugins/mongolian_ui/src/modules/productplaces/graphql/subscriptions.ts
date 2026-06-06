@@ -1,12 +1,17 @@
-const productPlacesSubscription = `
-	subscription productPlacesResponded($userId: String, $sessionCode: String) {
-		productPlacesResponded(userId: $userId, sessionCode: $sessionCode) {
-			content
-			responseId
-			userId
-			sessionCode
-		}
-	}
-`;
+import { gql } from '@apollo/client';
 
-export default { productPlacesSubscription };
+export const PRODUCT_PLACES_RESPONDED = gql`
+  subscription productPlacesResponded($userId: String, $sessionCode: String) {
+    productPlacesResponded(userId: $userId, sessionCode: $sessionCode) {
+      responseId
+      content {
+        name
+        number
+        amount
+        pDatas {
+          amount
+        }
+      }
+    }
+  }
+`;

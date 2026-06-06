@@ -27,7 +27,7 @@ const resolvers = {
   },
 
   paidAmounts: async (order: IPosOrderDocument, _, { models }: IContext) => {
-    if (!order.paidAmounts || !order.paidAmounts.length) {
+    if (!order.paidAmounts?.length) {
       return;
     }
 
@@ -35,7 +35,7 @@ const resolvers = {
       token: order.posToken,
     }).lean();
 
-    if (!pos || !pos.paymentTypes || !pos.paymentTypes.length) {
+    if (!pos?.paymentTypes?.length) {
       return order.paidAmounts;
     }
 

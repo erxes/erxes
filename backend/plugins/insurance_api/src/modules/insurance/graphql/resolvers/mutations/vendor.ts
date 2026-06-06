@@ -37,10 +37,12 @@ export const vendorMutations = {
         vendorId,
         productId,
         pricingOverride,
+        discountTiers,
       }: {
         vendorId: string;
         productId: string;
         pricingOverride?: any;
+        discountTiers?: any[];
       },
       { models }: IContext,
     ) => {
@@ -48,7 +50,11 @@ export const vendorMutations = {
         vendorId,
         {
           $push: {
-            offeredProducts: { product: productId, pricingOverride },
+            offeredProducts: {
+              product: productId,
+              pricingOverride,
+              discountTiers: discountTiers || [],
+            },
           },
         },
         { new: true },
@@ -94,32 +100,6 @@ export const vendorMutations = {
           (vp: any) => vp.product != null,
         ),
       };
-    },
-    { wrapperConfig: { skipPermission: true } },
-  ),
-
-  createVendorUser: Object.assign(
-    async (
-      _parent: undefined,
-      {
-        username,
-        password,
-        vendorId,
-        role,
-      }: {
-        username: string;
-        password: string;
-        vendorId: string;
-        role?: string;
-      },
-      { models }: IContext,
-    ) => {
-      return models.VendorUser.create({
-        username,
-        password,
-        vendor: vendorId,
-        role,
-      });
     },
     { wrapperConfig: { skipPermission: true } },
   ),

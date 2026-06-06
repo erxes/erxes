@@ -121,7 +121,7 @@ export const types = `
     email: String
     phone: String
     password: String
-    otp: Int
+    otp: String
   }
 
   type GoogleOAuthConfig {
@@ -285,7 +285,7 @@ type ClientPortal {
     email: String
     phone: String
     password: String
-    otp: Int
+    otp: String
   }
 
   input GoogleOAuthConfigInput {

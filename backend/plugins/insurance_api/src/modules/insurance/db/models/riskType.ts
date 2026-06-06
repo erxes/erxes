@@ -5,8 +5,8 @@ import { IRiskTypeDocument } from '@/insurance/@types/riskType';
 
 export type IRiskTypeModel = Model<IRiskTypeDocument>;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const loadRiskTypeClass = (_models: IModels) => {
-  void _models;
   class RiskType {}
 
   riskTypeSchema.loadClass(RiskType);

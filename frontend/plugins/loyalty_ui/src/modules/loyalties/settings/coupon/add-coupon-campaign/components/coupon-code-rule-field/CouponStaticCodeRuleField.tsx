@@ -22,7 +22,7 @@ export const CouponStaticCodeRuleField: React.FC<
               <Form.Control>
                 <Input
                   placeholder="Enter the coupon code here"
-                  {...field}
+                  value={field.value ?? ''}
                   onChange={(e) => field.onChange(e.target.value)}
                 />
               </Form.Control>
@@ -43,7 +43,14 @@ export const CouponStaticCodeRuleField: React.FC<
                   type="number"
                   placeholder="Enter usage limit"
                   {...field}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  value={field.value ?? ''}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === ''
+                        ? undefined
+                        : Number(e.target.value),
+                    )
+                  }
                 />
               </Form.Control>
               <Form.Message />
@@ -62,8 +69,14 @@ export const CouponStaticCodeRuleField: React.FC<
                 <Input
                   type="number"
                   placeholder="Enter redemption limit per user"
-                  {...field}
-                  onChange={(e) => field.onChange(Number(e.target.value))}
+                  value={field.value ?? ''}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === ''
+                        ? undefined
+                        : Number(e.target.value),
+                    )
+                  }
                 />
               </Form.Control>
               <Form.Message />

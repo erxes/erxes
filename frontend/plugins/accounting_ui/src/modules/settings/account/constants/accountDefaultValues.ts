@@ -9,12 +9,16 @@ export const ACCOUNT_DEFAULT_VALUES: TAccountForm = {
   code: '',
   categoryId: '',
   description: '',
-  currency: CurrencyCode.USD,
+  currency: CurrencyCode.MNT,
   kind: AccountKind.ACTIVE,
   journal: JournalEnum.MAIN,
   branchId: '',
   departmentId: '',
   isTemp: false,
   isOutBalance: false,
-  status: undefined
+  status: undefined,
+  extra: {
+    bank: undefined,
+    bankAccount: '',
+  },
 };

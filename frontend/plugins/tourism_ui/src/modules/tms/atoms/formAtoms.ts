@@ -8,14 +8,17 @@ export type TmsForm = {
   color: string;
   logo: string;
   favIcon: string;
+  language: string[];
+  mainLanguage: string;
   generalManager: string[];
   managers: string[];
-  payment: string;
+  payment: string[];
+  prepaid: boolean;
+  prepaidPercent?: number;
   token: string;
   otherPayments: Array<{
     type: string;
     title: string;
-    icon: string;
     config?: string;
   }>;
 };
@@ -25,9 +28,13 @@ const DEFAULT_STORAGE_FORM: TmsFormStorage = {
   color: '#4F46E5',
   logo: '',
   favIcon: '',
+  language: [],
+  mainLanguage: '',
   generalManager: [],
   managers: [],
-  payment: '',
+  payment: [],
+  prepaid: false,
+  prepaidPercent: undefined,
   token: '',
   otherPayments: [],
 };

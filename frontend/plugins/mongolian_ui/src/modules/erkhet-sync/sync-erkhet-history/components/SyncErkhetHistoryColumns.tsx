@@ -5,16 +5,69 @@ import {
   IconUser,
   IconCalendarPlus,
 } from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/table-core';
+import { ColumnDef } from '@tanstack/react-table';
 import {
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
   RelativeDateDisplay,
+  cn,
 } from 'erxes-ui';
+import { useSearchParams } from 'react-router-dom';
 
 import { ISyncHistory } from '../types/syncHistory';
 import { SyncErkhetHistoryMoreColumn } from './SyncErkhetHistoryMoreColumn';
+
+const stringify = (value: any) => {
+  if (!value) {
+    return '';
+  }
+
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  return JSON.stringify(value);
+};
+
+const SyncErkhetHistoryClickableCell = ({
+  row,
+  value,
+  isError,
+}: {
+  row: { original: ISyncHistory };
+  value: string;
+  isError?: boolean;
+}) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const handleOpen = () => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('syncHistory_id', row.original._id);
+    setSearchParams(newSearchParams);
+  };
+
+  return (
+    <RecordTableInlineCell
+      role="button"
+      tabIndex={0}
+      onClick={handleOpen}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          handleOpen();
+        }
+      }}
+      className={cn(
+        'cursor-pointer rounded px-2 hover:bg-muted',
+        isError && value ? 'text-destructive' : 'text-muted-foreground',
+      )}
+    >
+      <TextOverflowTooltip value={String(value || '-')} />
+    </RecordTableInlineCell>
+  );
+};
+
 export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   SyncErkhetHistoryMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ISyncHistory>,
@@ -35,27 +88,31 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
     },
   },
   {
-    id: 'consumeData.user.email',
-    accessorKey: 'consumeData.user.email',
+    id: 'createdUser',
+    accessorKey: 'createdUser',
     header: () => <RecordTable.InlineHead icon={IconHash} label="User" />,
-    cell: ({ cell }) => {
+    cell: ({ row }) => {
+      const user = row.original.createdUser;
+      const value =
+        user?.email || user?.details?.fullName || row.original.createdBy || '';
+
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={value} />
         </RecordTableInlineCell>
       );
     },
   },
   {
-    id: 'consumeData.type',
-    accessorKey: 'consumeData.type',
+    id: 'contentType',
+    accessorKey: 'contentType',
     header: () => (
       <RecordTable.InlineHead icon={IconCurrencyDollar} label="Content Type" />
     ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
         </RecordTableInlineCell>
       );
     },
@@ -67,20 +124,39 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
         </RecordTableInlineCell>
       );
     },
   },
   {
-    id: 'responseData.message',
-    accessorKey: 'responseData.message',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label="Error" />,
-    cell: ({ cell }) => {
+    id: 'response',
+    accessorKey: 'responseStr',
+    header: () => (
+      <RecordTable.InlineHead icon={IconCategory} label="Response" />
+    ),
+    cell: ({ row }) => {
       return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
-        </RecordTableInlineCell>
+        <SyncErkhetHistoryClickableCell
+          row={row}
+          value={stringify(
+            row.original.responseData || row.original.responseStr,
+          )}
+        />
+      );
+    },
+  },
+  {
+    id: 'error',
+    accessorKey: 'error',
+    header: () => <RecordTable.InlineHead icon={IconCategory} label="Error" />,
+    cell: ({ row }) => {
+      return (
+        <SyncErkhetHistoryClickableCell
+          row={row}
+          value={row.original.error || ''}
+          isError
+        />
       );
     },
   },

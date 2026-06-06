@@ -3,10 +3,12 @@ import { redis } from './redis';
 import { getSaasOrganizationDetail } from './saas';
 import { getEnv } from './utils';
 import { IOrganizationCharge } from '../core-types';
+import { sendWorkerQueue } from './mq-worker';
 
 dotenv.config();
 
 const { NODE_ENV, LOAD_BALANCER_ADDRESS, MONGO_URL } = process.env;
+const GATEWAY_ROUTER_UPDATE_LOCK_KEY = 'gateway:update-apollo-router:pending';
 
 interface PluginConfig {
   name: string;
@@ -29,6 +31,22 @@ export const getPlugins = async (): Promise<string[]> => {
     ) || [];
 
   return ['core', ...enabledServices, ...enabledApiPlugins];
+};
+
+const ACTIVE_PLUGINS_KEY = 'erxes-active-plugins';
+
+export const setActivePlugins = async (plugins: string[]): Promise<void> => {
+  await redis.set(ACTIVE_PLUGINS_KEY, JSON.stringify(plugins));
+};
+
+export const getActivePlugins = async (): Promise<string[]> => {
+  const data = await redis.get(ACTIVE_PLUGINS_KEY);
+
+  if (!data) {
+    return ['core'];
+  }
+
+  return JSON.parse(data);
 };
 
 export const getAvailablePlugins = async (
@@ -71,6 +89,18 @@ export const getAvailablePlugins = async (
 
 type ServiceInfo = { address: string; config: any };
 const serviceInfoCache: { [name in string]: Readonly<ServiceInfo> } = {};
+const pluginAddressCache = {} as any;
+
+export const clearServiceDiscoveryCache = (name?: string) => {
+  if (name) {
+    delete serviceInfoCache[name];
+    delete pluginAddressCache[name];
+    return;
+  }
+
+  Object.keys(serviceInfoCache).forEach((key) => delete serviceInfoCache[key]);
+  Object.keys(pluginAddressCache).forEach((key) => delete pluginAddressCache[key]);
+};
 
 export const getPlugin = async (
   name: string,
@@ -99,13 +129,25 @@ export const joinErxesGateway = async ({
   hasSubscriptions = false,
   meta,
 }: PluginConfig) => {
+  const rawVersion = process.env.RELEASE_VERSION;
+  const releaseVersion = rawVersion?.startsWith('3.') ? rawVersion : 'latest';
+
+  const existingConfigJson = await redis.get(keyForConfig(name));
+  const existingConfig = existingConfigJson
+    ? JSON.parse(existingConfigJson)
+    : {};
+
   await redis.set(
     keyForConfig(name),
 
     JSON.stringify({
       dbConnectionString: MONGO_URL,
       hasSubscriptions,
-      meta,
+      meta: {
+        ...existingConfig?.meta,
+        ...meta,
+      },
+      releaseVersion,
     }),
   );
 
@@ -114,6 +156,43 @@ export const joinErxesGateway = async ({
     `http://${isDev ? 'localhost' : `plugin-${name}-api`}:${port}`;
 
   await redis.set(`erxes-service-${name}`, address);
+
+  if (NODE_ENV === 'production') {
+    try {
+      const didAcquireUpdateLock = await redis.set(
+        GATEWAY_ROUTER_UPDATE_LOCK_KEY,
+        '1',
+        'EX',
+        30,
+        'NX',
+      );
+
+      if (!didAcquireUpdateLock) {
+        console.log(
+          `gateway update-apollo-router already queued, skipped ${name}`,
+        );
+        console.log(`erxes-service${name} joined with ${address}`);
+        return;
+      }
+
+      await sendWorkerQueue('gateway', 'update-apollo-router').add(
+        'service-discovery-updated',
+        { pluginName: name },
+        {
+          delay: 10_000,
+          attempts: 3,
+          backoff: {
+            type: 'exponential',
+            delay: 1000,
+          },
+          removeOnComplete: true,
+          removeOnFail: 100,
+        },
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
   console.log(`erxes-service${name} joined with ${address}`);
 };
@@ -129,8 +208,6 @@ export const isEnabled = async (name: string) => {
 
   return enabledServices.includes(name);
 };
-
-const pluginAddressCache = {} as any;
 
 export const getPluginAddress = async (name: string) => {
   if (!pluginAddressCache[name]) {
@@ -165,7 +242,7 @@ export const initializePluginConfig = async <TConfig extends object>(
     JSON.stringify({
       ...configJSON,
       meta: {
-        ...(configJSON?.meta || {}),
+        ...configJSON?.meta,
         [propertyName]: getNonFunctionProps<TConfig>(config),
       },
     }),

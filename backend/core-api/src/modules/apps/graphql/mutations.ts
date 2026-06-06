@@ -2,32 +2,42 @@ import { IContext } from '~/connectionResolvers';
 import { IApp } from 'erxes-api-shared/core-types';
 
 export const appMutations = {
-  async appsAdd(_parent: undefined, params: IApp, { models }: IContext) {
-    try {
-      const app = await models.Apps.createApp(params);
+  async appsAdd(
+    _parent: undefined,
+    params: IApp,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('appsManage');
 
-      await models.Users.createSystemUser(app);
-
-      return app;
-    } catch (e) {
-      throw new Error('appsAdd error');
-    }
+    return models.Apps.createApp(params);
   },
+
   async appsEdit(
     _parent: undefined,
-    { _id, name, userGroupId }: any,
-    { models }: IContext,
+    { _id, name }: { _id: string; name: string },
+    { models, checkPermission }: IContext,
   ) {
-    return models.Apps.updateApp(_id, { name, userGroupId });
+    await checkPermission('appsManage');
+
+    return models.Apps.updateApp(_id, { name });
   },
+
+  async appsRevoke(
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('appsManage');
+
+    return models.Apps.revokeApp(_id);
+  },
+
   async appsRemove(
     _parent: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
-    const app = await models.Apps.getApp(_id);
-
-    await models.Users.deleteOne({ appId: app._id });
+    await checkPermission('appsManage');
 
     return models.Apps.removeApp(_id);
   },

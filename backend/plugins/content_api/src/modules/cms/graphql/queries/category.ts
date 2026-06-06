@@ -22,6 +22,7 @@ class CategoryQueryResolver extends BaseQueryResolver {
       query,
       { ...args, clientPortalId, language },
       FIELD_MAPPINGS.CATEGORY,
+      'category',
     );
   }
 
@@ -48,36 +49,75 @@ class CategoryQueryResolver extends BaseQueryResolver {
       query,
       language,
       FIELD_MAPPINGS.CATEGORY,
+      clientPortalId,
+      'category',
     );
   }
 
   async cpCategories(_parent: any, args: any, context: IContext): Promise<any> {
     const { models, clientPortal } = context;
     const { language } = args;
+    const clientPortalId = args.clientPortalId || clientPortal?._id;
 
     const query: any = {
-      clientPortalId: clientPortal._id,
+      clientPortalId,
       status: 'active',
     };
 
-    const { list } = await this.getListWithTranslations(
+    return this.getListWithTranslations(
       models.Categories,
       query,
-      { ...args, clientPortalId: clientPortal._id, language },
+      { ...args, clientPortalId, language },
       FIELD_MAPPINGS.CATEGORY,
+      'category',
     );
+  }
 
-    return list;
+  async cpCmsCategoryDetail(
+    _parent: any,
+    args: any,
+    context: IContext,
+  ): Promise<any> {
+    const { models, clientPortal } = context;
+    const { _id, slug, language } = args;
+    const clientPortalId = clientPortal?._id;
+
+    if (!_id && !slug) {
+      return null;
+    }
+
+    const query = slug ? { slug, clientPortalId } : { _id, clientPortalId };
+
+    return this.getItemWithTranslation(
+      models.Categories,
+      query,
+      language,
+      FIELD_MAPPINGS.CATEGORY,
+      clientPortalId,
+      'category',
+    );
   }
 }
 
-const resolver = new CategoryQueryResolver({} as IContext);
 export const contentCmsCategoryQueries: Record<string, Resolver> = {
-  cmsCategories: resolver.cmsCategories.bind(resolver),
-  cmsCategory: resolver.cmsCategory.bind(resolver),
-  cpCategories: resolver.cpCategories.bind(resolver),
+  cmsCategories: (_parent: any, args: any, context: IContext) =>
+    new CategoryQueryResolver(context).cmsCategories(_parent, args, context),
+  cmsCategory: (_parent: any, args: any, context: IContext) =>
+    new CategoryQueryResolver(context).cmsCategory(_parent, args, context),
+  cpCategories: (_parent: any, args: any, context: IContext) =>
+    new CategoryQueryResolver(context).cpCategories(_parent, args, context),
+  cpCmsCategoryDetail: (_parent: any, args: any, context: IContext) =>
+    new CategoryQueryResolver(context).cpCmsCategoryDetail(
+      _parent,
+      args,
+      context,
+    ),
 };
 
 contentCmsCategoryQueries.cpCategories.wrapperConfig = {
+  forClientPortal: true,
+};
+
+contentCmsCategoryQueries.cpCmsCategoryDetail.wrapperConfig = {
   forClientPortal: true,
 };

@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 import { PAYMENT_STATUS_TYPES } from '@/bms/constants';
-import { getEnum } from '@/bms/utils';
+import { getEnum } from '~/modules/bms/utils/utils';
 import { mongooseStringRandomId } from 'erxes-api-shared/utils';
 
 export const locationSchema = new Schema(
@@ -24,6 +24,7 @@ const elementOfItinerarySchema = new Schema(
 const groupDay = new Schema(
   {
     day: { type: Number, label: 'day' },
+    title: { type: String, label: 'title' },
     images: { type: [String], label: 'images' },
     content: { type: String, label: 'content' },
     elements: { type: [elementOfItinerarySchema], label: 'elements' },
@@ -66,6 +67,7 @@ export const itinerarySchema = new Schema({
   color: { type: String, optional: true, label: 'color' },
 
   branchId: { type: String, optional: true, label: 'branchId' },
+  language: { type: String, optional: true, label: 'language' },
 
   driverCost: { type: Number, label: 'cost', optional: true },
   guideCost: { type: Number, label: 'cost', optional: true },

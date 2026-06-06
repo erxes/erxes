@@ -1,5 +1,9 @@
-import { IScoreCampaignParams } from '@/score/@types/scoreCampaign';
+import {
+  IScoreCampaignDocument,
+  IScoreCampaignParams,
+} from '@/score/@types/scoreCampaign';
 import { SCORE_CAMPAIGN_STATUSES } from '@/score/constants';
+import { Resolver } from 'erxes-api-shared/core-types';
 import {
   cursorPaginate,
   escapeRegExp,
@@ -7,11 +11,26 @@ import {
   getPlugins,
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
 
-const generateFilter = (params: any) => {
-  const filter: any = {
+export interface IScoreCampaignAttribute {
+  name: string;
+  label: string;
+}
+
+export interface IScoreCampaignService {
+  name: string;
+  label: string;
+  isAviableAdditionalConfig: boolean;
+  icon: string;
+}
+
+const generateFilter = (
+  params: IScoreCampaignParams,
+): FilterQuery<IScoreCampaignDocument> => {
+  const filter: FilterQuery<IScoreCampaignDocument> = {
     status: { $ne: SCORE_CAMPAIGN_STATUSES.ARCHIVED },
   };
 
@@ -30,17 +49,18 @@ const generateFilter = (params: any) => {
   return filter;
 };
 
-export const scoreCampaignQueries = {
+export const scoreCampaignQueries: Record<string, Resolver> = {
   scoreCampaigns: async (
     _root: undefined,
     params: IScoreCampaignParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('loyaltyCampaignView');
     const filter = generateFilter(params);
 
     return cursorPaginate({
       model: models.ScoreCampaigns,
-      params,
+      params: { ...params, orderBy: { order: 1, createdAt: -1 } },
       query: filter,
     });
   },
@@ -48,19 +68,20 @@ export const scoreCampaignQueries = {
   scoreCampaign: async (
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('loyaltyCampaignView');
     return models.ScoreCampaigns.getScoreCampaign(_id);
   },
 
   scoreCampaignAttributes: async (
     _root: undefined,
     { serviceName }: { serviceName: string },
-    { subdomain }: IContext,
+    { subdomain, checkPermission }: IContext,
   ) => {
-    let attributes: any[] = [];
+    await checkPermission('loyaltyCampaignView');
+    let attributes: IScoreCampaignAttribute[] = [];
 
-    // note: for (const serviceName of services) {
     const service = await getPlugin(serviceName);
     const meta = service.config?.meta || {};
 
@@ -83,23 +104,33 @@ export const scoreCampaignQueries = {
     return attributes;
   },
 
-  async scoreCampaignServices() {
+  async scoreCampaignServices(
+    _root: undefined,
+    _args: undefined,
+    { checkPermission }: IContext,
+  ) {
+    await checkPermission('loyaltyCampaignView');
     const services = await getPlugins();
+    const result: IScoreCampaignService[] = [];
 
-    const searviceNames: any[] = [];
+    for (const name of services) {
+      const service = await getPlugin(name);
+      const meta = service?.config?.meta || {};
 
-    for (const serviceName of services) {
-      const service = await getPlugin(serviceName);
-      const meta = service.config?.meta || {};
-
-      if (meta && meta?.loyalties && meta?.loyalties?.aviableAttributes) {
-        const { name, label, isAviableAdditionalConfig, icon } =
-          meta?.loyalties || {};
-        searviceNames.push({ name, label, isAviableAdditionalConfig, icon });
+      if (meta?.loyalties?.aviableAttributes) {
+        result.push({
+          name,
+          label:
+            meta?.loyalties?.label ||
+            name.charAt(0).toUpperCase() + name.slice(1),
+          isAviableAdditionalConfig:
+            meta?.loyalties?.isAviableAdditionalConfig || false,
+          icon: meta?.loyalties?.icon || 'IconSettings',
+        });
       }
     }
 
-    return searviceNames;
+    return result;
   },
 
   async checkOwnerScore(
@@ -108,9 +139,18 @@ export const scoreCampaignQueries = {
       ownerId,
       ownerType,
       campaignId,
-    }: { ownerId: string; ownerType: string; campaignId: string },
-    { subdomain, models }: IContext,
+      clientPortal,
+    }: {
+      ownerId: string;
+      ownerType: string;
+      campaignId: string;
+      clientPortal: string;
+    },
+    { subdomain, models, checkPermission, user }: IContext,
   ) {
+    if (user) {
+      await checkPermission('scoreLogView');
+    }
     const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
 
     if (!owner) {
@@ -127,11 +167,31 @@ export const scoreCampaignQueries = {
       throw new Error('Campaign not found');
     }
 
-    const { value = 0 } =
+    const value =
+      owner?.propertiesData?.[campaign?.fieldId] ??
       (owner?.customFieldsData || []).find(
         ({ field }) => field === campaign?.fieldId,
-      ) || {};
+      )?.value ??
+      0;
 
     return value;
   },
+
+  async cpCheckOwnerScore(
+    _root: undefined,
+    args: {
+      ownerId: string;
+      ownerType: string;
+      campaignId: string;
+      clientPortal: string;
+    },
+    context: IContext,
+    info: any,
+  ) {
+    return scoreCampaignQueries.checkOwnerScore(_root, args, context, info);
+  },
+};
+
+scoreCampaignQueries.cpCheckOwnerScore.wrapperConfig = {
+  forClientPortal: true,
 };

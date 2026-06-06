@@ -1,282 +1,313 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Label, Form } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
-
-import { PerSplitConfig } from '../types';
-
-import { SelectSalesBoard } from '../../ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
-import { SelectPipeline } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectPipeline';
-import { SelectStage } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectStage';
-
-import SelectProductCategories from '../selects/SelectProductCategories';
-import SelectProductTags from '../selects/SelectTags';
+import { useEffect, useState, useCallback } from 'react';
+import { useQuery, useMutation } from '@apollo/client';
+import { Button, Input, Label, useToast } from 'erxes-ui';
+import { SelectSalesBoard } from '../selects/SelectSalesBoard';
+import { SelectPipeline } from '../selects/SelectPipeline';
+import { SelectStage } from '../selects/SelectStage';
+import SelectProductTags from '../selects/SelectProductTags';
 import SelectProducts from '../selects/SelectProducts';
 import SelectSegments from '../selects/SelectSegments';
+import { SelectCategory } from 'ui-modules';
+import { MN_CONFIGS } from '../graphql/clientQueries';
+import {
+  MN_CONFIGS_CREATE,
+  MN_CONFIGS_UPDATE,
+  MN_CONFIGS_REMOVE,
+} from '../graphql/clientMutations';
+import {
+  keyValueArrayToObject,
+  objectToKeyValueArray,
+} from '../utils/transformers';
+import ConfigHeader from './shared/ConfigHeader';
+import SavedConfigsList from './shared/SavedConfigsList';
 
-type Props = {
-  config: PerSplitConfig | null;
-  currentStageId: string;
-  save: (config: PerSplitConfig) => void;
-  delete: () => void;
-};
-
-
-const normalize = (
-  config: Partial<PerSplitConfig>,
-  stageId: string,
-): PerSplitConfig => ({
-  title: config.title ?? '',
-  boardId: config.boardId ?? '',
-  pipelineId: config.pipelineId ?? '',
-  stageId: config.stageId ?? stageId,
-
-  productCategoryIds: config.productCategoryIds ?? [],
-  excludeCategoryIds: config.excludeCategoryIds ?? [],
-  productTagIds: config.productTagIds ?? [],
-  excludeTagIds: config.excludeTagIds ?? [],
-  excludeProductIds: config.excludeProductIds ?? [],
-  segmentIds: config.segmentIds ?? [],
-
-  subUomType: config.subUomType,
-  gtCount: config.gtCount,
-  ltCount: config.ltCount,
-  gtUnitPrice: config.gtUnitPrice,
-  ltUnitPrice: config.ltUnitPrice,
-});
+export interface SplitConfigData {
+  _id?: string;
+  subId?: string;
+  title: string;
+  boardId: string;
+  pipelineId: string;
+  stageId: string;
+  productCategoryIds: string[];
+  excludeCategoryIds: string[];
+  productTagIds: string[];
+  excludeTagIds: string[];
+  excludeProductIds: string[];
+  segmentIds: string[];
+}
 
 const getSingle = (arr: string[]) => arr[0] || '';
 const toSingleArray = (id?: string) => (id ? [id] : []);
 
-const SplitConfig: React.FC<Props> = ({
-  config,
-  currentStageId,
-  save,
-  delete: deleteConfig,
-}) => {
-  const form = useForm();
+const emptyForm: SplitConfigData = {
+  title: '',
+  boardId: '',
+  pipelineId: '',
+  stageId: '',
+  productCategoryIds: [],
+  excludeCategoryIds: [],
+  productTagIds: [],
+  excludeTagIds: [],
+  excludeProductIds: [],
+  segmentIds: [],
+};
 
-  /** UI-only saved configs */
-  const [savedConfigs, setSavedConfigs] = useState<PerSplitConfig[]>([]);
+const SplitConfig: React.FC = () => {
+  const { toast } = useToast();
+  const [savedConfigs, setSavedConfigs] = useState<SplitConfigData[]>([]);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [formData, setFormData] = useState<SplitConfigData>(emptyForm);
+  const [loading, setLoading] = useState(false);
 
-  /** Active form */
-  const [localConfig, setLocalConfig] = useState<PerSplitConfig>(
-    normalize({}, currentStageId),
-  );
+  const { data } = useQuery(MN_CONFIGS, {
+    variables: { code: 'dealsProductsDataSplit' },
+    fetchPolicy: 'network-only',
+  });
 
-  /* sync form */
+  const [createConfig] = useMutation(MN_CONFIGS_CREATE);
+  const [updateConfig] = useMutation(MN_CONFIGS_UPDATE);
+  const [deleteConfig] = useMutation(MN_CONFIGS_REMOVE);
+
   useEffect(() => {
-    if (activeIndex !== null) {
-      const selected = savedConfigs[activeIndex];
-      if (selected) setLocalConfig(selected);
-      return;
+    if (data?.mnConfigs) {
+      const transformed = data.mnConfigs.map((cfg: any) => ({
+        _id: cfg._id,
+        subId: cfg.subId,
+        ...keyValueArrayToObject(cfg.value),
+      }));
+      setSavedConfigs(transformed);
     }
+  }, [data]);
 
-    if (!config) {
-      setLocalConfig(normalize({}, currentStageId));
-      return;
+  useEffect(() => {
+    if (activeIndex === null) {
+      setFormData(emptyForm);
+    } else {
+      setFormData(savedConfigs[activeIndex] ?? emptyForm);
     }
+  }, [activeIndex, savedConfigs]);
 
-    setLocalConfig(normalize(config, currentStageId));
-  }, [config, activeIndex, savedConfigs, currentStageId]);
+  const updateField = useCallback((key: keyof SplitConfigData, value: any) => {
+    setFormData((prev) => ({ ...prev, [key]: value }));
+  }, []);
 
-  const update = <K extends keyof PerSplitConfig>(
-    key: K,
-    value: PerSplitConfig[K],
-  ) => {
-    setLocalConfig((prev) => ({ ...prev, [key]: value }));
-  };
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      const { _id, ...rest } = formData;
+      const valueArray = objectToKeyValueArray(rest);
 
-  /* ---------- actions ---------- */
-  const handleSave = () => {
-    save(localConfig);
-
-    setSavedConfigs((prev) => {
-      if (activeIndex === null) {
-        return [...prev, localConfig];
+      if (_id) {
+        await updateConfig({ variables: { _id, value: valueArray } });
+        toast({
+          title: 'Success',
+          description: 'Configuration updated successfully',
+          variant: 'default',
+        });
+      } else {
+        await createConfig({
+          variables: {
+            code: 'dealsProductsDataSplit',
+            subId: rest.stageId,
+            value: valueArray,
+          },
+        });
+        toast({
+          title: 'Success',
+          description: 'Configuration created successfully',
+          variant: 'default',
+        });
       }
 
-      const next = [...prev];
-      next[activeIndex] = localConfig;
-      return next;
-    });
-
-    setActiveIndex(null);
+      setActiveIndex(null);
+      setFormData(emptyForm);
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error?.message || 'Failed to save configuration',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDelete = () => {
-    if (!window.confirm('Delete this split config?')) return;
+  const handleDelete = async () => {
+    if (activeIndex === null) return;
+    const config = savedConfigs[activeIndex];
+    if (!config._id) return;
 
-    deleteConfig();
-    setSavedConfigs([]);
-    setActiveIndex(null);
-    setLocalConfig(normalize({}, currentStageId));
+    setLoading(true);
+    try {
+      await deleteConfig({ variables: { _id: config._id } });
+      toast({
+        title: 'Success',
+        description: 'Configuration deleted successfully',
+        variant: 'default',
+      });
+      setActiveIndex(null);
+      setFormData(emptyForm);
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error?.message || 'Failed to delete configuration',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleNewConfig = () => {
+  const handleNew = () => {
     setActiveIndex(null);
-    setLocalConfig(normalize({}, currentStageId));
+    setFormData(emptyForm);
   };
 
   return (
-    <Form {...form}>
-      <div className="space-y-6">
-        {/* HEADER */}
-        <div className="flex items-center justify-between border-b pb-4">
-          <div>
-            <h2 className="text-lg font-semibold">Split Configuration</h2>
-          </div>
-
-          <Button type="button" variant="outline" onClick={handleNewConfig}>
-            + New Config
-          </Button>
-        </div>
-
-        {/* SAVED CONFIG LIST */}
-        {savedConfigs.length > 0 && (
-          <div className="rounded border bg-background p-4 space-y-2">
-            <h3 className="font-medium">Saved configs</h3>
-
-            {savedConfigs.map((cfg, index) => (
-              <div
-                key={`${cfg.stageId}-${index}`}
-                className={`cursor-pointer rounded px-3 py-2 border
-                  ${index === activeIndex ? 'bg-primary/10' : 'hover:bg-muted'}`}
-                onClick={() => setActiveIndex(index)}
-              >
-                <div className="font-medium">
-                  {cfg.title || '(Untitled config)'}
-                </div>
-                <div className="text-xs text-gray-500">
-                  Stage: {cfg.stageId || '—'}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* BASIC INFO */}
-        <div className="bg-white p-4 rounded border space-y-4">
-          <div>
-            <Label>Title</Label>
-            <input
-              className="w-full p-2 border rounded"
-              value={localConfig.title}
-              onChange={(e) => update('title', e.target.value)}
+    <div className="w-full h-full overflow-y-auto">
+      <div className="mx-auto w-full max-w-5xl px-6 py-8 space-y-8">
+        <ConfigHeader title="Split Configuration" onNew={handleNew} />
+        <SavedConfigsList
+          configs={savedConfigs}
+          activeIndex={activeIndex}
+          onSelect={setActiveIndex}
+        />
+        <div className="bg-white rounded-xl border p-6 space-y-6">
+          <div className="flex flex-col gap-2">
+            <Label className="text-sm font-medium">Title</Label>
+            <Input
+              placeholder="Enter configuration title"
+              value={formData.title}
+              onChange={(e) => updateField('title', e.target.value)}
             />
           </div>
 
           <div className="grid grid-cols-3 gap-4">
-            <div>
-              <Label>Board</Label>
+            <div className="flex flex-col gap-2">
+              <Label className="text-sm font-medium">Board</Label>
               <SelectSalesBoard
                 variant="form"
-                value={localConfig.boardId || ''}
-                onValueChange={(boardId: string) =>
-                  setLocalConfig((p) => ({
-                    ...p,
-                    boardId,
-                    pipelineId: '',
-                    stageId: '',
-                  }))
-                }
+                value={formData.boardId || ''}
+                onValueChange={(v) => updateField('boardId', v)}
               />
             </div>
 
-            <div>
-              <Label>Pipeline</Label>
+            <div className="flex flex-col gap-2">
+              <Label className="text-sm font-medium">Pipeline</Label>
               <SelectPipeline
                 variant="form"
-                boardId={localConfig.boardId || ''}
-                value={localConfig.pipelineId || ''}
-                disabled={!localConfig.boardId}
-                onValueChange={(pipelineId: string) =>
-                  setLocalConfig((p) => ({
-                    ...p,
-                    pipelineId,
-                    stageId: '',
-                  }))
-                }
+                boardId={formData.boardId || ''}
+                value={formData.pipelineId || ''}
+                onValueChange={(v) => updateField('pipelineId', v)}
               />
             </div>
 
-            <div>
-              <Label>Stage</Label>
+            <div className="flex flex-col gap-2">
+              <Label className="text-sm font-medium">Stage</Label>
               <SelectStage
                 id="split-stage"
                 variant="form"
-                pipelineId={localConfig.pipelineId || ''}
-                value={localConfig.stageId || ''}
-                disabled={!localConfig.pipelineId}
-                onValueChange={(stageId: string) =>
-                  update('stageId', stageId)
-                }
+                pipelineId={formData.pipelineId || ''}
+                value={formData.stageId || ''}
+                onValueChange={(v) => updateField('stageId', v)}
               />
             </div>
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-5">
+              <div className="flex flex-col gap-2">
+                <Label className="text-sm font-medium">
+                  Include Categories
+                </Label>
+                <SelectCategory
+                  mode="multiple"
+                  value={formData.productCategoryIds ?? []}
+                  onValueChange={(ids) =>
+                    updateField(
+                      'productCategoryIds',
+                      Array.isArray(ids) ? ids : [ids],
+                    )
+                  }
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label className="text-sm font-medium">
+                  Exclude Categories
+                </Label>
+                <SelectCategory
+                  mode="multiple"
+                  value={formData.excludeCategoryIds}
+                  onValueChange={(ids) =>
+                    updateField(
+                      'excludeCategoryIds',
+                      Array.isArray(ids) ? ids : [ids],
+                    )
+                  }
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label className="text-sm font-medium">Include Tags</Label>
+                <SelectProductTags
+                  value={formData.productTagIds}
+                  onValueChange={(v) => updateField('productTagIds', v)}
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-5">
+              <div className="flex flex-col gap-2">
+                <Label className="text-sm font-medium">Exclude Tags</Label>
+                <SelectProductTags
+                  value={formData.excludeTagIds}
+                  onValueChange={(v) => updateField('excludeTagIds', v)}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label className="text-sm font-medium">Exclude Products</Label>
+                <SelectProducts
+                  value={formData.excludeProductIds}
+                  onValueChange={(v) => updateField('excludeProductIds', v)}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label className="text-sm font-medium">Segment</Label>
+                <SelectSegments
+                  contentTypes={['core:product']}
+                  value={getSingle(formData.segmentIds)}
+                  onValueChange={(id) =>
+                    updateField('segmentIds', toSingleArray(id))
+                  }
+                />
+              </div>
+            </div>
+          </div>
         </div>
-
-        {/* CATEGORIES */}
-        <div className="bg-white p-4 rounded border space-y-3">
-          <Label>Include Categories</Label>
-          <SelectProductCategories
-            value={localConfig.productCategoryIds}
-            onChange={(v) => update('productCategoryIds', v)}
-          />
-
-          <Label>Exclude Categories</Label>
-          <SelectProductCategories
-            value={localConfig.excludeCategoryIds}
-            onChange={(v) => update('excludeCategoryIds', v)}
-          />
-        </div>
-
-        {/* TAGS */}
-        <div className="bg-white p-4 rounded border space-y-3">
-          <Label>Include Tags</Label>
-          <SelectProductTags
-            value={localConfig.productTagIds}
-            onChange={(v) => update('productTagIds', v)}
-          />
-
-          <Label>Exclude Tags</Label>
-          <SelectProductTags
-            value={localConfig.excludeTagIds}
-            onChange={(v) => update('excludeTagIds', v)}
-          />
-        </div>
-
-        {/* PRODUCTS */}
-        <div className="bg-white p-4 rounded border space-y-3">
-          <Label>Exclude Products</Label>
-          <SelectProducts
-            value={localConfig.excludeProductIds}
-            onChange={(v) => update('excludeProductIds', v)}
-          />
-        </div>
-
-        {/* SEGMENTS */}
-        <div className="bg-white p-4 rounded border space-y-3">
-          <Label>Segment</Label>
-          <SelectSegments
-            contentTypes={['core:product']}
-            value={getSingle(localConfig.segmentIds)}
-            onChange={(id) => update('segmentIds', toSingleArray(id))}
-          />
-        </div>
-
-        {/* ACTIONS */}
-        <div className="flex justify-end gap-3">
-          <Button type="button" variant="destructive" onClick={handleDelete}>
-            Delete Config
-          </Button>
-
-          <Button type="button" onClick={handleSave}>
-            Save Config
-          </Button>
+        <div className="flex items-center justify-between py-6 border-t">
+          {activeIndex !== null && (
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={loading}
+              className="text-xs"
+            >
+              Delete Config
+            </Button>
+          )}
+          <div className="flex gap-3 ml-auto">
+            <Button
+              variant="outline"
+              onClick={handleNew}
+              disabled={loading}
+              className="text-xs"
+            >
+              Clear
+            </Button>
+            <Button onClick={handleSave} disabled={loading} className="text-xs">
+              {loading ? 'Saving...' : 'Save Config'}
+            </Button>
+          </div>
         </div>
       </div>
-    </Form>
+    </div>
   );
 };
 

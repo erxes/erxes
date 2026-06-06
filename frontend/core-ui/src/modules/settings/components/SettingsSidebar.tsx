@@ -6,12 +6,28 @@ import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePageTrackerStore } from 'react-page-tracker';
 import { useNavigate } from 'react-router-dom';
-import { pluginsConfigState, useVersion } from 'ui-modules';
+import { pluginsConfigState, useVersion, usePermissionCheck } from 'ui-modules';
 import { GET_CORE_MODULES } from '~/plugins/constants/core-plugins.constants';
 import { GET_SETTINGS_PATH_DATA } from '../constants/data';
+import { SettingsWorkspacePath } from '@/types/paths/SettingsPath';
+
+const SETTINGS_PERMISSION_MAP: Record<string, string> = {
+  [SettingsWorkspacePath.TeamMember]: 'teamMembers',
+  [SettingsWorkspacePath.Structure]: 'organization',
+  [SettingsWorkspacePath.Tags]: 'tags',
+  [SettingsWorkspacePath.Brands]: 'brands',
+  [SettingsWorkspacePath.Properties]: 'properties',
+  [SettingsWorkspacePath.Products]: 'products',
+  [SettingsWorkspacePath.Automations]: 'automations',
+  [SettingsWorkspacePath.ClientPortals]: 'clientPortal',
+  [SettingsWorkspacePath.OAuthClients]: 'apps',
+  [SettingsWorkspacePath.Permissions]: 'permissions',
+};
 
 export function SettingsSidebar() {
   const pluginsMetaData = useAtomValue(pluginsConfigState) || {};
+  const { isLoaded, isWildcard, hasModulePermission, hasPluginPermission } =
+    usePermissionCheck();
 
   const version = useVersion();
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
@@ -19,12 +35,34 @@ export function SettingsSidebar() {
   const CORE_MODULES = GET_CORE_MODULES(t, version);
   const sidebar = useMemo(() => GET_SETTINGS_PATH_DATA(version, t), [t]);
 
+  const filterByPermission = (items: typeof sidebar.nav) => {
+    if (!isLoaded || isWildcard) return items;
+    return items.filter((item) => {
+      const requiredModule = SETTINGS_PERMISSION_MAP[item.path];
+      if (!requiredModule) return true;
+      return hasModulePermission(requiredModule);
+    });
+  };
+
   const pluginsWithSettingsNavigations = Object.values(pluginsMetaData)
-    .filter((plugin) => plugin.settingsNavigation)
+    .filter((plugin) => {
+      if (!plugin.settingsNavigation) return false;
+      if (!isLoaded || isWildcard) return true;
+      return hasPluginPermission(plugin.name);
+    })
     .map((plugin) => ({
       Navigation: plugin.settingsNavigation,
       name: plugin.name,
     }));
+
+  const filteredNav = filterByPermission(sidebar.nav);
+  const filteredDeveloper = filterByPermission(sidebar.developer);
+
+  const filteredCoreModules = CORE_MODULES.filter((item) => {
+    if (!item.hasSettings) return false;
+    if (!isLoaded || isWildcard) return true;
+    return hasModulePermission(item.path);
+  });
 
   return (
     <>
@@ -41,7 +79,7 @@ export function SettingsSidebar() {
           ))}
         </SettingsNavigationGroup>
         <SettingsNavigationGroup name={t('workspace')}>
-          {sidebar.nav.map((item) => (
+          {filteredNav.map((item) => (
             <NavigationMenuLinkItem
               pathPrefix={AppPath.Settings}
               path={item.path}
@@ -52,7 +90,7 @@ export function SettingsSidebar() {
         </SettingsNavigationGroup>
 
         <SettingsNavigationGroup name={t('developer')}>
-          {sidebar.developer.map((item) => (
+          {filteredDeveloper.map((item) => (
             <NavigationMenuLinkItem
               pathPrefix={AppPath.Settings}
               path={item.path}
@@ -63,7 +101,7 @@ export function SettingsSidebar() {
         </SettingsNavigationGroup>
 
         <SettingsNavigationGroup name={t('core-modules')}>
-          {CORE_MODULES.filter((item) => item.hasSettings).map((item) => (
+          {filteredCoreModules.map((item) => (
             <NavigationMenuLinkItem
               key={item.name}
               pathPrefix={AppPath.Settings}

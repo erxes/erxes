@@ -187,7 +187,7 @@ export const BrandsList = ({
 
   const selectedBrandIds = Array.isArray(value) ? value : [value];
 
-  if (!value || !value.length) {
+  if (!value?.length) {
     return <Combobox.Value placeholder={placeholder || ''} />;
   }
 
@@ -281,12 +281,12 @@ export const SelectBrandsInlineCell = ({
 export const SelectBrandsDetail = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectBrandsProvider>, 'children'> &
-  Omit<
-    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-    'children'
-  > & {
-    scope?: string;
-  }
+    Omit<
+      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+      'children'
+    > & {
+      scope?: string;
+    }
 >(({ onValueChange, scope, value, mode, options, ...props }, ref) => {
   const [open, setOpen] = useState(false);
   return (

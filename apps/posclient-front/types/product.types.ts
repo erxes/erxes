@@ -5,12 +5,6 @@ export interface IProductBase {
   isPackage?: boolean
 }
 
-export interface CustomField {
-  field: string
-  value: string
-  stringValue: string
-}
-
 export interface Group {
   fieldId: string
   title: string
@@ -27,7 +21,7 @@ export interface IProduct extends IProductBase {
   code?: string
   manufacturedDate?: string
   hasSimilarity?: boolean
-  customFieldsData?: CustomField[]
+  propertiesData?: Record<string, string>
   category?: ICategory
 }
 

@@ -1,5 +1,4 @@
 import { useMutation } from '@apollo/client';
-import { IconAlertCircle } from '@tabler/icons-react';
 import {
   Button,
   Form,
@@ -7,50 +6,30 @@ import {
   Select,
   Sheet,
   Textarea,
-  Upload,
   toast,
   MultipleSelector,
 } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { CLIENT_PORTAL_REMOVE } from '../../graphql/queries';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { GET_WEBSITES } from '../../graphql/queries';
 import {
   CONTENT_CREATE_CMS,
   CONTENT_UPDATE_CMS,
-  CONTENT_DELETE_CMS,
 } from '../../graphql/mutations';
 import { useClientPortals } from '../../hooks/useClientPortals';
-import { LANGUAGES } from '../../../shared/constants';
-
-interface Website {
-  _id: string;
-  name: string;
-  description: string;
-  domain: string;
-  url: string;
-  kind?: string;
-  clientPortalId: string;
-  createdAt: string;
-  languages?: string[];
-  language?: string;
-}
+import { LANGUAGES } from '../../../../constants';
+import {
+  websiteFormSchema,
+  WebsiteFormType,
+} from '../../constants/websiteFormSchema';
+import { IWebsite } from '../../types';
 
 interface WebsiteDrawerProps {
-  website?: Website;
+  website?: IWebsite;
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
-}
-
-interface WebsiteFormData {
-  name: string;
-  description: string;
-  domain: string;
-  url: string;
-  kind: string;
-  languages: string[];
-  language: string;
 }
 
 export function WebsiteDrawer({
@@ -60,21 +39,20 @@ export function WebsiteDrawer({
   onSuccess,
 }: WebsiteDrawerProps) {
   const isEditing = !!website;
-  const [hasPermissionError, setHasPermissionError] = useState(false);
 
   const {
     clientPortals,
-    totalCount,
-    pageInfo,
     loading: clientPortalsLoading,
-    error: clientPortalsError,
     refetch: refetchClientPortals,
   } = useClientPortals({}, !isOpen);
 
-  const form = useForm<WebsiteFormData>({
+  const form = useForm<WebsiteFormType>({
+    resolver: zodResolver(websiteFormSchema),
     defaultValues: {
       name: '',
       description: '',
+      domain: '',
+      url: '',
       kind: 'client',
       languages: [],
       language: '',
@@ -106,7 +84,6 @@ export function WebsiteDrawer({
           language: '',
         });
       }
-      setHasPermissionError(false);
     }
   }, [website, form, isOpen, refetchClientPortals]);
 
@@ -147,30 +124,12 @@ export function WebsiteDrawer({
       });
     },
     onError: (error) => {
-      const permissionError = error.graphQLErrors?.some(
-        (e) =>
-          e.message === 'Permission required' ||
-          e.extensions?.code === 'INTERNAL_SERVER_ERROR',
-      );
-
-      if (permissionError) {
-        setHasPermissionError(true);
-        toast({
-          title: 'Permission Required',
-          description:
-            'You do not have permission to create CMS. Please contact your administrator.',
-          variant: 'destructive',
-          duration: 8000,
-        });
-      } else {
-        toast({
-          title: 'Error',
-          description:
-            error.message || 'Failed to create CMS. Please try again.',
-          variant: 'destructive',
-          duration: 5000,
-        });
-      }
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to create CMS. Please try again.',
+        variant: 'destructive',
+        duration: 5000,
+      });
     },
   });
 
@@ -203,32 +162,7 @@ export function WebsiteDrawer({
     },
   );
 
-  const [deleteCMS, { loading: removing }] = useMutation(CONTENT_DELETE_CMS, {
-    refetchQueries: [{ query: GET_WEBSITES }],
-    awaitRefetchQueries: true,
-    onCompleted: () => {
-      onClose();
-      form.reset();
-      toast({
-        title: 'Success',
-        description: 'CMS deleted successfully',
-        variant: 'default',
-      });
-      if (onSuccess) {
-        onSuccess();
-      }
-    },
-    onError: (error) => {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to delete CMS. Please try again.',
-        variant: 'destructive',
-        duration: 5000,
-      });
-    },
-  });
-
-  const onSubmit = (data: WebsiteFormData) => {
+  const onSubmit = (data: WebsiteFormType) => {
     const { name, description, language, languages } = data;
 
     if (isEditing && website?._id) {
@@ -263,7 +197,7 @@ export function WebsiteDrawer({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <Sheet.View className="sm:max-w-lg p-0">
+      <Sheet.View className="sm:max-w-lg p-0 bg-background">
         <Sheet.Header className="border-b gap-3">
           <Sheet.Title>{isEditing ? 'Edit CMS' : 'New CMS'}</Sheet.Title>
           <Sheet.Close />
@@ -274,23 +208,6 @@ export function WebsiteDrawer({
             onSubmit={form.handleSubmit(onSubmit)}
             className="p-4 space-y-4"
           >
-            {hasPermissionError && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
-                <div className="flex items-start gap-2">
-                  <IconAlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-                  <div className="text-sm">
-                    <p className="font-medium text-red-800">
-                      Permission Required
-                    </p>
-                    <p className="text-red-700 mt-1">
-                      You need the "manageClientPortal" permission to create or
-                      edit websites. Please contact your administrator to grant
-                      this permission.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
             <Form.Field
               control={form.control}
               name="name"
@@ -298,13 +215,9 @@ export function WebsiteDrawer({
                 <Form.Item>
                   <Form.Label>Cms Name</Form.Label>
                   <Form.Control>
-                    <Input
-                      {...field}
-                      placeholder="Enter website name"
-                      required
-                    />
+                    <Input {...field} placeholder="Enter website name" />
                   </Form.Control>
-                  <Form.Message />
+                  <Form.Message className="text-destructive" />
                 </Form.Item>
               )}
             />
@@ -321,7 +234,7 @@ export function WebsiteDrawer({
                       placeholder="Enter website description"
                     />
                   </Form.Control>
-                  <Form.Message />
+                  <Form.Message className="text-destructive" />
                 </Form.Item>
               )}
             />
@@ -358,7 +271,7 @@ export function WebsiteDrawer({
                         </Select.Content>
                       </Select>
                     </Form.Control>
-                    <Form.Message />
+                    <Form.Message className="text-destructive" />
                   </Form.Item>
                 );
               }}
@@ -395,7 +308,7 @@ export function WebsiteDrawer({
                       commandProps={{ shouldFilter: false }}
                     />
                   </Form.Control>
-                  <Form.Message />
+                  <Form.Message className="text-destructive" />
                 </Form.Item>
               )}
             />
@@ -429,44 +342,23 @@ export function WebsiteDrawer({
                         </Select.Content>
                       </Select>
                     </Form.Control>
-                    <Form.Message />
+                    <Form.Message className="text-destructive" />
                   </Form.Item>
                 );
               }}
             />
 
             <div className="flex justify-end space-x-2">
-              <Button
-                type="submit"
-                disabled={saving || savingUpdate || hasPermissionError}
-              >
+              <Button type="submit" disabled={saving || savingUpdate}>
                 {saving || savingUpdate
                   ? isEditing
                     ? 'Saving...'
                     : 'Creating...'
-                  : hasPermissionError
-                  ? 'Permission Required'
                   : isEditing
                   ? 'Save Changes'
                   : 'Create CMS'}
               </Button>
 
-              {isEditing && (
-                <Button
-                  variant="destructive"
-                  type="button"
-                  onClick={async () => {
-                    if (website?._id) {
-                      try {
-                        await deleteCMS({ variables: { id: website._id } });
-                      } catch (error) {}
-                    }
-                  }}
-                  disabled={removing}
-                >
-                  {removing ? 'Deleting...' : 'Delete'}
-                </Button>
-              )}
               <Button onClick={onClose} variant="outline">
                 Cancel
               </Button>

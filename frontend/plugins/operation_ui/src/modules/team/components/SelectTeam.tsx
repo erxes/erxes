@@ -90,7 +90,7 @@ const SelectTeamProvider = ({
 const SelectTeamValue = ({ placeholder }: { placeholder?: string }) => {
   const { value, teams } = useSelectTeamContext();
 
-  if (!teams || teams.length === 0 || !value || !value.length) {
+  if (!teams || teams.length === 0 || !value?.length) {
     return (
       <span className="text-muted-foreground">
         {placeholder || 'Select teams...'}

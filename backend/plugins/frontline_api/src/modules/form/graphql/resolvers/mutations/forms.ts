@@ -99,8 +99,8 @@ export const formMutations = {
       const newStatus = status
         ? status
         : form.status === 'active'
-        ? 'archived'
-        : 'active';
+          ? 'archived'
+          : 'active';
 
       _forms.push({
         updateOne: {
@@ -220,10 +220,3 @@ markResolvers(formMutations, {
     skipPermission: true,
   },
 });
-// checkPermission(formMutations, 'formsAdd', 'manageForms');
-// checkPermission(formMutations, 'formsEdit', 'manageForms');
-// checkPermission(formMutations, 'formsRemove', 'manageForms');
-// checkPermission(formMutations, 'formsDuplicate', 'manageForms');
-// checkPermission(formMutations, 'formSubmissionsSave', 'manageForms');
-// checkPermission(formMutations, 'formSubmissionsEdit', 'manageForms');
-// checkPermission(formMutations, 'formSubmissionsRemove', 'manageForms');

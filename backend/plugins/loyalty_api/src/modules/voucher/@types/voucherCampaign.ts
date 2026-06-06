@@ -31,9 +31,7 @@ export interface IVoucherCampaign extends ICommonCampaignFields {
 }
 
 export interface IVoucherCampaignDocument
-  extends IVoucherCampaign,
-    ICommonCampaignDocument,
-    Document {
+  extends IVoucherCampaign, ICommonCampaignDocument, Document {
   _id: string;
 }
 
@@ -41,6 +39,7 @@ export interface IVoucherCampaignParams extends ICursorPaginateParams {
   searchValue?: string;
   status?: string;
   voucherType?: string;
+  excludeVoucherTypes?: string[];
   equalTypeCampaignId?: string;
   _ids?: string[];
 }

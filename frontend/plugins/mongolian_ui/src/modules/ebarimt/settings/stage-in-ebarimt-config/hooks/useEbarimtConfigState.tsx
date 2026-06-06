@@ -1,7 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@apollo/client';
 import { GET_MN_CONFIGS } from '@/ebarimt/settings/stage-in-ebarimt-config/graphql/queries/mnConfigs';
-import { TStageInEbarimtConfig } from '@/ebarimt/settings/stage-in-ebarimt-config/types';
+import {
+  normalizeRuleIds,
+  TStageInEbarimtConfig,
+} from '@/ebarimt/settings/stage-in-ebarimt-config/types';
 
 export const useEbarimtConfigState = () => {
   const { data, refetch, loading } = useQuery(GET_MN_CONFIGS, {
@@ -13,7 +16,13 @@ export const useEbarimtConfigState = () => {
 
   const parseConfigValue = (value: any) => {
     if (!value) return {};
-    return typeof value === 'string' ? JSON.parse(value) : value;
+    const parsedValue = typeof value === 'string' ? JSON.parse(value) : value;
+
+    return {
+      ...parsedValue,
+      reverseVatRules: normalizeRuleIds(parsedValue.reverseVatRules),
+      reverseCtaxRules: normalizeRuleIds(parsedValue.reverseCtaxRules),
+    };
   };
 
   const [localConfigsMap, setLocalConfigsMap] = useState(() => {
@@ -40,7 +49,7 @@ export const useEbarimtConfigState = () => {
     const configKey = `config_${Date.now()}`;
     const newConfig: TStageInEbarimtConfig = {
       title: 'New Stage In Ebarimt Config',
-      destinationStageBoard: '',
+      boardId: '',
       pipelineId: '',
       stageId: '',
       posNo: '',
@@ -56,12 +65,10 @@ export const useEbarimtConfigState = () => {
       hasVat: false,
       citytaxPercent: '',
       vatPercent: '',
-      anotherRulesOfProductsOnVat: '',
-      vatPayableAccount: '',
-      hasAllCitytax: false,
-      allCitytaxPayableAccount: '',
+      reverseVatRules: [],
+      hasCitytax: false,
       footerText: '',
-      anotherRulesOfProductsOnCitytax: '',
+      reverseCtaxRules: [],
       withDescription: false,
       skipEbarimt: false,
     };
@@ -92,7 +99,6 @@ export const useEbarimtConfigState = () => {
     setLocalConfigsMap(updatedConfigsMap);
     return updatedConfigsMap;
   };
-
 
   const getConfigById = (configId: string) => {
     return configsList.find((config: any) => config._id === configId);

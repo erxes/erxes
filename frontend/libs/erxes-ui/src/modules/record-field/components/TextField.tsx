@@ -6,7 +6,7 @@ import {
 } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export interface ITextFieldContainerProps {
   placeholder?: string;
@@ -34,13 +34,19 @@ export const TextField = React.forwardRef<
     const [isOpen, setIsOpen] = useState(false);
     const [editingValue, setEditingValue] = useState(value);
 
+    useEffect(() => {
+      if (!isOpen) {
+        setEditingValue(value);
+      }
+    }, [isOpen, value]);
+
     const handleAction = (e?: React.FormEvent) => {
       e?.preventDefault();
       if (editingValue === value) {
         setIsOpen(false);
         return;
       }
-      onSave && onSave(editingValue);
+      onSave?.(editingValue);
       setIsOpen(false);
     };
 

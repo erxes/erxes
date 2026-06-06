@@ -9,12 +9,24 @@ import {
   handleOnCreateCampaignScoreField,
   handleOnUpdateCampaignScoreField,
   resolvePlaceholderValue,
+  safeEvalMath,
 } from '@/score/utils';
+import {
+  applyScoreChange,
+  fixScoreNumber,
+  getOwnerScoreUpdate,
+  getOwnerScoreValue,
+  getSignedChangeScore,
+  prepareScoreLogChange,
+  refundScoreChange,
+  updateOwnerScoreCache,
+} from '@/score/services/scoreLedger';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface IScoreCampaignModel extends Model<IScoreCampaignDocument> {
   getScoreCampaign(_id: string): Promise<IScoreCampaignDocument>;
@@ -48,9 +60,180 @@ export interface IScoreCampaignModel extends Model<IScoreCampaignDocument> {
     ownerType: string,
     ownerId: string,
   ): Promise<boolean>;
+  updateOwnerScore(args: {
+    ownerId: string;
+    ownerType: string;
+    updatedCustomFieldsData?: Record<string, any>;
+    updatedScore?: number;
+  }): Promise<any>;
 }
 
-export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
+export const getOwnerFieldScore = (owner: any, fieldId?: string) => {
+  return getOwnerScoreValue(owner, fieldId);
+};
+
+const calculateCampaignChangeScore = ({
+  campaign,
+  actionMethod,
+  target,
+}: {
+  campaign: any;
+  actionMethod: 'add' | 'subtract' | 'set';
+  target: any;
+}) => {
+  const { currencyRatio = 1 } = campaign[actionMethod] || {};
+  const placeholder = campaign[actionMethod]?.placeholder || '';
+
+  if (!placeholder.trim() && actionMethod === 'subtract') {
+    return Number(target?.paymentAmount) || 0;
+  }
+
+  const expression = placeholder.replace(
+    /\{\{\s*([^}]+)\s*\}\}/g,
+    (_match, attribute) =>
+      String(resolvePlaceholderValue(target, String(attribute).trim())),
+  );
+
+  return fixScoreNumber(
+    (safeEvalMath(expression) || 0) * Number(currencyRatio || 1) || 0,
+  );
+};
+
+const getCampaignStageStatus = (campaign: any, stageId?: string) => {
+  if (!stageId) {
+    return undefined;
+  }
+
+  const rules = campaign?.additionalConfig?.cardBasedRule || [];
+  const stageIds = rules.flatMap((rule: any) => rule.stageIds || []);
+  const refundStageIds = rules.flatMap(
+    (rule: any) => rule.refundStageIds || [],
+  );
+
+  if (stageIds.includes(stageId)) {
+    return 'stage';
+  }
+
+  if (refundStageIds.includes(stageId)) {
+    return 'refund';
+  }
+
+  return undefined;
+};
+
+const hasCampaignStageRules = (campaign: any) =>
+  (campaign?.additionalConfig?.cardBasedRule || []).some(
+    (rule: any) =>
+      (rule.stageIds || []).length || (rule.refundStageIds || []).length,
+  );
+
+const findActiveScoreLog = async ({
+  models,
+  targetId,
+  ownerId,
+  ownerType,
+  campaignId,
+  action,
+}: {
+  models: IModels;
+  targetId?: string;
+  ownerId: string;
+  ownerType: string;
+  campaignId: string;
+  action: 'add' | 'subtract' | 'set';
+}) => {
+  if (!targetId) {
+    return null;
+  }
+
+  const scoreLogs = await models.ScoreLogs.find({
+    targetId,
+    ownerId,
+    ownerType,
+    campaignId,
+    action,
+  }).sort({ createdAt: -1 });
+
+  for (const scoreLog of scoreLogs) {
+    const refundLog = await models.ScoreLogs.exists({
+      targetId,
+      ownerId,
+      ownerType,
+      campaignId,
+      action: 'refund',
+      sourceScoreLogId: scoreLog._id,
+    });
+
+    if (!refundLog) {
+      return scoreLog;
+    }
+  }
+
+  return null;
+};
+
+const cleanupRefundedScoreLogs = async ({
+  models,
+  targetId,
+  ownerId,
+  ownerType,
+  campaignId,
+  action,
+}: {
+  models: IModels;
+  targetId?: string;
+  ownerId: string;
+  ownerType: string;
+  campaignId: string;
+  action: 'add' | 'subtract' | 'set';
+}) => {
+  if (!targetId) {
+    return;
+  }
+
+  const scoreLogs = await models.ScoreLogs.find({
+    targetId,
+    ownerId,
+    ownerType,
+    campaignId,
+    action,
+  }).select('_id');
+
+  if (!scoreLogs.length) {
+    return;
+  }
+
+  const scoreLogIds = scoreLogs.map((scoreLog) => scoreLog._id);
+  const refundLogs = await models.ScoreLogs.find({
+    targetId,
+    ownerId,
+    ownerType,
+    campaignId,
+    action: 'refund',
+    sourceScoreLogId: { $in: scoreLogIds },
+  }).select('_id sourceScoreLogId');
+
+  if (!refundLogs.length) {
+    return;
+  }
+
+  const refundedSourceLogIds = refundLogs.map(
+    (refundLog) => refundLog.sourceScoreLogId,
+  );
+  const refundLogIds = refundLogs.map((refundLog) => refundLog._id);
+
+  await models.ScoreLogs.deleteMany({
+    _id: { $in: [...refundedSourceLogIds, ...refundLogIds] },
+  });
+};
+
+export const loadScoreCampaignClass = (
+  models: IModels,
+  subdomain: string,
+  dispatcher: EventDispatcherReturn,
+) => {
+  const { sendDbEventLog } = dispatcher;
+
   class ScoreCampaign {
     public static async getScoreCampaign(_id: string) {
       const scoreCampaign = await models.ScoreCampaigns.findOne({ _id });
@@ -68,10 +251,18 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
     ) {
       doc = await handleOnCreateCampaignScoreField({ doc, subdomain });
 
-      return await models.ScoreCampaigns.create({
+      const created = await models.ScoreCampaigns.create({
         ...doc,
-        createdUserId: user._id,
+        createdUserId: user?._id,
       });
+
+      sendDbEventLog?.({
+        action: 'create',
+        docId: created._id,
+        currentDocument: created.toObject(),
+      });
+
+      return created;
     }
 
     public static async updateScoreCampaign(
@@ -79,10 +270,13 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
       doc: IScoreCampaign,
       user: IUserDocument,
     ) {
+      const prevDoc = await models.ScoreCampaigns.findOne({ _id }).lean();
       const scoreCampaign = await this.getScoreCampaign(_id);
 
       if (
+        !!scoreCampaign?.fieldId &&
         !!scoreCampaign?.ownerType &&
+        !!doc.ownerType &&
         scoreCampaign.ownerType !== doc.ownerType
       ) {
         throw new Error(
@@ -96,26 +290,64 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         scoreCampaign,
       });
 
-      return await models.ScoreCampaigns.updateOne(
+      const result = await models.ScoreCampaigns.updateOne(
         { _id },
         { $set: { ...doc } },
       );
+
+      sendDbEventLog?.({
+        action: 'update',
+        docId: _id,
+        currentDocument: doc,
+        prevDocument: prevDoc,
+      });
+
+      return result;
     }
 
     public static async removeScoreCampaign(_id: string, user: IUserDocument) {
+      const prevDoc = await models.ScoreCampaigns.findOne({ _id }).lean();
       await this.getScoreCampaign(_id);
 
-      return await models.ScoreCampaigns.updateOne(
+      const result = await models.ScoreCampaigns.updateOne(
         { _id },
         { $set: { status: SCORE_CAMPAIGN_STATUSES.ARCHIVED } },
       );
+
+      sendDbEventLog?.({
+        action: 'update', // soft delete (status change)
+        docId: _id,
+        currentDocument: { status: SCORE_CAMPAIGN_STATUSES.ARCHIVED },
+        prevDocument: prevDoc,
+      });
+
+      return result;
     }
 
-    public static async removeScoreCampaigns(_ids: string) {
-      return await models.ScoreCampaigns.updateMany(
-        { _id: { $in: _ids } },
+    public static async removeScoreCampaigns(
+      _ids: string[],
+      user: IUserDocument,
+    ) {
+      const idsArray = Array.isArray(_ids) ? _ids : [_ids];
+      const prevDocs = await models.ScoreCampaigns.find({
+        _id: { $in: idsArray },
+      }).lean();
+
+      const result = await models.ScoreCampaigns.updateMany(
+        { _id: { $in: idsArray } },
         { $set: { status: SCORE_CAMPAIGN_STATUSES.ARCHIVED } },
       );
+
+      for (const prev of prevDocs) {
+        sendDbEventLog?.({
+          action: 'update',
+          docId: prev._id,
+          currentDocument: { status: SCORE_CAMPAIGN_STATUSES.ARCHIVED },
+          prevDocument: prev,
+        });
+      }
+
+      return result;
     }
 
     public static async checkScoreAviableSubtract(data) {
@@ -133,7 +365,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
 
       const campaign = await models.ScoreCampaigns.findOne({
         _id: campaignId,
-        status: 'published',
+        status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
       });
 
       if (!campaign) {
@@ -146,28 +378,16 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         );
       }
 
-      let { placeholder, currencyRatio = 0 } = campaign?.subtract || {};
+      let changeScore = calculateCampaignChangeScore({
+        campaign,
+        actionMethod: 'subtract',
+        target,
+      });
 
-      const matches = (placeholder || '').match(/\{\{\s*([^}]+)\s*\}\}/g);
-      const attributes = (matches || []).map((match) =>
-        match.replace(/\{\{\s*|\s*\}\}/g, ''),
-      );
-
-      for (const attribute of attributes) {
-        placeholder = resolvePlaceholderValue(target, attribute);
-      }
-
-      let changeScore = (eval(placeholder) || 0) * Number(currencyRatio) || 0;
-
-      const { score = 0, customFieldsData = [] } = owner || {};
-
-      let oldScore = score;
+      let oldScore = Number(owner?.score) || 0;
 
       if (campaign.fieldId) {
-        const fieldScore =
-          customFieldsData.find(({ field }) => field === campaign.fieldId)
-            ?.value || 0;
-        oldScore = fieldScore;
+        oldScore = getOwnerFieldScore(owner, campaign.fieldId);
         const scoreLog = await models.ScoreLogs.findOne({
           ownerId,
           ownerType,
@@ -195,6 +415,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         ownerId,
         campaignId,
         target,
+        oldTarget,
         actionMethod,
         serviceName,
         targetId,
@@ -212,7 +433,7 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
 
       const campaign = await models.ScoreCampaigns.findOne({
         _id: campaignId,
-        status: 'published',
+        status: SCORE_CAMPAIGN_STATUSES.PUBLISHED,
       });
 
       if (!campaign) {
@@ -225,16 +446,73 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         );
       }
 
+      const calculationTarget = {
+        ...target,
+        [ownerType]: owner,
+      };
+      const oldStageStatus = getCampaignStageStatus(
+        campaign,
+        oldTarget?.stageId,
+      );
+      const newStageStatus = getCampaignStageStatus(
+        campaign,
+        calculationTarget?.stageId,
+      );
+
+      if (newStageStatus === 'stage') {
+        await cleanupRefundedScoreLogs({
+          models,
+          targetId,
+          ownerId,
+          ownerType,
+          campaignId: campaign._id,
+          action: actionMethod,
+        });
+      }
+
+      const activeScoreLog = await findActiveScoreLog({
+        models,
+        targetId,
+        ownerId,
+        ownerType,
+        campaignId: campaign._id,
+        action: actionMethod,
+      });
+      const hasStageRules = hasCampaignStageRules(campaign);
+
+      if (hasStageRules && newStageStatus !== 'stage') {
+        if (!activeScoreLog) {
+          return;
+        }
+
+        const { log } = await refundScoreChange({
+          models,
+          subdomain,
+          doc: {
+            targetId,
+            ownerType,
+            ownerId,
+            sourceScoreLogId: activeScoreLog._id,
+            netTargetAddsForSubtract: false,
+            description:
+              newStageStatus === 'refund'
+                ? 'Refund score campaign'
+                : `Clear score campaign from ${oldStageStatus || 'undefined'
+                } stage`,
+          },
+        });
+
+        return log;
+      }
+
       if (campaign.onlyClientPortal && ownerType === 'customer') {
         const cpUser = await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
           method: 'query',
-          module: 'clientPortalUsers',
-          action: 'findOne',
-          input: {
-            erxesCustomerId: owner._id,
-          },
+          module: 'cpUsers',
+          action: 'get',
+          input: { erxesCustomerId: owner._id },
           defaultValue: null,
         });
 
@@ -245,145 +523,112 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      let { placeholder = '', currencyRatio = 0 } = campaign[actionMethod];
+      let changeScore = calculateCampaignChangeScore({
+        campaign,
+        actionMethod,
+        target: calculationTarget,
+      });
 
-      const matches = (placeholder || '').match(/\{\{\s*([^}]+)\s*\}\}/g);
-      const attributes = [
-        ...new Set(
-          (matches || []).map((match) => match.replace(/\{\{\s*|\s*\}\}/g, '')),
-        ),
-      ];
+      if (!changeScore && actionMethod !== 'set') {
+        if (activeScoreLog) {
+          const { log } = await refundScoreChange({
+            models,
+            subdomain,
+            doc: {
+              targetId,
+              ownerType,
+              ownerId,
+              sourceScoreLogId: activeScoreLog._id,
+              netTargetAddsForSubtract: false,
+              description: 'Clear zero score campaign',
+            },
+          });
 
-      for (const attribute of attributes) {
-        const placeholderValue = resolvePlaceholderValue(target, attribute);
+          return log;
+        }
 
-        placeholder = placeholder.replace(
-          new RegExp(`{{ ${attribute} }}`, 'g'),
-          placeholderValue,
-        );
-      }
-
-      const changeScore = (eval(placeholder) || 0) * Number(currencyRatio) || 0;
-      if (!changeScore) {
         return;
       }
 
-      // const scoreLog = await models.ScoreLogs.findOne({
-      //   targetId,
-      //   ownerId,
-      //   campaignId,
-      //   action: "subtract",
-      // });
+      let oldScore = Number(owner?.score) || 0;
 
-      // if (scoreLog) {
-      //   const prevChangeScore = scoreLog.changeScore;
-      //   if (changeScore !== scoreLog.changeScore) {
-      //     scoreLog.changeScore = changeScore;
-
-      //     const scoreDifference = changeScore - prevChangeScore;
-      //     const updatedCustomFieldsData = (owner?.customFieldsData || []).map(
-      //       (customFieldData) =>
-      //         customFieldData.field === campaign.fieldId
-      //           ? {
-      //               ...customFieldData,
-      //               value: (customFieldData?.value || 0) + -scoreDifference,
-      //             }
-      //           : customFieldData
-      //     );
-      //     const preparedCustomFieldsData = await sendCoreMessage({
-      //       subdomain,
-      //       action: "fields.prepareCustomFieldsData",
-      //       data: updatedCustomFieldsData,
-      //       defaultValue: [],
-      //       isRPC: true,
-      //     });
-
-      //     await this.updateOwnerScore({
-      //       ownerId,
-      //       ownerType,
-      //       updatedCustomFieldsData: preparedCustomFieldsData,
-      //     });
-
-      //     await scoreLog.save();
-      //     return;
-      //   }
-
-      //   return;
-      // }
-
-      const { score = 0, customFieldsData = [] } = owner || {};
-
-      let oldScore = score;
-
-      console.log({ customFieldsData, score, changeScore });
       if (campaign.fieldId) {
-        const fieldScore =
-          customFieldsData.find(({ field }) => field === campaign.fieldId)
-            ?.value || 0;
-        oldScore = fieldScore;
+        oldScore = getOwnerFieldScore(owner, campaign.fieldId);
       }
 
-      console.log({ oldScore });
+      if (actionMethod === 'set') {
+        if (changeScore === oldScore) {
+          return activeScoreLog || undefined;
+        }
 
-      const newScore =
-        actionMethod === 'subtract'
-          ? oldScore - changeScore
-          : oldScore + changeScore;
-
-      if (actionMethod === 'subtract' && newScore < 0) {
-        throw new Error('There has no enough score to subtract');
+        changeScore = fixScoreNumber(changeScore - oldScore);
       }
 
-      let updatedCustomFieldsData;
+      const scoreLog = activeScoreLog;
 
-      const [preparedCustomFieldsData] = await sendTRPCMessage({
+      if (!changeScore) {
+        return scoreLog || undefined;
+      }
+
+      if (scoreLog) {
+        const prevChangeScore = Math.abs(Number(scoreLog.changeScore) || 0);
+
+        if (actionMethod !== 'set' && changeScore === prevChangeScore) {
+          return scoreLog;
+        }
+
+        const currentSignedChangeScore = getSignedChangeScore(scoreLog);
+        let nextSignedChangeScore = changeScore;
+        if (actionMethod === 'set') nextSignedChangeScore = currentSignedChangeScore + changeScore;
+        if (actionMethod === 'subtract') nextSignedChangeScore = -changeScore;
+
+        const nextPreparedChange = prepareScoreLogChange({
+          action: actionMethod,
+          signedChangeScore: nextSignedChangeScore,
+        });
+        const scoreDifference =
+          nextPreparedChange.signedChangeScore - currentSignedChangeScore;
+        const recalculatedScore = fixScoreNumber(oldScore + scoreDifference);
+
+        if (recalculatedScore < 0) {
+          throw new Error('There has no enough score to subtract');
+        }
+
+        await updateOwnerScoreCache({
+          subdomain,
+          ownerId,
+          ownerType,
+          ...getOwnerScoreUpdate({
+            owner,
+            fieldId: campaign.fieldId,
+            newScore: recalculatedScore,
+          }),
+        });
+
+        scoreLog.changeScore = nextPreparedChange.changeScore;
+        await scoreLog.save();
+
+        return scoreLog;
+      }
+
+      const { log } = await applyScoreChange({
+        models,
         subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'fields',
-        action: 'prepareCustomFieldsData',
-        input: [{ field: campaign.fieldId, value: newScore }],
-        defaultValue: [],
+        doc: {
+          owner,
+          ownerId,
+          ownerType,
+          campaignId: campaign._id,
+          fieldId: campaign.fieldId,
+          serviceName,
+          targetId,
+          action: actionMethod,
+          signedChangeScore:
+            actionMethod === 'subtract' ? -changeScore : changeScore,
+        },
       });
 
-      if (
-        !customFieldsData ||
-        !(customFieldsData || []).find(
-          ({ field }) => field === campaign.fieldId,
-        )
-      ) {
-        updatedCustomFieldsData = [
-          ...(customFieldsData || []),
-          preparedCustomFieldsData,
-        ];
-      } else {
-        updatedCustomFieldsData = customFieldsData.map((customFieldData) =>
-          customFieldData.field === campaign.fieldId
-            ? { ...customFieldData, ...preparedCustomFieldsData }
-            : customFieldData,
-        );
-      }
-
-      console.log({ updatedCustomFieldsData });
-
-      await this.updateOwnerScore({
-        ownerId,
-        ownerType,
-        updatedCustomFieldsData,
-      });
-
-      console.log('score log');
-
-      return await models.ScoreLogs.create({
-        ownerId,
-        ownerType,
-        changeScore,
-        createdAt: new Date(),
-        campaignId: campaign._id,
-        serviceName,
-        targetId,
-        action: actionMethod,
-      });
+      return log;
     }
 
     public static async refundLoyaltyScore(
@@ -391,144 +636,36 @@ export const loadScoreCampaignClass = (models: IModels, subdomain: string) => {
       ownerType: string,
       ownerId: string,
     ) {
-      if (!targetId || !ownerId || !ownerType) {
-        throw new Error('Please provide owner & target');
-      }
-
-      let scoreLog = await models.ScoreLogs.findOne({
-        targetId,
-        ownerId,
-        action: 'subtract',
-      });
-
-      if (!scoreLog) {
-        scoreLog = await models.ScoreLogs.findOne({
-          targetId,
-          ownerId,
-          action: 'add',
-        });
-
-        if (!scoreLog) {
-          throw new Error('Cannot find score log on this target');
-        }
-      }
-
-      const refundScoreLog = await models.ScoreLogs.exists({
-        targetId,
-        ownerId,
-        action: 'refund',
-        sourceScoreLogId: scoreLog._id,
-      });
-
-      if (refundScoreLog) {
-        throw new Error(
-          'Cannot refund loyalty score cause already refunded loyalty score',
-        );
-      }
-
-      let { changeScore, campaignId, action } = scoreLog;
-
-      const campaign = await models.ScoreCampaigns.findOne({ _id: campaignId });
-      if (!campaign) {
-        throw new Error(
-          'Error occurred while retrieving the score campaign from the score log for the target and owner.',
-        );
-      }
-
-      let refundAmount: number;
-
-      if (action === 'subtract') {
-        const addedScoreLogs = await models.ScoreLogs.find({
-          targetId,
-          ownerId,
-          action: 'add',
-        });
-
-        if (addedScoreLogs && addedScoreLogs.length > 0) {
-          const totalAddedScore = addedScoreLogs.reduce(
-            (acc, curr) => acc + curr.changeScore,
-            0,
-          );
-          refundAmount = changeScore - totalAddedScore;
-        } else {
-          refundAmount = changeScore;
-        }
-      } else if (action === 'add') {
-        refundAmount = -changeScore;
-      } else {
-        throw new Error(`Unsupported action type for refund: ${action}`);
-      }
-
-      const { fieldId } = campaign;
-
-      const owner = await getLoyaltyOwner(subdomain, { ownerType, ownerId });
-
-      if (!owner) {
-        throw new Error('Cannot find owner');
-      }
-
-      const { customFieldsData = [] } = owner || {};
-
-      const updatedCustomFieldsData = customFieldsData.map((customFieldData) =>
-        customFieldData.field === fieldId
-          ? {
-              ...customFieldData,
-              value: (customFieldData?.value || 0) + refundAmount,
-            }
-          : customFieldData,
-      );
-
-      const preparedCustomFieldsData = await sendTRPCMessage({
+      const { log } = await refundScoreChange({
+        models,
         subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'fields',
-        action: 'prepareCustomFieldsData',
-        input: updatedCustomFieldsData,
-        defaultValue: [],
+        doc: {
+          targetId,
+          ownerType,
+          ownerId,
+        },
       });
 
-      await this.updateOwnerScore({
-        ownerId,
-        ownerType,
-        updatedCustomFieldsData: preparedCustomFieldsData,
-      });
-
-      return await models.ScoreLogs.create({
-        ownerId,
-        ownerType,
-        changeScore: refundAmount,
-        createdAt: new Date(),
-        campaignId: campaign._id,
-        serviceName: scoreLog.serviceName,
-        targetId,
-        action: 'refund',
-        sourceScoreLogId: scoreLog._id,
-      });
+      return log;
     }
 
     static async updateOwnerScore({
       ownerId,
       ownerType,
       updatedCustomFieldsData,
+      updatedScore,
+    }: {
+      ownerId: string;
+      ownerType: string;
+      updatedCustomFieldsData?: Record<string, any>;
+      updatedScore?: number;
     }) {
-      const actionsObj = {
-        user: { module: 'users', action: 'updateOne' },
-        customer: { module: 'customers', action: 'updateOne' },
-        company: { module: 'companies', action: 'updateOne' },
-      };
-
-      return await sendTRPCMessage({
+      return await updateOwnerScoreCache({
         subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: actionsObj[ownerType].module,
-        action: actionsObj[ownerType].action,
-        input: {
-          selector: { _id: ownerId },
-          modifier: { $set: { customFieldsData: updatedCustomFieldsData } },
-        },
-        defaultValue: null,
+        ownerId,
+        ownerType,
+        updatedCustomFieldsData,
+        updatedScore,
       });
     }
   }

@@ -1,7 +1,8 @@
-import { executeCoreActions } from '@/executions/executeCoreActions';
-import { executeCreateAction } from '@/executions/actions/executeCreateAction';
-import { handleExecutionActionResponse } from '@/executions/handleExecutionActionResponse';
-import { handleExecutionError } from '@/executions/handleExecutionError';
+import { executeCoreActions } from './executeCoreActions';
+import { executeCreateAction } from './actions/executeCreateAction';
+import { markExecActionStarted } from './executionActionMetrics';
+import { handleExecutionActionResponse } from './handleExecutionActionResponse';
+import { handleExecutionError } from './handleExecutionError';
 import {
   AUTOMATION_CORE_ACTIONS,
   AUTOMATION_EXECUTION_STATUS,
@@ -12,7 +13,9 @@ import {
   splitType,
 } from 'erxes-api-shared/core-modules';
 import { getPlugins } from 'erxes-api-shared/utils';
-import { ACTION_METHODS, ERROR_MESSAGES, EXECUTION_STATUS } from '@/constants';
+import { ACTION_METHODS, ERROR_MESSAGES, EXECUTION_STATUS } from '../constants';
+
+const SPLIT_ACTION_TYPE = 'split';
 
 /**
  * Determines the target type for an action based on its configuration
@@ -72,6 +75,7 @@ export const executeActions = async (
     actionConfig: action.config,
     nextActionId: action.nextActionId,
   };
+  markExecActionStarted(execAction);
 
   let actionResponse: any = null;
   const actionType = action.type;
@@ -80,6 +84,7 @@ export const executeActions = async (
 
   try {
     if (
+      actionType === SPLIT_ACTION_TYPE ||
       Object.values(AUTOMATION_CORE_ACTIONS).find(
         (value) => actionType === value,
       )
@@ -101,6 +106,7 @@ export const executeActions = async (
           coreActionResponse.actionResponse,
           execution,
           execAction,
+          'waiting',
         );
         return EXECUTION_STATUS.PAUSED;
       }
@@ -125,6 +131,7 @@ export const executeActions = async (
             createActionResponse.actionResponse,
             execution,
             execAction,
+            'waiting',
           );
           return EXECUTION_STATUS.PAUSED;
         }
@@ -143,6 +150,6 @@ export const executeActions = async (
     triggerType,
     execution,
     actionsMap,
-    action.nextActionId,
+    execAction.nextActionId,
   );
 };

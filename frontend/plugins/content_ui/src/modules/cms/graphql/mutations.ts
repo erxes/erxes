@@ -7,9 +7,41 @@ export const CONTENT_CREATE_CMS = gql`
       clientPortalId
       createdAt
       description
+      domain
+      publicUrl
+      metaTitle
+      metaDescription
+      metaKeywords
+      metaImage {
+        url
+        name
+        type
+        size
+        duration
+      }
+      googleTrackingId
+      googleTagManagerId
+      customScripts
+      defaultPostStatus
+      allowComments
+      siteLogo {
+        url
+        name
+        type
+        size
+        duration
+      }
+      favicon {
+        url
+        name
+        type
+        size
+        duration
+      }
       language
       languages
       name
+      postUrlField
       updatedAt
       content
     }
@@ -23,9 +55,41 @@ export const CONTENT_UPDATE_CMS = gql`
       clientPortalId
       createdAt
       description
+      domain
+      publicUrl
+      metaTitle
+      metaDescription
+      metaKeywords
+      metaImage {
+        url
+        name
+        type
+        size
+        duration
+      }
+      googleTrackingId
+      googleTagManagerId
+      customScripts
+      defaultPostStatus
+      allowComments
+      siteLogo {
+        url
+        name
+        type
+        size
+        duration
+      }
+      favicon {
+        url
+        name
+        type
+        size
+        duration
+      }
       language
       languages
       name
+      postUrlField
       updatedAt
       content
     }

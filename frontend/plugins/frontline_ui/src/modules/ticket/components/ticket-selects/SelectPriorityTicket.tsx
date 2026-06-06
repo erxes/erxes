@@ -130,12 +130,14 @@ const SelectPriorityRoot = ({
   scope,
   variant,
   id,
+  disabled,
 }: {
   value?: number;
   onValueChange?: (value: number) => void;
   scope?: string;
   variant: `${SelectTriggerVariant}`;
   id?: string;
+  disabled?: boolean;
 }) => {
   const { updateTicket } = useUpdateTicket();
   const [open, setOpen] = useState(false);
@@ -159,7 +161,7 @@ const SelectPriorityRoot = ({
       variant={variant}
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant={variant}>
+        <SelectTriggerTicket variant={variant} disabled={disabled}>
           {variant === SelectTriggerVariant.TABLE ? (
             <SelectPriorityBadgeValue />
           ) : (

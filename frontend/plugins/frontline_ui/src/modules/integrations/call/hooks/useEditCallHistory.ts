@@ -82,9 +82,6 @@ export const useUpdateCallHistory = () => {
           refetchQueries: ['callHistories'],
         })
           .then(() => {
-            console.log(
-              'Successfully created new history entry for cancelled call',
-            );
             setHistoryId('');
           })
           .catch((e) => {

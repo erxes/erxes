@@ -8,8 +8,53 @@ import { IModels } from '~/connectionResolvers';
 import { fieldGroupSchema } from '@/cms/db/definitions/customPostType';
 import { generateUniqueSlug } from '@/cms/utils/common';
 
-export interface ICustomFieldGroupModel
-  extends Model<ICustomFieldGroupDocument> {
+function omitUndefined<T extends Record<string, any>>(obj: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, value]) => value !== undefined),
+  ) as Partial<T>;
+}
+
+async function generateUniqueSlugForUpdate(params: {
+  model: ICustomFieldGroupModel;
+  clientPortalId: string;
+  field: string;
+  baseSlug: string;
+  excludeId: string;
+  count?: number;
+}): Promise<string> {
+  const { model, clientPortalId, field, baseSlug, excludeId } = params;
+  const count = params.count ?? 1;
+  const MAX_ATTEMPTS = 1000;
+
+  if (count > MAX_ATTEMPTS) {
+    throw new Error(
+      `Unable to generate unique slug after ${MAX_ATTEMPTS} attempts`,
+    );
+  }
+
+  const potentialSlug = count === 1 ? baseSlug : `${baseSlug}_${count}`;
+
+  const existing = await model.findOne({
+    [field]: potentialSlug,
+    clientPortalId,
+    _id: { $ne: excludeId },
+  });
+
+  if (!existing) {
+    return potentialSlug;
+  }
+
+  return generateUniqueSlugForUpdate({
+    model,
+    clientPortalId,
+    field,
+    baseSlug,
+    excludeId,
+    count: count + 1,
+  });
+}
+
+export interface ICustomFieldGroupModel extends Model<ICustomFieldGroupDocument> {
   getCustomFieldGroups: (query: any) => Promise<ICustomFieldGroupDocument[]>;
   createFieldGroup: (
     data: ICustomFieldGroup,
@@ -48,18 +93,37 @@ export const loadCustomFieldGroupClass = (models: IModels) => {
       id: string,
       data: ICustomFieldGroup,
     ) => {
-      if (data.code) {
-        const uniqueCode = await generateUniqueSlug(
-          models.CustomFieldGroups,
-          data.clientPortalId,
-          'code',
-          data.code,
-        );
-        data.code = uniqueCode;
+      const existingGroup = await models.CustomFieldGroups.findById(id);
+
+      if (!existingGroup) {
+        throw new Error('Field group not found');
       }
+
+      const clientPortalId =
+        data.clientPortalId || existingGroup.clientPortalId;
+
+      if (data.code && data.code !== existingGroup.code) {
+        data.code = await generateUniqueSlugForUpdate({
+          model: models.CustomFieldGroups,
+          clientPortalId,
+          field: 'code',
+          baseSlug: data.code,
+          excludeId: id,
+        });
+      }
+
+      const updateData: Partial<ICustomFieldGroup> = omitUndefined({
+        ...data,
+        clientPortalId,
+      });
+
+      if (!('fields' in data)) {
+        updateData.fields = existingGroup.fields;
+      }
+
       return models.CustomFieldGroups.findOneAndUpdate(
         { _id: id },
-        { $set: data },
+        { $set: updateData },
         { new: true },
       );
     };

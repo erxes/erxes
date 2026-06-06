@@ -101,8 +101,19 @@ export const ConversationItemContent = () => {
     const callDirection = content.split('callDirection/')[1];
 
     return (
-      <div className="font-medium">
-        {callDirection === 'INCOMING' ? 'Incoming Call' : 'Outgoing Call'}
+      <div className="flex items-center gap-2 w-full justify-between flex-nowrap">
+        <div className="font-medium">
+          {callDirection === 'INCOMING' ? 'Incoming Call' : 'Outgoing Call'}
+        </div>
+        {assignedUserId && assignedUser && (
+          <MembersInline.Provider memberIds={[assignedUserId]}>
+            <span className="w-auto flex gap-2 items-center shrink-0">
+              <span className="[1lh] flex items-center">
+                <MembersInline.Avatar size={'sm'} />
+              </span>
+            </span>
+          </MembersInline.Provider>
+        )}
       </div>
     );
   }

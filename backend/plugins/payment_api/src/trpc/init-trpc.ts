@@ -54,6 +54,13 @@ export const appRouter = t.router({
         };
       }),
   },
+  invoices: {
+    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+      const { models } = ctx;
+
+      return models.Invoices.find(input).lean();
+    }),
+  },
 });
 
 export type AppRouter = typeof appRouter;

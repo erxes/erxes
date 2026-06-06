@@ -55,42 +55,6 @@ export interface WaitingScreen {
   value?: string;
 }
 
-export interface EbarimtConfig {
-  companyName?: string;
-  ebarimtUrl?: string;
-  checkTaxpayerUrl?: string;
-  checkCompanyUrl?: string;
-  hasVat?: boolean;
-  hasCitytax?: boolean;
-  defaultPay?: string;
-  districtCode?: string;
-  companyRD?: string;
-  defaultGSCode?: string;
-  vatPercent?: number;
-  cityTaxPercent?: number;
-  headerText?: string;
-  footerText?: string;
-  hasCopy?: boolean;
-  hasSumQty?: boolean;
-  reverseCtaxRules?: string[];
-  reverseVatRules?: string[];
-  merchantTin?: string;
-  posNo?: string;
-  branchNo?: string;
-}
-
-export interface ErkhetConfig {
-  isSyncErkhet?: boolean;
-  userEmail?: string;
-  defaultPay?: string;
-  getRemainder?: boolean;
-  beginNumber?: string;
-  location?: string;
-  account?: string;
-  checkErkhet?: boolean;
-  checkInventories?: boolean;
-}
-
 export interface DeliveryConfig {
   boardId?: string;
   pipelineId?: string;
@@ -106,7 +70,6 @@ export interface IPos {
   name: string;
   description?: string;
   isOnline: boolean;
-  type: string;
   onServer: boolean;
   branchTitle: string;
   branchId?: string;
@@ -123,12 +86,11 @@ export interface IPos {
   catProdMappings?: CatProdMapping[];
   isCheckRemainder?: boolean;
   checkExcludeCategoryIds?: string[];
+  saveRemainder?: boolean;
   banFractions?: boolean;
   uiOptions?: UiOptions;
   kitchenScreen?: KitchenScreen;
   waitingScreen?: WaitingScreen;
-  ebarimtConfig?: EbarimtConfig;
-  erkhetConfig?: ErkhetConfig;
   deliveryConfig?: DeliveryConfig;
   cardsConfig?: Record<string, any>;
   allowTypes?: string[];
@@ -138,6 +100,8 @@ export interface IPos {
   pdomain?: string;
   beginNumber?: string;
   paymentIds?: string[];
+  serviceCharge?: number;
+  serviceChargeApplicableProductId?: string;
   paymentTypes?: Array<{
     _id?: string;
     type: string;

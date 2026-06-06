@@ -88,7 +88,7 @@ export async function verifyFacebookToken(
     const verifyResponse = await fetch(verifyUrl);
     const verifyData = await verifyResponse.json();
 
-    if (!verifyData.data || !verifyData.data.is_valid) {
+    if (!verifyData?.data?.is_valid) {
       throw new Error('Invalid Facebook token');
     }
 

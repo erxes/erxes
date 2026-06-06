@@ -10,31 +10,38 @@ export interface AddVoucherResult {
 }
 
 export interface AddVoucherVariables {
-  name: string;
-  kind: string;
+  title: string;
   description?: string;
   status?: string;
-  type?: string;
-  startDate?: Date;
-  endDate?: Date;
-  conditions?: any;
-  title?: string;
+
+  startDate?: string;
+  endDate?: string;
+
   buyScore?: number;
-  count?: number;
-  minimumSpend?: number;
-  maximumSpend?: number;
-  productCategory?: string;
-  orExcludeProductCategory?: string;
-  product?: string;
-  orExcludeProduct?: string;
-  tag?: string;
-  orExcludeTag?: string;
+  score?: number;
+  scoreAction?: string;
+
+  voucherType?: string;
+
+  productCategoryIds?: string[];
+  productIds?: string[];
+  discountPercent?: number;
+
   bonusProductId?: string;
   bonusCount?: number;
-  lottery?: string;
-  lotteryCount?: number;
-  spinCount?: number;
+
+  coupon?: string;
+
   spinCampaignId?: string;
+  spinCount?: number;
+
+  lotteryCampaignId?: string;
+  lotteryCount?: number;
+
+  kind?: string;
+  value?: number;
+
+  restrictions?: any;
 }
 
 export const useAddVoucher = () => {

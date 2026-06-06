@@ -1,9 +1,10 @@
 import { Button, Tooltip } from 'erxes-ui';
 import { IconRotateClockwise } from '@tabler/icons-react';
-import { useSetAtom } from 'jotai';
-import { refetchNewMessagesState } from '@/inbox/conversations/states/newMessagesCountState';
-import { useAtomValue } from 'jotai';
-import { newMessagesCountState } from '@/inbox/conversations/states/newMessagesCountState';
+import { useSetAtom, useAtomValue } from 'jotai';
+import {
+  refetchNewMessagesState,
+  newMessagesCountState,
+} from '@/inbox/conversations/states/newMessagesCountState';
 
 export const ConversationRefetch = () => {
   const newMessagesCount = useAtomValue(newMessagesCountState);

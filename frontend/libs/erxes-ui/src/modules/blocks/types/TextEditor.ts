@@ -26,6 +26,7 @@ export interface IEditorProps {
   initialContent?: string;
   scope?: string;
   isHTML?: boolean;
+  uploadFile?: (file: File) => Promise<string>;
 }
 
 export type IBlockEditor = typeof BLOCK_SCHEMA.BlockNoteEditor;

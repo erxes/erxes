@@ -1,4 +1,4 @@
-import { IconAlignLeft, IconCalendarPlus, IconHash } from '@tabler/icons-react';
+import { IconAlignLeft, IconCalendarPlus, IconHash, IconQrcode } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
@@ -79,6 +79,29 @@ export const invoicesColumns: ColumnDef<IInvoice>[] = [
           >
             {cell.getValue() as string}
           </Badge>
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'scannedAt',
+    accessorKey: 'scannedAt',
+    header: () => (
+      <RecordTable.InlineHead label="scanned" icon={IconQrcode} />
+    ),
+    cell: ({ cell }) => {
+      const scannedAt = cell.getValue() as string | undefined;
+      return (
+        <RecordTableInlineCell>
+          {scannedAt ? (
+            <RelativeDateDisplay value={scannedAt} asChild>
+              <Badge variant="success">
+                <RelativeDateDisplay.Value value={scannedAt} />
+              </Badge>
+            </RelativeDateDisplay>
+          ) : (
+            <Badge variant="outline">Not scanned</Badge>
+          )}
         </RecordTableInlineCell>
       );
     },

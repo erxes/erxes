@@ -52,6 +52,14 @@ const AppsSettings = lazy(() =>
   })),
 );
 
+const OAuthClientsSettings = lazy(() =>
+  import('~/pages/settings/workspace/OAuthClientsSettingsPage').then(
+    (module) => ({
+      default: module.OAuthClientsSettingsPage,
+    }),
+  ),
+);
+
 const ProductsSettingsRoutes = lazy(() =>
   import('@/products/settings/components/ProductSettingsRoutes').then(
     (module) => ({
@@ -66,11 +74,11 @@ const BrandsSettingsRoutes = lazy(() =>
 );
 
 const AutomationSettingsRoutes = lazy(() =>
-  import(
-    '@/automations/components/settings/components/AutomationSettingsRoutes'
-  ).then((module) => ({
-    default: module.AutomationSettingsRoutes,
-  })),
+  import('@/automations/components/settings/components/AutomationSettingsRoutes').then(
+    (module) => ({
+      default: module.AutomationSettingsRoutes,
+    }),
+  ),
 );
 
 const PropertiesSettingsRoutes = lazy(() =>
@@ -91,6 +99,30 @@ const BroadcastSettings = lazy(() =>
   })),
 );
 
+const ImportExportSettingsRoutes = lazy(() =>
+  import('@/import-export/settings/components/ImportExportSettingsRoutes').then(
+    (module) => ({
+      default: module.ImportExportSettingsRoutes,
+    }),
+  ),
+);
+
+const SettingsNotificationRoutes = lazy(() =>
+  import('@/notification/settings/components/NotificationSettingsRoutes').then(
+    (module) => ({
+      default: module.NotificationSettingsRoutes,
+    }),
+  ),
+);
+
+const StructureSettings = lazy(() =>
+  import('~/pages/settings/workspace/structure/StructureSettingsPage').then(
+    (module) => ({
+      default: module.StructureSettingsPage,
+    }),
+  ),
+);
+
 export function SettingsRoutes() {
   const isOs = useVersion();
 
@@ -102,6 +134,10 @@ export function SettingsRoutes() {
           element={<Navigate to={`${SettingsPath.Profile}`} replace />}
         />
         <Route path={SettingsPath.Profile} element={<SettingsProfile />} />
+        <Route
+          path={SettingsPath.NotificationCatchAll}
+          element={<SettingsNotificationRoutes />}
+        />
         <Route
           path={SettingsPath.ChangePassword}
           element={<SettingsChangePassword />}
@@ -140,10 +176,14 @@ export function SettingsRoutes() {
           element={<ClientPortalDetailPage />}
         />
         <Route path={SettingsWorkspacePath.Logs} element={<LogsRoutes />} />
-        {/* <Route
+        <Route
+          path={SettingsWorkspacePath.ImportExportCatchAll}
+          element={<ImportExportSettingsRoutes />}
+        />
+        <Route
           path={SettingsWorkspacePath.StructureCatchAll}
           element={<StructureSettings />}
-        /> */}
+        />
         <Route path={SettingsWorkspacePath.Tags} element={<TagsPage />} />
         <Route
           path={SettingsWorkspacePath.Brands}
@@ -158,7 +198,14 @@ export function SettingsRoutes() {
           element={<AutomationSettingsRoutes />}
         />
 
-        <Route path={SettingsWorkspacePath.Apps} element={<AppsSettings />} />
+        <Route
+          path={SettingsWorkspacePath.AppTokens}
+          element={<AppsSettings />}
+        />
+        <Route
+          path={SettingsWorkspacePath.OAuthClients}
+          element={<OAuthClientsSettings />}
+        />
         <Route
           path={SettingsWorkspacePath.PropertiesCatchAll}
           element={<PropertiesSettingsRoutes />}

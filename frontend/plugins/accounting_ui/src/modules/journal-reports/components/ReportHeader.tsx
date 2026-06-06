@@ -1,13 +1,13 @@
 import { format } from 'date-fns';
-import { Separator, useQueryState } from "erxes-ui";
-import { useAtom } from "jotai";
-import { currentOrganizationState } from "ui-modules";
+import { Separator, useQueryState } from 'erxes-ui';
+import { useAtom } from 'jotai';
+import { currentOrganizationState } from 'ui-modules';
 import { ReportRules } from '../types/reportsMap';
 
 const parseQueryDate = (value?: string): string => {
   if (!value) return '';
 
-  return format(new Date(value), 'yyyy-MM-dd')
+  return format(new Date(value), 'yyyy-MM-dd');
 };
 
 export const ReportHeader = () => {
@@ -16,7 +16,7 @@ export const ReportHeader = () => {
   const [fromDate] = useQueryState('fromDate');
   const [toDate] = useQueryState('toDate');
 
-  const title = ReportRules[report as string || '']?.title;
+  const title = ReportRules[(report as string) || '']?.title;
   const from = parseQueryDate(fromDate as string);
   const to = parseQueryDate(toDate as string);
 
@@ -32,10 +32,10 @@ export const ReportHeader = () => {
           <p>(Аж ахуй нэгж албан байгууллагын нэр)</p>
         </div>
         <div className="flex flex-col gap-1 text-right">
-          <p>{[from, to].filter(d => d).join(' - ')}</p>
+          <p>{[from, to].filter((d) => d).join(' - ')}</p>
           <p>(төгрөгөөр)</p>
         </div>
       </div>
     </>
-  )
-}
+  );
+};

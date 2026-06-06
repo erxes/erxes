@@ -6,11 +6,39 @@ const FACEBOOK_BOT_FIELDS = `
   account
   accountId
   createdAt
+  updatedAt
+  createdBy
+  updatedBy
+  createdUser {
+    _id
+    username
+    email
+    details {
+      fullName
+      avatar
+    }
+  }
+  updatedUser {
+    _id
+    username
+    email
+    details {
+      fullName
+      avatar
+    }
+  }
   page
   pageId
   profileUrl
   persistentMenus {
     _id,text,type,link
+  }
+  health {
+    status
+    isSubscribed
+    isProfileSynced
+    lastSyncedAt
+    lastVerifiedAt
   }
 `;
 
@@ -52,6 +80,17 @@ export const GET_FACEBOOK_BOT_PROFILE = gql`
         type
         link
       }
+    }
+  }
+`;
+
+export const FACEBOOK_BOT_HEALTH_NOTIFICATION_DETAIL = gql`
+  query FacebookBotHealthNotificationDetail($_id: String) {
+    facebookMessengerBot(_id: $_id) {
+      _id
+      name
+      page
+      pageId
     }
   }
 `;

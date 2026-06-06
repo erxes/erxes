@@ -15,21 +15,19 @@
   overflow: hidden;
 }
 
+/* Launcher iframe — extra space so the badge can overflow the button edge */
 .erxes-launcher {
   position: absolute;
-  right: 12px;
-  bottom: 12px;
+  right: 8px;
+  bottom: 8px;
   border: none;
   z-index: 2147483649;
-  overflow: hidden;
-  height: 48px;
-  width: 48px;
+  overflow: visible;
+  height: 72px;
+  width: 72px;
   opacity: 0;
-  transition: box-shadow 0.3s ease-in-out, opacity 0.3s;
-  border-radius: 50%;
-  /* filter: drop-shadow(rgba(9, 14, 21, 0.1) 0px 3px 6px)
-    drop-shadow(rgba(9, 14, 21, 0.1) 0px 1px 12px); */
-  box-shadow: 0 1px 6px 0 rgba(0, 0, 0, 0.06), 0 2px 32px 0 rgba(0, 0, 0, 0.16);
+  transition: opacity 0.3s ease;
+  background: transparent;
 }
 
 .erxes-messenger-hidden {
@@ -49,18 +47,35 @@
   opacity: 0;
   pointer-events: none;
 }
-
-.erxes-messenger-shown {
+.erxes-messenger-expand {
   position: fixed;
-  height: 100%;
-  min-height: 378px;
-  width: 408px;
-  max-height: 600px;
+  min-height: 80px;
+  max-height: calc(100% - 104px);
+  height: calc(100% - 104px);
+  width: min(688px, max(0px, -20px + 100dvw));
   border-radius: 1rem;
   right: 16px;
   bottom: 92px;
   transform-origin: right bottom;
-  box-shadow: 0 2px 8px 1px rgba(0, 0, 0, 0.2);
+  transition: width 200ms ease 0s, height 200ms ease 0s,
+    max-height 200ms ease 0s, transform 300ms cubic-bezier(0, 1.2, 1, 1) 0s,
+    opacity 83ms ease-out 0s;
+  opacity: 1;
+  pointer-events: all;
+  box-shadow: oklch(0.1621 0.017 256.72 / 90%) 0px 5px 40px 0px;
+}
+
+.erxes-messenger-shown {
+  position: fixed;
+  height: min(704px, 100% - 104px);
+  min-height: 80px;
+  width: min(400px, max(0px, -20px + 100dvw));
+  max-height: 704px;
+  border-radius: 1rem;
+  right: 16px;
+  bottom: 92px;
+  transform-origin: right bottom;
+  box-shadow: oklch(0.1621 0.017 256.72 / 90%) 0px 5px 40px 0px;
   opacity: 1;
   transition: width 200ms ease 0s, height 200ms ease 0s,
     max-height 200ms ease 0s, transform 300ms cubic-bezier(0, 1.2, 1, 1) 0s,

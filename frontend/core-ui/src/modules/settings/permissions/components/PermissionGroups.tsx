@@ -11,6 +11,7 @@ import {
   DropdownMenu,
   Spinner,
   Table,
+  TextOverflowTooltip,
   toast,
   useConfirm,
 } from 'erxes-ui';
@@ -27,6 +28,7 @@ import { PermissionGroupAdd } from '@/settings/permissions/components/form/Permi
 import { useRemovePermissionGroup } from '@/settings/permissions/hooks/useRemovePermissionGroup';
 import { PermissionGroupEdit } from './form/PermissionGroupEdit';
 import { PermissionGroupDetails } from './PermissionGroupDetails';
+import { Can } from 'ui-modules';
 
 export const PermissionGroups = () => {
   const { defaultGroups, loading: defaultLoading } =
@@ -100,12 +102,16 @@ export const PermissionGroups = () => {
                   {groups.map((group: IDefaultPermissionGroup) => (
                     <Table.Row className="hover:bg-sidebar" key={group.id}>
                       <Table.Cell>
-                        <div className="font-medium">{group.name}</div>
+                        <TextOverflowTooltip
+                          value={group.name}
+                          className="block font-medium"
+                        />
                       </Table.Cell>
                       <Table.Cell>
-                        <div className="text-muted-foreground">
-                          {group.description}
-                        </div>
+                        <TextOverflowTooltip
+                          value={group.description}
+                          className="block text-muted-foreground"
+                        />
                       </Table.Cell>
                       <Table.Cell className="w-8 p-0.5">
                         <DropdownMenu>
@@ -152,14 +158,16 @@ export const PermissionGroups = () => {
               </Button>
             </Collapsible.Trigger>
             <div className="absolute right-1 top-1/2 -translate-y-1/2">
-              <PermissionGroupAdd
-                text=""
-                trigger={
-                  <Button variant="ghost" size="icon" className="size-7">
-                    <IconPlus size={16} />
-                  </Button>
-                }
-              />
+              <Can action="permissionsManage">
+                <PermissionGroupAdd
+                  text=""
+                  trigger={
+                    <Button variant="ghost" size="icon" className="size-7">
+                      <IconPlus size={16} />
+                    </Button>
+                  }
+                />
+              </Can>
             </div>
           </div>
           <Collapsible.Content className="pt-2">
@@ -168,7 +176,9 @@ export const PermissionGroups = () => {
                 <p className="text-muted-foreground mb-4">
                   No custom groups yet
                 </p>
-                <PermissionGroupAdd />
+                <Can action="permissionsManage">
+                  <PermissionGroupAdd />
+                </Can>
               </div>
             ) : (
               <Table className="[&_tr_td]:border-b-0 [&_tr_td:first-child]:border-l-0 [&_tr_td]:border-r-0">
@@ -176,12 +186,16 @@ export const PermissionGroups = () => {
                   {permissionGroups.map((group: IPermissionGroup) => (
                     <Table.Row className="hover:bg-sidebar" key={group._id}>
                       <Table.Cell>
-                        <div className="font-medium">{group.name}</div>
+                        <TextOverflowTooltip
+                          value={group.name}
+                          className="block font-medium"
+                        />
                       </Table.Cell>
                       <Table.Cell>
-                        <div className="text-muted-foreground">
-                          {group.description || 'No description'}
-                        </div>
+                        <TextOverflowTooltip
+                          value={group.description || 'No description'}
+                          className="block text-muted-foreground"
+                        />
                       </Table.Cell>
                       <Table.Cell className="w-8 p-0.5">
                         <CustomGroupDropdown group={group} />
@@ -243,20 +257,27 @@ const CustomGroupDropdown = ({ group }: { group: IPermissionGroup }) => {
             </DropdownMenu.Item>
           }
         />
-        <PermissionGroupEdit
-          group={group}
-          trigger={
-            <DropdownMenu.Item onSelect={(e) => e.preventDefault()}>
-              <IconEdit size={16} />
-              Edit
+        <Can action="permissionsManage">
+          <>
+            <PermissionGroupEdit
+              group={group}
+              trigger={
+                <DropdownMenu.Item onSelect={(e) => e.preventDefault()}>
+                  <IconEdit size={16} />
+                  Edit
+                </DropdownMenu.Item>
+              }
+            />
+            <DropdownMenu.Separator />
+            <DropdownMenu.Item
+              className="text-destructive"
+              onClick={handleDelete}
+            >
+              <IconTrash size={16} />
+              Delete
             </DropdownMenu.Item>
-          }
-        />
-        <DropdownMenu.Separator />
-        <DropdownMenu.Item className="text-destructive" onClick={handleDelete}>
-          <IconTrash size={16} />
-          Delete
-        </DropdownMenu.Item>
+          </>
+        </Can>
       </DropdownMenu.Content>
     </DropdownMenu>
   );

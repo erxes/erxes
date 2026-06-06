@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
 export const pipelineLabelFields = `
   _id
@@ -29,6 +29,13 @@ export const GET_PIPELINE_DETAIL = gql`
       departmentIds
       branchIds
       boardId
+      numberConfig
+      numberSize
+      nameConfig
+      isCheckDate
+      isCheckUser
+      isCheckDepartment
+      excludeCheckUserIds
     }
   }
 `;
@@ -110,4 +117,3 @@ export const GET_PIPELINES = gql`
     }
   }
 `;
-    

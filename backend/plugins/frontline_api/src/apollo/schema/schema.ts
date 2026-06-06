@@ -24,6 +24,12 @@ import {
 } from '@/integrations/facebook/graphql/schema/facebook';
 
 import {
+  mutations as InstagramMutations,
+  queries as InstagramQueries,
+  types as InstagramTypes,
+} from '@/integrations/instagram/graphql/schema/instagram';
+
+import {
   mutations as CallMutations,
   queries as CallQueries,
   types as CallTypes,
@@ -80,11 +86,18 @@ import {
   types as TicketTypes,
 } from '@/ticket/graphql/schemas';
 
+import {
+  queries as CpInboxQueries,
+  mutations as CpInboxMutations,
+  subscriptions as CpInboxSubscriptions,
+} from '~/modules/inbox/graphql/schemas/clientPortal';
+
 export const types = `
     ${ChannelsTypes}
     ${ConversationsTypes}
     ${IntegrationsTypes}
     ${FacebookTypes}
+    ${InstagramTypes}
     ${CallTypes}
     ${ImapTypes}
     ${TicketTypes}
@@ -93,13 +106,16 @@ export const types = `
     ${ReportInboxTypes}
     ${ReportTicketTypes}
     ${FormTypes}
-    ${FieldTypes}    ${KnowledgeBaseTypes}
+    ${FieldTypes}
+    ${KnowledgeBaseTypes}
   `;
+
 export const queries = `
     ${ChannelsQueries}
     ${ConversationsQueries}
     ${IntegrationsQueries}
     ${FacebookQueries}
+    ${InstagramQueries}
     ${CallQueries}
     ${ImapQueries}
     ${TicketQuery}
@@ -110,6 +126,7 @@ export const queries = `
     ${FormQueries}
     ${FieldQueries}
     ${KnowledgeBaseQueries}
+    ${CpInboxQueries}
   `;
 
 export const mutations = `
@@ -117,6 +134,7 @@ export const mutations = `
    ${ConversationsMutations}
    ${IntegrationsMutations}
    ${FacebookMutations}
+   ${InstagramMutations}
    ${CallMutations}
    ${ImapMutations}
    ${TicketMutations}
@@ -125,5 +143,7 @@ export const mutations = `
    ${FormMutations}
    ${FieldMutations}
    ${KnowledgeBaseMutations}
+   ${CpInboxMutations}
 `;
+
 export default { types, queries, mutations };

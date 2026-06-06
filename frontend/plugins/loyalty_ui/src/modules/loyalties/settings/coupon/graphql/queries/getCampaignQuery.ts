@@ -23,10 +23,10 @@ export const QUERY_COUPON_CAMPAIGN = gql`
       status
       kind
       value
+      buyScore
       codeRule
       restrictions
       redemptionLimitPerUser
-      buyScore
     }
   }
 `;

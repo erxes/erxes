@@ -59,7 +59,7 @@ Achieving growth and unity within your company is possible with erxes, because i
 - **100% privacy:** We've designed the erxes platform to retain complete control over your company's sensitive data with no third-party monitoring.
 - **100% in control:** You can build any experience you want, where all the channels your business operates on are connected and integrated.
 
-
+---
 
 ## What does erxes mean? How do you pronounce it?
 
@@ -250,4 +250,11 @@ For general help using erxes, please refer to the erxes documentation. For addit
  
 ## License
 See the <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" >**LICENSE**</a> file for licensing information.
+
+## ⚡ Quick Start (5 minutes)
+
+docker compose up -d
+open http://localhost:3000
+
+
 

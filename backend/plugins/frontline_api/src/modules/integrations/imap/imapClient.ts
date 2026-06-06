@@ -2,7 +2,7 @@ import Imap from 'node-imap';
 import { IIntegrationImapDocument } from '@/integrations/imap/models';
 
 export const toUpper = (thing: any): any => {
-  return thing && thing.toUpperCase ? thing.toUpperCase() : thing;
+  return thing?.toUpperCase ? thing.toUpperCase() : thing;
 };
 
 export const findAttachmentParts = (

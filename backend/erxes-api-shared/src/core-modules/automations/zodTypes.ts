@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TAutomationFindObjectType } from './constants';
 import { TAutomationProducers } from './types';
 
 export const AutomationBaseInput = z.object({
@@ -80,6 +81,20 @@ export const CheckCustomTriggerInputData = z.object({
   config: z.record(z.any()),
 });
 
+export const CheckTargetMatchInputData = z.object({
+  moduleName: z.string(),
+  contentType: z.string(),
+  collectionType: z.string(),
+  targetId: z.string(),
+  selector: z.record(z.any()),
+});
+
+export const FindObjectInputData = z.object({
+  objectType: z.nativeEnum(TAutomationFindObjectType),
+  field: z.string(),
+  value: z.string(),
+});
+
 export const ReplacePlaceholdersInputData = z.object({
   moduleName: z.string(),
   target: z.record(z.any()),
@@ -95,6 +110,13 @@ export const ReplacePlaceholdersInputData = z.object({
     .optional(),
 });
 
+export const ResolveOutputPathsInputData = z.object({
+  nodeType: z.string(),
+  source: z.record(z.any()),
+  paths: z.array(z.string()),
+  defaultValue: z.any().optional(),
+});
+
 export const SetPropertiesInputData = z.object({
   moduleName: z.string(),
   triggerType: z.string(),
@@ -105,16 +127,39 @@ export const SetPropertiesInputData = z.object({
   collectionType: z.string(),
 });
 
+export const GenerateAiContextInputData = z.object({
+  moduleName: z.string(),
+  collectionType: z.string().optional(),
+  triggerType: z.string(),
+  target: z.record(z.any()),
+});
+
 export const CheckCustomTriggerInput = AutomationBaseInput.extend({
   data: CheckCustomTriggerInputData,
+});
+
+export const CheckTargetMatchInput = AutomationBaseInput.extend({
+  data: CheckTargetMatchInputData,
+});
+
+export const FindObjectInput = AutomationBaseInput.extend({
+  data: FindObjectInputData,
 });
 
 export const ReplacePlaceholdersInput = AutomationBaseInput.extend({
   data: ReplacePlaceholdersInputData,
 });
 
+export const ResolveOutputPathsInput = AutomationBaseInput.extend({
+  data: ResolveOutputPathsInputData,
+});
+
 export const SetPropertiesInput = AutomationBaseInput.extend({
   data: SetPropertiesInputData,
+});
+
+export const GenerateAiContextInput = AutomationBaseInput.extend({
+  data: GenerateAiContextInputData,
 });
 
 export type TAutomationProducersInput = {
@@ -124,11 +169,21 @@ export type TAutomationProducersInput = {
   [TAutomationProducers.CHECK_CUSTOM_TRIGGER]: z.infer<
     typeof CheckCustomTriggerInputData
   >;
+  [TAutomationProducers.CHECK_TARGET_MATCH]: z.infer<
+    typeof CheckTargetMatchInputData
+  >;
+  [TAutomationProducers.FIND_OBJECT]: z.infer<typeof FindObjectInputData>;
   [TAutomationProducers.REPLACE_PLACEHOLDERS]: z.infer<
     typeof ReplacePlaceholdersInputData
+  >;
+  [TAutomationProducers.RESOLVE_OUTPUT_PATHS]: z.infer<
+    typeof ResolveOutputPathsInputData
   >;
   [TAutomationProducers.SET_PROPERTIES]: z.infer<typeof SetPropertiesInputData>;
   [TAutomationProducers.GET_ADDITIONAL_ATTRIBUTES]: z.infer<
     typeof AutomationBaseInput
+  >;
+  [TAutomationProducers.GENERATE_AI_CONTEXT]: z.infer<
+    typeof GenerateAiContextInputData
   >;
 };

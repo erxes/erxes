@@ -187,9 +187,9 @@ function SortableFieldCard({ ticketField, control }: SortableFieldCardProps) {
           <div
             {...attributes}
             {...listeners}
-            className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded"
+            className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded"
           >
-            <IconGripVertical size={20} className="text-gray-400" />
+            <IconGripVertical size={20} className="text-muted-foreground" />
           </div>
           <h3 className="text-sm font-semibold">{ticketField.label}</h3>
         </div>

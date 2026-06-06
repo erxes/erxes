@@ -4,6 +4,7 @@ import {
   IconLabel,
   IconMobiledata,
   IconPhone,
+  IconClock,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
@@ -13,25 +14,65 @@ import {
 } from 'erxes-ui';
 
 import { IPosSummary } from '@/pos/pos-summary/types/posSummary';
-import { PosSummaryMoreColumn } from '@/pos/pos-summary/components/PosSummaryMoreColumn';
 
-export const PosSummaryColumns: ColumnDef<IPosSummary>[] = [
-  PosSummaryMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<IPosSummary>,
+interface PaymentRow {
+  original: IPosSummary;
+}
+
+type PaymentSummary = Record<string, number | undefined>;
+
+export const generateOtherPaymentColumns = (
+  summary?: PaymentSummary,
+  columnLabels?: Record<string, string>,
+) => {
+  const otherPayTitles = (summary ? Object.keys(summary) || [] : [])
+    .filter((a) => !['count', 'cashAmount', 'mobileAmount'].includes(a))
+    .sort((a, b) => a.localeCompare(b));
+
+  return otherPayTitles.map((title: string, index) => ({
+    id: `${title}_${index}`,
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconClock}
+        label={columnLabels?.[title] || title}
+      />
+    ),
+    cell: ({ row }: { row: PaymentRow }) => {
+      const order = row.original;
+      const dynamicAmounts = order.amounts as Record<
+        string,
+        number | undefined
+      >;
+      const value = dynamicAmounts[title] || 0;
+
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={value?.toLocaleString()} />
+        </RecordTableInlineCell>
+      );
+    },
+    size: 155,
+  }));
+};
+export const firstPosSummaryColumns: ColumnDef<IPosSummary>[] = [
   {
     id: 'paidDate',
     accessorKey: 'paidDate',
     header: () => <RecordTable.InlineHead icon={IconLabel} label="Group" />,
     cell: ({ cell }) => {
+      const value = cell.getValue() as string;
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip
+            value={value && value !== 'undefined' ? value : '-'}
+          />
         </RecordTableInlineCell>
       );
     },
+    size: 150,
   },
   {
-    id: 'amounts.count',
+    id: 'count',
     accessorKey: 'amounts.count',
     header: () => (
       <RecordTable.InlineHead icon={IconMobiledata} label="Count" />
@@ -46,6 +87,7 @@ export const PosSummaryColumns: ColumnDef<IPosSummary>[] = [
         </RecordTableInlineCell>
       );
     },
+    size: 100,
   },
   {
     id: 'amounts.cashAmount',
@@ -63,6 +105,7 @@ export const PosSummaryColumns: ColumnDef<IPosSummary>[] = [
         </RecordTableInlineCell>
       );
     },
+    size: 130,
   },
   {
     id: 'amounts.mobileAmount',
@@ -80,41 +123,10 @@ export const PosSummaryColumns: ColumnDef<IPosSummary>[] = [
         </RecordTableInlineCell>
       );
     },
+    size: 130,
   },
-  {
-    id: 'amounts.invoice',
-    accessorKey: 'amounts.invoice',
-    header: () => (
-      <RecordTable.InlineHead icon={IconChartBar} label="Invoice" />
-    ),
-    cell: ({ cell }) => {
-      const value = cell.getValue() as number | undefined;
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip
-            value={typeof value === 'number' ? value.toLocaleString() : '0'}
-          />
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'amounts.loyalty',
-    accessorKey: 'amounts.loyalty',
-    header: () => (
-      <RecordTable.InlineHead icon={IconChartBar} label="Loyalty" />
-    ),
-    cell: ({ cell }) => {
-      const value = cell.getValue() as number | undefined;
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip
-            value={typeof value === 'number' ? value.toLocaleString() : '0'}
-          />
-        </RecordTableInlineCell>
-      );
-    },
-  },
+];
+export const secondPosSummaryColumns: ColumnDef<IPosSummary>[] = [
   {
     id: 'totalAmount',
     accessorKey: 'totalAmount',
@@ -129,5 +141,6 @@ export const PosSummaryColumns: ColumnDef<IPosSummary>[] = [
         </RecordTableInlineCell>
       );
     },
+    size: 130,
   },
 ];

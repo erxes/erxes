@@ -111,14 +111,21 @@ export const CallDetailPage = () => {
           <Breadcrumb>
             <Breadcrumb.List>
               <Breadcrumb.Item>
-                <Breadcrumb.Link asChild>
-                  <Button variant="ghost" asChild>
-                    <Link to="/frontline/calls">
-                      <IconPhone />
-                      Calls
-                    </Link>
-                  </Button>
-                </Breadcrumb.Link>
+                <Button variant="ghost" asChild>
+                  <Link to="/frontline/calls/dashboard">
+                    <IconPhone />
+                    Calls dashboard
+                  </Link>
+                </Button>
+              </Breadcrumb.Item>
+              <Breadcrumb.Separator />
+              <Breadcrumb.Item>
+                <Button variant="ghost" asChild>
+                  <Link to="/frontline/calls/statistics">
+                    <IconPhone />
+                    Calls statistics
+                  </Link>
+                </Button>
               </Breadcrumb.Item>
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
@@ -136,7 +143,7 @@ export const CallDetailPage = () => {
       <div className="flex flex-col flex-auto overflow-hidden p-5 gap-5">
         <div>
           <Button variant="ghost" asChild className="px-2 gap-1">
-            <Link to="/frontline/calls">
+            <Link to="/frontline/calls/dashboard">
               <IconChevronLeft />
               Go back to queues
             </Link>
@@ -243,10 +250,10 @@ export const agentColumns: ColumnDef<CallQueueMemberList['member'][number]>[] =
               cell.getValue() === 'Idle'
                 ? 'success'
                 : ['Ringing', 'InUse'].includes(cell.getValue() as string)
-                ? 'warning'
-                : cell.getValue() === 'Paused'
-                ? 'destructive'
-                : 'secondary'
+                  ? 'warning'
+                  : cell.getValue() === 'Paused'
+                    ? 'destructive'
+                    : 'secondary'
             }
           >
             {cell.getValue() as string}

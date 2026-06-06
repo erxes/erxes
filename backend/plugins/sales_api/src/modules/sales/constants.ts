@@ -29,8 +29,6 @@ export const PROBABILITY = {
   NINETY: '90%',
   WON: 'Won',
   LOST: 'Lost',
-  DONE: 'Done',
-  RESOLVED: 'Resolved',
   ALL: [
     '10%',
     '20%',

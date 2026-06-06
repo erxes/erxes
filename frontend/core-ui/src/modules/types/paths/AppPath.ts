@@ -5,6 +5,7 @@ export enum AppPath {
   CreateOwner = '/create-owner',
   ForgotPassword = '/forgot-password',
   ConfirmInvitation = '/confirmation',
+  OAuthDevice = '/oauth/device',
 
   //main
   Index = '/',
@@ -35,6 +36,10 @@ export enum AppPath {
 
   Broadcasts = 'broadcasts',
   BroadcastsCatchAll = `/${Broadcasts}/*`,
+
+  Templates = 'templates',
+  TemplatesCatchAll = `/${Templates}/*`,
+
   ImportExport = 'import-export',
   ImportExportCatchAll = `/${ImportExport}/*`,
 

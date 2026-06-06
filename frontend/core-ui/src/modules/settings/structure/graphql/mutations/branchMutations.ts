@@ -13,6 +13,7 @@ const commonDefs = `
   $phoneNumber: String
   $email: String
   $links: JSON
+  $status: String
 `;
 
 const commonVars = `
@@ -28,6 +29,7 @@ const commonVars = `
   phoneNumber: $phoneNumber
   email: $email
   links: $links
+  status: $status
 `;
 
 export const ADD_BRANCH = gql`
@@ -52,6 +54,21 @@ export const EDIT_BRANCH = gql`
       parentId
       userCount
       title
+      supervisorId
+      userIds
+      email
+      phoneNumber
+      radius
+      links
+      image {
+        name
+        type
+        url
+      }
+      coordinate {
+        latitude
+        longitude
+      }
     }
   }
 `;

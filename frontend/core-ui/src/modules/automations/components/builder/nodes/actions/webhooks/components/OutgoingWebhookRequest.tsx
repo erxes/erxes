@@ -3,6 +3,19 @@ import { AUTOMATION_INCOMING_WEBHOOK_API_METHODS } from '@/automations/component
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input, Label, Select } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
+import { PlaceholderInput } from 'ui-modules';
+
+const DISABLED_WEBHOOK_URL_SUGGESTIONS = {
+  attribute: true,
+  emoji: true,
+  date: true,
+  option: true,
+  call_user: true,
+  call_tag: true,
+  call_product: true,
+  call_company: true,
+  call_customer: true,
+} as const;
 
 export const OutgoingWebhookRequest = () => {
   const { control } = useFormContext<TOutgoingWebhookForm>();
@@ -40,8 +53,10 @@ export const OutgoingWebhookRequest = () => {
           render={({ field }) => (
             <Form.Item className="w-5/6">
               <Form.Label>URL</Form.Label>
-
-              <Input {...field} />
+              <PlaceholderInput
+                {...field}
+                disabled={DISABLED_WEBHOOK_URL_SUGGESTIONS}
+              />
               <Form.Message />
             </Form.Item>
           )}
@@ -63,10 +78,7 @@ export const OutgoingWebhookRequest = () => {
                     variant="outline"
                     size="sm"
                     onClick={() =>
-                      onChange([
-                        ...queryParams,
-                        { name: '', value: '', type: 'fixed' },
-                      ])
+                      onChange([...queryParams, { name: '', value: '' }])
                     }
                   >
                     <IconPlus className="mr-2" />
@@ -95,22 +107,6 @@ export const OutgoingWebhookRequest = () => {
                       }}
                       className="flex-1 font-mono"
                     />
-                    <Select
-                      value={param.type}
-                      onValueChange={(value: 'fixed' | 'expression') => {
-                        const newParams = [...queryParams];
-                        newParams[index].type = value;
-                        onChange(newParams);
-                      }}
-                    >
-                      <Select.Trigger className="w-32">
-                        <Select.Value />
-                      </Select.Trigger>
-                      <Select.Content>
-                        <Select.Item value="fixed">Fixed</Select.Item>
-                        <Select.Item value="expression">Expression</Select.Item>
-                      </Select.Content>
-                    </Select>
                     <Button
                       variant="ghost"
                       size="sm"

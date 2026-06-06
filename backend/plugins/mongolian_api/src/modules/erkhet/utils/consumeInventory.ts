@@ -8,18 +8,16 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
     method: 'query',
     module: 'products',
     action: 'findOne',
-    input: { code: old_code },
-    defaultValue: {},
+    input: { query: { code: old_code } },
   });
 
   if ((action === 'update' && old_code) || action === 'create') {
     const productCategory = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
-      method: 'query',
-      module: 'categories',
+      module: 'productCategories',
       action: 'findOne',
-      input: { code: doc.category_code },
+      input: { query: { code: doc.category_code } },
       defaultValue: null,
     });
 
@@ -52,27 +50,15 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
       defaultValue: null,
     });
 
-    if (weightField && weightField._id) {
-      const weightData = {
-        field: weightField._id,
-        value: doc.weight,
-        stringValue: doc.weight.toString(),
-        numberValue: Number(doc.weight),
+    if (weightField && weightField._id && doc.weight !== undefined) {
+      document.propertiesData = {
+        ...product?.propertiesData,
+        [weightField._id]: Number(doc.weight),
       };
-
-      if (product && product.customFieldsData) {
-        const otherFieldsData = (product.customFieldsData || []).filter(
-          (cfd) => cfd.field !== weightField._id,
-        );
-        otherFieldsData.push(weightData);
-        document.customFieldsData = otherFieldsData;
-      } else {
-        document.customFieldsData = [weightData];
-      }
     }
 
     if (doc.sub_measure_unit_code && doc.ratio_measure_unit) {
-      let subUoms = (product || {}).subUoms || [];
+      let subUoms = product?.subUoms || [];
       const subUomCodes = subUoms.map((u) => u.uom);
 
       if (subUomCodes.includes(doc.sub_measure_unit_code)) {
@@ -90,16 +76,15 @@ export const consumeInventory = async (subdomain, doc, old_code, action) => {
       doc.description = config.consumeDescription.replace(
         /\$\{doc\.([^}]+)\}/g,
         (match, path) => {
-          const value = path.split('.').reduce(
-            (acc: any, segment: string) => (acc != null ? acc[segment] : undefined),
-            doc,
-          );
+          const value = path
+            .split('.')
+            .reduce((acc: any, segment: string) => acc?.[segment], doc);
           return value !== undefined && value !== null ? String(value) : match;
         },
       );
     }
 
-    if (product) {
+    if (product?._id) {
       await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
@@ -140,9 +125,9 @@ export const consumeInventoryCategory = async (
     subdomain,
     pluginName: 'core',
     method: 'query',
-    module: 'categories',
+    module: 'productCategories',
     action: 'findOne',
-    input: { code: old_code },
+    input: { query: { code: old_code } },
     defaultValue: null,
   });
 
@@ -151,9 +136,9 @@ export const consumeInventoryCategory = async (
       subdomain,
       pluginName: 'core',
       method: 'query',
-      module: 'categories',
+      module: 'productCategories',
       action: 'findOne',
-      input: { code: doc.parent_code },
+      input: { query: { code: doc.parent_code } },
       defaultValue: null,
     });
 
@@ -161,6 +146,7 @@ export const consumeInventoryCategory = async (
       code: doc.code,
       name: doc.name,
       order: doc.order,
+      status: 'active',
     };
 
     if (productCategory) {
@@ -168,7 +154,7 @@ export const consumeInventoryCategory = async (
         subdomain,
         pluginName: 'core',
         method: 'mutation',
-        module: 'categories',
+        module: 'productCategories',
         action: 'updateProductCategory',
         input: {
           _id: productCategory._id,
@@ -185,7 +171,7 @@ export const consumeInventoryCategory = async (
         subdomain,
         pluginName: 'core',
         method: 'mutation',
-        module: 'categories',
+        module: 'productCategories',
         action: 'createProductCategory',
         input: {
           doc: {
@@ -200,7 +186,7 @@ export const consumeInventoryCategory = async (
       subdomain,
       pluginName: 'core',
       method: 'mutation',
-      module: 'categories',
+      module: 'productCategories',
       action: 'removeProductCategory',
       input: { _id: productCategory._id },
     });

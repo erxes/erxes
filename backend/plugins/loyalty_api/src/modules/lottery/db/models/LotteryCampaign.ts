@@ -10,6 +10,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
 import { randomBetween, validCampaign } from '~/utils';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface ILotteryCampaignModel extends Model<ILotteryCampaignDocument> {
   getLotteryCampaign(_id: string): Promise<ILotteryCampaignDocument>;
@@ -40,7 +41,12 @@ export interface ILotteryCampaignModel extends Model<ILotteryCampaignDocument> {
   multipleDoLottery({ campaignId, awardId, multiple }): Promise<any>;
 }
 
-export const loadLotteryCampaignClass = (models: IModels) => {
+export const loadLotteryCampaignClass = (
+  models: IModels,
+  dispatcher: EventDispatcherReturn,
+) => {
+  const { sendDbEventLog } = dispatcher;
+
   class LotteryCampaign {
     public static async getLotteryCampaign(_id: string) {
       const lotteryCampaign = await models.LotteryCampaigns.findOne({ _id });
@@ -69,7 +75,15 @@ export const loadLotteryCampaignClass = (models: IModels) => {
         modifiedAt: new Date(),
       };
 
-      return models.LotteryCampaigns.create(modifier);
+      const created = await models.LotteryCampaigns.create(modifier);
+
+      sendDbEventLog?.({
+        action: 'create',
+        docId: created._id,
+        currentDocument: created.toObject(),
+      });
+
+      return created;
     }
 
     public static async updateLotteryCampaign(
@@ -82,12 +96,22 @@ export const loadLotteryCampaignClass = (models: IModels) => {
         throw new Error(e.message);
       }
 
+      const prevDoc = await models.LotteryCampaigns.findOne({ _id }).lean();
       const modifier = {
         ...doc,
         modifiedAt: new Date(),
       };
 
-      return models.LotteryCampaigns.updateOne({ _id }, { $set: modifier });
+      const result = await models.LotteryCampaigns.updateOne({ _id }, { $set: modifier });
+
+      sendDbEventLog?.({
+        action: 'update',
+        docId: _id,
+        currentDocument: modifier,
+        prevDocument: prevDoc,
+      });
+
+      return result;
     }
 
     public static async removeLotteryCampaigns(ids: string[]) {
@@ -102,17 +126,41 @@ export const loadLotteryCampaignClass = (models: IModels) => {
       const campaignIds = [...atLotteryIds, ...atVoucherIds];
 
       const usedCampaignIds = ids.filter((id) => campaignIds.includes(id));
-      const deleteCampaignIds = ids.map((id) => !usedCampaignIds.includes(id));
+      const deleteCampaignIds = ids.filter(
+        (id) => !usedCampaignIds.includes(id),
+      );
       const now = new Date();
 
-      await models.LotteryCampaigns.updateMany(
-        { _id: { $in: usedCampaignIds } },
-        { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } },
-      );
+      // Soft delete used ones (status -> TRASH)
+      if (usedCampaignIds.length) {
+        await models.LotteryCampaigns.updateMany(
+          { _id: { $in: usedCampaignIds } },
+          { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } },
+        );
+        for (const id of usedCampaignIds) {
+          sendDbEventLog?.({
+            action: 'update',
+            docId: id,
+            currentDocument: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now },
+          });
+        }
+      }
 
-      return models.LotteryCampaigns.deleteMany({
-        _id: { $in: deleteCampaignIds },
-      });
+      // Hard delete unused ones
+      if (deleteCampaignIds.length) {
+        const result = await models.LotteryCampaigns.deleteMany({
+          _id: { $in: deleteCampaignIds },
+        });
+        for (const id of deleteCampaignIds) {
+          sendDbEventLog?.({
+            action: 'delete',
+            docId: id,
+          });
+        }
+        return result;
+      }
+
+      return { deletedCount: 0 };
     }
 
     static async validDoLottery(campaignId, awardId) {
@@ -179,9 +227,8 @@ export const loadLotteryCampaignClass = (models: IModels) => {
       );
 
       const filter = { campaignId, status: LOTTERY_STATUS.NEW };
-      const lotteriesCount = await models.Lotteries.find(
-        filter,
-      ).countDocuments();
+      const lotteriesCount =
+        await models.Lotteries.find(filter).countDocuments();
 
       const random = Math.floor(randomBetween(0, lotteriesCount));
 
@@ -217,9 +264,8 @@ export const loadLotteryCampaignClass = (models: IModels) => {
         formatNumber: new RegExp(`^${afterChars}.*`, 'g'),
       };
 
-      const fitLotteriesCount = await models.Lotteries.find(
-        filter,
-      ).countDocuments();
+      const fitLotteriesCount =
+        await models.Lotteries.find(filter).countDocuments();
 
       if (fitLotteriesCount === 1) {
         const luckyLottery = (await models.Lotteries.findOne(filter)) || {};

@@ -1,5 +1,4 @@
 import { Command } from 'erxes-ui';
-import { BackButton } from './back-button';
 import { SOURCE_OPTIONS } from '@/report/constants/data';
 
 export const SourceFilter = ({
@@ -9,13 +8,8 @@ export const SourceFilter = ({
 }) => {
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
-      <BackButton onSelect={() => setView('root')} />
       {SOURCE_OPTIONS.map((option) => (
-        <Command.Item
-          key={option.value}
-          value={option.value}
-          onSelect={() => {}}
-        >
+        <Command.Item key={option.value} value={option.value}>
           {option.label}
         </Command.Item>
       ))}

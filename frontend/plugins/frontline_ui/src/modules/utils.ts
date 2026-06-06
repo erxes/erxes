@@ -36,3 +36,8 @@ const getWidgetUrl = (): string => {
 const REACT_APP_WIDGETS_URL = getWidgetUrl();
 
 export { REACT_APP_WIDGETS_URL };
+
+export function removeTypename(obj: Record<string, any>): Record<string, any> {
+  const { __typename, ...rest } = obj;
+  return rest;
+}

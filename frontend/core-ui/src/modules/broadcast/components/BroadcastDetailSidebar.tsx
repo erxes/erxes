@@ -3,7 +3,7 @@ import { Sidebar } from 'erxes-ui';
 const BROADCAST_SIDEBAR_TABS = {
   statistic: 'Statistic',
   preview: 'Preview',
-  log: 'Log Message',
+  log: 'Traces',
 };
 
 export type BROADCAST_TAB = keyof typeof BROADCAST_SIDEBAR_TABS;
@@ -29,7 +29,7 @@ export const BroadcastDetailSidebar = ({
                   isActive={activeTab === key}
                   onClick={() => setActiveTab(key as BROADCAST_TAB)}
                   className="capitalize"
-                  disabled={key === 'log'}
+                  disabled={false}
                 >
                   {value}
                 </Sidebar.MenuButton>

@@ -1,11 +1,11 @@
 import type { Job } from 'bullmq';
-import { IJobData } from '@/bullmq/initMQWorkers';
-import { generateModels } from '@/connectionResolver';
-import { debugError, debugInfo } from '@/debugger';
-import { checkIsWaitingAction } from '@/executions/checkIsWaitingActionTarget';
-import { executeWaitingAction } from '@/executions/executeWaitingAction';
-import { receiveTrigger } from '@/executions/receiveTrigger';
-import { repeatActionExecution } from '@/executions/repeatActionExecution';
+import { IJobData } from './initMQWorkers';
+import { generateModels } from '../connectionResolver';
+import { debugError, debugInfo } from '../debugger';
+import { checkIsWaitingAction } from '../executions/checkIsWaitingActionTarget';
+import { executeWaitingAction } from '../executions/executeWaitingAction';
+import { receiveTrigger } from '../executions/receiveTrigger';
+import { repeatActionExecution } from '../executions/repeatActionExecution';
 
 // Type for trigger job data
 interface ITriggerData {

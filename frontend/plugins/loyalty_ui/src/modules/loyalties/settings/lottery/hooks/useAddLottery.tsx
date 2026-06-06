@@ -3,10 +3,15 @@ import { useRecordTableCursor, useToast } from 'erxes-ui';
 import { QUERY_LOTTERY_CAMPAIGNS } from '../add-lottery-campaign/graphql/queries/getCampaignsQuery';
 import { LOTTERY_CURSOR_SESSION_KEY } from '../constants/lotteryCursorSessionKey';
 import { CREATE_LOTTERY_CAMPAIGN } from '../graphql/mutations/LotteryMutations';
+import { ILottery } from '../types/lotteryTypes';
 import { LOTTERY_PER_PAGE } from './useLotteries';
 
+interface LotteryCampaignsQueryData {
+  lotteryCampaigns: { list: ILottery[]; totalCount: number };
+}
+
 export interface AddLotteryResult {
-  lotteryCampaignsAdd: any;
+  lotteryCampaignsAdd: ILottery;
 }
 
 export interface AddLotteryVariables {
@@ -17,7 +22,7 @@ export interface AddLotteryVariables {
   awards?: {
     name?: string;
     voucherCampaignId?: string;
-    probablity?: string;
+    count?: number;
     buyScore?: number;
   };
 }
@@ -45,7 +50,7 @@ export const useAddLottery = () => {
           return;
         }
 
-        const existingData: any = cache.readQuery({
+        const existingData = cache.readQuery<LotteryCampaignsQueryData>({
           query: QUERY_LOTTERY_CAMPAIGNS,
           variables: {
             limit: LOTTERY_PER_PAGE,

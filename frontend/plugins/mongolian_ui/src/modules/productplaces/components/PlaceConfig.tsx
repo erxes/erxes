@@ -1,28 +1,24 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Button, Label, Form } from 'erxes-ui';
-import { useForm } from 'react-hook-form';
-
-import PerConditions from './PerConditions';
+import { Button, Card, Input, Label } from 'erxes-ui';
+import { IconPlus } from '@tabler/icons-react';
+import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
 import { PlaceConditionUI } from '../types';
+import { useBoardPipelineStage } from '../hooks/useBoardPipelineStage';
+import { useConditions } from '../hooks/useConditions';
+import { useMnConfig } from '../hooks/useMnConfig';
+import ConfigFooter from './shared/ConfigFooter';
+import ConfigHeader from './shared/ConfigHeader';
+import SavedConfigsList from './shared/SavedConfigsList';
+import PerConditions from './PerConditions';
 
-import { SelectSalesBoard } from '../../ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectSalesBoard';
-import { SelectPipeline } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectPipeline';
-import { SelectStage } from '~/modules/ebarimt/settings/stage-in-ebarimt-config/components/selects/SelectStage';
-
-interface PlaceConfigData {
+export interface PlaceConfigData {
   _id?: string;
+  subId?: string;
   title: string;
   boardId: string;
   pipelineId: string;
   stageId: string;
   checkPricing: boolean;
   conditions: PlaceConditionUI[];
-}
-
-interface PlaceConfigProps {
-  config: PlaceConfigData | null;
-  save: (data: PlaceConfigData) => Promise<boolean>;
-  loading?: boolean;
 }
 
 const emptyForm: PlaceConfigData = {
@@ -34,220 +30,147 @@ const emptyForm: PlaceConfigData = {
   conditions: [],
 };
 
-const PlaceConfig: React.FC<PlaceConfigProps> = ({
-  config,
-  save,
-  loading = false,
-}) => {
-  const form = useForm();
+const PlaceConfig: React.FC = () => {
+  const {
+    savedConfigs,
+    activeIndex,
+    setActiveIndex,
+    formData,
+    setFormData,
+    loading,
+    reset,
+    handleSave,
+    handleDelete,
+  } = useMnConfig<PlaceConfigData>({
+    code: 'dealsProductsDataPlaces',
+    emptyForm,
+    getSubId: (f) => f.stageId,
+  });
 
-  /** UI-only saved configs */
-  const [savedConfigs, setSavedConfigs] = useState<PlaceConfigData[]>([]);
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const { handleBoardChange, handlePipelineChange } =
+    useBoardPipelineStage(setFormData);
 
-  const [formData, setFormData] = useState<PlaceConfigData>(emptyForm);
-
-  /* sync form */
-  useEffect(() => {
-    if (activeIndex !== null) {
-      setFormData(savedConfigs[activeIndex] ?? emptyForm);
-      return;
-    }
-
-    if (!config) {
-      setFormData(emptyForm);
-      return;
-    }
-
-    setFormData({
-      title: config.title ?? '',
-      boardId: config.boardId ?? '',
-      pipelineId: config.pipelineId ?? '',
-      stageId: config.stageId ?? '',
-      checkPricing: Boolean(config.checkPricing),
-      conditions: config.conditions ?? [],
-    });
-  }, [config, activeIndex, savedConfigs]);
-
-  /* helpers */
-  const updateField = useCallback(
-    <K extends keyof PlaceConfigData>(key: K, value: PlaceConfigData[K]) => {
-      setFormData((prev) => ({ ...prev, [key]: value }));
-    },
-    [],
-  );
-
-  const addCondition = () => {
-    setFormData((prev) => ({
-      ...prev,
-      conditions: [
-        ...prev.conditions,
-        {
-          id: crypto.randomUUID(),
-          branchId: '',
-          departmentId: '',
-        },
-      ],
-    }));
-  };
-
-  const updateCondition = (id: string, updated: PlaceConditionUI) => {
-    setFormData((prev) => ({
-      ...prev,
-      conditions: prev.conditions.map((c) =>
-        c.id === id ? updated : c,
-      ),
-    }));
-  };
-
-  const deleteCondition = (id: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      conditions: prev.conditions.filter((c) => c.id !== id),
-    }));
-  };
-
-  /* actions */
-  const handleSave = async () => {
-    const ok = await save(formData);
-    if (!ok) return;
-
-    setSavedConfigs((prev) => {
-      if (activeIndex === null) return [...prev, formData];
-      const next = [...prev];
-      next[activeIndex] = formData;
-      return next;
-    });
-
-    setActiveIndex(null);
-  };
-
-  const handleDeleteUI = () => {
-    if (activeIndex === null) return;
-    if (!window.confirm('Remove this config from list?')) return;
-
-    setSavedConfigs((prev) => prev.filter((_, i) => i !== activeIndex));
-    setActiveIndex(null);
-    setFormData(emptyForm);
-  };
-
-  const handleNewConfig = () => {
-    setActiveIndex(null);
-    setFormData(emptyForm);
-  };
-
-  if (loading) return <div>Loading...</div>;
+  const { addCondition, updateCondition, removeCondition } =
+    useConditions(setFormData);
 
   return (
-    <Form {...form}>
-      <div className="space-y-6">
-        {/* HEADER */}
-        <div className="flex justify-between items-center">
-          <h1 className="text-lg font-semibold">Product Places Config</h1>
-          <Button variant="outline" onClick={handleNewConfig}>
-            + New Config
-          </Button>
-        </div>
+    <div className="w-full flex justify-center overflow-y-auto">
+      <div className="w-full max-w-6xl px-6 py-6 space-y-8">
+        <ConfigHeader
+          title="Product Places Config"
+          onNew={reset}
+          disabled={loading}
+        />
 
-        {/* SAVED LIST */}
-        {savedConfigs.length > 0 && (
-          <div className="border rounded p-3 space-y-2">
-            <h3 className="font-medium">Saved configs</h3>
+        <SavedConfigsList
+          configs={savedConfigs}
+          activeIndex={activeIndex}
+          onSelect={setActiveIndex}
+        />
 
-            {savedConfigs.map((cfg, i) => (
-              <div
-                key={i}
-                className={`cursor-pointer p-2 rounded border
-                  ${i === activeIndex ? 'bg-primary/10' : 'hover:bg-muted'}`}
-                onClick={() => setActiveIndex(i)}
-              >
-                <div className="font-medium">{cfg.title || '(Untitled)'}</div>
-                <div className="text-xs text-gray-500">
-                  Stage: {cfg.stageId || '—'}
-                </div>
+        <Card>
+          <Card.Content className="space-y-6">
+            <div className="space-y-2 pt-4">
+              <Label className="text-xs font-semibold uppercase text-muted-foreground">
+                Title
+              </Label>
+              <Input
+                placeholder="Enter configuration title"
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, title: e.target.value }))
+                }
+              />
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label className="text-xs font-semibold uppercase text-muted-foreground mb-2 block">
+                  Select Board
+                </Label>
+                <SelectBoard
+                  mode="single"
+                  value={formData.boardId}
+                  onValueChange={(v) => handleBoardChange(v as string)}
+                  placeholder="Choose board"
+                />
               </div>
-            ))}
-          </div>
-        )}
 
-        {/* FORM */}
-        <div className="border rounded p-6 space-y-6">
-          <div>
-            <Label>Title</Label>
-            <input
-              className="w-full border rounded p-2"
-              value={formData.title}
-              onChange={(e) => updateField('title', e.target.value)}
-            />
-          </div>
+              <div>
+                <Label className="text-xs font-semibold uppercase text-muted-foreground mb-2 block">
+                  Select Pipeline
+                </Label>
+                <SelectPipeline
+                  mode="single"
+                  boardId={formData.boardId}
+                  value={formData.pipelineId}
+                  onValueChange={(v) => handlePipelineChange(v as string)}
+                  placeholder="Choose pipeline"
+                />
+              </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <SelectSalesBoard
-              variant="form"
-              value={formData.boardId}
-              onValueChange={(boardId) =>
-                setFormData((p) => ({
-                  ...p,
-                  boardId,
-                  pipelineId: '',
-                  stageId: '',
-                }))
-              }
-            />
+              <div>
+                <Label className="text-xs font-semibold uppercase text-muted-foreground mb-2 block">
+                  Select Stage
+                </Label>
+                <SelectStage
+                  mode="single"
+                  pipelineId={formData.pipelineId}
+                  value={formData.stageId}
+                  onValueChange={(v) =>
+                    setFormData((prev) => ({ ...prev, stageId: v as string }))
+                  }
+                  placeholder="Choose stage"
+                />
+              </div>
+            </div>
+          </Card.Content>
+        </Card>
 
-            <SelectPipeline
-              variant="form"
-              boardId={formData.boardId}
-              value={formData.pipelineId}
-              disabled={!formData.boardId}
-              onValueChange={(pipelineId) =>
-                setFormData((p) => ({
-                  ...p,
-                  pipelineId,
-                  stageId: '',
-                }))
-              }
-            />
+        <Card>
+          <Card.Header>
+            <Card.Title>Conditions ({formData.conditions.length})</Card.Title>
+          </Card.Header>
 
-            <SelectStage
-              id="place-stage"
-              variant="form"
-              pipelineId={formData.pipelineId}
-              value={formData.stageId}
-              disabled={!formData.pipelineId}
-              onValueChange={(stageId) => updateField('stageId', stageId)}
-            />
-          </div>
-        </div>
+          <Card.Content>
+            {formData.conditions.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-muted-foreground gap-4">
+                <p className="text-sm">
+                  No conditions added yet. Click "Add condition" to get started.
+                </p>
+                <Button onClick={addCondition} variant="outline" className="text-xs">
+                  <IconPlus /> Add condition
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {formData.conditions.map((c, index) => (
+                  <PerConditions
+                    key={c.id}
+                    condition={c}
+                    onChange={updateCondition}
+                    onRemove={removeCondition}
+                    onAddCondition={
+                      index === formData.conditions.length - 1
+                        ? addCondition
+                        : undefined
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </Card.Content>
+        </Card>
 
-        {/* CONDITIONS */}
-        <div className="space-y-4">
-          {formData.conditions.map((c) => (
-            <PerConditions
-              key={c.id}
-              condition={c}
-              onChange={updateCondition}
-              onRemove={deleteCondition}
-            />
-          ))}
-
-          <Button variant="outline" onClick={addCondition}>
-            + Add condition
-          </Button>
-        </div>
-
-        {/* ACTIONS */}
-        <div className="flex justify-end gap-2">
-          {activeIndex !== null && (
-            <Button variant="destructive" onClick={handleDeleteUI}>
-              Delete Config
-            </Button>
-          )}
-
-          <Button onClick={handleSave}>Save Config</Button>
-        </div>
+        <ConfigFooter
+          activeIndex={activeIndex}
+          loading={loading}
+          onClear={reset}
+          onSave={() => handleSave()}
+          onDelete={() => handleDelete()}
+        />
       </div>
-    </Form>
+    </div>
   );
 };
 

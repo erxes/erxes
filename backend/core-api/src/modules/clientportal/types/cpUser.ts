@@ -1,6 +1,5 @@
 import { Document } from 'mongoose';
-import { IAttachment } from 'erxes-api-shared/core-types';
-import { IModels } from '~/connectionResolvers';
+import { IAttachment, IPropertyField } from 'erxes-api-shared/core-types';
 
 export interface ICPNotificationConfig {
   notificationType: string;
@@ -22,7 +21,8 @@ export interface ICPUserRegisterParams {
   lastName?: string;
   companyName?: string;
   password?: string;
-  type?: string | 'customer' | 'company';
+  userType?: string | 'customer' | 'company';
+  propertiesData?: IPropertyField;
 }
 
 export interface IRefreshToken {
@@ -86,8 +86,14 @@ export interface ICPUser {
       | 'EMAIL_VERIFICATION'
       | 'PHONE_VERIFICATION'
       | 'PASSWORD_RESET'
-      | 'TWO_FACTOR_VERIFICATION';
+      | 'TWO_FACTOR_VERIFICATION'
+      | 'EMAIL_CHANGE'
+      | 'PHONE_CHANGE';
   };
+
+  // Pending contact change (set while waiting for OTP confirmation)
+  pendingEmail?: string;
+  pendingPhone?: string;
 
   // Refresh tokens for token management
   refreshTokens?: IRefreshToken[];

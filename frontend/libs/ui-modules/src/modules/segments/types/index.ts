@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { segmentFormSchema } from '../states/segmentFormSchema';
 import { IField } from 'ui-modules/modules/properties';
+import { FieldArray } from 'react-hook-form';
 
 export type TSegmentForm = z.infer<typeof segmentFormSchema>;
 export interface ListQueryResponse {
@@ -64,16 +65,14 @@ export type FieldQueryResponse = {
   segmentsGetAssociationTypes: { value: string; description: string }[];
 };
 
-export type IFormFieldName =
-  | `conditions.${number}`
-  | `conditionSegments.${number}.conditions.${number}`;
+export type TConditionParentFieldName = `conditionSegments.${number}`;
+export type TConditionFieldPath =
+  | `${TConditionParentFieldName}.conditions`
+  | 'conditions';
 
-export type IProperty = {
-  index: number;
-  remove: () => void;
-  total: number;
-  parentFieldName?: `conditionSegments.${number}`;
-};
+export type TSegmentCondition = FieldArray<TSegmentForm, TConditionFieldPath>;
+
+export type IFormFieldName = `${TConditionFieldPath}.${number}`;
 
 export type ConditionFieldKey =
   | 'propertyType'
@@ -129,4 +128,8 @@ export interface IConditionsForPreview {
 export enum TConditionsConjunction {
   AND = 'and',
   OR = 'or',
+}
+export enum SegmentFormMode {
+  DEFAULT = 'default',
+  SINGLE = 'single',
 }

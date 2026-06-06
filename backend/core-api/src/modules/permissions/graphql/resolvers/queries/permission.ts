@@ -1,11 +1,12 @@
 import { IContext } from '~/connectionResolvers';
 import { getPlugins, getPlugin } from 'erxes-api-shared/utils';
 
-const mergePerm = (map: Map<string, any>, perm: any) => {
+const mergePerm = (map: Map<string, any>, perm: any, plugin?: string) => {
   const existing = map.get(perm.module);
 
   if (!existing) {
     map.set(perm.module, {
+      plugin: perm.plugin || plugin,
       module: perm.module,
       actions: [...perm.actions],
       scope: perm.scope,
@@ -77,22 +78,49 @@ export const permissionQueries = {
   ) {
     if (!user) throw new Error('Login required');
 
-    if (user.isOwner) {
-      return [{ module: '*', actions: ['*'], scope: 'all' }];
-    }
+    const plugins = await getPlugins();
 
-    const groupIds = user.permissionGroupIds || [];
-    const permMap = new Map();
-
-    const services = await getPlugins();
+    const pluginsWithPermissions: string[] = [];
     const allDefaultGroups: any[] = [];
 
-    for (const name of services) {
-      const service = await getPlugin(name);
-      const permissions = service?.config?.meta?.permissions;
-      if (!permissions?.defaultGroups) continue;
-      allDefaultGroups.push(...permissions.defaultGroups);
+    for (const pluginName of plugins) {
+      const plugin = await getPlugin(pluginName);
+      const permissions = plugin?.config?.meta?.permissions;
+
+      if (permissions?.modules?.length || permissions?.defaultGroups?.length) {
+        pluginsWithPermissions.push(pluginName);
+      }
+
+      if (permissions?.defaultGroups) {
+        allDefaultGroups.push(...permissions.defaultGroups);
+      }
     }
+
+    if (user.isOwner) {
+      return {
+        permissions: [{ plugin: '*', module: '*', actions: ['*'], scope: 'all' }],
+        pluginsWithPermissions,
+      };
+    }
+
+    let groupIds = user.permissionGroupIds || [];
+    const customPermissions = user.customPermissions || [];
+
+    if (groupIds.length === 0 && customPermissions.length === 0) {
+      const viewerGroupIds = allDefaultGroups
+        .filter((g) => g.id.endsWith(':viewer'))
+        .map((g) => g.id);
+
+      if (viewerGroupIds.length > 0) {
+        await models.Users.updateOne(
+          { _id: user._id },
+          { $set: { permissionGroupIds: viewerGroupIds } },
+        );
+        groupIds = viewerGroupIds;
+      }
+    }
+
+    const permMap = new Map();
 
     for (const groupId of groupIds) {
       if (groupId.includes(':')) {
@@ -104,6 +132,7 @@ export const permissionQueries = {
         }
       } else {
         const group = await models.PermissionGroups.findOne({ _id: groupId });
+
         if (group) {
           for (const perm of group.permissions) {
             mergePerm(permMap, perm);
@@ -112,10 +141,13 @@ export const permissionQueries = {
       }
     }
 
-    for (const perm of user.customPermissions || []) {
+    for (const perm of customPermissions) {
       mergePerm(permMap, perm);
     }
 
-    return Array.from(permMap.values());
+    return {
+      permissions: Array.from(permMap.values()),
+      pluginsWithPermissions,
+    };
   },
 };

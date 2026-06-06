@@ -21,9 +21,21 @@ export enum VatKind {
   HIDDEN = 'hidden',
 }
 
+export const VAT_KIND_LABELS = {
+  [VatKind.NORMAL]: 'Энгийн',
+  [VatKind.FORMULA]: 'Томьёо',
+  [VatKind.TITLE]: 'Гарчиг',
+  [VatKind.HIDDEN]: 'Нуусан',
+};
+
 export enum VatStatus {
   ACTIVE = 'active',
   DELETED = 'deleted',
 }
+
+export const VAT_STATUS_LABELS = {
+  [VatStatus.ACTIVE]: 'Идэвхтэй',
+  [VatStatus.DELETED]: 'Устгасан',
+};
 
 export type TVatRowForm = z.infer<typeof vatFormSchema>;

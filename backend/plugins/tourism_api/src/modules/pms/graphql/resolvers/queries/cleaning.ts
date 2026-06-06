@@ -1,4 +1,4 @@
-import { IContext, IModels } from '~/connectionResolvers';
+import { IContext } from '~/connectionResolvers';
 
 const cleaningQueries = {
   async pmsCleanings(_root, _args, { models }: IContext) {

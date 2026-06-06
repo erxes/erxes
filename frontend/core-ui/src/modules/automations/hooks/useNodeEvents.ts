@@ -6,7 +6,22 @@ import { useSetAtom } from 'jotai';
 
 export const useNodeEvents = () => {
   const toggleSideBarOpen = useSetAtom(toggleAutomationBuilderOpenSidebar);
-  const { setQueryParams } = useAutomation();
+  const { setQueryParams, setSelectedNode } = useAutomation();
+
+  const onNodeClick = (_event: any, node: Node<NodeData>) => {
+    setSelectedNode({
+      id: node.id,
+      type: node.data.type,
+      nodeType: node.data.nodeType,
+      label: node.data.label,
+      icon: node.data.icon,
+    });
+  };
+
+  const openNodeConfigurationForm = (nodeId: string) => {
+    toggleSideBarOpen();
+    setQueryParams({ activeNodeId: nodeId });
+  };
 
   const onNodeDoubleClick = (event: any, node: Node<NodeData>) => {
     const target = event.target as HTMLElement;
@@ -20,12 +35,17 @@ export const useNodeEvents = () => {
     ) {
       return;
     }
+    openNodeConfigurationForm(node.id);
+  };
 
-    toggleSideBarOpen();
-    setQueryParams({ activeNodeId: node.id });
+  const onPaneClick = () => {
+    setSelectedNode(null);
   };
 
   return {
+    onNodeClick,
     onNodeDoubleClick,
+    onPaneClick,
+    openNodeConfigurationForm,
   };
 };

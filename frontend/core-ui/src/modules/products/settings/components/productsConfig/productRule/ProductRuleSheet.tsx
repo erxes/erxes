@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ProductRuleForm } from './ProductRuleForm';
 import { ProductHotKeyScope } from '@/products/types/ProductsHotKeyScope';
+import { Can, usePermissionCheck } from 'ui-modules';
 
 export const ProductRuleSheet = () => {
   const [open, setOpen] = useState<boolean>(false);
@@ -28,8 +29,18 @@ export const ProductRuleSheet = () => {
     setOpen(false);
     goBackToPreviousHotkeyScope();
   };
+  const { hasActionPermission } = usePermissionCheck();
+  const canManageProductRules = hasActionPermission('productRulesManage');
 
-  useScopedHotkeys(`c`, () => onOpen(), ProductHotKeyScope.ProductsPage);
+  useScopedHotkeys(
+    `c`,
+    () => {
+      if (!canManageProductRules) return;
+      onOpen();
+    },
+    ProductHotKeyScope.ProductsPage,
+    [canManageProductRules],
+  );
 
   return (
     <Sheet
@@ -37,13 +48,15 @@ export const ProductRuleSheet = () => {
       open={open}
       modal
     >
-      <Sheet.Trigger asChild>
-        <Button className="whitespace-nowrap shrink-0">
-          <IconPlus />
-          {t('add-product-rule')}
-          <Kbd>C</Kbd>
-        </Button>
-      </Sheet.Trigger>
+      <Can action="productRulesManage">
+        <Sheet.Trigger asChild>
+          <Button className="whitespace-nowrap shrink-0">
+            <IconPlus />
+            {t('add-product-rule')}
+            <Kbd>C</Kbd>
+          </Button>
+        </Sheet.Trigger>
+      </Can>
       <Sheet.View
         className="p-0 sm:max-w-lg"
         onEscapeKeyDown={(e) => {

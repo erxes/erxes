@@ -1,10 +1,13 @@
 import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
 import { Button, Form, ScrollArea, Sheet } from 'erxes-ui';
-import { useAtom } from 'jotai';
-import { formSetupStepAtom } from '../states/formSetupStates';
+import { useAtom, useSetAtom } from 'jotai';
+import {
+  formSetupStepAtom,
+  resetFormSetupAtom,
+} from '../states/formSetupStates';
 import { UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 export const FormMutateLayout = ({
   children,
@@ -23,6 +26,17 @@ export const FormMutateLayout = ({
 }) => {
   const [step, setStep] = useAtom(formSetupStepAtom);
   const { id } = useParams<{ id: string }>();
+
+  const resetFormSetup = useSetAtom(resetFormSetupAtom);
+  const navigate = useNavigate();
+
+  const handleCancel = () => {
+    resetFormSetup();
+    if (!id) {
+      navigate('/frontline/forms');
+    } else navigate(`/settings/frontline/channels/${id}/forms`);
+    return;
+  };
 
   return (
     <Form {...form}>
@@ -48,7 +62,7 @@ export const FormMutateLayout = ({
           <Button
             variant="secondary"
             className="mr-auto bg-border"
-            onClick={() => null}
+            onClick={handleCancel}
           >
             Cancel
           </Button>

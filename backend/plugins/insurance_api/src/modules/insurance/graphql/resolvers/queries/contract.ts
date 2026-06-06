@@ -1,28 +1,123 @@
 import { IContext } from '~/connectionResolvers';
 
+const escapeRegex = (str: string): string => {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
 export const contractQueries = {
   contracts: Object.assign(
     async (
       _parent: undefined,
-      { vendorId, customerId }: { vendorId?: string; customerId?: string },
+      args: {
+        vendorId?: string;
+        customerId?: string;
+        searchValue?: string;
+        contractNumber?: string;
+        customerRegistration?: string;
+        plateNumber?: string;
+        paymentStatus?: string;
+        insuranceTypeId?: string;
+        startDate?: any;
+        endDate?: any;
+      },
       { models }: IContext,
     ) => {
-      const query: any = {};
-      if (vendorId) query.vendor = vendorId;
-      if (customerId) query.customer = customerId;
+      try {
+        const query: any = {};
 
-      const contracts = await models.Contract.find(query).populate(
-        'vendor customer insuranceType insuranceProduct coveredRisks.risk',
-      );
+        const str = (v: any) =>
+          typeof v === 'string' && v.trim() ? v.trim() : '';
+        const validDate = (v: any) => {
+          if (!v) return null;
+          const d = new Date(v);
+          return isNaN(d.getTime()) ? null : d;
+        };
 
-      return contracts
-        .filter(
+        if (str(args.vendorId)) query.vendor = args.vendorId;
+        if (str(args.customerId)) query.customer = args.customerId;
+
+        if (str(args.contractNumber)) {
+          query.contractNumber = {
+            $regex: escapeRegex(str(args.contractNumber)),
+            $options: 'i',
+          };
+        }
+
+        if (str(args.paymentStatus)) {
+          query.paymentStatus = str(args.paymentStatus);
+        }
+
+        if (str(args.insuranceTypeId)) {
+          query.insuranceType = args.insuranceTypeId;
+        }
+
+        const parsedStart = validDate(args.startDate);
+        const parsedEnd = validDate(args.endDate);
+        if (parsedStart || parsedEnd) {
+          query.startDate = {};
+          if (parsedStart) query.startDate.$gte = parsedStart;
+          if (parsedEnd) query.startDate.$lte = parsedEnd;
+        }
+
+        if (str(args.plateNumber)) {
+          query['insuredObject.Улсын дугаар'] = {
+            $regex: escapeRegex(str(args.plateNumber)),
+            $options: 'i',
+          };
+        }
+
+        if (str(args.customerRegistration)) {
+          const customers = await models.Customer.find({
+            registrationNumber: {
+              $regex: escapeRegex(str(args.customerRegistration)),
+              $options: 'i',
+            },
+          }).select('_id');
+          if (customers.length > 0) {
+            query.customer = { $in: customers.map((c: any) => c._id) };
+          } else {
+            return [];
+          }
+        }
+
+        if (str(args.searchValue)) {
+          const sv = escapeRegex(str(args.searchValue));
+          const customers = await models.Customer.find({
+            $or: [
+              { firstName: { $regex: sv, $options: 'i' } },
+              { lastName: { $regex: sv, $options: 'i' } },
+              { registrationNumber: { $regex: sv, $options: 'i' } },
+            ],
+          }).select('_id');
+
+          const customerIds = customers.map((c: any) => c._id);
+
+          query.$or = [
+            { contractNumber: { $regex: sv, $options: 'i' } },
+            { 'insuredObject.Улсын дугаар': { $regex: sv, $options: 'i' } },
+            ...(customerIds.length > 0
+              ? [{ customer: { $in: customerIds } }]
+              : []),
+          ];
+        }
+
+        const contracts = await models.Contract.find(query)
+          .select(
+            'contractNumber vendor customer insuranceProduct insuranceType chargedAmount startDate endDate paymentStatus',
+          )
+          .populate([
+            { path: 'vendor', select: '_id name' },
+            { path: 'customer', select: '_id firstName lastName' },
+            { path: 'insuranceProduct', select: '_id name' },
+          ]);
+
+        return contracts.filter(
           (c: any) => c.insuranceProduct != null && c.insuranceType != null,
-        )
-        .map((c: any) => ({
-          ...c.toObject(),
-          coveredRisks: c.coveredRisks.filter((cr: any) => cr.risk != null),
-        }));
+        );
+      } catch (e: any) {
+        console.error('contracts query error:', e.message);
+        return [];
+      }
     },
     { wrapperConfig: { skipPermission: true } },
   ),
@@ -37,8 +132,7 @@ export const contractQueries = {
         'vendor customer insuranceType insuranceProduct coveredRisks.risk',
       );
 
-      if (!contract || !contract.insuranceProduct || !contract.insuranceType)
-        return null;
+      if (!contract?.insuranceProduct || !contract?.insuranceType) return null;
 
       return {
         ...contract.toObject(),
@@ -101,8 +195,7 @@ export const contractQueries = {
         'vendor customer insuranceType insuranceProduct coveredRisks.risk',
       );
 
-      if (!contract || !contract.insuranceProduct || !contract.insuranceType)
-        return null;
+      if (!contract?.insuranceProduct || !contract?.insuranceType) return null;
 
       return {
         ...contract.toObject(),
@@ -125,7 +218,7 @@ export const contractQueries = {
         startDate,
         sortDirection,
         sortField,
-        vendorUserId,
+        vendorUserId: _vendorUserId,
         categoryId,
       }: {
         page?: number;
@@ -141,8 +234,6 @@ export const contractQueries = {
       { models, insuranceVendorUser }: IContext,
     ) => {
       if (!insuranceVendorUser) throw new Error('Must be logged in');
-      // Handle both user.id and user._id for compatibility with JWT token
-      // userId from vendorUserLogin JWT is a valid ObjectId, user.id from erxes core is not
 
       const vendorUser = await models.VendorUser.findOne({
         _id: insuranceVendorUser._id,
@@ -151,64 +242,65 @@ export const contractQueries = {
 
       const query: any = { vendor: vendorUser.vendor };
 
-      // Category/Type filter
       if (categoryId) {
         query.insuranceType = categoryId;
       }
 
-      // Date range filter
       if (startDate || endDate) {
         query.startDate = {};
         if (startDate) query.startDate.$gte = startDate;
         if (endDate) query.startDate.$lte = endDate;
       }
 
-      // Additional filters from filters object
       if (filters) {
-        // Contract number filter
         if (filters.contractNumber) {
           query.contractNumber = {
-            $regex: filters.contractNumber,
+            $regex: escapeRegex(filters.contractNumber),
             $options: 'i',
           };
         }
 
-        // Payment status filter
         if (filters.paymentStatus) {
           query.paymentStatus = filters.paymentStatus;
         }
 
-        // Payment kind filter
         if (filters.paymentKind) {
           query.paymentKind = filters.paymentKind;
         }
 
-        // Insurance product filter
         if (filters.insuranceProductId) {
           query.insuranceProduct = filters.insuranceProductId;
         }
 
-        // Customer registration number filter
         if (filters.customerRegistration) {
           const customers = await models.Customer.find({
             registrationNumber: {
-              $regex: filters.customerRegistration,
+              $regex: escapeRegex(filters.customerRegistration),
               $options: 'i',
             },
           }).select('_id');
           if (customers.length > 0) {
             query.customer = { $in: customers.map((c: any) => c._id) };
           } else {
-            query.customer = null; // No matching customers
+            query.customer = null;
           }
         }
 
-        // Customer name filter (firstName or lastName)
         if (filters.customerName) {
           const customers = await models.Customer.find({
             $or: [
-              { firstName: { $regex: filters.customerName, $options: 'i' } },
-              { lastName: { $regex: filters.customerName, $options: 'i' } },
+              {
+                firstName: {
+                  $regex: escapeRegex(filters.customerName),
+                  $options: 'i',
+                },
+              },
+              {
+                lastName: {
+                  $regex: escapeRegex(filters.customerName),
+                  $options: 'i',
+                },
+              },
             ],
           }).select('_id');
           if (customers.length > 0) {
@@ -218,23 +310,20 @@ export const contractQueries = {
           }
         }
 
-        // Vehicle plate number filter (from insuredObject)
         if (filters.plateNumber) {
           query['insuredObject.Улсын дугаар'] = {
-            $regex: filters.plateNumber,
+            $regex: escapeRegex(filters.plateNumber),
             $options: 'i',
           };
         }
 
-        // Vehicle mark filter (from insuredObject)
         if (filters.vehicleMark) {
           query['insuredObject.Тээврийн хэрэгслийн марк'] = {
-            $regex: filters.vehicleMark,
+            $regex: escapeRegex(filters.vehicleMark),
             $options: 'i',
           };
         }
 
-        // Charged amount range filter
         if (filters.minAmount || filters.maxAmount) {
           query.chargedAmount = {};
           if (filters.minAmount)
@@ -290,7 +379,7 @@ export const contractQueries = {
         vendor: vendorUser.vendor,
       }).populate('vendor customer insuranceType insuranceProduct');
 
-      if (!contract || !contract.insuranceType) return null;
+      if (!contract?.insuranceType) return null;
 
       return contract;
     },

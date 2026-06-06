@@ -8,11 +8,15 @@ export const cpTicketQueries = {
   cpGetTickets: async (
     _root: undefined,
     { filter }: { filter: ITicketFilter & IOffsetPaginateParams },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
-    const { page, perPage, ...params } = filter || {};
+    const { page, perPage, createdBy } = filter || {};
 
-    const query = generateFilter(params);
+    const query = await generateFilter(filter, user, models);
+
+    if (createdBy) {
+      query.createdBy = `cp:${createdBy}`;
+    }
 
     return defaultPaginate(models.Ticket.find(query), { page, perPage });
   },
@@ -24,11 +28,40 @@ export const cpTicketQueries = {
   ) => {
     return models.Ticket.getTicket(_id);
   },
+  cpGetTicketTotalCount: async (
+    _root: undefined,
+    { filter }: { filter: ITicketFilter & IOffsetPaginateParams },
+    { models, user }: IContext,
+  ) => {
+    const { createdBy } = filter || {};
+
+    const query = await generateFilter(filter, user, models);
+
+    if (createdBy) {
+      query.createdBy = `cp:${createdBy}`;
+    }
+
+    return models.Ticket.countDocuments(query);
+  },
+  cpGetTicketStatus: async (
+    _parent: undefined,
+    { _id },
+    { models }: IContext,
+  ) => {
+    return models.Status.getStatus(_id);
+  },
+
+  cpTicketGetNotes: async (
+    _parent: undefined,
+    { ticketId }: { ticketId: string },
+    { models }: IContext,
+  ) => {
+    return models.Note.find({ contentId: ticketId }).sort({ createdAt: -1 }).lean();
+  },
 };
 
-markResolvers(cpTicketQueries, {
+markResolvers<IContext>(cpTicketQueries, {
   wrapperConfig: {
     forClientPortal: true,
-    cpUserRequired: true,
   },
 });

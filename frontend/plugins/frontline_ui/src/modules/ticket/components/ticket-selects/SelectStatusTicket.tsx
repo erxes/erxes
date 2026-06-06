@@ -10,7 +10,7 @@ import {
 } from 'erxes-ui';
 import { addTicketSchema } from '@/ticket/types';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
-import { useGetTicketStatusesByPipeline } from '@/status/hooks/useGetTicketStatus';
+import { useGetAccessibleTicketStatuses } from '@/status/hooks/useGetTicketStatus';
 import { ITicketStatusChoice } from '@/status/types';
 import { TICKET_STATUS_TYPES } from '@/status/constants';
 import { StatusInlineIcon } from '@/status/components/StatusInline';
@@ -60,7 +60,7 @@ export const SelectStatusProvider = ({
     if (!status) return;
     onValueChange?.(status);
   };
-  const { statuses, loading, error } = useGetTicketStatusesByPipeline({
+  const { statuses, loading, error } = useGetAccessibleTicketStatuses({
     variables: { pipelineId },
     skip: !pipelineId,
   });
@@ -161,6 +161,7 @@ const SelectStatusTicketRoot = ({
   variant,
   scope,
   onValueChange,
+  disabled,
 }: {
   value: string;
   id: string;
@@ -168,6 +169,7 @@ const SelectStatusTicketRoot = ({
   variant: `${SelectTriggerVariant}`;
   scope?: string;
   onValueChange?: (value: string) => void;
+  disabled?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   const { updateTicket } = useUpdateTicket();
@@ -191,7 +193,7 @@ const SelectStatusTicketRoot = ({
       onValueChange={handleValueChange}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerTicket variant={variant}>
+        <SelectTriggerTicket variant={variant} disabled={disabled}>
           <SelectStatusValue />
         </SelectTriggerTicket>
         <SelectTicketContent variant={variant}>
@@ -267,7 +269,7 @@ export const SelectStatusTicketFormItem = ({
   form?: UseFormReturn<z.infer<typeof addTicketSchema>>;
 }) => {
   const pipelineId = useWatch({ name: 'pipelineId', control: form?.control });
-  const { statuses } = useGetTicketStatusesByPipeline({
+  const { statuses } = useGetAccessibleTicketStatuses({
     variables: { pipelineId },
     skip: !pipelineId,
   });

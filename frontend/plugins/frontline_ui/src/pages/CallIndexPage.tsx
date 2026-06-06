@@ -1,4 +1,4 @@
-import { CallQueueRecordTable } from '@/integrations/call/components/CallQueuRecordTable';
+import { CallQueueRecordTable } from '@/integrations/call/components/CallQueueRecordTable';
 import { IconPhone } from '@tabler/icons-react';
 import { Breadcrumb, Button, PageContainer } from 'erxes-ui';
 import { Link } from 'react-router-dom';
@@ -13,9 +13,18 @@ export const CallIndexPage = () => {
             <Breadcrumb.List>
               <Breadcrumb.Item>
                 <Button variant="ghost" asChild>
-                  <Link to="/frontline/calls">
+                  <Link to="/frontline/calls/dashboard">
                     <IconPhone />
-                    Calls
+                    Queue Switchboard
+                  </Link>
+                </Button>
+              </Breadcrumb.Item>
+              <Breadcrumb.Separator />
+              <Breadcrumb.Item>
+                <Button variant="ghost" asChild>
+                  <Link to="/frontline/calls/statistics">
+                    <IconPhone />
+                    Queue Statistics
                   </Link>
                 </Button>
               </Breadcrumb.Item>

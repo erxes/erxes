@@ -1,7 +1,6 @@
 import { BlobServiceClient } from '@azure/storage-blob';
 import { Storage } from '@google-cloud/storage';
 import AWS from 'aws-sdk';
-import { fileTypeFromBuffer } from 'file-type/core';
 import FormData from 'form-data';
 import * as fs from 'fs';
 import fetch from 'node-fetch';
@@ -34,6 +33,7 @@ const STORAGE_CONFIG_CODES = [
   'AZURE_STORAGE_CONNECTION_STRING',
   'AZURE_STORAGE_CONTAINER',
   'FILE_SYSTEM_PUBLIC',
+  'AWS_DISABLE_ACL',
 ] as const;
 
 type StorageConfigCode = (typeof STORAGE_CONFIG_CODES)[number];
@@ -312,6 +312,10 @@ const uploadToAWS = async (
     ? false
     : parseBoolean(readConfigValue(configs, 'FILE_SYSTEM_PUBLIC', 'true'));
 
+  const disableAcl = parseBoolean(
+    readConfigValue(configs, 'AWS_DISABLE_ACL', ''),
+  );
+
   const awsPrefix = readConfigValue(configs, 'AWS_PREFIX', '');
   const bucket = requireConfigValue(configs, 'AWS_BUCKET');
 
@@ -326,7 +330,7 @@ const uploadToAWS = async (
         Bucket: bucket,
         Key: finalFileName,
         Body: buffer,
-        ACL: isPublic ? 'public-read' : undefined,
+        ...(isPublic && !disableAcl ? { ACL: 'public-read' } : {}),
       },
       (err, res) => {
         if (err) {
@@ -418,7 +422,8 @@ const uploadToCloudflare = async (
     readConfigValue(configs, 'CLOUDFLARE_USE_CDN', ''),
   );
 
-  const detectedType = await fileTypeFromBuffer(fs.readFileSync(filePath));
+  const { fileTypeFromBuffer } = await import('file-type');
+  const detectedType = await fileTypeFromBuffer(new Uint8Array(fs.readFileSync(filePath)));
 
   let adjustedFileName = fileName;
   if (path.extname(fileName).toLowerCase() === '.jfif') {
@@ -454,7 +459,7 @@ const uploadToCloudflare = async (
         Bucket: bucketName,
         Key: finalFileName,
         Body: buffer,
-        ACL: isPublic ? 'public-read' : undefined,
+        ...(isPublic ? { ACL: 'public-read' } : {}),
       },
       (err, res) => {
         if (err) {

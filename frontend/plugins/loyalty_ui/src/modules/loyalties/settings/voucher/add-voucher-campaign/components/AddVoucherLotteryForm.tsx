@@ -54,10 +54,14 @@ export const AddVoucherLotteryForm: React.FC<AddVoucherLotteryFormProps> = ({
             <Form.Label>Lottery Count</Form.Label>
             <Form.Control>
               <Input
-                type="text"
+                type="number"
                 placeholder="Enter Lottery Count"
-                {...field}
-                onChange={(e) => field.onChange(Number(e.target.value))}
+                value={field.value ?? ''}
+                onChange={(e) =>
+                  field.onChange(
+                    e.target.value === '' ? undefined : Number(e.target.value),
+                  )
+                }
               />
             </Form.Control>
             <Form.Message />

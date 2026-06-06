@@ -3,6 +3,7 @@ export interface IPayment {
   kind: string;
   status?: 'active' | 'inactive';
   config: any;
+  sendEmailOnPayment?: boolean;
   createdAt?: Date;
 }
 
@@ -38,6 +39,7 @@ export interface IInvoice {
   description: string;
   invoiceNumber: string;
   status: string;
+  scannedAt?: Date;
   transactions: {
     amount: number;
     createdAt: Date;

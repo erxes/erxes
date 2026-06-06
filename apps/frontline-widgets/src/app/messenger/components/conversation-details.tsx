@@ -1,21 +1,29 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
-import { BotMessage, OperatorMessage, CustomerMessage } from './conversation';
-import { ChatInput } from './chat-input';
+import {
+  BotMessage,
+  OperatorMessage,
+  CustomerMessage,
+  WelcomeMessage,
+} from './conversation';
 import { useConversationDetail } from '../hooks/useConversationDetail';
 import {
   connectionAtom,
   conversationIdAtom,
   messengerDataAtom,
 } from '../states';
-import { Skeleton, cn } from 'erxes-ui';
+import { Avatar, Button, readImage, Skeleton, cn } from 'erxes-ui';
 import { formatMessageDate, getDateKey } from '@libs/formatDate';
 import { DateSeparator } from './date-separator';
-import { BotSeparator } from './bot-separator';
 import { TypingStatus } from './typing-status';
 import { InitialMessage } from '../constants';
-
-const defaultLogo = 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAB0CAMAAAAl8kW/AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACglBMVEUAAAD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8AAABxMqsfAAAA1HRSTlMAKRBgAZQKd1JAthrjKAXDiY7kDFT+WifxwNT7LKORaOg0+V8T4McCt/wzf5ZH7B7rBsjLkzgEWZ9PKvTvFSN2DddujVuq0hHnQnA9cSQ7pdzb8xtTBwO7c8SkhIdLRqhiIe74CM31jPAtm3zfYdpvL7EPtK73aXWCNko+4acZUCAcwrmK0PpRbSXZTqC+wTdmNR/2iOoxbNg6P4ESulcOj/0wxURjeM6cFLVdkC7yHZ5FfpcXyuZWaukJmpimr+0iGHmsQdUmekyzsoa/uFzdleIWoh4NTwYAAAABYktHRACIBR1IAAAACXBIWXMAAAsSAAALEgHS3X78AAAEk0lEQVRo3s3Z+UMUVRwA8Oc6bh60JjYVoSkbpaOI7KprHpikEhSiKGxFmG3YiomGW9BlmgWImrdU3hmVZ3afdtl92P39g3oX2wzL7rw38/2h9wsz7/jsLPN9875vh5D/eRmC7AWG4nrGsCAueNVwXG/ESFxvVN7VqF5o9DW4Fzgmfyyqd615Hap3/Q0FBqYXvLFwHOoFjoebUL0JMDGA6RWF4WZMr/gWuBXzjkyaDNYUzAucClCC6U2zoLQY0ZteBjAB0YtEAWZMQgRnApizcnWIhbS82QBwW+4uc3Qiau48gPnlufssuF3dW1hBL/AOt16LFiuDS6hXGXPrdWdVtaJ3F/XMu9371ZQtVfJqwxRcptAxsryuXKFbeT71VqxU+eh6iDa4dorfQz24V+m7GPdBo2vw3M+8CsWonWVCk0uXVSYDH1DzCFkN8GDODomHmLdE1SOJZgjnCp41DzMvOV0ZJGsBWtZlb36EebBe3SOBUoDWrMGzgXsb3UPBVh6lI6JZ0se2JAdX6XgkVEeHbIoP1pTayL3HtDxChrNBgwWP8Tj32hOaIBnNhnVk1j/BPXhS1yNPsdC1nh5Y/YzFvc0e0vNn2cCBwbOlSlzgVn2PPNfORuZts9fFnhfeCx48Qjr52C77l1srvG5v6XmgjI+2Bc92U4Buj45spUcMT2cuO1pEhef0PLRTAD3iNNglTsF7er5dANYufvai9Hb7SAb3CCK5lx7vk56v9Hy/vAs0eKY0S9Bfer5MKpWJVnlUlfIFHmiXzkH513d6fgicxXd6nup1eNZLPj1CXnaACOl57BWbh5Kez7GB+xA8QgrSHlJ6fjgNHkHxyNE0qJEu5yg7mtPg/GMY4HHbTVmE4J2wh2HzAd/eyXxHYI/3Db7qnMqnXvPptRUOeDh4W0DTxeiTjjnzlDx63Rf4Rv+FdZI35dFpP7OluFQqx+naXCKP1bdumeWMNFrP0pP4OXmilbk6ymG5RCXFUzVVKU5rvHqx/oX9vKzYliceil6XqRrpXUjXvCWy60PevJUXhVdg23/t4unmwbc9gavlGu/YXXTwune8eO/Kx8F+ZzWfipaHbKRBbB4y9nzxTaxWd09By3vCez+jIRhl9SN0vQUiBemLZDZ9wILnQ90EYiT3Pho1WNs6lsh+rOfVcy9cO3hrdRhgudZPUGPFlPgkWzvLPXt0wE63aGsC+PSkujuum6cJa7L3MBp1dnsG3y715pxfn0Vh3hZVcCifDC6RVl4HlxS9Y71KD72lpYWKr7Q+Z94X7v2qw18qeXvZ8talsh1ebNYq9Iqfpt5XXyt99vo+hU5sw2hNU/vnGI3ur8kus3n6jZpHSKTE9fdNtnP6Vv1JkvrOpUM19b5fqOzRWZ+7uaECoOUHDc+t/Eizop8QvQRddqcieuRngF8wX93QLdNOf5thZwluhotzMb9wE5j1mN6QbvgV0zOuwG9x/8x/5Xf4A2Xf1V8CE5NtmB75E2ajekXWGFQvPuMK6g0hHX+pvEFRL39XFaF65J8NuN6RYbhe6FLEP2Iv55WTHrVyuQ3XI7jX9y/JAcmAtCI0lQAAAABJRU5ErkJggg==)'
+import {
+  IconArrowLeft,
+  IconArrowsDiagonal2,
+  IconArrowsDiagonalMinimize,
+} from '@tabler/icons-react';
+import { useMessenger } from '../hooks/useMessenger';
+import { CloseButton } from './CloseButton';
 
 const MESSAGE_GROUP_TIME_WINDOW = 5 * 60 * 1000;
 
@@ -64,9 +72,16 @@ export const ConversationDetails = () => {
   const messengerConnectData = useAtomValue(messengerDataAtom);
   const connection = useAtomValue(connectionAtom);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { goBack } = useMessenger();
   const { widgetsMessengerConnect } = connection || {};
   const { messengerData } = widgetsMessengerConnect || {};
-  const { botGreetMessage, botShowInitialMessage, messages: messagesConfig } = messengerData || {};
+  const {
+    botGreetMessage,
+    botShowInitialMessage,
+    messages: messagesConfig,
+    responseRate,
+    isOnline,
+  } = messengerData || {};
   const { conversationDetail, loading, isBotTyping } = useConversationDetail({
     variables: {
       _id: conversationId,
@@ -75,6 +90,14 @@ export const ConversationDetails = () => {
     skip: !conversationId || !messengerConnectData?.integrationId,
   });
   const { messages } = conversationDetail || {};
+
+  const lastAgentUser = useMemo(() => {
+    if (!messages) return null;
+    return (
+      [...messages].reverse().find((m) => !m.customerId && !m.fromBot && m.user)
+        ?.user ?? null
+    );
+  }, [messages]);
 
   const messagesByDate = useMemo(() => {
     if (!messages) return {};
@@ -150,15 +173,63 @@ export const ConversationDetails = () => {
     );
   }, [messagesByDate]);
 
+  const agentName =
+    lastAgentUser?.details?.fullName ||
+    lastAgentUser?.details?.firstName ||
+    'Support';
+  const agentAvatar = lastAgentUser?.details?.avatar;
+  const subtitle = responseRate
+    ? `usually replies in a few ${responseRate}`
+    : 'usually replies in a few minutes';
+
   if (loading) {
     return <Skeleton className="w-full aspect-square" />;
   }
 
   return (
-    <div className="flex flex-col max-h-full overflow-y-hidden relative">
+    <div className="flex flex-col h-full overflow-hidden">
+      <div className="flex items-center gap-3 px-3 py-2.5 bg-primary shrink-0">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={goBack}
+          className="text-primary-foreground rounded-2xl hover:bg-primary-foreground/10 size-8 shrink-0"
+        >
+          <IconArrowLeft className="size-4" />
+        </Button>
+        <div className="relative shrink-0">
+          <Avatar className="size-9">
+            {agentAvatar && (
+              <Avatar.Image
+                src={readImage(agentAvatar)}
+                alt={agentName}
+                className="object-cover"
+              />
+            )}
+            <Avatar.Fallback className="bg-primary-foreground/20 text-primary-foreground font-semibold text-sm">
+              {agentName.charAt(0).toUpperCase()}
+            </Avatar.Fallback>
+          </Avatar>
+          {isOnline && (
+            <span className="absolute bottom-0 right-0 size-2.5 rounded-full bg-green-400 border-2 border-primary" />
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-primary-foreground font-semibold text-sm truncate">
+            {agentName}
+          </div>
+          <div className="text-primary-foreground/60 text-xs truncate">
+            {subtitle}
+          </div>
+        </div>
+        <span className="flex items-center">
+          <ConversationDetailsDropdown />
+          <CloseButton />
+        </span>
+      </div>
       <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto scroll-smooth scroll-p-0 scroll-m-0 scroll-pt-16 flex flex-col-reverse p-4 space-y-2"
+        className="flex-1 overflow-y-auto scroll-smooth hide-scroll scroll-p-0 scroll-m-0 scroll-pt-16 flex flex-col-reverse p-4 space-y-2"
       >
         {isBotTyping && <TypingStatus />}
 
@@ -181,7 +252,7 @@ export const ConversationDetails = () => {
                 <div
                   key={`group-${groupIndex}`}
                   className={cn(
-                    groupIndex !== 0 && 'pt-4 w-full',
+                    groupIndex !== 0 && 'mt-3 w-full',
                     'space-y-0.5',
                   )}
                 >
@@ -196,29 +267,26 @@ export const ConversationDetails = () => {
                     };
 
                     if (isBotMessage(message)) {
-                      return (
-                        <BotSeparator
-                          key={message._id}
-                          content={message.content}
-                        />
-                      );
+                      return;
                     }
 
                     if (isOperatorMessage(message)) {
                       return (
-                        <div key={message._id}>
-                          <OperatorMessage
-                            content={message.content}
-                            src={
-                              message.user?.details?.avatar ||
-                              'assets/user.webp'
-                            }
-                            createdAt={new Date(message.createdAt)}
-                            showAvatar={message.showAvatar}
-                            attachments={message.attachments}
-                            {...messagePositionProps}
-                          />
-                        </div>
+                        <OperatorMessage
+                          key={message._id}
+                          content={message.content}
+                          src={
+                            message.user?.details?.avatar || 'assets/user.webp'
+                          }
+                          createdAt={new Date(message.createdAt)}
+                          showAvatar={message.showAvatar}
+                          attachments={message.attachments}
+                          userName={
+                            message.user?.details?.fullName ||
+                            message.user?.details?.firstName
+                          }
+                          {...messagePositionProps}
+                        />
                       );
                     }
 
@@ -228,6 +296,7 @@ export const ConversationDetails = () => {
                         content={message.content}
                         createdAt={new Date(message.createdAt)}
                         attachments={message.attachments}
+                        {...messagePositionProps}
                       />
                     );
                   })}
@@ -236,18 +305,45 @@ export const ConversationDetails = () => {
             </div>
           );
         })}
-
-        {botShowInitialMessage && <BotMessage content={botGreetMessage} />}
-        <div className='flex justify-start gap-2'>
-          <div className='w-8 h-8 rounded-full bg-contain bg-center bg-primary' style={{ backgroundImage: defaultLogo }} />
-          <span className='h-auto font-medium flex flex-col justify-start items-start text-[13px] leading-relaxed text-foreground text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces wrap-break-word break-all rounded-lg shadow-2xs'>
-            {messagesConfig?.welcome || InitialMessage.WELCOME}
-          </span>
-        </div>
-      </div>
-      <div className="shrink-0">
-        <ChatInput />
+        {/* <BotMessage content={botGreetMessage} /> */}
+        {botShowInitialMessage && (
+          <BotMessage
+            content={botGreetMessage}
+            createdAt={
+              (messages && new Date(messages[0]?.createdAt || null)) ||
+              new Date()
+            }
+          />
+        )}
+        <WelcomeMessage
+          content={messagesConfig?.welcome || InitialMessage.WELCOME}
+        />
       </div>
     </div>
+  );
+};
+
+export const ConversationDetailsDropdown = () => {
+  const [expanded, setExpanded] = useState<boolean>(false);
+  const { resetExpand, expandWindow } = useMessenger();
+  const handleExpanded = () => {
+    if (expanded) {
+      resetExpand();
+    } else {
+      expandWindow();
+    }
+    setExpanded(!expanded);
+  };
+  return (
+    <button
+      onClick={handleExpanded}
+      className="text-primary-foreground hover:bg-primary-foreground/10 size-8 rounded-xl shrink-0 flex items-center justify-center cursor-pointer"
+    >
+      {expanded ? (
+        <IconArrowsDiagonalMinimize className="size-4" />
+      ) : (
+        <IconArrowsDiagonal2 className="size-4" />
+      )}
+    </button>
   );
 };

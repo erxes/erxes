@@ -10,7 +10,8 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ActivityLogs, FieldsInDetail } from 'ui-modules';
+import { ActivityLogs, AddInternalNote, FieldsInDetail } from 'ui-modules';
+import { productCustomActivities } from './ProductActivityRows';
 import { useProductDetailWithQuery } from '@/products/product-detail/hooks/useProductDetailWithQuery';
 import { useProductCustomFieldEdit } from '@/products/product-detail/hooks/useProductCustomFieldEdit';
 import {
@@ -36,7 +37,8 @@ export const ProductDetailSheet = () => {
   });
   const { toast } = useToast();
   const [open, setOpen] = useQueryState<string>(PRODUCT_QUERY_KEY);
-  const { productDetail, loading, error } = useProductDetailWithQuery();
+  const { productDetail, productId, loading, error } =
+    useProductDetailWithQuery();
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
   const { productsEdit, loading: editLoading } = useProductsEdit();
   const { uoms } = useUom({});
@@ -46,7 +48,7 @@ export const ProductDetailSheet = () => {
     defaultValues: EMPTY_PRODUCT_FORM_VALUES,
   });
 
-  useProductFormData(productDetail, form);
+  const formVersion = useProductFormData(productDetail, form, productId);
 
   const toAttachmentInput = (
     obj: Record<string, unknown> | null | undefined,
@@ -171,13 +173,17 @@ export const ProductDetailSheet = () => {
                       value="overview"
                       className="data-[state=active]:min-h-0"
                     >
-                      <ProductDetailFields />
+                      <ProductDetailFields
+                        key={`${productDetail?._id || productId || 'empty'}-${formVersion}`}
+                        productDetail={productDetail}
+                      />
                     </Tabs.Content>
                     <Tabs.Content
                       value="properties"
                       className="p-4 data-[state=active]:min-h-0"
                     >
                       <FieldsInDetail
+                        key={productDetail?._id || productId || 'empty'}
                         fieldContentType="core:product"
                         propertiesData={productDetail?.propertiesData || {}}
                         mutateHook={useProductCustomFieldEdit}
@@ -188,7 +194,20 @@ export const ProductDetailSheet = () => {
                       value="activity"
                       className="data-[state=active]:min-h-0"
                     >
-                      <ActivityLogs targetId={productDetail?._id || ''} />
+                      <div className="flex flex-col mb-12">
+                        {!!productDetail?._id && (
+                          <AddInternalNote
+                            key={`note-${productDetail._id}`}
+                            contentTypeId={productDetail._id}
+                            contentType="core:product"
+                          />
+                        )}
+                        <ActivityLogs
+                          key={`activity-${productDetail?._id || productId || 'empty'}`}
+                          targetId={productDetail?._id || ''}
+                          customActivities={productCustomActivities}
+                        />
+                      </div>
                     </Tabs.Content>
                   </Tabs>
                 </ScrollArea>

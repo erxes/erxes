@@ -1,6 +1,7 @@
 import { AUTOMATION_CONSTANTS } from '@/automations/graphql/automationQueries';
 import {
   AutomationBuilderTabsType,
+  AutomationConstants,
   AutomationNodeType,
   ConstantsQueryResponse,
   NodeData,
@@ -40,14 +41,30 @@ type AutomationQueryParams = {
   activeNodeTab?: AutomationNodeType;
 };
 
+type TAutomationSelectedNode = {
+  id: string;
+  type: string;
+  nodeType: AutomationNodeType;
+  label: string;
+  icon?: string;
+} | null;
+
+type TConstantCachedFields =
+  | 'triggersConst'
+  | 'actionsConst'
+  | 'findObjectTargetsConst';
+
+type TConstantCached = Pick<AutomationConstants, TConstantCachedFields> | null;
 interface AutomationContextType {
   awaitingToConnectNodeId?: string;
   setAwaitingToConnectNodeId: Dispatch<SetStateAction<string>>;
+  selectedNode: TAutomationSelectedNode;
+  setSelectedNode: Dispatch<SetStateAction<TAutomationSelectedNode>>;
   queryParams: QueryValues<AutomationQueryParams>;
   setQueryParams: (values: QueryValues<AutomationQueryParams>) => void;
   triggersConst: IAutomationsTriggerConfigConstants[];
   actionsConst: IAutomationsActionConfigConstants[];
-  propertyTypesConst: any[];
+  findObjectTargetsConst: any[];
   actionFolks: Record<string, IAutomationsActionFolkConfig[]>;
   loading: boolean;
   error: any;
@@ -67,6 +84,13 @@ export const AutomationProvider = ({
   children: React.ReactNode;
 }) => {
   const [awaitingToConnectNodeId, setAwaitingToConnectNodeId] = useState('');
+  const [selectedNode, setSelectedNode] = useState<{
+    id: string;
+    type: string;
+    nodeType: AutomationNodeType;
+    label: string;
+    icon?: string;
+  } | null>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance<
     Node<NodeData>,
     Edge<EdgeProps>
@@ -78,11 +102,7 @@ export const AutomationProvider = ({
       'activeNodeId',
     ]);
 
-  const [cached, setCached] = useState<{
-    triggersConst: any[];
-    actionsConst: any[];
-    propertyTypesConst: any[];
-  } | null>(null);
+  const [cached, setCached] = useState<TConstantCached>(null);
 
   const { data, loading, error, refetch } = useQuery<ConstantsQueryResponse>(
     AUTOMATION_CONSTANTS,
@@ -93,14 +113,21 @@ export const AutomationProvider = ({
     },
   );
 
-  const triggersConst =
-    cached?.triggersConst || data?.automationConstants?.triggersConst || [];
-  const actionsConst =
-    cached?.actionsConst || data?.automationConstants?.actionsConst || [];
-  const propertyTypesConst =
-    cached?.propertyTypesConst ||
-    data?.automationConstants?.propertyTypesConst ||
-    [];
+  const triggersConst = getAutomationConstantsVariables(
+    'triggersConst',
+    cached,
+    data,
+  );
+  const actionsConst = getAutomationConstantsVariables(
+    'actionsConst',
+    cached,
+    data,
+  );
+  const findObjectTargetsConst = getAutomationConstantsVariables(
+    'findObjectTargetsConst',
+    cached,
+    data,
+  );
 
   const actionFolks = Object.fromEntries(
     (actionsConst || []).map((a: any) => [a.type, a.folks || []]),
@@ -118,10 +145,33 @@ export const AutomationProvider = ({
       setCached({
         triggersConst: data.automationConstants.triggersConst || [],
         actionsConst: data.automationConstants.actionsConst || [],
-        propertyTypesConst: data.automationConstants.propertyTypesConst || [],
+        findObjectTargetsConst:
+          data.automationConstants.findObjectTargetsConst || [],
       });
     }
   }, [data, cached]);
+
+  useEffect(() => {
+    if (!queryParams.activeNodeId || !reactFlowInstance) {
+      setSelectedNode(null);
+      return;
+    }
+
+    const activeNode = reactFlowInstance.getNode(queryParams.activeNodeId);
+
+    if (!activeNode?.data?.type) {
+      setSelectedNode(null);
+      return;
+    }
+
+    setSelectedNode({
+      id: activeNode.id,
+      type: activeNode.data.type,
+      nodeType: activeNode.data.nodeType,
+      label: activeNode.data.label,
+      icon: activeNode.data.icon,
+    });
+  }, [queryParams.activeNodeId, reactFlowInstance]);
 
   const clear = () => setCached(null);
 
@@ -130,11 +180,13 @@ export const AutomationProvider = ({
       value={{
         awaitingToConnectNodeId,
         setAwaitingToConnectNodeId,
+        selectedNode,
+        setSelectedNode,
         queryParams,
         setQueryParams,
         triggersConst,
         actionsConst,
-        propertyTypesConst,
+        findObjectTargetsConst,
         actionFolks,
         loading: !cached && loading,
         error,
@@ -149,6 +201,24 @@ export const AutomationProvider = ({
       {children}
     </AutomationContext.Provider>
   );
+};
+
+const getAutomationConstantsVariables = <TKey extends TConstantCachedFields>(
+  key: TKey,
+  cached: TConstantCached,
+  data?: ConstantsQueryResponse,
+): AutomationConstants[TKey] => {
+  if (cached?.[key]) {
+    return cached[key] as AutomationConstants[TKey];
+  }
+
+  const automationConstants = data?.automationConstants;
+
+  if (automationConstants?.[key]) {
+    return automationConstants[key] as AutomationConstants[TKey];
+  }
+
+  return [] as AutomationConstants[TKey];
 };
 
 export const useAutomation = () => {

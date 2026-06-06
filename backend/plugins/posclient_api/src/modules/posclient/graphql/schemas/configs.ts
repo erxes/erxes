@@ -19,13 +19,14 @@ export const types = `
     hasCitytax: Boolean
     districtCode: String
     companyRD: String
-    defaultGSCode: String
+    defaultUnitedCode: String
     vatPercent: Int
     cityTaxPercent: Int
     footerText: String
     headerText: String
     hasCopy: Boolean
     hasSumQty: Boolean
+    isCleanTaxPrice: Boolean
   }
 
   type PoscCatProd {
@@ -80,7 +81,6 @@ export const types = `
     deliveryConfig: JSON
     branchId: String
     departmentId: String
-    checkRemainder: Boolean
     permissionConfig: JSON
     allowTypes: [String]
     isCheckRemainder: Boolean
@@ -97,6 +97,8 @@ export const mutations = `
   deleteOrders: JSON
   posChooseConfig(token: String!): String
   refetchRemainder(categoryId: String, searchValue: String): String
+
+  cpSyncConfig(type: String!): JSON
 `;
 
 export const queries = `

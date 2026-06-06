@@ -17,7 +17,7 @@ export const gatherDependentServicesType = async (
 
   for (const pName of pluginNames) {
     const plugin = await getPlugin(pName);
-    const segmentMeta = (plugin.config.meta || {}).segments;
+    const segmentMeta = plugin.config?.meta?.segments;
 
     if (!segmentMeta) {
       continue;
@@ -47,7 +47,7 @@ export const gatherDependentServicesType = async (
 export const gatherAssociatedTypes = async (contentType: string) => {
   const [pluginName, currentType] = contentType.split(':');
   const plugin = await getPlugin(pluginName);
-  const segmentMeta = (plugin.config.meta || {}).segments as SegmentConfigs;
+  const segmentMeta = plugin.config.meta?.segments as SegmentConfigs;
 
   const associatedTypes: string[] = [];
 
@@ -102,7 +102,7 @@ const gatherServicesAssociatedTypes = async (
   associatedTypes: string[],
 ) => {
   const plugin = await getPlugin(pluginName);
-  const segmentMeta = (plugin.config.meta || {}).segments;
+  const segmentMeta = plugin.config?.meta?.segments;
 
   if (!segmentMeta) {
     return;

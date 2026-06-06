@@ -2,27 +2,40 @@ import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { JournalEnum } from '@/settings/account/types/Account';
 import { SelectCtax } from '@/settings/ctax/components/SelectCtaxRow';
 import { SelectVat } from '@/settings/vat/components/SelectVatRow';
-import { gql, useQuery } from '@apollo/client';
+import { TR_STATUSES, TR_STATUS_OPTIONS } from '@/transactions/types/constants';
+import { useQuery } from '@apollo/client';
 import {
   Button,
   Checkbox,
   Dialog,
   Form,
   Input,
+  isEnabled,
   Select,
   Spinner,
 } from 'erxes-ui';
 import { useEffect } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
-import { BoardSelect, PipelineSelect, SelectBranches, SelectDepartments, StageSelect } from 'ui-modules';
-import { z } from "zod";
+import {
+  BoardSelect,
+  PipelineSelect,
+  SelectBranches,
+  SelectDepartments,
+  StageSelect,
+} from 'ui-modules';
+import { z } from 'zod';
+import { PIPELINE_DETAIL } from '../graphql/queries/relatedQueries';
+import { FormSelectEbarimtProductRule } from './SelectEbarimtProductRule';
+import { SyncResponseFieldSelect } from './SyncResponseFieldSelect';
 
-const configFormSchema = z.object({
+export const syncDealConfigFormSchema = z.object({
   title: z.string(),
   boardId: z.string().optional(),
   pipelineId: z.string().optional(),
   stageId: z.string(),
+  responseFieldId: z.string().optional(),
   dateRule: z.enum(['alwaysNow', 'syncedDateOrNow']),
+  trStatus: z.string().optional(),
   saleAccountId: z.string(),
   saleOutAccountId: z.string(),
   saleCostAccountId: z.string(),
@@ -30,11 +43,15 @@ const configFormSchema = z.object({
   departmentId: z.string(),
   hasVat: z.boolean(),
   vatRowId: z.string(),
+  reverseVatRules: z.array(z.string()).optional(),
   hasCtax: z.boolean(),
   ctaxRowId: z.string(),
-  payments: z.record(z.object({
-    accountId: z.string(),
-  })),
+  reverseCtaxRules: z.array(z.string()).optional(),
+  payments: z.record(
+    z.object({
+      accountId: z.string(),
+    }),
+  ),
   defaultPayment: z.object({
     accountId: z.string(),
   }),
@@ -43,7 +60,15 @@ const configFormSchema = z.object({
   }),
 });
 
-type ConfigFormValues = z.infer<typeof configFormSchema>;
+type ConfigFormValues = z.infer<typeof syncDealConfigFormSchema>;
+
+const normalizeRuleIds = (value?: string | string[]) => {
+  if (!value) {
+    return [];
+  }
+
+  return Array.isArray(value) ? value.filter(Boolean) : [value].filter(Boolean);
+};
 
 export const SyncDealConfigForm = ({
   form,
@@ -54,25 +79,32 @@ export const SyncDealConfigForm = ({
   onSubmit: (data: any) => void;
   loading: boolean;
 }) => {
-  const pipelineId = useWatch({
+  const boardId = useWatch({
     control: form.control,
-    name: `pipelineId`
+    name: `boardId`,
   });
 
-  const { data: pipelineDetail, refetch: pipelineRefetch } = useQuery(gql`
-  query SalesPipelineDetail($_id: String!) {
-    salesPipelineDetail(_id: $_id) {
-      _id
-      name
-      paymentIds
-      paymentTypes
-    }
-  }
-`, {
-    variables: { _id: pipelineId },
-    skip: !pipelineId,          // pipelineId байхгүй үед асуухгүй
-    fetchPolicy: 'network-only' // заавал backend-ээс авна
+  const pipelineId = useWatch({
+    control: form.control,
+    name: `pipelineId`,
   });
+
+  const { data: pipelineDetail, refetch: pipelineRefetch } = useQuery(
+    PIPELINE_DETAIL,
+    {
+      variables: { _id: pipelineId },
+      skip: !pipelineId, // pipelineId байхгүй үед асуухгүй
+      fetchPolicy: 'network-only', // заавал backend-ээс авна
+    },
+  );
+
+  useEffect(() => {
+    form.setValue('pipelineId', '');
+  }, [boardId, form]);
+
+  useEffect(() => {
+    form.setValue('stageId', '');
+  }, [pipelineId, form]);
 
   useEffect(() => {
     if (pipelineId) {
@@ -80,13 +112,36 @@ export const SyncDealConfigForm = ({
     }
   }, [pipelineId, pipelineRefetch]);
 
+  useEffect(() => {
+    if (!form.getValues('trStatus')) {
+      form.setValue('trStatus', TR_STATUSES.COMPLETE);
+    }
+  }, [form]);
+
   // note: const paymentIds: string[] = pipelineDetail?.salesPipelineDetail?.paymentIds || [];
-  const paymentTypes: any[] = pipelineDetail?.salesPipelineDetail?.paymentTypes || [];
+  const paymentTypes: any[] =
+    pipelineDetail?.salesPipelineDetail?.paymentTypes || [];
+  const mongolianEnabled = isEnabled('mongolian');
+
+  const handleSubmit = (data: ConfigFormValues) =>
+    onSubmit({
+      ...data,
+      vatRowId: data.hasVat ? data.vatRowId : '',
+      reverseVatRules:
+        mongolianEnabled && data.hasVat
+          ? normalizeRuleIds(data.reverseVatRules)
+          : [],
+      ctaxRowId: data.hasCtax ? data.ctaxRowId : '',
+      reverseCtaxRules:
+        !mongolianEnabled || data.hasCtax
+          ? []
+          : normalizeRuleIds(data.reverseCtaxRules),
+    });
 
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(handleSubmit)}
         className="grid gap-3 xl:grid-cols-3 py-3"
       >
         <Form.Field
@@ -94,7 +149,7 @@ export const SyncDealConfigForm = ({
           name="title"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Title</Form.Label>
+              <Form.Label>Гарчиг</Form.Label>
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
@@ -106,15 +161,40 @@ export const SyncDealConfigForm = ({
           name="dateRule"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Date Rule</Form.Label>
+              <Form.Label>Огнооны дүрэм</Form.Label>
               <Form.Control>
                 <Select {...field} onValueChange={field.onChange}>
                   <Select.Trigger>
                     <Select.Value />
                   </Select.Trigger>
                   <Select.Content>
-                    <Select.Item value="alwaysNow">Always Now</Select.Item>
-                    <Select.Item value="syncedDateOrNow">Synced Date Or Now</Select.Item>
+                    <Select.Item value="alwaysNow">Үргэлж одоо</Select.Item>
+                    <Select.Item value="syncedDateOrNow">
+                      Sync огноо эсвэл одоо
+                    </Select.Item>
+                  </Select.Content>
+                </Select>
+              </Form.Control>
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
+          name="trStatus"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Гүйлгээний төлөв</Form.Label>
+              <Form.Control>
+                <Select {...field} onValueChange={field.onChange}>
+                  <Select.Trigger>
+                    <Select.Value />
+                  </Select.Trigger>
+                  <Select.Content>
+                    {TR_STATUS_OPTIONS.map((status) => (
+                      <Select.Item key={status.value} value={status.value}>
+                        {status.label}
+                      </Select.Item>
+                    ))}
                   </Select.Content>
                 </Select>
               </Form.Control>
@@ -125,13 +205,10 @@ export const SyncDealConfigForm = ({
           control={form.control}
           name="boardId"
           render={({ field }) => (
-            <Form.Item className='col-start-1'>
+            <Form.Item className="col-start-1">
               <Form.Label>Board</Form.Label>
               <Form.Control>
-                <BoardSelect
-                  boardId={field.value}
-                  onChange={field.onChange}
-                />
+                <BoardSelect boardId={field.value} onChange={field.onChange} />
               </Form.Control>
             </Form.Item>
           )}
@@ -167,12 +244,13 @@ export const SyncDealConfigForm = ({
             </Form.Item>
           )}
         />
+        <SyncResponseFieldSelect form={form} />
         <Form.Field
           control={form.control}
           name="saleAccountId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Sale Account</Form.Label>
+              <Form.Label>Борлуулалтын данс</Form.Label>
               <Form.Control>
                 <SelectAccount.FormItem
                   value={field.value}
@@ -188,7 +266,7 @@ export const SyncDealConfigForm = ({
           name="saleOutAccountId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Sale Out Account</Form.Label>
+              <Form.Label>Борлуулалтын зарлагын данс</Form.Label>
               <Form.Control>
                 <SelectAccount.FormItem
                   value={field.value}
@@ -204,7 +282,7 @@ export const SyncDealConfigForm = ({
           name="saleCostAccountId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Sale Cost Account</Form.Label>
+              <Form.Label>Борлуулалтын өртгийн данс</Form.Label>
               <Form.Control>
                 <SelectAccount.FormItem
                   value={field.value}
@@ -220,7 +298,7 @@ export const SyncDealConfigForm = ({
           name="branchId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Branch</Form.Label>
+              <Form.Label>Салбар</Form.Label>
               <Form.Control>
                 <SelectBranches.FormItem
                   mode="single"
@@ -236,7 +314,7 @@ export const SyncDealConfigForm = ({
           name="departmentId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Department</Form.Label>
+              <Form.Label>Хэлтэс</Form.Label>
               <Form.Control>
                 <SelectDepartments.FormItem
                   mode="single"
@@ -252,12 +330,18 @@ export const SyncDealConfigForm = ({
           name="defaultPayment.accountId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Default Payment Account</Form.Label>
+              <Form.Label>Төлбөрийн үндсэн данс</Form.Label>
               <Form.Control>
                 <SelectAccount.FormItem
                   value={field.value}
                   onValueChange={field.onChange}
-                  defaultFilter={{ journals: [JournalEnum.BANK, JournalEnum.CASH, JournalEnum.DEBT] }}
+                  defaultFilter={{
+                    journals: [
+                      JournalEnum.BANK,
+                      JournalEnum.CASH,
+                      JournalEnum.DEBT,
+                    ],
+                  }}
                 />
               </Form.Control>
             </Form.Item>
@@ -268,12 +352,18 @@ export const SyncDealConfigForm = ({
           name="defaultNegPayment.accountId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Default Negative Payment Account</Form.Label>
+              <Form.Label>Сөрөг төлбөрийн үндсэн данс</Form.Label>
               <Form.Control>
                 <SelectAccount.FormItem
                   value={field.value}
                   onValueChange={field.onChange}
-                  defaultFilter={{ journals: [JournalEnum.BANK, JournalEnum.CASH, JournalEnum.DEBT] }}
+                  defaultFilter={{
+                    journals: [
+                      JournalEnum.BANK,
+                      JournalEnum.CASH,
+                      JournalEnum.DEBT,
+                    ],
+                  }}
                 />
               </Form.Control>
             </Form.Item>
@@ -281,11 +371,11 @@ export const SyncDealConfigForm = ({
         />
         {[
           {
-            type: "cash",
-            title: "cash",
+            type: 'cash',
+            title: 'cash',
           },
-          ...paymentTypes
-        ].map(ptype => (
+          ...paymentTypes,
+        ].map((ptype) => (
           <Form.Field
             key={`${pipelineId}-${ptype.type}`}
             control={form.control}
@@ -297,7 +387,13 @@ export const SyncDealConfigForm = ({
                   <SelectAccount.FormItem
                     value={field.value}
                     onValueChange={field.onChange}
-                    defaultFilter={{ journals: [JournalEnum.BANK, JournalEnum.CASH, JournalEnum.DEBT] }}
+                    defaultFilter={{
+                      journals: [
+                        JournalEnum.BANK,
+                        JournalEnum.CASH,
+                        JournalEnum.DEBT,
+                      ],
+                    }}
                   />
                 </Form.Control>
               </Form.Item>
@@ -308,8 +404,8 @@ export const SyncDealConfigForm = ({
           control={form.control}
           name="hasVat"
           render={({ field }) => (
-            <Form.Item className='flex items-center col-start-1 space-x-2 space-y-0 pt-5'>
-              <Form.Label>Has VAT</Form.Label>
+            <Form.Item className="flex items-center col-start-1 space-x-2 space-y-0 pt-5">
+              <Form.Label>НӨАТ-тэй</Form.Label>
               <Form.Control>
                 <Checkbox
                   checked={field.value ?? false}
@@ -321,28 +417,38 @@ export const SyncDealConfigForm = ({
         />
         {useWatch({
           control: form.control,
-          name: `hasVat`
-        }) && (<Form.Field
-          control={form.control}
-          name="vatRowId"
-          render={({ field }) => (
-            <Form.Item >
-              <Form.Label>Vat Row</Form.Label>
-              <Form.Control>
-                <SelectVat
-                  value={field.value || ''}
-                  onValueChange={field.onChange}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />)}
+          name: `hasVat`,
+        }) && (
+          <>
+            <Form.Field
+              control={form.control}
+              name="vatRowId"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>НӨАТ-ын мөр</Form.Label>
+                  <Form.Control>
+                    <SelectVat
+                      value={field.value || ''}
+                      onValueChange={field.onChange}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+            <FormSelectEbarimtProductRule
+              name="reverseVatRules"
+              label="НӨАТ-с хасах барааны дүрэм"
+              kind="vat"
+              control={form.control}
+            />
+          </>
+        )}
         <Form.Field
           control={form.control}
           name="hasCtax"
           render={({ field }) => (
-            <Form.Item className='flex items-center col-start-1 space-x-2 space-y-0 pt-5'>
-              <Form.Label>Has CTAX</Form.Label>
+            <Form.Item className="flex items-center col-start-1 space-x-2 space-y-0 pt-5">
+              <Form.Label>НХАТ-тэй</Form.Label>
               <Form.Control>
                 <Checkbox
                   checked={field.value ?? false}
@@ -354,31 +460,39 @@ export const SyncDealConfigForm = ({
         />
         {useWatch({
           control: form.control,
-          name: `hasCtax`
-        }) && (<Form.Field
-          control={form.control}
-          name="ctaxRowId"
-          render={({ field }) => (
-            <Form.Item >
-              <Form.Label>Ctax Row</Form.Label>
-              <Form.Control>
-                <SelectCtax
-                  value={field.value || ''}
-                  onValueChange={field.onChange}
-                />
-              </Form.Control>
-            </Form.Item>
-          )}
-        />)}
-
+          name: `hasCtax`,
+        }) ? (
+          <Form.Field
+            control={form.control}
+            name="ctaxRowId"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>НХАТ-ын мөр</Form.Label>
+                <Form.Control>
+                  <SelectCtax
+                    value={field.value || ''}
+                    onValueChange={field.onChange}
+                  />
+                </Form.Control>
+              </Form.Item>
+            )}
+          />
+        ) : (
+          <FormSelectEbarimtProductRule
+            name="reverseCtaxRules"
+            label="НХАТ-тай онцгой барааны дүрэм"
+            kind="ctax"
+            control={form.control}
+          />
+        )}
         <Dialog.Footer className="col-span-3 mt-3 gap-2">
           <Dialog.Close asChild>
             <Button variant="outline" size="lg">
-              Cancel
+              Болих
             </Button>
           </Dialog.Close>
           <Button type="submit" disabled={loading} size="lg">
-            {loading ? <Spinner /> : 'Submit'}
+            {loading ? <Spinner /> : 'Хадгалах'}
           </Button>
         </Dialog.Footer>
       </form>

@@ -15,12 +15,12 @@ export const ONLINE_HOURS_SCHEMA = z.object({
 });
 
 export const EMHOURS_SCHEMA = z.object({
-  availabilityMethod: z.enum(['manual', 'auto']),
+  availabilityMethod: z.enum(['manual', 'auto']).optional(),
   isOnline: z.boolean().optional(),
   onlineHours: z
     .record(z.nativeEnum({ ...Weekday, ...ScheduleDay }), ONLINE_HOURS_SCHEMA)
     .optional(),
-  responseRate: z.nativeEnum(EnumResponseRate),
+  responseRate: z.nativeEnum(EnumResponseRate).optional(),
   timezone: z.string().optional(),
   displayOperatorTimezone: z.boolean().optional(),
   hideMessengerDuringOfflineHours: z.boolean().optional(),

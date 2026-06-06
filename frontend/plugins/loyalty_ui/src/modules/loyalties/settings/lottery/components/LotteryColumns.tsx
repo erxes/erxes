@@ -1,7 +1,6 @@
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
-  Button,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
@@ -10,13 +9,12 @@ import {
 import {
   IconCalendar,
   IconCalendarEvent,
-  IconDots,
   IconHash,
-  IconSettings,
   IconTag,
 } from '@tabler/icons-react';
 import { LotteryNameCell } from '../lottery-detail/components/LotteryNameCell';
 import { ILottery } from '../types/lotteryTypes';
+import { lotteryMoreColumn } from './LotteryMoreColumn';
 
 const SafeRelativeDate = ({ value }: { value?: string }) => {
   if (!value) {
@@ -39,16 +37,15 @@ const SafeRelativeDate = ({ value }: { value?: string }) => {
   }
 };
 
-export const lotteryColumns: (
-  editStatus: (options: any) => void,
-) => ColumnDef<ILottery>[] = (editStatus) => [
+export const lotteryColumns: ColumnDef<ILottery>[] = [
+  lotteryMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ILottery>,
 
   {
     id: 'title',
     accessorKey: 'title',
     header: () => <RecordTable.InlineHead icon={IconTag} label="Title" />,
-    cell: ({ cell }: { cell: any }) => {
+    cell: ({ cell }) => {
       return (
         <LotteryNameCell
           lottery={cell.row.original}
@@ -64,7 +61,7 @@ export const lotteryColumns: (
     header: () => (
       <RecordTable.InlineHead icon={IconCalendar} label="Start Date" />
     ),
-    cell: ({ cell }: { cell: any }) => {
+    cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
           <SafeRelativeDate value={cell.getValue() as string} />
@@ -79,7 +76,7 @@ export const lotteryColumns: (
     header: () => (
       <RecordTable.InlineHead icon={IconCalendarEvent} label="End Date" />
     ),
-    cell: ({ cell }: { cell: any }) => {
+    cell: ({ cell }) => {
       return (
         <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
           <SafeRelativeDate value={cell.getValue() as string} />
@@ -106,23 +103,5 @@ export const lotteryColumns: (
       );
     },
     size: 150,
-  },
-
-  {
-    id: 'action',
-    accessorKey: 'action',
-    header: () => (
-      <RecordTable.InlineHead icon={IconSettings} label="Actions" />
-    ),
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <RecordTableInlineCell>
-          <Button className="mx-auto" variant="ghost" size="sm">
-            <IconDots className="h-4 w-4" />
-          </Button>
-        </RecordTableInlineCell>
-      );
-    },
-    size: 100,
   },
 ];

@@ -23,7 +23,7 @@ const resolver = {
         subdomain,
 
         pluginName: 'core',
-        module: 'company',
+        module: 'companies',
         action: 'findOne',
         input: { _id: customerId },
       });

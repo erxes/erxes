@@ -1,0 +1,16 @@
+export const COMPANY_ACTIVITY_FIELDS = [
+  { field: 'primaryName', label: 'Primary Name' },
+  { field: 'primaryEmail', label: 'Primary Email' },
+  { field: 'primaryPhone', label: 'Primary Phone' },
+  { field: 'website', label: 'Website' },
+  { field: 'industry', label: 'Industry' },
+  { field: 'plan', label: 'Plan' },
+  { field: 'size', label: 'Size' },
+  { field: 'employees', label: 'Employees' },
+  { field: 'businessType', label: 'Business Type' },
+  { field: 'description', label: 'Description' },
+  { field: 'isSubscribed', label: 'Subscription Status' },
+  { field: 'status', label: 'Status' },
+  { field: 'code', label: 'Code' },
+  { field: 'location', label: 'Location' },
+] as const;

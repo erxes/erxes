@@ -6,6 +6,7 @@ import { ICPNotificationDocument } from '@/clientportal/types/cpNotification';
 import { firebaseService } from './firebaseService';
 import { NetworkError } from '@/clientportal/services/errorHandler';
 import { CP_NOTIFICATION_PRIORITY_ORDER } from '@/clientportal/constants';
+import * as Handlebars from 'handlebars';
 
 type NotificationType = 'info' | 'success' | 'warning' | 'error';
 
@@ -33,7 +34,7 @@ interface CreateNotificationInput extends BaseNotificationData {
   result?: { ios?: boolean; android?: boolean; web?: boolean };
 }
 
-interface SendNotificationInput extends BaseNotificationData {}
+type SendNotificationInput = BaseNotificationData;
 
 interface CallProConfig {
   phone?: string;
@@ -69,6 +70,10 @@ function parseJsonConfig<T>(configLike: unknown): T {
 
 const THIRTY_DAYS_IN_MS = 30 * 24 * 60 * 60 * 1000;
 
+function normalizeLegacyOTPPlaceholders(template: string): string {
+  return template.replace(/\{code\}/g, '{{code}}');
+}
+
 export interface SendEmailOptions {
   toEmails: string[];
   title: string;
@@ -97,19 +102,24 @@ async function sendViaCallPro(
   }
 
   try {
-    const response = await fetch(
-      'https://api.messagepro.mn/send?' +
-        new URLSearchParams({
-          key: apiKey,
-          from: phoneNumber,
-          to: options.toPhone,
-          text: options.message,
-        }),
-    );
+    const response = await fetch('https://api-text.callpro.mn/v1/sms/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+      body: JSON.stringify({
+        from: phoneNumber,
+        to: options.toPhone,
+        text: options.message,
+      }),
+    });
+
     if (!response.ok) {
       throw new Error(`MessagePro API error: ${response.statusText}`);
     }
   } catch (e) {
+    console.log(e)
     const error = e as Error;
     throw new NetworkError(error.message);
   }
@@ -247,15 +257,17 @@ export async function sendOTPEmail(
   subject: string,
   template: string,
   models: IModels,
+  overrideEmail?: string,
 ): Promise<void> {
-  if (!user.email || !user._id) {
+  const toEmail = overrideEmail ?? user.email;
+  if (!toEmail || !user._id) {
     return;
   }
 
   await sendEmail(
     subdomain,
     {
-      toEmails: [user.email],
+      toEmails: [toEmail],
       title: subject,
       customHtml: template,
       customHtmlData: { code },
@@ -270,21 +282,30 @@ export async function sendOTPSMS(
   code: string,
   template: string,
   clientPortal: IClientPortalDocument,
+  overridePhone?: string,
 ): Promise<void> {
-  if (!user.phone) {
+  const toPhone = overridePhone ?? user.phone;
+  if (!toPhone) {
     return;
   }
 
-  const message = template.replace('{code}', code);
+  const templateData = { code };
+  const normalizedTemplate = normalizeLegacyOTPPlaceholders(template);
+  const message = Handlebars.compile(normalizedTemplate)(templateData);
 
   await sendSMS(
     {
-      toPhone: user.phone,
+      toPhone,
       message,
       userId: user._id,
     },
     clientPortal,
   );
+}
+
+export interface SendOTPRecipientOverride {
+  email?: string;
+  phone?: string;
 }
 
 export async function sendOTP(
@@ -295,8 +316,12 @@ export async function sendOTP(
   options: { emailSubject: string; messageTemplate: string },
   clientPortal: IClientPortalDocument,
   models: IModels,
+  recipientOverride?: SendOTPRecipientOverride,
 ): Promise<void> {
-  if (identifierType === 'email' && user.email) {
+  const email = recipientOverride?.email ?? user.email;
+  const phone = recipientOverride?.phone ?? user.phone;
+
+  if (identifierType === 'email' && email) {
     await sendOTPEmail(
       subdomain,
       user,
@@ -304,9 +329,10 @@ export async function sendOTP(
       options.emailSubject,
       options.messageTemplate,
       models,
+      email,
     );
-  } else if (identifierType === 'phone' && user.phone) {
-    await sendOTPSMS(user, code, options.messageTemplate, clientPortal);
+  } else if (identifierType === 'phone' && phone) {
+    await sendOTPSMS(user, code, options.messageTemplate, clientPortal, phone);
   }
 }
 

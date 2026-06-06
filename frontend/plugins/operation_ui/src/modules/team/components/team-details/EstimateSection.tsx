@@ -1,8 +1,6 @@
-import { Select } from 'erxes-ui';
-import { ITeam } from '@/team/types';
-import { TeamEstimateTypes } from '@/team/types';
 import { useTeamUpdate } from '@/team/hooks/useTeamUpdate';
-import { useToast } from 'erxes-ui';
+import { ITeam, TeamEstimateTypes } from '@/team/types';
+import { Select, useToast } from 'erxes-ui';
 
 export const EstimateSection = ({ team }: { team: ITeam }) => {
   const { updateTeam } = useTeamUpdate();

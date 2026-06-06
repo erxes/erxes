@@ -4,7 +4,7 @@ import { Select } from 'erxes-ui';
 
 const CLEAR_VALUE = '__clear__';
 
-/* ✅ CORRECT SCHEMA-ALIGNED QUERY */
+/*  CORRECT SCHEMA-ALIGNED QUERY */
 const USERS_QUERY = gql`
   query users(
     $status: String
@@ -82,10 +82,7 @@ export default function SelectUsers({
   });
 
   /* ✅ USERS COME FROM users.list */
-  const users: User[] = useMemo(
-    () => data?.users?.list || [],
-    [data],
-  );
+  const users: User[] = useMemo(() => data?.users?.list || [], [data]);
 
   const selectedUser = useMemo(
     () => users.find((u) => u._id === value),
@@ -101,9 +98,7 @@ export default function SelectUsers({
   return (
     <Select
       value={value || ''}
-      onValueChange={(v) =>
-        onChange(v === CLEAR_VALUE ? '' : v)
-      }
+      onValueChange={(v) => onChange(v === CLEAR_VALUE ? '' : v)}
       disabled={disabled || loading}
     >
       <Select.Trigger className="w-full">
@@ -116,11 +111,7 @@ export default function SelectUsers({
         <Select.Item value={CLEAR_VALUE}>Clear</Select.Item>
 
         {users.map((u) => {
-          const name =
-            u.details?.fullName ||
-            u.username ||
-            u.email ||
-            u._id;
+          const name = u.details?.fullName || u.username || u.email || u._id;
 
           return (
             <Select.Item key={u._id} value={u._id}>

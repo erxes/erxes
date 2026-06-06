@@ -2,13 +2,12 @@ import { useState } from 'react';
 import { Popover } from 'erxes-ui/components/popover';
 import { Popover as PopoverPrimitive } from 'radix-ui';
 import { ICONS } from '../constants';
-import { Button } from 'erxes-ui';
-import { Command } from 'erxes-ui';
+import { Button, Command } from 'erxes-ui';
 import { IconCheck } from '@tabler/icons-react';
 
 interface IconPickerProps {
-  value?: string;
-  onChange: (icon: string) => void;
+  readonly value?: string;
+  readonly onChange: (icon: string) => void;
 }
 
 export function IconPicker({ value, onChange }: IconPickerProps) {

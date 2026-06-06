@@ -42,7 +42,7 @@ export const productSchema = schemaWrapper(
       description: { type: String, optional: true, label: 'Description' },
       unitPrice: { type: Number, optional: true, label: 'Unit price' },
       customFieldsData: {
-        type:[customFieldSchema],
+        type: [customFieldSchema],
         optional: true,
         label: 'Custom fields data',
       },
@@ -63,6 +63,12 @@ export const productSchema = schemaWrapper(
         index: true,
       },
       vendorId: { type: String, optional: true, label: 'Vendor' },
+      scopeBrandIds: {
+        type: [String],
+        optional: true,
+        label: 'Scope Brand Ids',
+        index: true,
+      },
       mergedIds: { type: [String], optional: true },
 
       uom: {
@@ -88,6 +94,9 @@ export const productSchema = schemaWrapper(
         optional: true,
         label: 'PDF attachment',
       },
+
+      inventories: { type: Object, optional: true },
+      discounts: { type: Object, optional: true },
     },
     {
       timestamps: true,

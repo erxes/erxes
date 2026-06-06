@@ -63,6 +63,7 @@ const SelectPipelineProvider = ({
     variables: {
       filter: {
         channelId,
+        applyVisibilityFilter: true,
       },
     },
     skip: !channelId,
@@ -274,6 +275,7 @@ const SelectPipelineFormItem = ({
     variables: {
       filter: {
         channelId,
+        applyVisibilityFilter: true,
       },
     },
     skip: !channelId,

@@ -19,6 +19,30 @@ import {
   getRemBranchId,
 } from '~/modules/posclient/utils/products';
 
+const getPropertyFieldId = (field: string) =>
+  field.replace('propertiesData.', '');
+
+const getProductPropertyValue = (product: any, fieldId: string) =>
+  product?.propertiesData?.[fieldId];
+
+const getProductPropertyIds = (product: any) =>
+  Object.keys(product.propertiesData || {});
+
+const isPropertyField = (field: string) =>
+  field.includes('propertiesData.');
+
+const propertyExistsFilter = (fieldIds: string[]) => ({
+  $or: [
+    ...fieldIds.map((fieldId) => ({
+      [`propertiesData.${fieldId}`]: { $exists: true },
+    })),
+  ],
+});
+
+const propertyRegexFilter = (fieldId: string, regex: RegExp) => ({
+  [`propertiesData.${fieldId}`]: { $regex: regex },
+});
+
 export interface ICommonParams {
   sortField?: string;
   sortDirection?: number;
@@ -37,8 +61,6 @@ export interface IProductParams extends ICommonParams {
   tags?: string[];
   excludeTags?: string[];
   tagWithRelated?: boolean;
-  pipelineId?: string;
-  boardId?: string;
   segment?: string;
   segmentData?: string;
   isKiosk?: boolean;
@@ -120,17 +142,8 @@ const generateFilter = async (
     let tagIds: string[] = tags;
 
     if (tagWithRelated) {
-      // const tagObjs = await sendCoreMessage({
-      //   subdomain,
-      //   action: 'core:tagWithChilds',
-      //   data: { query: { _id: { $in: tagIds } } },
-      //   isRPC: true,
-      //   defaultValue: [],
-      // });
       const tagObjs = await sendTRPCMessage({
         subdomain,
-
-        method: 'query',
         pluginName: 'core',
         module: 'tags',
         action: 'findWithChild',
@@ -147,17 +160,8 @@ const generateFilter = async (
     let tagIds: string[] = excludeTags;
 
     if (tagWithRelated) {
-      // const tagObjs = await sendCoreMessage({
-      //   subdomain,
-      //   action: 'core:tagWithChilds',
-      //   data: { query: { _id: { $in: tagIds } } },
-      //   isRPC: true,
-      //   defaultValue: [],
-      // });
       const tagObjs = await sendTRPCMessage({
         subdomain,
-
-        method: 'query',
         pluginName: 'core',
         module: 'tags',
         action: 'findWithChild',
@@ -370,7 +374,7 @@ const productQueries = {
       page: params?.page ?? 1,
     };
 
-    let filter = await generateFilter(subdomain, models, config, params);
+    const filter = await generateFilter(subdomain, models, config, params);
 
     let sortParams: any = { code: 1 };
 
@@ -458,21 +462,18 @@ const productQueries = {
       );
 
       const codeMasks = Object.keys(similarityGroups);
-      const customFieldIds = (product.customFieldsData || []).map(
-        (cf) => cf.field,
-      );
+      const customFieldIds = getProductPropertyIds(product);
 
       const matchedMasks = codeMasks.filter((cm) => {
         const mask = similarityGroups[cm];
         const filterFieldDef = mask.filterField || 'code';
         const regexer = getRegex(cm);
 
-        if (filterFieldDef.includes('customFieldsData.')) {
+        if (isPropertyField(filterFieldDef)) {
+          const fieldId = getPropertyFieldId(filterFieldDef);
           if (
-            !(product.customFieldsData || []).find(
-              (cfd) =>
-                cfd.field === filterFieldDef.replace('customFieldsData.', '') &&
-                cfd.stringValue?.match(regexer),
+            !String(getProductPropertyValue(product, fieldId) || '').match(
+              regexer,
             )
           ) {
             return false;
@@ -510,22 +511,13 @@ const productQueries = {
         const matched = similarityGroups[matchedMask];
         const filterFieldDef = matched.filterField || 'code';
 
-        if (filterFieldDef.includes('customFieldsData.')) {
-          codeRegexs.push({
-            $and: [
-              {
-                'customFieldsData.field': filterFieldDef.replace(
-                  'customFieldsData.',
-                  '',
-                ),
-              },
-              {
-                'customFieldsData.stringValue': {
-                  $in: [getRegex(matchedMask)],
-                },
-              },
-            ],
-          });
+        if (isPropertyField(filterFieldDef)) {
+          codeRegexs.push(
+            propertyRegexFilter(
+              getPropertyFieldId(filterFieldDef),
+              getRegex(matchedMask),
+            ),
+          );
         } else {
           codeRegexs.push({
             [filterFieldDef]: { $in: [getRegex(matchedMask)] },
@@ -546,9 +538,7 @@ const productQueries = {
           {
             $or: codeRegexs,
           },
-          {
-            'customFieldsData.field': { $in: fieldIds },
-          },
+          propertyExistsFilter(fieldIds),
         ],
       };
 
@@ -588,7 +578,7 @@ const productQueries = {
       $and: [
         {
           categoryId: category._id,
-          'customFieldsData.field': { $in: fieldIds },
+          ...propertyExistsFilter(fieldIds),
         },
       ],
     };
@@ -740,22 +730,20 @@ const productQueries = {
     { models, subdomain, config }: IContext,
   ) {
     const product = await models.Products.getProduct({ _id: productId });
-    const d = {};
-    // const d = await sendPricingMessage({
-    //   subdomain,
-    //   action: 'getQuantityRules',
-    //   data: {
-    //     departmentId: config.departmentId,
-    //     branchId: config.branchId,
-    //     products: [
-    //       { ...product, unitPrice: (product.prices || {})[config.token] },
-    //     ],
-    //   },
-    //   isRPC: true,
-    //   defaultValue: {},
-    // });
+    const response = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'loyalty',
+      module: 'pricing',
+      action: 'getQuantityRules',
+      input: {
+        departmentId: config.departmentId,
+        branchId: config.branchId,
+        products: [{ ...product, unitPrice: product.prices?.[config.token] }],
+      },
+      defaultValue: {},
+    });
 
-    return JSON.stringify(d);
+    return JSON.stringify(response ?? {});
   },
 };
 markResolvers(productQueries, {

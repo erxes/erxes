@@ -1,9 +1,267 @@
 import { BaseQueryResolver, FIELD_MAPPINGS } from '@/cms/utils/base-resolvers';
+import {
+  CMS_DEFAULT_POST_URL_FIELD,
+  CMS_POST_URL_FIELDS,
+  CMSPostUrlField,
+} from '@/cms/@types/cms';
+import { POST_VIEW_RETENTION_DAYS } from '@/cms/db/models/PostViews';
 import { getQueryBuilder } from '@/cms/utils/query-builders';
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
+import {
+  assertCmsDocumentAccess,
+  getAllowedCmsLanguages,
+  getCmsReadAccess,
+  requireCmsPermission,
+} from '@/cms/utils/permissions';
+import { CMS_POST_ACTIONS } from '~/meta/permissions';
+
+const applyFieldConstraint = (query: any, field: string, value: any) => {
+  if (query[field] === undefined || query[field] === value) {
+    query[field] = value;
+    return;
+  }
+
+  query._id = { $in: [] };
+};
+
+const applyIdConstraint = (query: any, ids: string[]) => {
+  const normalizedIds = ids.map((id) => String(id));
+
+  if (!normalizedIds.length) {
+    query._id = { $in: [] };
+    return;
+  }
+
+  if (!query._id) {
+    query._id = { $in: normalizedIds };
+    return;
+  }
+
+  if (typeof query._id === 'string') {
+    if (!normalizedIds.includes(String(query._id))) {
+      query._id = { $in: [] };
+    }
+    return;
+  }
+
+  if (Array.isArray(query._id?.$in)) {
+    query._id.$in = query._id.$in.filter((id: string) =>
+      normalizedIds.includes(String(id)),
+    );
+  }
+};
+
+const applyReadAccessToPostQuery = async (
+  query: any,
+  access: {
+    query?: Record<string, any>;
+    translationLanguage?: string;
+  },
+  models: IContext['models'],
+) => {
+  for (const [field, value] of Object.entries(access.query || {})) {
+    applyFieldConstraint(query, field, value);
+  }
+
+  if (!access.translationLanguage) {
+    return;
+  }
+
+  const translations = await models.Translations.find({
+    language: access.translationLanguage,
+    type: 'post',
+  })
+    .select({ objectId: 1 })
+    .lean();
+
+  applyIdConstraint(
+    query,
+    translations.map((translation: any) => translation.objectId),
+  );
+};
 
 class PostQueryResolver extends BaseQueryResolver {
+  private async findMostViewedPosts(
+    args: {
+      clientPortalId: string;
+      days: number;
+      limit?: number;
+      language?: string;
+      webId?: string;
+      publishedOnly?: boolean;
+      type?: string;
+      permissionQuery?: Record<string, any>;
+      translationLanguage?: string;
+    },
+    models: IContext['models'],
+  ) {
+    const {
+      clientPortalId,
+      days,
+      language,
+      webId,
+      publishedOnly,
+      type,
+      permissionQuery,
+      translationLanguage,
+    } = args;
+
+    if (!Number.isInteger(days) || days <= 0) {
+      throw new Error('days must be a positive integer');
+    }
+
+    const effectiveDays = Math.min(days, POST_VIEW_RETENTION_DAYS);
+
+    const recentViewCounts = await models.PostViews.getRecentViewCounts(
+      clientPortalId,
+      new Date(Date.now() - (effectiveDays - 1) * 24 * 60 * 60 * 1000),
+    );
+
+    if (!recentViewCounts.length) {
+      return [];
+    }
+
+    const queryBuilder = getQueryBuilder('post', models);
+    const query = await queryBuilder.buildQuery({
+      clientPortalId,
+      type,
+      ...(publishedOnly ? { status: 'published' } : {}),
+    });
+    query._id = { $in: recentViewCounts.map((item) => item.postId) };
+    await applyReadAccessToPostQuery(
+      query,
+      { query: permissionQuery, translationLanguage },
+      models,
+    );
+
+    if (webId) {
+      query.webId = webId;
+    }
+
+    const limit = Math.min(Math.max(args.limit || 10, 1), 100);
+    const posts = await models.Posts.find(query).lean();
+    const postMap = new Map(
+      posts.map((post: any) => [post._id.toString(), post]),
+    );
+
+    const list = recentViewCounts
+      .map(({ postId, recentViewCount }) => {
+        const post = postMap.get(postId);
+
+        if (!post) {
+          return null;
+        }
+
+        return {
+          ...post,
+          recentViewCount,
+        };
+      })
+      .filter(Boolean)
+      .slice(0, limit);
+
+    if (!language) {
+      return list;
+    }
+
+    const shouldSkip = await this.shouldSkipTranslation(
+      clientPortalId,
+      language,
+    );
+
+    if (shouldSkip || !list.length) {
+      return list;
+    }
+
+    const translations = await this.getTranslations(
+      list.map((item: any) => item._id.toString()),
+      language,
+      'post',
+    );
+
+    return this.applyTranslationsToList(
+      list,
+      translations,
+      FIELD_MAPPINGS.POST,
+    );
+  }
+
+  private async getPostUrlField(
+    clientPortalId: string,
+    models: IContext['models'],
+  ): Promise<CMSPostUrlField> {
+    const cms = await models.CMS.findOne({ clientPortalId })
+      .select({ postUrlField: 1 })
+      .lean();
+
+    if (
+      cms?.postUrlField &&
+      CMS_POST_URL_FIELDS.includes(cms.postUrlField as CMSPostUrlField)
+    ) {
+      return cms.postUrlField as CMSPostUrlField;
+    }
+
+    return CMS_DEFAULT_POST_URL_FIELD;
+  }
+
+  private async buildPostLookupQuery(
+    args: {
+      _id?: string;
+      count?: number;
+      slug?: string;
+      identifier?: string;
+      clientPortalId?: string;
+    },
+    models: IContext['models'],
+  ) {
+    const { _id, count, slug, identifier, clientPortalId } = args;
+
+    if (_id) {
+      return clientPortalId ? { _id, clientPortalId } : { _id };
+    }
+
+    if (count !== undefined && count !== null) {
+      if (!clientPortalId) {
+        throw new Error('clientPortalId is required when querying by count');
+      }
+
+      return { count, clientPortalId };
+    }
+
+    if (slug) {
+      if (!clientPortalId) {
+        throw new Error('clientPortalId is required when querying by slug');
+      }
+
+      return { slug, clientPortalId };
+    }
+
+    if (!identifier) {
+      return null;
+    }
+
+    if (!clientPortalId) {
+      throw new Error(
+        'clientPortalId is required when querying by configured post URL',
+      );
+    }
+
+    const postUrlField = await this.getPostUrlField(clientPortalId, models);
+
+    if (postUrlField === 'count') {
+      const count = Number(identifier);
+
+      if (Number.isNaN(count)) {
+        return null;
+      }
+
+      return { count, clientPortalId };
+    }
+
+    return { [postUrlField]: identifier, clientPortalId };
+  }
+
   /**
    * Cms posts
    */
@@ -11,13 +269,16 @@ class PostQueryResolver extends BaseQueryResolver {
     const { language, clientPortalId } = args;
     const { models } = context;
 
+    const readAccess = await getCmsReadAccess(context, clientPortalId, language);
+
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
+    await applyReadAccessToPostQuery(query, readAccess, models);
 
     const { list } = await this.getListWithTranslations(
       models.Posts,
       query,
-      { ...args, clientPortalId, language },
+      { ...args, clientPortalId, language: readAccess.language || language },
       FIELD_MAPPINGS.POST,
     );
 
@@ -27,26 +288,29 @@ class PostQueryResolver extends BaseQueryResolver {
   /**
    * Cms post
    */
+
   async cmsPost(_parent: any, args: any, context: IContext): Promise<any> {
     const { models } = context;
-    const { _id, slug, language, clientPortalId } = args;
+    const { _id, count, slug, identifier, language, clientPortalId } = args;
 
-    if (!_id && !slug) {
-      return null;
-    }
+    const readAccess = await getCmsReadAccess(context, clientPortalId, language);
 
-    let query: any = {};
-    if (slug) {
-      query = { slug, clientPortalId };
-    } else if (_id) {
-      query = { _id };
-    }
+    const query = await this.buildPostLookupQuery(
+      { _id, count, slug, identifier, clientPortalId },
+      models,
+    );
 
+    if (!query) return null;
+    await applyReadAccessToPostQuery(query, readAccess, models);
+
+    // clientPortalId must be passed explicitly — admin queries have no
+    // clientPortal in context, so the base resolver cannot fall back to it.
     return this.getItemWithTranslation(
       models.Posts,
       query,
-      language,
+      readAccess.language || language,
       FIELD_MAPPINGS.POST,
+      clientPortalId,
     );
   }
 
@@ -56,55 +320,114 @@ class PostQueryResolver extends BaseQueryResolver {
   async cmsPostList(_parent: any, args: any, context: IContext): Promise<any> {
     const { language, clientPortalId } = args;
     const { models } = context;
-  
+
+    const readAccess = await getCmsReadAccess(context, clientPortalId, language);
+
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
+    await applyReadAccessToPostQuery(query, readAccess, models);
+
     const { dateField, dateFrom, dateTo } = args;
     if (dateField && (dateFrom || dateTo)) {
       if (
-        dateField === 'createdAt' ||
-        dateField === 'updatedAt' ||
-        dateField === 'scheduledDate'
+        ['createdAt', 'updatedAt', 'scheduledDate', 'publishedDate'].includes(
+          dateField,
+        )
       ) {
-        const existingConditions =
+        const existing =
           query[dateField] && typeof query[dateField] === 'object'
             ? query[dateField]
             : {};
         query[dateField] = {
-          ...existingConditions,
+          ...existing,
           ...(dateFrom ? { $gte: dateFrom } : {}),
           ...(dateTo ? { $lte: dateTo } : {}),
         };
       }
     }
+
     const { list, totalCount, pageInfo } = await this.getListWithTranslations(
       models.Posts,
       query,
-      { ...args, clientPortalId, language},
+      { ...args, clientPortalId, language: readAccess.language || language },
       FIELD_MAPPINGS.POST,
     );
-  
+
     return { posts: list, totalCount, pageInfo };
   }
-  
 
   async cmsTranslations(
     _parent: any,
     args: any,
     context: IContext,
   ): Promise<any> {
-    const { postId } = args;
+    const { objectId, type = 'post' } = args;
     const { models } = context;
-    return models.Translations.find({ postId });
+
+    await requireCmsPermission(context, CMS_POST_ACTIONS.read);
+
+    if (type === 'post') {
+      const post = await models.Posts.findOne({ _id: objectId }).lean();
+
+      if (!post) {
+        return [];
+      }
+
+      await assertCmsDocumentAccess({
+        context,
+        actions: CMS_POST_ACTIONS.read,
+        document: post,
+      });
+    }
+
+    const query: any = { objectId, type };
+    const allowedLanguages = await getAllowedCmsLanguages(context);
+
+    if (allowedLanguages && allowedLanguages.size === 0) {
+      throw new Error('CMS language permission required');
+    }
+
+    if (allowedLanguages) {
+      query.language = { $in: Array.from(allowedLanguages) };
+    }
+
+    return models.Translations.find(query);
+  }
+
+  async cmsMostViewedPosts(
+    _parent: any,
+    args: any,
+    context: IContext,
+  ): Promise<any> {
+    const { models } = context;
+    const { clientPortalId, days, limit, language, webId, type } = args;
+
+    const readAccess = await getCmsReadAccess(context, clientPortalId, language);
+
+    return this.findMostViewedPosts(
+      {
+        clientPortalId,
+        days,
+        limit,
+        language: readAccess.language || language,
+        webId,
+        type,
+        permissionQuery: readAccess.query,
+        translationLanguage: readAccess.translationLanguage,
+      },
+      models,
+    );
   }
 
   async cpPosts(_parent: any, args: any, context: IContext): Promise<any> {
-    const { language } = args;
+    const { language, webId } = args;
     const { models, clientPortal } = context;
     const clientPortalId = clientPortal._id;
 
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
+
+    if (webId) (query as any).webId = webId;
 
     const { list } = await this.getListWithTranslations(
       models.Posts,
@@ -117,12 +440,14 @@ class PostQueryResolver extends BaseQueryResolver {
   }
 
   async cpPostList(_parent: any, args: any, context: IContext): Promise<any> {
-    const { language } = args;
+    const { language, webId } = args;
     const { models, clientPortal } = context;
     const clientPortalId = clientPortal._id;
 
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
+
+    if (webId) (query as any).webId = webId;
 
     const { list, totalCount, pageInfo } = await this.getListWithTranslations(
       models.Posts,
@@ -134,7 +459,11 @@ class PostQueryResolver extends BaseQueryResolver {
     return { posts: list, totalCount, pageInfo };
   }
 
-  async cpPostListWithPagination(_parent: any, args: any, context: IContext): Promise<any> {
+  async cpPostListWithPagination(
+    _parent: any,
+    args: any,
+    context: IContext,
+  ): Promise<any> {
     const { language } = args;
     const { models, clientPortal } = context;
     const clientPortalId = clientPortal._id;
@@ -156,24 +485,51 @@ class PostQueryResolver extends BaseQueryResolver {
 
   async cpPost(_parent: any, args: any, context: IContext): Promise<any> {
     const { clientPortal, models } = context;
-    const { _id, slug, language } = args;
+    const { _id, count, slug, identifier, language } = args;
 
-    if (!_id && !slug) {
-      return null;
-    }
+    const query = await this.buildPostLookupQuery(
+      { _id, count, slug, identifier, clientPortalId: clientPortal._id },
+      models,
+    );
 
-    let query: any = {};
-    if (slug) {
-      query = { slug, clientPortalId: clientPortal._id };
-    } else if (_id) {
-      query = { _id };
-    }
+    if (!query) return null;
 
-    return this.getItemWithTranslation(
+    const post = await this.getItemWithTranslation<any>(
       models.Posts,
       query,
       language,
       FIELD_MAPPINGS.POST,
+      clientPortal._id,
+    );
+
+    if (!post?._id) {
+      return post;
+    }
+
+    await models.Posts.increaseViewCount(post._id);
+
+    return post;
+  }
+
+  async cpMostViewedPosts(
+    _parent: any,
+    args: any,
+    context: IContext,
+  ): Promise<any> {
+    const { models, clientPortal } = context;
+    const { days, limit, language, webId, type } = args;
+
+    return this.findMostViewedPosts(
+      {
+        clientPortalId: clientPortal._id,
+        days,
+        limit,
+        language,
+        webId,
+        publishedOnly: true,
+        type,
+      },
+      models,
     );
   }
 }
@@ -187,6 +543,13 @@ export const postQueries: Record<string, Resolver> = {
   },
   async cmsPostList(_parent: any, args: any, context: IContext): Promise<any> {
     return new PostQueryResolver(context).cmsPostList(_parent, args, context);
+  },
+  cmsMostViewedPosts: (_parent: any, args: any, context: IContext) => {
+    return new PostQueryResolver(context).cmsMostViewedPosts(
+      _parent,
+      args,
+      context,
+    );
   },
   cmsTranslations: (_parent: any, args: any, context: IContext) => {
     return new PostQueryResolver(context).cmsTranslations(
@@ -208,7 +571,18 @@ export const postQueries: Record<string, Resolver> = {
     return new PostQueryResolver(context).cpPost(_parent, args, context);
   },
   cpPostListWithPagination: (_parent: any, args: any, context: IContext) => {
-    return new PostQueryResolver(context).cpPostListWithPagination(_parent, args, context);
+    return new PostQueryResolver(context).cpPostListWithPagination(
+      _parent,
+      args,
+      context,
+    );
+  },
+  cpMostViewedPosts: (_parent: any, args: any, context: IContext) => {
+    return new PostQueryResolver(context).cpMostViewedPosts(
+      _parent,
+      args,
+      context,
+    );
   },
 };
 
@@ -224,6 +598,10 @@ postQueries.cpPost.wrapperConfig = {
   forClientPortal: true,
 };
 
-postQueries.cpPostListWithPagination.wrapperConfig={
+postQueries.cpPostListWithPagination.wrapperConfig = {
   forClientPortal: true,
-}
+};
+
+postQueries.cpMostViewedPosts.wrapperConfig = {
+  forClientPortal: true,
+};

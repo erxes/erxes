@@ -1,13 +1,15 @@
 import {
   TCoreModuleProducerContext,
-  TInsertImportRowsInput,
   TGetImportHeadersOutput,
+  TInsertImportRowsInput,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { processUserRows } from './processUserRows';
+import { getCustomPropertyHeaders } from '~/meta/import-export/utils';
 
 const userImportMap = {
-  user: {
+  users: {
+    fileName: 'team-members-template.csv',
     headers: [
       { label: 'Username', key: 'username' },
       { label: 'Email', key: 'email' },
@@ -29,26 +31,36 @@ const userImportMap = {
       { label: 'Departments', key: 'departments' },
       { label: 'Branches', key: 'branches' },
     ],
-    processRows: (models: IModels, rows: any[]) => processUserRows(models, rows),
+    propertiesType: 'core:user',
+    processRows: (models: IModels, rows: any[]) =>
+      processUserRows(models, rows),
   },
 };
 
 export const userImportHandlers = {
   getImportHeaders: async (
-    { collectionName }: { collectionName: string },
-    _ctx: TCoreModuleProducerContext<IModels>,
+    { collectionName }: { collectionName: 'users' },
+    { models }: TCoreModuleProducerContext<IModels>,
   ): Promise<TGetImportHeadersOutput> => {
-    const handler = (userImportMap as any)[collectionName];
-    if (!handler) throw new Error(`Import headers handler not found for ${collectionName}`);
-    return handler.headers;
+    const handler = userImportMap[collectionName];
+    if (!handler)
+      throw new Error(`Import headers handler not found for ${collectionName}`);
+
+    const { propertiesType, headers = [] } = handler;
+
+    return [
+      ...headers,
+      ...(await getCustomPropertyHeaders(models, propertiesType)),
+    ];
   },
 
   insertImportRows: async (
     { collectionName, rows }: TInsertImportRowsInput,
     { models }: TCoreModuleProducerContext<IModels>,
   ) => {
-    const handler = (userImportMap as any)[collectionName];
-    if (!handler) throw new Error(`Import handler not found for ${collectionName}`);
+    const handler = userImportMap[collectionName];
+    if (!handler)
+      throw new Error(`Import handler not found for ${collectionName}`);
     if (!models) throw new Error('Models not available in context');
     return handler.processRows(models, rows);
   },

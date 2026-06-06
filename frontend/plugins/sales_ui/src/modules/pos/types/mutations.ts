@@ -44,6 +44,8 @@ export interface PosData {
   createdAt?: string;
   token?: string;
   erxesAppToken?: string;
+  serviceCharge?: number;
+  serviceChargeApplicableProductId?: string;
   adminIds?: string[];
   cashierIds?: string[];
   paymentIds?: string[];
@@ -66,8 +68,6 @@ export interface PosData {
   kitchenScreen?: any;
   kioskMachine?: any;
   uiOptions?: any;
-  ebarimtConfig?: any;
-  erkhetConfig?: any;
   cardsConfig?: any;
   catProdMappings?: Array<{
     _id: string;
@@ -80,11 +80,11 @@ export interface PosData {
   kioskExcludeCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
-  checkRemainder?: boolean;
   permissionConfig?: any;
   allowTypes?: string[];
   isCheckRemainder?: boolean;
   checkExcludeCategoryIds?: string[];
+  saveRemainder?: boolean;
   banFractions?: boolean;
   branchTitle?: string;
   departmentTitle?: string;
@@ -119,19 +119,17 @@ export interface AddPosDetailVariables {
   waitingScreen?: any;
   kioskMachine?: any;
   uiOptions?: any;
-  ebarimtConfig?: any;
-  erkhetConfig?: any;
   cardsConfig?: any;
   catProdMappings?: any[];
   initialCategoryIds?: string[];
   kioskExcludeCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
-  checkRemainder?: boolean;
   permissionConfig?: any;
   allowTypes?: string[];
   isCheckRemainder?: boolean;
   checkExcludeCategoryIds?: string[];
+  saveRemainder?: boolean;
   banFractions?: boolean;
 }
 

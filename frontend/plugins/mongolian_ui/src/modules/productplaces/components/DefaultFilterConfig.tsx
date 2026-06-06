@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Button, Label } from 'erxes-ui';
+import { Button, Input, Label, useToast } from 'erxes-ui';
 import SelectSegments from '../selects/SelectSegments';
 import SelectUsers from '../selects/SelectUsers';
 
 const SEGMENT_CONTENT_TYPES = ['core:product.product'];
-
 
 type FilterConfig = {
   title: string;
@@ -31,8 +30,9 @@ const DefaultFilterConfig: React.FC<Props> = ({
   save,
   delete: deleteConfig,
 }) => {
+  const { toast } = useToast();
   const [filters, setFilters] = useState<FilterConfig[]>([]);
-  // sync from backend config
+
   useEffect(() => {
     const incoming = Array.isArray(config?.filters) ? config.filters : [];
     setFilters(
@@ -48,7 +48,11 @@ const DefaultFilterConfig: React.FC<Props> = ({
     setFilters((prev) => [...prev, emptyFilter(prev.length)]);
   };
 
-  const updateFilter = (index: number, field: keyof FilterConfig, value: any) => {
+  const updateFilter = (
+    index: number,
+    field: keyof FilterConfig,
+    value: any,
+  ) => {
     setFilters((prev) => {
       const next = [...prev];
       next[index] = { ...next[index], [field]: value };
@@ -81,139 +85,172 @@ const DefaultFilterConfig: React.FC<Props> = ({
   };
 
   const handleSave = () => {
-    save({ filters });
+    try {
+      save({ filters });
+      toast({
+        title: 'Success',
+        description: 'Filter configuration saved successfully',
+        variant: 'default',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error?.message || 'Failed to save filter configuration',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleDeleteAll = () => {
     if (!window.confirm('Delete all filter configs?')) return;
-    deleteConfig();
-    setFilters([]);
+    try {
+      deleteConfig();
+      setFilters([]);
+      toast({
+        title: 'Success',
+        description: 'Filter configuration deleted successfully',
+        variant: 'default',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error?.message || 'Failed to delete filter configuration',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="border-b pb-4">
-        <h2 className="text-lg font-semibold">Default Filter Configuration</h2>
-        <p className="text-sm text-gray-500">
-          Configure default product filters by segment (Stage: {currentStageId})
-        </p>
-      </div>
-
-      {/* Actions */}
-      <div className="flex justify-between items-center">
-        <Button type="button" variant="default" onClick={addFilter}>
-          + Add Filter
-        </Button>
-
-        <div className="space-x-2">
-          <Button type="button" variant="destructive" onClick={handleDeleteAll}>
-            Delete All
-          </Button>
-          <Button type="button" variant="default" onClick={handleSave}>
-            Save All
-          </Button>
+    <div className="w-full h-full overflow-y-auto">
+      <div className="mx-auto w-full max-w-5xl px-6 py-8 space-y-8">
+        <div className="space-y-2">
+          <h2 className="text-xl font-semibold">
+            Default Filter Configuration
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Configure default product filters by segment
+            {currentStageId ? ` (Stage: ${currentStageId})` : ''}
+          </p>
         </div>
-      </div>
 
-      {/* Filters */}
-      <div className="space-y-4">
-        {filters.map((filter, index) => (
-          <div key={index} className="bg-white p-4 rounded border space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="font-medium">{filter.title}</h3>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <Button type="button" onClick={addFilter}>
+            + Add Filter
+          </Button>
 
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => removeFilter(index)}
-              >
-                Remove
-              </Button>
-            </div>
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDeleteAll}
+            >
+              Delete All
+            </Button>
 
-            {/* Title + Segment */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Title</Label>
-                <input
-                  className="w-full p-2 border rounded"
-                  value={filter.title}
-                  onChange={(e) => updateFilter(index, 'title', e.target.value)}
-                  placeholder="Filter title"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Segment</Label>
-                <SelectSegments
-                  contentTypes={SEGMENT_CONTENT_TYPES}
-                  value={filter.segmentId}
-                  onChange={(segmentId) =>
-                    updateFilter(index, 'segmentId', segmentId || '')
-                  }
-                />
-              </div>
-            </div>
-
-            {/* Users (multi) */}
-            <div className="space-y-2">
-              <Label>Assigned Users</Label>
-
-              {/* this SelectUsers is single-select, so we use it as "picker" and add to list */}
-              <div className="flex gap-2 items-center">
-                <div className="flex-1">
-                  <SelectUsers
-                    value=""
-                    onChange={(userId) => {
-                      toggleUser(index, userId);
-                    }}
-                    ids={[]}
-                    excludeIds={false}
-                    isAssignee={true}
-                  />
-                </div>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => updateFilter(index, 'userIds', [])}
-                  disabled={(filter.userIds || []).length === 0}
-                >
-                  Clear
-                </Button>
-              </div>
-
-              {/* selected users list */}
-              {(filter.userIds || []).length === 0 ? (
-                <div className="text-sm text-gray-400">No users selected</div>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {filter.userIds.map((id) => (
-                    <div
-                      key={id}
-                      className="flex items-center gap-2 px-2 py-1 rounded border text-sm"
-                    >
-                      <span>{id}</span>
-                      <button
-                        type="button"
-                        className="text-gray-500 hover:text-red-600"
-                        onClick={() => toggleUser(index, id)}
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <Button type="button" onClick={handleSave}>
+              Save All
+            </Button>
           </div>
-        ))}
+        </div>
 
-        {filters.length === 0 && (
-          <div className="text-center py-8 text-gray-400">
+        {filters.length === 0 ? (
+          <div className="bg-white rounded-xl border p-10 text-center text-muted-foreground shadow-sm">
             No filter configurations. Click "Add Filter" to create one.
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {filters.map((filter, index) => (
+              <div
+                key={filter.title}
+                className="bg-white rounded-xl border p-6 shadow-sm space-y-6"
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-base">{filter.title}</h3>
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeFilter(index)}
+                  >
+                    Remove
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Title</Label>
+                    <Input
+                      value={filter.title}
+                      onChange={(e) =>
+                        updateFilter(index, 'title', e.target.value)
+                      }
+                      placeholder="Filter title"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Segment</Label>
+                    <SelectSegments
+                      contentTypes={SEGMENT_CONTENT_TYPES}
+                      value={filter.segmentId}
+                      onValueChange={(segmentId) =>
+                        updateFilter(index, 'segmentId', segmentId || '')
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">Assigned Users</Label>
+
+                  <div className="flex gap-3 items-center">
+                    <div className="flex-1">
+                      <SelectUsers
+                        value=""
+                        onChange={(userId) => toggleUser(index, userId)}
+                        ids={[]}
+                        excludeIds={false}
+                        isAssignee={true}
+                      />
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => updateFilter(index, 'userIds', [])}
+                      disabled={(filter.userIds || []).length === 0}
+                    >
+                      Clear
+                    </Button>
+                  </div>
+
+                  {(filter.userIds || []).length === 0 ? (
+                    <div className="text-sm text-muted-foreground">
+                      No users selected
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {filter.userIds.map((id) => (
+                        <div
+                          key={id}
+                          className="flex items-center gap-2 px-3 py-1 rounded-md border text-sm bg-muted/40"
+                        >
+                          <span className="truncate max-w-[160px]">{id}</span>
+                          <button
+                            type="button"
+                            className="text-muted-foreground hover:text-red-600"
+                            onClick={() => toggleUser(index, id)}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

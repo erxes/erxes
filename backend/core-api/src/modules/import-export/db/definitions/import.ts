@@ -38,6 +38,16 @@ export const importSchema = schemaWrapper(
       processedRows: { type: Number, default: 0, label: 'Processed Rows' },
       successRows: { type: Number, default: 0, label: 'Success Rows' },
       errorRows: { type: Number, default: 0, label: 'Error Rows' },
+      lastProcessedRow: {
+        type: Number,
+        default: 0,
+        label: 'Last Processed Row',
+      },
+      terminalError: {
+        code: { type: String, optional: true },
+        stage: { type: String, optional: true },
+        retryable: { type: Boolean, optional: true },
+      },
       importedIds: {
         type: [String],
         default: [],

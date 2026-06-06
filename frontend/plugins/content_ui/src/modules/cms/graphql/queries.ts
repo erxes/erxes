@@ -11,7 +11,39 @@ export const CONTENT_CMS_LIST = gql`
       name
       languages
       language
+      postUrlField
       description
+      domain
+      publicUrl
+      metaTitle
+      metaDescription
+      metaKeywords
+      metaImage {
+        url
+        name
+        type
+        size
+        duration
+      }
+      googleTrackingId
+      googleTagManagerId
+      customScripts
+      defaultPostStatus
+      allowComments
+      siteLogo {
+        url
+        name
+        type
+        size
+        duration
+      }
+      favicon {
+        url
+        name
+        type
+        size
+        duration
+      }
     }
   }
 `;
@@ -39,7 +71,8 @@ export const CMS_MENU_ADD = gql`
       parentId
       label
       contentType
-      contentTypeID
+      contentTypeId
+      linkType
       kind
       icon
       url
@@ -57,7 +90,8 @@ export const CMS_MENU_EDIT = gql`
       parentId
       label
       contentType
-      contentTypeID
+      contentTypeId
+      linkType
       kind
       icon
       url
@@ -219,8 +253,8 @@ export const POST_LIST = gql`
 export const CMS_TAGS = gql`
   query CmsTags(
     $clientPortalId: String
-    $limit: Int
     $cursor: String
+    $limit: Int
     $cursorMode: CURSOR_MODE
     $direction: CURSOR_DIRECTION
     $orderBy: JSON
@@ -233,8 +267,8 @@ export const CMS_TAGS = gql`
   ) {
     cmsTags(
       clientPortalId: $clientPortalId
-      limit: $limit
       cursor: $cursor
+      limit: $limit
       cursorMode: $cursorMode
       direction: $direction
       orderBy: $orderBy
@@ -253,7 +287,18 @@ export const CMS_TAGS = gql`
         name
         slug
         updatedAt
+        translations {
+          language
+          title
+        }
       }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      totalCount
     }
   }
 `;
@@ -308,6 +353,7 @@ export const CMS_POSTS_EDIT = gql`
       tagIds
       featured
       featuredDate
+      publishedDate
       scheduledDate
       autoArchiveDate
       reactions
@@ -397,6 +443,7 @@ export const CMS_POST = gql`
       authorId
       featured
       featuredDate
+      publishedDate
       scheduledDate
       autoArchiveDate
       reactions
@@ -492,6 +539,16 @@ export const CMS_TAGS_ADD = gql`
   mutation CmsTagsAdd($input: PostTagInput!) {
     cmsTagsAdd(input: $input) {
       _id
+      clientPortalId
+      name
+      slug
+      colorCode
+      createdAt
+      updatedAt
+      translations {
+        language
+        title
+      }
       __typename
     }
   }
@@ -507,6 +564,10 @@ export const CMS_TAGS_EDIT = gql`
       colorCode
       createdAt
       updatedAt
+      translations {
+        language
+        title
+      }
     }
   }
 `;
@@ -729,6 +790,7 @@ export const CMS_MENU_LIST = gql`
     $limit: Int
     $cursor: String
     $direction: CURSOR_DIRECTION
+    $orderBy: JSON
   ) {
     cmsMenuList(
       clientPortalId: $clientPortalId
@@ -737,17 +799,22 @@ export const CMS_MENU_LIST = gql`
       limit: $limit
       cursor: $cursor
       direction: $direction
+      orderBy: $orderBy
     ) {
       _id
       parentId
       label
       contentType
-      contentTypeID
+      contentTypeId
+      linkType
       kind
       icon
       url
       order
       target
+      translations {
+        language
+      }
       __typename
     }
   }
@@ -790,6 +857,9 @@ export const CMS_CUSTOM_FIELD_GROUPS = gql`
           label
           pluralLabel
         }
+        enabledPageIds
+        enabledCategoryIds
+        enabledPostIds
         fields
       }
     }
@@ -810,6 +880,8 @@ export const CMS_CUSTOM_FIELD_GROUP_ADD = gql`
         label
         pluralLabel
       }
+      enabledPageIds
+      enabledCategoryIds
       fields
     }
   }
@@ -832,6 +904,8 @@ export const CMS_CUSTOM_FIELD_GROUP_EDIT = gql`
         label
         pluralLabel
       }
+      enabledPageIds
+      enabledCategoryIds
       fields
     }
   }
@@ -889,15 +963,16 @@ export const CMS_CUSTOM_POST_TYPE_REMOVE = gql`
 `;
 
 export const CMS_TRANSLATIONS = gql`
-  query cmsTranslations($postId: String!) {
-    cmsTranslations(postId: $postId) {
+  query cmsTranslations($objectId: String, $type: String) {
+    cmsTranslations(objectId: $objectId, type: $type) {
       _id
-      postId
+      objectId
       language
       title
       content
       excerpt
       customFieldsData
+      type
     }
   }
 `;
@@ -906,12 +981,13 @@ export const CMS_ADD_TRANSLATION = gql`
   mutation cmsAddTranslation($input: TranslationInput!) {
     cmsAddTranslation(input: $input) {
       _id
-      postId
+      objectId
       language
       title
       content
       excerpt
       customFieldsData
+      type
     }
   }
 `;
@@ -920,12 +996,13 @@ export const CMS_EDIT_TRANSLATION = gql`
   mutation cmsEditTranslation($input: TranslationInput!) {
     cmsEditTranslation(input: $input) {
       _id
-      postId
+      objectId
       language
       title
       content
       excerpt
       customFieldsData
+      type
     }
   }
 `;

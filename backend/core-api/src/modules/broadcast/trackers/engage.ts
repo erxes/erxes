@@ -1,13 +1,31 @@
 import AWS from 'aws-sdk';
-
-import { getValueAsString } from '@/organization/settings/db/models/Configs';
-import { getSubdomain } from 'erxes-api-shared/utils';
+import { getEnv, getSubdomain } from 'erxes-api-shared/utils';
 import { Request, Response } from 'express';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { SES_DELIVERY_STATUSES } from '../constants';
 
-export const getApi = async (models: IModels, type: string): Promise<any> => {
+const getAwsConfig = async (models: IModels) => {
   const config = await models.EngageMessages.broadcastConfigs();
+
+  if (config?.accessKeyId && config?.secretAccessKey && config?.region) {
+    return config;
+  }
+
+  const VERSION = getEnv({ name: 'VERSION', defaultValue: '' });
+
+  if (VERSION === 'saas') {
+    return {
+      accessKeyId: getEnv({ name: 'AWS_SES_ACCESS_KEY_ID' }),
+      secretAccessKey: getEnv({ name: 'AWS_SES_SECRET_ACCESS_KEY' }),
+      region: getEnv({ name: 'AWS_REGION' }),
+    };
+  }
+
+  return config;
+};
+
+export const getApi = async (models: IModels, type: string): Promise<any> => {
+  const config = await getAwsConfig(models);
 
   if (!config) {
     return;
@@ -37,8 +55,6 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
 
   const { eventType, mail } = parsedMessage;
 
-  console.log('parsedMessage', parsedMessage);
-
   if (!mail) {
     return;
   }
@@ -58,10 +74,10 @@ const handleMessage = async (models: IModels, subdomain: string, message) => {
   const type = eventType.toLowerCase();
 
   const mailHeaders = {
-    engageMessageId: engageMessageId && engageMessageId.value,
-    mailId: mailId && mailId.value,
-    customerId: customerId && customerId.value,
-    email: to && to.value,
+    engageMessageId: engageMessageId?.value,
+    mailId: mailId?.value,
+    customerId: customerId?.value,
+    email: to?.value,
   };
 
   const exists = await models.DeliveryReports.findOne({
@@ -98,18 +114,12 @@ export const engageTracker = async (req: Request, res: Response) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
 
-    console.log('handleMessage');
-
     // Handle case where req.body is populated (typically for SaaS SES events)
     if (req.body && Object.keys(req.body).length) {
       const { message: messageString } = req.body;
 
-      console.log('req.body', req.body);
-
       if (messageString) {
         const message = JSON.parse(messageString);
-
-        console.log('message', message);
 
         await handleMessage(models, subdomain, message);
 
@@ -129,12 +139,8 @@ export const engageTracker = async (req: Request, res: Response) => {
     });
 
     req.on('end', async () => {
-      console.log('chunks', chunks);
-
       try {
         const message = JSON.parse(chunks.join(''));
-
-        console.log(`Receiving on tracker: ${JSON.stringify(message)}`);
 
         const { Type = '', Message = {}, Token = '', TopicArn = '' } = message;
 

@@ -1,6 +1,4 @@
 import { TeamMemberRoles } from '@/team/@types/team';
-// import { checkUserRole } from '@/utils';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { createNotifications } from '~/utils/notifications';
 
@@ -13,8 +11,10 @@ export const teamMutations = {
       icon,
       memberIds,
     }: { name: string; description: string; icon: string; memberIds: string[] },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) => {
+    await checkPermission('teamCreate');
+
     const userId = user._id;
     memberIds = memberIds || [];
     memberIds = memberIds.includes(userId)
@@ -52,15 +52,9 @@ export const teamMutations = {
       cycleEnabled: boolean;
       triageEnabled: boolean;
     },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
-    // ** Deprecated
-    // await checkUserRole({
-    //   models,
-    //   teamId: _id,
-    //   userId: user._id,
-    //   allowedRoles: [TeamMemberRoles.ADMIN, TeamMemberRoles.LEAD],
-    // });
+    await checkPermission('teamUpdate');
 
     return models.Team.updateTeam(_id, {
       name,
@@ -75,15 +69,9 @@ export const teamMutations = {
   teamRemove: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
-    // ** Deprecated
-    // await checkUserRole({
-    //   models,
-    //   teamId: _id,
-    //   userId: user._id,
-    //   allowedRoles: [TeamMemberRoles.ADMIN],
-    // });
+    await checkPermission('teamRemove');
 
     return models.Team.removeTeam(_id);
   },
@@ -91,15 +79,9 @@ export const teamMutations = {
   teamAddMembers: async (
     _parent: undefined,
     { _id, memberIds }: { _id: string; memberIds: string[] },
-    { models, subdomain, user }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) => {
-    // ** Deprecated
-    // await checkUserRole({
-    //   models,
-    //   teamId: _id,
-    //   userId: user._id,
-    //   allowedRoles: [TeamMemberRoles.ADMIN, TeamMemberRoles.LEAD],
-    // });
+    await checkPermission('teamMemberManage');
 
     await createNotifications({
       contentType: 'team',
@@ -109,6 +91,7 @@ export const teamMutations = {
       notificationType: 'team',
       userIds: memberIds,
       action: 'teamAddMembers',
+      models,
     });
 
     return models.TeamMember.createTeamMembers(
@@ -122,15 +105,9 @@ export const teamMutations = {
   teamRemoveMember: async (
     _parent: undefined,
     { teamId, memberId }: { teamId: string; memberId: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
-    // ** Deprecated
-    // await checkUserRole({
-    //   models,
-    //   teamId,
-    //   userId: user._id,
-    //   allowedRoles: [TeamMemberRoles.ADMIN],
-    // });
+    await checkPermission('teamMemberManage');
 
     return models.TeamMember.removeTeamMember(teamId, memberId);
   },
@@ -138,29 +115,16 @@ export const teamMutations = {
   teamUpdateMember: async (
     _parent: undefined,
     { _id, role }: { _id: string; memberId: string; role: TeamMemberRoles },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('teamMemberManage');
+
     const teamMember = await models.TeamMember.findOne({ _id });
 
     if (!teamMember) {
       throw new Error('Team member not found');
     }
 
-    // ** Deprecated
-    // await checkUserRole({
-    //   models,
-    //   teamId: teamMember.teamId,
-    //   userId: user._id,
-    //   allowedRoles: [TeamMemberRoles.ADMIN],
-    // });
-
     return models.TeamMember.updateTeamMember(_id, role);
   },
 };
-
-requireLogin(teamMutations, 'teamAdd');
-requireLogin(teamMutations, 'teamUpdate');
-requireLogin(teamMutations, 'teamRemove');
-requireLogin(teamMutations, 'teamAddMembers');
-requireLogin(teamMutations, 'teamRemoveMember');
-requireLogin(teamMutations, 'teamUpdateMember');

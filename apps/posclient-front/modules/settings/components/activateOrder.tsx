@@ -1,16 +1,17 @@
-"use client";
+"use client"
 
-import { useAtom } from "jotai";
-import { orderNotificationEnabledAtom } from "@/store";
-import { Label } from "@radix-ui/react-label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { orderNotificationEnabledAtom } from "@/store"
+import type { CheckedState } from "@radix-ui/react-checkbox"
+import { Label } from "@radix-ui/react-label"
+import { useAtom } from "jotai"
 
+import { Checkbox } from "@/components/ui/checkbox"
 
 const ActivateOrderQr = () => {
-  const [isEnabled, setIsEnabled] = useAtom(orderNotificationEnabledAtom);
-  const handleCheckboxChange = (checked: boolean) => {
-    setIsEnabled(checked);
-  };
+  const [isEnabled, setIsEnabled] = useAtom(orderNotificationEnabledAtom)
+  const handleCheckboxChange = (checked: CheckedState) => {
+    setIsEnabled(checked === true)
+  }
 
   return (
     <Label
@@ -22,9 +23,9 @@ const ActivateOrderQr = () => {
         checked={isEnabled}
         onCheckedChange={handleCheckboxChange}
       />
-        QR мэню идэвхтэй
+      QR мэню идэвхтэй
     </Label>
-  );
-};
+  )
+}
 
-export default ActivateOrderQr;
+export default ActivateOrderQr

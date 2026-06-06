@@ -4,19 +4,52 @@ import {
   ITextFieldContainerProps,
   RecordTable,
   RecordTableTree,
+  Skeleton,
+  Table,
   TextField,
   useQueryState,
+  Popover,
+  Combobox,
+  Command,
+  useConfirm,
+  toast,
 } from 'erxes-ui';
 import { useAccountCategories } from '../hooks/useAccountCategories';
 import { useAccountCategoryEdit } from '../hooks/useAccountCategoryEdit';
+import { useAccountCategoriesRemove } from '../hooks/useAccountCategoriesRemove';
 import { SelectAccountCategory } from './SelectAccountCategory';
 import { useSetAtom } from 'jotai';
 import { accountCategoryDetailAtom } from '../states/accountCategoryStates';
 import { AccountCategoriesCommandbar } from './AccountCategoriesCommandbar';
 import { useMemo } from 'react';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+
+const AccountCategoriesInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
+  const rowKeys = useMemo(
+    () => Array.from({ length: rows }, () => crypto.randomUUID()),
+    [rows],
+  );
+  return (
+    <>
+      {rowKeys.map((rowKey) => (
+        <Table.Row key={rowKey} className="h-cell">
+          {accountCategoriesColumns.map((col, colIndex) => (
+            <Table.Cell
+              key={`${rowKey}-${col.id ?? colIndex}`}
+              className="border-r-0 px-2"
+            >
+              <Skeleton className="h-4 w-full min-w-4" />
+            </Table.Cell>
+          ))}
+        </Table.Row>
+      ))}
+    </>
+  );
+};
 
 export const AccountCategoriesTable = () => {
-  const { accountCategories } = useAccountCategories();
+  const { accountCategories, loading } = useAccountCategories();
+  const isInitialLoading = loading && !accountCategories?.length;
 
   const categoryObject = useMemo(() => {
     return (
@@ -34,12 +67,14 @@ export const AccountCategoriesTable = () => {
     <RecordTable.Provider
       columns={accountCategoriesColumns}
       data={
-        accountCategories?.map((category) => ({
-          ...category,
-          hasChildren: accountCategories.some(
-            (c) => c.parentId === category._id,
-          ),
-        })) || []
+        isInitialLoading
+          ? []
+          : accountCategories?.map((category) => ({
+              ...category,
+              hasChildren: accountCategories.some(
+                (c) => c.parentId === category._id,
+              ),
+            })) || []
       }
       stickyColumns={['more', 'checkbox', 'code']}
     >
@@ -59,6 +94,9 @@ export const AccountCategoriesTable = () => {
                   />
                 )}
               />
+              {isInitialLoading && (
+                <AccountCategoriesInitialSkeleton rows={20} />
+              )}
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.Scroll>
@@ -103,14 +141,58 @@ const AccountCategoryMoreColumnCell = ({
 }) => {
   const [, setOpen] = useQueryState('accountCategoryId');
   const setAccountCategoryDetail = useSetAtom(accountCategoryDetailAtom);
+  const { confirm } = useConfirm();
+  const { removeAccountCategories } = useAccountCategoriesRemove();
+
+  const handleEdit = () => {
+    setAccountCategoryDetail(cell.row.original);
+    setOpen(cell.row.original._id);
+  };
+
+  const handleDelete = () =>
+    confirm({
+      message: 'Are you sure you want to delete this account category?',
+      options: {
+        okLabel: 'Delete',
+        cancelLabel: 'Cancel',
+      },
+    }).then(() => {
+      removeAccountCategories({
+        variables: { _id: cell.row.original._id },
+        onError: (error: Error) => {
+          toast({
+            title: 'Error',
+            description: error.message,
+            variant: 'destructive',
+          });
+        },
+        onCompleted: () => {
+          toast({
+            title: 'Success',
+            description: 'Account category deleted successfully',
+          });
+        },
+      });
+    });
+
   return (
-    <RecordTable.MoreButton
-      className="w-full h-full"
-      onClick={() => {
-        setAccountCategoryDetail(cell.row.original);
-        setOpen(cell.row.original._id);
-      }}
-    />
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item value="edit" onSelect={handleEdit}>
+              <IconEdit /> Edit
+            </Command.Item>
+            <Command.Item value="delete" onSelect={handleDelete}>
+              <IconTrash /> Delete
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 
@@ -147,7 +229,9 @@ const accountCategoryMoreColumn = {
   size: 33,
 };
 
-export const accountCategoriesColumns: ColumnDef<IAccountCategory & { hasChildren: boolean }>[] = [
+export const accountCategoriesColumns: ColumnDef<
+  IAccountCategory & { hasChildren: boolean }
+>[] = [
   accountCategoryMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<
     IAccountCategory & { hasChildren: boolean }
@@ -155,7 +239,7 @@ export const accountCategoriesColumns: ColumnDef<IAccountCategory & { hasChildre
   {
     id: 'code',
     accessorKey: 'code',
-    header: () => <RecordTable.InlineHead label="Code" />,
+    header: () => <RecordTable.InlineHead label="Код" />,
     cell: ({ cell }) => {
       const accountCategory = cell.row.original;
       return (
@@ -178,7 +262,7 @@ export const accountCategoriesColumns: ColumnDef<IAccountCategory & { hasChildre
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
+    header: () => <RecordTable.InlineHead label="Нэр" />,
     cell: ({ cell }) => {
       return (
         <AccountTextField
@@ -194,14 +278,14 @@ export const accountCategoriesColumns: ColumnDef<IAccountCategory & { hasChildre
   {
     id: 'parentId',
     accessorKey: 'parentId',
-    header: () => <RecordTable.InlineHead label="Parent" />,
+    header: () => <RecordTable.InlineHead label="Эцэг" />,
     cell: ({ cell }) => <AccountCategoryParentCell cell={cell} />,
     size: 250,
   },
   {
     id: 'description',
     accessorKey: 'description',
-    header: () => <RecordTable.InlineHead label="Description" />,
+    header: () => <RecordTable.InlineHead label="Тайлбар" />,
     cell: ({ cell }) => {
       return (
         <AccountTextField
@@ -215,4 +299,3 @@ export const accountCategoriesColumns: ColumnDef<IAccountCategory & { hasChildre
     size: 300,
   },
 ];
-

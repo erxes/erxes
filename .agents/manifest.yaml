@@ -1,0 +1,449 @@
+# .agents/manifest.yaml
+# Agent Manifest Protocol (AMP) v1.0
+# This file is the root contract for all AI agents working in this repository.
+# Agents MUST read this file first before any other .agents/ content.
+
+version: "1.0.0"
+schema: "https://erxes.io/schemas/agent-manifest-v1"
+
+# ─── Rule Layer System ───
+# Rules are applied in precedence order (higher number wins conflicts).
+# Agents MUST load all applicable layers before starting work.
+# The auto-assembly skill injects these automatically.
+
+rule_layers:
+  - id: "constitution"
+    name: "Root Constitution"
+    path: "AGENTS.md"
+    precedence: 0
+    description: "Root source of truth. All agents must read this first."
+    required: true
+    scope: "global"
+
+  - id: "global-rules"
+    name: "Global Rules"
+    path: ".agents/rules/*.md"
+    precedence: 100
+    description: "Repository-wide conventions and guidelines"
+    required: true
+    scope: "global"
+    files:
+      - non-negotiable.md
+      - architecture.md
+      - code-style.md
+      - typescript-guidelines.md
+      - react-general-guidelines.md
+      - react-state-management.md
+      - translations.md
+      - testing-guidelines.md
+      - server-migrations.md
+      - nx-rules.md
+      - operation-plugin-reference.md
+      - github-actions-security.md
+      - changelog-process.md
+      - feedback-incorporation.md
+
+  - id: "frontend-plugin-category"
+    name: "Frontend Plugin Category"
+    path: "frontend/plugins/AGENTS.md"
+    precedence: 200
+    description: "Rules for all frontend plugins"
+    required: false
+    scope: "category"
+    applies_when: "path matches frontend/plugins/*"
+
+  - id: "backend-plugin-category"
+    name: "Backend Plugin Category"
+    path: "backend/plugins/AGENTS.md"
+    precedence: 200
+    description: "Rules for all backend plugins"
+    required: false
+    scope: "category"
+    applies_when: "path matches backend/plugins/*"
+
+  - id: "plugin-specific"
+    name: "Plugin-Specific Rules"
+    path: "{plugin_path}/AGENTS.md"
+    precedence: 300
+    description: "Plugin-specific architecture and conventions"
+    required: false
+    scope: "plugin"
+    applies_when: "path matches {plugin_path}/*"
+    # Examples of plugin-specific AGENTS.md locations:
+    # frontend/plugins/content_ui/AGENTS.md
+    # backend/plugins/sales_api/AGENTS.md
+
+# ─── Conflict Resolution ───
+# When rules conflict, higher precedence wins.
+# If same precedence, the more specific scope wins (plugin > category > global).
+# If still ambiguous, the agent must ask for clarification.
+
+conflict_resolution:
+  strategy: "precedence_then_specificity"
+  fallback: "ask"
+
+# ─── Skill Registry ───
+# All available skills. Each skill has a contract.yaml in its directory.
+# Skills are self-describing: they declare inputs, rules, preconditions, postconditions.
+
+skills:
+  # Meta skills
+  assemble-context:
+    name: "assemble-context"
+    description: "Auto-assemble context by loading relevant rules and skills for the current task"
+    directory: ".agents/skills/assemble-context"
+    type: "meta"
+
+  detect-scope:
+    name: "detect-scope"
+    description: "Detects user request intent, identifies target plugin/module, loads relevant code context, and asks minimal informed questions before proceeding to intake."
+    directory: ".agents/skills/detect-scope"
+    type: "meta"
+
+  intake:
+    name: "intake"
+    description: "Requirement gathering and scope confirmation. ALWAYS use before coding. Receives detected scope from detect-scope."
+    directory: ".agents/skills/intake"
+    type: "meta"
+
+  create-plugin:
+    name: "create-plugin"
+    description: "Create a new erxes plugin from scratch with proper scaffolding"
+    directory: ".agents/skills/create-plugin"
+    type: "meta"
+
+  # Workflow skills
+  plugin-workflow:
+    name: "plugin-workflow"
+    description: "Baseline workflow for erxes plugin contributions"
+    directory: ".agents/skills/plugin-workflow"
+    type: "workflow"
+
+  operation-plugin-reference:
+    name: "operation-plugin-reference"
+    description: "Apply operation plugin conventions from operation_ui and operation_api"
+    directory: ".agents/skills/operation-plugin-reference"
+    type: "reference"
+
+  # Feature skills
+  create-page:
+    name: "create-page"
+    description: "Add erxes frontend pages and routes using nearby plugin structure"
+    directory: ".agents/skills/create-page"
+    type: "feature"
+
+  create-table:
+    name: "create-table"
+    description: "Build erxes table and list screens with existing RecordTable patterns"
+    directory: ".agents/skills/create-table"
+    type: "feature"
+
+  create-query:
+    name: "create-query"
+    description: "Add or reuse erxes frontend GraphQL operations and Apollo hooks"
+    directory: ".agents/skills/create-query"
+    type: "feature"
+
+  create-modal:
+    name: "create-modal"
+    description: "Add erxes modal or dialog UI by reusing existing components"
+    directory: ".agents/skills/create-modal"
+    type: "feature"
+
+  create-form-drawer:
+    name: "create-form-drawer"
+    description: "Build erxes drawer, sheet, or dialog forms with validation"
+    directory: ".agents/skills/create-form-drawer"
+    type: "feature"
+
+  create-backend-entity:
+    name: "create-backend-entity"
+    description: "Add or extend Mongoose-backed erxes backend entities"
+    directory: ".agents/skills/create-backend-entity"
+    type: "feature"
+
+  create-backend-migration:
+    name: "create-backend-migration"
+    description: "Create safe erxes backend MongoDB migrations or command scripts"
+    directory: ".agents/skills/create-backend-migration"
+    type: "feature"
+
+  create-provider-context:
+    name: "create-provider-context"
+    description: "Add scoped React providers or contexts using existing patterns"
+    directory: ".agents/skills/create-provider-context"
+    type: "feature"
+
+  add-translations:
+    name: "add-translations"
+    description: "Add or update erxes frontend translation keys and locale JSON entries"
+    directory: ".agents/skills/add-translations"
+    type: "feature"
+
+  module-federation-expose:
+    name: "module-federation-expose"
+    description: "Add or change erxes frontend Module Federation exposes"
+    directory: ".agents/skills/module-federation-expose"
+    type: "feature"
+
+  configure-plugin-navigation:
+    name: "configure-plugin-navigation"
+    description: "Configure erxes frontend plugin navigation and settings"
+    directory: ".agents/skills/configure-plugin-navigation"
+    type: "feature"
+
+  fix-sonar:
+    name: "fix-sonar"
+    description: "Fix Sonar, lint, or TypeScript issues with minimal changes"
+    directory: ".agents/skills/fix-sonar"
+    type: "maintenance"
+
+  pr-review-loop:
+    name: "pr-review-loop"
+    description: "Post-commit PR review automation. Poll AI reviewer comments, address them, wait for CI, loop until clean."
+    directory: ".agents/skills/pr-review-loop"
+    type: "workflow"
+
+# ─── Plugin Registry ───
+# Known plugins in the monorepo. Used for validation and context resolution.
+
+plugins:
+  frontend:
+    - name: "content"
+      nx_name: "content_ui"
+      path: "frontend/plugins/content_ui"
+      port: 3003
+      status: "active"
+    - name: "frontline"
+      nx_name: "frontline_ui"
+      path: "frontend/plugins/frontline_ui"
+      status: "scaffolded"
+    - name: "sales"
+      nx_name: "sales_ui"
+      path: "frontend/plugins/sales_ui"
+      status: "active"
+    - name: "operation"
+      nx_name: "operation_ui"
+      path: "frontend/plugins/operation_ui"
+      status: "active"
+    - name: "payment"
+      nx_name: "payment_ui"
+      path: "frontend/plugins/payment_ui"
+      status: "active"
+    - name: "loyalty"
+      nx_name: "loyalty_ui"
+      path: "frontend/plugins/loyalty_ui"
+      status: "active"
+    - name: "accounting"
+      nx_name: "accounting_ui"
+      path: "frontend/plugins/accounting_ui"
+      status: "active"
+    - name: "insurance"
+      nx_name: "insurance_ui"
+      path: "frontend/plugins/insurance_ui"
+      status: "active"
+    - name: "tourism"
+      nx_name: "tourism_ui"
+      path: "frontend/plugins/tourism_ui"
+      status: "active"
+    - name: "mongolian"
+      nx_name: "mongolian_ui"
+      path: "frontend/plugins/mongolian_ui"
+      status: "active"
+    - name: "agent-assistant"
+      nx_name: "agent-assistant_ui"
+      path: "frontend/plugins/agent-assistant_ui"
+      port: 3015
+      status: "active"
+  backend:
+    - name: "content"
+      nx_name: "content_api"
+      path: "backend/plugins/content_api"
+      status: "active"
+    - name: "frontline"
+      nx_name: "frontline_api"
+      path: "backend/plugins/frontline_api"
+      status: "scaffolded"
+    - name: "sales"
+      nx_name: "sales_api"
+      path: "backend/plugins/sales_api"
+      status: "active"
+    - name: "operation"
+      nx_name: "operation_api"
+      path: "backend/plugins/operation_api"
+      status: "active"
+    - name: "payment"
+      nx_name: "payment_api"
+      path: "backend/plugins/payment_api"
+      status: "active"
+    - name: "loyalty"
+      nx_name: "loyalty_api"
+      path: "backend/plugins/loyalty_api"
+      status: "active"
+    - name: "accounting"
+      nx_name: "accounting_api"
+      path: "backend/plugins/accounting_api"
+      status: "active"
+    - name: "insurance"
+      nx_name: "insurance_api"
+      path: "backend/plugins/insurance_api"
+      status: "active"
+    - name: "tourism"
+      nx_name: "tourism_api"
+      path: "backend/plugins/tourism_api"
+      status: "active"
+    - name: "mongolian"
+      nx_name: "mongolian_api"
+      path: "backend/plugins/mongolian_api"
+      status: "active"
+    - name: "agent-assistant"
+      nx_name: "agent-assistant_api"
+      path: "backend/plugins/agent-assistant_api"
+      status: "active"
+    - name: "posclient"
+      nx_name: "posclient_api"
+      path: "backend/plugins/posclient_api"
+      status: "active"
+  shared:
+    - name: "erxes-ui"
+      nx_name: "erxes-ui"
+      path: "frontend/libs/erxes-ui"
+      type: "ui-library"
+    - name: "ui-modules"
+      nx_name: "ui-modules"
+      path: "frontend/libs/ui-modules"
+      type: "ui-library"
+    - name: "erxes-api-shared"
+      nx_name: "erxes-api-shared"
+      path: "backend/erxes-api-shared"
+      type: "shared-backend"
+
+# ─── Context Assembly Configuration ───
+# How the assemble-context skill builds the working context.
+
+context_assembly:
+  # Always include these files in every context
+  base_context:
+    - "AGENTS.md"
+    - ".agents/manifest.yaml"
+
+  # Include matching rule layers based on working path
+  auto_rules:
+    enabled: true
+    strategy: "layer_precedence"
+
+  # Include skill contracts when a skill is invoked
+  auto_skills:
+    enabled: true
+    include_contract: true
+    include_skill_md: true
+
+  # Semantic index for skill discovery and orchestration
+  semantic_index:
+    path: ".agents/skills/SEMANTIC_INDEX.md"
+    auto_load: true
+    description: "Maps symptoms, edge-cases, and complex intents to specific skill sequences"
+
+  # Feature map for scope resolution
+  feature_map:
+    path: ".agents/maps/feature-map.yaml"
+    auto_load: true
+    description: "Maps user-facing features to plugin/module locations"
+
+  # Canonical examples for reference
+  canonical_examples:
+    path: ".agents/references/canonical-examples.yaml"
+    auto_load: true
+    description: "Gold-standard reference implementations"
+
+  # Session tracking
+  session:
+    file: ".agents/session.yaml"
+    manager: ".agents/scripts/session-manager.sh"
+    description: "Track agent progress and state"
+
+  # Validation that must run before context is considered ready
+  readiness_checks:
+    - "All required rule layers loaded"
+    - "At least one skill contract loaded (if doing skill work)"
+    - "Plugin identified (if working in plugin directory)"
+
+# ─── Validation & Enforcement ───
+validation:
+  # These commands validate that the agent system itself is healthy
+  manifest_integrity:
+    command: ".agents/scripts/validate-manifest.sh"
+    description: "Check manifest.yaml, all contracts, and rule file references"
+
+  # Plugin validation
+  plugin_validation:
+    command: "pnpm nx lint <plugin> && pnpm nx build <plugin>"
+    description: "Build and lint a specific plugin"
+
+  # Scaffold validation
+  scaffold_validation:
+    command: ".agents/scripts/validate-scaffold.sh <plugin> <scope>"
+    description: "Validate a newly scaffolded plugin"
+
+  # Deliverables verification
+  deliverables_check:
+    command: ".agents/scripts/check-deliverables.sh <skill> [<plugin>]"
+    description: "Verify all deliverables are complete"
+
+  # Rules compliance
+  rules_compliance:
+    command: ".agents/scripts/check-rules.sh [<path>]"
+    description: "Verify non-negotiable rules are followed"
+
+# ─── Agent Protocol ───
+# How agents must behave when using this system.
+
+protocol:
+  # Step 1: ALWAYS read manifest.yaml first
+  entry_point: ".agents/manifest.yaml"
+
+  # Step 2: Load base context
+  base_context_required: true
+
+  # Step 3: Use assemble-context skill to load relevant rules
+  context_assembly_required: true
+
+  # Step 4: Load skill contract before executing any skill
+  # This applies to detect-scope, intake, and all feature skills
+  skill_contract_required: true
+
+  # Step 5: Run detect-scope skill to identify plugin/module and load context
+  # This runs silent discovery so intake asks informed questions
+  detect_scope_required: true
+
+  # Step 6: Run pre-flight check
+  # Validates detect-scope completed before intake can run
+  preflight_check:
+    enabled: true
+    command: ".agents/scripts/preflight-check.sh"
+    description: "Gate: detect-scope MUST complete before intake"
+
+  # Step 7: Run intake skill to gather requirements
+  # NEVER start coding without confirmed scope
+  intake_required: true
+
+  # Step 8: Validate before declaring done
+  validation_required: true
+
+  # Step 9: Run PR review loop after creating a PR
+  # Poll AI reviewer comments, address them, wait for CI, loop until clean
+  pr_review_loop:
+    enabled: true
+    skill: "pr-review-loop"
+    trigger: "after_pr_created"
+    description: "Post-commit PR review automation. Mandatory after every PR."
+
+  # When in doubt, ask rather than guess
+  ambiguity_resolution: "ask"
+
+# ─── Meta ───
+meta:
+  last_updated: "2026-05-29"
+  maintained_by: "AI-agent-system"
+  changelog: ".agents/CHANGELOG.md"
+  extending_guide: ".agents/EXTENDING.md"

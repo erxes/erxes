@@ -1,15 +1,22 @@
 import { IconUserFilled } from '@tabler/icons-react';
-import { NavigationMenuLinkItem } from 'erxes-ui';
+import { cn } from 'erxes-ui/lib';
+import { Sidebar } from 'erxes-ui';
+import { Link, useLocation } from 'react-router';
 
 export const MainNavigation = () => {
+  const { pathname } = useLocation();
+  const isActive = pathname.startsWith('/loyalty');
+
   return (
-    <>
-      <NavigationMenuLinkItem
-        name="Loyalty"
-        icon={IconUserFilled}
-        pathPrefix="loyalty"
-        path="loyalty"
-      />
-    </>
+    <Sidebar.MenuItem>
+      <Sidebar.MenuButton asChild isActive={isActive}>
+        <Link to="/loyalty/vouchers">
+          <IconUserFilled
+            className={cn('text-accent-foreground', isActive && 'text-primary')}
+          />
+          <span className="capitalize">Loyalty</span>
+        </Link>
+      </Sidebar.MenuButton>
+    </Sidebar.MenuItem>
   );
 };

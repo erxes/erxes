@@ -6,7 +6,7 @@ import {
   LEAD_SUCCESS_ACTIONS,
   MESSENGER_DATA_AVAILABILITY,
 } from './constants';
-import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
+import { schemaWrapper } from 'erxes-api-shared/utils';
 
 export interface IAttachment {
   name: string;
@@ -30,6 +30,20 @@ const persistentMenuSchema = new Schema({
   type: { type: String },
   link: { type: String, optional: true },
   isEditing: { type: Boolean },
+});
+
+const credentialsSchema = new Schema({
+  integrationId: { type: String },
+  description: { type: String },
+  buttonText: { type: String },
+  url: { type: String },
+});
+
+const websiteAppSchema = new Schema({
+  kind: { type: String, default: 'webstite' },
+  showInInbox: { type: Boolean, default: false },
+  credentials: credentialsSchema,
+  scopeBrandIds: { type: [String] },
 });
 
 // subdocument schema for MessengerData
@@ -78,6 +92,8 @@ const messengerDataSchema = new Schema(
     hideWhenOffline: { type: Boolean, default: false },
     forceLogoutWhenResolve: { type: Boolean, default: false },
     showVideoCallRequest: { type: Boolean, default: false },
+    knowledgeBaseTopicId: { type: String },
+    websiteApps: { type: [websiteAppSchema], optional: true },
   },
   { _id: false },
 );
@@ -270,6 +286,7 @@ const uiOptionsSchema = new Schema(
   {
     logo: { type: String },
     primary: { type: colorDefinitionSchema },
+    navigationVariant: { type: String },
   },
   { _id: false },
 );
@@ -289,6 +306,7 @@ export const integrationSchema = schemaWrapper(
     _id: { type: String, label: '_id' },
     createdUserId: { type: String, label: 'Created by' },
     channelId: { type: String, label: 'Channel id' },
+    brandId: { type: String, label: 'Brand id' },
     kind: {
       type: String,
       label: 'Kind',

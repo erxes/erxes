@@ -203,10 +203,3 @@ export const segmentQueries = {
     return { count, total };
   },
 };
-
-// requireLogin(segmentQueries, "segmentsGetHeads");
-// requireLogin(segmentQueries, "segmentDetail");
-// requireLogin(segmentQueries, "segmentsPreviewCount");
-// requireLogin(segmentQueries, "segmentsEvents");
-
-// checkPermission(segmentQueries, "segments", "showSegments", []);

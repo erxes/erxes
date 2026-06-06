@@ -1,19 +1,23 @@
 import { IMessageDocument } from '@/inbox/@types/conversationMessages';
 import { INotesParams } from '@/integrations/call/@types/conversationNotes';
-import { ICallHistory, ICallHistoryFilterOptions } from '@/integrations/call/@types/histories';
+import {
+  ICallHistory,
+  ICallHistoryFilterOptions,
+} from '@/integrations/call/@types/histories';
 import { selectRelevantCdr } from '@/integrations/call/services/cdrUtils';
 import {
   calculateAbandonmentRate,
   calculateAverageHandlingTime,
   calculateAverageSpeedOfAnswer,
   calculateFirstCallResolution,
+  calculateOccupancyRate,
   calculateServiceLevel,
 } from '@/integrations/call/statistics';
 import {
   mapCdrToCallHistory,
   sendToGrandStream,
 } from '@/integrations/call/utils';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { XMLParser } from 'fast-xml-parser';
 import { IContext } from '~/connectionResolvers';
 import redis from '../../redlock';
@@ -106,7 +110,7 @@ const callQueries = {
       user,
     )) as any;
 
-    if (queueData && queueData.response) {
+    if (queueData?.response) {
       const { account } = queueData.response;
 
       if (account) {
@@ -274,7 +278,7 @@ const callQueries = {
       user,
     )) as any;
 
-    if (queueData && queueData.response) {
+    if (queueData?.response) {
       const { CallQueueMembersMessage } = queueData.response;
 
       if (CallQueueMembersMessage) {
@@ -290,7 +294,7 @@ const callQueries = {
     { queue }: { queue: string },
     { models }: IContext,
   ) {
-    const DEFAULT_VALUE = '0';
+    const DEFAULT_VALUE = 0;
 
     try {
       const now = new Date();
@@ -326,10 +330,10 @@ const callQueries = {
       ]);
 
       return {
-        serviceLevel: serviceLevel?.toString() || DEFAULT_VALUE,
-        firstCallResolution: firstCallResolution?.toString() || DEFAULT_VALUE,
-        averageSpeed: averageSpeed?.toString() || DEFAULT_VALUE,
-        averageAnsweredTime: averageAnsweredTime?.toString() || DEFAULT_VALUE,
+        serviceLevel: serviceLevel || DEFAULT_VALUE,
+        firstCallResolution: firstCallResolution || DEFAULT_VALUE,
+        averageSpeed: averageSpeed || DEFAULT_VALUE,
+        averageAnsweredTime: averageAnsweredTime || DEFAULT_VALUE,
       };
     } catch (error) {
       console.error('Error in callTodayStatistics:', error);
@@ -339,108 +343,199 @@ const callQueries = {
         firstCallResolution: DEFAULT_VALUE,
         averageSpeed: DEFAULT_VALUE,
         averageAnsweredTime: DEFAULT_VALUE,
+        callstotal: DEFAULT_VALUE,
       };
     }
   },
 
-  async callCalculateServiceLevel(_root, { queue }, { models }: IContext) {
-    const now = new Date();
-    const dateFrom = new Date(now.getFullYear(), 5, 12);
-    const dateTo = new Date(now.getFullYear(), 5, 13);
-
-    const todyCdrs = await models.CallCdrs.find({
+  async callCalculateServiceLevel(
+    _root,
+    {
+      queue,
+      startDate,
+      endDate,
+      direction,
+    }: {
+      queue: string;
+      startDate: string;
+      endDate: string;
+      direction?: string;
+    },
+    { models }: IContext,
+  ) {
+    const filter: any = {
       actionType: { $regex: queue },
       start: {
-        $gte: dateFrom,
-        $lt: dateTo,
+        $gte: new Date(startDate),
+        $lt: new Date(endDate),
       },
-    });
+    };
 
-    const serviceLevel = await calculateServiceLevel(todyCdrs);
+    if (direction) {
+      filter.userfield = direction;
+    }
 
-    return serviceLevel;
+    const todyCdrs = await models.CallCdrs.find(filter);
+
+    return calculateServiceLevel(todyCdrs);
   },
   async callCalculateFirstCallResolution(
     _root,
-    { queue },
+    {
+      queue,
+      startDate,
+      endDate,
+      direction,
+    }: {
+      queue: string;
+      startDate: string;
+      endDate: string;
+      direction?: string;
+    },
     { models }: IContext,
   ) {
-    const now = new Date();
-    const dateFrom = new Date(now.getFullYear(), 5, 12);
-    const dateTo = new Date(now.getFullYear(), 5, 13);
-
-    const todyCdrs = await models.CallCdrs.find({
+    const filter: any = {
       actionType: { $regex: queue },
       start: {
-        $gte: dateFrom,
-        $lt: dateTo,
+        $gte: new Date(startDate),
+        $lt: new Date(endDate),
       },
-    });
+    };
 
-    const firstCallResolution = await calculateFirstCallResolution(todyCdrs);
+    if (direction) {
+      filter.userfield = direction;
+    }
 
-    return firstCallResolution;
+    const todyCdrs = await models.CallCdrs.find(filter);
+
+    return calculateFirstCallResolution(todyCdrs);
   },
-  async callCalculateAbandonmentRate(_root, { queue }, { models }: IContext) {
-    const now = new Date();
-    const dateFrom = new Date(now.getFullYear(), 5, 12);
-    const dateTo = new Date(now.getFullYear(), 5, 13);
-
-    const todyCdrs = await models.CallCdrs.find({
+  async callCalculateAbandonmentRate(
+    _root,
+    {
+      queue,
+      startDate,
+      endDate,
+      direction,
+    }: {
+      queue: string;
+      startDate: string;
+      endDate: string;
+      direction?: string;
+    },
+    { models }: IContext,
+  ) {
+    const filter: any = {
       actionType: { $regex: queue },
       start: {
-        $gte: dateFrom,
-        $lt: dateTo,
+        $gte: new Date(startDate),
+        $lt: new Date(endDate),
       },
-    });
+    };
 
-    const abandonedRate = await calculateAbandonmentRate(todyCdrs);
+    if (direction) {
+      filter.userfield = direction;
+    }
 
-    return abandonedRate;
+    const todyCdrs = await models.CallCdrs.find(filter);
+
+    return calculateAbandonmentRate(todyCdrs);
   },
 
   async callCalculateAverageSpeedOfAnswer(
     _root,
-    { queue },
+    {
+      queue,
+      startDate,
+      endDate,
+      direction,
+    }: {
+      queue: string;
+      startDate: string;
+      endDate: string;
+      direction?: string;
+    },
     { models }: IContext,
   ) {
-    const now = new Date();
-    const dateFrom = new Date(now.getFullYear(), 5, 12);
-    const dateTo = new Date(now.getFullYear(), 5, 13);
-
-    const todyCdrs = await models.CallCdrs.find({
+    const filter: any = {
       actionType: { $regex: queue },
       start: {
-        $gte: dateFrom,
-        $lt: dateTo,
+        $gte: new Date(startDate),
+        $lt: new Date(endDate),
       },
-    });
+    };
 
-    const averageSpeed = await calculateAverageSpeedOfAnswer(todyCdrs);
+    if (direction) {
+      filter.userfield = direction;
+    }
 
-    return averageSpeed;
+    const todyCdrs = await models.CallCdrs.find(filter);
+
+    return calculateAverageSpeedOfAnswer(todyCdrs);
   },
 
   async callCalculateAverageHandlingTime(
     _root,
-    { queue },
+    {
+      queue,
+      startDate,
+      endDate,
+      direction,
+    }: {
+      queue: string;
+      startDate: string;
+      endDate: string;
+      direction?: string;
+    },
     { models }: IContext,
   ) {
-    const now = new Date();
-    const dateFrom = new Date(now.getFullYear(), 5, 12);
-    const dateTo = new Date(now.getFullYear(), 5, 13);
-
-    const todyCdrs = await models.CallCdrs.find({
+    const filter: any = {
       actionType: { $regex: queue },
       start: {
-        $gte: dateFrom,
-        $lt: dateTo,
+        $gte: new Date(startDate),
+        $lt: new Date(endDate),
       },
-    });
+    };
 
-    const averageAnsweredTime = await calculateAverageHandlingTime(todyCdrs);
+    if (direction) {
+      filter.userfield = direction;
+    }
 
-    return averageAnsweredTime;
+    const todyCdrs = await models.CallCdrs.find(filter);
+
+    return calculateAverageHandlingTime(todyCdrs);
+  },
+
+  async callCalculateOccupancyRate(
+    _root,
+    {
+      queue,
+      startDate,
+      endDate,
+      direction,
+    }: {
+      queue: string;
+      startDate: string;
+      endDate: string;
+      direction?: string;
+    },
+    { models }: IContext,
+  ) {
+    const filter: any = {
+      actionType: { $regex: queue },
+      start: {
+        $gte: new Date(startDate),
+        $lt: new Date(endDate),
+      },
+    };
+
+    if (direction) {
+      filter.userfield = direction;
+    }
+
+    const todyCdrs = await models.CallCdrs.find(filter);
+
+    return calculateOccupancyRate(todyCdrs);
   },
 
   async callConversationNotes(_root, args: INotesParams, { models }: IContext) {
@@ -521,5 +616,748 @@ const callQueries = {
       throw new Error('Failed to retrieve call history details');
     }
   },
+
+  async callGetAnwseredCalls(_args, { uniqueId }, { models }: IContext) {
+    return await models.CallCdrs.find({
+      uniqueid: uniqueId,
+    });
+  },
+
+  async callGetQueueStats(
+    _args,
+    { startDate, endDate, queueId, direction },
+    { models, user }: IContext,
+  ) {
+    const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
+      user._id,
+    );
+
+    const isContainsQueue = true;
+    const matchStage: any = {
+      start: { $gte: new Date(startDate) },
+      end: { $lte: new Date(endDate) },
+    };
+
+    if (direction) {
+      matchStage.userfield = direction;
+    }
+
+    return await models.CallCdrs.aggregate([
+      {
+        $match: matchStage,
+      },
+
+      {
+        $addFields: {
+          queue: {
+            $cond: [
+              {
+                $regexMatch: {
+                  input: { $ifNull: ['$actionType', ''] },
+                  regex: /QUEUE\[/,
+                },
+              },
+              {
+                $arrayElemAt: [
+                  {
+                    $split: [
+                      {
+                        $arrayElemAt: [
+                          { $split: ['$actionType', 'QUEUE['] },
+                          1,
+                        ],
+                      },
+                      ']',
+                    ],
+                  },
+                  0,
+                ],
+              },
+              null,
+            ],
+          },
+        },
+      },
+
+      {
+        $match: {
+          queue: isContainsQueue ? queueId : { $in: queues },
+        },
+      },
+
+      {
+        $group: {
+          _id: { queue: '$queue', uniqueid: '$uniqueid' },
+          dispositions: { $addToSet: '$disposition' },
+          billsec: { $max: '$billsec' },
+          duration: { $max: '$duration' },
+          waitTime: { $max: '$waittime' },
+          lastapp: { $last: '$lastapp' },
+          dst: { $last: '$dst' },
+        },
+      },
+
+      {
+        $project: {
+          queue: '$_id.queue',
+          isAnswered: {
+            $and: [
+              { $in: ['ANSWERED', '$dispositions'] },
+              { $gt: ['$billsec', 0] },
+              {
+                $or: [
+                  { $eq: ['$lastapp', 'Queue'] },
+                  { $eq: ['$lastapp', 'Playback'] },
+                ],
+              },
+            ],
+          },
+          isAbandoned: {
+            $or: [
+              { $not: [{ $in: ['ANSWERED', '$dispositions'] }] },
+              {
+                $and: [
+                  { $in: ['ANSWERED', '$dispositions'] },
+                  { $eq: ['$billsec', 0] },
+                ],
+              },
+            ],
+          },
+
+          billsec: 1,
+          waitTime: { $ifNull: ['$waitTime', 0] },
+        },
+      },
+
+      {
+        $group: {
+          _id: '$queue',
+          totalCalls: { $sum: 1 },
+          answeredCalls: { $sum: { $cond: ['$isAnswered', 1, 0] } },
+          abandonedCalls: { $sum: { $cond: ['$isAbandoned', 1, 0] } },
+          totalWaitTime: {
+            $sum: {
+              $cond: ['$isAnswered', '$waitTime', 0],
+            },
+          },
+          totalTalkTime: {
+            $sum: {
+              $cond: ['$isAnswered', '$billsec', 0],
+            },
+          },
+        },
+      },
+
+      {
+        $project: {
+          queue: '$_id',
+          totalCalls: 1,
+          answeredCalls: 1,
+          answeredRate: {
+            $cond: [
+              { $gt: ['$totalCalls', 0] },
+              {
+                $round: [
+                  {
+                    $multiply: [
+                      { $divide: ['$answeredCalls', '$totalCalls'] },
+                      100,
+                    ],
+                  },
+                  2,
+                ],
+              },
+              0,
+            ],
+          },
+          abandonedCalls: 1,
+          abandonedRate: {
+            $cond: [
+              { $gt: ['$totalCalls', 0] },
+              {
+                $round: [
+                  {
+                    $multiply: [
+                      { $divide: ['$abandonedCalls', '$totalCalls'] },
+                      100,
+                    ],
+                  },
+                  2,
+                ],
+              },
+              0,
+            ],
+          },
+
+          averageWaitTime: {
+            $cond: [
+              { $gt: ['$answeredCalls', 0] },
+              {
+                $round: [{ $divide: ['$totalWaitTime', '$answeredCalls'] }, 2],
+              },
+              0,
+            ],
+          },
+          averageTalkTime: {
+            $cond: [
+              { $gt: ['$answeredCalls', 0] },
+              {
+                $round: [{ $divide: ['$totalTalkTime', '$answeredCalls'] }, 2],
+              },
+              0,
+            ],
+          },
+        },
+      },
+
+      { $sort: { queue: 1 } },
+    ]);
+  },
+  async callGetAgentStats(
+    _args,
+    { startDate, endDate, queueId, agentId = null, direction },
+    { models, user }: IContext,
+  ) {
+    if (!queueId) {
+      return [];
+    }
+    const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
+      user._id,
+    );
+
+    const isContainsQueue = queueId && queues.includes(queueId);
+    if (!isContainsQueue && queueId) {
+      return [];
+    }
+
+    const matchStage: any = {
+      start: { $gte: new Date(startDate) },
+      end: { $lte: new Date(endDate) },
+      lastapp: 'Queue',
+    };
+
+    if (direction) {
+      matchStage.userfield = direction;
+    }
+
+    const data = await models.CallCdrs.aggregate([
+      {
+        $match: matchStage,
+      },
+
+      {
+        $addFields: {
+          queue: {
+            $cond: [
+              {
+                $regexMatch: {
+                  input: { $ifNull: ['$actionType', ''] },
+                  regex: /QUEUE\[/,
+                },
+              },
+              {
+                $arrayElemAt: [
+                  {
+                    $split: [
+                      {
+                        $arrayElemAt: [
+                          { $split: ['$actionType', 'QUEUE['] },
+                          1,
+                        ],
+                      },
+                      ']',
+                    ],
+                  },
+                  0,
+                ],
+              },
+              null,
+            ],
+          },
+          agent: { $toString: '$dst' },
+        },
+      },
+
+      {
+        $match: {
+          queue: queueId ? queueId : { $ne: null },
+          agent: agentId ? agentId : { $nin: [null, ''] },
+          $expr: {
+            $and: [
+              { $gte: [{ $strLenCP: '$agent' }, 4] },
+              { $lte: [{ $strLenCP: '$agent' }, 4] },
+              { $regexMatch: { input: '$agent', regex: /^[0-9]{4}$/ } },
+            ],
+          },
+        },
+      },
+
+      {
+        $group: {
+          _id: { queue: '$queue', agent: '$agent', uniqueid: '$uniqueid' },
+          dispositions: { $addToSet: '$disposition' },
+          billsec: { $max: '$billsec' },
+          waitTime: { $max: '$waittime' },
+          lastapp: { $last: '$lastapp' },
+        },
+      },
+
+      {
+        $project: {
+          queue: '$_id.queue',
+          agent: '$_id.agent',
+          isAnswered: {
+            $and: [
+              { $in: ['ANSWERED', '$dispositions'] },
+              { $gt: ['$billsec', 0] },
+            ],
+          },
+          isMissed: {
+            $or: [
+              { $not: [{ $in: ['ANSWERED', '$dispositions'] }] },
+              {
+                $and: [
+                  { $in: ['ANSWERED', '$dispositions'] },
+                  { $eq: ['$billsec', 0] },
+                ],
+              },
+            ],
+          },
+          billsec: 1,
+          waitTime: { $ifNull: ['$waitTime', 0] },
+        },
+      },
+
+      {
+        $group: {
+          _id: '$agent',
+          totalCalls: { $sum: 1 },
+          answeredCalls: { $sum: { $cond: ['$isAnswered', 1, 0] } },
+          missedCalls: { $sum: { $cond: ['$isMissed', 1, 0] } },
+          totalTalkTime: {
+            $sum: {
+              $cond: ['$isAnswered', '$billsec', 0],
+            },
+          },
+          totalWaitTime: {
+            $sum: {
+              $cond: ['$isAnswered', '$waitTime', 0],
+            },
+          },
+          shortestCall: {
+            $min: {
+              $cond: [
+                { $and: ['$isAnswered', { $gt: ['$billsec', 0] }] },
+                '$billsec',
+                null,
+              ],
+            },
+          },
+          longestCall: {
+            $max: {
+              $cond: ['$isAnswered', '$billsec', null],
+            },
+          },
+        },
+      },
+
+      {
+        $project: {
+          agent: '$_id',
+          totalCalls: 1,
+          answeredCalls: 1,
+          answeredRate: {
+            $cond: [
+              { $gt: ['$totalCalls', 0] },
+              {
+                $round: [
+                  {
+                    $multiply: [
+                      { $divide: ['$answeredCalls', '$totalCalls'] },
+                      100,
+                    ],
+                  },
+                  2,
+                ],
+              },
+              0,
+            ],
+          },
+          missedCalls: 1,
+          missedRate: {
+            $cond: [
+              { $gt: ['$totalCalls', 0] },
+              {
+                $round: [
+                  {
+                    $multiply: [
+                      { $divide: ['$missedCalls', '$totalCalls'] },
+                      100,
+                    ],
+                  },
+                  2,
+                ],
+              },
+              0,
+            ],
+          },
+          totalTalkTime: 1,
+          averageTalkTime: {
+            $cond: [
+              { $gt: ['$answeredCalls', 0] },
+              {
+                $round: [{ $divide: ['$totalTalkTime', '$answeredCalls'] }, 2],
+              },
+              0,
+            ],
+          },
+          totalWaitTime: 1,
+          averageWaitTime: {
+            $cond: [
+              { $gt: ['$answeredCalls', 0] },
+              {
+                $round: [{ $divide: ['$totalWaitTime', '$answeredCalls'] }, 2],
+              },
+              0,
+            ],
+          },
+          shortestCall: { $ifNull: ['$shortestCall', 0] },
+          longestCall: { $ifNull: ['$longestCall', 0] },
+        },
+      },
+
+      { $sort: { agent: 1 } },
+    ]);
+
+    return data;
+  },
+  async getCallbackStats(
+    _args,
+    { startDate, endDate, queueId },
+    { models }: IContext,
+  ) {
+    const data = await models.CallCdrs.aggregate([
+      {
+        $match: {
+          userfield: 'Inbound',
+          start: { $gte: new Date(startDate) },
+          end: { $lte: new Date(endDate) },
+        },
+      },
+
+      {
+        $addFields: {
+          queue: {
+            $cond: [
+              {
+                $regexMatch: {
+                  input: { $ifNull: ['$actionType', ''] },
+                  regex: /QUEUE\[/,
+                },
+              },
+              {
+                $arrayElemAt: [
+                  {
+                    $split: [
+                      {
+                        $arrayElemAt: [
+                          { $split: ['$actionType', 'QUEUE['] },
+                          1,
+                        ],
+                      },
+                      ']',
+                    ],
+                  },
+                  0,
+                ],
+              },
+              null,
+            ],
+          },
+        },
+      },
+
+      {
+        $match: {
+          queue: queueId ? queueId : { $ne: null },
+        },
+      },
+
+      {
+        $group: {
+          _id: { queue: '$queue', uniqueid: '$uniqueid' },
+          src: { $first: '$src' },
+          dispositions: { $addToSet: '$disposition' },
+          billsec: { $max: '$billsec' },
+          start: { $first: '$start' },
+          end: { $max: '$end' },
+        },
+      },
+
+      {
+        $project: {
+          queue: '$_id.queue',
+          uniqueid: '$_id.uniqueid',
+          src: 1,
+          start: 1,
+          end: 1,
+          isMissed: {
+            $or: [
+              { $not: [{ $in: ['ANSWERED', '$dispositions'] }] },
+              {
+                $and: [
+                  { $in: ['ANSWERED', '$dispositions'] },
+                  { $eq: ['$billsec', 0] },
+                ],
+              },
+            ],
+          },
+        },
+      },
+
+      {
+        $match: { isMissed: true },
+      },
+
+      {
+        $lookup: {
+          from: 'callcdrs',
+          let: {
+            missedSrc: '$src',
+            missedTime: '$end',
+            missedQueue: '$queue',
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$userfield', 'Outbound'] },
+                    { $eq: ['$dst', '$$missedSrc'] },
+                    { $gte: ['$start', '$$missedTime'] },
+                    {
+                      $lte: [
+                        '$start',
+                        { $add: ['$$missedTime', 24 * 60 * 60 * 1000] },
+                      ],
+                    },
+                  ],
+                },
+              },
+            },
+            {
+              $project: {
+                disposition: 1,
+                billsec: 1,
+                start: 1,
+              },
+            },
+          ],
+          as: 'callbacks',
+        },
+      },
+
+      {
+        $addFields: {
+          callbackAttempted: { $gt: [{ $size: '$callbacks' }, 0] },
+          successfulCallback: {
+            $anyElementTrue: {
+              $map: {
+                input: '$callbacks',
+                as: 'cb',
+                in: {
+                  $and: [
+                    { $eq: ['$$cb.disposition', 'ANSWERED'] },
+                    { $gt: ['$$cb.billsec', 0] },
+                  ],
+                },
+              },
+            },
+          },
+          callbackTime: {
+            $cond: [
+              { $gt: [{ $size: '$callbacks' }, 0] },
+              {
+                $divide: [
+                  {
+                    $subtract: [{ $min: '$callbacks.start' }, '$end'],
+                  },
+                  60000,
+                ],
+              },
+              null,
+            ],
+          },
+        },
+      },
+
+      {
+        $group: {
+          _id: '$queue',
+          totalMissedCalls: { $sum: 1 },
+          callbackAttempts: {
+            $sum: { $cond: ['$callbackAttempted', 1, 0] },
+          },
+          successfulCallbacks: {
+            $sum: { $cond: ['$successfulCallback', 1, 0] },
+          },
+          pendingCallbacks: {
+            $sum: {
+              $cond: [{ $not: ['$callbackAttempted'] }, 1, 0],
+            },
+          },
+          totalCallbackTime: {
+            $sum: { $ifNull: ['$callbackTime', 0] },
+          },
+          callbackCount: {
+            $sum: {
+              $cond: [{ $ne: ['$callbackTime', null] }, 1, 0],
+            },
+          },
+        },
+      },
+
+      {
+        $project: {
+          queue: '$_id',
+          totalMissedCalls: 1,
+          callbackAttempts: 1,
+          successfulCallbacks: 1,
+          callbackRate: {
+            $cond: [
+              { $gt: ['$totalMissedCalls', 0] },
+              {
+                $round: [
+                  {
+                    $multiply: [
+                      {
+                        $divide: ['$successfulCallbacks', '$totalMissedCalls'],
+                      },
+                      100,
+                    ],
+                  },
+                  2,
+                ],
+              },
+              0,
+            ],
+          },
+          pendingCallbacks: 1,
+          averageCallbackTime: {
+            $cond: [
+              { $gt: ['$callbackCount', 0] },
+              {
+                $round: [
+                  { $divide: ['$totalCallbackTime', '$callbackCount'] },
+                  2,
+                ],
+              },
+              0,
+            ],
+          },
+        },
+      },
+
+      { $sort: { queue: 1 } },
+    ]);
+
+    return data;
+  },
+  async callGetOperatorStats(_, { startDate, endDate }, { models }: IContext) {
+    return await models.CallCdrs.aggregate([
+      {
+        $match: {
+          start: { $gte: new Date(startDate), $lte: new Date(endDate) },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            agent: {
+              $cond: [{ $eq: ['$userfield', 'Outbound'] }, '$src', '$dst'],
+            },
+          },
+          totalIncoming: {
+            $sum: { $cond: [{ $eq: ['$userfield', 'Inbound'] }, 1, 0] },
+          },
+          incomingAnswered: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$userfield', 'Inbound'] },
+                    { $eq: ['$disposition', 'ANSWERED'] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          incomingMissed: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$userfield', 'Inbound'] },
+                    { $ne: ['$disposition', 'ANSWERED'] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          totalOutgoing: {
+            $sum: { $cond: [{ $eq: ['$userfield', 'Outbound'] }, 1, 0] },
+          },
+          outgoingAnswered: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$userfield', 'Outbound'] },
+                    { $eq: ['$disposition', 'ANSWERED'] },
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          },
+          totalTalkTime: { $sum: '$billsec' },
+        },
+      },
+      {
+        $addFields: {
+          cleanAgentId: {
+            $trim: { input: { $toString: '$_id.agent' } },
+          },
+        },
+      },
+      {
+        $match: {
+          cleanAgentId: { $regex: '^[0-9]{3,4}$' },
+        },
+      },
+      {
+        $project: {
+          agent: '$cleanAgentId',
+          totalIncoming: 1,
+          incomingAnswered: 1,
+          incomingMissed: 1,
+          totalOutgoing: 1,
+          outgoingAnswered: 1,
+          totalTalkTime: 1,
+          _id: 0,
+        },
+      },
+    ]);
+  },
 };
+markResolvers(callQueries, {
+  wrapperConfig: {
+    skipPermission: true,
+  },
+});
 export default callQueries;

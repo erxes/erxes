@@ -1,7 +1,6 @@
-import { useMutation } from '@apollo/client';
 import { DELETE_TICKET_STATUS } from '@/status/graphql/mutation/deleteTicketStatus';
-import { MutationHookOptions } from '@apollo/client';
 import { GET_TICKET_STATUS_BY_TYPE } from '@/status/graphql/query/getTicketStatusByType';
+import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useParams } from 'react-router';
 

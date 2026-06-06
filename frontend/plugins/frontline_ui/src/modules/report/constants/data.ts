@@ -4,9 +4,18 @@ export const SOURCE_OPTIONS = [
   { value: 'facebook-post', label: 'Facebook Post' },
   { value: 'instagram-messenger', label: 'Instagram Messenger' },
   { value: 'instagram-post', label: 'Instagram Post' },
-  { value: 'call', label: 'Call' },
+  { value: 'calls', label: 'Calls' },
   { value: 'messenger', label: 'Messenger' },
   { value: 'form', label: 'Form' },
+];
+
+export const CALL_STATUS_OPTIONS = [
+  { value: 'all', label: 'All Statuses' },
+  { value: 'connected', label: 'Connected' },
+  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'missed', label: 'Missed' },
+  { value: 'transferred', label: 'Transferred' },
+  { value: 'rejected', label: 'Rejected' },
 ];
 
 export const DATE_OPTIONS = [

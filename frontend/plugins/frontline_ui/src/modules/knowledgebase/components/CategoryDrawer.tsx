@@ -9,12 +9,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPicker } from '@/knowledgebase/components/IconPicker';
 
 interface CategoryDrawerProps {
-  category?: ICategory;
-  topicId: string;
-  parentCategoryId?: string;
-  isOpen: boolean;
-  onClose: () => void;
-  refetch: () => void;
+  readonly category?: ICategory;
+  readonly topicId: string;
+  readonly parentCategoryId?: string;
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+  readonly refetch: () => void;
 }
 
 const categorySchema = z.object({
@@ -86,8 +86,9 @@ export function CategoryDrawer({
 
   const onSubmit = (data: CategoryFormData) => {
     // Prevent self-parenting
-    const safeParentCategoryId = parentCategoryId === category?._id ? undefined : parentCategoryId;
-    
+    const safeParentCategoryId =
+      parentCategoryId === category?._id ? undefined : parentCategoryId;
+
     if (isEditing && category) {
       editCategory({
         variables: {
@@ -107,7 +108,7 @@ export function CategoryDrawer({
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <Sheet.View className="sm:max-w-lg p-0 flex flex-col h-full">
-        <Sheet.Header className="border-b gap-3 flex-shrink-0">
+        <Sheet.Header className="border-b gap-3 shrink-0">
           <Sheet.Title>
             {isEditing ? 'Edit Category' : 'New Category'}
           </Sheet.Title>
@@ -119,7 +120,7 @@ export function CategoryDrawer({
             onSubmit={form.handleSubmit(onSubmit, (error) => {
               console.error(error);
             })}
-            className="flex-1 overflow-y-auto p-4 space-y-4 bg-white"
+            className="flex-1 overflow-y-auto p-4 space-y-4 bg-background"
           >
             <Form.Field
               control={form.control}
@@ -183,7 +184,7 @@ export function CategoryDrawer({
                   <Form.Message className="text-destructive" />
                 </Form.Item>
               )}
-            />            
+            />
 
             <Form.Field
               control={form.control}
@@ -198,11 +199,15 @@ export function CategoryDrawer({
           </form>
         </Form>
 
-        <div className="border-t gap-3 p-4 bg-white flex-shrink-0 flex justify-end">
+        <div className="border-t gap-3 p-4 bg-background shrink-0 flex justify-end">
           <Button onClick={onClose} variant="outline">
             Cancel
           </Button>
-          <Button type="submit" disabled={adding || editing} onClick={form.handleSubmit(onSubmit)}>
+          <Button
+            type="submit"
+            disabled={adding || editing}
+            onClick={form.handleSubmit(onSubmit)}
+          >
             {adding || editing
               ? isEditing
                 ? 'Saving...'

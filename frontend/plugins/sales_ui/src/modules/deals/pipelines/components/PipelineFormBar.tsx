@@ -64,6 +64,8 @@ export function PipelineFormBar() {
         canMoveMemberIds: stage.canMoveMemberIds ?? [],
         canEditMemberIds: stage.canEditMemberIds ?? [],
         probability: stage.probability || '',
+        memberIds: stage.memberIds ?? [],
+        departmentIds: stage.departmentIds ?? [],
       }));
 
       methods.setValue('stages', mappedStages, {
@@ -170,9 +172,16 @@ export function PipelineFormBar() {
         initialCategoryIds: pipelineDetail?.initialCategoryIds || [],
         excludeCategoryIds: pipelineDetail?.excludeCategoryIds || [],
         excludeProductIds: pipelineDetail?.excludeProductIds || [],
+        excludeCheckUserIds: pipelineDetail?.excludeCheckUserIds || [],
         erxesAppToken: pipelineDetail?.erxesAppToken || '',
         paymentIds: pipelineDetail?.paymentIds || [],
-        paymentTypes: pipelineDetail?.paymentTypes || [],
+        paymentTypes: (pipelineDetail?.paymentTypes || []).map((pt: any) => ({
+          ...pt,
+          config:
+            pt.config && typeof pt.config === 'object'
+              ? JSON.stringify(pt.config)
+              : pt.config || '',
+        })),
       });
     } else {
       reset({
@@ -193,6 +202,7 @@ export function PipelineFormBar() {
         initialCategoryIds: [],
         excludeCategoryIds: [],
         excludeProductIds: [],
+        excludeCheckUserIds: [],
         erxesAppToken: '',
         paymentIds: [],
         paymentTypes: [],

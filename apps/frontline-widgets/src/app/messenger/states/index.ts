@@ -8,12 +8,33 @@ import {
   IWidgetUiOptions,
 } from '../types/connection';
 import { IHeaderItem, IMessage } from '../types';
+import type { INotificationItem } from '../hooks/useWidgetNotifications';
 import { HEADER_ITEMS } from '../constants';
 import { ITicketCheckProgress } from '../ticket/types';
+import { atomWithStorage } from 'jotai/utils';
+import { set } from 'date-fns';
+
+// FAQ navigation state
+export type FaqView = 'topic' | 'category' | 'article';
+// Stack of category IDs navigated into (supports nested categories)
+export const faqCategoryStackAtom = atom<string[]>([]);
+// Currently open article ID (null = not viewing article)
+export const faqArticleIdAtom = atom<string | null>(null);
+// Derived current view
+export const faqCurrentViewAtom = atom<FaqView>((get) => {
+  if (get(faqArticleIdAtom)) return 'article';
+  if (get(faqCategoryStackAtom).length > 0) return 'category';
+  return 'topic';
+});
+
+export const webAppCredentialsUrlAtom = atom<string | null>(null);
 
 export const customerIdAtom = atom<string | null>(null);
 
-export const customerDataAtom = atom<ICustomerData | null>(null);
+export const customerDataAtom = atomWithStorage<ICustomerData | null>(
+  'customerData',
+  null,
+);
 
 export const messengerTabAtom = atom<string>('default');
 export const setActiveTabAtom = atom(null, (get, set, tab: string) => {
@@ -30,15 +51,18 @@ export const connectionAtom = atom<IConnectionInfo>({
 
 export const uiOptionsAtom = atom<IWidgetUiOptions>({
   primary: {
-    DEFAULT: '#000',
-    foreground: '#fff',
+    DEFAULT: '#000000',
+    foreground: '#ffffff',
   },
   logo: '',
+  navigationVariant: 'pill',
 });
 
 export const ticketConfigAtom = atom<ITicketConfig | null>(null);
 
 export const hasTicketConfigAtom = atom<boolean>(false);
+
+export const hasKnowledgeBaseTopicAtom = atom<boolean>(false);
 
 export const headerItemsAtom = atom<IHeaderItem[]>(HEADER_ITEMS);
 
@@ -73,3 +97,7 @@ export const toastUserAtom = atom<boolean>(false);
 export const ticketProgressAtom = atom<ITicketCheckProgress | null>(null);
 
 export const userTicketCreatedNumberAtom = atom<string | null>(null);
+
+export const unreadNotificationCountAtom = atom<number>(0);
+
+export const notificationsAtom = atom<INotificationItem[]>([]);

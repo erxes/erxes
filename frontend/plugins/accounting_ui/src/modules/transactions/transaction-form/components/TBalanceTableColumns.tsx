@@ -12,7 +12,7 @@ import {
   fixNum,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ProductsInline } from 'ui-modules';
 import { AccountsInline } from '~/modules/settings/account/components/AccountsInline';
 import { activeJournalState } from '../states/trStates';
@@ -70,9 +70,9 @@ const AmountCell = ({ value }: { value: number }) => {
       />
     </RecordTableInlineCell>
   );
-}
+};
 
-const AmountProdCell = ({ row, value }: { row: any, value: number }) => {
+const AmountProdCell = ({ row, value }: { row: any; value: number }) => {
   const { detail } = row.original;
   if (!detail.productId) {
     return undefined;
@@ -88,20 +88,20 @@ const AmountProdCell = ({ row, value }: { row: any, value: number }) => {
       />
     </RecordTableInlineCell>
   );
-}
+};
 
 const DebitCell = ({ row }: any) => {
-  const { detail } = row.original;
-  const { amount, side } = detail;
+  const { detail, side } = row.original;
+  const { amount } = detail;
 
-  return (<AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />)
+  return <AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />;
 };
 
 const CreditCell = ({ row }: any) => {
-  const { detail } = row.original;
-  const { amount, side } = detail;
+  const { detail, side } = row.original;
+  const { amount } = detail;
 
-  return (<AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />)
+  return <AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />;
 };
 
 const BranchCell = ({ row }: any) => {
@@ -134,9 +134,18 @@ const DateCell = ({ getValue }: any) => {
 
 const AccountCell = ({ row }: any) => {
   const { detail } = row.original;
+  const accountIds = useMemo(
+    () => (detail.accountId ? [detail.accountId] : []),
+    [detail.accountId],
+  );
+  const accounts = useMemo(
+    () => (detail.account ? [detail.account] : undefined),
+    [detail.account],
+  );
+
   return (
     <RecordTableInlineCell>
-      <AccountsInline accountIds={[detail.accountId]} accounts={detail.account && [detail.account]} />
+      <AccountsInline accountIds={accountIds} accounts={accounts} />
     </RecordTableInlineCell>
   );
 };
@@ -149,7 +158,10 @@ const ProductCell = ({ row }: any) => {
 
   return (
     <RecordTableInlineCell>
-      <ProductsInline productIds={[detail.productId]} products={detail.product && [detail.product]} />
+      <ProductsInline
+        productIds={[detail.productId]}
+        products={detail.product && [detail.product]}
+      />
     </RecordTableInlineCell>
   );
 };
@@ -182,65 +194,69 @@ export const tbalanceColumns: ColumnDef<ITBalanceTransaction>[] = [
   transactionMoreColumn,
   {
     id: 'account',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Account" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Данс" />,
     accessorKey: 'account',
     cell: ({ row }) => <AccountCell row={row} />,
   },
   {
     id: 'number',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Number" />,
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Дугаар" />,
     accessorKey: 'number',
     cell: ({ getValue, row }) => <NumberCell getValue={getValue} row={row} />,
   },
   {
     id: 'date',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Date" />,
+    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Огноо" />,
     accessorKey: 'date',
     cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
   },
   {
     id: 'debit',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Debit" />,
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Дебет" />,
     accessorKey: 'debit',
     cell: ({ getValue, row }) => <DebitCell getValue={getValue} row={row} />,
   },
   {
     id: 'credit',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Credit" />,
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Кредит" />,
     accessorKey: 'credit',
     cell: ({ getValue, row }) => <CreditCell getValue={getValue} row={row} />,
   },
   {
     id: 'product-inv',
-    header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label="Product" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Бараа" />,
     accessorKey: 'product-inv',
     cell: ({ row }) => <ProductCell row={row} />,
   },
   {
     id: 'unitPrice-inv',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Unit Price" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Нэгж үнэ" />
+    ),
     accessorKey: 'unitPrice-inv',
-    cell: ({ row }) => <AmountProdCell row={row} value={row.original?.detail?.unitPrice ?? 0} />,
+    cell: ({ row }) => (
+      <AmountProdCell row={row} value={row.original?.detail?.unitPrice ?? 0} />
+    ),
   },
   {
     id: 'count-inv',
-    header: () => <RecordTable.InlineHead icon={IconMoneybag} label="Quantity" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconMoneybag} label="Тоо хэмжээ" />
+    ),
     accessorKey: 'count-inv',
-    cell: ({ row }) => <AmountProdCell row={row} value={row.original?.detail?.count ?? 0} />,
+    cell: ({ row }) => (
+      <AmountProdCell row={row} value={row.original?.detail?.count ?? 0} />
+    ),
   },
   {
     id: 'branch',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Branch" />,
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Салбар" />,
     accessorKey: 'branch',
     cell: ({ getValue, row }) => <BranchCell getValue={getValue} row={row} />,
   },
   {
     id: 'department',
-    header: () => <RecordTable.InlineHead icon={IconFile} label="Department" />,
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Хэлтэс" />,
     accessorKey: 'department',
     cell: ({ getValue, row }) => (
       <DepartmentCell getValue={getValue} row={row} />
@@ -248,9 +264,7 @@ export const tbalanceColumns: ColumnDef<ITBalanceTransaction>[] = [
   },
   {
     id: 'description',
-    header: () => (
-      <RecordTable.InlineHead icon={IconFile} label="Description" />
-    ),
+    header: () => <RecordTable.InlineHead icon={IconFile} label="Тайлбар" />,
     accessorKey: 'description',
     cell: ({ getValue, row }) => (
       <DescriptionCell getValue={getValue} row={row} />

@@ -1,7 +1,10 @@
-import { useEffect } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { ProductDetail } from '../types/detailTypes';
-import { ProductFormValues } from '@/products/constants/ProductFormSchema';
+import {
+  EMPTY_PRODUCT_FORM_VALUES,
+  ProductFormValues,
+} from '@/products/constants/ProductFormSchema';
 
 const normalizeBarcodes = (barcodes: any): string[] => {
   if (Array.isArray(barcodes)) return barcodes;
@@ -66,7 +69,8 @@ export function getProductFormDefaultValues(
     unitPrice: productDetail.unitPrice ?? 0,
     attachment: toSingleAttachment(productDetail.attachment),
     attachmentMore: toAttachmentMore(productDetail.attachmentMore),
-    customFieldsData: productDetail.customFieldsData || {},
+    customFieldsData:
+      productDetail.customFieldsData || productDetail.propertiesData || {},
     currency: productDetail.currency || '',
     variants: toVariantsRecord(productDetail.variants),
     subUoms: productDetail.subUoms || [],
@@ -76,9 +80,22 @@ export function getProductFormDefaultValues(
 export const useProductFormData = (
   productDetail: ProductDetail | null,
   form: UseFormReturn<ProductFormValues>,
+  productId?: string,
 ) => {
-  useEffect(() => {
+  const [formVersion, setFormVersion] = useState(0);
+
+  useLayoutEffect(() => {
+    form.reset(EMPTY_PRODUCT_FORM_VALUES);
+    setFormVersion((version) => version + 1);
+  }, [form, productId]);
+
+  useLayoutEffect(() => {
     const defaults = getProductFormDefaultValues(productDetail);
-    if (defaults) form.reset(defaults);
-  }, [productDetail, form]);
+    if (defaults && (!productId || productDetail?._id === productId)) {
+      form.reset(defaults);
+      setFormVersion((version) => version + 1);
+    }
+  }, [productDetail, form, productId]);
+
+  return formVersion;
 };

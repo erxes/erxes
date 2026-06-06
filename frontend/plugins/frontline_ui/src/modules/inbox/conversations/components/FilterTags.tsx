@@ -1,5 +1,4 @@
-import { Button } from 'erxes-ui';
-import { useMultiQueryState, useQueryState } from 'erxes-ui';
+import { useMultiQueryState, useQueryState, Button } from 'erxes-ui';
 import { ChannelTag } from '@/inbox/channel/components/ChannelTag';
 import { IconX } from '@tabler/icons-react';
 import { BOOLEAN_FILTERS } from '../../constants/booleanFilters';

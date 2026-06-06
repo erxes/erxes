@@ -6,7 +6,7 @@ import {
 } from '@/status/components/StatusInline';
 import { ITicket } from '@/ticket/types';
 import { Badge } from 'erxes-ui';
-import { useGetTicketStatusesByPipeline } from '@/status/hooks/useGetTicketStatus';
+import { useGetAccessibleTicketStatuses } from '@/status/hooks/useGetTicketStatus';
 import { ITicketStatusChoice } from '@/status/types';
 
 const isTicket = (content: ITicket): content is ITicket => {
@@ -21,7 +21,7 @@ export const ActivityStatus = ({
   const { previousValue, newValue } = metadata;
   const contentDetail = useActivityListContext();
 
-  const { statuses } = useGetTicketStatusesByPipeline({
+  const { statuses } = useGetAccessibleTicketStatuses({
     variables: {
       pipelineId: isTicket(contentDetail) ? contentDetail.pipelineId : '',
     },

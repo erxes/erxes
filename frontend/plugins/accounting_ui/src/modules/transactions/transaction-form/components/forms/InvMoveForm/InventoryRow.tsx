@@ -15,13 +15,58 @@ import {
 } from 'erxes-ui';
 import { useWatch } from 'react-hook-form';
 import { SelectProduct } from 'ui-modules';
-import { ITransactionGroupForm, TInvMoveJournal } from '../../../types/JournalForms';
+import {
+  ITransactionGroupForm,
+  TInvMoveJournal,
+} from '../../../types/JournalForms';
 import { useEffect, useRef } from 'react';
-import { fixSumDtCt, getTempId } from '../../utils';
-import { ITransaction, ITrDetail } from '~/modules/transactions/types/Transaction';
-import { TR_SIDES, TrJournalEnum } from '~/modules/transactions/types/constants';
-import { useAtom } from 'jotai';
+import {
+  DUPLICATE_PRODUCT_CELL_CLASS,
+  fixSumDtCt,
+  getTempId,
+  hasDuplicateProductId,
+} from '../../utils';
+import {
+  ITransaction,
+  ITrDetail,
+} from '~/modules/transactions/types/Transaction';
+import {
+  TR_SIDES,
+  TrJournalEnum,
+} from '~/modules/transactions/types/constants';
+import { useSetAtom } from 'jotai';
 import { followTrDocsState } from '../../../states/trStates';
+
+const getFollowDetail = (details: ITrDetail[] = [], originId?: string) =>
+  details.find((detail) => detail.originId === originId);
+
+const buildInvMoveInDetails = ({
+  currIn,
+  detail,
+  trDoc,
+}: {
+  currIn?: ITransaction;
+  detail: ITrDetail;
+  trDoc: TInvMoveJournal;
+}) =>
+  (trDoc.details || []).map((moveDetail) => {
+    const curInDetail = getFollowDetail(currIn?.details, moveDetail._id);
+
+    if (curInDetail && moveDetail._id !== detail._id) {
+      return curInDetail;
+    }
+
+    return {
+      ...moveDetail,
+      ...curInDetail,
+      productId: moveDetail.productId,
+      account: trDoc.followExtras?.moveInAccount,
+      accountId: trDoc.followInfos?.moveInAccountId,
+      count: moveDetail.count,
+      unitPrice: moveDetail.unitPrice,
+      amount: moveDetail.amount,
+    } as ITrDetail;
+  });
 
 export const InventoryRow = ({
   detailIndex,
@@ -41,6 +86,10 @@ export const InventoryRow = ({
     control: form.control,
     name: `trDocs.${journalIndex}.details.${detailIndex}`,
   });
+  const hasDuplicateProduct = hasDuplicateProductId(
+    trDoc.details,
+    detail.productId,
+  );
 
   const { unitPrice, count, _id } = detail;
 
@@ -62,76 +111,61 @@ export const InventoryRow = ({
     },
     skip:
       !detail.productId ||
-      !trDoc.branchId ||
-      !trDoc.departmentId ||
       !detail.accountId ||
       (initProductId.current &&
         detail.productId === initProductId.current &&
-        initBranchId.current &&
         trDoc.branchId === initBranchId.current &&
-        initDepartmentId.current &&
         trDoc.departmentId === initDepartmentId.current &&
         initAccountId.current &&
         detail.accountId === initAccountId.current),
   });
 
-  const [followTrDocs, setFollowTrDocs] = useAtom(followTrDocsState);
+  const setFollowTrDocs = useSetAtom(followTrDocsState);
 
   useEffect(() => {
-    const currIn = followTrDocs.find(
-      (ftr) =>
-        ftr.originId === trDoc._id &&
-        ftr.originType === 'invMoveIn'
-    );
+    setFollowTrDocs((prev) => {
+      const currIn = (prev || []).find(
+        (ftr) => ftr.originId === trDoc._id && ftr.originType === 'invMoveIn',
+      );
 
-    const commonFollowTr = {
-      originId: trDoc._id,
-      ptrId: trDoc.ptrId,
-      parentId: trDoc.parentId,
-    }
+      const invMoveInTr = fixSumDtCt({
+        ...currIn,
+        originId: trDoc._id,
+        ptrId: trDoc.ptrId,
+        parentId: trDoc.parentId,
+        _id: currIn?._id || getTempId(),
+        journal: TrJournalEnum.INV_MOVE_IN,
+        side: TR_SIDES.DEBIT,
+        originType: 'invMoveIn',
+        branchId: trDoc.followInfos.moveInBranchId,
+        departmentId: trDoc.followInfos.moveInDepartmentId,
+        details: buildInvMoveInDetails({
+          currIn,
+          detail: detail as ITrDetail,
+          trDoc,
+        }),
+      });
 
-    const invMoveInTr: ITransaction = fixSumDtCt({
-      ...currIn,
-      ...commonFollowTr,
-      _id: currIn?._id || getTempId(),
-      journal: TrJournalEnum.INV_MOVE_IN,
-      originType: 'invMoveIn',
-      branchId: trDoc.followInfos.moveInBranchId,
-      departmentId: trDoc.followInfos.moveInDepartmentId,
-      details: (trDoc.details || []).map((moveDetail) => {
-        const curInDetail = currIn?.details.find(inDetail => inDetail.originId === moveDetail._id);
-
-        if (!curInDetail || moveDetail._id === detail._id) {
-          return {
-            ...moveDetail,
-            ...curInDetail,
-            productId: moveDetail.productId,
-            account: trDoc.followExtras?.moveInAccount,
-            accountId: trDoc.followInfos?.moveInAccountId,
-
-            side: TR_SIDES.DEBIT,
-            count: moveDetail.count,
-            unitPrice: moveDetail.unitPrice,
-            amount: moveDetail.amount,
-          } as ITrDetail
-        }
-        return curInDetail;
-      }),
+      return [
+        ...(prev || []).filter(
+          (ftr) =>
+            !(ftr.originId === trDoc._id && ftr.originType === 'invMoveIn'),
+        ),
+        invMoveInTr,
+      ];
     });
-
-    setFollowTrDocs([
-      ...(followTrDocs || []).filter(
-        (ftr) =>
-          !(
-            ftr.originId === trDoc._id &&
-            ['invMoveIn'].includes(ftr.originType || '')
-          )
-      ),
-      invMoveInTr,
-    ]);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail]);
+  }, [
+    detail,
+    trDoc._id,
+    trDoc.ptrId,
+    trDoc.parentId,
+    trDoc.details,
+    trDoc.followExtras?.moveInAccount,
+    trDoc.followInfos.moveInAccountId,
+    trDoc.followInfos.moveInBranchId,
+    trDoc.followInfos.moveInDepartmentId,
+    setFollowTrDocs,
+  ]);
 
   // 🚨 Unit price-г зөвхөн дараа нь өөрчлөгдсөн тохиолдолд шинэчилнэ
   useEffect(() => {
@@ -191,7 +225,11 @@ export const InventoryRow = ({
         detailIndex === 0 && '[&>td]:border-t',
       )}
     >
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell
           className={cn({
             'border-t': detailIndex === 0,
@@ -219,7 +257,11 @@ export const InventoryRow = ({
         </Table.Cell>
       </RecordTableHotKeyControl>
 
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -231,7 +273,10 @@ export const InventoryRow = ({
                   // setMount(false)
                   field.onChange(accountId);
                 }}
-                defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
+                defaultFilter={{
+                  journals: [JournalEnum.INVENTORY],
+                  permissionMode: 'write',
+                }}
                 variant="ghost"
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />
@@ -239,8 +284,14 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
-        <Table.Cell>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
+        <Table.Cell
+          className={cn(hasDuplicateProduct && DUPLICATE_PRODUCT_CELL_CLASS)}
+        >
           <Form.Field
             control={form.control}
             name={`trDocs.${journalIndex}.details.${detailIndex}.productId`}
@@ -267,7 +318,11 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -296,7 +351,11 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -324,7 +383,11 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}

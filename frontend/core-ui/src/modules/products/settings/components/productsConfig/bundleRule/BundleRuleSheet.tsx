@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BundleRuleForm } from './BundleRuleForm';
 import { ProductHotKeyScope } from '@/products/types/ProductsHotKeyScope';
+import { Can, usePermissionCheck } from 'ui-modules';
 
 export const BundleRuleSheet = () => {
   const [open, setOpen] = useState<boolean>(false);
@@ -28,8 +29,18 @@ export const BundleRuleSheet = () => {
     setOpen(false);
     goBackToPreviousHotkeyScope();
   };
+  const { hasActionPermission } = usePermissionCheck();
+  const canManageBundleRules = hasActionPermission('bundleRulesManage');
 
-  useScopedHotkeys(`c`, () => onOpen(), ProductHotKeyScope.ProductsPage);
+  useScopedHotkeys(
+    `c`,
+    () => {
+      if (!canManageBundleRules) return;
+      onOpen();
+    },
+    ProductHotKeyScope.ProductsPage,
+    [canManageBundleRules],
+  );
 
   return (
     <Sheet
@@ -37,13 +48,15 @@ export const BundleRuleSheet = () => {
       open={open}
       modal
     >
-      <Sheet.Trigger asChild>
-        <Button className="whitespace-nowrap shrink-0">
-          <IconPlus />
-          {t('add-bundle-rule')}
-          <Kbd>C</Kbd>
-        </Button>
-      </Sheet.Trigger>
+      <Can action="bundleRulesManage">
+        <Sheet.Trigger asChild>
+          <Button className="whitespace-nowrap shrink-0">
+            <IconPlus />
+            {t('add-bundle-rule')}
+            <Kbd>C</Kbd>
+          </Button>
+        </Sheet.Trigger>
+      </Can>
       <Sheet.View
         className="p-0 sm:max-w-lg"
         onEscapeKeyDown={(e) => {

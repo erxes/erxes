@@ -40,9 +40,6 @@ export interface IItem {
       timeSpent: number;
       startDate?: string;
     };
-    customFieldsData?: {
-      [key: string]: any;
-    };
     score?: number;
     number?: string;
     relations: any[];

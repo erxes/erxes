@@ -1,4 +1,3 @@
-import { checkPermission } from 'erxes-api-shared/core-modules';
 import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 import { cursorPaginate } from 'erxes-api-shared/utils';
@@ -8,7 +7,10 @@ import {
   CPNotificationFilterParams,
 } from '@/clientportal/services/helpers/queryBuilders';
 
-export const cpNotificationQueries: Record<string, Resolver> = {
+export const cpNotificationQueries: Record<
+  string,
+  Resolver<any, any, IContext>
+> = {
   async getClientPortalNotificationsByCpUserId(
     _root: unknown,
     params: {
@@ -117,9 +119,3 @@ cpNotificationQueries.clientPortalNotificationDetail.wrapperConfig = {
 cpNotificationQueries.clientPortalUnreadNotificationCount.wrapperConfig = {
   forClientPortal: true,
 };
-
-checkPermission(
-  cpNotificationQueries,
-  'getClientPortalNotificationsByCpUserId',
-  'showClientPortalUsers',
-);

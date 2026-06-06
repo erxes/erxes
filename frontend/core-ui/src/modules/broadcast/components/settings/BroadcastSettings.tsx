@@ -3,12 +3,17 @@ import { useConfig } from '@/settings/file-upload/hook/useConfigs';
 import { Form, Input } from 'erxes-ui';
 import { useEffect } from 'react';
 import { ControllerRenderProps, FieldValues, useForm } from 'react-hook-form';
+import { useVersion } from 'ui-modules';
 import { BroadcastSettingsVerifiedEmail } from './BroadcastSettingsVerifiedEmail';
+import { useBroadcastConfig } from '@/broadcast/hooks/useBroadcastConfig';
 
 export const BroadcastSettings = () => {
   const form = useForm();
+  const isSaas = useVersion('saas');
 
-  const { configs, updateConfig } = useConfig();
+  const { configs } = useConfig();
+
+  const { updateConfig } = useBroadcastConfig();
 
   useEffect(() => {
     if (!configs) return;
@@ -39,26 +44,30 @@ export const BroadcastSettings = () => {
   return (
     <Form {...form}>
       <form className="w-full h-full grid grid-cols-2 gap-4">
-        {BROADCAST_SETTINGS_CONFIG_FIELDS.map(({ name, label, type }) => (
-          <Form.Field
-            key={name}
-            name={name}
-            control={form.control}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{label}</Form.Label>
-                <Form.Control>
-                  <Input
-                    {...field}
-                    placeholder={label}
-                    type={type}
-                    onBlur={(e) => handleFieldChange(field)}
-                  />
-                </Form.Control>
-              </Form.Item>
-            )}
-          />
-        ))}
+        {BROADCAST_SETTINGS_CONFIG_FIELDS.map(({ name, label, type, osOnly }) => {
+          if (osOnly && isSaas) return <></>;
+
+          return (
+            <Form.Field
+              key={name}
+              name={name}
+              control={form.control}
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{label}</Form.Label>
+                  <Form.Control>
+                    <Input
+                      {...field}
+                      placeholder={label}
+                      type={type}
+                      onBlur={(e) => handleFieldChange(field)}
+                    />
+                  </Form.Control>
+                </Form.Item>
+              )}
+            />
+          );
+        })}
 
         <Form.Field
           key="verifiedEmail"

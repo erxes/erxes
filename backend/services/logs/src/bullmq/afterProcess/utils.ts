@@ -2,15 +2,11 @@ import { TAfterProcessProducers } from 'erxes-api-shared/core-modules';
 import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
 import {
   AfterProcessContext,
-  HandlerContext,
   UpdatedDocumentRule,
   CreateDocumentRule,
 } from './types';
 
-export function getAllKeys(
-  obj: Record<string, any>,
-  prefix = '',
-): string[] {
+export function getAllKeys(obj: Record<string, any>, prefix = ''): string[] {
   let keys: string[] = [];
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
@@ -28,18 +24,26 @@ export function getAllKeys(
   return keys;
 }
 
-export function sendProducer(
+export async function sendProducer(
   context: AfterProcessContext,
   producerName: TAfterProcessProducers,
   input: any,
-): void {
-  sendCoreModuleProducer({
-    subdomain: context.subdomain,
-    pluginName: context.pluginName,
-    moduleName: 'afterProcess',
-    producerName,
-    input,
-  });
+): Promise<void> {
+  try {
+    await sendCoreModuleProducer({
+      subdomain: context.subdomain,
+      pluginName: context.pluginName,
+      moduleName: 'afterProcess',
+      producerName,
+      input,
+    });
+  } catch (error) {
+    console.error(
+      `Error sending afterProcess producer ${String(producerName)} to plugin ${
+        context.pluginName
+      }: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    );
+  }
 }
 
 export function shouldProcessUpdatedDocument(
@@ -57,16 +61,20 @@ export function shouldProcessUpdatedDocument(
     return true;
   }
 
-  const { updated: updatedFields = {}, added: addedFields = {}, removed: removedFields = {} } =
-    payload.updateDescription || {};
+  const {
+    updated: updatedFields = {},
+    added: addedFields = {},
+    removed: removedFields = {},
+  } = payload.updateDescription || {};
 
   const hasRemovedFields = getAllKeys(removedFields).some((key) =>
     (when.fieldsRemoved || []).includes(key),
   );
 
-  const hasUpdatedFields = getAllKeys({ ...addedFields, ...updatedFields }).some((key) =>
-    (when.fieldsUpdated || []).includes(key),
-  );
+  const hasUpdatedFields = getAllKeys({
+    ...addedFields,
+    ...updatedFields,
+  }).some((key) => (when.fieldsUpdated || []).includes(key));
 
   return hasRemovedFields || hasUpdatedFields;
 }
@@ -97,4 +105,3 @@ export function shouldProcessCreateDocument(
 
   return hasFieldsExists;
 }
-

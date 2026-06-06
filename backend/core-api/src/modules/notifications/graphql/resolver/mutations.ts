@@ -12,7 +12,8 @@ export const notificationMutations = {
 
     if (!notification) throw new Error('Not found notification');
 
-    if (notification.userId !== user._id) throw new Error('Not found notification');
+    if (notification.userId !== user._id)
+      throw new Error('Not found notification');
 
     await models.Notifications.updateOne(
       { _id, userId: user._id },
@@ -25,6 +26,7 @@ export const notificationMutations = {
 
     return 'removed successfully';
   },
+
   async archiveNotifications(
     _root: undefined,
     {
@@ -99,6 +101,48 @@ export const notificationMutations = {
     graphqlPubsub.publish(`notificationRead:${user._id}`, {
       notificationRead: { userId: user._id, notificationIds },
     });
+
+    return { success: true };
+  },
+
+  async updateNotificationSettingsEvent(
+    _root: undefined,
+    {
+      input,
+    }: { input: { event: string; enabled: boolean; channels: string[] } },
+    { models, user }: IContext,
+  ) {
+    const { event, enabled, channels } = input;
+
+    await models.NotificationSettings.updateOne(
+      { userId: user._id },
+      { $set: { [`events.${event}`]: { enabled, channels } } },
+      { upsert: true },
+    );
+
+    return { success: true };
+  },
+
+  async updateNotificationSettingsChannel(
+    _root: undefined,
+    {
+      input,
+    }: {
+      input: {
+        channel: string;
+        enabled: boolean;
+        metadata?: Record<string, unknown>;
+      };
+    },
+    { models, user }: IContext,
+  ) {
+    const { channel, enabled, metadata } = input;
+
+    await models.NotificationSettings.updateOne(
+      { userId: user._id },
+      { $set: { [`channels.${channel}`]: { enabled, metadata } } },
+      { upsert: true },
+    );
 
     return { success: true };
   },

@@ -11,6 +11,7 @@ import { AutomationRecordTableFilterViews } from './AutomationRecordTableFilterV
 import { AutomationRecordTableFilterMenu } from './AutomationRecordTableFilterMenu';
 import { AutomationRecordTableFilterDialogs } from './AutomationRecordTableFilterDialogs';
 import { AutomationRecordTableFilterBar } from './AutomationRecordTableFilterBar';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   totalCount: number;
@@ -21,6 +22,8 @@ export const AutomationRecordTableFilters = ({
   totalCount,
   loading,
 }: Props) => {
+  const { t } = useTranslation('automations');
+
   const [queries] = useMultiQueryState<{
     searchValue?: string;
     status?: string;
@@ -61,7 +64,7 @@ export const AutomationRecordTableFilters = ({
       </Filter>
       <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">
         {totalCount
-          ? `${totalCount} records found`
+          ? `${totalCount} ${t('records-found-label')}`
           : loading && <Skeleton className="w-20 h-4 inline-block mt-1.5" />}
       </div>
     </PageSubHeader>

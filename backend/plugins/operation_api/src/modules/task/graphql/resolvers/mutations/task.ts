@@ -1,5 +1,4 @@
 import { ITaskUpdate } from '@/task/@types/task';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
@@ -7,8 +6,10 @@ export const taskMutations = {
   createTask: async (
     _parent: undefined,
     params: ITaskUpdate,
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('taskCreate');
+
     const task = await models.Task.createTask({
       doc: params,
       userId: user._id,
@@ -35,8 +36,10 @@ export const taskMutations = {
   updateTask: async (
     _parent: undefined,
     params: ITaskUpdate,
-    { models, user, subdomain }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('taskUpdate');
+
     const updatedTask = await models.Task.updateTask({
       doc: params,
       userId: user._id,
@@ -59,7 +62,13 @@ export const taskMutations = {
     return updatedTask;
   },
 
-  removeTask: async (_parent: undefined, { _id }, { models }: IContext) => {
+  removeTask: async (
+    _parent: undefined,
+    { _id },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('taskRemove');
+
     const deletedTask = await models.Task.removeTask(_id);
 
     graphqlPubsub.publish(`operationTaskChanged:${_id}`, {
@@ -77,9 +86,5 @@ export const taskMutations = {
     });
 
     return deletedTask;
-  }
+  },
 };
-
-requireLogin(taskMutations, 'createTask');
-requireLogin(taskMutations, 'updateTask');
-requireLogin(taskMutations, 'removeTask');

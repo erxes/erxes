@@ -1,4 +1,3 @@
-// import { IntegrationsSection } from '@/channels/components/channel-details/IntegrationsSection';
 import { MemberSection } from '@/channels/components/settings/channel-details/MemberSection';
 import { UpdateChannelForm } from '@/channels/components/settings/channel-details/UpdateChannelForm';
 import { useGetChannel } from '@/channels/hooks/useGetChannel';
@@ -6,6 +5,7 @@ import { IntegrationList } from '@/integrations/components/IntegrationList';
 import { useParams } from 'react-router-dom';
 import { PipelinesSection } from '@/channels/components/settings/channel-details/PipelinesSection';
 import { ResponseSection } from '@/channels/components/settings/channel-details/ResponseSection';
+import { FormsSection } from './FormsSection';
 
 export const ChannelDetails = () => {
   const { id } = useParams();
@@ -28,6 +28,7 @@ export const ChannelDetails = () => {
 
       <MemberSection channel={channel} />
       <PipelinesSection channel={channel} />
+      <FormsSection channel={channel} />
       <ResponseSection channel={channel} />
 
       <IntegrationList />

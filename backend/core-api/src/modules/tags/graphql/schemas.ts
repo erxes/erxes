@@ -75,4 +75,6 @@ export const mutations = `
   tagsTag(type: String!, targetIds: [String!]!, tagIds: [String!]!): JSON
   cpTagsTag(type: String!, targetIds: [String!]!, tagIds: [String!]!): JSON
   tagsRemove(_id: String!): JSON
+
+  cpTagsAdd(name: String!, ${mutationParams}): Tag
 `;

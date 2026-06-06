@@ -144,6 +144,7 @@ export const BROADCAST_SETTINGS_CONFIG_FIELDS = [
     type: 'text',
     label: 'AWS SES Access Key id',
     description: '',
+    osOnly: true,
   },
   {
     name: 'BROADCAST_AWS_SES_SECRET_ACCESS_KEY',
@@ -151,6 +152,7 @@ export const BROADCAST_SETTINGS_CONFIG_FIELDS = [
     type: 'text',
     label: 'AWS SES Secret Access Key',
     description: '',
+    osOnly: true,
   },
   {
     name: 'BROADCAST_AWS_REGION',
@@ -158,6 +160,7 @@ export const BROADCAST_SETTINGS_CONFIG_FIELDS = [
     type: 'text',
     label: 'AWS Region',
     description: '',
+    osOnly: true,
   },
   {
     name: 'BROADCAST_AWS_SES_CONFIG_SET',
@@ -165,6 +168,7 @@ export const BROADCAST_SETTINGS_CONFIG_FIELDS = [
     type: 'text',
     label: 'AWS SES Config Set',
     description: '',
+    osOnly: true,
   },
   {
     name: 'BROADCAST_UNVERIFIED_EMAILS_LIMIT',

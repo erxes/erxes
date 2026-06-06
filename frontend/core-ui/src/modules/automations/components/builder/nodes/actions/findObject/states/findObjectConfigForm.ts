@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
 export const findObjectConfigFormSchema = z.object({
-  propertyType: z.string(),
-  propertyField: z.string(),
-  propertyValue: z.string(),
+  objectType: z.string().min(1),
+  lookupField: z.string().min(1),
+  value: z.string(),
 });
 
 export type TAutomationFindObjectConfig = z.infer<

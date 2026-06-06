@@ -1,15 +1,17 @@
-import { IScoreLogParams } from '@/score/@types/scoreLog';
+import { IScoreLogDocument, IScoreLogParams } from '@/score/@types/scoreLog';
 import { cursorPaginate } from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 
 export const scoreLogQueries = {
   async scoreLogs(
     _root: undefined,
     params: IScoreLogParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
-    const { ownerType, ownerId, searchValue, campaignId, action } = params;
-    const filter: any = {};
+    await checkPermission('scoreLogView');
+    const { ownerType, ownerId, searchValue, campaignId, action, clientPortal } = params;
+    const filter: FilterQuery<IScoreLogDocument> = {};
 
     if (ownerType) {
       filter.ownerType = ownerType;
@@ -30,6 +32,9 @@ export const scoreLogQueries = {
     if (action) {
       filter.action = action;
     }
+    if (clientPortal) {
+      filter.clientPortal = clientPortal;
+    }
 
     return cursorPaginate({
       model: models.ScoreLogs,
@@ -41,6 +46,15 @@ export const scoreLogQueries = {
   async scoreLogList(
     _root: undefined,
     params: IScoreLogParams,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('scoreLogView');
+    return models.ScoreLogs.getScoreLogs(params);
+  },
+
+  async cpScoreLogList(
+    _root: undefined,
+    params: IScoreLogParams,
     { models }: IContext,
   ) {
     return models.ScoreLogs.getScoreLogs(params);
@@ -49,8 +63,13 @@ export const scoreLogQueries = {
   async scoreLogStatistics(
     _root: undefined,
     params: IScoreLogParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('scoreLogView');
     return models.ScoreLogs.getStatistic(params);
   },
+};
+
+(scoreLogQueries.cpScoreLogList as any).wrapperConfig = {
+  forClientPortal: true,
 };

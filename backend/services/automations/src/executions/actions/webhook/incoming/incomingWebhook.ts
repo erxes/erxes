@@ -1,10 +1,10 @@
-import { incomingWebhookHandler } from '@/executions/actions/webhook/incoming/incomingWebhookHandler';
-import { incomingWebhookHealthHandler } from '@/executions/actions/webhook/incoming/incomingWebhookHealthHandler';
+import { incomingWebhookHandler } from './incomingWebhookHandler';
+import { incomingWebhookHealthHandler } from './incomingWebhookHealthHandler';
 import {
   continueRateLimit,
   webhookRateLimit,
-} from '@/executions/actions/webhook/incoming/rateLimits';
-import { waitingWebhookExecutionHandler } from '@/executions/actions/webhook/incoming/waitingWebhookExecutionHandler';
+} from './rateLimits';
+import { waitingWebhookExecutionHandler } from './waitingWebhookExecutionHandler';
 import express, { Router } from 'express';
 import helmet from 'helmet';
 

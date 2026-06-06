@@ -36,6 +36,7 @@ import { CustomLegendContent } from '../chart/legend';
 import { type LegendPayload } from 'recharts';
 import { useAtom } from 'jotai';
 import {
+  getReportCallStatusFilterAtom,
   getReportChartTypeAtom,
   getReportDateFilterAtom,
   getReportSourceFilterAtom,
@@ -49,7 +50,6 @@ interface ConversationTagProps {
   colSpan?: 6 | 12;
   onColSpanChange?: (span: 6 | 12) => void;
 }
-
 
 interface TagChartProps {
   conversationTags: TagData[];
@@ -72,6 +72,7 @@ export const ConversationTag = ({
   const [memberFilter, setMemberFilter] = useAtom(
     getReportMemberFilterAtom(id),
   );
+  const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
   useEffect(() => {
@@ -86,10 +87,13 @@ export const ConversationTag = ({
         channelIds: channelFilter.length ? channelFilter : undefined,
         memberIds: memberFilter.length ? memberFilter : undefined,
         source: sourceFilter !== 'all' ? sourceFilter : undefined,
+        callStatus:
+          sourceFilter === 'calls' && callStatusFilter !== 'all'
+            ? callStatusFilter
+            : undefined,
       },
     },
   });
-
 
   if (loading) {
     return (
@@ -199,7 +203,6 @@ export const ConversationTag = ({
   );
 };
 
-
 export const TagBarChart = memo(function TagBarChart({
   conversationTags,
 }: TagChartProps) {
@@ -283,16 +286,10 @@ export const TagBarChart = memo(function TagBarChart({
           axisLine={false}
           label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
         />
-        <Bar
-          dataKey="count"
-          fill="var(--primary)"
-          stackId="stack-tag"
-          name="Count"
-        />
+        <Bar dataKey="count" fill="var(--primary)" name="Count" />
         <Bar
           dataKey="percentageScaled"
           fill="var(--success)"
-          stackId="stack-tag"
           name="Percentage"
         />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />

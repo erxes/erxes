@@ -1,11 +1,18 @@
+import { randomBytes } from 'crypto';
 import { IContext } from '~/connectionResolvers';
 
 // Helper function to generate code from name
 const generateCode = (name: string): string => {
-  return name
+  const cleaned = name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_+|_+$/g, '');
+
+  if (!cleaned || cleaned.length === 0) {
+    return `type_${Date.now()}_${randomBytes(6).toString('hex')}`;
+  }
+
+  return cleaned;
 };
 
 // Helper function to add key to attributes
@@ -24,7 +31,11 @@ export const insuranceTypeMutations = {
   createInsuranceType: Object.assign(
     async (
       _parent: undefined,
-      { name, attributes }: { name: string; attributes: any[] },
+      {
+        name,
+        attributes,
+        isCitizen,
+      }: { name: string; attributes: any[]; isCitizen?: boolean },
       { models, user }: IContext,
     ) => {
       // Add role check: if (user.role !== 'admin') throw ForbiddenError
@@ -33,6 +44,7 @@ export const insuranceTypeMutations = {
       return models.InsuranceType.create({
         name,
         code,
+        isCitizen: isCitizen || false,
         attributes: processedAttributes,
       });
     },
@@ -46,7 +58,8 @@ export const insuranceTypeMutations = {
         id,
         name,
         attributes,
-      }: { id: string; name?: string; attributes?: any[] },
+        isCitizen,
+      }: { id: string; name?: string; attributes?: any[]; isCitizen?: boolean },
       { models }: IContext,
     ) => {
       const updateData: any = {};
@@ -56,6 +69,9 @@ export const insuranceTypeMutations = {
       }
       if (attributes) {
         updateData.attributes = processAttributes(attributes);
+      }
+      if (isCitizen !== undefined) {
+        updateData.isCitizen = isCitizen;
       }
       return models.InsuranceType.findByIdAndUpdate(id, updateData, {
         new: true,

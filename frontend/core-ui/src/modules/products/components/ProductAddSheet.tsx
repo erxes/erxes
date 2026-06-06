@@ -11,7 +11,7 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { ProductHotKeyScope } from '@/products/types/ProductsHotKeyScope';
-import { AddProductForm } from 'ui-modules';
+import { AddProductForm, Can, usePermissionCheck } from 'ui-modules';
 import { productsQueries } from '../graphql';
 import { useTranslation } from 'react-i18next';
 import { ProductCreateSidebar } from './ProductCreateSidebar';
@@ -39,8 +39,18 @@ export const ProductAddSheet = () => {
   const { t } = useTranslation('product', {
     keyPrefix: 'add',
   });
+  const { hasActionPermission } = usePermissionCheck();
+  const canCreateProduct = hasActionPermission('productsCreate');
 
-  useScopedHotkeys(`c`, () => onOpen(), ProductHotKeyScope.ProductsPage);
+  useScopedHotkeys(
+    `c`,
+    () => {
+      if (!canCreateProduct) return;
+      onOpen();
+    },
+    ProductHotKeyScope.ProductsPage,
+    [canCreateProduct],
+  );
 
   return (
     <FocusSheet
@@ -48,15 +58,21 @@ export const ProductAddSheet = () => {
       onOpenChange={(isOpen) => (isOpen ? onOpen() : onClose())}
       open={open}
     >
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          {t('add-product')}
-          <Kbd>C</Kbd>
-        </Button>
-      </Sheet.Trigger>
+      <Can action="productsCreate">
+        <Sheet.Trigger asChild>
+          <Button>
+            <IconPlus />
+            {t('add-product')}
+            <Kbd>C</Kbd>
+          </Button>
+        </Sheet.Trigger>
+      </Can>
       <FocusSheet.View
-        className={showMoreInfo ? 'w-[70%] md:w-[70%]' : 'w-[30%] md:w-[30%]'}
+        className={
+          showMoreInfo
+            ? 'w-[70%] md:w-[70%] lg:w-[70%]'
+            : 'w-[30%] md:w-[30%] lg:w-[30%]'
+        }
       >
         <FocusSheet.Header title={t('create-product')} />
         <FocusSheet.Content className="flex-1 min-h-0">

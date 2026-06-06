@@ -1,6 +1,7 @@
 import { getPureDate } from 'erxes-api-shared/utils';
 import { IProductDocument } from '~/modules/posclient/@types/products';
 import { IContext } from '~/modules/posclient/@types/types';
+import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
 
 const getDateFilter = (dateType, startDate, endDate) => {
   if (dateType === 'created') {
@@ -63,8 +64,10 @@ const reportQueries = {
       startDate: Date;
       endDate: Date;
     },
-    { models, config }: IContext,
+    { models, config, posUser }: IContext,
   ) {
+    assertPosUser(posUser);
+
     const report: any = {};
     // dateType: created | modified | paid | due | close | return
     const dateFilter = getDateFilter(dateType, startDate, endDate);
@@ -190,7 +193,7 @@ const reportQueries = {
         items[category._id].products.push({
           name: product.name,
           code: product.code,
-          unitPrice: (product.prices || {})[config.token] || 0,
+          unitPrice: product.prices?.[config.token] ?? 0,
           count: groupedItem.count,
         });
       }

@@ -4,11 +4,12 @@ import { posCommonFields } from './queries';
 const commonFields = `
   $name: String
   $description: String
-  $type: String
   $orderPassword: String
   $scopeBrandIds: [String]
   $pdomain: String
   $erxesAppToken: String
+  $serviceCharge: Float
+  $serviceChargeApplicableProductId: String
   $productDetails: [String]
   $adminIds: [String]
   $cashierIds: [String]
@@ -25,30 +26,29 @@ const commonFields = `
   $waitingScreen: JSON
   $kioskMachine: JSON
   $uiOptions: JSON
-  $ebarimtConfig: JSON
-  $erkhetConfig: JSON
   $cardsConfig: JSON
   $catProdMappings: [CatProdInput]
   $initialCategoryIds: [String]
   $kioskExcludeCategoryIds: [String]
   $kioskExcludeProductIds: [String]
   $deliveryConfig: JSON
-  $checkRemainder: Boolean
   $permissionConfig: JSON
   $allowTypes: [String]
   $isCheckRemainder: Boolean
   $checkExcludeCategoryIds: [String]
+  $saveRemainder: Boolean
   $banFractions: Boolean
 `;
 
 const commonVariables = `
   name: $name,
   description: $description,
-  type: $type,
   orderPassword: $orderPassword,
   scopeBrandIds: $scopeBrandIds,
   pdomain: $pdomain,
   erxesAppToken: $erxesAppToken,
+  serviceCharge: $serviceCharge,
+  serviceChargeApplicableProductId: $serviceChargeApplicableProductId,
   productDetails: $productDetails,
   adminIds: $adminIds,
   cashierIds: $cashierIds,
@@ -65,19 +65,17 @@ const commonVariables = `
   waitingScreen: $waitingScreen,
   kioskMachine: $kioskMachine,
   uiOptions: $uiOptions,
-  ebarimtConfig: $ebarimtConfig,
-  erkhetConfig: $erkhetConfig,
   catProdMappings: $catProdMappings,
   initialCategoryIds: $initialCategoryIds,
   kioskExcludeCategoryIds: $kioskExcludeCategoryIds,
   kioskExcludeProductIds: $kioskExcludeProductIds,
   deliveryConfig: $deliveryConfig,
   cardsConfig: $cardsConfig,
-  checkRemainder: $checkRemainder,
   permissionConfig: $permissionConfig,
   allowTypes: $allowTypes,
   isCheckRemainder: $isCheckRemainder,
   checkExcludeCategoryIds: $checkExcludeCategoryIds,
+  saveRemainder: $saveRemainder,
   banFractions: $banFractions
 `;
 
@@ -85,7 +83,6 @@ const posAdd = gql`
   mutation PosAdd(
     $name: String
     $description: String
-    $type: String
     $branchId: String
     $paymentIds: [String]
     $adminIds: [String]
@@ -95,7 +92,6 @@ const posAdd = gql`
     posAdd(
       name: $name
       description: $description
-      type: $type
       branchId: $branchId
       paymentIds: $paymentIds
       adminIds: $adminIds

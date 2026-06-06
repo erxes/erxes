@@ -1,4 +1,4 @@
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
@@ -15,8 +15,14 @@ const generateFilter = async (
 ): Promise<FilterQuery<IVoucherCampaign>> => {
   const filter: FilterQuery<IVoucherCampaign> = {};
 
-  const { searchValue, status, voucherType, equalTypeCampaignId, _ids } =
-    params || {};
+  const {
+    searchValue,
+    status,
+    voucherType,
+    equalTypeCampaignId,
+    _ids,
+    excludeVoucherTypes,
+  } = params || {};
 
   if (equalTypeCampaignId) {
     const campaign = await models.VoucherCampaigns.findOne({
@@ -33,15 +39,21 @@ const generateFilter = async (
   }
 
   if (searchValue) {
-    filter.title = new RegExp(searchValue, 'i');
+    filter.title = new RegExp(escapeRegExp(searchValue), 'i');
   }
 
   if (voucherType) {
     filter.voucherType = voucherType;
   }
 
+  if (excludeVoucherTypes?.length) {
+    filter.voucherType = { $nin: excludeVoucherTypes };
+  }
+
   if (status) {
     filter.status = status;
+  } else {
+    filter.status = { $ne: CAMPAIGN_STATUS.TRASH };
   }
 
   return filter;
@@ -51,8 +63,9 @@ export const voucherCampaignQueries = {
   async voucherCampaigns(
     _root: undefined,
     params: IVoucherCampaignParams,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyCampaignView');
     const filter = await generateFilter(models, params);
 
     return cursorPaginate<IVoucherCampaignDocument>({
@@ -65,16 +78,18 @@ export const voucherCampaignQueries = {
   async voucherCampaignDetail(
     _root: undefined,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyCampaignView');
     return models.VoucherCampaigns.getVoucherCampaign(_id);
   },
 
   async cpVoucherCampaigns(
     _root: undefined,
     _args: unknown,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyCampaignView');
     const now = new Date();
 
     return models.VoucherCampaigns.find({
@@ -85,4 +100,5 @@ export const voucherCampaignQueries = {
       .sort({ modifiedAt: -1 })
       .lean();
   },
-};
+};  
+

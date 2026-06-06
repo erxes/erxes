@@ -14,24 +14,59 @@ export const POS_ORDERS_BY_CUSTOMER = gql`
       sortDirection: $sortDirection
     ) {
       _id
-      customerDetail
       customerType
+      customerDetail
       orders {
         _id
-        __typename
+        createdAt
+        status
+        paidDate
+        dueDate
+        number
+        customerId
+        customerType
+        cashAmount
+        mobileAmount
+        paidAmounts
+        totalAmount
+        finalAmount
+        shouldPrintEbarimt
+        printedEbarimt
+        billType
+        billId
+        registerNumber
+        oldBillId
+        type
+        userId
+        items
+        posToken
+        posName
+        branchId
+        departmentId
+        subBranchId
+        branch
+        department
+        subBranch
+        user {
+          _id
+        }
+        customer {
+          _id
+          code
+          primaryPhone
+          firstName
+          primaryEmail
+          lastName
+        }
+        syncedErkhet
+        description
+        isPre
+        origin
+        convertDealId
+        returnInfo
       }
       totalOrders
       totalAmount
-      __typename
     }
-    posOrderCustomersTotalCount(
-      page: $page
-      perPage: $perPage
-      sortField: $sortField
-      sortDirection: $sortDirection
-    )
   }
 `;
-export default {
-  POS_ORDERS_BY_CUSTOMER,
-};

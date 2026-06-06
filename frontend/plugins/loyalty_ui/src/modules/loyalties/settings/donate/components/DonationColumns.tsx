@@ -1,7 +1,6 @@
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
-  Button,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
@@ -11,11 +10,10 @@ import { DonationNameCell } from '../donation-detail/components/DonationNameCell
 import {
   IconCalendar,
   IconCalendarEvent,
-  IconDots,
   IconHash,
-  IconSettings,
   IconTag,
 } from '@tabler/icons-react';
+import { donationMoreColumn } from './DonateMoreColumn';
 
 const SafeRelativeDate = ({ value }: { value?: string }) => {
   if (!value) {
@@ -41,11 +39,12 @@ const SafeRelativeDate = ({ value }: { value?: string }) => {
 export const donationColumns: (
   editStatus: (options: any) => void,
 ) => ColumnDef<IDonation>[] = (editStatus) => [
+  donationMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IDonation>,
 
   {
     id: 'name',
-    accessorKey: 'name',
+    accessorKey: 'title',
     header: () => <RecordTable.InlineHead icon={IconTag} label="Name" />,
     cell: ({ cell }: { cell: any }) => {
       return (
@@ -105,23 +104,5 @@ export const donationColumns: (
       );
     },
     size: 150,
-  },
-
-  {
-    id: 'action',
-    accessorKey: 'action',
-    header: () => (
-      <RecordTable.InlineHead icon={IconSettings} label="Actions" />
-    ),
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <RecordTableInlineCell>
-          <Button className="mx-auto" variant="ghost" size="sm">
-            <IconDots className="h-4 w-4" />
-          </Button>
-        </RecordTableInlineCell>
-      );
-    },
-    size: 100,
   },
 ];

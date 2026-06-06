@@ -43,6 +43,7 @@ export interface ProductDetail {
   currency?: string;
   variants?: Record<string, unknown>;
   customFieldsData?: Record<string, unknown>;
+  propertiesData?: Record<string, unknown>;
 }
 
 export type { ProductFormValues };

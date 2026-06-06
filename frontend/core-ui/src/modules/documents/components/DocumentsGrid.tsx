@@ -12,7 +12,7 @@ import {
   useSetQueryStateByKey,
 } from 'erxes-ui';
 import { useState } from 'react';
-import { MembersInline } from 'ui-modules';
+import { Can, MembersInline } from 'ui-modules';
 import { DocumentPreview } from './DocumentPreview';
 
 export const DocumentsGrid = ({ documents }: { documents: any[] }) => {
@@ -49,33 +49,37 @@ export const DocumentsGrid = ({ documents }: { documents: any[] }) => {
             <h3 className="text-md font-medium text-black truncate flex-1 mr-2">
               {document.name}
             </h3>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleMenu(index);
-              }}
-              className="flex items-center leading-[100%] text-black font-inter gap-1 text-sm font-medium rounded-md px-1"
-            >
-              Action
-              <IconChevronDown size={18} stroke={2} />
-            </button>
-
-            {isMenuOpen === index && (
-              <div className="absolute right-3 top-12 py-1 bg-white rounded-lg shadow-lg border border-gray-100 w-[150px] z-10">
-                <div
-                  className="flex items-center w-full gap-3 px-4 py-2 text-left cursor-pointer hover:bg-gray-50"
+            <Can action="removeDocuments">
+              <>
+                <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setDocumentToDelete(document._id);
+                    toggleMenu(index);
                   }}
+                  className="flex items-center leading-[100%] text-black font-inter gap-1 text-sm font-medium rounded-md px-1"
                 >
-                  <IconTrash size={16} stroke={1.5} />
-                  <p className="text-sm font-medium leading-[100%] text-black font-inter">
-                    Delete
-                  </p>
-                </div>
-              </div>
-            )}
+                  Action
+                  <IconChevronDown size={18} stroke={2} />
+                </button>
+
+                {isMenuOpen === index && (
+                  <div className="absolute right-3 top-12 py-1 bg-white rounded-lg shadow-lg border border-gray-100 w-[150px] z-10">
+                    <div
+                      className="flex items-center w-full gap-3 px-4 py-2 text-left cursor-pointer hover:bg-gray-50"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDocumentToDelete(document._id);
+                      }}
+                    >
+                      <IconTrash size={16} stroke={1.5} />
+                      <p className="text-sm font-medium leading-[100%] text-black font-inter">
+                        Delete
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </>
+            </Can>
           </div>
           <Card.Content className="p-0 relative flex items-center justify-center h-[140px]">
             <DocumentPreview document={document} />

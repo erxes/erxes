@@ -13,11 +13,17 @@ export const SelectVat = React.forwardRef<
   }
 >(({ value, onValueChange, onCallback, ...props }, ref) => {
   const [open, setOpen] = useState(false);
-  const [selectedVat, setSelectedVat] = useState<IVatRow | undefined>(undefined);
+  const [selectedVat, setSelectedVat] = useState<IVatRow | undefined>(
+    undefined,
+  );
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger ref={ref} {...props}>
-        <SelectVatValue vatRowId={value} vatRow={selectedVat} onCallback={onCallback} />
+        <SelectVatValue
+          vatRowId={value}
+          vatRow={selectedVat}
+          onCallback={onCallback}
+        />
       </Combobox.Trigger>
       <Combobox.Content>
         <SelectVatList
@@ -49,7 +55,7 @@ export const SelectVatList = ({
   return (
     <Command shouldFilter={false}>
       <Command.Input
-        placeholder="Search vat"
+        placeholder="НӨАТ хайх"
         value={searchValue}
         onValueChange={(value) => setSearchValue(value)}
       />
@@ -95,18 +101,13 @@ export const SelectVatValue = ({
 
   useEffect(() => {
     if (onCallback && lastVatRow) {
-      onCallback(lastVatRow)
+      onCallback(lastVatRow);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lastVatRow, loading])
+  }, [lastVatRow, loading]);
 
   if (!lastVatRow?._id) {
-    return (
-      <Combobox.Value
-        placeholder="Select Vat"
-        loading={loading}
-      />
-    );
+    return <Combobox.Value placeholder="НӨАТ сонгох" loading={loading} />;
   }
 
   return (

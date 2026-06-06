@@ -9,6 +9,7 @@ import resolvers from './apollo/resolvers';
 import { generateModels } from '~/connectionResolvers';
 import { PAYMENTS } from '~/constants';
 import { callbackHandler } from '~/apis/controller';
+import { initPaymentsWorker } from './workers/payments';
 
 startPlugin({
   name: 'payment',
@@ -65,16 +66,20 @@ startPlugin({
     const publicPath = path.resolve(__dirname, 'public');
     const widgetPath = path.resolve(publicPath, 'widget');
 
-    // Serve static files
+    // Serve static files (from HEAD)
     app.use('/', express.static(publicPath));
+    // Additional static route from origin/main
+    app.use('/static', express.static(path.join(__dirname, '/public')));
 
-    // Optional widget
+    // Optional widget (conditional check from HEAD)
     if (fs.existsSync(widgetPath)) {
       app.use('/widget', express.static(widgetPath));
-
       app.get('/widget/*', (req, res) => {
         res.sendFile(path.resolve(widgetPath, 'index.html'));
       });
     }
+
+    // Start payment worker (from origin/main)
+    initPaymentsWorker();
   },
 });

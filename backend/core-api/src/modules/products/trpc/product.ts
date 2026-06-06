@@ -5,6 +5,8 @@ import { CoreTRPCContext } from '~/init-trpc';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
+const inventoryKey = (id?: string) => id || '_';
+
 export const productsTrpcRouter = t.router({
   products: t.router({
     find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
@@ -65,8 +67,11 @@ export const productsTrpcRouter = t.router({
     }),
 
     findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { query } = input;
+      const query = input?.query || input?.selector || input;
       const { models } = ctx;
+      if (!query || !Object.keys(query).length) {
+        return {};
+      }
 
       return models.Products.findOne(query).lean();
     }),
@@ -77,7 +82,7 @@ export const productsTrpcRouter = t.router({
         const { doc } = input;
         const { models } = ctx;
 
-        return models.Products.createProduct(doc);
+        return await models.Products.createProduct(doc);
       }),
 
     updateProduct: t.procedure
@@ -129,5 +134,130 @@ export const productsTrpcRouter = t.router({
 
       return models.Products.find(query).countDocuments();
     }),
+    rules: t.router({
+      find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { _ids = [] } = input || {};
+
+        if (!_ids.length) {
+          return [];
+        }
+
+        return models.ProductRules.find({ _id: { $in: _ids } }).lean();
+      }),
+    }),
+
+
+    setInventories: t.procedure
+      .input(
+        z.object({
+          branchId: z.string().optional(),
+          departmentId: z.string().optional(),
+          productsInfo: z.array(
+            z.object({
+              productId: z.string(),
+              uom: z.string().optional(),
+              remainder: z.number().optional(),
+              cost: z.number().optional(),
+              soonIn: z.number().optional(),
+              soonOut: z.number().optional(),
+            }),
+          ),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { productsInfo } = input;
+        const branchId = inventoryKey(input.branchId);
+        const departmentId = inventoryKey(input.departmentId);
+
+        await models.Products.bulkWrite(
+          productsInfo.map((info) => {
+            const updateSet = {};
+            const unSet: any = {};
+
+            if (info.remainder) {
+              updateSet[`inventories.${branchId}.${departmentId}.remainder`] =
+                info.remainder;
+            } else {
+              unSet[`inventories.${branchId}.${departmentId}.remainder`] = 0;
+            }
+
+            if (info.cost) {
+              updateSet[`inventories.${branchId}.${departmentId}.cost`] =
+                info.cost;
+            } else {
+              unSet[`inventories.${branchId}.${departmentId}.cost`] = 0;
+            }
+
+            if (info.soonIn) {
+              updateSet[`inventories.${branchId}.${departmentId}.soonIn`] =
+                info.soonIn;
+            } else {
+              unSet[`inventories.${branchId}.${departmentId}.soonIn`] = 0;
+            }
+
+            if (info.soonOut) {
+              updateSet[`inventories.${branchId}.${departmentId}.soonOut`] =
+                info.soonOut;
+            } else {
+              unSet[`inventories.${branchId}.${departmentId}.soonOut`] = 0;
+            }
+
+            return {
+              updateOne: {
+                filter: { _id: info.productId },
+                update: { $set: { ...updateSet }, $unset: { ...unSet } },
+                upsert: true,
+              },
+            };
+          }),
+        );
+      }),
+
+    increaseInventories: t.procedure
+      .input(
+        z.object({
+          branchId: z.string().optional(),
+          departmentId: z.string().optional(),
+          productsInfo: z.array(
+            z.object({
+              productId: z.string(),
+              uom: z.string().optional(),
+              diffCount: z.number().optional(),
+              diffCost: z.number().optional(),
+              diffSoonIn: z.number().optional(),
+              diffSoonOut: z.number().optional(),
+            }),
+          ),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const { productsInfo } = input;
+        const branchId = inventoryKey(input.branchId);
+        const departmentId = inventoryKey(input.departmentId);
+
+        await models.Products.bulkWrite(
+          productsInfo.map((info) => ({
+            updateOne: {
+              filter: { _id: info.productId },
+              update: {
+                $inc: {
+                  [`inventories.${branchId}.${departmentId}.remainder`]:
+                    info.diffCount ?? 0,
+                  [`inventories.${branchId}.${departmentId}.cost`]:
+                    info.diffCost ?? 0,
+                  [`inventories.${branchId}.${departmentId}.soonIn`]:
+                    info.diffSoonIn ?? 0,
+                  [`inventories.${branchId}.${departmentId}.soonOut`]:
+                    info.diffSoonOut ?? 0,
+                },
+              },
+              upsert: true,
+            },
+          })),
+        );
+      }),
   }),
 });

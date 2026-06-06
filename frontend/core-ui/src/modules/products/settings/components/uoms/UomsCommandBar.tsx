@@ -6,12 +6,14 @@ import {
   Separator,
   useConfirm,
 } from 'erxes-ui';
+import { Can } from 'ui-modules';
 import { useUomsRemove } from '../../hooks/useUomsRemove';
 
 export const UomsCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { removeUoms } = useUomsRemove();
+  const confirmOptions = { confirmationValue: 'delete' };
 
   const handleDelete = () => {
     const selectedIds = table
@@ -22,6 +24,7 @@ export const UomsCommandBar = () => {
       message: `Are you sure you want to delete the ${
         selectedIds.length
       } selected UOM${selectedIds.length === 1 ? '' : 's'}?`,
+      options: confirmOptions,
     }).then(() => {
       removeUoms({
         variables: { uomIds: selectedIds },
@@ -39,14 +42,16 @@ export const UomsCommandBar = () => {
           {table.getFilteredSelectedRowModel().rows.length} selected
         </CommandBar.Value>
         <Separator.Inline />
-        <Button
-          variant="secondary"
-          className="text-destructive"
-          onClick={handleDelete}
-        >
-          <IconTrash />
-          Delete
-        </Button>
+        <Can action="uomsManage">
+          <Button
+            variant="secondary"
+            className="text-destructive"
+            onClick={handleDelete}
+          >
+            <IconTrash />
+            Delete
+          </Button>
+        </Can>
       </CommandBar.Bar>
     </CommandBar>
   );

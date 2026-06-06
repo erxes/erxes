@@ -8,7 +8,7 @@ export interface TActivityEntity<TData = any> {
 }
 
 export type TActivityLog<
-  TTarget = TActivityEntity,
+  TTarget = any,
   TContext = TActivityEntity,
   TActor = any,
 > = {
@@ -16,6 +16,7 @@ export type TActivityLog<
   activityType: string;
   actorType: string;
   actor: TActor;
+  targetType: string;
   target: TTarget;
   contextType: string;
   context: TContext;
@@ -54,7 +55,7 @@ export const activityLogsSchema = new Schema({
   activityType: { type: String, required: true },
   actorType: { type: String, required: true },
   actor: { type: Object, required: true },
-  targetId: { type: String, required: true },
+  targetId: { type: String, required: true, index: true },
   targetType: { type: String, required: true },
   target: { type: Schema.Types.Mixed, required: true },
   contextType: { type: String, optional: true },

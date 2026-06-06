@@ -8,7 +8,10 @@ import { IModels } from '~/connectionResolvers';
 
 export interface IAssignmentModel extends Model<IAssignmentDocument> {
   getAssignment(_id: string): Promise<IAssignmentDocument>;
-  createAssignment(doc: IAssignment): Promise<IAssignmentDocument>;
+  createAssignment(
+    doc: IAssignment,
+    checkExpiry?: boolean,
+  ): Promise<IAssignmentDocument>;
   removeAssignments(_ids: string[]): void;
 }
 
@@ -24,10 +27,14 @@ export const loadAssignmentClass = (models: IModels) => {
       return assignment;
     }
 
-    public static async createAssignment(doc: IAssignment) {
+    public static async createAssignment(
+      doc: IAssignment,
+      checkExpiry = false,
+    ) {
       const {
         campaignId,
         ownerId,
+        ownerType,
         segmentIds,
         voucherCampaignId,
         voucherId,
@@ -37,19 +44,21 @@ export const loadAssignmentClass = (models: IModels) => {
       const assignmentCampaign =
         await models.AssignmentCampaigns.getAssignmentCampaign(campaignId);
 
-      const now = new Date();
-
-      if (
-        assignmentCampaign.startDate > now ||
-        assignmentCampaign.endDate < now
-      ) {
-        throw new Error('Not create assignment, expired');
+      if (checkExpiry) {
+        const now = new Date();
+        if (
+          assignmentCampaign.startDate > now ||
+          assignmentCampaign.endDate < now
+        ) {
+          throw new Error('Not create assignment, expired');
+        }
       }
 
       return await models.Assignments.create({
         campaignId,
         createdAt: new Date(),
         ownerId,
+        ownerType,
         segmentIds,
         voucherCampaignId,
         voucherId,

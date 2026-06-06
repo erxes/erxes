@@ -38,6 +38,7 @@ export const erxesMessengerSetSetupAtom = atom(
             DEFAULT_COLORS.FOREGROUND,
         },
         logo: payload?.uiOptions?.logo,
+        navigationVariant: payload?.uiOptions?.navigationVariant,
       };
       set(erxesMessengerSetupAppearanceAtom, appearance);
 
@@ -48,14 +49,28 @@ export const erxesMessengerSetSetupAtom = atom(
         '';
       const config = {
         name: payload?.name || '',
-        brandId: payload?.brandId || '',
-        languageCode: payload?.languageCode || DEFAULT_LANGUAGE,
         channelId,
+        brandId: payload?.brandId,
         ticketConfigId: payload?.ticketConfigId,
+        knowledgeBaseTopicId: payload?.messengerData?.knowledgeBaseTopicId,
         botSetup: {
           greetingMessage: payload?.messengerData?.botGreetMessage,
-          persistentMenus: payload?.messengerData?.persistentMenus,
-          generate: payload?.messengerData?.botCheck,
+          persistentMenu: (payload?.messengerData?.persistentMenus || []).map(
+            (menu: {
+              _id?: string;
+              name?: string;
+              text?: string;
+              type?: string;
+              link?: string;
+            }) => ({
+              text: menu.text ?? menu.name ?? '',
+              type: (menu.type === 'link' ? 'link' : 'button') as
+                | 'button'
+                | 'link',
+              link: menu.link ?? '',
+            }),
+          ),
+          botCheck: payload?.messengerData?.botCheck,
         },
       };
 
@@ -70,11 +85,11 @@ export const erxesMessengerSetSetupAtom = atom(
       const greetings = {
         supporterIds: payload?.messengerData?.supporterIds,
         title:
-          (payload?.messengerData?.messages || {})[
+          payload?.messengerData?.messages?.[
             payload?.languageCode || DEFAULT_LANGUAGE
           ]?.greetings?.title || '',
         message:
-          (payload?.messengerData?.messages || {})[
+          payload?.messengerData?.messages?.[
             payload?.languageCode || DEFAULT_LANGUAGE
           ]?.greetings?.message || '',
         links: greetingLinks,
@@ -118,14 +133,27 @@ export const erxesMessengerSetSetupAtom = atom(
         notifyCustomer: payload?.messengerData?.notifyCustomer ?? false,
         showVideoCallRequest:
           payload?.messengerData?.showVideoCallRequest ?? false,
+        websiteApps: (payload?.websiteMessengerApps ?? []).map((app) => ({
+          _id: app._id,
+          kind: app.kind ?? 'webstite',
+          showInInbox: app.showInInbox ?? false,
+          credentials: {
+            integrationId: app.credentials?.integrationId ?? '',
+            description: app.credentials?.description,
+            buttonText: app.credentials?.buttonText,
+            url: app.credentials?.url ?? '',
+          },
+          scopeBrandIds: [],
+        })),
       };
       // Set settings
       set(erxesMessengerSetupSettingsAtom, settings);
 
       // Set intro messages
-      const messages = (payload?.messengerData?.messages || {})[
-        payload?.languageCode || DEFAULT_LANGUAGE
-      ];
+      const messages =
+        payload?.messengerData?.messages?.[
+          payload?.languageCode || DEFAULT_LANGUAGE
+        ];
       const intro = {
         welcome: messages?.welcome ?? '',
         away: messages?.away ?? '',

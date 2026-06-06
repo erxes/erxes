@@ -19,6 +19,18 @@ export const posSchema = schemaWrapper(
     cashierIds: { type: [String], label: 'Cashier ids' },
     isOnline: { type: Boolean, label: 'Is online pos' },
     paymentIds: { type: [String], label: 'Online Payments' },
+    serviceCharge: {
+      type: Number,
+      label: 'Service Charge',
+      min: 0,
+      max: 100,
+      optional: true,
+    },
+    serviceChargeApplicableProductId: {
+      type: String,
+      optional: true,
+      label: 'Service Charge Applicable Product',
+    },
     paymentTypes: { type: [Object], label: 'Other Payments' },
     onServer: {
       type: Boolean,
@@ -44,12 +56,6 @@ export const posSchema = schemaWrapper(
     uiOptions: { type: Object, label: 'UI Options' },
     token: { type: String, label: 'Pos token' },
     erxesAppToken: { type: String, label: 'Erxes App token' },
-    ebarimtConfig: {
-      type: Object,
-      optional: true,
-      label: 'Ebarimt Config',
-    },
-    erkhetConfig: { type: Object, label: 'Erkhet Config' },
     syncInfos: { type: Object, label: 'sync info' },
     catProdMappings: {
       type: [Object],
@@ -70,17 +76,10 @@ export const posSchema = schemaWrapper(
     },
     deliveryConfig: { type: Object, label: 'Delivery Config' },
     cardsConfig: { type: Object, label: 'Cards Config' },
-    checkRemainder: { type: Boolean, optional: true },
     permissionConfig: {
       type: Object,
       optional: true,
       label: 'Permission',
-    },
-    type: {
-      type: String,
-      enum: ['ecommerce', 'restaurant', 'pos'],
-      optional: true,
-      label: 'Type',
     },
     allowTypes: { type: [String], label: 'Allow Types' },
     isCheckRemainder: { type: Boolean, label: 'is Check Remainder' },

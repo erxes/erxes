@@ -1,5 +1,6 @@
 import { GET_TICKETS } from '@/ticket/graphql/queries/getTickets';
 import { TICKET_LIST_CHANGED } from '@/ticket/graphql/subscriptions/ticketListChanged';
+import { ticketSortAtom } from '@/ticket/states/ticketSortState';
 import { ITicket } from '@/ticket/types';
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
@@ -11,6 +12,7 @@ import {
   useToast,
   validateFetchMore,
 } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
 import { useEffect } from 'react';
 
 const TICKETS_PER_PAGE = 30;
@@ -22,29 +24,48 @@ interface ITicketChanged {
   };
 }
 
+export const TICKET_SORT_FIELDS = [
+  { label: 'Updated', value: 'updatedAt' },
+  { label: 'Created', value: 'createdAt' },
+] as const;
+
+export type TicketSortField = (typeof TICKET_SORT_FIELDS)[number]['value'];
+
 export const useTicketsVariables = (
   variables?: QueryHookOptions<ICursorListResponse<ITicket>>['variables'],
 ) => {
-  const { searchValue, assignee, priority, statusId, state } =
+  const { searchValue, assignee, priority, statusId, state, pipelineId } =
     useNonNullMultiQueryState<{
       searchValue: string;
       assignee: string;
       priority: string;
       statusId: string;
       state: string;
-    }>(['searchValue', 'assignee', 'priority', 'statusId', 'state']);
+      pipelineId: string;
+    }>([
+      'searchValue',
+      'assignee',
+      'priority',
+      'statusId',
+      'state',
+      'pipelineId',
+    ]);
+
+  const sortField = useAtomValue(ticketSortAtom);
 
   return {
     cursor: '',
     limit: TICKETS_PER_PAGE,
     orderBy: {
-      updatedAt: -1,
+      [sortField]: -1,
     },
     direction: 'forward',
-    name: searchValue,
+
+    searchValue: searchValue,
     assigneeId: assignee,
     priority: priority,
     statusId: statusId,
+    pipelineId: pipelineId,
     state: state,
     ...variables,
   };

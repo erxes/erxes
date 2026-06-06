@@ -1,4 +1,6 @@
+import { IconPlus, IconTag, IconTagPlus } from '@tabler/icons-react';
 import {
+  Badge,
   Button,
   Combobox,
   Command,
@@ -15,22 +17,19 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import { CreateTagForm, SelectTagCreateContainer } from './CreateTagForm';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ISelectTagsProviderProps,
   ITag,
   useGiveTags,
 } from 'ui-modules/modules';
-import { IconPlus, IconTag } from '@tabler/icons-react';
-import React, { useEffect, useState } from 'react';
-
-import { SelectTagsContext } from '../contexts/SelectTagsContext';
-import { TagBadge } from './TagBadge';
 import { useDebounce } from 'use-debounce';
+import { SelectTagsContext } from '../contexts/SelectTagsContext';
 import { useSelectTagsContext } from '../hooks/useSelectTagsContext';
-import { IconTagPlus } from '@tabler/icons-react';
 import { useTags } from '../hooks/useTags';
-import { useTranslation } from 'react-i18next';
+import { CreateTagForm, SelectTagCreateContainer } from './CreateTagForm';
+import { TagBadge } from './TagBadge';
 
 export const SelectTagsProvider = ({
   children,
@@ -355,7 +354,7 @@ export const TagList = ({
 
   const selectedTagIds = Array.isArray(value) ? value : [value];
 
-  if (!value || !value.length) {
+  if (!value?.length) {
     return (
       <div className="flex items-center justify-center gap-2">
         <IconTagPlus className="size-4 text-muted-foreground" />
@@ -458,12 +457,12 @@ export const SelectTagsInlineCell = ({
 export const SelectTagsDetail = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectTagsProvider>, 'children'> &
-  Omit<
-    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-    'children'
-  > & {
-    scope?: string;
-  }
+    Omit<
+      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+      'children'
+    > & {
+      scope?: string;
+    }
 >(
   (
     {
@@ -516,9 +515,9 @@ export const SelectTagsDetail = React.forwardRef<
 
 SelectTagsDetail.displayName = 'SelectTagsDetail';
 
+const MAX_VISIBLE_TAGS = 2;
 
 export const ConversationTagList = ({
-  placeholder,
   renderAsPlainText,
   ...props
 }: Omit<React.ComponentProps<typeof TagBadge>, 'onClose'> & {
@@ -530,55 +529,56 @@ export const ConversationTagList = ({
 
   const selectedTagIds = Array.isArray(value) ? value : [value];
 
-  if (!value || !value.length) {
-    return (
-      <div className="flex items-center justify-center gap-2">
-        <IconTagPlus className="size-4 text-muted-foreground" />
-        <Combobox.Value placeholder={placeholder || ''} />
-      </div>
-    );
+  if (!value?.length) {
+    return null;
   }
 
+  const visibleIds = selectedTagIds.slice(0, MAX_VISIBLE_TAGS);
+  const overflowCount = selectedTagIds.length - MAX_VISIBLE_TAGS;
+
   return (
-    <ScrollArea className='flex-1'>
-      <div className="flex flex-nowrap gap-2">
-        {selectedTagIds.map((tagId) => (
-          <TagBadge
-            key={tagId}
-            tagId={tagId}
-            tag={selectedTags.find((t) => t._id === tagId)}
-            renderAsPlainText={renderAsPlainText}
-            variant="secondary"
-            onCompleted={(tag) => {
-              if (!tag) return;
-              if (selectedTagIds.includes(tag._id)) {
-                setSelectedTags(selectedTags.filter((t) => t._id !== tag._id));
-              }
-              if (!selectedTags.includes(tag)) {
-                setSelectedTags([...selectedTags, tag]);
-              }
-            }}
-            onClose={() =>
-              onSelect?.(selectedTags.find((t) => t._id === tagId) as ITag)
+    <div className="flex items-center gap-1 min-w-0">
+      {visibleIds.map((tagId) => (
+        <TagBadge
+          key={tagId}
+          tagId={tagId}
+          tag={selectedTags.find((t) => t._id === tagId)}
+          renderAsPlainText={renderAsPlainText}
+          variant="secondary"
+          className="max-w-24 shrink truncate"
+          onCompleted={(tag) => {
+            if (!tag) return;
+            if (selectedTagIds.includes(tag._id)) {
+              setSelectedTags(selectedTags.filter((t) => t._id !== tag._id));
             }
-            {...props}
-          />
-        ))}
-      </div>
-      <ScrollArea.Bar orientation="horizontal" />
-    </ScrollArea>
+            if (!selectedTags.includes(tag)) {
+              setSelectedTags([...selectedTags, tag]);
+            }
+          }}
+          onClose={() =>
+            onSelect?.(selectedTags.find((t) => t._id === tagId) as ITag)
+          }
+          {...props}
+        />
+      ))}
+      {overflowCount > 0 && (
+        <Badge variant="secondary" className="shrink-0 text-xs">
+          +{overflowCount}
+        </Badge>
+      )}
+    </div>
   );
 };
 
 export const SelectTagsConversationDetail = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectTagsProvider>, 'children'> &
-  Omit<
-    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-    'children'
-  > & {
-    scope?: string;
-  }
+    Omit<
+      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+      'children'
+    > & {
+      scope?: string;
+    }
 >(
   (
     {
@@ -605,13 +605,13 @@ export const SelectTagsConversationDetail = React.forwardRef<
         }}
         {...{ targetIds, tagType, value, mode, options }}
       >
-        <div className="flex gap-2 items-center overflow-x-hidden p-0.5">
+        <div className="flex gap-2 items-center p-0.5">
           <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
             <Popover.Trigger asChild>
               <Button
                 ref={ref}
                 {...props}
-                className="w-min text-sm font-medium shadow-xs"
+                className="shrink-0 w-min text-sm font-medium shadow-xs"
                 variant="outline"
               >
                 {t('add-tags')}
@@ -700,12 +700,12 @@ export const SelectTagsCommandbarItem = ({
 export const SelectTagsRoot = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   Omit<React.ComponentProps<typeof SelectTagsProvider>, 'children'> &
-  Omit<
-    React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
-    'children'
-  > & {
-    scope?: string;
-  }
+    Omit<
+      React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
+      'children'
+    > & {
+      scope?: string;
+    }
 >(
   (
     {
@@ -761,9 +761,11 @@ export const SelectTagsFilterItem = ({
 export const SelectTagsFilterView = ({
   mode,
   filterKey,
+  tagType,
 }: {
   mode: 'single' | 'multiple';
   filterKey: string;
+  tagType?: string;
 }) => {
   const [query, setQuery] = useQueryState<string[] | string | undefined>(
     filterKey,
@@ -774,6 +776,7 @@ export const SelectTagsFilterView = ({
     <Filter.View filterKey={filterKey}>
       <SelectTagsProvider
         mode={mode}
+        tagType={tagType}
         value={query || []}
         onValueChange={(value) => {
           setQuery(value as any);
@@ -845,22 +848,50 @@ export const SelectTagsFilterBar = ({
     }
   };
 
+  if (isCardVariant) {
+    return (
+      <SelectTagsProvider
+        mode={mode}
+        value={query || []}
+        onValueChange={handleValueChange}
+        tagType={tagType}
+      >
+        <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
+          <SelectTriggerOperation variant={variant || 'filter'}>
+            <SelectTagsValue />
+          </SelectTriggerOperation>
+          <SelectOperationContent variant={variant || 'filter'}>
+            <SelectTagsContent />
+          </SelectOperationContent>
+        </PopoverScoped>
+      </SelectTagsProvider>
+    );
+  }
+
   return (
-    <SelectTagsProvider
-      mode={mode}
-      value={query || []}
-      onValueChange={handleValueChange}
-      tagType={tagType}
-    >
-      <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant={variant || 'filter'}>
-          <SelectTagsValue />
-        </SelectTriggerOperation>
-        <SelectOperationContent variant={variant || 'filter'}>
-          <SelectTagsContent />
-        </SelectOperationContent>
-      </PopoverScoped>
-    </SelectTagsProvider>
+    <Filter.BarItem queryKey={filterKey}>
+      <Filter.BarName>
+        <IconTag />
+        {label}
+      </Filter.BarName>
+      <SelectTagsProvider
+        mode={mode}
+        value={query || []}
+        onValueChange={handleValueChange}
+        tagType={tagType}
+      >
+        <Popover open={open} onOpenChange={setOpen}>
+          <Popover.Trigger asChild>
+            <Filter.BarButton filterKey={filterKey}>
+              <SelectTagsValue />
+            </Filter.BarButton>
+          </Popover.Trigger>
+          <Combobox.Content>
+            <SelectTagsContent />
+          </Combobox.Content>
+        </Popover>
+      </SelectTagsProvider>
+    </Filter.BarItem>
   );
 };
 

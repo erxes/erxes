@@ -1,9 +1,9 @@
-import { TR_SIDES } from '@/transactions/types/constants';
 import { IconPlus } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useWatch } from 'react-hook-form';
 import { ITransactionGroupForm, TInvDetail } from '../../../types/JournalForms';
 import { getTempId } from '../../utils';
+import { SelectProductsBulk } from 'ui-modules';
 
 export const AddDetailRowButton = ({
   append,
@@ -23,40 +23,38 @@ export const AddDetailRowButton = ({
 
   const lastDetail = preDetails[preDetails.length - 1];
 
-  const detailDefaultValues = {
+  const getDetailDefaultValues = (productId = '') => ({
     ...lastDetail,
     _id: getTempId(),
-    side: TR_SIDES.CREDIT,
     amount: 0,
-    productId: '',
+    productId,
     count: 0,
     unitPrice: 0,
-  };
+  });
 
   return (
     <>
       <Button
         variant="secondary"
         className="bg-border"
-        onClick={() => append(detailDefaultValues)}
+        onClick={() => append(getDetailDefaultValues())}
       >
         <IconPlus />
-        Add Empty Row
+        Шинэ мөр
       </Button>
-      <Button
-        variant="secondary"
-        className="bg-border"
-        onClick={() =>
-          append([
-            detailDefaultValues,
-            detailDefaultValues,
-            detailDefaultValues,
-          ])
-        }
+      <SelectProductsBulk
+        productIds={[]}
+        onSelect={(productIds) => {
+          append(
+            productIds.map((productId) => getDetailDefaultValues(productId)),
+          );
+        }}
       >
-        <IconPlus />
-        Add Many Products
-      </Button>
+        <Button variant="secondary" className="bg-border">
+          <IconPlus />
+          Олон бараа нэмэх
+        </Button>
+      </SelectProductsBulk>
     </>
   );
 };

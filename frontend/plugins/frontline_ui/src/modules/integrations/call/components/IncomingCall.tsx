@@ -3,17 +3,16 @@ import {
   callConfigAtom,
   sipStateAtom,
 } from '@/integrations/call/states/sipStates';
-import { IconPhone, IconPhoneEnd } from '@tabler/icons-react';
-import { Button } from 'erxes-ui';
-import { useAtom, useAtomValue } from 'jotai';
 import {
   CallDirectionEnum,
   CallStatusEnum,
 } from '@/integrations/call/types/sipTypes';
-import { useEffect, useRef } from 'react';
-import { getPluginAssetsUrl } from 'erxes-ui';
 import { extractPhoneNumberFromCounterpart } from '@/integrations/call/utils/callUtils';
 import { renderUserInfo } from '@/integrations/call/utils/renderUserInfo';
+import { IconPhone, IconPhoneEnd } from '@tabler/icons-react';
+import { Button, getPluginAssetsUrl } from 'erxes-ui';
+import { useAtom, useAtomValue } from 'jotai';
+import { useEffect, useRef } from 'react';
 
 export const IncomingCallAudio = () => {
   const audioRef = useRef<HTMLAudioElement>(null);

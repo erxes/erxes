@@ -1,9 +1,8 @@
-import { useState } from 'react';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
-import { IconCheck } from '@tabler/icons-react';
-import { PopoverScoped, Combobox, Command } from 'erxes-ui';
-import { Skeleton } from 'erxes-ui';
 import { IChannel } from '@/inbox/types/Channel';
+import { IconCheck } from '@tabler/icons-react';
+import { Combobox, Command, PopoverScoped, Skeleton } from 'erxes-ui';
+import { useState } from 'react';
 
 interface ChannelSelectProps {
   value?: string[];

@@ -1,5 +1,5 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { ACTIVITY_LOGS } from '../graphql/queries';
 import { TActivityLog } from '../types';
 import { ACTIVITY_LOG_INSERTED } from '../graphql/subscriptions';
@@ -13,6 +13,7 @@ interface UseActivityLogsParams {
   targetId: string;
   action?: string;
   limit?: number;
+  variant?: 'forward' | 'backward';
   targetType?: string;
   contextType?: string;
   contextId?: string;
@@ -31,22 +32,51 @@ export type ActivityLogsQueryData = {
   };
 };
 
+const dedupeActivityLogs = (activityLogs: TActivityLog[] = []) => {
+  const seen = new Set<string>();
+
+  return activityLogs.filter((activityLog) => {
+    if (!activityLog?._id) {
+      return true;
+    }
+
+    if (seen.has(activityLog._id)) {
+      return false;
+    }
+
+    seen.add(activityLog._id);
+    return true;
+  });
+};
+
 export const useActivityLogs = (
-  { targetId, action, limit, targetType }: UseActivityLogsParams,
+  {
+    targetId,
+    action,
+    limit,
+    targetType,
+    variant = 'forward',
+  }: UseActivityLogsParams,
   options?: QueryHookOptions<ActivityLogsQueryData>,
 ) => {
   const { data, loading, error, refetch, subscribeToMore, fetchMore } =
     useQuery<ActivityLogsQueryData>(ACTIVITY_LOGS, {
       ...options,
+      fetchPolicy: options?.fetchPolicy ?? 'cache-and-network',
+      nextFetchPolicy: options?.nextFetchPolicy ?? 'cache-first',
       variables: {
         targetId,
         targetType,
         action,
         limit,
+        variant,
         ...options?.variables,
       },
       skip: !targetId,
     });
+
+  const inFlightCursorRef = useRef<string | null>(null);
+  const fetchedCursorsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (!targetId) {
@@ -81,7 +111,10 @@ export const useActivityLogs = (
           ...prev,
           activityLogs: {
             ...prev.activityLogs,
-            list: [newActivityLog, ...prev.activityLogs.list],
+            list:
+              variant === 'backward'
+                ? [...prev.activityLogs.list, newActivityLog]
+                : [newActivityLog, ...prev.activityLogs.list],
             totalCount: prev.activityLogs.totalCount + 1,
           },
         };
@@ -91,7 +124,12 @@ export const useActivityLogs = (
     return () => {
       unsubscribe();
     };
-  }, [targetId, subscribeToMore]);
+  }, [targetId, subscribeToMore, variant]);
+
+  useEffect(() => {
+    inFlightCursorRef.current = null;
+    fetchedCursorsRef.current.clear();
+  }, [targetId, action, limit, targetType, variant]);
 
   const pageInfo = data?.activityLogs.pageInfo || {
     hasNextPage: false,
@@ -109,27 +147,58 @@ export const useActivityLogs = (
       return;
     }
 
-    fetchMore({
+    const cursor =
+      direction === EnumCursorDirection.FORWARD
+        ? pageInfo?.endCursor
+        : pageInfo?.startCursor;
+
+    if (!cursor) {
+      return;
+    }
+
+    if (
+      inFlightCursorRef.current === cursor ||
+      fetchedCursorsRef.current.has(cursor)
+    ) {
+      return;
+    }
+
+    inFlightCursorRef.current = cursor;
+
+    void fetchMore({
       variables: {
         ...options?.variables,
-        cursor:
-          direction === EnumCursorDirection.FORWARD
-            ? pageInfo?.endCursor
-            : pageInfo?.startCursor,
+        variant,
+        cursor,
         limit: limit || 10,
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         if (!fetchMoreResult) return prev;
+
+        const mergedActivityLogs = mergeCursorData({
+          direction,
+          fetchMoreResult: fetchMoreResult.activityLogs,
+          prevResult: prev.activityLogs,
+        });
+
         return Object.assign({}, prev, {
-          activityLogs: mergeCursorData({
-            direction,
-            fetchMoreResult: fetchMoreResult.activityLogs,
-            prevResult: prev.activityLogs,
-          }),
+          activityLogs: {
+            ...mergedActivityLogs,
+            list: dedupeActivityLogs(mergedActivityLogs.list),
+          },
         });
       },
-    });
+    })
+      .then(() => {
+        fetchedCursorsRef.current.add(cursor);
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        if (inFlightCursorRef.current === cursor) {
+          inFlightCursorRef.current = null;
+        }
+      });
   };
 
   return {
@@ -142,5 +211,6 @@ export const useActivityLogs = (
     handleFetchMore,
     hasNextPage: pageInfo.hasNextPage,
     hasPreviousPage: pageInfo.hasPreviousPage,
+    variant,
   };
 };

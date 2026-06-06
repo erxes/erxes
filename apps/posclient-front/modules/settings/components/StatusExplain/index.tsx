@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 
 const StatusExplain = () => {
   return (
-    <div className="w-full">
+    <div className="w-full mt-3">
       <div className="mb-3 font-bold">Захиалгын төлөвүүд</div>
       <div className="grid grid-cols-2 gap-2">
         {statuses.map((status) => (
@@ -56,7 +56,7 @@ const statuses = [
   {
     indicaterClassName: "bg-amber-400",
     name: "Pending",
-    children: <HourglassIcon className="h-3 w-3" />,
+    children: <HourglassIcon className="w-3 h-3" />,
   },
   {
     indicaterClassName: "bg-zinc-600",

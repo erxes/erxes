@@ -61,9 +61,15 @@ export const types = `
   }
 
   type UserPermission {
+    plugin: String
     module: String!
     actions: [String]!
     scope: String!
+  }
+
+  type CurrentUserPermissionsResult {
+    permissions: [UserPermission]!
+    pluginsWithPermissions: [String]!
   }
 
   type CustomPermission {
@@ -80,7 +86,7 @@ export const queries = `
   permissionDefaultGroups: [DefaultPermissionGroup]
   permissionGroups: [PermissionGroup]
   permissionGroupDetail(id: String!): PermissionGroup
-  currentUserPermissions: [UserPermission]
+  currentUserPermissions: CurrentUserPermissionsResult
 `;
 
 export const mutations = `
@@ -100,6 +106,7 @@ export const mutations = `
   permissionGroupRemove(_id: String!): JSON
 
   userUpdatePermissionGroups(userId: String!, groupIds: [String]!): User
+  usersUpdatePermissionGroups(userIds: [String]!, groupIds: [String]!): JSON
   userAddCustomPermission(userId: String!, permission: PermissionInput!): User
   userRemoveCustomPermission(userId: String!, module: String!): User
 

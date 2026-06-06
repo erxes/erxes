@@ -13,6 +13,7 @@ export const vendorUserSchema = new Schema(
     phone: {
       type: String,
       unique: true,
+      sparse: true,
     },
     password: {
       type: String,
@@ -25,7 +26,7 @@ export const vendorUserSchema = new Schema(
     },
     role: {
       type: String,
-      enum: ['user'],
+      enum: ['user', 'admin', 'manager'],
       default: 'user',
     },
   },

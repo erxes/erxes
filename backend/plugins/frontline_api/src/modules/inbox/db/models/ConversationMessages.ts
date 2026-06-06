@@ -26,7 +26,7 @@ export interface IMessageModel extends Model<IMessageDocument> {
 export const loadClass = (models: IModels) => {
   class Message {
     /**
-     * Retreives message
+     * Retrieves message
      */
     public static async getMessage(_id: string) {
       const message = await models.ConversationMessages.findOne({ _id }).lean();

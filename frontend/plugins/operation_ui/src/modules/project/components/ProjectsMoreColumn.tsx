@@ -1,9 +1,7 @@
-import { Cell } from '@tanstack/react-table';
-import { RecordTable } from 'erxes-ui';
-import { useNavigate } from 'react-router-dom';
-
-import { Popover, Command, Combobox } from 'erxes-ui';
 import { IconEdit } from '@tabler/icons-react';
+import { Cell } from '@tanstack/react-table';
+import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
+import { useNavigate } from 'react-router-dom';
 import { IProject } from '../types';
 
 export const ProjectsMoreColumnCell = ({
@@ -38,6 +36,7 @@ export const ProjectsMoreColumnCell = ({
 
 export const projectsMoreColumn = {
   id: 'more',
+  header: RecordTable.ColumnSelector,
   cell: ProjectsMoreColumnCell,
   size: 33,
 };

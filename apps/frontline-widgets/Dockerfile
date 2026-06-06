@@ -8,7 +8,6 @@ RUN apk add --no-cache alpine-sdk && \
     make check && \
     make install
 
-# Build the application
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./

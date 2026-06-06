@@ -56,10 +56,22 @@ export const SalesFilter = () => {
           </Filter.Popover>
           <Filter.Dialog>
             <Filter.View filterKey="createdStartDate" inDialog>
-              <Filter.DialogDateView filterKey="createdStartDate" />
+              <Filter.DialogDateView
+                filterKey="createdStartDate"
+                label="Date created"
+              />
             </Filter.View>
-            <Filter.View filterKey="createdEndDate" inDialog>
-              <Filter.DialogDateView filterKey="createdEndDate" />
+            <Filter.View filterKey="startDateStartDate" inDialog>
+              <Filter.DialogDateView
+                filterKey="startDateStartDate"
+                label="Start date"
+              />
+            </Filter.View>
+            <Filter.View filterKey="startDateEndDate" inDialog>
+              <Filter.DialogDateView
+                filterKey="startDateEndDate"
+                label="End date"
+              />
             </Filter.View>
           </Filter.Dialog>
         </div>
@@ -113,21 +125,21 @@ const SalesFilterBar = ({ queries }: { queries: SalesFilterState }) => {
           <IconCalendarPlus />
           Date created
         </Filter.BarName>
-        <Filter.Date filterKey="createdStartDate" />
+        <Filter.Date filterKey="createdStartDate" label="Date created" />
       </Filter.BarItem>
       <Filter.BarItem queryKey="startDateStartDate">
         <Filter.BarName>
           <IconCalendarBolt />
           Start date
         </Filter.BarName>
-        <Filter.Date filterKey="startDateStartDate" />
+        <Filter.Date filterKey="startDateStartDate" label="Start date" />
       </Filter.BarItem>
       <Filter.BarItem queryKey="startDateEndDate">
         <Filter.BarName>
           <IconCalendarX />
           End date
         </Filter.BarName>
-        <Filter.Date filterKey="startDateEndDate" />
+        <Filter.Date filterKey="startDateEndDate" label="End date" />
       </Filter.BarItem>
       {companyIds && (
         <SelectCompany.FilterBar
@@ -242,13 +254,13 @@ const SalesFilterView = () => {
       <SelectPriority.FilterView />
       <SelectLabels.FilterView filterKey="labelIds" mode="multiple" />
       <Filter.View filterKey="createdStartDate">
-        <Filter.DateView filterKey="createdStartDate" />
+        <Filter.DateView filterKey="createdStartDate" label="Date created" />
       </Filter.View>
       <Filter.View filterKey="startDateStartDate">
-        <Filter.DateView filterKey="startDateStartDate" />
+        <Filter.DateView filterKey="startDateStartDate" label="Start date" />
       </Filter.View>
       <Filter.View filterKey="startDateEndDate">
-        <Filter.DateView filterKey="startDateEndDate" />
+        <Filter.DateView filterKey="startDateEndDate" label="End date" />
       </Filter.View>
     </>
   );

@@ -21,10 +21,9 @@ export const AddVoucherProductBonusForm: React.FC<
             <Form.Label>Bonus Product</Form.Label>
             <Form.Control>
               <SelectProduct
-                mode="multiple"
                 value={field.value}
                 onValueChange={(value) =>
-                  field.onChange(Array.isArray(value) ? value : [value])
+                  field.onChange(Array.isArray(value) ? value[0] : value)
                 }
               />
             </Form.Control>
@@ -39,7 +38,16 @@ export const AddVoucherProductBonusForm: React.FC<
           <Form.Item>
             <Form.Label>Bonus Count</Form.Label>
             <Form.Control>
-              <Input type="text" placeholder="Enter bonus count" {...field} />
+              <Input
+                type="number"
+                placeholder="Enter bonus count"
+                value={field.value ?? ''}
+                onChange={(e) =>
+                  field.onChange(
+                    e.target.value === '' ? undefined : Number(e.target.value),
+                  )
+                }
+              />
             </Form.Control>
             <Form.Message />
           </Form.Item>

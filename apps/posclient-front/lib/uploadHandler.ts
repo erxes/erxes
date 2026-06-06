@@ -116,7 +116,7 @@ const uploadHandler = (params: Params) => {
       continue
     }
 
-    // after read proccess done
+    // after read process done
     uploadReader.onloadend = () => {
       // before upload
       if (beforeUpload) {

@@ -1,7 +1,7 @@
-import { generateModels } from '@/connectionResolver';
-import { validateAgainstSchema } from '@/executions/actions/webhook/incoming/bodyValidator';
-import { executeActions } from '@/executions/executeActions';
-import { getActionsMap } from '@/utils/utils';
+import { generateModels } from '../../../../connectionResolver';
+import { validateAgainstSchema } from './bodyValidator';
+import { executeActions } from '../../../executeActions';
+import { getActionsMap } from '../../../../utils/utils';
 import {
   AUTOMATION_EXECUTION_STATUS,
   AUTOMATION_STATUSES,

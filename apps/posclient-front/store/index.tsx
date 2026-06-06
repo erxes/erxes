@@ -52,6 +52,12 @@ export const orderNotificationEnabledAtom = atomWithStorage<boolean>(
   false
 )
 
+// print
+export const printSeparatelyAtom = atomWithStorage<boolean>(
+  "printSeparately",
+  false
+)
+
 // supplement
 export const userNameAtom = atomWithStorage<string>("userName", "")
 export const userBankAddressAtom = atomWithStorage<string>(
@@ -126,6 +132,26 @@ export const categoriesToPrintAtom = atomWithStorage<string[][]>(
       localStorage.removeItem(key)
     },
   }
+)
+
+// QZ Tray
+export const qzTrayEnabledAtom = atomWithStorage<boolean>(
+  "qzTrayEnabled",
+  false
+)
+
+export const qzMainPrinterAtom = atomWithStorage<string>("qzMainPrinter", "")
+
+export const qzCategoryPrintersAtom = atomWithStorage<string[]>(
+  "qzCategoryPrinters",
+  []
+)
+
+export type ThermalPaperWidth = "48" | "58" | "72"
+
+export const thermalPaperWidthAtom = atomWithStorage<ThermalPaperWidth>(
+  "thermalPaperWidth",
+  "72"
 )
 
 export const mobileTabAtom = atomWithStorage<"products" | "checkout">(

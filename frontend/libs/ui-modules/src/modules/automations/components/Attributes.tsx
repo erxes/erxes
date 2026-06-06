@@ -1,6 +1,6 @@
 import { IconChevronDown } from '@tabler/icons-react';
 import { Button, Collapsible, Combobox, Command, Popover } from 'erxes-ui';
-import { useAttributes } from 'ui-modules/modules/automations/hooks/useAttributes';
+import { useAttributes } from '../hooks/useAttributes';
 
 type Props = {
   contentType: string;

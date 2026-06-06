@@ -210,7 +210,7 @@ export const clientPortalSchema = new Schema(
     description: { type: String },
     url: { type: String },
     domain: { type: String },
-    token: { type: String, unique: true },
+    token: { type: String, unique: true, sparse: true },
     erxesIntegrationToken: { type: String },
 
     auth: { type: authSchema },

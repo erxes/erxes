@@ -1,21 +1,19 @@
 import {
   IconCalendar,
   IconCalendarEvent,
-  IconDots,
   IconHash,
-  IconSettings,
   IconTag,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
-  Button,
   RecordTable,
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
 import { AssignmentNameCell } from '../assignment-detail/components/AssignmentNameCell';
 import { IAssignment } from '../types/assignmentTypes';
+import { assignmentMoreColumn } from './AssignmentMoreColumn';
 
 const SafeRelativeDate = ({ value }: { value?: string }) => {
   if (!value) {
@@ -41,6 +39,7 @@ const SafeRelativeDate = ({ value }: { value?: string }) => {
 export const assignmentColumns: (
   editStatus: (options: any) => void,
 ) => ColumnDef<IAssignment>[] = (editStatus) => [
+  assignmentMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IAssignment>,
 
   {
@@ -105,23 +104,5 @@ export const assignmentColumns: (
       );
     },
     size: 150,
-  },
-
-  {
-    id: 'action',
-    accessorKey: 'action',
-    header: () => (
-      <RecordTable.InlineHead icon={IconSettings} label="Actions" />
-    ),
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <RecordTableInlineCell>
-          <Button className="mx-auto" variant="ghost" size="sm">
-            <IconDots className="h-4 w-4" />
-          </Button>
-        </RecordTableInlineCell>
-      );
-    },
-    size: 100,
   },
 ];

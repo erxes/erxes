@@ -1,18 +1,26 @@
 import { gql } from '@apollo/client';
-import { GQL_CURSOR_PARAM_DEFS, GQL_CURSOR_PARAMS } from 'erxes-ui';
-
 export const QUERY_LOTTERY_CAMPAIGNS = gql`
-  query GetLotteryCampaigns(
-    $searchValue: String
+  query LotteryCampaigns(
     $status: String
-
-    ${GQL_CURSOR_PARAM_DEFS}
+    $searchValue: String
+    $limit: Int
+    $cursor: String
+    $cursorMode: CURSOR_MODE
+    $direction: CURSOR_DIRECTION
+    $orderBy: JSON
+    $sortMode: String
+    $aggregationPipeline: [JSON]
   ) {
     lotteryCampaigns(
-      searchValue: $searchValue
       status: $status
-
-      ${GQL_CURSOR_PARAMS}
+      searchValue: $searchValue
+      limit: $limit
+      cursor: $cursor
+      cursorMode: $cursorMode
+      direction: $direction
+      orderBy: $orderBy
+      sortMode: $sortMode
+      aggregationPipeline: $aggregationPipeline
     ) {
       list {
         _id
@@ -25,25 +33,15 @@ export const QUERY_LOTTERY_CAMPAIGNS = gql`
         startDate
         endDate
         finishDateOfUse
-        attachment {
-          url
-          name
-          size
-          type
-          __typename
-        }
+
         status
         numberFormat
         buyScore
         awards
         lotteriesCount
+        updatedAt
       }
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
-      }
+
       totalCount
     }
   }

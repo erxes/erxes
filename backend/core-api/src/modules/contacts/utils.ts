@@ -22,18 +22,31 @@ export const generateFilter = async (
     excludeIds,
   } = params;
 
-  const filter = {};
+  const filter: any = {
+    status: { $ne: CONTACT_STATUSES.deleted }
+  };
 
   if (type) {
     filter['state'] = { $eq: type };
   }
 
   if (status) {
-    filter['status'] = { $eq: CONTACT_STATUSES[status] };
+    filter.status = { $eq: CONTACT_STATUSES[status] };
   }
 
   if (searchValue) {
-    filter['searchText'] = { $regex: searchValue, $options: 'i' };
+    const regex = { $regex: searchValue, $options: 'i' };
+
+    filter['$or'] = [
+      { searchText: regex },
+      { primaryEmail: regex },
+      { emails: regex },
+      { primaryPhone: regex },
+      { phones: regex },
+      { firstName: regex },
+      { lastName: regex },
+      { middleName: regex },
+    ];
   }
 
   if (ids?.length) {
@@ -198,7 +211,7 @@ export const customersCount = async ({
   const counts = {};
 
   switch (type) {
-    case 'tag':
+    case 'tag': {
       const tagIds = await models.Tags.find({ type: 'core:customer' }).distinct(
         '_id',
       );
@@ -210,7 +223,8 @@ export const customersCount = async ({
       }
 
       break;
-    case 'brand':
+    }
+    case 'brand': {
       const brandIds = await models.Brands.find({}).distinct('_id');
 
       const integrations = await findIntegrations(subdomain, {
@@ -218,7 +232,6 @@ export const customersCount = async ({
       });
 
       for (const integration of integrations) {
-
         if (!integration.brandId) {
           continue;
         }
@@ -229,6 +242,7 @@ export const customersCount = async ({
       }
 
       break;
+    }
   }
 
   return counts;

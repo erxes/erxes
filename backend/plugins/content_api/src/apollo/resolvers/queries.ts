@@ -5,13 +5,18 @@ import { contentCmsCategoryQueries } from '@/cms/graphql/queries/category';
 import contentCmsMenuQueries from '@/cms/graphql/queries/menu';
 import contentCmsPageQueries from '@/cms/graphql/queries/page';
 import customPostTypeQueries from '@/cms/graphql/queries/customPostType';
+import { webQueries } from '~/modules/webbuilder/graphql/resolvers/queries/web';
+import { webPageQueries } from '~/modules/webbuilder/graphql/resolvers/queries/webPage';
 
 export const queries = {
-  ...contentCmsQueries,
+  ...webQueries,
   ...postQueries,
   ...contentCmsTagQueries,
   ...contentCmsCategoryQueries,
   ...contentCmsMenuQueries,
   ...contentCmsPageQueries,
   ...customPostTypeQueries,
+  ...contentCmsQueries,
+  ...webPageQueries,
+  ...contentCmsQueries,
 };

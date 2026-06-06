@@ -1,0 +1,87 @@
+import { Form, Input } from 'erxes-ui';
+import { UseFormReturn, FieldValues } from 'react-hook-form';
+import { PostPreview } from '../../PostPreview';
+import { CustomFieldValue } from '../../CustomFieldInput';
+import { CustomFieldsSection, FieldGroup } from './CustomFieldsSection';
+
+interface PostEditorColumnProps {
+  form: UseFormReturn<FieldValues>;
+  selectedLanguage: string;
+  defaultLanguage: string;
+  selectedType: string | undefined;
+  fieldGroups: FieldGroup[];
+  fullPost: { _id?: string } | null | undefined;
+  handleEditorChange: (content: string) => void;
+  getCustomFieldValue: (fieldId: string) => CustomFieldValue;
+  updateCustomFieldValue: (
+    fieldId: string,
+    value: string | boolean | string[],
+  ) => void;
+}
+
+export const PostEditorColumn = ({
+  form,
+  selectedLanguage,
+  defaultLanguage,
+  selectedType,
+  fieldGroups,
+  fullPost,
+  handleEditorChange,
+  getCustomFieldValue,
+  updateCustomFieldValue,
+}: PostEditorColumnProps) => (
+  <div className="col-span-2">
+    <Form.Field
+      control={form.control}
+      name="title"
+      render={({ field }) => (
+        <Form.Item className="mb-4">
+          <Form.Label>
+            Post Title
+            {selectedLanguage !== defaultLanguage && (
+              <span className="ml-2 text-xs text-blue-600">
+                ({selectedLanguage})
+              </span>
+            )}
+          </Form.Label>
+          <Form.Control>
+            <Input {...field} placeholder="Post title" />
+          </Form.Control>
+          <Form.Message />
+        </Form.Item>
+      )}
+    />
+    {selectedLanguage === defaultLanguage && (
+      <Form.Field
+        control={form.control}
+        name="slug"
+        render={({ field }) => (
+          <Form.Item className="mb-4">
+            <Form.Label>Slug</Form.Label>
+            <Form.Control>
+              <Input {...field} placeholder="optional-post-url-slug" />
+            </Form.Control>
+            <Form.Description>
+              Leave empty to generate from the post title.
+            </Form.Description>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+    )}
+    <PostPreview
+      form={form}
+      selectedLanguage={selectedLanguage}
+      defaultLanguage={defaultLanguage}
+      fullPost={fullPost}
+      handleEditorChange={handleEditorChange}
+    />
+    {selectedType && fieldGroups.length > 0 && (
+      <CustomFieldsSection
+        fieldGroups={fieldGroups}
+        getCustomFieldValue={getCustomFieldValue}
+        updateCustomFieldValue={updateCustomFieldValue}
+      />
+    )}
+  </div>
+);

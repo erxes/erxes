@@ -8,7 +8,7 @@ import { Schema } from 'mongoose';
 const commonSchemaFields = {
   id: mongooseStringRandomId,
   title: { type: String },
-  code: { type: String, unique: true },
+  code: { type: String, unique: true, sparse: true },
   updatedBy: { type: String },
   updatedAt: { type: Date },
   createdBy: { type: String },

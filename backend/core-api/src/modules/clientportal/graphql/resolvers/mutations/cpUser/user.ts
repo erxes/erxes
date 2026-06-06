@@ -1,6 +1,10 @@
 import { IContext } from '~/connectionResolvers';
-import { Resolver } from 'erxes-api-shared/core-types';
-import { cpUserService, socialAuthService } from '@/clientportal/services';
+import { ICompany, ICustomer, Resolver } from 'erxes-api-shared/core-types';
+import {
+  cpUserService,
+  socialAuthService,
+  changeContactService,
+} from '@/clientportal/services';
 import { getCPUserByIdOrThrow } from '@/clientportal/services/helpers/userUtils';
 import {
   AuthenticationError,
@@ -12,9 +16,15 @@ import type {
   UnlinkSocialParams,
   FcmTokenAddParams,
   FcmTokenRemoveParams,
+  RequestChangeEmailParams,
+  ConfirmChangeEmailParams,
+  RequestChangePhoneParams,
+  ConfirmChangePhoneParams,
+  ChangePasswordParams,
 } from '@/clientportal/types/cpUserParams';
+import { validatePassword } from '@/clientportal/services/helpers/validators';
 
-export const userMutations: Record<string, Resolver> = {
+export const userMutations: Record<string, Resolver<any, any, IContext>> = {
   async clientPortalUserEdit(
     _root: unknown,
     params: EditUserParams,
@@ -25,6 +35,81 @@ export const userMutations: Record<string, Resolver> = {
     }
 
     return cpUserService.updateUser(cpUser._id, params, models);
+  },
+
+  async clientPortalCustomerEdit(
+    _root: unknown,
+    params: Pick<
+      ICustomer,
+      | 'firstName'
+      | 'lastName'
+      | 'primaryEmail'
+      | 'emails'
+      | 'primaryPhone'
+      | 'phones'
+      | 'primaryAddress'
+      | 'addresses'
+      | 'propertiesData'
+    >,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+
+    if (!cpUser.erxesCustomerId) {
+      throw new ValidationError('No linked customer found');
+    }
+
+    const updatedCustomer = await models.Customers.updateCustomer(
+      cpUser.erxesCustomerId,
+      params,
+    );
+
+    return updatedCustomer;
+  },
+
+  async clientPortalCompanyEdit(
+    _root: unknown,
+    params: Pick<
+      ICompany,
+      | 'primaryName'
+      | 'names'
+      | 'primaryEmail'
+      | 'emails'
+      | 'primaryPhone'
+      | 'phones'
+      | 'primaryAddress'
+      | 'addresses'
+      | 'size'
+      | 'website'
+      | 'industry'
+      | 'ownerId'
+      | 'businessType'
+      | 'description'
+      | 'isSubscribed'
+      | 'links'
+      | 'tagIds'
+      | 'propertiesData'
+      | 'code'
+      | 'location'
+    >,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+
+    if (!cpUser.erxesCompanyId) {
+      throw new ValidationError('No linked company found');
+    }
+
+    const updatedCompany = await models.Companies.updateCompany(
+      cpUser.erxesCompanyId,
+      params,
+    );
+
+    return updatedCompany;
   },
 
   async clientPortalUserLinkSocialAccount(
@@ -129,6 +214,111 @@ export const userMutations: Record<string, Resolver> = {
     await models.CPUser.updateOne(
       { _id: cpUser._id },
       { $pull: { fcmTokens: { deviceId: trimmedDeviceId } } },
+    );
+
+    return getCPUserByIdOrThrow(cpUser._id, models);
+  },
+
+  async clientPortalUserRequestChangeEmail(
+    _root: unknown,
+    { newEmail }: RequestChangeEmailParams,
+    { models, subdomain, clientPortal, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+    await changeContactService.requestChangeEmail(
+      cpUser._id,
+      newEmail,
+      clientPortal,
+      models,
+      subdomain,
+    );
+    return 'OTP has been sent to your new email';
+  },
+
+  async clientPortalUserConfirmChangeEmail(
+    _root: unknown,
+    { code }: ConfirmChangeEmailParams,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+    return changeContactService.confirmChangeEmail(cpUser._id, code, models);
+  },
+
+  async clientPortalUserRequestChangePhone(
+    _root: unknown,
+    { newPhone }: RequestChangePhoneParams,
+    { models, subdomain, clientPortal, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+    await changeContactService.requestChangePhone(
+      cpUser._id,
+      newPhone,
+      clientPortal,
+      models,
+      subdomain,
+    );
+    return 'OTP has been sent to your new phone';
+  },
+
+  async clientPortalUserConfirmChangePhone(
+    _root: unknown,
+    { code }: ConfirmChangePhoneParams,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+    return changeContactService.confirmChangePhone(cpUser._id, code, models);
+  },
+
+  async clientPortalUserDelete(
+    _root: unknown,
+    _args: unknown,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+
+    await models.CPUser.removeUser(cpUser._id, models);
+    return { _id: cpUser._id };
+  },
+
+  async clientPortalUserChangePassword(
+    _root: unknown,
+    { currentPassword, newPassword }: ChangePasswordParams,
+    { models, cpUser }: IContext,
+  ) {
+    if (!cpUser) {
+      throw new AuthenticationError('User not authenticated');
+    }
+
+    const user = await getCPUserByIdOrThrow(cpUser._id, models);
+
+    if (!user.password) {
+      throw new ValidationError('No password set for this account');
+    }
+
+    const isMatch = await models.CPUser.comparePassword(
+      currentPassword,
+      user.password,
+    );
+    if (!isMatch) {
+      throw new ValidationError('Current password is incorrect');
+    }
+
+    validatePassword(newPassword);
+
+    const hashedPassword = await models.CPUser.generatePassword(newPassword);
+    await models.CPUser.updateOne(
+      { _id: cpUser._id },
+      { $set: { password: hashedPassword }, $unset: { actionCode: '' } },
     );
 
     return getCPUserByIdOrThrow(cpUser._id, models);

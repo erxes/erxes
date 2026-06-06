@@ -35,7 +35,7 @@ export const documents = {
   ) => {
     const [pluginName, moduleName] = contentType.split(':');
 
-    const isEnabledService = isEnabled(pluginName);
+    const isEnabledService = await isEnabled(pluginName);
 
     if (!isEnabledService) {
       return [];

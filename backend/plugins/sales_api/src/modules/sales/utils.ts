@@ -152,7 +152,6 @@ export const createBoardItem = async (models: IModels, doc: IDeal) => {
     });
   } catch (e) {
     if (e.message.includes(`E11000 duplicate key error`)) {
-      console.log(doc.number, doc.stageId);
       await createBoardItem(models, doc);
     } else {
       throw new Error(e.message);
@@ -237,8 +236,8 @@ export const destroyBoardItemRelations = async (
     pluginName: 'core',
     module: 'activityLog',
     action: 'deleteActivityLog',
-    input: { targetIds: dealIds }
-  })
+    input: { targetIds: dealIds },
+  });
 
   await models.Checklists.removeChecklists(dealIds);
 
@@ -250,7 +249,7 @@ export const destroyBoardItemRelations = async (
     action: 'cleanRelation',
     input: {
       contentType: 'sales:deal',
-      contentIds: dealIds
+      contentIds: dealIds,
     },
   });
 
@@ -339,19 +338,19 @@ const generateArchivedItemsFilter = (
     filter.userId = { $in: userIds };
   }
 
-  if (priorities && priorities.length) {
+  if (priorities?.length) {
     filter.priority = { $in: priorities };
   }
 
-  if (assignedUserIds && assignedUserIds.length) {
+  if (assignedUserIds?.length) {
     filter.assignedUserIds = { $in: assignedUserIds };
   }
 
-  if (labelIds && labelIds.length) {
+  if (labelIds?.length) {
     filter.labelIds = { $in: labelIds };
   }
 
-  if (productIds && productIds.length) {
+  if (productIds?.length) {
     filter['productsData.productId'] = { $in: productIds };
   }
 
@@ -371,11 +370,11 @@ const generateArchivedItemsFilter = (
     }
   }
 
-  if (sources && sources.length) {
+  if (sources?.length) {
     filter.source = { $in: sources };
   }
 
-  if (hackStages && hackStages.length) {
+  if (hackStages?.length) {
     filter.hackStages = { $in: hackStages };
   }
 
@@ -512,7 +511,7 @@ export const getItemList = async (
 ) => {
   const { orderBy } = args;
   if (!orderBy || !Object.keys(orderBy)) {
-    args.orderBy = { order: 1 }
+    args.orderBy = { order: 1 };
   }
 
   const { list, pageInfo, totalCount } = await cursorPaginate<IDealDocument>({
@@ -531,7 +530,7 @@ export const getItemList = async (
     action: 'find',
     input: {
       query: {
-        "configs.showInCard": true,
+        'configs.showInCard': true,
         contentType: `sales:deal`,
       },
     },
@@ -550,12 +549,12 @@ export const getItemList = async (
             name: `${field.name} - ${fieldData}`,
           });
         }
-      };
+      }
     }
 
     updatedList.push({
       ...item,
-      isWatched: (item.watchedUserIds || []).includes(user._id),
+      isWatched: (item.watchedUserIds || []).includes(user?._id),
       // hasNotified: notification ? false : true,
       ...(getExtraFields ? getExtraFields(item) : {}),
     });
@@ -584,7 +583,7 @@ const compareDepartmentIds = (
 
 export const generateProducts = async (
   subdomain: string,
-  productsData?: any[]
+  productsData?: any[],
 ) => {
   const products: any = [];
 
@@ -593,24 +592,24 @@ export const generateProducts = async (
   }
 
   const productIds = productsData
-    .filter(pd => pd.productId)
-    .map(pd => pd.productId);
+    .filter((pd) => pd.productId)
+    .map((pd) => pd.productId);
 
   const allProducts = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     method: 'query',
     module: 'products',
-    action: "find",
+    action: 'find',
     input: { query: { _id: { $in: productIds } }, limit: productsData.length },
-    defaultValue: []
+    defaultValue: [],
   });
 
   for (const data of productsData || []) {
     if (!data.productId) {
       continue;
     }
-    const product = allProducts.find(p => p._id === data.productId);
+    const product = allProducts.find((p) => p._id === data.productId);
 
     if (!product) {
       continue;
@@ -627,22 +626,22 @@ export const generateProducts = async (
       pluginName: 'core',
       method: 'query',
       module: 'fields',
-      action: "find",
+      action: 'find',
       input: {
         query: {
-          _id: { $in: fieldIds }
-        }
+          _id: { $in: fieldIds },
+        },
       },
-      defaultValue: []
+      defaultValue: [],
     });
 
     for (const fieldId of fieldIds || []) {
-      const field = fields.find(f => f._id === fieldId);
+      const field = fields.find((f) => f._id === fieldId);
 
       if (field) {
         properties[fieldId] = {
           text: field.text,
-          data: propertiesData[fieldId]
+          data: propertiesData[fieldId],
         };
       }
     }
@@ -650,8 +649,8 @@ export const generateProducts = async (
     product.propertiesData = properties;
 
     products.push({
-      ...(typeof data.toJSON === "function" ? data.toJSON() : data),
-      product
+      ...(typeof data.toJSON === 'function' ? data.toJSON() : data),
+      product,
     });
   }
 
@@ -821,14 +820,11 @@ export const getNewOrder = async ({
   return order;
 };
 
-export const checkMovePermission = (
-  stage: IStageDocument,
-  user: IUserDocument,
-) => {
+export const checkMovePermission = (stage: IStageDocument, userId: string) => {
   if (
     stage.canMoveMemberIds &&
     stage.canMoveMemberIds.length > 0 &&
-    !stage.canMoveMemberIds.includes(user._id)
+    !stage.canMoveMemberIds.includes(userId)
   ) {
     throw new Error('Permission denied');
   }
@@ -922,29 +918,39 @@ export const getCustomerIds = async (
 
 export const createRelations = async (
   subdomain: string,
-  { dealId, companyIds, customerIds }: { dealId: string, companyIds?: string[], customerIds?: string[] },
+  {
+    dealId,
+    companyIds,
+    customerIds,
+  }: { dealId: string; companyIds?: string[]; customerIds?: string[] },
 ) => {
-  const companyEntities = companyIds?.map(companyId => ({
-    entities: [{
-      "contentType": "sales:deal",
-      "contentId": dealId
-    },
-    {
-      "contentType": "core:company",
-      "contentId": companyId
-    }]
-  })) ?? [];
+  const companyEntities =
+    companyIds?.map((companyId) => ({
+      entities: [
+        {
+          contentType: 'sales:deal',
+          contentId: dealId,
+        },
+        {
+          contentType: 'core:company',
+          contentId: companyId,
+        },
+      ],
+    })) ?? [];
 
-  const customerEntities = customerIds?.map(customerId => ({
-    entities: [{
-      "contentType": "sales:deal",
-      "contentId": dealId
-    },
-    {
-      "contentType": "core:customer",
-      "contentId": customerId
-    }]
-  })) ?? [];
+  const customerEntities =
+    customerIds?.map((customerId) => ({
+      entities: [
+        {
+          contentType: 'sales:deal',
+          contentId: dealId,
+        },
+        {
+          contentType: 'core:customer',
+          contentId: customerId,
+        },
+      ],
+    })) ?? [];
 
   if (!(companyEntities.length + customerEntities.length)) {
     return;
@@ -957,10 +963,7 @@ export const createRelations = async (
     module: 'relation',
     action: 'createMultipleRelations',
     input: {
-      relations: [
-        ...companyEntities,
-        ...customerEntities
-      ]
+      relations: [...companyEntities, ...customerEntities],
     },
   });
 };
@@ -1019,9 +1022,8 @@ export const sendNotification = async ({
     message: string;
     type?: 'info' | 'success' | 'warning' | 'error';
     fromUserId?: string;
-    contentType: string; // 'frontline:conversation', 'sales:deal', etc.
-    contentTypeId?: string; // target object ID
-    // Additional data
+    contentType: string;
+    contentTypeId?: string;
     priority?: 'low' | 'medium' | 'high' | 'urgent';
     priorityLevel?: 1 | 2 | 3 | 4;
     metadata?: any; // plugin-specific data
@@ -1100,15 +1102,19 @@ export const sendNotifications = async (
     user._id,
   ];
 
-  // exclude current user, invited user and removed users
-  const receivers = (
-    await notifiedUserIds(models, item, stage, pipeline)
-  ).filter((id) => {
-    return usersToExclude.indexOf(id) < 0;
-  });
+  const allNotified = await notifiedUserIds(models, item, stage, pipeline);
+  // keep only assigned + watched, exclude pipeline watchers
+  const pipelineWatchers = pipeline.watchedUserIds || [];
+  const receivers = allNotified
+    .filter(
+      (id) =>
+        !pipelineWatchers.includes(id) || item.assignedUserIds?.includes(id),
+    ) // keep if assigned (already in list) but not pure pipeline watchers
+    .filter((id) => usersToExclude.indexOf(id) < 0);
 
   const notificationDoc = {
     createdUser: user,
+    fromUserId: user._id,
     title,
     contentType: 'sales:deal',
     contentTypeId: item._id,
@@ -1117,7 +1123,8 @@ export const sendNotifications = async (
     link: `/deal/board?id=${pipeline.boardId}&pipelineId=${pipeline._id}&itemId=${item._id}`,
   };
 
-  if (removedUsers && removedUsers.length > 0) {
+  // removed users
+  if (removedUsers?.length) {
     sendNotification({
       subdomain,
       userIds: removedUsers.filter((id) => id !== user._id),
@@ -1126,28 +1133,39 @@ export const sendNotifications = async (
         action: `removed you from deal`,
         message: `'${item.name}'`,
       },
+      allowMultiple: false,
     });
   }
 
-  if (invitedUsers && invitedUsers.length > 0) {
+  // invited users
+  if (invitedUsers?.length) {
     sendNotification({
       subdomain,
       userIds: invitedUsers.filter((id) => id !== user._id),
       data: {
         ...notificationDoc,
-        action: `invited you to the deal: `,
+        action: `invited you to the deal`,
         message: `'${item.name}'`,
       },
+      allowMultiple: false,
     });
   }
 
-  sendNotification({
-    subdomain,
-    userIds: receivers,
-    data: {
-      ...notificationDoc,
-    },
-  });
+  const excludedSet = new Set([...(removedUsers || []), user._id]);
+
+  const invitedSet = new Set(invitedUsers || []);
+
+  const filteredReceivers = receivers.filter(
+    (id) => !invitedSet.has(id) && !excludedSet.has(id),
+  );
+
+  if (filteredReceivers.length > 0) {
+    sendNotification({
+      subdomain,
+      userIds: filteredReceivers,
+      data: notificationDoc,
+    });
+  }
 };
 
 export const itemsAdd = async (
@@ -1169,7 +1187,7 @@ export const itemsAdd = async (
 
   const extendedDoc = {
     ...modifiedDoc,
-    modifiedBy: user && user._id,
+    modifiedBy: user?._id,
     userId: user ? user._id : doc.userId,
     order: await getNewOrder({
       collection: models.Deals,
@@ -1193,4 +1211,45 @@ export const itemsAdd = async (
   const item = await createModel(extendedDoc);
 
   return item;
+};
+export const PERMISSION_MAP = {
+  deal: {
+    dealsAdd: 'dealsAdd',
+    dealsEdit: 'dealsEdit',
+    dealsRemove: 'dealsRemove',
+    dealsWatch: 'dealsWatch',
+    dealsArchive: 'dealsArchive',
+    dealsCopy: 'dealsAdd',
+    dealsCreateProductsData: 'dealsEdit',
+    dealsEditProductData: 'dealsEdit',
+    dealsDeleteProductData: 'dealsEdit',
+  },
+  board: {
+    boardsAdd: 'boardsAdd',
+    boardsEdit: 'boardsEdit',
+    boardsRemove: 'boardsRemove',
+    pipelinesAdd: 'pipelinesAdd',
+    pipelinesEdit: 'pipelinesEdit',
+    pipelinesWatch: 'pipelinesWatch',
+    stagesEdit: 'stagesEdit',
+    stagesRemove: 'stagesRemove',
+    itemsSort: 'itemsSort',
+    updateTimeTracking: 'updateTimeTracking',
+  },
+  checklist: {
+    checklistsAdd: 'checklistsAdd',
+    checklistsEdit: 'checklistsEdit',
+    checklistsRemove: 'checklistsRemove',
+  },
+  pipelineLabel: {
+    pipelineLabelsAdd: 'pipelineLabelsAdd',
+    pipelineLabelsEdit: 'pipelineLabelsEdit',
+    pipelineLabelsRemove: 'pipelineLabelsRemove',
+  },
+  pipelineTemplate: {
+    templatesAdd: 'templatesAdd',
+    templatesEdit: 'templatesEdit',
+    templatesRemove: 'templatesRemove',
+    showTemplates: 'showTemplates',
+  },
 };

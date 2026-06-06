@@ -5,7 +5,10 @@ import { ACC_TRS__PER_PAGE } from '@/transactions/types/constants';
 
 export const useAdjustInventoryDetails = (options?: OperationVariables) => {
   const { data, loading, error, fetchMore } = useQuery<
-    { adjustInventoryDetails: IAdjustInvDetail[], adjustInventoryDetailsCount: number },
+    {
+      adjustInventoryDetails: IAdjustInvDetail[];
+      adjustInventoryDetailsCount: number;
+    },
     OperationVariables
   >(ADJUST_INVENTORY_DETAILS_QUERY, {
     ...options,
@@ -15,20 +18,25 @@ export const useAdjustInventoryDetails = (options?: OperationVariables) => {
       perPage: ACC_TRS__PER_PAGE,
     },
   });
-  const { adjustInventoryDetails = [], adjustInventoryDetailsCount = 0 } = data || {};
+  const { adjustInventoryDetails = [], adjustInventoryDetailsCount = 0 } =
+    data || {};
 
   const handleFetchMore = () => {
     if (adjustInventoryDetails?.length < adjustInventoryDetailsCount) {
       fetchMore({
         variables: {
           perPage: ACC_TRS__PER_PAGE,
-          page: Math.ceil(adjustInventoryDetails?.length / ACC_TRS__PER_PAGE) + 1,
+          page:
+            Math.ceil(adjustInventoryDetails?.length / ACC_TRS__PER_PAGE) + 1,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
           return {
             ...prev,
             ...fetchMoreResult,
-            adjustInventoryDetails: [...prev.adjustInventoryDetails, ...fetchMoreResult.adjustInventoryDetails],
+            adjustInventoryDetails: [
+              ...prev.adjustInventoryDetails,
+              ...fetchMoreResult.adjustInventoryDetails,
+            ],
           };
         },
       });

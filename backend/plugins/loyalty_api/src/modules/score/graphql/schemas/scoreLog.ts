@@ -19,6 +19,12 @@ export const types = `
     serviceName: String
     createdBy: String
     createdAt: Date
+
+    amount: Float
+    quantity: Float
+
+    totalScore: Float
+    owner: JSON
   }
 
   type ScoreLog {
@@ -32,7 +38,8 @@ export const types = `
 
   type ScoreLogList {
     list: [ScoreLog]
-    total: Int
+    pageInfo: PageInfo
+    totalCount: Int
   }
 
   type ScoreLogListResponse {
@@ -49,13 +56,21 @@ const queryParams = `
   ownerId: String,
   status: String,
   action: String,
+  orderType: String,
   fromDate: String,
   toDate: String,
+  boardId: String,
+  pipelineId: String,
+  stageId: String,
+  number: String,
+  description: String,
+  logsPerOwner: Int,
 `;
 
 export const queries = `
   scoreLogs(${queryParams} ${GQL_CURSOR_PARAM_DEFS}): ScoreLogListResponse
-  scoreLogList(${queryParams}): ScoreLogList
+  scoreLogList(${queryParams} ${GQL_CURSOR_PARAM_DEFS}, clientPortal:String): ScoreLogList
+  cpScoreLogList(${queryParams} ${GQL_CURSOR_PARAM_DEFS}, clientPortal:String): ScoreLogList
   scoreLogStatistics(${queryParams}): JSON
 `;
 
@@ -68,8 +83,11 @@ const mutationParams = `
   change: Float!
   description: String
   serviceName: String
+  amount: Float
+  quantity: Float
 `;
 
 export const mutations = `
   changeScore(${mutationParams}): ScoreLogItem
+  loyaltyScoreRepairOwner(ownerId: String!, ownerType: String!): JSON
 `;

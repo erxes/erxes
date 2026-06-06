@@ -13,8 +13,6 @@
         background: #f5f5f5;
       }
       .container {
-        background: white;
-        padding: 3rem;
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       }
@@ -44,34 +42,33 @@
   </head>
   <body>
     <div class="container">
-      <div data-erxes-embed="GGQY5i"></div>
+      <div data-erxes-embed="SbPw2l"></div>
+      <!-- <div data-erxes-modal="zcpkdy">
+        <button>Open Form Widget</button>
+      </div> -->
     </div>
 
     <!-- Widget Configuration -->
 
     <!-- Load the compiled widget script -->
-    <script src="./messengerBundle.js"></script>
     <script>
       window.erxesSettings = {
-        messenger: {
-          integrationId: '4nOWyqg7SZgmdLHs0rLQN',
-        },
         forms: [
           {
-            form_id: 'GGQY5i',
-            channel_id: '0CdBWjlmo0p7acYcFKnZc',
+            form_id: 'zcpkdy',
+            channel_id: 'JCwNcKRss4W94g8F5FKpw',
+          },
+          {
+            form_id: 'SbPw2l',
+            channel_id: 'JCwNcKRss4W94g8F5FKpw',
           },
         ],
+        messenger: {
+          integrationId: '9S6seo9wawN6cou8v',
+        },
       };
-
-      (function () {
-        var script = document.createElement('script');
-        script.src = 'http://localhost:4200/formBundle.js';
-        script.async = true;
-
-        var entry = document.getElementsByTagName('script')[0];
-        entry.parentNode.insertBefore(script, entry);
-      })();
     </script>
+    <script src="./formBundle.js"></script>
+    <script src="./messengerBundle.js"></script>
   </body>
 </html>

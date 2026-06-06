@@ -10,7 +10,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 
 export interface IConversationModel extends Model<IConversationDocument> {
-  getConversation(_id: string): IConversationDocument;
+  getConversation(_id: string): Promise<IConversationDocument>;
   createConversation(doc: IConversation): Promise<IConversationDocument>;
   updateConversation(_id: string, doc): Promise<IConversationDocument>;
   checkExistanceConversations(ids: string[]): any;
@@ -76,7 +76,7 @@ export interface IConversationModel extends Model<IConversationDocument> {
 export const loadClass = (models: IModels) => {
   class Conversation {
     /**
-     * Retreives conversation
+     * Retrieves conversation
      */
     public static async getConversation(_id: string) {
       const conversation = await models.Conversations.findOne({ _id });

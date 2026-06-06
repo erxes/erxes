@@ -1,6 +1,7 @@
 import {
   IconAddressBook,
   IconAffiliate,
+  IconBrandDatabricks,
   IconBroadcast,
   IconBuilding,
   IconCategory,
@@ -71,6 +72,11 @@ export const GET_CORE_MODULES = (
       path: 'logs',
       settingsOnly: true,
     },
+    {
+      name: t('broadcasts'),
+      icon: IconBroadcast,
+      path: 'broadcasts',
+    },
   ];
 
   if (version) {
@@ -81,9 +87,9 @@ export const GET_CORE_MODULES = (
         path: 'documents',
       },
       {
-        name: t('broadcasts'),
-        icon: IconBroadcast,
-        path: 'broadcasts',
+        name: t('templates'),
+        icon: IconBrandDatabricks,
+        path: 'templates',
       },
     );
   }

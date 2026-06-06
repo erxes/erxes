@@ -114,7 +114,7 @@ export const ADJUST_INVENTORIES_QUERY = gql`
     }
     adjustInventoriesCount(${adjustInvFilterParams})
   }
-`
+`;
 export const ADJUST_INVENTORY_DETAIL_QUERY = gql`
   query AdjustInventoryDetail($_id: String!) {
     adjustInventoryDetail(_id: $_id) {

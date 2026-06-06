@@ -16,6 +16,12 @@ export const AUTOMATION_CONSTANTS = gql`
   }
 `;
 
+export const AUTOMATION_NODE_OUTPUT = gql`
+  query AutomationNodeOutput($nodeType: String!) {
+    automationNodeOutput(nodeType: $nodeType)
+  }
+`;
+
 export const AUTOMATION_DETAIL = gql`
 query AutomationDetail($id: String!) {
   automationDetail(_id: $id) {

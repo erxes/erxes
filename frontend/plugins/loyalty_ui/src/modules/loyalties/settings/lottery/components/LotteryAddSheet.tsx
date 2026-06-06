@@ -34,7 +34,7 @@ export const LotteryAddSheet = () => {
         {
           name: '',
           voucherCampaignId: '',
-          probablity: 0,
+          count: 0,
         },
       ],
     },

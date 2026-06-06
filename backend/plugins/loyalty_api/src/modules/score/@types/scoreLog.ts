@@ -14,6 +14,8 @@ export interface IScoreLog {
   sourceScoreLogId?: string;
   targetId?: string;
   action?: string;
+  amount?: number;
+  quantity?: number;
 }
 
 export interface IScoreLogDocument
@@ -30,9 +32,34 @@ export interface IScoreLogParams extends ICursorPaginateParams {
   toDate?: string;
   campaignId?: string;
   action?: string;
+  clientPortal?: string;
+  orderType?: string;
   number?: string;
+  description?: string;
+  boardId?: string;
+  pipelineId?: string;
   stageId?: string;
   contentId?: string;
   contentType?: string;
   searchValue?: string;
+  logsPerOwner?: number;
+}
+
+export interface IRepairOwnerScoreParams {
+  ownerType: string;
+  ownerId: string;
+}
+
+export interface IRepairedOwnerFieldScore {
+  fieldId: string;
+  score: number;
+  campaignIds: string[];
+}
+
+export interface IRepairOwnerScoreResult {
+  ownerType: string;
+  ownerId: string;
+  updatedScore?: number;
+  updatedCustomFieldsData?: Record<string, unknown>;
+  fieldScores: IRepairedOwnerFieldScore[];
 }

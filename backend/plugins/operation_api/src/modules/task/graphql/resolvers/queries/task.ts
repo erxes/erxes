@@ -1,5 +1,4 @@
 import { ITaskDocument, ITaskFilter } from '@/task/@types/task';
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
@@ -26,15 +25,23 @@ const handleDateFilter = (
 };
 
 export const taskQueries = {
-  getTask: async (_parent: undefined, { _id }, { models }: IContext) => {
+  getTask: async (
+    _parent: undefined,
+    { _id },
+    { models, checkPermission }: IContext,
+  ) => {
+    await checkPermission('taskRead');
+
     return models.Task.getTask(_id);
   },
 
   getTasks: async (
     _parent: undefined,
     { filter }: { filter: ITaskFilter },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('taskRead');
+
     const filterQuery: FilterQuery<ITaskDocument> = {};
 
     if (filter.name) {
@@ -206,9 +213,8 @@ export const taskQueries = {
           projectFilter._id = { $in: projectIds };
         }
 
-        const matchingProjects = await models.Project.find(
-          projectFilter,
-        ).distinct('_id');
+        const matchingProjects =
+          await models.Project.find(projectFilter).distinct('_id');
 
         if (matchingProjects.length === 0) {
           return { list: [], totalCount: 0, pageInfo: null };
@@ -272,6 +278,3 @@ export const taskQueries = {
     return { list, totalCount, pageInfo };
   },
 };
-
-requireLogin(taskQueries, 'getTask');
-requireLogin(taskQueries, 'getTasks');

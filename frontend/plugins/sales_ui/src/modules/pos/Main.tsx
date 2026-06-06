@@ -3,11 +3,18 @@ import { Suspense, lazy } from 'react';
 
 import { Spinner } from 'erxes-ui/components';
 
-const OrdersMain = lazy(() =>
-  import('~/pages/OrdersPage').then((module) => ({
-    default: module.OrdersPage,
-  })),
-);
+const OrdersMain = lazy(() => {
+  return import('../../pages/OrdersPage')
+    .then((module) => {
+      return {
+        default: module.OrdersPage,
+      };
+    })
+    .catch((error) => {
+      console.error('Failed to load OrdersPage:', error);
+      throw error;
+    });
+});
 
 const CoversMain = lazy(() =>
   import('~/pages/CoversPage').then((module) => ({

@@ -1,120 +1,29 @@
-import { useEffect, useState } from 'react';
-import { Button, toast } from 'erxes-ui';
+import { useState } from 'react';
+import { Button } from 'erxes-ui';
 import { IconTrash, IconEdit } from '@tabler/icons-react';
-import { useMutation } from '@apollo/client';
-import { usePosDetail } from '@/pos/hooks/usePosDetail';
-import mutations from '@/pos/graphql/mutations';
 import { AddPaymentSheet } from './AddPaymentSheet';
-import { PaymentType } from '@/pos/types/types';
+import { type PaymentType } from '@/pos/types/types';
 
 interface OtherPaymentProps {
-  posId?: string;
+  paymentTypes: PaymentType[];
+  onPaymentAdded: (payment: PaymentType) => void;
+  onPaymentUpdated: (payment: PaymentType) => void;
+  onPaymentDeleted: (paymentId: string) => void;
 }
 
-export const OtherPayment: React.FC<OtherPaymentProps> = ({ posId }) => {
-  const [paymentTypes, setPaymentTypes] = useState<PaymentType[]>([]);
-  const [hasChanges, setHasChanges] = useState(false);
+export const OtherPayment: React.FC<OtherPaymentProps> = ({
+  paymentTypes,
+  onPaymentAdded,
+  onPaymentUpdated,
+  onPaymentDeleted,
+}) => {
   const [editingPayment, setEditingPayment] = useState<PaymentType | null>(
     null,
   );
 
-  const { posDetail, loading: detailLoading, error } = usePosDetail(posId);
-  const [posEdit, { loading: saving }] = useMutation(mutations.posEdit);
-
-  useEffect(() => {
-    if (posDetail?.paymentTypes) {
-      const validPaymentTypes = posDetail.paymentTypes
-        .filter((p): p is PaymentType => !!p._id)
-        .map((p) => ({
-          _id: p._id,
-          type: p.type,
-          title: p.title,
-          icon: p.icon,
-          config: p.config,
-        }));
-      setPaymentTypes(validPaymentTypes);
-      setHasChanges(false);
-    }
-  }, [posDetail]);
-
-  const handlePaymentAdded = (payment: PaymentType) => {
-    setPaymentTypes([...paymentTypes, payment]);
-    setHasChanges(true);
-  };
-
-  const handlePaymentUpdated = (payment: PaymentType) => {
-    setPaymentTypes(
-      paymentTypes.map((p) => (p._id === payment._id ? payment : p)),
-    );
-    setHasChanges(true);
-  };
-
   const handleEditComplete = () => {
     setEditingPayment(null);
   };
-
-  const handleDeletePayment = (id: string) => {
-    setPaymentTypes(paymentTypes.filter((p) => p._id !== id));
-    setHasChanges(true);
-  };
-
-  const handleSaveChanges = async () => {
-    if (!posId) {
-      toast({
-        title: 'Error',
-        description: 'POS ID is required',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    try {
-      await posEdit({
-        variables: {
-          _id: posId,
-          paymentTypes: paymentTypes.map(
-            ({ _id, type, title, icon, config }) => ({
-              _id,
-              type,
-              title,
-              icon,
-              config,
-            }),
-          ),
-        },
-      });
-
-      toast({
-        title: 'Success',
-        description: 'Payment types saved successfully',
-      });
-      setHasChanges(false);
-    } catch {
-      toast({
-        title: 'Error',
-        description: 'Failed to save payment types',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  if (detailLoading) {
-    return (
-      <div className="space-y-4">
-        <div className="h-32 rounded animate-pulse bg-muted" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-6 text-center">
-        <p className="text-destructive">
-          Failed to load POS details: {error.message}
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-4">
@@ -148,7 +57,7 @@ export const OtherPayment: React.FC<OtherPaymentProps> = ({ posId }) => {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => handleDeletePayment(payment._id)}
+                  onClick={() => onPaymentDeleted(payment._id)}
                   className="text-destructive"
                 >
                   <IconTrash size={16} />
@@ -160,19 +69,11 @@ export const OtherPayment: React.FC<OtherPaymentProps> = ({ posId }) => {
       )}
 
       <AddPaymentSheet
-        onPaymentAdded={handlePaymentAdded}
-        onPaymentUpdated={handlePaymentUpdated}
+        onPaymentAdded={onPaymentAdded}
+        onPaymentUpdated={onPaymentUpdated}
         editingPayment={editingPayment}
         onEditComplete={handleEditComplete}
       />
-
-      {hasChanges && (
-        <div className="flex justify-end pt-4 border-t">
-          <Button onClick={handleSaveChanges} disabled={saving}>
-            {saving ? 'Saving...' : 'Save Changes'}
-          </Button>
-        </div>
-      )}
     </div>
   );
 };

@@ -10,11 +10,12 @@ import { Node, useReactFlow } from '@xyflow/react';
 import { toast } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import {
-  splitAutomationNodeType,
-  TAutomationTrigger,
-  TAutomationAction,
   IAutomationsActionConfigConstants,
+  splitAutomationNodeType,
+  TAutomationAction,
+  TAutomationTrigger,
 } from 'ui-modules';
+import { useNodeErrorHandler } from '../../hooks/useNodeErrorHandler';
 
 const getTargetType = (
   actionConstMap: Map<string, IAutomationsActionConfigConstants>,
@@ -40,6 +41,7 @@ export const useAutomationActionContentSidebar = () => {
   const toggleSideBarOpen = useSetAtom(toggleAutomationBuilderOpenSidebar);
   const { getNode, updateNodeData } = useReactFlow<Node<NodeData>>();
   const { actions, triggers } = useAutomationNodes();
+  const { clearNodeError } = useNodeErrorHandler();
 
   // Watch all actions once
 
@@ -82,6 +84,7 @@ export const useAutomationActionContentSidebar = () => {
       title: 'Action configuration added successfully.',
       variant: 'success',
     });
+    currentAction && clearNodeError(currentAction.id);
   };
 
   const onSaveActionConfig = (config: any) => {

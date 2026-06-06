@@ -3,6 +3,7 @@ import {
   IAutomationExecAction,
   IAutomationExecutionDocument,
 } from 'erxes-api-shared/core-modules';
+import { finalizeExecAction } from './executionActionMetrics';
 
 export const handleExecutionError = async (
   e,
@@ -10,6 +11,7 @@ export const handleExecutionError = async (
   execution: IAutomationExecutionDocument,
   execAction: IAutomationExecAction,
 ) => {
+  finalizeExecAction(execAction, 'error');
   execAction.result = { error: e.message, result: e.result };
   execution.actions = [...(execution.actions || []), execAction];
   execution.status = AUTOMATION_EXECUTION_STATUS.ERROR;

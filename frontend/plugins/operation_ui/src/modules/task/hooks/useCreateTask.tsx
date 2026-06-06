@@ -1,8 +1,7 @@
-import { useMutation } from '@apollo/client';
-import { CREATE_TASK_MUTATION } from '@/task/graphql/mutations/createTask';
-import { useToast } from 'erxes-ui';
-import { useRecordTableCursor } from 'erxes-ui';
 import { TASKS_CURSOR_SESSION_KEY } from '@/task/constants';
+import { CREATE_TASK_MUTATION } from '@/task/graphql/mutations/createTask';
+import { useMutation } from '@apollo/client';
+import { useRecordTableCursor, useToast } from 'erxes-ui';
 
 export const useCreateTask = () => {
   const { toast } = useToast();

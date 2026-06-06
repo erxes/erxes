@@ -54,7 +54,11 @@ export const OrganizationProvider = () => {
     return <LoadingScreen />;
   }
 
-  if (isDefined(currentOrganization) && !currentOrganization.hasOwner) {
+  if (
+    isDefined(currentOrganization) &&
+    !currentOrganization.hasOwner &&
+    currentOrganization.type === 'os'
+  ) {
     return <Navigate to={AppPath.CreateOwner} replace />;
   }
 

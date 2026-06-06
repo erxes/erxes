@@ -7,6 +7,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { CAMPAIGN_STATUS } from '~/constants';
 import { validCampaign } from '~/utils';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
 export interface IDonateCampaignModel extends Model<IDonateCampaignDocument> {
   getDonateCampaign(_id: string): Promise<IDonateCampaignDocument>;
@@ -25,7 +26,12 @@ const getSortAwards = (awards) => {
   return awards.sort((a, b) => a.minScore - b.minScore);
 };
 
-export const loadDonateCampaignClass = (models: IModels) => {
+export const loadDonateCampaignClass = (
+  models: IModels,
+  dispatcher: EventDispatcherReturn,
+) => {
+  const { sendDbEventLog } = dispatcher;
+
   class DonateCampaign {
     public static async getDonateCampaign(_id: string) {
       const donateCampaign = await models.DonateCampaigns.findOne({ _id });
@@ -52,7 +58,7 @@ export const loadDonateCampaignClass = (models: IModels) => {
 
       const levels = awards.map((a) => a.minScore);
 
-      if (levels.length > (new Set(levels)).size) {
+      if (levels.length > new Set(levels).size) {
         throw new Error('Levels scores must be unique');
       }
     }
@@ -76,13 +82,22 @@ export const loadDonateCampaignClass = (models: IModels) => {
         throw new Error(e.message);
       }
 
-      return models.DonateCampaigns.create(modifier);
+      const created = await models.DonateCampaigns.create(modifier);
+
+      sendDbEventLog?.({
+        action: 'create',
+        docId: created._id,
+        currentDocument: created.toObject(),
+      });
+
+      return created;
     }
 
     public static async updateDonateCampaign(
       _id: string,
       doc: IDonateCampaign,
     ) {
+      const prevDoc = await models.DonateCampaigns.findOne({ _id }).lean();
       const modifier = {
         ...doc,
         awards: getSortAwards(doc.awards),
@@ -95,7 +110,16 @@ export const loadDonateCampaignClass = (models: IModels) => {
         throw new Error(e.message);
       }
 
-      return models.DonateCampaigns.updateOne({ _id }, { $set: modifier });
+      const result = await models.DonateCampaigns.updateOne({ _id }, { $set: modifier });
+
+      sendDbEventLog?.({
+        action: 'update',
+        docId: _id,
+        currentDocument: modifier,
+        prevDocument: prevDoc,
+      });
+
+      return result;
     }
 
     public static async removeDonateCampaigns(ids: string[]) {
@@ -104,17 +128,39 @@ export const loadDonateCampaignClass = (models: IModels) => {
       }).distinct('campaignId');
 
       const usedCampaignIds = ids.filter((id) => atDonateIds.includes(id));
-      const deleteCampaignIds = ids.map((id) => !usedCampaignIds.includes(id));
+      const deleteCampaignIds = ids.filter(
+        (id) => !usedCampaignIds.includes(id),
+      );
       const now = new Date();
 
-      await models.DonateCampaigns.updateMany(
-        { _id: { $in: usedCampaignIds } },
-        { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } },
-      );
+      if (usedCampaignIds.length) {
+        await models.DonateCampaigns.updateMany(
+          { _id: { $in: usedCampaignIds } },
+          { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } },
+        );
+        for (const id of usedCampaignIds) {
+          sendDbEventLog?.({
+            action: 'update',
+            docId: id,
+            currentDocument: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now },
+          });
+        }
+      }
 
-      return models.DonateCampaigns.deleteMany({
-        _id: { $in: deleteCampaignIds },
-      });
+      if (deleteCampaignIds.length) {
+        const result = await models.DonateCampaigns.deleteMany({
+          _id: { $in: deleteCampaignIds },
+        });
+        for (const id of deleteCampaignIds) {
+          sendDbEventLog?.({
+            action: 'delete',
+            docId: id,
+          });
+        }
+        return result;
+      }
+
+      return { deletedCount: 0 };
     }
   }
 

@@ -1,61 +1,59 @@
+import { MutationHookOptions } from '@apollo/client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { IconChevronDown, IconPlus, IconTrash } from '@tabler/icons-react';
+import {
+  Button,
+  Collapsible,
+  CurrencyCode,
+  CurrencyField,
+  Editor,
+  Form,
+  InfoCard,
+  Input,
+  Label,
+  ScrollArea,
+  Select,
+  Sheet,
+  Spinner,
+  toast,
+  useQueryState,
+} from 'erxes-ui';
+import { nanoid } from 'nanoid';
+import { useCallback, useMemo, useState } from 'react';
 import { useForm, UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { SelectBrand } from 'ui-modules/modules/brands';
+import { SelectCompany } from 'ui-modules/modules/contacts';
+import { useFieldGroups, useFields } from 'ui-modules/modules/properties';
+import { FieldBoolean } from 'ui-modules/modules/properties/components/FieldBoolean';
+import { FieldDate } from 'ui-modules/modules/properties/components/FieldDate';
+import { FieldFile } from 'ui-modules/modules/properties/components/FieldFile';
+import { FieldLabel } from 'ui-modules/modules/properties/components/FieldLabel';
+import { FieldNumber } from 'ui-modules/modules/properties/components/FieldNumber';
+import { FieldRelation } from 'ui-modules/modules/properties/components/FieldRelation';
+import { FieldSelect } from 'ui-modules/modules/properties/components/FieldSelect';
+import { FieldString } from 'ui-modules/modules/properties/components/FieldString';
+import { FieldPhone } from 'ui-modules/modules/properties/components/FieldPhone';
+import { IFieldGroup } from 'ui-modules/modules/properties/types/fieldsTypes';
+import { SelectCategory } from '../categories';
 import {
   EMPTY_PRODUCT_FORM_VALUES,
   PRODUCT_FORM_SCHEMA,
 } from '../constants/addProductFormSchema';
 import { useAddProduct } from '../hooks/useProductsAdd';
 import { useUom } from '../hooks/useUom';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { IProductFormValues } from '../types';
 import {
-  Button,
-  Collapsible,
-  CurrencyCode,
-  CurrencyField,
-  Dropzone,
-  DropzoneContent,
-  DropzoneEmptyState,
-  Editor,
-  Form,
-  InfoCard,
-  Input,
-  Label,
-  readImage,
-  ScrollArea,
-  Select,
-  Sheet,
-  toast,
-  useErxesUpload,
-  useRemoveFile,
-  useQueryState,
-} from 'erxes-ui';
+  PRODUCT_SECONDARY_IMAGE_LIMIT,
+  ProductPrimaryImageUpload,
+  ProductSecondaryImagesUpload,
+  toProductAttachmentItem,
+  toProductAttachmentList,
+  type ProductAttachmentItem,
+} from './ProductImageUploads';
+import { SelectProductType } from './SelectProductType';
 import { SelectUOMWithName } from './SelectUOMWithName';
 import { SubUomRow, type SubUomItem } from './SubUomRow';
-import { SelectCategory } from '../categories';
-import { SelectProductType } from './SelectProductType';
-import {
-  IconChevronDown,
-  IconX,
-  IconPlus,
-  IconTrash,
-} from '@tabler/icons-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { SelectBrand } from 'ui-modules/modules/brands';
-import { SelectCompany } from 'ui-modules/modules/contacts';
-import { MutationHookOptions } from '@apollo/client';
-import { useTranslation } from 'react-i18next';
-import { nanoid } from 'nanoid';
-import { useFieldGroups, useFields } from 'ui-modules/modules/properties';
-import { IFieldGroup } from 'ui-modules/modules/properties/types/fieldsTypes';
-import { FieldLabel } from 'ui-modules/modules/properties/components/FieldLabel';
-import { FieldString } from 'ui-modules/modules/properties/components/FieldString';
-import { FieldNumber } from 'ui-modules/modules/properties/components/FieldNumber';
-import { FieldBoolean } from 'ui-modules/modules/properties/components/FieldBoolean';
-import { FieldDate } from 'ui-modules/modules/properties/components/FieldDate';
-import { FieldSelect } from 'ui-modules/modules/properties/components/FieldSelect';
-import { FieldRelation } from 'ui-modules/modules/properties/components/FieldRelation';
-import { FieldFile } from 'ui-modules/modules/properties/components/FieldFile';
-import { Spinner } from 'erxes-ui';
 
 export function AddProductForm({
   embed,
@@ -708,8 +706,9 @@ function AddProductFormFieldsDetail({
                     </Form.Label>
                     <Form.Control>
                       <SelectCategory
-                        selected={field.value}
+                        value={field.value}
                         onSelect={field.onChange}
+                        mode='single'
                       />
                     </Form.Control>
                     <Form.Message />
@@ -813,12 +812,7 @@ function AddProductFormFieldsDetail({
   );
 }
 
-type AttachmentItem = {
-  name: string;
-  url: string;
-  type: string;
-  size: number;
-};
+type AttachmentItem = ProductAttachmentItem;
 
 function AddProductFeaturedImage({
   form,
@@ -827,22 +821,9 @@ function AddProductFeaturedImage({
 }) {
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   const attachment = form.watch('attachment');
-
-  const [file, setFile] = useState<AttachmentItem | null>(() => {
-    const a =
-      attachment && typeof attachment === 'object' && 'url' in attachment
-        ? (attachment as AttachmentItem)
-        : null;
-    return a ?? null;
-  });
-
-  useEffect(() => {
-    const a =
-      attachment && typeof attachment === 'object' && 'url' in attachment
-        ? (attachment as AttachmentItem)
-        : null;
-    setFile(a ?? null);
-  }, [attachment]);
+  const file = toProductAttachmentItem(
+    attachment as Partial<AttachmentItem> | null | undefined,
+  );
 
   const syncForm = useCallback(
     (next: AttachmentItem | null) => {
@@ -854,60 +835,10 @@ function AddProductFeaturedImage({
     [form],
   );
 
-  const { removeFile, isLoading } = useRemoveFile();
-  const uploadProps = useErxesUpload({
-    allowedMimeTypes: ['image/*'],
-    maxFiles: 1,
-    maxFileSize: 20 * 1024 * 1024,
-    onFilesAdded: (added) => {
-      const first = added[0];
-      if (first) {
-        setFile(first);
-        syncForm(first);
-      }
-    },
-  });
-
-  const handleRemove = useCallback(
-    (item: AttachmentItem) => {
-      removeFile(item.name, (status) => {
-        if (status === 'ok') {
-          setFile(null);
-          syncForm(null);
-        }
-      });
-    },
-    [removeFile, syncForm],
-  );
-
   return (
-    <InfoCard title={t('primary-upload') || 'Primary Image'}>
-      <InfoCard.Content>
-        <div className="flex flex-wrap gap-4">
-          {file && (
-            <div className="overflow-hidden relative w-32 rounded-md aspect-square shadow-xs">
-              <img
-                src={readImage(file.url)}
-                alt={file.name}
-                className="object-contain w-full h-full"
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="absolute top-0 right-0"
-                disabled={isLoading}
-                onClick={() => handleRemove(file)}
-              >
-                <IconX size={12} />
-              </Button>
-            </div>
-          )}
-        </div>
-        <Dropzone {...uploadProps}>
-          <DropzoneEmptyState />
-          <DropzoneContent />
-        </Dropzone>
+    <InfoCard title={t('primary-upload') || 'Primary Image'} className="h-full">
+      <InfoCard.Content className="h-full">
+        <ProductPrimaryImageUpload value={file} onChange={syncForm} />
       </InfoCard.Content>
     </InfoCard>
   );
@@ -921,23 +852,10 @@ function AddProductAttachmentMore({
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   const attachmentMore = form.watch('attachmentMore');
 
-  const [files, setFiles] = useState<AttachmentItem[]>(() => {
-    const more = Array.isArray(attachmentMore) ? attachmentMore : [];
-    return more.filter(
-      (x): x is AttachmentItem =>
-        x != null && typeof x === 'object' && 'url' in x,
-    );
-  });
-
-  useEffect(() => {
-    const more = Array.isArray(attachmentMore) ? attachmentMore : [];
-    setFiles(
-      more.filter(
-        (x): x is AttachmentItem =>
-          x != null && typeof x === 'object' && 'url' in x,
-      ),
-    );
-  }, [attachmentMore]);
+  const files = useMemo(
+    () => toProductAttachmentList(attachmentMore),
+    [attachmentMore],
+  );
 
   const syncForm = useCallback(
     (next: AttachmentItem[]) => {
@@ -949,69 +867,17 @@ function AddProductAttachmentMore({
     [form],
   );
 
-  const { removeFile, isLoading } = useRemoveFile();
-  const uploadProps = useErxesUpload({
-    allowedMimeTypes: ['image/*'],
-    maxFiles: 10,
-    maxFileSize: 20 * 1024 * 1024,
-    onFilesAdded: (added) => {
-      setFiles((prev) => {
-        const merged = [
-          ...prev.filter((f) => !added.some((a) => a.name === f.name)),
-          ...added,
-        ];
-        syncForm(merged);
-        return merged;
-      });
-    },
-  });
-
-  const handleRemove = useCallback(
-    (item: AttachmentItem) => {
-      removeFile(item.name, (status) => {
-        if (status === 'ok') {
-          setFiles((prev) => {
-            const next = prev.filter((f) => f.name !== item.name);
-            syncForm(next);
-            return next;
-          });
-        }
-      });
-    },
-    [removeFile, syncForm],
-  );
-
   return (
-    <InfoCard title={t('secondary-upload') || 'Secondary Images'}>
-      <InfoCard.Content>
-        <div className="flex flex-wrap gap-4">
-          {files.map((f) => (
-            <div
-              key={f.url}
-              className="overflow-hidden relative w-32 rounded-md aspect-square shadow-xs"
-            >
-              <img
-                src={readImage(f.url)}
-                alt={f.name}
-                className="object-contain w-full h-full"
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="absolute top-0 right-0"
-                disabled={isLoading}
-                onClick={() => handleRemove(f)}
-              >
-                <IconX size={12} />
-              </Button>
-            </div>
-          ))}
-        </div>
-        <Dropzone {...uploadProps}>
-          <DropzoneEmptyState />
-          <DropzoneContent />
-        </Dropzone>
+    <InfoCard
+      title={t('secondary-upload') || 'Secondary Images'}
+      className="h-full"
+    >
+      <InfoCard.Content className="h-full">
+        <ProductSecondaryImagesUpload
+          value={files}
+          onChange={syncForm}
+          maxImages={PRODUCT_SECONDARY_IMAGE_LIMIT}
+        />
       </InfoCard.Content>
     </InfoCard>
   );
@@ -1025,11 +891,11 @@ function AddProductFormAttachmentsAndExtra({
   const { t } = useTranslation('product', { keyPrefix: 'add' });
   return (
     <>
-      <div className="grid grid-cols-3 gap-4 pt-4">
-        <div className="col-span-1">
+      <div className="grid grid-cols-3 gap-4 items-stretch pt-4">
+        <div className="col-span-1 h-full">
           <AddProductFeaturedImage form={form} />
         </div>
-        <div className="col-span-2">
+        <div className="col-span-2 h-full">
           <AddProductAttachmentMore form={form} />
         </div>
       </div>
@@ -1233,6 +1099,8 @@ function CustomField({
         switch (field.type) {
           case 'text':
             return <FieldString {...fieldProps} />;
+          case 'phone':
+            return <FieldPhone {...fieldProps} />;
           case 'number':
             return <FieldNumber {...fieldProps} />;
           case 'boolean':

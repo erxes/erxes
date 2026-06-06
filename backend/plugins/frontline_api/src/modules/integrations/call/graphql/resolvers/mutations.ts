@@ -80,7 +80,7 @@ const callsMutations = {
     const history = await models.CallHistory.findOne({
       _id,
     });
-    if (history && history.callStatus === 'active') {
+    if (history?.callStatus === 'active') {
       let callStatus = doc.callStatus;
       if (doc.transferredCallStatus) {
         callStatus = 'transferred';
@@ -192,7 +192,7 @@ const callsMutations = {
         let customer = await models.CallCustomers.findOne({
           primaryPhone: doc.customerPhone,
         });
-        if (!customer || !customer.erxesApiId) {
+        if (!customer?.erxesApiId) {
           customer = await getOrCreateCustomer(models, subdomain, doc);
         }
 
@@ -439,7 +439,7 @@ const callsMutations = {
             },
           },
           integrationId: inboxId,
-          retryCount: 1,
+          retryCount: 3,
           isConvertToJson: true,
           isAddExtention: false,
         };

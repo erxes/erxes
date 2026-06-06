@@ -54,6 +54,7 @@ export interface IUserDetail extends IUser {
 
 export interface IUserEntry {
   email: string;
+  permissionGroupIds?: string[];
 }
 
 export type TUserInviteVars = {

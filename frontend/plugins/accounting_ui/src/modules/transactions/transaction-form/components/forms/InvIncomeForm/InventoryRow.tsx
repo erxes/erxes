@@ -7,18 +7,27 @@ import {
   CurrencyField,
   Form,
   InputNumber,
-  RecordTableInlineCell,
-  RecordTableHotKeyControl,
-  Popover,
-  Table,
   PopoverScoped,
+  RecordTableHotKeyControl,
+  RecordTableInlineCell,
+  Table,
 } from 'erxes-ui';
-import { useAtom } from 'jotai';
-import { useMemo, useState } from 'react';
+import { useAtom, useAtomValue } from 'jotai';
+import { useEffect, useMemo, useState } from 'react';
 import { useWatch } from 'react-hook-form';
-import { SelectProduct } from 'ui-modules';
-import { taxPercentsState } from '../../../states/trStates';
-import { ITransactionGroupForm, TInvIncomeJournal } from '../../../types/JournalForms';
+import { SelectBranches, SelectDepartments, SelectProduct } from 'ui-modules';
+import {
+  showAdvancedViewState,
+  taxPercentsState,
+} from '../../../states/trStates';
+import {
+  ITransactionGroupForm,
+  TInvIncomeJournal,
+} from '../../../types/JournalForms';
+import {
+  DUPLICATE_PRODUCT_CELL_CLASS,
+  hasDuplicateProductId,
+} from '../../utils';
 
 export const InventoryRow = ({
   detailIndex,
@@ -29,6 +38,7 @@ export const InventoryRow = ({
   journalIndex: number;
   form: ITransactionGroupForm;
 }) => {
+  const showAdvancedView = useAtomValue(showAdvancedViewState);
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
@@ -58,12 +68,33 @@ export const InventoryRow = ({
     detail.excludeCtax,
   ]);
 
-  const [taxAmounts, setTaxAmounts] = useState({
-    unitPriceWithTax: ((detail.unitPrice ?? 0) / 100) * (100 + rowPercent),
-    amountWithTax: ((detail.amount ?? 0) / 100) * (100 + rowPercent),
-  });
-
   const { unitPrice, count, _id } = detail;
+  const hasDuplicateProduct = hasDuplicateProductId(
+    trDoc.details,
+    detail.productId,
+  );
+
+  const calcTaxAmounts = (pCount?: number, pUnitPrice?: number) => {
+    const unitPriceWithTax = ((pUnitPrice ?? 0) / 100) * (100 + rowPercent);
+
+    return {
+      unitPriceWithTax,
+      amountWithTax: unitPriceWithTax * (pCount ?? 0),
+    };
+  };
+
+  const [taxAmounts, setTaxAmounts] = useState(
+    calcTaxAmounts(count, unitPrice),
+  );
+
+  useEffect(() => {
+    if (!(trDoc.hasVat || trDoc.hasCtax)) {
+      return;
+    }
+
+    setTaxAmounts(calcTaxAmounts(count, unitPrice));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail._id, rowPercent, trDoc.hasVat, trDoc.hasCtax, count, unitPrice]);
 
   const getFieldName = (name: string) => {
     return `trDocs.${journalIndex}.details.${detailIndex}.${name}`;
@@ -151,7 +182,11 @@ export const InventoryRow = ({
         detailIndex === 0 && '[&>td]:border-t',
       )}
     >
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell
           className={cn({
             'border-t': detailIndex === 0,
@@ -179,7 +214,11 @@ export const InventoryRow = ({
         </Table.Cell>
       </RecordTableHotKeyControl>
 
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -190,7 +229,10 @@ export const InventoryRow = ({
                 onValueChange={(accountId) => {
                   field.onChange(accountId);
                 }}
-                defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
+                defaultFilter={{
+                  journals: [JournalEnum.INVENTORY],
+                  permissionMode: 'write',
+                }}
                 variant="ghost"
                 scope={AccountingHotkeyScope.TransactionFormPage}
               />
@@ -198,8 +240,14 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
-        <Table.Cell>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
+        <Table.Cell
+          className={cn(hasDuplicateProduct && DUPLICATE_PRODUCT_CELL_CLASS)}
+        >
           <Form.Field
             control={form.control}
             name={`trDocs.${journalIndex}.details.${detailIndex}.productId`}
@@ -216,7 +264,11 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -244,7 +296,11 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <Form.Field
             control={form.control}
@@ -272,7 +328,11 @@ export const InventoryRow = ({
           />
         </Table.Cell>
       </RecordTableHotKeyControl>
-      <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+      <RecordTableHotKeyControl
+        rowId={_id}
+        rowIndex={detailIndex}
+        enableOnFormTags
+      >
         <Table.Cell>
           <PopoverScoped
             scope={`trDocs.${journalIndex}.details.${detailIndex}.tempAmount`}
@@ -292,12 +352,12 @@ export const InventoryRow = ({
       </RecordTableHotKeyControl>
 
       {trDoc.hasVat && (
-        <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
-          <Table.Cell
-            className={cn({
-              'border-t': detailIndex === 0,
-            })}
-          >
+        <RecordTableHotKeyControl
+          rowId={_id}
+          rowIndex={detailIndex}
+          enableOnFormTags
+        >
+          <Table.Cell>
             <RecordTableInlineCell className="justify-center">
               <Form.Field
                 control={form.control}
@@ -326,12 +386,12 @@ export const InventoryRow = ({
       )}
 
       {trDoc.hasCtax && (
-        <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
-          <Table.Cell
-            className={cn({
-              'border-t': detailIndex === 0,
-            })}
-          >
+        <RecordTableHotKeyControl
+          rowId={_id}
+          rowIndex={detailIndex}
+          enableOnFormTags
+        >
+          <Table.Cell>
             <RecordTableInlineCell className="justify-center">
               <Form.Field
                 control={form.control}
@@ -361,7 +421,11 @@ export const InventoryRow = ({
 
       {(trDoc.hasVat || trDoc.hasCtax) && (
         <>
-          <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
+          <RecordTableHotKeyControl
+            rowId={_id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
             <Table.Cell>
               <PopoverScoped
                 scope={`trDocs.${journalIndex}.details.${detailIndex}.untiPriceWithTax`}
@@ -384,13 +448,12 @@ export const InventoryRow = ({
             </Table.Cell>
           </RecordTableHotKeyControl>
 
-          <RecordTableHotKeyControl rowId={_id} rowIndex={detailIndex}>
-            <Table.Cell
-              className={cn({
-                'border-t': detailIndex === 0,
-                'rounded-br-lg': detailIndex === trDoc.details.length - 1,
-              })}
-            >
+          <RecordTableHotKeyControl
+            rowId={_id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
+            <Table.Cell>
               <PopoverScoped
                 scope={`trDocs.${journalIndex}.details.${detailIndex}.amountWithTax`}
                 closeOnEnter
@@ -405,6 +468,66 @@ export const InventoryRow = ({
                   />
                 </RecordTableInlineCell.Content>
               </PopoverScoped>
+            </Table.Cell>
+          </RecordTableHotKeyControl>
+        </>
+      )}
+      {showAdvancedView && (
+        <>
+          <RecordTableHotKeyControl
+            rowId={_id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
+            <Table.Cell>
+              <RecordTableInlineCell className="justify-center">
+                <Form.Field
+                  control={form.control}
+                  name={`trDocs.${journalIndex}.details.${detailIndex}.branchId`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Control>
+                        <SelectBranches.InlineCell
+                          mode="single"
+                          value={field.value ?? ''}
+                          onValueChange={(branch) => field.onChange(branch)}
+                          scope={AccountingHotkeyScope.TransactionFormPage}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </RecordTableInlineCell>
+            </Table.Cell>
+          </RecordTableHotKeyControl>
+          <RecordTableHotKeyControl
+            rowId={_id}
+            rowIndex={detailIndex}
+            enableOnFormTags
+          >
+            <Table.Cell>
+              <RecordTableInlineCell className="justify-center">
+                <Form.Field
+                  control={form.control}
+                  name={`trDocs.${journalIndex}.details.${detailIndex}.departmentId`}
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Control>
+                        <SelectDepartments.InlineCell
+                          mode="single"
+                          value={field.value ?? ''}
+                          onValueChange={(department) =>
+                            field.onChange(department)
+                          }
+                          scope={AccountingHotkeyScope.TransactionFormPage}
+                        />
+                      </Form.Control>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </RecordTableInlineCell>
             </Table.Cell>
           </RecordTableHotKeyControl>
         </>

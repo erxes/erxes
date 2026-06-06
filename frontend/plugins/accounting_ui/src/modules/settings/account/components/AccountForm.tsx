@@ -2,7 +2,6 @@ import {
   Button,
   Checkbox,
   CurrencyField,
-  Dialog,
   Form,
   Input,
   Select,
@@ -13,21 +12,33 @@ import { UseFormReturn, useWatch } from 'react-hook-form';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
 import { SelectAccountCategory } from '../account-categories/components/SelectAccountCategory';
 import { JOURNAL_LABELS } from '../constants/journalLabel';
-import { AccountKind, AccountStatus, JournalEnum } from '../types/Account';
+import {
+  AccountKind,
+  ACCOUNT_KIND_LABELS,
+  AccountStatus,
+  ACCOUNT_STATUS_LABELS,
+  JournalEnum,
+} from '../types/Account';
 import { TAccountForm } from '../types/accountForm';
 
 export const AccountForm = ({
   form,
   handleSubmit,
   loading,
+  onClose,
 }: {
   form: UseFormReturn<TAccountForm>;
   handleSubmit: (data: TAccountForm) => void;
   loading: boolean;
+  onClose?: () => void;
 }) => {
   const status = useWatch({
     control: form.control,
-    name: 'status'
+    name: 'status',
+  });
+  const journal = useWatch({
+    control: form.control,
+    name: 'journal',
   });
 
   return (
@@ -41,10 +52,10 @@ export const AccountForm = ({
           name="name"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Name</Form.Label>
+              <Form.Label>Нэр</Form.Label>
               <Form.Control>
                 <Input
-                  placeholder="Enter account name"
+                  placeholder="Дансны нэр оруулах"
                   {...field}
                   autoComplete="off"
                 />
@@ -59,9 +70,9 @@ export const AccountForm = ({
           name="code"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Code</Form.Label>
+              <Form.Label>Код</Form.Label>
               <Form.Control>
-                <Input placeholder="Enter account code" {...field} />
+                <Input placeholder="Дансны код оруулах" {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -73,7 +84,7 @@ export const AccountForm = ({
           name="categoryId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Category</Form.Label>
+              <Form.Label>Ангилал</Form.Label>
               <Form.Control>
                 <SelectAccountCategory
                   tabIndex={0}
@@ -92,7 +103,7 @@ export const AccountForm = ({
           name="currency"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Currency</Form.Label>
+              <Form.Label>Валют</Form.Label>
               <Form.Control>
                 <CurrencyField.SelectCurrency
                   value={field.value}
@@ -109,9 +120,9 @@ export const AccountForm = ({
           name="description"
           render={({ field }) => (
             <Form.Item className="col-span-2">
-              <Form.Label>Description</Form.Label>
+              <Form.Label>Тайлбар</Form.Label>
               <Form.Control>
-                <Textarea placeholder="Enter description" {...field} />
+                <Textarea placeholder="Тайлбар оруулах" {...field} />
               </Form.Control>
               <Form.Message />
             </Form.Item>
@@ -123,16 +134,16 @@ export const AccountForm = ({
           name="kind"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Kind</Form.Label>
+              <Form.Label>Төрөл</Form.Label>
               <Form.Control>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <Select.Trigger>
-                    <Select.Value placeholder="Select kind" />
+                    <Select.Value placeholder="Төрөл сонгох" />
                   </Select.Trigger>
                   <Select.Content>
                     {Object.values(AccountKind).map((kind) => (
                       <Select.Item key={kind} value={kind}>
-                        {kind.charAt(0).toUpperCase() + kind.slice(1)}
+                        {ACCOUNT_KIND_LABELS[kind]}
                       </Select.Item>
                     ))}
                   </Select.Content>
@@ -148,11 +159,11 @@ export const AccountForm = ({
           name="journal"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Journal</Form.Label>
+              <Form.Label>Журнал</Form.Label>
               <Form.Control>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <Select.Trigger>
-                    <Select.Value placeholder="Select journal" />
+                    <Select.Value placeholder="Журнал сонгох" />
                   </Select.Trigger>
                   <Select.Content>
                     {Object.values(JournalEnum).map((journal) => (
@@ -167,13 +178,47 @@ export const AccountForm = ({
             </Form.Item>
           )}
         />
+        {journal === JournalEnum.BANK && (
+          <>
+            <Form.Field
+              control={form.control}
+              name="extra.bank"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Банк</Form.Label>
+                  <Form.Control>
+                    <Input placeholder="Банкны нэр оруулах" {...field} />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+
+            <Form.Field
+              control={form.control}
+              name="extra.bankAccount"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Банкны данс</Form.Label>
+                  <Form.Control>
+                    <Input
+                      placeholder="Банкны дансны дугаар оруулах"
+                      {...field}
+                    />
+                  </Form.Control>
+                  <Form.Message />
+                </Form.Item>
+              )}
+            />
+          </>
+        )}
 
         <Form.Field
           control={form.control}
           name="branchId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Branch</Form.Label>
+              <Form.Label>Салбар</Form.Label>
               <Form.Control>
                 <SelectBranches.FormItem
                   mode="single"
@@ -191,7 +236,7 @@ export const AccountForm = ({
           name="departmentId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Department</Form.Label>
+              <Form.Label>Хэлтэс</Form.Label>
               <Form.Control>
                 <SelectDepartments.FormItem
                   mode="single"
@@ -215,7 +260,7 @@ export const AccountForm = ({
                   onCheckedChange={field.onChange}
                 />
               </Form.Control>
-              <Form.Label variant="peer">Temporary Account</Form.Label>
+              <Form.Label variant="peer">Түр данс</Form.Label>
             </Form.Item>
           )}
         />
@@ -231,7 +276,7 @@ export const AccountForm = ({
                   onCheckedChange={field.onChange}
                 />
               </Form.Control>
-              <Form.Label variant="peer">Out of Balance</Form.Label>
+              <Form.Label variant="peer">Баланс бус</Form.Label>
             </Form.Item>
           )}
         />
@@ -242,16 +287,16 @@ export const AccountForm = ({
             name="status"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Status</Form.Label>
+                <Form.Label>Төлөв</Form.Label>
                 <Form.Control>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <Select.Trigger>
-                      <Select.Value placeholder="Select status" />
+                      <Select.Value placeholder="Төлөв сонгох" />
                     </Select.Trigger>
                     <Select.Content>
                       {Object.values(AccountStatus).map((status) => (
                         <Select.Item key={status} value={status}>
-                          {status.charAt(0).toUpperCase() + status.slice(1)}
+                          {ACCOUNT_STATUS_LABELS[status]}
                         </Select.Item>
                       ))}
                     </Select.Content>
@@ -263,17 +308,15 @@ export const AccountForm = ({
           />
         )}
 
-        <Dialog.Footer className="col-span-2 mt-4">
-          <Dialog.Close asChild>
-            <Button variant="outline" type="button" size="lg">
-              Cancel
-            </Button>
-          </Dialog.Close>
+        <div className="col-span-2 mt-4 flex justify-end gap-2">
+          <Button variant="outline" type="button" size="lg" onClick={onClose}>
+            Болих
+          </Button>
           <Button type="submit" size="lg" disabled={loading}>
             {loading && <Spinner />}
-            Save Account
+            Данс хадгалах
           </Button>
-        </Dialog.Footer>
+        </div>
       </form>
     </Form>
   );

@@ -8,13 +8,15 @@ export const AccountingHeader = ({
   leftChildren,
   returnLink,
   returnText,
+  skipSettings,
 }: {
   children?: React.ReactNode;
   leftChildren?: React.ReactNode;
   returnLink?: string;
   returnText?: string;
+  skipSettings?: boolean;
 }) => {
-  const to = returnLink || "/accounting/main"
+  const to = returnLink || '/accounting/main';
   return (
     <PageHeader>
       <PageHeader.Start>
@@ -28,21 +30,21 @@ export const AccountingHeader = ({
                 </Link>
               </Button>
             </Breadcrumb.Item>
-            <Breadcrumb.Item>
-              {leftChildren}
-            </Breadcrumb.Item>
+            <Breadcrumb.Item>{leftChildren}</Breadcrumb.Item>
           </Breadcrumb.List>
         </Breadcrumb>
         <Separator.Inline />
         <PageHeader.FavoriteToggleButton />
       </PageHeader.Start>
       <PageHeader.End>
-        <Button variant="outline" asChild>
-          <Link to="/settings/accounting">
-            <IconSettings />
-            Go to settings
-          </Link>
-        </Button>
+        {!skipSettings && (
+          <Button variant="outline" asChild>
+            <Link to="/settings/accounting">
+              <IconSettings />
+              Go to settings
+            </Link>
+          </Button>
+        )}
         {children}
       </PageHeader.End>
     </PageHeader>

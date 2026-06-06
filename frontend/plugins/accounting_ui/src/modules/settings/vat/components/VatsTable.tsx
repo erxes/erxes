@@ -1,24 +1,62 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
-import { RecordTable, useQueryState, } from 'erxes-ui';
+import {
+  RecordTable,
+  Skeleton,
+  Table,
+  useQueryState,
+  Popover,
+  Combobox,
+  Command,
+  useConfirm,
+  toast,
+} from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useVatRows } from '../hooks/useVatRows';
+import { useVatRowsRemove } from '../hooks/useVatRowsRemove';
 import { vatRowDetailAtom } from '../states/vatRowStates';
 import { IVatRow } from '../types/VatRow';
 import { VatRowsCommandbar } from './VatRowsCommandbar';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { useMemo } from 'react';
+
+const VatRowsInitialSkeleton = ({ rows = 20 }: { rows?: number }) => {
+  const rowKeys = useMemo(
+    () => Array.from({ length: rows }, () => crypto.randomUUID()),
+    [rows],
+  );
+  return (
+    <>
+      {rowKeys.map((rowKey) => (
+        <Table.Row key={rowKey} className="h-cell">
+          {vatRowsColumns.map((col, colIndex) => (
+            <Table.Cell
+              key={`${rowKey}-${col.id ?? colIndex}`}
+              className="border-r-0 px-2"
+            >
+              <Skeleton className="h-4 w-full min-w-4" />
+            </Table.Cell>
+          ))}
+        </Table.Row>
+      ))}
+    </>
+  );
+};
 
 export const VatRowsTable = () => {
   const { vatRows, loading, handleFetchMore, totalCount } = useVatRows();
+  const isInitialLoading = loading && !vatRows?.length;
 
   return (
     <RecordTable.Provider
       columns={vatRowsColumns}
-      data={vatRows || []}
+      data={isInitialLoading ? [] : vatRows || []}
     >
       <RecordTable.Scroll>
         <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
             <RecordTable.RowList />
+            {isInitialLoading && <VatRowsInitialSkeleton rows={20} />}
             {!loading && (totalCount ?? 0) > (vatRows?.length ?? 0) && (
               <RecordTable.RowSkeleton
                 rows={4}
@@ -40,14 +78,58 @@ export const VatRowMoreColumnCell = ({
 }) => {
   const [, setOpen] = useQueryState('vat_row_id');
   const setVatRowDetail = useSetAtom(vatRowDetailAtom);
+  const { confirm } = useConfirm();
+  const { removeVatRows } = useVatRowsRemove();
+
+  const handleEdit = () => {
+    setVatRowDetail(cell.row.original);
+    setOpen(cell.row.original._id);
+  };
+
+  const handleDelete = () =>
+    confirm({
+      message: 'Are you sure you want to delete this VAT row?',
+      options: {
+        okLabel: 'Delete',
+        cancelLabel: 'Cancel',
+      },
+    }).then(() => {
+      removeVatRows({
+        variables: { vatRowIds: [cell.row.original._id] },
+        onError: (error: Error) => {
+          toast({
+            title: 'Error',
+            description: error.message,
+            variant: 'destructive',
+          });
+        },
+        onCompleted: () => {
+          toast({
+            title: 'Success',
+            description: 'Vat rows deleted successfully',
+          });
+        },
+      });
+    });
+
   return (
-    <RecordTable.MoreButton
-      className="w-full h-full"
-      onClick={() => {
-        setVatRowDetail(cell.row.original);
-        setOpen(cell.row.original._id);
-      }}
-    />
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item value="edit" onSelect={handleEdit}>
+              <IconEdit /> Edit
+            </Command.Item>
+            <Command.Item value="delete" onSelect={handleDelete}>
+              <IconTrash /> Delete
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 
@@ -63,7 +145,7 @@ export const vatRowsColumns: ColumnDef<IVatRow>[] = [
   {
     id: 'number',
     accessorKey: 'number',
-    header: () => <RecordTable.InlineHead label="Number" />,
+    header: () => <RecordTable.InlineHead label="Дугаар" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },
@@ -72,7 +154,7 @@ export const vatRowsColumns: ColumnDef<IVatRow>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead label="Name" />,
+    header: () => <RecordTable.InlineHead label="Нэр" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },
@@ -81,7 +163,7 @@ export const vatRowsColumns: ColumnDef<IVatRow>[] = [
   {
     id: 'kind',
     accessorKey: 'kind',
-    header: () => <RecordTable.InlineHead label="Kind" />,
+    header: () => <RecordTable.InlineHead label="Төрөл" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },
@@ -89,7 +171,7 @@ export const vatRowsColumns: ColumnDef<IVatRow>[] = [
   {
     id: 'status',
     accessorKey: 'status',
-    header: () => <RecordTable.InlineHead label="Status" />,
+    header: () => <RecordTable.InlineHead label="Төлөв" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },
@@ -97,14 +179,18 @@ export const vatRowsColumns: ColumnDef<IVatRow>[] = [
   {
     id: 'percent',
     accessorKey: 'percent',
-    header: () => <RecordTable.InlineHead label="Percent" />,
+    header: () => <RecordTable.InlineHead label="Хувь" />,
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>;
     },
   },
 ];
 
-export const VatMoreColumnCell = ({ cell }: { cell: Cell<IVatRow, unknown> }) => {
+export const VatMoreColumnCell = ({
+  cell,
+}: {
+  cell: Cell<IVatRow, unknown>;
+}) => {
   return <RecordTable.MoreButton />;
 };
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { Form, Input } from 'erxes-ui';
 import { VoucherFormValues } from '../../../constants/voucherFormSchema';
-import { SelectCategory } from '~/modules/pricing/components/SelectCategory';
+import { SelectCategory } from 'ui-modules';
 
 interface VoucherAddRestrictionCoreFieldProps {
   form: UseFormReturn<VoucherFormValues>;
@@ -22,9 +22,16 @@ export const VoucherAddRestrictionCoreField: React.FC<
               <Form.Label>Minimum Spend</Form.Label>
               <Form.Control>
                 <Input
-                  type="text"
+                  type="number"
                   placeholder="Enter minimum spend"
-                  {...field}
+                  value={field.value ?? ''}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === ''
+                        ? undefined
+                        : Number(e.target.value),
+                    )
+                  }
                 />
               </Form.Control>
               <Form.Message />
@@ -60,9 +67,16 @@ export const VoucherAddRestrictionCoreField: React.FC<
               <Form.Label>Maximum Spend</Form.Label>
               <Form.Control>
                 <Input
-                  type="text"
+                  type="number"
                   placeholder="Enter maximum spend"
-                  {...field}
+                  value={field.value ?? ''}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === ''
+                        ? undefined
+                        : Number(e.target.value),
+                    )
+                  }
                 />
               </Form.Control>
               <Form.Message />

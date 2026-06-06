@@ -1,4 +1,4 @@
-import { getConfig } from '@/utils/utils';
+import { getConfig } from '../../../utils/utils';
 import * as AWS from 'aws-sdk';
 import * as nodemailer from 'nodemailer';
 

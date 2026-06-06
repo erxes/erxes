@@ -3,52 +3,129 @@ import {
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
+  useConfirm,
   useQueryState,
+  Popover,
+  Combobox,
+  Command,
+  Spinner,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import {
+  IconEdit,
   IconTag,
   IconPackage,
   IconSortAscending,
   IconPercentage,
   IconToggleLeft,
+  IconClipboardList,
+  IconTrash,
 } from '@tabler/icons-react';
 import { useProductGroupRows } from '@/ebarimt/settings/product-group/hooks/useProductGroupRows';
 import { productGroupDetailAtom } from '@/ebarimt/settings/product-group/states/productGroupRowStates';
 import { ProductGroupRowsCommandbar } from '@/ebarimt/settings/product-group/components/ProductGroupRowsCommandbar';
 import { IProductGroup } from '@/ebarimt/settings/product-group/constants/productGroupDefaultValues';
+import { PRODUCT_GROUP_CURSOR_SESSION_KEY } from '@/ebarimt/settings/product-group/constants/productGroupRowDefaultVariables';
 import { useMemo } from 'react';
+import { AddProductGroup } from './ProductGroup';
+import { useProductGroupRowsRemove } from '@/ebarimt/settings/product-group/hooks/useProductGroupRowsRemove';
 
 export const ProductGroupTable = () => {
-  const { productGroupRows, loading, handleFetchMore, totalCount } =
+  const { productGroupRows, loading, handleFetchMore, totalCount, pageInfo } =
     useProductGroupRows();
   const memoizedColumns = useMemo(() => productGroupsColumns, []);
+
+  const { hasPreviousPage, hasNextPage } = pageInfo || {};
+
+  const isInitialLoading = loading && productGroupRows.length === 0;
+
   return (
-    <RecordTable.Provider
-      columns={memoizedColumns}
-      data={productGroupRows || []}
-    >
-      <RecordTable.Scroll>
+    <RecordTable.Provider columns={memoizedColumns} data={productGroupRows}>
+      <RecordTable.CursorProvider
+        hasPreviousPage={hasPreviousPage}
+        hasNextPage={hasNextPage}
+        dataLength={productGroupRows.length}
+        sessionKey={PRODUCT_GROUP_CURSOR_SESSION_KEY}
+      >
         <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
+            <RecordTable.CursorBackwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
             <RecordTable.RowList />
-            {loading && <RecordTable.RowSkeleton rows={4} />}
-            {!loading &&
-              (totalCount ?? 0) > (productGroupRows?.length ?? 0) && (
-                <RecordTable.RowSkeleton
-                  rows={4}
-                  handleInView={handleFetchMore}
-                />
-              )}
+            <RecordTable.CursorForwardSkeleton
+              handleFetchMore={handleFetchMore}
+            />
           </RecordTable.Body>
         </RecordTable>
-      </RecordTable.Scroll>
+        {isInitialLoading && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Spinner />
+          </div>
+        )}
+        {!loading && totalCount === 0 && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="flex flex-col items-center text-center">
+              <IconClipboardList size={48} className="text-gray-400 mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900">
+                No Product Group config yet
+              </h3>
+              <p className="mt-1 text-sm text-gray-500 mb-4">
+                Get started by creating your first Product Group config.
+              </p>
+              <AddProductGroup />
+            </div>
+          </div>
+        )}
+      </RecordTable.CursorProvider>
       <ProductGroupRowsCommandbar />
     </RecordTable.Provider>
   );
 };
 ProductGroupTable.displayName = 'ProductGroupTable';
+
+export const ProductGroupMainProductCell = ({
+  cell,
+}: {
+  cell: Cell<IProductGroup, unknown>;
+}) => {
+  const [, setOpen] = useQueryState('product_group_id');
+  const setDetail = useSetAtom(productGroupDetailAtom);
+  const row = cell.row.original;
+  const productInfo = [row.mainProduct?.code, row.mainProduct?.name]
+    .filter(Boolean)
+    .join(' - ');
+
+  return (
+    <RecordTableInlineCell
+      className="cursor-pointer"
+      onClick={() => {
+        setDetail(row);
+        setOpen(row._id ?? null);
+      }}
+    >
+      <TextOverflowTooltip value={productInfo} />
+    </RecordTableInlineCell>
+  );
+};
+
+export const ProductGroupSubProductCell = ({
+  cell,
+}: {
+  cell: Cell<IProductGroup, unknown>;
+}) => {
+  const row = cell.row.original;
+  const productInfo = [row.subProduct?.code, row.subProduct?.name]
+    .filter(Boolean)
+    .join(' - ');
+
+  return (
+    <RecordTableInlineCell>
+      <TextOverflowTooltip value={productInfo} />
+    </RecordTableInlineCell>
+  );
+};
 
 export const ProductGroupRowMoreColumnCell = ({
   cell,
@@ -57,21 +134,48 @@ export const ProductGroupRowMoreColumnCell = ({
 }) => {
   const [, setOpen] = useQueryState('product_group_id');
   const setProductGroupDetail = useSetAtom(productGroupDetailAtom);
+  const { removeProductGroup } = useProductGroupRowsRemove();
+  const { confirm } = useConfirm();
+
+  const handleEdit = () => {
+    setProductGroupDetail(cell.row.original);
+    setOpen(cell.row.original._id ?? null);
+  };
+
+  const handleDelete = () => {
+    confirm({
+      message: 'Are you sure you want to delete this product group?',
+      options: { okLabel: 'Delete', cancelLabel: 'Cancel' },
+    }).then(() =>
+      removeProductGroup({ variables: { ids: [cell.row.original._id] } }),
+    );
+  };
+
   return (
-    <RecordTable.MoreButton
-      className="w-full h-full"
-      onClick={() => {
-        setProductGroupDetail(cell.row.original);
-        setOpen(cell.row.original._id);
-      }}
-    />
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item value="edit" onSelect={handleEdit}>
+              <IconEdit /> Edit
+            </Command.Item>
+            <Command.Item value="delete" onSelect={handleDelete}>
+              <IconTrash /> Delete
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 ProductGroupRowMoreColumnCell.displayName = 'ProductGroupRowMoreColumnCell';
 
-export const productGroupRowMoreColumn = {
+const productGroupRowMoreColumn: ColumnDef<IProductGroup> = {
   id: 'more',
-  cell: ProductGroupRowMoreColumnCell,
+  cell: ({ cell }) => <ProductGroupRowMoreColumnCell cell={cell} />,
   size: 33,
 };
 
@@ -79,27 +183,19 @@ export const productGroupsColumns: ColumnDef<IProductGroup>[] = [
   productGroupRowMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IProductGroup>,
   {
-    id: 'mainProduct.name',
-    accessorKey: 'mainProduct.name',
+    id: 'mainProductId',
+    accessorKey: 'mainProductId',
     header: () => (
       <RecordTable.InlineHead icon={IconPackage} label="Main Product" />
     ),
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
-      </RecordTableInlineCell>
-    ),
+    cell: ({ cell }) => <ProductGroupMainProductCell cell={cell} />,
     size: 250,
   },
   {
-    id: 'subProduct.name',
-    accessorKey: 'subProduct.name',
+    id: 'subProductId',
+    accessorKey: 'subProductId',
     header: () => <RecordTable.InlineHead icon={IconTag} label="Sub Product" />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
-      </RecordTableInlineCell>
-    ),
+    cell: ({ cell }) => <ProductGroupSubProductCell cell={cell} />,
     size: 250,
   },
   {
@@ -110,7 +206,7 @@ export const productGroupsColumns: ColumnDef<IProductGroup>[] = [
     ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
+        <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
       </RecordTableInlineCell>
     ),
   },
@@ -122,7 +218,7 @@ export const productGroupsColumns: ColumnDef<IProductGroup>[] = [
     ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
+        <TextOverflowTooltip value={String(cell.getValue() ?? '')} />
       </RecordTableInlineCell>
     ),
   },

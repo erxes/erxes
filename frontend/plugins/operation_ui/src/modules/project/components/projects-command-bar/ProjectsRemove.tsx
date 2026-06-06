@@ -1,7 +1,6 @@
-import { Command } from 'erxes-ui';
 import { useRemoveProject } from '@/project/hooks/useRemoveProject';
 import { IconTrash } from '@tabler/icons-react';
-import { Button } from 'erxes-ui';
+import { Button, Command } from 'erxes-ui';
 
 export const ProjectsDeleteTrigger = ({
   setCurrentContent,

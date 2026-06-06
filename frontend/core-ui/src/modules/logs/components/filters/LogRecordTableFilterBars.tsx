@@ -1,13 +1,20 @@
-import { IUser, SelectMember } from 'ui-modules';
+import { SelectMember } from 'ui-modules';
 import { Filter, Input, Popover, useMultiQueryState } from 'erxes-ui';
 import {
   IconCalendarPlus,
+  IconHash,
   IconProgressCheck,
   IconSourceCode,
+  IconTag,
 } from '@tabler/icons-react';
 
-import { LOGS_COMMON_FILTER_FIELD_NAMES } from '@/logs/constants/logFilter';
+import {
+  formatLogContentTypeLabel,
+  LOGS_COMMON_FILTER_FIELD_NAMES,
+} from '@/logs/constants/logFilter';
 import { LogActionsFilter } from './LogActionFilter';
+import { LogContentTypeFilter } from './LogContentTypeFilter';
+import { LogDocIdFilter } from './LogDocIdFilter';
 import { LogRecordTableFilterBarOperator } from './LogRecordTableFilterBarOperator';
 import { LogSourceFilter } from './LogSourceFilter';
 import { LogStatusFilter } from './LogStatusFilter';
@@ -28,6 +35,15 @@ const getCustomFilters = (searchParams: URLSearchParams) => {
       value: searchParams.get(customFilterField),
     }));
 };
+
+const getCustomFilterDisplayValue = (value?: string | null) => {
+  if (!value?.trim()) {
+    return 'Set value';
+  }
+
+  return value;
+};
+
 export const LogRecordTableFilterBars = () => {
   const [editingFields, setFieldAsEdit] = useState(
     {} as { [key: string]: boolean },
@@ -35,28 +51,25 @@ export const LogRecordTableFilterBars = () => {
   const [searchParams] = useSearchParams();
 
   const [queries, setQueries] = useMultiQueryState<{
-    status: string[];
+    status: string;
     source: string;
     action: string;
     userIds: string[];
     createdAt: string;
-  }>(['status', 'source', 'action', 'userIds', 'createdAt']);
-  const { status, source, action, userIds, createdAt } = queries;
+    contentType: string;
+    docId: string;
+  }>([
+    'status',
+    'source',
+    'action',
+    'userIds',
+    'createdAt',
+    'contentType',
+    'docId',
+  ]);
+  const { status, source, action, contentType, docId } = queries;
 
   const customFilters = getCustomFilters(searchParams);
-  const handleUserSelect = (user?: IUser) => {
-    if (!user) {
-      return;
-    }
-
-    if (userIds?.includes(user?._id)) {
-      return setQueries({
-        userIds: userIds.filter((userId) => userId !== user?._id),
-      });
-    }
-
-    return setQueries({ userIds: [...(userIds || []), user?._id] });
-  };
 
   return (
     <Filter.Bar>
@@ -65,7 +78,6 @@ export const LogRecordTableFilterBars = () => {
           <IconProgressCheck />
           Status
         </Filter.BarName>
-        <LogRecordTableFilterBarOperator fieldName="status" />
         <Popover>
           <Popover.Trigger>
             <Filter.BarButton filterKey="status">{status}</Filter.BarButton>
@@ -81,7 +93,6 @@ export const LogRecordTableFilterBars = () => {
           <IconSourceCode />
           Source
         </Filter.BarName>
-        <LogRecordTableFilterBarOperator fieldName="source" />
 
         <Popover>
           <Popover.Trigger>
@@ -98,7 +109,6 @@ export const LogRecordTableFilterBars = () => {
           <IconCalendarPlus />
           Created At
         </Filter.BarName>
-        <LogRecordTableFilterBarOperator fieldName="createdAt" />
         <Filter.Date filterKey="createdAt" />
       </Filter.BarItem>
 
@@ -107,7 +117,6 @@ export const LogRecordTableFilterBars = () => {
           <IconProgressCheck />
           Action
         </Filter.BarName>
-        <LogRecordTableFilterBarOperator fieldName="action" />
 
         <Popover>
           <Popover.Trigger>
@@ -121,8 +130,43 @@ export const LogRecordTableFilterBars = () => {
 
       <SelectMember.FilterBar queryKey="userIds" />
 
+      <Filter.BarItem queryKey="contentType">
+        <Filter.BarName>
+          <IconTag />
+          Content Type
+        </Filter.BarName>
+        <Popover>
+          <Popover.Trigger>
+            <Filter.BarButton filterKey="contentType">
+              {formatLogContentTypeLabel(contentType)}
+            </Filter.BarButton>
+          </Popover.Trigger>
+          <Popover.Content>
+            <LogContentTypeFilter />
+          </Popover.Content>
+        </Popover>
+      </Filter.BarItem>
+
+      <Filter.BarItem queryKey="docId">
+        <Filter.BarName>
+          <IconHash />
+          Document ID
+        </Filter.BarName>
+        <Popover>
+          <Popover.Trigger>
+            <Filter.BarButton filterKey="docId">{docId}</Filter.BarButton>
+          </Popover.Trigger>
+          <Popover.Content>
+            <LogDocIdFilter />
+          </Popover.Content>
+        </Popover>
+      </Filter.BarItem>
+
       {customFilters.map(({ name, value }) => (
-        <Filter.BarItem queryKey={name}>
+        <div
+          key={name}
+          className="rounded flex gap-px h-7 items-stretch shadow-xs bg-muted text-sm font-medium"
+        >
           <Filter.BarName
             onDoubleClick={() =>
               setFieldAsEdit({ ...editingFields, [name]: !editingFields[name] })
@@ -147,12 +191,15 @@ export const LogRecordTableFilterBars = () => {
           <LogRecordTableFilterBarOperator fieldName={name as any} />
           <Popover>
             <Popover.Trigger>
-              <Filter.BarButton filterKey={name}>{value}</Filter.BarButton>
+              <Filter.BarButton filterKey={name}>
+                {getCustomFilterDisplayValue(value)}
+              </Filter.BarButton>
             </Popover.Trigger>
             <Popover.Content>
               <Input
                 className="p-2m mt-2"
                 placeholder="Type a filter value "
+                defaultValue={value || ''}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     setQueries({ [name]: e.currentTarget.value });
@@ -161,7 +208,8 @@ export const LogRecordTableFilterBars = () => {
               />
             </Popover.Content>
           </Popover>
-        </Filter.BarItem>
+          <Filter.BarClose filterKey={name} />
+        </div>
       ))}
     </Filter.Bar>
   );

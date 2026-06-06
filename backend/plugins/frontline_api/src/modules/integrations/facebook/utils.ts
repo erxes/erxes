@@ -10,6 +10,7 @@ import { randomAlphanumeric, sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as graph from 'fbgraph';
 import { IModels } from '~/connectionResolvers';
 import { SUBSCRIBED_FIELDS } from './constants';
+import { validateMediaUrl } from './urlValidation';
 
 export const graphRequest = {
   base(method: string, path?: any, accessToken?: any, ...otherParams) {
@@ -110,7 +111,7 @@ export const createAWS = async (subdomain: string) => {
 
 // Define a simple in-memory cache (outside the function scope)
 
-type UploadConfig = { AWS_BUCKET?: string;[k: string]: any } | null;
+type UploadConfig = { AWS_BUCKET?: string; [k: string]: any } | null;
 let cachedUploadConfig: UploadConfig = null;
 let fetchUploadConfigPromise: Promise<UploadConfig | null> | null = null;
 let lastFetchTime = 0;
@@ -121,8 +122,17 @@ export const uploadMedia = async (
   url: string,
   video: boolean,
 ) => {
-  const mediaFile = `uploads/${randomAlphanumeric(16)}.${video ? 'mp4' : 'jpg'
-    }`;
+  try {
+    validateMediaUrl(url);
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    debugError(`SSRF protection blocked media fetch: ${message}`);
+    return null;
+  }
+
+  const mediaFile = `uploads/${randomAlphanumeric(16)}.${
+    video ? 'mp4' : 'jpg'
+  }`;
 
   // 1. Ensure we have cachedUploadConfig (with promise-based concurrency control)
   if (!cachedUploadConfig) {
@@ -289,6 +299,8 @@ export const refreshPageAccessToken = async (
 
   facebookPageTokensMap[pageId] = pageAccessToken;
 
+  await models.FacebookBots.updatePageToken(pageId, pageAccessToken);
+
   await models.FacebookIntegrations.updateOne(
     { _id: integration._id },
     { $set: { facebookPageTokensMap } },
@@ -301,7 +313,7 @@ export const getPageAccessTokenFromMap = (
   pageId: string,
   pageTokens: { [key: string]: string },
 ): string => {
-  return (pageTokens || {})[pageId];
+  return pageTokens?.[pageId];
 };
 
 export const subscribePage = async (
@@ -393,7 +405,7 @@ export const restorePost = async (
   let pageAccessToken;
 
   try {
-    pageAccessToken = await getPageAccessTokenFromMap(pageId, pageTokens);
+    pageAccessToken = getPageAccessTokenFromMap(pageId, pageTokens);
   } catch (e) {
     debugError(
       `Error occurred while trying to get page access token with ${e.message}`,
@@ -447,7 +459,8 @@ export const sendReply = async (
     return response;
   } catch (e) {
     debugError(
-      `Error ocurred while trying to send post request to facebook ${e.message
+      `Error ocurred while trying to send post request to facebook ${
+        e.message
       } data: ${JSON.stringify(data)}`,
     );
 

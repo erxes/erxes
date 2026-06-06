@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { IProductRule } from './types';
 import { useProductRulesRemove } from '@/products/settings/hooks/useProductRulesRemove';
 import { ProductRuleForm } from './ProductRuleForm';
+import { Can } from 'ui-modules';
 
 export const ProductRuleMoreColumn = (
   props: CellContext<IProductRule, unknown>,
@@ -22,6 +23,7 @@ export const ProductRuleMoreColumn = (
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { removeProductRules, loading } = useProductRulesRemove();
+  const confirmOptions = { confirmationValue: 'delete' };
 
   const handleEdit = () => {
     setIsEditOpen(true);
@@ -30,6 +32,7 @@ export const ProductRuleMoreColumn = (
   const handleDelete = () => {
     confirm({
       message: `Are you sure you want to delete "${productRule.name}"?`,
+      options: confirmOptions,
     }).then(() => {
       removeProductRules({
         variables: { _ids: [productRule._id] },
@@ -47,9 +50,11 @@ export const ProductRuleMoreColumn = (
   return (
     <>
       <Popover>
-        <Popover.Trigger asChild>
-          <RecordTable.MoreButton className="w-full h-full" />
-        </Popover.Trigger>
+        <Can action="productRulesManage">
+          <Popover.Trigger asChild>
+            <RecordTable.MoreButton className="w-full h-full" />
+          </Popover.Trigger>
+        </Can>
         <Combobox.Content>
           <Command shouldFilter={false}>
             <Command.List>

@@ -5,7 +5,6 @@ import {
   AUTOMATION_EDIT,
 } from '@/automations/graphql/automationMutations';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
-import { useAutomationFormController } from '@/automations/hooks/useFormSetValue';
 import { AutomationBuilderTabsType, NodeData } from '@/automations/types';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
 import { useMutation } from '@apollo/client';
@@ -15,21 +14,17 @@ import { SubmitErrorHandler, useFormContext } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 
 export const useAutomationHeader = () => {
-  const { handleSubmit, clearErrors } =
+  const { handleSubmit, clearErrors, reset } =
     useFormContext<TAutomationBuilderForm>();
   const navigate = useNavigate();
 
-  const { setQueryParams, reactFlowInstance } = useAutomation();
+  const { setQueryParams } = useAutomation();
   const { actions, triggers } = useAutomationNodes();
 
-  const { getNode, getNodes, setNodes } = useReactFlow();
+  const { getNode } = useReactFlow();
   const { id } = useParams();
 
-  const { handleNodeErrors, clearNodeErrors } = useNodeErrorHandler({
-    reactFlowInstance,
-    getNodes: getNodes as () => Node<NodeData>[],
-    setNodes: setNodes as (nodes: Node<NodeData>[]) => void,
-  });
+  const { handleNodeErrors, clearNodeErrors } = useNodeErrorHandler();
 
   const [save, { loading }] = useMutation(
     id ? AUTOMATION_EDIT : AUTOMATION_CREATE,
@@ -72,6 +67,7 @@ export const useAutomationHeader = () => {
         });
       },
       onCompleted: ({ automationsAdd }) => {
+        reset(generateValues());
         clearErrors();
         clearNodeErrors();
         toast({

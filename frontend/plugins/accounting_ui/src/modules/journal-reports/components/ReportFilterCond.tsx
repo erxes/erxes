@@ -1,7 +1,3 @@
 export const ReportFilterCond = () => {
-  return (
-    <>
-      Filters:
-    </>
-  );
-}
+  return <>Filters:</>;
+};

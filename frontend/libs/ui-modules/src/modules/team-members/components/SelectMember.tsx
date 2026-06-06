@@ -13,10 +13,8 @@ import {
   useFilterContext,
   useQueryState,
 } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
 import React, { useState } from 'react';
 import { useUsers } from 'ui-modules/modules';
-import { currentUserState } from 'ui-modules/states';
 import { useDebounce } from 'use-debounce';
 import {
   SelectMemberContext,
@@ -139,7 +137,8 @@ const SelectMemberCommandItem = ({ user }: { user: IUser }) => {
 
 const SelectMemberNoAssigneeItem = () => {
   const { onSelect, memberIds } = useSelectMemberContext();
-  const isNoAssigneeSelected = memberIds?.length === 1 && memberIds[0] === 'no-assignee';
+  const isNoAssigneeSelected =
+    memberIds?.length === 1 && memberIds[0] === 'no-assignee';
   return (
     <Command.Item value="no-assignee" onSelect={() => onSelect(null)}>
       <MembersInline
@@ -155,15 +154,27 @@ const SelectMemberNoAssigneeItem = () => {
 const SelectMemberContent = () => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const currentUser = useAtomValue(currentUserState) as IUser;
   const { memberIds, members, allowUnassigned } = useSelectMemberContext();
   const { users, loading, handleFetchMore, totalCount, error } = useUsers({
     variables: {
       searchValue: debouncedSearch,
-      excludeIds: true,
-      ids: [currentUser?._id],
     },
   });
+
+  const filteredMembers = search
+    ? members.filter((member) => {
+        const q = search.toLowerCase();
+        const fullName = `${member.details?.firstName || ''} ${
+          member.details?.lastName || ''
+        }`.toLowerCase();
+        return (
+          fullName.includes(q) ||
+          (member.details?.fullName || '').toLowerCase().includes(q) ||
+          (member.email || '').toLowerCase().includes(q) ||
+          (member.username || '').toLowerCase().includes(q)
+        );
+      })
+    : members;
 
   return (
     <Command shouldFilter={false}>
@@ -176,9 +187,9 @@ const SelectMemberContent = () => {
       />
       <Command.List className="max-h-[300px] overflow-y-auto">
         <Combobox.Empty loading={loading} error={error} />
-        {members.length > 0 && (
+        {filteredMembers.length > 0 && (
           <>
-            {members.map((member) => (
+            {filteredMembers.map((member) => (
               <SelectMemberCommandItem key={member._id} user={member} />
             ))}
             <Command.Separator className="my-1" />
@@ -187,7 +198,7 @@ const SelectMemberContent = () => {
         {!loading && allowUnassigned && <SelectMemberNoAssigneeItem />}
 
         {!loading &&
-          [currentUser, ...users]
+          users
             .filter(
               (user) => !memberIds.find((memberId) => memberId === user._id),
             )
@@ -310,11 +321,11 @@ export const SelectMemberFilterBar = ({
 export const SelectMemberInlineCell = React.forwardRef<
   React.ComponentRef<typeof RecordTableInlineCell.Trigger>,
   Omit<React.ComponentProps<typeof SelectMemberProvider>, 'children'> &
-  React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
-    scope?: string;
-    placeholder?: string;
-    size?: AvatarProps['size'];
-  }
+    React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
+      scope?: string;
+      placeholder?: string;
+      size?: AvatarProps['size'];
+    }
 >(
   (
     {
@@ -494,7 +505,10 @@ export const SelectMemberCustomDetail = ({
     >
       <Popover open={open} onOpenChange={setOpen}>
         <Combobox.TriggerBase asChild>
-          <Button variant="ghost" className={cn("h-7 w-auto inline-flex", className)}>
+          <Button
+            variant="ghost"
+            className={cn('h-7 w-auto inline-flex', className)}
+          >
             <SelectMemberValue size={size} />
           </Button>
         </Combobox.TriggerBase>

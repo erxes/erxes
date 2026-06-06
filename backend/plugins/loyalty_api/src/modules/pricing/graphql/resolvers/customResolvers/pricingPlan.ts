@@ -50,8 +50,8 @@ const PricingPlan = {
           const ids = await sendTRPCMessage({
             subdomain,
             pluginName: 'core',
-            module: 'segments',
-            action: 'fetch',
+            module: 'segment',
+            action: 'fetchSegment',
             input: { segmentId: segment },
             defaultValue: [],
           });

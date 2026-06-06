@@ -1,10 +1,8 @@
 import {
-  IconDots,
   IconCalendar,
   IconCalendarEvent,
   IconTag,
   IconToggleLeft,
-  IconSettings,
   IconTicket,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
@@ -12,12 +10,12 @@ import {
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
-  Button,
   RelativeDateDisplay,
   Switch,
 } from 'erxes-ui';
 import { IVoucher } from '../types/voucherTypes';
 import { VoucherNameCell } from '../voucher-detail/components/VoucherNameCell';
+import { voucherMoreColumn } from './VoucherMoreColumn';
 
 const SafeRelativeDate = ({ value }: { value?: string }) => {
   if (!value) {
@@ -43,6 +41,7 @@ const SafeRelativeDate = ({ value }: { value?: string }) => {
 export const voucherColumns: (
   editStatus: (options: any) => void,
 ) => ColumnDef<IVoucher>[] = (editStatus) => [
+  voucherMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IVoucher>,
 
   {
@@ -127,23 +126,6 @@ export const voucherColumns: (
               });
             }}
           />
-        </RecordTableInlineCell>
-      );
-    },
-    size: 100,
-  },
-  {
-    id: 'action',
-    accessorKey: 'action',
-    header: () => (
-      <RecordTable.InlineHead icon={IconSettings} label="Actions" />
-    ),
-    cell: ({ cell }: { cell: any }) => {
-      return (
-        <RecordTableInlineCell>
-          <Button className="mx-auto" variant="ghost" size="sm">
-            <IconDots className="h-4 w-4" />
-          </Button>
         </RecordTableInlineCell>
       );
     },

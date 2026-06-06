@@ -109,12 +109,12 @@ export const types = `
     erxesApiId: String
     conversationId: String
     integrationId: String
-  }    
+  }
 
   type DeliveryList {
     list: [SmsDelivery]
     totalCount: Int
-  }  
+  }
 
   input EngageScheduleDateInput {
     type: String,
@@ -177,6 +177,14 @@ export const types = `
     pageInfo: PageInfo
     totalCount: Int
   }
+
+  type BroadcastTrace {
+    _id: String!
+    engageMessageId: String!
+    type: String!
+    message: String!
+    createdAt: Date
+  }
 `;
 
 const queryParams = `
@@ -186,7 +194,7 @@ const queryParams = `
   brandId: String
   fromUserId: String
   searchValue: String
-  
+
   ${GQL_CURSOR_PARAM_DEFS}
 `;
 
@@ -200,6 +208,8 @@ export const queries = `
   engageReportsList(page: Int, perPage: Int, customerId: String, status: String, searchValue: String): EngageDeliveryReport
   engageEmailPercentages: AvgEmailStats
   engageSmsDeliveries(type: String!, to: String, page: Int, perPage: Int): DeliveryList
+  engageBroadcastTraces(engageMessageId: String!): [BroadcastTrace]
+  engageVerifiedEmails: [String]
 `;
 
 const mutationParams = `
@@ -232,6 +242,7 @@ export const mutations = `
   engageMessageRemoveVerifiedEmail(email: String!): String
   engageMessageSendTestEmail(from: String!, to: String!, content: String!, title: String!): String
   engageMessageCopy(_id: String!): EngageMessage
+  broadcastUpdateConfigs(configsMap: JSON!): JSON
 
   engageSendMail(
     integrationId: String

@@ -14,6 +14,7 @@ const GET_USER = gql`
       isOwner
       positionIds
       permissionGroupIds
+      score
       details {
         avatar
         shortName

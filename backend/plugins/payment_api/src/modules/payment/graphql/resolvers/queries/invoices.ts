@@ -1,8 +1,7 @@
-
-import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
+import { Resolver } from 'erxes-api-shared/core-types';
+import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { PAYMENTS, PAYMENT_STATUS } from '~/constants';
-import { cursorPaginate } from 'erxes-api-shared/utils';
 
 export interface IParam {
   searchValue?: string;
@@ -12,12 +11,27 @@ export interface IParam {
   contentTypeId?: string;
 }
 
-const generateFilterQuery = (params: IParam) => {
+const buildKindQuery = async (kind: string, models: IContext['models']) => {
+  const [txInvoiceIds, pmIds] = await Promise.all([
+    models.Transactions.find({ paymentKind: kind }).distinct('invoiceId'),
+    models.PaymentMethods.find({ kind }).distinct('_id'),
+  ]);
+
+  const conditions: any[] = [];
+  if (txInvoiceIds.length > 0) conditions.push({ _id: { $in: txInvoiceIds } });
+  if (pmIds.length > 0) conditions.push({ paymentIds: { $in: pmIds.map(String) } });
+
+  if (conditions.length === 0) return { _id: { $in: [] } };
+  if (conditions.length === 1) return conditions[0];
+  return { $or: conditions };
+};
+
+const generateFilterQuery = async (params: IParam, models: IContext['models']) => {
   const query: any = {};
   const { searchValue, kind, status, contentType, contentTypeId } = params;
 
   if (kind) {
-    query.paymentKind = kind;
+    Object.assign(query, await buildKindQuery(kind, models));
   }
 
   if (status) {
@@ -26,7 +40,15 @@ const generateFilterQuery = (params: IParam) => {
 
   if (searchValue) {
     const regex = new RegExp(`.*${searchValue}.*`, 'i');
-    query.description = regex;
+    const searchCondition = { $or: [{ description: regex }, { invoiceNumber: regex }] };
+    if (query.$or) {
+      // kind filter already set $or — wrap both in $and to avoid key collision
+      const kindOr = query.$or;
+      delete query.$or;
+      query.$and = [{ $or: kindOr }, searchCondition];
+    } else {
+      Object.assign(query, searchCondition);
+    }
   }
 
   if (contentType) {
@@ -44,20 +66,27 @@ const generateFilterQuery = (params: IParam) => {
   return query;
 };
 
-const queries = {
-  async invoices(
-    _root,
-    params: any,
-    { models }: IContext
-  ) {
-    const query = generateFilterQuery(params);
+const queries: Record<string, Resolver> = {
+  async invoices(_root, params: any, { models }: IContext) {
+    const query = await generateFilterQuery(params, models);
 
-    const { list, pageInfo, totalCount } =
-      await cursorPaginate({
-        model: models.Invoices,
-        params,
-        query,
-      });
+    const { list, pageInfo, totalCount } = await cursorPaginate({
+      model: models.Invoices,
+      params: { ...params, orderBy: { createdAt: -1 } },
+      query,
+    });
+
+    return { list, pageInfo, totalCount };
+  },
+
+  async cpInvoices(_root, params: any, { models }: IContext) {
+    const query = await generateFilterQuery(params, models);
+
+    const { list, pageInfo, totalCount } = await cursorPaginate({
+      model: models.Invoices,
+      params: { ...params, orderBy: { createdAt: -1 } },
+      query,
+    });
 
     return { list, pageInfo, totalCount };
   },
@@ -69,21 +98,25 @@ const queries = {
       byStatus: { paid: 0, pending: 0, refunded: 0, failed: 0 },
     };
 
-    const qry = {
-      ...(await generateFilterQuery(params)),
-    };
+    const qry = await generateFilterQuery(params, models);
 
     const count = async (query) => {
       return models.Invoices.find(query).countDocuments();
     };
 
     for (const kind of PAYMENTS.ALL) {
-      const countQueryResult = await count({ paymentKind: kind, ...qry });
-      counts.byKind[kind] = !params.kind
-        ? countQueryResult
-        : params.kind === kind
-          ? countQueryResult
-          : 0;
+      if (params.kind && params.kind !== kind) {
+        counts.byKind[kind] = 0;
+        continue;
+      }
+
+      const kindFilter = params.kind === kind
+        ? qry
+        : Object.keys(qry).length > 0
+          ? { $and: [await buildKindQuery(kind, models), qry] }
+          : await buildKindQuery(kind, models);
+
+      counts.byKind[kind] = await count(kindFilter);
     }
 
     for (const status of PAYMENT_STATUS.ALL) {
@@ -104,16 +137,30 @@ const queries = {
     return models.Invoices.getInvoice({ _id });
   },
 
+  async cpInvoiceDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Invoices.getInvoice({ _id });
+  },
+
   async invoiceDetailByContent(
     _root,
     { contentType, contentTypeId },
-    { models }: IContext
+    { models }: IContext,
   ) {
     return models.Invoices.find({ contentType, contentTypeId }).lean();
   },
 };
 
-requireLogin(queries, 'invoices');
-checkPermission(queries, 'invoices', 'showInvoices', []);
+queries.invoiceDetail.wrapperConfig = {
+  skipPermission: true,
+};
+
+queries.cpInvoiceDetail.wrapperConfig = {
+  skipPermission: true,
+  forClientPortal: true,
+};
+
+queries.cpInvoices.wrapperConfig = {
+  forClientPortal: true,
+};
 
 export default queries;

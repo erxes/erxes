@@ -1,4 +1,3 @@
-import { requireLogin } from 'erxes-api-shared/core-modules';
 import { IContext } from '~/connectionResolvers';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import {
@@ -32,13 +31,14 @@ export const responseTemplateQueries = {
 
     { models }: IContext,
   ) {
-    const filterQuery: any = {
-      channelId: { $exists: true, $ne: null },
-    };
+    const filterQuery = generateFilter(filter);
+
+    filterQuery.channelId = { $exists: true, $ne: null };
 
     if (filter.channelId) {
       filterQuery.channelId = filter.channelId;
     }
+
     return await cursorPaginate<IResponseTemplateDocument>({
       model: models.ResponseTemplates,
       params: {
@@ -70,7 +70,3 @@ export const responseTemplateQueries = {
     return models.ResponseTemplates.find(filterQuery).countDocuments();
   },
 };
-
-requireLogin(responseTemplateQueries, 'responseTemplates');
-requireLogin(responseTemplateQueries, 'responseTemplate');
-requireLogin(responseTemplateQueries, 'responseTemplatesTotalCount');

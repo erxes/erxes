@@ -1,8 +1,6 @@
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { SelectStatus } from '@/operation/components/SelectStatus';
-import { SelectTags } from 'ui-modules';
 import { DateSelect, SelectLead } from '@/project/components/select';
-import { SelectMember } from 'ui-modules';
 import { useCreateProject } from '@/project/hooks/useCreateProject';
 import { TAddProject, addProjectSchema } from '@/project/types';
 import { ITask } from '@/task/types';
@@ -24,12 +22,15 @@ import {
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
+import { SelectMember, SelectTags } from 'ui-modules';
 
 export const AddProjectForm = ({
   onClose,
+  onComplete,
   task,
 }: {
   onClose: () => void;
+  onComplete?: (projectId: string) => void;
   task?: ITask;
 }) => {
   const navigate = useNavigate();
@@ -88,6 +89,8 @@ export const AddProjectForm = ({
       );
     }
 
+    const projectId = project?.data?.createProject?._id;
+    if (projectId) onComplete?.(projectId);
     onClose();
   };
 

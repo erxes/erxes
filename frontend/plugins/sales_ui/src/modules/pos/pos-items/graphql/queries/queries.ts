@@ -96,6 +96,28 @@ export const POS_ORDER_RECORDS_QUERY = gql`
       convertDealId
       returnInfo
     }
+    posOrderRecordsCount(
+      page: $page
+      perPage: $perPage
+      sortField: $sortField
+      sortDirection: $sortDirection
+      search: $search
+      paidStartDate: $paidStartDate
+      paidEndDate: $paidEndDate
+      createdStartDate: $createdStartDate
+      createdEndDate: $createdEndDate
+      paidDate: $paidDate
+      userId: $userId
+      customerId: $customerId
+      customerType: $customerType
+      posId: $posId
+      posToken: $posToken
+      types: $types
+      statuses: $statuses
+      excludeStatuses: $excludeStatuses
+      hasPaidDate: $hasPaidDate
+      brandId: $brandId
+    )
   }
 `;
 

@@ -1,8 +1,7 @@
+import { IPermissionGroupSchema, PERMISSION_GROUP_SCHEMA } from '@/settings/permissions/schemas/permissionGroup';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, Input, Separator, Button } from 'erxes-ui';
+import { Button, Form, Input, Separator } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
-import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
-import { PERMISSION_GROUP_SCHEMA } from '@/settings/permissions/schemas/permissionGroup';
 import { PermissionModulesForm } from './PermissionModulesForm';
 
 const EMPTY_DEFAULTS: IPermissionGroupSchema = {

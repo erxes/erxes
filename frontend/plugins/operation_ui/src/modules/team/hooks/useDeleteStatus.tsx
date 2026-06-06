@@ -1,8 +1,7 @@
-import { useMutation } from '@apollo/client';
-import { DELETE_STATUS } from '../graphql/mutations/deleteStatus';
-import { MutationHookOptions } from '@apollo/client';
-import { GET_STATUSES_BY_TYPE } from '../graphql/queries/getStatusesByType';
+import { MutationHookOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
+import { DELETE_STATUS } from '../graphql/mutations/deleteStatus';
+import { GET_STATUSES_BY_TYPE } from '../graphql/queries/getStatusesByType';
 
 export const useDeleteStatus = () => {
   const { toast } = useToast();

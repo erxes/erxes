@@ -1,18 +1,28 @@
 export const MnConfigCodes = [
+  // ebarimt:
   'EBARIMT',
-  'remainderConfig',
   'stageInEbarimt',
-  'returnEbarimtConfig',
-  'ebarimtConfig',
+  'posInEbarimt',
   'returnStageInEbarimt',
-  'ERKHET',
-  'stageInMoveConfig',
+  // productPlaces:
   'dealsProductsDataPrint',
   'dealsProductsDataSplit',
   'dealsProductsDataPlaces',
-  'stageInIncomeConfig',
   'dealsProductsDefaultFilter',
-]
+  'dealsSplitConfig',
+  'dealsPrintConfig',
+  // exchangeRate
+  // msDynamic:
+  'DYNAMIC',
+  // syncerkhet:
+  'ERKHET',
+  'ebarimtConfig',
+  'returnEbarimtConfig',
+  'posOrderErkhetConfig',
+  'stageInMoveConfig',
+  'stageInIncomeConfig',
+  'remainderConfig',
+];
 
 export interface IConfig {
   code: string;

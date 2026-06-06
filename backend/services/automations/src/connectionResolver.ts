@@ -3,14 +3,20 @@ import { Connection, Model } from 'mongoose';
 import {
   IAutomationWaitingActionDocument,
   waitingActionsToExecuteSchema,
-} from '@/mongo/waitingActionsToExecute';
+} from './mongo/waitingActionsToExecute';
+import {
+  automationMemorySchema,
+  IAutomationMemoryDocument,
+} from './mongo/automationMemory';
+import {
+  aiAgentKnowledgeChunkSchema,
+  IAiAgentKnowledgeChunkDocument,
+} from './mongo/aiAgentKnowledgeChunk';
 import {
   AiAgentDocument,
   aiAgentSchema,
-  aiEmbeddingSchema,
   automationExecutionSchema,
   automationSchema,
-  IAiEmbeddingDocument,
   IAutomationDocument,
   IAutomationExecutionDocument,
 } from 'erxes-api-shared/core-modules';
@@ -21,8 +27,9 @@ export interface IModels {
   Automations: Model<IAutomationDocument>;
   Executions: Model<IAutomationExecutionDocument>;
   WaitingActions: Model<IAutomationWaitingActionDocument>;
-  AiEmbeddings: Model<IAiEmbeddingDocument>;
   AiAgents: Model<AiAgentDocument>;
+  AutomationMemory: Model<IAutomationMemoryDocument>;
+  AiAgentKnowledgeChunks: Model<IAiAgentKnowledgeChunkDocument>;
 }
 
 export interface IContext extends IMainContext {
@@ -48,14 +55,20 @@ export const loadClasses = (db: Connection, subdomain: string): IModels => {
     Model<IAutomationWaitingActionDocument>
   >('automations_waiting_actions_execute', waitingActionsToExecuteSchema);
 
-  models.AiEmbeddings = db.model<
-    IAiEmbeddingDocument,
-    Model<IAiEmbeddingDocument>
-  >('ai_embeddings', aiEmbeddingSchema);
   models.AiAgents = db.model<AiAgentDocument, Model<AiAgentDocument>>(
     'automations_ai_agents',
     aiAgentSchema,
   );
+
+  models.AutomationMemory = db.model<
+    IAutomationMemoryDocument,
+    Model<IAutomationMemoryDocument>
+  >('automations_memory', automationMemorySchema);
+
+  models.AiAgentKnowledgeChunks = db.model<
+    IAiAgentKnowledgeChunkDocument,
+    Model<IAiAgentKnowledgeChunkDocument>
+  >('automations_ai_agent_knowledge_chunks', aiAgentKnowledgeChunkSchema);
 
   return models;
 };

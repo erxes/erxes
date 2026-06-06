@@ -27,6 +27,7 @@ interface DateSelectContextType {
   loading?: boolean;
   error?: ApolloError;
   variant: DateSelectVariant;
+  disabled?: boolean;
 }
 
 const DateSelectContext = React.createContext<DateSelectContextType | null>(
@@ -105,7 +106,7 @@ export const DateSelectTrigger = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { variant } = useDateSelectContext();
+  const { variant, disabled } = useDateSelectContext();
   if (variant === DateSelectVariant.TABLE) {
     return (
       <RecordTableInlineCell.Trigger>{children}</RecordTableInlineCell.Trigger>
@@ -113,7 +114,7 @@ export const DateSelectTrigger = ({
   }
   if (variant === DateSelectVariant.CARD) {
     return (
-      <Popover.Trigger asChild>
+      <Popover.Trigger asChild disabled={disabled}>
         <Button
           variant="ghost"
           className="text-muted-foreground font-semibold px-1"
@@ -126,7 +127,7 @@ export const DateSelectTrigger = ({
     );
   }
   return (
-    <Combobox.TriggerBase className="w-fit h-7">
+    <Combobox.TriggerBase className="w-fit h-7" disabled={disabled}>
       {children}
     </Combobox.TriggerBase>
   );
@@ -138,12 +139,14 @@ export const DateSelectTicketRoot = ({
   type,
   scope,
   variant = DateSelectVariant.TABLE,
+  disabled,
 }: {
   value?: Date | string;
   id?: string;
   type: 'startDate' | 'targetDate';
   scope?: string;
   variant?: `${DateSelectVariant}`;
+  disabled?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   const { updateTicket, loading, error } = useUpdateTicket();
@@ -170,6 +173,7 @@ export const DateSelectTicketRoot = ({
       variant={variant as DateSelectVariant}
       loading={loading}
       error={error}
+      disabled={disabled}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <DateSelectTrigger>

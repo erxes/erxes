@@ -59,7 +59,6 @@ const generateFilter = async (subdomain, params) => {
         input: { number: { $regex: params.orderNumber, $options: 'mui' } },
         defaultValue: [],
       });
-
       filter.contentId = { $in: (posOrders || []).map((p) => p._id) };
     }
 
@@ -73,12 +72,11 @@ const generateFilter = async (subdomain, params) => {
             subdomain,
             pluginName: 'sales',
             method: 'query',
-            module: 'deals',
-            action: 'stages.find',
+            module: 'stage',
+            action: 'find',
             input: { pipelineId: params.pipelineId },
             defaultValue: [],
           });
-
           dealsFilter.stageId = { $in: (stages || []).map((s) => s._id) };
         }
       }
@@ -91,12 +89,11 @@ const generateFilter = async (subdomain, params) => {
           subdomain,
           pluginName: 'sales',
           method: 'query',
-          module: 'deals',
+          module: 'deal',
           action: 'find',
           input: { ...dealsFilter },
           defaultValue: [],
         });
-
         filter.contentId = { $in: (deals || []).map((d) => d._id) };
       }
     }
@@ -176,7 +173,7 @@ const genDuplicatedFilter = async (params) => {
   const ced = new Date(endDate);
   if (
     ((ced ? ced.getTime() : 0) - (csd ? csd.getTime() : 0)) /
-    (1000 * 60 * 60 * 24) >
+      (1000 * 60 * 60 * 24) >
     32
   ) {
     throw new Error('The date range exceeds one month');
@@ -202,10 +199,15 @@ const genDuplicatedFilter = async (params) => {
 };
 
 export const putResponseQueries = {
-  putResponses: async (_root, params, { models, subdomain }: IContext) => {
+  putResponses: async (
+    _root,
+    params,
+    { models, subdomain, checkPermission }: IContext,
+  ) => {
+    await checkPermission('ebarimt:putResponses');
     const { orderBy } = params;
     if (!orderBy || !Object.keys(orderBy)) {
-      params.orderBy = { createdAt: -2 }
+      params.orderBy = { createdAt: -2 };
     }
     const filter = await generateFilter(subdomain, params);
 
@@ -219,8 +221,9 @@ export const putResponseQueries = {
   putResponsesCount: async (
     _root: undefined,
     params,
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('ebarimt:putResponsesCount');
     const filter = await generateFilter(subdomain, params);
 
     return models.PutResponses.find(filter).countDocuments();
@@ -239,8 +242,9 @@ export const putResponseQueries = {
       stageId?: string;
       isTemp: boolean;
     },
-    { subdomain, models }: IContext,
+    { subdomain, models, checkPermission }: IContext,
   ) => {
+    await checkPermission('ebarimt:putResponseDetail');
     const putHistory = await models.PutResponses.putHistory({
       contentType,
       contentId,
@@ -258,19 +262,23 @@ export const putResponseQueries = {
         subdomain,
         pluginName: 'sales',
         method: 'query',
-        module: 'deals',
+        module: 'deal',
         action: 'findOne',
         input: { _id: contentId },
         defaultValue: {},
       });
+      const dealData = deal || {};
 
-      stageId = stageId || deal.stageId;
+      stageId = stageId || dealData.stageId;
 
-      if (!deal?._id || !stageId) {
+      if (!dealData?._id || !stageId) {
         throw new Error('Deal not found');
       }
 
-      const configVal = await models.Configs.getConfigValue('stageInEbarimt', stageId);
+      const configVal = await models.Configs.getConfigValue(
+        'stageInEbarimt',
+        stageId,
+      );
 
       if (!configVal) {
         throw new Error('Ebarimt config not found');
@@ -285,18 +293,19 @@ export const putResponseQueries = {
         subdomain,
         pluginName: 'sales',
         method: 'query',
-        module: 'pipelines',
+        module: 'pipeline',
         action: 'findOne',
         input: { stageId: stageId || deal.stageId },
         defaultValue: {},
       });
+      const pipelineData = pipeline || {};
 
       const ebarimtData: IDoc = await getPostData(
         subdomain,
         models,
         config,
-        deal,
-        pipeline.paymentTypes,
+        dealData,
+        pipelineData.paymentTypes,
       );
       const { status, msg, data, innerData } = await getEbarimtData({
         config,
@@ -336,8 +345,9 @@ export const putResponseQueries = {
   putResponsesAmount: async (
     _root: undefined,
     params,
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('ebarimt:putResponsesAmount');
     const filter = await generateFilter(subdomain, params);
     const res = await models.PutResponses.aggregate([
       { $match: filter },
@@ -345,18 +355,19 @@ export const putResponseQueries = {
       { $group: { _id: '', amount: { $sum: { $toDecimal: '$totalAmount' } } } },
     ]);
 
-    if (!res || !res.length) {
+    if (!res?.length) {
       return 0;
     }
 
-    return Number((res[0] || {}).amount || 0);
+    return Number(res[0]?.amount || 0);
   },
 
   putResponsesByDate: async (
     _root: undefined,
     params,
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
+    await checkPermission('ebarimt:putResponsesByDate');
     const { createdStartDate, createdEndDate, paidDate } = params;
 
     if (!((createdStartDate && createdEndDate) || paidDate === 'today')) {
@@ -367,7 +378,7 @@ export const putResponseQueries = {
     const ced = new Date(createdEndDate);
     if (
       ((ced ? ced.getTime() : 0) - (csd ? csd.getTime() : 0)) /
-      (1000 * 60 * 60 * 24) >
+        (1000 * 60 * 60 * 24) >
       32
     ) {
       throw new Error('The date range exceeds one month');
@@ -403,15 +414,17 @@ export const putResponseQueries = {
   },
 
   getDealLink: async (_root: undefined, param, { subdomain }: IContext) => {
-    return await sendTRPCMessage({
+    const response = await sendTRPCMessage({
       subdomain,
       pluginName: 'sales',
       method: 'query',
-      module: 'deals',
+      module: 'deal',
       action: 'getLink',
       input: { _id: param._id, type: 'deal' },
       defaultValue: '',
     });
+
+    return response || '';
   },
 
   ebarimtGetCompany: async (
@@ -429,8 +442,9 @@ export const putResponseQueries = {
   putResponsesDuplicated: async (
     _root: undefined,
     params,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('ebarimt:putResponsesDuplicated');
     const filter = await genDuplicatedFilter(params);
 
     const { perPage = 20, page = 1 } = params;
@@ -461,8 +475,9 @@ export const putResponseQueries = {
   putResponsesDuplicatedCount: async (
     _root: undefined,
     params,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('ebarimt:putResponsesDuplicatedCount');
     const filter = await genDuplicatedFilter(params);
 
     const res = await models.PutResponses.aggregate([
@@ -492,8 +507,9 @@ export const putResponseQueries = {
   putResponsesDuplicatedDetail: async (
     _root: undefined,
     { contentId, taxType }: { contentId: string; taxType: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
+    await checkPermission('ebarimt:putResponsesDuplicatedDetail');
     return models.PutResponses.find({ contentId, taxType }).lean();
   },
 };

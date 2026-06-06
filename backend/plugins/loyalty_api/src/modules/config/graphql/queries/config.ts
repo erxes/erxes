@@ -4,8 +4,9 @@ export const loyaltyConfigQueries = {
   async loyaltyConfigs(
     _root: undefined,
     _params: undefined,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('loyaltyConfigView');
     return models.LoyaltyConfigs.find({});
   },
 };

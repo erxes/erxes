@@ -1,10 +1,8 @@
-import { Cell } from '@tanstack/react-table';
-import { RecordTable } from 'erxes-ui';
-
-import { Popover, Command, Combobox } from 'erxes-ui';
-import { IconEdit } from '@tabler/icons-react';
-import { ITask } from '@/task/types';
 import { taskDetailSheetState } from '@/task/states/taskDetailSheetState';
+import { ITask } from '@/task/types';
+import { IconEdit } from '@tabler/icons-react';
+import { Cell } from '@tanstack/react-table';
+import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 
 export const TasksMoreColumnCell = ({
@@ -39,6 +37,7 @@ export const TasksMoreColumnCell = ({
 
 export const tasksMoreColumn = {
   id: 'more',
+  header: RecordTable.ColumnSelector,
   cell: TasksMoreColumnCell,
   size: 33,
 };

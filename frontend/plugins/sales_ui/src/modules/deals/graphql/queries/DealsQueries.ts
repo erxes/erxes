@@ -170,6 +170,7 @@ export const GET_DEALS = gql`
           pipeline {
             _id
             name
+            boardId
           }
           boardId
         }
@@ -221,6 +222,7 @@ export const GET_DEAL_DETAIL = gql`
         _id
         name
         code
+        type
         unitPrice
         category {
           _id

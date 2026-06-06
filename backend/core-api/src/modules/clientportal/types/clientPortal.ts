@@ -72,7 +72,7 @@ export interface ITestUser {
   email?: string;
   phone?: string;
   password?: string;
-  otp?: number;
+  otp?: string;
 }
 
 export interface IAuthConfig {

@@ -1,5 +1,5 @@
-import { IModels } from '@/connectionResolver';
-import { getActionsMap } from '@/utils/utils';
+import { IModels } from '../connectionResolver';
+import { getActionsMap } from '../utils/utils';
 import { executeActions } from './executeActions';
 import {
   AUTOMATION_EXECUTION_STATUS,

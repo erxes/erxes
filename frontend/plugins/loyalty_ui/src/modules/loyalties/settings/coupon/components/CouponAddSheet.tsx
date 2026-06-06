@@ -27,7 +27,7 @@ export const LoyaltyCouponAddSheet = () => {
     resolver: zodResolver(couponFormSchema),
     defaultValues: {
       title: '',
-      buyScore: '0',
+      buyScore: 0,
       description: '',
       status: 'active',
       count: 0,
@@ -39,6 +39,7 @@ export const LoyaltyCouponAddSheet = () => {
       numberOfCodes: 0,
       postfixUppercase: '',
       usageLimit: 0,
+      staticCode: '',
     },
   });
 

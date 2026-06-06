@@ -1,5 +1,5 @@
-import { IContext } from "~/connectionResolvers";
-import { IAccountCategory } from "@/accounting/@types/accountCategory";
+import { IContext } from '~/connectionResolvers';
+import { IAccountCategory } from '@/accounting/@types/accountCategory';
 
 const accountCategoriessMutations = {
   /**
@@ -9,8 +9,9 @@ const accountCategoriessMutations = {
   async accountCategoriesAdd(
     _root,
     doc: IAccountCategory,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('manageAccountCategories');
     const accountCategory =
       await models.AccountCategories.createAccountCategory(doc);
     return accountCategory;
@@ -24,8 +25,9 @@ const accountCategoriessMutations = {
   async accountCategoriesEdit(
     _root,
     { _id, ...doc }: { _id: string } & IAccountCategory,
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('manageAccountCategories'); 
     await models.AccountCategories.getAccountCategory({
       _id,
     });
@@ -45,17 +47,14 @@ const accountCategoriessMutations = {
   async accountCategoriesRemove(
     _root,
     { _id }: { _id: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
-    await models.AccountCategories.getAccountCategory({ _id, });
+    await checkPermission('removeAccountCategories'); 
+    await models.AccountCategories.getAccountCategory({ _id });
     const removed = await models.AccountCategories.removeAccountCategory(_id);
 
     return removed;
   },
 };
-
-// checkPermission(accountCategoriessMutations, 'accountCategoriesAdd', 'manageAccounts');
-// checkPermission(accountCategoriessMutations, 'accountCategoriesEdit', 'manageAccounts');
-// checkPermission(accountCategoriessMutations, 'accountCategoriesRemove', 'manageAccounts');
 
 export default accountCategoriessMutations;

@@ -158,6 +158,23 @@ export const BROADCAST_CUSTOMERS_COUNT = gql`
   }
 `;
 
+export const BROADCAST_TRACES = gql`
+  query BroadcastTraces($engageMessageId: String!) {
+    engageBroadcastTraces(engageMessageId: $engageMessageId) {
+      _id
+      type
+      message
+      createdAt
+    }
+  }
+`;
+
+export const BROADCAST_VERIFIED_EMAILS = gql`
+  query BroadcastVerifiedEmails {
+    engageVerifiedEmails
+  }
+`;
+
 export const BROADCAST_STATISTIC = gql`
   query BroadcastStatistic {
     engageEmailPercentages {

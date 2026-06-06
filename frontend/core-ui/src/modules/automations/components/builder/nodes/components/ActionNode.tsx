@@ -25,8 +25,10 @@ const ActionNodeSourceHandler = ({
   config?: any;
   workflowId?: string;
 }) => {
+  if (type === 'split') {
+    return null;
+  }
   const { hasFolks, folks } = useActionNodeSourceHandler(type);
-
   if (hasFolks) {
     return (
       <FolksActionSourceHandler nodeId={id} config={config} folks={folks} />
@@ -62,8 +64,7 @@ const ActionNodeHeader = ({
     <>
       <div className="p-3 flex items-center justify-between border-b border-muted">
         <div className="flex items-center gap-2 text-success/90">
-          {beforeTitleContent &&
-            beforeTitleContent(id, AutomationNodeType.Action)}
+          {beforeTitleContent?.(id, AutomationNodeType.Action)}
 
           <div
             className={`size-6 rounded-full bg-success/10  flex items-center justify-center`}

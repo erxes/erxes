@@ -10,6 +10,8 @@ export const posCommonFields = `
   createdAt
   token
   erxesAppToken
+  serviceCharge
+  serviceChargeApplicableProductId
   adminIds
   cashierIds
   paymentIds
@@ -21,7 +23,6 @@ export const posCommonFields = `
       fullName
     }
   }
-  type
   isOnline
   onServer
   branchId
@@ -33,8 +34,6 @@ export const posCommonFields = `
   kitchenScreen
   kioskMachine
   uiOptions
-  ebarimtConfig
-  erkhetConfig
   cardsConfig
   catProdMappings {
     _id
@@ -48,11 +47,11 @@ export const posCommonFields = `
   kioskExcludeCategoryIds
   kioskExcludeProductIds
   deliveryConfig
-  checkRemainder
   permissionConfig
   allowTypes
   isCheckRemainder
   checkExcludeCategoryIds
+  saveRemainder
   banFractions
 
   branchTitle
@@ -184,6 +183,19 @@ const fieldsCombinedByContentType = gql`
   }
 `;
 
+const ProductCategories = gql`
+  query ProductCategories {
+    productCategories {
+      _id
+      parentId
+      code
+      name
+      order
+      productCount
+    }
+  }
+`;
+
 export default {
   posList,
   productGroups,
@@ -195,4 +207,5 @@ export default {
   getPayments,
   ebarimtProductRules,
   fieldsCombinedByContentType,
+  ProductCategories,
 };

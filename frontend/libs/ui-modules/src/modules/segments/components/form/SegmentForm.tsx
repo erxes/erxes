@@ -15,6 +15,8 @@ import {
 import { SegmentGroups } from './SegmentGroups';
 import { SegmentConfigWidget } from './SegmentConfigWidget';
 import { useTranslation } from 'react-i18next';
+import { SegmentGroup } from './SegmentGroup';
+import { SegmentFormMode } from '../../types';
 
 function hasSegmentMetadataForm(children: React.ReactNode): boolean {
   let found = false;
@@ -43,12 +45,14 @@ function hasSegmentMetadataForm(children: React.ReactNode): boolean {
 type SegmentFormRootProps = {
   contentType: string;
   segmentId?: string;
+  mode?: SegmentFormMode.DEFAULT | SegmentFormMode.SINGLE;
   children: React.ReactNode;
 };
 
 const SegmentFormRoot = ({
   contentType,
   segmentId,
+  mode,
   children,
 }: SegmentFormRootProps) => {
   const { segment, segmentLoading } = useSegmentDetail(segmentId);
@@ -62,6 +66,7 @@ const SegmentFormRoot = ({
     <SegmentProvider
       contentType={contentType}
       segment={segment}
+      mode={mode}
       hasMetadataForm={hasMetadataForm}
     >
       {children}
@@ -74,7 +79,7 @@ const SegmentFormWrapper = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <FormProvider {...form}>
-      <form id="segment-form" className="h-full min-h-0 flex flex-col p-2">
+      <form id="segment-form" className="h-full min-h-0 flex flex-col">
         {children}
       </form>
     </FormProvider>
@@ -93,8 +98,10 @@ SegmentFormHeader.displayName = 'SegmentFormHeader';
 
 const SegmentFormContent = ({
   callback,
+  children,
 }: {
   callback?: (contentId: string) => void;
+  children?: React.ReactNode;
 }) => {
   const { form, contentType } = useSegment();
 
@@ -105,10 +112,8 @@ const SegmentFormContent = ({
   const { t } = useTranslation('segment', { keyPrefix: 'detail' });
 
   const { onAddSegmentGroup } = useSegmentActions({ callback });
-
-  return (
-    <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full p-2 pt-0">
-      <SegmentConfigWidget contentType={contentType} />
+  const defaultContent = (
+    <>
       <div className="pb-4">
         <SegmentGroups />
       </div>
@@ -126,6 +131,13 @@ const SegmentFormContent = ({
         <IconPlus />
         {t('add-group')}
       </Button>
+    </>
+  );
+
+  return (
+    <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full p-2 pt-0">
+      <SegmentConfigWidget contentType={contentType} />
+      {children ?? defaultContent}
     </div>
   );
 };
@@ -160,5 +172,6 @@ export const SegmentForm = Object.assign(SegmentFormLegacy, {
   Wrapper: SegmentFormWrapper,
   Header: SegmentFormHeader,
   Content: SegmentFormContent,
+  SegmentGroup: SegmentGroup,
   Footer: SegmentFormFooter,
 });

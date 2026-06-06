@@ -79,7 +79,7 @@ export function TicketNavigations() {
 
 const PipelineItem = ({ channelId }: { channelId: string }) => {
   const { pipelines } = useGetPipelines({
-    variables: { filter: { channelId } },
+    variables: { filter: { channelId, applyVisibilityFilter: true } },
   });
   return (
     <Collapsible.Content className="pt-1">

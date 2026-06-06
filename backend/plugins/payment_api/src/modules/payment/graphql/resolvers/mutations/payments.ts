@@ -5,7 +5,6 @@ import { QPayQuickQrAPI } from '~/apis/qpayQuickqr/api';
 import { PocketAPI } from '~/apis/pocket/api';
 import { StripeAPI } from '~/apis/stripe/api';
 import ErxesPayment from '~/apis/ErxesPayment';
-import { checkPermission, requireLogin } from 'erxes-api-shared/core-modules';
 import { extractErrorMessage } from '~/utils/extractErrorMessage';
 
 function resolveDomain(subdomain: string) {
@@ -37,24 +36,23 @@ async function handleQPaySetup(input: any) {
   const api = new QPayQuickQrAPI(input.config);
   const { isCompany } = input.config;
 
+  // Fallback for missing name (for company registration)
+  if (isCompany && !input.config.name) {
+    input.config.name = input.config.companyName || input.config.businessName || "Default Contact";
+  }
+
   const response = isCompany
     ? await api.createCompany(input.config)
     : await api.createCustomer(input.config);
 
   if (!response?.id) {
-    throw new Error(
-      `QPay did not return merchant id: ${JSON.stringify(response)}`,
-    );
+    throw new Error(`QPay did not return merchant id: ${JSON.stringify(response)}`);
   }
 
   input.config.merchantId = response.id;
 }
 
-async function authorizePayment(
-  payment: any,
-  models: any,
-  subdomain: string,
-) {
+async function authorizePayment(payment: any, models: any, subdomain: string) {
   const api = new ErxesPayment(payment, subdomain);
 
   try {
@@ -88,11 +86,7 @@ async function registerWebhookIfNeeded(
 }
 
 const mutations = {
-  async paymentAdd(
-    _root: any,
-    args: any,
-    { models, subdomain }: IContext,
-  ) {
+  async paymentAdd(_root: any, args: any, { models, subdomain }: IContext) {
     const { input } = args;
 
     if (!input?.kind) {
@@ -115,10 +109,10 @@ const mutations = {
 
     const payment = await models.PaymentMethods.createPayment(input);
 
-    // 1️⃣ Authorize first (multi-tenant safe)
+    // Authorize first (multi-tenant safe)
     await authorizePayment(payment, models, subdomain);
 
-    // 2️⃣ Register webhook only after successful authorization
+    // Register webhook only after successful authorization
     await registerWebhookIfNeeded(input, payment, domain, models);
 
     return payment;
@@ -126,20 +120,17 @@ const mutations = {
 
   async paymentRemove(
     _root: any,
-    { _id }: { _id: string },
+    { _ids }: { _ids: string[] },
     { models }: IContext,
   ) {
-    await models.PaymentMethods.removePayment(_id);
+    await models.PaymentMethods.deleteMany({ _id: { $in: _ids } });
+
     return 'success';
   },
 
-  async paymentEdit(
-    _root: any,
-    args: any,
-    { models }: IContext,
-  ) {
+  async paymentEdit(_root: any, args: any, { models }: IContext) {
     const { _id, input } = args;
-    const { name, status, kind, config, currency } = input;
+    const { name, status, kind, config, currency, sendEmailOnPayment } = input;
 
     const paymentConfig = validatePaymentKind(kind);
 
@@ -148,6 +139,10 @@ const mutations = {
         if (config?.type) {
           config.isCompany = config.type === 'company';
           delete config.type;
+        }
+        if (config.isCompany && !config.name) {
+          config.name =
+            config.companyName || config.businessName || 'Default Contact';
         }
 
         const api = new QPayQuickQrAPI(config);
@@ -175,19 +170,11 @@ const mutations = {
       acceptedCurrencies: currency
         ? [currency]
         : paymentConfig.acceptedCurrencies,
+      ...(sendEmailOnPayment !== undefined && { sendEmailOnPayment }),
     };
 
     return await models.PaymentMethods.updatePayment(_id, doc);
   },
 };
-
-
-requireLogin(mutations, 'paymentAdd');
-requireLogin(mutations, 'paymentEdit');
-requireLogin(mutations, 'paymentRemove');
-
-checkPermission(mutations, 'paymentAdd', 'paymentAdd', []);
-checkPermission(mutations, 'paymentEdit', 'paymentEdit', []);
-checkPermission(mutations, 'paymentRemove', 'paymentRemove', []);
 
 export default mutations;

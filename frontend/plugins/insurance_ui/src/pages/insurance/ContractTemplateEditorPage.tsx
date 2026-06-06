@@ -225,15 +225,15 @@ export const ContractTemplateEditorPage = () => {
 
     // Replace placeholders with sample data for preview
     const previewHtml = template
-      .replace(/\{\{contractNumber\}\}/g, 'INS2026010001')
-      .replace(/\{\{vendorName\}\}/g, 'Монгол Даатгал ХХК')
-      .replace(/\{\{customerName\}\}/g, 'Бат Болд')
-      .replace(/\{\{registrationNumber\}\}/g, 'УБ12345678')
-      .replace(/\{\{insuranceType\}\}/g, 'Автомашины даатгал')
-      .replace(/\{\{productName\}\}/g, 'Стандарт даатгал')
-      .replace(/\{\{startDate\}\}/g, '2026 оны 1-р сарын 20')
-      .replace(/\{\{endDate\}\}/g, '2027 оны 1-р сарын 20')
-      .replace(/\{\{chargedAmount\}\}/g, '1,500,000');
+      .replaceAll('{{contractNumber}}', 'INS2026010001')
+      .replaceAll('{{vendorName}}', 'Монгол Даатгал ХХК')
+      .replaceAll('{{customerName}}', 'Бат Болд')
+      .replaceAll('{{registrationNumber}}', 'УБ12345678')
+      .replaceAll('{{insuranceType}}', 'Автомашины даатгал')
+      .replaceAll('{{productName}}', 'Стандарт даатгал')
+      .replaceAll('{{startDate}}', '2026 оны 1-р сарын 20')
+      .replaceAll('{{endDate}}', '2027 оны 1-р сарын 20')
+      .replaceAll('{{chargedAmount}}', '1,500,000');
 
     previewWindow.document.write(previewHtml);
     previewWindow.document.close();
@@ -247,15 +247,15 @@ export const ContractTemplateEditorPage = () => {
     }
 
     const previewHtml = template
-      .replace(/\{\{contractNumber\}\}/g, 'INS2026010001')
-      .replace(/\{\{vendorName\}\}/g, 'Монгол Даатгал ХХК')
-      .replace(/\{\{customerName\}\}/g, 'Бат Болд')
-      .replace(/\{\{registrationNumber\}\}/g, 'УБ12345678')
-      .replace(/\{\{insuranceType\}\}/g, 'Автомашины даатгал')
-      .replace(/\{\{productName\}\}/g, 'Стандарт даатгал')
-      .replace(/\{\{startDate\}\}/g, '2026 оны 1-р сарын 20')
-      .replace(/\{\{endDate\}\}/g, '2027 оны 1-р сарын 20')
-      .replace(/\{\{chargedAmount\}\}/g, '1,500,000');
+      .replaceAll('{{contractNumber}}', 'INS2026010001')
+      .replaceAll('{{vendorName}}', 'Монгол Даатгал ХХК')
+      .replaceAll('{{customerName}}', 'Бат Болд')
+      .replaceAll('{{registrationNumber}}', 'УБ12345678')
+      .replaceAll('{{insuranceType}}', 'Автомашины даатгал')
+      .replaceAll('{{productName}}', 'Стандарт даатгал')
+      .replaceAll('{{startDate}}', '2026 оны 1-р сарын 20')
+      .replaceAll('{{endDate}}', '2027 оны 1-р сарын 20')
+      .replaceAll('{{chargedAmount}}', '1,500,000');
 
     printWindow.document.write(previewHtml);
     printWindow.document.close();
@@ -379,18 +379,15 @@ export const ContractTemplateEditorPage = () => {
                     <div className="border rounded-md p-4 bg-gray-50 overflow-auto max-h-[600px]">
                       <iframe
                         srcDoc={template
-                          .replace(/\{\{contractNumber\}\}/g, 'INS2026010001')
-                          .replace(
-                            /\{\{vendorName\}\}/g,
-                            'Sample Insurance LLC',
-                          )
-                          .replace(/\{\{customerName\}\}/g, 'John Smith')
-                          .replace(/\{\{registrationNumber\}\}/g, 'AB12345678')
-                          .replace(/\{\{insuranceType\}\}/g, 'Car Insurance')
-                          .replace(/\{\{productName\}\}/g, 'Standard Insurance')
-                          .replace(/\{\{startDate\}\}/g, 'January 20, 2026')
-                          .replace(/\{\{endDate\}\}/g, 'January 20, 2027')
-                          .replace(/\{\{chargedAmount\}\}/g, '1,500,000')}
+                          .replaceAll('{{contractNumber}}', 'INS2026010001')
+                          .replaceAll('{{vendorName}}', 'Sample Insurance LLC')
+                          .replaceAll('{{customerName}}', 'John Smith')
+                          .replaceAll('{{registrationNumber}}', 'AB12345678')
+                          .replaceAll('{{insuranceType}}', 'Car Insurance')
+                          .replaceAll('{{productName}}', 'Standard Insurance')
+                          .replaceAll('{{startDate}}', 'January 20, 2026')
+                          .replaceAll('{{endDate}}', 'January 20, 2027')
+                          .replaceAll('{{chargedAmount}}', '1,500,000')}
                         className="w-full h-[800px] bg-white border-0"
                         title="Template Preview"
                       />

@@ -6,12 +6,14 @@ import {
   Separator,
   useConfirm,
 } from 'erxes-ui';
+import { Can } from 'ui-modules';
 import { useBundleConditionRemove } from '@/products/settings/hooks/useBundleConditionRemove';
 
 export const BundleConditionCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { removeBundleConditions } = useBundleConditionRemove();
+  const confirmOptions = { confirmationValue: 'delete' };
 
   const handleDelete = () => {
     const selectedIds = table
@@ -22,6 +24,7 @@ export const BundleConditionCommandBar = () => {
       message: `Are you sure you want to delete the ${
         selectedIds.length
       } selected bundle condition${selectedIds.length === 1 ? '' : 's'}?`,
+      options: confirmOptions,
     }).then(() => {
       removeBundleConditions({
         variables: { _ids: selectedIds },
@@ -39,14 +42,16 @@ export const BundleConditionCommandBar = () => {
           {table.getFilteredSelectedRowModel().rows.length} selected
         </CommandBar.Value>
         <Separator.Inline />
-        <Button
-          variant="secondary"
-          className="text-destructive"
-          onClick={handleDelete}
-        >
-          <IconTrash />
-          Delete
-        </Button>
+        <Can action="bundleConditionsManage">
+          <Button
+            variant="secondary"
+            className="text-destructive"
+            onClick={handleDelete}
+          >
+            <IconTrash />
+            Delete
+          </Button>
+        </Can>
       </CommandBar.Bar>
     </CommandBar>
   );
