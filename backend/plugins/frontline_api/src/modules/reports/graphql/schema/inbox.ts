@@ -104,6 +104,9 @@ export const types = `
     closed: [ConversationTagProgressItem!]!
     resolved: [ConversationTagProgressItem!]!
   }
+    type TotalMessagesResult {
+    totalMessages: Int!
+  }
 
 `;
 
@@ -121,4 +124,5 @@ export const queries = `
   reportConversationResolved(filters: ConversationReportFilter): ReportMetric
   reportConversationTags(filters: ConversationReportFilter): [ReportTag]
   reportConversationSources(filters: ConversationReportFilter): [ReportSource]
+  reportTotalMessages: TotalMessagesResult!
 `;
