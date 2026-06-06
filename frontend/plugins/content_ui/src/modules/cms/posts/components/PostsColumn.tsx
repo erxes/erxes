@@ -19,7 +19,6 @@ import {
   IconFolder,
   IconHash,
   IconExternalLink,
-  IconEye,
   IconUser,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
@@ -150,7 +149,7 @@ export const usePostsColumns = (
         <RecordTable.InlineHead label="Post Name" icon={IconFile} />
       ),
       accessorKey: 'title',
-      cell: ({ cell, row }) => {
+      cell: ({ row }) => {
         const post = row.original;
         const missing = isMissing(post.translations);
         return (
@@ -196,7 +195,9 @@ export const usePostsColumns = (
           <RecordTableInlineCell>
             <TextOverflowTooltip
               value={
-                row.original.categories?.map((c: any) => c.name).join(', ') ||
+                row.original.categories
+                  ?.map((category) => category.name)
+                  .join(', ') ||
                 ''
               }
             />
@@ -213,7 +214,7 @@ export const usePostsColumns = (
           <RecordTableInlineCell>
             <TextOverflowTooltip
               value={
-                row.original.tags?.map((c: any) => c.name).join(', ') || ''
+                row.original.tags?.map((tag) => tag.name).join(', ') || ''
               }
             />
           </RecordTableInlineCell>
@@ -251,17 +252,6 @@ export const usePostsColumns = (
       size: 180,
     },
     {
-      id: 'viewCount',
-      accessorKey: 'viewCount',
-      header: () => <RecordTable.InlineHead icon={IconEye} label="Views" />,
-      cell: ({ row }) => (
-        <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-          {row.original.viewCount ?? 0}
-        </RecordTableInlineCell>
-      ),
-      size: 110,
-    },
-    {
       id: 'scheduledDate',
       header: () => (
         <div className="flex items-center gap-1 cursor-pointer select-none">
@@ -271,7 +261,7 @@ export const usePostsColumns = (
           />
         </div>
       ),
-      accessorFn: (row: any) =>
+      accessorFn: (row) =>
         row.scheduledDate || row.publishedDate || row.createdAt,
       cell: ({ row }) => {
         const date =
