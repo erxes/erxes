@@ -18,6 +18,12 @@ export const FieldFile = (props: SpecificFieldProps) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    if (files[0].size > 20 * 1024 * 1024) {
+      toast({ description: 'File size must be less than 20MB', variant: 'destructive' });
+      if (inputRef.current) inputRef.current.value = '';
+      return;
+    }
+
     upload({
       files,
       afterUpload: ({ status, response, fileInfo }) => {
