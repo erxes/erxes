@@ -280,7 +280,7 @@ export const generateMessages = async ({
     if (['image', 'audio', 'video'].includes(type)) {
       const url = image || video || audio;
 
-      url &&
+      if (url) {
         generatedMessages.push({
           attachment: {
             type: type as 'image' | 'audio' | 'video',
@@ -290,6 +290,7 @@ export const generateMessages = async ({
           },
           botData,
         });
+      }
     }
   }
 
@@ -299,7 +300,14 @@ export const generateMessages = async ({
 export const sendMessage = async (
   models: IModels,
   bot: IFacebookBotDocument,
-  { senderId, recipientId, integration, message, tag }: ISendMessageData,
+  {
+    senderId,
+    recipientId,
+    integration,
+    message,
+    tag,
+    commentId,
+  }: ISendMessageData,
   isLoop?: boolean,
 ) => {
   await trySendTypingOn(
@@ -309,6 +317,7 @@ export const sendMessage = async (
     integration.erxesApiId,
     tag,
   );
+  const recipient = commentId ? { comment_id: commentId } : { id: senderId };
 
   try {
     // Send the actual message
@@ -316,7 +325,7 @@ export const sendMessage = async (
       models,
       'me/messages',
       {
-        recipient: { id: senderId },
+        recipient,
         message,
         tag,
       },
@@ -341,6 +350,7 @@ export const sendMessage = async (
           integration,
           message,
           tag: bot?.tag,
+          commentId,
         },
         true,
       );
@@ -389,6 +399,7 @@ export const getOrCreateFacebookMessageActionContext = async (
   recipientId: string;
   senderId: string;
   botId: string;
+  didCreateConversation: boolean;
 }> => {
   if (collectionType === 'comments') {
     return await getOrCreateCommentMessageActionContext({
@@ -451,6 +462,7 @@ async function getOrCreateDirectMessageActionContext({
     recipientId,
     senderId,
     botId,
+    didCreateConversation: false,
   };
 }
 
@@ -589,6 +601,7 @@ async function getOrCreateCommentMessageActionContext({
     recipientId,
     senderId,
     botId,
+    didCreateConversation,
   };
 }
 
