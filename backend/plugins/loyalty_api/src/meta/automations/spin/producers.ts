@@ -1,15 +1,9 @@
 import {
-  TAutomationProducers,
-  TAutomationProducersInput,
   TCoreModuleProducerContext,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { AwardSpinActionConfig } from '../types';
-import {
-  generateIds,
-  getOwnerTypeFromAttribution,
-  replaceAutomationPlaceholders,
-} from '../utils';
+import { resolveAutomationOwners } from '../utils';
 
 export const spinAutomationProducers = {
   receiveActions: async (
@@ -26,18 +20,12 @@ export const spinAutomationProducers = {
       throw new Error('Spin campaign is required');
     }
 
-    if (!config.attribution) {
-      throw new Error('Spin owner attribution is required');
-    }
-
-    const replaced = await replaceAutomationPlaceholders({
+    const { ownerIds, ownerType } = await resolveAutomationOwners({
       subdomain,
       execution,
-      values: { ownerIds: config.attribution },
+      config,
+      errorMessage: 'Spin owner is required',
     });
-    const ownerIds = generateIds(replaced.ownerIds);
-    const ownerType =
-      config.ownerType || getOwnerTypeFromAttribution(config.attribution);
 
     const result = await Promise.all(
       ownerIds.map((ownerId) =>

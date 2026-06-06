@@ -5,6 +5,13 @@ import {
   LoyaltyOwnerType,
 } from './types';
 
+type LoyaltyOwnerConfig = {
+  ownerType?: LoyaltyOwnerType;
+  ownerId?: string;
+  ownerIds?: string[];
+  attribution?: string;
+};
+
 const OWNER_TYPE_BY_ATTRIBUTE: Array<{
   patterns: string[];
   ownerType: LoyaltyOwnerType;
@@ -85,6 +92,24 @@ export const getOwnerTypeFromAttribution = (
   );
 };
 
+const getOwnerTypeFromTarget = (
+  target?: LoyaltyAutomationTarget,
+): LoyaltyOwnerType => {
+  if (!target) {
+    return 'customer';
+  }
+
+  if ('details' in target) {
+    return 'user';
+  }
+
+  if ('customerId' in target) {
+    return 'customer';
+  }
+
+  return 'customer';
+};
+
 export const generateIds = (value: unknown) => {
   if (Array.isArray(value)) {
     return unique(
@@ -135,4 +160,45 @@ export const replaceAutomationPlaceholders = async ({
     defaultValue: '',
     keepUnresolvedPlaceholders: false,
   });
+};
+
+export const resolveAutomationOwners = async ({
+  subdomain,
+  execution,
+  config,
+  errorMessage,
+}: {
+  subdomain: string;
+  execution: LoyaltyAutomationExecution;
+  config: LoyaltyOwnerConfig;
+  errorMessage: string;
+}) => {
+  let ownerIds = generateIds(config.ownerIds || config.ownerId);
+
+  if (!ownerIds.length && config.attribution) {
+    const replaced = await replaceAutomationPlaceholders({
+      subdomain,
+      execution,
+      values: { ownerIds: config.attribution },
+    });
+
+    ownerIds = generateIds(replaced.ownerIds);
+  }
+
+  if (!ownerIds.length && execution.targetId) {
+    ownerIds = [execution.targetId];
+  }
+
+  if (!ownerIds.length) {
+    throw new Error(errorMessage);
+  }
+
+  return {
+    ownerIds,
+    ownerType:
+      config.ownerType ||
+      (config.attribution
+        ? getOwnerTypeFromAttribution(config.attribution)
+        : getOwnerTypeFromTarget(execution.target as LoyaltyAutomationTarget)),
+  };
 };

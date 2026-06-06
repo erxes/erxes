@@ -38,7 +38,6 @@ const doScoreCampaign = async ({
     defaultValue: '',
     keepUnresolvedPlaceholders: false,
   });
-  console.log({ replaced, values: { ownerIds: config.attribution } });
 
   const ownerIds = generateIds(replaced.ownerIds);
 
