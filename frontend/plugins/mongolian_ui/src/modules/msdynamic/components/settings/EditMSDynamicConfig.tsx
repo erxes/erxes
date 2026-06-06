@@ -2,7 +2,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Sheet, Spinner } from 'erxes-ui';
 
 import { useMSDynamicConfigActions } from '../../hooks/useMSDynamicConfigActions';
 import { useMSDynamicConfigs } from '../../hooks/useMSDynamicConfigs';
@@ -13,14 +12,18 @@ import {
   TMSDynamicConfig,
   toMSDynamicFormValues,
 } from '../../types';
-import { MSDynamicConfigFormFields } from './MSDynamicConfigFormFields';
+import { MSDynamicConfigSheet } from './MSDynamicConfigSheet';
 
 const FORM_ID = 'edit-msdynamic-config-form';
 
 export const EditMSDynamicConfig = () => {
   const [editDetail, setEditDetail] = useAtom(msDynamicConfigDetailAtom);
-  const { configsMap, loading: configsLoading, saveConfigs, saveLoading } =
-    useMSDynamicConfigs();
+  const {
+    configsMap,
+    loading: configsLoading,
+    saveConfigs,
+    saveLoading,
+  } = useMSDynamicConfigs();
   const { loading, saveConfig } = useMSDynamicConfigActions({
     configsMap,
     saveConfigs,
@@ -54,31 +57,14 @@ export const EditMSDynamicConfig = () => {
   };
 
   return (
-    <Sheet open={editDetail !== null} onOpenChange={handleClose}>
-      <Sheet.View side="right" className="bg-background sm:max-w-3xl">
-        <Sheet.Header>
-          <Sheet.Title>Edit config</Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
-        <div className="flex-1 overflow-y-auto px-5 py-4">
-          <MSDynamicConfigFormFields
-            form={form}
-            onSubmit={handleSubmit}
-            formId={FORM_ID}
-            loading={isLoading}
-          />
-        </div>
-        <Sheet.Footer className="gap-2 border-t bg-background">
-          <Sheet.Close asChild>
-            <Button variant="outline" size="lg" disabled={isLoading}>
-              Cancel
-            </Button>
-          </Sheet.Close>
-          <Button type="submit" form={FORM_ID} size="lg" disabled={isLoading}>
-            {isLoading ? <Spinner /> : 'Save'}
-          </Button>
-        </Sheet.Footer>
-      </Sheet.View>
-    </Sheet>
+    <MSDynamicConfigSheet
+      form={form}
+      formId={FORM_ID}
+      loading={isLoading}
+      onOpenChange={handleClose}
+      onSubmit={handleSubmit}
+      open={editDetail !== null}
+      title="Edit config"
+    />
   );
 };
