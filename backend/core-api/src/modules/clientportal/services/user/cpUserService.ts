@@ -12,7 +12,6 @@ import {
   detectIdentifierType,
   validateUserRegistration,
 } from '@/clientportal/services/helpers/validators';
-import { buildUserQuery } from '@/clientportal/services/helpers/queryBuilders';
 import { normalizeEmail } from '@/clientportal/utils';
 import {
   getCPUserByIdOrThrow,
@@ -22,17 +21,17 @@ import {
   isEmailVerificationEnabled,
   isPhoneVerificationEnabled,
 } from '@/clientportal/services/helpers/otpConfigHelper';
+import { buildUserQuery } from '../helpers/queryBuilders';
 import {
   AuthenticationError,
-  ValidationError,
   TokenExpiredError,
-} from '@/clientportal/services/errorHandler';
+  ValidationError,
+} from '../errorHandler';
 import {
   ActionCodeType,
   isActionCodeExpired,
   validateActionCode,
 } from '../helpers/actionCodeHelper';
-
 interface UserFields {
   email?: string;
   phone?: string;

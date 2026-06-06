@@ -2,6 +2,8 @@ import {
   IconBuilding,
   IconCalendar,
   IconCheck,
+  IconCircleDashed,
+  IconCircleDashedCheck,
   IconMail,
   IconPhone,
   IconTrash,
@@ -19,14 +21,18 @@ import {
 } from 'erxes-ui';
 import { ICPUser } from '@/contacts/client-portal-users/types/cpUser';
 import { CPUserRowDeleteButton } from '@/contacts/client-portal-users/components/CPUserRowDeleteButton';
+import { clientPortalUserMoreColumn } from './ClientPortalUserMoreColumn';
 
 function displayName(user: ICPUser) {
   const parts = [user.firstName, user.lastName].filter(Boolean);
   if (parts.length) return parts.join(' ');
   return user.email || user.phone || user.username || '-';
 }
+const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ICPUser>;
 
 export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
+  clientPortalUserMoreColumn,
+  checkBoxColumn,
   {
     id: 'name',
     accessorKey: 'firstName',
@@ -48,21 +54,57 @@ export const clientPortalUserColumns: ColumnDef<ICPUser>[] = [
     id: 'email',
     accessorKey: 'email',
     header: () => <RecordTable.InlineHead icon={IconMail} label="Email" />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
-      </RecordTableInlineCell>
-    ),
+    cell: ({ cell }) => {
+      const { email, isEmailVerified } = cell.row.original;
+
+      if (!email) return null;
+
+      return (
+        <RecordTableInlineCell>
+          <div className="flex gap-2">
+            <Badge
+              variant="secondary"
+              className="flex items-center gap-1 font-normal"
+            >
+              {isEmailVerified ? (
+                <IconCircleDashedCheck className="text-success size-4" />
+              ) : (
+                <IconCircleDashed className="text-muted-foreground size-4" />
+              )}
+              <TextOverflowTooltip value={email as string} />
+            </Badge>
+          </div>
+        </RecordTableInlineCell>
+      );
+    },
   },
   {
     id: 'phone',
     accessorKey: 'phone',
     header: () => <RecordTable.InlineHead icon={IconPhone} label="Phone" />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={cell.getValue() as string} />
-      </RecordTableInlineCell>
-    ),
+    cell: ({ cell }) => {
+      const { phone, isPhoneVerified } = cell.row.original;
+
+      if (!phone) return null;
+
+      return (
+        <RecordTableInlineCell>
+          <div className="flex gap-2">
+            <Badge
+              variant="secondary"
+              className="flex items-center gap-1 font-normal"
+            >
+              {isPhoneVerified ? (
+                <IconCircleDashedCheck className="text-success size-4" />
+              ) : (
+                <IconCircleDashed className="text-muted-foreground size-4" />
+              )}
+              <TextOverflowTooltip value={phone as string} />
+            </Badge>
+          </div>
+        </RecordTableInlineCell>
+      );
+    },
   },
   {
     id: 'type',

@@ -2,6 +2,7 @@ import { clientPortalUserColumns } from '@/contacts/client-portal-users/componen
 import { CP_USERS_CURSOR_SESSION_KEY } from '@/contacts/client-portal-users/constants/cpUsersCursorSessionKey';
 import { useClientPortalUsers } from '@/contacts/client-portal-users/hooks/useClientPortalUsers';
 import { Label, RecordTable } from 'erxes-ui';
+import { CPCommandBar } from './command-bar/CPUsersCommandBar';
 
 export const ClientPortalUsersRecordTable = () => {
   const {
@@ -33,7 +34,7 @@ export const ClientPortalUsersRecordTable = () => {
     <RecordTable.Provider
       columns={clientPortalUserColumns}
       data={list}
-      stickyColumns={['name']}
+      stickyColumns={['more', 'checkbox', 'name']}
       className="m-3"
     >
       <RecordTable.CursorProvider
@@ -55,6 +56,7 @@ export const ClientPortalUsersRecordTable = () => {
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.CursorProvider>
+      <CPCommandBar />
     </RecordTable.Provider>
   );
 };

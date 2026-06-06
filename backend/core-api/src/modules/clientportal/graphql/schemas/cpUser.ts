@@ -204,11 +204,20 @@ const cpUsersEditParams = `
   companyName: String,
   companyRegistrationNumber: String,
   erxesCustomerId: String,
+  isVerified: Boolean,       
+  isEmailVerified: Boolean,  
+  isPhoneVerified: Boolean,  
+`;
+
+const cpUsersVerifyParams = `
+  type: String,
+  userIds: [String]!
 `;
 
 export const mutations = `
   cpUsersAdd(${cpUsersAddParams}): CPUser
   cpUsersEdit(${cpUsersEditParams}): CPUser
+  cpUsersVerify(${cpUsersVerifyParams}): String
   cpUsersRemove(_id: String!): CPUserRemoveResponse
   cpUsersSetPassword(_id: String!, newPassword: String!): CPUser
   clientPortalUserRegister(${userRegisterParams}): CPUser
