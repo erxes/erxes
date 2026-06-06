@@ -352,7 +352,7 @@ const getGoogleCredentialsJson = (): GoogleCredentialsJson | undefined => {
 
   return {
     clientEmail,
-    privateKey: privateKey.replaceAll('\\n', '\n'),
+    privateKey: privateKey.replaceAll(String.raw`\n`, '\n'),
     projectId,
   };
 };
