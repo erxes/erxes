@@ -35,4 +35,9 @@ export const KEY_LABELS: Record<string, string> = {
   defaultUserCode: 'Default User Code',
   defaultCompanyCode: 'Default Company Code',
   useBoard: 'Use deal board',
+  boardId: 'Board',
+  pipelineId: 'Pipeline',
+  stageId: 'Stage',
+  posConf: 'POS config',
+  productUrl: 'Product URL',
 };

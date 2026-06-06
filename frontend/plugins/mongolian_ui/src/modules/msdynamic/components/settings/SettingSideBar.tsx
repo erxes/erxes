@@ -1,28 +1,41 @@
-import { NavLink } from 'react-router-dom';
+import { Sidebar } from 'erxes-ui';
+import { Link, useLocation } from 'react-router-dom';
 
-const SettingSideBar = () => {
+type SettingSideBarItemProps = {
+  to: string;
+  children: React.ReactNode;
+};
+
+export const SettingSideBarItem = ({
+  to,
+  children,
+}: SettingSideBarItemProps) => {
+  const pathname = useLocation().pathname.replace(/\/$/, '');
+  const normalizedTo = to.replace(/\/$/, '');
+  const isActive = pathname === normalizedTo;
+
   return (
-    <div className="w-64 border-r bg-background p-4">
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold">MS Dynamics</h2>
-      </div>
-
-      <nav className="space-y-2">
-        <NavLink
-          to="/mongolian/msdynamic"
-          className={({ isActive }) =>
-            `block rounded-md px-3 py-2 text-sm transition ${
-              isActive
-                ? 'bg-primary/10 text-primary font-medium'
-                : 'text-muted-foreground hover:bg-muted'
-            }`
-          }
-        >
-          General config
-        </NavLink>
-      </nav>
-    </div>
+    <Sidebar.MenuItem>
+      <Sidebar.MenuButton asChild isActive={isActive}>
+        <Link to={to}>{children}</Link>
+      </Sidebar.MenuButton>
+    </Sidebar.MenuItem>
   );
 };
 
-export default SettingSideBar;
+export const SettingSideBar = () => {
+  return (
+    <Sidebar collapsible="none" className="h-full w-[300px] flex-none border-r">
+      <Sidebar.Group>
+        <Sidebar.GroupLabel>MS Dynamics</Sidebar.GroupLabel>
+        <Sidebar.GroupContent>
+          <Sidebar.Menu>
+            <SettingSideBarItem to="/settings/mongolian/msdynamic">
+              General config
+            </SettingSideBarItem>
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
+    </Sidebar>
+  );
+};
