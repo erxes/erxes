@@ -86,7 +86,7 @@ const callQueries = {
     if (!integration) {
       throw new Error('Integration not found');
     }
-    const queueData = (await sendToGrandStream(
+    const queueData = await sendToGrandStream(
       models,
       {
         path: 'api',
@@ -108,7 +108,7 @@ const callQueries = {
         isAddExtention: false,
       },
       user,
-    )) as any;
+    );
 
     if (queueData?.response) {
       const { account } = queueData.response;
@@ -144,7 +144,7 @@ const callQueries = {
     if (!integration) {
       throw new Error('Integration not found');
     }
-    const queueData = (await sendToGrandStream(
+    const queueData = await sendToGrandStream(
       models,
       {
         path: 'api',
@@ -162,7 +162,7 @@ const callQueries = {
         isAddExtention: false,
       },
       user,
-    )) as any;
+    );
 
     if (!queueData.ok) {
       throw new Error(`HTTP error! Status: ${queueData.status}`);
@@ -235,6 +235,7 @@ const callQueries = {
         return [];
       }
     } catch (error) {
+      console.log(error);
       const stats = await models.CallQueueStatistics.find({ integrationId });
       if (stats) {
         return stats;
@@ -258,7 +259,7 @@ const callQueries = {
     { integrationId, queue },
     { models, user }: IContext,
   ) {
-    const queueData = (await sendToGrandStream(
+    const queueData = await sendToGrandStream(
       models,
       {
         path: 'api',
@@ -276,7 +277,7 @@ const callQueries = {
         isAddExtention: false,
       },
       user,
-    )) as any;
+    );
 
     if (queueData?.response) {
       const { CallQueueMembersMessage } = queueData.response;
@@ -613,6 +614,7 @@ const callQueries = {
 
       return null;
     } catch (error) {
+      console.log(error);
       throw new Error('Failed to retrieve call history details');
     }
   },

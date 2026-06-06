@@ -307,7 +307,7 @@ const callsMutations = {
 
     const extensionNumber = operator?.gsUsername || '1001';
 
-    const queueData = (await sendToGrandStream(
+    const queueData = await sendToGrandStream(
       models,
       {
         path: 'api',
@@ -326,7 +326,7 @@ const callsMutations = {
         isAddExtention: false,
       },
       user,
-    )) as any;
+    );
 
     if (queueData?.response) {
       const { need_apply } = queueData.response;
@@ -427,7 +427,12 @@ const callsMutations = {
   ) {
     let cdr = await models.CallCdrs.findOne({ acctId });
     if (cdr) {
-      if (!cdr.recordfiles) {
+      if (cdr.recordfiles) {
+        await models.CallCdrs.updateOne(
+          { acctId },
+          { oldRecordUrl: cdr.recordUrl },
+        );
+      } else {
         const payload = {
           path: 'api',
           method: 'POST',
@@ -457,11 +462,6 @@ const callsMutations = {
           );
           cdr = await models.CallCdrs.findOne({ acctId });
         }
-      } else {
-        await models.CallCdrs.updateOne(
-          { acctId },
-          { oldRecordUrl: cdr.recordUrl },
-        );
       }
 
       await saveRecordUrl(cdr, models, inboxId, subdomain);
