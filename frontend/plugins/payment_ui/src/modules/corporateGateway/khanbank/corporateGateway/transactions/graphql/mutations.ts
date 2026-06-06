@@ -5,5 +5,5 @@ mutation KhanbankTransfer($configId: String!, $transfer: KhanbankTransferInput) 
 `;
 
 export default {
-  transferMutation
+  transferMutation,
 };

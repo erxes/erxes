@@ -34,5 +34,5 @@ query KhanbankRates {
 
 export default {
   listQuery,
-  ratesQuery
+  ratesQuery,
 };

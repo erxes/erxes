@@ -11,10 +11,7 @@ type Props = {
   showLatest?: boolean;
 };
 
-export default function ListContainer({
-  queryParams,
-  showLatest,
-}: Props) {
+export default function ListContainer({ queryParams, showLatest }: Props) {
   let page = Number(queryParams.page) || 1;
   let perPage = Number(queryParams.perPage) || 20;
 
@@ -25,30 +22,25 @@ export default function ListContainer({
     page = 1;
     perPage = 10;
 
-    startDate = dayjs()
-      .subtract(1, 'day')
-      .format('YYYY-MM-DD');
+    startDate = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
 
     endDate = dayjs().format('YYYY-MM-DD');
   }
 
-  const { data, loading, error } =
-    useQuery<StatementQueryResponse>(
-      gql(queries.transactionsQuery),
-      {
-        variables: {
-          page,
-          perPage,
-          accountNumber: getRawAccountNumber(
-            queryParams.account,
-          ),
-          configId: queryParams._id,
-          startDate,
-          endDate,
-        },
-        fetchPolicy: 'network-only',
+  const { data, loading, error } = useQuery<StatementQueryResponse>(
+    gql(queries.transactionsQuery),
+    {
+      variables: {
+        page,
+        perPage,
+        accountNumber: getRawAccountNumber(queryParams.account),
+        configId: queryParams._id,
+        startDate,
+        endDate,
       },
-    );
+      fetchPolicy: 'network-only',
+    },
+  );
 
   if (loading) {
     return (
@@ -59,15 +51,10 @@ export default function ListContainer({
   }
 
   if (error) {
-    return (
-      <div className="text-sm text-destructive p-4">
-        {error.message}
-      </div>
-    );
+    return <div className="text-sm text-destructive p-4">{error.message}</div>;
   }
 
-  const statement =
-    data?.khanbankStatements;
+  const statement = data?.khanbankStatements;
 
   if (!statement) return null;
 
