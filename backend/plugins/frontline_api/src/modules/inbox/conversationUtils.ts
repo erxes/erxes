@@ -47,7 +47,7 @@ const countByTags = async (
     module: 'tags',
     action: 'find',
     input: {
-      doc: {
+      query: {
         type: 'inbox:conversation',
       },
     },

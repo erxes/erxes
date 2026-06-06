@@ -309,7 +309,7 @@ export default class Builder {
       module: 'tags',
       action: 'find',
       input: {
-        _id: { $in: tagIds },
+        query: { _id: { $in: tagIds } },
       },
     });
 
