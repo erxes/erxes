@@ -24,6 +24,8 @@ export const isIssueVoucherActionType = (type?: string) => {
   return checkAction(type || '', 'voucher', 'voucher', 'create');
 };
 
-export const isAwardVoucherActionType = (type?: string) => {
+export const isAwardSpinActionType = (type?: string) => {
   return checkAction(type || '', 'spin', 'spin', 'create');
 };
+
+export const isAwardVoucherActionType = isAwardSpinActionType;

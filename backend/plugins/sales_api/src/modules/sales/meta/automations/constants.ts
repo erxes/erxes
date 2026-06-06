@@ -195,7 +195,7 @@ export const salesAutomationContants = {
       moduleName: 'sales',
       collectionName: 'deals',
       relationType: 'stageChanged',
-      icon: 'IconArrowsExchange',
+      icon: 'IconPigMoney',
       label: 'Deal stage changed',
       description:
         'Start this workflow when a deal moves from one stage to another.',

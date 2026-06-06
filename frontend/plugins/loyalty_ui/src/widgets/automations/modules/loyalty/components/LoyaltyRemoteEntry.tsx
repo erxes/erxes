@@ -7,7 +7,6 @@ import { LoyaltyActionConfigForm } from './action/LoyaltyActionConfigForm';
 import { LoyaltyActionNodeContent } from './action/LoyaltyActionNodeContent';
 
 export const LoyaltyRemoteEntry = (props: AutomationRemoteEntryProps) => {
-  console.log(props);
   return (
     <AutomationRemoteEntryWrapper
       props={props}

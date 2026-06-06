@@ -58,8 +58,9 @@ export const AdjustScoreCampaignActionConfigForm = ({
                   allowOnlyTriggers: true,
                 }}
                 enabled={{
-                  attribute: true,
                   call_user: true,
+                  call_company: true,
+                  call_customer: true,
                 }}
               />
               <Form.Message />
@@ -72,7 +73,7 @@ export const AdjustScoreCampaignActionConfigForm = ({
           name="campaignId"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>Score campaign s</Form.Label>
+              <Form.Label>Score campaign</Form.Label>
               <SelectScoreCampaign.FormItem
                 value={field.value}
                 onValueChange={field.onChange}

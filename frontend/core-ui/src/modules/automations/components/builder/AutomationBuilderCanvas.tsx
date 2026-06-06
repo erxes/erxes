@@ -34,7 +34,7 @@ export const AutomationBuilderCanvas = () => {
   } = useReactFlowEditor();
 
   return (
-    <div className="relative h-full flex-1 " ref={reactFlowWrapper}>
+    <div className="relative h-full flex-1" ref={reactFlowWrapper}>
       <ReactFlow
         ref={editorWrapper}
         nodes={nodes}

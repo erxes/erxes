@@ -4,17 +4,29 @@ import {
   TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
 import { generateModels } from '~/connectionResolvers';
+import { posAutomationHandlers } from '~/modules/pos/meta/automations/automationHandlers';
+import { posAutomationConstants } from '~/modules/pos/meta/automations/constants';
 import { salesAutomationHandlers } from '~/modules/sales/meta/automations/automationHandlers';
 import { salesAutomationContants } from '~/modules/sales/meta/automations/constants';
 const modules = {
   sales: salesAutomationHandlers,
+  pos: posAutomationHandlers,
 };
 
 export default {
   constants: {
-    triggers: [...salesAutomationContants.triggers],
-    actions: [...salesAutomationContants.actions],
-    setPropertyTargets: [...salesAutomationContants.setPropertyTargets],
+    triggers: [
+      ...salesAutomationContants.triggers,
+      ...(posAutomationConstants.triggers || []),
+    ],
+    actions: [
+      ...salesAutomationContants.actions,
+      ...(posAutomationConstants.actions || []),
+    ],
+    setPropertyTargets: [
+      ...salesAutomationContants.setPropertyTargets,
+      ...(posAutomationConstants.setPropertyTargets || []),
+    ],
   },
   receiveActions: createCoreModuleProducerHandler({
     moduleName: 'automations',

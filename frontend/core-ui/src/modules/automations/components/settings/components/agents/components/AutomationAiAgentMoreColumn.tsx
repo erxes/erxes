@@ -42,7 +42,10 @@ export const AutomationAiAgentMoreColumnCell = ({
     }).then(() => {
       removeAiAgent({
         variables: { id: _id },
-        refetchQueries: [AUTOMATIONS_AI_AGENTS, AUTOMATIONS_AI_AGENT_TOTAL_COUNTS],
+        refetchQueries: [
+          AUTOMATIONS_AI_AGENTS,
+          AUTOMATIONS_AI_AGENT_TOTAL_COUNTS,
+        ],
         onError: (e: ApolloError) => {
           toast({
             title: t('error'),
@@ -83,6 +86,7 @@ export const AutomationAiAgentMoreColumnCell = ({
                 value="delete"
                 onSelect={handleDelete}
                 disabled={loading}
+                className="text-destructive"
               >
                 <IconTrash /> {t('delete')}
               </Command.Item>

@@ -1,14 +1,24 @@
 import { AutomationActionFormProps } from 'ui-modules';
 import { AdjustScoreCampaignActionConfigForm } from './adjust-score/AdjustScoreCampaignActionConfigForm';
-import { isAdjustScoreActionType } from '../../utils/loyaltyActionUtils';
-import { TAdjustScoreActionConfigForm } from '../../states/adjustScoreActionConfigFormDefinitions';
+import { IssueVoucherActionConfigForm } from './voucher/IssueVoucherActionConfigForm';
+import { AwardSpinActionConfigForm } from './spin/AwardSpinActionConfigForm';
+import {
+  isAdjustScoreActionType,
+  isAwardSpinActionType,
+  isIssueVoucherActionType,
+} from '../../utils/loyaltyActionUtils';
 
-export const LoyaltyActionConfigForm = (
-  props: AutomationActionFormProps<TAdjustScoreActionConfigForm>,
-) => {
-  console.log(props.currentAction?.type, props.type);
+export const LoyaltyActionConfigForm = (props: AutomationActionFormProps) => {
   if (isAdjustScoreActionType(props.currentAction?.type || props.type)) {
     return <AdjustScoreCampaignActionConfigForm {...props} />;
+  }
+
+  if (isIssueVoucherActionType(props.currentAction?.type || props.type)) {
+    return <IssueVoucherActionConfigForm {...props} />;
+  }
+
+  if (isAwardSpinActionType(props.currentAction?.type || props.type)) {
+    return <AwardSpinActionConfigForm {...props} />;
   }
 
   return null;

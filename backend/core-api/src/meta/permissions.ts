@@ -598,6 +598,24 @@ export const permissions: IPermissionConfig = {
           description: 'Delete automations',
           oauthScopes: ['automations:delete', 'automations:manage'],
         },
+        {
+          title: 'Create automations',
+          name: 'automationsAiAgentAdd',
+          description: 'Create automations',
+          oauthScopes: ['automations:create', 'automations:manage'],
+        },
+        {
+          title: 'Edit ai agent automations',
+          name: 'automationsAiAgentEdit',
+          description: 'Edit automations',
+          oauthScopes: ['automations:update', 'automations:manage'],
+        },
+        {
+          title: 'Delete ai agent automations',
+          name: 'automationsAiAgentRemove',
+          description: 'Delete automations',
+          oauthScopes: ['automations:delete', 'automations:manage'],
+        },
       ],
     },
     {
