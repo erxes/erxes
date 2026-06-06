@@ -24,6 +24,24 @@ import { useDebounce } from 'use-debounce';
 import { TagsSelect } from 'ui-modules';
 import { IconTags } from '@tabler/icons-react';
 
+// Task descriptions are normally BlockNote JSON (a Block[]), but legacy or
+// API/script-created tasks can hold plain text. Parsing defensively keeps a
+// non-JSON description from throwing during render and crashing the page —
+// the text is rendered as a single paragraph instead.
+const parseDescriptionBlocks = (
+  description?: string,
+): Block[] | undefined => {
+  if (!description) return undefined;
+  try {
+    const parsed = JSON.parse(description);
+    return Array.isArray(parsed) && parsed.length > 0
+      ? (parsed as Block[])
+      : undefined;
+  } catch {
+    return [{ type: 'paragraph', content: description } as unknown as Block];
+  }
+};
+
 export const TaskFields = ({ task }: { task: ITask }) => {
   const {
     _id: taskId,
@@ -42,11 +60,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
 
   const startDate = (task as any)?.startDate;
   const description = (task as any)?.description;
-  const parsedDescription = description ? JSON.parse(description) : undefined;
-  const initialDescriptionContent =
-    Array.isArray(parsedDescription) && parsedDescription.length > 0
-      ? parsedDescription
-      : undefined;
+  const initialDescriptionContent = parseDescriptionBlocks(description);
 
   const [descriptionContent, setDescriptionContent] = useState<
     Block[] | undefined
@@ -84,7 +98,7 @@ export const TaskFields = ({ task }: { task: ITask }) => {
     if (!debouncedDescriptionContent) return;
     if (
       JSON.stringify(debouncedDescriptionContent) ===
-      JSON.stringify(description ? JSON.parse(description) : undefined)
+      JSON.stringify(parseDescriptionBlocks(description))
     ) {
       return;
     }
