@@ -36,7 +36,7 @@ export const ConversationList = ({
   colSpan = 6,
   onColSpanChange,
 }: ConversationListProps) => {
-  const id = title.toLowerCase().replace(/\s+/g, '-');
+  const id = title.toLowerCase().replaceAll(' ', '-');
   const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(id));
   const [sourceFilter, setSourceFilter] = useAtom(
     getReportSourceFilterAtom(id),
@@ -61,7 +61,7 @@ export const ConversationList = ({
         ...filters,
         channelIds: channelFilter.length ? channelFilter : undefined,
         memberIds: memberFilter.length ? memberFilter : undefined,
-        source: sourceFilter !== 'all' ? sourceFilter : undefined,
+        source: sourceFilter === 'all' ? undefined : sourceFilter,
         callStatus:
           sourceFilter === 'calls' && callStatusFilter !== 'all'
             ? callStatusFilter

@@ -372,7 +372,7 @@ export const ConversationOpen = ({
   colSpan = 6,
   onColSpanChange,
 }: ConversationOpenProps) => {
-  const id = title.toLowerCase().replace(/\s+/g, '-');
+  const id = title.toLowerCase().replaceAll(' ', '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
   const [dateValue] = useAtom(getReportDateFilterAtom(id));
   const [sourceFilter] = useAtom(getReportSourceFilterAtom(id));
@@ -392,7 +392,7 @@ export const ConversationOpen = ({
         ...filters,
         channelIds: channelFilter.length ? channelFilter : undefined,
         memberIds: memberFilter.length ? memberFilter : undefined,
-        source: sourceFilter !== 'all' ? sourceFilter : undefined,
+        source: sourceFilter === 'all' ? undefined : sourceFilter,
         callStatus:
           sourceFilter === 'calls' && callStatusFilter !== 'all'
             ? callStatusFilter
