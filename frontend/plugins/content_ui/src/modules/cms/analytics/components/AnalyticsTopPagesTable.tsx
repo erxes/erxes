@@ -1,5 +1,6 @@
 import { ColumnDef } from '@tanstack/react-table';
 import {
+  type Icon,
   IconClock,
   IconEye,
   IconFileAnalytics,
@@ -28,6 +29,139 @@ type AnalyticsTopPagesTableProps = {
   pages: CmsAnalyticsTopPage[];
 };
 
+type AnalyticsTopPagesTableHeadProps = {
+  icon: Icon;
+  label: string;
+};
+
+type AnalyticsTopPageCellProps = {
+  page: CmsAnalyticsTopPageRow;
+};
+
+type AnalyticsTopPageMetricCellProps = {
+  value: number;
+};
+
+type AnalyticsTopPageColumnLabels = {
+  engagement: string;
+  page: string;
+  url: string;
+  users: string;
+  views: string;
+};
+
+const AnalyticsTopPagesTableHead = ({
+  icon,
+  label,
+}: AnalyticsTopPagesTableHeadProps) => (
+  <RecordTable.InlineHead icon={icon} label={label} />
+);
+
+const AnalyticsTopPageNameCell = ({ page }: AnalyticsTopPageCellProps) => {
+  const pageName = page.pageTitle?.trim() || page.pagePath;
+
+  return (
+    <RecordTableInlineCell>
+      <TextOverflowTooltip
+        value={pageName}
+        className="text-sm font-semibold text-foreground"
+      />
+    </RecordTableInlineCell>
+  );
+};
+
+const AnalyticsTopPageUrlCell = ({ page }: AnalyticsTopPageCellProps) => (
+  <RecordTableInlineCell>
+    <div className="inline-flex max-w-full items-center gap-1.5 rounded-sm bg-muted px-1.5 py-0.5 text-muted-foreground">
+      <IconLink className="size-3 flex-none text-muted-foreground/70" />
+      <TextOverflowTooltip
+        value={page.pagePath}
+        className="min-w-0 font-mono text-[11px] leading-4"
+      />
+    </div>
+  </RecordTableInlineCell>
+);
+
+const AnalyticsTopPageViewsCell = ({
+  value,
+}: AnalyticsTopPageMetricCellProps) => (
+  <RecordTableInlineCell className="justify-end text-right font-medium tabular-nums">
+    {formatAnalyticsNumber(value)}
+  </RecordTableInlineCell>
+);
+
+const AnalyticsTopPageUsersCell = ({
+  value,
+}: AnalyticsTopPageMetricCellProps) => (
+  <RecordTableInlineCell className="justify-end text-right tabular-nums">
+    {formatAnalyticsNumber(value)}
+  </RecordTableInlineCell>
+);
+
+const AnalyticsTopPageEngagementCell = ({
+  value,
+}: AnalyticsTopPageMetricCellProps) => (
+  <RecordTableInlineCell className="justify-end text-right tabular-nums">
+    {formatAnalyticsDuration(value)}
+  </RecordTableInlineCell>
+);
+
+const getAnalyticsTopPageColumns = ({
+  engagement,
+  page,
+  url,
+  users,
+  views,
+}: AnalyticsTopPageColumnLabels): ColumnDef<CmsAnalyticsTopPageRow>[] => [
+  {
+    id: 'page',
+    accessorKey: 'pagePath',
+    header: () => (
+      <AnalyticsTopPagesTableHead icon={IconFileAnalytics} label={page} />
+    ),
+    cell: ({ row }) => <AnalyticsTopPageNameCell page={row.original} />,
+    size: 220,
+  },
+  {
+    id: 'pageUrl',
+    accessorKey: 'pagePath',
+    header: () => <AnalyticsTopPagesTableHead icon={IconLink} label={url} />,
+    cell: ({ row }) => <AnalyticsTopPageUrlCell page={row.original} />,
+    size: 260,
+  },
+  {
+    id: 'views',
+    accessorKey: 'screenPageViews',
+    header: () => <AnalyticsTopPagesTableHead icon={IconEye} label={views} />,
+    cell: ({ row }) => (
+      <AnalyticsTopPageViewsCell value={row.original.screenPageViews} />
+    ),
+    size: 84,
+  },
+  {
+    id: 'users',
+    accessorKey: 'activeUsers',
+    header: () => <AnalyticsTopPagesTableHead icon={IconUsers} label={users} />,
+    cell: ({ row }) => (
+      <AnalyticsTopPageUsersCell value={row.original.activeUsers} />
+    ),
+    size: 84,
+  },
+  {
+    id: 'engagement',
+    accessorKey: 'averageEngagementTime',
+    header: () => (
+      <AnalyticsTopPagesTableHead icon={IconClock} label={engagement} />
+    ),
+    cell: ({ row }) => (
+      <AnalyticsTopPageEngagementCell
+        value={row.original.averageEngagementTime}
+      />
+    ),
+    size: 112,
+  },
+];
+
 export const AnalyticsTopPagesTable = ({
   pages,
 }: AnalyticsTopPagesTableProps) => {
@@ -45,93 +179,14 @@ export const AnalyticsTopPagesTable = ({
   );
 
   const columns = useMemo<ColumnDef<CmsAnalyticsTopPageRow>[]>(
-    () => [
-      {
-        id: 'page',
-        accessorKey: 'pagePath',
-        header: () => (
-          <RecordTable.InlineHead
-            icon={IconFileAnalytics}
-            label={t('table.page')}
-          />
-        ),
-        cell: ({ row }) => {
-          const page = row.original;
-          const pageName = page.pageTitle?.trim() || page.pagePath;
-
-          return (
-            <RecordTableInlineCell>
-              <TextOverflowTooltip
-                value={pageName}
-                className="text-sm font-semibold text-foreground"
-              />
-            </RecordTableInlineCell>
-          );
-        },
-        size: 220,
-      },
-      {
-        id: 'pageUrl',
-        accessorKey: 'pagePath',
-        header: () => (
-          <RecordTable.InlineHead icon={IconLink} label={t('table.url')} />
-        ),
-        cell: ({ row }) => (
-          <RecordTableInlineCell>
-            <div className="inline-flex max-w-full items-center gap-1.5 rounded-sm bg-muted px-1.5 py-0.5 text-muted-foreground">
-              <IconLink className="size-3 flex-none text-muted-foreground/70" />
-              <TextOverflowTooltip
-                value={row.original.pagePath}
-                className="min-w-0 font-mono text-[11px] leading-4"
-              />
-            </div>
-          </RecordTableInlineCell>
-        ),
-        size: 260,
-      },
-      {
-        id: 'views',
-        accessorKey: 'screenPageViews',
-        header: () => (
-          <RecordTable.InlineHead icon={IconEye} label={t('table.views')} />
-        ),
-        cell: ({ row }) => (
-          <RecordTableInlineCell className="justify-end text-right font-medium tabular-nums">
-            {formatAnalyticsNumber(row.original.screenPageViews)}
-          </RecordTableInlineCell>
-        ),
-        size: 84,
-      },
-      {
-        id: 'users',
-        accessorKey: 'activeUsers',
-        header: () => (
-          <RecordTable.InlineHead icon={IconUsers} label={t('table.users')} />
-        ),
-        cell: ({ row }) => (
-          <RecordTableInlineCell className="justify-end text-right tabular-nums">
-            {formatAnalyticsNumber(row.original.activeUsers)}
-          </RecordTableInlineCell>
-        ),
-        size: 84,
-      },
-      {
-        id: 'engagement',
-        accessorKey: 'averageEngagementTime',
-        header: () => (
-          <RecordTable.InlineHead
-            icon={IconClock}
-            label={t('table.engagement')}
-          />
-        ),
-        cell: ({ row }) => (
-          <RecordTableInlineCell className="justify-end text-right tabular-nums">
-            {formatAnalyticsDuration(row.original.averageEngagementTime)}
-          </RecordTableInlineCell>
-        ),
-        size: 112,
-      },
-    ],
+    () =>
+      getAnalyticsTopPageColumns({
+        engagement: t('table.engagement'),
+        page: t('table.page'),
+        url: t('table.url'),
+        users: t('table.users'),
+        views: t('table.views'),
+      }),
     [t],
   );
 

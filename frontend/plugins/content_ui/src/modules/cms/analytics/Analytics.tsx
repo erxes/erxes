@@ -26,9 +26,42 @@ export const Analytics = () => {
     dateRange,
   });
   const analyticsLoading = settingsLoading || loading;
+  const isInitialAnalyticsLoading = analyticsLoading && !report;
 
   if (websiteId && !settingsLoading && !hasAnalyticsSettings) {
     return <Navigate to={`/content/cms/${websiteId}/cmssettings`} replace />;
+  }
+
+  let analyticsContent = (
+    <AnalyticsState
+      icon={IconChartHistogram}
+      title={t('no-cms-title')}
+      description={t('no-cms-description')}
+    />
+  );
+
+  if (isInitialAnalyticsLoading) {
+    analyticsContent = <AnalyticsSkeleton />;
+  } else if (websiteId && error) {
+    analyticsContent = (
+      <AnalyticsState
+        actionLabel={t('retry')}
+        icon={IconAlertCircle}
+        title={t('backend-unavailable-title')}
+        description={t('backend-unavailable-description')}
+        onAction={refetch}
+      />
+    );
+  } else if (websiteId && report) {
+    analyticsContent = <AnalyticsDashboard report={report} />;
+  } else if (websiteId) {
+    analyticsContent = (
+      <AnalyticsState
+        icon={IconChartHistogram}
+        title={t('not-configured-title')}
+        description={t('not-configured-description')}
+      />
+    );
   }
 
   return (
@@ -42,31 +75,7 @@ export const Analytics = () => {
       <div className="flex overflow-hidden flex-auto">
         <CmsSidebar />
         <div className="min-w-0 flex-1 overflow-auto bg-muted/20">
-          {analyticsLoading && !report ? (
-            <AnalyticsSkeleton />
-          ) : !websiteId ? (
-            <AnalyticsState
-              icon={IconChartHistogram}
-              title={t('no-cms-title')}
-              description={t('no-cms-description')}
-            />
-          ) : error ? (
-            <AnalyticsState
-              actionLabel={t('retry')}
-              icon={IconAlertCircle}
-              title={t('backend-unavailable-title')}
-              description={t('backend-unavailable-description')}
-              onAction={refetch}
-            />
-          ) : report ? (
-            <AnalyticsDashboard report={report} />
-          ) : (
-            <AnalyticsState
-              icon={IconChartHistogram}
-              title={t('not-configured-title')}
-              description={t('not-configured-description')}
-            />
-          )}
+          {analyticsContent}
         </div>
       </div>
     </PageContainer>

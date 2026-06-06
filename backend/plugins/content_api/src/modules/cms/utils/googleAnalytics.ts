@@ -2,6 +2,7 @@ import {
   BetaAnalyticsDataClient,
   protos,
 } from '@google-analytics/data';
+import { redis } from 'erxes-api-shared/utils';
 import {
   CMS_ANALYTICS_DATE_RANGE_START_DATES,
   CmsAnalyticsDateRange,
@@ -20,11 +21,6 @@ type RunReportResponse =
 type RunReportRow = protos.google.analytics.data.v1beta.IRow;
 type PropertyQuota = protos.google.analytics.data.v1beta.IPropertyQuota;
 type QuotaStatus = protos.google.analytics.data.v1beta.IQuotaStatus;
-
-type CachedAnalyticsReport = {
-  expiresAt: number;
-  report: ICmsAnalyticsReport;
-};
 
 type ReportRequestOptions = {
   dateRange: CmsAnalyticsDateRange;
@@ -60,8 +56,8 @@ type GoogleCredentialsJson = {
   projectId?: string;
 };
 
-const CACHE_TTL_MS = 5 * 60 * 1000;
-const CACHE_MAX_ENTRIES = 100;
+const CACHE_TTL_SECONDS = 5 * 60;
+const CACHE_KEY_PREFIX = 'content:cms:analytics';
 const DEFAULT_END_DATE = 'today';
 const NOT_SET_LABEL = '(not set)';
 const GOOGLE_CREDENTIALS_JSON_ENV = 'GOOGLE_APPLICATION_CREDENTIALS_JSON';
@@ -77,7 +73,6 @@ const TOTAL_METRICS = [
 ];
 
 const BREAKDOWN_METRICS = ['activeUsers', 'sessions'];
-const analyticsReportCache = new Map<string, CachedAnalyticsReport>();
 
 let analyticsDataClient: BetaAnalyticsDataClient | undefined;
 
@@ -201,7 +196,7 @@ const toDateRangeTimestamp = (
   }
 
   const days = Number(
-    CMS_ANALYTICS_DATE_RANGE_START_DATES[dateRange].replace('daysAgo', ''),
+    CMS_ANALYTICS_DATE_RANGE_START_DATES[dateRange].replaceAll('daysAgo', ''),
   );
   const startDate = new Date(now);
   startDate.setUTCDate(startDate.getUTCDate() - days);
@@ -286,36 +281,36 @@ const mapQuota = (
 };
 
 const getCacheKey = ({ dateRange, propertyId }: CmsAnalyticsReportParams) =>
-  `${propertyId}:${dateRange}`;
+  `${CACHE_KEY_PREFIX}:${propertyId}:${dateRange}`;
 
-const getCachedReport = (key: string) => {
-  const cached = analyticsReportCache.get(key);
-
-  if (!cached) {
+const parseCachedReport = (cached: string): ICmsAnalyticsReport | null => {
+  try {
+    return JSON.parse(cached) as ICmsAnalyticsReport;
+  } catch {
     return null;
   }
-
-  if (cached.expiresAt <= Date.now()) {
-    analyticsReportCache.delete(key);
-    return null;
-  }
-
-  return cached.report;
 };
 
-const cacheReport = (key: string, report: ICmsAnalyticsReport) => {
-  if (analyticsReportCache.size >= CACHE_MAX_ENTRIES) {
-    const oldestKey = analyticsReportCache.keys().next().value;
+const getCachedReport = async (key: string) => {
+  try {
+    const cached = await redis.get(key);
 
-    if (oldestKey) {
-      analyticsReportCache.delete(oldestKey);
+    if (!cached) {
+      return null;
     }
-  }
 
-  analyticsReportCache.set(key, {
-    expiresAt: Date.now() + CACHE_TTL_MS,
-    report,
-  });
+    return parseCachedReport(cached);
+  } catch {
+    return null;
+  }
+};
+
+const cacheReport = async (key: string, report: ICmsAnalyticsReport) => {
+  try {
+    await redis.set(key, JSON.stringify(report), 'EX', CACHE_TTL_SECONDS);
+  } catch {
+    return undefined;
+  }
 };
 
 const getUnknownRecordValue = (value: unknown, key: string) => {
@@ -357,7 +352,7 @@ const getGoogleCredentialsJson = (): GoogleCredentialsJson | undefined => {
 
   return {
     clientEmail,
-    privateKey: privateKey.replace(/\\n/g, '\n'),
+    privateKey: privateKey.replaceAll('\\n', '\n'),
     projectId,
   };
 };
@@ -437,7 +432,7 @@ export const getCmsAnalyticsReport = async ({
   propertyId,
 }: CmsAnalyticsReportParams): Promise<ICmsAnalyticsReport> => {
   const cacheKey = getCacheKey({ dateRange, propertyId });
-  const cachedReport = getCachedReport(cacheKey);
+  const cachedReport = await getCachedReport(cacheKey);
 
   if (cachedReport) {
     return cachedReport;
@@ -520,7 +515,7 @@ export const getCmsAnalyticsReport = async ({
       quota: mapQuota(totalsReport?.propertyQuota),
     };
 
-    cacheReport(cacheKey, report);
+    await cacheReport(cacheKey, report);
 
     return report;
   } catch (error) {
