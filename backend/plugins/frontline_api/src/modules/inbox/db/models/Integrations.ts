@@ -327,11 +327,11 @@ export const loadClass = (models: IModels, subdomain: string) => {
      */
     public static async saveMessengerAppearanceData(
       _id: string,
-      { logo, primary }: IUiOptions,
+      { logo, primary, navigationVariant }: IUiOptions,
     ) {
       await models.Integrations.updateOne(
         { _id },
-        { $set: { uiOptions: { logo, primary } } },
+        { $set: { uiOptions: { logo, primary, navigationVariant } } },
         { runValidators: true },
       );
 

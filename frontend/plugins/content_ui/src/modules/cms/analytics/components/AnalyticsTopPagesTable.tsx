@@ -1,6 +1,5 @@
 import { ColumnDef } from '@tanstack/react-table';
 import {
-  type Icon,
   IconClock,
   IconEye,
   IconFileAnalytics,
@@ -15,40 +14,18 @@ import {
 } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CmsAnalyticsTopPage } from '../types';
+import {
+  type AnalyticsTopPageCellProps,
+  type AnalyticsTopPageColumnLabels,
+  type AnalyticsTopPageMetricCellProps,
+  type AnalyticsTopPagesTableHeadProps,
+  type AnalyticsTopPagesTableProps,
+  type CmsAnalyticsTopPageRow,
+} from '../types';
 import {
   formatAnalyticsDuration,
   formatAnalyticsNumber,
 } from '../utils/formatAnalytics';
-
-type CmsAnalyticsTopPageRow = CmsAnalyticsTopPage & {
-  _id: string;
-};
-
-type AnalyticsTopPagesTableProps = {
-  pages: CmsAnalyticsTopPage[];
-};
-
-type AnalyticsTopPagesTableHeadProps = {
-  icon: Icon;
-  label: string;
-};
-
-type AnalyticsTopPageCellProps = {
-  page: CmsAnalyticsTopPageRow;
-};
-
-type AnalyticsTopPageMetricCellProps = {
-  value: number;
-};
-
-type AnalyticsTopPageColumnLabels = {
-  engagement: string;
-  page: string;
-  url: string;
-  users: string;
-  views: string;
-};
 
 const AnalyticsTopPagesTableHead = ({
   icon,

@@ -5,6 +5,7 @@ export const EM_CONFIG_SCHEMA = z.object({
   channelId: z.string(),
   brandId: z.string().optional().nullable(),
   ticketConfigId: z.string().optional().nullable(),
+  knowledgeBaseTopicId: z.string().optional().nullable(),
   botSetup: z
     .object({
       greetingMessage: z.string().optional(),

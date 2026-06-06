@@ -1,17 +1,13 @@
 import { IconCheck } from '@tabler/icons-react';
 import { cn } from 'erxes-ui';
+import { type RobotsOptionProps } from '../types/settingsTypes';
 
 export const RobotsOption = ({
   checked,
   title,
   description,
   onClick,
-}: {
-  checked: boolean;
-  title: string;
-  description: string;
-  onClick: () => void;
-}) => (
+}: RobotsOptionProps) => (
   <button
     type="button"
     role="radio"

@@ -15,6 +15,7 @@ import {
   getProductsByIds,
   subtractPreTaxAmount,
 } from './taxRules';
+import { getDealAccountingDate } from './dealDate';
 import { getJournal } from './utils';
 
 export const dealToTrs = async ({
@@ -23,11 +24,13 @@ export const dealToTrs = async ({
   userId,
   deal,
   config,
+  dateType,
 }: {
   subdomain: string;
   models: IModels;
   userId: string;
   deal: any;
+  dateType?: string;
   config: {
     dateRule: 'alwaysNow' | 'syncedDateOrNow';
     responseFieldId?: string;
@@ -55,7 +58,6 @@ export const dealToTrs = async ({
     return;
   }
 
-  let date = new Date();
   let mainId = nanoid();
   let ptrId = nanoid();
   let parentId = mainId;
@@ -69,14 +71,17 @@ export const dealToTrs = async ({
     journal: JOURNALS.INV_SALE,
   }).lean();
   if (oldTrs?.length) {
-    if (config.dateRule === 'syncedDateOrNow') {
-      date = oldTrs[0].date;
-    }
     const oldSaleTr = oldTrs[0];
     mainId = oldSaleTr?._id || mainId;
     ptrId = oldSaleTr?.ptrId || ptrId;
     parentId = oldSaleTr?.parentId || parentId;
   }
+  const date = getDealAccountingDate({
+    deal,
+    dateRule: config.dateRule,
+    dateType,
+    existingDate: oldTrs[0]?.date,
+  });
 
   const saleTrDoc: ITransaction = {
     _id: mainId,
@@ -150,7 +155,8 @@ export const dealToTrs = async ({
 
   const hasVat = config.hasVat && config.vatRowId;
   const firstCtaxRule = Object.values(ctaxRuleByProductId)[0];
-  const reverseCtaxRow = config.hasCtax ? undefined
+  const reverseCtaxRow = config.hasCtax
+    ? undefined
     : await ensureCtaxRowByProductRule(models, firstCtaxRule);
 
   const ctaxRowId = config.hasCtax ? config.ctaxRowId : reverseCtaxRow?._id;

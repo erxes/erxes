@@ -1,3 +1,5 @@
+import { type ComponentType, type ReactNode } from 'react';
+
 export type CmsAttachment = {
   url: string;
   name: string;
@@ -67,3 +69,45 @@ export type UpdateSetting = <TKey extends keyof SettingsFormState>(
   key: TKey,
   value: SettingsFormState[TKey],
 ) => void;
+
+export type SettingsFormProps = {
+  cms?: CmsSettingsData;
+  isDeleting: boolean;
+  settings: SettingsFormState;
+  clientPortals: ClientPortalOption[];
+  updateSetting: UpdateSetting;
+  onDelete: () => Promise<void> | void;
+};
+
+export type SettingsHeaderProps = {
+  disabled?: boolean;
+  saving?: boolean;
+  onSave: () => void;
+};
+
+export type RobotsOptionProps = {
+  checked: boolean;
+  title: string;
+  description: string;
+  onClick: () => void;
+};
+
+export type SettingsSectionProps = {
+  id: string;
+  title: string;
+  badge?: ReactNode;
+  className?: string;
+  contentClassName?: string;
+};
+
+export type UploadValue = Partial<CmsAttachment> & {
+  fileInfo?: Partial<CmsAttachment>;
+};
+
+export type UploaderProps = {
+  icon: ComponentType<{ className?: string }>;
+  label: string;
+  hint: string;
+  value: CmsAttachment | null;
+  onChange: (value: CmsAttachment | null) => void;
+};

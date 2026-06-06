@@ -5,12 +5,11 @@ import { PostsAdd } from '~/modules/cms/posts/components/PostsAdd';
 import { PostsFilter } from '~/modules/cms/posts/components/PostFilter';
 import { useNavigate, useParams } from 'react-router';
 import { CmsSidebar } from '~/modules/cms/shared/CmsSidebar';
-import { Posts } from '~/modules/cms/posts/types/postsType';
-
-interface PostsPageContentProps {
-  clientPortalId: string;
-  handleEditPost: (post: Posts) => void;
-}
+import {
+  type Posts,
+  type PostsIndexPageProps,
+  type PostsPageContentProps,
+} from '~/modules/cms/posts/types/postsType';
 
 const PostsPageContent = ({
   clientPortalId,
@@ -36,9 +35,7 @@ const PostsPageContent = ({
 
 export const PostsIndexPage = ({
   clientPortalId,
-}: {
-  clientPortalId: string;
-}) => {
+}: PostsIndexPageProps) => {
   const navigate = useNavigate();
   const { websiteId } = useParams();
 

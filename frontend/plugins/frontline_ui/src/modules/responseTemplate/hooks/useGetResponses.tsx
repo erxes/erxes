@@ -11,6 +11,12 @@ import { IResponseTemplate } from '../types';
 const RESPONSES_PER_PAGE = 24;
 
 export const useGetResponses = (options?: QueryHookOptions) => {
+  const baseFilter = {
+    limit: RESPONSES_PER_PAGE,
+    orderBy: { createdAt: -1 },
+    ...options?.variables?.filter,
+  };
+
   const { data, fetchMore, networkStatus } = useQuery<
     ICursorListResponse<IResponseTemplate>
   >(GET_RESPONSES, {
@@ -18,11 +24,7 @@ export const useGetResponses = (options?: QueryHookOptions) => {
     notifyOnNetworkStatusChange: true,
     ...options,
     variables: {
-      filter: {
-        limit: RESPONSES_PER_PAGE,
-        orderBy: { createdAt: -1 },
-        ...options?.variables?.filter,
-      },
+      filter: baseFilter,
     },
   });
 
@@ -46,8 +48,8 @@ export const useGetResponses = (options?: QueryHookOptions) => {
     fetchMore({
       variables: {
         filter: {
+          ...baseFilter,
           cursor: pageInfo?.endCursor,
-          limit: RESPONSES_PER_PAGE,
           direction,
         },
       },
@@ -73,3 +75,4 @@ export const useGetResponses = (options?: QueryHookOptions) => {
     pageInfo,
   };
 };
+

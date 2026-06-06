@@ -1,9 +1,5 @@
-import {
-  SelectCustomerFormItem,
-  SelectCompanyFormItem,
-  SelectUserFormItem,
-  SelectClientPortalUserFormItem,
-} from './SelectOwnerById';
+import { SelectCustomer, SelectCompany, SelectMember } from 'ui-modules';
+import { SelectClientPortalUserFormItem } from './SelectOwnerById';
 
 type Props = {
   ownerType: string;
@@ -26,29 +22,32 @@ export const SelectOwnerByType = ({
   placeholder,
 }: Props) => {
   const resolvedPlaceholder = placeholder || PLACEHOLDERS[ownerType];
+  const handleChange = (val: string | string[] | null) =>
+    onValueChange((Array.isArray(val) ? val[0] : val) || '');
 
   switch (ownerType) {
     case 'customer':
       return (
-        <SelectCustomerFormItem
+        <SelectCustomer
           value={value}
-          onValueChange={onValueChange}
-          placeholder={resolvedPlaceholder}
+          onValueChange={handleChange}
+          mode="single"
         />
       );
     case 'company':
       return (
-        <SelectCompanyFormItem
+        <SelectCompany
           value={value}
-          onValueChange={onValueChange}
-          placeholder={resolvedPlaceholder}
+          onValueChange={handleChange}
+          mode="single"
         />
       );
     case 'user':
       return (
-        <SelectUserFormItem
+        <SelectMember.FormItem
           value={value}
-          onValueChange={onValueChange}
+          onValueChange={handleChange}
+          mode="single"
           placeholder={resolvedPlaceholder}
         />
       );

@@ -1,12 +1,5 @@
-import { type Icon } from '@tabler/icons-react';
 import { Card } from 'erxes-ui';
-
-type AnalyticsMetricCardProps = {
-  description?: string;
-  icon: Icon;
-  label: string;
-  value: string;
-};
+import { type AnalyticsMetricCardProps } from '../types';
 
 export const AnalyticsMetricCard = ({
   description,

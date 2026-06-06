@@ -5,14 +5,12 @@ import { AddPostHeaderActions } from '~/modules/cms/posts/components/add-post-fo
 import { useState, useCallback, useRef } from 'react';
 import { usePostDetail } from '~/modules/cms/posts/hooks/usePostDetail';
 import { useNavigate, useParams } from 'react-router-dom';
+import { type PostsFormPageProps } from '~/modules/cms/posts/types/postsType';
 
 export const PostsAddPage = ({
   clientPortalId,
   postId,
-}: {
-  clientPortalId: string;
-  postId?: string;
-}) => {
+}: PostsFormPageProps) => {
   const [formState, setFormState] = useState<any>(null);
   const { post, loading } = usePostDetail(postId || '');
   const navigate = useNavigate();

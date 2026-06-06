@@ -9,12 +9,8 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { CmsAnalyticsTimeSeriesPoint } from '../types';
+import { type AnalyticsTrendChartProps } from '../types';
 import { formatAnalyticsDate } from '../utils/formatAnalytics';
-
-type AnalyticsTrendChartProps = {
-  data: CmsAnalyticsTimeSeriesPoint[];
-};
 
 export const AnalyticsTrendChart = ({ data }: AnalyticsTrendChartProps) => {
   const { t } = useTranslation('common', {

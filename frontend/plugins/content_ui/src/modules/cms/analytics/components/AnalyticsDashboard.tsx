@@ -1,15 +1,14 @@
 import { IconDatabaseOff } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { CmsAnalyticsReport } from '../types';
+import {
+  type AnalyticsDashboardProps,
+  type CmsAnalyticsReport,
+} from '../types';
 import { AnalyticsBreakdownList } from './AnalyticsBreakdownList';
 import { AnalyticsKpiGrid } from './AnalyticsKpiGrid';
 import { AnalyticsState } from './AnalyticsState';
 import { AnalyticsTopPagesTable } from './AnalyticsTopPagesTable';
 import { AnalyticsTrendChart } from './AnalyticsTrendChart';
-
-type AnalyticsDashboardProps = {
-  report: CmsAnalyticsReport;
-};
 
 const hasReportData = (report: CmsAnalyticsReport) =>
   report.timeSeries.length > 0 ||

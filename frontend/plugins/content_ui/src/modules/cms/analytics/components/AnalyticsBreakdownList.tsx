@@ -1,11 +1,6 @@
 import { Card } from 'erxes-ui';
-import { CmsAnalyticsBreakdownItem } from '../types';
+import { type AnalyticsBreakdownListProps } from '../types';
 import { formatAnalyticsNumber } from '../utils/formatAnalytics';
-
-type AnalyticsBreakdownListProps = {
-  items: CmsAnalyticsBreakdownItem[];
-  title: string;
-};
 
 export const AnalyticsBreakdownList = ({
   items,

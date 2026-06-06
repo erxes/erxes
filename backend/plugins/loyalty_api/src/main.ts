@@ -11,6 +11,7 @@ import { generateModels } from '~/connectionResolvers';
 import { appRouter } from '~/trpc/init-trpc';
 import { initMQWorkers } from '~/worker';
 import { couponExportHandlers } from '~/modules/coupon/meta/import-export/export/exportHandlers';
+import { permissions } from '~/meta/permissions';
 
 startPlugin({
   name: 'loyalty',
@@ -56,5 +57,8 @@ startPlugin({
         generateModels,
       }),
     },
+  },
+  meta: {
+    permissions,
   },
 });

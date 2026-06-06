@@ -5,24 +5,16 @@ import { PageHeaderActions } from '~/modules/cms/pages/components/PageHeaderActi
 import { usePageDetail } from '~/modules/cms/pages/hooks/usePageDetail';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useCallback, useRef } from 'react';
-import { UseFormReturn } from 'react-hook-form';
-import { IPageFormData } from '~/modules/cms/pages/types/pageTypes';
-
-interface FormState {
-  form: UseFormReturn<IPageFormData>;
-  onSubmit: (data: IPageFormData) => void;
-  getSaving: () => boolean;
-  handleLanguageChange: (lang: string) => void;
-}
+import {
+  type PageDetailFormState,
+  type PagesDetailPageProps,
+} from '~/modules/cms/pages/types/pageTypes';
 
 export const PagesDetailPage = ({
   clientPortalId,
   pageId,
-}: {
-  clientPortalId: string;
-  pageId?: string;
-}) => {
-  const [formState, setFormState] = useState<FormState | null>(null);
+}: PagesDetailPageProps) => {
+  const [formState, setFormState] = useState<PageDetailFormState | null>(null);
   const isEditing = Boolean(pageId);
   const { page, loading } = usePageDetail(pageId ?? '');
   const navigate = useNavigate();
@@ -30,7 +22,7 @@ export const PagesDetailPage = ({
 
   const languageChangeRef = useRef<(lang: string) => void>();
 
-  const handleFormReady = useCallback((state: FormState) => {
+  const handleFormReady = useCallback((state: PageDetailFormState) => {
     setFormState(state);
     languageChangeRef.current = state.handleLanguageChange;
   }, []);

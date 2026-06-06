@@ -4,21 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { PageHeader } from 'ui-modules';
 import { PostsNavigation } from '../../posts/components/PostsNavigation';
 import {
-  CmsAnalyticsDateRange,
+  type AnalyticsDateRangeOption,
+  type AnalyticsHeaderProps,
   isCmsAnalyticsDateRange,
 } from '../types';
 
-type AnalyticsHeaderProps = {
-  dateRange: CmsAnalyticsDateRange;
-  loading: boolean;
-  onDateRangeChange: (dateRange: CmsAnalyticsDateRange) => void;
-  onRefresh: () => void;
-};
-
-const DATE_RANGE_OPTIONS: Array<{
-  labelKey: string;
-  value: CmsAnalyticsDateRange;
-}> = [
+const DATE_RANGE_OPTIONS: AnalyticsDateRangeOption[] = [
   { value: 'LAST_7_DAYS', labelKey: 'date-ranges.last-7-days' },
   { value: 'LAST_28_DAYS', labelKey: 'date-ranges.last-28-days' },
   { value: 'LAST_90_DAYS', labelKey: 'date-ranges.last-90-days' },

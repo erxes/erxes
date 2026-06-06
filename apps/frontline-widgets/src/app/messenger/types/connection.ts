@@ -70,6 +70,7 @@ export interface IWidgetUiOptions {
     foreground?: string;
   };
   logo?: string;
+  navigationVariant?: 'pill' | 'fluid';
 }
 
 export interface IBrowserInfo {

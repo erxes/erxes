@@ -78,6 +78,12 @@ const TransactionPrint = lazy(() =>
   })),
 );
 
+const AccountingCheckSync = lazy(() =>
+  import('~/modules/check-synced/AccountingCheckSync').then((module) => ({
+    default: module.AccountingCheckSync,
+  })),
+);
+
 const PluginAccounting = () => {
   return (
     <Suspense
@@ -101,6 +107,7 @@ const PluginAccounting = () => {
           element={<AdjustInventoryDetail />}
         />
         <Route path="/journal-reports" element={<AccountingJournalReports />} />
+        <Route path="/check-sync/*" element={<AccountingCheckSync />} />
         <Route
           path="/gen-journal-report"
           element={<AccountingGenJournalReport />}

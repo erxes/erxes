@@ -20,10 +20,7 @@ import {
 import { useState } from 'react';
 import { LANGUAGES } from '../../../../constants';
 import {
-  CmsSettingsData,
-  ClientPortalOption,
-  SettingsFormState,
-  UpdateSetting,
+  type SettingsFormProps,
 } from '../types/settingsTypes';
 import { RobotsOption } from './RobotsOption';
 import {
@@ -53,15 +50,6 @@ function trimTrailingSlashes(value: string): string {
   return value.slice(0, endIndex);
 }
 
-interface ISettingsFormProps {
-  cms?: CmsSettingsData;
-  isDeleting: boolean;
-  settings: SettingsFormState;
-  clientPortals: ClientPortalOption[];
-  updateSetting: UpdateSetting;
-  onDelete: () => Promise<void> | void;
-}
-
 export const SettingsForm = ({
   cms,
   isDeleting,
@@ -69,7 +57,7 @@ export const SettingsForm = ({
   clientPortals,
   updateSetting,
   onDelete,
-}: ISettingsFormProps) => {
+}: SettingsFormProps) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteNameConfirmation, setDeleteNameConfirmation] = useState('');
   const [deletePhraseConfirmation, setDeletePhraseConfirmation] = useState('');

@@ -1,12 +1,20 @@
-import { EMPreviewIntro } from '@/integrations/erxes-messenger/components/EMPreviewIntro';
+import { EMPreviewMain } from '@/integrations/erxes-messenger/components/EMPreviewIntro';
 import { EMPreviewMessages } from '@/integrations/erxes-messenger/components/EMPreviewMessages';
 import { useEMIntegrationDetail } from '@/integrations/erxes-messenger/hooks/useEMIntegrationDetail';
+import {
+  emPreviewChatIsExpanded,
+  emPreviewTabAtom,
+} from '@/integrations/erxes-messenger/states/emPreviewStates';
 import { erxesMessengerSetSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupSetAtom';
-import { erxesMessengerSetupAppearanceAtom, erxesMessengerSetupStepAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
+import {
+  erxesMessengerSetupAppearanceAtom,
+  erxesMessengerSetupStepAtom,
+} from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import {
   Button,
   ErxesLogoIcon,
   Popover,
+  cn,
   hexToOklch,
   readImage,
   useQueryState,
@@ -20,12 +28,16 @@ export const ErxesMessengerPreview = () => {
     erxesMessengerSetupStepAtom,
   );
   const setSetup = useSetAtom(erxesMessengerSetSetupAtom);
+  const isChatExpanded = useAtomValue(emPreviewChatIsExpanded);
+  const activeStep = useAtomValue(emPreviewTabAtom);
 
   const [integrationId] = useQueryState<string>('integrationId');
 
   const { integrationDetail } = useEMIntegrationDetail({
     id: integrationId || '',
   });
+  const isExpanded = activeStep === 'chat' && isChatExpanded;
+  const isSmall = false;
 
   useEffect(() => {
     if (integrationId && integrationDetail) {
@@ -63,18 +75,37 @@ export const ErxesMessengerPreview = () => {
               )}
             </Button>
           </Popover.Trigger>
+
           <Popover.Content
             align="end"
             sideOffset={16}
-            className="sm:max-w-md w-[calc(100vw-(--spacing(8)))] p-0 max-h-128 h-dvh flex flex-col overflow-hidden shadow-xl rounded-xl bg-accent"
+            className={cn(
+              'p-0 flex flex-col overflow-hidden shadow-xl rounded-2xl bg-accent transition-all duration-200',
+
+              // 1. MOBILE LAYOUT
+              'max-[420px]:h-[calc(100dvh-72px)] max-[420px]:max-h-none',
+
+              // 2. DESKTOP LAYOUTS (Using 100dvh instead of 100%)
+              'min-[421px]:min-h-20',
+              {
+                // Case A: Expanded view
+                'min-[421px]:w-[min(688px,max(0px,-20px+100dvw))] min-[421px]:h-[calc(100dvh-104px)] min-[421px]:max-h-[calc(100dvh-104px)]':
+                  isExpanded,
+
+                // Case B: Small view
+                'min-[421px]:w-[min(400px,max(0px,-20px+100dvw))] min-[421px]:h-[min(704px,100dvh-104px)] min-[421px]:max-h-[310px]':
+                  isSmall && !isExpanded,
+
+                // Case C: Standard Shown view (This fixes the look in your screenshot!)
+                'min-[421px]:w-[min(400px,max(0px,-20px+100dvw))] min-[421px]:h-[min(704px,100dvh-104px)] min-[421px]:max-h-[704px]':
+                  !isExpanded && !isSmall,
+              },
+            )}
             onOpenAutoFocus={(e) => {
               e.preventDefault();
             }}
           >
-            {[1, 3, 6].includes(erxesMessengerSetupStep) && (
-              <EMPreviewMessages />
-            )}
-            {[2, 4, 5].includes(erxesMessengerSetupStep) && <EMPreviewIntro />}
+            <EMPreviewMain />
           </Popover.Content>
         </Popover>
       </div>

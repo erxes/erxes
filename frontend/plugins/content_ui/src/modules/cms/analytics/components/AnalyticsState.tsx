@@ -1,14 +1,6 @@
-import { type Icon } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { EmptyState } from '../../shared/EmptyState';
-
-type AnalyticsStateProps = {
-  actionLabel?: string;
-  description: string;
-  icon: Icon;
-  onAction?: () => void;
-  title: string;
-};
+import { type AnalyticsStateProps } from '../types';
 
 export const AnalyticsState = ({
   actionLabel,

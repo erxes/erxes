@@ -5,14 +5,12 @@ import { AddPostForm } from '~/modules/cms/posts/components/add-post-form';
 import { AddPostHeaderActions } from '~/modules/cms/posts/components/add-post-form/AddPostHeaderActions';
 import { PostsHeader } from '~/modules/cms/posts/components/PostsHeader';
 import { usePostDetail } from '~/modules/cms/posts/hooks/usePostDetail';
+import { type PostsFormPageProps } from '~/modules/cms/posts/types/postsType';
 
 export const PostsDetailPage = ({
   clientPortalId,
   postId,
-}: {
-  clientPortalId: string;
-  postId?: string;
-}) => {
+}: PostsFormPageProps) => {
   const [formState, setFormState] = useState<any>(null);
   const { post, loading } = usePostDetail(postId ?? '');
   const navigate = useNavigate();

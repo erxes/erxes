@@ -7,17 +7,13 @@ import {
   IconUserPlus,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { CmsAnalyticsTotals } from '../types';
+import { type AnalyticsKpiGridProps } from '../types';
 import {
   formatAnalyticsDuration,
   formatAnalyticsNumber,
   formatAnalyticsPercent,
 } from '../utils/formatAnalytics';
 import { AnalyticsMetricCard } from './AnalyticsMetricCard';
-
-type AnalyticsKpiGridProps = {
-  totals: CmsAnalyticsTotals;
-};
 
 export const AnalyticsKpiGrid = ({ totals }: AnalyticsKpiGridProps) => {
   const { t } = useTranslation('common', {

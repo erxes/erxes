@@ -1,23 +1,11 @@
-import { ApolloError, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { CMS_ANALYTICS } from '../graphql/queries/cmsAnalytics';
 import {
-  CmsAnalyticsDateRange,
-  CmsAnalyticsQueryResponse,
-  CmsAnalyticsQueryVariables,
-  CmsAnalyticsReport,
+  type CmsAnalyticsQueryResponse,
+  type CmsAnalyticsQueryVariables,
+  type UseCmsAnalyticsParams,
+  type UseCmsAnalyticsResult,
 } from '../types';
-
-type UseCmsAnalyticsParams = {
-  clientPortalId?: string;
-  dateRange: CmsAnalyticsDateRange;
-};
-
-type UseCmsAnalyticsResult = {
-  error?: ApolloError;
-  loading: boolean;
-  refetch: () => void;
-  report: CmsAnalyticsReport | null;
-};
 
 export const useCmsAnalytics = ({
   clientPortalId,

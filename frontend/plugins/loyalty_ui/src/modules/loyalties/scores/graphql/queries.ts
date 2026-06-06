@@ -82,8 +82,11 @@ export const SCORE_LOG_STATISTICS_QUERY = gql`
     $action: String
     $fromDate: String
     $toDate: String
+    $boardId: String
+    $pipelineId: String
     $stageId: String
     $number: String
+    $description: String
   ) {
     scoreLogStatistics(
       searchValue: $searchValue
@@ -94,8 +97,11 @@ export const SCORE_LOG_STATISTICS_QUERY = gql`
       action: $action
       fromDate: $fromDate
       toDate: $toDate
+      boardId: $boardId
+      pipelineId: $pipelineId
       stageId: $stageId
       number: $number
+      description: $description
     )
   }
 `;

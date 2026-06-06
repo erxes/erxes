@@ -93,6 +93,8 @@ export const loadPackageClass = (models: IModels) => {
         update.products = products;
       }
 
+      if (doc.tagIds !== undefined) update.tagIds = doc.tagIds;
+
       if (doc.status !== undefined) {
         if (!PACKAGE_STATUSES.ALL.includes(doc.status)) {
           throw new Error(

@@ -1,4 +1,5 @@
-import { CustomFieldValue } from '../../posts/CustomFieldInput';
+import { type UseFormReturn } from 'react-hook-form';
+import { type CustomFieldValue } from '../../posts/CustomFieldInput';
 
 export interface IAttachment {
   url: string;
@@ -54,3 +55,15 @@ export interface IPagesRecordTableProps {
   clientPortalId: string;
   onEdit: (page: IPage) => void;
 }
+
+export type PageDetailFormState = {
+  form: UseFormReturn<IPageFormData>;
+  onSubmit: (data: IPageFormData) => void;
+  getSaving: () => boolean;
+  handleLanguageChange: (lang: string) => void;
+};
+
+export type PagesDetailPageProps = {
+  clientPortalId: string;
+  pageId?: string;
+};
