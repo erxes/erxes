@@ -2,6 +2,12 @@ import { Button, Form, Spinner, Switch } from 'erxes-ui';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { DateTimeInput } from './DateTimeInput';
 
+interface PostThumbnail {
+  url: string;
+  name?: string;
+  type?: string;
+}
+
 export interface PostFormData {
   title: string;
   slug: string;
@@ -14,7 +20,7 @@ export interface PostFormData {
   featured?: boolean;
   seoTitle?: string;
   seoDescription?: string;
-  thumbnail?: unknown | null;
+  thumbnail?: PostThumbnail | null;
   gallery?: string[];
   video?: string | null;
   audio?: string | null;
