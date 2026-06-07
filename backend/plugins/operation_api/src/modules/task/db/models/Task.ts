@@ -152,6 +152,10 @@ export const loadTaskClass = (models: IModels) => {
 
       doc.createdBy = userId;
 
+      if (doc.cycleId === '') {
+        delete doc.cycleId;
+      }
+
       const task = await models.Task.insertOne({
         ...doc,
         number: nextNumber,
