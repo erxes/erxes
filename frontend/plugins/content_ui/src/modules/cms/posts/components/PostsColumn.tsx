@@ -20,6 +20,7 @@ import {
   IconHash,
   IconExternalLink,
   IconUser,
+  IconEye,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { postMoreColumn } from './PostMoreColumn';
@@ -71,7 +72,9 @@ const PublicPostLinkCell = ({
   cmsConfig?: IWebsite;
 }) => {
   const isPublished = post.status === 'published';
-  const publicUrl = isPublished ? buildPostPublicUrl(cmsConfig, post) : '';
+  const publicUrl = isPublished
+    ? buildPostPublicUrl(cmsConfig, post, { allowRelative: true })
+    : '';
   const { toast } = useToast();
   const tooltip = getPublicPostLinkTooltip(isPublished, publicUrl);
 
@@ -167,7 +170,7 @@ export const usePostsColumns = (
                 variant={missing ? 'outline' : 'secondary'}
                 className={missing ? 'text-red-500 border-red-300' : ''}
               >
-                <TextOverflowTooltip value={post.title || post.name} />
+                <TextOverflowTooltip value={post.title} />
               </Badge>
             </div>
           </RecordTableInlineCell>
@@ -221,7 +224,17 @@ export const usePostsColumns = (
         );
       },
     },
-
+    {
+      id: 'views',
+      accessorKey: 'viewCount',
+      header: () => <RecordTable.InlineHead icon={IconEye} label="Views" />,
+      cell: ({ row }) => (
+        <RecordTableInlineCell className="text-muted-foreground">
+          {row.original.viewCount ?? 0}
+        </RecordTableInlineCell>
+      ),
+      size: 100,
+    },
     {
       id: 'type',
       accessorKey: 'type',
