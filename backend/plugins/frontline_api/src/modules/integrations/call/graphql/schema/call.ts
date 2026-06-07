@@ -281,20 +281,6 @@ export const subscriptions = `
   callStatistic(extension: String): CallStatistic
   `;
 
-const commonHistoryFields = `
-  operatorPhone: String
-  customerPhone: String
-  callDuration: Int
-  callStartTime: Date
-  callEndTime: Date
-  callType: String
-  callStatus: String
-  timeStamp: Float
-  inboxIntegrationId: String
-  transferredCallStatus: String
-  endedBy: String
-`;
-
 const mutationFilterParams = `
   callStatus: String
   callType: String
@@ -344,9 +330,6 @@ export const mutations = `
   callsIntegrationUpdate(configs: CallIntegrationConfigs): JSON
   callAddCustomer(inboxIntegrationId: String, primaryPhone: String, queueName: String): CallConversationDetail
   callUpdateActiveSession: JSON
-  callHistoryAdd(${commonHistoryFields}, queueName: String): CallHistory
-  callHistoryEdit(_id: String,${commonHistoryFields}): String
-  callHistoryRemove(_id: String!): JSON
   callsUpdateConfigs(configsMap: JSON!): JSON
   callsPauseAgent(status: String!, integrationId: String!): String
   callTransfer(extensionNumber: String!, integrationId: String!, direction: String): String

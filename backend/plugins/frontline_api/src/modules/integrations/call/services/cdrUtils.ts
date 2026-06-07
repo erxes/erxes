@@ -186,7 +186,7 @@ export const getConversationContent = async (models: IModels, cdrParams) => {
       (cdr) =>
         cdr.disposition?.toLowerCase() === 'answered' &&
         cdr.lastapp !== 'ForkCDR' &&
-        !cdr.actionType.includes('VM') &&
+        !cdr.actionType?.includes('VM') &&
         !cdr.actionType?.includes('IVR') &&
         cdr.billsec > 0,
     );

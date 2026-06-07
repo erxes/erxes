@@ -52,7 +52,7 @@ export function CallConversationDetail() {
     }
   };
 
-  if (loading || !callHistoryDetail || syncFileLoading) {
+  if (loading) {
     return null;
   }
 
@@ -67,6 +67,7 @@ export function CallConversationDetail() {
   } = callHistoryDetail || {};
   return (
     <>
+      {callHistoryDetail && (
       <div className="flex flex-col max-w-[648px] mx-auto p-6">
         <div className="flex gap-5 items-end">
           <CustomersInline.Provider
@@ -118,6 +119,7 @@ export function CallConversationDetail() {
                 <Button
                   id="cdrRecordUrl"
                   size="sm"
+                  disabled={syncFileLoading}
                   onClick={() => {
                     syncRecord(acctId, inboxIntegrationId);
                   }}
@@ -131,6 +133,7 @@ export function CallConversationDetail() {
           </div>
         </div>
       </div>
+      )}
       <CallConversationNotes />
     </>
   );

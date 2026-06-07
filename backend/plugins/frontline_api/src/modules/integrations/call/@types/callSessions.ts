@@ -17,6 +17,7 @@ export interface ICallSessionOperator {
 
 export interface ICallSession {
   uniqueid: string;
+  linkedid?: string;
   inboxIntegrationId: string;
   conversationId?: string;
   customerId?: string;

@@ -5,7 +5,6 @@ import {
   ICallHistory,
   ICallHistoryDocument,
   ICallHistoryFilterOptions,
-  ICallHistoryUpdate,
 } from '@/integrations/call/@types/histories';
 import { IModels } from '~/connectionResolvers';
 
@@ -22,12 +21,6 @@ export interface ICallHistoryModel extends Model<ICallHistoryDocument> {
     filterOptions: ICallHistoryFilterOptions,
     user: IUser,
   ): Promise<number>;
-  createCallHistory(historyData: ICallHistory): Promise<ICallHistoryDocument>;
-  updateCallHistory(
-    id: string,
-    updateData: ICallHistoryUpdate,
-  ): Promise<ICallHistoryDocument | null>;
-  deleteCallHistory(id: string, user: IUser): Promise<boolean>;
 }
 
 const CALL_HISTORY_CONSTANTS = {
@@ -112,144 +105,6 @@ export const loadCallHistoryClass = (models: IModels) => {
         return cdrCount + historyCount;
       } catch (error) {
         console.error('Error counting call histories:', error);
-        throw error;
-      }
-    }
-
-    public static async createCallHistory(
-      historyData: ICallHistory,
-      user: IUser,
-    ): Promise<ICallHistoryDocument> {
-      try {
-        if (!historyData.customerPhone || !historyData.operatorPhone) {
-          throw new Error('Customer phone and operator phone are required');
-        }
-
-        if (!historyData.inboxIntegrationId) {
-          throw new Error('Integration ID are required');
-        }
-
-        const callHistoryData = {
-          ...historyData,
-          timeStamp: historyData.timeStamp || new Date(),
-          createdAt: new Date(),
-          modifiedAt: new Date(),
-        };
-
-        return await models.CallHistory.create(callHistoryData);
-      } catch (error) {
-        console.error('Error creating call history:', error);
-        throw error;
-      }
-    }
-
-    public static async updateCallHistory(
-      id: string,
-      updateData: ICallHistoryUpdate,
-    ): Promise<ICallHistoryDocument | null> {
-      try {
-        if (id?.length !== 24) {
-          throw new Error('Invalid call history ID provided');
-        }
-
-        const existingHistory = await models.CallHistory.findById(id);
-        if (!existingHistory) {
-          throw new Error(ERROR_MESSAGES.CALL_HISTORY_NOT_FOUND);
-        }
-
-        if (
-          updateData.callStatus &&
-          !Object.values(CALL_HISTORY_CONSTANTS.CALL_STATUS).includes(
-            updateData.callStatus,
-          )
-        ) {
-          throw new Error('Invalid call status provided');
-        }
-
-        if (updateData.duration !== undefined && updateData.duration < 0) {
-          throw new Error('Duration cannot be negative');
-        }
-
-        const updatePayload = {
-          ...updateData,
-          modifiedAt: new Date(),
-        };
-
-        Object.keys(updatePayload).forEach((key) => {
-          if (updatePayload[key] === undefined) {
-            delete updatePayload[key];
-          }
-        });
-
-        const updatedHistory = await models.CallHistory.findByIdAndUpdate(
-          id,
-          { $set: updatePayload },
-          {
-            new: true,
-            runValidators: true,
-          },
-        );
-
-        if (updatedHistory) {
-          console.log(`Call history updated successfully: ${id}`);
-        }
-
-        return updatedHistory;
-      } catch (error) {
-        console.error(`Error updating call history ${id}:`, error);
-        throw error;
-      }
-    }
-
-    public static async deleteCallHistory(
-      id: string,
-      user: IUserDocument,
-    ): Promise<boolean> {
-      try {
-        if (id?.length !== 24) {
-          throw new Error('Invalid call history ID provided');
-        }
-
-        if (!user?._id) {
-          throw new Error('Valid user is required for deletion 1222');
-        }
-
-        const callHistory = await models.CallHistory.findById(id);
-        if (!callHistory) {
-          throw new Error(ERROR_MESSAGES.CALL_HISTORY_NOT_FOUND);
-        }
-        if (callHistory.createdBy !== user._id.toString()) {
-          try {
-            await this.validateUserIntegration(
-              models,
-              user as IUserDocument,
-              callHistory.inboxIntegrationId,
-            );
-          } catch (error) {
-            throw new Error(ERROR_MESSAGES.UNAUTHORIZED_ACCESS);
-          }
-        }
-
-        const deleteResult = await models.CallHistory.findByIdAndUpdate(id, {
-          $set: {
-            isDeleted: true,
-            deletedAt: new Date(),
-            deletedBy: user._id,
-            modifiedAt: new Date(),
-          },
-        });
-
-        const success = deleteResult !== null;
-
-        if (success) {
-          console.log(
-            `Call history deleted successfully: ${id} by user: ${user._id}`,
-          );
-        }
-
-        return success;
-      } catch (error) {
-        console.error(`Error deleting call history ${id}:`, error.message);
         throw error;
       }
     }

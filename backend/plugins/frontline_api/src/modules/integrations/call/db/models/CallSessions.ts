@@ -24,6 +24,7 @@ export interface ICallSessionModel extends Model<ICallSessionDocument> {
       durationSec?: number;
       recordUrl?: string;
       cdrAcctId?: string;
+      disposition?: string;
     },
   ): Promise<ICallSessionDocument | null>;
   attachOperator(
@@ -159,12 +160,20 @@ export const loadCallSessionClass = (models: IModels) => {
         durationSec?: number;
         recordUrl?: string;
         cdrAcctId?: string;
+        disposition?: string;
       },
     ) {
       const session = await models.CallSessions.findOne({ uniqueid });
       if (!session) return null;
 
-      session.status = session.answeredAt ? 'ended' : 'missed';
+      // The live CTI path may only deliver a ringing event, so answeredAt can be
+      // unset even for answered calls. Treat an ANSWERED CDR disposition as
+      // answered, and keep an already-ended session sticky across CDR legs.
+      const wasAnswered =
+        !!session.answeredAt ||
+        session.status === 'ended' ||
+        (payload.disposition || '').toUpperCase() === 'ANSWERED';
+      session.status = wasAnswered ? 'ended' : 'missed';
       session.endedAt = payload.endedAt || new Date();
       if (payload.hangupCause) session.hangupCause = payload.hangupCause;
       if (payload.durationSec !== undefined)

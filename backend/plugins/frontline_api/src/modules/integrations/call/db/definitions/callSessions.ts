@@ -23,6 +23,11 @@ export const callSessionSchema = new Schema(
       required: true,
       label: 'PBX uniqueid or SIP Call-ID',
     }),
+    linkedid: field({
+      type: String,
+      optional: true,
+      label: 'PBX linkedid (call-wide id tying legs together)',
+    }),
     inboxIntegrationId: field({
       type: String,
       required: true,
@@ -73,6 +78,7 @@ export const callSessionSchema = new Schema(
 );
 
 callSessionSchema.index({ uniqueid: 1 }, { unique: true });
+callSessionSchema.index({ linkedid: 1 });
 callSessionSchema.index({ inboxIntegrationId: 1, status: 1, startedAt: -1 });
 callSessionSchema.index({ conversationId: 1 });
 callSessionSchema.index({ customerPhone: 1, startedAt: -1 });

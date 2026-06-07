@@ -17,6 +17,7 @@ export type CallEventType =
 export interface ICallEventPayload {
   type: CallEventType;
   uniqueid: string;
+  linkedid?: string;
   inboxIntegrationId?: string;
   srcTrunkName?: string;
   dstTrunkName?: string;
@@ -172,11 +173,14 @@ export const handleCallEvent = async (
   }
 
   try {
-    let session = await models.CallSessions.findOne({ uniqueid: ev.uniqueid });
+    let session: any = await models.CallSessions.findOne({
+      uniqueid: ev.uniqueid,
+    });
 
     if (!session) {
       const direction: 'incoming' | 'outgoing' =
-        ev.callType || (integration.dstTrunk ? 'incoming' : 'incoming');
+        ev.callType ||
+        (ev.dstTrunkName && !ev.srcTrunkName ? 'outgoing' : 'incoming');
 
       const customerPhone =
         direction === 'incoming'
@@ -185,6 +189,7 @@ export const handleCallEvent = async (
 
       session = await models.CallSessions.upsertSession({
         uniqueid: ev.uniqueid,
+        linkedid: ev.linkedid,
         inboxIntegrationId: integration.inboxId,
         callType: direction,
         customerPhone,
@@ -281,11 +286,74 @@ export const handleCallEvent = async (
     return { status: 'ok', uniqueid: ev.uniqueid, sessionStatus: session?.status };
   } finally {
     try {
-      await lock?.unlock();
+      await lock?.release();
     } catch (e) {
       console.error('handleCallEvent: lock release failed', e);
     }
   }
+};
+
+// ---------------------------------------------------------------------------
+// call-helper (ucmListener.ts) compatibility adapter
+// ---------------------------------------------------------------------------
+// The call-helper UCM WebSocket listener POSTs a payload with a different shape
+// (`type: incoming_call|outgoing_call`, `caller`/`trunk`, ...) than the native
+// ICallEventPayload consumed by handleCallEvent. This adapter translates it so
+// the live (CTI) path creates a CallSession + conversation per ring.
+
+export interface IUcmCallPayload {
+  type: 'incoming_call' | 'outgoing_call';
+  caller: string;
+  callerName?: string;
+  extension?: string;
+  did?: string;
+  trunk?: string;
+  queue?: string;
+  channel?: string;
+  uniqueid: string;
+  linkedid?: string;
+  at?: string;
+}
+
+const ucmPayloadToCallEvent = (p: IUcmCallPayload): ICallEventPayload => {
+  const isIncoming = p.type === 'incoming_call';
+
+  return {
+    // ucmListener emits a single notification at ring time per call.
+    type: 'ringing',
+    uniqueid: p.uniqueid,
+    // linkedid ties the call's legs together; the CDR's uniqueid often equals
+    // this (not the live event's per-leg uniqueid), so it's the convergence key.
+    linkedid: p.linkedid,
+    callType: isIncoming ? 'incoming' : 'outgoing',
+    // For incoming the customer is the external caller; for outgoing the
+    // customer is the dialed party (`caller` is pickDialed() in ucmListener).
+    callerIdNum: isIncoming ? p.caller : p.extension,
+    calleeIdNum: isIncoming ? p.did : p.caller,
+    // srcTrunk = inbound trunk, dstTrunk = outbound trunk (integration schema).
+    srcTrunkName: isIncoming ? p.trunk : undefined,
+    dstTrunkName: isIncoming ? undefined : p.trunk,
+    queueName: p.queue || undefined,
+    extension: p.extension || undefined,
+    channel: p.channel || undefined,
+    startedAt: p.at || undefined,
+    raw: p as Record<string, any>,
+  };
+};
+
+export const handleReceiveCall = async (
+  models: IModels,
+  subdomain: string,
+  payload: IUcmCallPayload,
+) => {
+  if (!payload?.uniqueid) {
+    throw new Error('uniqueid required');
+  }
+  if (payload.type !== 'incoming_call' && payload.type !== 'outgoing_call') {
+    throw new Error(`unsupported receiveCall payload type: ${payload?.type}`);
+  }
+
+  return handleCallEvent(models, subdomain, ucmPayloadToCallEvent(payload));
 };
 
 // suppress unused import lint when sendTRPCMessage is reserved for later

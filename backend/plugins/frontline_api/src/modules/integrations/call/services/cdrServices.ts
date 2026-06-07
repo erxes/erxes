@@ -41,7 +41,7 @@ export const receiveCdr = async (models: IModels, subdomain, params) => {
       return await processCdrLocked(models, subdomain, params, integration);
     } finally {
       try {
-        await lock?.unlock();
+        await lock?.release();
       } catch (e) {
         console.error('receiveCdr: lock release failed', e);
       }
@@ -97,8 +97,11 @@ const processCdrLocked = async (
 
   let existingSession: any = null;
   if (params.uniqueid) {
+    // The live (CTI) event and the CDR often reference different legs of the
+    // same call, so the CDR's uniqueid may equal the session's linkedid rather
+    // than its uniqueid (esp. outgoing calls). Match on either to converge.
     existingSession = await models.CallSessions.findOne({
-      uniqueid: params.uniqueid,
+      $or: [{ uniqueid: params.uniqueid }, { linkedid: params.uniqueid }],
     });
     if (existingSession?.conversationId) {
       conversationId = existingSession.conversationId;
@@ -256,6 +259,9 @@ const processCdrLocked = async (
   await pConversationClientMessageInserted(subdomain, doc);
 
   if (params.uniqueid) {
+    // Finalize the matched live session, which may be keyed by linkedid rather
+    // than the CDR's uniqueid (see the session lookup above).
+    const sessionUniqueid = existingSession?.uniqueid || params.uniqueid;
     try {
       const endedAt = params.end
         ? (() => {
@@ -264,16 +270,17 @@ const processCdrLocked = async (
           })()
         : new Date();
 
-      await models.CallSessions.markEnded(params.uniqueid, {
+      await models.CallSessions.markEnded(sessionUniqueid, {
         endedAt,
         durationSec: Number(params.billsec || params.duration) || undefined,
         hangupCause: params.disposition,
+        disposition: params.disposition,
         recordUrl: cdr.recordUrl,
         cdrAcctId: cdr.acctId,
       });
 
       const updatedSession = await models.CallSessions.findOne({
-        uniqueid: params.uniqueid,
+        uniqueid: sessionUniqueid,
       });
       if (updatedSession) {
         const sessionPayload = {
@@ -284,7 +291,7 @@ const processCdrLocked = async (
           },
         };
         await graphqlPubsub.publish(
-          `callSessionUpdated:uniqueid:${params.uniqueid}`,
+          `callSessionUpdated:uniqueid:${sessionUniqueid}`,
           sessionPayload,
         );
         await graphqlPubsub.publish(
@@ -294,7 +301,7 @@ const processCdrLocked = async (
       }
     } catch (e) {
       debugCall(
-        `CallSession finalize failed for ${params.uniqueid}: ${e.message}`,
+        `CallSession finalize failed for ${sessionUniqueid}: ${e.message}`,
       );
     }
   }
