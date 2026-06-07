@@ -25,12 +25,10 @@ interface GiveScoreModalProps {
   triggerLabel?: string;
   refetchQueries?: string[];
 }
-console.log('000000000000')
 export const GiveScoreModal = ({
   triggerLabel = 'Give Score',
-  refetchQueries = ['ScoreLogs'],
+  refetchQueries = ['ScoreLogs', 'ScoreLogStatistics'],
 }: GiveScoreModalProps) => {
-  console.log('dddddddd111111')
   const [open, setOpen] = useState(false);
   const [targetType, setTargetType] = useState<TargetType>(null);
   const [dealSheetOpen, setDealSheetOpen] = useState(false);
@@ -41,7 +39,6 @@ export const GiveScoreModal = ({
     refetchQueries,
   });
 
-  console.log('222222222222')
   const form = useForm<GiveScoreFormValues>({
     defaultValues: {
       ownerType: 'customer',

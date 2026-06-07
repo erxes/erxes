@@ -80,7 +80,7 @@ export const types = `
   type Deal @key(fields: "_id") {
     _id: String!
 
-    name: String!
+    name: String
     order: Float
     createdAt: Date
     hasNotified: Boolean

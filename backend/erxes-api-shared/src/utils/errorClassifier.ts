@@ -18,6 +18,60 @@ export interface IClassificationResult {
   isExpected: boolean;
 }
 
+/**
+ * Marker name used to recognise an expected error even after it has been
+ * serialised by Sentry (where only `exception.values[].type` survives).
+ */
+export const EXPECTED_ERROR_NAME = 'ExpectedError';
+
+/**
+ * Throw this for known business conditions (auth, validation, "not found", …)
+ * instead of a plain `Error`. It is classified as EXPECTED deterministically —
+ * independent of the message text — so renaming the message never silently
+ * turns it back into Sentry noise.
+ *
+ *   throw new ExpectedError('Login required', 'UNAUTHORIZED');
+ */
+export class ExpectedError extends Error {
+  /** Always true; read by {@link classifyError}. */
+  readonly isExpected = true;
+  /** Optional machine-readable code (e.g. UNAUTHORIZED, FORBIDDEN). */
+  readonly code?: string;
+
+  constructor(message: string, code?: string) {
+    super(message);
+    this.name = EXPECTED_ERROR_NAME;
+    this.code = code;
+    // Restore prototype chain for `instanceof` after transpile to ES5/ES2017.
+    Object.setPrototypeOf(this, ExpectedError.prototype);
+  }
+}
+
+/** Convenience factory mirroring {@link ExpectedError}. */
+export function createExpectedError(message: string, code?: string): ExpectedError {
+  return new ExpectedError(message, code);
+}
+
+/**
+ * True when an error explicitly declares itself expected — via the
+ * {@link ExpectedError} class, an `isExpected === true` flag, or the marker name.
+ */
+function isExplicitlyExpected(
+  error: unknown,
+  errorName?: string,
+): boolean {
+  if (errorName === EXPECTED_ERROR_NAME) return true;
+  if (
+    error &&
+    typeof error === 'object' &&
+    'isExpected' in error &&
+    (error as { isExpected?: unknown }).isExpected === true
+  ) {
+    return true;
+  }
+  return false;
+}
+
 // Expected error patterns — business logic conditions
 const EXPECTED_PATTERNS: RegExp[] = [
   /not found/i,
@@ -70,6 +124,29 @@ const EXPECTED_PATTERNS: RegExp[] = [
   /duplicate/i,
   /unique constraint/i,
   /schema validation/i,
+  // Auth / permission / session — the dominant Sentry noise.
+  // These originate from the core permission chokepoint
+  // (backend/erxes-api-shared/src/core-modules/permissions/utils.ts) and from
+  // ad-hoc throws across plugins. SYSTEM patterns are matched first, so these
+  // cannot shadow real infrastructure errors.
+  /login required/i, // "Login required"
+  /permission required/i, // "Permission required"
+  /scope required/i, // "OAuth scope required"
+  /portal (user )?required/i, // "Client portal required", "Client portal user required"
+  /have permission/i, // "You do not have permission to ..."
+  /no permission/i,
+  /access denied/i, // "Access denied: You do not have access ..."
+  /requires (login|permission|authentication|authorization)/i,
+  /login failed/i,
+  /session expired/i,
+  // Business validation phrasing seen in prod that the generic rules miss
+  /only allowed (in|for|on)/i, // "only allowed in saas version"
+  /only available (in|for|on)/i,
+  /must be before/i, // "Start date must be before end date"
+  /must be after/i,
+  /must be greater/i,
+  /must be less/i,
+  /must be a valid/i,
 ];
 
 // System error patterns — infrastructure/bugs
@@ -141,6 +218,14 @@ export function classifyError(error: unknown): IClassificationResult {
   const message = extractMessage(error);
   const code = extractCode(error);
   const errorName = extractErrorName(error);
+
+  // Explicit opt-in marker wins over every heuristic. Code that knows an error
+  // is an expected business condition can throw `new ExpectedError(...)` (or set
+  // `isExpected === true` / name === 'ExpectedError') and be classified
+  // deterministically regardless of how the message is later reworded.
+  if (isExplicitlyExpected(error, errorName)) {
+    return { category: 'EXPECTED', statusCode: 200, isExpected: true };
+  }
 
   // Check explicit error codes first
   if (code) {
@@ -329,6 +414,14 @@ export function sentryExpectedErrorFilter(
   _hint?: Sentry.EventHint,
 ): Sentry.ErrorEvent | null {
   const error = event.exception?.values?.[0];
+
+  // Only the message (`value`) and constructor (`type`) survive serialisation,
+  // so classify from those. The marker type is checked first because it is
+  // wording-independent.
+  if (error?.type === EXPECTED_ERROR_NAME) {
+    return null;
+  }
+
   if (error?.value) {
     const classification = classifyError(error.value);
     if (classification.category === 'EXPECTED') {

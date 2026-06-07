@@ -59,12 +59,15 @@ const applyReadAccessToPostQuery = async (
     translationLanguage?: string;
   },
   models: IContext['models'],
+  options: { applyTranslationLanguageFilter?: boolean } = {},
 ) => {
+  const { applyTranslationLanguageFilter = true } = options;
+
   for (const [field, value] of Object.entries(access.query || {})) {
     applyFieldConstraint(query, field, value);
   }
 
-  if (!access.translationLanguage) {
+  if (!applyTranslationLanguageFilter || !access.translationLanguage) {
     return;
   }
 
@@ -79,6 +82,18 @@ const applyReadAccessToPostQuery = async (
     query,
     translations.map((translation: any) => translation.objectId),
   );
+};
+
+const applyCmsAdminReadScopeToPostQuery = async (
+  query: Record<string, unknown>,
+  access: { query?: Record<string, unknown> },
+  models: IContext['models'],
+) => {
+  // Keep untranslated posts visible in CMS language views so the UI can mark
+  // missing translations instead of hiding those rows.
+  await applyReadAccessToPostQuery(query, access, models, {
+    applyTranslationLanguageFilter: false,
+  });
 };
 
 class PostQueryResolver extends BaseQueryResolver {
@@ -273,7 +288,7 @@ class PostQueryResolver extends BaseQueryResolver {
 
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
-    await applyReadAccessToPostQuery(query, readAccess, models);
+    await applyCmsAdminReadScopeToPostQuery(query, readAccess, models);
 
     const { list } = await this.getListWithTranslations(
       models.Posts,
@@ -301,7 +316,7 @@ class PostQueryResolver extends BaseQueryResolver {
     );
 
     if (!query) return null;
-    await applyReadAccessToPostQuery(query, readAccess, models);
+    await applyCmsAdminReadScopeToPostQuery(query, readAccess, models);
 
     // clientPortalId must be passed explicitly — admin queries have no
     // clientPortal in context, so the base resolver cannot fall back to it.
@@ -325,7 +340,7 @@ class PostQueryResolver extends BaseQueryResolver {
 
     const queryBuilder = getQueryBuilder('post', models);
     const query = await queryBuilder.buildQuery({ ...args, clientPortalId });
-    await applyReadAccessToPostQuery(query, readAccess, models);
+    await applyCmsAdminReadScopeToPostQuery(query, readAccess, models);
 
     const { dateField, dateFrom, dateTo } = args;
     if (dateField && (dateFrom || dateTo)) {

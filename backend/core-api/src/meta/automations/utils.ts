@@ -33,16 +33,7 @@ export const getRelatedValue = async (
   }
 
   if (targetKey === 'tagIds') {
-    const tags = await sendTRPCMessage({
-      subdomain,
-
-      pluginName: 'core',
-      method: 'query',
-      module: 'tags',
-      action: 'find',
-      input: { _id: { $in: target[targetKey] } },
-      defaultValue: [],
-    });
+    const tags = await models.Tags.find({ _id: { $in: target[targetKey] } }).lean();
 
     return (tags.map((tag) => tag.name) || []).join(', ');
   }
@@ -95,7 +86,7 @@ export const getItems = async (
     return model.find({ _id: { $in: relTypeIds } });
   }
 
-  let filter = await sendTRPCMessage({
+  const filter = await sendTRPCMessage({
     subdomain,
 
     pluginName: triggerService,

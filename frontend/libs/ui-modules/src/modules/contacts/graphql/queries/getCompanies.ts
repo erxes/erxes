@@ -14,6 +14,7 @@ export const GET_COMPANIES = gql`
         primaryName
         names
         primaryEmail
+        code
       }
       totalCount
       ${GQL_PAGE_INFO}
