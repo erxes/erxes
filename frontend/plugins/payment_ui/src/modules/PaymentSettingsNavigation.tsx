@@ -16,6 +16,11 @@ export const PaymentSettingsNavigation = () => {
             path="invoices"
             name="Invoices"
           />
+          <SettingsNavigationMenuLinkItem
+            pathPrefix="payment"
+            path="corporate-gateway"
+            name="Corporate Gateway"
+          />
         </Sidebar.Menu>
       </Sidebar.GroupContent>
     </Sidebar.Group>
