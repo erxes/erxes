@@ -4,7 +4,6 @@ import {
   SelectBoard,
   SelectPipeline,
   SelectStage,
-  splitAutomationNodeType,
   useAutomationRemoteFormSubmit,
   useFormValidationErrorHandler,
 } from 'ui-modules';
@@ -12,21 +11,23 @@ import {
   TSalesActionConfigForm,
   salesActionConfigFormSchema,
 } from '../../states/salesActionConfigFormDefinitions';
+import { TChecklistActionConfigForm } from '../../states/checklistActionConfigFormDefinitions';
 import { useForm, useWatch } from 'react-hook-form';
 
 import { Form } from 'erxes-ui';
 import { PipelineLabelsCommandList } from '../PipelineLabelsCommandList';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+type TSalesAutomationActionConfigForm =
+  | TSalesActionConfigForm
+  | TChecklistActionConfigForm;
+
 export const CreateDealActionConfigForm = ({
   formRef,
   onSaveActionConfig,
   currentAction,
   targetType,
-  type,
-}: AutomationActionFormProps<TSalesActionConfigForm>) => {
-  const [, , collectionType] = splitAutomationNodeType(type);
-
+}: AutomationActionFormProps<TSalesAutomationActionConfigForm>) => {
   const form = useForm<TSalesActionConfigForm>({
     resolver: zodResolver(salesActionConfigFormSchema),
     defaultValues: {

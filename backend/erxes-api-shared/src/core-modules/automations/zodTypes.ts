@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { TAutomationFindObjectType } from './constants';
 import { TAutomationProducers } from './types';
 
 export const AutomationBaseInput = z.object({
@@ -95,7 +94,7 @@ export const CheckTargetMatchInputData = z.object({
 });
 
 export const FindObjectInputData = z.object({
-  objectType: z.nativeEnum(TAutomationFindObjectType),
+  objectType: z.string(),
   field: z.string(),
   value: z.string(),
 });
@@ -163,9 +162,7 @@ export type TAutomationProducersInput = {
     typeof ResolveOutputPathsInputData
   >;
   [TAutomationProducers.SET_PROPERTIES]: z.infer<typeof SetPropertiesInputData>;
-  [TAutomationProducers.GET_ADDITIONAL_ATTRIBUTES]: z.infer<
-    typeof AutomationBaseInput
-  >;
+
   [TAutomationProducers.GENERATE_AI_CONTEXT]: z.infer<
     typeof GenerateAiContextInputData
   >;

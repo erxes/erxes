@@ -28,6 +28,7 @@ export const isInSegment = async (
       const [pluginName, moduleName, collectionType] = splitType(
         segment.contentType,
       );
+
       return await sendCoreModuleProducer({
         moduleName: 'automations',
         subdomain,

@@ -1,7 +1,6 @@
 import {
   IAutomationExecution,
   replaceOutputPlaceholders,
-  TAutomationFindObjectType,
   TAutomationRuntimeOutputDefinition,
 } from 'erxes-api-shared/core-modules';
 import { CORE_FIND_OBJECT_TARGETS } from './findObjectTargets';
@@ -17,7 +16,8 @@ export const FIND_OBJECT_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
   ],
   resolvers: {
     'object.*': async ({ subdomain, source, path, defaultValue }) => {
-      const objectType = source?.objectType as TAutomationFindObjectType;
+      const objectType =
+        typeof source?.objectType === 'string' ? source.objectType : '';
       const target = objectType ? CORE_FIND_OBJECT_TARGETS[objectType] : null;
       const objectPath = path.replace(/^object\./, '');
 

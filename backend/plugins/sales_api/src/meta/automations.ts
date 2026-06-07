@@ -8,6 +8,7 @@ import { posAutomationHandlers } from '~/modules/pos/meta/automations/automation
 import { posAutomationConstants } from '~/modules/pos/meta/automations/constants';
 import { salesAutomationHandlers } from '~/modules/sales/meta/automations/automationHandlers';
 import { salesAutomationContants } from '~/modules/sales/meta/automations/constants';
+import { findSalesObject } from '~/modules/sales/meta/automations/findObject';
 const modules = {
   sales: salesAutomationHandlers,
   pos: posAutomationHandlers,
@@ -17,16 +18,14 @@ export default {
   constants: {
     triggers: [
       ...salesAutomationContants.triggers,
-      ...(posAutomationConstants.triggers || []),
+      ...posAutomationConstants.triggers,
     ],
     actions: [
       ...salesAutomationContants.actions,
-      ...(posAutomationConstants.actions || []),
+      ...posAutomationConstants.actions,
     ],
-    setPropertyTargets: [
-      ...salesAutomationContants.setPropertyTargets,
-      ...(posAutomationConstants.setPropertyTargets || []),
-    ],
+    findObjectTargets: [...salesAutomationContants.findObjectTargets],
+    setPropertyTargets: [...salesAutomationContants.setPropertyTargets],
   },
   receiveActions: createCoreModuleProducerHandler({
     moduleName: 'automations',
@@ -58,4 +57,10 @@ export default {
     extractModuleName: (input) => input.moduleName,
     generateModels,
   }),
+
+  findObject: async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return await findSalesObject(models, data);
+  },
 } as AutomationConfigs;

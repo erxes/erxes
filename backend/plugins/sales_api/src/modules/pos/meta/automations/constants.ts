@@ -121,7 +121,7 @@ const POS_ORDER_OUTPUT: TAutomationRuntimeOutputDefinition<TPosOrderAutomationTa
     },
   };
 
-export const posAutomationConstants: AutomationConstants = {
+export const posAutomationConstants = {
   triggers: [
     {
       moduleName: 'pos',
@@ -151,5 +151,4 @@ export const posAutomationConstants: AutomationConstants = {
       setPropertyTargets: POS_ORDER_SET_PROPERTY_TARGETS,
     },
   ],
-  setPropertyTargets: [],
 };

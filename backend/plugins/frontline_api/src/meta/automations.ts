@@ -9,16 +9,27 @@ import {
   TAutomationProducers,
 } from 'erxes-api-shared/core-modules';
 import { generateModels } from '~/connectionResolvers';
+import { ticketAutomationProducers } from '~/modules/ticket/meta/automations';
+import { ticketsAutomationContants } from '~/modules/ticket/meta/automations/ticketAutomationsConstants';
 
 const modules = {
   facebook: facebookAutomationWorkers,
   instagram: instagramAutomationWorkers,
+  tickets: ticketAutomationProducers,
 };
 
 export default {
   constants: {
-    actions: [...facebookConstants.actions, ...instagramConstants.actions],
-    triggers: [...facebookConstants.triggers, ...instagramConstants.triggers],
+    actions: [
+      ...facebookConstants.actions,
+      ...instagramConstants.actions,
+      ...ticketsAutomationContants.actions,
+    ],
+    triggers: [
+      ...facebookConstants.triggers,
+      ...instagramConstants.triggers,
+      ...ticketsAutomationContants.triggers,
+    ],
     bots: [...facebookConstants.bots, ...instagramConstants.bots],
   },
 
@@ -37,11 +48,14 @@ export default {
     extractModuleName: (input) => input.moduleName,
     generateModels,
   }),
-  getAdditionalAttributes: createCoreModuleProducerHandler({
+  checkTargetMatch: createCoreModuleProducerHandler({
     moduleName: 'automations',
     modules,
-    methodName: TAutomationProducers.GET_ADDITIONAL_ATTRIBUTES,
-    extractModuleName: (input) => (input as any).moduleName,
+    methodName: TAutomationProducers.CHECK_TARGET_MATCH,
+    extractModuleName: (input) => {
+      console.log('Extracting module name from input:', input);
+      return input.moduleName;
+    },
     generateModels,
   }),
   generateAiContext: createCoreModuleProducerHandler({

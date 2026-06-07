@@ -203,11 +203,6 @@ export interface AutomationProducers {
     };
   }>;
 
-  getAdditionalAttributes?: (
-    args: z.infer<typeof AutomationBaseInput>,
-    context: IAutomationContext,
-  ) => Promise<Array<TAutomationAdditionalAttribute>>;
-
   generateAiContext?: (
     args: {
       subdomain: string;
@@ -375,7 +370,6 @@ export enum TAutomationProducers {
   CHECK_CUSTOM_TRIGGER = 'checkCustomTrigger',
   CHECK_TARGET_MATCH = 'checkTargetMatch',
   FIND_OBJECT = 'findObject',
-  GET_ADDITIONAL_ATTRIBUTES = 'getAdditionalAttributes',
   SET_PROPERTIES = 'setProperties',
   GENERATE_AI_CONTEXT = 'generateAiContext',
 }

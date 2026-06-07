@@ -51,7 +51,6 @@ export const startAutomations = async (
     checkTargetMatch,
     findObject,
     resolveOutputPaths,
-    getAdditionalAttributes,
     generateAiContext,
   } = config || {};
 
@@ -69,18 +68,6 @@ export const startAutomations = async (
     automationProcedures[TAutomationProducers.SET_PROPERTIES] = t.procedure
       .input(SetPropertiesInput)
       .mutation(async ({ ctx, input }) => setProperties(input, ctx));
-  }
-
-  if (getAdditionalAttributes) {
-    automationProcedures[TAutomationProducers.GET_ADDITIONAL_ATTRIBUTES] =
-      t.procedure
-        .input(AutomationBaseInput)
-        .mutation(async ({ ctx, input }) =>
-          getAdditionalAttributes(
-            { subdomain: input.subdomain, data: input.data },
-            ctx,
-          ),
-        );
   }
 
   if (generateAiContext) {
@@ -111,10 +98,7 @@ export const startAutomations = async (
           }
 
           const values = Object.fromEntries(
-            (data.paths || []).map((path) => [
-              path,
-              `{{ trigger.${path} }}`,
-            ]),
+            (data.paths || []).map((path) => [path, `{{ trigger.${path} }}`]),
           );
           const execution: IAutomationExecution = {
             automationId: '',

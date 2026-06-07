@@ -1,9 +1,12 @@
 import {
+  TAutomationFindObjectTargetDefinition,
   TAutomationRuntimeOutputDefinition,
   TAutomationSetPropertyTarget,
 } from 'erxes-api-shared/core-modules';
 import { generateTotalAmount } from './action/generateTotalAmount';
 import { IDeal } from '../../@types';
+
+export const SALES_DEAL_FIND_OBJECT_TYPE = 'sales:sales.deals';
 
 const SALES_DEAL_SET_PROPERTY_TARGETS: TAutomationSetPropertyTarget[] = [
   {
@@ -167,6 +170,19 @@ const SALES_DEAL_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition<IDeal> = {
   },
 };
 
+const SALES_FIND_OBJECT_TARGETS: TAutomationFindObjectTargetDefinition[] = [
+  {
+    value: SALES_DEAL_FIND_OBJECT_TYPE,
+    label: 'Deal',
+    lookupFields: [
+      { value: '_id', label: 'ID' },
+      { value: 'name', label: 'Name' },
+      { value: 'number', label: 'Number' },
+    ],
+    output: SALES_DEAL_TRIGGER_OUTPUT,
+  },
+];
+
 export const salesAutomationContants = {
   triggers: [
     {
@@ -225,8 +241,10 @@ export const salesAutomationContants = {
       label: 'Create sales checklist',
       description: 'Create sales checklist',
       isAvailable: true,
+      allowTargetFromActions: true,
     },
   ],
+  findObjectTargets: SALES_FIND_OBJECT_TARGETS,
   setPropertyTargets: [
     {
       label: 'Customer deals',

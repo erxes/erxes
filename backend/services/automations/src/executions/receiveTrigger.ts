@@ -46,7 +46,6 @@ export const receiveTrigger = async ({
       },
     ],
   }).lean();
-
   if (!automations.length) {
     return;
   }

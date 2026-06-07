@@ -24,6 +24,7 @@ import {
   ticketExportHandlers,
   formSubmissionExportHandlers,
 } from './meta/import-export/export/exportHandlers';
+import segments from './meta/segments';
 
 const ticketImportExportTypes = [
   {
@@ -132,6 +133,7 @@ startPlugin({
     afterProcess,
     notifications,
     permissions,
+    segments,
     tags: {
       types: [
         {
