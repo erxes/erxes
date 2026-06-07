@@ -20,7 +20,7 @@ export const TicketCommandBar = () => {
     <CommandBar open={selectedRows.length > 0}>
       <CommandBar.Bar>
         <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
-        <Can action="ticketsExport">
+        <Can action="ticketsExportManage">
           <Separator.Inline />
           <Export
             pluginName="frontline"

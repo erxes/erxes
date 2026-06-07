@@ -69,7 +69,7 @@ export const permissions: IPermissionConfig = {
         { title: 'Add ticket', name: 'createTicket', description: 'Create tickets' },
         { title: 'Edit ticket', name: 'updateTicket', description: 'Edit tickets' },
         { title: 'Remove ticket', name: 'removeTicket', description: 'Delete tickets' },
-        { title: 'Export tickets', name: 'ticketsExport', description: 'Export tickets to file' },
+        { title: 'Export tickets', name: 'ticketsExportManage', description: 'Export tickets to file' },
         { title: 'Import tickets', name: 'ticketsImportManage', description: 'Import tickets from file' },
       ],
     },
@@ -88,7 +88,7 @@ export const permissions: IPermissionConfig = {
         { title: 'Toggle form status', name: 'formsToggleStatus', description: 'Activate or deactivate forms' },
         { title: 'View form submissions', name: 'showFormSubmissions', description: 'View form submission data', always: true },
         { title: 'Remove form submissions', name: 'formSubmissionsRemove', description: 'Delete form submissions' },
-        { title: 'Export form submissions', name: 'formSubmissionsExport', description: 'Export form submissions to file' },
+        { title: 'Export form submissions', name: 'formSubmissionsExportManage', description: 'Export form submissions to file' },
       ],
     },
     {
@@ -142,12 +142,12 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'frontline', module: 'ticket',
-          actions: ['showTickets', 'createTicket', 'updateTicket', 'removeTicket', 'ticketsExport', 'ticketsImportManage'],
+          actions: ['showTickets', 'createTicket', 'updateTicket', 'removeTicket', 'ticketsExportManage', 'ticketsImportManage'],
           scope: 'all',
         },
         {
           plugin: 'frontline', module: 'form',
-          actions: ['showForms', 'formsAdd', 'formsEdit', 'formsRemove', 'formsDuplicate', 'formsToggleStatus', 'showFormSubmissions', 'formSubmissionsRemove', 'formSubmissionsExport'],
+          actions: ['showForms', 'formsAdd', 'formsEdit', 'formsRemove', 'formsDuplicate', 'formsToggleStatus', 'showFormSubmissions', 'formSubmissionsRemove', 'formSubmissionsExportManage'],
           scope: 'all',
         },
         {

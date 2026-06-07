@@ -14,7 +14,7 @@ export const SubmissionsSubHeader = () => {
         <SubmissionsTotalCount />
       </div>
       <div className="flex-none ml-auto">
-        <Can action="formSubmissionsExport">
+        <Can action="formSubmissionsExportManage">
           <Export
             pluginName="frontline"
             moduleName="formSubmission"

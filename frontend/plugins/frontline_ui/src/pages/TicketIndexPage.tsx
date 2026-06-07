@@ -51,7 +51,7 @@ const TicketsIndexPage = () => {
             collectionName="ticket"
           />
         </Can>
-        <Can action="ticketsExport">
+        <Can action="ticketsExportManage">
           <Export
             pluginName="frontline"
             moduleName="ticket"
