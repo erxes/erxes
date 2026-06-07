@@ -74,6 +74,12 @@ const Menus = lazy(() =>
   })),
 );
 
+const Analytics = lazy(() =>
+  import('~/modules/cms/analytics/Analytics').then((module) => ({
+    default: module.Analytics,
+  })),
+);
+
 const Settings = lazy(() =>
   import('~/modules/cms/settings/Settings').then((module) => ({
     default: module.Settings,
@@ -118,6 +124,7 @@ const CmsMain = () => {
           <Route path="menus" element={<Menus />} />
           <Route path="custom-types" element={<CustomTypes />} />
           <Route path="custom-fields" element={<CustomFields />} />
+          <Route path="analytics" element={<Analytics />} />
           <Route path="cmssettings" element={<Settings />} />
         </Route>
         <Route path="web-builder/*" element={<WebBuilderPage />} />

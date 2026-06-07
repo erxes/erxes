@@ -6,5 +6,6 @@ export enum PostsPath {
   CustomFields = '/custom-fields',
   CustomPostTypes = '/custom-types',
   Menus = '/menus',
+  Analytics = '/analytics',
   Settings = '/cmssettings',
 }

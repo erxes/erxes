@@ -1,5 +1,6 @@
 import {
   IconCategory,
+  IconChartHistogram,
   IconCube,
   IconRulerMeasure,
   IconSettings,
@@ -10,9 +11,11 @@ import { PageHeader } from 'ui-modules';
 import { useMemo } from 'react';
 import { useQuery } from '@apollo/client';
 import { CONTENT_CMS_LIST, GET_CLIENT_PORTALS } from '../../graphql/queries';
+import { useTranslation } from 'react-i18next';
 
 export const PostsNavigation = () => {
   const { pathname } = useLocation();
+  const { t } = useTranslation('common');
 
   const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-and-network',
@@ -76,6 +79,13 @@ export const PostsNavigation = () => {
         icon: IconSettings,
       };
     }
+    if (pathname.includes('/analytics')) {
+      return {
+        path: `${basePath}/analytics`,
+        label: t('cms.analytics.navigation-label'),
+        icon: IconChartHistogram,
+      };
+    }
     if (pathname.includes('/posts')) {
       return {
         path: `${basePath}/posts`,
@@ -89,7 +99,7 @@ export const PostsNavigation = () => {
       label: 'Posts',
       icon: IconCube,
     };
-  }, [pathname, basePath]);
+  }, [pathname, basePath, t]);
 
   const Icon = currentPage.icon;
   const websiteName =

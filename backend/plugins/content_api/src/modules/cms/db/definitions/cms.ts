@@ -24,6 +24,7 @@ export const cmsSchema = new mongoose.Schema<IContentCMSDocument>(
     metaDescription: { type: String, optional: true },
     metaKeywords: { type: [String], optional: true },
     metaImage: { type: attachmentSchema, optional: true },
+    googleAnalyticsPropertyId: { type: String, optional: true },
     googleTrackingId: { type: String, optional: true },
     googleTagManagerId: { type: String, optional: true },
     customScripts: { type: [String], optional: true },

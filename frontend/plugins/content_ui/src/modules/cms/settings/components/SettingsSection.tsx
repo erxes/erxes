@@ -1,13 +1,6 @@
 import { Card, cn } from 'erxes-ui';
-import { PropsWithChildren, ReactNode } from 'react';
-
-interface ISettingsSectionProps {
-  id: string;
-  title: string;
-  badge?: ReactNode;
-  className?: string;
-  contentClassName?: string;
-}
+import { type PropsWithChildren } from 'react';
+import { type SettingsSectionProps } from '../types/settingsTypes';
 
 export const SettingsSection = ({
   id,
@@ -16,7 +9,7 @@ export const SettingsSection = ({
   className = '',
   contentClassName,
   children,
-}: PropsWithChildren<ISettingsSectionProps>) => (
+}: PropsWithChildren<SettingsSectionProps>) => (
   <Card
     id={`cms-settings-${id}`}
     className={cn('rounded-lg border shadow-none', className)}

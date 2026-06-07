@@ -42,3 +42,17 @@ export interface Posts {
   customFieldsData?: any;
   __typename: string;
 }
+
+export type PostsPageContentProps = {
+  clientPortalId: string;
+  handleEditPost: (post: Posts) => void;
+};
+
+export type PostsIndexPageProps = {
+  clientPortalId: string;
+};
+
+export type PostsFormPageProps = {
+  clientPortalId: string;
+  postId?: string;
+};

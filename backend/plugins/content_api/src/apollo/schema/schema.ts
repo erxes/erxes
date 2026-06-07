@@ -4,6 +4,10 @@ import {
   queries as cmsQueries,
   types as cmsTypes,
 } from '@/cms/graphql/schemas/cms';
+import {
+  queries as cmsAnalyticsQueries,
+  types as cmsAnalyticsTypes,
+} from '@/cms/graphql/schemas/analytics';
 
 import {
   inputs as postInputs,
@@ -88,6 +92,7 @@ export const types = `
     ${webPageInputs}
     ${cmsTypes}
     ${cmsInputs}
+    ${cmsAnalyticsTypes}
     ${postTypes}
     ${postInputs}
     ${customPostTypeTypes}
@@ -106,6 +111,7 @@ export const queries = `
     ${webQueries}
     ${webPageQueries}
     ${cmsQueries}
+    ${cmsAnalyticsQueries}
     ${postQueries}
     ${customPostTypeQueries}
     ${categoryQueries}

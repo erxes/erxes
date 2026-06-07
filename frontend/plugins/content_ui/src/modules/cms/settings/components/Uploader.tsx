@@ -1,10 +1,10 @@
 import { Button, Upload } from 'erxes-ui';
-import { ComponentType, useState } from 'react';
-import { CmsAttachment } from '../types/settingsTypes';
-
-type UploadValue = Partial<CmsAttachment> & {
-  fileInfo?: Partial<CmsAttachment>;
-};
+import { useState } from 'react';
+import {
+  type CmsAttachment,
+  type UploaderProps,
+  type UploadValue,
+} from '../types/settingsTypes';
 
 const buildAttachment = (value: unknown): CmsAttachment | null => {
   if (!value || typeof value === 'string') {
@@ -38,13 +38,7 @@ export const Uploader = ({
   hint,
   value,
   onChange,
-}: {
-  icon: ComponentType<{ className?: string }>;
-  label: string;
-  hint: string;
-  value: CmsAttachment | null;
-  onChange: (value: CmsAttachment | null) => void;
-}) => {
+}: UploaderProps) => {
   const [uploadKey, setUploadKey] = useState(0);
   const [hasLocalPreview, setHasLocalPreview] = useState(false);
 

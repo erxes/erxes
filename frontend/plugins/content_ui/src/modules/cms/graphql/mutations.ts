@@ -19,6 +19,7 @@ export const CONTENT_CREATE_CMS = gql`
         size
         duration
       }
+      googleAnalyticsPropertyId
       googleTrackingId
       googleTagManagerId
       customScripts
@@ -67,6 +68,7 @@ export const CONTENT_UPDATE_CMS = gql`
         size
         duration
       }
+      googleAnalyticsPropertyId
       googleTrackingId
       googleTagManagerId
       customScripts

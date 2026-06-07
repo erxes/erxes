@@ -1,5 +1,6 @@
 import {
   IconAlignJustified,
+  IconChartHistogram,
   IconFile,
   IconFileText,
   IconFolder,
@@ -9,6 +10,7 @@ import {
   IconTag,
 } from '@tabler/icons-react';
 import { ComponentType } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PostsPath } from '../types/path/PostsPath';
 
 export interface IPostsFieldType {
@@ -17,8 +19,16 @@ export interface IPostsFieldType {
   icon: ComponentType<{ className?: string }>;
 }
 
-export function usePostsFieldTypes(): IPostsFieldType[] {
-  return [
+type UsePostsFieldTypesOptions = {
+  showAnalytics?: boolean;
+};
+
+export function usePostsFieldTypes({
+  showAnalytics = true,
+}: UsePostsFieldTypesOptions = {}): IPostsFieldType[] {
+  const { t } = useTranslation('common');
+
+  const postsFieldTypes = [
     { value: PostsPath.Posts, label: 'Posts', icon: IconFileText },
     { value: PostsPath.Pages, label: 'Pages', icon: IconFile },
     { value: PostsPath.Categories, label: 'Categories', icon: IconFolder },
@@ -34,6 +44,15 @@ export function usePostsFieldTypes(): IPostsFieldType[] {
       label: 'Custom Post Types',
       icon: IconLayout,
     },
+    {
+      value: PostsPath.Analytics,
+      label: t('cms.analytics.navigation-label'),
+      icon: IconChartHistogram,
+    },
     { value: PostsPath.Settings, label: 'Settings', icon: IconSettings },
   ];
+
+  return showAnalytics
+    ? postsFieldTypes
+    : postsFieldTypes.filter((item) => item.value !== PostsPath.Analytics);
 }

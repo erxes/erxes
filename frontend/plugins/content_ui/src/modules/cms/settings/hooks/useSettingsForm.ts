@@ -124,6 +124,8 @@ export const useSettingsForm = () => {
         ? cms.metaKeywords
         : DEFAULT_SETTINGS.metaKeywords,
       metaImage: cms?.metaImage || DEFAULT_SETTINGS.metaImage,
+      gaPropertyId:
+        cms?.googleAnalyticsPropertyId || DEFAULT_SETTINGS.gaPropertyId,
       gaTrackingId: cms?.googleTrackingId || DEFAULT_SETTINGS.gaTrackingId,
       googleTagManagerId:
         cms?.googleTagManagerId || DEFAULT_SETTINGS.googleTagManagerId,
@@ -171,6 +173,7 @@ export const useSettingsForm = () => {
         .map((keyword) => keyword.trim())
         .filter(Boolean),
       metaImage: settings.metaImage,
+      googleAnalyticsPropertyId: settings.gaPropertyId.trim(),
       googleTrackingId: settings.gaTrackingId.trim(),
       googleTagManagerId: settings.googleTagManagerId.trim(),
       customScripts: settings.customHeadScripts
