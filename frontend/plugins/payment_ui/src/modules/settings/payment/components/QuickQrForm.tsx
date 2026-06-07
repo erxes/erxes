@@ -93,7 +93,10 @@ const QuickQrForm: React.FC<Props> = ({ payment, form, Form }) => {
           <Form.Item>
             <Form.Label>Type *</Form.Label>
             <Form.Control>
-              <Select value={field.value} onValueChange={field.onChange}>
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+              >
                 <Select.Trigger>
                   <Select.Value placeholder="Select type" />
                 </Select.Trigger>
@@ -124,7 +127,10 @@ const QuickQrForm: React.FC<Props> = ({ payment, form, Form }) => {
               <Form.Item>
                 <Form.Label>MCC Code *</Form.Label>
                 <Form.Control>
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
                     <Select.Trigger>
                       <Select.Value placeholder="Select MCC Code" />
                     </Select.Trigger>
@@ -150,7 +156,10 @@ const QuickQrForm: React.FC<Props> = ({ payment, form, Form }) => {
               <Form.Item>
                 <Form.Label>City *</Form.Label>
                 <Form.Control>
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                  >
                     <Select.Trigger>
                       <Select.Value placeholder="Select city" />
                     </Select.Trigger>

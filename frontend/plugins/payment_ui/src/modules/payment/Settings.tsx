@@ -23,6 +23,7 @@ const PaymentSettings = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <Routes>
+
         <Route path="/" element={<PaymentSettingsPage />} />
         <Route path="invoices" element={<InvoicesPage />} />
         <Route path="corporate-gateway" element={<CorporateGatewayPage />} />

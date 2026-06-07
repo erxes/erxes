@@ -1,5 +1,5 @@
 import { Card } from 'erxes-ui/components/card';
-import { IRate } from '../../../types';
+import { IRate } from '../../../khanbank/types';
 
 type Props = {
   rates: IRate[];
