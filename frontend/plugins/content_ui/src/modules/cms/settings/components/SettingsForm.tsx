@@ -85,6 +85,7 @@ export const SettingsForm = ({
       domain: settings.domain,
       publicUrl: settings.publicUrl,
       postUrlField: selectedPostUrlField.value,
+      postUrlPrefix: settings.postUrlPrefix,
     },
     PREVIEW_POST,
     { allowRelative: true },
@@ -418,6 +419,22 @@ export const SettingsForm = ({
       </SettingsSection>
 
       <SettingsSection id="content" title="Content">
+        <Field
+          id="postUrlPrefix"
+          label="Post URL Path"
+          hint="Path before the post identifier. Examples: /blog/, /news/post/. Defaults to /posts/."
+        >
+          <Input
+            id="postUrlPrefix"
+            value={settings.postUrlPrefix}
+            placeholder="/posts"
+            onChange={(event) =>
+              updateSetting('postUrlPrefix', event.target.value)
+            }
+            variant="secondary"
+          />
+        </Field>
+
         <Field
           id="postUrlField"
           label="Post URL Field"

@@ -34,6 +34,7 @@ export const cmsSchema = new mongoose.Schema<IContentCMSDocument>(
     language: { type: String, optional: true },
     languages: { type: [String], optional: true },
     postUrlField: { type: String, optional: true, default: '_id' },
+    postUrlPrefix: { type: String, optional: true, default: '/posts' },
   },
   { timestamps: true },
 );

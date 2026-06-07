@@ -24,6 +24,7 @@ export interface PostPublicUrlConfig {
   domain?: string | null;
   publicUrl?: string | null;
   postUrlField?: string | null;
+  postUrlPrefix?: string | null;
 }
 
 interface BuildPostPublicUrlOptions {
@@ -64,6 +65,20 @@ export const normalizePostUrlField = (
   return '_id';
 };
 
+export const normalizePostUrlPrefix = (postUrlPrefix?: string | null) => {
+  const trimmedValue = postUrlPrefix?.trim();
+
+  if (!trimmedValue) {
+    return '/posts';
+  }
+
+  const withLeadingSlash = trimmedValue.startsWith('/')
+    ? trimmedValue
+    : `/${trimmedValue}`;
+
+  return trimTrailingSlashes(withLeadingSlash);
+};
+
 export const getPostUrlIdentifier = (
   post: PostUrlSource,
   postUrlField: PostUrlField,
@@ -92,7 +107,8 @@ export const buildPostPublicUrl = (
   }
 
   const baseUrl = normalizePublicUrl(config?.publicUrl || config?.domain);
-  const postPath = `/posts/${encodeURIComponent(identifier)}`;
+  const postUrlPrefix = normalizePostUrlPrefix(config?.postUrlPrefix);
+  const postPath = `${postUrlPrefix}/${encodeURIComponent(identifier)}`;
 
   if (!baseUrl) {
     return options.allowRelative ? postPath : '';
