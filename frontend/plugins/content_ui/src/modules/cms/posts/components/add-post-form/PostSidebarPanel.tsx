@@ -1,18 +1,28 @@
 import { useState } from 'react';
 import { Tabs } from 'erxes-ui';
+import type { FieldValues, UseFormReturn } from 'react-hook-form';
 import { ContentTab } from './ContentTab';
+import type {
+  CustomType,
+  LanguageOption,
+  PostUrlField,
+  PostUrlSource,
+  SelectOption,
+} from './ContentTab';
 import { MediaSection } from './MediaSection';
 
 interface PostSidebarPanelProps {
-  form: any;
-  categories: any[];
-  tags: any[];
-  customTypes: any[];
+  form: UseFormReturn<FieldValues>;
+  categories: SelectOption[];
+  tags: SelectOption[];
+  customTypes: CustomType[];
   websiteId: string;
   availableLanguages: string[];
   defaultLanguage: string;
   selectedLanguage: string;
-  languageOptions: any[];
+  languageOptions: LanguageOption[];
+  postUrlField: PostUrlField;
+  fullPost: PostUrlSource | null | undefined;
   handleLanguageChange: (lang: string) => void;
 }
 
@@ -26,6 +36,8 @@ export const PostSidebarPanel = ({
   defaultLanguage,
   selectedLanguage,
   languageOptions,
+  postUrlField,
+  fullPost,
   handleLanguageChange,
 }: PostSidebarPanelProps) => {
   const [activeTab, setActiveTab] = useState<'content' | 'media'>('content');
@@ -61,6 +73,8 @@ export const PostSidebarPanel = ({
             defaultLanguage={defaultLanguage}
             selectedLanguage={selectedLanguage}
             languageOptions={languageOptions}
+            postUrlField={postUrlField}
+            fullPost={fullPost}
             handleLanguageChange={handleLanguageChange}
           />
         )}

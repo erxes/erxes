@@ -104,7 +104,7 @@ export const usePostForm = (editingPost?: { _id: string }) => {
   const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
     variables: { objectId: editingPost?._id, type: 'post' },
     skip: !editingPost?._id,
-    fetchPolicy: 'cache-first',
+    fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: false,
   });
 

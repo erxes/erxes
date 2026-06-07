@@ -51,24 +51,6 @@ export const PostEditorColumn = ({
         </Form.Item>
       )}
     />
-    {selectedLanguage === defaultLanguage && (
-      <Form.Field
-        control={form.control}
-        name="slug"
-        render={({ field }) => (
-          <Form.Item className="mb-4">
-            <Form.Label>Slug</Form.Label>
-            <Form.Control>
-              <Input {...field} placeholder="optional-post-url-slug" />
-            </Form.Control>
-            <Form.Description>
-              Leave empty to generate from the post title.
-            </Form.Description>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-    )}
     <PostPreview
       form={form}
       selectedLanguage={selectedLanguage}
