@@ -1,3 +1,14 @@
+// Polyfill SlowBuffer for legacy packages (e.g. buffer-equal-constant-time)
+// that still reference the global removed in Node.js 22+.
+declare global {
+  // eslint-disable-next-line no-var
+  var SlowBuffer: typeof Buffer.allocUnsafeSlow | undefined;
+}
+
+if (typeof globalThis.SlowBuffer === 'undefined') {
+  globalThis.SlowBuffer = Buffer.allocUnsafeSlow;
+}
+
 export * from './apollo';
 export * from './constants';
 export * from './elasticsearch';
