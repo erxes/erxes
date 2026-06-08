@@ -3,7 +3,10 @@ import {
   IUserDocument,
   Resolver,
 } from 'erxes-api-shared/core-types';
-import { cursorPaginate, cursorPaginateAggregation } from 'erxes-api-shared/utils';
+import {
+  cursorPaginate,
+  cursorPaginateAggregation,
+} from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 
 interface FilterArgs {
@@ -137,7 +140,7 @@ const formQueries: Record<string, Resolver> = {
     const qry = {
       ...(await generateFilterQuery(args, models, user)),
     };
-    
+
     const count = async (query) => {
       return models.Forms.find(query).countDocuments();
     };
@@ -288,7 +291,6 @@ const formQueries: Record<string, Resolver> = {
     const { models } = context as IContext;
     return models.Forms.findOne({ _id });
   },
-
 };
 
 export default formQueries;
