@@ -644,8 +644,6 @@ export const handleScore = async (models: IModels, data) => {
     createdBy,
     serviceName,
     targetId,
-    amount,
-    quantity,
   } = data;
   const scoreCampaign = await models.ScoreCampaigns.findOne({
     _id: campaignId,
