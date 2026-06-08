@@ -11,7 +11,7 @@ import { AddMSDynamicConfig } from '../components/settings/AddMSDynamicConfig';
 export const GeneralSettings = () => {
   return (
     <SettingsLayout
-      sidebar
+      sidebar={false}
       breadcrumbs={<MSDynamicBreadCrumb />}
       actions={
         <div className="flex items-center gap-2">
