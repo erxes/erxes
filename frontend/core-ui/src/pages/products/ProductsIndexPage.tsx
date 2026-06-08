@@ -6,7 +6,7 @@ import { ProductDetailSheet } from '@/products/product-detail/components/Product
 import { PageContainer, PageSubHeader } from 'erxes-ui';
 import { ProductSidebar } from '@/products/components/ProductSidebar';
 import { useProducts } from '@/products/hooks/useProducts';
-import { Export, Import } from 'ui-modules';
+import { Can, Export, Import } from 'ui-modules';
 
 export const ProductsIndexPage = () => {
   return (
@@ -37,17 +37,21 @@ const ProductsIndexPageContent = () => {
     <>
       <PageSubHeader>
         <ProductsFilter />
-        <Import
-          pluginName="core"
-          moduleName="product"
-          collectionName="product"
-        />
-        <Export
-          pluginName="core"
-          moduleName="product"
-          collectionName="product"
-          getFilters={getFilters}
-        />
+        <Can action="productsImportManage">
+          <Import
+            pluginName="core"
+            moduleName="product"
+            collectionName="product"
+          />
+        </Can>
+        <Can action="productsExportManage">
+          <Export
+            pluginName="core"
+            moduleName="product"
+            collectionName="product"
+            getFilters={getFilters}
+          />
+        </Can>
       </PageSubHeader>
       <div className="overflow-hidden flex-auto p-3">
         <div className="h-full">
