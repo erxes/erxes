@@ -16,9 +16,10 @@ import {
   fixScoreNumber,
   getOwnerScoreUpdate,
   getOwnerScoreValue,
-  getSignedChangeScore,
+  getLogChangeScore,
   prepareScoreLogChange,
   refundScoreChange,
+  getScoreValueBeforeLog,
   updateOwnerScoreCache,
 } from '@/score/services/scoreLedger';
 import { IUserDocument } from 'erxes-api-shared/core-types';
@@ -85,7 +86,7 @@ const calculateCampaignChangeScore = ({
   const placeholder = campaign[actionMethod]?.placeholder || '';
 
   if (!placeholder.trim() && actionMethod === 'subtract') {
-    return Number(target?.paymentAmount) || 0;
+    return -Math.abs(Number(target?.paymentAmount) || 0);
   }
 
   const expression = placeholder.replace(
@@ -94,9 +95,15 @@ const calculateCampaignChangeScore = ({
       String(resolvePlaceholderValue(target, String(attribute).trim())),
   );
 
-  return fixScoreNumber(
+  const changeScore = fixScoreNumber(
     (safeEvalMath(expression) || 0) * Number(currencyRatio || 1) || 0,
   );
+
+  if (actionMethod === 'subtract' && target?.paymentAmount !== undefined) {
+    return -Math.abs(changeScore);
+  }
+
+  return changeScore;
 };
 
 const getCampaignStageStatus = (campaign: any, stageId?: string) => {
@@ -160,7 +167,7 @@ const findActiveScoreLog = async ({
       ownerId,
       ownerType,
       campaignId,
-      action: 'refund',
+      action: { $in: ['refund', 'return'] },
       sourceScoreLogId: scoreLog._id,
     });
 
@@ -209,7 +216,7 @@ const cleanupRefundedScoreLogs = async ({
     ownerId,
     ownerType,
     campaignId,
-    action: 'refund',
+    action: { $in: ['refund', 'return'] },
     sourceScoreLogId: { $in: scoreLogIds },
   }).select('_id sourceScoreLogId');
 
@@ -396,11 +403,13 @@ export const loadScoreCampaignClass = (
         });
 
         if (scoreLog) {
-          changeScore = changeScore - scoreLog?.changeScore;
+          changeScore = fixScoreNumber(
+            changeScore - getLogChangeScore(scoreLog),
+          );
         }
       }
 
-      const newScore = oldScore - changeScore;
+      const newScore = fixScoreNumber(oldScore + changeScore);
 
       if (newScore < 0) {
         throw new Error('There has no enough score to subtract');
@@ -497,8 +506,9 @@ export const loadScoreCampaignClass = (
             description:
               newStageStatus === 'refund'
                 ? 'Refund score campaign'
-                : `Clear score campaign from ${oldStageStatus || 'undefined'
-                } stage`,
+                : `Clear score campaign from ${
+                    oldStageStatus || 'undefined'
+                  } stage`,
           },
         });
 
@@ -523,7 +533,7 @@ export const loadScoreCampaignClass = (
         }
       }
 
-      let changeScore = calculateCampaignChangeScore({
+      const changeScore = calculateCampaignChangeScore({
         campaign,
         actionMethod,
         target: calculationTarget,
@@ -560,35 +570,32 @@ export const loadScoreCampaignClass = (
         if (changeScore === oldScore) {
           return activeScoreLog || undefined;
         }
-
-        changeScore = fixScoreNumber(changeScore - oldScore);
       }
 
       const scoreLog = activeScoreLog;
 
-      if (!changeScore) {
+      if (!changeScore && actionMethod !== 'set') {
         return scoreLog || undefined;
       }
 
       if (scoreLog) {
-        const prevChangeScore = Math.abs(Number(scoreLog.changeScore) || 0);
+        const prevChangeScore = Number(scoreLog.changeScore) || 0;
 
         if (actionMethod !== 'set' && changeScore === prevChangeScore) {
           return scoreLog;
         }
 
-        const currentSignedChangeScore = getSignedChangeScore(scoreLog);
-        let nextSignedChangeScore = changeScore;
-        if (actionMethod === 'set') nextSignedChangeScore = currentSignedChangeScore + changeScore;
-        if (actionMethod === 'subtract') nextSignedChangeScore = -changeScore;
-
+        const currentChangeScore = getLogChangeScore(scoreLog);
         const nextPreparedChange = prepareScoreLogChange({
           action: actionMethod,
-          signedChangeScore: nextSignedChangeScore,
+          changeScore,
         });
-        const scoreDifference =
-          nextPreparedChange.signedChangeScore - currentSignedChangeScore;
-        const recalculatedScore = fixScoreNumber(oldScore + scoreDifference);
+        const recalculatedScore =
+          actionMethod === 'set'
+            ? fixScoreNumber(changeScore)
+            : fixScoreNumber(
+                oldScore + nextPreparedChange.changeScore - currentChangeScore,
+              );
 
         if (recalculatedScore < 0) {
           throw new Error('There has no enough score to subtract');
@@ -606,6 +613,9 @@ export const loadScoreCampaignClass = (
         });
 
         scoreLog.changeScore = nextPreparedChange.changeScore;
+        if (scoreLog.preScore === undefined) {
+          scoreLog.preScore = await getScoreValueBeforeLog(models, scoreLog);
+        }
         await scoreLog.save();
 
         return scoreLog;
@@ -623,8 +633,7 @@ export const loadScoreCampaignClass = (
           serviceName,
           targetId,
           action: actionMethod,
-          signedChangeScore:
-            actionMethod === 'subtract' ? -changeScore : changeScore,
+          changeScore,
         },
       });
 
