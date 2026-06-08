@@ -138,7 +138,9 @@ export const projectsColumns = (
     {
       id: 'tagIds',
       accessorKey: 'tagIds',
-      header: () => <RecordTable.InlineHead label="Tags" icon={IconLabelFilled} />,
+      header: () => (
+        <RecordTable.InlineHead label="Tags" icon={IconLabelFilled} />
+      ),
       cell: ({ cell }) => {
         const tagIds = cell.getValue() as string[];
         return (
