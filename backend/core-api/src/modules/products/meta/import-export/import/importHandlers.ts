@@ -20,7 +20,13 @@ const productImportMap = {
       {
         label: 'Category',
         key: 'categoryName',
-        aliases: ['categoryName', 'categryName', 'Category Name', 'Category ID', 'categoryId'],
+        aliases: [
+          'categoryName',
+          'categryName',
+          'Category Name',
+          'Category ID',
+          'categoryId',
+        ],
       },
       { label: 'Vendor ID', key: 'vendorId' },
       { label: 'Status', key: 'status' },

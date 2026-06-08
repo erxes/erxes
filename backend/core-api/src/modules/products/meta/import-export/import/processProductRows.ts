@@ -15,7 +15,9 @@ export async function processProductRows(
 
     const existingByCode = new Map<string, any>();
     if (codes.length) {
-      const existingDocs = await models.Products.find({ code: { $in: codes } }).lean();
+      const existingDocs = await models.Products.find({
+        code: { $in: codes },
+      }).lean();
       for (const doc of existingDocs) {
         if (doc.code) existingByCode.set(String(doc.code).trim(), doc);
       }
@@ -49,7 +51,10 @@ export async function processProductRows(
           rowToMetaMap.set(row, { operationIndex: opIndex });
         }
       } catch (e: any) {
-        errorRows.push({ ...row, error: e?.message || 'Failed to prepare row' });
+        errorRows.push({
+          ...row,
+          error: e?.message || 'Failed to prepare row',
+        });
       }
     }
 
@@ -58,7 +63,9 @@ export async function processProductRows(
       const failedOpIndices = new Set<number>();
 
       try {
-        bulkResult = await models.Products.bulkWrite(operations, { ordered: false });
+        bulkResult = await models.Products.bulkWrite(operations, {
+          ordered: false,
+        });
       } catch (e: any) {
         const isBulkError =
           e?.name === 'MongoBulkWriteError' || e?.name === 'BulkWriteError';
@@ -74,9 +81,15 @@ export async function processProductRows(
       for (const [row, meta] of rowToMetaMap.entries()) {
         if (meta.operationIndex !== undefined) {
           if (failedOpIndices.has(meta.operationIndex)) {
-            errorRows.push({ ...row, error: 'Write failed (duplicate or invalid data)' });
+            errorRows.push({
+              ...row,
+              error: 'Write failed (duplicate or invalid data)',
+            });
           } else {
-            successRows.push({ ...row, _id: bulkResult?.insertedIds?.[meta.operationIndex] });
+            successRows.push({
+              ...row,
+              _id: bulkResult?.insertedIds?.[meta.operationIndex],
+            });
           }
         } else {
           successRows.push({ ...row, _id: meta._id });
@@ -88,7 +101,10 @@ export async function processProductRows(
   } catch (e: any) {
     return {
       successRows: [],
-      errorRows: rows.map((r) => ({ ...r, error: e?.message || 'Failed to process rows' })),
+      errorRows: rows.map((r) => ({
+        ...r,
+        error: e?.message || 'Failed to process rows',
+      })),
     };
   }
 }

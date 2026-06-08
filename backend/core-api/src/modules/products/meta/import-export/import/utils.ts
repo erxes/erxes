@@ -43,7 +43,10 @@ export async function prepareProductDoc(models: IModels, row: any) {
       if (isEmpty(v)) {
         delete doc[field];
       } else if (typeof v === 'string') {
-        const arr = v.split(/[,;]/).map((s: string) => s.trim()).filter(Boolean);
+        const arr = v
+          .split(/[,;]/)
+          .map((s: string) => s.trim())
+          .filter(Boolean);
         if (arr.length) doc[field] = arr;
         else delete doc[field];
       }
@@ -61,7 +64,8 @@ export async function prepareProductDoc(models: IModels, row: any) {
 
   if (!isEmpty(doc.unitPrice)) {
     doc.unitPrice = Number(doc.unitPrice);
-    if (Number.isNaN(doc.unitPrice)) throw new Error('unitPrice must be a number');
+    if (Number.isNaN(doc.unitPrice))
+      throw new Error('unitPrice must be a number');
   } else {
     delete doc.unitPrice;
   }
@@ -76,7 +80,10 @@ export async function prepareProductDoc(models: IModels, row: any) {
     if (isEmpty(doc.barcodes)) {
       delete doc.barcodes;
     } else if (typeof doc.barcodes === 'string') {
-      const arr = doc.barcodes.split(/[,;]/).map((s: string) => s.trim()).filter(Boolean);
+      const arr = doc.barcodes
+        .split(/[,;]/)
+        .map((s: string) => s.trim())
+        .filter(Boolean);
       if (arr.length) doc.barcodes = arr;
       else delete doc.barcodes;
     }
@@ -93,15 +100,18 @@ export async function prepareProductDoc(models: IModels, row: any) {
 
   if (doc.categoryName && !isEmpty(doc.categoryName)) {
     const categoryName = String(doc.categoryName).trim();
-    const existing = await models.ProductCategories.findOne({ name: categoryName }).lean();
+    const existing = await models.ProductCategories.findOne({
+      name: categoryName,
+    }).lean();
     if (existing) {
       doc.categoryId = existing._id;
     } else {
-      const code = categoryName
-        .toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^a-z0-9-]/g, '')
-        .slice(0, 50) || `cat-${Date.now()}`;
+      const code =
+        categoryName
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, '')
+          .slice(0, 50) || `cat-${Date.now()}`;
       const created = await models.ProductCategories.createProductCategory({
         name: categoryName,
         code,
@@ -115,7 +125,12 @@ export async function prepareProductDoc(models: IModels, row: any) {
 
   if (doc.imageUrl && !isEmpty(doc.imageUrl)) {
     const url = String(doc.imageUrl).trim();
-    doc.attachment = { url, name: url.split('/').pop() || url, type: '', size: 0 };
+    doc.attachment = {
+      url,
+      name: url.split('/').pop() || url,
+      type: '',
+      size: 0,
+    };
   }
   delete doc.imageUrl;
 

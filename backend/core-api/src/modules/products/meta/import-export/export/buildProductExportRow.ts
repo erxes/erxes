@@ -8,7 +8,6 @@ type Maps = {
   brandMap: Map<string, string>;
 };
 
-
 const joinNames = (ids: any[] | undefined, map: Map<string, string>) => {
   if (!ids?.length) return '';
   return ids
@@ -34,11 +33,17 @@ export const buildProductExportRow = (
     : '';
 
   const tagNames = joinNames(product.tagIds || [], maps?.tagMap || new Map());
-  const brandNames = joinNames(product.scopeBrandIds || [], maps?.brandMap || new Map());
+  const brandNames = joinNames(
+    product.scopeBrandIds || [],
+    maps?.brandMap || new Map(),
+  );
 
   const imageUrl = product.attachment?.url || '';
   const imageUrls = Array.isArray(product.attachmentMore)
-    ? product.attachmentMore.map((a: any) => a?.url || '').filter(Boolean).join('; ')
+    ? product.attachmentMore
+        .map((a: any) => a?.url || '')
+        .filter(Boolean)
+        .join('; ')
     : '';
 
   const allFields: Record<string, any> = {
@@ -59,15 +64,23 @@ export const buildProductExportRow = (
     categoryName: formatValue(categoryName),
     vendorId: formatValue(vendorName),
 
-    barcodes: formatValue(Array.isArray(product.barcodes) ? product.barcodes.join('; ') : product.barcodes),
+    barcodes: formatValue(
+      Array.isArray(product.barcodes)
+        ? product.barcodes.join('; ')
+        : product.barcodes,
+    ),
     barcodeDescription: formatValue(toPlainText(product.barcodeDescription)),
     currency: formatValue(product.currency),
 
     imageUrl: formatValue(imageUrl),
     imageUrls: formatValue(imageUrls),
 
-    createdAt: formatValue(product.createdAt ? new Date(product.createdAt) : ''),
-    updatedAt: formatValue(product.updatedAt ? new Date(product.updatedAt) : ''),
+    createdAt: formatValue(
+      product.createdAt ? new Date(product.createdAt) : '',
+    ),
+    updatedAt: formatValue(
+      product.updatedAt ? new Date(product.updatedAt) : '',
+    ),
   };
 
   if (product.propertiesData && typeof product.propertiesData === 'object') {
