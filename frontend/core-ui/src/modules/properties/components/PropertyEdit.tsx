@@ -19,7 +19,7 @@ export const PropertyEdit = () => {
 
   const navigate = useNavigate();
 
-  const [fieldType, ...relationType] = (fieldDetail?.type?.split(':') || []);
+  const [fieldType, ...relationType] = fieldDetail?.type?.split(':') || [];
 
   const handleSubmit = (data: IPropertyForm) => {
     editProperty({
