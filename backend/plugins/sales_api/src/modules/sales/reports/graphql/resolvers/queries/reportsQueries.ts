@@ -97,56 +97,51 @@ export const dealReports = {
     return forecastRevenue(models, subdomain, filters);
   },
   dealsByStage: async (
-    _root: any,
+  _root: any,
+  { filters = {}, sort = "createdAt", limit = 100, skip = 0 }: 
+  { filters: any; sort?: string; limit?: number; skip?: number },
+  { models }: IContext,
+) => {
+  const match = buildFullMatch(filters);
+  
+  let sortObj: any = {};
+  if (sort.startsWith('-')) {
+    sortObj[sort.slice(1)] = -1;
+  } else {
+    sortObj[sort] = -1;
+  }
+
+  const pipeline: any[] = [
+    { $match: match },
+    { $sort: sortObj },
     {
-      filters = {},
-      sort = 'createdAt',
-      limit = 100,
-      skip = 0,
-    }: { filters: any; sort?: string; limit?: number; skip?: number },
-    { models }: IContext,
-  ) => {
-    const match = buildFullMatch(filters);
-
-    // Parse sort direction
-    let sortObj: any = {};
-    if (sort.startsWith('-')) {
-      sortObj[sort.slice(1)] = -1;
-    } else {
-      sortObj[sort] = -1; // default descending (newest first)
-    }
-
-    const pipeline: any[] = [
-      { $match: match },
-      { $sort: sortObj },
-      {
-        $group: {
-          _id: '$stageId',
-          deals: { $push: '$$ROOT' },
-          totalCount: { $sum: 1 },
-        },
-      },
-      {
-        $lookup: {
-          from: 'sales_stages',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'stageInfo',
-        },
-      },
-      { $unwind: { path: '$stageInfo', preserveNullAndEmptyArrays: true } },
-      {
-        $project: {
-          stageId: '$_id',
-          stageName: { $ifNull: ['$stageInfo.name', 'Unknown Stage'] },
-          totalCount: 1,
-          deals: { $slice: ['$deals', skip, limit] },
-        },
-      },
-      { $sort: { stageName: 1 } },
-    ];
-
-    return await models.Deals.aggregate(pipeline);
+      $group: {
+        _id: "$stageId",
+        deals: { $push: "$$ROOT" },
+        totalCount: { $sum: 1 }
+      }
+    },
+    {
+      $lookup: {
+        from: "sales_stages",
+        localField: "_id",
+        foreignField: "_id",
+        as: "stageInfo"
+      }
+    },
+    { $unwind: { path: "$stageInfo", preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        stageId: "$_id",
+        stageName: { $ifNull: ["$stageInfo.name", "Unknown Stage"] },
+        totalCount: 1,
+        deals: { $slice: ["$deals", skip, limit] }
+      }
+    },
+    { $sort: { stageName: 1 } }
+  ];
+  
+  return await models.Deals.aggregate(pipeline, { allowDiskUse: true });
   },
   // userWidgets query
   userWidgets: async (_root: any, _args: any, { models, user }: IContext) => {

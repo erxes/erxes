@@ -152,28 +152,46 @@ const getExpectedRevenue = async (
   }).lean();
   let total = 0;
   for (const deal of deals) {
-    const stage = openStages.find(
-      (s) => s._id.toString() === deal.stageId.toString(),
-    );
-    const probability = stage?.probability
-      ? parseFloat(stage.probability) / 100
-      : 0;
-    const amount = (deal.productsData || []).reduce(
-      (sum, p) => sum + (p.amount || 0),
-      0,
-    );
+    const stage = openStages.find(s => s._id.toString() === deal.stageId.toString());
+    const probability = stage?.probability ? Number.parseFloat(stage.probability) / 100 : 0;
+    const amount = (deal.productsData || []).reduce((sum, p) => sum + (p.amount || 0), 0);
     total += amount * probability;
   }
   return total;
 };
 
+// Helper to extract stage durations for cognitive complexity reduction
+const calculateStageDurations = (logsByDeal: Record<string, any[]>): Record<string, number[]> => {
+  const stageDurations: Record<string, number[]> = {};
+  for (const [, dealLogs] of Object.entries(logsByDeal)) {
+    for (let i = 0; i < dealLogs.length; i++) {
+      const currentLog = dealLogs[i];
+      const nextLog = dealLogs[i + 1];
+      const stageId = currentLog.content?.destinationStageId;
+      if (!stageId) continue;
+
+      const enterTime = new Date(currentLog.createdAt).getTime();
+      const exitTime = nextLog ? new Date(nextLog.createdAt).getTime() : Date.now();
+      const hoursSpent = (exitTime - enterTime) / (1000 * 60 * 60);
+      if (!stageDurations[stageId]) stageDurations[stageId] = [];
+      stageDurations[stageId].push(hoursSpent);
+    }
+  }
+  return stageDurations;
+};
+
+const getProbabilitySortValue = (bucket: string): number => {
+  const asNumber = Number.parseFloat(bucket);
+  if (!Number.isNaN(asNumber)) return asNumber;
+  if (bucket === 'Won') return 100;
+  if (bucket === 'Lost') return 0;
+  return 0;
+};
+
 /**
- * 1. Total count of deals (optionally filtered by date)
+ * 1. Total count of deals
  */
-export const dealsTotalCount = async (
-  models: IModels,
-  filters: IDealReportFilter,
-) => {
+export const dealsTotalCount = async (models: IModels, _subdomain: string, filters: IDealReportFilter) => {
   const match = buildFullMatch(filters);
   const count = await models.Deals.countDocuments(match);
   return { labels: ['Total'], datasets: [{ data: [count] }] };
@@ -258,6 +276,7 @@ export const dealCountByLabel = async (
  */
 export const dealCountByCustomProperties = async (
   models: IModels,
+  _subdomain: string,
   filters: IDealReportFilter,
 ) => {
   const match = buildFullMatch(filters);
@@ -491,10 +510,11 @@ export const dealsClosedWonByRep = async (
 };
 
 /**
- * 9. Revenue by stage (sum of productsData.amount where tickUsed = true)
+ * 9. Revenue by stage
  */
 export const dealRevenueByStage = async (
   models: IModels,
+  _subdomain: string,
   filters: IDealReportFilter,
 ) => {
   const match = buildFullMatch(filters);
@@ -532,6 +552,7 @@ export const dealRevenueByStage = async (
  */
 export const dealsTotalCountByDueDate = async (
   models: IModels,
+  _subdomain: string,
   filters: IDealReportFilter,
 ) => {
   const originalDateRangeType = filters.dateRangeType;
@@ -551,7 +572,7 @@ export const dealsTotalCountByDueDate = async (
 };
 
 /**
- * 11. Average time spent in each stage (based on activity logs)
+ * 11. Average time spent in each stage
  */
 export const dealAverageTimeSpentInEachStage = async (
   models: IModels,
@@ -582,33 +603,14 @@ export const dealAverageTimeSpentInEachStage = async (
     defaultValue: [],
   });
 
-  const stageDurations: Record<string, number[]> = {};
   const logsByDeal: Record<string, any[]> = {};
-
   for (const log of logs) {
     const dealId = log.contentId;
     if (!logsByDeal[dealId]) logsByDeal[dealId] = [];
     logsByDeal[dealId].push(log);
   }
 
-  for (const [, dealLogs] of Object.entries(logsByDeal)) {
-    for (let i = 0; i < dealLogs.length; i++) {
-      const currentLog = dealLogs[i];
-      const nextLog = dealLogs[i + 1];
-      const stageId = currentLog.content?.destinationStageId;
-      if (!stageId) continue;
-
-      const enterTime = new Date(currentLog.createdAt).getTime();
-      const exitTime = nextLog
-        ? new Date(nextLog.createdAt).getTime()
-        : Date.now();
-
-      const hoursSpent = (exitTime - enterTime) / (1000 * 60 * 60);
-      if (!stageDurations[stageId]) stageDurations[stageId] = [];
-      stageDurations[stageId].push(hoursSpent);
-    }
-  }
-
+  const stageDurations = calculateStageDurations(logsByDeal);
   const stageIds = Object.keys(stageDurations);
   const stages = await models.Stages.find({ _id: { $in: stageIds } }).lean();
   const stageMap = new Map(stages.map((s) => [s._id, s.name]));
@@ -616,12 +618,12 @@ export const dealAverageTimeSpentInEachStage = async (
   const labels: string[] = [];
   const averages: number[] = [];
 
-  stageIds.forEach((stageId) => {
+  for (const stageId of stageIds) {
     const durations = stageDurations[stageId];
     const avg = durations.reduce((a, b) => a + b, 0) / durations.length;
     labels.push(stageMap.get(stageId) || stageId);
     averages.push(Math.round(avg * 10) / 10);
-  });
+  }
 
   return {
     labels,
@@ -630,12 +632,15 @@ export const dealAverageTimeSpentInEachStage = async (
 };
 
 /**
- * 12. Closed revenue by month with deal total and closed revenue breakdown
+ * 12. Closed revenue by month with total and closed breakdown
  */
-export const closedRevenueByMonthWithDealTotalAndClosedRevenueBreakdown =
-  async (models: IModels, filters: IDealReportFilter) => {
-    const match = buildFullMatch(filters);
-    match.createdAt = { ...match.createdAt, $type: 'date' };
+export const closedRevenueByMonthWithDealTotalAndClosedRevenueBreakdown = async (
+  models: IModels,
+  _subdomain: string,
+  filters: IDealReportFilter,
+) => {
+  const match = buildFullMatch(filters);
+  match.createdAt = { ...match.createdAt, $type: 'date' };
 
     const stages = await models.Stages.find({
       probability: { $in: PROBABILITY_CLOSED },
@@ -730,6 +735,7 @@ export const dealCountByCustomer = async (
  */
 export const dealCountByOpenProbability = async (
   models: IModels,
+  _subdomain: string,
   filters: IDealReportFilter,
 ) => {
   const match = buildFullMatch(filters);
@@ -769,6 +775,7 @@ export const dealCountByOpenProbability = async (
     datasets: [{ data: result.map((r) => r.count) }],
   };
 };
+
 export const forecastRevenue = async (
   models: IModels,
   _subdomain: string,
@@ -790,24 +797,14 @@ export const forecastRevenue = async (
   const probMap = new Map<string, number>();
 
   for (const deal of deals) {
-    const stage = openStages.find(
-      (s) => s._id.toString() === deal.stageId.toString(),
-    );
-    const probability = stage?.probability
-      ? parseFloat(stage.probability) / 100
-      : 0;
-    const amount = (deal.productsData || []).reduce(
-      (sum, p) => sum + (p.amount || 0),
-      0,
-    );
+    const stage = openStages.find(s => s._id.toString() === deal.stageId.toString());
+    const probability = stage?.probability ? Number.parseFloat(stage.probability) / 100 : 0;
+    const amount = (deal.productsData || []).reduce((sum, p) => sum + (p.amount || 0), 0);
     const forecast = amount * probability;
     totalForecast += forecast;
 
-    // by stage
     const stageId = deal.stageId.toString();
     stageMap.set(stageId, (stageMap.get(stageId) || 0) + forecast);
-
-    // by probability bucket
     const bucket = stage?.probability || '0%';
     probMap.set(bucket, (probMap.get(bucket) || 0) + forecast);
   }
@@ -819,18 +816,11 @@ export const forecastRevenue = async (
 
   const byProbability = Array.from(probMap.entries())
     .map(([bucket, forecast]) => ({ bucket, forecast }))
-    .sort((a, b) => {
-      const aVal =
-        parseFloat(a.bucket) ||
-        (a.bucket === 'Won' ? 100 : a.bucket === 'Lost' ? 0 : 0);
-      const bVal =
-        parseFloat(b.bucket) ||
-        (b.bucket === 'Won' ? 100 : b.bucket === 'Lost' ? 0 : 0);
-      return bVal - aVal;
-    });
+    .sort((a, b) => getProbabilitySortValue(b.bucket) - getProbabilitySortValue(a.bucket));
 
   return { totalForecast, byStage, byProbability };
 };
+
 export {
   buildFullMatch,
   getTrend,
