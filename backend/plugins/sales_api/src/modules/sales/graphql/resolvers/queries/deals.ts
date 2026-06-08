@@ -702,6 +702,7 @@ const fetchDeals = async (
   return { list: deals, pageInfo, totalCount };
 };
 
+// #region Queries
 export const dealQueries: Record<string, Resolver> = {
   /**
    * Deals list

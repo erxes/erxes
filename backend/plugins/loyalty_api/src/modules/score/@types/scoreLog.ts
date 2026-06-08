@@ -6,6 +6,7 @@ export interface IScoreLog {
   ownerType: string;
   ownerId: string;
   ownerIds?: string[];
+  preScore?: number;
   changeScore: number;
   description: string;
   createdBy?: string;
@@ -14,8 +15,6 @@ export interface IScoreLog {
   sourceScoreLogId?: string;
   targetId?: string;
   action?: string;
-  amount?: number;
-  quantity?: number;
 }
 
 export interface IScoreLogDocument
