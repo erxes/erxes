@@ -44,6 +44,7 @@ export const PropertyEdit = () => {
       loading={editPropertyLoading}
       defaultValues={{
         ...fieldDetail,
+        icon: fieldDetail?.icon ?? '123',
         type: fieldType,
         relationType: relationType.join(':'),
       }}
