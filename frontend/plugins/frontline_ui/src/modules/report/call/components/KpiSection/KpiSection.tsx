@@ -30,9 +30,7 @@ export function KpiSection() {
   }
 
   const answerRate =
-    kpi?.serviceLevel != null
-      ? 100 - (kpi.abandonment ?? 0)
-      : null;
+    kpi?.serviceLevel != null ? 100 - (kpi.abandonment ?? 0) : null;
 
   const cards = [
     {
