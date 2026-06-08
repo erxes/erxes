@@ -641,8 +641,8 @@ export const BotMessage = ({
   const htmlContent = botData?.length
     ? botData.map((item: any) => item?.text || item?.content || '').join('')
     : content
-    ? `<p>${content}</p>`
-    : '';
+      ? `<p>${content}</p>`
+      : '';
 
   if (createdAt) {
     return (
@@ -680,8 +680,7 @@ export const BotMessage = ({
                       isSingleMessage && 'rounded-2xl rounded-bl-sm shadow-sm',
                       isFirstMessage && 'rounded-2xl rounded-b-sm shadow-2xs',
                       isMiddleMessage && 'rounded-sm shadow-2xs',
-                      isLastMessage &&
-                        'rounded-2xl rounded-bl-sm shadow-2xs',
+                      isLastMessage && 'rounded-2xl rounded-bl-sm shadow-2xs',
                     )}
                     dangerouslySetInnerHTML={{
                       __html: DOMPurify.sanitize(htmlContent),

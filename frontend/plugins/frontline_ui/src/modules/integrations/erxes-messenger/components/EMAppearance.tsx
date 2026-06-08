@@ -127,7 +127,7 @@ export const EMAppearance = () => {
                       type="single"
                       variant={'outline'}
                       value={field.value}
-                      className='max-w-32'
+                      className="max-w-32"
                       onValueChange={field.onChange}
                     >
                       <ToggleGroup.Item className="flex-auto" value="pill">

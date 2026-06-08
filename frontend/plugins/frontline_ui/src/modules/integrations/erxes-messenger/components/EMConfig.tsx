@@ -176,7 +176,8 @@ export const EMConfig = () => {
                         </Form.Label>
                       </div>
                       <Form.Description>
-                        When enabled, incoming messages will be handled by the selected automation bot.
+                        When enabled, incoming messages will be handled by the
+                        selected automation bot.
                       </Form.Description>
                       <Form.Message />
                     </Form.Item>
@@ -195,7 +196,9 @@ export const EMConfig = () => {
                           />
                         </Form.Control>
                         <Form.Description>
-                          Select the automation that handles messenger bot replies. The automation must have a &quot;Messenger Message&quot; trigger.
+                          Select the automation that handles messenger bot
+                          replies. The automation must have a &quot;Messenger
+                          Message&quot; trigger.
                         </Form.Description>
                         <Form.Message />
                       </Form.Item>
@@ -546,14 +549,20 @@ const SelectMessengerAutomation = ({
     <Popover open={open} onOpenChange={setOpen}>
       <Combobox.Trigger className="w-full">
         <span className={selected ? '' : 'text-muted-foreground'}>
-          {loading ? 'Loading…' : selected ? selected.name : 'Select an automation'}
+          {loading
+            ? 'Loading…'
+            : selected
+              ? selected.name
+              : 'Select an automation'}
         </span>
       </Combobox.Trigger>
       <Combobox.Content>
         <Command>
           <Command.List>
             <Command.Input placeholder="Search automation…" />
-            <Command.Empty>No automations found with a Messenger Message trigger.</Command.Empty>
+            <Command.Empty>
+              No automations found with a Messenger Message trigger.
+            </Command.Empty>
             {automations.map((automation) => (
               <Command.Item
                 key={automation._id}

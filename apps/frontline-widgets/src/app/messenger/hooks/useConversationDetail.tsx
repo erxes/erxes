@@ -31,7 +31,9 @@ export const useConversationDetail = (
 ) => {
   const client = useApolloClient();
   const [isBotTyping, setIsBotTyping] = useState(false);
-  const botTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const botTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const { data, loading, refetch, subscribeToMore } = useQuery<IQueryResponse>(
     GET_CONVERSATION_DETAIL,

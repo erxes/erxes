@@ -9,11 +9,11 @@ export const InboxMessageActionConfig = ({
 
   if (!text) {
     return (
-      <p className="text-xs text-muted-foreground italic">No message configured</p>
+      <p className="text-xs text-muted-foreground italic">
+        No message configured
+      </p>
     );
   }
 
-  return (
-    <p className="line-clamp-3 text-xs text-foreground">{text}</p>
-  );
+  return <p className="line-clamp-3 text-xs text-foreground">{text}</p>;
 };
