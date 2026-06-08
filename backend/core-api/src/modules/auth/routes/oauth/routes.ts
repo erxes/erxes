@@ -34,6 +34,10 @@ import {
 
 export const router: Router = Router();
 
+const getClientSecret = (req: Request): string | undefined =>
+  String(req.body?.client_secret || req.headers['oauth_secret'] || '').trim() ||
+  undefined;
+
 router.post('/oauth/device/code', async (req: Request, res: Response) => {
   try {
     const ip = getClientIp(req);
@@ -42,8 +46,7 @@ router.post('/oauth/device/code', async (req: Request, res: Response) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
     const clientId = String(req.body?.client_id || '').trim();
-    const clientSecret =
-      String(req.headers['oauth_secret'] || '').trim() || undefined;
+    const clientSecret = getClientSecret(req);
 
     const oauthClientApp = await getOAuthClientApp(models, clientId);
     validateClientSecret(oauthClientApp, clientSecret);
@@ -305,8 +308,7 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
   if (grantType === DEVICE_CODE_GRANT) {
     try {
       const clientId = String(req.body?.client_id || '').trim();
-      const clientSecret =
-        String(req.headers['oauth_secret'] || '').trim() || undefined;
+      const clientSecret = getClientSecret(req);
       const deviceCode = String(req.body?.device_code || '').trim();
 
       const oauthClientApp = await getOAuthClientApp(models, clientId);
@@ -393,8 +395,7 @@ router.post('/oauth/token', async (req: Request, res: Response) => {
   if (grantType === 'refresh_token') {
     try {
       const clientId = String(req.body?.client_id || '').trim();
-      const clientSecret =
-        String(req.headers['oauth_secret'] || '').trim() || undefined;
+      const clientSecret = getClientSecret(req);
       const refreshToken = String(req.body?.refresh_token || '').trim();
 
       const oauthClientApp = await getOAuthClientApp(models, clientId);

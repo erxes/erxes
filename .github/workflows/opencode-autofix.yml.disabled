@@ -1,3 +1,6 @@
+# DISABLED: This workflow has been replaced by issue-webhook-dispatcher.yml
+# which sends issues to the erxes-auto-issue-fix webhook listener.
+# Re-enable only if you are NOT using the webhook listener.
 name: OpenCode Auto-Fix
 
 on:

@@ -11,7 +11,7 @@ export const ticketsSegmentConfigs = {
 
   contentTypes: [
     {
-      moduleName: 'ticket',
+      moduleName: 'tickets',
       type: 'tickets',
       description: 'Ticket',
       esIndex: 'tickets',

@@ -225,6 +225,25 @@ export const PAYMENT_KINDS = {
       },
     ],
   },
+  [PaymentKind.TDB]: {
+    name: 'Trade and Development Bank Card',
+    description: 'Connect your Trade and Development Bank E-Commerce account.',
+    active: true,
+    fields: [
+      {
+        key: 'username',
+        label: 'Terminal Username',
+        validation: { type: 'minLength', value: 1 },
+      },
+      {
+        key: 'password',
+        label: 'Terminal Password',
+        type: 'password',
+        validation: { type: 'minLength', value: 1 },
+      },
+      // Optional: apiUrl field could be added if needed, but default is set in backend
+    ],
+  },
   // TODO: Add Khanbank after khanbank plugin is ready
   // [PaymentKind.KAHNBANK]: {
   //   name: 'Khanbank',

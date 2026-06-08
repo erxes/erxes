@@ -406,7 +406,7 @@ const FilterDialogStringView = ({
   );
 };
 
-const FilterPopoverDateView = ({ filterKey }: { filterKey: string }) => {
+const FilterPopoverDateView = ({ filterKey, label }: { filterKey: string; label?: string }) => {
   const { resetFilterState } = useFilterContext();
 
   const [query, setQuery] = useFilterQueryState<string>(filterKey, filterKey);
@@ -415,6 +415,7 @@ const FilterPopoverDateView = ({ filterKey }: { filterKey: string }) => {
     <DateFilterCommand
       focusOnMount
       value={filterKey}
+      label={label}
       selected={query ?? ''}
       onSelect={(value) => {
         setQuery(value);
@@ -428,8 +429,9 @@ const FilterBarDate = React.forwardRef<
   React.ComponentRef<typeof Button>,
   React.ComponentPropsWithoutRef<typeof Button> & {
     filterKey: string;
+    label?: string;
   }
->(({ filterKey, className, ...props }, ref) => {
+>(({ filterKey, label, className, ...props }, ref) => {
   const { sessionKey } = useFilterContext();
   const [query, setQuery] = useFilterQueryState<string>(
     filterKey,
@@ -452,6 +454,7 @@ const FilterBarDate = React.forwardRef<
       <Combobox.Content>
         <DateFilterCommand
           value={filterKey}
+          label={label}
           selected={query ?? ''}
           onSelect={(val) => {
             setQuery(val);

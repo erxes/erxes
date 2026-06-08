@@ -31,3 +31,9 @@ export const CHANGE_SCORE_MUTATION = gql`
     }
   }
 `;
+
+export const LOYALTY_SCORE_REPAIR_OWNER_MUTATION = gql`
+  mutation LoyaltyScoreRepairOwner($ownerId: String!, $ownerType: String!) {
+    loyaltyScoreRepairOwner(ownerId: $ownerId, ownerType: $ownerType)
+  }
+`;

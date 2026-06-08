@@ -19,7 +19,9 @@ export interface IScoreLog {
 }
 
 export interface IScoreLogDocument
-  extends IScoreLog, ICommonDocument, Document {
+  extends IScoreLog,
+    ICommonDocument,
+    Document {
   _id: string;
 }
 
@@ -41,4 +43,23 @@ export interface IScoreLogParams extends ICursorPaginateParams {
   contentType?: string;
   searchValue?: string;
   logsPerOwner?: number;
+}
+
+export interface IRepairOwnerScoreParams {
+  ownerType: string;
+  ownerId: string;
+}
+
+export interface IRepairedOwnerFieldScore {
+  fieldId: string;
+  score: number;
+  campaignIds: string[];
+}
+
+export interface IRepairOwnerScoreResult {
+  ownerType: string;
+  ownerId: string;
+  updatedScore?: number;
+  updatedCustomFieldsData?: Record<string, unknown>;
+  fieldScores: IRepairedOwnerFieldScore[];
 }

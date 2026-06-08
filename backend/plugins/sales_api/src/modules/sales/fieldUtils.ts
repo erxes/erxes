@@ -158,7 +158,7 @@ const generateTagOptions = async (
     module: 'tags',
     action: 'find',
     input: {
-      type: 'sales:deal',
+      query: { type: 'sales:deal' },
     },
     defaultValue: [],
   });

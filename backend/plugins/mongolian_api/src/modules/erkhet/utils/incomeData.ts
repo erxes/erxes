@@ -130,7 +130,7 @@ export const getIncomeData = async (
       method: 'query',
       module: 'departments',
       action: 'find',
-      input: { _id: { $in: departmentIds } },
+      input: { query: { _id: { $in: departmentIds } } },
       defaultValue: [],
     });
 
