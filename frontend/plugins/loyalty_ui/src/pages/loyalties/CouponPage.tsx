@@ -17,7 +17,11 @@ const CouponHeaderActions = () => (
       </Link>
     </Button>
     <Can action="couponExportManage">
-      <Export pluginName="loyalty" moduleName="coupon" collectionName="coupon" />
+      <Export
+        pluginName="loyalty"
+        moduleName="coupon"
+        collectionName="coupon"
+      />
     </Can>
     <CouponAddModal />
   </div>

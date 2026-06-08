@@ -96,7 +96,11 @@ export const permissions: IPermissionConfig = {
           name: ACTIONS.merge,
           description: 'Merge accounts',
         },
-        { title: 'Import accounts', name: 'accountsImportManage', description: 'Import accounts' },
+        {
+          title: 'Import accounts',
+          name: 'accountsImportManage',
+          description: 'Import accounts',
+        },
       ],
     },
 
@@ -125,7 +129,11 @@ export const permissions: IPermissionConfig = {
           name: CATEGORY_ACTIONS.remove,
           description: 'Remove account categories',
         },
-        { title: 'Import account categories', name: 'accountCategoriesImportManage', description: 'Import account categories' },
+        {
+          title: 'Import account categories',
+          name: 'accountCategoriesImportManage',
+          description: 'Import account categories',
+        },
       ],
     },
     {
@@ -157,7 +165,11 @@ export const permissions: IPermissionConfig = {
           name: TRANSACTION_ACTIONS.link,
           description: 'Link transactions',
         },
-        { title: 'Import transactions', name: 'transactionsImportManage', description: 'Import transactions' },
+        {
+          title: 'Import transactions',
+          name: 'transactionsImportManage',
+          description: 'Import transactions',
+        },
       ],
     },
     {
