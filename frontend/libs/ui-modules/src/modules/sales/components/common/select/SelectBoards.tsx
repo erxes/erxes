@@ -19,6 +19,7 @@ import { BoardsInline } from '../BoardsInline';
 import { IBoard } from 'ui-modules/modules/sales/types';
 import { IconLabel } from '@tabler/icons-react';
 import { useBoards } from 'ui-modules/modules/sales/hooks/useBoards';
+import { useDebounce } from 'use-debounce';
 
 export const SelectBoardProvider = ({
   children,
@@ -104,12 +105,14 @@ const SelectBoardCommandItem = ({ board }: { board: IBoard }) => {
 
 const SelectBoardContent = () => {
   const [search, setSearch] = React.useState('');
+  const [debouncedSearch] = useDebounce(search, 500);
   const { boards: selectedBoards } = useSelectBoardsContext();
 
-  const { boards = [], loading } = useBoards();
-  const filteredBoards = boards.filter((board) =>
-    board.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const { boards = [], loading } = useBoards({
+    variables: {
+      searchValue: debouncedSearch,
+    },
+  });
 
   return (
     <Command shouldFilter={false} id="board-command-menu">
@@ -131,7 +134,7 @@ const SelectBoardContent = () => {
             <Command.Separator className="my-1" />
           </>
         )}
-        {filteredBoards
+        {boards
           .filter((board) => !selectedBoards.some((b) => b._id === board._id))
           .map((board) => (
             <SelectBoardCommandItem key={board._id} board={board} />
