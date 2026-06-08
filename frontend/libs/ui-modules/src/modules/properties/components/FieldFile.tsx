@@ -1,210 +1,171 @@
-import { Button, Spinner, useUpload, toast, Dialog } from 'erxes-ui';
-import { REACT_APP_API_URL } from 'erxes-ui/utils';
-import { IconPaperclip, IconTrash, IconDownload } from '@tabler/icons-react';
-import { useRef, useState, useEffect } from 'react';
+import {
+  IconFile,
+  IconPaperclip,
+  IconTrash,
+} from '@tabler/icons-react';
+import {
+  Button,
+  Dialog,
+  IAttachment,
+  Spinner,
+  readImage,
+  useErxesUpload,
+  useRemoveFile,
+} from 'erxes-ui';
+import { useEffect, useState } from 'react';
 import { SpecificFieldProps } from './Field';
 
-export const FieldFile = (props: SpecificFieldProps) => {
-  const { value, handleChange, loading } = props;
-  const [currentValue, setCurrentValue] = useState(value || null);
+const MAX_SIZE = 20 * 1024 * 1024;
+
+const isImage = (file: IAttachment) => file.type?.startsWith('image/');
+
+const parseFiles = (value: unknown): IAttachment[] =>
+  (Array.isArray(value) ? value : []).filter((file) => file?.url);
+
+const FileRow = ({
+  file,
+  removing,
+  onRemove,
+}: {
+  file: IAttachment;
+  removing: boolean;
+  onRemove: () => void;
+}) => {
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewLoading, setPreviewLoading] = useState(false);
-  const { upload, remove, isLoading } = useUpload();
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    setCurrentValue(value || null);
-  }, [value]);
-
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    if (files[0].size > 20 * 1024 * 1024) {
-      toast({
-        description: 'File size must be less than 20MB',
-        variant: 'destructive',
-      });
-      if (inputRef.current) inputRef.current.value = '';
-      return;
-    }
-
-    upload({
-      files,
-      afterUpload: ({ status, response, fileInfo }) => {
-        if (status === 'ok') {
-          const newValue = {
-            url: response,
-            name: fileInfo.name,
-            type: fileInfo.type,
-            size: fileInfo.size,
-          };
-          setCurrentValue(newValue);
-          handleChange(newValue);
-        } else {
-          if (inputRef.current) inputRef.current.value = '';
-        }
-      },
-    });
-  };
-
-  const handleRemove = () => {
-    if (currentValue?.url) {
-      remove({
-        fileName: currentValue.url,
-        afterRemove: ({ status }) => {
-          if (status === 'ok') {
-            setCurrentValue(null);
-            handleChange(null);
-            if (inputRef.current) inputRef.current.value = '';
-          } else {
-            toast({
-              description: 'Failed to delete file',
-              variant: 'destructive',
-            });
-          }
-        },
-      });
-    } else {
-      setCurrentValue(null);
-      handleChange(null);
-      if (inputRef.current) inputRef.current.value = '';
-    }
-  };
 
   return (
-    <>
-      <label
-        htmlFor="property-file-input"
-        className="flex h-8 w-full items-center rounded-sm bg-background px-3 shadow-xs text-sm cursor-pointer border border-input"
-        onClick={(e) => {
-          if (currentValue?.url || isLoading || loading) e.preventDefault();
-        }}
-      >
-        <input
-          id="property-file-input"
-          ref={inputRef}
-          type="file"
-          className="hidden"
-          onChange={handleUpload}
-        />
-        {currentValue?.url ? (
-          <>
-            <button
-              className="flex items-center gap-1 text-foreground hover:underline flex-1 truncate text-sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                setPreviewLoading(true);
-                setPreviewOpen(true);
-              }}
-            >
-              <IconPaperclip className="size-4 shrink-0" />
-              <span className="truncate">{currentValue.name || 'File'}</span>
-            </button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-5 ml-1 shrink-0"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRemove();
-              }}
-              disabled={loading || isLoading}
-            >
-              {isLoading ? (
-                <Spinner size="sm" />
-              ) : (
-                <IconTrash className="size-3" />
-              )}
-            </Button>
-          </>
-        ) : (
-          <span className="flex items-center gap-1 text-accent-foreground/70 hover:text-foreground transition-colors flex-1">
-            {isLoading ? (
-              <Spinner size="sm" />
-            ) : (
-              <>
-                <IconPaperclip className="size-4" /> Upload file
-              </>
-            )}
-          </span>
-        )}
-      </label>
+    <li className="group flex items-center gap-2 bg-background shadow-xs px-1 border rounded-sm w-full h-8 text-foreground text-sm">
+      {isImage(file) ? (
+        <>
+          <button
+            type="button"
+            onClick={() => setPreviewOpen(true)}
+            className="flex flex-1 items-center gap-2 text-left hover:underline truncate"
+            title={file.name}
+          >
+            <img
+              src={readImage(file.url)}
+              alt={file.name}
+              loading="lazy"
+              className="border rounded size-6 object-cover shrink-0"
+            />
+            <span className="truncate">{file.name}</span>
+          </button>
 
-      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <Dialog.Content className="max-w-3xl">
-          <Dialog.Header>
-            <div className="flex items-center justify-between">
-              <Dialog.Title>{currentValue?.name || 'File'}</Dialog.Title>
-              <a
-                href={`${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(currentValue?.url || '')}`}
-                download={currentValue?.name || 'file'}
-              >
-                <Button variant="ghost" size="icon">
-                  <IconDownload className="size-4" />
-                </Button>
-              </a>
-            </div>
-          </Dialog.Header>
-          {currentValue?.type?.startsWith('image/') ? (
-            <div className="relative min-h-40 flex items-center justify-center">
-              {previewLoading && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Spinner />
-                </div>
-              )}
+          <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+            <Dialog.Content className="bg-transparent shadow-none p-0 border-0 max-w-fit">
+              <Dialog.Title className="sr-only">{file.name}</Dialog.Title>
               <img
-                src={`${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(currentValue.url)}&inline=true`}
-                alt={currentValue.name}
-                className="w-full rounded object-contain max-h-[70vh]"
-                onLoadStart={() => setPreviewLoading(true)}
-                onLoad={() => setPreviewLoading(false)}
-                onError={() => {
-                  setPreviewLoading(false);
-                  toast({
-                    description: 'Failed to load preview',
-                    variant: 'destructive',
-                  });
-                }}
+                src={readImage(file.url)}
+                alt={file.name}
+                className="shadow-2xl rounded max-w-[90vw] max-h-[85vh] object-contain"
               />
-            </div>
-          ) : currentValue?.type === 'application/pdf' ? (
-            <div className="relative min-h-40">
-              {previewLoading && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Spinner />
-                </div>
-              )}
-              <iframe
-                src={`${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(currentValue.url)}&inline=true`}
-                className="w-full h-[70vh] rounded"
-                onLoad={() => setPreviewLoading(false)}
-                onError={() => {
-                  setPreviewLoading(false);
-                  toast({
-                    description: 'Failed to load preview',
-                    variant: 'destructive',
-                  });
-                }}
-              />
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-4 py-8">
-              <IconPaperclip className="size-12 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">
-                {currentValue?.name}
-              </p>
-              <a
-                href={`${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(currentValue?.url || '')}&inline=true`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <Button variant="outline">Open file</Button>
-              </a>
-            </div>
-          )}
-        </Dialog.Content>
-      </Dialog>
-    </>
+            </Dialog.Content>
+          </Dialog>
+        </>
+      ) : (
+        <a
+          href={readImage(file.url, undefined, true)}
+          target="_blank"
+          rel="noreferrer"
+          className="flex flex-1 items-center gap-2 hover:underline truncate"
+          title={file.name}
+        >
+          <span className="flex justify-center items-center bg-muted border rounded size-6 shrink-0">
+            <IconFile size={12} className="text-muted-foreground" />
+          </span>
+          <span className="flex-1 truncate">{file.name}</span>
+        </a>
+      )}
+
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        disabled={removing}
+        onClick={onRemove}
+        aria-label={`Remove ${file.name}`}
+        className="opacity-0 group-hover:opacity-100 size-6"
+      >
+        <IconTrash size={14} />
+      </Button>
+    </li>
+  );
+};
+
+export const FieldFile = ({
+  value,
+  inCell,
+  handleChange,
+}: SpecificFieldProps) => {
+  const files = parseFiles(value);
+
+  const { removeFile, isLoading: removing } = useRemoveFile();
+
+  const uploadProps = useErxesUpload({
+    maxFiles: 20,
+    maxFileSize: MAX_SIZE,
+    onFilesAdded: (added) => handleChange([...files, ...added]),
+  });
+
+  useEffect(() => {
+    if (uploadProps.files.length > 0 && !uploadProps.loading) {
+      void uploadProps.onUpload();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uploadProps.files.length]);
+
+  const handleRemove = (file: IAttachment) =>
+    removeFile(file.name, (status) => {
+      if (status === 'ok') {
+        handleChange(files.filter((f) => f.url !== file.url));
+      }
+    });
+
+  if (inCell) {
+    return files.length === 0 ? (
+      <span className="px-2 text-muted-foreground select-none">—</span>
+    ) : (
+      <div className="flex items-center gap-1 px-2 text-muted-foreground text-xs">
+        <IconFile size={14} />
+        {files.length}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      {files.length > 0 && (
+        <ul className="flex flex-col gap-2">
+          {files.map((file) => (
+            <FileRow
+              key={file.url}
+              file={file}
+              removing={removing}
+              onRemove={() => handleRemove(file)}
+            />
+          ))}
+        </ul>
+      )}
+
+      <Button
+        type="button"
+        variant="outline"
+        disabled={uploadProps.loading}
+        onClick={uploadProps.open}
+        className="justify-start w-full h-8 font-normal text-muted-foreground"
+      >
+        {uploadProps.loading ? <Spinner /> : <IconPaperclip size={16} />}
+        {uploadProps.loading ? '' : 'Upload'}
+      </Button>
+
+      {!!uploadProps.errors.length && (
+        <p className="text-destructive text-xs">
+          {uploadProps.errors[0]?.message || 'Upload failed'}
+        </p>
+      )}
+
+      <input {...uploadProps.getInputProps()} />
+    </div>
   );
 };

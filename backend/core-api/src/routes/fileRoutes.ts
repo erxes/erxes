@@ -1,3 +1,4 @@
+import { sanitizeEcommerceData } from './../../../../.claude/worktrees/peaceful-lichterman-debf9e/backend/plugins/sales_api/src/modules/ecommerce/utils';
 import {
   getEnv,
   getSubdomain,
@@ -125,6 +126,7 @@ router.get(
 
       if (inline && inline === 'true') {
         const extension = (sanitizedKey.split('.').pop() || '').toLowerCase();
+
         const mimeTypes: Record<string, string> = {
           jpg: 'image/jpeg',
           jpeg: 'image/jpeg',
@@ -136,15 +138,12 @@ router.get(
           mp4: 'video/mp4',
           webm: 'video/webm',
         };
+
         const contentType = mimeTypes[extension] || `application/${extension}`;
 
-        const safeFilename = sanitizeFilename(
-          (typeof name === 'string' && name) || sanitizedKey,
-        );
-        res.setHeader(
-          'Content-Disposition',
-          `inline; filename="${safeFilename}"`,
-        );
+        const sanitizedFileName = sanitizeFilename(name || sanitizedKey);
+
+        res.setHeader('Content-Disposition', `inline; filename="${sanitizedFileName}"`);
         res.setHeader('Content-Type', contentType);
 
         return res.send(response);
