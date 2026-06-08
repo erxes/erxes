@@ -9,7 +9,7 @@ export const channelQueries = {
 
   getMyChannels: async (
     _parent: undefined,
-    _params: undefined,
+    { name }: { name?: string },
     { models, user }: IContext,
   ) => {
     if (!user?._id) throw new Error('Unauthorized');
@@ -18,7 +18,8 @@ export const channelQueries = {
       memberId: userId,
     }).distinct('channelId');
 
-    return models.Channels.find({ _id: { $in: channelIds } });
+    const nameFilter = name ? { name: { $regex: name, $options: 'i' } } : {};
+    return models.Channels.find({ _id: { $in: channelIds }, ...nameFilter });
   },
 
   getChannels: async (
