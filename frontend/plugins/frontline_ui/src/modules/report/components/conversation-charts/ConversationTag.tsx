@@ -9,6 +9,7 @@ import {
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { useConversationTags } from '@/report/hooks/useConversationTags';
 import { SelectChartType } from '../select-chart-type/SelectChartType';
+import { ChartExportButton } from '../chart-export/ChartExportButton';
 import { ColumnDef } from '@tanstack/table-core';
 import { getFilters } from '@/report/utils/dateFilters';
 import {
@@ -45,6 +46,10 @@ import {
 } from '@/report/states';
 import { ReportFilter } from '../filter-popover/report-filter';
 import { AreaGradient } from '../chart/AreaGradient';
+import {
+  useChartPagination,
+  ChartPagination,
+} from '../chart-pagination/ChartPagination';
 
 interface ConversationTagProps {
   title: string;
@@ -96,6 +101,41 @@ export const ConversationTag = ({
     },
   });
 
+  const allTags = useMemo(() => conversationTags || [], [conversationTags]);
+  const {
+    pagedData: pagedTags,
+    page,
+    totalPages,
+    totalCount,
+    handlePrev,
+    handleNext,
+  } = useChartPagination(allTags);
+
+  const tagExportColumns = useMemo(
+    () => [
+      { key: 'name' as const, header: 'Tag' },
+      { key: 'count' as const, header: 'Count' },
+      {
+        key: 'percentage' as const,
+        header: 'Percentage',
+        format: (v: number) => `${v}%`,
+      },
+    ],
+    [],
+  );
+
+  const filterEl = (
+    <>
+      <ReportFilter cardId={id} />
+      <SelectChartType value={chartType} onValueChange={setChartType} />
+      <ChartExportButton
+        data={allTags}
+        columns={tagExportColumns}
+        filename="conversation-tag"
+      />
+    </>
+  );
+
   if (loading) {
     return (
       <FrontlineCard
@@ -105,14 +145,7 @@ export const ConversationTag = ({
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
-        <FrontlineCard.Header
-          filter={
-            <>
-              <ReportFilter cardId={id} />
-              <SelectChartType value={chartType} onValueChange={setChartType} />
-            </>
-          }
-        />
+        <FrontlineCard.Header filter={filterEl} />
         <FrontlineCard.Content>
           <FrontlineCard.Skeleton />
         </FrontlineCard.Content>
@@ -166,14 +199,7 @@ export const ConversationTag = ({
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
-      <FrontlineCard.Header
-        filter={
-          <>
-            <ReportFilter cardId={id} />
-            <SelectChartType value={chartType} onValueChange={setChartType} />
-          </>
-        }
-      />
+      <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
         <div
           className={cn(
@@ -184,21 +210,28 @@ export const ConversationTag = ({
           )}
         >
           {chartType === ResponsesChartType.Bar && (
-            <TagBarChart conversationTags={conversationTags} />
+            <TagBarChart conversationTags={pagedTags} />
           )}
           {chartType === ResponsesChartType.Line && (
-            <TagLineChart conversationTags={conversationTags} />
+            <TagLineChart conversationTags={pagedTags} />
           )}
           {chartType === ResponsesChartType.Pie && (
-            <TagPieChart conversationTags={conversationTags} />
+            <TagPieChart conversationTags={pagedTags} />
           )}
           {chartType === ResponsesChartType.Radar && (
-            <TagRadarChart conversationTags={conversationTags} />
+            <TagRadarChart conversationTags={pagedTags} />
           )}
           {chartType === ResponsesChartType.Table && (
-            <TagRecordTableChart conversationTags={conversationTags} />
+            <TagRecordTableChart conversationTags={pagedTags} />
           )}
         </div>
+        <ChartPagination
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
       </FrontlineCard.Content>
     </FrontlineCard>
   );

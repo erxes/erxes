@@ -139,8 +139,6 @@ const updateScoreInput = z.object({
   createdBy: z.string().optional(),
   serviceName: z.string().optional(),
   targetId: z.string().optional(),
-  amount: z.number().optional(),
-  quantity: z.number().optional(),
 });
 
 const doScoreCampaignInput = z
@@ -193,6 +191,7 @@ const voucherCampaignsInput = z
   })
   .optional();
 
+// #region Router
 // ============================================================================
 // tRPC router
 // ============================================================================
