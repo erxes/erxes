@@ -12,11 +12,19 @@ const commonHistoryParams = `
   searchSend: String,
   searchResponse: String,
   searchError: String,
+  limit: Int,
+  cursor: String,
+  cursorMode: CURSOR_MODE,
+  direction: CURSOR_DIRECTION,
+  orderBy: JSON,
+  sortMode: String,
+  aggregationPipeline: [JSON],
 `;
 
 export const types = `
   type SyncMsdHistory {
     _id: String
+    type: String
     contentType: String
     contentId: String
     createdAt: Date
@@ -30,6 +38,14 @@ export const types = `
     sendSales: [String]
     responseSales: [String]
     error: String
+    content: String
+    createdUser: JSON
+  }
+
+  type SyncMsdHistoryListResponse {
+    list: [SyncMsdHistory]
+    pageInfo: PageInfo
+    totalCount: Int
   }
 
   type MsdCustomerRelation {
@@ -53,7 +69,7 @@ export const types = `
 `;
 
 export const queries = `
-  syncMsdHistories(${commonHistoryParams}): [SyncMsdHistory]
+  syncMsdHistories(${commonHistoryParams}): SyncMsdHistoryListResponse
   syncMsdHistoriesCount(${commonHistoryParams}): Int
   msdProductsRemainder(
     brandId: String,

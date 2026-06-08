@@ -12,6 +12,13 @@ const commonHistoryParams = `
   $searchSend: String,
   $searchResponse: String,
   $searchError: String,
+  $limit: Int,
+  $cursor: String,
+  $cursorMode: CURSOR_MODE,
+  $direction: CURSOR_DIRECTION,
+  $orderBy: JSON,
+  $sortMode: String,
+  $aggregationPipeline: [JSON],
 `;
 
 const commonHistoryParamDefs = `
@@ -28,6 +35,13 @@ const commonHistoryParamDefs = `
   searchSend: $searchSend,
   searchResponse: $searchResponse,
   searchError: $searchError,
+  limit: $limit,
+  cursor: $cursor,
+  cursorMode: $cursorMode,
+  direction: $direction,
+  orderBy: $orderBy,
+  sortMode: $sortMode,
+  aggregationPipeline: $aggregationPipeline,
 `;
 
 const commonOrderParams = `
@@ -69,24 +83,32 @@ const syncMsdHistories = `
     syncMsdHistories (
       ${commonHistoryParamDefs}
     ) {
-      _id
-      type
-      contentType
-      contentId
-      createdAt
-      createdBy
-      consumeData
-      consumeStr
-      sendData
-      sendStr
-      responseData
-      responseStr
-      sendSales
-      responseSales
-      error
-
-      content
-      createdUser
+      list {
+        _id
+        type
+        contentType
+        contentId
+        createdAt
+        createdBy
+        consumeData
+        consumeStr
+        sendData
+        sendStr
+        responseData
+        responseStr
+        sendSales
+        responseSales
+        error
+        content
+        createdUser
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      totalCount
     }
   }
 `;

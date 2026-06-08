@@ -18,7 +18,7 @@ export const GeneralSettings = () => {
           <Button variant="outline" asChild>
             <Link to="/mongolian/msdynamic">
               <IconExternalLink />
-              Go to MCDynamic
+              Go to MSDynamic
             </Link>
           </Button>
           <AddMSDynamicConfig />
