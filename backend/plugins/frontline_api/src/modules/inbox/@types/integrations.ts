@@ -84,6 +84,7 @@ export interface IMessengerData {
   botShowInitialMessage?: boolean;
   botCheck?: boolean;
   botGreetMessage?: string;
+  automationId?: string;
   persistentMenus?: BotPersistentMenuTypeMessenger[];
   getStarted?: boolean;
   skillData?: {

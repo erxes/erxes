@@ -9,7 +9,7 @@ import { EMGREETING_SCHEMA } from '@/integrations/erxes-messenger/constants/emGr
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SelectMember } from 'ui-modules';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   erxesMessengerSetupGreetingAtom,
   erxesMessengerSetupStepAtom,
@@ -17,9 +17,10 @@ import {
 import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/components/EMFormValueEffect';
 
 export const EMGreeting = () => {
+  const atomValue = useAtomValue(erxesMessengerSetupGreetingAtom);
   const form = useForm<z.infer<typeof EMGREETING_SCHEMA>>({
     resolver: zodResolver(EMGREETING_SCHEMA),
-    defaultValues: {
+    defaultValues: atomValue ?? {
       title: '',
       message: '',
     },

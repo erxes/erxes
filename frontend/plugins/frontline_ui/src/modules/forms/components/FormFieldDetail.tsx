@@ -293,7 +293,7 @@ export const FormFieldDetail = ({
               </div>
             )}
 
-            {fieldData?.type === 'select' && (
+            {(fieldData?.type === 'select' || fieldData?.type === 'select:countries') && (
               <div className="space-y-2 col-span-2 flex gap-2 items-center">
                 <Label htmlFor="allowSearch" className="flex items-center m-0!">
                   Allow search
@@ -322,6 +322,7 @@ export const FormFieldDetail = ({
               </div>
             )}
             {(fieldData?.type === 'select' ||
+              fieldData?.type === 'select:countries' ||
               fieldData?.type === 'radio' ||
               fieldData?.type === 'check' ||
               fieldData?.type === 'core:customer:sex') && (

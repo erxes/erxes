@@ -3,11 +3,13 @@ import {
   erxesMessengerSetupConfigAtom,
   erxesMessengerSetupGreetingAtom,
   erxesMessengerSetupHoursAtom,
+  erxesMessengerSetupIntroAtom,
   erxesMessengerSetupSettingsAtom,
   erxesMessengerSetupStepAtom,
 } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import {
   Avatar,
+  Badge,
   Button,
   cn,
   Empty,
@@ -163,6 +165,7 @@ export const EMPreviewIntro = () => {
   const config = useAtomValue(erxesMessengerSetupConfigAtom);
   const appearance = useAtomValue(erxesMessengerSetupAppearanceAtom);
   const settings = useAtomValue(erxesMessengerSetupSettingsAtom);
+  const intro = useAtomValue(erxesMessengerSetupIntroAtom);
   const setActiveTab = useSetAtom(emPreviewTabAtom);
   const setWebsiteAppUrl = useSetAtom(emPreviewWebsiteAppUrl);
   const setWebsiteAppHeaderTitle = useSetAtom(emPreviewWebsiteAppHeaderTitle);
@@ -256,11 +259,20 @@ export const EMPreviewIntro = () => {
         </div>
         <div className="mt-11">
           <h1 className="text-primary-foreground/60 text-[28px] leading-none font-light">
-            Hello there.
+            {greeting?.title ?? 'Hello there.'}
           </h1>
           <h2 className="text-primary-foreground text-[30px] leading-none">
-            How can we help?
+            {greeting?.message ?? 'How can we help?'}
           </h2>
+          {intro?.welcome && (
+            <Badge className="mt-3" variant="success">
+              <div
+                className="size-1.5 bg-success rounded-full"
+                aria-label="badge-dot"
+              />
+              {intro?.welcome}
+            </Badge>
+          )}
         </div>
       </div>
 
@@ -298,11 +310,9 @@ export const EMPreviewIntro = () => {
           <div className="flex flex-col gap-4 w-full p-4 rounded-2xl shadow-xs bg-background">
             <div className="gap-2 flex flex-col">
               <div className="font-semibold text-foreground text-base">
-                {greeting?.title || 'Need help?'}
+                Need help?
               </div>
               <div className="text-muted-foreground font-normal text-xs">
-                {greeting?.message || 'Get help using erxes.'}
-                {'. '}
                 We're available between{' '}
                 <b className="text-foreground">{availabilityText}</b>
                 {hours?.availabilityMethod !== 'manual' && scheduleDays && (
@@ -398,7 +408,7 @@ export const EMPreviewIntro = () => {
               />
             </div>
           )}
-          {settings?.websiteApps && (
+          {settings?.websiteApps && settings?.websiteApps?.length > 0 && (
             <div className="flex flex-col gap-4 my-2">
               <span className="font-mono uppercase ps-2 text-muted-foreground font-semibold text-sm">
                 Web apps
