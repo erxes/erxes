@@ -1,4 +1,3 @@
-
 export interface IRate {
   sellRate: number;
   number: string;
