@@ -1,5 +1,6 @@
 export interface Posts {
   _id: string;
+  count?: number;
   title: string;
   slug?: string;
   content?: string;

@@ -204,7 +204,7 @@ export const getConfigPostData = async (
       pluginName: 'core',
       module: 'departments',
       action: 'find',
-      input: { _id: { $in: departmentIds } },
+      input: { query: { _id: { $in: departmentIds } } },
       defaultValue: [],
     });
     for (const department of departments) {

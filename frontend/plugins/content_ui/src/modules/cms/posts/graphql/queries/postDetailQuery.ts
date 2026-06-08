@@ -5,6 +5,7 @@ export const POST_DETAIL = gql`
     cmsPost(_id: $id) {
       _id
       title
+      count
       slug
       content
       status
