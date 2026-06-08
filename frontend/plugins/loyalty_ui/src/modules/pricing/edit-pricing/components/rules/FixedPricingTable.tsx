@@ -1,4 +1,4 @@
-import { useFieldArray, Control, useWatch } from 'react-hook-form';
+import { useFieldArray, Control } from 'react-hook-form';
 import {
   Table,
   Checkbox,
@@ -10,6 +10,7 @@ import {
   InputNumber,
 } from 'erxes-ui';
 import { useRef, useEffect } from 'react';
+import { IPricingPlanDetail } from '@/pricing/types';
 import { GET_PRODUCTS_BY_IDS } from '~/modules/pricing/graphql/queries';
 import { useQuery } from '@apollo/client';
 
@@ -22,50 +23,59 @@ interface IProductRow {
 export const FixedPricingTable = ({
   control,
   pricingId,
-  productIds,
+  pricingDetail,
+  savedFixedValues,
   onSave,
 }: {
   control: Control<any>;
   pricingId?: string;
-  productIds: string[];
+  pricingDetail?: IPricingPlanDetail;
+  savedFixedValues: any[];
   onSave: () => void;
 }) => {
   const { fields, replace } = useFieldArray({ control, name: 'fixedValues' });
   const tableRef = useRef<HTMLTableElement>(null);
 
   const { data, loading } = useQuery(GET_PRODUCTS_BY_IDS, {
-    variables: { ids: productIds },
-    skip: !productIds.length,
+    variables: {
+      ids:
+        pricingDetail?.applyType === 'product'
+          ? pricingDetail?.products || []
+          : undefined,
+      categoryIds:
+        pricingDetail?.applyType === 'category'
+          ? pricingDetail?.categories || []
+          : undefined,
+      limit: 100,
+    },
+    skip: !pricingDetail,
+    fetchPolicy: 'cache-and-network',
   });
-  const products: IProductRow[] = data?.productsMain?.list || [];
 
-  const currentFixedValues = useWatch({
-    control,
-    name: 'fixedValues',
-  }) as any[];
+  const products: IProductRow[] = data?.productsMain?.list || [];
 
   useEffect(() => {
     if (!products.length) return;
 
     const rows = products.map((product) => {
-      const existing = currentFixedValues?.find(
+      const existing = savedFixedValues?.find(
         (fv: any) => fv.productId === product._id,
       );
       return {
         _id: existing?._id ?? undefined,
         productId: product._id,
-        uom: product.uom || '',
-        unitPrice: product.unitPrice || 0,
+        uom: product.uom || existing?.uom || '',
+        unitPrice: product.unitPrice ?? existing?.unitPrice ?? 0,
         newPrice: existing?.newPrice ?? product.unitPrice ?? 0,
       };
     });
 
     replace(rows);
-  }, [products]);
+  }, [products.length, savedFixedValues.length]);
 
   if (loading) return <div>Loading products...</div>;
-  if (!productIds.length) return <div>No products selected on this plan.</div>;
-
+  if (!products.length && !loading)
+    return <div>No products selected on this plan.</div>;
   return (
     <RecordTableHotkeyProvider
       columnLength={1}
@@ -83,16 +93,22 @@ export const FixedPricingTable = ({
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {fields.map((field, index) => (
-            <FixedPricingRow
-              key={field.id}
-              rowId={field.id}
-              index={index}
-              control={control}
-              product={products[index]}
-              onSave={onSave}
-            />
-          ))}
+          {fields.map((field, index) => {
+            const product = products.find(
+              (p) => p._id === (field as any).productId,
+            );
+            if (!product) return null;
+            return (
+              <FixedPricingRow
+                key={field.id}
+                rowId={field.id}
+                index={index}
+                control={control}
+                product={product}
+                onSave={onSave}
+              />
+            );
+          })}
         </Table.Body>
       </Table>
     </RecordTableHotkeyProvider>

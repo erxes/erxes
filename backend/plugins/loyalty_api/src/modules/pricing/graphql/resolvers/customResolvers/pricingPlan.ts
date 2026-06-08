@@ -106,7 +106,6 @@ const PricingPlan = {
               categoryId: { $in: plansCategoryIds },
               _id: { $nin: plan.productsExcluded },
             },
-            field: { _id: 1 },
           },
           defaultValue: [],
         });
@@ -133,10 +132,8 @@ const PricingPlan = {
           action: 'find',
           input: {
             query: {
-              tagIds: { $in: plansTagIds },
-              _id: { $nin: plan.productsExcluded },
+              vendorId: { $in: plan.vendors || [] },
             },
-            field: { _id: 1 },
           },
           defaultValue: [],
         });

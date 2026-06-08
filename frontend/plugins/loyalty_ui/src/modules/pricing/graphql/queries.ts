@@ -207,12 +207,11 @@ export const productCategories = gql`
 `;
 
 export const GET_PRODUCTS_BY_IDS = gql`
-  query AssignedProducts($ids: [String]) {
-    productsMain(ids: $ids) {
+  query AssignedProducts($ids: [String], $categoryIds: [String], $limit: Int) {
+    productsMain(ids: $ids, categoryIds: $categoryIds, limit: $limit) {
       list {
         _id
         name
-        code
         uom
         unitPrice
       }

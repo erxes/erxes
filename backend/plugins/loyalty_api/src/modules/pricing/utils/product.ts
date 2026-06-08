@@ -34,7 +34,7 @@ export const getChildCategories = async (
   });
 
   const catIds = (childs || []).map((ch) => ch._id);
-  return Array.from(new Set(catIds));
+  return Array.from(new Set([...categoryIds, ...catIds]));
 };
 
 export const getChildTags = async (

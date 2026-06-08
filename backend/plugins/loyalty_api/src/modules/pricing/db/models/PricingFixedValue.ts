@@ -27,11 +27,15 @@ export const loadPricingFixedValueClass = (models: IModels) => {
       doc: IPricingFixedValue,
       userId: string,
     ) {
-      return models.PricingFixedValues.create({
-        ...doc,
-        createdBy: userId,
-        updatedBy: userId,
-      });
+      const result = await models.PricingFixedValues.findOneAndUpdate(
+        { pricingPlanId: doc.pricingPlanId, productId: doc.productId },
+        {
+          $set: { ...doc, updatedBy: userId },
+          $setOnInsert: { createdBy: userId },
+        },
+        { upsert: true, new: true },
+      );
+      return result;
     }
 
     public static async updateFixedValue(

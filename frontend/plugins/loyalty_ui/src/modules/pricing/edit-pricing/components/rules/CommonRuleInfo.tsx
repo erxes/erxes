@@ -1,7 +1,7 @@
 import { useEffect, type ReactNode } from 'react';
 import { Button, Form, InfoCard, Input, Select, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
-import { useMutation } from '@apollo/client';
+import { useMutation, useApolloClient } from '@apollo/client';
 import { SelectProduct } from 'ui-modules';
 import {
   DISCOUNT_TYPES,
@@ -40,13 +40,9 @@ export const CommonRuleInfo = ({
 }: CommonRuleInfoProps) => {
   const { editPricing, loading } = useEditPricing();
   const { toast } = useToast();
-  const [addFixedValue] = useMutation(PRICING_FIXED_VALUE_ADD, {
-    refetchQueries: ['PricingPlanDetail'],
-  });
-  const [editFixedValue] = useMutation(PRICING_FIXED_VALUE_EDIT, {
-    refetchQueries: ['PricingPlanDetail'],
-  });
-
+  const client = useApolloClient();
+  const [addFixedValue] = useMutation(PRICING_FIXED_VALUE_ADD);
+  const [editFixedValue] = useMutation(PRICING_FIXED_VALUE_EDIT);
   const form = useForm<CommonRuleFormValues>({
     defaultValues: {
       discountType: 'fixed',
@@ -73,7 +69,7 @@ export const CommonRuleInfo = ({
         (pricingDetail.priceAdjustType as PriceAdjustType) || 'none',
       priceAdjustFactor: pricingDetail.priceAdjustFactor ?? 0,
       bonusProductId: pricingDetail.bonusProduct || null,
-      fixedValues: pricingDetail.fixedValues || [],
+      fixedValues: form.getValues('fixedValues'),
     });
   }, [form, pricingDetail]);
 
@@ -81,7 +77,6 @@ export const CommonRuleInfo = ({
     if (!pricingId) {
       return;
     }
-
     try {
       await editPricing({
         _id: pricingId,
@@ -97,22 +92,28 @@ export const CommonRuleInfo = ({
 
       if (values.discountType === 'fixed') {
         await Promise.all(
-          values.fixedValues.map((fv) => {
-            const doc = {
-              productId: fv.productId,
-              uom: fv.uom,
-              unitPrice: fv.unitPrice,
-              newPrice: fv.newPrice,
-            };
-            if (fv._id) {
-              return editFixedValue({ variables: { id: fv._id, doc } });
-            }
-            return addFixedValue({ variables: { pricingPlanId: pricingId, doc } });
-          }),
+          values.fixedValues
+            .filter((fv) => fv.newPrice !== fv.unitPrice)
+            .map((fv) => {
+              const doc = {
+                productId: fv.productId,
+                uom: fv.uom,
+                unitPrice: fv.unitPrice,
+                newPrice: fv.newPrice,
+              };
+              if (fv._id) {
+                return editFixedValue({ variables: { id: fv._id, doc } });
+              }
+              return addFixedValue({
+                variables: { pricingPlanId: pricingId, doc },
+              });
+            }),
         );
       }
 
+      await client.refetchQueries({ include: ['PricingPlanDetail'] });
       form.reset(values);
+
       toast({
         title: 'Common rule updated',
         description: 'Changes have been saved successfully.',
@@ -272,7 +273,8 @@ export const CommonRuleInfo = ({
           <FixedPricingTable
             control={form.control}
             pricingId={pricingId}
-            productIds={pricingDetail?.products || []}
+            pricingDetail={pricingDetail}
+            savedFixedValues={pricingDetail?.fixedValues || []}
             onSave={form.handleSubmit(handleSubmit)}
           />
         )}
