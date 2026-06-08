@@ -124,10 +124,28 @@ router.get(
       });
 
       if (inline && inline === 'true') {
-        const extension = sanitizedKey.split('.').pop();
+        const extension = (sanitizedKey.split('.').pop() || '').toLowerCase();
+        const mimeTypes: Record<string, string> = {
+          jpg: 'image/jpeg',
+          jpeg: 'image/jpeg',
+          png: 'image/png',
+          gif: 'image/gif',
+          webp: 'image/webp',
+          svg: 'image/svg+xml',
+          pdf: 'application/pdf',
+          mp4: 'video/mp4',
+          webm: 'video/webm',
+        };
+        const contentType = mimeTypes[extension] || `application/${extension}`;
 
-        res.setHeader('Content-disposition', 'inline; filename="' + key + '"');
-        res.setHeader('Content-type', `application/${extension}`);
+        const safeFilename = sanitizeFilename(
+          (typeof name === 'string' && name) || sanitizedKey,
+        );
+        res.setHeader(
+          'Content-Disposition',
+          `inline; filename="${safeFilename}"`,
+        );
+        res.setHeader('Content-Type', contentType);
 
         return res.send(response);
       }
