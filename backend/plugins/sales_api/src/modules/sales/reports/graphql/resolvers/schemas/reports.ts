@@ -87,6 +87,17 @@ export const types = `
     position: Int
   }
 
+  type ExportResult {
+  success: Boolean!
+  content: String
+  filename: String
+  error: String
+}
+
+extend type Query {
+  exportDealReport(chartType: String!, filters: JSON, format: String): ExportResult
+}
+
   extend type Mutation {
     saveWidget(widget: SavedWidgetInput!): SavedWidget
     updateWidget(_id: String!, widget: SavedWidgetInput!): SavedWidget
