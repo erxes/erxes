@@ -1,5 +1,6 @@
 import { ChooseChannel } from '@/inbox/channel/components/ChooseChannel';
 import { ChooseBrand } from '@/inbox/brand/components/ChooseBrand';
+import { CreateBrand } from '@/inbox/brand/components/CreateBrand';
 import { ChooseIntegrationTypeContent } from '@/integrations/components/ChooseIntegrationType';
 import { CreateChannel } from '@/channels/components/settings/channels-list/CreateChannel';
 import { NavigationMenuGroup } from 'erxes-ui';
@@ -48,7 +49,7 @@ export const FrontlineSubGroups = () => {
       <NavigationMenuGroup name="Integration types">
         <ChooseIntegrationTypeContent />
       </NavigationMenuGroup>
-      <NavigationMenuGroup name="Brands">
+      <NavigationMenuGroup name="Brands" actions={<CreateBrand />}>
         <ChooseBrand />
       </NavigationMenuGroup>
     </>
