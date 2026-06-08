@@ -69,6 +69,20 @@ export const dealMutations: Record<string, Resolver> = {
     return changeDeal(subdomain, models, user._id, { ...doc });
   },
 
+  async cpDealsChange(
+    _root,
+    doc: {
+      processId: string;
+      itemId: string;
+      aboveItemId?: string;
+      destinationStageId: string;
+      sourceStageId: string;
+    },
+    { user, models, subdomain }: IContext,
+  ) {
+    return changeDeal(subdomain, models, user._id, { ...doc });
+  },
+
   /**
    * Remove deal
    */
@@ -484,6 +498,9 @@ export const dealMutations: Record<string, Resolver> = {
 dealMutations.cpDealsEdit.wrapperConfig= {
   forClientPortal : true ,
 }
+dealMutations.cpDealsChange.wrapperConfig = {
+  forClientPortal: true,
+};
 dealMutations.cpDealsCreateProductsData.wrapperConfig = {
   forClientPortal: true,
 };
