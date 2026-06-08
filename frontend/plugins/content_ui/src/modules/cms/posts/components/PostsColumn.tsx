@@ -15,29 +15,80 @@ import {
   IconTag,
   IconFolder,
   IconHash,
+  IconUser,
+  IconEye,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { postMoreColumn } from './PostMoreColumn';
 import { PostsRecordTableStatusInlineCell } from './PostsRecordTableStatusInlineCell';
+import { PostPublicUrlButton } from './PostPublicUrlButton';
 import { useIsTranslationMissing } from '../../shared/hooks/useIsTranslationMissing';
+import type { Posts } from '../types/postsType';
+import type { IWebsite } from '../../types';
+
+const getPostAuthorName = (post: Posts) => {
+  const details = post.author?.details;
+  const nameFromDetails = [
+    details?.firstName,
+    details?.middleName,
+    details?.lastName,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  return (
+    details?.fullName ||
+    details?.shortName ||
+    nameFromDetails ||
+    post.author?.username ||
+    post.author?.email ||
+    post.authorId ||
+    ''
+  );
+};
+
+const PublicPostLinkCell = ({
+  post,
+  cmsConfig,
+}: {
+  post: Posts;
+  cmsConfig?: IWebsite;
+}) => {
+  return (
+    <RecordTableInlineCell>
+      <span className="inline-flex h-full w-full items-center justify-center">
+        <PostPublicUrlButton post={post} cmsConfig={cmsConfig} iconOnly />
+      </span>
+    </RecordTableInlineCell>
+  );
+};
 
 export const usePostsColumns = (
-  onEditPost?: (post: any) => void,
+  onEditPost?: (post: Posts) => void,
   onRefetch?: () => void,
-): ColumnDef<any>[] => {
+  cmsConfig?: IWebsite,
+): ColumnDef<Posts>[] => {
   const navigate = useNavigate();
   const { isMissing } = useIsTranslationMissing();
 
   return [
+    {
+      id: 'openPublicUrl',
+      header: () => <span className="sr-only">Open on site</span>,
+      cell: ({ row }) => (
+        <PublicPostLinkCell post={row.original} cmsConfig={cmsConfig} />
+      ),
+      size: 40,
+    },
     postMoreColumn(onEditPost, undefined, onRefetch),
-    RecordTable.checkboxColumn as ColumnDef<any>,
+    RecordTable.checkboxColumn as ColumnDef<Posts>,
     {
       id: 'title',
       header: () => (
         <RecordTable.InlineHead label="Post Name" icon={IconFile} />
       ),
       accessorKey: 'title',
-      cell: ({ cell, row }) => {
+      cell: ({ row }) => {
         const post = row.original;
         const missing = isMissing(post.translations);
         return (
@@ -55,7 +106,7 @@ export const usePostsColumns = (
                 variant={missing ? 'outline' : 'secondary'}
                 className={missing ? 'text-red-500 border-red-300' : ''}
               >
-                <TextOverflowTooltip value={post.title || post.name} />
+                <TextOverflowTooltip value={post.title} />
               </Badge>
             </div>
           </RecordTableInlineCell>
@@ -83,7 +134,9 @@ export const usePostsColumns = (
           <RecordTableInlineCell>
             <TextOverflowTooltip
               value={
-                row.original.categories?.map((c: any) => c.name).join(', ') ||
+                row.original.categories
+                  ?.map((category) => category.name)
+                  .join(', ') ||
                 ''
               }
             />
@@ -100,14 +153,35 @@ export const usePostsColumns = (
           <RecordTableInlineCell>
             <TextOverflowTooltip
               value={
-                row.original.tags?.map((c: any) => c.name).join(', ') || ''
+                row.original.tags?.map((tag) => tag.name).join(', ') || ''
               }
             />
           </RecordTableInlineCell>
         );
       },
     },
-
+    {
+      id: 'author',
+      accessorFn: (post) => getPostAuthorName(post),
+      header: () => <RecordTable.InlineHead icon={IconUser} label="Author" />,
+      cell: ({ row }) => (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={getPostAuthorName(row.original)} />
+        </RecordTableInlineCell>
+      ),
+      size: 180,
+    },
+    {
+      id: 'views',
+      accessorKey: 'viewCount',
+      header: () => <RecordTable.InlineHead icon={IconEye} label="Views" />,
+      cell: ({ row }) => (
+        <RecordTableInlineCell className="text-muted-foreground">
+          {row.original.viewCount ?? 0}
+        </RecordTableInlineCell>
+      ),
+      size: 100,
+    },
     {
       id: 'type',
       accessorKey: 'type',
@@ -134,7 +208,7 @@ export const usePostsColumns = (
           />
         </div>
       ),
-      accessorFn: (row: any) =>
+      accessorFn: (row) =>
         row.scheduledDate || row.publishedDate || row.createdAt,
       cell: ({ row }) => {
         const date =

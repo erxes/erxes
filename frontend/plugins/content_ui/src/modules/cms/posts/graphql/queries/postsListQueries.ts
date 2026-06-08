@@ -53,6 +53,7 @@ export const POSTS_LIST = gql`
       }
       posts {
         _id
+        count
         type
         customPostType {
           _id
@@ -65,6 +66,23 @@ export const POSTS_LIST = gql`
         }
         authorKind
         authorId
+        author {
+          ... on User {
+            username
+            email
+            details {
+              fullName
+              shortName
+              avatar
+              firstName
+              lastName
+              middleName
+              __typename
+            }
+            __typename
+          }
+          __typename
+        }
 
         clientPortalId
         title
@@ -79,6 +97,7 @@ export const POSTS_LIST = gql`
         scheduledDate
         publishedDate
         autoArchiveDate
+        viewCount
         reactions
         reactionCounts
         videoUrl

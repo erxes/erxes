@@ -13,4 +13,5 @@ export interface IWebsite {
   languages?: string[];
   language?: string;
   postUrlField?: '_id' | 'count' | 'slug';
+  postUrlPrefix?: string;
 }

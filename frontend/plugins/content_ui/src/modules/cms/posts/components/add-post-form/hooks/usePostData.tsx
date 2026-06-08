@@ -4,6 +4,7 @@ import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
 import { CMS_CUSTOM_FIELD_GROUPS } from '../../../../custom-fields/graphql/queries';
 import { CONTENT_CMS_LIST } from '../../../../graphql/queries';
 import type { FieldGroup } from '../CustomFieldsSection';
+import type { IWebsite } from '~/modules/cms/types';
 
 export type PostUrlField = '_id' | 'count' | 'slug';
 
@@ -60,13 +61,6 @@ interface ICustomType {
   description?: string;
 }
 
-interface CmsConfig {
-  clientPortalId?: string;
-  languages?: string[];
-  language?: string;
-  postUrlField?: string;
-}
-
 interface CmsFieldGroup extends FieldGroup {
   customPostTypeIds?: string[];
   enabledPostIds?: string[];
@@ -83,7 +77,7 @@ interface CombinedCmsData {
 }
 
 interface CmsListData {
-  contentCMSList?: CmsConfig[];
+  contentCMSList?: IWebsite[];
 }
 
 interface CustomFieldGroupsData {
@@ -170,7 +164,7 @@ export const usePostData = (
   const customTypes = combinedData?.cmsCustomPostTypes || [];
 
   const cmsConfig = cmsData?.contentCMSList?.find(
-    (cms: CmsConfig) => cms.clientPortalId === websiteId,
+    (cms) => cms.clientPortalId === websiteId,
   );
 
   const availableLanguages = cmsConfig?.languages || [];
@@ -203,6 +197,7 @@ export const usePostData = (
     availableLanguages,
     defaultLanguage,
     postUrlField,
+    cmsConfig,
     fieldGroups,
     loading: combinedLoading,
   };

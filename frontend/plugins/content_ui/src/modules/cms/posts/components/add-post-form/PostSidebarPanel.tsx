@@ -10,6 +10,7 @@ import type {
   SelectOption,
 } from './ContentTab';
 import { MediaSection } from './MediaSection';
+import type { IWebsite } from '~/modules/cms/types';
 
 interface PostSidebarPanelProps {
   form: UseFormReturn<FieldValues>;
@@ -23,6 +24,7 @@ interface PostSidebarPanelProps {
   languageOptions: LanguageOption[];
   postUrlField: PostUrlField;
   fullPost: PostUrlSource | null | undefined;
+  cmsConfig?: IWebsite;
   handleLanguageChange: (lang: string) => void;
 }
 
@@ -38,6 +40,7 @@ export const PostSidebarPanel = ({
   languageOptions,
   postUrlField,
   fullPost,
+  cmsConfig,
   handleLanguageChange,
 }: PostSidebarPanelProps) => {
   const [activeTab, setActiveTab] = useState<'content' | 'media'>('content');
@@ -75,6 +78,7 @@ export const PostSidebarPanel = ({
             languageOptions={languageOptions}
             postUrlField={postUrlField}
             fullPost={fullPost}
+            cmsConfig={cmsConfig}
             handleLanguageChange={handleLanguageChange}
           />
         )}

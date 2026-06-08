@@ -3,6 +3,8 @@ import type { FieldValues, UseFormReturn } from 'react-hook-form';
 import { CategoryField } from './CategoryField';
 import { TagField } from './TagField';
 import { LanguageSelector } from '~/modules/cms/shared/LanguageSelector';
+import { PostPublicUrlButton } from '../PostPublicUrlButton';
+import type { IWebsite } from '~/modules/cms/types';
 
 export type PostUrlField = '_id' | 'count' | 'slug';
 
@@ -64,6 +66,7 @@ interface ContentTabProps {
   languageOptions: LanguageOption[];
   postUrlField: PostUrlField;
   fullPost: PostUrlSource | null | undefined;
+  cmsConfig?: IWebsite;
   handleLanguageChange: (lang: string) => void;
 }
 
@@ -79,6 +82,7 @@ export const ContentTab = ({
   languageOptions,
   postUrlField,
   fullPost,
+  cmsConfig,
   handleLanguageChange,
 }: ContentTabProps) => {
   const isTranslationMode =
@@ -138,7 +142,20 @@ export const ContentTab = ({
             <Form.Item>
               <Form.Label>{POST_URL_FIELD_LABELS.slug}</Form.Label>
               <Form.Control>
-                <Input {...field} placeholder="optional-post-url-slug" />
+                <div className="flex items-center gap-2">
+                  <Input
+                    {...field}
+                    className="flex-1"
+                    placeholder="optional-post-url-slug"
+                  />
+                  {fullPost && (
+                    <PostPublicUrlButton
+                      post={fullPost}
+                      cmsConfig={cmsConfig}
+                      iconOnly
+                    />
+                  )}
+                </div>
               </Form.Control>
               <Form.Description>
                 Leave empty to generate from the post title.
@@ -153,11 +170,24 @@ export const ContentTab = ({
         <Form.Item>
           <Form.Label>{POST_URL_FIELD_LABELS[generatedPostUrlField]}</Form.Label>
           <Form.Control>
-            <Input
-              value={getGeneratedPostUrlValue(generatedPostUrlField, fullPost)}
-              placeholder="Generated after save"
-              readOnly
-            />
+            <div className="flex items-center gap-2">
+              <Input
+                value={getGeneratedPostUrlValue(
+                  generatedPostUrlField,
+                  fullPost,
+                )}
+                className="flex-1"
+                placeholder="Generated after save"
+                readOnly
+              />
+              {fullPost && (
+                <PostPublicUrlButton
+                  post={fullPost}
+                  cmsConfig={cmsConfig}
+                  iconOnly
+                />
+              )}
+            </div>
           </Form.Control>
           <Form.Description>
             {POST_URL_FIELD_DESCRIPTIONS[generatedPostUrlField]}
