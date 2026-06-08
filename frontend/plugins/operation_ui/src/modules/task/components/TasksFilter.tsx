@@ -152,7 +152,7 @@ const TasksFilterPopover = () => {
                 )}
                 {(!teamId ||
                   (teamId &&
-                    team?.estimateType &&
+                    !!team?.estimateType &&
                     String(team.estimateType) !==
                       TeamEstimateTypes.NOT_IN_USE)) && (
                   <Filter.Item value="estimatePoint">
@@ -239,7 +239,7 @@ const TasksFilterPopover = () => {
           )}
           {(!teamId ||
             (teamId &&
-              team?.estimateType &&
+              !!team?.estimateType &&
               String(team.estimateType) !== TeamEstimateTypes.NOT_IN_USE)) && (
             <SelectEstimatedPoint.FilterView />
           )}
@@ -413,7 +413,7 @@ export const TasksFilter = () => {
         )}
         {(!teamId ||
           (teamId &&
-            team?.estimateType &&
+            !!team?.estimateType &&
             String(team.estimateType) !== TeamEstimateTypes.NOT_IN_USE)) &&
           estimatePoint && (
             <Filter.BarItem queryKey="estimatePoint">
