@@ -45,6 +45,11 @@ import { getFilters } from '@/report/utils/dateFilters';
 import { CustomLegendContent } from '../chart/legend';
 import { type LegendPayload } from 'recharts';
 import { ReportFilter } from '../filter-popover/report-filter';
+import { ChartExportButton } from '../chart-export/ChartExportButton';
+import {
+  useChartPagination,
+  ChartPagination,
+} from '../chart-pagination/ChartPagination';
 
 interface ConversationSourceProps {
   title: string;
@@ -96,6 +101,38 @@ export const ConversationSource = ({
     },
   });
 
+  const allSources = useMemo(
+    () => conversationSources || [],
+    [conversationSources],
+  );
+  const { pagedData: pagedSources, page, totalPages, totalCount, handlePrev, handleNext } =
+    useChartPagination(allSources);
+
+  const sourceExportColumns = useMemo(
+    () => [
+      { key: 'name' as const, header: 'Source' },
+      { key: 'count' as const, header: 'Count' },
+      {
+        key: 'percentage' as const,
+        header: 'Percentage',
+        format: (v: number) => `${v}%`,
+      },
+    ],
+    [],
+  );
+
+  const filterEl = (
+    <>
+      <ReportFilter cardId={id} />
+      <SelectChartType onValueChange={setChartType} value={chartType} />
+      <ChartExportButton
+        data={allSources}
+        columns={sourceExportColumns}
+        filename="conversation-source"
+      />
+    </>
+  );
+
   if (loading) {
     return (
       <FrontlineCard
@@ -105,14 +142,7 @@ export const ConversationSource = ({
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
-        <FrontlineCard.Header
-          filter={
-            <>
-              <ReportFilter cardId={id} />
-              <SelectChartType onValueChange={setChartType} value={chartType} />
-            </>
-          }
-        />
+        <FrontlineCard.Header filter={filterEl} />
         <FrontlineCard.Content>
           <FrontlineCard.Skeleton />
         </FrontlineCard.Content>
@@ -166,14 +196,7 @@ export const ConversationSource = ({
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
-      <FrontlineCard.Header
-        filter={
-          <>
-            <ReportFilter cardId={id} />
-            <SelectChartType onValueChange={setChartType} value={chartType} />
-          </>
-        }
-      />
+      <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
         <div
           className={cn(
@@ -184,21 +207,28 @@ export const ConversationSource = ({
           )}
         >
           {chartType === ResponsesChartType.Bar && (
-            <SourceBarChart conversationSources={conversationSources || []} />
+            <SourceBarChart conversationSources={pagedSources} />
           )}
           {chartType === ResponsesChartType.Line && (
-            <SourceLineChart conversationSources={conversationSources} />
+            <SourceLineChart conversationSources={pagedSources} />
           )}
           {chartType === ResponsesChartType.Pie && (
-            <SourcePieChart conversationSources={conversationSources} />
+            <SourcePieChart conversationSources={pagedSources} />
           )}
           {chartType === ResponsesChartType.Radar && (
-            <SourceRadarChart conversationSources={conversationSources} />
+            <SourceRadarChart conversationSources={pagedSources} />
           )}
           {chartType === ResponsesChartType.Table && (
-            <SourceRecordTableChart conversationSources={conversationSources} />
+            <SourceRecordTableChart conversationSources={pagedSources} />
           )}
         </div>
+        <ChartPagination
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
       </FrontlineCard.Content>
     </FrontlineCard>
   );
