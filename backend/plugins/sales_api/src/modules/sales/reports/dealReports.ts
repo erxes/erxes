@@ -1,5 +1,5 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
-import dayjs from 'dayjs';                           
+import dayjs from 'dayjs';
 import { buildDateFilter, buildDateGroup, getRelatedIds } from './reportUtils';
 import { IModels } from '../../../connectionResolvers';
 import { PROBABILITY_CLOSED, PROBABILITY_OPEN } from './reportConfig';
@@ -9,37 +9,57 @@ const buildFullMatch = (filters: IDealReportFilter): Record<string, any> => {
   const dateField = filters.dateRangeType || 'createdAt';
   const match: Record<string, any> = buildDateFilter(filters, dateField);
 
-  if (filters.pipelineIds?.length) match.pipelineId = { $in: filters.pipelineIds };
+  if (filters.pipelineIds?.length)
+    match.pipelineId = { $in: filters.pipelineIds };
   if (filters.stageIds?.length) match.stageId = { $in: filters.stageIds };
   if (filters.boardId) match.boardId = filters.boardId;
   if (filters.userIds?.length) match.userId = { $in: filters.userIds };
-  if (filters.assignedUserIds?.length) match.assignedUserIds = { $in: filters.assignedUserIds };
+  if (filters.assignedUserIds?.length)
+    match.assignedUserIds = { $in: filters.assignedUserIds };
   if (filters.tagIds?.length) match.tagIds = { $in: filters.tagIds };
   if (filters.labelIds?.length) match.labelIds = { $in: filters.labelIds };
-  if (filters.companyIds?.length) match.companyIds = { $in: filters.companyIds };
-  if (filters.productIds?.length) match.productIds = { $in: filters.productIds };
+  if (filters.companyIds?.length)
+    match.companyIds = { $in: filters.companyIds };
+  if (filters.productIds?.length)
+    match.productIds = { $in: filters.productIds };
   if (filters.priority) match.priority = filters.priority;
   if (filters.status) match.status = filters.status;
   if (filters.branchIds?.length) match.branchId = { $in: filters.branchIds };
-  if (filters.departmentIds?.length) match.departmentId = { $in: filters.departmentIds };
+  if (filters.departmentIds?.length)
+    match.departmentId = { $in: filters.departmentIds };
 
   return match;
 };
 
-const getPreviousPeriodFilters = (filters: IDealReportFilter): IDealReportFilter => {
+const getPreviousPeriodFilters = (
+  filters: IDealReportFilter,
+): IDealReportFilter => {
   const prevFilters = { ...filters };
   if (filters.fromDate && filters.toDate) {
     const duration = dayjs(filters.toDate).diff(dayjs(filters.fromDate), 'day');
-    prevFilters.fromDate = dayjs(filters.fromDate).subtract(duration, 'day').format('YYYY-MM-DD');
-    prevFilters.toDate = dayjs(filters.toDate).subtract(duration, 'day').format('YYYY-MM-DD');
+    prevFilters.fromDate = dayjs(filters.fromDate)
+      .subtract(duration, 'day')
+      .format('YYYY-MM-DD');
+    prevFilters.toDate = dayjs(filters.toDate)
+      .subtract(duration, 'day')
+      .format('YYYY-MM-DD');
     prevFilters.dateRange = undefined;
   } else if (filters.dateRange && filters.dateRange !== 'all') {
     switch (filters.dateRange) {
-      case 'today': prevFilters.dateRange = 'yesterday'; break;
-      case 'thisWeek': prevFilters.dateRange = 'lastWeek'; break;
-      case 'thisMonth': prevFilters.dateRange = 'lastMonth'; break;
-      case 'thisYear': prevFilters.dateRange = 'lastYear'; break;
-      default: prevFilters.dateRange = filters.dateRange;
+      case 'today':
+        prevFilters.dateRange = 'yesterday';
+        break;
+      case 'thisWeek':
+        prevFilters.dateRange = 'lastWeek';
+        break;
+      case 'thisMonth':
+        prevFilters.dateRange = 'lastMonth';
+        break;
+      case 'thisYear':
+        prevFilters.dateRange = 'lastYear';
+        break;
+      default:
+        prevFilters.dateRange = filters.dateRange;
     }
   }
   return prevFilters;
@@ -49,61 +69,111 @@ const getTrend = async (
   models: IModels,
   subdomain: string,
   filters: IDealReportFilter,
-  metricFn: (models: IModels, subdomain: string, filters: IDealReportFilter) => Promise<number>
+  metricFn: (
+    models: IModels,
+    subdomain: string,
+    filters: IDealReportFilter,
+  ) => Promise<number>,
 ): Promise<{ current: number; previous: number; percentChange: number }> => {
   const current = await metricFn(models, subdomain, filters);
   const prevFilters = getPreviousPeriodFilters(filters);
   const previous = await metricFn(models, subdomain, prevFilters);
-  const percentChange = previous === 0 ? 0 : ((current - previous) / previous) * 100;
-  return { current, previous, percentChange: Math.round(percentChange * 10) / 10 };
+  const percentChange =
+    previous === 0 ? 0 : ((current - previous) / previous) * 100;
+  return {
+    current,
+    previous,
+    percentChange: Math.round(percentChange * 10) / 10,
+  };
 };
 
-const getTotalDealsCount = async (models: IModels, _subdomain: string, filters: IDealReportFilter): Promise<number> => {
+const getTotalDealsCount = async (
+  models: IModels,
+  _subdomain: string,
+  filters: IDealReportFilter,
+): Promise<number> => {
   const match = buildFullMatch(filters);
   return await models.Deals.countDocuments(match);
 };
 
-const getWonDealsCount = async (models: IModels, _subdomain: string, filters: IDealReportFilter): Promise<number> => {
+const getWonDealsCount = async (
+  models: IModels,
+  _subdomain: string,
+  filters: IDealReportFilter,
+): Promise<number> => {
   const match = buildFullMatch(filters);
-  const stages = await models.Stages.find({ probability: 'Won', type: 'deal' }).lean();
-  match.stageId = { $in: stages.map(s => s._id) };
+  const stages = await models.Stages.find({
+    probability: 'Won',
+    type: 'deal',
+  }).lean();
+  match.stageId = { $in: stages.map((s) => s._id) };
   return await models.Deals.countDocuments(match);
 };
 
-const getLostDealsCount = async (models: IModels, _subdomain: string, filters: IDealReportFilter): Promise<number> => {
+const getLostDealsCount = async (
+  models: IModels,
+  _subdomain: string,
+  filters: IDealReportFilter,
+): Promise<number> => {
   const match = buildFullMatch(filters);
-  const stages = await models.Stages.find({ probability: 'Lost', type: 'deal' }).lean();
-  match.stageId = { $in: stages.map(s => s._id) };
+  const stages = await models.Stages.find({
+    probability: 'Lost',
+    type: 'deal',
+  }).lean();
+  match.stageId = { $in: stages.map((s) => s._id) };
   return await models.Deals.countDocuments(match);
 };
 
-const getConversionRate = async (models: IModels, subdomain: string, filters: IDealReportFilter): Promise<number> => {
+const getConversionRate = async (
+  models: IModels,
+  subdomain: string,
+  filters: IDealReportFilter,
+): Promise<number> => {
   const won = await getWonDealsCount(models, subdomain, filters);
   const lost = await getLostDealsCount(models, subdomain, filters);
   const total = won + lost;
   return total === 0 ? 0 : (won / total) * 100;
 };
 
-const getExpectedRevenue = async (models: IModels, _subdomain: string, filters: IDealReportFilter): Promise<number> => {
+const getExpectedRevenue = async (
+  models: IModels,
+  _subdomain: string,
+  filters: IDealReportFilter,
+): Promise<number> => {
   const match = buildFullMatch(filters);
-  const openStages = await models.Stages.find({ probability: { $nin: ['Won', 'Lost'] }, type: 'deal' }).lean();
-  match.stageId = { $in: openStages.map(s => s._id) };
-  const deals = await models.Deals.find(match, { productsData: 1, stageId: 1 }).lean();
+  const openStages = await models.Stages.find({
+    probability: { $nin: ['Won', 'Lost'] },
+    type: 'deal',
+  }).lean();
+  match.stageId = { $in: openStages.map((s) => s._id) };
+  const deals = await models.Deals.find(match, {
+    productsData: 1,
+    stageId: 1,
+  }).lean();
   let total = 0;
   for (const deal of deals) {
-    const stage = openStages.find(s => s._id.toString() === deal.stageId.toString());
-    const probability = stage?.probability ? parseFloat(stage.probability) / 100 : 0;
-    const amount = (deal.productsData || []).reduce((sum, p) => sum + (p.amount || 0), 0);
+    const stage = openStages.find(
+      (s) => s._id.toString() === deal.stageId.toString(),
+    );
+    const probability = stage?.probability
+      ? parseFloat(stage.probability) / 100
+      : 0;
+    const amount = (deal.productsData || []).reduce(
+      (sum, p) => sum + (p.amount || 0),
+      0,
+    );
     total += amount * probability;
   }
   return total;
 };
 
-
 /**
  * 1. Total count of deals (optionally filtered by date)
  */
-export const dealsTotalCount = async (models: IModels, filters: IDealReportFilter) => {
+export const dealsTotalCount = async (
+  models: IModels,
+  filters: IDealReportFilter,
+) => {
   const match = buildFullMatch(filters);
   const count = await models.Deals.countDocuments(match);
   return { labels: ['Total'], datasets: [{ data: [count] }] };
@@ -130,7 +200,7 @@ export const dealCountByTag = async (
   if (!result.length) {
     return { labels: [], datasets: [{ data: [] }] };
   }
-  const tagIds = result.map(r => r._id);
+  const tagIds = result.map((r) => r._id);
   const tags = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
@@ -141,8 +211,8 @@ export const dealCountByTag = async (
   });
   const tagMap = new Map(tags.map((t: any) => [t._id, t.name]));
   return {
-    labels: tagIds.map(id => tagMap.get(id) || id),
-    datasets: [{ data: result.map(r => r.count) }],
+    labels: tagIds.map((id) => tagMap.get(id) || id),
+    datasets: [{ data: result.map((r) => r.count) }],
   };
 };
 
@@ -167,7 +237,7 @@ export const dealCountByLabel = async (
   if (!result.length) {
     return { labels: [], datasets: [{ data: [] }] };
   }
-  const labelIds = result.map(r => r._id);
+  const labelIds = result.map((r) => r._id);
   const labels = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
@@ -178,8 +248,8 @@ export const dealCountByLabel = async (
   });
   const labelMap = new Map(labels.map((l: any) => [l._id, l.name]));
   return {
-    labels: labelIds.map(id => labelMap.get(id) || id),
-    datasets: [{ data: result.map(r => r.count) }],
+    labels: labelIds.map((id) => labelMap.get(id) || id),
+    datasets: [{ data: result.map((r) => r.count) }],
   };
 };
 
@@ -235,8 +305,8 @@ export const dealCountByCustomProperties = async (
 
   const result = await models.Deals.aggregate(pipeline);
   return {
-    labels: result.map(r => r._id),
-    datasets: [{ data: result.map(r => r.count) }],
+    labels: result.map((r) => r._id),
+    datasets: [{ data: result.map((r) => r.count) }],
   };
 };
 
@@ -267,7 +337,7 @@ export const dealAverageAmountByRep = async (
   if (!result.length) {
     return { labels: [], datasets: [{ data: [] }] };
   }
-  const userIds = result.map(r => r._id);
+  const userIds = result.map((r) => r._id);
   const users = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
@@ -280,8 +350,8 @@ export const dealAverageAmountByRep = async (
     users.map((u: any) => [u._id, u.details?.fullName || u.email]),
   );
   return {
-    labels: userIds.map(id => userMap.get(id) || id),
-    datasets: [{ data: result.map(r => r.averageAmount) }],
+    labels: userIds.map((id) => userMap.get(id) || id),
+    datasets: [{ data: result.map((r) => r.averageAmount) }],
   };
 };
 
@@ -298,7 +368,7 @@ export const dealLeaderBoardAmountClosedByRep = async (
     probability: { $in: PROBABILITY_CLOSED },
     type: 'deal',
   }).lean();
-  const closedStageIds = stages.map(s => s._id);
+  const closedStageIds = stages.map((s) => s._id);
   match.stageId = { $in: closedStageIds };
   match['productsData.tickUsed'] = true;
   const pipeline: any[] = [
@@ -318,7 +388,7 @@ export const dealLeaderBoardAmountClosedByRep = async (
   if (!result.length) {
     return { labels: [], datasets: [{ data: [] }] };
   }
-  const userIds = result.map(r => r._id);
+  const userIds = result.map((r) => r._id);
   const users = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
@@ -331,8 +401,8 @@ export const dealLeaderBoardAmountClosedByRep = async (
     users.map((u: any) => [u._id, u.details?.fullName || u.email]),
   );
   return {
-    labels: userIds.map(id => userMap.get(id) || id),
-    datasets: [{ data: result.map(r => r.totalAmount) }],
+    labels: userIds.map((id) => userMap.get(id) || id),
+    datasets: [{ data: result.map((r) => r.totalAmount) }],
   };
 };
 
@@ -349,7 +419,7 @@ export const dealsClosedLostByRep = async (
     probability: 'Lost',
     type: 'deal',
   }).lean();
-  match.stageId = { $in: stages.map(s => s._id) };
+  match.stageId = { $in: stages.map((s) => s._id) };
   const pipeline: any[] = [
     { $match: match },
     { $unwind: '$assignedUserIds' },
@@ -360,7 +430,7 @@ export const dealsClosedLostByRep = async (
   if (!result.length) {
     return { labels: [], datasets: [{ data: [] }] };
   }
-  const userIds = result.map(r => r._id);
+  const userIds = result.map((r) => r._id);
   const users = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
@@ -373,8 +443,8 @@ export const dealsClosedLostByRep = async (
     users.map((u: any) => [u._id, u.details?.fullName || u.email]),
   );
   return {
-    labels: userIds.map(id => userMap.get(id) || id),
-    datasets: [{ data: result.map(r => r.count) }],
+    labels: userIds.map((id) => userMap.get(id) || id),
+    datasets: [{ data: result.map((r) => r.count) }],
   };
 };
 
@@ -391,7 +461,7 @@ export const dealsClosedWonByRep = async (
     probability: 'Won',
     type: 'deal',
   }).lean();
-  match.stageId = { $in: stages.map(s => s._id) };
+  match.stageId = { $in: stages.map((s) => s._id) };
   const pipeline: any[] = [
     { $match: match },
     { $unwind: '$assignedUserIds' },
@@ -402,7 +472,7 @@ export const dealsClosedWonByRep = async (
   if (!result.length) {
     return { labels: [], datasets: [{ data: [] }] };
   }
-  const userIds = result.map(r => r._id);
+  const userIds = result.map((r) => r._id);
   const users = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
@@ -415,8 +485,8 @@ export const dealsClosedWonByRep = async (
     users.map((u: any) => [u._id, u.details?.fullName || u.email]),
   );
   return {
-    labels: userIds.map(id => userMap.get(id) || id),
-    datasets: [{ data: result.map(r => r.count) }],
+    labels: userIds.map((id) => userMap.get(id) || id),
+    datasets: [{ data: result.map((r) => r.count) }],
   };
 };
 
@@ -452,8 +522,8 @@ export const dealRevenueByStage = async (
   ];
   const result = await models.Deals.aggregate(pipeline);
   return {
-    labels: result.map(r => r._id),
-    datasets: [{ data: result.map(r => r.totalAmount) }],
+    labels: result.map((r) => r._id),
+    datasets: [{ data: result.map((r) => r.totalAmount) }],
   };
 };
 
@@ -475,8 +545,8 @@ export const dealsTotalCountByDueDate = async (
   const pipeline: any[] = [{ $match: match }, ...group];
   const result = await models.Deals.aggregate(pipeline);
   return {
-    labels: result.map(r => r._id),
-    datasets: [{ data: result.map(r => r.count) }],
+    labels: result.map((r) => r._id),
+    datasets: [{ data: result.map((r) => r.count) }],
   };
 };
 
@@ -490,7 +560,7 @@ export const dealAverageTimeSpentInEachStage = async (
 ) => {
   const match = buildFullMatch(filters);
   const deals = await models.Deals.find(match, { _id: 1, stageId: 1 }).lean();
-  const dealIds = deals.map(d => d._id);
+  const dealIds = deals.map((d) => d._id);
 
   if (!dealIds.length) {
     return { labels: [], datasets: [{ data: [] }] };
@@ -529,7 +599,9 @@ export const dealAverageTimeSpentInEachStage = async (
       if (!stageId) continue;
 
       const enterTime = new Date(currentLog.createdAt).getTime();
-      const exitTime = nextLog ? new Date(nextLog.createdAt).getTime() : Date.now();
+      const exitTime = nextLog
+        ? new Date(nextLog.createdAt).getTime()
+        : Date.now();
 
       const hoursSpent = (exitTime - enterTime) / (1000 * 60 * 60);
       if (!stageDurations[stageId]) stageDurations[stageId] = [];
@@ -539,12 +611,12 @@ export const dealAverageTimeSpentInEachStage = async (
 
   const stageIds = Object.keys(stageDurations);
   const stages = await models.Stages.find({ _id: { $in: stageIds } }).lean();
-  const stageMap = new Map(stages.map(s => [s._id, s.name]));
+  const stageMap = new Map(stages.map((s) => [s._id, s.name]));
 
   const labels: string[] = [];
   const averages: number[] = [];
 
-  stageIds.forEach(stageId => {
+  stageIds.forEach((stageId) => {
     const durations = stageDurations[stageId];
     const avg = durations.reduce((a, b) => a + b, 0) / durations.length;
     labels.push(stageMap.get(stageId) || stageId);
@@ -560,51 +632,49 @@ export const dealAverageTimeSpentInEachStage = async (
 /**
  * 12. Closed revenue by month with deal total and closed revenue breakdown
  */
-export const closedRevenueByMonthWithDealTotalAndClosedRevenueBreakdown = async (
-  models: IModels,
-  filters: IDealReportFilter,
-) => {
-  const match = buildFullMatch(filters);
-  match.createdAt = { ...match.createdAt, $type: 'date' };
+export const closedRevenueByMonthWithDealTotalAndClosedRevenueBreakdown =
+  async (models: IModels, filters: IDealReportFilter) => {
+    const match = buildFullMatch(filters);
+    match.createdAt = { ...match.createdAt, $type: 'date' };
 
-  const stages = await models.Stages.find({
-    probability: { $in: PROBABILITY_CLOSED },
-    type: 'deal',
-  }).lean();
-  const closedStageIds = stages.map(s => s._id);
+    const stages = await models.Stages.find({
+      probability: { $in: PROBABILITY_CLOSED },
+      type: 'deal',
+    }).lean();
+    const closedStageIds = stages.map((s) => s._id);
 
-  const pipeline: any[] = [
-    { $match: match },
-    { $unwind: '$productsData' },
-    { $match: { 'productsData.tickUsed': true } },
-    {
-      $addFields: {
-        isClosed: { $in: ['$stageId', closedStageIds] },
-        month: { $dateToString: { format: '%Y-%m', date: '$createdAt' } },
+    const pipeline: any[] = [
+      { $match: match },
+      { $unwind: '$productsData' },
+      { $match: { 'productsData.tickUsed': true } },
+      {
+        $addFields: {
+          isClosed: { $in: ['$stageId', closedStageIds] },
+          month: { $dateToString: { format: '%Y-%m', date: '$createdAt' } },
+        },
       },
-    },
-    {
-      $group: {
-        _id: '$month',
-        totalAmount: { $sum: '$productsData.amount' },
-        closedAmount: {
-          $sum: {
-            $cond: [{ $eq: ['$isClosed', true] }, '$productsData.amount', 0],
+      {
+        $group: {
+          _id: '$month',
+          totalAmount: { $sum: '$productsData.amount' },
+          closedAmount: {
+            $sum: {
+              $cond: [{ $eq: ['$isClosed', true] }, '$productsData.amount', 0],
+            },
           },
         },
       },
-    },
-    { $sort: { _id: 1 } },
-  ];
-  const result = await models.Deals.aggregate(pipeline);
-  return {
-    labels: result.map(r => r._id),
-    datasets: [
-      { label: 'Total Revenue', data: result.map(r => r.totalAmount) },
-      { label: 'Closed Revenue', data: result.map(r => r.closedAmount) },
-    ],
+      { $sort: { _id: 1 } },
+    ];
+    const result = await models.Deals.aggregate(pipeline);
+    return {
+      labels: result.map((r) => r._id),
+      datasets: [
+        { label: 'Total Revenue', data: result.map((r) => r.totalAmount) },
+        { label: 'Closed Revenue', data: result.map((r) => r.closedAmount) },
+      ],
+    };
   };
-};
 
 /**
  * 13. Count deals grouped by stage, filtered by customer IDs
@@ -650,8 +720,8 @@ export const dealCountByCustomer = async (
   ];
   const result = await models.Deals.aggregate(pipeline);
   return {
-    labels: result.map(r => r._id),
-    datasets: [{ data: result.map(r => r.count) }],
+    labels: result.map((r) => r._id),
+    datasets: [{ data: result.map((r) => r.count) }],
   };
 };
 
@@ -668,7 +738,7 @@ export const dealCountByOpenProbability = async (
     probability: { $in: PROBABILITY_OPEN },
     type: 'deal',
   }).lean();
-  const openStageIds = stages.map(s => s._id);
+  const openStageIds = stages.map((s) => s._id);
   if (!openStageIds.length) {
     return { labels: [], datasets: [{ data: [] }] };
   }
@@ -695,8 +765,8 @@ export const dealCountByOpenProbability = async (
   ];
   const result = await models.Deals.aggregate(pipeline);
   return {
-    labels: result.map(r => r._id),
-    datasets: [{ data: result.map(r => r.count) }],
+    labels: result.map((r) => r._id),
+    datasets: [{ data: result.map((r) => r.count) }],
   };
 };
 export const forecastRevenue = async (
@@ -706,18 +776,30 @@ export const forecastRevenue = async (
 ) => {
   const match = buildFullMatch(filters);
   const allStages = await models.Stages.find({ type: 'deal' }).lean();
-  const openStages = allStages.filter(s => s.probability && !['Won', 'Lost'].includes(s.probability));
-  match.stageId = { $in: openStages.map(s => s._id) };
+  const openStages = allStages.filter(
+    (s) => s.probability && !['Won', 'Lost'].includes(s.probability),
+  );
+  match.stageId = { $in: openStages.map((s) => s._id) };
 
-  const deals = await models.Deals.find(match, { productsData: 1, stageId: 1 }).lean();
+  const deals = await models.Deals.find(match, {
+    productsData: 1,
+    stageId: 1,
+  }).lean();
   let totalForecast = 0;
   const stageMap = new Map<string, number>();
   const probMap = new Map<string, number>();
 
   for (const deal of deals) {
-    const stage = openStages.find(s => s._id.toString() === deal.stageId.toString());
-    const probability = stage?.probability ? parseFloat(stage.probability) / 100 : 0;
-    const amount = (deal.productsData || []).reduce((sum, p) => sum + (p.amount || 0), 0);
+    const stage = openStages.find(
+      (s) => s._id.toString() === deal.stageId.toString(),
+    );
+    const probability = stage?.probability
+      ? parseFloat(stage.probability) / 100
+      : 0;
+    const amount = (deal.productsData || []).reduce(
+      (sum, p) => sum + (p.amount || 0),
+      0,
+    );
     const forecast = amount * probability;
     totalForecast += forecast;
 
@@ -731,15 +813,19 @@ export const forecastRevenue = async (
   }
 
   const byStage = Array.from(stageMap.entries()).map(([stageId, forecast]) => {
-    const stage = allStages.find(s => s._id.toString() === stageId);
+    const stage = allStages.find((s) => s._id.toString() === stageId);
     return { stageId, stageName: stage?.name || stageId, forecast };
   });
 
   const byProbability = Array.from(probMap.entries())
     .map(([bucket, forecast]) => ({ bucket, forecast }))
     .sort((a, b) => {
-      const aVal = parseFloat(a.bucket) || (a.bucket === 'Won' ? 100 : a.bucket === 'Lost' ? 0 : 0);
-      const bVal = parseFloat(b.bucket) || (b.bucket === 'Won' ? 100 : b.bucket === 'Lost' ? 0 : 0);
+      const aVal =
+        parseFloat(a.bucket) ||
+        (a.bucket === 'Won' ? 100 : a.bucket === 'Lost' ? 0 : 0);
+      const bVal =
+        parseFloat(b.bucket) ||
+        (b.bucket === 'Won' ? 100 : b.bucket === 'Lost' ? 0 : 0);
       return bVal - aVal;
     });
 

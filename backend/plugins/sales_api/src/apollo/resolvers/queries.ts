@@ -29,5 +29,5 @@ export const queries = {
   ...lastViewedItemQueries,
   ...productReviewQueries,
   ...wishlistQueries,
-  ...dealReportsQueries, 
+  ...dealReportsQueries,
 };

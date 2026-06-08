@@ -212,9 +212,9 @@ export const loadClasses = (
   );
 
   models.SavedWidget = db.model<ISavedWidget, Model<ISavedWidget>>(
-   'sales_saved_widgets',
-  loadSavedWidgetClass(models)
- );
+    'sales_saved_widgets',
+    loadSavedWidgetClass(models),
+  );
 
   return models;
 };

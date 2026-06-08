@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
  */
 export const buildDateFilter = (
   filters: any,
-  field: string
+  field: string,
 ): Record<string, any> => {
   const { dateRange, fromDate, toDate } = filters;
 
@@ -90,7 +90,7 @@ export const buildDateFilter = (
 export const buildDateGroup = (
   field: string,
   frequency?: string,
-  measure: Record<string, any> = { count: { $sum: 1 } }
+  measure: Record<string, any> = { count: { $sum: 1 } },
 ): any[] => {
   const freq = frequency?.toLowerCase() || 'day';
   let groupId: any;
@@ -120,10 +120,7 @@ export const buildDateGroup = (
     groupId = { $dateToString: { format: '%Y-%m-%d', date: `$${field}` } };
   }
 
-  return [
-    { $group: { _id: groupId, ...measure } },
-    { $sort: { _id: 1 } },
-  ];
+  return [{ $group: { _id: groupId, ...measure } }, { $sort: { _id: 1 } }];
 };
 
 /**
@@ -132,7 +129,7 @@ export const buildDateGroup = (
  */
 export const buildDueDateFilter = (
   filters: any,
-  field: string
+  field: string,
 ): Record<string, any> => {
   const { dueDateRange, dueType = 'due' } = filters;
   if (!dueDateRange) return {};
@@ -197,7 +194,7 @@ export const getRelatedIds = async (
   subdomain: string,
   mainType: string,
   mainTypeIds: string[],
-  relType: string
+  relType: string,
 ): Promise<string[]> => {
   const result = await sendTRPCMessage({
     subdomain,

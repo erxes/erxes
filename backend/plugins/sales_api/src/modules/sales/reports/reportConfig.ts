@@ -1,6 +1,13 @@
-
 export const PROBABILITY_OPEN = [
-  '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%'
+  '10%',
+  '20%',
+  '30%',
+  '40%',
+  '50%',
+  '60%',
+  '70%',
+  '80%',
+  '90%',
 ];
 
 export const PROBABILITY_CLOSED = ['Won', 'Lost', 'Done', 'Resolved'];
