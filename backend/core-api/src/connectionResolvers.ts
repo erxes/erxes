@@ -680,7 +680,10 @@ export const loadClasses = (
 
   const db_name = db.name;
 
-  const logDb = db.useDb(`${db_name}_logs`);
+  const logDb = db.useDb(`${db_name}_logs`, {
+    useCache: true,
+    noListener: true,
+  });
 
   models.Logs = logDb.model<ILogDocument, ILogModel>(
     'logs',

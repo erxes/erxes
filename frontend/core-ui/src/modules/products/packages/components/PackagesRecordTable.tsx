@@ -8,17 +8,25 @@ import { PackageCommandBar } from './PackageCommandBar';
 export const PackagesRecordTable = () => {
   const [searchValue] = useQueryState<string>('searchValue');
   const [status] = useQueryState<string>('status');
+  const [tags] = useQueryState<string[]>('tags');
 
   const { packages, loading, error } = usePackages({
     searchValue: searchValue || undefined,
     status: status || undefined,
+    tagIds: tags?.length ? tags : undefined,
   });
 
   if (error) {
     return <div className="p-6 text-destructive">{error.message}</div>;
   }
 
-  if (!loading && (packages?.length ?? 0) === 0 && !searchValue && !status) {
+  if (
+    !loading &&
+    (packages?.length ?? 0) === 0 &&
+    !searchValue &&
+    !status &&
+    !tags?.length
+  ) {
     return (
       <div className="flex flex-col items-center justify-center w-full h-full text-center">
         <IconPackage size={64} className="mb-4 text-muted-foreground" />

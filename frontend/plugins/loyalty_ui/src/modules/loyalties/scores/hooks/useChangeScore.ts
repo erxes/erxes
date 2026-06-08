@@ -13,7 +13,9 @@ export interface ChangeScoreVariables {
   serviceName?: string;
 }
 
-export const useChangeScore = (refetchQueries: string[] = ['ScoreLogs']) => {
+export const useChangeScore = (
+  refetchQueries: string[] = ['ScoreLogs', 'ScoreLogStatistics'],
+) => {
   const { toast } = useToast();
 
   const [changeScoreMutation, { loading, error }] = useMutation(

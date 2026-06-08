@@ -28,7 +28,7 @@ import {
 import clsx from 'clsx';
 import { SelectProjectPriority } from '@/project/components/select/SelectProjectPriority';
 import { SelectProjectStatus } from '@/project/components/select/SelectProjectStatus';
-import { SelectMember } from 'ui-modules';
+import { SelectMember, TagsSelect } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
 import { projectsMoreColumn } from './ProjectsMoreColumn';
 
@@ -134,6 +134,38 @@ export const projectsColumns = (
         );
       },
       size: 170,
+    },
+    {
+      id: 'tagIds',
+      accessorKey: 'tagIds',
+      header: () => (
+        <RecordTable.InlineHead label="Tags" icon={IconLabelFilled} />
+      ),
+      cell: ({ cell }) => {
+        const tagIds = cell.getValue() as string[];
+        return (
+          <TagsSelect.InlineCell
+            type="operation:project"
+            mode="multiple"
+            value={tagIds}
+            targetIds={[cell.row.original._id]}
+            options={(newSelectedTagIds: string[]) => ({
+              update: (cache: any) => {
+                cache.modify({
+                  id: cache.identify({
+                    __typename: 'Project',
+                    _id: cell.row.original._id,
+                  }),
+                  fields: {
+                    tagIds: () => newSelectedTagIds,
+                  },
+                });
+              },
+            })}
+          />
+        );
+      },
+      size: 200,
     },
     {
       id: 'teamIds',

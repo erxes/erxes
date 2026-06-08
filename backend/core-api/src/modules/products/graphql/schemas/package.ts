@@ -15,6 +15,9 @@ export const types = `
 
     products: [PackageProduct]
 
+    tagIds: [String]
+    tags: [Tag]
+
     price: Float
     percent: Float
     totalPrice: Float
@@ -40,6 +43,7 @@ const queryParams = `
   searchValue: String
   status: String
   ids: [String]
+  tagIds: [String]
 `;
 
 export const queries = `
@@ -52,6 +56,7 @@ const mutationParams = `
   description: String
   coverImage: String
   products: [ProductPackageInput!]
+  tagIds: [String]
   price: Float
   percent: Float
   status: String

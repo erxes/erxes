@@ -452,7 +452,7 @@ export const usePostSubmission = ({
       input.language = currentLanguage;
     }
 
-    if (isCreating && curDefaultLanguage) {
+    if (curDefaultLanguage) {
       const translationEntries = buildTranslations(
         translationsRef.current || {},
         curDefaultLanguage,

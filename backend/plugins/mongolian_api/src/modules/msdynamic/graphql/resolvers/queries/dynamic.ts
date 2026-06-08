@@ -196,7 +196,7 @@ export const msdynamicQueries = {
       action: 'find',
       method: 'query',
       input: {
-        _id: { $in: relations.map((r) => r.brandId) },
+        query: { _id: { $in: relations.map((r) => r.brandId) } },
       },
       defaultValue: [],
     });

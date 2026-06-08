@@ -21,11 +21,12 @@ import { z } from 'zod';
 import { POS_DETAIL, POS_LIST } from '../graphql/queries/relatedQueries';
 import { FormSelectEbarimtProductRule } from './SelectEbarimtProductRule';
 
-const configFormSchema = z.object({
+export const syncOrderConfigFormSchema = z.object({
   title: z.string(),
   posId: z.string(),
   dateRule: z.enum(['alwaysNow', 'syncedDateOrNow']),
   trStatus: z.string().optional(),
+  returnType: z.enum(['fullTr', 'onlySale', 'delete']),
   saleAccountId: z.string(),
   saleOutAccountId: z.string(),
   saleCostAccountId: z.string(),
@@ -50,7 +51,7 @@ const configFormSchema = z.object({
   }),
 });
 
-type ConfigFormValues = z.infer<typeof configFormSchema>;
+type ConfigFormValues = z.infer<typeof syncOrderConfigFormSchema>;
 
 const normalizeRuleIds = (value?: string | string[]) => {
   if (!value) {
@@ -100,6 +101,12 @@ export const SyncOrderConfigForm = ({
   useEffect(() => {
     if (!form.getValues('trStatus')) {
       form.setValue('trStatus', TR_STATUSES.COMPLETE);
+    }
+  }, [form]);
+
+  useEffect(() => {
+    if (!form.getValues('returnType')) {
+      form.setValue('returnType', 'fullTr');
     }
   }, [form]);
 
@@ -179,6 +186,29 @@ export const SyncOrderConfigForm = ({
                         {status.label}
                       </Select.Item>
                     ))}
+                  </Select.Content>
+                </Select>
+              </Form.Control>
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
+          name="returnType"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>Буцаалтын төрөл</Form.Label>
+              <Form.Control>
+                <Select {...field} onValueChange={field.onChange}>
+                  <Select.Trigger>
+                    <Select.Value />
+                  </Select.Trigger>
+                  <Select.Content>
+                    <Select.Item value="fullTr">Бүтэн гүйлгээ</Select.Item>
+                    <Select.Item value="onlySale">
+                      Зөвхөн борлуулалт
+                    </Select.Item>
+                    <Select.Item value="delete">Устгах</Select.Item>
                   </Select.Content>
                 </Select>
               </Form.Control>

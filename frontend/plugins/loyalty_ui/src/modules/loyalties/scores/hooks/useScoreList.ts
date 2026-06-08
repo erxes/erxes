@@ -12,9 +12,13 @@ import { SCORE_LOGS_QUERY } from '../graphql/queries';
 import { IScoreLog } from '../types/score';
 import { scoreTotalCountAtom } from '../states/scoreCounts';
 import { useScoreFilters } from './useScoreFilters';
+import { SCORE_CURSOR_SESSION_KEY } from '../constants/scoreCursorSessionKey';
 
 const SCORE_PER_PAGE = 50;
-export const SCORE_LOG_CURSOR_SESSION_KEY = 'score_logs_cursor';
+// Must match the key the ScoreFilter uses (see useScoreLeadSessionKey), so that
+// changing a filter resets the table cursor and we always refetch from the
+// first page instead of a stale cursor that returns an empty/wrong page.
+export const SCORE_LOG_CURSOR_SESSION_KEY = SCORE_CURSOR_SESSION_KEY;
 
 export const useScoreList = () => {
   const setTotalCount = useSetAtom(scoreTotalCountAtom);

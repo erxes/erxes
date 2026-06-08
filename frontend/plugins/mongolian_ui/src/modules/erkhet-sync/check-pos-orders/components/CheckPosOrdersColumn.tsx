@@ -7,16 +7,46 @@ import {
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
+  Checkbox,
   RecordTable,
   TextOverflowTooltip,
   RecordTableInlineCell,
   RelativeDateDisplay,
 } from 'erxes-ui';
 
-import { ICheckPosOrders } from '../types/checkPosOrders';
+import {
+  CheckPosOrderStatus,
+  ICheckPosOrders,
+} from '../types/checkPosOrders';
 import { CheckPosOrdersMoreColumn } from './CheckPosOrdersMoreColumn';
 
-export const checkPosOrdersColumns: ColumnDef<ICheckPosOrders>[] = [
+type CheckPosOrdersColumnsOptions = {
+  toSyncOrderIds: Record<string, boolean>;
+  syncableOrderIds: string[];
+  onToggleToSync: (id: string, checked: boolean) => void;
+  onToggleAllToSync: (ids: string[], checked: boolean) => void;
+};
+
+const syncableStatuses = new Set<CheckPosOrderStatus>([
+  'checked',
+  'synced',
+  'pending',
+  'error',
+  'resynced',
+]);
+
+const getSyncStatus = (order: ICheckPosOrders): CheckPosOrderStatus =>
+  order.syncStatus || 'skipped';
+
+export const isSyncableOrder = (order: ICheckPosOrders) =>
+  syncableStatuses.has(getSyncStatus(order));
+
+export const getCheckPosOrdersColumns = ({
+  toSyncOrderIds,
+  syncableOrderIds,
+  onToggleToSync,
+  onToggleAllToSync,
+}: CheckPosOrdersColumnsOptions): ColumnDef<ICheckPosOrders>[] => [
   CheckPosOrdersMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<ICheckPosOrders>,
   {
@@ -80,13 +110,62 @@ export const checkPosOrdersColumns: ColumnDef<ICheckPosOrders>[] = [
   },
   {
     id: 'unSynced',
-    accessorKey: 'unSynced',
-    header: () => <RecordTable.InlineHead icon={IconClock} label="Un Synced" />,
+    accessorKey: 'syncStatus',
+    header: () => (
+      <RecordTable.InlineHead icon={IconClock} label="Sync status" />
+    ),
     cell: ({ cell }) => {
+      const status = (cell.getValue() || 'skipped') as string;
+
       return (
         <RecordTableInlineCell>
-          <TextOverflowTooltip value={cell.getValue() as string} />
+          <TextOverflowTooltip value={status} />
         </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'toSync',
+    accessorKey: 'toSync',
+    header: () => {
+      const selectedCount = syncableOrderIds.filter((id) => toSyncOrderIds[id])
+        .length;
+      const isAllSelected =
+        syncableOrderIds.length > 0 &&
+        selectedCount === syncableOrderIds.length;
+      const isSomeSelected = selectedCount > 0 && !isAllSelected;
+      const nextChecked = !(isAllSelected || isSomeSelected);
+
+      return (
+        <div className="relative z-20 flex items-center justify-center h-8">
+          <Checkbox
+            key={`${syncableOrderIds.length}-${selectedCount}`}
+            checked={isAllSelected || (isSomeSelected && 'indeterminate')}
+            disabled={!syncableOrderIds.length}
+            onCheckedChange={() =>
+              onToggleAllToSync(syncableOrderIds, nextChecked)
+            }
+            aria-label="Select all orders to sync"
+          />
+        </div>
+      );
+    },
+    size: 33,
+    cell: ({ row }) => {
+      const order = row.original;
+      const disabled = !isSyncableOrder(order);
+
+      return (
+        <div className="flex items-center justify-center">
+          <Checkbox
+            checked={!disabled && Boolean(toSyncOrderIds[order._id])}
+            disabled={disabled}
+            onCheckedChange={(value) =>
+              onToggleToSync(order._id, Boolean(value))
+            }
+            aria-label="Select order to sync"
+          />
+        </div>
       );
     },
   },

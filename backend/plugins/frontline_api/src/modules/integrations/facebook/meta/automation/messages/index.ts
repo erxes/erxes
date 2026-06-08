@@ -144,6 +144,7 @@ export const actionCreateMessage = async ({
     senderId,
     recipientId,
     botId,
+    didCreateConversation,
   } = await getOrCreateFacebookMessageActionContext(
     models,
     subdomain,
@@ -171,12 +172,17 @@ export const actionCreateMessage = async ({
       throw new Error('There are no generated messages to send.');
     }
 
-    for (const { botData, inputData, ...message } of messages) {
+    for (const [
+      index,
+      { botData, inputData, ...message },
+    ] of messages.entries()) {
       const sendReplyResult = await sendMessage(models, bot, {
         senderId,
         recipientId,
         integration,
         message,
+        commentId:
+          index === 0 && didCreateConversation ? target?.comment_id : undefined,
       });
 
       if (!sendReplyResult) {
