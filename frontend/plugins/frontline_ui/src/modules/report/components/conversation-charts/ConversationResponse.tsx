@@ -51,6 +51,7 @@ import {
   getReportMemberFilterAtom,
 } from '@/report/states';
 import { ReportFilter } from '../filter-popover/report-filter';
+import { AreaGradient } from '../chart/AreaGradient';
 
 interface ConversationResponseProps {
   title: string;
@@ -406,6 +407,10 @@ export const ResponseLineChart = memo(function ResponseLineChart({
   return (
     <ChartContainer config={chartConfig} className="aspect-video w-full">
       <AreaChart data={chartData} margin={{ top: 10 }}>
+        <defs>
+          <AreaGradient id="fl-resp-primary" color="var(--primary)" />
+          <AreaGradient id="fl-resp-success" color="var(--success)" />
+        </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis dataKey="user" tickLine={false} axisLine={false} />
         <YAxis
@@ -432,9 +437,10 @@ export const ResponseLineChart = memo(function ResponseLineChart({
           dataKey="messageCount"
           type="monotone"
           stroke="var(--primary)"
-          fill="var(--primary)"
-          fillOpacity={0.3}
+          fill="url(#fl-resp-primary)"
           strokeWidth={2}
+          dot={false}
+          activeDot={{ r: 4 }}
           strokeLinecap="round"
         />
         <Area
@@ -442,9 +448,10 @@ export const ResponseLineChart = memo(function ResponseLineChart({
           dataKey="percentage"
           type="monotone"
           stroke="var(--success)"
-          fill="var(--success)"
-          fillOpacity={0.3}
+          fill="url(#fl-resp-success)"
           strokeWidth={2}
+          dot={false}
+          activeDot={{ r: 4 }}
           strokeLinecap="round"
         />
         <Legend content={(props: any) => <CustomLegendContent {...props} />} />
