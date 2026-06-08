@@ -109,8 +109,6 @@ export const SelectChannelsContent = ({
 
   const channelsData = myChannelsOnly ? myChannels : allChannels;
 
-
-
   const channelsTotalCount = channelsData?.length || 0;
 
   return (

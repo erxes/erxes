@@ -32,7 +32,10 @@ export const channelQueries = {
       : {};
 
     if (params.channelIds && params.channelIds.length > 0) {
-      return models.Channels.find({ _id: { $in: params.channelIds }, ...nameFilter });
+      return models.Channels.find({
+        _id: { $in: params.channelIds },
+        ...nameFilter,
+      });
     }
 
     if (params.integrationId) {
@@ -43,7 +46,7 @@ export const channelQueries = {
     }
 
     // System owners and users with showAllChannels permission see every channel.
-    if (user?.isOwner || await canGroup(subdomain, 'showAllChannels', user)) {
+    if (user?.isOwner || (await canGroup(subdomain, 'showAllChannels', user))) {
       return models.Channels.find(nameFilter);
     }
 
