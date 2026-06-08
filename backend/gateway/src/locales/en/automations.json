@@ -142,6 +142,45 @@
 
   "delete-automation-success": "Automations deleted successfully",
   "automation-updated-success": "Automation updated successfully",
+  "conversation-event-trigger": {
+    "event-groups": "Event groups",
+    "events": "Events",
+    "empty-summary": "No events selected",
+    "loading-summary": "Loading...",
+    "validation-error-title": "Conversation event trigger is incomplete",
+    "validation-error-description": "Select at least one conversation event, keep at least one action enabled, and choose the required targets.",
+    "action-required": "Select at least one action.",
+    "target-required": "Select at least one target.",
+    "assignee": {
+      "label": "Assignee",
+      "description": "Trigger when a conversation is assigned or unassigned.",
+      "target-label": "Users",
+      "target-placeholder": "Select users",
+      "actions": {
+        "assigned": "Assigned",
+        "unassigned": "Unassigned"
+      }
+    },
+    "status": {
+      "label": "Status",
+      "description": "Trigger when a conversation opens, closes, or reopens.",
+      "actions": {
+        "open": "Open",
+        "closed": "Closed",
+        "reopened": "Reopened"
+      }
+    },
+    "tag": {
+      "label": "Tag",
+      "description": "Trigger when conversation tags are added or removed.",
+      "target-label": "Tags",
+      "target-placeholder": "Select tags",
+      "actions": {
+        "added": "Added",
+        "removed": "Removed"
+      }
+    }
+  },
   "error": "Error",
   "success": "Success"
 }

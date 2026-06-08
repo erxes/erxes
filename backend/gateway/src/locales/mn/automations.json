@@ -142,6 +142,45 @@
 
   "delete-automation-success": "Автоматжуулалт амжилттай устгагдлаа",
   "automation-updated-success": "Автоматжуулалт амжилттай шинэчлэгдлээ",
+  "conversation-event-trigger": {
+    "event-groups": "Үйл явдлын бүлгүүд",
+    "events": "Үйл явдлууд",
+    "empty-summary": "Үйл явдал сонгоогүй",
+    "loading-summary": "Уншиж байна...",
+    "validation-error-title": "Conversation event trigger дутуу байна",
+    "validation-error-description": "Ядаж нэг conversation event сонгож, нэгээс доошгүй action идэвхтэй үлдээгээд шаардлагатай target-аа тохируулна уу.",
+    "action-required": "Ядаж нэг action сонгоно уу.",
+    "target-required": "Ядаж нэг target сонгоно уу.",
+    "assignee": {
+      "label": "Хариуцагч",
+      "description": "Conversation assign эсвэл unassign болох үед ажиллана.",
+      "target-label": "Хэрэглэгчид",
+      "target-placeholder": "Хэрэглэгч сонгох",
+      "actions": {
+        "assigned": "Оноогдсон",
+        "unassigned": "Оноолт хасагдсан"
+      }
+    },
+    "status": {
+      "label": "Төлөв",
+      "description": "Conversation open, close эсвэл reopen болох үед ажиллана.",
+      "actions": {
+        "open": "Нээгдсэн",
+        "closed": "Хаагдсан",
+        "reopened": "Дахин нээгдсэн"
+      }
+    },
+    "tag": {
+      "label": "Таг",
+      "description": "Conversation дээр tag нэмэгдэх эсвэл хасагдах үед ажиллана.",
+      "target-label": "Тагууд",
+      "target-placeholder": "Таг сонгох",
+      "actions": {
+        "added": "Нэмэгдсэн",
+        "removed": "Хасагдсан"
+      }
+    }
+  },
   "error": "Алдаа",
   "success": "Амжилттай"
 }

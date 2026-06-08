@@ -2,6 +2,7 @@ import { facebookConstants } from '@/integrations/facebook/meta/automation/const
 import { facebookAutomationWorkers } from '@/integrations/facebook/meta/automation/workers';
 import { instagramConstants } from '@/integrations/instagram/meta/constants';
 import { instagramAutomationWorkers } from '@/integrations/instagram/meta/automation/workers';
+import { inboxAutomationConstants } from '@/inbox/meta/automation/constants';
 
 import {
   AutomationConfigs,
@@ -18,7 +19,7 @@ const modules = {
   tickets: ticketAutomationProducers,
 };
 
-export default {
+export const automations = {
   constants: {
     actions: [
       ...facebookConstants.actions,
@@ -26,6 +27,7 @@ export default {
       ...ticketsAutomationContants.actions,
     ],
     triggers: [
+      ...inboxAutomationConstants.triggers,
       ...facebookConstants.triggers,
       ...instagramConstants.triggers,
       ...ticketsAutomationContants.triggers,
@@ -52,10 +54,7 @@ export default {
     moduleName: 'automations',
     modules,
     methodName: TAutomationProducers.CHECK_TARGET_MATCH,
-    extractModuleName: (input) => {
-      console.log('Extracting module name from input:', input);
-      return input.moduleName;
-    },
+    extractModuleName: (input) => input.moduleName,
     generateModels,
   }),
   generateAiContext: createCoreModuleProducerHandler({
