@@ -144,6 +144,10 @@ export const loadTaskClass = (models: IModels) => {
         }
       }
 
+      if (doc.cycleId === '') {
+        delete doc.cycleId;
+      }
+
       if (doc.triageId) {
         doc._id = new mongoose.Types.ObjectId(doc.triageId);
 
