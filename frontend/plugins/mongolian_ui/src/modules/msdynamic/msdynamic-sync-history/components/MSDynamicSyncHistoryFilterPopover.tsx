@@ -1,20 +1,33 @@
-import { Combobox, Command, Filter, useFilterContext, useMultiQueryState, useQueryState } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  Filter,
+  useFilterContext,
+  useMultiQueryState,
+  useQueryState,
+} from 'erxes-ui';
 import { SelectMember } from 'ui-modules';
 import {
+  type ISyncHistoryFilterField,
+  type ISyncHistoryFilterValues,
   PRIMARY_FILTER_FIELDS,
   SYNC_HISTORY_FILTER_KEYS,
-  SyncHistoryFilterField,
-  SyncHistoryFilterValues,
   TEXT_FILTER_FIELDS,
 } from './MSDynamicSyncHistoryFilterFields';
+
+interface ISyncHistoryFilterItemProps {
+  field: ISyncHistoryFilterField;
+  inDialog?: boolean;
+}
+
+interface ISyncHistoryTextDialogViewProps {
+  field: ISyncHistoryFilterField;
+}
 
 const SyncHistoryFilterItem = ({
   field,
   inDialog,
-}: {
-  field: SyncHistoryFilterField;
-  inDialog?: boolean;
-}) => {
+}: ISyncHistoryFilterItemProps) => {
   const { Icon, key, label } = field;
 
   return (
@@ -27,9 +40,7 @@ const SyncHistoryFilterItem = ({
 
 const SyncHistoryTextDialogView = ({
   field,
-}: {
-  field: SyncHistoryFilterField;
-}) => {
+}: ISyncHistoryTextDialogViewProps) => {
   return (
     <Filter.View filterKey={field.key} inDialog>
       <Filter.DialogStringView filterKey={field.key} />
@@ -39,7 +50,7 @@ const SyncHistoryTextDialogView = ({
 
 export const MSDynamicSyncHistoryFilterPopover = () => {
   const [user, setUser] = useQueryState<string>('user');
-  const [queries] = useMultiQueryState<SyncHistoryFilterValues>(
+  const [queries] = useMultiQueryState<ISyncHistoryFilterValues>(
     SYNC_HISTORY_FILTER_KEYS,
   );
   const hasFilters = Object.values(queries || {}).some(

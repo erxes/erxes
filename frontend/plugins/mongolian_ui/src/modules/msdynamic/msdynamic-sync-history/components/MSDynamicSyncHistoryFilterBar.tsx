@@ -1,15 +1,26 @@
 import { IconCalendar, IconUser } from '@tabler/icons-react';
-import { Combobox, Filter, Popover, useMultiQueryState, useQueryState } from 'erxes-ui';
+import {
+  Combobox,
+  Filter,
+  Popover,
+  useMultiQueryState,
+  useQueryState,
+} from 'erxes-ui';
 import { useState } from 'react';
 import { SelectMember } from 'ui-modules';
 import {
+  type ISyncHistoryFilterField,
+  type ISyncHistoryFilterValues,
   SYNC_HISTORY_FILTER_KEYS,
-  SyncHistoryFilterField,
-  SyncHistoryFilterValues,
   TEXT_FILTER_FIELDS,
 } from './MSDynamicSyncHistoryFilterFields';
 import { MSDynamicSyncHistoryFilterPopover } from './MSDynamicSyncHistoryFilterPopover';
 import { MSDynamicSyncHistoryTotalCount } from './MSDynamicSyncHistoryTotalCount';
+
+interface IMSDynamicSyncHistoryTextFilterBarItemProps {
+  field: ISyncHistoryFilterField;
+  value?: string;
+}
 
 const MSDynamicSyncHistoryUserFilterBarItem = () => {
   const [user, setUser] = useQueryState<string>('user');
@@ -59,10 +70,7 @@ const MSDynamicSyncHistoryDateFilterBarItem = () => {
 const MSDynamicSyncHistoryTextFilterBarItem = ({
   field,
   value,
-}: {
-  field: SyncHistoryFilterField;
-  value?: string;
-}) => {
+}: IMSDynamicSyncHistoryTextFilterBarItemProps) => {
   const { Icon, key, label } = field;
 
   return (
@@ -79,7 +87,7 @@ const MSDynamicSyncHistoryTextFilterBarItem = ({
 };
 
 export const MSDynamicSyncHistoryFilterBar = () => {
-  const [filterValues] = useMultiQueryState<SyncHistoryFilterValues>(
+  const [filterValues] = useMultiQueryState<ISyncHistoryFilterValues>(
     SYNC_HISTORY_FILTER_KEYS,
   );
 

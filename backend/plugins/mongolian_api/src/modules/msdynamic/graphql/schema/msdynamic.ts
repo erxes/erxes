@@ -14,11 +14,8 @@ const commonHistoryParams = `
   searchError: String,
   limit: Int,
   cursor: String,
-  cursorMode: CURSOR_MODE,
   direction: CURSOR_DIRECTION,
   orderBy: JSON,
-  sortMode: String,
-  aggregationPipeline: [JSON],
 `;
 
 export const types = `

@@ -16,7 +16,7 @@ export const MSDynamicSyncHistoryRecordTable = () => {
       columns={msDynamicSyncHistoryColumns}
       data={syncHistories || []}
       className="m-3"
-      stickyColumns={['checkbox', 'createdAt']}
+      stickyColumns={['createdAt']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

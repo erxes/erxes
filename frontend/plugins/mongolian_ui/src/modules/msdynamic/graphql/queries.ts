@@ -14,11 +14,8 @@ const commonHistoryParams = `
   $searchError: String,
   $limit: Int,
   $cursor: String,
-  $cursorMode: CURSOR_MODE,
   $direction: CURSOR_DIRECTION,
   $orderBy: JSON,
-  $sortMode: String,
-  $aggregationPipeline: [JSON],
 `;
 
 const commonHistoryParamDefs = `
@@ -37,11 +34,8 @@ const commonHistoryParamDefs = `
   searchError: $searchError,
   limit: $limit,
   cursor: $cursor,
-  cursorMode: $cursorMode,
   direction: $direction,
   orderBy: $orderBy,
-  sortMode: $sortMode,
-  aggregationPipeline: $aggregationPipeline,
 `;
 
 const commonOrderParams = `
