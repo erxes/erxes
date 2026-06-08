@@ -9,18 +9,26 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { IconChartHistogram } from '@tabler/icons-react';
 import { ReportsView } from '@/report/components/ReportsView';
-import { ReportsBreadcrumbs } from '@/report/components/report-navigations/ReportsBreadcrumbs';
 import { CallReportsView } from '@/report/components/CallReportsView';
-import { TicketReportsView } from '@/report/components/TicketReportsView';
+import { TicketReportsList } from '@/report/components/TicketReportsList';
+
+const ROUTES = {
+  overview: '/frontline/reports',
+  call: '/frontline/reports/call',
+  ticket: '/frontline/reports/ticket',
+} as const;
+
+type Section = keyof typeof ROUTES;
 
 export default function ReportIndexPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const isCallReport = location.pathname.includes('/call');
-  const isTicketReport = location.pathname.includes('/ticket');
-  const isOverviewReport = !isCallReport && !isTicketReport;
 
-  const activeSection = isCallReport ? 'call' : 'overview';
+  const activeSection: Section = location.pathname.includes('/call')
+    ? 'call'
+    : location.pathname.includes('/ticket')
+    ? 'ticket'
+    : 'overview';
 
   return (
     <PageContainer>
@@ -36,51 +44,31 @@ export default function ReportIndexPage() {
                   </Link>
                 </Button>
               </Breadcrumb.Item>
-
-              {/* Submenu Breadcrumbs */}
-              {location.pathname.includes('/inbox') && (
-                <>
-                  <Separator.Inline />
-                  <Breadcrumb.Item>
-                    <span className="font-medium">Inbox</span>
-                  </Breadcrumb.Item>
-                </>
-              )}
-              {location.pathname.includes('/ticket') && (
-                <>
-                  <Separator.Inline />
-                  <Breadcrumb.Item>
-                    <span className="font-medium">Ticket</span>
-                  </Breadcrumb.Item>
-                </>
-              )}
-
-              <ReportsBreadcrumbs />
             </Breadcrumb.List>
           </Breadcrumb>
-
+          <Separator.Inline />
           <ToggleGroup
             type="single"
-            variant="outline"
-            size="sm"
             value={activeSection}
             onValueChange={(v) => {
               if (!v) return;
-              navigate(
-                v === 'call' ? '/frontline/reports/call' : '/frontline/reports',
-              );
+              navigate(ROUTES[v as Section]);
             }}
           >
             <ToggleGroup.Item value="overview">
               Frontline Overview
             </ToggleGroup.Item>
+            <ToggleGroup.Item value="ticket">Ticket</ToggleGroup.Item>
             <ToggleGroup.Item value="call">Call Center</ToggleGroup.Item>
           </ToggleGroup>
+          <Separator.Inline />
+          <PageHeader.FavoriteToggleButton />
         </PageHeader.Start>
       </PageHeader>
-      {isTicketReport ? (
-        <TicketReportsView />
-      ) : isCallReport ? (
+
+      {activeSection === 'ticket' ? (
+        <TicketReportsList />
+      ) : activeSection === 'call' ? (
         <CallReportsView />
       ) : (
         <ReportsView />

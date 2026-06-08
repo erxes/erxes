@@ -34,6 +34,7 @@ import {
 import { ColumnDef } from '@tanstack/table-core';
 import { getFilters } from '@/report/utils/dateFilters';
 import { CustomLegendContent } from '../chart/legend';
+import { AreaGradient } from '../chart/AreaGradient';
 import {
   getReportCallStatusFilterAtom,
   getReportChartTypeAtom,
@@ -129,17 +130,19 @@ export const OpenLineChart = memo(function OpenLineChart({
         data={chartData}
         margin={{ top: 10, right: 10, left: 10, bottom: 60 }}
       >
+        <defs>
+          <AreaGradient id="fl-open-primary" color="var(--primary)" />
+        </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <Area
           type="monotone"
           dataKey="count"
           stroke="var(--primary)"
-          fill="var(--primary)"
-          fillOpacity={0.2}
+          fill="url(#fl-open-primary)"
           strokeWidth={2}
           name="Count"
-          dot={{ fill: 'var(--primary)' }}
-          activeDot={{ r: 6 }}
+          dot={false}
+          activeDot={{ r: 4 }}
         />
         <XAxis
           dataKey="date"
@@ -148,7 +151,6 @@ export const OpenLineChart = memo(function OpenLineChart({
           angle={-45}
           textAnchor="end"
           height={60}
-          label={{ angle: -45, position: 'insideBottom' }}
         />
         <YAxis
           dataKey="count"

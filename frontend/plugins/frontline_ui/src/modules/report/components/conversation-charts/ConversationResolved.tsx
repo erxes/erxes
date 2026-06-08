@@ -43,6 +43,7 @@ import {
 import { ColumnDef } from '@tanstack/table-core';
 import { getFilters } from '@/report/utils/dateFilters';
 import { CustomLegendContent } from '../chart/legend';
+import { AreaGradient } from '../chart/AreaGradient';
 import { ReportFilter } from '../filter-popover/report-filter';
 import { ChartExportButton } from '../chart-export/ChartExportButton';
 import {
@@ -129,17 +130,19 @@ export const ResolvedLineChart = memo(function ResolvedLineChart({
         data={chartData}
         margin={{ top: 10, right: 10, left: 10, bottom: 60 }}
       >
+        <defs>
+          <AreaGradient id="fl-resolved-primary" color="var(--primary)" />
+        </defs>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <Area
           type="monotone"
           dataKey="count"
           stroke="var(--primary)"
-          fill="var(--primary)"
-          fillOpacity={0.2}
+          fill="url(#fl-resolved-primary)"
           strokeWidth={2}
           name="Count"
-          dot={{ fill: 'var(--primary)' }}
-          activeDot={{ r: 6 }}
+          dot={false}
+          activeDot={{ r: 4 }}
         />
         <XAxis
           dataKey="date"

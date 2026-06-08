@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
 
 interface KpiCardProps {
@@ -6,16 +6,21 @@ interface KpiCardProps {
   value: string;
   subtitle?: string;
   icon: ReactNode;
-  /** Colour class for the value text, e.g. 'text-blue-600'. */
+  /** Colour class for the value text, e.g. 'text-[var(--chart-1)]'. */
   valueClass?: string;
+  /** Inline style override for the value — use when colour comes from dynamic data. */
+  valueStyle?: CSSProperties;
   /** Background + text class for the icon badge. */
   iconClass?: string;
+  /** Inline style override for the icon badge — use when colour comes from dynamic data. */
+  iconStyle?: CSSProperties;
   trend?: 'up' | 'down' | null;
 }
 
 /**
  * Single KPI metric card.
  * Uses CSS custom properties for shadows so it adapts to light/dark mode.
+ * `valueStyle` / `iconStyle` accept inline overrides for dynamic backend colours.
  */
 export function KpiCard({
   title,
@@ -23,7 +28,9 @@ export function KpiCard({
   subtitle,
   icon,
   valueClass = 'text-foreground',
+  valueStyle,
   iconClass = 'bg-muted text-muted-foreground',
+  iconStyle,
   trend,
 }: KpiCardProps) {
   return (
@@ -36,7 +43,10 @@ export function KpiCard({
           <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground truncate">
             {title}
           </p>
-          <p className={`text-3xl font-bold tracking-tight ${valueClass}`}>
+          <p
+            className={`text-3xl font-bold tracking-tight ${valueClass}`}
+            style={valueStyle}
+          >
             {value}
           </p>
           {subtitle && (
@@ -46,6 +56,7 @@ export function KpiCard({
 
         <div
           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${iconClass}`}
+          style={iconStyle}
         >
           {icon}
         </div>
