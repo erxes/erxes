@@ -34,8 +34,9 @@ export const exchangeRatesMain = gql`
 `;
 
 export const currencyConfig = gql`
-  query ExchangeRateMainCurrency {
-    configsGetValue(code: "mainCurrency")
+  query ExchangeRateCurrencies {
+    dealCurrencies: configsGetValue(code: "dealCurrency")
+    mainCurrencyConfig: configsGetValue(code: "mainCurrency")
   }
 `;
 
