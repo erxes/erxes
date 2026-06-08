@@ -133,7 +133,13 @@ router.get(
         };
         const contentType = mimeTypes[extension] || `application/${extension}`;
 
-        res.setHeader('Content-Disposition', 'inline; filename="' + key + '"');
+        const safeFilename = sanitizeFilename(
+          (typeof name === 'string' && name) || sanitizedKey,
+        );
+        res.setHeader(
+          'Content-Disposition',
+          `inline; filename="${safeFilename}"`,
+        );
         res.setHeader('Content-Type', contentType);
 
         return res.send(response);
