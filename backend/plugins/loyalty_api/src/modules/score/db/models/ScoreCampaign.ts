@@ -86,7 +86,7 @@ const calculateCampaignChangeScore = ({
   const placeholder = campaign[actionMethod]?.placeholder || '';
 
   if (!placeholder.trim() && actionMethod === 'subtract') {
-    return Number(target?.paymentAmount) || 0;
+    return -Math.abs(Number(target?.paymentAmount) || 0);
   }
 
   const expression = placeholder.replace(
@@ -95,9 +95,15 @@ const calculateCampaignChangeScore = ({
       String(resolvePlaceholderValue(target, String(attribute).trim())),
   );
 
-  return fixScoreNumber(
+  const changeScore = fixScoreNumber(
     (safeEvalMath(expression) || 0) * Number(currencyRatio || 1) || 0,
   );
+
+  if (actionMethod === 'subtract' && target?.paymentAmount !== undefined) {
+    return -Math.abs(changeScore);
+  }
+
+  return changeScore;
 };
 
 const getCampaignStageStatus = (campaign: any, stageId?: string) => {
