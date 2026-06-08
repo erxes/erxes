@@ -72,6 +72,7 @@ export const mutations = `
 
   cpInvoiceCreate(input: InvoiceInput!): Invoice
   cpInvoicesCheck(_id:String!): String
+  cpGenerateInvoiceUrl(input: InvoiceInput!): String
 `;
 
 const cursorParams = `

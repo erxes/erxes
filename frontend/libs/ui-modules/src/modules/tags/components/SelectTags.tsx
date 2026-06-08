@@ -761,9 +761,11 @@ export const SelectTagsFilterItem = ({
 export const SelectTagsFilterView = ({
   mode,
   filterKey,
+  tagType,
 }: {
   mode: 'single' | 'multiple';
   filterKey: string;
+  tagType?: string;
 }) => {
   const [query, setQuery] = useQueryState<string[] | string | undefined>(
     filterKey,
@@ -774,6 +776,7 @@ export const SelectTagsFilterView = ({
     <Filter.View filterKey={filterKey}>
       <SelectTagsProvider
         mode={mode}
+        tagType={tagType}
         value={query || []}
         onValueChange={(value) => {
           setQuery(value as any);

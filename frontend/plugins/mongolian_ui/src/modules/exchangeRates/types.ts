@@ -10,22 +10,10 @@ export interface IExchangeRate {
 
 export type MainQueryResponse = {
   exchangeRatesMain: { list: IExchangeRate[]; totalCount: number };
-  loading: boolean;
-  refetch: () => void;
 };
 
-export type IConfig = {
-  _id: string;
-  code: string;
-  value: any;
-};
+export type CurrencyConfigResponse = {
+  dealCurrencies: { value?: string | string[] } | null;
 
-export type ConfigsQueryResponse = {
-  configsGetValue: IConfig;
-  loading: boolean;
-  refetch: () => void;
+  mainCurrencyConfig: { value?: string | string[] } | null;
 };
-export type ExchangeRateFormValues = Omit<
-  IExchangeRate,
-  'createdAt' | 'modifiedAt'
->;

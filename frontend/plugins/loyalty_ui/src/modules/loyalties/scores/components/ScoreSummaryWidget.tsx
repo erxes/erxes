@@ -4,6 +4,7 @@ import {
   IconTrendingDown,
   IconCoins,
   IconCaretRightFilled,
+  IconRefresh,
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useQuery } from '@apollo/client';
@@ -17,24 +18,8 @@ import {
   Spinner,
 } from 'erxes-ui';
 import { SCORE_LOG_STATISTICS_QUERY } from '../graphql/queries';
-
-type ScoreStats = {
-  totalPointEarned?: number;
-  totalPointBalance?: number;
-  totalPointRedeemed?: number;
-  redemptionRate?: number;
-  activeLoyaltyMembers?: number;
-  monthlyActiveUsers?: number;
-  mostRedeemedProductCategory?: string;
-};
-
-const useScoreStats = (ownerId?: string, ownerType?: string) => {
-  const { data, loading } = useQuery(SCORE_LOG_STATISTICS_QUERY, {
-    fetchPolicy: 'cache-and-network',
-    variables: { ownerId, ownerType },
-  });
-  return { stats: (data?.scoreLogStatistics || {}) as ScoreStats, loading };
-};
+import { ScoreStats, useScoreStatistics } from '../hooks/useScoreStatistics';
+import { useRepairOwnerScore } from '../hooks/useRepairOwnerScore';
 
 const ScoreStatCards = ({
   stats,
@@ -99,7 +84,7 @@ const ScoreStatCards = ({
 };
 
 const ScoreSummaryPanelContent = () => {
-  const { stats, loading } = useScoreStats();
+  const { stats, loading } = useScoreStatistics();
 
   return (
     <div className="p-4">
@@ -156,11 +141,32 @@ export const ScoreSummaryWidget = ({
   });
   const stats = (data?.scoreLogStatistics || {}) as ScoreStats;
 
+  const { repairOwnerScore, loading: repairing } = useRepairOwnerScore();
+
+  const handleRepair = () => {
+    if (!ownerId || !ownerType) return;
+    repairOwnerScore({ ownerId, ownerType });
+  };
+
   return (
     <>
       <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background">
         <IconChartHistogram className="size-4 text-muted-foreground" />
         <span className="font-medium text-primary">Score Summary</span>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="ml-auto"
+          onClick={handleRepair}
+          disabled={!ownerId || !ownerType || repairing}
+        >
+          {repairing ? (
+            <Spinner size="sm" />
+          ) : (
+            <IconRefresh className="size-4" />
+          )}
+          Repair
+        </Button>
       </div>
       <Separator />
       <ScrollArea className="flex-auto">

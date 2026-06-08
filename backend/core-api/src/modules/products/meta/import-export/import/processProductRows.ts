@@ -9,21 +9,30 @@ export async function processProductRows(
   const errorRows: any[] = [];
 
   try {
-    const codes = rows.map((r) => r.code).filter(Boolean);
-
-    const existingDocs = await models.Products.find({
-      ...(codes.length ? { code: { $in: codes } } : {}),
-    }).lean();
+    const codes = rows
+      .map((r) => (r.code != null ? String(r.code).trim() : ''))
+      .filter(Boolean);
 
     const existingByCode = new Map<string, any>();
-    for (const doc of existingDocs) {
-      if (doc.code) existingByCode.set(doc.code, doc);
+    if (codes.length) {
+      const existingDocs = await models.Products.find({
+        code: { $in: codes },
+      }).lean();
+      for (const doc of existingDocs) {
+        if (doc.code) existingByCode.set(String(doc.code).trim(), doc);
+      }
     }
 
     const operations: any[] = [];
     const rowToMetaMap = new Map<any, { _id?: any; operationIndex?: number }>();
 
+    const isBlankRow = (row: any) =>
+      Object.values(row).every(
+        (v) => v === undefined || v === null || v === '' || v === '-',
+      );
+
     for (const row of rows) {
+      if (isBlankRow(row)) continue;
       try {
         const doc = await prepareProductDoc(models, row);
         const existing = existingByCode.get(doc.code);
@@ -42,16 +51,46 @@ export async function processProductRows(
           rowToMetaMap.set(row, { operationIndex: opIndex });
         }
       } catch (e: any) {
-        errorRows.push({ ...row, error: e?.message || 'Failed to prepare row' });
+        errorRows.push({
+          ...row,
+          error: e?.message || 'Failed to prepare row',
+        });
       }
     }
 
     if (operations.length) {
-      const result = await models.Products.bulkWrite(operations);
+      let bulkResult: any;
+      const failedOpIndices = new Set<number>();
+
+      try {
+        bulkResult = await models.Products.bulkWrite(operations, {
+          ordered: false,
+        });
+      } catch (e: any) {
+        const isBulkError =
+          e?.name === 'MongoBulkWriteError' || e?.name === 'BulkWriteError';
+        if (!isBulkError) throw e;
+
+        bulkResult = e.result ?? e;
+        for (const writeError of e.writeErrors ?? []) {
+          const idx = writeError.index ?? writeError.err?.index;
+          if (idx != null) failedOpIndices.add(idx);
+        }
+      }
 
       for (const [row, meta] of rowToMetaMap.entries()) {
         if (meta.operationIndex !== undefined) {
-          successRows.push({ ...row, _id: result.insertedIds[meta.operationIndex] });
+          if (failedOpIndices.has(meta.operationIndex)) {
+            errorRows.push({
+              ...row,
+              error: 'Write failed (duplicate or invalid data)',
+            });
+          } else {
+            successRows.push({
+              ...row,
+              _id: bulkResult?.insertedIds?.[meta.operationIndex],
+            });
+          }
         } else {
           successRows.push({ ...row, _id: meta._id });
         }
@@ -62,7 +101,10 @@ export async function processProductRows(
   } catch (e: any) {
     return {
       successRows: [],
-      errorRows: rows.map((r) => ({ ...r, error: e?.message || 'Failed to process rows' })),
+      errorRows: rows.map((r) => ({
+        ...r,
+        error: e?.message || 'Failed to process rows',
+      })),
     };
   }
 }

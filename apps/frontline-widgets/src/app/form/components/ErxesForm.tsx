@@ -4,7 +4,6 @@ import {
   cn,
   DatePicker,
   Form,
-  InfoCard,
   Input,
   Label,
   RadioGroup,
@@ -177,18 +176,29 @@ export const ErxesForm = ({
   return (
     <Form {...form}>
       <form
-        className={cn('text-sm')}
+        className={cn(
+          { 'shadow-2xl': id || isPopup },
+          'text-sm rounded-2xl overflow-hidden',
+        )}
         onSubmit={form.handleSubmit(handleSubmit)}
       >
-        <InfoCard
-          title={formData?.title || ''}
-          description={formData?.description || ''}
+        {/* Header hero */}
+        <div className="min-h-10 bg-transparent px-5 pt-4.5 pb-24 relative text-primary-foreground flex-auto bg-[radial-gradient(120%_80%_at_88%_-10%,rgba(255,255,255,0.18)_0%,transparent_90%),radial-gradient(80%_60%_at_10%_110%,var(--color-background)_0%,transparent_60%),linear-gradient(var(--color-primary)_0%,var(--color-primary)_70%,var(--color-primary)_80%)]">
+          <div className="mt-4 max-w-3/4 space-y-1">
+            <h1 className="text-primary-foreground text-2xl leading-none uppercase">
+              {formData?.title || ''}
+            </h1>
+            <span className="text-primary-foreground/60 text-xs leading-none font-light">
+              {formData?.description || ''}
+            </span>
+          </div>
+        </div>
+        <div
           className={cn(
             {
-              'max-h-[600px] min-h-[400px] flex flex-col overflow-y-hidden':
-                id || isPopup,
+              'max-h-[600px] min-h-[400px] flex flex-col': id || isPopup,
             },
-            'p-2 bg-background/40 [&_h3]:text-foreground',
+            'p-2 [&_h3]:text-foreground text-left bg-sidebar [&_h3]:text-base [&_h3]:mx-auto [&_h3]:font-sans relative z-20 px-4 pb-2 -mt-14',
           )}
         >
           {stepsLength > 1 && (
@@ -199,13 +209,16 @@ export const ErxesForm = ({
               description={step.description}
             />
           )}
-          <InfoCard.Content
+          <div
             className={cn(
               {
-                'flex-1 styled-scroll hide-scroll overflow-y-auto':
-                  id || isPopup,
+                'flex-1': id || isPopup,
               },
-              'h-full mt-2',
+              {
+                '-mt-8 z-30': stepsLength === 1,
+              },
+              { 'mt-3': stepsLength > 1 },
+              'h-full px-8! py-4! bg-background rounded-2xl hide-scroll overflow-y-auto shadow-sm',
             )}
           >
             <div className="grid md:grid-cols-2 gap-4 mb-2">
@@ -268,7 +281,10 @@ export const ErxesForm = ({
                                   required={erxesField.isRequired}
                                 />
                               </Form.Control>
-                              <Form.Label variant="peer">
+                              <Form.Label
+                                variant="peer"
+                                className="text-muted-foreground"
+                              >
                                 {erxesField.text}
                                 {erxesField.isRequired && (
                                   <span className="text-destructive"> *</span>
@@ -295,6 +311,7 @@ export const ErxesForm = ({
                               {...field}
                               placeholder={erxesField.text}
                               required={erxesField.isRequired}
+                              className="text-foreground"
                             />
                             {erxesField.description && (
                               <Form.Description
@@ -351,6 +368,7 @@ export const ErxesForm = ({
                                       value={option}
                                       id={`${erxesField._id}-${option}`}
                                       required={erxesField.isRequired}
+                                      className="shadow-border"
                                     />
                                     <Label
                                       htmlFor={`${erxesField._id}-${option}`}
@@ -409,6 +427,7 @@ export const ErxesForm = ({
                                         );
                                       }}
                                       required={erxesField.isRequired}
+                                      className="text-foreground"
                                     />
                                     <Label
                                       htmlFor={`${erxesField._id}-${option}`}
@@ -453,6 +472,7 @@ export const ErxesForm = ({
                                 }
                                 onChange={(date) => field.onChange(date)}
                                 placeholder={erxesField.text}
+                                className="*:text-foreground text-foreground"
                                 mode="single"
                               />
                             </Form.Control>
@@ -502,21 +522,24 @@ export const ErxesForm = ({
                                 }}
                                 multiple
                               >
-                                <Upload.Preview className="rounded-full" />
-                                <Upload.Button
-                                  type="button"
-                                  variant={'outline'}
-                                  size={'sm'}
-                                >
-                                  {erxesField.content || 'Upload file'}
-                                </Upload.Button>
-                                {Array.isArray(field.value) &&
-                                  field.value.length > 0 && (
-                                    <Upload.RemoveButton
-                                      variant={'destructive'}
-                                      size={'sm'}
-                                    />
-                                  )}
+                                <Upload.Preview className="rounded-full text-foreground" />
+                                <div className="flex flex-col gap-1">
+                                  <Upload.Button
+                                    type="button"
+                                    variant={'outline'}
+                                    size={'sm'}
+                                    className="text-foreground"
+                                  >
+                                    {erxesField.content || 'Upload file'}
+                                  </Upload.Button>
+                                  {Array.isArray(field.value) &&
+                                    field.value.length > 0 && (
+                                      <Upload.RemoveButton
+                                        variant={'destructive'}
+                                        size={'sm'}
+                                      />
+                                    )}
+                                </div>
                               </Upload.Root>
                             </Form.Control>
                             {erxesField.description && (
@@ -550,20 +573,23 @@ export const ErxesForm = ({
                                   }
                                 }}
                               >
-                                <Upload.Preview className="rounded-full" />
-                                <Upload.Button
-                                  type="button"
-                                  variant={'outline'}
-                                  size={'sm'}
-                                >
-                                  {erxesField.content || 'Upload file'}
-                                </Upload.Button>
-                                {field.value && (
-                                  <Upload.RemoveButton
-                                    variant={'destructive'}
+                                <Upload.Preview className="rounded-full text-foreground" />
+                                <div className="space-y-2">
+                                  <Upload.Button
+                                    type="button"
+                                    variant={'outline'}
                                     size={'sm'}
-                                  />
-                                )}
+                                    className="text-foreground"
+                                  >
+                                    {erxesField.content || 'Upload file'}
+                                  </Upload.Button>
+                                  {field.value && (
+                                    <Upload.RemoveButton
+                                      variant={'destructive'}
+                                      size={'sm'}
+                                    />
+                                  )}
+                                </div>
                               </Upload.Root>
                             </Form.Control>
                             {erxesField.description && (
@@ -645,7 +671,7 @@ export const ErxesForm = ({
                 );
               })}
             </div>
-          </InfoCard.Content>
+          </div>
           <div className="flex justify-end mt-4 mb-2 mr-3 gap-2">
             {stepsLength > 1 && (
               <Button
@@ -667,7 +693,12 @@ export const ErxesForm = ({
               <Button type="submit">Next</Button>
             )}
           </div>
-        </InfoCard>
+        </div>
+        {!isPopup && !id && (
+          <div className="flex items-center gap-0.5 bg-sidebar justify-center py-2 text-muted-foreground font-medium text-[10px]">
+            <span>Powered by Erxes</span>
+          </div>
+        )}
       </form>
     </Form>
   );

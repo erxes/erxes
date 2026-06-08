@@ -45,6 +45,7 @@ export const SCORE_LOGS_QUERY = gql`
         ownerType
         owner
         totalScore
+        preScore
         change
         action
         description
@@ -58,8 +59,6 @@ export const SCORE_LOGS_QUERY = gql`
         serviceName
         createdBy
         createdAt
-        amount
-        quantity
       }
       pageInfo {
         hasNextPage
@@ -82,8 +81,11 @@ export const SCORE_LOG_STATISTICS_QUERY = gql`
     $action: String
     $fromDate: String
     $toDate: String
+    $boardId: String
+    $pipelineId: String
     $stageId: String
     $number: String
+    $description: String
   ) {
     scoreLogStatistics(
       searchValue: $searchValue
@@ -94,8 +96,11 @@ export const SCORE_LOG_STATISTICS_QUERY = gql`
       action: $action
       fromDate: $fromDate
       toDate: $toDate
+      boardId: $boardId
+      pipelineId: $pipelineId
       stageId: $stageId
       number: $number
+      description: $description
     )
   }
 `;

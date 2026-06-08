@@ -1,23 +1,25 @@
 import { gql } from '@apollo/client';
 import { PACKAGE_FRAGMENT } from './packageQueries';
 
-const PRODUCT_INPUT = `$products: [PackageProductInput!]`;
+const PRODUCT_INPUT = `$products: [ProductPackageInput!]`;
 
 export const ADD_PACKAGE = gql`
-  mutation PackagesAdd(
+  mutation productPackagesAdd(
     $name: String
     $description: String
     $coverImage: String
     ${PRODUCT_INPUT}
+    $tagIds: [String]
     $price: Float
     $percent: Float
     $status: String
   ) {
-    packagesAdd(
+    productPackagesAdd(
       name: $name
       description: $description
       coverImage: $coverImage
       products: $products
+      tagIds: $tagIds
       price: $price
       percent: $percent
       status: $status
@@ -29,21 +31,23 @@ export const ADD_PACKAGE = gql`
 `;
 
 export const EDIT_PACKAGE = gql`
-  mutation PackagesEdit(
+  mutation productPackagesEdit(
     $_id: String!
     $name: String
     $description: String
     $coverImage: String
     ${PRODUCT_INPUT}
+    $tagIds: [String]
     $price: Float
     $percent: Float
   ) {
-    packagesEdit(
+    productPackagesEdit(
       _id: $_id
       name: $name
       description: $description
       coverImage: $coverImage
       products: $products
+      tagIds: $tagIds
       price: $price
       percent: $percent
     ) {
@@ -54,8 +58,8 @@ export const EDIT_PACKAGE = gql`
 `;
 
 export const CHANGE_PACKAGE_STATUS = gql`
-  mutation PackagesChangeStatus($_ids: [String!]!, $status: String!) {
-    packagesChangeStatus(_ids: $_ids, status: $status) {
+  mutation productPackagesChangeStatus($_ids: [String!]!, $status: String!) {
+    productPackagesChangeStatus(_ids: $_ids, status: $status) {
       ...PackageFields
     }
   }
@@ -63,7 +67,7 @@ export const CHANGE_PACKAGE_STATUS = gql`
 `;
 
 export const REMOVE_PACKAGES = gql`
-  mutation PackagesRemove($_ids: [String!]!) {
-    packagesRemove(_ids: $_ids)
+  mutation productPackagesRemove($_ids: [String!]!) {
+    productPackagesRemove(_ids: $_ids)
   }
 `;

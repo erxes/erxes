@@ -2,7 +2,14 @@ import { useChannelRemove } from '@/channels/hooks/useChannelRemove';
 import { IChannel } from '@/channels/types';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
-import { Combobox, Command, Popover, RecordTable, Spinner, useConfirm } from 'erxes-ui';
+import {
+  Combobox,
+  Command,
+  Popover,
+  RecordTable,
+  Spinner,
+  useConfirm,
+} from 'erxes-ui';
 import { useNavigate } from 'react-router-dom';
 
 export const ChannelsMoreColumnCell = ({
@@ -55,5 +62,7 @@ export const ChannelsMoreColumnCell = ({
 export const channelsMoreColumn = {
   id: 'more',
   cell: ChannelsMoreColumnCell,
-  size: 15,
+  size: 45,
+  minSize: 45,
+  maxSize: 45,
 };

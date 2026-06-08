@@ -91,8 +91,6 @@ export const TOPICS = gql`
   }
 `;
 
-
-
 export const TOPICS_SHORT = gql`
   query knowledgeBaseTopics(
     $page: Int
@@ -101,14 +99,18 @@ export const TOPICS_SHORT = gql`
     $codes: [String]
     $searchValue: String
   ) {
-    knowledgeBaseTopics(page: $page, perPage: $perPage, brandId: $brandId, codes: $codes, searchValue: $searchValue) {
+    knowledgeBaseTopics(
+      page: $page
+      perPage: $perPage
+      brandId: $brandId
+      codes: $codes
+      searchValue: $searchValue
+    ) {
       _id
       title
     }
   }
 `;
-
-
 
 export const BRANDS = gql`
   query brands {
@@ -198,35 +200,34 @@ export const CATEGORY_LAST = gql`
 
 export const ARTICLES = gql`
   query knowledgeBaseArticles($categoryIds: [String]) {
-  knowledgeBaseArticles(categoryIds: $categoryIds) {
-    _id
-    title
-    summary
-    createdDate
-    status
-    createdUser {
+    knowledgeBaseArticles(categoryIds: $categoryIds) {
       _id
-      username
-      email
-      details {
-        avatar
-        fullName
+      title
+      summary
+      createdDate
+      status
+      createdUser {
+        _id
+        username
+        email
+        details {
+          avatar
+          fullName
+        }
       }
-    }
-    publishedUser {
-      _id
-      username
-      email
-      details {
-        avatar
-        fullName
+      publishedUser {
+        _id
+        username
+        email
+        details {
+          avatar
+          fullName
+        }
       }
+      createdBy
+      modifiedBy
     }
-    createdBy
-    modifiedBy
   }
-}
-
 `;
 
 export const ARTICLE_DETAIL = gql`
@@ -279,6 +280,98 @@ export const ARTICLE_DETAIL = gql`
       publishedUserId
       publishedUser {
         ...UserFragment
+      }
+    }
+  }
+`;
+
+export const GET_KNOWLEDGE_BASE_TOPIC_DETAILS = gql`
+  query knowledgeBaseTopicDetail($_id: String!) {
+    knowledgeBaseTopicDetail(_id: $_id) {
+      _id
+      title
+      description
+      color
+      code
+      categories {
+        _id
+        title
+        description
+        numOfArticles(status: "publish")
+        countArticles
+        parentCategoryId
+        icon
+        articles(status: "publish") {
+          viewCount
+          topicId
+          title
+          summary
+          status
+          reactionCounts
+          reactionChoices
+          publishedAt
+          modifiedDate
+          isPrivate
+          image {
+            url
+            name
+            type
+            size
+            duration
+          }
+          content
+          code
+          categoryId
+          attachments {
+            url
+            name
+            type
+            size
+            duration
+          }
+          _id
+        }
+      }
+      parentCategories {
+        _id
+        title
+        description
+        numOfArticles(status: "publish")
+        parentCategoryId
+        icon
+        childrens {
+          _id
+        }
+        articles {
+          viewCount
+          topicId
+          title
+          summary
+          status
+          reactionCounts
+          reactionChoices
+          publishedAt
+          modifiedDate
+          isPrivate
+          image {
+            url
+            name
+            type
+            size
+            duration
+          }
+          content
+          code
+          categoryId
+          attachments {
+            url
+            name
+            type
+            size
+            duration
+          }
+          _id
+        }
       }
     }
   }

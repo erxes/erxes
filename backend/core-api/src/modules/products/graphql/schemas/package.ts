@@ -7,7 +7,7 @@ export const types = `
     product: Product
   }
 
-  type Package {
+  type ProductPackage {
     _id: String!
     name: String
     description: String
@@ -15,22 +15,25 @@ export const types = `
 
     products: [PackageProduct]
 
+    tagIds: [String]
+    tags: [Tag]
+
     price: Float
     percent: Float
-    componentsTotal: Float
+    totalPrice: Float
 
     status: String
     createdAt: Date
     updatedAt: Date
   }
 
-  type PackagesListResponse {
-    list: [Package]
+  type ProductPackagesListResponse {
+    list: [ProductPackage]
     pageInfo: PageInfo
     totalCount: Int
   }
 
-  input PackageProductInput {
+  input ProductPackageInput {
     productId: String!
     quantity: Int!
   }
@@ -40,26 +43,28 @@ const queryParams = `
   searchValue: String
   status: String
   ids: [String]
+  tagIds: [String]
 `;
 
 export const queries = `
-  packages(${queryParams}${GQL_CURSOR_PARAM_DEFS}): PackagesListResponse
-  packageDetail(_id: String!): Package
+  productPackages(${queryParams}${GQL_CURSOR_PARAM_DEFS}): ProductPackagesListResponse
+  productPackageDetail(_id: String!): ProductPackage
 `;
 
 const mutationParams = `
   name: String
   description: String
   coverImage: String
-  products: [PackageProductInput!]
+  products: [ProductPackageInput!]
+  tagIds: [String]
   price: Float
   percent: Float
   status: String
 `;
 
 export const mutations = `
-  packagesAdd(${mutationParams}): Package
-  packagesEdit(_id: String!, ${mutationParams}): Package
-  packagesChangeStatus(_ids: [String!]!, status: String!): [Package]
-  packagesRemove(_ids: [String!]!): JSON
+  productPackagesAdd(${mutationParams}): ProductPackage
+  productPackagesEdit(_id: String!, ${mutationParams}): ProductPackage
+  productPackagesChangeStatus(_ids: [String!]!, status: String!): [ProductPackage]
+  productPackagesRemove(_ids: [String!]!): JSON
 `;

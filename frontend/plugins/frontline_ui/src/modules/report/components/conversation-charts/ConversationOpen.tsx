@@ -43,6 +43,11 @@ import {
   getReportMemberFilterAtom,
 } from '@/report/states';
 import { ReportFilter } from '../filter-popover/report-filter';
+import { ChartExportButton } from '../chart-export/ChartExportButton';
+import {
+  useChartPagination,
+  ChartPagination,
+} from '../chart-pagination/ChartPagination';
 
 interface ConversationOpenProps {
   title: string;
@@ -367,6 +372,11 @@ export const openTableColumns: ColumnDef<OpenTableData>[] = [
   },
 ];
 
+const OPEN_EXPORT_COLUMNS = [
+  { key: 'date' as const, header: 'Date' },
+  { key: 'count' as const, header: 'Count' },
+];
+
 export const ConversationOpen = ({
   title,
   colSpan = 6,
@@ -402,9 +412,30 @@ export const ConversationOpen = ({
     notifyOnNetworkStatusChange: true,
   });
 
-  const chartData = useMemo(() => {
-    return reports?.reportConversationOpenDate || [];
-  }, [reports]);
+  const allData = useMemo(
+    () => reports?.reportConversationOpenDate || [],
+    [reports],
+  );
+  const {
+    pagedData: chartData,
+    page,
+    totalPages,
+    totalCount,
+    handlePrev,
+    handleNext,
+  } = useChartPagination(allData);
+
+  const filterEl = (
+    <>
+      <ReportFilter cardId={id} />
+      <SelectChartType value={chartType} onValueChange={setChartType} />
+      <ChartExportButton
+        data={allData}
+        columns={OPEN_EXPORT_COLUMNS}
+        filename="conversation-open"
+      />
+    </>
+  );
 
   if (loading) {
     return (
@@ -413,14 +444,7 @@ export const ConversationOpen = ({
         title={title}
         description="Total conversations open in the last 30 days"
       >
-        <FrontlineCard.Header
-          filter={
-            <>
-              <ReportFilter cardId={id} />
-              <SelectChartType value={chartType} onValueChange={setChartType} />
-            </>
-          }
-        />
+        <FrontlineCard.Header filter={filterEl} />
         <FrontlineCard.Skeleton />
       </FrontlineCard>
     );
@@ -457,14 +481,7 @@ export const ConversationOpen = ({
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
-      <FrontlineCard.Header
-        filter={
-          <>
-            <ReportFilter cardId={id} />
-            <SelectChartType value={chartType} onValueChange={setChartType} />
-          </>
-        }
-      />
+      <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
         <div
           className={cn(
@@ -476,6 +493,13 @@ export const ConversationOpen = ({
         >
           {renderChart()}
         </div>
+        <ChartPagination
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
       </FrontlineCard.Content>
     </FrontlineCard>
   );

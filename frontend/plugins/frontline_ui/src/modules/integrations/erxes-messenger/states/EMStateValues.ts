@@ -42,6 +42,7 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
         botShowInitialMessage: false,
         botCheck: config?.botSetup?.botCheck ?? false,
         botGreetMessage: config?.botSetup?.greetingMessage ?? '',
+        automationId: config?.botSetup?.automationId ?? '',
         persistentMenus:
           config?.botSetup?.persistentMenu?.map((item) => ({
             text: item.text,
@@ -80,6 +81,8 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
         showVideoCallRequest: settings?.showVideoCallRequest ?? false,
         links,
         externalLinks,
+        knowledgeBaseTopicId: config?.knowledgeBaseTopicId ?? '',
+        websiteApps: settings?.websiteApps ?? [],
       },
       callData: {},
     },
@@ -90,6 +93,7 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
           appearance?.primary?.foreground || DEFAULT_COLORS.FOREGROUND,
       },
       logo: appearance?.logo || '',
+      navigationVariant: appearance?.navigationVariant || 'pill',
     },
   });
 });

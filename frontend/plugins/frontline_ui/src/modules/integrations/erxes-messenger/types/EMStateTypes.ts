@@ -36,6 +36,7 @@ export interface MessengerSetupPayload {
     botShowInitialMessage?: boolean;
     botCheck?: boolean;
     botGreetMessage?: string;
+    automationId?: string;
     persistentMenus?: {
       _id: string;
       name: string;
@@ -73,7 +74,31 @@ export interface MessengerSetupPayload {
     showVideoCallRequest?: boolean;
     links?: { [key: string]: string };
     externalLinks?: { url: string }[];
+    knowledgeBaseTopicId?: string;
+    websiteApps?: {
+      _id?: string;
+      kind: string;
+      showInInbox: boolean;
+      credentials: {
+        integrationId: string;
+        description?: string;
+        buttonText?: string;
+        url: string;
+      };
+      scopeBrandIds: string[];
+    }[];
   };
+  websiteMessengerApps?: {
+    _id?: string;
+    kind: string;
+    showInInbox: boolean;
+    credentials: {
+      integrationId: string;
+      description?: string;
+      buttonText?: string;
+      url: string;
+    };
+  }[];
   callData?: {
     header?: string;
     description?: string;
@@ -92,5 +117,6 @@ export interface MessengerSetupPayload {
       DEFAULT?: string;
       foreground?: string;
     };
+    navigationVariant?: 'pill' | 'fluid';
   };
 }

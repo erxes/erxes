@@ -74,7 +74,7 @@ export const getRelatedValue = async (
       method: 'query',
       module: 'tags',
       action: 'find',
-      input: { _id: { $in: target[targetKey] } },
+      input: { query: { _id: { $in: target[targetKey] } } },
     });
 
     return (tags.map((tag) => tag.name) || []).join(', ');
@@ -312,7 +312,7 @@ const generateCustomersFielValue = async ({
       pluginName: 'core',
       module: 'customers',
       action: 'find',
-      input: { _id: { $in: customerIds } },
+      input: { query: { _id: { $in: customerIds } } },
       defaultValue: [],
     })) || [];
 
@@ -367,7 +367,7 @@ const generateCreatedByFieldValue = async ({
       pluginName: 'core',
       module: 'branches',
       action: 'find',
-      input: { _id: user?.branchIds || [] },
+      input: { query: { _id: { $in: user?.branchIds || [] } } },
       defaultValue: [],
     });
 
@@ -381,7 +381,7 @@ const generateCreatedByFieldValue = async ({
       pluginName: 'core',
       module: 'departments',
       action: 'find',
-      input: { _id: user?.departmentIds || [] },
+      input: { query: { _id: { $in: user?.departmentIds || [] } } },
       defaultValue: [],
     });
 

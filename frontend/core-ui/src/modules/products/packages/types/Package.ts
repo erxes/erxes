@@ -9,9 +9,10 @@ export interface IPackage {
   description?: string;
   coverImage?: string;
   products?: IPackageProduct[];
+  tagIds?: string[];
   price?: number;
   percent?: number;
-  componentsTotal?: number;
+  totalPrice?: number;
   status?: string;
   createdAt?: string;
   updatedAt?: string;

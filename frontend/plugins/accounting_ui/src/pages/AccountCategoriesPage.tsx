@@ -2,18 +2,20 @@ import { AccountCategoriesTable } from '@/settings/account/account-categories/co
 import { EditAccountCategory } from '@/settings/account/account-categories/components/EditAccountsCategory';
 import { AccountsFilter } from '@/settings/account/components/AccountsFilter';
 import { PageContainer, PageSubHeader } from 'erxes-ui';
-import { Import } from 'ui-modules';
+import { Can, Import } from 'ui-modules';
 
 export const AccountCategoriesPage = () => {
   return (
     <PageContainer>
       <PageSubHeader>
         <AccountsFilter />
-        <Import
-          pluginName="accounting"
-          moduleName="account"
-          collectionName="accountCategories"
-        />
+        <Can action="accountCategoriesImportManage">
+          <Import
+            pluginName="accounting"
+            moduleName="account"
+            collectionName="accountCategories"
+          />
+        </Can>
       </PageSubHeader>
       <AccountCategoriesTable />
       <EditAccountCategory />

@@ -10,6 +10,10 @@ import './styles.css';
 
 import { App } from '@/app/components/App';
 import { ClientConfigError } from '@/error-handler/components/ClientConfigError';
+import { initSentry } from './sentry';
+
+// Install browser error handlers as early as possible, before any rendering.
+initSentry();
 
 async function initFederation() {
   const root = ReactDOM.createRoot(

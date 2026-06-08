@@ -3,6 +3,10 @@ import { useAtomValue } from 'jotai';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
 import { CMS_CUSTOM_FIELD_GROUPS } from '../../../../custom-fields/graphql/queries';
 import { CONTENT_CMS_LIST } from '../../../../graphql/queries';
+import type { FieldGroup } from '../CustomFieldsSection';
+import type { IWebsite } from '~/modules/cms/types';
+
+export type PostUrlField = '_id' | 'count' | 'slug';
 
 const COMBINED_CMS_DATA = gql`
   query CombinedCmsData(
@@ -44,8 +48,54 @@ interface ICategoryOption {
   value: string;
 }
 
+interface IRawTag {
+  _id: string;
+  name: string;
+  colorCode?: string;
+}
+
+interface ICustomType {
+  _id: string;
+  code: string;
+  label: string;
+  description?: string;
+}
+
+interface CmsFieldGroup extends FieldGroup {
+  customPostTypeIds?: string[];
+  enabledPostIds?: string[];
+}
+
+interface CombinedCmsData {
+  cmsCategories?: {
+    list?: IRawCategory[];
+  };
+  cmsTags?: {
+    tags?: IRawTag[];
+  };
+  cmsCustomPostTypes?: ICustomType[];
+}
+
+interface CmsListData {
+  contentCMSList?: IWebsite[];
+}
+
+interface CustomFieldGroupsData {
+  cmsCustomFieldGroupList?: {
+    list?: CmsFieldGroup[];
+  };
+}
+
 const naturalSort = (a: string, b: string) =>
   a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+
+const normalizePostUrlField = (postUrlField?: string): PostUrlField => {
+  if (postUrlField === 'count' || postUrlField === 'slug') {
+    return postUrlField;
+  }
+
+  return '_id';
+};
 
 function buildTreeOptions(rawList: IRawCategory[]): ICategoryOption[] {
   const result: ICategoryOption[] = [];
@@ -83,45 +133,47 @@ export const usePostData = (
 ) => {
   const language = useAtomValue(cmsLanguageAtom);
 
-  const { data: combinedData, loading: combinedLoading } = useQuery(
-    COMBINED_CMS_DATA,
-    {
+  const { data: combinedData, loading: combinedLoading } =
+    useQuery<CombinedCmsData>(COMBINED_CMS_DATA, {
       variables: { clientPortalId: websiteId || '', limit: 100, language },
       skip: !websiteId,
       fetchPolicy: 'cache-first',
-    },
-  );
+    });
 
-  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+  const { data: cmsData } = useQuery<CmsListData>(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
     skip: !websiteId,
   });
 
-  const { data: fieldGroupsData } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
-    variables: { clientPortalId: websiteId },
-    skip: !websiteId || !selectedType,
-    fetchPolicy: 'cache-first',
-  });
+  const { data: fieldGroupsData } = useQuery<CustomFieldGroupsData>(
+    CMS_CUSTOM_FIELD_GROUPS,
+    {
+      variables: { clientPortalId: websiteId },
+      skip: !websiteId || !selectedType,
+      fetchPolicy: 'cache-first',
+    },
+  );
 
   const categories = buildTreeOptions(combinedData?.cmsCategories?.list || []);
 
-  const tags = (combinedData?.cmsTags?.tags || []).map((t: any) => ({
-    label: t.name,
-    value: t._id,
+  const tags = (combinedData?.cmsTags?.tags || []).map((tag) => ({
+    label: tag.name,
+    value: tag._id,
   }));
 
   const customTypes = combinedData?.cmsCustomPostTypes || [];
 
   const cmsConfig = cmsData?.contentCMSList?.find(
-    (cms: any) => cms.clientPortalId === websiteId,
+    (cms) => cms.clientPortalId === websiteId,
   );
 
   const availableLanguages = cmsConfig?.languages || [];
   const defaultLanguage = cmsConfig?.language || 'en';
+  const postUrlField = normalizePostUrlField(cmsConfig?.postUrlField);
 
   const fieldGroups = (
     fieldGroupsData?.cmsCustomFieldGroupList?.list || []
-  ).filter((group: any) => {
+  ).filter((group) => {
     const ids: string[] = group.customPostTypeIds || [];
     if (
       ids.length > 0 &&
@@ -144,6 +196,8 @@ export const usePostData = (
     customTypes,
     availableLanguages,
     defaultLanguage,
+    postUrlField,
+    cmsConfig,
     fieldGroups,
     loading: combinedLoading,
   };

@@ -22,6 +22,7 @@ export const packageSchema = schemaWrapper(
         default: [],
         label: 'Products',
       },
+      tagIds: { type: [String], optional: true, label: 'Tags' },
       price: { type: Number, optional: true, label: 'Price' },
       percent: { type: Number, optional: true, min: 0, max: 100, label: 'Discount percent' },
       status: {

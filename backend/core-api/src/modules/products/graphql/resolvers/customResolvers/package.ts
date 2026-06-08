@@ -23,7 +23,17 @@ export default {
       .filter(Boolean);
   },
 
-  async componentsTotal(
+  async tags(
+    { tagIds = [] }: IPackageDocument,
+    _args: unknown,
+    { models }: IContext,
+  ) {
+    if (!tagIds.length) return [];
+
+    return models.Tags.find({ _id: { $in: tagIds } }).lean();
+  },
+
+  async totalPrice(
     { products = [] }: IPackageDocument,
     _args: unknown,
     { models }: IContext,

@@ -3,6 +3,7 @@ import { IUIConfig } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { loadingPluginsConfigState, pluginsConfigState } from 'ui-modules';
+import { i18nInstance } from '~/i18n';
 
 type RemoteConfig = {
   CONFIG: IUIConfig;
@@ -23,6 +24,10 @@ export const PluginConfigsProvidersEffect = () => {
               `${remote.name}/config`,
             )) as RemoteConfig;
             const pluginConfig = remoteConfig.CONFIG;
+
+            if (pluginConfig.i18n) {
+              i18nInstance.loadNamespaces(pluginConfig.name);
+            }
 
             setPluginsConfig((prev) => ({
               ...prev,

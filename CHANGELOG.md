@@ -1,5 +1,118 @@
 
 
+## [3.0.31](https://github.com/erxes/erxes/compare/3.0.30...3.0.31) (2026-06-08)
+
+
+### Bug Fixes
+
+* **content:** Fixing CMS post translations ([#7890](https://github.com/erxes/erxes/issues/7890)) ([ed23ae9](https://github.com/erxes/erxes/commit/ed23ae91e72b43564e9b3e0e3eb46b46c6e71040))
+* exchange-rates-currency-fix ([#7919](https://github.com/erxes/erxes/issues/7919)) ([81f2d8f](https://github.com/erxes/erxes/commit/81f2d8fa249c7cf21fd0edd518aa857eb84f7bf0))
+* **frontline:** use Facebook Private Reply API for new comment-triggered conversations ([997e630](https://github.com/erxes/erxes/commit/997e630df50bd35bb786c97c10faed8656785245))
+* **frontline:** widgets ([#7884](https://github.com/erxes/erxes/issues/7884)) ([32bdf81](https://github.com/erxes/erxes/commit/32bdf817cf52db3b398e243defe6f576792fd9a2))
+* loyalty-score-filter-fix ([#7921](https://github.com/erxes/erxes/issues/7921)) ([9f74343](https://github.com/erxes/erxes/commit/9f7434378a1debd80cbfeec572b3dfd2ab2520e7))
+* loyalty-score-record-table-refactor ([#7887](https://github.com/erxes/erxes/issues/7887)) ([499f6e1](https://github.com/erxes/erxes/commit/499f6e1e9a1f8d96e9c6ebb85e6954c3637d9ea0))
+* **mongolian:** replace MS Dynamics settings form with config management table ([#7905](https://github.com/erxes/erxes/issues/7905)) ([aaa08cc](https://github.com/erxes/erxes/commit/aaa08ccedb8539918df3cc5d66b522ae71937675))
+* **operations:** migrationTask ([c81201f](https://github.com/erxes/erxes/commit/c81201fdc889a943013b053bf1cd02c9a07df3da))
+* provide default icon fallback in property forms ([#7616](https://github.com/erxes/erxes/issues/7616)) ([a8445ae](https://github.com/erxes/erxes/commit/a8445aef32edfb08bd8f98de37e05245b6ddbd66))
+* route conversation push notifications to CP users  ([53d6806](https://github.com/erxes/erxes/commit/53d68063d1df1558363b812a71acc43e7cdd9dd4))
+* sales to transaction sync update and loyalty score correct ([#7894](https://github.com/erxes/erxes/issues/7894)) ([1ca7d7a](https://github.com/erxes/erxes/commit/1ca7d7af1b1ddca9a126e3a5a8ca26a22d87c7d4))
+* skip Claude Code Action on PRs from read-only contributors ([#7911](https://github.com/erxes/erxes/issues/7911)) ([d266978](https://github.com/erxes/erxes/commit/d2669785223d121d89022acf759a4b45e0fc74d3))
+* some trpc ([9edbb68](https://github.com/erxes/erxes/commit/9edbb685070b8603bf82cb9c3a89be7e154b1074))
+
+
+### Features
+
+* add client portal ticket notes support and unify ticket search filter ([1722480](https://github.com/erxes/erxes/commit/17224802f658a7b651a3d7ae1389dd6df1ced769))
+* add issue webhook dispatcher for auto-fix listener ([856099f](https://github.com/erxes/erxes/commit/856099f17bf08d715151feb51ec3fb3aeb124cdf))
+* add module-specific import/export permissions ([#7913](https://github.com/erxes/erxes/issues/7913)) ([03e7fb0](https://github.com/erxes/erxes/commit/03e7fb00dca35930c070fe2f2fd09ff6e00a47f5))
+* add tag filtering and inline tag editing for packages ([9bc89a9](https://github.com/erxes/erxes/commit/9bc89a9461674d310d9955db5680df189305a5cd))
+* add tag support to packages ([fe65934](https://github.com/erxes/erxes/commit/fe65934f2eb19258751a7fe33bcc785b106a9f7a))
+* add tags column to projects table ([#7918](https://github.com/erxes/erxes/issues/7918)) ([35db2b6](https://github.com/erxes/erxes/commit/35db2b6d8ff78f65790b12635e56bf6aedcdb980))
+* add webhook action for bug/sentry issue auto-fix ([#7897](https://github.com/erxes/erxes/issues/7897)) ([014da90](https://github.com/erxes/erxes/commit/014da90b7f645b78b0d104e67bb7cac9743da974))
+* **content:** Add CMS public post links, view count, and author ([17a081b](https://github.com/erxes/erxes/commit/17a081bcf9db059a2dcacef63087b2b6f099ef94))
+* **core:** product customProperty  ([e9250c9](https://github.com/erxes/erxes/commit/e9250c9304b93db59278d771ea3255cf273a41d9))
+* cpDealsChange mutation ([e0e914a](https://github.com/erxes/erxes/commit/e0e914ab92dbba0f0dcde30eecb20b4aa5843eed))
+* federate plugin locale through gateway ([#7900](https://github.com/erxes/erxes/issues/7900)) ([ae53ad7](https://github.com/erxes/erxes/commit/ae53ad74bb703dc0a59f5249dac06d8bee1322e6))
+* **frontline:** Erxes messenger automation ([#7929](https://github.com/erxes/erxes/issues/7929)) ([d2fa6c5](https://github.com/erxes/erxes/commit/d2fa6c5df3105734a150db827862ef47b8e1f16b))
+* **frontline:** restrict inbox channel list to user's own channels ([9e20df3](https://github.com/erxes/erxes/commit/9e20df3609bcd9244abcf31619ad4105eb847cab))
+* implement file upload for property field type ([#7899](https://github.com/erxes/erxes/issues/7899)) ([1673f76](https://github.com/erxes/erxes/commit/1673f76631d678f9c721319d85fc5e43b3510120))
+* **payment:** integrate TDB card  payment method ([#7904](https://github.com/erxes/erxes/issues/7904)) ([baafb55](https://github.com/erxes/erxes/commit/baafb559dad640e6c5d44377ec3911d1f29d29fd))
+* Sentry error monitoring (frontend + backend) with expected-error classification ([#7907](https://github.com/erxes/erxes/issues/7907)) ([23f4024](https://github.com/erxes/erxes/commit/23f4024eae7870800ffcf2dcf57dd9ea26923f6a))
+
+## [3.0.30](https://github.com/erxes/erxes/compare/3.0.29...3.0.30) (2026-06-04)
+
+
+### Bug Fixes
+
+* **core:** fix export field selection modal layout and pluralized titles  ([c60e0cc](https://github.com/erxes/erxes/commit/c60e0cc1419bef79e3d6f71bdeeb9a7e8e3e2326))
+* **frontline:** ticket export ([f7e7433](https://github.com/erxes/erxes/commit/f7e74334d15fed6dfea0673b81d63d374cdecf47))
+* sales product scroll ([#7879](https://github.com/erxes/erxes/issues/7879)) ([7e1a242](https://github.com/erxes/erxes/commit/7e1a242cf877d86980529144b9b229e9cdd10bdf))
+
+
+### Features
+
+* add error classifier and Sentry filtering for expected errors ([#7865](https://github.com/erxes/erxes/issues/7865)) ([c2ede97](https://github.com/erxes/erxes/commit/c2ede97ceac69a243db62449baefa5357a555693))
+* **frontline:** add client portal queries, mutations, and subscriptions  ([bc1f1c9](https://github.com/erxes/erxes/commit/bc1f1c9fd2e1fb18d10eee9d612b057cd1cde14e))
+* **frontline:** forms and messenger widget ui ([#7869](https://github.com/erxes/erxes/issues/7869)) ([06a764d](https://github.com/erxes/erxes/commit/06a764d53ee5a177bb2bfd696a688a298bceb519))
+
+## [3.0.29](https://github.com/erxes/erxes/compare/3.0.28...3.0.29) (2026-06-03)
+
+
+### Bug Fixes
+
+* add status field to Department GraphQL type ([#7861](https://github.com/erxes/erxes/issues/7861)) ([be4644b](https://github.com/erxes/erxes/commit/be4644b3e64cbc185d69506ccad6816aa76d2d3c))
+* Exchange rates UI enhancement ([#7860](https://github.com/erxes/erxes/issues/7860)) ([07dbb4e](https://github.com/erxes/erxes/commit/07dbb4e8b02348348d629b1216ddb31a0d190622))
+* loyalty-score-statistics with filter param ([#7864](https://github.com/erxes/erxes/issues/7864)) ([a313341](https://github.com/erxes/erxes/commit/a313341cf2e376070583410e8acc5040a99f1356))
+* loyalty-scores-detail-sheet ([#7852](https://github.com/erxes/erxes/issues/7852)) ([50ec649](https://github.com/erxes/erxes/commit/50ec649fd761761770307f13c915a068ffb36db6))
+* **operation:** enforce ObjectId types for all cross-document reference fields ([d95a060](https://github.com/erxes/erxes/commit/d95a060b049d9d3b3301d953c6f4557c03f49a39))
+* **operation:** migration task ([ef52a0a](https://github.com/erxes/erxes/commit/ef52a0afc1147c71a67874530507ecc9fdd3bedd))
+* **operation:** patch legacy nanoid teamIds to ObjectId in migrateTasks ([70c32d3](https://github.com/erxes/erxes/commit/70c32d3c5f90dc6f6e95404ceda8b9530e53b703))
+* **operation:** use string IDs for schema relations and add task migration  ([1a06638](https://github.com/erxes/erxes/commit/1a066384dffddb45b1c30566bed6570c04d55e9b))
+* restrict export button to users with exportsManage permission ([#7862](https://github.com/erxes/erxes/issues/7862)) ([02fb5cb](https://github.com/erxes/erxes/commit/02fb5cbf12a9e278009c28242f4c58cbdc4738c4))
+* schema return ([#7863](https://github.com/erxes/erxes/issues/7863)) ([b2badf6](https://github.com/erxes/erxes/commit/b2badf6aae8eb0cdfcb7d61f3047b40a1b59bfb9))
+
+
+### Features
+
+* **core:** add custom field import/export for core and tickets; add load more for frontline response templates; fix inbox image preview, ([0677927](https://github.com/erxes/erxes/commit/0677927a9d58863484d5fe16c2b2bbb70d58c130))
+
+## [3.0.28](https://github.com/erxes/erxes/compare/3.0.27...3.0.28) (2026-06-02)
+
+
+### Bug Fixes
+
+* Accounting reverse tax and syncerkhet improve ([#7804](https://github.com/erxes/erxes/issues/7804)) ([e2f5a09](https://github.com/erxes/erxes/commit/e2f5a09c1fc8f5be79c64f7c97abbf495bb0c701))
+* allow core app admins to read oauth clients ([#7849](https://github.com/erxes/erxes/issues/7849)) ([9fcacbf](https://github.com/erxes/erxes/commit/9fcacbfd9e07ab23223b7285877ae5bdb2c8ecc8))
+* cp password change ([#7822](https://github.com/erxes/erxes/issues/7822)) ([12d7853](https://github.com/erxes/erxes/commit/12d7853df77fd01d22fde0293969bc041ca0604b))
+* **frontline:** migrate forms, permissions, and file upload handling  ([59c27e3](https://github.com/erxes/erxes/commit/59c27e3885284773f3717df6fad83b7613243788))
+* **loyalty:** score list to normalize ([#7817](https://github.com/erxes/erxes/issues/7817)) ([0c81bc8](https://github.com/erxes/erxes/commit/0c81bc85dd9732d767f1ebc9148c5bf08c553074))
+* **mongolian:** ebarimt productGroup list ([a71b61a](https://github.com/erxes/erxes/commit/a71b61a7062c7171b394ca30f164742b6f651438))
+* remove missing sentry.instrument.cjs references from Dockerfiles ([68a25bf](https://github.com/erxes/erxes/commit/68a25bf6b5abfc30eb390cbb3e2d41f8849fc84f))
+* sales bugs ([#7847](https://github.com/erxes/erxes/issues/7847)) ([766e342](https://github.com/erxes/erxes/commit/766e3423a13d59bdea0732ebb25bb94957c4f4f4))
+* **sales:** deal detail with stages shortcut ([#7840](https://github.com/erxes/erxes/issues/7840)) ([8371418](https://github.com/erxes/erxes/commit/83714181bc0a0141cb62f497282322f154281be3))
+* **sales:** some improve    ([#7797](https://github.com/erxes/erxes/issues/7797)) ([5ade01b](https://github.com/erxes/erxes/commit/5ade01bb45478b64263d6187d03932d58b35f801))
+* update .agents system - fix missing references and skill contracts ([#7829](https://github.com/erxes/erxes/issues/7829)) ([0bea2b1](https://github.com/erxes/erxes/commit/0bea2b1c318770a1886794507e3f04c4bcbe1d0f))
+
+
+### Features
+
+* add 3 options to confidential oauth ([#7846](https://github.com/erxes/erxes/issues/7846)) ([01c7074](https://github.com/erxes/erxes/commit/01c707448444b76fc2f7318a96d16d47dc06879b))
+* add detect-scope skill with pre-flight validation ([#7821](https://github.com/erxes/erxes/issues/7821)) ([51ad42c](https://github.com/erxes/erxes/commit/51ad42c98b43dcc84df7ec8d4b5fd2a5bf249ea9))
+* add package management module ([#7830](https://github.com/erxes/erxes/issues/7830)) ([7850f77](https://github.com/erxes/erxes/commit/7850f7768ed51381c1f3ba9a2d9c4c6438ca9eed))
+* add ticket sort control by latest updated/created ([ed17ef1](https://github.com/erxes/erxes/commit/ed17ef18c3167b141dc521a3da31a4a2e033abdc))
+* ai agents rules  ([a5b4f05](https://github.com/erxes/erxes/commit/a5b4f050f811d6fad1d3370b32953ac617815019))
+* **core-ui:** add editor gallery and image floating ([#7831](https://github.com/erxes/erxes/issues/7831)) ([d83ff5a](https://github.com/erxes/erxes/commit/d83ff5a0470b5e245556843f7444f511a8397cc9))
+* enhance Sentry OpenCode automation with .agents protocol ([#7837](https://github.com/erxes/erxes/issues/7837)) ([771fe8a](https://github.com/erxes/erxes/commit/771fe8a386045ff0da94ebfd0513c71150a68300))
+* **import-export:** implement custom property handling and enhance import functionality ([542a53e](https://github.com/erxes/erxes/commit/542a53e691019ed71fc863eddd996e22e89bf8f8))
+* **loyalty:** register loyalty permissions in permission groups (meta) ([#7851](https://github.com/erxes/erxes/issues/7851)) ([0199170](https://github.com/erxes/erxes/commit/0199170cdc80f6e39a5f98af25113949aded0f0d))
+* **mongolian:** add permission group support ([#7823](https://github.com/erxes/erxes/issues/7823)) ([7f0963d](https://github.com/erxes/erxes/commit/7f0963d9fb11565d388e5e990abaf82141c18c5b))
+* **structure:** add status filter and restore deleted records ([#7815](https://github.com/erxes/erxes/issues/7815)) ([3750f6c](https://github.com/erxes/erxes/commit/3750f6c4f06ca25c8b2ecb76e1e927f23f11a834))
+
+
+### Reverts
+
+* revert sentry setup ([3b41d63](https://github.com/erxes/erxes/commit/3b41d630208bba00b4b65b20cfaf996499b5d023))
+
 ## [3.0.27](https://github.com/erxes/erxes/compare/3.0.26...3.0.27) (2026-05-28)
 
 

@@ -1,5 +1,5 @@
 import { Filter, PageSubHeader, useMultiQueryState } from 'erxes-ui';
-import { Export, Import, SelectBrands } from 'ui-modules';
+import { Can, Export, Import, SelectBrands } from 'ui-modules';
 import { TeamMemberFilterPopover } from './TeamMemberFilterPopover';
 import { TeamMemberCounts } from '../TeamMemberCounts';
 import { TEAM_MEMBER_CURSOR_SESSION_KEY } from '../../constants/teamMemberCursorSessionKey';
@@ -49,17 +49,21 @@ export const TeamMemberFilterBar = () => {
           <TeamMemberCounts />
         </Filter.Bar>
       </Filter>
-      <Import
-        pluginName="core"
-        moduleName="organization"
-        collectionName="users"
-      />
-      <Export
-        pluginName="core"
-        moduleName="organization"
-        collectionName="users"
-        getFilters={getFilters}
-      />
+      <Can action="teamMembersImportManage">
+        <Import
+          pluginName="core"
+          moduleName="organization"
+          collectionName="users"
+        />
+      </Can>
+      <Can action="teamMembersExportManage">
+        <Export
+          pluginName="core"
+          moduleName="organization"
+          collectionName="users"
+          getFilters={getFilters}
+        />
+      </Can>
     </PageSubHeader>
   );
 };

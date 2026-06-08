@@ -107,7 +107,7 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
 
       form.setValue(`trDocs.${index}.relAccounts`, {
         ...trDoc.relAccounts,
-        customDt: filtered.length ? filtered : null,
+        customDt: filtered.length ? filtered : undefined,
       });
     }, 900);
   };
@@ -127,7 +127,7 @@ export const RelAccountsForm = ({ form, index }: ICommonFieldProps) => {
       setCustomCts([...filtered, '']);
       form.setValue(`trDocs.${index}.relAccounts`, {
         ...trDoc.relAccounts,
-        customCt: filtered.length ? filtered : null,
+        customCt: filtered.length ? filtered : undefined,
       });
     }, 900);
   };

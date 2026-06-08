@@ -182,6 +182,21 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     return invoice;
   },
 
+  async cpGenerateInvoiceUrl(
+    _root,
+    { input }: { input: IInvoice },
+    { models, subdomain }: IContext,
+  ) {
+    const DOMAIN = getEnv({ name: 'DOMAIN' })
+      ? `${getEnv({ name: 'DOMAIN' })}/gateway`
+      : 'http://localhost:5173';
+    const domain = DOMAIN.replace('<subdomain>', subdomain);
+
+    const invoice = await models.Invoices.createInvoice({ ...input });
+
+    return `${domain}/pl:payment/widget/invoice/${invoice._id}`;
+  },
+
   async cpInvoiceCreate(
     _root,
     { input }: { input: IInvoice },
@@ -286,6 +301,15 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
 
     if (status === 'paid') {
       const invoice = await models.Invoices.getInvoice({ _id }, true);
+
+      const paymentId = invoice.paymentIds?.[0];
+      const payment = paymentId
+        ? await models.PaymentMethods.findOne({ _id: paymentId }).lean()
+        : null;
+      if (payment?.sendEmailOnPayment !== false && invoice.email) {
+        await models.Invoices.updateOne({ _id }, { sendEmailOnPayment: true });
+        sendInvoiceBarcodeEmail(subdomain, invoice).catch(() => undefined);
+      }
 
       if (invoice.contentType) {
         const [pluginName, moduleName, collectionType] = splitType(
@@ -434,5 +458,9 @@ mutations.invoiceScanBarcode.wrapperConfig = {
 };
 
 mutations.cpInvoicesCheck.wrapperConfig = {
+  forClientPortal: true,
+};
+
+mutations.cpGenerateInvoiceUrl.wrapperConfig = {
   forClientPortal: true,
 };

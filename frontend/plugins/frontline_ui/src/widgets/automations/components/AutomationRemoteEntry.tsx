@@ -18,12 +18,19 @@ const InstagramRemoteEntry = lazy(() =>
   ),
 );
 
+const InboxRemoteEntry = lazy(() =>
+  import('../modules/inbox/components/InboxRemoteEntry').then((module) => ({
+    default: module.InboxRemoteEntry,
+  })),
+);
+
 const Remotes: Record<
   string,
   React.LazyExoticComponent<React.ComponentType<any>>
 > = {
   facebook: FacebookRemoteEntry,
   instagram: InstagramRemoteEntry,
+  inbox: InboxRemoteEntry,
 };
 
 type GenericErrorFallbackProps = FallbackProps & {
@@ -50,6 +57,8 @@ export const GenericErrorFallback = ({
 
 const AutomationRemoteEntries = ({ moduleName, ...props }: any) => {
   const RemoteComponent = Remotes[moduleName];
+
+  if (!RemoteComponent) return null;
 
   return (
     <Suspense fallback={<Spinner />}>

@@ -57,7 +57,7 @@ export interface IRule {
 
 export interface LeadData {
   adminEmails: string[];
-  thankImage?: string;
+  successImage?: string;
   thankTitle: string;
   thankContent: string;
   viewCount: number;

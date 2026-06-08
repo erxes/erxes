@@ -1,39 +1,16 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { cn, Combobox, Command, Form, Popover } from 'erxes-ui';
 import { useQuery, gql } from '@apollo/client';
+
+// Customer / company / team-member owners use the shared `ui-modules` selects
+// (see SelectOwnerByType). Client portal users have no ready-made select there,
+// so the lightweight one below is kept for that owner type.
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface SelectOption {
   value: string;
   label: string;
-}
-
-interface CustomerItem {
-  _id: string;
-  firstName?: string;
-  lastName?: string;
-  primaryEmail?: string;
-  primaryPhone?: string;
-}
-
-interface CompanyItem {
-  _id: string;
-  primaryName?: string;
-  primaryEmail?: string;
-  primaryPhone?: string;
-}
-
-interface UserDetails {
-  fullName?: string;
-  firstName?: string;
-  lastName?: string;
-}
-
-interface UserItem {
-  _id: string;
-  email?: string;
-  details?: UserDetails;
 }
 
 interface CpUserItem {
@@ -52,47 +29,6 @@ interface SelectOwnerFormItemProps {
 }
 
 // ─── Queries ──────────────────────────────────────────────────────────────────
-
-const GET_CUSTOMERS = gql`
-  query ScoreCustomersSimple($searchValue: String, $limit: Int) {
-    customers(searchValue: $searchValue, limit: $limit) {
-      list {
-        _id
-        firstName
-        lastName
-        primaryEmail
-        primaryPhone
-      }
-    }
-  }
-`;
-
-const GET_COMPANIES = gql`
-  query ScoreCompaniesSimple($searchValue: String, $limit: Int) {
-    companies(searchValue: $searchValue, limit: $limit) {
-      list {
-        _id
-        primaryName
-        primaryEmail
-        primaryPhone
-      }
-    }
-  }
-`;
-
-const GET_USERS = gql`
-  query ScoreUsersSimple($searchValue: String, $isActive: Boolean) {
-    allUsers(searchValue: $searchValue, isActive: $isActive) {
-      _id
-      email
-      details {
-        fullName
-        firstName
-        lastName
-      }
-    }
-  }
-`;
 
 const GET_CLIENT_PORTAL_USERS = gql`
   query ScoreClientPortalUsersSimple($filter: IClientPortalUserFilter) {
@@ -150,197 +86,6 @@ const SelectTrigger = ({
     )}
   </Combobox.Trigger>
 );
-
-// ─── Customer ──────────────────────────────────────────────────────────────────
-
-export const SelectCustomerFormItem = ({
-  value,
-  onValueChange,
-  placeholder = 'Choose customer',
-  className,
-}: SelectOwnerFormItemProps) => {
-  const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState('');
-
-  const { data, loading } = useQuery<{ customers: { list: CustomerItem[] } }>(
-    GET_CUSTOMERS,
-    { variables: { searchValue: search || undefined, limit: 50 } },
-  );
-
-  const options = useMemo<SelectOption[]>(
-    () =>
-      (data?.customers?.list || []).map((c) => ({
-        value: c._id,
-        label: c.firstName || c.primaryEmail || c.primaryPhone || 'Unnamed',
-      })),
-    [data?.customers?.list],
-  );
-
-  const selected = options.find((o) => o.value === value);
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <Form.Control>
-        <SelectTrigger
-          selected={selected}
-          placeholder={placeholder}
-          className={className}
-        />
-      </Form.Control>
-      <Combobox.Content>
-        <Command shouldFilter={false}>
-          <Command.Input
-            value={search}
-            onValueChange={setSearch}
-            placeholder="Search customers..."
-          />
-          <Command.Empty>
-            {loading ? 'Loading...' : 'No customers found'}
-          </Command.Empty>
-          <Command.List>
-            <OptionList
-              options={options}
-              value={value}
-              onSelect={(v) => {
-                onValueChange(v);
-                setOpen(false);
-              }}
-            />
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
-  );
-};
-
-// ─── Company ──────────────────────────────────────────────────────────────────
-
-export const SelectCompanyFormItem = ({
-  value,
-  onValueChange,
-  placeholder = 'Choose company',
-  className,
-}: SelectOwnerFormItemProps) => {
-  const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState('');
-
-  const { data, loading } = useQuery<{ companies: { list: CompanyItem[] } }>(
-    GET_COMPANIES,
-    { variables: { searchValue: search || undefined, limit: 50 } },
-  );
-
-  const options = useMemo<SelectOption[]>(
-    () =>
-      (data?.companies?.list || []).map((c) => ({
-        value: c._id,
-        label: c.primaryName || c.primaryEmail || c.primaryPhone || 'Unnamed',
-      })),
-    [data?.companies?.list],
-  );
-
-  const selected = options.find((o) => o.value === value);
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <Form.Control>
-        <SelectTrigger
-          selected={selected}
-          placeholder={placeholder}
-          className={className}
-        />
-      </Form.Control>
-      <Combobox.Content>
-        <Command shouldFilter={false}>
-          <Command.Input
-            value={search}
-            onValueChange={setSearch}
-            placeholder="Search companies..."
-          />
-          <Command.Empty>
-            {loading ? 'Loading...' : 'No companies found'}
-          </Command.Empty>
-          <Command.List>
-            <OptionList
-              options={options}
-              value={value}
-              onSelect={(v) => {
-                onValueChange(v);
-                setOpen(false);
-              }}
-            />
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
-  );
-};
-
-// ─── Team Member ──────────────────────────────────────────────────────────────
-
-export const SelectUserFormItem = ({
-  value,
-  onValueChange,
-  placeholder = 'Choose team member',
-  className,
-}: SelectOwnerFormItemProps) => {
-  const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState('');
-
-  const { data, loading } = useQuery<{ allUsers: UserItem[] }>(GET_USERS, {
-    variables: { searchValue: search || undefined, isActive: true },
-  });
-
-  const options = useMemo<SelectOption[]>(
-    () =>
-      (data?.allUsers || []).map((u) => ({
-        value: u._id,
-        label:
-          u.details?.fullName ||
-          [u.details?.firstName, u.details?.lastName]
-            .filter(Boolean)
-            .join(' ') ||
-          u.email ||
-          'Unnamed',
-      })),
-    [data?.allUsers],
-  );
-
-  const selected = options.find((o) => o.value === value);
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <Form.Control>
-        <SelectTrigger
-          selected={selected}
-          placeholder={placeholder}
-          className={className}
-        />
-      </Form.Control>
-      <Combobox.Content>
-        <Command shouldFilter={false}>
-          <Command.Input
-            value={search}
-            onValueChange={setSearch}
-            placeholder="Search team members..."
-          />
-          <Command.Empty>
-            {loading ? 'Loading...' : 'No team members found'}
-          </Command.Empty>
-          <Command.List>
-            <OptionList
-              options={options}
-              value={value}
-              onSelect={(v) => {
-                onValueChange(v);
-                setOpen(false);
-              }}
-            />
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
-  );
-};
 
 // ─── Client Portal User ───────────────────────────────────────────────────────
 

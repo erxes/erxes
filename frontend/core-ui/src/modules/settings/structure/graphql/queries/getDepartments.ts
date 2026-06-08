@@ -58,6 +58,7 @@ const GET_DEPARTMENT_DETAIL_BY_ID = gql`
       title
       userIds
       userCount
+      status
     }
   }
 `;

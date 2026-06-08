@@ -1,4 +1,4 @@
-import { Button, ColorPicker, Form, Upload } from 'erxes-ui';
+import { Button, ColorPicker, Form, ToggleGroup, Upload } from 'erxes-ui';
 import {
   erxesMessengerSetupAppearanceAtom,
   erxesMessengerSetupStepAtom,
@@ -11,18 +11,20 @@ import {
   EMLayout,
   EMLayoutPreviousStepButton,
 } from '@/integrations/erxes-messenger/components/EMLayout';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/components/EMFormValueEffect';
 
 export const EMAppearance = () => {
+  const atomValue = useAtomValue(erxesMessengerSetupAppearanceAtom);
   const setStep = useSetAtom(erxesMessengerSetupStepAtom);
   const form = useForm<z.infer<typeof EMAPPEARANCE_SCHEMA>>({
     resolver: zodResolver(EMAPPEARANCE_SCHEMA),
-    defaultValues: {
+    defaultValues: atomValue ?? {
       primary: {
         DEFAULT: '#5048e5',
         foreground: '#fff',
       },
+      navigationVariant: 'pill',
     },
   });
 
@@ -96,8 +98,10 @@ export const EMAppearance = () => {
                     <Upload.Root
                       value={field.value || ''}
                       onChange={(fileInfo) => {
-                        if ('url' in fileInfo) {
+                        if (fileInfo && typeof fileInfo === 'object') {
                           field.onChange(fileInfo.url);
+                        } else {
+                          field.onChange(fileInfo);
                         }
                       }}
                     >
@@ -110,6 +114,30 @@ export const EMAppearance = () => {
                     </Upload.Root>
                   </Form.Control>
                   <Form.Message />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              name="navigationVariant"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>Navigation bar type</Form.Label>
+                  <Form.Control>
+                    <ToggleGroup
+                      type="single"
+                      variant={'outline'}
+                      value={field.value}
+                      className="max-w-32"
+                      onValueChange={field.onChange}
+                    >
+                      <ToggleGroup.Item className="flex-auto" value="pill">
+                        Pill
+                      </ToggleGroup.Item>
+                      <ToggleGroup.Item className="flex-auto" value="fluid">
+                        Fluid
+                      </ToggleGroup.Item>
+                    </ToggleGroup>
+                  </Form.Control>
                 </Form.Item>
               )}
             />

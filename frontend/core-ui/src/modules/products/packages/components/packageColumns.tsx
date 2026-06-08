@@ -8,9 +8,10 @@ import {
   toast,
   useQueryState,
 } from 'erxes-ui';
+import { TagsSelect } from 'ui-modules';
 import { useState } from 'react';
 import { IPackage, PACKAGE_STATUSES } from '../types/Package';
-import { useChangePackageStatus } from '../hooks/usePackageMutations';
+import { useChangePackageStatus, useEditPackage } from '../hooks/usePackageMutations';
 
 const statusVariant = (status?: string) => {
   switch (status) {
@@ -61,6 +62,33 @@ const StatusCell = ({ pkg }: { pkg: IPackage }) => {
         </Command>
       </RecordTableInlineCell.Content>
     </Popover>
+  );
+};
+
+const TagsCell = ({ pkg }: { pkg: IPackage }) => {
+  const { editPackage } = useEditPackage(pkg._id);
+
+  return (
+    <TagsSelect.InlineCell
+      scope={`package-tags-${pkg._id}`}
+      type="core:product"
+      mode="multiple"
+      value={pkg.tagIds || []}
+      onValueChange={(value) => {
+        const tagIds = Array.isArray(value) ? value : value ? [value] : [];
+
+        editPackage({
+          variables: { _id: pkg._id, tagIds },
+          onError: (e) => {
+            toast({
+              variant: 'destructive',
+              title: 'Failed to update tags',
+              description: e.message,
+            });
+          },
+        });
+      }}
+    />
   );
 };
 
@@ -121,14 +149,20 @@ export const packageColumns: ColumnDef<IPackage>[] = [
     ),
   },
   {
-    id: 'componentsTotal',
-    accessorKey: 'componentsTotal',
+    id: 'totalPrice',
+    accessorKey: 'totalPrice',
     header: () => <RecordTable.InlineHead label="Total Price" />,
     cell: ({ cell }) => (
       <RecordTableInlineCell className="text-sm">
         {formatPrice(cell.getValue() as number | undefined)}
       </RecordTableInlineCell>
     ),
+  },
+  {
+    id: 'tags',
+    header: () => <RecordTable.InlineHead label="Tags" />,
+    size: 240,
+    cell: ({ row }) => <TagsCell pkg={row.original} />,
   },
   {
     id: 'status',

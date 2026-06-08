@@ -24,4 +24,4 @@ export const DEFAULT_COLORS = {
   FOREGROUND: '#fff',
 } as const;
 
-export const DEFAULT_LANGUAGE = 'en_US';
+export const DEFAULT_LANGUAGE = 'en-US';

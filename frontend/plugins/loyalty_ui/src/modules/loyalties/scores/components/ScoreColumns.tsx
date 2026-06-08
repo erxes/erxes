@@ -2,18 +2,17 @@ import {
   IconCalendar,
   IconChartBar,
   IconCoins,
-  IconCurrencyDollar,
   IconHash,
   IconLabelFilled,
   IconNote,
   IconRefresh,
-  IconShoppingCart,
   IconStar,
   IconTag,
   IconTrophy,
   IconUser,
 } from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/table-core';
+import { ColumnDef, Row } from '@tanstack/table-core';
+import { useSetAtom } from 'jotai';
 import {
   Badge,
   fixNum,
@@ -23,8 +22,12 @@ import {
 } from 'erxes-ui';
 import { IScoreLog, IScoreOwner } from '../types/score';
 import { makeScoreMoreColumn } from './ScoreMoreColumn';
+import { scoreDetailRecordAtom } from '../states/scoreDetail';
 
-const getOwnerName = (owner?: IScoreOwner, ownerType?: string): string => {
+export const getOwnerName = (
+  owner?: IScoreOwner,
+  ownerType?: string,
+): string => {
   if (!owner) return '';
   if (ownerType === 'user') {
     return (
@@ -53,20 +56,30 @@ const formatDate = (dateStr?: string) => {
 
 const formatScore = (value?: number) => fixNum(value, 4).toLocaleString();
 
+const ScoreOwnerNameCell = ({ row }: { row: Row<IScoreLog> }) => {
+  const setDetailRecord = useSetAtom(scoreDetailRecordAtom);
+  const record = row.original;
+  const name = getOwnerName(record.owner, record.ownerType);
+
+  return (
+    <RecordTableInlineCell
+      className={record.ownerId ? 'cursor-pointer' : undefined}
+      onClick={() => {
+        if (record.ownerId) setDetailRecord(record);
+      }}
+    >
+      <TextOverflowTooltip value={name} />
+    </RecordTableInlineCell>
+  );
+};
+
 export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
   makeScoreMoreColumn(),
   {
     id: 'ownerName',
     header: () => <RecordTable.InlineHead icon={IconUser} label="Owner Name" />,
     size: 180,
-    cell: ({ row }) => {
-      const name = getOwnerName(row.original.owner, row.original.ownerType);
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={name} />
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ row }) => <ScoreOwnerNameCell row={row} />,
   },
   {
     id: 'ownerType',
@@ -106,10 +119,10 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
     ),
   },
   {
-    id: '_id',
-    accessorKey: '_id',
+    id: 'dealNumber',
+    accessorFn: (row) => row.target?.number,
     header: () => (
-      <RecordTable.InlineHead icon={IconHash} label="Transaction ID" />
+      <RecordTable.InlineHead icon={IconHash} label="Deal Number" />
     ),
     size: 200,
     cell: ({ cell }) => (
@@ -138,40 +151,6 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
       return (
         <RecordTableInlineCell>
           <Badge variant={variant as any}>{action}</Badge>
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'amount',
-    accessorKey: 'amount',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Amount" />
-    ),
-    size: 100,
-    cell: ({ cell }) => {
-      const val = cell.getValue() as number | undefined;
-      return (
-        <RecordTableInlineCell className="text-right">
-          <TextOverflowTooltip
-            value={val == null ? '' : val.toLocaleString()}
-          />
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'quantity',
-    accessorKey: 'quantity',
-    header: () => (
-      <RecordTable.InlineHead icon={IconShoppingCart} label="Quantity" />
-    ),
-    size: 100,
-    cell: ({ cell }) => {
-      const val = cell.getValue() as number | undefined;
-      return (
-        <RecordTableInlineCell className="text-right">
-          <TextOverflowTooltip value={val == null ? '' : String(val)} />
         </RecordTableInlineCell>
       );
     },
@@ -263,3 +242,13 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
     ),
   },
 ];
+
+// Columns for the per-person detail sheet: the same definitions as the main
+// list (so they stay in sync) minus the row actions and owner columns, which
+// are redundant when every row already belongs to the same person.
+const DETAIL_EXCLUDED_COLUMNS = new Set(['more', 'ownerName', 'ownerType']);
+
+export const scoreDetailColumns: ColumnDef<IScoreLog>[] =
+  scoreLogColumns.filter(
+    (column) => !DETAIL_EXCLUDED_COLUMNS.has(column.id || ''),
+  );
