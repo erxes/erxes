@@ -104,7 +104,7 @@ export const dealMutations: Record<string, Resolver> = {
       oldDeal: item,
     });
 
-    return removed;
+    return item;
   },
 
   /**
@@ -227,7 +227,11 @@ export const dealMutations: Record<string, Resolver> = {
 
   async dealsCreateProductsData(
     _root,
-    { processId, dealId, docs }: { processId: string; dealId: string; docs: IProductData[] },
+    {
+      processId,
+      dealId,
+      docs,
+    }: { processId: string; dealId: string; docs: IProductData[] },
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
@@ -264,8 +268,8 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = (deal.productsData || []).map((data) =>
-      data._id === dataId ? { ...doc } : data,
+    const productsData: IProductData[] = (deal.productsData || []).map(
+      (data) => (data._id === dataId ? { ...doc } : data),
     );
 
     const possibleAssignedUsersIds: string[] = (deal.productsData || [])
@@ -323,7 +327,11 @@ export const dealMutations: Record<string, Resolver> = {
 
   async cpDealsCreateProductsData(
     _root,
-    { processId, dealId, docs }: { processId: string; dealId: string; docs: IProductData[] },
+    {
+      processId,
+      dealId,
+      docs,
+    }: { processId: string; dealId: string; docs: IProductData[] },
     { models }: IContext,
   ) {
     return createProductsData({ models, processId, dealId, docs });
@@ -358,8 +366,8 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('Deals productData not found');
     }
 
-    const productsData: IProductData[] = (deal.productsData || []).map((data) =>
-      data._id === dataId ? { ...doc } : data,
+    const productsData: IProductData[] = (deal.productsData || []).map(
+      (data) => (data._id === dataId ? { ...doc } : data),
     );
 
     const possibleAssignedUsersIds: string[] = (deal.productsData || [])
@@ -480,10 +488,9 @@ export const dealMutations: Record<string, Resolver> = {
   },
 };
 
-
-dealMutations.cpDealsEdit.wrapperConfig= {
-  forClientPortal : true ,
-}
+dealMutations.cpDealsEdit.wrapperConfig = {
+  forClientPortal: true,
+};
 dealMutations.cpDealsCreateProductsData.wrapperConfig = {
   forClientPortal: true,
 };

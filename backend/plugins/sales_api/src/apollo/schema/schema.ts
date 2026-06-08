@@ -78,6 +78,10 @@ import {
 } from '@/ecommerce/graphql/schema/wishlist';
 
 import extendTypes from '@/pos/graphql/schemas/extendTypes';
+import {
+  types as ReportsTypes,
+  queries as ReportsQueries,
+} from '~/modules/sales/reports/graphql/resolvers/schemas/reports';
 
 export const types = `
   enum CacheControlScope {
@@ -109,6 +113,7 @@ export const types = `
   ${LastViewedItemTypes},
   ${ProductReviewTypes},
   ${WishlistTypes}
+  ${ReportsTypes} 
 `;
 
 export const queries = `
@@ -125,6 +130,7 @@ export const queries = `
   ${LastViewedItemQueries}
   ${ProductReviewQueries}
   ${WishlistQueries}
+  ${ReportsQueries},
   
 `;
 
