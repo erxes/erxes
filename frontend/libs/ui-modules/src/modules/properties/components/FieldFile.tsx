@@ -133,6 +133,10 @@ export const FieldFile = (props: SpecificFieldProps) => {
               className="w-full rounded object-contain max-h-[70vh]"
               onLoadStart={() => setPreviewLoading(true)}
               onLoad={() => setPreviewLoading(false)}
+              onError={() => {
+                setPreviewLoading(false);
+                toast({ description: 'Failed to load preview', variant: 'destructive' });
+              }}
             />
           </div>
         ) : currentValue?.type === 'application/pdf' ? (
@@ -146,6 +150,10 @@ export const FieldFile = (props: SpecificFieldProps) => {
               src={`${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(currentValue.url)}&inline=true`}
               className="w-full h-[70vh] rounded"
               onLoad={() => setPreviewLoading(false)}
+              onError={() => {
+                setPreviewLoading(false);
+                toast({ description: 'Failed to load preview', variant: 'destructive' });
+              }}
             />
           </div>
         ) : (
