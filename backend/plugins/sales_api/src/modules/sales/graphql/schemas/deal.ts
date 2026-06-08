@@ -238,6 +238,7 @@ export const mutations = `
 
   cpDealsAdd(name: String, companyIds: [String], customerIds: [String], labelIds: [String], ${mutationParams}): Deal
   cpDealsEdit(_id: String!, name: String, ${mutationParams}): Deal
+  cpDealsChange(itemId: String!, aboveItemId: String, destinationStageId: String!, sourceStageId: String, processId: String): Deal
   cpDealsCreateProductsData(processId: String, dealId: String, docs: JSON): JSON
   cpDealsEditProductData(processId: String, dealId: String, dataId: String, doc: JSON): JSON
 `;

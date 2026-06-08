@@ -1,4 +1,4 @@
-import { defaultContactFieldFormatter } from './utils'; 
+import { defaultContactFieldFormatter } from './utils';
 import { toPlainText } from './exportText';
 
 type Maps = {
@@ -6,70 +6,6 @@ type Maps = {
   vendorMap: Map<string, string>;
   tagMap: Map<string, string>;
   brandMap: Map<string, string>;
-};
-
-const stripHtml = (input: string) => input.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-
-const extractTextFromBlocks = (val: any): string => {
-
-  const texts: string[] = [];
-
-  const walk = (node: any) => {
-    if (!node) return;
-
-    if (typeof node === 'string') {
-      texts.push(node);
-      return;
-    }
-
-    if (Array.isArray(node)) {
-      for (const n of node) walk(n);
-      return;
-    }
-
-    if (typeof node === 'object') {
-      if (typeof node.text === 'string') texts.push(node.text);
-      if (Array.isArray(node.content)) walk(node.content);
-      if (Array.isArray(node.children)) walk(node.children);
-
-      if (node.type === 'text' && typeof node.text === 'string') texts.push(node.text);
-
-      for (const k of Object.keys(node)) {
-        if (k === 'text' || k === 'content' || k === 'children') continue;
-        walk(node[k]);
-      }
-    }
-  };
-
-  walk(val);
-  return texts.join(' ').replace(/\s+/g, ' ').trim();
-};
-
-const normalizeDescription = (value: any): string => {
-  if (value === null || value === undefined) return '';
-
-  if (typeof value === 'object') {
-    return extractTextFromBlocks(value);
-  }
-
-  const str = String(value).trim();
-  if (!str) return '';
-
-  if ((str.startsWith('[') && str.endsWith(']')) || (str.startsWith('{') && str.endsWith('}'))) {
-    try {
-      const parsed = JSON.parse(str);
-      const txt = extractTextFromBlocks(parsed);
-      return txt || '';
-    } catch {
-      // Fall through to handle non-JSON content below.
-    }
-  }
-
-  if (/<[a-z][\s\S]*>/i.test(str)) {
-    return stripHtml(str);
-  }
-
-  return str;
 };
 
 const joinNames = (ids: any[] | undefined, map: Map<string, string>) => {
@@ -97,15 +33,26 @@ export const buildProductExportRow = (
     : '';
 
   const tagNames = joinNames(product.tagIds || [], maps?.tagMap || new Map());
-  const brandNames = joinNames(product.scopeBrandIds || [], maps?.brandMap || new Map());
+  const brandNames = joinNames(
+    product.scopeBrandIds || [],
+    maps?.brandMap || new Map(),
+  );
+
+  const imageUrl = product.attachment?.url || '';
+  const imageUrls = Array.isArray(product.attachmentMore)
+    ? product.attachmentMore
+        .map((a: any) => a?.url || '')
+        .filter(Boolean)
+        .join('; ')
+    : '';
 
   const allFields: Record<string, any> = {
-    _id: formatValue(product._id), 
+    _id: formatValue(product._id),
     name: formatValue(product.name),
     code: formatValue(product.code),
     unitPrice: formatValue(product.unitPrice),
 
-    tagIds: formatValue(tagNames),
+    tags: formatValue(tagNames),
     scopeBrandIds: formatValue(brandNames),
 
     shortName: formatValue(product.shortName),
@@ -114,16 +61,33 @@ export const buildProductExportRow = (
     status: formatValue(product.status),
     type: formatValue(product.type),
 
-    categoryId: formatValue(categoryName), 
+    categoryName: formatValue(categoryName),
     vendorId: formatValue(vendorName),
 
-    barcodes: formatValue(Array.isArray(product.barcodes) ? product.barcodes.join('; ') : product.barcodes),
+    barcodes: formatValue(
+      Array.isArray(product.barcodes)
+        ? product.barcodes.join('; ')
+        : product.barcodes,
+    ),
     barcodeDescription: formatValue(toPlainText(product.barcodeDescription)),
     currency: formatValue(product.currency),
 
-    createdAt: formatValue(product.createdAt ? new Date(product.createdAt) : ''),
-    updatedAt: formatValue(product.updatedAt ? new Date(product.updatedAt) : ''),
+    imageUrl: formatValue(imageUrl),
+    imageUrls: formatValue(imageUrls),
+
+    createdAt: formatValue(
+      product.createdAt ? new Date(product.createdAt) : '',
+    ),
+    updatedAt: formatValue(
+      product.updatedAt ? new Date(product.updatedAt) : '',
+    ),
   };
+
+  if (product.propertiesData && typeof product.propertiesData === 'object') {
+    for (const [fieldId, value] of Object.entries(product.propertiesData)) {
+      allFields[`propertiesData.${fieldId}`] = formatValue(value);
+    }
+  }
 
   if (selectedFields?.length) {
     const result: Record<string, any> = { _id: String(product._id || '') };
