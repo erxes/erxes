@@ -18,7 +18,7 @@ export function KpiSection() {
 
   if (loading) {
     return (
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-6">
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
@@ -86,7 +86,7 @@ export function KpiSection() {
   ] as const;
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-6">
       {cards.map((card) => (
         <KpiCard key={card.title} {...card} />
       ))}
