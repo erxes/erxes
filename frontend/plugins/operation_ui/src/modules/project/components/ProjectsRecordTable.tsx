@@ -1,11 +1,11 @@
 import { projectsColumns } from '@/project/components/ProjectsColumn';
 import { RecordTable, PageSubHeader } from 'erxes-ui';
-import { useProjects } from '@/project/hooks/useGetProjects';
+import { useProjects, useProjectsVariables } from '@/project/hooks/useGetProjects';
 import { useGetCurrentUsersTeams } from '@/team/hooks/useGetCurrentUsersTeams';
 import { ProjectsFilter } from '@/project/components/ProjectsFilter';
 import { useParams } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
-import { currentUserState } from 'ui-modules';
+import { currentUserState, Export } from 'ui-modules';
 import { PROJECTS_CURSOR_SESSION_KEY } from '@/project/constants/ProjectSessionKey';
 import { ProjectsCommandBar } from './projects-command-bar/ProjectsCommandBar';
 
@@ -13,10 +13,10 @@ export const ProjectsRecordTable = () => {
   const { teamId } = useParams();
   const currentUser = useAtomValue(currentUserState);
 
-  const variables = {
+  const variables = useProjectsVariables({
     teamIds: teamId ? [teamId] : undefined,
     memberId: !teamId ? currentUser?._id : undefined,
-  };
+  });
 
   const { projects, handleFetchMore, pageInfo, loading } = useProjects({
     variables,
@@ -24,10 +24,21 @@ export const ProjectsRecordTable = () => {
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const { teams } = useGetCurrentUsersTeams();
 
+  const getFilters = () => {
+    const { cursor, limit, orderBy, direction, ...filters } = variables;
+    return filters;
+  };
+
   return (
     <div className="flex flex-col overflow-hidden h-full">
       <PageSubHeader>
         <ProjectsFilter />
+        <Export
+          pluginName="operation"
+          moduleName="project"
+          collectionName="projects"
+          getFilters={getFilters}
+        />
       </PageSubHeader>
       <RecordTable.Provider
         columns={projectsColumns(teams)}
