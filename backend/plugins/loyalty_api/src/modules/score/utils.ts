@@ -298,7 +298,7 @@ export const scorePoint = async ({ doc, models, filter }) => {
   const { stageId, pipelineId, boardId, number } = doc;
 
   const refundedTargetIds = await models.ScoreLogs.distinct('targetId', {
-    action: 'refund',
+    action: { $in: ['refund', 'return'] },
   });
 
   const filterAggregate: any[] = [];
