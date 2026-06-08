@@ -63,11 +63,15 @@ export const FieldFile = (props: SpecificFieldProps) => {
 
   return (
     <>
-      <div
+      <label
+        htmlFor="property-file-input"
         className="flex h-8 w-full items-center rounded-sm bg-background px-3 shadow-xs text-sm cursor-pointer border border-input"
-        onClick={() => !currentValue?.url && !isLoading && !loading && inputRef.current?.click()}
+        onClick={(e) => {
+          if (currentValue?.url || isLoading || loading) e.preventDefault();
+        }}
       >
         <input
+          id="property-file-input"
           ref={inputRef}
           type="file"
           className="hidden"
@@ -99,7 +103,7 @@ export const FieldFile = (props: SpecificFieldProps) => {
             )}
           </span>
         )}
-      </div>
+      </label>
 
     <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
       <Dialog.Content className="max-w-3xl">
