@@ -10,7 +10,6 @@ export interface IPricingFixedValue {
   updatedBy?: string;
 }
 export interface IPricingFixedValueDocument
-  extends IPricingFixedValue,
-    Document {
+  extends IPricingFixedValue, Document {
   _id: string;
 }

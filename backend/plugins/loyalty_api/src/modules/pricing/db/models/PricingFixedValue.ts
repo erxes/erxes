@@ -6,8 +6,7 @@ import {
   IPricingFixedValueDocument,
 } from '@/pricing/@types/pricingFixedValue';
 
-export interface IPricingFixedValueModel
-  extends Model<IPricingFixedValueDocument> {
+export interface IPricingFixedValueModel extends Model<IPricingFixedValueDocument> {
   createFixedValue(
     doc: IPricingFixedValue,
     userId: string,
