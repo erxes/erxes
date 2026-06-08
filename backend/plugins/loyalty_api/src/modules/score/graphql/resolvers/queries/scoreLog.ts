@@ -1,6 +1,4 @@
-import { IScoreLogDocument, IScoreLogParams } from '@/score/@types/scoreLog';
-import { cursorPaginate } from 'erxes-api-shared/utils';
-import { FilterQuery } from 'mongoose';
+import { IScoreLogParams } from '@/score/@types/scoreLog';
 import { IContext } from '~/connectionResolvers';
 
 export const scoreLogQueries = {
@@ -10,37 +8,11 @@ export const scoreLogQueries = {
     { models, checkPermission }: IContext,
   ) {
     await checkPermission('scoreLogView');
-    const { ownerType, ownerId, searchValue, campaignId, action, clientPortal } = params;
-    const filter: FilterQuery<IScoreLogDocument> = {};
-
-    if (ownerType) {
-      filter.ownerType = ownerType;
-    }
-
-    if (ownerId) {
-      filter.ownerId = ownerId;
-    }
-
-    if (searchValue) {
-      filter.description = searchValue;
-    }
-
-    if (campaignId) {
-      filter.campaignId = campaignId;
-    }
-
-    if (action) {
-      filter.action = action;
-    }
-    if (clientPortal) {
-      filter.clientPortal = clientPortal;
-    }
-
-    return cursorPaginate({
-      model: models.ScoreLogs,
-      params: { ...params, orderBy: { createdAt: -1 } },
-      query: filter,
-    });
+    // Delegate to the model so every filter (date range, deal number,
+    // board/pipeline/stage, description, action) is applied consistently.
+    // The previous inline filter ignored `number` and `fromDate`/`toDate`,
+    // so those filters silently did nothing.
+    return models.ScoreLogs.getScoreLogs(params);
   },
 
   async scoreLogList(
