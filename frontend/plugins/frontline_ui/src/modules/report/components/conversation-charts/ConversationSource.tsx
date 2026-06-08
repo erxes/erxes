@@ -105,8 +105,14 @@ export const ConversationSource = ({
     () => conversationSources || [],
     [conversationSources],
   );
-  const { pagedData: pagedSources, page, totalPages, totalCount, handlePrev, handleNext } =
-    useChartPagination(allSources);
+  const {
+    pagedData: pagedSources,
+    page,
+    totalPages,
+    totalCount,
+    handlePrev,
+    handleNext,
+  } = useChartPagination(allSources);
 
   const sourceExportColumns = useMemo(
     () => [

@@ -111,8 +111,14 @@ export const ConversationResponse = ({
     () => conversationResponses || [],
     [conversationResponses],
   );
-  const { pagedData: pagedResponses, page, totalPages, totalCount, handlePrev, handleNext } =
-    useChartPagination(allResponses);
+  const {
+    pagedData: pagedResponses,
+    page,
+    totalPages,
+    totalCount,
+    handlePrev,
+    handleNext,
+  } = useChartPagination(allResponses);
 
   const responseExportColumns = useMemo(
     () => [
@@ -224,9 +230,7 @@ export const ConversationResponse = ({
             <ResponseRadarChart conversationResponses={pagedResponses} />
           )}
           {chartType === ResponsesChartType.Table && (
-            <ResponseRecordTableChart
-              conversationResponses={pagedResponses}
-            />
+            <ResponseRecordTableChart conversationResponses={pagedResponses} />
           )}
         </div>
         <ChartPagination

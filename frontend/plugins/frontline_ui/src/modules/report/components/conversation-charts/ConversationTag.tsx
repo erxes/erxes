@@ -100,12 +100,15 @@ export const ConversationTag = ({
     },
   });
 
-  const allTags = useMemo(
-    () => conversationTags || [],
-    [conversationTags],
-  );
-  const { pagedData: pagedTags, page, totalPages, totalCount, handlePrev, handleNext } =
-    useChartPagination(allTags);
+  const allTags = useMemo(() => conversationTags || [], [conversationTags]);
+  const {
+    pagedData: pagedTags,
+    page,
+    totalPages,
+    totalCount,
+    handlePrev,
+    handleNext,
+  } = useChartPagination(allTags);
 
   const tagExportColumns = useMemo(
     () => [

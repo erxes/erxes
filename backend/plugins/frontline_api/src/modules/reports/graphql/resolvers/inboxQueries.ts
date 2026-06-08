@@ -511,9 +511,7 @@ export const reportInboxQueries = {
       ),
     ];
     const customerIds = [
-      ...new Set(
-        conversations.map((c: any) => c.customerId).filter(Boolean),
-      ),
+      ...new Set(conversations.map((c: any) => c.customerId).filter(Boolean)),
     ];
     const integrationIds = [
       ...new Set(

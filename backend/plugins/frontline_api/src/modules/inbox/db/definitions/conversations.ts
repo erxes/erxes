@@ -97,7 +97,6 @@ conversationSchema.index(
   { partialFilterExpression: { userRelevance: { $exists: true } } },
 );
 
-
 conversationSchema.index({ createdAt: 1 });
 conversationSchema.index({ closedAt: 1 });
 conversationSchema.index({ assignedUserId: 1 });

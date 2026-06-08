@@ -82,22 +82,23 @@ export const ConversationList = ({
     setPage(1);
   }, [channelFilter, memberFilter, sourceFilter, callStatusFilter]);
 
-  const { conversationList, isFetching, isInitialLoad, error } = useConversationList({
-    variables: {
-      filters: {
-        ...filters,
-        page,
-        limit: PER_PAGE,
-        channelIds: channelFilter.length ? channelFilter : undefined,
-        memberIds: memberFilter.length ? memberFilter : undefined,
-        source: sourceFilter !== 'all' ? sourceFilter : undefined,
-        callStatus:
-          sourceFilter === 'calls' && callStatusFilter !== 'all'
-            ? callStatusFilter
-            : undefined,
+  const { conversationList, isFetching, isInitialLoad, error } =
+    useConversationList({
+      variables: {
+        filters: {
+          ...filters,
+          page,
+          limit: PER_PAGE,
+          channelIds: channelFilter.length ? channelFilter : undefined,
+          memberIds: memberFilter.length ? memberFilter : undefined,
+          source: sourceFilter !== 'all' ? sourceFilter : undefined,
+          callStatus:
+            sourceFilter === 'calls' && callStatusFilter !== 'all'
+              ? callStatusFilter
+              : undefined,
+        },
       },
-    },
-  });
+    });
 
   const handlePrev = useCallback(() => setPage((p) => Math.max(1, p - 1)), []);
   const handleNext = useCallback(() => setPage((p) => p + 1), []);
@@ -265,7 +266,9 @@ export const ConversationList = ({
     >
       <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
-        <div className={isFetching ? 'opacity-50 pointer-events-none' : undefined}>
+        <div
+          className={isFetching ? 'opacity-50 pointer-events-none' : undefined}
+        >
           <ConversationListTable conversationList={conversationList.list} />
         </div>
         <Pagination
@@ -303,7 +306,12 @@ const Pagination = memo(function Pagination({
         {from}–{to} of {totalCount}
       </span>
       <div className="flex items-center gap-1">
-        <Button variant="outline" size="sm" onClick={onPrev} disabled={page <= 1}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onPrev}
+          disabled={page <= 1}
+        >
           <IconChevronLeft className="size-4" />
           Prev
         </Button>

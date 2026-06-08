@@ -416,8 +416,14 @@ export const ConversationOpen = ({
     () => reports?.reportConversationOpenDate || [],
     [reports],
   );
-  const { pagedData: chartData, page, totalPages, totalCount, handlePrev, handleNext } =
-    useChartPagination(allData);
+  const {
+    pagedData: chartData,
+    page,
+    totalPages,
+    totalCount,
+    handlePrev,
+    handleNext,
+  } = useChartPagination(allData);
 
   const filterEl = (
     <>
