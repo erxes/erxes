@@ -256,5 +256,10 @@
     "typescript-eslint": "^8.0.0",
     "webpack-cli": "^5.1.4"
   },
+  "pnpm": {
+    "patchedDependencies": {
+      "buffer-equal-constant-time@1.0.1": "patches/buffer-equal-constant-time@1.0.1.patch"
+    }
+  },
   "packageManager": "pnpm@9.12.3"
 }
