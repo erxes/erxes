@@ -3,6 +3,7 @@ import { facebookAutomationWorkers } from '@/integrations/facebook/meta/automati
 import { instagramConstants } from '@/integrations/instagram/meta/constants';
 import { instagramAutomationWorkers } from '@/integrations/instagram/meta/automation/workers';
 import { inboxAutomationConstants } from '@/inbox/meta/automation/constants';
+import { inboxAutomationWorkers } from '@/inbox/meta/automation/workers';
 
 import {
   AutomationConfigs,
@@ -16,6 +17,7 @@ import { ticketsAutomationContants } from '~/modules/ticket/meta/automations/tic
 const modules = {
   facebook: facebookAutomationWorkers,
   instagram: instagramAutomationWorkers,
+  inbox: inboxAutomationWorkers,
   tickets: ticketAutomationProducers,
 };
 

@@ -1,92 +1,68 @@
-import type { TAutomationRuntimeOutputDefinition } from 'erxes-api-shared/core-modules';
+import type {
+  TAutomationRuntimeOutputDefinition,
+  TAutomationSetPropertyTarget,
+} from 'erxes-api-shared/core-modules';
 import type { IConversation } from '@/inbox/@types/conversations';
 
-type TConversationEventValues = {
-  assignedUserId?: string | null;
-  status?: string | null;
-  tagIds?: string[];
-};
+const CONVERSATION_SET_PROPERTY_TARGETS: TAutomationSetPropertyTarget[] = [
+  {
+    label: 'Conversation',
+    type: 'frontline:inbox.conversations',
+    source: 'target',
+    cardinality: 'one',
+  },
+];
 
-type TConversationEventChangedValues = {
-  addedTagIds?: string[];
-  removedTagIds?: string[];
-};
-
-type TConversationEventAutomationTarget = {
-  eventGroup?: 'assignee' | 'status' | 'tag';
-  eventAction?:
-    | 'assigned'
-    | 'unassigned'
-    | 'open'
-    | 'closed'
-    | 'reopened'
-    | 'added'
-    | 'removed';
-  conversation?: IConversation & { _id?: string };
-  previousValues?: TConversationEventValues;
-  currentValues?: TConversationEventValues;
-  changedValues?: TConversationEventChangedValues;
-  actorId?: string;
-  occurredAt?: Date | string;
-};
-
-const CONVERSATION_EVENT_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition<TConversationEventAutomationTarget> =
+const CONVERSATION_EVENT_TRIGGER_OUTPUT: TAutomationRuntimeOutputDefinition<
+  IConversation & { _id?: string }
+> =
   {
     variables: [
-      { key: 'eventGroup', label: 'Event group' },
-      { key: 'eventAction', label: 'Event action' },
-      { key: 'conversation._id', label: 'Conversation ID' },
-      { key: 'conversation.content', label: 'Conversation content' },
+      { key: '_id', label: 'Conversation ID', field: '_id' },
+      { key: 'content', label: 'Conversation content' },
       {
-        key: 'conversation.customerId',
+        key: 'customerId',
         label: 'Customer ID',
         exposure: 'reference',
         referenceType: 'core:customer',
       },
-      { key: 'conversation.integrationId', label: 'Integration ID' },
+      { key: 'integrationId', label: 'Integration ID' },
       {
-        key: 'conversation.assignedUserId',
+        key: 'assignedUserId',
         label: 'Assignee',
         exposure: 'reference',
         referenceType: 'core:user',
       },
-      { key: 'conversation.status', label: 'Conversation status' },
+      { key: 'status', label: 'Conversation status' },
       {
-        key: 'conversation.tagIds',
+        key: 'tagIds',
         label: 'Conversation tags',
         exposure: 'reference',
       },
+      { key: 'createdAt', label: 'Created at' },
+      { key: 'updatedAt', label: 'Updated at' },
+      { key: 'closedAt', label: 'Closed at' },
       {
-        key: 'previousValues.assignedUserId',
-        label: 'Previous assignee',
+        key: 'closedUserId',
+        label: 'Closed by',
         exposure: 'reference',
         referenceType: 'core:user',
       },
       {
-        key: 'currentValues.assignedUserId',
-        label: 'Current assignee',
+        key: 'readUserIds',
+        label: 'Read users',
         exposure: 'reference',
         referenceType: 'core:user',
       },
-      { key: 'previousValues.status', label: 'Previous status' },
-      { key: 'currentValues.status', label: 'Current status' },
+      { key: 'messageCount', label: 'Message count' },
+      { key: 'number', label: 'Conversation number' },
       {
-        key: 'changedValues.addedTagIds',
-        label: 'Added tags',
-        exposure: 'reference',
-      },
-      {
-        key: 'changedValues.removedTagIds',
-        label: 'Removed tags',
-        exposure: 'reference',
-      },
-      {
-        key: 'actorId',
-        label: 'Actor',
+        key: 'firstRespondedUserId',
+        label: 'First responded user',
         exposure: 'reference',
         referenceType: 'core:user',
       },
-      { key: 'occurredAt', label: 'Occurred at' },
+      { key: 'firstRespondedDate', label: 'First responded date' },
     ],
   };
 
@@ -102,26 +78,7 @@ export const inboxAutomationConstants = {
         'Start this workflow when a conversation assignee, status, or tag event occurs.',
       isCustom: true,
       output: CONVERSATION_EVENT_TRIGGER_OUTPUT,
-      conditions: [
-        {
-          type: 'assignee',
-          icon: 'IconUser',
-          label: 'Assignee',
-          description: 'Assigned or unassigned conversation events',
-        },
-        {
-          type: 'status',
-          icon: 'IconRefresh',
-          label: 'Status',
-          description: 'Open, closed, or reopened conversation events',
-        },
-        {
-          type: 'tag',
-          icon: 'IconTag',
-          label: 'Tag',
-          description: 'Added or removed conversation tag events',
-        },
-      ],
+      setPropertyTargets: CONVERSATION_SET_PROPERTY_TARGETS,
     },
   ],
 };
