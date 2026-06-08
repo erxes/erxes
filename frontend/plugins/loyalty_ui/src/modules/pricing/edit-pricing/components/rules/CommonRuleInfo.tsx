@@ -46,7 +46,6 @@ export const CommonRuleInfo = ({
   const client = useApolloClient();
   const [addFixedValue] = useMutation(PRICING_FIXED_VALUE_ADD);
   const [editFixedValue] = useMutation(PRICING_FIXED_VALUE_EDIT);
-
   const form = useForm<CommonRuleFormValues>({
     defaultValues: {
       discountType: 'fixed',
@@ -81,7 +80,6 @@ export const CommonRuleInfo = ({
     if (!pricingId) {
       return;
     }
-
     try {
       await editPricing({
         _id: pricingId,

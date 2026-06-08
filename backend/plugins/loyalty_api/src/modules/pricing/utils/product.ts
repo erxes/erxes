@@ -115,7 +115,10 @@ export const getAllowedProducts = async (
         includeCatIds.filter((c) => !excludeCatIdsSet.has(c)),
       );
 
-      console.log(products.map(p => p.name), plansCategoryIdsSet)
+      console.log(
+        products.map((p) => p.name),
+        plansCategoryIdsSet,
+      );
       return products
         .filter((p) => plansCategoryIdsSet.has(p.categoryId))
         .map((p) => p._id);
