@@ -1,7 +1,10 @@
 import gql from 'graphql-tag';
 
 export const PRICING_FIXED_VALUE_ADD = gql`
-  mutation PricingFixedValueAdd($pricingPlanId: String!, $doc: PricingFixedValueInput!) {
+  mutation PricingFixedValueAdd(
+    $pricingPlanId: String!
+    $doc: PricingFixedValueInput!
+  ) {
     pricingFixedValueAdd(pricingPlanId: $pricingPlanId, doc: $doc) {
       _id
       pricingPlanId
