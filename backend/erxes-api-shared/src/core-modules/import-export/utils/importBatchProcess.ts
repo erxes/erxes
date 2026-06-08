@@ -158,7 +158,7 @@ const createImportErrorRowWriter = async ({
             const normalizedRow: ImportErrorRow = { error: errorMessage };
 
             const values = csvHeaders.map((header) => {
-              const lookupKey = keyToHeaderMap[header] || header;
+              const lookupKey = headerToKeyMap[header] || header;
               const value = row?.[lookupKey];
               normalizedRow[lookupKey] = value;
               return escapeCsvField(value);
