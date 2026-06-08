@@ -97,8 +97,7 @@ conversationSchema.index(
   { partialFilterExpression: { userRelevance: { $exists: true } } },
 );
 
-// Report query indexes — createdAt was unindexed, causing full collection scans
-// on all date-filtered report aggregations (1.2M+ docs without these)
+
 conversationSchema.index({ createdAt: 1 });
 conversationSchema.index({ closedAt: 1 });
 conversationSchema.index({ assignedUserId: 1 });
