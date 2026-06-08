@@ -18,9 +18,7 @@ export interface IScoreLog {
 }
 
 export interface IScoreLogDocument
-  extends IScoreLog,
-    ICommonDocument,
-    Document {
+  extends IScoreLog, ICommonDocument, Document {
   _id: string;
 }
 

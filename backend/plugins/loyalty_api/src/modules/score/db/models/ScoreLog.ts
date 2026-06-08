@@ -460,9 +460,8 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           { campaignId: '' },
         ],
       };
-      const noCampaignLogCount = await models.ScoreLogs.countDocuments(
-        noCampaignFilter,
-      );
+      const noCampaignLogCount =
+        await models.ScoreLogs.countDocuments(noCampaignFilter);
       const shouldUpdateDefaultScore =
         defaultCampaignIds.length > 0 || noCampaignLogCount > 0;
       const updatedScore = shouldUpdateDefaultScore
