@@ -698,8 +698,6 @@ export const handleScore = async (models: IModels, data) => {
     action,
     targetId,
     serviceName,
-    amount,
-    quantity,
   });
 
   return 'success';
