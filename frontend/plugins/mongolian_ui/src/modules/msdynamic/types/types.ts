@@ -1,15 +1,54 @@
-// ✅ replace broken import
 type QueryResponse = {
   loading?: boolean;
   refetch?: () => void;
 };
 
-export type IConfigsMap = { [key: string]: any };
+export type IMSDynamicConfig = {
+  title: string;
+  brandId: string;
+  itemApi: string;
+  itemCategoryApi: string;
+  pricePriority: string;
+  priceApi: string;
+  customerApi: string;
+  salesApi: string;
+  salesLineApi: string;
+  exchangeRateApi: string;
+  username: string;
+  password: string;
+  genBusPostingGroup: string;
+  vatBusPostingGroup: string;
+  paymentTermsCode: string;
+  paymentMethodCode: string;
+  customerPostingGroup: string;
+  customerPricingGroup: string;
+  customerDiscGroup: string;
+  locationCode: string;
+  reminderCode: string;
+  responsibilityCenter: string;
+  billType: string;
+  dealType: string;
+  syncType: string;
+  defaultUserCode: string;
+  defaultCompanyCode: string;
+  useBoard: boolean;
+  boardId: string;
+  pipelineId: string;
+  stageId: string;
+  posConf: string;
+  productUrl: string;
+};
+
+export type IMSDynamicConfigMap = Record<string, IMSDynamicConfig>;
+
+export type IConfigsMap = {
+  DYNAMIC: IMSDynamicConfigMap;
+};
 
 export type IConfig = {
   _id: string;
   code: string;
-  value: any;
+  value: IMSDynamicConfigMap;
 };
 
 export type ConfigsQueryResponse = {
