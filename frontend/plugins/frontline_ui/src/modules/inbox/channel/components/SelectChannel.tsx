@@ -21,6 +21,7 @@ import { IChannel } from '@/inbox/types/Channel';
 import { IconTopologyStar3 } from '@tabler/icons-react';
 import { useDebounce } from 'use-debounce';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
+import { useGetMyChannels } from '@/channels/hooks/useGetMyChannels';
 import React, { useState } from 'react';
 
 const SelectChannelProvider = ({
@@ -88,17 +89,25 @@ const SelectChannelsValue = ({ placeholder }: { placeholder?: string }) => {
   );
 };
 
-export const SelectChannelsContent = () => {
+export const SelectChannelsContent = ({
+  myChannelsOnly = false,
+}: {
+  myChannelsOnly?: boolean;
+}) => {
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const { onSelect, channels } = useSelectChannelContext();
-  const { channels: channelsData, loading } = useGetChannels({
-    variables: {
-      searchValue: debouncedSearch,
-    },
+
+  const { channels: allChannels, loading: allLoading } = useGetChannels({
+    variables: { searchValue: debouncedSearch },
+    skip: myChannelsOnly,
+  });
+  const { channels: myChannels, loading: myLoading } = useGetMyChannels({
+    variables: { name: debouncedSearch },
+    skip: !myChannelsOnly,
   });
 
-  // Mock the missing properties for now
+  const channelsData = myChannelsOnly ? myChannels : allChannels;
 
   const channelsTotalCount = channelsData?.length || 0;
 
@@ -209,7 +218,7 @@ export const SelectChannelFilterView = () => {
           resetFilterState();
         }}
       >
-        <SelectChannelsContent />
+        <SelectChannelsContent myChannelsOnly />
       </SelectChannelProvider>
     </Filter.View>
   );
@@ -261,7 +270,7 @@ export const SelectChannelFilterBar = ({
             </Filter.BarButton>
           </Popover.Trigger>
           <Combobox.Content>
-            <SelectChannelsContent />
+            <SelectChannelsContent myChannelsOnly />
           </Combobox.Content>
         </Popover>
       </SelectChannelProvider>
