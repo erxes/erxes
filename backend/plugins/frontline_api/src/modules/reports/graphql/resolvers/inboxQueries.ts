@@ -505,7 +505,9 @@ export const reportInboxQueries = {
     const userIds = [
       ...new Set([
         ...conversations.map((c: any) => c.assignedUserId).filter(Boolean),
-        ...conversations.flatMap((c: any) => c.readUserIds || []).filter(Boolean),
+        ...conversations
+          .flatMap((c: any) => c.readUserIds || [])
+          .filter(Boolean),
       ]),
     ];
 
@@ -543,67 +545,67 @@ export const reportInboxQueries = {
     }));
   },
 
- async reportConversationSources(
-  _parent: undefined,
-  { filters = {} }: { filters?: IReportFilters },
-  { models }: IContext,
-) {
-  const pipeline = await buildConversationPipeline(filters, models);
+  async reportConversationSources(
+    _parent: undefined,
+    { filters = {} }: { filters?: IReportFilters },
+    { models }: IContext,
+  ) {
+    const pipeline = await buildConversationPipeline(filters, models);
 
-  pipeline.push(
-    {
-      $group: {
-        _id: '$integrationId',
-        count: { $sum: 1 },
+    pipeline.push(
+      {
+        $group: {
+          _id: '$integrationId',
+          count: { $sum: 1 },
+        },
       },
-    },
 
-    {
-      $lookup: {
-        from: 'integrations',
-        localField: '_id',
-        foreignField: '_id',
-        as: 'integration',
+      {
+        $lookup: {
+          from: 'integrations',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'integration',
+        },
       },
-    },
 
-    {
-      $unwind: {
-        path: '$integration',
-        preserveNullAndEmptyArrays: true,
+      {
+        $unwind: {
+          path: '$integration',
+          preserveNullAndEmptyArrays: true,
+        },
       },
-    },
 
-    {
-      $group: {
-        _id: '$integration.kind',
-        name: { $first: '$integration.name' },
-        count: { $sum: '$count' },
+      {
+        $group: {
+          _id: '$integration.kind',
+          name: { $first: '$integration.name' },
+          count: { $sum: '$count' },
+        },
       },
-    },
 
-    {
-      $sort: {
-        count: -1,
+      {
+        $sort: {
+          count: -1,
+        },
       },
-    },
 
-    {
-      $limit: filters.limit ?? 10,
-    },
-  );
+      {
+        $limit: filters.limit ?? 10,
+      },
+    );
 
-  const sources = await models.Conversations.aggregate(pipeline, {
-    allowDiskUse: true,
-  });
+    const sources = await models.Conversations.aggregate(pipeline, {
+      allowDiskUse: true,
+    });
 
-  const total = sources.reduce((sum, source) => sum + source.count, 0);
+    const total = sources.reduce((sum, source) => sum + source.count, 0);
 
-  return sources.map((source) => ({
-    _id: source._id,
-    name: source.name || source._id || 'Unknown',
-    count: source.count,
-    percentage: calculatePercentage(source.count, total),
-  }));
-}
+    return sources.map((source) => ({
+      _id: source._id,
+      name: source.name || source._id || 'Unknown',
+      count: source.count,
+      percentage: calculatePercentage(source.count, total),
+    }));
+  },
 };
