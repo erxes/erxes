@@ -1,4 +1,5 @@
 import { TicketExportItem } from '@/report/hooks/useTicketExport';
+import { ConversationExportItem } from '@/report/hooks/useConversationExport';
 import { formatDate } from 'date-fns';
 import ExcelJS from 'exceljs';
 
@@ -68,6 +69,55 @@ export async function generateTicketExcel(tickets: TicketExportItem[]) {
 
   const buffer = await workbook.xlsx.writeBuffer();
   return buffer;
+}
+
+const CONVERSATION_EXPORT_COLUMNS = [
+  { key: 'createdAt', header: 'Created At' },
+  { key: 'status', header: 'Status' },
+  { key: 'assigneeName', header: 'Assigned To' },
+  { key: 'lastRespondedBy', header: 'Last Responded By' },
+  { key: 'openedBy', header: 'Opened By' },
+  { key: 'content', header: 'Content' },
+] as const;
+
+export async function generateConversationExcel(
+  conversations: ConversationExportItem[],
+) {
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet('Conversations');
+
+  sheet.columns = CONVERSATION_EXPORT_COLUMNS.map((col) => ({
+    header: col.header,
+    key: col.key,
+    width: col.key === 'content' ? 40 : 20,
+  }));
+
+  const headerRow = sheet.getRow(1);
+  headerRow.font = { bold: true };
+  headerRow.fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FFE9ECEF' },
+  };
+
+  for (const conv of conversations) {
+    sheet.addRow(
+      CONVERSATION_EXPORT_COLUMNS.reduce(
+        (row, col) => {
+          const value = conv[col.key as keyof ConversationExportItem];
+          if (col.key === 'createdAt') {
+            row[col.key] = formatDateValue(value as string);
+          } else {
+            row[col.key] = String(value ?? '');
+          }
+          return row;
+        },
+        {} as Record<string, string>,
+      ),
+    );
+  }
+
+  return workbook.xlsx.writeBuffer();
 }
 
 export function downloadExcel(

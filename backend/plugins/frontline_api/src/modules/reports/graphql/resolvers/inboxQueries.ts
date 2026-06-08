@@ -330,17 +330,21 @@ export const reportInboxQueries = {
     { filters = {} }: { filters?: IReportFilters },
     { models }: IContext,
   ) {
-    const pipeline = await buildConversationPipeline(filters, models, {
-      withPagination: true,
-    });
-
-    pipeline.push({ $sort: { updatedAt: -1 } });
+    const page = filters.page ?? 1;
+    const limit = filters.limit ?? 20;
 
     const matchPipeline = await buildConversationPipeline(filters, models);
     const countPipeline = [...matchPipeline, { $count: 'total' as const }];
 
+    const listPipeline = [
+      ...matchPipeline,
+      { $sort: { updatedAt: -1 } },
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
+    ];
+
     const [list, countResult] = await Promise.all([
-      models.Conversations.aggregate(pipeline),
+      models.Conversations.aggregate(listPipeline),
       models.Conversations.aggregate(countPipeline),
     ]);
 
@@ -349,8 +353,8 @@ export const reportInboxQueries = {
     return {
       list,
       totalCount,
-      page: filters.page ?? 1,
-      totalPages: Math.ceil(totalCount / (filters.limit ?? 20)),
+      page,
+      totalPages: Math.ceil(totalCount / limit),
     };
   },
 
@@ -486,42 +490,120 @@ export const reportInboxQueries = {
     });
   },
 
-  async reportConversationSources(
+  async reportConversationExport(
     _parent: undefined,
     { filters = {} }: { filters?: IReportFilters },
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
     const pipeline = await buildConversationPipeline(filters, models);
+    pipeline.push({ $sort: { updatedAt: -1 } });
 
-    pipeline.push(
-      {
-        $lookup: {
-          from: 'integrations',
-          localField: 'integrationId',
-          foreignField: '_id',
-          as: 'integration',
-        },
-      },
-      { $unwind: '$integration' },
-      {
-        $group: {
-          _id: '$integration.kind',
-          name: { $first: '$integration.name' },
-          count: { $sum: 1 },
-        },
-      },
-      { $sort: { count: -1 } },
-      { $limit: filters.limit ?? 10 },
+    const conversations = await models.Conversations.aggregate(pipeline);
+
+    if (!conversations.length) return [];
+
+    const userIds = [
+      ...new Set([
+        ...conversations.map((c: any) => c.assignedUserId).filter(Boolean),
+        ...conversations.flatMap((c: any) => c.readUserIds || []).filter(Boolean),
+      ]),
+    ];
+
+    const users: any[] = userIds.length
+      ? await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'users',
+          action: 'find',
+          input: { query: { _id: { $in: userIds } } },
+          defaultValue: [],
+        })
+      : [];
+
+    const userMap = new Map<string, string>(
+      users.map((u: any) => [
+        u._id.toString(),
+        u.details?.fullName || u.email || 'Unknown',
+      ]),
     );
 
-    const sources = await models.Conversations.aggregate(pipeline);
-    const total = sources.reduce((s, i) => s + i.count, 0);
-
-    return sources.map((s) => ({
-      _id: s._id,
-      name: s.name || s._id,
-      count: s.count,
-      percentage: calculatePercentage(s.count, total),
+    return conversations.map((conv: any) => ({
+      _id: conv._id,
+      createdAt: conv.createdAt,
+      status: conv.status,
+      assigneeName: conv.assignedUserId
+        ? userMap.get(conv.assignedUserId.toString()) || 'Unknown'
+        : 'Unassigned',
+      lastRespondedBy: conv.userId ? 'Member' : 'Customer',
+      openedBy: (conv.readUserIds || [])
+        .map((id: string) => userMap.get(id.toString()) || 'Unknown')
+        .join(', '),
+      content: conv.content || '',
     }));
   },
+
+ async reportConversationSources(
+  _parent: undefined,
+  { filters = {} }: { filters?: IReportFilters },
+  { models }: IContext,
+) {
+  const pipeline = await buildConversationPipeline(filters, models);
+
+  pipeline.push(
+    {
+      $group: {
+        _id: '$integrationId',
+        count: { $sum: 1 },
+      },
+    },
+
+    {
+      $lookup: {
+        from: 'integrations',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'integration',
+      },
+    },
+
+    {
+      $unwind: {
+        path: '$integration',
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+
+    {
+      $group: {
+        _id: '$integration.kind',
+        name: { $first: '$integration.name' },
+        count: { $sum: '$count' },
+      },
+    },
+
+    {
+      $sort: {
+        count: -1,
+      },
+    },
+
+    {
+      $limit: filters.limit ?? 10,
+    },
+  );
+
+  const sources = await models.Conversations.aggregate(pipeline, {
+    allowDiskUse: true,
+  });
+
+  const total = sources.reduce((sum, source) => sum + source.count, 0);
+
+  return sources.map((source) => ({
+    _id: source._id,
+    name: source.name || source._id || 'Unknown',
+    count: source.count,
+    percentage: calculatePercentage(source.count, total),
+  }));
+}
 };

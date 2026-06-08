@@ -105,6 +105,16 @@ export const types = `
     resolved: [ConversationTagProgressItem!]!
   }
 
+  type ConversationExportItem {
+    _id: String
+    createdAt: String
+    status: String
+    assigneeName: String
+    lastRespondedBy: String
+    openedBy: String
+    content: String
+  }
+
 `;
 
 export const queries = `
@@ -121,4 +131,5 @@ export const queries = `
   reportConversationResolved(filters: ConversationReportFilter): ReportMetric
   reportConversationTags(filters: ConversationReportFilter): [ReportTag]
   reportConversationSources(filters: ConversationReportFilter): [ReportSource]
+  reportConversationExport(filters: ConversationReportFilter): [ConversationExportItem]
 `;

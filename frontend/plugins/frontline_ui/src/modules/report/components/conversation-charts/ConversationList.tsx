@@ -1,5 +1,6 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { useConversationList } from '@/report/hooks/useConversationList';
+import { useConversationExport } from '@/report/hooks/useConversationExport';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
 import { getFilters } from '@/report/utils/dateFilters';
 import {
@@ -12,8 +13,13 @@ import {
 import { ConversationListItem } from '@/report/types';
 import { formatDate } from 'date-fns';
 import { CustomersInline, MembersInline } from 'ui-modules';
-import { memo, useState, useEffect } from 'react';
-import { IconMessageShare } from '@tabler/icons-react';
+import { memo, useState, useEffect, useCallback, useMemo } from 'react';
+import {
+  IconChevronLeft,
+  IconChevronRight,
+  IconDownload,
+  IconMessageShare,
+} from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useAtom } from 'jotai';
 import {
@@ -24,6 +30,10 @@ import {
   getReportMemberFilterAtom,
 } from '@/report/states';
 import { ReportFilter } from '../filter-popover/report-filter';
+import {
+  generateConversationExcel,
+  downloadExcel,
+} from '@/report/utils/exportCsv';
 
 interface ConversationListProps {
   title: string;
@@ -49,25 +59,62 @@ export const ConversationList = ({
   );
   const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
+  const [page, setPage] = useState(1);
+  const { fetchExport, loading: exportLoading } = useConversationExport();
 
   useEffect(() => {
-    const newFilters = getFilters(dateValue || undefined);
-    setFilters(newFilters);
+    setFilters(getFilters(dateValue || undefined));
+    setPage(1);
   }, [dateValue]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [sourceFilter, channelFilter, memberFilter]);
+
+  const activeFilters = {
+    ...filters,
+    page,
+    limit: 20,
+    channelIds: channelFilter.length ? channelFilter : undefined,
+    memberIds: memberFilter.length ? memberFilter : undefined,
+    source: sourceFilter !== 'all' ? sourceFilter : undefined,
+    callStatus:
+      sourceFilter === 'calls' && callStatusFilter !== 'all'
+        ? callStatusFilter
+        : undefined,
+  };
+
+  const handleExport = useCallback(async () => {
+    const result = await fetchExport({ variables: { filters: activeFilters } });
+    const conversations = result.data?.reportConversationExport;
+    if (conversations?.length) {
+      const buffer = await generateConversationExcel(conversations);
+      const timestamp = new Date().toISOString().slice(0, 10);
+      downloadExcel(buffer, `conversation-list-${timestamp}.xlsx`);
+    }
+  }, [fetchExport, activeFilters]);
+
+  const filterEl = useMemo(
+    () => (
+      <>
+        <ReportFilter cardId={id} />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-7"
+          onClick={handleExport}
+          disabled={exportLoading}
+          title="Export Excel"
+        >
+          <IconDownload className="size-3.5" />
+        </Button>
+      </>
+    ),
+    [id, handleExport, exportLoading],
+  );
+
   const { conversationList, loading, error } = useConversationList({
-    variables: {
-      filters: {
-        ...filters,
-        channelIds: channelFilter.length ? channelFilter : undefined,
-        memberIds: memberFilter.length ? memberFilter : undefined,
-        source: sourceFilter !== 'all' ? sourceFilter : undefined,
-        callStatus:
-          sourceFilter === 'calls' && callStatusFilter !== 'all'
-            ? callStatusFilter
-            : undefined,
-      },
-    },
+    variables: { filters: activeFilters },
   });
 
   if (loading) {
@@ -116,7 +163,7 @@ export const ConversationList = ({
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
-        <FrontlineCard.Header filter={<ReportFilter cardId={id} />} />
+        <FrontlineCard.Header filter={filterEl} />
         <FrontlineCard.Content>
           <FrontlineCard.Empty />
         </FrontlineCard.Content>
@@ -124,17 +171,26 @@ export const ConversationList = ({
     );
   }
 
+  const { totalCount, totalPages } = conversationList;
+
   return (
     <FrontlineCard
       id={id}
       title={title}
-      description="Total conversations open in the last 30 days"
+      description={`${totalCount} conversations`}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
-      <FrontlineCard.Header filter={<ReportFilter cardId={id} />} />
+      <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
         <ConversationListTable conversationList={conversationList.list} />
+        <ConversationPagination
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          onPrev={() => setPage((p) => Math.max(1, p - 1))}
+          onNext={() => setPage((p) => p + 1)}
+        />
       </FrontlineCard.Content>
     </FrontlineCard>
   );
@@ -145,7 +201,6 @@ const ConversationListTable = memo(function ConversationListTable({
 }: {
   conversationList: ConversationListItem[];
 }) {
-  const navigate = useNavigate();
   return (
     <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
       <RecordTable.Provider
@@ -162,19 +217,65 @@ const ConversationListTable = memo(function ConversationListTable({
           </RecordTable>
         </RecordTable.Scroll>
       </RecordTable.Provider>
+    </div>
+  );
+});
 
-      <div className="flex justify-center">
+const PER_PAGE = 20;
+
+const ConversationPagination = memo(function ConversationPagination({
+  page,
+  totalPages,
+  totalCount,
+  onPrev,
+  onNext,
+}: {
+  page: number;
+  totalPages: number;
+  totalCount: number;
+  onPrev: () => void;
+  onNext: () => void;
+}) {
+  const navigate = useNavigate();
+  const from = (page - 1) * PER_PAGE + 1;
+  const to = Math.min(page * PER_PAGE, totalCount);
+
+  return (
+    <div className="flex items-center justify-between px-4 py-3 border-t">
+      <span className="text-xs text-muted-foreground">
+        {from}–{to} of {totalCount}
+      </span>
+      <div className="flex items-center gap-1">
         <Button
           variant="outline"
-          size="icon"
-          className="w-auto"
-          onClick={() => {
-            navigate('/frontline/inbox');
-          }}
+          size="sm"
+          onClick={onPrev}
+          disabled={page <= 1}
         >
-          Go to conversations
+          <IconChevronLeft className="size-4" />
+          Prev
+        </Button>
+        <span className="text-xs text-muted-foreground px-2">
+          {page} / {totalPages}
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onNext}
+          disabled={page >= totalPages}
+        >
+          Next
+          <IconChevronRight className="size-4" />
         </Button>
       </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="text-xs"
+        onClick={() => navigate('/frontline/inbox')}
+      >
+        Go to conversations
+      </Button>
     </div>
   );
 });

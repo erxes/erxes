@@ -116,3 +116,17 @@ export const GET_RESOLVED_CONVERSATIONS_BY_DATE = gql`
     }
   }
 `;
+
+export const GET_CONVERSATION_EXPORT = gql`
+  query ReportConversationExport($filters: ConversationReportFilter) {
+    reportConversationExport(filters: $filters) {
+      _id
+      createdAt
+      status
+      assigneeName
+      lastRespondedBy
+      openedBy
+      content
+    }
+  }
+`;
