@@ -56,8 +56,8 @@ export const MessageInput = ({
   useEffect(() => {
     const isLead = integration?.kind === 'lead';
     setOnlyInternal(isLead);
-    if (isLead) setIsInternalNote(true);
-  }, [integration?.kind, setOnlyInternal, setIsInternalNote]);
+    setIsInternalNote(isLead);
+  }, [integration?.kind, conversationId, setOnlyInternal, setIsInternalNote]);
 
   const { channels: availableChannels } = useGetChannels();
   const { responses } = useGetResponses({});
