@@ -10,7 +10,11 @@ import {
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
 import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { graphqlPubsub, sendTRPCMessage, markResolvers } from 'erxes-api-shared/utils';
+import {
+  graphqlPubsub,
+  sendTRPCMessage,
+  markResolvers,
+} from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
 import { generateModels, IContext, IModels } from '~/connectionResolvers';
 import { debugError } from '~/modules/inbox/utils';
