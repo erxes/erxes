@@ -11,14 +11,15 @@ import {
   EMLayout,
   EMLayoutPreviousStepButton,
 } from '@/integrations/erxes-messenger/components/EMLayout';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/components/EMFormValueEffect';
 
 export const EMAppearance = () => {
+  const atomValue = useAtomValue(erxesMessengerSetupAppearanceAtom);
   const setStep = useSetAtom(erxesMessengerSetupStepAtom);
   const form = useForm<z.infer<typeof EMAPPEARANCE_SCHEMA>>({
     resolver: zodResolver(EMAPPEARANCE_SCHEMA),
-    defaultValues: {
+    defaultValues: atomValue ?? {
       primary: {
         DEFAULT: '#5048e5',
         foreground: '#fff',
@@ -97,8 +98,10 @@ export const EMAppearance = () => {
                     <Upload.Root
                       value={field.value || ''}
                       onChange={(fileInfo) => {
-                        if ('url' in fileInfo) {
+                        if (fileInfo && typeof fileInfo === 'object') {
                           field.onChange(fileInfo.url);
+                        } else {
+                          field.onChange(fileInfo);
                         }
                       }}
                     >
@@ -124,7 +127,7 @@ export const EMAppearance = () => {
                       type="single"
                       variant={'outline'}
                       value={field.value}
-                      className='max-w-32'
+                      className="max-w-32"
                       onValueChange={field.onChange}
                     >
                       <ToggleGroup.Item className="flex-auto" value="pill">

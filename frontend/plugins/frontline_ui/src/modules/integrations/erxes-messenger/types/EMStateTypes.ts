@@ -36,6 +36,7 @@ export interface MessengerSetupPayload {
     botShowInitialMessage?: boolean;
     botCheck?: boolean;
     botGreetMessage?: string;
+    automationId?: string;
     persistentMenus?: {
       _id: string;
       name: string;

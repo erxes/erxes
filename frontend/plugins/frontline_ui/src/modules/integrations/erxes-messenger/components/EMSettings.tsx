@@ -15,7 +15,7 @@ import {
   EMLayout,
   EMLayoutPreviousStepButton,
 } from '@/integrations/erxes-messenger/components/EMLayout';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   erxesMessengerSetupSettingsAtom,
   erxesMessengerSetupStepAtom,
@@ -25,9 +25,10 @@ import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/compo
 type EMSettingsFormValues = z.infer<typeof EM_SETTINGS_SCHEMA>;
 
 export const EMSettings = () => {
+  const atomValue = useAtomValue(erxesMessengerSetupSettingsAtom);
   const form = useForm<EMSettingsFormValues>({
     resolver: zodResolver(EM_SETTINGS_SCHEMA),
-    defaultValues: {
+    defaultValues: atomValue ?? {
       languageCode: 'en-US',
       requireAuth: false,
       showChat: true,

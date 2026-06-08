@@ -157,6 +157,7 @@ export const types = `
     botShowInitialMessage: Boolean
     botCheck: Boolean
     botGreetMessage: String
+    automationId: String
     getStarted: Boolean
     persistentMenus: [BotPersistentMenuTypeMessenger]
     availabilityMethod: String

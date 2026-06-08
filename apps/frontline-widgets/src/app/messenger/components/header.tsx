@@ -9,7 +9,7 @@ import {
 import { WelcomeMessage } from '../constants';
 import { HeaderTabList } from './header-tab-list';
 import { IconArrowLeft, IconChevronLeft } from '@tabler/icons-react';
-import { Avatar, Button, readImage, Tooltip } from 'erxes-ui';
+import { Avatar, Badge, Button, readImage, Tooltip } from 'erxes-ui';
 import { useHeader } from '../hooks/useHeader';
 import { formatOnlineHours } from '@libs/formatOnlineHours';
 import { LinkFavicon } from './link-favicon';
@@ -57,11 +57,9 @@ export const HeaderIntro = () => {
     <div className="flex flex-col gap-4 w-full p-4 rounded-2xl shadow-xs mx-auto bg-background">
       <div className="gap-2 flex flex-col">
         <div className="font-semibold text-foreground text-base">
-          {messages?.greetings?.title || WelcomeMessage.TITLE}
+          {WelcomeMessage.TITLE}
         </div>
         <div className="text-muted-foreground font-normal text-xs">
-          {messages?.greetings?.message || WelcomeMessage.MESSAGE}
-          {'. '}
           We're available between{' '}
           {formattedHours ? (
             <>
@@ -148,7 +146,7 @@ export const HeaderHero = () => {
   const uiOptions = useAtomValue(uiOptionsAtom);
   const connection = useAtomValue(connectionAtom);
   const { messengerData } = connection.widgetsMessengerConnect;
-  const { knowledgeBaseTopicId } = messengerData || {};
+  const { knowledgeBaseTopicId, messages, isOnline } = messengerData || {};
   const { title, details } = useGetKnowledgeBaseTopicDetails({
     variables: { _id: knowledgeBaseTopicId },
     skip: !knowledgeBaseTopicId,
@@ -167,12 +165,12 @@ export const HeaderHero = () => {
 
   // Find parent category for article breadcrumb
   const articleCategoryId = articleId
-    ? details?.categories
+    ? (details?.categories
         ?.flatMap((c) => c.articles || [])
         .find((a) => a._id === articleId)?.categoryId ??
       details?.parentCategories
         ?.flatMap((c) => c.articles || [])
-        .find((a) => a._id === articleId)?.categoryId
+        .find((a) => a._id === articleId)?.categoryId)
     : null;
   const articleParentCategory =
     details?.categories?.find((c) => c._id === articleCategoryId) ||
@@ -222,12 +220,23 @@ export const HeaderHero = () => {
           <CloseButton />
         </div>
         <div className="mt-11">
-          <h1 className="text-primary-foreground/60 text-[28px] leading-none font-light">
-            Hello there.
+          <span className="text-primary-foreground/60 text-[28px] leading-none font-light">
+            {messages?.greetings?.message ?? 'Hello there'}
+          </span>
+          <h1 className="text-primary-foreground text-[30px] leading-none">
+            {messages?.greetings?.title ?? 'How can we help?'}
           </h1>
-          <h2 className="text-primary-foreground text-[30px] leading-none">
-            How can we help?
-          </h2>
+          {(isOnline && (
+            <Badge variant={'success'} className="mt-3">
+              <div className="rounded-full bg-success size-1.5" />
+              {messages?.welcome ?? 'Got any problems'}
+            </Badge>
+          )) || (
+            <Badge variant={'warning'} className="mt-3">
+              <div className="rounded-full bg-warning size-1.5" />
+              {messages?.away ?? 'Please contact during operating hours'}
+            </Badge>
+          )}
         </div>
       </div>
     );

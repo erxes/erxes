@@ -55,6 +55,7 @@ const messengerDataSchema = new Schema(
     getStarted: { type: Boolean },
     botCheck: { type: Boolean },
     botGreetMessage: { type: String },
+    automationId: { type: String },
     persistentMenus: { type: [persistentMenuSchema] }, // Corrected to an array
     supporterIds: { type: [String] },
     notifyCustomer: { type: Boolean },
