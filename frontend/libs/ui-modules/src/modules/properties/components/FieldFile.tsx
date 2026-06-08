@@ -21,7 +21,10 @@ export const FieldFile = (props: SpecificFieldProps) => {
     if (!files || files.length === 0) return;
 
     if (files[0].size > 20 * 1024 * 1024) {
-      toast({ description: 'File size must be less than 20MB', variant: 'destructive' });
+      toast({
+        description: 'File size must be less than 20MB',
+        variant: 'destructive',
+      });
       if (inputRef.current) inputRef.current.value = '';
       return;
     }
@@ -30,7 +33,12 @@ export const FieldFile = (props: SpecificFieldProps) => {
       files,
       afterUpload: ({ status, response, fileInfo }) => {
         if (status === 'ok') {
-          const newValue = { url: response, name: fileInfo.name, type: fileInfo.type, size: fileInfo.size };
+          const newValue = {
+            url: response,
+            name: fileInfo.name,
+            type: fileInfo.type,
+            size: fileInfo.size,
+          };
           setCurrentValue(newValue);
           handleChange(newValue);
         } else {
@@ -50,7 +58,10 @@ export const FieldFile = (props: SpecificFieldProps) => {
             handleChange(null);
             if (inputRef.current) inputRef.current.value = '';
           } else {
-            toast({ description: 'Failed to delete file', variant: 'destructive' });
+            toast({
+              description: 'Failed to delete file',
+              variant: 'destructive',
+            });
           }
         },
       });
@@ -81,7 +92,11 @@ export const FieldFile = (props: SpecificFieldProps) => {
           <>
             <button
               className="flex items-center gap-1 text-foreground hover:underline flex-1 truncate text-sm"
-              onClick={(e) => { e.stopPropagation(); setPreviewLoading(true); setPreviewOpen(true); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setPreviewLoading(true);
+                setPreviewOpen(true);
+              }}
             >
               <IconPaperclip className="size-4 shrink-0" />
               <span className="truncate">{currentValue.name || 'File'}</span>
@@ -90,87 +105,106 @@ export const FieldFile = (props: SpecificFieldProps) => {
               variant="ghost"
               size="icon"
               className="size-5 ml-1 shrink-0"
-              onClick={(e) => { e.stopPropagation(); handleRemove(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRemove();
+              }}
               disabled={loading || isLoading}
             >
-              {isLoading ? <Spinner size="sm" /> : <IconTrash className="size-3" />}
+              {isLoading ? (
+                <Spinner size="sm" />
+              ) : (
+                <IconTrash className="size-3" />
+              )}
             </Button>
           </>
         ) : (
           <span className="flex items-center gap-1 text-accent-foreground/70 hover:text-foreground transition-colors flex-1">
-            {isLoading ? <Spinner size="sm" /> : (
-              <><IconPaperclip className="size-4" /> Upload file</>
+            {isLoading ? (
+              <Spinner size="sm" />
+            ) : (
+              <>
+                <IconPaperclip className="size-4" /> Upload file
+              </>
             )}
           </span>
         )}
       </label>
 
-    <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-      <Dialog.Content className="max-w-3xl">
-        <Dialog.Header>
-          <div className="flex items-center justify-between">
-            <Dialog.Title>{currentValue?.name || 'File'}</Dialog.Title>
-            <a
-              href={`${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(currentValue?.url || '')}`}
-              download={currentValue?.name || 'file'}
-            >
-              <Button variant="ghost" size="icon">
-                <IconDownload className="size-4" />
-              </Button>
-            </a>
-          </div>
-        </Dialog.Header>
-        {currentValue?.type?.startsWith('image/') ? (
-          <div className="relative min-h-40 flex items-center justify-center">
-            {previewLoading && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Spinner />
-              </div>
-            )}
-            <img
-              src={`${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(currentValue.url)}&inline=true`}
-              alt={currentValue.name}
-              className="w-full rounded object-contain max-h-[70vh]"
-              onLoadStart={() => setPreviewLoading(true)}
-              onLoad={() => setPreviewLoading(false)}
-              onError={() => {
-                setPreviewLoading(false);
-                toast({ description: 'Failed to load preview', variant: 'destructive' });
-              }}
-            />
-          </div>
-        ) : currentValue?.type === 'application/pdf' ? (
-          <div className="relative min-h-40">
-            {previewLoading && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Spinner />
-              </div>
-            )}
-            <iframe
-              src={`${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(currentValue.url)}&inline=true`}
-              className="w-full h-[70vh] rounded"
-              onLoad={() => setPreviewLoading(false)}
-              onError={() => {
-                setPreviewLoading(false);
-                toast({ description: 'Failed to load preview', variant: 'destructive' });
-              }}
-            />
-          </div>
-        ) : (
-          <div className="flex flex-col items-center gap-4 py-8">
-            <IconPaperclip className="size-12 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">{currentValue?.name}</p>
-            <a
-              href={`${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(currentValue?.url || '')}&inline=true`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Button variant="outline">Open file</Button>
-            </a>
-          </div>
-        )}
-      </Dialog.Content>
-    </Dialog>
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <Dialog.Content className="max-w-3xl">
+          <Dialog.Header>
+            <div className="flex items-center justify-between">
+              <Dialog.Title>{currentValue?.name || 'File'}</Dialog.Title>
+              <a
+                href={`${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(currentValue?.url || '')}`}
+                download={currentValue?.name || 'file'}
+              >
+                <Button variant="ghost" size="icon">
+                  <IconDownload className="size-4" />
+                </Button>
+              </a>
+            </div>
+          </Dialog.Header>
+          {currentValue?.type?.startsWith('image/') ? (
+            <div className="relative min-h-40 flex items-center justify-center">
+              {previewLoading && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Spinner />
+                </div>
+              )}
+              <img
+                src={`${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(currentValue.url)}&inline=true`}
+                alt={currentValue.name}
+                className="w-full rounded object-contain max-h-[70vh]"
+                onLoadStart={() => setPreviewLoading(true)}
+                onLoad={() => setPreviewLoading(false)}
+                onError={() => {
+                  setPreviewLoading(false);
+                  toast({
+                    description: 'Failed to load preview',
+                    variant: 'destructive',
+                  });
+                }}
+              />
+            </div>
+          ) : currentValue?.type === 'application/pdf' ? (
+            <div className="relative min-h-40">
+              {previewLoading && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Spinner />
+                </div>
+              )}
+              <iframe
+                src={`${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(currentValue.url)}&inline=true`}
+                className="w-full h-[70vh] rounded"
+                onLoad={() => setPreviewLoading(false)}
+                onError={() => {
+                  setPreviewLoading(false);
+                  toast({
+                    description: 'Failed to load preview',
+                    variant: 'destructive',
+                  });
+                }}
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-4 py-8">
+              <IconPaperclip className="size-12 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">
+                {currentValue?.name}
+              </p>
+              <a
+                href={`${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(currentValue?.url || '')}&inline=true`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Button variant="outline">Open file</Button>
+              </a>
+            </div>
+          )}
+        </Dialog.Content>
+      </Dialog>
     </>
   );
 };
