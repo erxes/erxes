@@ -17,7 +17,7 @@ export const AutomationAiAgentsList = () => {
       title="AI Agents"
       description="Configure credential-backed AI agents, attach context files, and validate provider readiness before wiring them into automation actions."
     >
-      <div className="w-full">
+      <div className="min-w-0 w-full">
         <AutomationAiAgentKindsGrid
           kinds={AI_AGENT_KINDS}
           selectedKind={activeKind}
@@ -25,7 +25,7 @@ export const AutomationAiAgentsList = () => {
         />
       </div>
 
-      <div className="flex-1 p-6 border-t">
+      <div className="min-w-0 w-full flex-1 border-t p-4 xl:p-6">
         <AutomationAiAgentRecordTable kind={activeKind} />
       </div>
     </AutomationSettingsPageShell>

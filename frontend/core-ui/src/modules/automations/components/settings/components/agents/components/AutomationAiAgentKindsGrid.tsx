@@ -51,17 +51,19 @@ export const AutomationAiAgentKindsGrid = ({
   onKindSelect,
 }: AutomationAiAgentKindsGridProps) => {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-      {kinds.map((kind) => (
-        <AutomationAiAgentKindCard
-          key={kind.type}
-          kind={kind}
-          isSelected={selectedKind === kind.type}
-          onClick={() =>
-            onKindSelect(selectedKind === kind.type ? null : kind.type)
-          }
-        />
-      ))}
+    <div className="@container min-w-0">
+      <div className="grid min-w-0 grid-cols-2 gap-4 @min-[68rem]:grid-cols-3">
+        {kinds.map((kind) => (
+          <AutomationAiAgentKindCard
+            key={kind.type}
+            kind={kind}
+            isSelected={selectedKind === kind.type}
+            onClick={() =>
+              onKindSelect(selectedKind === kind.type ? null : kind.type)
+            }
+          />
+        ))}
+      </div>
     </div>
   );
 };

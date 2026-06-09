@@ -17,9 +17,9 @@ export const AutomationAiAgentRecordTable = ({
   }`;
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
-        <div className="space-y-1">
+    <div className="min-w-0 space-y-4">
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-4">
+        <div className="min-w-0 space-y-1">
           <h2 className="text-sm font-medium">Configured agents</h2>
           <p className="text-sm text-muted-foreground">
             Pick an existing agent for editing or create a new one with the same
@@ -27,7 +27,7 @@ export const AutomationAiAgentRecordTable = ({
           </p>
         </div>
 
-        <Button asChild>
+        <Button asChild className="shrink-0">
           <Link to={toCreateUrl}>
             <IconPlus className="size-4" />
             Create Agent
@@ -38,7 +38,7 @@ export const AutomationAiAgentRecordTable = ({
       <RecordTable.Provider
         columns={automationAiAgentColumns}
         data={automationsAiAgents || []}
-        className="h-full"
+        className="h-full min-w-0"
       >
         <RecordTable.Scroll>
           <RecordTable className="w-full">
@@ -46,20 +46,14 @@ export const AutomationAiAgentRecordTable = ({
             <RecordTable.Body>
               {loading && <RecordTable.RowSkeleton rows={8} />}
               <RecordTable.RowList />
-              {!loading && automationsAiAgents.length === 0 && (
-                <tr className="h-[320px]">
-                  <td colSpan={6} className="py-10 text-center">
-                    <div className="mt-4">
-                      <AutomationAiAgentTableEmptyState
-                        toCreateUrl={toCreateUrl}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              )}
             </RecordTable.Body>
           </RecordTable>
         </RecordTable.Scroll>
+        {!loading && automationsAiAgents.length === 0 && (
+          <div className="flex min-h-[320px] min-w-0 items-center justify-center px-4 py-10 text-center">
+            <AutomationAiAgentTableEmptyState toCreateUrl={toCreateUrl} />
+          </div>
+        )}
       </RecordTable.Provider>
     </div>
   );
