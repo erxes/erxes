@@ -334,7 +334,7 @@ export const reportInboxQueries = {
     const limit = filters.limit ?? 20;
 
     const basePipeline = await buildConversationPipeline(filters, models);
-    basePipeline.push({ $sort: { updatedAt: -1 } });
+    basePipeline.push({ $sort: { updatedAt: -1, _id: -1 } });
 
     const pipeline = [
       ...basePipeline,
@@ -440,7 +440,7 @@ export const reportInboxQueries = {
       { $unwind: '$tagIds' },
       { $group: { _id: '$tagIds', count: { $sum: 1 } } },
       { $sort: { count: -1 } },
-      { $limit: filters.limit ?? 10 },
+      { $limit: filters.limit ?? 100 },
     );
 
     const tagCounts: Array<{ _id: any; count: number }> =
@@ -636,7 +636,7 @@ export const reportInboxQueries = {
       }
     }
 
-    const limit = filters.limit ?? 10;
+    const limit = filters.limit ?? 100;
     const sources = [...kindMap.entries()]
       .map(([kind, { name, count }]) => ({ _id: kind, name, count }))
       .sort((a, b) => b.count - a.count)
