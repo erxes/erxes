@@ -113,10 +113,13 @@ export interface MessengerSetupPayload {
   };
   uiOptions?: {
     logo?: string;
+    launcherLogo?: string;
     primary?: {
       DEFAULT?: string;
       foreground?: string;
     };
+    backgroundColor?: string;
+    heroStyleVariant?: 'glossy' | 'aurora' | 'mesh' | 'flat';
     navigationVariant?: 'pill' | 'fluid';
   };
 }

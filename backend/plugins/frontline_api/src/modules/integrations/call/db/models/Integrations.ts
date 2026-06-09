@@ -8,7 +8,10 @@ import {
 import { integrationSchema } from '@/integrations/call/db/definitions/integrations';
 
 export interface ICallIntegrationModel extends Model<ICallIntegrationDocument> {
-  getIntegrations(userId: string, isAdmin?: boolean): Promise<ICallIntegrationDocument[]>;
+  getIntegrations(
+    userId: string,
+    isAdmin?: boolean,
+  ): Promise<ICallIntegrationDocument>;
   getIntegration(
     userId: string,
     integrationId: string,

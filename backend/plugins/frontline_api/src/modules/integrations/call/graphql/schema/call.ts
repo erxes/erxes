@@ -175,6 +175,8 @@ export const types = `
     averageSpeed: Float
     averageAnsweredTime: Float
     callstotal: Int
+    abandonment: Float
+    occupancy: Float
   }
 
   type AgentStats {
@@ -202,6 +204,36 @@ export const types = `
     averageCallbackTime: Float!
   }
 
+
+  type CallVolumePoint {
+    day: Date
+    incoming: Int
+    outgoing: Int
+    answered: Int
+    abandoned: Int
+  }
+
+  type CarrierSlice {
+    name: String
+    value: Int
+  }
+
+  type HeatCell {
+    dow: Int
+    hour: Int
+    total: Int
+    answered: Int
+    answerRate: Float
+  }
+
+  type TopNumber {
+    number: String
+    carrier: String
+    attempts: Int
+    answered: Int
+    missed: Int
+    duration: Int
+  }
 
   type CallLog {
     _id: ID
@@ -300,6 +332,11 @@ export const queries = `
   callGetAgentStats(startDate: String!,endDate: String!, queueId: String, agentId: String, direction: String): [AgentStats!]!
   getCallbackStats(startDate: String!, endDate: String!, queueId: String): [CallbackStats!]!
   callGetOperatorStats(startDate: Date!, endDate: Date!): [OperatorStat]
+  callKpiScorecard(startDate: String!, endDate: String!, queueId: String, direction: String): CallKeyStatistics
+  callVolumeSeries(startDate: String!, endDate: String!, queueId: String, direction: String): [CallVolumePoint]
+  callCarrierBreakdown(startDate: String!, endDate: String!, queueId: String, direction: String): [CarrierSlice]
+  callHeatmap(startDate: String!, endDate: String!, queueId: String, direction: String): [HeatCell]
+  callTopNumbers(startDate: String!, endDate: String!, queueId: String, direction: String, limit: Int): [TopNumber]
   `;
 
 export const mutations = `

@@ -2,12 +2,10 @@ import {
   IconCalendar,
   IconChartBar,
   IconCoins,
-  IconCurrencyDollar,
   IconHash,
   IconLabelFilled,
   IconNote,
   IconRefresh,
-  IconShoppingCart,
   IconStar,
   IconTag,
   IconTrophy,
@@ -153,40 +151,6 @@ export const scoreLogColumns: ColumnDef<IScoreLog>[] = [
       return (
         <RecordTableInlineCell>
           <Badge variant={variant as any}>{action}</Badge>
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'amount',
-    accessorKey: 'amount',
-    header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Amount" />
-    ),
-    size: 100,
-    cell: ({ cell }) => {
-      const val = cell.getValue() as number | undefined;
-      return (
-        <RecordTableInlineCell className="text-right">
-          <TextOverflowTooltip
-            value={val == null ? '' : val.toLocaleString()}
-          />
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'quantity',
-    accessorKey: 'quantity',
-    header: () => (
-      <RecordTable.InlineHead icon={IconShoppingCart} label="Quantity" />
-    ),
-    size: 100,
-    cell: ({ cell }) => {
-      const val = cell.getValue() as number | undefined;
-      return (
-        <RecordTableInlineCell className="text-right">
-          <TextOverflowTooltip value={val == null ? '' : String(val)} />
         </RecordTableInlineCell>
       );
     },
