@@ -1,0 +1,19 @@
+import { AsyncLocalStorage } from 'async_hooks';
+
+// Propagates auth headers through the entire async call chain.
+// Any tool executed within runWithAuth() automatically inherits the context.
+
+interface RequestAuth {
+  userHeader?: string;
+  token?: string;
+}
+
+const authStorage = new AsyncLocalStorage<RequestAuth>();
+
+export function runWithAuth<T>(ctx: RequestAuth, fn: () => Promise<T>): Promise<T> {
+  return authStorage.run(ctx, fn);
+}
+
+export function getCurrentAuth(): RequestAuth | undefined {
+  return authStorage.getStore();
+}
