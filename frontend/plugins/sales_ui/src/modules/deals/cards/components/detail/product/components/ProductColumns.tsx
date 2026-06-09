@@ -123,17 +123,18 @@ export const productColumns: ColumnDef<IProductData>[] = [
         <RecordTableInlineCell
           className={cn(hasDuplicateProduct && DUPLICATE_PRODUCT_CELL_CLASS)}
         >
-          <div className="flex gap-1.5 items-center min-w-0">
+          <div className="flex gap-1.5 items-center">
             {product?.code && (
               <span className="font-mono text-xs bg-muted border rounded px-1 text-muted-foreground shrink-0">
                 {product.code}
               </span>
             )}
-            <TextOverflowTooltip value={product?.name ?? ''} />
+            <span>{product?.name}</span>
           </div>
         </RecordTableInlineCell>
       );
     },
+    size: 260,
   },
   {
     id: 'unitPrice',
@@ -163,6 +164,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
         </RecordTableInlineCell>
       );
     },
+    size: 110,
   },
   {
     id: 'quantity',

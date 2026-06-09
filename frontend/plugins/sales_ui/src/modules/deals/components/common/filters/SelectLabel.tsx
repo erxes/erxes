@@ -121,10 +121,7 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
     skip: !pipelineId,
   });
 
-  const updateDealLabelsInCache = (
-    dealId: string,
-    nextLabelIds: string[],
-  ) => {
+  const updateDealLabelsInCache = (dealId: string, nextLabelIds: string[]) => {
     const cacheId = client.cache.identify({ __typename: 'Deal', _id: dealId });
 
     if (!cacheId) {
@@ -133,7 +130,9 @@ export const SelectLabelsCommand = ({ targetId }: { targetId?: string }) => {
 
     const nextLabels = nextLabelIds
       .map((id) => {
-        const found = pipelineLabels.find((item: IPipelineLabel) => item._id === id);
+        const found = pipelineLabels.find(
+          (item: IPipelineLabel) => item._id === id,
+        );
 
         return found
           ? {
@@ -329,14 +328,37 @@ export const SelectLabelsItem = ({ label }: { label: IPipelineLabel }) => {
   );
 };
 
-export const SelectLabelsValue = () => {
+export const SelectLabelsValue = ({
+  showLabels = false,
+}: {
+  showLabels?: boolean;
+}) => {
+  const [pipelineId] = useQueryState('pipelineId');
+  const { pipelineLabels = [] } = usePipelineLabels({
+    variables: { pipelineId },
+    skip: !pipelineId,
+  });
   const { labelIds } = useSelectLabelsContext();
 
   if ((labelIds || [])?.length !== 0) {
     return (
       <span className="text-muted-foreground flex items-center gap-1 -ml-1">
-        <IconLabel className="w-4 h-4 text-gray-400" /> Label +
-        {(labelIds || []).length}
+        {showLabels ? (
+          <>
+            <IconLabel className="w-4 h-4 text-gray-400" />
+            {pipelineLabels
+              .map((label) =>
+                labelIds?.includes(label._id || '') ? label.name : '',
+              )
+              .filter(Boolean)
+              .join(', ')}
+          </>
+        ) : (
+          <>
+            <IconLabel className="w-4 h-4 text-gray-400" /> Label +
+            {(labelIds || []).length}
+          </>
+        )}
       </span>
     );
   }
@@ -521,6 +543,7 @@ export const SelectLabelsFilterBar = ({
   scope,
   targetId,
   initialValue,
+  showLabels,
 }: {
   mode: 'single' | 'multiple';
   filterKey: string;
@@ -529,6 +552,7 @@ export const SelectLabelsFilterBar = ({
   scope?: string;
   targetId?: string;
   initialValue?: string[];
+  showLabels?: boolean;
 }) => {
   const isCardVariant = variant === 'card';
 
@@ -578,7 +602,7 @@ export const SelectLabelsFilterBar = ({
     >
       <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
         <SelectTriggerOperation variant={variant || 'filter'}>
-          <SelectLabelsValue />
+          <SelectLabelsValue showLabels={showLabels} />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant || 'filter'}>
           <SelectLabelsContent targetId={targetId} />

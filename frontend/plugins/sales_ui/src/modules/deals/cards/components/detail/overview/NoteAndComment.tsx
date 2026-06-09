@@ -10,6 +10,7 @@ const SalesNoteAndComment = ({ dealId }: { dealId: string }) => {
       <ActivityLogs
         targetId={dealId}
         customActivities={[internalNoteCustomActivity]}
+        showExactDate
       />
       <AddInternalNote contentTypeId={dealId} contentType="sales:deal" />
     </div>
