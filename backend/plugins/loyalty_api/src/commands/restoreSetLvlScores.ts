@@ -64,6 +64,9 @@ const batchSize = Math.max(Number(BATCH_SIZE) || 1000, 1);
 const addCampaignIds = ADD_CAMPAIGN_IDS.split(',')
   .map((campaignId) => campaignId.trim())
   .filter(Boolean);
+const RESTORE_DESCRIPTION =
+  'Restore set level score log from legacy automation';
+const VALID_LEVELS = [0, 3, 5, 10];
 
 const fixScoreNumber = (value: number, fractionDigits = 4) => {
   const numberValue = Number(value) || 0;
@@ -159,6 +162,37 @@ const getExistingSetLog = async ({
     action: 'set',
   });
 
+const getRelatedAddLog = async ({
+  ownerId,
+  ownerType,
+  targetId,
+  setCampaignId,
+}: {
+  ownerId?: string;
+  ownerType: string;
+  targetId?: string;
+  setCampaignId: string;
+}) => {
+  if (!ownerId || !targetId) {
+    return null;
+  }
+
+  const filter: Record<string, unknown> = {
+    ownerType,
+    ownerId,
+    targetId,
+    action: 'add',
+  };
+
+  if (addCampaignIds.length) {
+    filter.campaignId = { $in: addCampaignIds };
+  } else {
+    filter.campaignId = { $ne: setCampaignId };
+  }
+
+  return ScoreLogs.findOne(filter, { projection: { _id: 1 } });
+};
+
 const getLastRestoredLevel = async ({
   ownerId,
   ownerType,
@@ -183,14 +217,89 @@ const getLastRestoredLevel = async ({
 
 const flush = async (operations: AnyBulkWriteOperation<ScoreLogDocument>[]) => {
   if (!operations.length) {
-    return { insertedCount: 0 };
+    return { insertedCount: 0, modifiedCount: 0, deletedCount: 0 };
   }
 
   const result = await ScoreLogs.bulkWrite(operations, { ordered: false });
 
   operations.length = 0;
 
-  return { insertedCount: result.insertedCount || 0 };
+  return {
+    insertedCount: result.insertedCount || 0,
+    modifiedCount: result.modifiedCount || 0,
+    deletedCount: result.deletedCount || 0,
+  };
+};
+
+const cleanupInvalidSetLogs = async ({
+  ownerType,
+  setCampaignId,
+}: {
+  ownerType: string;
+  setCampaignId: string;
+}) => {
+  const filter: Record<string, unknown> = {
+    ownerType,
+    campaignId: setCampaignId,
+    action: 'set',
+    $or: [
+      { description: RESTORE_DESCRIPTION },
+      { changeScore: { $nin: VALID_LEVELS } },
+    ],
+  };
+
+  if (OWNER_ID) {
+    filter.ownerId = OWNER_ID;
+  }
+
+  const cursor = ScoreLogs.find(filter).batchSize(batchSize);
+  const operations: AnyBulkWriteOperation<ScoreLogDocument>[] = [];
+  let scannedCount = 0;
+  let deletedCount = 0;
+  let skippedInvalidWithAddCount = 0;
+
+  for await (const setLog of cursor) {
+    scannedCount++;
+
+    const isRestoredLog = setLog.description === RESTORE_DESCRIPTION;
+    const hasInvalidLevel = !VALID_LEVELS.includes(
+      fixScoreNumber(Number(setLog.changeScore)),
+    );
+    const relatedAddLog = await getRelatedAddLog({
+      ownerId: setLog.ownerId,
+      ownerType,
+      targetId: setLog.targetId,
+      setCampaignId,
+    });
+
+    if (!isRestoredLog && hasInvalidLevel && relatedAddLog) {
+      skippedInvalidWithAddCount++;
+      continue;
+    }
+
+    operations.push({
+      deleteOne: {
+        filter: { _id: setLog._id },
+      },
+    });
+
+    if (operations.length >= batchSize) {
+      const result = await flush(operations);
+      deletedCount += result.deletedCount;
+      console.log(
+        `Cleanup scanned ${scannedCount}, deleted ${deletedCount}, skipped invalid with add ${skippedInvalidWithAddCount}`,
+      );
+    }
+  }
+
+  const result = await flush(operations);
+  deletedCount += result.deletedCount;
+
+  return {
+    scannedCount,
+    deletedCount,
+    skippedInvalidWithAddCount,
+  };
 };
 
 const command = async () => {
@@ -228,6 +337,11 @@ const command = async () => {
     }, setCampaignId=${setCampaign._id}`,
   );
 
+  const cleanup = await cleanupInvalidSetLogs({
+    ownerType,
+    setCampaignId: setCampaign._id,
+  });
+
   const cursor = ScoreLogs.find(addLogFilter)
     .sort({ ownerId: 1, createdAt: 1, _id: 1 })
     .batchSize(batchSize);
@@ -236,6 +350,7 @@ const command = async () => {
   let scannedCount = 0;
   let preparedCount = 0;
   let insertedCount = 0;
+  let modifiedCount = 0;
   let skippedExistingCount = 0;
   let skippedNoTargetAmountCount = 0;
   let skippedNoLevelChangeCount = 0;
@@ -265,11 +380,6 @@ const command = async () => {
 
     ownerLevels.set(addLog.ownerId, nextLevel);
 
-    if (nextLevel === currentLevel) {
-      skippedNoLevelChangeCount++;
-      continue;
-    }
-
     const existingSetLog = await getExistingSetLog({
       ownerId: addLog.ownerId,
       ownerType,
@@ -278,7 +388,48 @@ const command = async () => {
     });
 
     if (existingSetLog) {
-      skippedExistingCount++;
+      const expectedPreScore = fixScoreNumber(currentLevel);
+      const expectedChangeScore = fixScoreNumber(nextLevel);
+      const currentPreScore = fixScoreNumber(Number(existingSetLog.preScore));
+      const currentChangeScore = fixScoreNumber(
+        Number(existingSetLog.changeScore),
+      );
+
+      if (
+        currentPreScore !== expectedPreScore ||
+        currentChangeScore !== expectedChangeScore
+      ) {
+        operations.push({
+          updateOne: {
+            filter: { _id: existingSetLog._id },
+            update: {
+              $set: {
+                preScore: expectedPreScore,
+                changeScore: expectedChangeScore,
+                description: RESTORE_DESCRIPTION,
+              },
+            },
+          },
+        });
+        preparedCount++;
+      } else {
+        skippedExistingCount++;
+      }
+
+      if (operations.length >= batchSize) {
+        const result = await flush(operations);
+        insertedCount += result.insertedCount;
+        modifiedCount += result.modifiedCount;
+        console.log(
+          `Scanned ${scannedCount}, prepared ${preparedCount}, inserted ${insertedCount}, modified ${modifiedCount}`,
+        );
+      }
+
+      continue;
+    }
+
+    if (nextLevel === currentLevel) {
+      skippedNoLevelChangeCount++;
       continue;
     }
 
@@ -292,7 +443,7 @@ const command = async () => {
           changeScore: fixScoreNumber(nextLevel),
           createdAt: addLog.createdAt || new Date(),
           createdBy: addLog.createdBy || '',
-          description: 'Restore set level score log from legacy automation',
+          description: RESTORE_DESCRIPTION,
           serviceName: addLog.serviceName,
           targetId: addLog.targetId,
           action: 'set',
@@ -304,18 +455,26 @@ const command = async () => {
     if (operations.length >= batchSize) {
       const result = await flush(operations);
       insertedCount += result.insertedCount;
+      modifiedCount += result.modifiedCount;
       console.log(
-        `Scanned ${scannedCount}, prepared ${preparedCount}, inserted ${insertedCount}`,
+        `Scanned ${scannedCount}, prepared ${preparedCount}, inserted ${insertedCount}, modified ${modifiedCount}`,
       );
     }
   }
 
   const result = await flush(operations);
   insertedCount += result.insertedCount;
+  modifiedCount += result.modifiedCount;
 
   console.log(`Scanned add score logs: ${scannedCount}`);
+  console.log(`Cleanup scanned set logs: ${cleanup.scannedCount}`);
+  console.log(`Cleanup deleted set logs: ${cleanup.deletedCount}`);
+  console.log(
+    `Cleanup skipped invalid set logs with add: ${cleanup.skippedInvalidWithAddCount}`,
+  );
   console.log(`Prepared set logs: ${preparedCount}`);
   console.log(`Inserted set logs: ${insertedCount}`);
+  console.log(`Modified set logs: ${modifiedCount}`);
   console.log(`Skipped existing set logs: ${skippedExistingCount}`);
   console.log(`Skipped no target amount: ${skippedNoTargetAmountCount}`);
   console.log(`Skipped no level change: ${skippedNoLevelChangeCount}`);
