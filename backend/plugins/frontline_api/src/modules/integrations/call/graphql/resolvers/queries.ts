@@ -28,9 +28,8 @@ const callQueries = {
   },
 
   async callUserIntegrations(_root, _args, { models, user }: IContext) {
-    const res = models.CallIntegrations.getIntegrations(user._id);
-
-    return res;
+    const isAdmin = user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
+    return models.CallIntegrations.getIntegrations(user._id, isAdmin);
   },
 
   async callsCustomerDetail(_root, { customerPhone }, { subdomain }: IContext) {
@@ -79,9 +78,11 @@ const callQueries = {
     { integrationId },
     { models, user }: IContext,
   ) {
+    const isAdmin = user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const integration = await models.CallIntegrations.getIntegration(
       user._id,
       integrationId,
+      isAdmin,
     );
     if (!integration) {
       throw new Error('Integration not found');
@@ -137,9 +138,11 @@ const callQueries = {
     const day = String(today.getDate()).padStart(2, '0');
 
     const formattedDate = `${year}-${month}-${day}`;
+    const isAdmin = user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const integration = await models.CallIntegrations.getIntegration(
       user._id,
       integrationId,
+      isAdmin,
     );
     if (!integration) {
       throw new Error('Integration not found');
