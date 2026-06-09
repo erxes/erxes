@@ -14,7 +14,9 @@ import {
   TextOverflowTooltip,
   cn,
 } from 'erxes-ui';
-import { MSDynamicSyncHistory } from '../types/msDynamicSyncHistory';
+import { IMSDynamicSyncHistory } from '../types/msDynamicSyncHistory';
+import { useSearchParams } from 'react-router';
+import { MSDynamicSyncHistoryMoreColumn } from './MSDynamicSyncHistoryMoreColumn';
 
 const stringify = (value: unknown) => {
   if (!value) {
@@ -28,26 +30,46 @@ const stringify = (value: unknown) => {
   return JSON.stringify(value);
 };
 
-const MSDynamicSyncHistoryTextCell = ({
+const SyncErkhetHistoryClickableCell = ({
+  row,
   value,
   isError,
 }: {
+  row: { original: IMSDynamicSyncHistory };
   value: string;
   isError?: boolean;
 }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const handleOpen = () => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('syncHistory_id', row.original._id);
+    setSearchParams(newSearchParams);
+  };
+
   return (
     <RecordTableInlineCell
+      role="button"
+      tabIndex={0}
+      onClick={handleOpen}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          handleOpen();
+        }
+      }}
       className={cn(
-        'rounded px-2',
+        'cursor-pointer rounded px-2 hover:bg-muted',
         isError && value ? 'text-destructive' : 'text-muted-foreground',
       )}
     >
-      <TextOverflowTooltip value={value || '-'} />
+      <TextOverflowTooltip value={String(value || '-')} />
     </RecordTableInlineCell>
   );
 };
 
-export const msDynamicSyncHistoryColumns: ColumnDef<MSDynamicSyncHistory>[] = [
+export const msDynamicSyncHistoryColumns: ColumnDef<IMSDynamicSyncHistory>[] = [
+  MSDynamicSyncHistoryMoreColumn,
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
@@ -55,12 +77,10 @@ export const msDynamicSyncHistoryColumns: ColumnDef<MSDynamicSyncHistory>[] = [
       <RecordTable.InlineHead label="Created At" icon={IconCalendarPlus} />
     ),
     cell: ({ cell }) => {
-      const value = cell.getValue() as string | undefined;
-
       return (
-        <RelativeDateDisplay value={value || ''} asChild>
+        <RelativeDateDisplay value={cell.getValue() as string} asChild>
           <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-            <RelativeDateDisplay.Value value={value || ''} />
+            <RelativeDateDisplay.Value value={cell.getValue() as string} />
           </RecordTableInlineCell>
         </RelativeDateDisplay>
       );
@@ -75,7 +95,11 @@ export const msDynamicSyncHistoryColumns: ColumnDef<MSDynamicSyncHistory>[] = [
       const value =
         user?.email || user?.details?.fullName || row.original.createdBy || '';
 
-      return <MSDynamicSyncHistoryTextCell value={value} />;
+      return (
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={value} />
+        </RecordTableInlineCell>
+      );
     },
   },
   {
@@ -86,9 +110,9 @@ export const msDynamicSyncHistoryColumns: ColumnDef<MSDynamicSyncHistory>[] = [
     ),
     cell: ({ cell }) => {
       return (
-        <MSDynamicSyncHistoryTextCell
-          value={(cell.getValue() as string | undefined) || ''}
-        />
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
+        </RecordTableInlineCell>
       );
     },
   },
@@ -98,9 +122,9 @@ export const msDynamicSyncHistoryColumns: ColumnDef<MSDynamicSyncHistory>[] = [
     header: () => <RecordTable.InlineHead icon={IconHash} label="Content" />,
     cell: ({ cell }) => {
       return (
-        <MSDynamicSyncHistoryTextCell
-          value={(cell.getValue() as string | undefined) || ''}
-        />
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
+        </RecordTableInlineCell>
       );
     },
   },
@@ -112,7 +136,8 @@ export const msDynamicSyncHistoryColumns: ColumnDef<MSDynamicSyncHistory>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <MSDynamicSyncHistoryTextCell
+        <SyncErkhetHistoryClickableCell
+          row={row}
           value={stringify(
             row.original.responseData || row.original.responseStr,
           )}
@@ -128,7 +153,8 @@ export const msDynamicSyncHistoryColumns: ColumnDef<MSDynamicSyncHistory>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <MSDynamicSyncHistoryTextCell
+        <SyncErkhetHistoryClickableCell
+          row={row}
           value={row.original.error || ''}
           isError
         />

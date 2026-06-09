@@ -21,15 +21,15 @@ export type SyncHistoryFilterKey =
   | 'searchError';
 
 export interface ISyncHistoryFilterValues {
-  [key: string]: string | null;
+  [key: string]: string | number | null;
   user: string | null;
   dateRange: string | null;
-  contentType: string | null;
-  contentId: string | null;
-  searchConsume: string | null;
-  searchSend: string | null;
-  searchResponse: string | null;
-  searchError: string | null;
+  contentType: string | number | null;
+  contentId: string | number | null;
+  searchConsume: string | number | null;
+  searchSend: string | number | null;
+  searchResponse: string | number | null;
+  searchError: string | number | null;
 }
 
 export interface ISyncHistoryFilterField {

@@ -19,7 +19,7 @@ import { MSDynamicSyncHistoryTotalCount } from './MSDynamicSyncHistoryTotalCount
 
 interface IMSDynamicSyncHistoryTextFilterBarItemProps {
   field: ISyncHistoryFilterField;
-  value?: string;
+  value?: string | number;
 }
 
 const MSDynamicSyncHistoryUserFilterBarItem = () => {

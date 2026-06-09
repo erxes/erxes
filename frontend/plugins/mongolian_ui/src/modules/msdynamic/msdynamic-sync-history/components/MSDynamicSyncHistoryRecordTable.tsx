@@ -1,8 +1,9 @@
-import { IconInbox } from '@tabler/icons-react';
+import { IconShoppingCartX } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
 import { useMSDynamicSessionKey } from '../../hooks/useMSDynamicSessionKey';
 import { msDynamicSyncHistoryColumns } from './MSDynamicSyncHistoryColumns';
 import { useMSDynamicSyncHistory } from '../hooks/useMSDynamicSyncHistory';
+import { MCDynamicSyncHistoryDetailSheet } from './MSDynamicSyncHistoryDetailSheet';
 
 export const MSDynamicSyncHistoryRecordTable = () => {
   const { syncHistories, handleFetchMore, loading, pageInfo } =
@@ -16,7 +17,7 @@ export const MSDynamicSyncHistoryRecordTable = () => {
       columns={msDynamicSyncHistoryColumns}
       data={syncHistories || []}
       className="m-3"
-      stickyColumns={['createdAt']}
+      stickyColumns={['more', 'createdAt']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
@@ -38,14 +39,24 @@ export const MSDynamicSyncHistoryRecordTable = () => {
           </RecordTable.Body>
         </RecordTable>
         {!loading && syncHistories?.length === 0 && (
-          <div className="h-full w-full px-8 flex justify-center">
-            <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center text-muted-foreground">
-              <IconInbox size={64} className="mx-auto mb-4 opacity-70" />
-              <h3 className="text-xl font-semibold mb-2">No sync yet</h3>
-              <p className="max-w-md">There is no data</p>
+          <div>
+            <div className=" h-full w-full px-8 flex justify-center">
+              <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
+                <div className="mb-6">
+                  <IconShoppingCartX
+                    size={64}
+                    className="text-muted-foreground mx-auto mb-4"
+                  />
+                  <h3 className="text-xl font-semibold mb-2">No sync yet</h3>
+                  <p className="text-muted-foreground max-w-md">
+                    Get started by creating your first sync.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         )}
+        <MCDynamicSyncHistoryDetailSheet histories={syncHistories || []} />
       </RecordTable.CursorProvider>
     </RecordTable.Provider>
   );
