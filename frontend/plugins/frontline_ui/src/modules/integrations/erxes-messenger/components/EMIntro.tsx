@@ -36,7 +36,7 @@ export const EMIntro = () => {
         atom={erxesMessengerSetupIntroAtom}
       />
       <form
-        className="flex-auto flex flex-col"
+        className="flex-auto h-full flex flex-col"
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <EMLayout
@@ -48,7 +48,7 @@ export const EMIntro = () => {
             </>
           }
         >
-          <div className="p-4 pt-0">
+          <div className="p-4 pt-0 overflow-y-auto hide-scroll styled-scroll">
             <Collapsible className="group/collapsible" defaultOpen>
               <Collapsible.TriggerButton>
                 <Collapsible.TriggerIcon />

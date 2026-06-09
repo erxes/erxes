@@ -146,7 +146,9 @@ export const EMAppearance = () => {
                       </Upload.Root>
                     </Form.Control>
                     <Form.Message />
-                    <Form.Description>Shown in the messenger header. PNG/SVG, 1:1.</Form.Description>
+                    <Form.Description>
+                      Shown in the messenger header. PNG/SVG, 1:1.
+                    </Form.Description>
                   </Form.Item>
                 )}
               />
@@ -179,7 +181,9 @@ export const EMAppearance = () => {
                       </Upload.Root>
                     </Form.Control>
                     <Form.Message />
-                    <Form.Description>The floating button icon. Square works best.</Form.Description>
+                    <Form.Description>
+                      The floating button icon. Square works best.
+                    </Form.Description>
                   </Form.Item>
                 )}
               />
@@ -191,7 +195,9 @@ export const EMAppearance = () => {
                   <Form.Label className="text-foreground">
                     Hero style
                   </Form.Label>
-                  <Form.Description>Background of the greeting</Form.Description>
+                  <Form.Description>
+                    Background of the greeting
+                  </Form.Description>
                   <Form.Control>
                     <HeroStyleRadioGroup
                       value={field.value}
