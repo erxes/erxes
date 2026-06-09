@@ -74,14 +74,14 @@ export const SelectLabelsProvider = ({
     const newSelectedLabelIds = isSingleMode
       ? [label._id]
       : isSelected
-        ? multipleValue.filter((p) => p !== label._id)
-        : [...multipleValue, label._id];
+      ? multipleValue.filter((p) => p !== label._id)
+      : [...multipleValue, label._id];
 
     const newSelectedLabels = isSingleMode
       ? [label]
       : isSelected
-        ? selectedLabels.filter((p) => p._id !== label._id)
-        : [...selectedLabels, label];
+      ? selectedLabels.filter((p) => p._id !== label._id)
+      : [...selectedLabels, label];
 
     setSelectedLabels(newSelectedLabels);
     onValueChange?.(isSingleMode ? label._id : newSelectedLabelIds);
@@ -339,6 +339,7 @@ export const SelectLabelsValue = ({
     skip: !pipelineId,
   });
   const { labelIds } = useSelectLabelsContext();
+  const selectedIds = new Set(labelIds ?? []);
 
   if ((labelIds || [])?.length !== 0) {
     return (
@@ -347,10 +348,8 @@ export const SelectLabelsValue = ({
           <>
             <IconLabel className="w-4 h-4 text-gray-400" />
             {pipelineLabels
-              .map((label) =>
-                labelIds?.includes(label._id || '') ? label.name : '',
-              )
-              .filter(Boolean)
+              .filter((label) => label._id && selectedIds.has(label._id))
+              .map((label) => label.name)
               .join(', ')}
           </>
         ) : (

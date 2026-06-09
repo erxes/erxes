@@ -31,9 +31,11 @@ export function ActivityLogRow({
         <div className="min-w-0 flex-1">{activityLogRowContent}</div>
         <div className="shrink-0 pt-0.5 text-right">
           {showExactDate ? (
-            <p className="text-xs leading-6 text-muted-foreground">
-              {format(new Date(activity.createdAt), 'MMM dd, yyyy HH:mm')}
-            </p>
+            activity.createdAt ? (
+              <p className="text-xs leading-6 text-muted-foreground">
+                {format(new Date(activity.createdAt), 'MMM dd, yyyy HH:mm')}
+              </p>
+            ) : null
           ) : (
             <RelativeDateDisplay value={activity.createdAt as string} asChild>
               <p className="text-xs leading-6 text-muted-foreground">

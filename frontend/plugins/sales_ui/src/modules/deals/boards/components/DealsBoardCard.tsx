@@ -6,7 +6,6 @@ import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { IDeal } from '@/deals/types/deals';
-import { IProductData } from 'ui-modules';
 import { IconAlertCircleFilled } from '@tabler/icons-react';
 import { Separator, useQueryState, CopyText } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
@@ -16,6 +15,7 @@ import {
   SelectCustomer,
   SelectTags,
   useManageRelations,
+  IProductData,
 } from 'ui-modules';
 import DealCardDetails from './DealsBoardCardDetails';
 

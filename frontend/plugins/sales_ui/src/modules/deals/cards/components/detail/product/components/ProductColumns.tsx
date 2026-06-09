@@ -123,7 +123,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
         <RecordTableInlineCell
           className={cn(hasDuplicateProduct && DUPLICATE_PRODUCT_CELL_CLASS)}
         >
-          <div className="flex gap-1.5 items-center">
+          <div className="flex gap-1.5 items-center min-w-0">
             {product?.code && (
               <span className="font-mono text-xs bg-muted border rounded px-1 text-muted-foreground shrink-0">
                 {product.code}
