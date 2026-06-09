@@ -166,13 +166,12 @@ export const loadCallSessionClass = (models: IModels) => {
       const session = await models.CallSessions.findOne({ uniqueid });
       if (!session) return null;
 
-      // The live CTI path may only deliver a ringing event, so answeredAt can be
-      // unset even for answered calls. Treat an ANSWERED CDR disposition as
-      // answered, and keep an already-ended session sticky across CDR legs.
       const wasAnswered =
         !!session.answeredAt ||
         session.status === 'ended' ||
-        (payload.disposition || '').toUpperCase() === 'ANSWERED';
+        session.status === 'active' ||
+        ((payload.disposition || '').toUpperCase() === 'ANSWERED' &&
+          (payload.durationSec || 0) > 0);
       session.status = wasAnswered ? 'ended' : 'missed';
       session.endedAt = payload.endedAt || new Date();
       if (payload.hangupCause) session.hangupCause = payload.hangupCause;
