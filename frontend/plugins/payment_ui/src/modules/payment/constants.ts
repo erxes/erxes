@@ -225,13 +225,13 @@ export const PAYMENT_KINDS = {
       },
     ],
   },
-  // TODO: Add Khanbank after khanbank plugin is ready
-  // [PaymentKind.KAHNBANK]: {
-  //   name: 'Khanbank',
-  //   description: 'Connect your Khanbank Corporate Gateway account.',
-  //   active: true,
-  //   fields: []
-  // },
+
+  [PaymentKind.KHANBANK]: {
+    name: 'Khanbank',
+    description: 'Connect your Khanbank Corporate Gateway account.',
+    active: true,
+    fields: [],
+  },
 };
 
 export const BANK_CODES = [
