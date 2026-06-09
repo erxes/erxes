@@ -16,9 +16,10 @@ import {
   Skeleton,
   Switch,
   Textarea,
+  toast,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { MASTRA_TOOL, MASTRA_AVAILABLE_ERXES_TOOLS } from '~/graphql/queries';
+import { MASTRA_TOOL, MASTRA_TOOLS, MASTRA_AVAILABLE_ERXES_TOOLS } from '~/graphql/queries';
 import { MASTRA_TOOL_CREATE, MASTRA_TOOL_UPDATE } from '~/graphql/mutations';
 
 const BUILTIN_OPTIONS = [
@@ -66,6 +67,7 @@ export const ToolFormPage = () => {
     type: 'builtin' as 'builtin' | 'erxes',
     builtinType: '',
     erxesPlugin: '',
+    erxesModule: '',
     erxesOperation: '',
     erxesOperationType: 'query' as 'query' | 'mutation',
     graphqlArgs: [] as any[],
@@ -80,12 +82,23 @@ export const ToolFormPage = () => {
   const { data: erxesToolsData, loading: loadingErxes } = useQuery(MASTRA_AVAILABLE_ERXES_TOOLS, {
     skip: form.type !== 'erxes',
   });
+  // Existing tools → so the picker can flag operations that are already added
+  // (avoids the duplicate-toolId error and lets the user jump straight to edit).
+  const { data: existingToolsData } = useQuery(MASTRA_TOOLS, { fetchPolicy: 'cache-and-network' });
+  const existingByToolId = new Map<string, string>(
+    (existingToolsData?.mastraTools || []).map((t: any) => [t.toolId, t._id]),
+  );
+
+  const onMutationError = (e: any) =>
+    toast({ title: 'Could not save tool', description: e.message, variant: 'destructive' });
 
   const [createTool, { loading: creating }] = useMutation(MASTRA_TOOL_CREATE, {
     onCompleted: () => navigate('/settings/mastra/tools'),
+    onError: onMutationError,
   });
   const [updateTool, { loading: updating }] = useMutation(MASTRA_TOOL_UPDATE, {
     onCompleted: () => navigate('/settings/mastra/tools'),
+    onError: onMutationError,
   });
 
   useEffect(() => {
@@ -98,6 +111,7 @@ export const ToolFormPage = () => {
         type: t.type || 'builtin',
         builtinType: t.builtinType || '',
         erxesPlugin: t.erxesPlugin || '',
+        erxesModule: t.erxesModule || '',
         erxesOperation: t.erxesOperation || '',
         erxesOperationType: t.erxesOperationType || 'query',
         graphqlArgs: t.graphqlArgs || [],
@@ -125,6 +139,7 @@ export const ToolFormPage = () => {
     set('erxesOperation', op.operation);
     set('erxesOperationType', op.operationType);
     set('erxesPlugin', op.plugin);
+    set('erxesModule', op.module);
     set('graphqlArgs', op.graphqlArgs || []);
     set('erxesReturnType', op.returnType || null);
     set('description', op.description || '');
@@ -307,11 +322,21 @@ export const ToolFormPage = () => {
                           const requiredArgs = (op.graphqlArgs || [])
                             .filter((a: any) => a?.type?.kind === 'NON_NULL')
                             .map((a: any) => a.name);
+                          // Already a tool? Clicking opens it for editing instead
+                          // of creating a duplicate (toolId is unique).
+                          const existingId = existingByToolId.get(
+                            toToolId(`${op.plugin}-${op.operation}`),
+                          );
+                          const added = !!existingId && !isEdit;
                           return (
                             <button
                               key={`${op.operationType}-${op.operation}`}
                               type="button"
-                              onClick={() => handleErxesOpSelect(op)}
+                              onClick={() =>
+                                added
+                                  ? navigate(`/settings/mastra/tools/edit/${existingId}`)
+                                  : handleErxesOpSelect(op)
+                              }
                               className={`w-full text-left rounded-md px-3 py-2 transition-colors ${
                                 isSelected
                                   ? 'bg-primary/10 border border-primary'
@@ -322,12 +347,19 @@ export const ToolFormPage = () => {
                                 <span className="text-sm font-medium leading-tight first-letter:uppercase">
                                   {op.description}
                                 </span>
-                                <Badge
-                                  variant={op.operationType === 'mutation' ? 'warning' : 'info'}
-                                  className="text-[10px] shrink-0"
-                                >
-                                  {op.operationType === 'mutation' ? 'write' : 'read'}
-                                </Badge>
+                                <div className="flex items-center gap-1 shrink-0">
+                                  {added && (
+                                    <Badge variant="success" className="text-[10px]">
+                                      Added
+                                    </Badge>
+                                  )}
+                                  <Badge
+                                    variant={op.operationType === 'mutation' ? 'warning' : 'info'}
+                                    className="text-[10px]"
+                                  >
+                                    {op.operationType === 'mutation' ? 'write' : 'read'}
+                                  </Badge>
+                                </div>
                               </div>
                               <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                                 <span className="font-mono text-[11px] text-muted-foreground">
@@ -338,6 +370,9 @@ export const ToolFormPage = () => {
                                     · needs {requiredArgs.slice(0, 4).join(', ')}
                                     {requiredArgs.length > 4 ? '…' : ''}
                                   </span>
+                                )}
+                                {added && (
+                                  <span className="text-[11px] text-primary">· click to edit</span>
                                 )}
                               </div>
                             </button>

@@ -7,6 +7,7 @@ export const types = `
     type: String
     builtinType: String
     erxesPlugin: String
+    erxesModule: String
     erxesOperation: String
     erxesOperationType: String
     graphqlArgs: JSON
@@ -23,6 +24,7 @@ export const types = `
     type: String
     builtinType: String
     erxesPlugin: String
+    erxesModule: String
     erxesOperation: String
     erxesOperationType: String
     graphqlArgs: JSON
@@ -33,6 +35,7 @@ export const types = `
 
   type MastraErxesTool {
     plugin: String
+    module: String
     operation: String
     operationType: String
     description: String
@@ -42,6 +45,8 @@ export const types = `
 
   type MastraAutoCreateResult {
     created: Int
+    updated: Int
+    removed: Int
     skipped: Int
     total: Int
   }

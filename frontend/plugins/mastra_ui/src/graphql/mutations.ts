@@ -87,6 +87,8 @@ export const MASTRA_AUTO_CREATE_TOOLS = gql`
   mutation MastraAutoCreateTools {
     mastraAutoCreateTools {
       created
+      updated
+      removed
       skipped
       total
     }

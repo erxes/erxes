@@ -24,6 +24,14 @@ export const loadToolClass = (_models: IModels) => {
     }
 
     public static async createTool(doc: IMastraTool) {
+      // toolId is unique — surface a clear, actionable message instead of a raw
+      // E11000 duplicate-key error (auto-create may have already added this op).
+      const existing = await _models.MastraTool.findOne({ toolId: doc.toolId });
+      if (existing) {
+        throw new Error(
+          `A tool for "${doc.toolId}" already exists. Open it from the Tools list to edit instead.`,
+        );
+      }
       return _models.MastraTool.create(doc);
     }
 

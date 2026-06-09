@@ -246,7 +246,9 @@ const agentColumns: ColumnDef<IAgent>[] = [
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export const AgentsIndexPage = () => {
-  const { data, loading } = useQuery(MASTRA_AGENTS);
+  const { data, loading } = useQuery(MASTRA_AGENTS, {
+    fetchPolicy: 'cache-and-network',
+  });
   const agents: IAgent[] = data?.mastraAgents || [];
 
   return (

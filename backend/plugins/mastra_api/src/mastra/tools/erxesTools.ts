@@ -44,6 +44,28 @@ export function humanizeOperation(name: string, opType: 'query' | 'mutation'): s
   return `${opType === 'query' ? 'Get' : 'Run'} ${phrase}`.trim();
 }
 
+// Leading filler words that aren't the entity (allBrands → brands).
+const MODULE_LEADING_QUALIFIERS = new Set([
+  'all', 'active', 'current', 'get', 'my', 'recent', 'list', 'total', 'search',
+]);
+
+// Best-effort "module"/entity grouping for an operation. erxes exposes no
+// per-operation module map, so we derive the entity noun from the operation
+// name (strip a leading filler word: allBrands → brands, currentUser → user,
+// activeExports → exports). Dynamic — no hardcoded module lists.
+export function deriveModule(operation: string): string {
+  const words = (operation || '')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+    .split(/\s+/)
+    .filter(Boolean);
+  if (!words.length) return 'other';
+  if (words.length > 1 && MODULE_LEADING_QUALIFIERS.has(words[0].toLowerCase())) {
+    return words[1].toLowerCase();
+  }
+  return words[0].toLowerCase();
+}
+
 // LLMs often serialize array/object values as JSON strings when calling tools,
 // and frequently use Python-style single quotes instead of standard JSON double
 // quotes (e.g. "['id1','id2']" instead of ["id1","id2"]).  Both forms must be
@@ -712,6 +734,7 @@ export async function fetchAvailableErxesTools(settings: any): Promise<any[]> {
 
       tools.push({
         plugin,
+        module: deriveModule(field.name),
         operation: field.name,
         operationType: opType,
         description: field.description?.trim()
@@ -745,46 +768,56 @@ function defaultResponseFields(returnType: any): string {
 
 export interface AutoCreateResult {
   created: number;
+  updated: number;
+  removed: number;
   skipped: number;
   total: number;
 }
 
+const GENERIC_DESC_RE = /^(query|mutation)\s+\S+$/i;
+
 /**
- * Discovers every erxes GraphQL operation via introspection and inserts a
- * MastraTool document for each one that doesn't already exist.
+ * Syncs MastraTool docs with the live erxes schema:
+ *  - creates a tool for every discovered operation that doesn't have one,
+ *  - reconciles existing tools whose stored plugin/description went stale
+ *    (e.g. created before plugin detection was schema-accurate),
+ *  - removes redundant duplicate tools for the same operation — but only the
+ *    non-canonical ones that NO agent references, so nothing breaks.
  *
- * ClientPortal operations (prefix "cp") are excluded by detectPlugin() since
- * none of the known plugin prefixes start with "cp".  An explicit guard is
- * also added for clarity.
+ * Canonical toolId = `<realPlugin>-<operation>` (e.g. core-customers).
+ * ClientPortal (cp*) operations are skipped.
  */
 export async function autoCreateErxesTools(settings: any, models: any): Promise<AutoCreateResult> {
   const operations = await fetchAvailableErxesTools(settings);
+  const opMap = new Map<string, any>(operations.map((o: any) => [o.operation, o]));
 
-  let created = 0;
-  let skipped = 0;
+  // toolIds referenced by any agent — never delete these.
+  const agents = await models.MastraAgent.find({}, { toolIds: 1 });
+  const referenced = new Set<string>();
+  for (const a of agents) for (const id of a.toolIds || []) referenced.add(id);
 
+  // Load all existing erxes tools once; everything below is computed in memory
+  // and flushed with two bulk DB calls (insertMany + bulkWrite) — avoids
+  // thousands of round-trips to the (remote) database.
+  const existing = await models.MastraTool.find({ type: 'erxes' });
+  const existingIds = new Set<string>(existing.map((t: any) => t.toolId));
+
+  let created = 0, updated = 0, removed = 0, skipped = 0;
+
+  // 1. Create the canonical tool for any operation that lacks one.
+  const toInsert: any[] = [];
   for (const op of operations) {
-    // Explicit ClientPortal guard (cp* operations are already excluded by
-    // detectPlugin, but we check here for clarity).
-    if (op.operation.toLowerCase().startsWith('cp')) {
-      skipped++;
-      continue;
-    }
-
+    if (op.operation.toLowerCase().startsWith('cp')) continue;
     const toolId = toToolId(`${op.plugin}-${op.operation}`);
-
-    const existing = await models.MastraTool.findOne({ toolId });
-    if (existing) {
-      skipped++;
-      continue;
-    }
-
-    await models.MastraTool.create({
+    if (existingIds.has(toolId)) continue;
+    existingIds.add(toolId); // canonical now considered present (for dedupe below)
+    toInsert.push({
       toolId,
       name: op.operation,
       description: op.description || `${op.operationType} ${op.operation}`,
       type: 'erxes',
       erxesPlugin: op.plugin,
+      erxesModule: op.module,
       erxesOperation: op.operation,
       erxesOperationType: op.operationType,
       graphqlArgs: op.graphqlArgs || [],
@@ -792,11 +825,57 @@ export async function autoCreateErxesTools(settings: any, models: any): Promise<
       erxesResponseFields: defaultResponseFields(op.returnType),
       isEnabled: true,
     });
-
-    created++;
+  }
+  if (toInsert.length) {
+    await models.MastraTool.insertMany(toInsert);
+    created = toInsert.length;
   }
 
-  return { created, skipped, total: operations.length };
+  // 2. Reconcile + dedupe + prune every pre-existing erxes tool (bulk).
+  const bulk: any[] = [];
+  for (const t of existing) {
+    const op = opMap.get(t.erxesOperation);
+    if (!op) {
+      // The operation is no longer in the live schema — it was removed, or its
+      // plugin was disabled (only enabled plugins are introspected). Prune the
+      // dead tool. Guard: never prune when introspection returned nothing
+      // (transient failure) so we can't wipe the whole list by accident.
+      if (operations.length > 0) {
+        bulk.push({ deleteOne: { filter: { _id: t._id } } });
+        removed++;
+      } else {
+        skipped++;
+      }
+      continue;
+    }
+
+    const canonicalId = toToolId(`${op.plugin}-${t.erxesOperation}`);
+
+    // Drop a stale duplicate: not the canonical id, the canonical exists, and no
+    // agent depends on this one.
+    if (t.toolId !== canonicalId && existingIds.has(canonicalId) && !referenced.has(t.toolId)) {
+      bulk.push({ deleteOne: { filter: { _id: t._id } } });
+      removed++;
+      continue;
+    }
+
+    // Fix stale plugin/module and generic descriptions in place (toolId preserved).
+    const set: any = {};
+    if (t.erxesPlugin !== op.plugin) set.erxesPlugin = op.plugin;
+    if (t.erxesModule !== op.module) set.erxesModule = op.module;
+    if (!t.description || GENERIC_DESC_RE.test((t.description || '').trim())) {
+      set.description = op.description;
+    }
+    if (Object.keys(set).length) {
+      bulk.push({ updateOne: { filter: { _id: t._id }, update: { $set: set } } });
+      updated++;
+    } else {
+      skipped++;
+    }
+  }
+  if (bulk.length) await models.MastraTool.bulkWrite(bulk);
+
+  return { created, updated, removed, skipped, total: operations.length };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

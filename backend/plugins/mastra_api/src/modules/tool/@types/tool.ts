@@ -7,6 +7,7 @@ export interface IMastraTool {
   type: 'builtin' | 'erxes';
   builtinType?: string;
   erxesPlugin?: string;
+  erxesModule?: string;
   erxesOperation?: string;
   erxesOperationType?: 'query' | 'mutation';
   graphqlArgs?: any[];

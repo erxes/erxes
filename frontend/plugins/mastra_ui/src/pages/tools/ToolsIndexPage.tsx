@@ -254,8 +254,8 @@ export const ToolsIndexPage = () => {
         const r = res?.mastraAutoCreateTools;
         if (r)
           toast({
-            title: 'Auto-create complete',
-            description: `Created ${r.created} · Skipped ${r.skipped} · Total discovered ${r.total}`,
+            title: 'Tools synced',
+            description: `Created ${r.created} · Updated ${r.updated ?? 0} · Removed ${r.removed ?? 0} · Total ${r.total}`,
             variant: 'success',
           });
       },

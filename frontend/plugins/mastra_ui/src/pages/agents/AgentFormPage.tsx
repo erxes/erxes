@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
-import { IconRobot, IconArrowLeft, IconInfoCircle, IconSearch } from '@tabler/icons-react';
+import { IconRobot, IconArrowLeft, IconInfoCircle, IconSearch, IconChevronRight } from '@tabler/icons-react';
 import {
   Alert,
   Breadcrumb,
@@ -19,6 +19,7 @@ import {
 import { PageHeader } from 'ui-modules';
 import {
   MASTRA_AGENT,
+  MASTRA_AGENTS,
   MASTRA_TOOLS,
   MASTRA_PROVIDERS,
   MASTRA_PROVIDER_CATALOG,
@@ -68,9 +69,28 @@ export const AgentFormPage = () => {
   const [autoSlug, setAutoSlug] = useState(true);
   const [customModel, setCustomModel] = useState(false);
   const [toolSearch, setToolSearch] = useState('');
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
+
+  const toggleModule = (key: string) =>
+    setExpandedModules((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+
+  // Plugins are expanded by default; track the ones the user collapsed.
+  const [collapsedPlugins, setCollapsedPlugins] = useState<Set<string>>(new Set());
+  const togglePlugin = (key: string) =>
+    setCollapsedPlugins((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
 
   const { data: agentData } = useQuery(MASTRA_AGENT, { variables: { _id: id }, skip: !isEdit });
-  const { data: toolsData } = useQuery(MASTRA_TOOLS);
+  // cache-and-network so the tool list reflects the latest sync (plugin/module
+  // metadata) instead of a stale cached copy.
+  const { data: toolsData } = useQuery(MASTRA_TOOLS, { fetchPolicy: 'cache-and-network' });
   const { data: providersData } = useQuery(MASTRA_PROVIDERS);
   const { data: catalogData } = useQuery(MASTRA_PROVIDER_CATALOG);
   const { data: providerModelsData, loading: modelsLoading } = useQuery(MASTRA_PROVIDER_MODELS, {
@@ -79,9 +99,13 @@ export const AgentFormPage = () => {
   });
 
   const [createAgent, { loading: creating }] = useMutation(MASTRA_AGENT_CREATE, {
+    refetchQueries: [{ query: MASTRA_AGENTS }],
+    awaitRefetchQueries: true,
     onCompleted: () => navigate('/settings/mastra/agents'),
   });
   const [updateAgent, { loading: updating }] = useMutation(MASTRA_AGENT_UPDATE, {
+    refetchQueries: [{ query: MASTRA_AGENTS }],
+    awaitRefetchQueries: true,
     onCompleted: () => navigate('/settings/mastra/agents'),
   });
 
@@ -107,35 +131,52 @@ export const AgentFormPage = () => {
 
   const tools = toolsData?.mastraTools || [];
 
-  const groupedTools = useMemo(() => {
+  // Nested grouping: plugin → module → tools. Dynamic, driven by each tool's
+  // erxesPlugin/erxesModule metadata (builtins grouped under "Built-in").
+  const nestedTools = useMemo(() => {
     const q = toolSearch.trim().toLowerCase();
     const filtered: any[] = q
       ? tools.filter(
           (t: any) =>
             t.name.toLowerCase().includes(q) ||
             t.description?.toLowerCase().includes(q) ||
-            t.erxesPlugin?.toLowerCase().includes(q),
+            t.erxesPlugin?.toLowerCase().includes(q) ||
+            t.erxesModule?.toLowerCase().includes(q),
         )
       : tools;
 
-    const map = new Map<string, any[]>();
+    const plugins = new Map<string, Map<string, any[]>>();
     for (const tool of filtered) {
-      const key = tool.type === 'builtin' ? '__builtin__' : tool.erxesPlugin || '__other__';
-      if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(tool);
+      const pluginKey = tool.type === 'builtin' ? '__builtin__' : tool.erxesPlugin || '__other__';
+      const moduleKey = tool.type === 'builtin' ? 'tools' : tool.erxesModule || 'other';
+      if (!plugins.has(pluginKey)) plugins.set(pluginKey, new Map());
+      const mods = plugins.get(pluginKey)!;
+      if (!mods.has(moduleKey)) mods.set(moduleKey, []);
+      mods.get(moduleKey)!.push(tool);
     }
 
-    // Order: built-in first, then erxes plugins alphabetically
-    const entries = [...map.entries()].sort(([a], [b]) => {
+    // Built-in first, then plugins alphabetically.
+    const pluginEntries = [...plugins.entries()].sort(([a], [b]) => {
       if (a === '__builtin__') return -1;
       if (b === '__builtin__') return 1;
       return a.localeCompare(b);
     });
 
-    return entries.map(([key, items]) => ({
-      label: key === '__builtin__' ? 'Built-in' : key === '__other__' ? 'Other' : key,
-      items,
-    }));
+    return pluginEntries.map(([pluginKey, mods]) => {
+      const modules = [...mods.entries()]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([module, items]) => ({
+          module,
+          items: [...items].sort((x: any, y: any) => x.name.localeCompare(y.name)),
+        }));
+      const count = modules.reduce((n, m) => n + m.items.length, 0);
+      return {
+        plugin:
+          pluginKey === '__builtin__' ? 'Built-in' : pluginKey === '__other__' ? 'Other' : pluginKey,
+        count,
+        modules,
+      };
+    });
   }, [tools, toolSearch]);
 
   // Provider dropdown: preset providers configured via DB or env var, plus any
@@ -390,51 +431,110 @@ export const AgentFormPage = () => {
                   />
                 </div>
 
-                {groupedTools.length === 0 ? (
+                {nestedTools.length === 0 ? (
                   <p className="text-sm text-muted-foreground py-1">No tools match your search.</p>
                 ) : (
                   <div className="space-y-3">
-                    {groupedTools.map(({ label, items }) => (
-                      <div key={label}>
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 mb-1">
-                          {label}
-                        </p>
-                        <div className="space-y-0.5">
-                          {items.map((tool: any) => (
-                            <label
-                              key={tool._id}
-                              className={`flex items-start gap-3 rounded-md px-2.5 py-2 cursor-pointer transition-colors hover:bg-accent ${
-                                !tool.isEnabled ? 'opacity-50 cursor-not-allowed' : ''
-                              }`}
-                            >
-                              <Checkbox
-                                className="mt-0.5"
-                                checked={form.toolIds.includes(tool.toolId)}
-                                onCheckedChange={() => !tool.isEnabled ? null : toggleTool(tool.toolId)}
-                                disabled={!tool.isEnabled}
-                              />
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-sm font-medium">{tool.name}</span>
-                                  {tool.erxesOperationType && (
-                                    <span className={`text-xs font-mono px-1.5 py-0.5 rounded-sm ${
-                                      tool.erxesOperationType === 'mutation'
-                                        ? 'bg-warning/10 text-warning'
-                                        : 'bg-info/10 text-info'
-                                    }`}>
-                                      {tool.erxesOperationType}
-                                    </span>
+                    {nestedTools.map(({ plugin, count, modules }) => {
+                      const pluginOpen = !!toolSearch.trim() || !collapsedPlugins.has(plugin);
+                      const pluginSelected = modules.reduce(
+                        (n, m) => n + m.items.filter((t: any) => form.toolIds.includes(t.toolId)).length,
+                        0,
+                      );
+                      return (
+                      <div key={plugin}>
+                        <button
+                          type="button"
+                          onClick={() => togglePlugin(plugin)}
+                          className="w-full flex items-center justify-between gap-2 px-1 mb-1 hover:opacity-80"
+                        >
+                          <span className="flex items-center gap-1.5 min-w-0">
+                            <IconChevronRight
+                              className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${pluginOpen ? 'rotate-90' : ''}`}
+                            />
+                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                              {plugin}
+                            </span>
+                            <span className="normal-case font-normal text-[10px] text-muted-foreground">{count}</span>
+                          </span>
+                          {pluginSelected > 0 && (
+                            <span className="text-[10px] text-primary shrink-0">{pluginSelected} selected</span>
+                          )}
+                        </button>
+                        {pluginOpen && (
+                        <div className="space-y-1">
+                          {modules.map(({ module, items }) => {
+                            const key = `${plugin}:${module}`;
+                            const open = !!toolSearch.trim() || expandedModules.has(key);
+                            const selectedCount = items.filter((t: any) =>
+                              form.toolIds.includes(t.toolId),
+                            ).length;
+                            return (
+                              <div key={key} className="rounded-md border border-border/60">
+                                <button
+                                  type="button"
+                                  onClick={() => toggleModule(key)}
+                                  className="w-full flex items-center justify-between gap-2 px-2.5 py-1.5 hover:bg-accent rounded-md"
+                                >
+                                  <span className="flex items-center gap-1.5 min-w-0">
+                                    <IconChevronRight
+                                      className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${open ? 'rotate-90' : ''}`}
+                                    />
+                                    <span className="text-sm font-medium capitalize truncate">{module}</span>
+                                    <span className="text-[11px] text-muted-foreground shrink-0">{items.length}</span>
+                                  </span>
+                                  {selectedCount > 0 && (
+                                    <span className="text-[10px] text-primary shrink-0">{selectedCount} selected</span>
                                   )}
-                                </div>
-                                {tool.description && (
-                                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{tool.description}</p>
+                                </button>
+                                {open && (
+                                  <div className="px-2 pb-1.5 space-y-0.5">
+                                    {items.map((tool: any) => (
+                                      <label
+                                        key={tool._id}
+                                        className={`flex items-start gap-3 rounded-md px-2.5 py-2 cursor-pointer transition-colors hover:bg-accent ${
+                                          !tool.isEnabled ? 'opacity-50 cursor-not-allowed' : ''
+                                        }`}
+                                      >
+                                        <Checkbox
+                                          className="mt-0.5"
+                                          checked={form.toolIds.includes(tool.toolId)}
+                                          onCheckedChange={() => (!tool.isEnabled ? null : toggleTool(tool.toolId))}
+                                          disabled={!tool.isEnabled}
+                                        />
+                                        <div className="flex-1 min-w-0">
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-sm font-medium first-letter:uppercase">
+                                              {tool.description || tool.name}
+                                            </span>
+                                            {tool.erxesOperationType && (
+                                              <span
+                                                className={`text-[10px] px-1.5 py-0.5 rounded-sm shrink-0 ${
+                                                  tool.erxesOperationType === 'mutation'
+                                                    ? 'bg-warning/10 text-warning'
+                                                    : 'bg-info/10 text-info'
+                                                }`}
+                                              >
+                                                {tool.erxesOperationType === 'mutation' ? 'write' : 'read'}
+                                              </span>
+                                            )}
+                                          </div>
+                                          <p className="font-mono text-[11px] text-muted-foreground mt-0.5 truncate">
+                                            {tool.name}
+                                          </p>
+                                        </div>
+                                      </label>
+                                    ))}
+                                  </div>
                                 )}
                               </div>
-                            </label>
-                          ))}
+                            );
+                          })}
                         </div>
+                        )}
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -514,3 +614,4 @@ export const AgentFormPage = () => {
     </div>
   );
 };
+

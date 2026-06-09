@@ -10,6 +10,7 @@ export const toolSchema = new Schema(
     type: { type: String, enum: ['builtin', 'erxes'], required: true, label: 'Type' },
     builtinType: { type: String, label: 'Builtin Type' },
     erxesPlugin: { type: String, label: 'erxes Plugin' },
+    erxesModule: { type: String, label: 'erxes Module' },
     erxesOperation: { type: String, label: 'erxes Operation' },
     erxesOperationType: { type: String, enum: ['query', 'mutation'], label: 'Operation Type' },
     graphqlArgs: { type: Schema.Types.Mixed, default: [] },

@@ -44,7 +44,7 @@ export const MASTRA_TOOLS = gql`
   query MastraTools {
     mastraTools {
       _id toolId name description type builtinType
-      erxesPlugin erxesOperation erxesOperationType graphqlArgs isEnabled createdAt
+      erxesPlugin erxesModule erxesOperation erxesOperationType graphqlArgs isEnabled createdAt
     }
   }
 `;
@@ -53,7 +53,7 @@ export const MASTRA_TOOL = gql`
   query MastraTool($_id: String!) {
     mastraTool(_id: $_id) {
       _id toolId name description type builtinType
-      erxesPlugin erxesOperation erxesOperationType graphqlArgs
+      erxesPlugin erxesModule erxesOperation erxesOperationType graphqlArgs
       erxesReturnType erxesResponseFields isEnabled createdAt
     }
   }
@@ -62,7 +62,7 @@ export const MASTRA_TOOL = gql`
 export const MASTRA_AVAILABLE_ERXES_TOOLS = gql`
   query MastraAvailableErxesTools {
     mastraAvailableErxesTools {
-      plugin operation operationType description graphqlArgs returnType
+      plugin module operation operationType description graphqlArgs returnType
     }
   }
 `;
