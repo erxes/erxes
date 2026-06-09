@@ -52,20 +52,20 @@ export const parseDateRangeFromString = (
     };
   }
 
-  // Quarter format: YYYY-quarterN
+  // Quarter format: YYYY-quarter-N
   if (date.includes('quarter')) {
     const [year] = date.split('-');
-    const quarterNumber = Number.parseInt(date.split('quarter')[1]);
+    const quarterNumber = Number.parseInt(date.split('quarter-')[1]);
     return {
       from: startOfDay(new Date(parseInt(year), (quarterNumber - 1) * 3, 1)),
       to: endOfDay(new Date(parseInt(year), quarterNumber * 3, 0)),
     };
   }
 
-  // Half year format: YYYY-halfN
+  // Half year format: YYYY-half-N
   if (date.includes('half')) {
     const [year] = date.split('-');
-    const halfNumber = Number.parseInt(date.split('half')[1]);
+    const halfNumber = Number.parseInt(date.split('half-')[1]);
     return {
       from: startOfDay(new Date(parseInt(year), (halfNumber - 1) * 6, 1)),
       to: endOfDay(new Date(parseInt(year), halfNumber * 6, 0)),
@@ -87,11 +87,11 @@ export const parseDateRangeFromString = (
     const fromDate = new Date(from);
     const toDate = new Date(to);
 
-    if (isNaN(fromDate.getTime())) return undefined;
+    if (Number.isNaN(fromDate.getTime())) return undefined;
 
     return {
       from: startOfDay(fromDate),
-      to: endOfDay(isNaN(toDate.getTime()) ? fromDate : toDate),
+      to: endOfDay(Number.isNaN(toDate.getTime()) ? fromDate : toDate),
     };
   }
 
