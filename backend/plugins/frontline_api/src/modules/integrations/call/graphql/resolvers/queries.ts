@@ -28,9 +28,8 @@ const callQueries = {
   },
 
   async callUserIntegrations(_root, _args, { models, user }: IContext) {
-    const res = models.CallIntegrations.getIntegrations(user._id);
-
-    return res;
+    const isAdmin = user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
+    return models.CallIntegrations.getIntegrations(user._id, isAdmin);
   },
 
   async callsCustomerDetail(_root, { customerPhone }, { subdomain }: IContext) {
