@@ -70,7 +70,7 @@ export const initRecordReferences = async (
 
         return resolvedValues.length > 1
           ? resolvedValues
-          : resolvedValues[0] ?? defaultValue;
+          : (resolvedValues[0] ?? defaultValue);
       }),
   };
 

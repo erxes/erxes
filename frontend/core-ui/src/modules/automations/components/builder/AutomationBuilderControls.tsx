@@ -44,11 +44,8 @@ const CONTROL_BUTTON_CLASS =
 const ACTIVE_CONTROL_BUTTON_CLASS =
   'bg-primary/15 text-primary hover:bg-primary/20 hover:text-primary';
 
-const FlowDirectionIcon = ({
-  value,
-}: {
-  value: TAutomationFlowDirection;
-}) => (value === 'vertical' ? <IconArrowDown /> : <IconArrowRight />);
+const FlowDirectionIcon = ({ value }: { value: TAutomationFlowDirection }) =>
+  value === 'vertical' ? <IconArrowDown /> : <IconArrowRight />;
 
 const EdgeTypeIcon = ({ value }: { value: TAutomationEdgeType }) => {
   switch (value) {
@@ -361,16 +358,12 @@ export const AutomationBuilderControls = ({
                   </DropdownMenu.SubTrigger>
                   <DropdownMenu.SubContent className="w-48">
                     <DropdownMenu.Item
-                      onClick={() =>
-                        handleExportPng({ withBackground: true })
-                      }
+                      onClick={() => handleExportPng({ withBackground: true })}
                     >
                       With background
                     </DropdownMenu.Item>
                     <DropdownMenu.Item
-                      onClick={() =>
-                        handleExportPng({ withBackground: false })
-                      }
+                      onClick={() => handleExportPng({ withBackground: false })}
                     >
                       Transparent
                     </DropdownMenu.Item>

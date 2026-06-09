@@ -42,8 +42,10 @@ type TModuleProducerInputMap = {
 };
 
 type TCoreModuleProducer<
-  TModuleName extends keyof TModuleProducerInputMap = keyof TModuleProducerInputMap,
-  TProducerName extends keyof TModuleProducerInputMap[TModuleName] = keyof TModuleProducerInputMap[TModuleName],
+  TModuleName extends keyof TModuleProducerInputMap =
+    keyof TModuleProducerInputMap,
+  TProducerName extends keyof TModuleProducerInputMap[TModuleName] =
+    keyof TModuleProducerInputMap[TModuleName],
 > = {
   subdomain: string;
   moduleName: TModuleName;
@@ -57,8 +59,10 @@ type TCoreModuleProducer<
 };
 
 export const sendCoreModuleProducer = async <
-  TModuleName extends keyof TModuleProducerInputMap = keyof TModuleProducerInputMap,
-  TProducerName extends keyof TModuleProducerInputMap[TModuleName] = keyof TModuleProducerInputMap[TModuleName],
+  TModuleName extends keyof TModuleProducerInputMap =
+    keyof TModuleProducerInputMap,
+  TProducerName extends keyof TModuleProducerInputMap[TModuleName] =
+    keyof TModuleProducerInputMap[TModuleName],
 >({
   subdomain,
   moduleName,

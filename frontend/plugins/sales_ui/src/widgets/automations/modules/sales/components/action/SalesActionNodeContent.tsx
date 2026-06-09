@@ -46,14 +46,9 @@ export const SalesActionNodeContent = ({
   return (
     <div>
       <BoardPipelineStageInlineText config={dealConfig} />
-      {rest
-        .map(([key, value]) => (
-          <AutomationNodeMetaInfoRow
-            key={key}
-            fieldName={key}
-            content={value}
-          />
-        ))}
+      {rest.map(([key, value]) => (
+        <AutomationNodeMetaInfoRow key={key} fieldName={key} content={value} />
+      ))}
     </div>
   );
 };

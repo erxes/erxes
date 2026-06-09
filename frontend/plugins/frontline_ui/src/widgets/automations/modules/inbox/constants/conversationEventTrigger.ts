@@ -71,8 +71,7 @@ export const CONVERSATION_EVENT_GROUP_OPTIONS: TConversationEventGroupOption[] =
 
 export const getConversationEventGroupOption = (
   type: TConversationEventGroup,
-) =>
-  CONVERSATION_EVENT_GROUP_OPTIONS.find((option) => option.type === type);
+) => CONVERSATION_EVENT_GROUP_OPTIONS.find((option) => option.type === type);
 
 export const getConversationEventActionLabelKey = (
   groupType: TConversationEventGroup,

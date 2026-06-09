@@ -6,7 +6,8 @@ import { useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 
-type NodeMetadataFormData = NodeData & Partial<Pick<Node<NodeData>, 'position'>>;
+type NodeMetadataFormData = NodeData &
+  Partial<Pick<Node<NodeData>, 'position'>>;
 
 type Props = {
   id: string;

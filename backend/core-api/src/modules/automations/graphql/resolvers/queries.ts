@@ -13,7 +13,7 @@ import {
   getPlugin,
   getPlugins,
   sendWorkerMessage,
-  markResolvers
+  markResolvers,
 } from 'erxes-api-shared/utils';
 import { SortOrder } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
@@ -230,9 +230,8 @@ export const automationQueries = {
     { executionId },
     { models }: IContext,
   ) {
-    const execution = await models.AutomationExecutions.findById(
-      executionId,
-    ).lean();
+    const execution =
+      await models.AutomationExecutions.findById(executionId).lean();
     if (!execution) {
       throw new Error('Execution not found');
     }
@@ -361,7 +360,6 @@ export const automationQueries = {
     return models.AutomationEmailTemplates.getEmailTemplate(_id);
   },
 };
-
 
 Object.assign(automationQueries.cpAutomationDetail, {
   wrapperConfig: { forClientPortal: true },

@@ -32,10 +32,7 @@ const getOptionalStringList = (value: unknown): string[] | undefined => {
 };
 
 const getTeamIds = (data: Record<string, unknown>) => {
-  const teamIds = [
-    ...toStringList(data.teamIds),
-    ...toStringList(data.teamId),
-  ];
+  const teamIds = [...toStringList(data.teamIds), ...toStringList(data.teamId)];
 
   return Array.from(new Set(teamIds));
 };

@@ -50,11 +50,7 @@ export const PlaceholderInputValuePreview = ({
   );
 };
 
-const PlaceholderInputTokenPreview = ({
-  token,
-}: {
-  token: string;
-}) => {
+const PlaceholderInputTokenPreview = ({ token }: { token: string }) => {
   const isAttribute = token.startsWith('{{');
 
   return (

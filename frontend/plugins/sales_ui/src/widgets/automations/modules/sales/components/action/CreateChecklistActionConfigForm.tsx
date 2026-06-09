@@ -26,9 +26,7 @@ const getDefaultValues = (
 ): TChecklistActionConfigForm => ({
   name: config?.name || '',
   items:
-    config && 'items' in config && config.items?.length
-      ? config.items
-      : [],
+    config && 'items' in config && config.items?.length ? config.items : [],
 });
 
 export const CreateChecklistActionConfigForm = ({

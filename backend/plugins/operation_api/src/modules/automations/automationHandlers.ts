@@ -19,11 +19,7 @@ import {
   OPERATION_TEAM_COMPLETED_RELATION_TYPE,
   TOperationCompletionMode,
 } from '~/modules/automations/constants';
-import {
-  getString,
-  toRecord,
-  toStringList,
-} from '~/modules/automations/utils';
+import { getString, toRecord, toStringList } from '~/modules/automations/utils';
 
 type TSetPropertyAdapter = {
   fetchItems: (
@@ -128,10 +124,7 @@ const getSelectedIds = (
   config: Record<string, unknown>,
   pluralKey: string,
   singularKey: string,
-) => [
-  ...toStringList(config[pluralKey]),
-  ...toStringList(config[singularKey]),
-];
+) => [...toStringList(config[pluralKey]), ...toStringList(config[singularKey])];
 
 const areTasksComplete = async (
   models: IModels,
@@ -437,7 +430,9 @@ export const operationAutomationHandlers = {
       });
     }
 
-    throw new Error(`Unsupported operation automation action: ${collectionType}`);
+    throw new Error(
+      `Unsupported operation automation action: ${collectionType}`,
+    );
   },
 
   setProperties: async (

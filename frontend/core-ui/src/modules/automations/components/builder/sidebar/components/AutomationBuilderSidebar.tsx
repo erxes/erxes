@@ -120,9 +120,7 @@ const AutomationBuilderSidebarHeader = ({
   }
   return (
     <>
-      <Card.Header
-        className="flex min-w-0 flex-row items-start justify-between gap-3 px-4 py-4 font-mono"
-      >
+      <Card.Header className="flex min-w-0 flex-row items-start justify-between gap-3 px-4 py-4 font-mono">
         <div className="flex min-w-0 flex-1 flex-row items-start gap-3">
           <div
             className={cn(

@@ -45,10 +45,7 @@ const getTargetActionResult = (
     .find(({ actionId }) => actionId === targetActionId)?.result;
 };
 
-const resolveNextActionId = (
-  config: TSplitActionConfig,
-  optionId: string,
-) => {
+const resolveNextActionId = (config: TSplitActionConfig, optionId: string) => {
   return config.optionalConnects?.find(
     ({ optionalConnectId }) => optionalConnectId === optionId,
   )?.actionId;
@@ -177,7 +174,12 @@ const isSplitOptionMatched = async ({
   option: TSplitOption;
 }) => {
   if (option.segmentId) {
-    return await isInSegment(subdomain, option.segmentId, execution.targetId, 0);
+    return await isInSegment(
+      subdomain,
+      option.segmentId,
+      execution.targetId,
+      0,
+    );
   }
 
   return isOptionConfigMatched(

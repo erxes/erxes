@@ -30,19 +30,19 @@ const OperationActionHistoryResult = lazy(() =>
 );
 
 const OperationCompletionTriggerConfigForm = lazy(() =>
-  import(
-    '../../common/components/trigger/OperationCompletionTriggerConfigForm'
-  ).then((module) => ({
-    default: module.OperationCompletionTriggerConfigForm,
-  })),
+  import('../../common/components/trigger/OperationCompletionTriggerConfigForm').then(
+    (module) => ({
+      default: module.OperationCompletionTriggerConfigForm,
+    }),
+  ),
 );
 
 const OperationCompletionTriggerNodeContent = lazy(() =>
-  import(
-    '../../common/components/trigger/OperationCompletionTriggerNodeContent'
-  ).then((module) => ({
-    default: module.OperationCompletionTriggerNodeContent,
-  })),
+  import('../../common/components/trigger/OperationCompletionTriggerNodeContent').then(
+    (module) => ({
+      default: module.OperationCompletionTriggerNodeContent,
+    }),
+  ),
 );
 
 export const ProjectRemoteEntry = (props: AutomationRemoteEntryProps) => {
