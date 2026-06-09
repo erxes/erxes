@@ -395,12 +395,9 @@ const clientPortalMutations = {
       );
 
       const { data = {} } = ((await response.json()) || {}) as any;
-      console.info(
-        "checking Toki user legal age:",
-        JSON.stringify(data, null, 2),
-      );
+      console.info("checking Toki user legal age:", JSON.stringify(data));
 
-      const isAdult = data?.isAdult;
+      const isAdult = data?.isAdult21 || data?.isAdult;
 
       return Boolean(isAdult);
     } catch (error) {
