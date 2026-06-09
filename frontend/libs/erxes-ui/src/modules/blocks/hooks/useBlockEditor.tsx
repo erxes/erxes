@@ -28,7 +28,11 @@ export const useBlockEditor = (args?: {
 
   useEffect(() => {
     if (uploadProps.files.length > 0 && !uploadProps.loading) {
-      uploadProps.onUpload().catch(() => {});
+      uploadProps.onUpload().catch((err: unknown) => {
+        rejectRef.current?.(
+          err instanceof Error ? err : new Error('Upload failed'),
+        );
+      });
     }
   }, [uploadProps.files.length]);
 
