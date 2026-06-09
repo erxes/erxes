@@ -35,6 +35,17 @@ export interface IDefaultPermissionGroup {
   description?: string;
   plugin: string;
   permissions: IPermissionGroupPermission[];
+  members?: IPermissionGroupMember[];
+}
+
+export interface IPermissionGroupMember {
+  _id: string;
+  email: string;
+  details?: {
+    firstName?: string;
+    lastName?: string;
+    avatar?: string;
+  };
 }
 
 export interface IPermissionGroup {
@@ -42,6 +53,7 @@ export interface IPermissionGroup {
   name: string;
   description?: string;
   permissions: IPermissionGroupPermission[];
+  members?: IPermissionGroupMember[];
   createdAt?: Date;
   updatedAt?: Date;
 }
