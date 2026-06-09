@@ -46,7 +46,7 @@ export const FilterDialogDateView = ({
       return;
     }
     const to = value.to ?? value.from;
-    setCurrentValue(value.from.toISOString() + ',' + to.toISOString());
+    setCurrentValue(`${value.from.toISOString()},${to.toISOString()}`);
   };
 
   const handleRadioGroupChange = (value: string) => {

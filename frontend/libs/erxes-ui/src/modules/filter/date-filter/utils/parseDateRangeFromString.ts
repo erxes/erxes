@@ -1,6 +1,10 @@
 import { endOfDay, startOfDay, subDays, subMonths } from 'date-fns';
 import { MONTHS } from 'erxes-ui/modules/filter/date-filter/constants/dateTypes';
 import { isUndefinedOrNull } from 'erxes-ui/utils';
+import {
+  parseHalfToken,
+  parseQuarterToken,
+} from 'erxes-ui/modules/filter/date-filter/utils/dateTokens';
 
 export const parseDateRangeFromString = (
   date?: string | null,
@@ -53,22 +57,20 @@ export const parseDateRangeFromString = (
   }
 
   // Quarter format: YYYY-quarter-N
-  if (date.includes('quarter')) {
-    const [year] = date.split('-');
-    const quarterNumber = Number.parseInt(date.split('quarter-')[1]);
+  const quarter = parseQuarterToken(date);
+  if (quarter) {
     return {
-      from: startOfDay(new Date(parseInt(year), (quarterNumber - 1) * 3, 1)),
-      to: endOfDay(new Date(parseInt(year), quarterNumber * 3, 0)),
+      from: startOfDay(new Date(quarter.year, (quarter.quarter - 1) * 3, 1)),
+      to: endOfDay(new Date(quarter.year, quarter.quarter * 3, 0)),
     };
   }
 
   // Half year format: YYYY-half-N
-  if (date.includes('half')) {
-    const [year] = date.split('-');
-    const halfNumber = Number.parseInt(date.split('half-')[1]);
+  const half = parseHalfToken(date);
+  if (half) {
     return {
-      from: startOfDay(new Date(parseInt(year), (halfNumber - 1) * 6, 1)),
-      to: endOfDay(new Date(parseInt(year), halfNumber * 6, 0)),
+      from: startOfDay(new Date(half.year, (half.half - 1) * 6, 1)),
+      to: endOfDay(new Date(half.year, half.half * 6, 0)),
     };
   }
 
