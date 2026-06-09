@@ -12,8 +12,29 @@ const EMPTY_FORM = {
   modelsEndpoint: '',
   isOpenAICompatible: false,
   envKey: '',
+  // Custom headers edited as one `Header-Name: value` per line.
+  headersText: '',
   isDefault: false,
   isEnabled: true,
+};
+
+// Serialize a { name: value } header map into editable `Name: value` lines.
+const serializeHeaders = (h?: Record<string, string> | null): string =>
+  h ? Object.entries(h).map(([k, v]) => `${k}: ${v}`).join('\n') : '';
+
+// Parse `Name: value` lines back into a header map (blank lines ignored).
+const parseHeaders = (text: string): Record<string, string> => {
+  const out: Record<string, string> = {};
+  for (const line of (text || '').split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    const idx = trimmed.indexOf(':');
+    if (idx === -1) continue;
+    const key = trimmed.slice(0, idx).trim();
+    const val = trimmed.slice(idx + 1).trim();
+    if (key) out[key] = val;
+  }
+  return out;
 };
 
 export const ProvidersPage = () => {
@@ -46,6 +67,7 @@ export const ProvidersPage = () => {
       modelsEndpoint: existing?.modelsEndpoint || preset.modelsEndpoint || '',
       isOpenAICompatible: existing?.isOpenAICompatible ?? preset.isOpenAICompatible ?? false,
       envKey: existing?.envKey || preset.envKey || '',
+      headersText: serializeHeaders(existing?.headers || preset.headers),
       isDefault: existing?.isDefault || false,
       isEnabled: existing?.isEnabled ?? true,
     });
@@ -65,6 +87,7 @@ export const ProvidersPage = () => {
       modelsEndpoint: p.modelsEndpoint || '',
       isOpenAICompatible: p.isOpenAICompatible ?? false,
       envKey: p.envKey || '',
+      headersText: serializeHeaders(p.headers),
       isDefault: p.isDefault || false,
       isEnabled: p.isEnabled ?? true,
     });
@@ -86,6 +109,7 @@ export const ProvidersPage = () => {
           modelsEndpoint: form.modelsEndpoint,
           isOpenAICompatible: form.isOpenAICompatible,
           envKey: form.envKey,
+          headers: parseHeaders(form.headersText),
           isDefault: form.isDefault,
           isEnabled: form.isEnabled,
         },
@@ -218,6 +242,23 @@ export const ProvidersPage = () => {
             />
             <p className="text-xs text-muted-foreground">
               Environment variable name for the API key (used when no DB key is stored).
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Custom Headers</Label>
+            <textarea
+              value={form.headersText}
+              onChange={(e) => setForm((f) => ({ ...f, headersText: e.target.value }))}
+              placeholder={'User-Agent: claude-cli/1.0.65 (external, cli)'}
+              rows={3}
+              className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm font-mono shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            />
+            <p className="text-xs text-muted-foreground">
+              One <code>Header-Name: value</code> per line, sent with every request.
+              Required for gated endpoints — e.g. Kimi For Coding only serves
+              recognized coding agents, so it needs a <code>User-Agent</code> like{' '}
+              <code>claude-cli/1.0.65 (external, cli)</code>.
             </p>
           </div>
 

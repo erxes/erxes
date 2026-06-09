@@ -4,7 +4,7 @@ import { LibSQLStore } from '@mastra/libsql';
 import { getBuiltinTool } from './tools/builtins';
 import { buildErxesTool, fetchInputTypesMap } from './tools/erxesTools';
 import { buildModel } from './providers';
-import { buildSystemPrompt } from './instructions/routing';
+import { buildSystemPrompt, ToolInfo } from './instructions/routing';
 
 // Cache agents by config ID + updatedAt + routing version.
 const agentCache = new Map<string, Agent>();
@@ -14,7 +14,7 @@ const agentCache = new Map<string, Agent>();
 const toolsCache = new Map<string, Record<string, any>>();
 
 // Increment this whenever routing.ts, erxesTools.ts, or provider logic changes.
-const ROUTING_VERSION = 9;
+const ROUTING_VERSION = 10;
 
 export interface AgentWithTools {
   agent: Agent;
@@ -48,6 +48,9 @@ export async function getOrCreateAgent(agentConfig: any, models: any): Promise<A
   const inputTypesMap = await fetchInputTypesMap(settings);
 
   const tools: Record<string, any> = {};
+  // Real metadata for each bound tool, so the system prompt can give the model
+  // accurate awareness of its actual capabilities (name + description).
+  const toolInfos: ToolInfo[] = [];
   for (const toolId of (agentConfig.toolIds || [])) {
     const toolConfig = await models.MastraTool.findOne({ toolId, isEnabled: true });
     if (!toolConfig) continue;
@@ -58,6 +61,14 @@ export async function getOrCreateAgent(agentConfig: any, models: any): Promise<A
     } else if (toolConfig.type === 'erxes') {
       const tool = buildErxesTool(toolConfig, settings, inputTypesMap);
       if (tool) tools[toolId] = tool;
+    }
+
+    if (tools[toolId]) {
+      toolInfos.push({
+        id: toolId,
+        name: toolConfig.name || toolId,
+        description: toolConfig.description,
+      });
     }
   }
 
@@ -70,7 +81,7 @@ export async function getOrCreateAgent(agentConfig: any, models: any): Promise<A
   }
 
   const toolNames = Object.keys(tools);
-  const systemPrompt = buildSystemPrompt(agentConfig.instructions || '', toolNames);
+  const systemPrompt = buildSystemPrompt(agentConfig.instructions || '', toolInfos);
 
   const agent = new Agent({
     id: agentConfig.agentId,

@@ -13,6 +13,9 @@ export const providerSchema = new Schema(
     isOpenAICompatible: { type: Boolean, default: false },
     modelsEndpoint: { type: String },
     envKey: { type: String },
+    // Custom HTTP headers sent with every request (e.g. a User-Agent that a
+    // gated endpoint like Kimi For Coding requires). Free-form key→value map.
+    headers: { type: Object, label: 'Custom HTTP Headers' },
   },
   { timestamps: true },
 );

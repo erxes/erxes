@@ -1,6 +1,57 @@
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 
 // ---------------------------------------------------------------------------
+// Kimi "thinking" compatibility shim.
+//
+// Kimi K2.5/K2.6 (incl. the Kimi For Coding model) are reasoning models with
+// thinking enabled. Their API requires every assistant message that carries
+// `tool_calls` to ALSO carry a `reasoning_content` field. During multi-step
+// tool calling — and when prior turns are replayed from memory — the AI SDK
+// does not send `reasoning_content` back, so the request fails with HTTP 400:
+//   "thinking is enabled but reasoning_content is missing in assistant tool
+//    call message at index N".
+// This is a known incompatibility across many clients (Goose, Cursor, Zed,
+// OpenCode…). The accepted fix is to ensure the field exists, defaulting it to
+// an empty string when missing. We do that here as fetch middleware so it works
+// regardless of how Mastra/the SDK build the message array internally.
+// ---------------------------------------------------------------------------
+function withReasoningContentShim(
+  baseFetch: typeof fetch = globalThis.fetch,
+): typeof fetch {
+  return (async (input: any, init?: any) => {
+    if (init?.body && typeof init.body === 'string') {
+      try {
+        const payload = JSON.parse(init.body);
+        if (Array.isArray(payload?.messages)) {
+          let mutated = false;
+          for (const m of payload.messages) {
+            if (
+              m?.role === 'assistant' &&
+              Array.isArray(m.tool_calls) &&
+              m.tool_calls.length > 0 &&
+              (m.reasoning_content === undefined || m.reasoning_content === null)
+            ) {
+              m.reasoning_content = '';
+              mutated = true;
+            }
+          }
+          if (mutated) init = { ...init, body: JSON.stringify(payload) };
+        }
+      } catch {
+        // Body isn't JSON we can parse — forward untouched.
+      }
+    }
+    return baseFetch(input, init);
+  }) as typeof fetch;
+}
+
+// Kimi/Moonshot reasoning models need the shim above; other OpenAI-compatible
+// providers (NVIDIA NIM, etc.) must not receive the extra field.
+function needsReasoningContentShim(providerName: string, baseURL: string): boolean {
+  return /kimi|moonshot/i.test(providerName) || /kimi\.com|moonshot/i.test(baseURL);
+}
+
+// ---------------------------------------------------------------------------
 // PROVIDER_PRESETS — static data used ONLY by the "Add Provider" form pre-fill
 // in the UI.  Runtime model building reads exclusively from DB docs.
 // ---------------------------------------------------------------------------
@@ -11,6 +62,11 @@ export const PROVIDER_PRESETS: Array<{
   baseUrl?: string;
   modelsEndpoint?: string;
   isOpenAICompatible?: boolean;
+  // Custom HTTP headers sent with every request to this provider. Needed by
+  // gated endpoints — e.g. "Kimi For Coding" only serves recognized coding
+  // agents and rejects (HTTP 403 access_terminated_error) any request whose
+  // User-Agent it doesn't recognize.
+  headers?: Record<string, string>;
   models: { id: string; name: string }[];
 }> = [
   {
@@ -106,15 +162,21 @@ export const PROVIDER_PRESETS: Array<{
     ],
   },
   {
+    // "Kimi For Coding" is a DISTINCT product from the standard Moonshot Open
+    // Platform (different base URL, different key prefix `sk-kimi-`, single
+    // auto-updating model id). It is access-gated to recognized coding agents,
+    // so a coding-agent User-Agent header is mandatory — without it the chat
+    // endpoint returns HTTP 403 access_terminated_error. (The /models endpoint
+    // is NOT gated.)
     provider: 'kimi-for-coding',
-    label: 'Kimi for Coding',
-    envKey: 'MOONSHOT_API_KEY',
-    baseUrl: 'https://api.moonshot.cn/v1',
+    label: 'Kimi For Coding',
+    envKey: 'KIMI_API_KEY',
+    baseUrl: 'https://api.kimi.com/coding/v1',
     isOpenAICompatible: true,
+    headers: { 'User-Agent': 'claude-cli/1.0.65 (external, cli)' },
     models: [
-      { id: 'kimi-k2-0711-preview', name: 'Kimi K2 Preview' },
-      { id: 'moonshot-v1-128k', name: 'Moonshot V1 128K' },
-      { id: 'moonshot-v1-32k', name: 'Moonshot V1 32K' },
+      // Stable alias — the backend maps it to the latest coding model (K2.6).
+      { id: 'kimi-for-coding', name: 'Kimi For Coding (auto-latest)' },
     ],
   },
   {
@@ -185,7 +247,20 @@ export function buildModel(providerName: string, modelId: string, providerDocs: 
 
   if (isOpenAICompatible) {
     const baseURL = stored?.baseUrl || preset?.baseUrl || '';
-    const provider = createOpenAICompatible({ name: providerName, baseURL, apiKey: apiKey || '' });
+    // Merge preset defaults with stored overrides (stored wins). Required for
+    // gated endpoints like Kimi For Coding that demand a coding-agent User-Agent.
+    const mergedHeaders = { ...(preset?.headers || {}), ...(stored?.headers || {}) };
+    const provider = createOpenAICompatible({
+      name: providerName,
+      baseURL,
+      apiKey: apiKey || '',
+      headers: Object.keys(mergedHeaders).length ? mergedHeaders : undefined,
+      // Kimi/Moonshot reasoning models reject tool-call histories that omit
+      // reasoning_content — patch it in via fetch middleware.
+      ...(needsReasoningContentShim(providerName, baseURL)
+        ? { fetch: withReasoningContentShim() }
+        : {}),
+    });
     return provider(modelId);
   }
 

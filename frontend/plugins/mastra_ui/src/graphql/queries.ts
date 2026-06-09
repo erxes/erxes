@@ -55,7 +55,7 @@ export const MASTRA_PROVIDERS = gql`
   query MastraProviders {
     mastraProviders {
       _id provider label apiKey baseUrl isDefault isEnabled
-      isOpenAICompatible modelsEndpoint envKey createdAt
+      isOpenAICompatible modelsEndpoint envKey headers createdAt
     }
   }
 `;
@@ -71,7 +71,7 @@ export const MASTRA_PROVIDER_CATALOG = gql`
 export const MASTRA_PROVIDER_PRESETS = gql`
   query MastraProviderPresets {
     mastraProviderPresets {
-      provider label isOpenAICompatible envKey baseUrl modelsEndpoint
+      provider label isOpenAICompatible envKey baseUrl modelsEndpoint headers
       models { id name }
     }
   }

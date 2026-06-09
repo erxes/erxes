@@ -10,6 +10,7 @@ export interface IMastraProvider {
   isOpenAICompatible?: boolean;
   modelsEndpoint?: string;
   envKey?: string;
+  headers?: Record<string, string>;
 }
 
 export interface IMastraProviderDocument extends IMastraProvider, Document {

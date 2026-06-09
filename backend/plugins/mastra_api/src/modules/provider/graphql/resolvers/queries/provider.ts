@@ -56,8 +56,11 @@ export const providerQueries = {
 
     if (endpoint && apiKey) {
       try {
+        // Include any custom headers (e.g. the coding-agent User-Agent that
+        // Kimi For Coding requires) so gated catalog endpoints also resolve.
+        const customHeaders = { ...(preset?.headers || {}), ...(stored?.headers || {}) };
         const res = await fetch(endpoint, {
-          headers: { Authorization: `Bearer ${apiKey}` },
+          headers: { Authorization: `Bearer ${apiKey}`, ...customHeaders },
         });
         if (res.ok) {
           const json: any = await res.json();
@@ -70,7 +73,7 @@ export const providerQueries = {
           if (list.length > 0) {
             return list
               .filter((m: any) => m.id)
-              .map((m: any) => ({ id: m.id, name: m.name || m.id }));
+              .map((m: any) => ({ id: m.id, name: m.name || m.display_name || m.id }));
           }
         }
       } catch {

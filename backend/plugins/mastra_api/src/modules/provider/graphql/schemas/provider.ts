@@ -10,6 +10,7 @@ export const types = `
     isOpenAICompatible: Boolean
     modelsEndpoint: String
     envKey: String
+    headers: JSON
     createdAt: Date
   }
 
@@ -23,6 +24,7 @@ export const types = `
     isOpenAICompatible: Boolean
     modelsEndpoint: String
     envKey: String
+    headers: JSON
   }
 
   type MastraProviderModel {
@@ -45,6 +47,7 @@ export const types = `
     envKey: String
     baseUrl: String
     modelsEndpoint: String
+    headers: JSON
     models: [MastraProviderModel]
   }
 `;
