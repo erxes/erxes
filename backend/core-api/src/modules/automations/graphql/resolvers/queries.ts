@@ -230,9 +230,8 @@ export const automationQueries = {
     { executionId },
     { models }: IContext,
   ) {
-    const execution = await models.AutomationExecutions.findById(
-      executionId,
-    ).lean();
+    const execution =
+      await models.AutomationExecutions.findById(executionId).lean();
     if (!execution) {
       throw new Error('Execution not found');
     }
