@@ -14,9 +14,13 @@ export interface ICallIntegrationModel extends Model<ICallIntegrationDocument> {
   ): Promise<ICallIntegrationDocument>;
   getIntegration(
     userId: string,
-    integrationId?: string,
+    integrationId: string,
+    isAdmin?: boolean,
   ): Promise<ICallIntegrationDocument>;
-  getIntegrationQueuesByUser(userId: string): Promise<string[]>;
+  getIntegrationQueuesByUser(
+    userId: string,
+    isAdmin?: boolean,
+  ): Promise<string[]>;
 }
 
 export const loadCallIntegrationClass = (models: IModels) => {
@@ -43,11 +47,17 @@ export const loadCallIntegrationClass = (models: IModels) => {
         ),
       }));
     }
-    public static async getIntegration(userId: string, integrationId: string) {
-      const integration = await models.CallIntegrations.findOne({
-        inboxId: integrationId,
-        'operators.userId': userId,
-      });
+
+    public static async getIntegration(
+      userId: string,
+      integrationId: string,
+      isAdmin?: boolean,
+    ) {
+      const query = isAdmin
+        ? { inboxId: integrationId }
+        : { inboxId: integrationId, 'operators.userId': userId };
+
+      const integration = await models.CallIntegrations.findOne(query);
 
       if (!integration) {
         throw new Error('Integration not found');
@@ -55,10 +65,14 @@ export const loadCallIntegrationClass = (models: IModels) => {
 
       return integration;
     }
-    public static async getIntegrationQueuesByUser(userId: string) {
-      const integration = await models.CallIntegrations.findOne({
-        'operators.userId': userId,
-      });
+
+    public static async getIntegrationQueuesByUser(
+      userId: string,
+      isAdmin?: boolean,
+    ) {
+      const query = isAdmin ? {} : { 'operators.userId': userId };
+
+      const integration = await models.CallIntegrations.findOne(query);
 
       if (!integration) {
         throw new Error('Integration not found');
