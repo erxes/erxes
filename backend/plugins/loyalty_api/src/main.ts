@@ -41,7 +41,7 @@ startPlugin({
   onServerInit: async () => {
     await initMQWorkers(redis);
   },
-  meta: { automations: automationMeta },
+  meta: { automations: automationMeta, permissions },
   importExport: {
     export: {
       getExportHeaders: createCoreModuleProducerHandler({
@@ -59,8 +59,5 @@ startPlugin({
         generateModels,
       }),
     },
-  },
-  meta: {
-    permissions,
   },
 });
