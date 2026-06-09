@@ -55,6 +55,7 @@ const messengerDataSchema = new Schema(
     getStarted: { type: Boolean },
     botCheck: { type: Boolean },
     botGreetMessage: { type: String },
+    automationId: { type: String },
     persistentMenus: { type: [persistentMenuSchema] }, // Corrected to an array
     supporterIds: { type: [String] },
     notifyCustomer: { type: Boolean },
@@ -285,7 +286,10 @@ const colorDefinitionSchema = new Schema(
 const uiOptionsSchema = new Schema(
   {
     logo: { type: String },
+    launcherLogo: { type: String },
     primary: { type: colorDefinitionSchema },
+    backgroundColor: { type: String },
+    heroStyleVariant: { type: String },
     navigationVariant: { type: String },
   },
   { _id: false },

@@ -10,7 +10,11 @@ import {
 import { handleFacebookIntegration } from '@/integrations/facebook/messageBroker';
 import { handleInstagramIntegration } from '@/integrations/instagram/messageBroker';
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { graphqlPubsub, sendTRPCMessage, markResolvers } from 'erxes-api-shared/utils';
+import {
+  graphqlPubsub,
+  sendTRPCMessage,
+  markResolvers,
+} from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
 import { generateModels, IContext, IModels } from '~/connectionResolvers';
 import { debugError } from '~/modules/inbox/utils';
@@ -189,6 +193,54 @@ export const sendNotifications = async (
     }
 
     if (mobile) {
+      if (conversation.customerId) {
+        try {
+          const cpUser = await sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'query',
+            module: 'cpUsers',
+            action: 'get',
+            input: { erxesCustomerId: conversation.customerId },
+            defaultValue: null,
+          });
+
+          if (cpUser?._id && cpUser.clientPortalId) {
+            await sendTRPCMessage({
+              subdomain,
+              pluginName: 'core',
+              method: 'mutation',
+              module: 'cpNotifications',
+              action: 'create',
+              input: {
+                cpUserIds: [cpUser._id],
+                clientPortalId: cpUser.clientPortalId,
+                eventType: 'conversationMessage',
+                data: {
+                  title: 'New chat message',
+                  message: strip(doc.content) || 'You have a new message',
+                  type: 'info',
+                  contentType: 'conversation',
+                  contentTypeId: conversation._id,
+                  priority: 'high',
+                  action: 'openConversation',
+                  kind: 'user',
+                  metadata: {
+                    conversationId: conversation._id,
+                    id: conversation._id,
+                    type: 'messenger',
+                  },
+                },
+              },
+            });
+          }
+        } catch (e) {
+          debugError(
+            `Failed to send client portal mobile notification: ${e.message}`,
+          );
+        }
+      }
+
       try {
         await sendTRPCMessage({
           subdomain,
@@ -578,5 +630,3 @@ markResolvers(conversationMutations, {
     skipPermission: true,
   },
 });
-
-

@@ -13,7 +13,7 @@ export type MainQueryResponse = {
 };
 
 export type CurrencyConfigResponse = {
-  // "Main currency" config (general settings). Value can be a single
-  // currency code or, in some setups, an array of codes.
-  configsGetValue: { value?: string | string[] } | null;
+  dealCurrencies: { value?: string | string[] } | null;
+
+  mainCurrencyConfig: { value?: string | string[] } | null;
 };

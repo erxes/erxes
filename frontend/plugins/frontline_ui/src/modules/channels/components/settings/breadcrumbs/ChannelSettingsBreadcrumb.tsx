@@ -49,6 +49,7 @@ export const ChannelSettingsBreadcrumb = () => {
   const isFormsRoute =
     isMatchingLocation(FrontlinePaths.ChannelForms) ||
     isMatchingLocation(FrontlinePaths.FormsCreate) ||
+    isMatchingLocation(FrontlinePaths.FormSubmissions) ||
     isMatchingLocation(FrontlinePaths.FormDetail);
 
   const isChannelsRoot = !isChannelDetailOrSubRoute && !isFormsRoute;

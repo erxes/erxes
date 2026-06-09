@@ -164,7 +164,6 @@ export const resolvePlaceholderValue = async (
   attribute: string,
 ) => {
   const [propertyName, valueToCheck, valueField] = attribute.split('-');
-  console.log({ propertyName, valueToCheck, valueField, attribute });
 
   const parent = target[propertyName] || {};
 
@@ -316,7 +315,7 @@ export const scorePoint = async ({ doc, models, filter }) => {
   const { stageId, pipelineId, boardId, number } = doc;
 
   const refundedTargetIds = await models.ScoreLogs.distinct('targetId', {
-    action: 'refund',
+    action: { $in: ['refund', 'return'] },
   });
 
   const filterAggregate: any[] = [];

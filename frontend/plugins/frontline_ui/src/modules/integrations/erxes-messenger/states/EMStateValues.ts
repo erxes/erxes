@@ -42,6 +42,7 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
         botShowInitialMessage: false,
         botCheck: config?.botSetup?.botCheck ?? false,
         botGreetMessage: config?.botSetup?.greetingMessage ?? '',
+        automationId: config?.botSetup?.automationId ?? '',
         persistentMenus:
           config?.botSetup?.persistentMenu?.map((item) => ({
             text: item.text,
@@ -92,6 +93,9 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
           appearance?.primary?.foreground || DEFAULT_COLORS.FOREGROUND,
       },
       logo: appearance?.logo || '',
+      launcherLogo: appearance?.launcherLogo || '',
+      backgroundColor: appearance?.backgroundColor || DEFAULT_COLORS.BACKGROUND,
+      heroStyleVariant: appearance?.heroStyleVariant || 'glossy',
       navigationVariant: appearance?.navigationVariant || 'pill',
     },
   });

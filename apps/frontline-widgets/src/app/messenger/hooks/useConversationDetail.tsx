@@ -9,7 +9,7 @@ import {
   ConversationMessageInserted,
   conversationBotTypingStatus,
 } from '../graphql/subscriptions';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { IConversation } from '../types';
 
 interface IQueryResponse {
@@ -31,6 +31,9 @@ export const useConversationDetail = (
 ) => {
   const client = useApolloClient();
   const [isBotTyping, setIsBotTyping] = useState(false);
+  const botTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const { data, loading, refetch, subscribeToMore } = useQuery<IQueryResponse>(
     GET_CONVERSATION_DETAIL,
@@ -57,6 +60,14 @@ export const useConversationDetail = (
 
         const newMessage = subscriptionData.data.conversationMessageInserted;
         if (!newMessage) return prev;
+
+        if (newMessage.fromBot) {
+          setIsBotTyping(false);
+          if (botTypingTimeoutRef.current) {
+            clearTimeout(botTypingTimeoutRef.current);
+            botTypingTimeoutRef.current = null;
+          }
+        }
 
         const messageExists = prev.widgetsConversationDetail.messages.some(
           (msg) => msg._id === newMessage._id,
@@ -92,17 +103,33 @@ export const useConversationDetail = (
         next({ data }) {
           if (data?.conversationBotTypingStatus) {
             const typingData = data.conversationBotTypingStatus;
-            setIsBotTyping(
+            const isTyping =
               typeof typingData === 'object' && typingData !== null
                 ? (typingData as any).typing
-                : false,
-            );
+                : false;
+
+            setIsBotTyping(isTyping);
+
+            if (botTypingTimeoutRef.current) {
+              clearTimeout(botTypingTimeoutRef.current);
+              botTypingTimeoutRef.current = null;
+            }
+
+            if (isTyping) {
+              botTypingTimeoutRef.current = setTimeout(() => {
+                setIsBotTyping(false);
+                botTypingTimeoutRef.current = null;
+              }, 30_000);
+            }
           }
         },
       });
 
     return () => {
       botTypingSubscription.unsubscribe();
+      if (botTypingTimeoutRef.current) {
+        clearTimeout(botTypingTimeoutRef.current);
+      }
     };
   }, [options?.variables?._id, client]);
 

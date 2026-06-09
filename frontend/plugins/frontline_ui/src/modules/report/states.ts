@@ -55,7 +55,7 @@ const callStatusFilterAtomCache = new Map<
 export const getReportChartTypeAtom = (cardId: string) =>
   getOrCreate(chartTypeAtomCache, cardId, () =>
     atom(
-      (get) => get(reportChartTypeState)[cardId] || ResponsesChartType.Bar,
+      (get) => get(reportChartTypeState)[cardId] || ResponsesChartType.Line,
       (get, set, newValue: ResponsesChartType) => {
         set(reportChartTypeState, {
           ...get(reportChartTypeState),

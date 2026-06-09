@@ -76,6 +76,7 @@ messengerIframe.allow =
 
 let launcherIframeDocument: Document | undefined = undefined;
 let lastUnreadCount = 0;
+let isMessengerVisible = false;
 
 function renewViewPort() {
   if (viewportMeta) {
@@ -320,7 +321,7 @@ const handleMessageEvent = async (event: MessageEvent) => {
       return console.error('Messenger: launcher element is not defined');
     }
 
-    const { primary, logo: uiOptionsLogo } = uiOptions;
+    const { primary, launcherLogo: uiOptionsLogo } = uiOptions;
 
     const logo = uiOptionsLogo;
     const color = primary?.DEFAULT;
@@ -357,6 +358,12 @@ const handleMessageEvent = async (event: MessageEvent) => {
       background-size: ${hasCustomLogo ? '32px' : '18px'};
       background-position: center;
     `;
+
+    // If the widget is already open when connection info arrives, restore the X state
+    if (isMessengerVisible) {
+      (launcherBtn as HTMLElement).style.backgroundImage = 'none';
+      (launcherBtn as HTMLElement).innerHTML = CLOSE_ICON_STRING;
+    }
   }
 };
 
@@ -406,6 +413,7 @@ window.addEventListener('message', async (event) => {
       }
 
       if (isVisible) {
+        isMessengerVisible = true;
         messengerIframeContainer.classList.add('erxes-messenger-shown');
         messengerIframeContainer.classList.remove('erxes-messenger-hidden');
         (launcher as HTMLElement).style.backgroundImage = 'none';
@@ -413,6 +421,7 @@ window.addEventListener('message', async (event) => {
         // hide badge while chat is open — don't overwrite lastUnreadCount
         renderBadge(0);
       } else {
+        isMessengerVisible = false;
         messengerIframeContainer.classList.remove(
           'erxes-messenger-shown',
           'erxes-messenger-expand',

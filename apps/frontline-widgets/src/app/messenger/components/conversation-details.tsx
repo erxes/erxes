@@ -1,3 +1,4 @@
+import { AnimatePresence } from 'motion/react';
 import { useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import {
@@ -21,6 +22,7 @@ import {
   IconArrowLeft,
   IconArrowsDiagonal2,
   IconArrowsDiagonalMinimize,
+  IconSparkles,
 } from '@tabler/icons-react';
 import { useMessenger } from '../hooks/useMessenger';
 import { CloseButton } from './CloseButton';
@@ -90,6 +92,7 @@ export const ConversationDetails = () => {
     skip: !conversationId || !messengerConnectData?.integrationId,
   });
   const { messages } = conversationDetail || {};
+  console.log(messages, '[messages]');
 
   const lastAgentUser = useMemo(() => {
     if (!messages) return null;
@@ -97,6 +100,11 @@ export const ConversationDetails = () => {
       [...messages].reverse().find((m) => !m.customerId && !m.fromBot && m.user)
         ?.user ?? null
     );
+  }, [messages]);
+
+  const isLastMessageFromBot = useMemo(() => {
+    if (!messages || messages.length === 0) return false;
+    return isBotMessage(messages[messages.length - 1]);
   }, [messages]);
 
   const messagesByDate = useMemo(() => {
@@ -188,7 +196,7 @@ export const ConversationDetails = () => {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <div className="flex items-center gap-3 px-3 py-2.5 bg-primary shrink-0">
+      <div className="flex items-center gap-3 px-3 py-2.5 bg-(--color-hero) shrink-0">
         <Button
           variant="ghost"
           size="icon"
@@ -198,28 +206,43 @@ export const ConversationDetails = () => {
           <IconArrowLeft className="size-4" />
         </Button>
         <div className="relative shrink-0">
-          <Avatar className="size-9">
-            {agentAvatar && (
-              <Avatar.Image
-                src={readImage(agentAvatar)}
-                alt={agentName}
-                className="object-cover"
-              />
-            )}
-            <Avatar.Fallback className="bg-primary-foreground/20 text-primary-foreground font-semibold text-sm">
-              {agentName.charAt(0).toUpperCase()}
-            </Avatar.Fallback>
-          </Avatar>
-          {isOnline && (
-            <span className="absolute bottom-0 right-0 size-2.5 rounded-full bg-green-400 border-2 border-primary" />
+          {isLastMessageFromBot ? (
+            <div className="size-9 border-[0.5px] border-primary backdrop-blur-md rounded-lg bg-linear-120 from-primary to-primary-foreground/20 flex items-center justify-center">
+              <IconSparkles className="size-5 text-primary-foreground" />
+            </div>
+          ) : (
+            <Avatar className="size-9">
+              {agentAvatar && (
+                <Avatar.Image
+                  src={readImage(agentAvatar)}
+                  alt={agentName}
+                  className="object-cover"
+                />
+              )}
+              <Avatar.Fallback className="bg-primary-foreground/20 text-primary-foreground font-semibold text-sm">
+                {agentName.charAt(0).toUpperCase()}
+              </Avatar.Fallback>
+            </Avatar>
+          )}
+          {isOnline && !isLastMessageFromBot && (
+            <span className="absolute bottom-0 right-0 size-2.5 rounded-full bg-success border-2 border-primary" />
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-primary-foreground font-semibold text-sm truncate">
-            {agentName}
+          <div className="text-primary-foreground font-semibold text-sm flex items-center gap-1.5 truncate">
+            {isLastMessageFromBot ? (
+              <>
+                AI agent
+                <span className="inline-flex items-center rounded-sm px-1.5 text-xs font-medium h-5 bg-primary/20 text-primary-foreground border border-primary/30 shrink-0">
+                  AI
+                </span>
+              </>
+            ) : (
+              agentName
+            )}
           </div>
-          <div className="text-primary-foreground/60 text-xs truncate">
-            {subtitle}
+          <div className="text-primary-foreground/60 text-xs truncate flex items-center gap-1">
+            {isLastMessageFromBot ? 'Automated · replies instantly' : subtitle}
           </div>
         </div>
         <span className="flex items-center">
@@ -231,7 +254,9 @@ export const ConversationDetails = () => {
         ref={scrollContainerRef}
         className="flex-1 overflow-y-auto scroll-smooth hide-scroll scroll-p-0 scroll-m-0 scroll-pt-16 flex flex-col-reverse p-4 space-y-2"
       >
-        {isBotTyping && <TypingStatus />}
+        <AnimatePresence>
+          {isBotTyping && <TypingStatus key="typing" />}
+        </AnimatePresence>
 
         {sortedDateKeys.map((dateKey, index) => {
           const messagesForDate = messagesByDate[dateKey];
@@ -267,7 +292,15 @@ export const ConversationDetails = () => {
                     };
 
                     if (isBotMessage(message)) {
-                      return;
+                      return (
+                        <BotMessage
+                          key={message._id}
+                          botData={message.botData}
+                          createdAt={new Date(message.createdAt)}
+                          showAvatar={message.showAvatar}
+                          {...messagePositionProps}
+                        />
+                      );
                     }
 
                     if (isOperatorMessage(message)) {
@@ -305,16 +338,7 @@ export const ConversationDetails = () => {
             </div>
           );
         })}
-        {/* <BotMessage content={botGreetMessage} /> */}
-        {botShowInitialMessage && (
-          <BotMessage
-            content={botGreetMessage}
-            createdAt={
-              (messages && new Date(messages[0]?.createdAt || null)) ||
-              new Date()
-            }
-          />
-        )}
+        {botShowInitialMessage && <BotMessage content={botGreetMessage} />}
         <WelcomeMessage
           content={messagesConfig?.welcome || InitialMessage.WELCOME}
         />

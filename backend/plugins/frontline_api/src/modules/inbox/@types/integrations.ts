@@ -47,8 +47,7 @@ export interface IMessengerOnlineHours {
 }
 
 export interface IMessengerOnlineHoursDocument
-  extends IMessengerOnlineHours,
-    Document {}
+  extends IMessengerOnlineHours, Document {}
 
 export interface IMessengerDataMessagesItem {
   greetings?: { title?: string; message?: string };
@@ -84,6 +83,7 @@ export interface IMessengerData {
   botShowInitialMessage?: boolean;
   botCheck?: boolean;
   botGreetMessage?: string;
+  automationId?: string;
   persistentMenus?: BotPersistentMenuTypeMessenger[];
   getStarted?: boolean;
   skillData?: {
@@ -174,7 +174,10 @@ export interface IColorDefinition {
 }
 export interface IUiOptions {
   logo?: string;
+  launcherLogo?: string;
   primary?: IColorDefinition;
+  backgroundColor?: string;
+  heroStyleVariant?: 'glossy' | 'aurora' | 'mesh' | 'flat';
   navigationVariant?: string;
 }
 
