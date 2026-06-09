@@ -97,12 +97,12 @@ export function CallbacksSection() {
                       {fmtNum(row.callbackAttempts)}
                     </Table.Cell>
                     <Table.Cell className="text-right">
-                      <span className="inline-flex items-center rounded-md bg-[var(--pos)]/10 px-2 py-0.5 text-xs font-medium text-[var(--pos)]">
+                      <span className="inline-flex items-center rounded-md bg-(--pos)/10 px-2 py-0.5 text-xs font-medium text-(--pos)">
                         {fmtNum(row.successfulCallbacks)}
                       </span>
                     </Table.Cell>
                     <Table.Cell className="text-right">
-                      <span className="inline-flex items-center rounded-md bg-[var(--warn)]/10 px-2 py-0.5 text-xs font-medium text-[var(--warn)]">
+                      <span className="inline-flex items-center rounded-md bg-(--warn)/10 px-2 py-0.5 text-xs font-medium text-(--warn)">
                         {fmtNum(row.pendingCallbacks)}
                       </span>
                     </Table.Cell>

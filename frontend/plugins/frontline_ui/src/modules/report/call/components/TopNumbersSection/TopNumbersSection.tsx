@@ -69,12 +69,12 @@ export function TopNumbersSection() {
                       {fmtNum(row.attempts)}
                     </Table.Cell>
                     <Table.Cell className="text-right">
-                      <span className="inline-flex items-center rounded-md bg-[var(--pos)]/10 px-2 py-0.5 text-xs font-medium text-[var(--pos)]">
+                      <span className="inline-flex items-center rounded-md bg-(--pos)/10 px-2 py-0.5 text-xs font-medium text-(--pos)">
                         {fmtNum(row.answered)}
                       </span>
                     </Table.Cell>
                     <Table.Cell className="text-right">
-                      <span className="inline-flex items-center rounded-md bg-[var(--neg)]/10 px-2 py-0.5 text-xs font-medium text-[var(--neg)]">
+                      <span className="inline-flex items-center rounded-md bg-(--neg)/10 px-2 py-0.5 text-xs font-medium text-(--neg)">
                         {fmtNum(row.missed)}
                       </span>
                     </Table.Cell>
