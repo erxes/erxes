@@ -65,6 +65,12 @@ export function CallConversationDetail() {
     acctId,
     inboxIntegrationId,
   } = callHistoryDetail || {};
+
+  const formatCallTime = (value?: Date | string | null) => {
+    if (!value) return '-';
+    const date = new Date(value);
+    return isNaN(date.getTime()) ? '-' : date.toISOString().split('.')[0];
+  };
   return (
     <>
       {callHistoryDetail && (
@@ -99,13 +105,13 @@ export function CallConversationDetail() {
                     Start Time
                   </div>
                   <div className="font-medium">
-                    {new Date(callStartTime).toISOString().split('.')[0]}
+                    {formatCallTime(callStartTime)}
                   </div>
                 </div>
                 <div className="flex flex-col gap-1">
                   <div className="text-sm text-accent-foreground">End Time</div>
                   <div className="font-medium">
-                    {new Date(callEndTime).toISOString().split('.')[0]}
+                    {formatCallTime(callEndTime)}
                   </div>
                 </div>
               </div>

@@ -4,6 +4,7 @@ import { redlock } from '@/integrations/call/redlock';
 import { getOrCreateCustomer } from '@/integrations/call/store';
 import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
 import { debugCall } from '@/integrations/call/debuggers';
+import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 
 const SESSION_LOCK_TTL_MS = 15_000;
 
@@ -139,6 +140,25 @@ const ensureConversation = async (
   session.conversationId = apiResponse.data._id;
   session.customerId = customerId;
   await session.save();
+
+  try {
+    const conversationMessage = {
+      _id: session.conversationId,
+      conversationId: session.conversationId,
+      content: session.callType || 'incoming',
+      createdAt: new Date(),
+    };
+    await graphqlPubsub.publish(
+      `conversationMessageInserted:${session.conversationId}`,
+      { conversationMessageInserted: conversationMessage },
+    );
+    await pConversationClientMessageInserted(subdomain, conversationMessage);
+  } catch (e) {
+    debugCall(
+      `ensureConversation publish failed for ${session.uniqueid}: ${e.message}`,
+    );
+  }
+
   return session.conversationId;
 };
 

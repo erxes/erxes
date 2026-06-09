@@ -13,6 +13,7 @@ import { ICallIntegrationDocument } from '@/integrations/call/@types/integration
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { ICallHistory } from '@/integrations/call/@types/histories';
 import { ICallCdrDocument } from '@/integrations/call/@types/cdrs';
+import { ICallSessionDocument } from '@/integrations/call/@types/callSessions';
 import { debugCall } from '@/integrations/call/debuggers';
 
 const JWT_TOKEN_SECRET = process.env.JWT_TOKEN_SECRET || 'secret';
@@ -983,6 +984,34 @@ export const mapCdrToCallHistory = (
     queueName: '',
     inboxIntegrationId: cdr.inboxIntegrationId,
     acctId: cdr.acctId || '',
+  };
+};
+
+export const mapSessionToCallHistory = (
+  session: ICallSessionDocument,
+): ICallHistory & { acctId: string } => {
+  return {
+    operatorPhone: session.operatorPhone || '',
+    customerPhone: session.customerPhone || '',
+    callDuration: session.durationSec || 0,
+    callStartTime: session.startedAt,
+    callEndTime: session.endedAt as Date,
+    callType: session.callType,
+    callStatus: session.status || '',
+    timeStamp: session.startedAt ? session.startedAt.getTime() / 1000 : 0,
+    modifiedAt: session.updatedAt,
+    createdAt: session.createdAt,
+    createdBy: '',
+    modifiedBy: '',
+    extensionNumber: session.answeredExtension || '',
+    conversationId: session.conversationId || '',
+    recordUrl: session.recordUrl || '',
+    endedBy: '',
+    acceptedUserId: '',
+    queueName: session.queueName || '',
+    inboxIntegrationId: session.inboxIntegrationId,
+    acctId: session.cdrAcctId || '',
+    uniqueid: session.uniqueid,
   };
 };
 

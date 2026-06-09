@@ -15,6 +15,7 @@ import {
 } from '@/integrations/call/statistics';
 import {
   mapCdrToCallHistory,
+  mapSessionToCallHistory,
   sendToGrandStream,
 } from '@/integrations/call/utils';
 import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
@@ -608,6 +609,11 @@ const callQueries = {
         result = await models.CallHistory.findOne({ conversationId });
         if (result) {
           return result;
+        }
+
+        const session = await models.CallSessions.findOne({ conversationId });
+        if (session) {
+          return mapSessionToCallHistory(session);
         }
       }
 
