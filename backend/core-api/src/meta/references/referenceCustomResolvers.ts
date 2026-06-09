@@ -6,10 +6,10 @@ const joinNames = (...names: Array<string | undefined>) =>
 
 export const coreReferenceCustomResolvers: TRecordReferencesConfig<IModels>['resolvers'] =
   {
-    customerFullName: async ({ target }) =>
+    customerFullName: ({ target }) =>
       joinNames(target.firstName, target.middleName, target.lastName),
 
-    customerDisplayName: async ({ target }) =>
+    customerDisplayName: ({ target }) =>
       joinNames(target.firstName, target.middleName, target.lastName) ||
       target.primaryEmail ||
       target.primaryPhone ||

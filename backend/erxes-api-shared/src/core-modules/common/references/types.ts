@@ -32,7 +32,7 @@ export type TRecordReferenceResolverProps<TModels = any, TTarget = any> = {
 
 export type TRecordReferenceResolver<TModels = any, TTarget = any> = (
   props: TRecordReferenceResolverProps<TModels, TTarget>,
-) => Promise<any>;
+) => any | Promise<any>;
 
 export type TRecordReferenceFetcherProps<TModels = any> = {
   models: TModels;

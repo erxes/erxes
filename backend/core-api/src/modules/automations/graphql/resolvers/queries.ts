@@ -171,7 +171,7 @@ export const automationQueries = {
     { sourceType }: { sourceType: string },
   ) {
     const [pluginName, moduleName, collectionName] = splitType(sourceType);
-    return getAutomationSetPropertyTargets(
+    return await getAutomationSetPropertyTargets(
       `${pluginName}:${moduleName}.${collectionName}`,
     );
   },
@@ -195,7 +195,7 @@ export const automationQueries = {
     { type, field }: { type: string; field: string },
     { models }: IContext,
   ) {
-    return getAutomationReferenceFields({
+    return await getAutomationReferenceFields({
       field,
       models,
       type,
@@ -230,8 +230,9 @@ export const automationQueries = {
     { executionId },
     { models }: IContext,
   ) {
-    const execution =
-      await models.AutomationExecutions.findById(executionId).lean();
+    const execution = await models.AutomationExecutions.findById(
+      executionId,
+    ).lean();
     if (!execution) {
       throw new Error('Execution not found');
     }

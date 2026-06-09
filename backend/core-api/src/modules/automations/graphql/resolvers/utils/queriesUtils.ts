@@ -12,10 +12,14 @@ import {
   splitType,
 } from 'erxes-api-shared/core-modules';
 import { IListArgs } from '../queries';
-import { getPlugin, getPlugins } from 'erxes-api-shared/utils';
-import { getRealIdFromElk } from 'erxes-api-shared/utils';
+import {
+  getPlugin,
+  getPlugins,
+  getRealIdFromElk,
+} from 'erxes-api-shared/utils';
 import { CORE_AUTOMATION_CONSTANTS } from '~/meta/automations/constants';
 import { CORE_REFERENCE_TYPES } from '~/meta/references/referenceTypes';
+import { IModels } from '~/connectionResolvers';
 
 type TWithPluginName<T> = T & {
   pluginName?: string;
@@ -532,7 +536,10 @@ const toCustomReferenceField = (field: any): TAutomationOutputVariable => ({
   type: field.type,
 });
 
-const getCustomReferenceFields = async (models: any, referenceType: string) => {
+const getCustomReferenceFields = async (
+  models: IModels,
+  referenceType: string,
+) => {
   const fields = await models.Fields.find({ contentType: referenceType })
     .sort({ order: 1, code: 1 })
     .lean();
@@ -552,7 +559,7 @@ export const getAutomationReferenceFields = async ({
   type,
 }: {
   field: string;
-  models: any;
+  models: IModels;
   type: string;
 }) => {
   const [output, referenceTypes] = await Promise.all([
