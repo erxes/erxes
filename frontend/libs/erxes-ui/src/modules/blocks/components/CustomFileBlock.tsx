@@ -33,7 +33,11 @@ const CustomFilePreview: FC<Pick<FileRenderProps, 'block'>> = ({ block }) => {
   const url = readImage(block.props.url, undefined, true);
 
   return (
-    <div className="bn-file-name-with-icon" contentEditable={false} draggable={false}>
+    <div
+      className="bn-file-name-with-icon"
+      contentEditable={false}
+      draggable={false}
+    >
       <a
         href={url}
         target="_blank"
