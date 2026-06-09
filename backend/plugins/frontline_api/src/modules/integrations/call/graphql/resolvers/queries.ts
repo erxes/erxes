@@ -1592,9 +1592,15 @@ const callQueries = {
       {
         $addFields: {
           day: {
-            $dateTrunc: {
-              date: '$start',
-              unit: 'day',
+            $dateFromString: {
+              dateString: {
+                $dateToString: {
+                  date: '$start',
+                  format: '%Y-%m-%d',
+                  timezone: 'Asia/Ulaanbaatar',
+                },
+              },
+              format: '%Y-%m-%d',
               timezone: 'Asia/Ulaanbaatar',
             },
           },

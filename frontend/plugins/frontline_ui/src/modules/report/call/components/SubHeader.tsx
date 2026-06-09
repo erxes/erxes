@@ -6,7 +6,7 @@ import {
   Spinner,
   useFilterQueryState,
 } from 'erxes-ui';
-import { IconCalendar } from '@tabler/icons-react';
+import { IconCalendar, IconX } from '@tabler/icons-react';
 import { useCallFilters } from '../hooks/useCallFilters';
 import type { SelectOption } from '../types';
 
@@ -48,10 +48,15 @@ export function SubHeader({
   } = useCallFilters();
 
   // Sync URL date state → context so sections re-query on change
-  const [dateQuery] = useFilterQueryState<string>(DATE_FILTER_KEY);
+  const [dateQuery, setDateQuery] = useFilterQueryState<string>(DATE_FILTER_KEY);
   useEffect(() => {
     if (dateQuery) setDateFilter(dateQuery);
   }, [dateQuery, setDateFilter]);
+
+  const handleClearDate = () => {
+    setDateQuery(null);
+    setDateFilter('last-3-months');
+  };
 
   const integrationLabel =
     integrationOptions.find((o) => o.value === integrationId)?.label ?? '—';
@@ -109,10 +114,19 @@ export function SubHeader({
             <Filter.BarButton
               inDialog
               filterKey={DATE_FILTER_KEY}
-              className="rounded-r"
+              className={dateQuery ? '' : 'rounded-r'}
             >
               {formatDateDisplay(dateQuery ?? dateFilter)}
             </Filter.BarButton>
+            {dateQuery && (
+              <button
+                onClick={handleClearDate}
+                className="rounded-r flex items-center px-2 hover:bg-muted-foreground/10 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Clear date filter"
+              >
+                <IconX className="h-3 w-3" />
+              </button>
+            )}
           </div>
         </Filter.Bar>
       </div>
@@ -134,7 +148,8 @@ export function SubHeader({
 
 /** Format the stored date filter value for display in the chip. */
 function formatDateDisplay(value: string): string {
-  if (!value) return 'This month';
+  if (!value) return 'Last 3 months';
+  if (value === 'last-3-months') return 'Last 3 months';
 
   // Day range: two ISO timestamps separated by comma
   if (value.includes(',')) {
