@@ -1,7 +1,7 @@
 import { TRecordReferencesConfig } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { IDealDocument } from '../../@types';
-import { getEnv } from 'erxes-api-shared/utils/utils';
+import { getEnv } from 'erxes-api-shared/utils';
 
 export const salesReferenceCustomResolvers: TRecordReferencesConfig<
   IModels,

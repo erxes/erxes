@@ -1,4 +1,4 @@
-import { TRecordReferencesConfig } from 'erxes-api-shared/core-modules/common/references/types';
+import { TRecordReferencesConfig } from 'erxes-api-shared/core-modules';
 import { salesReferenceFetchers } from '~/modules/sales/meta/references/salesReferenceFetchers';
 import { SALES_REFERENCE_TYPES } from '~/modules/sales/meta/references/salesReferenceTypes';
 import { salesReferenceCustomResolvers } from '~/modules/sales/meta/references/salesRefernceCustomResolvers';

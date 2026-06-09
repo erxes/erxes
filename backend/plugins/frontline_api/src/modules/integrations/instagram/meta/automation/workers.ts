@@ -13,23 +13,6 @@ import {
   TAutomationProducersInput,
 } from 'erxes-api-shared/core-modules';
 
-const getItems = async (
-  subdomain: string,
-  module: string,
-  execution: any,
-  targetType: string,
-) => {
-  const { target } = execution;
-  if (module === targetType) {
-    return [target];
-  }
-  return [];
-};
-
-const getRelatedValue = async () => {
-  return false;
-};
-
 export const instagramAutomationWorkers = {
   receiveActions: async (
     {
@@ -66,32 +49,5 @@ export const instagramAutomationWorkers = {
       default:
         return false;
     }
-  },
-
-  setProperties: async (
-    {
-      action,
-      execution,
-      targetType,
-    }: TAutomationProducersInput[TAutomationProducers.SET_PROPERTIES],
-    { models, subdomain },
-  ) => {
-    const { module, rules } = action.config;
-    const relatedItems = await getItems(
-      subdomain,
-      module,
-      execution,
-      targetType,
-    );
-    return await setProperty({
-      models,
-      subdomain,
-      getRelatedValue,
-      module,
-      rules,
-      execution,
-      relatedItems,
-      targetType,
-    });
   },
 };

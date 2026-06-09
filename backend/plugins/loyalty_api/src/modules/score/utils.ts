@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { resolveRecordReferenceValue } from 'erxes-api-shared/core-modules/common/references/resolveRecordReferenceValue';
+import { resolveRecordReferenceValue } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { evaluate } from 'mathjs';
 import { IModels } from '~/connectionResolvers';
