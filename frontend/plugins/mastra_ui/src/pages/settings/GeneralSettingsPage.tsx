@@ -14,7 +14,6 @@ export const GeneralSettingsPage = () => {
     erxesApiUrl: 'http://localhost:4000',
     erxesApiToken: '',
     defaultAgentId: '',
-    memoryDbPath: 'file:./mastra-memory.db',
   });
 
   const [saved, setSaved] = useState(false);
@@ -26,7 +25,6 @@ export const GeneralSettingsPage = () => {
         erxesApiUrl: s.erxesApiUrl || 'http://localhost:4000',
         erxesApiToken: s.erxesApiToken || '',
         defaultAgentId: s.defaultAgentId || '',
-        memoryDbPath: s.memoryDbPath || 'file:./mastra-memory.db',
       });
     }
   }, [settingsData]);
@@ -94,19 +92,6 @@ export const GeneralSettingsPage = () => {
             placeholder="Bearer token for erxes gateway calls"
           />
           <p className="text-xs text-muted-foreground">Also used for GraphQL schema introspection when loading erxes tools</p>
-        </div>
-
-        {/* Memory DB Path */}
-        <div className="space-y-1.5">
-          <Label htmlFor="memoryDbPath">Memory Database Path</Label>
-          <Input
-            id="memoryDbPath"
-            value={form.memoryDbPath}
-            onChange={(e) => set('memoryDbPath', e.target.value)}
-            placeholder="file:./mastra-memory.db"
-            className="font-mono text-sm"
-          />
-          <p className="text-xs text-muted-foreground">LibSQL path for storing agent conversation memory (LibSQLStore)</p>
         </div>
 
         <Button type="submit" disabled={loading}>

@@ -78,7 +78,7 @@ export const MASTRA_PROVIDER_REMOVE = gql`
 export const MASTRA_SETTINGS_SAVE = gql`
   mutation MastraSettingsSave($doc: MastraSettingsInput!) {
     mastraSettingsSave(doc: $doc) {
-      _id erxesApiUrl erxesApiToken defaultAgentId memoryDbPath
+      _id erxesApiUrl erxesApiToken defaultAgentId
     }
   }
 `;

@@ -17,7 +17,6 @@ export const loadSettingsClass = (_models: IModels) => {
           erxesApiUrl: process.env.MASTRA_ERXES_API_URL || 'http://localhost:4000',
           erxesApiToken: process.env.MASTRA_ERXES_API_TOKEN,
           defaultAgentId: process.env.MASTRA_DEFAULT_AGENT_ID,
-          memoryDbPath: process.env.MASTRA_MEMORY_DB_PATH || 'file:./mastra-memory.db',
         });
       }
 
@@ -25,7 +24,6 @@ export const loadSettingsClass = (_models: IModels) => {
       if (process.env.MASTRA_ERXES_API_URL) doc.erxesApiUrl = process.env.MASTRA_ERXES_API_URL;
       if (process.env.MASTRA_ERXES_API_TOKEN) doc.erxesApiToken = process.env.MASTRA_ERXES_API_TOKEN;
       if (process.env.MASTRA_DEFAULT_AGENT_ID) doc.defaultAgentId = process.env.MASTRA_DEFAULT_AGENT_ID;
-      if (process.env.MASTRA_MEMORY_DB_PATH) doc.memoryDbPath = process.env.MASTRA_MEMORY_DB_PATH;
 
       return doc;
     }

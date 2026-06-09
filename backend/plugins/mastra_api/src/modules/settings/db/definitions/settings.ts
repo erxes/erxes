@@ -6,5 +6,4 @@ export const settingsSchema = new Schema({
   erxesApiUrl: { type: String, default: 'http://localhost:4000' },
   erxesApiToken: { type: String },
   defaultAgentId: { type: String },
-  memoryDbPath: { type: String, default: 'file:./mastra-memory.db' },
 });

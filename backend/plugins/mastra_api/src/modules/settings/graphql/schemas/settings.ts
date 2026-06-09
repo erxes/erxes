@@ -4,14 +4,12 @@ export const types = `
     erxesApiUrl: String
     erxesApiToken: String
     defaultAgentId: String
-    memoryDbPath: String
   }
 
   input MastraSettingsInput {
     erxesApiUrl: String
     erxesApiToken: String
     defaultAgentId: String
-    memoryDbPath: String
   }
 `;
 

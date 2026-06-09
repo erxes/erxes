@@ -1148,12 +1148,6 @@ importers:
       '@mastra/core':
         specifier: ^1.37.1
         version: 1.41.0(@grpc/grpc-js@1.14.3)(express@5.2.1)(rxjs@7.8.2)(zod@3.25.76)
-      '@mastra/libsql':
-        specifier: ^1.11.1
-        version: 1.12.1(@mastra/core@1.41.0(@grpc/grpc-js@1.14.3)(express@5.2.1)(rxjs@7.8.2)(zod@3.25.76))
-      '@mastra/memory':
-        specifier: ^1.20.0
-        version: 1.20.2(@mastra/core@1.41.0(@grpc/grpc-js@1.14.3)(express@5.2.1)(rxjs@7.8.2)(zod@3.25.76))(zod@3.25.76)
       erxes-api-shared:
         specifier: workspace:^
         version: link:../../erxes-api-shared
