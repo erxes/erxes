@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
-import { IconRobot, IconArrowLeft, IconInfoCircle } from '@tabler/icons-react';
+import { IconRobot, IconArrowLeft, IconInfoCircle, IconSearch } from '@tabler/icons-react';
 import {
   Alert,
   Breadcrumb,
@@ -67,6 +67,7 @@ export const AgentFormPage = () => {
   });
   const [autoSlug, setAutoSlug] = useState(true);
   const [customModel, setCustomModel] = useState(false);
+  const [toolSearch, setToolSearch] = useState('');
 
   const { data: agentData } = useQuery(MASTRA_AGENT, { variables: { _id: id }, skip: !isEdit });
   const { data: toolsData } = useQuery(MASTRA_TOOLS);
@@ -105,6 +106,37 @@ export const AgentFormPage = () => {
   }, [agentData, isEdit]);
 
   const tools = toolsData?.mastraTools || [];
+
+  const groupedTools = useMemo(() => {
+    const q = toolSearch.trim().toLowerCase();
+    const filtered: any[] = q
+      ? tools.filter(
+          (t: any) =>
+            t.name.toLowerCase().includes(q) ||
+            t.description?.toLowerCase().includes(q) ||
+            t.erxesPlugin?.toLowerCase().includes(q),
+        )
+      : tools;
+
+    const map = new Map<string, any[]>();
+    for (const tool of filtered) {
+      const key = tool.type === 'builtin' ? '__builtin__' : tool.erxesPlugin || '__other__';
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(tool);
+    }
+
+    // Order: built-in first, then erxes plugins alphabetically
+    const entries = [...map.entries()].sort(([a], [b]) => {
+      if (a === '__builtin__') return -1;
+      if (b === '__builtin__') return 1;
+      return a.localeCompare(b);
+    });
+
+    return entries.map(([key, items]) => ({
+      label: key === '__builtin__' ? 'Built-in' : key === '__other__' ? 'Other' : key,
+      items,
+    }));
+  }, [tools, toolSearch]);
 
   // Provider dropdown: preset providers configured via DB or env var, plus any
   // custom DB providers the user added that are not in the presets catalog.
@@ -346,33 +378,65 @@ export const AgentFormPage = () => {
                 </Link>
               </p>
             ) : (
-              <div className="space-y-1">
-                {tools.map((tool: any) => (
-                  <label
-                    key={tool._id}
-                    className={`flex items-start gap-3 rounded-md p-2.5 cursor-pointer transition-colors hover:bg-accent ${
-                      !tool.isEnabled ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
-                  >
-                    <Checkbox
-                      className="mt-0.5"
-                      checked={form.toolIds.includes(tool.toolId)}
-                      onCheckedChange={() => !tool.isEnabled ? null : toggleTool(tool.toolId)}
-                      disabled={!tool.isEnabled}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{tool.name}</span>
-                        <span className={`text-xs font-mono px-1.5 py-0.5 rounded-sm ${
-                          tool.type === 'builtin' ? 'bg-primary/10 text-primary' : 'bg-secondary text-secondary-foreground'
-                        }`}>{tool.type}</span>
+              <div className="space-y-3">
+                {/* Search */}
+                <div className="relative">
+                  <IconSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+                  <Input
+                    value={toolSearch}
+                    onChange={(e) => setToolSearch(e.target.value)}
+                    placeholder="Search tools…"
+                    className="pl-8 h-8 text-sm"
+                  />
+                </div>
+
+                {groupedTools.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-1">No tools match your search.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {groupedTools.map(({ label, items }) => (
+                      <div key={label}>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1 mb-1">
+                          {label}
+                        </p>
+                        <div className="space-y-0.5">
+                          {items.map((tool: any) => (
+                            <label
+                              key={tool._id}
+                              className={`flex items-start gap-3 rounded-md px-2.5 py-2 cursor-pointer transition-colors hover:bg-accent ${
+                                !tool.isEnabled ? 'opacity-50 cursor-not-allowed' : ''
+                              }`}
+                            >
+                              <Checkbox
+                                className="mt-0.5"
+                                checked={form.toolIds.includes(tool.toolId)}
+                                onCheckedChange={() => !tool.isEnabled ? null : toggleTool(tool.toolId)}
+                                disabled={!tool.isEnabled}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-medium">{tool.name}</span>
+                                  {tool.erxesOperationType && (
+                                    <span className={`text-xs font-mono px-1.5 py-0.5 rounded-sm ${
+                                      tool.erxesOperationType === 'mutation'
+                                        ? 'bg-warning/10 text-warning'
+                                        : 'bg-info/10 text-info'
+                                    }`}>
+                                      {tool.erxesOperationType}
+                                    </span>
+                                  )}
+                                </div>
+                                {tool.description && (
+                                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{tool.description}</p>
+                                )}
+                              </div>
+                            </label>
+                          ))}
+                        </div>
                       </div>
-                      {tool.description && (
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{tool.description}</p>
-                      )}
-                    </div>
-                  </label>
-                ))}
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </FormSection>

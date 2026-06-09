@@ -433,61 +433,128 @@ export async function fetchInputTypesMap(settings: any): Promise<Record<string, 
   }
 }
 
+// ─── SDL-based plugin detection ──────────────────────────────────────────────
+//
+// Apollo Router exposes the full supergraph SDL via `{ _service { sdl } }`.
+// The SDL contains `@join__field(graph: SERVICE)` on every Query/Mutation field,
+// giving exact plugin ownership with zero guessing.
+
+function parseSupergraphSDL(sdl: string): Map<string, string> {
+  // 1. Build ENUM_VALUE → plugin-name from the join__Graph enum block.
+  //    e.g.  SALES @join__graph(name: "sales", url: "http://...")
+  const graphEnumMap = new Map<string, string>();
+  const enumRegex = /\b([A-Z][A-Z0-9_]*)\s+@join__graph\(name:\s*"([^"]+)"/g;
+  let m: RegExpExecArray | null;
+  while ((m = enumRegex.exec(sdl)) !== null) {
+    graphEnumMap.set(m[1], m[2].toLowerCase());
+  }
+
+  // 2. Walk the SDL line-by-line so we correctly handle fields whose argument
+  //    list spans multiple lines.  A new field starts with exactly two leading
+  //    spaces followed by an identifier.  The @join__field annotation may appear
+  //    on the same line or a few lines later (after the closing ): ReturnType).
+  const operationMap = new Map<string, string>();
+  const lines = sdl.split('\n');
+  let pendingField = '';
+
+  for (const line of lines) {
+    // New field at 2-space indent — capture its name.
+    const fieldStart = line.match(/^  (\w+)\b/);
+    if (fieldStart) {
+      pendingField = fieldStart[1];
+    }
+
+    // @join__field annotation — attribute the pending field to its plugin.
+    const annotMatch = line.match(/@join__field\(graph:\s*["']?([A-Za-z_][A-Za-z0-9_]*)["']?/);
+    if (annotMatch && pendingField) {
+      const ref = annotMatch[1];
+      const plugin = graphEnumMap.get(ref) ?? ref.toLowerCase();
+      operationMap.set(pendingField, plugin);
+      pendingField = '';
+    }
+
+    // Closing brace resets state (we've left the field block).
+    if (line.trim() === '}') pendingField = '';
+  }
+
+  return operationMap;
+}
+
+async function fetchPluginMap(apiUrl: string, token: string): Promise<Map<string, string>> {
+  try {
+    const res = await fetch(`${apiUrl}/graphql`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: token } : {}),
+      },
+      body: JSON.stringify({ query: '{ _service { sdl } }' }),
+    });
+    const json = await res.json() as any;
+    const sdl: string = json?.data?._service?.sdl || '';
+    return sdl ? parseSupergraphSDL(sdl) : new Map();
+  } catch {
+    return new Map();
+  }
+}
+
 export async function fetchAvailableErxesTools(settings: any): Promise<any[]> {
   const apiUrl = settings?.erxesApiUrl || 'http://localhost:4000';
   const token = settings?.erxesApiToken || '';
+  const authHeaders: Record<string, string> = token ? { Authorization: token } : {};
 
-  const introspectionQuery = `{
-    __schema {
-      queryType {
-        fields {
-          name
-          description
-          type { name kind ofType { name kind ofType { name kind } } }
-          args {
-            name
-            description
-            type { name kind ofType { name kind ofType { name kind ofType { name kind } } } }
+  // Fetch SDL-based plugin map and full field list in parallel
+  const [pluginMap, schemaRes] = await Promise.all([
+    fetchPluginMap(apiUrl, token),
+    fetch(`${apiUrl}/graphql`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...authHeaders },
+      body: JSON.stringify({
+        query: `{
+          __schema {
+            queryType {
+              fields {
+                name description
+                type { name kind ofType { name kind ofType { name kind } } }
+                args {
+                  name description
+                  type { name kind ofType { name kind ofType { name kind ofType { name kind } } } }
+                }
+              }
+            }
+            mutationType {
+              fields {
+                name description
+                type { name kind ofType { name kind ofType { name kind } } }
+                args {
+                  name description
+                  type { name kind ofType { name kind ofType { name kind ofType { name kind } } } }
+                }
+              }
+            }
           }
-        }
-      }
-      mutationType {
-        fields {
-          name
-          description
-          type { name kind ofType { name kind ofType { name kind ofType { name kind } } } }
-          args {
-            name
-            description
-            type { name kind ofType { name kind ofType { name kind ofType { name kind } } } }
-          }
-        }
-      }
-    }
-  }`;
+        }`,
+      }),
+    }),
+  ]);
 
-  const response = await fetch(`${apiUrl}/graphql`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: token } : {}),
-    },
-    body: JSON.stringify({ query: introspectionQuery }),
-  });
+  const schemaData = await schemaRes.json() as any;
+  const schema = schemaData?.data?.__schema;
 
-  const data = await response.json() as any;
-  const schema = data?.data?.__schema;
-
-  const enabledPlugins = (process.env.ENABLED_PLUGINS || '')
-    .split(',')
-    .map((s: string) => s.trim().toLowerCase())
-    .filter(Boolean);
+  if (pluginMap.size === 0) {
+    console.warn('[mastra] _service { sdl } returned no data — falling back to first-word detection');
+  }
 
   const tools: any[] = [];
 
+  const SKIP_RE = /^(_|cp[A-Z])/;
+
   const processFields = (fields: any[], opType: 'query' | 'mutation') => {
     for (const field of fields || []) {
-      const plugin = detectPlugin(field.name, enabledPlugins);
+      // Always skip internal and ClientPortal operations
+      if (SKIP_RE.test(field.name)) continue;
+
+      const plugin = pluginMap.get(field.name) ?? detectPlugin(field.name);
       if (!plugin) continue;
 
       tools.push({
@@ -579,28 +646,13 @@ export async function autoCreateErxesTools(settings: any, models: any): Promise<
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-function detectPlugin(operationName: string, enabledPlugins: string[]): string | null {
-  const PLUGIN_PREFIXES: Record<string, string[]> = {
-    frontline: ['conversation', 'ticket', 'channel', 'knowledgeBase', 'integration', 'form', 'widget', 'inbox', 'response'],
-    sales: ['deal', 'board', 'pipeline', 'stage', 'purchas'],
-    operation: ['team', 'schedule', 'template'],
-    loyalty: ['loyalty', 'voucher', 'campaign', 'coupon', 'spin', 'score', 'earn'],
-    payment: ['payment', 'invoice', 'transaction'],
-    accounting: ['account', 'journal', 'ledger'],
-    content: ['post', 'page', 'category', 'tag', 'topic', 'article'],
-    insurance: ['risk', 'policy', 'claim', 'contract'],
-  };
-
-  const lower = operationName.toLowerCase();
-
-  for (const [plugin, prefixes] of Object.entries(PLUGIN_PREFIXES)) {
-    if (enabledPlugins.length && !enabledPlugins.includes(plugin)) continue;
-    if (prefixes.some(p => lower.startsWith(p.toLowerCase()))) return plugin;
-  }
-
-  // Include core operations if 'core' is listed or no filter
-  const corePrefixes = ['contact', 'company', 'user', 'tag', 'segment', 'field', 'customer', 'brand', 'email'];
-  if (corePrefixes.some(p => lower.startsWith(p))) return 'core';
-
-  return null;
+// Fallback when the SDL is unavailable: group by the first lowercase word of
+// the camelCase operation name (e.g. "salesBoards" → "sales").
+// Skips internal (_ prefix) and ClientPortal (cp + uppercase) operations.
+function detectPlugin(operationName: string): string | null {
+  if (!operationName) return null;
+  if (operationName.startsWith('_')) return null;
+  if (/^cp[A-Z]/.test(operationName)) return null;
+  const match = operationName.match(/^([a-z]+)/);
+  return match?.[1] || null;
 }

@@ -74,6 +74,7 @@ export const ToolFormPage = () => {
     isEnabled: true,
   });
   const [autoId, setAutoId] = useState(true);
+  const [opSearch, setOpSearch] = useState('');
 
   const { data: toolData } = useQuery(MASTRA_TOOL, { variables: { _id: id }, skip: !isEdit });
   const { data: erxesToolsData, loading: loadingErxes } = useQuery(MASTRA_AVAILABLE_ERXES_TOOLS, {
@@ -255,7 +256,7 @@ export const ToolFormPage = () => {
                   ) : (
                     <Select
                       value={form.erxesPlugin}
-                      onValueChange={(v) => { set('erxesPlugin', v); set('erxesOperation', ''); }}
+                      onValueChange={(v) => { set('erxesPlugin', v); set('erxesOperation', ''); setOpSearch(''); }}
                       required
                     >
                       <Select.Trigger className="w-full border border-border rounded-md px-3 py-2 h-9">
@@ -272,9 +273,27 @@ export const ToolFormPage = () => {
 
                 {form.erxesPlugin && (
                   <Field label="Operation *">
+                    <div className="relative mb-1.5">
+                      <IconSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+                      <Input
+                        value={opSearch}
+                        onChange={(e) => setOpSearch(e.target.value)}
+                        placeholder="Search operations…"
+                        className="pl-8 h-8 text-sm"
+                      />
+                    </div>
                     <ScrollArea className="h-64 rounded-md border">
                       <div className="p-2 space-y-0.5">
-                        {opsForPlugin.map((op: any) => {
+                        {opsForPlugin
+                          .filter((op: any) => {
+                            const q = opSearch.trim().toLowerCase();
+                            if (!q) return true;
+                            return (
+                              op.operation.toLowerCase().includes(q) ||
+                              op.description?.toLowerCase().includes(q)
+                            );
+                          })
+                          .map((op: any) => {
                           const isSelected = form.erxesOperation === op.operation;
                           return (
                             <button
