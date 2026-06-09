@@ -9,6 +9,8 @@ import {
   TAutomationBuilderTriggers,
   TAutomationBuilderWorkflows,
 } from '@/automations/utils/automationFormDefinitions';
+import { TAutomationEdgeType } from '@/automations/constants/edgeTypes';
+import { TAutomationFlowDirection } from '@/automations/constants/flowDirection';
 import { Edge, EdgeProps, Node, ReactFlowInstance } from '@xyflow/react';
 import {
   IAutomationHistory,
@@ -34,11 +36,11 @@ export interface AutomationConstants {
         label: string;
         exposure?: 'placeholder' | 'reference';
       }>;
-      propertySources?: Array<{
+      propertySource?: {
         key: string;
         label: string;
         propertyType: string;
-      }>;
+      };
       resolverKeys?: string[];
     };
   }>;
@@ -65,6 +67,7 @@ export type NodeData<TConfig = any> = {
   nextActionId?: string;
   actionId?: string;
   workflowId?: string;
+  flowDirection?: TAutomationFlowDirection;
   beforeTitleContent?: (
     id: string,
     type: AutomationNodeType,
@@ -77,11 +80,14 @@ export type WorkflowNodeData = {
   description: string;
   label: string;
   nodeType: string;
+  flowDirection?: TAutomationFlowDirection;
 };
 
 export interface IAutomationDoc {
   name: string;
   status: string;
+  edgeType?: TAutomationEdgeType;
+  flowDirection?: TAutomationFlowDirection;
   triggers: TAutomationTrigger[];
   actions: TAutomationAction[];
   updatedAt?: string;
@@ -113,6 +119,7 @@ export type AutomationDropHandlerParams = {
   actions: TAutomationBuilderActions;
   workflows?: TAutomationBuilderWorkflows;
   getNodes: () => Node<NodeData>[];
+  flowDirection?: TAutomationFlowDirection;
 };
 
 export type TDraggingNode = {

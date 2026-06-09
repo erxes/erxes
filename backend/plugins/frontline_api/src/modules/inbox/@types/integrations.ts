@@ -174,7 +174,10 @@ export interface IColorDefinition {
 }
 export interface IUiOptions {
   logo?: string;
+  launcherLogo?: string;
   primary?: IColorDefinition;
+  backgroundColor?: string;
+  heroStyleVariant?: 'glossy' | 'aurora' | 'mesh' | 'flat';
   navigationVariant?: string;
 }
 

@@ -16,6 +16,10 @@ import { TSegmentProducersInput } from '../../core-modules/segments/zodSchemas';
 import { TImportExportProducersInput } from '../../core-modules/import-export/zodSchemas';
 import { TImportExportProducers } from '../../core-modules/import-export/types';
 import { encodeTRPCContextHeader, TRPCContext, trpcContextHeaderName } from '.';
+import {
+  TRecordReferenceProducers,
+  TRecordReferenceProducersInput,
+} from '../../core-modules/common/references/types';
 type TModuleProducerInputMap = {
   automations: {
     [K in TAutomationProducers]: TAutomationProducersInput[K];
@@ -32,11 +36,16 @@ type TModuleProducerInputMap = {
   importExport: {
     [K in TImportExportProducers]: TImportExportProducersInput[K];
   };
+  references: {
+    [K in TRecordReferenceProducers]: TRecordReferenceProducersInput[K];
+  };
 };
 
 type TCoreModuleProducer<
-  TModuleName extends keyof TModuleProducerInputMap = keyof TModuleProducerInputMap,
-  TProducerName extends keyof TModuleProducerInputMap[TModuleName] = keyof TModuleProducerInputMap[TModuleName],
+  TModuleName extends keyof TModuleProducerInputMap =
+    keyof TModuleProducerInputMap,
+  TProducerName extends keyof TModuleProducerInputMap[TModuleName] =
+    keyof TModuleProducerInputMap[TModuleName],
 > = {
   subdomain: string;
   moduleName: TModuleName;
@@ -50,8 +59,10 @@ type TCoreModuleProducer<
 };
 
 export const sendCoreModuleProducer = async <
-  TModuleName extends keyof TModuleProducerInputMap = keyof TModuleProducerInputMap,
-  TProducerName extends keyof TModuleProducerInputMap[TModuleName] = keyof TModuleProducerInputMap[TModuleName],
+  TModuleName extends keyof TModuleProducerInputMap =
+    keyof TModuleProducerInputMap,
+  TProducerName extends keyof TModuleProducerInputMap[TModuleName] =
+    keyof TModuleProducerInputMap[TModuleName],
 >({
   subdomain,
   moduleName,

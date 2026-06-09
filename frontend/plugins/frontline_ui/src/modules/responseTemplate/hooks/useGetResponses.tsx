@@ -8,7 +8,7 @@ import {
 } from 'erxes-ui';
 import { IResponseTemplate } from '../types';
 
-const RESPONSES_PER_PAGE = 24;
+export const RESPONSES_PER_PAGE = 24;
 
 export const useGetResponses = (options?: QueryHookOptions) => {
   const baseFilter = {
@@ -17,7 +17,7 @@ export const useGetResponses = (options?: QueryHookOptions) => {
     ...options?.variables?.filter,
   };
 
-  const { data, fetchMore, networkStatus } = useQuery<
+  const { data, fetchMore, networkStatus, refetch } = useQuery<
     ICursorListResponse<IResponseTemplate>
   >(GET_RESPONSES, {
     fetchPolicy: 'cache-and-network',
@@ -73,6 +73,7 @@ export const useGetResponses = (options?: QueryHookOptions) => {
     handleFetchMore,
     totalCount,
     pageInfo,
+    refetch,
   };
 };
 

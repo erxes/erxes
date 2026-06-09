@@ -7,6 +7,8 @@ import { generateModels } from './connectionResolvers';
 import * as trpc from './trpc/init-trpc';
 import { permissions } from './meta/permissions';
 import { notifications } from './meta/notifications';
+import { automations } from './meta/automations';
+import segments from './meta/segments';
 
 export const router: Router = Router();
 
@@ -47,8 +49,10 @@ startPlugin({
   expressRouter: router,
 
   meta: {
+    automations,
     permissions,
     notifications,
+    segments,
     tags: {
       types: [
         {

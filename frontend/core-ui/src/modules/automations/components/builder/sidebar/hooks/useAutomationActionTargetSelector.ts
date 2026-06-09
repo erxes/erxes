@@ -29,8 +29,16 @@ export const useAutomationActionTargetSelector = ({
     targetActionId,
   });
 
+  const filteredActionsCanBeTarget = useMemo(() => {
+    if (activeNode.type !== 'setProperty') {
+      return actionsCanBeTarget;
+    }
+
+    return actionsCanBeTarget.filter((action) => action.type !== 'transform');
+  }, [actionsCanBeTarget, activeNode.type]);
   const { allowTargetFromActions = false } =
     actionConstMap.get(activeNode.type) || {};
+
   const trigger = useMemo(
     () =>
       activeNodeId
@@ -40,7 +48,7 @@ export const useAutomationActionTargetSelector = ({
   );
 
   const list = useMemo(() => {
-    const result: Array<{
+    const actionOptions: Array<{
       type: WaitEventTargetTypes;
       id: string;
       label: string;
@@ -48,9 +56,9 @@ export const useAutomationActionTargetSelector = ({
       icon?: string;
     }> = [];
 
-    for (const action of actionsCanBeTarget) {
+    for (const action of filteredActionsCanBeTarget) {
       if (action.id !== activeNodeId) {
-        result.push({
+        actionOptions.push({
           type: WaitEventTargetTypes.Action,
           id: action.id,
           label: action.label || action.type,
@@ -59,7 +67,7 @@ export const useAutomationActionTargetSelector = ({
         });
       }
     }
-    if (!!result?.length && trigger && !trigger?.isCustom) {
+    if (actionOptions.length > 0 && trigger) {
       return [
         {
           type: WaitEventTargetTypes.Trigger,
@@ -68,11 +76,11 @@ export const useAutomationActionTargetSelector = ({
           nodeType: trigger.type,
           icon: trigger.icon,
         },
-        ...result,
+        ...actionOptions,
       ];
     }
-    return result;
-  }, [actionsCanBeTarget, activeNodeId, trigger]);
+    return actionOptions;
+  }, [filteredActionsCanBeTarget, activeNodeId, trigger]);
 
   const handleChangeTarget = (
     value: string,
@@ -86,16 +94,10 @@ export const useAutomationActionTargetSelector = ({
   };
 
   useEffect(() => {
-    if (trigger?.isCustom && list.length > 0 && !targetActionId) {
-      setValue(`${configFieldNamePrefix}.targetActionId`, list[0]?.id);
+    if (trigger?.id && targetActionId === trigger.id) {
+      setValue(`${configFieldNamePrefix}.targetActionId`, undefined);
     }
-  }, [
-    trigger?.isCustom,
-    list.length,
-    configFieldNamePrefix,
-    setValue,
-    targetActionId,
-  ]);
+  }, [configFieldNamePrefix, setValue, targetActionId, trigger?.id]);
 
   return {
     list,

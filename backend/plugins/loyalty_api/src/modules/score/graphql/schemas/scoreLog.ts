@@ -7,6 +7,7 @@ export const types = `
     ownerType: String
 
     change: Float
+    preScore: Float
     action: String
     description: String
 
@@ -19,9 +20,6 @@ export const types = `
     serviceName: String
     createdBy: String
     createdAt: Date
-
-    amount: Float
-    quantity: Float
 
     totalScore: Float
     owner: JSON
@@ -83,8 +81,6 @@ const mutationParams = `
   change: Float!
   description: String
   serviceName: String
-  amount: Float
-  quantity: Float
 `;
 
 export const mutations = `

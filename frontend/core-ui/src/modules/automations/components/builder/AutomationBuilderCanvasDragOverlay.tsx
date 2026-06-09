@@ -1,5 +1,8 @@
 import { TDraggingNode } from '@/automations/components/builder/sidebar/states/automationNodeLibrary';
-import { useDnD } from '@/automations/context/AutomationBuilderDnDProvider';
+import {
+  useDnDMetaState,
+  useDnDOverlayState,
+} from '@/automations/context/AutomationBuilderDnDProvider';
 import { AutomationNodeType } from '@/automations/types';
 import { IconPlus } from '@tabler/icons-react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -22,9 +25,8 @@ const getDraggingNodeMeta = (draggingNode: TDraggingNode) => {
 };
 
 export const AutomationBuilderCanvasDragOverlay = () => {
-  const {
-    state: { draggingNode, cursor, isCanvasOver },
-  } = useDnD();
+  const { draggingNode } = useDnDMetaState();
+  const { cursor, isCanvasOver } = useDnDOverlayState();
 
   if (!draggingNode) {
     return null;

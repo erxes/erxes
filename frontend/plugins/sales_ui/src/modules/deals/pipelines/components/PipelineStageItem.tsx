@@ -92,7 +92,7 @@ const PipelineStageItem = (props: Props) => {
       <div
         className={`
           relative flex grow items-center
-          px-5 py-[18px] bg-white rounded
+          px-5 py-[18px] bg-background rounded
           shadow-md list-none select-none
           text-gray-800 font-normal text-base
           whitespace-nowrap
@@ -347,8 +347,8 @@ const PipelineStageItem = (props: Props) => {
           <div className="flex self-start mt-6 gap-1">
             <div
               className={`
-              flex items-center gap-1 text-xs text-purple-500 cursor-pointer
-              p-2 rounded bg-purple-50 hover:bg-purple-100 transition-colors duration-150
+              flex items-center gap-1 text-xs text-primary cursor-pointer
+              p-2 rounded bg-primary/10 hover:bg-primary/20 transition-colors duration-150
               select-none
             `}
               onClick={() => setShowExtraFields(!showExtraFields)}
@@ -363,8 +363,8 @@ const PipelineStageItem = (props: Props) => {
 
             <div
               className={`
-              flex items-center gap-1 text-xs text-red-500 cursor-pointer
-              p-2 rounded bg-red-50 hover:bg-red-100 transition-colors duration-150
+              flex items-center gap-1 text-xs text-destructive cursor-pointer
+              p-2 rounded bg-destructive/10 hover:bg-destructive/20 transition-colors duration-150
               select-none
             `}
               onClick={onRemoveStage}

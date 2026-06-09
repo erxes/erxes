@@ -1,4 +1,7 @@
-import { useDnD } from '@/automations/context/AutomationBuilderDnDProvider';
+import {
+  useDnDActions,
+  useDnDMetaState,
+} from '@/automations/context/AutomationBuilderDnDProvider';
 import { AutomationNodeType } from '@/automations/types';
 import { cn, Command, IconComponent } from 'erxes-ui';
 import React from 'react';
@@ -104,12 +107,8 @@ export const NodeLibraryRow = ({
   nodeType,
 }: NodeLibraryRowProps) => {
   const { icon: iconName, label, description } = item;
-  const {
-    state: { hoveredRowId, draggingNode },
-    setHoveredRowId,
-    startDragging,
-    reset,
-  } = useDnD();
+  const { hoveredRowId, draggingNode } = useDnDMetaState();
+  const { setHoveredRowId, startDragging, reset } = useDnDActions();
   const rowId = `${nodeType}-${label}`;
   const isHovered = hoveredRowId === rowId;
   const isDragging =

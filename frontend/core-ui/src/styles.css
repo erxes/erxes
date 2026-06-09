@@ -246,6 +246,22 @@
     --chart-800: oklch(0.325 0.161 276.98);
     --chart-900: oklch(0.262 0.125 276.98);
     --chart-950: oklch(0.185 0.095 276.98);
+
+    /* Call center report */
+
+    /* ── Card shadow (light) ──────────────────────────────────────────────── */
+    --shadow-card:
+      0 1px 2px oklch(0.145 0 0 / 0.05), 0 1px 3px oklch(0.145 0 0 / 0.04);
+
+    /* ── Mongolian carrier brand colours (oklch) ──────────────────────────── */
+    --carrier-mobicom: oklch(0.52 0.22 26.1); /* Mobicom  — #E2231A */
+    --carrier-unitel: oklch(0.61 0.19 150); /* Unitel   — #00A551 */
+    --carrier-skytel: oklch(0.47 0.17 247); /* Skytel   — #0066B3 */
+    --carrier-gmobile: oklch(0.83 0.17 86); /* G-Mobile — #F5B301 */
+    --carrier-ondo: oklch(0.49 0.23 290); /* Ondo     — #7C3AED */
+
+    /* ── Heatmap intensity colour (base hue) ─────────────────────────────── */
+    --heatmap-hue: 260;
   }
 
   .dark {
@@ -282,6 +298,9 @@
     --chart-3: oklch(0.541 0.281 293.009);
     --chart-4: oklch(0.491 0.27 292.581);
     --chart-5: oklch(0.432 0.232 292.759);
+
+    /* Call center report */
+    --shadow-card: 0 1px 2px oklch(0 0 0 / 0.3), 0 2px 6px oklch(0 0 0 / 0.25);
   }
 }
 

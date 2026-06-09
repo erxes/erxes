@@ -162,6 +162,37 @@ export class TailwindThemeManager {
     } else {
       this.removeCustomProperty('--widget-logo');
     }
+
+    // Launcher logo
+    if (uiOptions.launcherLogo) {
+      this.setCustomProperty(
+        '--widget-launcher-logo',
+        `url(${uiOptions.launcherLogo})`,
+      );
+    } else {
+      this.removeCustomProperty('--widget-launcher-logo');
+    }
+
+    // Background color → --color-hero
+    if (uiOptions.backgroundColor) {
+      this.applyHeroColor(uiOptions.backgroundColor);
+    } else {
+      this.removeCustomProperty('--color-hero');
+    }
+  }
+
+  private applyHeroColor(colorValue: string): void {
+    if (ColorUtils.isHexColor(colorValue)) {
+      try {
+        const expanded = ColorUtils.expandHex(colorValue);
+        const oklch = ColorUtils.hexToOklch(expanded);
+        this.setCustomProperty('--color-hero', ColorUtils.oklchToString(oklch));
+      } catch {
+        // leave untouched on invalid hex
+      }
+    } else {
+      this.setCustomProperty('--color-hero', colorValue);
+    }
   }
 
   /**
@@ -260,6 +291,8 @@ export class TailwindThemeManager {
     this.removeCustomProperty('--primary');
     this.removeCustomProperty('--primary-foreground');
     this.removeCustomProperty('--widget-logo');
+    this.removeCustomProperty('--widget-launcher-logo');
+    this.removeCustomProperty('--color-hero');
   }
 }
 

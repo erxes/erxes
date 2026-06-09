@@ -1,9 +1,8 @@
 import {
   IAutomationExecutionDocument,
-  splitType,
-  TAutomationProducers,
+  replaceOutputPlaceholders,
 } from 'erxes-api-shared/core-modules';
-import { getEnv, sendCoreModuleProducer } from 'erxes-api-shared/utils';
+import { getEnv } from 'erxes-api-shared/utils';
 import { collectEmails, getRecipientEmails } from './generateRecipientEmails';
 import { replaceDocuments } from './replaceDocuments';
 import {
@@ -27,7 +26,6 @@ export const generateEmailPayload = async ({
   config: any;
 }) => {
   const { fromEmailPlaceHolder, sender, type: senderType } = config;
-  const [pluginName, moduleName] = splitType(targetType);
   const version = getEnv({ name: 'VERSION' });
   const DEFAULT_AWS_EMAIL = getEnv({ name: 'DEFAULT_AWS_EMAIL' });
 
@@ -52,7 +50,7 @@ export const generateEmailPayload = async ({
   if (senderType === 'custom' || (!isSaasVersion && !fromUserEmail)) {
     const emails = await collectEmails(normalizedFromEmailPlaceHolder, {
       subdomain,
-      target,
+      execution,
       targetType,
     });
     if (!emails?.length) {
@@ -68,27 +66,22 @@ export const generateEmailPayload = async ({
 
   replacedContent = await replaceDocuments(subdomain, replacedContent, target);
 
-  const { subject, content = '' } = await sendCoreModuleProducer({
-    moduleName: 'automations',
+  const replacedValues = await replaceOutputPlaceholders({
     subdomain,
-    pluginName,
-    producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
-    input: {
-      moduleName,
-      target,
-      config: {
-        subject: normalizedSubject,
-        content: replacedContent,
-      },
+    execution,
+    values: {
+      subject: normalizedSubject,
+      content: replacedContent,
     },
-    defaultValue: {},
   });
+  const subject = String(replacedValues.subject ?? normalizedSubject);
+  const content = String(replacedValues.content ?? '');
 
   const [toEmails, ccEmails] = await getRecipientEmails({
     subdomain,
     config,
+    execution,
     targetType,
-    target,
   });
 
   if (!toEmails?.length && ccEmails?.length) {

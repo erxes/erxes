@@ -644,8 +644,6 @@ export const handleScore = async (models: IModels, data) => {
     createdBy,
     serviceName,
     targetId,
-    amount,
-    quantity,
   } = data;
   const scoreCampaign = await models.ScoreCampaigns.findOne({
     _id: campaignId,
@@ -698,8 +696,6 @@ export const handleScore = async (models: IModels, data) => {
     action,
     targetId,
     serviceName,
-    amount,
-    quantity,
   });
 
   return 'success';
@@ -737,7 +733,7 @@ async function triggerLoyaltyReward(
     method: 'mutation',
     module: 'automations',
     action: 'trigger',
-    input: { type: 'loyalties:reward', targets },
+    input: { type: 'loyalty:reward', targets },
     defaultValue: [],
   });
 }

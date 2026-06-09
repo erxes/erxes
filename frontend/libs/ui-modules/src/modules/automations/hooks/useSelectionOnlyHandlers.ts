@@ -1,13 +1,16 @@
 import { useRef, useState } from 'react';
+import { SuggestionType } from '../types/placeholderInputTypes';
 
 interface UseSelectionOnlyHandlersParams {
   value?: string;
   onChange?: (value: string) => void;
+  selectionType?: SuggestionType;
 }
 
 export function useSelectionOnlyHandlers({
   value = '',
   onChange,
+  selectionType,
 }: UseSelectionOnlyHandlersParams) {
   const [isSelectionPopoverOpen, setIsSelectionPopoverOpen] =
     useState<boolean>(false);
@@ -27,6 +30,10 @@ export function useSelectionOnlyHandlers({
   const handleSelectionOnlyKeyPress = (
     e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
+    if (!selectionType) {
+      return;
+    }
+
     if (e.key === 'Backspace' || e.key === 'Delete') {
       e.preventDefault();
       const current = value || '';
