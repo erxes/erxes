@@ -1,0 +1,127 @@
+// ---------------------------------------------------------------------------
+// Qdrant vector store — accessed over its raw REST API via global fetch.
+//
+// We deliberately avoid the @mastra/qdrant SDK so the advanced-memory feature
+// stays fully self-contained in this plugin (no new dependency, no root
+// lockfile change). Qdrant's REST surface is tiny and stable.
+//
+// Pure request-body builders are exported separately so they can be unit-tested
+// without a live Qdrant. The networked ops are integration-tested (gated).
+// ---------------------------------------------------------------------------
+
+import { qdrantUrl, qdrantApiKey } from './config';
+
+export interface QdrantPoint {
+  id: string | number;
+  vector: number[];
+  payload?: Record<string, any>;
+}
+
+export interface SearchHit {
+  id: string | number;
+  score: number;
+  payload: Record<string, any>;
+}
+
+// ── Pure builders (unit-tested) ──────────────────────────────────────────────
+
+export function buildCreateBody(dimension: number) {
+  return { vectors: { size: dimension, distance: 'Cosine' } };
+}
+
+export function buildSearchBody(vector: number[], topK: number, filter?: any) {
+  return {
+    vector,
+    limit: topK,
+    with_payload: true,
+    ...(filter ? { filter } : {}),
+  };
+}
+
+// ── Networked ops ────────────────────────────────────────────────────────────
+
+function headers(): Record<string, string> {
+  const h: Record<string, string> = { 'Content-Type': 'application/json' };
+  const key = qdrantApiKey();
+  if (key) h['api-key'] = key;
+  return h;
+}
+
+/** True if Qdrant answers its health endpoint within 2s. Never throws. */
+export async function health(baseUrl = qdrantUrl()): Promise<boolean> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 2000);
+  try {
+    const res = await fetch(`${baseUrl}/healthz`, {
+      headers: headers(),
+      signal: ctrl.signal,
+    });
+    return res.ok;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** Create the collection if absent. Idempotent (treats exists/409 as success). */
+export async function ensureCollection(
+  name: string,
+  dimension: number,
+  baseUrl = qdrantUrl(),
+): Promise<void> {
+  const existing = await fetch(`${baseUrl}/collections/${name}`, {
+    headers: headers(),
+  });
+  if (existing.ok) return;
+
+  const res = await fetch(`${baseUrl}/collections/${name}`, {
+    method: 'PUT',
+    headers: headers(),
+    body: JSON.stringify(buildCreateBody(dimension)),
+  });
+  if (!res.ok && res.status !== 409) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`Qdrant ensureCollection failed (${res.status}): ${text}`);
+  }
+}
+
+export async function upsert(
+  name: string,
+  points: QdrantPoint[],
+  baseUrl = qdrantUrl(),
+): Promise<void> {
+  if (!points.length) return;
+  const res = await fetch(`${baseUrl}/collections/${name}/points?wait=true`, {
+    method: 'PUT',
+    headers: headers(),
+    body: JSON.stringify({ points }),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`Qdrant upsert failed (${res.status}): ${text}`);
+  }
+}
+
+export async function search(
+  name: string,
+  vector: number[],
+  opts: { topK: number; filter?: any },
+  baseUrl = qdrantUrl(),
+): Promise<SearchHit[]> {
+  const res = await fetch(`${baseUrl}/collections/${name}/points/search`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify(buildSearchBody(vector, opts.topK, opts.filter)),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`Qdrant search failed (${res.status}): ${text}`);
+  }
+  const json: any = await res.json();
+  return (json.result || []).map((r: any) => ({
+    id: r.id,
+    score: r.score,
+    payload: r.payload || {},
+  }));
+}

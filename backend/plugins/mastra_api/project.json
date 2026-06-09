@@ -38,6 +38,13 @@
         "cwd": "backend/plugins/mastra_api",
         "command": "NODE_ENV=development pnpm dev"
       }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "backend/plugins/mastra_api/jest.config.ts"
+      }
     }
   }
 }

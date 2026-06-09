@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { IconCheck } from '@tabler/icons-react';
-import { Button, Label, Input } from 'erxes-ui';
+import { IconCheck, IconLock, IconBrain } from '@tabler/icons-react';
+import { Button, Label, Input, Badge } from 'erxes-ui';
 import { MASTRA_SETTINGS, MASTRA_AGENTS } from '~/graphql/queries';
 import { MASTRA_SETTINGS_SAVE } from '~/graphql/mutations';
 
@@ -30,6 +30,11 @@ export const GeneralSettingsPage = () => {
   }, [settingsData]);
 
   const agents = agentsData?.mastraAgents || [];
+
+  // Read-only "Advanced memory feature" status — derived from the MASTRA_MEMORY
+  // env var on the server. Displayed only; not editable from the UI.
+  const advancedMemory: boolean = !!settingsData?.mastraSettings?.advancedMemory;
+  const memStatus = settingsData?.mastraSettings?.advancedMemoryStatus;
 
   const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -98,6 +103,58 @@ export const GeneralSettingsPage = () => {
           {saved ? <><IconCheck size={16} /> Saved</> : loading ? 'Saving...' : 'Save Settings'}
         </Button>
       </form>
+
+      {/* Advanced memory feature — read-only, controlled by MASTRA_MEMORY env */}
+      <div className="rounded-lg border p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <IconBrain className="size-4 text-muted-foreground" />
+            <span className="font-medium">Advanced memory feature</span>
+            <IconLock className="size-3.5 text-muted-foreground" />
+          </div>
+          <Badge variant={advancedMemory ? 'success' : 'secondary'}>
+            {advancedMemory ? 'On' : 'Off'}
+          </Badge>
+        </div>
+
+        {advancedMemory && memStatus && (
+          <div className="text-xs text-muted-foreground space-y-1 pl-6">
+            <div>
+              Embedder:{' '}
+              <span className="font-mono">{memStatus.embedderModel}</span>{' '}
+              ({memStatus.embedder})
+            </div>
+            <div className="flex items-center gap-1.5">
+              Qdrant: <span className="font-mono">{memStatus.qdrantUrl}</span>
+              <span
+                className={`inline-block size-2 rounded-full ${
+                  memStatus.qdrantReachable === true
+                    ? 'bg-green-500'
+                    : memStatus.qdrantReachable === false
+                      ? 'bg-red-500'
+                      : 'bg-muted-foreground/40'
+                }`}
+              />
+              <span>
+                {memStatus.qdrantReachable === true
+                  ? 'reachable'
+                  : memStatus.qdrantReachable === false
+                    ? 'unreachable'
+                    : 'unknown'}
+              </span>
+            </div>
+            <div>
+              Collection:{' '}
+              <span className="font-mono">{memStatus.collection}</span>
+            </div>
+          </div>
+        )}
+
+        <p className="text-xs text-muted-foreground">
+          Controlled by the <code>MASTRA_MEMORY</code> environment variable. Set{' '}
+          <code>MASTRA_MEMORY=enable</code> and restart the plugin to turn it on.
+        </p>
+      </div>
 
       {/* Bot webhook info box */}
       <div className="rounded-lg border bg-muted/50 p-4 text-sm space-y-2">

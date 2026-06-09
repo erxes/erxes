@@ -2,6 +2,16 @@ import { IContext } from '~/connectionResolvers';
 import { getOrCreateAgent } from '~/mastra/agentRuntime';
 import { isLegacyProvider } from '~/mastra/providers';
 import { runWithAuth } from '~/mastra/requestContext';
+import { isAdvancedMemoryEnabled } from '~/mastra/memory/config';
+import {
+  recallBlock,
+  indexMessages,
+  readWorkingMemory,
+  refreshWorkingMemory,
+  deriveResourceId,
+  augmentConvo,
+  MemoryContext,
+} from '~/mastra/memory';
 
 // Build a plain-text message from tool results when the model produces no text.
 function buildFallbackFromResults(toolResults: any[]): string | null {
@@ -262,7 +272,7 @@ export const agentQueries = {
   mastraAgentChat: async (
     _: any,
     { agentId, message, threadId }: { agentId: string; message: string; threadId?: string },
-    { models, user }: IContext,
+    { models, user, subdomain }: IContext,
   ) => {
     const agentConfig = await models.MastraAgent.findOne({ agentId, isEnabled: true });
     if (!agentConfig) throw new Error(`Agent "${agentId}" not found or disabled`);
@@ -274,16 +284,42 @@ export const agentQueries = {
     // Stable session id — the persisted thread this turn belongs to.
     const sessionId = threadId || `chat-${Date.now()}`;
     const useHistory = agentConfig.memoryEnabled !== false;
+    // Advanced memory rides on top of replay; a memory-disabled agent gets neither.
+    const advanced = isAdvancedMemoryEnabled() && useHistory;
 
     // Build the LLM context from persisted history (the system prompt already
     // lives in the agent's instructions, so only user/assistant turns here).
     const history = useHistory
       ? await models.MastraMessage.getRecent(sessionId, HISTORY_LIMIT)
       : [];
-    const convo = [
-      ...history.map((m: any) => ({ role: m.role, content: m.content })),
-      { role: 'user', content: message },
-    ];
+    const recentHistory = history.map((m: any) => ({
+      role: m.role,
+      content: m.content,
+    }));
+
+    const memCtx: MemoryContext = {
+      subdomain,
+      resourceId: deriveResourceId({ user, agentId }),
+      threadId: sessionId,
+      agentId,
+    };
+
+    // Semantic recall (cross-session long-term memory) + working memory (the
+    // persistent user profile). Both injected as plain system context blocks.
+    // Best-effort: each returns null on any error, never blocking the turn.
+    const [recall, wmBlock] = advanced
+      ? await Promise.all([
+          recallBlock(message, memCtx),
+          readWorkingMemory(models, memCtx),
+        ])
+      : [null, null];
+
+    const convo = augmentConvo({
+      recentHistory,
+      userMessage: message,
+      recallBlock: recall,
+      workingMemoryBlock: wmBlock,
+    });
 
     const userHeader = user
       ? Buffer.from(JSON.stringify(user)).toString('base64')
@@ -297,9 +333,46 @@ export const agentQueries = {
     // final user + assistant text is stored (no tool-call frames), which also
     // keeps replayed history clean for reasoning models like Kimi.
     await models.MastraThread.ensureThread(sessionId, agentId, message);
-    await models.MastraMessage.addMessage(sessionId, 'user', message);
-    if (reply) await models.MastraMessage.addMessage(sessionId, 'assistant', reply);
+    const userMsg = await models.MastraMessage.addMessage(sessionId, 'user', message);
+    const asstMsg =
+      reply ? await models.MastraMessage.addMessage(sessionId, 'assistant', reply) : null;
     await models.MastraThread.touchThread(sessionId);
+
+    // Index the new exchange into Qdrant for future recall (best-effort).
+    if (advanced) {
+      const toIndex = [
+        {
+          id: String(userMsg._id),
+          role: 'user',
+          text: message,
+          createdAt: userMsg.createdAt?.toISOString?.(),
+        },
+      ];
+      if (asstMsg && reply) {
+        toIndex.push({
+          id: String(asstMsg._id),
+          role: 'assistant',
+          text: reply,
+          createdAt: asstMsg.createdAt?.toISOString?.(),
+        });
+      }
+      await indexMessages(memCtx, toIndex);
+
+      // Refresh the user's persistent profile from this exchange. Fire-and-forget
+      // (and best-effort) so it never adds latency to the reply.
+      if (reply) {
+        void refreshWorkingMemory({
+          models,
+          ctx: memCtx,
+          exchange: { user: message, assistant: reply },
+          provider: agentConfig.provider,
+          model: agentConfig.model,
+          providers,
+          authCtx,
+          isLegacy,
+        });
+      }
+    }
 
     return reply;
   },

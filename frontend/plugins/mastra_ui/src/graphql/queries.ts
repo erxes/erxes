@@ -105,6 +105,10 @@ export const MASTRA_SETTINGS = gql`
   query MastraSettings {
     mastraSettings {
       _id erxesApiUrl erxesApiToken defaultAgentId
+      advancedMemory
+      advancedMemoryStatus {
+        enabled embedder embedderModel qdrantUrl qdrantReachable collection
+      }
     }
   }
 `;

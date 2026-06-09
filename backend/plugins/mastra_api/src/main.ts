@@ -26,4 +26,12 @@ startPlugin({
       return context;
     },
   },
+  onServerInit: async () => {
+    // Advanced memory (opt-in via MASTRA_MEMORY=enable): ping Qdrant and ensure
+    // the collection exists. Loaded lazily and only when enabled, so default
+    // deployments never even import the memory module at boot.
+    if ((process.env.MASTRA_MEMORY ?? '').trim() !== 'enable') return;
+    const { initAdvancedMemory } = await import('~/mastra/memory');
+    await initAdvancedMemory();
+  },
 });

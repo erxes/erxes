@@ -8,6 +8,10 @@ import { loadProviderClass, IMastraProviderModel } from '@/provider/db/models/Pr
 import { loadSettingsClass, IMastraSettingsModel } from '@/settings/db/models/Settings';
 import { loadThreadClass, IMastraThreadModel } from '@/session/db/models/Thread';
 import { loadMessageClass, IMastraMessageModel } from '@/session/db/models/Message';
+import {
+  loadWorkingMemoryClass,
+  IMastraWorkingMemoryModel,
+} from '@/memory/db/models/WorkingMemory';
 
 export interface IModels {
   MastraAgent: IMastraAgentModel;
@@ -16,11 +20,13 @@ export interface IModels {
   MastraSettings: IMastraSettingsModel;
   MastraThread: IMastraThreadModel;
   MastraMessage: IMastraMessageModel;
+  MastraWorkingMemory: IMastraWorkingMemoryModel;
 }
 
 export interface IContext extends IMainContext {
   models: IModels;
   user: any;
+  subdomain: string;
 }
 
 export const loadClasses = (db: mongoose.Connection): IModels => {
@@ -54,6 +60,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.MastraMessage = db.model<any, IMastraMessageModel>(
     'mastra_messages',
     loadMessageClass(models),
+  );
+
+  models.MastraWorkingMemory = db.model<any, IMastraWorkingMemoryModel>(
+    'mastra_working_memory',
+    loadWorkingMemoryClass(models),
   );
 
   return models;
