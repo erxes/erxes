@@ -1,131 +1,272 @@
-import { useState } from 'react';
-import { IconPlus, IconTool, IconPencil, IconTrash, IconRefresh } from '@tabler/icons-react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
+import { ColumnDef, CellContext } from '@tanstack/react-table';
 import {
-  AlertDialog,
+  IconPlus,
+  IconTool,
+  IconPencil,
+  IconTrash,
+  IconRefresh,
+  IconAlignLeft,
+  IconTag,
+  IconCode,
+  IconToggleRight,
+  IconCalendar,
+} from '@tabler/icons-react';
+import {
   Badge,
   Breadcrumb,
   Button,
+  Combobox,
+  Command,
   Empty,
+  Popover,
+  RecordTable,
+  RecordTableInlineCell,
+  RelativeDateDisplay,
   Separator,
-  Skeleton,
-  Table,
   Tooltip,
+  useConfirm,
+  useToast,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { Link } from 'react-router-dom';
 import { MASTRA_TOOLS } from '~/graphql/queries';
 import { MASTRA_TOOL_REMOVE, MASTRA_AUTO_CREATE_TOOLS } from '~/graphql/mutations';
 
-const ToolRow = ({ tool, onRemove }: { tool: any; onRemove: (t: any) => void }) => {
-  const [open, setOpen] = useState(false);
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+interface ITool {
+  _id: string;
+  toolId: string;
+  name: string;
+  description?: string;
+  type: 'builtin' | 'erxes';
+  builtinType?: string;
+  erxesPlugin?: string;
+  erxesOperation?: string;
+  erxesOperationType?: string;
+  isEnabled: boolean;
+  createdAt: string;
+}
+
+// ─── More menu cell ───────────────────────────────────────────────────────────
+
+const ToolMoreCell = ({ row }: CellContext<ITool, unknown>) => {
+  const tool = row.original;
+  const navigate = useNavigate();
+  const { confirm } = useConfirm();
+
+  const [removeTool] = useMutation(MASTRA_TOOL_REMOVE, {
+    refetchQueries: [{ query: MASTRA_TOOLS }],
+  });
+
+  const handleDelete = () =>
+    confirm({
+      message: `Remove "${tool.name}"? Agents using this tool will lose access to it.`,
+      options: { okLabel: 'Delete', cancelLabel: 'Cancel' },
+    }).then(() => removeTool({ variables: { _id: tool._id } }));
 
   return (
-    <Table.Row>
-      <Table.Cell className="px-3 py-2">
-        <div className="font-medium text-sm">{tool.name}</div>
-        <div className="font-mono text-xs text-muted-foreground mt-0.5">{tool.toolId}</div>
-      </Table.Cell>
-      <Table.Cell className="px-3 py-2">
-        <div className="flex items-center gap-1.5">
-          <Badge variant={tool.type === 'builtin' ? 'default' : 'secondary'} className="capitalize">
-            {tool.type}
-          </Badge>
-          {!tool.isEnabled && <Badge variant="destructive">Disabled</Badge>}
-        </div>
-      </Table.Cell>
-      <Table.Cell className="px-3 py-2">
-        {tool.type === 'erxes' ? (
-          <div>
-            <span className="text-xs text-muted-foreground">{tool.erxesPlugin}</span>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className={`text-xs px-1.5 py-0.5 rounded-sm font-mono ${
-                tool.erxesOperationType === 'mutation'
-                  ? 'bg-warning/10 text-warning'
-                  : 'bg-info/10 text-info'
-              }`}>
-                {tool.erxesOperationType}
-              </span>
-              <span className="text-xs font-mono text-muted-foreground">{tool.erxesOperation}</span>
-            </div>
-          </div>
-        ) : (
-          <span className="text-xs text-muted-foreground">{tool.builtinType || '—'}</span>
-        )}
-      </Table.Cell>
-      <Table.Cell className="px-3 py-2">
-        {tool.description ? (
-          <p className="text-xs text-muted-foreground line-clamp-2">{tool.description}</p>
-        ) : (
-          <span className="text-xs text-muted-foreground">—</span>
-        )}
-      </Table.Cell>
-      <Table.Cell className="px-3 py-2">
-        <div className="flex items-center gap-1">
-          <Tooltip.Provider>
-            <Tooltip>
-              <Tooltip.Trigger asChild>
-                <Button variant="ghost" size="icon" className="size-7" asChild>
-                  <Link to={`/settings/mastra/tools/edit/${tool._id}`}>
-                    <IconPencil className="size-3.5" />
-                  </Link>
-                </Button>
-              </Tooltip.Trigger>
-              <Tooltip.Content>Edit</Tooltip.Content>
-            </Tooltip>
-          </Tooltip.Provider>
-
-          <AlertDialog open={open} onOpenChange={setOpen}>
-            <AlertDialog.Trigger asChild>
-              <Tooltip.Provider>
-                <Tooltip>
-                  <Tooltip.Trigger asChild>
-                    <Button variant="ghost" size="icon" className="size-7 text-destructive hover:text-destructive">
-                      <IconTrash className="size-3.5" />
-                    </Button>
-                  </Tooltip.Trigger>
-                  <Tooltip.Content>Delete</Tooltip.Content>
-                </Tooltip>
-              </Tooltip.Provider>
-            </AlertDialog.Trigger>
-            <AlertDialog.Content>
-              <AlertDialog.Header>
-                <AlertDialog.Title>Delete tool</AlertDialog.Title>
-                <AlertDialog.Description>
-                  Remove <strong>{tool.name}</strong>? Agents using this tool will lose access to it.
-                </AlertDialog.Description>
-              </AlertDialog.Header>
-              <AlertDialog.Footer>
-                <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-                <AlertDialog.Action
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  onClick={() => onRemove(tool)}
-                >
-                  Delete
-                </AlertDialog.Action>
-              </AlertDialog.Footer>
-            </AlertDialog.Content>
-          </AlertDialog>
-        </div>
-      </Table.Cell>
-    </Table.Row>
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Combobox.Content
+        side="right"
+        align="start"
+        avoidCollisions={false}
+        className="w-40 min-w-0 [&>button]:cursor-pointer"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Command>
+          <Command.List>
+            <Command.Item asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start w-full h-8"
+                onClick={() =>
+                  navigate(`/settings/mastra/tools/edit/${tool._id}`)
+                }
+              >
+                <IconPencil className="size-4" /> Edit
+              </Button>
+            </Command.Item>
+            <Command.Item asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start w-full h-8 text-destructive"
+                onClick={handleDelete}
+              >
+                <IconTrash className="size-4" /> Delete
+              </Button>
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 
-export const ToolsIndexPage = () => {
-  const { data, loading, refetch } = useQuery(MASTRA_TOOLS);
-  const [removeTool] = useMutation(MASTRA_TOOL_REMOVE, { onCompleted: () => refetch() });
-  const [autoCreate, { loading: autoCreating }] = useMutation(MASTRA_AUTO_CREATE_TOOLS, {
-    onCompleted: (res) => {
-      const r = res?.mastraAutoCreateTools;
-      if (r) alert(`Done — created: ${r.created}, skipped: ${r.skipped}, total discovered: ${r.total}`);
-      refetch();
-    },
-    onError: (err) => alert(`Auto-create failed: ${err.message}`),
-  });
+// ─── Column definitions ───────────────────────────────────────────────────────
 
-  const tools = data?.mastraTools || [];
-  const handleRemove = (tool: any) => removeTool({ variables: { _id: tool._id } });
+const toolColumns: ColumnDef<ITool>[] = [
+  { id: 'more', cell: ToolMoreCell, size: 33 },
+  RecordTable.checkboxColumn as ColumnDef<ITool>,
+  {
+    id: 'name',
+    accessorKey: 'name',
+    header: () => <RecordTable.InlineHead icon={IconAlignLeft} label="Tool" />,
+    cell: ({ row }) => {
+      const { _id, name, toolId } = row.original;
+      return (
+        <RecordTableInlineCell>
+          <Link
+            to={`/settings/mastra/tools/edit/${_id}`}
+            className="font-medium hover:underline cursor-pointer"
+          >
+            {name}
+          </Link>
+          <div className="font-mono text-xs text-muted-foreground">{toolId}</div>
+        </RecordTableInlineCell>
+      );
+    },
+    size: 240,
+  },
+  {
+    id: 'type',
+    accessorKey: 'type',
+    header: () => <RecordTable.InlineHead icon={IconTag} label="Type" />,
+    cell: ({ cell }) => {
+      const type = cell.getValue() as string;
+      return (
+        <RecordTableInlineCell>
+          <Badge variant={type === 'builtin' ? 'default' : 'secondary'} className="capitalize">
+            {type}
+          </Badge>
+        </RecordTableInlineCell>
+      );
+    },
+    size: 90,
+  },
+  {
+    id: 'operation',
+    accessorKey: 'erxesPlugin',
+    header: () => <RecordTable.InlineHead icon={IconCode} label="Operation" />,
+    cell: ({ row }) => {
+      const { type, erxesPlugin, erxesOperation, erxesOperationType, builtinType } =
+        row.original;
+      return (
+        <RecordTableInlineCell>
+          {type === 'erxes' ? (
+            <div>
+              <div className="text-xs text-muted-foreground">{erxesPlugin}</div>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span
+                  className={`text-xs px-1.5 py-0.5 rounded-sm font-mono ${
+                    erxesOperationType === 'mutation'
+                      ? 'bg-warning/10 text-warning'
+                      : 'bg-info/10 text-info'
+                  }`}
+                >
+                  {erxesOperationType}
+                </span>
+                <span className="text-xs font-mono text-muted-foreground">
+                  {erxesOperation}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <span className="text-xs font-mono text-muted-foreground">
+              {builtinType || '—'}
+            </span>
+          )}
+        </RecordTableInlineCell>
+      );
+    },
+    size: 220,
+  },
+  {
+    id: 'description',
+    accessorKey: 'description',
+    header: () => <RecordTable.InlineHead icon={IconAlignLeft} label="Description" />,
+    cell: ({ cell }) => {
+      const desc = cell.getValue() as string | undefined;
+      return (
+        <RecordTableInlineCell>
+          {desc ? (
+            <p className="text-xs text-muted-foreground line-clamp-2">{desc}</p>
+          ) : (
+            <span className="text-xs text-muted-foreground">—</span>
+          )}
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'status',
+    accessorKey: 'isEnabled',
+    header: () => (
+      <RecordTable.InlineHead icon={IconToggleRight} label="Status" />
+    ),
+    cell: ({ cell }) => {
+      const isEnabled = cell.getValue() as boolean;
+      return (
+        <RecordTableInlineCell>
+          <Badge variant={isEnabled ? 'success' : 'secondary'}>
+            {isEnabled ? 'Active' : 'Disabled'}
+          </Badge>
+        </RecordTableInlineCell>
+      );
+    },
+    size: 100,
+  },
+  {
+    id: 'createdAt',
+    accessorKey: 'createdAt',
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label="Created" />
+    ),
+    cell: ({ cell }) => (
+      <RelativeDateDisplay value={cell.getValue() as string} asChild>
+        <RecordTableInlineCell>
+          <RelativeDateDisplay.Value value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      </RelativeDateDisplay>
+    ),
+    size: 130,
+  },
+];
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
+export const ToolsIndexPage = () => {
+  const { data, loading } = useQuery(MASTRA_TOOLS);
+  const tools: ITool[] = data?.mastraTools || [];
+  const { toast } = useToast();
+
+  const [autoCreate, { loading: autoCreating }] = useMutation(
+    MASTRA_AUTO_CREATE_TOOLS,
+    {
+      refetchQueries: [{ query: MASTRA_TOOLS }],
+      onCompleted: (res) => {
+        const r = res?.mastraAutoCreateTools;
+        if (r)
+          toast({
+            title: 'Auto-create complete',
+            description: `Created ${r.created} · Skipped ${r.skipped} · Total discovered ${r.total}`,
+            variant: 'success',
+          });
+      },
+      onError: (err) =>
+        toast({
+          title: 'Auto-create failed',
+          description: err.message,
+          variant: 'destructive',
+        }),
+    },
+  );
 
   return (
     <div className="flex flex-col h-full">
@@ -160,7 +301,8 @@ export const ToolsIndexPage = () => {
                 </Button>
               </Tooltip.Trigger>
               <Tooltip.Content>
-                Discovers all erxes GraphQL queries &amp; mutations and creates a tool for each one (skips ClientPortal and duplicates).
+                Discovers all erxes GraphQL queries &amp; mutations and creates a tool
+                for each one (skips ClientPortal and duplicates).
               </Tooltip.Content>
             </Tooltip>
           </Tooltip.Provider>
@@ -172,22 +314,16 @@ export const ToolsIndexPage = () => {
         </PageHeader.End>
       </PageHeader>
 
-      <div className="flex-1 overflow-auto p-4">
-        {loading ? (
-          <div className="space-y-2">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-12 w-full rounded-md" />
-            ))}
-          </div>
-        ) : tools.length === 0 ? (
-          <Empty className="border border-dashed">
+      {!loading && tools.length === 0 ? (
+        <div className="flex-1 flex items-center justify-center p-4">
+          <Empty className="border border-dashed max-w-sm w-full">
             <Empty.Header>
               <Empty.Media variant="icon">
                 <IconTool />
               </Empty.Media>
               <Empty.Title>No tools yet</Empty.Title>
               <Empty.Description>
-                Add built-in tools (web search, calculator) or wrap any erxes GraphQL operation.
+                Add built-in tools or wrap any erxes GraphQL operation.
               </Empty.Description>
             </Empty.Header>
             <Empty.Content>
@@ -198,25 +334,23 @@ export const ToolsIndexPage = () => {
               </Button>
             </Empty.Content>
           </Empty>
-        ) : (
-          <Table>
-            <Table.Header>
-              <Table.Row className="hover:bg-transparent">
-                <Table.Head className="px-3 w-1/4">Tool</Table.Head>
-                <Table.Head className="px-3 w-1/8">Type</Table.Head>
-                <Table.Head className="px-3 w-1/4">Operation</Table.Head>
-                <Table.Head className="px-3">Description</Table.Head>
-                <Table.Head className="px-3 w-24">Actions</Table.Head>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {tools.map((tool: any) => (
-                <ToolRow key={tool._id} tool={tool} onRemove={handleRemove} />
-              ))}
-            </Table.Body>
-          </Table>
-        )}
-      </div>
+        </div>
+      ) : (
+        <RecordTable.Provider
+          columns={toolColumns}
+          data={tools}
+          className="m-3"
+          stickyColumns={['more', 'checkbox', 'name']}
+        >
+          <RecordTable>
+            <RecordTable.Header />
+            <RecordTable.Body>
+              {loading && <RecordTable.RowSkeleton rows={5} />}
+              <RecordTable.RowList />
+            </RecordTable.Body>
+          </RecordTable>
+        </RecordTable.Provider>
+      )}
     </div>
   );
 };

@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useLazyQuery, useQuery } from '@apollo/client';
+import React, { useState, useRef, useEffect, useReducer } from 'react';
+import { useQuery, useApolloClient } from '@apollo/client';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   IconRobot,
@@ -21,26 +21,8 @@ import {
   Tooltip,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { MASTRA_AGENTS, MASTRA_AGENT_CHAT } from '~/graphql/queries';
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-interface Message {
-  role: 'user' | 'assistant' | 'error';
-  content: string;
-  timestamp: Date;
-}
-
-interface ThreadState {
-  threadId: string;
-  messages: Message[];
-}
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function generateThreadId() {
-  return `thread-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-}
+import { MASTRA_AGENTS } from '~/graphql/queries';
+import { chatStore, Message } from './chatStore';
 
 // ─── Inline Markdown Nodes ───────────────────────────────────────────────────
 
@@ -55,7 +37,6 @@ function parseInline(text: string): InlineNode[] {
   let i = 0;
 
   while (i < text.length) {
-    // Inline code: `...`
     if (text[i] === '`') {
       const end = text.indexOf('`', i + 1);
       if (end !== -1) {
@@ -65,7 +46,6 @@ function parseInline(text: string): InlineNode[] {
       }
     }
 
-    // Bold: **...**
     if (text.slice(i, i + 2) === '**') {
       const end = text.indexOf('**', i + 2);
       if (end !== -1) {
@@ -75,7 +55,6 @@ function parseInline(text: string): InlineNode[] {
       }
     }
 
-    // Bold: __...__
     if (text.slice(i, i + 2) === '__') {
       const end = text.indexOf('__', i + 2);
       if (end !== -1) {
@@ -85,7 +64,6 @@ function parseInline(text: string): InlineNode[] {
       }
     }
 
-    // Italic: *text* (not **)
     if (text[i] === '*' && text[i + 1] !== '*') {
       const end = text.indexOf('*', i + 1);
       if (end !== -1 && text[end + 1] !== '*') {
@@ -95,7 +73,6 @@ function parseInline(text: string): InlineNode[] {
       }
     }
 
-    // Italic: _text_ (not __)
     if (text[i] === '_' && text[i + 1] !== '_') {
       const end = text.indexOf('_', i + 1);
       if (end !== -1 && text[end + 1] !== '_') {
@@ -105,7 +82,6 @@ function parseInline(text: string): InlineNode[] {
       }
     }
 
-    // Collect plain text until next special char
     let j = i + 1;
     while (j < text.length && text[j] !== '`' && text[j] !== '*' && text[j] !== '_') j++;
     nodes.push({ type: 'text', value: text.slice(i, j) });
@@ -144,7 +120,6 @@ const BlockContent = ({ text }: { text: string }) => {
   while (i < lines.length) {
     const line = lines[i];
 
-    // Headings
     const hMatch = line.match(/^(#{1,3}) (.+)/);
     if (hMatch) {
       const level = hMatch[1].length;
@@ -163,7 +138,6 @@ const BlockContent = ({ text }: { text: string }) => {
       continue;
     }
 
-    // Unordered list
     if (/^[-*+] /.test(line)) {
       const items: React.ReactNode[] = [];
       while (i < lines.length && /^[-*+] /.test(lines[i])) {
@@ -178,7 +152,6 @@ const BlockContent = ({ text }: { text: string }) => {
       continue;
     }
 
-    // Ordered list
     if (/^\d+\. /.test(line)) {
       const items: React.ReactNode[] = [];
       while (i < lines.length && /^\d+\. /.test(lines[i])) {
@@ -193,20 +166,17 @@ const BlockContent = ({ text }: { text: string }) => {
       continue;
     }
 
-    // Horizontal rule
     if (/^---+$/.test(line.trim())) {
       blocks.push(<hr key={key++} className="border-border my-2" />);
       i++;
       continue;
     }
 
-    // Empty line — skip
     if (line.trim() === '') {
       i++;
       continue;
     }
 
-    // Paragraph: consecutive non-special lines
     const paraLines: string[] = [];
     while (
       i < lines.length &&
@@ -367,100 +337,58 @@ const MessageBubble = ({ msg }: { msg: Message }) => {
 export const ChatPage = () => {
   const { agentId } = useParams<{ agentId: string }>();
   const navigate = useNavigate();
+  const apolloClient = useApolloClient();
+
+  // Subscribe to store updates
+  const [, forceUpdate] = useReducer((x) => x + 1, 0);
+  useEffect(() => chatStore.subscribe(forceUpdate), []);
 
   const { data, loading: agentsLoading } = useQuery(MASTRA_AGENTS);
-  const [sendMessage, { loading: chatLoading }] = useLazyQuery(MASTRA_AGENT_CHAT, {
-    fetchPolicy: 'no-cache',
-  });
 
   const agents = (data?.mastraAgents || []).filter((a: any) => a.isEnabled);
   const selectedAgent = agentId ? agents.find((a: any) => a._id === agentId) ?? null : null;
 
-  const [threads, setThreads] = useState<Record<string, ThreadState>>({});
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const messages: Message[] = agentId ? (threads[agentId]?.messages ?? []) : [];
+  const thread = agentId ? chatStore.getThread(agentId) : undefined;
+  const messages: Message[] = thread?.messages ?? [];
+  const chatLoading = thread?.loading ?? false;
+
+  // Register the currently-viewed agent so the store knows not to mark it unread,
+  // and clear it when the user navigates away.
+  useEffect(() => {
+    chatStore.setCurrentAgent(agentId);
+    return () => { chatStore.setCurrentAgent(undefined); };
+  }, [agentId]);
+
+  // Initialise a thread the first time the user opens an agent's chat
+  useEffect(() => {
+    if (!agentId) return;
+    chatStore.initThread(agentId);
+  }, [agentId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length, chatLoading]);
 
-  // Restore focus to the input after every response so the user can keep typing.
   useEffect(() => {
-    if (!chatLoading) {
-      textareaRef.current?.focus();
-    }
+    if (!chatLoading) textareaRef.current?.focus();
   }, [chatLoading]);
-
-  useEffect(() => {
-    if (!agentId) return;
-    setThreads((prev) => {
-      if (prev[agentId]) return prev;
-      return { ...prev, [agentId]: { threadId: generateThreadId(), messages: [] } };
-    });
-  }, [agentId]);
-
-  const addMessage = (msg: Message) => {
-    if (!agentId) return;
-    setThreads((prev) => ({
-      ...prev,
-      [agentId]: {
-        ...prev[agentId],
-        messages: [...(prev[agentId]?.messages ?? []), msg],
-      },
-    }));
-  };
 
   const handleNewThread = () => {
     if (!agentId) return;
-    setThreads((prev) => ({
-      ...prev,
-      [agentId]: { threadId: generateThreadId(), messages: [] },
-    }));
+    chatStore.newThread(agentId);
   };
 
-  const handleSend = async () => {
+  const handleSend = () => {
     if (!input.trim() || !selectedAgent || chatLoading || !agentId) return;
-
     const message = input.trim();
     setInput('');
-
-    addMessage({ role: 'user', content: message, timestamp: new Date() });
-
-    const currentThreadId = threads[agentId]?.threadId;
-
-    try {
-      const result = await sendMessage({
-        variables: { agentId: selectedAgent.agentId, message, threadId: currentThreadId },
-      });
-
-      const gqlErrors = result?.errors;
-      const reply: string | null = result?.data?.mastraAgentChat ?? null;
-
-      if (gqlErrors?.length) {
-        addMessage({
-          role: 'error',
-          content: gqlErrors[0].message,
-          timestamp: new Date(),
-        });
-      } else if (reply) {
-        addMessage({ role: 'assistant', content: reply, timestamp: new Date() });
-      } else {
-        addMessage({
-          role: 'error',
-          content: 'The agent returned an empty response. Please try again.',
-          timestamp: new Date(),
-        });
-      }
-    } catch (err: any) {
-      addMessage({
-        role: 'error',
-        content: err?.message ?? 'Failed to reach the agent. Check your connection and try again.',
-        timestamp: new Date(),
-      });
-    }
+    // Fire-and-forget: the store holds the Apollo client reference so the
+    // request continues even if the user navigates away before it completes.
+    chatStore.sendMessage(apolloClient, agentId, selectedAgent.agentId, message);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -529,10 +457,12 @@ export const ChatPage = () => {
             ) : (
               <div className="p-1.5 space-y-0.5">
                 {agents.map((agent: any) => {
-                  const msgCount = threads[agent._id]?.messages.filter(
+                  const agentThread = chatStore.getThread(agent._id);
+                  const msgCount = agentThread?.messages.filter(
                     (m: Message) => m.role !== 'error',
                   ).length ?? 0;
                   const isActive = agentId === agent._id;
+                  const hasUnread = !isActive && chatStore.hasUnread(agent._id);
                   return (
                     <button
                       key={agent._id}
@@ -542,7 +472,12 @@ export const ChatPage = () => {
                       onClick={() => navigate(`/mastra/chat/${agent._id}`)}
                     >
                       <div className="flex items-start gap-2">
-                        <IconRobot className="size-4 text-muted-foreground shrink-0 mt-0.5" />
+                        <div className="relative shrink-0 mt-0.5">
+                          <IconRobot className="size-4 text-muted-foreground" />
+                          {hasUnread && (
+                            <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-red-500" />
+                          )}
+                        </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-1">
                             <p className="text-sm font-medium truncate leading-tight">{agent.name}</p>

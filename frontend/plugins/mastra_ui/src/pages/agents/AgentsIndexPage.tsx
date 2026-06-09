@@ -1,138 +1,253 @@
-import { useState } from 'react';
-import { IconPlus, IconRobot, IconPencil, IconTrash, IconMessageCircle } from '@tabler/icons-react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
+import { ColumnDef, CellContext } from '@tanstack/react-table';
 import {
-  AlertDialog,
+  IconPlus,
+  IconRobot,
+  IconAlignLeft,
+  IconCpu,
+  IconTool,
+  IconCalendar,
+  IconPencil,
+  IconTrash,
+  IconMessageCircle,
+  IconToggleLeft,
+  IconToggleRight,
+} from '@tabler/icons-react';
+import {
   Badge,
   Breadcrumb,
   Button,
+  Combobox,
+  Command,
   Empty,
+  Popover,
+  RecordTable,
+  RecordTableInlineCell,
+  RelativeDateDisplay,
   Separator,
-  Skeleton,
-  Switch,
-  Table,
-  Tooltip,
+  useConfirm,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { Link } from 'react-router-dom';
 import { MASTRA_AGENTS } from '~/graphql/queries';
 import { MASTRA_AGENT_REMOVE, MASTRA_AGENT_UPDATE } from '~/graphql/mutations';
 
-const AgentRow = ({ agent, onToggle, onRemove }: { agent: any; onToggle: (a: any) => void; onRemove: (a: any) => void }) => {
-  const [open, setOpen] = useState(false);
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+interface IAgent {
+  _id: string;
+  name: string;
+  agentId: string;
+  description?: string;
+  provider: string;
+  model: string;
+  toolIds: string[];
+  isEnabled: boolean;
+  createdAt: string;
+}
+
+// ─── More menu cell ───────────────────────────────────────────────────────────
+
+const AgentMoreCell = ({ row }: CellContext<IAgent, unknown>) => {
+  const agent = row.original;
+  const navigate = useNavigate();
+  const { confirm } = useConfirm();
+
+  const [removeAgent] = useMutation(MASTRA_AGENT_REMOVE, {
+    refetchQueries: [{ query: MASTRA_AGENTS }],
+  });
+
+  const [updateAgent] = useMutation(MASTRA_AGENT_UPDATE, {
+    refetchQueries: [{ query: MASTRA_AGENTS }],
+  });
+
+  const handleDelete = () =>
+    confirm({
+      message: `Remove "${agent.name}"? This cannot be undone.`,
+      options: { okLabel: 'Delete', cancelLabel: 'Cancel' },
+    }).then(() => removeAgent({ variables: { _id: agent._id } }));
+
+  const handleToggle = () =>
+    updateAgent({
+      variables: { _id: agent._id, doc: { isEnabled: !agent.isEnabled } },
+    });
 
   return (
-    <Table.Row>
-      <Table.Cell className="px-3 py-2">
-        <div className="font-medium text-sm">{agent.name}</div>
-        <div className="font-mono text-xs text-muted-foreground mt-0.5">{agent.agentId}</div>
-        {agent.description && (
-          <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{agent.description}</div>
-        )}
-      </Table.Cell>
-      <Table.Cell className="px-3 py-2">
-        <div className="text-sm">{agent.provider}</div>
-        <div className="text-xs text-muted-foreground font-mono">{agent.model}</div>
-      </Table.Cell>
-      <Table.Cell className="px-3 py-2">
-        {agent.toolIds?.length > 0 ? (
-          <Badge variant="secondary">{agent.toolIds.length} tool{agent.toolIds.length !== 1 ? 's' : ''}</Badge>
-        ) : (
-          <span className="text-xs text-muted-foreground">—</span>
-        )}
-      </Table.Cell>
-      <Table.Cell className="px-3 py-2">
-        <Tooltip.Provider>
-          <Tooltip>
-            <Tooltip.Trigger asChild>
-              <div>
-                <Switch
-                  checked={agent.isEnabled}
-                  onCheckedChange={() => onToggle(agent)}
-                />
-              </div>
-            </Tooltip.Trigger>
-            <Tooltip.Content>{agent.isEnabled ? 'Disable agent' : 'Enable agent'}</Tooltip.Content>
-          </Tooltip>
-        </Tooltip.Provider>
-      </Table.Cell>
-      <Table.Cell className="px-3 py-2">
-        <div className="flex items-center gap-1">
-          <Tooltip.Provider>
-            <Tooltip>
-              <Tooltip.Trigger asChild>
-                <Button variant="ghost" size="icon" className="size-7" asChild>
-                  <Link to={`/mastra/chat/${agent._id}`}>
-                    <IconMessageCircle className="size-3.5" />
-                  </Link>
-                </Button>
-              </Tooltip.Trigger>
-              <Tooltip.Content>Chat</Tooltip.Content>
-            </Tooltip>
-          </Tooltip.Provider>
-
-          <Tooltip.Provider>
-            <Tooltip>
-              <Tooltip.Trigger asChild>
-                <Button variant="ghost" size="icon" className="size-7" asChild>
-                  <Link to={`/settings/mastra/agents/edit/${agent._id}`}>
-                    <IconPencil className="size-3.5" />
-                  </Link>
-                </Button>
-              </Tooltip.Trigger>
-              <Tooltip.Content>Edit</Tooltip.Content>
-            </Tooltip>
-          </Tooltip.Provider>
-
-          <AlertDialog open={open} onOpenChange={setOpen}>
-            <AlertDialog.Trigger asChild>
-              <Tooltip.Provider>
-                <Tooltip>
-                  <Tooltip.Trigger asChild>
-                    <Button variant="ghost" size="icon" className="size-7 text-destructive hover:text-destructive">
-                      <IconTrash className="size-3.5" />
-                    </Button>
-                  </Tooltip.Trigger>
-                  <Tooltip.Content>Delete</Tooltip.Content>
-                </Tooltip>
-              </Tooltip.Provider>
-            </AlertDialog.Trigger>
-            <AlertDialog.Content>
-              <AlertDialog.Header>
-                <AlertDialog.Title>Delete agent</AlertDialog.Title>
-                <AlertDialog.Description>
-                  Remove <strong>{agent.name}</strong>? This cannot be undone.
-                </AlertDialog.Description>
-              </AlertDialog.Header>
-              <AlertDialog.Footer>
-                <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-                <AlertDialog.Action
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  onClick={() => onRemove(agent)}
-                >
-                  Delete
-                </AlertDialog.Action>
-              </AlertDialog.Footer>
-            </AlertDialog.Content>
-          </AlertDialog>
-        </div>
-      </Table.Cell>
-    </Table.Row>
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Combobox.Content
+        side="right"
+        align="start"
+        avoidCollisions={false}
+        className="w-44 min-w-0 [&>button]:cursor-pointer"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Command>
+          <Command.List>
+            <Command.Item asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start w-full h-8"
+                onClick={() => navigate(`/mastra/chat/${agent._id}`)}
+              >
+                <IconMessageCircle className="size-4" /> Chat
+              </Button>
+            </Command.Item>
+            <Command.Item asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start w-full h-8"
+                onClick={() =>
+                  navigate(`/settings/mastra/agents/edit/${agent._id}`)
+                }
+              >
+                <IconPencil className="size-4" /> Edit
+              </Button>
+            </Command.Item>
+            <Command.Item asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start w-full h-8"
+                onClick={handleToggle}
+              >
+                {agent.isEnabled ? (
+                  <>
+                    <IconToggleLeft className="size-4" /> Disable
+                  </>
+                ) : (
+                  <>
+                    <IconToggleRight className="size-4" /> Enable
+                  </>
+                )}
+              </Button>
+            </Command.Item>
+            <Command.Item asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start w-full h-8 text-destructive"
+                onClick={handleDelete}
+              >
+                <IconTrash className="size-4" /> Delete
+              </Button>
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 
+// ─── Column definitions ───────────────────────────────────────────────────────
+
+const agentColumns: ColumnDef<IAgent>[] = [
+  { id: 'more', cell: AgentMoreCell, size: 33 },
+  RecordTable.checkboxColumn as ColumnDef<IAgent>,
+  {
+    id: 'name',
+    accessorKey: 'name',
+    header: () => <RecordTable.InlineHead icon={IconAlignLeft} label="Agent" />,
+    cell: ({ row }) => {
+      const { _id, name, agentId, description } = row.original;
+      return (
+        <RecordTableInlineCell>
+          <Link
+            to={`/settings/mastra/agents/edit/${_id}`}
+            className="font-medium hover:underline cursor-pointer"
+          >
+            {name}
+          </Link>
+          <div className="font-mono text-xs text-muted-foreground">{agentId}</div>
+          {description && (
+            <div className="text-xs text-muted-foreground line-clamp-1">
+              {description}
+            </div>
+          )}
+        </RecordTableInlineCell>
+      );
+    },
+    size: 260,
+  },
+  {
+    id: 'model',
+    accessorKey: 'model',
+    header: () => <RecordTable.InlineHead icon={IconCpu} label="Model" />,
+    cell: ({ row }) => {
+      const { provider, model } = row.original;
+      return (
+        <RecordTableInlineCell>
+          <div className="text-xs text-muted-foreground">{provider}</div>
+          <div className="font-mono text-xs">{model}</div>
+        </RecordTableInlineCell>
+      );
+    },
+    size: 200,
+  },
+  {
+    id: 'tools',
+    accessorKey: 'toolIds',
+    header: () => <RecordTable.InlineHead icon={IconTool} label="Tools" />,
+    cell: ({ cell }) => {
+      const toolIds = cell.getValue() as string[];
+      return (
+        <RecordTableInlineCell>
+          {toolIds?.length > 0 ? (
+            <Badge variant="secondary">
+              {toolIds.length} tool{toolIds.length !== 1 ? 's' : ''}
+            </Badge>
+          ) : (
+            <span className="text-xs text-muted-foreground">—</span>
+          )}
+        </RecordTableInlineCell>
+      );
+    },
+    size: 100,
+  },
+  {
+    id: 'status',
+    accessorKey: 'isEnabled',
+    header: () => (
+      <RecordTable.InlineHead icon={IconToggleRight} label="Status" />
+    ),
+    cell: ({ cell }) => {
+      const isEnabled = cell.getValue() as boolean;
+      return (
+        <RecordTableInlineCell>
+          <Badge variant={isEnabled ? 'success' : 'secondary'}>
+            {isEnabled ? 'Active' : 'Disabled'}
+          </Badge>
+        </RecordTableInlineCell>
+      );
+    },
+    size: 100,
+  },
+  {
+    id: 'createdAt',
+    accessorKey: 'createdAt',
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label="Created" />
+    ),
+    cell: ({ cell }) => (
+      <RelativeDateDisplay value={cell.getValue() as string} asChild>
+        <RecordTableInlineCell>
+          <RelativeDateDisplay.Value value={cell.getValue() as string} />
+        </RecordTableInlineCell>
+      </RelativeDateDisplay>
+    ),
+    size: 130,
+  },
+];
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 export const AgentsIndexPage = () => {
-  const { data, loading, refetch } = useQuery(MASTRA_AGENTS);
-  const [removeAgent] = useMutation(MASTRA_AGENT_REMOVE, { onCompleted: () => refetch() });
-  const [updateAgent] = useMutation(MASTRA_AGENT_UPDATE, { onCompleted: () => refetch() });
-
-  const agents = data?.mastraAgents || [];
-
-  const handleToggle = (agent: any) =>
-    updateAgent({ variables: { _id: agent._id, doc: { isEnabled: !agent.isEnabled } } });
-
-  const handleRemove = (agent: any) =>
-    removeAgent({ variables: { _id: agent._id } });
+  const { data, loading } = useQuery(MASTRA_AGENTS);
+  const agents: IAgent[] = data?.mastraAgents || [];
 
   return (
     <div className="flex flex-col h-full">
@@ -156,28 +271,23 @@ export const AgentsIndexPage = () => {
         <PageHeader.End>
           <Button asChild>
             <Link to="/settings/mastra/agents/new">
-              <IconPlus />
-              New Agent
+              <IconPlus /> New Agent
             </Link>
           </Button>
         </PageHeader.End>
       </PageHeader>
 
-      <div className="flex-1 overflow-auto p-4">
-        {loading ? (
-          <div className="space-y-2">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-14 w-full rounded-md" />
-            ))}
-          </div>
-        ) : agents.length === 0 ? (
-          <Empty className="border border-dashed">
+      {!loading && agents.length === 0 ? (
+        <div className="flex-1 flex items-center justify-center p-4">
+          <Empty className="border border-dashed max-w-sm w-full">
             <Empty.Header>
               <Empty.Media variant="icon">
                 <IconRobot />
               </Empty.Media>
               <Empty.Title>No agents yet</Empty.Title>
-              <Empty.Description>Create your first Mastra AI agent to get started.</Empty.Description>
+              <Empty.Description>
+                Create your first Mastra AI agent to get started.
+              </Empty.Description>
             </Empty.Header>
             <Empty.Content>
               <Button asChild>
@@ -187,30 +297,23 @@ export const AgentsIndexPage = () => {
               </Button>
             </Empty.Content>
           </Empty>
-        ) : (
-          <Table>
-            <Table.Header>
-              <Table.Row className="hover:bg-transparent">
-                <Table.Head className="px-3 w-2/5">Agent</Table.Head>
-                <Table.Head className="px-3 w-1/5">Model</Table.Head>
-                <Table.Head className="px-3 w-1/6">Tools</Table.Head>
-                <Table.Head className="px-3 w-1/6">Enabled</Table.Head>
-                <Table.Head className="px-3 w-1/6">Actions</Table.Head>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {agents.map((agent: any) => (
-                <AgentRow
-                  key={agent._id}
-                  agent={agent}
-                  onToggle={handleToggle}
-                  onRemove={handleRemove}
-                />
-              ))}
-            </Table.Body>
-          </Table>
-        )}
-      </div>
+        </div>
+      ) : (
+        <RecordTable.Provider
+          columns={agentColumns}
+          data={agents}
+          className="m-3"
+          stickyColumns={['more', 'checkbox', 'name']}
+        >
+          <RecordTable>
+            <RecordTable.Header />
+            <RecordTable.Body>
+              {loading && <RecordTable.RowSkeleton rows={5} />}
+              <RecordTable.RowList />
+            </RecordTable.Body>
+          </RecordTable>
+        </RecordTable.Provider>
+      )}
     </div>
   );
 };
