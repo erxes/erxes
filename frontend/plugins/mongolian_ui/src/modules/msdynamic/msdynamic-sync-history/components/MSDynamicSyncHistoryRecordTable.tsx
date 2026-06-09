@@ -3,7 +3,7 @@ import { RecordTable } from 'erxes-ui';
 import { useMSDynamicSessionKey } from '../../hooks/useMSDynamicSessionKey';
 import { msDynamicSyncHistoryColumns } from './MSDynamicSyncHistoryColumns';
 import { useMSDynamicSyncHistory } from '../hooks/useMSDynamicSyncHistory';
-import { MCDynamicSyncHistoryDetailSheet } from './MSDynamicSyncHistoryDetailSheet';
+import { MSDynamicSyncHistoryDetailSheet } from './MSDynamicSyncHistoryDetailSheet';
 
 export const MSDynamicSyncHistoryRecordTable = () => {
   const { syncHistories, handleFetchMore, loading, pageInfo } =
@@ -56,7 +56,7 @@ export const MSDynamicSyncHistoryRecordTable = () => {
             </div>
           </div>
         )}
-        <MCDynamicSyncHistoryDetailSheet histories={syncHistories || []} />
+        <MSDynamicSyncHistoryDetailSheet histories={syncHistories || []} />
       </RecordTable.CursorProvider>
     </RecordTable.Provider>
   );

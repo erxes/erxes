@@ -19,6 +19,12 @@ import { useSearchParams } from 'react-router';
 import { MSDynamicSyncHistoryMoreColumn } from './MSDynamicSyncHistoryMoreColumn';
 import { stringifySyncValueInline } from './stringifySyncValue';
 
+const InlineCell = ({ value }: { value: unknown }) => (
+  <RecordTableInlineCell>
+    <TextOverflowTooltip value={String(value || '')} />
+  </RecordTableInlineCell>
+);
+
 const SyncErkhetHistoryClickableCell = ({
   row,
   value,
@@ -97,25 +103,13 @@ export const msDynamicSyncHistoryColumns: ColumnDef<IMSDynamicSyncHistory>[] = [
     header: () => (
       <RecordTable.InlineHead icon={IconCategory} label="Content Type" />
     ),
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => <InlineCell value={cell.getValue()} />,
   },
   {
     id: 'content',
     accessorKey: 'content',
     header: () => <RecordTable.InlineHead icon={IconHash} label="Content" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => <InlineCell value={cell.getValue()} />,
   },
   {
     id: 'response',

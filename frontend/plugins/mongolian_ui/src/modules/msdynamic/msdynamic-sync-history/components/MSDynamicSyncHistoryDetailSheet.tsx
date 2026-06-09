@@ -12,7 +12,7 @@ const DetailBlock = ({ title, value }: { title: string; value: unknown }) => (
   </section>
 );
 
-export const MCDynamicSyncHistoryDetailSheet = ({
+export const MSDynamicSyncHistoryDetailSheet = ({
   histories,
 }: {
   histories: IMSDynamicSyncHistory[];
