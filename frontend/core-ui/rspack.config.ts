@@ -5,7 +5,6 @@ import {
 } from '@nx/rspack/module-federation';
 import { DefinePlugin } from '@rspack/core';
 
-import { applyWatchOptions } from '../rspack.watch-options';
 import baseConfig from './module-federation.config';
 
 const config: ModuleFederationConfig = {
@@ -17,8 +16,6 @@ export default composePlugins(
   withReact(),
   withModuleFederation(config, { dts: false }),
   (config: any) => {
-    applyWatchOptions(config);
-
     // Define environment variables
     config.plugins?.push(
       new DefinePlugin({
@@ -59,19 +56,19 @@ export default composePlugins(
     });
 
     config.devServer = {
-      ...(config.devServer),
+      ...config.devServer,
       client: {
-        ...(config.devServer?.client),
+        ...config.devServer?.client,
         logging: 'error',
       },
       devMiddleware: {
-        ...(config.devServer?.devMiddleware),
+        ...config.devServer?.devMiddleware,
         stats: 'errors-warnings',
       },
     };
 
     config.infrastructureLogging = {
-      ...(config.infrastructureLogging),
+      ...config.infrastructureLogging,
       level: 'error',
     };
 
