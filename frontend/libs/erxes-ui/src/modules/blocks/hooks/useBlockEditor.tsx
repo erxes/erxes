@@ -28,7 +28,7 @@ export const useBlockEditor = (args?: {
 
   useEffect(() => {
     if (uploadProps.files.length > 0 && !uploadProps.loading) {
-      void uploadProps.onUpload();
+      uploadProps.onUpload().catch(() => {});
     }
   }, [uploadProps.files.length]);
 
@@ -37,9 +37,10 @@ export const useBlockEditor = (args?: {
       return new Promise((resolve, reject) => {
         resolveRef.current = resolve;
         rejectRef.current = reject;
-        const fileWithPreview = file as FileWithPreview;
-        fileWithPreview.preview = URL.createObjectURL(file);
-        (fileWithPreview as any).errors = [];
+        const fileWithPreview = Object.assign(file, {
+          preview: URL.createObjectURL(file),
+          errors: [],
+        }) as FileWithPreview;
         uploadProps.setFiles([fileWithPreview]);
       });
     },
@@ -53,7 +54,7 @@ export const useBlockEditor = (args?: {
       default: placeholder || "Type '/' for commands...",
     },
     uploadFile: uploadFile ?? defaultUploadFile,
-    resolveFileUrl: async (url) => readImage(url),
+    resolveFileUrl: (url) => Promise.resolve(readImage(url)),
     ...restArgs,
   });
 
