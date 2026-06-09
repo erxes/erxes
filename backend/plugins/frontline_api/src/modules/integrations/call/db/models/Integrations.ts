@@ -17,7 +17,10 @@ export interface ICallIntegrationModel extends Model<ICallIntegrationDocument> {
     integrationId: string,
     isAdmin?: boolean,
   ): Promise<ICallIntegrationDocument>;
-  getIntegrationQueuesByUser(userId: string, isAdmin?: boolean): Promise<string[]>;
+  getIntegrationQueuesByUser(
+    userId: string,
+    isAdmin?: boolean,
+  ): Promise<string[]>;
 }
 
 export const loadCallIntegrationClass = (models: IModels) => {

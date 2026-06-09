@@ -634,7 +634,8 @@ const callQueries = {
     { startDate, endDate, queueId, direction },
     { models, user }: IContext,
   ) {
-    const isAdmin = user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
+    const isAdmin =
+      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
       user._id,
       isAdmin,
@@ -829,7 +830,8 @@ const callQueries = {
     if (!queueId) {
       return [];
     }
-    const isAdmin = user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
+    const isAdmin =
+      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
       user._id,
       isAdmin,
