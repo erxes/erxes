@@ -28,7 +28,8 @@ const callQueries = {
   },
 
   async callUserIntegrations(_root, _args, { models, user }: IContext) {
-    const isAdmin = user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
+    const isAdmin =
+      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     return models.CallIntegrations.getIntegrations(user._id, isAdmin);
   },
 
@@ -78,7 +79,8 @@ const callQueries = {
     { integrationId },
     { models, user }: IContext,
   ) {
-    const isAdmin = user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
+    const isAdmin =
+      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const integration = await models.CallIntegrations.getIntegration(
       user._id,
       integrationId,
@@ -138,7 +140,8 @@ const callQueries = {
     const day = String(today.getDate()).padStart(2, '0');
 
     const formattedDate = `${year}-${month}-${day}`;
-    const isAdmin = user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
+    const isAdmin =
+      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const integration = await models.CallIntegrations.getIntegration(
       user._id,
       integrationId,
@@ -631,8 +634,10 @@ const callQueries = {
     { startDate, endDate, queueId, direction },
     { models, user }: IContext,
   ) {
+    const isAdmin = user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
       user._id,
+      isAdmin,
     );
 
     const isContainsQueue = true;
@@ -824,8 +829,10 @@ const callQueries = {
     if (!queueId) {
       return [];
     }
+    const isAdmin = user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const queues = await models.CallIntegrations.getIntegrationQueuesByUser(
       user._id,
+      isAdmin,
     );
 
     const isContainsQueue = queueId && queues.includes(queueId);

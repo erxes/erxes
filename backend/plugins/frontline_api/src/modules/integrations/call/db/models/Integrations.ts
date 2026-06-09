@@ -17,7 +17,7 @@ export interface ICallIntegrationModel extends Model<ICallIntegrationDocument> {
     integrationId: string,
     isAdmin?: boolean,
   ): Promise<ICallIntegrationDocument>;
-  getIntegrationQueuesByUser(userId: string): Promise<string[]>;
+  getIntegrationQueuesByUser(userId: string, isAdmin?: boolean): Promise<string[]>;
 }
 
 export const loadCallIntegrationClass = (models: IModels) => {
@@ -63,10 +63,13 @@ export const loadCallIntegrationClass = (models: IModels) => {
       return integration;
     }
 
-    public static async getIntegrationQueuesByUser(userId: string) {
-      const integration = await models.CallIntegrations.findOne({
-        'operators.userId': userId,
-      });
+    public static async getIntegrationQueuesByUser(
+      userId: string,
+      isAdmin?: boolean,
+    ) {
+      const query = isAdmin ? {} : { 'operators.userId': userId };
+
+      const integration = await models.CallIntegrations.findOne(query);
 
       if (!integration) {
         throw new Error('Integration not found');
