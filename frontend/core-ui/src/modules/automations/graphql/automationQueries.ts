@@ -22,12 +22,20 @@ export const AUTOMATION_NODE_OUTPUT = gql`
   }
 `;
 
+export const AUTOMATION_REFERENCE_FIELDS = gql`
+  query AutomationReferenceFields($type: String!, $field: String!) {
+    automationReferenceFields(type: $type, field: $field)
+  }
+`;
+
 export const AUTOMATION_DETAIL = gql`
 query AutomationDetail($id: String!) {
   automationDetail(_id: $id) {
     _id
     name
     status
+    edgeType
+    flowDirection
     createdAt
     updatedAt
     createdBy
@@ -63,6 +71,8 @@ export const AUTOMATIONS_MAIN_LIST = gql`
         _id
         name
         status
+        edgeType
+        flowDirection
         createdAt
         updatedAt
         createdBy

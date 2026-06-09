@@ -93,6 +93,9 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
           appearance?.primary?.foreground || DEFAULT_COLORS.FOREGROUND,
       },
       logo: appearance?.logo || '',
+      launcherLogo: appearance?.launcherLogo || '',
+      backgroundColor: appearance?.backgroundColor || DEFAULT_COLORS.BACKGROUND,
+      heroStyleVariant: appearance?.heroStyleVariant || 'glossy',
       navigationVariant: appearance?.navigationVariant || 'pill',
     },
   });

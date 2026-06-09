@@ -85,11 +85,22 @@
   "select-property-type": "Шинж чанарын төрлийг сонгох",
   "rules": "Дүрмүүд",
   "add-rule": "Дүрэм нэмэх",
+  "set-property-updated-target": "{{count}} {{target}} шинэчлэгдсэн",
+  "set-property-change-count": "{{count}} өөрчлөлт",
+  "set-property-from": "Эх сурвалж",
+  "set-property-empty-value": "Хоосон",
+  "set-property-status-updated": "Шинэчилсэн",
+  "set-property-status-cleared": "Цэвэрлэсэн",
+  "set-property-status-skipped": "Алгассан",
+  "set-property-status-failed": "Алдаа",
 
   "select-target-type": "Зорилтот төрлийг сонгох",
   "event-listen-description": "Энэ нь үйл явдлыг хаанаас хүлээн авахыг тодорхойлно.",
 
   "ai-agent": "Хиймэл оюун агент",
+  "ai-agent-delete-confirm-message": "\"{{name}}\" агентийг устгахдаа итгэлтэй байна уу?",
+  "ai-agent-delete-success": "Хиймэл оюун агент амжилттай устлаа",
+  "select-provider": "Үйлчилгээ сонгох",
   "select-ai-agent": "Хиймэл оюун агент сонгох",
   "add-new-agent": "Шинэ агент нэмэх",
   "goal-type": "Зорилгын төрөл",
@@ -109,6 +120,7 @@
   "choose-action-type": "Үйлдлийн төрлийг сонгоно уу",
   "action-type-description": "Автоматжуулалт идэвхжсэний дараа юу болохыг сонгоно уу",
   "search": "Хайх...",
+  "filter-by-type": "Төрлөөр шүүх",
   "variables-help-aria-label": "Хувьсагч хэрхэн ажилладаг вэ",
   "variables-help-title": "Хувьсагч хэрхэн ажилладаг вэ",
   "variables-help-description": "Одоогийн зангилааны талбаруудыг бөглөхдөө триггер эсвэл өмнөх үйлдлүүдийн хувьсагчийг ашиглана.",
@@ -130,6 +142,45 @@
 
   "delete-automation-success": "Автоматжуулалт амжилттай устгагдлаа",
   "automation-updated-success": "Автоматжуулалт амжилттай шинэчлэгдлээ",
+  "conversation-event-trigger": {
+    "event-groups": "Үйл явдлын бүлгүүд",
+    "events": "Үйл явдлууд",
+    "empty-summary": "Үйл явдал сонгоогүй",
+    "loading-summary": "Уншиж байна...",
+    "validation-error-title": "Conversation event trigger дутуу байна",
+    "validation-error-description": "Ядаж нэг conversation event сонгож, нэгээс доошгүй action идэвхтэй үлдээгээд шаардлагатай target-аа тохируулна уу.",
+    "action-required": "Ядаж нэг action сонгоно уу.",
+    "target-required": "Ядаж нэг target сонгоно уу.",
+    "assignee": {
+      "label": "Хариуцагч",
+      "description": "Conversation assign эсвэл unassign болох үед ажиллана.",
+      "target-label": "Хэрэглэгчид",
+      "target-placeholder": "Хэрэглэгч сонгох",
+      "actions": {
+        "assigned": "Оноогдсон",
+        "unassigned": "Оноолт хасагдсан"
+      }
+    },
+    "status": {
+      "label": "Төлөв",
+      "description": "Conversation open, close эсвэл reopen болох үед ажиллана.",
+      "actions": {
+        "open": "Нээгдсэн",
+        "closed": "Хаагдсан",
+        "reopened": "Дахин нээгдсэн"
+      }
+    },
+    "tag": {
+      "label": "Таг",
+      "description": "Conversation дээр tag нэмэгдэх эсвэл хасагдах үед ажиллана.",
+      "target-label": "Тагууд",
+      "target-placeholder": "Таг сонгох",
+      "actions": {
+        "added": "Нэмэгдсэн",
+        "removed": "Хасагдсан"
+      }
+    }
+  },
   "error": "Алдаа",
   "success": "Амжилттай"
 }

@@ -398,7 +398,7 @@ function GenericBoardInner<
           </div>
         )}
         {activeItem && (
-          <div className="bg-white rounded-lg border-2 border-primary shadow-2xl p-3 rotate-3">
+          <div className="bg-background rounded-lg border-2 border-primary shadow-2xl p-3 rotate-3">
             {renderCard(activeItem, true)}
           </div>
         )}

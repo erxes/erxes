@@ -14,14 +14,14 @@ interface ConversationListResponse {
 export const useConversationList = (
   options?: QueryHookOptions<ConversationListResponse>,
 ) => {
-  const { data, loading, error } = useQuery<ConversationListResponse>(
-    GET_CONVERSATION_LIST,
-    options,
-  );
+  const { data, previousData, loading, error } =
+    useQuery<ConversationListResponse>(GET_CONVERSATION_LIST, options);
 
   return {
-    conversationList: data?.reportConversationList,
-    loading,
+    conversationList:
+      data?.reportConversationList ?? previousData?.reportConversationList,
+    isFetching: loading,
+    isInitialLoad: loading && !previousData,
     error,
   };
 };

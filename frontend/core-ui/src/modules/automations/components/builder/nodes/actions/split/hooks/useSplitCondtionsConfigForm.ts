@@ -1,6 +1,9 @@
+import { useAutomation } from '@/automations/context/AutomationProvider';
 import { useAutomationTrigger } from '@/automations/components/builder/hooks/useAutomationTrigger';
+import { useActionTarget } from '@/automations/components/builder/nodes/hooks/useActionTarget';
+import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import {
   generateAutomationElementId,
@@ -11,23 +14,65 @@ import {
   splitConditionsConfigFormSchema,
   TSplitConditionsConfigForm,
 } from '../states/splitConditionsConfigForm';
+import { TTransformConfigForm } from '@/automations/components/builder/nodes/actions/transform/states/transformForm';
 
 const getDefaultOption = (): TSplitConditionsConfigForm['options'][number] => ({
   id: generateAutomationElementId(),
   label: 'Option 1',
 });
 
+const getTransformOutputVariableType = (type?: string) => {
+  if (type === 'number' || type === 'boolean') {
+    return type;
+  }
+
+  return 'string';
+};
+
 export const useSplitCondtionsConfigForm = (
   currentAction: TAutomationAction<TSplitConditionsConfigForm>,
 ) => {
   const { trigger } = useAutomationTrigger(currentAction.id);
-  const contentType = trigger?.type || '';
-  const isCustomTrigger = Boolean(trigger?.isCustom);
+  const { triggerConstMap } = useAutomation();
+  const { actions } = useAutomationNodes();
+  const { selectedActionType } = useActionTarget({
+    actionId: currentAction.id,
+    targetActionId: currentAction.targetActionId,
+  });
+  const selectedTargetAction = actions.find(
+    (action) => action.id === currentAction.targetActionId,
+  );
+  const contentType = selectedActionType || trigger?.type || '';
+  const isOutputVariableCondition = Boolean(
+    selectedTargetAction?.type === 'transform' ||
+    (trigger?.isCustom && !selectedActionType),
+  );
+  const triggerOutputVariables =
+    trigger?.type && triggerConstMap.get(trigger.type)?.output?.variables;
+  const transformOutputVariables = useMemo(
+    () =>
+      selectedTargetAction?.type === 'transform'
+        ? (
+            (selectedTargetAction.config as TTransformConfigForm)?.mappings ||
+            []
+          )
+            .filter((mapping) => mapping?.key)
+            .map((mapping) => ({
+              name: `data.${mapping.key}`,
+              label: mapping.key,
+              type: getTransformOutputVariableType(mapping.type),
+            }))
+        : [],
+    [selectedTargetAction],
+  );
   const outputVariables =
-    (trigger?.config as any)?.outVariables ||
-    (trigger?.config as any)?.outputVariables ||
-    (trigger?.config as any)?.schema ||
-    [];
+    transformOutputVariables.length > 0
+      ? transformOutputVariables
+      : (trigger?.config as any)?.outVariables ||
+        (trigger?.config as any)?.outputVariables ||
+        (trigger?.config as any)?.schema ||
+        triggerOutputVariables ||
+        [];
   const { handleValidationErrors } = useFormValidationErrorHandler({
     formName: 'Split conditions configuration',
   });
@@ -75,7 +120,7 @@ export const useSplitCondtionsConfigForm = (
     hasDirtyConditionOptions,
     fields,
     contentType,
-    isCustomTrigger,
+    isOutputVariableCondition,
     outputVariables,
     handleValidationErrors,
     remove,

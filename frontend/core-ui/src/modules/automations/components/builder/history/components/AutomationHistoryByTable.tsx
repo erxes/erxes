@@ -13,6 +13,7 @@ import { RenderPluginsComponentWrapper } from '@/automations/components/common/R
 import { useAutomationsRemoteModules } from '@/automations/utils/useAutomationsModules';
 import { IconArrowDown, IconRefresh } from '@tabler/icons-react';
 import { Button, RelativeDateDisplay, Table } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   IAutomationHistory,
   IAutomationHistoryAction,
@@ -44,6 +45,118 @@ const formatExecutionDuration = (durationMs?: number) => {
   return `${minutes}m ${seconds}s`;
 };
 
+const getSetPropertyResultSummary = (result: any) => {
+  if (result?.target && Array.isArray(result?.changes)) {
+    const fields = result.changes
+      .map((change: any) => change.fieldLabel || change.field)
+      .filter(Boolean)
+      .join(', ');
+
+    return fields
+      ? `Updated ${result.target.count} ${result.target.label}: ${fields}`
+      : `Updated ${result.target.count} ${result.target.label}`;
+  }
+
+  if (typeof result?.summary === 'string') {
+    return result.summary;
+  }
+
+  const resultList = result?.result || [];
+  const errors = resultList.map((r: any) => r.error || '').join(', ');
+
+  return `Update for ${resultList.length} ${result.module}: ${
+    result.fields || ''
+  }, (${errors})`;
+};
+
+const formatSetPropertyValue = (value: unknown, emptyLabel: string) => {
+  if (value === undefined || value === null || value === '') {
+    return emptyLabel;
+  }
+
+  return stringifyAutomationHistoryValue(value);
+};
+
+const getSetPropertyStatusClassName = (status?: string) => {
+  if (status === 'failed') {
+    return 'text-destructive';
+  }
+
+  if (status === 'skipped') {
+    return 'text-muted-foreground';
+  }
+
+  return 'text-green-500';
+};
+
+const SetPropertyActionResult = ({ result }: { result: any }) => {
+  const { t } = useTranslation('automations');
+
+  if (!Array.isArray(result?.changes)) {
+    return getSetPropertyResultSummary(result);
+  }
+
+  const target = result.target || {};
+  const targetLabel = target.label || result.module || t('property-type');
+  const targetCount = target.count ?? result.changes.length;
+
+  return (
+    <div className="min-w-[420px] max-w-[560px] space-y-3 text-sm">
+      <div>
+        <div className="font-medium">
+          {t('set-property-updated-target', {
+            count: targetCount,
+            target: targetLabel,
+          })}
+        </div>
+        <div className="text-xs text-muted-foreground">
+          {t('set-property-change-count', {
+            count: result.changes.length,
+          })}
+        </div>
+      </div>
+      <div className="divide-y divide-border">
+        {result.changes.map((change: any, index: number) => (
+          <div key={`${change.field}-${index}`} className="py-2 first:pt-0">
+            <div className="flex items-center justify-between gap-4">
+              <span className="font-medium">
+                {change.fieldLabel || change.field}
+              </span>
+              <span
+                className={`text-xs font-medium ${getSetPropertyStatusClassName(
+                  change.status,
+                )}`}
+              >
+                {t(`set-property-status-${change.status || 'updated'}`)}
+              </span>
+            </div>
+
+            <div className="mt-1 grid grid-cols-[56px_1fr] gap-x-2 gap-y-1 text-xs">
+              <span className="text-muted-foreground">{t('value')}</span>
+              <span className="break-words font-medium">
+                {formatSetPropertyValue(
+                  change.value,
+                  t('set-property-empty-value'),
+                )}
+              </span>
+              {change.placeholder && (
+                <>
+                  <span className="text-muted-foreground">
+                    {t('set-property-from')}
+                  </span>
+                  <span className="break-all font-mono text-muted-foreground">
+                    {change.placeholder}
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const getExecutionActionResultPreview = (
   action: IAutomationHistoryAction,
 ): string => {
@@ -63,12 +176,7 @@ const getExecutionActionResultPreview = (
   }
 
   if (action.actionType === 'setProperty') {
-    const resultList = result?.result || [];
-    const errors = resultList.map((r: any) => r.error || '').join(', ');
-
-    return `Update for ${resultList.length} ${result.module}: ${
-      result.fields || ''
-    }, (${errors})`;
+    return getSetPropertyResultSummary(result);
   }
 
   if (action.actionType === 'if') {
@@ -144,12 +252,7 @@ export const ExecutionActionResult = ({
   }
 
   if (action.actionType === 'setProperty') {
-    const resultList = result?.result || [];
-    const errors = resultList.map((r: any) => r.error || '').join(', ');
-
-    return `Update for ${resultList.length} ${result.module}: ${
-      result.fields || ''
-    }, (${errors})`;
+    return <SetPropertyActionResult result={result} />;
   }
 
   if (action.actionType === 'if') {

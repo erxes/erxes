@@ -1,10 +1,9 @@
-import { useGetResponses } from '@/responseTemplate/hooks/useGetResponses';
+import { useGetResponses, RESPONSES_PER_PAGE } from '@/responseTemplate/hooks/useGetResponses';
 import { Popover, Skeleton, Button, Command, cn, EnumCursorDirection } from 'erxes-ui';
 import { useState, useMemo, ReactNode, useRef, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
 import { IconLayoutGrid, IconList, IconFilter } from '@tabler/icons-react';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
-import { IChannel } from '@/channels/types';
 import { getPreviewText } from '@/inbox/types/inbox';
 import type { TViewMode as ViewMode } from '../types';
 import { useAtom, useAtomValue } from 'jotai';
@@ -19,11 +18,6 @@ interface ResponseTemplate {
   channelId?: string;
   createdAt?: string;
   updatedAt?: string;
-}
-
-interface ChannelOption {
-  id: string;
-  name: string;
 }
 
 interface ResponseTemplateSelectorProps {
@@ -53,8 +47,6 @@ export const ResponseTemplateSelector: React.FC<
   const [debouncedSearch] = useDebounce(search, 500);
   const [viewMode, setViewMode] = useAtom<ViewMode>(responseListViewAtom);
   const [selectedChannel, setSelectedChannel] = useState<string>('all');
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
-
   const containerRef = useRef<HTMLDivElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const isFetchingRef = useRef(false);
@@ -65,6 +57,7 @@ export const ResponseTemplateSelector: React.FC<
     isInitialLoad: responsesInitialLoad,
     handleFetchMore,
     pageInfo,
+    refetch,
   } = useGetResponses({
     variables: {
       filter: {
@@ -74,13 +67,17 @@ export const ResponseTemplateSelector: React.FC<
     },
   });
 
-  const availableChannels = useMemo<ChannelOption[]>(() => {
-    if (!channels) return [];
-    return channels.map((channel: IChannel) => ({
-      id: channel._id,
-      name: channel.name,
-    }));
-  }, [channels]);
+
+  useEffect(() => {
+    refetch({
+      filter: {
+        limit: RESPONSES_PER_PAGE,
+        orderBy: { createdAt: -1 },
+        channelId: selectedChannel === 'all' ? undefined : selectedChannel,
+        searchValue: debouncedSearch || undefined,
+      },
+    });
+  }, [debouncedSearch, selectedChannel, refetch]);
 
   const filteredTemplates = useMemo<ResponseTemplate[]>(() => {
     if (!responses) return [];
@@ -101,13 +98,10 @@ export const ResponseTemplateSelector: React.FC<
     });
   }, [responses, debouncedSearch, selectedChannel]);
 
-  // Clear the in-flight flag once Apollo delivers new results
   useEffect(() => {
     isFetchingRef.current = false;
-    setIsFetchingMore(false);
   }, [responses]);
 
-  // Infinite scroll: fire when the sentinel enters the scroll container's viewport
   useEffect(() => {
     const sentinel = sentinelRef.current;
     const scrollContainer = containerRef.current?.querySelector(
@@ -120,7 +114,6 @@ export const ResponseTemplateSelector: React.FC<
       ([entry]) => {
         if (entry.isIntersecting && !isFetchingRef.current) {
           isFetchingRef.current = true;
-          setIsFetchingMore(true);
           handleFetchMore({ direction: EnumCursorDirection.FORWARD });
         }
       },

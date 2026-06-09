@@ -1,4 +1,5 @@
 import { CONNECTION_PROPERTY_NAME_MAP } from '@/automations/constants';
+import { TAutomationFlowDirection } from '@/automations/constants/flowDirection';
 import { NodeData } from '@/automations/types';
 import { TAutomationNodeState } from '@/automations/utils/automationFormDefinitions';
 import { Node } from '@xyflow/react';
@@ -12,6 +13,7 @@ export const generateNodePosition = (
   nodes: TAutomationAction[] | TAutomationTrigger[] | TAutomationWorkflowNode[],
   node: TAutomationNodeState,
   generatedNodes: Node<NodeData>[],
+  flowDirection: TAutomationFlowDirection = 'horizontal',
 ) => {
   if (node.position) {
     if (
@@ -34,10 +36,42 @@ export const generateNodePosition = (
   const prevNode = nodes.find((n: any) => n[targetField] === node.id);
 
   if (!prevNode) {
-    return { x: 0, y: 0 };
+    // Cross-type fallback: search already-generated nodes for one that points to this node
+    const crossTypePrev = generatedNodes.find((gn) => {
+      const d = gn.data as any;
+      return (
+        d.actionId === node.id ||
+        d.nextActionId === node.id ||
+        d.workflowId === node.id
+      );
+    });
+
+    if (!crossTypePrev) {
+      return { x: 0, y: 0 };
+    }
+
+    const base = crossTypePrev.position || { x: 0, y: 0 };
+    if (flowDirection === 'vertical') {
+      return { x: base.x, y: base.y + 300 };
+    }
+    return { x: base.x + 500, y: base.y };
   }
 
-  const { position } = prevNode;
+  const generatedPrevNode = generatedNodes.find(
+    (generatedNode) => generatedNode.id === prevNode.id,
+  );
+  const position = prevNode.position ||
+    generatedPrevNode?.position || {
+      x: 0,
+      y: 0,
+    };
+
+  if (flowDirection === 'vertical') {
+    return {
+      x: position?.x,
+      y: position?.y + 300,
+    };
+  }
 
   return {
     x: position?.x + 500,

@@ -4,7 +4,7 @@ import { Card } from 'erxes-ui';
 
 export const AutomationBuilderSecondarySidebar = () => {
   return (
-    <div className="flex h-full min-h-0 w-80 flex-col border-l bg-sidebar">
+    <div className="flex h-full min-h-0 w-80 shrink-0 flex-col border-l bg-sidebar">
       <Card.Header className="px-5 py-4 border-b">
         <div className="flex items-center justify-between gap-3">
           <h3 className="text-base font-semibold">Variables</h3>

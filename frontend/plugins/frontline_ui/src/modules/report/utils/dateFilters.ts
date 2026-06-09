@@ -69,6 +69,11 @@ export function getDateRange(value: string) {
       toDate = endOfDay(endOfMonth(lastMonth));
       break;
     }
+    case 'last-3-months': {
+      fromDate = startOfDay(startOfMonth(subMonths(today, 3)));
+      toDate = endOfDay(today);
+      break;
+    }
     case 'this-year': {
       fromDate = startOfDay(startOfYear(today));
       toDate = endOfDay(endOfYear(today));
@@ -132,12 +137,9 @@ export function getDateRange(value: string) {
 
 export function getFilters(value?: string) {
   const filters: {
-    limit: number;
     fromDate?: string;
     toDate?: string;
-  } = {
-    limit: 10,
-  };
+  } = {};
 
   if (value) {
     const { fromDate, toDate } = getDateRange(value);
