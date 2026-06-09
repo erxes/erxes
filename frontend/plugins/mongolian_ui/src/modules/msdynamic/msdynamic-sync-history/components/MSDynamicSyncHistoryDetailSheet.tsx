@@ -2,7 +2,7 @@ import { Sheet } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
 import { IMSDynamicSyncHistory } from '../types/msDynamicSyncHistory';
 
-const stringify = (value: any) => {
+const stringify = (value: unknown) => {
   if (!value) {
     return '';
   }
@@ -19,7 +19,7 @@ const stringify = (value: any) => {
   return JSON.stringify(value, null, 2);
 };
 
-const DetailBlock = ({ title, value }: { title: string; value: any }) => (
+const DetailBlock = ({ title, value }: { title: string; value: unknown }) => (
   <section className="space-y-2">
     <h3 className="text-sm font-medium">{title}</h3>
     <pre className="max-h-72 overflow-auto rounded border bg-muted/30 p-3 text-xs whitespace-pre-wrap wrap-break-word">

@@ -13,11 +13,11 @@ export interface IMSDynamicSyncHistory {
   contentId: string;
   createdAt: Date;
   createdBy: string;
-  consumeData: any;
+  consumeData: unknown;
   consumeStr: string;
-  sendData: any;
+  sendData: unknown;
   sendStr: string;
-  responseData: any;
+  responseData: unknown;
   responseStr: string;
   error: string;
   createdUser?: MSDynamicSyncHistoryUser;
