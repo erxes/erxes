@@ -183,7 +183,6 @@ export const indexAiAgentKnowledgeFiles = async ({
       }),
     );
   }
-  console.log({ results });
 
   return results;
 };

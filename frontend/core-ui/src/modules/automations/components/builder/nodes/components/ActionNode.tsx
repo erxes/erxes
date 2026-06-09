@@ -7,8 +7,9 @@ import {
 } from '@/automations/components/builder/nodes/components/NodeErrorDisplay';
 import { NodeOutputHandler } from '@/automations/components/builder/nodes/components/NodeOutputHandler';
 import { useActionNodeSourceHandler } from '@/automations/components/builder/nodes/hooks/useActionNodeSourceHandler';
+import { TAutomationFlowDirection } from '@/automations/constants/flowDirection';
 import { AutomationNodeType, NodeData } from '@/automations/types';
-import { Handle, Node, NodeProps, Position } from '@xyflow/react';
+import { Handle, Position } from '@xyflow/react';
 import { cn, IconComponent } from 'erxes-ui';
 import { memo } from 'react';
 
@@ -18,12 +19,14 @@ const ActionNodeSourceHandler = ({
   nextActionId,
   config,
   workflowId,
+  flowDirection,
 }: {
   id: string;
   type: string;
   nextActionId?: string;
   config?: any;
   workflowId?: string;
+  flowDirection?: TAutomationFlowDirection;
 }) => {
   if (type === 'split') {
     return null;
@@ -31,7 +34,12 @@ const ActionNodeSourceHandler = ({
   const { hasFolks, folks } = useActionNodeSourceHandler(type);
   if (hasFolks) {
     return (
-      <FolksActionSourceHandler nodeId={id} config={config} folks={folks} />
+      <FolksActionSourceHandler
+        nodeId={id}
+        config={config}
+        folks={folks}
+        flowDirection={flowDirection}
+      />
     );
   }
 
@@ -42,6 +50,7 @@ const ActionNodeSourceHandler = ({
       addButtonClassName="hover:text-success  hover:border-success"
       showAddButton={!nextActionId && !workflowId}
       nodeType={AutomationNodeType.Action}
+      flowDirection={flowDirection}
     />
   );
 };
@@ -102,8 +111,9 @@ const ActionNodeHeader = ({
   );
 };
 
-const ActionNode = ({ data, selected, id }: NodeProps<Node<NodeData>>) => {
+const ActionNode = ({ data, selected, id, ...props }: any) => {
   const { beforeTitleContent, config, nextActionId, workflowId, error } = data;
+  const isVertical = data.flowDirection === 'vertical';
 
   return (
     <div className="flex flex-col" key={id}>
@@ -112,10 +122,10 @@ const ActionNode = ({ data, selected, id }: NodeProps<Node<NodeData>>) => {
       </div>
       <div
         className={cn(
-          'rounded-md shadow-md bg-background border border-muted w-[280px] font-mono transition-all duration-200',
+          'relative rounded-md shadow-md bg-background border border-muted w-[280px] font-mono transition-all duration-200',
           {
             'ring-2 ring-success': selected,
-            'ring-2 ring-red-300': error,
+            'ring-2 ring-destructive': error,
           },
         )}
       >
@@ -132,8 +142,10 @@ const ActionNode = ({ data, selected, id }: NodeProps<Node<NodeData>>) => {
           key="left"
           id="left"
           type="target"
-          position={Position.Left}
-          className={`!size-4 -z-10 !bg-success `}
+          position={isVertical ? Position.Top : Position.Left}
+          className={cn('!size-4 -z-10 !bg-success', {
+            '!left-1/2 !top-0 -translate-x-1/2': isVertical,
+          })}
         />
 
         <ActionNodeSourceHandler
@@ -142,6 +154,7 @@ const ActionNode = ({ data, selected, id }: NodeProps<Node<NodeData>>) => {
           nextActionId={nextActionId}
           workflowId={workflowId}
           config={config}
+          flowDirection={data.flowDirection}
         />
       </div>
     </div>

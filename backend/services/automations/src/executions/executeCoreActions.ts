@@ -4,6 +4,7 @@ import { executeDelayAction } from './actions/executeDelayAction';
 import { executeIfCondition } from './actions/executeIfCondition';
 import { executeSetPropertyAction } from './actions/executeSetPropertyAction';
 import { executeSplitAction } from './actions/executeSplitAction';
+import { executeTransformAction } from './actions/executeTransformAction';
 import { executeWaitEvent } from './actions/executeWaitEvent';
 import { executeOutgoingWebhook } from './actions/webhook/outgoing/outgoingWebhook';
 import { executeFindObjectAction } from './executeFindObjectAction';
@@ -32,7 +33,7 @@ export const executeCoreActions = async (
   execAction: IAutomationExecAction,
   actionsMap: IAutomationActionsMap,
 ): TCoreActionResponse => {
-  let shouldBreak = false;
+  const shouldBreak = false;
 
   let actionResponse: any = null;
   if (actionType === AUTOMATION_CORE_ACTIONS.DELAY) {
@@ -53,7 +54,11 @@ export const executeCoreActions = async (
   }
 
   if (actionType === SPLIT_ACTION_TYPE) {
-    const splitResponse = await executeSplitAction(subdomain, execution, action);
+    const splitResponse = await executeSplitAction(
+      subdomain,
+      execution,
+      action,
+    );
 
     execAction.nextActionId = splitResponse?.nextActionId;
     actionResponse = splitResponse?.result ?? splitResponse;
@@ -76,6 +81,16 @@ export const executeCoreActions = async (
     );
   }
 
+  if (actionType === AUTOMATION_CORE_ACTIONS.TRANSFORM) {
+    actionResponse = await executeTransformAction({
+      subdomain,
+      triggerType,
+      targetType,
+      execution,
+      action,
+    });
+  }
+
   if (actionType === AUTOMATION_CORE_ACTIONS.SET_PROPERTY) {
     const { result } = await executeSetPropertyAction(
       subdomain,
@@ -84,6 +99,7 @@ export const executeCoreActions = async (
       targetType,
       execution,
     );
+
     actionResponse = result;
   }
 
@@ -101,6 +117,7 @@ export const executeCoreActions = async (
   if (actionType === AUTOMATION_CORE_ACTIONS.OUTGOING_WEBHOOK) {
     actionResponse = await executeOutgoingWebhook({
       subdomain,
+      execution,
       targetType,
       target: execution.target,
       action,

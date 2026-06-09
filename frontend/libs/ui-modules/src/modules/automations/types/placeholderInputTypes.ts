@@ -47,67 +47,64 @@ export type SuggestionsOption = {
   attributesConfig?: any;
 };
 
-export type PlaceholderInputProps = {
-  propertyType?: string;
-  value?: string;
-  onChange: (value: string) => void;
-  isDisabled?: boolean;
+type InputMode = 'expression' | 'fixed';
+
+type PlaceholderBehaviorConfig = {
+  // How many tokens are allowed to be selected/inserted
+  selectMode?: 'one' | 'many';
+  // Delimiter for many tokens
+  delimiter?: string;
+  // Wrap selected/composed text before insertion
+  wrap?: (text: string) => string;
+  // If true, when suggestions are not open, only trigger characters are allowed to be typed
+  allowOnlyTriggers?: boolean;
+};
+
+type PlaceholderSuggestionProps = {
   // Dynamic enablement API (preferred)
-  variant?: 'fixed' | 'expression';
   enabled?: EnabledSuggestions;
   disabled?: DisabledSuggestions;
   suggestionGroups?: string[];
   suggestionsOptions?: Partial<Record<string, SuggestionsOption>>;
   enableAll?: boolean;
-  onChangeInputMode?: (mode: 'expression' | 'fixed') => void;
   // Selection-only mode: restrict input to suggestions
-  selectionType?: SuggestionType; // which suggestion list to show when selection-only
+  selectionType?: SuggestionType;
   // Dynamic: add/override triggers and renderers
   extraSuggestionConfigs?: SuggestionConfig[];
+};
+
+type PlaceholderModeProps = {
+  variant?: InputMode;
+  isExpression?: boolean;
+  onChangeInputMode?: (mode: InputMode) => void;
+};
+
+type CommonPlaceholderInputProps = PlaceholderSuggestionProps &
+  PlaceholderModeProps & {
+    value?: string;
+    onChange?: (value: string) => void;
+    // Unified behavior configuration for composing tokens and typing rules
+    placeholderConfig?: PlaceholderBehaviorConfig;
+  };
+
+export type PlaceholderInputProps = Omit<
+  CommonPlaceholderInputProps,
+  'onChange'
+> & {
+  propertyType?: string;
+  onChange: (value: string) => void;
+  isDisabled?: boolean;
   // Popover positioning
   popoverPosition?: 'left' | 'right' | 'top' | 'bottom';
   children?: React.ReactNode;
-  // Unified behavior configuration for composing tokens and typing rules
-  placeholderConfig?: {
-    // How many tokens are allowed to be selected/inserted
-    selectMode?: 'one' | 'many';
-    // Delimiter for many tokens
-    delimiter?: string;
-    // Wrap a single selected token before insertion
-    wrap?: (text: string) => string;
-    // If true, when suggestions are not open, only trigger characters are allowed to be typed
-    allowOnlyTriggers?: boolean;
-  };
 };
 
-export type UsePlaceHolderInputProps = {
-  // New dynamic configuration: supply explicit per-type enables
-  enabled?: EnabledSuggestions;
-  disabled?: DisabledSuggestions;
-  // Optional suggestionGroups to toggle in bulk: e.g., ['common'], ['calls'], ['all']
-  suggestionGroups?: string[];
-  // Backward-compat toggles; prefer using `enabled` or `suggestionGroups`
-  enableAll?: boolean;
+export type UsePlaceHolderInputProps = CommonPlaceholderInputProps & {
   ref: React.ForwardedRef<HTMLInputElement | HTMLTextAreaElement>;
-  onChangeInputMode?: (mode: 'expression' | 'fixed') => void;
-  // selection-only controls
-  selectionType?: SuggestionType;
-  suggestionsOptions?: Partial<Record<string, SuggestionsOption>>;
-
-  value?: string;
-  onChange?: (value: string) => void;
-  // Dynamic suggestion configs: add or override trigger/type/format/mode
-  extraSuggestionConfigs?: SuggestionConfig[];
-  // Custom renderers per type when mode === 'custom'
-  variant?: 'fixed' | 'expression';
   // Unified behavior configuration for composing tokens and typing rules
-  placeholderConfig?: {
-    selectMode?: 'one' | 'many';
-    delimiter?: string;
-    // Wrap whole composed value: either via prefix/suffix or a function
+  placeholderConfig?: PlaceholderBehaviorConfig & {
+    // Wrap whole composed value with prefix/suffix
     wrapPrefix?: string;
     wrapSuffix?: string;
-    wrap?: (text: string) => string;
-    allowOnlyTriggers?: boolean;
   };
 };

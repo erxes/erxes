@@ -16,6 +16,7 @@ const matchesTriggerType = (triggerType: string, incomingType: string) =>
  * @param type - The trigger type
  * @param targets - Array of target objects to process
  * @param recordType - Optional record type filter
+ * @param eventUpdateDescription - Optional description of the event update
  */
 export const receiveTrigger = async ({
   models,
@@ -23,12 +24,14 @@ export const receiveTrigger = async ({
   type,
   targets,
   recordType,
+  eventUpdateDescription,
 }: {
   models: IModels;
   subdomain: string;
   type: string;
   targets: any[];
   recordType?: string;
+  eventUpdateDescription?: Record<string, any>;
 }) => {
   // Simple query: only check status and trigger type
   // recordType check will be done in the loop for non-custom triggers only
@@ -43,7 +46,6 @@ export const receiveTrigger = async ({
       },
     ],
   }).lean();
-
   if (!automations.length) {
     return;
   }
@@ -76,8 +78,8 @@ export const receiveTrigger = async ({
           automationId: automation._id,
           trigger,
           target,
+          eventUpdateDescription,
         });
-
         if (execution) {
           await executeActions(
             subdomain,

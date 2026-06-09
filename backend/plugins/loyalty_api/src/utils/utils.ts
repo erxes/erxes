@@ -733,7 +733,7 @@ async function triggerLoyaltyReward(
     method: 'mutation',
     module: 'automations',
     action: 'trigger',
-    input: { type: 'loyalties:reward', targets },
+    input: { type: 'loyalty:reward', targets },
     defaultValue: [],
   });
 }

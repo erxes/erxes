@@ -1,6 +1,6 @@
 import {
-  resolveOutputValues,
-  TAutomationFindObjectType,
+  IAutomationExecution,
+  replaceOutputPlaceholders,
   TAutomationRuntimeOutputDefinition,
 } from 'erxes-api-shared/core-modules';
 import { CORE_FIND_OBJECT_TARGETS } from './findObjectTargets';
@@ -16,7 +16,8 @@ export const FIND_OBJECT_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
   ],
   resolvers: {
     'object.*': async ({ subdomain, source, path, defaultValue }) => {
-      const objectType = source?.objectType as TAutomationFindObjectType;
+      const objectType =
+        typeof source?.objectType === 'string' ? source.objectType : '';
       const target = objectType ? CORE_FIND_OBJECT_TARGETS[objectType] : null;
       const objectPath = path.replace(/^object\./, '');
 
@@ -24,17 +25,34 @@ export const FIND_OBJECT_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
         return defaultValue;
       }
 
-      const resolved = await resolveOutputValues({
-        definition: target.output,
+      const execution: IAutomationExecution = {
+        automationId: '',
+        triggerId: '',
+        triggerType: objectType,
+        triggerConfig: {},
+        targetId: '',
+        target: source.object,
+        status: '',
+        description: '',
+        actions: [],
+      };
+
+      const resolved = await replaceOutputPlaceholders({
         subdomain,
-        source: source.object,
-        paths: [objectPath],
+        execution,
+        values: {
+          value: `{{ trigger.${objectPath} }}`,
+        },
         defaultValue,
       });
 
-      return resolved[objectPath];
+      return resolved.value;
     },
   },
+};
+
+export const TRANSFORM_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
+  variables: [{ key: 'data', label: 'Data' }],
 };
 
 export const SEND_EMAIL_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
@@ -72,7 +90,7 @@ export const AI_AGENT_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
   variables: [
     { key: 'type', label: 'Result Type' },
     { key: 'text', label: 'Generated Text' },
-    { key: 'topicId', label: 'Topic ID', exposure: 'reference' },
+    { key: 'topicId', label: 'Topic ID' },
     { key: 'matched', label: 'Matched' },
     { key: 'attributes', label: 'Attributes' },
     { key: 'usage.inputTokens', label: 'Input Tokens' },

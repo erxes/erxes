@@ -30,7 +30,7 @@ export const SUGGESTION_GROUPS: Record<string, SuggestionType[]> = {
 };
 
 export const DEFAULT_ENABLED_SUGGESTIONS = {
-  attribute: true,
+  attribute: false,
   emoji: true,
   date: true,
   option: false,

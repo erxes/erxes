@@ -85,10 +85,15 @@ export function createEventHandlers(
       });
 
     if (action === DbLogActions.CREATE || action === DbLogActions.UPDATE) {
-      const payload = generateAutomationTriggerPayload(parsed, contentType);
+      const eventUpdateDescription = payload?.updateDescription;
+      const automationTriggerPayload = generateAutomationTriggerPayload(
+        parsed,
+        contentType,
+        eventUpdateDescription,
+      );
 
-      if (payload) {
-        sendAutomationTrigger(subdomain, payload);
+      if (automationTriggerPayload) {
+        sendAutomationTrigger(subdomain, automationTriggerPayload);
       }
     }
   }
