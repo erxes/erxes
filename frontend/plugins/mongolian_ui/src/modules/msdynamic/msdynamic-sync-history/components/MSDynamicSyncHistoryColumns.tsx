@@ -17,18 +17,7 @@ import {
 import { IMSDynamicSyncHistory } from '../types/msDynamicSyncHistory';
 import { useSearchParams } from 'react-router';
 import { MSDynamicSyncHistoryMoreColumn } from './MSDynamicSyncHistoryMoreColumn';
-
-const stringify = (value: unknown) => {
-  if (!value) {
-    return '';
-  }
-
-  if (typeof value === 'string') {
-    return value;
-  }
-
-  return JSON.stringify(value);
-};
+import { stringifySyncValueInline } from './stringifySyncValue';
 
 const SyncErkhetHistoryClickableCell = ({
   row,
@@ -138,7 +127,7 @@ export const msDynamicSyncHistoryColumns: ColumnDef<IMSDynamicSyncHistory>[] = [
       return (
         <SyncErkhetHistoryClickableCell
           row={row}
-          value={stringify(
+          value={stringifySyncValueInline(
             row.original.responseData || row.original.responseStr,
           )}
         />
