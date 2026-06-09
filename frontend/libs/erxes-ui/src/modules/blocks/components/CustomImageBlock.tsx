@@ -12,7 +12,7 @@ import {
 } from '@blocknote/react';
 import { IconPhoto } from '@tabler/icons-react';
 import { CSSProperties, FC, useEffect, useState } from 'react';
-import { Spinner } from 'erxes-ui/components';
+import { Dialog, Spinner } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 
 const IMAGE_STYLES = ['normal', 'wide', 'float-left', 'float-right'] as const;
@@ -86,6 +86,7 @@ const toFileBlockProps = (props: ImageRenderProps): FileBlockRenderProps =>
 const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
   const { loadingState, downloadUrl } = useResolveUrl(block.props.url ?? '');
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const src = downloadUrl ?? block.props.url;
   const isResolving = loadingState === 'loading';
@@ -101,20 +102,36 @@ const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
         </div>
       )}
       {!isResolving && src && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          className={cn(
-            'bn-visual-media mx-auto',
-            getImageStyleClasses(imageStyle),
-          )}
-          src={src}
-          alt={block.props.caption || block.props.name || ''}
-          contentEditable={false}
-          draggable={false}
-          style={imgLoaded ? undefined : { display: 'none' }}
-          onLoad={() => setImgLoaded(true)}
-          onError={() => setImgLoaded(true)}
-        />
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className={cn(
+              'bn-visual-media mx-auto cursor-pointer',
+              getImageStyleClasses(imageStyle),
+            )}
+            src={src}
+            alt={block.props.caption || block.props.name || ''}
+            contentEditable={false}
+            draggable={false}
+            style={imgLoaded ? undefined : { display: 'none' }}
+            onLoad={() => setImgLoaded(true)}
+            onError={() => setImgLoaded(true)}
+            onClick={(e) => { e.stopPropagation(); setPreviewOpen(true); }}
+          />
+          <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+            <Dialog.Content className="bg-transparent shadow-none p-0 border-0 max-w-fit">
+              <Dialog.Title className="sr-only">
+                {block.props.caption || block.props.name || 'Image preview'}
+              </Dialog.Title>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={src}
+                alt={block.props.caption || block.props.name || ''}
+                className="shadow-2xl rounded max-w-[90vw] max-h-[85vh] object-contain"
+              />
+            </Dialog.Content>
+          </Dialog>
+        </>
       )}
     </div>
   );
