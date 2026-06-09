@@ -119,26 +119,26 @@ export const PermissionGroupDetails = ({
         <Separator />
 
         <div className="flex gap-1 px-6 pt-3">
-            <Button
-              variant={tab === 'permissions' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setTab('permissions')}
-            >
-              Permissions
-            </Button>
-            <Button
-              variant={tab === 'members' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setTab('members')}
-            >
-              <IconUsers size={14} className="mr-1" />
-              Members
-              {members.length > 0 && (
-                <span className="ml-1.5 text-xs bg-muted text-muted-foreground rounded px-1.5 py-0.5">
-                  {members.length}
-                </span>
-              )}
-            </Button>
+          <Button
+            variant={tab === 'permissions' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setTab('permissions')}
+          >
+            Permissions
+          </Button>
+          <Button
+            variant={tab === 'members' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setTab('members')}
+          >
+            <IconUsers size={14} className="mr-1" />
+            Members
+            {members.length > 0 && (
+              <span className="ml-1.5 text-xs bg-muted text-muted-foreground rounded px-1.5 py-0.5">
+                {members.length}
+              </span>
+            )}
+          </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 styled-scroll">
