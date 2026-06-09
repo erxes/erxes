@@ -2,7 +2,7 @@ import { Sheet } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
 import { stringifySyncValue } from './stringifySyncValue';
 
-interface SyncHistoryFields {
+export interface ISyncHistoryFields {
   _id: string;
   contentType: string;
   content: string;
@@ -16,13 +16,7 @@ interface SyncHistoryFields {
   error: string;
 }
 
-const DetailBlock = ({
-  title,
-  value,
-}: {
-  title: string;
-  value: unknown;
-}) => (
+const DetailBlock = ({ title, value }: { title: string; value: unknown }) => (
   <section className="space-y-2">
     <h3 className="text-sm font-medium">{title}</h3>
     <pre className="max-h-72 overflow-auto rounded border bg-muted/30 p-3 text-xs whitespace-pre-wrap wrap-break-word">
@@ -31,7 +25,7 @@ const DetailBlock = ({
   </section>
 );
 
-export const SyncHistoryDetailSheet = <T extends SyncHistoryFields>({
+export const SyncHistoryDetailSheet = <T extends ISyncHistoryFields>({
   histories,
 }: {
   histories: T[];

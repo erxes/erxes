@@ -18,50 +18,13 @@ import { IMSDynamicSyncHistory } from '../types/msDynamicSyncHistory';
 import { useSearchParams } from 'react-router';
 import { MSDynamicSyncHistoryMoreColumn } from './MSDynamicSyncHistoryMoreColumn';
 import { stringifySyncValueInline } from './stringifySyncValue';
+import { SyncHistoryClickableColumnCell } from '~/modules/shared/sync-history/components/SyncHistoryClickableColumnCell';
 
 const InlineCell = ({ value }: { value: unknown }) => (
   <RecordTableInlineCell>
     <TextOverflowTooltip value={String(value || '')} />
   </RecordTableInlineCell>
 );
-
-const SyncErkhetHistoryClickableCell = ({
-  row,
-  value,
-  isError,
-}: {
-  row: { original: IMSDynamicSyncHistory };
-  value: string;
-  isError?: boolean;
-}) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const handleOpen = () => {
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('syncHistory_id', row.original._id);
-    setSearchParams(newSearchParams);
-  };
-
-  return (
-    <RecordTableInlineCell
-      role="button"
-      tabIndex={0}
-      onClick={handleOpen}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          handleOpen();
-        }
-      }}
-      className={cn(
-        'cursor-pointer rounded px-2 hover:bg-muted',
-        isError && value ? 'text-destructive' : 'text-muted-foreground',
-      )}
-    >
-      <TextOverflowTooltip value={String(value || '-')} />
-    </RecordTableInlineCell>
-  );
-};
 
 export const msDynamicSyncHistoryColumns: ColumnDef<IMSDynamicSyncHistory>[] = [
   MSDynamicSyncHistoryMoreColumn,
@@ -119,7 +82,7 @@ export const msDynamicSyncHistoryColumns: ColumnDef<IMSDynamicSyncHistory>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <SyncErkhetHistoryClickableCell
+        <SyncHistoryClickableColumnCell
           row={row}
           value={stringifySyncValueInline(
             row.original.responseData || row.original.responseStr,
@@ -136,7 +99,7 @@ export const msDynamicSyncHistoryColumns: ColumnDef<IMSDynamicSyncHistory>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <SyncErkhetHistoryClickableCell
+        <SyncHistoryClickableColumnCell
           row={row}
           value={row.original.error || ''}
           isError
