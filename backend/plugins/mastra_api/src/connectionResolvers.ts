@@ -6,12 +6,16 @@ import { loadAgentClass, IMastraAgentModel } from '@/agent/db/models/Agent';
 import { loadToolClass, IMastraToolModel } from '@/tool/db/models/Tool';
 import { loadProviderClass, IMastraProviderModel } from '@/provider/db/models/Provider';
 import { loadSettingsClass, IMastraSettingsModel } from '@/settings/db/models/Settings';
+import { loadThreadClass, IMastraThreadModel } from '@/session/db/models/Thread';
+import { loadMessageClass, IMastraMessageModel } from '@/session/db/models/Message';
 
 export interface IModels {
   MastraAgent: IMastraAgentModel;
   MastraTool: IMastraToolModel;
   MastraProvider: IMastraProviderModel;
   MastraSettings: IMastraSettingsModel;
+  MastraThread: IMastraThreadModel;
+  MastraMessage: IMastraMessageModel;
 }
 
 export interface IContext extends IMainContext {
@@ -40,6 +44,16 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.MastraSettings = db.model<any, IMastraSettingsModel>(
     'mastra_settings',
     loadSettingsClass(models),
+  );
+
+  models.MastraThread = db.model<any, IMastraThreadModel>(
+    'mastra_threads',
+    loadThreadClass(models),
+  );
+
+  models.MastraMessage = db.model<any, IMastraMessageModel>(
+    'mastra_messages',
+    loadMessageClass(models),
   );
 
   return models;

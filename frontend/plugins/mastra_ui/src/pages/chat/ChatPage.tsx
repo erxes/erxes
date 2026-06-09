@@ -5,10 +5,13 @@ import {
   IconRobot,
   IconSend,
   IconMessageCircle,
+  IconMessage2,
   IconRefresh,
   IconCopy,
   IconCheck,
   IconAlertCircle,
+  IconPlus,
+  IconTrash,
 } from '@tabler/icons-react';
 import {
   Badge,
@@ -352,22 +355,26 @@ export const ChatPage = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const thread = agentId ? chatStore.getThread(agentId) : undefined;
-  const messages: Message[] = thread?.messages ?? [];
-  const chatLoading = thread?.loading ?? false;
+  const state = agentId ? chatStore.getState(agentId) : undefined;
+  const sessions = state?.sessions ?? [];
+  const activeThreadId = state?.activeThreadId;
+  const isDraft = state?.isDraft ?? false;
+  const messages: Message[] = state?.messages ?? [];
+  const chatLoading = state?.loading ?? false;
+  const messagesLoading = state?.messagesLoading ?? false;
 
-  // Register the currently-viewed agent so the store knows not to mark it unread,
-  // and clear it when the user navigates away.
+  // Track the viewed agent (clears its unread badge); clear on navigate away.
   useEffect(() => {
     chatStore.setCurrentAgent(agentId);
     return () => { chatStore.setCurrentAgent(undefined); };
   }, [agentId]);
 
-  // Initialise a thread the first time the user opens an agent's chat
+  // Load the agent's persisted sessions once its record is available.
   useEffect(() => {
-    if (!agentId) return;
-    chatStore.initThread(agentId);
-  }, [agentId]);
+    if (!agentId || !selectedAgent) return;
+    chatStore.loadSessions(apolloClient, agentId, selectedAgent.agentId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [agentId, selectedAgent?.agentId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -375,11 +382,24 @@ export const ChatPage = () => {
 
   useEffect(() => {
     if (!chatLoading) textareaRef.current?.focus();
-  }, [chatLoading]);
+  }, [chatLoading, activeThreadId]);
 
   const handleNewThread = () => {
     if (!agentId) return;
-    chatStore.newThread(agentId);
+    chatStore.newDraft(agentId);
+  };
+
+  const handleSelectSession = (threadId: string) => {
+    if (!agentId || threadId === activeThreadId) return;
+    chatStore.selectSession(apolloClient, agentId, threadId);
+  };
+
+  const handleDeleteSession = (e: React.MouseEvent, threadId: string) => {
+    e.stopPropagation();
+    if (!agentId || !selectedAgent) return;
+    if (window.confirm('Delete this session and all its messages?')) {
+      chatStore.deleteSession(apolloClient, agentId, selectedAgent.agentId, threadId);
+    }
   };
 
   const handleSend = () => {
@@ -426,8 +446,8 @@ export const ChatPage = () => {
         {selectedAgent && (
           <PageHeader.End>
             <Button variant="outline" size="sm" onClick={handleNewThread}>
-              <IconRefresh className="size-3.5" />
-              New Thread
+              <IconPlus className="size-3.5" />
+              New chat
             </Button>
           </PageHeader.End>
         )}
@@ -435,7 +455,7 @@ export const ChatPage = () => {
 
       <div className="flex flex-1 overflow-hidden">
         {/* ── Agent sidebar ── */}
-        <div className="w-60 border-r flex flex-col shrink-0">
+        <div className="w-56 border-r flex flex-col shrink-0">
           <div className="px-3 py-2.5 border-b">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Agents
@@ -457,10 +477,6 @@ export const ChatPage = () => {
             ) : (
               <div className="p-1.5 space-y-0.5">
                 {agents.map((agent: any) => {
-                  const agentThread = chatStore.getThread(agent._id);
-                  const msgCount = agentThread?.messages.filter(
-                    (m: Message) => m.role !== 'error',
-                  ).length ?? 0;
                   const isActive = agentId === agent._id;
                   const hasUnread = !isActive && chatStore.hasUnread(agent._id);
                   return (
@@ -479,12 +495,7 @@ export const ChatPage = () => {
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center justify-between gap-1">
-                            <p className="text-sm font-medium truncate leading-tight">{agent.name}</p>
-                            {msgCount > 0 && (
-                              <span className="text-xs text-muted-foreground shrink-0">{msgCount}</span>
-                            )}
-                          </div>
+                          <p className="text-sm font-medium truncate leading-tight">{agent.name}</p>
                           <p className="text-xs text-muted-foreground truncate font-mono mt-0.5">
                             {agent.model}
                           </p>
@@ -497,6 +508,69 @@ export const ChatPage = () => {
             )}
           </div>
         </div>
+
+        {/* ── Sessions panel ── */}
+        {selectedAgent && (
+          <div className="w-60 border-r flex flex-col shrink-0">
+            <div className="px-3 py-2 border-b flex items-center justify-between">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Sessions
+              </p>
+              <Button variant="ghost" size="icon" className="size-6" onClick={handleNewThread}>
+                <IconPlus className="size-3.5" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-auto p-1.5 space-y-0.5">
+              {isDraft && (
+                <div
+                  className={`rounded-md px-2.5 py-2 ${
+                    activeThreadId && !sessions.some((s) => s.threadId === activeThreadId)
+                      ? 'bg-accent'
+                      : ''
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <IconMessage2 className="size-3.5 text-muted-foreground shrink-0" />
+                    <p className="text-sm truncate flex-1">New chat</p>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground pl-5">Unsaved · send a message</p>
+                </div>
+              )}
+              {sessions.length === 0 && !isDraft ? (
+                <p className="text-xs text-muted-foreground px-2.5 py-3">No sessions yet.</p>
+              ) : (
+                sessions.map((s) => {
+                  const active = s.threadId === activeThreadId;
+                  return (
+                    <button
+                      key={s.threadId}
+                      onClick={() => handleSelectSession(s.threadId)}
+                      className={`group/sess w-full text-left rounded-md px-2.5 py-2 transition-colors hover:bg-accent ${
+                        active ? 'bg-accent' : ''
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <IconMessage2 className="size-3.5 text-muted-foreground shrink-0" />
+                        <p className="text-sm truncate flex-1">{s.title}</p>
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          onClick={(e) => handleDeleteSession(e, s.threadId)}
+                          className="opacity-0 group-hover/sess:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0"
+                        >
+                          <IconTrash className="size-3.5" />
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground pl-5">
+                        {s.messageCount} message{s.messageCount === 1 ? '' : 's'}
+                      </p>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        )}
 
         {/* ── Chat area ── */}
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -518,7 +592,13 @@ export const ChatPage = () => {
             <>
               {/* Messages */}
               <div className="flex-1 overflow-auto p-4 space-y-3">
-                {messages.length === 0 ? (
+                {messagesLoading ? (
+                  <div className="p-2 space-y-3">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <Skeleton key={i} className="h-16 w-2/3 rounded-2xl" />
+                    ))}
+                  </div>
+                ) : messages.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center gap-2">
                     <IconRobot className="size-10 text-muted-foreground" />
                     <p className="text-base font-medium">{selectedAgent.name}</p>

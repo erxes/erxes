@@ -2,12 +2,14 @@ import { types as agentTypes, queries as agentQueries, mutations as agentMutatio
 import { types as toolTypes, queries as toolQueries, mutations as toolMutations } from '@/tool/graphql/schemas/tool';
 import { types as providerTypes, queries as providerQueries, mutations as providerMutations } from '@/provider/graphql/schemas/provider';
 import { types as settingsTypes, queries as settingsQueries, mutations as settingsMutations } from '@/settings/graphql/schemas/settings';
+import { types as sessionTypes, queries as sessionQueries, mutations as sessionMutations } from '@/session/graphql/schemas/session';
 
 export const types = `
   ${agentTypes}
   ${toolTypes}
   ${providerTypes}
   ${settingsTypes}
+  ${sessionTypes}
 `;
 
 export const queries = `
@@ -15,6 +17,7 @@ export const queries = `
   ${toolQueries}
   ${providerQueries}
   ${settingsQueries}
+  ${sessionQueries}
 `;
 
 export const mutations = `
@@ -22,4 +25,5 @@ export const mutations = `
   ${toolMutations}
   ${providerMutations}
   ${settingsMutations}
+  ${sessionMutations}
 `;

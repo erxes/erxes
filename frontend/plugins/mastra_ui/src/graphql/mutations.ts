@@ -1,5 +1,19 @@
 import { gql } from '@apollo/client';
 
+export const MASTRA_THREAD_RENAME = gql`
+  mutation MastraThreadRename($threadId: String!, $title: String!) {
+    mastraThreadRename(threadId: $threadId, title: $title) {
+      _id threadId title
+    }
+  }
+`;
+
+export const MASTRA_THREAD_REMOVE = gql`
+  mutation MastraThreadRemove($threadId: String!) {
+    mastraThreadRemove(threadId: $threadId)
+  }
+`;
+
 export const MASTRA_AGENT_CREATE = gql`
   mutation MastraAgentCreate($doc: MastraAgentInput!) {
     mastraAgentCreate(doc: $doc) {

@@ -97,6 +97,159 @@ function extractTextToolCall(text: string): TextToolCall | null {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+// How many recent messages of a session to replay as LLM context.
+const HISTORY_LIMIT = 20;
+
+// Runs a single agent turn over the full conversation array and returns the
+// reply text (or null). Holds the tool-call extraction / synthesis / fallback
+// logic; throws a user-facing message on hard failures.
+async function runAgentTurn(params: {
+  agent: any;
+  tools: Record<string, any>;
+  convo: any[];
+  message: string;
+  isLegacy: boolean;
+  authCtx: any;
+}): Promise<string | null> {
+  const { agent, tools, convo, message, isLegacy, authCtx } = params;
+
+  try {
+    const result = await runWithAuth(authCtx, () =>
+      (isLegacy
+        ? agent.generateLegacy(convo)
+        : agent.generate(convo as any)) as Promise<any>,
+    );
+
+    if (result.text) {
+      const t = result.text.trimStart();
+
+      // ── Text-based tool call fallback ──────────────────────────────────
+      // Models that don't support the tool_calls API field output their
+      // function call intent as plain text.  Detect, extract, and execute.
+      const extracted = extractTextToolCall(t);
+      if (extracted) {
+        // Find the tool by name or by toolId
+        const tool =
+          tools[extracted.name] ||
+          Object.entries(tools).find(([, v]: [string, any]) => v?.id === extracted.name)?.[1];
+
+        if (tool?.execute) {
+          try {
+            const toolResult = await runWithAuth(authCtx, () => tool.execute(extracted.args));
+            const syntheticResults = [{ toolName: extracted.name, result: toolResult, toolCallId: `text-${Date.now()}` }];
+
+            if (extracted.name.toLowerCase().includes('deals')) {
+              console.log('[text-tool-call] extracted:', extracted.name, JSON.stringify(extracted.args));
+              console.log('[text-tool-call] result:', JSON.stringify(toolResult));
+            }
+
+            const fallback = buildFallbackFromResults(syntheticResults);
+            const tr = toolResult as any;
+            const hasReal = tr && typeof tr === 'object' && (tr._id || tr.list !== undefined || tr.success === true);
+            if (!hasReal) return fallback || 'Something went wrong. Please try again.';
+
+            // Synthesise a human-readable summary.
+            const toolContext = `[${extracted.name}]:\n${JSON.stringify(toolResult, null, 2)}`;
+            const synthesisMessages: any[] = [{
+              role: 'user',
+              content: `Report the following tool results accurately to the user in one or two sentences. Do not call any tools.\n\nUser request: ${message}\n\n${toolContext}`,
+            }];
+            try {
+              const synthesis = await runWithAuth(authCtx, () =>
+                (isLegacy
+                  ? agent.generateLegacy(synthesisMessages)
+                  : agent.generate(synthesisMessages, { maxSteps: 1 } as any)) as Promise<any>,
+              );
+              return synthesis.text || fallback || 'Done.';
+            } catch {
+              return fallback || 'Done.';
+            }
+          } catch {
+            // Tool execution failed — fall through to return the original text
+          }
+        }
+      }
+
+      // Detect legacy "The function call that best answers..." format (no args extractable)
+      if (t.startsWith('The function call that best answers')) {
+        throw new Error(
+          'This model outputs tool calls as plain text and the call could not be parsed. ' +
+          'For reliable tool use, switch to: GPT-4o, Claude Sonnet, Gemini 2.0 Flash, ' +
+          'Kimi K2 (kimi-k2-0711-preview), Llama 3.3 70B (Groq or NVIDIA NIM), or Mistral Large.',
+        );
+      }
+
+      return result.text;
+    }
+
+    // Collect tool results from all steps, deduplicated.
+    const gatheredResults: any[] = [
+      ...(result.toolResults || []),
+      ...(result.steps || []).flatMap((s: any) => s.toolResults || []),
+    ];
+    const seenIds = new Set<string>();
+    const uniqueResults = gatheredResults.filter((tr: any) => {
+      const id = tr.toolCallId || tr.id || JSON.stringify(tr);
+      return seenIds.has(id) ? false : (seenIds.add(id), true);
+    });
+
+    if (!uniqueResults.length) return null;
+
+    // Skip synthesis when tool calls didn't produce a real result.
+    // Synthesis will fabricate success messages even for failed/null returns.
+    const hasRealResult = uniqueResults.some((tr: any) => {
+      const data = tr.result ?? tr;
+      if (!data || typeof data !== 'object') return false;
+      if (data.success === false) return false;
+      // Mutations should return a record with _id; queries return list/data
+      if (data._id) return true;
+      if (data.list !== undefined) return true;
+      if (data.success === true) return true;
+      // Primitive truthy non-error result
+      return false;
+    });
+
+    const fallback = buildFallbackFromResults(uniqueResults);
+
+    if (!hasRealResult) {
+      return fallback || 'Something went wrong. Please try again.';
+    }
+
+    // All tool calls succeeded — synthesise a human-readable summary.
+    const toolContext = uniqueResults
+      .map((tr: any) => {
+        const name = tr.toolName || tr.name || 'tool';
+        const data = tr.result ?? tr;
+        return `[${name}]:\n${typeof data === 'string' ? data : JSON.stringify(data, null, 2)}`;
+      })
+      .join('\n\n');
+
+    const synthesisMessages: any[] = [
+      {
+        role: 'user',
+        content: `Report the following tool results accurately to the user in one or two sentences. Do not call any tools. Do not invent information not present in the results.\n\nUser request: ${message}\n\n${toolContext}`,
+      },
+    ];
+
+    try {
+      const synthesis = await runWithAuth(authCtx, () =>
+        (isLegacy
+          ? agent.generateLegacy(synthesisMessages)
+          : agent.generate(synthesisMessages, { maxSteps: 1 } as any)) as Promise<any>,
+      );
+      return synthesis.text || fallback || 'Done.';
+    } catch {
+      return fallback || 'Done.';
+    }
+  } catch (err: any) {
+    const msg: string = err?.message ?? String(err);
+    if (msg.toLowerCase().includes('too many requests') || msg.includes('429') || msg.toLowerCase().includes('rate limit')) {
+      throw new Error('The AI provider is temporarily rate-limited. Please wait a moment and try again.');
+    }
+    throw new Error(`Agent execution failed: ${msg}`);
+  }
+}
+
 export const agentQueries = {
   mastraAgents: async (_: any, __: any, { models }: IContext) => {
     return models.MastraAgent.getAgents();
@@ -117,150 +270,37 @@ export const agentQueries = {
     const settings = await models.MastraSettings.findOne({});
     const providers = await models.MastraProvider.find({ isEnabled: true });
     const { agent, tools } = await getOrCreateAgent(agentConfig, models);
-    const opts = {
-      threadId: threadId || `chat-${Date.now()}`,
-      resourceId: agentId,
-    };
+
+    // Stable session id — the persisted thread this turn belongs to.
+    const sessionId = threadId || `chat-${Date.now()}`;
+    const useHistory = agentConfig.memoryEnabled !== false;
+
+    // Build the LLM context from persisted history (the system prompt already
+    // lives in the agent's instructions, so only user/assistant turns here).
+    const history = useHistory
+      ? await models.MastraMessage.getRecent(sessionId, HISTORY_LIMIT)
+      : [];
+    const convo = [
+      ...history.map((m: any) => ({ role: m.role, content: m.content })),
+      { role: 'user', content: message },
+    ];
 
     const userHeader = user
       ? Buffer.from(JSON.stringify(user)).toString('base64')
       : undefined;
     const authCtx = { userHeader, token: settings?.erxesApiToken };
+    const isLegacy = isLegacyProvider(agentConfig.provider, providers);
 
-    try {
-      const result = await runWithAuth(authCtx, () =>
-        (isLegacyProvider(agentConfig.provider, providers)
-          ? agent.generateLegacy(message, opts)
-          : agent.generate(message, opts as any)) as Promise<any>,
-      );
+    const reply = await runAgentTurn({ agent, tools, convo, message, isLegacy, authCtx });
 
-      if (result.text) {
-        const t = result.text.trimStart();
+    // Persist the completed exchange so the session survives reloads. Only the
+    // final user + assistant text is stored (no tool-call frames), which also
+    // keeps replayed history clean for reasoning models like Kimi.
+    await models.MastraThread.ensureThread(sessionId, agentId, message);
+    await models.MastraMessage.addMessage(sessionId, 'user', message);
+    if (reply) await models.MastraMessage.addMessage(sessionId, 'assistant', reply);
+    await models.MastraThread.touchThread(sessionId);
 
-        // ── Text-based tool call fallback ──────────────────────────────────
-        // Models that don't support the tool_calls API field output their
-        // function call intent as plain text.  Detect, extract, and execute.
-        const extracted = extractTextToolCall(t);
-        if (extracted) {
-          // Find the tool by name or by toolId
-          const tool =
-            tools[extracted.name] ||
-            Object.entries(tools).find(([, v]: [string, any]) => v?.id === extracted.name)?.[1];
-
-          if (tool?.execute) {
-            try {
-              const toolResult = await runWithAuth(authCtx, () => tool.execute(extracted.args));
-              const syntheticResults = [{ toolName: extracted.name, result: toolResult, toolCallId: `text-${Date.now()}` }];
-
-              if (extracted.name.toLowerCase().includes('deals')) {
-                console.log('[text-tool-call] extracted:', extracted.name, JSON.stringify(extracted.args));
-                console.log('[text-tool-call] result:', JSON.stringify(toolResult));
-              }
-
-              const fallback = buildFallbackFromResults(syntheticResults);
-              const tr = toolResult as any;
-              const hasReal = tr && typeof tr === 'object' && (tr._id || tr.list !== undefined || tr.success === true);
-              if (!hasReal) return fallback || 'Something went wrong. Please try again.';
-
-              // Synthesise a human-readable summary.
-              const toolContext = `[${extracted.name}]:\n${JSON.stringify(toolResult, null, 2)}`;
-              const synthesisMessages: any[] = [{
-                role: 'user',
-                content: `Report the following tool results accurately to the user in one or two sentences. Do not call any tools.\n\nUser request: ${message}\n\n${toolContext}`,
-              }];
-              try {
-                const synthesis = await runWithAuth(authCtx, () =>
-                  (isLegacyProvider(agentConfig.provider, providers)
-                    ? agent.generateLegacy(synthesisMessages)
-                    : agent.generate(synthesisMessages, { maxSteps: 1 } as any)) as Promise<any>,
-                );
-                return synthesis.text || fallback || 'Done.';
-              } catch {
-                return fallback || 'Done.';
-              }
-            } catch {
-              // Tool execution failed — fall through to return the original text
-            }
-          }
-        }
-
-        // Detect legacy "The function call that best answers..." format (no args extractable)
-        if (t.startsWith('The function call that best answers')) {
-          throw new Error(
-            'This model outputs tool calls as plain text and the call could not be parsed. ' +
-            'For reliable tool use, switch to: GPT-4o, Claude Sonnet, Gemini 2.0 Flash, ' +
-            'Kimi K2 (kimi-k2-0711-preview), Llama 3.3 70B (Groq or NVIDIA NIM), or Mistral Large.',
-          );
-        }
-
-        return result.text;
-      }
-
-      // Collect tool results from all steps, deduplicated.
-      const gatheredResults: any[] = [
-        ...(result.toolResults || []),
-        ...(result.steps || []).flatMap((s: any) => s.toolResults || []),
-      ];
-      const seenIds = new Set<string>();
-      const uniqueResults = gatheredResults.filter((tr: any) => {
-        const id = tr.toolCallId || tr.id || JSON.stringify(tr);
-        return seenIds.has(id) ? false : (seenIds.add(id), true);
-      });
-
-      if (!uniqueResults.length) return null;
-
-      // Skip synthesis when tool calls didn't produce a real result.
-      // Synthesis will fabricate success messages even for failed/null returns.
-      const hasRealResult = uniqueResults.some((tr: any) => {
-        const data = tr.result ?? tr;
-        if (!data || typeof data !== 'object') return false;
-        if (data.success === false) return false;
-        // Mutations should return a record with _id; queries return list/data
-        if (data._id) return true;
-        if (data.list !== undefined) return true;
-        if (data.success === true) return true;
-        // Primitive truthy non-error result
-        return false;
-      });
-
-      const fallback = buildFallbackFromResults(uniqueResults);
-
-      if (!hasRealResult) {
-        return fallback || 'Something went wrong. Please try again.';
-      }
-
-      // All tool calls succeeded — synthesise a human-readable summary.
-      const toolContext = uniqueResults
-        .map((tr: any) => {
-          const name = tr.toolName || tr.name || 'tool';
-          const data = tr.result ?? tr;
-          return `[${name}]:\n${typeof data === 'string' ? data : JSON.stringify(data, null, 2)}`;
-        })
-        .join('\n\n');
-
-      const synthesisMessages: any[] = [
-        {
-          role: 'user',
-          content: `Report the following tool results accurately to the user in one or two sentences. Do not call any tools. Do not invent information not present in the results.\n\nUser request: ${message}\n\n${toolContext}`,
-        },
-      ];
-
-      try {
-        const synthesis = await runWithAuth(authCtx, () =>
-          (isLegacyProvider(agentConfig.provider, providers)
-            ? agent.generateLegacy(synthesisMessages)
-            : agent.generate(synthesisMessages, { maxSteps: 1 } as any)) as Promise<any>,
-        );
-        return synthesis.text || fallback || 'Done.';
-      } catch {
-        return fallback || 'Done.';
-      }
-    } catch (err: any) {
-      const msg: string = err?.message ?? String(err);
-      if (msg.toLowerCase().includes('too many requests') || msg.includes('429') || msg.toLowerCase().includes('rate limit')) {
-        throw new Error('The AI provider is temporarily rate-limited. Please wait a moment and try again.');
-      }
-      throw new Error(`Agent execution failed: ${msg}`);
-    }
+    return reply;
   },
 };

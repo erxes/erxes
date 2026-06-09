@@ -129,6 +129,79 @@ function resolveReturnTypeName(type: any): string {
   return type.name || '';
 }
 
+// ─── Response-selection builder (introspection-driven) ───────────────────────
+//
+// The naive default `_id name` breaks on object types that have no `name` field
+// (e.g. User → email/username), causing erxes to reject the query with a
+// field-selection error and the tool to fail. These helpers build a VALID
+// selection set from the actual schema fields of the return type.
+
+const LEAF_KINDS = new Set(['SCALAR', 'ENUM']);
+
+// Unwrap NON_NULL / LIST wrappers down to the named type.
+function namedTypeOf(type: any): { kind: string; name: string } {
+  if (!type) return { kind: 'SCALAR', name: 'String' };
+  if (type.kind === 'NON_NULL' || type.kind === 'LIST') return namedTypeOf(type.ofType);
+  return { kind: type.kind || 'SCALAR', name: type.name || '' };
+}
+
+// A selection of safe leaf (scalar/enum) fields for an OBJECT type, always
+// including _id, capped to keep results lean.
+function buildSelectionForType(
+  typeName: string,
+  objectFieldsMap: Record<string, any[]>,
+  maxFields = 12,
+): string {
+  const fields = objectFieldsMap[typeName];
+  if (!fields || !fields.length) return '_id';
+  const leaves: string[] = fields
+    .filter((f: any) => LEAF_KINDS.has(namedTypeOf(f.type).kind))
+    .map((f: any) => f.name);
+  if (!leaves.length) return '_id';
+  // Keep _id first when it exists; never inject it if the type lacks one.
+  const ordered = leaves.includes('_id')
+    ? ['_id', ...leaves.filter((n) => n !== '_id')]
+    : leaves;
+  return ordered.slice(0, maxFields).join(' ');
+}
+
+// Build a valid selection for an operation's return type. Handles ListResponse /
+// Connection wrappers (selects inner items + totalCount) and plain object types.
+function buildIntrospectedSelection(
+  returnType: any,
+  objectFieldsMap?: Record<string, any[]>,
+): string | undefined {
+  if (!objectFieldsMap) return undefined;
+  const rootName = resolveReturnTypeName(returnType);
+  const rootFields = rootName ? objectFieldsMap[rootName] : undefined;
+  if (!rootFields) return undefined;
+
+  const listField = rootFields.find((f: any) => f.name === 'list');
+  if (listField) {
+    const itemType = namedTypeOf(listField.type).name;
+    const inner = buildSelectionForType(itemType, objectFieldsMap);
+    const hasTotal = rootFields.some((f: any) => f.name === 'totalCount');
+    return `list { ${inner} }${hasTotal ? ' totalCount' : ''}`;
+  }
+  return buildSelectionForType(rootName, objectFieldsMap);
+}
+
+function chooseResponseFields(
+  erxesOperation: string,
+  storedFields: string | undefined,
+  returnType: any,
+  objectFieldsMap?: Record<string, any[]>,
+): string | undefined {
+  if (erxesOperation === 'dealsAdd') return '_id name stageId';
+  // Schema-introspected selection is authoritative whenever the return type is
+  // resolvable — the stored erxesResponseFields are auto-generated and often
+  // invalid for the type (e.g. `_id` on a *ListResponse`, or `name` on User).
+  const introspected = buildIntrospectedSelection(returnType, objectFieldsMap);
+  if (introspected) return introspected;
+  const stored = (storedFields || '').trim();
+  return stored || undefined;
+}
+
 // Returns true when the value carries no meaningful data and should be omitted
 // from the GraphQL operation rather than sent as an empty/noise variable.
 // LLMs routinely fill optional args with "" / {} / [] as a "nothing here"
@@ -277,7 +350,12 @@ async function buildNotFoundResult(
   return { success: false, message: rawMessage };
 }
 
-export function buildErxesTool(toolConfig: any, settings: any, inputTypesMap?: Record<string, any[]>) {
+export function buildErxesTool(
+  toolConfig: any,
+  settings: any,
+  inputTypesMap?: Record<string, any[]>,
+  objectFieldsMap?: Record<string, any[]>,
+) {
   const { toolId, name, description, erxesOperation, erxesOperationType, graphqlArgs, erxesReturnType, erxesResponseFields } = toolConfig;
 
   const apiUrl = settings?.erxesApiUrl || 'http://localhost:4000';
@@ -353,11 +431,16 @@ export function buildErxesTool(toolConfig: any, settings: any, inputTypesMap?: R
       }
       // ──────────────────────────────────────────────────────────────────────
 
-      // Build the GraphQL operation after stageId has been resolved.
+      // Build the GraphQL operation after stageId has been resolved. Choose a
+      // VALID response selection: a user-customized one if present, else one
+      // derived from the schema (so types without `name`, like User, work).
       // For dealsAdd, also request stageId back so we can verify it was set.
-      const finalResponseFields = erxesOperation === 'dealsAdd'
-        ? '_id name stageId'
-        : erxesResponseFields;
+      const finalResponseFields = chooseResponseFields(
+        erxesOperation,
+        erxesResponseFields,
+        erxesReturnType,
+        objectFieldsMap,
+      );
 
       const { query: finalQuery, variables: finalVariables } = buildGraphqlOperation(
         erxesOperation,
@@ -495,6 +578,48 @@ async function fetchPluginMap(apiUrl: string, token: string): Promise<Map<string
     return sdl ? parseSupergraphSDL(sdl) : new Map();
   } catch {
     return new Map();
+  }
+}
+
+// Introspect all OBJECT types → their fields, so chooseResponseFields can build
+// a valid selection set for any return type (replacing the naive `_id name`).
+export async function fetchObjectFieldsMap(settings: any): Promise<Record<string, any[]>> {
+  const apiUrl = settings?.erxesApiUrl || 'http://localhost:4000';
+  const token = settings?.erxesApiToken || '';
+
+  const query = `{
+    __schema {
+      types {
+        name
+        kind
+        fields {
+          name
+          type { kind name ofType { kind name ofType { kind name ofType { kind name } } } }
+        }
+      }
+    }
+  }`;
+
+  try {
+    const response = await fetch(`${apiUrl}/graphql`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: token } : {}),
+      },
+      body: JSON.stringify({ query }),
+    });
+    const data = await response.json() as any;
+    const types: any[] = data?.data?.__schema?.types || [];
+    const map: Record<string, any[]> = {};
+    for (const t of types) {
+      if (t.kind === 'OBJECT' && t.fields?.length && !String(t.name).startsWith('__')) {
+        map[t.name] = t.fields;
+      }
+    }
+    return map;
+  } catch {
+    return {};
   }
 }
 

@@ -1,8 +1,6 @@
 import { Agent } from '@mastra/core/agent';
-import { Memory } from '@mastra/memory';
-import { LibSQLStore } from '@mastra/libsql';
 import { getBuiltinTool } from './tools/builtins';
-import { buildErxesTool, fetchInputTypesMap } from './tools/erxesTools';
+import { buildErxesTool, fetchInputTypesMap, fetchObjectFieldsMap } from './tools/erxesTools';
 import { buildModel } from './providers';
 import { buildSystemPrompt, ToolInfo } from './instructions/routing';
 
@@ -14,7 +12,7 @@ const agentCache = new Map<string, Agent>();
 const toolsCache = new Map<string, Record<string, any>>();
 
 // Increment this whenever routing.ts, erxesTools.ts, or provider logic changes.
-const ROUTING_VERSION = 10;
+const ROUTING_VERSION = 12;
 
 export interface AgentWithTools {
   agent: Agent;
@@ -43,9 +41,12 @@ export async function getOrCreateAgent(agentConfig: any, models: any): Promise<A
 
   const model = buildModel(agentConfig.provider, agentConfig.model, providers);
 
-  // Fetch INPUT_OBJECT field definitions once per agent build so every erxes tool
-  // gets a real Zod schema for complex input types (e.g. AttachmentInput).
-  const inputTypesMap = await fetchInputTypesMap(settings);
+  // Fetch INPUT_OBJECT field definitions (for input Zod schemas) and OBJECT
+  // field definitions (for building valid response selections) once per build.
+  const [inputTypesMap, objectFieldsMap] = await Promise.all([
+    fetchInputTypesMap(settings),
+    fetchObjectFieldsMap(settings),
+  ]);
 
   const tools: Record<string, any> = {};
   // Real metadata for each bound tool, so the system prompt can give the model
@@ -59,7 +60,7 @@ export async function getOrCreateAgent(agentConfig: any, models: any): Promise<A
       const tool = getBuiltinTool(toolConfig.builtinType);
       if (tool) tools[toolId] = tool;
     } else if (toolConfig.type === 'erxes') {
-      const tool = buildErxesTool(toolConfig, settings, inputTypesMap);
+      const tool = buildErxesTool(toolConfig, settings, inputTypesMap, objectFieldsMap);
       if (tool) tools[toolId] = tool;
     }
 
@@ -72,14 +73,9 @@ export async function getOrCreateAgent(agentConfig: any, models: any): Promise<A
     }
   }
 
-  let memory: Memory | undefined;
-  if (agentConfig.memoryEnabled) {
-    const dbPath = settings?.memoryDbPath || 'file:./mastra-memory.db';
-    memory = new Memory({
-      storage: new LibSQLStore({ id: 'mastra-memory', url: dbPath }),
-    });
-  }
-
+  // Conversation memory is persisted in MongoDB (MastraThread / MastraMessage)
+  // and replayed into each request as message history — see mastraAgentChat.
+  // The agent itself is therefore stateless (no Mastra/LibSQL memory store).
   const toolNames = Object.keys(tools);
   const systemPrompt = buildSystemPrompt(agentConfig.instructions || '', toolInfos);
 
@@ -89,7 +85,6 @@ export async function getOrCreateAgent(agentConfig: any, models: any): Promise<A
     instructions: systemPrompt,
     model,
     tools: toolNames.length ? tools : undefined,
-    memory,
     defaultOptions: { maxSteps: agentConfig.maxSteps || 3 },
   });
 

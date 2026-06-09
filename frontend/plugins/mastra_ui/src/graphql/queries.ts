@@ -24,6 +24,22 @@ export const MASTRA_AGENT_CHAT = gql`
   }
 `;
 
+export const MASTRA_THREADS = gql`
+  query MastraThreads($agentId: String!) {
+    mastraThreads(agentId: $agentId) {
+      _id threadId title messageCount lastMessageAt createdAt
+    }
+  }
+`;
+
+export const MASTRA_THREAD_MESSAGES = gql`
+  query MastraThreadMessages($threadId: String!) {
+    mastraThreadMessages(threadId: $threadId) {
+      _id role content createdAt
+    }
+  }
+`;
+
 export const MASTRA_TOOLS = gql`
   query MastraTools {
     mastraTools {
