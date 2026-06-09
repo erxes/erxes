@@ -106,24 +106,29 @@ const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
       )}
       {!isResolving && src && (
         <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <button
+            type="button"
             className={cn(
-              'bn-visual-media mx-auto cursor-pointer',
+              'bn-visual-media mx-auto cursor-pointer p-0 border-0 bg-transparent',
               getImageStyleClasses(imageStyle),
             )}
-            src={src}
-            alt={block.props.caption || block.props.name || ''}
-            contentEditable={false}
-            draggable={false}
             style={imgLoaded ? undefined : { display: 'none' }}
-            onLoad={() => setImgLoaded(true)}
-            onError={() => setImgLoaded(true)}
+            contentEditable={false}
             onClick={(e) => {
               e.stopPropagation();
               setPreviewOpen(true);
             }}
-          />
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="w-full h-auto block"
+              src={src}
+              alt={block.props.caption || block.props.name || ''}
+              draggable={false}
+              onLoad={() => setImgLoaded(true)}
+              onError={() => setImgLoaded(true)}
+            />
+          </button>
           <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
             <Dialog.Content className="bg-transparent shadow-none p-0 border-0 max-w-fit">
               <Dialog.Title className="sr-only">
