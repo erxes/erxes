@@ -1,5 +1,23 @@
 
 
+## [3.0.32](https://github.com/erxes/erxes/compare/3.0.31...3.0.32) (2026-06-09)
+
+
+### Bug Fixes
+
+* FetchError: request to https://asd/api failed, reason: getaddrinfo ENOTFOUND asd ([#7944](https://github.com/erxes/erxes/issues/7944)) ([#7945](https://github.com/erxes/erxes/issues/7945)) ([b1cd2b0](https://github.com/erxes/erxes/commit/b1cd2b07c9d696a78b1a79269140d5f7da250c0f))
+* **frontline:** fix timezone-aware day grouping and default call report range to last 3 months ([59092fd](https://github.com/erxes/erxes/commit/59092fdcd28d0fcfe618a40e2d2f5534fa5543e0))
+* **loyalty:** refactor and commands and runtime ([#7933](https://github.com/erxes/erxes/issues/7933)) ([39edb09](https://github.com/erxes/erxes/commit/39edb094780ef6dd448a676b4385892c451b227b))
+
+
+### Features
+
+* **frontline:** add admin permission to call integration queries  ([70c5580](https://github.com/erxes/erxes/commit/70c55804b49d1bdc35e1bfc6030be8d475120b78))
+* **frontline:** call report ,  report ui refactor  ([23e0b32](https://github.com/erxes/erxes/commit/23e0b3272e919ebe821a80b01560f746b9139860))
+* **frontline:** conversation report export, pagination, and perf fixes  ([01c2a75](https://github.com/erxes/erxes/commit/01c2a75a3bb39fdd2a1b33daed649cbca93084a1))
+* **frontline:** improve inbox brand sidebar UX ([7a8f466](https://github.com/erxes/erxes/commit/7a8f466d5277e8a25380de33cca12950514bd017))
+* **frontline:** make response template search fully dynamic ([225c04b](https://github.com/erxes/erxes/commit/225c04b560866951f0f837b234c857f26ed2a0f7))
+
 ## [3.0.31](https://github.com/erxes/erxes/compare/3.0.30...3.0.31) (2026-06-08)
 
 
