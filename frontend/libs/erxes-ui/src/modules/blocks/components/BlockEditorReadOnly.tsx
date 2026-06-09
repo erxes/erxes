@@ -21,7 +21,7 @@ export const BlockEditorReadOnly = React.forwardRef<
   const editor = useCreateBlockNote({
     schema: BLOCK_SCHEMA,
     initialContent: contentBlocks || undefined,
-    resolveFileUrl: async (url) => readImage(url),
+    resolveFileUrl: (url) => Promise.resolve(readImage(url)),
   });
   const theme = useAtomValue(themeState);
 
