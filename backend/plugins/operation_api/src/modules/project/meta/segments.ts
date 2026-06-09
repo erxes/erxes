@@ -12,12 +12,25 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { ticketsSegmentConfigs } from './configs';
 
-export const ticketsSegments = {
-  dependentModules: ticketsSegmentConfigs.dependentModules,
+export const projectsSegments = {
+  dependentModules: [
+    {
+      name: 'core',
+      types: ['companies', 'customers', 'leads'],
+      twoWay: true,
+      associated: true,
+    },
+  ],
 
-  contentTypes: ticketsSegmentConfigs.contentTypes,
+  contentTypes: [
+    {
+      moduleName: 'project',
+      type: 'projects',
+      description: 'Project',
+      esIndex: 'projects',
+    },
+  ],
 
   propertyConditionExtender: async () => {
     let positive;
@@ -61,7 +74,7 @@ export const ticketsSegments = {
     } else {
       const pluginName = getPluginName(propertyType);
 
-      if (pluginName === 'frontline') {
+      if (pluginName === 'operation') {
         return { data: [], status: 'error' };
       }
 

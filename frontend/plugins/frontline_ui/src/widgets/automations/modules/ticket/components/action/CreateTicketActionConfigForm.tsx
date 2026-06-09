@@ -208,19 +208,37 @@ export const CreateTicketActionConfigForm = ({
         />
       </div>
 
-      <PlaceholderFormField
+      <Form.Field
         control={control}
         name="name"
-        label="Name"
-        propertyType={propertyType}
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Name</Form.Label>
+            <PlaceholderInput
+              propertyType={propertyType}
+              value={field.value || ''}
+              onChange={field.onChange}
+            />
+            <Form.Message />
+          </Form.Item>
+        )}
       />
 
-      <PlaceholderFormField
+      <Form.Field
         control={control}
         name="description"
-        label="Description"
-        propertyType={propertyType}
-        variant="expression"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>Description</Form.Label>
+            <PlaceholderInput
+              propertyType={propertyType}
+              value={field.value || ''}
+              onChange={field.onChange}
+              variant="expression"
+            />
+            <Form.Message />
+          </Form.Item>
+        )}
       />
 
       <div className="grid grid-cols-2 gap-2">

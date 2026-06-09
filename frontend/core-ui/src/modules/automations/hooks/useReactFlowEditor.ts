@@ -47,8 +47,6 @@ export const useReactFlowEditor = () => {
     name: ['edgeType', 'flowDirection'],
   });
 
-  const prevFlowDirectionRef = useRef(flowDirection);
-
   // Memoize nodes and edges generation to prevent multiple executions
   const generatedNodes = useMemo(
     () => generateNodes(triggers, actions, workflows, {}, flowDirection),
@@ -154,23 +152,7 @@ export const useReactFlowEditor = () => {
   };
 
   useEffect(() => {
-    const directionChanged = prevFlowDirectionRef.current !== flowDirection;
-    prevFlowDirectionRef.current = flowDirection;
-
-    if (directionChanged) {
-      // Strip saved positions so generateNodePosition recalculates layout for the new direction
-      setNodes(
-        generateNodes(
-          triggers.map((t) => ({ ...t, position: undefined })),
-          actions.map((a) => ({ ...a, position: undefined })),
-          (workflows || []).map((w) => ({ ...w, position: undefined })),
-          {},
-          flowDirection,
-        ),
-      );
-    } else {
-      setNodes(generatedNodes);
-    }
+    setNodes(generatedNodes);
   }, [generatedNodes, setNodes]);
 
   useEffect(() => {

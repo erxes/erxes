@@ -10,7 +10,7 @@ const CORE_ACTION_GROUPS = [
   'Timing & Delays',
 ];
 
-export const TRIGGER_GROUPS = ['Record based', 'Event based'];
+export const TRIGGER_GROUPS = ['Event based', 'Record based'];
 
 const titleCase = (value: string) =>
   value
@@ -71,11 +71,11 @@ export const groupTriggersByCustomType = ({
   const groups = [
     {
       name: TRIGGER_GROUPS[0],
-      list: triggers.filter((trigger) => !trigger.isCustom),
+      list: triggers.filter((trigger) => trigger.isCustom),
     },
     {
       name: TRIGGER_GROUPS[1],
-      list: triggers.filter((trigger) => trigger.isCustom),
+      list: triggers.filter((trigger) => !trigger.isCustom),
     },
   ];
 

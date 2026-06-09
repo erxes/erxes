@@ -45,6 +45,9 @@ export const AutomationBuilder = ({ detail }: AutomationBuilderProps) => {
     defaultValues: {
       edgeType: 'default',
       flowDirection: 'horizontal',
+      triggers: [],
+      actions: [],
+      workflows: [],
       ...deepCleanNulls(detail),
     },
   });

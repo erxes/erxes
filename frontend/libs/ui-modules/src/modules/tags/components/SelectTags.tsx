@@ -54,14 +54,14 @@ export const SelectTagsProvider = ({
     const newSelectedTagIds = isSingleMode
       ? [tag._id]
       : isSelected
-        ? multipleValue.filter((t) => t !== tag._id)
-        : [...multipleValue, tag._id];
+      ? multipleValue.filter((t) => t !== tag._id)
+      : [...multipleValue, tag._id];
 
     const newSelectedTags = isSingleMode
       ? [tag]
       : isSelected
-        ? selectedTags.filter((t) => t._id !== tag._id)
-        : [...selectedTags, tag];
+      ? selectedTags.filter((t) => t._id !== tag._id)
+      : [...selectedTags, tag];
 
     setSelectedTags(newSelectedTags);
     onValueChange?.(isSingleMode ? tag._id : newSelectedTagIds);
@@ -328,7 +328,7 @@ export const SelectTagsItem = ({
   tag: ITag & { hasChildren: boolean };
 }) => {
   const { onSelect, selectedTags } = useSelectTagsContext();
-  const isSelected = selectedTags.some((t) => t._id === tag._id);
+  const isSelected = (selectedTags || []).some((t) => t._id === tag._id);
 
   return (
     <Command.Item onSelect={() => onSelect(tag)}>

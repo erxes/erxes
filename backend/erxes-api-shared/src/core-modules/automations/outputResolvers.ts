@@ -306,6 +306,29 @@ const resolveStaticOutputPlaceholder = (token: string) => {
   return undefined;
 };
 
+const ENTITY_PLACEHOLDER_TYPES = [
+  'user',
+  'tag',
+  'product',
+  'company',
+  'customer',
+];
+
+const BRACKET_PLACEHOLDER_REGEX = /\[\[\s*([^\]]+?)\s*\]\]/g;
+
+// [[ user.XCMwd... ]] -> "XCMwd..."   (split[0] нь entity бол split[1]-ийг авна)
+// [[ High ]]          -> "High"        (split[1] байхгүй бол бүхэлд нь авна)
+const resolveBracketPlaceholderToken = (token: string) => {
+  const trimmed = token.trim();
+  const parts = trimmed.split('.');
+
+  if (parts[1] !== undefined && ENTITY_PLACEHOLDER_TYPES.includes(parts[0])) {
+    return parts.slice(1).join('.');
+  }
+
+  return trimmed;
+};
+
 const extractOutputPlaceholderTokens = (value: string) => {
   const regex = /{{\s*([^}]+)\s*}}/g;
   const tokens = new Map<string, TPlaceholderToken>();
@@ -614,6 +637,43 @@ const resolveOutputGroups = async ({
   return resolvedByToken;
 };
 
+// {{ token }} -> resolve хийсэн түүхий утга (object/number/string), эсвэл undefined
+const resolveCurlyPlaceholderToken = (
+  token: string,
+  resolvedByToken: Record<string, unknown>,
+) => {
+  const trimmedToken = token.trim();
+  const staticValue = resolveStaticOutputPlaceholder(trimmedToken);
+
+  return (
+    staticValue ??
+    resolvedByToken[trimmedToken] ??
+    resolvedByToken[`trigger.${trimmedToken}`]
+  );
+};
+
+// string доторх бүх {{ }}-ийг орлуулна
+const replaceCurlyPlaceholders = (
+  value: string,
+  resolvedByToken: Record<string, unknown>,
+  defaultValue?: unknown,
+) =>
+  value.replace(/{{\s*([^}]+)\s*}}/g, (_, token: string) => {
+    const resolved = resolveCurlyPlaceholderToken(token, resolvedByToken);
+
+    if (resolved === undefined || resolved === null) {
+      return defaultValue === undefined ? '' : String(defaultValue);
+    }
+
+    return String(resolved);
+  });
+
+// string доторх бүх [[ ]]-ийг орлуулна
+const replaceBracketPlaceholders = (value: string) =>
+  value.replace(BRACKET_PLACEHOLDER_REGEX, (_, token: string) =>
+    resolveBracketPlaceholderToken(token),
+  );
+
 const replaceOutputPlaceholderValue = (
   value: string,
   resolvedByToken: Record<string, unknown>,
@@ -625,13 +685,12 @@ const replaceOutputPlaceholderValue = (
   const fullTokenMatch =
     matches.length === 1 && matches[0][0].trim() === value.trim();
 
+  // {{ ... }} бүхэлдээ нэг token бол түүхий утгыг (object г.м.) буцаана
   if (fullTokenMatch) {
-    const token = matches[0][1].trim();
-    const staticValue = resolveStaticOutputPlaceholder(token);
-    const resolved =
-      staticValue ??
-      resolvedByToken[token] ??
-      resolvedByToken[`trigger.${token}`];
+    const resolved = resolveCurlyPlaceholderToken(
+      matches[0][1],
+      resolvedByToken,
+    );
 
     if (resolved !== undefined) {
       return resolved;
@@ -640,20 +699,10 @@ const replaceOutputPlaceholderValue = (
     return keepUnresolvedPlaceholders ? defaultValue ?? value : defaultValue;
   }
 
-  return value.replace(regex, (_, token: string) => {
-    const trimmedToken = token.trim();
-    const staticValue = resolveStaticOutputPlaceholder(trimmedToken);
-    const resolved =
-      staticValue ??
-      resolvedByToken[trimmedToken] ??
-      resolvedByToken[`trigger.${trimmedToken}`];
-
-    if (resolved === undefined || resolved === null) {
-      return defaultValue === undefined ? '' : String(defaultValue);
-    }
-
-    return String(resolved);
-  });
+  // бусад тохиолдолд: curly -> bracket дарааллаар орлуулна
+  return replaceBracketPlaceholders(
+    replaceCurlyPlaceholders(value, resolvedByToken, defaultValue),
+  );
 };
 
 const replaceOutputPlaceholdersInValue = (
