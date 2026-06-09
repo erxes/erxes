@@ -19,6 +19,11 @@ export const EDIT_COMPANIES = gql`
     $tagIds: [String]
     $ownerId: String
     $propertiesData: JSON
+    $code: String
+    $description: String
+    $location: String
+    $parentCompanyId: String
+    $isSubscribed: String
   ) {
     companiesEdit(
       _id: $_id
@@ -38,6 +43,11 @@ export const EDIT_COMPANIES = gql`
       tagIds: $tagIds
       ownerId: $ownerId
       propertiesData: $propertiesData
+      code: $code
+      description: $description
+      location: $location
+      parentCompanyId: $parentCompanyId
+      isSubscribed: $isSubscribed
     ) {
       _id
     }
