@@ -15,10 +15,7 @@ export function QueuesSection({ queueOptions }: QueuesSectionProps) {
   const { queueId } = useCallFilters();
 
   const labelMap = useMemo(
-    () =>
-      Object.fromEntries(
-        queueOptions.map((opt) => [opt.value, opt.label]),
-      ),
+    () => Object.fromEntries(queueOptions.map((opt) => [opt.value, opt.label])),
     [queueOptions],
   );
 
@@ -26,7 +23,10 @@ export function QueuesSection({ queueOptions }: QueuesSectionProps) {
     return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="h-44 rounded-xl border bg-muted/30 animate-pulse" />
+          <div
+            key={i}
+            className="h-44 rounded-xl border bg-muted/30 animate-pulse"
+          />
         ))}
       </div>
     );

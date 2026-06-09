@@ -27,8 +27,8 @@ export default function ReportIndexPage() {
   const activeSection: Section = location.pathname.includes('/call')
     ? 'call'
     : location.pathname.includes('/ticket')
-    ? 'ticket'
-    : 'overview';
+      ? 'ticket'
+      : 'overview';
 
   return (
     <PageContainer>

@@ -47,7 +47,11 @@ export const callHistorySchema = new Schema({
     label: `'Local' indicates the call was ended by Erxes, while 'remote' indicates the call was ended by the customer`,
   }),
   queueName: field({ type: String, label: 'queue name' }),
-  waitTime: field({ type: Number, label: 'seconds ringing / in queue before answer', default: 0 }),
+  waitTime: field({
+    type: Number,
+    label: 'seconds ringing / in queue before answer',
+    default: 0,
+  }),
   queue: field({ type: String, label: 'denormalized queue id', index: true }),
 });
 

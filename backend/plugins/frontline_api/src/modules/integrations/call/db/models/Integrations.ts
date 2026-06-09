@@ -8,7 +8,10 @@ import {
 import { integrationSchema } from '@/integrations/call/db/definitions/integrations';
 
 export interface ICallIntegrationModel extends Model<ICallIntegrationDocument> {
-  getIntegrations(userId: string, isAdmin?: boolean): Promise<ICallIntegrationDocument>;
+  getIntegrations(
+    userId: string,
+    isAdmin?: boolean,
+  ): Promise<ICallIntegrationDocument>;
   getIntegration(
     userId: string,
     integrationId?: string,
@@ -18,8 +21,7 @@ export interface ICallIntegrationModel extends Model<ICallIntegrationDocument> {
 
 export const loadCallIntegrationClass = (models: IModels) => {
   class Integration {
-
-   public static async getIntegrations(userId: string, isAdmin?: boolean) {
+    public static async getIntegrations(userId: string, isAdmin?: boolean) {
       const integrations = isAdmin
         ? await models.CallIntegrations.find().lean()
         : await models.CallIntegrations.find({
@@ -40,7 +42,6 @@ export const loadCallIntegrationClass = (models: IModels) => {
           (operator) => operator.userId === userId,
         ),
       }));
-
     }
     public static async getIntegration(userId: string, integrationId: string) {
       const integration = await models.CallIntegrations.findOne({

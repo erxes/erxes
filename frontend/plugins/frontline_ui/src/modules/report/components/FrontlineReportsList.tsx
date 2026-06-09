@@ -226,7 +226,8 @@ export const FrontlineReportsList = () => {
           title="Top Performing Source"
           value={String(topPerformingSource?.count ?? 0)}
           subtitle={
-            INTEGRATIONS[topPerformingSource?._id as keyof typeof INTEGRATIONS]?.name
+            INTEGRATIONS[topPerformingSource?._id as keyof typeof INTEGRATIONS]
+              ?.name
               ? `${INTEGRATIONS[topPerformingSource._id as keyof typeof INTEGRATIONS].name} · ${topPerformingSource?.percentage ?? 0}%`
               : `${topPerformingSource?.percentage ?? 0}% share`
           }
@@ -238,7 +239,8 @@ export const FrontlineReportsList = () => {
           title="Top Converting Source"
           value={String(topConvertingSource?.count ?? 0)}
           subtitle={
-            INTEGRATIONS[topConvertingSource?._id as keyof typeof INTEGRATIONS]?.name
+            INTEGRATIONS[topConvertingSource?._id as keyof typeof INTEGRATIONS]
+              ?.name
               ? `${INTEGRATIONS[topConvertingSource._id as keyof typeof INTEGRATIONS].name} · ${topConvertingSource?.percentage ?? 0}%`
               : `${topConvertingSource?.percentage ?? 0}% share`
           }

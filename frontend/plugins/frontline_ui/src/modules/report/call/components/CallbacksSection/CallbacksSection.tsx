@@ -30,10 +30,7 @@ export function CallbacksSection() {
           value={fmtNum(totals.missed)}
           accentVar="var(--neg)"
         />
-        <CallbackMiniKpi
-          label="CB Attempts"
-          value={fmtNum(totals.attempts)}
-        />
+        <CallbackMiniKpi label="CB Attempts" value={fmtNum(totals.attempts)} />
         <CallbackMiniKpi
           label="Successful"
           value={fmtNum(totals.successful)}
@@ -64,18 +61,35 @@ export function CallbacksSection() {
               <Table.Header>
                 <Table.Row className="bg-muted/50">
                   <Table.Head className="font-semibold">Queue</Table.Head>
-                  <Table.Head className="font-semibold text-right">Missed</Table.Head>
-                  <Table.Head className="font-semibold text-right">CB Attempts</Table.Head>
-                  <Table.Head className="font-semibold text-right">Successful</Table.Head>
-                  <Table.Head className="font-semibold text-right">Pending</Table.Head>
-                  <Table.Head className="font-semibold text-right">CB Rate</Table.Head>
-                  <Table.Head className="font-semibold text-right">Avg CB Time</Table.Head>
+                  <Table.Head className="font-semibold text-right">
+                    Missed
+                  </Table.Head>
+                  <Table.Head className="font-semibold text-right">
+                    CB Attempts
+                  </Table.Head>
+                  <Table.Head className="font-semibold text-right">
+                    Successful
+                  </Table.Head>
+                  <Table.Head className="font-semibold text-right">
+                    Pending
+                  </Table.Head>
+                  <Table.Head className="font-semibold text-right">
+                    CB Rate
+                  </Table.Head>
+                  <Table.Head className="font-semibold text-right">
+                    Avg CB Time
+                  </Table.Head>
                 </Table.Row>
               </Table.Header>
               <Table.Body>
                 {stats.map((row, i) => (
-                  <Table.Row key={`${row.queue}-${i}`} className="hover:bg-muted/30">
-                    <Table.Cell className="font-medium">{row.queue || '—'}</Table.Cell>
+                  <Table.Row
+                    key={`${row.queue}-${i}`}
+                    className="hover:bg-muted/30"
+                  >
+                    <Table.Cell className="font-medium">
+                      {row.queue || '—'}
+                    </Table.Cell>
                     <Table.Cell className="text-right font-semibold">
                       {fmtNum(row.totalMissedCalls)}
                     </Table.Cell>

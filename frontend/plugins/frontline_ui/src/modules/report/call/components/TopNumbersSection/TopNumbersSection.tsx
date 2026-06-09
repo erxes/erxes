@@ -27,10 +27,18 @@ export function TopNumbersSection() {
                 <Table.Head className="font-semibold">#</Table.Head>
                 <Table.Head className="font-semibold">Number</Table.Head>
                 <Table.Head className="font-semibold">Carrier</Table.Head>
-                <Table.Head className="font-semibold text-right">Attempts</Table.Head>
-                <Table.Head className="font-semibold text-right">Answered</Table.Head>
-                <Table.Head className="font-semibold text-right">Missed</Table.Head>
-                <Table.Head className="font-semibold text-right">Total Talk</Table.Head>
+                <Table.Head className="font-semibold text-right">
+                  Attempts
+                </Table.Head>
+                <Table.Head className="font-semibold text-right">
+                  Answered
+                </Table.Head>
+                <Table.Head className="font-semibold text-right">
+                  Missed
+                </Table.Head>
+                <Table.Head className="font-semibold text-right">
+                  Total Talk
+                </Table.Head>
               </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -51,8 +59,7 @@ export function TopNumbersSection() {
                       <span
                         className="rounded-md px-1.5 py-0.5 text-xs font-semibold text-white"
                         style={{
-                          background:
-                            carrierColor ?? 'var(--muted-foreground)',
+                          background: carrierColor ?? 'var(--muted-foreground)',
                         }}
                       >
                         {row.carrier}
