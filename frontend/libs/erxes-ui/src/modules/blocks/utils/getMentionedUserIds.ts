@@ -1,14 +1,17 @@
-export const getMentionedUserIds = (content: any) => {
+type InlineContent = { type: string; props: Record<string, string> };
+type BlockLike = { content?: InlineContent[] };
+
+export const getMentionedUserIds = (content: BlockLike[]) => {
   if (!content) return [];
   const mentionedUserIds: string[] = [];
   const flatContent = content
-    .map((block: any) =>
+    .map((block) =>
       Array.isArray(block.content) ? [...block.content] : [],
     )
     .flat();
-  flatContent.forEach((content: any) => {
-    if (content.type === 'mention') {
-      mentionedUserIds.push(content.props._id);
+  flatContent.forEach((item) => {
+    if (item.type === 'mention') {
+      mentionedUserIds.push(item.props._id);
     }
   });
   return mentionedUserIds;
