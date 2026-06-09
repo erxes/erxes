@@ -37,7 +37,9 @@ export function ActivityLogRow({
           ) : (
             <RelativeDateDisplay value={activity.createdAt as string} asChild>
               <p className="text-xs leading-6 text-muted-foreground">
-                <RelativeDateDisplay.Value value={activity.createdAt as string} />
+                <RelativeDateDisplay.Value
+                  value={activity.createdAt as string}
+                />
               </p>
             </RelativeDateDisplay>
           )}
