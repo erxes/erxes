@@ -16,10 +16,7 @@ import { AgentsSection } from './components/AgentsSection/AgentsSection';
 import { CallbacksSection } from './components/CallbacksSection/CallbacksSection';
 import { TopNumbersSection } from './components/TopNumbersSection/TopNumbersSection';
 
-import {
-  deduplicateIntegrations,
-  normalizeQueue,
-} from './utils';
+import { deduplicateIntegrations, normalizeQueue } from './utils';
 import type { CallFilters, SelectOption } from './types';
 
 type QueueRecord = { _id?: string; name?: string; queue?: string };
@@ -46,9 +43,7 @@ export function CallReportsPage() {
   const [integrationId, setIntegrationId] = useState('');
   const [queueId, setQueueId] = useState('');
   const [direction, setDirection] = useState('all');
-  const [dateFilter, setDateFilter] = useState(
-    format(new Date(), 'yyyy-MMM'),
-  );
+  const [dateFilter, setDateFilter] = useState(format(new Date(), 'yyyy-MMM'));
 
   // ── Integrations ─────────────────────────────────────────────────────────
   const { callUserIntegrations = [], loading: integrationsLoading } =

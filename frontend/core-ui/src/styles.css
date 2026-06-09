@@ -243,8 +243,8 @@
     /* Call center report */
 
     /* ── Card shadow (light) ──────────────────────────────────────────────── */
-    --shadow-card: 0 1px 2px oklch(0.145 0 0 / 0.05),
-      0 1px 3px oklch(0.145 0 0 / 0.04);
+    --shadow-card:
+      0 1px 2px oklch(0.145 0 0 / 0.05), 0 1px 3px oklch(0.145 0 0 / 0.04);
 
     /* ── Mongolian carrier brand colours (oklch) ──────────────────────────── */
     --carrier-mobicom: oklch(0.52 0.22 26.1); /* Mobicom  — #E2231A */

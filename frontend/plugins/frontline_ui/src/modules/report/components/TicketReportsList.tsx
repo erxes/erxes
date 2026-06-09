@@ -66,11 +66,11 @@ function DroppableArea({ id, colSpan, children }: DroppableAreaProps) {
 /** Map priority level (ascending severity) to a tabler icon. */
 function PriorityIcon({ priority }: { priority: number }) {
   const icons = [
-    <IconCircleDotFilled className="h-5 w-5" />,      // 0 — no priority
-    <IconInfoCircleFilled className="h-5 w-5" />,      // 1 — low
-    <IconAlertCircleFilled className="h-5 w-5" />,     // 2 — medium
-    <IconAlertTriangleFilled className="h-5 w-5" />,   // 3 — high
-    <IconAlertOctagonFilled className="h-5 w-5" />,    // 4 — urgent / critical
+    <IconCircleDotFilled className="h-5 w-5" />, // 0 — no priority
+    <IconInfoCircleFilled className="h-5 w-5" />, // 1 — low
+    <IconAlertCircleFilled className="h-5 w-5" />, // 2 — medium
+    <IconAlertTriangleFilled className="h-5 w-5" />, // 3 — high
+    <IconAlertOctagonFilled className="h-5 w-5" />, // 4 — urgent / critical
   ];
   return icons[Math.min(priority, icons.length - 1)] ?? icons[0];
 }

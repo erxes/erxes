@@ -27,10 +27,18 @@ export function TopNumbersSection() {
                 <Table.Head className="font-semibold">#</Table.Head>
                 <Table.Head className="font-semibold">Number</Table.Head>
                 <Table.Head className="font-semibold">Carrier</Table.Head>
-                <Table.Head className="font-semibold text-right">Attempts</Table.Head>
-                <Table.Head className="font-semibold text-right">Answered</Table.Head>
-                <Table.Head className="font-semibold text-right">Missed</Table.Head>
-                <Table.Head className="font-semibold text-right">Total Talk</Table.Head>
+                <Table.Head className="font-semibold text-right">
+                  Attempts
+                </Table.Head>
+                <Table.Head className="font-semibold text-right">
+                  Answered
+                </Table.Head>
+                <Table.Head className="font-semibold text-right">
+                  Missed
+                </Table.Head>
+                <Table.Head className="font-semibold text-right">
+                  Total Talk
+                </Table.Head>
               </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -51,8 +59,7 @@ export function TopNumbersSection() {
                       <span
                         className="rounded-md px-1.5 py-0.5 text-xs font-semibold text-white"
                         style={{
-                          background:
-                            carrierColor ?? 'var(--muted-foreground)',
+                          background: carrierColor ?? 'var(--muted-foreground)',
                         }}
                       >
                         {row.carrier}
@@ -62,12 +69,12 @@ export function TopNumbersSection() {
                       {fmtNum(row.attempts)}
                     </Table.Cell>
                     <Table.Cell className="text-right">
-                      <span className="inline-flex items-center rounded-md bg-[var(--pos)]/10 px-2 py-0.5 text-xs font-medium text-[var(--pos)]">
+                      <span className="inline-flex items-center rounded-md bg-(--pos)/10 px-2 py-0.5 text-xs font-medium text-(--pos)">
                         {fmtNum(row.answered)}
                       </span>
                     </Table.Cell>
                     <Table.Cell className="text-right">
-                      <span className="inline-flex items-center rounded-md bg-[var(--neg)]/10 px-2 py-0.5 text-xs font-medium text-[var(--neg)]">
+                      <span className="inline-flex items-center rounded-md bg-(--neg)/10 px-2 py-0.5 text-xs font-medium text-(--neg)">
                         {fmtNum(row.missed)}
                       </span>
                     </Table.Cell>

@@ -224,7 +224,11 @@ export const HeaderHero = () => {
               />
             </div>
           </span>
-          <AvatarGroup max={2} size="xl" className="outline-transparent flex-none">
+          <AvatarGroup
+            max={2}
+            size="xl"
+            className="outline-transparent flex-none"
+          >
             {supporters?.map((supporter: ISupporter) => (
               <Avatar
                 key={supporter._id}

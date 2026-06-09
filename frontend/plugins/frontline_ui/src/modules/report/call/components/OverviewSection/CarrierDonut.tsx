@@ -11,10 +11,7 @@ interface CarrierDonutProps {
 export const CarrierDonut = memo(function CarrierDonut({
   data,
 }: CarrierDonutProps) {
-  const total = useMemo(
-    () => data.reduce((s, d) => s + d.value, 0),
-    [data],
-  );
+  const total = useMemo(() => data.reduce((s, d) => s + d.value, 0), [data]);
 
   if (!data.length) {
     return (
@@ -25,7 +22,8 @@ export const CarrierDonut = memo(function CarrierDonut({
   }
 
   const getColor = (name: string, index: number): string =>
-    CARRIER_COLOR_VAR[name] ?? CARRIER_CSS_VARS[index % CARRIER_CSS_VARS.length];
+    CARRIER_COLOR_VAR[name] ??
+    CARRIER_CSS_VARS[index % CARRIER_CSS_VARS.length];
 
   return (
     <div className="flex items-center gap-4">

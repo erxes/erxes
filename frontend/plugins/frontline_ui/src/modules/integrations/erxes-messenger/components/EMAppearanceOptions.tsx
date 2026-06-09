@@ -61,7 +61,9 @@ export const HeroStyleRadioGroup = ({
             id={`hero-style-${opt}`}
             className="sr-only"
           />
-          <div className={cn(heroBackgroundVariants({ variant: opt }), 'h-16')} />
+          <div
+            className={cn(heroBackgroundVariants({ variant: opt }), 'h-16')}
+          />
           <span
             className={cn(
               'pb-1.5 text-xs',
@@ -74,7 +76,11 @@ export const HeroStyleRadioGroup = ({
           </span>
           {selected && (
             <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
-              <IconCheck size={11} stroke={3} className="text-primary-foreground" />
+              <IconCheck
+                size={11}
+                stroke={3}
+                className="text-primary-foreground"
+              />
             </span>
           )}
         </Label>
@@ -173,7 +179,11 @@ export const NavigationVariantRadioGroup = ({
           </div>
           {selected && (
             <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary">
-              <IconCheck size={11} stroke={3} className="text-primary-foreground" />
+              <IconCheck
+                size={11}
+                stroke={3}
+                className="text-primary-foreground"
+              />
             </span>
           )}
         </Label>

@@ -26,18 +26,29 @@ export function AgentTable({ stats }: AgentTableProps) {
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border" style={{ boxShadow: 'var(--shadow-card)' }}>
+    <div
+      className="overflow-hidden rounded-xl border"
+      style={{ boxShadow: 'var(--shadow-card)' }}
+    >
       <Table>
         <Table.Header>
           <Table.Row className="bg-muted/50">
             <Table.Head className="font-semibold w-8" />
             <Table.Head className="font-semibold">Agent</Table.Head>
             <Table.Head className="font-semibold text-right">Total</Table.Head>
-            <Table.Head className="font-semibold text-right">Answered</Table.Head>
+            <Table.Head className="font-semibold text-right">
+              Answered
+            </Table.Head>
             <Table.Head className="font-semibold text-right">Missed</Table.Head>
-            <Table.Head className="font-semibold text-right">Ans. Rate</Table.Head>
-            <Table.Head className="font-semibold text-right">Avg Wait</Table.Head>
-            <Table.Head className="font-semibold text-right">Avg Talk</Table.Head>
+            <Table.Head className="font-semibold text-right">
+              Ans. Rate
+            </Table.Head>
+            <Table.Head className="font-semibold text-right">
+              Avg Wait
+            </Table.Head>
+            <Table.Head className="font-semibold text-right">
+              Avg Talk
+            </Table.Head>
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -72,12 +83,12 @@ export function AgentTable({ stats }: AgentTableProps) {
                     {fmtNum(stat.totalCalls)}
                   </Table.Cell>
                   <Table.Cell className="text-right">
-                    <span className="inline-flex items-center rounded-md bg-[var(--pos)]/10 px-2 py-0.5 text-xs font-medium text-[var(--pos)]">
+                    <span className="inline-flex items-center rounded-md bg-(--pos)/10 px-2 py-0.5 text-xs font-medium text-(--pos)">
                       {fmtNum(stat.answeredCalls)}
                     </span>
                   </Table.Cell>
                   <Table.Cell className="text-right">
-                    <span className="inline-flex items-center rounded-md bg-[var(--neg)]/10 px-2 py-0.5 text-xs font-medium text-[var(--neg)]">
+                    <span className="inline-flex items-center rounded-md bg-(--neg)/10 px-2 py-0.5 text-xs font-medium text-(--neg)">
                       {fmtNum(stat.missedCalls)}
                     </span>
                   </Table.Cell>

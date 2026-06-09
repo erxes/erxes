@@ -6,8 +6,7 @@ export const fmt = (n: number | null | undefined, decimals = 1): string =>
   (n ?? 0).toFixed(decimals);
 
 /** Format a number as a percentage string, e.g. "83.5%". */
-export const fmtPct = (n: number | null | undefined): string =>
-  `${fmt(n)}%`;
+export const fmtPct = (n: number | null | undefined): string => `${fmt(n)}%`;
 
 /** Format a seconds value as a human-readable duration. */
 export const fmtDur = (n: number | null | undefined): string =>
@@ -92,7 +91,11 @@ export function normalizeQueue(
  * Collapse duplicate integrations by inboxId, joining phone numbers.
  */
 export function deduplicateIntegrations(
-  integrations: Array<{ inboxId: string; phone: string; [key: string]: unknown }>,
+  integrations: Array<{
+    inboxId: string;
+    phone: string;
+    [key: string]: unknown;
+  }>,
 ): Array<{ inboxId: string; phone: string }> {
   const map = new Map<string, { inboxId: string; phone: string }>();
   for (const integration of integrations) {
@@ -111,7 +114,11 @@ export function deduplicateIntegrations(
 
 function formatPhoneStr(phone: string): string {
   if (!phone) return '';
-  if (phone.includes(',')) return phone.split(',').map((p) => p.trim()).join(', ');
+  if (phone.includes(','))
+    return phone
+      .split(',')
+      .map((p) => p.trim())
+      .join(', ');
   if (/^\d+$/.test(phone) && phone.length > 8 && phone.length % 8 === 0) {
     return phone.match(/.{1,8}/g)?.join(', ') || phone;
   }

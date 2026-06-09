@@ -27,10 +27,7 @@ export function SectionCard({
 }: SectionCardProps) {
   return (
     <div
-      className={cn(
-        'rounded-xl border bg-card p-5',
-        className,
-      )}
+      className={cn('rounded-xl border bg-card p-5', className)}
       style={{ boxShadow: 'var(--shadow-card)' }}
     >
       <div className="mb-4">

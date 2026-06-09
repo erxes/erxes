@@ -28,9 +28,9 @@ const callQueries = {
   },
 
   async callUserIntegrations(_root, _args, { models, user }: IContext) {
-    const res = models.CallIntegrations.getIntegrations(user._id);
-
-    return res;
+    const isAdmin =
+      user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
+    return models.CallIntegrations.getIntegrations(user._id, isAdmin);
   },
 
   async callsCustomerDetail(_root, { customerPhone }, { subdomain }: IContext) {
@@ -1269,7 +1269,17 @@ const callQueries = {
 
   async callKpiScorecard(
     _args,
-    { startDate, endDate, queueId, direction }: { startDate: string; endDate: string; queueId?: string; direction?: string },
+    {
+      startDate,
+      endDate,
+      queueId,
+      direction,
+    }: {
+      startDate: string;
+      endDate: string;
+      queueId?: string;
+      direction?: string;
+    },
     { models }: IContext,
   ) {
     const T_SL = 20; // Service Level threshold in seconds
@@ -1285,10 +1295,22 @@ const callQueries = {
       $addFields: {
         _queue: {
           $cond: [
-            { $regexMatch: { input: { $ifNull: ['$actionType', ''] }, regex: /QUEUE\[/ } },
+            {
+              $regexMatch: {
+                input: { $ifNull: ['$actionType', ''] },
+                regex: /QUEUE\[/,
+              },
+            },
             {
               $arrayElemAt: [
-                { $split: [{ $arrayElemAt: [{ $split: ['$actionType', 'QUEUE['] }, 1] }, ']'] },
+                {
+                  $split: [
+                    {
+                      $arrayElemAt: [{ $split: ['$actionType', 'QUEUE['] }, 1],
+                    },
+                    ']',
+                  ],
+                },
                 0,
               ],
             },
@@ -1298,9 +1320,10 @@ const callQueries = {
       },
     };
 
-    const queueMatchStage: any = queueId && queueId !== 'all'
-      ? { $match: { _queue: queueId } }
-      : { $match: {} };
+    const queueMatchStage: any =
+      queueId && queueId !== 'all'
+        ? { $match: { _queue: queueId } }
+        : { $match: {} };
 
     const dedupeByUniqueid = {
       $group: {
@@ -1318,7 +1341,10 @@ const callQueries = {
     const addIsAnswered = {
       $addFields: {
         isAnswered: {
-          $and: [{ $in: ['ANSWERED', '$dispositions'] }, { $gt: ['$billsec', 0] }],
+          $and: [
+            { $in: ['ANSWERED', '$dispositions'] },
+            { $gt: ['$billsec', 0] },
+          ],
         },
         isInbound: { $eq: ['$userfield', 'Inbound'] },
         isAbandoned: {
@@ -1327,7 +1353,12 @@ const callQueries = {
             {
               $or: [
                 { $not: [{ $in: ['ANSWERED', '$dispositions'] }] },
-                { $and: [{ $in: ['ANSWERED', '$dispositions'] }, { $eq: ['$billsec', 0] }] },
+                {
+                  $and: [
+                    { $in: ['ANSWERED', '$dispositions'] },
+                    { $eq: ['$billsec', 0] },
+                  ],
+                },
               ],
             },
           ],
@@ -1353,7 +1384,11 @@ const callQueries = {
                 abandoned: { $sum: { $cond: ['$isAbandoned', 1, 0] } },
                 withinSL: {
                   $sum: {
-                    $cond: [{ $and: ['$isAnswered', { $lte: ['$waittime', T_SL] }] }, 1, 0],
+                    $cond: [
+                      { $and: ['$isAnswered', { $lte: ['$waittime', T_SL] }] },
+                      1,
+                      0,
+                    ],
                   },
                 },
                 sumWait: { $sum: { $cond: ['$isAnswered', '$waittime', 0] } },
@@ -1362,7 +1397,13 @@ const callQueries = {
           ],
           handled: [
             { $match: { isAnswered: true } },
-            { $group: { _id: null, answered: { $sum: 1 }, sumTalk: { $sum: '$billsec' } } },
+            {
+              $group: {
+                _id: null,
+                answered: { $sum: 1 },
+                sumTalk: { $sum: '$billsec' },
+              },
+            },
           ],
           totals: [{ $count: 'n' }],
         },
@@ -1379,11 +1420,25 @@ const callQueries = {
           callstotal: 1,
           serviceLevel: {
             $let: {
-              vars: { d: { $add: [{ $ifNull: ['$inbound.answered', 0] }, { $ifNull: ['$inbound.abandoned', 0] }] } },
+              vars: {
+                d: {
+                  $add: [
+                    { $ifNull: ['$inbound.answered', 0] },
+                    { $ifNull: ['$inbound.abandoned', 0] },
+                  ],
+                },
+              },
               in: {
                 $cond: [
                   { $gt: ['$$d', 0] },
-                  { $multiply: [{ $divide: [{ $ifNull: ['$inbound.withinSL', 0] }, '$$d'] }, 100] },
+                  {
+                    $multiply: [
+                      {
+                        $divide: [{ $ifNull: ['$inbound.withinSL', 0] }, '$$d'],
+                      },
+                      100,
+                    ],
+                  },
                   0,
                 ],
               },
@@ -1392,21 +1447,46 @@ const callQueries = {
           abandonment: {
             $cond: [
               { $gt: [{ $ifNull: ['$inbound.offered', 0] }, 0] },
-              { $multiply: [{ $divide: [{ $ifNull: ['$inbound.abandoned', 0] }, '$inbound.offered'] }, 100] },
+              {
+                $multiply: [
+                  {
+                    $divide: [
+                      { $ifNull: ['$inbound.abandoned', 0] },
+                      '$inbound.offered',
+                    ],
+                  },
+                  100,
+                ],
+              },
               0,
             ],
           },
           averageSpeed: {
             $cond: [
               { $gt: [{ $ifNull: ['$inbound.answered', 0] }, 0] },
-              { $divide: [{ $ifNull: ['$inbound.sumWait', 0] }, '$inbound.answered'] },
+              {
+                $divide: [
+                  { $ifNull: ['$inbound.sumWait', 0] },
+                  '$inbound.answered',
+                ],
+              },
               0,
             ],
           },
           averageAnsweredTime: {
             $cond: [
               { $gt: [{ $ifNull: ['$handled.answered', 0] }, 0] },
-              { $add: [{ $divide: [{ $ifNull: ['$handled.sumTalk', 0] }, '$handled.answered'] }, 38] },
+              {
+                $add: [
+                  {
+                    $divide: [
+                      { $ifNull: ['$handled.sumTalk', 0] },
+                      '$handled.answered',
+                    ],
+                  },
+                  38,
+                ],
+              },
               0,
             ],
           },
@@ -1416,20 +1496,32 @@ const callQueries = {
       },
     ]);
 
-    return result ?? {
-      callstotal: 0,
-      serviceLevel: 0,
-      abandonment: 0,
-      averageSpeed: 0,
-      averageAnsweredTime: 0,
-      firstCallResolution: 0,
-      occupancy: 0,
-    };
+    return (
+      result ?? {
+        callstotal: 0,
+        serviceLevel: 0,
+        abandonment: 0,
+        averageSpeed: 0,
+        averageAnsweredTime: 0,
+        firstCallResolution: 0,
+        occupancy: 0,
+      }
+    );
   },
 
   async callVolumeSeries(
     _args,
-    { startDate, endDate, queueId, direction }: { startDate: string; endDate: string; queueId?: string; direction?: string },
+    {
+      startDate,
+      endDate,
+      queueId,
+      direction,
+    }: {
+      startDate: string;
+      endDate: string;
+      queueId?: string;
+      direction?: string;
+    },
     { models }: IContext,
   ) {
     const matchStage: any = {
@@ -1443,10 +1535,22 @@ const callQueries = {
       $addFields: {
         _queue: {
           $cond: [
-            { $regexMatch: { input: { $ifNull: ['$actionType', ''] }, regex: /QUEUE\[/ } },
+            {
+              $regexMatch: {
+                input: { $ifNull: ['$actionType', ''] },
+                regex: /QUEUE\[/,
+              },
+            },
             {
               $arrayElemAt: [
-                { $split: [{ $arrayElemAt: [{ $split: ['$actionType', 'QUEUE['] }, 1] }, ']'] },
+                {
+                  $split: [
+                    {
+                      $arrayElemAt: [{ $split: ['$actionType', 'QUEUE['] }, 1],
+                    },
+                    ']',
+                  ],
+                },
                 0,
               ],
             },
@@ -1456,10 +1560,7 @@ const callQueries = {
       },
     };
 
-    const pipeline: any[] = [
-      { $match: matchStage },
-      queueAddField,
-    ];
+    const pipeline: any[] = [{ $match: matchStage }, queueAddField];
 
     if (queueId && queueId !== 'all') {
       pipeline.push({ $match: { _queue: queueId } });
@@ -1478,15 +1579,30 @@ const callQueries = {
       },
       {
         $addFields: {
-          day: { $dateTrunc: { date: '$start', unit: 'day', timezone: 'Asia/Ulaanbaatar' } },
-          isAnswered: { $and: [{ $in: ['ANSWERED', '$dispositions'] }, { $gt: ['$billsec', 0] }] },
+          day: {
+            $dateTrunc: {
+              date: '$start',
+              unit: 'day',
+              timezone: 'Asia/Ulaanbaatar',
+            },
+          },
+          isAnswered: {
+            $and: [
+              { $in: ['ANSWERED', '$dispositions'] },
+              { $gt: ['$billsec', 0] },
+            ],
+          },
         },
       },
       {
         $group: {
           _id: '$day',
-          incoming: { $sum: { $cond: [{ $eq: ['$userfield', 'Inbound'] }, 1, 0] } },
-          outgoing: { $sum: { $cond: [{ $eq: ['$userfield', 'Outbound'] }, 1, 0] } },
+          incoming: {
+            $sum: { $cond: [{ $eq: ['$userfield', 'Inbound'] }, 1, 0] },
+          },
+          outgoing: {
+            $sum: { $cond: [{ $eq: ['$userfield', 'Outbound'] }, 1, 0] },
+          },
           answered: { $sum: { $cond: ['$isAnswered', 1, 0] } },
           abandoned: {
             $sum: {
@@ -1497,13 +1613,23 @@ const callQueries = {
                     { $not: ['$isAnswered'] },
                   ],
                 },
-                1, 0,
+                1,
+                0,
               ],
             },
           },
         },
       },
-      { $project: { _id: 0, day: '$_id', incoming: 1, outgoing: 1, answered: 1, abandoned: 1 } },
+      {
+        $project: {
+          _id: 0,
+          day: '$_id',
+          incoming: 1,
+          outgoing: 1,
+          answered: 1,
+          abandoned: 1,
+        },
+      },
       { $sort: { day: 1 } },
     );
 
@@ -1512,7 +1638,17 @@ const callQueries = {
 
   async callCarrierBreakdown(
     _args,
-    { startDate, endDate, queueId, direction }: { startDate: string; endDate: string; queueId?: string; direction?: string },
+    {
+      startDate,
+      endDate,
+      queueId,
+      direction,
+    }: {
+      startDate: string;
+      endDate: string;
+      queueId?: string;
+      direction?: string;
+    },
     { models }: IContext,
   ) {
     const matchStage: any = {
@@ -1530,8 +1666,28 @@ const callQueries = {
           $addFields: {
             _queue: {
               $cond: [
-                { $regexMatch: { input: { $ifNull: ['$actionType', ''] }, regex: /QUEUE\[/ } },
-                { $arrayElemAt: [{ $split: [{ $arrayElemAt: [{ $split: ['$actionType', 'QUEUE['] }, 1] }, ']'] }, 0] },
+                {
+                  $regexMatch: {
+                    input: { $ifNull: ['$actionType', ''] },
+                    regex: /QUEUE\[/,
+                  },
+                },
+                {
+                  $arrayElemAt: [
+                    {
+                      $split: [
+                        {
+                          $arrayElemAt: [
+                            { $split: ['$actionType', 'QUEUE['] },
+                            1,
+                          ],
+                        },
+                        ']',
+                      ],
+                    },
+                    0,
+                  ],
+                },
                 null,
               ],
             },
@@ -1556,13 +1712,23 @@ const callQueries = {
         $addFields: {
           carrier: {
             $let: {
-              vars: { p2: { $substrBytes: [{ $ifNull: ['$_customerPhone', ''] }, 0, 2] } },
+              vars: {
+                p2: {
+                  $substrBytes: [{ $ifNull: ['$_customerPhone', ''] }, 0, 2],
+                },
+              },
               in: {
                 $switch: {
                   branches: [
-                    { case: { $in: ['$$p2', ['99', '95', '85']] }, then: 'Mobicom' },
+                    {
+                      case: { $in: ['$$p2', ['99', '95', '85']] },
+                      then: 'Mobicom',
+                    },
                     { case: { $in: ['$$p2', ['89', '96']] }, then: 'Unitel' },
-                    { case: { $in: ['$$p2', ['91', '94', '90']] }, then: 'Skytel' },
+                    {
+                      case: { $in: ['$$p2', ['91', '94', '90']] },
+                      then: 'Skytel',
+                    },
                     { case: { $in: ['$$p2', ['98', '93']] }, then: 'G-Mobile' },
                     { case: { $eq: ['$$p2', '97'] }, then: 'Ondo' },
                   ],
@@ -1583,7 +1749,17 @@ const callQueries = {
 
   async callHeatmap(
     _args,
-    { startDate, endDate, queueId, direction }: { startDate: string; endDate: string; queueId?: string; direction?: string },
+    {
+      startDate,
+      endDate,
+      queueId,
+      direction,
+    }: {
+      startDate: string;
+      endDate: string;
+      queueId?: string;
+      direction?: string;
+    },
     { models }: IContext,
   ) {
     const matchStage: any = {
@@ -1601,8 +1777,28 @@ const callQueries = {
           $addFields: {
             _queue: {
               $cond: [
-                { $regexMatch: { input: { $ifNull: ['$actionType', ''] }, regex: /QUEUE\[/ } },
-                { $arrayElemAt: [{ $split: [{ $arrayElemAt: [{ $split: ['$actionType', 'QUEUE['] }, 1] }, ']'] }, 0] },
+                {
+                  $regexMatch: {
+                    input: { $ifNull: ['$actionType', ''] },
+                    regex: /QUEUE\[/,
+                  },
+                },
+                {
+                  $arrayElemAt: [
+                    {
+                      $split: [
+                        {
+                          $arrayElemAt: [
+                            { $split: ['$actionType', 'QUEUE['] },
+                            1,
+                          ],
+                        },
+                        ']',
+                      ],
+                    },
+                    0,
+                  ],
+                },
                 null,
               ],
             },
@@ -1623,8 +1819,15 @@ const callQueries = {
       },
       {
         $addFields: {
-          isAnswered: { $and: [{ $in: ['ANSWERED', '$dispositions'] }, { $gt: ['$billsec', 0] }] },
-          dow: { $isoDayOfWeek: { date: '$start', timezone: 'Asia/Ulaanbaatar' } },
+          isAnswered: {
+            $and: [
+              { $in: ['ANSWERED', '$dispositions'] },
+              { $gt: ['$billsec', 0] },
+            ],
+          },
+          dow: {
+            $isoDayOfWeek: { date: '$start', timezone: 'Asia/Ulaanbaatar' },
+          },
           hour: { $hour: { date: '$start', timezone: 'Asia/Ulaanbaatar' } },
         },
       },
@@ -1643,7 +1846,11 @@ const callQueries = {
           total: 1,
           answered: 1,
           answerRate: {
-            $cond: [{ $gt: ['$total', 0] }, { $multiply: [{ $divide: ['$answered', '$total'] }, 100] }, 0],
+            $cond: [
+              { $gt: ['$total', 0] },
+              { $multiply: [{ $divide: ['$answered', '$total'] }, 100] },
+              0,
+            ],
           },
         },
       },
@@ -1654,7 +1861,19 @@ const callQueries = {
 
   async callTopNumbers(
     _args,
-    { startDate, endDate, queueId, direction, limit = 12 }: { startDate: string; endDate: string; queueId?: string; direction?: string; limit?: number },
+    {
+      startDate,
+      endDate,
+      queueId,
+      direction,
+      limit = 12,
+    }: {
+      startDate: string;
+      endDate: string;
+      queueId?: string;
+      direction?: string;
+      limit?: number;
+    },
     { models }: IContext,
   ) {
     const matchStage: any = {
@@ -1672,8 +1891,28 @@ const callQueries = {
           $addFields: {
             _queue: {
               $cond: [
-                { $regexMatch: { input: { $ifNull: ['$actionType', ''] }, regex: /QUEUE\[/ } },
-                { $arrayElemAt: [{ $split: [{ $arrayElemAt: [{ $split: ['$actionType', 'QUEUE['] }, 1] }, ']'] }, 0] },
+                {
+                  $regexMatch: {
+                    input: { $ifNull: ['$actionType', ''] },
+                    regex: /QUEUE\[/,
+                  },
+                },
+                {
+                  $arrayElemAt: [
+                    {
+                      $split: [
+                        {
+                          $arrayElemAt: [
+                            { $split: ['$actionType', 'QUEUE['] },
+                            1,
+                          ],
+                        },
+                        ']',
+                      ],
+                    },
+                    0,
+                  ],
+                },
                 null,
               ],
             },
@@ -1701,20 +1940,35 @@ const callQueries = {
       },
       {
         $addFields: {
-          isAnswered: { $and: [{ $in: ['ANSWERED', '$dispositions'] }, { $gt: ['$billsec', 0] }] },
+          isAnswered: {
+            $and: [
+              { $in: ['ANSWERED', '$dispositions'] },
+              { $gt: ['$billsec', 0] },
+            ],
+          },
         },
       },
       {
         $addFields: {
           carrier: {
             $let: {
-              vars: { p2: { $substrBytes: [{ $ifNull: ['$customerPhone', ''] }, 0, 2] } },
+              vars: {
+                p2: {
+                  $substrBytes: [{ $ifNull: ['$customerPhone', ''] }, 0, 2],
+                },
+              },
               in: {
                 $switch: {
                   branches: [
-                    { case: { $in: ['$$p2', ['99', '95', '85']] }, then: 'Mobicom' },
+                    {
+                      case: { $in: ['$$p2', ['99', '95', '85']] },
+                      then: 'Mobicom',
+                    },
                     { case: { $in: ['$$p2', ['89', '96']] }, then: 'Unitel' },
-                    { case: { $in: ['$$p2', ['91', '94', '90']] }, then: 'Skytel' },
+                    {
+                      case: { $in: ['$$p2', ['91', '94', '90']] },
+                      then: 'Skytel',
+                    },
                     { case: { $in: ['$$p2', ['98', '93']] }, then: 'G-Mobile' },
                     { case: { $eq: ['$$p2', '97'] }, then: 'Ondo' },
                   ],

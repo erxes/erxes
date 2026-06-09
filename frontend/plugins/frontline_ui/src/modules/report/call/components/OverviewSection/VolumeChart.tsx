@@ -23,7 +23,9 @@ const CHART_CONFIG = {
 } as const;
 
 /** Daily call-volume area chart with inbound / outbound / answered series. */
-export const VolumeChart = memo(function VolumeChart({ data }: VolumeChartProps) {
+export const VolumeChart = memo(function VolumeChart({
+  data,
+}: VolumeChartProps) {
   const chartData = useMemo(
     () =>
       data.map((d) => ({

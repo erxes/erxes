@@ -106,7 +106,11 @@ export function SubHeader({
               <IconCalendar className="h-3.5 w-3.5" />
               Date
             </Filter.BarName>
-            <Filter.BarButton inDialog filterKey={DATE_FILTER_KEY} className="rounded-r">
+            <Filter.BarButton
+              inDialog
+              filterKey={DATE_FILTER_KEY}
+              className="rounded-r"
+            >
               {formatDateDisplay(dateQuery ?? dateFilter)}
             </Filter.BarButton>
           </div>
@@ -116,7 +120,10 @@ export function SubHeader({
       {/* Date range dialog — rendered inside Filter provider so context is available */}
       <Filter.Dialog>
         <Filter.View filterKey={DATE_FILTER_KEY} inDialog>
-          <Filter.DialogDateView filterKey={DATE_FILTER_KEY} label="Date range" />
+          <Filter.DialogDateView
+            filterKey={DATE_FILTER_KEY}
+            label="Date range"
+          />
         </Filter.View>
       </Filter.Dialog>
     </Filter>
@@ -134,7 +141,11 @@ function formatDateDisplay(value: string): string {
     const [from, to] = value.split(',');
     try {
       const fmt = (s: string) =>
-        new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        new Date(s).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        });
       const fromDate = fmt(from);
       const toDate = fmt(to);
       return fromDate === toDate ? fromDate : `${fromDate} — ${toDate}`;
