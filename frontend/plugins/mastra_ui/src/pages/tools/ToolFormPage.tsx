@@ -135,6 +135,15 @@ export const ToolFormPage = () => {
   const erxesTools = erxesToolsData?.mastraAvailableErxesTools || [];
   const plugins = [...new Set(erxesTools.map((t: any) => t.plugin))].filter(Boolean);
   const opsForPlugin = erxesTools.filter((t: any) => t.plugin === form.erxesPlugin);
+  // Search by what the operation does (description) or its raw name.
+  const opQuery = opSearch.trim().toLowerCase();
+  const filteredOps = opQuery
+    ? opsForPlugin.filter(
+        (op: any) =>
+          op.operation.toLowerCase().includes(opQuery) ||
+          (op.description || '').toLowerCase().includes(opQuery),
+      )
+    : opsForPlugin;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -278,46 +287,59 @@ export const ToolFormPage = () => {
                       <Input
                         value={opSearch}
                         onChange={(e) => setOpSearch(e.target.value)}
-                        placeholder="Search operations…"
+                        placeholder="Search by what it does or its name… (e.g. “create deal”)"
                         className="pl-8 h-8 text-sm"
                       />
                     </div>
-                    <ScrollArea className="h-64 rounded-md border">
+                    <p className="text-[11px] text-muted-foreground mb-1.5">
+                      {filteredOps.length} operation{filteredOps.length === 1 ? '' : 's'}
+                      {opQuery ? ' matched' : ` in ${form.erxesPlugin}`}
+                    </p>
+                    <ScrollArea className="h-72 rounded-md border">
                       <div className="p-2 space-y-0.5">
-                        {opsForPlugin
-                          .filter((op: any) => {
-                            const q = opSearch.trim().toLowerCase();
-                            if (!q) return true;
-                            return (
-                              op.operation.toLowerCase().includes(q) ||
-                              op.description?.toLowerCase().includes(q)
-                            );
-                          })
-                          .map((op: any) => {
+                        {filteredOps.length === 0 && (
+                          <p className="text-sm text-muted-foreground text-center py-8">
+                            No operations match “{opSearch}”.
+                          </p>
+                        )}
+                        {filteredOps.map((op: any) => {
                           const isSelected = form.erxesOperation === op.operation;
+                          const requiredArgs = (op.graphqlArgs || [])
+                            .filter((a: any) => a?.type?.kind === 'NON_NULL')
+                            .map((a: any) => a.name);
                           return (
                             <button
                               key={`${op.operationType}-${op.operation}`}
                               type="button"
                               onClick={() => handleErxesOpSelect(op)}
-                              className={`w-full text-left rounded-md px-3 py-2 text-sm transition-colors ${
+                              className={`w-full text-left rounded-md px-3 py-2 transition-colors ${
                                 isSelected
                                   ? 'bg-primary/10 border border-primary'
                                   : 'hover:bg-accent border border-transparent'
                               }`}
                             >
-                              <div className="flex items-center gap-2">
-                                <span className="font-mono text-xs font-medium">{op.operation}</span>
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-sm font-medium leading-tight first-letter:uppercase">
+                                  {op.description}
+                                </span>
                                 <Badge
                                   variant={op.operationType === 'mutation' ? 'warning' : 'info'}
-                                  className="text-xs"
+                                  className="text-[10px] shrink-0"
                                 >
-                                  {op.operationType}
+                                  {op.operationType === 'mutation' ? 'write' : 'read'}
                                 </Badge>
                               </div>
-                              {op.description && (
-                                <p className="text-xs text-muted-foreground mt-0.5">{op.description}</p>
-                              )}
+                              <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                                <span className="font-mono text-[11px] text-muted-foreground">
+                                  {op.operation}
+                                </span>
+                                {requiredArgs.length > 0 && (
+                                  <span className="text-[11px] text-muted-foreground">
+                                    · needs {requiredArgs.slice(0, 4).join(', ')}
+                                    {requiredArgs.length > 4 ? '…' : ''}
+                                  </span>
+                                )}
+                              </div>
                             </button>
                           );
                         })}

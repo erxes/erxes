@@ -1,11 +1,47 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
+import { getPlugins, getPluginAddress } from 'erxes-api-shared/utils';
 import { getCurrentAuth } from '../requestContext';
 
 function truncateWords(text: string, maxWords = 15): string {
   if (!text) return '';
   const words = text.trim().split(/\s+/);
   return words.length <= maxWords ? text : words.slice(0, maxWords).join(' ') + '...';
+}
+
+// erxes' GraphQL schema carries no field descriptions, so operation names are
+// all we have. Turn a camelCase operation into a readable action phrase so both
+// the UI picker and the agent see "Create a deal" instead of "mutation dealsAdd".
+const OPERATION_VERBS: Record<string, string> = {
+  add: 'Create', create: 'Create', save: 'Create or update', edit: 'Update',
+  update: 'Update', remove: 'Delete', delete: 'Delete', detail: 'Get one',
+  details: 'Get one', merge: 'Merge', duplicate: 'Duplicate', count: 'Count',
+  list: 'List', tag: 'Tag', assign: 'Assign', change: 'Change', send: 'Send',
+  verify: 'Verify', resolve: 'Resolve', cancel: 'Cancel', confirm: 'Confirm',
+};
+
+export function humanizeOperation(name: string, opType: 'query' | 'mutation'): string {
+  const words = (name || '')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+    .split(/\s+/)
+    .filter(Boolean);
+
+  // Find the first recognized verb anywhere in the name; the rest is the entity.
+  let verb: string | undefined;
+  const rest: string[] = [];
+  for (const w of words) {
+    const key = w.toLowerCase();
+    if (!verb && OPERATION_VERBS[key]) verb = OPERATION_VERBS[key];
+    else rest.push(w);
+  }
+
+  const entity = rest.join(' ').toLowerCase().trim();
+  if (verb) return entity ? `${verb} ${entity}` : verb;
+
+  // No verb (typically a read): "Get customers", "Run something".
+  const phrase = words.join(' ').toLowerCase();
+  return `${opType === 'query' ? 'Get' : 'Run'} ${phrase}`.trim();
 }
 
 // LLMs often serialize array/object values as JSON strings when calling tools,
@@ -516,69 +552,60 @@ export async function fetchInputTypesMap(settings: any): Promise<Record<string, 
   }
 }
 
-// ─── SDL-based plugin detection ──────────────────────────────────────────────
+// ─── Plugin ownership via live subgraph introspection ────────────────────────
 //
-// Apollo Router exposes the full supergraph SDL via `{ _service { sdl } }`.
-// The SDL contains `@join__field(graph: SERVICE)` on every Query/Mutation field,
-// giving exact plugin ownership with zero guessing.
+// Source of truth for "which plugin owns this operation": introspect each
+// ENABLED plugin's own subgraph (discovered through erxes service discovery)
+// and record every Query/Mutation field it declares. This:
+//   • only ever sees enabled/running plugins (disabled ones aren't registered),
+//   • re-derives from the live schema on every call (auto-adapts to changes),
+//   • needs no static prefix lists and no supergraph SDL access.
+// (The gateway does not expose `{ _service { sdl } }`, so SDL parsing isn't an
+// option here.)
+async function fetchPluginMap(token: string): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  const authHeaders: Record<string, string> = token ? { Authorization: token } : {};
 
-function parseSupergraphSDL(sdl: string): Map<string, string> {
-  // 1. Build ENUM_VALUE → plugin-name from the join__Graph enum block.
-  //    e.g.  SALES @join__graph(name: "sales", url: "http://...")
-  const graphEnumMap = new Map<string, string>();
-  const enumRegex = /\b([A-Z][A-Z0-9_]*)\s+@join__graph\(name:\s*"([^"]+)"/g;
-  let m: RegExpExecArray | null;
-  while ((m = enumRegex.exec(sdl)) !== null) {
-    graphEnumMap.set(m[1], m[2].toLowerCase());
-  }
-
-  // 2. Walk the SDL line-by-line so we correctly handle fields whose argument
-  //    list spans multiple lines.  A new field starts with exactly two leading
-  //    spaces followed by an identifier.  The @join__field annotation may appear
-  //    on the same line or a few lines later (after the closing ): ReturnType).
-  const operationMap = new Map<string, string>();
-  const lines = sdl.split('\n');
-  let pendingField = '';
-
-  for (const line of lines) {
-    // New field at 2-space indent — capture its name.
-    const fieldStart = line.match(/^  (\w+)\b/);
-    if (fieldStart) {
-      pendingField = fieldStart[1];
-    }
-
-    // @join__field annotation — attribute the pending field to its plugin.
-    const annotMatch = line.match(/@join__field\(graph:\s*["']?([A-Za-z_][A-Za-z0-9_]*)["']?/);
-    if (annotMatch && pendingField) {
-      const ref = annotMatch[1];
-      const plugin = graphEnumMap.get(ref) ?? ref.toLowerCase();
-      operationMap.set(pendingField, plugin);
-      pendingField = '';
-    }
-
-    // Closing brace resets state (we've left the field block).
-    if (line.trim() === '}') pendingField = '';
-  }
-
-  return operationMap;
-}
-
-async function fetchPluginMap(apiUrl: string, token: string): Promise<Map<string, string>> {
+  let plugins: string[] = [];
   try {
-    const res = await fetch(`${apiUrl}/graphql`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: token } : {}),
-      },
-      body: JSON.stringify({ query: '{ _service { sdl } }' }),
-    });
-    const json = await res.json() as any;
-    const sdl: string = json?.data?._service?.sdl || '';
-    return sdl ? parseSupergraphSDL(sdl) : new Map();
+    plugins = await getPlugins(); // ['core', ...ENABLED_PLUGINS, ...only-api]
   } catch {
-    return new Map();
+    return map;
   }
+
+  await Promise.all(
+    plugins.map(async (name) => {
+      try {
+        const address = await getPluginAddress(name);
+        if (!address) return;
+
+        const res = await fetch(`${address}/graphql`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders },
+          body: JSON.stringify({
+            query:
+              '{ __schema { queryType { fields { name } } mutationType { fields { name } } } }',
+          }),
+        });
+        const json = (await res.json()) as any;
+        const schema = json?.data?.__schema;
+        const fields = [
+          ...(schema?.queryType?.fields || []),
+          ...(schema?.mutationType?.fields || []),
+        ];
+        for (const f of fields) {
+          // Skip federation internals (_service/_entities) and ClientPortal ops.
+          // First subgraph to declare a field name wins.
+          if (!f?.name || /^(_|cp[A-Z])/.test(f.name)) continue;
+          if (!map.has(f.name)) map.set(f.name, name);
+        }
+      } catch {
+        // Plugin unreachable — its ops just won't be categorized via this map.
+      }
+    }),
+  );
+
+  return map;
 }
 
 // Introspect all OBJECT types → their fields, so chooseResponseFields can build
@@ -628,9 +655,10 @@ export async function fetchAvailableErxesTools(settings: any): Promise<any[]> {
   const token = settings?.erxesApiToken || '';
   const authHeaders: Record<string, string> = token ? { Authorization: token } : {};
 
-  // Fetch SDL-based plugin map and full field list in parallel
+  // Resolve plugin ownership (per-subgraph introspection) and the full gateway
+  // field list (for descriptions/args/types) in parallel.
   const [pluginMap, schemaRes] = await Promise.all([
-    fetchPluginMap(apiUrl, token),
+    fetchPluginMap(token),
     fetch(`${apiUrl}/graphql`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...authHeaders },
@@ -686,7 +714,9 @@ export async function fetchAvailableErxesTools(settings: any): Promise<any[]> {
         plugin,
         operation: field.name,
         operationType: opType,
-        description: truncateWords(field.description || `${opType} ${field.name}`, 15),
+        description: field.description?.trim()
+          ? truncateWords(field.description, 15)
+          : humanizeOperation(field.name, opType),
         graphqlArgs: field.args || [],
         returnType: field.type,
       });
