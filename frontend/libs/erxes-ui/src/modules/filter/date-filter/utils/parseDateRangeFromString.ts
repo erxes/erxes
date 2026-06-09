@@ -84,9 +84,14 @@ export const parseDateRangeFromString = (
   // Date range format: fromDate,toDate
   if (date.includes(',')) {
     const [from, to] = date.split(',');
+    const fromDate = new Date(from);
+    const toDate = new Date(to);
+
+    if (isNaN(fromDate.getTime())) return undefined;
+
     return {
-      from: startOfDay(new Date(from)),
-      to: endOfDay(new Date(to)),
+      from: startOfDay(fromDate),
+      to: endOfDay(isNaN(toDate.getTime()) ? fromDate : toDate),
     };
   }
 
