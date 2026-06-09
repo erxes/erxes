@@ -107,8 +107,8 @@ const checkPaid = (
 
   return Boolean(
     paidDateChange &&
-      !isTruthyDate(paidDateChange.prev) &&
-      isTruthyDate(paidDateChange.current),
+    !isTruthyDate(paidDateChange.prev) &&
+    isTruthyDate(paidDateChange.current),
   );
 };
 
@@ -158,7 +158,7 @@ const checkDeliveryCompleted = (
 
   return Boolean(
     statusChange?.prev !== statusChange?.current &&
-      DELIVERY_DONE_STATUSES.includes(String(statusChange?.current || '')),
+    DELIVERY_DONE_STATUSES.includes(String(statusChange?.current || '')),
   );
 };
 

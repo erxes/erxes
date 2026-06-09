@@ -152,12 +152,12 @@ const normalizeItems = (
   const baseItems = parsedItems.length
     ? parsedItems
     : configProductIds.length
-    ? configProductIds.map((productId) => ({
-        productId,
-        count: getNumber(config, 'count') || 1,
-        unitPrice: getNumber(config, 'unitPrice') || 0,
-      }))
-    : [];
+      ? configProductIds.map((productId) => ({
+          productId,
+          count: getNumber(config, 'count') || 1,
+          unitPrice: getNumber(config, 'unitPrice') || 0,
+        }))
+      : [];
 
   return baseItems.flatMap((item) => {
     const record = toRecord(item);
@@ -198,8 +198,8 @@ const normalizePaidAmounts = (
   const basePaidAmounts = parsedPaidAmounts.length
     ? parsedPaidAmounts
     : paymentType && paymentAmount !== undefined
-    ? [{ type: paymentType, amount: paymentAmount }]
-    : [];
+      ? [{ type: paymentType, amount: paymentAmount }]
+      : [];
 
   const paidAmounts = basePaidAmounts.flatMap((item) => {
     const record = toRecord(item);

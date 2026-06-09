@@ -166,10 +166,10 @@ export const generateNodes = (
 
       const nodesData = nodes.map(
         (n) =>
-          ({ ...n, config: n.config ?? {} } as Extract<
+          ({ ...n, config: n.config ?? {} }) as Extract<
             TAutomationNodeState,
             { nodeTyp: typeof type }
-          >),
+          >,
       );
 
       const generatedNode = generateNode(

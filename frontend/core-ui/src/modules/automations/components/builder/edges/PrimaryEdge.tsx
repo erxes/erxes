@@ -38,10 +38,10 @@ const PrimaryEdge: FC<EdgeProps> = (edge) => {
     edgeType === 'straight'
       ? getStraightPath(pathArgs)
       : edgeType === 'step'
-      ? getSmoothStepPath({ ...pathArgs, borderRadius: 0 })
-      : edgeType === 'smoothstep'
-      ? getSmoothStepPath(pathArgs)
-      : getBezierPath(pathArgs);
+        ? getSmoothStepPath({ ...pathArgs, borderRadius: 0 })
+        : edgeType === 'smoothstep'
+          ? getSmoothStepPath(pathArgs)
+          : getBezierPath(pathArgs);
 
   return (
     <>

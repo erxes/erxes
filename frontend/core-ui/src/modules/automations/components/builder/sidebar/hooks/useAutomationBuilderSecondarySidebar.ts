@@ -33,11 +33,7 @@ export const useAutomationBuilderSecondarySidebar = () => {
   };
 };
 
-const getEmptyState = ({
-  hasSourceNodes,
-}: {
-  hasSourceNodes: boolean;
-}) => {
+const getEmptyState = ({ hasSourceNodes }: { hasSourceNodes: boolean }) => {
   if (!hasSourceNodes) {
     return {
       title: 'No output variables yet',

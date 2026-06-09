@@ -54,8 +54,8 @@ export const useAutomationVariableBrowser = ({
   const scope = isActiveSourceNodeTrigger
     ? 'trigger'
     : isActiveSourceNodeAction
-    ? `actions.${activeSourceNode.id}`
-    : '';
+      ? `actions.${activeSourceNode.id}`
+      : '';
 
   const buildVariablePath = (path: string) =>
     buildAutomationVariablePath(scope, path);

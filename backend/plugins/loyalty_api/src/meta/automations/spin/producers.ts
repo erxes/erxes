@@ -1,6 +1,4 @@
-import {
-  TCoreModuleProducerContext,
-} from 'erxes-api-shared/core-modules';
+import { TCoreModuleProducerContext } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { AwardSpinActionConfig } from '../types';
 import { resolveAutomationOwners } from '../utils';

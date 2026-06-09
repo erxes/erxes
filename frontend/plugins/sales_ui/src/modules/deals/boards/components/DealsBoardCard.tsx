@@ -92,24 +92,42 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
       <DealCardDetails items={dealProducts} color="#63D2D6" separated />
       <DealCardDetails items={excludedProducts} color="#b49cf1" separated />
       <DealCardDetails items={tags || []} color="#FF6600" separated />
-      <DealCardDetails items={customProperties || []} color="#FF9900" separated />
+      <DealCardDetails
+        items={customProperties || []}
+        color="#FF9900"
+        separated
+      />
       {hasProducts && (
         <div className="flex flex-col gap-0.5 pt-0.5">
           {Object.entries(usedTotals).map(([currency, total]) => (
-            <div key={currency} className="flex justify-between text-xs font-semibold">
+            <div
+              key={currency}
+              className="flex justify-between text-xs font-semibold"
+            >
               <span className="text-muted-foreground">Total</span>
               <span>
                 {total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                {currency && <span className="text-muted-foreground ml-1 text-[10px]">{currency}</span>}
+                {currency && (
+                  <span className="text-muted-foreground ml-1 text-[10px]">
+                    {currency}
+                  </span>
+                )}
               </span>
             </div>
           ))}
           {Object.entries(unusedTotals).map(([currency, total]) => (
-            <div key={currency} className="flex justify-between text-xs opacity-60">
+            <div
+              key={currency}
+              className="flex justify-between text-xs opacity-60"
+            >
               <span className="text-muted-foreground">Unused</span>
               <span>
                 {total.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                {currency && <span className="text-muted-foreground ml-1 text-[10px]">{currency}</span>}
+                {currency && (
+                  <span className="text-muted-foreground ml-1 text-[10px]">
+                    {currency}
+                  </span>
+                )}
               </span>
             </div>
           ))}

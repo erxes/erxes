@@ -65,7 +65,10 @@ export const resolveFromSourceField =
       defaultValue,
     });
 
-export const matchAutomationResolverKey = (resolverKey: string, path: string) =>
+export const matchAutomationResolverKey = (
+  resolverKey: string,
+  path: string,
+) =>
   resolverKey.endsWith('.*')
     ? path.startsWith(resolverKey.slice(0, -1))
     : resolverKey === path;
@@ -240,7 +243,7 @@ const resolveOutputPathsFromDefinition = async ({
         | undefined;
 
       result[path] = field
-        ? propertiesData?.[field._id] ?? defaultValue
+        ? (propertiesData?.[field._id] ?? defaultValue)
         : defaultValue;
       continue;
     }
@@ -292,7 +295,9 @@ const resolveStaticOutputPlaceholder = (token: string) => {
   const offsetDays = STATIC_OUTPUT_PLACEHOLDERS[normalized];
 
   if (offsetDays !== undefined) {
-    return new Date(Date.now() + offsetDays * 24 * 60 * 60 * 1000).toISOString();
+    return new Date(
+      Date.now() + offsetDays * 24 * 60 * 60 * 1000,
+    ).toISOString();
   }
 
   const dynamicDate = normalized.match(/^now\+(\d+)d$/);
@@ -696,7 +701,7 @@ const replaceOutputPlaceholderValue = (
       return resolved;
     }
 
-    return keepUnresolvedPlaceholders ? defaultValue ?? value : defaultValue;
+    return keepUnresolvedPlaceholders ? (defaultValue ?? value) : defaultValue;
   }
 
   // бусад тохиолдолд: curly -> bracket дарааллаар орлуулна
@@ -775,13 +780,12 @@ export const replaceOutputPlaceholders = async ({
 
   return Object.entries(values).reduce<Record<string, unknown>>(
     (acc, [key, value]) => {
-      acc[key] =
-        replaceOutputPlaceholdersInValue(
-          value,
-          resolvedByToken,
-          defaultValue,
-          keepUnresolvedPlaceholders,
-        );
+      acc[key] = replaceOutputPlaceholdersInValue(
+        value,
+        resolvedByToken,
+        defaultValue,
+        keepUnresolvedPlaceholders,
+      );
 
       return acc;
     },
