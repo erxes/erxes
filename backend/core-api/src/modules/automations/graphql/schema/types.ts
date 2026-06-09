@@ -50,6 +50,8 @@ const types = `
     _id: String!
     name: String
     status: String
+    edgeType: String
+    flowDirection: String
     createdAt: Date
     updatedAt: Date
     createdBy: String

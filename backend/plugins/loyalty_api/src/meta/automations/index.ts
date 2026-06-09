@@ -1,17 +1,18 @@
 import {
   AutomationConfigs,
-  AutomationProducers,
   TAutomationProducers,
 } from 'erxes-api-shared/src/core-modules/automations/types';
 import { LOYALTIES_AUTOMATIONS_CONSTANTS } from './constants';
 import { createCoreModuleProducerHandler } from 'erxes-api-shared/core-modules';
 import { generateModels } from '~/connectionResolvers';
 import { scoreAutomationProducers } from './score/producers';
+import { spinAutomationProducers } from './spin/producers';
+import { voucherAutomationProducers } from './voucher/producers';
 
-const modules: Record<string, AutomationProducers> = {
+const modules = {
   score: scoreAutomationProducers,
-  voucher: {},
-  spin: {},
+  voucher: voucherAutomationProducers,
+  spin: spinAutomationProducers,
 };
 
 export const automationMeta = {

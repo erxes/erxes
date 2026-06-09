@@ -2,6 +2,7 @@ import {
   IAutomationAction,
   IAutomationExecAction,
   IAutomationExecutionDocument,
+  replaceOutputPlaceholders,
   splitType,
   TAutomationFindObjectResult,
   TAutomationProducers,
@@ -10,8 +11,8 @@ import { sendCoreModuleProducer } from 'erxes-api-shared/utils';
 
 export const executeFindObjectAction = async (
   subdomain: string,
-  triggerType: string,
-  targetType: string,
+  _triggerType: string,
+  _targetType: string,
   execution: IAutomationExecutionDocument,
   action: IAutomationAction,
   execAction: IAutomationExecAction,
@@ -19,28 +20,14 @@ export const executeFindObjectAction = async (
   const { objectType, lookupField, value, isExists, notExists } =
     action.config || {};
   const [pluginName] = splitType(objectType || '');
-  const placeholderSourceType =
-    typeof targetType === 'string' && targetType.includes(':')
-      ? targetType
-      : triggerType;
-  const [placeholderPluginName, placeholderModuleName] = splitType(
-    placeholderSourceType || '',
-  );
 
-  const replacedValue = await sendCoreModuleProducer({
+  const replacedValue = await replaceOutputPlaceholders({
     subdomain,
-    moduleName: 'automations',
-    pluginName: placeholderPluginName,
-    producerName: TAutomationProducers.REPLACE_PLACEHOLDERS,
-    input: {
-      moduleName: placeholderModuleName,
-      target: execution.target || {},
-      config: { value: value || '' },
-    },
-    defaultValue: { value: value || '' },
+    execution,
+    values: { value: value || '' },
   });
 
-  const resolvedValue = replacedValue?.value || '';
+  const resolvedValue = String(replacedValue?.value || '');
 
   const result = await sendCoreModuleProducer({
     subdomain,

@@ -4,6 +4,7 @@ import { useAiAgents } from '@/automations/components/settings/components/agents
 import { IconPlus } from '@tabler/icons-react';
 import { Button, RecordTable } from 'erxes-ui';
 import { Link } from 'react-router';
+import { Can } from 'ui-modules';
 
 export const AutomationAiAgentRecordTable = ({
   kind,
@@ -27,12 +28,14 @@ export const AutomationAiAgentRecordTable = ({
           </p>
         </div>
 
-        <Button asChild>
-          <Link to={toCreateUrl}>
-            <IconPlus className="size-4" />
-            Create Agent
-          </Link>
-        </Button>
+        <Can action="automationsAiAgentAdd">
+          <Button asChild>
+            <Link to={toCreateUrl}>
+              <IconPlus className="size-4" />
+              Create Agents
+            </Link>
+          </Button>
+        </Can>
       </div>
 
       <RecordTable.Provider
