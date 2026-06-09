@@ -92,6 +92,9 @@ startPlugin({
     };
 
     app.use('/static', express.static(path.join(__dirname, '/public')));
+    app.use('/static', express.static(path.join(__dirname, '/public')));
+    app.use('/images', express.static(path.join(__dirname, '/public/images')));
+
     app.use(
       '/widget',
       express.static(path.join(__dirname, '/public/widget'), { index: false }),
