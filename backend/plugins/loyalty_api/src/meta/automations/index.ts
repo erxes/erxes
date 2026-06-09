@@ -14,7 +14,7 @@ const modules = {
   voucher: voucherAutomationProducers,
   spin: spinAutomationProducers,
 };
-
+//
 export const automationMeta = {
   constants: LOYALTIES_AUTOMATIONS_CONSTANTS,
 
