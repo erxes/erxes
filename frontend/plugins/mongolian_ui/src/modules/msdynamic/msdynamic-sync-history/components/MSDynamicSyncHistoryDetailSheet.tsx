@@ -1,8 +1,8 @@
 import { SyncHistoryDetailSheet } from '@/shared/sync-history/components/SyncHistoryDetailSheet';
-import { ISyncHistory } from '../types/syncHistory';
+import { IMSDynamicSyncHistory } from '../types/msDynamicSyncHistory';
 
-export const SyncErkhetHistoryDetailSheet = ({
+export const MSDynamicSyncHistoryDetailSheet = ({
   histories,
 }: {
-  histories: ISyncHistory[];
+  histories: IMSDynamicSyncHistory[];
 }) => <SyncHistoryDetailSheet histories={histories} />;

@@ -1,48 +1,45 @@
 import {
+  IconAlertTriangle,
+  IconCalendarPlus,
   IconCategory,
-  IconCurrencyDollar,
+  IconExchange,
   IconHash,
   IconUser,
-  IconCalendarPlus,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import {
   RecordTable,
-  TextOverflowTooltip,
   RecordTableInlineCell,
   RelativeDateDisplay,
+  TextOverflowTooltip,
 } from 'erxes-ui';
-
-import { ISyncHistory } from '../types/syncHistory';
-import { SyncErkhetHistoryMoreColumn } from './SyncErkhetHistoryMoreColumn';
+import { IMSDynamicSyncHistory } from '../types/msDynamicSyncHistory';
+import { MSDynamicSyncHistoryMoreColumn } from './MSDynamicSyncHistoryMoreColumn';
+import { stringifySyncValueInline } from './stringifySyncValue';
 import { SyncHistoryClickableColumnCell } from '~/modules/shared/sync-history/components/SyncHistoryClickableColumnCell';
 
-const stringify = (value: any) => {
-  if (!value) {
-    return '';
-  }
+const InlineCell = ({ value }: { value: unknown }) => (
+  <RecordTableInlineCell>
+    <TextOverflowTooltip
+      value={typeof value === 'string' ? value : ''}
+    />
+  </RecordTableInlineCell>
+);
 
-  if (typeof value === 'string') {
-    return value;
-  }
-
-  return JSON.stringify(value);
-};
-
-export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
-  SyncErkhetHistoryMoreColumn,
-  RecordTable.checkboxColumn as ColumnDef<ISyncHistory>,
+export const msDynamicSyncHistoryColumns: ColumnDef<IMSDynamicSyncHistory>[] = [
+  MSDynamicSyncHistoryMoreColumn,
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
     header: () => (
       <RecordTable.InlineHead label="Created At" icon={IconCalendarPlus} />
     ),
-    cell: ({ cell }) => {
+    cell: ({ getValue }) => {
+      const msDynamicSyncHistoryCreatedAt = getValue() as string;
       return (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+        <RelativeDateDisplay value={msDynamicSyncHistoryCreatedAt} asChild>
           <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+            <RelativeDateDisplay.Value value={msDynamicSyncHistoryCreatedAt} />
           </RecordTableInlineCell>
         </RelativeDateDisplay>
       );
@@ -51,7 +48,7 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'createdUser',
     accessorKey: 'createdUser',
-    header: () => <RecordTable.InlineHead icon={IconHash} label="User" />,
+    header: () => <RecordTable.InlineHead icon={IconUser} label="User" />,
     cell: ({ row }) => {
       const user = row.original.createdUser;
       const value =
@@ -68,39 +65,27 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
     id: 'contentType',
     accessorKey: 'contentType',
     header: () => (
-      <RecordTable.InlineHead icon={IconCurrencyDollar} label="Content Type" />
+      <RecordTable.InlineHead icon={IconCategory} label="Content Type" />
     ),
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ cell }) => <InlineCell value={cell.getValue()} />,
   },
   {
     id: 'content',
     accessorKey: 'content',
-    header: () => <RecordTable.InlineHead icon={IconUser} label="Content" />,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
-        </RecordTableInlineCell>
-      );
-    },
+    header: () => <RecordTable.InlineHead icon={IconHash} label="Content" />,
+    cell: ({ cell }) => <InlineCell value={cell.getValue()} />,
   },
   {
     id: 'response',
     accessorKey: 'responseStr',
     header: () => (
-      <RecordTable.InlineHead icon={IconCategory} label="Response" />
+      <RecordTable.InlineHead icon={IconExchange} label="Response" />
     ),
     cell: ({ row }) => {
       return (
         <SyncHistoryClickableColumnCell
           row={row}
-          value={stringify(
+          value={stringifySyncValueInline(
             row.original.responseData || row.original.responseStr,
           )}
         />
@@ -110,7 +95,9 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
   {
     id: 'error',
     accessorKey: 'error',
-    header: () => <RecordTable.InlineHead icon={IconCategory} label="Error" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconAlertTriangle} label="Error" />
+    ),
     cell: ({ row }) => {
       return (
         <SyncHistoryClickableColumnCell
