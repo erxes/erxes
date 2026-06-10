@@ -8,10 +8,7 @@ import {
 import * as QRCode from 'qrcode';
 import { IModels } from '~/connectionResolvers';
 import { PAYMENT_STATUS } from '~/constants';
-import {
-  IInvoice,
-  IInvoiceDocument,
-} from '~/modules/payment/@types/invoices';
+import { IInvoice, IInvoiceDocument } from '~/modules/payment/@types/invoices';
 import {
   ITransaction,
   ITransactionDocument,
