@@ -123,13 +123,32 @@ RULES — follow exactly:
 7. Never claim you performed an action unless an execute call actually succeeded. Do not invent data not present in a tool result.
 `.trim();
 
-const BUILTIN_BLOCK = (tools: ToolInfo[]) =>
-  `
+// Only injected when the agent has the renderChart tool — avoids polluting the
+// prompt of agents that will never use it.
+const RENDER_CHART_HINT = `
+**For renderChart specifically:**
+- Call renderChart whenever the user asks to visualise, chart, graph, or plot data.
+- After a SUCCESSFUL renderChart call, you MUST embed the returned \`chartJson\` string
+  verbatim inside a fenced code block with language "chart-viz" like this (no extra text inside the block):
+
+\`\`\`chart-viz
+<paste chartJson here>
+\`\`\`
+
+- Do NOT rephrase, wrap, or summarise the JSON — output it exactly as returned.
+- You may add a short sentence OUTSIDE the block introducing the chart.
+`.trim();
+
+const BUILTIN_BLOCK = (tools: ToolInfo[]) => {
+  const hasRenderChart = tools.some((t) => t.id === 'renderChart' || t.name === 'renderChart');
+  return `
 ## Built-in Tools
 
 You also have these standalone tools — call them directly (no search needed):
 ${tools.map(describeTool).join('\n')}
+${hasRenderChart ? '\n' + RENDER_CHART_HINT : ''}
 `.trim();
+};
 
 const NO_TOOLS_BLOCK = `
 ## Capabilities

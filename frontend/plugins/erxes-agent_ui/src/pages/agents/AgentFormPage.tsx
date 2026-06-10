@@ -138,9 +138,11 @@ export const AgentFormPage = () => {
   // Keep in sync with backend mastra/tools/builtins.ts (BUILTIN_TOOLS keys).
   const BUILTINS = useMemo(
     () => [
-      { key: 'webSearch', description: 'Web search (DuckDuckGo)' },
+      { key: 'webSearch', description: 'Web search (DuckDuckGo / Brave)' },
       { key: 'fetchUrl', description: 'Fetch a web page as readable text' },
       { key: 'calculator', description: 'Evaluate a math expression' },
+      { key: 'renderChart', description: 'Render a bar / line / area / pie chart in chat' },
+      { key: 'readAttachment', description: 'Read a file or image (text, PDF, images)' },
       { key: 'companyKnowledge', description: 'Search indexed company knowledge' },
     ],
     [],

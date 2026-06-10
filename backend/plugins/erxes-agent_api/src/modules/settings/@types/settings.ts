@@ -16,6 +16,7 @@ export interface IMastraSettings {
   // (S3/R2/Azure/GCS/local, configured in core). Defaults to on; only
   // effective when that storage is actually configured.
   attachmentsEnabled?: boolean;
+  searchApiKey?: string;
   knowledgeSyncStatus?: IKnowledgeSyncStatus;
 }
 

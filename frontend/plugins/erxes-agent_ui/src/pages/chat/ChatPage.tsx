@@ -27,6 +27,7 @@ import {
   Badge,
   Breadcrumb,
   Button,
+  ChatVizMessage,
   Empty,
   REACT_APP_API_URL,
   Separator,
@@ -187,6 +188,59 @@ const BlockContent = ({ text }: { text: string }) => {
       continue;
     }
 
+    // Markdown table — collect all consecutive pipe-prefixed lines, then render.
+    if (/^\s*\|/.test(line)) {
+      const tableLines: string[] = [];
+      while (i < lines.length && /^\s*\|/.test(lines[i])) {
+        tableLines.push(lines[i]);
+        i++;
+      }
+
+      // Parse a row into trimmed, non-empty cells.
+      const parseRow = (row: string) =>
+        row.split('|').map((c) => c.trim()).filter((_, ci, arr) => ci > 0 && ci < arr.length - 1);
+
+      const isSeparator = (row: string) => /^\s*\|[\s|:-]+\|\s*$/.test(row);
+
+      const headerLine = tableLines[0];
+      const dataLines = tableLines.filter((l) => !isSeparator(l)).slice(1);
+      const headers = parseRow(headerLine);
+
+      blocks.push(
+        <div key={key++} className="my-2 overflow-x-auto rounded-lg border border-border">
+          <table className="w-full text-xs border-collapse">
+            <thead>
+              <tr className="bg-muted/60">
+                {headers.map((h, hi) => (
+                  <th
+                    key={hi}
+                    className="px-3 py-2 text-left font-semibold text-foreground border-b border-border whitespace-nowrap"
+                  >
+                    <InlineContent text={h} />
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {dataLines.map((row, ri) => (
+                <tr key={ri} className={ri % 2 === 0 ? 'bg-background' : 'bg-muted/20'}>
+                  {parseRow(row).map((cell, ci) => (
+                    <td
+                      key={ci}
+                      className="px-3 py-2 border-b border-border/50 last:border-b-0 align-top"
+                    >
+                      <InlineContent text={cell} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>,
+      );
+      continue;
+    }
+
     if (line.trim() === '') {
       i++;
       continue;
@@ -199,7 +253,8 @@ const BlockContent = ({ text }: { text: string }) => {
       !/^#{1,3} /.test(lines[i]) &&
       !/^[-*+] /.test(lines[i]) &&
       !/^\d+\. /.test(lines[i]) &&
-      !/^---+$/.test(lines[i].trim())
+      !/^---+$/.test(lines[i].trim()) &&
+      !/^\s*\|/.test(lines[i])
     ) {
       paraLines.push(lines[i]);
       i++;
@@ -232,6 +287,16 @@ const MarkdownContent = ({ content }: { content: string }) => {
           const langMatch = seg.match(/^```([^\n]*)\n/);
           const lang = langMatch?.[1]?.trim() || '';
           const code = seg.replace(/^```[^\n]*\n/, '').replace(/\n?```$/, '');
+
+          // Render chart-viz fenced blocks as interactive charts.
+          // JSON.parse is safe here: ChatVizMessage re-sanitizes the payload
+          // before any rendering occurs (see chatVizSanitize.ts).
+          if (lang === 'chart-viz') {
+            let raw: unknown = null;
+            try { raw = JSON.parse(code); } catch { /* malformed — fall through to code block */ }
+            if (raw) return <ChatVizMessage key={idx} rawPayload={raw} className="my-2" />;
+          }
+
           return (
             <div
               key={idx}

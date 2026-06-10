@@ -105,7 +105,7 @@ export const MASTRA_PROVIDER_MODELS = gql`
 export const MASTRA_SETTINGS = gql`
   query MastraSettings {
     mastraSettings {
-      _id erxesApiUrl erxesApiToken defaultAgentId attachmentsEnabled
+      _id erxesApiUrl erxesApiToken defaultAgentId attachmentsEnabled searchApiKey searchProvider
       attachmentStorage {
         configured serviceType enabled
       }

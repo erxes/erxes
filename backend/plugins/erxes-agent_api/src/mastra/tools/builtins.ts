@@ -52,24 +52,64 @@ async function ddgSearch(query: string, limit: number): Promise<SearchResult[]> 
   return results;
 }
 
-export const webSearchTool = createTool({
-  id: 'web-search',
-  description: 'Search the web for any topic. Returns top results with titles, URLs and snippets. Use fetch-url to read a result in full.',
-  inputSchema: z.object({
-    query: z.string().describe('The search query'),
-    limit: z.number().int().min(1).max(10).default(5).describe('Max results'),
-  }),
-  outputSchema: z.object({
-    results: z.array(z.object({
-      title: z.string(),
-      url: z.string(),
-      snippet: z.string(),
-    })),
-  }),
-  execute: async ({ query, limit }) => {
-    return { results: await ddgSearch(query, limit ?? 5) };
-  },
-});
+// Brave Search — optional, requires an API key. Returns real web results
+// including recent news and events. Free tier: 2000 queries/month.
+async function braveSearch(query: string, apiKey: string, limit: number): Promise<SearchResult[]> {
+  const url = new URL('https://api.search.brave.com/res/v1/web/search');
+  url.searchParams.set('q', query);
+  url.searchParams.set('count', String(Math.min(limit, 10)));
+  url.searchParams.set('safesearch', 'moderate');
+
+  const res = await fetch(url.toString(), {
+    headers: {
+      'Accept': 'application/json',
+      'Accept-Encoding': 'gzip',
+      'X-Subscription-Token': apiKey,
+    },
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+  });
+
+  if (!res.ok) throw new Error(`Brave Search HTTP ${res.status}`);
+  const data = await res.json() as any;
+
+  return (data.web?.results ?? []).map((r: any) => ({
+    title: r.title ?? '',
+    snippet: r.description ?? '',
+    url: r.url ?? '',
+  }));
+}
+
+// Factory — uses Brave if an API key is available (stored in settings or env),
+// falls back to DuckDuckGo HTML scraping (no key needed, slightly less reliable).
+export function createWebSearchTool(settings?: any) {
+  const apiKey: string = settings?.searchApiKey || process.env.BRAVE_SEARCH_API_KEY || '';
+
+  return createTool({
+    id: 'web-search',
+    description: apiKey
+      ? 'Search the web for current information using Brave Search. Returns real web results including news and recent events.'
+      : 'Search the web using DuckDuckGo. Returns top results with titles, URLs and snippets. Use fetch-url to read a result in full.',
+    inputSchema: z.object({
+      query: z.string().describe('The search query'),
+      limit: z.number().int().min(1).max(10).default(5).describe('Max results'),
+    }),
+    outputSchema: z.object({
+      results: z.array(z.object({
+        title: z.string(),
+        url: z.string(),
+        snippet: z.string(),
+      })),
+    }),
+    execute: async ({ query, limit }) => {
+      if (apiKey) {
+        return { results: await braveSearch(query, apiKey, limit ?? 5) };
+      }
+      return { results: await ddgSearch(query, limit ?? 5) };
+    },
+  });
+}
+
+export const webSearchTool = createWebSearchTool();
 
 function isPrivateIp(ip: string): boolean {
   if (ip.includes(':')) {
@@ -164,10 +204,87 @@ export const calculatorTool = createTool({
   },
 });
 
+// ─── Chart visualization tool ─────────────────────────────────────────────────
+//
+// Returns a serialized chart-viz JSON payload. The agent is instructed (via
+// routing.ts) to embed the returned string verbatim in a ```chart-viz``` fenced
+// code block so the chat UI renders it as an interactive chart.
+
+const SAFE_CSS_VAR_KEY = /^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/;
+const SAFE_CSS_COLOR = /^(#[0-9a-fA-F]{3,8}|rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)|hsl\(\s*\d{1,3}\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%\s*\))$/;
+
+const seriesItemSchema = z.object({
+  key: z.string().refine((v) => SAFE_CSS_VAR_KEY.test(v), {
+    message: 'key must start with a letter and contain only alphanumeric, dash, or underscore chars',
+  }),
+  label: z.string().max(200),
+  color: z.string().optional(),
+});
+
+const dataPointSchema = z.record(z.string(), z.union([z.string(), z.number()]));
+
+export const renderChartTool = createTool({
+  id: 'render-chart',
+  description:
+    'Build a data visualization chart (bar, line, area, or pie) and return the serialized payload. ' +
+    'The UI will render it as an interactive chart in the chat. ' +
+    'Use this whenever the user asks to see data as a chart or graph.',
+  inputSchema: z.object({
+    chartType: z.enum(['bar', 'line', 'area', 'pie']).describe('Chart type'),
+    title: z.string().max(200).describe('Chart title shown above the chart'),
+    description: z.string().max(200).optional().describe('Optional subtitle'),
+    series: z.array(seriesItemSchema).min(1).max(10).describe(
+      'Data series. Each entry maps a key (used as dataKey in data rows) to a label and optional color.',
+    ),
+    data: z.array(dataPointSchema).min(1).max(100).describe(
+      'Data rows. Each row must have a "label" string field and numeric values for every series key.',
+    ),
+  }),
+  outputSchema: z.object({ chartJson: z.string() }),
+  execute: async ({ chartType, title, description, series, data }) => {
+    const cleanSeries = series
+      .filter((s) => SAFE_CSS_VAR_KEY.test(s.key))
+      .map((s) => ({
+        key: s.key,
+        label: s.label.slice(0, 200),
+        color:
+          s.color && SAFE_CSS_COLOR.test(s.color.trim()) ? s.color.trim() : undefined,
+      }));
+
+    const validKeys = new Set(cleanSeries.map((s) => s.key));
+
+    const cleanData = data.map((row) => {
+      const point: Record<string, string | number> = {
+        label: typeof row['label'] === 'string' ? row['label'].slice(0, 200) : '',
+      };
+      for (const key of validKeys) {
+        const k = key as string;
+        const v = (row as Record<string, unknown>)[k];
+        const n = Number(v);
+        point[k] = Number.isFinite(n) ? n : 0;
+      }
+      return point;
+    });
+
+    const payload = {
+      type: 'chart-viz',
+      chartType,
+      title: title.slice(0, 200),
+      description: description?.slice(0, 200),
+      series: cleanSeries,
+      data: cleanData,
+      sentAt: new Date().toISOString(),
+    };
+
+    return { chartJson: JSON.stringify(payload) };
+  },
+});
+
 export const BUILTIN_TOOLS: Record<string, any> = {
   webSearch: webSearchTool,
   fetchUrl: fetchUrlTool,
   calculator: calculatorTool,
+  renderChart: renderChartTool,
   // No-ops with a clear message unless ERXES_AGENT_KNOWLEDGE=enable.
   companyKnowledge: companyKnowledgeTool,
   // Reads chat attachments (pdf/docx/xlsx/csv/…). Also force-bound outside
@@ -178,6 +295,7 @@ export const BUILTIN_TOOLS: Record<string, any> = {
   ...WORKFLOW_BUILTIN_TOOLS,
 };
 
-export function getBuiltinTool(builtinType: string) {
+export function getBuiltinTool(builtinType: string, settings?: any) {
+  if (builtinType === 'webSearch') return createWebSearchTool(settings);
   return BUILTIN_TOOLS[builtinType] ?? null;
 }

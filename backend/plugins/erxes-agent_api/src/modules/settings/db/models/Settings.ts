@@ -25,6 +25,7 @@ export const loadSettingsClass = (_models: IModels) => {
       if (process.env.ERXES_AGENT_ERXES_API_URL) doc.erxesApiUrl = process.env.ERXES_AGENT_ERXES_API_URL;
       if (process.env.ERXES_AGENT_ERXES_API_TOKEN) doc.erxesApiToken = process.env.ERXES_AGENT_ERXES_API_TOKEN;
       if (process.env.ERXES_AGENT_DEFAULT_AGENT_ID) doc.defaultAgentId = process.env.ERXES_AGENT_DEFAULT_AGENT_ID;
+      if (process.env.BRAVE_SEARCH_API_KEY) doc.searchApiKey = process.env.BRAVE_SEARCH_API_KEY;
 
       return doc;
     }
