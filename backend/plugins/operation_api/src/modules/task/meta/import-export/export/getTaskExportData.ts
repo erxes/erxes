@@ -133,21 +133,21 @@ async function applyCycleFilter(
       return true;
     }
     case 'previousCycle': {
-      const c = await models.Cycle.findOne({ teamId, endDate: { $lt: now } }).sort({ endDate: -1 });
-      if (!c) return false;
-      query.cycleId = c._id;
+      const cycleDoc = await models.Cycle.findOne({ teamId, endDate: { $lt: now } }).sort({ endDate: -1 });
+      if (!cycleDoc) return false;
+      query.cycleId = cycleDoc._id;
       return true;
     }
     case 'currentCycle': {
-      const c = await models.Cycle.findOne({ teamId, startDate: { $lte: now }, endDate: { $gte: now } });
-      if (!c) return false;
-      query.cycleId = c._id;
+      const cycleDoc = await models.Cycle.findOne({ teamId, startDate: { $lte: now }, endDate: { $gte: now } });
+      if (!cycleDoc) return false;
+      query.cycleId = cycleDoc._id;
       return true;
     }
     case 'upcomingCycle': {
-      const c = await models.Cycle.findOne({ teamId, startDate: { $gt: now } }).sort({ startDate: 1 });
-      if (!c) return false;
-      query.cycleId = c._id;
+      const cycleDoc = await models.Cycle.findOne({ teamId, startDate: { $gt: now } }).sort({ startDate: 1 });
+      if (!cycleDoc) return false;
+      query.cycleId = cycleDoc._id;
       return true;
     }
     case 'anyFutureCycle': {
@@ -285,6 +285,7 @@ async function resolveTaskEntityMaps(
   const { Task: _Task, ...rest } = models;
   const { Team, Status, Project, Milestone, Cycle } = rest;
 
+  /** Fetches users from the core plugin using the provided user IDs. */
   const fetchUsers = (userIds: Set<string>) =>
     userIds.size
       ? sendTRPCMessage({ subdomain, pluginName: 'core', method: 'query', module: 'users', action: 'find', input: { query: { _id: { $in: Array.from(userIds) } } } })
@@ -306,7 +307,10 @@ async function resolveTaskEntityMaps(
       : [],
   ]);
 
+  /** Converts an array of named documents into a Map of ID strings to names. */
   const toMap = (docs: NamedDoc[]) => new Map((docs || []).map((d) => [String(d._id), d.name || '']));
+  
+  /** Converts an array of user documents into a Map of ID strings to resolved full names. */
   const toUserMap = (docs: IUserDocument[]) => new Map((docs || []).map((u) => [String(u._id), resolveUserName(u)]));
 
   return {
