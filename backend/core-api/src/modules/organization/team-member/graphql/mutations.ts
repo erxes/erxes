@@ -153,10 +153,10 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
    */
   async usersEdit(
     _parent: undefined,
-    args: IUsersEdit,
+    args: IUsersEdit & { unitId?: string },
     { user, models, checkPermission }: IContext,
   ) {
-    const { _id, ...doc } = args;
+    const { _id, unitId, ...doc } = args as any;
 
     if (user._id !== _id) {
       await checkPermission('teamMembersUpdate', _id);
@@ -182,6 +182,19 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       await models.UserMovements.manageUserMovement({
         user: updatedUser,
       });
+    }
+
+    if (unitId !== undefined) {
+      await models.Units.updateMany(
+        { userIds: _id },
+        { $pull: { userIds: _id } },
+      );
+      if (unitId) {
+        await models.Units.updateOne(
+          { _id: unitId },
+          { $addToSet: { userIds: _id } },
+        );
+      }
     }
 
     return updatedUser;
