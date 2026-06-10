@@ -11,6 +11,11 @@ import {
   loadWorkingMemoryClass,
   IMastraWorkingMemoryModel,
 } from '@/memory/db/models/WorkingMemory';
+import { loadWorkflowClass, IMastraWorkflowModel } from '@/workflow/db/models/Workflow';
+import {
+  loadWorkflowRunClass,
+  IMastraWorkflowRunModel,
+} from '@/workflow/db/models/WorkflowRun';
 
 export interface IModels {
   MastraAgent: IMastraAgentModel;
@@ -19,6 +24,8 @@ export interface IModels {
   MastraThread: IMastraThreadModel;
   MastraMessage: IMastraMessageModel;
   MastraWorkingMemory: IMastraWorkingMemoryModel;
+  MastraWorkflow: IMastraWorkflowModel;
+  MastraWorkflowRun: IMastraWorkflowRunModel;
 }
 
 export interface IContext extends IMainContext {
@@ -58,6 +65,16 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.MastraWorkingMemory = db.model<any, IMastraWorkingMemoryModel>(
     'mastra_working_memory',
     loadWorkingMemoryClass(models),
+  );
+
+  models.MastraWorkflow = db.model<any, IMastraWorkflowModel>(
+    'mastra_workflows',
+    loadWorkflowClass(models),
+  );
+
+  models.MastraWorkflowRun = db.model<any, IMastraWorkflowRunModel>(
+    'mastra_workflow_runs',
+    loadWorkflowRunClass(models),
   );
 
   return models;

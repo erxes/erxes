@@ -20,6 +20,7 @@
     "@ai-sdk/openai": "^1.0.0",
     "@ai-sdk/openai-compatible": "^0.2.0",
     "@mastra/core": "^1.37.1",
+    "@mastra/mongodb": "^1.9.1",
     "erxes-api-shared": "workspace:^",
     "fastembed": "^2.1.0",
     "zod": "^3.25.0"

@@ -3,6 +3,7 @@ import { types as toolTypes, queries as toolQueries, mutations as toolMutations 
 import { types as providerTypes, queries as providerQueries, mutations as providerMutations } from '@/provider/graphql/schemas/provider';
 import { types as settingsTypes, queries as settingsQueries, mutations as settingsMutations } from '@/settings/graphql/schemas/settings';
 import { types as sessionTypes, queries as sessionQueries, mutations as sessionMutations } from '@/session/graphql/schemas/session';
+import { types as workflowTypes, queries as workflowQueries, mutations as workflowMutations } from '@/workflow/graphql/schemas/workflow';
 
 export const types = `
   ${agentTypes}
@@ -10,6 +11,7 @@ export const types = `
   ${providerTypes}
   ${settingsTypes}
   ${sessionTypes}
+  ${workflowTypes}
 `;
 
 export const queries = `
@@ -18,6 +20,7 @@ export const queries = `
   ${providerQueries}
   ${settingsQueries}
   ${sessionQueries}
+  ${workflowQueries}
 `;
 
 export const mutations = `
@@ -26,4 +29,5 @@ export const mutations = `
   ${providerMutations}
   ${settingsMutations}
   ${sessionMutations}
+  ${workflowMutations}
 `;
