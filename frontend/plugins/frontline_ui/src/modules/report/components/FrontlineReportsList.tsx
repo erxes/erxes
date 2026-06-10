@@ -249,7 +249,7 @@ export const FrontlineReportsList = () => {
           iconClass="bg-[var(--chart-3)]/10 text-[var(--chart-3)]"
         />
       </div>
-      <ScrollArea>
+      <ScrollArea className="flex-1 min-h-0">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}

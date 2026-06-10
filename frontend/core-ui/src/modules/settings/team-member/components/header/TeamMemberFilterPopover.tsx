@@ -21,6 +21,12 @@ export function TeamMemberFilterPopover() {
             <Command.List className="p-1">
               <Filter.SearchValueTrigger />
               <SelectBrands.FilterItem value="brandIds" label="Brands" />
+              <SelectBranches.FilterItem value="branchIds" label="Branches" />
+              <SelectDepartments.FilterItem
+                value="departmentIds"
+                label="Departments"
+              />
+              <SelectUnit.FilterItem />
               <Command.Item className="flex items-center gap-1">
                 <IconChecks />
                 isActive
@@ -30,6 +36,12 @@ export function TeamMemberFilterPopover() {
           </Command>
         </Filter.View>
         <SelectBrands.FilterView mode="multiple" filterKey="brandIds" />
+        <SelectBranches.FilterView mode="multiple" filterKey="branchIds" />
+        <SelectDepartments.FilterView
+          mode="multiple"
+          filterKey="departmentIds"
+        />
+        <SelectUnit.FilterView />
       </Combobox.Content>
     </Filter.Popover>
   );

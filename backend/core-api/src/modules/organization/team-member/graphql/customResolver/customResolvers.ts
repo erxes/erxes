@@ -141,6 +141,11 @@ export default {
     return models.Positions.find({ _id: { $in: user.positionIds } });
   },
 
+  async unitId(user: IUserDocument, _args, { models }: IContext) {
+    const unit = await models.Units.findOne({ userIds: user._id }).lean();
+    return unit?._id ?? null;
+  },
+
   async leaderBoardPosition(user: IUserDocument, _args, { models }: IContext) {
     return (
       (await models.Users.find({

@@ -234,6 +234,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
             variant="card"
             targetId={_id}
             initialValue={labels?.map((label) => label._id || '') || []}
+            showLabels
           />
           <SelectTagsFilterBar
             filterKey=""

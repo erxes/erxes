@@ -188,7 +188,7 @@ export function CallReportsPage() {
             </div>
 
             {/* Scrollable tab content */}
-            <ScrollArea className="flex-1">
+            <ScrollArea className="flex-1 min-h-0">
               <div className="mx-auto w-full max-w-[1440px] px-6 pb-10 pt-5">
                 <Tabs.Content value="overview" className="mt-0 outline-none">
                   <OverviewSection />

@@ -137,12 +137,9 @@ export function getDateRange(value: string) {
 
 export function getFilters(value?: string) {
   const filters: {
-    limit: number;
     fromDate?: string;
     toDate?: string;
-  } = {
-    limit: 10,
-  };
+  } = {};
 
   if (value) {
     const { fromDate, toDate } = getDateRange(value);

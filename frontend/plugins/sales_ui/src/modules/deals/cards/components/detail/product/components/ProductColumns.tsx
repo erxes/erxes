@@ -129,11 +129,12 @@ export const productColumns: ColumnDef<IProductData>[] = [
                 {product.code}
               </span>
             )}
-            <TextOverflowTooltip value={product?.name ?? ''} />
+            <span>{product?.name}</span>
           </div>
         </RecordTableInlineCell>
       );
     },
+    size: 260,
   },
   {
     id: 'unitPrice',
@@ -163,6 +164,7 @@ export const productColumns: ColumnDef<IProductData>[] = [
         </RecordTableInlineCell>
       );
     },
+    size: 110,
   },
   {
     id: 'quantity',

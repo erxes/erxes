@@ -66,7 +66,7 @@ export const reportTicketQueries = {
         },
       },
       { $sort: { count: -1 } },
-      { $limit: filters.limit || 10 },
+      { $limit: filters.limit || 100 },
     ];
 
     const sources = await models.Conversations.aggregate(pipeline);
@@ -118,22 +118,27 @@ export const reportTicketQueries = {
     { filters = {} }: { filters?: IReportFilters },
     { models, subdomain },
   ) {
-    const pipeline = await buildTicketPipeline(filters, subdomain);
+    const basePipeline = await buildTicketPipeline(filters, subdomain);
 
-    pipeline.push({ $sort: { updatedAt: -1 } });
+    basePipeline.push({ $sort: { updatedAt: -1, _id: -1 } });
 
     const page = filters.page ?? 1;
     const limit = filters.limit ?? 20;
-    const skip = (page - 1) * limit;
 
-    pipeline.push({ $skip: skip }, { $limit: limit });
+    const paginatedPipeline = [
+      ...basePipeline,
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
+    ];
 
-    const query = buildTicketMatch(filters);
+    const countPipeline = [...basePipeline, { $count: 'total' }];
 
-    const [list, totalCount] = await Promise.all([
-      models.Ticket.aggregate(pipeline),
-      models.Ticket.countDocuments(query),
+    const [list, countResult] = await Promise.all([
+      models.Ticket.aggregate(paginatedPipeline, { allowDiskUse: true }),
+      models.Ticket.aggregate(countPipeline, { allowDiskUse: true }),
     ]);
+
+    const totalCount = (countResult[0] as any)?.total ?? 0;
 
     return {
       list,
@@ -166,7 +171,7 @@ export const reportTicketQueries = {
       { $unwind: '$tagIds' },
       { $group: { _id: '$tagIds', count: { $sum: 1 } } },
       { $sort: { count: -1 } },
-      { $limit: filters.limit ?? 10 },
+      { $limit: filters.limit ?? 100 },
     ];
 
     const tagCounts: Array<{ _id: any; count: number }> =

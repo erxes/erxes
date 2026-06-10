@@ -386,16 +386,10 @@ export const ConversationResolved = ({
 }: ConversationResolvedProps) => {
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [chartType, setChartType] = useAtom(getReportChartTypeAtom(id));
-  const [dateValue, setDateValue] = useAtom(getReportDateFilterAtom(id));
-  const [sourceFilter, setSourceFilter] = useAtom(
-    getReportSourceFilterAtom(id),
-  );
-  const [channelFilter, setChannelFilter] = useAtom(
-    getReportChannelFilterAtom(id),
-  );
-  const [memberFilter, setMemberFilter] = useAtom(
-    getReportMemberFilterAtom(id),
-  );
+  const [dateValue] = useAtom(getReportDateFilterAtom(id));
+  const [sourceFilter] = useAtom(getReportSourceFilterAtom(id));
+  const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
+  const [memberFilter] = useAtom(getReportMemberFilterAtom(id));
   const [callStatusFilter] = useAtom(getReportCallStatusFilterAtom(id));
   const [filters, setFilters] = useState(() => getFilters());
 
@@ -500,7 +494,7 @@ export const ConversationResolved = ({
             {
               'p-4': chartType !== ResponsesChartType.Table,
             },
-            'w-full',
+            'size-full flex-1 flex-col flex',
           )}
         >
           {renderChart()}
