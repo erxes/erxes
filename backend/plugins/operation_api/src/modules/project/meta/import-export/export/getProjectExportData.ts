@@ -13,6 +13,7 @@ import { IProjectDocument, IProjectFilter } from '../../../@types/project';
 import mongoose, { FilterQuery } from 'mongoose';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 
+/** Applies a date-based filter to a Mongoose query field. Supports 'no-date', 'in-past', and ISO date string values. */
 const handleDateFilter = (
   filterQuery: FilterQuery<IProjectDocument>,
   fieldName: string,

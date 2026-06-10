@@ -9,10 +9,11 @@ import { IModels } from '~/connectionResolvers';
 import { buildTaskExportRow } from './buildTaskExportRow';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { STATUS_TYPES } from '@/status/constants/types';
-import { ITaskDocument, ITaskFilter } from '../../../@types/task';
+import { ITaskDocument, ITaskFilter, CycleFilterType } from '../../../@types/task';
 import mongoose, { FilterQuery } from 'mongoose';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 
+/** Applies a date-based filter to a Mongoose query field. Supports 'no-date', 'in-past', and ISO date string values. */
 const handleDateFilter = (
   filterQuery: FilterQuery<ITaskDocument>,
   fieldName: string,
@@ -33,6 +34,235 @@ const handleDateFilter = (
   filterQuery[fieldName] = { $lte: new Date(stringValue) };
 };
 
+/** Resolves the cycleId filter condition from a cycle filter type and team ID. Returns null to signal early empty result. */
+async function applyCycleFilter(
+  models: IModels,
+  query: FilterQuery<ITaskDocument>,
+  cycleFilter: CycleFilterType,
+  teamId: string,
+): Promise<boolean> {
+  const now = new Date();
+
+  switch (cycleFilter) {
+    case 'noCycle':
+      query.cycleId = null;
+      return true;
+
+    case 'anyPastCycle': {
+      const pastCycles = await models.Cycle.find({
+        teamId,
+        endDate: { $lt: now },
+      }).distinct('_id');
+      if (pastCycles.length === 0) return false;
+      query.cycleId = { $in: pastCycles } as FilterQuery<ITaskDocument>['cycleId'];
+      return true;
+    }
+
+    case 'previousCycle': {
+      const previousCycle = await models.Cycle.findOne({
+        teamId,
+        endDate: { $lt: now },
+      }).sort({ endDate: -1 });
+      if (!previousCycle) return false;
+      query.cycleId = previousCycle._id;
+      return true;
+    }
+
+    case 'currentCycle': {
+      const currentCycle = await models.Cycle.findOne({
+        teamId,
+        startDate: { $lte: now },
+        endDate: { $gte: now },
+      });
+      if (!currentCycle) return false;
+      query.cycleId = currentCycle._id;
+      return true;
+    }
+
+    case 'upcomingCycle': {
+      const upcomingCycle = await models.Cycle.findOne({
+        teamId,
+        startDate: { $gt: now },
+      }).sort({ startDate: 1 });
+      if (!upcomingCycle) return false;
+      query.cycleId = upcomingCycle._id;
+      return true;
+    }
+
+    case 'anyFutureCycle': {
+      const futureCycles = await models.Cycle.find({
+        teamId,
+        startDate: { $gt: now },
+      }).distinct('_id');
+      if (futureCycles.length === 0) return false;
+      query.cycleId = { $in: futureCycles } as FilterQuery<ITaskDocument>['cycleId'];
+      return true;
+    }
+
+    default:
+      return true;
+  }
+}
+
+/** Resolves matching project IDs from project-level filters (status, priority, lead, milestone name). Returns null to signal empty result. */
+async function applyProjectFilter(
+  models: IModels,
+  query: FilterQuery<ITaskDocument>,
+  filter: {
+    projectStatus?: number;
+    projectPriority?: number;
+    projectLeadId?: string;
+    projectMilestoneName?: string;
+  },
+): Promise<boolean> {
+  let projectIds: string[] = [];
+
+  if (filter.projectMilestoneName) {
+    const matchingMilestones = await models.Milestone.find({
+      name: { $regex: filter.projectMilestoneName, $options: 'i' },
+    }).distinct('projectId');
+
+    if (matchingMilestones.length === 0) return false;
+    projectIds = matchingMilestones;
+  }
+
+  if (filter.projectStatus || filter.projectPriority || filter.projectLeadId) {
+    const projectFilter: FilterQuery<{ _id: string; status?: number; priority?: number; leadId?: string }> = {};
+
+    if (filter.projectStatus) projectFilter.status = filter.projectStatus;
+    if (filter.projectPriority) projectFilter.priority = filter.projectPriority;
+    if (filter.projectLeadId) projectFilter.leadId = filter.projectLeadId;
+    if (projectIds.length > 0) projectFilter._id = { $in: projectIds };
+
+    const matchingProjects = await models.Project.find(projectFilter).distinct('_id');
+    if (matchingProjects.length === 0) return false;
+    projectIds = matchingProjects;
+  }
+
+  if (projectIds.length > 0) {
+    if (query.projectId) {
+      if (!projectIds.includes(query.projectId as string)) return false;
+    } else {
+      query.projectId = { $in: projectIds } as FilterQuery<ITaskDocument>['projectId'];
+    }
+  }
+
+  return true;
+}
+
+/** Builds the base Mongoose query from all export filter parameters. */
+async function buildTaskQuery(
+  models: IModels,
+  filter: ReturnType<typeof Object.assign> & GetExportData & {
+    search?: string;
+    projectId?: string;
+    cycleId?: string;
+    milestone?: string;
+    status?: string;
+    assigneeId?: string;
+    priority?: string;
+    teamId?: string;
+    startDate?: string;
+    endDate?: string;
+  } & ITaskFilter,
+): Promise<FilterQuery<ITaskDocument> | null> {
+  const query: FilterQuery<ITaskDocument> = {};
+
+  if (filter.name) {
+    query.name = { $regex: escapeRegExp(filter.name), $options: 'i' };
+  } else if (filter.search?.trim()) {
+    const sv = escapeRegExp(filter.search.trim());
+    const re = new RegExp(sv, 'i');
+    query.$or = [{ name: re }, { description: re }];
+  }
+
+  if (filter.status) query.status = filter.status;
+  if (filter.statusType) query.statusType = filter.statusType;
+
+  if (filter.priority !== undefined && filter.priority !== '') {
+    query.priority = Number(filter.priority);
+  }
+
+  if (filter.startDate) handleDateFilter(query, 'startDate', filter.startDate);
+
+  if (filter.targetDate) {
+    handleDateFilter(query, 'targetDate', filter.targetDate);
+  } else if (filter.endDate) {
+    handleDateFilter(query, 'targetDate', filter.endDate);
+  }
+
+  if (filter.createdDate) handleDateFilter(query, 'createdAt', filter.createdDate);
+  if (filter.updatedDate) handleDateFilter(query, 'updatedAt', filter.updatedDate);
+
+  if (filter.completedDate) {
+    query.statusType = STATUS_TYPES.COMPLETED;
+    handleDateFilter(query, 'statusChangedDate', filter.completedDate);
+  }
+
+  if (filter.teamId) query.teamId = filter.teamId;
+  if (filter.createdBy) query.createdBy = filter.createdBy;
+
+  if (filter.assigneeId) {
+    if (filter.assigneeId === 'no-assignee') {
+      query.assigneeId = { $exists: false } as FilterQuery<ITaskDocument>['assigneeId'];
+    } else {
+      query.assigneeId = filter.assigneeId;
+    }
+  }
+
+  if (filter.cycleId) {
+    query.cycleId = filter.cycleId;
+  } else if (filter.cycleFilter && filter.teamId) {
+    const ok = await applyCycleFilter(models, query, filter.cycleFilter, filter.teamId);
+    if (!ok) return null;
+  }
+
+  if (filter.projectId) {
+    if (filter.projectId === 'no-project') {
+      query.projectId = { $exists: false } as FilterQuery<ITaskDocument>['projectId'];
+    } else {
+      query.projectId = filter.projectId;
+    }
+  }
+
+  if (
+    filter.projectStatus ||
+    filter.projectPriority ||
+    filter.projectLeadId ||
+    filter.projectMilestoneName
+  ) {
+    const ok = await applyProjectFilter(models, query, filter);
+    if (!ok) return null;
+  }
+
+  if (filter.milestoneId) {
+    query.milestoneId = filter.milestoneId;
+  } else if (filter.milestone) {
+    query.milestoneId = filter.milestone;
+  }
+
+  if (filter.estimatePoint) query.estimatePoint = filter.estimatePoint;
+
+  if (filter.tagIds && filter.tagIds.length > 0) {
+    query.tagIds = { $in: filter.tagIds } as FilterQuery<ITaskDocument>['tagIds'];
+  }
+
+  if (filter.labelIds && filter.labelIds.length > 0) {
+    query.labelIds = { $in: filter.labelIds } as FilterQuery<ITaskDocument>['labelIds'];
+  }
+
+  if (filter.teamId && filter.projectId && filter.projectId !== 'no-project') {
+    delete query.teamId;
+  }
+
+  if (filter.userId && !filter.teamId && !filter.assigneeId && !filter.projectId) {
+    query.assigneeId = filter.userId;
+  }
+
+  return query;
+}
+
+/** Fetches and formats task export data with resolved display names for all related entities. */
 export async function getTaskExportData(
   data: GetExportData & {
     search?: string;
@@ -48,7 +278,7 @@ export async function getTaskExportData(
     filters?: ITaskFilter;
   },
   { subdomain, models }: IImportExportContext<IModels>,
-): Promise<Record<string, any>[]> {
+): Promise<Record<string, unknown>[]> {
   const { cursor, limit, ids, selectedFields, filters } = data;
   const effectiveLimit = normalizeExportLimit(limit, 100);
 
@@ -58,262 +288,19 @@ export async function getTaskExportData(
 
   const { Task, Team, Status, Project, Milestone, Cycle } = models;
 
-  // Merge direct query parameters and nested filters
   const filter = { ...data, ...(filters || {}) };
 
-  const query: FilterQuery<ITaskDocument> = {};
-
-  if (filter.name) {
-    query.name = { $regex: escapeRegExp(filter.name), $options: 'i' };
-  } else if (filter.search?.trim()) {
-    const sv = escapeRegExp(filter.search.trim());
-    const re = new RegExp(sv, 'i');
-    query.$or = [{ name: re }, { description: re }];
-  }
-
-  if (filter.status) {
-    query.status = filter.status;
-  }
-  if (filter.statusType) {
-    query.statusType = filter.statusType;
-  }
-
-  if (filter.priority !== undefined && filter.priority !== '') {
-    query.priority = Number(filter.priority);
-  }
-
-  if (filter.startDate) {
-    handleDateFilter(query, 'startDate', filter.startDate);
-  }
-
-  if (filter.targetDate) {
-    handleDateFilter(query, 'targetDate', filter.targetDate);
-  } else if (filter.endDate) {
-    handleDateFilter(query, 'targetDate', filter.endDate);
-  }
-
-  if (filter.createdDate) {
-    handleDateFilter(query, 'createdAt', filter.createdDate);
-  }
-
-  if (filter.updatedDate) {
-    handleDateFilter(query, 'updatedAt', filter.updatedDate);
-  }
-
-  if (filter.completedDate) {
-    query.statusType = STATUS_TYPES.COMPLETED;
-    handleDateFilter(query, 'statusChangedDate', filter.completedDate);
-  }
-
-  if (filter.teamId) {
-    query.teamId = filter.teamId;
-  }
-
-  if (filter.createdBy) {
-    query.createdBy = filter.createdBy;
-  }
-
-  if (filter.assigneeId) {
-    if (filter.assigneeId === 'no-assignee') {
-      query.assigneeId = { $exists: false } as any;
-    } else {
-      query.assigneeId = filter.assigneeId;
-    }
-  }
-
-  if (filter.cycleId) {
-    query.cycleId = filter.cycleId;
-  }
-
-  if (filter.cycleFilter && filter.teamId) {
-    const now = new Date();
-
-    switch (filter.cycleFilter) {
-      case 'noCycle':
-        query.cycleId = null;
-        break;
-
-      case 'anyPastCycle': {
-        const pastCycles = await models.Cycle.find({
-          teamId: filter.teamId,
-          endDate: { $lt: now },
-        }).distinct('_id');
-        if (pastCycles.length === 0) {
-          return [];
-        }
-        query.cycleId = { $in: pastCycles } as any;
-        break;
-      }
-
-      case 'previousCycle': {
-        const previousCycle = await models.Cycle.findOne({
-          teamId: filter.teamId,
-          endDate: { $lt: now },
-        }).sort({ endDate: -1 });
-        if (previousCycle) {
-          query.cycleId = previousCycle._id;
-        } else {
-          return [];
-        }
-        break;
-      }
-
-      case 'currentCycle': {
-        const currentCycle = await models.Cycle.findOne({
-          teamId: filter.teamId,
-          startDate: { $lte: now },
-          endDate: { $gte: now },
-        });
-        if (currentCycle) {
-          query.cycleId = currentCycle._id;
-        } else {
-          return [];
-        }
-        break;
-      }
-
-      case 'upcomingCycle': {
-        const upcomingCycle = await models.Cycle.findOne({
-          teamId: filter.teamId,
-          startDate: { $gt: now },
-        }).sort({ startDate: 1 });
-        if (upcomingCycle) {
-          query.cycleId = upcomingCycle._id;
-        } else {
-          return [];
-        }
-        break;
-      }
-
-      case 'anyFutureCycle': {
-        const futureCycles = await models.Cycle.find({
-          teamId: filter.teamId,
-          startDate: { $gt: now },
-        }).distinct('_id');
-        if (futureCycles.length === 0) {
-          return [];
-        }
-        query.cycleId = { $in: futureCycles } as any;
-        break;
-      }
-    }
-  }
-
-  if (filter.projectId) {
-    if (filter.projectId === 'no-project') {
-      query.projectId = { $exists: false } as any;
-    } else {
-      query.projectId = filter.projectId;
-    }
-  }
-
-  if (
-    filter.projectStatus ||
-    filter.projectPriority ||
-    filter.projectLeadId ||
-    filter.projectMilestoneName
-  ) {
-    let projectIds: string[] = [];
-
-    if (filter.projectMilestoneName) {
-      const matchingMilestones = await models.Milestone.find({
-        name: { $regex: filter.projectMilestoneName, $options: 'i' },
-      }).distinct('projectId');
-
-      if (matchingMilestones.length === 0) {
-        return [];
-      }
-
-      projectIds = matchingMilestones;
-    }
-
-    if (
-      filter.projectStatus ||
-      filter.projectPriority ||
-      filter.projectLeadId
-    ) {
-      const projectFilter: FilterQuery<any> = {};
-
-      if (filter.projectStatus) {
-        projectFilter.status = filter.projectStatus;
-      }
-
-      if (filter.projectPriority) {
-        projectFilter.priority = filter.projectPriority;
-      }
-
-      if (filter.projectLeadId) {
-        projectFilter.leadId = filter.projectLeadId;
-      }
-
-      if (projectIds.length > 0) {
-        projectFilter._id = { $in: projectIds };
-      }
-
-      const matchingProjects =
-        await models.Project.find(projectFilter).distinct('_id');
-
-      if (matchingProjects.length === 0) {
-        return [];
-      }
-
-      projectIds = matchingProjects;
-    }
-
-    if (projectIds.length > 0) {
-      if (query.projectId) {
-        if (!projectIds.includes(query.projectId as string)) {
-          return [];
-        }
-      } else {
-        query.projectId = { $in: projectIds } as any;
-      }
-    }
-  }
-
-  if (filter.milestoneId) {
-    query.milestoneId = filter.milestoneId;
-  } else if (filter.milestone) {
-    query.milestoneId = filter.milestone;
-  }
-
-  if (filter.estimatePoint) {
-    query.estimatePoint = filter.estimatePoint;
-  }
-
-  if (filter.tagIds && filter.tagIds.length > 0) {
-    query.tagIds = { $in: filter.tagIds } as any;
-  }
-
-  if (filter.labelIds && filter.labelIds.length > 0) {
-    query.labelIds = { $in: filter.labelIds } as any;
-  }
-
-  if (
-    filter.teamId &&
-    filter.projectId &&
-    filter.projectId !== 'no-project'
-  ) {
-    delete query.teamId;
-  }
-
-  if (
-    filter.userId &&
-    !filter.teamId &&
-    !filter.assigneeId &&
-    !filter.projectId
-  ) {
-    query.assigneeId = filter.userId;
-  }
+  const query = await buildTaskQuery(models, filter);
+  if (query === null) return [];
 
   const { query: exportQuery, isIdsMode } = buildExportCursorQuery({
-    baseQuery: query as Record<string, any>,
+    baseQuery: query as Record<string, unknown>,
     cursor,
     ids,
     limit: effectiveLimit,
   });
 
-  if (isIdsMode && (exportQuery._id as any)?.$in?.length === 0) {
+  if (isIdsMode && (exportQuery._id as { $in?: unknown[] })?.$in?.length === 0) {
     return [];
   }
 
@@ -340,12 +327,8 @@ export async function getTaskExportData(
     if (t.cycleId) cycleIds.add(String(t.cycleId));
     if (t.assigneeId) assigneeIds.add(String(t.assigneeId));
     if (t.createdBy) creatorIds.add(String(t.createdBy));
-    if (t.tagIds) {
-      t.tagIds.forEach((id) => tagIds.add(String(id)));
-    }
-    if (t.labelIds) {
-      t.labelIds.forEach((id) => labelIds.add(String(id)));
-    }
+    if (t.tagIds) t.tagIds.forEach((id) => tagIds.add(String(id)));
+    if (t.labelIds) t.labelIds.forEach((id) => labelIds.add(String(id)));
   }
 
   const [statuses, teams, projects, milestones, cycles, users, creators, tags, labels] = await Promise.all([
@@ -354,7 +337,7 @@ export async function getTaskExportData(
     projectIds.size ? Project.find({ _id: { $in: Array.from(projectIds) } }).select('_id name').lean() : [],
     milestoneIds.size ? Milestone.find({ _id: { $in: Array.from(milestoneIds) } }).select('_id name').lean() : [],
     cycleIds.size ? Cycle.find({ _id: { $in: Array.from(cycleIds) } }).select('_id name').lean() : [],
-    
+
     assigneeIds.size
       ? sendTRPCMessage({
           subdomain,
@@ -397,41 +380,44 @@ export async function getTaskExportData(
       : [],
   ]);
 
+  type NamedDoc = { _id: string | mongoose.Types.ObjectId; name?: string };
+
   const statusMap = new Map<string, string>();
-  (statuses || []).forEach((s: { _id: string | mongoose.Types.ObjectId; name?: string }) => statusMap.set(String(s._id), s.name || ''));
+  (statuses as NamedDoc[] || []).forEach((s) => statusMap.set(String(s._id), s.name || ''));
 
   const teamMap = new Map<string, string>();
-  (teams || []).forEach((t: { _id: string | mongoose.Types.ObjectId; name?: string }) => teamMap.set(String(t._id), t.name || ''));
+  (teams as NamedDoc[] || []).forEach((t) => teamMap.set(String(t._id), t.name || ''));
 
   const projectMap = new Map<string, string>();
-  (projects || []).forEach((p: { _id: string | mongoose.Types.ObjectId; name?: string }) => projectMap.set(String(p._id), p.name || ''));
+  (projects as NamedDoc[] || []).forEach((p) => projectMap.set(String(p._id), p.name || ''));
 
   const milestoneMap = new Map<string, string>();
-  (milestones || []).forEach((m: { _id: string | mongoose.Types.ObjectId; name?: string }) => milestoneMap.set(String(m._id), m.name || ''));
+  (milestones as NamedDoc[] || []).forEach((m) => milestoneMap.set(String(m._id), m.name || ''));
 
   const cycleMap = new Map<string, string>();
-  (cycles || []).forEach((c: { _id: string | mongoose.Types.ObjectId; name?: string }) => cycleMap.set(String(c._id), c.name || ''));
+  (cycles as NamedDoc[] || []).forEach((c) => cycleMap.set(String(c._id), c.name || ''));
+
+  const resolveUserName = (u: IUserDocument) =>
+    u.details?.fullName ||
+    `${u.details?.firstName || ''} ${u.details?.lastName || ''}`.trim() ||
+    u.username ||
+    u.email ||
+    '';
 
   const assigneeMap = new Map<string, string>();
-  (users || []).forEach((u: IUserDocument) => {
-    const name = u.details?.fullName || `${u.details?.firstName || ''} ${u.details?.lastName || ''}`.trim() || u.username || u.email || '';
-    assigneeMap.set(String(u._id), name);
-  });
+  (users as IUserDocument[] || []).forEach((u) => assigneeMap.set(String(u._id), resolveUserName(u)));
 
   const creatorMap = new Map<string, string>();
-  (creators || []).forEach((c: IUserDocument) => {
-    const name = c.details?.fullName || `${c.details?.firstName || ''} ${c.details?.lastName || ''}`.trim() || c.username || c.email || '';
-    creatorMap.set(String(c._id), name);
-  });
+  (creators as IUserDocument[] || []).forEach((c) => creatorMap.set(String(c._id), resolveUserName(c)));
 
   const tagMap = new Map<string, string>();
-  (tags || []).forEach((t: { _id: string; name?: string }) => tagMap.set(String(t._id), t.name || ''));
+  (tags as NamedDoc[] || []).forEach((t) => tagMap.set(String(t._id), t.name || ''));
 
   const labelMap = new Map<string, string>();
-  (labels || []).forEach((l: { _id: string; name?: string }) => labelMap.set(String(l._id), l.name || ''));
+  (labels as NamedDoc[] || []).forEach((l) => labelMap.set(String(l._id), l.name || ''));
 
-  return tasks.map((t: any) =>
-    buildTaskExportRow(t, selectedFields, {
+  return tasks.map((t) =>
+    buildTaskExportRow(t as ITaskDocument & { number?: number }, selectedFields, {
       statusMap,
       projectMap,
       cycleMap,
