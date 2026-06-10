@@ -26,7 +26,7 @@ export const ProjectsRecordTable = () => {
 
   /** Extracts export filters from variables by excluding pagination and sort parameters. */
   const getFilters = () => {
-    const filters = { ...variables } as any;
+    const filters = { ...variables } as Record<string, unknown>;
     delete filters.cursor;
     delete filters.limit;
     delete filters.orderBy;

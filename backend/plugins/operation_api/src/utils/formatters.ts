@@ -19,6 +19,7 @@ export const cleanDescription = (description: unknown): string => {
       if (isArray || isObj) {
         const blocks: unknown[] = isArray ? (parsed as unknown[]) : [parsed];
 
+        /** Extracts plain text from an array of slate blocks recursively. */
         const extractText = (content: unknown): string => {
           if (!Array.isArray(content)) {
             return '';
@@ -37,6 +38,7 @@ export const cleanDescription = (description: unknown): string => {
             .join('');
         };
 
+        /** Processes a single slate block recursively into plain text. */
         const processBlock = (block: unknown): string => {
           if (!isObject(block)) {
             return '';
@@ -52,7 +54,7 @@ export const cleanDescription = (description: unknown): string => {
               .filter(Boolean)
               .join('\n');
             if (childrenText) {
-              text += '\n' + childrenText;
+              text += `\n${childrenText}`;
             }
           }
           return text;

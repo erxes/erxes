@@ -381,12 +381,12 @@ export const dealTrpcRouter = t.router({
       )
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
-        const query: Record<string, any> = {};
+        const query: Record<string, unknown> = {};
 
         if ('_id' in input) {
           query._id = { $in: input._id.$in };
         } else if ('$or' in input) {
-          const conditions: any[] = [];
+          const conditions: Record<string, unknown>[] = [];
           for (const cond of input.$or) {
             if ('name' in cond) {
               conditions.push({ name: { $in: cond.name.$in } });
