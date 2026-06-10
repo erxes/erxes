@@ -90,8 +90,15 @@ router.post('/bot/:conversationId', async (req, res) => {
 
     const reply = result.text || '';
 
-    // Persist the exchange so the bot remembers across webhook calls.
-    await models.MastraThread.ensureThread(conversationId, agentConfig.agentId, userText);
+    // Persist the exchange so the bot remembers across webhook calls. The
+    // synthetic "bot:*" owner keeps these threads out of every in-app user's
+    // session list and ownership checks.
+    await models.MastraThread.ensureThread(
+      conversationId,
+      agentConfig.agentId,
+      `bot:${customerId || conversationId}`,
+      userText,
+    );
     const userMsg = await models.MastraMessage.addMessage(conversationId, 'user', userText);
     const asstMsg =
       reply ? await models.MastraMessage.addMessage(conversationId, 'assistant', reply) : null;

@@ -350,6 +350,8 @@ export const agentQueries = {
     { agentId, message, threadId }: { agentId: string; message: string; threadId?: string },
     { models, user, subdomain }: IContext,
   ) => {
+    if (!user?._id) throw new Error('Login required');
+
     const agentConfig = await models.MastraAgent.findOne({ agentId, isEnabled: true });
     if (!agentConfig) throw new Error(`Agent "${agentId}" not found or disabled`);
 
@@ -359,6 +361,12 @@ export const agentQueries = {
 
     // Stable session id — the persisted thread this turn belongs to.
     const sessionId = threadId || `chat-${Date.now()}`;
+
+    // Ownership gate BEFORE any history is replayed: throws if the thread
+    // belongs to another user (prevents reading or continuing someone else's
+    // session by passing their threadId). Creates/claims the thread otherwise.
+    await models.MastraThread.ensureThread(sessionId, agentId, user._id, message);
+
     const useHistory = agentConfig.memoryEnabled !== false;
     // Advanced memory rides on top of replay; a memory-disabled agent gets neither.
     const advanced = isAdvancedMemoryEnabled() && useHistory;
@@ -408,7 +416,7 @@ export const agentQueries = {
     // Persist the completed exchange so the session survives reloads. Only the
     // final user + assistant text is stored (no tool-call frames), which also
     // keeps replayed history clean for reasoning models like Kimi.
-    await models.MastraThread.ensureThread(sessionId, agentId, message);
+    // (The thread itself was created/ownership-checked before the turn ran.)
     const userMsg = await models.MastraMessage.addMessage(sessionId, 'user', message);
     const asstMsg =
       reply ? await models.MastraMessage.addMessage(sessionId, 'assistant', reply) : null;

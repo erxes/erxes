@@ -14,28 +14,42 @@ export interface IMastraThreadModel extends Model<IMastraThreadDocument> {
   ensureThread(
     threadId: string,
     agentId: string,
+    userId: string,
     firstMessage?: string,
   ): Promise<IMastraThreadDocument>;
   touchThread(threadId: string): Promise<void>;
-  getThreadsByAgent(agentId: string): Promise<IMastraThreadDocument[]>;
-  renameThread(threadId: string, title: string): Promise<IMastraThreadDocument>;
-  removeThread(threadId: string): Promise<{ ok?: number }>;
+  getThreadsByOwner(agentId: string, userId: string): Promise<IMastraThreadDocument[]>;
+  getOwnedThread(threadId: string, userId: string): Promise<IMastraThreadDocument>;
+  renameThread(threadId: string, title: string, userId: string): Promise<IMastraThreadDocument>;
+  removeThread(threadId: string, userId: string): Promise<{ ok?: number }>;
 }
 
 export const loadThreadClass = (_models: IModels) => {
   class MastraThread {
     // Find an existing session or create it on first use, titled from the
-    // opening message.
+    // opening message. Ownership boundary: a thread owned by someone else is
+    // reported as "not found" (existence is not leaked). Legacy threads with
+    // no owner are claimed by the caller — backfill-by-use.
     public static async ensureThread(
       threadId: string,
       agentId: string,
+      userId: string,
       firstMessage?: string,
     ) {
       const existing = await _models.MastraThread.findOne({ threadId });
-      if (existing) return existing;
+      if (existing) {
+        if (!existing.userId) {
+          existing.userId = userId;
+          await existing.save();
+          return existing;
+        }
+        if (existing.userId !== userId) throw new Error('Thread not found');
+        return existing;
+      }
       return _models.MastraThread.create({
         threadId,
         agentId,
+        userId,
         title: deriveTitle(firstMessage || ''),
         lastMessageAt: new Date(),
       });
@@ -51,13 +65,21 @@ export const loadThreadClass = (_models: IModels) => {
       );
     }
 
-    public static async getThreadsByAgent(agentId: string) {
-      return _models.MastraThread.find({ agentId }).sort({ lastMessageAt: -1 });
+    // Only the caller's own sessions — never other users' or bot threads.
+    public static async getThreadsByOwner(agentId: string, userId: string) {
+      return _models.MastraThread.find({ agentId, userId }).sort({ lastMessageAt: -1 });
     }
 
-    public static async renameThread(threadId: string, title: string) {
+    // Fetch a thread the caller owns; "not found" otherwise (no existence leak).
+    public static async getOwnedThread(threadId: string, userId: string) {
+      const thread = await _models.MastraThread.findOne({ threadId, userId });
+      if (!thread) throw new Error('Thread not found');
+      return thread;
+    }
+
+    public static async renameThread(threadId: string, title: string, userId: string) {
       const updated = await _models.MastraThread.findOneAndUpdate(
-        { threadId },
+        { threadId, userId },
         { $set: { title } },
         { new: true },
       );
@@ -65,9 +87,11 @@ export const loadThreadClass = (_models: IModels) => {
       return updated;
     }
 
-    public static async removeThread(threadId: string) {
+    public static async removeThread(threadId: string, userId: string) {
+      // Verify ownership before touching messages.
+      await MastraThread.getOwnedThread(threadId, userId);
       await _models.MastraMessage.deleteMany({ threadId });
-      return _models.MastraThread.deleteOne({ threadId });
+      return _models.MastraThread.deleteOne({ threadId, userId });
     }
   }
 

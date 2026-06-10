@@ -7,6 +7,11 @@ export const threadSchema = new Schema(
     // Stable session id (supplied by the client or generated on first message).
     threadId: { type: String, required: true, unique: true, label: 'Thread ID' },
     agentId: { type: String, required: true, index: true, label: 'Agent ID' },
+    // Owner: the in-app user's _id, or "bot:<customerId|conversationId>" for
+    // messenger-bot sessions. Every read/rename/remove is filtered by this, so
+    // threads are private to their owner. Legacy ownerless threads are claimed
+    // by the next owner who posts to them (see ensureThread).
+    userId: { type: String, index: true, label: 'Owner user ID' },
     title: { type: String, label: 'Title' },
     messageCount: { type: Number, default: 0, label: 'Message count' },
     lastMessageAt: { type: Date, label: 'Last message at' },

@@ -5,6 +5,9 @@ import { Document } from 'mongoose';
 export interface IMastraThread {
   threadId: string;
   agentId: string;
+  // Owner: in-app user _id or "bot:<id>" for messenger sessions. Optional only
+  // for legacy docs created before ownership existed.
+  userId?: string;
   title?: string;
   messageCount?: number;
   lastMessageAt?: Date;
