@@ -20,6 +20,7 @@ import { generateModels } from '~/connectionResolvers';
 import {
   isKnowledgeEnabled,
   knowledgeCollectionName,
+  knowledgeTenant,
   resolveEmbedderConfig,
   resolveKnowledgeTuning,
 } from './config';
@@ -50,9 +51,10 @@ export const companyKnowledgeTool = createTool({
       }
 
       const auth = getCurrentAuth();
-      const subdomain = auth?.subdomain;
+      // Canonical tenant tag (saas: org subdomain; non-saas: fixed 'os', the
+      // same tag the sweep writes). Fail closed without one.
+      const subdomain = knowledgeTenant(auth?.subdomain);
       if (!subdomain) {
-        // Fail closed: without a tenant we must not search a shared index.
         return { results: [], error: 'No tenant context for this request.' };
       }
 

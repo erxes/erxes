@@ -88,6 +88,23 @@ export function knowledgeSyncCron(env: Env = process.env): string {
 }
 
 /**
+ * Canonical tenant tag for Qdrant points and filters.
+ *
+ * In saas mode the request subdomain IS the org subdomain, so sweep (which
+ * iterates orgs) and retrieval agree naturally. In non-saas there is exactly
+ * one tenant but the request-derived label varies with the hostname
+ * (localhost, app, erxes, ...), while background jobs have no request at all —
+ * so both sides pin the erxes single-tenant convention, 'os'.
+ */
+export function knowledgeTenant(
+  requestSubdomain: string | undefined,
+  env: Env = process.env,
+): string | undefined {
+  if (val(env, 'VERSION') === 'saas') return requestSubdomain || undefined;
+  return 'os';
+}
+
+/**
  * The read-only status surfaced in Settings. When disabled, every detail is
  * null. `qdrantReachable` is supplied by a live health check; pass undefined
  * when no check has run yet.
