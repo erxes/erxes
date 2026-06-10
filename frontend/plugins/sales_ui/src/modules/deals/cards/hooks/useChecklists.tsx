@@ -9,7 +9,12 @@ import {
 import { GET_CHECKLISTS } from '@/deals/graphql/queries/ChecklistQueries';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { IChecklist, IChecklistItem } from '@/deals/types/checklists';
-import { MutationHookOptions, QueryHookOptions, useMutation, useQuery } from '@apollo/client';
+import {
+  MutationHookOptions,
+  QueryHookOptions,
+  useMutation,
+  useQuery,
+} from '@apollo/client';
 import { useQueryState } from 'erxes-ui';
 import { useAtom } from 'jotai';
 
