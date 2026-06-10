@@ -38,11 +38,12 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
     header: () => (
       <RecordTable.InlineHead label="Created At" icon={IconCalendarPlus} />
     ),
-    cell: ({ cell }) => {
+    cell: ({ getValue }) => {
+      const createdAt = getValue() as string;
       return (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
+        <RelativeDateDisplay value={createdAt} asChild>
           <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
+            <RelativeDateDisplay.Value value={createdAt} />
           </RecordTableInlineCell>
         </RelativeDateDisplay>
       );
