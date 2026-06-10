@@ -7,8 +7,13 @@ import { useTasksVariables } from '@/task/hooks/useGetTasks';
 export const TasksLayout = () => {
   const variables = useTasksVariables();
 
+  /** Extracts export filters from variables by excluding pagination and sort parameters. */
   const getFilters = () => {
-    const { cursor, limit, orderBy, direction, ...filters } = variables;
+    const filters = { ...variables } as any;
+    delete filters.cursor;
+    delete filters.limit;
+    delete filters.orderBy;
+    delete filters.direction;
     return filters;
   };
 

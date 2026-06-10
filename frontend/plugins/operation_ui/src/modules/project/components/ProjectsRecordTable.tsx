@@ -24,8 +24,13 @@ export const ProjectsRecordTable = () => {
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const { teams } = useGetCurrentUsersTeams();
 
+  /** Extracts export filters from variables by excluding pagination and sort parameters. */
   const getFilters = () => {
-    const { cursor, limit, orderBy, direction, ...filters } = variables;
+    const filters = { ...variables } as any;
+    delete filters.cursor;
+    delete filters.limit;
+    delete filters.orderBy;
+    delete filters.direction;
     return filters;
   };
 
