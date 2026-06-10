@@ -1,7 +1,8 @@
 import { IContext } from '~/connectionResolvers';
 import { computeAdvancedMemoryStatus } from '~/mastra/memory/config';
 import { refreshMemoryHealth } from '~/mastra/memory';
-import { computeKnowledgeStatus, isKnowledgeEnabled } from '~/mastra/knowledge/config';
+import { computeKnowledgeStatus, isKnowledgeEnabled, enabledKnowledgeTypes } from '~/mastra/knowledge/config';
+import { ALL_KNOWLEDGE_TYPE_NAMES } from '~/mastra/knowledge/contentTypes';
 import { health as qdrantHealth } from '~/mastra/memory/vectorStore';
 
 export const settingsQueries = {
@@ -25,9 +26,12 @@ export const settingsQueries = {
       advancedMemoryStatus: status,
       knowledgeStatus: {
         ...knowledge,
+        enabledTypes: isKnowledgeEnabled()
+          ? enabledKnowledgeTypes(ALL_KNOWLEDGE_TYPE_NAMES)
+          : [],
         lastSweepAt: obj?.knowledgeSyncStatus?.lastSweepAt ?? null,
-        articleCount: obj?.knowledgeSyncStatus?.articleCount ?? null,
         pointCount: obj?.knowledgeSyncStatus?.pointCount ?? null,
+        types: obj?.knowledgeSyncStatus?.types ?? null,
         lastError: obj?.knowledgeSyncStatus?.lastError ?? null,
       },
     };

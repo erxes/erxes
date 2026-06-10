@@ -69,12 +69,14 @@ export async function initKnowledgeSync(redis: any): Promise<void> {
       const { subdomain } = job?.data ?? {};
       if (!subdomain) return 'skipped: no subdomain';
       const result = await runKnowledgeSweep(subdomain);
+      const perType = Object.entries(result.types)
+        .map(([t, s]) => `${t}=${s.count}${s.error ? '(err)' : ''}`)
+        .join(' ');
       // eslint-disable-next-line no-console
       console.log(
-        `[erxes-agent:knowledge] sweep "${subdomain}": ` +
-          `${result.articleCount} articles, ${result.pointCount} points, ` +
-          `+${result.upserted} upserted, -${result.deleted} deleted` +
-          (result.error ? `, error: ${result.error}` : ''),
+        `[erxes-agent:knowledge] sweep "${subdomain}": ${result.pointCount} points ` +
+          `[${perType}], +${result.upserted} upserted, -${result.deleted} deleted` +
+          (result.error ? `, errors: ${result.error}` : ''),
       );
       return result;
     },

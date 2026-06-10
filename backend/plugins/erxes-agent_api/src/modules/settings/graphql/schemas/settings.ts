@@ -15,9 +15,10 @@ export const types = `
     qdrantUrl: String
     qdrantReachable: Boolean
     collection: String
+    enabledTypes: [String]
     lastSweepAt: Date
-    articleCount: Int
     pointCount: Int
+    types: JSON
     lastError: String
   }
 

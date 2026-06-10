@@ -134,7 +134,7 @@ export const MASTRA_SETTINGS = gql`
       }
       knowledgeStatus {
         enabled embedder embedderModel qdrantUrl qdrantReachable collection
-        lastSweepAt articleCount pointCount lastError
+        enabledTypes lastSweepAt pointCount types lastError
       }
     }
   }

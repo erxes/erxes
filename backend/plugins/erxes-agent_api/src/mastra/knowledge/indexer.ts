@@ -1,16 +1,26 @@
 // ---------------------------------------------------------------------------
-// Company Knowledge RAG — reconciliation sweep.
+// Company Knowledge RAG — reconciliation sweep (registry-driven).
 //
 // Mongo (via gateway GraphQL) is the source of truth; Qdrant is a derived
-// index. Each sweep computes the desired point set from published+public
-// articles, then converges Qdrant to it: upsert changed/new points, delete
-// orphans (articles deleted, unpublished, or made private since last sweep).
-// A periodic full reconciliation is the baseline sync — this repo has no
-// MongoDB change streams — and also self-heals any missed update.
+// index. Each sweep computes the desired point set from every ENABLED
+// content type, then converges Qdrant to it: upsert changed/new points,
+// delete orphans — including all points of types that were disabled or
+// records that were deleted/hidden since the last run. A periodic full
+// reconciliation is the baseline sync — this repo has no MongoDB change
+// streams — and also self-heals any missed update.
+//
+// One content type failing (plugin not enabled, query error) never blocks
+// the others: its error is recorded per-type and its existing points are
+// LEFT IN PLACE (a fetch failure must not be interpreted as "0 records").
 // ---------------------------------------------------------------------------
 
 import { generateModels } from '~/connectionResolvers';
-import { resolveEmbedderConfig, knowledgeCollectionName } from './config';
+import {
+  resolveEmbedderConfig,
+  knowledgeCollectionName,
+  enabledKnowledgeTypes,
+  knowledgeMaxPerType,
+} from './config';
 import { getEmbedder } from '~/mastra/memory/embedder';
 import {
   ensureCollection,
@@ -20,53 +30,38 @@ import {
   QdrantPoint,
 } from '~/mastra/memory/vectorStore';
 import { pointIdFor } from '~/mastra/memory/semanticRecall';
-import { articleToChunks } from './serializer';
-import { buildAuthHeaders, fetchPublishedArticles, KbArticle } from './gatewayClient';
-
-export const KNOWLEDGE_CONTENT_TYPE = 'kb-article';
+import { KNOWLEDGE_CONTENT_TYPES, ALL_KNOWLEDGE_TYPE_NAMES } from './contentTypes';
+import { buildAuthHeaders, makeGqlExec } from './gatewayClient';
 
 const EMBED_BATCH = 32;
 
+// Bump when the point id/payload contract changes: new ids ≠ old ids, so the
+// orphan pass cleanly rebuilds the corpus instead of leaving mixed payloads.
+const POINT_SCHEMA_VERSION = 'v2';
+
+export interface TypeSweepStatus {
+  count: number;
+  points: number;
+  error?: string;
+}
+
 export interface SweepResult {
   ok: boolean;
-  articleCount: number;
   pointCount: number;
   upserted: number;
   deleted: number;
+  types: Record<string, TypeSweepStatus>;
   error?: string;
 }
 
 interface DesiredPoint {
   id: string;
-  articleId: string;
+  contentType: string;
+  recordId: string;
   chunkIndex: number;
   title: string;
   text: string;
-  categoryId?: string;
-  topicId?: string;
   modifiedDate: string;
-}
-
-function desiredPointsFor(subdomain: string, articles: KbArticle[]): DesiredPoint[] {
-  const out: DesiredPoint[] = [];
-  for (const article of articles) {
-    const modifiedDate = article.modifiedDate
-      ? new Date(article.modifiedDate).toISOString()
-      : '';
-    for (const chunk of articleToChunks(article)) {
-      out.push({
-        id: pointIdFor(subdomain, `${article._id}#${chunk.chunkIndex}`),
-        articleId: article._id,
-        chunkIndex: chunk.chunkIndex,
-        title: article.title || '',
-        text: chunk.text,
-        categoryId: article.categoryId,
-        topicId: article.topicId,
-        modifiedDate,
-      });
-    }
-  }
-  return out;
 }
 
 /**
@@ -76,46 +71,80 @@ function desiredPointsFor(subdomain: string, articles: KbArticle[]): DesiredPoin
 export async function runKnowledgeSweep(subdomain: string): Promise<SweepResult> {
   const result: SweepResult = {
     ok: false,
-    articleCount: 0,
     pointCount: 0,
     upserted: 0,
     deleted: 0,
+    types: {},
   };
 
   try {
     const models = await generateModels(subdomain);
     const settings = await models.MastraSettings.getSettings();
-    const headers = buildAuthHeaders({ apiToken: settings.erxesApiToken });
-    const apiUrl = settings.erxesApiUrl || 'http://localhost:4000';
+    const gql = makeGqlExec(
+      settings.erxesApiUrl || 'http://localhost:4000',
+      buildAuthHeaders({ apiToken: settings.erxesApiToken }),
+    );
 
     const emb = resolveEmbedderConfig();
     const collection = knowledgeCollectionName(emb.model, emb.dimension);
     await ensureCollection(collection, emb.dimension);
 
-    // Desired state from the source of truth.
-    const articles = await fetchPublishedArticles(apiUrl, headers);
-    const desired = desiredPointsFor(subdomain, articles);
-    result.articleCount = articles.length;
+    const enabled = enabledKnowledgeTypes(ALL_KNOWLEDGE_TYPE_NAMES);
+    const maxPerType = knowledgeMaxPerType();
+
+    // Desired state per enabled type. A failed type contributes NO desired
+    // points and is excluded from orphan deletion below.
+    const desired: DesiredPoint[] = [];
+    const failedTypes = new Set<string>();
+
+    for (const typeName of enabled) {
+      const ct = KNOWLEDGE_CONTENT_TYPES[typeName];
+      try {
+        const records = await ct.list(gql, maxPerType);
+        let points = 0;
+        for (const rec of records) {
+          for (const chunk of rec.chunks) {
+            desired.push({
+              id: pointIdFor(
+                subdomain,
+                `${POINT_SCHEMA_VERSION}:${typeName}:${rec._id}#${chunk.chunkIndex}`,
+              ),
+              contentType: typeName,
+              recordId: rec._id,
+              chunkIndex: chunk.chunkIndex,
+              title: rec.title,
+              text: chunk.text,
+              modifiedDate: rec.modifiedDate,
+            });
+            points++;
+          }
+        }
+        result.types[typeName] = { count: records.length, points };
+      } catch (e: any) {
+        failedTypes.add(typeName);
+        result.types[typeName] = { count: 0, points: 0, error: e?.message || String(e) };
+      }
+    }
     result.pointCount = desired.length;
 
-    // Current state in Qdrant for this tenant + content type.
+    // Current state in Qdrant for this tenant (every content type).
     const existing = await scroll(collection, {
-      must: [
-        { key: 'subdomain', match: { value: subdomain } },
-        { key: 'contentType', match: { value: KNOWLEDGE_CONTENT_TYPE } },
-      ],
+      must: [{ key: 'subdomain', match: { value: subdomain } }],
     });
     const existingById = new Map(existing.map((p) => [String(p.id), p.payload]));
 
-    // Converge: embed+upsert points whose content version changed, delete orphans.
+    // Converge: embed+upsert changed points; delete orphans. Points belonging
+    // to a type whose fetch FAILED this run are kept (unknown ≠ gone); points
+    // of disabled types are orphaned and removed.
     const desiredIds = new Set(desired.map((d) => d.id));
     const stale = desired.filter((d) => {
       const cur = existingById.get(d.id);
       return !cur || cur.modifiedDate !== d.modifiedDate;
     });
     const orphanIds = existing
-      .map((p) => String(p.id))
-      .filter((id) => !desiredIds.has(id));
+      .filter((p) => !desiredIds.has(String(p.id)))
+      .filter((p) => !failedTypes.has(String(p.payload?.contentType)))
+      .map((p) => String(p.id));
 
     if (stale.length) {
       const embedder = await getEmbedder(emb);
@@ -127,13 +156,11 @@ export async function runKnowledgeSweep(subdomain: string): Promise<SweepResult>
           vector: vectors[j],
           payload: {
             subdomain,
-            contentType: KNOWLEDGE_CONTENT_TYPE,
-            articleId: p.articleId,
+            contentType: p.contentType,
+            recordId: p.recordId,
             chunkIndex: p.chunkIndex,
             title: p.title,
             text: p.text,
-            categoryId: p.categoryId ?? null,
-            topicId: p.topicId ?? null,
             modifiedDate: p.modifiedDate,
           },
         }));
@@ -145,6 +172,11 @@ export async function runKnowledgeSweep(subdomain: string): Promise<SweepResult>
     await deletePoints(collection, orphanIds);
     result.deleted = orphanIds.length;
     result.ok = true;
+
+    const typeErrors = Object.entries(result.types)
+      .filter(([, s]) => s.error)
+      .map(([t, s]) => `${t}: ${s.error}`);
+    if (typeErrors.length) result.error = typeErrors.join(' | ');
   } catch (e: any) {
     result.error = e?.message || String(e);
     // eslint-disable-next-line no-console
@@ -156,8 +188,8 @@ export async function runKnowledgeSweep(subdomain: string): Promise<SweepResult>
     const models = await generateModels(subdomain);
     await models.MastraSettings.saveKnowledgeSyncStatus({
       lastSweepAt: new Date(),
-      articleCount: result.articleCount,
       pointCount: result.pointCount,
+      types: result.types,
       lastError: result.error ?? null,
     });
   } catch {

@@ -88,6 +88,41 @@ export function knowledgeSyncCron(env: Env = process.env): string {
 }
 
 /**
+ * Which content types the sweep embeds and the tool searches.
+ * `ERXES_AGENT_KNOWLEDGE_TYPES` is a comma-separated allowlist; the safe
+ * default is kb-article ONLY. Expanding to PII-bearing types (customers,
+ * conversations, deals, ...) is a deliberate operator decision — especially
+ * with a remote embedder (`ERXES_AGENT_EMBEDDER=openai`), where record text
+ * leaves the deployment at embed time.
+ */
+export function enabledKnowledgeTypes(
+  validTypes: string[],
+  env: Env = process.env,
+): string[] {
+  const raw = val(env, 'ERXES_AGENT_KNOWLEDGE_TYPES');
+  if (!raw) return ['kb-article'];
+  const wanted = raw
+    .split(',')
+    .map((t) => t.trim())
+    .filter(Boolean);
+  const valid = wanted.filter((t) => validTypes.includes(t));
+  const unknown = wanted.filter((t) => !validTypes.includes(t));
+  if (unknown.length) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[erxes-agent:knowledge] Unknown ERXES_AGENT_KNOWLEDGE_TYPES entries ignored: ${unknown.join(', ')}`,
+    );
+  }
+  return valid.length ? valid : ['kb-article'];
+}
+
+/** Per-type record cap per sweep (cost guard for huge collections). 0 = unlimited. */
+export function knowledgeMaxPerType(env: Env = process.env): number {
+  const n = parseInt(val(env, 'ERXES_AGENT_KNOWLEDGE_MAX_PER_TYPE'), 10);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+/**
  * Canonical tenant tag for Qdrant points and filters.
  *
  * In saas mode the request subdomain IS the org subdomain, so sweep (which

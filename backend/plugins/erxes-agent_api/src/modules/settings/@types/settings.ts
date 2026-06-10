@@ -2,8 +2,9 @@ import { Document } from 'mongoose';
 
 export interface IKnowledgeSyncStatus {
   lastSweepAt?: Date;
-  articleCount?: number;
   pointCount?: number;
+  /** Per-content-type sweep status: { [type]: { count, points, error? } } */
+  types?: Record<string, { count: number; points: number; error?: string }>;
   lastError?: string | null;
 }
 

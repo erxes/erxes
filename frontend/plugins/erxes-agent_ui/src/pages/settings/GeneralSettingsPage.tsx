@@ -203,13 +203,34 @@ export const GeneralSettingsPage = () => {
               <span className="font-mono">{knowledgeStatus.collection}</span>
             </div>
             <div>
+              Content types:{' '}
+              <span className="font-mono">
+                {(knowledgeStatus.enabledTypes || []).join(', ') || '—'}
+              </span>
+            </div>
+            <div>
               Last sweep:{' '}
               {knowledgeStatus.lastSweepAt
                 ? `${new Date(knowledgeStatus.lastSweepAt).toLocaleString()} — ${
-                    knowledgeStatus.articleCount ?? 0
-                  } articles, ${knowledgeStatus.pointCount ?? 0} points`
+                    knowledgeStatus.pointCount ?? 0
+                  } points`
                 : 'not yet run'}
             </div>
+            {knowledgeStatus.types && (
+              <div className="font-mono">
+                {Object.entries(
+                  knowledgeStatus.types as Record<
+                    string,
+                    { count: number; points: number; error?: string }
+                  >,
+                )
+                  .map(
+                    ([t, s]) =>
+                      `${t}: ${s.count}${s.error ? ' ⚠' : ''}`,
+                  )
+                  .join(' · ')}
+              </div>
+            )}
             {knowledgeStatus.lastError && (
               <div className="text-red-500">Last error: {knowledgeStatus.lastError}</div>
             )}
@@ -217,9 +238,9 @@ export const GeneralSettingsPage = () => {
         )}
 
         <p className="text-xs text-muted-foreground">
-          Lets agents answer from published, public knowledge-base articles via the{' '}
-          <code>Company Knowledge</code> tool. Controlled by the{' '}
-          <code>ERXES_AGENT_KNOWLEDGE</code> environment variable.
+          Lets agents answer from company data via the <code>Company Knowledge</code>{' '}
+          tool. Controlled by <code>ERXES_AGENT_KNOWLEDGE</code>; the embedded content
+          types by <code>ERXES_AGENT_KNOWLEDGE_TYPES</code> (default: kb-article only).
         </p>
       </div>
 
