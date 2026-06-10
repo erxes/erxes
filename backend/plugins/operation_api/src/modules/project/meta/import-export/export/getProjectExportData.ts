@@ -11,17 +11,7 @@ import { escapeRegExp } from 'erxes-api-shared/utils';
 import { STATUS_TYPES } from '@/status/constants/types';
 import { IProjectDocument, IProjectFilter } from '../../../@types/project';
 import mongoose, { FilterQuery } from 'mongoose';
-
-interface IUser {
-  _id: string;
-  username?: string;
-  email?: string;
-  details?: {
-    fullName?: string;
-    firstName?: string;
-    lastName?: string;
-  };
-}
+import { IUserDocument } from 'erxes-api-shared/core-types';
 
 export async function getProjectExportData(
   data: GetExportData & {
@@ -215,7 +205,7 @@ export async function getProjectExportData(
   (teams || []).forEach((t: { _id: string | mongoose.Types.ObjectId; name?: string }) => teamMap.set(String(t._id), t.name || ''));
 
   const userMap = new Map<string, string>();
-  (users || []).forEach((u: IUser) => {
+  (users || []).forEach((u: IUserDocument) => {
     const name = u.details?.fullName || `${u.details?.firstName || ''} ${u.details?.lastName || ''}`.trim() || u.username || u.email || '';
     userMap.set(String(u._id), name);
   });

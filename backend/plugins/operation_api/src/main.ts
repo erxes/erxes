@@ -102,7 +102,7 @@ startPlugin({
           projects: projectExportHandlers,
         },
         methodName: TImportExportProducers.GET_EXPORT_HEADERS,
-        extractModuleName: (input: any) => input.collectionName || 'tasks',
+        extractModuleName: (input: TGetExportHeadersInput) => input.collectionName || 'tasks',
         generateModels,
       }),
       getExportData: createCoreModuleProducerHandler({
@@ -112,7 +112,7 @@ startPlugin({
           projects: projectExportHandlers,
         },
         methodName: TImportExportProducers.GET_EXPORT_DATA,
-        extractModuleName: (input: any) => input.collectionName || 'tasks',
+        extractModuleName: (input: TGetExportDataInput) => input.collectionName || 'tasks',
         generateModels,
       }),
     },

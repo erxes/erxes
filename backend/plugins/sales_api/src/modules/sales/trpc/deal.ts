@@ -353,10 +353,54 @@ export const dealTrpcRouter = t.router({
     }),
   },
   pipelineLabel: {
-    find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
-      const { models } = ctx;
-      return await models.PipelineLabels.find(input).lean();
-    }),
+    find: t.procedure
+      .input(
+        z.union([
+          z.object({
+            _id: z.object({
+              $in: z.array(z.string()),
+            }),
+          }),
+          z.object({
+            $or: z.array(
+              z.union([
+                z.object({
+                  name: z.object({
+                    $in: z.array(z.string()),
+                  }),
+                }),
+                z.object({
+                  _id: z.object({
+                    $in: z.array(z.string()),
+                  }),
+                }),
+              ]),
+            ),
+          }),
+        ]),
+      )
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
+        const query: Record<string, any> = {};
+
+        if ('_id' in input) {
+          query._id = { $in: input._id.$in };
+        } else if ('$or' in input) {
+          const conditions: any[] = [];
+          for (const cond of input.$or) {
+            if ('name' in cond) {
+              conditions.push({ name: { $in: cond.name.$in } });
+            } else if ('_id' in cond) {
+              conditions.push({ _id: { $in: cond._id.$in } });
+            }
+          }
+          if (conditions.length) {
+            query.$or = conditions;
+          }
+        }
+
+        return await models.PipelineLabels.find(query).lean();
+      }),
   },
 });
 

@@ -11,17 +11,7 @@ import { escapeRegExp } from 'erxes-api-shared/utils';
 import { STATUS_TYPES } from '@/status/constants/types';
 import { ITaskDocument, ITaskFilter } from '../../../@types/task';
 import mongoose, { FilterQuery } from 'mongoose';
-
-interface IUser {
-  _id: string;
-  username?: string;
-  email?: string;
-  details?: {
-    fullName?: string;
-    firstName?: string;
-    lastName?: string;
-  };
-}
+import { IUserDocument } from 'erxes-api-shared/core-types';
 
 const handleDateFilter = (
   filterQuery: FilterQuery<ITaskDocument>,
@@ -421,13 +411,13 @@ export async function getTaskExportData(
   (cycles || []).forEach((c: { _id: string | mongoose.Types.ObjectId; name?: string }) => cycleMap.set(String(c._id), c.name || ''));
 
   const assigneeMap = new Map<string, string>();
-  (users || []).forEach((u: IUser) => {
+  (users || []).forEach((u: IUserDocument) => {
     const name = u.details?.fullName || `${u.details?.firstName || ''} ${u.details?.lastName || ''}`.trim() || u.username || u.email || '';
     assigneeMap.set(String(u._id), name);
   });
 
   const creatorMap = new Map<string, string>();
-  (creators || []).forEach((c: IUser) => {
+  (creators || []).forEach((c: IUserDocument) => {
     const name = c.details?.fullName || `${c.details?.firstName || ''} ${c.details?.lastName || ''}`.trim() || c.username || c.email || '';
     creatorMap.set(String(c._id), name);
   });

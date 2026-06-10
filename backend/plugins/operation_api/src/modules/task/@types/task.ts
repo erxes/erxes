@@ -56,3 +56,34 @@ export interface ITaskFilter extends ICursorPaginateParams, IListParams, ITask {
   updatedDate?: string;
   completedDate?: string;
 }
+
+export interface ITaskImportRow {
+  name?: string;
+  Name?: string;
+  description?: string;
+  Description?: string;
+  status?: string;
+  Status?: string;
+  team?: string;
+  Team?: string;
+  priority?: string | number;
+  Priority?: string | number;
+  assignee?: string;
+  Assignee?: string;
+  startDate?: string | Date;
+  'Start Date'?: string | Date;
+  targetDate?: string | Date;
+  'Target Date'?: string | Date;
+  estimatePoint?: string | number;
+  'Estimate Point'?: string | number;
+  project?: string;
+  Project?: string;
+  cycle?: string;
+  Cycle?: string;
+  milestone?: string;
+  Milestone?: string;
+  labels?: string | string[];
+  Labels?: string | string[];
+  tags?: string | string[];
+  Tags?: string | string[];
+}

@@ -1,14 +1,18 @@
 import { IModels } from '~/connectionResolvers';
 import { prepareTaskDoc } from './prepareTaskDoc';
+import { ITaskImportRow } from '../../../@types/task';
 
 export async function processTaskRows(
   models: IModels,
-  rows: any[],
+  rows: ITaskImportRow[],
   userId: string,
   subdomain: string,
-): Promise<{ successRows: any[]; errorRows: any[] }> {
-  const successRows: any[] = [];
-  const errorRows: any[] = [];
+): Promise<{
+  successRows: Array<ITaskImportRow & { _id: string }>;
+  errorRows: Array<ITaskImportRow & { error: string }>;
+}> {
+  const successRows: Array<ITaskImportRow & { _id: string }> = [];
+  const errorRows: Array<ITaskImportRow & { error: string }> = [];
 
   for (const row of rows) {
     try {

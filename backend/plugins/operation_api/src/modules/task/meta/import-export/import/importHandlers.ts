@@ -5,6 +5,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { processTaskRows } from './processTaskRows';
 import { IModels } from '~/connectionResolvers';
+import { ITaskImportRow } from '../../../@types/task';
 
 const taskImportMap = {
   tasks: {
@@ -24,8 +25,12 @@ const taskImportMap = {
       { label: 'Labels', key: 'labels' },
       { label: 'Tags', key: 'tags' },
     ],
-    processRows: (models: IModels, rows: any[], userId: string, subdomain: string) =>
-      processTaskRows(models, rows, userId, subdomain),
+    processRows: (
+      models: IModels,
+      rows: ITaskImportRow[],
+      userId: string,
+      subdomain: string,
+    ) => processTaskRows(models, rows, userId, subdomain),
   },
 };
 
@@ -52,6 +57,9 @@ export const taskImportHandlers = {
     }
     if (!models) {
       throw new Error('Models not available in context');
+    }
+    if (!subdomain) {
+      throw new Error('Subdomain not available in context');
     }
     return handler.processRows(models, rows, userId, subdomain);
   },

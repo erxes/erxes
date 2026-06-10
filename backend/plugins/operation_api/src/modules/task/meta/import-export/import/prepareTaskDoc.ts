@@ -1,6 +1,7 @@
 import { IModels } from '~/connectionResolvers';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { getTeamEstimateChoises } from '~/modules/team/utils';
+import { ITask, ITaskImportRow } from '../../../@types/task';
 
 const toArray = (val: any) => {
   if (!val) return [];
@@ -16,9 +17,9 @@ const toArray = (val: any) => {
 
 export async function prepareTaskDoc(
   models: IModels,
-  row: any,
+  row: ITaskImportRow,
   subdomain: string,
-): Promise<any> {
+): Promise<ITask> {
   const errors: string[] = [];
 
   const name = row.name || row.Name || '';
@@ -126,7 +127,11 @@ export async function prepareTaskDoc(
         errors.push(`Assignee not found: "${assigneeValue}"`);
       }
     } catch (err) {
-      console.error('Error resolving assignee:', err);
+      errors.push(
+        `Failed to resolve assignee "${assigneeValue}": ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      );
     }
   }
 
@@ -328,7 +333,11 @@ export async function prepareTaskDoc(
           errors.push(`Tags not found: ${tagNamesOrIds.join(', ')}`);
         }
       } catch (err) {
-        console.error('Error resolving tags:', err);
+        errors.push(
+          `Failed to resolve tags "${tagNamesOrIds.join(', ')}": ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+        );
       }
     }
   }
@@ -367,7 +376,11 @@ export async function prepareTaskDoc(
           errors.push(`Labels not found: ${labelNamesOrIds.join(', ')}`);
         }
       } catch (err) {
-        console.error('Error resolving labels:', err);
+        errors.push(
+          `Failed to resolve labels "${labelNamesOrIds.join(', ')}": ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+        );
       }
     }
   }
