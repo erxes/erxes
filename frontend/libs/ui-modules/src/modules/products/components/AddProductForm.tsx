@@ -141,7 +141,7 @@ export function AddProductForm({
       cleanData[key] = value;
     });
 
-    productsAdd({
+    await productsAdd({
       variables: cleanData,
       ...options,
       onError: (e) => {

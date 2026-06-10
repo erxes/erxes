@@ -1,15 +1,18 @@
-import { IUom, IUomDocument } from 'erxes-api-shared/core-types';
-import { Model } from 'mongoose';
+import { IProduct, IUom, IUomDocument } from 'erxes-api-shared/core-types';
+import { FilterQuery, Model } from 'mongoose';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { PRODUCT_STATUSES } from '../../constants';
 import { uomSchema } from '../definitions/uoms';
+
+type ICheckUomInput = Pick<IProduct, 'uom' | 'subUoms'>;
+
 export interface IUomModel extends Model<IUomDocument> {
-  getUom(selector: any): Promise<IUomDocument>;
+  getUom(selector: FilterQuery<IUomDocument>): Promise<IUomDocument>;
   createUom(doc: IUom): Promise<IUomDocument>;
   updateUom(_id: string, doc: IUom): Promise<IUomDocument>;
   removeUoms(_ids: string[]): Promise<{ n: number; ok: number }>;
-  checkUOM(doc: { uom?: string; subUoms?: any[] });
+  checkUOM(doc: ICheckUomInput): Promise<string>;
 }
 
 export const loadUomClass = (
@@ -21,7 +24,7 @@ export const loadUomClass = (
     /**
      * Get Uom
      */
-    public static async getUom(selector: any) {
+    public static async getUom(selector: FilterQuery<IUomDocument>) {
       const uom = await models.Uoms.findOne(selector);
 
       if (!uom) {
@@ -129,15 +132,16 @@ export const loadUomClass = (
      * the _id. Match on all of them so an existing UOM is never recreated as a
      * duplicate, and only insert UOMs that are genuinely new.
      */
-    static async checkUOM(doc) {
+    static async checkUOM(doc: ICheckUomInput): Promise<string> {
       if (!doc.uom) {
         throw new Error('uom is required');
       }
+      const mainUom = doc.uom;
 
       const uoms = (doc.subUoms || [])
-        .map((u) => u.uom)
-        .filter((uom): uom is string => !!uom);
-      uoms.unshift(doc.uom);
+        .map((subUom) => subUom.uom)
+        .filter((uom) => Boolean(uom));
+      uoms.unshift(mainUom);
 
       const existingUoms = await models.Uoms.find({
         $or: [
@@ -156,7 +160,7 @@ export const loadUomClass = (
         valueToCode.set(String(uom._id), uom.code);
       }
 
-      const creatUoms: any[] = [];
+      const creatUoms: Array<{ code: string; name: string }> = [];
       for (const uom of uoms) {
         if (!valueToCode.has(uom)) {
           creatUoms.push({ code: uom, name: uom });
@@ -189,7 +193,7 @@ export const loadUomClass = (
       }
 
       // Always return the canonical code representation of the main uom.
-      return valueToCode.get(doc.uom) ?? doc.uom;
+      return valueToCode.get(mainUom) ?? mainUom;
     }
 
     /**

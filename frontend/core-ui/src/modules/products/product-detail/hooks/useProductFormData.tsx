@@ -76,7 +76,7 @@ export function getProductFormDefaultValues(
       productDetail.customFieldsData || productDetail.propertiesData || {},
     currency: productDetail.currency || '',
     variants: toVariantsRecord(productDetail.variants),
-    subUoms: (productDetail.subUoms || []).map((subUom: any) => ({
+    subUoms: (productDetail.subUoms || []).map((subUom) => ({
       ...subUom,
       uom: uomToId(uoms, toUomValue(subUom?.uom)),
     })),
