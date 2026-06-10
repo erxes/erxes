@@ -5,6 +5,8 @@ import {
   EMPTY_PRODUCT_FORM_VALUES,
   ProductFormValues,
 } from '@/products/constants/ProductFormSchema';
+import { IUom, uomToId } from 'ui-modules';
+import { useUom } from '@/products/hooks/useUom';
 
 const normalizeBarcodes = (barcodes: any): string[] => {
   if (Array.isArray(barcodes)) return barcodes;
@@ -40,7 +42,7 @@ function toVariantsRecord(v: unknown): Record<string, unknown> {
   return {};
 }
 
-function toUomId(uom: unknown): string {
+function toUomValue(uom: unknown): string {
   if (typeof uom === 'string') return uom;
   if (uom != null && typeof uom === 'object' && '_id' in uom) {
     const id = (uom as { _id?: string })._id;
@@ -51,6 +53,7 @@ function toUomId(uom: unknown): string {
 
 export function getProductFormDefaultValues(
   productDetail: ProductDetail | null,
+  uoms: IUom[] = [],
 ): ProductFormValues | null {
   if (!productDetail) return null;
   return {
@@ -60,7 +63,7 @@ export function getProductFormDefaultValues(
     categoryId: productDetail.categoryId || '',
     type: productDetail.type || '',
     status: productDetail.status || '',
-    uom: toUomId(productDetail.uom),
+    uom: uomToId(uoms, toUomValue(productDetail.uom)),
     shortName: productDetail.shortName || '',
     description: productDetail.description || '',
     barcodeDescription: productDetail.barcodeDescription || '',
@@ -73,7 +76,10 @@ export function getProductFormDefaultValues(
       productDetail.customFieldsData || productDetail.propertiesData || {},
     currency: productDetail.currency || '',
     variants: toVariantsRecord(productDetail.variants),
-    subUoms: productDetail.subUoms || [],
+    subUoms: (productDetail.subUoms || []).map((subUom: any) => ({
+      ...subUom,
+      uom: uomToId(uoms, toUomValue(subUom?.uom)),
+    })),
   };
 }
 
@@ -83,6 +89,7 @@ export const useProductFormData = (
   productId?: string,
 ) => {
   const [formVersion, setFormVersion] = useState(0);
+  const { uoms } = useUom({});
 
   useLayoutEffect(() => {
     form.reset(EMPTY_PRODUCT_FORM_VALUES);
@@ -90,12 +97,12 @@ export const useProductFormData = (
   }, [form, productId]);
 
   useLayoutEffect(() => {
-    const defaults = getProductFormDefaultValues(productDetail);
+    const defaults = getProductFormDefaultValues(productDetail, uoms);
     if (defaults && (!productId || productDetail?._id === productId)) {
       form.reset(defaults);
       setFormVersion((version) => version + 1);
     }
-  }, [productDetail, form, productId]);
+  }, [productDetail, form, productId, uoms]);
 
   return formVersion;
 };

@@ -10,7 +10,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ActivityLogs, AddInternalNote, FieldsInDetail } from 'ui-modules';
+import { ActivityLogs, AddInternalNote, FieldsInDetail, uomToCode } from 'ui-modules';
 import { productCustomActivities } from './ProductActivityRows';
 import { useProductDetailWithQuery } from '@/products/product-detail/hooks/useProductDetailWithQuery';
 import { useProductCustomFieldEdit } from '@/products/product-detail/hooks/useProductCustomFieldEdit';
@@ -85,15 +85,14 @@ export const ProductDetailSheet = () => {
     const subUoms = Array.isArray(data.subUoms)
       ? data.subUoms.map((item) => ({
           ...item,
+          uom: uomToCode(uoms, item?.uom),
           ratio: normalizeSubUomRatio(item?.ratio),
         }))
       : data.subUoms;
 
-    const uomName = data.uom
-      ? uoms.find((u) => u._id === data.uom)?.name || data.uom
-      : data.uom;
+    const uom = uomToCode(uoms, data.uom);
 
-    return { ...data, attachment, attachmentMore, subUoms, uom: uomName };
+    return { ...data, attachment, attachmentMore, subUoms, uom };
   };
 
   const handleSave = (data: ProductFormValues) => {
@@ -135,7 +134,7 @@ export const ProductDetailSheet = () => {
   };
 
   const handleCancel = () => {
-    const defaults = getProductFormDefaultValues(productDetail);
+    const defaults = getProductFormDefaultValues(productDetail, uoms);
     if (defaults) form.reset(defaults);
   };
 

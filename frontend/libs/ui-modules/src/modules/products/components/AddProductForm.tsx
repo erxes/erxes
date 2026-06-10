@@ -43,6 +43,7 @@ import {
 import { useAddProduct } from '../hooks/useProductsAdd';
 import { useUom } from '../hooks/useUom';
 import { IProductFormValues } from '../types';
+import { uomToCode } from '../utils/uom';
 import {
   PRODUCT_SECONDARY_IMAGE_LIMIT,
   ProductPrimaryImageUpload,
@@ -70,12 +71,6 @@ export function AddProductForm({
 }) {
   const { productsAdd, loading } = useAddProduct();
   const { uoms } = useUom();
-
-  const uomIdToName = useMemo(() => {
-    const map = new Map<string, string>();
-    uoms.forEach((uom) => map.set(uom._id, uom.name));
-    return map;
-  }, [uoms]);
 
   const form = useForm<IProductFormValues>({
     resolver: zodResolver(PRODUCT_FORM_SCHEMA),
@@ -125,18 +120,16 @@ export function AddProductForm({
       }
 
       if (key === 'uom') {
-        const uomName = uomIdToName.get(value as string);
-        cleanData[key] = uomName || value;
+        cleanData[key] = uomToCode(uoms, value as string);
         return;
       }
 
       if (key === 'subUoms' && Array.isArray(value)) {
         cleanData[key] = value.map((subUom: SubUomItem) => {
           const { _id, ...rest } = subUom;
-          const mappedUom = uomIdToName.get(rest.uom);
           return {
             ...rest,
-            uom: mappedUom || rest.uom,
+            uom: uomToCode(uoms, rest.uom),
           };
         });
         return;
