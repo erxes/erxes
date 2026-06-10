@@ -1,13 +1,59 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
+import { lookup } from 'node:dns/promises';
 import { companyKnowledgeTool } from '~/mastra/knowledge/knowledgeTool';
 import { WORKFLOW_BUILTIN_TOOLS } from './workflowTools';
 
-const WIKI_API = 'https://en.wikipedia.org/w/api.php';
+const FETCH_TIMEOUT_MS = 10_000;
+const UA = 'Mozilla/5.0 (compatible; erxes-agent/1.0)';
+
+interface SearchResult {
+  title: string;
+  url: string;
+  snippet: string;
+}
+
+function decodeEntities(s: string): string {
+  return s
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#x27;|&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ');
+}
+
+function stripTags(s: string): string {
+  return decodeEntities(s.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+}
+
+// DuckDuckGo's HTML endpoint — no API key needed. Result hrefs are DDG
+// redirect URLs — the real target lives in the `uddg` query param. Ad slots
+// point at duckduckgo.com/y.js and are skipped.
+async function ddgSearch(query: string, limit: number): Promise<SearchResult[]> {
+  const res = await fetch(
+    `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`,
+    { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) },
+  );
+  if (!res.ok) throw new Error(`DuckDuckGo search failed: ${res.status}`);
+  const html = await res.text();
+
+  const results: SearchResult[] = [];
+  const blockRe = /<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>[\s\S]*?class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g;
+  let m: RegExpExecArray | null;
+  while ((m = blockRe.exec(html)) && results.length < limit) {
+    const href = decodeEntities(m[1]);
+    const uddg = href.match(/[?&]uddg=([^&]+)/);
+    const target = uddg ? decodeURIComponent(uddg[1]) : href;
+    if (target.includes('duckduckgo.com/y.js')) continue;
+    results.push({ title: stripTags(m[2]), url: target, snippet: stripTags(m[3]) });
+  }
+  return results;
+}
 
 export const webSearchTool = createTool({
   id: 'web-search',
-  description: 'Search Wikipedia for articles related to a query. Returns top results with titles and snippets.',
+  description: 'Search the web for any topic. Returns top results with titles, URLs and snippets. Use fetch-url to read a result in full.',
   inputSchema: z.object({
     query: z.string().describe('The search query'),
     limit: z.number().int().min(1).max(10).default(5).describe('Max results'),
@@ -15,74 +61,87 @@ export const webSearchTool = createTool({
   outputSchema: z.object({
     results: z.array(z.object({
       title: z.string(),
+      url: z.string(),
       snippet: z.string(),
-      pageId: z.number(),
     })),
-    totalHits: z.number(),
   }),
   execute: async ({ query, limit }) => {
-    const url = new URL(WIKI_API);
-    url.searchParams.set('action', 'query');
-    url.searchParams.set('list', 'search');
-    url.searchParams.set('srsearch', query);
-    url.searchParams.set('srlimit', String(limit ?? 5));
-    url.searchParams.set('srprop', 'snippet');
-    url.searchParams.set('format', 'json');
-    url.searchParams.set('origin', '*');
-
-    const res = await fetch(url.toString());
-    const data = await res.json() as any;
-
-    return {
-      results: data.query.search.map((r: any) => ({
-        title: r.title,
-        snippet: r.snippet.replace(/<[^>]+>/g, ''),
-        pageId: r.pageid,
-      })),
-      totalHits: data.query.searchinfo.totalhits,
-    };
+    return { results: await ddgSearch(query, limit ?? 5) };
   },
 });
 
+function isPrivateIp(ip: string): boolean {
+  if (ip.includes(':')) {
+    const v6 = ip.toLowerCase();
+    if (v6.startsWith('::ffff:')) return isPrivateIp(v6.slice(7));
+    return v6 === '::1' || v6 === '::' || v6.startsWith('fc') || v6.startsWith('fd') || v6.startsWith('fe80');
+  }
+  const [a, b] = ip.split('.').map(Number);
+  return (
+    a === 0 || a === 10 || a === 127 || a === 169 && b === 254 ||
+    (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168)
+  );
+}
+
+// The model controls the URL, so fetch-url is an SSRF surface: http(s) only,
+// no private/link-local targets, and every redirect hop is re-validated.
+async function assertPublicHttpUrl(raw: string): Promise<URL> {
+  const url = new URL(raw);
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    throw new Error('Only http(s) URLs are allowed');
+  }
+  const addrs = await lookup(url.hostname, { all: true });
+  if (!addrs.length || addrs.some((a) => isPrivateIp(a.address))) {
+    throw new Error('URL resolves to a private or unknown address');
+  }
+  return url;
+}
+
+async function safeFetch(raw: string): Promise<{ res: Response; finalUrl: string }> {
+  let url = await assertPublicHttpUrl(raw);
+  for (let hop = 0; hop < 4; hop++) {
+    const res = await fetch(url, {
+      redirect: 'manual',
+      headers: { 'User-Agent': UA },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    });
+    const loc = res.headers.get('location');
+    if (res.status >= 300 && res.status < 400 && loc) {
+      url = await assertPublicHttpUrl(new URL(loc, url).toString());
+      continue;
+    }
+    return { res, finalUrl: url.toString() };
+  }
+  throw new Error('Too many redirects');
+}
+
+const MAX_CONTENT_CHARS = 8_000;
+
 export const fetchUrlTool = createTool({
   id: 'fetch-url',
-  description: 'Fetch the full text content of a Wikipedia article by title or URL.',
+  description: 'Fetch a public web page and return its readable text content. Use after web-search to read a result in full.',
   inputSchema: z.object({
-    title: z.string().optional().describe('Wikipedia article title'),
-    pageId: z.number().optional().describe('Wikipedia page ID from web-search'),
+    url: z.string().describe('Absolute http(s) URL, e.g. from web-search results'),
   }),
   outputSchema: z.object({
-    title: z.string(),
-    extract: z.string(),
     url: z.string(),
+    title: z.string(),
+    content: z.string(),
   }),
-  execute: async ({ title, pageId }) => {
-    const url = new URL(WIKI_API);
-    url.searchParams.set('action', 'query');
-    url.searchParams.set('prop', 'extracts|info');
-    url.searchParams.set('exintro', 'true');
-    url.searchParams.set('explaintext', 'true');
-    url.searchParams.set('inprop', 'url');
-    url.searchParams.set('format', 'json');
-    url.searchParams.set('origin', '*');
+  execute: async ({ url }) => {
+    const { res, finalUrl } = await safeFetch(url);
+    if (!res.ok) throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
 
-    if (pageId) {
-      url.searchParams.set('pageids', String(pageId));
-    } else if (title) {
-      url.searchParams.set('titles', title);
-    } else {
-      throw new Error('Provide either title or pageId');
-    }
+    const body = (await res.text()).slice(0, 500_000);
+    const title = stripTags(body.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? '');
+    const content = stripTags(
+      body
+        .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+        .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+        .replace(/<(nav|header|footer|noscript)[\s\S]*?<\/\1>/gi, ' '),
+    ).slice(0, MAX_CONTENT_CHARS);
 
-    const res = await fetch(url.toString());
-    const data = await res.json() as any;
-    const page = Object.values(data.query.pages)[0] as any;
-
-    return {
-      title: page.title,
-      extract: page.extract ?? 'No content found.',
-      url: page.fullurl ?? `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title)}`,
-    };
+    return { url: finalUrl, title, content: content || 'No readable content found.' };
   },
 });
 
