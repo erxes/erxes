@@ -12,19 +12,20 @@ export const cleanDescription = (description: unknown): string => {
     (description.startsWith('[') || description.startsWith('{'))
   ) {
     try {
-      const parsed = JSON.parse(description);
+      const parsed = JSON.parse(description) as unknown;
       const isArray = Array.isArray(parsed);
       const isObj = isObject(parsed);
 
       if (isArray || isObj) {
-        const blocks = isArray ? parsed : [parsed];
+        const blocks: unknown[] = isArray ? (parsed as unknown[]) : [parsed];
 
         const extractText = (content: unknown): string => {
           if (!Array.isArray(content)) {
             return '';
           }
-          return content
-            .map((item) => {
+          const contentArray: unknown[] = content;
+          return contentArray
+            .map((item: unknown) => {
               if (isObject(item)) {
                 if (item.type === 'link') {
                   return extractText(item.content);
@@ -45,8 +46,9 @@ export const cleanDescription = (description: unknown): string => {
             text += extractText(block.content);
           }
           if (Array.isArray(block.children)) {
-            const childrenText = block.children
-              .map(processBlock)
+            const childrenArray: unknown[] = block.children;
+            const childrenText = childrenArray
+              .map((b: unknown) => processBlock(b))
               .filter(Boolean)
               .join('\n');
             if (childrenText) {
@@ -56,7 +58,10 @@ export const cleanDescription = (description: unknown): string => {
           return text;
         };
 
-        return blocks.map(processBlock).filter(Boolean).join('\n');
+        return blocks
+          .map((b: unknown) => processBlock(b))
+          .filter(Boolean)
+          .join('\n');
       }
     } catch {
       // ignore
