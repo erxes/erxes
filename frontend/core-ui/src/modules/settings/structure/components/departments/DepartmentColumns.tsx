@@ -1,7 +1,6 @@
 import { IconHash } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
-  Badge,
   Input,
   RecordTable,
   RecordTableInlineCell,
