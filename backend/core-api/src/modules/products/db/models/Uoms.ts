@@ -140,7 +140,7 @@ export const loadUomClass = (
 
       const uoms = (doc.subUoms || [])
         .map((subUom) => subUom.uom)
-        .filter((uom) => Boolean(uom));
+        .filter(Boolean);
       uoms.unshift(mainUom);
 
       const existingUoms = await models.Uoms.find({
