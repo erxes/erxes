@@ -64,11 +64,11 @@ const truncateSlug = (slug: string, maxLength: number) => {
   const slicedSlug = slug.slice(0, maxLength);
   const lastWordSeparator = slicedSlug.lastIndexOf('-');
   const truncatedSlug =
-    lastWordSeparator > 0
-      ? slicedSlug.slice(0, lastWordSeparator)
-      : slicedSlug;
+    lastWordSeparator > 0 ? slicedSlug.slice(0, lastWordSeparator) : slicedSlug;
 
-  return removeEndingHyphens(truncatedSlug) || FALLBACK_SLUG.slice(0, maxLength);
+  return (
+    removeEndingHyphens(truncatedSlug) || FALLBACK_SLUG.slice(0, maxLength)
+  );
 };
 
 /**
