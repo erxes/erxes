@@ -104,6 +104,7 @@ export interface CpUsersEditParams {
   companyName?: string;
   companyRegistrationNumber?: string;
   erxesCustomerId?: string;
+  erxesCompanyId?: string;
 }
 
 export interface CpUsersSetPasswordParams {
