@@ -132,6 +132,10 @@ export const MASTRA_SETTINGS = gql`
       advancedMemoryStatus {
         enabled embedder embedderModel qdrantUrl qdrantReachable collection
       }
+      knowledgeStatus {
+        enabled embedder embedderModel qdrantUrl qdrantReachable collection
+        lastSweepAt articleCount pointCount lastError
+      }
     }
   }
 `;

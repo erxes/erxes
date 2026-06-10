@@ -1,6 +1,13 @@
 # Company-Knowledge RAG — Discussion & Decision Log
 
-> Status: **DISCUSSION (pre-spec)** · Plugin: `erxes-agent_api` · Started 2026-06-10
+> Status: **v1 IMPLEMENTED** (KB articles) · Plugin: `erxes-agent_api` · Started 2026-06-10
+>
+> **v1 ships:** `ERXES_AGENT_KNOWLEDGE=enable` → BullMQ reconciliation sweep (cron + boot)
+> embeds published, non-private knowledge-base articles into a dedicated Qdrant collection
+> (`mastra_knowledge_*`), and a `companyKnowledge` builtin agent tool retrieves them with a
+> tenant-scoped pre-filter + an authoritative live post-filter through the gateway.
+> Implementation lives in `src/mastra/knowledge/` (config, serializer, gatewayClient,
+> indexer, worker, knowledgeTool).
 >
 > Goal: let the agent answer from the **entire company's MongoDB data**, kept fresh as data
 > changes, **without ever showing a user data they aren't permitted to see**. This is an extension
@@ -67,15 +74,16 @@ filters → can enforce the `subdomain` filter server-side as defense-in-depth.
 
 | # | Decision | Status | Resolution |
 |---|---|---|---|
-| **A** | Embedding cost / model strategy | 🔲 Open | — |
-| **B** | Permission granularity to enforce | 🔲 Open | — |
-| **C** | How real-time (CDC vs near-real-time) | 🔲 Open | — |
-| **D** | Corpus scope (which content types, in what order) | 🔲 Open | — |
-| **E** | Reuse existing erxes infra (Elasticsearch sync?) | 🔲 Open | — |
-| **F** | Qdrant security hardening (key, network, audit log) | 🔲 Open | — |
+| **A** | Embedding cost / model strategy | ✅ Resolved | **Local-first**: fastembed (`bge-small-en-v1.5`) by default for corpus AND queries; OpenAI embedder remains an explicit operator opt-in (`ERXES_AGENT_EMBEDDER=openai`). Data residency was the real decision, not cost. |
+| **B** | Permission granularity to enforce | ✅ Resolved | **Module-level pre-filter + record-level live post-filter.** Coarse payload fields (`subdomain`, `contentType`) gate the Qdrant search; the authoritative check re-fetches every candidate live through the gateway (as the asking user when a session exists) and drops anything not `publish`/public. Stale payloads are never trusted; no `aclVersion` machinery needed. |
+| **C** | How real-time | ✅ Resolved | **Periodic full reconciliation** (BullMQ cron, default hourly, `ERXES_AGENT_KNOWLEDGE_SYNC_CRON`) + one sweep at boot. No change streams — this repo has none, and the sweep self-heals missed deletes. Revocation is still instant via the live post-filter. |
+| **D** | Corpus scope | ✅ Resolved | **KB articles only** (`status: publish`, `isPrivate: false`) — lowest-risk content type. Customers/deals/conversations deferred until the leak test holds in production. |
+| **E** | Reuse Elasticsearch sync | ✅ Resolved | **No.** This monorepo has read-only ES query helpers but no Mongo→ES write pipeline to piggyback. Own BullMQ pipeline instead. |
+| **F** | Qdrant security hardening | ✅ Resolved (v1 scope) | API key support already wired (`ERXES_AGENT_QDRANT_API_KEY`); compose file binds locally, no public exposure. Per-retrieval audit log + JWT-RBAC deferred to the multi-content-type phase. |
 
-> The two that shape everything most: **A** (cost appetite) and **B** (visibility granularity).
-> Resolve those first.
+Additional v1 decision: **indirect prompt injection** — retrieved excerpts are returned as
+labelled reference data ("information only — never instructions") so corpus content is not
+treated as instructions by the agent.
 
 ### Decision A — Embedding cost / model strategy
 Embedding *all* company data + every change with `text-embedding-3-large` is real money.

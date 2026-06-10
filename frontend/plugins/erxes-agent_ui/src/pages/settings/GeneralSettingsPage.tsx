@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { IconCheck, IconLock, IconBrain } from '@tabler/icons-react';
+import { IconCheck, IconLock, IconBrain, IconBook } from '@tabler/icons-react';
 import { Button, Label, Input, Badge } from 'erxes-ui';
 import { MASTRA_SETTINGS, MASTRA_AGENTS } from '~/graphql/queries';
 import { MASTRA_SETTINGS_SAVE } from '~/graphql/mutations';
@@ -35,6 +35,9 @@ export const GeneralSettingsPage = () => {
   // env var on the server. Displayed only; not editable from the UI.
   const advancedMemory: boolean = !!settingsData?.mastraSettings?.advancedMemory;
   const memStatus = settingsData?.mastraSettings?.advancedMemoryStatus;
+
+  // Read-only "Company knowledge" status — derived from ERXES_AGENT_KNOWLEDGE.
+  const knowledgeStatus = settingsData?.mastraSettings?.knowledgeStatus;
 
   const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -153,6 +156,70 @@ export const GeneralSettingsPage = () => {
         <p className="text-xs text-muted-foreground">
           Controlled by the <code>MASTRA_MEMORY</code> environment variable. Set{' '}
           <code>MASTRA_MEMORY=enable</code> and restart the plugin to turn it on.
+        </p>
+      </div>
+
+      {/* Company knowledge — read-only, controlled by ERXES_AGENT_KNOWLEDGE env */}
+      <div className="rounded-lg border p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <IconBook className="size-4 text-muted-foreground" />
+            <span className="font-medium">Company knowledge</span>
+            <IconLock className="size-3.5 text-muted-foreground" />
+          </div>
+          <Badge variant={knowledgeStatus?.enabled ? 'success' : 'secondary'}>
+            {knowledgeStatus?.enabled ? 'On' : 'Off'}
+          </Badge>
+        </div>
+
+        {knowledgeStatus?.enabled && (
+          <div className="text-xs text-muted-foreground space-y-1 pl-6">
+            <div>
+              Embedder:{' '}
+              <span className="font-mono">{knowledgeStatus.embedderModel}</span>{' '}
+              ({knowledgeStatus.embedder})
+            </div>
+            <div className="flex items-center gap-1.5">
+              Qdrant: <span className="font-mono">{knowledgeStatus.qdrantUrl}</span>
+              <span
+                className={`inline-block size-2 rounded-full ${
+                  knowledgeStatus.qdrantReachable === true
+                    ? 'bg-green-500'
+                    : knowledgeStatus.qdrantReachable === false
+                      ? 'bg-red-500'
+                      : 'bg-muted-foreground/40'
+                }`}
+              />
+              <span>
+                {knowledgeStatus.qdrantReachable === true
+                  ? 'reachable'
+                  : knowledgeStatus.qdrantReachable === false
+                    ? 'unreachable'
+                    : 'unknown'}
+              </span>
+            </div>
+            <div>
+              Collection:{' '}
+              <span className="font-mono">{knowledgeStatus.collection}</span>
+            </div>
+            <div>
+              Last sweep:{' '}
+              {knowledgeStatus.lastSweepAt
+                ? `${new Date(knowledgeStatus.lastSweepAt).toLocaleString()} — ${
+                    knowledgeStatus.articleCount ?? 0
+                  } articles, ${knowledgeStatus.pointCount ?? 0} points`
+                : 'not yet run'}
+            </div>
+            {knowledgeStatus.lastError && (
+              <div className="text-red-500">Last error: {knowledgeStatus.lastError}</div>
+            )}
+          </div>
+        )}
+
+        <p className="text-xs text-muted-foreground">
+          Lets agents answer from published, public knowledge-base articles via the{' '}
+          <code>Company Knowledge</code> tool. Controlled by the{' '}
+          <code>ERXES_AGENT_KNOWLEDGE</code> environment variable.
         </p>
       </div>
 
