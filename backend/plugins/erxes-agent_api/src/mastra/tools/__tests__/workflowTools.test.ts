@@ -160,6 +160,24 @@ describe('workflowSimulateTool', () => {
     expect(mockCreateWorkflow).not.toHaveBeenCalled();
   });
 
+  it('merges PARTIAL assumptions over auto-samples (the regression from live testing)', async () => {
+    // A schema with a second required field — assuming only the routing
+    // field must not fail the step's output validation.
+    const def = definition();
+    (def.steps[0] as any).outputSchema = {
+      intent: 'enum:order,question',
+      suggested_reply: 'string',
+    };
+    const res = await (workflowSimulateTool as any).execute({
+      definition: def,
+      triggerPayload: { text: 'buy' },
+      assumptions: { classify: { intent: 'order' } },
+    });
+    expect(res.success).toBe(true);
+    const agentEvent = res.trace.find((t: any) => t.step === 'agent');
+    expect(agentEvent.output).toEqual({ intent: 'order', suggested_reply: 'sample' });
+  });
+
   it('auto-samples agent outputs when no assumption is given (else path)', async () => {
     const res = await (workflowSimulateTool as any).execute({
       definition: definition(),

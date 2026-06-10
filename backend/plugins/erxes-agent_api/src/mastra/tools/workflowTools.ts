@@ -165,7 +165,9 @@ export const workflowSimulateTool = tool({
     assumptions: z
       .record(z.record(z.any()))
       .optional()
-      .describe('Assumed agent-step outputs keyed by step id, e.g. {"classify": {"intent": "order"}}'),
+      .describe(
+        'Assumed agent-step outputs keyed by step id, e.g. {"classify": {"intent": "order"}}. May be PARTIAL — unspecified required fields are auto-filled with samples.',
+      ),
   }),
   outputSchema: z.object({
     success: z.boolean(),
@@ -232,8 +234,12 @@ export const workflowSimulateTool = tool({
           for (const [stepId, assumed] of Object.entries(assumptions || {})) {
             const step = findAgentStep(def.steps as any[], stepId);
             if (step && step.outputSchema === outputSpec) {
-              trace.push({ step: 'agent', stepId, prompt, output: assumed, assumed: true });
-              return assumed as Record<string, any>;
+              // Assumptions are usually PARTIAL (just the routing field) —
+              // merge them over auto-sampled defaults so the remaining
+              // required fields don't fail the step's schema validation.
+              const output = { ...sampleFor(outputSpec), ...(assumed as object) };
+              trace.push({ step: 'agent', stepId, prompt, output, assumed: true });
+              return output;
             }
           }
           const sampled = sampleFor(outputSpec);
