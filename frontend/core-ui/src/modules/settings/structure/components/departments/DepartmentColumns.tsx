@@ -14,6 +14,7 @@ import { SelectMember } from 'ui-modules';
 import { useDepartmentInlineEdit } from '../../hooks/useDepartmentActions';
 import { useState } from 'react';
 import { DepartmentsMoreColumn } from './DepartmentsMoreColumn';
+import { DepartmentMembersPopover } from './DepartmentMembersPopover';
 
 export const DepartmentColumns: ColumnDef<IDepartmentListItem>[] = [
   DepartmentsMoreColumn,
@@ -135,9 +136,11 @@ export const DepartmentColumns: ColumnDef<IDepartmentListItem>[] = [
     accessorKey: 'userCount',
     header: () => <RecordTable.InlineHead label="team member count" />,
     cell: ({ cell }) => {
+      const { _id } = cell.row.original;
+      const count = cell.getValue() as number;
       return (
         <RecordTableInlineCell className="justify-center">
-          <Badge variant={'secondary'}>{cell.getValue() as number}</Badge>
+          <DepartmentMembersPopover departmentId={_id} count={count} />
         </RecordTableInlineCell>
       );
     },

@@ -63,4 +63,21 @@ const GET_DEPARTMENT_DETAIL_BY_ID = gql`
   }
 `;
 
-export { GET_DEPARTMENTS_LIST, GET_DEPARTMENT_DETAIL_BY_ID };
+const GET_DEPARTMENT_MEMBERS = gql`
+  query DepartmentMembers($id: String!) {
+    departmentDetail(_id: $id) {
+      _id
+      users {
+        _id
+        email
+        details {
+          firstName
+          lastName
+          avatar
+        }
+      }
+    }
+  }
+`;
+
+export { GET_DEPARTMENTS_LIST, GET_DEPARTMENT_DETAIL_BY_ID, GET_DEPARTMENT_MEMBERS };
