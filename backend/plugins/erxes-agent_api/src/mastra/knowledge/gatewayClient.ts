@@ -10,6 +10,7 @@
 // the background sweep and the customer bot bridge).
 // ---------------------------------------------------------------------------
 
+import { asBearer } from '../tools/erxesTools';
 import { GqlExec } from './contentTypes';
 
 export function buildAuthHeaders(opts: {
@@ -17,7 +18,7 @@ export function buildAuthHeaders(opts: {
   apiToken?: string;
 }): Record<string, string> {
   if (opts.userHeader) return { user: opts.userHeader };
-  if (opts.apiToken) return { Authorization: opts.apiToken };
+  if (opts.apiToken) return { Authorization: asBearer(opts.apiToken) };
   return {};
 }
 

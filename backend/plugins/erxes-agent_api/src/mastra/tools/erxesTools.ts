@@ -19,6 +19,11 @@ const OPERATION_VERBS: Record<string, string> = {
   verify: 'Verify', resolve: 'Resolve', cancel: 'Cancel', confirm: 'Confirm',
 };
 
+// The gateway's userMiddleware only accepts `Authorization: Bearer <token>`
+// (raw tokens silently fall through to anonymous → "Login required").
+export const asBearer = (token?: string | null): string =>
+  !token ? '' : /^Bearer\s/i.test(token) ? token : `Bearer ${token}`;
+
 export function humanizeOperation(name: string, opType: 'query' | 'mutation'): string {
   const words = (name || '')
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
@@ -459,7 +464,7 @@ export async function executeErxesOperation(
   if (reqAuth?.userHeader) {
     authHeaders['user'] = reqAuth.userHeader;
   } else if (reqAuth?.token || token) {
-    authHeaders['Authorization'] = reqAuth?.token || token;
+    authHeaders['Authorization'] = asBearer(reqAuth?.token || token);
   }
 
   // ── dealsAdd pre-flight ────────────────────────────────────────────────
@@ -570,7 +575,7 @@ export async function fetchInputTypesMap(settings: any): Promise<Record<string, 
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(token ? { Authorization: token } : {}),
+        ...(token ? { Authorization: asBearer(token) } : {}),
       },
       body: JSON.stringify({ query }),
     });
@@ -600,7 +605,7 @@ export async function fetchInputTypesMap(settings: any): Promise<Record<string, 
 // option here.)
 async function fetchPluginMap(token: string): Promise<Map<string, string>> {
   const map = new Map<string, string>();
-  const authHeaders: Record<string, string> = token ? { Authorization: token } : {};
+  const authHeaders: Record<string, string> = token ? { Authorization: asBearer(token) } : {};
 
   let plugins: string[] = [];
   try {
@@ -668,7 +673,7 @@ export async function fetchObjectFieldsMap(settings: any): Promise<Record<string
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(token ? { Authorization: token } : {}),
+        ...(token ? { Authorization: asBearer(token) } : {}),
       },
       body: JSON.stringify({ query }),
     });
@@ -689,7 +694,7 @@ export async function fetchObjectFieldsMap(settings: any): Promise<Record<string
 export async function fetchAvailableErxesTools(settings: any): Promise<any[]> {
   const apiUrl = settings?.erxesApiUrl || 'http://localhost:4000';
   const token = settings?.erxesApiToken || '';
-  const authHeaders: Record<string, string> = token ? { Authorization: token } : {};
+  const authHeaders: Record<string, string> = token ? { Authorization: asBearer(token) } : {};
 
   // Resolve plugin ownership (per-subgraph introspection) and the full gateway
   // field list (for descriptions/args/types) in parallel.
