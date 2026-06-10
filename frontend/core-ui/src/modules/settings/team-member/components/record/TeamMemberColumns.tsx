@@ -207,10 +207,7 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
       id: 'departmentIds',
       accessorKey: 'departmentIds',
       header: () => (
-        <RecordTable.InlineHead
-          icon={IconFolder}
-          label={t('departments')}
-        />
+        <RecordTable.InlineHead icon={IconFolder} label={t('departments')} />
       ),
       cell: ({ cell }: { cell: Cell<IUser, unknown> }) => {
         const { _id } = cell.row.original;

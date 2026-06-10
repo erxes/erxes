@@ -1,5 +1,13 @@
 import { Filter, PageSubHeader, useMultiQueryState } from 'erxes-ui';
-import { Can, Export, Import, SelectBranches, SelectBrands, SelectDepartments, SelectUnit } from 'ui-modules';
+import {
+  Can,
+  Export,
+  Import,
+  SelectBranches,
+  SelectBrands,
+  SelectDepartments,
+  SelectUnit,
+} from 'ui-modules';
 import { TeamMemberFilterPopover } from './TeamMemberFilterPopover';
 import { TeamMemberCounts } from '../TeamMemberCounts';
 import { TEAM_MEMBER_CURSOR_SESSION_KEY } from '../../constants/teamMemberCursorSessionKey';
