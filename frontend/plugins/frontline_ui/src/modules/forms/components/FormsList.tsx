@@ -30,6 +30,7 @@ import { FormToggleStatus } from './actions/toggle-form';
 import { FormCommandBar } from './form-page/command-bar/form-command-bar';
 import { FormsCreateButton } from './form-page/forms-create';
 import { OpenLiveForm } from './actions/open-live-form';
+import { OpenSubmissionsAction } from './actions/open-submissions';
 
 export const FormsList = () => {
   const { id: channelId } = useParams<{ id: string }>();
@@ -130,6 +131,7 @@ export const FormsMoreColumnCell = ({
           <IconEdit /> Edit
         </DropdownMenu.Item>
         <OpenLiveForm formId={_id} channelId={channelId as string} />
+        <OpenSubmissionsAction formId={_id} />
         <FormToggleStatus formId={_id} status={status} setOpen={setOpen} />
         <RemoveForm formId={_id} title={cell.row.original.name} />
       </DropdownMenu.Content>

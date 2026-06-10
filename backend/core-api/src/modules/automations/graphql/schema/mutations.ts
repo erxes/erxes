@@ -1,6 +1,8 @@
 const commonFields = `
   name: String
   status: String
+  edgeType: String
+  flowDirection: String
   triggers: [TriggerInput],
   actions: [ActionInput],
   workflows: [WorkflowInput]
@@ -42,6 +44,7 @@ const mutations = `
   automationsRemoveNote(_id: String!): AutomationNote
   automationsAiAgentAdd(${aiAgentParams}):JSON
   automationsAiAgentEdit(_id:String!,${aiAgentParams}):JSON
+  automationsAiAgentRemove(_id:String!):JSON
   automationsAiAgentReindex(_id:String!, fileId:String):JSON
   
   automationEmailTemplatesAdd(${emailTemplateFields}): AutomationEmailTemplate

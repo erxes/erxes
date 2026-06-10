@@ -7,6 +7,7 @@ import {
   ITaskUpdate,
 } from '@/task/@types/task';
 import { taskSchema } from '@/task/db/definitions/task';
+import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 import { Document } from 'mongodb';
 import mongoose, { FilterQuery, FlattenMaps, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
@@ -39,7 +40,10 @@ export interface ITaskModel extends Model<ITaskDocument> {
   moveCycle(cycleId: string, newCycleId: string): Promise<{ ok: number }>;
 }
 
-export const loadTaskClass = (models: IModels) => {
+export const loadTaskClass = (
+  models: IModels,
+  { sendDbEventLog }: EventDispatcherReturn,
+) => {
   class Task {
     public static async getTask(_id: string) {
       const Task = await models.Task.findOne({ _id }).lean();
@@ -170,6 +174,11 @@ export const loadTaskClass = (models: IModels) => {
         });
       }
 
+      sendDbEventLog({
+        action: 'create',
+        docId: task._id,
+        currentDocument: task.toObject(),
+      });
       return task;
     }
 
@@ -294,15 +303,33 @@ export const loadTaskClass = (models: IModels) => {
         }
       }
 
-      return models.Task.findOneAndUpdate(
+      const updatedTask = await models.Task.findOneAndUpdate(
         { _id },
         { $set: { ...rest } },
         { new: true },
       );
+      if (updatedTask) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedTask._id,
+          currentDocument: updatedTask.toObject(),
+          prevDocument: task.toObject(),
+        });
+      }
+      return updatedTask;
     }
 
     public static async removeTask(TaskId: string[]) {
-      return models.Task.findOneAndDelete({ _id: { $in: TaskId } });
+      const tasks = await models.Task.find({ _id: { $in: TaskId } });
+
+      for (const task of tasks) {
+        sendDbEventLog({
+          action: 'delete',
+          docId: task._id,
+        });
+      }
+
+      return models.Task.deleteMany({ _id: { $in: TaskId } });
     }
 
     public static async moveCycle(cycleId: string, newCycleId: string) {
@@ -328,6 +355,17 @@ export const loadTaskClass = (models: IModels) => {
         { _id: { $in: taskIds } },
         { $set: { cycleId: newCycleId, statusChangedDate: new Date() } },
       );
+
+      sendDbEventLog({
+        action: 'updateMany',
+        docIds: taskIds,
+        updateDescription: {
+          updated: {
+            cycleId: { prev: cycleId, current: newCycleId },
+            statusChangedDate: { current: new Date() },
+          },
+        },
+      });
 
       return taskIds;
     }

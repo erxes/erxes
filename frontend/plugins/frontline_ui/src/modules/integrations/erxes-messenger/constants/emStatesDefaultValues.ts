@@ -22,6 +22,7 @@ export const SOCIAL_PLATFORMS: Record<string, SocialPlatform> = {
 export const DEFAULT_COLORS = {
   PRIMARY: '#5048e5',
   FOREGROUND: '#fff',
+  BACKGROUND: '#000',
 } as const;
 
-export const DEFAULT_LANGUAGE = 'en_US';
+export const DEFAULT_LANGUAGE = 'en-US';

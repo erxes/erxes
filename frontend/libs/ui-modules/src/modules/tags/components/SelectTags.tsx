@@ -328,7 +328,7 @@ export const SelectTagsItem = ({
   tag: ITag & { hasChildren: boolean };
 }) => {
   const { onSelect, selectedTags } = useSelectTagsContext();
-  const isSelected = selectedTags.some((t) => t._id === tag._id);
+  const isSelected = (selectedTags || []).some((t) => t._id === tag._id);
 
   return (
     <Command.Item onSelect={() => onSelect(tag)}>
@@ -761,9 +761,11 @@ export const SelectTagsFilterItem = ({
 export const SelectTagsFilterView = ({
   mode,
   filterKey,
+  tagType,
 }: {
   mode: 'single' | 'multiple';
   filterKey: string;
+  tagType?: string;
 }) => {
   const [query, setQuery] = useQueryState<string[] | string | undefined>(
     filterKey,
@@ -774,6 +776,7 @@ export const SelectTagsFilterView = ({
     <Filter.View filterKey={filterKey}>
       <SelectTagsProvider
         mode={mode}
+        tagType={tagType}
         value={query || []}
         onValueChange={(value) => {
           setQuery(value as any);

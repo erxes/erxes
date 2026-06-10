@@ -43,7 +43,7 @@ export const AddProperty = () => {
         onSubmit={onSubmit}
         loading={loading}
         defaultValues={{
-          icon: '',
+          icon: '123',
           name: '',
           type: type || '',
           isSearchable: false,

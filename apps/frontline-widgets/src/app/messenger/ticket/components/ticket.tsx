@@ -7,7 +7,12 @@ import { NotifyCustomerForm } from '../../components/notify-customer-form';
 export const Ticket = () => {
   const { hasEmailOrPhone } = useCustomerData();
   const [page, setPage] = useState<'submissions' | 'submit'>('submissions');
-  if (!hasEmailOrPhone) return <NotifyCustomerForm />;
+  if (!hasEmailOrPhone)
+    return (
+      <div className="flex flex-col gap-3 p-4 w-full h-full overflow-y-auto styled-scroll">
+        <NotifyCustomerForm />
+      </div>
+    );
 
   const renderContent = () => {
     if (page === 'submissions') return <TicketSubmissions setPage={setPage} />;

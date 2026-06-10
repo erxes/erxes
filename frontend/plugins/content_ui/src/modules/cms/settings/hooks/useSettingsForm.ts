@@ -131,6 +131,7 @@ export const useSettingsForm = () => {
         ? cms.customScripts.join('\n')
         : DEFAULT_SETTINGS.customHeadScripts,
       postUrlField: cms?.postUrlField || DEFAULT_SETTINGS.postUrlField,
+      postUrlPrefix: cms?.postUrlPrefix ?? DEFAULT_SETTINGS.postUrlPrefix,
       defaultPostStatus:
         cms?.defaultPostStatus || DEFAULT_SETTINGS.defaultPostStatus,
       allowComments: cms?.allowComments ?? DEFAULT_SETTINGS.allowComments,
@@ -182,6 +183,7 @@ export const useSettingsForm = () => {
       language,
       languages,
       postUrlField: settings.postUrlField,
+      postUrlPrefix: settings.postUrlPrefix,
       siteLogo: settings.siteLogo,
       favicon: settings.favicon,
     };

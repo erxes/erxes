@@ -22,6 +22,7 @@ import { posImportHandlers } from './modules/pos/meta/import/importHandlers';
 import { dealExportHandlers } from './modules/sales/meta/import-export/export/exportHandlers';
 import { dealImportHandlers } from './modules/sales/meta/import-export/import/importHandlers';
 import { permissions } from '~/meta/permissions';
+import { salesReferences } from './meta/references';
 
 startPlugin({
   name: 'sales',
@@ -63,6 +64,7 @@ startPlugin({
   meta: {
     automations,
     segments,
+    references: salesReferences,
     tags: { types: [{ type: 'deal', description: 'Sales' }] },
     properties: {
       types: [

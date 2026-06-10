@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 
 import {
   CMS_DEFAULT_POST_URL_FIELD,
+  CMS_DEFAULT_POST_URL_PREFIX,
   CMS_POST_URL_FIELDS,
   CMSPostUrlField,
   ICMSMenu,
@@ -46,6 +47,20 @@ type ResolvedMenuContent = {
   count?: number;
 };
 
+const normalizePostUrlPrefix = (postUrlPrefix?: string | null): string => {
+  const trimmedValue = postUrlPrefix?.trim();
+
+  if (!trimmedValue) {
+    return CMS_DEFAULT_POST_URL_PREFIX;
+  }
+
+  const withLeadingSlash = trimmedValue.startsWith('/')
+    ? trimmedValue
+    : `/${trimmedValue}`;
+
+  return withLeadingSlash.replace(/\/+$/g, '');
+};
+
 export interface ICMSMenuItemModel extends Model<ICMSMenuDocument> {
   getMenuItems: (query: any) => Promise<ICMSMenuDocument[]>;
   createMenuItem: (doc: ICMSMenu) => Promise<ICMSMenuDocument>;
@@ -76,10 +91,7 @@ export const loadMenuItemClass = (models: IModels) => {
     return mappedValue || fallback || 'URL';
   };
 
-  const normalizeContentType = (
-    contentType?: string | null,
-    _linkType?: MenuLinkType,
-  ) => {
+  const normalizeContentType = (contentType?: string | null) => {
     if (contentType) {
       const normalized = String(contentType).toLowerCase();
       if (LINK_TYPE_BY_CONTENT_TYPE[normalized]) return normalized;
@@ -114,21 +126,29 @@ export const loadMenuItemClass = (models: IModels) => {
   const toLegacyTarget = (openInNewTab: boolean) =>
     openInNewTab ? '_blank' : '';
 
-  const getPostUrlField = async (
+  const getPostUrlConfig = async (
     clientPortalId: string,
-  ): Promise<CMSPostUrlField> => {
+  ): Promise<{ postUrlField: CMSPostUrlField; postUrlPrefix: string }> => {
     const cms = await models.CMS.findOne({ clientPortalId })
-      .select({ postUrlField: 1 })
+      .select({ postUrlField: 1, postUrlPrefix: 1 })
       .lean();
+
+    const postUrlPrefix = normalizePostUrlPrefix(cms?.postUrlPrefix);
 
     if (
       cms?.postUrlField &&
       CMS_POST_URL_FIELDS.includes(cms.postUrlField as CMSPostUrlField)
     ) {
-      return cms.postUrlField as CMSPostUrlField;
+      return {
+        postUrlField: cms.postUrlField as CMSPostUrlField,
+        postUrlPrefix,
+      };
     }
 
-    return CMS_DEFAULT_POST_URL_FIELD;
+    return {
+      postUrlField: CMS_DEFAULT_POST_URL_FIELD,
+      postUrlPrefix,
+    };
   };
 
   const resolveLinkedContent = async (menuItem: {
@@ -243,14 +263,16 @@ export const loadMenuItemClass = (models: IModels) => {
       case 'PAGE':
         return content.slug ? `/${content.slug}` : undefined;
       case 'POST': {
-        const postUrlField = await getPostUrlField(menuItem.clientPortalId);
+        const { postUrlField, postUrlPrefix } = await getPostUrlConfig(
+          menuItem.clientPortalId,
+        );
         const identifier = content[postUrlField];
 
         if (identifier === undefined || identifier === null) {
           return undefined;
         }
 
-        return `/${String(identifier)}`;
+        return `${postUrlPrefix}/${String(identifier)}`;
       }
       case 'CATEGORY':
         return content.slug ? `/category/${content.slug}` : undefined;
@@ -324,7 +346,7 @@ export const loadMenuItemClass = (models: IModels) => {
       newTypeSource || mergedDoc.linkType || mergedDoc.contentType,
       normalizeLinkType(existingTypeSource),
     );
-    const contentType = normalizeContentType(mergedDoc.contentType, linkType);
+    const contentType = normalizeContentType(mergedDoc.contentType);
     const contentSource =
       linkType === 'PAGE'
         ? normalizeContentSource(

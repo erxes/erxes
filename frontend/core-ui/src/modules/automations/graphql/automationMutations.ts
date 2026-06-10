@@ -11,6 +11,8 @@ export const AUTOMATION_EDIT = gql`
     $id: String
     $name: String
     $status: String
+    $edgeType: String
+    $flowDirection: String
     $triggers: [TriggerInput]
     $actions: [ActionInput]
     $workflows: [WorkflowInput]
@@ -19,6 +21,8 @@ export const AUTOMATION_EDIT = gql`
       _id: $id
       name: $name
       status: $status
+      edgeType: $edgeType
+      flowDirection: $flowDirection
       triggers: $triggers
       actions: $actions
       workflows: $workflows
@@ -34,6 +38,8 @@ export const AUTOMATION_CREATE = gql`
   mutation AutomationsAdd(
     $name: String
     $status: String
+    $edgeType: String
+    $flowDirection: String
     $triggers: [TriggerInput]
     $actions: [ActionInput]
     $workflows: [WorkflowInput]
@@ -41,6 +47,8 @@ export const AUTOMATION_CREATE = gql`
     automationsAdd(
       name: $name
       status: $status
+      edgeType: $edgeType
+      flowDirection: $flowDirection
       triggers: $triggers
       actions: $actions
       workflows: $workflows

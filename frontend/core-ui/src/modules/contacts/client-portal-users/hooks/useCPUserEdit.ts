@@ -15,6 +15,7 @@ type CPUserEditVariables = {
   companyName?: string;
   companyRegistrationNumber?: string;
   erxesCustomerId?: string;
+  erxesCompanyId?: string;
 };
 
 interface CPUserEditOptions {

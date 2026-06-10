@@ -158,6 +158,8 @@ export const queries = `
     knowledgeBaseArticleDetail(_id: String!): KnowledgeBaseArticle
     knowledgeBaseArticleDetailAndIncViewCount(_id: String!): KnowledgeBaseArticle
     knowledgeBaseArticlesTotalCount(categoryIds: [String], codes: [String], articleIds:[String], topicIds: [String], status: String): Int
+
+    cpKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
   `;
 
 export const mutations = `

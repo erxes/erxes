@@ -12,6 +12,7 @@ export const CP_USERS_EDIT = gql`
     $companyName: String
     $companyRegistrationNumber: String
     $erxesCustomerId: String
+    $erxesCompanyId: String
   ) {
     cpUsersEdit(
       _id: $_id
@@ -24,6 +25,7 @@ export const CP_USERS_EDIT = gql`
       companyName: $companyName
       companyRegistrationNumber: $companyRegistrationNumber
       erxesCustomerId: $erxesCustomerId
+      erxesCompanyId: $erxesCompanyId
     ) {
       _id
       email
@@ -34,6 +36,7 @@ export const CP_USERS_EDIT = gql`
       companyName
       companyRegistrationNumber
       erxesCustomerId
+      erxesCompanyId
       updatedAt
     }
   }

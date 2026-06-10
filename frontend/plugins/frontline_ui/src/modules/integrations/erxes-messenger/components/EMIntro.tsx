@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { EMINTRO_SCHEMA } from '@/integrations/erxes-messenger/constants/emIntroSchema';
-import { useSetAtom } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import {
   erxesMessengerSetupIntroAtom,
   erxesMessengerSetupStepAtom,
@@ -13,9 +13,10 @@ import {
 import { EMFormValueEffectComponent } from '@/integrations/erxes-messenger/components/EMFormValueEffect';
 
 export const EMIntro = () => {
+  const atomValue = useAtomValue(erxesMessengerSetupIntroAtom);
   const form = useForm<z.infer<typeof EMINTRO_SCHEMA>>({
     resolver: zodResolver(EMINTRO_SCHEMA),
-    defaultValues: {
+    defaultValues: atomValue ?? {
       welcome: '',
       away: '',
       thank: '',
@@ -35,7 +36,7 @@ export const EMIntro = () => {
         atom={erxesMessengerSetupIntroAtom}
       />
       <form
-        className="flex-auto flex flex-col"
+        className="flex-auto h-full flex flex-col"
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <EMLayout
@@ -47,7 +48,7 @@ export const EMIntro = () => {
             </>
           }
         >
-          <div className="p-4 pt-0">
+          <div className="p-4 pt-0 overflow-y-auto hide-scroll styled-scroll">
             <Collapsible className="group/collapsible" defaultOpen>
               <Collapsible.TriggerButton>
                 <Collapsible.TriggerIcon />

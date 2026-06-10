@@ -1,7 +1,9 @@
-import { replacePlaceHolders, splitType } from 'erxes-api-shared/core-modules';
+import {
+  replaceOutputPlaceholders,
+  splitType,
+} from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { getRelatedValue } from '~/modules/sales/meta/automations/action/getRelatedValue';
 import { itemsAdd } from '~/modules/sales/utils';
 
 export const actionCreate = async ({
@@ -19,39 +21,23 @@ export const actionCreate = async ({
 }) => {
   const { config = {} } = action;
   const { target, triggerType } = execution || {};
-  const safeTriggerType = triggerType || '';
-  const relatedValueProps = {};
 
-  let newData = action.config.assignedTo
-    ? await replacePlaceHolders({
-        models,
+  let newData: Record<string, any> = action.config.assignedTo
+    ? await replaceOutputPlaceholders({
         subdomain,
-        customResolver: { resolver: getRelatedValue, isRelated: false },
-
-        actionData: { assignedTo: action.config.assignedTo },
-        target: { ...target, type: safeTriggerType.replace('sales:', '') },
+        execution,
+        values: { assignedTo: action.config.assignedTo },
       })
     : {};
 
   delete action.config.assignedTo;
 
-  if (config.customers) {
-    relatedValueProps['customers'] = { key: '_id' };
-    target.customers = config.customers;
-  }
-  if (config.companies) {
-    relatedValueProps['companies'] = { key: '_id' };
-    target.companies = config.companies;
-  }
-
   newData = {
     ...newData,
-    ...(await replacePlaceHolders({
-      models,
+    ...(await replaceOutputPlaceholders({
       subdomain,
-      customResolver: { resolver: getRelatedValue, props: relatedValueProps },
-      actionData: action.config,
-      target: { ...target, type: safeTriggerType.replace('sales:', '') },
+      execution,
+      values: action.config,
     })),
   };
 
@@ -93,26 +79,28 @@ export const actionCreate = async ({
     newData.companyIds = generateIds(newData.companies);
   }
 
-  if (Object.keys(newData).some((key) => key.startsWith('customFieldsData'))) {
-    const customFieldsData: Array<{ field: string; value: string }> = [];
+  if (Object.keys(newData).some((key) => key.startsWith('propertiesData.'))) {
+    const propertiesData =
+      newData.propertiesData &&
+      !Array.isArray(newData.propertiesData) &&
+      typeof newData.propertiesData === 'object'
+        ? { ...newData.propertiesData }
+        : {};
 
     const fieldKeys = Object.keys(newData).filter((key) =>
-      key.startsWith('customFieldsData'),
+      key.startsWith('propertiesData.'),
     );
 
     for (const fieldKey of fieldKeys) {
-      const [, fieldId] = fieldKey.split('.');
-
-      customFieldsData.push({
-        field: fieldId,
-        value: newData[fieldKey],
-      });
+      const fieldId = fieldKey.replace('propertiesData.', '');
+      propertiesData[fieldId] = newData[fieldKey];
+      delete newData[fieldKey];
     }
-    newData.customFieldsData = customFieldsData;
+    newData.propertiesData = propertiesData;
   }
 
   if (Object.prototype.hasOwnProperty.call(newData, 'attachments')) {
-    const [serviceName] = safeTriggerType.split(':');
+    const [serviceName] = triggerType.split(':');
     if (serviceName === 'sales') {
       const item = await models.Deals.findOne({ _id: target._id });
       newData.attachments = item?.attachments;
@@ -127,64 +115,48 @@ export const actionCreate = async ({
     models.Deals.createDeal,
   );
 
-  try {
-    const [serviceName, mainType] = splitType(safeTriggerType);
+  const [serviceName, mainType] = splitType(execution.triggerType);
 
-    if (serviceName === 'inbox' && mainType === 'conversation') {
-      await sendTRPCMessage({
-        subdomain,
-        method: 'mutation',
-        pluginName: 'core',
-        module: 'relation',
-        action: 'createRelation',
-        input: {
-          entities: [
-            {
-              contentType: 'core:customer',
-              contentId: execution.target.customerId,
-            },
-            {
-              contentType: 'sales:deal',
-              contentId: item._id,
-            },
-          ],
-        },
-      });
-    } else if (serviceName && serviceName !== 'sales') {
-      await sendTRPCMessage({
-        subdomain,
-        method: 'mutation',
-        pluginName: 'core',
-        module: 'relation',
-        action: 'createRelation',
-        input: {
-          entities: [
-            {
-              contentType: `core:${mainType.replace('lead', 'customer')}`,
-              contentId: execution.targetId,
-            },
-            {
-              contentType: 'sales:deal',
-              contentId: item._id,
-            },
-          ],
-        },
-      });
-    }
-  } catch (error: any) {
-    try {
-      await models.Deals.deleteOne({ _id: item._id });
-    } catch (cleanupError: any) {
-      throw new Error(
-        `${
-          error?.message || 'Failed to create automation relation'
-        }; rollback failed for deal ${item._id}: ${
-          cleanupError?.message || 'unknown error'
-        }`,
-      );
-    }
-
-    throw error;
+  if (mainType === 'inbox:conversation') {
+    await sendTRPCMessage({
+      subdomain,
+      method: 'mutation',
+      pluginName: 'core',
+      module: 'relation',
+      action: 'createRelation',
+      input: {
+        entities: [
+          {
+            contentType: 'core:customer',
+            contentId: execution.target.customerId,
+          },
+          {
+            contentType: 'sales:deal',
+            contentId: item._id,
+          },
+        ],
+      },
+    });
+  } else if (serviceName !== 'sales') {
+    await sendTRPCMessage({
+      subdomain,
+      method: 'mutation',
+      pluginName: 'core',
+      module: 'relation',
+      action: 'createRelation',
+      input: {
+        entities: [
+          {
+            contentType: `core:${mainType.replace('lead', 'customer')}`,
+            contentId: execution.targetId,
+          },
+          {
+            contentType: 'sales:deal',
+            contentId: item._id,
+          },
+        ],
+      },
+    });
   }
 
   return {
@@ -196,16 +168,10 @@ export const actionCreate = async ({
   };
 };
 
-const generateIds = (value) => {
-  const arr = value.split(', ');
-
-  if (Array.isArray(arr)) {
-    return arr;
+const generateIds = (value: string | string[]) => {
+  if (Array.isArray(value)) {
+    return value;
   }
 
-  if (!arr.match(/\{\{\s*([^}]+)\s*\}\}/g)) {
-    return [arr];
-  }
-
-  return [];
+  return String(value).split(', ');
 };

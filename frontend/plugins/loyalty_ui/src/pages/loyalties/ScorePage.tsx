@@ -29,8 +29,8 @@ export const ScorePage = () => {
   }, [setAction]);
 
   return (
-    <div className="flex overflow-hidden w-full h-full">
-      <div className="flex flex-col overflow-hidden w-full h-full">
+    <div className="flex flex-auto overflow-hidden">
+      <div className="flex flex-col flex-auto overflow-hidden">
         <PageSubHeader>
           <ScoreFilter />
         </PageSubHeader>

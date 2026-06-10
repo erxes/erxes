@@ -15,6 +15,7 @@ import { quickQrCallbackHandler } from '~/apis/qpayQuickqr/api';
 import { socialpayCallbackHandler } from '~/apis/socialpay/api';
 import { storepayCallbackHandler } from '~/apis/storepay/api';
 import { stripeCallbackHandler } from '~/apis/stripe/api';
+import { tdbCallbackHandler } from '~/apis/tdb/api';
 import { generateModels } from '~/connectionResolvers';
 import { PAYMENT_STATUS, PAYMENTS } from '~/constants';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
@@ -64,6 +65,9 @@ export const callbackHandler = async (req, res) => {
         break;
       case PAYMENTS.minupay.kind:
         transaction = await minupayCallbackHandler(models, data);
+        break;
+      case PAYMENTS.tdb.kind:
+        transaction = await tdbCallbackHandler(models, subdomain, data);
         break;
       default:
         return res.status(400).send('Invalid kind');

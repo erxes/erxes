@@ -38,6 +38,7 @@ export const CallIntegrationAdd = () => {
       name: '',
       phone: '',
       websocketServer: '',
+      brandId: '',
       queues: '',
     },
   });
@@ -51,6 +52,7 @@ export const CallIntegrationAdd = () => {
         name: data.name,
         kind: IntegrationType.CALL,
         channelId: id || '',
+        brandId: data.brandId,
         data: {
           phone: data.phone,
           wsServer: data.websocketServer,

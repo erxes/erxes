@@ -1,4 +1,5 @@
-import { useMemo, useRef } from 'react';
+import { AnimatePresence } from 'motion/react';
+import { useMemo, useRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import {
   BotMessage,
@@ -6,19 +7,25 @@ import {
   CustomerMessage,
   WelcomeMessage,
 } from './conversation';
-import { ChatInput } from './chat-input';
 import { useConversationDetail } from '../hooks/useConversationDetail';
 import {
   connectionAtom,
   conversationIdAtom,
   messengerDataAtom,
 } from '../states';
-import { Skeleton, cn } from 'erxes-ui';
+import { Avatar, Button, readImage, Skeleton, cn } from 'erxes-ui';
 import { formatMessageDate, getDateKey } from '@libs/formatDate';
 import { DateSeparator } from './date-separator';
-import { BotSeparator } from './bot-separator';
 import { TypingStatus } from './typing-status';
 import { InitialMessage } from '../constants';
+import {
+  IconArrowLeft,
+  IconArrowsDiagonal2,
+  IconArrowsDiagonalMinimize,
+  IconSparkles,
+} from '@tabler/icons-react';
+import { useMessenger } from '../hooks/useMessenger';
+import { CloseButton } from './CloseButton';
 
 const MESSAGE_GROUP_TIME_WINDOW = 5 * 60 * 1000;
 
@@ -67,12 +74,15 @@ export const ConversationDetails = () => {
   const messengerConnectData = useAtomValue(messengerDataAtom);
   const connection = useAtomValue(connectionAtom);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { goBack } = useMessenger();
   const { widgetsMessengerConnect } = connection || {};
   const { messengerData } = widgetsMessengerConnect || {};
   const {
     botGreetMessage,
     botShowInitialMessage,
     messages: messagesConfig,
+    responseRate,
+    isOnline,
   } = messengerData || {};
   const { conversationDetail, loading, isBotTyping } = useConversationDetail({
     variables: {
@@ -82,6 +92,20 @@ export const ConversationDetails = () => {
     skip: !conversationId || !messengerConnectData?.integrationId,
   });
   const { messages } = conversationDetail || {};
+  console.log(messages, '[messages]');
+
+  const lastAgentUser = useMemo(() => {
+    if (!messages) return null;
+    return (
+      [...messages].reverse().find((m) => !m.customerId && !m.fromBot && m.user)
+        ?.user ?? null
+    );
+  }, [messages]);
+
+  const isLastMessageFromBot = useMemo(() => {
+    if (!messages || messages.length === 0) return false;
+    return isBotMessage(messages[messages.length - 1]);
+  }, [messages]);
 
   const messagesByDate = useMemo(() => {
     if (!messages) return {};
@@ -157,17 +181,82 @@ export const ConversationDetails = () => {
     );
   }, [messagesByDate]);
 
+  const agentName =
+    lastAgentUser?.details?.fullName ||
+    lastAgentUser?.details?.firstName ||
+    'Support';
+  const agentAvatar = lastAgentUser?.details?.avatar;
+  const subtitle = responseRate
+    ? `usually replies in a few ${responseRate}`
+    : 'usually replies in a few minutes';
+
   if (loading) {
     return <Skeleton className="w-full aspect-square" />;
   }
 
   return (
-    <div className="flex flex-col max-h-full overflow-y-hidden relative">
+    <div className="flex flex-col h-full overflow-hidden">
+      <div className="flex items-center gap-3 px-3 py-2.5 bg-(--color-hero) shrink-0">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={goBack}
+          className="text-primary-foreground rounded-2xl hover:bg-primary-foreground/10 size-8 shrink-0"
+        >
+          <IconArrowLeft className="size-4" />
+        </Button>
+        <div className="relative shrink-0">
+          {isLastMessageFromBot ? (
+            <div className="size-9 border-[0.5px] border-primary backdrop-blur-md rounded-lg bg-linear-120 from-primary to-primary-foreground/20 flex items-center justify-center">
+              <IconSparkles className="size-5 text-primary-foreground" />
+            </div>
+          ) : (
+            <Avatar className="size-9">
+              {agentAvatar && (
+                <Avatar.Image
+                  src={readImage(agentAvatar)}
+                  alt={agentName}
+                  className="object-cover"
+                />
+              )}
+              <Avatar.Fallback className="bg-primary-foreground/20 text-primary-foreground font-semibold text-sm">
+                {agentName.charAt(0).toUpperCase()}
+              </Avatar.Fallback>
+            </Avatar>
+          )}
+          {isOnline && !isLastMessageFromBot && (
+            <span className="absolute bottom-0 right-0 size-2.5 rounded-full bg-success border-2 border-primary" />
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-primary-foreground font-semibold text-sm flex items-center gap-1.5 truncate">
+            {isLastMessageFromBot ? (
+              <>
+                AI agent
+                <span className="inline-flex items-center rounded-sm px-1.5 text-xs font-medium h-5 bg-primary/20 text-primary-foreground border border-primary/30 shrink-0">
+                  AI
+                </span>
+              </>
+            ) : (
+              agentName
+            )}
+          </div>
+          <div className="text-primary-foreground/60 text-xs truncate flex items-center gap-1">
+            {isLastMessageFromBot ? 'Automated · replies instantly' : subtitle}
+          </div>
+        </div>
+        <span className="flex items-center">
+          <ConversationDetailsDropdown />
+          <CloseButton />
+        </span>
+      </div>
       <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto scroll-smooth scroll-p-0 scroll-m-0 scroll-pt-16 flex flex-col-reverse p-4 space-y-2"
+        className="flex-1 overflow-y-auto scroll-smooth hide-scroll scroll-p-0 scroll-m-0 scroll-pt-16 flex flex-col-reverse p-4 space-y-2"
       >
-        {isBotTyping && <TypingStatus />}
+        <AnimatePresence>
+          {isBotTyping && <TypingStatus key="typing" />}
+        </AnimatePresence>
 
         {sortedDateKeys.map((dateKey, index) => {
           const messagesForDate = messagesByDate[dateKey];
@@ -188,7 +277,7 @@ export const ConversationDetails = () => {
                 <div
                   key={`group-${groupIndex}`}
                   className={cn(
-                    groupIndex !== 0 && 'pt-4 w-full',
+                    groupIndex !== 0 && 'mt-3 w-full',
                     'space-y-0.5',
                   )}
                 >
@@ -204,28 +293,33 @@ export const ConversationDetails = () => {
 
                     if (isBotMessage(message)) {
                       return (
-                        <BotSeparator
+                        <BotMessage
                           key={message._id}
-                          content={message.content}
+                          botData={message.botData}
+                          createdAt={new Date(message.createdAt)}
+                          showAvatar={message.showAvatar}
+                          {...messagePositionProps}
                         />
                       );
                     }
 
                     if (isOperatorMessage(message)) {
                       return (
-                        <div key={message._id}>
-                          <OperatorMessage
-                            content={message.content}
-                            src={
-                              message.user?.details?.avatar ||
-                              'assets/user.webp'
-                            }
-                            createdAt={new Date(message.createdAt)}
-                            showAvatar={message.showAvatar}
-                            attachments={message.attachments}
-                            {...messagePositionProps}
-                          />
-                        </div>
+                        <OperatorMessage
+                          key={message._id}
+                          content={message.content}
+                          src={
+                            message.user?.details?.avatar || 'assets/user.webp'
+                          }
+                          createdAt={new Date(message.createdAt)}
+                          showAvatar={message.showAvatar}
+                          attachments={message.attachments}
+                          userName={
+                            message.user?.details?.fullName ||
+                            message.user?.details?.firstName
+                          }
+                          {...messagePositionProps}
+                        />
                       );
                     }
 
@@ -235,6 +329,7 @@ export const ConversationDetails = () => {
                         content={message.content}
                         createdAt={new Date(message.createdAt)}
                         attachments={message.attachments}
+                        {...messagePositionProps}
                       />
                     );
                   })}
@@ -243,15 +338,36 @@ export const ConversationDetails = () => {
             </div>
           );
         })}
-        <BotMessage content={botGreetMessage} />
         {botShowInitialMessage && <BotMessage content={botGreetMessage} />}
         <WelcomeMessage
           content={messagesConfig?.welcome || InitialMessage.WELCOME}
         />
       </div>
-      <div className="shrink-0">
-        <ChatInput />
-      </div>
     </div>
+  );
+};
+
+export const ConversationDetailsDropdown = () => {
+  const [expanded, setExpanded] = useState<boolean>(false);
+  const { resetExpand, expandWindow } = useMessenger();
+  const handleExpanded = () => {
+    if (expanded) {
+      resetExpand();
+    } else {
+      expandWindow();
+    }
+    setExpanded(!expanded);
+  };
+  return (
+    <button
+      onClick={handleExpanded}
+      className="text-primary-foreground hover:bg-primary-foreground/10 size-8 rounded-xl shrink-0 flex items-center justify-center cursor-pointer"
+    >
+      {expanded ? (
+        <IconArrowsDiagonalMinimize className="size-4" />
+      ) : (
+        <IconArrowsDiagonal2 className="size-4" />
+      )}
+    </button>
   );
 };

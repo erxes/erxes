@@ -7,8 +7,10 @@ import {
 } from '../types/placeholderInputTypes';
 import {
   findActualTriggerPosition,
+  getAdjacentLockedExpressionRange,
   getDateNowContext,
   getEnclosingExpressionRangeOnBackspace,
+  getLockedExpressionRangeAtCursor,
   isAllowedDateNowEditKey,
   isInsideLockedExpression,
   shouldEnableDateSuggestions,
@@ -70,6 +72,47 @@ export function usePlaceHolderInputTriggerDetection({
 
     return `${cursorPos}:${textBeforeCursor}`;
   }, [inputRef, suggestionTypeByTriggerMap, value]);
+
+  const snapCursorOutOfLockedExpression = useCallback(() => {
+    const node = inputRef?.current;
+
+    if (!node) {
+      return;
+    }
+
+    const start = node.selectionStart || 0;
+    const end = node.selectionEnd || start;
+
+    if (start !== end) {
+      return;
+    }
+
+    const range = getLockedExpressionRangeAtCursor(value || '', start);
+
+    if (!range) {
+      return;
+    }
+
+    const { inside, afterNow } = getDateNowContext(value || '', start);
+
+    if (inside && afterNow) {
+      return;
+    }
+
+    const distanceToStart = start - range.start;
+    const distanceToEnd = range.end - start;
+    const nextCursor =
+      distanceToStart < distanceToEnd ? range.start : range.end;
+
+    node.setSelectionRange(nextCursor, nextCursor);
+    return true;
+  }, [inputRef, value]);
+
+  const queueSnapCursorOutOfLockedExpression = useCallback(() => {
+    snapCursorOutOfLockedExpression();
+    requestAnimationFrame(() => snapCursorOutOfLockedExpression());
+    setTimeout(() => snapCursorOutOfLockedExpression(), 0);
+  }, [snapCursorOutOfLockedExpression]);
 
   // Detect trigger characters
   useEffect(() => {
@@ -151,6 +194,7 @@ export function usePlaceHolderInputTriggerDetection({
 
     const handleSelectionChange = () => {
       setSelectionVersion((current) => current + 1);
+      queueSnapCursorOutOfLockedExpression();
     };
 
     const handleDocumentSelectionChange = () => {
@@ -160,27 +204,31 @@ export function usePlaceHolderInputTriggerDetection({
     };
 
     node.addEventListener('click', handleSelectionChange);
+    node.addEventListener('focus', handleSelectionChange);
     node.addEventListener('keyup', handleSelectionChange);
+    node.addEventListener('mouseup', handleSelectionChange);
     node.addEventListener('select', handleSelectionChange);
     document.addEventListener('selectionchange', handleDocumentSelectionChange);
 
     return () => {
       node.removeEventListener('click', handleSelectionChange);
+      node.removeEventListener('focus', handleSelectionChange);
       node.removeEventListener('keyup', handleSelectionChange);
+      node.removeEventListener('mouseup', handleSelectionChange);
       node.removeEventListener('select', handleSelectionChange);
       document.removeEventListener(
         'selectionchange',
         handleDocumentSelectionChange,
       );
     };
-  }, [inputRef]);
+  }, [inputRef, queueSnapCursorOutOfLockedExpression]);
 
   // close on blur
   useEffect(() => {
     const node = inputRef?.current;
     if (!node) return;
-    const onBlur = (event: FocusEvent) => {
-      const nextTarget = event.relatedTarget as Node | null;
+    const onBlur = (event: Event) => {
+      const nextTarget = (event as FocusEvent).relatedTarget as Node | null;
       const container = suggestionPopoverRef?.current;
 
       if (container && nextTarget && container.contains(nextTarget)) {
@@ -209,14 +257,76 @@ export function usePlaceHolderInputTriggerDetection({
 
       const text = value || '';
 
-      // Shortcut: Backspace at the end of an expression like `...}}|` or `...]]|`
+      const lockedRangeAtCursor =
+        start === end ? getLockedExpressionRangeAtCursor(text, start) : null;
+
+      if (lockedRangeAtCursor) {
+        const { inside, afterNow } = getDateNowContext(text, start);
+        const allowDateArithmetic = inside && afterNow;
+
+        if (!allowDateArithmetic) {
+          if (
+            e.key === 'ArrowLeft' ||
+            e.key === 'ArrowRight' ||
+            e.key === 'Backspace' ||
+            e.key === 'Delete'
+          ) {
+            e.preventDefault();
+            const nextCursor =
+              e.key === 'ArrowLeft' || e.key === 'Backspace'
+                ? lockedRangeAtCursor.start
+                : lockedRangeAtCursor.end;
+            inputRef.current.setSelectionRange(nextCursor, nextCursor);
+            return;
+          }
+        }
+      }
+
+      if (e.key === 'ArrowRight' && start === end) {
+        const range = getAdjacentLockedExpressionRange(text, start, 'forward');
+
+        if (range) {
+          e.preventDefault();
+          inputRef.current.setSelectionRange(range.end, range.end);
+          return;
+        }
+      }
+
+      if (e.key === 'ArrowLeft' && start === end) {
+        const range = getAdjacentLockedExpressionRange(text, start, 'backward');
+
+        if (range) {
+          e.preventDefault();
+          inputRef.current.setSelectionRange(range.start, range.start);
+          return;
+        }
+      }
+
+      // Shortcut: Backspace/Delete adjacent to an expression removes the token
+      // as a single badge-like unit.
       if (e.key === 'Backspace' && start === end) {
-        const range = getEnclosingExpressionRangeOnBackspace(text, start);
+        const range =
+          getAdjacentLockedExpressionRange(text, start, 'backward') ||
+          getEnclosingExpressionRangeOnBackspace(text, start);
         if (range) {
           e.preventDefault();
           const newValue = text.slice(0, range.start) + text.slice(range.end);
           onChange(newValue);
           // place caret at the start of removed expression
+          requestAnimationFrame(() => {
+            inputRef.current?.setSelectionRange(range.start, range.start);
+          });
+          return;
+        }
+      }
+
+      if (e.key === 'Delete' && start === end) {
+        const range = getAdjacentLockedExpressionRange(text, start, 'forward');
+
+        if (range) {
+          e.preventDefault();
+          const newValue = text.slice(0, range.start) + text.slice(range.end);
+          onChange(newValue);
           requestAnimationFrame(() => {
             inputRef.current?.setSelectionRange(range.start, range.start);
           });

@@ -6,12 +6,12 @@ export const LoyaltySettingsNavigation = () => {
     <Sidebar.Group>
       <Sidebar.GroupLabel className="h-4">Loyalty</Sidebar.GroupLabel>
       <Sidebar.GroupContent className="pt-1">
-        <SettingsNavigationMenuLinkItem
-          pathPrefix={LoyaltySettingsPaths.Loyalty}
-          path={LoyaltySettingsPaths.Config}
-          name="Configs"
-        />
         <Sidebar.Menu>
+          <SettingsNavigationMenuLinkItem
+            pathPrefix={LoyaltySettingsPaths.Loyalty}
+            path={LoyaltySettingsPaths.Config}
+            name="Configs"
+          />
           <SettingsNavigationMenuLinkItem
             pathPrefix={LoyaltySettingsPaths.Loyalty}
             path={LoyaltySettingsPaths.Pricing}

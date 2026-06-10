@@ -4,8 +4,7 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
 
-export type ScoreAction = 'add' | 'subtract' | 'set' | 'refund';
-export type ScoreStorageMode = 'legacy' | 'signed';
+export type ScoreAction = 'add' | 'subtract' | 'set' | 'refund' | 'return';
 
 export type OwnerScoreUpdate = {
   updatedCustomFieldsData?: Record<string, any>;
@@ -14,7 +13,10 @@ export type OwnerScoreUpdate = {
 
 export type ScoreLogLike = {
   action?: string;
+  preScore?: number;
   changeScore?: number;
+  createdAt?: Date;
+  _id?: string;
 };
 
 export type ScoreOwner = {
@@ -40,15 +42,11 @@ export type ScoreChangeDoc = ScoreTarget & {
   fieldId?: string;
   action?: ScoreAction;
   changeScore?: number;
-  signedChangeScore?: number;
   description?: string;
   createdBy?: string;
   sourceScoreLogId?: string;
-  amount?: number;
-  quantity?: number;
   createdAt?: Date;
   owner?: ScoreOwner;
-  storageMode?: ScoreStorageMode;
   preventNegativeBalance?: boolean;
 };
 
@@ -60,7 +58,6 @@ export type RefundScoreDoc = ScoreTarget & {
   checkInId?: string;
   description?: string;
   createdBy?: string;
-  storageMode?: ScoreStorageMode;
   netTargetAddsForSubtract?: boolean;
 };
 
@@ -95,93 +92,52 @@ export const getOwnerScoreValue = (owner: ScoreOwner, fieldId?: string) => {
   );
 };
 
-export const getSignedChangeScore = (log: ScoreLogLike) => {
-  const changeScore = Number(log?.changeScore) || 0;
-
-  if (log?.action === SCORE_ACTION.SUBTRACT) {
-    return -Math.abs(changeScore);
-  }
-
-  if (log?.action === SCORE_ACTION.ADD) {
-    return Math.abs(changeScore);
-  }
-
-  return changeScore;
+export const getLogChangeScore = (log: ScoreLogLike) => {
+  return Number(log?.changeScore) || 0;
 };
 
-const buildSwitchBranch = (caseExpression: any, thenExpression: any) => {
-  const branch = { case: caseExpression };
+const isAbsoluteScoreAction = (action?: string) =>
+  action === SCORE_ACTION.SET || action === SCORE_ACTION.RETURN;
 
-  Object.assign(branch, { ['then']: thenExpression });
+export const calculateScoreValueFromLogs = (logs: ScoreLogLike[]) =>
+  fixScoreNumber(
+    logs.reduce((score, log) => {
+      const changeScore = getLogChangeScore(log);
 
-  return branch;
-};
-
-export const buildSignedScoreExpression = (
-  changeScoreField = '$changeScore',
-  actionField = '$action',
-) => ({
-  $switch: {
-    branches: [
-      buildSwitchBranch(
-        { $eq: [actionField, SCORE_ACTION.SUBTRACT] },
-        { $multiply: [{ $abs: changeScoreField }, -1] },
-      ),
-      buildSwitchBranch(
-        { $eq: [actionField, SCORE_ACTION.ADD] },
-        { $abs: changeScoreField },
-      ),
-      buildSwitchBranch(
-        { $eq: [actionField, SCORE_ACTION.REFUND] },
-        changeScoreField,
-      ),
-    ],
-    default: changeScoreField,
-  },
-});
+      return isAbsoluteScoreAction(log.action)
+        ? changeScore
+        : score + changeScore;
+    }, 0),
+  );
 
 export const resolveScoreAction = (
-  signedChangeScore: number,
+  changeScore: number,
   action?: ScoreAction,
 ): ScoreAction => {
   if (action) {
     return action;
   }
 
-  return signedChangeScore < 0 ? 'subtract' : 'add';
+  if (changeScore < 0) {
+    return SCORE_ACTION.SUBTRACT as ScoreAction;
+  }
+
+  return (action || SCORE_ACTION.ADD) as ScoreAction;
 };
 
 export const prepareScoreLogChange = ({
   action,
-  signedChangeScore,
-  storageMode = 'legacy',
+  changeScore,
 }: {
   action?: ScoreAction;
-  signedChangeScore: number;
-  storageMode?: ScoreStorageMode;
+  changeScore: number;
 }) => {
-  const normalizedSignedChangeScore = fixScoreNumber(signedChangeScore);
-  const resolvedAction = resolveScoreAction(
-    normalizedSignedChangeScore,
-    action,
-  );
-
-  if (
-    storageMode === 'signed' ||
-    resolvedAction === SCORE_ACTION.REFUND ||
-    resolvedAction === SCORE_ACTION.SET
-  ) {
-    return {
-      action: resolvedAction,
-      changeScore: normalizedSignedChangeScore,
-      signedChangeScore: normalizedSignedChangeScore,
-    };
-  }
+  const normalizedChangeScore = fixScoreNumber(changeScore);
+  const resolvedAction = resolveScoreAction(normalizedChangeScore, action);
 
   return {
     action: resolvedAction,
-    changeScore: fixScoreNumber(Math.abs(normalizedSignedChangeScore)),
-    signedChangeScore: normalizedSignedChangeScore,
+    changeScore: normalizedChangeScore,
   };
 };
 
@@ -301,17 +257,11 @@ export const getScoreBalanceFromLogs = async (
     filter.campaignId = { $in: ids };
   }
 
-  const [result] = await models.ScoreLogs.aggregate([
-    { $match: filter },
-    {
-      $group: {
-        _id: null,
-        balance: { $sum: buildSignedScoreExpression() },
-      },
-    },
-  ]);
+  const logs = await models.ScoreLogs.find(filter)
+    .sort({ createdAt: 1, _id: 1 })
+    .lean();
 
-  return Number(result?.balance) || 0;
+  return calculateScoreValueFromLogs(logs);
 };
 
 const getCampaignFieldId = async (
@@ -334,24 +284,6 @@ const getCampaignFieldId = async (
   return campaign?.fieldId;
 };
 
-const getSignedChangeFromInput = (doc: ScoreChangeDoc) => {
-  if (doc.signedChangeScore !== undefined) {
-    return Number(doc.signedChangeScore) || 0;
-  }
-
-  const changeScore = Number(doc.changeScore) || 0;
-
-  if (doc.action === SCORE_ACTION.SUBTRACT) {
-    return -Math.abs(changeScore);
-  }
-
-  if (doc.action === SCORE_ACTION.ADD) {
-    return Math.abs(changeScore);
-  }
-
-  return changeScore;
-};
-
 export const applyScoreChange = async ({
   models,
   subdomain,
@@ -370,10 +302,7 @@ export const applyScoreChange = async ({
     description,
     createdBy = '',
     sourceScoreLogId,
-    amount,
-    quantity,
     createdAt = new Date(),
-    storageMode = 'legacy',
     preventNegativeBalance = true,
   } = doc;
 
@@ -388,15 +317,18 @@ export const applyScoreChange = async ({
     throw new Error('Owner not found');
   }
 
-  const signedChangeScore = fixScoreNumber(getSignedChangeFromInput(doc));
+  const changeScore = fixScoreNumber(Number(doc.changeScore) || 0);
+  const isAbsoluteAction = isAbsoluteScoreAction(doc.action);
 
-  if (!signedChangeScore) {
+  if (!changeScore && !isAbsoluteAction) {
     throw new Error('Score change must not be zero');
   }
 
   const fieldId = await getCampaignFieldId(models, campaignId, doc.fieldId);
   const previousScore = getOwnerScoreValue(owner, fieldId);
-  const newScore = fixScoreNumber(previousScore + signedChangeScore);
+  const newScore = fixScoreNumber(
+    isAbsoluteAction ? changeScore : previousScore + changeScore,
+  );
 
   if (preventNegativeBalance && newScore < 0) {
     throw new Error('There has no enough score to subtract');
@@ -411,14 +343,14 @@ export const applyScoreChange = async ({
 
   const preparedChange = prepareScoreLogChange({
     action: doc.action,
-    signedChangeScore,
-    storageMode,
+    changeScore,
   });
 
   const log = await models.ScoreLogs.create({
     ownerId,
     ownerType,
     campaignId,
+    preScore: previousScore,
     changeScore: preparedChange.changeScore,
     createdAt,
     description,
@@ -427,8 +359,6 @@ export const applyScoreChange = async ({
     targetId,
     action: preparedChange.action,
     sourceScoreLogId,
-    amount,
-    quantity,
   });
 
   return {
@@ -436,7 +366,9 @@ export const applyScoreChange = async ({
     fieldId,
     previousScore,
     newScore,
-    signedChangeScore,
+    changeScore: isAbsoluteAction
+      ? fixScoreNumber(newScore - previousScore)
+      : changeScore,
     updateResponse,
   };
 };
@@ -466,6 +398,12 @@ const findRefundSourceLog = async (
       targetId,
       ownerId,
       ownerType,
+      action: SCORE_ACTION.SET,
+    })) ||
+    (await models.ScoreLogs.findOne({
+      targetId,
+      ownerId,
+      ownerType,
       action: SCORE_ACTION.SUBTRACT,
     })) ||
     (await models.ScoreLogs.findOne({
@@ -477,7 +415,24 @@ const findRefundSourceLog = async (
   );
 };
 
-const getRefundSignedChange = async ({
+export const getScoreValueBeforeLog = async (
+  models: IModels,
+  sourceLog: IScoreLogDocument,
+) => {
+  const logs = await models.ScoreLogs.find({
+    _id: { $ne: sourceLog._id },
+    ownerId: sourceLog.ownerId,
+    ownerType: sourceLog.ownerType,
+    campaignId: sourceLog.campaignId,
+    createdAt: { $lt: sourceLog.createdAt },
+  })
+    .sort({ createdAt: 1, _id: 1 })
+    .lean();
+
+  return calculateScoreValueFromLogs(logs);
+};
+
+const getRefundChangeScore = async ({
   models,
   sourceLog,
   netTargetAddsForSubtract = true,
@@ -486,10 +441,14 @@ const getRefundSignedChange = async ({
   sourceLog: IScoreLogDocument;
   netTargetAddsForSubtract?: boolean;
 }) => {
-  const sourceSignedChangeScore = getSignedChangeScore(sourceLog);
+  const sourceChangeScore = getLogChangeScore(sourceLog);
+
+  if (sourceLog.action === SCORE_ACTION.SET) {
+    return getScoreValueBeforeLog(models, sourceLog);
+  }
 
   if (sourceLog.action !== SCORE_ACTION.SUBTRACT || !netTargetAddsForSubtract) {
-    return -sourceSignedChangeScore;
+    return -sourceChangeScore;
   }
 
   const addedScoreLogs = await models.ScoreLogs.find({
@@ -500,11 +459,11 @@ const getRefundSignedChange = async ({
   });
 
   const totalAddedScore = addedScoreLogs.reduce(
-    (sum, log) => sum + getSignedChangeScore(log),
+    (sum, log) => sum + getLogChangeScore(log),
     0,
   );
 
-  return -sourceSignedChangeScore - totalAddedScore;
+  return -sourceChangeScore - totalAddedScore;
 };
 
 export const refundScoreChange = async ({
@@ -526,7 +485,7 @@ export const refundScoreChange = async ({
     targetId: sourceLog.targetId,
     ownerId: sourceLog.ownerId,
     ownerType: sourceLog.ownerType,
-    action: SCORE_ACTION.REFUND,
+    action: { $in: [SCORE_ACTION.REFUND, SCORE_ACTION.RETURN] },
     sourceScoreLogId: sourceLog._id,
   });
 
@@ -536,7 +495,7 @@ export const refundScoreChange = async ({
     );
   }
 
-  const signedChangeScore = await getRefundSignedChange({
+  const changeScore = await getRefundChangeScore({
     models,
     sourceLog,
     netTargetAddsForSubtract: doc.netTargetAddsForSubtract,
@@ -552,11 +511,10 @@ export const refundScoreChange = async ({
       serviceName: sourceLog.serviceName,
       targetId: sourceLog.targetId,
       sourceScoreLogId: sourceLog._id,
-      action: 'refund',
-      signedChangeScore,
+      action: sourceLog.action === SCORE_ACTION.SET ? 'return' : 'refund',
+      changeScore,
       description: doc.description,
       createdBy: doc.createdBy,
-      storageMode: doc.storageMode,
     },
   });
 };

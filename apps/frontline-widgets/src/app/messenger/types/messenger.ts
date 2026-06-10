@@ -4,8 +4,10 @@ export type TabType =
   | 'chat'
   | 'faq'
   | 'call'
+  | 'web-call'
   | 'bug'
   | 'notifications'
+  | 'messages'
   | 'default';
 
 export type HeaderContentType = 'hero-intro' | 'header-tabs';
@@ -15,4 +17,5 @@ export interface IHeaderItem {
   Icon: TablerIcon;
   value: TabType;
   disabled: boolean;
+  eyebrow?: string;
 }

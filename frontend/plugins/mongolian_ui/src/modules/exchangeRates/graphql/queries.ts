@@ -33,9 +33,10 @@ export const exchangeRatesMain = gql`
   }
 `;
 
-export const configs = gql`
-  query ConfigsGetValue($code: String!) {
-    configsGetValue(code: $code)
+export const currencyConfig = gql`
+  query ExchangeRateCurrencies {
+    dealCurrencies: configsGetValue(code: "dealCurrency")
+    mainCurrencyConfig: configsGetValue(code: "mainCurrency")
   }
 `;
 
@@ -43,5 +44,5 @@ export const configs = gql`
 
 export default {
   exchangeRatesMain,
-  configs,
+  currencyConfig,
 };

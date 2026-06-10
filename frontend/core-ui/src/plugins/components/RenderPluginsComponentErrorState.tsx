@@ -1,9 +1,12 @@
 import { loadRemote } from '@module-federation/enhanced/runtime';
 import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react';
+import type { Dispatch, SetStateAction } from 'react';
+import {
+  RemoteComponent,
+  RemoteModule,
+  resolveRemoteComponent,
+} from '../utils/resolveRemoteComponent';
 
-interface RemoteComponentProps {
-  module?: string;
-}
 export const RenderPluginsComponentErrorState = ({
   pluginName,
   remoteModuleName,
@@ -13,27 +16,30 @@ export const RenderPluginsComponentErrorState = ({
 }: {
   pluginName: string;
   remoteModuleName: string;
-  setPlugin: React.Dispatch<
-    React.SetStateAction<React.ComponentType<RemoteComponentProps> | null>
-  >;
-  setHasError: React.Dispatch<
-    React.SetStateAction<{
+  setPlugin: Dispatch<SetStateAction<RemoteComponent | null>>;
+  setHasError: Dispatch<
+    SetStateAction<{
       message: string;
     } | null>
   >;
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
 }) => {
   const retry = () => {
     setHasError(null);
     setIsLoading(true);
-    loadRemote<{ default: React.ComponentType<RemoteComponentProps> }>(
-      `${pluginName}/${remoteModuleName}`,
-      { from: 'runtime' },
-    )
+    loadRemote<RemoteModule>(`${pluginName}/${remoteModuleName}`, {
+      from: 'runtime',
+    })
       .then((remoteModule) => {
-        if (!remoteModule?.default)
+        const remoteComponent = resolveRemoteComponent(
+          remoteModule,
+          remoteModuleName,
+        );
+
+        if (!remoteComponent)
           throw new Error('Plugin module is empty or invalid');
-        setPlugin(() => remoteModule.default);
+
+        setPlugin(() => remoteComponent);
       })
       .catch((error) => {
         setHasError({

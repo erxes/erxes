@@ -90,6 +90,9 @@ const GET_USERS_QUERY = gql`
         }
         links
         employeeId
+        branchIds
+        departmentIds
+        unitId
         propertiesData
       }
       ${GQL_PAGE_INFO}

@@ -1,3 +1,4 @@
+import { useAtom } from 'jotai';
 import { RecordTable, Spinner } from 'erxes-ui';
 import { IconStar } from '@tabler/icons-react';
 import { scoreLogColumns } from './ScoreColumns';
@@ -6,17 +7,21 @@ import {
   useScoreList,
 } from '../hooks/useScoreList';
 import { GiveScoreModal } from './GiveScoreModal';
+import { ScoreDetailSheet } from './ScoreDetailSheet';
+import { scoreDetailRecordAtom } from '../states/scoreDetail';
 
 export const ScoreRecordTable = () => {
   const { list, loading, handleFetchMore, pageInfo } = useScoreList();
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+  const [detailRecord, setDetailRecord] = useAtom(scoreDetailRecordAtom);
 
   const columnsKey = scoreLogColumns.map((c) => c.id || '').join('|');
 
   if (loading && !list?.length) return <Spinner />;
 
   return (
-    <RecordTable.Provider
+    <>
+      <RecordTable.Provider
       key={columnsKey}
       columns={scoreLogColumns}
       data={list || []}
@@ -61,6 +66,14 @@ export const ScoreRecordTable = () => {
           </div>
         )}
       </RecordTable.CursorProvider>
-    </RecordTable.Provider>
+      </RecordTable.Provider>
+      <ScoreDetailSheet
+        open={!!detailRecord}
+        onOpenChange={(value) => {
+          if (!value) setDetailRecord(null);
+        }}
+        record={detailRecord}
+      />
+    </>
   );
 };

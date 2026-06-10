@@ -1,4 +1,4 @@
-import { PageHeader } from 'ui-modules';
+import { Can, PageHeader } from 'ui-modules';
 import { Breadcrumb, PageSubHeader, Separator } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
@@ -41,29 +41,31 @@ export const PosItemsPage = () => {
         <div className="flex flex-col overflow-hidden w-full h-full">
           <PageSubHeader>
             <PosItemsFilter />
-            <SalesImport
-              pluginName="sales"
-              moduleName="pos"
-              collectionName="posItems"
-              title={t('sales.importExport.importPosItems', {
-                defaultValue: 'Import POS Items',
-              })}
-              singularLabel={t('sales.importExport.posItem', {
-                defaultValue: 'POS item',
-              })}
-              pluralLabel={t('sales.importExport.posItems', {
-                defaultValue: 'POS items',
-              })}
-            />
-            <SalesExport
-              pluginName="sales"
-              moduleName="pos"
-              collectionName="posItems"
-              entityDisplayName={t('sales.importExport.posItems', {
-                defaultValue: 'POS Items',
-              })}
-              getFilters={getFilters}
-            />
+            <Can action="posItemsExportManage">
+              <SalesImport
+                pluginName="sales"
+                moduleName="pos"
+                collectionName="posItems"
+                title={t('sales.importExport.importPosItems', {
+                  defaultValue: 'Import POS Items',
+                })}
+                singularLabel={t('sales.importExport.posItem', {
+                  defaultValue: 'POS item',
+                })}
+                pluralLabel={t('sales.importExport.posItems', {
+                  defaultValue: 'POS items',
+                })}
+              />
+              <SalesExport
+                pluginName="sales"
+                moduleName="pos"
+                collectionName="posItems"
+                entityDisplayName={t('sales.importExport.posItems', {
+                  defaultValue: 'POS Items',
+                })}
+                getFilters={getFilters}
+              />
+            </Can>
           </PageSubHeader>
           <PosItemsRecordTable posId={posId} />
         </div>

@@ -26,7 +26,7 @@ export const AutomationVariableBrowser = ({
     buildVariableToken,
     filteredVariables,
     loading,
-    mergedPropertySources,
+    mergedPropertySource,
     searchQuery,
     searchValue,
     setSearchValue,
@@ -47,7 +47,7 @@ export const AutomationVariableBrowser = ({
   return (
     <div className={cn('space-y-3 px-5 py-2 text-sm', className)}>
       {sourceNodes?.length ? (
-        <AutomationVariableBrowserSection title="Variable Sources">
+        <AutomationVariableBrowserSection title={sourceSectionTitle}>
           <AutomationVariableSourceNodeList
             activeSourceNodeId={activeSourceNode.id}
             sourceNodes={sourceNodes}
@@ -81,11 +81,6 @@ export const AutomationVariableBrowser = ({
         </AutomationVariableBrowserSection>
       )}
 
-      {/* <AutomationVariableBrowserInfoState
-        title="Insert variables"
-        description="Click or drag variables into a supported field to insert placeholders."
-      /> */}
-
       <Input
         value={searchValue}
         onChange={(event) => setSearchValue(event.target.value)}
@@ -101,25 +96,21 @@ export const AutomationVariableBrowser = ({
           loading={loading}
           onInsertVariable={onInsertVariable}
           searchQuery={searchQuery}
+          sourceNode={activeSourceNode}
           variables={filteredVariables}
         />
       </AutomationVariableBrowserSection>
 
       <AutomationVariableBrowserSection title="Custom Properties">
-        {mergedPropertySources.length > 0 ? (
-          <div className="space-y-2">
-            {mergedPropertySources.map((source) => (
-              <AutomationOutputPropertySourceFields
-                key={`${source.key}-${source.propertyType}`}
-                source={source}
-                searchQuery={searchQuery}
-                buildVariablePath={buildVariablePath}
-                buildVariableToken={buildVariableToken}
-                buildVariablePayload={buildVariablePayload}
-                onInsertVariable={onInsertVariable}
-              />
-            ))}
-          </div>
+        {mergedPropertySource ? (
+          <AutomationOutputPropertySourceFields
+            source={mergedPropertySource}
+            searchQuery={searchQuery}
+            buildVariablePath={buildVariablePath}
+            buildVariableToken={buildVariableToken}
+            buildVariablePayload={buildVariablePayload}
+            onInsertVariable={onInsertVariable}
+          />
         ) : (
           <AutomationVariableBrowserEmptyState text="No property sources available." />
         )}
