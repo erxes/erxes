@@ -86,9 +86,15 @@ CONDITIONS ("when") — restricted language, nothing else parses:
   Example: "{{steps.classify.output.intent}} == 'order' && {{trigger.payload.amount}} > 1000"
 Never put customer text in conditions — classify with an agent step's enum, branch on the enum.
 
-TRIGGERS available today: "manual" (run from chat/UI — fully working).
-"automation" / "schedule" / "webhook" can be declared but DO NOT FIRE yet — tell the
-user their workflow will be run manually until event triggers ship.
+TRIGGERS:
+- "manual" — run on demand from chat (workflowRunNow) or the UI.
+- "schedule" — config: { "cron": "0 9 * * *" } (UTC, 5- or 6-field). Fires
+  automatically while the workflow is enabled; takes effect within ~5 minutes.
+- "automation" — fires when an erxes Automation includes the "Run agent
+  workflow" action pointing at this workflow. The user must wire the trigger
+  (new conversation, ticket created, segment entry, ...) to that action in the
+  erxes Automations UI — tell them this step is theirs.
+- "webhook" — NOT available yet, never use it.
 
 RULES:
 1. Always set the narrowest policy that covers every operation step.

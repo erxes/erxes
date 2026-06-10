@@ -4,10 +4,16 @@ import { resolvers } from '~/apollo/resolvers';
 import { generateModels } from './connectionResolvers';
 import { router } from './routes';
 import { appRouter } from '~/trpc/init-trpc';
+import { automations } from '~/meta/automations';
 
 startPlugin({
   name: 'erxes-agent',
   port: 3312,
+  meta: {
+    // The generic "Run agent workflow" action — every trigger the central
+    // automations service knows can start an agent workflow through it.
+    automations,
+  },
   graphql: async () => ({
     typeDefs: await typeDefs(),
     resolvers,
@@ -43,6 +49,16 @@ startPlugin({
         import('erxes-api-shared/utils'),
       ]);
       await initKnowledgeSync(redis);
+    }
+
+    // Workflow schedule trigger: reconcile BullMQ job schedulers with enabled
+    // schedule-workflows (boot kick + every 5 minutes).
+    {
+      const [{ initWorkflowSchedules }, { redis }] = await Promise.all([
+        import('~/mastra/workflows/scheduler'),
+        import('erxes-api-shared/utils'),
+      ]);
+      await initWorkflowSchedules(redis);
     }
   },
 });

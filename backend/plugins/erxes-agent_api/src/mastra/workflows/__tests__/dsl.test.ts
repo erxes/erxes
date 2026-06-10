@@ -159,3 +159,23 @@ describe('buildOutputZod', () => {
     expect(schema.safeParse({ intent: 'order', urgent: true }).success).toBe(false);
   });
 });
+
+describe('schedule trigger validation', () => {
+  it('requires a cron expression on schedule triggers', () => {
+    const def = validDef();
+    (def.trigger as any) = { type: 'schedule', config: {} };
+    const result = validateDefinition(def);
+    expect(result.errors.some((e) => /requires config\.cron/.test(e.message))).toBe(true);
+  });
+
+  it('accepts a 5-field cron and rejects garbage', () => {
+    const def = validDef();
+    (def.trigger as any) = { type: 'schedule', config: { cron: '0 9 * * *' } };
+    expect(validateDefinition(def).ok).toBe(true);
+
+    (def.trigger as any) = { type: 'schedule', config: { cron: 'every morning' } };
+    expect(
+      validateDefinition(def).errors.some((e) => /requires config\.cron/.test(e.message)),
+    ).toBe(true);
+  });
+});

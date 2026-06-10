@@ -212,6 +212,19 @@ export function validateDefinition(
     });
   }
 
+  if (def.trigger.type === 'schedule') {
+    const cron = (def.trigger.config as any)?.cron;
+    if (
+      typeof cron !== 'string' ||
+      !/^\S+\s+\S+\s+\S+\s+\S+\s+\S+(\s+\S+)?$/.test(cron.trim())
+    ) {
+      errors.push({
+        path: 'trigger.config.cron',
+        message: 'schedule trigger requires config.cron — a 5- or 6-field cron expression (UTC)',
+      });
+    }
+  }
+
   const checkLeaf = (step: any, at: string, prior: Set<string>) => {
     for (const ref of collectRefs(step)) {
       const problem = checkRef(ref, prior, bindingKeys);
