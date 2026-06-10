@@ -161,6 +161,33 @@ async function applyCycleFilter(
   }
 }
 
+/** Resolves project IDs based on milestone name filter. Returns null if no match (to signal empty result). */
+async function resolveProjectIdsByMilestone(
+  models: IModels,
+  milestoneName: string,
+): Promise<string[] | null> {
+  const projectIds = await models.Milestone.find({
+    name: { $regex: milestoneName, $options: 'i' },
+  }).distinct('projectId');
+  return projectIds.length ? projectIds : null;
+}
+
+/** Resolves project IDs based on project-level properties (status, priority, lead). Returns null if no match. */
+async function resolveProjectIdsByProps(
+  models: IModels,
+  filter: { projectStatus?: number; projectPriority?: number; projectLeadId?: string; },
+  existingIds: string[],
+): Promise<string[] | null> {
+  const pf: FilterQuery<{ _id: string; status?: number; priority?: number; leadId?: string }> = {};
+  if (filter.projectStatus) pf.status = filter.projectStatus;
+  if (filter.projectPriority) pf.priority = filter.projectPriority;
+  if (filter.projectLeadId) pf.leadId = filter.projectLeadId;
+  if (existingIds.length) pf._id = { $in: existingIds };
+
+  const projectIds = await models.Project.find(pf).distinct('_id');
+  return projectIds.length ? projectIds : null;
+}
+
 /** Resolves matching project IDs from project-level sub-filters. Returns false to signal an empty result. */
 async function applyProjectFilter(
   models: IModels,
@@ -173,25 +200,67 @@ async function applyProjectFilter(
   },
 ): Promise<boolean> {
   let projectIds: string[] = [];
+
   if (filter.projectMilestoneName) {
-    projectIds = await models.Milestone.find({
-      name: { $regex: filter.projectMilestoneName, $options: 'i' },
-    }).distinct('projectId');
-    if (!projectIds.length) return false;
+    const ids = await resolveProjectIdsByMilestone(models, filter.projectMilestoneName);
+    if (!ids) return false;
+    projectIds = ids;
   }
+
   if (filter.projectStatus || filter.projectPriority || filter.projectLeadId) {
-    const pf: FilterQuery<{ _id: string; status?: number; priority?: number; leadId?: string }> = {};
-    if (filter.projectStatus) pf.status = filter.projectStatus;
-    if (filter.projectPriority) pf.priority = filter.projectPriority;
-    if (filter.projectLeadId) pf.leadId = filter.projectLeadId;
-    if (projectIds.length) pf._id = { $in: projectIds };
-    projectIds = await models.Project.find(pf).distinct('_id');
-    if (!projectIds.length) return false;
+    const ids = await resolveProjectIdsByProps(models, filter, projectIds);
+    if (!ids) return false;
+    projectIds = ids;
   }
+
   if (projectIds.length) {
     if (query.projectId && !projectIds.includes(query.projectId as string)) return false;
     if (!query.projectId) query.projectId = { $in: projectIds } as FilterQuery<ITaskDocument>['projectId'];
   }
+  return true;
+}
+
+/** Applies hierarchy-related filters (team, project, milestone, estimatePoint) to the query. */
+function applyHierarchyFilters(
+  query: FilterQuery<ITaskDocument>,
+  filter: { teamId?: string; projectId?: string; milestoneId?: string | null; milestone?: string; estimatePoint?: number; }
+): void {
+  if (filter.teamId) query.teamId = filter.teamId;
+  if (filter.estimatePoint) query.estimatePoint = filter.estimatePoint;
+
+  if (filter.milestoneId) { query.milestoneId = filter.milestoneId; }
+  else if (filter.milestone) { query.milestoneId = filter.milestone; }
+
+  if (filter.projectId) {
+    query.projectId = filter.projectId === 'no-project'
+      ? { $exists: false } as FilterQuery<ITaskDocument>['projectId']
+      : filter.projectId;
+  }
+
+  if (filter.teamId && filter.projectId && filter.projectId !== 'no-project') {
+    delete query.teamId;
+  }
+}
+
+/** Resolves and applies complex asynchronous filters (cycle, project properties). Returns false if empty result. */
+async function applyAsyncFilters(
+  models: IModels,
+  query: FilterQuery<ITaskDocument>,
+  filter: {
+    cycleId?: string | null; cycleFilter?: CycleFilterType; teamId?: string;
+    projectStatus?: number; projectPriority?: number; projectLeadId?: string; projectMilestoneName?: string;
+  }
+): Promise<boolean> {
+  if (filter.cycleId) {
+    query.cycleId = filter.cycleId;
+  } else if (filter.cycleFilter && filter.teamId) {
+    if (!await applyCycleFilter(models, query, filter.cycleFilter, filter.teamId)) return false;
+  }
+
+  if (filter.projectStatus || filter.projectPriority || filter.projectLeadId || filter.projectMilestoneName) {
+    if (!await applyProjectFilter(models, query, filter)) return false;
+  }
+
   return true;
 }
 
@@ -209,34 +278,11 @@ async function buildTaskQuery(
   applyTextFilter(query, filter);
   applyStatusFilters(query, filter);
   applyDateFilters(query, filter);
-  if (filter.teamId) query.teamId = filter.teamId;
   applyUserFilters(query, filter);
-
-  if (filter.cycleId) {
-    query.cycleId = filter.cycleId;
-  } else if (filter.cycleFilter && filter.teamId) {
-    if (!await applyCycleFilter(models, query, filter.cycleFilter, filter.teamId)) return null;
-  }
-
-  if (filter.projectId) {
-    query.projectId = filter.projectId === 'no-project'
-      ? { $exists: false } as FilterQuery<ITaskDocument>['projectId']
-      : filter.projectId;
-  }
-
-  if (filter.projectStatus || filter.projectPriority || filter.projectLeadId || filter.projectMilestoneName) {
-    if (!await applyProjectFilter(models, query, filter)) return null;
-  }
-
-  if (filter.milestoneId) { query.milestoneId = filter.milestoneId; }
-  else if (filter.milestone) { query.milestoneId = filter.milestone; }
-
-  if (filter.estimatePoint) query.estimatePoint = filter.estimatePoint;
   applyTagLabelFilters(query, filter);
+  applyHierarchyFilters(query, filter);
 
-  if (filter.teamId && filter.projectId && filter.projectId !== 'no-project') {
-    delete query.teamId;
-  }
+  if (!await applyAsyncFilters(models, query, filter)) return null;
 
   return query;
 }
