@@ -442,6 +442,11 @@ export async function executeErxesOperation(
   inputTypesMap?: Record<string, any[]>,
   objectFieldsMap?: Record<string, any[]>,
 ): Promise<any> {
+ // Any internal failure (a malformed introspection shape, an undefined field
+ // access, a network blip) must become a STRUCTURED result the model can act
+ // on — never an exception that surfaces to the user as a raw stack message
+ // and strands them.
+ try {
   const apiUrl = settings?.erxesApiUrl || 'http://localhost:4000';
   const token = settings?.erxesApiToken || '';
   const erxesOperation = op.operation;
@@ -549,6 +554,14 @@ export async function executeErxesOperation(
     return buildNotFoundResult(raw, apiUrl, authHeaders);
   }
   return data?.data?.[erxesOperation] ?? null;
+ } catch (e: any) {
+  return {
+    success: false,
+    error: `Could not run "${op?.operation}": ${e?.message || String(e)}`,
+    instruction:
+      'This is an internal system problem, not a mistake by you or the user. Do NOT silently retry the same call. Tell the user in plain words that this one step could not be completed, and either continue with the rest of the task or ask how they want to proceed.',
+  };
+ }
 }
 
 // Fetches all INPUT_OBJECT type definitions so graphqlTypeToZod can build real
