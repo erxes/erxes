@@ -177,6 +177,17 @@ export const loadUomClass = (
         }
       }
 
+      // Normalize subUoms to the canonical code as well, so they are never
+      // stored as an _id (or name).
+      if (Array.isArray(doc.subUoms)) {
+        doc.subUoms = doc.subUoms.map((subUom) => ({
+          ...subUom,
+          uom: subUom.uom
+            ? valueToCode.get(subUom.uom) ?? subUom.uom
+            : subUom.uom,
+        }));
+      }
+
       // Always return the canonical code representation of the main uom.
       return valueToCode.get(doc.uom) ?? doc.uom;
     }
