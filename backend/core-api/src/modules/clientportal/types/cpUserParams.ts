@@ -1,4 +1,4 @@
-import { IPropertyField } from "erxes-api-shared/core-types";
+import { IPropertyField } from 'erxes-api-shared/core-types';
 
 export type SocialAuthProvider = 'GOOGLE' | 'APPLE' | 'FACEBOOK';
 

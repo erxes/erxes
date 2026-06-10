@@ -17,7 +17,8 @@ export function CPUserDetailFields() {
 
   if (!cpUser) return null;
 
-  const { _id, type, lastLoginAt, createdAt, erxesCustomerId, erxesCompanyId } = cpUser;
+  const { _id, type, lastLoginAt, createdAt, erxesCustomerId, erxesCompanyId } =
+    cpUser;
   const customerLink = erxesCustomerId
     ? `/contacts/customers?contactId=${erxesCustomerId}`
     : null;
@@ -108,9 +109,7 @@ export function CPUserDetailFields() {
               })}
             />
           </DataListItem>
-          <DataListItem
-            label={t('customer', { defaultValue: 'Customer' })}
-          >
+          <DataListItem label={t('customer', { defaultValue: 'Customer' })}>
             <div className="flex items-center gap-2">
               <div className="min-w-0 flex-1">
                 {type === 'customer' ? (
