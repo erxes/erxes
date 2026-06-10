@@ -1,14 +1,13 @@
 import { IconShoppingCartX } from '@tabler/icons-react';
 import { RecordTable } from 'erxes-ui';
-import { useMSDynamicSessionKey } from '../../hooks/useMSDynamicSessionKey';
 import { msDynamicSyncHistoryColumns } from './MSDynamicSyncHistoryColumns';
 import { useMSDynamicSyncHistory } from '../hooks/useMSDynamicSyncHistory';
 import { MSDynamicSyncHistoryDetailSheet } from './MSDynamicSyncHistoryDetailSheet';
+import { getMSDynamicSessionKey } from '../../constants/msDynamicSessionKey';
 
 export const MSDynamicSyncHistoryRecordTable = () => {
   const { syncHistories, handleFetchMore, loading, pageInfo } =
     useMSDynamicSyncHistory();
-  const { sessionKey } = useMSDynamicSessionKey('syncHistory');
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
@@ -23,7 +22,7 @@ export const MSDynamicSyncHistoryRecordTable = () => {
         hasPreviousPage={hasPreviousPage}
         hasNextPage={hasNextPage}
         dataLength={syncHistories?.length}
-        sessionKey={sessionKey}
+        sessionKey={getMSDynamicSessionKey('syncHistory')}
       >
         <RecordTable>
           <RecordTable.Header />
