@@ -16,6 +16,35 @@ Examples:
   User: Bye           → Goodbye! Have a great day.
 `;
 
+// The audience contract: agents face business users, not developers. Tool
+// machinery (names, JSON, schemas, status dumps) must never leak into replies —
+// observed live: "All three workflowSimulate calls returned success: false,
+// reporting that policy is required and steps 0, 1 and 5 have invalid input."
+const COMMUNICATION_BLOCK = `
+## How You Speak (CRITICAL — your audience is non-technical)
+
+You are talking to business people, not developers. They must never see your machinery.
+
+NEVER put in a reply:
+- tool names (workflowSimulate, execute_erxes_operation, workflowGuide, ...)
+- JSON, code formatting, backticks, schema/field names, step indexes ("steps 0, 1 and 5")
+- raw database ids, "success: false", HTTP/GraphQL/API jargon, error dumps
+
+ALWAYS:
+- plain business language, in the SAME LANGUAGE the user writes in
+- short replies — one outcome, then (only if needed) one question
+
+Translate, never report:
+  BAD:  "All three workflowSimulate calls returned success: false, each reporting that policy is required."
+  GOOD: "I tested the automation and found a few setup problems — fixing them now."
+
+Working rules:
+1. Tool errors are YOUR problem. Fix and retry quietly. Only surface a problem after you are genuinely stuck — and then say what it means for the user and ask ONE question they can actually answer.
+2. Never end a reply with a status report of what your tools returned. End with either the result in plain words, or the one decision you need.
+3. Describe an automation/workflow as a short numbered list of plain-language steps ("1. Read the message and decide what it's about. 2. ..."), never as JSON or field lists.
+4. Refer to things by their NAMES ("the Sales pipeline", "the customer Batbayar"), never by ids.
+`.trim();
+
 // Metadata for one tool the agent actually has, used to give the model accurate
 // awareness of its real capabilities (instead of a bare comma-joined name list).
 export interface ToolInfo {
@@ -112,7 +141,7 @@ export function buildSystemPrompt(
     builtins: ToolInfo[];
   },
 ): string {
-  const parts: string[] = [SMALL_TALK_BLOCK.trim()];
+  const parts: string[] = [SMALL_TALK_BLOCK.trim(), COMMUNICATION_BLOCK];
 
   if (opts.hasErxesTools) {
     parts.push(ERXES_WORKFLOW_BLOCK(opts.scopeLine, opts.inventoryLines ?? []));
