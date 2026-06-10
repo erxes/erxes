@@ -48,8 +48,16 @@ async function reconcileTenant(runQueue: Queue, tenant: string): Promise<void> {
     desired.set(schedulerId(tenant, wf._id), { pattern: cron.trim(), workflowId: wf._id });
   }
 
-  const existing = await runQueue.getJobSchedulers(0, 5000);
-  for (const s of existing as any[]) {
+  // Page through ALL schedulers — the queue is shared across tenants, and a
+  // bounded read would stop pruning stale entries past the window.
+  const PAGE = 500;
+  const existing: any[] = [];
+  for (let start = 0; ; start += PAGE) {
+    const batch = await runQueue.getJobSchedulers(start, start + PAGE - 1);
+    existing.push(...batch);
+    if (!batch.length || batch.length < PAGE) break;
+  }
+  for (const s of existing) {
     const key = s.key ?? s.id;
     if (key?.startsWith(`wfsched-${tenant}-`) && !desired.has(key)) {
       await runQueue.removeJobScheduler(key);

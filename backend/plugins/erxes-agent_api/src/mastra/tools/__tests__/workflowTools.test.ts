@@ -8,6 +8,15 @@ jest.mock('@mastra/core/workflows', () =>
 );
 jest.mock('@mastra/core/tools', () => ({ createTool: (cfg: any) => cfg }));
 
+// Default: an authenticated team member (userHeader present). Individual tests
+// flip this to simulate the anonymous bot path.
+const mockAuth: { current: any } = {
+  current: { subdomain: 'os', userHeader: Buffer.from('{"_id":"u1"}').toString('base64') },
+};
+jest.mock('../../requestContext', () => ({
+  getCurrentAuth: () => mockAuth.current,
+}));
+
 const mockGetSettings = jest.fn(async () => ({ erxesApiUrl: 'http://gw' }));
 const mockCreateWorkflow = jest.fn(async (doc: any) => ({ _id: 'wf-1', version: 1, ...doc }));
 const mockGetWorkflows = jest.fn(async () => []);
@@ -41,6 +50,8 @@ import {
   workflowSimulateTool,
   workflowSaveTool,
   workflowGuideTool,
+  workflowRunNowTool,
+  workflowListTool,
 } from '../workflowTools';
 
 const definition = () => ({
@@ -69,6 +80,39 @@ const definition = () => ({
     },
     { id: 'done', type: 'end', output: { taken: '{{steps.route.output.taken}}' } },
   ],
+});
+
+describe('team-member gate (anonymous bot path)', () => {
+  afterEach(() => {
+    mockAuth.current = {
+      subdomain: 'os',
+      userHeader: Buffer.from('{"_id":"u1"}').toString('base64'),
+    };
+  });
+
+  it('denies every builder tool when no userHeader is on the auth context', async () => {
+    // The frontline bot webhook runs with { token, subdomain } but NO
+    // userHeader — a customer must not reach these tools.
+    mockAuth.current = { subdomain: 'os', token: 'app-token' };
+
+    const denial = /only available to logged-in team members/;
+    await expect((workflowGuideTool as any).execute({})).rejects.toThrow(denial);
+    await expect((workflowListTool as any).execute({})).rejects.toThrow(denial);
+    await expect(
+      (workflowSaveTool as any).execute({ name: 'x', definition: definition(), enable: true }),
+    ).rejects.toThrow(denial);
+    await expect(
+      (workflowRunNowTool as any).execute({ workflowId: 'wf-1', payload: {} }),
+    ).rejects.toThrow(denial);
+    expect(mockCreateWorkflow).not.toHaveBeenCalled();
+  });
+
+  it('denies even with no auth context at all', async () => {
+    mockAuth.current = undefined;
+    await expect((workflowListTool as any).execute({})).rejects.toThrow(
+      /only available to logged-in team members/,
+    );
+  });
 });
 
 describe('workflowGuideTool', () => {

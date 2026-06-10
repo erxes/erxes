@@ -3,6 +3,7 @@ import { validateDefinition } from '~/mastra/workflows/dsl';
 import { buildManualEnvelope } from '~/mastra/workflows/envelope';
 import { runWorkflow } from '~/mastra/workflows/runtime';
 import { getOperationRegistry } from '~/mastra/tools/operationRegistry';
+import { runWithAuth } from '~/mastra/requestContext';
 
 const requireUserId = (user: any): string => {
   const userId = user?._id;
@@ -69,6 +70,15 @@ export const workflowMutations = {
     const userId = requireUserId(user);
     const workflow = await models.MastraWorkflow.getWorkflow(_id);
     const envelope = buildManualEnvelope(input || {}, userId);
-    return runWorkflow({ models, subdomain, workflow, envelope });
+    // Operation steps execute AS the requesting user (erxes enforces their
+    // permissions), not as the privileged app token — that fallback is
+    // reserved for background (schedule/automation) runs.
+    return runWithAuth(
+      {
+        userHeader: Buffer.from(JSON.stringify(user)).toString('base64'),
+        subdomain,
+      },
+      () => runWorkflow({ models, subdomain, workflow, envelope }),
+    );
   },
 };

@@ -63,6 +63,43 @@ export function extractJsonObject(text: string): Record<string, any> {
   return JSON.parse(candidate.slice(start, end + 1));
 }
 
+/**
+ * Judgment agents are built BARE — the bound agent's persona and model, but NO
+ * tools and a single step. Going through getOrCreateAgent would bind the
+ * agent's own search/execute meta-tools, letting the model run erxes
+ * operations mid-judgment OUTSIDE the workflow's declared policy (and, on
+ * schedule/automation runs, with the app token). The workflow policy is the
+ * security boundary; judgment is classification only.
+ */
+const judgeCache = new Map<string, any>();
+
+function getJudgeAgent(agentConfig: any, providers: any[]): any {
+  const key = `${agentConfig._id}:${agentConfig.updatedAt?.getTime?.() ?? 0}`;
+  const hit = judgeCache.get(key);
+  if (hit) return hit;
+
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { Agent } = require('@mastra/core/agent');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { buildModel } = require('../providers');
+
+  const judge = new Agent({
+    id: `judge-${agentConfig._id}`,
+    name: `${agentConfig.name} (judgment)`,
+    instructions:
+      agentConfig.instructions ||
+      'You are a precise classifier inside an automated workflow.',
+    model: buildModel(agentConfig.provider, agentConfig.model, providers),
+    defaultOptions: { maxSteps: 1 },
+  });
+
+  for (const k of judgeCache.keys()) {
+    if (k.startsWith(`${agentConfig._id}:`)) judgeCache.delete(k);
+  }
+  judgeCache.set(key, judge);
+  return judge;
+}
+
 function judgmentInstruction(outputSpec: Record<string, string>): string {
   const fields = Object.entries(outputSpec)
     .map(([k, v]) => `  "${k}": ${v}`)
@@ -124,12 +161,10 @@ export async function buildRunDeps(
       usage.llmCalls += 1;
 
       const agentConfig = await models.MastraAgent.getAgent(agentBindingId);
-      const [{ getOrCreateAgent }, { isLegacyProvider }] = await Promise.all([
-        import('../agentRuntime'),
-        import('../providers'),
-      ]);
-      const { agent } = await getOrCreateAgent(agentConfig, models);
       const providers = await models.MastraProvider.find({ isEnabled: true });
+      const judge = getJudgeAgent(agentConfig, providers);
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { isLegacyProvider } = require('../providers');
       const legacy = isLegacyProvider(agentConfig.provider, providers);
 
       const convo = [
@@ -137,8 +172,8 @@ export async function buildRunDeps(
         { role: 'user', content: prompt },
       ];
       const res: any = legacy
-        ? await (agent as any).generateLegacy(convo)
-        : await (agent as any).generate(convo);
+        ? await judge.generateLegacy(convo)
+        : await judge.generate(convo);
       return extractJsonObject(String(res?.text ?? ''));
     },
   };

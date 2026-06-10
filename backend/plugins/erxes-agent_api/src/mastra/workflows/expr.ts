@@ -30,7 +30,8 @@ export type ExprNode =
   | { kind: 'not'; operand: ExprNode }
   | { kind: 'binary'; op: string; left: ExprNode; right: ExprNode };
 
-const REF_TOKEN_RE = /^\{\{\s*([a-zA-Z0-9_.[\]-]+)\s*\}\}/;
+// Dot paths only (items.0.name) — see refs.ts on why brackets are rejected.
+const REF_TOKEN_RE = /^\{\{\s*([a-zA-Z0-9_.-]+)\s*\}\}/;
 const NUMBER_RE = /^-?\d+(\.\d+)?/;
 
 function tokenize(src: string): Token[] {

@@ -26,6 +26,22 @@ const tool: (cfg: any) => any = require('@mastra/core/tools').createTool;
 
 const tenant = () => getCurrentAuth()?.subdomain || 'os';
 
+/**
+ * TEAM MEMBERS ONLY. The frontline bot webhook runs agents for ANONYMOUS
+ * customers under the privileged app token (runWithAuth carries `token` but no
+ * `userHeader`). Without this gate, a Facebook/IG customer could prompt the
+ * bot into building, reading, or RUNNING workflows with admin privilege.
+ * Every builder tool calls this first; the thrown message is surfaced to the
+ * model so it answers honestly instead of retrying.
+ */
+const requireTeamMember = () => {
+  if (!getCurrentAuth()?.userHeader) {
+    throw new Error(
+      'Workflow tools are only available to logged-in team members — not in this conversation.',
+    );
+  }
+};
+
 async function getModels() {
   // Lazy require keeps connectionResolvers (mongoose models + erxes-api-shared
   // types — the whole plugin's type graph) out of this file's static imports;
@@ -67,19 +83,20 @@ STEP TYPES (max 30 steps total, ids unique, letters/digits/_/-):
   One LLM judgment call. Append '?' for optional fields. Use an enum field for
   anything a branch will route on.
 - { "id", "type": "branch", "branches": [{ "when": "<condition>", "steps": [...] }], "else": [...] }
-  First matching arm runs (if / else-if / else). Arms contain operation/agent/wait
+  First matching arm runs (if / else-if / else). Arms contain operation/agent
   steps only (no nesting). Branch output: { "taken": "<arm>" }.
 - { "id", "type": "parallel", "steps": [<operation/agent steps>] }  — all run concurrently.
-- { "id", "type": "wait", "duration": <ms> }  — durable pause (max 30 days).
 - { "id", "type": "end", "output": { ... } }  — optional, must be last; declares the run's final output.
-(approval / input / foreach / loop / workflow steps are planned but NOT supported yet — never use them.)
+(wait / approval / input / foreach / loop / workflow steps are planned but NOT supported yet — never use them.)
 
 DATA REFERENCES — inside args / prompt / output / conditions:
 - {{trigger.payload.<field>}}   — the trigger's payload (manual run input, event document)
 - {{steps.<id>.output.<field>}} — a PRIOR step's output (untaken branch arms resolve undefined)
 - {{bindings.<name>}}           — resolves to the bound id
-A string that is exactly one reference passes the raw value (objects/numbers);
-references embedded in text interpolate as strings.
+Dot paths ONLY — array elements by numeric segment ({{steps.find.output.list.0._id}});
+bracket syntax like items[0] is rejected. A string that is exactly one reference
+passes the raw value (objects/numbers); references embedded in text interpolate
+as strings.
 
 CONDITIONS ("when") — restricted language, nothing else parses:
   refs, 'string', numbers, true/false/null, == != > < >= <= && || ! in, parentheses
@@ -111,7 +128,10 @@ export const workflowGuideTool = tool({
     'Returns the workflow definition format reference (step types, data references, condition language, rules). ALWAYS call this before drafting or editing a workflow definition.',
   inputSchema: z.object({}),
   outputSchema: z.object({ guide: z.string() }),
-  execute: async () => ({ guide: GUIDE }),
+  execute: async () => {
+    requireTeamMember();
+    return { guide: GUIDE };
+  },
 });
 
 export const workflowValidateTool = tool({
@@ -126,6 +146,7 @@ export const workflowValidateTool = tool({
     errors: z.array(z.object({ path: z.string(), message: z.string() })),
   }),
   execute: async ({ definition }) => {
+    requireTeamMember();
     const models = await getModels();
     const settings = await models.MastraSettings.getSettings();
     const registry = await getOperationRegistry(settings);
@@ -155,6 +176,7 @@ export const workflowSimulateTool = tool({
     error: z.string().optional(),
   }),
   execute: async ({ definition, triggerPayload, assumptions }) => {
+    requireTeamMember();
     try {
       const models = await getModels();
       const settings = await models.MastraSettings.getSettings();
@@ -260,6 +282,7 @@ export const workflowSaveTool = tool({
     error: z.string().optional(),
   }),
   execute: async ({ name, description, definition, enable }) => {
+    requireTeamMember();
     try {
       const models = await getModels();
       const settings = await models.MastraSettings.getSettings();
@@ -299,6 +322,7 @@ export const workflowUpdateTool = tool({
     error: z.string().optional(),
   }),
   execute: async ({ workflowId, name, description, definition, enable }) => {
+    requireTeamMember();
     try {
       const models = await getModels();
       if (definition) {
@@ -326,6 +350,7 @@ export const workflowListTool = tool({
   inputSchema: z.object({}),
   outputSchema: z.object({ workflows: z.array(z.any()) }),
   execute: async () => {
+    requireTeamMember();
     const models = await getModels();
     const docs = await models.MastraWorkflow.getWorkflows();
     return {
@@ -351,6 +376,7 @@ export const workflowRunsTool = tool({
   }),
   outputSchema: z.object({ runs: z.array(z.any()) }),
   execute: async ({ workflowId, limit }) => {
+    requireTeamMember();
     const models = await getModels();
     const docs = await models.MastraWorkflowRun.getRuns({ workflowId, perPage: limit ?? 5 });
     return {
@@ -385,6 +411,7 @@ export const workflowRunNowTool = tool({
     error: z.string().optional(),
   }),
   execute: async ({ workflowId, payload }) => {
+    requireTeamMember();
     try {
       const models = await getModels();
       const workflow = await models.MastraWorkflow.getWorkflow(workflowId);

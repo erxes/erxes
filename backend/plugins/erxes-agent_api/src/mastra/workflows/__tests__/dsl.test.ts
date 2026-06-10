@@ -179,3 +179,19 @@ describe('schedule trigger validation', () => {
     ).toBe(true);
   });
 });
+
+describe('review fixes', () => {
+  it('rejects bracket-indexed refs as malformed (dot paths only)', () => {
+    const def = validDef();
+    (def.steps[1] as any).args = { name: '{{steps.classify.output.items[0]}}' };
+    const result = validateDefinition(def);
+    expect(result.errors.some((e) => /malformed reference/.test(e.message))).toBe(true);
+  });
+
+  it('rejects wait steps until the resume worker ships', () => {
+    const def = validDef();
+    def.steps.splice(1, 0, { id: 'pause', type: 'wait', duration: 1000 } as any);
+    const result = validateDefinition(def);
+    expect(result.errors.some((e) => /not supported by the compiler yet/.test(e.message))).toBe(true);
+  });
+});

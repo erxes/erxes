@@ -17,10 +17,13 @@ export interface RefScope {
   bindings: Record<string, { kind: string; id: string }>;
 }
 
-const REF_RE = /\{\{\s*([a-zA-Z0-9_.[\]-]+)\s*\}\}/g;
+// Dot paths only — array elements via numeric segments (items.0.name), never
+// bracket syntax: lookup() splits on '.', so `items[0]` would silently resolve
+// undefined. findMalformedRefs surfaces such mistakes at authoring time.
+export const REF_RE = /\{\{\s*([a-zA-Z0-9_.-]+)\s*\}\}/g;
 // A string that is exactly one ref (and nothing else) resolves to the raw
 // value — object, array, number — instead of a string interpolation.
-const WHOLE_REF_RE = /^\{\{\s*([a-zA-Z0-9_.[\]-]+)\s*\}\}$/;
+const WHOLE_REF_RE = /^\{\{\s*([a-zA-Z0-9_.-]+)\s*\}\}$/;
 
 const ROOTS = ['trigger', 'steps', 'bindings'] as const;
 
@@ -38,6 +41,26 @@ export function collectRefs(value: any): string[] {
   };
   walk(value);
   return refs;
+}
+
+/**
+ * Strings that contain `{{` which the ref grammar didn't consume — bracket
+ * indexing, spaces in paths, unclosed braces. Caught at validation so the
+ * master agent gets an error instead of a silent runtime undefined.
+ */
+export function findMalformedRefs(value: any): string[] {
+  const bad: string[] = [];
+  const walk = (v: any) => {
+    if (typeof v === 'string') {
+      if (v.replace(REF_RE, '').includes('{{')) bad.push(v);
+    } else if (Array.isArray(v)) {
+      v.forEach(walk);
+    } else if (v && typeof v === 'object') {
+      Object.values(v).forEach(walk);
+    }
+  };
+  walk(value);
+  return bad;
 }
 
 /**

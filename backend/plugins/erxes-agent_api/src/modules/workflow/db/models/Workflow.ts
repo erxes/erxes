@@ -48,19 +48,19 @@ export const loadWorkflowClass = (_models: IModels) => {
     public static async updateWorkflow(_id: string, doc: Partial<IMastraWorkflow>) {
       const existing = await MastraWorkflow.getWorkflow(_id);
 
-      const update: Record<string, any> = { ...doc };
+      let versionBump = false;
       if (doc.definition) {
         assertStructurallyValid(doc.definition);
         // Every definition change is a new version. In-flight runs keep
-        // executing their pinned snapshot and never migrate.
-        if (JSON.stringify(doc.definition) !== JSON.stringify(existing.definition)) {
-          update.version = existing.version + 1;
-        }
+        // executing their pinned snapshot and never migrate. $inc (not a
+        // computed value) so concurrent edits can't both claim one version.
+        versionBump =
+          JSON.stringify(doc.definition) !== JSON.stringify(existing.definition);
       }
 
       const updated = await _models.MastraWorkflow.findOneAndUpdate(
         { _id },
-        { $set: update },
+        { $set: { ...doc }, ...(versionBump ? { $inc: { version: 1 } } : {}) },
         { new: true },
       );
       if (!updated) throw new Error('Workflow not found');

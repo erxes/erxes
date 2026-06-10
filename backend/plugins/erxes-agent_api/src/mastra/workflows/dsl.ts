@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { collectRefs, checkRef } from './refs';
+import { collectRefs, checkRef, findMalformedRefs } from './refs';
 import { parseExpr, exprRefs } from './expr';
 import type { OperationRegistry } from '../tools/operationRegistry';
 import { isOperationAllowed, ToolPolicy } from '../tools/scope';
@@ -112,10 +112,13 @@ export const stepSchema = z.union([
 
 export type WorkflowStep = z.infer<typeof stepSchema>;
 
+// 'wait' is schema'd and compiler-ready (chain.sleep) but NOT enabled: a
+// sleeping run parks in Mastra storage and nothing resumes it yet — that
+// worker is the Phase 3 suspend/resume deliverable. Enabling it now would
+// silently abandon runs.
 export const COMPILED_STEP_TYPES = new Set([
   'operation',
   'agent',
-  'wait',
   'end',
   'branch',
   'parallel',
@@ -229,6 +232,12 @@ export function validateDefinition(
     for (const ref of collectRefs(step)) {
       const problem = checkRef(ref, prior, bindingKeys);
       if (problem) errors.push({ path: at, message: problem });
+    }
+    for (const bad of findMalformedRefs(step)) {
+      errors.push({
+        path: at,
+        message: `malformed reference in "${bad}" — use dot paths only, e.g. {{steps.list.output.items.0.name}}`,
+      });
     }
 
     if (step.type === 'agent') {
