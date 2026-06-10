@@ -1,6 +1,7 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
 import { companyKnowledgeTool } from '~/mastra/knowledge/knowledgeTool';
+import { WORKFLOW_BUILTIN_TOOLS } from './workflowTools';
 
 const WIKI_API = 'https://en.wikipedia.org/w/api.php';
 
@@ -109,6 +110,9 @@ export const BUILTIN_TOOLS: Record<string, any> = {
   calculator: calculatorTool,
   // No-ops with a clear message unless ERXES_AGENT_KNOWLEDGE=enable.
   companyKnowledge: companyKnowledgeTool,
+  // Builder tools — the master-agent loop: guide → validate → simulate →
+  // save → run/observe. Deny per agent via builtin:<key> when needed.
+  ...WORKFLOW_BUILTIN_TOOLS,
 };
 
 export function getBuiltinTool(builtinType: string) {

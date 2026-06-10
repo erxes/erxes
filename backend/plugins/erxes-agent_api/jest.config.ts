@@ -4,7 +4,13 @@ export default {
   preset: '../../../jest.preset.js',
   testEnvironment: 'node',
   transform: {
-    '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
+    // isolatedModules = transpile-only: ts-jest's full per-worker type program
+    // OOMs (2GB heap) on files whose import graph reaches @mastra/core +
+    // connectionResolvers. Types are enforced by `pnpm build` (tsc), not here.
+    '^.+\\.[tj]s$': [
+      'ts-jest',
+      { tsconfig: '<rootDir>/tsconfig.spec.json', isolatedModules: true, diagnostics: false },
+    ],
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   moduleNameMapper: {
