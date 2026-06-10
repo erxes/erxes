@@ -109,10 +109,13 @@ export function AddProductForm({
       ) {
         const customFieldsObj = Object.entries(value)
           .filter(([_, val]) => val !== undefined && val !== null && val !== '')
-          .reduce((acc, [fieldId, val]) => {
-            acc[fieldId] = val;
-            return acc;
-          }, {} as Record<string, unknown>);
+          .reduce(
+            (acc, [fieldId, val]) => {
+              acc[fieldId] = val;
+              return acc;
+            },
+            {} as Record<string, unknown>,
+          );
         if (Object.keys(customFieldsObj).length > 0) {
           cleanData['propertiesData'] = customFieldsObj;
         }
@@ -701,7 +704,7 @@ function AddProductFormFieldsDetail({
                       <SelectCategory
                         value={field.value}
                         onSelect={field.onChange}
-                        mode='single'
+                        mode="single"
                       />
                     </Form.Control>
                     <Form.Message />

@@ -53,7 +53,15 @@ export const ProductsDelete = ({
     } catch {
       // User cancelled the confirmation
     }
-  }, [disabled, confirm, confirmOptions, productIds, removeProducts, toast, table]);
+  }, [
+    disabled,
+    confirm,
+    confirmOptions,
+    productIds,
+    removeProducts,
+    toast,
+    table,
+  ]);
 
   if (children) {
     return (
