@@ -3,105 +3,91 @@ import { DatePicker, Form, Input, Select } from 'erxes-ui';
 import { ControllerRenderProps, useWatch } from 'react-hook-form';
 
 import { useSegment } from 'ui-modules/modules/segments/context/SegmentProvider';
-import { IPropertyInput } from '../../types';
+import { useSegmentGroupField } from '../../context/SegmentGroupField';
 import { FieldWithError } from '../FieldWithError';
 import { QuerySelectInput } from '../QuerySelectInput';
-import { useSegmentGroupField } from '../../context/SegmentGroupField';
 
-export const PropertyInput = () =>
-  //   {
-  //   defaultValue,
-  //   parentFieldName,
-  //   operators,
-  //   selectedField,
-  //   loading,
-  //   onBeforeFieldChange,
-  // }: IPropertyInput
-  {
-    const { form } = useSegment();
-    const {
-      conditionFieldName,
-      operators = [],
-      selectedField,
-      loading,
-      onBeforeFieldChange,
-    } = useSegmentGroupField();
-    const propertyOperator = useWatch({
-      control: form.control,
-      name: `${conditionFieldName}.propertyOperator`,
-    });
+export const PropertyInput = () => {
+  const { form } = useSegment();
+  const {
+    conditionFieldName,
+    operators = [],
+    selectedField,
+    loading,
+    onBeforeFieldChange,
+  } = useSegmentGroupField();
+  const propertyOperator = useWatch({
+    control: form.control,
+    name: `${conditionFieldName}.propertyOperator`,
+  });
 
-    const selectedOperator = operators.find(
-      (operator) => operator.value === propertyOperator,
-    );
+  const selectedOperator = operators.find(
+    (operator) => operator.value === propertyOperator,
+  );
 
-    const { value = '', noInput } = selectedOperator || {};
+  const { value = '', noInput } = selectedOperator || {};
 
-    if (noInput) {
-      return null;
-    }
+  if (noInput) {
+    return null;
+  }
 
-    const {
-      options = [],
-      configs,
-      type,
-      // choiceOptions = [],
-    } = selectedField || {};
+  const {
+    options = [],
+    configs,
+    type,
+    // choiceOptions = [],
+  } = selectedField || {};
 
-    if (['is', 'ins', 'it', 'if'].indexOf(value) >= 0) {
-      return null;
-    }
+  if (['is', 'ins', 'it', 'if'].indexOf(value) >= 0) {
+    return null;
+  }
 
-    let Component = (field: ControllerRenderProps<any, any>) => (
-      <Input
-        {...field}
-        className="w-full min-w-0"
-        disabled={!value || loading}
+  let Component = (field: ControllerRenderProps<any, any>) => (
+    <Input {...field} className="w-full min-w-0" disabled={!value || loading} />
+  );
+
+  if (['dateigt', 'dateilt', 'drlt', 'drgt'].includes(value)) {
+    Component = (field: ControllerRenderProps<any, any>) => (
+      <DatePicker
+        className="w-full"
+        value={field.value}
+        onChange={(date) => field.onChange(date as Date)}
+        placeholder="Select date"
+        disabled={loading}
       />
     );
+  }
 
-    if (['dateigt', 'dateilt', 'drlt', 'drgt'].includes(value)) {
-      Component = (field: ControllerRenderProps<any, any>) => (
-        <DatePicker
-          className="w-full"
-          value={field.value}
-          onChange={(date) => field.onChange(date as Date)}
-          placeholder="Select date"
-          disabled={loading}
-        />
-      );
-    }
+  if (options.length > 0) {
+    Component = (field: ControllerRenderProps<any, any>) => (
+      <Select
+        value={field.value}
+        onValueChange={(selectedValue) => field.onChange(selectedValue)}
+        disabled={loading}
+      >
+        <Select.Trigger className="w-full min-w-0">
+          <Select.Value className="w-full" />
+        </Select.Trigger>
+        <Select.Content>
+          {options.map((option, idx) => (
+            <Select.Item key={idx} value={`${option?.value}`}>
+              {option?.label || '-'}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select>
+    );
+  }
 
-    if (options.length > 0) {
-      Component = (field: ControllerRenderProps<any, any>) => (
-        <Select
-          value={field.value}
-          onValueChange={(selectedValue) => field.onChange(selectedValue)}
-          disabled={loading}
-        >
-          <Select.Trigger className="w-full min-w-0">
-            <Select.Value className="w-full" />
-          </Select.Trigger>
-          <Select.Content>
-            {options.map((option, idx) => (
-              <Select.Item key={idx} value={`${option?.value}`}>
-                {option?.label || '-'}
-              </Select.Item>
-            ))}
-          </Select.Content>
-        </Select>
-      );
-    }
-
-    if (configs) {
-      const {
-        queryName,
-        selectionName,
-        labelField,
-        valueField = '_id',
-        multi,
-      } = configs;
-      const query = gql`
+  if (configs) {
+    const {
+      queryName,
+      selectionName,
+      labelField,
+      valueField = '_id',
+      multi,
+    } = configs;
+    const query = gql`
           query ${queryName}($searchValue: String,$direction: CURSOR_DIRECTION,$cursor: String,$limit:Int) {
             ${queryName}(searchValue: $searchValue,direction:$direction,cursor:$cursor,limit:$limit) {
               list{${labelField},${valueField}}
@@ -115,63 +101,43 @@ export const PropertyInput = () =>
             }
           }
         `;
-      Component = (field: ControllerRenderProps<any, any>) => (
-        <QuerySelectInput
-          query={query}
-          queryName={queryName}
-          labelField={labelField}
-          valueField={valueField}
-          nullable
-          multi
-          initialValue={field.value}
-          onSelect={(value) => field.onChange(value)}
-          focusOnMount
-        />
-      );
-    }
-
-    // if (type === 'radio' && choiceOptions.length > 0) {
-    //   const options = choiceOptions.map((opt) => ({ value: opt, label: opt }));
-
-    //   Component = (field: ControllerRenderProps<any, any>) => (
-    //     <Select
-    //       value={field.value}
-    //       onValueChange={(selectedValue) => field.onChange(selectedValue)}
-    //       disabled={loading}
-    //     >
-    //       <Select.Trigger className="w-full min-w-0">
-    //         <Select.Value className="w-full" />
-    //       </Select.Trigger>
-    //       <Select.Content>
-    //         {options.map((option, idx) => (
-    //           <Select.Item key={idx} value={`${option?.value}`}>
-    //             {option?.label || '-'}
-    //           </Select.Item>
-    //         ))}
-    //       </Select.Content>
-    //     </Select>
-    //   );
-    // }
-
-    const wrapFieldOnChange = (field: ControllerRenderProps<any, any>) => ({
-      ...field,
-      onChange: (value: any) => {
-        onBeforeFieldChange('propertyValue');
-        field.onChange(value);
-      },
-    });
-
-    return (
-      <Form.Field
-        control={form.control}
-        name={`${conditionFieldName}.propertyValue`}
-        render={({ field, fieldState }) => (
-          <FieldWithError error={fieldState.error}>
-            <div className="w-full min-w-0">
-              {Component(wrapFieldOnChange(field))}
-            </div>
-          </FieldWithError>
-        )}
+    Component = (field: ControllerRenderProps<any, any>) => (
+      <QuerySelectInput
+        query={query}
+        queryName={queryName}
+        labelField={labelField}
+        valueField={valueField}
+        nullable
+        multi={multi}
+        value={field.value}
+        onSelect={(value) => {
+          console.log('selected value xas', value);
+          field.onChange(value);
+        }}
+        focusOnMount
       />
     );
-  };
+  }
+
+  const wrapFieldOnChange = (field: ControllerRenderProps<any, any>) => ({
+    ...field,
+    onChange: (value: any) => {
+      onBeforeFieldChange('propertyValue');
+      field.onChange(value);
+    },
+  });
+
+  return (
+    <Form.Field
+      control={form.control}
+      name={`${conditionFieldName}.propertyValue`}
+      render={({ field, fieldState }) => (
+        <FieldWithError error={fieldState.error}>
+          <div className="w-full min-w-0">
+            {Component(wrapFieldOnChange(field))}
+          </div>
+        </FieldWithError>
+      )}
+    />
+  );
+};

@@ -13,7 +13,7 @@ export const useTags = (
   >(TAGS_QUERY, {
     ...options,
   });
-  const { list: tags, totalCount = 0, pageInfo } = data?.tags || {};
+  const { list: tags = [], totalCount = 0, pageInfo } = data?.tags || {};
 
   const handleFetchMore = () => {
     if (totalCount <= (tags?.length || 0)) return;

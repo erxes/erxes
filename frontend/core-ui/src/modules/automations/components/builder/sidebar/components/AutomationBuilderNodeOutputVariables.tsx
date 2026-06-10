@@ -2,12 +2,13 @@ import { AutomationVariableBrowser } from '@/automations/components/builder/side
 import { useAutomationBuilderSecondarySidebar } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSecondarySidebar';
 
 export const AutomationBuilderNodeOutputVariables = () => {
-  const { sourceNode, emptyState } = useAutomationBuilderSecondarySidebar();
+  const { sourceNodes, emptyState } = useAutomationBuilderSecondarySidebar();
 
   return (
     <AutomationVariableBrowser
-      sourceNode={sourceNode}
+      sourceNodes={sourceNodes}
       emptyState={emptyState}
+      sourceSectionTitle="Nodes"
     />
   );
 };

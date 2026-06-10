@@ -1,10 +1,14 @@
+import { useQuery } from '@apollo/client';
 import { RecordTable, Spinner } from 'erxes-ui';
+import { useMemo } from 'react';
 import { usePostsColumns } from './PostsColumn';
 import { PostsCommandbar } from './posts-command-bar/PostsCommandbar';
 import { POSTS_CURSOR_SESSION_KEY } from '../constants/postsCursorSessionKey';
 import { usePosts } from '../hooks/usePosts';
 import { PostsEmptyState } from './PostsEmptyState';
 import { Posts } from '../types/postsType';
+import { CONTENT_CMS_LIST } from '../../graphql/queries';
+import type { IWebsite } from '../../types';
 
 interface PostsRecordTableProps {
   clientPortalId: string;
@@ -15,20 +19,34 @@ export const PostsRecordTable = ({
   clientPortalId,
   onEditPost,
 }: PostsRecordTableProps) => {
+  const { data: cmsData } = useQuery<{ contentCMSList?: IWebsite[] }>(
+    CONTENT_CMS_LIST,
+    {
+      fetchPolicy: 'cache-first',
+      skip: !clientPortalId,
+    },
+  );
   const { posts, loading, refetch, pageInfo, handleFetchMore } = usePosts({
     variables: {
       clientPortalId,
     },
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
-  const columns = usePostsColumns(onEditPost, refetch);
+  const cmsConfig = useMemo(
+    () =>
+      cmsData?.contentCMSList?.find(
+        (cms) => cms.clientPortalId === clientPortalId,
+      ),
+    [clientPortalId, cmsData?.contentCMSList],
+  );
+  const columns = usePostsColumns(onEditPost, refetch, cmsConfig);
   if (loading) return <Spinner />;
   return (
     <RecordTable.Provider
       columns={columns}
       data={posts || []}
       className="h-full"
-      stickyColumns={['more', 'checkbox', 'title']}
+      stickyColumns={['openPublicUrl', 'more', 'checkbox', 'title']}
     >
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}

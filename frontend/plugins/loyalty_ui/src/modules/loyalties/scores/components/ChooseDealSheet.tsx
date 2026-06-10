@@ -10,6 +10,7 @@ import {
 } from 'erxes-ui';
 import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import { SelectBoard, SelectPipeline, SelectStage } from 'ui-modules';
+import { useDebounce } from 'use-debounce';
 import { useGetSalesDeals } from '../hooks/useGetSalesDeals';
 
 interface IDeal {
@@ -39,11 +40,12 @@ const DealsList = ({
   const [boardId, setBoardId] = useState('');
   const [pipelineId, setPipelineId] = useState('');
   const [stageId, setStageId] = useState('');
+  const [debouncedSearch] = useDebounce(search, 500);
 
   const { deals, loading: dealsLoading } = useGetSalesDeals({
     pipelineId: pipelineId || undefined,
     stageId: stageId || undefined,
-    search: search || undefined,
+    search: debouncedSearch || undefined,
   });
 
   const handleBoardChange = (val: string | string[]) => {
@@ -73,7 +75,7 @@ const DealsList = ({
           </label>
           <Input
             id="deal-search"
-            placeholder="Search deals..."
+            placeholder="Search by name or number..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -102,9 +104,9 @@ const DealsList = ({
           />
         </div>
         <div className="text-xs text-accent-foreground">
-          {pipelineId
+          {pipelineId || debouncedSearch
             ? `${deals.length} results`
-            : 'Select a pipeline to see deals'}
+            : 'Select a pipeline or search to see deals'}
         </div>
       </div>
       <Separator />

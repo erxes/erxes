@@ -13,16 +13,18 @@ export const ProductCommandBar = () => {
         <CommandBar.Value>
           {table.getFilteredSelectedRowModel().rows.length} selected
         </CommandBar.Value>
-        <Separator.Inline />
-        <Export
-          pluginName="core"
-          moduleName="product"
-          collectionName="product"
-          buttonVariant="secondary"
-          ids={table
-            .getFilteredSelectedRowModel()
-            .rows.map((row) => row.original._id)}
-        />
+        <Can action="productsExportManage">
+          <Separator.Inline />
+          <Export
+            pluginName="core"
+            moduleName="product"
+            collectionName="product"
+            buttonVariant="secondary"
+            ids={table
+              .getFilteredSelectedRowModel()
+              .rows.map((row) => row.original._id)}
+          />
+        </Can>
         <Separator.Inline />
         <ProductsDelete
           productIds={table

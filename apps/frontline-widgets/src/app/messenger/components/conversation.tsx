@@ -1,8 +1,14 @@
-import { IconFile } from '@tabler/icons-react';
+import {
+  IconBrain,
+  IconCircleDashed,
+  IconFile,
+  IconSparkles,
+} from '@tabler/icons-react';
 import { differenceInHours, differenceInMinutes, format } from 'date-fns';
 import DOMPurify from 'dompurify';
 import {
   Avatar,
+  Badge,
   Button,
   cn,
   formatDateISOStringToRelativeDate,
@@ -114,7 +120,7 @@ export function ConversationMessage({
 
   const isUnread = !!(unreadCount && unreadCount > 0 && !isCustomerRead);
 
-  if (customerId || fromBot) {
+  if (customerId) {
     return (
       <div
         role="tabpanel"
@@ -138,6 +144,92 @@ export function ConversationMessage({
             )}
           </span>
         </div>
+      </div>
+    );
+  } else if (fromBot) {
+    return (
+      <div
+        role="tabpanel"
+        id={lastMessage?._id}
+        tabIndex={0}
+        className={cn(
+          'flex items-center gap-3 rounded-2xl cursor-pointer bg-background shadow-xs p-3 transition-all duration-200',
+          isUnread
+            ? 'bg-primary/8 hover:bg-primary/12'
+            : 'hover:opacity-75 hover:bg-accent/30',
+        )}
+        onClick={handleClick}
+      >
+        <div className="relative shrink-0">
+          <div
+            className={cn(
+              'size-10 rounded-xl flex items-center justify-center bg-linear-to-br from-primary to-primary/40',
+              // !isUnread && 'grayscale',
+            )}
+          >
+            <IconSparkles size={20} className="text-primary-foreground" />
+          </div>
+          {isUnread && (
+            <span className="absolute -top-0.5 -right-0.5 size-2.5 rounded-full bg-primary border-2 border-background" />
+          )}
+        </div>
+
+        <div className="flex flex-col gap-0.5 overflow-x-hidden flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <span
+              className={cn(
+                'text-xs truncate',
+                isUnread
+                  ? 'font-bold text-foreground'
+                  : 'font-medium text-muted-foreground',
+              )}
+            >
+              AI Agent
+            </span>
+            <span
+              className={cn(
+                'text-[10px] shrink-0',
+                isUnread
+                  ? 'text-primary font-semibold'
+                  : 'text-muted-foreground/60',
+              )}
+            >
+              {formatDateISOStringToRelativeDate(
+                lastMessage?.createdAt as unknown as string,
+              )}
+            </span>
+          </div>
+          {unreadCount && unreadCount > 1 ? (
+            <span className="truncate text-sm font-semibold text-primary">
+              {unreadCount} new messages
+            </span>
+          ) : (
+            <span
+              className={cn(
+                'truncate line-clamp-2 text-xs',
+                isUnread
+                  ? 'font-semibold text-foreground/90'
+                  : 'font-normal text-muted-foreground/70',
+              )}
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(lastMessage?.content || ''),
+              }}
+            />
+          )}
+          <Badge
+            variant={'ghost'}
+            className="text-[10px] leading-none rounded-xl bg-primary/15 text-primary h-auto py-0.5 mt-0.5"
+          >
+            <IconCircleDashed size={10} />
+            AI Agent · Automated
+          </Badge>
+        </div>
+
+        {isUnread && unreadCount && (
+          <span className="shrink-0 min-w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center px-1.5">
+            {unreadCount > 99 ? '99+' : unreadCount}
+          </span>
+        )}
       </div>
     );
   } else if (userId) {
@@ -529,15 +621,92 @@ export const CustomerMessage = ({
 
 export const BotMessage = ({
   content,
+  botData,
   createdAt,
+  showAvatar = true,
+  isFirstMessage,
+  isLastMessage,
+  isMiddleMessage,
+  isSingleMessage,
 }: {
   content?: string;
-  createdAt: Date;
+  botData?: any[];
+  createdAt?: Date;
+  showAvatar?: boolean;
+  isFirstMessage?: boolean;
+  isLastMessage?: boolean;
+  isMiddleMessage?: boolean;
+  isSingleMessage?: boolean;
 }) => {
+  const htmlContent = botData?.length
+    ? botData.map((item: any) => item?.text || item?.content || '').join('')
+    : content
+      ? `<p>${content}</p>`
+      : '';
+
+  if (createdAt) {
+    return (
+      <Tooltip.Provider>
+        <Tooltip>
+          <Tooltip.Trigger asChild>
+            <div className="flex items-end justify-start gap-2 mr-auto max-w-[80%]">
+              {showAvatar ? (
+                <div className="mb-5 size-8 shrink-0 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                  <IconBrain size={20} />
+                </div>
+              ) : (
+                // <div
+                //   className="size-8 shrink-0 mb-5 rounded-full bg-size-[50%] bg-no-repeat bg-center bg-primary"
+                //   style={{ backgroundImage: defaultLogo }}
+                // />
+                <div className="size-8 shrink-0" />
+              )}
+              <div className="flex flex-col gap-0.5 flex-1">
+                {(isFirstMessage || isSingleMessage) && (
+                  <span className="text-[11px] text-muted-foreground px-1 font-medium">
+                    Ai Agent{' '}
+                    <Badge
+                      variant={'ghost'}
+                      className="text-[10px] leading-none rounded-xl bg-primary/15 text-primary h-auto py-0.5"
+                    >
+                      Ai
+                    </Badge>
+                  </span>
+                )}
+                {htmlContent && htmlContent !== '<p></p>' && (
+                  <div
+                    className={cn(
+                      'h-auto font-normal flex flex-col justify-start items-start text-sm leading-snug text-foreground/85 text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces wrap-break-word text-pretty',
+                      isSingleMessage && 'rounded-2xl rounded-bl-sm shadow-sm',
+                      isFirstMessage && 'rounded-2xl rounded-b-sm shadow-2xs',
+                      isMiddleMessage && 'rounded-sm shadow-2xs',
+                      isLastMessage && 'rounded-2xl rounded-bl-sm shadow-2xs',
+                    )}
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(htmlContent),
+                    }}
+                  />
+                )}
+                {(isLastMessage || isSingleMessage) && (
+                  <span className="text-[10px] text-muted-foreground px-1 mt-0.5">
+                    {formatRelativeTime(createdAt)}
+                  </span>
+                )}
+              </div>
+            </div>
+          </Tooltip.Trigger>
+          <Tooltip.Content>
+            {format(createdAt, 'MMM dd, yyyy hh:mm aa')}
+          </Tooltip.Content>
+        </Tooltip>
+      </Tooltip.Provider>
+    );
+  }
+
   return (
     <div className="flex justify-start items-end gap-2">
       <div
-        className="w-8 h-8 rounded-full bg-size-[50%] bg-no-repeat bg-center  mb-5 bg-primary"
+        className="w-8 h-8 rounded-full bg-size-[50%] bg-no-repeat bg-center mb-5 bg-primary"
         style={{ backgroundImage: defaultLogo }}
       />
       <div className="flex flex-col">
@@ -546,9 +715,6 @@ export const BotMessage = ({
         </span>
         <span className="h-auto font-medium flex flex-col justify-start items-start text-sm leading-snug text-foreground text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces wrap-break-word break-all rounded-lg shadow-2xs">
           {content}
-        </span>
-        <span className="text-[10px] text-muted-foreground px-1 mt-0.5">
-          {formatRelativeTime(createdAt)}
         </span>
       </div>
     </div>
@@ -563,7 +729,7 @@ export const WelcomeMessage = ({ content }: { content?: string }) => {
         style={{ backgroundImage: defaultLogo }}
       />
       <div className="flex flex-col max-w-3/4">
-        <span className="h-auto font-medium flex flex-col justify-start items-start text-sm leading-snug text-foreground text-pretty text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces rounded-2xl rounded-bl-sm shadow-2xs">
+        <span className="h-auto font-medium flex flex-col justify-start items-start text-sm leading-snug text-foreground/85 text-pretty text-left gap-1 px-3 py-2 bg-background whitespace-break-spaces rounded-2xl rounded-bl-sm shadow-2xs">
           {content}
         </span>
       </div>

@@ -96,3 +96,11 @@ conversationSchema.index(
   { userRelevance: 1 },
   { partialFilterExpression: { userRelevance: { $exists: true } } },
 );
+
+conversationSchema.index({ createdAt: 1 });
+conversationSchema.index({ closedAt: 1 });
+conversationSchema.index({ assignedUserId: 1 });
+conversationSchema.index({ createdAt: 1, integrationId: 1 });
+conversationSchema.index({ createdAt: 1, assignedUserId: 1 });
+conversationSchema.index({ createdAt: 1, status: 1 });
+conversationSchema.index({ closedAt: 1, status: 1 });

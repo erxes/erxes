@@ -38,6 +38,10 @@ export const erxesMessengerSetSetupAtom = atom(
             DEFAULT_COLORS.FOREGROUND,
         },
         logo: payload?.uiOptions?.logo,
+        launcherLogo: payload?.uiOptions?.launcherLogo,
+        backgroundColor:
+          payload?.uiOptions?.backgroundColor || DEFAULT_COLORS.BACKGROUND,
+        heroStyleVariant: payload?.uiOptions?.heroStyleVariant,
         navigationVariant: payload?.uiOptions?.navigationVariant,
       };
       set(erxesMessengerSetupAppearanceAtom, appearance);
@@ -71,10 +75,20 @@ export const erxesMessengerSetSetupAtom = atom(
             }),
           ),
           botCheck: payload?.messengerData?.botCheck,
+          automationId: payload?.messengerData?.automationId,
         },
       };
 
       set(erxesMessengerSetupConfigAtom, config);
+
+      // Derive language code from messages object key first, then fall back to
+      // payload.languageCode so format mismatches (e.g. "en_US" vs "en-US")
+      // don't cause the lookup to miss the stored data.
+      const messagesObj = payload?.messengerData?.messages;
+      const languageCode =
+        payload?.languageCode ||
+        (messagesObj ? Object.keys(messagesObj)[0] : undefined) ||
+        DEFAULT_LANGUAGE;
 
       // Set greeting with processed links
       const greetingLinks = processGreetingLinks(
@@ -84,14 +98,8 @@ export const erxesMessengerSetSetupAtom = atom(
 
       const greetings = {
         supporterIds: payload?.messengerData?.supporterIds,
-        title:
-          payload?.messengerData?.messages?.[
-            payload?.languageCode || DEFAULT_LANGUAGE
-          ]?.greetings?.title || '',
-        message:
-          payload?.messengerData?.messages?.[
-            payload?.languageCode || DEFAULT_LANGUAGE
-          ]?.greetings?.message || '',
+        title: messagesObj?.[languageCode]?.greetings?.title || '',
+        message: messagesObj?.[languageCode]?.greetings?.message || '',
         links: greetingLinks,
       };
 
@@ -124,7 +132,7 @@ export const erxesMessengerSetSetupAtom = atom(
       set(erxesMessengerSetupHoursAtom, hours);
 
       const settings = {
-        languageCode: payload?.languageCode || DEFAULT_LANGUAGE,
+        languageCode,
         requireAuth: payload?.messengerData?.requireAuth ?? false,
         showChat: payload?.messengerData?.showChat ?? true,
         showLauncher: payload?.messengerData?.showLauncher ?? true,
@@ -150,10 +158,7 @@ export const erxesMessengerSetSetupAtom = atom(
       set(erxesMessengerSetupSettingsAtom, settings);
 
       // Set intro messages
-      const messages =
-        payload?.messengerData?.messages?.[
-          payload?.languageCode || DEFAULT_LANGUAGE
-        ];
+      const messages = messagesObj?.[languageCode];
       const intro = {
         welcome: messages?.welcome ?? '',
         away: messages?.away ?? '',

@@ -1,6 +1,12 @@
 import { Button, Spinner } from 'erxes-ui';
-import { lazy, Suspense } from 'react';
+import {
+  lazy,
+  Suspense,
+  type ComponentType,
+  type LazyExoticComponent,
+} from 'react';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';
+import type { AutomationRemoteEntryProps } from 'ui-modules';
 
 const FacebookRemoteEntry = lazy(() =>
   import('../modules/facebook/components/FacebookRemoteEntry').then(
@@ -18,12 +24,26 @@ const InstagramRemoteEntry = lazy(() =>
   ),
 );
 
+const TicketRemoteEntry = lazy(() =>
+  import('../modules/ticket/components/TicketRemoteEntry').then((module) => ({
+    default: module.TicketRemoteEntry,
+  })),
+);
+
+const InboxRemoteEntry = lazy(() =>
+  import('../modules/inbox/components/InboxRemoteEntry').then((module) => ({
+    default: module.InboxRemoteEntry,
+  })),
+);
+
 const Remotes: Record<
   string,
-  React.LazyExoticComponent<React.ComponentType<any>>
+  LazyExoticComponent<ComponentType<AutomationRemoteEntryProps>>
 > = {
   facebook: FacebookRemoteEntry,
   instagram: InstagramRemoteEntry,
+  tickets: TicketRemoteEntry,
+  inbox: InboxRemoteEntry,
 };
 
 type GenericErrorFallbackProps = FallbackProps & {
@@ -48,8 +68,19 @@ export const GenericErrorFallback = ({
   );
 };
 
-const AutomationRemoteEntries = ({ moduleName, ...props }: any) => {
+type AutomationRemoteEntriesProps = AutomationRemoteEntryProps & {
+  moduleName: string;
+};
+
+export const AutomationRemoteEntries = ({
+  moduleName,
+  ...props
+}: AutomationRemoteEntriesProps) => {
   const RemoteComponent = Remotes[moduleName];
+
+  if (!RemoteComponent) {
+    return null;
+  }
 
   return (
     <Suspense fallback={<Spinner />}>

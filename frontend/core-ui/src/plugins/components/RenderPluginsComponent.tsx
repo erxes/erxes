@@ -1,10 +1,13 @@
 import { loadRemote } from '@module-federation/enhanced/runtime';
 import { Spinner } from 'erxes-ui';
-import React, { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+import {
+  RemoteComponent,
+  RemoteComponentProps,
+  RemoteModule,
+  resolveRemoteComponent,
+} from '../utils/resolveRemoteComponent';
 import { RenderPluginsComponentErrorState } from './RenderPluginsComponentErrorState';
-interface RemoteComponentProps {
-  module?: string;
-}
 
 export function RenderPluginsComponent({
   pluginName,
@@ -13,10 +16,9 @@ export function RenderPluginsComponent({
 }: {
   pluginName: string;
   remoteModuleName: string;
-  props?: any;
+  props?: RemoteComponentProps;
 }) {
-  const [Plugin, setPlugin] =
-    useState<React.ComponentType<RemoteComponentProps> | null>(null);
+  const [Plugin, setPlugin] = useState<RemoteComponent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState<{ message: string } | null>(null);
 
@@ -26,15 +28,20 @@ export function RenderPluginsComponent({
         setIsLoading(true);
         setHasError(null);
 
-        const remoteModule = await loadRemote<{
-          default: React.ComponentType<RemoteComponentProps>;
-        }>(`${pluginName}/${remoteModuleName}`, { from: 'runtime' });
+        const remoteModule = await loadRemote<RemoteModule>(
+          `${pluginName}/${remoteModuleName}`,
+          { from: 'runtime' },
+        );
+        const remoteComponent = resolveRemoteComponent(
+          remoteModule,
+          remoteModuleName,
+        );
 
-        if (!remoteModule?.default) {
+        if (!remoteComponent) {
           throw new Error('Plugin module is empty or invalid');
         }
 
-        setPlugin(() => remoteModule.default);
+        setPlugin(() => remoteComponent);
       } catch (error) {
         setHasError({
           message:
@@ -83,7 +90,7 @@ export function RenderPluginsComponent({
         </div>
       }
     >
-      <Plugin key={`${pluginName}-${remoteModuleName}`} {...props} />
+      <Plugin key={`${pluginName}-${remoteModuleName}`} {...(props || {})} />
     </Suspense>
   );
 }

@@ -1,6 +1,6 @@
 import { Breadcrumb, Button, PageContainer, PageSubHeader } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import { PageHeader, Import } from 'ui-modules';
+import { Can, PageHeader, Import } from 'ui-modules';
 import { Export } from 'ui-modules/modules/import-export/components/epxort/Export';
 import { IconTicket } from '@tabler/icons-react';
 import { AddTicketSheet } from '@/ticket/components/add-ticket/AddTicketSheet';
@@ -44,17 +44,21 @@ const TicketsIndexPage = () => {
       </PageHeader>
       <PageSubHeader>
         <TicketsFilter />
-        <Import
-          pluginName="frontline"
-          moduleName="ticket"
-          collectionName="ticket"
-        />
-        <Export
-          pluginName="frontline"
-          moduleName="ticket"
-          collectionName="ticket"
-          getFilters={getFilters}
-        />
+        <Can action="ticketsImportManage">
+          <Import
+            pluginName="frontline"
+            moduleName="ticket"
+            collectionName="ticket"
+          />
+        </Can>
+        <Can action="ticketsExportManage">
+          <Export
+            pluginName="frontline"
+            moduleName="ticket"
+            collectionName="ticket"
+            getFilters={getFilters}
+          />
+        </Can>
         <div>
           <TicketsViewControl />
           <TicketsSortControl />

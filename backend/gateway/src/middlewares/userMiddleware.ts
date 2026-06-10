@@ -189,8 +189,6 @@ export default async function userMiddleware(
   const clientAuthToken =
     req.headers['client-auth-token'] || req.cookies['client-auth-token'];
 
-  console.log('clientAuthToken', clientAuthToken)
-
   if (clientPortalToken) {
     const clientPortalTokenString = String(clientPortalToken);
 
@@ -225,14 +223,10 @@ export default async function userMiddleware(
             process.env.JWT_TOKEN_SECRET || 'SECRET',
           );
 
-          console.log('clientAuthTokenDecoded', JSON.stringify(clientAuthTokenDecoded, null, 2))
-
           const clientPortalUser = await models.CPUsers.findOne({
             _id: clientAuthTokenDecoded.userId,
             clientPortalId: clientPortal._id,
           });
-
-          console.log('clientPortalUser', JSON.stringify(clientPortalUser, null, 2))
 
           if (clientPortalUser) {
             req.cpUser = clientPortalUser;

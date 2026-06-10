@@ -8,7 +8,7 @@ import momentTz from 'moment-timezone';
 import type { RequestInit, HeadersInit } from 'node-fetch';
 import redis from '@/integrations/call/redlock';
 import { IModels, generateModels } from '~/connectionResolvers';
-import { getEnv } from 'erxes-api-shared/utils';
+import { getEnv, ExpectedError } from 'erxes-api-shared/utils';
 import { ICallIntegrationDocument } from '@/integrations/call/@types/integrations';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
 import { ICallHistory } from '@/integrations/call/@types/histories';
@@ -34,6 +34,17 @@ export const sendRequest = async (url, options) => {
     return response;
   } catch (error) {
     console.error('Error in sendRequest:', error);
+
+    if (
+      error instanceof Error &&
+      (error.message.includes('ENOTFOUND') ||
+        error.message.includes('getaddrinfo'))
+    ) {
+      throw new ExpectedError(
+        'Call integration server is not reachable. Please check your wsServer configuration.',
+      );
+    }
+
     throw error;
   }
 };

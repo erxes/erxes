@@ -16,7 +16,7 @@ import { afterProcess } from '~/meta/afterProcess';
 import { router } from '~/routes';
 import resolvers from './apollo/resolvers';
 import { generateModels } from './connectionResolvers';
-import automations from './meta/automations';
+import { automations } from './meta/automations';
 import { notifications } from './meta/notifications';
 import { permissions } from './meta/permissions';
 import { ticketImportHandlers } from './meta/import-export/import/importHandlers';
@@ -24,6 +24,7 @@ import {
   ticketExportHandlers,
   formSubmissionExportHandlers,
 } from './meta/import-export/export/exportHandlers';
+import segments from './meta/segments';
 
 const ticketImportExportTypes = [
   {
@@ -132,6 +133,7 @@ startPlugin({
     afterProcess,
     notifications,
     permissions,
+    segments,
     tags: {
       types: [
         {

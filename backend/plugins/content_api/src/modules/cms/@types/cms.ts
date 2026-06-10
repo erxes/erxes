@@ -8,6 +8,7 @@ import { Document } from 'mongoose';
 export const CMS_POST_URL_FIELDS = ['_id', 'count', 'slug'] as const;
 export type CMSPostUrlField = (typeof CMS_POST_URL_FIELDS)[number];
 export const CMS_DEFAULT_POST_URL_FIELD: CMSPostUrlField = '_id';
+export const CMS_DEFAULT_POST_URL_PREFIX = '/posts';
 export const MENU_LINK_TYPES = [
   'URL',
   'PAGE',
@@ -40,6 +41,7 @@ export interface IContentCMS {
   language?: string;
   languages?: string[];
   postUrlField?: CMSPostUrlField;
+  postUrlPrefix?: string;
 }
 
 export interface IContentCMSDocument extends IContentCMS, Document {
@@ -69,6 +71,7 @@ export interface IContentCMSInput {
   language?: string;
   languages?: string[];
   postUrlField?: CMSPostUrlField;
+  postUrlPrefix?: string;
 }
 
 export interface ICMSMenu {

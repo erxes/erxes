@@ -15,8 +15,7 @@ export const executeSetPropertyAction = async (
 ) => {
   const { module } = action.config;
   const [pluginName, moduleName, collectionType] = splitType(module);
-
-  return await sendCoreModuleProducer({
+  const response = await sendCoreModuleProducer({
     subdomain,
     moduleName: 'automations',
     pluginName,
@@ -31,4 +30,8 @@ export const executeSetPropertyAction = async (
       collectionType,
     },
   });
+
+  return {
+    result: response,
+  };
 };

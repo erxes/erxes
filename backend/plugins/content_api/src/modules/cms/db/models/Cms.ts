@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import {
   CMS_DEFAULT_POST_URL_FIELD,
+  CMS_DEFAULT_POST_URL_PREFIX,
   CMS_POST_URL_FIELDS,
   CMSPostUrlField,
   IContentCMSDocument,
@@ -35,14 +36,33 @@ export const loadCmsClass = (models: IModels) => {
       return CMS_DEFAULT_POST_URL_FIELD;
     }
 
+    private static normalizePostUrlPrefix(postUrlPrefix?: string): string {
+      const trimmedValue = postUrlPrefix?.trim();
+
+      if (!trimmedValue) {
+        return CMS_DEFAULT_POST_URL_PREFIX;
+      }
+
+      const withLeadingSlash = trimmedValue.startsWith('/')
+        ? trimmedValue
+        : `/${trimmedValue}`;
+
+      return withLeadingSlash.replace(/\/+$/g, '');
+    }
+
     private static buildCmsDoc(doc: IContentCMSInput) {
-      if (doc.postUrlField === undefined) {
+      if (doc.postUrlField === undefined && doc.postUrlPrefix === undefined) {
         return doc;
       }
 
       return {
         ...doc,
-        postUrlField: this.normalizePostUrlField(doc.postUrlField),
+        ...(doc.postUrlField === undefined
+          ? {}
+          : { postUrlField: this.normalizePostUrlField(doc.postUrlField) }),
+        ...(doc.postUrlPrefix === undefined
+          ? {}
+          : { postUrlPrefix: this.normalizePostUrlPrefix(doc.postUrlPrefix) }),
       };
     }
 

@@ -1,17 +1,27 @@
 import {
-  replacePlaceHolders,
+  getSetPropertySelector,
   setProperty,
   TAutomationProducers,
   TAutomationProducersInput,
   TCoreModuleProducerContext,
 } from 'erxes-api-shared/core-modules';
-import { IModels } from '~/connectionResolvers';
+import { generateModels, IModels } from '~/connectionResolvers';
 import { IDeal } from '~/modules/sales/@types';
-import { actionCreate } from '~/modules/sales/meta/automations/action/createAction';
+import { createDealAction } from '~/modules/sales/meta/automations/action/createDealAction';
 import { createChecklist } from '~/modules/sales/meta/automations/action/createChecklist';
-import { getItems } from '~/modules/sales/meta/automations/action/getItems';
-import { getRelatedValue } from '~/modules/sales/meta/automations/action/getRelatedValue';
+import { checkTriggerDealStageChanged } from '~/modules/sales/meta/automations/trigger/checkStageChangedTrigger';
 import { checkTriggerDealStageProbality } from '~/modules/sales/meta/automations/trigger/checkStageProbalityTrigger';
+
+const getSalesSetPropertyModel = (models: IModels, module: string) => {
+  const [, moduleName, collectionName] = module.replace(/\./g, ':').split(':');
+  const collectionType = collectionName || moduleName;
+
+  if (['deal', 'deals'].includes(collectionType)) {
+    return models.Deals;
+  }
+
+  throw new Error(`Unsupported sales set property module: ${module}`);
+};
 
 export const salesAutomationHandlers = {
   checkCustomTrigger: async (
@@ -20,15 +30,27 @@ export const salesAutomationHandlers = {
       relationType,
       target,
       config,
+      eventUpdateDescription,
     }: TAutomationProducersInput[TAutomationProducers.CHECK_CUSTOM_TRIGGER],
     { models }: TCoreModuleProducerContext<IModels>,
   ) => {
-    if (collectionType === 'deal' && relationType === 'probability') {
-      return await checkTriggerDealStageProbality({
-        models,
-        target: target as IDeal,
-        config,
-      });
+    if (collectionType === 'deals') {
+      if (relationType === 'probability') {
+        return await checkTriggerDealStageProbality({
+          models,
+          target: target as IDeal,
+          config,
+        });
+      }
+
+      if (relationType === 'stageChanged') {
+        return await checkTriggerDealStageChanged({
+          models,
+          target: target as IDeal,
+          config,
+          eventUpdateDescription,
+        });
+      }
     }
 
     return false;
@@ -37,7 +59,6 @@ export const salesAutomationHandlers = {
     {
       action,
       execution,
-      actionType,
       collectionType,
     }: TAutomationProducersInput[TAutomationProducers.RECEIVE_ACTIONS],
     { models, subdomain }: TCoreModuleProducerContext<IModels>,
@@ -46,7 +67,7 @@ export const salesAutomationHandlers = {
       return createChecklist(models, execution, action);
     }
 
-    return await actionCreate({
+    return await createDealAction({
       models,
       subdomain,
       action,
@@ -54,55 +75,48 @@ export const salesAutomationHandlers = {
       collectionType,
     });
   },
-  replacePlaceHolders: async (
-    data: TAutomationProducersInput[TAutomationProducers.REPLACE_PLACEHOLDERS],
-    { models, subdomain }: TCoreModuleProducerContext<IModels>,
-  ) => {
-    const { relatedValueProps, config, target } = data;
-
-    return await replacePlaceHolders({
-      models,
-      subdomain,
-      customResolver: { resolver: getRelatedValue, props: relatedValueProps },
-      actionData: config,
-      target: {
-        ...target,
-        ['createdBy.department']: '-',
-        ['createdBy.branch']: '-',
-        ['createdBy.phone']: '-',
-        ['createdBy.email']: '-',
-        ['customers.email']: '-',
-        ['customers.phone']: '-',
-        ['customers.fullName']: '-',
-        link: '-',
-        pipelineLabels: '-',
-      },
-      complexFields: ['productsData'],
-    });
-  },
   setProperties: async (
     data: TAutomationProducersInput[TAutomationProducers.SET_PROPERTIES],
     { models, subdomain }: TCoreModuleProducerContext<IModels>,
   ) => {
     const { action, execution, targetType } = data;
-    const { module, rules } = action.config;
-
-    const relatedItems = await getItems(
+    const { module, rules, setPropertyTarget } = action.config;
+    const model = getSalesSetPropertyModel(models, module);
+    const selector = await getSetPropertySelector({
       subdomain,
       module,
       execution,
-      targetType.split('.')[0],
-    );
+      targetType,
+      relation: setPropertyTarget?.relation,
+    });
 
-    return await setProperty({
+    const setPropertyArgs = {
       models,
       subdomain,
-      getRelatedValue,
       module,
       rules,
       execution,
-      relatedItems,
+      setPropertyTarget,
+      selector,
+      fetchItems: async (itemSelector) => await model.find(itemSelector).lean(),
+      update: async ({ selector: itemSelector, modifier }) =>
+        await model.updateMany(itemSelector, modifier),
       targetType,
-    });
+    };
+
+    return await setProperty(setPropertyArgs);
+  },
+  checkTargetMatch: async ({ ...data }, { subdomain }) => {
+    const models = await generateModels(subdomain);
+    const { moduleName, collectionType, targetId, selector } = data || {};
+    if (collectionType === 'deals' && moduleName === 'sales') {
+      return Boolean(
+        await models.Deals.exists({
+          $and: [{ _id: targetId }, selector],
+        }),
+      );
+    }
+
+    return false;
   },
 };

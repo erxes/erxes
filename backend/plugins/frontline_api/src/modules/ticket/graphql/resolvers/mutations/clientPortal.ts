@@ -13,11 +13,7 @@ export const cpTicketMutations: Record<string, Resolver> = {
     params: ITicketUpdate,
     { models, subdomain, cpUser, clientPortal }: IContext,
   ) => {
-    console.log('cpUser', JSON.stringify(cpUser, null, 2))
-    console.log('clientPortal', JSON.stringify(clientPortal, null, 2))
     const userId = cpUser?.erxesCustomerId || cpUser?._id || clientPortal?._id;
-
-    console.log("userId", userId)
 
     const ticket = await models.Ticket.addTicket(
       params,

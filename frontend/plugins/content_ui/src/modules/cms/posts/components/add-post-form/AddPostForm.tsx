@@ -58,6 +58,7 @@ export const AddPostForm = ({
     availableLanguages,
     defaultLanguage,
     postUrlField,
+    cmsConfig,
     fieldGroups,
   } = usePostData(websiteId, selectedType, currentEditingPost?._id);
 
@@ -242,8 +243,7 @@ export const AddPostForm = ({
       form.setValue('customFieldsData', []);
     }
     previousTypeRef.current = selectedType;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedType, currentEditingPost]);
+  }, [selectedType, currentEditingPost, form, previousTypeRef]);
 
   const handleLanguageChange = (lang: string) => {
     if (lang === selectedLanguage) return;
@@ -324,6 +324,7 @@ export const AddPostForm = ({
               languageOptions={languageOptions}
               postUrlField={postUrlField}
               fullPost={fullPost}
+              cmsConfig={cmsConfig}
               handleLanguageChange={handleLanguageChange}
             />
           </div>

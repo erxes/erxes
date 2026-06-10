@@ -9,7 +9,8 @@ import {
 import { WelcomeMessage } from '../constants';
 import { HeaderTabList } from './header-tab-list';
 import { IconArrowLeft, IconChevronLeft } from '@tabler/icons-react';
-import { Avatar, Button, readImage, Tooltip } from 'erxes-ui';
+import { Avatar, Button, cn, readImage, Tooltip } from 'erxes-ui';
+import { cva } from 'class-variance-authority';
 import { useHeader } from '../hooks/useHeader';
 import { formatOnlineHours } from '@libs/formatOnlineHours';
 import { LinkFavicon } from './link-favicon';
@@ -20,6 +21,26 @@ import { useGetMessengerSupporters } from '../hooks/useGetMessengerSupporters';
 import { useGetKnowledgeBaseTopicDetails } from '../hooks/useGetKnowledgeBaseTopicDetails';
 import { SearchArticlesInput } from './faq/components/search-articles';
 import { CloseButton } from './CloseButton';
+
+const heroVariants = cva('min-h-40 px-5 pt-4.5 pb-12 relative', {
+  variants: {
+    variant: {
+      // top-right white sheen + bottom-left primary glow on hero-dark
+      glossy:
+        'bg-[radial-gradient(120%_80%_at_88%_-10%,color-mix(in_oklch,var(--color-primary-foreground)_18%,transparent)_0%,transparent_55%),radial-gradient(80%_60%_at_10%_110%,color-mix(in_oklch,var(--color-primary)_22%,transparent)_0%,transparent_60%),linear-gradient(180deg,var(--color-hero)_0%,color-mix(in_oklch,var(--color-hero)_75%,black)_70%,color-mix(in_oklch,var(--color-hero)_60%,black)_100%)]',
+      // strong primary (top-right) + destructive (bottom-left) wash
+      aurora:
+        'bg-[radial-gradient(60%_50%_at_80%_20%,color-mix(in_oklch,var(--color-primary)_55%,transparent)_0%,transparent_60%),radial-gradient(60%_60%_at_15%_110%,color-mix(in_oklch,var(--color-destructive)_45%,transparent)_0%,transparent_60%),linear-gradient(180deg,var(--color-hero)_0%,color-mix(in_oklch,var(--color-hero)_70%,black)_100%)]',
+      // three soft blobs: primary, info, warning
+      mesh: 'bg-[radial-gradient(50%_40%_at_30%_30%,color-mix(in_oklch,var(--color-primary)_35%,transparent)_0%,transparent_60%),radial-gradient(40%_30%_at_80%_60%,color-mix(in_oklch,var(--color-info)_25%,transparent)_0%,transparent_60%),radial-gradient(40%_40%_at_70%_10%,color-mix(in_oklch,var(--color-warning)_18%,transparent)_0%,transparent_60%),linear-gradient(180deg,var(--color-hero)_0%,color-mix(in_oklch,var(--color-hero)_70%,black)_100%)]',
+      // plain vertical gradient on hero color
+      flat: 'bg-[linear-gradient(180deg,var(--color-hero)_0%,color-mix(in_oklch,var(--color-hero)_70%,black)_100%)]',
+    },
+  },
+  defaultVariants: {
+    variant: 'glossy',
+  },
+});
 
 export const Header = () => {
   const { renderHeaderContent } = useHeader();
@@ -57,11 +78,9 @@ export const HeaderIntro = () => {
     <div className="flex flex-col gap-4 w-full p-4 rounded-2xl shadow-xs mx-auto bg-background">
       <div className="gap-2 flex flex-col">
         <div className="font-semibold text-foreground text-base">
-          {messages?.greetings?.title || WelcomeMessage.TITLE}
+          {WelcomeMessage.TITLE}
         </div>
         <div className="text-muted-foreground font-normal text-xs">
-          {messages?.greetings?.message || WelcomeMessage.MESSAGE}
-          {'. '}
           We're available between{' '}
           {formattedHours ? (
             <>
@@ -148,7 +167,7 @@ export const HeaderHero = () => {
   const uiOptions = useAtomValue(uiOptionsAtom);
   const connection = useAtomValue(connectionAtom);
   const { messengerData } = connection.widgetsMessengerConnect;
-  const { knowledgeBaseTopicId } = messengerData || {};
+  const { knowledgeBaseTopicId, messages, isOnline } = messengerData || {};
   const { title, details } = useGetKnowledgeBaseTopicDetails({
     variables: { _id: knowledgeBaseTopicId },
     skip: !knowledgeBaseTopicId,
@@ -167,12 +186,12 @@ export const HeaderHero = () => {
 
   // Find parent category for article breadcrumb
   const articleCategoryId = articleId
-    ? details?.categories
+    ? (details?.categories
         ?.flatMap((c) => c.articles || [])
         .find((a) => a._id === articleId)?.categoryId ??
       details?.parentCategories
         ?.flatMap((c) => c.articles || [])
-        .find((a) => a._id === articleId)?.categoryId
+        .find((a) => a._id === articleId)?.categoryId)
     : null;
   const articleParentCategory =
     details?.categories?.find((c) => c._id === articleCategoryId) ||
@@ -189,22 +208,31 @@ export const HeaderHero = () => {
 
   if (activeTab === 'default') {
     return (
-      <div className="min-h-40 bg-transparent px-5 pt-[18px] pb-28 relative flex-auto bg-[radial-gradient(120%_80%_at_88%_-10%,rgba(255,255,255,0.18)_0%,transparent_55%),radial-gradient(80%_60%_at_10%_110%,var(--color-background)_0%,transparent_60%),linear-gradient(var(--color-primary)_0%,var(--color-primary)_70%,var(--color-primary)_100%)]">
+      <div
+        className={cn(
+          heroVariants({ variant: uiOptions?.heroStyleVariant }),
+          'flex-auto',
+        )}
+      >
         <div className="flex items-center gap-4">
           <span className="flex-1">
-            <div className="bg-background size-8 rounded flex items-center justify-center p-1">
+            <div className="bg-primary-foreground size-8 rounded flex items-center justify-center p-1">
               <img
                 alt="logo"
                 src={readImage(uiOptions?.logo)}
-                className="object-center object-scale-down invert dark:invert-0"
+                className="object-center object-scale-down"
               />
             </div>
           </span>
-          <AvatarGroup max={2} size="xl" className="outline-primary flex-none">
+          <AvatarGroup
+            max={2}
+            size="xl"
+            className="outline-transparent flex-none"
+          >
             {supporters?.map((supporter: ISupporter) => (
               <Avatar
                 key={supporter._id}
-                className="outline-1 outline-primary"
+                className="outline-1 outline-transparent"
                 size="xl"
               >
                 <Avatar.Image
@@ -222,12 +250,31 @@ export const HeaderHero = () => {
           <CloseButton />
         </div>
         <div className="mt-11">
-          <h1 className="text-primary-foreground/60 text-[28px] leading-none font-light">
-            Hello there.
+          <h1 className="text-primary-foreground text-[30px] tracking-tight leading-none">
+            {messages?.greetings?.title ?? 'How can we help?'}
           </h1>
-          <h2 className="text-primary-foreground text-[30px] leading-none">
-            How can we help?
-          </h2>
+          <span className="text-primary-foreground/60 text-[19px] -tracking-[0.015em] leading-none font-light">
+            {messages?.greetings?.message ?? 'Hello there'}
+          </span>
+          {(isOnline && (
+            <div className="mt-3 rounded-2xl py-1.75 ps-2.5 pe-3 flex-none w-auto bg-success/16 flex items-center gap-1.5 border border-success/30">
+              <div className="rounded-full bg-success size-1.5 flex-none" />
+              <span className="flex-1 overflow-x-hidden">
+                <span className="flex tracking-tight text-xs font-medium leading-snug text-primary-foreground text-justify">
+                  {messages?.welcome ?? 'Got any problems'}
+                </span>
+              </span>
+            </div>
+          )) || (
+            <div className="mt-3 rounded-2xl py-1.75 ps-2.5 pe-3 flex-none w-auto bg-warning/16 flex items-center gap-1.5 border border-warning/30">
+              <div className="rounded-full bg-warning size-1.5 flex-none" />
+              <span className="flex-1 overflow-x-hidden">
+                <span className="flex tracking-tight text-xs font-medium leading-snug text-primary-foreground text-justify">
+                  {messages?.away ?? 'Please contact during operating hours'}
+                </span>
+              </span>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -236,7 +283,7 @@ export const HeaderHero = () => {
   // FAQ: category detail header — tall gradient with category title + description
   if (activeTab === 'faq' && faqView === 'category' && currentCategory) {
     return (
-      <div className="pb-[22px] px-5 pt-[18px] bg-primary flex-none relative">
+      <div className="pb-[22px] px-5 pt-[18px] bg-(--color-hero) flex-none relative">
         <span className="flex items-center justify-between">
           <button
             onClick={handleFaqBack}
@@ -262,7 +309,7 @@ export const HeaderHero = () => {
   // FAQ: article view header — compact bar with breadcrumb
   if (activeTab === 'faq' && faqView === 'article') {
     return (
-      <div className="pb-[22px] px-5 pt-[18px] bg-primary flex-none relative flex items-center justify-between">
+      <div className="pb-[22px] px-5 pt-[18px] bg-(--color-hero) flex-none relative flex items-center justify-between">
         <button
           onClick={handleFaqBack}
           className="flex items-center gap-2 text-primary-foreground/70 hover:text-primary-foreground transition-colors"
@@ -283,7 +330,12 @@ export const HeaderHero = () => {
   // FAQ: topic view header — tall gradient with title + search
   if (activeTab === 'faq') {
     return (
-      <div className="min-h-40 pb-28 flex-none px-5 pt-[18px] bg-transparent relative bg-[radial-gradient(120%_80%_at_88%_-10%,rgba(255,255,255,0.18)_0%,transparent_55%),radial-gradient(80%_60%_at_10%_110%,var(--color-background)_0%,transparent_60%),linear-gradient(var(--color-primary)_0%,var(--color-primary)_70%,var(--color-primary)_100%)]">
+      <div
+        className={cn(
+          heroVariants({ variant: uiOptions?.heroStyleVariant }),
+          'flex-none',
+        )}
+      >
         <div className="flex flex-col">
           <span className="flex justify-between items-center">
             <h1 className="text-primary-foreground text-2xl">
@@ -305,7 +357,7 @@ export const HeaderHero = () => {
   }
   if (activeTab === 'web-call') {
     return (
-      <div className="pb-5.5 px-5 pt-4.5 bg-primary flex-none relative">
+      <div className="pb-5.5 px-5 pt-4.5 bg-(--color-hero) flex-none relative">
         <span className="flex justify-between items-center mb-1">
           <button
             className="text-primary-foreground cursor-pointer"
@@ -323,7 +375,7 @@ export const HeaderHero = () => {
   }
 
   return (
-    <div className="pb-[22px] px-5 pt-[18px] bg-primary flex-none relative flex justify-between">
+    <div className="pb-[22px] px-5 pt-[18px] bg-(--color-hero) flex-none relative flex justify-between">
       <div className="flex flex-col">
         <h2 className="text-primary-foreground/60 text-xs font-light">
           {getCurrentEyebrow()}

@@ -36,6 +36,7 @@ export interface MessengerSetupPayload {
     botShowInitialMessage?: boolean;
     botCheck?: boolean;
     botGreetMessage?: string;
+    automationId?: string;
     persistentMenus?: {
       _id: string;
       name: string;
@@ -112,10 +113,13 @@ export interface MessengerSetupPayload {
   };
   uiOptions?: {
     logo?: string;
+    launcherLogo?: string;
     primary?: {
       DEFAULT?: string;
       foreground?: string;
     };
+    backgroundColor?: string;
+    heroStyleVariant?: 'glossy' | 'aurora' | 'mesh' | 'flat';
     navigationVariant?: 'pill' | 'fluid';
   };
 }

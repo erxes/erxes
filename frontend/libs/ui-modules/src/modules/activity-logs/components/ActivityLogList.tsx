@@ -18,6 +18,7 @@ export const ActivityLogList = ({
     hasPreviousPage,
     limit,
     variant = 'forward',
+    showExactDate,
   } = useActivityLog();
 
   const reachedLimit = limit !== undefined && activityLogs.length >= limit;
@@ -81,6 +82,7 @@ export const ActivityLogList = ({
           key={activity._id}
           activity={activity}
           isLast={index === activityLogs.length - 1}
+          showExactDate={showExactDate}
         />
       ))}
       {variant === 'forward' && canFetchMore && !loading && !reachedLimit && (

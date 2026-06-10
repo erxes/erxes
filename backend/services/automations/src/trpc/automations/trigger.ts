@@ -21,13 +21,20 @@ export const automationsTriggerTrpcRouter = t.router({
               optionalConnectId: z.string().optional(),
             })
             .optional(),
+          eventUpdateDescription: z.record(z.string(), z.any()).optional(),
         }),
       )
       .mutation(async ({ ctx, input }) => {
         const { subdomain, processId } = ctx;
         const models = await generateModels(subdomain);
 
-        const { type, targets, repeatOptions, recordType } = input;
+        const {
+          type,
+          targets,
+          repeatOptions,
+          recordType,
+          eventUpdateDescription,
+        } = input;
 
         if (repeatOptions) {
           repeatActionExecution(subdomain, models, repeatOptions);
@@ -42,7 +49,14 @@ export const automationsTriggerTrpcRouter = t.router({
             executeWaitingAction(subdomain, models, waitingAction);
           }
         }
-        await receiveTrigger({ models, subdomain, type, targets, recordType });
+        await receiveTrigger({
+          models,
+          subdomain,
+          type,
+          targets,
+          recordType,
+          eventUpdateDescription,
+        });
 
         return 'success';
       }),
