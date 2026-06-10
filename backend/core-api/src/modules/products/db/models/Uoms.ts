@@ -183,7 +183,7 @@ export const loadUomClass = (
         doc.subUoms = doc.subUoms.map((subUom) => ({
           ...subUom,
           uom: subUom.uom
-            ? valueToCode.get(subUom.uom) ?? subUom.uom
+            ? (valueToCode.get(subUom.uom) ?? subUom.uom)
             : subUom.uom,
         }));
       }
