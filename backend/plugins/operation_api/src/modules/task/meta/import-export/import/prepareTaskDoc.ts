@@ -2,11 +2,12 @@ import { IModels } from '~/connectionResolvers';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { getTeamEstimateChoises } from '~/modules/team/utils';
 import { ITask, ITaskImportRow } from '../../../@types/task';
+import { ITeam } from '~/modules/team/@types/team';
 import { randomBytes } from 'crypto';
 
-const toArray = (val: any) => {
+const toArray = (val: unknown): string[] => {
   if (!val) return [];
-  if (Array.isArray(val)) return val;
+  if (Array.isArray(val)) return val.map(String);
   if (typeof val === 'string') {
     return val
       .split(/[;,]/)
@@ -29,7 +30,7 @@ export async function prepareTaskDoc(
   }
 
   const teamValue = row.team || row.Team || '';
-  let team: any = null;
+  let team: (ITeam & { _id: string }) | null = null;
   if (!teamValue) {
     errors.push('Team is required');
   } else {
@@ -312,7 +313,7 @@ export async function prepareTaskDoc(
           action: 'find',
           input: {
             query: {
-              type: { $in: ['operation:task', null] },
+              type: 'operation:task',
               $or: [
                 { name: { $in: tagNamesOrIds } },
                 { _id: { $in: tagNamesOrIds } },

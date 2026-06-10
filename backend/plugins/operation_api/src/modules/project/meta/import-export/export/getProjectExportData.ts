@@ -13,6 +13,23 @@ import { IProjectDocument, IProjectFilter } from '../../../@types/project';
 import mongoose, { FilterQuery } from 'mongoose';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 
+const handleDateFilter = (
+  filterQuery: FilterQuery<IProjectDocument>,
+  fieldName: string,
+  value: string | Date,
+) => {
+  if (value === 'no-date') {
+    filterQuery[fieldName] = { $exists: false };
+    return;
+  }
+  if (value === 'in-past') {
+    filterQuery[fieldName] = { $lt: new Date() };
+    return;
+  }
+  const stringValue = value instanceof Date ? value.toISOString() : value;
+  filterQuery[fieldName] = { $lte: new Date(stringValue) };
+};
+
 export async function getProjectExportData(
   data: GetExportData & {
     search?: string;
@@ -55,11 +72,11 @@ export async function getProjectExportData(
   }
 
   if (filter.startDate) {
-    query.startDate = { $gte: new Date(filter.startDate) };
+    handleDateFilter(query, 'startDate', filter.startDate);
   }
 
   if (filter.targetDate) {
-    query.targetDate = { $gte: new Date(filter.targetDate) };
+    handleDateFilter(query, 'targetDate', filter.targetDate);
   }
 
   if (filter.leadId) {

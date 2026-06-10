@@ -88,6 +88,8 @@ export async function getTaskExportData(
 
   if (filter.targetDate) {
     handleDateFilter(query, 'targetDate', filter.targetDate);
+  } else if (filter.endDate) {
+    handleDateFilter(query, 'targetDate', filter.endDate);
   }
 
   if (filter.createdDate) {

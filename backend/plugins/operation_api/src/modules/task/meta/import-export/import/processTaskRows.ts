@@ -25,8 +25,8 @@ export async function processTaskRows(
       });
 
       successRows.push({ ...row, _id: created._id });
-    } catch (e: any) {
-      errorRows.push({ ...row, error: e?.message || 'Failed to import row' });
+    } catch (e: unknown) {
+      errorRows.push({ ...row, error: e instanceof Error ? e.message : 'Failed to import row' });
     }
   }
 
