@@ -1,5 +1,6 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
+import { companyKnowledgeTool } from '~/mastra/knowledge/knowledgeTool';
 
 const WIKI_API = 'https://en.wikipedia.org/w/api.php';
 
@@ -106,6 +107,8 @@ export const BUILTIN_TOOLS: Record<string, any> = {
   webSearch: webSearchTool,
   fetchUrl: fetchUrlTool,
   calculator: calculatorTool,
+  // No-ops with a clear message unless ERXES_AGENT_KNOWLEDGE=enable.
+  companyKnowledge: companyKnowledgeTool,
 };
 
 export function getBuiltinTool(builtinType: string) {

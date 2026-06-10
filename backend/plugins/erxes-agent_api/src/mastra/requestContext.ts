@@ -6,6 +6,8 @@ import { AsyncLocalStorage } from 'async_hooks';
 interface RequestAuth {
   userHeader?: string;
   token?: string;
+  /** Tenant of the request — required by tools that query tenant-partitioned stores (Qdrant). */
+  subdomain?: string;
 }
 
 const authStorage = new AsyncLocalStorage<RequestAuth>();

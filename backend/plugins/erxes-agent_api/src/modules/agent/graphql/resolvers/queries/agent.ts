@@ -332,7 +332,7 @@ export const agentQueries = {
     const userHeader = user
       ? Buffer.from(JSON.stringify(user)).toString('base64')
       : undefined;
-    const authCtx = { userHeader, token: settings?.erxesApiToken };
+    const authCtx = { userHeader, token: settings?.erxesApiToken, subdomain };
     const isLegacy = isLegacyProvider(agentConfig.provider, providers);
 
     const reply = await runAgentTurn({ agent, tools, convo, message, isLegacy, authCtx });

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
-import { IconArrowLeft, IconTool, IconSearch, IconCalculator, IconWorld } from '@tabler/icons-react';
+import { IconArrowLeft, IconTool, IconSearch, IconCalculator, IconWorld, IconBook } from '@tabler/icons-react';
 import {
   Badge,
   Breadcrumb,
@@ -40,6 +40,13 @@ const BUILTIN_OPTIONS = [
     name: 'Calculator',
     description: 'Evaluate a mathematical expression and return the numeric result.',
     icon: IconCalculator,
+  },
+  {
+    id: 'companyKnowledge',
+    name: 'Company Knowledge',
+    description:
+      'Search published knowledge-base articles. Requires ERXES_AGENT_KNOWLEDGE=enable on the server.',
+    icon: IconBook,
   },
 ];
 
@@ -222,7 +229,7 @@ export const ToolFormPage = () => {
                 <ChoiceboxGroup.Item value="builtin" title="Category">
                   Built-in
                   <p className="text-xs font-normal text-muted-foreground mt-0.5">
-                    Web search, fetch URL, calculator
+                    Web search, fetch URL, calculator, company knowledge
                   </p>
                 </ChoiceboxGroup.Item>
                 <ChoiceboxGroup.Item value="erxes" title="Category">

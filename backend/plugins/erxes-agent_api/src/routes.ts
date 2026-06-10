@@ -80,7 +80,7 @@ router.post('/bot/:conversationId', async (req, res) => {
     });
 
     // Bot requests use the static app token from settings (no user session available)
-    const authCtx = { token: settings?.erxesApiToken };
+    const authCtx = { token: settings?.erxesApiToken, subdomain };
     const isLegacy = isLegacyProvider(agentConfig.provider, providers);
     const result = await runWithAuth(authCtx, () =>
       (isLegacy
