@@ -9,7 +9,6 @@ import { CoreImportClient } from './createCoreImportClient';
 import { Job, UnrecoverableError } from 'bullmq';
 import { nanoid } from 'nanoid';
 import * as fs from 'fs';
-import * as path from 'path';
 import ExcelJS from 'exceljs';
 import { uploadFileToStorage } from '../../../utils/file/upload';
 import { ImportExportError, withImportExportStage } from './importExportError';

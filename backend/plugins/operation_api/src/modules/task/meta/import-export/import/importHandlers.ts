@@ -37,7 +37,6 @@ const taskImportMap = {
 export const taskImportHandlers = {
   getImportHeaders: async (
     { collectionName }: { collectionName: string },
-    _ctx: TCoreModuleProducerContext<IModels>,
   ): Promise<TGetImportHeadersOutput> => {
     const handler =
       taskImportMap[collectionName as keyof typeof taskImportMap];

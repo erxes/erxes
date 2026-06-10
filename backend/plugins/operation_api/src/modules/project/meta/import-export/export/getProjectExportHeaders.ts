@@ -1,12 +1,8 @@
 import {
     ImportHeaderDefinition,
-    IImportExportContext,
   } from 'erxes-api-shared/core-modules';
   
-  export async function getProjectExportHeaders(
-    _data: any,
-    _ctx: IImportExportContext,
-  ): Promise<ImportHeaderDefinition[]> {
+  export async function getProjectExportHeaders(): Promise<ImportHeaderDefinition[]> {
     return [
       { label: 'Name', key: 'name', isDefault: true },
       { label: 'Description', key: 'description' },
