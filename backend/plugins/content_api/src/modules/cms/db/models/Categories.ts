@@ -3,7 +3,11 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { IPostCategory, IPostCategoryDocument } from '@/cms/@types/posts';
 import { postCategorySchema } from '@/cms/db/definitions/posts';
-import { createSlug, generateUniqueSlug } from '@/cms/utils/common';
+import {
+  createSlug,
+  generateUniqueSlug,
+  generateUniqueSlugWithExclusion,
+} from '@/cms/utils/common';
 
 export interface ICategoryModel extends Model<IPostCategoryDocument> {
   getCategories: (query: any) => Promise<IPostCategoryDocument[]>;
@@ -33,11 +37,13 @@ export const loadCategoryClass = (models: IModels) => {
     public static updateCategory = async (id: string, data: IPostCategory) => {
       if (data.name) {
         const baseSlug = createSlug(data.name);
-        data.slug = await generateUniqueSlug(
+        data.slug = await generateUniqueSlugWithExclusion(
           models.Categories,
           data.clientPortalId,
           'slug',
           baseSlug,
+          id,
+          1,
         );
       }
 

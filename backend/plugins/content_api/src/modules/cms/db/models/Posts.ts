@@ -43,7 +43,11 @@ const prepareExcerpt = (content: string) => {
     : plainTextContent;
 };
 
-const prepareSlug = (slug?: string | null) => createSlug(slug ?? '');
+const prepareSlug = (slug?: string | null) => {
+  const slugValue = slug?.trim();
+
+  return slugValue ? createSlug(slugValue) : '';
+};
 
 const isValidReactionType = (reaction: string): reaction is PostReactionType =>
   POST_REACTION_TYPES.includes(reaction as PostReactionType);

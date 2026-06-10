@@ -3,7 +3,11 @@ import { Model } from 'mongoose';
 import { IPostTag, IPostTagDocument } from '@/cms/@types/posts';
 import { postTagSchema } from '@/cms/db/definitions/posts';
 import { IModels } from '~/connectionResolvers';
-import { createSlug, generateUniqueSlug } from '@/cms/utils/common';
+import {
+  createSlug,
+  generateUniqueSlug,
+  generateUniqueSlugWithExclusion,
+} from '@/cms/utils/common';
 
 export interface IPostTagModel extends Model<IPostTagDocument> {
   getPostTags: (query: any) => Promise<IPostTagDocument[]>;
@@ -51,11 +55,13 @@ export const loadPostTagClass = (models: IModels) => {
       if (data.name) {
         const baseSlug = createSlug(data.name);
         // Generate unique slug excluding current document
-        data.slug = await generateUniqueSlug(
+        data.slug = await generateUniqueSlugWithExclusion(
           models.PostTags,
           data.clientPortalId,
           'slug',
           baseSlug,
+          id,
+          1,
         );
       }
 

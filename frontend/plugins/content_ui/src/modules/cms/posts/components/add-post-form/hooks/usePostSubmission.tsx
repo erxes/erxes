@@ -259,9 +259,8 @@ const buildPostInput = (
   const videoPayload = normalizeAttachment(data.video ?? undefined);
   const audioPayload = normalizeAttachment(data.audio ?? undefined);
   const pdfPayload = normalizeAttachment(data.pdf ?? undefined);
-  const slug =
-    data.slug?.trim() ||
-    (!editingPostId ? createSlug(main.title) || 'post' : '');
+  const generatedSlug = editingPostId ? '' : createSlug(main.title);
+  const slug = data.slug?.trim() || generatedSlug;
 
   return {
     clientPortalId: websiteId,

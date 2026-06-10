@@ -41,9 +41,9 @@ export const PostsRecordTable = ({
   );
   const columns = usePostsColumns(onEditPost, refetch, cmsConfig);
 
-  if (loading) return <Spinner />;
+  if (loading && (!posts || posts.length === 0)) return <Spinner />;
 
-  if (!posts || posts.length === 0) {
+  if (!loading && (!posts || posts.length === 0)) {
     return <PostsEmptyState clientPortalId={clientPortalId} />;
   }
 
