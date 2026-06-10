@@ -3,7 +3,7 @@ import { Button, Sheet, Form, Input, Checkbox, Spinner } from 'erxes-ui';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { CALL_INTEGRATION_FORM_SCHEMA } from '@/integrations/call/constants/callIntegrationAddSchema';
 import { z } from 'zod';
-import { SelectMember } from 'ui-modules';
+import { SelectMember, SelectBrand } from 'ui-modules';
 import { useAtomValue } from 'jotai';
 import { callEditSheetAtom } from '@/integrations/call/states/callEditSheetAtom';
 
@@ -70,6 +70,25 @@ export const CallIntegrationForm = ({
                 <Form.Label>WebSocket Server</Form.Label>
                 <Form.Control>
                   <Input {...field} />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            name="brandId"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>
+                  Brand <span className="text-destructive">*</span>
+                </Form.Label>
+                <Form.Control>
+                  <SelectBrand
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    placeholder="Select a brand"
+                    className="w-full"
+                  />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
