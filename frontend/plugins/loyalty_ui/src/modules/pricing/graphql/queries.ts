@@ -214,6 +214,7 @@ export const GET_PRODUCTS_BY_IDS = gql`
         name
         uom
         unitPrice
+        code
       }
     }
   }
