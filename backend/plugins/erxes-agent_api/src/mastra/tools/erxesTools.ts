@@ -1,4 +1,3 @@
-import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
 import { getPlugins, getPluginAddress } from 'erxes-api-shared/utils';
 import { getCurrentAuth } from '../requestContext';
@@ -85,7 +84,7 @@ function parseJsonPreprocess(val: unknown): unknown {
 
 // Recursively reconstruct the GraphQL type string (e.g. "[String!]!") from the
 // introspection type object so variable definitions in built operations are exact.
-function graphqlTypeToString(type: any): string {
+export function graphqlTypeToString(type: any): string {
   if (!type) return 'String';
   if (type.kind === 'NON_NULL') return `${graphqlTypeToString(type.ofType)}!`;
   if (type.kind === 'LIST') return `[${graphqlTypeToString(type.ofType)}]`;
@@ -408,128 +407,143 @@ async function buildNotFoundResult(
   return { success: false, message: rawMessage };
 }
 
-export function buildErxesTool(
-  toolConfig: any,
+// Shape the executor needs: an operation descriptor as produced by
+// fetchAvailableErxesTools / the operation registry.
+export interface ErxesOperationRef {
+  operation: string;
+  operationType: 'query' | 'mutation';
+  graphqlArgs?: any[];
+  returnType?: any;
+}
+
+/**
+ * Runs a single erxes GraphQL operation by name on the user's behalf and returns
+ * its result (or a structured { success:false, … } payload the model can act on).
+ *
+ * This is the shared execution core behind the `execute_erxes_operation`
+ * meta-tool. It owns everything that used to live in the per-operation tool:
+ *   • coercing LLM-supplied args through the operation's Zod schema,
+ *   • the dealsAdd stage-NAME → ObjectId pre-flight,
+ *   • building a valid GraphQL operation + response selection,
+ *   • turning "not found"/validation errors into actionable instructions.
+ *
+ * Auth is read from the async request context (the calling user's header) and
+ * falls back to the configured app token for bot/no-session calls.
+ */
+export async function executeErxesOperation(
+  op: ErxesOperationRef,
+  rawArgs: Record<string, any>,
   settings: any,
   inputTypesMap?: Record<string, any[]>,
   objectFieldsMap?: Record<string, any[]>,
-) {
-  const { toolId, name, description, erxesOperation, erxesOperationType, graphqlArgs, erxesReturnType, erxesResponseFields } = toolConfig;
-
+): Promise<any> {
   const apiUrl = settings?.erxesApiUrl || 'http://localhost:4000';
   const token = settings?.erxesApiToken || '';
-  const args = graphqlArgs || [];
+  const erxesOperation = op.operation;
+  const erxesOperationType = op.operationType;
+  const args = op.graphqlArgs || [];
 
+  // Coerce the model's args through the per-operation Zod schema (numbers sent
+  // as strings, JSON-as-string arrays/objects, date normalisation, …). The
+  // execute meta-tool passes a plain object, so this is where validation runs;
+  // on failure we fall back to the raw args so a usable call still goes out.
   const inputSchema = buildZodSchemaFromArgs(args, inputTypesMap);
+  const parsed = inputSchema.safeParse(rawArgs || {});
+  let resolvedArgs: Record<string, any> = parsed.success
+    ? ({ ...(parsed.data as Record<string, any>) })
+    : ({ ...(rawArgs || {}) });
 
-  return createTool({
-    id: toolId,
-    description: description || `Run erxes ${erxesOperationType} ${erxesOperation}`,
-    inputSchema,
-    outputSchema: z.any(),
-    execute: async (inputArgs) => {
-      // Auth must be resolved first — needed for any pre-flight stage lookups.
-      const reqAuth = getCurrentAuth();
-      const authHeaders: Record<string, string> = {};
-      if (reqAuth?.userHeader) {
-        authHeaders['user'] = reqAuth.userHeader;
-      } else if (reqAuth?.token || token) {
-        authHeaders['Authorization'] = reqAuth?.token || token;
-      }
+  // Auth must be resolved first — needed for any pre-flight stage lookups.
+  const reqAuth = getCurrentAuth();
+  const authHeaders: Record<string, string> = {};
+  if (reqAuth?.userHeader) {
+    authHeaders['user'] = reqAuth.userHeader;
+  } else if (reqAuth?.token || token) {
+    authHeaders['Authorization'] = reqAuth?.token || token;
+  }
 
-      // ── dealsAdd pre-flight ────────────────────────────────────────────────
-      // LLMs naturally express intent with stage NAMES (e.g. "Test for Ai"),
-      // not MongoDB ObjectIds.  This block auto-resolves any name sent as
-      // stageId → real ObjectId transparently, so the LLM never has to know
-      // or remember the raw database ID.
-      let resolvedArgs: Record<string, any> = inputArgs as Record<string, any>;
+  // ── dealsAdd pre-flight ────────────────────────────────────────────────
+  // LLMs naturally express intent with stage NAMES (e.g. "Test for Ai"),
+  // not MongoDB ObjectIds.  This block auto-resolves any name sent as
+  // stageId → real ObjectId transparently, so the LLM never has to know
+  // or remember the raw database ID.
+  if (erxesOperation === 'dealsAdd') {
+    // dealsAdd takes flat top-level args: dealsAdd(name, stageId, ...) — no doc wrapper.
+    let stageId: string | undefined = resolvedArgs?.stageId;
+    // Strip surrounding quotes LLMs sometimes add: '"Test for Ai"' → 'Test for Ai'
+    if (typeof stageId === 'string') {
+      stageId = stageId.replace(/^["']|["']$/g, '').trim();
+    }
 
-      if (erxesOperation === 'dealsAdd') {
-        // dealsAdd takes flat top-level args: dealsAdd(name, stageId, ...) — no doc wrapper.
-        let stageId: string | undefined = resolvedArgs?.stageId;
-        // Strip surrounding quotes LLMs sometimes add: '"Test for Ai"' → 'Test for Ai'
-        if (typeof stageId === 'string') {
-          stageId = stageId.replace(/^["']|["']$/g, '').trim();
-        }
+    const isValidObjectId = (s?: string) => !!s && /^[a-f0-9]{24}$/i.test(s);
 
-        const isValidObjectId = (s?: string) => !!s && /^[a-f0-9]{24}$/i.test(s);
+    if (!isValidObjectId(stageId)) {
+      const stages = await resolveAvailableStages(apiUrl, authHeaders);
 
-        if (!isValidObjectId(stageId)) {
-          const stages = await resolveAvailableStages(apiUrl, authHeaders);
-
-          if (stageId) {
-            // Fuzzy-match the name the LLM sent against real stage names.
-            const needle = stageId.toLowerCase().trim();
-            const match =
-              stages.find((s: any) => (s.stageName || '').toLowerCase() === needle) ||
-              stages.find((s: any) => (s.stageName || '').toLowerCase().includes(needle));
-            if (match) {
-              resolvedArgs = { ...resolvedArgs, stageId: match.stageId };
-              stageId = match.stageId;
-            }
-          }
-
-          // If only one stage exists, pick it automatically — no need to ask.
-          if (!isValidObjectId(stageId) && stages.length === 1) {
-            resolvedArgs = { ...resolvedArgs, stageId: stages[0].stageId };
-            stageId = stages[0].stageId;
-          }
-
-          if (!isValidObjectId(stageId)) {
-            const stageNames = stages.map((s: any) => s.stageName);
-            return {
-              success: false,
-              availableStages: stageNames,
-              instruction: stages.length
-                ? `Call dealsAdd immediately with: { stageId: "${stageNames[0] ?? 'stage name'}", name: "deal name" }. Available stages: ${stageNames.join(', ')}.`
-                : 'No stages exist. Tell the user to create a Board with a Pipeline and Stage in erxes Sales first.',
-            };
-          }
+      if (stageId) {
+        // Fuzzy-match the name the LLM sent against real stage names.
+        const needle = stageId.toLowerCase().trim();
+        const match =
+          stages.find((s: any) => (s.stageName || '').toLowerCase() === needle) ||
+          stages.find((s: any) => (s.stageName || '').toLowerCase().includes(needle));
+        if (match) {
+          resolvedArgs = { ...resolvedArgs, stageId: match.stageId };
+          stageId = match.stageId;
         }
       }
-      // ──────────────────────────────────────────────────────────────────────
 
-      // Build the GraphQL operation after stageId has been resolved. Choose a
-      // VALID response selection: a user-customized one if present, else one
-      // derived from the schema (so types without `name`, like User, work).
-      // For dealsAdd, also request stageId back so we can verify it was set.
-      const finalResponseFields = chooseResponseFields(
-        erxesOperation,
-        erxesResponseFields,
-        erxesReturnType,
-        objectFieldsMap,
-      );
-
-      const { query: finalQuery, variables: finalVariables } = buildGraphqlOperation(
-        erxesOperation,
-        erxesOperationType,
-        args,
-        resolvedArgs,
-        erxesReturnType,
-        finalResponseFields,
-      );
-
-      const response = await fetch(`${apiUrl}/graphql`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify({ query: finalQuery, variables: finalVariables }),
-      });
-
-      const data = await response.json() as any;
-
-      if (erxesOperation === 'dealsAdd') {
-        console.log('[dealsAdd] query:', finalQuery);
-        console.log('[dealsAdd] variables:', JSON.stringify(finalVariables));
-        console.log('[dealsAdd] response:', JSON.stringify(data));
+      // If only one stage exists, pick it automatically — no need to ask.
+      if (!isValidObjectId(stageId) && stages.length === 1) {
+        resolvedArgs = { ...resolvedArgs, stageId: stages[0].stageId };
+        stageId = stages[0].stageId;
       }
 
-      if (data.errors) {
-        const raw = data.errors.map((e: any) => e.message).join('; ');
-        return buildNotFoundResult(raw, apiUrl, authHeaders);
+      if (!isValidObjectId(stageId)) {
+        const stageNames = stages.map((s: any) => s.stageName);
+        return {
+          success: false,
+          availableStages: stageNames,
+          instruction: stages.length
+            ? `Call dealsAdd immediately with: { stageId: "${stageNames[0] ?? 'stage name'}", name: "deal name" }. Available stages: ${stageNames.join(', ')}.`
+            : 'No stages exist. Tell the user to create a Board with a Pipeline and Stage in erxes Sales first.',
+        };
       }
-      return data?.data?.[erxesOperation] ?? null;
-    },
+    }
+  }
+  // ──────────────────────────────────────────────────────────────────────
+
+  // Build the GraphQL operation after stageId has been resolved. Choose a
+  // VALID response selection derived from the schema (so types without a
+  // `name` field, like User, still produce a runnable query).
+  const finalResponseFields = chooseResponseFields(
+    erxesOperation,
+    undefined,
+    op.returnType,
+    objectFieldsMap,
+  );
+
+  const { query: finalQuery, variables: finalVariables } = buildGraphqlOperation(
+    erxesOperation,
+    erxesOperationType,
+    args,
+    resolvedArgs,
+    op.returnType,
+    finalResponseFields,
+  );
+
+  const response = await fetch(`${apiUrl}/graphql`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders },
+    body: JSON.stringify({ query: finalQuery, variables: finalVariables }),
   });
+
+  const data = (await response.json()) as any;
+
+  if (data.errors) {
+    const raw = data.errors.map((e: any) => e.message).join('; ');
+    return buildNotFoundResult(raw, apiUrl, authHeaders);
+  }
+  return data?.data?.[erxesOperation] ?? null;
 }
 
 // Fetches all INPUT_OBJECT type definitions so graphqlTypeToZod can build real
@@ -750,132 +764,6 @@ export async function fetchAvailableErxesTools(settings: any): Promise<any[]> {
   processFields(schema?.mutationType?.fields, 'mutation');
 
   return tools;
-}
-
-// ─── Auto-create helpers ─────────────────────────────────────────────────────
-
-function toToolId(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-}
-
-function defaultResponseFields(returnType: any): string {
-  const name = resolveReturnTypeName(returnType);
-  if (name.endsWith('ListResponse') || name.endsWith('Connection')) {
-    return 'list { _id name } totalCount';
-  }
-  return '_id name';
-}
-
-export interface AutoCreateResult {
-  created: number;
-  updated: number;
-  removed: number;
-  skipped: number;
-  total: number;
-}
-
-const GENERIC_DESC_RE = /^(query|mutation)\s+\S+$/i;
-
-/**
- * Syncs MastraTool docs with the live erxes schema:
- *  - creates a tool for every discovered operation that doesn't have one,
- *  - reconciles existing tools whose stored plugin/description went stale
- *    (e.g. created before plugin detection was schema-accurate),
- *  - removes redundant duplicate tools for the same operation — but only the
- *    non-canonical ones that NO agent references, so nothing breaks.
- *
- * Canonical toolId = `<realPlugin>-<operation>` (e.g. core-customers).
- * ClientPortal (cp*) operations are skipped.
- */
-export async function autoCreateErxesTools(settings: any, models: any): Promise<AutoCreateResult> {
-  const operations = await fetchAvailableErxesTools(settings);
-  const opMap = new Map<string, any>(operations.map((o: any) => [o.operation, o]));
-
-  // toolIds referenced by any agent — never delete these.
-  const agents = await models.MastraAgent.find({}, { toolIds: 1 });
-  const referenced = new Set<string>();
-  for (const a of agents) for (const id of a.toolIds || []) referenced.add(id);
-
-  // Load all existing erxes tools once; everything below is computed in memory
-  // and flushed with two bulk DB calls (insertMany + bulkWrite) — avoids
-  // thousands of round-trips to the (remote) database.
-  const existing = await models.MastraTool.find({ type: 'erxes' });
-  const existingIds = new Set<string>(existing.map((t: any) => t.toolId));
-
-  let created = 0, updated = 0, removed = 0, skipped = 0;
-
-  // 1. Create the canonical tool for any operation that lacks one.
-  const toInsert: any[] = [];
-  for (const op of operations) {
-    if (op.operation.toLowerCase().startsWith('cp')) continue;
-    const toolId = toToolId(`${op.plugin}-${op.operation}`);
-    if (existingIds.has(toolId)) continue;
-    existingIds.add(toolId); // canonical now considered present (for dedupe below)
-    toInsert.push({
-      toolId,
-      name: op.operation,
-      description: op.description || `${op.operationType} ${op.operation}`,
-      type: 'erxes',
-      erxesPlugin: op.plugin,
-      erxesModule: op.module,
-      erxesOperation: op.operation,
-      erxesOperationType: op.operationType,
-      graphqlArgs: op.graphqlArgs || [],
-      erxesReturnType: op.returnType || null,
-      erxesResponseFields: defaultResponseFields(op.returnType),
-      isEnabled: true,
-    });
-  }
-  if (toInsert.length) {
-    await models.MastraTool.insertMany(toInsert);
-    created = toInsert.length;
-  }
-
-  // 2. Reconcile + dedupe + prune every pre-existing erxes tool (bulk).
-  const bulk: any[] = [];
-  for (const t of existing) {
-    const op = opMap.get(t.erxesOperation);
-    if (!op) {
-      // The operation is no longer in the live schema — it was removed, or its
-      // plugin was disabled (only enabled plugins are introspected). Prune the
-      // dead tool. Guard: never prune when introspection returned nothing
-      // (transient failure) so we can't wipe the whole list by accident.
-      if (operations.length > 0) {
-        bulk.push({ deleteOne: { filter: { _id: t._id } } });
-        removed++;
-      } else {
-        skipped++;
-      }
-      continue;
-    }
-
-    const canonicalId = toToolId(`${op.plugin}-${t.erxesOperation}`);
-
-    // Drop a stale duplicate: not the canonical id, the canonical exists, and no
-    // agent depends on this one.
-    if (t.toolId !== canonicalId && existingIds.has(canonicalId) && !referenced.has(t.toolId)) {
-      bulk.push({ deleteOne: { filter: { _id: t._id } } });
-      removed++;
-      continue;
-    }
-
-    // Fix stale plugin/module and generic descriptions in place (toolId preserved).
-    const set: any = {};
-    if (t.erxesPlugin !== op.plugin) set.erxesPlugin = op.plugin;
-    if (t.erxesModule !== op.module) set.erxesModule = op.module;
-    if (!t.description || GENERIC_DESC_RE.test((t.description || '').trim())) {
-      set.description = op.description;
-    }
-    if (Object.keys(set).length) {
-      bulk.push({ updateOne: { filter: { _id: t._id }, update: { $set: set } } });
-      updated++;
-    } else {
-      skipped++;
-    }
-  }
-  if (bulk.length) await models.MastraTool.bulkWrite(bulk);
-
-  return { created, updated, removed, skipped, total: operations.length };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

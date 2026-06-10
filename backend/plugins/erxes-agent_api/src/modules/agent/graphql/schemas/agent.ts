@@ -7,7 +7,8 @@ export const types = `
     instructions: String
     provider: String
     model: String
-    toolIds: [String]
+    toolPolicy: String
+    allowedTools: [String]
     memoryEnabled: Boolean
     maxSteps: Int
     isEnabled: Boolean
@@ -22,7 +23,8 @@ export const types = `
     instructions: String
     provider: String
     model: String
-    toolIds: [String]
+    toolPolicy: String
+    allowedTools: [String]
     memoryEnabled: Boolean
     maxSteps: Int
     isEnabled: Boolean

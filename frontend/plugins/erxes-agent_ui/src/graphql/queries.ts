@@ -4,7 +4,7 @@ export const MASTRA_AGENTS = gql`
   query MastraAgents {
     mastraAgents {
       _id name agentId description instructions provider model
-      toolIds memoryEnabled maxSteps isEnabled createdAt updatedAt
+      toolPolicy allowedTools memoryEnabled maxSteps isEnabled createdAt updatedAt
     }
   }
 `;
@@ -13,7 +13,8 @@ export const MASTRA_AGENTS_MAIN = gql`
   query MastraAgentsMain($page: Int, $perPage: Int, $searchValue: String) {
     mastraAgentsMain(page: $page, perPage: $perPage, searchValue: $searchValue) {
       list {
-        _id name agentId description provider model toolIds isEnabled createdAt
+        _id name agentId description provider model
+        toolPolicy allowedTools isEnabled createdAt
       }
       totalCount
     }
@@ -24,7 +25,7 @@ export const MASTRA_AGENT = gql`
   query MastraAgent($_id: String!) {
     mastraAgent(_id: $_id) {
       _id name agentId description instructions provider model
-      toolIds memoryEnabled maxSteps isEnabled createdAt updatedAt
+      toolPolicy allowedTools memoryEnabled maxSteps isEnabled createdAt updatedAt
     }
   }
 `;
@@ -47,37 +48,6 @@ export const MASTRA_THREAD_MESSAGES = gql`
   query MastraThreadMessages($threadId: String!) {
     mastraThreadMessages(threadId: $threadId) {
       _id role content createdAt
-    }
-  }
-`;
-
-export const MASTRA_TOOLS = gql`
-  query MastraTools {
-    mastraTools {
-      _id toolId name description type builtinType
-      erxesPlugin erxesModule erxesOperation erxesOperationType graphqlArgs isEnabled createdAt
-    }
-  }
-`;
-
-export const MASTRA_TOOLS_MAIN = gql`
-  query MastraToolsMain($page: Int, $perPage: Int, $searchValue: String, $type: String) {
-    mastraToolsMain(page: $page, perPage: $perPage, searchValue: $searchValue, type: $type) {
-      list {
-        _id toolId name description type builtinType
-        erxesPlugin erxesModule erxesOperation erxesOperationType isEnabled createdAt
-      }
-      totalCount
-    }
-  }
-`;
-
-export const MASTRA_TOOL = gql`
-  query MastraTool($_id: String!) {
-    mastraTool(_id: $_id) {
-      _id toolId name description type builtinType
-      erxesPlugin erxesModule erxesOperation erxesOperationType graphqlArgs
-      erxesReturnType erxesResponseFields isEnabled createdAt
     }
   }
 `;

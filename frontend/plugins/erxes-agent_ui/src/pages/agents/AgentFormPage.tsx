@@ -20,7 +20,7 @@ import { PageHeader } from 'ui-modules';
 import {
   MASTRA_AGENT,
   MASTRA_AGENTS,
-  MASTRA_TOOLS,
+  MASTRA_AVAILABLE_ERXES_TOOLS,
   MASTRA_PROVIDERS,
   MASTRA_PROVIDER_CATALOG,
   MASTRA_PROVIDER_MODELS,
@@ -61,7 +61,8 @@ export const AgentFormPage = () => {
     instructions: '',
     provider: '',
     model: '',
-    toolIds: [] as string[],
+    toolPolicy: 'all' as 'all' | 'custom',
+    allowedTools: [] as string[],
     memoryEnabled: true,
     maxSteps: 10,
     isEnabled: true,
@@ -88,9 +89,12 @@ export const AgentFormPage = () => {
     });
 
   const { data: agentData } = useQuery(MASTRA_AGENT, { variables: { _id: id }, skip: !isEdit });
-  // cache-and-network so the tool list reflects the latest sync (plugin/module
-  // metadata) instead of a stale cached copy.
-  const { data: toolsData } = useQuery(MASTRA_TOOLS, { fetchPolicy: 'cache-and-network' });
+  // Live list of runnable erxes operations (cached server-side), used only when
+  // restricting an agent. Fetched lazily — no need to load it for "All tools".
+  const { data: availableData, loading: availableLoading } = useQuery(
+    MASTRA_AVAILABLE_ERXES_TOOLS,
+    { skip: form.toolPolicy !== 'custom' },
+  );
   const { data: providersData } = useQuery(MASTRA_PROVIDERS);
   const { data: catalogData } = useQuery(MASTRA_PROVIDER_CATALOG);
   const { data: providerModelsData, loading: modelsLoading } = useQuery(MASTRA_PROVIDER_MODELS, {
@@ -120,7 +124,8 @@ export const AgentFormPage = () => {
         instructions: a.instructions || '',
         provider: a.provider || '',
         model: a.model || '',
-        toolIds: a.toolIds || [],
+        toolPolicy: a.toolPolicy === 'custom' ? 'custom' : 'all',
+        allowedTools: a.allowedTools || [],
         memoryEnabled: a.memoryEnabled ?? true,
         maxSteps: a.maxSteps ?? 10,
         isEnabled: a.isEnabled ?? true,
@@ -129,30 +134,61 @@ export const AgentFormPage = () => {
     }
   }, [agentData, isEdit]);
 
-  const tools = toolsData?.mastraTools || [];
+  // Built-in (non-erxes) tools, offered alongside operations in the picker.
+  // Keep in sync with backend mastra/tools/builtins.ts (BUILTIN_TOOLS keys).
+  const BUILTINS = useMemo(
+    () => [
+      { key: 'webSearch', description: 'Web search (Wikipedia)' },
+      { key: 'fetchUrl', description: 'Fetch a Wikipedia article' },
+      { key: 'calculator', description: 'Evaluate a math expression' },
+      { key: 'companyKnowledge', description: 'Search indexed company knowledge' },
+    ],
+    [],
+  );
 
-  // Nested grouping: plugin → module → tools. Dynamic, driven by each tool's
-  // erxesPlugin/erxesModule metadata (builtins grouped under "Built-in").
+  const operations = availableData?.mastraAvailableErxesTools || [];
+
+  // Nested grouping: plugin → module → operations, driven by each op's
+  // plugin/module metadata. Builtins live under a synthetic "Built-in" plugin.
   const nestedTools = useMemo(() => {
     const q = toolSearch.trim().toLowerCase();
-    const filtered: any[] = q
-      ? tools.filter(
-          (t: any) =>
-            t.name.toLowerCase().includes(q) ||
-            t.description?.toLowerCase().includes(q) ||
-            t.erxesPlugin?.toLowerCase().includes(q) ||
-            t.erxesModule?.toLowerCase().includes(q),
+
+    const erxes = operations.map((o: any) => ({
+      kind: 'erxes' as const,
+      key: o.operation,
+      operation: o.operation,
+      operationType: o.operationType as string | undefined,
+      plugin: o.plugin || 'other',
+      module: o.module || 'other',
+      description: o.description || o.operation,
+    }));
+    const builtins = BUILTINS.map((b) => ({
+      kind: 'builtin' as const,
+      key: `builtin:${b.key}`,
+      operation: b.key,
+      operationType: undefined as string | undefined,
+      plugin: '__builtin__',
+      module: 'tools',
+      description: b.description,
+    }));
+
+    const all = [...builtins, ...erxes];
+    const filtered = q
+      ? all.filter(
+          (t) =>
+            t.operation.toLowerCase().includes(q) ||
+            t.description.toLowerCase().includes(q) ||
+            t.plugin.toLowerCase().includes(q) ||
+            t.module.toLowerCase().includes(q),
         )
-      : tools;
+      : all;
 
     const plugins = new Map<string, Map<string, any[]>>();
-    for (const tool of filtered) {
-      const pluginKey = tool.type === 'builtin' ? '__builtin__' : tool.erxesPlugin || '__other__';
-      const moduleKey = tool.type === 'builtin' ? 'tools' : tool.erxesModule || 'other';
-      if (!plugins.has(pluginKey)) plugins.set(pluginKey, new Map());
-      const mods = plugins.get(pluginKey)!;
-      if (!mods.has(moduleKey)) mods.set(moduleKey, []);
-      mods.get(moduleKey)!.push(tool);
+    for (const t of filtered) {
+      if (!plugins.has(t.plugin)) plugins.set(t.plugin, new Map());
+      const mods = plugins.get(t.plugin)!;
+      if (!mods.has(t.module)) mods.set(t.module, []);
+      mods.get(t.module)!.push(t);
     }
 
     // Built-in first, then plugins alphabetically.
@@ -167,17 +203,18 @@ export const AgentFormPage = () => {
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([module, items]) => ({
           module,
-          items: [...items].sort((x: any, y: any) => x.name.localeCompare(y.name)),
+          items: [...items].sort((x: any, y: any) => x.operation.localeCompare(y.operation)),
         }));
       const count = modules.reduce((n, m) => n + m.items.length, 0);
       return {
-        plugin:
-          pluginKey === '__builtin__' ? 'Built-in' : pluginKey === '__other__' ? 'Other' : pluginKey,
+        pluginKey,
+        plugin: pluginKey === '__builtin__' ? 'Built-in' : pluginKey,
+        isBuiltin: pluginKey === '__builtin__',
         count,
         modules,
       };
     });
-  }, [tools, toolSearch]);
+  }, [operations, BUILTINS, toolSearch]);
 
   // Provider dropdown: preset providers configured via DB or env var, plus any
   // custom DB providers the user added that are not in the presets catalog.
@@ -218,10 +255,49 @@ export const AgentFormPage = () => {
     if (autoSlug) set('agentId', toSlug(v));
   };
 
-  const toggleTool = (toolId: string) =>
-    set('toolIds', form.toolIds.includes(toolId)
-      ? form.toolIds.filter((t) => t !== toolId)
-      : [...form.toolIds, toolId]);
+  // ── Allowlist scope helpers ───────────────────────────────────────────────
+  // allowedTools entries: an operation name, "plugin:<name>", "module:<name>",
+  // or "builtin:<key>". A wildcard covers all its children.
+  const allowed = form.allowedTools;
+  const hasEntry = (e: string) => allowed.includes(e);
+  const setAllowed = (next: string[]) => set('allowedTools', next);
+  const toggleEntry = (entry: string) =>
+    setAllowed(hasEntry(entry) ? allowed.filter((e) => e !== entry) : [...allowed, entry]);
+
+  const pluginCovered = (pluginKey: string) =>
+    pluginKey !== '__builtin__' && hasEntry(`plugin:${pluginKey}`);
+  const moduleCovered = (pluginKey: string, module: string) =>
+    pluginCovered(pluginKey) || hasEntry(`module:${module}`);
+  // Builtins are only ever selected by their explicit key (never by a wildcard).
+  const opSelected = (t: any) =>
+    t.kind === 'builtin'
+      ? hasEntry(t.key)
+      : hasEntry(t.operation) || moduleCovered(t.plugin, t.module);
+
+  const toggleOp = (t: any) =>
+    t.kind === 'builtin' ? toggleEntry(t.key) : toggleEntry(t.operation);
+
+  // Toggle "all operations in a plugin" via a plugin:<name> wildcard. Enabling
+  // strips now-redundant child op/module entries so the allowlist stays minimal.
+  const toggleSelectPlugin = (pluginKey: string, modules: any[]) => {
+    const wc = `plugin:${pluginKey}`;
+    if (hasEntry(wc)) return setAllowed(allowed.filter((e) => e !== wc));
+    const childOps = new Set<string>();
+    const childMods = new Set<string>();
+    for (const m of modules) {
+      childMods.add(`module:${m.module}`);
+      for (const it of m.items) childOps.add(it.operation);
+    }
+    setAllowed([...allowed.filter((e) => !childOps.has(e) && !childMods.has(e)), wc]);
+  };
+
+  // Toggle "all operations in a module" via a module:<name> wildcard.
+  const toggleSelectModule = (module: string, items: any[]) => {
+    const wc = `module:${module}`;
+    if (hasEntry(wc)) return setAllowed(allowed.filter((e) => e !== wc));
+    const childOps = new Set(items.map((it: any) => it.operation));
+    setAllowed([...allowed.filter((e) => !childOps.has(e)), wc]);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -409,130 +485,201 @@ export const AgentFormPage = () => {
             )}
           </FormSection>
 
-          {/* Tools */}
-          <FormSection title="Tools" description="Select which tools this agent can call.">
-            {tools.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No tools available.{' '}
-                <Link to="/settings/erxes-agent/tools/new" className="underline underline-offset-4">
-                  Create tools first.
-                </Link>
-              </p>
+          {/* Tool Access */}
+          <FormSection
+            title="Tool Access"
+            description="Control which erxes operations this agent can search and run."
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <Label className="font-medium">Restrict tool access</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {form.toolPolicy === 'custom'
+                    ? 'This agent can only use the operations selected below.'
+                    : 'Off: the agent can search and run any erxes operation (reads and writes).'}
+                </p>
+              </div>
+              <Switch
+                checked={form.toolPolicy === 'custom'}
+                onCheckedChange={(v: boolean) => set('toolPolicy', v ? 'custom' : 'all')}
+              />
+            </div>
+
+            {form.toolPolicy === 'all' ? (
+              <Alert>
+                <IconInfoCircle className="size-4" />
+                <Alert.Title>Full access</Alert.Title>
+                <Alert.Description>
+                  The agent discovers operations on demand and can run any query or
+                  mutation across every installed erxes service. Turn on “Restrict
+                  tool access” to limit it to specific operations.
+                </Alert.Description>
+              </Alert>
             ) : (
               <div className="space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs text-muted-foreground">
+                    {allowed.length > 0
+                      ? `${allowed.length} rule${allowed.length !== 1 ? 's' : ''} selected`
+                      : 'Nothing selected yet — this agent will have no tools.'}
+                  </p>
+                  {allowed.length > 0 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={() => setAllowed([])}
+                    >
+                      Clear all
+                    </Button>
+                  )}
+                </div>
+
                 {/* Search */}
                 <div className="relative">
                   <IconSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
                   <Input
                     value={toolSearch}
                     onChange={(e) => setToolSearch(e.target.value)}
-                    placeholder="Search tools…"
+                    placeholder="Search operations…"
                     className="pl-8 h-8 text-sm"
                   />
                 </div>
 
-                {nestedTools.length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-1">No tools match your search.</p>
+                {availableLoading && operations.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-1">Loading operations…</p>
+                ) : nestedTools.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-1">
+                    {operations.length === 0
+                      ? 'No operations found. Make sure the erxes gateway is reachable and configured in General Settings.'
+                      : 'No operations match your search.'}
+                  </p>
                 ) : (
-                  <div className="space-y-3">
-                    {nestedTools.map(({ plugin, count, modules }) => {
+                  <div className="space-y-3 max-h-[28rem] overflow-auto pr-1">
+                    {nestedTools.map(({ pluginKey, plugin, isBuiltin, count, modules }) => {
                       const pluginOpen = !!toolSearch.trim() || !collapsedPlugins.has(plugin);
-                      const pluginSelected = modules.reduce(
-                        (n, m) => n + m.items.filter((t: any) => form.toolIds.includes(t.toolId)).length,
-                        0,
-                      );
+                      const allCovered = pluginCovered(pluginKey);
+                      const pluginSelected = allCovered
+                        ? count
+                        : modules.reduce(
+                            (n, m) => n + m.items.filter((t: any) => opSelected(t)).length,
+                            0,
+                          );
                       return (
-                      <div key={plugin}>
-                        <button
-                          type="button"
-                          onClick={() => togglePlugin(plugin)}
-                          className="w-full flex items-center justify-between gap-2 px-1 mb-1 hover:opacity-80"
-                        >
-                          <span className="flex items-center gap-1.5 min-w-0">
-                            <IconChevronRight
-                              className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${pluginOpen ? 'rotate-90' : ''}`}
-                            />
-                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                              {plugin}
+                        <div key={pluginKey}>
+                          <div className="w-full flex items-center justify-between gap-2 px-1 mb-1">
+                            <span className="flex items-center gap-1.5 min-w-0">
+                              {!isBuiltin && (
+                                <Checkbox
+                                  checked={allCovered}
+                                  onCheckedChange={() => toggleSelectPlugin(pluginKey, modules)}
+                                />
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => togglePlugin(plugin)}
+                                className="flex items-center gap-1.5 min-w-0 hover:opacity-80"
+                              >
+                                <IconChevronRight
+                                  className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${pluginOpen ? 'rotate-90' : ''}`}
+                                />
+                                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                  {plugin}
+                                </span>
+                                <span className="normal-case font-normal text-[10px] text-muted-foreground">{count}</span>
+                              </button>
                             </span>
-                            <span className="normal-case font-normal text-[10px] text-muted-foreground">{count}</span>
-                          </span>
-                          {pluginSelected > 0 && (
-                            <span className="text-[10px] text-primary shrink-0">{pluginSelected} selected</span>
-                          )}
-                        </button>
-                        {pluginOpen && (
-                        <div className="space-y-1">
-                          {modules.map(({ module, items }) => {
-                            const key = `${plugin}:${module}`;
-                            const open = !!toolSearch.trim() || expandedModules.has(key);
-                            const selectedCount = items.filter((t: any) =>
-                              form.toolIds.includes(t.toolId),
-                            ).length;
-                            return (
-                              <div key={key} className="rounded-md border border-border/60">
-                                <button
-                                  type="button"
-                                  onClick={() => toggleModule(key)}
-                                  className="w-full flex items-center justify-between gap-2 px-2.5 py-1.5 hover:bg-accent rounded-md"
-                                >
-                                  <span className="flex items-center gap-1.5 min-w-0">
-                                    <IconChevronRight
-                                      className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${open ? 'rotate-90' : ''}`}
-                                    />
-                                    <span className="text-sm font-medium capitalize truncate">{module}</span>
-                                    <span className="text-[11px] text-muted-foreground shrink-0">{items.length}</span>
-                                  </span>
-                                  {selectedCount > 0 && (
-                                    <span className="text-[10px] text-primary shrink-0">{selectedCount} selected</span>
-                                  )}
-                                </button>
-                                {open && (
-                                  <div className="px-2 pb-1.5 space-y-0.5">
-                                    {items.map((tool: any) => (
-                                      <label
-                                        key={tool._id}
-                                        className={`flex items-start gap-3 rounded-md px-2.5 py-2 cursor-pointer transition-colors hover:bg-accent ${
-                                          !tool.isEnabled ? 'opacity-50 cursor-not-allowed' : ''
-                                        }`}
-                                      >
-                                        <Checkbox
-                                          className="mt-0.5"
-                                          checked={form.toolIds.includes(tool.toolId)}
-                                          onCheckedChange={() => (!tool.isEnabled ? null : toggleTool(tool.toolId))}
-                                          disabled={!tool.isEnabled}
-                                        />
-                                        <div className="flex-1 min-w-0">
-                                          <div className="flex items-center gap-2">
-                                            <span className="text-sm font-medium first-letter:uppercase">
-                                              {tool.description || tool.name}
-                                            </span>
-                                            {tool.erxesOperationType && (
-                                              <span
-                                                className={`text-[10px] px-1.5 py-0.5 rounded-sm shrink-0 ${
-                                                  tool.erxesOperationType === 'mutation'
-                                                    ? 'bg-warning/10 text-warning'
-                                                    : 'bg-info/10 text-info'
-                                                }`}
-                                              >
-                                                {tool.erxesOperationType === 'mutation' ? 'write' : 'read'}
-                                              </span>
-                                            )}
-                                          </div>
-                                          <p className="font-mono text-[11px] text-muted-foreground mt-0.5 truncate">
-                                            {tool.name}
-                                          </p>
-                                        </div>
-                                      </label>
-                                    ))}
+                            {pluginSelected > 0 && (
+                              <span className="text-[10px] text-primary shrink-0">
+                                {allCovered ? 'all' : pluginSelected} selected
+                              </span>
+                            )}
+                          </div>
+                          {pluginOpen && (
+                            <div className="space-y-1">
+                              {modules.map(({ module, items }) => {
+                                const key = `${pluginKey}:${module}`;
+                                const open = !!toolSearch.trim() || expandedModules.has(key);
+                                const modCovered = !isBuiltin && moduleCovered(pluginKey, module);
+                                const selectedCount = items.filter((t: any) => opSelected(t)).length;
+                                return (
+                                  <div key={key} className="rounded-md border border-border/60">
+                                    <div className="w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-md hover:bg-accent">
+                                      <span className="flex items-center gap-1.5 min-w-0">
+                                        {!isBuiltin && (
+                                          <Checkbox
+                                            checked={modCovered}
+                                            disabled={allCovered}
+                                            onCheckedChange={() => toggleSelectModule(module, items)}
+                                          />
+                                        )}
+                                        <button
+                                          type="button"
+                                          onClick={() => toggleModule(key)}
+                                          className="flex items-center gap-1.5 min-w-0"
+                                        >
+                                          <IconChevronRight
+                                            className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${open ? 'rotate-90' : ''}`}
+                                          />
+                                          <span className="text-sm font-medium capitalize truncate">{module}</span>
+                                          <span className="text-[11px] text-muted-foreground shrink-0">{items.length}</span>
+                                        </button>
+                                      </span>
+                                      {selectedCount > 0 && (
+                                        <span className="text-[10px] text-primary shrink-0">{selectedCount} selected</span>
+                                      )}
+                                    </div>
+                                    {open && (
+                                      <div className="px-2 pb-1.5 space-y-0.5">
+                                        {items.map((t: any) => {
+                                          const covered =
+                                            t.kind === 'erxes' && moduleCovered(t.plugin, t.module);
+                                          return (
+                                            <label
+                                              key={t.key}
+                                              className={`flex items-start gap-3 rounded-md px-2.5 py-2 transition-colors hover:bg-accent ${
+                                                covered ? 'opacity-60 cursor-default' : 'cursor-pointer'
+                                              }`}
+                                            >
+                                              <Checkbox
+                                                className="mt-0.5"
+                                                checked={opSelected(t)}
+                                                disabled={covered}
+                                                onCheckedChange={() => (covered ? null : toggleOp(t))}
+                                              />
+                                              <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                  <span className="text-sm font-medium first-letter:uppercase">
+                                                    {t.description}
+                                                  </span>
+                                                  {t.operationType && (
+                                                    <span
+                                                      className={`text-[10px] px-1.5 py-0.5 rounded-sm shrink-0 ${
+                                                        t.operationType === 'mutation'
+                                                          ? 'bg-warning/10 text-warning'
+                                                          : 'bg-info/10 text-info'
+                                                      }`}
+                                                    >
+                                                      {t.operationType === 'mutation' ? 'write' : 'read'}
+                                                    </span>
+                                                  )}
+                                                </div>
+                                                <p className="font-mono text-[11px] text-muted-foreground mt-0.5 truncate">
+                                                  {t.operation}
+                                                </p>
+                                              </div>
+                                            </label>
+                                          );
+                                        })}
+                                      </div>
+                                    )}
                                   </div>
-                                )}
-                              </div>
-                            );
-                          })}
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
-                        )}
-                      </div>
                       );
                     })}
                   </div>

@@ -187,23 +187,25 @@ const baseColumns: ColumnDef<IAgent>[] = [
   },
   {
     id: 'tools',
-    accessorKey: 'toolIds',
-    header: () => <RecordTable.InlineHead icon={IconTool} label="Tools" />,
-    cell: ({ cell }) => {
-      const toolIds = cell.getValue() as string[];
+    accessorKey: 'toolPolicy',
+    header: () => <RecordTable.InlineHead icon={IconTool} label="Tool access" />,
+    cell: ({ row }) => {
+      const { toolPolicy, allowedTools } = row.original;
+      const isRestricted = toolPolicy === 'custom';
+      const count = allowedTools?.length ?? 0;
       return (
         <RecordTableInlineCell>
-          {toolIds?.length > 0 ? (
+          {isRestricted ? (
             <Badge variant="secondary">
-              {toolIds.length} tool{toolIds.length !== 1 ? 's' : ''}
+              {count > 0 ? `${count} rule${count !== 1 ? 's' : ''}` : 'No tools'}
             </Badge>
           ) : (
-            <span className="text-xs text-muted-foreground">—</span>
+            <Badge variant="success">All tools</Badge>
           )}
         </RecordTableInlineCell>
       );
     },
-    size: 100,
+    size: 110,
   },
   {
     id: 'status',

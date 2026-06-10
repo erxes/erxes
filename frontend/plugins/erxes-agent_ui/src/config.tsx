@@ -39,10 +39,5 @@ export const CONFIG: IUIConfig = {
       icon: IconRobot,
       path: 'erxes-agent/agents',
     },
-    {
-      name: 'tools',
-      icon: IconRobot,
-      path: 'erxes-agent/tools',
-    },
   ],
 };

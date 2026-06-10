@@ -13,19 +13,50 @@ import {
   MemoryContext,
 } from '~/mastra/memory';
 
+// A search_erxes_operations result is navigational (it lists candidate ops),
+// never the final answer — the answer comes from execute_erxes_operation.
+function isSearchResult(tr: any): boolean {
+  return (tr?.toolName || tr?.name || '').toLowerCase().includes('search_erxes_operations');
+}
+
+// True when a tool's return value carries a real answer worth reporting (vs a
+// failure payload or empty/null). Covers query lists, mutation records, the raw
+// execute_erxes_operation payload (any non-empty object), arrays, and scalars.
+function isRealToolData(data: any): boolean {
+  if (data === true) return true;
+  if (Array.isArray(data)) return true; // even an empty array is a valid "0 results"
+  if (data == null) return false;
+  if (typeof data !== 'object') return typeof data === 'string' && data.length > 0;
+  if (data.success === false) return false;
+  if (data._id) return true;
+  if (data.list !== undefined) return true;
+  if (data.success === true) return true;
+  return Object.keys(data).length > 0;
+}
+
 // Build a plain-text message from tool results when the model produces no text.
 function buildFallbackFromResults(toolResults: any[]): string | null {
   for (const tr of toolResults) {
+    if (isSearchResult(tr)) continue;
+
     const data = tr.result ?? tr;
+
+    if (data === true) return 'Action completed successfully.';
+    if (Array.isArray(data)) {
+      return `Found ${data.length} result${data.length !== 1 ? 's' : ''}.`;
+    }
     if (!data || typeof data !== 'object') continue;
 
-    // Explicit failure
+    // Explicit failure — surface the tool's own guidance. execute_erxes_operation
+    // reports failures under `error`; the GraphQL not-found path uses `message`.
     if (data.success === false) {
       if (data.availableStages?.length) {
         const names = (data.availableStages as string[]).join(', ');
         return `Which stage? Available: ${names}.`;
       }
-      if (data.message) return `Failed: ${data.message}`;
+      if (data.instruction) return data.instruction;
+      const msg = data.message || data.error;
+      if (msg) return `Failed: ${msg}`;
       return null;
     }
 
@@ -42,7 +73,7 @@ function buildFallbackFromResults(toolResults: any[]): string | null {
       return `Found ${data.list.length} result${data.list.length !== 1 ? 's' : ''}.`;
     }
 
-    if (data === true || data.success === true) return 'Action completed successfully.';
+    if (data.success === true) return 'Action completed successfully.';
   }
   return null;
 }
@@ -120,8 +151,9 @@ async function runAgentTurn(params: {
   message: string;
   isLegacy: boolean;
   authCtx: any;
+  depth?: number;
 }): Promise<string | null> {
-  const { agent, tools, convo, message, isLegacy, authCtx } = params;
+  const { agent, tools, convo, message, isLegacy, authCtx, depth = 0 } = params;
 
   try {
     const result = await runWithAuth(authCtx, () =>
@@ -148,15 +180,33 @@ async function runAgentTurn(params: {
             const toolResult = await runWithAuth(authCtx, () => tool.execute(extracted.args));
             const syntheticResults = [{ toolName: extracted.name, result: toolResult, toolCallId: `text-${Date.now()}` }];
 
-            if (extracted.name.toLowerCase().includes('deals')) {
-              console.log('[text-tool-call] extracted:', extracted.name, JSON.stringify(extracted.args));
-              console.log('[text-tool-call] result:', JSON.stringify(toolResult));
+            console.log(
+              '[text-tool-call]', extracted.name,
+              JSON.stringify(extracted.args),
+              '→', (JSON.stringify(toolResult) || '').slice(0, 300),
+            );
+
+            // search_erxes_operations is navigational. The model emitted it as
+            // text (no native multi-step), so feed the results back and let it
+            // continue to execute_erxes_operation. Bounded to avoid loops.
+            if (extracted.name.toLowerCase().includes('search_erxes_operations') && depth < 2) {
+              const followup = [
+                ...convo,
+                { role: 'assistant', content: t },
+                {
+                  role: 'user',
+                  content:
+                    `Available operations (from search_erxes_operations):\n${JSON.stringify(toolResult)}\n\n` +
+                    `Now call execute_erxes_operation with the exact "operation" name and an "args" object to fulfil: "${message}".`,
+                },
+              ];
+              return await runAgentTurn({
+                agent, tools, convo: followup, message, isLegacy, authCtx, depth: depth + 1,
+              });
             }
 
             const fallback = buildFallbackFromResults(syntheticResults);
-            const tr = toolResult as any;
-            const hasReal = tr && typeof tr === 'object' && (tr._id || tr.list !== undefined || tr.success === true);
-            if (!hasReal) return fallback || 'Something went wrong. Please try again.';
+            if (!isRealToolData(toolResult)) return fallback || 'Something went wrong. Please try again.';
 
             // Synthesise a human-readable summary.
             const toolContext = `[${extracted.name}]:\n${JSON.stringify(toolResult, null, 2)}`;
@@ -205,19 +255,36 @@ async function runAgentTurn(params: {
 
     if (!uniqueResults.length) return null;
 
+    // Diagnostic: what did the agent actually call, and what came back?
+    console.log(
+      '[mastraAgentChat] tool results:',
+      JSON.stringify(
+        uniqueResults.map((tr: any) => {
+          const data = tr.result ?? tr;
+          return {
+            tool: tr.toolName || tr.name,
+            shape:
+              data == null
+                ? 'null'
+                : Array.isArray(data)
+                  ? `array(${data.length})`
+                  : typeof data === 'object'
+                    ? Object.keys(data).slice(0, 6)
+                    : typeof data,
+            success: (data && typeof data === 'object') ? data.success : undefined,
+            error: (data && typeof data === 'object') ? (data.error || data.message) : undefined,
+          };
+        }),
+      ),
+    );
+
+    // search_erxes_operations is navigational; only execute (action) results
+    // decide whether the turn produced something real to report.
+    const actionResults = uniqueResults.filter((tr: any) => !isSearchResult(tr));
+
     // Skip synthesis when tool calls didn't produce a real result.
     // Synthesis will fabricate success messages even for failed/null returns.
-    const hasRealResult = uniqueResults.some((tr: any) => {
-      const data = tr.result ?? tr;
-      if (!data || typeof data !== 'object') return false;
-      if (data.success === false) return false;
-      // Mutations should return a record with _id; queries return list/data
-      if (data._id) return true;
-      if (data.list !== undefined) return true;
-      if (data.success === true) return true;
-      // Primitive truthy non-error result
-      return false;
-    });
+    const hasRealResult = actionResults.some((tr: any) => isRealToolData(tr.result ?? tr));
 
     const fallback = buildFallbackFromResults(uniqueResults);
 
@@ -225,8 +292,9 @@ async function runAgentTurn(params: {
       return fallback || 'Something went wrong. Please try again.';
     }
 
-    // All tool calls succeeded — synthesise a human-readable summary.
-    const toolContext = uniqueResults
+    // All tool calls succeeded — synthesise a human-readable summary from the
+    // action results (the search listing would only distract the model).
+    const toolContext = actionResults
       .map((tr: any) => {
         const name = tr.toolName || tr.name || 'tool';
         const data = tr.result ?? tr;

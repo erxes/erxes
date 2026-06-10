@@ -7,7 +7,8 @@ export interface IMastraAgent {
   instructions?: string;
   provider: string;
   model: string;
-  toolIds?: string[];
+  toolPolicy?: 'all' | 'custom';
+  allowedTools?: string[];
   memoryEnabled?: boolean;
   maxSteps?: number;
   isEnabled?: boolean;

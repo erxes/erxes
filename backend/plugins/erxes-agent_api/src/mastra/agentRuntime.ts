@@ -1,8 +1,16 @@
 import { Agent } from '@mastra/core/agent';
-import { getBuiltinTool } from './tools/builtins';
-import { buildErxesTool, fetchInputTypesMap, fetchObjectFieldsMap } from './tools/erxesTools';
+import { BUILTIN_TOOLS } from './tools/builtins';
 import { buildModel } from './providers';
 import { buildSystemPrompt, ToolInfo } from './instructions/routing';
+import { getOperationRegistry } from './tools/operationRegistry';
+import { buildErxesMetaTools } from './tools/metaTools';
+import {
+  resolveToolPolicy,
+  isBuiltinAllowed,
+  hasAnyOperation,
+  scopeSummary,
+  capabilityInventory,
+} from './tools/scope';
 
 // Cache agents by config ID + updatedAt + routing version.
 const agentCache = new Map<string, Agent>();
@@ -11,8 +19,8 @@ const agentCache = new Map<string, Agent>();
 // when a model outputs function calls as plain text instead of tool_calls.
 const toolsCache = new Map<string, Record<string, any>>();
 
-// Increment this whenever routing.ts, erxesTools.ts, or provider logic changes.
-const ROUTING_VERSION = 12;
+// Increment this whenever routing.ts, the meta-tools, or provider logic changes.
+const ROUTING_VERSION = 14;
 
 export interface AgentWithTools {
   agent: Agent;
@@ -20,7 +28,25 @@ export interface AgentWithTools {
 }
 
 export async function getOrCreateAgent(agentConfig: any, models: any): Promise<AgentWithTools> {
-  const cacheKey = `${agentConfig._id}:${agentConfig.updatedAt?.getTime?.() ?? 0}:v${ROUTING_VERSION}`;
+  const [providers, settings] = await Promise.all([
+    models.MastraProvider.find({ isEnabled: true }),
+    models.MastraSettings.getSettings(),
+  ]);
+
+  // The agent's reach: 'all' (every erxes operation + builtin) by default, or a
+  // restricted allowlist. The two meta-tools enforce this at execution time.
+  const policy = resolveToolPolicy(agentConfig);
+
+  // The live, cached schema registry powers search + execute. No per-operation
+  // tool docs are bound any more — capabilities are derived from the gateway.
+  const registry = await getOperationRegistry(settings);
+
+  // The installed-services inventory both grounds the system prompt AND keys
+  // the cache: enabling/disabling a plugin changes the fingerprint, so the
+  // agent (and its prompt) is rebuilt as soon as the registry refreshes.
+  const inventory = capabilityInventory(registry.list, policy);
+
+  const cacheKey = `${agentConfig._id}:${agentConfig.updatedAt?.getTime?.() ?? 0}:v${ROUTING_VERSION}:${inventory.fingerprint}`;
 
   if (agentCache.has(cacheKey)) {
     return { agent: agentCache.get(cacheKey)!, tools: toolsCache.get(cacheKey) ?? {} };
@@ -34,50 +60,35 @@ export async function getOrCreateAgent(agentConfig: any, models: any): Promise<A
     }
   }
 
-  const [providers, settings] = await Promise.all([
-    models.MastraProvider.find({ isEnabled: true }),
-    models.MastraSettings.getSettings(),
-  ]);
-
   const model = buildModel(agentConfig.provider, agentConfig.model, providers);
 
-  // Fetch INPUT_OBJECT field definitions (for input Zod schemas) and OBJECT
-  // field definitions (for building valid response selections) once per build.
-  const [inputTypesMap, objectFieldsMap] = await Promise.all([
-    fetchInputTypesMap(settings),
-    fetchObjectFieldsMap(settings),
-  ]);
-
   const tools: Record<string, any> = {};
-  // Real metadata for each bound tool, so the system prompt can give the model
-  // accurate awareness of its actual capabilities (name + description).
-  const toolInfos: ToolInfo[] = [];
-  for (const toolId of (agentConfig.toolIds || [])) {
-    const toolConfig = await models.MastraTool.findOne({ toolId, isEnabled: true });
-    if (!toolConfig) continue;
+  const builtinInfos: ToolInfo[] = [];
 
-    if (toolConfig.type === 'builtin') {
-      const tool = getBuiltinTool(toolConfig.builtinType);
-      if (tool) tools[toolId] = tool;
-    } else if (toolConfig.type === 'erxes') {
-      const tool = buildErxesTool(toolConfig, settings, inputTypesMap, objectFieldsMap);
-      if (tool) tools[toolId] = tool;
-    }
+  // erxes search/execute meta-tools — bound only when the policy grants at least
+  // one operation (an all-builtins-only restricted agent skips them).
+  const hasErxes = hasAnyOperation(registry.list, policy);
+  if (hasErxes) {
+    Object.assign(tools, buildErxesMetaTools({ registry, settings, policy }));
+  }
 
-    if (tools[toolId]) {
-      toolInfos.push({
-        id: toolId,
-        name: toolConfig.name || toolId,
-        description: toolConfig.description,
-      });
-    }
+  // Standalone builtin tools, filtered by policy.
+  for (const [key, tool] of Object.entries(BUILTIN_TOOLS)) {
+    if (!isBuiltinAllowed(key, policy)) continue;
+    tools[key] = tool;
+    builtinInfos.push({ id: key, name: key, description: (tool as any)?.description });
   }
 
   // Conversation memory is persisted in MongoDB (MastraThread / MastraMessage)
   // and replayed into each request as message history — see mastraAgentChat.
   // The agent itself is therefore stateless (no Mastra/LibSQL memory store).
   const toolNames = Object.keys(tools);
-  const systemPrompt = buildSystemPrompt(agentConfig.instructions || '', toolInfos);
+  const systemPrompt = buildSystemPrompt(agentConfig.instructions || '', {
+    hasErxesTools: hasErxes,
+    scopeLine: scopeSummary(policy),
+    inventoryLines: inventory.lines,
+    builtins: builtinInfos,
+  });
 
   const agent = new Agent({
     id: agentConfig.agentId,
@@ -85,7 +96,8 @@ export async function getOrCreateAgent(agentConfig: any, models: any): Promise<A
     instructions: systemPrompt,
     model,
     tools: toolNames.length ? tools : undefined,
-    defaultOptions: { maxSteps: agentConfig.maxSteps || 3 },
+    // search → execute → answer needs several steps; default generously.
+    defaultOptions: { maxSteps: agentConfig.maxSteps || 8 },
   });
 
   agentCache.set(cacheKey, agent);

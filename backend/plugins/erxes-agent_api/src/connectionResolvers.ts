@@ -3,7 +3,6 @@ import { IMainContext } from 'erxes-api-shared/core-types';
 import mongoose from 'mongoose';
 
 import { loadAgentClass, IMastraAgentModel } from '@/agent/db/models/Agent';
-import { loadToolClass, IMastraToolModel } from '@/tool/db/models/Tool';
 import { loadProviderClass, IMastraProviderModel } from '@/provider/db/models/Provider';
 import { loadSettingsClass, IMastraSettingsModel } from '@/settings/db/models/Settings';
 import { loadThreadClass, IMastraThreadModel } from '@/session/db/models/Thread';
@@ -15,7 +14,6 @@ import {
 
 export interface IModels {
   MastraAgent: IMastraAgentModel;
-  MastraTool: IMastraToolModel;
   MastraProvider: IMastraProviderModel;
   MastraSettings: IMastraSettingsModel;
   MastraThread: IMastraThreadModel;
@@ -35,11 +33,6 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.MastraAgent = db.model<any, IMastraAgentModel>(
     'mastra_agents',
     loadAgentClass(models),
-  );
-
-  models.MastraTool = db.model<any, IMastraToolModel>(
-    'mastra_tools',
-    loadToolClass(models),
   );
 
   models.MastraProvider = db.model<any, IMastraProviderModel>(

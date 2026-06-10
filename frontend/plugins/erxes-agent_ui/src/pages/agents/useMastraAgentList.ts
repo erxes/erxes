@@ -11,7 +11,8 @@ export interface IMastraAgentRow {
   description?: string;
   provider: string;
   model: string;
-  toolIds: string[];
+  toolPolicy?: 'all' | 'custom';
+  allowedTools?: string[];
   isEnabled: boolean;
   createdAt: string;
 }
