@@ -4,13 +4,12 @@ import {
   buildExportCursorQuery,
   normalizeExportLimit,
 } from 'erxes-api-shared/core-modules';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { sendTRPCMessage, escapeRegExp } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { buildProjectExportRow } from './buildProjectExportRow';
-import { escapeRegExp } from 'erxes-api-shared/utils';
 import { STATUS_TYPES } from '@/status/constants/types';
 import { IProjectDocument, IProjectFilter } from '../../../@types/project';
-import mongoose, { FilterQuery } from 'mongoose';
+import { FilterQuery } from 'mongoose';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 
 /** Applies a date-based filter to a Mongoose query field. Supports 'no-date', 'in-past', and ISO date string values. */
@@ -31,26 +30,30 @@ const handleDateFilter = (
   filterQuery[fieldName] = { $lte: new Date(stringValue) };
 };
 
-export async function getProjectExportData(
-  data: GetExportData & {
+/** Builds the base Mongoose query filter from the project export parameters. */
+async function buildProjectQuery(
+  models: IModels,
+  filter: GetExportData & {
     search?: string;
-    filters?: IProjectFilter;
+    active?: boolean;
+    taskId?: string;
+    userId?: string;
+    memberId?: string;
+    memberIds?: string[];
+    leadId?: string;
+    startDate?: string | Date;
+    targetDate?: string | Date;
+    priority?: number;
+    status?: number;
+    name?: string;
+    _ids?: string[];
+    tagIds?: string[];
+    teamIds?: string[];
   },
-  { subdomain, models }: IImportExportContext<IModels>,
-): Promise<Record<string, any>[]> {
-  const { cursor, limit, ids, selectedFields, filters } = data;
-  const effectiveLimit = normalizeExportLimit(limit, 100);
-
-  if (!models) {
-    throw new Error('Models not available in context');
-  }
-
-  const { Project, Team, TeamMember } = models;
-
-  const filter = { ...data, ...(filters || {}) };
-
+): Promise<FilterQuery<IProjectDocument>> {
+  const { TeamMember } = models;
   const query: FilterQuery<IProjectDocument> = {};
-  const andFilters: any[] = [];
+  const andFilters: FilterQuery<IProjectDocument>[] = [];
 
   if (filter._ids && filter._ids.length) {
     query._id = { $in: filter._ids };
@@ -152,22 +155,15 @@ export async function getProjectExportData(
     query.$and = andFilters;
   }
 
-  const { query: exportQuery, isIdsMode } = buildExportCursorQuery({
-    baseQuery: query as Record<string, any>,
-    cursor,
-    ids,
-    limit: effectiveLimit,
-  });
+  return query;
+}
 
-  if (isIdsMode && (exportQuery._id as any)?.$in?.length === 0) {
-    return [];
-  }
-
-  const projects = await Project.find(exportQuery)
-    .sort({ _id: 1 })
-    .limit(effectiveLimit)
-    .lean();
-
+/** Collects all related entity IDs referenced by the given project documents. */
+function collectProjectEntityIds(projects: IProjectDocument[]): {
+  teamIds: Set<string>;
+  userIds: Set<string>;
+  tagIds: Set<string>;
+} {
   const teamIds = new Set<string>();
   const userIds = new Set<string>();
   const tagIds = new Set<string>();
@@ -179,36 +175,110 @@ export async function getProjectExportData(
     if (p.tagIds) {
       p.tagIds.forEach(id => tagIds.add(String(id)));
     }
-    if (p.leadId) userIds.add(String(p.leadId));
+    if (p.leadId) {
+      userIds.add(String(p.leadId));
+    }
     if (p.memberIds) {
       p.memberIds.forEach(id => userIds.add(String(id)));
     }
-    if (p.createdBy) userIds.add(String(p.createdBy));
+    if (p.createdBy) {
+      userIds.add(String(p.createdBy));
+    }
   }
 
+  return { teamIds, userIds, tagIds };
+}
+
+/** Fetches all related entities for a project list and returns lookup maps. */
+async function resolveProjectEntityMaps(
+  subdomain: string,
+  models: IModels,
+  ids: { teamIds: Set<string>; userIds: Set<string>; tagIds: Set<string> },
+): Promise<{
+  teamMap: Map<string, string>;
+  userMap: Map<string, string>;
+  tagMap: Map<string, string>;
+}> {
+  const { Team } = models;
+
   const [teams, users, tags] = await Promise.all([
-    teamIds.size ? Team.find({ _id: { $in: Array.from(teamIds) } }).select('_id name').lean() : [],
-    userIds.size
+    ids.teamIds.size ? Team.find({ _id: { $in: Array.from(ids.teamIds) } }).select('_id name').lean() : [],
+    ids.userIds.size
       ? sendTRPCMessage({
           subdomain,
           pluginName: 'core',
           method: 'query',
           module: 'users',
           action: 'find',
-          input: { query: { _id: { $in: Array.from(userIds) } } },
+          input: { query: { _id: { $in: Array.from(ids.userIds) } } },
         })
       : [],
-    tagIds.size
+    ids.tagIds.size
       ? sendTRPCMessage({
           subdomain,
           pluginName: 'core',
           method: 'query',
           module: 'tags',
           action: 'find',
-          input: { query: { _id: { $in: Array.from(tagIds) } } },
+          input: { query: { _id: { $in: Array.from(ids.tagIds) } } },
         })
       : [],
   ]);
+
+  const teamMap = new Map<string, string>();
+  (teams || []).forEach((t: { _id: unknown; name?: string }) => teamMap.set(String(t._id), t.name || ''));
+
+  const userMap = new Map<string, string>();
+  (users || []).forEach((u: IUserDocument) => {
+    const name = u.details?.fullName || `${u.details?.firstName || ''} ${u.details?.lastName || ''}`.trim() || u.username || u.email || '';
+    userMap.set(String(u._id), name);
+  });
+
+  const tagMap = new Map<string, string>();
+  (tags || []).forEach((t: { _id: unknown; name?: string }) => tagMap.set(String(t._id), t.name || ''));
+
+  return { teamMap, userMap, tagMap };
+}
+
+/** Fetches and formats project export rows with resolved display names for all related entities. */
+export async function getProjectExportData(
+  data: GetExportData & {
+    search?: string;
+    filters?: IProjectFilter;
+  },
+  { subdomain, models }: IImportExportContext<IModels>,
+): Promise<Record<string, string>[]> {
+  const { cursor, limit, ids, selectedFields, filters } = data;
+  const effectiveLimit = normalizeExportLimit(limit, 100);
+
+  if (!models) {
+    throw new Error('Models not available in context');
+  }
+
+  const { Project } = models;
+
+  const filter = { ...data, ...(filters || {}) };
+
+  const query = await buildProjectQuery(models, filter);
+
+  const { query: exportQuery, isIdsMode } = buildExportCursorQuery({
+    baseQuery: query as Record<string, unknown>,
+    cursor,
+    ids,
+    limit: effectiveLimit,
+  });
+
+  if (isIdsMode && (exportQuery._id as { $in?: unknown[] })?.$in?.length === 0) {
+    return [];
+  }
+
+  const projects = await Project.find(exportQuery)
+    .sort({ _id: 1 })
+    .limit(effectiveLimit)
+    .lean();
+
+  const entityIds = collectProjectEntityIds(projects as IProjectDocument[]);
+  const { teamMap, userMap, tagMap } = await resolveProjectEntityMaps(subdomain, models, entityIds);
 
   const statusMap = new Map<string, string>([
     [String(STATUS_TYPES.BACKLOG), 'Backlog'],
@@ -219,19 +289,7 @@ export async function getProjectExportData(
     [String(STATUS_TYPES.TRIAGE), 'Triage'],
   ]);
 
-  const teamMap = new Map<string, string>();
-  (teams || []).forEach((t: { _id: string | mongoose.Types.ObjectId; name?: string }) => teamMap.set(String(t._id), t.name || ''));
-
-  const userMap = new Map<string, string>();
-  (users || []).forEach((u: IUserDocument) => {
-    const name = u.details?.fullName || `${u.details?.firstName || ''} ${u.details?.lastName || ''}`.trim() || u.username || u.email || '';
-    userMap.set(String(u._id), name);
-  });
-
-  const tagMap = new Map<string, string>();
-  (tags || []).forEach((t: { _id: string; name?: string }) => tagMap.set(String(t._id), t.name || ''));
-
-  return projects.map((p: any) =>
+  return (projects as IProjectDocument[]).map((p) =>
     buildProjectExportRow(p, selectedFields, {
       statusMap,
       teamMap,
