@@ -44,8 +44,11 @@ export const PostsDetailPage = ({
   }, []);
 
   const handleClose = useCallback(() => {
-    navigate(`/content/cms/${websiteId}/posts`);
-  }, [navigate, websiteId]);
+    const typeCode = post?.type;
+    const typeParam =
+      typeCode && typeCode !== 'post' ? `?type=${typeCode}` : '';
+    navigate(`/content/cms/${websiteId}/posts${typeParam}`);
+  }, [navigate, websiteId, post?.type]);
 
   return (
     <PageContainer key={postId}>
