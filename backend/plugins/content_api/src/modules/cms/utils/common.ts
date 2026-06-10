@@ -155,10 +155,7 @@ const resolveSlugMaxLength = (maxLength: number) =>
     : DEFAULT_SLUG_MAX_LENGTH;
 
 const collapseHyphens = (value: string) =>
-  value
-    .split('-')
-    .filter(Boolean)
-    .join('-');
+  value.split('-').filter(Boolean).join('-');
 
 const trimTrailingHyphens = (value: string) => {
   let end = value.length;
