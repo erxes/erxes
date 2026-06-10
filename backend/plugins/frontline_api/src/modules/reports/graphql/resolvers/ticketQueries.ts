@@ -134,8 +134,8 @@ export const reportTicketQueries = {
     const countPipeline = [...basePipeline, { $count: 'total' }];
 
     const [list, countResult] = await Promise.all([
-      models.Ticket.aggregate(paginatedPipeline),
-      models.Ticket.aggregate(countPipeline),
+      models.Ticket.aggregate(paginatedPipeline, { allowDiskUse: true }),
+      models.Ticket.aggregate(countPipeline, { allowDiskUse: true }),
     ]);
 
     const totalCount = (countResult[0] as any)?.total ?? 0;

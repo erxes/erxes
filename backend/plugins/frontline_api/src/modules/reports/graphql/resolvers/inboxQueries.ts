@@ -345,8 +345,8 @@ export const reportInboxQueries = {
     const countPipeline = [...basePipeline, { $count: 'total' as const }];
 
     const [list, countResult] = await Promise.all([
-      models.Conversations.aggregate(pipeline),
-      models.Conversations.aggregate(countPipeline),
+      models.Conversations.aggregate(pipeline, { allowDiskUse: true }),
+      models.Conversations.aggregate(countPipeline, { allowDiskUse: true }),
     ]);
 
     const totalCount = countResult[0]?.total ?? 0;
