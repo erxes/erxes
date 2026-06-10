@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { collectRefs, checkRef } from './refs';
+import { parseExpr, exprRefs } from './expr';
 import type { OperationRegistry } from '../tools/operationRegistry';
 import { isOperationAllowed, ToolPolicy } from '../tools/scope';
 
@@ -9,8 +10,9 @@ import { isOperationAllowed, ToolPolicy } from '../tools/scope';
  * DATA, never code (docs/WORKFLOW-SPEC.md §3).
  *
  * The schema covers the full kernel step set (§4.3). The compiler currently
- * supports the linear subset (COMPILED_STEP_TYPES); validateDefinition rejects
- * definitions using steps the compiler can't execute yet, so a saved
+ * supports operation/agent/wait/end plus branch (first-match semantics with
+ * nested sequential steps) and parallel (single-step fan-out); validateDefinition
+ * rejects definitions using steps the compiler can't execute yet, so a saved
  * definition is always a runnable one.
  */
 
@@ -59,25 +61,65 @@ export const endStepSchema = z.object({
   output: z.any().optional(),
 });
 
+// Steps allowed inside branch arms and parallel fan-outs. Containers don't
+// nest in v1 (one level of branching keeps definitions auditable), and `end`
+// is top-level-only.
+const innerStepSchema = z.union([operationStepSchema, agentStepSchema, waitStepSchema]);
+
+export const branchStepSchema = z.object({
+  id: stepIdSchema,
+  type: z.literal('branch'),
+  // First-match semantics (if / else-if / else) — the compiler makes the
+  // conditions mutually exclusive before handing them to Mastra (whose native
+  // .branch runs EVERY matching arm).
+  branches: z
+    .array(
+      z.object({
+        when: z.string().min(1),
+        steps: z.array(innerStepSchema).min(1),
+      }),
+    )
+    .min(1),
+  else: z.array(innerStepSchema).optional(),
+});
+
+export const parallelStepSchema = z.object({
+  id: stepIdSchema,
+  type: z.literal('parallel'),
+  // Effect steps only — `wait` is a chain-level pause and cannot fan out.
+  steps: z.array(z.union([operationStepSchema, agentStepSchema])).min(2),
+});
+
 // Declared but not yet compilable — kept in the schema so drafts can be
 // round-tripped and error messages stay precise ("not supported yet" beats
 // "invalid").
-const futureStepSchema = z.object({
-  id: stepIdSchema,
-  type: z.enum(['branch', 'parallel', 'foreach', 'loop', 'approval', 'input', 'workflow']),
-}).passthrough();
+const futureStepSchema = z
+  .object({
+    id: stepIdSchema,
+    type: z.enum(['foreach', 'loop', 'approval', 'input', 'workflow']),
+  })
+  .passthrough();
 
 export const stepSchema = z.union([
   operationStepSchema,
   agentStepSchema,
   waitStepSchema,
   endStepSchema,
+  branchStepSchema,
+  parallelStepSchema,
   futureStepSchema,
 ]);
 
 export type WorkflowStep = z.infer<typeof stepSchema>;
 
-export const COMPILED_STEP_TYPES = new Set(['operation', 'agent', 'wait', 'end']);
+export const COMPILED_STEP_TYPES = new Set([
+  'operation',
+  'agent',
+  'wait',
+  'end',
+  'branch',
+  'parallel',
+]);
 
 export const workflowTriggerSchema = z.object({
   type: z.enum(['manual', 'automation', 'schedule', 'webhook', 'workflow']),
@@ -123,11 +165,25 @@ export interface ValidationResult {
   definition?: WorkflowDefinition;
 }
 
+function countSteps(steps: any[]): number {
+  let n = 0;
+  for (const s of steps) {
+    n += 1;
+    if (s?.type === 'branch') {
+      for (const b of s.branches || []) n += countSteps(b.steps || []);
+      n += countSteps(s.else || []);
+    }
+    if (s?.type === 'parallel') n += countSteps(s.steps || []);
+  }
+  return n;
+}
+
 /**
- * Full authoring-time validation: schema shape, unique ids, ref integrity
- * (only prior steps / known bindings / the trigger), compiler support, and —
- * when a live operation registry is provided — operation existence and policy
- * coverage. Returns structured errors the master agent iterates on.
+ * Full authoring-time validation: schema shape, unique ids (across nesting),
+ * ref integrity (only prior steps / known bindings / the trigger), condition
+ * parsability, compiler support, and — when a live operation registry is
+ * provided — operation existence and policy coverage. Returns structured
+ * errors the master agent iterates on.
  */
 export function validateDefinition(
   raw: any,
@@ -147,59 +203,41 @@ export function validateDefinition(
   const def = parsed.data;
   const errors: ValidationIssue[] = [];
   const bindingKeys = new Set(Object.keys(def.bindings));
-  const seen = new Set<string>();
-  const prior = new Set<string>();
+  const allIds = new Set<string>();
 
-  def.steps.forEach((step, idx) => {
-    const at = `steps.${idx} (${step.id})`;
+  if (countSteps(def.steps) > MAX_STEPS) {
+    errors.push({
+      path: 'steps',
+      message: `definition exceeds the ${MAX_STEPS}-step cap (nested steps count)`,
+    });
+  }
 
-    if (seen.has(step.id)) errors.push({ path: at, message: `duplicate step id "${step.id}"` });
-    seen.add(step.id);
-
-    if (!COMPILED_STEP_TYPES.has(step.type)) {
-      errors.push({
-        path: at,
-        message: `step type "${step.type}" is not supported by the compiler yet`,
-      });
-    }
-
-    if (step.type === 'end' && idx !== def.steps.length - 1) {
-      errors.push({ path: at, message: 'an "end" step must be the last step' });
-    }
-
-    // Ref integrity — refs may only read the trigger, PRIOR step outputs, or
-    // declared bindings.
+  const checkLeaf = (step: any, at: string, prior: Set<string>) => {
     for (const ref of collectRefs(step)) {
       const problem = checkRef(ref, prior, bindingKeys);
       if (problem) errors.push({ path: at, message: problem });
     }
 
     if (step.type === 'agent') {
-      const binding = def.bindings[(step as any).agentRef];
+      const binding = def.bindings[step.agentRef];
       if (!binding) {
-        errors.push({
-          path: at,
-          message: `agentRef "${(step as any).agentRef}" has no entry in bindings`,
-        });
+        errors.push({ path: at, message: `agentRef "${step.agentRef}" has no entry in bindings` });
       } else if (binding.kind !== 'agent') {
         errors.push({
           path: at,
-          message: `binding "${(step as any).agentRef}" is kind "${binding.kind}", expected "agent"`,
+          message: `binding "${step.agentRef}" is kind "${binding.kind}", expected "agent"`,
         });
       }
     }
 
     if (step.type === 'operation') {
-      const opName = (step as any).operation as string;
+      const opName = step.operation as string;
       if (registry) {
         const meta = registry.operations.get(opName);
         if (!meta) {
           errors.push({ path: at, message: `operation "${opName}" does not exist on this instance` });
         } else if (!isOperationAllowed(meta, def.policy as ToolPolicy)) {
-          errors.push({
-            path: at,
-            message: `operation "${opName}" is outside this workflow's policy`,
-          });
+          errors.push({ path: at, message: `operation "${opName}" is outside this workflow's policy` });
         }
       } else if (def.policy.mode === 'custom') {
         // No registry (offline validation): exact-name policy check only.
@@ -208,16 +246,97 @@ export function validateDefinition(
           (e) => e.startsWith('plugin:') || e.startsWith('module:'),
         );
         if (!direct && !grouped) {
-          errors.push({
-            path: at,
-            message: `operation "${opName}" is outside this workflow's policy`,
-          });
+          errors.push({ path: at, message: `operation "${opName}" is outside this workflow's policy` });
         }
       }
     }
+  };
 
-    prior.add(step.id);
+  const claimId = (id: string, at: string) => {
+    if (allIds.has(id)) errors.push({ path: at, message: `duplicate step id "${id}"` });
+    allIds.add(id);
+  };
+
+  // Sequential walk of one step list. `prior` is what these steps may
+  // reference; returns the ids this list contributes.
+  const walkSequence = (steps: any[], prior: Set<string>, basePath: string): string[] => {
+    const contributed: string[] = [];
+
+    steps.forEach((step, idx) => {
+      const at = `${basePath}.${idx} (${step.id})`;
+      claimId(step.id, at);
+
+      if (!COMPILED_STEP_TYPES.has(step.type)) {
+        errors.push({ path: at, message: `step type "${step.type}" is not supported by the compiler yet` });
+        return;
+      }
+
+      if (step.type === 'branch') {
+        // Conditions must parse, and may only reference what exists BEFORE
+        // the branch.
+        const checkCondition = (when: string, condAt: string) => {
+          try {
+            const ast = parseExpr(when);
+            for (const ref of exprRefs(ast)) {
+              const problem = checkRef(ref, prior, bindingKeys);
+              if (problem) errors.push({ path: condAt, message: problem });
+            }
+          } catch (e: any) {
+            errors.push({ path: condAt, message: e?.message || 'condition failed to parse' });
+          }
+        };
+
+        const innerIds: string[] = [];
+        step.branches.forEach((b: any, bi: number) => {
+          checkCondition(b.when, `${at}.branches.${bi}.when`);
+          // Each arm sees the outer prior; arms are mutually exclusive so
+          // they never see each other.
+          innerIds.push(...walkSequence(b.steps, new Set(prior), `${at}.branches.${bi}.steps`));
+        });
+        if (step.else) {
+          innerIds.push(...walkSequence(step.else, new Set(prior), `${at}.else`));
+        }
+        // Steps AFTER the branch may reference arm outputs — the untaken
+        // arm's refs simply resolve to undefined at runtime.
+        innerIds.forEach((id) => prior.add(id));
+        prior.add(step.id);
+        contributed.push(step.id, ...innerIds);
+        return;
+      }
+
+      if (step.type === 'parallel') {
+        // Siblings run concurrently and must not reference each other.
+        const innerIds: string[] = [];
+        step.steps.forEach((s: any, si: number) => {
+          const sAt = `${at}.steps.${si} (${s.id})`;
+          claimId(s.id, sAt);
+          checkLeaf(s, sAt, prior);
+          innerIds.push(s.id);
+        });
+        innerIds.forEach((id) => prior.add(id));
+        prior.add(step.id);
+        contributed.push(step.id, ...innerIds);
+        return;
+      }
+
+      checkLeaf(step, at, prior);
+      prior.add(step.id);
+      contributed.push(step.id);
+    });
+
+    return contributed;
+  };
+
+  def.steps.forEach((step, idx) => {
+    if (step.type === 'end' && idx !== def.steps.length - 1) {
+      errors.push({
+        path: `steps.${idx} (${step.id})`,
+        message: 'an "end" step must be the last step',
+      });
+    }
   });
+
+  walkSequence(def.steps, new Set<string>(), 'steps');
 
   return errors.length ? { ok: false, errors } : { ok: true, errors: [], definition: def };
 }

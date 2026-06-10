@@ -94,6 +94,95 @@ const assert = (cond: any, msg: string) => {
     'failure carries the schema-violation error',
   );
 
+  // Branch + parallel on the REAL engine: first-match routing, arm-state
+  // unwrap, fan-out merge — the parts the Jest mock can only approximate.
+  const branchDefinition: WorkflowDefinition = {
+    trigger: { type: 'manual', config: {} },
+    policy: { mode: 'all', allowed: [] },
+    bindings: { judge: { kind: 'agent', id: 'agent-1' } },
+    limits: { maxLlmCalls: 10 },
+    steps: [
+      {
+        id: 'classify',
+        type: 'agent',
+        agentRef: 'judge',
+        prompt: '{{trigger.payload.text}}',
+        outputSchema: { intent: 'enum:order,question,complaint' },
+      },
+      {
+        id: 'route',
+        type: 'branch',
+        branches: [
+          {
+            when: "{{steps.classify.output.intent}} == 'order'",
+            steps: [{ id: 'createDeal', type: 'operation', operation: 'dealsAdd', args: { name: 'deal' } }],
+          },
+          {
+            when: "{{steps.classify.output.intent}} == 'complaint'",
+            steps: [{ id: 'createTicket', type: 'operation', operation: 'ticketsAdd', args: {} }],
+          },
+        ],
+        else: [{ id: 'logOther', type: 'operation', operation: 'logsAdd', args: {} }],
+      },
+      {
+        id: 'fan',
+        type: 'parallel',
+        steps: [
+          { id: 'fetchA', type: 'operation', operation: 'customers', args: {} },
+          { id: 'fetchB', type: 'operation', operation: 'companies', args: {} },
+        ],
+      },
+      {
+        id: 'done',
+        type: 'end',
+        output: {
+          taken: '{{steps.route.output.taken}}',
+          deal: '{{steps.createDeal.output._id}}',
+          a: '{{steps.fetchA.output.n}}',
+          b: '{{steps.fetchB.output.n}}',
+        },
+      },
+    ],
+  } as any;
+
+  const runBranch = async (intent: string) => {
+    const ops: string[] = [];
+    const bDeps: CompiledDeps = {
+      executeOperation: async (operation) => {
+        ops.push(operation);
+        return { _id: `${operation}-id`, n: operation.length };
+      },
+      runJudgment: async () => ({ intent }),
+    };
+    const bWf: any = compileDefinition(`smoke_branch_${intent}`, branchDefinition, bDeps);
+    const bRun = bWf.createRunAsync ? await bWf.createRunAsync() : await bWf.createRun();
+    const res = await bRun.start({
+      inputData: { trigger: buildManualEnvelope({ text: intent }, 'u1'), steps: {} },
+    });
+    return { res, ops };
+  };
+
+  const order = await runBranch('order');
+  assert(order.res.status === 'success', `branch run succeeds (status=${order.res.status})`);
+  assert(
+    order.ops.join(',') === 'dealsAdd,customers,companies' ||
+      order.ops.join(',') === 'dealsAdd,companies,customers',
+    `order intent took arm 0 then fanned out (ops=${order.ops.join(',')})`,
+  );
+  const orderOut = finalOutput(branchDefinition, order.res.result);
+  assert(orderOut?.taken?.endsWith('_route_b0'), `branch recorded the taken arm (${orderOut?.taken})`);
+  assert(orderOut?.deal === 'dealsAdd-id', 'post-branch steps read the arm output');
+  assert(
+    orderOut?.a === 'customers'.length && orderOut?.b === 'companies'.length,
+    'parallel members merged into shared state',
+  );
+
+  const question = await runBranch('question');
+  assert(
+    question.ops[0] === 'logsAdd',
+    `unmatched intent fell through to else (ops=${question.ops.join(',')})`,
+  );
+
   log('\nWorkflow kernel smoke test: ALL PASS');
   process.exit(0);
 })().catch((e) => {
