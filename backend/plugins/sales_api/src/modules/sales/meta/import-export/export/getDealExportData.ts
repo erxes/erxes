@@ -324,101 +324,100 @@ export async function getDealExportData(
     branches,
     departments,
     products,
-  ] =
-    await Promise.all([
-      needsRelations
-        ? fetchCoreArray({
-            subdomain,
-            module: 'relation',
-            action: 'filterRelations',
-            input: {
-              contentType: 'sales:deal',
-              contentIds: dealIds,
-              relatedContentType: 'core:customer',
+  ] = await Promise.all([
+    needsRelations
+      ? fetchCoreArray({
+          subdomain,
+          module: 'relation',
+          action: 'filterRelations',
+          input: {
+            contentType: 'sales:deal',
+            contentIds: dealIds,
+            relatedContentType: 'core:customer',
+          },
+          label: 'Customer relation',
+        })
+      : [],
+    needsRelations
+      ? fetchCoreArray({
+          subdomain,
+          module: 'relation',
+          action: 'filterRelations',
+          input: {
+            contentType: 'sales:deal',
+            contentIds: dealIds,
+            relatedContentType: 'core:company',
+          },
+          label: 'Company relation',
+        })
+      : [],
+    userIds.length
+      ? fetchCoreArray({
+          subdomain,
+          module: 'users',
+          input: {
+            query: { _id: { $in: userIds } },
+            limit: userIds.length,
+            fields: {
+              _id: 1,
+              email: 1,
+              username: 1,
+              employeeId: 1,
+              details: 1,
             },
-            label: 'Customer relation',
-          })
-        : [],
-      needsRelations
-        ? fetchCoreArray({
-            subdomain,
-            module: 'relation',
-            action: 'filterRelations',
-            input: {
-              contentType: 'sales:deal',
-              contentIds: dealIds,
-              relatedContentType: 'core:company',
-            },
-            label: 'Company relation',
-          })
-        : [],
-      userIds.length
-        ? fetchCoreArray({
-            subdomain,
-            module: 'users',
-            input: {
-              query: { _id: { $in: userIds } },
-              limit: userIds.length,
-              fields: {
-                _id: 1,
-                email: 1,
-                username: 1,
-                employeeId: 1,
-                details: 1,
-              },
-            },
-            label: 'Users',
-          })
-        : [],
-      tagIds.length
-        ? fetchCoreArray({
-            subdomain,
-            module: 'tags',
-            input: {
-              query: { _id: { $in: tagIds } },
-              limit: tagIds.length,
-              fields: { _id: 1, name: 1 },
-            },
-            label: 'Tags',
-          })
-        : [],
-      branchIds.length
-        ? fetchCoreArray({
-            subdomain,
-            module: 'branches',
-            input: {
-              query: { _id: { $in: branchIds } },
-              limit: branchIds.length,
-              fields: { _id: 1, title: 1 },
-            },
-            label: 'Branches',
-          })
-        : [],
-      departmentIds.length
-        ? fetchCoreArray({
-            subdomain,
-            module: 'departments',
-            input: {
-              query: { _id: { $in: departmentIds } },
-              limit: departmentIds.length,
-              fields: { _id: 1, title: 1 },
-            },
-            label: 'Departments',
-          })
-        : [],
-      productIds.length
-        ? fetchCoreArray({
-            subdomain,
-            module: 'products',
-            input: {
-              query: { _id: { $in: productIds } },
-              limit: productIds.length,
-              fields: { _id: 1, name: 1, code: 1 },
-            },
-            label: 'Products',
-          })
-        : [],
-    ]);
+          },
+          label: 'Users',
+        })
+      : [],
+    tagIds.length
+      ? fetchCoreArray({
+          subdomain,
+          module: 'tags',
+          input: {
+            query: { _id: { $in: tagIds } },
+            limit: tagIds.length,
+            fields: { _id: 1, name: 1 },
+          },
+          label: 'Tags',
+        })
+      : [],
+    branchIds.length
+      ? fetchCoreArray({
+          subdomain,
+          module: 'branches',
+          input: {
+            query: { _id: { $in: branchIds } },
+            limit: branchIds.length,
+            fields: { _id: 1, title: 1 },
+          },
+          label: 'Branches',
+        })
+      : [],
+    departmentIds.length
+      ? fetchCoreArray({
+          subdomain,
+          module: 'departments',
+          input: {
+            query: { _id: { $in: departmentIds } },
+            limit: departmentIds.length,
+            fields: { _id: 1, title: 1 },
+          },
+          label: 'Departments',
+        })
+      : [],
+    productIds.length
+      ? fetchCoreArray({
+          subdomain,
+          module: 'products',
+          input: {
+            query: { _id: { $in: productIds } },
+            limit: productIds.length,
+            fields: { _id: 1, name: 1, code: 1 },
+          },
+          label: 'Products',
+        })
+      : [],
+  ]);
   const relations = [...customerRelations, ...companyRelations];
 
   const { relationMap, customerIds, companyIds } = buildRelationMap(relations);

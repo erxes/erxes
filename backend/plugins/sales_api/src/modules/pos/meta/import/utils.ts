@@ -290,11 +290,11 @@ export const buildPosOrderDoc = async (
   const existingOrder = orderId
     ? await models.PosOrders.findOne({ _id: orderId }).lean()
     : number
-    ? await models.PosOrders.findOne({
-        number,
-        posToken: pos.token,
-      }).lean()
-    : null;
+      ? await models.PosOrders.findOne({
+          number,
+          posToken: pos.token,
+        }).lean()
+      : null;
   const resolvedOrderId = String(existingOrder?._id || orderId || nanoid());
   const items = rows.map((row) => {
     const product = resolveProduct(row, lookups);

@@ -99,9 +99,9 @@ export const WaitingScreen: React.FC<WaitingScreenProps> = ({ control }) => {
                 )}
               />
             </div>
-              ) : null
-            }
-          />
+          ) : null
+        }
+      />
     </div>
   );
 };
