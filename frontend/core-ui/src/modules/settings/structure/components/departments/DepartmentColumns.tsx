@@ -136,7 +136,7 @@ export const DepartmentColumns: ColumnDef<IDepartmentListItem>[] = [
     header: () => <RecordTable.InlineHead label="team member count" />,
     cell: ({ cell }) => {
       const { _id } = cell.row.original;
-      const count = cell.getValue() as number;
+      const count = Number(cell.getValue() ?? 0);
       return (
         <RecordTableInlineCell className="justify-center">
           <DepartmentMembersPopover departmentId={_id} count={count} />

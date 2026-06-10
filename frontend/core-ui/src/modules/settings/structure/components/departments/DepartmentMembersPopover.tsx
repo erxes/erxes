@@ -55,7 +55,7 @@ export const DepartmentMembersPopover = ({
 }) => {
   const [open, setOpen] = useState(false);
 
-  const { data, loading } = useQuery(GET_DEPARTMENT_MEMBERS, {
+  const { data, loading, error } = useQuery(GET_DEPARTMENT_MEMBERS, {
     variables: { id: departmentId },
     skip: !open,
   });
@@ -77,6 +77,10 @@ export const DepartmentMembersPopover = ({
           <div className="flex justify-center py-4">
             <Spinner />
           </div>
+        ) : error ? (
+          <p className="text-sm text-destructive px-3 py-4">
+            Failed to load members
+          </p>
         ) : members.length === 0 ? (
           <p className="text-sm text-muted-foreground px-3 py-4">No members</p>
         ) : (
