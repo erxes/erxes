@@ -20,7 +20,9 @@ import { SyncHistoryClickableColumnCell } from '~/modules/shared/sync-history/co
 
 const InlineCell = ({ value }: { value: unknown }) => (
   <RecordTableInlineCell>
-    <TextOverflowTooltip value={String(value || '')} />
+    <TextOverflowTooltip
+      value={typeof value === 'string' ? value : ''}
+    />
   </RecordTableInlineCell>
 );
 

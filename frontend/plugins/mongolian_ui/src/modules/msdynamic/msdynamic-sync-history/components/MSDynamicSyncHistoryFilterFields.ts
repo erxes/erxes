@@ -20,17 +20,10 @@ export type SyncHistoryFilterKey =
   | 'searchResponse'
   | 'searchError';
 
-export interface ISyncHistoryFilterValues {
-  [key: string]: string | number | null;
-  user: string | null;
-  dateRange: string | null;
-  contentType: string | number | null;
-  contentId: string | number | null;
-  searchConsume: string | number | null;
-  searchSend: string | number | null;
-  searchResponse: string | number | null;
-  searchError: string | number | null;
-}
+export type ISyncHistoryFilterValues = Record<
+  SyncHistoryFilterKey,
+  string | number | null
+>;
 
 export interface ISyncHistoryFilterField {
   key: SyncHistoryFilterKey;
