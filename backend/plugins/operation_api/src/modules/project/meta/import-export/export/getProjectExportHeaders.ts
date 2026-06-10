@@ -2,6 +2,7 @@ import {
     ImportHeaderDefinition,
   } from 'erxes-api-shared/core-modules';
   
+  /** Returns the list of column header definitions for the project export handler. */
   export function getProjectExportHeaders(): Promise<ImportHeaderDefinition[]> {
     return Promise.resolve([
       { label: 'Name', key: 'name', isDefault: true },
