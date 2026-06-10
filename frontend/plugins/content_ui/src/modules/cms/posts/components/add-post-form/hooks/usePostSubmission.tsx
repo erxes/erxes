@@ -259,7 +259,9 @@ const buildPostInput = (
   const videoPayload = normalizeAttachment(data.video ?? undefined);
   const audioPayload = normalizeAttachment(data.audio ?? undefined);
   const pdfPayload = normalizeAttachment(data.pdf ?? undefined);
-  const generatedSlug = editingPostId ? '' : createSlug(main.title);
+  const isEditing = Boolean(editingPostId);
+  const generatedSlug = isEditing ? '' : createSlug(main.title);
+  const shouldSetImages = isEditing || imagesPayload.length > 0;
   const slug = data.slug?.trim() || generatedSlug;
 
   return {
@@ -277,7 +279,7 @@ const buildPostInput = (
     autoArchiveDate: data.enableAutoArchive ? data.autoArchiveDate : undefined,
     excerpt: main.excerpt,
     thumbnail: normalizeAttachment(data.thumbnail ?? undefined),
-    images: imagesPayload.length ? imagesPayload : undefined,
+    images: shouldSetImages ? imagesPayload : undefined,
     video: videoPayload,
     videoUrl: data.videoUrl,
     audio: audioPayload,
