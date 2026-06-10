@@ -2,7 +2,7 @@ import { IModels } from '~/connectionResolvers';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { getTeamEstimateChoises } from '~/modules/team/utils';
 import { ITask, ITaskImportRow } from '../../../@types/task';
-import * as crypto from 'crypto';
+import { randomBytes } from 'crypto';
 
 const toArray = (val: any) => {
   if (!val) return [];
@@ -277,7 +277,7 @@ export async function prepareTaskDoc(
       description = rawDescription;
     } catch {
       const block = {
-        id: crypto.randomBytes(5).toString('hex'),
+        id: randomBytes(5).toString('hex'),
         type: 'paragraph',
         props: {
           textColor: 'default',

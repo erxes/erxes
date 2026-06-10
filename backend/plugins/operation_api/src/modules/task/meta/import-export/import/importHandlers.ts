@@ -35,7 +35,7 @@ const taskImportMap = {
 };
 
 export const taskImportHandlers = {
-  getImportHeaders: async (
+  getImportHeaders: (
     { collectionName }: { collectionName: string },
   ): Promise<TGetImportHeadersOutput> => {
     const handler =
@@ -43,7 +43,7 @@ export const taskImportHandlers = {
     if (!handler) {
       throw new Error(`Import headers handler not found for ${collectionName}`);
     }
-    return handler.headers;
+    return Promise.resolve(handler.headers);
   },
   insertImportRows: async (
     { collectionName, rows, userId }: TInsertImportRowsInput,

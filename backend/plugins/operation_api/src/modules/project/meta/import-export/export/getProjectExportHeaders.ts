@@ -2,8 +2,8 @@ import {
     ImportHeaderDefinition,
   } from 'erxes-api-shared/core-modules';
   
-  export async function getProjectExportHeaders(): Promise<ImportHeaderDefinition[]> {
-    return [
+  export function getProjectExportHeaders(): Promise<ImportHeaderDefinition[]> {
+    return Promise.resolve([
       { label: 'Name', key: 'name', isDefault: true },
       { label: 'Description', key: 'description' },
       { label: 'Status', key: 'status' },
@@ -16,5 +16,5 @@ import {
       { label: 'Members', key: 'members' },
       { label: 'Created By', key: 'createdBy' },
       { label: 'Created At', key: 'createdAt' },
-    ];
+    ]);
   }

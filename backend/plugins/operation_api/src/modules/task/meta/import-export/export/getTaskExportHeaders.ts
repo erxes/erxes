@@ -2,8 +2,8 @@ import {
     ImportHeaderDefinition,
   } from 'erxes-api-shared/core-modules';
   
-  export async function getTaskExportHeaders(): Promise<ImportHeaderDefinition[]> {
-    return [
+  export function getTaskExportHeaders(): Promise<ImportHeaderDefinition[]> {
+    return Promise.resolve([
       { label: 'Name', key: 'name', isDefault: true },
       { label: 'Description', key: 'description' },
       { label: 'Status', key: 'status' },
@@ -23,6 +23,6 @@ import {
       { label: 'Number', key: 'number' },
       { label: 'Status Type', key: 'statusType' },
       { label: 'Created At', key: 'createdAt' },
-    ];
+    ]);
   }
   
