@@ -1,3 +1,4 @@
+import path from 'path';
 import { redis, startPlugin } from 'erxes-api-shared/utils';
 import { Router } from 'express';
 import { typeDefs } from '~/apollo/typeDefs';
@@ -29,7 +30,7 @@ startPlugin({
     resolvers,
   }),
   hasSubscriptions: true,
-  subscriptionPluginPath: require('path').resolve(
+  subscriptionPluginPath: path.resolve(
     __dirname,
     'apollo',
     process.env.NODE_ENV === 'production'

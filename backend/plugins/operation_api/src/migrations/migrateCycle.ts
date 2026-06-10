@@ -94,6 +94,8 @@ const command = async () => {
         }
       }
 
+      console.log(`Updated ${updatedCount} tasks for Team ${team.name}`);
+
       const deleteRes = await COLLECTIONS.activities.deleteMany({
         module: 'CYCLE',
         action: 'CHANGED',

@@ -2,11 +2,37 @@ import { ITaskDocument } from '../../../@types/task';
 import { defaultTaskFieldFormatter, cleanDescription } from '../utils';
 
 
-const getDeepValue = (obj: any, path: string) => {
-  if (!path.includes('.')) return obj?.[path];
-  return path.split('.').reduce((acc, key) => (acc ? acc[key] : undefined), obj);
+/**
+ * Safely extracts a nested value from an object given a dot-notated string path.
+ * 
+ * @param obj - The object to traverse.
+ * @param path - The dot-notated path (e.g. "metadata.title").
+ * @returns The resolved value, or undefined if the path does not exist.
+ */
+const getDeepValue = (obj: unknown, path: string): unknown => {
+  if (!obj) {
+    return undefined;
+  }
+  if (!path.includes('.')) {
+    return (obj as Record<string, unknown>)[path];
+  }
+  return path.split('.').reduce<unknown>((acc, key) => {
+    if (typeof acc === 'object' && acc !== null) {
+      return (acc as Record<string, unknown>)[key];
+    }
+    return undefined;
+  }, obj);
 };
 
+/**
+ * Builds a formatted export row for a task document.
+ * 
+ * @param task - The task document.
+ * @param selectedFields - Optional list of fields to export.
+ * @param maps - Optional maps for resolving status, project, cycle, milestone, assignee, creator, team, tag, and label IDs to names.
+ * @param formatter - Formatting function for values.
+ * @returns Record of formatted values.
+ */
 export const buildTaskExportRow = (
   task: ITaskDocument & { number?: number },
   selectedFields?: string[],
@@ -22,7 +48,7 @@ export const buildTaskExportRow = (
     labelMap?: Map<string, string>;
   },
   formatter = defaultTaskFieldFormatter,
-): Record<string, any> => {
+): Record<string, string> => {
   const formatValue = formatter || defaultTaskFieldFormatter;
 
   const {
@@ -37,17 +63,23 @@ export const buildTaskExportRow = (
     labelMap,
   } = maps || {};
 
-  const formatTags = (tagIds?: any[]) => {
-    if (!tagIds || !tagIds.length) return '';
+  /** Resolves tag IDs to a comma-separated list of names. */
+  const formatTags = (tagIds?: string[]): string => {
+    if (!tagIds || !tagIds.length) {
+      return '';
+    }
     return tagIds.map((id) => tagMap?.get(String(id)) || String(id)).join(', ');
   };
 
-  const formatLabels = (labelIds?: any[]) => {
-    if (!labelIds || !labelIds.length) return '';
+  /** Resolves label IDs to a comma-separated list of names. */
+  const formatLabels = (labelIds?: string[]): string => {
+    if (!labelIds || !labelIds.length) {
+      return '';
+    }
     return labelIds.map((id) => labelMap?.get(String(id)) || String(id)).join(', ');
   };
 
-  const allFields: Record<string, any> = {
+  const allFields: Record<string, string> = {
     _id: formatValue(task._id),
     name: formatValue(task.name),
     description: formatValue(cleanDescription(task.description)),
@@ -75,7 +107,7 @@ export const buildTaskExportRow = (
   };
 
   if (selectedFields?.length) {
-    const result: Record<string, any> = { _id: String(task._id || '') };
+    const result: Record<string, string> = { _id: String(task._id || '') };
 
     for (const key of selectedFields) {
       if (key === 'description') result[key] = formatValue(cleanDescription(task.description));

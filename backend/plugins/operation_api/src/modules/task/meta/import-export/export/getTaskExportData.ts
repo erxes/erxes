@@ -328,8 +328,7 @@ async function resolveTaskEntityMaps(
   milestoneMap: Map<string, string>; cycleMap: Map<string, string>; assigneeMap: Map<string, string>;
   creatorMap: Map<string, string>; tagMap: Map<string, string>; labelMap: Map<string, string>;
 }> {
-  const { Task: _Task, ...rest } = models;
-  const { Team, Status, Project, Milestone, Cycle } = rest;
+  const { Team, Status, Project, Milestone, Cycle } = models;
 
   /** Fetches users from the core plugin using the provided user IDs. */
   const fetchUsers = (userIds: Set<string>) =>

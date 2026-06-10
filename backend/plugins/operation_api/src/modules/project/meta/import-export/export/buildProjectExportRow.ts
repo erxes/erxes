@@ -2,11 +2,37 @@ import { IProjectDocument } from '../../../@types/project';
 import { defaultProjectFieldFormatter, cleanDescription } from '../utils';
 
 
-const getDeepValue = (obj: any, path: string) => {
-  if (!path.includes('.')) return obj?.[path];
-  return path.split('.').reduce((acc, key) => (acc ? acc[key] : undefined), obj);
+/**
+ * Safely extracts a nested value from an object given a dot-notated string path.
+ * 
+ * @param obj - The object to traverse.
+ * @param path - The dot-notated path (e.g. "metadata.title").
+ * @returns The resolved value, or undefined if the path does not exist.
+ */
+const getDeepValue = (obj: unknown, path: string): unknown => {
+  if (!obj) {
+    return undefined;
+  }
+  if (!path.includes('.')) {
+    return (obj as Record<string, unknown>)[path];
+  }
+  return path.split('.').reduce<unknown>((acc, key) => {
+    if (typeof acc === 'object' && acc !== null) {
+      return (acc as Record<string, unknown>)[key];
+    }
+    return undefined;
+  }, obj);
 };
 
+/**
+ * Builds a formatted export row for a project document.
+ * 
+ * @param project - The project document.
+ * @param selectedFields - Optional list of fields to export.
+ * @param maps - Optional maps for resolving status, team, lead, members, creator, and tag IDs to names.
+ * @param formatter - Formatting function for values.
+ * @returns Record of formatted values.
+ */
 export const buildProjectExportRow = (
   project: IProjectDocument,
   selectedFields?: string[],
@@ -19,7 +45,7 @@ export const buildProjectExportRow = (
     tagMap?: Map<string, string>;
   },
   formatter = defaultProjectFieldFormatter,
-): Record<string, any> => {
+): Record<string, string> => {
   const formatValue = formatter || defaultProjectFieldFormatter;
 
   const {
@@ -31,22 +57,31 @@ export const buildProjectExportRow = (
     tagMap,
   } = maps || {};
 
-  const formatTeams = (teamIds?: any[]) => {
-    if (!teamIds || !teamIds.length) return '';
+  /** Resolves team IDs to a comma-separated list of names. */
+  const formatTeams = (teamIds?: string[]): string => {
+    if (!teamIds || !teamIds.length) {
+      return '';
+    }
     return teamIds.map(id => teamMap?.get(String(id)) || String(id)).join(', ');
   };
 
-  const formatMembers = (memberIds?: any[]) => {
-    if (!memberIds || !memberIds.length) return '';
+  /** Resolves member IDs to a comma-separated list of names. */
+  const formatMembers = (memberIds?: string[]): string => {
+    if (!memberIds || !memberIds.length) {
+      return '';
+    }
     return memberIds.map(id => membersMap?.get(String(id)) || String(id)).join(', ');
   };
 
-  const formatTags = (tagIds?: any[]) => {
-    if (!tagIds || !tagIds.length) return '';
+  /** Resolves tag IDs to a comma-separated list of names. */
+  const formatTags = (tagIds?: string[]): string => {
+    if (!tagIds || !tagIds.length) {
+      return '';
+    }
     return tagIds.map(id => tagMap?.get(String(id)) || String(id)).join(', ');
   };
 
-  const allFields: Record<string, any> = {
+  const allFields: Record<string, string> = {
     _id: formatValue(project._id),
     name: formatValue(project.name),
     description: formatValue(cleanDescription(project.description)),
@@ -63,7 +98,7 @@ export const buildProjectExportRow = (
   };
 
   if (selectedFields?.length) {
-    const result: Record<string, any> = { _id: String(project._id || '') };
+    const result: Record<string, string> = { _id: String(project._id || '') };
 
     for (const key of selectedFields) {
       if (key === 'description') {
