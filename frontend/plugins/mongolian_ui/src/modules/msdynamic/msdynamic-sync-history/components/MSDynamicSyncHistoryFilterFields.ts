@@ -51,16 +51,6 @@ export const SYNC_HISTORY_FILTER_KEYS: SyncHistoryFilterKey[] = [
 
 export const TEXT_FILTER_FIELDS: ISyncHistoryFilterField[] = [
   {
-    key: 'contentType',
-    label: 'Content Type',
-    Icon: IconTag,
-  },
-  {
-    key: 'contentId',
-    label: 'Content ID',
-    Icon: IconHash,
-  },
-  {
     key: 'searchConsume',
     label: 'Search Consume',
     Icon: IconDownload,
@@ -92,5 +82,15 @@ export const PRIMARY_FILTER_FIELDS: ISyncHistoryFilterField[] = [
     key: 'dateRange',
     label: 'Date Range',
     Icon: IconCalendar,
+  },
+  {
+    key: 'contentType',
+    label: 'Content Type',
+    Icon: IconTag,
+  },
+  {
+    key: 'contentId',
+    label: 'Content ID',
+    Icon: IconHash,
   },
 ];

@@ -1,5 +1,5 @@
 import { Button, Separator } from 'erxes-ui';
-import { IconBuildingStore } from '@tabler/icons-react';
+import { IconSandbox } from '@tabler/icons-react';
 import { useLocation } from 'react-router-dom';
 import { MSDYNAMIC_ROUTES } from './MSDynamicRoutes';
 
@@ -8,7 +8,7 @@ export const MSDynamicBreadCrumb = () => {
   return (
     <>
       <Button variant="ghost" className="font-semibold">
-        <IconBuildingStore className="w-4 h-4 mr-2" />
+        <IconSandbox className="w-4 h-4 mr-1.5" />
         MSDynamic
       </Button>
       <Separator.Inline />

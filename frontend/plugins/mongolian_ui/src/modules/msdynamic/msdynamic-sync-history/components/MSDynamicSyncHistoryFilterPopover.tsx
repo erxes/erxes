@@ -72,7 +72,14 @@ export const MSDynamicSyncHistoryFilterPopover = () => {
               />
               <Command.List className="p-1">
                 {PRIMARY_FILTER_FIELDS.map((field) => (
-                  <SyncHistoryFilterItem key={field.key} field={field} />
+                  <SyncHistoryFilterItem
+                    key={field.key}
+                    field={field}
+                    inDialog={
+                      field.key === 'contentType' ||
+                      field.key === 'contentId'
+                    }
+                  />
                 ))}
                 <Command.Separator className="my-1" />
                 {TEXT_FILTER_FIELDS.map((field) => (
@@ -105,6 +112,12 @@ export const MSDynamicSyncHistoryFilterPopover = () => {
       <Filter.Dialog>
         <Filter.View filterKey="dateRange" inDialog>
           <Filter.DialogDateView filterKey="dateRange" />
+        </Filter.View>
+        <Filter.View filterKey="contentType" inDialog>
+          <Filter.DialogStringView filterKey="contentType" />
+        </Filter.View>
+        <Filter.View filterKey="contentId" inDialog>
+          <Filter.DialogStringView filterKey="contentId" />
         </Filter.View>
         {TEXT_FILTER_FIELDS.map((field) => (
           <SyncHistoryTextDialogView key={field.key} field={field} />

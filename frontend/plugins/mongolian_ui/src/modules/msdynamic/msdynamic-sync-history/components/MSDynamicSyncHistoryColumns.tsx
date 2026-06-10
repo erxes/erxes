@@ -12,10 +12,8 @@ import {
   RecordTableInlineCell,
   RelativeDateDisplay,
   TextOverflowTooltip,
-  cn,
 } from 'erxes-ui';
 import { IMSDynamicSyncHistory } from '../types/msDynamicSyncHistory';
-import { useSearchParams } from 'react-router';
 import { MSDynamicSyncHistoryMoreColumn } from './MSDynamicSyncHistoryMoreColumn';
 import { stringifySyncValueInline } from './stringifySyncValue';
 import { SyncHistoryClickableColumnCell } from '~/modules/shared/sync-history/components/SyncHistoryClickableColumnCell';
