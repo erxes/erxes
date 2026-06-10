@@ -85,7 +85,7 @@ export async function applyGraphqlLimiters(app: Express) {
   });
 
   app.use(
-    '/graphql',
+    ['/graphql', '//graphql'],
     (req, res, next) => {
       const startedAt = Date.now();
       debugLimiter(req, 'enter');

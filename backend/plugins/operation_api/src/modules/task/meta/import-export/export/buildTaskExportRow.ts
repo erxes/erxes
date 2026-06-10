@@ -110,17 +110,11 @@ export const buildTaskExportRow = (
     const result: Record<string, string> = { _id: String(task._id || '') };
 
     for (const key of selectedFields) {
-      if (key === 'description') result[key] = formatValue(cleanDescription(task.description));
-      else if (key === 'status') result[key] = formatValue(statusMap?.get(String(task.status)) || task.status);
-      else if (key === 'team') result[key] = formatValue(teamMap?.get(String(task.teamId)) || task.teamId);
-      else if (key === 'labels') result[key] = formatValue(formatLabels(task.labelIds));
-      else if (key === 'tags') result[key] = formatValue(formatTags(task.tagIds));
-      else if (key === 'assignee') result[key] = formatValue(assigneeMap?.get(String(task.assigneeId)) || task.assigneeId);
-      else if (key === 'createdBy') result[key] = formatValue(creatorMap?.get(String(task.createdBy)) || task.createdBy);
-      else if (key === 'project') result[key] = formatValue(projectMap?.get(String(task.projectId)) || task.projectId);
-      else if (key === 'cycle') result[key] = formatValue(cycleMap?.get(String(task.cycleId)) || task.cycleId);
-      else if (key === 'milestone') result[key] = formatValue(milestoneMap?.get(String(task.milestoneId)) || task.milestoneId);
-      else result[key] = formatValue(getDeepValue(task, key));
+      if (key in allFields) {
+        result[key] = allFields[key];
+      } else {
+        result[key] = formatValue(getDeepValue(task, key));
+      }
     }
 
     return result;

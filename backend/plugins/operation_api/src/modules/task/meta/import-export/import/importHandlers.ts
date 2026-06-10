@@ -60,6 +60,6 @@ export const taskImportHandlers = {
     if (!subdomain) {
       throw new Error('Subdomain not available in context');
     }
-    return handler.processRows(models, rows, userId, subdomain);
+    return await handler.processRows(models, rows, userId, subdomain);
   },
 };

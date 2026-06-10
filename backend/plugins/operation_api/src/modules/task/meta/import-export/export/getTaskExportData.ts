@@ -4,10 +4,9 @@ import {
   buildExportCursorQuery,
   normalizeExportLimit,
 } from 'erxes-api-shared/core-modules';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { sendTRPCMessage, escapeRegExp } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { buildTaskExportRow } from './buildTaskExportRow';
-import { escapeRegExp } from 'erxes-api-shared/utils';
 import { STATUS_TYPES } from '@/status/constants/types';
 import { ITaskDocument, ITaskFilter, CycleFilterType } from '../../../@types/task';
 import mongoose, { FilterQuery } from 'mongoose';

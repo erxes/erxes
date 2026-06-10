@@ -101,20 +101,8 @@ export const buildProjectExportRow = (
     const result: Record<string, string> = { _id: String(project._id || '') };
 
     for (const key of selectedFields) {
-      if (key === 'description') {
-        result[key] = formatValue(cleanDescription(project.description));
-      } else if (key === 'status') {
-        result[key] = formatValue(statusMap?.get(String(project.status)) || project.status);
-      } else if (key === 'teams') {
-        result[key] = formatValue(formatTeams(project.teamIds));
-      } else if (key === 'tags') {
-        result[key] = formatValue(formatTags(project.tagIds));
-      } else if (key === 'lead') {
-        result[key] = formatValue(leadMap?.get(String(project.leadId)) || project.leadId);
-      } else if (key === 'members') {
-        result[key] = formatValue(formatMembers(project.memberIds));
-      } else if (key === 'createdBy') {
-        result[key] = formatValue(creatorMap?.get(String(project.createdBy)) || project.createdBy);
+      if (key in allFields) {
+        result[key] = allFields[key];
       } else {
         result[key] = formatValue(getDeepValue(project, key));
       }

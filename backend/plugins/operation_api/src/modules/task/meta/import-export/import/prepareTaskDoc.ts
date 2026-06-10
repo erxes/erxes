@@ -5,6 +5,13 @@ import { ITask, ITaskImportRow } from '../../../@types/task';
 import { ITeam } from '~/modules/team/@types/team';
 import { randomBytes } from 'crypto';
 
+/**
+ * Safely parses and converts a raw value to a string array.
+ * Delimited string values (by comma or semicolon) will be split.
+ * 
+ * @param val - The raw value to parse.
+ * @returns An array of string tokens.
+ */
 const toArray = (val: unknown): string[] => {
   if (!val) return [];
   if (Array.isArray(val)) return val.map(String);
@@ -17,130 +24,167 @@ const toArray = (val: unknown): string[] => {
   return [String(val).trim()];
 };
 
-export async function prepareTaskDoc(
+/**
+ * Resolves the team document by name or ID.
+ */
+async function resolveImportTeam(
   models: IModels,
   row: ITaskImportRow,
-  subdomain: string,
-): Promise<ITask> {
-  const errors: string[] = [];
-
-  const name = row.name || row.Name || '';
-  if (!name) {
-    errors.push('Name is required');
-  }
-
+  errors: string[],
+): Promise<(ITeam & { _id: string }) | null> {
   const teamValue = row.team || row.Team || '';
-  let team: (ITeam & { _id: string }) | null = null;
   if (!teamValue) {
     errors.push('Team is required');
+    return null;
+  }
+  const teamQuery: Record<string, unknown> = {};
+  if (typeof teamValue === 'string' && teamValue.match(/^[0-9a-fA-F]{24}$/)) {
+    teamQuery._id = teamValue;
   } else {
-    const teamQuery: any = {};
-    if (typeof teamValue === 'string' && teamValue.match(/^[0-9a-fA-F]{24}$/)) {
-      teamQuery._id = teamValue;
-    } else {
-      teamQuery.name = teamValue;
-    }
-    team = await models.Team.findOne(teamQuery).lean();
-    if (!team) {
-      errors.push(`Team not found: "${teamValue}"`);
-    }
+    teamQuery.name = teamValue;
   }
+  const team = (await models.Team.findOne(teamQuery).lean()) as (ITeam & { _id: string }) | null;
+  if (!team) {
+    errors.push(`Team not found: "${teamValue}"`);
+  }
+  return team;
+}
 
-  let projectId;
+/**
+ * Resolves the project ID for the task.
+ */
+async function resolveImportProject(
+  models: IModels,
+  row: ITaskImportRow,
+  team: (ITeam & { _id: string }) | null,
+  errors: string[],
+): Promise<string | undefined> {
   const projectValue = row.project || row.Project || '';
-  if (projectValue) {
-    const projectQuery: any = {};
-    if (typeof projectValue === 'string' && projectValue.match(/^[0-9a-fA-F]{24}$/)) {
-      projectQuery._id = projectValue;
-    } else {
-      projectQuery.name = projectValue;
-    }
-    const project = await models.Project.findOne(projectQuery).lean();
-    if (!project) {
-      errors.push(`Project not found: "${projectValue}"`);
-    } else {
-      if (team && project.teamIds && !project.teamIds.map(String).includes(String(team._id))) {
-        errors.push(`Team "${team.name}" is not associated with Project "${project.name}"`);
-      }
-      projectId = project._id;
-    }
+  if (!projectValue) {
+    return undefined;
   }
+  const projectQuery: Record<string, unknown> = {};
+  if (typeof projectValue === 'string' && projectValue.match(/^[0-9a-fA-F]{24}$/)) {
+    projectQuery._id = projectValue;
+  } else {
+    projectQuery.name = projectValue;
+  }
+  const project = await models.Project.findOne(projectQuery).lean();
+  if (!project) {
+    errors.push(`Project not found: "${projectValue}"`);
+    return undefined;
+  }
+  if (team && project.teamIds && !project.teamIds.map(String).includes(String(team._id))) {
+    errors.push(`Team "${team.name}" is not associated with Project "${project.name}"`);
+  }
+  return String(project._id);
+}
 
-  let statusId;
+/**
+ * Resolves the status ID for the task, falling back to the team's default backlog status if none is specified.
+ */
+async function resolveImportStatus(
+  models: IModels,
+  row: ITaskImportRow,
+  team: (ITeam & { _id: string }) | null,
+  errors: string[],
+): Promise<string | undefined> {
+  if (!team) {
+    return undefined;
+  }
   const statusValue = row.status || row.Status || '';
-  if (team) {
-    if (statusValue) {
-      const statusQuery: any = { teamId: team._id };
-      if (typeof statusValue === 'string' && statusValue.match(/^[0-9a-fA-F]{24}$/)) {
-        statusQuery._id = statusValue;
-      } else {
-        statusQuery.name = statusValue;
-      }
-      const statusDoc = await models.Status.findOne(statusQuery).lean();
-      if (statusDoc) {
-        statusId = statusDoc._id;
-      } else {
-        errors.push(`Status not found: "${statusValue}" for Team "${team.name}"`);
-      }
+  let statusId: string | undefined;
+  if (statusValue) {
+    const statusQuery: Record<string, unknown> = { teamId: team._id };
+    if (typeof statusValue === 'string' && statusValue.match(/^[0-9a-fA-F]{24}$/)) {
+      statusQuery._id = statusValue;
+    } else {
+      statusQuery.name = statusValue;
     }
-
-    if (!statusId) {
-      // Find default backlog status of the team
-      const defaultStatus = await models.Status.findOne({
-        teamId: team._id,
-      }).sort({ order: 1 }).lean();
-      if (!defaultStatus) {
-        errors.push(`No statuses configured for Team "${team.name}"`);
-      } else {
-        statusId = defaultStatus._id;
-      }
+    const statusDoc = await models.Status.findOne(statusQuery).lean();
+    if (statusDoc) {
+      statusId = String(statusDoc._id);
+    } else {
+      errors.push(`Status not found: "${statusValue}" for Team "${team.name}"`);
     }
   }
 
-  let assigneeId;
+  if (!statusId) {
+    // Find default backlog status of the team
+    const defaultStatus = await models.Status.findOne({
+      teamId: team._id,
+    }).sort({ order: 1 }).lean();
+    if (!defaultStatus) {
+      errors.push(`No statuses configured for Team "${team.name}"`);
+    } else {
+      statusId = String(defaultStatus._id);
+    }
+  }
+  return statusId;
+}
+
+/**
+ * Resolves the assignee ID for the task using the core users service.
+ */
+async function resolveImportAssignee(
+  subdomain: string,
+  row: ITaskImportRow,
+  errors: string[],
+): Promise<string | undefined> {
   const assigneeValue = row.assignee || row.Assignee || '';
-  if (assigneeValue) {
-    const userOrFilters: any[] = [
-      { email: assigneeValue },
-      { username: assigneeValue },
-      { 'details.fullName': assigneeValue },
-    ];
-    if (typeof assigneeValue === 'string' && assigneeValue.match(/^[0-9a-fA-F]{24}$/)) {
-      userOrFilters.push({ _id: assigneeValue });
-    }
-
-    try {
-      const user = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'users',
-        action: 'findOne',
-        input: {
-          query: {
-            $or: userOrFilters,
-          },
-        },
-      });
-
-      if (user) {
-        assigneeId = user._id;
-      } else {
-        errors.push(`Assignee not found: "${assigneeValue}"`);
-      }
-    } catch (err) {
-      errors.push(
-        `Failed to resolve assignee "${assigneeValue}": ${
-          err instanceof Error ? err.message : String(err)
-        }`,
-      );
-    }
+  if (!assigneeValue) {
+    return undefined;
+  }
+  const userOrFilters: Record<string, unknown>[] = [
+    { email: assigneeValue },
+    { username: assigneeValue },
+    { 'details.fullName': assigneeValue },
+  ];
+  if (typeof assigneeValue === 'string' && assigneeValue.match(/^[0-9a-fA-F]{24}$/)) {
+    userOrFilters.push({ _id: assigneeValue });
   }
 
-  let cycleId;
+  try {
+    const user: unknown = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'users',
+      action: 'findOne',
+      input: {
+        query: {
+          $or: userOrFilters,
+        },
+      },
+    });
+
+    if (user && typeof user === 'object' && '_id' in user) {
+      return String((user as { _id: unknown })._id);
+    } else {
+      errors.push(`Assignee not found: "${assigneeValue}"`);
+    }
+  } catch (err) {
+    errors.push(
+      `Failed to resolve assignee "${assigneeValue}": ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+    );
+  }
+  return undefined;
+}
+
+/**
+ * Resolves the cycle ID for the task.
+ */
+async function resolveImportCycle(
+  models: IModels,
+  row: ITaskImportRow,
+  team: (ITeam & { _id: string }) | null,
+  errors: string[],
+): Promise<string | undefined> {
   const cycleValue = row.cycle || row.Cycle || '';
   if (cycleValue && team) {
-    const cycleQuery: any = { teamId: team._id };
+    const cycleQuery: Record<string, unknown> = { teamId: team._id };
     if (typeof cycleValue === 'string' && cycleValue.match(/^[0-9a-fA-F]{24}$/)) {
       cycleQuery._id = cycleValue;
     } else {
@@ -148,16 +192,25 @@ export async function prepareTaskDoc(
     }
     const cycle = await models.Cycle.findOne(cycleQuery).lean();
     if (cycle) {
-      cycleId = cycle._id;
+      return String(cycle._id);
     } else {
       errors.push(`Cycle not found: "${cycleValue}" for Team "${team.name}"`);
     }
   }
+  return undefined;
+}
 
-  let milestoneId;
+/**
+ * Resolves the milestone ID for the task.
+ */
+async function resolveImportMilestone(
+  models: IModels,
+  row: ITaskImportRow,
+  errors: string[],
+): Promise<string | undefined> {
   const milestoneValue = row.milestone || row.Milestone || '';
   if (milestoneValue) {
-    const milestoneQuery: any = {};
+    const milestoneQuery: Record<string, unknown> = {};
     if (typeof milestoneValue === 'string' && milestoneValue.match(/^[0-9a-fA-F]{24}$/)) {
       milestoneQuery._id = milestoneValue;
     } else {
@@ -165,12 +218,21 @@ export async function prepareTaskDoc(
     }
     const milestone = await models.Milestone.findOne(milestoneQuery).lean();
     if (milestone) {
-      milestoneId = milestone._id;
+      return String(milestone._id);
     } else {
       errors.push(`Milestone not found: "${milestoneValue}"`);
     }
   }
+  return undefined;
+}
 
+/**
+ * Resolves the priority level from number or text name.
+ */
+function resolveImportPriority(
+  row: ITaskImportRow,
+  errors: string[],
+): number {
   let priority = 0;
   const priorityValue = row.priority || row.Priority || '';
   if (priorityValue !== undefined && priorityValue !== null && priorityValue !== '') {
@@ -192,7 +254,17 @@ export async function prepareTaskDoc(
       }
     }
   }
+  return priority;
+}
 
+/**
+ * Resolves the estimate points based on team configuration.
+ */
+async function resolveImportEstimatePoint(
+  team: (ITeam & { _id: string }) | null,
+  row: ITaskImportRow,
+  errors: string[],
+): Promise<number> {
   let estimatePoint = 0;
   const estimatePointValue = row.estimatePoint || row['Estimate Point'] || '';
   if (estimatePointValue !== undefined && estimatePointValue !== null && estimatePointValue !== '') {
@@ -241,9 +313,17 @@ export async function prepareTaskDoc(
       }
     }
   }
+  return estimatePoint;
+}
 
-  // Dates
-  let startDate;
+/**
+ * Resolves and validates start and target dates.
+ */
+function resolveImportDates(
+  row: ITaskImportRow,
+  errors: string[],
+): { startDate?: Date; targetDate?: Date } {
+  let startDate: Date | undefined;
   const startDateValue = row.startDate || row['Start Date'] || '';
   if (startDateValue) {
     const d = new Date(startDateValue);
@@ -254,7 +334,7 @@ export async function prepareTaskDoc(
     }
   }
 
-  let targetDate;
+  let targetDate: Date | undefined;
   const targetDateValue = row.targetDate || row['Target Date'] || '';
   if (targetDateValue) {
     const d = new Date(targetDateValue);
@@ -269,43 +349,57 @@ export async function prepareTaskDoc(
     errors.push('Target Date must be after Start Date');
   }
 
-  // Convert plain text description to BlockNote JSON format if not already valid JSON
-  const rawDescription = row.description || row.Description || '';
-  let description = '';
-  if (rawDescription) {
-    try {
-      JSON.parse(rawDescription);
-      description = rawDescription;
-    } catch {
-      const block = {
-        id: randomBytes(5).toString('hex'),
-        type: 'paragraph',
-        props: {
-          textColor: 'default',
-          backgroundColor: 'default',
-          textAlignment: 'left',
-        },
-        content: [
-          {
-            type: 'text',
-            text: rawDescription,
-            styles: {},
-          },
-        ],
-        children: [],
-      };
-      description = JSON.stringify([block]);
-    }
-  }
+  return { startDate, targetDate };
+}
 
-  // Resolve Tags (Optional)
+/**
+ * Formats task description into BlockNote JSON format if not already valid JSON.
+ */
+function resolveImportDescription(row: ITaskImportRow): string {
+  const rawDescription = row.description || row.Description || '';
+  if (!rawDescription) {
+    return '';
+  }
+  try {
+    JSON.parse(rawDescription);
+    return rawDescription;
+  } catch {
+    const block = {
+      id: randomBytes(5).toString('hex'),
+      type: 'paragraph',
+      props: {
+        textColor: 'default',
+        backgroundColor: 'default',
+        textAlignment: 'left',
+      },
+      content: [
+        {
+          type: 'text',
+          text: rawDescription,
+          styles: {},
+        },
+      ],
+      children: [],
+    };
+    return JSON.stringify([block]);
+  }
+}
+
+/**
+ * Resolves tag names or IDs to their corresponding tag document IDs.
+ */
+async function resolveImportTags(
+  subdomain: string,
+  row: ITaskImportRow,
+  errors: string[],
+): Promise<string[]> {
   let tagIds: string[] = [];
   const tagsValue = row.tags || row.Tags || '';
   if (tagsValue) {
     const tagNamesOrIds = toArray(tagsValue);
     if (tagNamesOrIds.length) {
       try {
-        const fetchedTags = await sendTRPCMessage({
+        const fetchedTags: unknown = await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
           method: 'query',
@@ -322,10 +416,25 @@ export async function prepareTaskDoc(
           },
         });
         if (fetchedTags && Array.isArray(fetchedTags)) {
-          tagIds = fetchedTags.map((tag) => String(tag._id));
+          tagIds = fetchedTags.map((tag: unknown) => {
+            if (tag && typeof tag === 'object' && '_id' in tag) {
+              return String((tag as { _id: unknown })._id);
+            }
+            return '';
+          }).filter(Boolean);
           if (tagIds.length < tagNamesOrIds.length) {
-            const resolvedNames = fetchedTags.map((t) => t.name);
-            const resolvedIds = fetchedTags.map((t) => t._id);
+            const resolvedNames = fetchedTags.map((t: unknown) => {
+              if (t && typeof t === 'object' && 'name' in t) {
+                return String((t as { name: unknown }).name);
+              }
+              return '';
+            }).filter(Boolean);
+            const resolvedIds = fetchedTags.map((t: unknown) => {
+              if (t && typeof t === 'object' && '_id' in t) {
+                return String((t as { _id: unknown })._id);
+              }
+              return '';
+            }).filter(Boolean);
             const missing = tagNamesOrIds.filter(
               (item) => !resolvedNames.includes(item) && !resolvedIds.includes(item)
             );
@@ -343,15 +452,24 @@ export async function prepareTaskDoc(
       }
     }
   }
+  return tagIds;
+}
 
-  // Resolve Labels (Optional)
+/**
+ * Resolves pipeline label names or IDs to label document IDs.
+ */
+async function resolveImportLabels(
+  subdomain: string,
+  row: ITaskImportRow,
+  errors: string[],
+): Promise<string[]> {
   let labelIds: string[] = [];
   const labelsValue = row.labels || row.Labels || '';
   if (labelsValue) {
     const labelNamesOrIds = toArray(labelsValue);
     if (labelNamesOrIds.length) {
       try {
-        const fetchedLabels = await sendTRPCMessage({
+        const fetchedLabels: unknown = await sendTRPCMessage({
           subdomain,
           pluginName: 'sales',
           method: 'query',
@@ -365,10 +483,25 @@ export async function prepareTaskDoc(
           },
         });
         if (fetchedLabels && Array.isArray(fetchedLabels)) {
-          labelIds = fetchedLabels.map((lbl) => String(lbl._id));
+          labelIds = fetchedLabels.map((lbl: unknown) => {
+            if (lbl && typeof lbl === 'object' && '_id' in lbl) {
+              return String((lbl as { _id: unknown })._id);
+            }
+            return '';
+          }).filter(Boolean);
           if (labelIds.length < labelNamesOrIds.length) {
-            const resolvedNames = fetchedLabels.map((l) => l.name);
-            const resolvedIds = fetchedLabels.map((l) => l._id);
+            const resolvedNames = fetchedLabels.map((l: unknown) => {
+              if (l && typeof l === 'object' && 'name' in l) {
+                return String((l as { name: unknown }).name);
+              }
+              return '';
+            }).filter(Boolean);
+            const resolvedIds = fetchedLabels.map((l: unknown) => {
+              if (l && typeof l === 'object' && '_id' in l) {
+                return String((l as { _id: unknown })._id);
+              }
+              return '';
+            }).filter(Boolean);
             const missing = labelNamesOrIds.filter(
               (item) => !resolvedNames.includes(item) && !resolvedIds.includes(item)
             );
@@ -386,17 +519,51 @@ export async function prepareTaskDoc(
       }
     }
   }
+  return labelIds;
+}
+
+/**
+ * Prepares and validates a task document from a raw import row.
+ * 
+ * @param models - Mongoose database models connection resolver.
+ * @param row - The raw task import row data.
+ * @param subdomain - Subdomain tenant identifier.
+ * @returns The prepared task document.
+ */
+export async function prepareTaskDoc(
+  models: IModels,
+  row: ITaskImportRow,
+  subdomain: string,
+): Promise<ITask> {
+  const errors: string[] = [];
+
+  const name = row.name || row.Name || '';
+  if (!name) {
+    errors.push('Name is required');
+  }
+
+  const team = await resolveImportTeam(models, row, errors);
+  const projectId = await resolveImportProject(models, row, team, errors);
+  const statusId = await resolveImportStatus(models, row, team, errors);
+  const assigneeId = await resolveImportAssignee(subdomain, row, errors);
+  const cycleId = await resolveImportCycle(models, row, team, errors);
+  const milestoneId = await resolveImportMilestone(models, row, errors);
+  const priority = resolveImportPriority(row, errors);
+  const estimatePoint = await resolveImportEstimatePoint(team, row, errors);
+  const { startDate, targetDate } = resolveImportDates(row, errors);
+  const description = resolveImportDescription(row);
+  const tagIds = await resolveImportTags(subdomain, row, errors);
+  const labelIds = await resolveImportLabels(subdomain, row, errors);
 
   if (errors.length > 0) {
     throw new Error(errors.join(' | '));
   }
 
-  // Build task document
   return {
     name,
     description,
     status: statusId,
-    teamId: team?._id,
+    teamId: team ? team._id : '',
     priority,
     estimatePoint,
     ...(assigneeId && { assigneeId }),

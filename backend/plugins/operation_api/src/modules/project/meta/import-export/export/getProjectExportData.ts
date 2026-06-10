@@ -30,32 +30,21 @@ const handleDateFilter = (
   filterQuery[fieldName] = { $lte: new Date(stringValue) };
 };
 
-/** Builds the base Mongoose query filter from the project export parameters. */
-async function buildProjectQuery(
-  models: IModels,
-  filter: GetExportData & {
+/** Applies basic text, status, priority, and date range filters to a project query. */
+function applyBasicProjectFilters(
+  query: FilterQuery<IProjectDocument>,
+  andFilters: FilterQuery<IProjectDocument>[],
+  filter: {
+    _ids?: string[];
+    name?: string;
     search?: string;
-    active?: boolean;
-    taskId?: string;
-    userId?: string;
-    memberId?: string;
-    memberIds?: string[];
-    leadId?: string;
+    status?: number;
+    priority?: number;
     startDate?: string | Date;
     targetDate?: string | Date;
-    priority?: number;
-    status?: number;
-    name?: string;
-    _ids?: string[];
-    tagIds?: string[];
-    teamIds?: string[];
   },
-): Promise<FilterQuery<IProjectDocument>> {
-  const { TeamMember } = models;
-  const query: FilterQuery<IProjectDocument> = {};
-  const andFilters: FilterQuery<IProjectDocument>[] = [];
-
-  if (filter._ids && filter._ids.length) {
+): void {
+  if (filter._ids?.length) {
     query._id = { $in: filter._ids };
   }
 
@@ -82,12 +71,24 @@ async function buildProjectQuery(
   if (filter.targetDate) {
     handleDateFilter(query, 'targetDate', filter.targetDate);
   }
+}
 
+/** Applies lead, members, and tags inclusion filters to a project query. */
+function applyProjectMemberFilters(
+  query: FilterQuery<IProjectDocument>,
+  andFilters: FilterQuery<IProjectDocument>[],
+  filter: {
+    leadId?: string;
+    memberId?: string;
+    memberIds?: string[];
+    tagIds?: string[];
+  },
+): void {
   if (filter.leadId) {
     query.leadId = filter.leadId;
   }
 
-  if (filter.memberIds && filter.memberIds.length > 0) {
+  if (filter.memberIds?.length) {
     query.memberIds = { $in: filter.memberIds };
   }
 
@@ -100,18 +101,31 @@ async function buildProjectQuery(
     });
   }
 
-  if (filter.tagIds && filter.tagIds.length > 0) {
+  if (filter.tagIds?.length) {
     query.tagIds = { $in: filter.tagIds };
   }
+}
 
-  if (filter.teamIds && filter.teamIds.length > 0) {
+/** Applies team relationship and member user ID filters to a project query. */
+async function applyProjectTeamFilters(
+  query: FilterQuery<IProjectDocument>,
+  andFilters: FilterQuery<IProjectDocument>[],
+  filter: {
+    userId?: string;
+    memberId?: string;
+    teamIds?: string[];
+  },
+  models: IModels,
+): Promise<void> {
+  const { TeamMember } = models;
+  if (filter.teamIds?.length) {
     query.teamIds = { $in: filter.teamIds };
   }
 
-  if (
-    (filter.teamIds && filter.teamIds.length <= 0 && filter.userId) ||
-    (!filter.teamIds && !filter.memberId && filter.userId)
-  ) {
+  const hasNoTeamIds = !filter.teamIds || filter.teamIds.length <= 0;
+  const shouldApplyUserFilter = (hasNoTeamIds && filter.userId) || (!filter.teamIds && !filter.memberId && filter.userId);
+
+  if (shouldApplyUserFilter && filter.userId) {
     const teamIds = await TeamMember.find({
       memberId: filter.userId,
     }).distinct('teamId');
@@ -128,7 +142,18 @@ async function buildProjectQuery(
       query.teamIds = { $in: teamIds };
     }
   }
+}
 
+/** Applies active state and task scope filters to a project query. */
+async function applyProjectActiveFilters(
+  query: FilterQuery<IProjectDocument>,
+  andFilters: FilterQuery<IProjectDocument>[],
+  filter: {
+    active?: boolean;
+    taskId?: string;
+  },
+  models: IModels,
+): Promise<void> {
   if (filter.active) {
     const statusFilter = {
       $nin: [STATUS_TYPES.CANCELLED, STATUS_TYPES.COMPLETED],
@@ -150,6 +175,36 @@ async function buildProjectQuery(
       query.status = statusFilter;
     }
   }
+}
+
+/** Builds the base Mongoose query filter from the project export parameters. */
+async function buildProjectQuery(
+  models: IModels,
+  filter: GetExportData & {
+    search?: string;
+    active?: boolean;
+    taskId?: string;
+    userId?: string;
+    memberId?: string;
+    memberIds?: string[];
+    leadId?: string;
+    startDate?: string | Date;
+    targetDate?: string | Date;
+    priority?: number;
+    status?: number;
+    name?: string;
+    _ids?: string[];
+    tagIds?: string[];
+    teamIds?: string[];
+  },
+): Promise<FilterQuery<IProjectDocument>> {
+  const query: FilterQuery<IProjectDocument> = {};
+  const andFilters: FilterQuery<IProjectDocument>[] = [];
+
+  applyBasicProjectFilters(query, andFilters, filter);
+  applyProjectMemberFilters(query, andFilters, filter);
+  await applyProjectTeamFilters(query, andFilters, filter, models);
+  await applyProjectActiveFilters(query, andFilters, filter, models);
 
   if (andFilters.length > 0) {
     query.$and = andFilters;
