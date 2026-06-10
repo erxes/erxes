@@ -35,7 +35,7 @@ export const SyncHistoryClickableColumnCell = <T extends ISyncHistoryFields>({
         isError && value ? 'text-destructive' : 'text-muted-foreground',
       )}
     >
-      <TextOverflowTooltip value={String(value || '-')} />
+      <TextOverflowTooltip value={String(value || '')} />
     </RecordTableInlineCell>
   );
 };

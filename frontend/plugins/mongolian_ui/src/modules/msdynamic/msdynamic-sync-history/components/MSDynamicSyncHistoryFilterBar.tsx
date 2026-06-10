@@ -11,6 +11,7 @@ import { SelectMember } from 'ui-modules';
 import {
   type ISyncHistoryFilterField,
   type ISyncHistoryFilterValues,
+  PRIMARY_FILTER_FIELDS,
   SYNC_HISTORY_FILTER_KEYS,
   TEXT_FILTER_FIELDS,
 } from './MSDynamicSyncHistoryFilterFields';
@@ -96,6 +97,15 @@ export const MSDynamicSyncHistoryFilterBar = () => {
       <MSDynamicSyncHistoryFilterPopover />
       <MSDynamicSyncHistoryUserFilterBarItem />
       <MSDynamicSyncHistoryDateFilterBarItem />
+      {PRIMARY_FILTER_FIELDS.filter(
+        (f) => f.key === 'contentType' || f.key === 'contentId',
+      ).map((field) => (
+        <MSDynamicSyncHistoryTextFilterBarItem
+          key={field.key}
+          field={field}
+          value={filterValues[field.key] ?? undefined}
+        />
+      ))}
       {TEXT_FILTER_FIELDS.map((field) => (
         <MSDynamicSyncHistoryTextFilterBarItem
           key={field.key}

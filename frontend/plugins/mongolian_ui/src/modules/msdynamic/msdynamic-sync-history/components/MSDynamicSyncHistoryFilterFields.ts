@@ -75,7 +75,7 @@ export const TEXT_FILTER_FIELDS: ISyncHistoryFilterField[] = [
 export const PRIMARY_FILTER_FIELDS: ISyncHistoryFilterField[] = [
   {
     key: 'user',
-    label: 'Assigned To',
+    label: 'User',
     Icon: IconUser,
   },
   {
