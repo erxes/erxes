@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { Popover, Spinner } from 'erxes-ui';
 import { GET_DEPARTMENT_MEMBERS } from '../../graphql';
-import {useState} from 'react';
+import { useState } from 'react';
 
 interface IMember {
   _id: string;
@@ -37,7 +37,9 @@ const MemberRow = ({ member }: { member: IMember }) => {
       <div className="min-w-0">
         <p className="text-sm font-medium truncate">{name}</p>
         {name !== member.email && (
-          <p className="text-xs text-muted-foreground truncate">{member.email}</p>
+          <p className="text-xs text-muted-foreground truncate">
+            {member.email}
+          </p>
         )}
       </div>
     </div>
