@@ -21,6 +21,7 @@ export interface IInvoice {
   callback?: string;
   warningText?: string;
   data?: any;
+  sideEffects?: any;
 }
 export interface IInvoiceDocument extends IInvoice, Document {
   _id: string;

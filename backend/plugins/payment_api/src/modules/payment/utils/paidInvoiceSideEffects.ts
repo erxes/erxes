@@ -1,11 +1,12 @@
 import { splitType } from 'erxes-api-shared/core-modules';
 import {
+  getEnv,
   isEnabled,
   sendTRPCMessage,
   sendWorkerMessage,
   sendWorkerQueue,
 } from 'erxes-api-shared/utils';
-import * as QRCode from 'qrcode';
+import { create as createQrCode } from 'qrcode';
 import { IModels } from '~/connectionResolvers';
 import { PAYMENT_STATUS } from '~/constants';
 import { IInvoice, IInvoiceDocument } from '~/modules/payment/@types/invoices';
@@ -29,15 +30,20 @@ type Plainable<T> = T & {
   toObject?: () => T;
 };
 
+const DEFAULT_CALLBACK_TIMEOUT_MS = 10000;
+
+/** Normalizes unknown errors for safe logging. */
 const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : String(error);
 
+/** Checks whether a Mongoose document-like value can be converted to a plain object. */
 const isPlainable = <T>(doc: T): doc is Plainable<T> =>
   typeof doc === 'object' &&
   doc !== null &&
   'toObject' in doc &&
   typeof doc.toObject === 'function';
 
+/** Converts Mongoose documents to plain objects while leaving already-plain values untouched. */
 const toPlainObject = <T>(doc: T): T => {
   if (!isPlainable(doc)) {
     return doc;
@@ -50,6 +56,7 @@ const toPlainObject = <T>(doc: T): T => {
   return doc;
 };
 
+/** Splits an erxes content type into the plugin/module/collection parts used by workers. */
 const getContentContext = (contentType?: string) => {
   if (!contentType) {
     return null;
@@ -64,6 +71,7 @@ const getContentContext = (contentType?: string) => {
   return { pluginName, moduleName, collectionType };
 };
 
+/** Sends the paid-invoice QR/barcode email through the core notification service. */
 export const sendInvoiceBarcodeEmail = async (
   subdomain: string,
   invoice: {
@@ -88,7 +96,7 @@ export const sendInvoiceBarcodeEmail = async (
   let qrTableHtml = '';
 
   try {
-    const qr = QRCode.create(ticketCode, {
+    const qr = createQrCode(ticketCode, {
       errorCorrectionLevel: 'M',
     });
     const { size, data } = qr.modules;
@@ -209,13 +217,18 @@ export const sendInvoiceBarcodeEmail = async (
   });
 };
 
+/** Finds the paid transaction that should drive payment-method specific side effects. */
 const getPaidTransaction = async (
   models: IModels,
   invoiceId: string,
   transaction?: TransactionInput,
 ): Promise<TransactionInput | null> => {
   if (transaction) {
-    return toPlainObject(transaction);
+    const transactionObj = toPlainObject(transaction);
+
+    return transactionObj.status === PAYMENT_STATUS.PAID
+      ? transactionObj
+      : null;
   }
 
   return models.Transactions.findOne({
@@ -226,6 +239,72 @@ const getPaidTransaction = async (
     .lean();
 };
 
+/** Atomically claims invoice-level paid side effects so emails/callbacks run once. */
+const claimInvoicePaidSideEffects = async ({
+  models,
+  invoiceId,
+  invoiceWasPaid,
+}: {
+  models: IModels;
+  invoiceId: string;
+  invoiceWasPaid: boolean;
+}) => {
+  if (invoiceWasPaid) {
+    return false;
+  }
+
+  const now = new Date();
+  const result = await models.Invoices.updateOne(
+    {
+      _id: invoiceId,
+      status: PAYMENT_STATUS.PAID,
+      'sideEffects.invoicePaidAt': { $exists: false },
+    },
+    {
+      $set: {
+        'sideEffects.invoicePaidAt': now,
+      },
+    },
+  );
+
+  return result.modifiedCount > 0;
+};
+
+/** Atomically claims a transaction callback so repeated provider callbacks do not duplicate it. */
+const claimTransactionCallback = async ({
+  models,
+  invoiceId,
+  transactionId,
+  invoiceWasPaid,
+}: {
+  models: IModels;
+  invoiceId: string;
+  transactionId: string;
+  invoiceWasPaid: boolean;
+}) => {
+  if (invoiceWasPaid) {
+    return false;
+  }
+
+  const now = new Date();
+  const result = await models.Invoices.updateOne(
+    {
+      _id: invoiceId,
+      [`sideEffects.transactionCallbacks.${transactionId}`]: {
+        $exists: false,
+      },
+    },
+    {
+      $set: {
+        [`sideEffects.transactionCallbacks.${transactionId}`]: now,
+      },
+    },
+  );
+
+  return result.modifiedCount > 0;
+};
+
+/** Sends the paid-invoice email unless the selected payment method disables it. */
 const maybeSendPaymentEmail = async ({
   models,
   subdomain,
@@ -241,7 +320,7 @@ const maybeSendPaymentEmail = async ({
     return;
   }
 
-  const paymentId = transaction?.paymentId;
+  const paymentId = transaction?.paymentId || invoice.paymentIds?.[0];
   const payment = paymentId
     ? await models.PaymentMethods.findOne({ _id: paymentId }).lean()
     : null;
@@ -257,6 +336,7 @@ const maybeSendPaymentEmail = async ({
   });
 };
 
+/** Enqueues or runs the target plugin's payment worker callback. */
 const enqueueWorkerCallback = async ({
   subdomain,
   pluginName,
@@ -294,10 +374,28 @@ const enqueueWorkerCallback = async ({
   );
 };
 
+/** Reads the external callback timeout, falling back to a safe default. */
+const getCallbackTimeoutMs = () => {
+  const configured = Number(
+    getEnv({
+      name: 'PAYMENT_CALLBACK_TIMEOUT_MS',
+      defaultValue: String(DEFAULT_CALLBACK_TIMEOUT_MS),
+    }),
+  );
+
+  return Number.isFinite(configured) && configured > 0
+    ? configured
+    : DEFAULT_CALLBACK_TIMEOUT_MS;
+};
+
+/** Posts the public invoice callback payload with a timeout and logs failures. */
 const callExternalCallback = async (invoice: InvoiceLike) => {
   if (!invoice.callback) {
     return;
   }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), getCallbackTimeoutMs());
 
   try {
     const response = await fetch(invoice.callback, {
@@ -310,6 +408,7 @@ const callExternalCallback = async (invoice: InvoiceLike) => {
         amount: invoice.amount,
         status: PAYMENT_STATUS.PAID,
       }),
+      signal: controller.signal,
     });
 
     if (!response.ok) {
@@ -319,9 +418,12 @@ const callExternalCallback = async (invoice: InvoiceLike) => {
     console.error(
       `[payment] External callback failed for invoice ${invoice._id}: ${getErrorMessage(error)}`,
     );
+  } finally {
+    clearTimeout(timeout);
   }
 };
 
+/** Runs all first-paid invoice side effects with persisted idempotency guards. */
 export const runPaidInvoiceSideEffects = async ({
   models,
   subdomain,
@@ -349,7 +451,18 @@ export const runPaidInvoiceSideEffects = async ({
     transaction,
   );
 
-  if (includeTransactionCallback && paidTransaction && contentContext) {
+  const shouldRunTransactionCallback =
+    includeTransactionCallback &&
+    paidTransaction &&
+    contentContext &&
+    (await claimTransactionCallback({
+      models,
+      invoiceId: invoiceObj._id,
+      transactionId: paidTransaction._id,
+      invoiceWasPaid,
+    }));
+
+  if (shouldRunTransactionCallback && paidTransaction && contentContext) {
     const transactionObj = toPlainObject(paidTransaction);
     delete transactionObj.response;
 
@@ -371,7 +484,17 @@ export const runPaidInvoiceSideEffects = async ({
     });
   }
 
-  if (!includeInvoicePaidSideEffects || invoiceWasPaid) {
+  if (!includeInvoicePaidSideEffects) {
+    return;
+  }
+
+  const shouldRunInvoicePaidSideEffects = await claimInvoicePaidSideEffects({
+    models,
+    invoiceId: invoiceObj._id,
+    invoiceWasPaid,
+  });
+
+  if (!shouldRunInvoicePaidSideEffects) {
     return;
   }
 
@@ -402,5 +525,5 @@ export const runPaidInvoiceSideEffects = async ({
     });
   }
 
-  await callExternalCallback(invoiceObj);
+  void callExternalCallback(invoiceObj);
 };
