@@ -4,6 +4,7 @@ import {
   makeAttachmentArrayFromUrls,
   normalizeAttachment,
 } from '../../../formHelpers';
+import { createSlug } from '../../../../utils/createSlug';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useRef, useEffect, useCallback } from 'react';
 
@@ -195,17 +196,6 @@ const computeTitle = (data: PostFormData, contentHtml: string): string => {
   );
 };
 
-const generateSlug = (title: string): string => {
-  const baseSlug = title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-
-  const timestamp = Date.now().toString(36).slice(-6);
-
-  return `${baseSlug || 'post'}-${timestamp}`;
-};
-
 const redirectToPosts = (
   websiteId: string,
   searchParams: URLSearchParams,
@@ -269,8 +259,10 @@ const buildPostInput = (
   const videoPayload = normalizeAttachment(data.video ?? undefined);
   const audioPayload = normalizeAttachment(data.audio ?? undefined);
   const pdfPayload = normalizeAttachment(data.pdf ?? undefined);
-  const slug =
-    data.slug?.trim() || (!editingPostId ? generateSlug(main.title) : '');
+  const isEditing = Boolean(editingPostId);
+  const generatedSlug = isEditing ? '' : createSlug(main.title);
+  const shouldSetImages = isEditing || imagesPayload.length > 0;
+  const slug = data.slug?.trim() || generatedSlug;
 
   return {
     clientPortalId: websiteId,
@@ -287,7 +279,7 @@ const buildPostInput = (
     autoArchiveDate: data.enableAutoArchive ? data.autoArchiveDate : undefined,
     excerpt: main.excerpt,
     thumbnail: normalizeAttachment(data.thumbnail ?? undefined),
-    images: imagesPayload.length ? imagesPayload : undefined,
+    images: shouldSetImages ? imagesPayload : undefined,
     video: videoPayload,
     videoUrl: data.videoUrl,
     audio: audioPayload,
