@@ -2,9 +2,8 @@ import { Model } from 'mongoose';
 
 import { IPostTag, IPostTagDocument } from '@/cms/@types/posts';
 import { postTagSchema } from '@/cms/db/definitions/posts';
-import slugify from 'slugify';
 import { IModels } from '~/connectionResolvers';
-import { generateUniqueSlug } from '@/cms/utils/common';
+import { createSlug, generateUniqueSlug } from '@/cms/utils/common';
 
 export interface IPostTagModel extends Model<IPostTagDocument> {
   getPostTags: (query: any) => Promise<IPostTagDocument[]>;
@@ -17,7 +16,7 @@ export interface IPostTagModel extends Model<IPostTagDocument> {
 export const loadPostTagClass = (models: IModels) => {
   class PostTags {
     public static createTag = async (data: IPostTag) => {
-      const baseSlug = data.slug || slugify(data.name, { lower: true });
+      const baseSlug = createSlug(data.slug || data.name);
 
       // Generate unique slug
       const uniqueSlug = await generateUniqueSlug(
@@ -50,7 +49,7 @@ export const loadPostTagClass = (models: IModels) => {
 
     public static updateTag = async (id: string, data: IPostTag) => {
       if (data.name) {
-        const baseSlug = slugify(data.name, { lower: true });
+        const baseSlug = createSlug(data.name);
         // Generate unique slug excluding current document
         data.slug = await generateUniqueSlug(
           models.PostTags,

@@ -4,6 +4,7 @@ import {
   makeAttachmentArrayFromUrls,
   normalizeAttachment,
 } from '../../../formHelpers';
+import { createSlug } from '../../../../utils/createSlug';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useRef, useEffect, useCallback } from 'react';
 
@@ -195,17 +196,6 @@ const computeTitle = (data: PostFormData, contentHtml: string): string => {
   );
 };
 
-const generateSlug = (title: string): string => {
-  const baseSlug = title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-
-  const timestamp = Date.now().toString(36).slice(-6);
-
-  return `${baseSlug || 'post'}-${timestamp}`;
-};
-
 const redirectToPosts = (
   websiteId: string,
   searchParams: URLSearchParams,
@@ -270,7 +260,8 @@ const buildPostInput = (
   const audioPayload = normalizeAttachment(data.audio ?? undefined);
   const pdfPayload = normalizeAttachment(data.pdf ?? undefined);
   const slug =
-    data.slug?.trim() || (!editingPostId ? generateSlug(main.title) : '');
+    data.slug?.trim() ||
+    (!editingPostId ? createSlug(main.title) || 'post' : '');
 
   return {
     clientPortalId: websiteId,
