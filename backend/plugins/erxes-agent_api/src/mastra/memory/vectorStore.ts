@@ -103,6 +103,67 @@ export async function upsert(
   }
 }
 
+export interface ScrolledPoint {
+  id: string | number;
+  payload: Record<string, any>;
+}
+
+/**
+ * Scroll every point matching `filter` (payload only, no vectors). Pages
+ * internally until exhausted — fine for the company-knowledge corpus sizes
+ * this plugin deals with (thousands, not millions).
+ */
+export async function scroll(
+  name: string,
+  filter: any,
+  baseUrl = qdrantUrl(),
+): Promise<ScrolledPoint[]> {
+  const points: ScrolledPoint[] = [];
+  let offset: string | number | null = null;
+
+  do {
+    const res = await fetch(`${baseUrl}/collections/${name}/points/scroll`, {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({
+        filter,
+        limit: 256,
+        with_payload: true,
+        with_vector: false,
+        ...(offset !== null ? { offset } : {}),
+      }),
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => '');
+      throw new Error(`Qdrant scroll failed (${res.status}): ${text}`);
+    }
+    const json: any = await res.json();
+    for (const p of json.result?.points || []) {
+      points.push({ id: p.id, payload: p.payload || {} });
+    }
+    offset = json.result?.next_page_offset ?? null;
+  } while (offset !== null);
+
+  return points;
+}
+
+export async function deletePoints(
+  name: string,
+  ids: Array<string | number>,
+  baseUrl = qdrantUrl(),
+): Promise<void> {
+  if (!ids.length) return;
+  const res = await fetch(`${baseUrl}/collections/${name}/points/delete?wait=true`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({ points: ids }),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`Qdrant deletePoints failed (${res.status}): ${text}`);
+  }
+}
+
 export async function search(
   name: string,
   vector: number[],

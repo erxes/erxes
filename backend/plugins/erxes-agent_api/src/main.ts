@@ -30,8 +30,19 @@ startPlugin({
     // Advanced memory (opt-in via ERXES_AGENT_MEMORY=enable): ping Qdrant and ensure
     // the collection exists. Loaded lazily and only when enabled, so default
     // deployments never even import the memory module at boot.
-    if ((process.env.ERXES_AGENT_MEMORY ?? '').trim() !== 'enable') return;
-    const { initAdvancedMemory } = await import('~/mastra/memory');
-    await initAdvancedMemory();
+    if ((process.env.ERXES_AGENT_MEMORY ?? '').trim() === 'enable') {
+      const { initAdvancedMemory } = await import('~/mastra/memory');
+      await initAdvancedMemory();
+    }
+
+    // Company knowledge RAG (opt-in via ERXES_AGENT_KNOWLEDGE=enable): start the
+    // reconciliation sweep scheduler + worker. Same lazy-load contract.
+    if ((process.env.ERXES_AGENT_KNOWLEDGE ?? '').trim() === 'enable') {
+      const [{ initKnowledgeSync }, { redis }] = await Promise.all([
+        import('~/mastra/knowledge/worker'),
+        import('erxes-api-shared/utils'),
+      ]);
+      await initKnowledgeSync(redis);
+    }
   },
 });

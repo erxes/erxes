@@ -6,4 +6,6 @@ export const settingsSchema = new Schema({
   erxesApiUrl: { type: String, default: 'http://localhost:4000' },
   erxesApiToken: { type: String },
   defaultAgentId: { type: String },
+  // Written by the company-knowledge reconciliation sweep; read-only in the UI.
+  knowledgeSyncStatus: { type: Schema.Types.Mixed },
 });
