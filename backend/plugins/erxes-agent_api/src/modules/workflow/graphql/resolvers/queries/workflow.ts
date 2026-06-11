@@ -1,19 +1,26 @@
+import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 
-const requireUserId = (user: any): string => {
+/** Resolve the logged-in user's _id, rejecting unauthenticated calls. */
+const requireUserId = (user: IUserDocument | null | undefined): string => {
   const userId = user?._id;
   if (!userId) throw new Error('Login required');
   return userId;
 };
 
+/** Queries over workflow definitions and their run history. */
 export const workflowQueries = {
-  mastraWorkflows: async (_: any, _args: any, { models, user }: IContext) => {
+  mastraWorkflows: (
+    _parent: undefined,
+    _args: undefined,
+    { models, user }: IContext,
+  ) => {
     requireUserId(user);
     return models.MastraWorkflow.getWorkflows();
   },
 
-  mastraWorkflow: async (
-    _: any,
+  mastraWorkflow: (
+    _parent: undefined,
     { _id }: { _id: string },
     { models, user }: IContext,
   ) => {
@@ -21,8 +28,8 @@ export const workflowQueries = {
     return models.MastraWorkflow.getWorkflow(_id);
   },
 
-  mastraWorkflowRuns: async (
-    _: any,
+  mastraWorkflowRuns: (
+    _parent: undefined,
     {
       workflowId,
       page,

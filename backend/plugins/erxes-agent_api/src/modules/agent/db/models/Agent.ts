@@ -1,4 +1,4 @@
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { agentSchema } from '@/agent/db/definitions/agent';
@@ -30,15 +30,20 @@ export interface IMastraAgentModel extends Model<IMastraAgentDocument> {
   removeAgent(_id: string): Promise<{ ok: number }>;
 }
 
+/** Bind the MastraAgent statics onto the agent schema (mongoose loadClass). */
 export const loadAgentClass = (_models: IModels) => {
+  /** Static CRUD/query helpers for stored agent configurations. */
+  // skipcq: JS-0327 — the mongoose loadClass pattern requires a class of statics
   class MastraAgent {
+    /** Fetch one agent config by _id; throws when it does not exist. */
     public static async getAgent(_id: string) {
       const agent = await _models.MastraAgent.findOne({ _id });
       if (!agent) throw new Error('Agent not found');
       return agent;
     }
 
-    public static async getAgents() {
+    /** All agent configs, newest first. */
+    public static getAgents() {
       return _models.MastraAgent.find().sort({ createdAt: -1 });
     }
 
@@ -50,7 +55,7 @@ export const loadAgentClass = (_models: IModels) => {
       perPage = 30,
       searchValue,
     }: IMastraAgentListParams) {
-      const filter: Record<string, any> = {};
+      const filter: FilterQuery<IMastraAgentDocument> = {};
 
       if (searchValue) {
         const re = new RegExp(escapeRegExp(searchValue), 'i');
@@ -77,10 +82,12 @@ export const loadAgentClass = (_models: IModels) => {
       return { list, totalCount };
     }
 
-    public static async createAgent(doc: IMastraAgent) {
+    /** Create a new agent config. */
+    public static createAgent(doc: IMastraAgent) {
       return _models.MastraAgent.create(doc);
     }
 
+    /** Update an agent config and evict its cached runtime agent. */
     public static async updateAgent(_id: string, doc: Partial<IMastraAgent>) {
       const updated = await _models.MastraAgent.findOneAndUpdate(
         { _id },
@@ -92,7 +99,8 @@ export const loadAgentClass = (_models: IModels) => {
       return updated;
     }
 
-    public static async removeAgent(_id: string) {
+    /** Delete an agent config and evict its cached runtime agent. */
+    public static removeAgent(_id: string) {
       invalidateAgentCache(_id);
       return _models.MastraAgent.deleteOne({ _id });
     }

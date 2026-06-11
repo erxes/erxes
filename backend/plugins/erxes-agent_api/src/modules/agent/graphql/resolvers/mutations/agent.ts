@@ -1,20 +1,25 @@
 import { IContext } from '~/connectionResolvers';
+import { IMastraAgent } from '@/agent/@types/agent';
 
 export const agentMutations = {
-  mastraAgentCreate: async (_: any, { doc }: any, { models }: IContext) => {
+  mastraAgentCreate: (
+    _parent: undefined,
+    { doc }: { doc: IMastraAgent },
+    { models }: IContext,
+  ) => {
     return models.MastraAgent.createAgent(doc);
   },
 
-  mastraAgentUpdate: async (
-    _: any,
-    { _id, doc }: any,
+  mastraAgentUpdate: (
+    _parent: undefined,
+    { _id, doc }: { _id: string; doc: Partial<IMastraAgent> },
     { models }: IContext,
   ) => {
     return models.MastraAgent.updateAgent(_id, doc);
   },
 
-  mastraAgentRemove: async (
-    _: any,
+  mastraAgentRemove: (
+    _parent: undefined,
     { _id }: { _id: string },
     { models }: IContext,
   ) => {

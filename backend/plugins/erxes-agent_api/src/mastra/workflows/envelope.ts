@@ -30,8 +30,9 @@ export const triggerEnvelopeSchema = z.object({
 
 export type TriggerEnvelope = z.infer<typeof triggerEnvelopeSchema>;
 
+/** Builds the envelope for an on-demand (chat/UI) run with the user as actor. */
 export function buildManualEnvelope(
-  payload: Record<string, any>,
+  payload: Record<string, unknown>,
   userId?: string,
 ): TriggerEnvelope {
   return {
@@ -42,9 +43,10 @@ export function buildManualEnvelope(
   };
 }
 
+/** Builds the envelope for an erxes Automation firing, carrying its target document. */
 export function buildAutomationEnvelope(args: {
   triggerType: string;
-  target: Record<string, any>;
+  target: Record<string, unknown>;
   channelRef?: { kind: string; id: string };
 }): TriggerEnvelope {
   return {

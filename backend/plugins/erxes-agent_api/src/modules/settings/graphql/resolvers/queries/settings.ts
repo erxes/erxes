@@ -10,6 +10,7 @@ import { ALL_KNOWLEDGE_TYPE_NAMES } from '~/mastra/knowledge/contentTypes';
 import { health as qdrantHealth } from '~/mastra/memory/vectorStore';
 import { getStorageStatus } from '~/mastra/files/storage';
 import { IModels } from '~/connectionResolvers';
+import { IMastraSettings } from '@/settings/@types/settings';
 
 // configured (core storage) AND the plugin toggle → attachments usable in chat.
 export async function attachmentStorageStatus(
@@ -27,19 +28,24 @@ export async function attachmentStorageStatus(
   };
 }
 
+/** Queries for plugin settings plus their derived feature-status blocks. */
 export const settingsQueries = {
   // Lightweight status for the chat UI: decides whether the attach button shows.
-  mastraAttachmentStorageStatus: async (
-    _: any,
-    __: any,
+  mastraAttachmentStorageStatus: (
+    _parent: undefined,
+    _args: undefined,
     { models, subdomain }: IContext,
   ) => {
     return attachmentStorageStatus(models, subdomain);
   },
 
-  mastraSettings: async (_: any, __: any, { models, subdomain }: IContext) => {
+  mastraSettings: async (
+    _parent: undefined,
+    _args: undefined,
+    { models, subdomain }: IContext,
+  ) => {
     const doc = await models.MastraSettings.getSettings();
-    const obj: any = doc?.toObject ? doc.toObject() : doc;
+    const obj: IMastraSettings = doc?.toObject ? doc.toObject() : doc;
 
     // Read-only, env-derived status. Re-ping Qdrant live (2s-timeout, no-op when
     // disabled) so the connectivity dot reflects current state, not just boot.

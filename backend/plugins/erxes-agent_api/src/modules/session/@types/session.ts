@@ -33,8 +33,8 @@ export type MastraMessageRole = 'user' | 'assistant';
 export interface IMastraToolCall {
   toolCallId?: string;
   toolName: string;
-  args?: any;
-  result?: any;
+  args?: unknown;
+  result?: unknown;
   isError?: boolean;
 }
 

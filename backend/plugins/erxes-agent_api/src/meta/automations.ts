@@ -44,8 +44,9 @@ const workflowAutomationProducers = {
       };
     }
 
-    const workflow =
-      await context.models.MastraWorkflow.getWorkflow(workflowId);
+    const workflow = await context.models.MastraWorkflow.getWorkflow(
+      workflowId,
+    );
     if (!workflow.isEnabled) {
       return {
         result: {
@@ -57,7 +58,7 @@ const workflowAutomationProducers = {
 
     const envelope = buildAutomationEnvelope({
       triggerType: execution.triggerType,
-      target: (execution.target as Record<string, any>) || {},
+      target: (execution.target as Record<string, unknown>) || {},
     });
 
     const runPromise = runWorkflow({
@@ -65,9 +66,9 @@ const workflowAutomationProducers = {
       subdomain: context.subdomain,
       workflow,
       envelope,
-    }).catch((e) => {
+    }).catch((err) => {
       console.error(
-        `[erxes-agent:workflows] automation-triggered run failed: ${e?.message}`,
+        `[erxes-agent:workflows] automation-triggered run failed: ${err?.message}`,
       );
       return null;
     });
@@ -75,8 +76,8 @@ const workflowAutomationProducers = {
     const settled = await Promise.race([
       runPromise,
       new Promise<null>((resolve) => {
-        const t = setTimeout(() => resolve(null), SYNC_RESULT_BUDGET_MS);
-        t.unref?.();
+        const timer = setTimeout(() => resolve(null), SYNC_RESULT_BUDGET_MS);
+        timer.unref?.();
       }),
     ]);
 
@@ -127,7 +128,9 @@ export const automations = {
     moduleName: 'automations',
     modules: { workflow: workflowAutomationProducers },
     methodName: TAutomationProducers.RECEIVE_ACTIONS,
-    extractModuleName: (input: any) => input.moduleName,
+    extractModuleName: (
+      input: TAutomationProducersInput[TAutomationProducers.RECEIVE_ACTIONS],
+    ) => input.moduleName,
     generateModels,
   }),
 } as AutomationConfigs;

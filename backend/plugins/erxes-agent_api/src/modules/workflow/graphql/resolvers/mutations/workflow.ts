@@ -1,11 +1,14 @@
-import { IContext } from '~/connectionResolvers';
+import { IUserDocument } from 'erxes-api-shared/core-types';
+import { IContext, IModels } from '~/connectionResolvers';
 import { validateDefinition } from '~/mastra/workflows/dsl';
 import { buildManualEnvelope } from '~/mastra/workflows/envelope';
 import { runWorkflow } from '~/mastra/workflows/runtime';
 import { getOperationRegistry } from '~/mastra/tools/operationRegistry';
 import { runWithAuth } from '~/mastra/requestContext';
+import { IMastraWorkflow } from '@/workflow/@types/workflow';
 
-const requireUserId = (user: any): string => {
+/** Resolve the logged-in user's _id, rejecting unauthenticated calls. */
+const requireUserId = (user: IUserDocument | null | undefined): string => {
   const userId = user?._id;
   if (!userId) throw new Error('Login required');
   return userId;
@@ -13,22 +16,23 @@ const requireUserId = (user: any): string => {
 
 // Save-time validation runs with the LIVE operation registry, so a definition
 // referencing a nonexistent or out-of-policy operation never reaches Mongo.
-const validateWithRegistry = async (models: any, definition: any) => {
+const validateWithRegistry = async (models: IModels, definition: unknown) => {
   const settings = await models.MastraSettings.getSettings();
   const registry = await getOperationRegistry(settings);
   const result = validateDefinition(definition, registry);
   if (!result.ok) {
     const lines = result.errors
-      .map((e) => `${e.path}: ${e.message}`)
+      .map((issue) => `${issue.path}: ${issue.message}`)
       .join('\n');
     throw new Error(`Workflow definition is invalid:\n${lines}`);
   }
 };
 
+/** Mutations for workflow definitions and manual workflow runs. */
 export const workflowMutations = {
   mastraWorkflowCreate: async (
-    _: any,
-    { doc }: any,
+    _parent: undefined,
+    { doc }: { doc: IMastraWorkflow },
     { models, user }: IContext,
   ) => {
     const userId = requireUserId(user);
@@ -40,8 +44,8 @@ export const workflowMutations = {
   },
 
   mastraWorkflowUpdate: async (
-    _: any,
-    { _id, doc }: any,
+    _parent: undefined,
+    { _id, doc }: { _id: string; doc: Partial<IMastraWorkflow> },
     { models, user }: IContext,
   ) => {
     requireUserId(user);
@@ -49,8 +53,8 @@ export const workflowMutations = {
     return models.MastraWorkflow.updateWorkflow(_id, doc);
   },
 
-  mastraWorkflowRemove: async (
-    _: any,
+  mastraWorkflowRemove: (
+    _parent: undefined,
     { _id }: { _id: string },
     { models, user }: IContext,
   ) => {
@@ -58,8 +62,8 @@ export const workflowMutations = {
     return models.MastraWorkflow.removeWorkflow(_id);
   },
 
-  mastraWorkflowSetEnabled: async (
-    _: any,
+  mastraWorkflowSetEnabled: (
+    _parent: undefined,
     { _id, isEnabled }: { _id: string; isEnabled: boolean },
     { models, user }: IContext,
   ) => {
@@ -70,8 +74,8 @@ export const workflowMutations = {
   // Dry validation for the master agent's draft loop — returns structured
   // errors instead of throwing, so the model can iterate.
   mastraWorkflowValidate: async (
-    _: any,
-    { definition }: any,
+    _parent: undefined,
+    { definition }: { definition: unknown },
     { models, user }: IContext,
   ) => {
     requireUserId(user);
@@ -84,8 +88,8 @@ export const workflowMutations = {
   // Manual trigger. Allowed even when the workflow is disabled — disabling
   // gates event triggers, not deliberate test runs.
   mastraWorkflowRunStart: async (
-    _: any,
-    { _id, input }: { _id: string; input?: Record<string, any> },
+    _parent: undefined,
+    { _id, input }: { _id: string; input?: Record<string, unknown> },
     { models, subdomain, user }: IContext,
   ) => {
     const userId = requireUserId(user);
