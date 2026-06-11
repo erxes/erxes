@@ -462,9 +462,7 @@ export function useMoveDealStage(options?: MutationHookOptions<any, any>) {
         const nextColumnItems = Object.fromEntries(
           Object.entries(prev.columnItems).map(([columnId, itemIds]) => [
             columnId,
-            (itemIds ?? []).filter(
-              (itemId: string) => itemId !== deal._id,
-            ),
+            (itemIds ?? []).filter((itemId: string) => itemId !== deal._id),
           ]),
         );
 

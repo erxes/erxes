@@ -368,9 +368,7 @@ export const createProductsData = async ({
 
   // undefined or null then true
   const tickUsed = !(stage.defaultTick === false);
-  const addDocs = (docs || []).map(
-    (doc) => ({ ...doc, tickUsed }),
-  );
+  const addDocs = (docs || []).map((doc) => ({ ...doc, tickUsed }));
   const productsData: IProductData[] = (deal.productsData || []).concat(
     addDocs,
   );
