@@ -19,7 +19,6 @@ if (!MONGO_URL) {
 const SOURCE_SUBDOMAIN = 'dts';
 const TARGET_SUBDOMAIN = 'dtsdistribution';
 
-
 function extractDbName(url: string): string {
   const withoutQuery = url.split('?')[0];
   return withoutQuery.slice(withoutQuery.lastIndexOf('/') + 1);
@@ -60,7 +59,10 @@ async function migrateCollection(
   const existingIds = new Set<string>();
   const existingCodes = new Set<string>();
 
-  for await (const doc of dstCol.find({}, { projection: { _id: 1, code: 1 } })) {
+  for await (const doc of dstCol.find(
+    {},
+    { projection: { _id: 1, code: 1 } },
+  )) {
     existingIds.add(String(doc._id));
     if (doc.code) existingCodes.add(String(doc.code));
   }
@@ -75,7 +77,9 @@ async function migrateCollection(
     }
 
     if (hasCodeField && doc.code && existingCodes.has(String(doc.code))) {
-      console.log(`  [SKIP] ${collectionName}: code "${doc.code}" already exists`);
+      console.log(
+        `  [SKIP] ${collectionName}: code "${doc.code}" already exists`,
+      );
       stats.skipped++;
       continue;
     }
@@ -87,10 +91,14 @@ async function migrateCollection(
       stats.inserted++;
     } catch (err: any) {
       if (err.code === 11000) {
-        console.log(`  [SKIP] ${collectionName}: duplicate key for _id "${id}": ${err.message}`);
+        console.log(
+          `  [SKIP] ${collectionName}: duplicate key for _id "${id}": ${err.message}`,
+        );
         stats.skipped++;
       } else {
-        console.error(`  [ERROR] ${collectionName}: failed to insert _id "${id}": ${err.message}`);
+        console.error(
+          `  [ERROR] ${collectionName}: failed to insert _id "${id}": ${err.message}`,
+        );
         stats.errors++;
       }
     }
@@ -100,7 +108,6 @@ async function migrateCollection(
 }
 
 async function main() {
-
   const coreUrl = CORE_MONGO_URL || MONGO_URL;
   const coreDbName = extractDbName(coreUrl);
 
@@ -188,7 +195,9 @@ async function main() {
     );
 
     if (totalErrors > 0) {
-      console.warn('\nWARNING: Some documents failed to migrate. Check logs above.');
+      console.warn(
+        '\nWARNING: Some documents failed to migrate. Check logs above.',
+      );
       process.exit(1);
     }
   } finally {
