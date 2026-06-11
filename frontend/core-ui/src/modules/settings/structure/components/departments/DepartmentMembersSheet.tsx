@@ -38,7 +38,9 @@ const MemberRow = ({ member }: { member: IMember }) => {
       <div className="min-w-0">
         <p className="text-sm font-medium truncate">{name}</p>
         {name !== member.email && (
-          <p className="text-xs text-muted-foreground truncate">{member.email}</p>
+          <p className="text-xs text-muted-foreground truncate">
+            {member.email}
+          </p>
         )}
       </div>
     </div>
