@@ -30,7 +30,7 @@ export const ticketMutations = {
         method: 'mutation',
         module: 'fields',
         action: 'validateFieldValues',
-        input: params.propertiesData,
+        input: { data: params.propertiesData },
         defaultValue: {},
       });
     }

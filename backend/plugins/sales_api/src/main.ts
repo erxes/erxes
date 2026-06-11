@@ -4,11 +4,12 @@ import { generateModels } from './connectionResolvers';
 import resolvers from './apollo/resolvers';
 import { router } from './routes';
 import segments from './meta/segments';
-import { startPlugin } from 'erxes-api-shared/utils';
+import { sendTRPCMessage, startPlugin } from 'erxes-api-shared/utils';
 import { afterProcess } from '~/meta/afterProcess';
 import { typeDefs } from './apollo/typeDefs';
 import { createLoaders } from './modules/sales/graphql/resolvers/loaders';
 import { notifications } from './meta/notifications';
+import { subscriptionWrapper } from '~/modules/sales/graphql/resolvers/utils';
 import {
   createCoreModuleProducerHandler,
   TImportExportProducers,
@@ -18,6 +19,58 @@ import {
 import { posExportHandlers } from './modules/pos/meta/export/exportHandlers';
 import { permissions } from '~/meta/permissions';
 import { salesReferences } from './meta/references';
+
+const handleDealPaymentCallback = async (subdomain: string, data: any) => {
+  const { contentTypeId, amount = 0, _id } = data;
+  const paidAmount = Number(amount || 0);
+  const models = await generateModels(subdomain);
+  const oldDeal = await models.Deals.getDeal(contentTypeId);
+
+  const updateResult = await models.Deals.updateOne(
+    { _id: contentTypeId, 'mobileAmounts._id': { $ne: _id } },
+    {
+      $addToSet: {
+        mobileAmounts: {
+          _id,
+          amount: paidAmount,
+        },
+      },
+      $inc: {
+        mobileAmount: paidAmount,
+      },
+    },
+  );
+
+  if (!updateResult.modifiedCount) {
+    return;
+  }
+
+  const updatedDeal = await models.Deals.getDeal(contentTypeId);
+
+  await subscriptionWrapper(models, {
+    action: 'update',
+    deal: updatedDeal,
+    oldDeal,
+  });
+};
+
+const handlePosOrderPaymentCallback = async (subdomain: string, data: any) => {
+  const posToken = data?.data?.posToken;
+
+  if (!posToken) {
+    return;
+  }
+
+  await sendTRPCMessage({
+    subdomain,
+    pluginName: 'posclient',
+    method: 'query',
+    module: 'posclient',
+    action: 'paymentCallbackClient',
+    input: data,
+    defaultValue: null,
+  });
+};
 
 startPlugin({
   name: 'sales',
@@ -71,62 +124,31 @@ startPlugin({
     },
     notifications,
     payments: {
-      transactionCallback: async (subdomain, data) => {
+      transactionCallback: async () => {
         // TODO: implement transaction callback if necessary
       },
       callback: async ({ subdomain }, data) => {
-        const {
-          status,
-          contentType,
-          contentTypeId,
-          amount = 0,
-          _id,
-          currency,
-        } = data;
+        const { status, contentType } = data;
 
-        if (contentType !== 'sales:deal') {
-          return;
-        }
         if (status !== 'paid') {
           return;
         }
 
-        const models = await generateModels(subdomain);
-        const deal = await models.Deals.getDeal(contentTypeId);
-        const oldPaymentsData = deal.paymentsData || {};
-        const bankData = oldPaymentsData.bank || { info: {} };
+        if (contentType === 'sales:deal') {
+          return handleDealPaymentCallback(subdomain, data);
+        }
 
-        bankData.info = bankData.info || {};
-
-        const oldInfo = (bankData.info.invoices || []).find(
-          (invoice) => invoice._id === _id,
-        );
-        const newAmount =
-          (bankData.amount || 0) - (oldInfo?.amount || 0) + amount;
-
-        bankData.amount = newAmount <= 0 ? 0 : newAmount;
-        bankData.currency = currency || 'MNT';
-        bankData.info.invoices = [
-          ...(bankData.info.invoices || []).filter(
-            (invoice) => invoice._id !== _id,
-          ),
-          {
-            _id,
-            amount,
-          },
-        ];
-
-        await models.Deals.updateOne(
-          { _id: contentTypeId },
-          {
-            $set: {
-              paymentsData: {
-                ...oldPaymentsData,
-                bank: bankData,
-              },
-            },
-          },
-        );
+        if (
+          [
+            'pos:orders',
+            'pos:order',
+            'pos:orders:',
+            'sales:pos:orders',
+            'sales:pos:order',
+          ].includes(contentType)
+        ) {
+          return handlePosOrderPaymentCallback(subdomain, data);
+        }
       },
     },
     afterProcess,

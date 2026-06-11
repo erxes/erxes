@@ -992,7 +992,7 @@ export const convertNestedDate = (obj: any) => {
   if (typeof obj !== 'object' || obj === null) return obj;
 
   for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
       // Check if the key is one of the target comparison operators
       if (
         ['$gte', '$lte', '$gt', '$lt'].includes(key) &&
@@ -1203,7 +1203,7 @@ export const itemsAdd = async (
       pluginName: 'core',
       module: 'fields',
       action: 'validateFieldValues',
-      input: extendedDoc.propertiesData,
+      input: { data: extendedDoc.propertiesData },
       defaultValue: {},
     });
   }

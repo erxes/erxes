@@ -210,7 +210,7 @@ export const createTicketAction = async ({
       method: 'mutation',
       module: 'fields',
       action: 'validateFieldValues',
-      input: doc.propertiesData,
+      input: { data: doc.propertiesData },
       defaultValue: doc.propertiesData,
     });
   }

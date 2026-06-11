@@ -58,7 +58,7 @@ export const addDeal = async ({
       method: 'mutation',
       module: 'fields',
       action: 'validateFieldValues',
-      input: extendedDoc.propertiesData,
+      input: { data: extendedDoc.propertiesData },
       defaultValue: {},
     });
   }
@@ -185,7 +185,7 @@ export const editDeal = async ({
       method: 'mutation',
       module: 'fields',
       action: 'validateFieldValues',
-      input: extendedDoc.propertiesData,
+      input: { data: extendedDoc.propertiesData },
       defaultValue: {},
     });
   }

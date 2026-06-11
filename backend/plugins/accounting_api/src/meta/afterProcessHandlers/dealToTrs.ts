@@ -216,17 +216,33 @@ export const dealToTrs = async ({
   }
 
   const paymentTrs: ITransaction[] = [];
-  for (const payKey of Object.keys(deal.paymentsData || {})) {
-    if (preTaxPaymentTypes.includes(payKey)) {
+  const paidAmounts = Object.entries(deal.paymentsData || {}).map(
+    ([type, payment]: [string, any]) => ({
+      type,
+      amount: Number(payment?.amount || 0),
+      currency: payment?.currency,
+    }),
+  );
+
+  if (deal.mobileAmount) {
+    paidAmounts.push({
+      type: 'mobile',
+      amount: Number(deal.mobileAmount || 0),
+      currency: 'MNT',
+    });
+  }
+
+  for (const paidAmount of paidAmounts) {
+    const { type, amount, currency } = paidAmount;
+    if (preTaxPaymentTypes.includes(type)) {
       continue;
     }
 
-    const { amount, currency } = deal.paymentsData[payKey];
     if (amount < 0.005 && amount > -0.005) {
       continue;
     }
 
-    const payConfig = config.payments[payKey];
+    const payConfig = config.payments[type];
     if (!payConfig) {
       continue;
     }
@@ -244,7 +260,7 @@ export const dealToTrs = async ({
       parentId,
       number,
       date,
-      description: `${deal.name} (${payKey})`,
+      description: `${deal.name} (${type})`,
       journal,
       side,
       branchId: deal.branchId || config.branchId,

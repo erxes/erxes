@@ -34,6 +34,7 @@ import {
 } from '@/deals/states/dealsBoardState';
 
 import { DEAL_LIST_CHANGED } from '@/deals/graphql/subscriptions/dealListChange';
+import { DEAL_CHANGED } from '@/deals/graphql/subscriptions/dealChanged';
 import { IDeal } from '@/deals/types/deals';
 import { PRODUCTS_DATA_CHANGED } from '@/deals/graphql/subscriptions/productsSubscriptions';
 import { currentUserState } from 'ui-modules';
@@ -53,6 +54,13 @@ interface ISalesProductsDataChangedPayload {
     processId: string;
     action: string;
     data: any;
+  };
+}
+
+interface ISalesDealChangedPayload {
+  salesDealChanged: {
+    action: string;
+    deal?: IDeal;
   };
 }
 
@@ -89,8 +97,7 @@ export const useDeals = (
       userId: currentUser?._id,
       filter: options?.variables,
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [lastPipelineId, currentUser?._id, JSON.stringify(options?.variables)],
+    [lastPipelineId, currentUser?._id, options?.variables],
   );
 
   useEffect(() => {
@@ -150,7 +157,6 @@ export const useDeals = (
     });
 
     return unsubscribe;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subscribeToMore, subscriptionVars]);
 
   const handleFetchMore = ({
@@ -238,8 +244,33 @@ export const useDealDetail = (
     });
 
     return unsubscribe;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [salesItemId]);
+  }, [refetch, salesItemId, subscribeToMore]);
+
+  useEffect(() => {
+    if (!finalId) return;
+
+    const unsubscribe = subscribeToMore<ISalesDealChangedPayload>({
+      document: DEAL_CHANGED,
+      variables: { _id: finalId },
+      updateQuery: (prev, { subscriptionData }) => {
+        const changedDeal = subscriptionData?.data?.salesDealChanged?.deal;
+
+        if (!changedDeal) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          dealDetail: {
+            ...prev.dealDetail,
+            ...changedDeal,
+          },
+        };
+      },
+    });
+
+    return unsubscribe;
+  }, [finalId, subscribeToMore]);
 
   return { deal: data?.dealDetail, loading, error, refetch };
 };

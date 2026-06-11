@@ -174,7 +174,12 @@ export const dealMutations: Record<string, Resolver> = {
 
     delete doc.sourceConversationIds;
 
-    for (const param of ['productsData', 'paymentsData']) {
+    for (const param of [
+      'productsData',
+      'paymentsData',
+      'mobileAmount',
+      'mobileAmounts',
+    ]) {
       doc[param] = item[param];
     }
 

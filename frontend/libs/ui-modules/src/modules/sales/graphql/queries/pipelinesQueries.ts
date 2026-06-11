@@ -14,7 +14,6 @@ const GET_PIPELINE_DETAIL = gql`
       excludeProductIds
       paymentIds
       paymentTypes
-      erxesAppToken
       visibility
       memberIds
       departmentIds

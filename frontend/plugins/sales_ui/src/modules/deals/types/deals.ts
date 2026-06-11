@@ -73,6 +73,8 @@ export interface IItem {
 export interface IDeal extends IItem {
     products?: any[];
     productsData?: IProductData[];
+    mobileAmount?: number;
+    mobileAmounts?: Array<{ _id?: string; amount: number }>;
     paymentsData?: IPaymentsData;
     departments?: IDepartment[];
     branches?: IBranch[];

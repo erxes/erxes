@@ -130,6 +130,8 @@ export const types = `
 
     products: [Product]
     productsData: JSON
+    mobileAmount: Float
+    mobileAmounts: JSON
     paymentsData: JSON
     extraData: JSON
 
@@ -220,6 +222,8 @@ const mutationParams = `
   departmentIds: [String],
 
   paymentsData: JSON,
+  mobileAmount: Float,
+  mobileAmounts: JSON,
   productsData: JSON,
   extraData: JSON,
 `;

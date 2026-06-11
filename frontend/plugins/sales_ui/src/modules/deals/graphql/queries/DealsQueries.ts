@@ -235,6 +235,8 @@ export const GET_DEAL_DETAIL = gql`
         categoryId
       }
       productsData
+      mobileAmount
+      mobileAmounts
       paymentsData
       relations
       pipeline {

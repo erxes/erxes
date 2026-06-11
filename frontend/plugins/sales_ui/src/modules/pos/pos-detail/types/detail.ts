@@ -8,7 +8,6 @@ export interface PosDetailQueryResponse {
       pdomain?: string;
       createdAt: string;
       token?: string;
-      erxesAppToken?: string;
       adminIds?: string[];
       cashierIds?: string[];
       paymentIds?: string[];

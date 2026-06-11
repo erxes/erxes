@@ -53,8 +53,7 @@ const commonPipelineParamsDef = `
   $excludeCategoryIds: [String],
   $excludeProductIds: [String],
   $paymentIds: [String],
-  $paymentTypes: JSON,
-  $erxesAppToken: String
+  $paymentTypes: JSON
 `;
 
 const commonPipelineParams = `
@@ -83,8 +82,7 @@ const commonPipelineParams = `
   excludeCategoryIds: $excludeCategoryIds,
   excludeProductIds: $excludeProductIds,
   paymentIds: $paymentIds,
-  paymentTypes: $paymentTypes,
-  erxesAppToken: $erxesAppToken
+  paymentTypes: $paymentTypes
 `;
 
 export const ADD_PIPELINE = gql`

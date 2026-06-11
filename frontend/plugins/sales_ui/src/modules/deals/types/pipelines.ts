@@ -41,7 +41,6 @@ export interface IPipeline {
 
   paymentIds?: string[];
   paymentTypes?: any[];
-  erxesAppToken?: string;
 }
 
 export interface ISelectLabelContext {

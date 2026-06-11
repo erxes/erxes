@@ -43,7 +43,6 @@ export interface PosData {
   pdomain?: string;
   createdAt?: string;
   token?: string;
-  erxesAppToken?: string;
   serviceCharge?: number;
   serviceChargeApplicableProductId?: string;
   adminIds?: string[];
@@ -102,7 +101,6 @@ export interface AddPosDetailVariables {
   orderPassword?: string;
   scopeBrandIds?: string[];
   pdomain?: string;
-  erxesAppToken?: string;
   productDetails?: string[];
   adminIds?: string[];
   cashierIds?: string[];

@@ -82,6 +82,8 @@ export interface IDeal {
   parentId?: string;
 
   productsData?: IProductData[];
+  mobileAmount?: number;
+  mobileAmounts?: Array<{ _id?: string; amount: number }>;
   paymentsData?: IPaymentsData;
   extraData?: any;
 }
