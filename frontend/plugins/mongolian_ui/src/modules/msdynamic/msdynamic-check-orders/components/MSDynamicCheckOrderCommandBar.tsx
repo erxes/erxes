@@ -1,5 +1,6 @@
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
 
+/** Songogdson orders deer check action gargana. */
 export const CheckSyncedOrdersCommandBar = ({
   checking,
   onCheck,
@@ -10,6 +11,7 @@ export const CheckSyncedOrdersCommandBar = ({
   const { table } = RecordTable.useRecordTable();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
 
+  /** Selected order ids-aar check hiigeed selection tseverlene. */
   const handleCheck = async () => {
     const selectedIds = selectedRows
       .map((row) => row.original._id)

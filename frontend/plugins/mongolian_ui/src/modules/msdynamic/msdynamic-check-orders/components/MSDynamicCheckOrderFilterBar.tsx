@@ -15,6 +15,7 @@ interface IMSDynamicCheckOrderTextFilterBarItemProps {
   value?: string | number;
 }
 
+/** Date range filter bar item-uud gargana. */
 const MSDynamicCheckOrderDateFilterBarItem = () => {
   return (
     <>
@@ -36,6 +37,7 @@ const MSDynamicCheckOrderDateFilterBarItem = () => {
   );
 };
 
+/** Text filter bar item deer selected value gargana. */
 export const MSDynamicCheckOrderTextFilterBarItem = ({
   field,
   value,
@@ -55,6 +57,7 @@ export const MSDynamicCheckOrderTextFilterBarItem = ({
   );
 };
 
+/** Check orders filter bar-iig gargana. */
 export const MSDynamicCheckOrderFilterBar = () => {
   const [filterValues] = useMultiQueryState<ICheckOrderFilterValues>(
     CHECK_ORDER_FILTER_KEYS,

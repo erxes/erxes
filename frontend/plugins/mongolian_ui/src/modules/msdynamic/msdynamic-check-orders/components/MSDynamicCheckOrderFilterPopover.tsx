@@ -19,6 +19,7 @@ interface ICheckOrderFilterItemProps {
   inDialog?: boolean;
 }
 
+/** Neg filter item icon label-tai gargana. */
 const CheckOrderFilterItem = ({
   field,
   inDialog,
@@ -33,6 +34,98 @@ const CheckOrderFilterItem = ({
   );
 };
 
+/** Primary filter command list gargana. */
+const CheckOrderPrimaryFilterView = () => (
+  <Filter.View>
+    <Command>
+      <Filter.CommandInput
+        placeholder="Filter"
+        variant="secondary"
+        className="bg-background"
+      />
+      <Command.List className="p-1">
+        {PRIMARY_FILTER_FIELDS.map((field) => (
+          <CheckOrderFilterItem
+            key={field.key}
+            field={field}
+            inDialog={field.key === 'number'}
+          />
+        ))}
+      </Command.List>
+    </Command>
+  </Filter.View>
+);
+
+/** User selector filter view gargana. */
+const CheckOrderUserFilterView = ({
+  user,
+  setUser,
+}: {
+  user?: string | null;
+  setUser: (value: string) => void;
+}) => {
+  const { resetFilterState } = useFilterContext();
+
+  return (
+    <Filter.View filterKey="user">
+      <SelectMember.Provider
+        mode="single"
+        value={user || ''}
+        onValueChange={(value) => {
+          setUser(String(value || ''));
+          resetFilterState();
+        }}
+      >
+        <SelectMember.Content />
+      </SelectMember.Provider>
+    </Filter.View>
+  );
+};
+
+/** Date range filter views gargana. */
+const CheckOrderDateFilterViews = () => (
+  <>
+    <Filter.View filterKey="paidDateRange">
+      <Filter.DateView filterKey="paidDateRange" />
+    </Filter.View>
+    <Filter.View filterKey="createdAtRange">
+      <Filter.DateView filterKey="createdAtRange" />
+    </Filter.View>
+  </>
+);
+
+/** Popover content dotor filters-uud gargana. */
+const CheckOrderFilterPopoverContent = ({
+  user,
+  setUser,
+}: {
+  user?: string | null;
+  setUser: (value: string) => void;
+}) => (
+  <Combobox.Content>
+    <CheckOrderPrimaryFilterView />
+    <SelectBrand.FilterView queryKey="brandId" />
+    <CheckOrderUserFilterView user={user} setUser={setUser} />
+    <CheckOrderDateFilterViews />
+  </Combobox.Content>
+);
+
+/** Dialog dotor custom filter views gargana. */
+const CheckOrderFilterDialog = () => (
+  <Filter.Dialog>
+    <Filter.View filterKey="number" inDialog>
+      <Filter.DialogStringView filterKey="number" />
+    </Filter.View>
+    <Filter.View filterKey="paidDateRange" inDialog>
+      <Filter.DialogDateView filterKey="paidDateRange" />
+    </Filter.View>
+    <Filter.View filterKey="createdAtRange" inDialog>
+      <Filter.DialogDateView filterKey="createdAtRange" />
+    </Filter.View>
+  </Filter.Dialog>
+);
+
+/** Check orders filter popover-iig gargana. */
 export const MSDynamicCheckOrderFilterPopover = () => {
   const [user, setUser] = useQueryState<string>('user');
   const [queries] = useMultiQueryState<ICheckOrderFilterValues>(
@@ -41,64 +134,14 @@ export const MSDynamicCheckOrderFilterPopover = () => {
   const hasFilters = Object.values(queries || {}).some(
     (value) => value !== null,
   );
-  const { resetFilterState } = useFilterContext();
 
   return (
     <>
       <Filter.Popover>
         <Filter.Trigger isFiltered={hasFilters} />
-        <Combobox.Content>
-          <Filter.View>
-            <Command>
-              <Filter.CommandInput
-                placeholder="Filter"
-                variant="secondary"
-                className="bg-background"
-              />
-              <Command.List className="p-1">
-                {PRIMARY_FILTER_FIELDS.map((field) => (
-                  <CheckOrderFilterItem
-                    key={field.key}
-                    field={field}
-                    inDialog={field.key === 'number'}
-                  />
-                ))}
-              </Command.List>
-            </Command>
-          </Filter.View>
-          <SelectBrand.FilterView queryKey="brandId" />
-          <Filter.View filterKey="user">
-            <SelectMember.Provider
-              mode="single"
-              value={user || ''}
-              onValueChange={(value) => {
-                setUser(String(value || ''));
-                resetFilterState();
-              }}
-            >
-              <SelectMember.Content />
-            </SelectMember.Provider>
-          </Filter.View>
-          <Filter.View filterKey="paidDateRange">
-            <Filter.DateView filterKey="paidDateRange" />
-          </Filter.View>
-          <Filter.View filterKey="createdAtRange">
-            <Filter.DateView filterKey="createdAtRange" />
-          </Filter.View>
-        </Combobox.Content>
+        <CheckOrderFilterPopoverContent user={user} setUser={setUser} />
       </Filter.Popover>
-
-      <Filter.Dialog>
-        <Filter.View filterKey="number" inDialog>
-          <Filter.DialogStringView filterKey="number" />
-        </Filter.View>
-        <Filter.View filterKey="paidDateRange" inDialog>
-          <Filter.DialogDateView filterKey="paidDateRange" />
-        </Filter.View>
-        <Filter.View filterKey="createdAtRange" inDialog>
-          <Filter.DialogDateView filterKey="createdAtRange" />
-        </Filter.View>
-      </Filter.Dialog>
+      <CheckOrderFilterDialog />
     </>
   );
 };
