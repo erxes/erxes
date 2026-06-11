@@ -70,13 +70,12 @@ const CheckSyncedOrders = () => {
         });
 
       setSyncedOrderInfos((prev) => {
-        const next = { ...prev };
+        const checkedIds = new Set(orderIds);
+        const remainingInfos = Object.fromEntries(
+          Object.entries(prev).filter(([orderId]) => !checkedIds.has(orderId)),
+        );
 
-        orderIds.forEach((orderId) => {
-          delete next[orderId];
-        });
-
-        return { ...next, ...syncedInfos };
+        return { ...remainingInfos, ...syncedInfos };
       });
       toast({
         title: 'Orders checked successfully',
