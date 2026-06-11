@@ -77,10 +77,11 @@ export function AddCompanyForm({
   });
 
   function onSubmit(data: FormValues) {
-    const { phone, industry, ...rest } = data;
+    const { phone, industry, code, ...rest } = data;
     companiesAdd({
       variables: {
         ...rest,
+        code: code?.trim(),
         primaryPhone: phone,
         industry: industry?.map((i) => i.value),
       },

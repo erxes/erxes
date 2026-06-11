@@ -79,6 +79,11 @@ export const loadCompanyClass = (
      * Create a company
      */
     public static async createCompany(doc: ICompany, user: any) {
+      // Trim code so trailing/leading spaces don't break exact code lookups
+      if (typeof doc.code === 'string') {
+        doc.code = doc.code.trim();
+      }
+
       // Checking duplicated fields of company
       await this.checkDuplication(doc);
 
@@ -124,6 +129,11 @@ export const loadCompanyClass = (
      * Update company
      */
     public static async updateCompany(_id: string, doc: ICompany) {
+      // Trim code so trailing/leading spaces don't break exact code lookups
+      if (typeof doc.code === 'string') {
+        doc.code = doc.code.trim();
+      }
+
       // Checking duplicated fields of company
       await this.checkDuplication(doc, [_id]);
 
