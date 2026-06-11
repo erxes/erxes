@@ -3,8 +3,7 @@ import { IModels } from '~/connectionResolvers';
 import { workingMemorySchema } from '@/memory/db/definitions/workingMemory';
 import { IMastraWorkingMemoryDocument } from '@/memory/@types/workingMemory';
 
-export interface IMastraWorkingMemoryModel
-  extends Model<IMastraWorkingMemoryDocument> {
+export interface IMastraWorkingMemoryModel extends Model<IMastraWorkingMemoryDocument> {
   getMemory(
     resourceId: string,
     agentId: string,

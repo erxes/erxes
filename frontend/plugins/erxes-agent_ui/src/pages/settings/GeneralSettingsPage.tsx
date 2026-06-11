@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { IconCheck, IconLock, IconBrain, IconBook, IconPaperclip } from '@tabler/icons-react';
+import {
+  IconCheck,
+  IconLock,
+  IconBrain,
+  IconBook,
+  IconPaperclip,
+} from '@tabler/icons-react';
 import { Button, Label, Input, Badge } from 'erxes-ui';
 import { MASTRA_SETTINGS, MASTRA_AGENTS } from '~/graphql/queries';
 import { MASTRA_SETTINGS_SAVE } from '~/graphql/mutations';
@@ -35,7 +41,8 @@ export const GeneralSettingsPage = () => {
 
   // Read-only "Advanced memory feature" status — derived from the MASTRA_MEMORY
   // env var on the server. Displayed only; not editable from the UI.
-  const advancedMemory: boolean = !!settingsData?.mastraSettings?.advancedMemory;
+  const advancedMemory: boolean =
+    !!settingsData?.mastraSettings?.advancedMemory;
   const memStatus = settingsData?.mastraSettings?.advancedMemoryStatus;
 
   // Read-only "Company knowledge" status — derived from ERXES_AGENT_KNOWLEDGE.
@@ -44,7 +51,8 @@ export const GeneralSettingsPage = () => {
   // Detected upload storage (configured in core Settings → File upload).
   const attachmentStorage = settingsData?.mastraSettings?.attachmentStorage;
 
-  const set = (k: string, v: string | boolean) => setForm((f) => ({ ...f, [k]: v }));
+  const set = (k: string, v: string | boolean) =>
+    setForm((f) => ({ ...f, [k]: v }));
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,13 +65,17 @@ export const GeneralSettingsPage = () => {
     <div className="p-6 max-w-xl space-y-8">
       <div>
         <h1 className="text-2xl font-bold">General Settings</h1>
-        <p className="text-muted-foreground mt-1">Configure the Mastra plugin connection to erxes.</p>
+        <p className="text-muted-foreground mt-1">
+          Configure the Mastra plugin connection to erxes.
+        </p>
       </div>
 
       <form onSubmit={handleSave} className="space-y-5">
         {/* Default Agent */}
         <div className="space-y-1.5">
-          <Label htmlFor="defaultAgentId">Default Agent (for bot webhook)</Label>
+          <Label htmlFor="defaultAgentId">
+            Default Agent (for bot webhook)
+          </Label>
           <select
             id="defaultAgentId"
             className="w-full rounded-md border bg-background px-3 py-2 text-sm"
@@ -71,13 +83,18 @@ export const GeneralSettingsPage = () => {
             onChange={(e) => set('defaultAgentId', e.target.value)}
           >
             <option value="">None</option>
-            {agents.filter((a: any) => a.isEnabled).map((a: any) => (
-              <option key={a._id} value={a.agentId}>{a.name} ({a.agentId})</option>
-            ))}
+            {agents
+              .filter((a: any) => a.isEnabled)
+              .map((a: any) => (
+                <option key={a._id} value={a.agentId}>
+                  {a.name} ({a.agentId})
+                </option>
+              ))}
           </select>
           <p className="text-xs text-muted-foreground">
-            This agent handles incoming messages from the erxes messenger bot endpoint
-            (<code>POST /pl:erxes-agent/bot/:conversationId</code>). Set this URL as
+            This agent handles incoming messages from the erxes messenger bot
+            endpoint (<code>POST /pl:erxes-agent/bot/:conversationId</code>).
+            Set this URL as
             <code> botEndpointUrl</code> in your frontline integration.
           </p>
         </div>
@@ -91,7 +108,9 @@ export const GeneralSettingsPage = () => {
             onChange={(e) => set('erxesApiUrl', e.target.value)}
             placeholder="http://localhost:4000"
           />
-          <p className="text-xs text-muted-foreground">Used by erxes tools to call the GraphQL gateway</p>
+          <p className="text-xs text-muted-foreground">
+            Used by erxes tools to call the GraphQL gateway
+          </p>
         </div>
 
         {/* erxes API Token */}
@@ -104,7 +123,9 @@ export const GeneralSettingsPage = () => {
             onChange={(e) => set('erxesApiToken', e.target.value)}
             placeholder="Bearer token for erxes gateway calls"
           />
-          <p className="text-xs text-muted-foreground">Also used for GraphQL schema introspection when loading erxes tools</p>
+          <p className="text-xs text-muted-foreground">
+            Also used for GraphQL schema introspection when loading erxes tools
+          </p>
         </div>
 
         {/* Chat file attachments — rides on the instance's existing upload storage */}
@@ -137,7 +158,9 @@ export const GeneralSettingsPage = () => {
               <span className="font-mono">
                 {attachmentStorage?.serviceType || 'unknown'}
               </span>{' '}
-              {attachmentStorage?.configured ? '(configured)' : '(not configured)'}
+              {attachmentStorage?.configured
+                ? '(configured)'
+                : '(not configured)'}
             </div>
           </div>
 
@@ -152,14 +175,23 @@ export const GeneralSettingsPage = () => {
           </label>
 
           <p className="text-xs text-muted-foreground">
-            Files are stored in this instance's existing upload storage (configured in{' '}
-            <strong>Settings → File upload</strong>: AWS S3, Cloudflare R2, Azure, GCS or
-            local disk). When no storage is configured, conversations stay text-only.
+            Files are stored in this instance's existing upload storage
+            (configured in <strong>Settings → File upload</strong>: AWS S3,
+            Cloudflare R2, Azure, GCS or local disk). When no storage is
+            configured, conversations stay text-only.
           </p>
         </div>
 
         <Button type="submit" disabled={loading}>
-          {saved ? <><IconCheck size={16} /> Saved</> : loading ? 'Saving...' : 'Save Settings'}
+          {saved ? (
+            <>
+              <IconCheck size={16} /> Saved
+            </>
+          ) : loading ? (
+            'Saving...'
+          ) : (
+            'Save Settings'
+          )}
         </Button>
       </form>
 
@@ -180,8 +212,8 @@ export const GeneralSettingsPage = () => {
           <div className="text-xs text-muted-foreground space-y-1 pl-6">
             <div>
               Embedder:{' '}
-              <span className="font-mono">{memStatus.embedderModel}</span>{' '}
-              ({memStatus.embedder})
+              <span className="font-mono">{memStatus.embedderModel}</span> (
+              {memStatus.embedder})
             </div>
             <div className="flex items-center gap-1.5">
               Qdrant: <span className="font-mono">{memStatus.qdrantUrl}</span>
@@ -211,7 +243,8 @@ export const GeneralSettingsPage = () => {
 
         <p className="text-xs text-muted-foreground">
           Controlled by the <code>MASTRA_MEMORY</code> environment variable. Set{' '}
-          <code>MASTRA_MEMORY=enable</code> and restart the plugin to turn it on.
+          <code>MASTRA_MEMORY=enable</code> and restart the plugin to turn it
+          on.
         </p>
       </div>
 
@@ -236,7 +269,8 @@ export const GeneralSettingsPage = () => {
               ({knowledgeStatus.embedder})
             </div>
             <div className="flex items-center gap-1.5">
-              Qdrant: <span className="font-mono">{knowledgeStatus.qdrantUrl}</span>
+              Qdrant:{' '}
+              <span className="font-mono">{knowledgeStatus.qdrantUrl}</span>
               <span
                 className={`inline-block size-2 rounded-full ${
                   knowledgeStatus.qdrantReachable === true
@@ -280,23 +314,23 @@ export const GeneralSettingsPage = () => {
                     { count: number; points: number; error?: string }
                   >,
                 )
-                  .map(
-                    ([t, s]) =>
-                      `${t}: ${s.count}${s.error ? ' ⚠' : ''}`,
-                  )
+                  .map(([t, s]) => `${t}: ${s.count}${s.error ? ' ⚠' : ''}`)
                   .join(' · ')}
               </div>
             )}
             {knowledgeStatus.lastError && (
-              <div className="text-red-500">Last error: {knowledgeStatus.lastError}</div>
+              <div className="text-red-500">
+                Last error: {knowledgeStatus.lastError}
+              </div>
             )}
           </div>
         )}
 
         <p className="text-xs text-muted-foreground">
-          Lets agents answer from company data via the <code>Company Knowledge</code>{' '}
-          tool. Controlled by <code>ERXES_AGENT_KNOWLEDGE</code>; the embedded content
-          types by <code>ERXES_AGENT_KNOWLEDGE_TYPES</code> (default: kb-article only).
+          Lets agents answer from company data via the{' '}
+          <code>Company Knowledge</code> tool. Controlled by{' '}
+          <code>ERXES_AGENT_KNOWLEDGE</code>; the embedded content types by{' '}
+          <code>ERXES_AGENT_KNOWLEDGE_TYPES</code> (default: kb-article only).
         </p>
       </div>
 
@@ -307,8 +341,12 @@ export const GeneralSettingsPage = () => {
           To connect this agent to the erxes messenger widget:
         </p>
         <ol className="list-decimal list-inside space-y-1 text-muted-foreground text-xs">
-          <li>Go to <strong>Settings → Integrations → Messenger</strong></li>
-          <li>Edit an integration and set <strong>Bot Endpoint URL</strong> to:</li>
+          <li>
+            Go to <strong>Settings → Integrations → Messenger</strong>
+          </li>
+          <li>
+            Edit an integration and set <strong>Bot Endpoint URL</strong> to:
+          </li>
         </ol>
         <code className="block bg-muted px-3 py-2 rounded text-xs">
           http://localhost:3312/pl:erxes-agent/bot

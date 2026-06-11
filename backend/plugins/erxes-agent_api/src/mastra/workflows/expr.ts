@@ -55,7 +55,8 @@ function tokenize(src: string): Token[] {
     if (rest[0] === "'" || rest[0] === '"') {
       const quote = rest[0];
       const end = rest.indexOf(quote, 1);
-      if (end === -1) throw new Error(`unterminated string in condition: ${src}`);
+      if (end === -1)
+        throw new Error(`unterminated string in condition: ${src}`);
       tokens.push({ kind: 'string', value: rest.slice(1, end) });
       rest = rest.slice(end + 1);
       continue;
@@ -129,7 +130,8 @@ export function parseExpr(src: string): ExprNode {
     if (t.kind === 'lparen') {
       const inner = orExpr();
       const close = next();
-      if (!close || close.kind !== 'rparen') throw new Error(`missing ")" in condition: ${src}`);
+      if (!close || close.kind !== 'rparen')
+        throw new Error(`missing ")" in condition: ${src}`);
       return inner;
     }
     throw new Error(`unexpected token in condition: ${src}`);
@@ -146,7 +148,10 @@ export function parseExpr(src: string): ExprNode {
   const cmpExpr = (): ExprNode => {
     let left = notExpr();
     const t = peek();
-    if (t?.kind === 'op' && ['==', '!=', '>', '<', '>=', '<=', 'in'].includes(t.op)) {
+    if (
+      t?.kind === 'op' &&
+      ['==', '!=', '>', '<', '>=', '<=', 'in'].includes(t.op)
+    ) {
       next();
       left = { kind: 'binary', op: t.op, left, right: notExpr() };
     }
@@ -172,7 +177,8 @@ export function parseExpr(src: string): ExprNode {
   };
 
   const ast = orExpr();
-  if (pos < tokens.length) throw new Error(`trailing tokens in condition: ${src}`);
+  if (pos < tokens.length)
+    throw new Error(`trailing tokens in condition: ${src}`);
   return ast;
 }
 
@@ -207,8 +213,16 @@ export function evalExpr(node: ExprNode, scope: RefScope): any {
     case 'not':
       return !evalExpr(node.operand, scope);
     case 'binary': {
-      if (node.op === '&&') return Boolean(evalExpr(node.left, scope)) && Boolean(evalExpr(node.right, scope));
-      if (node.op === '||') return Boolean(evalExpr(node.left, scope)) || Boolean(evalExpr(node.right, scope));
+      if (node.op === '&&')
+        return (
+          Boolean(evalExpr(node.left, scope)) &&
+          Boolean(evalExpr(node.right, scope))
+        );
+      if (node.op === '||')
+        return (
+          Boolean(evalExpr(node.left, scope)) ||
+          Boolean(evalExpr(node.right, scope))
+        );
 
       const l = evalExpr(node.left, scope);
       const r = evalExpr(node.right, scope);
@@ -228,7 +242,8 @@ export function evalExpr(node: ExprNode, scope: RefScope): any {
         case 'in':
           if (Array.isArray(r)) return r.some((v) => looseEquals(v, l));
           if (typeof r === 'string') return r.includes(String(l));
-          if (r && typeof r === 'object') return Object.prototype.hasOwnProperty.call(r, String(l));
+          if (r && typeof r === 'object')
+            return Object.prototype.hasOwnProperty.call(r, String(l));
           return false;
         default:
           throw new Error(`unsupported operator "${node.op}"`);

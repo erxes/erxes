@@ -2,7 +2,9 @@ import { parseExpr, evalExpr, exprRefs, evaluateCondition } from '../expr';
 import { RefScope } from '../refs';
 
 const scope: RefScope = {
-  trigger: { payload: { amount: 5000, kind: 'facebook', vip: true, tags: ['a', 'b'] } },
+  trigger: {
+    payload: { amount: 5000, kind: 'facebook', vip: true, tags: ['a', 'b'] },
+  },
   steps: { classify: { output: { intent: 'order', score: 0.9 } } },
   bindings: {},
 };
@@ -27,9 +29,11 @@ describe('expression language', () => {
   });
 
   it('handles boolean logic with precedence (&& binds tighter than ||)', () => {
-    expect(ev("{{trigger.payload.vip}} && {{trigger.payload.amount}} > 100")).toBe(true);
-    expect(ev("false || true && false")).toBe(false);
-    expect(ev("(false || true) && true")).toBe(true);
+    expect(
+      ev('{{trigger.payload.vip}} && {{trigger.payload.amount}} > 100'),
+    ).toBe(true);
+    expect(ev('false || true && false')).toBe(false);
+    expect(ev('(false || true) && true')).toBe(true);
     expect(ev('!{{trigger.payload.vip}}')).toBe(false);
   });
 
@@ -55,7 +59,9 @@ describe('expression language', () => {
   });
 
   it('exposes its refs for compile-time integrity checks', () => {
-    const ast = parseExpr("{{steps.classify.output.intent}} == 'order' && {{trigger.payload.vip}}");
+    const ast = parseExpr(
+      "{{steps.classify.output.intent}} == 'order' && {{trigger.payload.vip}}",
+    );
     expect(exprRefs(ast).sort()).toEqual([
       'steps.classify.output.intent',
       'trigger.payload.vip',

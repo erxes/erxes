@@ -5,18 +5,36 @@ import { getCurrentAuth } from '../requestContext';
 function truncateWords(text: string, maxWords = 15): string {
   if (!text) return '';
   const words = text.trim().split(/\s+/);
-  return words.length <= maxWords ? text : words.slice(0, maxWords).join(' ') + '...';
+  return words.length <= maxWords
+    ? text
+    : words.slice(0, maxWords).join(' ') + '...';
 }
 
 // erxes' GraphQL schema carries no field descriptions, so operation names are
 // all we have. Turn a camelCase operation into a readable action phrase so both
 // the UI picker and the agent see "Create a deal" instead of "mutation dealsAdd".
 const OPERATION_VERBS: Record<string, string> = {
-  add: 'Create', create: 'Create', save: 'Create or update', edit: 'Update',
-  update: 'Update', remove: 'Delete', delete: 'Delete', detail: 'Get one',
-  details: 'Get one', merge: 'Merge', duplicate: 'Duplicate', count: 'Count',
-  list: 'List', tag: 'Tag', assign: 'Assign', change: 'Change', send: 'Send',
-  verify: 'Verify', resolve: 'Resolve', cancel: 'Cancel', confirm: 'Confirm',
+  add: 'Create',
+  create: 'Create',
+  save: 'Create or update',
+  edit: 'Update',
+  update: 'Update',
+  remove: 'Delete',
+  delete: 'Delete',
+  detail: 'Get one',
+  details: 'Get one',
+  merge: 'Merge',
+  duplicate: 'Duplicate',
+  count: 'Count',
+  list: 'List',
+  tag: 'Tag',
+  assign: 'Assign',
+  change: 'Change',
+  send: 'Send',
+  verify: 'Verify',
+  resolve: 'Resolve',
+  cancel: 'Cancel',
+  confirm: 'Confirm',
 };
 
 // The gateway's userMiddleware only accepts `Authorization: Bearer <token>`
@@ -32,11 +50,15 @@ export const asBearer = (token?: string | null): string =>
 export const CURATED_OP_DESCRIPTIONS: Record<string, string> = {
   tagsTag:
     'Assign tags to records — set the tags of customers, companies, or other records. Args: type (e.g. "core:customer"), targetIds (record ids), tagIds (tag ids; replaces the record\'s tags)',
-  tagsAdd: 'Create a new tag (does NOT assign it to any record — use tagsTag for that)',
+  tagsAdd:
+    'Create a new tag (does NOT assign it to any record — use tagsTag for that)',
   tags: 'List existing tags (filter by type, e.g. "core:customer")',
 };
 
-export function humanizeOperation(name: string, opType: 'query' | 'mutation'): string {
+export function humanizeOperation(
+  name: string,
+  opType: 'query' | 'mutation',
+): string {
   const curated = CURATED_OP_DESCRIPTIONS[name];
   if (curated) return curated;
   const words = (name || '')
@@ -64,7 +86,15 @@ export function humanizeOperation(name: string, opType: 'query' | 'mutation'): s
 
 // Leading filler words that aren't the entity (allBrands → brands).
 const MODULE_LEADING_QUALIFIERS = new Set([
-  'all', 'active', 'current', 'get', 'my', 'recent', 'list', 'total', 'search',
+  'all',
+  'active',
+  'current',
+  'get',
+  'my',
+  'recent',
+  'list',
+  'total',
+  'search',
 ]);
 
 // Best-effort "module"/entity grouping for an operation. erxes exposes no
@@ -78,7 +108,10 @@ export function deriveModule(operation: string): string {
     .split(/\s+/)
     .filter(Boolean);
   if (!words.length) return 'other';
-  if (words.length > 1 && MODULE_LEADING_QUALIFIERS.has(words[0].toLowerCase())) {
+  if (
+    words.length > 1 &&
+    MODULE_LEADING_QUALIFIERS.has(words[0].toLowerCase())
+  ) {
     return words[1].toLowerCase();
   }
   return words[0].toLowerCase();
@@ -91,12 +124,20 @@ export function deriveModule(operation: string): string {
 function parseJsonPreprocess(val: unknown): unknown {
   if (typeof val !== 'string') return val;
   // 1. Standard JSON — handles properly-quoted strings and arrays.
-  try { return JSON.parse(val); } catch { /* fall through */ }
+  try {
+    return JSON.parse(val);
+  } catch {
+    /* fall through */
+  }
   // 2. Python-style single-quoted literals — only attempt when the value looks
   //    like a list or object so we don't mangle plain string scalars.
   const trimmed = val.trim();
   if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
-    try { return JSON.parse(trimmed.replace(/'/g, '"')); } catch { /* keep as-is */ }
+    try {
+      return JSON.parse(trimmed.replace(/'/g, '"'));
+    } catch {
+      /* keep as-is */
+    }
   }
   return val;
 }
@@ -113,7 +154,10 @@ export function graphqlTypeToString(type: any): string {
 // inputTypesMap: name → inputFields[], populated via fetchInputTypesMap().
 // Passed through the Zod builders so INPUT_OBJECT types get real schemas
 // instead of z.any(), giving the LLM correct field names up front.
-function graphqlTypeToZod(type: any, inputTypesMap?: Record<string, any[]>): z.ZodTypeAny {
+function graphqlTypeToZod(
+  type: any,
+  inputTypesMap?: Record<string, any[]>,
+): z.ZodTypeAny {
   if (!type) return z.any().optional();
   const name = type.name || '';
   const kind = type.kind || '';
@@ -149,8 +193,8 @@ function graphqlTypeToZod(type: any, inputTypesMap?: Record<string, any[]>): z.Z
       return z.preprocess((val) => {
         if (typeof val !== 'string') return val;
         const lower = val.toLowerCase().trim();
-        if (lower === 'true'  || lower === '1' || lower === 'yes') return true;
-        if (lower === 'false' || lower === '0' || lower === 'no')  return false;
+        if (lower === 'true' || lower === '1' || lower === 'yes') return true;
+        if (lower === 'false' || lower === '0' || lower === 'no') return false;
         return val;
       }, z.boolean().optional());
     case 'String':
@@ -180,7 +224,10 @@ function graphqlTypeToZod(type: any, inputTypesMap?: Record<string, any[]>): z.Z
   }
 }
 
-function buildZodSchemaFromArgs(args: any[], inputTypesMap?: Record<string, any[]>): z.ZodObject<any> {
+function buildZodSchemaFromArgs(
+  args: any[],
+  inputTypesMap?: Record<string, any[]>,
+): z.ZodObject<any> {
   const shape: Record<string, z.ZodTypeAny> = {};
   for (const arg of args || []) {
     shape[arg.name] = graphqlTypeToZod(arg.type, inputTypesMap);
@@ -190,7 +237,8 @@ function buildZodSchemaFromArgs(args: any[], inputTypesMap?: Record<string, any[
 
 function resolveReturnTypeKind(type: any): string {
   if (!type) return 'UNKNOWN';
-  if (type.kind === 'NON_NULL' || type.kind === 'LIST') return resolveReturnTypeKind(type.ofType);
+  if (type.kind === 'NON_NULL' || type.kind === 'LIST')
+    return resolveReturnTypeKind(type.ofType);
   return type.kind || 'UNKNOWN';
 }
 
@@ -201,7 +249,8 @@ function needsSelectionSet(returnType: any): boolean {
 
 function resolveReturnTypeName(type: any): string {
   if (!type) return '';
-  if (type.kind === 'NON_NULL' || type.kind === 'LIST') return resolveReturnTypeName(type.ofType);
+  if (type.kind === 'NON_NULL' || type.kind === 'LIST')
+    return resolveReturnTypeName(type.ofType);
   return type.name || '';
 }
 
@@ -217,7 +266,8 @@ const LEAF_KINDS = new Set(['SCALAR', 'ENUM']);
 // Unwrap NON_NULL / LIST wrappers down to the named type.
 function namedTypeOf(type: any): { kind: string; name: string } {
   if (!type) return { kind: 'SCALAR', name: 'String' };
-  if (type.kind === 'NON_NULL' || type.kind === 'LIST') return namedTypeOf(type.ofType);
+  if (type.kind === 'NON_NULL' || type.kind === 'LIST')
+    return namedTypeOf(type.ofType);
   return { kind: type.kind || 'SCALAR', name: type.name || '' };
 }
 
@@ -298,11 +348,15 @@ function buildGraphqlOperation(
   returnType?: any,
   responseFields?: string,
 ): { query: string; variables: Record<string, any> } {
-  const provided = (args || []).filter((a: any) => !isNoopValue(inputArgs[a.name]));
+  const provided = (args || []).filter(
+    (a: any) => !isNoopValue(inputArgs[a.name]),
+  );
 
-  const varDefs = provided.map((a: any) => {
-    return `$${a.name}: ${graphqlTypeToString(a.type)}`;
-  }).join(', ');
+  const varDefs = provided
+    .map((a: any) => {
+      return `$${a.name}: ${graphqlTypeToString(a.type)}`;
+    })
+    .join(', ');
 
   const argList = provided.map((a: any) => `${a.name}: $${a.name}`).join(', ');
   const variables: Record<string, any> = {};
@@ -317,16 +371,22 @@ function buildGraphqlOperation(
   let defaultFields = '_id name';
   if (!responseFields) {
     const rootTypeName = resolveReturnTypeName(returnType);
-    if (rootTypeName.endsWith('ListResponse') || rootTypeName.endsWith('Connection')) {
+    if (
+      rootTypeName.endsWith('ListResponse') ||
+      rootTypeName.endsWith('Connection')
+    ) {
       defaultFields = 'list { _id name } totalCount';
     }
   }
-  const selection = needsSelectionSet(returnType) ? ` { ${responseFields || defaultFields} }` : '';
+  const selection = needsSelectionSet(returnType)
+    ? ` { ${responseFields || defaultFields} }`
+    : '';
 
   const opStr = `${operation}${argList ? `(${argList})` : ''}${selection}`;
-  const queryStr = operationType === 'mutation'
-    ? `mutation Run${varDefs ? `(${varDefs})` : ''} { ${opStr} }`
-    : `query Run${varDefs ? `(${varDefs})` : ''} { ${opStr} }`;
+  const queryStr =
+    operationType === 'mutation'
+      ? `mutation Run${varDefs ? `(${varDefs})` : ''} { ${opStr} }`
+      : `query Run${varDefs ? `(${varDefs})` : ''} { ${opStr} }`;
 
   return { query: queryStr, variables };
 }
@@ -363,24 +423,30 @@ async function resolveAvailableStages(
   apiUrl: string,
   authHeaders: Record<string, string>,
 ): Promise<any[]> {
-  const boardsData = await gqlCall(apiUrl, authHeaders, '{ salesBoards { _id name } }');
+  const boardsData = await gqlCall(
+    apiUrl,
+    authHeaders,
+    '{ salesBoards { _id name } }',
+  );
   const boards: any[] = boardsData?.salesBoards ?? [];
   const seen = new Set<string>();
   const stages: any[] = [];
 
   for (const board of boards.slice(0, 5)) {
     const pipData = await gqlCall(
-      apiUrl, authHeaders,
+      apiUrl,
+      authHeaders,
       `{ salesPipelines(boardId: "${board._id}") { list { _id name } } }`,
     );
     const pipelines: any[] = pipData?.salesPipelines?.list ?? [];
 
     for (const pipeline of pipelines.slice(0, 5)) {
       const stData = await gqlCall(
-        apiUrl, authHeaders,
+        apiUrl,
+        authHeaders,
         `{ salesStages(pipelineId: "${pipeline._id}") { _id name } }`,
       );
-      for (const stage of (stData?.salesStages ?? [])) {
+      for (const stage of stData?.salesStages ?? []) {
         if (seen.has(stage._id)) continue;
         seen.add(stage._id);
         stages.push({ stageId: stage._id, stageName: stage.name });
@@ -391,7 +457,10 @@ async function resolveAvailableStages(
 }
 
 // Entity → auto-resolver function.  Add new entities here as needed.
-type Resolver = (apiUrl: string, headers: Record<string, string>) => Promise<any[]>;
+type Resolver = (
+  apiUrl: string,
+  headers: Record<string, string>,
+) => Promise<any[]>;
 const ENTITY_RESOLVERS: Record<string, { key: string; resolver: Resolver }> = {
   stage: { key: 'availableStages', resolver: resolveAvailableStages },
 };
@@ -436,7 +505,10 @@ function withNeutralDefaults(
   return added ? filled : null;
 }
 
-export function sanitizeServerError(raw: string): { error: string; instruction: string } {
+export function sanitizeServerError(raw: string): {
+  error: string;
+  instruction: string;
+} {
   const msg = (raw || '').trim();
   const reqMatch = msg.match(REQUIRED_ARG_RE);
   if (reqMatch && !INTERNAL_ERROR_RE.test(msg)) {
@@ -444,18 +516,23 @@ export function sanitizeServerError(raw: string): { error: string; instruction: 
     return {
       error: msg,
       instruction:
-        'This operation needs one or more required arguments. Re-read the operation\'s argument list from search_erxes_operations and call it again WITH those arguments filled in — never call it with empty args.',
+        "This operation needs one or more required arguments. Re-read the operation's argument list from search_erxes_operations and call it again WITH those arguments filled in — never call it with empty args.",
     };
   }
   if (INTERNAL_ERROR_RE.test(msg)) {
     // Internal server crash — hide the stack-ish detail entirely.
     return {
-      error: 'That operation could not be completed (the service rejected the request).',
+      error:
+        'That operation could not be completed (the service rejected the request).',
       instruction:
         'Do NOT show this technical detail to the user and do NOT retry the same call. The operation likely needs required arguments you did not provide, or is not usable this way. Provide the required arguments, choose a different operation, or skip this step and continue.',
     };
   }
-  return { error: msg, instruction: 'Tell the user in plain words; do not retry the same call unchanged.' };
+  return {
+    error: msg,
+    instruction:
+      'Tell the user in plain words; do not retry the same call unchanged.',
+  };
 }
 
 async function buildNotFoundResult(
@@ -475,7 +552,9 @@ async function buildNotFoundResult(
       lower.includes('required');
     if (mentionsEntity && isActionable) {
       const items = await resolver(apiUrl, authHeaders);
-      const names = items.map((i: any) => i.stageName ?? i.name).filter(Boolean);
+      const names = items
+        .map((i: any) => i.stageName ?? i.name)
+        .filter(Boolean);
       return {
         success: false,
         availableStages: names,
@@ -518,146 +597,153 @@ export async function executeErxesOperation(
   inputTypesMap?: Record<string, any[]>,
   objectFieldsMap?: Record<string, any[]>,
 ): Promise<any> {
- // Any internal failure (a malformed introspection shape, an undefined field
- // access, a network blip) must become a STRUCTURED result the model can act
- // on — never an exception that surfaces to the user as a raw stack message
- // and strands them.
- try {
-  const apiUrl = settings?.erxesApiUrl || 'http://localhost:4000';
-  const token = settings?.erxesApiToken || '';
-  const erxesOperation = op.operation;
-  const erxesOperationType = op.operationType;
-  const args = op.graphqlArgs || [];
+  // Any internal failure (a malformed introspection shape, an undefined field
+  // access, a network blip) must become a STRUCTURED result the model can act
+  // on — never an exception that surfaces to the user as a raw stack message
+  // and strands them.
+  try {
+    const apiUrl = settings?.erxesApiUrl || 'http://localhost:4000';
+    const token = settings?.erxesApiToken || '';
+    const erxesOperation = op.operation;
+    const erxesOperationType = op.operationType;
+    const args = op.graphqlArgs || [];
 
-  // Coerce the model's args through the per-operation Zod schema (numbers sent
-  // as strings, JSON-as-string arrays/objects, date normalisation, …). The
-  // execute meta-tool passes a plain object, so this is where validation runs;
-  // on failure we fall back to the raw args so a usable call still goes out.
-  const inputSchema = buildZodSchemaFromArgs(args, inputTypesMap);
-  const parsed = inputSchema.safeParse(rawArgs || {});
-  let resolvedArgs: Record<string, any> = parsed.success
-    ? ({ ...(parsed.data as Record<string, any>) })
-    : ({ ...(rawArgs || {}) });
+    // Coerce the model's args through the per-operation Zod schema (numbers sent
+    // as strings, JSON-as-string arrays/objects, date normalisation, …). The
+    // execute meta-tool passes a plain object, so this is where validation runs;
+    // on failure we fall back to the raw args so a usable call still goes out.
+    const inputSchema = buildZodSchemaFromArgs(args, inputTypesMap);
+    const parsed = inputSchema.safeParse(rawArgs || {});
+    let resolvedArgs: Record<string, any> = parsed.success
+      ? { ...(parsed.data as Record<string, any>) }
+      : { ...(rawArgs || {}) };
 
-  // Auth must be resolved first — needed for any pre-flight stage lookups.
-  const reqAuth = getCurrentAuth();
-  const authHeaders: Record<string, string> = {};
-  if (reqAuth?.userHeader) {
-    authHeaders['user'] = reqAuth.userHeader;
-  } else if (reqAuth?.token || token) {
-    authHeaders['Authorization'] = asBearer(reqAuth?.token || token);
-  }
-
-  // ── dealsAdd pre-flight ────────────────────────────────────────────────
-  // LLMs naturally express intent with stage NAMES (e.g. "Test for Ai"),
-  // not MongoDB ObjectIds.  This block auto-resolves any name sent as
-  // stageId → real ObjectId transparently, so the LLM never has to know
-  // or remember the raw database ID.
-  if (erxesOperation === 'dealsAdd') {
-    // dealsAdd takes flat top-level args: dealsAdd(name, stageId, ...) — no doc wrapper.
-    let stageId: string | undefined = resolvedArgs?.stageId;
-    // Strip surrounding quotes LLMs sometimes add: '"Test for Ai"' → 'Test for Ai'
-    if (typeof stageId === 'string') {
-      stageId = stageId.replace(/^["']|["']$/g, '').trim();
+    // Auth must be resolved first — needed for any pre-flight stage lookups.
+    const reqAuth = getCurrentAuth();
+    const authHeaders: Record<string, string> = {};
+    if (reqAuth?.userHeader) {
+      authHeaders['user'] = reqAuth.userHeader;
+    } else if (reqAuth?.token || token) {
+      authHeaders['Authorization'] = asBearer(reqAuth?.token || token);
     }
 
-    const isValidObjectId = (s?: string) => !!s && /^[a-f0-9]{24}$/i.test(s);
-
-    if (!isValidObjectId(stageId)) {
-      const stages = await resolveAvailableStages(apiUrl, authHeaders);
-
-      if (stageId) {
-        // Fuzzy-match the name the LLM sent against real stage names.
-        const needle = stageId.toLowerCase().trim();
-        const match =
-          stages.find((s: any) => (s.stageName || '').toLowerCase() === needle) ||
-          stages.find((s: any) => (s.stageName || '').toLowerCase().includes(needle));
-        if (match) {
-          resolvedArgs = { ...resolvedArgs, stageId: match.stageId };
-          stageId = match.stageId;
-        }
+    // ── dealsAdd pre-flight ────────────────────────────────────────────────
+    // LLMs naturally express intent with stage NAMES (e.g. "Test for Ai"),
+    // not MongoDB ObjectIds.  This block auto-resolves any name sent as
+    // stageId → real ObjectId transparently, so the LLM never has to know
+    // or remember the raw database ID.
+    if (erxesOperation === 'dealsAdd') {
+      // dealsAdd takes flat top-level args: dealsAdd(name, stageId, ...) — no doc wrapper.
+      let stageId: string | undefined = resolvedArgs?.stageId;
+      // Strip surrounding quotes LLMs sometimes add: '"Test for Ai"' → 'Test for Ai'
+      if (typeof stageId === 'string') {
+        stageId = stageId.replace(/^["']|["']$/g, '').trim();
       }
 
-      // If only one stage exists, pick it automatically — no need to ask.
-      if (!isValidObjectId(stageId) && stages.length === 1) {
-        resolvedArgs = { ...resolvedArgs, stageId: stages[0].stageId };
-        stageId = stages[0].stageId;
-      }
+      const isValidObjectId = (s?: string) => !!s && /^[a-f0-9]{24}$/i.test(s);
 
       if (!isValidObjectId(stageId)) {
-        const stageNames = stages.map((s: any) => s.stageName);
-        return {
-          success: false,
-          availableStages: stageNames,
-          instruction: stages.length
-            ? `Call dealsAdd immediately with: { stageId: "${stageNames[0] ?? 'stage name'}", name: "deal name" }. Available stages: ${stageNames.join(', ')}.`
-            : 'No stages exist. Tell the user to create a Board with a Pipeline and Stage in erxes Sales first.',
-        };
+        const stages = await resolveAvailableStages(apiUrl, authHeaders);
+
+        if (stageId) {
+          // Fuzzy-match the name the LLM sent against real stage names.
+          const needle = stageId.toLowerCase().trim();
+          const match =
+            stages.find(
+              (s: any) => (s.stageName || '').toLowerCase() === needle,
+            ) ||
+            stages.find((s: any) =>
+              (s.stageName || '').toLowerCase().includes(needle),
+            );
+          if (match) {
+            resolvedArgs = { ...resolvedArgs, stageId: match.stageId };
+            stageId = match.stageId;
+          }
+        }
+
+        // If only one stage exists, pick it automatically — no need to ask.
+        if (!isValidObjectId(stageId) && stages.length === 1) {
+          resolvedArgs = { ...resolvedArgs, stageId: stages[0].stageId };
+          stageId = stages[0].stageId;
+        }
+
+        if (!isValidObjectId(stageId)) {
+          const stageNames = stages.map((s: any) => s.stageName);
+          return {
+            success: false,
+            availableStages: stageNames,
+            instruction: stages.length
+              ? `Call dealsAdd immediately with: { stageId: "${stageNames[0] ?? 'stage name'}", name: "deal name" }. Available stages: ${stageNames.join(', ')}.`
+              : 'No stages exist. Tell the user to create a Board with a Pipeline and Stage in erxes Sales first.',
+          };
+        }
       }
     }
-  }
-  // ──────────────────────────────────────────────────────────────────────
+    // ──────────────────────────────────────────────────────────────────────
 
-  // Build the GraphQL operation after stageId has been resolved. Choose a
-  // VALID response selection derived from the schema (so types without a
-  // `name` field, like User, still produce a runnable query).
-  const finalResponseFields = chooseResponseFields(
-    erxesOperation,
-    undefined,
-    op.returnType,
-    objectFieldsMap,
-  );
-
-  const runCall = async (callArgs: Record<string, any>) => {
-    const { query, variables } = buildGraphqlOperation(
+    // Build the GraphQL operation after stageId has been resolved. Choose a
+    // VALID response selection derived from the schema (so types without a
+    // `name` field, like User, still produce a runnable query).
+    const finalResponseFields = chooseResponseFields(
       erxesOperation,
-      erxesOperationType,
-      args,
-      callArgs,
+      undefined,
       op.returnType,
-      finalResponseFields,
+      objectFieldsMap,
     );
-    const response = await fetch(`${apiUrl}/graphql`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authHeaders },
-      body: JSON.stringify({ query, variables }),
-    });
-    return (await response.json()) as any;
-  };
 
-  const joinErrors = (errs: any[]) => errs.map((e: any) => e.message).join('; ');
+    const runCall = async (callArgs: Record<string, any>) => {
+      const { query, variables } = buildGraphqlOperation(
+        erxesOperation,
+        erxesOperationType,
+        args,
+        callArgs,
+        op.returnType,
+        finalResponseFields,
+      );
+      const response = await fetch(`${apiUrl}/graphql`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify({ query, variables }),
+      });
+      return (await response.json()) as any;
+    };
 
-  let data = await runCall(resolvedArgs);
+    const joinErrors = (errs: any[]) =>
+      errs.map((e: any) => e.message).join('; ');
 
-  // ── Crash auto-recovery ───────────────────────────────────────────────
-  // Several erxes resolvers crash (500) when a schema-optional arg is
-  // omitted. When the failure looks like such a crash, retry once with
-  // neutral defaults filled into the missing args before reporting failure.
-  if (data?.errors && INTERNAL_ERROR_RE.test(joinErrors(data.errors))) {
-    const defaulted = withNeutralDefaults(args, resolvedArgs);
-    if (defaulted) {
-      const retried = await runCall(defaulted);
-      if (!retried?.errors) data = retried;
+    let data = await runCall(resolvedArgs);
+
+    // ── Crash auto-recovery ───────────────────────────────────────────────
+    // Several erxes resolvers crash (500) when a schema-optional arg is
+    // omitted. When the failure looks like such a crash, retry once with
+    // neutral defaults filled into the missing args before reporting failure.
+    if (data?.errors && INTERNAL_ERROR_RE.test(joinErrors(data.errors))) {
+      const defaulted = withNeutralDefaults(args, resolvedArgs);
+      if (defaulted) {
+        const retried = await runCall(defaulted);
+        if (!retried?.errors) data = retried;
+      }
     }
-  }
 
-  if (data?.errors) {
-    return buildNotFoundResult(joinErrors(data.errors), apiUrl, authHeaders);
+    if (data?.errors) {
+      return buildNotFoundResult(joinErrors(data.errors), apiUrl, authHeaders);
+    }
+    return data?.data?.[erxesOperation] ?? null;
+  } catch (e: any) {
+    return {
+      success: false,
+      error: `Could not run "${op?.operation}": ${e?.message || String(e)}`,
+      instruction:
+        'This is an internal system problem, not a mistake by you or the user. Do NOT silently retry the same call. Tell the user in plain words that this one step could not be completed, and either continue with the rest of the task or ask how they want to proceed.',
+    };
   }
-  return data?.data?.[erxesOperation] ?? null;
- } catch (e: any) {
-  return {
-    success: false,
-    error: `Could not run "${op?.operation}": ${e?.message || String(e)}`,
-    instruction:
-      'This is an internal system problem, not a mistake by you or the user. Do NOT silently retry the same call. Tell the user in plain words that this one step could not be completed, and either continue with the rest of the task or ask how they want to proceed.',
-  };
- }
 }
 
 // Fetches all INPUT_OBJECT type definitions so graphqlTypeToZod can build real
 // Zod schemas for them instead of falling back to z.any().
-export async function fetchInputTypesMap(settings: any): Promise<Record<string, any[]>> {
+export async function fetchInputTypesMap(
+  settings: any,
+): Promise<Record<string, any[]>> {
   const apiUrl = settings?.erxesApiUrl || 'http://localhost:4000';
   const token = settings?.erxesApiToken || '';
 
@@ -683,7 +769,7 @@ export async function fetchInputTypesMap(settings: any): Promise<Record<string, 
       },
       body: JSON.stringify({ query }),
     });
-    const data = await response.json() as any;
+    const data = (await response.json()) as any;
     const types: any[] = data?.data?.__schema?.types || [];
     const map: Record<string, any[]> = {};
     for (const t of types) {
@@ -709,7 +795,9 @@ export async function fetchInputTypesMap(settings: any): Promise<Record<string, 
 // option here.)
 async function fetchPluginMap(token: string): Promise<Map<string, string>> {
   const map = new Map<string, string>();
-  const authHeaders: Record<string, string> = token ? { Authorization: asBearer(token) } : {};
+  const authHeaders: Record<string, string> = token
+    ? { Authorization: asBearer(token) }
+    : {};
 
   let plugins: string[] = [];
   try {
@@ -755,7 +843,9 @@ async function fetchPluginMap(token: string): Promise<Map<string, string>> {
 
 // Introspect all OBJECT types → their fields, so chooseResponseFields can build
 // a valid selection set for any return type (replacing the naive `_id name`).
-export async function fetchObjectFieldsMap(settings: any): Promise<Record<string, any[]>> {
+export async function fetchObjectFieldsMap(
+  settings: any,
+): Promise<Record<string, any[]>> {
   const apiUrl = settings?.erxesApiUrl || 'http://localhost:4000';
   const token = settings?.erxesApiToken || '';
 
@@ -781,11 +871,15 @@ export async function fetchObjectFieldsMap(settings: any): Promise<Record<string
       },
       body: JSON.stringify({ query }),
     });
-    const data = await response.json() as any;
+    const data = (await response.json()) as any;
     const types: any[] = data?.data?.__schema?.types || [];
     const map: Record<string, any[]> = {};
     for (const t of types) {
-      if (t.kind === 'OBJECT' && t.fields?.length && !String(t.name).startsWith('__')) {
+      if (
+        t.kind === 'OBJECT' &&
+        t.fields?.length &&
+        !String(t.name).startsWith('__')
+      ) {
         map[t.name] = t.fields;
       }
     }
@@ -798,7 +892,9 @@ export async function fetchObjectFieldsMap(settings: any): Promise<Record<string
 export async function fetchAvailableErxesTools(settings: any): Promise<any[]> {
   const apiUrl = settings?.erxesApiUrl || 'http://localhost:4000';
   const token = settings?.erxesApiToken || '';
-  const authHeaders: Record<string, string> = token ? { Authorization: asBearer(token) } : {};
+  const authHeaders: Record<string, string> = token
+    ? { Authorization: asBearer(token) }
+    : {};
 
   // Resolve plugin ownership (per-subgraph introspection) and the full gateway
   // field list (for descriptions/args/types) in parallel.
@@ -836,11 +932,13 @@ export async function fetchAvailableErxesTools(settings: any): Promise<any[]> {
     }),
   ]);
 
-  const schemaData = await schemaRes.json() as any;
+  const schemaData = (await schemaRes.json()) as any;
   const schema = schemaData?.data?.__schema;
 
   if (pluginMap.size === 0) {
-    console.warn('[mastra] _service { sdl } returned no data — falling back to first-word detection');
+    console.warn(
+      '[mastra] _service { sdl } returned no data — falling back to first-word detection',
+    );
   }
 
   const tools: any[] = [];

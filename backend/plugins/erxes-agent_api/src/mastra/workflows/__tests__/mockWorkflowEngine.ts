@@ -43,7 +43,11 @@ export function mockWorkflowsModule() {
                 async start({ inputData }: any) {
                   let state = inputData;
                   const stepResults: Record<string, any> = {};
-                  const fail = (error: any) => ({ status: 'failed', error, steps: stepResults });
+                  const fail = (error: any) => ({
+                    status: 'failed',
+                    error,
+                    steps: stepResults,
+                  });
                   for (const node of nodes) {
                     try {
                       if (node.kind === 'step') {
@@ -75,7 +79,11 @@ export function mockWorkflowsModule() {
                       return fail(error);
                     }
                   }
-                  return { status: 'success', result: state, steps: stepResults };
+                  return {
+                    status: 'success',
+                    result: state,
+                    steps: stepResults,
+                  };
                 },
               };
             },

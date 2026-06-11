@@ -1,9 +1,4 @@
-import {
-  health,
-  ensureCollection,
-  upsert,
-  search,
-} from '../vectorStore';
+import { health, ensureCollection, upsert, search } from '../vectorStore';
 
 // Integration tests against a live Qdrant. Skipped unless ERXES_AGENT_QDRANT_URL is
 // set (e.g. after: docker compose -f backend/plugins/erxes-agent_api/docker-compose.yml up -d

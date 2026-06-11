@@ -82,7 +82,8 @@ async function buildFastEmbedEmbedder(cfg: EmbedderConfig): Promise<Embedder> {
   };
   // Model files (~100MB+) cache to disk. Default is "local_cache" in cwd; allow
   // an explicit override so deployments can point at a persistent volume.
-  const cacheDir = (process.env.ERXES_AGENT_EMBEDDER_CACHE_DIR ?? '').trim() || undefined;
+  const cacheDir =
+    (process.env.ERXES_AGENT_EMBEDDER_CACHE_DIR ?? '').trim() || undefined;
   const flagModel = await FlagEmbedding.init({
     model: modelMap[cfg.model] ?? EmbeddingModel?.BGESmallENV15,
     ...(cacheDir ? { cacheDir } : {}),

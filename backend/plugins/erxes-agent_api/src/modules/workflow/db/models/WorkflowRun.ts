@@ -20,7 +20,9 @@ export interface IMastraWorkflowRunModel extends Model<IMastraWorkflowRunDocumen
     _id: string,
     patch: Partial<IMastraWorkflowRun>,
   ): Promise<IMastraWorkflowRunDocument>;
-  getRuns(params: IMastraWorkflowRunListParams): Promise<IMastraWorkflowRunDocument[]>;
+  getRuns(
+    params: IMastraWorkflowRunListParams,
+  ): Promise<IMastraWorkflowRunDocument[]>;
 }
 
 export const loadWorkflowRunClass = (_models: IModels) => {
@@ -41,7 +43,10 @@ export const loadWorkflowRunClass = (_models: IModels) => {
       return _models.MastraWorkflowRun.create(doc);
     }
 
-    public static async finishRun(_id: string, patch: Partial<IMastraWorkflowRun>) {
+    public static async finishRun(
+      _id: string,
+      patch: Partial<IMastraWorkflowRun>,
+    ) {
       const updated = await _models.MastraWorkflowRun.findOneAndUpdate(
         { _id },
         { $set: patch },

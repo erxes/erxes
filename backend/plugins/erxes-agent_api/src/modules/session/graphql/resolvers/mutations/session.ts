@@ -11,7 +11,11 @@ export const sessionMutations = {
     { threadId, title }: { threadId: string; title: string },
     { models, user }: IContext,
   ) => {
-    return models.MastraThread.renameThread(threadId, title, requireUserId(user));
+    return models.MastraThread.renameThread(
+      threadId,
+      title,
+      requireUserId(user),
+    );
   },
 
   mastraThreadRemove: async (

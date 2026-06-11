@@ -84,14 +84,16 @@ export function resolveEmbedderConfig(env: Env = process.env): EmbedderConfig {
   }
 
   if (kind === 'fastembed') {
-    const model = val(env, 'ERXES_AGENT_EMBEDDER_MODEL') || FASTEMBED_DEFAULT_MODEL;
+    const model =
+      val(env, 'ERXES_AGENT_EMBEDDER_MODEL') || FASTEMBED_DEFAULT_MODEL;
     const dimension = EMBED_DIMENSIONS[model] ?? FASTEMBED_FALLBACK_DIM;
     return { kind, model, dimension };
   }
 
   const model = val(env, 'ERXES_AGENT_EMBEDDER_MODEL') || OPENAI_DEFAULT_MODEL;
   const dimension = EMBED_DIMENSIONS[model] ?? OPENAI_FALLBACK_DIM;
-  const baseUrl = val(env, 'ERXES_AGENT_EMBEDDER_BASE_URL') || OPENAI_DEFAULT_BASE_URL;
+  const baseUrl =
+    val(env, 'ERXES_AGENT_EMBEDDER_BASE_URL') || OPENAI_DEFAULT_BASE_URL;
   const apiKey = val(env, 'ERXES_AGENT_EMBEDDER_API_KEY') || undefined;
 
   const cfg: EmbedderConfig = { kind, model, dimension, baseUrl };
@@ -127,9 +129,10 @@ export function resolveRecallTuning(env: Env = process.env): RecallTuning {
   return {
     topK: parsePositiveInt(val(env, 'ERXES_AGENT_MEMORY_TOPK'), 4),
     minScore: parseScore(val(env, 'ERXES_AGENT_MEMORY_MIN_SCORE'), 0.5),
-    scope: val(env, 'ERXES_AGENT_MEMORY_SCOPE').toLowerCase() === 'thread'
-      ? 'thread'
-      : 'resource',
+    scope:
+      val(env, 'ERXES_AGENT_MEMORY_SCOPE').toLowerCase() === 'thread'
+        ? 'thread'
+        : 'resource',
   };
 }
 

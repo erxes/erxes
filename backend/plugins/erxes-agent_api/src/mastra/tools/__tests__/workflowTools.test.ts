@@ -11,21 +11,31 @@ jest.mock('@mastra/core/tools', () => ({ createTool: (cfg: any) => cfg }));
 // Default: an authenticated team member (userHeader present). Individual tests
 // flip this to simulate the anonymous bot path.
 const mockAuth: { current: any } = {
-  current: { subdomain: 'os', userHeader: Buffer.from('{"_id":"u1"}').toString('base64') },
+  current: {
+    subdomain: 'os',
+    userHeader: Buffer.from('{"_id":"u1"}').toString('base64'),
+  },
 };
 jest.mock('../../requestContext', () => ({
   getCurrentAuth: () => mockAuth.current,
 }));
 
 const mockGetSettings = jest.fn(async () => ({ erxesApiUrl: 'http://gw' }));
-const mockCreateWorkflow = jest.fn(async (doc: any) => ({ _id: 'wf-1', version: 1, ...doc }));
+const mockCreateWorkflow = jest.fn(async (doc: any) => ({
+  _id: 'wf-1',
+  version: 1,
+  ...doc,
+}));
 const mockGetWorkflows = jest.fn(async () => []);
 const mockGetRuns = jest.fn(async () => []);
 
 jest.mock('../../../connectionResolvers', () => ({
   generateModels: jest.fn(async () => ({
     MastraSettings: { getSettings: mockGetSettings },
-    MastraWorkflow: { createWorkflow: mockCreateWorkflow, getWorkflows: mockGetWorkflows },
+    MastraWorkflow: {
+      createWorkflow: mockCreateWorkflow,
+      getWorkflows: mockGetWorkflows,
+    },
     MastraWorkflowRun: { getRuns: mockGetRuns },
   })),
 }));
@@ -33,8 +43,18 @@ jest.mock('../../../connectionResolvers', () => ({
 jest.mock('../operationRegistry', () => ({
   getOperationRegistry: jest.fn(async () => {
     const ops = [
-      { operation: 'dealsAdd', operationType: 'mutation', plugin: 'sales', module: 'deals' },
-      { operation: 'customers', operationType: 'query', plugin: 'core', module: 'customers' },
+      {
+        operation: 'dealsAdd',
+        operationType: 'mutation',
+        plugin: 'sales',
+        module: 'deals',
+      },
+      {
+        operation: 'customers',
+        operationType: 'query',
+        plugin: 'core',
+        module: 'customers',
+      },
     ];
     return {
       operations: new Map(ops.map((o) => [o.operation, o])),
@@ -73,12 +93,25 @@ const definition = () => ({
       branches: [
         {
           when: "{{steps.classify.output.intent}} == 'order'",
-          steps: [{ id: 'createDeal', type: 'operation', operation: 'dealsAdd', args: { name: 'x' } }],
+          steps: [
+            {
+              id: 'createDeal',
+              type: 'operation',
+              operation: 'dealsAdd',
+              args: { name: 'x' },
+            },
+          ],
         },
       ],
-      else: [{ id: 'lookup', type: 'operation', operation: 'customers', args: {} }],
+      else: [
+        { id: 'lookup', type: 'operation', operation: 'customers', args: {} },
+      ],
     },
-    { id: 'done', type: 'end', output: { taken: '{{steps.route.output.taken}}' } },
+    {
+      id: 'done',
+      type: 'end',
+      output: { taken: '{{steps.route.output.taken}}' },
+    },
   ],
 });
 
@@ -96,10 +129,16 @@ describe('team-member gate (anonymous bot path)', () => {
     mockAuth.current = { subdomain: 'os', token: 'app-token' };
 
     const denial = /only available to logged-in team members/;
-    await expect((workflowGuideTool as any).execute({})).rejects.toThrow(denial);
+    await expect((workflowGuideTool as any).execute({})).rejects.toThrow(
+      denial,
+    );
     await expect((workflowListTool as any).execute({})).rejects.toThrow(denial);
     await expect(
-      (workflowSaveTool as any).execute({ name: 'x', definition: definition(), enable: true }),
+      (workflowSaveTool as any).execute({
+        name: 'x',
+        definition: definition(),
+        enable: true,
+      }),
     ).rejects.toThrow(denial);
     await expect(
       (workflowRunNowTool as any).execute({ workflowId: 'wf-1', payload: {} }),
@@ -118,7 +157,16 @@ describe('team-member gate (anonymous bot path)', () => {
 describe('workflowGuideTool', () => {
   it('documents every supported step type and the ref/condition syntax', async () => {
     const { guide } = await (workflowGuideTool as any).execute({});
-    for (const must of ['operation', 'agent', 'branch', 'parallel', 'wait', 'end', '{{trigger.payload', 'workflowValidate']) {
+    for (const must of [
+      'operation',
+      'agent',
+      'branch',
+      'parallel',
+      'wait',
+      'end',
+      '{{trigger.payload',
+      'workflowValidate',
+    ]) {
       expect(guide).toContain(must);
     }
     // Unsupported steps are explicitly fenced off.
@@ -128,7 +176,9 @@ describe('workflowGuideTool', () => {
 
 describe('workflowValidateTool', () => {
   it('passes a valid definition against the live registry', async () => {
-    const res = await (workflowValidateTool as any).execute({ definition: definition() });
+    const res = await (workflowValidateTool as any).execute({
+      definition: definition(),
+    });
     expect(res.ok).toBe(true);
     expect(res.errors).toEqual([]);
     // The save-now nudge: without it models end the turn after validation
@@ -139,7 +189,9 @@ describe('workflowValidateTool', () => {
   it('reports nonexistent operations with structured errors', async () => {
     const def = definition();
     (def.steps[1] as any).branches[0].steps[0].operation = 'ghostOp';
-    const res = await (workflowValidateTool as any).execute({ definition: def });
+    const res = await (workflowValidateTool as any).execute({
+      definition: def,
+    });
     expect(res.ok).toBe(false);
     expect(res.errors[0].message).toMatch(/does not exist/);
   });
@@ -179,7 +231,10 @@ describe('workflowSimulateTool', () => {
     });
     expect(res.success).toBe(true);
     const agentEvent = res.trace.find((t: any) => t.step === 'agent');
-    expect(agentEvent.output).toEqual({ intent: 'order', suggested_reply: 'sample' });
+    expect(agentEvent.output).toEqual({
+      intent: 'order',
+      suggested_reply: 'sample',
+    });
   });
 
   it('auto-samples agent outputs when no assumption is given (else path)', async () => {
@@ -197,7 +252,10 @@ describe('workflowSimulateTool', () => {
   it('returns structured validation errors instead of running an invalid draft', async () => {
     const def = definition();
     (def.steps[0] as any).agentRef = 'ghost';
-    const res = await (workflowSimulateTool as any).execute({ definition: def, triggerPayload: {} });
+    const res = await (workflowSimulateTool as any).execute({
+      definition: def,
+      triggerPayload: {},
+    });
     expect(res.success).toBe(false);
     expect(res.errors?.length).toBeGreaterThan(0);
   });

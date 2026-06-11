@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
-import { IconRobot, IconArrowLeft, IconInfoCircle, IconSearch, IconChevronRight } from '@tabler/icons-react';
+import {
+  IconRobot,
+  IconArrowLeft,
+  IconInfoCircle,
+  IconSearch,
+  IconChevronRight,
+} from '@tabler/icons-react';
 import {
   Alert,
   Breadcrumb,
@@ -29,10 +35,21 @@ import {
 } from '~/components/SelectProviderModel';
 
 function toSlug(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
 }
 
-const FormSection = ({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) => (
+const FormSection = ({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) => (
   <Card className="shadow-none">
     <Card.Header className="pb-3">
       <Card.Title className="text-base">{title}</Card.Title>
@@ -42,7 +59,15 @@ const FormSection = ({ title, description, children }: { title: string; descript
   </Card>
 );
 
-const Field = ({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) => (
+const Field = ({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) => (
   <div className="space-y-1.5">
     <Label className="font-medium">{label}</Label>
     {children}
@@ -70,7 +95,9 @@ export const AgentFormPage = () => {
   });
   const [autoSlug, setAutoSlug] = useState(true);
   const [toolSearch, setToolSearch] = useState('');
-  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(
+    new Set(),
+  );
 
   const toggleModule = (key: string) =>
     setExpandedModules((prev) => {
@@ -80,7 +107,9 @@ export const AgentFormPage = () => {
     });
 
   // Plugins are expanded by default; track the ones the user collapsed.
-  const [collapsedPlugins, setCollapsedPlugins] = useState<Set<string>>(new Set());
+  const [collapsedPlugins, setCollapsedPlugins] = useState<Set<string>>(
+    new Set(),
+  );
   const togglePlugin = (key: string) =>
     setCollapsedPlugins((prev) => {
       const next = new Set(prev);
@@ -88,7 +117,10 @@ export const AgentFormPage = () => {
       return next;
     });
 
-  const { data: agentData } = useQuery(MASTRA_AGENT, { variables: { _id: id }, skip: !isEdit });
+  const { data: agentData } = useQuery(MASTRA_AGENT, {
+    variables: { _id: id },
+    skip: !isEdit,
+  });
   // Live list of runnable erxes operations (cached server-side), used only when
   // restricting an agent. Fetched lazily — no need to load it for "All tools".
   const { data: availableData, loading: availableLoading } = useQuery(
@@ -99,16 +131,22 @@ export const AgentFormPage = () => {
   // source the SelectProvider combobox uses.
   const { providers: enabledProviders } = useProviderOptions();
 
-  const [createAgent, { loading: creating }] = useMutation(MASTRA_AGENT_CREATE, {
-    refetchQueries: [{ query: MASTRA_AGENTS }],
-    awaitRefetchQueries: true,
-    onCompleted: () => navigate('/settings/erxes-agent/agents'),
-  });
-  const [updateAgent, { loading: updating }] = useMutation(MASTRA_AGENT_UPDATE, {
-    refetchQueries: [{ query: MASTRA_AGENTS }],
-    awaitRefetchQueries: true,
-    onCompleted: () => navigate('/settings/erxes-agent/agents'),
-  });
+  const [createAgent, { loading: creating }] = useMutation(
+    MASTRA_AGENT_CREATE,
+    {
+      refetchQueries: [{ query: MASTRA_AGENTS }],
+      awaitRefetchQueries: true,
+      onCompleted: () => navigate('/settings/erxes-agent/agents'),
+    },
+  );
+  const [updateAgent, { loading: updating }] = useMutation(
+    MASTRA_AGENT_UPDATE,
+    {
+      refetchQueries: [{ query: MASTRA_AGENTS }],
+      awaitRefetchQueries: true,
+      onCompleted: () => navigate('/settings/erxes-agent/agents'),
+    },
+  );
 
   // Populate form from saved data — runs once when agent data arrives
   useEffect(() => {
@@ -138,9 +176,18 @@ export const AgentFormPage = () => {
       { key: 'webSearch', description: 'Web search (DuckDuckGo)' },
       { key: 'fetchUrl', description: 'Fetch a web page as readable text' },
       { key: 'calculator', description: 'Evaluate a math expression' },
-      { key: 'renderChart', description: 'Render a bar / line / area / pie chart in chat' },
-      { key: 'readAttachment', description: 'Read a file or image (text, PDF, images)' },
-      { key: 'companyKnowledge', description: 'Search indexed company knowledge' },
+      {
+        key: 'renderChart',
+        description: 'Render a bar / line / area / pie chart in chat',
+      },
+      {
+        key: 'readAttachment',
+        description: 'Read a file or image (text, PDF, images)',
+      },
+      {
+        key: 'companyKnowledge',
+        description: 'Search indexed company knowledge',
+      },
     ],
     [],
   );
@@ -202,7 +249,9 @@ export const AgentFormPage = () => {
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([module, items]) => ({
           module,
-          items: [...items].sort((x: any, y: any) => x.operation.localeCompare(y.operation)),
+          items: [...items].sort((x: any, y: any) =>
+            x.operation.localeCompare(y.operation),
+          ),
         }));
       const count = modules.reduce((n, m) => n + m.items.length, 0);
       return {
@@ -229,7 +278,11 @@ export const AgentFormPage = () => {
   const hasEntry = (e: string) => allowed.includes(e);
   const setAllowed = (next: string[]) => set('allowedTools', next);
   const toggleEntry = (entry: string) =>
-    setAllowed(hasEntry(entry) ? allowed.filter((e) => e !== entry) : [...allowed, entry]);
+    setAllowed(
+      hasEntry(entry)
+        ? allowed.filter((e) => e !== entry)
+        : [...allowed, entry],
+    );
 
   const pluginCovered = (pluginKey: string) =>
     pluginKey !== '__builtin__' && hasEntry(`plugin:${pluginKey}`);
@@ -255,7 +308,10 @@ export const AgentFormPage = () => {
       childMods.add(`module:${m.module}`);
       for (const it of m.items) childOps.add(it.operation);
     }
-    setAllowed([...allowed.filter((e) => !childOps.has(e) && !childMods.has(e)), wc]);
+    setAllowed([
+      ...allowed.filter((e) => !childOps.has(e) && !childMods.has(e)),
+      wc,
+    ]);
   };
 
   // Toggle "all operations in a module" via a module:<name> wildcard.
@@ -294,7 +350,9 @@ export const AgentFormPage = () => {
               </Breadcrumb.Item>
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
-                <span className="text-muted-foreground">{isEdit ? 'Edit Agent' : 'New Agent'}</span>
+                <span className="text-muted-foreground">
+                  {isEdit ? 'Edit Agent' : 'New Agent'}
+                </span>
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
@@ -306,15 +364,22 @@ export const AgentFormPage = () => {
               <IconArrowLeft /> Back
             </Link>
           </Button>
-          <Button type="submit" form="agent-form" disabled={isSaving || !form.model}>
+          <Button
+            type="submit"
+            form="agent-form"
+            disabled={isSaving || !form.model}
+          >
             {isSaving ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Agent'}
           </Button>
         </PageHeader.End>
       </PageHeader>
 
       <div className="flex-1 overflow-auto p-4">
-        <form id="agent-form" onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-4">
-
+        <form
+          id="agent-form"
+          onSubmit={handleSubmit}
+          className="max-w-2xl mx-auto space-y-4"
+        >
           {/* Basic info */}
           <FormSection title="Basic Info">
             <Field label="Name *">
@@ -326,10 +391,16 @@ export const AgentFormPage = () => {
               />
             </Field>
 
-            <Field label="Agent ID *" hint="Unique identifier used by the bot endpoint. Auto-generated from name.">
+            <Field
+              label="Agent ID *"
+              hint="Unique identifier used by the bot endpoint. Auto-generated from name."
+            >
               <Input
                 value={form.agentId}
-                onChange={(e) => { setAutoSlug(false); set('agentId', e.target.value); }}
+                onChange={(e) => {
+                  setAutoSlug(false);
+                  set('agentId', e.target.value);
+                }}
                 placeholder="customer-support"
                 className="font-mono text-sm"
                 required
@@ -344,7 +415,10 @@ export const AgentFormPage = () => {
               />
             </Field>
 
-            <Field label="System Instructions *" hint="This is the system prompt sent to the LLM on every conversation.">
+            <Field
+              label="System Instructions *"
+              hint="This is the system prompt sent to the LLM on every conversation."
+            >
               <Textarea
                 value={form.instructions}
                 onChange={(e: any) => set('instructions', e.target.value)}
@@ -356,13 +430,19 @@ export const AgentFormPage = () => {
           </FormSection>
 
           {/* Model */}
-          <FormSection title="AI Model" description="Select the provider and model that powers this agent.">
+          <FormSection
+            title="AI Model"
+            description="Select the provider and model that powers this agent."
+          >
             {enabledProviders.length === 0 ? (
               <Alert>
                 <IconInfoCircle className="size-4" />
                 <Alert.Title>No providers configured</Alert.Title>
                 <Alert.Description>
-                  <Link to="/settings/erxes-agent/providers" className="underline underline-offset-4">
+                  <Link
+                    to="/settings/erxes-agent/providers"
+                    className="underline underline-offset-4"
+                  >
                     Add a provider
                   </Link>{' '}
                   before creating an agent.
@@ -373,7 +453,10 @@ export const AgentFormPage = () => {
                 <Field label="Provider *">
                   <SelectProvider
                     value={form.provider}
-                    onValueChange={(v) => { set('provider', v); set('model', ''); }}
+                    onValueChange={(v) => {
+                      set('provider', v);
+                      set('model', '');
+                    }}
                   />
                 </Field>
 
@@ -407,7 +490,9 @@ export const AgentFormPage = () => {
               </div>
               <Switch
                 checked={form.toolPolicy === 'custom'}
-                onCheckedChange={(v: boolean) => set('toolPolicy', v ? 'custom' : 'all')}
+                onCheckedChange={(v: boolean) =>
+                  set('toolPolicy', v ? 'custom' : 'all')
+                }
               />
             </div>
 
@@ -416,9 +501,9 @@ export const AgentFormPage = () => {
                 <IconInfoCircle className="size-4" />
                 <Alert.Title>Full access</Alert.Title>
                 <Alert.Description>
-                  The agent discovers operations on demand and can run any query or
-                  mutation across every installed erxes service. Turn on “Restrict
-                  tool access” to limit it to specific operations.
+                  The agent discovers operations on demand and can run any query
+                  or mutation across every installed erxes service. Turn on
+                  “Restrict tool access” to limit it to specific operations.
                 </Alert.Description>
               </Alert>
             ) : (
@@ -454,7 +539,9 @@ export const AgentFormPage = () => {
                 </div>
 
                 {availableLoading && operations.length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-1">Loading operations…</p>
+                  <p className="text-sm text-muted-foreground py-1">
+                    Loading operations…
+                  </p>
                 ) : nestedTools.length === 0 ? (
                   <p className="text-sm text-muted-foreground py-1">
                     {operations.length === 0
@@ -463,131 +550,170 @@ export const AgentFormPage = () => {
                   </p>
                 ) : (
                   <div className="space-y-3 max-h-[28rem] overflow-auto pr-1">
-                    {nestedTools.map(({ pluginKey, plugin, isBuiltin, count, modules }) => {
-                      const pluginOpen = !!toolSearch.trim() || !collapsedPlugins.has(plugin);
-                      const allCovered = pluginCovered(pluginKey);
-                      const pluginSelected = allCovered
-                        ? count
-                        : modules.reduce(
-                            (n, m) => n + m.items.filter((t: any) => opSelected(t)).length,
-                            0,
-                          );
-                      return (
-                        <div key={pluginKey}>
-                          <div className="w-full flex items-center justify-between gap-2 px-1 mb-1">
-                            <span className="flex items-center gap-1.5 min-w-0">
-                              {!isBuiltin && (
-                                <Checkbox
-                                  checked={allCovered}
-                                  onCheckedChange={() => toggleSelectPlugin(pluginKey, modules)}
-                                />
-                              )}
-                              <button
-                                type="button"
-                                onClick={() => togglePlugin(plugin)}
-                                className="flex items-center gap-1.5 min-w-0 hover:opacity-80"
-                              >
-                                <IconChevronRight
-                                  className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${pluginOpen ? 'rotate-90' : ''}`}
-                                />
-                                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                                  {plugin}
-                                </span>
-                                <span className="normal-case font-normal text-[10px] text-muted-foreground">{count}</span>
-                              </button>
-                            </span>
-                            {pluginSelected > 0 && (
-                              <span className="text-[10px] text-primary shrink-0">
-                                {allCovered ? 'all' : pluginSelected} selected
+                    {nestedTools.map(
+                      ({ pluginKey, plugin, isBuiltin, count, modules }) => {
+                        const pluginOpen =
+                          !!toolSearch.trim() || !collapsedPlugins.has(plugin);
+                        const allCovered = pluginCovered(pluginKey);
+                        const pluginSelected = allCovered
+                          ? count
+                          : modules.reduce(
+                              (n, m) =>
+                                n +
+                                m.items.filter((t: any) => opSelected(t))
+                                  .length,
+                              0,
+                            );
+                        return (
+                          <div key={pluginKey}>
+                            <div className="w-full flex items-center justify-between gap-2 px-1 mb-1">
+                              <span className="flex items-center gap-1.5 min-w-0">
+                                {!isBuiltin && (
+                                  <Checkbox
+                                    checked={allCovered}
+                                    onCheckedChange={() =>
+                                      toggleSelectPlugin(pluginKey, modules)
+                                    }
+                                  />
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => togglePlugin(plugin)}
+                                  className="flex items-center gap-1.5 min-w-0 hover:opacity-80"
+                                >
+                                  <IconChevronRight
+                                    className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${pluginOpen ? 'rotate-90' : ''}`}
+                                  />
+                                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                    {plugin}
+                                  </span>
+                                  <span className="normal-case font-normal text-[10px] text-muted-foreground">
+                                    {count}
+                                  </span>
+                                </button>
                               </span>
-                            )}
-                          </div>
-                          {pluginOpen && (
-                            <div className="space-y-1">
-                              {modules.map(({ module, items }) => {
-                                const key = `${pluginKey}:${module}`;
-                                const open = !!toolSearch.trim() || expandedModules.has(key);
-                                const modCovered = !isBuiltin && moduleCovered(pluginKey, module);
-                                const selectedCount = items.filter((t: any) => opSelected(t)).length;
-                                return (
-                                  <div key={key} className="rounded-md border border-border/60">
-                                    <div className="w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-md hover:bg-accent">
-                                      <span className="flex items-center gap-1.5 min-w-0">
-                                        {!isBuiltin && (
-                                          <Checkbox
-                                            checked={modCovered}
-                                            disabled={allCovered}
-                                            onCheckedChange={() => toggleSelectModule(module, items)}
-                                          />
+                              {pluginSelected > 0 && (
+                                <span className="text-[10px] text-primary shrink-0">
+                                  {allCovered ? 'all' : pluginSelected} selected
+                                </span>
+                              )}
+                            </div>
+                            {pluginOpen && (
+                              <div className="space-y-1">
+                                {modules.map(({ module, items }) => {
+                                  const key = `${pluginKey}:${module}`;
+                                  const open =
+                                    !!toolSearch.trim() ||
+                                    expandedModules.has(key);
+                                  const modCovered =
+                                    !isBuiltin &&
+                                    moduleCovered(pluginKey, module);
+                                  const selectedCount = items.filter((t: any) =>
+                                    opSelected(t),
+                                  ).length;
+                                  return (
+                                    <div
+                                      key={key}
+                                      className="rounded-md border border-border/60"
+                                    >
+                                      <div className="w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-md hover:bg-accent">
+                                        <span className="flex items-center gap-1.5 min-w-0">
+                                          {!isBuiltin && (
+                                            <Checkbox
+                                              checked={modCovered}
+                                              disabled={allCovered}
+                                              onCheckedChange={() =>
+                                                toggleSelectModule(
+                                                  module,
+                                                  items,
+                                                )
+                                              }
+                                            />
+                                          )}
+                                          <button
+                                            type="button"
+                                            onClick={() => toggleModule(key)}
+                                            className="flex items-center gap-1.5 min-w-0"
+                                          >
+                                            <IconChevronRight
+                                              className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${open ? 'rotate-90' : ''}`}
+                                            />
+                                            <span className="text-sm font-medium capitalize truncate">
+                                              {module}
+                                            </span>
+                                            <span className="text-[11px] text-muted-foreground shrink-0">
+                                              {items.length}
+                                            </span>
+                                          </button>
+                                        </span>
+                                        {selectedCount > 0 && (
+                                          <span className="text-[10px] text-primary shrink-0">
+                                            {selectedCount} selected
+                                          </span>
                                         )}
-                                        <button
-                                          type="button"
-                                          onClick={() => toggleModule(key)}
-                                          className="flex items-center gap-1.5 min-w-0"
-                                        >
-                                          <IconChevronRight
-                                            className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${open ? 'rotate-90' : ''}`}
-                                          />
-                                          <span className="text-sm font-medium capitalize truncate">{module}</span>
-                                          <span className="text-[11px] text-muted-foreground shrink-0">{items.length}</span>
-                                        </button>
-                                      </span>
-                                      {selectedCount > 0 && (
-                                        <span className="text-[10px] text-primary shrink-0">{selectedCount} selected</span>
+                                      </div>
+                                      {open && (
+                                        <div className="px-2 pb-1.5 space-y-0.5">
+                                          {items.map((t: any) => {
+                                            const covered =
+                                              t.kind === 'erxes' &&
+                                              moduleCovered(t.plugin, t.module);
+                                            return (
+                                              <label
+                                                key={t.key}
+                                                className={`flex items-start gap-3 rounded-md px-2.5 py-2 transition-colors hover:bg-accent ${
+                                                  covered
+                                                    ? 'opacity-60 cursor-default'
+                                                    : 'cursor-pointer'
+                                                }`}
+                                              >
+                                                <Checkbox
+                                                  className="mt-0.5"
+                                                  checked={opSelected(t)}
+                                                  disabled={covered}
+                                                  onCheckedChange={() =>
+                                                    covered ? null : toggleOp(t)
+                                                  }
+                                                />
+                                                <div className="flex-1 min-w-0">
+                                                  <div className="flex items-center gap-2">
+                                                    <span className="text-sm font-medium first-letter:uppercase">
+                                                      {t.description}
+                                                    </span>
+                                                    {t.operationType && (
+                                                      <span
+                                                        className={`text-[10px] px-1.5 py-0.5 rounded-sm shrink-0 ${
+                                                          t.operationType ===
+                                                          'mutation'
+                                                            ? 'bg-warning/10 text-warning'
+                                                            : 'bg-info/10 text-info'
+                                                        }`}
+                                                      >
+                                                        {t.operationType ===
+                                                        'mutation'
+                                                          ? 'write'
+                                                          : 'read'}
+                                                      </span>
+                                                    )}
+                                                  </div>
+                                                  <p className="font-mono text-[11px] text-muted-foreground mt-0.5 truncate">
+                                                    {t.operation}
+                                                  </p>
+                                                </div>
+                                              </label>
+                                            );
+                                          })}
+                                        </div>
                                       )}
                                     </div>
-                                    {open && (
-                                      <div className="px-2 pb-1.5 space-y-0.5">
-                                        {items.map((t: any) => {
-                                          const covered =
-                                            t.kind === 'erxes' && moduleCovered(t.plugin, t.module);
-                                          return (
-                                            <label
-                                              key={t.key}
-                                              className={`flex items-start gap-3 rounded-md px-2.5 py-2 transition-colors hover:bg-accent ${
-                                                covered ? 'opacity-60 cursor-default' : 'cursor-pointer'
-                                              }`}
-                                            >
-                                              <Checkbox
-                                                className="mt-0.5"
-                                                checked={opSelected(t)}
-                                                disabled={covered}
-                                                onCheckedChange={() => (covered ? null : toggleOp(t))}
-                                              />
-                                              <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2">
-                                                  <span className="text-sm font-medium first-letter:uppercase">
-                                                    {t.description}
-                                                  </span>
-                                                  {t.operationType && (
-                                                    <span
-                                                      className={`text-[10px] px-1.5 py-0.5 rounded-sm shrink-0 ${
-                                                        t.operationType === 'mutation'
-                                                          ? 'bg-warning/10 text-warning'
-                                                          : 'bg-info/10 text-info'
-                                                      }`}
-                                                    >
-                                                      {t.operationType === 'mutation' ? 'write' : 'read'}
-                                                    </span>
-                                                  )}
-                                                </div>
-                                                <p className="font-mono text-[11px] text-muted-foreground mt-0.5 truncate">
-                                                  {t.operation}
-                                                </p>
-                                              </div>
-                                            </label>
-                                          );
-                                        })}
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      },
+                    )}
                   </div>
                 )}
               </div>
@@ -621,7 +747,9 @@ export const AgentFormPage = () => {
                   min={1}
                   max={50}
                   value={form.maxSteps}
-                  onChange={(e) => set('maxSteps', parseInt(e.target.value) || 10)}
+                  onChange={(e) =>
+                    set('maxSteps', parseInt(e.target.value) || 10)
+                  }
                   className="w-24"
                 />
                 <Tooltip.Provider>
@@ -630,7 +758,8 @@ export const AgentFormPage = () => {
                       <IconInfoCircle className="size-4 text-muted-foreground" />
                     </Tooltip.Trigger>
                     <Tooltip.Content className="max-w-xs">
-                      Prevents infinite loops. Raise this if the agent frequently stops mid-task.
+                      Prevents infinite loops. Raise this if the agent
+                      frequently stops mid-task.
                     </Tooltip.Content>
                   </Tooltip>
                 </Tooltip.Provider>
@@ -667,4 +796,3 @@ export const AgentFormPage = () => {
     </div>
   );
 };
-

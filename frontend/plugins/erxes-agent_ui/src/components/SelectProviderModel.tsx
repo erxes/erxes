@@ -27,14 +27,21 @@ export interface ProviderOption {
 // Providers offered for selection: configured presets (DB doc or env key)
 // plus any custom DB providers outside the presets catalog.
 export const useProviderOptions = () => {
-  const { data: catalogData, loading: catalogLoading } = useQuery(MASTRA_PROVIDER_CATALOG);
-  const { data: providersData, loading: providersLoading } = useQuery(MASTRA_PROVIDERS);
+  const { data: catalogData, loading: catalogLoading } = useQuery(
+    MASTRA_PROVIDER_CATALOG,
+  );
+  const { data: providersData, loading: providersLoading } =
+    useQuery(MASTRA_PROVIDERS);
 
-  const catalogConfigured: ProviderOption[] = (catalogData?.mastraProviderCatalog || [])
+  const catalogConfigured: ProviderOption[] = (
+    catalogData?.mastraProviderCatalog || []
+  )
     .filter((p: any) => p.isConfigured)
     .map((p: any) => ({ provider: p.provider, label: p.label }));
   const catalogKeys = new Set(catalogConfigured.map((p) => p.provider));
-  const customDbProviders: ProviderOption[] = (providersData?.mastraProviders || [])
+  const customDbProviders: ProviderOption[] = (
+    providersData?.mastraProviders || []
+  )
     .filter((p: any) => p.isEnabled && !catalogKeys.has(p.provider))
     .map((p: any) => ({ provider: p.provider, label: p.label || p.provider }));
 
@@ -114,7 +121,8 @@ export const SelectModel = ({
     skip: !provider,
     fetchPolicy: 'cache-and-network',
   });
-  const models: { id: string; name: string }[] = data?.mastraProviderModels ?? [];
+  const models: { id: string; name: string }[] =
+    data?.mastraProviderModels ?? [];
 
   const [open, setOpen] = useState(false);
   const [custom, setCustom] = useState(false);
@@ -131,7 +139,8 @@ export const SelectModel = ({
   // input so the value stays visible and editable.
   useEffect(() => {
     if (loading || !provider || !value) return;
-    if (models.length > 0 && !models.some((m) => m.id === value)) setCustom(true);
+    if (models.length > 0 && !models.some((m) => m.id === value))
+      setCustom(true);
   }, [loading, provider, value, models]);
 
   if (custom) {
@@ -193,30 +202,31 @@ export const SelectModel = ({
                 endpoint, or enter a model ID manually.
               </p>
             )}
-            {!loading && models.map((m) => (
-              <Command.Item
-                key={m.id}
-                value={`${m.name} ${m.id}`}
-                onSelect={() => {
-                  onValueChange(m.id);
-                  setOpen(false);
-                }}
-              >
-                <span className="truncate">
-                  {m.name !== m.id ? (
-                    <>
-                      {m.name}
-                      <span className="ml-2 text-xs text-muted-foreground font-mono">
-                        ({m.id})
-                      </span>
-                    </>
-                  ) : (
-                    <span className="font-mono text-sm">{m.id}</span>
-                  )}
-                </span>
-                <Combobox.Check checked={m.id === value} />
-              </Command.Item>
-            ))}
+            {!loading &&
+              models.map((m) => (
+                <Command.Item
+                  key={m.id}
+                  value={`${m.name} ${m.id}`}
+                  onSelect={() => {
+                    onValueChange(m.id);
+                    setOpen(false);
+                  }}
+                >
+                  <span className="truncate">
+                    {m.name !== m.id ? (
+                      <>
+                        {m.name}
+                        <span className="ml-2 text-xs text-muted-foreground font-mono">
+                          ({m.id})
+                        </span>
+                      </>
+                    ) : (
+                      <span className="font-mono text-sm">{m.id}</span>
+                    )}
+                  </span>
+                  <Combobox.Check checked={m.id === value} />
+                </Command.Item>
+              ))}
             <Command.Separator />
             <Command.Item
               value="__custom__"

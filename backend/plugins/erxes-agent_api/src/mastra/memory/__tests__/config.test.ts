@@ -14,7 +14,9 @@ describe('advanced-memory config', () => {
     });
 
     it('AM-FLAG-2: true only for exact "enable"', () => {
-      expect(isAdvancedMemoryEnabled({ ERXES_AGENT_MEMORY: 'enable' })).toBe(true);
+      expect(isAdvancedMemoryEnabled({ ERXES_AGENT_MEMORY: 'enable' })).toBe(
+        true,
+      );
     });
 
     it('AM-FLAG-3: other truthy-looking values are off', () => {
@@ -24,7 +26,9 @@ describe('advanced-memory config', () => {
     });
 
     it('AM-FLAG-4: trims surrounding whitespace', () => {
-      expect(isAdvancedMemoryEnabled({ ERXES_AGENT_MEMORY: '  enable  ' })).toBe(true);
+      expect(
+        isAdvancedMemoryEnabled({ ERXES_AGENT_MEMORY: '  enable  ' }),
+      ).toBe(true);
     });
   });
 
@@ -39,12 +43,14 @@ describe('advanced-memory config', () => {
     });
 
     it('AM-EMB-2: openai defaults', () => {
-      expect(resolveEmbedderConfig({ ERXES_AGENT_EMBEDDER: 'openai' })).toEqual({
-        kind: 'openai',
-        model: 'text-embedding-3-small',
-        dimension: 1536,
-        baseUrl: 'https://api.openai.com/v1',
-      });
+      expect(resolveEmbedderConfig({ ERXES_AGENT_EMBEDDER: 'openai' })).toEqual(
+        {
+          kind: 'openai',
+          model: 'text-embedding-3-small',
+          dimension: 1536,
+          baseUrl: 'https://api.openai.com/v1',
+        },
+      );
     });
 
     it('AM-EMB-3: openai large model resolves to 3072 dims', () => {
@@ -56,7 +62,9 @@ describe('advanced-memory config', () => {
     });
 
     it('AM-EMB-4: unknown kind falls back to fastembed with a warning', () => {
-      const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+      const warn = jest
+        .spyOn(console, 'warn')
+        .mockImplementation(() => undefined);
       const cfg = resolveEmbedderConfig({ ERXES_AGENT_EMBEDDER: 'cohere' });
       expect(cfg.kind).toBe('fastembed');
       expect(warn).toHaveBeenCalled();
@@ -112,9 +120,9 @@ describe('advanced-memory config', () => {
     });
 
     it('honors thread scope', () => {
-      expect(resolveRecallTuning({ ERXES_AGENT_MEMORY_SCOPE: 'thread' }).scope).toBe(
-        'thread',
-      );
+      expect(
+        resolveRecallTuning({ ERXES_AGENT_MEMORY_SCOPE: 'thread' }).scope,
+      ).toBe('thread');
     });
   });
 
@@ -133,7 +141,10 @@ describe('advanced-memory config', () => {
 
     it('AM-SET-2: enabled → reports embedder, qdrant, collection', () => {
       expect(
-        computeAdvancedMemoryStatus({ ERXES_AGENT_MEMORY: 'enable' }, { reachable: true }),
+        computeAdvancedMemoryStatus(
+          { ERXES_AGENT_MEMORY: 'enable' },
+          { reachable: true },
+        ),
       ).toMatchObject({
         enabled: true,
         embedder: 'fastembed',

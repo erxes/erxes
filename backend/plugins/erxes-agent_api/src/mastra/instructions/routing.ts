@@ -82,7 +82,8 @@ function humanize(name: string): string {
 
 function describeTool(t: ToolInfo): string {
   const desc = (t.description || '').trim();
-  const readable = desc && !GENERIC_DESC.test(desc) ? desc : humanize(t.name || t.id);
+  const readable =
+    desc && !GENERIC_DESC.test(desc) ? desc : humanize(t.name || t.id);
   return `- ${t.name || t.id}: ${readable}`;
 }
 
@@ -148,7 +149,9 @@ const RENDER_CHART_HINT = `
 `.trim();
 
 const BUILTIN_BLOCK = (tools: ToolInfo[]) => {
-  const hasRenderChart = tools.some((t) => t.id === 'renderChart' || t.name === 'renderChart');
+  const hasRenderChart = tools.some(
+    (t) => t.id === 'renderChart' || t.name === 'renderChart',
+  );
   return `
 ## Built-in Tools
 

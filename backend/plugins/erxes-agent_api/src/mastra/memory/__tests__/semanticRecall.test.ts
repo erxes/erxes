@@ -35,7 +35,11 @@ describe('semantic recall — pure helpers', () => {
 
     it('AM-TEN-3: refuses to build a filter without a subdomain (fail-closed)', () => {
       expect(() =>
-        buildRecallFilter({ subdomain: '', scope: 'resource', resourceId: 'u1' }),
+        buildRecallFilter({
+          subdomain: '',
+          scope: 'resource',
+          resourceId: 'u1',
+        }),
       ).toThrow(/subdomain/i);
     });
   });
@@ -95,7 +99,9 @@ describe('semantic recall — pure helpers', () => {
 
   it('pointIdFor is deterministic, UUID-shaped, tenant-scoped', () => {
     const a = pointIdFor('acme', 'm1');
-    expect(a).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+    expect(a).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    );
     expect(pointIdFor('acme', 'm1')).toBe(a); // deterministic
     expect(pointIdFor('other', 'm1')).not.toBe(a); // tenant-scoped
   });

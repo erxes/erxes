@@ -6,7 +6,11 @@ export const agentQueries = {
     return models.MastraAgent.getAgents();
   },
 
-  mastraAgent: async (_: any, { _id }: { _id: string }, { models }: IContext) => {
+  mastraAgent: async (
+    _: any,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) => {
     return models.MastraAgent.getAgent(_id);
   },
 
@@ -20,7 +24,11 @@ export const agentQueries = {
 
   mastraAgentChat: async (
     _: any,
-    { agentId, message, threadId }: { agentId: string; message: string; threadId?: string },
+    {
+      agentId,
+      message,
+      threadId,
+    }: { agentId: string; message: string; threadId?: string },
     { models, user, subdomain }: IContext,
   ) => {
     if (!user?._id) throw new Error('Login required');
@@ -35,7 +43,14 @@ export const agentQueries = {
     });
 
     const { agent, tools, convo, authCtx, isLegacy } = prepared;
-    const reply = await runAgentTurn({ agent, tools, convo, message, isLegacy, authCtx });
+    const reply = await runAgentTurn({
+      agent,
+      tools,
+      convo,
+      message,
+      isLegacy,
+      authCtx,
+    });
 
     // Persist the completed exchange so the session survives reloads. Only the
     // final user + assistant text is stored (no tool-call frames in `content`),

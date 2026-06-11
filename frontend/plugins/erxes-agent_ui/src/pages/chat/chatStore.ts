@@ -5,7 +5,10 @@ import {
   MASTRA_THREADS,
   MASTRA_THREAD_MESSAGES,
 } from '~/graphql/queries';
-import { MASTRA_THREAD_REMOVE, MASTRA_THREAD_RENAME } from '~/graphql/mutations';
+import {
+  MASTRA_THREAD_REMOVE,
+  MASTRA_THREAD_RENAME,
+} from '~/graphql/mutations';
 
 // One tool invocation surfaced in the chat UI (expandable args/result detail).
 export interface ToolCallInfo {
@@ -57,7 +60,8 @@ function partsFromMeta(meta: any): TurnPart[] | undefined {
     );
   }
   const parts: TurnPart[] = [];
-  if (meta.thinking) parts.push({ kind: 'thinking', text: meta.thinking, done: true });
+  if (meta.thinking)
+    parts.push({ kind: 'thinking', text: meta.thinking, done: true });
   for (const call of meta.toolCalls || []) parts.push({ kind: 'tool', call });
   return parts.length ? parts : undefined;
 }
@@ -284,12 +288,14 @@ class ChatStore {
         variables: { agentId: mastraAgentId },
         fetchPolicy: 'network-only',
       });
-      const sessions: SessionMeta[] = (data?.mastraThreads || []).map((t: any) => ({
-        threadId: t.threadId,
-        title: t.title || 'New chat',
-        messageCount: t.messageCount ?? 0,
-        lastMessageAt: t.lastMessageAt,
-      }));
+      const sessions: SessionMeta[] = (data?.mastraThreads || []).map(
+        (t: any) => ({
+          threadId: t.threadId,
+          title: t.title || 'New chat',
+          messageCount: t.messageCount ?? 0,
+          lastMessageAt: t.lastMessageAt,
+        }),
+      );
 
       const state = this.ensureAgent(agentKey);
       this.patchAgent(agentKey, { sessions, sessionsLoaded: true });
@@ -297,7 +303,11 @@ class ChatStore {
       // Pick an active session on first load if none is selected yet.
       if (!state.activeThreadId) {
         if (sessions.length > 0) {
-          await this.selectSession(apolloClient, agentKey, sessions[0].threadId);
+          await this.selectSession(
+            apolloClient,
+            agentKey,
+            sessions[0].threadId,
+          );
         } else {
           this.newDraft(agentKey);
         }
@@ -327,17 +337,23 @@ class ChatStore {
         variables: { threadId },
         fetchPolicy: 'network-only',
       });
-      const messages: Message[] = (data?.mastraThreadMessages || []).map((m: any) => ({
-        role: m.role,
-        content: m.content,
-        timestamp: m.createdAt ? new Date(m.createdAt) : new Date(),
-        parts: partsFromMeta(m.meta),
-        attachments: Array.isArray(m.attachments) && m.attachments.length
-          ? m.attachments
-          : undefined,
-        interrupted: m.meta?.interrupted || undefined,
-      }));
-      this.patchThread(agentKey, threadId, { messages, messagesLoading: false });
+      const messages: Message[] = (data?.mastraThreadMessages || []).map(
+        (m: any) => ({
+          role: m.role,
+          content: m.content,
+          timestamp: m.createdAt ? new Date(m.createdAt) : new Date(),
+          parts: partsFromMeta(m.meta),
+          attachments:
+            Array.isArray(m.attachments) && m.attachments.length
+              ? m.attachments
+              : undefined,
+          interrupted: m.meta?.interrupted || undefined,
+        }),
+      );
+      this.patchThread(agentKey, threadId, {
+        messages,
+        messagesLoading: false,
+      });
     } catch {
       this.patchThread(agentKey, threadId, { messagesLoading: false });
     }
@@ -462,14 +478,21 @@ class ChatStore {
       // Stream transport unavailable (older gateway/plugin) — degrade to the
       // blocking GraphQL query.
       if (!streamed) {
-        await this.sendViaQuery(apolloClient, agentKey, threadId, mastraAgentId, message);
+        await this.sendViaQuery(
+          apolloClient,
+          agentKey,
+          threadId,
+          mastraAgentId,
+          message,
+        );
       }
       this.finishTurn(apolloClient, agentKey, threadId, mastraAgentId);
     } catch (err: any) {
       this.appendMessage(agentKey, threadId, {
         role: 'error',
         content:
-          err?.message ?? 'Failed to reach the agent. Check your connection and try again.',
+          err?.message ??
+          'Failed to reach the agent. Check your connection and try again.',
         timestamp: new Date(),
       });
     } finally {
@@ -512,18 +535,21 @@ class ChatStore {
   ): Promise<boolean> {
     let response: Response;
     try {
-      response = await fetch(`${REACT_APP_API_URL}/pl:erxes-agent/chat/stream`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          agentId: mastraAgentId,
-          message,
-          threadId,
-          attachments: attachments?.length ? attachments : undefined,
-        }),
-        signal: abort.signal,
-      });
+      response = await fetch(
+        `${REACT_APP_API_URL}/pl:erxes-agent/chat/stream`,
+        {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            agentId: mastraAgentId,
+            message,
+            threadId,
+            attachments: attachments?.length ? attachments : undefined,
+          }),
+          signal: abort.signal,
+        },
+      );
     } catch {
       if (abort.signal.aborted) return true; // user stopped before transport settled
       return false; // network-level failure — try the GraphQL fallback
@@ -545,13 +571,12 @@ class ChatStore {
     let sawDone = false;
 
     const upsertLive = (mutate: (m: Message) => Message) => {
-      const base: Message =
-        live ?? {
-          role: 'assistant',
-          content: '',
-          timestamp: new Date(),
-          streaming: true,
-        };
+      const base: Message = live ?? {
+        role: 'assistant',
+        content: '',
+        timestamp: new Date(),
+        streaming: true,
+      };
       const next = mutate({ ...base, parts: base.parts?.slice() });
       if (live) this.replaceLastMessage(agentKey, threadId, next);
       else this.appendMessage(agentKey, threadId, next);
@@ -591,7 +616,11 @@ class ChatStore {
           }));
           break;
         case 'text_replace':
-          upsertLive((m) => ({ ...m, parts: closeThinking(m.parts), content: ev.text }));
+          upsertLive((m) => ({
+            ...m,
+            parts: closeThinking(m.parts),
+            content: ev.text,
+          }));
           break;
         case 'tool_call':
           upsertLive((m) => ({
@@ -600,7 +629,11 @@ class ChatStore {
               ...closeThinking(m.parts),
               {
                 kind: 'tool',
-                call: { toolCallId: ev.toolCallId, toolName: ev.toolName, args: ev.args },
+                call: {
+                  toolCallId: ev.toolCallId,
+                  toolName: ev.toolName,
+                  args: ev.args,
+                },
               },
             ],
           }));
@@ -628,7 +661,10 @@ class ChatStore {
               const p = parts[idx] as { kind: 'tool'; call: ToolCallInfo };
               parts[idx] = { kind: 'tool', call: { ...p.call, ...patch } };
             } else {
-              parts.push({ kind: 'tool', call: { toolName: ev.toolName, ...patch } });
+              parts.push({
+                kind: 'tool',
+                call: { toolName: ev.toolName, ...patch },
+              });
             }
             return { ...m, parts };
           });
@@ -647,7 +683,8 @@ class ChatStore {
           if (!ev.reply && !ev.interrupted) {
             this.appendMessage(agentKey, threadId, {
               role: 'error',
-              content: 'The agent returned an empty response. Please try again.',
+              content:
+                'The agent returned an empty response. Please try again.',
               timestamp: new Date(),
             });
           }
@@ -717,7 +754,9 @@ class ChatStore {
       }));
     }
     if (!sawDone && !live && !abort.signal.aborted) {
-      throw new Error('The connection to the agent was lost. Please try again.');
+      throw new Error(
+        'The connection to the agent was lost. Please try again.',
+      );
     }
 
     return true;

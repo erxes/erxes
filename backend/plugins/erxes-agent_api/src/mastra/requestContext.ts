@@ -12,7 +12,10 @@ interface RequestAuth {
 
 const authStorage = new AsyncLocalStorage<RequestAuth>();
 
-export function runWithAuth<T>(ctx: RequestAuth, fn: () => Promise<T>): Promise<T> {
+export function runWithAuth<T>(
+  ctx: RequestAuth,
+  fn: () => Promise<T>,
+): Promise<T> {
   return authStorage.run(ctx, fn);
 }
 

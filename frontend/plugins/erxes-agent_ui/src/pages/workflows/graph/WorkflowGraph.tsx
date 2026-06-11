@@ -27,13 +27,41 @@ const KIND_STYLE: Record<
   string,
   { icon: React.ElementType; accent: string; label: string }
 > = {
-  trigger: { icon: IconBolt, accent: 'text-violet-500 bg-violet-500/10', label: 'Trigger' },
-  operation: { icon: IconTool, accent: 'text-blue-500 bg-blue-500/10', label: 'Operation' },
-  agent: { icon: IconRobot, accent: 'text-purple-500 bg-purple-500/10', label: 'Agent' },
-  branch: { icon: IconArrowsSplit, accent: 'text-amber-500 bg-amber-500/10', label: 'Branch' },
-  parallel: { icon: IconArrowsJoin, accent: 'text-cyan-500 bg-cyan-500/10', label: 'Parallel' },
-  end: { icon: IconFlag, accent: 'text-emerald-600 bg-emerald-500/10', label: 'End' },
-  other: { icon: IconCircleDot, accent: 'text-muted-foreground bg-muted', label: 'Step' },
+  trigger: {
+    icon: IconBolt,
+    accent: 'text-violet-500 bg-violet-500/10',
+    label: 'Trigger',
+  },
+  operation: {
+    icon: IconTool,
+    accent: 'text-blue-500 bg-blue-500/10',
+    label: 'Operation',
+  },
+  agent: {
+    icon: IconRobot,
+    accent: 'text-purple-500 bg-purple-500/10',
+    label: 'Agent',
+  },
+  branch: {
+    icon: IconArrowsSplit,
+    accent: 'text-amber-500 bg-amber-500/10',
+    label: 'Branch',
+  },
+  parallel: {
+    icon: IconArrowsJoin,
+    accent: 'text-cyan-500 bg-cyan-500/10',
+    label: 'Parallel',
+  },
+  end: {
+    icon: IconFlag,
+    accent: 'text-emerald-600 bg-emerald-500/10',
+    label: 'End',
+  },
+  other: {
+    icon: IconCircleDot,
+    accent: 'text-muted-foreground bg-muted',
+    label: 'Step',
+  },
 };
 
 // Ring color when a run's per-step status decorates the graph.
@@ -63,7 +91,11 @@ const WorkflowNode = ({ data }: NodeProps) => {
       className={`rounded-lg border border-border bg-background shadow-sm px-3 py-2.5 ${ring}`}
       title={d.error || undefined}
     >
-      <Handle type="target" position={Position.Top} className="!bg-border !size-2" />
+      <Handle
+        type="target"
+        position={Position.Top}
+        className="!bg-border !size-2"
+      />
       <div className="flex items-start gap-2.5">
         <div className={`rounded-md p-1.5 shrink-0 ${style.accent}`}>
           <Icon className="size-4" />
@@ -86,12 +118,18 @@ const WorkflowNode = ({ data }: NodeProps) => {
             </div>
           )}
           {d.error && (
-            <div className="text-xs text-destructive truncate mt-0.5">{d.error}</div>
+            <div className="text-xs text-destructive truncate mt-0.5">
+              {d.error}
+            </div>
           )}
         </div>
       </div>
       {d.kind !== 'end' && (
-        <Handle type="source" position={Position.Bottom} className="!bg-border !size-2" />
+        <Handle
+          type="source"
+          position={Position.Bottom}
+          className="!bg-border !size-2"
+        />
       )}
     </div>
   );

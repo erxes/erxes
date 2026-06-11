@@ -110,7 +110,9 @@ const WorkflowMoreCell = ({
                 variant="ghost"
                 size="sm"
                 className="justify-start w-full h-8"
-                onClick={() => navigate(`/erxes-agent/workflows/${workflow._id}`)}
+                onClick={() =>
+                  navigate(`/erxes-agent/workflows/${workflow._id}`)
+                }
               >
                 <IconEye className="size-4" /> View runs
               </Button>
@@ -187,7 +189,9 @@ const baseColumns: ColumnDef<IWorkflowRow>[] = [
   {
     id: 'name',
     accessorKey: 'name',
-    header: () => <RecordTable.InlineHead icon={IconAlignLeft} label="Workflow" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconAlignLeft} label="Workflow" />
+    ),
     cell: ({ row }) => {
       const { _id, name, description } = row.original;
       return (
@@ -213,14 +217,18 @@ const baseColumns: ColumnDef<IWorkflowRow>[] = [
     header: () => <RecordTable.InlineHead icon={IconBolt} label="Trigger" />,
     cell: ({ row }) => (
       <RecordTableInlineCell>
-        <Badge variant="secondary">{triggerLabel(row.original.definition)}</Badge>
+        <Badge variant="secondary">
+          {triggerLabel(row.original.definition)}
+        </Badge>
       </RecordTableInlineCell>
     ),
     size: 160,
   },
   {
     id: 'steps',
-    header: () => <RecordTable.InlineHead icon={IconListNumbers} label="Steps" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconListNumbers} label="Steps" />
+    ),
     cell: ({ row }) => (
       <RecordTableInlineCell>
         <span className="text-sm">{stepCount(row.original.definition)}</span>
@@ -231,7 +239,9 @@ const baseColumns: ColumnDef<IWorkflowRow>[] = [
   {
     id: 'version',
     accessorKey: 'version',
-    header: () => <RecordTable.InlineHead icon={IconVersions} label="Version" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconVersions} label="Version" />
+    ),
     cell: ({ cell }) => (
       <RecordTableInlineCell>
         <span className="font-mono text-xs">v{cell.getValue() as number}</span>
@@ -242,7 +252,9 @@ const baseColumns: ColumnDef<IWorkflowRow>[] = [
   {
     id: 'status',
     accessorKey: 'isEnabled',
-    header: () => <RecordTable.InlineHead icon={IconToggleRight} label="Status" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconToggleRight} label="Status" />
+    ),
     cell: ({ cell }) => {
       const isEnabled = cell.getValue() as boolean;
       return (
@@ -258,7 +270,9 @@ const baseColumns: ColumnDef<IWorkflowRow>[] = [
   {
     id: 'updatedAt',
     accessorKey: 'updatedAt',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Updated" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label="Updated" />
+    ),
     cell: ({ cell }) => (
       <RelativeDateDisplay value={cell.getValue() as string} asChild>
         <RecordTableInlineCell>

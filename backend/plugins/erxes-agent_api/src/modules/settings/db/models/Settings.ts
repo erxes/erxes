@@ -1,7 +1,11 @@
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { settingsSchema } from '@/settings/db/definitions/settings';
-import { IKnowledgeSyncStatus, IMastraSettings, IMastraSettingsDocument } from '@/settings/@types/settings';
+import {
+  IKnowledgeSyncStatus,
+  IMastraSettings,
+  IMastraSettingsDocument,
+} from '@/settings/@types/settings';
 
 export interface IMastraSettingsModel extends Model<IMastraSettingsDocument> {
   getSettings(): Promise<IMastraSettingsDocument>;
@@ -11,7 +15,8 @@ export interface IMastraSettingsModel extends Model<IMastraSettingsDocument> {
 
 // 30-second in-process cache — eliminates a DB round-trip on every turn.
 // Busted immediately when saveSettings() is called so UI edits take effect.
-let _settingsCache: { doc: IMastraSettingsDocument; expiresAt: number } | null = null;
+let _settingsCache: { doc: IMastraSettingsDocument; expiresAt: number } | null =
+  null;
 const SETTINGS_CACHE_TTL = 30_000;
 
 export const loadSettingsClass = (_models: IModels) => {
@@ -25,16 +30,20 @@ export const loadSettingsClass = (_models: IModels) => {
       let doc = await _models.MastraSettings.findOne({});
       if (!doc) {
         doc = await _models.MastraSettings.create({
-          erxesApiUrl: process.env.ERXES_AGENT_ERXES_API_URL || 'http://localhost:4000',
+          erxesApiUrl:
+            process.env.ERXES_AGENT_ERXES_API_URL || 'http://localhost:4000',
           erxesApiToken: process.env.ERXES_AGENT_ERXES_API_TOKEN,
           defaultAgentId: process.env.ERXES_AGENT_DEFAULT_AGENT_ID,
         });
       }
 
       // Env vars override DB values at runtime (DB is not modified)
-      if (process.env.ERXES_AGENT_ERXES_API_URL) doc.erxesApiUrl = process.env.ERXES_AGENT_ERXES_API_URL;
-      if (process.env.ERXES_AGENT_ERXES_API_TOKEN) doc.erxesApiToken = process.env.ERXES_AGENT_ERXES_API_TOKEN;
-      if (process.env.ERXES_AGENT_DEFAULT_AGENT_ID) doc.defaultAgentId = process.env.ERXES_AGENT_DEFAULT_AGENT_ID;
+      if (process.env.ERXES_AGENT_ERXES_API_URL)
+        doc.erxesApiUrl = process.env.ERXES_AGENT_ERXES_API_URL;
+      if (process.env.ERXES_AGENT_ERXES_API_TOKEN)
+        doc.erxesApiToken = process.env.ERXES_AGENT_ERXES_API_TOKEN;
+      if (process.env.ERXES_AGENT_DEFAULT_AGENT_ID)
+        doc.defaultAgentId = process.env.ERXES_AGENT_DEFAULT_AGENT_ID;
 
       _settingsCache = { doc, expiresAt: now + SETTINGS_CACHE_TTL };
       return doc;

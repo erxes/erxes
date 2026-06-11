@@ -153,11 +153,14 @@ export async function deletePoints(
   baseUrl = qdrantUrl(),
 ): Promise<void> {
   if (!ids.length) return;
-  const res = await fetch(`${baseUrl}/collections/${name}/points/delete?wait=true`, {
-    method: 'POST',
-    headers: headers(),
-    body: JSON.stringify({ points: ids }),
-  });
+  const res = await fetch(
+    `${baseUrl}/collections/${name}/points/delete?wait=true`,
+    {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ points: ids }),
+    },
+  );
   if (!res.ok) {
     const text = await res.text().catch(() => '');
     throw new Error(`Qdrant deletePoints failed (${res.status}): ${text}`);

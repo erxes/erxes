@@ -12,9 +12,15 @@ import {
   augmentConvo,
   MemoryContext,
 } from '~/mastra/memory';
-import { IMastraChatAttachment, IMastraMessageMeta } from '@/session/@types/session';
+import {
+  IMastraChatAttachment,
+  IMastraMessageMeta,
+} from '@/session/@types/session';
 import { maybeGenerateThreadTitle } from '~/mastra/titler';
-import { buildChatUserContent, historyAttachmentNote } from '~/mastra/files/chatContent';
+import {
+  buildChatUserContent,
+  historyAttachmentNote,
+} from '~/mastra/files/chatContent';
 
 // Shared chat-turn pipeline used by both the blocking GraphQL resolver
 // (mastraAgentChat) and the streaming SSE route (/chat/stream). Holds the
@@ -29,7 +35,9 @@ export const HISTORY_LIMIT = 12;
 // A search_erxes_operations result is navigational (it lists candidate ops),
 // never the final answer — the answer comes from execute_erxes_operation.
 export function isSearchResult(tr: any): boolean {
-  return (tr?.toolName || tr?.name || '').toLowerCase().includes('search_erxes_operations');
+  return (tr?.toolName || tr?.name || '')
+    .toLowerCase()
+    .includes('search_erxes_operations');
 }
 
 // True when a tool's return value carries a real answer worth reporting (vs a
@@ -39,7 +47,8 @@ export function isRealToolData(data: any): boolean {
   if (data === true) return true;
   if (Array.isArray(data)) return true; // even an empty array is a valid "0 results"
   if (data == null) return false;
-  if (typeof data !== 'object') return typeof data === 'string' && data.length > 0;
+  if (typeof data !== 'object')
+    return typeof data === 'string' && data.length > 0;
   if (data.success === false) return false;
   if (data._id) return true;
   if (data.list !== undefined) return true;
@@ -76,9 +85,12 @@ export function buildFallbackFromResults(toolResults: any[]): string | null {
     const op: string = (tr.toolName || tr.name || '').toLowerCase();
 
     if (data._id && data.name) {
-      if (op.includes('add') || op.includes('create')) return `"${data.name}" was created successfully.`;
-      if (op.includes('edit') || op.includes('update')) return `"${data.name}" was updated successfully.`;
-      if (op.includes('remove') || op.includes('delete')) return `"${data.name}" was deleted.`;
+      if (op.includes('add') || op.includes('create'))
+        return `"${data.name}" was created successfully.`;
+      if (op.includes('edit') || op.includes('update'))
+        return `"${data.name}" was updated successfully.`;
+      if (op.includes('remove') || op.includes('delete'))
+        return `"${data.name}" was deleted.`;
       return `Done: "${data.name}".`;
     }
 
@@ -109,9 +121,16 @@ export function extractTextToolCall(text: string): TextToolCall | null {
   // Pattern 1 — OpenAI-style JSON array: [{"id":"...","type":"function","function":{"name":"...","arguments":"{...}"}}]
   try {
     const arr = JSON.parse(t);
-    if (Array.isArray(arr) && arr[0]?.type === 'function' && arr[0]?.function?.name) {
+    if (
+      Array.isArray(arr) &&
+      arr[0]?.type === 'function' &&
+      arr[0]?.function?.name
+    ) {
       const fn = arr[0].function;
-      const args = typeof fn.arguments === 'string' ? JSON.parse(fn.arguments) : (fn.arguments ?? {});
+      const args =
+        typeof fn.arguments === 'string'
+          ? JSON.parse(fn.arguments)
+          : (fn.arguments ?? {});
       return { name: fn.name, args };
     }
   } catch {}
@@ -132,7 +151,10 @@ export function extractTextToolCall(text: string): TextToolCall | null {
     try {
       const obj = JSON.parse(tagMatch[1]);
       if (obj?.name) {
-        const args = typeof obj.arguments === 'string' ? JSON.parse(obj.arguments) : (obj.arguments ?? obj.parameters ?? {});
+        const args =
+          typeof obj.arguments === 'string'
+            ? JSON.parse(obj.arguments)
+            : (obj.arguments ?? obj.parameters ?? {});
         return { name: obj.name, args };
       }
     } catch {}
@@ -178,9 +200,13 @@ export async function prepareChatTurn(params: {
   threadId?: string;
   attachments?: IMastraChatAttachment[];
 }): Promise<PreparedTurn> {
-  const { models, subdomain, user, agentId, message, threadId, attachments } = params;
+  const { models, subdomain, user, agentId, message, threadId, attachments } =
+    params;
 
-  const agentConfig = await models.MastraAgent.findOne({ agentId, isEnabled: true });
+  const agentConfig = await models.MastraAgent.findOne({
+    agentId,
+    isEnabled: true,
+  });
   if (!agentConfig) throw new Error(`Agent "${agentId}" not found or disabled`);
 
   const settings = await models.MastraSettings.findOne({});
@@ -289,7 +315,16 @@ export async function persistTurn(params: {
   meta?: IMastraMessageMeta;
 }): Promise<{ titlePromise: Promise<string | null> }> {
   const { models, prepared, message, reply, meta } = params;
-  const { sessionId, advanced, memCtx, agentConfig, providers, authCtx, isLegacy, attachments } = prepared;
+  const {
+    sessionId,
+    advanced,
+    memCtx,
+    agentConfig,
+    providers,
+    authCtx,
+    isLegacy,
+    attachments,
+  } = prepared;
 
   const userMsg = await models.MastraMessage.addMessage(
     sessionId,
@@ -374,10 +409,12 @@ export async function runAgentTurn(params: {
   const { agent, tools, convo, message, isLegacy, authCtx, depth = 0 } = params;
 
   try {
-    const result = await runWithAuth(authCtx, () =>
-      (isLegacy
-        ? agent.generateLegacy(convo)
-        : agent.generate(convo as any)) as Promise<any>,
+    const result = await runWithAuth(
+      authCtx,
+      () =>
+        (isLegacy
+          ? agent.generateLegacy(convo)
+          : agent.generate(convo as any)) as Promise<any>,
     );
 
     if (result.text) {
@@ -389,8 +426,15 @@ export async function runAgentTurn(params: {
       const extracted = extractTextToolCall(t);
       if (extracted) {
         const handled = await executeTextToolCall({
-          agent, tools, convo, message, isLegacy, authCtx, depth,
-          extracted, rawText: t,
+          agent,
+          tools,
+          convo,
+          message,
+          isLegacy,
+          authCtx,
+          depth,
+          extracted,
+          rawText: t,
         });
         if (handled !== undefined) return handled;
       }
@@ -399,8 +443,8 @@ export async function runAgentTurn(params: {
       if (t.startsWith('The function call that best answers')) {
         throw new Error(
           'This model outputs tool calls as plain text and the call could not be parsed. ' +
-          'For reliable tool use, switch to: GPT-4o, Claude Sonnet, Gemini 2.0 Flash, ' +
-          'Kimi K2 (kimi-k2-0711-preview), Llama 3.3 70B (Groq or NVIDIA NIM), or Mistral Large.',
+            'For reliable tool use, switch to: GPT-4o, Claude Sonnet, Gemini 2.0 Flash, ' +
+            'Kimi K2 (kimi-k2-0711-preview), Llama 3.3 70B (Groq or NVIDIA NIM), or Mistral Large.',
         );
       }
 
@@ -419,7 +463,11 @@ export async function runAgentTurn(params: {
     logToolResults(uniqueResults);
 
     return await synthesizeFromToolResults({
-      agent, message, isLegacy, authCtx, toolResults: uniqueResults,
+      agent,
+      message,
+      isLegacy,
+      authCtx,
+      toolResults: uniqueResults,
     });
   } catch (err: any) {
     throw toUserFacingError(err);
@@ -429,8 +477,14 @@ export async function runAgentTurn(params: {
 // Normalize provider failures into messages safe to show a non-technical user.
 export function toUserFacingError(err: any): Error {
   const msg: string = err?.message ?? String(err);
-  if (msg.toLowerCase().includes('too many requests') || msg.includes('429') || msg.toLowerCase().includes('rate limit')) {
-    return new Error('The AI provider is temporarily rate-limited. Please wait a moment and try again.');
+  if (
+    msg.toLowerCase().includes('too many requests') ||
+    msg.includes('429') ||
+    msg.toLowerCase().includes('rate limit')
+  ) {
+    return new Error(
+      'The AI provider is temporarily rate-limited. Please wait a moment and try again.',
+    );
   }
   return new Error(`Agent execution failed: ${msg}`);
 }
@@ -459,8 +513,11 @@ export function logToolResults(uniqueResults: any[]) {
                 : typeof data === 'object'
                   ? Object.keys(data).slice(0, 6)
                   : typeof data,
-          success: (data && typeof data === 'object') ? data.success : undefined,
-          error: (data && typeof data === 'object') ? (data.error || data.message) : undefined,
+          success: data && typeof data === 'object' ? data.success : undefined,
+          error:
+            data && typeof data === 'object'
+              ? data.error || data.message
+              : undefined,
         };
       }),
     ),
@@ -481,7 +538,9 @@ export async function synthesizeFromToolResults(params: {
   // search_erxes_operations is navigational; only execute (action) results
   // decide whether the turn produced something real to report.
   const actionResults = toolResults.filter((tr: any) => !isSearchResult(tr));
-  const hasRealResult = actionResults.some((tr: any) => isRealToolData(tr.result ?? tr));
+  const hasRealResult = actionResults.some((tr: any) =>
+    isRealToolData(tr.result ?? tr),
+  );
   const fallback = buildFallbackFromResults(toolResults);
 
   if (!hasRealResult) {
@@ -506,10 +565,14 @@ export async function synthesizeFromToolResults(params: {
   ];
 
   try {
-    const synthesis = await runWithAuth(authCtx, () =>
-      (isLegacy
-        ? agent.generateLegacy(synthesisMessages)
-        : agent.generate(synthesisMessages, { maxSteps: 1 } as any)) as Promise<any>,
+    const synthesis = await runWithAuth(
+      authCtx,
+      () =>
+        (isLegacy
+          ? agent.generateLegacy(synthesisMessages)
+          : agent.generate(synthesisMessages, {
+              maxSteps: 1,
+            } as any)) as Promise<any>,
     );
     return synthesis.text || fallback || 'Done.';
   } catch {
@@ -530,20 +593,45 @@ export async function executeTextToolCall(params: {
   depth: number;
   extracted: TextToolCall;
   rawText: string;
-  onToolEvent?: (event: { phase: 'call' | 'result'; toolName: string; args?: any; result?: any; isError?: boolean }) => void;
+  onToolEvent?: (event: {
+    phase: 'call' | 'result';
+    toolName: string;
+    args?: any;
+    result?: any;
+    isError?: boolean;
+  }) => void;
 }): Promise<string | null | undefined> {
-  const { agent, tools, convo, message, isLegacy, authCtx, depth, extracted, rawText, onToolEvent } = params;
+  const {
+    agent,
+    tools,
+    convo,
+    message,
+    isLegacy,
+    authCtx,
+    depth,
+    extracted,
+    rawText,
+    onToolEvent,
+  } = params;
 
   // Find the tool by name or by toolId
   const tool =
     tools[extracted.name] ||
-    Object.entries(tools).find(([, v]: [string, any]) => v?.id === extracted.name)?.[1];
+    Object.entries(tools).find(
+      ([, v]: [string, any]) => v?.id === extracted.name,
+    )?.[1];
 
   if (!tool?.execute) return undefined;
 
   try {
-    onToolEvent?.({ phase: 'call', toolName: extracted.name, args: extracted.args });
-    const toolResult = await runWithAuth(authCtx, () => tool.execute(extracted.args));
+    onToolEvent?.({
+      phase: 'call',
+      toolName: extracted.name,
+      args: extracted.args,
+    });
+    const toolResult = await runWithAuth(authCtx, () =>
+      tool.execute(extracted.args),
+    );
     onToolEvent?.({
       phase: 'result',
       toolName: extracted.name,
@@ -551,18 +639,29 @@ export async function executeTextToolCall(params: {
       result: toolResult,
       isError: !isRealToolData(toolResult),
     });
-    const syntheticResults = [{ toolName: extracted.name, result: toolResult, toolCallId: `text-${Date.now()}` }];
+    const syntheticResults = [
+      {
+        toolName: extracted.name,
+        result: toolResult,
+        toolCallId: `text-${Date.now()}`,
+      },
+    ];
 
     console.log(
-      '[text-tool-call]', extracted.name,
+      '[text-tool-call]',
+      extracted.name,
       JSON.stringify(extracted.args),
-      '→', (JSON.stringify(toolResult) || '').slice(0, 300),
+      '→',
+      (JSON.stringify(toolResult) || '').slice(0, 300),
     );
 
     // search_erxes_operations is navigational. The model emitted it as
     // text (no native multi-step), so feed the results back and let it
     // continue to execute_erxes_operation. Bounded to avoid loops.
-    if (extracted.name.toLowerCase().includes('search_erxes_operations') && depth < 2) {
+    if (
+      extracted.name.toLowerCase().includes('search_erxes_operations') &&
+      depth < 2
+    ) {
       const followup = [
         ...convo,
         { role: 'assistant', content: rawText },
@@ -574,24 +673,37 @@ export async function executeTextToolCall(params: {
         },
       ];
       return await runAgentTurn({
-        agent, tools, convo: followup, message, isLegacy, authCtx, depth: depth + 1,
+        agent,
+        tools,
+        convo: followup,
+        message,
+        isLegacy,
+        authCtx,
+        depth: depth + 1,
       });
     }
 
     const fallback = buildFallbackFromResults(syntheticResults);
-    if (!isRealToolData(toolResult)) return fallback || 'Something went wrong. Please try again.';
+    if (!isRealToolData(toolResult))
+      return fallback || 'Something went wrong. Please try again.';
 
     // Synthesise a human-readable summary.
     const toolContext = `[${extracted.name}]:\n${JSON.stringify(toolResult, null, 2)}`;
-    const synthesisMessages: any[] = [{
-      role: 'user',
-      content: `Report the following tool results accurately to the user in one or two sentences. Do not call any tools.\n\nUser request: ${message}\n\n${toolContext}`,
-    }];
+    const synthesisMessages: any[] = [
+      {
+        role: 'user',
+        content: `Report the following tool results accurately to the user in one or two sentences. Do not call any tools.\n\nUser request: ${message}\n\n${toolContext}`,
+      },
+    ];
     try {
-      const synthesis = await runWithAuth(authCtx, () =>
-        (isLegacy
-          ? agent.generateLegacy(synthesisMessages)
-          : agent.generate(synthesisMessages, { maxSteps: 1 } as any)) as Promise<any>,
+      const synthesis = await runWithAuth(
+        authCtx,
+        () =>
+          (isLegacy
+            ? agent.generateLegacy(synthesisMessages)
+            : agent.generate(synthesisMessages, {
+                maxSteps: 1,
+              } as any)) as Promise<any>,
       );
       return synthesis.text || fallback || 'Done.';
     } catch {

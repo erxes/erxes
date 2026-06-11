@@ -30,10 +30,14 @@ describe('convo assembly', () => {
       recallBlock: 'RECALL',
       workingMemoryBlock: 'WM',
     });
-    const injected = convo.filter((m) => m.content === 'WM' || m.content === 'RECALL');
+    const injected = convo.filter(
+      (m) => m.content === 'WM' || m.content === 'RECALL',
+    );
     expect(injected.every((m) => m.role === 'system')).toBe(true);
     // no tool-call frames anywhere
-    expect(convo.some((m: any) => m.role === 'tool' || m.tool_calls)).toBe(false);
+    expect(convo.some((m: any) => m.role === 'tool' || m.tool_calls)).toBe(
+      false,
+    );
   });
 
   it('AM-CONV-3: both blocks absent → byte-identical to plain replay', () => {
@@ -48,8 +52,12 @@ describe('convo assembly', () => {
   });
 
   it('AM-CONV-6: deriveBotResourceId prefers customer id, else per-conversation', () => {
-    expect(deriveBotResourceId({ customerId: 'c1', conversationId: 'cv' })).toBe('c1');
+    expect(
+      deriveBotResourceId({ customerId: 'c1', conversationId: 'cv' }),
+    ).toBe('c1');
     expect(deriveBotResourceId({ conversationId: 'cv' })).toBe('bot:cv');
-    expect(deriveBotResourceId({ customerId: null, conversationId: 'cv' })).toBe('bot:cv');
+    expect(
+      deriveBotResourceId({ customerId: null, conversationId: 'cv' }),
+    ).toBe('bot:cv');
   });
 });

@@ -45,6 +45,7 @@ export interface IMastraWorkflowRun {
   finishedAt?: Date;
 }
 
-export interface IMastraWorkflowRunDocument extends IMastraWorkflowRun, Document {
+export interface IMastraWorkflowRunDocument
+  extends IMastraWorkflowRun, Document {
   _id: string;
 }

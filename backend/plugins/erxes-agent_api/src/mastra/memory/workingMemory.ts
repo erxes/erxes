@@ -136,8 +136,16 @@ export async function refreshWorkingMemory(params: {
   authCtx: any;
   isLegacy: boolean;
 }): Promise<void> {
-  const { models, ctx, exchange, provider, model, providers, authCtx, isLegacy } =
-    params;
+  const {
+    models,
+    ctx,
+    exchange,
+    provider,
+    model,
+    providers,
+    authCtx,
+    isLegacy,
+  } = params;
   try {
     const existing = await models.MastraWorkingMemory.getContent(
       ctx.resourceId,
@@ -148,10 +156,15 @@ export async function refreshWorkingMemory(params: {
     const msgs = [
       { role: 'user', content: buildRefreshUserContent(existing, exchange) },
     ];
-    const result: any = await runWithAuth(authCtx, () =>
-      (isLegacy
-        ? extractor.generateLegacy(msgs as any)
-        : extractor.generate(msgs as any, { maxSteps: 1 } as any)) as Promise<any>,
+    const result: any = await runWithAuth(
+      authCtx,
+      () =>
+        (isLegacy
+          ? extractor.generateLegacy(msgs as any)
+          : extractor.generate(
+              msgs as any,
+              { maxSteps: 1 } as any,
+            )) as Promise<any>,
     );
     const updated = mergeWorkingMemory(existing, result?.text);
     if (updated.trim() && updated !== existing) {

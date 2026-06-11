@@ -45,7 +45,10 @@ async function reconcileTenant(runQueue: Queue, tenant: string): Promise<void> {
     if (!wf.isEnabled || trigger?.type !== 'schedule') continue;
     const cron = trigger?.config?.cron;
     if (typeof cron !== 'string' || !cron.trim()) continue;
-    desired.set(schedulerId(tenant, wf._id), { pattern: cron.trim(), workflowId: wf._id });
+    desired.set(schedulerId(tenant, wf._id), {
+      pattern: cron.trim(),
+      workflowId: wf._id,
+    });
   }
 
   // Page through ALL schedulers — the queue is shared across tenants, and a
@@ -85,12 +88,17 @@ async function reconcileAll(runQueue: Queue): Promise<void> {
     try {
       await reconcileTenant(runQueue, tenant);
     } catch (e: any) {
-      console.error(`[erxes-agent:workflows] schedule reconcile failed for ${tenant}: ${e?.message}`);
+      console.error(
+        `[erxes-agent:workflows] schedule reconcile failed for ${tenant}: ${e?.message}`,
+      );
     }
   }
 }
 
-async function runScheduledWorkflow(subdomain: string, workflowId: string): Promise<string> {
+async function runScheduledWorkflow(
+  subdomain: string,
+  workflowId: string,
+): Promise<string> {
   const models = await generateModels(subdomain);
 
   let workflow;
@@ -99,7 +107,10 @@ async function runScheduledWorkflow(subdomain: string, workflowId: string): Prom
   } catch {
     return 'skipped: workflow deleted (next reconcile removes the schedule)';
   }
-  if (!workflow.isEnabled || workflow.definition?.trigger?.type !== 'schedule') {
+  if (
+    !workflow.isEnabled ||
+    workflow.definition?.trigger?.type !== 'schedule'
+  ) {
     return 'skipped: disabled or trigger changed';
   }
 
@@ -114,7 +125,9 @@ async function runScheduledWorkflow(subdomain: string, workflowId: string): Prom
 }
 
 export async function initWorkflowSchedules(redis: any): Promise<void> {
-  const reconcileQueue = new Queue(`${SERVICE}-${RECONCILE_QUEUE}`, { connection: redis });
+  const reconcileQueue = new Queue(`${SERVICE}-${RECONCILE_QUEUE}`, {
+    connection: redis,
+  });
   await reconcileQueue.upsertJobScheduler(
     `${SERVICE}-workflow-schedule-reconcile-cron`,
     { pattern: RECONCILE_CRON, tz: 'UTC' },

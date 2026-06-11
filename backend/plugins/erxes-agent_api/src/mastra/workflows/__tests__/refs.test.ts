@@ -35,54 +35,73 @@ describe('refs', () => {
 
     it('accepts trigger, prior-step output and known bindings', () => {
       expect(checkRef('trigger.payload.text', prior, bindings)).toBeNull();
-      expect(checkRef('steps.classify.output.intent', prior, bindings)).toBeNull();
+      expect(
+        checkRef('steps.classify.output.intent', prior, bindings),
+      ).toBeNull();
       expect(checkRef('bindings.supportAgent', prior, bindings)).toBeNull();
     });
 
     it('rejects unknown roots', () => {
-      expect(checkRef('env.SECRET', prior, bindings)).toMatch(/unknown ref root/);
+      expect(checkRef('env.SECRET', prior, bindings)).toMatch(
+        /unknown ref root/,
+      );
     });
 
     it('rejects refs to steps that have not executed yet', () => {
-      expect(checkRef('steps.later.output.x', prior, bindings)).toMatch(/does not execute before/);
+      expect(checkRef('steps.later.output.x', prior, bindings)).toMatch(
+        /does not execute before/,
+      );
     });
 
     it('rejects step refs that do not read output', () => {
-      expect(checkRef('steps.classify.intent', prior, bindings)).toMatch(/must read a step's output/);
+      expect(checkRef('steps.classify.intent', prior, bindings)).toMatch(
+        /must read a step's output/,
+      );
     });
 
     it('rejects unknown bindings', () => {
-      expect(checkRef('bindings.ghost', prior, bindings)).toMatch(/unknown binding/);
+      expect(checkRef('bindings.ghost', prior, bindings)).toMatch(
+        /unknown binding/,
+      );
     });
   });
 
   describe('resolveValue', () => {
     it('whole-string refs return the raw value (objects, numbers)', () => {
       expect(resolveValue('{{trigger.payload.amount}}', scope)).toBe(5000);
-      expect(resolveValue('{{steps.lookup.output.list}}', scope)).toEqual([{ _id: 'p1' }]);
+      expect(resolveValue('{{steps.lookup.output.list}}', scope)).toEqual([
+        { _id: 'p1' },
+      ]);
     });
 
     it('embedded refs interpolate as strings', () => {
-      expect(resolveValue('Order: {{steps.classify.output.productName}}!', scope)).toBe(
-        'Order: Chair!',
-      );
+      expect(
+        resolveValue('Order: {{steps.classify.output.productName}}!', scope),
+      ).toBe('Order: Chair!');
     });
 
     it('binding refs resolve to the bound id, keeping definitions portable', () => {
-      expect(resolveValue('{{bindings.supportAgent}}', scope)).toBe('agent-123');
+      expect(resolveValue('{{bindings.supportAgent}}', scope)).toBe(
+        'agent-123',
+      );
     });
 
     it('resolves deeply through objects and arrays', () => {
       expect(
         resolveValue(
-          { name: '{{steps.classify.output.productName}}', ids: ['{{trigger.payload.amount}}'] },
+          {
+            name: '{{steps.classify.output.productName}}',
+            ids: ['{{trigger.payload.amount}}'],
+          },
           scope,
         ),
       ).toEqual({ name: 'Chair', ids: [5000] });
     });
 
     it('missing paths resolve to undefined (whole) / empty string (embedded)', () => {
-      expect(resolveValue('{{trigger.payload.missing}}', scope)).toBeUndefined();
+      expect(
+        resolveValue('{{trigger.payload.missing}}', scope),
+      ).toBeUndefined();
       expect(resolveValue('x={{trigger.payload.missing}}', scope)).toBe('x=');
     });
 

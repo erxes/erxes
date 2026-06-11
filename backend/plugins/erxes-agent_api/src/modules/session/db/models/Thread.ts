@@ -18,10 +18,24 @@ export interface IMastraThreadModel extends Model<IMastraThreadDocument> {
     firstMessage?: string,
   ): Promise<IMastraThreadDocument>;
   touchThread(threadId: string): Promise<void>;
-  getThreadsByOwner(agentId: string, userId: string): Promise<IMastraThreadDocument[]>;
-  getOwnedThread(threadId: string, userId: string): Promise<IMastraThreadDocument>;
-  renameThread(threadId: string, title: string, userId: string): Promise<IMastraThreadDocument>;
-  setGeneratedTitle(threadId: string, title: string, messageCount: number): Promise<boolean>;
+  getThreadsByOwner(
+    agentId: string,
+    userId: string,
+  ): Promise<IMastraThreadDocument[]>;
+  getOwnedThread(
+    threadId: string,
+    userId: string,
+  ): Promise<IMastraThreadDocument>;
+  renameThread(
+    threadId: string,
+    title: string,
+    userId: string,
+  ): Promise<IMastraThreadDocument>;
+  setGeneratedTitle(
+    threadId: string,
+    title: string,
+    messageCount: number,
+  ): Promise<boolean>;
   removeThread(threadId: string, userId: string): Promise<{ ok?: number }>;
 }
 
@@ -59,7 +73,9 @@ export const loadThreadClass = (_models: IModels) => {
     // Refresh activity timestamp + message count so the session list orders and
     // labels correctly.
     public static async touchThread(threadId: string) {
-      const messageCount = await _models.MastraMessage.countDocuments({ threadId });
+      const messageCount = await _models.MastraMessage.countDocuments({
+        threadId,
+      });
       await _models.MastraThread.updateOne(
         { threadId },
         { $set: { lastMessageAt: new Date(), messageCount } },
@@ -68,7 +84,9 @@ export const loadThreadClass = (_models: IModels) => {
 
     // Only the caller's own sessions — never other users' or bot threads.
     public static async getThreadsByOwner(agentId: string, userId: string) {
-      return _models.MastraThread.find({ agentId, userId }).sort({ lastMessageAt: -1 });
+      return _models.MastraThread.find({ agentId, userId }).sort({
+        lastMessageAt: -1,
+      });
     }
 
     // Fetch a thread the caller owns; "not found" otherwise (no existence leak).
@@ -79,7 +97,11 @@ export const loadThreadClass = (_models: IModels) => {
     }
 
     // A manual rename is final — the auto-titler never overwrites it.
-    public static async renameThread(threadId: string, title: string, userId: string) {
+    public static async renameThread(
+      threadId: string,
+      title: string,
+      userId: string,
+    ) {
       const updated = await _models.MastraThread.findOneAndUpdate(
         { threadId, userId },
         { $set: { title, titleSource: 'manual' } },
@@ -99,7 +121,13 @@ export const loadThreadClass = (_models: IModels) => {
     ) {
       const updated = await _models.MastraThread.findOneAndUpdate(
         { threadId, titleSource: { $ne: 'manual' } },
-        { $set: { title, titleSource: 'generated', titleMessageCount: messageCount } },
+        {
+          $set: {
+            title,
+            titleSource: 'generated',
+            titleMessageCount: messageCount,
+          },
+        },
         { new: true },
       );
       return !!updated;

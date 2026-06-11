@@ -19,7 +19,9 @@ describe('workflow runtime (pure parts)', () => {
     });
 
     it('honors the env prefix override and sanitizes hostile tenants', () => {
-      expect(workflowDbName('os', { ERXES_AGENT_WORKFLOW_DB_PREFIX: 'wfx' })).toBe('wfx_os');
+      expect(
+        workflowDbName('os', { ERXES_AGENT_WORKFLOW_DB_PREFIX: 'wfx' }),
+      ).toBe('wfx_os');
       expect(workflowDbName('a.b/c', {})).toBe('erxes_mastra_runtime_a_b_c');
     });
   });
@@ -30,13 +32,17 @@ describe('workflow runtime (pure parts)', () => {
     });
 
     it('parses fenced ```json blocks', () => {
-      expect(extractJsonObject('Sure!\n```json\n{"intent": "order"}\n```')).toEqual({
+      expect(
+        extractJsonObject('Sure!\n```json\n{"intent": "order"}\n```'),
+      ).toEqual({
         intent: 'order',
       });
     });
 
     it('parses JSON surrounded by prose', () => {
-      expect(extractJsonObject('Here you go: {"x": true} hope that helps')).toEqual({ x: true });
+      expect(
+        extractJsonObject('Here you go: {"x": true} hope that helps'),
+      ).toEqual({ x: true });
     });
 
     it('throws a clear error when no object is present', () => {

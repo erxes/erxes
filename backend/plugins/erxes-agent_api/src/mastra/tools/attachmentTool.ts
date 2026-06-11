@@ -27,8 +27,13 @@ export const readAttachmentTool = createTool({
     key: z
       .string()
       .min(1)
-      .describe('The storage key (or URL) of the attachment, exactly as given in the Attached files manifest'),
-    name: z.string().optional().describe('The file name, for friendlier errors'),
+      .describe(
+        'The storage key (or URL) of the attachment, exactly as given in the Attached files manifest',
+      ),
+    name: z
+      .string()
+      .optional()
+      .describe('The file name, for friendlier errors'),
   }),
   outputSchema: z.object({
     name: z.string(),

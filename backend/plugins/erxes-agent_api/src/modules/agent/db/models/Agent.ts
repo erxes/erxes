@@ -19,9 +19,14 @@ export interface IMastraAgentListResult {
 export interface IMastraAgentModel extends Model<IMastraAgentDocument> {
   getAgent(_id: string): Promise<IMastraAgentDocument>;
   getAgents(): Promise<IMastraAgentDocument[]>;
-  getAgentsList(params: IMastraAgentListParams): Promise<IMastraAgentListResult>;
+  getAgentsList(
+    params: IMastraAgentListParams,
+  ): Promise<IMastraAgentListResult>;
   createAgent(doc: IMastraAgent): Promise<IMastraAgentDocument>;
-  updateAgent(_id: string, doc: Partial<IMastraAgent>): Promise<IMastraAgentDocument>;
+  updateAgent(
+    _id: string,
+    doc: Partial<IMastraAgent>,
+  ): Promise<IMastraAgentDocument>;
   removeAgent(_id: string): Promise<{ ok: number }>;
 }
 

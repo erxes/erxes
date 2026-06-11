@@ -18,7 +18,9 @@ export interface ToolPolicy {
 export function resolveToolPolicy(agentConfig: any): ToolPolicy {
   const mode = agentConfig?.toolPolicy === 'custom' ? 'custom' : 'all';
   const allowed: string[] = Array.isArray(agentConfig?.allowedTools)
-    ? agentConfig.allowedTools.filter((s: any) => typeof s === 'string' && s.trim())
+    ? agentConfig.allowedTools.filter(
+        (s: any) => typeof s === 'string' && s.trim(),
+      )
     : [];
   return { mode, allowed };
 }
@@ -26,7 +28,10 @@ export function resolveToolPolicy(agentConfig: any): ToolPolicy {
 // True when `op` is within the policy. This is the programmatic boundary the
 // search and execute meta-tools enforce: a restricted agent literally cannot run
 // anything outside its allowlist, even if the model invents an operation name.
-export function isOperationAllowed(op: OperationMeta, policy: ToolPolicy): boolean {
+export function isOperationAllowed(
+  op: OperationMeta,
+  policy: ToolPolicy,
+): boolean {
   if (policy.mode === 'all') return true;
   return (
     policy.allowed.includes(op.operation) ||
@@ -42,7 +47,10 @@ export function isBuiltinAllowed(key: string, policy: ToolPolicy): boolean {
 
 // True when the policy grants at least one erxes operation, so the runtime knows
 // whether to bind the search/execute meta-tools at all.
-export function hasAnyOperation(list: OperationMeta[], policy: ToolPolicy): boolean {
+export function hasAnyOperation(
+  list: OperationMeta[],
+  policy: ToolPolicy,
+): boolean {
   if (policy.mode === 'all') return list.length > 0;
   return list.some((op) => isOperationAllowed(op, policy));
 }
@@ -57,8 +65,10 @@ export function scopeSummary(policy: ToolPolicy): string {
   const ops: string[] = [];
   const groups: string[] = [];
   for (const entry of policy.allowed) {
-    if (entry.startsWith('plugin:')) groups.push(`all ${entry.slice(7)} operations`);
-    else if (entry.startsWith('module:')) groups.push(`all ${entry.slice(7)} operations`);
+    if (entry.startsWith('plugin:'))
+      groups.push(`all ${entry.slice(7)} operations`);
+    else if (entry.startsWith('module:'))
+      groups.push(`all ${entry.slice(7)} operations`);
     else if (entry.startsWith('builtin:')) continue;
     else ops.push(entry);
   }
@@ -80,7 +90,9 @@ export function capabilityInventory(
   policy: ToolPolicy,
 ): { lines: string[]; fingerprint: string } {
   const allowed =
-    policy.mode === 'all' ? list : list.filter((op) => isOperationAllowed(op, policy));
+    policy.mode === 'all'
+      ? list
+      : list.filter((op) => isOperationAllowed(op, policy));
 
   // plugin → module → {reads, writes}
   const plugins = new Map<string, Map<string, { r: number; w: number }>>();
@@ -96,17 +108,23 @@ export function capabilityInventory(
 
   const MAX_MODULES_SHOWN = 30;
   const lines: string[] = [];
-  for (const [plugin, mods] of [...plugins.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+  for (const [plugin, mods] of [...plugins.entries()].sort(([a], [b]) =>
+    a.localeCompare(b),
+  )) {
     const names = [...mods.keys()].sort();
     const shown = names.slice(0, MAX_MODULES_SHOWN).join(', ');
-    const more = names.length > MAX_MODULES_SHOWN ? `, +${names.length - MAX_MODULES_SHOWN} more` : '';
+    const more =
+      names.length > MAX_MODULES_SHOWN
+        ? `, +${names.length - MAX_MODULES_SHOWN} more`
+        : '';
     const total = [...mods.values()].reduce((n, c) => n + c.r + c.w, 0);
     lines.push(`- ${plugin} (${total} operations): ${shown}${more}`);
   }
 
   // Stable identity of the installed/allowed surface — used to bust the agent
   // cache when plugins are enabled/disabled, so the prompt never goes stale.
-  const fingerprint = [...plugins.keys()].sort().join(',') + `#${allowed.length}`;
+  const fingerprint =
+    [...plugins.keys()].sort().join(',') + `#${allowed.length}`;
 
   return { lines, fingerprint };
 }

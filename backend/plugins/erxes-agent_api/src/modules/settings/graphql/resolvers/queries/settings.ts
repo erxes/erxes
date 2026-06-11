@@ -1,14 +1,21 @@
 import { IContext } from '~/connectionResolvers';
 import { computeAdvancedMemoryStatus } from '~/mastra/memory/config';
 import { refreshMemoryHealth } from '~/mastra/memory';
-import { computeKnowledgeStatus, isKnowledgeEnabled, enabledKnowledgeTypes } from '~/mastra/knowledge/config';
+import {
+  computeKnowledgeStatus,
+  isKnowledgeEnabled,
+  enabledKnowledgeTypes,
+} from '~/mastra/knowledge/config';
 import { ALL_KNOWLEDGE_TYPE_NAMES } from '~/mastra/knowledge/contentTypes';
 import { health as qdrantHealth } from '~/mastra/memory/vectorStore';
 import { getStorageStatus } from '~/mastra/files/storage';
 import { IModels } from '~/connectionResolvers';
 
 // configured (core storage) AND the plugin toggle → attachments usable in chat.
-export async function attachmentStorageStatus(models: IModels, subdomain: string) {
+export async function attachmentStorageStatus(
+  models: IModels,
+  subdomain: string,
+) {
   const [settings, storage] = await Promise.all([
     models.MastraSettings.getSettings(),
     getStorageStatus(subdomain),
@@ -41,8 +48,12 @@ export const settingsQueries = {
 
     // Company knowledge has its own flag, so it pings Qdrant independently of
     // the memory feature. Sweep counters come from the last reconciliation run.
-    const knowledgeReachable = isKnowledgeEnabled() ? await qdrantHealth() : null;
-    const knowledge = computeKnowledgeStatus(process.env, { reachable: knowledgeReachable });
+    const knowledgeReachable = isKnowledgeEnabled()
+      ? await qdrantHealth()
+      : null;
+    const knowledge = computeKnowledgeStatus(process.env, {
+      reachable: knowledgeReachable,
+    });
 
     return {
       ...obj,

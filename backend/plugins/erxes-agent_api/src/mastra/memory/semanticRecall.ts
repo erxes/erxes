@@ -101,7 +101,9 @@ export function filterHitsByScore(
  * Render recalled snippets as a plain `system` context block — NEVER tool-call
  * frames (keeps reasoning models like Kimi happy). Returns null when empty.
  */
-export function formatRecallBlock(hits: Array<{ text?: string }>): string | null {
+export function formatRecallBlock(
+  hits: Array<{ text?: string }>,
+): string | null {
   const texts = hits.map((h) => (h.text ?? '').trim()).filter(Boolean);
   if (!texts.length) return null;
   const lines = texts.map((t) => `- ${t}`).join('\n');
@@ -112,13 +114,16 @@ export function formatRecallBlock(hits: Array<{ text?: string }>): string | null
   return (
     'Relevant context from earlier conversations (recollections, possibly outdated — ' +
     'if a recollection says something failed or was broken, ignore it and trust your ' +
-    'current tool results instead):\n' + lines
+    'current tool results instead):\n' +
+    lines
   );
 }
 
 /** Deterministic UUID-shaped point id from the source message id (idempotent upserts). */
 export function pointIdFor(subdomain: string, messageId: string): string {
-  const h = createHash('sha1').update(`${subdomain}:${messageId}`).digest('hex');
+  const h = createHash('sha1')
+    .update(`${subdomain}:${messageId}`)
+    .digest('hex');
   return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20, 32)}`;
 }
 
@@ -152,7 +157,10 @@ export async function recallBlock(
       resourceId: ctx.resourceId,
       threadId: ctx.threadId,
     });
-    const hits = await search(collection, vector, { topK: tuning.topK, filter });
+    const hits = await search(collection, vector, {
+      topK: tuning.topK,
+      filter,
+    });
     setMemoryHealth(true);
 
     const kept = filterHitsByScore(hits, tuning.minScore);

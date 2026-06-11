@@ -27,7 +27,11 @@ import {
   synthesizeFromToolResults,
   toUserFacingError,
 } from '@/agent/turn';
-import { IMastraChatAttachment, IMastraToolCall, IMastraTurnPart } from '@/session/@types/session';
+import {
+  IMastraChatAttachment,
+  IMastraToolCall,
+  IMastraTurnPart,
+} from '@/session/@types/session';
 import { attachmentStorageStatus } from '@/settings/graphql/resolvers/queries/settings';
 
 export const router: Router = Router();
@@ -112,11 +116,13 @@ function normalizeChunk(raw: any): StreamEvent | null {
 const MAX_ATTACHMENTS_PER_MESSAGE = 10;
 function sanitizeAttachments(raw: any): IMastraChatAttachment[] | null {
   if (raw === undefined || raw === null) return [];
-  if (!Array.isArray(raw) || raw.length > MAX_ATTACHMENTS_PER_MESSAGE) return null;
+  if (!Array.isArray(raw) || raw.length > MAX_ATTACHMENTS_PER_MESSAGE)
+    return null;
 
   const out: IMastraChatAttachment[] = [];
   for (const a of raw) {
-    if (!a || typeof a.url !== 'string' || typeof a.name !== 'string') return null;
+    if (!a || typeof a.url !== 'string' || typeof a.name !== 'string')
+      return null;
     const url = a.url.trim();
     const name = a.name.trim();
     if (!url || url.length > 2048 || !name || name.length > 512) return null;
@@ -282,8 +288,14 @@ router.post('/chat/stream', async (req, res) => {
     try {
       await runWithAuth(authCtx, async () => {
         const stream = await (isLegacy
-          ? agent.streamLegacy(convo as any, { abortSignal: controller.signal } as any)
-          : agent.stream(convo as any, { abortSignal: controller.signal } as any));
+          ? agent.streamLegacy(
+              convo as any,
+              { abortSignal: controller.signal } as any,
+            )
+          : agent.stream(
+              convo as any,
+              { abortSignal: controller.signal } as any,
+            ));
 
         for await (const chunk of stream.fullStream as any) {
           const ev = normalizeChunk(chunk);
@@ -300,7 +312,8 @@ router.post('/chat/stream', async (req, res) => {
             continue; // surfaced after the loop so fallbacks still apply
           } else {
             recordToolCall(ev);
-            if (ev.type === 'tool_call') activity?.onToolCall(ev.toolName, ev.args);
+            if (ev.type === 'tool_call')
+              activity?.onToolCall(ev.toolName, ev.args);
           }
 
           send(ev);
@@ -427,7 +440,12 @@ router.post('/bot/:conversationId', async (req, res) => {
 
     if (!settings?.defaultAgentId) {
       return res.json({
-        responses: [{ type: 'text', text: 'No default agent configured. Please set one in Mastra Settings.' }],
+        responses: [
+          {
+            type: 'text',
+            text: 'No default agent configured. Please set one in Mastra Settings.',
+          },
+        ],
       });
     }
 
@@ -438,7 +456,9 @@ router.post('/bot/:conversationId', async (req, res) => {
 
     if (!agentConfig) {
       return res.json({
-        responses: [{ type: 'text', text: 'Configured agent not found or disabled.' }],
+        responses: [
+          { type: 'text', text: 'Configured agent not found or disabled.' },
+        ],
       });
     }
 
@@ -448,7 +468,8 @@ router.post('/bot/:conversationId', async (req, res) => {
     // Conversation memory is Mongo-backed, keyed by the frontline conversationId.
     const userText = text || '';
     const useHistory = agentConfig.memoryEnabled !== false;
-    const advanced = isAdvancedMemoryEnabled() && useHistory && !!userText.trim();
+    const advanced =
+      isAdvancedMemoryEnabled() && useHistory && !!userText.trim();
     const history = useHistory
       ? await models.MastraMessage.getRecent(conversationId, 20)
       : [];
@@ -482,10 +503,12 @@ router.post('/bot/:conversationId', async (req, res) => {
     // Bot requests use the static app token from settings (no user session available)
     const authCtx = { token: settings?.erxesApiToken, subdomain };
     const isLegacy = isLegacyProvider(agentConfig.provider, providers);
-    const result = await runWithAuth(authCtx, () =>
-      (isLegacy
-        ? agent.generateLegacy(convo as any)
-        : agent.generate(convo as any)) as Promise<any>,
+    const result = await runWithAuth(
+      authCtx,
+      () =>
+        (isLegacy
+          ? agent.generateLegacy(convo as any)
+          : agent.generate(convo as any)) as Promise<any>,
     );
 
     const reply = result.text || '';
@@ -499,9 +522,18 @@ router.post('/bot/:conversationId', async (req, res) => {
       `bot:${customerId || conversationId}`,
       userText,
     );
-    const userMsg = await models.MastraMessage.addMessage(conversationId, 'user', userText);
-    const asstMsg =
-      reply ? await models.MastraMessage.addMessage(conversationId, 'assistant', reply) : null;
+    const userMsg = await models.MastraMessage.addMessage(
+      conversationId,
+      'user',
+      userText,
+    );
+    const asstMsg = reply
+      ? await models.MastraMessage.addMessage(
+          conversationId,
+          'assistant',
+          reply,
+        )
+      : null;
     await models.MastraThread.touchThread(conversationId);
 
     // Advanced memory: index the exchange + refresh the profile (best-effort).

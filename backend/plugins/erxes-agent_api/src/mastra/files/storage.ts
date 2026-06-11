@@ -36,7 +36,9 @@ const env = (name: string) => process.env[name] || '';
 // Decide whether the configured service has the credentials it needs. Mirrors
 // the requirements core's upload.ts enforces at upload time, so the chat UI
 // can hide the attach button instead of letting uploads fail late.
-export function evaluateStorageConfigs(configs: Record<string, string>): StorageStatus {
+export function evaluateStorageConfigs(
+  configs: Record<string, string>,
+): StorageStatus {
   const read = (code: string) => configs[code] || env(code) || '';
   const serviceType = (read('UPLOAD_SERVICE_TYPE') || 'AWS').toString();
 
@@ -46,7 +48,11 @@ export function evaluateStorageConfigs(configs: Record<string, string>): Storage
       return { configured: true, serviceType };
     case 'AWS':
       return {
-        configured: !!(read('AWS_BUCKET') && read('AWS_ACCESS_KEY_ID') && read('AWS_SECRET_ACCESS_KEY')),
+        configured: !!(
+          read('AWS_BUCKET') &&
+          read('AWS_ACCESS_KEY_ID') &&
+          read('AWS_SECRET_ACCESS_KEY')
+        ),
         serviceType,
       };
     case 'CLOUDFLARE':
@@ -61,7 +67,10 @@ export function evaluateStorageConfigs(configs: Record<string, string>): Storage
       };
     case 'AZURE':
       return {
-        configured: !!(read('AZURE_STORAGE_CONNECTION_STRING') && read('AZURE_STORAGE_CONTAINER')),
+        configured: !!(
+          read('AZURE_STORAGE_CONNECTION_STRING') &&
+          read('AZURE_STORAGE_CONTAINER')
+        ),
         serviceType,
       };
     case 'GCS':
@@ -76,7 +85,9 @@ export function evaluateStorageConfigs(configs: Record<string, string>): Storage
 const statusCache = new Map<string, { status: StorageStatus; at: number }>();
 const STATUS_TTL_MS = 60_000;
 
-export async function getStorageStatus(subdomain: string): Promise<StorageStatus> {
+export async function getStorageStatus(
+  subdomain: string,
+): Promise<StorageStatus> {
   const cached = statusCache.get(subdomain);
   if (cached && Date.now() - cached.at < STATUS_TTL_MS) return cached.status;
 
@@ -125,17 +136,23 @@ export async function fetchAttachmentBuffer(params: {
 
   const res = await fetch(target, { signal: AbortSignal.timeout(30_000) });
   if (!res.ok) {
-    throw new Error(`Could not read file "${name || keyOrUrl}" from storage (HTTP ${res.status})`);
+    throw new Error(
+      `Could not read file "${name || keyOrUrl}" from storage (HTTP ${res.status})`,
+    );
   }
 
   const lenHeader = Number(res.headers.get('content-length') || 0);
   if (lenHeader > MAX_ATTACHMENT_BYTES) {
-    throw new Error(`File "${name || keyOrUrl}" is too large to read (max 20MB)`);
+    throw new Error(
+      `File "${name || keyOrUrl}" is too large to read (max 20MB)`,
+    );
   }
 
   const buffer = Buffer.from(await res.arrayBuffer());
   if (buffer.length > MAX_ATTACHMENT_BYTES) {
-    throw new Error(`File "${name || keyOrUrl}" is too large to read (max 20MB)`);
+    throw new Error(
+      `File "${name || keyOrUrl}" is too large to read (max 20MB)`,
+    );
   }
 
   return { buffer, contentType: res.headers.get('content-type') || '' };

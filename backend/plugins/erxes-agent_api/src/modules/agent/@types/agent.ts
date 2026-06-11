@@ -14,7 +14,8 @@ export interface IMastraAgent {
   isEnabled?: boolean;
 }
 
-export interface IMastraAgentDocument extends IMastraAgent, Omit<Document, 'model'> {
+export interface IMastraAgentDocument
+  extends IMastraAgent, Omit<Document, 'model'> {
   _id: string;
   createdAt: Date;
   updatedAt: Date;

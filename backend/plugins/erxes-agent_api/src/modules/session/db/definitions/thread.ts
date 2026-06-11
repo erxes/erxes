@@ -5,7 +5,12 @@ export const threadSchema = new Schema(
   {
     _id: mongooseStringRandomId,
     // Stable session id (supplied by the client or generated on first message).
-    threadId: { type: String, required: true, unique: true, label: 'Thread ID' },
+    threadId: {
+      type: String,
+      required: true,
+      unique: true,
+      label: 'Thread ID',
+    },
     agentId: { type: String, required: true, index: true, label: 'Agent ID' },
     // Owner: the in-app user's _id, or "bot:<customerId|conversationId>" for
     // messenger-bot sessions. Every read/rename/remove is filtered by this, so
@@ -19,7 +24,11 @@ export const threadSchema = new Schema(
       default: 'derived',
       label: 'Title source',
     },
-    titleMessageCount: { type: Number, default: 0, label: 'Messages at last title generation' },
+    titleMessageCount: {
+      type: Number,
+      default: 0,
+      label: 'Messages at last title generation',
+    },
     messageCount: { type: Number, default: 0, label: 'Message count' },
     lastMessageAt: { type: Date, label: 'Last message at' },
   },

@@ -30,7 +30,10 @@ import {
   QdrantPoint,
 } from '~/mastra/memory/vectorStore';
 import { pointIdFor } from '~/mastra/memory/semanticRecall';
-import { KNOWLEDGE_CONTENT_TYPES, ALL_KNOWLEDGE_TYPE_NAMES } from './contentTypes';
+import {
+  KNOWLEDGE_CONTENT_TYPES,
+  ALL_KNOWLEDGE_TYPE_NAMES,
+} from './contentTypes';
 import { buildAuthHeaders, makeGqlExec } from './gatewayClient';
 
 const EMBED_BATCH = 32;
@@ -68,7 +71,9 @@ interface DesiredPoint {
  * One full reconciliation for one tenant. Returns a result instead of
  * throwing; the caller persists it to settings for the status UI.
  */
-export async function runKnowledgeSweep(subdomain: string): Promise<SweepResult> {
+export async function runKnowledgeSweep(
+  subdomain: string,
+): Promise<SweepResult> {
   const result: SweepResult = {
     ok: false,
     pointCount: 0,
@@ -122,7 +127,11 @@ export async function runKnowledgeSweep(subdomain: string): Promise<SweepResult>
         result.types[typeName] = { count: records.length, points };
       } catch (e: any) {
         failedTypes.add(typeName);
-        result.types[typeName] = { count: 0, points: 0, error: e?.message || String(e) };
+        result.types[typeName] = {
+          count: 0,
+          points: 0,
+          error: e?.message || String(e),
+        };
       }
     }
     result.pointCount = desired.length;
@@ -131,7 +140,9 @@ export async function runKnowledgeSweep(subdomain: string): Promise<SweepResult>
     const existing = await scroll(collection, {
       must: [{ key: 'subdomain', match: { value: subdomain } }],
     });
-    const existingById = new Map(existing.map((p) => [String(p.id), p.payload]));
+    const existingById = new Map(
+      existing.map((p) => [String(p.id), p.payload]),
+    );
 
     // Converge: embed+upsert changed points; delete orphans. Points belonging
     // to a type whose fetch FAILED this run are kept (unknown ≠ gone); points
@@ -180,7 +191,9 @@ export async function runKnowledgeSweep(subdomain: string): Promise<SweepResult>
   } catch (e: any) {
     result.error = e?.message || String(e);
     // eslint-disable-next-line no-console
-    console.error(`[erxes-agent:knowledge] sweep failed for "${subdomain}": ${result.error}`);
+    console.error(
+      `[erxes-agent:knowledge] sweep failed for "${subdomain}": ${result.error}`,
+    );
   }
 
   // Persist status for the read-only Settings block. Best-effort.

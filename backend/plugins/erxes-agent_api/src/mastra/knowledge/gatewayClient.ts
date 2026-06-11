@@ -38,7 +38,9 @@ export function makeGqlExec(
     }
     const json: any = await res.json();
     if (json.errors?.length) {
-      throw new Error(`Gateway GraphQL error: ${json.errors[0]?.message || 'unknown'}`);
+      throw new Error(
+        `Gateway GraphQL error: ${json.errors[0]?.message || 'unknown'}`,
+      );
     }
     return json.data ?? {};
   };

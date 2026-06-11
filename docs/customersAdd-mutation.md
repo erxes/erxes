@@ -6,13 +6,13 @@ The `customersAdd` GraphQL mutation creates a new customer (contact) record in e
 
 ## Location in Codebase
 
-| Layer | File |
-|---|---|
-| GraphQL schema | `backend/core-api/src/modules/contacts/graphql/schemas/customer.ts` |
-| Resolver | `backend/core-api/src/modules/contacts/graphql/resolvers/mutations/customer.ts` |
-| Model method | `backend/core-api/src/modules/contacts/db/models/Customers.ts` — `createCustomer()` |
-| Schema definition | `backend/core-api/src/modules/contacts/db/definitions/customers.ts` |
-| Shared types | `backend/erxes-api-shared/src/core-types/modules/contacts/customer.ts` |
+| Layer             | File                                                                                |
+| ----------------- | ----------------------------------------------------------------------------------- |
+| GraphQL schema    | `backend/core-api/src/modules/contacts/graphql/schemas/customer.ts`                 |
+| Resolver          | `backend/core-api/src/modules/contacts/graphql/resolvers/mutations/customer.ts`     |
+| Model method      | `backend/core-api/src/modules/contacts/db/models/Customers.ts` — `createCustomer()` |
+| Schema definition | `backend/core-api/src/modules/contacts/db/definitions/customers.ts`                 |
+| Shared types      | `backend/erxes-api-shared/src/core-types/modules/contacts/customer.ts`              |
 
 ---
 
@@ -56,69 +56,69 @@ All fields are optional. The mutation returns a `Customer` object.
 
 ### Identity
 
-| Field | Type | Description |
-|---|---|---|
-| `firstName` | `String` | First name (+10 profile score) |
-| `lastName` | `String` | Last name (+5 profile score) |
-| `middleName` | `String` | Middle name (+5 profile score) |
-| `avatar` | `String` | URL to profile image |
-| `birthDate` | `Date` | Date of birth |
-| `sex` | `Int` | Gender code — see [Sex Codes](#sex-codes) |
+| Field        | Type     | Description                               |
+| ------------ | -------- | ----------------------------------------- |
+| `firstName`  | `String` | First name (+10 profile score)            |
+| `lastName`   | `String` | Last name (+5 profile score)              |
+| `middleName` | `String` | Middle name (+5 profile score)            |
+| `avatar`     | `String` | URL to profile image                      |
+| `birthDate`  | `Date`   | Date of birth                             |
+| `sex`        | `Int`    | Gender code — see [Sex Codes](#sex-codes) |
 
 ### Contact
 
-| Field | Type | Description |
-|---|---|---|
-| `primaryEmail` | `String` | Main email — must be unique, must not duplicate an existing active customer (+15 profile score) |
-| `emails` | `[String]` | All email addresses. Auto-populated from `primaryEmail` if omitted |
-| `primaryPhone` | `String` | Main phone — must be unique (+10 profile score) |
-| `phones` | `[String]` | All phone numbers. Auto-populated from `primaryPhone` if omitted |
-| `primaryAddress` | `JSON` | Primary address object |
-| `addresses` | `[JSON]` | All address objects |
+| Field            | Type       | Description                                                                                     |
+| ---------------- | ---------- | ----------------------------------------------------------------------------------------------- |
+| `primaryEmail`   | `String`   | Main email — must be unique, must not duplicate an existing active customer (+15 profile score) |
+| `emails`         | `[String]` | All email addresses. Auto-populated from `primaryEmail` if omitted                              |
+| `primaryPhone`   | `String`   | Main phone — must be unique (+10 profile score)                                                 |
+| `phones`         | `[String]` | All phone numbers. Auto-populated from `primaryPhone` if omitted                                |
+| `primaryAddress` | `JSON`     | Primary address object                                                                          |
+| `addresses`      | `[JSON]`   | All address objects                                                                             |
 
 ### Classification
 
-| Field | Type | Allowed Values | Default |
-|---|---|---|---|
-| `state` | `String` | `visitor`, `lead`, `customer` | `visitor` (auto-upgraded — see [State Logic](#state-auto-upgrade-logic)) |
-| `leadStatus` | `String` | `new`, `attemptedToContact`, `inProgress`, `badTiming`, `unqualified` | — |
-| `code` | `String` | Any unique string (+10 profile score) | — |
+| Field        | Type     | Allowed Values                                                        | Default                                                                  |
+| ------------ | -------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `state`      | `String` | `visitor`, `lead`, `customer`                                         | `visitor` (auto-upgraded — see [State Logic](#state-auto-upgrade-logic)) |
+| `leadStatus` | `String` | `new`, `attemptedToContact`, `inProgress`, `badTiming`, `unqualified` | —                                                                        |
+| `code`       | `String` | Any unique string (+10 profile score)                                 | —                                                                        |
 
 ### Ownership & Organization
 
-| Field | Type | Description |
-|---|---|---|
-| `ownerId` | `String` | User `_id` of the assigned owner. Defaults to the current user if omitted |
-| `position` | `String` | Job title |
-| `department` | `String` | Department name |
-| `hasAuthority` | `String` | Whether the contact has decision-making authority |
-| `description` | `String` | Free-text notes |
-| `isSubscribed` | `String` | Subscription preference |
-| `links` | `JSON` | Social/website links (e.g. `{ linkedIn: "...", twitter: "..." }`) |
+| Field          | Type     | Description                                                               |
+| -------------- | -------- | ------------------------------------------------------------------------- |
+| `ownerId`      | `String` | User `_id` of the assigned owner. Defaults to the current user if omitted |
+| `position`     | `String` | Job title                                                                 |
+| `department`   | `String` | Department name                                                           |
+| `hasAuthority` | `String` | Whether the contact has decision-making authority                         |
+| `description`  | `String` | Free-text notes                                                           |
+| `isSubscribed` | `String` | Subscription preference                                                   |
+| `links`        | `JSON`   | Social/website links (e.g. `{ linkedIn: "...", twitter: "..." }`)         |
 
 ### Validation Statuses
 
-| Field | Type | Allowed Values |
-|---|---|---|
+| Field                   | Type     | Allowed Values                                                                                                  |
+| ----------------------- | -------- | --------------------------------------------------------------------------------------------------------------- |
 | `emailValidationStatus` | `String` | `valid`, `invalid`, `accept_all_unverifiable`, `unverifiable`, `unknown`, `disposable`, `catchall`, `badsyntax` |
-| `phoneValidationStatus` | `String` | `valid`, `invalid`, `unknown`, `receives_sms`, `unverifiable` |
+| `phoneValidationStatus` | `String` | `valid`, `invalid`, `unknown`, `receives_sms`, `unverifiable`                                                   |
 
 ### Custom Fields
 
-| Field | Type | Description |
-|---|---|---|
+| Field            | Type   | Description                                                                                                                 |
+| ---------------- | ------ | --------------------------------------------------------------------------------------------------------------------------- |
 | `propertiesData` | `JSON` | Values for custom fields defined in the erxes field configuration. Validated server-side via `Fields.validateFieldValues()` |
 
 ---
 
 ## Sex Codes
 
-| Value | Label |
-|---|---|
-| `0` | Not known |
-| `1` | Male |
-| `2` | Female |
-| `9` | Not applicable |
+| Value | Label          |
+| ----- | -------------- |
+| `0`   | Not known      |
+| `1`   | Male           |
+| `2`   | Female         |
+| `9`   | Not applicable |
 
 Additional pronoun/gender codes (`3`–`22`) are supported — check `CUSTOMER_SELECT_OPTIONS.SEX` in `erxes-api-shared/src/core-modules/users/constants.ts` for the full list.
 
@@ -140,15 +140,15 @@ In practice, any call to `customersAdd` with even a name or email will result in
 
 `profileScore` is computed automatically and stored on the record. It is **not** an input field.
 
-| Data provided | Points |
-|---|---|
-| `primaryEmail` | +15 |
-| `firstName` | +10 |
-| `code` | +10 |
-| `primaryPhone` | +10 |
-| `middleName` | +5 |
-| `lastName` | +5 |
-| `visitorContactInfo` | +5 |
+| Data provided        | Points |
+| -------------------- | ------ |
+| `primaryEmail`       | +15    |
+| `firstName`          | +10    |
+| `code`               | +10    |
+| `primaryPhone`       | +10    |
+| `middleName`         | +5     |
+| `lastName`           | +5     |
+| `visitorContactInfo` | +5     |
 
 Maximum possible score: **60**.
 
@@ -166,11 +166,11 @@ The `cpCustomersAdd` variant (client portal) skips the permission check and is i
 
 The following fields are checked for duplicates against active (non-deleted) customers before the record is created. Violation throws an error and aborts creation.
 
-| Field | Error message |
-|---|---|
+| Field          | Error message        |
+| -------------- | -------------------- |
 | `primaryEmail` | `"Duplicated email"` |
 | `primaryPhone` | `"Duplicated phone"` |
-| `code` | `"Duplicated code"` |
+| `code`         | `"Duplicated code"`  |
 
 ---
 
@@ -181,7 +181,7 @@ The mutation returns a `Customer` object with the following notable fields:
 ```graphql
 type Customer {
   _id: String
-  state: String           # Computed (see State Logic)
+  state: String # Computed (see State Logic)
   createdAt: Date
   updatedAt: Date
   avatar: String
@@ -195,20 +195,20 @@ type Customer {
   primaryAddress: JSON
   addresses: [JSON]
   ownerId: String
-  owner: User             # Resolved relation
+  owner: User # Resolved relation
   position: String
   department: String
   leadStatus: String
   code: String
   sex: Int
   birthDate: Date
-  score: Float            # profileScore
+  score: Float # profileScore
   propertiesData: JSON
   emailValidationStatus: String
   phoneValidationStatus: String
-  status: String          # "Active" | "Deleted"
-  companies: [Company]    # Resolved relation
-  getTags: [Tag]          # Resolved relation
+  status: String # "Active" | "Deleted"
+  companies: [Company] # Resolved relation
+  getTags: [Tag] # Resolved relation
 }
 ```
 
@@ -220,9 +220,7 @@ type Customer {
 
 ```graphql
 mutation {
-  customersAdd(
-    primaryEmail: "jane.doe@example.com"
-  ) {
+  customersAdd(primaryEmail: "jane.doe@example.com") {
     _id
     state
     primaryEmail
@@ -252,22 +250,7 @@ mutation {
 
 ```graphql
 mutation {
-  customersAdd(
-    firstName: "Jane"
-    lastName: "Doe"
-    primaryEmail: "jane.doe@example.com"
-    primaryPhone: "+97699112233"
-    state: "customer"
-    leadStatus: "inProgress"
-    position: "CTO"
-    department: "Engineering"
-    code: "CUST-001"
-    sex: 2
-    birthDate: "1990-04-15"
-    description: "Key enterprise contact."
-    links: { linkedIn: "https://linkedin.com/in/janedoe" }
-    isSubscribed: "Yes"
-  ) {
+  customersAdd(firstName: "Jane", lastName: "Doe", primaryEmail: "jane.doe@example.com", primaryPhone: "+97699112233", state: "customer", leadStatus: "inProgress", position: "CTO", department: "Engineering", code: "CUST-001", sex: 2, birthDate: "1990-04-15", description: "Key enterprise contact.", links: { linkedIn: "https://linkedin.com/in/janedoe" }, isSubscribed: "Yes") {
     _id
     state
     score
@@ -304,12 +287,12 @@ mutation {
 
 ## Error Reference
 
-| Error | Cause |
-|---|---|
-| `"Duplicated email"` | Another active customer already has this `primaryEmail` |
-| `"Duplicated phone"` | Another active customer already has this `primaryPhone` |
-| `"Duplicated code"` | Another active customer already has this `code` |
-| `"Permission denied"` | Caller does not have `contactsCreate` permission |
+| Error                       | Cause                                                                |
+| --------------------------- | -------------------------------------------------------------------- |
+| `"Duplicated email"`        | Another active customer already has this `primaryEmail`              |
+| `"Duplicated phone"`        | Another active customer already has this `primaryPhone`              |
+| `"Duplicated code"`         | Another active customer already has this `code`                      |
+| `"Permission denied"`       | Caller does not have `contactsCreate` permission                     |
 | `"Field validation failed"` | A value in `propertiesData` does not match its field type definition |
 
 ---
@@ -326,10 +309,10 @@ After a successful creation the following happen automatically:
 
 ## Related Mutations
 
-| Mutation | Permission | Purpose |
-|---|---|---|
-| `customersEdit(_id, ...fields)` | `contactsUpdate` | Update an existing customer |
-| `customersRemove(customerIds)` | `contactsDelete` | Soft-delete customers |
-| `customersChangeState(_id, value)` | — | Change `state` only |
-| `customersMerge(customerIds, customerFields)` | — | Merge duplicate customers |
-| `cpCustomersAdd(...fields)` | none | Client-portal variant (no auth required) |
+| Mutation                                      | Permission       | Purpose                                  |
+| --------------------------------------------- | ---------------- | ---------------------------------------- |
+| `customersEdit(_id, ...fields)`               | `contactsUpdate` | Update an existing customer              |
+| `customersRemove(customerIds)`                | `contactsDelete` | Soft-delete customers                    |
+| `customersChangeState(_id, value)`            | —                | Change `state` only                      |
+| `customersMerge(customerIds, customerFields)` | —                | Merge duplicate customers                |
+| `cpCustomersAdd(...fields)`                   | none             | Client-portal variant (no auth required) |

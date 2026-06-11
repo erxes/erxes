@@ -1,7 +1,11 @@
 import { z } from 'zod';
 import { getCurrentAuth } from '../requestContext';
 import { validateDefinition, WorkflowDefinition } from '../workflows/dsl';
-import { compileDefinition, CompiledDeps, finalOutput } from '../workflows/compiler';
+import {
+  compileDefinition,
+  CompiledDeps,
+  finalOutput,
+} from '../workflows/compiler';
 import { buildManualEnvelope } from '../workflows/envelope';
 import { runWorkflow } from '../workflows/runtime';
 import { getOperationRegistry } from './operationRegistry';
@@ -61,7 +65,10 @@ function currentUserId(): string | undefined {
   }
 }
 
-const fail = (e: any) => ({ success: false as const, error: e?.message || String(e) });
+const fail = (e: any) => ({
+  success: false as const,
+  error: e?.message || String(e),
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -177,7 +184,10 @@ export const workflowSimulateTool = tool({
     'Dry-runs a workflow definition WITHOUT touching erxes data or calling any LLM: operations return stubs, agent steps return your assumptions (or auto-samples). Returns the step-by-step trace — use it to show the user what the workflow will do, and to test branch routing by varying assumptions.',
   inputSchema: z.object({
     definition: z.record(z.any()),
-    triggerPayload: z.record(z.any()).default({}).describe('Simulated trigger payload'),
+    triggerPayload: z
+      .record(z.any())
+      .default({})
+      .describe('Simulated trigger payload'),
     assumptions: z
       .record(z.record(z.any()))
       .optional()
@@ -253,28 +263,50 @@ export const workflowSimulateTool = tool({
               // Assumptions are usually PARTIAL (just the routing field) —
               // merge them over auto-sampled defaults so the remaining
               // required fields don't fail the step's schema validation.
-              const output = { ...sampleFor(outputSpec), ...(assumed as object) };
-              trace.push({ step: 'agent', stepId, prompt, output, assumed: true });
+              const output = {
+                ...sampleFor(outputSpec),
+                ...(assumed as object),
+              };
+              trace.push({
+                step: 'agent',
+                stepId,
+                prompt,
+                output,
+                assumed: true,
+              });
               return output;
             }
           }
           const sampled = sampleFor(outputSpec);
-          trace.push({ step: 'agent', prompt, output: sampled, assumed: false });
+          trace.push({
+            step: 'agent',
+            prompt,
+            output: sampled,
+            assumed: false,
+          });
           return sampled;
         },
       };
 
       const wf: any = compileDefinition('simulation', def, deps);
-      const run = wf.createRunAsync ? await wf.createRunAsync() : await wf.createRun();
+      const run = wf.createRunAsync
+        ? await wf.createRunAsync()
+        : await wf.createRun();
       const result = await run.start({
-        inputData: { trigger: buildManualEnvelope(triggerPayload || {}, 'simulation'), steps: {} },
+        inputData: {
+          trigger: buildManualEnvelope(triggerPayload || {}, 'simulation'),
+          steps: {},
+        },
       });
 
       return {
         success: result.status === 'success',
         status: result.status,
         trace,
-        output: result.status === 'success' ? finalOutput(def, result.result) : undefined,
+        output:
+          result.status === 'success'
+            ? finalOutput(def, result.result)
+            : undefined,
         error:
           result.status === 'failed'
             ? String(result.error?.message || result.error)
@@ -368,7 +400,8 @@ export const workflowUpdateTool = tool({
 
 export const workflowListTool = tool({
   id: 'workflow-list',
-  description: "Lists the tenant's saved workflows (id, name, version, enabled, trigger type).",
+  description:
+    "Lists the tenant's saved workflows (id, name, version, enabled, trigger type).",
   inputSchema: z.object({}),
   outputSchema: z.object({ workflows: z.array(z.any()) }),
   execute: async () => {
@@ -400,7 +433,10 @@ export const workflowRunsTool = tool({
   execute: async ({ workflowId, limit }) => {
     requireTeamMember();
     const models = await getModels();
-    const docs = await models.MastraWorkflowRun.getRuns({ workflowId, perPage: limit ?? 5 });
+    const docs = await models.MastraWorkflowRun.getRuns({
+      workflowId,
+      perPage: limit ?? 5,
+    });
     return {
       runs: docs.map((r: any) => ({
         _id: r._id,
@@ -423,7 +459,10 @@ export const workflowRunNowTool = tool({
     'Runs a SAVED workflow immediately with a manual trigger payload. This executes REAL erxes operations — only call after the user explicitly asked to run it.',
   inputSchema: z.object({
     workflowId: z.string(),
-    payload: z.record(z.any()).default({}).describe('Becomes {{trigger.payload.*}}'),
+    payload: z
+      .record(z.any())
+      .default({})
+      .describe('Becomes {{trigger.payload.*}}'),
   }),
   outputSchema: z.object({
     success: z.boolean(),

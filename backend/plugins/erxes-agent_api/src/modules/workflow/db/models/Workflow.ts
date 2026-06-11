@@ -1,7 +1,10 @@
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { workflowSchema } from '@/workflow/db/definitions/workflow';
-import { IMastraWorkflow, IMastraWorkflowDocument } from '@/workflow/@types/workflow';
+import {
+  IMastraWorkflow,
+  IMastraWorkflowDocument,
+} from '@/workflow/@types/workflow';
 import { validateDefinition } from '~/mastra/workflows/dsl';
 
 export interface IMastraWorkflowModel extends Model<IMastraWorkflowDocument> {
@@ -24,7 +27,9 @@ const assertStructurallyValid = (definition: any) => {
   const check = validateDefinition(definition);
   if (!check.ok) {
     const first = check.errors[0];
-    throw new Error(`Invalid workflow definition: ${first.path}: ${first.message}`);
+    throw new Error(
+      `Invalid workflow definition: ${first.path}: ${first.message}`,
+    );
   }
 };
 
@@ -45,7 +50,10 @@ export const loadWorkflowClass = (_models: IModels) => {
       return _models.MastraWorkflow.create({ ...doc, version: 1 });
     }
 
-    public static async updateWorkflow(_id: string, doc: Partial<IMastraWorkflow>) {
+    public static async updateWorkflow(
+      _id: string,
+      doc: Partial<IMastraWorkflow>,
+    ) {
       const existing = await MastraWorkflow.getWorkflow(_id);
 
       let versionBump = false;
@@ -55,7 +63,8 @@ export const loadWorkflowClass = (_models: IModels) => {
         // executing their pinned snapshot and never migrate. $inc (not a
         // computed value) so concurrent edits can't both claim one version.
         versionBump =
-          JSON.stringify(doc.definition) !== JSON.stringify(existing.definition);
+          JSON.stringify(doc.definition) !==
+          JSON.stringify(existing.definition);
       }
 
       const updated = await _models.MastraWorkflow.findOneAndUpdate(

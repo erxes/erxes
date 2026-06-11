@@ -28,7 +28,8 @@ const stepIdSchema = z
 // branches — classification is LLM, routing is code (§4.5).
 const FIELD_SPEC_RE = /^(string|number|boolean|enum:[a-zA-Z0-9_,-]+)\??$/;
 const fieldSpecSchema = z.string().regex(FIELD_SPEC_RE, {
-  message: "field spec must be string|number|boolean|enum:a,b,c (optionally suffixed '?')",
+  message:
+    "field spec must be string|number|boolean|enum:a,b,c (optionally suffixed '?')",
 });
 
 export const operationStepSchema = z.object({
@@ -52,7 +53,11 @@ export const waitStepSchema = z.object({
   id: stepIdSchema,
   type: z.literal('wait'),
   // Milliseconds; bounded to 30 days.
-  duration: z.number().int().min(1).max(30 * 24 * 60 * 60 * 1000),
+  duration: z
+    .number()
+    .int()
+    .min(1)
+    .max(30 * 24 * 60 * 60 * 1000),
 });
 
 export const endStepSchema = z.object({
@@ -64,7 +69,11 @@ export const endStepSchema = z.object({
 // Steps allowed inside branch arms and parallel fan-outs. Containers don't
 // nest in v1 (one level of branching keeps definitions auditable), and `end`
 // is top-level-only.
-const innerStepSchema = z.union([operationStepSchema, agentStepSchema, waitStepSchema]);
+const innerStepSchema = z.union([
+  operationStepSchema,
+  agentStepSchema,
+  waitStepSchema,
+]);
 
 export const branchStepSchema = z.object({
   id: stepIdSchema,
@@ -223,7 +232,8 @@ export function validateDefinition(
     ) {
       errors.push({
         path: 'trigger.config.cron',
-        message: 'schedule trigger requires config.cron — a 5- or 6-field cron expression (UTC)',
+        message:
+          'schedule trigger requires config.cron — a 5- or 6-field cron expression (UTC)',
       });
     }
   }
@@ -243,7 +253,10 @@ export function validateDefinition(
     if (step.type === 'agent') {
       const binding = def.bindings[step.agentRef];
       if (!binding) {
-        errors.push({ path: at, message: `agentRef "${step.agentRef}" has no entry in bindings` });
+        errors.push({
+          path: at,
+          message: `agentRef "${step.agentRef}" has no entry in bindings`,
+        });
       } else if (binding.kind !== 'agent') {
         errors.push({
           path: at,
@@ -257,9 +270,15 @@ export function validateDefinition(
       if (registry) {
         const meta = registry.operations.get(opName);
         if (!meta) {
-          errors.push({ path: at, message: `operation "${opName}" does not exist on this instance` });
+          errors.push({
+            path: at,
+            message: `operation "${opName}" does not exist on this instance`,
+          });
         } else if (!isOperationAllowed(meta, def.policy as ToolPolicy)) {
-          errors.push({ path: at, message: `operation "${opName}" is outside this workflow's policy` });
+          errors.push({
+            path: at,
+            message: `operation "${opName}" is outside this workflow's policy`,
+          });
         }
       } else if (def.policy.mode === 'custom') {
         // No registry (offline validation): exact-name policy check only.
@@ -268,20 +287,28 @@ export function validateDefinition(
           (e) => e.startsWith('plugin:') || e.startsWith('module:'),
         );
         if (!direct && !grouped) {
-          errors.push({ path: at, message: `operation "${opName}" is outside this workflow's policy` });
+          errors.push({
+            path: at,
+            message: `operation "${opName}" is outside this workflow's policy`,
+          });
         }
       }
     }
   };
 
   const claimId = (id: string, at: string) => {
-    if (allIds.has(id)) errors.push({ path: at, message: `duplicate step id "${id}"` });
+    if (allIds.has(id))
+      errors.push({ path: at, message: `duplicate step id "${id}"` });
     allIds.add(id);
   };
 
   // Sequential walk of one step list. `prior` is what these steps may
   // reference; returns the ids this list contributes.
-  const walkSequence = (steps: any[], prior: Set<string>, basePath: string): string[] => {
+  const walkSequence = (
+    steps: any[],
+    prior: Set<string>,
+    basePath: string,
+  ): string[] => {
     const contributed: string[] = [];
 
     steps.forEach((step, idx) => {
@@ -289,7 +316,10 @@ export function validateDefinition(
       claimId(step.id, at);
 
       if (!COMPILED_STEP_TYPES.has(step.type)) {
-        errors.push({ path: at, message: `step type "${step.type}" is not supported by the compiler yet` });
+        errors.push({
+          path: at,
+          message: `step type "${step.type}" is not supported by the compiler yet`,
+        });
         return;
       }
 
@@ -304,7 +334,10 @@ export function validateDefinition(
               if (problem) errors.push({ path: condAt, message: problem });
             }
           } catch (e: any) {
-            errors.push({ path: condAt, message: e?.message || 'condition failed to parse' });
+            errors.push({
+              path: condAt,
+              message: e?.message || 'condition failed to parse',
+            });
           }
         };
 
@@ -313,10 +346,18 @@ export function validateDefinition(
           checkCondition(b.when, `${at}.branches.${bi}.when`);
           // Each arm sees the outer prior; arms are mutually exclusive so
           // they never see each other.
-          innerIds.push(...walkSequence(b.steps, new Set(prior), `${at}.branches.${bi}.steps`));
+          innerIds.push(
+            ...walkSequence(
+              b.steps,
+              new Set(prior),
+              `${at}.branches.${bi}.steps`,
+            ),
+          );
         });
         if (step.else) {
-          innerIds.push(...walkSequence(step.else, new Set(prior), `${at}.else`));
+          innerIds.push(
+            ...walkSequence(step.else, new Set(prior), `${at}.else`),
+          );
         }
         // Steps AFTER the branch may reference arm outputs — the untaken
         // arm's refs simply resolve to undefined at runtime.
@@ -360,7 +401,9 @@ export function validateDefinition(
 
   walkSequence(def.steps, new Set<string>(), 'steps');
 
-  return errors.length ? { ok: false, errors } : { ok: true, errors: [], definition: def };
+  return errors.length
+    ? { ok: false, errors }
+    : { ok: true, errors: [], definition: def };
 }
 
 /** Builds the zod validator for an agent step's declared output fields. */

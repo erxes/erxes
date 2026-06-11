@@ -13,7 +13,12 @@ export const agentSchema = new Schema(
     // Tool reach. 'all' (default) lets the agent search & execute every erxes
     // operation + builtin. 'custom' restricts it to `allowedTools`, whose entries
     // are operation names, "plugin:<name>", "module:<name>", or "builtin:<key>".
-    toolPolicy: { type: String, enum: ['all', 'custom'], default: 'all', label: 'Tool Policy' },
+    toolPolicy: {
+      type: String,
+      enum: ['all', 'custom'],
+      default: 'all',
+      label: 'Tool Policy',
+    },
     allowedTools: [{ type: String }],
     memoryEnabled: { type: Boolean, default: true },
     maxSteps: { type: Number, default: 10 },

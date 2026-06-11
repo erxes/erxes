@@ -3,7 +3,10 @@ import { TriggerEnvelope } from './envelope';
 import { WorkflowDefinition } from './dsl';
 import { isOperationAllowed, ToolPolicy } from '../tools/scope';
 import { getOperationRegistry } from '../tools/operationRegistry';
-import type { IMastraWorkflowDocument, IMastraWorkflowRunDocument } from '@/workflow/@types/workflow';
+import type {
+  IMastraWorkflowDocument,
+  IMastraWorkflowRunDocument,
+} from '@/workflow/@types/workflow';
 
 type Env = Record<string, string | undefined>;
 
@@ -28,7 +31,9 @@ export function workflowTenant(
  * (verified live; docs/WORKFLOW-SPEC.md §7).
  */
 export function workflowDbName(tenant: string, env: Env = process.env): string {
-  const prefix = (env.ERXES_AGENT_WORKFLOW_DB_PREFIX || 'erxes_mastra_runtime').trim();
+  const prefix = (
+    env.ERXES_AGENT_WORKFLOW_DB_PREFIX || 'erxes_mastra_runtime'
+  ).trim();
   return `${prefix}_${tenant}`.replace(/[^a-zA-Z0-9_]/g, '_');
 }
 
@@ -137,10 +142,14 @@ export async function buildRunDeps(
     executeOperation: async (operation, args) => {
       const meta = registry.operations.get(operation);
       if (!meta) {
-        throw new Error(`operation "${operation}" does not exist on this instance`);
+        throw new Error(
+          `operation "${operation}" does not exist on this instance`,
+        );
       }
       if (!isOperationAllowed(meta, definition.policy as ToolPolicy)) {
-        throw new Error(`operation "${operation}" is outside this workflow's policy`);
+        throw new Error(
+          `operation "${operation}" is outside this workflow's policy`,
+        );
       }
       const { executeErxesOperation } = await import('../tools/erxesTools');
       return executeErxesOperation(
@@ -181,7 +190,9 @@ export async function buildRunDeps(
   return { deps, usage };
 }
 
-function summarizeSteps(resultSteps: any): Record<string, { status: string; error?: string }> {
+function summarizeSteps(
+  resultSteps: any,
+): Record<string, { status: string; error?: string }> {
   const summary: Record<string, { status: string; error?: string }> = {};
   for (const [id, s] of Object.entries<any>(resultSteps || {})) {
     summary[id] = {
@@ -249,14 +260,19 @@ export async function runWorkflow(args: {
     });
 
     const status =
-      result.status === 'success' || result.status === 'suspended' || result.status === 'canceled'
+      result.status === 'success' ||
+      result.status === 'suspended' ||
+      result.status === 'canceled'
         ? result.status
         : 'failed';
 
     return models.MastraWorkflowRun.finishRun(record._id, {
       status,
       stepsSummary: summarizeSteps(result.steps),
-      output: status === 'success' ? finalOutput(definition, result.result) : undefined,
+      output:
+        status === 'success'
+          ? finalOutput(definition, result.result)
+          : undefined,
       error:
         status === 'failed'
           ? String(result.error?.message || result.error || 'workflow failed')

@@ -27,7 +27,10 @@ export interface AgentWithTools {
   tools: Record<string, any>;
 }
 
-export async function getOrCreateAgent(agentConfig: any, models: any): Promise<AgentWithTools> {
+export async function getOrCreateAgent(
+  agentConfig: any,
+  models: any,
+): Promise<AgentWithTools> {
   const [providers, settings] = await Promise.all([
     models.MastraProvider.find({ isEnabled: true }),
     models.MastraSettings.getSettings(),
@@ -49,7 +52,10 @@ export async function getOrCreateAgent(agentConfig: any, models: any): Promise<A
   const cacheKey = `${agentConfig._id}:${agentConfig.updatedAt?.getTime?.() ?? 0}:v${ROUTING_VERSION}:${inventory.fingerprint}`;
 
   if (agentCache.has(cacheKey)) {
-    return { agent: agentCache.get(cacheKey)!, tools: toolsCache.get(cacheKey) ?? {} };
+    return {
+      agent: agentCache.get(cacheKey)!,
+      tools: toolsCache.get(cacheKey) ?? {},
+    };
   }
 
   // Evict stale entries for this agent
@@ -76,7 +82,11 @@ export async function getOrCreateAgent(agentConfig: any, models: any): Promise<A
   for (const [key, tool] of Object.entries(BUILTIN_TOOLS)) {
     if (!isBuiltinAllowed(key, policy)) continue;
     tools[key] = tool;
-    builtinInfos.push({ id: key, name: key, description: (tool as any)?.description });
+    builtinInfos.push({
+      id: key,
+      name: key,
+      description: (tool as any)?.description,
+    });
   }
 
   // read-attachment is bound regardless of policy: when the chat transport
@@ -110,7 +120,9 @@ export async function getOrCreateAgent(agentConfig: any, models: any): Promise<A
   const configuredSteps = agentConfig.maxSteps || 8;
   const hasWorkflowTools = toolNames.some((k) => k.startsWith('workflow'));
   const stepFloor = hasWorkflowTools ? 32 : 8;
-  const maxSteps = toolNames.length ? Math.max(configuredSteps, stepFloor) : configuredSteps;
+  const maxSteps = toolNames.length
+    ? Math.max(configuredSteps, stepFloor)
+    : configuredSteps;
 
   const agent = new Agent({
     id: agentConfig.agentId,

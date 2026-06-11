@@ -80,5 +80,12 @@ export const useMastraAgentList = (searchValue?: string) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, agentsList.length, totalCount, fetchMore]);
 
-  return { agentsList, totalCount, loading, pageInfo, handleFetchMore, refetch };
+  return {
+    agentsList,
+    totalCount,
+    loading,
+    pageInfo,
+    handleFetchMore,
+    refetch,
+  };
 };

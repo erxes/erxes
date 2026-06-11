@@ -22,7 +22,9 @@ export function formatBytes(size?: number): string {
 
 // The manifest appended to the user's text so the model knows what was
 // attached and how to open it.
-export function buildAttachmentManifest(attachments: IMastraChatAttachment[]): string {
+export function buildAttachmentManifest(
+  attachments: IMastraChatAttachment[],
+): string {
   const lines = attachments.map((a, i) => {
     const size = formatBytes(a.size);
     const kind = a.type || 'unknown type';
@@ -35,7 +37,7 @@ export function buildAttachmentManifest(attachments: IMastraChatAttachment[]): s
   const guidance: string[] = [];
   if (hasDocs) {
     guidance.push(
-      'To read a document\'s contents, call the read-attachment tool with the exact key shown above.',
+      "To read a document's contents, call the read-attachment tool with the exact key shown above.",
     );
   }
   if (hasImages) {
@@ -49,7 +51,9 @@ export function buildAttachmentManifest(attachments: IMastraChatAttachment[]): s
 
 // A compact note appended when REPLAYING history, so the agent can still
 // re-open files attached in earlier turns.
-export function historyAttachmentNote(attachments: IMastraChatAttachment[]): string {
+export function historyAttachmentNote(
+  attachments: IMastraChatAttachment[],
+): string {
   const list = attachments
     .map((a) => `"${a.name}" (key: "${a.url}")`)
     .join(', ');
@@ -106,7 +110,9 @@ export async function buildChatUserContent(params: {
         mediaType: mime,
       });
     } catch (err: any) {
-      console.warn(`[erxes-agent] could not inline image "${img.name}": ${err.message}`);
+      console.warn(
+        `[erxes-agent] could not inline image "${img.name}": ${err.message}`,
+      );
     }
   }
 

@@ -34,7 +34,9 @@ const TEMPLATE = {
   policy: { mode: 'custom', allowed: [] },
   bindings: {},
   limits: { maxLlmCalls: 10 },
-  steps: [{ id: 'done', type: 'end', output: { message: 'Hello from workflow' } }],
+  steps: [
+    { id: 'done', type: 'end', output: { message: 'Hello from workflow' } },
+  ],
 };
 
 type ValidationResult = {
@@ -124,7 +126,10 @@ export const WorkflowFormPage = () => {
     try {
       return JSON.parse(definitionText);
     } catch (e: any) {
-      setValidation({ ok: false, errors: [{ path: '(json)', message: e.message }] });
+      setValidation({
+        ok: false,
+        errors: [{ path: '(json)', message: e.message }],
+      });
       return null;
     }
   };
@@ -132,9 +137,14 @@ export const WorkflowFormPage = () => {
   const [validateDefinition, { loading: validating }] = useMutation(
     MASTRA_WORKFLOW_VALIDATE,
     {
-      onCompleted: (data) => setValidation(data?.mastraWorkflowValidate ?? null),
+      onCompleted: (data) =>
+        setValidation(data?.mastraWorkflowValidate ?? null),
       onError: (e) =>
-        toast({ title: 'Error', description: e.message, variant: 'destructive' }),
+        toast({
+          title: 'Error',
+          description: e.message,
+          variant: 'destructive',
+        }),
     },
   );
 
@@ -156,7 +166,9 @@ export const WorkflowFormPage = () => {
       ...mutationOptions,
       onCompleted: (data) => {
         const _id = data?.mastraWorkflowCreate?._id;
-        navigate(_id ? `/erxes-agent/workflows/${_id}` : '/erxes-agent/workflows');
+        navigate(
+          _id ? `/erxes-agent/workflows/${_id}` : '/erxes-agent/workflows',
+        );
       },
     },
   );
@@ -210,7 +222,11 @@ export const WorkflowFormPage = () => {
               <IconArrowLeft /> Back
             </Link>
           </Button>
-          <Button type="submit" form="workflow-form" disabled={isSaving || !name}>
+          <Button
+            type="submit"
+            form="workflow-form"
+            disabled={isSaving || !name}
+          >
             {isSaving ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Workflow'}
           </Button>
         </PageHeader.End>
@@ -266,10 +282,8 @@ export const WorkflowFormPage = () => {
                 <code className="font-mono">parallel</code>,{' '}
                 <code className="font-mono">end</code>. Reference earlier data
                 with{' '}
-                <code className="font-mono">
-                  {'{{trigger.payload.x}}'}
-                </code>{' '}
-                and <code className="font-mono">{'{{steps.<id>.output.x}}'}</code>.
+                <code className="font-mono">{'{{trigger.payload.x}}'}</code> and{' '}
+                <code className="font-mono">{'{{steps.<id>.output.x}}'}</code>.
                 Validate before saving — invalid definitions are rejected.
               </Alert.Description>
             </Alert>

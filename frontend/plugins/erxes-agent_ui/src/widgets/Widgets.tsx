@@ -7,5 +7,9 @@ export const Widgets = ({
   contentId: string;
   contentType: string;
 }) => {
-  return <div>Mastra Widget for {contentType} ({contentId})</div>;
+  return (
+    <div>
+      Mastra Widget for {contentType} ({contentId})
+    </div>
+  );
 };

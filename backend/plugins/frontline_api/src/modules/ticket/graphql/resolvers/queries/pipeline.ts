@@ -19,7 +19,9 @@ export const pipelineQueries = {
 
   getTicketPipelines: async (
     _parent: undefined,
-    { filter = {} as TicketsPipelineFilter }: { filter?: TicketsPipelineFilter },
+    {
+      filter = {} as TicketsPipelineFilter,
+    }: { filter?: TicketsPipelineFilter },
     { models, user }: IContext,
   ) => {
     const filterQuery: FilterQuery<ITicketPipelineDocument> = {};

@@ -14,13 +14,13 @@ derives the design from first principles and demotes that example to an appendix
 A business is processes. Every process, in any domain, decomposes into the same
 five primitives:
 
-| Primitive | Meaning | Realized by |
-|---|---|---|
-| **Events** | something happened | triggers (any plugin event, time, webhook, manual, another workflow) |
-| **Capabilities** | something can be done | the live operation registry — every GraphQL operation of every enabled plugin |
-| **Judgment** | a decision needs intelligence | agent steps (LLM with structured output) |
-| **Time** | processes span hours/days/weeks | durable runs, wait/sleep, schedules |
-| **Humans** | some decisions belong to people | approval/input steps (suspend → notify → resume) |
+| Primitive        | Meaning                         | Realized by                                                                   |
+| ---------------- | ------------------------------- | ----------------------------------------------------------------------------- |
+| **Events**       | something happened              | triggers (any plugin event, time, webhook, manual, another workflow)          |
+| **Capabilities** | something can be done           | the live operation registry — every GraphQL operation of every enabled plugin |
+| **Judgment**     | a decision needs intelligence   | agent steps (LLM with structured output)                                      |
+| **Time**         | processes span hours/days/weeks | durable runs, wait/sleep, schedules                                           |
+| **Humans**       | some decisions belong to people | approval/input steps (suspend → notify → resume)                              |
 
 **A workflow is data that composes these five primitives. Nothing else exists in
 the kernel.** Customer support, lead nurturing, inventory reordering, invoice
@@ -29,13 +29,14 @@ touching kernel code. The kernel must never contain a concept that belongs to on
 domain (this is the v1 mistake the `reply` step made — see §4.4).
 
 **The spectrum this fills.** erxes today has two poles:
+
 - **erxes automations** — deterministic if-this-then-that, hand-configured in a UI.
   Reliable, but rigid and limited to what the UI exposes.
 - **the chat agent** (this plugin today) — fully autonomous judgment, but
   ephemeral: it acts only while someone is chatting, and its behavior is
   reconstructed from scratch every turn.
 
-Workflows are the continuum between them: each *part* of a process sits where it
+Workflows are the continuum between them: each _part_ of a process sits where it
 belongs — deterministic rails where reliability matters, judgment steps where
 intelligence matters, human gates where accountability matters. And position on
 the spectrum is not fixed: **workflows are crystallized agent behavior**. A
@@ -63,17 +64,17 @@ this is an operator.
 
 ## 2. What already exists (foundation inventory)
 
-| Capability | Where | Kernel role |
-|---|---|---|
-| Live operation registry | `src/mastra/tools/operationRegistry.ts` | **Capabilities.** Every operation of every enabled plugin, introspected at runtime. New plugin enabled → instantly composable. Zero per-plugin integration code, ever. |
-| Policy-scoped execution | `src/mastra/tools/scope.ts`, `metaTools.ts` | Capability governance — allowlists enforced at search *and* execute. |
-| Agent runtime + providers | `src/mastra/agentRuntime.ts`, `providers.ts` | **Judgment.** Any DB-configured provider/model powers judgment steps. |
-| erxes automations service | `backend/services/automations`, plugin `meta/automations.ts` | **Events.** The existing tenant-wide event bus: entity create/update events from every plugin, plus plugin-specific triggers. We consume it; we do not rebuild it. |
-| Mastra 1.x workflows + Mongo snapshots | verified live (§7) | **Time + Humans.** Durable runs, suspend/resume across process restarts. |
-| Thread/session ownership, bot bridge | `src/modules/session/*`, `src/routes.ts` | Run provenance; conversational entry point. |
-| Knowledge RAG + memory | `src/mastra/knowledge/*`, `src/mastra/memory/*` | Judgment steps ground decisions in company data with existing permission filters. |
+| Capability                             | Where                                                        | Kernel role                                                                                                                                                            |
+| -------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Live operation registry                | `src/mastra/tools/operationRegistry.ts`                      | **Capabilities.** Every operation of every enabled plugin, introspected at runtime. New plugin enabled → instantly composable. Zero per-plugin integration code, ever. |
+| Policy-scoped execution                | `src/mastra/tools/scope.ts`, `metaTools.ts`                  | Capability governance — allowlists enforced at search _and_ execute.                                                                                                   |
+| Agent runtime + providers              | `src/mastra/agentRuntime.ts`, `providers.ts`                 | **Judgment.** Any DB-configured provider/model powers judgment steps.                                                                                                  |
+| erxes automations service              | `backend/services/automations`, plugin `meta/automations.ts` | **Events.** The existing tenant-wide event bus: entity create/update events from every plugin, plus plugin-specific triggers. We consume it; we do not rebuild it.     |
+| Mastra 1.x workflows + Mongo snapshots | verified live (§7)                                           | **Time + Humans.** Durable runs, suspend/resume across process restarts.                                                                                               |
+| Thread/session ownership, bot bridge   | `src/modules/session/*`, `src/routes.ts`                     | Run provenance; conversational entry point.                                                                                                                            |
+| Knowledge RAG + memory                 | `src/mastra/knowledge/*`, `src/mastra/memory/*`              | Judgment steps ground decisions in company data with existing permission filters.                                                                                      |
 
-**Gap:** Mastra workflows are *code*; ours must be *data* an LLM can author,
+**Gap:** Mastra workflows are _code_; ours must be _data_ an LLM can author,
 inspect, and patch. That mismatch is the core design problem.
 
 ---
@@ -121,19 +122,23 @@ run, parent workflow — is normalized into one envelope before the run starts:
 ```jsonc
 {
   "source": "automation | schedule | webhook | manual | workflow",
-  "type": "frontline:facebook.messages",   // source-specific event type
-  "payload": { /* the full target document / webhook body / parent input */ },
-  "actor": { "kind": "customer|user|system", "id": "..." },   // when known
-  "channelRef": {                            // OPTIONAL — only conversational sources
-    "kind": "frontline:conversation", "id": "<conversationId>"
-  }
+  "type": "frontline:facebook.messages", // source-specific event type
+  "payload": {
+    /* the full target document / webhook body / parent input */
+  },
+  "actor": { "kind": "customer|user|system", "id": "..." }, // when known
+  "channelRef": {
+    // OPTIONAL — only conversational sources
+    "kind": "frontline:conversation",
+    "id": "<conversationId>",
+  },
 }
 ```
 
 Workflows reference it as `{{trigger.payload.*}}`, `{{trigger.actor.*}}` etc.
 This is what keeps the kernel domain-agnostic: a workflow triggered by a Facebook
 message and one triggered by a nightly cron see the same shape. `channelRef` is
-the *only* concession to conversational sources, and it is optional metadata —
+the _only_ concession to conversational sources, and it is optional metadata —
 not a kernel concept (see 4.4).
 
 ### 4.2 Top level
@@ -144,13 +149,14 @@ not a kernel concept (see 4.4).
   "description": "...",
   "version": 3,
   "isEnabled": true,
-  "trigger": { "type": "...", "filter": { } },     // §6
-  "policy": { "mode": "custom", "allowed": [ ] },  // scope.ts grammar, mandatory
-  "bindings": {                                     // named refs → tenant-local ids
-    "supportAgent": { "kind": "agent", "id": "<mongo-id>" }
+  "trigger": { "type": "...", "filter": {} }, // §6
+  "policy": { "mode": "custom", "allowed": [] }, // scope.ts grammar, mandatory
+  "bindings": {
+    // named refs → tenant-local ids
+    "supportAgent": { "kind": "agent", "id": "<mongo-id>" },
   },
   "limits": { "maxLlmCalls": 10 },
-  "steps": [ ]
+  "steps": [],
 }
 ```
 
@@ -162,30 +168,30 @@ templates across tenants (§11.6).
 Outputs referenced as `{{ steps.<id>.output.<path> }}`; refs resolve data only,
 never structure. Unknown refs are compile errors.
 
-| type | Primitive | Compiles to | Config |
-|---|---|---|---|
-| `operation` | Capability | policy-checked `execute_erxes_operation` | `operation`, `args` |
-| `agent` | Judgment | configured Agent with enforced `structuredOutput` | `agentRef`, `prompt`, `outputSchema` |
-| `branch` | — | `.branch()` | `branches: [{when, steps}]`, `else` |
-| `parallel` | — | `.parallel()` | `steps` |
-| `foreach` | — | `.foreach({concurrency})` | `items`, `steps`, `concurrency` (≤8) |
-| `loop` | — | `.dountil()` with mandatory `maxIterations` | `steps`, `until`, `maxIterations` |
-| `approval` | Human | suspend + notify + resume; decision in `output` | `message`, `assignee?`, `timeout?`, `onTimeout` |
-| `input` | Human | suspend awaiting structured human data (not just yes/no) | `message`, `schema`, `assignee?` |
-| `wait` | Time | `.sleep()` / `.sleepUntil()` | `duration` \| `until` |
-| `workflow` | composition | run another definition as a sub-step (Mastra nested workflow) | `workflowRef`, `input` |
-| `end` | — | `bail(payload)` | `output?` |
+| type        | Primitive   | Compiles to                                                   | Config                                          |
+| ----------- | ----------- | ------------------------------------------------------------- | ----------------------------------------------- |
+| `operation` | Capability  | policy-checked `execute_erxes_operation`                      | `operation`, `args`                             |
+| `agent`     | Judgment    | configured Agent with enforced `structuredOutput`             | `agentRef`, `prompt`, `outputSchema`            |
+| `branch`    | —           | `.branch()`                                                   | `branches: [{when, steps}]`, `else`             |
+| `parallel`  | —           | `.parallel()`                                                 | `steps`                                         |
+| `foreach`   | —           | `.foreach({concurrency})`                                     | `items`, `steps`, `concurrency` (≤8)            |
+| `loop`      | —           | `.dountil()` with mandatory `maxIterations`                   | `steps`, `until`, `maxIterations`               |
+| `approval`  | Human       | suspend + notify + resume; decision in `output`               | `message`, `assignee?`, `timeout?`, `onTimeout` |
+| `input`     | Human       | suspend awaiting structured human data (not just yes/no)      | `message`, `schema`, `assignee?`                |
+| `wait`      | Time        | `.sleep()` / `.sleepUntil()`                                  | `duration` \| `until`                           |
+| `workflow`  | composition | run another definition as a sub-step (Mastra nested workflow) | `workflowRef`, `input`                          |
+| `end`       | —           | `bail(payload)`                                               | `output?`                                       |
 
 Composition closes the loop in both directions: a workflow can invoke a workflow
 (`workflow` step), and **any workflow can be exposed to agents as a tool**
 (Mastra's `workflows:{}` on `Agent` auto-converts using the definition's I/O
-schemas) — so the chat agent can *run* automations mid-conversation, and the
+schemas) — so the chat agent can _run_ automations mid-conversation, and the
 master agent can build workflows out of workflows.
 
 ### 4.4 Where did `reply` go? (the v1 overfit, corrected)
 
 v1 had a `reply` step — a conversational concept living in the kernel. Wrong
-altitude. Replying *is* an `operation` (a frontline message-add, an email send, a
+altitude. Replying _is_ an `operation` (a frontline message-add, an email send, a
 notification — all already in the registry). What remains in the kernel is only
 sugar: when an `operation` step's args contain `{{trigger.channelRef}}`, the
 compiler resolves it to the concrete target. The builder agent knows the idiom
@@ -203,7 +209,7 @@ injected customer message can never rewrite control flow.
 
 ---
 
-## 5. Master agent — builder *and* operator
+## 5. Master agent — builder _and_ operator
 
 A distinguished agent (`role: "builder"` on the Agent model) in the existing chat
 UI, covering the whole BUILD → OBSERVE → IMPROVE loop:
@@ -236,16 +242,16 @@ before saving enabled. Edits follow the same loop.
 
 The kernel consumes events; it never defines domain-specific ones.
 
-| Trigger type | Mechanism | Phase |
-|---|---|---|
-| `manual` | UI / master agent / `simulate_workflow` | 1 |
-| `automation:*` | **One generic action** — "Run agent workflow" — registered in `meta/automations.ts`. Inherits the *entire* existing trigger ecosystem: every entity create/update event from every plugin, frontline fb/ig/inbox messages, ticket events, segment entry. Contract verified (§11.4): `action.config.workflowId` selects the definition; `execution.target` becomes `trigger.payload`; fire-and-forget v1, `waitCondition` reserved for a "wait for workflow" toggle | 2 |
-| `schedule` | BullMQ repeatable job per definition (same pattern as knowledge sweep) — time is a first-class event source, not an afterthought: digests, reconciliations, SLA checks | 2 |
-| `webhook` | `POST /workflow/:id/hook` + per-workflow secret | 3 |
-| `workflow` / agent-tool | composition (§4.3) | 3 |
+| Trigger type            | Mechanism                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Phase |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----- |
+| `manual`                | UI / master agent / `simulate_workflow`                                                                                                                                                                                                                                                                                                                                                                                                                            | 1     |
+| `automation:*`          | **One generic action** — "Run agent workflow" — registered in `meta/automations.ts`. Inherits the _entire_ existing trigger ecosystem: every entity create/update event from every plugin, frontline fb/ig/inbox messages, ticket events, segment entry. Contract verified (§11.4): `action.config.workflowId` selects the definition; `execution.target` becomes `trigger.payload`; fire-and-forget v1, `waitCondition` reserved for a "wait for workflow" toggle | 2     |
+| `schedule`              | BullMQ repeatable job per definition (same pattern as knowledge sweep) — time is a first-class event source, not an afterthought: digests, reconciliations, SLA checks                                                                                                                                                                                                                                                                                             | 2     |
+| `webhook`               | `POST /workflow/:id/hook` + per-workflow secret                                                                                                                                                                                                                                                                                                                                                                                                                    | 3     |
+| `workflow` / agent-tool | composition (§4.3)                                                                                                                                                                                                                                                                                                                                                                                                                                                 | 3     |
 
 The direct frontline bot bridge (`/bot/:conversationId`) remains as a
-low-latency *conversational agent* path; conversational *workflows* ride the
+low-latency _conversational agent_ path; conversational _workflows_ ride the
 automations bus like everything else.
 
 Positioning: erxes automations = deterministic, UI-configured. Agent workflows =
@@ -260,7 +266,7 @@ workflow; a workflow does anything any plugin exposes.
   tenancy). Compiled-workflow cache keyed `workflowId:version`.
 - **Storage:** `@mastra/mongodb` (`MongoDBStore`) — **verified live 2026-06-10**
   (adapter 1.9.1 against installed core 1.41.0, CJS `require()`, Atlas): suspend
-  in one process → resume in a *fresh* process → `success`. Snapshots in
+  in one process → resume in a _fresh_ process → `success`. Snapshots in
   `mastra_workflow_snapshot` keyed by `run_id`.
   - ⚠️ **MUST use a dedicated `dbName`** (e.g. `erxes_mastra_runtime`): the
     adapter auto-creates ~31 collections including `mastra_threads`,
@@ -331,15 +337,15 @@ subscription `mastraWorkflowRunChanged`.
 ## 10. Phased roadmap — kernel completeness, not a demo
 
 Each phase completes kernel capability; acceptance tests deliberately span
-*different domains* so nothing overfits to one scenario.
+_different domains_ so nothing overfits to one scenario.
 
-| Phase | Kernel capability delivered | Acceptance (cross-domain) |
-|---|---|---|
-| **0. Foundations** | Mastra instance + MongoDBStore (dedicated db); workflow module CRUD; DSL zod schema; trigger envelope | hand-written definition compiles; `run.start()` works |
-| **1. Capabilities + linear flow** | compiler: `operation`, `agent`, `wait`, `end`; ref resolution; `manual` trigger; run records | one linear flow touching ≥2 different plugins runs end-to-end |
-| **2. Events + judgment + builder** | `branch`/`parallel`; `automation:*` + `schedule` triggers; master agent BUILD tools | (a) event-driven: support flow drafted entirely in chat (appendix A); (b) time-driven: scheduled digest/reorder flow (appendix B) — both from the same kernel |
-| **3. Humans + time at scale** | `approval`/`input` suspend-resume; notifications + approval UI; retries; `webhook` trigger | a run pauses for a human decision and survives a server restart (verified primitive, now productized) |
-| **4. Operate & improve** | OBSERVE/IMPROVE tools (`explain_run`, `propose_patch`, crystallization); `foreach`/`loop`/`workflow` composition; limits dashboards | "why did run X fail?" answered in chat; a judgment step hardened into a branch via proposed patch |
+| Phase                              | Kernel capability delivered                                                                                                         | Acceptance (cross-domain)                                                                                                                                     |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0. Foundations**                 | Mastra instance + MongoDBStore (dedicated db); workflow module CRUD; DSL zod schema; trigger envelope                               | hand-written definition compiles; `run.start()` works                                                                                                         |
+| **1. Capabilities + linear flow**  | compiler: `operation`, `agent`, `wait`, `end`; ref resolution; `manual` trigger; run records                                        | one linear flow touching ≥2 different plugins runs end-to-end                                                                                                 |
+| **2. Events + judgment + builder** | `branch`/`parallel`; `automation:*` + `schedule` triggers; master agent BUILD tools                                                 | (a) event-driven: support flow drafted entirely in chat (appendix A); (b) time-driven: scheduled digest/reorder flow (appendix B) — both from the same kernel |
+| **3. Humans + time at scale**      | `approval`/`input` suspend-resume; notifications + approval UI; retries; `webhook` trigger                                          | a run pauses for a human decision and survives a server restart (verified primitive, now productized)                                                         |
+| **4. Operate & improve**           | OBSERVE/IMPROVE tools (`explain_run`, `propose_patch`, crystallization); `foreach`/`loop`/`workflow` composition; limits dashboards | "why did run X fail?" answered in chat; a judgment step hardened into a branch via proposed patch                                                             |
 
 ---
 
@@ -356,7 +362,7 @@ Each phase completes kernel capability; acceptance tests deliberately span
    create new versions; in-flight runs never migrate.
 4. **Automations action payload — ✅ spiked, contract documented.**
    `receiveActions` receives `{ subdomain, data: { moduleName, actionType,
-   collectionType, action, execution } }`; `action.config` → our `workflowId`;
+collectionType, action, execution } }`; `action.config` → our `workflowId`;
    `execution.target` → `trigger.payload`; `execution.triggerType` →
    `trigger.type`; `execution.actions[].result` available. Return `{ result }`
    fire-and-forget, or `{ result, waitCondition }` (`CHECK_OBJECT`) so the parent
@@ -372,7 +378,7 @@ Each phase completes kernel capability; acceptance tests deliberately span
 
 ## Appendix A — worked example: social-media customer support (event-driven)
 
-*The original motivating scenario — now just userland data on the kernel.*
+_The original motivating scenario — now just userland data on the kernel._
 Trigger `automation:*` on frontline fb/ig message → `agent` step classifies
 intent into an enum (`question | order | payment | complaint`) and drafts a
 grounded reply → deterministic `branch`: order → `operation` product lookup +

@@ -90,12 +90,15 @@ export function buildActivityContext(snap: ActivitySnapshot): string | null {
 }
 
 /** Normalize raw model output into a usable status line, or null. */
-export function sanitizeActivity(raw: string | null | undefined): string | null {
+export function sanitizeActivity(
+  raw: string | null | undefined,
+): string | null {
   let t = (raw || '').split('\n')[0].replace(/\s+/g, ' ').trim();
   t = t.replace(/^(status|activity)\s*:\s*/i, '');
   t = t.replace(/^["'`“”‘’]+|["'`“”‘’.…]+$/g, '').trim();
   if (!t) return null;
-  if (t.length > ACTIVITY_MAX_CHARS) t = t.slice(0, ACTIVITY_MAX_CHARS).trimEnd() + '…';
+  if (t.length > ACTIVITY_MAX_CHARS)
+    t = t.slice(0, ACTIVITY_MAX_CHARS).trimEnd() + '…';
   return t;
 }
 
@@ -147,16 +150,23 @@ export async function summarizeActivity(params: {
     const msgs = [
       { role: 'user', content: `${context}\n\nOutput the status line.` },
     ];
-    const result: any = await runWithAuth(authCtx, () =>
-      (isLegacy
-        ? summarizer.generateLegacy(msgs as any)
-        : summarizer.generate(msgs as any, { maxSteps: 1 } as any)) as Promise<any>,
+    const result: any = await runWithAuth(
+      authCtx,
+      () =>
+        (isLegacy
+          ? summarizer.generateLegacy(msgs as any)
+          : summarizer.generate(
+              msgs as any,
+              { maxSteps: 1 } as any,
+            )) as Promise<any>,
     );
 
     return sanitizeActivity(result?.text);
   } catch (e: any) {
     // eslint-disable-next-line no-console
-    console.warn(`[mastra:activity] activity summarization skipped: ${e?.message || e}`);
+    console.warn(
+      `[mastra:activity] activity summarization skipped: ${e?.message || e}`,
+    );
     return null;
   }
 }

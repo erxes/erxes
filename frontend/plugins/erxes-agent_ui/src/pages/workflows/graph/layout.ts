@@ -138,9 +138,7 @@ function measureChain(steps: StepDef[]): Size {
 // Fan-out lanes of a step, with the edge label leading into each lane.
 // Returns null for plain (non-container) steps. Empty lanes (e.g. `else: []`)
 // are kept — they become a labeled pass-through edge to the join point.
-function lanesOf(
-  step: StepDef,
-): { label?: string; steps: StepDef[] }[] | null {
+function lanesOf(step: StepDef): { label?: string; steps: StepDef[] }[] | null {
   if (step.type === 'branch') {
     const lanes = (step.branches || []).map((b: any) => ({
       label: clip(b.when || '', 28),
@@ -173,10 +171,19 @@ export function buildWorkflowGraph(
   let edgeSeq = 0;
 
   const addEdge = (source: string, target: string, label?: string) => {
-    edges.push({ id: `e${edgeSeq++}-${source}-${target}`, source, target, label });
+    edges.push({
+      id: `e${edgeSeq++}-${source}-${target}`,
+      source,
+      target,
+      label,
+    });
   };
 
-  const placeStep = (step: StepDef, centerX: number, y: number): ChainResult => {
+  const placeStep = (
+    step: StepDef,
+    centerX: number,
+    y: number,
+  ): ChainResult => {
     const s = summary[step.id] || {};
     nodes.push({
       id: step.id,
@@ -236,7 +243,8 @@ export function buildWorkflowGraph(
       const result = placeStep(step, centerX, curY);
       if (!entryId) entryId = result.entryId;
       if (result.entryId) {
-        for (const exit of prevExits) addEdge(exit.id, result.entryId, exit.label);
+        for (const exit of prevExits)
+          addEdge(exit.id, result.entryId, exit.label);
       }
       prevExits = result.exits;
       curY += size.height + V_GAP;

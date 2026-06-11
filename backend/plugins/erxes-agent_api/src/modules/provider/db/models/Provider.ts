@@ -1,7 +1,10 @@
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { providerSchema } from '@/provider/db/definitions/provider';
-import { IMastraProvider, IMastraProviderDocument } from '@/provider/@types/provider';
+import {
+  IMastraProvider,
+  IMastraProviderDocument,
+} from '@/provider/@types/provider';
 
 export interface IMastraProviderModel extends Model<IMastraProviderDocument> {
   getProvider(_id: string): Promise<IMastraProviderDocument>;
@@ -25,10 +28,15 @@ export const loadProviderClass = (_models: IModels) => {
     public static async saveProvider(doc: IMastraProvider) {
       // If setting as default, clear other defaults first
       if (doc.isDefault) {
-        await _models.MastraProvider.updateMany({}, { $set: { isDefault: false } });
+        await _models.MastraProvider.updateMany(
+          {},
+          { $set: { isDefault: false } },
+        );
       }
 
-      const existing = await _models.MastraProvider.findOne({ provider: doc.provider });
+      const existing = await _models.MastraProvider.findOne({
+        provider: doc.provider,
+      });
       if (existing) {
         return _models.MastraProvider.findOneAndUpdate(
           { provider: doc.provider },

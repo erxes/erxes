@@ -19,7 +19,9 @@ describe('working memory — pure helpers', () => {
   });
 
   it('AM-WM-3: markdown merge uses replace semantics', () => {
-    expect(mergeWorkingMemory('old profile', 'new profile')).toBe('new profile');
+    expect(mergeWorkingMemory('old profile', 'new profile')).toBe(
+      'new profile',
+    );
     // empty update keeps the existing profile
     expect(mergeWorkingMemory('old profile', '   ')).toBe('old profile');
     expect(mergeWorkingMemory('old profile', null)).toBe('old profile');
@@ -31,15 +33,17 @@ describe('working memory — pure helpers', () => {
       assistant: 'Noted!',
     });
     expect(msgs.map((m) => m.role)).toEqual(['system', 'user']);
-    expect(msgs.some((m: any) => m.role === 'tool' || m.tool_calls)).toBe(false);
+    expect(msgs.some((m: any) => m.role === 'tool' || m.tool_calls)).toBe(
+      false,
+    );
     // user content carries the current profile + the exchange
     expect(msgs[1].content).toContain('Sam');
     expect(msgs[1].content).toContain('Berlin');
   });
 
   it('buildRefreshUserContent shows (empty) for a blank profile', () => {
-    expect(buildRefreshUserContent('', { user: 'hi', assistant: 'hello' })).toContain(
-      '(empty)',
-    );
+    expect(
+      buildRefreshUserContent('', { user: 'hi', assistant: 'hello' }),
+    ).toContain('(empty)');
   });
 });

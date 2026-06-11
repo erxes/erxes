@@ -3,15 +3,30 @@ import { IMainContext } from 'erxes-api-shared/core-types';
 import mongoose from 'mongoose';
 
 import { loadAgentClass, IMastraAgentModel } from '@/agent/db/models/Agent';
-import { loadProviderClass, IMastraProviderModel } from '@/provider/db/models/Provider';
-import { loadSettingsClass, IMastraSettingsModel } from '@/settings/db/models/Settings';
-import { loadThreadClass, IMastraThreadModel } from '@/session/db/models/Thread';
-import { loadMessageClass, IMastraMessageModel } from '@/session/db/models/Message';
+import {
+  loadProviderClass,
+  IMastraProviderModel,
+} from '@/provider/db/models/Provider';
+import {
+  loadSettingsClass,
+  IMastraSettingsModel,
+} from '@/settings/db/models/Settings';
+import {
+  loadThreadClass,
+  IMastraThreadModel,
+} from '@/session/db/models/Thread';
+import {
+  loadMessageClass,
+  IMastraMessageModel,
+} from '@/session/db/models/Message';
 import {
   loadWorkingMemoryClass,
   IMastraWorkingMemoryModel,
 } from '@/memory/db/models/WorkingMemory';
-import { loadWorkflowClass, IMastraWorkflowModel } from '@/workflow/db/models/Workflow';
+import {
+  loadWorkflowClass,
+  IMastraWorkflowModel,
+} from '@/workflow/db/models/Workflow';
 import {
   loadWorkflowRunClass,
   IMastraWorkflowRunModel,

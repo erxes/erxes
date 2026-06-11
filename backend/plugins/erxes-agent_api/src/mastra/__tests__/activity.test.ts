@@ -20,7 +20,9 @@ describe('buildActivityContext', () => {
   });
 
   it('clips a long reasoning burst to its tail', () => {
-    const ctx = buildActivityContext({ thinking: 'start ' + 'x'.repeat(2000) + ' end' });
+    const ctx = buildActivityContext({
+      thinking: 'start ' + 'x'.repeat(2000) + ' end',
+    });
     expect(ctx).not.toContain('start');
     expect(ctx).toContain('…');
     expect(ctx).toContain('end');
@@ -134,9 +136,7 @@ describe('createActivityTracker', () => {
 
   it('never emits after stop', async () => {
     let resolve!: (v: string) => void;
-    const summarize = jest.fn(
-      () => new Promise<string>((r) => (resolve = r)),
-    );
+    const summarize = jest.fn(() => new Promise<string>((r) => (resolve = r)));
     const emit = jest.fn();
     const tracker = createActivityTracker({ summarize, emit });
 

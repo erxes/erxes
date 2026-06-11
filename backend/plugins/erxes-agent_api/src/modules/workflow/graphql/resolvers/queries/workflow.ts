@@ -12,14 +12,22 @@ export const workflowQueries = {
     return models.MastraWorkflow.getWorkflows();
   },
 
-  mastraWorkflow: async (_: any, { _id }: { _id: string }, { models, user }: IContext) => {
+  mastraWorkflow: async (
+    _: any,
+    { _id }: { _id: string },
+    { models, user }: IContext,
+  ) => {
     requireUserId(user);
     return models.MastraWorkflow.getWorkflow(_id);
   },
 
   mastraWorkflowRuns: async (
     _: any,
-    { workflowId, page, perPage }: { workflowId: string; page?: number; perPage?: number },
+    {
+      workflowId,
+      page,
+      perPage,
+    }: { workflowId: string; page?: number; perPage?: number },
     { models, user }: IContext,
   ) => {
     requireUserId(user);

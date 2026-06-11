@@ -56,7 +56,10 @@ export function isKnowledgeEnabled(env: Env = process.env): boolean {
  * Encodes model + dimension so switching embedders creates a fresh
  * collection instead of crashing on a vector-size mismatch.
  */
-export function knowledgeCollectionName(model: string, dimension: number): string {
+export function knowledgeCollectionName(
+  model: string,
+  dimension: number,
+): string {
   const slug = model
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '_')
@@ -74,7 +77,9 @@ function parseScore(raw: string, def: number): number {
   return Number.isFinite(n) && n >= 0 && n <= 1 ? n : def;
 }
 
-export function resolveKnowledgeTuning(env: Env = process.env): KnowledgeTuning {
+export function resolveKnowledgeTuning(
+  env: Env = process.env,
+): KnowledgeTuning {
   return {
     topK: parsePositiveInt(val(env, 'ERXES_AGENT_KNOWLEDGE_TOPK'), 4),
     minScore: parseScore(val(env, 'ERXES_AGENT_KNOWLEDGE_MIN_SCORE'), 0.5),

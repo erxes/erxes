@@ -1,5 +1,14 @@
-import { extractFileText, fileExtension, isImageType, MAX_EXTRACT_CHARS } from '../extract';
-import { buildAttachmentManifest, historyAttachmentNote, formatBytes } from '../chatContent';
+import {
+  extractFileText,
+  fileExtension,
+  isImageType,
+  MAX_EXTRACT_CHARS,
+} from '../extract';
+import {
+  buildAttachmentManifest,
+  historyAttachmentNote,
+  formatBytes,
+} from '../chatContent';
 import { evaluateStorageConfigs } from '../storage';
 
 describe('extract', () => {
@@ -12,7 +21,10 @@ describe('extract', () => {
   });
 
   it('extracts plain text and json', async () => {
-    const txt = await extractFileText({ buffer: Buffer.from('hello world'), name: 'a.txt' });
+    const txt = await extractFileText({
+      buffer: Buffer.from('hello world'),
+      name: 'a.txt',
+    });
     expect(txt.content).toBe('hello world');
     expect(txt.truncated).toBe(false);
 
@@ -25,8 +37,12 @@ describe('extract', () => {
   });
 
   it('strips html down to readable text', async () => {
-    const html = '<html><head><style>.x{}</style></head><body><h1>Title</h1><script>evil()</script><p>Body &amp; more</p></body></html>';
-    const out = await extractFileText({ buffer: Buffer.from(html), name: 'page.html' });
+    const html =
+      '<html><head><style>.x{}</style></head><body><h1>Title</h1><script>evil()</script><p>Body &amp; more</p></body></html>';
+    const out = await extractFileText({
+      buffer: Buffer.from(html),
+      name: 'page.html',
+    });
     expect(out.content).toContain('Title');
     expect(out.content).toContain('Body & more');
     expect(out.content).not.toContain('evil');
@@ -34,7 +50,10 @@ describe('extract', () => {
 
   it('truncates oversized text with a notice', async () => {
     const big = 'x'.repeat(MAX_EXTRACT_CHARS + 100);
-    const out = await extractFileText({ buffer: Buffer.from(big), name: 'big.txt' });
+    const out = await extractFileText({
+      buffer: Buffer.from(big),
+      name: 'big.txt',
+    });
     expect(out.truncated).toBe(true);
     expect(out.content).toContain('truncated');
   });

@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@apollo/client';
-import { IconArrowLeft, IconTool, IconSearch, IconCalculator, IconWorld } from '@tabler/icons-react';
+import {
+  IconArrowLeft,
+  IconTool,
+  IconSearch,
+  IconCalculator,
+  IconWorld,
+} from '@tabler/icons-react';
 import {
   Badge,
   Breadcrumb,
@@ -19,7 +25,11 @@ import {
   toast,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { MASTRA_TOOL, MASTRA_TOOLS, MASTRA_AVAILABLE_ERXES_TOOLS } from '~/graphql/queries';
+import {
+  MASTRA_TOOL,
+  MASTRA_TOOLS,
+  MASTRA_AVAILABLE_ERXES_TOOLS,
+} from '~/graphql/queries';
 import { MASTRA_TOOL_CREATE, MASTRA_TOOL_UPDATE } from '~/graphql/mutations';
 
 const BUILTIN_OPTIONS = [
@@ -38,16 +48,28 @@ const BUILTIN_OPTIONS = [
   {
     id: 'calculator',
     name: 'Calculator',
-    description: 'Evaluate a mathematical expression and return the numeric result.',
+    description:
+      'Evaluate a mathematical expression and return the numeric result.',
     icon: IconCalculator,
   },
 ];
 
 function toToolId(name: string) {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
 }
 
-const Field = ({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) => (
+const Field = ({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) => (
   <div className="space-y-1.5">
     <Label className="font-medium">{label}</Label>
     {children}
@@ -78,19 +100,31 @@ export const ToolFormPage = () => {
   const [autoId, setAutoId] = useState(true);
   const [opSearch, setOpSearch] = useState('');
 
-  const { data: toolData } = useQuery(MASTRA_TOOL, { variables: { _id: id }, skip: !isEdit });
-  const { data: erxesToolsData, loading: loadingErxes } = useQuery(MASTRA_AVAILABLE_ERXES_TOOLS, {
-    skip: form.type !== 'erxes',
+  const { data: toolData } = useQuery(MASTRA_TOOL, {
+    variables: { _id: id },
+    skip: !isEdit,
   });
+  const { data: erxesToolsData, loading: loadingErxes } = useQuery(
+    MASTRA_AVAILABLE_ERXES_TOOLS,
+    {
+      skip: form.type !== 'erxes',
+    },
+  );
   // Existing tools → so the picker can flag operations that are already added
   // (avoids the duplicate-toolId error and lets the user jump straight to edit).
-  const { data: existingToolsData } = useQuery(MASTRA_TOOLS, { fetchPolicy: 'cache-and-network' });
+  const { data: existingToolsData } = useQuery(MASTRA_TOOLS, {
+    fetchPolicy: 'cache-and-network',
+  });
   const existingByToolId = new Map<string, string>(
     (existingToolsData?.mastraTools || []).map((t: any) => [t.toolId, t._id]),
   );
 
   const onMutationError = (e: any) =>
-    toast({ title: 'Could not save tool', description: e.message, variant: 'destructive' });
+    toast({
+      title: 'Could not save tool',
+      description: e.message,
+      variant: 'destructive',
+    });
 
   const [createTool, { loading: creating }] = useMutation(MASTRA_TOOL_CREATE, {
     onCompleted: () => navigate('/settings/mastra/tools'),
@@ -148,8 +182,12 @@ export const ToolFormPage = () => {
   };
 
   const erxesTools = erxesToolsData?.mastraAvailableErxesTools || [];
-  const plugins = [...new Set(erxesTools.map((t: any) => t.plugin))].filter(Boolean);
-  const opsForPlugin = erxesTools.filter((t: any) => t.plugin === form.erxesPlugin);
+  const plugins = [...new Set(erxesTools.map((t: any) => t.plugin))].filter(
+    Boolean,
+  );
+  const opsForPlugin = erxesTools.filter(
+    (t: any) => t.plugin === form.erxesPlugin,
+  );
   // Search by what the operation does (description) or its raw name.
   const opQuery = opSearch.trim().toLowerCase();
   const filteredOps = opQuery
@@ -186,7 +224,9 @@ export const ToolFormPage = () => {
               </Breadcrumb.Item>
               <Breadcrumb.Separator />
               <Breadcrumb.Item>
-                <span className="text-muted-foreground">{isEdit ? 'Edit Tool' : 'New Tool'}</span>
+                <span className="text-muted-foreground">
+                  {isEdit ? 'Edit Tool' : 'New Tool'}
+                </span>
               </Breadcrumb.Item>
             </Breadcrumb.List>
           </Breadcrumb>
@@ -205,8 +245,11 @@ export const ToolFormPage = () => {
       </PageHeader>
 
       <div className="flex-1 overflow-auto p-4">
-        <form id="tool-form" onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-4">
-
+        <form
+          id="tool-form"
+          onSubmit={handleSubmit}
+          className="max-w-2xl mx-auto space-y-4"
+        >
           {/* Tool type */}
           <Card className="shadow-none">
             <Card.Header className="pb-3">
@@ -239,7 +282,9 @@ export const ToolFormPage = () => {
           {form.type === 'builtin' && (
             <Card className="shadow-none">
               <Card.Header className="pb-3">
-                <Card.Title className="text-base">Select Built-in Tool</Card.Title>
+                <Card.Title className="text-base">
+                  Select Built-in Tool
+                </Card.Title>
               </Card.Header>
               <Card.Content>
                 <ChoiceboxGroup
@@ -254,8 +299,12 @@ export const ToolFormPage = () => {
                         <div className="flex items-start gap-3">
                           <Icon className="size-4 mt-0.5 shrink-0" />
                           <div>
-                            <div className="font-medium text-sm">{opt.name}</div>
-                            <div className="text-xs text-muted-foreground mt-0.5">{opt.description}</div>
+                            <div className="font-medium text-sm">
+                              {opt.name}
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-0.5">
+                              {opt.description}
+                            </div>
                           </div>
                         </div>
                       </ChoiceboxGroup.Item>
@@ -270,8 +319,12 @@ export const ToolFormPage = () => {
           {form.type === 'erxes' && (
             <Card className="shadow-none">
               <Card.Header className="pb-3">
-                <Card.Title className="text-base">Select erxes Operation</Card.Title>
-                <Card.Description>Operations are discovered from the gateway at runtime.</Card.Description>
+                <Card.Title className="text-base">
+                  Select erxes Operation
+                </Card.Title>
+                <Card.Description>
+                  Operations are discovered from the gateway at runtime.
+                </Card.Description>
               </Card.Header>
               <Card.Content className="space-y-4">
                 <Field label="Plugin *">
@@ -280,7 +333,11 @@ export const ToolFormPage = () => {
                   ) : (
                     <Select
                       value={form.erxesPlugin}
-                      onValueChange={(v) => { set('erxesPlugin', v); set('erxesOperation', ''); setOpSearch(''); }}
+                      onValueChange={(v) => {
+                        set('erxesPlugin', v);
+                        set('erxesOperation', '');
+                        setOpSearch('');
+                      }}
                       required
                     >
                       <Select.Trigger className="w-full border border-border rounded-md px-3 py-2 h-9">
@@ -288,7 +345,9 @@ export const ToolFormPage = () => {
                       </Select.Trigger>
                       <Select.Content>
                         {plugins.map((p: any) => (
-                          <Select.Item key={p} value={p}>{p}</Select.Item>
+                          <Select.Item key={p} value={p}>
+                            {p}
+                          </Select.Item>
                         ))}
                       </Select.Content>
                     </Select>
@@ -307,7 +366,8 @@ export const ToolFormPage = () => {
                       />
                     </div>
                     <p className="text-[11px] text-muted-foreground mb-1.5">
-                      {filteredOps.length} operation{filteredOps.length === 1 ? '' : 's'}
+                      {filteredOps.length} operation
+                      {filteredOps.length === 1 ? '' : 's'}
                       {opQuery ? ' matched' : ` in ${form.erxesPlugin}`}
                     </p>
                     <ScrollArea className="h-72 rounded-md border">
@@ -318,7 +378,8 @@ export const ToolFormPage = () => {
                           </p>
                         )}
                         {filteredOps.map((op: any) => {
-                          const isSelected = form.erxesOperation === op.operation;
+                          const isSelected =
+                            form.erxesOperation === op.operation;
                           const requiredArgs = (op.graphqlArgs || [])
                             .filter((a: any) => a?.type?.kind === 'NON_NULL')
                             .map((a: any) => a.name);
@@ -334,7 +395,9 @@ export const ToolFormPage = () => {
                               type="button"
                               onClick={() =>
                                 added
-                                  ? navigate(`/settings/mastra/tools/edit/${existingId}`)
+                                  ? navigate(
+                                      `/settings/mastra/tools/edit/${existingId}`,
+                                    )
                                   : handleErxesOpSelect(op)
                               }
                               className={`w-full text-left rounded-md px-3 py-2 transition-colors ${
@@ -349,15 +412,24 @@ export const ToolFormPage = () => {
                                 </span>
                                 <div className="flex items-center gap-1 shrink-0">
                                   {added && (
-                                    <Badge variant="success" className="text-[10px]">
+                                    <Badge
+                                      variant="success"
+                                      className="text-[10px]"
+                                    >
                                       Added
                                     </Badge>
                                   )}
                                   <Badge
-                                    variant={op.operationType === 'mutation' ? 'warning' : 'info'}
+                                    variant={
+                                      op.operationType === 'mutation'
+                                        ? 'warning'
+                                        : 'info'
+                                    }
                                     className="text-[10px]"
                                   >
-                                    {op.operationType === 'mutation' ? 'write' : 'read'}
+                                    {op.operationType === 'mutation'
+                                      ? 'write'
+                                      : 'read'}
                                   </Badge>
                                 </div>
                               </div>
@@ -367,12 +439,15 @@ export const ToolFormPage = () => {
                                 </span>
                                 {requiredArgs.length > 0 && (
                                   <span className="text-[11px] text-muted-foreground">
-                                    · needs {requiredArgs.slice(0, 4).join(', ')}
+                                    · needs{' '}
+                                    {requiredArgs.slice(0, 4).join(', ')}
                                     {requiredArgs.length > 4 ? '…' : ''}
                                   </span>
                                 )}
                                 {added && (
-                                  <span className="text-[11px] text-primary">· click to edit</span>
+                                  <span className="text-[11px] text-primary">
+                                    · click to edit
+                                  </span>
                                 )}
                               </div>
                             </button>
@@ -390,7 +465,9 @@ export const ToolFormPage = () => {
                   >
                     <Input
                       value={form.erxesResponseFields}
-                      onChange={(e) => set('erxesResponseFields', e.target.value)}
+                      onChange={(e) =>
+                        set('erxesResponseFields', e.target.value)
+                      }
                       placeholder="_id firstName lastName primaryEmail"
                       className="font-mono text-sm"
                     />
@@ -404,13 +481,22 @@ export const ToolFormPage = () => {
           <Card className="shadow-none">
             <Card.Header className="pb-3">
               <Card.Title className="text-base">Identity</Card.Title>
-              <Card.Description>The LLM uses the name and description to decide when to call this tool.</Card.Description>
+              <Card.Description>
+                The LLM uses the name and description to decide when to call
+                this tool.
+              </Card.Description>
             </Card.Header>
             <Card.Content className="space-y-4">
-              <Field label="Tool ID *" hint="Unique machine identifier. Auto-generated from name.">
+              <Field
+                label="Tool ID *"
+                hint="Unique machine identifier. Auto-generated from name."
+              >
                 <Input
                   value={form.toolId}
-                  onChange={(e) => { setAutoId(false); set('toolId', e.target.value); }}
+                  onChange={(e) => {
+                    setAutoId(false);
+                    set('toolId', e.target.value);
+                  }}
                   placeholder="web-search"
                   className="font-mono text-sm"
                   required

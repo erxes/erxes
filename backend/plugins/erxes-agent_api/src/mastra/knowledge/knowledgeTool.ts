@@ -28,7 +28,10 @@ import {
 } from './config';
 import { getEmbedder } from '~/mastra/memory/embedder';
 import { search, SearchHit } from '~/mastra/memory/vectorStore';
-import { KNOWLEDGE_CONTENT_TYPES, ALL_KNOWLEDGE_TYPE_NAMES } from './contentTypes';
+import {
+  KNOWLEDGE_CONTENT_TYPES,
+  ALL_KNOWLEDGE_TYPE_NAMES,
+} from './contentTypes';
 import { buildAuthHeaders, makeGqlExec } from './gatewayClient';
 
 const SNIPPET_MAX = 700;
@@ -49,7 +52,10 @@ export const companyKnowledgeTool = createTool({
   execute: async ({ query }) => {
     try {
       if (!isKnowledgeEnabled()) {
-        return { results: [], error: 'Company knowledge is not enabled on this deployment.' };
+        return {
+          results: [],
+          error: 'Company knowledge is not enabled on this deployment.',
+        };
       }
 
       const auth = getCurrentAuth();
@@ -107,7 +113,9 @@ export const companyKnowledgeTool = createTool({
         [...byType.entries()].map(async ([typeName, typeHits]) => {
           const ct = KNOWLEDGE_CONTENT_TYPES[typeName];
           if (!ct) return; // unknown/legacy type in index → denied
-          const ids = [...new Set(typeHits.map((h) => String(h.payload.recordId)))];
+          const ids = [
+            ...new Set(typeHits.map((h) => String(h.payload.recordId))),
+          ];
           try {
             allowedByType.set(typeName, await ct.allowedIds(gql, ids));
           } catch {

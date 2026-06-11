@@ -52,7 +52,11 @@ const stateSchema = z.object({
   steps: z.record(z.any()),
 });
 
-const withOutput = (state: WorkflowState, id: string, output: any): WorkflowState => ({
+const withOutput = (
+  state: WorkflowState,
+  id: string,
+  output: any,
+): WorkflowState => ({
   trigger: state.trigger,
   steps: { ...state.steps, [id]: { output } },
 });
@@ -74,7 +78,9 @@ export function compileDefinition(
   const check = validateDefinition(definition);
   if (!check.ok) {
     const first = check.errors[0];
-    throw new Error(`Cannot compile invalid definition: ${first.path}: ${first.message}`);
+    throw new Error(
+      `Cannot compile invalid definition: ${first.path}: ${first.message}`,
+    );
   }
 
   // Lazy CJS require, NOT dynamic import(): under tsx, import() of a Mastra
@@ -100,7 +106,10 @@ export function compileDefinition(
           execute: async ({ inputData }: any) => {
             const state = inputData as WorkflowState;
             const args = resolveValue((step as any).args || {}, mkScope(state));
-            const output = await deps.executeOperation((step as any).operation, args);
+            const output = await deps.executeOperation(
+              (step as any).operation,
+              args,
+            );
             return withOutput(state, step.id, output);
           },
         });
@@ -121,11 +130,15 @@ export function compileDefinition(
             // The declared output schema is a contract, not a hint — judgment
             // either conforms or the step fails (and Mastra's retryConfig may
             // re-attempt it).
-            const parsed = buildOutputZod((step as any).outputSchema).safeParse(raw);
+            const parsed = buildOutputZod((step as any).outputSchema).safeParse(
+              raw,
+            );
             if (!parsed.success) {
               throw new Error(
                 `agent step "${step.id}" returned output not matching its schema: ` +
-                  parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '),
+                  parsed.error.issues
+                    .map((i) => `${i.path.join('.')}: ${i.message}`)
+                    .join('; '),
               );
             }
             return withOutput(state, step.id, parsed.data);
@@ -155,18 +168,24 @@ export function compileDefinition(
 
   // True when this arm's condition holds AND no earlier arm's does — turning
   // Mastra's run-every-match .branch into the DSL's if/else-if semantics.
-  const firstMatchCond = (asts: ExprNode[], index: number) => async ({ inputData }: any) => {
-    const scope = mkScope(inputData as WorkflowState);
-    if (!Boolean(evalExpr(asts[index], scope))) return false;
-    for (let j = 0; j < index; j++) {
-      if (Boolean(evalExpr(asts[j], scope))) return false;
-    }
-    return true;
-  };
+  const firstMatchCond =
+    (asts: ExprNode[], index: number) =>
+    async ({ inputData }: any) => {
+      const scope = mkScope(inputData as WorkflowState);
+      if (!Boolean(evalExpr(asts[index], scope))) return false;
+      for (let j = 0; j < index; j++) {
+        if (Boolean(evalExpr(asts[j], scope))) return false;
+      }
+      return true;
+    };
 
   const buildNested = (id: string, steps: WorkflowStep[]) =>
     buildChain(
-      createWorkflow({ id, inputSchema: stateSchema, outputSchema: stateSchema }),
+      createWorkflow({
+        id,
+        inputSchema: stateSchema,
+        outputSchema: stateSchema,
+      }),
       steps,
     ).commit();
 
@@ -182,7 +201,11 @@ export function compileDefinition(
     const elseId = `${key}_${step.id}_else`;
     const elseTarget = step.else?.length
       ? buildNested(elseId, step.else)
-      : createWorkflow({ id: elseId, inputSchema: stateSchema, outputSchema: stateSchema })
+      : createWorkflow({
+          id: elseId,
+          inputSchema: stateSchema,
+          outputSchema: stateSchema,
+        })
           .then(
             createStep({
               id: `${elseId}_noop`,
@@ -209,7 +232,9 @@ export function compileDefinition(
           return withOutput(state, step.id, { taken: armId });
         }
       }
-      throw new Error(`branch "${step.id}" produced no state — no arm executed`);
+      throw new Error(
+        `branch "${step.id}" produced no state — no arm executed`,
+      );
     });
   };
 
@@ -219,12 +244,15 @@ export function compileDefinition(
     // recombines their step outputs (ids are globally unique, so no clashes).
     return chain.parallel(subs).map(async ({ inputData }: any) => {
       const states = Object.values(inputData || {}) as WorkflowState[];
-      if (!states.length) throw new Error(`parallel "${step.id}" produced no results`);
+      if (!states.length)
+        throw new Error(`parallel "${step.id}" produced no results`);
       const merged: WorkflowState = {
         trigger: states[0].trigger,
         steps: Object.assign({}, ...states.map((s) => s?.steps || {})),
       };
-      return withOutput(merged, step.id, { completed: step.steps.map((s: any) => s.id) });
+      return withOutput(merged, step.id, {
+        completed: step.steps.map((s: any) => s.id),
+      });
     });
   };
 
@@ -251,7 +279,11 @@ export function compileDefinition(
   };
 
   return buildChain(
-    createWorkflow({ id: key, inputSchema: stateSchema, outputSchema: stateSchema }),
+    createWorkflow({
+      id: key,
+      inputSchema: stateSchema,
+      outputSchema: stateSchema,
+    }),
     definition.steps,
   ).commit();
 }

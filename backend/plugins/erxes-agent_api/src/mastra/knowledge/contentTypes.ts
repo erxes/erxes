@@ -13,7 +13,12 @@
 // payload shape, and the retrieval tool are all registry-driven.
 // ---------------------------------------------------------------------------
 
-import { articleToChunks, htmlToText, splitIntoChunks, ArticleChunk } from './serializer';
+import {
+  articleToChunks,
+  htmlToText,
+  splitIntoChunks,
+  ArticleChunk,
+} from './serializer';
 
 export interface GqlExec {
   (query: string, variables: Record<string, any>): Promise<any>;
@@ -44,21 +49,33 @@ export interface KnowledgeContentType {
 const toIso = (d: any): string => (d ? new Date(d).toISOString() : '');
 
 /** Compose "Label: value" lines, skipping empties, into a single chunk set. */
-function linesToChunks(title: string, lines: Array<[string, any]>): ArticleChunk[] {
+function linesToChunks(
+  title: string,
+  lines: Array<[string, any]>,
+): ArticleChunk[] {
   const body = lines
     .filter(([, v]) => v !== undefined && v !== null && String(v).trim() !== '')
     .map(([k, v]) => `${k}: ${String(v).trim()}`)
     .join('\n');
   const text = [title, body].filter(Boolean).join('\n');
   if (!text.trim()) return [];
-  return splitIntoChunks(text).map((t, chunkIndex) => ({ chunkIndex, text: t }));
+  return splitIntoChunks(text).map((t, chunkIndex) => ({
+    chunkIndex,
+    text: t,
+  }));
 }
 
 /** Cursor-paginated ListResponse walker ({ list, pageInfo { endCursor hasNextPage } }). */
 async function walkCursorList(
   gql: GqlExec,
-  buildQuery: (cursor: string | null) => { query: string; variables: Record<string, any> },
-  extract: (data: any) => { list: any[]; pageInfo?: { endCursor?: string; hasNextPage?: boolean } },
+  buildQuery: (cursor: string | null) => {
+    query: string;
+    variables: Record<string, any>;
+  },
+  extract: (data: any) => {
+    list: any[];
+    pageInfo?: { endCursor?: string; hasNextPage?: boolean };
+  },
   max: number,
 ): Promise<any[]> {
   const out: any[] = [];
@@ -70,7 +87,8 @@ async function walkCursorList(
     const { list, pageInfo } = extract(data);
     out.push(...(list || []));
     if (max > 0 && out.length >= max) return out.slice(0, max);
-    if (!pageInfo?.hasNextPage || !pageInfo?.endCursor || !(list || []).length) return out;
+    if (!pageInfo?.hasNextPage || !pageInfo?.endCursor || !(list || []).length)
+      return out;
     cursor = pageInfo.endCursor;
   }
 }
@@ -167,7 +185,10 @@ const customer: KnowledgeContentType = {
       max,
     );
     return docs.map((c) => {
-      const name = [c.firstName, c.lastName].filter(Boolean).join(' ') || c.primaryEmail || c._id;
+      const name =
+        [c.firstName, c.lastName].filter(Boolean).join(' ') ||
+        c.primaryEmail ||
+        c._id;
       return {
         _id: c._id,
         title: `Customer: ${name}`,
@@ -358,9 +379,10 @@ const conversation: KnowledgeContentType = {
       .map((c) => ({
         _id: c._id,
         title: `Conversation ${c._id}`,
-        chunks: linesToChunks(`Customer conversation (status: ${c.status || 'unknown'})`, [
-          ['Content', htmlToText(c.content || '')],
-        ]),
+        chunks: linesToChunks(
+          `Customer conversation (status: ${c.status || 'unknown'})`,
+          [['Content', htmlToText(c.content || '')]],
+        ),
         modifiedDate: toIso(c.updatedAt || c.createdAt),
       }));
   },

@@ -2,8 +2,15 @@ import { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { IconPlus, IconTrash, IconKey, IconCheck } from '@tabler/icons-react';
 import { Button, Label, Input, Badge } from 'erxes-ui';
-import { MASTRA_PROVIDERS, MASTRA_PROVIDER_PRESETS, MASTRA_PROVIDER_CATALOG } from '~/graphql/queries';
-import { MASTRA_PROVIDER_SAVE, MASTRA_PROVIDER_REMOVE } from '~/graphql/mutations';
+import {
+  MASTRA_PROVIDERS,
+  MASTRA_PROVIDER_PRESETS,
+  MASTRA_PROVIDER_CATALOG,
+} from '~/graphql/queries';
+import {
+  MASTRA_PROVIDER_SAVE,
+  MASTRA_PROVIDER_REMOVE,
+} from '~/graphql/mutations';
 
 const EMPTY_FORM = {
   provider: '',
@@ -20,7 +27,11 @@ const EMPTY_FORM = {
 
 // Serialize a { name: value } header map into editable `Name: value` lines.
 const serializeHeaders = (h?: Record<string, string> | null): string =>
-  h ? Object.entries(h).map(([k, v]) => `${k}: ${v}`).join('\n') : '';
+  h
+    ? Object.entries(h)
+        .map(([k, v]) => `${k}: ${v}`)
+        .join('\n')
+    : '';
 
 // Parse `Name: value` lines back into a header map (blank lines ignored).
 const parseHeaders = (text: string): Record<string, string> => {
@@ -41,10 +52,18 @@ export const ProvidersPage = () => {
   const { data: providersData, refetch } = useQuery(MASTRA_PROVIDERS);
   const { data: presetsData } = useQuery(MASTRA_PROVIDER_PRESETS);
   const { data: catalogData } = useQuery(MASTRA_PROVIDER_CATALOG);
-  const [saveProvider, { loading: saving }] = useMutation(MASTRA_PROVIDER_SAVE, {
-    onCompleted: () => { refetch(); setAdding(null); },
+  const [saveProvider, { loading: saving }] = useMutation(
+    MASTRA_PROVIDER_SAVE,
+    {
+      onCompleted: () => {
+        refetch();
+        setAdding(null);
+      },
+    },
+  );
+  const [removeProvider] = useMutation(MASTRA_PROVIDER_REMOVE, {
+    onCompleted: () => refetch(),
   });
-  const [removeProvider] = useMutation(MASTRA_PROVIDER_REMOVE, { onCompleted: () => refetch() });
 
   // `adding` holds the provider key being added/edited, or '__custom__' for a custom entry
   const [adding, setAdding] = useState<string | null>(null);
@@ -54,7 +73,10 @@ export const ProvidersPage = () => {
   const presets: any[] = presetsData?.mastraProviderPresets || [];
   // Maps provider key → isConfigured (covers both DB docs and env-var-only providers)
   const catalogMap = new Map<string, boolean>(
-    (catalogData?.mastraProviderCatalog || []).map((p: any) => [p.provider, p.isConfigured])
+    (catalogData?.mastraProviderCatalog || []).map((p: any) => [
+      p.provider,
+      p.isConfigured,
+    ]),
   );
 
   const handleAddPreset = (preset: any) => {
@@ -65,7 +87,8 @@ export const ProvidersPage = () => {
       apiKey: existing?.apiKey || '',
       baseUrl: existing?.baseUrl || preset.baseUrl || '',
       modelsEndpoint: existing?.modelsEndpoint || preset.modelsEndpoint || '',
-      isOpenAICompatible: existing?.isOpenAICompatible ?? preset.isOpenAICompatible ?? false,
+      isOpenAICompatible:
+        existing?.isOpenAICompatible ?? preset.isOpenAICompatible ?? false,
       envKey: existing?.envKey || preset.envKey || '',
       headersText: serializeHeaders(existing?.headers || preset.headers),
       isDefault: existing?.isDefault || false,
@@ -128,14 +151,20 @@ export const ProvidersPage = () => {
       ? 'Custom Provider'
       : presets.find((c: any) => c.provider === adding)?.label || adding;
 
-  const isEdit = adding && providers.some((p: any) => p.provider === (adding === '__custom__' ? form.provider : adding));
+  const isEdit =
+    adding &&
+    providers.some(
+      (p: any) =>
+        p.provider === (adding === '__custom__' ? form.provider : adding),
+    );
 
   return (
     <div className="p-6 max-w-3xl space-y-8">
       <div>
         <h1 className="text-2xl font-bold">Providers &amp; Models</h1>
         <p className="text-muted-foreground mt-1">
-          Configure API keys for LLM providers. Keys are stored in the database and injected at agent runtime.
+          Configure API keys for LLM providers. Keys are stored in the database
+          and injected at agent runtime.
         </p>
       </div>
 
@@ -145,27 +174,52 @@ export const ProvidersPage = () => {
           <h2 className="text-lg font-semibold mb-3">Configured Providers</h2>
           <div className="space-y-3">
             {providers.map((p: any) => (
-              <div key={p._id} className="rounded-lg border bg-card p-4 flex items-center justify-between">
+              <div
+                key={p._id}
+                className="rounded-lg border bg-card p-4 flex items-center justify-between"
+              >
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold">{p.label || p.provider}</span>
+                    <span className="font-semibold">
+                      {p.label || p.provider}
+                    </span>
                     {p.isDefault && <Badge>Default</Badge>}
-                    {!p.isEnabled && <Badge variant="secondary">Disabled</Badge>}
+                    {!p.isEnabled && (
+                      <Badge variant="secondary">Disabled</Badge>
+                    )}
                     {p.isOpenAICompatible && (
-                      <Badge variant="secondary" className="text-xs">OpenAI-compatible</Badge>
+                      <Badge variant="secondary" className="text-xs">
+                        OpenAI-compatible
+                      </Badge>
                     )}
                   </div>
                   <div className="text-sm text-muted-foreground mt-0.5 flex items-center gap-1 flex-wrap">
                     <IconKey size={12} />
                     <span className="font-mono">
-                      {p.apiKey ? '••••••' + p.apiKey.slice(-4) : p.envKey ? `env: ${p.envKey}` : 'No key'}
+                      {p.apiKey
+                        ? '••••••' + p.apiKey.slice(-4)
+                        : p.envKey
+                          ? `env: ${p.envKey}`
+                          : 'No key'}
                     </span>
-                    {p.baseUrl && <span className="ml-2 text-xs">· {p.baseUrl}</span>}
+                    {p.baseUrl && (
+                      <span className="ml-2 text-xs">· {p.baseUrl}</span>
+                    )}
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => handleEdit(p)}>Edit</Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleRemove(p)}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleEdit(p)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleRemove(p)}
+                  >
                     <IconTrash className="text-destructive" size={16} />
                   </Button>
                 </div>
@@ -188,7 +242,9 @@ export const ProvidersPage = () => {
               <Label>Provider Key *</Label>
               <Input
                 value={form.provider}
-                onChange={(e) => setForm((f) => ({ ...f, provider: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, provider: e.target.value }))
+                }
                 placeholder="e.g. my-custom-llm"
                 className="font-mono text-sm"
               />
@@ -203,7 +259,9 @@ export const ProvidersPage = () => {
             <Input
               type="password"
               value={form.apiKey}
-              onChange={(e) => setForm((f) => ({ ...f, apiKey: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, apiKey: e.target.value }))
+              }
               placeholder="sk-..."
             />
           </div>
@@ -212,11 +270,14 @@ export const ProvidersPage = () => {
             <Label>Base URL</Label>
             <Input
               value={form.baseUrl}
-              onChange={(e) => setForm((f) => ({ ...f, baseUrl: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, baseUrl: e.target.value }))
+              }
               placeholder="https://api.example.com/v1"
             />
             <p className="text-xs text-muted-foreground">
-              Required for OpenAI-compatible providers. Leave empty for native providers.
+              Required for OpenAI-compatible providers. Leave empty for native
+              providers.
             </p>
           </div>
 
@@ -224,7 +285,9 @@ export const ProvidersPage = () => {
             <Label>Models Endpoint</Label>
             <Input
               value={form.modelsEndpoint}
-              onChange={(e) => setForm((f) => ({ ...f, modelsEndpoint: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, modelsEndpoint: e.target.value }))
+              }
               placeholder="https://api.example.com/v1/models"
             />
             <p className="text-xs text-muted-foreground">
@@ -236,12 +299,15 @@ export const ProvidersPage = () => {
             <Label>Env Key</Label>
             <Input
               value={form.envKey}
-              onChange={(e) => setForm((f) => ({ ...f, envKey: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, envKey: e.target.value }))
+              }
               placeholder="MY_PROVIDER_API_KEY"
               className="font-mono text-sm"
             />
             <p className="text-xs text-muted-foreground">
-              Environment variable name for the API key (used when no DB key is stored).
+              Environment variable name for the API key (used when no DB key is
+              stored).
             </p>
           </div>
 
@@ -249,15 +315,18 @@ export const ProvidersPage = () => {
             <Label>Custom Headers</Label>
             <textarea
               value={form.headersText}
-              onChange={(e) => setForm((f) => ({ ...f, headersText: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, headersText: e.target.value }))
+              }
               placeholder={'User-Agent: claude-cli/1.0.65 (external, cli)'}
               rows={3}
               className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm font-mono shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             />
             <p className="text-xs text-muted-foreground">
-              One <code>Header-Name: value</code> per line, sent with every request.
-              Required for gated endpoints — e.g. Kimi For Coding only serves
-              recognized coding agents, so it needs a <code>User-Agent</code> like{' '}
+              One <code>Header-Name: value</code> per line, sent with every
+              request. Required for gated endpoints — e.g. Kimi For Coding only
+              serves recognized coding agents, so it needs a{' '}
+              <code>User-Agent</code> like{' '}
               <code>claude-cli/1.0.65 (external, cli)</code>.
             </p>
           </div>
@@ -267,7 +336,9 @@ export const ProvidersPage = () => {
               type="checkbox"
               id="providerOpenAI"
               checked={form.isOpenAICompatible}
-              onChange={(e) => setForm((f) => ({ ...f, isOpenAICompatible: e.target.checked }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, isOpenAICompatible: e.target.checked }))
+              }
             />
             <Label htmlFor="providerOpenAI">OpenAI-compatible API</Label>
           </div>
@@ -277,7 +348,9 @@ export const ProvidersPage = () => {
               type="checkbox"
               id="providerDefault"
               checked={form.isDefault}
-              onChange={(e) => setForm((f) => ({ ...f, isDefault: e.target.checked }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, isDefault: e.target.checked }))
+              }
             />
             <Label htmlFor="providerDefault">Set as default provider</Label>
           </div>
@@ -287,7 +360,9 @@ export const ProvidersPage = () => {
               type="checkbox"
               id="providerEnabled"
               checked={form.isEnabled}
-              onChange={(e) => setForm((f) => ({ ...f, isEnabled: e.target.checked }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, isEnabled: e.target.checked }))
+              }
             />
             <Label htmlFor="providerEnabled">Enabled</Label>
           </div>
@@ -296,7 +371,9 @@ export const ProvidersPage = () => {
             <Button onClick={handleSave} disabled={saving}>
               <IconCheck size={16} /> {saving ? 'Saving...' : 'Save'}
             </Button>
-            <Button variant="outline" onClick={() => setAdding(null)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setAdding(null)}>
+              Cancel
+            </Button>
           </div>
         </section>
       )}
@@ -308,8 +385,11 @@ export const ProvidersPage = () => {
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {presets.map((preset: any) => {
-            const configured = providers.some((p: any) => p.provider === preset.provider);
-            const envOnly = !configured && catalogMap.get(preset.provider) === true;
+            const configured = providers.some(
+              (p: any) => p.provider === preset.provider,
+            );
+            const envOnly =
+              !configured && catalogMap.get(preset.provider) === true;
             return (
               <div
                 key={preset.provider}
@@ -317,8 +397,8 @@ export const ProvidersPage = () => {
                   adding === preset.provider
                     ? 'border-primary bg-primary/5'
                     : envOnly
-                    ? 'border-green-500/40 hover:border-green-500/70'
-                    : 'border-border hover:border-primary/50'
+                      ? 'border-green-500/40 hover:border-green-500/70'
+                      : 'border-border hover:border-primary/50'
                 }`}
                 onClick={() => handleAddPreset(preset)}
               >

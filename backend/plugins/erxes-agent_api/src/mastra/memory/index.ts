@@ -71,6 +71,8 @@ export async function initAdvancedMemory(): Promise<void> {
   } catch (e: any) {
     setMemoryHealth(false);
     // eslint-disable-next-line no-console
-    console.error(`[mastra:memory] ensureCollection failed: ${e?.message || e}`);
+    console.error(
+      `[mastra:memory] ensureCollection failed: ${e?.message || e}`,
+    );
   }
 }

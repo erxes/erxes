@@ -9,7 +9,6 @@ export interface IMastraWorkingMemory {
 }
 
 export interface IMastraWorkingMemoryDocument
-  extends IMastraWorkingMemory,
-    Document {
+  extends IMastraWorkingMemory, Document {
   _id: string;
 }

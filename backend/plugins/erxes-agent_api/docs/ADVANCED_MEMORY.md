@@ -29,10 +29,10 @@ setup.
 
 ## 2. What "Advanced memory" includes (v1)
 
-| Sub-feature | Backed by | Scope | Needs Qdrant? |
-|---|---|---|---|
-| **Semantic recall** | Qdrant + embedder | per-resource (a user), across all their threads | ✅ yes |
-| **Working memory** | MongoDB | per-resource (a user), per-agent | ❌ no |
+| Sub-feature         | Backed by         | Scope                                           | Needs Qdrant? |
+| ------------------- | ----------------- | ----------------------------------------------- | ------------- |
+| **Semantic recall** | Qdrant + embedder | per-resource (a user), across all their threads | ✅ yes        |
+| **Working memory**  | MongoDB           | per-resource (a user), per-agent                | ❌ no         |
 
 - **Semantic recall** = long-term retrieval. Every stored message is embedded and upserted into
   Qdrant. On each turn we query Qdrant for the top-K semantically relevant past snippets and inject
@@ -48,7 +48,7 @@ Both turn on together behind the one `ERXES_AGENT_MEMORY=enable` flag.
 ## 3. Architecture — augmentation, not replacement
 
 We do **not** hand the agent over to Mastra's stateful `Memory` class. That class replays full
-message history *including tool-call/tool-result frames*, which is exactly what triggered the
+message history _including tool-call/tool-result frames_, which is exactly what triggered the
 earlier Kimi `"reasoning_content is missing in assistant tool call message"` failure. Instead,
 advanced memory is an **augmentation layer** around the existing flow:
 
@@ -103,18 +103,18 @@ erxes is subdomain-multi-tenant. Mongo models are already subdomain-scoped via `
 
 ## 6. Configuration (all `ERXES_AGENT_*` env keys)
 
-| Env var | Default | Purpose |
-|---|---|---|
-| `ERXES_AGENT_MEMORY` | _(unset)_ | `enable` turns advanced memory on. Anything else = off. |
-| `ERXES_AGENT_QDRANT_URL` | `http://localhost:6333` | Qdrant REST endpoint. |
-| `ERXES_AGENT_QDRANT_API_KEY` | _(unset)_ | Optional Qdrant API key. |
-| `ERXES_AGENT_EMBEDDER` | `fastembed` | `fastembed` (local) or `openai` (API). |
-| `ERXES_AGENT_EMBEDDER_MODEL` | `bge-small-en-v1.5` (fastembed) / `text-embedding-3-small` (openai) | Embedding model id. |
-| `ERXES_AGENT_EMBEDDER_BASE_URL` | `https://api.openai.com/v1` | OpenAI-compatible base URL (openai mode). |
-| `ERXES_AGENT_EMBEDDER_API_KEY` | _(unset)_ | Key for the API embedder (openai mode). |
-| `ERXES_AGENT_MEMORY_TOPK` | `4` | Semantic recall: snippets retrieved per turn. |
-| `ERXES_AGENT_MEMORY_MIN_SCORE` | `0.5` | Minimum cosine score to include a recalled snippet. |
-| `ERXES_AGENT_MEMORY_SCOPE` | `resource` | `resource` or `thread` for semantic recall. |
+| Env var                         | Default                                                             | Purpose                                                 |
+| ------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------- |
+| `ERXES_AGENT_MEMORY`            | _(unset)_                                                           | `enable` turns advanced memory on. Anything else = off. |
+| `ERXES_AGENT_QDRANT_URL`        | `http://localhost:6333`                                             | Qdrant REST endpoint.                                   |
+| `ERXES_AGENT_QDRANT_API_KEY`    | _(unset)_                                                           | Optional Qdrant API key.                                |
+| `ERXES_AGENT_EMBEDDER`          | `fastembed`                                                         | `fastembed` (local) or `openai` (API).                  |
+| `ERXES_AGENT_EMBEDDER_MODEL`    | `bge-small-en-v1.5` (fastembed) / `text-embedding-3-small` (openai) | Embedding model id.                                     |
+| `ERXES_AGENT_EMBEDDER_BASE_URL` | `https://api.openai.com/v1`                                         | OpenAI-compatible base URL (openai mode).               |
+| `ERXES_AGENT_EMBEDDER_API_KEY`  | _(unset)_                                                           | Key for the API embedder (openai mode).                 |
+| `ERXES_AGENT_MEMORY_TOPK`       | `4`                                                                 | Semantic recall: snippets retrieved per turn.           |
+| `ERXES_AGENT_MEMORY_MIN_SCORE`  | `0.5`                                                               | Minimum cosine score to include a recalled snippet.     |
+| `ERXES_AGENT_MEMORY_SCOPE`      | `resource`                                                          | `resource` or `thread` for semantic recall.             |
 
 Embedding **dimensions** differ per model (FastEmbed `bge-small-en-v1.5` = 384, OpenAI
 `text-embedding-3-small` = 1536). The Qdrant collection name encodes model+dim
@@ -135,11 +135,11 @@ can be deleted or backfilled).
 # ERXES_AGENT_MEMORY=enable. Run:  docker compose -f backend/plugins/erxes-agent_api/docker-compose.yml up -d
 services:
   qdrant:
-    image: qdrant/qdrant:v1.12.4        # pinned
+    image: qdrant/qdrant:v1.12.4 # pinned
     container_name: mastra-qdrant
     ports:
-      - "6333:6333"                      # REST
-      - "6334:6334"                      # gRPC
+      - '6333:6333' # REST
+      - '6334:6334' # gRPC
     volumes:
       - mastra_qdrant_storage:/qdrant/storage
     # environment:
@@ -168,6 +168,7 @@ Self-hosted, open-source, no Atlas. Documented in this file's "Operations" secti
 ## 9. Boot behavior (`main.ts` → `onServerInit`)
 
 When `ERXES_AGENT_MEMORY=enable`:
+
 1. Lazy-import the advanced-memory module.
 2. Resolve embedder + dimension; compute collection name.
 3. Ping Qdrant. If reachable → `ensureCollection()` (create if absent with the right dim + cosine).
@@ -181,6 +182,7 @@ Per-request code never assumes health — it `try/catch`es and falls back to rec
 ## 10. File-by-file plan
 
 **New files (all in `backend/plugins/erxes-agent_api/`):**
+
 1. `docker-compose.yml` — Qdrant service (§7).
 2. `src/mastra/memory/config.ts` — env reader: `isAdvancedMemoryEnabled()`, qdrant/embedder/tuning config, collection-name helper.
 3. `src/mastra/memory/embedder.ts` — `getEmbedder()` → `{ embed(texts): number[][], dimension }`. FastEmbed default, OpenAI optional. Lazy imports.
@@ -191,6 +193,7 @@ Per-request code never assumes health — it `try/catch`es and falls back to rec
 8. `src/modules/memory/` — Mongo model for working memory: `db/definitions/workingMemory.ts`, `db/models/WorkingMemory.ts`, `@types/`. Doc: `{ resourceId, agentId, content, updatedAt }`.
 
 **Modified files:**
+
 - `src/main.ts` — add `onServerInit` (§9).
 - `src/connectionResolvers.ts` — register `MastraWorkingMemory` model.
 - `src/modules/agent/graphql/resolvers/queries/agent.ts` — in `mastraAgentChat`: derive resourceId, `augmentConvo()` before generate, `persistAndIndex()` + working-memory refresh after (refresh is non-blocking).
@@ -242,15 +245,15 @@ original draft follow from this:
 
 ## 13. Risks & mitigations
 
-| Risk | Mitigation |
-|---|---|
-| Cross-tenant leakage via shared Qdrant | Mandatory `subdomain` payload + filter on every query (§4). |
-| Kimi `reasoning_content` regression | Recall/WM injected as context text, never tool frames; stateless agent unchanged. |
-| Embedder dimension change crashes index | Collection name encodes model+dim; switch = fresh index. |
-| FastEmbed first-run model download latency | Optional warm-up in `onServerInit`; documented. |
-| Qdrant down in production | Per-request try/catch → fall back to recent-history; status surfaced in Settings. |
-| Working-memory refresh cost/latency | Non-blocking (fire-and-forget after reply); can throttle to every N turns. |
-| Lockfile churn from new deps | Discrete dep-add step with reviewed, minimal diff. |
+| Risk                                       | Mitigation                                                                        |
+| ------------------------------------------ | --------------------------------------------------------------------------------- |
+| Cross-tenant leakage via shared Qdrant     | Mandatory `subdomain` payload + filter on every query (§4).                       |
+| Kimi `reasoning_content` regression        | Recall/WM injected as context text, never tool frames; stateless agent unchanged. |
+| Embedder dimension change crashes index    | Collection name encodes model+dim; switch = fresh index.                          |
+| FastEmbed first-run model download latency | Optional warm-up in `onServerInit`; documented.                                   |
+| Qdrant down in production                  | Per-request try/catch → fall back to recent-history; status surfaced in Settings. |
+| Working-memory refresh cost/latency        | Non-blocking (fire-and-forget after reply); can throttle to every N turns.        |
+| Lockfile churn from new deps               | Discrete dep-add step with reviewed, minimal diff.                                |
 
 ---
 

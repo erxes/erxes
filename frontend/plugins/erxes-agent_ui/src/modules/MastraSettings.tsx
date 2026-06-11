@@ -2,19 +2,27 @@ import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 
 const ProvidersPage = lazy(() =>
-  import('~/pages/settings/ProvidersPage').then((m) => ({ default: m.ProvidersPage })),
+  import('~/pages/settings/ProvidersPage').then((m) => ({
+    default: m.ProvidersPage,
+  })),
 );
 
 const GeneralSettingsPage = lazy(() =>
-  import('~/pages/settings/GeneralSettingsPage').then((m) => ({ default: m.GeneralSettingsPage })),
+  import('~/pages/settings/GeneralSettingsPage').then((m) => ({
+    default: m.GeneralSettingsPage,
+  })),
 );
 
 const AgentsIndexPage = lazy(() =>
-  import('~/pages/agents/AgentsIndexPage').then((m) => ({ default: m.AgentsIndexPage })),
+  import('~/pages/agents/AgentsIndexPage').then((m) => ({
+    default: m.AgentsIndexPage,
+  })),
 );
 
 const AgentFormPage = lazy(() =>
-  import('~/pages/agents/AgentFormPage').then((m) => ({ default: m.AgentFormPage })),
+  import('~/pages/agents/AgentFormPage').then((m) => ({
+    default: m.AgentFormPage,
+  })),
 );
 
 const MastraSettings = () => {

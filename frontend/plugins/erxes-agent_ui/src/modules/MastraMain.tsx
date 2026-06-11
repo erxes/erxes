@@ -2,11 +2,15 @@ import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 
 const AgentsIndexPage = lazy(() =>
-  import('~/pages/agents/AgentsIndexPage').then((m) => ({ default: m.AgentsIndexPage })),
+  import('~/pages/agents/AgentsIndexPage').then((m) => ({
+    default: m.AgentsIndexPage,
+  })),
 );
 
 const AgentFormPage = lazy(() =>
-  import('~/pages/agents/AgentFormPage').then((m) => ({ default: m.AgentFormPage })),
+  import('~/pages/agents/AgentFormPage').then((m) => ({
+    default: m.AgentFormPage,
+  })),
 );
 
 const ChatPage = lazy(() =>

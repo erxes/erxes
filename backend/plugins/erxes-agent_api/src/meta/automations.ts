@@ -36,12 +36,23 @@ const workflowAutomationProducers = {
     const { action, execution } = input;
     const workflowId = action?.config?.workflowId;
     if (!workflowId) {
-      return { result: { success: false, error: 'No workflowId configured on this action' } };
+      return {
+        result: {
+          success: false,
+          error: 'No workflowId configured on this action',
+        },
+      };
     }
 
-    const workflow = await context.models.MastraWorkflow.getWorkflow(workflowId);
+    const workflow =
+      await context.models.MastraWorkflow.getWorkflow(workflowId);
     if (!workflow.isEnabled) {
-      return { result: { success: false, error: `Workflow "${workflow.name}" is disabled` } };
+      return {
+        result: {
+          success: false,
+          error: `Workflow "${workflow.name}" is disabled`,
+        },
+      };
     }
 
     const envelope = buildAutomationEnvelope({
@@ -55,7 +66,9 @@ const workflowAutomationProducers = {
       workflow,
       envelope,
     }).catch((e) => {
-      console.error(`[erxes-agent:workflows] automation-triggered run failed: ${e?.message}`);
+      console.error(
+        `[erxes-agent:workflows] automation-triggered run failed: ${e?.message}`,
+      );
       return null;
     });
 

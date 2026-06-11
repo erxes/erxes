@@ -36,7 +36,10 @@ import {
   Tooltip,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { MASTRA_AGENTS, MASTRA_ATTACHMENT_STORAGE_STATUS } from '~/graphql/queries';
+import {
+  MASTRA_AGENTS,
+  MASTRA_ATTACHMENT_STORAGE_STATUS,
+} from '~/graphql/queries';
 import { chatStore, ChatAttachment, Message, ToolCallInfo } from './chatStore';
 import './chat.css';
 
@@ -99,7 +102,13 @@ function parseInline(text: string): InlineNode[] {
     }
 
     let j = i + 1;
-    while (j < text.length && text[j] !== '`' && text[j] !== '*' && text[j] !== '_') j++;
+    while (
+      j < text.length &&
+      text[j] !== '`' &&
+      text[j] !== '*' &&
+      text[j] !== '_'
+    )
+      j++;
     nodes.push({ type: 'text', value: text.slice(i, j) });
     i = j;
   }
@@ -111,12 +120,18 @@ const InlineContent = ({ text }: { text: string }) => (
   <>
     {parseInline(text).map((node, i) => {
       if (node.type === 'bold')
-        return <strong key={i} className="font-semibold">{node.value}</strong>;
-      if (node.type === 'italic')
-        return <em key={i}>{node.value}</em>;
+        return (
+          <strong key={i} className="font-semibold">
+            {node.value}
+          </strong>
+        );
+      if (node.type === 'italic') return <em key={i}>{node.value}</em>;
       if (node.type === 'code')
         return (
-          <code key={i} className="bg-black/8 dark:bg-white/10 px-1 py-0.5 rounded text-[0.8em] font-mono">
+          <code
+            key={i}
+            className="bg-black/8 dark:bg-white/10 px-1 py-0.5 rounded text-[0.8em] font-mono"
+          >
             {node.value}
           </code>
         );
@@ -146,9 +161,19 @@ const BlockContent = ({ text }: { text: string }) => {
       ][level - 1];
       const content = <InlineContent text={hMatch[2]} />;
       blocks.push(
-        level === 1 ? <h1 key={key++} className={className}>{content}</h1>
-        : level === 2 ? <h2 key={key++} className={className}>{content}</h2>
-        : <h3 key={key++} className={className}>{content}</h3>
+        level === 1 ? (
+          <h1 key={key++} className={className}>
+            {content}
+          </h1>
+        ) : level === 2 ? (
+          <h2 key={key++} className={className}>
+            {content}
+          </h2>
+        ) : (
+          <h3 key={key++} className={className}>
+            {content}
+          </h3>
+        ),
       );
       i++;
       continue;
@@ -164,7 +189,11 @@ const BlockContent = ({ text }: { text: string }) => {
         );
         i++;
       }
-      blocks.push(<ul key={key++} className="list-disc pl-4 space-y-0.5 my-1">{items}</ul>);
+      blocks.push(
+        <ul key={key++} className="list-disc pl-4 space-y-0.5 my-1">
+          {items}
+        </ul>,
+      );
       continue;
     }
 
@@ -178,7 +207,11 @@ const BlockContent = ({ text }: { text: string }) => {
         );
         i++;
       }
-      blocks.push(<ol key={key++} className="list-decimal pl-4 space-y-0.5 my-1">{items}</ol>);
+      blocks.push(
+        <ol key={key++} className="list-decimal pl-4 space-y-0.5 my-1">
+          {items}
+        </ol>,
+      );
       continue;
     }
 
@@ -198,7 +231,10 @@ const BlockContent = ({ text }: { text: string }) => {
 
       // Parse a row into trimmed, non-empty cells.
       const parseRow = (row: string) =>
-        row.split('|').map((c) => c.trim()).filter((_, ci, arr) => ci > 0 && ci < arr.length - 1);
+        row
+          .split('|')
+          .map((c) => c.trim())
+          .filter((_, ci, arr) => ci > 0 && ci < arr.length - 1);
 
       const isSeparator = (row: string) => /^\s*\|[\s|:-]+\|\s*$/.test(row);
 
@@ -207,7 +243,10 @@ const BlockContent = ({ text }: { text: string }) => {
       const headers = parseRow(headerLine);
 
       blocks.push(
-        <div key={key++} className="my-2 overflow-x-auto rounded-lg border border-border">
+        <div
+          key={key++}
+          className="my-2 overflow-x-auto rounded-lg border border-border"
+        >
           <table className="w-full text-xs border-collapse">
             <thead>
               <tr className="bg-muted/60">
@@ -223,7 +262,10 @@ const BlockContent = ({ text }: { text: string }) => {
             </thead>
             <tbody>
               {dataLines.map((row, ri) => (
-                <tr key={ri} className={ri % 2 === 0 ? 'bg-background' : 'bg-muted/20'}>
+                <tr
+                  key={ri}
+                  className={ri % 2 === 0 ? 'bg-background' : 'bg-muted/20'}
+                >
                   {parseRow(row).map((cell, ci) => (
                     <td
                       key={ci}
@@ -293,8 +335,15 @@ const MarkdownContent = ({ content }: { content: string }) => {
           // before any rendering occurs (see chatVizSanitize.ts).
           if (lang === 'chart-viz') {
             let raw: unknown = null;
-            try { raw = JSON.parse(code); } catch { /* malformed — fall through to code block */ }
-            if (raw) return <ChatVizMessage key={idx} rawPayload={raw} className="my-2" />;
+            try {
+              raw = JSON.parse(code);
+            } catch {
+              /* malformed — fall through to code block */
+            }
+            if (raw)
+              return (
+                <ChatVizMessage key={idx} rawPayload={raw} className="my-2" />
+              );
           }
 
           return (
@@ -383,7 +432,11 @@ const formatFileSize = (size?: number) => {
 
 // Attachments render as their own block OUTSIDE the chat bubble — images as
 // standalone rounded cards, other files as download cards.
-const MessageAttachments = ({ attachments }: { attachments: ChatAttachment[] }) => {
+const MessageAttachments = ({
+  attachments,
+}: {
+  attachments: ChatAttachment[];
+}) => {
   const images = attachments.filter(isImageAttachment);
   const files = attachments.filter((a) => !isImageAttachment(a));
 
@@ -421,7 +474,9 @@ const MessageAttachments = ({ attachments }: { attachments: ChatAttachment[] }) 
             <IconFileText className="size-4 text-primary" />
           </span>
           <span className="min-w-0">
-            <span className="block truncate font-medium text-foreground">{att.name}</span>
+            <span className="block truncate font-medium text-foreground">
+              {att.name}
+            </span>
             {att.size ? (
               <span className="block text-muted-foreground mt-0.5">
                 {formatFileSize(att.size)}
@@ -494,7 +549,9 @@ const ComposerAttachmentChip = ({
     )}
     <span className="truncate">{att.name}</span>
     {att.size ? (
-      <span className="text-muted-foreground shrink-0">{formatFileSize(att.size)}</span>
+      <span className="text-muted-foreground shrink-0">
+        {formatFileSize(att.size)}
+      </span>
     ) : null}
     <button
       type="button"
@@ -579,7 +636,9 @@ const ThinkingSection = ({ text, live }: { text: string; live?: boolean }) => {
             expanded ? 'rotate-90' : ''
           } ${live ? 'text-primary' : ''}`}
         />
-        <IconSparkles className={`size-3.5 shrink-0 ${live ? 'text-primary animate-pulse' : ''}`} />
+        <IconSparkles
+          className={`size-3.5 shrink-0 ${live ? 'text-primary animate-pulse' : ''}`}
+        />
         {live ? (
           <span className="ea-shimmer-text font-medium">Thinking…</span>
         ) : (
@@ -613,7 +672,13 @@ const formatJson = (value: any): string => {
   }
 };
 
-const ToolCallRow = ({ call, streaming }: { call: ToolCallInfo; streaming?: boolean }) => {
+const ToolCallRow = ({
+  call,
+  streaming,
+}: {
+  call: ToolCallInfo;
+  streaming?: boolean;
+}) => {
   const [expanded, setExpanded] = useState(false);
   const pending = call.result === undefined && streaming;
 
@@ -636,7 +701,9 @@ const ToolCallRow = ({ call, streaming }: { call: ToolCallInfo; streaming?: bool
           }`}
         />
         <IconTool className="size-3.5 shrink-0 text-muted-foreground" />
-        <span className="font-mono truncate flex-1 text-left">{call.toolName}</span>
+        <span className="font-mono truncate flex-1 text-left">
+          {call.toolName}
+        </span>
         {pending ? (
           <span className="ea-tool-running size-2 shrink-0 rounded-full" />
         ) : call.isError ? (
@@ -692,7 +759,10 @@ const MessageBubble = ({
   }
 
   if (msg.role === 'user') {
-    const time = msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const time = msg.timestamp.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
     const hasText = !!msg.content.trim();
     return (
       <div className="flex flex-col items-end gap-1.5 ea-msg-in">
@@ -701,8 +771,12 @@ const MessageBubble = ({
         )}
         {hasText ? (
           <div className="max-w-[78%] bg-gradient-to-br from-primary to-primary/85 text-primary-foreground rounded-2xl rounded-br-md px-4 py-2.5 shadow-sm">
-            <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
-            <p className="text-[10px] mt-1 text-primary-foreground/60">{time}</p>
+            <p className="text-sm whitespace-pre-wrap leading-relaxed">
+              {msg.content}
+            </p>
+            <p className="text-[10px] mt-1 text-primary-foreground/60">
+              {time}
+            </p>
           </div>
         ) : (
           <p className="text-[10px] text-muted-foreground pr-1">{time}</p>
@@ -752,9 +826,14 @@ const MessageBubble = ({
         {!streaming && (
           <div className="flex items-center justify-between gap-2 mt-1.5">
             <p className="text-[10px] text-muted-foreground">
-              {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {msg.timestamp.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
               {msg.interrupted && (
-                <span className="ml-1.5 text-amber-600 dark:text-amber-500">· stopped</span>
+                <span className="ml-1.5 text-amber-600 dark:text-amber-500">
+                  · stopped
+                </span>
               )}
             </p>
             <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -798,10 +877,13 @@ export const ChatPage = () => {
   // Whether file attachments are usable: instance storage configured AND the
   // plugin toggle on. When off, the chat is text-only (no attach button).
   const { data: storageData } = useQuery(MASTRA_ATTACHMENT_STORAGE_STATUS);
-  const attachmentsEnabled = !!storageData?.mastraAttachmentStorageStatus?.enabled;
+  const attachmentsEnabled =
+    !!storageData?.mastraAttachmentStorageStatus?.enabled;
 
   const agents = (data?.mastraAgents || []).filter((a: any) => a.isEnabled);
-  const selectedAgent = agentId ? agents.find((a: any) => a._id === agentId) ?? null : null;
+  const selectedAgent = agentId
+    ? (agents.find((a: any) => a._id === agentId) ?? null)
+    : null;
 
   const [input, setInput] = useState('');
   const [pendingAtts, setPendingAtts] = useState<PendingAttachment[]>([]);
@@ -826,7 +908,9 @@ export const ChatPage = () => {
   // Track the viewed agent (clears its unread badge); clear on navigate away.
   useEffect(() => {
     chatStore.setCurrentAgent(agentId);
-    return () => { chatStore.setCurrentAgent(undefined); };
+    return () => {
+      chatStore.setCurrentAgent(undefined);
+    };
   }, [agentId]);
 
   // Load the agent's persisted sessions once its record is available.
@@ -867,7 +951,12 @@ export const ChatPage = () => {
     e.stopPropagation();
     if (!agentId || !selectedAgent) return;
     if (window.confirm('Delete this session and all its messages?')) {
-      chatStore.deleteSession(apolloClient, agentId, selectedAgent.agentId, threadId);
+      chatStore.deleteSession(
+        apolloClient,
+        agentId,
+        selectedAgent.agentId,
+        threadId,
+      );
     }
   };
 
@@ -882,8 +971,13 @@ export const ChatPage = () => {
       // distinct, readable name before it becomes the stored file name.
       if (/^image\.\w+$/i.test(file.name || '') || !file.name) {
         const ext = (file.type.split('/')[1] || 'png').replace('jpeg', 'jpg');
-        const stamp = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 19);
-        file = new File([file], `screenshot-${stamp}.${ext}`, { type: file.type });
+        const stamp = new Date()
+          .toISOString()
+          .replace(/[:T]/g, '-')
+          .slice(0, 19);
+        file = new File([file], `screenshot-${stamp}.${ext}`, {
+          type: file.type,
+        });
       }
 
       const id = `att-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -892,7 +986,9 @@ export const ChatPage = () => {
         name: file.name,
         type: file.type || 'application/octet-stream',
         size: file.size,
-        previewUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
+        previewUrl: file.type.startsWith('image/')
+          ? URL.createObjectURL(file)
+          : undefined,
         status: 'uploading',
       };
       setPendingAtts((prev) => [...prev, entry]);
@@ -900,14 +996,20 @@ export const ChatPage = () => {
       uploadToStorage(file)
         .then((key) => {
           setPendingAtts((prev) =>
-            prev.map((a) => (a.id === id ? { ...a, url: key, status: 'done' as const } : a)),
+            prev.map((a) =>
+              a.id === id ? { ...a, url: key, status: 'done' as const } : a,
+            ),
           );
         })
         .catch((err: any) => {
           setPendingAtts((prev) =>
             prev.map((a) =>
               a.id === id
-                ? { ...a, status: 'error' as const, error: err?.message || 'Upload failed' }
+                ? {
+                    ...a,
+                    status: 'error' as const,
+                    error: err?.message || 'Upload failed',
+                  }
                 : a,
             ),
           );
@@ -935,7 +1037,8 @@ export const ChatPage = () => {
   // Whole-chat-area drop target with a visible overlay. dragDepth guards
   // against the flicker from dragenter/dragleave firing on every child.
   const handleDragEnter = (e: React.DragEvent) => {
-    if (!attachmentsEnabled || !e.dataTransfer?.types?.includes('Files')) return;
+    if (!attachmentsEnabled || !e.dataTransfer?.types?.includes('Files'))
+      return;
     e.preventDefault();
     dragDepth.current += 1;
     setIsDragging(true);
@@ -960,16 +1063,31 @@ export const ChatPage = () => {
     if (!selectedAgent || !agentId) return;
     // Fire-and-forget: the store holds the Apollo client reference so the
     // request continues even if the user navigates away before it completes.
-    chatStore.sendMessage(apolloClient, agentId, selectedAgent.agentId, message, attachments);
+    chatStore.sendMessage(
+      apolloClient,
+      agentId,
+      selectedAgent.agentId,
+      message,
+      attachments,
+    );
   };
 
   const handleSend = () => {
-    if (!input.trim() || !selectedAgent || chatLoading || !agentId || uploadsInFlight) return;
+    if (
+      !input.trim() ||
+      !selectedAgent ||
+      chatLoading ||
+      !agentId ||
+      uploadsInFlight
+    )
+      return;
     const message = input.trim();
     const attachments: ChatAttachment[] = pendingAtts
       .filter((a) => a.status === 'done' && a.url)
       .map((a) => ({ url: a.url!, name: a.name, type: a.type, size: a.size }));
-    pendingAtts.forEach((a) => a.previewUrl && URL.revokeObjectURL(a.previewUrl));
+    pendingAtts.forEach(
+      (a) => a.previewUrl && URL.revokeObjectURL(a.previewUrl),
+    );
     setInput('');
     setPendingAtts([]);
     sendMessage(message, attachments);
@@ -1034,7 +1152,9 @@ export const ChatPage = () => {
                 <>
                   <Breadcrumb.Separator />
                   <Breadcrumb.Item>
-                    <span className="text-muted-foreground text-sm">{selectedAgent.name}</span>
+                    <span className="text-muted-foreground text-sm">
+                      {selectedAgent.name}
+                    </span>
                   </Breadcrumb.Item>
                 </>
               )}
@@ -1072,7 +1192,9 @@ export const ChatPage = () => {
             ) : agents.length === 0 ? (
               <div className="p-4 text-center">
                 <IconRobot className="size-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">No enabled agents.</p>
+                <p className="text-sm text-muted-foreground">
+                  No enabled agents.
+                </p>
               </div>
             ) : (
               <div className="p-1.5 space-y-0.5">
@@ -1102,7 +1224,9 @@ export const ChatPage = () => {
                           >
                             <IconRobot
                               className={`size-4 transition-colors ${
-                                isActive || isWorking ? 'text-primary' : 'text-muted-foreground'
+                                isActive || isWorking
+                                  ? 'text-primary'
+                                  : 'text-muted-foreground'
                               }`}
                             />
                           </div>
@@ -1111,7 +1235,9 @@ export const ChatPage = () => {
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium truncate leading-tight">{agent.name}</p>
+                          <p className="text-sm font-medium truncate leading-tight">
+                            {agent.name}
+                          </p>
                           <p className="text-xs text-muted-foreground truncate font-mono mt-0.5">
                             {agent.model}
                           </p>
@@ -1127,7 +1253,9 @@ export const ChatPage = () => {
                           </div>
                           <div className="ea-thought-bubble min-w-0 flex-1 rounded-lg rounded-tl-sm border border-primary/25 bg-background/85 px-2 py-1">
                             <p className="text-[10px] leading-snug break-words line-clamp-2">
-                              <span className="ea-shimmer-text">{activity}</span>
+                              <span className="ea-shimmer-text">
+                                {activity}
+                              </span>
                             </p>
                           </div>
                         </div>
@@ -1147,7 +1275,12 @@ export const ChatPage = () => {
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 Sessions
               </p>
-              <Button variant="ghost" size="icon" className="size-6" onClick={handleNewThread}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                onClick={handleNewThread}
+              >
                 <IconPlus className="size-3.5" />
               </Button>
             </div>
@@ -1160,60 +1293,70 @@ export const ChatPage = () => {
                 </div>
               ) : (
                 <>
-              {isDraft && (
-                <div
-                  className={`rounded-md px-2.5 py-2 ${
-                    activeThreadId && !sessions.some((s) => s.threadId === activeThreadId)
-                      ? 'bg-accent'
-                      : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <IconMessage2 className="size-3.5 text-muted-foreground shrink-0" />
-                    <p className="text-sm truncate flex-1">New chat</p>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground pl-5">Unsaved · send a message</p>
-                </div>
-              )}
-              {sessions.length === 0 && !isDraft ? (
-                <p className="text-xs text-muted-foreground px-2.5 py-3">No sessions yet.</p>
-              ) : (
-                sessions.map((s) => {
-                  const active = s.threadId === activeThreadId;
-                  const working = !!agentId && chatStore.isThreadWorking(agentId, s.threadId);
-                  return (
-                    <button
-                      key={s.threadId}
-                      onClick={() => handleSelectSession(s.threadId)}
-                      className={`group/sess w-full text-left rounded-md px-2.5 py-2 transition-all hover:bg-accent border-l-2 ${
-                        active
-                          ? 'bg-accent border-primary'
-                          : 'border-transparent hover:border-border'
-                      } ${working ? 'ea-working' : ''}`}
+                  {isDraft && (
+                    <div
+                      className={`rounded-md px-2.5 py-2 ${
+                        activeThreadId &&
+                        !sessions.some((s) => s.threadId === activeThreadId)
+                          ? 'bg-accent'
+                          : ''
+                      }`}
                     >
                       <div className="flex items-center gap-1.5">
-                        {working ? (
-                          <IconLoader2 className="size-3.5 text-primary shrink-0 animate-spin" />
-                        ) : (
-                          <IconMessage2 className="size-3.5 text-muted-foreground shrink-0" />
-                        )}
-                        <p className="text-sm truncate flex-1">{s.title}</p>
-                        <span
-                          role="button"
-                          tabIndex={0}
-                          onClick={(e) => handleDeleteSession(e, s.threadId)}
-                          className="opacity-0 group-hover/sess:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0"
-                        >
-                          <IconTrash className="size-3.5" />
-                        </span>
+                        <IconMessage2 className="size-3.5 text-muted-foreground shrink-0" />
+                        <p className="text-sm truncate flex-1">New chat</p>
                       </div>
                       <p className="text-[11px] text-muted-foreground pl-5">
-                        {s.messageCount} message{s.messageCount === 1 ? '' : 's'}
+                        Unsaved · send a message
                       </p>
-                    </button>
-                  );
-                })
-              )}
+                    </div>
+                  )}
+                  {sessions.length === 0 && !isDraft ? (
+                    <p className="text-xs text-muted-foreground px-2.5 py-3">
+                      No sessions yet.
+                    </p>
+                  ) : (
+                    sessions.map((s) => {
+                      const active = s.threadId === activeThreadId;
+                      const working =
+                        !!agentId &&
+                        chatStore.isThreadWorking(agentId, s.threadId);
+                      return (
+                        <button
+                          key={s.threadId}
+                          onClick={() => handleSelectSession(s.threadId)}
+                          className={`group/sess w-full text-left rounded-md px-2.5 py-2 transition-all hover:bg-accent border-l-2 ${
+                            active
+                              ? 'bg-accent border-primary'
+                              : 'border-transparent hover:border-border'
+                          } ${working ? 'ea-working' : ''}`}
+                        >
+                          <div className="flex items-center gap-1.5">
+                            {working ? (
+                              <IconLoader2 className="size-3.5 text-primary shrink-0 animate-spin" />
+                            ) : (
+                              <IconMessage2 className="size-3.5 text-muted-foreground shrink-0" />
+                            )}
+                            <p className="text-sm truncate flex-1">{s.title}</p>
+                            <span
+                              role="button"
+                              tabIndex={0}
+                              onClick={(e) =>
+                                handleDeleteSession(e, s.threadId)
+                              }
+                              className="opacity-0 group-hover/sess:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0"
+                            >
+                              <IconTrash className="size-3.5" />
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground pl-5">
+                            {s.messageCount} message
+                            {s.messageCount === 1 ? '' : 's'}
+                          </p>
+                        </button>
+                      );
+                    })
+                  )}
                 </>
               )}
             </div>
@@ -1232,8 +1375,12 @@ export const ChatPage = () => {
           {isDragging && selectedAgent && (
             <div className="ea-pop absolute inset-3 z-20 rounded-2xl border-2 border-dashed border-primary/50 bg-primary/6 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2 pointer-events-none">
               <IconFileUpload className="size-9 text-primary" />
-              <p className="text-sm font-medium text-primary">Drop files to attach</p>
-              <p className="text-xs text-muted-foreground">images · PDF · Excel · Word · CSV</p>
+              <p className="text-sm font-medium text-primary">
+                Drop files to attach
+              </p>
+              <p className="text-xs text-muted-foreground">
+                images · PDF · Excel · Word · CSV
+              </p>
             </div>
           )}
 
@@ -1286,13 +1433,18 @@ export const ChatPage = () => {
                           <IconRobot className="size-8 text-primary" />
                         </div>
                       </div>
-                      <p className="text-lg font-semibold">{selectedAgent.name}</p>
+                      <p className="text-lg font-semibold">
+                        {selectedAgent.name}
+                      </p>
                       {selectedAgent.description && (
                         <p className="text-sm text-muted-foreground max-w-sm">
                           {selectedAgent.description}
                         </p>
                       )}
-                      <Badge variant="secondary" className="font-mono text-xs mt-1">
+                      <Badge
+                        variant="secondary"
+                        className="font-mono text-xs mt-1"
+                      >
                         {selectedAgent.provider} · {selectedAgent.model}
                       </Badge>
                       <div className="flex flex-wrap justify-center gap-2 mt-4 max-w-md">
@@ -1333,7 +1485,9 @@ export const ChatPage = () => {
                           }
                         />
                       ))}
-                      {chatLoading && lastMsg?.role === 'user' && <WaitingIndicator />}
+                      {chatLoading && lastMsg?.role === 'user' && (
+                        <WaitingIndicator />
+                      )}
                     </>
                   )}
                   <div ref={messagesEndRef} />
@@ -1380,7 +1534,8 @@ export const ChatPage = () => {
                             multiple
                             className="hidden"
                             onChange={(e) => {
-                              if (e.target.files?.length) addFiles(e.target.files);
+                              if (e.target.files?.length)
+                                addFiles(e.target.files);
                               e.target.value = '';
                             }}
                           />
@@ -1392,7 +1547,9 @@ export const ChatPage = () => {
                                   variant="ghost"
                                   className="size-9 shrink-0 text-muted-foreground hover:text-primary transition-colors"
                                   onClick={() => fileInputRef.current?.click()}
-                                  disabled={chatLoading || pendingAtts.length >= 10}
+                                  disabled={
+                                    chatLoading || pendingAtts.length >= 10
+                                  }
                                 >
                                   <IconPaperclip className="size-4" />
                                 </Button>
@@ -1427,7 +1584,9 @@ export const ChatPage = () => {
                                 <IconPlayerStopFilled className="size-4" />
                               </Button>
                             </Tooltip.Trigger>
-                            <Tooltip.Content>Stop generating (Esc)</Tooltip.Content>
+                            <Tooltip.Content>
+                              Stop generating (Esc)
+                            </Tooltip.Content>
                           </Tooltip>
                         </Tooltip.Provider>
                       ) : (

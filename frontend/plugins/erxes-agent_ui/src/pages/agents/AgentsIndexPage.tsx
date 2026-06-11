@@ -159,7 +159,9 @@ const baseColumns: ColumnDef<IAgent>[] = [
           >
             {name}
           </Link>
-          <div className="font-mono text-xs text-muted-foreground">{agentId}</div>
+          <div className="font-mono text-xs text-muted-foreground">
+            {agentId}
+          </div>
           {description && (
             <div className="text-xs text-muted-foreground line-clamp-1">
               {description}
@@ -188,7 +190,9 @@ const baseColumns: ColumnDef<IAgent>[] = [
   {
     id: 'tools',
     accessorKey: 'toolPolicy',
-    header: () => <RecordTable.InlineHead icon={IconTool} label="Tool access" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconTool} label="Tool access" />
+    ),
     cell: ({ row }) => {
       const { toolPolicy, allowedTools } = row.original;
       const isRestricted = toolPolicy === 'custom';
@@ -197,7 +201,9 @@ const baseColumns: ColumnDef<IAgent>[] = [
         <RecordTableInlineCell>
           {isRestricted ? (
             <Badge variant="secondary">
-              {count > 0 ? `${count} rule${count !== 1 ? 's' : ''}` : 'No tools'}
+              {count > 0
+                ? `${count} rule${count !== 1 ? 's' : ''}`
+                : 'No tools'}
             </Badge>
           ) : (
             <Badge variant="success">All tools</Badge>
@@ -210,7 +216,9 @@ const baseColumns: ColumnDef<IAgent>[] = [
   {
     id: 'status',
     accessorKey: 'isEnabled',
-    header: () => <RecordTable.InlineHead icon={IconToggleRight} label="Status" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconToggleRight} label="Status" />
+    ),
     cell: ({ cell }) => {
       const isEnabled = cell.getValue() as boolean;
       return (
@@ -226,7 +234,9 @@ const baseColumns: ColumnDef<IAgent>[] = [
   {
     id: 'createdAt',
     accessorKey: 'createdAt',
-    header: () => <RecordTable.InlineHead icon={IconCalendar} label="Created" />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCalendar} label="Created" />
+    ),
     cell: ({ cell }) => (
       <RelativeDateDisplay value={cell.getValue() as string} asChild>
         <RecordTableInlineCell>
@@ -250,7 +260,9 @@ export const AgentsIndexPage = () => {
     () => [
       {
         id: 'more',
-        cell: ({ row }) => <AgentMoreCell agent={row.original} refetch={refetch} />,
+        cell: ({ row }) => (
+          <AgentMoreCell agent={row.original} refetch={refetch} />
+        ),
         size: 33,
       },
       RecordTable.checkboxColumn as ColumnDef<IAgent>,

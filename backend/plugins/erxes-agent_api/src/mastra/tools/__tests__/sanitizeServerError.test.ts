@@ -2,7 +2,9 @@ import { sanitizeServerError } from '../erxesTools';
 
 describe('sanitizeServerError', () => {
   it('hides internal "reading name" crashes from the user (the live bug)', () => {
-    const r = sanitizeServerError("Cannot read properties of undefined (reading 'name')");
+    const r = sanitizeServerError(
+      "Cannot read properties of undefined (reading 'name')",
+    );
     expect(r.error).not.toMatch(/reading|undefined|name/i);
     expect(r.error).toMatch(/could not be completed/i);
     expect(r.instruction).toMatch(/do NOT show this technical detail/i);

@@ -3,18 +3,42 @@ import { gql } from '@apollo/client';
 export const MASTRA_AGENTS = gql`
   query MastraAgents {
     mastraAgents {
-      _id name agentId description instructions provider model
-      toolPolicy allowedTools memoryEnabled maxSteps isEnabled createdAt updatedAt
+      _id
+      name
+      agentId
+      description
+      instructions
+      provider
+      model
+      toolPolicy
+      allowedTools
+      memoryEnabled
+      maxSteps
+      isEnabled
+      createdAt
+      updatedAt
     }
   }
 `;
 
 export const MASTRA_AGENTS_MAIN = gql`
   query MastraAgentsMain($page: Int, $perPage: Int, $searchValue: String) {
-    mastraAgentsMain(page: $page, perPage: $perPage, searchValue: $searchValue) {
+    mastraAgentsMain(
+      page: $page
+      perPage: $perPage
+      searchValue: $searchValue
+    ) {
       list {
-        _id name agentId description provider model
-        toolPolicy allowedTools isEnabled createdAt
+        _id
+        name
+        agentId
+        description
+        provider
+        model
+        toolPolicy
+        allowedTools
+        isEnabled
+        createdAt
       }
       totalCount
     }
@@ -24,14 +48,30 @@ export const MASTRA_AGENTS_MAIN = gql`
 export const MASTRA_AGENT = gql`
   query MastraAgent($_id: String!) {
     mastraAgent(_id: $_id) {
-      _id name agentId description instructions provider model
-      toolPolicy allowedTools memoryEnabled maxSteps isEnabled createdAt updatedAt
+      _id
+      name
+      agentId
+      description
+      instructions
+      provider
+      model
+      toolPolicy
+      allowedTools
+      memoryEnabled
+      maxSteps
+      isEnabled
+      createdAt
+      updatedAt
     }
   }
 `;
 
 export const MASTRA_AGENT_CHAT = gql`
-  query MastraAgentChat($agentId: String!, $message: String!, $threadId: String) {
+  query MastraAgentChat(
+    $agentId: String!
+    $message: String!
+    $threadId: String
+  ) {
     mastraAgentChat(agentId: $agentId, message: $message, threadId: $threadId)
   }
 `;
@@ -39,7 +79,12 @@ export const MASTRA_AGENT_CHAT = gql`
 export const MASTRA_THREADS = gql`
   query MastraThreads($agentId: String!) {
     mastraThreads(agentId: $agentId) {
-      _id threadId title messageCount lastMessageAt createdAt
+      _id
+      threadId
+      title
+      messageCount
+      lastMessageAt
+      createdAt
     }
   }
 `;
@@ -47,7 +92,12 @@ export const MASTRA_THREADS = gql`
 export const MASTRA_THREAD_MESSAGES = gql`
   query MastraThreadMessages($threadId: String!) {
     mastraThreadMessages(threadId: $threadId) {
-      _id role content meta attachments createdAt
+      _id
+      role
+      content
+      meta
+      attachments
+      createdAt
     }
   }
 `;
@@ -55,7 +105,9 @@ export const MASTRA_THREAD_MESSAGES = gql`
 export const MASTRA_ATTACHMENT_STORAGE_STATUS = gql`
   query MastraAttachmentStorageStatus {
     mastraAttachmentStorageStatus {
-      configured serviceType enabled
+      configured
+      serviceType
+      enabled
     }
   }
 `;
@@ -63,7 +115,13 @@ export const MASTRA_ATTACHMENT_STORAGE_STATUS = gql`
 export const MASTRA_AVAILABLE_ERXES_TOOLS = gql`
   query MastraAvailableErxesTools {
     mastraAvailableErxesTools {
-      plugin module operation operationType description graphqlArgs returnType
+      plugin
+      module
+      operation
+      operationType
+      description
+      graphqlArgs
+      returnType
     }
   }
 `;
@@ -71,8 +129,18 @@ export const MASTRA_AVAILABLE_ERXES_TOOLS = gql`
 export const MASTRA_PROVIDERS = gql`
   query MastraProviders {
     mastraProviders {
-      _id provider label apiKey baseUrl isDefault isEnabled
-      isOpenAICompatible modelsEndpoint envKey headers createdAt
+      _id
+      provider
+      label
+      apiKey
+      baseUrl
+      isDefault
+      isEnabled
+      isOpenAICompatible
+      modelsEndpoint
+      envKey
+      headers
+      createdAt
     }
   }
 `;
@@ -80,7 +148,10 @@ export const MASTRA_PROVIDERS = gql`
 export const MASTRA_PROVIDER_CATALOG = gql`
   query MastraProviderCatalog {
     mastraProviderCatalog {
-      provider label isOpenAICompatible isConfigured
+      provider
+      label
+      isOpenAICompatible
+      isConfigured
     }
   }
 `;
@@ -88,7 +159,13 @@ export const MASTRA_PROVIDER_CATALOG = gql`
 export const MASTRA_PROVIDER_PRESETS = gql`
   query MastraProviderPresets {
     mastraProviderPresets {
-      provider label isOpenAICompatible envKey baseUrl modelsEndpoint headers
+      provider
+      label
+      isOpenAICompatible
+      envKey
+      baseUrl
+      modelsEndpoint
+      headers
     }
   }
 `;
@@ -96,7 +173,8 @@ export const MASTRA_PROVIDER_PRESETS = gql`
 export const MASTRA_PROVIDER_MODELS = gql`
   query MastraProviderModels($provider: String!) {
     mastraProviderModels(provider: $provider) {
-      id name
+      id
+      name
     }
   }
 `;
@@ -104,17 +182,37 @@ export const MASTRA_PROVIDER_MODELS = gql`
 export const MASTRA_SETTINGS = gql`
   query MastraSettings {
     mastraSettings {
-      _id erxesApiUrl erxesApiToken defaultAgentId attachmentsEnabled
+      _id
+      erxesApiUrl
+      erxesApiToken
+      defaultAgentId
+      attachmentsEnabled
       attachmentStorage {
-        configured serviceType enabled
+        configured
+        serviceType
+        enabled
       }
       advancedMemory
       advancedMemoryStatus {
-        enabled embedder embedderModel qdrantUrl qdrantReachable collection
+        enabled
+        embedder
+        embedderModel
+        qdrantUrl
+        qdrantReachable
+        collection
       }
       knowledgeStatus {
-        enabled embedder embedderModel qdrantUrl qdrantReachable collection
-        enabledTypes lastSweepAt pointCount types lastError
+        enabled
+        embedder
+        embedderModel
+        qdrantUrl
+        qdrantReachable
+        collection
+        enabledTypes
+        lastSweepAt
+        pointCount
+        types
+        lastError
       }
     }
   }
@@ -123,7 +221,14 @@ export const MASTRA_SETTINGS = gql`
 export const MASTRA_WORKFLOWS = gql`
   query MastraWorkflows {
     mastraWorkflows {
-      _id name description definition version isEnabled createdAt updatedAt
+      _id
+      name
+      description
+      definition
+      version
+      isEnabled
+      createdAt
+      updatedAt
     }
   }
 `;
@@ -131,17 +236,39 @@ export const MASTRA_WORKFLOWS = gql`
 export const MASTRA_WORKFLOW = gql`
   query MastraWorkflow($_id: String!) {
     mastraWorkflow(_id: $_id) {
-      _id name description definition version isEnabled
-      createdByUserId createdAt updatedAt
+      _id
+      name
+      description
+      definition
+      version
+      isEnabled
+      createdByUserId
+      createdAt
+      updatedAt
     }
   }
 `;
 
 export const MASTRA_WORKFLOW_RUNS = gql`
   query MastraWorkflowRuns($workflowId: String!, $page: Int, $perPage: Int) {
-    mastraWorkflowRuns(workflowId: $workflowId, page: $page, perPage: $perPage) {
-      _id workflowId version runId status triggerEnvelope stepsSummary
-      output error usage startedAt finishedAt createdAt
+    mastraWorkflowRuns(
+      workflowId: $workflowId
+      page: $page
+      perPage: $perPage
+    ) {
+      _id
+      workflowId
+      version
+      runId
+      status
+      triggerEnvelope
+      stepsSummary
+      output
+      error
+      usage
+      startedAt
+      finishedAt
+      createdAt
     }
   }
 `;

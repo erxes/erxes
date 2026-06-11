@@ -1,27 +1,29 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
-import {
-  executeErxesOperation,
-  graphqlTypeToString,
-} from './erxesTools';
+import { executeErxesOperation, graphqlTypeToString } from './erxesTools';
 import { OperationMeta, OperationRegistry } from './operationRegistry';
 import { ToolPolicy, isOperationAllowed } from './scope';
 
 // LLMs sometimes pass the args object as a JSON string. Parse it back so the
 // execute tool always receives a real object.
 function coerceArgs(val: unknown): Record<string, any> {
-  if (val && typeof val === 'object' && !Array.isArray(val)) return val as Record<string, any>;
+  if (val && typeof val === 'object' && !Array.isArray(val))
+    return val as Record<string, any>;
   if (typeof val === 'string') {
     const trimmed = val.trim();
     if (!trimmed) return {};
     try {
       const parsed = JSON.parse(trimmed);
-      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed))
+        return parsed;
     } catch {
       try {
         const parsed = JSON.parse(trimmed.replace(/'/g, '"'));
-        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
-      } catch { /* fall through */ }
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed))
+          return parsed;
+      } catch {
+        /* fall through */
+      }
     }
   }
   return {};
@@ -87,7 +89,9 @@ export function buildErxesMetaTools(params: {
     inputSchema: z.object({
       query: z
         .string()
-        .describe('Keywords describing the action, e.g. "create deal" or "list customers".'),
+        .describe(
+          'Keywords describing the action, e.g. "create deal" or "list customers".',
+        ),
       operationType: z
         .enum(['query', 'mutation'])
         .optional()
@@ -97,7 +101,8 @@ export function buildErxesMetaTools(params: {
     outputSchema: z.any(),
     execute: async ({ query, operationType, limit }) => {
       let pool = allowedList();
-      if (operationType) pool = pool.filter((op) => op.operationType === operationType);
+      if (operationType)
+        pool = pool.filter((op) => op.operationType === operationType);
 
       const tokens = (query || '')
         .toLowerCase()
@@ -108,7 +113,9 @@ export function buildErxesMetaTools(params: {
       const max = limit ?? 12;
       let ranked: OperationMeta[];
       if (!tokens.length) {
-        ranked = [...pool].sort((a, b) => a.operation.localeCompare(b.operation)).slice(0, max);
+        ranked = [...pool]
+          .sort((a, b) => a.operation.localeCompare(b.operation))
+          .slice(0, max);
       } else {
         ranked = pool
           .map((op) => ({ op, score: scoreOperation(op, tokens) }))
@@ -144,11 +151,13 @@ export function buildErxesMetaTools(params: {
     inputSchema: z.object({
       operation: z
         .string()
-        .describe('Exact operation name from search_erxes_operations, e.g. "dealsAdd".'),
+        .describe(
+          'Exact operation name from search_erxes_operations, e.g. "dealsAdd".',
+        ),
       args: z
         .preprocess(coerceArgs, z.record(z.any()))
         .optional()
-        .describe('Arguments object keyed by the operation\'s argument names.'),
+        .describe("Arguments object keyed by the operation's argument names."),
     }),
     outputSchema: z.any(),
     execute: async ({ operation, args }) => {

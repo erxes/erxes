@@ -9,7 +9,11 @@ export default {
     // connectionResolvers. Types are enforced by `pnpm build` (tsc), not here.
     '^.+\\.[tj]s$': [
       'ts-jest',
-      { tsconfig: '<rootDir>/tsconfig.spec.json', isolatedModules: true, diagnostics: false },
+      {
+        tsconfig: '<rootDir>/tsconfig.spec.json',
+        isolatedModules: true,
+        diagnostics: false,
+      },
     ],
   },
   moduleFileExtensions: ['ts', 'js', 'html'],

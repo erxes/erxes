@@ -30,7 +30,11 @@ const linearDef = (): WorkflowDefinition =>
         operation: 'dealsAdd',
         args: { name: 'Order: {{steps.classify.output.productName}}' },
       },
-      { id: 'done', type: 'end', output: { dealId: '{{steps.create.output._id}}' } },
+      {
+        id: 'done',
+        type: 'end',
+        output: { dealId: '{{steps.create.output._id}}' },
+      },
     ],
   }) as any;
 
@@ -55,23 +59,38 @@ const branchDef = (): WorkflowDefinition =>
           {
             when: "{{steps.classify.output.intent}} == 'order'",
             steps: [
-              { id: 'createDeal', type: 'operation', operation: 'dealsAdd', args: { name: 'deal' } },
+              {
+                id: 'createDeal',
+                type: 'operation',
+                operation: 'dealsAdd',
+                args: { name: 'deal' },
+              },
             ],
           },
           {
             when: "{{steps.classify.output.intent}} == 'complaint'",
             steps: [
-              { id: 'createTicket', type: 'operation', operation: 'ticketsAdd', args: {} },
+              {
+                id: 'createTicket',
+                type: 'operation',
+                operation: 'ticketsAdd',
+                args: {},
+              },
             ],
           },
         ],
-        else: [{ id: 'logOther', type: 'operation', operation: 'logsAdd', args: {} }],
+        else: [
+          { id: 'logOther', type: 'operation', operation: 'logsAdd', args: {} },
+        ],
       },
       {
         id: 'notify',
         type: 'operation',
         operation: 'notify',
-        args: { dealId: '{{steps.createDeal.output._id}}', taken: '{{steps.route.output.taken}}' },
+        args: {
+          dealId: '{{steps.createDeal.output._id}}',
+          taken: '{{steps.route.output.taken}}',
+        },
       },
     ],
   }) as any;
@@ -87,20 +106,37 @@ const parallelDef = (): WorkflowDefinition =>
         id: 'fan',
         type: 'parallel',
         steps: [
-          { id: 'fetchA', type: 'operation', operation: 'customers', args: { q: 'a' } },
-          { id: 'fetchB', type: 'operation', operation: 'companies', args: { q: 'b' } },
+          {
+            id: 'fetchA',
+            type: 'operation',
+            operation: 'customers',
+            args: { q: 'a' },
+          },
+          {
+            id: 'fetchB',
+            type: 'operation',
+            operation: 'companies',
+            args: { q: 'b' },
+          },
         ],
       },
       {
         id: 'combine',
         type: 'operation',
         operation: 'merge',
-        args: { a: '{{steps.fetchA.output.n}}', b: '{{steps.fetchB.output.n}}' },
+        args: {
+          a: '{{steps.fetchA.output.n}}',
+          b: '{{steps.fetchB.output.n}}',
+        },
       },
     ],
   }) as any;
 
-const run = async (def: WorkflowDefinition, deps: CompiledDeps, payload: any) => {
+const run = async (
+  def: WorkflowDefinition,
+  deps: CompiledDeps,
+  payload: any,
+) => {
   const wf: any = compileDefinition('test_wf', def, deps);
   const handle = await wf.createRun();
   return handle.start({
@@ -122,13 +158,20 @@ describe('workflow compiler — linear', () => {
       },
     };
 
-    const result: any = await run(linearDef(), deps, { text: 'I want a chair' });
+    const result: any = await run(linearDef(), deps, {
+      text: 'I want a chair',
+    });
 
     expect(result.status).toBe('success');
     expect(calls[0].prompt).toBe('Customer said: I want a chair');
     expect(calls[0].agentBindingId).toBe('agent-1');
-    expect(calls[1]).toEqual({ operation: 'dealsAdd', args: { name: 'Order: Chair' } });
-    expect(finalOutput(linearDef(), result.result)).toEqual({ dealId: 'deal-9' });
+    expect(calls[1]).toEqual({
+      operation: 'dealsAdd',
+      args: { name: 'Order: Chair' },
+    });
+    expect(finalOutput(linearDef(), result.result)).toEqual({
+      dealId: 'deal-9',
+    });
     expect(result.steps.classify.status).toBe('success');
     expect(result.steps.create.status).toBe('success');
   });
@@ -141,21 +184,27 @@ describe('workflow compiler — linear', () => {
 
     const result: any = await run(linearDef(), deps, { text: 'hi' });
     expect(result.status).toBe('failed');
-    expect(String(result.error?.message || result.error)).toMatch(/not matching its schema/);
+    expect(String(result.error?.message || result.error)).toMatch(
+      /not matching its schema/,
+    );
     expect(result.steps.create).toBeUndefined();
   });
 
   it('fails the run when an operation handler throws (policy violation path)', async () => {
     const deps: CompiledDeps = {
       executeOperation: async () => {
-        throw new Error('operation "dealsAdd" is outside this workflow\'s policy');
+        throw new Error(
+          'operation "dealsAdd" is outside this workflow\'s policy',
+        );
       },
       runJudgment: async () => ({ intent: 'order', productName: 'Chair' }),
     };
 
     const result: any = await run(linearDef(), deps, { text: 'hi' });
     expect(result.status).toBe('failed');
-    expect(String(result.error?.message || result.error)).toMatch(/outside this workflow's policy/);
+    expect(String(result.error?.message || result.error)).toMatch(
+      /outside this workflow's policy/,
+    );
   });
 
   it('refuses to compile an invalid definition', () => {
@@ -181,18 +230,25 @@ describe('workflow compiler — branch', () => {
 
   it('takes the first matching arm and records it on the branch output', async () => {
     const ops: any[] = [];
-    const result: any = await run(branchDef(), mkDeps('order', ops), { text: 'buy' });
+    const result: any = await run(branchDef(), mkDeps('order', ops), {
+      text: 'buy',
+    });
 
     expect(result.status).toBe('success');
     expect(ops.map((o) => o.operation)).toEqual(['dealsAdd', 'notify']);
     // Post-branch step saw the arm's output AND which arm ran.
-    expect(ops[1].args).toEqual({ dealId: 'dealsAdd-id', taken: 'test_wf_route_b0' });
+    expect(ops[1].args).toEqual({
+      dealId: 'dealsAdd-id',
+      taken: 'test_wf_route_b0',
+    });
     expect(result.steps.createDeal.status).toBe('success');
   });
 
   it('routes to a later arm when earlier conditions are false', async () => {
     const ops: any[] = [];
-    const result: any = await run(branchDef(), mkDeps('complaint', ops), { text: 'bad' });
+    const result: any = await run(branchDef(), mkDeps('complaint', ops), {
+      text: 'bad',
+    });
 
     expect(result.status).toBe('success');
     expect(ops.map((o) => o.operation)).toEqual(['ticketsAdd', 'notify']);
@@ -202,7 +258,9 @@ describe('workflow compiler — branch', () => {
 
   it('falls through to else when no condition matches', async () => {
     const ops: any[] = [];
-    const result: any = await run(branchDef(), mkDeps('question', ops), { text: '?' });
+    const result: any = await run(branchDef(), mkDeps('question', ops), {
+      text: '?',
+    });
 
     expect(result.status).toBe('success');
     expect(ops.map((o) => o.operation)).toEqual(['logsAdd', 'notify']);
@@ -227,7 +285,9 @@ describe('workflow compiler — branch', () => {
     };
     const result: any = await run(branchDef(), deps, { text: 'buy' });
     expect(result.status).toBe('failed');
-    expect(String(result.error?.message || result.error)).toMatch(/boom inside arm/);
+    expect(String(result.error?.message || result.error)).toMatch(
+      /boom inside arm/,
+    );
   });
 });
 
@@ -245,11 +305,22 @@ describe('workflow compiler — parallel', () => {
     const result: any = await run(parallelDef(), deps, {});
 
     expect(result.status).toBe('success');
-    expect(ops.map((o) => o.operation).sort()).toEqual(['companies', 'customers', 'merge']);
+    expect(ops.map((o) => o.operation).sort()).toEqual([
+      'companies',
+      'customers',
+      'merge',
+    ]);
     // Post-parallel step read BOTH members' outputs from merged state.
     const merge = ops.find((o) => o.operation === 'merge');
-    expect(merge.args).toEqual({ a: 'customers'.length, b: 'companies'.length });
-    expect(finalOutput(parallelDef(), result.result)).toEqual({ n: 'merge'.length }); // last step's output
-    expect(result.result.steps.fan.output).toEqual({ completed: ['fetchA', 'fetchB'] });
+    expect(merge.args).toEqual({
+      a: 'customers'.length,
+      b: 'companies'.length,
+    });
+    expect(finalOutput(parallelDef(), result.result)).toEqual({
+      n: 'merge'.length,
+    }); // last step's output
+    expect(result.result.steps.fan.output).toEqual({
+      completed: ['fetchA', 'fetchB'],
+    });
   });
 });

@@ -5,7 +5,11 @@ export const providerMutations = {
     return models.MastraProvider.saveProvider(doc);
   },
 
-  mastraProviderRemove: async (_: any, { _id }: { _id: string }, { models }: IContext) => {
+  mastraProviderRemove: async (
+    _: any,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) => {
     return models.MastraProvider.removeProvider(_id);
   },
 };

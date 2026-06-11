@@ -25,46 +25,62 @@ function decodeEntities(s: string): string {
 }
 
 function stripTags(s: string): string {
-  return decodeEntities(s.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+  return decodeEntities(s.replace(/<[^>]+>/g, ' '))
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 // DuckDuckGo's HTML endpoint — no API key needed. Result hrefs are DDG
 // redirect URLs — the real target lives in the `uddg` query param. Ad slots
 // point at duckduckgo.com/y.js and are skipped.
-async function ddgSearch(query: string, limit: number): Promise<SearchResult[]> {
+async function ddgSearch(
+  query: string,
+  limit: number,
+): Promise<SearchResult[]> {
   const res = await fetch(
     `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`,
-    { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) },
+    {
+      headers: { 'User-Agent': UA },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    },
   );
   if (!res.ok) throw new Error(`DuckDuckGo search failed: ${res.status}`);
   const html = await res.text();
 
   const results: SearchResult[] = [];
-  const blockRe = /<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>[\s\S]*?class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g;
+  const blockRe =
+    /<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>[\s\S]*?class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g;
   let m: RegExpExecArray | null;
   while ((m = blockRe.exec(html)) && results.length < limit) {
     const href = decodeEntities(m[1]);
     const uddg = href.match(/[?&]uddg=([^&]+)/);
     const target = uddg ? decodeURIComponent(uddg[1]) : href;
     if (target.includes('duckduckgo.com/y.js')) continue;
-    results.push({ title: stripTags(m[2]), url: target, snippet: stripTags(m[3]) });
+    results.push({
+      title: stripTags(m[2]),
+      url: target,
+      snippet: stripTags(m[3]),
+    });
   }
   return results;
 }
 
 export const webSearchTool = createTool({
   id: 'web-search',
-  description: 'Search the web for any topic. Returns top results with titles, URLs and snippets. Use fetch-url to read a result in full.',
+  description:
+    'Search the web for any topic. Returns top results with titles, URLs and snippets. Use fetch-url to read a result in full.',
   inputSchema: z.object({
     query: z.string().describe('The search query'),
     limit: z.number().int().min(1).max(10).default(5).describe('Max results'),
   }),
   outputSchema: z.object({
-    results: z.array(z.object({
-      title: z.string(),
-      url: z.string(),
-      snippet: z.string(),
-    })),
+    results: z.array(
+      z.object({
+        title: z.string(),
+        url: z.string(),
+        snippet: z.string(),
+      }),
+    ),
   }),
   execute: async ({ query, limit }) => {
     return { results: await ddgSearch(query, limit ?? 5) };
@@ -75,12 +91,22 @@ function isPrivateIp(ip: string): boolean {
   if (ip.includes(':')) {
     const v6 = ip.toLowerCase();
     if (v6.startsWith('::ffff:')) return isPrivateIp(v6.slice(7));
-    return v6 === '::1' || v6 === '::' || v6.startsWith('fc') || v6.startsWith('fd') || v6.startsWith('fe80');
+    return (
+      v6 === '::1' ||
+      v6 === '::' ||
+      v6.startsWith('fc') ||
+      v6.startsWith('fd') ||
+      v6.startsWith('fe80')
+    );
   }
   const [a, b] = ip.split('.').map(Number);
   return (
-    a === 0 || a === 10 || a === 127 || a === 169 && b === 254 ||
-    (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168)
+    a === 0 ||
+    a === 10 ||
+    a === 127 ||
+    (a === 169 && b === 254) ||
+    (a === 172 && b >= 16 && b <= 31) ||
+    (a === 192 && b === 168)
   );
 }
 
@@ -98,7 +124,9 @@ async function assertPublicHttpUrl(raw: string): Promise<URL> {
   return url;
 }
 
-async function safeFetch(raw: string): Promise<{ res: Response; finalUrl: string }> {
+async function safeFetch(
+  raw: string,
+): Promise<{ res: Response; finalUrl: string }> {
   let url = await assertPublicHttpUrl(raw);
   for (let hop = 0; hop < 4; hop++) {
     const res = await fetch(url, {
@@ -120,9 +148,12 @@ const MAX_CONTENT_CHARS = 8_000;
 
 export const fetchUrlTool = createTool({
   id: 'fetch-url',
-  description: 'Fetch a public web page and return its readable text content. Use after web-search to read a result in full.',
+  description:
+    'Fetch a public web page and return its readable text content. Use after web-search to read a result in full.',
   inputSchema: z.object({
-    url: z.string().describe('Absolute http(s) URL, e.g. from web-search results'),
+    url: z
+      .string()
+      .describe('Absolute http(s) URL, e.g. from web-search results'),
   }),
   outputSchema: z.object({
     url: z.string(),
@@ -131,10 +162,13 @@ export const fetchUrlTool = createTool({
   }),
   execute: async ({ url }) => {
     const { res, finalUrl } = await safeFetch(url);
-    if (!res.ok) throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
+    if (!res.ok)
+      throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
 
     const body = (await res.text()).slice(0, 500_000);
-    const title = stripTags(body.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? '');
+    const title = stripTags(
+      body.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? '',
+    );
     const content = stripTags(
       body
         .replace(/<script[\s\S]*?<\/script>/gi, ' ')
@@ -142,13 +176,18 @@ export const fetchUrlTool = createTool({
         .replace(/<(nav|header|footer|noscript)[\s\S]*?<\/\1>/gi, ' '),
     ).slice(0, MAX_CONTENT_CHARS);
 
-    return { url: finalUrl, title, content: content || 'No readable content found.' };
+    return {
+      url: finalUrl,
+      title,
+      content: content || 'No readable content found.',
+    };
   },
 });
 
 export const calculatorTool = createTool({
   id: 'calculator',
-  description: 'Evaluate a mathematical expression and return the numeric result.',
+  description:
+    'Evaluate a mathematical expression and return the numeric result.',
   inputSchema: z.object({
     expression: z.string().describe('Math expression, e.g. "2 + 2 * 10"'),
   }),
@@ -171,11 +210,13 @@ export const calculatorTool = createTool({
 // code block so the chat UI renders it as an interactive chart.
 
 const SAFE_CSS_VAR_KEY = /^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/;
-const SAFE_CSS_COLOR = /^(#[0-9a-fA-F]{3,8}|rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)|hsl\(\s*\d{1,3}\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%\s*\))$/;
+const SAFE_CSS_COLOR =
+  /^(#[0-9a-fA-F]{3,8}|rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)|hsl\(\s*\d{1,3}\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%\s*\))$/;
 
 const seriesItemSchema = z.object({
   key: z.string().refine((v) => SAFE_CSS_VAR_KEY.test(v), {
-    message: 'key must start with a letter and contain only alphanumeric, dash, or underscore chars',
+    message:
+      'key must start with a letter and contain only alphanumeric, dash, or underscore chars',
   }),
   label: z.string().max(200),
   color: z.string().optional(),
@@ -193,12 +234,20 @@ export const renderChartTool = createTool({
     chartType: z.enum(['bar', 'line', 'area', 'pie']).describe('Chart type'),
     title: z.string().max(200).describe('Chart title shown above the chart'),
     description: z.string().max(200).optional().describe('Optional subtitle'),
-    series: z.array(seriesItemSchema).min(1).max(10).describe(
-      'Data series. Each entry maps a key (used as dataKey in data rows) to a label and optional color.',
-    ),
-    data: z.array(dataPointSchema).min(1).max(100).describe(
-      'Data rows. Each row must have a "label" string field and numeric values for every series key.',
-    ),
+    series: z
+      .array(seriesItemSchema)
+      .min(1)
+      .max(10)
+      .describe(
+        'Data series. Each entry maps a key (used as dataKey in data rows) to a label and optional color.',
+      ),
+    data: z
+      .array(dataPointSchema)
+      .min(1)
+      .max(100)
+      .describe(
+        'Data rows. Each row must have a "label" string field and numeric values for every series key.',
+      ),
   }),
   outputSchema: z.object({ chartJson: z.string() }),
   execute: async ({ chartType, title, description, series, data }) => {
@@ -208,14 +257,17 @@ export const renderChartTool = createTool({
         key: s.key,
         label: s.label.slice(0, 200),
         color:
-          s.color && SAFE_CSS_COLOR.test(s.color.trim()) ? s.color.trim() : undefined,
+          s.color && SAFE_CSS_COLOR.test(s.color.trim())
+            ? s.color.trim()
+            : undefined,
       }));
 
     const validKeys = new Set(cleanSeries.map((s) => s.key));
 
     const cleanData = data.map((row) => {
       const point: Record<string, string | number> = {
-        label: typeof row['label'] === 'string' ? row['label'].slice(0, 200) : '',
+        label:
+          typeof row['label'] === 'string' ? row['label'].slice(0, 200) : '',
       };
       for (const key of validKeys) {
         const k = key as string;

@@ -66,7 +66,8 @@ export function sanitizeTitle(raw: string | null | undefined): string | null {
   t = t.replace(/^title\s*:\s*/i, '');
   t = t.replace(/^["'`“”‘’]+|["'`“”‘’.]+$/g, '').trim();
   if (!t) return null;
-  if (t.length > TITLE_MAX_CHARS) t = t.slice(0, TITLE_MAX_CHARS).trimEnd() + '…';
+  if (t.length > TITLE_MAX_CHARS)
+    t = t.slice(0, TITLE_MAX_CHARS).trimEnd() + '…';
   return t;
 }
 
@@ -108,12 +109,16 @@ export async function maybeGenerateThreadTitle(params: {
   authCtx: any;
   isLegacy: boolean;
 }): Promise<string | null> {
-  const { models, threadId, provider, model, providers, authCtx, isLegacy } = params;
+  const { models, threadId, provider, model, providers, authCtx, isLegacy } =
+    params;
   try {
     const thread = await models.MastraThread.findOne({ threadId });
     if (!thread || !shouldGenerateTitle(thread)) return null;
 
-    const history = await models.MastraMessage.getRecent(threadId, TRANSCRIPT_MESSAGES);
+    const history = await models.MastraMessage.getRecent(
+      threadId,
+      TRANSCRIPT_MESSAGES,
+    );
     if (!history.length) return null;
 
     const transcript = buildTranscript(
@@ -128,10 +133,15 @@ export async function maybeGenerateThreadTitle(params: {
         content: `Transcript:\n${transcript}\n\nOutput the title.`,
       },
     ];
-    const result: any = await runWithAuth(authCtx, () =>
-      (isLegacy
-        ? titler.generateLegacy(msgs as any)
-        : titler.generate(msgs as any, { maxSteps: 1 } as any)) as Promise<any>,
+    const result: any = await runWithAuth(
+      authCtx,
+      () =>
+        (isLegacy
+          ? titler.generateLegacy(msgs as any)
+          : titler.generate(
+              msgs as any,
+              { maxSteps: 1 } as any,
+            )) as Promise<any>,
     );
 
     const title = sanitizeTitle(result?.text);
@@ -145,7 +155,9 @@ export async function maybeGenerateThreadTitle(params: {
     return applied ? title : null;
   } catch (e: any) {
     // eslint-disable-next-line no-console
-    console.warn(`[mastra:titler] title generation skipped: ${e?.message || e}`);
+    console.warn(
+      `[mastra:titler] title generation skipped: ${e?.message || e}`,
+    );
     return null;
   }
 }

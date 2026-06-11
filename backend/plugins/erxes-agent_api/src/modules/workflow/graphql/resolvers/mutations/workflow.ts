@@ -18,25 +18,42 @@ const validateWithRegistry = async (models: any, definition: any) => {
   const registry = await getOperationRegistry(settings);
   const result = validateDefinition(definition, registry);
   if (!result.ok) {
-    const lines = result.errors.map((e) => `${e.path}: ${e.message}`).join('\n');
+    const lines = result.errors
+      .map((e) => `${e.path}: ${e.message}`)
+      .join('\n');
     throw new Error(`Workflow definition is invalid:\n${lines}`);
   }
 };
 
 export const workflowMutations = {
-  mastraWorkflowCreate: async (_: any, { doc }: any, { models, user }: IContext) => {
+  mastraWorkflowCreate: async (
+    _: any,
+    { doc }: any,
+    { models, user }: IContext,
+  ) => {
     const userId = requireUserId(user);
     await validateWithRegistry(models, doc.definition);
-    return models.MastraWorkflow.createWorkflow({ ...doc, createdByUserId: userId });
+    return models.MastraWorkflow.createWorkflow({
+      ...doc,
+      createdByUserId: userId,
+    });
   },
 
-  mastraWorkflowUpdate: async (_: any, { _id, doc }: any, { models, user }: IContext) => {
+  mastraWorkflowUpdate: async (
+    _: any,
+    { _id, doc }: any,
+    { models, user }: IContext,
+  ) => {
     requireUserId(user);
     if (doc.definition) await validateWithRegistry(models, doc.definition);
     return models.MastraWorkflow.updateWorkflow(_id, doc);
   },
 
-  mastraWorkflowRemove: async (_: any, { _id }: { _id: string }, { models, user }: IContext) => {
+  mastraWorkflowRemove: async (
+    _: any,
+    { _id }: { _id: string },
+    { models, user }: IContext,
+  ) => {
     requireUserId(user);
     return models.MastraWorkflow.removeWorkflow(_id);
   },
@@ -52,7 +69,11 @@ export const workflowMutations = {
 
   // Dry validation for the master agent's draft loop — returns structured
   // errors instead of throwing, so the model can iterate.
-  mastraWorkflowValidate: async (_: any, { definition }: any, { models, user }: IContext) => {
+  mastraWorkflowValidate: async (
+    _: any,
+    { definition }: any,
+    { models, user }: IContext,
+  ) => {
     requireUserId(user);
     const settings = await models.MastraSettings.getSettings();
     const registry = await getOperationRegistry(settings);

@@ -29,7 +29,8 @@ function withReasoningContentShim(
               m?.role === 'assistant' &&
               Array.isArray(m.tool_calls) &&
               m.tool_calls.length > 0 &&
-              (m.reasoning_content === undefined || m.reasoning_content === null)
+              (m.reasoning_content === undefined ||
+                m.reasoning_content === null)
             ) {
               m.reasoning_content = '';
               mutated = true;
@@ -47,8 +48,13 @@ function withReasoningContentShim(
 
 // Kimi/Moonshot reasoning models need the shim above; other OpenAI-compatible
 // providers (NVIDIA NIM, etc.) must not receive the extra field.
-function needsReasoningContentShim(providerName: string, baseURL: string): boolean {
-  return /kimi|moonshot/i.test(providerName) || /kimi\.com|moonshot/i.test(baseURL);
+function needsReasoningContentShim(
+  providerName: string,
+  baseURL: string,
+): boolean {
+  return (
+    /kimi|moonshot/i.test(providerName) || /kimi\.com|moonshot/i.test(baseURL)
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -177,7 +183,9 @@ export const NATIVE_ERXES_AGENT_PROVIDERS = new Set([
 export function isLegacyProvider(providerName: string, docs: any[]): boolean {
   const preset = PROVIDER_PRESETS.find((p) => p.provider === providerName);
   const doc = docs.find((d: any) => d.provider === providerName);
-  return preset?.isOpenAICompatible === true || doc?.isOpenAICompatible === true;
+  return (
+    preset?.isOpenAICompatible === true || doc?.isOpenAICompatible === true
+  );
 }
 
 /**
@@ -189,8 +197,14 @@ export function isLegacyProvider(providerName: string, docs: any[]): boolean {
  * @param modelId       The model id stored on the agent
  * @param providerDocs  Enabled provider documents fetched from DB
  */
-export function buildModel(providerName: string, modelId: string, providerDocs: any[]): any {
-  const stored = providerDocs.find((p: any) => p.provider === providerName && p.isEnabled);
+export function buildModel(
+  providerName: string,
+  modelId: string,
+  providerDocs: any[],
+): any {
+  const stored = providerDocs.find(
+    (p: any) => p.provider === providerName && p.isEnabled,
+  );
   const preset = PROVIDER_PRESETS.find((p) => p.provider === providerName);
 
   // Resolve API key: DB record first, then env var (DB envKey, then preset envKey)
@@ -200,14 +214,17 @@ export function buildModel(providerName: string, modelId: string, providerDocs: 
   // Preset is authoritative for isOpenAICompatible on known providers.
   // `||` (not `??`) so that a Mongoose default: false on a DB doc inserted
   // before the field existed cannot mask a preset that says true.
-  const isOpenAICompatible = preset?.isOpenAICompatible === true
-    || stored?.isOpenAICompatible === true;
+  const isOpenAICompatible =
+    preset?.isOpenAICompatible === true || stored?.isOpenAICompatible === true;
 
   if (isOpenAICompatible) {
     const baseURL = stored?.baseUrl || preset?.baseUrl || '';
     // Merge preset defaults with stored overrides (stored wins). Required for
     // gated endpoints like Kimi For Coding that demand a coding-agent User-Agent.
-    const mergedHeaders = { ...(preset?.headers || {}), ...(stored?.headers || {}) };
+    const mergedHeaders = {
+      ...(preset?.headers || {}),
+      ...(stored?.headers || {}),
+    };
     const provider = createOpenAICompatible({
       name: providerName,
       baseURL,

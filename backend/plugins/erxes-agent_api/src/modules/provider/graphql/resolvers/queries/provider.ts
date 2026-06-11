@@ -6,7 +6,11 @@ export const providerQueries = {
     return models.MastraProvider.getProviders();
   },
 
-  mastraProvider: async (_: any, { _id }: { _id: string }, { models }: IContext) => {
+  mastraProvider: async (
+    _: any,
+    { _id }: { _id: string },
+    { models }: IContext,
+  ) => {
     return models.MastraProvider.getProvider(_id);
   },
 
@@ -18,7 +22,9 @@ export const providerQueries = {
 
   // Returns all known providers (from presets list) enriched with isConfigured.
   mastraProviderCatalog: async (_: any, __: any, { models }: IContext) => {
-    const storedProviders = await models.MastraProvider.find({ isEnabled: true });
+    const storedProviders = await models.MastraProvider.find({
+      isEnabled: true,
+    });
     const storedSet = new Set(storedProviders.map((p: any) => p.provider));
 
     return PROVIDER_PRESETS.map((preset) => ({
@@ -47,16 +53,23 @@ export const providerQueries = {
     // Fall back to preset data for missing fields
     const preset = PROVIDER_PRESETS.find((p) => p.provider === provider);
 
-    const apiKey = stored?.apiKey || (stored?.envKey ? process.env[stored.envKey] : undefined)
-      || (preset?.envKey ? process.env[preset.envKey] : undefined);
+    const apiKey =
+      stored?.apiKey ||
+      (stored?.envKey ? process.env[stored.envKey] : undefined) ||
+      (preset?.envKey ? process.env[preset.envKey] : undefined);
 
     // `||` (not `??`) on purpose: the Add Provider form saves untouched fields
     // as empty strings, and a stored `modelsEndpoint: ''` must not shadow the
     // preset endpoint or the {baseUrl}/models convention.
-    const endpoint = stored?.modelsEndpoint
-      || preset?.modelsEndpoint
-      || (stored?.isOpenAICompatible && stored?.baseUrl ? `${stored.baseUrl}/models` : undefined)
-      || (preset?.isOpenAICompatible && preset?.baseUrl ? `${preset.baseUrl}/models` : undefined);
+    const endpoint =
+      stored?.modelsEndpoint ||
+      preset?.modelsEndpoint ||
+      (stored?.isOpenAICompatible && stored?.baseUrl
+        ? `${stored.baseUrl}/models`
+        : undefined) ||
+      (preset?.isOpenAICompatible && preset?.baseUrl
+        ? `${preset.baseUrl}/models`
+        : undefined);
 
     if (!endpoint || !apiKey) return [];
 
@@ -93,24 +106,34 @@ export const providerQueries = {
       const list: any[] = Array.isArray(json.data)
         ? json.data
         : Array.isArray(json.models)
-        ? json.models
-        : [];
+          ? json.models
+          : [];
 
-      return list
-        // Google lists embedding/vision-only entries too — keep chat models.
-        .filter(
-          (m: any) =>
-            !Array.isArray(m.supportedGenerationMethods) ||
-            m.supportedGenerationMethods.includes('generateContent'),
-        )
-        .map((m: any) => {
-          const id = m.id || (typeof m.name === 'string' ? m.name.replace(/^models\//, '') : '');
-          return {
-            id,
-            name: m.display_name || m.displayName || (m.id ? m.name : undefined) || id,
-          };
-        })
-        .filter((m: any) => m.id);
+      return (
+        list
+          // Google lists embedding/vision-only entries too — keep chat models.
+          .filter(
+            (m: any) =>
+              !Array.isArray(m.supportedGenerationMethods) ||
+              m.supportedGenerationMethods.includes('generateContent'),
+          )
+          .map((m: any) => {
+            const id =
+              m.id ||
+              (typeof m.name === 'string'
+                ? m.name.replace(/^models\//, '')
+                : '');
+            return {
+              id,
+              name:
+                m.display_name ||
+                m.displayName ||
+                (m.id ? m.name : undefined) ||
+                id,
+            };
+          })
+          .filter((m: any) => m.id)
+      );
     } catch (e: any) {
       console.warn(
         `[mastra:providers] model listing for "${provider}" failed: ${e?.message || e}`,

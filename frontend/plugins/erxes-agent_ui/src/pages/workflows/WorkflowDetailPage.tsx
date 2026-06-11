@@ -212,7 +212,9 @@ const RunRow = ({ run }: { run: any }) => {
 export const WorkflowDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [definitionView, setDefinitionView] = useState<'graph' | 'json'>('graph');
+  const [definitionView, setDefinitionView] = useState<'graph' | 'json'>(
+    'graph',
+  );
 
   const { data: workflowData, refetch: refetchWorkflow } = useQuery(
     MASTRA_WORKFLOW,
@@ -291,7 +293,10 @@ export const WorkflowDetailPage = () => {
           >
             <IconPencil /> Edit
           </Button>
-          <RunNowButton workflowId={workflow._id} onStarted={() => refetchRuns()} />
+          <RunNowButton
+            workflowId={workflow._id}
+            onStarted={() => refetchRuns()}
+          />
         </PageHeader.End>
       </PageHeader>
 
@@ -342,14 +347,18 @@ export const WorkflowDetailPage = () => {
                   <div className="flex items-center gap-1">
                     <Button
                       size="sm"
-                      variant={definitionView === 'graph' ? 'secondary' : 'ghost'}
+                      variant={
+                        definitionView === 'graph' ? 'secondary' : 'ghost'
+                      }
                       onClick={() => setDefinitionView('graph')}
                     >
                       Graph
                     </Button>
                     <Button
                       size="sm"
-                      variant={definitionView === 'json' ? 'secondary' : 'ghost'}
+                      variant={
+                        definitionView === 'json' ? 'secondary' : 'ghost'
+                      }
                       onClick={() => setDefinitionView('json')}
                     >
                       JSON

@@ -59,10 +59,7 @@ export function ChatVizPie({ payload, className }: Props) {
           strokeWidth={2}
         >
           {payload.data.map((_, i) => (
-            <Cell
-              key={i}
-              fill={`hsl(var(--chart-${(i % 5) + 1}))`}
-            />
+            <Cell key={i} fill={`hsl(var(--chart-${(i % 5) + 1}))`} />
           ))}
         </Pie>
         <ChartLegend

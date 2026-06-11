@@ -1,5 +1,8 @@
 import { validateDefinition, buildOutputZod, MAX_STEPS } from '../dsl';
-import type { OperationRegistry, OperationMeta } from '../../tools/operationRegistry';
+import type {
+  OperationRegistry,
+  OperationMeta,
+} from '../../tools/operationRegistry';
 
 const validDef = () => ({
   trigger: { type: 'manual', config: {} },
@@ -12,7 +15,11 @@ const validDef = () => ({
       type: 'agent',
       agentRef: 'judge',
       prompt: 'Classify: {{trigger.payload.text}}',
-      outputSchema: { intent: 'enum:order,question', reply: 'string', note: 'string?' },
+      outputSchema: {
+        intent: 'enum:order,question',
+        reply: 'string',
+        note: 'string?',
+      },
     },
     {
       id: 'create',
@@ -63,44 +70,63 @@ describe('workflow DSL', () => {
     const def = validDef();
     (def.steps[1] as any).id = 'classify';
     const result = validateDefinition(def);
-    expect(result.errors.some((e) => /duplicate step id/.test(e.message))).toBe(true);
+    expect(result.errors.some((e) => /duplicate step id/.test(e.message))).toBe(
+      true,
+    );
   });
 
   it('rejects refs to steps that execute later', () => {
     const def = validDef();
     (def.steps[0] as any).prompt = 'see {{steps.create.output.x}}';
     const result = validateDefinition(def);
-    expect(result.errors.some((e) => /does not execute before/.test(e.message))).toBe(true);
+    expect(
+      result.errors.some((e) => /does not execute before/.test(e.message)),
+    ).toBe(true);
   });
 
   it('rejects unknown binding refs and non-agent bindings', () => {
     const def = validDef();
     (def.steps[0] as any).agentRef = 'ghost';
     const result = validateDefinition(def);
-    expect(result.errors.some((e) => /no entry in bindings/.test(e.message))).toBe(true);
+    expect(
+      result.errors.some((e) => /no entry in bindings/.test(e.message)),
+    ).toBe(true);
   });
 
   it('rejects step types the compiler cannot execute yet', () => {
     const def = validDef();
-    def.steps.splice(1, 0, { id: 'gate', type: 'approval', message: 'ok?' } as any);
+    def.steps.splice(1, 0, {
+      id: 'gate',
+      type: 'approval',
+      message: 'ok?',
+    } as any);
     const result = validateDefinition(def);
-    expect(result.errors.some((e) => /not supported by the compiler yet/.test(e.message))).toBe(
-      true,
-    );
+    expect(
+      result.errors.some((e) =>
+        /not supported by the compiler yet/.test(e.message),
+      ),
+    ).toBe(true);
   });
 
   it('requires "end" to be the last step', () => {
     const def = validDef();
     def.steps.unshift({ id: 'early', type: 'end' } as any);
     const result = validateDefinition(def);
-    expect(result.errors.some((e) => /must be the last step/.test(e.message))).toBe(true);
+    expect(
+      result.errors.some((e) => /must be the last step/.test(e.message)),
+    ).toBe(true);
   });
 
   it('with a registry: rejects nonexistent operations', () => {
-    const result = validateDefinition(validDef(), mkRegistry([{ operation: 'somethingElse' }]));
-    expect(result.errors.some((e) => /does not exist on this instance/.test(e.message))).toBe(
-      true,
+    const result = validateDefinition(
+      validDef(),
+      mkRegistry([{ operation: 'somethingElse' }]),
     );
+    expect(
+      result.errors.some((e) =>
+        /does not exist on this instance/.test(e.message),
+      ),
+    ).toBe(true);
   });
 
   it('with a registry: rejects operations outside a custom policy', () => {
@@ -110,7 +136,11 @@ describe('workflow DSL', () => {
       def,
       mkRegistry([{ operation: 'dealsAdd', plugin: 'sales', module: 'deals' }]),
     );
-    expect(result.errors.some((e) => /outside this workflow's policy/.test(e.message))).toBe(true);
+    expect(
+      result.errors.some((e) =>
+        /outside this workflow's policy/.test(e.message),
+      ),
+    ).toBe(true);
   });
 
   it('with a registry: accepts operations covered by plugin: policy entries', () => {
@@ -150,13 +180,21 @@ describe('buildOutputZod', () => {
   });
 
   it('accepts conforming output', () => {
-    const parsed = schema.safeParse({ intent: 'order', reply: 'hi', urgent: false });
+    const parsed = schema.safeParse({
+      intent: 'order',
+      reply: 'hi',
+      urgent: false,
+    });
     expect(parsed.success).toBe(true);
   });
 
   it('rejects out-of-enum values and missing required fields', () => {
-    expect(schema.safeParse({ intent: 'refund', reply: 'hi', urgent: true }).success).toBe(false);
-    expect(schema.safeParse({ intent: 'order', urgent: true }).success).toBe(false);
+    expect(
+      schema.safeParse({ intent: 'refund', reply: 'hi', urgent: true }).success,
+    ).toBe(false);
+    expect(schema.safeParse({ intent: 'order', urgent: true }).success).toBe(
+      false,
+    );
   });
 });
 
@@ -165,7 +203,9 @@ describe('schedule trigger validation', () => {
     const def = validDef();
     (def.trigger as any) = { type: 'schedule', config: {} };
     const result = validateDefinition(def);
-    expect(result.errors.some((e) => /requires config\.cron/.test(e.message))).toBe(true);
+    expect(
+      result.errors.some((e) => /requires config\.cron/.test(e.message)),
+    ).toBe(true);
   });
 
   it('accepts a 5-field cron and rejects garbage', () => {
@@ -173,9 +213,14 @@ describe('schedule trigger validation', () => {
     (def.trigger as any) = { type: 'schedule', config: { cron: '0 9 * * *' } };
     expect(validateDefinition(def).ok).toBe(true);
 
-    (def.trigger as any) = { type: 'schedule', config: { cron: 'every morning' } };
+    (def.trigger as any) = {
+      type: 'schedule',
+      config: { cron: 'every morning' },
+    };
     expect(
-      validateDefinition(def).errors.some((e) => /requires config\.cron/.test(e.message)),
+      validateDefinition(def).errors.some((e) =>
+        /requires config\.cron/.test(e.message),
+      ),
     ).toBe(true);
   });
 });
@@ -185,13 +230,23 @@ describe('review fixes', () => {
     const def = validDef();
     (def.steps[1] as any).args = { name: '{{steps.classify.output.items[0]}}' };
     const result = validateDefinition(def);
-    expect(result.errors.some((e) => /malformed reference/.test(e.message))).toBe(true);
+    expect(
+      result.errors.some((e) => /malformed reference/.test(e.message)),
+    ).toBe(true);
   });
 
   it('rejects wait steps until the resume worker ships', () => {
     const def = validDef();
-    def.steps.splice(1, 0, { id: 'pause', type: 'wait', duration: 1000 } as any);
+    def.steps.splice(1, 0, {
+      id: 'pause',
+      type: 'wait',
+      duration: 1000,
+    } as any);
     const result = validateDefinition(def);
-    expect(result.errors.some((e) => /not supported by the compiler yet/.test(e.message))).toBe(true);
+    expect(
+      result.errors.some((e) =>
+        /not supported by the compiler yet/.test(e.message),
+      ),
+    ).toBe(true);
   });
 });

@@ -91,7 +91,8 @@ export function checkRef(
   if (root === 'bindings') {
     const key = segs[1];
     if (!key) return `ref "${path}" is missing a binding key`;
-    if (!bindingKeys.has(key)) return `ref "${path}" names an unknown binding "${key}"`;
+    if (!bindingKeys.has(key))
+      return `ref "${path}" names an unknown binding "${key}"`;
   }
   return null;
 }
