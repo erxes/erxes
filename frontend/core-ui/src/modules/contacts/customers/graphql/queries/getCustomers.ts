@@ -19,6 +19,7 @@ export const GET_CUSTOMERS = gql`
     $leadStatus: String
     $sortField: String
     $dateFilters: String
+    $propertiesData: String
     $segmentData: String
     $emailValidationStatus: String
     $orderBy: JSON
@@ -37,6 +38,7 @@ export const GET_CUSTOMERS = gql`
       leadStatus: $leadStatus
       sortField: $sortField
       dateFilters: $dateFilters
+      propertiesData: $propertiesData
       segmentData: $segmentData
       emailValidationStatus: $emailValidationStatus
       orderBy: $orderBy
