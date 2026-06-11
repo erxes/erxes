@@ -11,8 +11,8 @@ if (!MONGO_URL) {
   throw new Error(`Environment variable MONGO_URL not set.`);
 }
 
-const SOURCE_ORG_ID = '6a224ba6db2142f989ceec4b';
-const TARGET_ORG_ID = '67eb9844280137e8b229ab30';
+const SOURCE_ORG_ID = '677b2b2a113622040da5e16c';
+const TARGET_ORG_ID = '697d636fc825257eaf17e61a';
 
 const SOURCE_DB = `erxes_${SOURCE_ORG_ID}`;
 const TARGET_DB = `erxes_${TARGET_ORG_ID}`;
