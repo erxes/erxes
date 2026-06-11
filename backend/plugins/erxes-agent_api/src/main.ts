@@ -16,7 +16,7 @@ startPlugin({
     automations,
   },
   graphql: async () => ({
-    typeDefs: typeDefs(),
+    typeDefs: await typeDefs(),
     resolvers,
   }),
   expressRouter: router,

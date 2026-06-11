@@ -90,7 +90,9 @@ export function buildActivityContext(snap: ActivitySnapshot): string | null {
       }
     }
     sections.push(
-      `Invoking tool: ${snap.toolName}${args ? ` with ${clip(args, TOOL_ARGS_CHARS)}` : ''}`,
+      `Invoking tool: ${snap.toolName}${
+        args ? ` with ${clip(args, TOOL_ARGS_CHARS)}` : ''
+      }`,
     );
   }
 

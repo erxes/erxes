@@ -51,18 +51,6 @@ import {
   loadFeedbackClass,
   IMastraFeedbackModel,
 } from '@/learning/db/models/Feedback';
-import { IMastraAgentDocument } from '@/agent/@types/agent';
-import { IMastraProviderDocument } from '@/provider/@types/provider';
-import { IMastraSettingsDocument } from '@/settings/@types/settings';
-import {
-  IMastraThreadDocument,
-  IMastraMessageDocument,
-} from '@/session/@types/session';
-import { IMastraWorkingMemoryDocument } from '@/memory/@types/workingMemory';
-import {
-  IMastraWorkflowDocument,
-  IMastraWorkflowRunDocument,
-} from '@/workflow/@types/workflow';
 import {
   IMastraLearningDocument,
   IMastraFeedbackDocument,
