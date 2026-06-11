@@ -219,9 +219,8 @@ const ProductsPayment = ({
   const [invoiceUrl, setInvoiceUrl] = useState('');
 
   const { editDeals } = useDealsEdit();
-  const [generateInvoiceUrl, { loading: generatingInvoice }] = useMutation(
-    GENERATE_INVOICE_URL,
-  );
+  const [generateInvoiceUrl, { loading: generatingInvoice }] =
+    useMutation(GENERATE_INVOICE_URL);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -352,84 +351,85 @@ const ProductsPayment = ({
     fillMobileRemaining();
   }, [fillMobileRemaining, mobileAmount]);
 
-  const handleCreateMobileInvoice = useCallback(async (
-    event?: MouseEvent<HTMLButtonElement>,
-  ) => {
-    event?.preventDefault();
+  const handleCreateMobileInvoice = useCallback(
+    async (event?: MouseEvent<HTMLButtonElement>) => {
+      event?.preventDefault();
 
-    const paymentIds = deal.pipeline?.paymentIds || [];
-    if (!paymentIds.length) {
-      toast({
-        variant: 'destructive',
-        title: 'Payment methods missing',
-        description: 'Please select online payments in pipeline settings first.',
-      });
-      return;
-    }
-
-    const amount = mobileAmount || mobileRemainingAmount;
-    if (!amount) {
-      toast({
-        variant: 'destructive',
-        title: 'Amount missing',
-        description: 'Please enter a mobile amount before creating payment.',
-      });
-      return;
-    }
-
-    setInvoiceUrl('');
-    setInvoiceSheetOpen(true);
-
-    try {
-      const { data } = await generateInvoiceUrl({
-        variables: {
-          input: {
-            amount,
-            currency: defaultCurrency,
-            description: deal.name,
-            contentType: 'sales:deal',
-            contentTypeId: deal._id,
-            paymentIds,
-          },
-        },
-      });
-
-      const url = data?.generateInvoiceUrl;
-      if (url) {
-        setInvoiceUrl(url);
+      const paymentIds = deal.pipeline?.paymentIds || [];
+      if (!paymentIds.length) {
+        toast({
+          variant: 'destructive',
+          title: 'Payment methods missing',
+          description:
+            'Please select online payments in pipeline settings first.',
+        });
         return;
       }
 
-      toast({
-        variant: 'destructive',
-        title: 'Payment URL missing',
-        description: 'Invoice was created but no payment URL was returned.',
-      });
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Failed to create payment',
-        description:
-          error instanceof Error ? error.message : 'Please try again later.',
-      });
-    }
-  }, [
-    deal._id,
-    deal.name,
-    deal.pipeline?.paymentIds,
-    defaultCurrency,
-    generateInvoiceUrl,
-    mobileAmount,
-    mobileRemainingAmount,
-    toast,
-  ]);
+      const amount = mobileAmount || mobileRemainingAmount;
+      if (!amount) {
+        toast({
+          variant: 'destructive',
+          title: 'Amount missing',
+          description: 'Please enter a mobile amount before creating payment.',
+        });
+        return;
+      }
+
+      setInvoiceUrl('');
+      setInvoiceSheetOpen(true);
+
+      try {
+        const { data } = await generateInvoiceUrl({
+          variables: {
+            input: {
+              amount,
+              currency: defaultCurrency,
+              description: deal.name,
+              contentType: 'sales:deal',
+              contentTypeId: deal._id,
+              paymentIds,
+            },
+          },
+        });
+
+        const url = data?.generateInvoiceUrl;
+        if (url) {
+          setInvoiceUrl(url);
+          return;
+        }
+
+        toast({
+          variant: 'destructive',
+          title: 'Payment URL missing',
+          description: 'Invoice was created but no payment URL was returned.',
+        });
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Failed to create payment',
+          description:
+            error instanceof Error ? error.message : 'Please try again later.',
+        });
+      }
+    },
+    [
+      deal._id,
+      deal.name,
+      deal.pipeline?.paymentIds,
+      defaultCurrency,
+      generateInvoiceUrl,
+      mobileAmount,
+      mobileRemainingAmount,
+      toast,
+    ],
+  );
 
   const handleScoreFetched = useCallback(
     (score: number, paymentType: any) => {
       const typeName = paymentType.type;
       const paymentConfig = parsePaymentConfig(paymentType.config);
-      const requiresQr =
-        paymentConfig?.require?.toLowerCase() === 'qrcode';
+      const requiresQr = paymentConfig?.require?.toLowerCase() === 'qrcode';
       const initialAmount = getInitialPaymentAmount(typeName);
       const availableAmount = score + initialAmount;
 
@@ -581,8 +581,8 @@ const ProductsPayment = ({
               Object.values(changeAmounts).some((amount) => amount > 0)
                 ? 'text-green-500'
                 : Object.values(changeAmounts).some((amount) => amount < 0)
-                ? 'text-red-500'
-                : ''
+                  ? 'text-red-500'
+                  : ''
             }`}
           >
             {Object.values(changeAmounts).some((amount) => amount > 0) && '+'}
@@ -740,12 +740,10 @@ const ProductsPayment = ({
         ))}
         {deal.pipeline?.paymentTypes
           ?.filter((paymentType: IPaymentType) => paymentType.type !== 'mobile')
-          .map(
-          (paymentType: IPaymentType, index: number) => {
+          .map((paymentType: IPaymentType, index: number) => {
             const typeName = paymentType.type;
             const paymentConfig = parsePaymentConfig(paymentType.config);
-            const isQr =
-              paymentConfig?.require?.toLowerCase() === 'qrcode';
+            const isQr = paymentConfig?.require?.toLowerCase() === 'qrcode';
             const hasInitialAmount = getInitialPaymentAmount(typeName) > 0;
             const payInfo = payInfoByType[typeName] || {
               hasPopup: false,
@@ -839,8 +837,7 @@ const ProductsPayment = ({
                 </div>
               </div>
             );
-          },
-        )}
+          })}
       </div>
 
       <div className="flex items-center justify-end pt-2">

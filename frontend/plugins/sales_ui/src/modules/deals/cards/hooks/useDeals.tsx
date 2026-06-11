@@ -131,7 +131,9 @@ export const useDeals = (
           updatedList = currentList.map((item: IDeal) =>
             item._id === deal._id ? { ...item, ...deal } : item,
           );
-          updatedList.sort((a: IDeal, b: IDeal) => (a.order ?? 0) - (b.order ?? 0));
+          updatedList.sort(
+            (a: IDeal, b: IDeal) => (a.order ?? 0) - (b.order ?? 0),
+          );
         }
 
         if (action === 'remove') {
@@ -149,8 +151,8 @@ export const useDeals = (
               action === 'add'
                 ? prev.deals.totalCount + 1
                 : action === 'remove'
-                ? prev.deals.totalCount - 1
-                : prev.deals.totalCount,
+                  ? prev.deals.totalCount - 1
+                  : prev.deals.totalCount,
           },
         };
       },
@@ -460,7 +462,9 @@ export function useMoveDealStage(options?: MutationHookOptions<any, any>) {
         const nextColumnItems = Object.fromEntries(
           Object.entries(prev.columnItems).map(([columnId, itemIds]) => [
             columnId,
-            (itemIds as string[]).filter((itemId: string) => itemId !== deal._id),
+            (itemIds as string[]).filter(
+              (itemId: string) => itemId !== deal._id,
+            ),
           ]),
         );
 
@@ -507,17 +511,19 @@ export function useMoveDealStage(options?: MutationHookOptions<any, any>) {
         sourceStageId: deal.stageId,
         aboveItemId: nextAboveItemId,
       },
-    }).then((result) => {
-      onCompleted?.();
-      return result;
-    }).catch((mutationError) => {
-      if (boardState) {
-        setBoardState(boardState);
-        setAllDealsMap(allDealsMap);
-      }
+    })
+      .then((result) => {
+        onCompleted?.();
+        return result;
+      })
+      .catch((mutationError) => {
+        if (boardState) {
+          setBoardState(boardState);
+          setAllDealsMap(allDealsMap);
+        }
 
-      throw mutationError;
-    });
+        throw mutationError;
+      });
   };
 
   return {

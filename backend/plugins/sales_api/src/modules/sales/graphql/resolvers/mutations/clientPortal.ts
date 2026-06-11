@@ -1,8 +1,5 @@
 import { Resolver } from 'erxes-api-shared/core-types';
-import {
-  markResolvers,
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
+import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { IDeal } from '~/modules/sales/@types';
 import { subscriptionWrapper } from '../utils';

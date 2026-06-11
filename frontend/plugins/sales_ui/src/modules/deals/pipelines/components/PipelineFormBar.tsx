@@ -127,14 +127,7 @@ export function PipelineFormBar() {
         });
       });
     },
-    [
-      addPipeline,
-      confirm,
-      pipelineEdit,
-      pipelineId,
-      toast,
-      onClose,
-    ],
+    [addPipeline, confirm, pipelineEdit, pipelineId, toast, onClose],
   );
 
   useEffect(() => {

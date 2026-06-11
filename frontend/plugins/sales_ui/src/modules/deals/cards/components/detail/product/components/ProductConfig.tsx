@@ -1,7 +1,4 @@
-import {
-  SelectCategory,
-  SelectProduct,
-} from 'ui-modules';
+import { SelectCategory, SelectProduct } from 'ui-modules';
 
 import { Form } from 'erxes-ui';
 import { OtherPaymentsField, PaymentIdsField } from '@/payments';

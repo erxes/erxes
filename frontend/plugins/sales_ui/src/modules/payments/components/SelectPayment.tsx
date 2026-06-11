@@ -33,7 +33,9 @@ const SelectPaymentProvider = ({
   payments?: Payment[];
   setOpen?: (open: boolean) => void;
 }) => {
-  const [currentPayments, setCurrentPayments] = useState<Payment[]>(payments || []);
+  const [currentPayments, setCurrentPayments] = useState<Payment[]>(
+    payments || [],
+  );
   const isSingleMode = mode === 'single';
 
   const onSelect = (payment: Payment | null) => {
@@ -61,7 +63,7 @@ const SelectPaymentProvider = ({
     onValueChange?.(newSelectedPaymentIds);
   };
 
-  const selectedIds = Array.isArray(value) ? value : value && [value] || [];
+  const selectedIds = Array.isArray(value) ? value : (value && [value]) || [];
 
   return (
     <SelectPaymentContext.Provider
@@ -249,10 +251,10 @@ export const SelectPaymentFormItem = ({
 export const SelectPaymentInlineCell = React.forwardRef<
   React.ComponentRef<typeof RecordTableInlineCell.Trigger>,
   Omit<React.ComponentProps<typeof SelectPaymentProvider>, 'children'> &
-  React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
-    scope?: string;
-    placeholder?: string;
-  }
+    React.ComponentProps<typeof RecordTableInlineCell.Trigger> & {
+      scope?: string;
+      placeholder?: string;
+    }
 >(
   (
     {
