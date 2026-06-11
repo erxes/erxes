@@ -3,12 +3,25 @@ import { getPlugins, getPluginAddress } from 'erxes-api-shared/utils';
 import { getCurrentAuth } from '../requestContext';
 import { splitCamelWords } from '~/mastra/text';
 
+// GraphQL introspection type-ref shape ({kind, name, ofType}) as served by
+// the erxes operation registry, plus the argument entries that carry one.
+interface GqlTypeRef {
+  kind?: string;
+  name?: string;
+  ofType?: GqlTypeRef | null;
+}
+interface GqlArgDef {
+  name: string;
+  type?: GqlTypeRef | null;
+}
+
+/** Clip text to the first maxWords words, appending an ellipsis when cut. */
 function truncateWords(text: string, maxWords = 15): string {
   if (!text) return '';
   const words = text.trim().split(/\s+/);
   return words.length <= maxWords
     ? text
-    : words.slice(0, maxWords).join(' ') + '...';
+    : `${words.slice(0, maxWords).join(' ')}...`;
 }
 
 // erxes' GraphQL schema carries no field descriptions, so operation names are
@@ -56,6 +69,7 @@ export const CURATED_OP_DESCRIPTIONS: Record<string, string> = {
   tags: 'List existing tags (filter by type, e.g. "core:customer")',
 };
 
+/** Turn a camelCase operation name into a readable action phrase. */
 export function humanizeOperation(
   name: string,
   opType: 'query' | 'mutation',
@@ -137,7 +151,9 @@ function parseJsonPreprocess(val: unknown): unknown {
 
 // Recursively reconstruct the GraphQL type string (e.g. "[String!]!") from the
 // introspection type object so variable definitions in built operations are exact.
-export function graphqlTypeToString(type: any): string {
+export function graphqlTypeToString(
+  type: GqlTypeRef | null | undefined,
+): string {
   if (!type) return 'String';
   if (type.kind === 'NON_NULL') return `${graphqlTypeToString(type.ofType)}!`;
   if (type.kind === 'LIST') return `[${graphqlTypeToString(type.ofType)}]`;
@@ -148,8 +164,8 @@ export function graphqlTypeToString(type: any): string {
 // Passed through the Zod builders so INPUT_OBJECT types get real schemas
 // instead of z.any(), giving the LLM correct field names up front.
 function graphqlTypeToZod(
-  type: any,
-  inputTypesMap?: Record<string, any[]>,
+  type: GqlTypeRef | null | undefined,
+  inputTypesMap?: Record<string, GqlArgDef[]>,
 ): z.ZodTypeAny {
   if (!type) return z.any().optional();
   const name = type.name || '';
@@ -206,8 +222,8 @@ function graphqlTypeToZod(
         if (!trimmed) return undefined;
         if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
         if (trimmed.includes('T')) return trimmed.split('T')[0];
-        const d = new Date(trimmed);
-        if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
+        const parsed = new Date(trimmed);
+        if (!isNaN(parsed.getTime())) return parsed.toISOString().split('T')[0];
         return undefined;
       }, z.string().optional());
     case 'JSON':
@@ -217,10 +233,11 @@ function graphqlTypeToZod(
   }
 }
 
+/** Build the tool input schema from the operation's introspected args. */
 function buildZodSchemaFromArgs(
-  args: any[],
-  inputTypesMap?: Record<string, any[]>,
-): z.ZodObject<any> {
+  args: GqlArgDef[],
+  inputTypesMap?: Record<string, GqlArgDef[]>,
+): z.ZodObject<Record<string, z.ZodTypeAny>> {
   const shape: Record<string, z.ZodTypeAny> = {};
   for (const arg of args || []) {
     shape[arg.name] = graphqlTypeToZod(arg.type, inputTypesMap);
@@ -228,7 +245,8 @@ function buildZodSchemaFromArgs(
   return z.object(shape);
 }
 
-function resolveReturnTypeKind(type: any): string {
+/** Unwrap NON_NULL/LIST wrappers to the underlying return-type kind. */
+function resolveReturnTypeKind(type: GqlTypeRef | null | undefined): string {
   if (!type) return 'UNKNOWN';
   if (type.kind === 'NON_NULL' || type.kind === 'LIST')
     return resolveReturnTypeKind(type.ofType);
@@ -557,7 +575,9 @@ async function buildNotFoundResult(
         success: false,
         availableStages: names,
         instruction: names.length
-          ? `Call dealsAdd immediately with: { stageId: "${names[0]}", name: "deal name" }. Available stages: ${names.join(', ')}.`
+          ? `Call dealsAdd immediately with: { stageId: "${
+              names[0]
+            }", name: "deal name" }. Available stages: ${names.join(', ')}.`
           : `No ${entity}s found. Make sure the erxes sales plugin is configured and has at least one board with a pipeline and stage.`,
       };
     }
@@ -671,7 +691,11 @@ export async function executeErxesOperation(
             success: false,
             availableStages: stageNames,
             instruction: stages.length
-              ? `Call dealsAdd immediately with: { stageId: "${stageNames[0] ?? 'stage name'}", name: "deal name" }. Available stages: ${stageNames.join(', ')}.`
+              ? `Call dealsAdd immediately with: { stageId: "${
+                  stageNames[0] ?? 'stage name'
+                }", name: "deal name" }. Available stages: ${stageNames.join(
+                  ', ',
+                )}.`
               : 'No stages exist. Tell the user to create a Board with a Pipeline and Stage in erxes Sales first.',
           };
         }

@@ -346,7 +346,7 @@ export const renderChartTool = createTool({
       ),
   }),
   outputSchema: z.object({ chartJson: z.string() }),
-  execute: async ({ chartType, title, description, series, data }) => {
+  execute: ({ chartType, title, description, series, data }) => {
     const cleanSeries = series
       .filter((item) => SAFE_CSS_VAR_KEY.test(item.key))
       .map((item) => ({
@@ -384,11 +384,12 @@ export const renderChartTool = createTool({
       sentAt: new Date().toISOString(),
     };
 
-    return { chartJson: JSON.stringify(payload) };
+    return Promise.resolve({ chartJson: JSON.stringify(payload) });
   },
 });
 
-export const BUILTIN_TOOLS: Record<string, any> = {
+// Heterogeneous createTool instances; callers narrow per tool as needed.
+export const BUILTIN_TOOLS: Record<string, ReturnType<typeof createTool>> = {
   webSearch: webSearchTool,
   fetchUrl: fetchUrlTool,
   calculator: calculatorTool,
@@ -406,6 +407,7 @@ export const BUILTIN_TOOLS: Record<string, any> = {
   ...WORKFLOW_BUILTIN_TOOLS,
 };
 
+/** Look up a builtin tool by its registry key, or null when unknown. */
 export function getBuiltinTool(builtinType: string) {
   return BUILTIN_TOOLS[builtinType] ?? null;
 }
