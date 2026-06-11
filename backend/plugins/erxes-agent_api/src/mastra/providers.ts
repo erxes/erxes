@@ -203,6 +203,12 @@ export function isLegacyProvider(
   );
 }
 
+// What buildModel hands to Agent: a string ref ("openai/gpt-4o") for native
+// providers, or an instantiated OpenAI-compatible model.
+export type BuiltModel =
+  | string
+  | ReturnType<ReturnType<typeof createOpenAICompatible>>;
+
 /**
  * Build a Mastra/Vercel AI SDK model instance (or string ref) from DB data.
  * DB doc fields take priority; PROVIDER_PRESETS supply the defaults for any
@@ -212,12 +218,6 @@ export function isLegacyProvider(
  * @param modelId       The model id stored on the agent
  * @param providerDocs  Enabled provider documents fetched from DB
  */
-// What buildModel hands to Agent: a string ref ("openai/gpt-4o") for native
-// providers, or an instantiated OpenAI-compatible model.
-export type BuiltModel =
-  | string
-  | ReturnType<ReturnType<typeof createOpenAICompatible>>;
-
 export function buildModel(
   providerName: string,
   modelId: string,

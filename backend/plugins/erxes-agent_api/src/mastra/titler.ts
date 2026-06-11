@@ -45,6 +45,7 @@ export function shouldGenerateTitle(thread: {
   return (thread.messageCount ?? 0) >= at + REFRESH_EVERY;
 }
 
+/** Render the trailing exchange as a compact transcript for the titler. */
 export function buildTranscript(
   messages: { role: string; content: string }[],
 ): string {
@@ -54,7 +55,7 @@ export function buildTranscript(
       const text = (m.content || '').replace(/\s+/g, ' ').trim();
       const clipped =
         text.length > TRANSCRIPT_CHARS_PER_MESSAGE
-          ? text.slice(0, TRANSCRIPT_CHARS_PER_MESSAGE) + '…'
+          ? `${text.slice(0, TRANSCRIPT_CHARS_PER_MESSAGE)}…`
           : text;
       return `${m.role === 'user' ? 'User' : 'Assistant'}: ${clipped}`;
     })
@@ -63,39 +64,49 @@ export function buildTranscript(
 
 /** Normalize raw model output into a usable title, or null when unusable. */
 export function sanitizeTitle(raw: string | null | undefined): string | null {
-  let t = (raw || '').split('\n')[0].replace(/\s+/g, ' ').trim();
+  let title = (raw || '').split('\n')[0].replace(/\s+/g, ' ').trim();
   // Strip wrapping quotes/backticks and a "Title:" prefix some models add.
-  t = t.replace(/^title\s*:\s*/i, '');
-  t = trimEdgeChars(t, '"\'`“”‘’', '"\'`“”‘’.').trim();
-  if (!t) return null;
-  if (t.length > TITLE_MAX_CHARS)
-    t = t.slice(0, TITLE_MAX_CHARS).trimEnd() + '…';
-  return t;
+  title = title.replace(/^title\s*:\s*/i, '');
+  title = trimEdgeChars(title, '"\'`“”‘’', '"\'`“”‘’.').trim();
+  if (!title) return null;
+  if (title.length > TITLE_MAX_CHARS) {
+    title = `${title.slice(0, TITLE_MAX_CHARS).trimEnd()}…`;
+  }
+  return title;
 }
 
 // ── Orchestration ─────────────────────────────────────────────────────────────
 
+// The minimal surface used from a Mastra Agent — typed locally so the lazy
+// import keeps this module free of a static @mastra/core type dependency.
+interface TitlerAgent {
+  generate(msgs: unknown, opts?: unknown): Promise<{ text?: string }>;
+  generateLegacy(msgs: unknown): Promise<{ text?: string }>;
+}
+
 // Tool-less titler agents, cached per provider+model.
-const _titlers = new Map<string, any>();
+const _titlers = new Map<string, TitlerAgent>();
+
+/** Lazily build (and cache per provider+model) the titler agent. */
 async function titlerFor(
   provider: string,
   model: string,
   providers: ProviderDocLike[],
-): Promise<any> {
+): Promise<TitlerAgent> {
   const key = `${provider}:${model}`;
-  let a = _titlers.get(key);
-  if (!a) {
+  let cached = _titlers.get(key);
+  if (!cached) {
     const { Agent } = await import('@mastra/core/agent');
     const { buildModel } = await import('~/mastra/providers');
-    a = new Agent({
+    cached = new Agent({
       id: 'mastra-thread-titler',
       name: 'Thread Titler',
       instructions: TITLER_INSTRUCTIONS,
       model: buildModel(provider, model, providers),
-    });
-    _titlers.set(key, a);
+    }) as unknown as TitlerAgent;
+    _titlers.set(key, cached);
   }
-  return a;
+  return cached;
 }
 
 /**
@@ -108,7 +119,7 @@ export async function maybeGenerateThreadTitle(params: {
   provider: string;
   model: string;
   providers: ProviderDocLike[];
-  authCtx: any;
+  authCtx: { userHeader?: string; token?: string; subdomain?: string };
   isLegacy: boolean;
 }): Promise<string | null> {
   const { models, threadId, provider, model, providers, authCtx, isLegacy } =
@@ -127,7 +138,7 @@ export async function maybeGenerateThreadTitle(params: {
     if (!history.length) return null;
 
     const transcript = buildTranscript(
-      history.map((m: any) => ({ role: m.role, content: m.content })),
+      history.map((m) => ({ role: m.role, content: m.content })),
     );
 
     const { runWithAuth } = await import('~/mastra/requestContext');
@@ -138,15 +149,10 @@ export async function maybeGenerateThreadTitle(params: {
         content: `Transcript:\n${transcript}\n\nOutput the title.`,
       },
     ];
-    const result: any = await runWithAuth(
-      authCtx,
-      () =>
-        (isLegacy
-          ? titler.generateLegacy(msgs as any)
-          : titler.generate(
-              msgs as any,
-              { maxSteps: 1 } as any,
-            )) as Promise<any>,
+    const result = await runWithAuth(authCtx, () =>
+      isLegacy
+        ? titler.generateLegacy(msgs)
+        : titler.generate(msgs, { maxSteps: 1 }),
     );
 
     const title = sanitizeTitle(result?.text);
@@ -158,7 +164,7 @@ export async function maybeGenerateThreadTitle(params: {
       thread.messageCount ?? 0,
     );
     return applied ? title : null;
-  } catch (e: any) {
+  } catch (e) {
     // eslint-disable-next-line no-console
     console.warn(
       `[mastra:titler] title generation skipped: ${e?.message || e}`,
