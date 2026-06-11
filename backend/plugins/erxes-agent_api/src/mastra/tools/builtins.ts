@@ -20,8 +20,9 @@ interface SearchResult {
   snippet: string;
 }
 
-function stripTags(s: string): string {
-  return decodeEntities(stripAllTags(s)).replace(/\s+/g, ' ').trim();
+/** Strip HTML tags, decode entities, and collapse whitespace. */
+function stripTags(html: string): string {
+  return decodeEntities(stripAllTags(html)).replace(/\s+/g, ' ').trim();
 }
 
 // DuckDuckGo's HTML endpoint — no API key needed. Result hrefs are DDG
@@ -44,16 +45,16 @@ async function ddgSearch(
   const results: SearchResult[] = [];
   const blockRe =
     /<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>[\s\S]*?class="result__snippet"[^>]*>([\s\S]*?)<\/a>/g;
-  let m: RegExpExecArray | null;
-  while ((m = blockRe.exec(html)) && results.length < limit) {
-    const href = decodeEntities(m[1]);
+  let match: RegExpExecArray | null;
+  while ((match = blockRe.exec(html)) && results.length < limit) {
+    const href = decodeEntities(match[1]);
     const uddg = href.match(/[?&]uddg=([^&]+)/);
     const target = uddg ? decodeURIComponent(uddg[1]) : href;
     if (target.includes('duckduckgo.com/y.js')) continue;
     results.push({
-      title: stripTags(m[2]),
+      title: stripTags(match[2]),
       url: target,
-      snippet: stripTags(m[3]),
+      snippet: stripTags(match[3]),
     });
   }
   return results;
@@ -81,6 +82,7 @@ export const webSearchTool = createTool({
   },
 });
 
+/** True for loopback, RFC1918, link-local, and IPv6 private ranges. */
 function isPrivateIp(ip: string): boolean {
   if (ip.includes(':')) {
     const v6 = ip.toLowerCase();
@@ -118,6 +120,7 @@ async function assertPublicHttpUrl(raw: string): Promise<URL> {
   return url;
 }
 
+/** Fetch with manual redirects, re-validating every hop against SSRF. */
 async function safeFetch(
   raw: string,
 ): Promise<{ res: Response; finalUrl: string }> {
@@ -189,91 +192,109 @@ export const calculatorTool = createTool({
     result: z.number(),
     expression: z.string(),
   }),
-  execute: async ({ expression }) => {
+  execute: ({ expression }) => {
     const result = evalMathExpression(expression);
-    return { result, expression };
+    return Promise.resolve({ result, expression });
   },
 });
 
 // Tiny recursive-descent evaluator for + - * / ( ) and decimal numbers — no
-// dynamic code execution, throws a readable error on anything else.
+// dynamic code execution, throws a readable error on anything else. The
+// grammar rules are mutually recursive, so they are hoisted function
+// declarations rather than const arrows.
 function evalMathExpression(expr: string): number {
   let pos = 0;
-  const s = expr;
-  const skipWs = () => {
-    while (pos < s.length && (s[pos] === ' ' || s[pos] === '\t')) pos++;
-  };
-  const parseNumber = (): number => {
+  const source = expr;
+
+  /** Advance past spaces and tabs. */
+  function skipWs(): void {
+    while (
+      pos < source.length &&
+      (source[pos] === ' ' || source[pos] === '\t')
+    ) {
+      pos++;
+    }
+  }
+
+  /** Parse a decimal number literal at the cursor. */
+  function parseNumber(): number {
     skipWs();
     const start = pos;
     while (
-      pos < s.length &&
-      ((s[pos] >= '0' && s[pos] <= '9') || s[pos] === '.')
+      pos < source.length &&
+      ((source[pos] >= '0' && source[pos] <= '9') || source[pos] === '.')
     ) {
       pos++;
     }
     if (start === pos) {
       throw new Error(
-        `Unexpected character "${s[pos] ?? 'end of input'}" in expression`,
+        `Unexpected character "${source[pos] ?? 'end of input'}" in expression`,
       );
     }
-    const n = Number(s.slice(start, pos));
-    if (Number.isNaN(n)) throw new Error('Invalid number in expression');
-    return n;
-  };
-  const parseFactor = (): number => {
+    const num = Number(source.slice(start, pos));
+    if (Number.isNaN(num)) throw new Error('Invalid number in expression');
+    return num;
+  }
+
+  /** Parse unary +/-, parenthesised groups, or a number. */
+  function parseFactor(): number {
     skipWs();
-    const c = s[pos];
-    if (c === '-') {
+    const ch = source[pos];
+    if (ch === '-') {
       pos++;
       return -parseFactor();
     }
-    if (c === '+') {
+    if (ch === '+') {
       pos++;
       return parseFactor();
     }
-    if (c === '(') {
+    if (ch === '(') {
       pos++;
-      const v = parseAddSub();
+      const inner = parseAddSub();
       skipWs();
-      if (s[pos] !== ')') throw new Error('Unbalanced parentheses');
+      if (source[pos] !== ')') throw new Error('Unbalanced parentheses');
       pos++;
-      return v;
+      return inner;
     }
     return parseNumber();
-  };
-  const parseMulDiv = (): number => {
-    let v = parseFactor();
+  }
+
+  /** Parse a chain of * and / over factors. */
+  function parseMulDiv(): number {
+    let acc = parseFactor();
     for (;;) {
       skipWs();
-      const c = s[pos];
-      if (c === '*' || c === '/') {
+      const ch = source[pos];
+      if (ch === '*' || ch === '/') {
         pos++;
-        const r = parseFactor();
-        v = c === '*' ? v * r : v / r;
+        const rhs = parseFactor();
+        acc = ch === '*' ? acc * rhs : acc / rhs;
       } else {
-        return v;
+        return acc;
       }
     }
-  };
-  const parseAddSub = (): number => {
-    let v = parseMulDiv();
+  }
+
+  /** Parse a chain of + and - over products. */
+  function parseAddSub(): number {
+    let acc = parseMulDiv();
     for (;;) {
       skipWs();
-      const c = s[pos];
-      if (c === '+' || c === '-') {
+      const ch = source[pos];
+      if (ch === '+' || ch === '-') {
         pos++;
-        const r = parseMulDiv();
-        v = c === '+' ? v + r : v - r;
+        const rhs = parseMulDiv();
+        acc = ch === '+' ? acc + rhs : acc - rhs;
       } else {
-        return v;
+        return acc;
       }
     }
-  };
+  }
+
   const value = parseAddSub();
   skipWs();
-  if (pos < s.length) {
-    throw new Error(`Unexpected character "${s[pos]}" in expression`);
+  if (pos < source.length) {
+    throw new Error(`Unexpected character "${source[pos]}" in expression`);
   }
   return value;
 }
@@ -289,7 +310,7 @@ const SAFE_CSS_COLOR =
   /^(#[0-9a-fA-F]{3,8}|rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)|hsl\(\s*\d{1,3}\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%\s*\))$/;
 
 const seriesItemSchema = z.object({
-  key: z.string().refine((v) => SAFE_CSS_VAR_KEY.test(v), {
+  key: z.string().refine((key) => SAFE_CSS_VAR_KEY.test(key), {
     message:
       'key must start with a letter and contain only alphanumeric, dash, or underscore chars',
   }),
@@ -327,17 +348,17 @@ export const renderChartTool = createTool({
   outputSchema: z.object({ chartJson: z.string() }),
   execute: async ({ chartType, title, description, series, data }) => {
     const cleanSeries = series
-      .filter((s) => SAFE_CSS_VAR_KEY.test(s.key))
-      .map((s) => ({
-        key: s.key,
-        label: s.label.slice(0, 200),
+      .filter((item) => SAFE_CSS_VAR_KEY.test(item.key))
+      .map((item) => ({
+        key: item.key,
+        label: item.label.slice(0, 200),
         color:
-          s.color && SAFE_CSS_COLOR.test(s.color.trim())
-            ? s.color.trim()
+          item.color && SAFE_CSS_COLOR.test(item.color.trim())
+            ? item.color.trim()
             : undefined,
       }));
 
-    const validKeys = new Set(cleanSeries.map((s) => s.key));
+    const validKeys = new Set(cleanSeries.map((item) => item.key));
 
     const cleanData = data.map((row) => {
       const point: Record<string, string | number> = {
@@ -346,9 +367,9 @@ export const renderChartTool = createTool({
       };
       for (const key of validKeys) {
         const k = key as string;
-        const v = (row as Record<string, unknown>)[k];
-        const n = Number(v);
-        point[k] = Number.isFinite(n) ? n : 0;
+        const raw = (row as Record<string, unknown>)[k];
+        const num = Number(raw);
+        point[k] = Number.isFinite(num) ? num : 0;
       }
       return point;
     });
