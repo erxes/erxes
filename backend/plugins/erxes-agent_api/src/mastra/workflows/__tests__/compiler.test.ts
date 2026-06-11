@@ -307,11 +307,7 @@ describe('workflow compiler — parallel', () => {
     expect(result.status).toBe('success');
     expect(
       ops.map((o) => o.operation).sort((a, b) => a.localeCompare(b)),
-    ).toEqual([
-      'companies',
-      'customers',
-      'merge',
-    ]);
+    ).toEqual(['companies', 'customers', 'merge']);
     // Post-parallel step read BOTH members' outputs from merged state.
     const merge = ops.find((o) => o.operation === 'merge');
     expect(merge.args).toEqual({

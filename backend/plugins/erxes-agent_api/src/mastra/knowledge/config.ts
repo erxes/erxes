@@ -62,9 +62,7 @@ export function knowledgeCollectionName(
   model: string,
   dimension: number,
 ): string {
-  const slug = model
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_');
+  const slug = model.toLowerCase().replace(/[^a-z0-9]+/g, '_');
   const trimmed = trimEdgeChars(slug, '_', '_');
   return `mastra_knowledge_${trimmed}_${dimension}`;
 }

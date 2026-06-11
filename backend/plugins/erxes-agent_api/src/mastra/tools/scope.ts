@@ -124,9 +124,8 @@ export function capabilityInventory(
   // Stable identity of the installed/allowed surface — used to bust the agent
   // cache when plugins are enabled/disabled, so the prompt never goes stale.
   const fingerprint =
-    [...plugins.keys()]
-      .sort((a, b) => a.localeCompare(b))
-      .join(',') + `#${allowed.length}`;
+    [...plugins.keys()].sort((a, b) => a.localeCompare(b)).join(',') +
+    `#${allowed.length}`;
 
   return { lines, fingerprint };
 }

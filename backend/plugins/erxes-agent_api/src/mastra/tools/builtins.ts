@@ -20,9 +20,7 @@ interface SearchResult {
 }
 
 function stripTags(s: string): string {
-  return decodeEntities(stripAllTags(s))
-    .replace(/\s+/g, ' ')
-    .trim();
+  return decodeEntities(stripAllTags(s)).replace(/\s+/g, ' ').trim();
 }
 
 // DuckDuckGo's HTML endpoint — no API key needed. Result hrefs are DDG
