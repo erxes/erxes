@@ -13,6 +13,24 @@ const ChatPage = lazy(() =>
   import('~/pages/chat/ChatPage').then((m) => ({ default: m.ChatPage })),
 );
 
+const WorkflowsIndexPage = lazy(() =>
+  import('~/pages/workflows/WorkflowsIndexPage').then((m) => ({
+    default: m.WorkflowsIndexPage,
+  })),
+);
+
+const WorkflowDetailPage = lazy(() =>
+  import('~/pages/workflows/WorkflowDetailPage').then((m) => ({
+    default: m.WorkflowDetailPage,
+  })),
+);
+
+const WorkflowFormPage = lazy(() =>
+  import('~/pages/workflows/WorkflowFormPage').then((m) => ({
+    default: m.WorkflowFormPage,
+  })),
+);
+
 const MastraMain = () => {
   return (
     <Suspense fallback={<div />}>
@@ -22,6 +40,10 @@ const MastraMain = () => {
         <Route path="/agents" element={<AgentsIndexPage />} />
         <Route path="/agents/new" element={<AgentFormPage />} />
         <Route path="/agents/edit/:id" element={<AgentFormPage />} />
+        <Route path="/workflows" element={<WorkflowsIndexPage />} />
+        <Route path="/workflows/new" element={<WorkflowFormPage />} />
+        <Route path="/workflows/edit/:id" element={<WorkflowFormPage />} />
+        <Route path="/workflows/:id" element={<WorkflowDetailPage />} />
       </Routes>
     </Suspense>
   );

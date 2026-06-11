@@ -12,6 +12,11 @@ import {
   IconAlertCircle,
   IconPlus,
   IconTrash,
+  IconChevronRight,
+  IconSparkles,
+  IconTool,
+  IconLoader2,
+  IconPlayerStopFilled,
 } from '@tabler/icons-react';
 import {
   Badge,
@@ -25,7 +30,7 @@ import {
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
 import { MASTRA_AGENTS } from '~/graphql/queries';
-import { chatStore, Message } from './chatStore';
+import { chatStore, Message, ToolCallInfo } from './chatStore';
 
 // ─── Inline Markdown Nodes ───────────────────────────────────────────────────
 
@@ -276,19 +281,129 @@ const CopyButton = ({ text }: { text: string }) => {
   );
 };
 
-// ─── Typing indicator ─────────────────────────────────────────────────────────
+// ─── Waiting indicator ───────────────────────────────────────────────────────
+//
+// Shown only between sending and the first streamed event — once thinking /
+// tool / text events arrive, the live assistant bubble takes over.
 
-const TypingIndicator = () => (
+const WaitingIndicator = () => (
   <div className="flex justify-start">
-    <div className="bg-muted rounded-2xl rounded-bl-sm px-4 py-3">
-      <div className="flex gap-1 items-center h-4">
-        <span className="size-1.5 bg-muted-foreground/50 rounded-full animate-bounce [animation-delay:-0.3s]" />
-        <span className="size-1.5 bg-muted-foreground/50 rounded-full animate-bounce [animation-delay:-0.15s]" />
-        <span className="size-1.5 bg-muted-foreground/50 rounded-full animate-bounce" />
+    <div className="bg-muted rounded-2xl rounded-bl-sm px-4 py-2.5">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <IconSparkles className="size-3.5 animate-pulse" />
+        <span className="animate-pulse">Thinking…</span>
       </div>
     </div>
   </div>
 );
+
+// ─── Thinking section (collapsible) ──────────────────────────────────────────
+
+const ThinkingSection = ({
+  thinking,
+  streaming,
+}: {
+  thinking: string;
+  streaming?: boolean;
+}) => {
+  const [expanded, setExpanded] = useState(!!streaming);
+  const wasStreaming = useRef(streaming);
+
+  // Auto-expand while the model reasons, auto-collapse once it starts answering.
+  useEffect(() => {
+    if (wasStreaming.current && !streaming) setExpanded(false);
+    wasStreaming.current = streaming;
+  }, [streaming]);
+
+  return (
+    <div className="mb-2 rounded-lg border border-border/60 bg-background/40 overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <IconChevronRight
+          className={`size-3.5 shrink-0 transition-transform ${expanded ? 'rotate-90' : ''}`}
+        />
+        <IconSparkles className={`size-3.5 shrink-0 ${streaming ? 'animate-pulse' : ''}`} />
+        <span className={streaming ? 'animate-pulse' : ''}>
+          {streaming ? 'Thinking…' : 'Thought process'}
+        </span>
+      </button>
+      {expanded && (
+        <div className="px-3 pb-2.5 max-h-48 overflow-auto">
+          <p className="text-xs text-muted-foreground whitespace-pre-wrap leading-relaxed">
+            {thinking}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Tool call row (expandable) ──────────────────────────────────────────────
+
+const formatJson = (value: any): string => {
+  if (value === undefined) return '';
+  if (typeof value === 'string') return value;
+  try {
+    return JSON.stringify(value, null, 2);
+  } catch {
+    return String(value);
+  }
+};
+
+const ToolCallRow = ({ call, streaming }: { call: ToolCallInfo; streaming?: boolean }) => {
+  const [expanded, setExpanded] = useState(false);
+  const pending = call.result === undefined && streaming;
+
+  return (
+    <div className="rounded-lg border border-border/60 bg-background/40 overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full flex items-center gap-1.5 px-2.5 py-1.5 text-xs hover:bg-black/4 dark:hover:bg-white/5 transition-colors"
+      >
+        <IconChevronRight
+          className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${
+            expanded ? 'rotate-90' : ''
+          }`}
+        />
+        <IconTool className="size-3.5 shrink-0 text-muted-foreground" />
+        <span className="font-mono truncate flex-1 text-left">{call.toolName}</span>
+        {pending ? (
+          <IconLoader2 className="size-3.5 shrink-0 animate-spin text-muted-foreground" />
+        ) : call.isError ? (
+          <IconAlertCircle className="size-3.5 shrink-0 text-destructive" />
+        ) : call.result !== undefined ? (
+          <IconCheck className="size-3.5 shrink-0 text-green-600" />
+        ) : null}
+      </button>
+      {expanded && (
+        <div className="px-3 pb-2.5 space-y-2">
+          {call.args !== undefined && (
+            <div>
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
+                Request
+              </p>
+              <pre className="text-[11px] font-mono bg-muted/40 rounded-md p-2 overflow-auto max-h-40 whitespace-pre-wrap break-all">
+                {formatJson(call.args)}
+              </pre>
+            </div>
+          )}
+          <div>
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
+              Response
+            </p>
+            <pre className="text-[11px] font-mono bg-muted/40 rounded-md p-2 overflow-auto max-h-60 whitespace-pre-wrap break-all">
+              {pending ? 'Running…' : formatJson(call.result) || '—'}
+            </pre>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 // ─── Message bubble ───────────────────────────────────────────────────────────
 
@@ -317,19 +432,48 @@ const MessageBubble = ({ msg }: { msg: Message }) => {
     );
   }
 
-  // assistant
+  // assistant — thinking + tool calls + (possibly still streaming) answer text
+  const streaming = !!msg.streaming;
+  // The model is reasoning while no answer text has arrived yet.
+  const thinkingLive = streaming && !msg.content;
+
   return (
     <div className="flex justify-start group">
-      <div className="max-w-[82%] bg-muted rounded-2xl rounded-bl-sm px-4 py-2.5">
-        <MarkdownContent content={msg.content} />
-        <div className="flex items-center justify-between gap-2 mt-1.5">
-          <p className="text-[10px] text-muted-foreground">
-            {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </p>
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-            <CopyButton text={msg.content} />
+      <div className="max-w-[82%] min-w-0 bg-muted rounded-2xl rounded-bl-sm px-4 py-2.5">
+        {msg.thinking && (
+          <ThinkingSection thinking={msg.thinking} streaming={thinkingLive} />
+        )}
+        {msg.toolCalls && msg.toolCalls.length > 0 && (
+          <div className="mb-2 space-y-1">
+            {msg.toolCalls.map((call, i) => (
+              <ToolCallRow key={call.toolCallId ?? i} call={call} streaming={streaming} />
+            ))}
           </div>
-        </div>
+        )}
+        {msg.content ? (
+          <MarkdownContent content={msg.content} />
+        ) : streaming && !msg.thinking && !msg.toolCalls?.length ? (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground py-0.5">
+            <IconSparkles className="size-3.5 animate-pulse" />
+            <span className="animate-pulse">Thinking…</span>
+          </div>
+        ) : null}
+        {streaming && msg.content && (
+          <span className="inline-block w-1.5 h-3.5 bg-foreground/60 animate-pulse align-text-bottom" />
+        )}
+        {!streaming && (
+          <div className="flex items-center justify-between gap-2 mt-1.5">
+            <p className="text-[10px] text-muted-foreground">
+              {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {msg.interrupted && (
+                <span className="ml-1.5 text-amber-600 dark:text-amber-500">· stopped</span>
+              )}
+            </p>
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+              <CopyButton text={msg.content} />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -376,9 +520,16 @@ export const ChatPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agentId, selectedAgent?.agentId]);
 
+  // Keep the view pinned to the bottom — also while a reply streams (the last
+  // message grows without the list length changing).
+  const lastMsg = messages[messages.length - 1];
+  const lastMsgSize =
+    (lastMsg?.content?.length ?? 0) +
+    (lastMsg?.thinking?.length ?? 0) +
+    (lastMsg?.toolCalls?.length ?? 0);
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages.length, chatLoading]);
+  }, [messages.length, chatLoading, lastMsgSize]);
 
   useEffect(() => {
     if (!chatLoading) textareaRef.current?.focus();
@@ -409,6 +560,11 @@ export const ChatPage = () => {
     // Fire-and-forget: the store holds the Apollo client reference so the
     // request continues even if the user navigates away before it completes.
     chatStore.sendMessage(apolloClient, agentId, selectedAgent.agentId, message);
+  };
+
+  const handleStop = () => {
+    if (!agentId || !activeThreadId) return;
+    chatStore.stop(agentId, activeThreadId);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -619,7 +775,7 @@ export const ChatPage = () => {
                     {messages.map((msg, i) => (
                       <MessageBubble key={i} msg={msg} />
                     ))}
-                    {chatLoading && <TypingIndicator />}
+                    {chatLoading && lastMsg?.role === 'user' && <WaitingIndicator />}
                   </>
                 )}
                 <div ref={messagesEndRef} />
@@ -637,14 +793,32 @@ export const ChatPage = () => {
                     rows={1}
                     className="flex-1 min-h-[38px] max-h-28 resize-none py-2"
                   />
-                  <Button
-                    size="icon"
-                    className="size-[38px] shrink-0"
-                    onClick={handleSend}
-                    disabled={!input.trim() || chatLoading}
-                  >
-                    <IconSend className="size-4" />
-                  </Button>
+                  {chatLoading ? (
+                    <Tooltip.Provider>
+                      <Tooltip>
+                        <Tooltip.Trigger asChild>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="size-[38px] shrink-0"
+                            onClick={handleStop}
+                          >
+                            <IconPlayerStopFilled className="size-4" />
+                          </Button>
+                        </Tooltip.Trigger>
+                        <Tooltip.Content>Stop generating</Tooltip.Content>
+                      </Tooltip>
+                    </Tooltip.Provider>
+                  ) : (
+                    <Button
+                      size="icon"
+                      className="size-[38px] shrink-0"
+                      onClick={handleSend}
+                      disabled={!input.trim()}
+                    >
+                      <IconSend className="size-4" />
+                    </Button>
+                  )}
                 </div>
                 <p className="text-[11px] text-muted-foreground mt-1.5 pl-0.5">
                   Enter to send · Shift+Enter for new line

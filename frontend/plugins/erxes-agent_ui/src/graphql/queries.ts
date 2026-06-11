@@ -47,7 +47,7 @@ export const MASTRA_THREADS = gql`
 export const MASTRA_THREAD_MESSAGES = gql`
   query MastraThreadMessages($threadId: String!) {
     mastraThreadMessages(threadId: $threadId) {
-      _id role content createdAt
+      _id role content meta createdAt
     }
   }
 `;
@@ -106,6 +106,32 @@ export const MASTRA_SETTINGS = gql`
         enabled embedder embedderModel qdrantUrl qdrantReachable collection
         enabledTypes lastSweepAt pointCount types lastError
       }
+    }
+  }
+`;
+
+export const MASTRA_WORKFLOWS = gql`
+  query MastraWorkflows {
+    mastraWorkflows {
+      _id name description definition version isEnabled createdAt updatedAt
+    }
+  }
+`;
+
+export const MASTRA_WORKFLOW = gql`
+  query MastraWorkflow($_id: String!) {
+    mastraWorkflow(_id: $_id) {
+      _id name description definition version isEnabled
+      createdByUserId createdAt updatedAt
+    }
+  }
+`;
+
+export const MASTRA_WORKFLOW_RUNS = gql`
+  query MastraWorkflowRuns($workflowId: String!, $page: Int, $perPage: Int) {
+    mastraWorkflowRuns(workflowId: $workflowId, page: $page, perPage: $perPage) {
+      _id workflowId version runId status triggerEnvelope stepsSummary
+      output error usage startedAt finishedAt createdAt
     }
   }
 `;

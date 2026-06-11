@@ -3,6 +3,7 @@ import { IModels } from '~/connectionResolvers';
 import { messageSchema } from '@/session/db/definitions/message';
 import {
   IMastraMessageDocument,
+  IMastraMessageMeta,
   MastraMessageRole,
 } from '@/session/@types/session';
 
@@ -11,6 +12,7 @@ export interface IMastraMessageModel extends Model<IMastraMessageDocument> {
     threadId: string,
     role: MastraMessageRole,
     content: string,
+    meta?: IMastraMessageMeta,
   ): Promise<IMastraMessageDocument>;
   getMessages(threadId: string): Promise<IMastraMessageDocument[]>;
   // Last N messages in chronological order — used to build the LLM context window.
@@ -23,8 +25,9 @@ export const loadMessageClass = (_models: IModels) => {
       threadId: string,
       role: MastraMessageRole,
       content: string,
+      meta?: IMastraMessageMeta,
     ) {
-      return _models.MastraMessage.create({ threadId, role, content });
+      return _models.MastraMessage.create({ threadId, role, content, meta });
     }
 
     public static async getMessages(threadId: string) {

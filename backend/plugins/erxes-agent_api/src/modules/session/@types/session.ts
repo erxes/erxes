@@ -21,10 +21,28 @@ export interface IMastraThreadDocument extends IMastraThread, Document {
 
 export type MastraMessageRole = 'user' | 'assistant';
 
+// One tool invocation made during an assistant turn, kept for the expandable
+// tool-call detail in the chat UI.
+export interface IMastraToolCall {
+  toolCallId?: string;
+  toolName: string;
+  args?: any;
+  result?: any;
+  isError?: boolean;
+}
+
+// Extra turn artifacts persisted alongside the assistant reply text.
+export interface IMastraMessageMeta {
+  thinking?: string;
+  toolCalls?: IMastraToolCall[];
+  interrupted?: boolean;
+}
+
 export interface IMastraMessage {
   threadId: string;
   role: MastraMessageRole;
   content: string;
+  meta?: IMastraMessageMeta;
 }
 
 export interface IMastraMessageDocument extends IMastraMessage, Document {

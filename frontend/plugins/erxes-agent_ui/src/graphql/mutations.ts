@@ -61,3 +61,47 @@ export const MASTRA_SETTINGS_SAVE = gql`
   }
 `;
 
+
+export const MASTRA_WORKFLOW_CREATE = gql`
+  mutation MastraWorkflowCreate($doc: MastraWorkflowInput!) {
+    mastraWorkflowCreate(doc: $doc) {
+      _id name description definition version isEnabled createdAt updatedAt
+    }
+  }
+`;
+
+export const MASTRA_WORKFLOW_UPDATE = gql`
+  mutation MastraWorkflowUpdate($_id: String!, $doc: MastraWorkflowInput!) {
+    mastraWorkflowUpdate(_id: $_id, doc: $doc) {
+      _id name description definition version isEnabled createdAt updatedAt
+    }
+  }
+`;
+
+export const MASTRA_WORKFLOW_REMOVE = gql`
+  mutation MastraWorkflowRemove($_id: String!) {
+    mastraWorkflowRemove(_id: $_id)
+  }
+`;
+
+export const MASTRA_WORKFLOW_SET_ENABLED = gql`
+  mutation MastraWorkflowSetEnabled($_id: String!, $isEnabled: Boolean!) {
+    mastraWorkflowSetEnabled(_id: $_id, isEnabled: $isEnabled) {
+      _id isEnabled
+    }
+  }
+`;
+
+export const MASTRA_WORKFLOW_VALIDATE = gql`
+  mutation MastraWorkflowValidate($definition: JSON!) {
+    mastraWorkflowValidate(definition: $definition)
+  }
+`;
+
+export const MASTRA_WORKFLOW_RUN_START = gql`
+  mutation MastraWorkflowRunStart($_id: String!, $input: JSON) {
+    mastraWorkflowRunStart(_id: $_id, input: $input) {
+      _id workflowId version runId status startedAt
+    }
+  }
+`;

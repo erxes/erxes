@@ -15,6 +15,7 @@ export const types = `
     threadId: String
     role: String
     content: String
+    meta: JSON
     createdAt: Date
   }
 `;
