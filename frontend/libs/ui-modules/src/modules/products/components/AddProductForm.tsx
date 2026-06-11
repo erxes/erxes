@@ -71,9 +71,9 @@ export function AddProductForm({
   const { productsAdd, loading } = useAddProduct();
   const { uoms } = useUom();
 
-  const uomIdToName = useMemo(() => {
+  const uomIdToCode = useMemo(() => {
     const map = new Map<string, string>();
-    uoms.forEach((uom) => map.set(uom._id, uom.name));
+    uoms.forEach((uom) => map.set(uom._id, uom.code));
     return map;
   }, [uoms]);
 
@@ -125,15 +125,15 @@ export function AddProductForm({
       }
 
       if (key === 'uom') {
-        const uomName = uomIdToName.get(value as string);
-        cleanData[key] = uomName || value;
+        const uomCode = uomIdToCode.get(value as string);
+        cleanData[key] = uomCode || value;
         return;
       }
 
       if (key === 'subUoms' && Array.isArray(value)) {
         cleanData[key] = value.map((subUom: SubUomItem) => {
           const { _id, ...rest } = subUom;
-          const mappedUom = uomIdToName.get(rest.uom);
+          const mappedUom = uomIdToCode.get(rest.uom);
           return {
             ...rest,
             uom: mappedUom || rest.uom,
