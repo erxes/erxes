@@ -103,6 +103,7 @@ const queryParams = `
   sex:Int
   birthDate: Date
   dateFilters: String
+  propertiesData: String
   segmentData: String
   emailValidationStatus:String
   status: CONTACT_STATUS

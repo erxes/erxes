@@ -3,7 +3,7 @@ export type IField = {
   name: string;
   code: string;
   options?: Array<{ label: string; value: string }>;
-  type?: string;
+  type: string;
   group?: string;
   groupId?: string;
   logics?: Record<string, any>;
@@ -55,3 +55,34 @@ export type FieldCellValueContentProps = FieldCellValueProps & {
   handleChange: (value: unknown) => void;
   loading: boolean;
 };
+
+export type PropertyFilterOperator =
+  | 'eq'
+  | 'ne'
+  | 'contains'
+  | 'doesNotContain'
+  | 'gt'
+  | 'gte'
+  | 'lt'
+  | 'lte'
+  | 'isTrue'
+  | 'isFalse'
+  | 'in'
+  | 'notIn'
+  | 'isSet'
+  | 'isNotSet'
+  | 'fileType';
+
+export interface IPropertyFilterCondition {
+  fieldId: string;
+  type?: string;
+  operator: PropertyFilterOperator;
+  value?: unknown;
+}
+
+export interface OperatorOption {
+  value: PropertyFilterOperator;
+  label: string;
+
+  noValue?: boolean;
+}
