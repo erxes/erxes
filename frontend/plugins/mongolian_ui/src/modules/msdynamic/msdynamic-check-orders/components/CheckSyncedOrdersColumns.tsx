@@ -26,6 +26,7 @@ type CheckSyncedOrdersColumnsOptions = {
   onResend: (orderId: string) => void;
 };
 
+/** Date cell deer order detail neeh row gargana. */
 const CheckSyncedOrderDateRow = ({
   value,
   id,
@@ -52,6 +53,7 @@ const CheckSyncedOrderDateRow = ({
   );
 };
 
+/** Check orders table columns-iig gargana. */
 export const getCheckSyncedOrdersColumns = ({
   syncedOrderInfos,
   onResend,

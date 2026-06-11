@@ -19,6 +19,16 @@ type TSendMsdOrdersResponse = {
   toSendMsdOrders: ICheckSyncedOrderStatus;
 };
 
+/** Empty ued synced order list deer message gargana. */
+const CheckSyncedOrdersEmptyState = () => (
+  <div className="flex h-full min-h-[400px] w-full items-center justify-center px-8 text-center">
+    <div>
+      <IconInbox size={64} className="mx-auto mb-4 text-muted-foreground" />
+      <h3 className="mb-2 text-xl font-semibold">No order yet</h3>
+    </div>
+  </div>
+);
+
 /** Msdynamic synced order check table haruulna. */
 const CheckSyncedOrders = () => {
   const { loading, orders, handleFetchMore, pageInfo } =
@@ -146,21 +156,7 @@ const CheckSyncedOrders = () => {
             />
           </RecordTable.Body>
         </RecordTable>
-        {!loading && orders?.length === 0 && (
-          <div>
-            <div className=" h-full w-full px-8 flex justify-center">
-              <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
-                <div className="mb-6">
-                  <IconInbox
-                    size={64}
-                    className="text-muted-foreground mx-auto mb-4"
-                  />
-                  <h3 className="text-xl font-semibold mb-2">No order yet</h3>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {!loading && orders?.length === 0 && <CheckSyncedOrdersEmptyState />}
       </RecordTable.CursorProvider>
     </RecordTable.Provider>
   );
