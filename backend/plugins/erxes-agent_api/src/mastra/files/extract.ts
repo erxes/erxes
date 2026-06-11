@@ -65,15 +65,22 @@ function clamp(text: string): { content: string; truncated: boolean } {
   if (text.length <= MAX_EXTRACT_CHARS)
     return { content: text, truncated: false };
   return {
-    content: `${text.slice(0, MAX_EXTRACT_CHARS)}\n\n[... truncated — showing first ${MAX_EXTRACT_CHARS} characters of ${text.length}]`,
+    content: `${text.slice(
+      0,
+      MAX_EXTRACT_CHARS,
+    )}\n\n[... truncated — showing first ${MAX_EXTRACT_CHARS} characters of ${
+      text.length
+    }]`,
     truncated: true,
   };
 }
 
 function stripHtml(html: string): string {
   return decodeHtmlEntities(stripAllTags(stripScriptAndStyleBlocks(html)))
-    .replace(/[^\S\n]+\n/g, '\n')
     .replace(/[ \t]+/g, ' ')
+    .split('\n')
+    .map((line) => line.trimEnd())
+    .join('\n')
     .trim();
 }
 
@@ -195,6 +202,8 @@ export async function extractFileText(params: {
   }
 
   throw new Error(
-    `Unsupported file format "${ext || mimeType || 'unknown'}". Supported: pdf, docx, xlsx, csv, txt, md, json, html.`,
+    `Unsupported file format "${
+      ext || mimeType || 'unknown'
+    }". Supported: pdf, docx, xlsx, csv, txt, md, json, html.`,
   );
 }
