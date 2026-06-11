@@ -38,7 +38,12 @@ async function enqueueSweepPerTenant() {
   sendWorkerQueue(SERVICE, SWEEP_QUEUE).add(SWEEP_QUEUE, { subdomain: 'os' });
 }
 
-export async function initKnowledgeSync(redis: any): Promise<void> {
+// The shared Redis connection type, extracted from the MQ helper so this
+// module needs no direct ioredis type dependency.
+type RedisConnection = Parameters<typeof createMQWorkerWithListeners>[3];
+
+/** Boot hook: register the sweep scheduler + worker and kick one sweep. */
+export async function initKnowledgeSync(redis: RedisConnection): Promise<void> {
   const schedulerQueue = new Queue(`${SERVICE}-${SCHEDULER_QUEUE}`, {
     connection: redis,
   });
@@ -71,13 +76,15 @@ export async function initKnowledgeSync(redis: any): Promise<void> {
       if (!subdomain) return 'skipped: no subdomain';
       const result = await runKnowledgeSweep(subdomain);
       const perType = Object.entries(result.types)
-        .map(([t, s]) => `${t}=${s.count}${s.error ? '(err)' : ''}`)
+        .map(
+          ([typeName, st]) =>
+            `${typeName}=${st.count}${st.error ? '(err)' : ''}`,
+        )
         .join(' ');
+      const errorSuffix = result.error ? `, errors: ${result.error}` : '';
       // eslint-disable-next-line no-console
       console.log(
-        `[erxes-agent:knowledge] sweep "${subdomain}": ${result.pointCount} points ` +
-          `[${perType}], +${result.upserted} upserted, -${result.deleted} deleted` +
-          (result.error ? `, errors: ${result.error}` : ''),
+        `[erxes-agent:knowledge] sweep "${subdomain}": ${result.pointCount} points [${perType}], +${result.upserted} upserted, -${result.deleted} deleted${errorSuffix}`,
       );
       return result;
     },

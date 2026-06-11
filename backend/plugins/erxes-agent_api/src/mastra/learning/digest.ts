@@ -31,7 +31,7 @@ export function buildDigestBlock(
   opts: { maxChars: number; maxEntries: number },
 ): LearnedDigest | null {
   const ranked = [...entries].sort((a, b) => {
-    if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1;
+    if (Boolean(a.pinned) !== Boolean(b.pinned)) return a.pinned ? -1 : 1;
     const scoreA = (a.confidence ?? 0) * Math.log2(1 + (a.evidenceCount ?? 1));
     const scoreB = (b.confidence ?? 0) * Math.log2(1 + (b.evidenceCount ?? 1));
     return scoreB - scoreA;

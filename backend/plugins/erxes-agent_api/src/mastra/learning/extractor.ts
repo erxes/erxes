@@ -84,10 +84,11 @@ export function buildDistillUserContent(
   ].join('\n');
 }
 
-function clampConfidence(v: unknown): number {
-  const n = Number(v);
-  if (!Number.isFinite(n)) return 0.5;
-  return Math.min(1, Math.max(0, n));
+/** Coerce the extractor's confidence into [0, 1]; non-numeric → 0.5. */
+function clampConfidence(value: unknown): number {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return 0.5;
+  return Math.min(1, Math.max(0, num));
 }
 
 /**
@@ -117,7 +118,7 @@ export function parseCandidates(raw: string): CandidateLearning[] {
     if (!LEARNING_TYPES.includes(type)) continue;
     const tags = Array.isArray(item.contextTags)
       ? item.contextTags
-          .map((t: unknown) => String(t).trim().toLowerCase())
+          .map((tag: unknown) => String(tag).trim().toLowerCase())
           .filter(Boolean)
           .slice(0, 5)
       : [];
@@ -142,6 +143,7 @@ interface StatelessAgent {
 
 const _agents = new Map<string, StatelessAgent>();
 
+/** Lazily build (and cache per provider+model) a tool-less one-shot agent. */
 async function statelessAgent(
   id: string,
   name: string,
@@ -151,19 +153,19 @@ async function statelessAgent(
   providers: unknown[],
 ): Promise<StatelessAgent> {
   const key = `${id}:${provider}:${model}`;
-  let a = _agents.get(key);
-  if (!a) {
+  let cached = _agents.get(key);
+  if (!cached) {
     const { Agent } = await import('@mastra/core/agent');
     const { buildModel } = await import('~/mastra/providers');
-    a = new Agent({
+    cached = new Agent({
       id,
       name,
       instructions,
       model: buildModel(provider, model, providers),
     }) as unknown as StatelessAgent;
-    _agents.set(key, a);
+    _agents.set(key, cached);
   }
-  return a;
+  return cached;
 }
 
 export interface ExtractionRuntime {
@@ -174,6 +176,7 @@ export interface ExtractionRuntime {
   isLegacy: boolean;
 }
 
+/** One single-turn generate under the request's auth context; returns text. */
 async function runStateless(
   agent: StatelessAgent,
   userContent: string,

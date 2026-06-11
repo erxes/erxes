@@ -55,6 +55,7 @@ const EMBED_DIMENSIONS: Record<string, number> = {
 const FASTEMBED_FALLBACK_DIM = 384;
 const OPENAI_FALLBACK_DIM = 1536;
 
+/** Read one env var as trimmed text (absent → empty string). */
 function val(env: Env, key: string): string {
   return (env[key] ?? '').trim();
 }

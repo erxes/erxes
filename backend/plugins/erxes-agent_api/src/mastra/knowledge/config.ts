@@ -40,6 +40,7 @@ export interface KnowledgeStatus {
 
 const DEFAULT_SYNC_CRON = '0 * * * *'; // hourly, on the hour
 
+/** Read one env var as trimmed text (absent → empty string). */
 function val(env: Env, key: string): string {
   return (env[key] ?? '').trim();
 }

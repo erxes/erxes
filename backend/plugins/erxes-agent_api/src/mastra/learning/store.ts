@@ -58,6 +58,7 @@ export function buildLearningFilter(args: {
   return { must };
 }
 
+/** Resolve the learnings collection name + dimension from the embedder. */
 function collection(): { name: string; dimension: number } {
   const emb = resolveEmbedderConfig();
   return {
@@ -149,12 +150,14 @@ export async function searchLearnings(
   });
 
   return hits
-    .filter((h: SearchHit) => h.score >= (opts?.minScore ?? tuning.minScore))
-    .map((h: SearchHit) => ({
-      learningId: String(h.payload.learningId || ''),
-      statement: String(h.payload.statement || ''),
-      type: String(h.payload.type || ''),
-      score: h.score,
+    .filter(
+      (hit: SearchHit) => hit.score >= (opts?.minScore ?? tuning.minScore),
+    )
+    .map((hit: SearchHit) => ({
+      learningId: String(hit.payload.learningId || ''),
+      statement: String(hit.payload.statement || ''),
+      type: String(hit.payload.type || ''),
+      score: hit.score,
     }));
 }
 

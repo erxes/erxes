@@ -64,15 +64,15 @@ describe('buildDigestBlock', () => {
 
 describe('buildLearningFilter (tenant isolation)', () => {
   it('always scopes to the subdomain', () => {
-    const f = buildLearningFilter({
+    const filter = buildLearningFilter({
       subdomain: 'acme',
       statuses: ['approved'],
     });
-    expect(f.must).toContainEqual({
+    expect(filter.must).toContainEqual({
       key: 'subdomain',
       match: { value: 'acme' },
     });
-    expect(f.must).toContainEqual({
+    expect(filter.must).toContainEqual({
       key: 'status',
       match: { any: ['approved'] },
     });

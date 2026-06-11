@@ -47,6 +47,7 @@ export interface LearningTuning {
   feedbackDownDelta: number;
 }
 
+/** Read one env var as trimmed text (absent → empty string). */
 function val(env: Env, key: string): string {
   return (env[key] ?? '').trim();
 }

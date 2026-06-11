@@ -257,12 +257,10 @@ export async function initLearningSweep(redis: RedisConnection): Promise<void> {
       const { subdomain } = job?.data ?? {};
       if (!subdomain) return 'skipped: no subdomain';
       const result = await runLearningSweep(subdomain);
+      const errorSuffix = result.error ? `, error: ${result.error}` : '';
       // eslint-disable-next-line no-console
       console.log(
-        `[erxes-agent:learning] sweep "${subdomain}": ${result.threads} threads, ` +
-          `+${result.created} created, ~${result.merged} merged, ↑${result.promoted} promoted, ` +
-          `✕${result.gated} gated, ↓${result.decayed} decayed, ${result.archived} archived` +
-          (result.error ? `, error: ${result.error}` : ''),
+        `[erxes-agent:learning] sweep "${subdomain}": ${result.threads} threads, +${result.created} created, ~${result.merged} merged, ↑${result.promoted} promoted, ✕${result.gated} gated, ↓${result.decayed} decayed, ${result.archived} archived${errorSuffix}`,
       );
       return result;
     },

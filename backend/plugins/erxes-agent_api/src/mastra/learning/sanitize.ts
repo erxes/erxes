@@ -25,11 +25,6 @@ const PHONE = /\+?\d(?:[\s().-]*\d){7,}/g;
 // Long hex / base64-ish tokens (api keys, hashes, mongo ids).
 const TOKEN = /\b[a-f0-9]{24,}\b|\b[A-Za-z0-9+/_-]{32,}={0,2}\b/g;
 
-/**
- * Deterministic first pass: redact identifier-shaped substrings. This is a
- * safety net under the extractor's "generalize, no identities" instruction
- * and the LLM gate — not the whole defense.
- */
 const EMAIL_LOCAL_CHARS = new Set('abcdefghijklmnopqrstuvwxyz0123456789._%+-');
 const EMAIL_DOMAIN_CHARS = new Set('abcdefghijklmnopqrstuvwxyz0123456789.-');
 
@@ -72,14 +67,19 @@ function redactEmails(text: string): string {
   return out + text.slice(segStart);
 }
 
+/**
+ * Deterministic first pass: redact identifier-shaped substrings. This is a
+ * safety net under the extractor's "generalize, no identities" instruction
+ * and the LLM gate — not the whole defense.
+ */
 export function scrubPII(text: string): string {
   return redactEmails((text ?? '').replace(URL_WITH_QUERY, (_m, base) => base))
     .replace(TOKEN, REDACTED)
-    .replace(PHONE, (m) => {
+    .replace(PHONE, (match) => {
       // Keep short quantities ("around 1000000 MNT") — only redact when it
       // still looks like a dialable number after stripping separators.
-      const digits = m.replace(/\D/g, '');
-      return digits.length >= 8 ? REDACTED : m;
+      const digits = match.replace(/\D/g, '');
+      return digits.length >= 8 ? REDACTED : match;
     });
 }
 
@@ -109,7 +109,9 @@ No commentary, no code fences.`;
 
 /** Render the numbered candidate list the privacy gate judges. */
 export function buildGateUserContent(statements: string[]): string {
-  const lines = statements.map((s, i) => `${i + 1}. ${s}`);
+  const lines = statements.map(
+    (statement, index) => `${index + 1}. ${statement}`,
+  );
   return [
     `Candidates (${statements.length}):`,
     ...lines,
@@ -131,7 +133,7 @@ export function parseGateVerdicts(raw: string, count: number): boolean[] {
     if (close === -1) return closed;
     const arr = JSON.parse(text.slice(open, close + 1));
     if (!Array.isArray(arr) || arr.length !== count) return closed;
-    if (!arr.every((v) => typeof v === 'boolean')) return closed;
+    if (!arr.every((verdict) => typeof verdict === 'boolean')) return closed;
     return arr;
   } catch {
     return closed;
