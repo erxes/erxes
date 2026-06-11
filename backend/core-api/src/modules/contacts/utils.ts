@@ -1,6 +1,4 @@
-import {
-  sendTRPCMessage,
-} from 'erxes-api-shared/utils';
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { CONTACT_STATUSES } from './constants';
 import { withPropertyConditions } from '@/properties/utils';

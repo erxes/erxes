@@ -1,4 +1,4 @@
-import { escapeRegExp } from "erxes-api-shared/utils";
+import { escapeRegExp } from 'erxes-api-shared/utils';
 
 export type PropertyFilterOperator =
   | 'eq'
@@ -24,13 +24,21 @@ export interface IPropertyFilterCondition {
   value?: any;
 }
 
-const isEmpty = (value: any) => value === undefined || value === null || value === '';
+const isEmpty = (value: any) =>
+  value === undefined || value === null || value === '';
 
-const toArray = (value: any): any[] => Array.isArray(value) ? value : isEmpty(value) ? [] : [value];
+const toArray = (value: any): any[] =>
+  Array.isArray(value) ? value : isEmpty(value) ? [] : [value];
 
-const regex = (value: string) => ({ $regex: escapeRegExp(value), $options: 'i' });
+const regex = (value: string) => ({
+  $regex: escapeRegExp(value),
+  $options: 'i',
+});
 
-const fileTypes = (value: any): string[] => toArray(value).map((v) => String(v ?? '').trim()).filter(Boolean);
+const fileTypes = (value: any): string[] =>
+  toArray(value)
+    .map((v) => String(v ?? '').trim())
+    .filter(Boolean);
 
 const asNumberOrString = (v: any): number | string => {
   const s = String(v ?? '');
@@ -55,12 +63,23 @@ const PROPERTY_OPERATORS: Record<
   isTrue: (p) => ({ [p]: { $in: [true, 'true', 'Yes', 'yes'] } }),
   isFalse: (p) => ({ [p]: { $in: [false, 'false', 'No', 'no', null] } }),
   isSet: (p) => ({ [p]: { $exists: true, $nin: [null, '', []] } }),
-  isNotSet: (p) => ({ $or: [{ [p]: { $exists: false } }, { [p]: { $in: [null, ''] } }] }),
+  isNotSet: (p) => ({
+    $or: [{ [p]: { $exists: false } }, { [p]: { $in: [null, ''] } }],
+  }),
   contains: (p, v) => (isEmpty(v) ? null : { [p]: regex(String(v)) }),
-  doesNotContain: (p, v) => isEmpty(v) ? null : { [p]: { $not: regex(String(v)) } },
+  doesNotContain: (p, v) =>
+    isEmpty(v) ? null : { [p]: { $not: regex(String(v)) } },
   in: (p, v) => (toArray(v).length ? { [p]: { $in: toArray(v) } } : null),
   notIn: (p, v) => (toArray(v).length ? { [p]: { $nin: toArray(v) } } : null),
-  fileType: (p, v) => fileTypes(v).length ? { [`${p}.type`]: { $regex: fileTypes(v).map(escapeRegExp).join('|'), $options: 'i', }, } : null,
+  fileType: (p, v) =>
+    fileTypes(v).length
+      ? {
+          [`${p}.type`]: {
+            $regex: fileTypes(v).map(escapeRegExp).join('|'),
+            $options: 'i',
+          },
+        }
+      : null,
 };
 
 const PROPERTY_OPERATOR_BY_TYPE: Record<string, PropertyFilterOperator> = {
@@ -118,7 +137,10 @@ export const parsePropertyConditions = (
       const condition: IPropertyFilterCondition = { fieldId, operator };
 
       if (secondSep !== -1) {
-        condition.value = decodeConditionValue(operator, rest.slice(secondSep + 1));
+        condition.value = decodeConditionValue(
+          operator,
+          rest.slice(secondSep + 1),
+        );
       }
 
       conditions.push(condition);

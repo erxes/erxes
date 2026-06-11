@@ -61,7 +61,10 @@ const decodeValue = (
   raw: string,
 ): unknown => {
   if (MULTI_OPERATORS.includes(operator)) {
-    return raw.split(VALUE_SEP).filter(Boolean).map((v) => decodeURIComponent(v));
+    return raw
+      .split(VALUE_SEP)
+      .filter(Boolean)
+      .map((v) => decodeURIComponent(v));
   }
   return decodeURIComponent(raw);
 };
@@ -169,7 +172,9 @@ const PropertyValueInput = ({
   onChange: (value: unknown) => void;
 }) => {
   const isRelation = field.type.startsWith('relation');
-  const operators = OPERATOR_BY_TYPE[isRelation ? 'relation' : field.type] ?? OPERATOR_BY_TYPE.text;
+  const operators =
+    OPERATOR_BY_TYPE[isRelation ? 'relation' : field.type] ??
+    OPERATOR_BY_TYPE.text;
 
   if (operators.find((op) => op.value === operator)?.noValue) {
     return null;
@@ -225,8 +230,8 @@ const PropertyValueInput = ({
       const selected = Array.isArray(value)
         ? (value as string[])
         : value
-        ? [value as string]
-        : [];
+          ? [value as string]
+          : [];
 
       const toggle = (optionValue: string) => {
         if (multiple) {
@@ -273,7 +278,7 @@ const PropertyValueInput = ({
     case 'file': {
       const text = Array.isArray(value)
         ? (value as string[]).join(', ')
-        : (value as string) ?? '';
+        : ((value as string) ?? '');
       return (
         <Input
           value={text}
@@ -374,8 +379,9 @@ const PropertyConditionEditor = ({
   onApply: (condition: IPropertyFilterCondition) => void;
 }) => {
   const operators =
-    OPERATOR_BY_TYPE[field.type.startsWith('relation') ? 'relation' : field.type] ??
-    OPERATOR_BY_TYPE.text;
+    OPERATOR_BY_TYPE[
+      field.type.startsWith('relation') ? 'relation' : field.type
+    ] ?? OPERATOR_BY_TYPE.text;
   const [operator, setOperator] = useState<PropertyFilterOperator>(
     condition?.operator ?? operators[0].value,
   );
@@ -453,8 +459,9 @@ const PropertyOperatorPicker = ({
   onApply: (condition: IPropertyFilterCondition) => void;
 }) => {
   const operators =
-    OPERATOR_BY_TYPE[field.type.startsWith('relation') ? 'relation' : field.type] ??
-    OPERATOR_BY_TYPE.text;
+    OPERATOR_BY_TYPE[
+      field.type.startsWith('relation') ? 'relation' : field.type
+    ] ?? OPERATOR_BY_TYPE.text;
 
   return (
     <Command>
@@ -471,7 +478,10 @@ const PropertyOperatorPicker = ({
                 value: op.noValue ? undefined : condition.value,
               })
             }
-            className={cn('h-8', condition.operator === op.value && 'text-primary')}
+            className={cn(
+              'h-8',
+              condition.operator === op.value && 'text-primary',
+            )}
           >
             {op.label}
             <Combobox.Check
@@ -644,7 +654,8 @@ const PropertyBarItem = ({
 
   const { field: fetched } = useFieldDetail(condition.fieldId);
 
-  const field: IField = fetched ?? ({ _id: condition.fieldId, name: '', type: 'text' } as IField);
+  const field: IField =
+    fetched ?? ({ _id: condition.fieldId, name: '', type: 'text' } as IField);
 
   const isRelation = field.type.startsWith('relation');
   const operators =

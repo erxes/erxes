@@ -1,4 +1,4 @@
-import { OperatorOption } from "../types/fieldsTypes";
+import { OperatorOption } from '../types/fieldsTypes';
 
 const TEXT_OPERATORS: OperatorOption[] = [
   { value: 'contains', label: 'Contains' },
