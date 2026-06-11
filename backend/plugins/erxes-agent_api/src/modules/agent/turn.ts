@@ -213,8 +213,11 @@ export async function prepareChatTurn(params: {
   const providers = await models.MastraProvider.find({ isEnabled: true });
   const { agent, tools } = await getOrCreateAgent(agentConfig, models);
 
-  // Stable session id — the persisted thread this turn belongs to.
-  const sessionId = threadId || `chat-${Date.now()}`;
+  // Stable session id — the persisted thread this turn belongs to. The
+  // typeof guard keeps crafted non-string payloads out of Mongo queries
+  // (NoSQL injection via query operators).
+  const sessionId =
+    typeof threadId === 'string' && threadId ? threadId : `chat-${Date.now()}`;
 
   // Ownership gate BEFORE any history is replayed: throws if the thread
   // belongs to another user (prevents reading or continuing someone else's

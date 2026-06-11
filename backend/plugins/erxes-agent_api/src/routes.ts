@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
 import { extractUserFromHeader, getSubdomain } from 'erxes-api-shared/utils';
 import { generateModels } from './connectionResolvers';
 import { getOrCreateAgent } from './mastra/agentRuntime';
@@ -35,6 +36,17 @@ import {
 import { attachmentStorageStatus } from '@/settings/graphql/resolvers/queries/settings';
 
 export const router: Router = Router();
+
+// Generous per-IP throttle on the LLM-backed endpoints — normal chat traffic
+// stays well under it; it only blunts abnormal high-frequency bursts (and the
+// LLM/API cost they would incur). Mirrors the limiter in start-plugin.ts.
+const llmRouteLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many requests from this IP, please try again later.',
+});
 
 // ─── Streaming chat (SSE) ─────────────────────────────────────────────────────
 //
@@ -136,7 +148,7 @@ function sanitizeAttachments(raw: any): IMastraChatAttachment[] | null {
   return out;
 }
 
-router.post('/chat/stream', async (req, res) => {
+router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
   const user = extractUserFromHeader(req.headers);
   if (!user?._id) {
     return res.status(401).json({ error: 'Login required' });
@@ -145,6 +157,9 @@ router.post('/chat/stream', async (req, res) => {
   const { agentId, message, threadId } = req.body || {};
   if (!agentId || typeof message !== 'string' || !message.trim()) {
     return res.status(400).json({ error: 'agentId and message are required' });
+  }
+  if (threadId !== undefined && typeof threadId !== 'string') {
+    return res.status(400).json({ error: 'threadId must be a string' });
   }
 
   const attachments = sanitizeAttachments(req.body?.attachments);
@@ -430,7 +445,7 @@ router.post('/chat/stream', async (req, res) => {
 });
 
 // erxes frontline bot webhook — called by frontline_api when botEndpointUrl is set
-router.post('/bot/:conversationId', async (req, res) => {
+router.post('/bot/:conversationId', llmRouteLimiter, async (req, res) => {
   const { conversationId } = req.params;
   const { text, subdomain = 'localhost', customerId } = req.body;
 

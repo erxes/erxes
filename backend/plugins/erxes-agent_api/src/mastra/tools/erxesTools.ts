@@ -541,7 +541,7 @@ async function buildNotFoundResult(
   authHeaders: Record<string, string>,
 ): Promise<Record<string, any>> {
   const lower = rawMessage.toLowerCase();
-  for (const [entity, { key, resolver }] of Object.entries(ENTITY_RESOLVERS)) {
+  for (const [entity, { resolver }] of Object.entries(ENTITY_RESOLVERS)) {
     const mentionsEntity = lower.includes(entity);
     // Catch all actionable errors: "not found", "not provided" (GraphQL required-field
     // validation), "invalid", and "required" — not just the "not found" case.

@@ -1,6 +1,10 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
 import { lookup } from 'node:dns/promises';
+import {
+  decodeHtmlEntities as decodeEntities,
+  stripScriptAndStyleBlocks,
+} from '~/mastra/html';
 import { companyKnowledgeTool } from '~/mastra/knowledge/knowledgeTool';
 import { readAttachmentTool } from './attachmentTool';
 import { WORKFLOW_BUILTIN_TOOLS } from './workflowTools';
@@ -12,16 +16,6 @@ interface SearchResult {
   title: string;
   url: string;
   snippet: string;
-}
-
-function decodeEntities(s: string): string {
-  return s
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#x27;|&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ');
 }
 
 function stripTags(s: string): string {
@@ -170,10 +164,10 @@ export const fetchUrlTool = createTool({
       body.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? '',
     );
     const content = stripTags(
-      body
-        .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-        .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-        .replace(/<(nav|header|footer|noscript)[\s\S]*?<\/\1>/gi, ' '),
+      stripScriptAndStyleBlocks(body).replace(
+        /<(nav|header|footer|noscript)\b[\s\S]*?<\/\1\b[^>]*>/gi,
+        ' ',
+      ),
     ).slice(0, MAX_CONTENT_CHARS);
 
     return {

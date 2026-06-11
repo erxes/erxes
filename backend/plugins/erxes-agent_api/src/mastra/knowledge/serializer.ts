@@ -7,6 +7,11 @@
 // enough context to answer from.
 // ---------------------------------------------------------------------------
 
+import {
+  decodeHtmlEntities,
+  stripScriptAndStyleBlocks,
+} from '~/mastra/html';
+
 export interface KbArticleLike {
   _id: string;
   title?: string;
@@ -23,18 +28,13 @@ const MAX_CHUNK_CHARS = 1500;
 
 /** Strip HTML to readable plain text. Block-level tags become line breaks. */
 export function htmlToText(html: string): string {
-  return html
-    .replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, ' ')
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/(p|div|li|h[1-6]|tr|blockquote|pre)>/gi, '\n')
-    .replace(/<li[^>]*>/gi, '- ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;|&apos;/gi, "'")
+  return decodeHtmlEntities(
+    stripScriptAndStyleBlocks(html)
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/(p|div|li|h[1-6]|tr|blockquote|pre)>/gi, '\n')
+      .replace(/<li[^>]*>/gi, '- ')
+      .replace(/<[^>]+>/g, ' '),
+  )
     .replace(/[ \t]+/g, ' ')
     .replace(/ ?\n ?/g, '\n')
     .replace(/\n{3,}/g, '\n\n')

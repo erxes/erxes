@@ -111,6 +111,9 @@ export async function maybeGenerateThreadTitle(params: {
 }): Promise<string | null> {
   const { models, threadId, provider, model, providers, authCtx, isLegacy } =
     params;
+  // Reject non-string ids so a crafted object can never become a Mongo
+  // query operator (NoSQL injection).
+  if (typeof threadId !== 'string' || !threadId) return null;
   try {
     const thread = await models.MastraThread.findOne({ threadId });
     if (!thread || !shouldGenerateTitle(thread)) return null;
