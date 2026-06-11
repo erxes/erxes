@@ -5,7 +5,7 @@ import {
   CHECK_ORDER_FILTER_KEYS,
   ICheckOrderFilterField,
   ICheckOrderFilterValues,
-  PRIMARY_FILTER_FIELDS,
+  TEXT_FILTER_FIELDS,
 } from './MSDynamicCheckOrderFilterFields';
 import { MSDynamicCheckOrderFilterPopover } from './MSDynamicCheckOrderFilterPopover';
 import { MSDynamicCheckOrderTotalCount } from './MSDynamicCheckOrderTotalCount';
@@ -67,7 +67,7 @@ export const MSDynamicCheckOrderFilterBar = () => {
       <MSDynamicCheckOrderFilterPopover />
       <SelectBrand.FilterBar queryKey="brandId" />
       <SelectMember.FilterBar queryKey="user" />
-      {PRIMARY_FILTER_FIELDS.filter((f) => f.key === 'number').map((field) => (
+      {TEXT_FILTER_FIELDS.map((field) => (
         <MSDynamicCheckOrderTextFilterBarItem
           key={field.key}
           field={field}

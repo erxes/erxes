@@ -7,7 +7,7 @@ import {
   ISyncedOrderInfo,
   ICheckSyncedOrderStatus,
 } from '../types/msDynamicCheckOrder';
-import { CheckSyncedOrdersCommandBar } from './MSDynamicCheckOrderCommandBar';
+import { MSDynamicCheckOrderCommandBar } from './MSDynamicCheckOrderCommandBar';
 import { useMSDynamicCheckOrder } from '../hooks/useMSDynamicCheckOrder';
 import { mutations } from '../../graphql';
 
@@ -69,7 +69,15 @@ const CheckSyncedOrders = () => {
           };
         });
 
-      setSyncedOrderInfos((prev) => ({ ...prev, ...syncedInfos }));
+      setSyncedOrderInfos((prev) => {
+        const next = { ...prev };
+
+        orderIds.forEach((orderId) => {
+          delete next[orderId];
+        });
+
+        return { ...next, ...syncedInfos };
+      });
       toast({
         title: 'Orders checked successfully',
         variant: 'success',
@@ -86,6 +94,7 @@ const CheckSyncedOrders = () => {
 
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
+  /** Table columns-iig synced info-toi memo hiine. */
   const columns = useMemo(() => {
     /** Neg order dahin yavuulaad synced info update hiine. */
     const resend = async (orderId: string) => {
@@ -133,7 +142,7 @@ const CheckSyncedOrders = () => {
       className="m-0"
       stickyColumns={['more', 'checkbox', 'createdAt']}
     >
-      <CheckSyncedOrdersCommandBar
+      <MSDynamicCheckOrderCommandBar
         checking={checkingSyncedOrders}
         onCheck={onCheck}
       />

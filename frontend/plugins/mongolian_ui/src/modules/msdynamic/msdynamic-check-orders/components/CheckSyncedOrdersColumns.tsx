@@ -29,23 +29,25 @@ type CheckSyncedOrdersColumnsOptions = {
 /** Date cell deer order detail neeh row gargana. */
 const CheckSyncedOrderDateRow = ({
   value,
-  id,
   order,
+  openDetail,
 }: {
   value: string | null | undefined;
-  id: string;
   order: IMSDynamicCheckOrder;
+  openDetail?: boolean;
 }) => {
   const [, setOrderDetailId] = useQueryState<string>(ORDER_DETAIL_ID_KEY);
+
+  /** Order detail-iig neeh */
+  function handleOpenDetail() {
+    setOrderDetailId(order._id);
+  }
+
   return (
     <RelativeDateDisplay value={value || ''} asChild>
       <RecordTableInlineCell
         className="text-xs font-medium text-muted-foreground"
-        onClick={() => {
-          if (id === 'createdAt') {
-            setOrderDetailId(order._id);
-          }
-        }}
+        onClick={openDetail ? handleOpenDetail : undefined}
       >
         <RelativeDateDisplay.Value value={value || ''} />
       </RecordTableInlineCell>
@@ -94,8 +96,8 @@ export const getCheckSyncedOrdersColumns = ({
     cell: ({ cell, row }) => (
       <CheckSyncedOrderDateRow
         value={cell.getValue() as string}
-        id="createdAt"
         order={row.original}
+        openDetail
       />
     ),
   },
@@ -108,7 +110,6 @@ export const getCheckSyncedOrdersColumns = ({
     cell: ({ cell, row }) => (
       <CheckSyncedOrderDateRow
         value={cell.getValue() as string}
-        id="paidDate"
         order={row.original}
       />
     ),

@@ -1,7 +1,7 @@
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
 
 /** Songogdson orders deer check action gargana. */
-export const CheckSyncedOrdersCommandBar = ({
+export const MSDynamicCheckOrderCommandBar = ({
   checking,
   onCheck,
 }: {
