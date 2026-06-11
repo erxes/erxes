@@ -5,9 +5,9 @@ import {
   ICustomField,
   IListParams,
   IStringMap,
-  IPropertyField
+  IPropertyField,
 } from '../../common';
-import { IAddress, ILocation, } from './contacts-common';
+import { IAddress, ILocation } from './contacts-common';
 
 export interface IVisitorContact {
   email?: string;
@@ -69,12 +69,12 @@ export interface ICustomerDocument extends ICustomer, Document {
 }
 
 export interface ICustomerQueryFilterParams
-  extends ICursorPaginateParams,
-    IListParams {
+  extends ICursorPaginateParams, IListParams {
   createdAt?: Date;
   type?: string;
   status?: string;
   dateFilters?: string;
+  propertiesData?: string;
 
   tagIds?: string[];
   excludeTagIds?: string[];
