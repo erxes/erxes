@@ -52,64 +52,24 @@ async function ddgSearch(query: string, limit: number): Promise<SearchResult[]> 
   return results;
 }
 
-// Brave Search — optional, requires an API key. Returns real web results
-// including recent news and events. Free tier: 2000 queries/month.
-async function braveSearch(query: string, apiKey: string, limit: number): Promise<SearchResult[]> {
-  const url = new URL('https://api.search.brave.com/res/v1/web/search');
-  url.searchParams.set('q', query);
-  url.searchParams.set('count', String(Math.min(limit, 10)));
-  url.searchParams.set('safesearch', 'moderate');
-
-  const res = await fetch(url.toString(), {
-    headers: {
-      'Accept': 'application/json',
-      'Accept-Encoding': 'gzip',
-      'X-Subscription-Token': apiKey,
-    },
-    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-  });
-
-  if (!res.ok) throw new Error(`Brave Search HTTP ${res.status}`);
-  const data = await res.json() as any;
-
-  return (data.web?.results ?? []).map((r: any) => ({
-    title: r.title ?? '',
-    snippet: r.description ?? '',
-    url: r.url ?? '',
-  }));
-}
-
-// Factory — uses Brave if an API key is available (stored in settings or env),
-// falls back to DuckDuckGo HTML scraping (no key needed, slightly less reliable).
-export function createWebSearchTool(settings?: any) {
-  const apiKey: string = settings?.searchApiKey || process.env.BRAVE_SEARCH_API_KEY || '';
-
-  return createTool({
-    id: 'web-search',
-    description: apiKey
-      ? 'Search the web for current information using Brave Search. Returns real web results including news and recent events.'
-      : 'Search the web using DuckDuckGo. Returns top results with titles, URLs and snippets. Use fetch-url to read a result in full.',
-    inputSchema: z.object({
-      query: z.string().describe('The search query'),
-      limit: z.number().int().min(1).max(10).default(5).describe('Max results'),
-    }),
-    outputSchema: z.object({
-      results: z.array(z.object({
-        title: z.string(),
-        url: z.string(),
-        snippet: z.string(),
-      })),
-    }),
-    execute: async ({ query, limit }) => {
-      if (apiKey) {
-        return { results: await braveSearch(query, apiKey, limit ?? 5) };
-      }
-      return { results: await ddgSearch(query, limit ?? 5) };
-    },
-  });
-}
-
-export const webSearchTool = createWebSearchTool();
+export const webSearchTool = createTool({
+  id: 'web-search',
+  description: 'Search the web for any topic. Returns top results with titles, URLs and snippets. Use fetch-url to read a result in full.',
+  inputSchema: z.object({
+    query: z.string().describe('The search query'),
+    limit: z.number().int().min(1).max(10).default(5).describe('Max results'),
+  }),
+  outputSchema: z.object({
+    results: z.array(z.object({
+      title: z.string(),
+      url: z.string(),
+      snippet: z.string(),
+    })),
+  }),
+  execute: async ({ query, limit }) => {
+    return { results: await ddgSearch(query, limit ?? 5) };
+  },
+});
 
 function isPrivateIp(ip: string): boolean {
   if (ip.includes(':')) {
@@ -295,7 +255,6 @@ export const BUILTIN_TOOLS: Record<string, any> = {
   ...WORKFLOW_BUILTIN_TOOLS,
 };
 
-export function getBuiltinTool(builtinType: string, settings?: any) {
-  if (builtinType === 'webSearch') return createWebSearchTool(settings);
+export function getBuiltinTool(builtinType: string) {
   return BUILTIN_TOOLS[builtinType] ?? null;
 }

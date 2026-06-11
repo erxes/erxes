@@ -38,11 +38,6 @@ export const types = `
     defaultAgentId: String
     attachmentsEnabled: Boolean
     attachmentStorage: MastraAttachmentStorageStatus
-    # Brave Search API key — stored encrypted-at-rest by MongoDB, masked in UI.
-    # Set BRAVE_SEARCH_API_KEY env var to override. Get a free key at brave.com/search/api/
-    searchApiKey: String
-    # Read-only: which search provider is active ("brave" | "duckduckgo")
-    searchProvider: String
 
     # Read-only: the "Advanced memory feature" is controlled by the
     # ERXES_AGENT_MEMORY env var, not by app data. Surfaced for display only.
@@ -58,7 +53,6 @@ export const types = `
     erxesApiToken: String
     defaultAgentId: String
     attachmentsEnabled: Boolean
-    searchApiKey: String
   }
 `;
 

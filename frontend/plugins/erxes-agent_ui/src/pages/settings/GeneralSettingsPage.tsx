@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { IconCheck, IconLock, IconBrain, IconBook, IconPaperclip, IconSearch } from '@tabler/icons-react';
+import { IconCheck, IconLock, IconBrain, IconBook, IconPaperclip } from '@tabler/icons-react';
 import { Button, Label, Input, Badge } from 'erxes-ui';
 import { MASTRA_SETTINGS, MASTRA_AGENTS } from '~/graphql/queries';
 import { MASTRA_SETTINGS_SAVE } from '~/graphql/mutations';
@@ -15,7 +15,6 @@ export const GeneralSettingsPage = () => {
     erxesApiToken: '',
     defaultAgentId: '',
     attachmentsEnabled: true,
-    searchApiKey: '',
   });
 
   const [saved, setSaved] = useState(false);
@@ -28,13 +27,11 @@ export const GeneralSettingsPage = () => {
         erxesApiToken: s.erxesApiToken || '',
         defaultAgentId: s.defaultAgentId || '',
         attachmentsEnabled: s.attachmentsEnabled !== false,
-        searchApiKey: s.searchApiKey || '',
       });
     }
   }, [settingsData]);
 
   const agents = agentsData?.mastraAgents || [];
-  const searchProvider: string = settingsData?.mastraSettings?.searchProvider ?? 'duckduckgo';
 
   // Read-only "Advanced memory feature" status — derived from the MASTRA_MEMORY
   // env var on the server. Displayed only; not editable from the UI.
@@ -161,53 +158,10 @@ export const GeneralSettingsPage = () => {
           </p>
         </div>
 
-        {/* Brave Search API key */}
-        <div className="space-y-1.5">
-          <Label htmlFor="searchApiKey">Brave Search API Key</Label>
-          <Input
-            id="searchApiKey"
-            type="password"
-            value={form.searchApiKey}
-            onChange={(e) => set('searchApiKey', e.target.value)}
-            placeholder="BSA…"
-          />
-          <p className="text-xs text-muted-foreground">
-            Enables full web search for the <strong>Web Search</strong> tool. Free tier: 2 000
-            queries/month. Get a key at{' '}
-            <a
-              href="https://brave.com/search/api/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline"
-            >
-              brave.com/search/api
-            </a>
-            . Leave blank to use DuckDuckGo (no API key, HTML scraping).
-          </p>
-        </div>
-
         <Button type="submit" disabled={loading}>
           {saved ? <><IconCheck size={16} /> Saved</> : loading ? 'Saving...' : 'Save Settings'}
         </Button>
       </form>
-
-      {/* Search provider status */}
-      <div className="rounded-lg border p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <IconSearch className="size-4 text-muted-foreground" />
-            <span className="font-medium">Web Search provider</span>
-          </div>
-          <Badge variant={searchProvider === 'brave' ? 'success' : 'secondary'}>
-            {searchProvider === 'brave' ? 'Brave Search' : 'DuckDuckGo'}
-          </Badge>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          {searchProvider === 'brave'
-            ? 'Full web search is active. The agent can find current news, recent events, and any public web page.'
-            : 'DuckDuckGo HTML search is active (no API key needed). Add a Brave Search API key above for more reliable results.'}
-        </p>
-      </div>
 
       {/* Advanced memory feature — read-only, controlled by MASTRA_MEMORY env */}
       <div className="rounded-lg border p-4 space-y-3">

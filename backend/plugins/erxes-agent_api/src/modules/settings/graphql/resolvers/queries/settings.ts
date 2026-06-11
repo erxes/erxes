@@ -44,13 +44,9 @@ export const settingsQueries = {
     const knowledgeReachable = isKnowledgeEnabled() ? await qdrantHealth() : null;
     const knowledge = computeKnowledgeStatus(process.env, { reachable: knowledgeReachable });
 
-    const activeKey = obj?.searchApiKey || process.env.BRAVE_SEARCH_API_KEY || '';
-    const searchProvider = activeKey ? 'brave' : 'duckduckgo';
-
     return {
       ...obj,
       attachmentStorage: await attachmentStorageStatus(models, subdomain),
-      searchProvider,
       advancedMemory: status.enabled,
       advancedMemoryStatus: status,
       knowledgeStatus: {
