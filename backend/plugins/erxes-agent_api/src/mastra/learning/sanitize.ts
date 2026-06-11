@@ -19,10 +19,6 @@ export const REDACTED = '[redacted]';
 // Identifier-shaped substrings. Order matters: URLs first (so an email inside
 // a URL doesn't leave a half-scrubbed URL behind), then emails, then numbers.
 const URL_WITH_QUERY = /(https?:\/\/[^\s?'"<>]+)\?[^\s'"<>]*/gi;
-// Deliberately coarse: the regex ends on the domain character class with no
-// trailing element, so it cannot backtrack (S5852). For redaction purposes
-// over-matching (e.g. swallowing a sentence-final dot) is acceptable.
-const EMAIL = /[a-z0-9._%+-]+@[a-z0-9.-]+/gi;
 // Phone-ish: 8+ digits allowing separators, optionally prefixed with +. Each
 // digit after the first consumes its own separators — no ambiguous overlap.
 const PHONE = /\+?\d(?:[\s().-]*\d){7,}/g;
@@ -34,10 +30,50 @@ const TOKEN = /\b[a-f0-9]{24,}\b|\b[A-Za-z0-9+/_-]{32,}={0,2}\b/g;
  * safety net under the extractor's "generalize, no identities" instruction
  * and the LLM gate — not the whole defense.
  */
+const EMAIL_LOCAL_CHARS = new Set('abcdefghijklmnopqrstuvwxyz0123456789._%+-');
+const EMAIL_DOMAIN_CHARS = new Set('abcdefghijklmnopqrstuvwxyz0123456789.-');
+
+// Linear single-pass email redaction — Sonar scores every quantified-class
+// regex shape here as super-linear (S5852), so emails are found by scanning
+// for '@' and expanding over the local/domain character sets instead.
+// Deliberately coarse: over-matching is acceptable when redacting.
+function redactEmails(text: string): string {
+  const lower = text.toLowerCase();
+  let out = '';
+  let segStart = 0;
+  let i = 0;
+  while (i < text.length) {
+    if (text[i] !== '@') {
+      i++;
+      continue;
+    }
+    let localStart = i;
+    while (
+      localStart > segStart &&
+      EMAIL_LOCAL_CHARS.has(lower[localStart - 1])
+    ) {
+      localStart--;
+    }
+    let domainEnd = i + 1;
+    while (
+      domainEnd < text.length &&
+      EMAIL_DOMAIN_CHARS.has(lower[domainEnd])
+    ) {
+      domainEnd++;
+    }
+    if (localStart < i && domainEnd > i + 1) {
+      out += text.slice(segStart, localStart) + REDACTED;
+      segStart = domainEnd;
+      i = domainEnd;
+    } else {
+      i++;
+    }
+  }
+  return out + text.slice(segStart);
+}
+
 export function scrubPII(text: string): string {
-  return (text ?? '')
-    .replace(URL_WITH_QUERY, (_m, base) => base)
-    .replace(EMAIL, REDACTED)
+  return redactEmails((text ?? '').replace(URL_WITH_QUERY, (_m, base) => base))
     .replace(TOKEN, REDACTED)
     .replace(PHONE, (m) => {
       // Keep short quantities ("around 1000000 MNT") — only redact when it
