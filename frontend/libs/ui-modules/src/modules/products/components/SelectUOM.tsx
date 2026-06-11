@@ -35,8 +35,8 @@ export const SelectUOM = ({
           uoms.map((uom) => (
             <Select.Item
               key={uom._id}
-              value={uom._id}
-              disabled={disabledUoms.includes(uom._id)}
+              value={uom.code}
+              disabled={disabledUoms.includes(uom.code)}
             >
               {uom.name}
             </Select.Item>

@@ -14,7 +14,6 @@ import {
   ActivityLogs,
   AddInternalNote,
   FieldsInDetail,
-  uomToCode,
 } from 'ui-modules';
 import { productCustomActivities } from './ProductActivityRows';
 import { useProductDetailWithQuery } from '@/products/product-detail/hooks/useProductDetailWithQuery';
@@ -34,7 +33,6 @@ import {
   ProductFormValues,
 } from '@/products/constants/ProductFormSchema';
 import { useProductsEdit } from '@/products/hooks/useProductsEdit';
-import { useUom } from '@/products/hooks/useUom';
 
 export const ProductDetailSheet = () => {
   const { t } = useTranslation('product', {
@@ -46,7 +44,6 @@ export const ProductDetailSheet = () => {
     useProductDetailWithQuery();
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
   const { productsEdit, loading: editLoading } = useProductsEdit();
-  const { uoms } = useUom({});
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(ProductFormSchema),
@@ -90,14 +87,12 @@ export const ProductDetailSheet = () => {
     const subUoms = Array.isArray(data.subUoms)
       ? data.subUoms.map((item) => ({
           ...item,
-          uom: uomToCode(uoms, item?.uom),
+          uom: item?.uom,
           ratio: normalizeSubUomRatio(item?.ratio),
         }))
       : data.subUoms;
 
-    const uom = uomToCode(uoms, data.uom);
-
-    return { ...data, attachment, attachmentMore, subUoms, uom };
+    return { ...data, attachment, attachmentMore, subUoms };
   };
 
   const handleSave = (data: ProductFormValues) => {
@@ -139,7 +134,7 @@ export const ProductDetailSheet = () => {
   };
 
   const handleCancel = () => {
-    const defaults = getProductFormDefaultValues(productDetail, uoms);
+    const defaults = getProductFormDefaultValues(productDetail);
     if (defaults) form.reset(defaults);
   };
 
