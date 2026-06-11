@@ -28,6 +28,8 @@ export const types = `
     category: ProductCategory
     vendor: Company
     hasSimilarity: Boolean
+    similarityId: String
+    similarity: ProductSimilarity
 
     pdfAttachment: PdfAttachment
 
@@ -44,7 +46,7 @@ export const types = `
     fieldId: String
   }
 
-  type ProductSimilarity {
+  type LegacyProductSimilarity {
     products: [Product],
     groups: [ProductSimilarityGroup],
   }
@@ -75,6 +77,7 @@ const queryParams = `
   segment: String,
   segmentData: String,
   groupedSimilarity: String,
+  collapseSimilarity: Boolean,
   image: String,
   brand: String,
 
@@ -106,7 +109,7 @@ export const queries = `
   ): [Product]
   productsTotalCount(${queryParams}): Int
   productDetail(_id: String): Product
-  productSimilarities(_id: String!, groupedSimilarity: String): ProductSimilarity
+  legacyProductSimilarities(_id: String!, groupedSimilarity: String): LegacyProductSimilarity
   productCountByTags: JSON
 
   cpProducts(

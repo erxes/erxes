@@ -14,7 +14,7 @@ import { IProductCategory } from '@/products/types/productTypes';
 
 export const SelectCategory = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
-  React.ComponentPropsWithoutRef<typeof Combobox.Trigger> & {
+  Omit<React.ComponentPropsWithoutRef<typeof Combobox.Trigger>, 'onSelect'> & {
     selected?: string;
     onSelect: (categoryId: string) => void;
     open?: boolean;

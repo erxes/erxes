@@ -66,6 +66,8 @@ export interface IProduct {
 
   inventories?: IInventory;
   discounts?: IDiscount;
+
+  similarityId?: string;
 }
 
 export interface IProductDocument extends IProduct, Document {

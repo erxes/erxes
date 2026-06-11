@@ -9,7 +9,10 @@ import { FilterQuery, SortOrder } from 'mongoose';
 import { IContext, IModels } from '~/connectionResolvers';
 
 import { IProductParams } from '@/products/@types/product';
-import { PRODUCT_STATUSES } from '@/products/constants';
+import {
+  PRODUCT_SIMILARITY_STATUSES,
+  PRODUCT_STATUSES,
+} from '@/products/constants';
 import { fetchSegment } from '@/segments/utils/fetchSegment';
 import {
   getSimilaritiesProducts,
@@ -56,6 +59,18 @@ const generateFilter = async (
   const andFilters: any[] = [];
 
   filter.status = { $ne: PRODUCT_STATUSES.DELETED };
+
+  // one card per similarity group: standalone products + each group's star
+  if (params.collapseSimilarity) {
+    const starProductIds = await models.ProductSimilarities.distinct(
+      'starProductId',
+      { status: { $ne: PRODUCT_SIMILARITY_STATUSES.DELETED } },
+    );
+
+    andFilters.push({
+      $or: [{ similarityId: null }, { _id: { $in: starProductIds } }],
+    });
+  }
 
   if (params.status) {
     filter.status = params.status;

@@ -44,6 +44,7 @@ export interface ProductDetail {
   variants?: Record<string, unknown>;
   customFieldsData?: Record<string, unknown>;
   propertiesData?: Record<string, unknown>;
+  similarityId?: string;
 }
 
 export type { ProductFormValues };
