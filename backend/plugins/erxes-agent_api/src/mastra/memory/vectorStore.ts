@@ -45,11 +45,14 @@ export function buildSearchBody(
 
 // ── Networked ops ────────────────────────────────────────────────────────────
 
+/** Request headers: JSON content type plus the optional Qdrant api key. */
 function headers(): Record<string, string> {
-  const h: Record<string, string> = { 'Content-Type': 'application/json' };
+  const requestHeaders: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
   const key = qdrantApiKey();
-  if (key) h['api-key'] = key;
-  return h;
+  if (key) requestHeaders['api-key'] = key;
+  return requestHeaders;
 }
 
 /** True if Qdrant answers its health endpoint within 2s. Never throws. */

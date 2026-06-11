@@ -12,6 +12,8 @@
 // Heavy deps (@mastra/core/agent, the provider/model builder, the auth context)
 // are imported lazily inside refreshWorkingMemory so the pure helpers stay
 // dependency-light and unit-testable, and default deployments never load them.
+// Type-only imports are erased at runtime, so they keep that contract.
+import type { IModels } from '~/connectionResolvers';
 import type { MemoryContext } from './semanticRecall';
 import type { ConvoMessage } from './convo';
 
@@ -30,9 +32,9 @@ Rules:
 export function buildWorkingMemoryBlock(
   content: string | null | undefined,
 ): string | null {
-  const c = (content ?? '').trim();
-  if (!c) return null;
-  return `What you know about this user (from earlier sessions):\n${c}`;
+  const profile = (content ?? '').trim();
+  if (!profile) return null;
+  return `What you know about this user (from earlier sessions):\n${profile}`;
 }
 
 /** Markdown replace semantics: a non-empty update wins; otherwise keep existing. */
@@ -40,10 +42,11 @@ export function mergeWorkingMemory(
   existing: string,
   update: string | null | undefined,
 ): string {
-  const u = (update ?? '').trim();
-  return u || (existing ?? '');
+  const updated = (update ?? '').trim();
+  return updated || (existing ?? '');
 }
 
+/** Render the extractor's user message: current profile + latest exchange. */
 export function buildRefreshUserContent(
   existing: string,
   exchange: { user: string; assistant: string },
@@ -74,6 +77,7 @@ export function buildRefreshPrompt(
 // ── Orchestration (best-effort; never throws) ────────────────────────────────
 
 let _warned = false;
+/** Log a degradation warning once per process (the refresh is best-effort). */
 function warnOnce(msg: string) {
   if (_warned) return;
   // eslint-disable-next-line no-console
@@ -83,7 +87,7 @@ function warnOnce(msg: string) {
 
 /** Read the stored profile and return it as a context block (or null). */
 export async function readWorkingMemory(
-  models: any,
+  models: IModels,
   ctx: MemoryContext,
 ): Promise<string | null> {
   try {
@@ -92,34 +96,43 @@ export async function readWorkingMemory(
       ctx.agentId,
     );
     return buildWorkingMemoryBlock(content);
-  } catch (e: any) {
+  } catch (e) {
     warnOnce(`[mastra:memory] working-memory read skipped: ${e?.message || e}`);
     return null;
   }
 }
 
+// The minimal surface used from a Mastra Agent — typed locally so the lazy
+// import keeps this module free of a static @mastra/core type dependency.
+interface ExtractorAgent {
+  generate(msgs: unknown, opts?: unknown): Promise<{ text?: string }>;
+  generateLegacy(msgs: unknown): Promise<{ text?: string }>;
+}
+
 // Tool-less extractor agents, cached per provider+model. Built lazily so the
 // Mastra Agent / provider deps are only loaded when a refresh actually runs.
-const _extractors = new Map<string, any>();
+const _extractors = new Map<string, ExtractorAgent>();
+
+/** Lazily build (and cache per provider+model) the profile extractor agent. */
 async function extractorFor(
   provider: string,
   model: string,
-  providers: any[],
-): Promise<any> {
+  providers: unknown[],
+): Promise<ExtractorAgent> {
   const key = `${provider}:${model}`;
-  let a = _extractors.get(key);
-  if (!a) {
+  let cached = _extractors.get(key);
+  if (!cached) {
     const { Agent } = await import('@mastra/core/agent');
     const { buildModel } = await import('~/mastra/providers');
-    a = new Agent({
+    cached = new Agent({
       id: 'mastra-wm-extractor',
       name: 'Working Memory Extractor',
       instructions: WM_EXTRACTOR_INSTRUCTIONS,
       model: buildModel(provider, model, providers),
-    });
-    _extractors.set(key, a);
+    }) as unknown as ExtractorAgent;
+    _extractors.set(key, cached);
   }
-  return a;
+  return cached;
 }
 
 /**
@@ -127,13 +140,13 @@ async function extractorFor(
  * fire-and-forget after the reply is returned, so it never adds chat latency.
  */
 export async function refreshWorkingMemory(params: {
-  models: any;
+  models: IModels;
   ctx: MemoryContext;
   exchange: { user: string; assistant: string };
   provider: string;
   model: string;
-  providers: any[];
-  authCtx: any;
+  providers: unknown[];
+  authCtx: { userHeader?: string; token?: string; subdomain?: string };
   isLegacy: boolean;
 }): Promise<void> {
   const {
@@ -156,15 +169,10 @@ export async function refreshWorkingMemory(params: {
     const msgs = [
       { role: 'user', content: buildRefreshUserContent(existing, exchange) },
     ];
-    const result: any = await runWithAuth(
-      authCtx,
-      () =>
-        (isLegacy
-          ? extractor.generateLegacy(msgs as any)
-          : extractor.generate(
-              msgs as any,
-              { maxSteps: 1 } as any,
-            )) as Promise<any>,
+    const result = await runWithAuth(authCtx, () =>
+      isLegacy
+        ? extractor.generateLegacy(msgs)
+        : extractor.generate(msgs, { maxSteps: 1 }),
     );
     const updated = mergeWorkingMemory(existing, result?.text);
     if (updated.trim() && updated !== existing) {
@@ -174,7 +182,7 @@ export async function refreshWorkingMemory(params: {
         updated,
       );
     }
-  } catch (e: any) {
+  } catch (e) {
     warnOnce(
       `[mastra:memory] working-memory refresh skipped: ${e?.message || e}`,
     );
