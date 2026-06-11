@@ -164,6 +164,9 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     const invoice = await models.Invoices.createInvoice({
       ...input,
     });
+    if (!input.paymentIds || input.paymentIds.length === 0) {
+      throw new Error('paymentIds is required');
+    }
 
     return `${domain}/pl:payment/widget/invoice/${invoice._id}`;
   },

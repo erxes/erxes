@@ -13,13 +13,13 @@ export const TRANSACTION_SUBSCRIPTION = gql`
 `;
 
 export const PAYMENTS_QRY = gql`
-query PaymentsPublic($kind: String, $ids: [String], $currency: String) {
-  paymentsPublic(kind: $kind, _ids: $ids, currency: $currency) {
-    _id
-    kind
-    name
+  query PaymentsPublic($kind: String, $ids: [String], $currency: String) {
+    paymentsPublic(kind: $kind, _ids: $_ids, currency: $currency) {
+      _id
+      kind
+      name
+    }
   }
-}
 `;
 
 export const INVOICE = gql`

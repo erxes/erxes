@@ -34,15 +34,16 @@ const InvoiceDetail = () => {
   const invoiceDetail = invoiceDetailQuery.data?.invoiceDetail || null;
 
   const { data, loading: paymentsLoading } = useQuery(PAYMENTS_QRY, {
-    skip: !invoiceDetail,
+
+    skip: !invoiceDetail || !invoiceDetail?.paymentIds?.length,
+
     variables: {
       ...(invoiceDetail?.paymentIds?.length > 0 && {
-        ids: invoiceDetail?.paymentIds,
+        _ids: invoiceDetail?.paymentIds, 
       }),
       currency: invoiceDetail?.currency || '',
     },
   });
-
   React.useEffect(() => {
     if (invoiceSubscription.data?.invoiceUpdated) {
       const message = {
@@ -50,8 +51,8 @@ const InvoiceDetail = () => {
         message: 'paymentSuccessful',
         invoiceId: id,
         invoice: invoiceSubscription.data.invoiceUpdated,
-        contentType: invoiceDetail.contentType,
-        contentTypeId: invoiceDetail.contentTypeId,
+        contentType: invoiceDetail?.contentType,
+        contentTypeId: invoiceDetail?.contentTypeId,
       };
 
       const res = invoiceSubscription.data.invoiceUpdated;
@@ -95,9 +96,7 @@ const InvoiceDetail = () => {
 
   const checkInvoiceHandler = (id: string) => {
     checkInvoice({ variables: { id } })
-      .catch((e) => {
-        console.error(e);
-      })
+      .catch((e) => console.error(e))
       .then(({ data }: any) => {
         const status = data?.invoicesCheck;
         invoiceDetailQuery.refetch();
@@ -105,34 +104,29 @@ const InvoiceDetail = () => {
           window.alert('Not paid yet!, Please try again later.');
         } else {
           window.alert('Payment has been successfully processed. Thank you!');
-          const message = {
+          postMessage({
             fromPayment: true,
             message: 'paymentSuccessful',
             invoiceId: id,
             invoice: invoiceDetail,
             contentType: invoiceDetail.contentType,
             contentTypeId: invoiceDetail.contentTypeId,
-          };
-          postMessage(message);
+          });
         }
       });
   };
 
   const postMessage = (message: any) => {
-    if (window.opener) {
-      window.opener.postMessage(message, '*');
-    }
-
-    if (window.parent) {
-      window.parent.postMessage(message, '*');
-    }
+    if (window.opener) window.opener.postMessage(message, '*');
+    if (window.parent) window.parent.postMessage(message, '*');
   };
 
   const { paymentTransactionsAdd: newTransaction } =
     addTransactionResponse.data || {};
   let payments = data?.paymentsPublic || [];
 
-  // if invoice amount is less than 100000, hide storepay
+
+
   if (invoiceDetail && invoiceDetail.amount < 100000) {
     payments = payments.filter((p: any) => p.kind !== 'storepay');
   }
@@ -155,17 +149,17 @@ const InvoiceDetail = () => {
     );
   }
 
-  const updatedProps = {
-    invoiceDetail,
-    payments,
-    newTransaction,
-    requestNewTransaction,
-    checkInvoiceHandler,
-    transactionLoading: addTransactionResponse.loading,
-    checkInvoiceLoading,
-  };
-
-  return <Payment {...updatedProps} />;
+  return (
+    <Payment
+      invoiceDetail={invoiceDetail}
+      payments={payments}
+      newTransaction={newTransaction}
+      requestNewTransaction={requestNewTransaction}
+      checkInvoiceHandler={checkInvoiceHandler}
+      transactionLoading={addTransactionResponse.loading}
+      checkInvoiceLoading={checkInvoiceLoading}
+    />
+  );
 };
 
 export default InvoiceDetail;
