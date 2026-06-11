@@ -381,22 +381,16 @@ const formatFileSize = (size?: number) => {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 };
 
-// Attachments inside a message bubble: images inline, other files as
-// download chips. `onDark` adapts the chip colors to the user bubble.
-const MessageAttachments = ({
-  attachments,
-  onDark,
-}: {
-  attachments: ChatAttachment[];
-  onDark?: boolean;
-}) => {
+// Attachments render as their own block OUTSIDE the chat bubble — images as
+// standalone rounded cards, other files as download cards.
+const MessageAttachments = ({ attachments }: { attachments: ChatAttachment[] }) => {
   const images = attachments.filter(isImageAttachment);
   const files = attachments.filter((a) => !isImageAttachment(a));
 
   return (
-    <div className="space-y-1.5 mb-1.5">
+    <div className="flex flex-col items-end gap-1.5 max-w-[78%]">
       {images.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap justify-end gap-1.5">
           {images.map((att, i) => (
             <a
               key={`${att.url}-${i}`}
@@ -404,11 +398,12 @@ const MessageAttachments = ({
               target="_blank"
               rel="noreferrer"
               title={att.name}
+              className="group/img block overflow-hidden rounded-xl border border-border bg-muted shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
             >
               <img
                 src={attachmentSrc(att)}
                 alt={att.name}
-                className="max-h-48 max-w-full rounded-lg border border-black/10 object-cover"
+                className="block max-h-64 max-w-72 h-auto w-auto transition-transform duration-300 group-hover/img:scale-[1.02]"
               />
             </a>
           ))}
@@ -420,19 +415,19 @@ const MessageAttachments = ({
           href={attachmentSrc(att)}
           target="_blank"
           rel="noreferrer"
-          className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs transition-colors ${
-            onDark
-              ? 'bg-primary-foreground/15 hover:bg-primary-foreground/25 text-primary-foreground'
-              : 'bg-background/60 hover:bg-background border border-border/60'
-          }`}
+          className="flex items-center gap-2.5 rounded-xl border border-border bg-background px-3 py-2 text-xs shadow-sm hover:border-primary/40 hover:bg-primary/4 transition-colors max-w-64"
         >
-          <IconFileText className="size-4 shrink-0" />
-          <span className="truncate font-medium">{att.name}</span>
-          {att.size ? (
-            <span className={onDark ? 'text-primary-foreground/60' : 'text-muted-foreground'}>
-              {formatFileSize(att.size)}
-            </span>
-          ) : null}
+          <span className="size-8 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center">
+            <IconFileText className="size-4 text-primary" />
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate font-medium text-foreground">{att.name}</span>
+            {att.size ? (
+              <span className="block text-muted-foreground mt-0.5">
+                {formatFileSize(att.size)}
+              </span>
+            ) : null}
+          </span>
         </a>
       ))}
     </div>
@@ -697,17 +692,21 @@ const MessageBubble = ({
   }
 
   if (msg.role === 'user') {
+    const time = msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const hasText = !!msg.content.trim();
     return (
-      <div className="flex justify-end ea-msg-in">
-        <div className="max-w-[78%] bg-gradient-to-br from-primary to-primary/85 text-primary-foreground rounded-2xl rounded-br-md px-4 py-2.5 shadow-sm">
-          {msg.attachments && msg.attachments.length > 0 && (
-            <MessageAttachments attachments={msg.attachments} onDark />
-          )}
-          <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
-          <p className="text-[10px] mt-1 text-primary-foreground/60">
-            {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </p>
-        </div>
+      <div className="flex flex-col items-end gap-1.5 ea-msg-in">
+        {msg.attachments && msg.attachments.length > 0 && (
+          <MessageAttachments attachments={msg.attachments} />
+        )}
+        {hasText ? (
+          <div className="max-w-[78%] bg-gradient-to-br from-primary to-primary/85 text-primary-foreground rounded-2xl rounded-br-md px-4 py-2.5 shadow-sm">
+            <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+            <p className="text-[10px] mt-1 text-primary-foreground/60">{time}</p>
+          </div>
+        ) : (
+          <p className="text-[10px] text-muted-foreground pr-1">{time}</p>
+        )}
       </div>
     );
   }
@@ -817,6 +816,7 @@ export const ChatPage = () => {
 
   const state = agentId ? chatStore.getState(agentId) : undefined;
   const sessions = state?.sessions ?? [];
+  const sessionsLoaded = state?.sessionsLoaded ?? false;
   const activeThreadId = state?.activeThreadId;
   const isDraft = state?.isDraft ?? false;
   const messages: Message[] = state?.messages ?? [];
@@ -1152,6 +1152,14 @@ export const ChatPage = () => {
               </Button>
             </div>
             <div className="flex-1 overflow-auto p-1.5 space-y-0.5">
+              {!sessionsLoaded ? (
+                <div className="space-y-1.5 p-1">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="h-12 w-full rounded-md" />
+                  ))}
+                </div>
+              ) : (
+                <>
               {isDraft && (
                 <div
                   className={`rounded-md px-2.5 py-2 ${
@@ -1205,6 +1213,8 @@ export const ChatPage = () => {
                     </button>
                   );
                 })
+              )}
+                </>
               )}
             </div>
           </div>

@@ -1,3 +1,4 @@
+import './polyfills'; // must stay first — patches globals Mastra needs on Node 18
 import { startPlugin } from 'erxes-api-shared/utils';
 import { typeDefs } from '~/apollo/typeDefs';
 import { resolvers } from '~/apollo/resolvers';
