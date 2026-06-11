@@ -17,6 +17,8 @@ import { onError } from "@/components/ui/use-toast"
 
 const MobileSheet = () => {
   const [loading, setLoading] = useState(true)
+  const [invoiceUrl, setInvoiceUrl] = useState<string | null>(null)
+
   const config = useAtomValue(configAtom)
   const amount = useAtomValue(currentAmountAtom)
   const activeOrderId = useAtomValue(activeOrderIdAtom)
@@ -24,45 +26,84 @@ const MobileSheet = () => {
   const customerType = useAtomValue(customerTypeAtom)
   const orderNumber = useAtomValue(orderNumberAtom)
 
-  const [generateInvoiceUrl, { data }] = useMutation(
-    mutations.generateInvoiceUrl,
-    {
-      context: {
-        headers: { "erxes-app-token": config?.erxesAppToken },
-      },
-      client: clientMain,
-      onError(error) {
-        onError(error.message)
-      },
-    }
-  )
+  const [generateInvoiceUrl] = useMutation(mutations.generateInvoiceUrl, {
+    context: {
+      headers: { "erxes-app-token": config?.erxesAppToken },
+    },
+    client: clientMain,
+    onError(error) {
+      onError(error.message)
+      setLoading(false)
+    },
+  })
+
+  // 🔥 generate invoice + set iframe URL
   useEffect(() => {
-    generateInvoiceUrl({
-      variables: {
-        input: {
-          amount,
-          contentType: "pos:orders",
-          contentTypeId: activeOrderId,
-          customerId: customer?._id ? customer?._id : "empty",
-          customerType: customerType || "customer",
-          description: orderNumber + "-" + config?.name + "-" + activeOrderId,
-          paymentIds: config?.paymentIds,
-          data: {
-            posToken: config?.token,
+    const run = async () => {
+      try {
+        console.log("🔥 Generating invoice...")
+
+        const res = await generateInvoiceUrl({
+          variables: {
+            input: {
+              amount,
+              contentType: "pos:orders",
+              contentTypeId: activeOrderId,
+              customerId: customer?._id || "empty",
+              customerType: customerType || "customer",
+              description:
+                orderNumber + "-" + config?.name + "-" + activeOrderId,
+              paymentIds: config?.paymentIds,
+              data: {
+                posToken: config?.token,
+              },
+            },
           },
-        },
-      },
-      onCompleted() {
+        })
+
+        const url = res?.data?.generateInvoiceUrl
+
+        console.log("✅ Invoice URL:", url)
+
+        if (!url) {
+          console.error("❌ No invoice URL returned")
+          setLoading(false)
+          return
+        }
+
+        // ✅ IMPORTANT: use iframe instead of redirect
+        setInvoiceUrl(`http://localhost:4200${url}`)
         setLoading(false)
-      },
-    })
+      } catch (err) {
+        console.error("❌ Error generating invoice:", err)
+        setLoading(false)
+      }
+    }
+
+    run()
   }, [])
 
-  if (loading) {
-    return <Loader />
-  }
+  //  listen for postMessage from widget
+  useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      console.log("📩 RECEIVED:", event.data)
 
-  return <iframe src={data?.generateInvoiceUrl} className="w-full h-full" />
+      if (event.data?.message === "paymentSuccessful") {
+        alert("✅ Payment success (POS)")
+      }
+    }
+
+    window.addEventListener("message", handler)
+
+    return () => window.removeEventListener("message", handler)
+  }, [])
+
+  // UI states
+  if (loading) return <Loader />
+
+  if (!invoiceUrl) return <div>Failed to load payment</div>
+
+  return <iframe src={invoiceUrl} className="w-full h-full border-0" />
 }
 
 export default MobileSheet
