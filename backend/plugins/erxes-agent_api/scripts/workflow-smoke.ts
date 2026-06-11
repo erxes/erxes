@@ -8,6 +8,7 @@
  * fresh Mastra instance (in-memory, no storage, no network), and asserts the
  * happy path AND the schema-violation failure path. Exit 0 = kernel works.
  */
+import { writeSync } from 'fs';
 import {
   compileDefinition,
   CompiledDeps,
@@ -41,34 +42,42 @@ const definition: WorkflowDefinition = {
       output: { dealId: '{{steps.create.output._id}}' },
     },
   ],
-} as any;
+} as WorkflowDefinition;
 
-// fs.writeSync over console.log so output survives process exit when piped.
-import { writeSync } from 'fs';
-const log = (line: string) => writeSync(1, line + '\n');
+/** fs.writeSync over console.log so output survives process exit when piped. */
+const log = (line: string) => writeSync(1, `${line}\n`);
 
-const assert = (cond: any, msg: string) => {
+/** Log the check result; a failed check aborts the run via the crash handler. */
+const assert = (cond: unknown, msg: string) => {
   if (!cond) {
     log(`✗ ${msg}`);
-    process.exit(1);
+    throw new Error(`assertion failed: ${msg}`);
   }
   log(`✓ ${msg}`);
 };
 
-(async () => {
-  const calls: any[] = [];
+// What the stubbed effect handlers were invoked with, in call order.
+interface RecordedCall {
+  operation?: string;
+  args?: { name?: string };
+  prompt?: string;
+}
+
+/** Entry point: happy path, schema-failure path, then branch + parallel. */
+const main = async () => {
+  const calls: RecordedCall[] = [];
   const deps: CompiledDeps = {
-    executeOperation: async (operation, args) => {
+    executeOperation: (operation, args) => {
       calls.push({ operation, args });
-      return { _id: 'deal-9', name: args.name };
+      return Promise.resolve({ _id: 'deal-9', name: args.name });
     },
-    runJudgment: async ({ prompt }) => {
+    runJudgment: ({ prompt }) => {
       calls.push({ prompt });
-      return { intent: 'order', productName: 'Chair' };
+      return Promise.resolve({ intent: 'order', productName: 'Chair' });
     },
   };
 
-  const wf: any = compileDefinition('smoke_wf', definition, deps);
+  const wf = compileDefinition('smoke_wf', definition, deps);
   const run = wf.createRunAsync
     ? await wf.createRunAsync()
     : await wf.createRun();
@@ -97,10 +106,10 @@ const assert = (cond: any, msg: string) => {
 
   // Failure path: judgment violating its declared schema fails the run.
   const badDeps: CompiledDeps = {
-    executeOperation: async () => ({}),
-    runJudgment: async () => ({ intent: 'refund' }),
+    executeOperation: () => Promise.resolve({}),
+    runJudgment: () => Promise.resolve({ intent: 'refund' }),
   };
-  const badWf: any = compileDefinition('smoke_bad_wf', definition, badDeps);
+  const badWf = compileDefinition('smoke_bad_wf', definition, badDeps);
   const badRun = badWf.createRunAsync
     ? await badWf.createRunAsync()
     : await badWf.createRun();
@@ -186,18 +195,19 @@ const assert = (cond: any, msg: string) => {
         },
       },
     ],
-  } as any;
+  } as WorkflowDefinition;
 
+  /** Run branchDefinition with a judgment stub returning the given intent. */
   const runBranch = async (intent: string) => {
     const ops: string[] = [];
     const bDeps: CompiledDeps = {
-      executeOperation: async (operation) => {
+      executeOperation: (operation) => {
         ops.push(operation);
-        return { _id: `${operation}-id`, n: operation.length };
+        return Promise.resolve({ _id: `${operation}-id`, n: operation.length });
       },
-      runJudgment: async () => ({ intent }),
+      runJudgment: () => Promise.resolve({ intent }),
     };
-    const bWf: any = compileDefinition(
+    const bWf = compileDefinition(
       `smoke_branch_${intent}`,
       branchDefinition,
       bDeps,
@@ -245,8 +255,12 @@ const assert = (cond: any, msg: string) => {
   );
 
   log('\nWorkflow kernel smoke test: ALL PASS');
-  process.exit(0);
-})().catch((e) => {
-  log(`✗ smoke test crashed: ${e?.stack || e}`);
-  process.exit(1);
-});
+};
+
+/** Crash handler: report the failure and mark the process as failed. */
+const fail = (e: unknown) => {
+  log(`✗ smoke test crashed: ${e instanceof Error ? e.stack : String(e)}`);
+  process.exitCode = 1;
+};
+
+main().catch(fail);
