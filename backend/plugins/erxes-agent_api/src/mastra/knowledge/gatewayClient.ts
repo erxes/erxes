@@ -27,7 +27,7 @@ export function makeGqlExec(
   apiUrl: string,
   authHeaders: Record<string, string>,
 ): GqlExec {
-  return async (query: string, variables: Record<string, any>) => {
+  return async (query, variables) => {
     const res = await fetch(`${apiUrl}/graphql`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...authHeaders },
@@ -36,7 +36,10 @@ export function makeGqlExec(
     if (!res.ok) {
       throw new Error(`Gateway GraphQL failed (${res.status})`);
     }
-    const json: any = await res.json();
+    const json = (await res.json()) as {
+      data?: Record<string, unknown>;
+      errors?: Array<{ message?: string }>;
+    };
     if (json.errors?.length) {
       throw new Error(
         `Gateway GraphQL error: ${json.errors[0]?.message || 'unknown'}`,

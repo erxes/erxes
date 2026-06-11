@@ -67,16 +67,19 @@ export function knowledgeCollectionName(
   return `mastra_knowledge_${trimmed}_${dimension}`;
 }
 
+/** Parse a positive integer from env text, falling back to the default. */
 function parsePositiveInt(raw: string, def: number): number {
   const n = parseInt(raw, 10);
   return Number.isFinite(n) && n > 0 ? n : def;
 }
 
+/** Parse a 0..1 score from env text, falling back to the default. */
 function parseScore(raw: string, def: number): number {
   const n = parseFloat(raw);
   return Number.isFinite(n) && n >= 0 && n <= 1 ? n : def;
 }
 
+/** Knowledge retrieval knobs (topK / minScore / overfetch) with safe defaults. */
 export function resolveKnowledgeTuning(
   env: Env = process.env,
 ): KnowledgeTuning {
@@ -115,7 +118,9 @@ export function enabledKnowledgeTypes(
   if (unknown.length) {
     // eslint-disable-next-line no-console
     console.warn(
-      `[erxes-agent:knowledge] Unknown ERXES_AGENT_KNOWLEDGE_TYPES entries ignored: ${unknown.join(', ')}`,
+      `[erxes-agent:knowledge] Unknown ERXES_AGENT_KNOWLEDGE_TYPES entries ignored: ${unknown.join(
+        ', ',
+      )}`,
     );
   }
   return valid.length ? valid : ['kb-article'];

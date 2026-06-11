@@ -20,9 +20,14 @@ import {
   ArticleChunk,
 } from './serializer';
 
-export interface GqlExec {
-  (query: string, variables: Record<string, any>): Promise<any>;
-}
+// Whatever the gateway's JSON response parses to — same contract as
+// JSON.parse, without committing to a shape erxes resolvers don't guarantee.
+export type GqlData = ReturnType<typeof JSON.parse>;
+
+export type GqlExec = (
+  query: string,
+  variables: Record<string, unknown>,
+) => Promise<GqlData>;
 
 export interface KnowledgeRecord {
   _id: string;
@@ -46,12 +51,14 @@ export interface KnowledgeContentType {
   allowedIds(gql: GqlExec, ids: string[]): Promise<Set<string>>;
 }
 
-const toIso = (d: any): string => (d ? new Date(d).toISOString() : '');
+/** Normalize a date-ish value to ISO, or '' when absent. */
+const toIso = (d: unknown): string =>
+  d ? new Date(d as string | number | Date).toISOString() : '';
 
 /** Compose "Label: value" lines, skipping empties, into a single chunk set. */
 function linesToChunks(
   title: string,
-  lines: Array<[string, any]>,
+  lines: Array<[string, unknown]>,
 ): ArticleChunk[] {
   const body = lines
     .filter(([, v]) => v !== undefined && v !== null && String(v).trim() !== '')
@@ -70,15 +77,15 @@ async function walkCursorList(
   gql: GqlExec,
   buildQuery: (cursor: string | null) => {
     query: string;
-    variables: Record<string, any>;
+    variables: Record<string, unknown>;
   },
-  extract: (data: any) => {
-    list: any[];
+  extract: (data: GqlData) => {
+    list: GqlData[];
     pageInfo?: { endCursor?: string; hasNextPage?: boolean };
   },
   max: number,
-): Promise<any[]> {
-  const out: any[] = [];
+): Promise<GqlData[]> {
+  const out: GqlData[] = [];
   let cursor: string | null = null;
 
   for (;;) {
@@ -97,7 +104,7 @@ async function walkCursorList(
 function detailAllowedIds(
   detailQuery: string,
   rootField: string,
-  extraCheck?: (doc: any) => boolean,
+  extraCheck?: (doc: GqlData) => boolean,
 ) {
   return async (gql: GqlExec, ids: string[]): Promise<Set<string>> => {
     const allowed = new Set<string>();
@@ -136,7 +143,7 @@ const kbArticle: KnowledgeContentType = {
         }`,
         { page, perPage: PAGE, status: 'publish' },
       );
-      const batch: any[] = data.knowledgeBaseArticles || [];
+      const batch: GqlData[] = data.knowledgeBaseArticles || [];
       for (const a of batch) {
         if (a.status !== 'publish' || a.isPrivate) continue;
         out.push({
@@ -160,8 +167,8 @@ const kbArticle: KnowledgeContentType = {
     );
     return new Set(
       (data.knowledgeBaseArticles || [])
-        .filter((a: any) => a.status === 'publish' && !a.isPrivate)
-        .map((a: any) => String(a._id)),
+        .filter((a: GqlData) => a.status === 'publish' && !a.isPrivate)
+        .map((a: GqlData) => String(a._id)),
     );
   },
 };
@@ -258,7 +265,7 @@ const product: KnowledgeContentType = {
         }`,
         { page, perPage: PAGE },
       );
-      const batch: any[] = data.products || [];
+      const batch: GqlData[] = data.products || [];
       for (const p of batch) {
         if (p.status === 'deleted') continue;
         out.push({
