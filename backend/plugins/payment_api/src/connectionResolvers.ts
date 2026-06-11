@@ -8,16 +8,31 @@ import {
   IInvoiceModel,
   loadInvoiceClass,
 } from '~/modules/payment/db/models/Invoices';
-import { IPaymentModel, loadPaymentClass } from '~/modules/payment/db/models/Payment';
+import {
+  IPaymentModel,
+  loadPaymentClass,
+} from '~/modules/payment/db/models/Payment';
 import {
   ITransactionModel,
   loadTransactionClass,
 } from '~/modules/payment/db/models/Transactions';
+import { IKhanbankConfigDocument } from '~/modules/corporateGateway/khanbank/@types/khanbank';
+import {
+  IKhanbankConfigModel,
+  loadKhanbankConfigClass,
+} from '~/modules/corporateGateway/khanbank/db/models/KhanbankConfigs';
+import { IGolomtBankConfigDocument } from '~/modules/corporateGateway/golomtbank/@types/golomtBank';
+import {
+  IGolomtBankConfigModel,
+  loadGolomtBankConfigClass,
+} from '~/modules/corporateGateway/golomtbank/db/models/golomtBankConfigs';
 
 export interface IModels {
   PaymentMethods: IPaymentModel;
   Invoices: IInvoiceModel;
   Transactions: ITransactionModel;
+  KhanbankConfigs: IKhanbankConfigModel;
+  GolomtBankConfigs: IGolomtBankConfigModel;
 }
 
 export interface IContext extends IMainContext {
@@ -42,6 +57,15 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'payment_transactions',
     loadTransactionClass(models),
   );
+
+  models.KhanbankConfigs = db.model<
+    IKhanbankConfigDocument,
+    IKhanbankConfigModel
+  >('khanbank_configs', loadKhanbankConfigClass(models));
+  models.GolomtBankConfigs = db.model<
+    IGolomtBankConfigDocument,
+    IGolomtBankConfigModel
+  >('golomtbank_configs', loadGolomtBankConfigClass(models));
 
   return models;
 };

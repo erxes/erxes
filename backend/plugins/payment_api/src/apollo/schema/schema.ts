@@ -34,6 +34,21 @@ import {
   types as GolomtTransferTypes,
   mutations as GolomtTransferMutations,
 } from '@/corporateGateway/golomtbank/graphql/schema/transfer';
+import {
+  types as KhanbankConfigTypes,
+  queries as KhanbankConfigQueries,
+  mutations as KhanbankConfigMutations,
+} from '@/corporateGateway/khanbank/graphql/schema/configs';
+
+import {
+  types as KhanbankAccountTypes,
+  queries as KhanbankAccountQueries,
+} from '@/corporateGateway/khanbank/graphql/schema/accounts';
+
+import {
+  types as KhanbankTransferTypes,
+  mutations as KhanbankTransferMutations,
+} from '@/corporateGateway/khanbank/graphql/schema/transfer';
 
 export const types = `
   ${PaymentTypes}

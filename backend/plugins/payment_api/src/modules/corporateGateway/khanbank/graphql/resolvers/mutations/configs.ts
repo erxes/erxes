@@ -50,9 +50,7 @@ const mutations = {
     return models.KhanbankConfigs.removeConfig(_id);
   },
 };
-requireLogin(mutations, 'khanbankConfigsAdd');
-requireLogin(mutations, 'khanbankConfigsEdit');
-requireLogin(mutations, 'khanbankConfigsRemove');
+
 
 checkPermission(mutations, 'khanbankConfigsAdd', 'khanbankConfigsAdd', []);
 checkPermission(mutations, 'khanbankConfigsEdit', 'khanbankConfigsEdit', []);
