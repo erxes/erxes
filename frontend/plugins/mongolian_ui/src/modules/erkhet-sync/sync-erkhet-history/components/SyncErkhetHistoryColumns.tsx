@@ -11,12 +11,11 @@ import {
   TextOverflowTooltip,
   RecordTableInlineCell,
   RelativeDateDisplay,
-  cn,
 } from 'erxes-ui';
-import { useSearchParams } from 'react-router-dom';
 
 import { ISyncHistory } from '../types/syncHistory';
 import { SyncErkhetHistoryMoreColumn } from './SyncErkhetHistoryMoreColumn';
+import { SyncHistoryClickableColumnCell } from '~/modules/shared/sync-history/components/SyncHistoryClickableColumnCell';
 
 const stringify = (value: any) => {
   if (!value) {
@@ -28,44 +27,6 @@ const stringify = (value: any) => {
   }
 
   return JSON.stringify(value);
-};
-
-const SyncErkhetHistoryClickableCell = ({
-  row,
-  value,
-  isError,
-}: {
-  row: { original: ISyncHistory };
-  value: string;
-  isError?: boolean;
-}) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const handleOpen = () => {
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('syncHistory_id', row.original._id);
-    setSearchParams(newSearchParams);
-  };
-
-  return (
-    <RecordTableInlineCell
-      role="button"
-      tabIndex={0}
-      onClick={handleOpen}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          handleOpen();
-        }
-      }}
-      className={cn(
-        'cursor-pointer rounded px-2 hover:bg-muted',
-        isError && value ? 'text-destructive' : 'text-muted-foreground',
-      )}
-    >
-      <TextOverflowTooltip value={String(value || '-')} />
-    </RecordTableInlineCell>
-  );
 };
 
 export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
@@ -137,7 +98,7 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <SyncErkhetHistoryClickableCell
+        <SyncHistoryClickableColumnCell
           row={row}
           value={stringify(
             row.original.responseData || row.original.responseStr,
@@ -152,7 +113,7 @@ export const syncErkhetHistoryColumns: ColumnDef<ISyncHistory>[] = [
     header: () => <RecordTable.InlineHead icon={IconCategory} label="Error" />,
     cell: ({ row }) => {
       return (
-        <SyncErkhetHistoryClickableCell
+        <SyncHistoryClickableColumnCell
           row={row}
           value={row.original.error || ''}
           isError
