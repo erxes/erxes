@@ -1,0 +1,75 @@
+# Canonical Examples
+# Gold-standard reference implementations for common patterns.
+# Every path below must exist in the repo. Verified by
+# .agents/scripts/validate-manifest.sh — run it after editing this file.
+
+examples:
+  frontend:
+    - name: "Cursor Table Pattern"
+      plugin: "operation"
+      module: "task"
+      files:
+        - "frontend/plugins/operation_ui/src/modules/task/components/TasksRecordTable.tsx"
+        - "frontend/plugins/operation_ui/src/modules/task/graphql/queries/getTasks.tsx"
+      description: "RecordTable with cursor pagination, filters, and real-time updates"
+
+    - name: "Form Drawer Pattern"
+      plugin: "operation"
+      module: "task"
+      files:
+        - "frontend/plugins/operation_ui/src/modules/task/components/add-task/AddTaskForm.tsx"
+        - "frontend/plugins/operation_ui/src/modules/task/components/add-task/AddTaskSheet.tsx"
+      description: "Sheet-based create/edit form with Zod validation and Apollo mutations"
+
+    - name: "Module Federation Config"
+      plugin: "operation"
+      files:
+        - "frontend/plugins/operation_ui/module-federation.config.ts"
+      description: "Named exports, host-facing entries, widget declarations"
+
+    - name: "Plugin Config"
+      plugin: "operation"
+      files:
+        - "frontend/plugins/operation_ui/src/config.tsx"
+      description: "Navigation modules, settings flags, icons, routes"
+
+  backend:
+    - name: "Mongoose Entity Pattern"
+      plugin: "operation"
+      module: "task"
+      files:
+        - "backend/plugins/operation_api/src/modules/task/db/definitions/task.ts"
+        - "backend/plugins/operation_api/src/modules/task/db/models/Task.ts"
+      description: "Schema definitions, model loaders, collection registration"
+
+    - name: "GraphQL Resolver Pattern"
+      plugin: "operation"
+      module: "task"
+      files:
+        - "backend/plugins/operation_api/src/modules/task/graphql/schemas/task.ts"
+        - "backend/plugins/operation_api/src/modules/task/graphql/resolvers/queries/task.ts"
+        - "backend/plugins/operation_api/src/modules/task/graphql/resolvers/mutations/task.ts"
+      description: "Type definitions, queries, mutations, permissions, cursor pagination"
+
+    - name: "Permission Setup"
+      plugin: "operation"
+      files:
+        - "backend/plugins/operation_api/src/meta/permissions.ts"
+      description: "Feature permissions, actions, module registration"
+
+  cross_cutting:
+    - name: "Apollo Hook Pattern"
+      plugin: "operation"
+      module: "task"
+      files:
+        - "frontend/plugins/operation_ui/src/modules/task/hooks/useGetTasks.tsx"
+        - "frontend/plugins/operation_ui/src/modules/task/hooks/useCreateTask.tsx"
+      description: "Query wrapper with variables, pagination, cache updates"
+
+    - name: "State Management"
+      plugin: "operation"
+      module: "task"
+      files:
+        - "frontend/plugins/operation_ui/src/modules/task/states/taskCreateSheetState.ts"
+        - "frontend/plugins/operation_ui/src/modules/task/states/tasksViewState.ts"
+      description: "Jotai atoms for sheet state, view mode, filters"

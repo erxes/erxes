@@ -251,6 +251,56 @@ for key in "${PROTOCOL_KEYS[@]}"; do
 done
 echo ""
 
+# ─── Check 7: Reference Path Integrity ───
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🔗 CHECK 7: Reference Path Integrity"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Every repo path cited in canonical-examples.yaml must exist, otherwise
+# agents copy patterns from files that are not there (stale-reference rot).
+CANONICAL="${AGENTS_DIR}/references/canonical-examples.yaml"
+if [[ -f "${CANONICAL}" ]]; then
+  CANONICAL_PATHS=$(grep -E '^\s+- "(frontend|backend|apps)/' "${CANONICAL}" | sed 's/.*- "//' | sed 's/"$//')
+  while IFS= read -r ref_path; do
+    if [[ -z "${ref_path}" ]]; then continue; fi
+    if [[ -e "${REPO_ROOT}/${ref_path}" ]]; then
+      ok "Canonical example exists: ${ref_path}"
+    else
+      error "Canonical example path does not exist: ${ref_path}"
+    fi
+  done <<< "${CANONICAL_PATHS}"
+else
+  warn "canonical-examples.yaml not found at ${CANONICAL}"
+fi
+
+# Feature-map plugin/module pairs must resolve to real module directories.
+FEATURE_MAP="${AGENTS_DIR}/maps/feature-map.yaml"
+if [[ -f "${FEATURE_MAP}" ]]; then
+  FM_PAIRS=$(awk '/plugin: /{p=$2} /module: /{m=$2; gsub(/"/,"",p); gsub(/"/,"",m); print p"|"m}' "${FEATURE_MAP}" | sort -u)
+  FM_BROKEN=0
+  while IFS='|' read -r fm_plugin fm_module; do
+    if [[ -z "${fm_plugin}" ]] || [[ -z "${fm_module}" ]]; then continue; fi
+    if [[ "${fm_plugin}" == "core" ]]; then
+      # Core is not a plugin: it lives in core-ui (host) and core-api.
+      FE_DIR="${REPO_ROOT}/frontend/core-ui/src/modules/${fm_module}"
+      BE_DIR="${REPO_ROOT}/backend/core-api/src/modules/${fm_module}"
+    else
+      FE_DIR="${REPO_ROOT}/frontend/plugins/${fm_plugin}_ui/src/modules/${fm_module}"
+      BE_DIR="${REPO_ROOT}/backend/plugins/${fm_plugin}_api/src/modules/${fm_module}"
+    fi
+    if [[ ! -d "${FE_DIR}" ]] && [[ ! -d "${BE_DIR}" ]]; then
+      warn "Feature map entry '${fm_plugin}/${fm_module}' matches no module dir (checked ${fm_plugin}_ui and ${fm_plugin}_api)"
+      FM_BROKEN=$((FM_BROKEN + 1))
+    fi
+  done <<< "${FM_PAIRS}"
+  if [[ ${FM_BROKEN} -eq 0 ]]; then
+    ok "All feature-map plugin/module pairs resolve to module directories"
+  fi
+else
+  warn "feature-map.yaml not found at ${FEATURE_MAP}"
+fi
+echo ""
+
 # ─── Summary ───
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "📊 VALIDATION SUMMARY"

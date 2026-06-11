@@ -57,7 +57,7 @@ Reference paths:
 - Use Jotai atoms for shared page state such as active detail sheets, create
   sheets, total counts, command bars, and persisted view mode.
 - Keep atoms in the feature's `states` folder and name them with feature
-  context, such as `taskCreateSheetState` or `tasksViewAtom`.
+  context, such as `taskCreateSheetState` or `tasksViewState`.
 - Let Apollo own server data. Do not duplicate lists into Jotai or local state
   without a clear reason.
 
@@ -71,7 +71,7 @@ Reference paths:
 - Do not copy older unprefixed operation names such as `GetTasks` into new
   code; follow the current naming rule.
 - Keep Apollo hook wrappers near the feature and mirror the operation name or
-  behavior, such as `useTasks`, `useProjects`, `useGetCycle`, or
+  behavior, such as `useGetTasks`, `useGetProjects`, `useGetCycle`, or
   `useCreateTask`.
 - Build variables in a dedicated hook when they combine route params, URL
   state, current user, cursor state, and caller overrides.
