@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { ProductDetail } from '../types/detailTypes';
 import {
@@ -89,20 +89,28 @@ export const useProductFormData = (
   productId?: string,
 ) => {
   const [formVersion, setFormVersion] = useState(0);
-  const { uoms } = useUom({});
+  const { uoms, loading: uomsLoading } = useUom({});
+  const initializedProductIdRef = useRef<string | null>(null);
 
   useLayoutEffect(() => {
     form.reset(EMPTY_PRODUCT_FORM_VALUES);
+    initializedProductIdRef.current = null;
     setFormVersion((version) => version + 1);
   }, [form, productId]);
 
   useLayoutEffect(() => {
+    if (!productDetail) return;
+    if (productId && productDetail._id !== productId) return;
+    if (uomsLoading) return;
+    if (initializedProductIdRef.current === productDetail._id) return;
+
     const defaults = getProductFormDefaultValues(productDetail, uoms);
-    if (defaults && (!productId || productDetail?._id === productId)) {
+    if (defaults) {
       form.reset(defaults);
+      initializedProductIdRef.current = productDetail._id ?? null;
       setFormVersion((version) => version + 1);
     }
-  }, [productDetail, form, productId, uoms]);
+  }, [productDetail, form, productId, uoms, uomsLoading]);
 
   return formVersion;
 };

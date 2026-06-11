@@ -7,7 +7,7 @@ import { UOM_QUERY } from '../graphql/queries/productsQueries';
 import { IconPlus } from '@tabler/icons-react';
 
 function normalizeUomCode(name: string): string {
-  const normalized = name.trim().toUpperCase();
+  const normalized = name.trim().toLowerCase();
   const replaced = (normalized as any).replaceAll?.(/\s+/g, '_');
   return replaced ?? normalized.replace(/\s+/g, '_');
 }
