@@ -14,13 +14,13 @@ import { qdrantUrl, qdrantApiKey } from './config';
 export interface QdrantPoint {
   id: string | number;
   vector: number[];
-  payload?: Record<string, any>;
+  payload?: Record<string, unknown>;
 }
 
 export interface SearchHit {
   id: string | number;
   score: number;
-  payload: Record<string, any>;
+  payload: Record<string, unknown>;
 }
 
 // ── Pure builders (unit-tested) ──────────────────────────────────────────────
@@ -29,7 +29,12 @@ export function buildCreateBody(dimension: number) {
   return { vectors: { size: dimension, distance: 'Cosine' } };
 }
 
-export function buildSearchBody(vector: number[], topK: number, filter?: any) {
+/** Search request body: vector + limit, payloads on, optional filter. */
+export function buildSearchBody(
+  vector: number[],
+  topK: number,
+  filter?: Record<string, unknown>,
+) {
   return {
     vector,
     limit: topK,
@@ -86,6 +91,7 @@ export async function ensureCollection(
   }
 }
 
+/** Insert-or-replace points (waits for write acknowledgement). */
 export async function upsert(
   name: string,
   points: QdrantPoint[],
@@ -105,7 +111,7 @@ export async function upsert(
 
 export interface ScrolledPoint {
   id: string | number;
-  payload: Record<string, any>;
+  payload: Record<string, unknown>;
 }
 
 /**
@@ -115,7 +121,7 @@ export interface ScrolledPoint {
  */
 export async function scroll(
   name: string,
-  filter: any,
+  filter: Record<string, unknown>,
   baseUrl = qdrantUrl(),
 ): Promise<ScrolledPoint[]> {
   const points: ScrolledPoint[] = [];
@@ -137,9 +143,14 @@ export async function scroll(
       const text = await res.text().catch(() => '');
       throw new Error(`Qdrant scroll failed (${res.status}): ${text}`);
     }
-    const json: any = await res.json();
-    for (const p of json.result?.points || []) {
-      points.push({ id: p.id, payload: p.payload || {} });
+    const json = (await res.json()) as {
+      result?: {
+        points?: ScrolledPoint[];
+        next_page_offset?: string | number | null;
+      };
+    };
+    for (const point of json.result?.points || []) {
+      points.push({ id: point.id, payload: point.payload || {} });
     }
     offset = json.result?.next_page_offset ?? null;
   } while (offset !== null);
@@ -151,7 +162,7 @@ export async function scroll(
 export async function setPayload(
   name: string,
   ids: Array<string | number>,
-  payload: Record<string, any>,
+  payload: Record<string, unknown>,
   baseUrl = qdrantUrl(),
 ): Promise<void> {
   if (!ids.length) return;
@@ -169,6 +180,7 @@ export async function setPayload(
   }
 }
 
+/** Hard-delete points by id (waits for write acknowledgement). */
 export async function deletePoints(
   name: string,
   ids: Array<string | number>,
@@ -189,10 +201,11 @@ export async function deletePoints(
   }
 }
 
+/** Vector similarity search; returns scored hits with their payloads. */
 export async function search(
   name: string,
   vector: number[],
-  opts: { topK: number; filter?: any },
+  opts: { topK: number; filter?: Record<string, unknown> },
   baseUrl = qdrantUrl(),
 ): Promise<SearchHit[]> {
   const res = await fetch(`${baseUrl}/collections/${name}/points/search`, {
@@ -204,10 +217,10 @@ export async function search(
     const text = await res.text().catch(() => '');
     throw new Error(`Qdrant search failed (${res.status}): ${text}`);
   }
-  const json: any = await res.json();
-  return (json.result || []).map((r: any) => ({
-    id: r.id,
-    score: r.score,
-    payload: r.payload || {},
+  const json = (await res.json()) as { result?: SearchHit[] };
+  return (json.result || []).map((hit) => ({
+    id: hit.id,
+    score: hit.score,
+    payload: hit.payload || {},
   }));
 }

@@ -11,9 +11,12 @@ const DIM = 8;
 const baseUrl = process.env.ERXES_AGENT_QDRANT_URL || 'http://localhost:6333';
 
 function vec(seed: number): number[] {
-  const v = Array.from({ length: DIM }, (_, i) => Math.sin(seed * (i + 1)));
-  const norm = Math.sqrt(v.reduce((s, x) => s + x * x, 0)) || 1;
-  return v.map((x) => x / norm);
+  const vector = Array.from({ length: DIM }, (_, i) =>
+    Math.sin(seed * (i + 1)),
+  );
+  const norm =
+    Math.sqrt(vector.reduce((sum, item) => sum + item * item, 0)) || 1;
+  return vector.map((item) => item / norm);
 }
 
 function point(subdomain: string, id: string, seed: number, text: string) {

@@ -23,6 +23,8 @@ describe('qdrant request builders', () => {
       must: [{ key: 'subdomain', match: { value: 'acme' } }],
     });
     expect(withFilter.filter).toBeDefined();
-    expect((buildSearchBody([0.1], 3) as any).filter).toBeUndefined();
+    expect(
+      (buildSearchBody([0.1], 3) as { filter?: unknown }).filter,
+    ).toBeUndefined();
   });
 });

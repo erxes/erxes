@@ -171,7 +171,11 @@ export async function recallBlock(
     setMemoryHealth(true);
 
     const kept = filterHitsByScore(hits, tuning.minScore);
-    return formatRecallBlock(kept.map((hit) => ({ text: hit.payload?.text })));
+    return formatRecallBlock(
+      kept.map((hit) => ({
+        text: typeof hit.payload?.text === 'string' ? hit.payload.text : '',
+      })),
+    );
   } catch (e) {
     warnOnce(`[mastra:memory] recall skipped: ${e?.message || e}`);
     return null;

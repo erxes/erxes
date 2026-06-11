@@ -10,24 +10,24 @@ describe('semantic recall — pure helpers', () => {
   // ── Tenant isolation (AM-TEN-1..4) ───────────────────────────────────────
   describe('buildRecallFilter', () => {
     it('AM-TEN-1: resource scope filters subdomain AND resourceId', () => {
-      const f = buildRecallFilter({
+      const filter = buildRecallFilter({
         subdomain: 'acme',
         scope: 'resource',
         resourceId: 'u1',
       });
-      expect(f.must).toEqual([
+      expect(filter.must).toEqual([
         { key: 'subdomain', match: { value: 'acme' } },
         { key: 'resourceId', match: { value: 'u1' } },
       ]);
     });
 
     it('AM-TEN-2: thread scope filters subdomain AND threadId, no resourceId', () => {
-      const f = buildRecallFilter({
+      const filter = buildRecallFilter({
         subdomain: 'acme',
         scope: 'thread',
         threadId: 't1',
       });
-      expect(f.must).toEqual([
+      expect(filter.must).toEqual([
         { key: 'subdomain', match: { value: 'acme' } },
         { key: 'threadId', match: { value: 't1' } },
       ]);
@@ -45,7 +45,7 @@ describe('semantic recall — pure helpers', () => {
   });
 
   it('AM-TEN-4: toPoint payload carries full tenant context', () => {
-    const p = toPoint({
+    const point = toPoint({
       pointId: 'pid',
       messageId: 'm1',
       vector: [0.1, 0.2],
@@ -57,8 +57,8 @@ describe('semantic recall — pure helpers', () => {
       text: 'hello',
       createdAt: '2026-01-01T00:00:00Z',
     });
-    expect(p.id).toBe('pid');
-    expect(p.payload).toMatchObject({
+    expect(point.id).toBe('pid');
+    expect(point.payload).toMatchObject({
       subdomain: 'acme',
       resourceId: 'u1',
       threadId: 't1',
