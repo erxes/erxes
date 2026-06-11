@@ -32,6 +32,7 @@ import {
   stepCount,
   triggerLabel,
 } from './shared';
+import { WorkflowGraph } from './graph/WorkflowGraph';
 
 const RUNS_PER_PAGE = 30;
 
@@ -211,7 +212,7 @@ const RunRow = ({ run }: { run: any }) => {
 export const WorkflowDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [showDefinition, setShowDefinition] = useState(false);
+  const [definitionView, setDefinitionView] = useState<'graph' | 'json'>('graph');
 
   const { data: workflowData, refetch: refetchWorkflow } = useQuery(
     MASTRA_WORKFLOW,
@@ -238,6 +239,7 @@ export const WorkflowDetailPage = () => {
   );
 
   const hasActiveRun = runs.some((r) => r.status === 'running');
+  const latestRun = runs[0];
 
   // Live-update while anything is still executing; stop once everything settles.
   useEffect(() => {
@@ -294,7 +296,7 @@ export const WorkflowDetailPage = () => {
       </PageHeader>
 
       <div className="flex-1 overflow-auto p-4">
-        <div className="max-w-3xl mx-auto space-y-4">
+        <div className="max-w-5xl mx-auto space-y-4">
           {/* Overview */}
           <Card className="shadow-none">
             <Card.Header className="pb-3">
@@ -335,23 +337,40 @@ export const WorkflowDetailPage = () => {
                 </span>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setShowDefinition((v) => !v)}
-                className="flex items-center gap-1.5 mt-3 text-xs text-muted-foreground hover:text-foreground"
-              >
-                <IconChevronRight
-                  className={`size-3.5 transition-transform ${
-                    showDefinition ? 'rotate-90' : ''
-                  }`}
-                />
-                Definition (JSON)
-              </button>
-              {showDefinition && (
-                <div className="mt-2">
-                  <JsonBlock value={workflow.definition} />
+              <div className="mt-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1">
+                    <Button
+                      size="sm"
+                      variant={definitionView === 'graph' ? 'secondary' : 'ghost'}
+                      onClick={() => setDefinitionView('graph')}
+                    >
+                      Graph
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={definitionView === 'json' ? 'secondary' : 'ghost'}
+                      onClick={() => setDefinitionView('json')}
+                    >
+                      JSON
+                    </Button>
+                  </div>
+                  {definitionView === 'graph' && latestRun?.stepsSummary && (
+                    <span className="text-xs text-muted-foreground">
+                      Step status from the latest run
+                    </span>
+                  )}
                 </div>
-              )}
+                {definitionView === 'graph' ? (
+                  <WorkflowGraph
+                    definition={workflow.definition}
+                    stepsSummary={latestRun?.stepsSummary}
+                    className="h-[440px] rounded-md border border-border/60 bg-muted/20"
+                  />
+                ) : (
+                  <JsonBlock value={workflow.definition} />
+                )}
+              </div>
             </Card.Content>
           </Card>
 
