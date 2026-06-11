@@ -2,6 +2,7 @@ import { isUndefinedOrNull, Skeleton } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { msdynamicCheckOrderTotalCountAtom } from '../states/MSDynamicCheckOrderCounts';
 
+/** Total count text haruulna. */
 export const MSDynamicCheckOrderTotalCount = () => {
   const totalCount = useAtomValue(msdynamicCheckOrderTotalCountAtom);
 

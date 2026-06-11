@@ -37,20 +37,18 @@ const CheckSyncedOrderDateRow = ({
 }) => {
   const [, setOrderDetailId] = useQueryState<string>(ORDER_DETAIL_ID_KEY);
   return (
-    <>
-      <RelativeDateDisplay value={value || ''} asChild>
-        <RecordTableInlineCell
-          className="text-xs font-medium text-muted-foreground"
-          onClick={() => {
-            if (id === 'createdAt') {
-              setOrderDetailId(order._id);
-            }
-          }}
-        >
-          <RelativeDateDisplay.Value value={value || ''} />
-        </RecordTableInlineCell>
-      </RelativeDateDisplay>
-    </>
+    <RelativeDateDisplay value={value || ''} asChild>
+      <RecordTableInlineCell
+        className="text-xs font-medium text-muted-foreground"
+        onClick={() => {
+          if (id === 'createdAt') {
+            setOrderDetailId(order._id);
+          }
+        }}
+      >
+        <RelativeDateDisplay.Value value={value || ''} />
+      </RecordTableInlineCell>
+    </RelativeDateDisplay>
   );
 };
 

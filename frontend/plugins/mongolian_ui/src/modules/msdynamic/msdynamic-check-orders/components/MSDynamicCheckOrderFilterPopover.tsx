@@ -92,6 +92,12 @@ export const MSDynamicCheckOrderFilterPopover = () => {
         <Filter.View filterKey="number" inDialog>
           <Filter.DialogStringView filterKey="number" />
         </Filter.View>
+        <Filter.View filterKey="paidDateRange" inDialog>
+          <Filter.DialogDateView filterKey="paidDateRange" />
+        </Filter.View>
+        <Filter.View filterKey="createdAtRange" inDialog>
+          <Filter.DialogDateView filterKey="createdAtRange" />
+        </Filter.View>
       </Filter.Dialog>
     </>
   );
