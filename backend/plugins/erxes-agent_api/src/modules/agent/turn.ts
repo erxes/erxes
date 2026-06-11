@@ -203,6 +203,12 @@ export async function prepareChatTurn(params: {
   const { models, subdomain, user, agentId, message, threadId, attachments } =
     params;
 
+  // Same NoSQL-injection guard as sessionId below: agentId arrives from the
+  // request body, so a crafted object must never reach a Mongo query.
+  if (typeof agentId !== 'string' || !agentId) {
+    throw new Error('agentId must be a non-empty string');
+  }
+
   const agentConfig = await models.MastraAgent.findOne({
     agentId,
     isEnabled: true,

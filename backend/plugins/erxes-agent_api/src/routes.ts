@@ -155,7 +155,12 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
   }
 
   const { agentId, message, threadId } = req.body || {};
-  if (!agentId || typeof message !== 'string' || !message.trim()) {
+  if (
+    typeof agentId !== 'string' ||
+    !agentId ||
+    typeof message !== 'string' ||
+    !message.trim()
+  ) {
     return res.status(400).json({ error: 'agentId and message are required' });
   }
   if (threadId !== undefined && typeof threadId !== 'string') {
