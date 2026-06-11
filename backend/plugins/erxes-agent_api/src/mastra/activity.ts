@@ -24,7 +24,7 @@ import type { ProviderDocLike } from '~/mastra/providers';
 
 /** Auth context accepted by runWithAuth (the module itself loads lazily). */
 type AuthCtx = Parameters<
-  typeof import('~/mastra/requestContext')['runWithAuth']
+  (typeof import('~/mastra/requestContext'))['runWithAuth']
 >[0];
 
 export const ACTIVITY_INSTRUCTIONS = `You narrate what an AI agent is doing right now.
