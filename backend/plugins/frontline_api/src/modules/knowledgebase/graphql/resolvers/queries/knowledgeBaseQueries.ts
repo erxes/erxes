@@ -16,7 +16,8 @@ const buildQuery = (args: any) => {
 
   keys.forEach((key) => {
     if (args[key] && args[key].length > 0) {
-      const field = key.replace('s', '');
+      // Articles carry their id in _id; "articleId" is not a schema field.
+      const field = key === 'articleIds' ? '_id' : key.replace('s', '');
       qry[field] = { $in: args[key] };
     }
   });

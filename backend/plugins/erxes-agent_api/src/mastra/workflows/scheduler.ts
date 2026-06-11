@@ -1,0 +1,170 @@
+// ---------------------------------------------------------------------------
+// Schedule trigger — BullMQ job schedulers, one per enabled schedule-workflow.
+//
+// Pattern follows the knowledge sweep worker: a reconcile job fires on a cron,
+// diffs BullMQ's job schedulers against the current set of enabled workflows
+// with trigger.type === 'schedule', and upserts/removes accordingly. Each
+// fired job runs one workflow with a schedule envelope. Reconciling (instead
+// of mutating schedulers on every save) keeps Mongo as the single source of
+// truth and self-heals after Redis flushes or missed updates.
+// ---------------------------------------------------------------------------
+
+import { Queue } from 'bullmq';
+import {
+  createMQWorkerWithListeners,
+  getEnv,
+  getSaasOrganizations,
+} from 'erxes-api-shared/utils';
+import { generateModels } from '../../connectionResolvers';
+import { TriggerEnvelope } from './envelope';
+import { runWorkflow } from './runtime';
+
+const SERVICE = 'erxes-agent';
+const RECONCILE_QUEUE = 'workflow-schedule-reconcile';
+const RUN_QUEUE = 'workflow-schedule-run';
+const RECONCILE_CRON = '*/5 * * * *';
+
+const schedulerId = (tenant: string, workflowId: string) =>
+  `wfsched-${tenant}-${workflowId}`;
+
+async function tenants(): Promise<string[]> {
+  if (getEnv({ name: 'VERSION' }) === 'saas') {
+    const orgs = await getSaasOrganizations();
+    return orgs.map((o: any) => o.subdomain);
+  }
+  return ['os'];
+}
+
+async function reconcileTenant(runQueue: Queue, tenant: string): Promise<void> {
+  const models = await generateModels(tenant);
+  const workflows = await models.MastraWorkflow.getWorkflows();
+
+  const desired = new Map<string, { pattern: string; workflowId: string }>();
+  for (const wf of workflows) {
+    const trigger: any = wf.definition?.trigger;
+    if (!wf.isEnabled || trigger?.type !== 'schedule') continue;
+    const cron = trigger?.config?.cron;
+    if (typeof cron !== 'string' || !cron.trim()) continue;
+    desired.set(schedulerId(tenant, wf._id), {
+      pattern: cron.trim(),
+      workflowId: wf._id,
+    });
+  }
+
+  // Page through ALL schedulers — the queue is shared across tenants, and a
+  // bounded read would stop pruning stale entries past the window.
+  const PAGE = 500;
+  const existing: any[] = [];
+  for (let start = 0; ; start += PAGE) {
+    const batch = await runQueue.getJobSchedulers(start, start + PAGE - 1);
+    existing.push(...batch);
+    if (!batch.length || batch.length < PAGE) break;
+  }
+  for (const s of existing) {
+    const key = s.key ?? s.id;
+    if (key?.startsWith(`wfsched-${tenant}-`) && !desired.has(key)) {
+      await runQueue.removeJobScheduler(key);
+    }
+  }
+
+  for (const [id, { pattern, workflowId }] of desired) {
+    try {
+      await runQueue.upsertJobScheduler(
+        id,
+        { pattern, tz: 'UTC' },
+        { name: RUN_QUEUE, data: { subdomain: tenant, workflowId } },
+      );
+    } catch (e: any) {
+      // Invalid cron in a saved definition must not break other schedules.
+      console.error(
+        `[erxes-agent:workflows] invalid cron "${pattern}" on workflow ${workflowId}: ${e?.message}`,
+      );
+    }
+  }
+}
+
+async function reconcileAll(runQueue: Queue): Promise<void> {
+  for (const tenant of await tenants()) {
+    try {
+      await reconcileTenant(runQueue, tenant);
+    } catch (e: any) {
+      console.error(
+        `[erxes-agent:workflows] schedule reconcile failed for ${tenant}: ${e?.message}`,
+      );
+    }
+  }
+}
+
+async function runScheduledWorkflow(
+  subdomain: string,
+  workflowId: string,
+): Promise<string> {
+  const models = await generateModels(subdomain);
+
+  let workflow;
+  try {
+    workflow = await models.MastraWorkflow.getWorkflow(workflowId);
+  } catch {
+    return 'skipped: workflow deleted (next reconcile removes the schedule)';
+  }
+  if (
+    !workflow.isEnabled ||
+    workflow.definition?.trigger?.type !== 'schedule'
+  ) {
+    return 'skipped: disabled or trigger changed';
+  }
+
+  const envelope: TriggerEnvelope = {
+    source: 'schedule',
+    type: 'schedule',
+    payload: { firedAt: new Date().toISOString() },
+  };
+
+  const record = await runWorkflow({ models, subdomain, workflow, envelope });
+  return `run ${record._id}: ${record.status}`;
+}
+
+export async function initWorkflowSchedules(redis: any): Promise<void> {
+  const reconcileQueue = new Queue(`${SERVICE}-${RECONCILE_QUEUE}`, {
+    connection: redis,
+  });
+  await reconcileQueue.upsertJobScheduler(
+    `${SERVICE}-workflow-schedule-reconcile-cron`,
+    { pattern: RECONCILE_CRON, tz: 'UTC' },
+    { name: RECONCILE_QUEUE },
+  );
+
+  const runQueue = new Queue(`${SERVICE}-${RUN_QUEUE}`, { connection: redis });
+
+  createMQWorkerWithListeners(
+    SERVICE,
+    RECONCILE_QUEUE,
+    async () => {
+      await reconcileAll(runQueue);
+      return 'reconciled';
+    },
+    redis,
+    () => {
+      // eslint-disable-next-line no-console
+      console.log('[erxes-agent:workflows] schedule reconciler ready');
+    },
+  );
+
+  createMQWorkerWithListeners(
+    SERVICE,
+    RUN_QUEUE,
+    async (job: any) => {
+      const { subdomain, workflowId } = job.data || {};
+      if (!subdomain || !workflowId) return 'skipped: malformed job';
+      return runScheduledWorkflow(subdomain, workflowId);
+    },
+    redis,
+    () => {
+      // eslint-disable-next-line no-console
+      console.log('[erxes-agent:workflows] schedule runner ready');
+    },
+  );
+
+  // Boot kick — a fresh deploy honors schedules without waiting for the cron.
+  await reconcileAll(runQueue);
+}
