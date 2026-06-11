@@ -13,7 +13,7 @@ import { SelectMember } from 'ui-modules';
 import { useDepartmentInlineEdit } from '../../hooks/useDepartmentActions';
 import { useState } from 'react';
 import { DepartmentsMoreColumn } from './DepartmentsMoreColumn';
-import { DepartmentMembersPopover } from './DepartmentMembersPopover';
+import { DepartmentMembersSheet } from './DepartmentMembersSheet';
 
 export const DepartmentColumns: ColumnDef<IDepartmentListItem>[] = [
   DepartmentsMoreColumn,
@@ -139,7 +139,7 @@ export const DepartmentColumns: ColumnDef<IDepartmentListItem>[] = [
       const count = Number(cell.getValue() ?? 0);
       return (
         <RecordTableInlineCell className="justify-center">
-          <DepartmentMembersPopover departmentId={_id} count={count} />
+          <DepartmentMembersSheet departmentId={_id} count={count} />
         </RecordTableInlineCell>
       );
     },
