@@ -73,13 +73,16 @@ const workflowAutomationProducers = {
       return null;
     });
 
-    const settled = await Promise.race([
-      runPromise,
-      new Promise<null>((resolve) => {
-        const timer = setTimeout(() => resolve(null), SYNC_RESULT_BUDGET_MS);
-        timer.unref?.();
-      }),
-    ]);
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeoutPromise = new Promise<null>((resolve) => {
+      timer = setTimeout(() => resolve(null), SYNC_RESULT_BUDGET_MS);
+      timer.unref?.();
+    });
+
+    const settled = await Promise.race([runPromise, timeoutPromise]);
+    if (timer) {
+      clearTimeout(timer);
+    }
 
     if (!settled) {
       // Still running (waits / long judgments) — report and move on; the run

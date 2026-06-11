@@ -136,7 +136,7 @@ function normalizeChunk(raw: unknown): StreamEvent | null {
         toolCallId: payload.toolCallId,
         toolName: payload.toolName,
         result: payload.result ?? payload.output,
-        isError: !!payload.isError,
+        isError: Boolean(payload.isError),
       };
     case 'tool-error':
       return {
@@ -188,6 +188,7 @@ function sanitizeAttachments(raw: unknown): IMastraChatAttachment[] | null {
           ? candidate.type.slice(0, 128)
           : undefined,
       size:
+        // skipcq: JS-W1031 — byte size from untrusted input, not a collection length
         typeof candidate.size === 'number' && candidate.size >= 0
           ? candidate.size
           : undefined,

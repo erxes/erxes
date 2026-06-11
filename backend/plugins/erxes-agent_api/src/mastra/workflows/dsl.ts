@@ -26,7 +26,8 @@ const stepIdSchema = z
 // Agent-step output fields: 'string' | 'number' | 'boolean' (optional with a
 // trailing '?') or 'enum:a,b,c'. Enums are how judgment feeds deterministic
 // branches — classification is LLM, routing is code (§4.5).
-const FIELD_SPEC_RE = /^(string|number|boolean|enum:[a-zA-Z0-9_,-]+)\??$/;
+const FIELD_SPEC_RE =
+  /^(string|number|boolean|enum:[a-zA-Z0-9_-]+(?:,[a-zA-Z0-9_-]+)*)\??$/;
 const fieldSpecSchema = z.string().regex(FIELD_SPEC_RE, {
   message:
     "field spec must be string|number|boolean|enum:a,b,c (optionally suffixed '?')",
@@ -424,7 +425,16 @@ export function buildOutputZod(
     else if (base === 'number') fieldType = z.number();
     else if (base === 'boolean') fieldType = z.boolean();
     else {
-      const values = base.slice('enum:'.length).split(',').filter(Boolean);
+      const values = base
+        .slice('enum:'.length)
+        .split(',')
+        .map((value) => value.trim())
+        .filter(Boolean);
+      if (!values.length) {
+        throw new Error(
+          `output field '${key}': enum spec '${raw}' must include at least one value`,
+        );
+      }
       fieldType = z.enum(values as [string, ...string[]]);
     }
     shape[key] = optional ? fieldType.optional() : fieldType;

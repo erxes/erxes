@@ -168,7 +168,12 @@ export async function initWorkflowSchedules(
     RUN_QUEUE,
     (job: Job) => {
       const { subdomain, workflowId } = job.data || {};
-      if (!subdomain || !workflowId) {
+      if (
+        typeof subdomain !== 'string' ||
+        !subdomain ||
+        typeof workflowId !== 'string' ||
+        !workflowId
+      ) {
         return Promise.resolve('skipped: malformed job');
       }
       return runScheduledWorkflow(subdomain, workflowId);

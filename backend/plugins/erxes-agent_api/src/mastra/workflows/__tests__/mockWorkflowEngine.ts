@@ -69,10 +69,9 @@ export function mockWorkflowsModule() {
     createWorkflow: ({ id }: { id: string }) => {
       const nodes: MockNode[] = [];
       const chain: MockChain = {
-        // Mirrors Mastra's fluent .then() chain API; never awaited.
-        then(
-          step: MockStepConfig /* NOSONAR — intentional thenable-shaped mock */,
-        ) {
+        // Mirrors Mastra's fluent .then() chain API; never awaited —
+        // intentionally thenable-shaped, not a Promise.
+        then(step: MockStepConfig /* NOSONAR */) {
           nodes.push({ kind: 'step', step });
           return chain;
         },

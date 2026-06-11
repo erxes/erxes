@@ -688,6 +688,11 @@ function buildAuthHeaders(appToken: string): Record<string, string> {
   } else if (reqAuth?.token || appToken) {
     authHeaders['Authorization'] = asBearer(reqAuth?.token || appToken);
   }
+  if (reqAuth?.subdomain) {
+    // The gateway resolves the tenant via getSubdomain(), which reads the
+    // 'hostname' header before falling back to the request host.
+    authHeaders['hostname'] = reqAuth.subdomain;
+  }
   return authHeaders;
 }
 
@@ -1099,7 +1104,14 @@ export async function fetchAvailableErxesTools(
     }),
   ]);
 
-  const schemaData = (await schemaRes.json()) as {
+  if (!schemaRes.ok) {
+    console.warn(
+      `[mastra] gateway introspection failed: HTTP ${schemaRes.status}`,
+    );
+    return [];
+  }
+
+  let schemaData: {
     data?: {
       __schema?: {
         queryType?: { fields?: GqlFieldDef[] | null };
@@ -1107,6 +1119,12 @@ export async function fetchAvailableErxesTools(
       };
     };
   };
+  try {
+    schemaData = await schemaRes.json();
+  } catch {
+    console.warn('[mastra] gateway introspection returned invalid JSON');
+    return [];
+  }
   const schema = schemaData?.data?.__schema;
 
   if (pluginMap.size === 0) {

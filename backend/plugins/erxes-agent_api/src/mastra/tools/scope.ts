@@ -22,10 +22,10 @@ export function resolveToolPolicy(agentConfig: unknown): ToolPolicy {
   };
   const mode = config.toolPolicy === 'custom' ? 'custom' : 'all';
   const allowed: string[] = Array.isArray(config.allowedTools)
-    ? config.allowedTools.filter(
-        (entry): entry is string =>
-          typeof entry === 'string' && Boolean(entry.trim()),
-      )
+    ? config.allowedTools
+        .filter((entry): entry is string => typeof entry === 'string')
+        .map((entry) => entry.trim())
+        .filter(Boolean)
     : [];
   return { mode, allowed };
 }
