@@ -125,7 +125,7 @@ export async function runKnowledgeSweep(
           }
         }
         result.types[typeName] = { count: records.length, points };
-      } catch (e: any) {
+      } catch (e) {
         failedTypes.add(typeName);
         result.types[typeName] = {
           count: 0,
@@ -188,7 +188,7 @@ export async function runKnowledgeSweep(
       .filter(([, s]) => s.error)
       .map(([t, s]) => `${t}: ${s.error}`);
     if (typeErrors.length) result.error = typeErrors.join(' | ');
-  } catch (e: any) {
+  } catch (e) {
     result.error = e?.message || String(e);
     // eslint-disable-next-line no-console
     console.error(

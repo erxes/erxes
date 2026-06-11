@@ -13,6 +13,7 @@
 import { asBearer } from '../tools/erxesTools';
 import { GqlExec } from './contentTypes';
 
+/** Pick the auth header for gateway calls: user session first, else app token. */
 export function buildAuthHeaders(opts: {
   userHeader?: string;
   apiToken?: string;

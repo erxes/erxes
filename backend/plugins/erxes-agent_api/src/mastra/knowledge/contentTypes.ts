@@ -113,7 +113,7 @@ function detailAllowedIds(
         try {
           const data = await gql(detailQuery, { _id: id });
           const doc = data?.[rootField];
-          if (doc && doc._id && (!extraCheck || extraCheck(doc))) {
+          if (doc?._id && (!extraCheck || extraCheck(doc))) {
             allowed.add(String(doc._id));
           }
         } catch {
@@ -212,7 +212,7 @@ const customer: KnowledgeContentType = {
     });
   },
   allowedIds: detailAllowedIds(
-    `query KnowledgeVerifyCustomer($_id: String!) { customerDetail(_id: $_id) { _id } }`,
+    'query KnowledgeVerifyCustomer($_id: String!) { customerDetail(_id: $_id) { _id } }',
     'customerDetail',
   ),
 };
@@ -246,7 +246,7 @@ const company: KnowledgeContentType = {
     }));
   },
   allowedIds: detailAllowedIds(
-    `query KnowledgeVerifyCompany($_id: String!) { companyDetail(_id: $_id) { _id } }`,
+    'query KnowledgeVerifyCompany($_id: String!) { companyDetail(_id: $_id) { _id } }',
     'companyDetail',
   ),
 };
@@ -286,7 +286,7 @@ const product: KnowledgeContentType = {
     return max > 0 ? out.slice(0, max) : out;
   },
   allowedIds: detailAllowedIds(
-    `query KnowledgeVerifyProduct($_id: String) { productDetail(_id: $_id) { _id status } }`,
+    'query KnowledgeVerifyProduct($_id: String) { productDetail(_id: $_id) { _id status } }',
     'productDetail',
     (p) => p.status !== 'deleted',
   ),
@@ -323,7 +323,7 @@ const deal: KnowledgeContentType = {
       }));
   },
   allowedIds: detailAllowedIds(
-    `query KnowledgeVerifyDeal($_id: String!) { dealDetail(_id: $_id) { _id status } }`,
+    'query KnowledgeVerifyDeal($_id: String!) { dealDetail(_id: $_id) { _id status } }',
     'dealDetail',
     (d) => d.status !== 'archived',
   ),
@@ -358,7 +358,7 @@ const task: KnowledgeContentType = {
     }));
   },
   allowedIds: detailAllowedIds(
-    `query KnowledgeVerifyTask($_id: String!) { getTask(_id: $_id) { _id } }`,
+    'query KnowledgeVerifyTask($_id: String!) { getTask(_id: $_id) { _id } }',
     'getTask',
   ),
 };
@@ -394,7 +394,7 @@ const conversation: KnowledgeContentType = {
       }));
   },
   allowedIds: detailAllowedIds(
-    `query KnowledgeVerifyConversation($_id: String!) { conversationDetail(_id: $_id) { _id } }`,
+    'query KnowledgeVerifyConversation($_id: String!) { conversationDetail(_id: $_id) { _id } }',
     'conversationDetail',
   ),
 };

@@ -203,6 +203,7 @@ export async function runLearningSweep(
   }
 }
 
+/** Queue one sweep job per tenant (saas: every org; non-saas: the single tenant). */
 async function enqueueSweepPerTenant() {
   const VERSION = getEnv({ name: 'VERSION' });
 

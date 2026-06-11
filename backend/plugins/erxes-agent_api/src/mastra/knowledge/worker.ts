@@ -21,6 +21,7 @@ const SERVICE = 'erxes-agent';
 const SWEEP_QUEUE = 'knowledge-sweep';
 const SCHEDULER_QUEUE = 'knowledge-sweep-scheduler';
 
+/** Queue one sweep job per tenant (saas: every org; non-saas: the single tenant). */
 async function enqueueSweepPerTenant() {
   const VERSION = getEnv({ name: 'VERSION' });
 

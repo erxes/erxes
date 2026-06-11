@@ -103,9 +103,10 @@ export const companyKnowledgeTool = createTool({
 
       const byType = new Map<string, SearchHit[]>();
       for (const h of hits) {
-        const t = String(h.payload.contentType || '');
-        if (!byType.has(t)) byType.set(t, []);
-        byType.get(t)!.push(h);
+        const typeName = String(h.payload.contentType || '');
+        const bucket = byType.get(typeName);
+        if (bucket) bucket.push(h);
+        else byType.set(typeName, [h]);
       }
 
       const allowedByType = new Map<string, Set<string>>();
@@ -139,7 +140,7 @@ export const companyKnowledgeTool = createTool({
         }));
 
       return { results, notice: DATA_NOTICE };
-    } catch (e: any) {
+    } catch (e) {
       // Retrieval failures must never break the agent turn.
       return { results: [], error: e?.message || String(e) };
     }

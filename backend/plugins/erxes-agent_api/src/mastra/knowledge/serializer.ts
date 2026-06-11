@@ -51,6 +51,7 @@ export function splitIntoChunks(text: string, max = MAX_CHUNK_CHARS): string[] {
   const chunks: string[] = [];
   let current = '';
 
+  // Close the current chunk and start a new one.
   const flush = () => {
     const trimmed = current.trim();
     if (trimmed) chunks.push(trimmed);
