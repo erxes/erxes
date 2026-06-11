@@ -17,21 +17,20 @@ const TARGET_ORG_ID = '67eb9844280137e8b229ab30';
 const SOURCE_DB = `erxes_${SOURCE_ORG_ID}`;
 const TARGET_DB = `erxes_${TARGET_ORG_ID}`;
 
-
 // Dependency order matters:
 // uoms must come before products (products.uom references uom code)
 // product_categories must come before products (products.categoryId)
 const COLLECTIONS = [
-  'uoms',                        // core — connectionResolvers: models.Uoms
-  'product_categories',          // core — models.ProductCategories
-  'posclient_product_categories',// POS plugin copy
-  'products',                    // core — models.Products
-  'posclient_products',          // POS plugin copy
-  'product_groups',              // POS plugin
-  'product_packages',            // core — models.Packages (bundles of products)
-  'product_rules',               // core — models.ProductRules
-  'products_configs',            // core — models.ProductsConfigs
-  'posclient_products_configs',  // POS — models.ProductsConfigs (posclient_api)
+  'uoms', // core — connectionResolvers: models.Uoms
+  'product_categories', // core — models.ProductCategories
+  'posclient_product_categories', // POS plugin copy
+  'products', // core — models.Products
+  'posclient_products', // POS plugin copy
+  'product_groups', // POS plugin
+  'product_packages', // core — models.Packages (bundles of products)
+  'product_rules', // core — models.ProductRules
+  'products_configs', // core — models.ProductsConfigs
+  'posclient_products_configs', // POS — models.ProductsConfigs (posclient_api)
 ];
 
 // Collections that enforce a unique `code` field (skip on conflict)
@@ -125,7 +124,10 @@ async function main() {
     console.log(`\nSource DB: ${SOURCE_DB}`);
     console.log(`Target DB: ${TARGET_DB}\n`);
 
-    const summary: Record<string, { inserted: number; skipped: number; errors: number }> = {};
+    const summary: Record<
+      string,
+      { inserted: number; skipped: number; errors: number }
+    > = {};
 
     for (const colName of COLLECTIONS) {
       const srcCol = srcDb.collection(colName);
@@ -138,7 +140,11 @@ async function main() {
       }
 
       console.log(`[${colName}] Migrating ${srcCount} documents...`);
-      const stats = await migrateCollection(srcCol, dstDb.collection(colName), colName);
+      const stats = await migrateCollection(
+        srcCol,
+        dstDb.collection(colName),
+        colName,
+      );
       summary[colName] = stats;
       console.log(
         `[${colName}] Done — inserted: ${stats.inserted}, skipped: ${stats.skipped}, errors: ${stats.errors}`,
@@ -164,7 +170,9 @@ async function main() {
     );
 
     if (totalErrors > 0) {
-      console.warn('\nWARNING: Some documents failed to migrate. Check logs above.');
+      console.warn(
+        '\nWARNING: Some documents failed to migrate. Check logs above.',
+      );
       process.exit(1);
     }
   } finally {
