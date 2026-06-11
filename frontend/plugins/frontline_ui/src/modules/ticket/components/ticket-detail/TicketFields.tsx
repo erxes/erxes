@@ -66,8 +66,7 @@ export const TicketFields = ({ ticket }: { ticket: ITicket }) => {
             typeof block === 'object' &&
             block !== null &&
             'id' in block &&
-            'type' in block &&
-            'content' in block,
+            'type' in block,
         )
       ) {
         return parsed as Block[];

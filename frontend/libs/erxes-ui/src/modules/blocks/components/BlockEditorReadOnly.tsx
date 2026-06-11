@@ -7,6 +7,7 @@ import { parseBlocks } from '../utils';
 import DOMPurify from 'dompurify';
 import { cn } from 'erxes-ui/lib';
 import React, { useMemo } from 'react';
+import { readImage } from '../../../utils/core';
 
 export const BlockEditorReadOnly = React.forwardRef<
   HTMLDivElement,
@@ -20,6 +21,7 @@ export const BlockEditorReadOnly = React.forwardRef<
   const editor = useCreateBlockNote({
     schema: BLOCK_SCHEMA,
     initialContent: contentBlocks || undefined,
+    resolveFileUrl: (url) => Promise.resolve(readImage(url)),
   });
   const theme = useAtomValue(themeState);
 

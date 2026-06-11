@@ -1,4 +1,31 @@
+# Changelog
 
+## [3.0.33](https://github.com/erxes/erxes/compare/3.0.32...3.0.33) (2026-06-11)
+
+
+### Bug Fixes
+
+* **content:** generate Mongolian-aware CMS slugs from title ([#7962](https://github.com/erxes/erxes/issues/7962)) ([4b57c26](https://github.com/erxes/erxes/commit/4b57c26dda3f77decdc626c2659da07b0bc64d3a))
+* **content:** preserve CMS page slug on edit ([#7969](https://github.com/erxes/erxes/issues/7969)) ([84852a3](https://github.com/erxes/erxes/commit/84852a36140342094572c8acdf1719aa2053f5a8))
+* cp link ([#7963](https://github.com/erxes/erxes/issues/7963)) ([16e0889](https://github.com/erxes/erxes/commit/16e088962840e356405e7f8e0fa0c3edf5b3d33c))
+* date range filter, company edit and target a sales deal in Give Score with name/number search ([#7947](https://github.com/erxes/erxes/issues/7947)) ([ed9384b](https://github.com/erxes/erxes/commit/ed9384b0c37b3881aa092b09a335c62e694bd2a5))
+* filter with sessionkey ([#7961](https://github.com/erxes/erxes/issues/7961)) ([bf9426d](https://github.com/erxes/erxes/commit/bf9426d3df73b95c930f24e6ef67cee5bea71237))
+* **frontline:** fix report pagination, chart data limits, and smooth page transitions  ([94fe486](https://github.com/erxes/erxes/commit/94fe486d6b8185784c196496aef09101aa5b03a6))
+* **frontline:** settings layout overflow and response template breadcrumbs ([cb31d5d](https://github.com/erxes/erxes/commit/cb31d5d59be93142ac757f1646be0124ec6fe91f))
+* sales checklist ([#7966](https://github.com/erxes/erxes/issues/7966)) ([10cc29a](https://github.com/erxes/erxes/commit/10cc29a33581de94951f9181d80fa9bc433dc212))
+* **sales:** improved ([#7954](https://github.com/erxes/erxes/issues/7954)) ([78ab14d](https://github.com/erxes/erxes/commit/78ab14d4cec55b4b349ddc289e5a27e05535bb5e))
+* **sales:** sales stage query bug ([#7965](https://github.com/erxes/erxes/issues/7965)) ([7ea1131](https://github.com/erxes/erxes/commit/7ea1131f7eba83c1b63965cbc1acf879e64751fe))
+* some trpc check ([236c514](https://github.com/erxes/erxes/commit/236c514065d16066c9bc129de3f1bfa349b5f6b8))
+
+
+### Features
+
+* add brand select to Add/Edit Call integration form ([c1fc409](https://github.com/erxes/erxes/commit/c1fc40983c9258762a2897f74cbead5e57fdcc44))
+* add file upload support and fix image persistence in BlockNote editor ([#7946](https://github.com/erxes/erxes/issues/7946)) ([55ae0c9](https://github.com/erxes/erxes/commit/55ae0c96f7002dcc70fec67f4af7e04e0f1e2682))
+* **automations:** add loyalty actions, flow direction support, and automation builder enhancements ([#7952](https://github.com/erxes/erxes/issues/7952)) ([002a6d0](https://github.com/erxes/erxes/commit/002a6d07be4c13bdf724e3bc90bbfa84eca71140))
+* **core:** add branch, department, unit filters and columns to team members table  ([0b2adff](https://github.com/erxes/erxes/commit/0b2adff952e113baa2e563e042c426c7947ea4cf))
+* **mongolian:** improved MS Dynamics sync history table  ([#7934](https://github.com/erxes/erxes/issues/7934)) ([ff7213b](https://github.com/erxes/erxes/commit/ff7213b36dd7fe039776eae445b6eccd7c03be6b))
+* show members tab in permission group details dialog ([#7957](https://github.com/erxes/erxes/issues/7957)) ([108f6af](https://github.com/erxes/erxes/commit/108f6aff3f60285e3ad3ca85faefe4f57768d1bd))
 
 ## [3.0.32](https://github.com/erxes/erxes/compare/3.0.31...3.0.32) (2026-06-09)
 
@@ -478,7 +505,7 @@
 * **tour:** support adult/child/infant pricing per package ([b90e952](https://github.com/erxes/erxes/commit/b90e95273435c31d38e3d1a6d09bc0ede85ee73e))
 * update resolver types to include IContext and refactor AI agent components ([3fad7a0](https://github.com/erxes/erxes/commit/3fad7a0dd02a21c821d9af5b4c478350bfb172fe))
 
-# Changelog
+
 
 ## [3.0.15](https://github.com/erxes/erxes/compare/3.0.14...3.0.15) (2026-04-19)
 
