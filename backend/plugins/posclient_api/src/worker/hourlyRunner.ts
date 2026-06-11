@@ -21,7 +21,6 @@ export const mainScheduler = async () => {
         timezone: org.timezone,
       });
     }
-
   } else {
     const timezone = await sendTRPCMessage({
       subdomain: 'os',

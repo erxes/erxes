@@ -37,7 +37,7 @@ export const posclientTrpcRouter = t.router({
       .mutation(async ({ ctx, input }) => {
         const { posToken } = input;
         const { models } = ctx;
-        const posConfig = await models.Configs.getConfig({token: posToken})
+        const posConfig = await models.Configs.getConfig({ token: posToken });
 
         await models.Configs.removeConfig(posConfig._id);
         return 'success';
