@@ -17,7 +17,6 @@ if (!MONGO_URL) {
 const SOURCE_SUBDOMAIN = 'dts';
 const TARGET_SUBDOMAIN = 'dtsdistribution';
 
-
 async function resolveOrgDb(
   client: MongoClient,
   subdomain: string,
