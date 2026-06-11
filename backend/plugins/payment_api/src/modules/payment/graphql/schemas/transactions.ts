@@ -1,5 +1,5 @@
 export const types = `
-  type TransactionsTotalCount {
+  type PaymentTransactionsTotalCount {
     total: Int
     byKind: JSON
     byStatus: JSON
@@ -8,10 +8,10 @@ export const types = `
   type PaymentTransaction @key(fields: "_id") {
     _id: String
     invoiceId: String
-    invoice: Invoice
+    invoice: PaymentInvoice
     paymentId: String
     paymentKind: String
-    payment: Payment
+    payment: PaymentMethod
     amount: Float
     status: String
     createdAt: Date
@@ -46,5 +46,5 @@ const queryParams = `
 
 export const queries = `
   paymentTransactions(${queryParams}): [PaymentTransaction]
-  paymentTransactionsTotalCount(${queryParams}): TransactionsTotalCount
+  paymentTransactionsTotalCount(${queryParams}): PaymentTransactionsTotalCount
 `;

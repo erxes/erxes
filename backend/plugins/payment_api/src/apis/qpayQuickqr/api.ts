@@ -2,6 +2,7 @@ import { IModels } from '~/connectionResolvers';
 import { PAYMENTS, PAYMENT_STATUS } from '~/constants';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { VendorBaseAPI } from './vendorBase';
+import { validateIban } from '~/utils/validateIban';
 
 export type QPayMerchantConfig = {
   username: string;
@@ -245,6 +246,12 @@ export class QPayQuickQrAPI extends VendorBaseAPI {
   }
 
   async createInvoice(invoice: ITransactionDocument) {
+    const iban = this.config.ibanNumber;
+
+    if (iban && !validateIban(iban)) {
+      throw new Error(`Invalid IBAN provided: ${iban}`);
+    }
+
     const res = await this.makeRequest<IInvoiceResponse>({
       method: 'POST',
       path: meta.paths.invoice,

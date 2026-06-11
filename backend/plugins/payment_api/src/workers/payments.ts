@@ -14,6 +14,6 @@ export const initPaymentsWorker = () => {
       }
     },
     redis,
-    () => console.log('[Worker] Worker for queue payments-payments is ready'),
+    () => console.info('[Worker] payments-payments queue ready'),
   );
 };

@@ -116,10 +116,9 @@ const queries: Record<string, Resolver> = {
 
   async qpayGetDistricts(_root, args) {
     const api = new QPayQuickQrAPI({
-      username: process.env.QUICK_QR_USERNAME || '',
-      password: process.env.QUICK_QR_PASSWORD || '',
+      username: process.env.QPAY_USERNAME || '',
+      password: process.env.QPAY_PASSWORD || '',
     });
-
     return api.getDistricts(args.cityCode);
   },
 };
