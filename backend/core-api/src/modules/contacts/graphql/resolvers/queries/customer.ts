@@ -106,10 +106,10 @@ export const customerQueries: Record<string, Resolver<any, any, IContext>> = {
 
   async customersCount(
     _parent: undefined,
-    params: { types: string[] },
+    params: { types?: string[] },
     { models, subdomain }: IContext,
   ) {
-    const { types } = params;
+    const types = params.types || [];
 
     const counts = {};
 
