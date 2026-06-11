@@ -37,8 +37,8 @@ export function decodeHtmlEntities(s: string): string {
 // source in the extracted text.
 function stripBlocks(html: string, tag: string): string {
   const lower = html.toLowerCase();
-  const open = '<' + tag;
-  const close = '</' + tag;
+  const open = `<${tag}`;
+  const close = `</${tag}`;
   let out = '';
   let i = 0;
   while (i < html.length) {
@@ -54,7 +54,7 @@ function stripBlocks(html: string, tag: string): string {
       i = start + open.length;
       continue;
     }
-    out += html.slice(i, start) + ' ';
+    out += `${html.slice(i, start)} `;
     const endTag = lower.indexOf(close, start + open.length);
     if (endTag === -1) {
       break;

@@ -97,7 +97,7 @@ export function sanitizeActivity(
 ): string | null {
   let t = (raw || '').split('\n')[0].replace(/\s+/g, ' ').trim();
   t = t.replace(/^(status|activity)\s*:\s*/i, '');
-  t = trimEdgeChars(t, '"\'`“”‘’', '"\'`“”‘’' + '.…').trim();
+  t = trimEdgeChars(t, '"\'`“”‘’', '"\'`“”‘’.…').trim();
   if (!t) return null;
   if (t.length > ACTIVITY_MAX_CHARS)
     t = t.slice(0, ACTIVITY_MAX_CHARS).trimEnd() + '…';
