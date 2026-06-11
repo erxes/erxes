@@ -16,7 +16,7 @@ import { mutations, queries } from "./graphql"
 const Configs = ({ children }: { children: ReactNode }) => {
   const setConfigs = useSetAtom(configsAtom)
   const setCurrentUser = useSetAtom(currentUserAtom)
-  const setConfig = useSetAtom(configAtom)
+  const [storedConfig, setConfig] = useAtom(configAtom)
   const [loadingConfigs, setLoadingConfigs] = useState(true)
   const [fetchUser, setFetchUser] = useAtom(refetchUserAtom)
   const setOrderType = useSetAtom(orderTypeAtom)
@@ -39,16 +39,15 @@ const Configs = ({ children }: { children: ReactNode }) => {
     }
   )
 
-  useQuery(queries.configs, {
-    onCompleted: (data) => {
-      setConfigs(data.posclientConfigs)
-      setTimeout(() => setLoadingConfigs(false), 20)
-    },
-    onError: ({ message }) => {
-      onError(message)
-      setTimeout(() => setLoadingConfigs(false), 20)
-    },
-  })
+  const { data: configsData, loading: loadingConfigsQuery } = useQuery(
+    queries.configs,
+    {
+      onError: ({ message }) => {
+        onError(message)
+        setTimeout(() => setLoadingConfigs(false), 20)
+      },
+    }
+  )
 
   useEffect(() => {
     if (fetchUser) {
@@ -61,6 +60,15 @@ const Configs = ({ children }: { children: ReactNode }) => {
     setCurrentUser(data?.posCurrentUser)
   }, [data, setCurrentUser])
 
+  useEffect(() => {
+    if (loadingConfigsQuery) {
+      return
+    }
+
+    setConfigs(configsData?.posclientConfigs || [])
+    setTimeout(() => setLoadingConfigs(false), 20)
+  }, [configsData, loadingConfigsQuery, setConfigs])
+
   const { currentConfig } = config || {}
   const { _id, allowTypes, uiOptions } = currentConfig || {}
 
@@ -70,9 +78,30 @@ const Configs = ({ children }: { children: ReactNode }) => {
       document.title = currentConfig.name
       setOrderType((allowTypes || [])[0])
       setAutoSelectAttempted(true)
+      return
+    }
+
+    if (!loadingConfig) {
+      setConfig(null)
+      setAutoSelectAttempted(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config])
+  }, [config, loadingConfig])
+
+  useEffect(() => {
+    if (!configs || !storedConfig?.token) {
+      return
+    }
+
+    const configExists = configs.some(
+      ({ token }) => token === storedConfig.token
+    )
+
+    if (!configExists) {
+      setConfig(null)
+      setAutoSelectAttempted(false)
+    }
+  }, [configs, storedConfig?.token, setConfig])
 
   // Auto-select first POS if no currentConfig exists
   useEffect(() => {

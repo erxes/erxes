@@ -39,6 +39,10 @@ const ChooseConfig = () => {
     },
   })
 
+  const selectedConfig = (configs || []).find(
+    ({ token }) => token === config?.token
+  )
+
   const handleChange = (value: string) => {
     const lowerToken = value.split("_")[0]
     const token = (configs || []).find(
@@ -65,10 +69,7 @@ const ChooseConfig = () => {
             className="w-full justify-between"
             disabled={loading}
           >
-            {config
-              ? (configs || []).find(({ token }) => token === config?.token)
-                  ?.name
-              : "Посоо сонгоно уу..."}
+            {selectedConfig?.name || "Посоо сонгоно уу..."}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>

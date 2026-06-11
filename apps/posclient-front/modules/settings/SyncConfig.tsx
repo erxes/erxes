@@ -12,7 +12,6 @@ const SyncConfig = ({
   configType,
   ...rest
 }: ButtonProps & { configType: "products" | "config" | "slots" }) => {
-
   const success = () =>
     toast({
       description: `${configType} has been synced successfully.`,
@@ -30,7 +29,7 @@ const SyncConfig = ({
     onError(error) {
       return onError(error.message)
     },
-    refetchQueries: ["CurrentConfig"],
+    refetchQueries: ["CurrentConfig", "posclientConfigs"],
   })
 
   return (
