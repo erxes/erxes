@@ -25,7 +25,9 @@ export const CONFIG: IUIConfig = {
     </Suspense>
   ),
   navigationGroup: {
-    name: 'erxes_agent',
+    // Display label in the sidebar plugin list (also the group key — only the
+    // plugin's own permission name must stay `erxes_agent`).
+    name: 'erxes AI Agents',
     icon: IconRobot,
     content: () => (
       <Suspense fallback={<div />}>
