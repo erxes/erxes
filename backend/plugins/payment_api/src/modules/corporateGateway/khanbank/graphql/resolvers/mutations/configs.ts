@@ -51,7 +51,6 @@ const mutations = {
   },
 };
 
-
 checkPermission(mutations, 'khanbankConfigsAdd', 'khanbankConfigsAdd', []);
 checkPermission(mutations, 'khanbankConfigsEdit', 'khanbankConfigsEdit', []);
 checkPermission(
