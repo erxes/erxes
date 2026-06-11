@@ -21,6 +21,7 @@ export interface IMastraThreadModel extends Model<IMastraThreadDocument> {
   getThreadsByOwner(agentId: string, userId: string): Promise<IMastraThreadDocument[]>;
   getOwnedThread(threadId: string, userId: string): Promise<IMastraThreadDocument>;
   renameThread(threadId: string, title: string, userId: string): Promise<IMastraThreadDocument>;
+  setGeneratedTitle(threadId: string, title: string, messageCount: number): Promise<boolean>;
   removeThread(threadId: string, userId: string): Promise<{ ok?: number }>;
 }
 
@@ -77,14 +78,31 @@ export const loadThreadClass = (_models: IModels) => {
       return thread;
     }
 
+    // A manual rename is final — the auto-titler never overwrites it.
     public static async renameThread(threadId: string, title: string, userId: string) {
       const updated = await _models.MastraThread.findOneAndUpdate(
         { threadId, userId },
-        { $set: { title } },
+        { $set: { title, titleSource: 'manual' } },
         { new: true },
       );
       if (!updated) throw new Error('Thread not found');
       return updated;
+    }
+
+    // Apply an LLM-generated title. The filter guards against racing a manual
+    // rename: once titleSource is 'manual', this is a no-op. Returns whether
+    // the title was applied.
+    public static async setGeneratedTitle(
+      threadId: string,
+      title: string,
+      messageCount: number,
+    ) {
+      const updated = await _models.MastraThread.findOneAndUpdate(
+        { threadId, titleSource: { $ne: 'manual' } },
+        { $set: { title, titleSource: 'generated', titleMessageCount: messageCount } },
+        { new: true },
+      );
+      return !!updated;
     }
 
     public static async removeThread(threadId: string, userId: string) {

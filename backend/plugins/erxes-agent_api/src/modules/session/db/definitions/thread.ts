@@ -13,6 +13,13 @@ export const threadSchema = new Schema(
     // by the next owner who posts to them (see ensureThread).
     userId: { type: String, index: true, label: 'Owner user ID' },
     title: { type: String, label: 'Title' },
+    titleSource: {
+      type: String,
+      enum: ['derived', 'generated', 'manual'],
+      default: 'derived',
+      label: 'Title source',
+    },
+    titleMessageCount: { type: Number, default: 0, label: 'Messages at last title generation' },
     messageCount: { type: Number, default: 0, label: 'Message count' },
     lastMessageAt: { type: Date, label: 'Last message at' },
   },
