@@ -50,10 +50,13 @@ export const providerQueries = {
     const apiKey = stored?.apiKey || (stored?.envKey ? process.env[stored.envKey] : undefined)
       || (preset?.envKey ? process.env[preset.envKey] : undefined);
 
+    // `||` (not `??`) on purpose: the Add Provider form saves untouched fields
+    // as empty strings, and a stored `modelsEndpoint: ''` must not shadow the
+    // preset endpoint or the {baseUrl}/models convention.
     const endpoint = stored?.modelsEndpoint
-      ?? preset?.modelsEndpoint
-      ?? (stored?.isOpenAICompatible && stored?.baseUrl ? `${stored.baseUrl}/models` : undefined)
-      ?? (preset?.isOpenAICompatible && preset?.baseUrl ? `${preset.baseUrl}/models` : undefined);
+      || preset?.modelsEndpoint
+      || (stored?.isOpenAICompatible && stored?.baseUrl ? `${stored.baseUrl}/models` : undefined)
+      || (preset?.isOpenAICompatible && preset?.baseUrl ? `${preset.baseUrl}/models` : undefined);
 
     if (!endpoint || !apiKey) return [];
 
@@ -76,7 +79,12 @@ export const providerQueries = {
       } else headers['Authorization'] = `Bearer ${apiKey}`;
 
       const res = await fetch(url, { headers });
-      if (!res.ok) return [];
+      if (!res.ok) {
+        console.warn(
+          `[mastra:providers] model listing for "${provider}" failed: HTTP ${res.status} from ${endpoint}`,
+        );
+        return [];
+      }
 
       const json: any = await res.json();
       // OpenAI/Anthropic/Mistral style: { data: [{ id, name?, display_name? }] }
@@ -103,7 +111,10 @@ export const providerQueries = {
           };
         })
         .filter((m: any) => m.id);
-    } catch {
+    } catch (e: any) {
+      console.warn(
+        `[mastra:providers] model listing for "${provider}" failed: ${e?.message || e}`,
+      );
       return [];
     }
   },

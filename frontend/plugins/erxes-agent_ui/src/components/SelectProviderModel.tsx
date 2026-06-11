@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client';
-import { Button, Combobox, Command, Input, Popover } from 'erxes-ui';
+import { Button, Combobox, Command, Input, Popover, Spinner } from 'erxes-ui';
 import {
   MASTRA_PROVIDERS,
   MASTRA_PROVIDER_CATALOG,
@@ -107,14 +107,25 @@ export const SelectModel = ({
   disabled?: boolean;
 }) => {
   // Live list from the provider's own model-listing API (via the backend).
+  // cache-and-network: an earlier empty/failed fetch must not stick — every
+  // mount re-asks the provider while still painting cached data instantly.
   const { data, loading } = useQuery(MASTRA_PROVIDER_MODELS, {
     variables: { provider },
     skip: !provider,
+    fetchPolicy: 'cache-and-network',
   });
   const models: { id: string; name: string }[] = data?.mastraProviderModels ?? [];
 
   const [open, setOpen] = useState(false);
   const [custom, setCustom] = useState(false);
+
+  // Manual mode is per-provider state: switching providers clears the model
+  // value, so always land back on the preset dropdown — otherwise a stale
+  // `custom` from the previous provider forces the manual input and the user
+  // has to click "Presets" before they can pick anything.
+  useEffect(() => {
+    setCustom(false);
+  }, [provider]);
 
   // A saved model the live catalog doesn't list is a manual entry — show the
   // input so the value stays visible and editable.
@@ -165,8 +176,24 @@ export const SelectModel = ({
         <Command>
           <Command.Input placeholder="Search models…" />
           <Command.List>
-            <Combobox.Empty loading={loading} />
-            {models.map((m) => (
+            {/* Explicit rows — Command.Empty never fires here because the
+                manual-entry item below keeps the list non-empty. */}
+            {loading && (
+              <div className="flex items-center gap-2 px-3 py-2.5 text-sm text-muted-foreground">
+                <Spinner
+                  className="size-4"
+                  containerClassName="w-auto flex-none"
+                />
+                Fetching models from the provider…
+              </div>
+            )}
+            {!loading && models.length === 0 && (
+              <p className="px-3 py-2.5 text-sm text-muted-foreground">
+                The provider returned no models. Check its API key and models
+                endpoint, or enter a model ID manually.
+              </p>
+            )}
+            {!loading && models.map((m) => (
               <Command.Item
                 key={m.id}
                 value={`${m.name} ${m.id}`}
