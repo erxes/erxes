@@ -17,9 +17,12 @@ This document provides comprehensive information about the erxes codebase struct
 
 ## Project Overview
 
+aa
+
 **erxes** (pronounced 'erk-sis') is a secure, self-hosted, and scalable source-available Experience Operating System (XOS) that enables businesses to manage marketing, sales, operations, and support in one unified platform.
 
 ### Key Characteristics
+
 - **Architecture**: Nx-powered pnpm monorepo with microservices architecture
 - **License**: AGPLv3 (core) with Enterprise Edition plugins
 - **Package Manager**: pnpm >= 8 - **REQUIRED**
@@ -27,6 +30,7 @@ This document provides comprehensive information about the erxes codebase struct
 - **Version**: TypeScript 5.7.3, Node.js 22 in CI
 
 ### Core Philosophy
+
 - 100% customizable through plugin architecture
 - Self-hosted for data privacy
 - Microservices with GraphQL Federation
@@ -60,6 +64,7 @@ This document provides comprehensive information about the erxes codebase struct
 ```
 
 **Technologies:**
+
 - **Runtime**: Node.js with TypeScript 5.7.3
 - **Framework**: Express.js
 - **GraphQL**: Apollo Server v4, Apollo Federation (@apollo/subgraph)
@@ -87,6 +92,7 @@ This document provides comprehensive information about the erxes codebase struct
 ```
 
 **Technologies:**
+
 - **Framework**: React 18.3.1
 - **Bundler**: Rspack v1.0.5 (Rust-based, faster than Webpack)
 - **Module Federation**: @module-federation/enhanced v0.6.6
@@ -103,6 +109,7 @@ This document provides comprehensive information about the erxes codebase struct
 ### Apps
 
 **Standalone Applications:**
+
 1. **client-portal-template**: Next.js 16 customer portal
 2. **posclient-front**: Next.js 14 POS with PWA support
 3. **frontline-widgets**: Customer-facing widgets (chat, forms)
@@ -183,6 +190,7 @@ erxes/
 ### Path Aliases (TypeScript)
 
 All backend services use consistent path aliases:
+
 ```typescript
 "paths": {
   "~/*": ["./src/*"],              // Service root
@@ -219,24 +227,28 @@ cp .env.sample .env
 ### Running Development Environment
 
 **Option 1: Run Core Only**
+
 ```bash
 # Runs Gateway + Core API
 pnpm dev:core-api
 ```
 
 **Option 2: Run All APIs**
+
 ```bash
 # Starts all backend services defined in ENABLED_PLUGINS
 pnpm dev:apis
 ```
 
 **Option 3: Run All UIs**
+
 ```bash
 # Starts all frontend plugins
 pnpm dev:uis
 ```
 
 **Option 4: Run Specific Service (Nx)**
+
 ```bash
 # Backend service
 pnpm nx serve core-api
@@ -306,6 +318,7 @@ erxes uses a **plugin-based architecture** for both backend and frontend:
 ### Backend Plugin Structure
 
 **Standard Plugin Entry Point** (`src/main.ts`):
+
 ```typescript
 import { startPlugin } from 'erxes-api-shared/utils';
 import { appRouter } from './trpc/init-trpc';
@@ -325,13 +338,7 @@ startPlugin({
   }),
   expressRouter: router,
   hasSubscriptions: true,
-  subscriptionPluginPath: require('path').resolve(
-    __dirname,
-    'apollo',
-    process.env.NODE_ENV === 'production'
-      ? 'subscription.js'
-      : 'subscription.ts',
-  ),
+  subscriptionPluginPath: require('path').resolve(__dirname, 'apollo', process.env.NODE_ENV === 'production' ? 'subscription.js' : 'subscription.ts'),
   apolloServerContext: async (subdomain, context) => {
     const models = await generateModels(subdomain, context);
     context.models = models;
@@ -351,12 +358,15 @@ startPlugin({
   meta: {
     automations,
     segments,
-    notificationModules: [/* ... */],
+    notificationModules: [
+      /* ... */
+    ],
   },
 });
 ```
 
 **Key Files in Backend Plugin:**
+
 - `main.ts` - Entry point using `startPlugin()`
 - `connectionResolvers.ts` - Database models
 - `apollo/` - GraphQL schema, resolvers, subscriptions
@@ -370,6 +380,7 @@ startPlugin({
 ### Frontend Plugin Structure
 
 **Plugin Configuration** (`src/config.tsx`):
+
 ```typescript
 import { IconBriefcase } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
@@ -415,20 +426,11 @@ export const CONFIG: IUIConfig = {
 ```
 
 **Module Federation Configuration** (`module-federation.config.ts`):
+
 ```typescript
 import { ModuleFederationConfig } from '@nx/rspack/module-federation';
 
-const coreLibraries = new Set([
-  'react',
-  'react-dom',
-  'react-router',
-  'react-router-dom',
-  'erxes-ui',
-  '@apollo/client',
-  'jotai',
-  'ui-modules',
-  'react-i18next',
-]);
+const coreLibraries = new Set(['react', 'react-dom', 'react-router', 'react-router-dom', 'erxes-ui', '@apollo/client', 'jotai', 'ui-modules', 'react-i18next']);
 
 const config: ModuleFederationConfig = {
   name: 'sales_ui',
@@ -453,19 +455,23 @@ export default config;
 ### Creating a New Plugin
 
 **Using the Plugin Generator:**
+
 ```bash
 pnpm create-plugin
 ```
 
 This will prompt for:
+
 - **Plugin name**: e.g., "inventory"
 - **Module name**: e.g., "products"
 
 The script creates:
+
 - Backend: `backend/plugins/inventory_api/`
 - Frontend: `frontend/plugins/inventory_ui/`
 
 Both with complete boilerplate including:
+
 - GraphQL/tRPC setup
 - Module Federation configuration
 - Example components and routes
@@ -474,6 +480,7 @@ Both with complete boilerplate including:
 **Plugin Activation:**
 
 Add to `.env`:
+
 ```bash
 ENABLED_PLUGINS=operation,sales,frontline,inventory
 ```
@@ -481,6 +488,7 @@ ENABLED_PLUGINS=operation,sales,frontline,inventory
 ### Service Discovery (Backend)
 
 Plugins register with the gateway using Redis:
+
 ```typescript
 // From erxes-api-shared/utils
 await joinErxesGateway({
@@ -495,6 +503,7 @@ await joinErxesGateway({
 ```
 
 Gateway dynamically routes requests to plugins:
+
 - GraphQL: Federated via Apollo Router
 - REST: Proxy via `/pl:{serviceName}/*`
 - tRPC: Proxy via `/trpc/`
@@ -504,12 +513,14 @@ Gateway dynamically routes requests to plugins:
 ### TypeScript
 
 **Configuration:**
+
 - Strict null checks: enabled
 - No implicit any: disabled (legacy code compatibility)
 - Target: ES2017
 - Module: CommonJS (backend), ESNext (frontend)
 
 **Naming Conventions:**
+
 ```typescript
 // Interfaces & Types
 interface IUser { ... }
@@ -541,6 +552,7 @@ const MAX_RETRY_COUNT = 3;
 ```
 
 **Key Rules:**
+
 - Single quotes for strings
 - Trailing commas in arrays/objects
 - 2-space indentation (inferred)
@@ -549,6 +561,7 @@ const MAX_RETRY_COUNT = 3;
 ### React Patterns
 
 **Component Structure:**
+
 ```typescript
 // Prefer functional components with hooks
 export const UserList: React.FC<Props> = ({ users, onSelect }) => {
@@ -578,7 +591,7 @@ export const UserList: React.FC<Props> = ({ users, onSelect }) => {
 
   return (
     <div>
-      {users.map(user => (
+      {users.map((user) => (
         <UserCard key={user.id} user={user} onClick={handleSelect} />
       ))}
     </div>
@@ -587,12 +600,14 @@ export const UserList: React.FC<Props> = ({ users, onSelect }) => {
 ```
 
 **State Management:**
+
 - **Local State**: `useState` for component-local state
 - **Global State**: Jotai atoms for app-wide state
 - **Server State**: Apollo Client for GraphQL data
 - **Form State**: React Hook Form with Zod validation
 
 **Lazy Loading (Module Federation):**
+
 ```typescript
 // Always lazy load federation modules
 const RemoteModule = lazy(() => import('remote/Module'));
@@ -600,12 +615,13 @@ const RemoteModule = lazy(() => import('remote/Module'));
 // Always wrap in Suspense
 <Suspense fallback={<Loading />}>
   <RemoteModule />
-</Suspense>
+</Suspense>;
 ```
 
 ### GraphQL Conventions
 
 **Schema Naming:**
+
 ```graphql
 # Types: PascalCase
 type User {
@@ -635,6 +651,7 @@ type Subscription {
 ```
 
 **Resolver Structure:**
+
 ```typescript
 const resolvers = {
   Query: {
@@ -663,6 +680,7 @@ const resolvers = {
 ### Backend Patterns
 
 **Service Layer Pattern:**
+
 ```typescript
 // modules/users/services.ts
 export const userService = {
@@ -682,6 +700,7 @@ export const userService = {
 ```
 
 **Model Layer (Mongoose):**
+
 ```typescript
 // connectionResolvers.ts
 export const generateModels = (subdomain: string) => {
@@ -712,6 +731,7 @@ export class UserModel {
 ```
 
 **Error Handling:**
+
 ```typescript
 // Always throw descriptive errors
 throw new Error('User with this email already exists');
@@ -728,11 +748,14 @@ export class ValidationError extends Error {
 ### Multi-tenancy (Subdomains)
 
 Every request includes a `subdomain` for tenant isolation:
+
 ```typescript
 // Context includes subdomain
 const resolver = async (_, args, { subdomain, models, user }) => {
   // Models are scoped to subdomain automatically
-  const users = await models.Users.find({ /* tenant-specific */ });
+  const users = await models.Users.find({
+    /* tenant-specific */
+  });
 };
 
 // MongoDB collections are prefixed with subdomain
@@ -789,6 +812,7 @@ export default {
 ### Example Tests
 
 **Backend Service Test:**
+
 ```typescript
 import { generateModels } from '../connectionResolvers';
 
@@ -815,6 +839,7 @@ describe('User Service', () => {
 ```
 
 **Frontend Component Test:**
+
 ```typescript
 import { render, screen } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
@@ -838,7 +863,7 @@ describe('UserList', () => {
     render(
       <MockedProvider mocks={mocks}>
         <UserList />
-      </MockedProvider>
+      </MockedProvider>,
     );
 
     expect(await screen.findByText('test@example.com')).toBeInTheDocument();
@@ -853,11 +878,13 @@ describe('UserList', () => {
 Located in `.github/workflows/` with 26+ workflow files:
 
 **Naming Convention:**
+
 - `ci-api-core.yml` - Core API CI
 - `ci-plugin-sales.yml` - Sales plugin CI
 - `ci-ui-sales.yml` - Sales UI CI
 
 **Workflow Pattern:**
+
 ```yaml
 name: CI plugin--sales-api
 
@@ -884,7 +911,7 @@ jobs:
       - uses: actions/setup-node@v4
 
       - run: pnpm install
-      - run: pnpm nx build erxes-api-shared  # Build shared lib first
+      - run: pnpm nx build erxes-api-shared # Build shared lib first
       - run: pnpm nx build sales_api
 
       # Docker multi-platform build
@@ -898,6 +925,7 @@ jobs:
 ```
 
 **Key Features:**
+
 - **Path-based triggers**: Only builds affected services
 - **Nx caching**: Leverages Nx build cache
 - **Multi-platform**: Builds for AMD64 and ARM64
@@ -907,6 +935,7 @@ jobs:
 ### Docker Configuration
 
 **Each service has its own Dockerfile:**
+
 ```dockerfile
 # Example: backend/plugins/sales_api/Dockerfile
 FROM node:18-alpine
@@ -925,6 +954,7 @@ CMD ["node", "dist/main.js"]
 ```
 
 **Docker Images:**
+
 - Registry: Docker Hub
 - Org: `erxes`
 - Naming: `erxes-next-{service-name}`
@@ -933,6 +963,7 @@ CMD ["node", "dist/main.js"]
 ### Deployment
 
 Services are typically deployed as:
+
 1. **Docker Compose** (development/self-hosted)
 2. **Kubernetes** (production/scaled)
 3. **Cloud Platforms** (AWS, GCP, Azure)
@@ -964,11 +995,13 @@ Services are typically deployed as:
 ### Modifying Shared Code
 
 **Backend Shared (`erxes-api-shared`):**
+
 1. Make changes in `backend/erxes-api-shared/src/`
 2. Build: `pnpm nx build erxes-api-shared`
 3. Rebuild dependent services (they reference dist/)
 
 **Frontend Shared (`erxes-ui`):**
+
 1. Make changes in `frontend/libs/erxes-ui/src/`
 2. No build needed (imported directly)
 3. Hot reload works across plugins
@@ -976,6 +1009,7 @@ Services are typically deployed as:
 ### Database Migrations
 
 **Mongoose migrations pattern:**
+
 ```typescript
 // scripts/migration-{feature}.ts
 import { connect } from '../db/connection';
@@ -984,10 +1018,7 @@ const migrate = async () => {
   const db = await connect();
 
   // Migration logic
-  await db.collection('users').updateMany(
-    { role: { $exists: false } },
-    { $set: { role: 'user' } }
-  );
+  await db.collection('users').updateMany({ role: { $exists: false } }, { $set: { role: 'user' } });
 
   console.log('Migration complete');
   process.exit(0);
@@ -1001,6 +1032,7 @@ Run via: `tsx scripts/migration-{feature}.ts`
 ### Debugging
 
 **Backend:**
+
 ```bash
 # Enable debug logs
 DEBUG=* pnpm nx serve sales_api
@@ -1010,6 +1042,7 @@ node --inspect dist/main.js
 ```
 
 **Frontend:**
+
 ```bash
 # React DevTools
 # Apollo DevTools (browser extension)
@@ -1020,6 +1053,7 @@ pnpm nx serve sales_ui
 ```
 
 **Common Issues:**
+
 - **Port conflicts**: Check if services are already running
 - **Module Federation errors**: Clear cache, restart dev servers
 - **GraphQL errors**: Check gateway logs, verify service registration
@@ -1034,7 +1068,7 @@ pnpm nx serve sales_ui
 const { subdomain, models } = context;
 
 // Models are automatically scoped
-const users = await models.Users.find({});  // Only tenant's users
+const users = await models.Users.find({}); // Only tenant's users
 
 // Manual subdomain in collection names
 const collectionName = `${subdomain}_users`;
@@ -1043,6 +1077,7 @@ const collectionName = `${subdomain}_users`;
 ### Service Communication
 
 **Via GraphQL Federation:**
+
 ```typescript
 // Reference other service types
 type Deal @key(fields: "_id") {
@@ -1052,14 +1087,13 @@ type Deal @key(fields: "_id") {
 ```
 
 **Via tRPC:**
+
 ```typescript
 // backend/plugins/sales_api/src/trpc/routers/deals.ts
 export const dealsRouter = t.router({
-  list: t.procedure
-    .input(z.object({ customerId: z.string() }))
-    .query(async ({ input, ctx }) => {
-      return ctx.models.Deals.find({ customerId: input.customerId });
-    }),
+  list: t.procedure.input(z.object({ customerId: z.string() })).query(async ({ input, ctx }) => {
+    return ctx.models.Deals.find({ customerId: input.customerId });
+  }),
 });
 
 // From another service
@@ -1070,6 +1104,7 @@ const deals = await trpc.deals.list.query({ customerId: '123' });
 ### Redis Patterns
 
 **Caching:**
+
 ```typescript
 import { redis } from 'erxes-api-shared/utils';
 
@@ -1085,10 +1120,13 @@ await redis.del(`user:${id}`);
 ```
 
 **PubSub (Real-time):**
+
 ```typescript
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 
-const pubsub = new RedisPubSub({ /* redis config */ });
+const pubsub = new RedisPubSub({
+  /* redis config */
+});
 
 // Publish
 await pubsub.publish('USER_CHANGED', { userChanged: user });
@@ -1118,12 +1156,16 @@ await emailQueue.add('send', {
 });
 
 // Process jobs
-const worker = new Worker('emails', async (job) => {
-  const { to, subject } = job.data;
-  await sendEmail(to, subject);
-}, {
-  connection: { host: 'localhost', port: 6379 },
-});
+const worker = new Worker(
+  'emails',
+  async (job) => {
+    const { to, subject } = job.data;
+    await sendEmail(to, subject);
+  },
+  {
+    connection: { host: 'localhost', port: 6379 },
+  },
+);
 
 // View dashboard at http://localhost:4000/bullmq-board
 ```
@@ -1226,7 +1268,7 @@ export default {
     const deals = await models.Deals.find(data.filter);
 
     return {
-      data: deals.map(deal => ({
+      data: deals.map((deal) => ({
         Name: deal.name,
         Amount: deal.amount,
       })),
@@ -1238,6 +1280,7 @@ export default {
 ## Additional Resources
 
 ### Documentation
+
 - **Main Docs**: https://erxes.io/docs
 - **Local Setup**: https://erxes.io/docs/local-setup
 - **Contributing**: See CONTRIBUTING.md
@@ -1245,6 +1288,7 @@ export default {
 - **Changelog**: https://erxes.io/changelog
 
 ### Community
+
 - **Discord**: https://discord.com/invite/aaGzy3gQK5
 - **GitHub Issues**: https://github.com/erxes/erxes/issues
 - **Transifex (i18n)**: https://explore.transifex.com/erxes-inc/erxesxos/
@@ -1252,6 +1296,7 @@ export default {
 ### Code Exploration Tips
 
 **Finding Features:**
+
 ```bash
 # Find GraphQL type definition
 rg 'type Deal' backend frontend apps
@@ -1264,6 +1309,7 @@ rg '/api/deals' backend frontend apps
 ```
 
 **Understanding Plugin Flow:**
+
 1. Start at `main.ts` - entry point
 2. Check `apollo/typeDefs.ts` - GraphQL schema
 3. Look at `apollo/resolvers/` - query/mutation logic
@@ -1271,6 +1317,7 @@ rg '/api/deals' backend frontend apps
 5. Review `models/` - data layer
 
 **Understanding Frontend Plugin:**
+
 1. Start at `config.tsx` - plugin configuration
 2. Check `module-federation.config.ts` - exposed modules
 3. Look at `modules/` - main components
@@ -1280,12 +1327,14 @@ rg '/api/deals' backend frontend apps
 ## Best Practices for AI Assistants
 
 ### Code Analysis
+
 - Always read existing code before making changes
 - Understand the plugin architecture before modifications
 - Check both GraphQL and tRPC endpoints when working with APIs
 - Review module-federation.config.ts for exposed modules
 
 ### Making Changes
+
 - **Backend**: Rebuild `erxes-api-shared` if shared code changed
 - **Frontend**: Check if changes affect module federation exports
 - Always maintain TypeScript types
@@ -1293,6 +1342,7 @@ rg '/api/deals' backend frontend apps
 - Test multi-tenancy (subdomain) implications
 
 ### Common Pitfalls
+
 - Don't bypass plugin system - use proper extension points
 - Don't break module federation shared dependencies
 - Don't modify core without considering plugin impacts
@@ -1300,6 +1350,7 @@ rg '/api/deals' backend frontend apps
 - Remember port allocation when adding new services
 
 ### Testing Your Changes
+
 1. Run Nx affected commands to see what's impacted
 2. Test in development mode first
 3. Verify GraphQL schema still federates correctly
@@ -1307,6 +1358,7 @@ rg '/api/deals' backend frontend apps
 5. Test with different subdomains if multi-tenant
 
 ### Git Workflow
+
 - Branch naming: `feat/`, `fix/`, `docs/`
 - Reference issues in commits
 - Keep commits focused and atomic
