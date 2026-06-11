@@ -26,6 +26,7 @@ type TMSDynamicCheckOrderQueryResponse = {
   };
 };
 
+/** Check order list query variable beldene. */
 export const useMSDynamicCheckOrderVariables = (
   variables?: QueryHookOptions<TMSDynamicCheckOrderQueryResponse>['variables'],
 ) => {
@@ -58,6 +59,7 @@ export const useMSDynamicCheckOrderVariables = (
   };
 };
 
+/** Msdynamic check orders cursor-toi avna. */
 export const useMSDynamicCheckOrder = (
   options?: QueryHookOptions<TMSDynamicCheckOrderQueryResponse>,
 ) => {
@@ -78,6 +80,7 @@ export const useMSDynamicCheckOrder = (
     setTotalCount(totalCount ?? null);
   }, [setTotalCount, totalCount]);
 
+  /** Table deer next/prev page avah heseg. */
   const handleFetchMore = ({
     direction,
   }: {

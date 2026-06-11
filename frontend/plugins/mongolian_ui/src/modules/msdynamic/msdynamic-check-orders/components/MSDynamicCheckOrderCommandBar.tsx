@@ -1,12 +1,12 @@
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
-import { useMSDynamicCheckOrder } from '../hooks/useMSDynamicCheckOrder';
 
 export const CheckSyncedOrdersCommandBar = ({
+  checking,
   onCheck,
 }: {
+  checking: boolean;
   onCheck: (orderIds: string[]) => Promise<void>;
 }) => {
-  const { loading } = useMSDynamicCheckOrder();
   const { table } = RecordTable.useRecordTable();
   const selectedRows = table.getFilteredSelectedRowModel().rows;
 
@@ -23,8 +23,8 @@ export const CheckSyncedOrdersCommandBar = ({
       <CommandBar.Bar>
         <CommandBar.Value>{selectedRows.length} selected</CommandBar.Value>
         <Separator.Inline />
-        <Button variant="secondary" onClick={handleCheck} disabled={loading}>
-          {loading ? 'Checking...' : 'Check'}
+        <Button variant="secondary" onClick={handleCheck} disabled={checking}>
+          {checking ? 'Checking...' : 'Check'}
         </Button>
       </CommandBar.Bar>
     </CommandBar>

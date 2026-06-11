@@ -123,7 +123,7 @@ export const msdynamicCheckMutations = {
 
     return ids.map((_id) => ({
       _id,
-      isSynced: !!syncMap[_id],
+      isSynced: Boolean(syncMap[_id]),
       syncedDate: syncMap[_id]?.syncedDate || null,
       syncedBillNumber: syncMap[_id]?.syncedBillNumber || null,
       syncedCustomer: syncMap[_id]?.syncedCustomer || null,

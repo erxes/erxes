@@ -18,7 +18,6 @@ import {
   ISyncedOrderInfo,
 } from '../types/msDynamicCheckOrder';
 import { getCheckSyncedOrdersMoreColumn } from './CheckSyncedOrdersMoreColumn';
-import { OrdersDetailContainer } from '../../containers/PosOrderDetail';
 
 const ORDER_DETAIL_ID_KEY = 'orderDetailId';
 
@@ -51,7 +50,6 @@ const CheckSyncedOrderDateRow = ({
           <RelativeDateDisplay.Value value={value || ''} />
         </RecordTableInlineCell>
       </RelativeDateDisplay>
-      {id === 'createdAt' && <OrdersDetailContainer order={order} />}
     </>
   );
 };

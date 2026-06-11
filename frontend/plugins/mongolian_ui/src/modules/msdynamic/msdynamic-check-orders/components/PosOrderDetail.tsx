@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import { Link } from 'react-router-dom';
 import { Sheet, useQueryState } from 'erxes-ui';
+import type { ReactNode } from 'react';
 import {
   IPosOrderDetail,
   IOrderCustomer,
@@ -15,85 +16,100 @@ type Props = {
   orders: IPosOrderDetail;
 };
 
-const PosOrderDetail = ({ orders }: Props) => {
-  const [orderDetailId, setOrderDetailId] =
-    useQueryState<string>(ORDER_DETAIL_ID_KEY);
+const formatAmount = (value?: number) => (value || 0).toLocaleString();
 
-  const open = Boolean(orderDetailId) && orderDetailId === orders?._id;
+const DetailRow = ({ label, value }: { label: string; value: ReactNode }) => (
+  <div className="flex justify-between gap-4 border-b py-2 text-sm">
+    <span className="font-medium text-muted-foreground">{label}</span>
+    <span className="text-right">{value || '-'}</span>
+  </div>
+);
 
-  const handleOpenChange = (next: boolean) => {
-    if (!next) setOrderDetailId(null);
-  };
+const DetailSection = ({
+  title,
+  children,
+  className,
+}: {
+  title: string;
+  children: ReactNode;
+  className?: string;
+}) => (
+  <section className={className || 'rounded-lg border bg-card p-4 space-y-2'}>
+    <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      {title}
+    </h3>
+    {children}
+  </section>
+);
 
-  const formatAmount = (value?: number) => (value || 0).toLocaleString();
+const generateCustomerLabel = (customer?: IOrderCustomer) => {
+  if (!customer) return '';
 
-  const renderRow = (label: string, value: React.ReactNode) => (
-    <div className="flex justify-between py-2 border-b text-sm">
-      <span className="font-medium text-muted-foreground">{label}</span>
-      <span>{value || '-'}</span>
-    </div>
-  );
+  const { firstName, lastName, primaryPhone, primaryEmail } = customer;
 
-  const generateCustomerLabel = (customer?: IOrderCustomer) => {
-    if (!customer) return '';
+  let value = firstName ? firstName.toUpperCase() : '';
 
-    const { firstName, lastName, primaryPhone, primaryEmail } = customer;
+  if (lastName) value += ` ${lastName}`;
+  if (primaryPhone) value += ` (${primaryPhone})`;
+  if (primaryEmail) value += ` /${primaryEmail}/`;
 
-    let value = firstName ? firstName.toUpperCase() : '';
+  return value;
+};
 
-    if (lastName) value += ` ${lastName}`;
-    if (primaryPhone) value += ` (${primaryPhone})`;
-    if (primaryEmail) value += ` /${primaryEmail}/`;
-
-    return value;
-  };
-
-  const content = (
-    <div className="space-y-6">
-      <div className="rounded-lg border bg-card p-4 space-y-2">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Order Info
-        </h3>
-        {renderRow(
-          (orders.customerType || 'Customer').toUpperCase(),
-          orders.customer ? generateCustomerLabel(orders.customer) : '',
+const PosOrderDetailContent = ({ orders }: Props) => (
+  <>
+    <DetailSection title="Order Info">
+      <DetailRow
+        label={(orders.customerType || 'Customer').toUpperCase()}
+        value={orders.customer ? generateCustomerLabel(orders.customer) : ''}
+      />
+      <DetailRow label="Bill Number" value={orders.number} />
+      <DetailRow
+        label="Date"
+        value={dayjs(orders.paidDate || orders.createdAt).format(
+          'YYYY-MM-DD HH:mm',
         )}
-        {renderRow('Bill Number', orders.number)}
-        {renderRow(
-          'Date',
-          dayjs(orders.paidDate || orders.createdAt).format('YYYY-MM-DD HH:mm'),
-        )}
-        {orders.deliveryInfo &&
-          renderRow('Delivery Info', orders.deliveryInfo.description)}
-        {orders.syncErkhetInfo &&
-          renderRow('Erkhet Info', orders.syncErkhetInfo)}
-        {orders.convertDealId &&
-          renderRow(
-            'Deal',
+      />
+      {orders.deliveryInfo && (
+        <DetailRow
+          label="Delivery Info"
+          value={orders.deliveryInfo.description}
+        />
+      )}
+      {orders.syncErkhetInfo && (
+        <DetailRow label="Erkhet Info" value={orders.syncErkhetInfo} />
+      )}
+      {orders.convertDealId && (
+        <DetailRow
+          label="Deal"
+          value={
             <Link to={orders.dealLink || ''} className="text-primary underline">
               {orders.deal?.name || 'Deal'}
-            </Link>,
-          )}
-      </div>
-
-      {(orders.putResponses || []).length > 0 && (
-        <div className="rounded-lg border bg-card p-4 space-y-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Ebarimt Responses
-          </h3>
-          {orders.putResponses?.map((p: IPutResponse) => (
-            <div key={p.billId} className="space-y-1">
-              {renderRow('Bill ID', p.billId)}
-              {renderRow('Ebarimt Date', dayjs(p.date).format('LLL'))}
-            </div>
-          ))}
-        </div>
+            </Link>
+          }
+        />
       )}
+    </DetailSection>
 
-      <div className="rounded-lg border bg-card overflow-hidden">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground px-4 pt-4 pb-2">
-          Items
-        </h3>
+    {(orders.putResponses || []).length > 0 && (
+      <DetailSection title="Ebarimt Responses">
+        {orders.putResponses?.map((response: IPutResponse) => (
+          <div key={response.billId} className="space-y-1">
+            <DetailRow label="Bill ID" value={response.billId} />
+            <DetailRow
+              label="Ebarimt Date"
+              value={dayjs(response.date).format('LLL')}
+            />
+          </div>
+        ))}
+      </DetailSection>
+    )}
+
+    <DetailSection
+      title="Items"
+      className="rounded-lg border bg-card overflow-hidden"
+    >
+      <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-y bg-muted/30">
@@ -105,11 +121,11 @@ const PosOrderDetail = ({ orders }: Props) => {
             </tr>
           </thead>
           <tbody>
-            {(orders.items || []).map((item: IOrderItem, idx: number) => (
+            {(orders.items || []).map((item: IOrderItem, index: number) => (
               <tr
                 key={item._id}
                 className={
-                  idx !== (orders.items || []).length - 1 ? 'border-b' : ''
+                  index < (orders.items || []).length - 1 ? 'border-b' : ''
                 }
               >
                 <td className="px-3 py-2">{item.productName}</td>
@@ -126,54 +142,68 @@ const PosOrderDetail = ({ orders }: Props) => {
           </tbody>
         </table>
       </div>
+    </DetailSection>
 
-      <div className="rounded-lg border bg-card p-4 space-y-2">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Totals
-        </h3>
-        {renderRow('Total Amount', formatAmount(orders.totalAmount))}
-      </div>
+    <DetailSection title="Totals">
+      <DetailRow
+        label="Total Amount"
+        value={formatAmount(orders.totalAmount)}
+      />
+    </DetailSection>
 
-      <div className="rounded-lg border bg-card p-4 space-y-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Payment Breakdown
-        </h3>
-        {orders.cashAmount !== undefined && (
-          <div className="flex justify-between items-center">
-            <span className="text-sm">Cash Amount</span>
-            <span className="font-medium tabular-nums">
-              {formatAmount(orders.cashAmount)}
-            </span>
-          </div>
-        )}
-        {orders.mobileAmount !== undefined && (
-          <div className="flex justify-between items-center">
-            <span className="text-sm">Mobile Amount</span>
-            <span className="font-medium tabular-nums">
-              {formatAmount(orders.mobileAmount)}
-            </span>
-          </div>
-        )}
-        {(orders.paidAmounts || []).map((paid: IPaidAmount) => (
-          <div key={paid._id} className="flex justify-between items-center">
-            <span className="text-sm">{paid.type}</span>
-            <span className="font-medium tabular-nums">
-              {formatAmount(paid.amount)}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+    <DetailSection
+      title="Payment Breakdown"
+      className="rounded-lg border bg-card p-4 space-y-3"
+    >
+      {orders.cashAmount !== undefined && (
+        <DetailRow
+          label="Cash Amount"
+          value={formatAmount(orders.cashAmount)}
+        />
+      )}
+      {orders.mobileAmount !== undefined && (
+        <DetailRow
+          label="Mobile Amount"
+          value={formatAmount(orders.mobileAmount)}
+        />
+      )}
+      {(orders.paidAmounts || []).map((paid: IPaidAmount) => (
+        <DetailRow
+          key={paid._id}
+          label={paid.type}
+          value={formatAmount(paid.amount)}
+        />
+      ))}
+    </DetailSection>
+  </>
+);
+
+const PosOrderDetail = ({ orders }: Props) => {
+  const [orderDetailId, setOrderDetailId] =
+    useQueryState<string>(ORDER_DETAIL_ID_KEY);
+
+  const open = Boolean(orderDetailId) && orderDetailId === orders?._id;
+
+  const handleOpenChange = (next: boolean) => {
+    if (!next) setOrderDetailId(null);
+  };
 
   return (
-    <Sheet open={open} onOpenChange={handleOpenChange}>
+    <Sheet open={open} onOpenChange={handleOpenChange} modal>
       <Sheet.View className="sm:max-w-3xl">
         <Sheet.Header>
           <Sheet.Title>Order Detail</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
-        <Sheet.Content className="overflow-y-auto p-5">{content}</Sheet.Content>
+        <Sheet.Content className="overflow-y-auto p-5 space-y-5">
+          {orders ? (
+            <PosOrderDetailContent orders={orders} />
+          ) : (
+            <div className="text-sm text-muted-foreground">
+              Order not found.
+            </div>
+          )}
+        </Sheet.Content>
       </Sheet.View>
     </Sheet>
   );

@@ -2,6 +2,7 @@ import { CheckSyncedOrders } from '~/modules/msdynamic/msdynamic-check-orders/co
 import { PageSubHeader } from 'erxes-ui';
 import { MSDynamicCheckOrderFilter } from '~/modules/msdynamic/msdynamic-check-orders/components/MSDynamicCheckOrderFilter';
 
+/** Synced order check page gargana. */
 const CheckSyncedOrdersPage = () => {
   return (
     <>

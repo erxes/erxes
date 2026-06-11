@@ -19,6 +19,7 @@ type TSendMsdOrdersResponse = {
   toSendMsdOrders: ICheckSyncedOrderStatus;
 };
 
+/** Msdynamic synced order check table haruulna. */
 const CheckSyncedOrders = () => {
   const { loading, orders, handleFetchMore, pageInfo } =
     useMSDynamicCheckOrder();
@@ -28,7 +29,7 @@ const CheckSyncedOrders = () => {
     Record<string, ISyncedOrderInfo>
   >({});
 
-  const [toCheckMsdSynced] = useMutation<
+  const [toCheckMsdSynced, { loading: checkingSyncedOrders }] = useMutation<
     TCheckSyncedOrdersResponse,
     { ids: string[] }
   >(gql(mutations.toCheckMsdSynced));
@@ -37,6 +38,7 @@ const CheckSyncedOrders = () => {
     { orderIds: string[] }
   >(gql(mutations.toSendMsdOrders));
 
+  /** Selected orders msdynamic ruu synced uu gedgiig shalgana. */
   const onCheck = async (orderIds: string[]): Promise<void> => {
     try {
       const response = await toCheckMsdSynced({
@@ -57,7 +59,7 @@ const CheckSyncedOrders = () => {
           };
         });
 
-      setSyncedOrderInfos(syncedInfos);
+      setSyncedOrderInfos((prev) => ({ ...prev, ...syncedInfos }));
       toast({
         title: 'Orders checked successfully',
         variant: 'success',
@@ -75,6 +77,7 @@ const CheckSyncedOrders = () => {
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   const columns = useMemo(() => {
+    /** Neg order dahin yavuulaad synced info update hiine. */
     const resend = async (orderId: string) => {
       try {
         const response = await toSendMsdOrdersMutation({
@@ -120,7 +123,10 @@ const CheckSyncedOrders = () => {
       className="m-0"
       stickyColumns={['more', 'checkbox', 'createdAt']}
     >
-      <CheckSyncedOrdersCommandBar onCheck={onCheck} />
+      <CheckSyncedOrdersCommandBar
+        checking={checkingSyncedOrders}
+        onCheck={onCheck}
+      />
       <RecordTable.CursorProvider
         hasPreviousPage={hasPreviousPage}
         hasNextPage={hasNextPage}
