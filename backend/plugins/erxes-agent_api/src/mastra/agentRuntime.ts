@@ -103,14 +103,14 @@ export async function getOrCreateAgent(agentConfig: any, models: any): Promise<A
     builtins: builtinInfos,
   });
 
-  // search → execute → answer needs several steps, and a single workflow
-  // build is 20+ (guide, searches, entity lookups, tag creation, validate,
-  // simulate, save). A low cap ends the turn mid-task with a confident-
-  // sounding partial answer (observed live TWICE: caps of 10 and 16 both ran
-  // out right after workflowValidate, one step before workflowSave), so when
-  // the agent has tools, the stored value acts as a floor-protected budget.
+  // Workflow builds are 20+ steps (guide → searches → validate → simulate →
+  // save → run). A cap of 32 is the floor for workflow-capable agents.
+  // Pure chat/search/chart agents only ever need ~5 steps — use the configured
+  // value with a floor of 8 so they don't waste LLM round-trips.
   const configuredSteps = agentConfig.maxSteps || 8;
-  const maxSteps = toolNames.length ? Math.max(configuredSteps, 32) : configuredSteps;
+  const hasWorkflowTools = toolNames.some((k) => k.startsWith('workflow'));
+  const stepFloor = hasWorkflowTools ? 32 : 8;
+  const maxSteps = toolNames.length ? Math.max(configuredSteps, stepFloor) : configuredSteps;
 
   const agent = new Agent({
     id: agentConfig.agentId,

@@ -23,7 +23,8 @@ import { buildChatUserContent, historyAttachmentNote } from '~/mastra/files/chat
 // the completed exchange.
 
 // How many recent messages of a session to replay as LLM context.
-export const HISTORY_LIMIT = 20;
+// 12 covers most conversations; reduces DB load + LLM token overhead per turn.
+export const HISTORY_LIMIT = 12;
 
 // A search_erxes_operations result is navigational (it lists candidate ops),
 // never the final answer — the answer comes from execute_erxes_operation.

@@ -37,7 +37,7 @@ interface CacheEntry {
 // agent's capabilities are now always derived from the live schema, no manual
 // "sync" step required.
 const cache = new Map<string, CacheEntry>();
-const TTL_MS = 5 * 60 * 1000;
+const TTL_MS = 15 * 60 * 1000;
 
 function cacheKey(settings: any): string {
   const apiUrl = settings?.erxesApiUrl || 'http://localhost:4000';

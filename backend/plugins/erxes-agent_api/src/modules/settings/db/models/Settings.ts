@@ -9,9 +9,19 @@ export interface IMastraSettingsModel extends Model<IMastraSettingsDocument> {
   saveKnowledgeSyncStatus(status: IKnowledgeSyncStatus): Promise<void>;
 }
 
+// 30-second in-process cache — eliminates a DB round-trip on every turn.
+// Busted immediately when saveSettings() is called so UI edits take effect.
+let _settingsCache: { doc: IMastraSettingsDocument; expiresAt: number } | null = null;
+const SETTINGS_CACHE_TTL = 30_000;
+
 export const loadSettingsClass = (_models: IModels) => {
   class MastraSettings {
     public static async getSettings() {
+      const now = Date.now();
+      if (_settingsCache && _settingsCache.expiresAt > now) {
+        return _settingsCache.doc;
+      }
+
       let doc = await _models.MastraSettings.findOne({});
       if (!doc) {
         doc = await _models.MastraSettings.create({
@@ -27,10 +37,12 @@ export const loadSettingsClass = (_models: IModels) => {
       if (process.env.ERXES_AGENT_DEFAULT_AGENT_ID) doc.defaultAgentId = process.env.ERXES_AGENT_DEFAULT_AGENT_ID;
       if (process.env.BRAVE_SEARCH_API_KEY) doc.searchApiKey = process.env.BRAVE_SEARCH_API_KEY;
 
+      _settingsCache = { doc, expiresAt: now + SETTINGS_CACHE_TTL };
       return doc;
     }
 
     public static async saveSettings(doc: IMastraSettings) {
+      _settingsCache = null; // bust cache on save so edits take effect immediately
       const existing = await _models.MastraSettings.findOne({});
       if (existing) {
         return _models.MastraSettings.findOneAndUpdate(
