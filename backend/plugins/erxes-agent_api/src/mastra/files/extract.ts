@@ -1,8 +1,5 @@
 import * as path from 'path';
-import {
-  decodeHtmlEntities,
-  stripScriptAndStyleBlocks,
-} from '~/mastra/html';
+import { decodeHtmlEntities, stripScriptAndStyleBlocks } from '~/mastra/html';
 
 // ---------------------------------------------------------------------------
 // Text extraction from chat attachments. Pure buffer → text; storage access

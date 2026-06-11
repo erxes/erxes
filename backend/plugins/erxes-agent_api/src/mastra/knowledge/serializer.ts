@@ -7,10 +7,7 @@
 // enough context to answer from.
 // ---------------------------------------------------------------------------
 
-import {
-  decodeHtmlEntities,
-  stripScriptAndStyleBlocks,
-} from '~/mastra/html';
+import { decodeHtmlEntities, stripScriptAndStyleBlocks } from '~/mastra/html';
 
 export interface KbArticleLike {
   _id: string;
