@@ -3,8 +3,9 @@ import { DocumentNode } from 'graphql';
 import { gql } from 'graphql-tag';
 import { mutations, queries, types } from '~/apollo/schema/schema';
 
-export const typeDefs = async (): Promise<DocumentNode> => {
-  return gql`
+/** Assemble the plugin's federated GraphQL schema document. */
+export const typeDefs = (): Promise<DocumentNode> =>
+  Promise.resolve(gql`
     ${apolloCommonTypes}
     ${types}
     extend type Query {
@@ -13,5 +14,4 @@ export const typeDefs = async (): Promise<DocumentNode> => {
     extend type Mutation {
       ${mutations}
     }
-  `;
-};
+  `);

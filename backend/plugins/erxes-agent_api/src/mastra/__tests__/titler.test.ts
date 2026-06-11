@@ -40,11 +40,13 @@ describe('shouldGenerateTitle', () => {
 
 describe('buildTranscript', () => {
   it('labels roles and collapses whitespace', () => {
-    const t = buildTranscript([
+    const transcript = buildTranscript([
       { role: 'user', content: 'build me\n a workflow' },
       { role: 'assistant', content: 'Sure,  here is one' },
     ]);
-    expect(t).toBe('User: build me a workflow\nAssistant: Sure, here is one');
+    expect(transcript).toBe(
+      'User: build me a workflow\nAssistant: Sure, here is one',
+    );
   });
 
   it('clips long messages and keeps only the trailing window', () => {
@@ -53,10 +55,10 @@ describe('buildTranscript', () => {
       role: 'user',
       content: i === 19 ? long : `msg ${i}`,
     }));
-    const t = buildTranscript(msgs);
-    expect(t.split('\n')).toHaveLength(12);
-    expect(t).toContain('…');
-    expect(t).not.toContain('msg 0');
+    const transcript = buildTranscript(msgs);
+    expect(transcript.split('\n')).toHaveLength(12);
+    expect(transcript).toContain('…');
+    expect(transcript).not.toContain('msg 0');
   });
 });
 
@@ -75,12 +77,12 @@ describe('sanitizeTitle', () => {
 
   it('returns null for empty output', () => {
     expect(sanitizeTitle('   ')).toBeNull();
-    expect(sanitizeTitle(undefined)).toBeNull();
+    expect(sanitizeTitle(null)).toBeNull();
   });
 
   it('caps overly long titles', () => {
-    const t = sanitizeTitle('word '.repeat(30));
-    expect(t!.length).toBeLessThanOrEqual(61);
-    expect(t!.endsWith('…')).toBe(true);
+    const title = sanitizeTitle('word '.repeat(30)) ?? '';
+    expect(title.length).toBeLessThanOrEqual(61);
+    expect(title.endsWith('…')).toBe(true);
   });
 });

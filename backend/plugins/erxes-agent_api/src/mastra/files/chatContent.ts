@@ -13,6 +13,7 @@ import { isImageType } from './extract';
 const MAX_INLINE_IMAGES = 4;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
+/** Human-readable file size ("3.4 KB"), empty string for unknown sizes. */
 export function formatBytes(size?: number): string {
   if (!size || size <= 0) return '';
   if (size < 1024) return `${size} B`;
@@ -109,9 +110,10 @@ export async function buildChatUserContent(params: {
         mimeType: mime,
         mediaType: mime,
       });
-    } catch (err: any) {
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
       console.warn(
-        `[erxes-agent] could not inline image "${img.name}": ${err.message}`,
+        `[erxes-agent] could not inline image "${img.name}": ${message}`,
       );
     }
   }

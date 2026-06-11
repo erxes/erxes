@@ -1,4 +1,4 @@
-import * as path from 'path';
+import { extname } from 'path';
 import {
   decodeHtmlEntities,
   stripAllTags,
@@ -46,6 +46,7 @@ const TEXT_EXTENSIONS = new Set([
   'py',
 ]);
 
+/** Whether the file is an image (by MIME type, falling back to extension). */
 export function isImageType(name: string, mimeType?: string): boolean {
   if (mimeType?.startsWith('image/')) return true;
   const ext = fileExtension(name);
@@ -54,13 +55,14 @@ export function isImageType(name: string, mimeType?: string): boolean {
   );
 }
 
+/** Lower-cased file extension without the leading dot. */
 export function fileExtension(name: string): string {
-  return path
-    .extname(name || '')
+  return extname(name || '')
     .replace('.', '')
     .toLowerCase();
 }
 
+/** Bound extracted text to MAX_EXTRACT_CHARS, flagging truncation. */
 function clamp(text: string): { content: string; truncated: boolean } {
   if (text.length <= MAX_EXTRACT_CHARS)
     return { content: text, truncated: false };
@@ -97,14 +99,13 @@ async function extractPdf(buffer: Buffer): Promise<string> {
   return pages + (parsed.text || '').trim();
 }
 
+/** Extract the raw text of a .docx document. */
 async function extractDocx(buffer: Buffer): Promise<string> {
   const mammoth = await import('mammoth');
   const result = await mammoth.extractRawText({ buffer });
   return (result.value || '').trim();
 }
 
-// Render each worksheet as CSV-ish rows. Formula cells report their computed
-// result; rich-text and dates collapse to display strings.
 // Cells that carry their value behind a property (formula results, rich text,
 // hyperlinks) — structural type, narrowed from exceljs's CellValue union.
 interface LooseCell {
@@ -114,6 +115,8 @@ interface LooseCell {
   hyperlink?: unknown;
 }
 
+/** Render each worksheet as CSV-ish text rows. Formula cells report their
+ * computed result; rich-text and dates collapse to display strings. */
 async function extractXlsx(buffer: Buffer): Promise<string> {
   const { default: ExcelJS } = await import('exceljs');
   const workbook = new ExcelJS.Workbook();

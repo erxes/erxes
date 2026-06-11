@@ -80,6 +80,7 @@ function humanize(name: string): string {
     .trim();
 }
 
+/** One prompt line describing a builtin tool to the model. */
 function describeTool(t: ToolInfo): string {
   const desc = (t.description || '').trim();
   const readable =
@@ -148,6 +149,7 @@ const RENDER_CHART_HINT = `
 - You may add a short sentence OUTSIDE the block introducing the chart.
 `.trim();
 
+/** Prompt section listing the agent's standalone builtin tools. */
 const BUILTIN_BLOCK = (tools: ToolInfo[]) => {
   const hasRenderChart = tools.some(
     (t) => t.id === 'renderChart' || t.name === 'renderChart',
@@ -157,7 +159,7 @@ const BUILTIN_BLOCK = (tools: ToolInfo[]) => {
 
 You also have these standalone tools — call them directly (no search needed):
 ${tools.map(describeTool).join('\n')}
-${hasRenderChart ? '\n' + RENDER_CHART_HINT : ''}
+${hasRenderChart ? `\n${RENDER_CHART_HINT}` : ''}
 `.trim();
 };
 
@@ -194,7 +196,7 @@ export function buildSystemPrompt(
   if (!opts.hasErxesTools && !opts.builtins.length) parts.push(NO_TOOLS_BLOCK);
 
   if (agentInstructions?.trim()) {
-    parts.push('## Agent Instructions\n\n' + agentInstructions.trim());
+    parts.push(`## Agent Instructions\n\n${agentInstructions.trim()}`);
   }
 
   return parts.join('\n\n---\n\n');

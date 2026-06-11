@@ -18,7 +18,13 @@
 // failure never affects the turn itself.
 // ---------------------------------------------------------------------------
 
+import type { Agent } from '@mastra/core/agent';
 import { trimEdgeChars } from '~/mastra/text';
+
+/** Auth context accepted by runWithAuth (the module itself loads lazily). */
+type AuthCtx = Parameters<
+  (typeof import('~/mastra/requestContext'))['runWithAuth']
+>[0];
 
 export const ACTIVITY_INSTRUCTIONS = `You narrate what an AI agent is doing right now.
 Given the agent's in-progress reasoning and/or the tool it is invoking, output ONE short status line (3-8 words) describing the CURRENT step.
@@ -47,13 +53,13 @@ export interface ActivitySnapshot {
   userMessage?: string;
   thinking?: string;
   toolName?: string;
-  toolArgs?: any;
+  toolArgs?: unknown;
 }
 
 // ── Pure helpers (unit-testable) ─────────────────────────────────────────────
 
 const clip = (text: string, max: number) =>
-  text.length > max ? text.slice(0, max) + '…' : text;
+  text.length > max ? `${text.slice(0, max)}…` : text;
 
 /** Render a snapshot into the summarizer prompt, or null when there is
  *  nothing in-flight worth narrating. */
@@ -69,7 +75,7 @@ export function buildActivityContext(snap: ActivitySnapshot): string | null {
   if (thinking) {
     const tail =
       thinking.length > THINKING_TAIL_CHARS
-        ? '…' + thinking.slice(-THINKING_TAIL_CHARS)
+        ? `…${thinking.slice(-THINKING_TAIL_CHARS)}`
         : thinking;
     sections.push(`Agent reasoning (live tail): ${tail}`);
   }
@@ -95,38 +101,40 @@ export function buildActivityContext(snap: ActivitySnapshot): string | null {
 export function sanitizeActivity(
   raw: string | null | undefined,
 ): string | null {
-  let t = (raw || '').split('\n')[0].replace(/\s+/g, ' ').trim();
-  t = t.replace(/^(status|activity)\s*:\s*/i, '');
-  t = trimEdgeChars(t, '"\'`“”‘’', '"\'`“”‘’.…').trim();
-  if (!t) return null;
-  if (t.length > ACTIVITY_MAX_CHARS)
-    t = t.slice(0, ACTIVITY_MAX_CHARS).trimEnd() + '…';
-  return t;
+  let line = (raw || '').split('\n')[0].replace(/\s+/g, ' ').trim();
+  line = line.replace(/^(status|activity)\s*:\s*/i, '');
+  line = trimEdgeChars(line, '"\'`“”‘’', '"\'`“”‘’.…').trim();
+  if (!line) return null;
+  if (line.length > ACTIVITY_MAX_CHARS)
+    line = `${line.slice(0, ACTIVITY_MAX_CHARS).trimEnd()}…`;
+  return line;
 }
 
 // ── One-shot summarizer ──────────────────────────────────────────────────────
 
 // Tool-less summarizer agents, cached per provider+model.
-const _summarizers = new Map<string, any>();
+const _summarizers = new Map<string, Agent>();
+
+/** Get (or lazily create and cache) the summarizer agent for a model. */
 async function summarizerFor(
   provider: string,
   model: string,
-  providers: any[],
-): Promise<any> {
+  providers: unknown[],
+): Promise<Agent> {
   const key = `${provider}:${model}`;
-  let a = _summarizers.get(key);
-  if (!a) {
-    const { Agent } = await import('@mastra/core/agent');
+  let summarizer = _summarizers.get(key);
+  if (!summarizer) {
+    const { Agent: AgentCtor } = await import('@mastra/core/agent');
     const { buildModel } = await import('~/mastra/providers');
-    a = new Agent({
+    summarizer = new AgentCtor({
       id: 'mastra-activity-summarizer',
       name: 'Activity Summarizer',
       instructions: ACTIVITY_INSTRUCTIONS,
       model: buildModel(provider, model, providers),
     });
-    _summarizers.set(key, a);
+    _summarizers.set(key, summarizer);
   }
-  return a;
+  return summarizer;
 }
 
 /**
@@ -137,8 +145,8 @@ async function summarizerFor(
 export async function summarizeActivity(params: {
   provider: string;
   model: string;
-  providers: any[];
-  authCtx: any;
+  providers: unknown[];
+  authCtx: AuthCtx;
   isLegacy: boolean;
   snapshot: ActivitySnapshot;
 }): Promise<string | null> {
@@ -149,25 +157,21 @@ export async function summarizeActivity(params: {
 
     const { runWithAuth } = await import('~/mastra/requestContext');
     const summarizer = await summarizerFor(provider, model, providers);
-    const msgs = [
-      { role: 'user', content: `${context}\n\nOutput the status line.` },
-    ];
-    const result: any = await runWithAuth(
+    const prompt = `${context}\n\nOutput the status line.`;
+    const result = await runWithAuth(
       authCtx,
-      () =>
-        (isLegacy
-          ? summarizer.generateLegacy(msgs as any)
-          : summarizer.generate(
-              msgs as any,
-              { maxSteps: 1 } as any,
-            )) as Promise<any>,
+      (): Promise<{ text?: string }> =>
+        isLegacy
+          ? summarizer.generateLegacy(prompt)
+          : summarizer.generate(prompt, { maxSteps: 1 }),
     );
 
     return sanitizeActivity(result?.text);
-  } catch (e: any) {
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
     // eslint-disable-next-line no-console
     console.warn(
-      `[mastra:activity] activity summarization skipped: ${e?.message || e}`,
+      `[mastra:activity] activity summarization skipped: ${message}`,
     );
     return null;
   }
@@ -179,7 +183,7 @@ export interface ActivityTracker {
   /** Feed a reasoning delta. */
   onThinking(text: string): void;
   /** Feed a tool invocation (the tool becomes the current step). */
-  onToolCall(toolName: string, args?: any): void;
+  onToolCall(toolName: string, args?: unknown): void;
   /** Stop summarizing and emitting (idempotent). */
   stop(): void;
 }
@@ -208,10 +212,11 @@ export function createActivityTracker(opts: {
 
   let thinking = '';
   let newThinkingChars = 0;
-  let tool: { toolName: string; args?: any } | undefined;
+  let tool: { toolName: string; args?: unknown } | undefined;
   let lastEmitted = '';
 
-  const run = async () => {
+  /** Summarize the current snapshot once; re-arms itself when stale. */
+  async function run(): Promise<void> {
     if (stopped || inFlight) return;
     inFlight = true;
     dirty = false;
@@ -233,16 +238,17 @@ export function createActivityTracker(opts: {
       inFlight = false;
       if (dirty && !stopped) schedule();
     }
-  };
+  }
 
-  const schedule = () => {
+  /** Arm the next run after the throttle interval (no-op when armed). */
+  function schedule(): void {
     if (stopped || timer) return;
     const wait = Math.max(0, lastRunAt + minInterval - Date.now());
     timer = setTimeout(() => {
       timer = null;
-      void run();
+      run().catch(() => null);
     }, wait);
-  };
+  }
 
   return {
     onThinking(text: string) {
@@ -257,7 +263,7 @@ export function createActivityTracker(opts: {
         schedule();
       }
     },
-    onToolCall(toolName: string, args?: any) {
+    onToolCall(toolName: string, args?: unknown) {
       if (stopped || !toolName) return;
       tool = { toolName, args };
       // The tool is now the current step; earlier reasoning led up to it.

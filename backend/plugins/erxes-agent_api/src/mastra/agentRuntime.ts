@@ -1,4 +1,7 @@
 import { Agent } from '@mastra/core/agent';
+import type { ToolsInput } from '@mastra/core/agent';
+import type { IModels } from '~/connectionResolvers';
+import type { IMastraAgentDocument } from '@/agent/@types/agent';
 import { BUILTIN_TOOLS } from './tools/builtins';
 import { buildModel } from './providers';
 import { buildSystemPrompt, ToolInfo } from './instructions/routing';
@@ -17,19 +20,20 @@ const agentCache = new Map<string, Agent>();
 
 // Also cache the raw tools map so the resolver can execute them directly
 // when a model outputs function calls as plain text instead of tool_calls.
-const toolsCache = new Map<string, Record<string, any>>();
+const toolsCache = new Map<string, ToolsInput>();
 
 // Increment this whenever routing.ts, the meta-tools, or provider logic changes.
 const ROUTING_VERSION = 23;
 
 export interface AgentWithTools {
   agent: Agent;
-  tools: Record<string, any>;
+  tools: ToolsInput;
 }
 
+/** Build (or return the cached) Mastra agent for a stored agent config. */
 export async function getOrCreateAgent(
-  agentConfig: any,
-  models: any,
+  agentConfig: IMastraAgentDocument,
+  models: IModels,
 ): Promise<AgentWithTools> {
   const [providers, settings] = await Promise.all([
     models.MastraProvider.find({ isEnabled: true }),
@@ -51,9 +55,10 @@ export async function getOrCreateAgent(
 
   const cacheKey = `${agentConfig._id}:${agentConfig.updatedAt?.getTime?.() ?? 0}:v${ROUTING_VERSION}:${inventory.fingerprint}`;
 
-  if (agentCache.has(cacheKey)) {
+  const cached = agentCache.get(cacheKey);
+  if (cached) {
     return {
-      agent: agentCache.get(cacheKey)!,
+      agent: cached,
       tools: toolsCache.get(cacheKey) ?? {},
     };
   }
@@ -68,7 +73,7 @@ export async function getOrCreateAgent(
 
   const model = buildModel(agentConfig.provider, agentConfig.model, providers);
 
-  const tools: Record<string, any> = {};
+  const tools: ToolsInput = {};
   const builtinInfos: ToolInfo[] = [];
 
   // erxes search/execute meta-tools — bound only when the policy grants at least
@@ -85,7 +90,7 @@ export async function getOrCreateAgent(
     builtinInfos.push({
       id: key,
       name: key,
-      description: (tool as any)?.description,
+      description: tool.description,
     });
   }
 
@@ -98,7 +103,7 @@ export async function getOrCreateAgent(
     builtinInfos.push({
       id: 'readAttachment',
       name: 'readAttachment',
-      description: (tool as any)?.description,
+      description: tool.description,
     });
   }
 
@@ -137,13 +142,16 @@ export async function getOrCreateAgent(
     defaultOptions: { maxSteps },
     defaultGenerateOptionsLegacy: { maxSteps },
     defaultStreamOptionsLegacy: { maxSteps },
-  } as any);
+    // The two legacy keys are read at runtime but missing from Mastra's
+    // published AgentConfig type, hence the cast.
+  } as unknown as ConstructorParameters<typeof Agent>[0]) as unknown as Agent;
 
   agentCache.set(cacheKey, agent);
   toolsCache.set(cacheKey, tools);
   return { agent, tools };
 }
 
+/** Drop every cached agent built from the given stored config id. */
 export function invalidateAgentCache(agentId: string) {
   for (const key of agentCache.keys()) {
     if (key.startsWith(`${agentId}:`)) {

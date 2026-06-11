@@ -1,7 +1,19 @@
 import { createGenerateModels } from 'erxes-api-shared/utils';
-import { IMainContext } from 'erxes-api-shared/core-types';
+import { IMainContext, IUserDocument } from 'erxes-api-shared/core-types';
 import mongoose from 'mongoose';
 
+import { IMastraAgentDocument } from '@/agent/@types/agent';
+import { IMastraProviderDocument } from '@/provider/@types/provider';
+import { IMastraSettingsDocument } from '@/settings/@types/settings';
+import {
+  IMastraThreadDocument,
+  IMastraMessageDocument,
+} from '@/session/@types/session';
+import { IMastraWorkingMemoryDocument } from '@/memory/@types/workingMemory';
+import {
+  IMastraWorkflowDocument,
+  IMastraWorkflowRunDocument,
+} from '@/workflow/@types/workflow';
 import { loadAgentClass, IMastraAgentModel } from '@/agent/db/models/Agent';
 import {
   loadProviderClass,
@@ -45,49 +57,56 @@ export interface IModels {
 
 export interface IContext extends IMainContext {
   models: IModels;
-  user: any;
+  user: IUserDocument;
   subdomain: string;
 }
 
+/** Bind every plugin model class to the tenant's mongoose connection. */
 export const loadClasses = (db: mongoose.Connection): IModels => {
   const models = {} as IModels;
 
-  models.MastraAgent = db.model<any, IMastraAgentModel>(
+  models.MastraAgent = db.model<IMastraAgentDocument, IMastraAgentModel>(
     'mastra_agents',
     loadAgentClass(models),
   );
 
-  models.MastraProvider = db.model<any, IMastraProviderModel>(
+  models.MastraProvider = db.model<IMastraProviderDocument, IMastraProviderModel>(
     'mastra_providers',
     loadProviderClass(models),
   );
 
-  models.MastraSettings = db.model<any, IMastraSettingsModel>(
+  models.MastraSettings = db.model<IMastraSettingsDocument, IMastraSettingsModel>(
     'mastra_settings',
     loadSettingsClass(models),
   );
 
-  models.MastraThread = db.model<any, IMastraThreadModel>(
+  models.MastraThread = db.model<IMastraThreadDocument, IMastraThreadModel>(
     'mastra_threads',
     loadThreadClass(models),
   );
 
-  models.MastraMessage = db.model<any, IMastraMessageModel>(
+  models.MastraMessage = db.model<IMastraMessageDocument, IMastraMessageModel>(
     'mastra_messages',
     loadMessageClass(models),
   );
 
-  models.MastraWorkingMemory = db.model<any, IMastraWorkingMemoryModel>(
+  models.MastraWorkingMemory = db.model<
+    IMastraWorkingMemoryDocument,
+    IMastraWorkingMemoryModel
+  >(
     'mastra_working_memory',
     loadWorkingMemoryClass(models),
   );
 
-  models.MastraWorkflow = db.model<any, IMastraWorkflowModel>(
+  models.MastraWorkflow = db.model<IMastraWorkflowDocument, IMastraWorkflowModel>(
     'mastra_workflows',
     loadWorkflowClass(models),
   );
 
-  models.MastraWorkflowRun = db.model<any, IMastraWorkflowRunModel>(
+  models.MastraWorkflowRun = db.model<
+    IMastraWorkflowRunDocument,
+    IMastraWorkflowRunModel
+  >(
     'mastra_workflow_runs',
     loadWorkflowRunClass(models),
   );

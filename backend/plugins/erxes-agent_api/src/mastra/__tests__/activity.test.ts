@@ -21,7 +21,7 @@ describe('buildActivityContext', () => {
 
   it('clips a long reasoning burst to its tail', () => {
     const ctx = buildActivityContext({
-      thinking: 'start ' + 'x'.repeat(2000) + ' end',
+      thinking: `start ${'x'.repeat(2000)} end`,
     });
     expect(ctx).not.toContain('start');
     expect(ctx).toContain('…');
@@ -60,13 +60,13 @@ describe('sanitizeActivity', () => {
   it('returns null for empty output', () => {
     expect(sanitizeActivity('')).toBeNull();
     expect(sanitizeActivity('   \n')).toBeNull();
-    expect(sanitizeActivity(undefined)).toBeNull();
+    expect(sanitizeActivity(null)).toBeNull();
   });
 
   it('truncates overlong lines', () => {
-    const out = sanitizeActivity('word '.repeat(60));
-    expect(out!.length).toBeLessThanOrEqual(81);
-    expect(out!.endsWith('…')).toBe(true);
+    const out = sanitizeActivity('word '.repeat(60)) ?? '';
+    expect(out.length).toBeLessThanOrEqual(81);
+    expect(out.endsWith('…')).toBe(true);
   });
 });
 

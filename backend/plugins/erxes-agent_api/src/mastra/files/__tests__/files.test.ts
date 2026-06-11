@@ -59,8 +59,7 @@ describe('extract', () => {
   });
 
   it('extracts xlsx sheets as csv rows', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const ExcelJS = require('exceljs');
+    const { default: ExcelJS } = await import('exceljs');
     const wb = new ExcelJS.Workbook();
     const ws = wb.addWorksheet('Deals');
     ws.addRow(['name', 'amount']);
@@ -107,7 +106,7 @@ describe('chatContent', () => {
   });
 
   it('formats byte sizes', () => {
-    expect(formatBytes(undefined)).toBe('');
+    expect(formatBytes()).toBe('');
     expect(formatBytes(512)).toBe('512 B');
     expect(formatBytes(2048)).toBe('2.0 KB');
     expect(formatBytes(3 * 1024 * 1024)).toBe('3.0 MB');

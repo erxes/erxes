@@ -31,6 +31,7 @@ const STORAGE_CONFIG_CODES = [
   'GOOGLE_CLOUD_STORAGE_BUCKET',
 ];
 
+/** Read an env var, defaulting to the empty string. */
 const env = (name: string) => process.env[name] || '';
 
 // Decide whether the configured service has the credentials it needs. Mirrors
@@ -39,6 +40,7 @@ const env = (name: string) => process.env[name] || '';
 export function evaluateStorageConfigs(
   configs: Record<string, string>,
 ): StorageStatus {
+  /** Resolve a config code: fetched configs first, then the environment. */
   const read = (code: string) => configs[code] || env(code) || '';
   const serviceType = (read('UPLOAD_SERVICE_TYPE') || 'AWS').toString();
 
@@ -48,33 +50,36 @@ export function evaluateStorageConfigs(
       return { configured: true, serviceType };
     case 'AWS':
       return {
-        configured: !!(
+        configured: Boolean(
           read('AWS_BUCKET') &&
-          read('AWS_ACCESS_KEY_ID') &&
-          read('AWS_SECRET_ACCESS_KEY')
+            read('AWS_ACCESS_KEY_ID') &&
+            read('AWS_SECRET_ACCESS_KEY'),
         ),
         serviceType,
       };
     case 'CLOUDFLARE':
       return {
-        configured: !!(
+        configured: Boolean(
           read('CLOUDFLARE_BUCKET_NAME') &&
-          read('CLOUDFLARE_ACCOUNT_ID') &&
-          read('CLOUDFLARE_ACCESS_KEY_ID') &&
-          read('CLOUDFLARE_SECRET_ACCESS_KEY')
+            read('CLOUDFLARE_ACCOUNT_ID') &&
+            read('CLOUDFLARE_ACCESS_KEY_ID') &&
+            read('CLOUDFLARE_SECRET_ACCESS_KEY'),
         ),
         serviceType,
       };
     case 'AZURE':
       return {
-        configured: !!(
+        configured: Boolean(
           read('AZURE_STORAGE_CONNECTION_STRING') &&
-          read('AZURE_STORAGE_CONTAINER')
+            read('AZURE_STORAGE_CONTAINER'),
         ),
         serviceType,
       };
     case 'GCS':
-      return { configured: !!read('GOOGLE_CLOUD_STORAGE_BUCKET'), serviceType };
+      return {
+        configured: Boolean(read('GOOGLE_CLOUD_STORAGE_BUCKET')),
+        serviceType,
+      };
     default:
       return { configured: false, serviceType };
   }
@@ -85,6 +90,7 @@ export function evaluateStorageConfigs(
 const statusCache = new Map<string, { status: StorageStatus; at: number }>();
 const STATUS_TTL_MS = 60_000;
 
+/** Fetch (and briefly cache) the instance's upload-storage status. */
 export async function getStorageStatus(
   subdomain: string,
 ): Promise<StorageStatus> {
@@ -123,6 +129,7 @@ export function isFullUrl(value: string): boolean {
   return /^https?:\/\//i.test(value);
 }
 
+/** Download an attachment through core's /read-file (or directly for URLs). */
 export async function fetchAttachmentBuffer(params: {
   erxesApiUrl: string;
   keyOrUrl: string;
