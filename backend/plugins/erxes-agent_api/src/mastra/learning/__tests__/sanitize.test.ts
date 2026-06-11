@@ -46,7 +46,7 @@ describe('scrubPII', () => {
 
   it('handles empty/nullish input', () => {
     expect(scrubPII('')).toBe('');
-    expect(scrubPII(undefined as any)).toBe('');
+    expect(scrubPII(undefined as unknown as string)).toBe('');
   });
 });
 

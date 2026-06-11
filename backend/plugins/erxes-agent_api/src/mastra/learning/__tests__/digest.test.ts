@@ -1,11 +1,11 @@
-import { buildDigestBlock } from '../digest';
+import { buildDigestBlock, DigestEntry } from '../digest';
 import { buildLearningFilter } from '../store';
 
 describe('buildDigestBlock', () => {
-  const entry = (overrides: any) => ({
-    _id: overrides._id ?? 'id',
-    statement: overrides.statement ?? 'a lesson',
-    type: overrides.type ?? 'faq',
+  const entry = (overrides: Partial<DigestEntry>): DigestEntry => ({
+    _id: 'id',
+    statement: 'a lesson',
+    type: 'faq',
     ...overrides,
   });
 

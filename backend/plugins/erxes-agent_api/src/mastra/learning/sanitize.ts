@@ -28,10 +28,12 @@ const TOKEN = /\b[a-f0-9]{24,}\b|\b[A-Za-z0-9+/_-]{32,}={0,2}\b/g;
 const EMAIL_LOCAL_CHARS = new Set('abcdefghijklmnopqrstuvwxyz0123456789._%+-');
 const EMAIL_DOMAIN_CHARS = new Set('abcdefghijklmnopqrstuvwxyz0123456789.-');
 
-// Linear single-pass email redaction — Sonar scores every quantified-class
-// regex shape here as super-linear (S5852), so emails are found by scanning
-// for '@' and expanding over the local/domain character sets instead.
-// Deliberately coarse: over-matching is acceptable when redacting.
+/**
+ * Linear single-pass email redaction — Sonar scores every quantified-class
+ * regex shape here as super-linear (S5852), so emails are found by scanning
+ * for '@' and expanding over the local/domain character sets instead.
+ * Deliberately coarse: over-matching is acceptable when redacting.
+ */
 function redactEmails(text: string): string {
   const lower = text.toLowerCase();
   let out = '';

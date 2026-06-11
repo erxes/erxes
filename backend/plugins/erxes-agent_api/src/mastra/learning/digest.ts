@@ -16,7 +16,7 @@ export interface LearnedDigest {
   ids: string[];
 }
 
-interface DigestEntry {
+export interface DigestEntry {
   _id: string;
   statement: string;
   type: string;

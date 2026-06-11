@@ -27,23 +27,23 @@ describe('learningCollectionName', () => {
 
 describe('resolveLearningTuning', () => {
   it('has safe defaults', () => {
-    const t = resolveLearningTuning({});
-    expect(t.autoPromoteMinSources).toBe(3);
-    expect(t.autoPromoteMinConfidence).toBe(0.75);
-    expect(t.mergeScore).toBe(0.9);
-    expect(t.idleMinutes).toBe(30);
-    expect(t.feedbackDownDelta).toBeLessThan(0);
+    const tuning = resolveLearningTuning({});
+    expect(tuning.autoPromoteMinSources).toBe(3);
+    expect(tuning.autoPromoteMinConfidence).toBe(0.75);
+    expect(tuning.mergeScore).toBe(0.9);
+    expect(tuning.idleMinutes).toBe(30);
+    expect(tuning.feedbackDownDelta).toBeLessThan(0);
   });
 
   it('reads overrides and ignores invalid values', () => {
-    const t = resolveLearningTuning({
+    const tuning = resolveLearningTuning({
       ERXES_AGENT_LEARNING_K: '5',
       ERXES_AGENT_LEARNING_MIN_CONF: '0.9',
       ERXES_AGENT_LEARNING_IDLE_MINUTES: '-3',
     });
-    expect(t.autoPromoteMinSources).toBe(5);
-    expect(t.autoPromoteMinConfidence).toBe(0.9);
-    expect(t.idleMinutes).toBe(30);
+    expect(tuning.autoPromoteMinSources).toBe(5);
+    expect(tuning.autoPromoteMinConfidence).toBe(0.9);
+    expect(tuning.idleMinutes).toBe(30);
   });
 });
 
@@ -61,10 +61,10 @@ describe('learningTenant', () => {
 
 describe('hashSource', () => {
   it('is deterministic and not reversible to the input', () => {
-    const a = hashSource('user-123', {});
-    expect(hashSource('user-123', {})).toBe(a);
-    expect(a).not.toContain('user-123');
-    expect(a).toHaveLength(32);
+    const digest = hashSource('user-123', {});
+    expect(hashSource('user-123', {})).toBe(digest);
+    expect(digest).not.toContain('user-123');
+    expect(digest).toHaveLength(32);
   });
 
   it('distinguishes users and secrets', () => {
@@ -77,15 +77,15 @@ describe('hashSource', () => {
 
 describe('computeLearningStatus', () => {
   it('is all-null when disabled', () => {
-    const s = computeLearningStatus({});
-    expect(s.enabled).toBe(false);
-    expect(s.collection).toBeNull();
+    const status = computeLearningStatus({});
+    expect(status.enabled).toBe(false);
+    expect(status.collection).toBeNull();
   });
 
   it('surfaces collection + promotion floors when enabled', () => {
-    const s = computeLearningStatus({ ERXES_AGENT_LEARNING: 'enable' });
-    expect(s.enabled).toBe(true);
-    expect(s.collection).toMatch(/^mastra_learnings_/);
-    expect(s.autoPromoteMinSources).toBe(3);
+    const status = computeLearningStatus({ ERXES_AGENT_LEARNING: 'enable' });
+    expect(status.enabled).toBe(true);
+    expect(status.collection).toMatch(/^mastra_learnings_/);
+    expect(status.autoPromoteMinSources).toBe(3);
   });
 });

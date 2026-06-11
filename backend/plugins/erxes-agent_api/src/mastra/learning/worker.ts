@@ -164,7 +164,7 @@ export async function runLearningSweep(
         const cursor = thread.distilledMessageCount ?? 0;
         const tail = all.slice(cursor);
         if (tail.length) {
-          const r = await distillThread({
+          const distilled = await distillThread({
             models,
             tenant,
             agentId: thread.agentId,
@@ -172,10 +172,10 @@ export async function runLearningSweep(
             messages: tail.map((m) => ({ role: m.role, content: m.content })),
             runtime: resolved.runtime,
           });
-          result.created += r.created;
-          result.merged += r.merged;
-          result.promoted += r.promoted;
-          result.gated += r.gated;
+          result.created += distilled.created;
+          result.merged += distilled.merged;
+          result.promoted += distilled.promoted;
+          result.gated += distilled.gated;
         }
         // Cursor advances only after a successful distillation, so failures
         // retry on the next sweep.

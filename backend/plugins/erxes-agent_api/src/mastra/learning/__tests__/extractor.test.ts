@@ -79,24 +79,26 @@ describe('parseCandidates', () => {
 
 describe('buildTranscript', () => {
   it('labels roles and skips empty messages', () => {
-    const t = buildTranscript([
+    const transcript = buildTranscript([
       { role: 'user', content: 'How do refunds work?' },
       { role: 'assistant', content: 'Within 14 days.' },
       { role: 'user', content: '   ' },
     ]);
-    expect(t).toBe('User: How do refunds work?\nAssistant: Within 14 days.');
+    expect(transcript).toBe(
+      'User: How do refunds work?\nAssistant: Within 14 days.',
+    );
   });
 
   it('keeps the TAIL when over budget (recent context wins)', () => {
-    const t = buildTranscript(
+    const transcript = buildTranscript(
       [
         { role: 'user', content: 'a'.repeat(100) },
         { role: 'assistant', content: 'THE-END' },
       ],
       50,
     );
-    expect(t.length).toBeLessThanOrEqual(50);
-    expect(t).toContain('THE-END');
+    expect(transcript.length).toBeLessThanOrEqual(50);
+    expect(transcript).toContain('THE-END');
   });
 });
 

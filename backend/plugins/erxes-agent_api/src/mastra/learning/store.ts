@@ -27,13 +27,13 @@ import { IMastraLearningDocument } from '@/learning/@types/learning';
 
 /** Deterministic UUID-shaped point id from the learning id (idempotent upserts). */
 export function learningPointId(subdomain: string, learningId: string): string {
-  const h = createHash('sha256')
+  const hex = createHash('sha256')
     .update(`learning:${subdomain}:${learningId}`)
     .digest('hex');
-  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(
+    12,
     16,
-    20,
-  )}-${h.slice(20, 32)}`;
+  )}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
 }
 
 // One Qdrant filter condition ({key, match} clauses).
