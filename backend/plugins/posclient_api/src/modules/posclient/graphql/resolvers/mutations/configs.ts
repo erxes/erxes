@@ -98,7 +98,9 @@ const syncPosConfig = async ({
 
     responseData = await response.json();
   } catch (e: unknown) {
-    throw new Error(`Can not fetch POS config from sales: ${getErrorMessage(e)}`);
+    throw new Error(
+      `Can not fetch POS config from sales: ${getErrorMessage(e)}`,
+    );
   }
 
   const {
@@ -204,11 +206,7 @@ const configMutations: Record<string, Resolver> = {
     return config;
   },
 
-  async syncConfig(
-    _root,
-    { type },
-    { models, subdomain, config }: IContext,
-  ) {
+  async syncConfig(_root, { type }, { models, subdomain, config }: IContext) {
     return syncPosConfig({ models, subdomain, config, type });
   },
 
