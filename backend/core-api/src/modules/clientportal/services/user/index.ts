@@ -3,6 +3,8 @@ import {
   findOrCreateCompany,
   updateCustomerStateToCustomer,
   handleCPContacts,
+  syncCPUserContactToCustomer,
+  syncCustomerContactToCPUsers,
 } from './contactService';
 import {
   registerWithSocial,
@@ -29,6 +31,8 @@ export const contactService = {
   findOrCreateCompany,
   updateCustomerStateToCustomer,
   handleCPContacts,
+  syncCPUserContactToCustomer,
+  syncCustomerContactToCPUsers,
 };
 
 export const socialAuthService = {
