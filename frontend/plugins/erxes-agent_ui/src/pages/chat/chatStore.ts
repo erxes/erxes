@@ -78,6 +78,7 @@ interface ThreadChatState {
   loading: boolean; // awaiting/streaming an assistant reply
   messagesLoading: boolean; // hydrating this thread's messages from the DB
   abort?: AbortController; // in-flight stream — abort() = interrupt
+  activity?: string; // server-summarized "what is the agent doing right now"
 }
 
 const EMPTY_THREAD: ThreadChatState = {
@@ -121,6 +122,7 @@ interface StreamEvent {
     | 'text_replace'
     | 'tool_call'
     | 'tool_result'
+    | 'activity'
     | 'done'
     | 'thread_title'
     | 'error';
@@ -228,6 +230,43 @@ class ChatStore {
       this.unreadAgents.delete(agentKey);
       this.notify();
     }
+  }
+
+  // ── Working state & live activity (sidebar glow + thought cloud) ──────────
+
+  // True while any of the agent's threads is awaiting/streaming a reply.
+  isAgentWorking(agentKey: string): boolean {
+    const prefix = `${agentKey}:`;
+    for (const [key, t] of this.threads) {
+      if (t.loading && key.startsWith(prefix)) return true;
+    }
+    return false;
+  }
+
+  isThreadWorking(agentKey: string, threadId: string): boolean {
+    return this.getThread(agentKey, threadId).loading;
+  }
+
+  // One-line summary of what the agent is doing right now. Prefers the
+  // server-pushed `activity` events (the backend's generic activity
+  // summarizer in mastra/activity.ts); falls back to coarse phase labels
+  // until the first summary arrives or on older backends.
+  getAgentActivity(agentKey: string): string | undefined {
+    const prefix = `${agentKey}:`;
+    for (const [key, t] of this.threads) {
+      if (!t.loading || !key.startsWith(prefix)) continue;
+      if (t.activity) return t.activity;
+      const last = t.messages[t.messages.length - 1];
+      if (!last || last.role !== 'assistant') return 'Waiting for the agent…';
+      const part = last.parts?.[last.parts.length - 1];
+      if (part?.kind === 'tool' && part.call.result === undefined) {
+        return `Running ${part.call.toolName}…`;
+      }
+      if (part?.kind === 'thinking' && !part.done) return 'Thinking…';
+      if (last.content) return 'Writing a reply…';
+      return 'Working…';
+    }
+    return undefined;
   }
 
   // ── Sessions ──────────────────────────────────────────────────────────────
@@ -434,7 +473,11 @@ class ChatStore {
         timestamp: new Date(),
       });
     } finally {
-      this.patchThread(agentKey, threadId, { loading: false, abort: undefined });
+      this.patchThread(agentKey, threadId, {
+        loading: false,
+        abort: undefined,
+        activity: undefined,
+      });
     }
   }
 
@@ -607,6 +650,12 @@ class ChatStore {
               content: 'The agent returned an empty response. Please try again.',
               timestamp: new Date(),
             });
+          }
+          break;
+        case 'activity':
+          // Server-summarized status line for the thought cloud / sidebar.
+          if (ev.text) {
+            this.patchThread(agentKey, threadId, { activity: ev.text });
           }
           break;
         case 'thread_title':

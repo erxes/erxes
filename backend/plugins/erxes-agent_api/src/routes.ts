@@ -2,6 +2,11 @@ import { Router } from 'express';
 import { extractUserFromHeader, getSubdomain } from 'erxes-api-shared/utils';
 import { generateModels } from './connectionResolvers';
 import { getOrCreateAgent } from './mastra/agentRuntime';
+import {
+  ActivityTracker,
+  createActivityTracker,
+  summarizeActivity,
+} from './mastra/activity';
 import { isLegacyProvider } from './mastra/providers';
 import { runWithAuth } from './mastra/requestContext';
 import { isAdvancedMemoryEnabled } from './mastra/memory/config';
@@ -39,6 +44,7 @@ export const router: Router = Router();
 //   {type:'text_replace', text}    — replace all streamed text (fallback paths)
 //   {type:'tool_call', toolCallId, toolName, args}
 //   {type:'tool_result', toolCallId, toolName, result, isError}
+//   {type:'activity', text}        — LLM one-liner of what the agent is doing
 //   {type:'done', reply, interrupted}
 //   {type:'thread_title', threadId, title} — LLM-generated conversation title
 //   {type:'error', message}
@@ -241,6 +247,8 @@ router.post('/chat/stream', async (req, res) => {
     }
   };
 
+  let activity: ActivityTracker | null = null;
+
   try {
     const prepared = await prepareChatTurn({
       models,
@@ -252,6 +260,22 @@ router.post('/chat/stream', async (req, res) => {
       attachments,
     });
     const { agent, tools, convo, authCtx, isLegacy } = prepared;
+
+    // Narrates "what is the agent doing" while the turn runs — throttled
+    // summaries of the live reasoning/tool signals, pushed as activity events.
+    activity = createActivityTracker({
+      userMessage: message,
+      emit: (text) => send({ type: 'activity', text }),
+      summarize: (snapshot) =>
+        summarizeActivity({
+          provider: prepared.agentConfig.provider,
+          model: prepared.agentConfig.model,
+          providers: prepared.providers,
+          authCtx,
+          isLegacy,
+          snapshot,
+        }),
+    });
 
     let streamError: string | null = null;
 
@@ -268,11 +292,16 @@ router.post('/chat/stream', async (req, res) => {
           if (ev.type === 'text') {
             acc.text += ev.text;
             thinkingOpen = false;
-          } else if (ev.type === 'thinking') appendThinking(ev.text);
-          else if (ev.type === 'error') {
+          } else if (ev.type === 'thinking') {
+            appendThinking(ev.text);
+            activity?.onThinking(ev.text);
+          } else if (ev.type === 'error') {
             streamError = ev.message;
             continue; // surfaced after the loop so fallbacks still apply
-          } else recordToolCall(ev);
+          } else {
+            recordToolCall(ev);
+            if (ev.type === 'tool_call') activity?.onToolCall(ev.toolName, ev.args);
+          }
 
           send(ev);
         }
@@ -281,6 +310,8 @@ router.post('/chat/stream', async (req, res) => {
       // An abort lands here on most providers — that's an interrupt, not an error.
       if (!controller.signal.aborted) throw err;
     }
+
+    activity.stop();
 
     const interrupted = controller.signal.aborted;
     let reply: string | null = acc.text || null;
@@ -379,6 +410,7 @@ router.post('/chat/stream', async (req, res) => {
     console.error('[mastra chat stream error]', err);
     send({ type: 'error', message: toUserFacingError(err).message });
   } finally {
+    activity?.stop();
     clearInterval(heartbeat);
     if (!res.writableEnded) res.end();
   }

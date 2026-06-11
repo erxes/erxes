@@ -20,6 +20,8 @@ import {
   IconPaperclip,
   IconFileText,
   IconX,
+  IconArrowDown,
+  IconFileUpload,
 } from '@tabler/icons-react';
 import {
   Badge,
@@ -35,6 +37,7 @@ import {
 import { PageHeader } from 'ui-modules';
 import { MASTRA_AGENTS, MASTRA_ATTACHMENT_STORAGE_STATUS } from '~/graphql/queries';
 import { chatStore, ChatAttachment, Message, ToolCallInfo } from './chatStore';
+import './chat.css';
 
 // ─── Inline Markdown Nodes ───────────────────────────────────────────────────
 
@@ -230,12 +233,18 @@ const MarkdownContent = ({ content }: { content: string }) => {
           const lang = langMatch?.[1]?.trim() || '';
           const code = seg.replace(/^```[^\n]*\n/, '').replace(/\n?```$/, '');
           return (
-            <div key={idx} className="rounded-md border border-border overflow-hidden my-2">
-              {lang && (
-                <div className="px-3 py-1 bg-muted/60 border-b border-border text-[10px] font-mono text-muted-foreground">
-                  {lang}
+            <div
+              key={idx}
+              className="group/code rounded-lg border border-border overflow-hidden my-2"
+            >
+              <div className="flex items-center justify-between px-3 py-1 bg-muted/60 border-b border-border">
+                <span className="text-[10px] font-mono text-muted-foreground">
+                  {lang || 'code'}
+                </span>
+                <div className="opacity-0 group-hover/code:opacity-100 transition-opacity">
+                  <CopyButton text={code} />
                 </div>
-              )}
+              </div>
               <pre className="p-3 overflow-x-auto text-xs font-mono leading-relaxed bg-muted/30">
                 <code>{code}</code>
               </pre>
@@ -372,6 +381,7 @@ interface PendingAttachment {
   type: string;
   size: number;
   url?: string; // storage key once uploaded
+  previewUrl?: string; // local object URL for image thumbnails
   status: 'uploading' | 'done' | 'error';
   error?: string;
 }
@@ -402,19 +412,23 @@ const ComposerAttachmentChip = ({
   onRemove: () => void;
 }) => (
   <div
-    className={`flex items-center gap-1.5 rounded-lg border px-2 py-1 text-xs max-w-56 ${
+    className={`ea-pop flex items-center gap-1.5 rounded-lg border px-2 py-1 text-xs max-w-56 transition-colors ${
       att.status === 'error'
         ? 'border-destructive/40 bg-destructive/8 text-destructive'
-        : 'border-border bg-muted/50'
+        : 'border-border bg-muted/50 hover:bg-muted'
     }`}
     title={att.status === 'error' ? att.error : att.name}
   >
     {att.status === 'uploading' ? (
-      <IconLoader2 className="size-3.5 shrink-0 animate-spin text-muted-foreground" />
+      <IconLoader2 className="size-3.5 shrink-0 animate-spin text-primary" />
     ) : att.status === 'error' ? (
       <IconAlertCircle className="size-3.5 shrink-0" />
-    ) : isImageAttachment(att) ? (
-      <IconPaperclip className="size-3.5 shrink-0 text-muted-foreground" />
+    ) : att.previewUrl ? (
+      <img
+        src={att.previewUrl}
+        alt={att.name}
+        className="size-6 shrink-0 rounded object-cover border border-border/60"
+      />
     ) : (
       <IconFileText className="size-3.5 shrink-0 text-muted-foreground" />
     )}
@@ -425,7 +439,7 @@ const ComposerAttachmentChip = ({
     <button
       type="button"
       onClick={onRemove}
-      className="shrink-0 rounded hover:bg-black/8 dark:hover:bg-white/10 p-0.5 text-muted-foreground hover:text-foreground"
+      className="shrink-0 rounded hover:bg-black/8 dark:hover:bg-white/10 p-0.5 text-muted-foreground hover:text-foreground transition-colors"
     >
       <IconX className="size-3" />
     </button>
@@ -437,12 +451,24 @@ const ComposerAttachmentChip = ({
 // Shown only between sending and the first streamed event — once thinking /
 // tool / text events arrive, the live assistant bubble takes over.
 
+const AgentAvatar = ({ live }: { live?: boolean }) => (
+  <div
+    className={`size-8 shrink-0 rounded-full bg-gradient-to-br from-primary/25 via-primary/10 to-transparent border border-primary/20 flex items-center justify-center ${
+      live ? 'ea-avatar-live' : ''
+    }`}
+  >
+    <IconRobot className="size-4.5 text-primary" />
+  </div>
+);
+
 const WaitingIndicator = () => (
-  <div className="flex justify-start">
-    <div className="bg-muted rounded-2xl rounded-bl-sm px-4 py-2.5">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <IconSparkles className="size-3.5 animate-pulse" />
-        <span className="animate-pulse">Thinking…</span>
+  <div className="flex items-end gap-2.5 ea-msg-in">
+    <AgentAvatar live />
+    <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
+      <div className="flex items-center gap-1.5">
+        <span className="ea-typing-dot" />
+        <span className="ea-typing-dot" />
+        <span className="ea-typing-dot" />
       </div>
     </div>
   </div>
@@ -460,40 +486,54 @@ const WaitingIndicator = () => (
 // natural height (no inner scrollbar).
 
 const ThinkingSection = ({ text, live }: { text: string; live?: boolean }) => {
-  const [expanded, setExpanded] = useState(false);
+  // Live bursts start open so the streaming thought is visible, but the user
+  // can collapse them at any time; finished bursts start collapsed. When a
+  // live burst finishes it folds back to the one-line row.
+  const [expanded, setExpanded] = useState(!!live);
+  const wasLive = useRef(!!live);
 
-  if (live) {
-    const tail = text.length > 280 ? '…' + text.slice(-280) : text;
-    return (
-      <div className="rounded-lg border border-border/60 bg-background/40 px-2.5 py-1.5">
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <IconSparkles className="size-3.5 shrink-0 animate-pulse" />
-          <span className="animate-pulse">Thinking…</span>
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground/80 leading-relaxed whitespace-pre-wrap">
-          {tail}
-        </p>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (wasLive.current && !live) setExpanded(false);
+    wasLive.current = !!live;
+  }, [live]);
+
+  const tail = live && text.length > 280 ? '…' + text.slice(-280) : text;
 
   return (
-    <div className="rounded-lg border border-border/60 bg-background/40 overflow-hidden">
+    <div
+      className={`ea-pop rounded-xl border overflow-hidden transition-colors ${
+        live
+          ? 'border-primary/20 bg-primary/4'
+          : 'border-border/60 bg-background/40 hover:border-border'
+      }`}
+    >
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="w-full flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        className={`w-full flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors ${
+          live ? '' : 'text-muted-foreground hover:text-foreground'
+        }`}
       >
         <IconChevronRight
-          className={`size-3.5 shrink-0 transition-transform ${expanded ? 'rotate-90' : ''}`}
+          className={`size-3.5 shrink-0 transition-transform duration-200 ${
+            expanded ? 'rotate-90' : ''
+          } ${live ? 'text-primary' : ''}`}
         />
-        <IconSparkles className="size-3.5 shrink-0" />
-        <span>Thought process</span>
+        <IconSparkles className={`size-3.5 shrink-0 ${live ? 'text-primary animate-pulse' : ''}`} />
+        {live ? (
+          <span className="ea-shimmer-text font-medium">Thinking…</span>
+        ) : (
+          <span>Thought process</span>
+        )}
       </button>
       {expanded && (
-        <div className="px-3 pb-2.5">
-          <p className="text-xs text-muted-foreground whitespace-pre-wrap leading-relaxed">
-            {text}
+        <div className="ea-expand px-3 pb-2.5">
+          <p
+            className={`text-xs whitespace-pre-wrap leading-relaxed ${
+              live ? 'text-muted-foreground/80' : 'text-muted-foreground'
+            }`}
+          >
+            {tail}
           </p>
         </div>
       )}
@@ -518,29 +558,35 @@ const ToolCallRow = ({ call, streaming }: { call: ToolCallInfo; streaming?: bool
   const pending = call.result === undefined && streaming;
 
   return (
-    <div className="rounded-lg border border-border/60 bg-background/40 overflow-hidden">
+    <div
+      className={`ea-pop rounded-xl border overflow-hidden transition-colors ${
+        pending
+          ? 'border-primary/30 bg-primary/4'
+          : 'border-border/60 bg-background/40 hover:border-border'
+      }`}
+    >
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="w-full flex items-center gap-1.5 px-2.5 py-1.5 text-xs hover:bg-black/4 dark:hover:bg-white/5 transition-colors"
+        className="w-full flex items-center gap-1.5 px-3 py-1.5 text-xs transition-colors hover:bg-accent/40"
       >
         <IconChevronRight
-          className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${
+          className={`size-3.5 shrink-0 text-muted-foreground transition-transform duration-200 ${
             expanded ? 'rotate-90' : ''
           }`}
         />
         <IconTool className="size-3.5 shrink-0 text-muted-foreground" />
         <span className="font-mono truncate flex-1 text-left">{call.toolName}</span>
         {pending ? (
-          <IconLoader2 className="size-3.5 shrink-0 animate-spin text-muted-foreground" />
+          <span className="ea-tool-running size-2 shrink-0 rounded-full" />
         ) : call.isError ? (
           <IconAlertCircle className="size-3.5 shrink-0 text-destructive" />
         ) : call.result !== undefined ? (
-          <IconCheck className="size-3.5 shrink-0 text-green-600" />
+          <IconCheck className="size-3.5 shrink-0 text-success" />
         ) : null}
       </button>
       {expanded && (
-        <div className="px-3 pb-2.5 space-y-2">
+        <div className="ea-expand px-3 pb-2.5 space-y-2">
           {call.args !== undefined && (
             <div>
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">
@@ -567,10 +613,16 @@ const ToolCallRow = ({ call, streaming }: { call: ToolCallInfo; streaming?: bool
 
 // ─── Message bubble ───────────────────────────────────────────────────────────
 
-const MessageBubble = ({ msg }: { msg: Message }) => {
+const MessageBubble = ({
+  msg,
+  onRegenerate,
+}: {
+  msg: Message;
+  onRegenerate?: () => void;
+}) => {
   if (msg.role === 'error') {
     return (
-      <div className="flex justify-center">
+      <div className="flex justify-center ea-msg-in">
         <div className="flex items-center gap-2 text-xs text-destructive bg-destructive/8 border border-destructive/20 rounded-lg px-3 py-2 max-w-[80%]">
           <IconAlertCircle className="size-3.5 shrink-0" />
           <span>{msg.content}</span>
@@ -581,8 +633,8 @@ const MessageBubble = ({ msg }: { msg: Message }) => {
 
   if (msg.role === 'user') {
     return (
-      <div className="flex justify-end">
-        <div className="max-w-[78%] bg-primary text-primary-foreground rounded-2xl rounded-br-sm px-4 py-2.5">
+      <div className="flex justify-end ea-msg-in">
+        <div className="max-w-[78%] bg-gradient-to-br from-primary to-primary/85 text-primary-foreground rounded-2xl rounded-br-md px-4 py-2.5 shadow-sm">
           {msg.attachments && msg.attachments.length > 0 && (
             <MessageAttachments attachments={msg.attachments} onDark />
           )}
@@ -601,8 +653,9 @@ const MessageBubble = ({ msg }: { msg: Message }) => {
   const parts = msg.parts || [];
 
   return (
-    <div className="flex justify-start group">
-      <div className="max-w-[82%] min-w-0 bg-muted rounded-2xl rounded-bl-sm px-4 py-2.5">
+    <div className="flex justify-start items-start gap-2.5 group ea-msg-in">
+      <AgentAvatar live={streaming} />
+      <div className="max-w-[82%] min-w-0 bg-muted rounded-2xl rounded-bl-md px-4 py-2.5">
         {parts.length > 0 && (
           <div className="mb-2 space-y-1">
             {parts.map((part, i) =>
@@ -625,14 +678,13 @@ const MessageBubble = ({ msg }: { msg: Message }) => {
         {msg.content ? (
           <MarkdownContent content={msg.content} />
         ) : streaming && !parts.length ? (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground py-0.5">
-            <IconSparkles className="size-3.5 animate-pulse" />
-            <span className="animate-pulse">Thinking…</span>
+          <div className="flex items-center gap-1.5 py-1">
+            <span className="ea-typing-dot" />
+            <span className="ea-typing-dot" />
+            <span className="ea-typing-dot" />
           </div>
         ) : null}
-        {streaming && msg.content && (
-          <span className="inline-block w-1.5 h-3.5 bg-foreground/60 animate-pulse align-text-bottom" />
-        )}
+        {streaming && msg.content && <span className="ea-caret" />}
         {!streaming && (
           <div className="flex items-center justify-between gap-2 mt-1.5">
             <p className="text-[10px] text-muted-foreground">
@@ -641,7 +693,23 @@ const MessageBubble = ({ msg }: { msg: Message }) => {
                 <span className="ml-1.5 text-amber-600 dark:text-amber-500">· stopped</span>
               )}
             </p>
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              {onRegenerate && (
+                <Tooltip.Provider>
+                  <Tooltip>
+                    <Tooltip.Trigger asChild>
+                      <button
+                        type="button"
+                        onClick={onRegenerate}
+                        className="size-6 flex items-center justify-center rounded hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-muted-foreground hover:text-foreground"
+                      >
+                        <IconRefresh className="size-3.5" />
+                      </button>
+                    </Tooltip.Trigger>
+                    <Tooltip.Content>Regenerate</Tooltip.Content>
+                  </Tooltip>
+                </Tooltip.Provider>
+              )}
               <CopyButton text={msg.content} />
             </div>
           </div>
@@ -673,9 +741,14 @@ export const ChatPage = () => {
 
   const [input, setInput] = useState('');
   const [pendingAtts, setPendingAtts] = useState<PendingAttachment[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [showScrollDown, setShowScrollDown] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesBoxRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Counts nested dragenter/dragleave so the drop overlay doesn't flicker.
+  const dragDepth = useRef(0);
 
   const state = agentId ? chatStore.getState(agentId) : undefined;
   const sessions = state?.sessions ?? [];
@@ -739,13 +812,22 @@ export const ChatPage = () => {
     if (!attachmentsEnabled) return;
     const list = Array.from(files).slice(0, 10 - pendingAtts.length);
 
-    for (const file of list) {
+    for (let file of list) {
+      // Clipboard screenshots all arrive as "image.png" — give each a
+      // distinct, readable name before it becomes the stored file name.
+      if (/^image\.\w+$/i.test(file.name || '') || !file.name) {
+        const ext = (file.type.split('/')[1] || 'png').replace('jpeg', 'jpg');
+        const stamp = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 19);
+        file = new File([file], `screenshot-${stamp}.${ext}`, { type: file.type });
+      }
+
       const id = `att-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       const entry: PendingAttachment = {
         id,
-        name: file.name || 'pasted-image.png',
+        name: file.name,
         type: file.type || 'application/octet-stream',
         size: file.size,
+        previewUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
         status: 'uploading',
       };
       setPendingAtts((prev) => [...prev, entry]);
@@ -769,7 +851,11 @@ export const ChatPage = () => {
   };
 
   const removeAttachment = (id: string) => {
-    setPendingAtts((prev) => prev.filter((a) => a.id !== id));
+    setPendingAtts((prev) => {
+      const target = prev.find((a) => a.id === id);
+      if (target?.previewUrl) URL.revokeObjectURL(target.previewUrl);
+      return prev.filter((a) => a.id !== id);
+    });
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
@@ -781,13 +867,36 @@ export const ChatPage = () => {
     }
   };
 
+  // Whole-chat-area drop target with a visible overlay. dragDepth guards
+  // against the flicker from dragenter/dragleave firing on every child.
+  const handleDragEnter = (e: React.DragEvent) => {
+    if (!attachmentsEnabled || !e.dataTransfer?.types?.includes('Files')) return;
+    e.preventDefault();
+    dragDepth.current += 1;
+    setIsDragging(true);
+  };
+  const handleDragLeave = (e: React.DragEvent) => {
+    if (!attachmentsEnabled) return;
+    e.preventDefault();
+    dragDepth.current = Math.max(0, dragDepth.current - 1);
+    if (dragDepth.current === 0) setIsDragging(false);
+  };
   const handleDrop = (e: React.DragEvent) => {
     if (!attachmentsEnabled) return;
     e.preventDefault();
+    dragDepth.current = 0;
+    setIsDragging(false);
     if (e.dataTransfer?.files?.length) addFiles(e.dataTransfer.files);
   };
 
   const uploadsInFlight = pendingAtts.some((a) => a.status === 'uploading');
+
+  const sendMessage = (message: string, attachments: ChatAttachment[]) => {
+    if (!selectedAgent || !agentId) return;
+    // Fire-and-forget: the store holds the Apollo client reference so the
+    // request continues even if the user navigates away before it completes.
+    chatStore.sendMessage(apolloClient, agentId, selectedAgent.agentId, message, attachments);
+  };
 
   const handleSend = () => {
     if (!input.trim() || !selectedAgent || chatLoading || !agentId || uploadsInFlight) return;
@@ -795,11 +904,17 @@ export const ChatPage = () => {
     const attachments: ChatAttachment[] = pendingAtts
       .filter((a) => a.status === 'done' && a.url)
       .map((a) => ({ url: a.url!, name: a.name, type: a.type, size: a.size }));
+    pendingAtts.forEach((a) => a.previewUrl && URL.revokeObjectURL(a.previewUrl));
     setInput('');
     setPendingAtts([]);
-    // Fire-and-forget: the store holds the Apollo client reference so the
-    // request continues even if the user navigates away before it completes.
-    chatStore.sendMessage(apolloClient, agentId, selectedAgent.agentId, message, attachments);
+    sendMessage(message, attachments);
+  };
+
+  // Re-ask the question that produced the last reply (with its attachments).
+  const handleRegenerate = () => {
+    if (chatLoading) return;
+    const lastUser = [...messages].reverse().find((m) => m.role === 'user');
+    if (lastUser) sendMessage(lastUser.content, lastUser.attachments || []);
   };
 
   const handleStop = () => {
@@ -812,6 +927,30 @@ export const ChatPage = () => {
       e.preventDefault();
       handleSend();
     }
+    if (e.key === 'Escape' && chatLoading) {
+      e.preventDefault();
+      handleStop();
+    }
+  };
+
+  // Auto-grow the textarea with its content (capped via max-h on the element).
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+  }, [input]);
+
+  // Floating "jump to latest" pill when the user scrolls up during a stream.
+  const handleMessagesScroll = () => {
+    const el = messagesBoxRef.current;
+    if (!el) return;
+    const fromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    setShowScrollDown(fromBottom > 280);
+  };
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -875,19 +1014,35 @@ export const ChatPage = () => {
                 {agents.map((agent: any) => {
                   const isActive = agentId === agent._id;
                   const hasUnread = !isActive && chatStore.hasUnread(agent._id);
+                  const isWorking = chatStore.isAgentWorking(agent._id);
+                  const activity = isWorking
+                    ? chatStore.getAgentActivity(agent._id)
+                    : undefined;
                   return (
                     <button
                       key={agent._id}
                       className={`w-full text-left rounded-md px-2.5 py-2 transition-colors hover:bg-accent ${
                         isActive ? 'bg-accent' : ''
-                      }`}
+                      } ${isWorking ? 'ea-working' : ''}`}
                       onClick={() => navigate(`/erxes-agent/chat/${agent._id}`)}
                     >
                       <div className="flex items-start gap-2">
-                        <div className="relative shrink-0 mt-0.5">
-                          <IconRobot className="size-4 text-muted-foreground" />
+                        <div className="relative shrink-0">
+                          <div
+                            className={`size-7 rounded-lg border flex items-center justify-center transition-colors ${
+                              isActive || isWorking
+                                ? 'bg-gradient-to-br from-primary/25 to-primary/5 border-primary/30'
+                                : 'bg-muted border-border'
+                            } ${isWorking ? 'ea-avatar-live' : ''}`}
+                          >
+                            <IconRobot
+                              className={`size-4 transition-colors ${
+                                isActive || isWorking ? 'text-primary' : 'text-muted-foreground'
+                              }`}
+                            />
+                          </div>
                           {hasUnread && (
-                            <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-red-500" />
+                            <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-destructive animate-pulse" />
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
@@ -897,6 +1052,21 @@ export const ChatPage = () => {
                           </p>
                         </div>
                       </div>
+                      {/* Thought cloud — trails out of the avatar while the
+                          agent works, echoing the live turn's current step. */}
+                      {activity && (
+                        <div className="ea-pop mt-1 flex items-start gap-1">
+                          <div className="flex flex-col items-center gap-[3px] pl-2 pt-0.5 shrink-0">
+                            <span className="ea-thought-dot size-1" />
+                            <span className="ea-thought-dot size-1.5" />
+                          </div>
+                          <div className="ea-thought-bubble min-w-0 flex-1 rounded-lg rounded-tl-sm border border-primary/25 bg-background/85 px-2 py-1">
+                            <p className="text-[10px] leading-snug break-words line-clamp-2">
+                              <span className="ea-shimmer-text">{activity}</span>
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </button>
                   );
                 })}
@@ -937,16 +1107,23 @@ export const ChatPage = () => {
               ) : (
                 sessions.map((s) => {
                   const active = s.threadId === activeThreadId;
+                  const working = !!agentId && chatStore.isThreadWorking(agentId, s.threadId);
                   return (
                     <button
                       key={s.threadId}
                       onClick={() => handleSelectSession(s.threadId)}
-                      className={`group/sess w-full text-left rounded-md px-2.5 py-2 transition-colors hover:bg-accent ${
-                        active ? 'bg-accent' : ''
-                      }`}
+                      className={`group/sess w-full text-left rounded-md px-2.5 py-2 transition-all hover:bg-accent border-l-2 ${
+                        active
+                          ? 'bg-accent border-primary'
+                          : 'border-transparent hover:border-border'
+                      } ${working ? 'ea-working' : ''}`}
                     >
                       <div className="flex items-center gap-1.5">
-                        <IconMessage2 className="size-3.5 text-muted-foreground shrink-0" />
+                        {working ? (
+                          <IconLoader2 className="size-3.5 text-primary shrink-0 animate-spin" />
+                        ) : (
+                          <IconMessage2 className="size-3.5 text-muted-foreground shrink-0" />
+                        )}
                         <p className="text-sm truncate flex-1">{s.title}</p>
                         <span
                           role="button"
@@ -969,7 +1146,34 @@ export const ChatPage = () => {
         )}
 
         {/* ── Chat area ── */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div
+          className="flex-1 flex flex-col overflow-hidden relative"
+          onDragEnter={handleDragEnter}
+          onDragOver={(e) => attachmentsEnabled && e.preventDefault()}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          {/* Drop overlay — covers the whole conversation surface */}
+          {isDragging && selectedAgent && (
+            <div className="ea-pop absolute inset-3 z-20 rounded-2xl border-2 border-dashed border-primary/50 bg-primary/6 backdrop-blur-[2px] flex flex-col items-center justify-center gap-2 pointer-events-none">
+              <IconFileUpload className="size-9 text-primary" />
+              <p className="text-sm font-medium text-primary">Drop files to attach</p>
+              <p className="text-xs text-muted-foreground">images · PDF · Excel · Word · CSV</p>
+            </div>
+          )}
+
+          {/* Ambient working glow — gradient blobs drift around the chat
+              space for as long as a reply is streaming. */}
+          {selectedAgent && chatLoading && (
+            <div
+              aria-hidden
+              className="ea-ambient pointer-events-none absolute inset-0 z-0 overflow-hidden"
+            >
+              <span className="ea-ambient-blob ea-ambient-blob-1" />
+              <span className="ea-ambient-blob ea-ambient-blob-2" />
+            </div>
+          )}
+
           {!selectedAgent ? (
             <div className="flex-1 flex items-center justify-center">
               <Empty>
@@ -987,131 +1191,191 @@ export const ChatPage = () => {
           ) : (
             <>
               {/* Messages */}
-              <div className="flex-1 overflow-auto p-4 space-y-3">
-                {messagesLoading ? (
-                  <div className="p-2 space-y-3">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <Skeleton key={i} className="h-16 w-2/3 rounded-2xl" />
-                    ))}
-                  </div>
-                ) : messages.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-center gap-2">
-                    <IconRobot className="size-10 text-muted-foreground" />
-                    <p className="text-base font-medium">{selectedAgent.name}</p>
-                    {selectedAgent.description && (
-                      <p className="text-sm text-muted-foreground max-w-sm">
-                        {selectedAgent.description}
-                      </p>
-                    )}
-                    <Badge variant="secondary" className="font-mono text-xs mt-1">
-                      {selectedAgent.provider} · {selectedAgent.model}
-                    </Badge>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Send a message to start chatting
-                    </p>
-                  </div>
-                ) : (
-                  <>
-                    {messages.map((msg, i) => (
-                      <MessageBubble key={i} msg={msg} />
-                    ))}
-                    {chatLoading && lastMsg?.role === 'user' && <WaitingIndicator />}
-                  </>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-
-              {/* Input bar */}
               <div
-                className="border-t p-3 bg-background"
-                onDrop={handleDrop}
-                onDragOver={(e) => attachmentsEnabled && e.preventDefault()}
+                ref={messagesBoxRef}
+                onScroll={handleMessagesScroll}
+                className="flex-1 overflow-auto p-4"
               >
-                {pendingAtts.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mb-2">
-                    {pendingAtts.map((att) => (
-                      <ComposerAttachmentChip
-                        key={att.id}
-                        att={att}
-                        onRemove={() => removeAttachment(att.id)}
-                      />
-                    ))}
-                  </div>
-                )}
-                <div className="flex gap-2 items-end">
-                  {attachmentsEnabled && (
+                <div className="max-w-3xl mx-auto w-full space-y-4">
+                  {messagesLoading ? (
+                    <div className="p-2 space-y-3">
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <Skeleton key={i} className="h-16 w-2/3 rounded-2xl" />
+                      ))}
+                    </div>
+                  ) : messages.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center min-h-[55vh] text-center gap-2 ea-msg-in">
+                      <div className="relative mb-2">
+                        <div className="ea-orb absolute -inset-5 rounded-full" />
+                        <div className="relative size-16 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/8 to-transparent border border-primary/20 flex items-center justify-center">
+                          <IconRobot className="size-8 text-primary" />
+                        </div>
+                      </div>
+                      <p className="text-lg font-semibold">{selectedAgent.name}</p>
+                      {selectedAgent.description && (
+                        <p className="text-sm text-muted-foreground max-w-sm">
+                          {selectedAgent.description}
+                        </p>
+                      )}
+                      <Badge variant="secondary" className="font-mono text-xs mt-1">
+                        {selectedAgent.provider} · {selectedAgent.model}
+                      </Badge>
+                      <div className="flex flex-wrap justify-center gap-2 mt-4 max-w-md">
+                        {[
+                          'What can you do?',
+                          'Summarize my open tickets',
+                          attachmentsEnabled
+                            ? 'Read the file I attach and summarize it'
+                            : 'List the latest customers',
+                        ].map((s) => (
+                          <button
+                            key={s}
+                            type="button"
+                            onClick={() => {
+                              setInput(s);
+                              textareaRef.current?.focus();
+                            }}
+                            className="ea-pop rounded-full border border-border bg-background px-3.5 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-primary/4 transition-all hover:-translate-y-0.5"
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
                     <>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        multiple
-                        className="hidden"
-                        onChange={(e) => {
-                          if (e.target.files?.length) addFiles(e.target.files);
-                          e.target.value = '';
-                        }}
-                      />
-                      <Tooltip.Provider>
-                        <Tooltip>
-                          <Tooltip.Trigger asChild>
-                            <Button
-                              size="icon"
-                              variant="outline"
-                              className="size-[38px] shrink-0"
-                              onClick={() => fileInputRef.current?.click()}
-                              disabled={chatLoading || pendingAtts.length >= 10}
-                            >
-                              <IconPaperclip className="size-4" />
-                            </Button>
-                          </Tooltip.Trigger>
-                          <Tooltip.Content>
-                            Attach files (images, PDF, Excel, Word, …)
-                          </Tooltip.Content>
-                        </Tooltip>
-                      </Tooltip.Provider>
+                      {messages.map((msg, i) => (
+                        <MessageBubble
+                          key={i}
+                          msg={msg}
+                          onRegenerate={
+                            msg.role === 'assistant' &&
+                            !msg.streaming &&
+                            !chatLoading &&
+                            i === messages.length - 1
+                              ? handleRegenerate
+                              : undefined
+                          }
+                        />
+                      ))}
+                      {chatLoading && lastMsg?.role === 'user' && <WaitingIndicator />}
                     </>
                   )}
-                  <Textarea
-                    ref={textareaRef}
-                    value={input}
-                    onChange={(e: any) => setInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    onPaste={handlePaste}
-                    placeholder={`Message ${selectedAgent.name}…`}
-                    rows={1}
-                    className="flex-1 min-h-[38px] max-h-28 resize-none py-2"
-                  />
-                  {chatLoading ? (
-                    <Tooltip.Provider>
-                      <Tooltip>
-                        <Tooltip.Trigger asChild>
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            className="size-[38px] shrink-0"
-                            onClick={handleStop}
-                          >
-                            <IconPlayerStopFilled className="size-4" />
-                          </Button>
-                        </Tooltip.Trigger>
-                        <Tooltip.Content>Stop generating</Tooltip.Content>
-                      </Tooltip>
-                    </Tooltip.Provider>
-                  ) : (
-                    <Button
-                      size="icon"
-                      className="size-[38px] shrink-0"
-                      onClick={handleSend}
-                      disabled={!input.trim() || uploadsInFlight}
-                    >
-                      <IconSend className="size-4" />
-                    </Button>
-                  )}
+                  <div ref={messagesEndRef} />
                 </div>
-                <p className="text-[11px] text-muted-foreground mt-1.5 pl-0.5">
-                  Enter to send · Shift+Enter for new line
-                  {attachmentsEnabled && ' · drop or paste files to attach'}
-                </p>
+              </div>
+
+              {/* Jump to latest */}
+              {showScrollDown && (
+                <button
+                  type="button"
+                  onClick={scrollToBottom}
+                  className="ea-pop absolute bottom-28 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 rounded-full border border-border bg-background/95 backdrop-blur px-3 py-1.5 text-xs shadow-md hover:border-primary/40 hover:text-primary transition-colors"
+                >
+                  <IconArrowDown className="size-3.5" />
+                  Latest
+                </button>
+              )}
+
+              {/* Composer */}
+              <div className="p-3 pt-1 bg-background">
+                <div className="max-w-3xl mx-auto w-full">
+                  <div
+                    className={`rounded-2xl border bg-background shadow-sm transition-all duration-200 focus-within:border-primary/50 focus-within:shadow-md ${
+                      chatLoading ? 'border-primary/30' : 'border-border'
+                    }`}
+                  >
+                    {pendingAtts.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 px-3 pt-2.5">
+                        {pendingAtts.map((att) => (
+                          <ComposerAttachmentChip
+                            key={att.id}
+                            att={att}
+                            onRemove={() => removeAttachment(att.id)}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex gap-1.5 items-end p-2">
+                      {attachmentsEnabled && (
+                        <>
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            multiple
+                            className="hidden"
+                            onChange={(e) => {
+                              if (e.target.files?.length) addFiles(e.target.files);
+                              e.target.value = '';
+                            }}
+                          />
+                          <Tooltip.Provider>
+                            <Tooltip>
+                              <Tooltip.Trigger asChild>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="size-9 shrink-0 text-muted-foreground hover:text-primary transition-colors"
+                                  onClick={() => fileInputRef.current?.click()}
+                                  disabled={chatLoading || pendingAtts.length >= 10}
+                                >
+                                  <IconPaperclip className="size-4" />
+                                </Button>
+                              </Tooltip.Trigger>
+                              <Tooltip.Content>
+                                Attach files (images, PDF, Excel, Word, …)
+                              </Tooltip.Content>
+                            </Tooltip>
+                          </Tooltip.Provider>
+                        </>
+                      )}
+                      <Textarea
+                        ref={textareaRef}
+                        value={input}
+                        onChange={(e: any) => setInput(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        onPaste={handlePaste}
+                        placeholder={`Message ${selectedAgent.name}…`}
+                        rows={1}
+                        className="ea-composer-textarea flex-1 min-h-9 max-h-40 resize-none py-2 bg-transparent"
+                      />
+                      {chatLoading ? (
+                        <Tooltip.Provider>
+                          <Tooltip>
+                            <Tooltip.Trigger asChild>
+                              <Button
+                                size="icon"
+                                variant="outline"
+                                className="size-9 shrink-0 border-primary/40 text-primary hover:bg-primary/8 transition-all"
+                                onClick={handleStop}
+                              >
+                                <IconPlayerStopFilled className="size-4" />
+                              </Button>
+                            </Tooltip.Trigger>
+                            <Tooltip.Content>Stop generating (Esc)</Tooltip.Content>
+                          </Tooltip>
+                        </Tooltip.Provider>
+                      ) : (
+                        <Button
+                          size="icon"
+                          className="size-9 shrink-0 transition-transform duration-150 hover:scale-105 active:scale-95 disabled:scale-100"
+                          onClick={handleSend}
+                          disabled={!input.trim() || uploadsInFlight}
+                        >
+                          {uploadsInFlight ? (
+                            <IconLoader2 className="size-4 animate-spin" />
+                          ) : (
+                            <IconSend className="size-4" />
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground mt-1.5 pl-1 text-center">
+                    Enter to send · Shift+Enter for new line · Esc to stop
+                    {attachmentsEnabled && ' · drop or paste files to attach'}
+                  </p>
+                </div>
               </div>
             </>
           )}
