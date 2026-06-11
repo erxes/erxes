@@ -36,13 +36,16 @@ type PosSyncConfigResponse = {
   slots?: unknown[];
 };
 
-const POS_CONFIG_NOT_FOUND_ERRORS = ['not found pos', 'not found pos by token'];
+const POS_CONFIG_NOT_FOUND_ERRORS = new Set([
+  'not found pos',
+  'not found pos by token',
+]);
 
 const getErrorMessage = (error: unknown) =>
   error instanceof Error ? error.message : String(error);
 
 const isPosConfigNotFoundError = (message?: string) =>
-  POS_CONFIG_NOT_FOUND_ERRORS.includes((message || '').trim().toLowerCase());
+  POS_CONFIG_NOT_FOUND_ERRORS.has((message || '').trim().toLowerCase());
 
 const handlePosSyncConfigError = async ({
   models,

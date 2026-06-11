@@ -39,7 +39,7 @@ export const OtherPaymentsField = <TFieldValues extends FieldValues>({
       icon: '',
       config: '',
       scoreCampaignId: '',
-    } as never);
+    });
   };
 
   const fieldPath = (index: number, key: string) =>

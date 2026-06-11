@@ -38,43 +38,52 @@ const SelectPaymentProvider = ({
   );
   const isSingleMode = mode === 'single';
 
-  const onSelect = (payment: Payment | null) => {
-    if (!payment) {
-      setCurrentPayments([]);
-      onValueChange?.(mode === 'single' ? null : []);
-      setOpen?.(false);
-      return;
-    }
-    if (isSingleMode) {
-      setCurrentPayments([payment]);
-      setOpen?.(false);
-      return onValueChange?.(payment._id);
-    }
-    const arrayValue = Array.isArray(value) ? value : [];
+  const selectedIds = React.useMemo(
+    () => (Array.isArray(value) ? value : (value && [value]) || []),
+    [value],
+  );
 
-    const isPaymentSelected = arrayValue.includes(payment._id);
-    const newSelectedPaymentIds = isPaymentSelected
-      ? arrayValue.filter((id) => id !== payment._id)
-      : [...arrayValue, payment._id];
+  const onSelect = React.useCallback(
+    (payment: Payment | null) => {
+      if (!payment) {
+        setCurrentPayments([]);
+        onValueChange?.(mode === 'single' ? null : []);
+        setOpen?.(false);
+        return;
+      }
+      if (isSingleMode) {
+        setCurrentPayments([payment]);
+        setOpen?.(false);
+        return onValueChange?.(payment._id);
+      }
+      const arrayValue = Array.isArray(value) ? value : [];
 
-    setCurrentPayments((prev) =>
-      [...prev, payment].filter((p) => newSelectedPaymentIds.includes(p._id)),
-    );
-    onValueChange?.(newSelectedPaymentIds);
-  };
+      const isPaymentSelected = arrayValue.includes(payment._id);
+      const newSelectedPaymentIds = isPaymentSelected
+        ? arrayValue.filter((id) => id !== payment._id)
+        : [...arrayValue, payment._id];
 
-  const selectedIds = Array.isArray(value) ? value : (value && [value]) || [];
+      setCurrentPayments((prev) =>
+        [...prev, payment].filter((p) => newSelectedPaymentIds.includes(p._id)),
+      );
+      onValueChange?.(newSelectedPaymentIds);
+    },
+    [isSingleMode, mode, onValueChange, setOpen, value],
+  );
+
+  const contextValue = React.useMemo(
+    () => ({
+      paymentIds: selectedIds,
+      onSelect,
+      payments: currentPayments,
+      setPayments: setCurrentPayments,
+      loading: currentPayments.length !== selectedIds.length,
+    }),
+    [currentPayments, onSelect, selectedIds],
+  );
 
   return (
-    <SelectPaymentContext.Provider
-      value={{
-        paymentIds: selectedIds,
-        onSelect,
-        payments: currentPayments,
-        setPayments: setCurrentPayments,
-        loading: currentPayments.length !== selectedIds.length,
-      }}
-    >
+    <SelectPaymentContext.Provider value={contextValue}>
       {children}
     </SelectPaymentContext.Provider>
   );

@@ -201,7 +201,6 @@ const ProductsPayment = ({
   deal: IDeal;
   paymentsData?: IPaymentsData;
   onChangePaymentsData?: (data: IPaymentsData) => void;
-  refetch: () => void;
 }) => {
   const [paymentsData, setPaymentsData] = useState<IPaymentsData>(
     initialPaymentsData || deal.paymentsData || {},
