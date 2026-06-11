@@ -22,7 +22,7 @@ import {
   synthesizeFromToolResults,
   toUserFacingError,
 } from '@/agent/turn';
-import { IMastraToolCall } from '@/session/@types/session';
+import { IMastraToolCall, IMastraTurnPart } from '@/session/@types/session';
 
 export const router: Router = Router();
 
@@ -39,6 +39,7 @@ export const router: Router = Router();
 //   {type:'tool_call', toolCallId, toolName, args}
 //   {type:'tool_result', toolCallId, toolName, result, isError}
 //   {type:'done', reply, interrupted}
+//   {type:'thread_title', threadId, title} — LLM-generated conversation title
 //   {type:'error', message}
 //
 // Interrupt: the client aborts the fetch; the closed connection aborts the
@@ -145,19 +146,40 @@ router.post('/chat/stream', async (req, res) => {
   }, 10000);
 
   // Accumulated turn state — what gets persisted and what `done` reports.
+  // `parts` keeps reasoning bursts and tool calls in arrival order (thinking →
+  // tool → thinking → …); tool entries in `parts` share object identity with
+  // `toolCalls`, so a result landing later updates both.
   const acc = {
     text: '',
     thinking: '',
     toolCalls: [] as IMastraToolCall[],
+    parts: [] as IMastraTurnPart[],
+  };
+
+  // A new non-thinking event ends the current reasoning burst — the next
+  // thinking delta starts a fresh part instead of growing the old one.
+  let thinkingOpen = false;
+
+  const appendThinking = (text: string) => {
+    acc.thinking += text;
+    const last = acc.parts[acc.parts.length - 1];
+    if (thinkingOpen && last?.kind === 'thinking') last.text += text;
+    else {
+      acc.parts.push({ kind: 'thinking', text });
+      thinkingOpen = true;
+    }
   };
 
   const recordToolCall = (ev: StreamEvent) => {
+    thinkingOpen = false;
     if (ev.type === 'tool_call') {
-      acc.toolCalls.push({
+      const call: IMastraToolCall = {
         toolCallId: ev.toolCallId,
         toolName: ev.toolName,
         args: ev.args,
-      });
+      };
+      acc.toolCalls.push(call);
+      acc.parts.push({ kind: 'tool', call });
     } else if (ev.type === 'tool_result') {
       const existing = ev.toolCallId
         ? acc.toolCalls.find((tc) => tc.toolCallId === ev.toolCallId)
@@ -166,12 +188,14 @@ router.post('/chat/stream', async (req, res) => {
         existing.result = ev.result;
         existing.isError = ev.isError;
       } else {
-        acc.toolCalls.push({
+        const call: IMastraToolCall = {
           toolCallId: ev.toolCallId,
           toolName: ev.toolName,
           result: ev.result,
           isError: ev.isError,
-        });
+        };
+        acc.toolCalls.push(call);
+        acc.parts.push({ kind: 'tool', call });
       }
     }
   };
@@ -199,8 +223,10 @@ router.post('/chat/stream', async (req, res) => {
           const ev = normalizeChunk(chunk);
           if (!ev) continue;
 
-          if (ev.type === 'text') acc.text += ev.text;
-          else if (ev.type === 'thinking') acc.thinking += ev.text;
+          if (ev.type === 'text') {
+            acc.text += ev.text;
+            thinkingOpen = false;
+          } else if (ev.type === 'thinking') appendThinking(ev.text);
           else if (ev.type === 'error') {
             streamError = ev.message;
             continue; // surfaced after the loop so fallbacks still apply
@@ -277,7 +303,7 @@ router.post('/chat/stream', async (req, res) => {
       }
     }
 
-    await persistTurn({
+    const { titlePromise } = await persistTurn({
       models,
       prepared,
       message,
@@ -286,12 +312,27 @@ router.post('/chat/stream', async (req, res) => {
         ? {
             thinking: acc.thinking || undefined,
             toolCalls: acc.toolCalls.length ? acc.toolCalls : undefined,
+            parts: acc.parts.length ? acc.parts : undefined,
             interrupted: interrupted || undefined,
           }
         : undefined,
     });
 
     send({ type: 'done', reply, interrupted });
+
+    // The auto-titler summarizes the conversation in the background; hold the
+    // stream open briefly so the client gets the new sidebar title without a
+    // refetch. Bounded — a slow/failed titling never hangs the stream (the
+    // title still self-persists and shows on the next session-list load).
+    if (!clientGone) {
+      const title = await Promise.race([
+        titlePromise,
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000)),
+      ]);
+      if (title) {
+        send({ type: 'thread_title', threadId: prepared.sessionId, title });
+      }
+    }
   } catch (err: any) {
     console.error('[mastra chat stream error]', err);
     send({ type: 'error', message: toUserFacingError(err).message });

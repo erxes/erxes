@@ -9,6 +9,11 @@ export interface IMastraThread {
   // for legacy docs created before ownership existed.
   userId?: string;
   title?: string;
+  // Who set the title: 'derived' (first-message snippet), 'generated' (LLM
+  // summary of the conversation), 'manual' (user rename — never overwritten).
+  titleSource?: 'derived' | 'generated' | 'manual';
+  // messageCount at the last LLM title generation — drives periodic refresh.
+  titleMessageCount?: number;
   messageCount?: number;
   lastMessageAt?: Date;
 }
@@ -31,10 +36,20 @@ export interface IMastraToolCall {
   isError?: boolean;
 }
 
+// One chronological segment of an assistant turn — reasoning bursts and tool
+// invocations in the order they happened, so the UI can replay the turn
+// faithfully (thinking → tool → thinking → …) instead of one merged blob.
+export type IMastraTurnPart =
+  | { kind: 'thinking'; text: string }
+  | { kind: 'tool'; call: IMastraToolCall };
+
 // Extra turn artifacts persisted alongside the assistant reply text.
+// `thinking`/`toolCalls` are kept as flat aggregates (queries/forensics);
+// `parts` carries the same data in arrival order for rendering.
 export interface IMastraMessageMeta {
   thinking?: string;
   toolCalls?: IMastraToolCall[];
+  parts?: IMastraTurnPart[];
   interrupted?: boolean;
 }
 

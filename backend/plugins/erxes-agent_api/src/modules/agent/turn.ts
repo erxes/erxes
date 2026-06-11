@@ -13,6 +13,7 @@ import {
   MemoryContext,
 } from '~/mastra/memory';
 import { IMastraMessageMeta } from '@/session/@types/session';
+import { maybeGenerateThreadTitle } from '~/mastra/titler';
 
 // Shared chat-turn pipeline used by both the blocking GraphQL resolver
 // (mastraAgentChat) and the streaming SSE route (/chat/stream). Holds the
@@ -254,13 +255,18 @@ export async function prepareChatTurn(params: {
 // Persist the completed exchange so the session survives reloads, then index
 // it into long-term memory (best-effort). Assistant `meta` carries thinking /
 // tool-call artifacts for the chat UI.
+//
+// Returns `titlePromise`: the conversation auto-titler kicked off in the
+// background (resolves to the new title or null). The SSE route awaits it
+// briefly after `done` to push the title to the client; other callers can
+// ignore it — it self-persists.
 export async function persistTurn(params: {
   models: IModels;
   prepared: PreparedTurn;
   message: string;
   reply: string | null;
   meta?: IMastraMessageMeta;
-}) {
+}): Promise<{ titlePromise: Promise<string | null> }> {
   const { models, prepared, message, reply, meta } = params;
   const { sessionId, advanced, memCtx, agentConfig, providers, authCtx, isLegacy } = prepared;
 
@@ -269,6 +275,21 @@ export async function persistTurn(params: {
     ? await models.MastraMessage.addMessage(sessionId, 'assistant', reply, meta)
     : null;
   await models.MastraThread.touchThread(sessionId);
+
+  // Rename the thread to an LLM summary of the conversation (replacing the
+  // first-message snippet). Runs concurrently with memory indexing; only
+  // meaningful once an assistant reply exists.
+  const titlePromise = reply
+    ? maybeGenerateThreadTitle({
+        models,
+        threadId: sessionId,
+        provider: agentConfig.provider,
+        model: agentConfig.model,
+        providers,
+        authCtx,
+        isLegacy,
+      })
+    : Promise.resolve<string | null>(null);
 
   // Index the new exchange into Qdrant for future recall (best-effort).
   if (advanced) {
@@ -305,6 +326,8 @@ export async function persistTurn(params: {
       });
     }
   }
+
+  return { titlePromise };
 }
 
 // ─── Turn execution (blocking) ───────────────────────────────────────────────

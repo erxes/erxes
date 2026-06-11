@@ -16,15 +16,40 @@ export interface ToolCallInfo {
   isError?: boolean;
 }
 
+// One chronological segment of an assistant turn. Thinking bursts and tool
+// calls render in the order they happened — a new reasoning burst appears as
+// its own section at the bottom, never appended into an earlier one.
+export type TurnPart =
+  | { kind: 'thinking'; text: string; done?: boolean }
+  | { kind: 'tool'; call: ToolCallInfo };
+
 export interface Message {
   role: 'user' | 'assistant' | 'error';
   content: string;
   timestamp: Date;
-  // Assistant-turn artifacts (live while streaming, hydrated from meta after).
-  thinking?: string;
-  toolCalls?: ToolCallInfo[];
+  // Assistant-turn artifacts in arrival order (live while streaming,
+  // hydrated from meta after).
+  parts?: TurnPart[];
   streaming?: boolean;
   interrupted?: boolean;
+}
+
+// Rebuild ordered parts from a persisted message's meta. Older messages only
+// carry the flat {thinking, toolCalls} aggregates — synthesize a best-effort
+// order for those (one thinking section, then the tools).
+function partsFromMeta(meta: any): TurnPart[] | undefined {
+  if (!meta) return undefined;
+  if (Array.isArray(meta.parts) && meta.parts.length) {
+    return meta.parts.map((p: any) =>
+      p.kind === 'tool'
+        ? { kind: 'tool' as const, call: p.call || {} }
+        : { kind: 'thinking' as const, text: p.text || '', done: true },
+    );
+  }
+  const parts: TurnPart[] = [];
+  if (meta.thinking) parts.push({ kind: 'thinking', text: meta.thinking, done: true });
+  for (const call of meta.toolCalls || []) parts.push({ kind: 'tool', call });
+  return parts.length ? parts : undefined;
 }
 
 export interface SessionMeta {
@@ -87,6 +112,7 @@ interface StreamEvent {
     | 'tool_call'
     | 'tool_result'
     | 'done'
+    | 'thread_title'
     | 'error';
   [key: string]: any;
 }
@@ -256,8 +282,7 @@ class ChatStore {
         role: m.role,
         content: m.content,
         timestamp: m.createdAt ? new Date(m.createdAt) : new Date(),
-        thinking: m.meta?.thinking || undefined,
-        toolCalls: m.meta?.toolCalls || undefined,
+        parts: partsFromMeta(m.meta),
         interrupted: m.meta?.interrupted || undefined,
       }));
       this.patchThread(agentKey, threadId, { messages, messagesLoading: false });
@@ -271,6 +296,18 @@ class ChatStore {
     const threadId = generateThreadId();
     this.patchAgent(agentKey, { activeThreadId: threadId, isDraft: true });
     this.patchThread(agentKey, threadId, { messages: [], loading: false });
+  }
+
+  // Local-only title update — used when the server pushes an auto-generated
+  // title over the stream (no mutation; the server already persisted it).
+  private setSessionTitle(agentKey: string, threadId: string, title: string) {
+    const state = this.ensureAgent(agentKey);
+    if (!state.sessions.some((s) => s.threadId === threadId)) return;
+    this.patchAgent(agentKey, {
+      sessions: state.sessions.map((s) =>
+        s.threadId === threadId ? { ...s, title } : s,
+      ),
+    });
   }
 
   async renameSession(
@@ -444,42 +481,85 @@ class ChatStore {
           timestamp: new Date(),
           streaming: true,
         };
-      const next = mutate({ ...base, toolCalls: base.toolCalls?.slice() });
+      const next = mutate({ ...base, parts: base.parts?.slice() });
       if (live) this.replaceLastMessage(agentKey, threadId, next);
       else this.appendMessage(agentKey, threadId, next);
       live = next;
     };
 
+    // Any non-thinking event closes the current reasoning burst, so the next
+    // thinking delta opens a NEW section at the bottom of the turn.
+    const closeThinking = (parts?: TurnPart[]): TurnPart[] => {
+      const out = (parts || []).slice();
+      const last = out[out.length - 1];
+      if (last?.kind === 'thinking' && !last.done) {
+        out[out.length - 1] = { ...last, done: true };
+      }
+      return out;
+    };
+
     const handleEvent = (ev: StreamEvent) => {
       switch (ev.type) {
         case 'thinking':
-          upsertLive((m) => ({ ...m, thinking: (m.thinking || '') + ev.text }));
+          upsertLive((m) => {
+            const parts = (m.parts || []).slice();
+            const last = parts[parts.length - 1];
+            if (last?.kind === 'thinking' && !last.done) {
+              parts[parts.length - 1] = { ...last, text: last.text + ev.text };
+            } else {
+              parts.push({ kind: 'thinking', text: ev.text });
+            }
+            return { ...m, parts };
+          });
           break;
         case 'text':
-          upsertLive((m) => ({ ...m, content: m.content + ev.text }));
+          upsertLive((m) => ({
+            ...m,
+            parts: closeThinking(m.parts),
+            content: m.content + ev.text,
+          }));
           break;
         case 'text_replace':
-          upsertLive((m) => ({ ...m, content: ev.text }));
+          upsertLive((m) => ({ ...m, parts: closeThinking(m.parts), content: ev.text }));
           break;
         case 'tool_call':
           upsertLive((m) => ({
             ...m,
-            toolCalls: [
-              ...(m.toolCalls || []),
-              { toolCallId: ev.toolCallId, toolName: ev.toolName, args: ev.args },
+            parts: [
+              ...closeThinking(m.parts),
+              {
+                kind: 'tool',
+                call: { toolCallId: ev.toolCallId, toolName: ev.toolName, args: ev.args },
+              },
             ],
           }));
           break;
         case 'tool_result':
           upsertLive((m) => {
-            const toolCalls = (m.toolCalls || []).slice();
-            const idx = ev.toolCallId
-              ? toolCalls.findIndex((tc) => tc.toolCallId === ev.toolCallId)
-              : toolCalls.length - 1;
+            const parts = closeThinking(m.parts);
+            let idx = -1;
+            if (ev.toolCallId) {
+              idx = parts.findIndex(
+                (p) => p.kind === 'tool' && p.call.toolCallId === ev.toolCallId,
+              );
+            }
+            if (idx < 0) {
+              for (let i = parts.length - 1; i >= 0; i--) {
+                const p = parts[i];
+                if (p.kind === 'tool' && p.call.result === undefined) {
+                  idx = i;
+                  break;
+                }
+              }
+            }
             const patch = { result: ev.result, isError: ev.isError };
-            if (idx >= 0) toolCalls[idx] = { ...toolCalls[idx], ...patch };
-            else toolCalls.push({ toolName: ev.toolName, ...patch });
-            return { ...m, toolCalls };
+            if (idx >= 0) {
+              const p = parts[idx] as { kind: 'tool'; call: ToolCallInfo };
+              parts[idx] = { kind: 'tool', call: { ...p.call, ...patch } };
+            } else {
+              parts.push({ kind: 'tool', call: { toolName: ev.toolName, ...patch } });
+            }
+            return { ...m, parts };
           });
           break;
         case 'done':
@@ -487,6 +567,7 @@ class ChatStore {
           if (live || ev.reply) {
             upsertLive((m) => ({
               ...m,
+              parts: closeThinking(m.parts),
               content: m.content || ev.reply || '',
               streaming: false,
               interrupted: !!ev.interrupted,
@@ -498,6 +579,13 @@ class ChatStore {
               content: 'The agent returned an empty response. Please try again.',
               timestamp: new Date(),
             });
+          }
+          break;
+        case 'thread_title':
+          // Arrives after `done` while the stream drains — the agent has
+          // summarized the conversation into a title.
+          if (ev.title) {
+            this.setSessionTitle(agentKey, ev.threadId || threadId, ev.title);
           }
           break;
         case 'error':

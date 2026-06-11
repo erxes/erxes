@@ -297,26 +297,37 @@ const WaitingIndicator = () => (
   </div>
 );
 
-// ─── Thinking section (collapsible) ──────────────────────────────────────────
+// ─── Thinking section ────────────────────────────────────────────────────────
+//
+// Each reasoning burst is its own section, rendered in chronological order
+// with the tool calls — a new burst always appears at the bottom of the turn,
+// never appended into an earlier pane.
+//
+// Live (still reasoning): shows the TAIL of the current thought — what the
+// model is thinking about right now — with no scrollbox.
+// Finished: collapses to a one-line row; expanding prints the full thought at
+// natural height (no inner scrollbar).
 
-const ThinkingSection = ({
-  thinking,
-  streaming,
-}: {
-  thinking: string;
-  streaming?: boolean;
-}) => {
-  const [expanded, setExpanded] = useState(!!streaming);
-  const wasStreaming = useRef(streaming);
+const ThinkingSection = ({ text, live }: { text: string; live?: boolean }) => {
+  const [expanded, setExpanded] = useState(false);
 
-  // Auto-expand while the model reasons, auto-collapse once it starts answering.
-  useEffect(() => {
-    if (wasStreaming.current && !streaming) setExpanded(false);
-    wasStreaming.current = streaming;
-  }, [streaming]);
+  if (live) {
+    const tail = text.length > 280 ? '…' + text.slice(-280) : text;
+    return (
+      <div className="rounded-lg border border-border/60 bg-background/40 px-2.5 py-1.5">
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <IconSparkles className="size-3.5 shrink-0 animate-pulse" />
+          <span className="animate-pulse">Thinking…</span>
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground/80 leading-relaxed whitespace-pre-wrap">
+          {tail}
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="mb-2 rounded-lg border border-border/60 bg-background/40 overflow-hidden">
+    <div className="rounded-lg border border-border/60 bg-background/40 overflow-hidden">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
@@ -325,15 +336,13 @@ const ThinkingSection = ({
         <IconChevronRight
           className={`size-3.5 shrink-0 transition-transform ${expanded ? 'rotate-90' : ''}`}
         />
-        <IconSparkles className={`size-3.5 shrink-0 ${streaming ? 'animate-pulse' : ''}`} />
-        <span className={streaming ? 'animate-pulse' : ''}>
-          {streaming ? 'Thinking…' : 'Thought process'}
-        </span>
+        <IconSparkles className="size-3.5 shrink-0" />
+        <span>Thought process</span>
       </button>
       {expanded && (
-        <div className="px-3 pb-2.5 max-h-48 overflow-auto">
+        <div className="px-3 pb-2.5">
           <p className="text-xs text-muted-foreground whitespace-pre-wrap leading-relaxed">
-            {thinking}
+            {text}
           </p>
         </div>
       )}
@@ -432,27 +441,36 @@ const MessageBubble = ({ msg }: { msg: Message }) => {
     );
   }
 
-  // assistant — thinking + tool calls + (possibly still streaming) answer text
+  // assistant — chronological turn parts (thinking / tool calls), then the
+  // (possibly still streaming) answer text
   const streaming = !!msg.streaming;
-  // The model is reasoning while no answer text has arrived yet.
-  const thinkingLive = streaming && !msg.content;
+  const parts = msg.parts || [];
 
   return (
     <div className="flex justify-start group">
       <div className="max-w-[82%] min-w-0 bg-muted rounded-2xl rounded-bl-sm px-4 py-2.5">
-        {msg.thinking && (
-          <ThinkingSection thinking={msg.thinking} streaming={thinkingLive} />
-        )}
-        {msg.toolCalls && msg.toolCalls.length > 0 && (
+        {parts.length > 0 && (
           <div className="mb-2 space-y-1">
-            {msg.toolCalls.map((call, i) => (
-              <ToolCallRow key={call.toolCallId ?? i} call={call} streaming={streaming} />
-            ))}
+            {parts.map((part, i) =>
+              part.kind === 'thinking' ? (
+                <ThinkingSection
+                  key={i}
+                  text={part.text}
+                  live={streaming && !part.done && i === parts.length - 1}
+                />
+              ) : (
+                <ToolCallRow
+                  key={part.call.toolCallId ?? `tool-${i}`}
+                  call={part.call}
+                  streaming={streaming}
+                />
+              ),
+            )}
           </div>
         )}
         {msg.content ? (
           <MarkdownContent content={msg.content} />
-        ) : streaming && !msg.thinking && !msg.toolCalls?.length ? (
+        ) : streaming && !parts.length ? (
           <div className="flex items-center gap-2 text-xs text-muted-foreground py-0.5">
             <IconSparkles className="size-3.5 animate-pulse" />
             <span className="animate-pulse">Thinking…</span>
@@ -525,8 +543,10 @@ export const ChatPage = () => {
   const lastMsg = messages[messages.length - 1];
   const lastMsgSize =
     (lastMsg?.content?.length ?? 0) +
-    (lastMsg?.thinking?.length ?? 0) +
-    (lastMsg?.toolCalls?.length ?? 0);
+    (lastMsg?.parts?.reduce(
+      (n, p) => n + (p.kind === 'thinking' ? p.text.length : 1),
+      0,
+    ) ?? 0);
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length, chatLoading, lastMsgSize]);
