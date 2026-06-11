@@ -19,9 +19,10 @@ export const REDACTED = '[redacted]';
 // Identifier-shaped substrings. Order matters: URLs first (so an email inside
 // a URL doesn't leave a half-scrubbed URL behind), then emails, then numbers.
 const URL_WITH_QUERY = /(https?:\/\/[^\s?'"<>]+)\?[^\s'"<>]*/gi;
-// Domain labels are matched dot-by-dot so no character class overlaps the
-// separator that follows it (avoids super-linear backtracking, S5852).
-const EMAIL = /[a-z0-9._%+-]+@(?:[a-z0-9-]+\.)+[a-z]{2,}/gi;
+// Deliberately coarse: the regex ends on the domain character class with no
+// trailing element, so it cannot backtrack (S5852). For redaction purposes
+// over-matching (e.g. swallowing a sentence-final dot) is acceptable.
+const EMAIL = /[a-z0-9._%+-]+@[a-z0-9.-]+/gi;
 // Phone-ish: 8+ digits allowing separators, optionally prefixed with +. Each
 // digit after the first consumes its own separators — no ambiguous overlap.
 const PHONE = /\+?\d(?:[\s().-]*\d){7,}/g;
