@@ -155,11 +155,14 @@ export async function setPayload(
   baseUrl = qdrantUrl(),
 ): Promise<void> {
   if (!ids.length) return;
-  const res = await fetch(`${baseUrl}/collections/${name}/points/payload?wait=true`, {
-    method: 'POST',
-    headers: headers(),
-    body: JSON.stringify({ payload, points: ids }),
-  });
+  const res = await fetch(
+    `${baseUrl}/collections/${name}/points/payload?wait=true`,
+    {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ payload, points: ids }),
+    },
+  );
   if (!res.ok) {
     const text = await res.text().catch(() => '');
     throw new Error(`Qdrant setPayload failed (${res.status}): ${text}`);

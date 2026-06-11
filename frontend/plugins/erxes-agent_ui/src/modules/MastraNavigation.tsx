@@ -1,5 +1,10 @@
 import { useEffect, useReducer } from 'react';
-import { IconRobot, IconMessageCircle, IconSitemap, IconBulb } from '@tabler/icons-react';
+import {
+  IconRobot,
+  IconMessageCircle,
+  IconSitemap,
+  IconBulb,
+} from '@tabler/icons-react';
 import { NavigationMenuLinkItem } from 'erxes-ui';
 import { chatStore } from '~/pages/chat/chatStore';
 

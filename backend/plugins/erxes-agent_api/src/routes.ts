@@ -510,7 +510,10 @@ router.post('/bot/:conversationId', llmRouteLimiter, async (req, res) => {
     // the tenant's learned digest (shared, PII-free agent knowledge).
     const [[recall, wmBlock], digest] = await Promise.all([
       advanced
-        ? Promise.all([recallBlock(userText, memCtx), readWorkingMemory(models, memCtx)])
+        ? Promise.all([
+            recallBlock(userText, memCtx),
+            readWorkingMemory(models, memCtx),
+          ])
         : Promise.resolve([null, null] as [string | null, string | null]),
       readLearnedDigest(models, agentConfig.agentId),
     ]);

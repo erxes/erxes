@@ -133,7 +133,7 @@ export function extractTextToolCall(text: string): TextToolCall | null {
       const args =
         typeof fn.arguments === 'string'
           ? JSON.parse(fn.arguments)
-          : fn.arguments ?? {};
+          : (fn.arguments ?? {});
       return { name: fn.name, args };
     }
   } catch {}
@@ -157,7 +157,7 @@ export function extractTextToolCall(text: string): TextToolCall | null {
         const args =
           typeof obj.arguments === 'string'
             ? JSON.parse(obj.arguments)
-            : obj.arguments ?? obj.parameters ?? {};
+            : (obj.arguments ?? obj.parameters ?? {});
         return { name: obj.name, args };
       }
     } catch {}
@@ -541,10 +541,10 @@ export function logToolResults(uniqueResults: any[]) {
             data == null
               ? 'null'
               : Array.isArray(data)
-              ? `array(${data.length})`
-              : typeof data === 'object'
-              ? Object.keys(data).slice(0, 6)
-              : typeof data,
+                ? `array(${data.length})`
+                : typeof data === 'object'
+                  ? Object.keys(data).slice(0, 6)
+                  : typeof data,
           success: data && typeof data === 'object' ? data.success : undefined,
           error:
             data && typeof data === 'object'

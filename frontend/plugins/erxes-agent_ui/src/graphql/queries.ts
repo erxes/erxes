@@ -219,12 +219,35 @@ export const MASTRA_SETTINGS = gql`
 `;
 
 export const MASTRA_LEARNINGS = gql`
-  query MastraLearnings($status: String, $type: String, $searchValue: String, $page: Int, $perPage: Int) {
-    mastraLearnings(status: $status, type: $type, searchValue: $searchValue, page: $page, perPage: $perPage) {
+  query MastraLearnings(
+    $status: String
+    $type: String
+    $searchValue: String
+    $page: Int
+    $perPage: Int
+  ) {
+    mastraLearnings(
+      status: $status
+      type: $type
+      searchValue: $searchValue
+      page: $page
+      perPage: $perPage
+    ) {
       list {
-        _id statement type contextTags agentId status confidence
-        evidenceCount sourceCount pinned createdBy lastReinforcedAt
-        createdAt updatedAt
+        _id
+        statement
+        type
+        contextTags
+        agentId
+        status
+        confidence
+        evidenceCount
+        sourceCount
+        pinned
+        createdBy
+        lastReinforcedAt
+        createdAt
+        updatedAt
       }
       totalCount
     }
@@ -240,8 +263,13 @@ export const MASTRA_LEARNING_STATS = gql`
 export const MASTRA_LEARNING_STATUS = gql`
   query MastraLearningStatus {
     mastraLearningStatus {
-      enabled embedder embedderModel qdrantUrl collection
-      autoPromoteMinSources autoPromoteMinConfidence
+      enabled
+      embedder
+      embedderModel
+      qdrantUrl
+      collection
+      autoPromoteMinSources
+      autoPromoteMinConfidence
     }
   }
 `;

@@ -925,7 +925,9 @@ const MessageBubble = ({
                   </Tooltip>
                 </Tooltip.Provider>
               )}
-              {onRate && <FeedbackButtons rating={msg.rating} onRate={onRate} />}
+              {onRate && (
+                <FeedbackButtons rating={msg.rating} onRate={onRate} />
+              )}
               <CopyButton text={msg.content} />
             </div>
           </div>
