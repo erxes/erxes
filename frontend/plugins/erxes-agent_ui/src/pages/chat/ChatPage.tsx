@@ -40,7 +40,13 @@ import {
   MASTRA_AGENTS,
   MASTRA_ATTACHMENT_STORAGE_STATUS,
 } from '~/graphql/queries';
-import { chatStore, ChatAttachment, Message, ToolCallInfo } from './chatStore';
+import {
+  chatStore,
+  randomIdSuffix,
+  ChatAttachment,
+  Message,
+  ToolCallInfo,
+} from './chatStore';
 import './chat.css';
 
 // ─── Inline Markdown Nodes ───────────────────────────────────────────────────
@@ -320,8 +326,28 @@ const BlockContent = ({ text }: { text: string }) => {
 
 // ─── Fenced code block splitter + full markdown renderer ─────────────────────
 
+// Split content into [text, fence, text, fence, ...] segments with an index
+// scan — the equivalent capture-group split regex backtracks super-linearly.
+function splitCodeFences(content: string): string[] {
+  const segments: string[] = [];
+  let i = 0;
+  for (;;) {
+    const start = content.indexOf('```', i);
+    if (start === -1) break;
+    const headerEnd = content.indexOf('\n', start + 3);
+    if (headerEnd === -1) break;
+    const end = content.indexOf('```', headerEnd + 1);
+    if (end === -1) break;
+    segments.push(content.slice(i, start));
+    segments.push(content.slice(start, end + 3));
+    i = end + 3;
+  }
+  segments.push(content.slice(i));
+  return segments;
+}
+
 const MarkdownContent = ({ content }: { content: string }) => {
-  const segments = content.split(/(```(?:[^\n]*)\n[\s\S]*?```)/g);
+  const segments = splitCodeFences(content);
   return (
     <div className="space-y-1 text-sm">
       {segments.map((seg, idx) => {
@@ -947,7 +973,10 @@ export const ChatPage = () => {
     chatStore.selectSession(apolloClient, agentId, threadId);
   };
 
-  const handleDeleteSession = (e: React.MouseEvent, threadId: string) => {
+  const handleDeleteSession = (
+    e: React.MouseEvent | React.KeyboardEvent,
+    threadId: string,
+  ) => {
     e.stopPropagation();
     if (!agentId || !selectedAgent) return;
     if (window.confirm('Delete this session and all its messages?')) {
@@ -980,7 +1009,7 @@ export const ChatPage = () => {
         });
       }
 
-      const id = `att-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const id = `att-${Date.now()}-${randomIdSuffix(6)}`;
       const entry: PendingAttachment = {
         id,
         name: file.name,
@@ -1344,6 +1373,12 @@ export const ChatPage = () => {
                               onClick={(e) =>
                                 handleDeleteSession(e, s.threadId)
                               }
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  handleDeleteSession(e, s.threadId);
+                                }
+                              }}
                               className="opacity-0 group-hover/sess:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0"
                             >
                               <IconTrash className="size-3.5" />

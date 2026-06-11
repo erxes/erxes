@@ -8,6 +8,8 @@
 // See docs/ADVANCED_MEMORY.md (§6) and docs/ADVANCED_MEMORY_TESTS.md (§1–3, §9).
 // ---------------------------------------------------------------------------
 
+import { trimEdgeChars } from '~/mastra/text';
+
 export type Env = Record<string, string | undefined>;
 
 export type EmbedderKind = 'fastembed' | 'openai';
@@ -109,9 +111,9 @@ export function resolveEmbedderConfig(env: Env = process.env): EmbedderConfig {
 export function collectionName(model: string, dimension: number): string {
   const slug = model
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '');
-  return `mastra_memory_${slug}_${dimension}`;
+    .replace(/[^a-z0-9]+/g, '_');
+  const trimmed = trimEdgeChars(slug, '_', '_');
+  return `mastra_memory_${trimmed}_${dimension}`;
 }
 
 function parsePositiveInt(raw: string, def: number): number {

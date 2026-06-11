@@ -10,6 +10,8 @@
 // See docs/COMPANY_KNOWLEDGE_RAG.md.
 // ---------------------------------------------------------------------------
 
+import { trimEdgeChars } from '~/mastra/text';
+
 import {
   Env,
   resolveEmbedderConfig,
@@ -62,9 +64,9 @@ export function knowledgeCollectionName(
 ): string {
   const slug = model
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '');
-  return `mastra_knowledge_${slug}_${dimension}`;
+    .replace(/[^a-z0-9]+/g, '_');
+  const trimmed = trimEdgeChars(slug, '_', '_');
+  return `mastra_knowledge_${trimmed}_${dimension}`;
 }
 
 function parsePositiveInt(raw: string, def: number): number {

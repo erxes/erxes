@@ -17,7 +17,7 @@ describe('refs', () => {
         b: ['x', 'Order: {{steps.classify.output.productName}}'],
         c: { d: '{{bindings.supportAgent}}' },
       });
-      expect(refs.sort()).toEqual([
+      expect(refs.sort((a, b) => a.localeCompare(b))).toEqual([
         'bindings.supportAgent',
         'steps.classify.output.productName',
         'trigger.payload.text',

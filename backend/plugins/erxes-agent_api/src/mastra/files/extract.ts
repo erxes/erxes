@@ -1,5 +1,9 @@
 import * as path from 'path';
-import { decodeHtmlEntities, stripScriptAndStyleBlocks } from '~/mastra/html';
+import {
+  decodeHtmlEntities,
+  stripAllTags,
+  stripScriptAndStyleBlocks,
+} from '~/mastra/html';
 
 // ---------------------------------------------------------------------------
 // Text extraction from chat attachments. Pure buffer → text; storage access
@@ -67,10 +71,8 @@ function clamp(text: string): { content: string; truncated: boolean } {
 }
 
 function stripHtml(html: string): string {
-  return decodeHtmlEntities(
-    stripScriptAndStyleBlocks(html).replace(/<[^>]+>/g, ' '),
-  )
-    .replace(/\s+\n/g, '\n')
+  return decodeHtmlEntities(stripAllTags(stripScriptAndStyleBlocks(html)))
+    .replace(/[^\S\n]+\n/g, '\n')
     .replace(/[ \t]+/g, ' ')
     .trim();
 }

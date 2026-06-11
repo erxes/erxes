@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { lookup } from 'node:dns/promises';
 import {
   decodeHtmlEntities as decodeEntities,
+  stripAllTags,
   stripScriptAndStyleBlocks,
 } from '~/mastra/html';
 import { companyKnowledgeTool } from '~/mastra/knowledge/knowledgeTool';
@@ -19,7 +20,7 @@ interface SearchResult {
 }
 
 function stripTags(s: string): string {
-  return decodeEntities(s.replace(/<[^>]+>/g, ' '))
+  return decodeEntities(stripAllTags(s))
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -190,12 +191,93 @@ export const calculatorTool = createTool({
     expression: z.string(),
   }),
   execute: async ({ expression }) => {
-    // Safe math eval — only allow numbers and basic operators
-    const sanitized = expression.replace(/[^0-9+\-*/.() ]/g, '');
-    const result = Function(`'use strict'; return (${sanitized})`)() as number;
-    return { result, expression: sanitized };
+    const result = evalMathExpression(expression);
+    return { result, expression };
   },
 });
+
+// Tiny recursive-descent evaluator for + - * / ( ) and decimal numbers — no
+// dynamic code execution, throws a readable error on anything else.
+function evalMathExpression(expr: string): number {
+  let pos = 0;
+  const s = expr;
+  const skipWs = () => {
+    while (pos < s.length && (s[pos] === ' ' || s[pos] === '\t')) pos++;
+  };
+  const parseNumber = (): number => {
+    skipWs();
+    const start = pos;
+    while (
+      pos < s.length &&
+      ((s[pos] >= '0' && s[pos] <= '9') || s[pos] === '.')
+    ) {
+      pos++;
+    }
+    if (start === pos) {
+      throw new Error(
+        `Unexpected character "${s[pos] ?? 'end of input'}" in expression`,
+      );
+    }
+    const n = Number(s.slice(start, pos));
+    if (Number.isNaN(n)) throw new Error('Invalid number in expression');
+    return n;
+  };
+  const parseFactor = (): number => {
+    skipWs();
+    const c = s[pos];
+    if (c === '-') {
+      pos++;
+      return -parseFactor();
+    }
+    if (c === '+') {
+      pos++;
+      return parseFactor();
+    }
+    if (c === '(') {
+      pos++;
+      const v = parseAddSub();
+      skipWs();
+      if (s[pos] !== ')') throw new Error('Unbalanced parentheses');
+      pos++;
+      return v;
+    }
+    return parseNumber();
+  };
+  const parseMulDiv = (): number => {
+    let v = parseFactor();
+    for (;;) {
+      skipWs();
+      const c = s[pos];
+      if (c === '*' || c === '/') {
+        pos++;
+        const r = parseFactor();
+        v = c === '*' ? v * r : v / r;
+      } else {
+        return v;
+      }
+    }
+  };
+  const parseAddSub = (): number => {
+    let v = parseMulDiv();
+    for (;;) {
+      skipWs();
+      const c = s[pos];
+      if (c === '+' || c === '-') {
+        pos++;
+        const r = parseMulDiv();
+        v = c === '+' ? v + r : v - r;
+      } else {
+        return v;
+      }
+    }
+  };
+  const value = parseAddSub();
+  skipWs();
+  if (pos < s.length) {
+    throw new Error(`Unexpected character "${s[pos]}" in expression`);
+  }
+  return value;
+}
 
 // ─── Chart visualization tool ─────────────────────────────────────────────────
 //

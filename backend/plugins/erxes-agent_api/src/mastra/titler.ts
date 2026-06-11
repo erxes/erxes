@@ -12,6 +12,7 @@
 // ---------------------------------------------------------------------------
 
 import { IModels } from '~/connectionResolvers';
+import { trimEdgeChars } from '~/mastra/text';
 
 export const TITLER_INSTRUCTIONS = `You name chat conversations.
 Given a transcript, output a short title (3-6 words) that captures what the conversation is about.
@@ -64,7 +65,7 @@ export function sanitizeTitle(raw: string | null | undefined): string | null {
   let t = (raw || '').split('\n')[0].replace(/\s+/g, ' ').trim();
   // Strip wrapping quotes/backticks and a "Title:" prefix some models add.
   t = t.replace(/^title\s*:\s*/i, '');
-  t = t.replace(/^["'`“”‘’]+|["'`“”‘’.]+$/g, '').trim();
+  t = trimEdgeChars(t, '"\'`“”‘’', '"\'`“”‘’' + '.').trim();
   if (!t) return null;
   if (t.length > TITLE_MAX_CHARS)
     t = t.slice(0, TITLE_MAX_CHARS).trimEnd() + '…';

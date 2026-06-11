@@ -305,7 +305,9 @@ describe('workflow compiler — parallel', () => {
     const result: any = await run(parallelDef(), deps, {});
 
     expect(result.status).toBe('success');
-    expect(ops.map((o) => o.operation).sort()).toEqual([
+    expect(
+      ops.map((o) => o.operation).sort((a, b) => a.localeCompare(b)),
+    ).toEqual([
       'companies',
       'customers',
       'merge',

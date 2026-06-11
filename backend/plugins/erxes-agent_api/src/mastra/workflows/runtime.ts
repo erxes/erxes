@@ -58,8 +58,20 @@ async function getWorkflowStorage(tenant: string): Promise<any> {
 
 /** Pulls the first JSON object out of a model reply (tolerates ```json fences). */
 export function extractJsonObject(text: string): Record<string, any> {
-  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  const candidate = fenced ? fenced[1] : text;
+  // Index-scan the first ``` fence (regex with a lazy [\s\S]*? backtracks
+  // super-linearly on pathological input).
+  let candidate = text;
+  const fenceStart = text.indexOf('```');
+  if (fenceStart !== -1) {
+    let bodyStart = fenceStart + 3;
+    if (text.slice(bodyStart, bodyStart + 4).toLowerCase() === 'json') {
+      bodyStart += 4;
+    }
+    const fenceEnd = text.indexOf('```', bodyStart);
+    if (fenceEnd !== -1) {
+      candidate = text.slice(bodyStart, fenceEnd);
+    }
+  }
   const start = candidate.indexOf('{');
   const end = candidate.lastIndexOf('}');
   if (start === -1 || end <= start) {

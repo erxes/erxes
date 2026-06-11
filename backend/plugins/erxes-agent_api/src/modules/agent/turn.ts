@@ -145,11 +145,15 @@ export function extractTextToolCall(text: string): TextToolCall | null {
     }
   } catch {}
 
-  // Pattern 3 — <tool_call>...</tool_call> tags
-  const tagMatch = t.match(/<tool_call>\s*([\s\S]*?)\s*<\/tool_call>/i);
-  if (tagMatch) {
+  // Pattern 3 — <tool_call>...</tool_call> tags. Index scan instead of a
+  // lazy [\s\S]*? regex, which backtracks super-linearly on bad input.
+  const lowerT = t.toLowerCase();
+  const openTag = lowerT.indexOf('<tool_call>');
+  const closeTag =
+    openTag === -1 ? -1 : lowerT.indexOf('</tool_call>', openTag + 11);
+  if (openTag !== -1 && closeTag !== -1) {
     try {
-      const obj = JSON.parse(tagMatch[1]);
+      const obj = JSON.parse(t.slice(openTag + 11, closeTag).trim());
       if (obj?.name) {
         const args =
           typeof obj.arguments === 'string'

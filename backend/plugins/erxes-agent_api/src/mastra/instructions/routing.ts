@@ -1,3 +1,5 @@
+import { splitCamelWords } from '~/mastra/text';
+
 const SMALL_TALK_BLOCK = `
 ## Small Talk & Casual Conversation
 
@@ -72,10 +74,8 @@ const GENERIC_DESC = /^(query|mutation)\s+\S+$/i;
 
 // "fieldGroupAdd" → "field group add"; "web-search" → "web search"
 function humanize(name: string): string {
-  return (name || '')
-    .replace(/[_-]+/g, ' ')
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+  return splitCamelWords(name || '')
+    .join(' ')
     .toLowerCase()
     .trim();
 }

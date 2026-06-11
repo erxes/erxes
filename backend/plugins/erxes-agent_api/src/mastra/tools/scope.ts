@@ -111,7 +111,7 @@ export function capabilityInventory(
   for (const [plugin, mods] of [...plugins.entries()].sort(([a], [b]) =>
     a.localeCompare(b),
   )) {
-    const names = [...mods.keys()].sort();
+    const names = [...mods.keys()].sort((a, b) => a.localeCompare(b));
     const shown = names.slice(0, MAX_MODULES_SHOWN).join(', ');
     const more =
       names.length > MAX_MODULES_SHOWN
@@ -124,7 +124,9 @@ export function capabilityInventory(
   // Stable identity of the installed/allowed surface — used to bust the agent
   // cache when plugins are enabled/disabled, so the prompt never goes stale.
   const fingerprint =
-    [...plugins.keys()].sort().join(',') + `#${allowed.length}`;
+    [...plugins.keys()]
+      .sort((a, b) => a.localeCompare(b))
+      .join(',') + `#${allowed.length}`;
 
   return { lines, fingerprint };
 }

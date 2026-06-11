@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { getPlugins, getPluginAddress } from 'erxes-api-shared/utils';
 import { getCurrentAuth } from '../requestContext';
+import { splitCamelWords } from '~/mastra/text';
 
 function truncateWords(text: string, maxWords = 15): string {
   if (!text) return '';
@@ -61,11 +62,7 @@ export function humanizeOperation(
 ): string {
   const curated = CURATED_OP_DESCRIPTIONS[name];
   if (curated) return curated;
-  const words = (name || '')
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
-    .split(/\s+/)
-    .filter(Boolean);
+  const words = splitCamelWords(name || '');
 
   // Find the first recognized verb anywhere in the name; the rest is the entity.
   let verb: string | undefined;
@@ -102,11 +99,7 @@ const MODULE_LEADING_QUALIFIERS = new Set([
 // name (strip a leading filler word: allBrands → brands, currentUser → user,
 // activeExports → exports). Dynamic — no hardcoded module lists.
 export function deriveModule(operation: string): string {
-  const words = (operation || '')
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
-    .split(/\s+/)
-    .filter(Boolean);
+  const words = splitCamelWords(operation || '');
   if (!words.length) return 'other';
   if (
     words.length > 1 &&
@@ -473,7 +466,12 @@ const ENTITY_RESOLVERS: Record<string, { key: string; resolver: Resolver }> = {
 // the model should be told to provide the required arguments rather than retry
 // the same empty call.
 const INTERNAL_ERROR_RE =
-  /cannot read propert|undefined \(reading|return null for non-nullable|is not a function|reading '|\bat .+\(.+:\d+:\d+\)/i;
+  /cannot read propert|undefined \(reading|return null for non-nullable|is not a function|reading '/i;
+// Stack-frame heuristic without super-linear backtracking: a " at " marker
+// plus a ":line:col)" suffix anywhere in the message.
+const STACK_FRAME_RE = /:\d+:\d+\)/;
+const looksLikeStackFrame = (msg: string) =>
+  msg.includes(' at ') && STACK_FRAME_RE.test(msg);
 const REQUIRED_ARG_RE =
   /argument "([^"]+)" of type|"([^"]+)" is required|required, but it was not provided|was not provided/i;
 
@@ -511,7 +509,7 @@ export function sanitizeServerError(raw: string): {
 } {
   const msg = (raw || '').trim();
   const reqMatch = msg.match(REQUIRED_ARG_RE);
-  if (reqMatch && !INTERNAL_ERROR_RE.test(msg)) {
+  if (reqMatch && !INTERNAL_ERROR_RE.test(msg) && !looksLikeStackFrame(msg)) {
     // Clean validation error — surface it; it tells the model what to supply.
     return {
       error: msg,
@@ -519,7 +517,7 @@ export function sanitizeServerError(raw: string): {
         "This operation needs one or more required arguments. Re-read the operation's argument list from search_erxes_operations and call it again WITH those arguments filled in — never call it with empty args.",
     };
   }
-  if (INTERNAL_ERROR_RE.test(msg)) {
+  if (INTERNAL_ERROR_RE.test(msg) || looksLikeStackFrame(msg)) {
     // Internal server crash — hide the stack-ish detail entirely.
     return {
       error:
@@ -717,7 +715,11 @@ export async function executeErxesOperation(
     // Several erxes resolvers crash (500) when a schema-optional arg is
     // omitted. When the failure looks like such a crash, retry once with
     // neutral defaults filled into the missing args before reporting failure.
-    if (data?.errors && INTERNAL_ERROR_RE.test(joinErrors(data.errors))) {
+    if (
+      data?.errors &&
+      (INTERNAL_ERROR_RE.test(joinErrors(data.errors)) ||
+        looksLikeStackFrame(joinErrors(data.errors)))
+    ) {
       const defaulted = withNeutralDefaults(args, resolvedArgs);
       if (defaulted) {
         const retried = await runCall(defaulted);

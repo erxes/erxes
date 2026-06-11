@@ -18,6 +18,8 @@
 // failure never affects the turn itself.
 // ---------------------------------------------------------------------------
 
+import { trimEdgeChars } from '~/mastra/text';
+
 export const ACTIVITY_INSTRUCTIONS = `You narrate what an AI agent is doing right now.
 Given the agent's in-progress reasoning and/or the tool it is invoking, output ONE short status line (3-8 words) describing the CURRENT step.
 Rules:
@@ -95,7 +97,7 @@ export function sanitizeActivity(
 ): string | null {
   let t = (raw || '').split('\n')[0].replace(/\s+/g, ' ').trim();
   t = t.replace(/^(status|activity)\s*:\s*/i, '');
-  t = t.replace(/^["'`“”‘’]+|["'`“”‘’.…]+$/g, '').trim();
+  t = trimEdgeChars(t, '"\'`“”‘’', '"\'`“”‘’' + '.…').trim();
   if (!t) return null;
   if (t.length > ACTIVITY_MAX_CHARS)
     t = t.slice(0, ACTIVITY_MAX_CHARS).trimEnd() + '…';

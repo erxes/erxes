@@ -7,7 +7,11 @@
 // enough context to answer from.
 // ---------------------------------------------------------------------------
 
-import { decodeHtmlEntities, stripScriptAndStyleBlocks } from '~/mastra/html';
+import {
+  decodeHtmlEntities,
+  stripAllTags,
+  stripScriptAndStyleBlocks,
+} from '~/mastra/html';
 
 export interface KbArticleLike {
   _id: string;
@@ -26,11 +30,12 @@ const MAX_CHUNK_CHARS = 1500;
 /** Strip HTML to readable plain text. Block-level tags become line breaks. */
 export function htmlToText(html: string): string {
   return decodeHtmlEntities(
-    stripScriptAndStyleBlocks(html)
-      .replace(/<br\s*\/?>/gi, '\n')
-      .replace(/<\/(p|div|li|h[1-6]|tr|blockquote|pre)>/gi, '\n')
-      .replace(/<li[^>]*>/gi, '- ')
-      .replace(/<[^>]+>/g, ' '),
+    stripAllTags(
+      stripScriptAndStyleBlocks(html)
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/(p|div|li|h[1-6]|tr|blockquote|pre)>/gi, '\n')
+        .replace(/<li[^>]*>/gi, '- '),
+    ),
   )
     .replace(/[ \t]+/g, ' ')
     .replace(/ ?\n ?/g, '\n')

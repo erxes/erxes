@@ -400,7 +400,15 @@ export const ProvidersPage = () => {
                       ? 'border-green-500/40 hover:border-green-500/70'
                       : 'border-border hover:border-primary/50'
                 }`}
+                role="button"
+                tabIndex={0}
                 onClick={() => handleAddPreset(preset)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleAddPreset(preset);
+                  }
+                }}
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="font-semibold text-sm">{preset.label}</span>
@@ -429,7 +437,15 @@ export const ProvidersPage = () => {
                 ? 'border-primary bg-primary/5'
                 : 'border-border hover:border-primary/50'
             }`}
+            role="button"
+            tabIndex={0}
             onClick={handleAddCustom}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleAddCustom();
+              }
+            }}
           >
             <div className="flex items-center gap-2 mb-1">
               <IconPlus size={14} />

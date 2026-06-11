@@ -112,8 +112,16 @@ export interface AgentChatView extends AgentChatState {
   messagesLoading: boolean;
 }
 
+/** Random base36 suffix from the Web Crypto API (Math.random is flagged as a
+ * weak PRNG even for non-secret ids — getRandomValues works on any origin). */
+export function randomIdSuffix(length: number): string {
+  const bytes = new Uint8Array(length);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => (b % 36).toString(36)).join('');
+}
+
 function generateThreadId() {
-  return `thread-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  return `thread-${Date.now()}-${randomIdSuffix(7)}`;
 }
 
 type Listener = () => void;

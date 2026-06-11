@@ -20,7 +20,7 @@ jest.mock('../../requestContext', () => ({
   getCurrentAuth: () => mockAuth.current,
 }));
 
-const mockGetSettings = jest.fn(async () => ({ erxesApiUrl: 'http://gw' }));
+const mockGetSettings = jest.fn(async () => ({ erxesApiUrl: 'https://gw' }));
 const mockCreateWorkflow = jest.fn(async (doc: any) => ({
   _id: 'wf-1',
   version: 1,

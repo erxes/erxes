@@ -62,7 +62,7 @@ describe('expression language', () => {
     const ast = parseExpr(
       "{{steps.classify.output.intent}} == 'order' && {{trigger.payload.vip}}",
     );
-    expect(exprRefs(ast).sort()).toEqual([
+    expect(exprRefs(ast).sort((a, b) => a.localeCompare(b))).toEqual([
       'steps.classify.output.intent',
       'trigger.payload.vip',
     ]);
