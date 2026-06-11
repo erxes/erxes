@@ -17,7 +17,9 @@ export function trimEdgeChars(
   return s.slice(start, end);
 }
 
+/** True for an ASCII uppercase letter. */
 const isUpper = (ch: string) => ch >= 'A' && ch <= 'Z';
+/** True for an ASCII lowercase letter. */
 const isLower = (ch: string) => ch >= 'a' && ch <= 'z';
 
 /**

@@ -14,6 +14,7 @@
 // dependency-light and unit-testable, and default deployments never load them.
 // Type-only imports are erased at runtime, so they keep that contract.
 import type { IModels } from '~/connectionResolvers';
+import type { ProviderDocLike } from '~/mastra/providers';
 import type { MemoryContext } from './semanticRecall';
 import type { ConvoMessage } from './convo';
 
@@ -117,7 +118,7 @@ const _extractors = new Map<string, ExtractorAgent>();
 async function extractorFor(
   provider: string,
   model: string,
-  providers: unknown[],
+  providers: ProviderDocLike[],
 ): Promise<ExtractorAgent> {
   const key = `${provider}:${model}`;
   let cached = _extractors.get(key);
@@ -145,7 +146,7 @@ export async function refreshWorkingMemory(params: {
   exchange: { user: string; assistant: string };
   provider: string;
   model: string;
-  providers: unknown[];
+  providers: ProviderDocLike[];
   authCtx: { userHeader?: string; token?: string; subdomain?: string };
   isLegacy: boolean;
 }): Promise<void> {

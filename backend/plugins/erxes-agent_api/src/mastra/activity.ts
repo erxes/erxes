@@ -20,10 +20,11 @@
 
 import type { Agent } from '@mastra/core/agent';
 import { trimEdgeChars } from '~/mastra/text';
+import type { ProviderDocLike } from '~/mastra/providers';
 
 /** Auth context accepted by runWithAuth (the module itself loads lazily). */
 type AuthCtx = Parameters<
-  (typeof import('~/mastra/requestContext'))['runWithAuth']
+  typeof import('~/mastra/requestContext')['runWithAuth']
 >[0];
 
 export const ACTIVITY_INSTRUCTIONS = `You narrate what an AI agent is doing right now.
@@ -121,7 +122,7 @@ const _summarizers = new Map<string, Agent>();
 async function summarizerFor(
   provider: string,
   model: string,
-  providers: unknown[],
+  providers: ProviderDocLike[],
 ): Promise<Agent> {
   const key = `${provider}:${model}`;
   let summarizer = _summarizers.get(key);
@@ -147,7 +148,7 @@ async function summarizerFor(
 export async function summarizeActivity(params: {
   provider: string;
   model: string;
-  providers: unknown[];
+  providers: ProviderDocLike[];
   authCtx: AuthCtx;
   isLegacy: boolean;
   snapshot: ActivitySnapshot;

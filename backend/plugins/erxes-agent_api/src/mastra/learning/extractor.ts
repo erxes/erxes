@@ -11,6 +11,7 @@
 // ---------------------------------------------------------------------------
 
 import { MastraLearningType } from '@/learning/@types/learning';
+import type { ProviderDocLike } from '~/mastra/providers';
 
 export interface CandidateLearning {
   type: MastraLearningType;
@@ -150,7 +151,7 @@ async function statelessAgent(
   instructions: string,
   provider: string,
   model: string,
-  providers: unknown[],
+  providers: ProviderDocLike[],
 ): Promise<StatelessAgent> {
   const key = `${id}:${provider}:${model}`;
   let cached = _agents.get(key);
@@ -171,7 +172,7 @@ async function statelessAgent(
 export interface ExtractionRuntime {
   provider: string;
   model: string;
-  providers: unknown[];
+  providers: ProviderDocLike[];
   authCtx: { userHeader?: string; token?: string; subdomain?: string };
   isLegacy: boolean;
 }

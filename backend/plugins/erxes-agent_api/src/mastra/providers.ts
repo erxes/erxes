@@ -1,5 +1,17 @@
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 
+// The provider-document fields this module reads — satisfied by Mongoose
+// MastraProvider docs and by plain objects in tests.
+export interface ProviderDocLike {
+  provider?: string;
+  isEnabled?: boolean;
+  isOpenAICompatible?: boolean;
+  envKey?: string;
+  apiKey?: string;
+  baseUrl?: string;
+  headers?: Record<string, string>;
+}
+
 // ---------------------------------------------------------------------------
 // Kimi "thinking" compatibility shim.
 //
@@ -18,7 +30,7 @@ import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 function withReasoningContentShim(
   baseFetch: typeof fetch = globalThis.fetch,
 ): typeof fetch {
-  return (async (input: any, init?: any) => {
+  return ((input: Parameters<typeof fetch>[0], init?: RequestInit) => {
     if (init?.body && typeof init.body === 'string') {
       try {
         const payload = JSON.parse(init.body);
@@ -180,9 +192,12 @@ export const NATIVE_ERXES_AGENT_PROVIDERS = new Set([
  * Uses `||` not `??` so that a Mongoose `default: false` on an existing DB doc
  * cannot mask a preset that correctly declares `isOpenAICompatible: true`.
  */
-export function isLegacyProvider(providerName: string, docs: any[]): boolean {
+export function isLegacyProvider(
+  providerName: string,
+  docs: ProviderDocLike[],
+): boolean {
   const preset = PROVIDER_PRESETS.find((p) => p.provider === providerName);
-  const doc = docs.find((d: any) => d.provider === providerName);
+  const doc = docs.find((d) => d.provider === providerName);
   return (
     preset?.isOpenAICompatible === true || doc?.isOpenAICompatible === true
   );
@@ -197,13 +212,19 @@ export function isLegacyProvider(providerName: string, docs: any[]): boolean {
  * @param modelId       The model id stored on the agent
  * @param providerDocs  Enabled provider documents fetched from DB
  */
+// What buildModel hands to Agent: a string ref ("openai/gpt-4o") for native
+// providers, or an instantiated OpenAI-compatible model.
+export type BuiltModel =
+  | string
+  | ReturnType<ReturnType<typeof createOpenAICompatible>>;
+
 export function buildModel(
   providerName: string,
   modelId: string,
-  providerDocs: any[],
-): any {
+  providerDocs: ProviderDocLike[],
+): BuiltModel {
   const stored = providerDocs.find(
-    (p: any) => p.provider === providerName && p.isEnabled,
+    (p) => p.provider === providerName && p.isEnabled,
   );
   const preset = PROVIDER_PRESETS.find((p) => p.provider === providerName);
 

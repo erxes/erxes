@@ -13,6 +13,7 @@
 
 import { IModels } from '~/connectionResolvers';
 import { trimEdgeChars } from '~/mastra/text';
+import type { ProviderDocLike } from '~/mastra/providers';
 
 export const TITLER_INSTRUCTIONS = `You name chat conversations.
 Given a transcript, output a short title (3-6 words) that captures what the conversation is about.
@@ -79,7 +80,7 @@ const _titlers = new Map<string, any>();
 async function titlerFor(
   provider: string,
   model: string,
-  providers: any[],
+  providers: ProviderDocLike[],
 ): Promise<any> {
   const key = `${provider}:${model}`;
   let a = _titlers.get(key);
@@ -106,7 +107,7 @@ export async function maybeGenerateThreadTitle(params: {
   threadId: string;
   provider: string;
   model: string;
-  providers: any[];
+  providers: ProviderDocLike[];
   authCtx: any;
   isLegacy: boolean;
 }): Promise<string | null> {

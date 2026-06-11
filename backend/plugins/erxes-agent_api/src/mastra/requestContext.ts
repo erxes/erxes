@@ -12,6 +12,7 @@ interface RequestAuth {
 
 const authStorage = new AsyncLocalStorage<RequestAuth>();
 
+/** Run fn with the given auth visible to every async callee (tools, fetches). */
 export function runWithAuth<T>(
   ctx: RequestAuth,
   fn: () => Promise<T>,
@@ -19,6 +20,7 @@ export function runWithAuth<T>(
   return authStorage.run(ctx, fn);
 }
 
+/** The auth context of the current async chain, when inside runWithAuth. */
 export function getCurrentAuth(): RequestAuth | undefined {
   return authStorage.getStore();
 }
