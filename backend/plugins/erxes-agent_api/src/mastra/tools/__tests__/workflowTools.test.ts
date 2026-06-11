@@ -129,7 +129,11 @@ describe('workflowGuideTool', () => {
 describe('workflowValidateTool', () => {
   it('passes a valid definition against the live registry', async () => {
     const res = await (workflowValidateTool as any).execute({ definition: definition() });
-    expect(res).toEqual({ ok: true, errors: [] });
+    expect(res.ok).toBe(true);
+    expect(res.errors).toEqual([]);
+    // The save-now nudge: without it models end the turn after validation
+    // and the workflow never gets created.
+    expect(res.instruction).toMatch(/workflowSave NOW/);
   });
 
   it('reports nonexistent operations with structured errors', async () => {

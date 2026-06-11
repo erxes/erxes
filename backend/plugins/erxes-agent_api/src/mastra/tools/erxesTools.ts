@@ -24,7 +24,21 @@ const OPERATION_VERBS: Record<string, string> = {
 export const asBearer = (token?: string | null): string =>
   !token ? '' : /^Bearer\s/i.test(token) ? token : `Bearer ${token}`;
 
+// Curated descriptions for high-value operations whose names are unguessable
+// from search keywords. The erxes schema carries no field descriptions, so the
+// auto-derived text for these is useless (tagsTag → "tags tag") and the model
+// burns whole turns hunting for a capability that exists. Keyed by exact
+// operation name; consulted before the humanized fallback.
+export const CURATED_OP_DESCRIPTIONS: Record<string, string> = {
+  tagsTag:
+    'Assign tags to records — set the tags of customers, companies, or other records. Args: type (e.g. "core:customer"), targetIds (record ids), tagIds (tag ids; replaces the record\'s tags)',
+  tagsAdd: 'Create a new tag (does NOT assign it to any record — use tagsTag for that)',
+  tags: 'List existing tags (filter by type, e.g. "core:customer")',
+};
+
 export function humanizeOperation(name: string, opType: 'query' | 'mutation'): string {
+  const curated = CURATED_OP_DESCRIPTIONS[name];
+  if (curated) return curated;
   const words = (name || '')
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
     .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
@@ -266,13 +280,13 @@ function chooseResponseFields(
 
 // Returns true when the value carries no meaningful data and should be omitted
 // from the GraphQL operation rather than sent as an empty/noise variable.
-// LLMs routinely fill optional args with "" / {} / [] as a "nothing here"
-// placeholder; sending those to the API causes erxes to reject the request.
+// LLMs routinely fill optional string args with "" as a "nothing here"
+// placeholder. Empty arrays/objects are deliberately KEPT: models pass them on
+// purpose (e.g. customersCount(types: []) to satisfy a resolver that iterates
+// the arg), and stripping them turns a correct call into a server crash.
 function isNoopValue(val: any): boolean {
   if (val === undefined || val === null) return true;
   if (typeof val === 'string' && val.trim() === '') return true;
-  if (Array.isArray(val) && val.length === 0) return true;
-  if (typeof val === 'object' && !Array.isArray(val) && Object.keys(val).length === 0) return true;
   return false;
 }
 
@@ -393,6 +407,34 @@ const INTERNAL_ERROR_RE =
   /cannot read propert|undefined \(reading|return null for non-nullable|is not a function|reading '|\bat .+\(.+:\d+:\d+\)/i;
 const REQUIRED_ARG_RE =
   /argument "([^"]+)" of type|"([^"]+)" is required|required, but it was not provided|was not provided/i;
+
+// Neutral defaults ([] for list args, {} for input-object args) for every
+// argument the model did not provide. Used to auto-recover from erxes
+// resolvers that dereference optional args without guarding (e.g.
+// getTicketPipelines reads filter.name, customersCount iterates types) and
+// crash when the arg is legitimately omitted. Returns null when there is
+// nothing to fill — no retry possible.
+function withNeutralDefaults(
+  argDefs: any[],
+  provided: Record<string, any>,
+): Record<string, any> | null {
+  const filled: Record<string, any> = { ...provided };
+  let added = false;
+  for (const a of argDefs || []) {
+    if (!isNoopValue(filled[a.name])) continue;
+    let t = a.type;
+    while (t && t.kind === 'NON_NULL') t = t.ofType;
+    if (!t) continue;
+    if (t.kind === 'LIST') {
+      filled[a.name] = [];
+      added = true;
+    } else if (t.kind === 'INPUT_OBJECT') {
+      filled[a.name] = {};
+      added = true;
+    }
+  }
+  return added ? filled : null;
+}
 
 export function sanitizeServerError(raw: string): { error: string; instruction: string } {
   const msg = (raw || '').trim();
@@ -566,26 +608,41 @@ export async function executeErxesOperation(
     objectFieldsMap,
   );
 
-  const { query: finalQuery, variables: finalVariables } = buildGraphqlOperation(
-    erxesOperation,
-    erxesOperationType,
-    args,
-    resolvedArgs,
-    op.returnType,
-    finalResponseFields,
-  );
+  const runCall = async (callArgs: Record<string, any>) => {
+    const { query, variables } = buildGraphqlOperation(
+      erxesOperation,
+      erxesOperationType,
+      args,
+      callArgs,
+      op.returnType,
+      finalResponseFields,
+    );
+    const response = await fetch(`${apiUrl}/graphql`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...authHeaders },
+      body: JSON.stringify({ query, variables }),
+    });
+    return (await response.json()) as any;
+  };
 
-  const response = await fetch(`${apiUrl}/graphql`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...authHeaders },
-    body: JSON.stringify({ query: finalQuery, variables: finalVariables }),
-  });
+  const joinErrors = (errs: any[]) => errs.map((e: any) => e.message).join('; ');
 
-  const data = (await response.json()) as any;
+  let data = await runCall(resolvedArgs);
 
-  if (data.errors) {
-    const raw = data.errors.map((e: any) => e.message).join('; ');
-    return buildNotFoundResult(raw, apiUrl, authHeaders);
+  // ── Crash auto-recovery ───────────────────────────────────────────────
+  // Several erxes resolvers crash (500) when a schema-optional arg is
+  // omitted. When the failure looks like such a crash, retry once with
+  // neutral defaults filled into the missing args before reporting failure.
+  if (data?.errors && INTERNAL_ERROR_RE.test(joinErrors(data.errors))) {
+    const defaulted = withNeutralDefaults(args, resolvedArgs);
+    if (defaulted) {
+      const retried = await runCall(defaulted);
+      if (!retried?.errors) data = retried;
+    }
+  }
+
+  if (data?.errors) {
+    return buildNotFoundResult(joinErrors(data.errors), apiUrl, authHeaders);
   }
   return data?.data?.[erxesOperation] ?? null;
  } catch (e: any) {

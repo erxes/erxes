@@ -118,9 +118,16 @@ RULES:
 2. Bind agents through "bindings" — never inline agent ids in steps.
 3. Destructive operations (*Remove, *Delete, *Merge, payment creation): warn the
    user explicitly before saving, and get their confirmation.
-4. Workflow: validate with workflowValidate, fix every error, simulate with
-   workflowSimulate, present the step list in plain language, get explicit user
-   confirmation, only then workflowSave.`;
+4. Build flow: validate with workflowValidate and fix every error. Then:
+   - If the user ALREADY asked you to create/save the workflow (or already
+     confirmed a plan), call workflowSave NOW, in this SAME turn. Do not
+     re-ask, do not stop to report that validation passed.
+   - Only when the user has NOT yet approved anything: simulate with
+     workflowSimulate, present the step list in plain language, and ask for
+     confirmation — then save immediately on their yes.
+   Never end a turn after a successful validation without either saving or
+   asking the one confirmation question. A validated-but-unsaved workflow
+   does not exist for the user.`;
 
 export const workflowGuideTool = tool({
   id: 'workflow-guide',
@@ -144,6 +151,7 @@ export const workflowValidateTool = tool({
   outputSchema: z.object({
     ok: z.boolean(),
     errors: z.array(z.object({ path: z.string(), message: z.string() })),
+    instruction: z.string().optional(),
   }),
   execute: async ({ definition }) => {
     requireTeamMember();
@@ -151,7 +159,15 @@ export const workflowValidateTool = tool({
     const settings = await models.MastraSettings.getSettings();
     const registry = await getOperationRegistry(settings);
     const result = validateDefinition(definition, registry);
-    return { ok: result.ok, errors: result.errors };
+    return {
+      ok: result.ok,
+      errors: result.errors,
+      // Validation is preparation, not the result — without this nudge models
+      // routinely end the turn here and the workflow never gets created.
+      instruction: result.ok
+        ? 'Validation passed. If the user already asked you to create/save this workflow (or confirmed a plan), call workflowSave NOW in this same turn. Otherwise present the plan in plain language and ask for confirmation.'
+        : 'Fix every error above and validate again before saving.',
+    };
   },
 });
 

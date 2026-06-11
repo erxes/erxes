@@ -20,7 +20,7 @@ const agentCache = new Map<string, Agent>();
 const toolsCache = new Map<string, Record<string, any>>();
 
 // Increment this whenever routing.ts, the meta-tools, or provider logic changes.
-const ROUTING_VERSION = 19;
+const ROUTING_VERSION = 20;
 
 export interface AgentWithTools {
   agent: Agent;
@@ -90,15 +90,29 @@ export async function getOrCreateAgent(agentConfig: any, models: any): Promise<A
     builtins: builtinInfos,
   });
 
+  // search → execute → answer needs several steps, and a single workflow
+  // build is 20+ (guide, searches, entity lookups, tag creation, validate,
+  // simulate, save). A low cap ends the turn mid-task with a confident-
+  // sounding partial answer (observed live TWICE: caps of 10 and 16 both ran
+  // out right after workflowValidate, one step before workflowSave), so when
+  // the agent has tools, the stored value acts as a floor-protected budget.
+  const configuredSteps = agentConfig.maxSteps || 8;
+  const maxSteps = toolNames.length ? Math.max(configuredSteps, 32) : configuredSteps;
+
   const agent = new Agent({
     id: agentConfig.agentId,
     name: agentConfig.name,
     instructions: systemPrompt,
     model,
     tools: toolNames.length ? tools : undefined,
-    // search → execute → answer needs several steps; default generously.
-    defaultOptions: { maxSteps: agentConfig.maxSteps || 8 },
-  });
+    // The modern loop (generate/stream) reads defaultOptions; the legacy
+    // OpenAI-compatible loop (generateLegacy/streamLegacy) reads its own two
+    // keys and otherwise falls back to Mastra's internal default — all three
+    // must be set or legacy turns get silently truncated mid-task.
+    defaultOptions: { maxSteps },
+    defaultGenerateOptionsLegacy: { maxSteps },
+    defaultStreamOptionsLegacy: { maxSteps },
+  } as any);
 
   agentCache.set(cacheKey, agent);
   toolsCache.set(cacheKey, tools);

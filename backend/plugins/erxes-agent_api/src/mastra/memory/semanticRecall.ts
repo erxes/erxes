@@ -105,7 +105,15 @@ export function formatRecallBlock(hits: Array<{ text?: string }>): string | null
   const texts = hits.map((h) => (h.text ?? '').trim()).filter(Boolean);
   if (!texts.length) return null;
   const lines = texts.map((t) => `- ${t}`).join('\n');
-  return `Relevant context from earlier conversations:\n${lines}`;
+  // The staleness caveat matters: recalled snippets include old ERROR reports
+  // ("operation X fails with …") that outlive the bug they describe — observed
+  // live steering an agent away from operations that now work. Current tool
+  // results must always win over recollections.
+  return (
+    'Relevant context from earlier conversations (recollections, possibly outdated — ' +
+    'if a recollection says something failed or was broken, ignore it and trust your ' +
+    'current tool results instead):\n' + lines
+  );
 }
 
 /** Deterministic UUID-shaped point id from the source message id (idempotent upserts). */
