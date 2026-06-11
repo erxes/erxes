@@ -4,54 +4,39 @@ dotenv.config();
 
 import { Collection, Db, MongoClient } from 'mongodb';
 
-const { MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true' } =
-  process.env;
+const {
+  MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
+
+  CORE_MONGO_URL,
+} = process.env;
 
 if (!MONGO_URL) {
-  throw new Error(`Environment variable MONGO_URL not set.`);
+  throw new Error('Environment variable MONGO_URL not set.');
 }
 
-// Subdomains derived from the org URLs:
-//   old: https://dts.next.erxes.io/         → subdomain "dts"
-//   new: https://dtsdistribution.next.erxes.io/ → subdomain "dtsdistribution"
+//   old: https://dts.next.erxes.io/              → subdomain "dts"
+//   new: https://dtsdistribution.next.erxes.io/  → subdomain "dtsdistribution"
 const SOURCE_SUBDOMAIN = 'dts';
 const TARGET_SUBDOMAIN = 'dtsdistribution';
 
-async function resolveOrgDb(
-  client: MongoClient,
-  subdomain: string,
-): Promise<string> {
-  const coreDb = client.db('erxes');
-  const org = await coreDb
-    .collection('organizations')
-    .findOne({ subdomain }, { projection: { _id: 1 } });
-
-  if (!org) {
-    throw new Error(
-      `Organization with subdomain "${subdomain}" not found in erxes.organizations`,
-    );
-  }
-
-  return `erxes_${org._id}`;
+function extractDbName(url: string): string {
+  const withoutQuery = url.split('?')[0];
+  return withoutQuery.slice(withoutQuery.lastIndexOf('/') + 1);
 }
 
-// Dependency order matters:
-// uoms must come before products (products.uom references uom code)
-// product_categories must come before products (products.categoryId)
 const COLLECTIONS = [
-  'uoms', // core — connectionResolvers: models.Uoms
-  'product_categories', // core — models.ProductCategories
-  'posclient_product_categories', // POS plugin copy
-  'products', // core — models.Products
-  'posclient_products', // POS plugin copy
-  'product_groups', // POS plugin
-  'product_packages', // core — models.Packages (bundles of products)
-  'product_rules', // core — models.ProductRules
-  'products_configs', // core — models.ProductsConfigs
-  'posclient_products_configs', // POS — models.ProductsConfigs (posclient_api)
+  'uoms',
+  'product_categories',
+  'posclient_product_categories',
+  'products',
+  'posclient_products',
+  'product_groups',
+  'product_packages',
+  'product_rules',
+  'products_configs',
+  'posclient_products_configs',
 ];
 
-// Collections that enforce a unique `code` field (skip on conflict)
 const UNIQUE_CODE_COLLECTIONS = new Set([
   'uoms',
   'product_categories',
@@ -71,34 +56,29 @@ async function migrateCollection(
 
   const hasCodeField = UNIQUE_CODE_COLLECTIONS.has(collectionName);
 
-  // Build a set of existing codes/ids in target to detect conflicts
   const existingIds = new Set<string>();
   const existingCodes = new Set<string>();
 
-  const existingCursor = dstCol.find({}, { projection: { _id: 1, code: 1 } });
-  for await (const doc of existingCursor) {
+  for await (const doc of dstCol.find(
+    {},
+    { projection: { _id: 1, code: 1 } },
+  )) {
     existingIds.add(String(doc._id));
     if (doc.code) existingCodes.add(String(doc.code));
   }
 
-  const cursor = srcCol.find({});
-
-  for await (const doc of cursor) {
+  for await (const doc of srcCol.find({})) {
     const id = String(doc._id);
 
-    // Skip if _id already exists in target
     if (existingIds.has(id)) {
-      console.log(
-        `  [SKIP] ${collectionName}: _id "${id}" already exists in target`,
-      );
+      console.log(`  [SKIP] ${collectionName}: _id "${id}" already exists`);
       stats.skipped++;
       continue;
     }
 
-    // Skip if code already exists in target (unique constraint)
     if (hasCodeField && doc.code && existingCodes.has(String(doc.code))) {
       console.log(
-        `  [SKIP] ${collectionName}: code "${doc.code}" already exists in target`,
+        `  [SKIP] ${collectionName}: code "${doc.code}" already exists`,
       );
       stats.skipped++;
       continue;
@@ -110,7 +90,6 @@ async function migrateCollection(
       if (doc.code) existingCodes.add(String(doc.code));
       stats.inserted++;
     } catch (err: any) {
-      // Duplicate key errors (race condition or missed check)
       if (err.code === 11000) {
         console.log(
           `  [SKIP] ${collectionName}: duplicate key for _id "${id}": ${err.message}`,
@@ -129,21 +108,46 @@ async function migrateCollection(
 }
 
 async function main() {
-  const baseUrl = MONGO_URL.split('/').slice(0, -1).join('/');
-  const client = new MongoClient(baseUrl);
+  const coreUrl = CORE_MONGO_URL || MONGO_URL;
+  const coreDbName = extractDbName(coreUrl);
+
+  const client = new MongoClient(coreUrl);
 
   try {
     await client.connect();
     console.log('Connected to MongoDB');
+    console.log(`Core DB: ${coreDbName}`);
 
-    const sourceDbName = await resolveOrgDb(client, SOURCE_SUBDOMAIN);
-    const targetDbName = await resolveOrgDb(client, TARGET_SUBDOMAIN);
+    const coreDb = client.db(coreDbName);
 
-    const srcDb: Db = client.db(sourceDbName);
-    const dstDb: Db = client.db(targetDbName);
+    const sourceOrg = await coreDb
+      .collection('organizations')
+      .findOne({ subdomain: SOURCE_SUBDOMAIN }, { projection: { _id: 1 } });
+
+    if (!sourceOrg) {
+      throw new Error(
+        `Organization with subdomain "${SOURCE_SUBDOMAIN}" not found in ${coreDbName}.organizations`,
+      );
+    }
+
+    const targetOrg = await coreDb
+      .collection('organizations')
+      .findOne({ subdomain: TARGET_SUBDOMAIN }, { projection: { _id: 1 } });
+
+    if (!targetOrg) {
+      throw new Error(
+        `Organization with subdomain "${TARGET_SUBDOMAIN}" not found in ${coreDbName}.organizations`,
+      );
+    }
+
+    const sourceDbName = `erxes_${sourceOrg._id}`;
+    const targetDbName = `erxes_${targetOrg._id}`;
 
     console.log(`\nSource: ${SOURCE_SUBDOMAIN} → ${sourceDbName}`);
     console.log(`Target: ${TARGET_SUBDOMAIN} → ${targetDbName}\n`);
+
+    const srcDb: Db = client.db(sourceDbName);
+    const dstDb: Db = client.db(targetDbName);
 
     const summary: Record<
       string,
@@ -198,7 +202,7 @@ async function main() {
     }
   } finally {
     await client.close();
-    console.log('\nDisconnected from MongoDB');
+    console.log('Disconnected from MongoDB');
   }
 }
 
