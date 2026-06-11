@@ -47,7 +47,15 @@ export const MASTRA_THREADS = gql`
 export const MASTRA_THREAD_MESSAGES = gql`
   query MastraThreadMessages($threadId: String!) {
     mastraThreadMessages(threadId: $threadId) {
-      _id role content meta createdAt
+      _id role content meta attachments createdAt
+    }
+  }
+`;
+
+export const MASTRA_ATTACHMENT_STORAGE_STATUS = gql`
+  query MastraAttachmentStorageStatus {
+    mastraAttachmentStorageStatus {
+      configured serviceType enabled
     }
   }
 `;
@@ -97,7 +105,10 @@ export const MASTRA_PROVIDER_MODELS = gql`
 export const MASTRA_SETTINGS = gql`
   query MastraSettings {
     mastraSettings {
-      _id erxesApiUrl erxesApiToken defaultAgentId
+      _id erxesApiUrl erxesApiToken defaultAgentId attachmentsEnabled
+      attachmentStorage {
+        configured serviceType enabled
+      }
       advancedMemory
       advancedMemoryStatus {
         enabled embedder embedderModel qdrantUrl qdrantReachable collection

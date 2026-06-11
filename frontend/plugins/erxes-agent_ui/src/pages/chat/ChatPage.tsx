@@ -17,20 +17,24 @@ import {
   IconTool,
   IconLoader2,
   IconPlayerStopFilled,
+  IconPaperclip,
+  IconFileText,
+  IconX,
 } from '@tabler/icons-react';
 import {
   Badge,
   Breadcrumb,
   Button,
   Empty,
+  REACT_APP_API_URL,
   Separator,
   Skeleton,
   Textarea,
   Tooltip,
 } from 'erxes-ui';
 import { PageHeader } from 'ui-modules';
-import { MASTRA_AGENTS } from '~/graphql/queries';
-import { chatStore, Message, ToolCallInfo } from './chatStore';
+import { MASTRA_AGENTS, MASTRA_ATTACHMENT_STORAGE_STATUS } from '~/graphql/queries';
+import { chatStore, ChatAttachment, Message, ToolCallInfo } from './chatStore';
 
 // ─── Inline Markdown Nodes ───────────────────────────────────────────────────
 
@@ -281,6 +285,153 @@ const CopyButton = ({ text }: { text: string }) => {
   );
 };
 
+// ─── Attachments ─────────────────────────────────────────────────────────────
+//
+// Files ride on the instance's existing upload storage: the composer posts
+// them to core's /upload-file (S3/R2/Azure/GCS/local — whatever is configured)
+// and gets back a storage key. Private files render back through /read-file.
+
+const isImageAttachment = (att: { name: string; type?: string }) =>
+  att.type?.startsWith('image/') ||
+  /\.(png|jpe?g|gif|webp|svg|bmp|avif)$/i.test(att.name);
+
+const attachmentSrc = (att: ChatAttachment) =>
+  /^https?:\/\//i.test(att.url)
+    ? att.url
+    : `${REACT_APP_API_URL}/read-file?key=${encodeURIComponent(att.url)}&inline=true&name=${encodeURIComponent(att.name)}`;
+
+const formatFileSize = (size?: number) => {
+  if (!size || size <= 0) return '';
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+// Attachments inside a message bubble: images inline, other files as
+// download chips. `onDark` adapts the chip colors to the user bubble.
+const MessageAttachments = ({
+  attachments,
+  onDark,
+}: {
+  attachments: ChatAttachment[];
+  onDark?: boolean;
+}) => {
+  const images = attachments.filter(isImageAttachment);
+  const files = attachments.filter((a) => !isImageAttachment(a));
+
+  return (
+    <div className="space-y-1.5 mb-1.5">
+      {images.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {images.map((att, i) => (
+            <a
+              key={`${att.url}-${i}`}
+              href={attachmentSrc(att)}
+              target="_blank"
+              rel="noreferrer"
+              title={att.name}
+            >
+              <img
+                src={attachmentSrc(att)}
+                alt={att.name}
+                className="max-h-48 max-w-full rounded-lg border border-black/10 object-cover"
+              />
+            </a>
+          ))}
+        </div>
+      )}
+      {files.map((att, i) => (
+        <a
+          key={`${att.url}-${i}`}
+          href={attachmentSrc(att)}
+          target="_blank"
+          rel="noreferrer"
+          className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs transition-colors ${
+            onDark
+              ? 'bg-primary-foreground/15 hover:bg-primary-foreground/25 text-primary-foreground'
+              : 'bg-background/60 hover:bg-background border border-border/60'
+          }`}
+        >
+          <IconFileText className="size-4 shrink-0" />
+          <span className="truncate font-medium">{att.name}</span>
+          {att.size ? (
+            <span className={onDark ? 'text-primary-foreground/60' : 'text-muted-foreground'}>
+              {formatFileSize(att.size)}
+            </span>
+          ) : null}
+        </a>
+      ))}
+    </div>
+  );
+};
+
+// A file in the composer, before the message is sent.
+interface PendingAttachment {
+  id: string;
+  name: string;
+  type: string;
+  size: number;
+  url?: string; // storage key once uploaded
+  status: 'uploading' | 'done' | 'error';
+  error?: string;
+}
+
+// Upload one file through core's /upload-file (same endpoint and storage the
+// rest of erxes uses). Returns the storage key or public URL.
+async function uploadToStorage(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch(`${REACT_APP_API_URL}/upload-file?kind=main`, {
+    method: 'POST',
+    credentials: 'include',
+    body: formData,
+  });
+  const text = await res.text();
+  if (!res.ok) {
+    throw new Error(text || `Upload failed (HTTP ${res.status})`);
+  }
+  return text.replace(/^"|"$/g, '');
+}
+
+const ComposerAttachmentChip = ({
+  att,
+  onRemove,
+}: {
+  att: PendingAttachment;
+  onRemove: () => void;
+}) => (
+  <div
+    className={`flex items-center gap-1.5 rounded-lg border px-2 py-1 text-xs max-w-56 ${
+      att.status === 'error'
+        ? 'border-destructive/40 bg-destructive/8 text-destructive'
+        : 'border-border bg-muted/50'
+    }`}
+    title={att.status === 'error' ? att.error : att.name}
+  >
+    {att.status === 'uploading' ? (
+      <IconLoader2 className="size-3.5 shrink-0 animate-spin text-muted-foreground" />
+    ) : att.status === 'error' ? (
+      <IconAlertCircle className="size-3.5 shrink-0" />
+    ) : isImageAttachment(att) ? (
+      <IconPaperclip className="size-3.5 shrink-0 text-muted-foreground" />
+    ) : (
+      <IconFileText className="size-3.5 shrink-0 text-muted-foreground" />
+    )}
+    <span className="truncate">{att.name}</span>
+    {att.size ? (
+      <span className="text-muted-foreground shrink-0">{formatFileSize(att.size)}</span>
+    ) : null}
+    <button
+      type="button"
+      onClick={onRemove}
+      className="shrink-0 rounded hover:bg-black/8 dark:hover:bg-white/10 p-0.5 text-muted-foreground hover:text-foreground"
+    >
+      <IconX className="size-3" />
+    </button>
+  </div>
+);
+
 // ─── Waiting indicator ───────────────────────────────────────────────────────
 //
 // Shown only between sending and the first streamed event — once thinking /
@@ -432,6 +583,9 @@ const MessageBubble = ({ msg }: { msg: Message }) => {
     return (
       <div className="flex justify-end">
         <div className="max-w-[78%] bg-primary text-primary-foreground rounded-2xl rounded-br-sm px-4 py-2.5">
+          {msg.attachments && msg.attachments.length > 0 && (
+            <MessageAttachments attachments={msg.attachments} onDark />
+          )}
           <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
           <p className="text-[10px] mt-1 text-primary-foreground/60">
             {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -509,13 +663,19 @@ export const ChatPage = () => {
   useEffect(() => chatStore.subscribe(forceUpdate), []);
 
   const { data, loading: agentsLoading } = useQuery(MASTRA_AGENTS);
+  // Whether file attachments are usable: instance storage configured AND the
+  // plugin toggle on. When off, the chat is text-only (no attach button).
+  const { data: storageData } = useQuery(MASTRA_ATTACHMENT_STORAGE_STATUS);
+  const attachmentsEnabled = !!storageData?.mastraAttachmentStorageStatus?.enabled;
 
   const agents = (data?.mastraAgents || []).filter((a: any) => a.isEnabled);
   const selectedAgent = agentId ? agents.find((a: any) => a._id === agentId) ?? null : null;
 
   const [input, setInput] = useState('');
+  const [pendingAtts, setPendingAtts] = useState<PendingAttachment[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const state = agentId ? chatStore.getState(agentId) : undefined;
   const sessions = state?.sessions ?? [];
@@ -573,13 +733,73 @@ export const ChatPage = () => {
     }
   };
 
+  // ── Attachment handling ──────────────────────────────────────────────────
+
+  const addFiles = (files: FileList | File[]) => {
+    if (!attachmentsEnabled) return;
+    const list = Array.from(files).slice(0, 10 - pendingAtts.length);
+
+    for (const file of list) {
+      const id = `att-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const entry: PendingAttachment = {
+        id,
+        name: file.name || 'pasted-image.png',
+        type: file.type || 'application/octet-stream',
+        size: file.size,
+        status: 'uploading',
+      };
+      setPendingAtts((prev) => [...prev, entry]);
+
+      uploadToStorage(file)
+        .then((key) => {
+          setPendingAtts((prev) =>
+            prev.map((a) => (a.id === id ? { ...a, url: key, status: 'done' as const } : a)),
+          );
+        })
+        .catch((err: any) => {
+          setPendingAtts((prev) =>
+            prev.map((a) =>
+              a.id === id
+                ? { ...a, status: 'error' as const, error: err?.message || 'Upload failed' }
+                : a,
+            ),
+          );
+        });
+    }
+  };
+
+  const removeAttachment = (id: string) => {
+    setPendingAtts((prev) => prev.filter((a) => a.id !== id));
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    if (!attachmentsEnabled) return;
+    const files = Array.from(e.clipboardData?.files || []);
+    if (files.length) {
+      e.preventDefault();
+      addFiles(files);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    if (!attachmentsEnabled) return;
+    e.preventDefault();
+    if (e.dataTransfer?.files?.length) addFiles(e.dataTransfer.files);
+  };
+
+  const uploadsInFlight = pendingAtts.some((a) => a.status === 'uploading');
+
   const handleSend = () => {
-    if (!input.trim() || !selectedAgent || chatLoading || !agentId) return;
+    if (!input.trim() || !selectedAgent || chatLoading || !agentId || uploadsInFlight) return;
     const message = input.trim();
+    const attachments: ChatAttachment[] = pendingAtts
+      .filter((a) => a.status === 'done' && a.url)
+      .map((a) => ({ url: a.url!, name: a.name, type: a.type, size: a.size }));
     setInput('');
+    setPendingAtts([]);
     // Fire-and-forget: the store holds the Apollo client reference so the
     // request continues even if the user navigates away before it completes.
-    chatStore.sendMessage(apolloClient, agentId, selectedAgent.agentId, message);
+    chatStore.sendMessage(apolloClient, agentId, selectedAgent.agentId, message, attachments);
   };
 
   const handleStop = () => {
@@ -802,13 +1022,61 @@ export const ChatPage = () => {
               </div>
 
               {/* Input bar */}
-              <div className="border-t p-3 bg-background">
+              <div
+                className="border-t p-3 bg-background"
+                onDrop={handleDrop}
+                onDragOver={(e) => attachmentsEnabled && e.preventDefault()}
+              >
+                {pendingAtts.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {pendingAtts.map((att) => (
+                      <ComposerAttachmentChip
+                        key={att.id}
+                        att={att}
+                        onRemove={() => removeAttachment(att.id)}
+                      />
+                    ))}
+                  </div>
+                )}
                 <div className="flex gap-2 items-end">
+                  {attachmentsEnabled && (
+                    <>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        multiple
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files?.length) addFiles(e.target.files);
+                          e.target.value = '';
+                        }}
+                      />
+                      <Tooltip.Provider>
+                        <Tooltip>
+                          <Tooltip.Trigger asChild>
+                            <Button
+                              size="icon"
+                              variant="outline"
+                              className="size-[38px] shrink-0"
+                              onClick={() => fileInputRef.current?.click()}
+                              disabled={chatLoading || pendingAtts.length >= 10}
+                            >
+                              <IconPaperclip className="size-4" />
+                            </Button>
+                          </Tooltip.Trigger>
+                          <Tooltip.Content>
+                            Attach files (images, PDF, Excel, Word, …)
+                          </Tooltip.Content>
+                        </Tooltip>
+                      </Tooltip.Provider>
+                    </>
+                  )}
                   <Textarea
                     ref={textareaRef}
                     value={input}
                     onChange={(e: any) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
+                    onPaste={handlePaste}
                     placeholder={`Message ${selectedAgent.name}…`}
                     rows={1}
                     className="flex-1 min-h-[38px] max-h-28 resize-none py-2"
@@ -834,7 +1102,7 @@ export const ChatPage = () => {
                       size="icon"
                       className="size-[38px] shrink-0"
                       onClick={handleSend}
-                      disabled={!input.trim()}
+                      disabled={!input.trim() || uploadsInFlight}
                     >
                       <IconSend className="size-4" />
                     </Button>
@@ -842,6 +1110,7 @@ export const ChatPage = () => {
                 </div>
                 <p className="text-[11px] text-muted-foreground mt-1.5 pl-0.5">
                   Enter to send · Shift+Enter for new line
+                  {attachmentsEnabled && ' · drop or paste files to attach'}
                 </p>
               </div>
             </>

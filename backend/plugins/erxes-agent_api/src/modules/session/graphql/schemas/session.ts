@@ -16,6 +16,7 @@ export const types = `
     role: String
     content: String
     meta: JSON
+    attachments: JSON
     createdAt: Date
   }
 `;

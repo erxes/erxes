@@ -22,7 +22,8 @@ import {
   synthesizeFromToolResults,
   toUserFacingError,
 } from '@/agent/turn';
-import { IMastraToolCall, IMastraTurnPart } from '@/session/@types/session';
+import { IMastraChatAttachment, IMastraToolCall, IMastraTurnPart } from '@/session/@types/session';
+import { attachmentStorageStatus } from '@/settings/graphql/resolvers/queries/settings';
 
 export const router: Router = Router();
 
@@ -100,6 +101,29 @@ function normalizeChunk(raw: any): StreamEvent | null {
   }
 }
 
+// Shape-check the attachments array a chat turn may carry. Returns the
+// sanitized list, or null when the payload is malformed.
+const MAX_ATTACHMENTS_PER_MESSAGE = 10;
+function sanitizeAttachments(raw: any): IMastraChatAttachment[] | null {
+  if (raw === undefined || raw === null) return [];
+  if (!Array.isArray(raw) || raw.length > MAX_ATTACHMENTS_PER_MESSAGE) return null;
+
+  const out: IMastraChatAttachment[] = [];
+  for (const a of raw) {
+    if (!a || typeof a.url !== 'string' || typeof a.name !== 'string') return null;
+    const url = a.url.trim();
+    const name = a.name.trim();
+    if (!url || url.length > 2048 || !name || name.length > 512) return null;
+    out.push({
+      url,
+      name,
+      type: typeof a.type === 'string' ? a.type.slice(0, 128) : undefined,
+      size: typeof a.size === 'number' && a.size >= 0 ? a.size : undefined,
+    });
+  }
+  return out;
+}
+
 router.post('/chat/stream', async (req, res) => {
   const user = extractUserFromHeader(req.headers);
   if (!user?._id) {
@@ -111,8 +135,25 @@ router.post('/chat/stream', async (req, res) => {
     return res.status(400).json({ error: 'agentId and message are required' });
   }
 
+  const attachments = sanitizeAttachments(req.body?.attachments);
+  if (attachments === null) {
+    return res.status(400).json({ error: 'Invalid attachments payload' });
+  }
+
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
+
+  // Attachments require the instance's upload storage — reject early (the UI
+  // hides the attach button in this state, so this is defense in depth).
+  if (attachments.length) {
+    const storage = await attachmentStorageStatus(models, subdomain);
+    if (!storage.enabled) {
+      return res.status(400).json({
+        error:
+          'File attachments are not available: no upload storage is configured on this instance. The conversation is text-only.',
+      });
+    }
+  }
 
   // The plugin's global cors() stamps `Access-Control-Allow-Origin: *` on
   // every response, and the gateway proxy pipes upstream headers over its own
@@ -208,6 +249,7 @@ router.post('/chat/stream', async (req, res) => {
       agentId,
       message,
       threadId,
+      attachments,
     });
     const { agent, tools, convo, authCtx, isLegacy } = prepared;
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { IconCheck, IconLock, IconBrain, IconBook } from '@tabler/icons-react';
+import { IconCheck, IconLock, IconBrain, IconBook, IconPaperclip } from '@tabler/icons-react';
 import { Button, Label, Input, Badge } from 'erxes-ui';
 import { MASTRA_SETTINGS, MASTRA_AGENTS } from '~/graphql/queries';
 import { MASTRA_SETTINGS_SAVE } from '~/graphql/mutations';
@@ -14,6 +14,7 @@ export const GeneralSettingsPage = () => {
     erxesApiUrl: 'http://localhost:4000',
     erxesApiToken: '',
     defaultAgentId: '',
+    attachmentsEnabled: true,
   });
 
   const [saved, setSaved] = useState(false);
@@ -25,6 +26,7 @@ export const GeneralSettingsPage = () => {
         erxesApiUrl: s.erxesApiUrl || 'http://localhost:4000',
         erxesApiToken: s.erxesApiToken || '',
         defaultAgentId: s.defaultAgentId || '',
+        attachmentsEnabled: s.attachmentsEnabled !== false,
       });
     }
   }, [settingsData]);
@@ -39,7 +41,10 @@ export const GeneralSettingsPage = () => {
   // Read-only "Company knowledge" status — derived from ERXES_AGENT_KNOWLEDGE.
   const knowledgeStatus = settingsData?.mastraSettings?.knowledgeStatus;
 
-  const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
+  // Detected upload storage (configured in core Settings → File upload).
+  const attachmentStorage = settingsData?.mastraSettings?.attachmentStorage;
+
+  const set = (k: string, v: string | boolean) => setForm((f) => ({ ...f, [k]: v }));
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,6 +105,57 @@ export const GeneralSettingsPage = () => {
             placeholder="Bearer token for erxes gateway calls"
           />
           <p className="text-xs text-muted-foreground">Also used for GraphQL schema introspection when loading erxes tools</p>
+        </div>
+
+        {/* Chat file attachments — rides on the instance's existing upload storage */}
+        <div className="rounded-lg border p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <IconPaperclip className="size-4 text-muted-foreground" />
+              <span className="font-medium">Chat file attachments</span>
+            </div>
+            <Badge
+              variant={
+                attachmentStorage?.configured
+                  ? form.attachmentsEnabled
+                    ? 'success'
+                    : 'secondary'
+                  : 'destructive'
+              }
+            >
+              {!attachmentStorage?.configured
+                ? 'No storage'
+                : form.attachmentsEnabled
+                  ? 'On'
+                  : 'Off'}
+            </Badge>
+          </div>
+
+          <div className="text-xs text-muted-foreground space-y-1 pl-6">
+            <div>
+              Detected storage:{' '}
+              <span className="font-mono">
+                {attachmentStorage?.serviceType || 'unknown'}
+              </span>{' '}
+              {attachmentStorage?.configured ? '(configured)' : '(not configured)'}
+            </div>
+          </div>
+
+          <label className="flex items-center gap-2 pl-6 text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.attachmentsEnabled}
+              disabled={!attachmentStorage?.configured}
+              onChange={(e) => set('attachmentsEnabled', e.target.checked)}
+            />
+            Allow file attachments in agent chat (images, PDF, Excel, Word, …)
+          </label>
+
+          <p className="text-xs text-muted-foreground">
+            Files are stored in this instance's existing upload storage (configured in{' '}
+            <strong>Settings → File upload</strong>: AWS S3, Cloudflare R2, Azure, GCS or
+            local disk). When no storage is configured, conversations stay text-only.
+          </p>
         </div>
 
         <Button type="submit" disabled={loading}>

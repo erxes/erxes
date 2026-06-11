@@ -2,6 +2,7 @@ import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
 import { lookup } from 'node:dns/promises';
 import { companyKnowledgeTool } from '~/mastra/knowledge/knowledgeTool';
+import { readAttachmentTool } from './attachmentTool';
 import { WORKFLOW_BUILTIN_TOOLS } from './workflowTools';
 
 const FETCH_TIMEOUT_MS = 10_000;
@@ -169,6 +170,9 @@ export const BUILTIN_TOOLS: Record<string, any> = {
   calculator: calculatorTool,
   // No-ops with a clear message unless ERXES_AGENT_KNOWLEDGE=enable.
   companyKnowledge: companyKnowledgeTool,
+  // Reads chat attachments (pdf/docx/xlsx/csv/…). Also force-bound outside
+  // the policy filter — see agentRuntime — so attached files are always readable.
+  readAttachment: readAttachmentTool,
   // Builder tools — the master-agent loop: guide → validate → simulate →
   // save → run/observe. Deny per agent via builtin:<key> when needed.
   ...WORKFLOW_BUILTIN_TOOLS,

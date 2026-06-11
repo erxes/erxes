@@ -20,7 +20,7 @@ const agentCache = new Map<string, Agent>();
 const toolsCache = new Map<string, Record<string, any>>();
 
 // Increment this whenever routing.ts, the meta-tools, or provider logic changes.
-const ROUTING_VERSION = 20;
+const ROUTING_VERSION = 21;
 
 export interface AgentWithTools {
   agent: Agent;
@@ -77,6 +77,19 @@ export async function getOrCreateAgent(agentConfig: any, models: any): Promise<A
     if (!isBuiltinAllowed(key, policy)) continue;
     tools[key] = tool;
     builtinInfos.push({ id: key, name: key, description: (tool as any)?.description });
+  }
+
+  // read-attachment is bound regardless of policy: when the chat transport
+  // accepts a file, the agent must always be able to open it. (It only reads
+  // files from this instance's own storage — no external reach.)
+  if (!tools.readAttachment) {
+    const tool = BUILTIN_TOOLS.readAttachment;
+    tools.readAttachment = tool;
+    builtinInfos.push({
+      id: 'readAttachment',
+      name: 'readAttachment',
+      description: (tool as any)?.description,
+    });
   }
 
   // Conversation memory is persisted in MongoDB (MastraThread / MastraMessage)

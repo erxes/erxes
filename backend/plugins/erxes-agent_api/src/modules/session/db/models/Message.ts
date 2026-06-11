@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { messageSchema } from '@/session/db/definitions/message';
 import {
+  IMastraChatAttachment,
   IMastraMessageDocument,
   IMastraMessageMeta,
   MastraMessageRole,
@@ -13,6 +14,7 @@ export interface IMastraMessageModel extends Model<IMastraMessageDocument> {
     role: MastraMessageRole,
     content: string,
     meta?: IMastraMessageMeta,
+    attachments?: IMastraChatAttachment[],
   ): Promise<IMastraMessageDocument>;
   getMessages(threadId: string): Promise<IMastraMessageDocument[]>;
   // Last N messages in chronological order — used to build the LLM context window.
@@ -26,8 +28,15 @@ export const loadMessageClass = (_models: IModels) => {
       role: MastraMessageRole,
       content: string,
       meta?: IMastraMessageMeta,
+      attachments?: IMastraChatAttachment[],
     ) {
-      return _models.MastraMessage.create({ threadId, role, content, meta });
+      return _models.MastraMessage.create({
+        threadId,
+        role,
+        content,
+        meta,
+        attachments: attachments?.length ? attachments : undefined,
+      });
     }
 
     public static async getMessages(threadId: string) {

@@ -12,8 +12,9 @@ import {
   augmentConvo,
   MemoryContext,
 } from '~/mastra/memory';
-import { IMastraMessageMeta } from '@/session/@types/session';
+import { IMastraChatAttachment, IMastraMessageMeta } from '@/session/@types/session';
 import { maybeGenerateThreadTitle } from '~/mastra/titler';
+import { buildChatUserContent, historyAttachmentNote } from '~/mastra/files/chatContent';
 
 // Shared chat-turn pipeline used by both the blocking GraphQL resolver
 // (mastraAgentChat) and the streaming SSE route (/chat/stream). Holds the
@@ -161,6 +162,7 @@ export interface PreparedTurn {
   isLegacy: boolean;
   advanced: boolean;
   memCtx: MemoryContext;
+  attachments?: IMastraChatAttachment[];
 }
 
 // Everything a chat turn needs before the model runs: agent + tools, thread
@@ -173,8 +175,9 @@ export async function prepareChatTurn(params: {
   agentId: string;
   message: string;
   threadId?: string;
+  attachments?: IMastraChatAttachment[];
 }): Promise<PreparedTurn> {
-  const { models, subdomain, user, agentId, message, threadId } = params;
+  const { models, subdomain, user, agentId, message, threadId, attachments } = params;
 
   const agentConfig = await models.MastraAgent.findOne({ agentId, isEnabled: true });
   if (!agentConfig) throw new Error(`Agent "${agentId}" not found or disabled`);
@@ -200,9 +203,13 @@ export async function prepareChatTurn(params: {
   const history = useHistory
     ? await models.MastraMessage.getRecent(sessionId, HISTORY_LIMIT)
     : [];
+  // Replayed messages keep a pointer to their attachments so files from
+  // earlier turns stay readable via the read-attachment tool.
   const recentHistory = history.map((m: any) => ({
     role: m.role,
-    content: m.content,
+    content: m.attachments?.length
+      ? `${m.content}\n\n${historyAttachmentNote(m.attachments)}`
+      : m.content,
   }));
 
   const memCtx: MemoryContext = {
@@ -229,6 +236,18 @@ export async function prepareChatTurn(params: {
     workingMemoryBlock: wmBlock,
   });
 
+  // Attachments reshape the final user turn: manifest text + inlined image
+  // parts. The persisted message keeps the raw text; only the LLM convo is
+  // augmented. (augmentConvo always places the user message last.)
+  if (attachments?.length) {
+    const content = await buildChatUserContent({
+      message,
+      attachments,
+      erxesApiUrl: settings?.erxesApiUrl || 'http://localhost:4000',
+    });
+    convo[convo.length - 1] = { role: 'user', content } as any;
+  }
+
   const userHeader = user
     ? Buffer.from(JSON.stringify(user)).toString('base64')
     : undefined;
@@ -247,6 +266,7 @@ export async function prepareChatTurn(params: {
     isLegacy,
     advanced,
     memCtx,
+    attachments,
   };
 }
 
@@ -268,9 +288,15 @@ export async function persistTurn(params: {
   meta?: IMastraMessageMeta;
 }): Promise<{ titlePromise: Promise<string | null> }> {
   const { models, prepared, message, reply, meta } = params;
-  const { sessionId, advanced, memCtx, agentConfig, providers, authCtx, isLegacy } = prepared;
+  const { sessionId, advanced, memCtx, agentConfig, providers, authCtx, isLegacy, attachments } = prepared;
 
-  const userMsg = await models.MastraMessage.addMessage(sessionId, 'user', message);
+  const userMsg = await models.MastraMessage.addMessage(
+    sessionId,
+    'user',
+    message,
+    undefined,
+    attachments,
+  );
   const asstMsg = reply
     ? await models.MastraMessage.addMessage(sessionId, 'assistant', reply, meta)
     : null;

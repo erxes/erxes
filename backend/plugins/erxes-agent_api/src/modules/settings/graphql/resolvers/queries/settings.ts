@@ -4,9 +4,33 @@ import { refreshMemoryHealth } from '~/mastra/memory';
 import { computeKnowledgeStatus, isKnowledgeEnabled, enabledKnowledgeTypes } from '~/mastra/knowledge/config';
 import { ALL_KNOWLEDGE_TYPE_NAMES } from '~/mastra/knowledge/contentTypes';
 import { health as qdrantHealth } from '~/mastra/memory/vectorStore';
+import { getStorageStatus } from '~/mastra/files/storage';
+import { IModels } from '~/connectionResolvers';
+
+// configured (core storage) AND the plugin toggle → attachments usable in chat.
+export async function attachmentStorageStatus(models: IModels, subdomain: string) {
+  const [settings, storage] = await Promise.all([
+    models.MastraSettings.getSettings(),
+    getStorageStatus(subdomain),
+  ]);
+  return {
+    configured: storage.configured,
+    serviceType: storage.serviceType,
+    enabled: storage.configured && settings?.attachmentsEnabled !== false,
+  };
+}
 
 export const settingsQueries = {
-  mastraSettings: async (_: any, __: any, { models }: IContext) => {
+  // Lightweight status for the chat UI: decides whether the attach button shows.
+  mastraAttachmentStorageStatus: async (
+    _: any,
+    __: any,
+    { models, subdomain }: IContext,
+  ) => {
+    return attachmentStorageStatus(models, subdomain);
+  },
+
+  mastraSettings: async (_: any, __: any, { models, subdomain }: IContext) => {
     const doc = await models.MastraSettings.getSettings();
     const obj: any = doc?.toObject ? doc.toObject() : doc;
 
@@ -22,6 +46,7 @@ export const settingsQueries = {
 
     return {
       ...obj,
+      attachmentStorage: await attachmentStorageStatus(models, subdomain),
       advancedMemory: status.enabled,
       advancedMemoryStatus: status,
       knowledgeStatus: {

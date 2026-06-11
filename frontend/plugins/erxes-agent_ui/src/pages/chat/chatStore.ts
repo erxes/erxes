@@ -23,6 +23,15 @@ export type TurnPart =
   | { kind: 'thinking'; text: string; done?: boolean }
   | { kind: 'tool'; call: ToolCallInfo };
 
+// A file attached to a user message. `url` is the storage key returned by
+// core's /upload-file (or a full public URL when storage is public).
+export interface ChatAttachment {
+  url: string;
+  name: string;
+  type?: string;
+  size?: number;
+}
+
 export interface Message {
   role: 'user' | 'assistant' | 'error';
   content: string;
@@ -30,6 +39,7 @@ export interface Message {
   // Assistant-turn artifacts in arrival order (live while streaming,
   // hydrated from meta after).
   parts?: TurnPart[];
+  attachments?: ChatAttachment[];
   streaming?: boolean;
   interrupted?: boolean;
 }
@@ -283,6 +293,9 @@ class ChatStore {
         content: m.content,
         timestamp: m.createdAt ? new Date(m.createdAt) : new Date(),
         parts: partsFromMeta(m.meta),
+        attachments: Array.isArray(m.attachments) && m.attachments.length
+          ? m.attachments
+          : undefined,
         interrupted: m.meta?.interrupted || undefined,
       }));
       this.patchThread(agentKey, threadId, { messages, messagesLoading: false });
@@ -378,6 +391,7 @@ class ChatStore {
     agentKey: string,
     mastraAgentId: string,
     message: string,
+    attachments?: ChatAttachment[],
   ) {
     let agent = this.ensureAgent(agentKey);
     if (!agent.activeThreadId) {
@@ -391,6 +405,7 @@ class ChatStore {
       role: 'user',
       content: message,
       timestamp: new Date(),
+      attachments: attachments?.length ? attachments : undefined,
     });
 
     const abort = new AbortController();
@@ -403,6 +418,7 @@ class ChatStore {
         mastraAgentId,
         message,
         abort,
+        attachments,
       );
       // Stream transport unavailable (older gateway/plugin) — degrade to the
       // blocking GraphQL query.
@@ -449,6 +465,7 @@ class ChatStore {
     mastraAgentId: string,
     message: string,
     abort: AbortController,
+    attachments?: ChatAttachment[],
   ): Promise<boolean> {
     let response: Response;
     try {
@@ -456,7 +473,12 @@ class ChatStore {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentId: mastraAgentId, message, threadId }),
+        body: JSON.stringify({
+          agentId: mastraAgentId,
+          message,
+          threadId,
+          attachments: attachments?.length ? attachments : undefined,
+        }),
         signal: abort.signal,
       });
     } catch {
@@ -466,6 +488,12 @@ class ChatStore {
 
     if (!response.ok || !response.body) {
       if (response.status === 401) throw new Error('Login required');
+      // A 400 is a real rejection (e.g. attachments without storage) — surface
+      // it instead of silently retrying through the text-only fallback.
+      if (response.status === 400) {
+        const body = await response.json().catch(() => null);
+        throw new Error(body?.error || 'The agent rejected this message.');
+      }
       return false;
     }
 

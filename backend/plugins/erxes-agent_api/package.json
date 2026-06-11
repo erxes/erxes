@@ -22,7 +22,10 @@
     "@mastra/core": "^1.37.1",
     "@mastra/mongodb": "^1.9.1",
     "erxes-api-shared": "workspace:^",
+    "exceljs": "^4.4.0",
     "fastembed": "^2.1.0",
+    "mammoth": "^1.11.0",
+    "pdf-parse": "^1.1.1",
     "zod": "^3.25.0"
   },
   "devDependencies": {}
