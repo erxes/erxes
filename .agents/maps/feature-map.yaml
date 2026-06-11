@@ -1,0 +1,181 @@
+# erxes Feature Map
+# Maps user-facing features to plugin/module locations
+# Used by detect-scope skill for automatic feature identification
+
+features:
+  # Content Plugin
+  - name: "CMS Pages"
+    plugin: "content"
+    module: "cms/pages"
+    scope: "both"
+    keywords: ["page", "cms", "content page", "landing page"]
+    
+  - name: "CMS Posts"
+    plugin: "content"
+    module: "cms/posts"
+    scope: "both"
+    keywords: ["post", "blog", "article", "content post"]
+    
+  - name: "CMS Tags"
+    plugin: "content"
+    module: "cms/tags"
+    scope: "both"
+    keywords: ["tag", "content tag", "post tag"]
+    
+  - name: "CMS Categories"
+    plugin: "content"
+    module: "cms/categories"
+    scope: "both"
+    keywords: ["category", "content category"]
+    
+  # Sales Plugin
+  - name: "Deals"
+    plugin: "sales"
+    module: "deals"
+    scope: "both"
+    keywords: ["deal", "opportunity", "sales deal", "pipeline deal"]
+    
+  - name: "Pipelines"
+    plugin: "sales"
+    module: "deals"
+    scope: "both"
+    keywords: ["pipeline", "sales pipeline", "board", "stage"]
+    
+  - name: "Products"
+    plugin: "core"
+    module: "products"
+    scope: "both"
+    keywords: ["product", "item", "catalog", "sku"]
+    
+  # Operation Plugin
+  - name: "Tasks"
+    plugin: "operation"
+    module: "task"
+    scope: "both"
+    keywords: ["task", "operation task", "work item"]
+    
+  - name: "Projects"
+    plugin: "operation"
+    module: "project"
+    scope: "both"
+    keywords: ["project", "operation project"]
+    
+  - name: "Cycles"
+    plugin: "operation"
+    module: "cycle"
+    scope: "both"
+    keywords: ["cycle", "sprint", "iteration"]
+    
+  # Frontline Plugin
+  - name: "Tickets"
+    plugin: "frontline"
+    module: "ticket"
+    scope: "both"
+    keywords: ["ticket", "support ticket", "case"]
+    
+  - name: "Inbox"
+    plugin: "frontline"
+    module: "inbox"
+    scope: "both"
+    keywords: ["inbox", "conversation", "chat", "message"]
+    
+  - name: "Channels"
+    plugin: "frontline"
+    module: "channels"
+    scope: "both"
+    keywords: ["channel", "communication channel"]
+    
+  # Payment Plugin
+  - name: "Payments"
+    plugin: "payment"
+    module: "payment"
+    scope: "both"
+    keywords: ["payment", "transaction", "billing", "invoice"]
+    
+  # Loyalty Plugin
+  - name: "Loyalty"
+    plugin: "loyalty"
+    module: "loyalties"
+    scope: "both"
+    keywords: ["loyalty", "reward", "points", "membership"]
+    
+  # Accounting Plugin
+  - name: "Accounting"
+    plugin: "accounting"
+    module: "accounting"
+    scope: "both"
+    keywords: ["accounting", "finance", "ledger", "journal"]
+    
+  # Insurance Plugin
+  - name: "Insurance"
+    plugin: "insurance"
+    module: "insurance"
+    scope: "both"
+    keywords: ["insurance", "policy", "claim", "coverage"]
+    
+  # Tourism Plugin
+  - name: "Tourism"
+    plugin: "tourism"
+    module: "pms"
+    scope: "both"
+    keywords: ["tourism", "travel", "booking", "tour"]
+    
+  # Mongolian Plugin
+  - name: "Mongolian"
+    plugin: "mongolian"
+    module: "ebarimt"
+    scope: "both"
+    keywords: ["mongolian", "local", "mn"]
+    
+  # Agent Assistant Plugin
+  - name: "Agent Assistant"
+    plugin: "erxes-agent"
+    module: "agent"
+    scope: "both"
+    keywords: ["agent", "assistant", "ai", "copilot"]
+    
+  # Core/Shared
+  - name: "Users"
+    plugin: "core"
+    module: "organization/team-member"
+    scope: "both"
+    keywords: ["user", "account", "profile", "member"]
+    
+  - name: "Settings"
+    plugin: "core"
+    module: "settings"
+    scope: "both"
+    keywords: ["setting", "configuration", "config", "preference"]
+    
+  - name: "Permissions"
+    plugin: "core"
+    module: "permissions"
+    scope: "both"
+    keywords: ["permission", "role", "access", "acl", "authorization"]
+
+# Cross-plugin features (primary plugin listed)
+cross_plugin:
+  - name: "Deal-Ticket Link"
+    primary: "sales"
+    secondary: "frontline"
+    description: "Link deals to support tickets"
+    
+  - name: "Payment-Sales"
+    primary: "payment"
+    secondary: "sales"
+    description: "Payment processing for sales deals"
+
+# Feature lookup helpers
+lookup:
+  # Common action patterns
+  actions:
+    create: ["add", "create", "new", "build", "make"]
+    modify: ["update", "edit", "change", "modify", "fix", "improve"]
+    delete: ["remove", "delete", "drop", "cleanup"]
+    fix: ["bug", "broken", "not working", "error", "fail"]
+    
+  # Scope hints
+  scope_hints:
+    frontend: ["ui", "page", "component", "button", "form", "table", "screen", "frontend"]
+    backend: ["api", "model", "schema", "resolver", "database", "migration", "backend"]
+    both: ["feature", "end-to-end", "full", "complete"]
