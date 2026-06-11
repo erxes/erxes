@@ -4,6 +4,7 @@ import {
   cpUserService,
   socialAuthService,
   changeContactService,
+  contactService,
 } from '@/clientportal/services';
 import { getCPUserByIdOrThrow } from '@/clientportal/services/helpers/userUtils';
 import {
@@ -62,6 +63,12 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
     }
 
     const updatedCustomer = await models.Customers.updateCustomer(
+      cpUser.erxesCustomerId,
+      params,
+    );
+
+    await contactService.syncCustomerContactToCPUsers(
+      models,
       cpUser.erxesCustomerId,
       params,
     );
