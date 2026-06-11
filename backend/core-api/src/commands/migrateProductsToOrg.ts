@@ -11,11 +11,30 @@ if (!MONGO_URL) {
   throw new Error(`Environment variable MONGO_URL not set.`);
 }
 
-const SOURCE_ORG_ID = '677b2b2a113622040da5e16c';
-const TARGET_ORG_ID = '697d636fc825257eaf17e61a';
+// Subdomains derived from the org URLs:
+//   old: https://dts.next.erxes.io/         → subdomain "dts"
+//   new: https://dtsdistribution.next.erxes.io/ → subdomain "dtsdistribution"
+const SOURCE_SUBDOMAIN = 'dts';
+const TARGET_SUBDOMAIN = 'dtsdistribution';
 
-const SOURCE_DB = `erxes_${SOURCE_ORG_ID}`;
-const TARGET_DB = `erxes_${TARGET_ORG_ID}`;
+
+async function resolveOrgDb(
+  client: MongoClient,
+  subdomain: string,
+): Promise<string> {
+  const coreDb = client.db('erxes');
+  const org = await coreDb
+    .collection('organizations')
+    .findOne({ subdomain }, { projection: { _id: 1 } });
+
+  if (!org) {
+    throw new Error(
+      `Organization with subdomain "${subdomain}" not found in erxes.organizations`,
+    );
+  }
+
+  return `erxes_${org._id}`;
+}
 
 // Dependency order matters:
 // uoms must come before products (products.uom references uom code)
@@ -118,11 +137,14 @@ async function main() {
     await client.connect();
     console.log('Connected to MongoDB');
 
-    const srcDb: Db = client.db(SOURCE_DB);
-    const dstDb: Db = client.db(TARGET_DB);
+    const sourceDbName = await resolveOrgDb(client, SOURCE_SUBDOMAIN);
+    const targetDbName = await resolveOrgDb(client, TARGET_SUBDOMAIN);
 
-    console.log(`\nSource DB: ${SOURCE_DB}`);
-    console.log(`Target DB: ${TARGET_DB}\n`);
+    const srcDb: Db = client.db(sourceDbName);
+    const dstDb: Db = client.db(targetDbName);
+
+    console.log(`\nSource: ${SOURCE_SUBDOMAIN} → ${sourceDbName}`);
+    console.log(`Target: ${TARGET_SUBDOMAIN} → ${targetDbName}\n`);
 
     const summary: Record<
       string,
