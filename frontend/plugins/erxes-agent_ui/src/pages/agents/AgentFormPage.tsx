@@ -10,7 +10,6 @@ import {
   Checkbox,
   Label,
   Input,
-  Select,
   Separator,
   Switch,
   Textarea,
@@ -21,11 +20,13 @@ import {
   MASTRA_AGENT,
   MASTRA_AGENTS,
   MASTRA_AVAILABLE_ERXES_TOOLS,
-  MASTRA_PROVIDERS,
-  MASTRA_PROVIDER_CATALOG,
-  MASTRA_PROVIDER_MODELS,
 } from '~/graphql/queries';
 import { MASTRA_AGENT_CREATE, MASTRA_AGENT_UPDATE } from '~/graphql/mutations';
+import {
+  SelectModel,
+  SelectProvider,
+  useProviderOptions,
+} from '~/components/SelectProviderModel';
 
 function toSlug(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -68,7 +69,6 @@ export const AgentFormPage = () => {
     isEnabled: true,
   });
   const [autoSlug, setAutoSlug] = useState(true);
-  const [customModel, setCustomModel] = useState(false);
   const [toolSearch, setToolSearch] = useState('');
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
 
@@ -95,12 +95,9 @@ export const AgentFormPage = () => {
     MASTRA_AVAILABLE_ERXES_TOOLS,
     { skip: form.toolPolicy !== 'custom' },
   );
-  const { data: providersData } = useQuery(MASTRA_PROVIDERS);
-  const { data: catalogData } = useQuery(MASTRA_PROVIDER_CATALOG);
-  const { data: providerModelsData, loading: modelsLoading } = useQuery(MASTRA_PROVIDER_MODELS, {
-    variables: { provider: form.provider },
-    skip: !form.provider,
-  });
+  // Shared provider list (configured presets + custom DB providers) — same
+  // source the SelectProvider combobox uses.
+  const { providers: enabledProviders } = useProviderOptions();
 
   const [createAgent, { loading: creating }] = useMutation(MASTRA_AGENT_CREATE, {
     refetchQueries: [{ query: MASTRA_AGENTS }],
@@ -217,38 +214,6 @@ export const AgentFormPage = () => {
       };
     });
   }, [operations, BUILTINS, toolSearch]);
-
-  // Provider dropdown: preset providers configured via DB or env var, plus any
-  // custom DB providers the user added that are not in the presets catalog.
-  const catalogConfigured: { provider: string; label: string }[] =
-    (catalogData?.mastraProviderCatalog || []).filter((p: any) => p.isConfigured);
-  const catalogKeys = new Set(catalogConfigured.map((p: any) => p.provider));
-  const customDbProviders = (providersData?.mastraProviders || [])
-    .filter((p: any) => p.isEnabled && !catalogKeys.has(p.provider));
-  const enabledProviders = [...catalogConfigured, ...customDbProviders];
-
-  // Dynamic models come from the API; no static fallback since the DB doc drives everything
-  const modelsForProvider: { id: string; name: string }[] = providerModelsData?.mastraProviderModels ?? [];
-
-  // Always include the currently-selected model in the list so the Select always
-  // has a matching item to display — prevents the value from appearing blank while
-  // the API model list is still loading.
-  const modelListItems = useMemo(() => {
-    if (form.model && !customModel && !modelsForProvider.some((m) => m.id === form.model)) {
-      return [{ id: form.model, name: form.model }, ...modelsForProvider];
-    }
-    return modelsForProvider;
-  }, [modelsForProvider, form.model, customModel]);
-
-  // Detect whether the saved model is not in the available list (custom entry)
-  useEffect(() => {
-    if (!isEdit || !agentData?.mastraAgent) return;
-    if (modelsLoading) return;
-    const savedModel = agentData.mastraAgent.model;
-    if (savedModel && modelsForProvider.length > 0 && !modelsForProvider.some((m) => m.id === savedModel)) {
-      setCustomModel(true);
-    }
-  }, [agentData, modelsForProvider, modelsLoading, isEdit]);
 
   const set = (k: string, v: any) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -406,82 +371,21 @@ export const AgentFormPage = () => {
             ) : (
               <>
                 <Field label="Provider *">
-                  <Select
+                  <SelectProvider
                     value={form.provider}
-                    onValueChange={(v) => { set('provider', v); set('model', ''); setCustomModel(false); }}
-                    required
-                  >
-                    <Select.Trigger className="w-full border border-border rounded-md px-3 py-2 h-9">
-                      <Select.Value placeholder="Select provider…" />
-                    </Select.Trigger>
-                    <Select.Content>
-                      {enabledProviders.map((p: any) => (
-                        <Select.Item key={p.provider} value={p.provider}>
-                          {p.label}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
+                    onValueChange={(v) => { set('provider', v); set('model', ''); }}
+                  />
                 </Field>
 
                 <Field
                   label="Model *"
-                  hint={modelsLoading ? 'Fetching available models…' : undefined}
+                  hint="Listed live from the provider's model API."
                 >
-                  {customModel ? (
-                    <div className="flex gap-2">
-                      <Input
-                        value={form.model}
-                        onChange={(e) => set('model', e.target.value)}
-                        placeholder="e.g. meta/llama-3.1-8b-instruct"
-                        className="font-mono text-sm flex-1"
-                        required
-                      />
-                      {modelsForProvider.length > 0 && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => { setCustomModel(false); set('model', ''); }}
-                        >
-                          Presets
-                        </Button>
-                      )}
-                    </div>
-                  ) : (
-                    <Select
-                      value={form.model}
-                      onValueChange={(v) => {
-                        if (!v) return;
-                        if (v === '__custom__') { setCustomModel(true); set('model', ''); }
-                        else set('model', v);
-                      }}
-                      disabled={!form.provider}
-                    >
-                      <Select.Trigger className="w-full border border-border rounded-md px-3 py-2 h-9">
-                        <Select.Value placeholder={
-                          !form.provider ? 'Select a provider first' : 'Select model…'
-                        } />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {modelListItems.map((m) => (
-                          <Select.Item key={m.id} value={m.id}>
-                            {m.name !== m.id ? (
-                              <>
-                                {m.name}
-                                <span className="ml-2 text-xs text-muted-foreground font-mono">({m.id})</span>
-                              </>
-                            ) : (
-                              <span className="font-mono text-sm">{m.id}</span>
-                            )}
-                          </Select.Item>
-                        ))}
-                        <Select.Item value="__custom__">
-                          <span className="text-muted-foreground italic">Enter model ID manually…</span>
-                        </Select.Item>
-                      </Select.Content>
-                    </Select>
-                  )}
+                  <SelectModel
+                    provider={form.provider}
+                    value={form.model}
+                    onValueChange={(v) => set('model', v)}
+                  />
                 </Field>
               </>
             )}

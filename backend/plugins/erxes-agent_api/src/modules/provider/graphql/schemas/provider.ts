@@ -37,7 +37,6 @@ export const types = `
     label: String
     isOpenAICompatible: Boolean
     isConfigured: Boolean
-    models: [MastraProviderModel]
   }
 
   type MastraProviderPreset {
@@ -48,7 +47,6 @@ export const types = `
     baseUrl: String
     modelsEndpoint: String
     headers: JSON
-    models: [MastraProviderModel]
   }
 `;
 

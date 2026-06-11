@@ -17,7 +17,6 @@ export const providerQueries = {
   },
 
   // Returns all known providers (from presets list) enriched with isConfigured.
-  // Models array is intentionally empty — the UI fetches those via mastraProviderModels.
   mastraProviderCatalog: async (_: any, __: any, { models }: IContext) => {
     const storedProviders = await models.MastraProvider.find({ isEnabled: true });
     const storedSet = new Set(storedProviders.map((p: any) => p.provider));
@@ -29,12 +28,14 @@ export const providerQueries = {
       isConfigured:
         storedSet.has(preset.provider) ||
         !!(preset.envKey && process.env[preset.envKey]),
-      models: [],
     }));
   },
 
-  // Returns models for a provider by reading the stored DB doc's fields first.
-  // Falls back to the preset's static model list.
+  // Returns the models a provider ACTUALLY serves right now, by querying its
+  // live model-listing API (the stored DB doc's endpoint first, then the
+  // preset's). There is intentionally no static list to fall back to — when
+  // the endpoint is unreachable or unconfigured the list is empty and the UI
+  // offers manual model-id entry.
   mastraProviderModels: async (
     _: any,
     { provider }: { provider: string },
@@ -54,33 +55,56 @@ export const providerQueries = {
       ?? (stored?.isOpenAICompatible && stored?.baseUrl ? `${stored.baseUrl}/models` : undefined)
       ?? (preset?.isOpenAICompatible && preset?.baseUrl ? `${preset.baseUrl}/models` : undefined);
 
-    if (endpoint && apiKey) {
-      try {
-        // Include any custom headers (e.g. the coding-agent User-Agent that
-        // Kimi For Coding requires) so gated catalog endpoints also resolve.
-        const customHeaders = { ...(preset?.headers || {}), ...(stored?.headers || {}) };
-        const res = await fetch(endpoint, {
-          headers: { Authorization: `Bearer ${apiKey}`, ...customHeaders },
-        });
-        if (res.ok) {
-          const json: any = await res.json();
-          // OpenAI-style: { data: [{ id, ... }] }  |  Mistral-style: { data: [{ id, name }] }
-          const list: any[] = Array.isArray(json.data)
-            ? json.data
-            : Array.isArray(json.models)
-            ? json.models
-            : [];
-          if (list.length > 0) {
-            return list
-              .filter((m: any) => m.id)
-              .map((m: any) => ({ id: m.id, name: m.name || m.display_name || m.id }));
-          }
-        }
-      } catch {
-        // Fall through to static list
-      }
-    }
+    if (!endpoint || !apiKey) return [];
 
-    return preset?.models ?? [];
+    try {
+      // Include any custom headers (e.g. the coding-agent User-Agent that
+      // Kimi For Coding requires, or Anthropic's version header) so gated
+      // catalog endpoints also resolve.
+      const headers: Record<string, string> = {
+        ...(preset?.headers || {}),
+        ...(stored?.headers || {}),
+      };
+      let url = endpoint;
+
+      // Provider auth schemes: Bearer (default), x-api-key (Anthropic),
+      // ?key= query param (Google Generative Language).
+      const auth = preset?.modelsAuth ?? 'bearer';
+      if (auth === 'x-api-key') headers['x-api-key'] = apiKey;
+      else if (auth === 'query') {
+        url += `${url.includes('?') ? '&' : '?'}key=${encodeURIComponent(apiKey)}`;
+      } else headers['Authorization'] = `Bearer ${apiKey}`;
+
+      const res = await fetch(url, { headers });
+      if (!res.ok) return [];
+
+      const json: any = await res.json();
+      // OpenAI/Anthropic/Mistral style: { data: [{ id, name?, display_name? }] }
+      // Google style:  { models: [{ name: "models/x", displayName, supportedGenerationMethods }] }
+      // Cohere style:  { models: [{ name }] }
+      const list: any[] = Array.isArray(json.data)
+        ? json.data
+        : Array.isArray(json.models)
+        ? json.models
+        : [];
+
+      return list
+        // Google lists embedding/vision-only entries too — keep chat models.
+        .filter(
+          (m: any) =>
+            !Array.isArray(m.supportedGenerationMethods) ||
+            m.supportedGenerationMethods.includes('generateContent'),
+        )
+        .map((m: any) => {
+          const id = m.id || (typeof m.name === 'string' ? m.name.replace(/^models\//, '') : '');
+          return {
+            id,
+            name: m.display_name || m.displayName || (m.id ? m.name : undefined) || id,
+          };
+        })
+        .filter((m: any) => m.id);
+    } catch {
+      return [];
+    }
   },
 };

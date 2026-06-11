@@ -152,7 +152,7 @@ export const ProvidersPage = () => {
                     {p.isDefault && <Badge>Default</Badge>}
                     {!p.isEnabled && <Badge variant="secondary">Disabled</Badge>}
                     {p.isOpenAICompatible && (
-                      <Badge variant="outline" className="text-xs">OpenAI-compatible</Badge>
+                      <Badge variant="secondary" className="text-xs">OpenAI-compatible</Badge>
                     )}
                   </div>
                   <div className="text-sm text-muted-foreground mt-0.5 flex items-center gap-1 flex-wrap">
@@ -329,27 +329,15 @@ export const ProvidersPage = () => {
                       <IconCheck size={10} className="mr-1" /> Configured
                     </Badge>
                   ) : envOnly ? (
-                    <Badge variant="outline" className="text-xs text-green-600 border-green-500/50">
+                    <Badge variant="success" className="text-xs">
                       Via env
                     </Badge>
                   ) : null}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {preset.models?.length} models ·{' '}
-                  {preset.isOpenAICompatible ? 'OpenAI-compatible' : 'Native'}
+                  {preset.isOpenAICompatible ? 'OpenAI-compatible' : 'Native'} ·
+                  models listed live from the provider
                 </p>
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {preset.models?.slice(0, 3).map((m: any) => (
-                    <span key={m.id} className="text-xs bg-muted px-1.5 py-0.5 rounded">
-                      {m.name}
-                    </span>
-                  ))}
-                  {preset.models?.length > 3 && (
-                    <span className="text-xs text-muted-foreground">
-                      +{preset.models.length - 3} more
-                    </span>
-                  )}
-                </div>
               </div>
             );
           })}

@@ -89,7 +89,6 @@ export const MASTRA_PROVIDER_PRESETS = gql`
   query MastraProviderPresets {
     mastraProviderPresets {
       provider label isOpenAICompatible envKey baseUrl modelsEndpoint headers
-      models { id name }
     }
   }
 `;
