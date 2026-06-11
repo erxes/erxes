@@ -1,6 +1,10 @@
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import { CoreTRPCContext } from '~/init-trpc';
+import { uploadFile } from '~/utils/file/upload';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
@@ -68,6 +72,38 @@ export const exportRouter = t.router({
           input.fileKey,
           input.fileName,
         );
+      }),
+    uploadExportFile: t.procedure
+      .input(
+        z.object({
+          fileContent: z.string(),
+          fileName: z.string(),
+          mimeType: z.string(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const tempFilePath = path.join(os.tmpdir(), input.fileName);
+        await fs.promises.writeFile(
+          tempFilePath,
+          Buffer.from(input.fileContent, 'base64'),
+        );
+        try {
+          return await uploadFile(
+            '',
+            {
+              originalFilename: input.fileName,
+              filepath: tempFilePath,
+              mimetype: input.mimeType,
+            },
+            ctx.models,
+            false,
+            true,
+          );
+        } finally {
+          await fs.promises
+            .unlink(tempFilePath)
+            .catch(() => Promise.resolve(undefined));
+        }
       }),
   }),
 });

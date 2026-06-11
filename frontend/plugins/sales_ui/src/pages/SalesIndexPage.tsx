@@ -12,7 +12,8 @@ import { CommonDealSearch } from '@/deals/components/commonSearch';
 import { DealsView } from '@/deals/actionBar/components/DealViewControl';
 import { IconSandbox, IconSettings } from '@tabler/icons-react';
 import MainActionBar from '@/deals/actionBar/components/MainActionBar';
-import { PageHeader } from 'ui-modules';
+import { Import, PageHeader } from 'ui-modules';
+import { Export } from 'ui-modules/modules/import-export/components/epxort/Export';
 import { SalesBreadCrumb } from '@/deals/components/breadcrumb/SalesBreadCrumb';
 import { SalesItemDetail } from '@/deals/cards/components/detail/SalesItemDetail';
 
@@ -20,6 +21,8 @@ export const SalesIndexPage = () => {
   const [searchParams] = useSearchParams();
   const boardId = searchParams.get('boardId');
   const pipelineId = searchParams.get('pipelineId');
+
+  const getFilters = () => (pipelineId ? { pipelineId } : {});
 
   return (
     <div className="flex h-full overflow-hidden w-full">
@@ -57,7 +60,20 @@ export const SalesIndexPage = () => {
 
         <PageContainer className="overflow-hidden">
           <PageSubHeader>
-            <MainActionBar />
+            <div className="flex-1 min-w-0">
+              <MainActionBar />
+            </div>
+            <Import
+              pluginName="sales"
+              moduleName="deal"
+              collectionName="deal"
+            />
+            <Export
+              pluginName="sales"
+              moduleName="deal"
+              collectionName="deal"
+              getFilters={getFilters}
+            />
           </PageSubHeader>
 
           <DealsView />
