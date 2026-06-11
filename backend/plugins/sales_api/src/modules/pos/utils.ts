@@ -33,7 +33,7 @@ export const getChildCategories = async (subdomain: string, categoryIds) => {
     pluginName: 'core',
     module: 'productCategories',
     action: 'withChilds',
-    input: { _ids: categoryIds },
+    input: { ids: categoryIds },
     defaultValue: [],
   });
 

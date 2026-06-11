@@ -15,7 +15,7 @@ export const AutomationSettingsLayout = ({
       ></SettingsHeader>
       <div className="flex flex-auto overflow-hidden">
         <AutomationSettingsSidebar />
-        {children}
+        <div className="min-w-0 flex-1 overflow-hidden">{children}</div>
       </div>
     </PageContainer>
   );

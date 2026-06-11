@@ -9,10 +9,6 @@ export const ChannelResponsePage = () => {
 
   return (
     <>
-      <div className="px-8 flex justify-between py-6">
-        <h1 className="text-xl font-semibold">Response Templates</h1>
-      </div>
-
       <ResponseSubHeader channelId={channelId} />
       <ResponseList channelId={channelId} />
     </>

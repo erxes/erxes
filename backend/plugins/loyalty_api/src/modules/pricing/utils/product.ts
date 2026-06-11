@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { getChildCategories, getChildTags } from '~/utils/utils';
 
 /**
  * Get parent orders of products
@@ -18,43 +19,6 @@ export const getParentsOrders = (order: string): string[] => {
   }
 
   return orders;
-};
-
-export const getChildCategories = async (
-  subdomain: string,
-  categoryIds: string[],
-): Promise<string[]> => {
-  const childs = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'productCategories',
-    action: 'withChilds',
-    input: { ids: categoryIds },
-    defaultValue: [],
-  });
-
-  const catIds = (childs || []).map((ch) => ch._id);
-  return Array.from(new Set(catIds));
-};
-
-export const getChildTags = async (
-  subdomain: string,
-  tagIds: string[],
-): Promise<string[]> => {
-  const childs = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'tags',
-    action: 'withChilds',
-    input: {
-      query: { _id: { $in: tagIds } },
-      fields: { _id: 1 },
-    },
-    defaultValue: [],
-  });
-
-  const foundTagIds = (childs || []).map((ch) => ch._id);
-  return Array.from(new Set(foundTagIds));
 };
 
 /**
@@ -151,6 +115,7 @@ export const getAllowedProducts = async (
         includeCatIds.filter((c) => !excludeCatIdsSet.has(c)),
       );
 
+      console.log(products.map(p => p.name), plansCategoryIdsSet)
       return products
         .filter((p) => plansCategoryIdsSet.has(p.categoryId))
         .map((p) => p._id);

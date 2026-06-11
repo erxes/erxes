@@ -24,7 +24,7 @@ export const UomsRecordTable = () => {
           <RecordTable.Header />
           <RecordTable.Body>
             {loading && <RecordTable.RowSkeleton rows={10} />}
-            <RecordTable.RowList />
+            {!loading && <RecordTable.RowList />}
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>
