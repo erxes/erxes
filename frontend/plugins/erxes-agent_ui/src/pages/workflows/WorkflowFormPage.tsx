@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@apollo/client';
 import {
@@ -26,6 +26,7 @@ import {
   MASTRA_WORKFLOW_UPDATE,
   MASTRA_WORKFLOW_VALIDATE,
 } from '~/graphql/mutations';
+import { WorkflowGraph } from './graph/WorkflowGraph';
 
 // Minimal valid starter so a hand-authored workflow begins from a runnable shape.
 const TEMPLATE = {
@@ -108,6 +109,16 @@ export const WorkflowFormPage = () => {
     setDefinitionText(text);
     setValidation(null);
   };
+
+  // Live graph preview — renders whenever the JSON parses (independent of the
+  // server-side Validate verdict).
+  const previewDefinition = useMemo(() => {
+    try {
+      return JSON.parse(definitionText);
+    } catch {
+      return null;
+    }
+  }, [definitionText]);
 
   const parseDefinition = (): any | null => {
     try {
@@ -286,6 +297,16 @@ export const WorkflowFormPage = () => {
                 </span>
               )}
             </div>
+
+            {previewDefinition && (
+              <div className="space-y-1.5">
+                <Label className="font-medium">Preview</Label>
+                <WorkflowGraph
+                  definition={previewDefinition}
+                  className="h-80 rounded-md border border-border/60 bg-muted/20"
+                />
+              </div>
+            )}
 
             {validation && !validation.ok && (
               <Alert variant="destructive">
