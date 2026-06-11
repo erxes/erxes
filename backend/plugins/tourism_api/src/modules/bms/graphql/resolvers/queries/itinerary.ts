@@ -10,7 +10,7 @@ import { Resolver } from 'erxes-api-shared/core-types';
 const escapeRegExp = (value: string): string =>
   value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-const itineraryQueries : Record<string, Resolver> = {
+const itineraryQueries: Record<string, Resolver> = {
   async bmsItineraries(
     _root,
     { branchId, name, language, ...params },
@@ -86,9 +86,9 @@ const itineraryQueries : Record<string, Resolver> = {
 
 export default itineraryQueries;
 
-itineraryQueries.cpBmsItineraries.wrapperConfig={
-  forClientPortal:true,
-}
-itineraryQueries.cpBmsItineraryDetail.wrapperConfig={
-  forClientPortal:true,
-}
+itineraryQueries.cpBmsItineraries.wrapperConfig = {
+  forClientPortal: true,
+};
+itineraryQueries.cpBmsItineraryDetail.wrapperConfig = {
+  forClientPortal: true,
+};
