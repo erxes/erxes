@@ -1,7 +1,16 @@
-import CheckSyncedOrdersContainer from '@/msdynamic/containers/CheckSyncedOrders';
+import { CheckSyncedOrders } from '~/modules/msdynamic/msdynamic-check-orders/components/CheckSyncedOrders';
+import { PageSubHeader } from 'erxes-ui';
+import { MSDynamicCheckOrderFilter } from '~/modules/msdynamic/msdynamic-check-orders/components/MSDynamicCheckOrderFilter';
 
-export const CheckSyncedOrdersPage = () => {
-  return <CheckSyncedOrdersContainer />;
+const CheckSyncedOrdersPage = () => {
+  return (
+    <>
+      <PageSubHeader>
+        <MSDynamicCheckOrderFilter />
+      </PageSubHeader>
+      <CheckSyncedOrders />
+    </>
+  );
 };
 
-export default CheckSyncedOrdersPage;
+export { CheckSyncedOrdersPage };

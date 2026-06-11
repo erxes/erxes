@@ -1,38 +1,33 @@
-import React from 'react';
 import { gql, useQuery } from '@apollo/client';
+import { useQueryState } from 'erxes-ui';
 
-import Detail from '../components/syncedOrders/PosOrderDetail';
 import { queries } from '../graphql';
+import { PosOrderDetail } from '../msdynamic-check-orders/components/PosOrderDetail';
+import { IPosOrderDetail } from '../msdynamic-check-orders/types/msDynamicCheckOrder';
+
+const ORDER_DETAIL_ID_KEY = 'orderDetailId';
 
 type Props = {
-  order: any;
+  order: IPosOrderDetail;
 };
 
 const OrdersDetailContainer = ({ order }: Props) => {
-  const { data, loading, error } = useQuery(gql(queries.posOrderDetail), {
+  const [orderDetailId] = useQueryState<string>(ORDER_DETAIL_ID_KEY);
+  const isActive = Boolean(orderDetailId) && orderDetailId === order?._id;
+
+  const { data, error } = useQuery(gql(queries.posOrderDetail), {
     variables: { _id: order?._id },
     fetchPolicy: 'network-only',
-    skip: !order?._id,
+    skip: !order?._id || !isActive,
   });
 
-  if (loading) {
-    return (
-      <div className="py-6 text-center text-muted-foreground">Loading...</div>
-    );
-  }
-
   if (error) {
-    console.error(error.message);
-    return (
-      <div className="py-6 text-center text-destructive">
-        Failed to load order detail
-      </div>
-    );
+    return null;
   }
 
-  const orderDetail = data?.posOrderDetail;
+  const orderDetail = data?.posOrderDetail || order;
 
-  return <Detail order={orderDetail} />;
+  return <PosOrderDetail orders={orderDetail} />;
 };
 
-export default OrdersDetailContainer;
+export { OrdersDetailContainer };
