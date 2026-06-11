@@ -148,11 +148,15 @@ export function extractTextToolCall(text: string): TextToolCall | null {
     }
   } catch {}
 
-  // Pattern 3 — <tool_call>...</tool_call> tags
-  const tagMatch = t.match(/<tool_call>\s*([\s\S]*?)\s*<\/tool_call>/i);
-  if (tagMatch) {
+  // Pattern 3 — <tool_call>...</tool_call> tags. Index scan instead of a
+  // lazy [\s\S]*? regex, which backtracks super-linearly on bad input.
+  const lowerT = t.toLowerCase();
+  const openTag = lowerT.indexOf('<tool_call>');
+  const closeTag =
+    openTag === -1 ? -1 : lowerT.indexOf('</tool_call>', openTag + 11);
+  if (openTag !== -1 && closeTag !== -1) {
     try {
-      const obj = JSON.parse(tagMatch[1]);
+      const obj = JSON.parse(t.slice(openTag + 11, closeTag).trim());
       if (obj?.name) {
         const args =
           typeof obj.arguments === 'string'
@@ -209,6 +213,12 @@ export async function prepareChatTurn(params: {
   const { models, subdomain, user, agentId, message, threadId, attachments } =
     params;
 
+  // Same NoSQL-injection guard as sessionId below: agentId arrives from the
+  // request body, so a crafted object must never reach a Mongo query.
+  if (typeof agentId !== 'string' || !agentId) {
+    throw new Error('agentId must be a non-empty string');
+  }
+
   const agentConfig = await models.MastraAgent.findOne({
     agentId,
     isEnabled: true,
@@ -220,7 +230,10 @@ export async function prepareChatTurn(params: {
   const { agent, tools } = await getOrCreateAgent(agentConfig, models);
 
   // Stable session id — the persisted thread this turn belongs to.
-  const sessionId = threadId || `chat-${Date.now()}`;
+  // typeof guard keeps crafted non-string payloads out of Mongo queries
+  // (NoSQL injection via query operators).
+  const sessionId =
+    typeof threadId === 'string' && threadId ? threadId : `chat-${Date.now()}`;
 
   // Ownership gate BEFORE any history is replayed: throws if the thread
   // belongs to another user (prevents reading or continuing someone else's

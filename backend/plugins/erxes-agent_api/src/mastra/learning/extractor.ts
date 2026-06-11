@@ -98,9 +98,11 @@ function clampConfidence(v: unknown): number {
 export function parseCandidates(raw: string): CandidateLearning[] {
   let arr: unknown;
   try {
-    const match = (raw ?? '').match(/\[[\s\S]*\]/);
-    if (!match) return [];
-    arr = JSON.parse(match[0]);
+    const text = raw ?? '';
+    const open = text.indexOf('[');
+    const close = text.lastIndexOf(']');
+    if (open === -1 || close <= open) return [];
+    arr = JSON.parse(text.slice(open, close + 1));
   } catch {
     return [];
   }

@@ -27,7 +27,7 @@ import { IMastraLearningDocument } from '@/learning/@types/learning';
 
 /** Deterministic UUID-shaped point id from the learning id (idempotent upserts). */
 export function learningPointId(subdomain: string, learningId: string): string {
-  const h = createHash('sha1')
+  const h = createHash('sha256')
     .update(`learning:${subdomain}:${learningId}`)
     .digest('hex');
   return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(

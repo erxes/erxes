@@ -19,9 +19,12 @@ export const REDACTED = '[redacted]';
 // Identifier-shaped substrings. Order matters: URLs first (so an email inside
 // a URL doesn't leave a half-scrubbed URL behind), then emails, then numbers.
 const URL_WITH_QUERY = /(https?:\/\/[^\s?'"<>]+)\?[^\s'"<>]*/gi;
-const EMAIL = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi;
-// Phone-ish: 8+ digits allowing separators, optionally prefixed with +.
-const PHONE = /\+?\d[\d\s().-]{6,}\d/g;
+// Domain labels are matched dot-by-dot so no character class overlaps the
+// separator that follows it (avoids super-linear backtracking, S5852).
+const EMAIL = /[a-z0-9._%+-]+@(?:[a-z0-9-]+\.)+[a-z]{2,}/gi;
+// Phone-ish: 8+ digits allowing separators, optionally prefixed with +. Each
+// digit after the first consumes its own separators — no ambiguous overlap.
+const PHONE = /\+?\d(?:[\s().-]*\d){7,}/g;
 // Long hex / base64-ish tokens (api keys, hashes, mongo ids).
 const TOKEN = /\b[a-f0-9]{24,}\b|\b[A-Za-z0-9+/_-]{32,}={0,2}\b/g;
 
@@ -85,9 +88,11 @@ export function buildGateUserContent(statements: string[]): string {
 export function parseGateVerdicts(raw: string, count: number): boolean[] {
   const closed = new Array(count).fill(false);
   try {
-    const match = (raw ?? '').match(/\[[\s\S]*?\]/);
-    if (!match) return closed;
-    const arr = JSON.parse(match[0]);
+    const text = raw ?? '';
+    const open = text.indexOf('[');
+    const close = open === -1 ? -1 : text.indexOf(']', open + 1);
+    if (close === -1) return closed;
+    const arr = JSON.parse(text.slice(open, close + 1));
     if (!Array.isArray(arr) || arr.length !== count) return closed;
     if (!arr.every((v) => typeof v === 'boolean')) return closed;
     return arr;

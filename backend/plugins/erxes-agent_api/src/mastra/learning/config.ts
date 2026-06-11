@@ -10,6 +10,7 @@
 // ---------------------------------------------------------------------------
 
 import { createHmac } from 'crypto';
+import { trimEdgeChars } from '~/mastra/text';
 import {
   Env,
   resolveEmbedderConfig,
@@ -64,11 +65,9 @@ export function learningCollectionName(
   model: string,
   dimension: number,
 ): string {
-  const slug = model
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '');
-  return `mastra_learnings_${slug}_${dimension}`;
+  const slug = model.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+  const trimmed = trimEdgeChars(slug, '_', '_');
+  return `mastra_learnings_${trimmed}_${dimension}`;
 }
 
 function parsePositiveInt(raw: string, def: number): number {
