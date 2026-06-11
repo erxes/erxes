@@ -35,9 +35,12 @@ describe('convo assembly', () => {
     );
     expect(injected.every((m) => m.role === 'system')).toBe(true);
     // no tool-call frames anywhere
-    expect(convo.some((m: any) => m.role === 'tool' || m.tool_calls)).toBe(
-      false,
-    );
+    expect(
+      convo.some(
+        (m: { role: string; tool_calls?: unknown }) =>
+          m.role === 'tool' || m.tool_calls,
+      ),
+    ).toBe(false);
   });
 
   it('AM-CONV-3: both blocks absent → byte-identical to plain replay', () => {

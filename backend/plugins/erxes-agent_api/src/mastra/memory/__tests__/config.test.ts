@@ -91,10 +91,10 @@ describe('advanced-memory config', () => {
     });
 
     it('AM-COL-2: different embedder yields a distinct collection', () => {
-      const a = collectionName('bge-small-en-v1.5', 384);
-      const b = collectionName('text-embedding-3-small', 1536);
-      expect(b).toBe('mastra_memory_text_embedding_3_small_1536');
-      expect(a).not.toBe(b);
+      const first = collectionName('bge-small-en-v1.5', 384);
+      const second = collectionName('text-embedding-3-small', 1536);
+      expect(second).toBe('mastra_memory_text_embedding_3_small_1536');
+      expect(first).not.toBe(second);
     });
   });
 
@@ -154,9 +154,11 @@ describe('advanced-memory config', () => {
     });
 
     it('qdrantReachable is null until a health check runs', () => {
-      const s = computeAdvancedMemoryStatus({ ERXES_AGENT_MEMORY: 'enable' });
-      expect(s.enabled).toBe(true);
-      expect(s.qdrantReachable).toBeNull();
+      const status = computeAdvancedMemoryStatus({
+        ERXES_AGENT_MEMORY: 'enable',
+      });
+      expect(status.enabled).toBe(true);
+      expect(status.qdrantReachable).toBeNull();
     });
   });
 });

@@ -11,12 +11,14 @@ import { isAdvancedMemoryEnabled } from './config';
 
 let _reachable: boolean | null = null;
 
+/** Last known Qdrant reachability (null = not yet checked). */
 export function getMemoryHealth(): boolean | null {
   return _reachable;
 }
 
-export function setMemoryHealth(v: boolean | null): void {
-  _reachable = v;
+/** Record the latest Qdrant reachability observation. */
+export function setMemoryHealth(reachable: boolean | null): void {
+  _reachable = reachable;
 }
 
 /** Re-ping Qdrant and update the cached health. */

@@ -3,8 +3,8 @@ import { health, ensureCollection, upsert, search } from '../vectorStore';
 // Integration tests against a live Qdrant. Skipped unless ERXES_AGENT_QDRANT_URL is
 // set (e.g. after: docker compose -f backend/plugins/erxes-agent_api/docker-compose.yml up -d
 // ERXES_AGENT_QDRANT_URL=http://localhost:6333 pnpm nx test erxes-agent_api).
-const RUN = !!process.env.ERXES_AGENT_QDRANT_URL;
-const d = RUN ? describe : describe.skip;
+const RUN = Boolean(process.env.ERXES_AGENT_QDRANT_URL);
+const maybeDescribe = RUN ? describe : describe.skip;
 
 const COLLECTION = 'mastra_memory_inttest_8';
 const DIM = 8;
@@ -17,7 +17,7 @@ function vec(seed: number): number[] {
   return v.map((x) => x / norm);
 }
 
-d('qdrant vector store (integration)', () => {
+maybeDescribe('qdrant vector store (integration)', () => {
   afterAll(async () => {
     await fetch(`${baseUrl}/collections/${COLLECTION}`, {
       method: 'DELETE',
@@ -33,7 +33,9 @@ d('qdrant vector store (integration)', () => {
     await ensureCollection(COLLECTION, DIM); // second call must not throw
 
     const res = await fetch(`${baseUrl}/collections/${COLLECTION}`);
-    const json: any = await res.json();
+    const json = (await res.json()) as {
+      result: { config: { params: { vectors: { size: number } } } };
+    };
     expect(json.result.config.params.vectors.size).toBe(DIM);
   });
 

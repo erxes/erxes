@@ -3,8 +3,8 @@ import { buildRecallFilter, toPoint, pointIdFor } from '../semanticRecall';
 
 // Gated: only runs when ERXES_AGENT_QDRANT_URL is set. Uses synthetic vectors so no
 // embedder is required — this isolates the tenant-filtering behavior.
-const RUN = !!process.env.ERXES_AGENT_QDRANT_URL;
-const d = RUN ? describe : describe.skip;
+const RUN = Boolean(process.env.ERXES_AGENT_QDRANT_URL);
+const maybeDescribe = RUN ? describe : describe.skip;
 
 const COLLECTION = 'mastra_memory_tenant_inttest_8';
 const DIM = 8;
@@ -30,7 +30,7 @@ function point(subdomain: string, id: string, seed: number, text: string) {
   });
 }
 
-d('semantic recall — tenant isolation (integration)', () => {
+maybeDescribe('semantic recall — tenant isolation (integration)', () => {
   beforeAll(async () => {
     await ensureCollection(COLLECTION, DIM);
     await upsert(COLLECTION, [

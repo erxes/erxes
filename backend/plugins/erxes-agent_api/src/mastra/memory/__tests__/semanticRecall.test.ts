@@ -98,11 +98,11 @@ describe('semantic recall — pure helpers', () => {
   });
 
   it('pointIdFor is deterministic, UUID-shaped, tenant-scoped', () => {
-    const a = pointIdFor('acme', 'm1');
-    expect(a).toMatch(
+    const pointId = pointIdFor('acme', 'm1');
+    expect(pointId).toMatch(
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
     );
-    expect(pointIdFor('acme', 'm1')).toBe(a); // deterministic
-    expect(pointIdFor('other', 'm1')).not.toBe(a); // tenant-scoped
+    expect(pointIdFor('acme', 'm1')).toBe(pointId); // deterministic
+    expect(pointIdFor('other', 'm1')).not.toBe(pointId); // tenant-scoped
   });
 });

@@ -33,9 +33,12 @@ describe('working memory — pure helpers', () => {
       assistant: 'Noted!',
     });
     expect(msgs.map((m) => m.role)).toEqual(['system', 'user']);
-    expect(msgs.some((m: any) => m.role === 'tool' || m.tool_calls)).toBe(
-      false,
-    );
+    expect(
+      msgs.some(
+        (m: { role: string; tool_calls?: unknown }) =>
+          m.role === 'tool' || m.tool_calls,
+      ),
+    ).toBe(false);
     // user content carries the current profile + the exchange
     expect(msgs[1].content).toContain('Sam');
     expect(msgs[1].content).toContain('Berlin');

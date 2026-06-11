@@ -92,11 +92,12 @@ export function toPoint(args: {
   };
 }
 
+/** Keep only hits at or above the similarity floor. */
 export function filterHitsByScore(
   hits: SearchHit[],
   minScore: number,
 ): SearchHit[] {
-  return hits.filter((h) => h.score >= minScore);
+  return hits.filter((hit) => hit.score >= minScore);
 }
 
 /**
@@ -106,35 +107,36 @@ export function filterHitsByScore(
 export function formatRecallBlock(
   hits: Array<{ text?: string }>,
 ): string | null {
-  const texts = hits.map((h) => (h.text ?? '').trim()).filter(Boolean);
+  const texts = hits.map((hit) => (hit.text ?? '').trim()).filter(Boolean);
   if (!texts.length) return null;
-  const lines = texts.map((t) => `- ${t}`).join('\n');
+  const lines = texts.map((text) => `- ${text}`).join('\n');
   // The staleness caveat matters: recalled snippets include old ERROR reports
   // ("operation X fails with …") that outlive the bug they describe — observed
   // live steering an agent away from operations that now work. Current tool
   // results must always win over recollections.
-  return (
-    'Relevant context from earlier conversations (recollections, possibly outdated — ' +
-    'if a recollection says something failed or was broken, ignore it and trust your ' +
-    'current tool results instead):\n' +
-    lines
-  );
+  const caveat = [
+    'Relevant context from earlier conversations (recollections, possibly outdated —',
+    'if a recollection says something failed or was broken, ignore it and trust your',
+    'current tool results instead):',
+  ].join(' ');
+  return `${caveat}\n${lines}`;
 }
 
 /** Deterministic UUID-shaped point id from the source message id (idempotent upserts). */
 export function pointIdFor(subdomain: string, messageId: string): string {
-  const h = createHash('sha256')
+  const hex = createHash('sha256')
     .update(`${subdomain}:${messageId}`)
     .digest('hex');
-  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(
+    12,
     16,
-    20,
-  )}-${h.slice(20, 32)}`;
+  )}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
 }
 
 // ── Orchestration (best-effort; never throws) ────────────────────────────────
 
 let _warned = false;
+/** Log a degradation warning once per process (recall is best-effort). */
 function warnOnce(msg: string) {
   if (_warned) return;
   // eslint-disable-next-line no-console
@@ -169,7 +171,7 @@ export async function recallBlock(
     setMemoryHealth(true);
 
     const kept = filterHitsByScore(hits, tuning.minScore);
-    return formatRecallBlock(kept.map((h) => ({ text: h.payload?.text })));
+    return formatRecallBlock(kept.map((hit) => ({ text: hit.payload?.text })));
   } catch (e) {
     warnOnce(`[mastra:memory] recall skipped: ${e?.message || e}`);
     return null;
