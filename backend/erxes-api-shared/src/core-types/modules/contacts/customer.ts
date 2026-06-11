@@ -75,6 +75,7 @@ export interface ICustomerQueryFilterParams
   type?: string;
   status?: string;
   dateFilters?: string;
+  propertiesData?: string;
 
   tagIds?: string[];
   excludeTagIds?: string[];
