@@ -16,6 +16,7 @@ import {
   IMastraChatAttachment,
   IMastraMessageMeta,
 } from '@/session/@types/session';
+import { readLearnedDigest } from '~/mastra/learning/digest';
 import { maybeGenerateThreadTitle } from '~/mastra/titler';
 import {
   buildChatUserContent,
@@ -95,7 +96,9 @@ export function buildFallbackFromResults(toolResults: any[]): string | null {
     }
 
     if (data.list && Array.isArray(data.list)) {
-      return `Found ${data.list.length} result${data.list.length !== 1 ? 's' : ''}.`;
+      return `Found ${data.list.length} result${
+        data.list.length !== 1 ? 's' : ''
+      }.`;
     }
 
     if (data.success === true) return 'Action completed successfully.';
@@ -130,7 +133,7 @@ export function extractTextToolCall(text: string): TextToolCall | null {
       const args =
         typeof fn.arguments === 'string'
           ? JSON.parse(fn.arguments)
-          : (fn.arguments ?? {});
+          : fn.arguments ?? {};
       return { name: fn.name, args };
     }
   } catch {}
@@ -145,20 +148,16 @@ export function extractTextToolCall(text: string): TextToolCall | null {
     }
   } catch {}
 
-  // Pattern 3 — <tool_call>...</tool_call> tags. Index scan instead of a
-  // lazy [\s\S]*? regex, which backtracks super-linearly on bad input.
-  const lowerT = t.toLowerCase();
-  const openTag = lowerT.indexOf('<tool_call>');
-  const closeTag =
-    openTag === -1 ? -1 : lowerT.indexOf('</tool_call>', openTag + 11);
-  if (openTag !== -1 && closeTag !== -1) {
+  // Pattern 3 — <tool_call>...</tool_call> tags
+  const tagMatch = t.match(/<tool_call>\s*([\s\S]*?)\s*<\/tool_call>/i);
+  if (tagMatch) {
     try {
-      const obj = JSON.parse(t.slice(openTag + 11, closeTag).trim());
+      const obj = JSON.parse(tagMatch[1]);
       if (obj?.name) {
         const args =
           typeof obj.arguments === 'string'
             ? JSON.parse(obj.arguments)
-            : (obj.arguments ?? obj.parameters ?? {});
+            : obj.arguments ?? obj.parameters ?? {};
         return { name: obj.name, args };
       }
     } catch {}
@@ -190,6 +189,9 @@ export interface PreparedTurn {
   advanced: boolean;
   memCtx: MemoryContext;
   attachments?: IMastraChatAttachment[];
+  // Learnings injected into this turn's context — stamped onto the assistant
+  // message meta so feedback can be attributed back to them.
+  learningIds: string[];
 }
 
 // Everything a chat turn needs before the model runs: agent + tools, thread
@@ -207,12 +209,6 @@ export async function prepareChatTurn(params: {
   const { models, subdomain, user, agentId, message, threadId, attachments } =
     params;
 
-  // Same NoSQL-injection guard as sessionId below: agentId arrives from the
-  // request body, so a crafted object must never reach a Mongo query.
-  if (typeof agentId !== 'string' || !agentId) {
-    throw new Error('agentId must be a non-empty string');
-  }
-
   const agentConfig = await models.MastraAgent.findOne({
     agentId,
     isEnabled: true,
@@ -223,11 +219,8 @@ export async function prepareChatTurn(params: {
   const providers = await models.MastraProvider.find({ isEnabled: true });
   const { agent, tools } = await getOrCreateAgent(agentConfig, models);
 
-  // Stable session id — the persisted thread this turn belongs to. The
-  // typeof guard keeps crafted non-string payloads out of Mongo queries
-  // (NoSQL injection via query operators).
-  const sessionId =
-    typeof threadId === 'string' && threadId ? threadId : `chat-${Date.now()}`;
+  // Stable session id — the persisted thread this turn belongs to.
+  const sessionId = threadId || `chat-${Date.now()}`;
 
   // Ownership gate BEFORE any history is replayed: throws if the thread
   // belongs to another user (prevents reading or continuing someone else's
@@ -260,20 +253,26 @@ export async function prepareChatTurn(params: {
   };
 
   // Semantic recall (cross-session long-term memory) + working memory (the
-  // persistent user profile). Both injected as plain system context blocks.
-  // Best-effort: each returns null on any error, never blocking the turn.
-  const [recall, wmBlock] = advanced
-    ? await Promise.all([
-        recallBlock(message, memCtx),
-        readWorkingMemory(models, memCtx),
-      ])
-    : [null, null];
+  // persistent user profile) + the tenant's learned digest (shared "Agent
+  // knowledge" — PII-free, independent of the per-user memory switch). All
+  // injected as plain system context blocks. Best-effort: each returns null
+  // on any error, never blocking the turn.
+  const [[recall, wmBlock], digest] = await Promise.all([
+    advanced
+      ? Promise.all([
+          recallBlock(message, memCtx),
+          readWorkingMemory(models, memCtx),
+        ])
+      : Promise.resolve([null, null] as [string | null, string | null]),
+    readLearnedDigest(models, agentId),
+  ]);
 
   const convo = augmentConvo({
     recentHistory,
     userMessage: message,
     recallBlock: recall,
     workingMemoryBlock: wmBlock,
+    learnedDigestBlock: digest?.block,
   });
 
   // Attachments reshape the final user turn: manifest text + inlined image
@@ -307,6 +306,7 @@ export async function prepareChatTurn(params: {
     advanced,
     memCtx,
     attachments,
+    learningIds: digest?.ids ?? [],
   };
 }
 
@@ -326,7 +326,12 @@ export async function persistTurn(params: {
   message: string;
   reply: string | null;
   meta?: IMastraMessageMeta;
-}): Promise<{ titlePromise: Promise<string | null> }> {
+}): Promise<{
+  titlePromise: Promise<string | null>;
+  // Persisted assistant message id — sent to the client so the reply can be
+  // rated (thumbs feedback) without a reload.
+  assistantMessageId: string | null;
+}> {
   const { models, prepared, message, reply, meta } = params;
   const {
     sessionId,
@@ -339,6 +344,12 @@ export async function persistTurn(params: {
     attachments,
   } = prepared;
 
+  // Stamp which learnings were in context so a later thumbs rating can be
+  // attributed to them (mastraMessageFeedback reads this back).
+  const fullMeta: IMastraMessageMeta | undefined = prepared.learningIds?.length
+    ? { ...(meta ?? {}), learningIdsInContext: prepared.learningIds }
+    : meta;
+
   const userMsg = await models.MastraMessage.addMessage(
     sessionId,
     'user',
@@ -347,7 +358,12 @@ export async function persistTurn(params: {
     attachments,
   );
   const asstMsg = reply
-    ? await models.MastraMessage.addMessage(sessionId, 'assistant', reply, meta)
+    ? await models.MastraMessage.addMessage(
+        sessionId,
+        'assistant',
+        reply,
+        fullMeta,
+      )
     : null;
   await models.MastraThread.touchThread(sessionId);
 
@@ -402,7 +418,10 @@ export async function persistTurn(params: {
     }
   }
 
-  return { titlePromise };
+  return {
+    titlePromise,
+    assistantMessageId: asstMsg ? String(asstMsg._id) : null,
+  };
 }
 
 // ─── Turn execution (blocking) ───────────────────────────────────────────────
@@ -522,10 +541,10 @@ export function logToolResults(uniqueResults: any[]) {
             data == null
               ? 'null'
               : Array.isArray(data)
-                ? `array(${data.length})`
-                : typeof data === 'object'
-                  ? Object.keys(data).slice(0, 6)
-                  : typeof data,
+              ? `array(${data.length})`
+              : typeof data === 'object'
+              ? Object.keys(data).slice(0, 6)
+              : typeof data,
           success: data && typeof data === 'object' ? data.success : undefined,
           error:
             data && typeof data === 'object'
@@ -566,7 +585,9 @@ export async function synthesizeFromToolResults(params: {
     .map((tr: any) => {
       const name = tr.toolName || tr.name || 'tool';
       const data = tr.result ?? tr;
-      return `[${name}]:\n${typeof data === 'string' ? data : JSON.stringify(data, null, 2)}`;
+      return `[${name}]:\n${
+        typeof data === 'string' ? data : JSON.stringify(data, null, 2)
+      }`;
     })
     .join('\n\n');
 
@@ -681,7 +702,9 @@ export async function executeTextToolCall(params: {
         {
           role: 'user',
           content:
-            `Available operations (from search_erxes_operations):\n${JSON.stringify(toolResult)}\n\n` +
+            `Available operations (from search_erxes_operations):\n${JSON.stringify(
+              toolResult,
+            )}\n\n` +
             `Now call execute_erxes_operation with the exact "operation" name and an "args" object to fulfil: "${message}".`,
         },
       ];
@@ -701,7 +724,11 @@ export async function executeTextToolCall(params: {
       return fallback || 'Something went wrong. Please try again.';
 
     // Synthesise a human-readable summary.
-    const toolContext = `[${extracted.name}]:\n${JSON.stringify(toolResult, null, 2)}`;
+    const toolContext = `[${extracted.name}]:\n${JSON.stringify(
+      toolResult,
+      null,
+      2,
+    )}`;
     const synthesisMessages: any[] = [
       {
         role: 'user',

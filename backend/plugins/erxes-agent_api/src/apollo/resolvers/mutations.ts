@@ -3,6 +3,7 @@ import { providerMutations } from '@/provider/graphql/resolvers/mutations/provid
 import { settingsMutations } from '@/settings/graphql/resolvers/mutations/settings';
 import { sessionMutations } from '@/session/graphql/resolvers/mutations/session';
 import { workflowMutations } from '@/workflow/graphql/resolvers/mutations/workflow';
+import { learningMutations } from '@/learning/graphql/resolvers/mutations/learning';
 
 export const mutations = {
   ...agentMutations,
@@ -10,4 +11,5 @@ export const mutations = {
   ...settingsMutations,
   ...sessionMutations,
   ...workflowMutations,
+  ...learningMutations,
 };

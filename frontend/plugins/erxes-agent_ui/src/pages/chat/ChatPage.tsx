@@ -22,6 +22,8 @@ import {
   IconX,
   IconArrowDown,
   IconFileUpload,
+  IconThumbUp,
+  IconThumbDown,
 } from '@tabler/icons-react';
 import {
   Badge,
@@ -764,14 +766,58 @@ const ToolCallRow = ({
   );
 };
 
+// ─── Feedback (thumbs) ───────────────────────────────────────────────────────
+//
+// Ratings feed the learning loop: a vote reinforces or penalizes the distilled
+// lessons that were injected into this turn's context (see Agent knowledge).
+
+const FeedbackButtons = ({
+  rating,
+  onRate,
+}: {
+  rating?: number;
+  onRate: (rating: 1 | -1) => void;
+}) => (
+  <Tooltip.Provider>
+    {([1, -1] as const).map((value) => {
+      const active = rating === value;
+      const Icon = value === 1 ? IconThumbUp : IconThumbDown;
+      return (
+        <Tooltip key={value}>
+          <Tooltip.Trigger asChild>
+            <button
+              type="button"
+              onClick={() => !active && onRate(value)}
+              className={`size-6 flex items-center justify-center rounded hover:bg-black/5 dark:hover:bg-white/10 transition-colors ${
+                active
+                  ? value === 1
+                    ? 'text-success'
+                    : 'text-destructive'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Icon className="size-3.5" />
+            </button>
+          </Tooltip.Trigger>
+          <Tooltip.Content>
+            {value === 1 ? 'Good response' : 'Bad response'}
+          </Tooltip.Content>
+        </Tooltip>
+      );
+    })}
+  </Tooltip.Provider>
+);
+
 // ─── Message bubble ───────────────────────────────────────────────────────────
 
 const MessageBubble = ({
   msg,
   onRegenerate,
+  onRate,
 }: {
   msg: Message;
   onRegenerate?: () => void;
+  onRate?: (rating: 1 | -1) => void;
 }) => {
   if (msg.role === 'error') {
     return (
@@ -879,6 +925,7 @@ const MessageBubble = ({
                   </Tooltip>
                 </Tooltip.Provider>
               )}
+              {onRate && <FeedbackButtons rating={msg.rating} onRate={onRate} />}
               <CopyButton text={msg.content} />
             </div>
           </div>
@@ -1516,6 +1563,22 @@ export const ChatPage = () => {
                             !chatLoading &&
                             i === messages.length - 1
                               ? handleRegenerate
+                              : undefined
+                          }
+                          onRate={
+                            msg.role === 'assistant' &&
+                            !msg.streaming &&
+                            msg.id &&
+                            agentId &&
+                            activeThreadId
+                              ? (rating) =>
+                                  chatStore.rateMessage(
+                                    apolloClient,
+                                    agentId,
+                                    activeThreadId,
+                                    msg.id!,
+                                    rating,
+                                  )
                               : undefined
                           }
                         />

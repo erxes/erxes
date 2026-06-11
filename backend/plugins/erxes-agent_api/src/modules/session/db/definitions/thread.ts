@@ -31,6 +31,9 @@ export const threadSchema = new Schema(
     },
     messageCount: { type: Number, default: 0, label: 'Message count' },
     lastMessageAt: { type: Date, label: 'Last message at' },
+    // Learning-distillation cursor: messageCount at the last sweep that
+    // distilled this thread. messageCount > this ⇒ undistilled tail exists.
+    distilledMessageCount: { type: Number, default: 0, label: 'Messages at last distillation' },
   },
   { timestamps: true },
 );

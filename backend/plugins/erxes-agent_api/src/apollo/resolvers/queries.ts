@@ -4,6 +4,7 @@ import { providerQueries } from '@/provider/graphql/resolvers/queries/provider';
 import { settingsQueries } from '@/settings/graphql/resolvers/queries/settings';
 import { sessionQueries } from '@/session/graphql/resolvers/queries/session';
 import { workflowQueries } from '@/workflow/graphql/resolvers/queries/workflow';
+import { learningQueries } from '@/learning/graphql/resolvers/queries/learning';
 
 export const queries = {
   ...agentQueries,
@@ -12,4 +13,5 @@ export const queries = {
   ...settingsQueries,
   ...sessionQueries,
   ...workflowQueries,
+  ...learningQueries,
 };

@@ -43,6 +43,30 @@ import {
   loadWorkflowRunClass,
   IMastraWorkflowRunModel,
 } from '@/workflow/db/models/WorkflowRun';
+import {
+  loadLearningClass,
+  IMastraLearningModel,
+} from '@/learning/db/models/Learning';
+import {
+  loadFeedbackClass,
+  IMastraFeedbackModel,
+} from '@/learning/db/models/Feedback';
+import { IMastraAgentDocument } from '@/agent/@types/agent';
+import { IMastraProviderDocument } from '@/provider/@types/provider';
+import { IMastraSettingsDocument } from '@/settings/@types/settings';
+import {
+  IMastraThreadDocument,
+  IMastraMessageDocument,
+} from '@/session/@types/session';
+import { IMastraWorkingMemoryDocument } from '@/memory/@types/workingMemory';
+import {
+  IMastraWorkflowDocument,
+  IMastraWorkflowRunDocument,
+} from '@/workflow/@types/workflow';
+import {
+  IMastraLearningDocument,
+  IMastraFeedbackDocument,
+} from '@/learning/@types/learning';
 
 export interface IModels {
   MastraAgent: IMastraAgentModel;
@@ -53,6 +77,8 @@ export interface IModels {
   MastraWorkingMemory: IMastraWorkingMemoryModel;
   MastraWorkflow: IMastraWorkflowModel;
   MastraWorkflowRun: IMastraWorkflowRunModel;
+  MastraLearning: IMastraLearningModel;
+  MastraFeedback: IMastraFeedbackModel;
 }
 
 export interface IContext extends IMainContext {
@@ -104,6 +130,16 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     IMastraWorkflowRunDocument,
     IMastraWorkflowRunModel
   >('mastra_workflow_runs', loadWorkflowRunClass(models));
+
+  models.MastraLearning = db.model<
+    IMastraLearningDocument,
+    IMastraLearningModel
+  >('mastra_learnings', loadLearningClass(models));
+
+  models.MastraFeedback = db.model<
+    IMastraFeedbackDocument,
+    IMastraFeedbackModel
+  >('mastra_feedbacks', loadFeedbackClass(models));
 
   return models;
 };

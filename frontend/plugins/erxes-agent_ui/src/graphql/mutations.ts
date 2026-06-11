@@ -97,6 +97,67 @@ export const MASTRA_SETTINGS_SAVE = gql`
   }
 `;
 
+export const MASTRA_MESSAGE_FEEDBACK = gql`
+  mutation MastraMessageFeedback(
+    $messageId: String!
+    $rating: Int!
+    $comment: String
+  ) {
+    mastraMessageFeedback(
+      messageId: $messageId
+      rating: $rating
+      comment: $comment
+    )
+  }
+`;
+
+export const MASTRA_LEARNING_ADD = gql`
+  mutation MastraLearningAdd($doc: MastraLearningInput!) {
+    mastraLearningAdd(doc: $doc) {
+      _id
+      statement
+      type
+      status
+    }
+  }
+`;
+
+export const MASTRA_LEARNING_EDIT = gql`
+  mutation MastraLearningEdit($_id: String!, $doc: MastraLearningInput!) {
+    mastraLearningEdit(_id: $_id, doc: $doc) {
+      _id
+      statement
+      type
+      contextTags
+      status
+    }
+  }
+`;
+
+export const MASTRA_LEARNING_SET_STATUS = gql`
+  mutation MastraLearningSetStatus($_id: String!, $status: String!) {
+    mastraLearningSetStatus(_id: $_id, status: $status) {
+      _id
+      status
+    }
+  }
+`;
+
+export const MASTRA_LEARNING_PIN = gql`
+  mutation MastraLearningPin($_id: String!, $pinned: Boolean!) {
+    mastraLearningPin(_id: $_id, pinned: $pinned) {
+      _id
+      pinned
+    }
+  }
+`;
+
+export const MASTRA_LEARNING_REMOVE = gql`
+  mutation MastraLearningRemove($_id: String!) {
+    mastraLearningRemove(_id: $_id)
+  }
+`;
+
 export const MASTRA_WORKFLOW_CREATE = gql`
   mutation MastraWorkflowCreate($doc: MastraWorkflowInput!) {
     mastraWorkflowCreate(doc: $doc) {

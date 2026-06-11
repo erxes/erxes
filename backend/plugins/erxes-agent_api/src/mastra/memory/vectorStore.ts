@@ -147,6 +147,25 @@ export async function scroll(
   return points;
 }
 
+/** Merge payload keys into existing points without re-embedding. */
+export async function setPayload(
+  name: string,
+  ids: Array<string | number>,
+  payload: Record<string, any>,
+  baseUrl = qdrantUrl(),
+): Promise<void> {
+  if (!ids.length) return;
+  const res = await fetch(`${baseUrl}/collections/${name}/points/payload?wait=true`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({ payload, points: ids }),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`Qdrant setPayload failed (${res.status}): ${text}`);
+  }
+}
+
 export async function deletePoints(
   name: string,
   ids: Array<string | number>,

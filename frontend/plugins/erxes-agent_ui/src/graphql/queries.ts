@@ -218,6 +218,40 @@ export const MASTRA_SETTINGS = gql`
   }
 `;
 
+export const MASTRA_LEARNINGS = gql`
+  query MastraLearnings($status: String, $type: String, $searchValue: String, $page: Int, $perPage: Int) {
+    mastraLearnings(status: $status, type: $type, searchValue: $searchValue, page: $page, perPage: $perPage) {
+      list {
+        _id statement type contextTags agentId status confidence
+        evidenceCount sourceCount pinned createdBy lastReinforcedAt
+        createdAt updatedAt
+      }
+      totalCount
+    }
+  }
+`;
+
+export const MASTRA_LEARNING_STATS = gql`
+  query MastraLearningStats {
+    mastraLearningStats
+  }
+`;
+
+export const MASTRA_LEARNING_STATUS = gql`
+  query MastraLearningStatus {
+    mastraLearningStatus {
+      enabled embedder embedderModel qdrantUrl collection
+      autoPromoteMinSources autoPromoteMinConfidence
+    }
+  }
+`;
+
+export const MASTRA_MESSAGE_FEEDBACKS = gql`
+  query MastraMessageFeedbacks($threadId: String!) {
+    mastraMessageFeedbacks(threadId: $threadId)
+  }
+`;
+
 export const MASTRA_WORKFLOWS = gql`
   query MastraWorkflows {
     mastraWorkflows {

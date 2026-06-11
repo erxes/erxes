@@ -13,7 +13,7 @@ export interface ConvoMessage {
 
 /**
  * Assemble the turn's message array:
- *   [ workingMemoryBlock?, recallBlock?, ...recentHistory, userMessage ]
+ *   [ workingMemoryBlock?, learnedDigestBlock?, recallBlock?, ...recentHistory, userMessage ]
  * The user message is always last; injected blocks are `system` role.
  */
 export function augmentConvo(args: {
@@ -21,10 +21,16 @@ export function augmentConvo(args: {
   userMessage: string;
   recallBlock?: string | null;
   workingMemoryBlock?: string | null;
+  // Tenant-shared "Agent knowledge" digest (PII-free by construction —
+  // see mastra/learning/sanitize.ts).
+  learnedDigestBlock?: string | null;
 }): ConvoMessage[] {
   const convo: ConvoMessage[] = [];
   if (args.workingMemoryBlock) {
     convo.push({ role: 'system', content: args.workingMemoryBlock });
+  }
+  if (args.learnedDigestBlock) {
+    convo.push({ role: 'system', content: args.learnedDigestBlock });
   }
   if (args.recallBlock) {
     convo.push({ role: 'system', content: args.recallBlock });

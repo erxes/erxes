@@ -1,5 +1,5 @@
 import { useEffect, useReducer } from 'react';
-import { IconRobot, IconMessageCircle, IconSitemap } from '@tabler/icons-react';
+import { IconRobot, IconMessageCircle, IconSitemap, IconBulb } from '@tabler/icons-react';
 import { NavigationMenuLinkItem } from 'erxes-ui';
 import { chatStore } from '~/pages/chat/chatStore';
 
@@ -37,6 +37,11 @@ export const MastraNavigation = () => {
         name="Workflows"
         icon={IconSitemap}
         path="erxes-agent/workflows"
+      />
+      <NavigationMenuLinkItem
+        name="Agent knowledge"
+        icon={IconBulb}
+        path="erxes-agent/learnings"
       />
     </>
   );

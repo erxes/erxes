@@ -20,6 +20,7 @@ import {
   augmentConvo,
   MemoryContext,
 } from './mastra/memory';
+import { readLearnedDigest } from './mastra/learning/digest';
 import {
   prepareChatTurn,
   persistTurn,
@@ -409,7 +410,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
       }
     }
 
-    const { titlePromise } = await persistTurn({
+    const { titlePromise, assistantMessageId } = await persistTurn({
       models,
       prepared,
       message,
@@ -424,7 +425,7 @@ router.post('/chat/stream', llmRouteLimiter, async (req, res) => {
         : undefined,
     });
 
-    send({ type: 'done', reply, interrupted });
+    send({ type: 'done', reply, interrupted, messageId: assistantMessageId });
 
     // The auto-titler summarizes the conversation in the background; hold the
     // stream open briefly so the client gets the new sidebar title without a
@@ -505,19 +506,21 @@ router.post('/bot/:conversationId', llmRouteLimiter, async (req, res) => {
       agentId: agentConfig.agentId,
     };
 
-    // Advanced memory: semantic recall + working memory (best-effort).
-    const [recall, wmBlock] = advanced
-      ? await Promise.all([
-          recallBlock(userText, memCtx),
-          readWorkingMemory(models, memCtx),
-        ])
-      : [null, null];
+    // Advanced memory: semantic recall + working memory (best-effort), plus
+    // the tenant's learned digest (shared, PII-free agent knowledge).
+    const [[recall, wmBlock], digest] = await Promise.all([
+      advanced
+        ? Promise.all([recallBlock(userText, memCtx), readWorkingMemory(models, memCtx)])
+        : Promise.resolve([null, null] as [string | null, string | null]),
+      readLearnedDigest(models, agentConfig.agentId),
+    ]);
 
     const convo = augmentConvo({
       recentHistory,
       userMessage: userText,
       recallBlock: recall,
       workingMemoryBlock: wmBlock,
+      learnedDigestBlock: digest?.block,
     });
 
     // Bot requests use the static app token from settings (no user session available)

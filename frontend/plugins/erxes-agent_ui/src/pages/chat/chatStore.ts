@@ -2,10 +2,12 @@ import { ApolloClient } from '@apollo/client';
 import { REACT_APP_API_URL } from 'erxes-ui';
 import {
   MASTRA_AGENT_CHAT,
+  MASTRA_MESSAGE_FEEDBACKS,
   MASTRA_THREADS,
   MASTRA_THREAD_MESSAGES,
 } from '~/graphql/queries';
 import {
+  MASTRA_MESSAGE_FEEDBACK,
   MASTRA_THREAD_REMOVE,
   MASTRA_THREAD_RENAME,
 } from '~/graphql/mutations';
@@ -36,6 +38,9 @@ export interface ChatAttachment {
 }
 
 export interface Message {
+  // Persisted message _id — present after hydration, or from the stream's
+  // `done` event. Required for thumbs feedback.
+  id?: string;
   role: 'user' | 'assistant' | 'error';
   content: string;
   timestamp: Date;
@@ -45,6 +50,8 @@ export interface Message {
   attachments?: ChatAttachment[];
   streaming?: boolean;
   interrupted?: boolean;
+  // The caller's own thumbs vote (1 / -1), when one exists.
+  rating?: number;
 }
 
 // Rebuild ordered parts from a persisted message's meta. Older messages only
@@ -347,6 +354,7 @@ class ChatStore {
       });
       const messages: Message[] = (data?.mastraThreadMessages || []).map(
         (m: any) => ({
+          id: m._id,
           role: m.role,
           content: m.content,
           timestamp: m.createdAt ? new Date(m.createdAt) : new Date(),
@@ -362,8 +370,66 @@ class ChatStore {
         messages,
         messagesLoading: false,
       });
+      void this.hydrateFeedbacks(apolloClient, agentKey, threadId);
     } catch {
       this.patchThread(agentKey, threadId, { messagesLoading: false });
+    }
+  }
+
+  // Overlay the caller's existing thumbs votes onto loaded messages.
+  // Best-effort — votes are cosmetic until the user interacts.
+  private async hydrateFeedbacks(
+    apolloClient: ApolloClient<any>,
+    agentKey: string,
+    threadId: string,
+  ) {
+    try {
+      const { data } = await apolloClient.query({
+        query: MASTRA_MESSAGE_FEEDBACKS,
+        variables: { threadId },
+        fetchPolicy: 'network-only',
+      });
+      const byMessage = data?.mastraMessageFeedbacks || {};
+      if (!Object.keys(byMessage).length) return;
+      const thread = this.getThread(agentKey, threadId);
+      this.patchThread(agentKey, threadId, {
+        messages: thread.messages.map((m) =>
+          m.id && byMessage[m.id]
+            ? { ...m, rating: byMessage[m.id].rating }
+            : m,
+        ),
+      });
+    } catch {
+      // ignore — thumbs just render unselected
+    }
+  }
+
+  // Persist a thumbs vote and reflect it optimistically.
+  async rateMessage(
+    apolloClient: ApolloClient<any>,
+    agentKey: string,
+    threadId: string,
+    messageId: string,
+    rating: 1 | -1,
+  ) {
+    const thread = this.getThread(agentKey, threadId);
+    this.patchThread(agentKey, threadId, {
+      messages: thread.messages.map((m) =>
+        m.id === messageId ? { ...m, rating } : m,
+      ),
+    });
+    try {
+      await apolloClient.mutate({
+        mutation: MASTRA_MESSAGE_FEEDBACK,
+        variables: { messageId, rating },
+      });
+    } catch {
+      // revert on failure
+      this.patchThread(agentKey, threadId, {
+        messages: this.getThread(agentKey, threadId).messages.map((m) =>
+          m.id === messageId ? { ...m, rating: undefined } : m,
+        ),
+      });
     }
   }
 
@@ -682,6 +748,7 @@ class ChatStore {
           if (live || ev.reply) {
             upsertLive((m) => ({
               ...m,
+              id: ev.messageId || m.id,
               parts: closeThinking(m.parts),
               content: m.content || ev.reply || '',
               streaming: false,

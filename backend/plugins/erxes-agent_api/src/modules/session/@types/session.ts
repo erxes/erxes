@@ -16,6 +16,8 @@ export interface IMastraThread {
   titleMessageCount?: number;
   messageCount?: number;
   lastMessageAt?: Date;
+  // messageCount at the last learning-distillation sweep over this thread.
+  distilledMessageCount?: number;
 }
 
 export interface IMastraThreadDocument extends IMastraThread, Document {
@@ -51,6 +53,9 @@ export interface IMastraMessageMeta {
   toolCalls?: IMastraToolCall[];
   parts?: IMastraTurnPart[];
   interrupted?: boolean;
+  // Learnings injected into this turn's context (digest entries) — lets a
+  // thumbs rating reinforce/penalize the lessons that shaped the reply.
+  learningIdsInContext?: string[];
 }
 
 // A file attached to a user message. `url` is either a storage key (private

@@ -7,6 +7,7 @@ import {
   stripScriptAndStyleBlocks,
 } from '~/mastra/html';
 import { companyKnowledgeTool } from '~/mastra/knowledge/knowledgeTool';
+import { agentKnowledgeTool } from '~/mastra/learning/learningTool';
 import { readAttachmentTool } from './attachmentTool';
 import { WORKFLOW_BUILTIN_TOOLS } from './workflowTools';
 
@@ -373,6 +374,9 @@ export const BUILTIN_TOOLS: Record<string, any> = {
   renderChart: renderChartTool,
   // No-ops with a clear message unless ERXES_AGENT_KNOWLEDGE=enable.
   companyKnowledge: companyKnowledgeTool,
+  // Distilled lessons from past conversations. No-op unless
+  // ERXES_AGENT_LEARNING=enable.
+  agentKnowledge: agentKnowledgeTool,
   // Reads chat attachments (pdf/docx/xlsx/csv/…). Also force-bound outside
   // the policy filter — see agentRuntime — so attached files are always readable.
   readAttachment: readAttachmentTool,

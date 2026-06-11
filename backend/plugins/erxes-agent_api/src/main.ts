@@ -16,7 +16,7 @@ startPlugin({
     automations,
   },
   graphql: async () => ({
-    typeDefs: await typeDefs(),
+    typeDefs: typeDefs(),
     resolvers,
   }),
   expressRouter: router,
@@ -50,6 +50,16 @@ startPlugin({
         import('erxes-api-shared/utils'),
       ]);
       await initKnowledgeSync(redis);
+    }
+
+    // Agent learning (opt-in via ERXES_AGENT_LEARNING=enable): distillation +
+    // hygiene sweep scheduler + worker. Same lazy-load contract.
+    if ((process.env.ERXES_AGENT_LEARNING ?? '').trim() === 'enable') {
+      const [{ initLearningSweep }, { redis }] = await Promise.all([
+        import('~/mastra/learning/worker'),
+        import('erxes-api-shared/utils'),
+      ]);
+      await initLearningSweep(redis);
     }
 
     // Workflow schedule trigger: reconcile BullMQ job schedulers with enabled
