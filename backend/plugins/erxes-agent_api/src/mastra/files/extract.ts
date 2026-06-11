@@ -75,6 +75,7 @@ function clamp(text: string): { content: string; truncated: boolean } {
   };
 }
 
+/** Strip markup from an HTML upload so it reads as plain text. */
 function stripHtml(html: string): string {
   return decodeHtmlEntities(stripAllTags(stripScriptAndStyleBlocks(html)))
     .replace(/[ \t]+/g, ' ')
@@ -84,9 +85,11 @@ function stripHtml(html: string): string {
     .trim();
 }
 
+// The parser libraries are imported lazily — they are heavy and only needed
+// when a matching file type is actually uploaded. Under module:commonjs the
+// dynamic import compiles to a deferred require, so laziness is preserved.
 async function extractPdf(buffer: Buffer): Promise<string> {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const pdfParse = require('pdf-parse');
+  const { default: pdfParse } = await import('pdf-parse');
   const parsed = await pdfParse(buffer);
   const pages = parsed.numpages
     ? `[PDF — ${parsed.numpages} page${parsed.numpages === 1 ? '' : 's'}]\n`
@@ -95,35 +98,45 @@ async function extractPdf(buffer: Buffer): Promise<string> {
 }
 
 async function extractDocx(buffer: Buffer): Promise<string> {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const mammoth = require('mammoth');
+  const mammoth = await import('mammoth');
   const result = await mammoth.extractRawText({ buffer });
   return (result.value || '').trim();
 }
 
 // Render each worksheet as CSV-ish rows. Formula cells report their computed
 // result; rich-text and dates collapse to display strings.
+// Cells that carry their value behind a property (formula results, rich text,
+// hyperlinks) — structural type, narrowed from exceljs's CellValue union.
+interface LooseCell {
+  result?: unknown;
+  text?: unknown;
+  richText?: Array<{ text?: unknown }>;
+  hyperlink?: unknown;
+}
+
 async function extractXlsx(buffer: Buffer): Promise<string> {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const ExcelJS = require('exceljs');
+  const { default: ExcelJS } = await import('exceljs');
   const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.load(buffer as any);
+  await workbook.xlsx.load(buffer);
 
   const out: string[] = [];
-  workbook.eachSheet((sheet: any) => {
+  workbook.eachSheet((sheet) => {
     out.push(`=== Sheet: ${sheet.name} (${sheet.rowCount} rows) ===`);
     let emitted = 0;
-    sheet.eachRow({ includeEmpty: false }, (row: any) => {
+    sheet.eachRow({ includeEmpty: false }, (row) => {
       if (emitted >= MAX_SHEET_ROWS) return;
       const values = (Array.isArray(row.values) ? row.values.slice(1) : []).map(
-        (v: any) => {
+        (v) => {
           if (v == null) return '';
           if (typeof v === 'object') {
-            if (v.result !== undefined) return String(v.result);
-            if (v.text !== undefined) return String(v.text);
-            if (v.richText) return v.richText.map((r: any) => r.text).join('');
             if (v instanceof Date) return v.toISOString();
-            if (v.hyperlink) return String(v.text ?? v.hyperlink);
+            const cell = v as LooseCell;
+            if (cell.result !== undefined) return String(cell.result);
+            if (cell.text !== undefined) return String(cell.text);
+            if (Array.isArray(cell.richText)) {
+              return cell.richText.map((r) => String(r?.text ?? '')).join('');
+            }
+            if (cell.hyperlink) return String(cell.text ?? cell.hyperlink);
             return JSON.stringify(v);
           }
           return String(v);
