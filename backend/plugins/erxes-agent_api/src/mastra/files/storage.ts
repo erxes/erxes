@@ -52,8 +52,8 @@ export function evaluateStorageConfigs(
       return {
         configured: Boolean(
           read('AWS_BUCKET') &&
-            read('AWS_ACCESS_KEY_ID') &&
-            read('AWS_SECRET_ACCESS_KEY'),
+          read('AWS_ACCESS_KEY_ID') &&
+          read('AWS_SECRET_ACCESS_KEY'),
         ),
         serviceType,
       };
@@ -61,9 +61,9 @@ export function evaluateStorageConfigs(
       return {
         configured: Boolean(
           read('CLOUDFLARE_BUCKET_NAME') &&
-            read('CLOUDFLARE_ACCOUNT_ID') &&
-            read('CLOUDFLARE_ACCESS_KEY_ID') &&
-            read('CLOUDFLARE_SECRET_ACCESS_KEY'),
+          read('CLOUDFLARE_ACCOUNT_ID') &&
+          read('CLOUDFLARE_ACCESS_KEY_ID') &&
+          read('CLOUDFLARE_SECRET_ACCESS_KEY'),
         ),
         serviceType,
       };
@@ -71,7 +71,7 @@ export function evaluateStorageConfigs(
       return {
         configured: Boolean(
           read('AZURE_STORAGE_CONNECTION_STRING') &&
-            read('AZURE_STORAGE_CONTAINER'),
+          read('AZURE_STORAGE_CONTAINER'),
         ),
         serviceType,
       };

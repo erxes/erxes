@@ -70,15 +70,15 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadAgentClass(models),
   );
 
-  models.MastraProvider = db.model<IMastraProviderDocument, IMastraProviderModel>(
-    'mastra_providers',
-    loadProviderClass(models),
-  );
+  models.MastraProvider = db.model<
+    IMastraProviderDocument,
+    IMastraProviderModel
+  >('mastra_providers', loadProviderClass(models));
 
-  models.MastraSettings = db.model<IMastraSettingsDocument, IMastraSettingsModel>(
-    'mastra_settings',
-    loadSettingsClass(models),
-  );
+  models.MastraSettings = db.model<
+    IMastraSettingsDocument,
+    IMastraSettingsModel
+  >('mastra_settings', loadSettingsClass(models));
 
   models.MastraThread = db.model<IMastraThreadDocument, IMastraThreadModel>(
     'mastra_threads',
@@ -93,23 +93,17 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.MastraWorkingMemory = db.model<
     IMastraWorkingMemoryDocument,
     IMastraWorkingMemoryModel
-  >(
-    'mastra_working_memory',
-    loadWorkingMemoryClass(models),
-  );
+  >('mastra_working_memory', loadWorkingMemoryClass(models));
 
-  models.MastraWorkflow = db.model<IMastraWorkflowDocument, IMastraWorkflowModel>(
-    'mastra_workflows',
-    loadWorkflowClass(models),
-  );
+  models.MastraWorkflow = db.model<
+    IMastraWorkflowDocument,
+    IMastraWorkflowModel
+  >('mastra_workflows', loadWorkflowClass(models));
 
   models.MastraWorkflowRun = db.model<
     IMastraWorkflowRunDocument,
     IMastraWorkflowRunModel
-  >(
-    'mastra_workflow_runs',
-    loadWorkflowRunClass(models),
-  );
+  >('mastra_workflow_runs', loadWorkflowRunClass(models));
 
   return models;
 };
