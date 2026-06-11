@@ -68,7 +68,7 @@ export async function initAdvancedMemory(): Promise<void> {
       `[mastra:memory] Advanced memory ready — collection "${collection}" ` +
         `(dim ${emb.dimension}, embedder ${emb.kind}/${emb.model}) at ${url}.`,
     );
-  } catch (e: any) {
+  } catch (e) {
     setMemoryHealth(false);
     // eslint-disable-next-line no-console
     console.error(

@@ -24,10 +24,12 @@ export interface Embedder {
 
 let cached: Embedder | null = null;
 
+/** Drop the cached embedder (tests / config changes). */
 export function resetEmbedderCache() {
   cached = null;
 }
 
+/** Lazily build and cache the configured embedder backend. */
 export async function getEmbedder(
   cfg: EmbedderConfig = resolveEmbedderConfig(),
 ): Promise<Embedder> {
@@ -39,7 +41,9 @@ export async function getEmbedder(
   return cached;
 }
 
+/** Embedder over any OpenAI-compatible /embeddings endpoint (fetch only). */
 function buildOpenAIEmbedder(cfg: EmbedderConfig): Embedder {
+  /** POST the batch and unwrap the embedding vectors. */
   const embed = async (texts: string[]): Promise<number[][]> => {
     if (!texts.length) return [];
     const res = await fetch(`${cfg.baseUrl}/embeddings`, {
@@ -54,19 +58,33 @@ function buildOpenAIEmbedder(cfg: EmbedderConfig): Embedder {
       const text = await res.text().catch(() => '');
       throw new Error(`Embedding request failed (${res.status}): ${text}`);
     }
-    const json: any = await res.json();
-    return (json.data || []).map((d: any) => d.embedding as number[]);
+    const json = (await res.json()) as {
+      data?: Array<{ embedding: number[] }>;
+    };
+    return (json.data || []).map((item) => item.embedding);
   };
   return { embed, dimension: cfg.dimension, kind: cfg.kind, model: cfg.model };
 }
 
+// The minimal surface used from the optional "fastembed" package — typed
+// locally so the build never statically depends on its declarations.
+interface FastEmbedModule {
+  FlagEmbedding: {
+    init(opts: Record<string, unknown>): Promise<{
+      embed(texts: string[]): AsyncIterable<Array<Iterable<number>>>;
+    }>;
+  };
+  EmbeddingModel?: Record<string, unknown>;
+}
+
+/** Embedder over the local fastembed model (lazy optional dependency). */
 async function buildFastEmbedEmbedder(cfg: EmbedderConfig): Promise<Embedder> {
   // Loaded via a computed specifier so the build never statically requires the
   // optional package. Installed separately when the local embedder is used.
   const spec = 'fastembed';
-  let mod: any;
+  let mod: FastEmbedModule;
   try {
-    mod = await import(spec);
+    mod = (await import(spec)) as FastEmbedModule;
   } catch {
     throw new Error(
       '[mastra:memory] The local embedder needs the "fastembed" package. ' +
@@ -75,7 +93,7 @@ async function buildFastEmbedEmbedder(cfg: EmbedderConfig): Promise<Embedder> {
   }
 
   const { FlagEmbedding, EmbeddingModel } = mod;
-  const modelMap: Record<string, any> = {
+  const modelMap: Record<string, unknown> = {
     'bge-small-en-v1.5': EmbeddingModel?.BGESmallENV15,
     'bge-base-en-v1.5': EmbeddingModel?.BGEBaseENV15,
     'all-minilm-l6-v2': EmbeddingModel?.AllMiniLML6V2,
@@ -89,11 +107,12 @@ async function buildFastEmbedEmbedder(cfg: EmbedderConfig): Promise<Embedder> {
     ...(cacheDir ? { cacheDir } : {}),
   });
 
+  /** Stream the model's batches and collect plain number arrays. */
   const embed = async (texts: string[]): Promise<number[][]> => {
     if (!texts.length) return [];
     const out: number[][] = [];
     for await (const batch of flagModel.embed(texts)) {
-      for (const v of batch) out.push(Array.from(v as Iterable<number>));
+      for (const vector of batch) out.push(Array.from(vector));
     }
     return out;
   };

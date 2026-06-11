@@ -44,13 +44,15 @@ export function buildRecallFilter(args: {
   scope: 'resource' | 'thread';
   resourceId?: string;
   threadId?: string;
-}): { must: any[] } {
+}): { must: Array<Record<string, unknown>> } {
   if (!args.subdomain) {
     throw new Error(
       '[mastra:memory] refusing to query Qdrant without a subdomain (tenant isolation).',
     );
   }
-  const must: any[] = [{ key: 'subdomain', match: { value: args.subdomain } }];
+  const must: Array<Record<string, unknown>> = [
+    { key: 'subdomain', match: { value: args.subdomain } },
+  ];
   if (args.scope === 'resource') {
     if (args.resourceId) {
       must.push({ key: 'resourceId', match: { value: args.resourceId } });
@@ -124,7 +126,10 @@ export function pointIdFor(subdomain: string, messageId: string): string {
   const h = createHash('sha256')
     .update(`${subdomain}:${messageId}`)
     .digest('hex');
-  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20, 32)}`;
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(
+    16,
+    20,
+  )}-${h.slice(20, 32)}`;
 }
 
 // ── Orchestration (best-effort; never throws) ────────────────────────────────
@@ -165,7 +170,7 @@ export async function recallBlock(
 
     const kept = filterHitsByScore(hits, tuning.minScore);
     return formatRecallBlock(kept.map((h) => ({ text: h.payload?.text })));
-  } catch (e: any) {
+  } catch (e) {
     warnOnce(`[mastra:memory] recall skipped: ${e?.message || e}`);
     return null;
   }
@@ -201,7 +206,7 @@ export async function indexMessages(
     );
     await upsert(collection, points);
     setMemoryHealth(true);
-  } catch (e: any) {
+  } catch (e) {
     warnOnce(`[mastra:memory] indexing skipped: ${e?.message || e}`);
   }
 }

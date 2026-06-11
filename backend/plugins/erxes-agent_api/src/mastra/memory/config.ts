@@ -139,10 +139,12 @@ export function resolveRecallTuning(env: Env = process.env): RecallTuning {
   };
 }
 
+/** Qdrant base URL (ERXES_AGENT_QDRANT_URL, default localhost:6333). */
 export function qdrantUrl(env: Env = process.env): string {
   return val(env, 'ERXES_AGENT_QDRANT_URL') || DEFAULT_QDRANT_URL;
 }
 
+/** Optional Qdrant API key (ERXES_AGENT_QDRANT_API_KEY). */
 export function qdrantApiKey(env: Env = process.env): string | undefined {
   return val(env, 'ERXES_AGENT_QDRANT_API_KEY') || undefined;
 }
