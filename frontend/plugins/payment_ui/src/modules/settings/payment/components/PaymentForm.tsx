@@ -231,7 +231,12 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
     };
 
     const config: any = {};
-    const topLevelKeys = new Set(['kind', 'name', 'status', 'sendEmailOnPayment']);
+    const topLevelKeys = new Set([
+      'kind',
+      'name',
+      'status',
+      'sendEmailOnPayment',
+    ]);
     Object.entries(data).forEach(([key, value]) => {
       if (!topLevelKeys.has(key)) {
         config[key] = value;
@@ -366,7 +371,10 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                                 >
                                   {method.name}
                                   {field.value === key && (
-                                    <Combobox.Check checked className="ml-auto" />
+                                    <Combobox.Check
+                                      checked
+                                      className="ml-auto"
+                                    />
                                   )}
                                 </Command.Item>
                               ))}
@@ -454,9 +462,12 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                   <Form.Item>
                     <div className="flex items-center justify-between gap-3">
                       <div className="space-y-0.5">
-                        <Form.Label>Send email after successful payment</Form.Label>
+                        <Form.Label>
+                          Send email after successful payment
+                        </Form.Label>
                         <p className="text-xs text-muted-foreground">
-                          Automatically send a QR ticket to the customer's email when payment is completed.
+                          Automatically send a QR ticket to the customer's email
+                          when payment is completed.
                         </p>
                       </div>
                       <Form.Control>
