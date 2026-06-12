@@ -54,9 +54,9 @@ export const INVOICE = gql`
 `;
 
 export const ADD_TRANSACTION = gql`
-mutation PaymentTransactionsAdd($input: PaymentTransactionInput!) {
-  paymentTransactionsAdd(input: $input) {
-          _id
+  mutation PaymentTransactionsAdd($input: PaymentTransactionInput!) {
+    paymentTransactionsAdd(input: $input) {
+      _id
       amount
       invoiceId
       paymentId
@@ -64,8 +64,8 @@ mutation PaymentTransactionsAdd($input: PaymentTransactionInput!) {
       status
       response
       details
+    }
   }
-}
 `;
 
 export const CHECK_INVOICE = gql`

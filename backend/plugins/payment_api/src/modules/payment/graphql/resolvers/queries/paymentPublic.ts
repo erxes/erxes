@@ -3,7 +3,6 @@ import { IContext } from '~/connectionResolvers';
 
 const queries: Record<string, Resolver> = {
   async paymentsPublic(_root, args, { models }: IContext) {
-
     const { kind, _ids, ids } = args;
 
     const finalIds = _ids || ids;
@@ -21,7 +20,6 @@ const queries: Record<string, Resolver> = {
     }
 
     const result = await models.PaymentMethods.find(query);
-
 
     return result;
   },

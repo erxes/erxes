@@ -8,7 +8,7 @@ import {
   INVOICE,
   INVOICE_SUBSCRIPTION,
   PAYMENTS_QRY,
-  TRANSACTION_SUBSCRIPTION
+  TRANSACTION_SUBSCRIPTION,
 } from '../lib/graphql';
 import React from 'react';
 
@@ -34,12 +34,11 @@ const InvoiceDetail = () => {
   const invoiceDetail = invoiceDetailQuery.data?.invoiceDetail || null;
 
   const { data, loading: paymentsLoading } = useQuery(PAYMENTS_QRY, {
-
     skip: !invoiceDetail || !invoiceDetail?.paymentIds?.length,
 
     variables: {
       ...(invoiceDetail?.paymentIds?.length > 0 && {
-        _ids: invoiceDetail?.paymentIds, 
+        _ids: invoiceDetail?.paymentIds,
       }),
       currency: invoiceDetail?.currency || '',
     },
@@ -87,8 +86,8 @@ const InvoiceDetail = () => {
           paymentId,
           details,
           amount: invoiceDetail.amount,
-        }
-      }
+        },
+      },
     }).then(() => {
       invoiceDetailQuery.refetch();
     });
@@ -124,8 +123,6 @@ const InvoiceDetail = () => {
   const { paymentTransactionsAdd: newTransaction } =
     addTransactionResponse.data || {};
   let payments = data?.paymentsPublic || [];
-
-
 
   if (invoiceDetail && invoiceDetail.amount < 100000) {
     payments = payments.filter((p: any) => p.kind !== 'storepay');
