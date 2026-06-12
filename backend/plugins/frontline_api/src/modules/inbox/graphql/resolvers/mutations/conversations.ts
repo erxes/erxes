@@ -241,31 +241,54 @@ export const sendNotifications = async (
         }
       }
 
-      try {
-        await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'core',
-          action: 'sendMobileNotification',
-          input: {
-            title: doc.title,
-            body: strip(doc.content),
-            receivers: conversationNotifReceivers(
-              conversation,
-              user._id,
-              false,
-            ),
-            customerId: conversation.customerId,
-            conversationId: conversation._id,
-            data: {
-              type: 'messenger',
-              id: conversation._id,
+      // Navigation-critical payload: the new mobile app deep-links into the
+      // existing conversation thread using `data.conversationId`. The legacy
+      // `type`/`id` keys are kept for backward compatibility with older app
+      // versions and other consumers. FCM requires every `data` value to be a
+      // string, so optional ids are stringified and only added when present.
+      if (!conversation._id) {
+        debugError(
+          'Skipping mobile chat notification: conversation id is unavailable',
+        );
+      } else {
+        const data: Record<string, string> = {
+          type: 'messenger',
+          id: String(conversation._id),
+          conversationId: String(conversation._id),
+          notificationType: 'chat_message',
+        };
+
+        if (conversation.integrationId) {
+          data.integrationId = String(conversation.integrationId);
+        }
+
+        if (conversation.customerId) {
+          data.customerId = String(conversation.customerId);
+        }
+
+        try {
+          await sendTRPCMessage({
+            subdomain,
+            pluginName: 'core',
+            method: 'mutation',
+            module: 'core',
+            action: 'sendMobileNotification',
+            input: {
+              title: doc.title,
+              body: strip(doc.content),
+              receivers: conversationNotifReceivers(
+                conversation,
+                user._id,
+                false,
+              ),
+              customerId: conversation.customerId,
+              conversationId: conversation._id,
+              data,
             },
-          },
-        });
-      } catch (e) {
-        debugError(`Failed to send mobile notification: ${e.message}`);
+          });
+        } catch (e) {
+          debugError(`Failed to send mobile notification: ${e.message}`);
+        }
       }
     }
   }
