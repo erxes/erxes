@@ -109,8 +109,8 @@ const ScheduleMoreCell = ({
       options: { okLabel: 'Delete', cancelLabel: 'Cancel' },
     }).then(() => removeSchedule({ variables: { _id: schedule._id } }));
 
-  // skipcq: JS-0415 — action menu scaffolding nests past the lint cap
   return (
+    // skipcq: JS-0415 — action menu scaffolding nests past the lint cap
     <Popover>
       <Popover.Trigger asChild>
         <RecordTable.MoreButton className="w-full h-full" />
@@ -384,8 +384,8 @@ export const SchedulesIndexPage = () => {
 
   const columns = useMemo(() => buildColumns(refetch), [refetch]);
 
-  // skipcq: JS-0415 — page scaffolding (header/empty state/table) nests past the cap
   return (
+    // skipcq: JS-0415 — page scaffolding (header/empty state/table) nests past the cap
     <div className="flex flex-col h-full">
       <PageHeader>
         <PageHeader.Start>

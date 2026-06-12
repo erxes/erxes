@@ -204,8 +204,8 @@ export const ScheduleFormPage = () => {
   const isSaving = creating || updating;
   const saveLabel = isEdit ? 'Save Changes' : 'Create Schedule';
 
-  // skipcq: JS-0415 — page scaffolding (header/breadcrumb) nests past the cap
   return (
+    // skipcq: JS-0415 — page scaffolding (header/breadcrumb) nests past the cap
     <div className="flex flex-col h-full">
       <PageHeader>
         <PageHeader.Start>
