@@ -5,30 +5,58 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 /**
  * Get DYNAMIC config from mnconfigs module
  */
+const normalizeDynamicConfigs = (configsMap: Record<string, any>) => {
+  return Object.entries(configsMap || {}).reduce((acc: any, [key, value]) => {
+    acc[key || 'noBrand'] = {
+      ...value,
+      brandId: value?.brandId || key || 'noBrand',
+    };
+    return acc;
+  }, {});
+};
+
+const pickDynamicConfig = (
+  configsMap: Record<string, any>,
+  brandId?: string,
+) => {
+  const hasSelectedBrand = brandId && brandId !== 'noBrand';
+  const config = hasSelectedBrand
+    ? configsMap[brandId]
+    : configsMap.noBrand || configsMap[''] || Object.values(configsMap)[0];
+
+  if (!config) {
+    throw new Error(
+      hasSelectedBrand
+        ? `MS Dynamic config not found for selected brand: ${brandId}`
+        : 'MS Dynamic config not found.',
+    );
+  }
+
+  return config.brandId ? config : { ...config, brandId: brandId || 'noBrand' };
+};
+
 const getDynamicConfig = async (models: any, brandId?: string) => {
+  const groupedConfig = await models.Configs.getConfig('DYNAMIC', '');
+
+  if (groupedConfig?.value && Object.keys(groupedConfig.value).length) {
+    return pickDynamicConfig(
+      normalizeDynamicConfigs(groupedConfig.value),
+      brandId,
+    );
+  }
+
   const configs = await models.Configs.getConfigs('DYNAMIC');
 
   if (!configs?.length) {
     throw new Error('MS Dynamic config not found.');
   }
 
-  const map = configs.reduce((acc: any, conf: any) => {
+  const configsMap = configs.reduce((acc: any, conf: any) => {
     acc[conf.subId || 'noBrand'] = conf.value;
     return acc;
   }, {});
 
-  const key = brandId || 'noBrand';
-  let config = map[key];
-
-  if (!config && map['noBrand'] && typeof map['noBrand'] === 'object') {
-    config = map['noBrand'][key];
-  }
-
-  if (!config) {
-    throw new Error('MS Dynamic config not found.');
-  }
-
-  return config;
+return pickDynamicConfig(normalizeDynamicConfigs(configsMap), brandId);
 };
 
 /**
@@ -37,6 +65,7 @@ const getDynamicConfig = async (models: any, brandId?: string) => {
  * ============================
  */
 export const msdynamicCheckMutations = {
+  /* MS Dynamic product-iig erxes product-tei shalgaj, niitlel dun butsaana */
   async toCheckMsdProducts(
     _root,
     { brandId }: { brandId: string },
@@ -114,8 +143,10 @@ export const msdynamicCheckMutations = {
         syncedCustomer?: string;
       }
     > = {};
+
     for (const log of syncLogs) {
       const existing = syncMap[log.contentId];
+
       if (!existing && log.responseData?.No) {
         syncMap[log.contentId] = {
           isSynced: true,
@@ -133,5 +164,85 @@ export const msdynamicCheckMutations = {
       syncedBillNumber: syncMap[_id]?.syncedBillNumber || null,
       syncedCustomer: syncMap[_id]?.syncedCustomer || null,
     }));
+  },
+
+  /* MS Dynamic angilal-iig erxes angilal-tai shalgaj, sync uildluudig buleglene */
+  async toCheckMsdProductCategories(
+    _root: unknown,
+    { brandId, categoryId }: { brandId: string; categoryId?: string },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('msdCheck');
+
+    const models = await generateModels(subdomain);
+    const config = await getDynamicConfig(models, brandId);
+
+    if (!config.itemCategoryApi || !config.username || !config.password) {
+      throw new Error('MS Dynamic config not valid.');
+    }
+
+    const { itemCategoryApi, username, password } = config;
+
+    const categoryQuery: {
+      status: { $ne: string };
+      parentId?: string;
+    } = {
+      status: { $ne: 'deleted' },
+    };
+
+    if (categoryId && categoryId !== 'noCategory') {
+      categoryQuery.parentId = categoryId;
+    }
+
+    const productCategories = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'productCategories',
+      action: 'find',
+      input: { query: categoryQuery },
+      defaultValue: [],
+    });
+
+    const response = await fetch(itemCategoryApi, {
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+          'base64',
+        )}`,
+      },
+    }).then((r) => r.json());
+
+    const dynamicCategories = Array.isArray(response?.value)
+      ? response.value
+      : [];
+
+    const productCategoryCodes = productCategories
+      .map((category: { code?: string }) => category.code)
+      .filter(Boolean);
+
+    const dynamicCategoryCodes = dynamicCategories
+      .map((category: { Code?: string }) => category.Code)
+      .filter(Boolean);
+
+    return {
+      create: {
+        items: dynamicCategories.filter(
+          (category: { Code?: string }) =>
+            category.Code && !productCategoryCodes.includes(category.Code),
+        ),
+      },
+      update: {
+        items: dynamicCategories.filter(
+          (category: { Code?: string }) =>
+            category.Code && productCategoryCodes.includes(category.Code),
+        ),
+      },
+      delete: {
+        items: productCategories.filter(
+          (category: { code?: string }) =>
+            category.code && !dynamicCategoryCodes.includes(category.code),
+        ),
+      },
+    };
   },
 };

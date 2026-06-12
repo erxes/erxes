@@ -1,35 +1,64 @@
 import { IContext, generateModels } from '~/connectionResolvers';
-import { consumeInventory, orderToDynamic } from '../../../utils';
+import {
+  consumeCategory,
+  consumeInventory,
+  orderToDynamic,
+} from '../../../utils';
 import { consumeCustomers } from '~/modules/msdynamic/utilsCustomer';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 /**
  * Get DYNAMIC config from mnconfigs module
  */
+const normalizeDynamicConfigs = (configsMap: Record<string, any>) => {
+  return Object.entries(configsMap || {}).reduce((acc: any, [key, value]) => {
+    acc[key || 'noBrand'] = {
+      ...value,
+      brandId: value?.brandId || key || 'noBrand',
+    };
+    return acc;
+  }, {});
+};
+
+const pickDynamicConfig = (configsMap: Record<string, any>, brandId?: string) => {
+  const hasSelectedBrand = brandId && brandId !== 'noBrand';
+  const config = hasSelectedBrand
+    ? configsMap[brandId]
+    : configsMap.noBrand || configsMap[''] || Object.values(configsMap)[0];
+
+  if (!config) {
+    throw new Error(
+      hasSelectedBrand
+        ? `MS Dynamic config not found for selected brand: ${brandId}`
+        : 'MS Dynamic config not found.',
+    );
+  }
+
+  return config.brandId ? config : { ...config, brandId: brandId || 'noBrand' };
+};
+
 const getDynamicConfig = async (models: any, brandId?: string) => {
+  const groupedConfig = await models.Configs.getConfig('DYNAMIC', '');
+
+  if (groupedConfig?.value && Object.keys(groupedConfig.value).length) {
+    return pickDynamicConfig(
+      normalizeDynamicConfigs(groupedConfig.value),
+      brandId,
+    );
+  }
+
   const configs = await models.Configs.getConfigs('DYNAMIC');
 
   if (!configs?.length) {
     throw new Error('MS Dynamic config not found.');
   }
 
-  const map = configs.reduce((acc: any, conf: any) => {
+  const configsMap = configs.reduce((acc: any, conf: any) => {
     acc[conf.subId || 'noBrand'] = conf.value;
     return acc;
   }, {});
 
-  const key = brandId || 'noBrand';
-  let config = map[key];
-
-  if (!config && map['noBrand'] && typeof map['noBrand'] === 'object') {
-    config = map['noBrand'][key];
-  }
-
-  if (!config) {
-    throw new Error('MS Dynamic config not found.');
-  }
-
-  return config;
+return pickDynamicConfig(normalizeDynamicConfigs(configsMap), brandId);
 };
 
 /**
@@ -38,6 +67,7 @@ const getDynamicConfig = async (models: any, brandId?: string) => {
  * ============================
  */
 export const msdynamicSyncMutations = {
+  /* Songogdson erxes product-uudig neg negiig ni MS Dynamic ruu sync hiine */
   async toSyncMsdProducts(
     _root,
     {
@@ -69,6 +99,46 @@ export const msdynamicSyncMutations = {
     return { status: 'success' };
   },
 
+  /* Songogdson product angilal-uudiig neg negiig ni MS Dynamic ruu sync hiine */
+  async toSyncMsdProductCategories(
+    _root: unknown,
+    {
+      brandId,
+      action,
+      categoryId,
+      categories,
+    }: {
+      brandId: string;
+      action: string;
+      categoryId?: string;
+      categories: unknown[];
+    },
+    { subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('msdSync');
+
+    const models = await generateModels(subdomain);
+    const config = await getDynamicConfig(models, brandId);
+
+    for (const category of categories || []) {
+      try {
+        await consumeCategory(
+          subdomain,
+          config,
+          categoryId,
+          category,
+          action.toLowerCase(),
+        );
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : String(e);
+        console.error('toSyncMsdProductCategories error:', message);
+      }
+    }
+
+    return { status: 'success' };
+  },
+
+  /* Songogdson hereglegch-uudiig neg negiig ni MS Dynamic ruu sync hiine */
   async toSyncMsdCustomers(
     _root,
     {
@@ -99,6 +169,7 @@ export const msdynamicSyncMutations = {
     return { status: 'success' };
   },
 
+  /* POS zahirag MS Dynamic ruu ilgeej, sync hariug temdeglene */
   async toSendMsdOrders(
     _root,
     { orderIds }: { orderIds: string[] },
