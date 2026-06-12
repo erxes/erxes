@@ -225,7 +225,6 @@ export const getConversationContent = async (models: IModels, cdrParams) => {
 export function selectRelevantCdr(histories: any[]): any | null {
   if (!Array.isArray(histories) || histories.length === 0) return null;
 
-
   const answeredLegs = histories.filter(
     (h) =>
       h.disposition === 'ANSWERED' && h.billsec > 0 && h.actionType !== 'VM',

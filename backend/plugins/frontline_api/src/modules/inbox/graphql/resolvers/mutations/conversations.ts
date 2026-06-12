@@ -361,7 +361,6 @@ export const conversationMutations = {
         });
       }
 
-
       if (internal) {
         const message = await models.ConversationMessages.addMessage(
           doc,
