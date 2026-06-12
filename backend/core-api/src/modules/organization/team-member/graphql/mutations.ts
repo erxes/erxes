@@ -12,7 +12,7 @@ import {
   getPlugins,
   getSaasOrganizationDetail,
 } from 'erxes-api-shared/utils';
-import { IContext,IModels } from '~/connectionResolvers';
+import { IContext, IModels } from '~/connectionResolvers';
 import { saveValidatedToken } from '~/modules/auth/utils';
 import { sendInvitationEmail } from '../utils';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
