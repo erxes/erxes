@@ -1,14 +1,18 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
-import { executeErxesOperation, graphqlTypeToString } from './erxesTools';
+import {
+  executeErxesOperation,
+  graphqlTypeToString,
+  type ErxesToolSettings,
+} from './erxesTools';
 import { OperationMeta, OperationRegistry } from './operationRegistry';
 import { ToolPolicy, isOperationAllowed } from './scope';
 
 // LLMs sometimes pass the args object as a JSON string. Parse it back so the
 // execute tool always receives a real object.
-function coerceArgs(val: unknown): Record<string, any> {
+function coerceArgs(val: unknown): Record<string, unknown> {
   if (val && typeof val === 'object' && !Array.isArray(val))
-    return val as Record<string, any>;
+    return val as Record<string, unknown>;
   if (typeof val === 'string') {
     const trimmed = val.trim();
     if (!trimmed) return {};
@@ -31,10 +35,10 @@ function coerceArgs(val: unknown): Record<string, any> {
 
 // Render an operation's args as a compact, model-readable signature.
 function argSignature(op: OperationMeta) {
-  return (op.graphqlArgs || []).map((a: any) => ({
-    name: a.name,
-    type: graphqlTypeToString(a.type),
-    required: a.type?.kind === 'NON_NULL',
+  return (op.graphqlArgs || []).map((arg) => ({
+    name: arg.name,
+    type: graphqlTypeToString(arg.type),
+    required: arg.type?.kind === 'NON_NULL',
   }));
 }
 
@@ -48,12 +52,12 @@ function scoreOperation(op: OperationMeta, tokens: string[]): number {
   const desc = (op.description || '').toLowerCase();
 
   let score = 0;
-  for (const t of tokens) {
-    if (name === t) score += 40;
-    if (name.includes(t)) score += 10;
-    if (module.includes(t)) score += 6;
-    if (desc.includes(t)) score += 3;
-    if (plugin.includes(t)) score += 2;
+  for (const token of tokens) {
+    if (name === token) score += 40;
+    if (name.includes(token)) score += 10;
+    if (module.includes(token)) score += 6;
+    if (desc.includes(token)) score += 3;
+    if (plugin.includes(token)) score += 2;
   }
   return score;
 }
@@ -70,11 +74,12 @@ function scoreOperation(op: OperationMeta, tokens: string[]): number {
  */
 export function buildErxesMetaTools(params: {
   registry: OperationRegistry;
-  settings: any;
+  settings: ErxesToolSettings;
   policy: ToolPolicy;
-}): Record<string, any> {
+}) {
   const { registry, settings, policy } = params;
 
+  /** Operations visible to this agent after policy filtering. */
   const allowedList = (): OperationMeta[] =>
     policy.mode === 'all'
       ? registry.list
@@ -99,7 +104,7 @@ export function buildErxesMetaTools(params: {
       limit: z.coerce.number().int().min(1).max(50).default(12).optional(),
     }),
     outputSchema: z.any(),
-    execute: async ({ query, operationType, limit }) => {
+    execute: ({ query, operationType, limit }) => {
       let pool = allowedList();
       if (operationType)
         pool = pool.filter((op) => op.operationType === operationType);
@@ -107,7 +112,7 @@ export function buildErxesMetaTools(params: {
       const tokens = (query || '')
         .toLowerCase()
         .split(/\s+/)
-        .map((t) => t.replace(/[^a-z0-9]/g, ''))
+        .map((token) => token.replace(/[^a-z0-9]/g, ''))
         .filter(Boolean);
 
       const max = limit ?? 12;
@@ -125,7 +130,7 @@ export function buildErxesMetaTools(params: {
           .map((r) => r.op);
       }
 
-      return {
+      return Promise.resolve({
         total: ranked.length,
         results: ranked.map((op) => ({
           operation: op.operation,
@@ -138,7 +143,7 @@ export function buildErxesMetaTools(params: {
         note: ranked.length
           ? 'Call execute_erxes_operation with one of these "operation" names and an "args" object built from its arguments.'
           : 'No matching operations. Try different keywords.',
-      };
+      });
     },
   });
 
@@ -175,7 +180,7 @@ export function buildErxesMetaTools(params: {
         };
       }
 
-      return executeErxesOperation(
+      return await executeErxesOperation(
         op,
         coerceArgs(args),
         settings,

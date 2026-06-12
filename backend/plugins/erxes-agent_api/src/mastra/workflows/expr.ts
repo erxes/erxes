@@ -34,6 +34,7 @@ export type ExprNode =
 const REF_TOKEN_RE = /^\{\{\s*([a-zA-Z0-9_.-]+)\s*\}\}/;
 const NUMBER_RE = /^-?\d+(\.\d+)?/;
 
+/** Splits a condition string into the language's token stream. */
 function tokenize(src: string): Token[] {
   const tokens: Token[] = [];
   let rest = src;
@@ -108,26 +109,38 @@ function tokenize(src: string): Token[] {
   return tokens;
 }
 
+/** Parses a condition string into an ExprNode AST (throws on syntax errors). */
 export function parseExpr(src: string): ExprNode {
   const tokens = tokenize(src);
   let pos = 0;
 
+  /** The current token without consuming it. */
   const peek = () => tokens[pos];
+  /** Consumes and returns the current token. */
   const next = () => tokens[pos++];
+  /** True when the current token is the given operator. */
   const isOp = (op: string) => {
-    const t = peek();
-    return t?.kind === 'op' && t.op === op;
+    const token = peek();
+    return token?.kind === 'op' && token.op === op;
   };
 
-  const primary = (): ExprNode => {
-    const t = next();
-    if (!t) throw new Error(`condition ended unexpectedly: ${src}`);
-    if (t.kind === 'ref') return { kind: 'ref', path: t.path };
-    if (t.kind === 'string' || t.kind === 'number' || t.kind === 'bool') {
-      return { kind: 'lit', value: t.value };
+  // The grammar levels below are mutually recursive (primary → orExpr), so
+  // they are hoisted function declarations rather than const arrows.
+
+  /** Literal, ref, or parenthesized sub-expression. */
+  function primary(): ExprNode {
+    const token = next();
+    if (!token) throw new Error(`condition ended unexpectedly: ${src}`);
+    if (token.kind === 'ref') return { kind: 'ref', path: token.path };
+    if (
+      token.kind === 'string' ||
+      token.kind === 'number' ||
+      token.kind === 'bool'
+    ) {
+      return { kind: 'lit', value: token.value };
     }
-    if (t.kind === 'null') return { kind: 'lit', value: null };
-    if (t.kind === 'lparen') {
+    if (token.kind === 'null') return { kind: 'lit', value: null };
+    if (token.kind === 'lparen') {
       const inner = orExpr();
       const close = next();
       if (!close || close.kind !== 'rparen')
@@ -135,46 +148,50 @@ export function parseExpr(src: string): ExprNode {
       return inner;
     }
     throw new Error(`unexpected token in condition: ${src}`);
-  };
+  }
 
-  const notExpr = (): ExprNode => {
+  /** Unary `!` chains. */
+  function notExpr(): ExprNode {
     if (isOp('!')) {
       next();
       return { kind: 'not', operand: notExpr() };
     }
     return primary();
-  };
+  }
 
-  const cmpExpr = (): ExprNode => {
+  /** One optional comparison (== != > < >= <= in). */
+  function cmpExpr(): ExprNode {
     let left = notExpr();
-    const t = peek();
+    const token = peek();
     if (
-      t?.kind === 'op' &&
-      ['==', '!=', '>', '<', '>=', '<=', 'in'].includes(t.op)
+      token?.kind === 'op' &&
+      ['==', '!=', '>', '<', '>=', '<=', 'in'].includes(token.op)
     ) {
       next();
-      left = { kind: 'binary', op: t.op, left, right: notExpr() };
+      left = { kind: 'binary', op: token.op, left, right: notExpr() };
     }
     return left;
-  };
+  }
 
-  const andExpr = (): ExprNode => {
+  /** Left-associative `&&` chains. */
+  function andExpr(): ExprNode {
     let left = cmpExpr();
     while (isOp('&&')) {
       next();
       left = { kind: 'binary', op: '&&', left, right: cmpExpr() };
     }
     return left;
-  };
+  }
 
-  const orExpr = (): ExprNode => {
+  /** Left-associative `||` chains (lowest precedence). */
+  function orExpr(): ExprNode {
     let left = andExpr();
     while (isOp('||')) {
       next();
       left = { kind: 'binary', op: '||', left, right: andExpr() };
     }
     return left;
-  };
+  }
 
   const ast = orExpr();
   if (pos < tokens.length)
@@ -193,18 +210,22 @@ export function exprRefs(node: ExprNode): string[] {
       return exprRefs(node.operand);
     case 'binary':
       return [...exprRefs(node.left), ...exprRefs(node.right)];
+    default:
+      // ExprNode is exhaustive; unknown kinds carry no refs.
+      return [];
   }
 }
 
 // Loose-ish equality: LLM-authored definitions routinely compare a numeric
 // field to a quoted literal, so number↔string compares coerce the string.
-function looseEquals(a: any, b: any): boolean {
+function looseEquals(a: unknown, b: unknown): boolean {
   if (typeof a === 'number' && typeof b === 'string') return a === Number(b);
   if (typeof a === 'string' && typeof b === 'number') return Number(a) === b;
   return a === b;
 }
 
-export function evalExpr(node: ExprNode, scope: RefScope): any {
+/** Evaluates a parsed condition AST against the runtime ref scope. */
+export function evalExpr(node: ExprNode, scope: RefScope): unknown {
   switch (node.kind) {
     case 'lit':
       return node.value;
@@ -224,31 +245,39 @@ export function evalExpr(node: ExprNode, scope: RefScope): any {
           Boolean(evalExpr(node.right, scope))
         );
 
-      const l = evalExpr(node.left, scope);
-      const r = evalExpr(node.right, scope);
+      const leftVal = evalExpr(node.left, scope);
+      const rightVal = evalExpr(node.right, scope);
       switch (node.op) {
         case '==':
-          return looseEquals(l, r);
+          return looseEquals(leftVal, rightVal);
         case '!=':
-          return !looseEquals(l, r);
+          return !looseEquals(leftVal, rightVal);
         case '>':
-          return l > r;
+          return (leftVal as number) > (rightVal as number);
         case '<':
-          return l < r;
+          return (leftVal as number) < (rightVal as number);
         case '>=':
-          return l >= r;
+          return (leftVal as number) >= (rightVal as number);
         case '<=':
-          return l <= r;
+          return (leftVal as number) <= (rightVal as number);
         case 'in':
-          if (Array.isArray(r)) return r.some((v) => looseEquals(v, l));
-          if (typeof r === 'string') return r.includes(String(l));
-          if (r && typeof r === 'object')
-            return Object.prototype.hasOwnProperty.call(r, String(l));
+          if (Array.isArray(rightVal))
+            return rightVal.some((member) => looseEquals(member, leftVal));
+          if (typeof rightVal === 'string')
+            return rightVal.includes(String(leftVal));
+          if (rightVal && typeof rightVal === 'object')
+            return Object.prototype.hasOwnProperty.call(
+              rightVal,
+              String(leftVal),
+            );
           return false;
         default:
           throw new Error(`unsupported operator "${node.op}"`);
       }
     }
+    default:
+      // ExprNode is exhaustive; an unknown kind evaluates to undefined.
+      return undefined;
   }
 }
 

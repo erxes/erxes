@@ -15,12 +15,17 @@ export interface ToolPolicy {
 // Default is 'all' — an agent reaches every erxes operation unless explicitly
 // restricted. Legacy agents (no toolPolicy persisted) therefore fall through to
 // 'all' as well, matching the new product default.
-export function resolveToolPolicy(agentConfig: any): ToolPolicy {
-  const mode = agentConfig?.toolPolicy === 'custom' ? 'custom' : 'all';
-  const allowed: string[] = Array.isArray(agentConfig?.allowedTools)
-    ? agentConfig.allowedTools.filter(
-        (s: any) => typeof s === 'string' && s.trim(),
-      )
+export function resolveToolPolicy(agentConfig: unknown): ToolPolicy {
+  const config = (agentConfig ?? {}) as {
+    toolPolicy?: string;
+    allowedTools?: unknown;
+  };
+  const mode = config.toolPolicy === 'custom' ? 'custom' : 'all';
+  const allowed: string[] = Array.isArray(config.allowedTools)
+    ? config.allowedTools
+        .filter((entry): entry is string => typeof entry === 'string')
+        .map((entry) => entry.trim())
+        .filter(Boolean)
     : [];
   return { mode, allowed };
 }
@@ -40,6 +45,7 @@ export function isOperationAllowed(
   );
 }
 
+/** True when the policy grants the given builtin tool key. */
 export function isBuiltinAllowed(key: string, policy: ToolPolicy): boolean {
   if (policy.mode === 'all') return true;
   return policy.allowed.includes(`builtin:${key}`);
@@ -77,7 +83,9 @@ export function scopeSummary(policy: ToolPolicy): string {
   if (!parts.length) {
     return 'You have no erxes operations available.';
   }
-  return `You are restricted to ONLY these operations — never attempt anything else: ${parts.join(', ')}.`;
+  return `You are restricted to ONLY these operations — never attempt anything else: ${parts.join(
+    ', ',
+  )}.`;
 }
 
 // The agent's ground truth about what is actually installed, derived from the
@@ -95,15 +103,25 @@ export function capabilityInventory(
       : list.filter((op) => isOperationAllowed(op, policy));
 
   // plugin → module → {reads, writes}
-  const plugins = new Map<string, Map<string, { r: number; w: number }>>();
+  const plugins = new Map<
+    string,
+    Map<string, { reads: number; writes: number }>
+  >();
   for (const op of allowed) {
-    const p = op.plugin || 'other';
-    const m = op.module || 'other';
-    if (!plugins.has(p)) plugins.set(p, new Map());
-    const mods = plugins.get(p)!;
-    if (!mods.has(m)) mods.set(m, { r: 0, w: 0 });
-    const c = mods.get(m)!;
-    op.operationType === 'mutation' ? c.w++ : c.r++;
+    const pluginName = op.plugin || 'other';
+    const moduleName = op.module || 'other';
+    let mods = plugins.get(pluginName);
+    if (!mods) {
+      mods = new Map();
+      plugins.set(pluginName, mods);
+    }
+    let counts = mods.get(moduleName);
+    if (!counts) {
+      counts = { reads: 0, writes: 0 };
+      mods.set(moduleName, counts);
+    }
+    if (op.operationType === 'mutation') counts.writes++;
+    else counts.reads++;
   }
 
   const MAX_MODULES_SHOWN = 30;
@@ -117,15 +135,18 @@ export function capabilityInventory(
       names.length > MAX_MODULES_SHOWN
         ? `, +${names.length - MAX_MODULES_SHOWN} more`
         : '';
-    const total = [...mods.values()].reduce((n, c) => n + c.r + c.w, 0);
+    const total = [...mods.values()].reduce(
+      (sum, counts) => sum + counts.reads + counts.writes,
+      0,
+    );
     lines.push(`- ${plugin} (${total} operations): ${shown}${more}`);
   }
 
   // Stable identity of the installed/allowed surface — used to bust the agent
   // cache when plugins are enabled/disabled, so the prompt never goes stale.
-  const fingerprint =
-    [...plugins.keys()].sort((a, b) => a.localeCompare(b)).join(',') +
-    `#${allowed.length}`;
+  const fingerprint = `${[...plugins.keys()]
+    .sort((a, b) => a.localeCompare(b))
+    .join(',')}#${allowed.length}`;
 
   return { lines, fingerprint };
 }

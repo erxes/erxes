@@ -26,7 +26,8 @@ const stepIdSchema = z
 // Agent-step output fields: 'string' | 'number' | 'boolean' (optional with a
 // trailing '?') or 'enum:a,b,c'. Enums are how judgment feeds deterministic
 // branches — classification is LLM, routing is code (§4.5).
-const FIELD_SPEC_RE = /^(string|number|boolean|enum:[a-zA-Z0-9_,-]+)\??$/;
+const FIELD_SPEC_RE =
+  /^(string|number|boolean|enum:[a-zA-Z0-9_-]+(?:,[a-zA-Z0-9_-]+)*)\??$/;
 const fieldSpecSchema = z.string().regex(FIELD_SPEC_RE, {
   message:
     "field spec must be string|number|boolean|enum:a,b,c (optionally suffixed '?')",
@@ -177,15 +178,16 @@ export interface ValidationResult {
   definition?: WorkflowDefinition;
 }
 
-function countSteps(steps: any[]): number {
+/** Total step count of a step list, including steps nested in containers. */
+function countSteps(steps: WorkflowStep[]): number {
   let n = 0;
-  for (const s of steps) {
+  for (const step of steps) {
     n += 1;
-    if (s?.type === 'branch') {
-      for (const b of s.branches || []) n += countSteps(b.steps || []);
-      n += countSteps(s.else || []);
+    if (step?.type === 'branch') {
+      for (const arm of step.branches || []) n += countSteps(arm.steps || []);
+      n += countSteps(step.else || []);
     }
-    if (s?.type === 'parallel') n += countSteps(s.steps || []);
+    if (step?.type === 'parallel') n += countSteps(step.steps || []);
   }
   return n;
 }
@@ -198,7 +200,7 @@ function countSteps(steps: any[]): number {
  * errors the master agent iterates on.
  */
 export function validateDefinition(
-  raw: any,
+  raw: unknown,
   registry?: OperationRegistry,
 ): ValidationResult {
   const parsed = workflowDefinitionSchema.safeParse(raw);
@@ -225,7 +227,7 @@ export function validateDefinition(
   }
 
   if (def.trigger.type === 'schedule') {
-    const cron = (def.trigger.config as any)?.cron;
+    const cron: unknown = def.trigger.config?.cron;
     if (
       typeof cron !== 'string' ||
       !/^\S+\s+\S+\s+\S+\s+\S+\s+\S+(\s+\S+)?$/.test(cron.trim())
@@ -238,7 +240,8 @@ export function validateDefinition(
     }
   }
 
-  const checkLeaf = (step: any, at: string, prior: Set<string>) => {
+  /** Validates one effect step's refs, agent binding, and operation/policy. */
+  const checkLeaf = (step: WorkflowStep, at: string, prior: Set<string>) => {
     for (const ref of collectRefs(step)) {
       const problem = checkRef(ref, prior, bindingKeys);
       if (problem) errors.push({ path: at, message: problem });
@@ -296,16 +299,19 @@ export function validateDefinition(
     }
   };
 
+  /** Records a step id, flagging duplicates across all nesting levels. */
   const claimId = (id: string, at: string) => {
     if (allIds.has(id))
       errors.push({ path: at, message: `duplicate step id "${id}"` });
     allIds.add(id);
   };
 
-  // Sequential walk of one step list. `prior` is what these steps may
-  // reference; returns the ids this list contributes.
+  /**
+   * Sequential walk of one step list. `prior` is what these steps may
+   * reference; returns the ids this list contributes.
+   */
   const walkSequence = (
-    steps: any[],
+    steps: WorkflowStep[],
     prior: Set<string>,
     basePath: string,
   ): string[] => {
@@ -333,7 +339,7 @@ export function validateDefinition(
               const problem = checkRef(ref, prior, bindingKeys);
               if (problem) errors.push({ path: condAt, message: problem });
             }
-          } catch (e: any) {
+          } catch (e) {
             errors.push({
               path: condAt,
               message: e?.message || 'condition failed to parse',
@@ -342,13 +348,13 @@ export function validateDefinition(
         };
 
         const innerIds: string[] = [];
-        step.branches.forEach((b: any, bi: number) => {
-          checkCondition(b.when, `${at}.branches.${bi}.when`);
+        step.branches.forEach((arm, bi) => {
+          checkCondition(arm.when, `${at}.branches.${bi}.when`);
           // Each arm sees the outer prior; arms are mutually exclusive so
           // they never see each other.
           innerIds.push(
             ...walkSequence(
-              b.steps,
+              arm.steps,
               new Set(prior),
               `${at}.branches.${bi}.steps`,
             ),
@@ -370,11 +376,11 @@ export function validateDefinition(
       if (step.type === 'parallel') {
         // Siblings run concurrently and must not reference each other.
         const innerIds: string[] = [];
-        step.steps.forEach((s: any, si: number) => {
-          const sAt = `${at}.steps.${si} (${s.id})`;
-          claimId(s.id, sAt);
-          checkLeaf(s, sAt, prior);
-          innerIds.push(s.id);
+        step.steps.forEach((member, si) => {
+          const sAt = `${at}.steps.${si} (${member.id})`;
+          claimId(member.id, sAt);
+          checkLeaf(member, sAt, prior);
+          innerIds.push(member.id);
         });
         innerIds.forEach((id) => prior.add(id));
         prior.add(step.id);
@@ -407,20 +413,31 @@ export function validateDefinition(
 }
 
 /** Builds the zod validator for an agent step's declared output fields. */
-export function buildOutputZod(spec: Record<string, string>): z.ZodObject<any> {
+export function buildOutputZod(
+  spec: Record<string, string>,
+): z.ZodObject<Record<string, z.ZodTypeAny>> {
   const shape: Record<string, z.ZodTypeAny> = {};
   for (const [key, raw] of Object.entries(spec)) {
     const optional = raw.endsWith('?');
     const base = optional ? raw.slice(0, -1) : raw;
-    let t: z.ZodTypeAny;
-    if (base === 'string') t = z.string();
-    else if (base === 'number') t = z.number();
-    else if (base === 'boolean') t = z.boolean();
+    let fieldType: z.ZodTypeAny;
+    if (base === 'string') fieldType = z.string();
+    else if (base === 'number') fieldType = z.number();
+    else if (base === 'boolean') fieldType = z.boolean();
     else {
-      const values = base.slice('enum:'.length).split(',').filter(Boolean);
-      t = z.enum(values as [string, ...string[]]);
+      const values = base
+        .slice('enum:'.length)
+        .split(',')
+        .map((value) => value.trim())
+        .filter(Boolean);
+      if (!values.length) {
+        throw new Error(
+          `output field '${key}': enum spec '${raw}' must include at least one value`,
+        );
+      }
+      fieldType = z.enum(values as [string, ...string[]]);
     }
-    shape[key] = optional ? t.optional() : t;
+    shape[key] = optional ? fieldType.optional() : fieldType;
   }
   return z.object(shape);
 }

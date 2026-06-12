@@ -45,9 +45,13 @@ export interface IMastraLearningModel extends Model<IMastraLearningDocument> {
   getStats(): Promise<Record<string, number>>;
 }
 
+/** Bind the MastraLearning statics onto the learning schema (mongoose loadClass). */
 export const loadLearningClass = (_models: IModels) => {
+  /** Static lifecycle helpers for distilled learnings (lessons). */
+  // skipcq: JS-0327 — the mongoose loadClass pattern requires a class of statics
   class MastraLearning {
-    public static async createLearning(doc: Partial<IMastraLearning>) {
+    /** Create a learning with default confidence/evidence seeds. */
+    public static createLearning(doc: Partial<IMastraLearning>) {
       return _models.MastraLearning.create({
         confidence: 0.5,
         evidenceCount: 1,
@@ -55,6 +59,7 @@ export const loadLearningClass = (_models: IModels) => {
       });
     }
 
+    /** Update a learning's fields; throws when it does not exist. */
     public static async updateLearning(
       _id: string,
       doc: Partial<IMastraLearning>,
@@ -68,7 +73,8 @@ export const loadLearningClass = (_models: IModels) => {
       return updated;
     }
 
-    public static async mergeEvidence(
+    /** Count re-derived evidence and keep the higher confidence estimate. */
+    public static mergeEvidence(
       _id: string,
       args: { confidence?: number; sourceHash?: string },
     ) {
@@ -85,6 +91,7 @@ export const loadLearningClass = (_models: IModels) => {
       });
     }
 
+    /** Move a learning through its review lifecycle, stamping the reviewer. */
     public static async setStatus(
       _id: string,
       status: MastraLearningStatus,
@@ -101,6 +108,7 @@ export const loadLearningClass = (_models: IModels) => {
       return updated;
     }
 
+    /** Pin or unpin a learning so it always leads the digest. */
     public static async setPinned(_id: string, pinned: boolean) {
       const updated = await _models.MastraLearning.findOneAndUpdate(
         { _id },
@@ -111,6 +119,7 @@ export const loadLearningClass = (_models: IModels) => {
       return updated;
     }
 
+    /** Shift the confidence of the given learnings by delta, clamped to [0, 1]. */
     public static async reinforce(ids: string[], delta: number) {
       if (!ids.length || !delta) return;
       const docs = await _models.MastraLearning.find({ _id: { $in: ids } });
@@ -125,6 +134,7 @@ export const loadLearningClass = (_models: IModels) => {
       }
     }
 
+    /** Filtered, paginated learnings list (pinned first, then most recent). */
     public static async listLearnings(
       filter: IMastraLearningFilter,
       page = 1,
@@ -147,6 +157,7 @@ export const loadLearningClass = (_models: IModels) => {
       return { list, totalCount };
     }
 
+    /** Per-status learning counts for the review dashboard. */
     public static async getStats() {
       const rows = await _models.MastraLearning.aggregate([
         { $group: { _id: '$status', count: { $sum: 1 } } },
@@ -158,7 +169,7 @@ export const loadLearningClass = (_models: IModels) => {
         conflict: 0,
         archived: 0,
       };
-      for (const r of rows) stats[r._id] = r.count;
+      for (const row of rows) stats[row._id] = row.count;
       return stats;
     }
   }

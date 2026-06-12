@@ -21,8 +21,12 @@ export interface IMastraFeedbackModel extends Model<IMastraFeedbackDocument> {
   ): Promise<IMastraFeedbackDocument[]>;
 }
 
+/** Bind the MastraFeedback statics onto the feedback schema (mongoose loadClass). */
 export const loadFeedbackClass = (_models: IModels) => {
+  /** Static helpers for per-message thumbs feedback. */
+  // skipcq: JS-0327 — the mongoose loadClass pattern requires a class of statics
   class MastraFeedback {
+    /** Upsert a user's rating of a message; returns the doc + previous rating. */
     public static async saveFeedback(args: {
       threadId: string;
       messageId: string;
@@ -52,7 +56,8 @@ export const loadFeedbackClass = (_models: IModels) => {
       return { doc, previousRating };
     }
 
-    public static async getByMessageIds(messageIds: string[], userId: string) {
+    /** The given user's feedback docs for a set of message ids. */
+    public static getByMessageIds(messageIds: string[], userId: string) {
       return _models.MastraFeedback.find({
         messageId: { $in: messageIds },
         userId,

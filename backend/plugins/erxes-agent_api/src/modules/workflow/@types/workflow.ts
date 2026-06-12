@@ -38,7 +38,7 @@ export interface IMastraWorkflowRun {
   triggerEnvelope: TriggerEnvelope;
   definitionSnapshot: WorkflowDefinition;
   stepsSummary?: Record<string, { status: string; error?: string }>;
-  output?: any;
+  output?: unknown;
   error?: string;
   usage?: { llmCalls: number };
   startedAt?: Date;
@@ -46,6 +46,7 @@ export interface IMastraWorkflowRun {
 }
 
 export interface IMastraWorkflowRunDocument
-  extends IMastraWorkflowRun, Document {
+  extends IMastraWorkflowRun,
+    Document {
   _id: string;
 }

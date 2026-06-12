@@ -2,20 +2,24 @@ import { IContext } from '~/connectionResolvers';
 import { prepareChatTurn, persistTurn, runAgentTurn } from '@/agent/turn';
 
 export const agentQueries = {
-  mastraAgents: async (_: any, __: any, { models }: IContext) => {
+  mastraAgents: (
+    _parent: undefined,
+    _args: undefined,
+    { models }: IContext,
+  ) => {
     return models.MastraAgent.getAgents();
   },
 
-  mastraAgent: async (
-    _: any,
+  mastraAgent: (
+    _parent: undefined,
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
     return models.MastraAgent.getAgent(_id);
   },
 
-  mastraAgentsMain: async (
-    _: any,
+  mastraAgentsMain: (
+    _parent: undefined,
     params: { page?: number; perPage?: number; searchValue?: string },
     { models }: IContext,
   ) => {
@@ -23,7 +27,7 @@ export const agentQueries = {
   },
 
   mastraAgentChat: async (
-    _: any,
+    _parent: undefined,
     {
       agentId,
       message,

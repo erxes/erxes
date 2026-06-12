@@ -2,142 +2,148 @@
  * Compiler unit tests — run against the shared mock engine (see
  * mockWorkflowEngine.ts for why Jest cannot load the real @mastra/core).
  */
-jest.mock('@mastra/core/workflows', () =>
-  require('./mockWorkflowEngine').mockWorkflowsModule(),
-);
+import { mockWorkflowsModule } from './mockWorkflowEngine';
+
+jest.mock('@mastra/core/workflows', () => mockWorkflowsModule());
 
 import { compileDefinition, CompiledDeps, finalOutput } from '../compiler';
 import { WorkflowDefinition } from '../dsl';
 import { buildManualEnvelope } from '../envelope';
 
-const linearDef = (): WorkflowDefinition =>
-  ({
-    trigger: { type: 'manual', config: {} },
-    policy: { mode: 'all', allowed: [] },
-    bindings: { judge: { kind: 'agent', id: 'agent-1' } },
-    limits: { maxLlmCalls: 10 },
-    steps: [
-      {
-        id: 'classify',
-        type: 'agent',
-        agentRef: 'judge',
-        prompt: 'Customer said: {{trigger.payload.text}}',
-        outputSchema: { intent: 'enum:order,question', productName: 'string?' },
-      },
-      {
-        id: 'create',
-        type: 'operation',
-        operation: 'dealsAdd',
-        args: { name: 'Order: {{steps.classify.output.productName}}' },
-      },
-      {
-        id: 'done',
-        type: 'end',
-        output: { dealId: '{{steps.create.output._id}}' },
-      },
-    ],
-  }) as any;
+/** One recorded effect-handler invocation. */
+type RecordedCall = Record<string, unknown>;
 
-const branchDef = (): WorkflowDefinition =>
-  ({
-    trigger: { type: 'manual', config: {} },
-    policy: { mode: 'all', allowed: [] },
-    bindings: { judge: { kind: 'agent', id: 'agent-1' } },
-    limits: { maxLlmCalls: 10 },
-    steps: [
-      {
-        id: 'classify',
-        type: 'agent',
-        agentRef: 'judge',
-        prompt: '{{trigger.payload.text}}',
-        outputSchema: { intent: 'enum:order,question,complaint' },
-      },
-      {
-        id: 'route',
-        type: 'branch',
-        branches: [
-          {
-            when: "{{steps.classify.output.intent}} == 'order'",
-            steps: [
-              {
-                id: 'createDeal',
-                type: 'operation',
-                operation: 'dealsAdd',
-                args: { name: 'deal' },
-              },
-            ],
-          },
-          {
-            when: "{{steps.classify.output.intent}} == 'complaint'",
-            steps: [
-              {
-                id: 'createTicket',
-                type: 'operation',
-                operation: 'ticketsAdd',
-                args: {},
-              },
-            ],
-          },
-        ],
-        else: [
-          { id: 'logOther', type: 'operation', operation: 'logsAdd', args: {} },
-        ],
-      },
-      {
-        id: 'notify',
-        type: 'operation',
-        operation: 'notify',
-        args: {
-          dealId: '{{steps.createDeal.output._id}}',
-          taken: '{{steps.route.output.taken}}',
-        },
-      },
-    ],
-  }) as any;
+/** A recorded operation invocation (operation name + resolved args). */
+interface RecordedOp {
+  operation: string;
+  args: Record<string, unknown>;
+}
 
-const parallelDef = (): WorkflowDefinition =>
-  ({
-    trigger: { type: 'manual', config: {} },
-    policy: { mode: 'all', allowed: [] },
-    bindings: {},
-    limits: { maxLlmCalls: 10 },
-    steps: [
-      {
-        id: 'fan',
-        type: 'parallel',
-        steps: [
-          {
-            id: 'fetchA',
-            type: 'operation',
-            operation: 'customers',
-            args: { q: 'a' },
-          },
-          {
-            id: 'fetchB',
-            type: 'operation',
-            operation: 'companies',
-            args: { q: 'b' },
-          },
-        ],
-      },
-      {
-        id: 'combine',
-        type: 'operation',
-        operation: 'merge',
-        args: {
-          a: '{{steps.fetchA.output.n}}',
-          b: '{{steps.fetchB.output.n}}',
+const linearDef = (): WorkflowDefinition => ({
+  trigger: { type: 'manual', config: {} },
+  policy: { mode: 'all', allowed: [] },
+  bindings: { judge: { kind: 'agent', id: 'agent-1' } },
+  limits: { maxLlmCalls: 10 },
+  steps: [
+    {
+      id: 'classify',
+      type: 'agent',
+      agentRef: 'judge',
+      prompt: 'Customer said: {{trigger.payload.text}}',
+      outputSchema: { intent: 'enum:order,question', productName: 'string?' },
+    },
+    {
+      id: 'create',
+      type: 'operation',
+      operation: 'dealsAdd',
+      args: { name: 'Order: {{steps.classify.output.productName}}' },
+    },
+    {
+      id: 'done',
+      type: 'end',
+      output: { dealId: '{{steps.create.output._id}}' },
+    },
+  ],
+});
+
+const branchDef = (): WorkflowDefinition => ({
+  trigger: { type: 'manual', config: {} },
+  policy: { mode: 'all', allowed: [] },
+  bindings: { judge: { kind: 'agent', id: 'agent-1' } },
+  limits: { maxLlmCalls: 10 },
+  steps: [
+    {
+      id: 'classify',
+      type: 'agent',
+      agentRef: 'judge',
+      prompt: '{{trigger.payload.text}}',
+      outputSchema: { intent: 'enum:order,question,complaint' },
+    },
+    {
+      id: 'route',
+      type: 'branch',
+      branches: [
+        {
+          when: "{{steps.classify.output.intent}} == 'order'",
+          steps: [
+            {
+              id: 'createDeal',
+              type: 'operation',
+              operation: 'dealsAdd',
+              args: { name: 'deal' },
+            },
+          ],
         },
+        {
+          when: "{{steps.classify.output.intent}} == 'complaint'",
+          steps: [
+            {
+              id: 'createTicket',
+              type: 'operation',
+              operation: 'ticketsAdd',
+              args: {},
+            },
+          ],
+        },
+      ],
+      else: [
+        { id: 'logOther', type: 'operation', operation: 'logsAdd', args: {} },
+      ],
+    },
+    {
+      id: 'notify',
+      type: 'operation',
+      operation: 'notify',
+      args: {
+        dealId: '{{steps.createDeal.output._id}}',
+        taken: '{{steps.route.output.taken}}',
       },
-    ],
-  }) as any;
+    },
+  ],
+});
+
+const parallelDef = (): WorkflowDefinition => ({
+  trigger: { type: 'manual', config: {} },
+  policy: { mode: 'all', allowed: [] },
+  bindings: {},
+  limits: { maxLlmCalls: 10 },
+  steps: [
+    {
+      id: 'fan',
+      type: 'parallel',
+      steps: [
+        {
+          id: 'fetchA',
+          type: 'operation',
+          operation: 'customers',
+          args: { q: 'a' },
+        },
+        {
+          id: 'fetchB',
+          type: 'operation',
+          operation: 'companies',
+          args: { q: 'b' },
+        },
+      ],
+    },
+    {
+      id: 'combine',
+      type: 'operation',
+      operation: 'merge',
+      args: {
+        a: '{{steps.fetchA.output.n}}',
+        b: '{{steps.fetchB.output.n}}',
+      },
+    },
+  ],
+});
 
 const run = async (
   def: WorkflowDefinition,
   deps: CompiledDeps,
-  payload: any,
+  payload: Record<string, unknown>,
 ) => {
-  const wf: any = compileDefinition('test_wf', def, deps);
+  const wf = compileDefinition('test_wf', def, deps);
   const handle = await wf.createRun();
   return handle.start({
     inputData: { trigger: buildManualEnvelope(payload, 'u1'), steps: {} },
@@ -146,19 +152,19 @@ const run = async (
 
 describe('workflow compiler — linear', () => {
   it('runs agent → operation → end, threading refs through state', async () => {
-    const calls: any[] = [];
+    const calls: RecordedCall[] = [];
     const deps: CompiledDeps = {
-      executeOperation: async (operation, args) => {
+      executeOperation: (operation, args) => {
         calls.push({ operation, args });
-        return { _id: 'deal-9', name: args.name };
+        return Promise.resolve({ _id: 'deal-9', name: args.name });
       },
-      runJudgment: async ({ prompt, agentBindingId }) => {
+      runJudgment: ({ prompt, agentBindingId }) => {
         calls.push({ prompt, agentBindingId });
-        return { intent: 'order', productName: 'Chair' };
+        return Promise.resolve({ intent: 'order', productName: 'Chair' });
       },
     };
 
-    const result: any = await run(linearDef(), deps, {
+    const result = await run(linearDef(), deps, {
       text: 'I want a chair',
     });
 
@@ -178,11 +184,11 @@ describe('workflow compiler — linear', () => {
 
   it('fails the run when judgment output violates its declared schema', async () => {
     const deps: CompiledDeps = {
-      executeOperation: async () => ({}),
-      runJudgment: async () => ({ intent: 'refund' }), // not in enum
+      executeOperation: () => Promise.resolve({}),
+      runJudgment: () => Promise.resolve({ intent: 'refund' }), // not in enum
     };
 
-    const result: any = await run(linearDef(), deps, { text: 'hi' });
+    const result = await run(linearDef(), deps, { text: 'hi' });
     expect(result.status).toBe('failed');
     expect(String(result.error?.message || result.error)).toMatch(
       /not matching its schema/,
@@ -192,15 +198,16 @@ describe('workflow compiler — linear', () => {
 
   it('fails the run when an operation handler throws (policy violation path)', async () => {
     const deps: CompiledDeps = {
-      executeOperation: async () => {
+      executeOperation: () => {
         throw new Error(
           'operation "dealsAdd" is outside this workflow\'s policy',
         );
       },
-      runJudgment: async () => ({ intent: 'order', productName: 'Chair' }),
+      runJudgment: () =>
+        Promise.resolve({ intent: 'order', productName: 'Chair' }),
     };
 
-    const result: any = await run(linearDef(), deps, { text: 'hi' });
+    const result = await run(linearDef(), deps, { text: 'hi' });
     expect(result.status).toBe('failed');
     expect(String(result.error?.message || result.error)).toMatch(
       /outside this workflow's policy/,
@@ -209,28 +216,28 @@ describe('workflow compiler — linear', () => {
 
   it('refuses to compile an invalid definition', () => {
     const bad = linearDef();
-    (bad.steps[0] as any).agentRef = 'ghost';
+    (bad.steps[0] as { agentRef: string }).agentRef = 'ghost';
     expect(() =>
       compileDefinition('bad_wf', bad, {
-        executeOperation: async () => ({}),
-        runJudgment: async () => ({}),
+        executeOperation: () => Promise.resolve({}),
+        runJudgment: () => Promise.resolve({}),
       }),
     ).toThrow(/Cannot compile invalid definition/);
   });
 });
 
 describe('workflow compiler — branch', () => {
-  const mkDeps = (intent: string, ops: any[]): CompiledDeps => ({
-    executeOperation: async (operation, args) => {
+  const mkDeps = (intent: string, ops: RecordedOp[]): CompiledDeps => ({
+    executeOperation: (operation, args) => {
       ops.push({ operation, args });
-      return { _id: `${operation}-id` };
+      return Promise.resolve({ _id: `${operation}-id` });
     },
-    runJudgment: async () => ({ intent }),
+    runJudgment: () => Promise.resolve({ intent }),
   });
 
   it('takes the first matching arm and records it on the branch output', async () => {
-    const ops: any[] = [];
-    const result: any = await run(branchDef(), mkDeps('order', ops), {
+    const ops: RecordedOp[] = [];
+    const result = await run(branchDef(), mkDeps('order', ops), {
       text: 'buy',
     });
 
@@ -245,8 +252,8 @@ describe('workflow compiler — branch', () => {
   });
 
   it('routes to a later arm when earlier conditions are false', async () => {
-    const ops: any[] = [];
-    const result: any = await run(branchDef(), mkDeps('complaint', ops), {
+    const ops: RecordedOp[] = [];
+    const result = await run(branchDef(), mkDeps('complaint', ops), {
       text: 'bad',
     });
 
@@ -257,8 +264,8 @@ describe('workflow compiler — branch', () => {
   });
 
   it('falls through to else when no condition matches', async () => {
-    const ops: any[] = [];
-    const result: any = await run(branchDef(), mkDeps('question', ops), {
+    const ops: RecordedOp[] = [];
+    const result = await run(branchDef(), mkDeps('question', ops), {
       text: '?',
     });
 
@@ -268,9 +275,9 @@ describe('workflow compiler — branch', () => {
 
   it('passes state through untouched when no arm matches and there is no else', async () => {
     const def = branchDef();
-    delete (def.steps[1] as any).else;
-    const ops: any[] = [];
-    const result: any = await run(def, mkDeps('question', ops), { text: '?' });
+    delete (def.steps[1] as { else?: unknown }).else;
+    const ops: RecordedOp[] = [];
+    const result = await run(def, mkDeps('question', ops), { text: '?' });
 
     expect(result.status).toBe('success');
     expect(ops.map((o) => o.operation)).toEqual(['notify']);
@@ -278,12 +285,12 @@ describe('workflow compiler — branch', () => {
 
   it('propagates an arm failure to the whole run', async () => {
     const deps: CompiledDeps = {
-      executeOperation: async () => {
+      executeOperation: () => {
         throw new Error('boom inside arm');
       },
-      runJudgment: async () => ({ intent: 'order' }),
+      runJudgment: () => Promise.resolve({ intent: 'order' }),
     };
-    const result: any = await run(branchDef(), deps, { text: 'buy' });
+    const result = await run(branchDef(), deps, { text: 'buy' });
     expect(result.status).toBe('failed');
     expect(String(result.error?.message || result.error)).toMatch(
       /boom inside arm/,
@@ -293,16 +300,16 @@ describe('workflow compiler — branch', () => {
 
 describe('workflow compiler — parallel', () => {
   it('fans out with the same input state and merges member outputs', async () => {
-    const ops: any[] = [];
+    const ops: RecordedOp[] = [];
     const deps: CompiledDeps = {
-      executeOperation: async (operation, args) => {
+      executeOperation: (operation, args) => {
         ops.push({ operation, args });
-        return { n: operation.length };
+        return Promise.resolve({ n: operation.length });
       },
-      runJudgment: async () => ({}),
+      runJudgment: () => Promise.resolve({}),
     };
 
-    const result: any = await run(parallelDef(), deps, {});
+    const result = await run(parallelDef(), deps, {});
 
     expect(result.status).toBe('success');
     expect(
@@ -310,14 +317,14 @@ describe('workflow compiler — parallel', () => {
     ).toEqual(['companies', 'customers', 'merge']);
     // Post-parallel step read BOTH members' outputs from merged state.
     const merge = ops.find((o) => o.operation === 'merge');
-    expect(merge.args).toEqual({
+    expect(merge?.args).toEqual({
       a: 'customers'.length,
       b: 'companies'.length,
     });
     expect(finalOutput(parallelDef(), result.result)).toEqual({
       n: 'merge'.length,
     }); // last step's output
-    expect(result.result.steps.fan.output).toEqual({
+    expect(result.result?.steps.fan.output).toEqual({
       completed: ['fetchA', 'fetchB'],
     });
   });

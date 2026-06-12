@@ -4,7 +4,23 @@ import type {
   OperationMeta,
 } from '../../tools/operationRegistry';
 
-const validDef = () => ({
+/** A freely mutable draft step — tests rewrite arbitrary fields on it. */
+interface DraftStep {
+  id: string;
+  type: string;
+  [key: string]: unknown;
+}
+
+/** A freely mutable draft definition for exercising validateDefinition. */
+interface DraftDefinition {
+  trigger: { type: string; config: Record<string, unknown> };
+  policy: { mode: string; allowed: string[] };
+  bindings: Record<string, { kind: string; id: string }>;
+  limits: { maxLlmCalls: number };
+  steps: DraftStep[];
+}
+
+const validDef = (): DraftDefinition => ({
   trigger: { type: 'manual', config: {} },
   policy: { mode: 'all', allowed: [] },
   bindings: { judge: { kind: 'agent', id: 'a1' } },
@@ -42,7 +58,7 @@ const mkRegistry = (ops: Array<Partial<OperationMeta>>): OperationRegistry => {
         description: '',
         graphqlArgs: [],
         returnType: null,
-      }) as OperationMeta,
+      } as OperationMeta),
   );
   return {
     operations: new Map(list.map((o) => [o.operation, o])),
@@ -68,7 +84,7 @@ describe('workflow DSL', () => {
 
   it('rejects duplicate step ids', () => {
     const def = validDef();
-    (def.steps[1] as any).id = 'classify';
+    def.steps[1].id = 'classify';
     const result = validateDefinition(def);
     expect(result.errors.some((e) => /duplicate step id/.test(e.message))).toBe(
       true,
@@ -77,7 +93,7 @@ describe('workflow DSL', () => {
 
   it('rejects refs to steps that execute later', () => {
     const def = validDef();
-    (def.steps[0] as any).prompt = 'see {{steps.create.output.x}}';
+    def.steps[0].prompt = 'see {{steps.create.output.x}}';
     const result = validateDefinition(def);
     expect(
       result.errors.some((e) => /does not execute before/.test(e.message)),
@@ -86,7 +102,7 @@ describe('workflow DSL', () => {
 
   it('rejects unknown binding refs and non-agent bindings', () => {
     const def = validDef();
-    (def.steps[0] as any).agentRef = 'ghost';
+    def.steps[0].agentRef = 'ghost';
     const result = validateDefinition(def);
     expect(
       result.errors.some((e) => /no entry in bindings/.test(e.message)),
@@ -99,7 +115,7 @@ describe('workflow DSL', () => {
       id: 'gate',
       type: 'approval',
       message: 'ok?',
-    } as any);
+    });
     const result = validateDefinition(def);
     expect(
       result.errors.some((e) =>
@@ -110,7 +126,7 @@ describe('workflow DSL', () => {
 
   it('requires "end" to be the last step', () => {
     const def = validDef();
-    def.steps.unshift({ id: 'early', type: 'end' } as any);
+    def.steps.unshift({ id: 'early', type: 'end' });
     const result = validateDefinition(def);
     expect(
       result.errors.some((e) => /must be the last step/.test(e.message)),
@@ -131,7 +147,7 @@ describe('workflow DSL', () => {
 
   it('with a registry: rejects operations outside a custom policy', () => {
     const def = validDef();
-    (def.policy as any) = { mode: 'custom', allowed: ['plugin:frontline'] };
+    def.policy = { mode: 'custom', allowed: ['plugin:frontline'] };
     const result = validateDefinition(
       def,
       mkRegistry([{ operation: 'dealsAdd', plugin: 'sales', module: 'deals' }]),
@@ -145,7 +161,7 @@ describe('workflow DSL', () => {
 
   it('with a registry: accepts operations covered by plugin: policy entries', () => {
     const def = validDef();
-    (def.policy as any) = { mode: 'custom', allowed: ['plugin:sales'] };
+    def.policy = { mode: 'custom', allowed: ['plugin:sales'] };
     const result = validateDefinition(
       def,
       mkRegistry([{ operation: 'dealsAdd', plugin: 'sales', module: 'deals' }]),
@@ -158,14 +174,14 @@ describe('workflow DSL', () => {
     def.steps = Array.from({ length: MAX_STEPS + 1 }, (_, i) => ({
       id: `s${i}`,
       type: 'end',
-    })) as any;
+    }));
     const result = validateDefinition(def);
     expect(result.ok).toBe(false);
   });
 
   it('rejects malformed agent output field specs', () => {
     const def = validDef();
-    (def.steps[0] as any).outputSchema = { intent: 'object' };
+    def.steps[0].outputSchema = { intent: 'object' };
     const result = validateDefinition(def);
     expect(result.ok).toBe(false);
   });
@@ -201,7 +217,7 @@ describe('buildOutputZod', () => {
 describe('schedule trigger validation', () => {
   it('requires a cron expression on schedule triggers', () => {
     const def = validDef();
-    (def.trigger as any) = { type: 'schedule', config: {} };
+    def.trigger = { type: 'schedule', config: {} };
     const result = validateDefinition(def);
     expect(
       result.errors.some((e) => /requires config\.cron/.test(e.message)),
@@ -210,10 +226,10 @@ describe('schedule trigger validation', () => {
 
   it('accepts a 5-field cron and rejects garbage', () => {
     const def = validDef();
-    (def.trigger as any) = { type: 'schedule', config: { cron: '0 9 * * *' } };
+    def.trigger = { type: 'schedule', config: { cron: '0 9 * * *' } };
     expect(validateDefinition(def).ok).toBe(true);
 
-    (def.trigger as any) = {
+    def.trigger = {
       type: 'schedule',
       config: { cron: 'every morning' },
     };
@@ -228,7 +244,7 @@ describe('schedule trigger validation', () => {
 describe('review fixes', () => {
   it('rejects bracket-indexed refs as malformed (dot paths only)', () => {
     const def = validDef();
-    (def.steps[1] as any).args = { name: '{{steps.classify.output.items[0]}}' };
+    def.steps[1].args = { name: '{{steps.classify.output.items[0]}}' };
     const result = validateDefinition(def);
     expect(
       result.errors.some((e) => /malformed reference/.test(e.message)),
@@ -241,7 +257,7 @@ describe('review fixes', () => {
       id: 'pause',
       type: 'wait',
       duration: 1000,
-    } as any);
+    });
     const result = validateDefinition(def);
     expect(
       result.errors.some((e) =>
