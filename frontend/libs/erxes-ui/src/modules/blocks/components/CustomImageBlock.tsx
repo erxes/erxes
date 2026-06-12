@@ -12,7 +12,7 @@ import {
 } from '@blocknote/react';
 import { IconPhoto } from '@tabler/icons-react';
 import { CSSProperties, FC, useEffect, useState } from 'react';
-import { Dialog, Spinner } from 'erxes-ui/components';
+import { Spinner } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
 
 const IMAGE_STYLES = ['normal', 'wide', 'float-left', 'float-right'] as const;
@@ -39,16 +39,13 @@ const getImageStyle = (value?: string): ImageStyle =>
 
 const getImageStyleClasses = (imageStyle: ImageStyle) => {
   switch (imageStyle) {
-    case 'wide':
-      return 'w-full max-w-[1080px]';
-    case 'float-left':
-      return 'max-w-[400px] w-full';
-    case 'float-right':
-      return 'max-w-[400px] w-full';
-    default:
-      return 'w-full max-w-[720px]';
+    case 'wide':        return 'w-full max-w-[1080px]';
+    case 'float-left':  return 'max-w-[400px] w-full';
+    case 'float-right': return 'max-w-[400px] w-full';
+    default:            return 'w-full max-w-[720px]';
   }
 };
+
 
 const getImageStyleFromElement = (element: HTMLElement): ImageStyle => {
   const explicitStyle =
@@ -89,7 +86,6 @@ const toFileBlockProps = (props: ImageRenderProps): FileBlockRenderProps =>
 const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
   const { loadingState, downloadUrl } = useResolveUrl(block.props.url ?? '');
   const [imgLoaded, setImgLoaded] = useState(false);
-  const [previewOpen, setPreviewOpen] = useState(false);
 
   const src = downloadUrl ?? block.props.url;
   const isResolving = loadingState === 'loading';
@@ -105,44 +101,20 @@ const CustomImagePreview: FC<FileBlockRenderProps> = ({ block }) => {
         </div>
       )}
       {!isResolving && src && (
-        <>
-          <button
-            type="button"
-            className={cn(
-              'bn-visual-media mx-auto cursor-pointer p-0 border-0 bg-transparent',
-              getImageStyleClasses(imageStyle),
-            )}
-            style={imgLoaded ? undefined : { display: 'none' }}
-            contentEditable={false}
-            onClick={(e) => {
-              e.stopPropagation();
-              setPreviewOpen(true);
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className="w-full h-auto block"
-              src={src}
-              alt={block.props.caption || block.props.name || ''}
-              draggable={false}
-              onLoad={() => setImgLoaded(true)}
-              onError={() => setImgLoaded(true)}
-            />
-          </button>
-          <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-            <Dialog.Content className="bg-transparent shadow-none p-0 border-0 max-w-fit">
-              <Dialog.Title className="sr-only">
-                {block.props.caption || block.props.name || 'Image preview'}
-              </Dialog.Title>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={src}
-                alt={block.props.caption || block.props.name || ''}
-                className="shadow-2xl rounded max-w-[90vw] max-h-[85vh] object-contain"
-              />
-            </Dialog.Content>
-          </Dialog>
-        </>
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          className={cn(
+            'bn-visual-media mx-auto',
+            getImageStyleClasses(imageStyle),
+          )}
+          src={src}
+          alt={block.props.caption || block.props.name || ''}
+          contentEditable={false}
+          draggable={false}
+          style={imgLoaded ? undefined : { display: 'none' }}
+          onLoad={() => setImgLoaded(true)}
+          onError={() => setImgLoaded(true)}
+        />
       )}
     </div>
   );
@@ -157,19 +129,9 @@ const getFloatContainerStyle = (
     maxWidth: `${maxWidth}px`,
   };
   if (imageStyle === 'float-left')
-    return {
-      ...base,
-      float: 'left',
-      marginRight: '1.25em',
-      marginBottom: '0.5em',
-    };
+    return { ...base, float: 'left', marginRight: '1.25em', marginBottom: '0.5em' };
   if (imageStyle === 'float-right')
-    return {
-      ...base,
-      float: 'right',
-      marginLeft: '1.25em',
-      marginBottom: '0.5em',
-    };
+    return { ...base, float: 'right', marginLeft: '1.25em', marginBottom: '0.5em' };
   return { ...base, margin: '0 auto' };
 };
 
@@ -227,10 +189,7 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
       (props.block.props as { previewWidth?: number }).previewWidth ||
       IMAGE_STYLE_PRESETS[imageStyle].maxWidth;
     const dir = imageStyle === 'float-left' ? 'left' : 'right';
-    const margin =
-      imageStyle === 'float-left'
-        ? 'margin-right:1.25em'
-        : 'margin-left:1.25em';
+    const margin = imageStyle === 'float-left' ? 'margin-right:1.25em' : 'margin-left:1.25em';
 
     const styleEl = document.createElement('style');
     styleEl.id = styleId;
@@ -238,11 +197,7 @@ const CustomImageBlockContent: FC<ImageRenderProps> = (props) => {
     document.head.appendChild(styleEl);
 
     return () => document.getElementById(styleId)?.remove();
-  }, [
-    props.block.id,
-    imageStyle,
-    (props.block.props as { previewWidth?: number }).previewWidth,
-  ]);
+  }, [props.block.id, imageStyle, (props.block.props as { previewWidth?: number }).previewWidth]);
 
   if (loading) {
     return (
