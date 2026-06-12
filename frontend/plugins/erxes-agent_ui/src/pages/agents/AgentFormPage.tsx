@@ -17,6 +17,7 @@ import {
   Label,
   Input,
   Separator,
+  Slider,
   Switch,
   Textarea,
   Tooltip,
@@ -91,6 +92,7 @@ export const AgentFormPage = () => {
     allowedTools: [] as string[],
     memoryEnabled: true,
     maxSteps: 10,
+    temperature: null as number | null,
     isEnabled: true,
   });
   const [autoSlug, setAutoSlug] = useState(true);
@@ -163,6 +165,7 @@ export const AgentFormPage = () => {
         allowedTools: a.allowedTools || [],
         memoryEnabled: a.memoryEnabled ?? true,
         maxSteps: a.maxSteps ?? 10,
+        temperature: a.temperature ?? null,
         isEnabled: a.isEnabled ?? true,
       });
       setAutoSlug(false);
@@ -760,6 +763,53 @@ export const AgentFormPage = () => {
                     <Tooltip.Content className="max-w-xs">
                       Prevents infinite loops. Raise this if the agent
                       frequently stops mid-task.
+                    </Tooltip.Content>
+                  </Tooltip>
+                </Tooltip.Provider>
+              </div>
+            </Field>
+
+            <Separator />
+
+            <Field
+              label="Temperature"
+              hint="Sampling randomness (0–2). Some models only accept a fixed value — e.g. Kimi thinking models require 1."
+            >
+              <div className="flex items-center gap-3">
+                <Slider
+                  min={0}
+                  max={2}
+                  step={0.1}
+                  value={[form.temperature ?? 1]}
+                  onValueChange={([v]: number[]) => set('temperature', v)}
+                  className="flex-1 max-w-xs"
+                />
+                <span className="w-16 text-sm tabular-nums text-muted-foreground">
+                  {form.temperature != null
+                    ? form.temperature.toFixed(1)
+                    : 'Default'}
+                </span>
+                {form.temperature != null && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() => set('temperature', null)}
+                  >
+                    Use default
+                  </Button>
+                )}
+                <Tooltip.Provider>
+                  <Tooltip>
+                    <Tooltip.Trigger asChild>
+                      <IconInfoCircle className="size-4 text-muted-foreground" />
+                    </Tooltip.Trigger>
+                    <Tooltip.Content className="max-w-xs">
+                      Lower values give more deterministic answers, higher
+                      values more creative ones. If the provider rejects the
+                      configured value (e.g. &quot;only 1 is allowed&quot;), set
+                      it to the value the model requires.
                     </Tooltip.Content>
                   </Tooltip>
                 </Tooltip.Provider>
