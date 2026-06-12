@@ -13,9 +13,9 @@ import { InventoryProductsPage } from '~/pages/msdynamic/InventoryProductsPage';
 import { InventoryCategoryPage } from '~/pages/msdynamic/InventoryCategoryPage';
 import { InventoryPricePage } from '~/pages/msdynamic/InventoryPricePage';
 import { CheckSyncedOrdersPage } from '~/pages/msdynamic/CheckSyncedOrdersPage';
-import { SyncHistoryListPage } from '~/pages/msdynamic/SyncHistoryPage';
 import { PosOrderDetailsPage } from '~/pages/msdynamic/PosOrderDetailsPage';
 import MsdynamicLayout from '~/pages/msdynamic/MsdynamicLayout';
+import { MSDynamicSyncHistoryPage } from '~/pages/msdynamic/MSDynamicSyncHistoryPage';
 
 const MongolianMain = () => {
   return (
@@ -42,10 +42,8 @@ const MongolianMain = () => {
         {/* MSDYNAMIC */}
         <Route path="msdynamic" element={<MsdynamicLayout />}>
           <Route index element={<Navigate to="sync-history" replace />} />
-
-          <Route path="sync-history" element={<SyncHistoryListPage />} />
+          <Route path="sync-history" element={<MSDynamicSyncHistoryPage />} />
           <Route path="synced-orders" element={<CheckSyncedOrdersPage />} />
-
           <Route path="customers" element={<CustomersPage />} />
           <Route path="products" element={<InventoryProductsPage />} />
           <Route path="categories" element={<InventoryCategoryPage />} />

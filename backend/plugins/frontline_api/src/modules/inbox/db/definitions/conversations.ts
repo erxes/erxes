@@ -104,3 +104,6 @@ conversationSchema.index({ createdAt: 1, integrationId: 1 });
 conversationSchema.index({ createdAt: 1, assignedUserId: 1 });
 conversationSchema.index({ createdAt: 1, status: 1 });
 conversationSchema.index({ closedAt: 1, status: 1 });
+conversationSchema.index({ status: 1, updatedAt: -1, _id: -1 });
+conversationSchema.index({ integrationId: 1, updatedAt: -1, _id: -1 });
+conversationSchema.index({ assignedUserId: 1, updatedAt: -1, _id: -1 });

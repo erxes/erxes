@@ -3,6 +3,12 @@ import { activePluginState, NavigationMenuGroup, Sidebar } from 'erxes-ui';
 import { usePluginsNavigationGroups } from '../hooks/usePluginsNavigationGroups';
 import { useAtom } from 'jotai';
 
+// Group names that contain spaces or uppercase are explicit display labels
+// (e.g. "erxes AI Agents") — render them verbatim. Plain identifiers like
+// "sales" keep the historical first-letter capitalization.
+const displayName = (name: string) =>
+  /[\sA-Z]/.test(name) ? name : name.charAt(0).toUpperCase() + name.slice(1);
+
 export const NavigationPluginExitButton = () => {
   const [activePlugin, setActivePlugin] = useAtom(activePluginState);
 
@@ -17,7 +23,7 @@ export const NavigationPluginExitButton = () => {
           <Sidebar.MenuButton onClick={() => setActivePlugin(null)}>
             <IconChevronLeft className="text-accent-foreground" />
             <span className="font-sans font-semibold text-accent-foreground">
-              Exit {activePlugin}
+              Exit {displayName(activePlugin)}
             </span>
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
@@ -40,11 +46,7 @@ export const NavigationPlugins = () => {
     return (
       <>
         <NavigationMenuGroup
-          name={
-            activePlugin.charAt(0).toUpperCase() +
-            activePlugin.slice(1) +
-            ' modules'
-          }
+          name={`${displayName(activePlugin)} modules`}
           separate
         >
           {navigationGroups[activePlugin].contents.map((Content, index) => (
@@ -64,7 +66,7 @@ export const NavigationPlugins = () => {
         <Sidebar.MenuItem key={name}>
           <Sidebar.MenuButton onClick={() => setActivePlugin(name)}>
             {group.icon && <group.icon className="text-accent-foreground" />}
-            <span className="capitalize">{name}</span>
+            <span>{displayName(name)}</span>
           </Sidebar.MenuButton>
         </Sidebar.MenuItem>
       ))}

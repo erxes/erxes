@@ -40,7 +40,13 @@ export const PostsRecordTable = ({
     [clientPortalId, cmsData?.contentCMSList],
   );
   const columns = usePostsColumns(onEditPost, refetch, cmsConfig);
-  if (loading) return <Spinner />;
+
+  if (loading && (!posts || posts.length === 0)) return <Spinner />;
+
+  if (!loading && (!posts || posts.length === 0)) {
+    return <PostsEmptyState clientPortalId={clientPortalId} />;
+  }
+
   return (
     <RecordTable.Provider
       columns={columns}
@@ -67,9 +73,6 @@ export const PostsRecordTable = ({
             />
           </RecordTable.Body>
         </RecordTable>
-        {!loading && posts?.length === 0 && (
-          <PostsEmptyState clientPortalId={clientPortalId} />
-        )}
       </RecordTable.CursorProvider>
       <PostsCommandbar refetch={refetch} />
     </RecordTable.Provider>

@@ -12,9 +12,12 @@ export function FileUploadMainFields({
   form: UseFormReturn<UploadConfigFormT>;
   fileMimeTypesOptions: any[];
 }) {
-  const { t } = useTranslation('settings',{
-    keyPrefix : ('file-upload')
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'file-upload',
   });
+
+  const selectorBadgeClassName =
+    'max-w-full h-auto min-h-7 inline-grid grid-cols-[minmax(0,1fr)_auto] items-center whitespace-normal break-all pe-1 [overflow-wrap:anywhere] [&>button]:static [&>button]:ms-1 [&>button]:shrink-0';
 
   return (
     <div className="grid grid-cols-1 gap-4">
@@ -28,6 +31,7 @@ export function FileUploadMainFields({
               <MultipleSelector
                 {...field}
                 options={fileMimeTypesOptions}
+                badgeClassName={selectorBadgeClassName}
                 placeholder="Select option"
                 hideClearAllButton
                 hidePlaceholderWhenSelected
@@ -50,6 +54,7 @@ export function FileUploadMainFields({
               <MultipleSelector
                 {...field}
                 options={fileMimeTypesOptions}
+                badgeClassName={selectorBadgeClassName}
                 placeholder="Select option"
                 hideClearAllButton
                 hidePlaceholderWhenSelected

@@ -15,6 +15,7 @@ export const GET_CLIENT_PORTAL_USER = gql`
       companyRegistrationNumber
       clientPortalId
       erxesCustomerId
+      erxesCompanyId
       isVerified
       isPhoneVerified
       isEmailVerified
@@ -22,7 +23,11 @@ export const GET_CLIENT_PORTAL_USER = gql`
       accountLockedUntil
       lastLoginAt
       primaryAuthMethod
-      fcmTokens { deviceId token platform }
+      fcmTokens {
+        deviceId
+        token
+        platform
+      }
       createdAt
       updatedAt
     }

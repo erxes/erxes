@@ -50,6 +50,7 @@ export interface ICPUserModel extends Model<ICPUserDocument> {
       companyName?: string;
       companyRegistrationNumber?: string;
       erxesCustomerId?: string;
+      erxesCompanyId?: string;
     },
     models: IModels,
   ): Promise<ICPUserDocument>;

@@ -1,21 +1,19 @@
 import { Outlet } from 'react-router-dom';
-import MsdynamicTopNav from '@/msdynamic/components/MsdynamicTopNav';
+import { PageContainer } from 'erxes-ui';
+import { MSDynamicSidebar } from '~/modules/msdynamic/components/MSDynamicSidebar';
+import MsdynamicTopNav from '~/modules/msdynamic/components/MsdynamicTopNav';
 
 const MsdynamicLayout = () => {
   return (
-    <div style={{ padding: 20 }}>
+    <PageContainer>
       <MsdynamicTopNav />
-
-      <div
-        style={{
-          background: '#fff',
-          borderRadius: 8,
-          padding: 20,
-        }}
-      >
-        <Outlet />
+      <div className="flex min-h-0 flex-1 overflow-hidden">
+        <MSDynamicSidebar />
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+          <Outlet />
+        </div>
       </div>
-    </div>
+    </PageContainer>
   );
 };
 
