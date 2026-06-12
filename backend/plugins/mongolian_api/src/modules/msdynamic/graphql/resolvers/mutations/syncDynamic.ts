@@ -20,7 +20,10 @@ const normalizeDynamicConfigs = (configsMap: Record<string, any>) => {
   }, {});
 };
 
-const pickDynamicConfig = (configsMap: Record<string, any>, brandId?: string) => {
+const pickDynamicConfig = (
+  configsMap: Record<string, any>,
+  brandId?: string,
+) => {
   const hasSelectedBrand = brandId && brandId !== 'noBrand';
   const config = hasSelectedBrand
     ? configsMap[brandId]

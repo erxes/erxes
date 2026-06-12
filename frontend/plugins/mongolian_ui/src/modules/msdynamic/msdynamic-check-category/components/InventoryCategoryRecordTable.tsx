@@ -13,8 +13,7 @@ const categoryActions: Record<CategoryFilterType, InventoryCategoryAction> = {
 };
 
 export const InventoryCategoryRecordTable = () => {
-  const { items, loading, selectedFilter, toSyncCategory } =
-    useCheckCategory();
+  const { items, loading, selectedFilter, toSyncCategory } = useCheckCategory();
   const { sessionKey } = useMSDynamicSessionKey('categories');
   const action = categoryActions[selectedFilter];
   const data = items?.[selectedFilter]?.items || [];
