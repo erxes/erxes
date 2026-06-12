@@ -141,9 +141,8 @@ export const fetchEs = async ({
               body.query.bool.must.push(extraQuery);
             } else {
               body.query.bool.must = [body.query.bool.must, extraQuery];
-  }
-}
-
+            }
+          }
         }
       }
 
